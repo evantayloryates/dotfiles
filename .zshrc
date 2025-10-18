@@ -1,7 +1,7 @@
 echo "Hello from zshrc!"
 export SHELL=$(which zsh)
 alias loog="cat $HOME/log.txt"
-
+alias ls='ls -AGhlo'
 # Enable zsh line editor and key bindings
 autoload -Uz compinit && compinit
 
