@@ -457,4 +457,12 @@ fi
 
 log ""
 log "Installation completed at: $(date)"
-log "VERSION: 1.6.0"
+log "VERSION: 1.8.0"
+
+# Automatically switch this terminal to zsh if it's interactive
+if [ -t 0 ] && [ -t 1 ]; then
+    log ""
+    log "🔄 Switching this terminal to zsh..."
+    sleep 1
+    exec "$ZSH_PATH" -l
+fi
