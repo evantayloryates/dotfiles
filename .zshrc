@@ -1,5 +1,5 @@
 #!/bin/zsh
-export SHOULD_LOG=0
+export SHOULD_LOG=1
 
 log() {
   local msg="[$(date '+%Y-%m-%d %H:%M:%S')] $*"
