@@ -1,7 +1,10 @@
 #!/bin/zsh
 # Common aliases
 
+alias loog="cat $HOME/log.txt"
+alias ls='ls -AGhlo'
 alias hello='echo "Hello, World!"'
+
 # Directory navigation
 alias ..='cd ..'
 alias ...='cd ../..'

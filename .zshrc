@@ -1,19 +1,9 @@
 #!/bin/zsh
-# Dotfiles zshrc for Linux devcontainers
-
-echo "Hello from zshrc!"
-
-# Use whatever TERM the container/VS Code sets - don't override
-# (Overriding TERM without matching terminfo causes display issues)
 
 # Find and use the best available zsh
 if [[ -n "$(command -v zsh)" ]]; then
     export SHELL="$(command -v zsh)"
 fi
-
-# Aliases
-alias loog="cat $HOME/log.txt"
-alias ls='ls -AGhlo'
 
 # Setup dotfiles sync (only initialize if not already set)
 export LIVE_DOTFILES_REPO_DIR="${LIVE_DOTFILES_REPO_DIR:-$HOME/.live-dotfiles}"
