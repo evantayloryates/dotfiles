@@ -4,8 +4,6 @@ alias l="cat $HOME/log.txt"
 
 # Enable zsh line editor and key bindings
 autoload -Uz compinit && compinit
-zle -N zle-line-init
-zle -N zle-keymap-select
 
 # Set up key bindings for terminal
 bindkey -e  # Use emacs key bindings (can change to -v for vi mode)
