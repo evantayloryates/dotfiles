@@ -68,18 +68,33 @@ else
 fi
 
 # --- Change default shell ---
-CURRENT_SHELL=$(getent passwd "$USER" | cut -d: -f7)
+log "Attempting to change default shell..."
+CURRENT_SHELL=$(getent passwd "$USER" 2>/dev/null | cut -d: -f7 || echo "unknown")
+log "Current shell detected as: $CURRENT_SHELL"
+
 if [[ "$CURRENT_SHELL" != "$ZSH_PATH" ]]; then
   log "Changing default shell to zsh..."
-  try_sudo usermod -s "$ZSH_PATH" "$USER" 2>/dev/null || chsh -s "$ZSH_PATH" "$USER" 2>/dev/null || log "Could not change shell automatically. Please run: chsh -s $ZSH_PATH"
+  if try_sudo usermod -s "$ZSH_PATH" "$USER" 2>/dev/null; then
+    log "Successfully changed shell using usermod"
+  elif chsh -s "$ZSH_PATH" "$USER" 2>/dev/null; then
+    log "Successfully changed shell using chsh"
+  else
+    log "Could not change shell automatically. Please run: chsh -s $ZSH_PATH"
+  fi
 else
   log "zsh is already the default shell."
 fi
 
 # --- Set SHELL environment variable persistently ---
+log "Setting SHELL environment variable..."
 if [[ -d /etc/profile.d ]]; then
-  log "Setting SHELL environment variable globally."
-  echo "export SHELL=$ZSH_PATH" | try_sudo tee /etc/profile.d/zsh-default.sh >/dev/null
+  log "Attempting to set SHELL globally in /etc/profile.d"
+  if echo "export SHELL=$ZSH_PATH" | try_sudo tee /etc/profile.d/zsh-default.sh >/dev/null 2>&1; then
+    log "Successfully set SHELL globally"
+  else
+    log "Failed to set SHELL globally, falling back to ~/.profile"
+    echo "export SHELL=$ZSH_PATH" >> "$HOME/.profile"
+  fi
 else
   log "Setting SHELL in ~/.profile"
   echo "export SHELL=$ZSH_PATH" >> "$HOME/.profile"
