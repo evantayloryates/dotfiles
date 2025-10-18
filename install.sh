@@ -303,25 +303,35 @@ else
     log "  DOTFILES_REPO_PATH already in .zshrc"
 fi
 
-# Always add auto-launch to .bashrc as a fallback
+# Always add auto-launch to shell rc files as a fallback
 # (VS Code/Cursor terminals don't always respect /etc/passwd shell changes)
 log ""
-log "🔧 Adding zsh auto-launch to .bashrc..."
+log "🔧 Adding zsh auto-launch to shell rc files..."
 
-if [ -f "$HOME/.bashrc" ]; then
-    # Check if we already added the zsh launcher
-    if ! grep -q "# Auto-launch zsh" "$HOME/.bashrc" 2>/dev/null; then
-        cat >> "$HOME/.bashrc" << 'EOF'
-
+ZSH_LAUNCH_CODE='
 # Auto-launch zsh (added by dotfiles installer)
 if [ -t 1 ] && command -v zsh &> /dev/null; then
     export SHELL=$(which zsh)
     exec zsh
+fi'
+
+# Add to .profile (sourced by sh/dash/bash login shells)
+if [ -f "$HOME/.profile" ]; then
+    if ! grep -q "# Auto-launch zsh" "$HOME/.profile" 2>/dev/null; then
+        echo "$ZSH_LAUNCH_CODE" >> "$HOME/.profile"
+        log "✅ Added zsh auto-launch to .profile"
+    else
+        log "  Auto-launch already in .profile"
+    fi
 fi
-EOF
+
+# Add to .bashrc (sourced by interactive bash shells)
+if [ -f "$HOME/.bashrc" ]; then
+    if ! grep -q "# Auto-launch zsh" "$HOME/.bashrc" 2>/dev/null; then
+        echo "$ZSH_LAUNCH_CODE" >> "$HOME/.bashrc"
         log "✅ Added zsh auto-launch to .bashrc"
     else
-        log "  Auto-launch already configured in .bashrc"
+        log "  Auto-launch already in .bashrc"
     fi
 fi
 
