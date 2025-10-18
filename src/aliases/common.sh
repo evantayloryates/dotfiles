@@ -1,7 +1,7 @@
 #!/bin/zsh
 # Common aliases
 
-alias hello='echo "Hello, World!"'
+alias hello='echo "Hello, World AGAIN!"'
 # Directory navigation
 alias ..='cd ..'
 alias ...='cd ../..'
