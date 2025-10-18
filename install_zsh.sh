@@ -297,31 +297,12 @@ if ! grep -q "^ENV=" /etc/environment 2>/dev/null; then
 fi
 
 # Nuclear option: Replace /bin/sh with a zsh-aware wrapper
-# This works even when devcontainer hardcodes /bin/sh
-if [[ ! -f /bin/sh.real ]]; then
-  log "Replacing /bin/sh with zsh auto-exec wrapper"
-  sudo mv /bin/sh /bin/sh.real 2>/dev/null && \
-  sudo tee /bin/sh >/dev/null 2>&1 << 'WRAPPER_EOF' && \
-  sudo chmod +x /bin/sh && \
-  log "✅ /bin/sh wrapper installed" || \
-  log "⚠️  Could not replace /bin/sh"
-#!/bin/sh.real
-# Auto-exec zsh wrapper (added by install_zsh.sh)
-if [ -z "$ZSH_VERSION" ] && [ -t 1 ] && [ -z "$_SH_WRAPPER_RUNNING" ]; then
-  export _SH_WRAPPER_RUNNING=1
-  for zsh_candidate in \
-    "$HOME/dotfiles/local/zsh-"*/bin/zsh \
-    "$HOME/dotfiles/local/bin/zsh"
-  do
-    if [ -x "$zsh_candidate" ]; then
-      exec "$zsh_candidate" -l
-    fi
-  done
-fi
-# Fall back to real sh for non-interactive or if zsh not found
-exec /bin/sh.real "$@"
-WRAPPER_EOF
-fi
+# DISABLED - This can cause recursive shell issues and terminal corruption
+# if [[ ! -f /bin/sh.real ]]; then
+#   log "Replacing /bin/sh with zsh auto-exec wrapper"
+#   ...
+# fi
+log "Skipping /bin/sh wrapper (can cause terminal issues)"
 
 # Also add to user rc files as fallback
 for rcfile in "$HOME/.bashrc" "$HOME/.profile"; do

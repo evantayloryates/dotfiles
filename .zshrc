@@ -1,16 +1,26 @@
+#!/bin/zsh
+# Dotfiles zshrc for Linux devcontainers
+
 echo "Hello from zshrc!"
-export SHELL=$(which zsh)
+
+# Find and use the best available zsh
+if [[ -n "$(command -v zsh)" ]]; then
+    export SHELL="$(command -v zsh)"
+fi
+
+# Aliases
 alias loog="cat $HOME/log.txt"
 alias ls='ls -AGhlo'
-# Enable zsh line editor and key bindings
+
+# Initialize completion system
 autoload -Uz compinit && compinit
 
-# Set up key bindings for terminal
-bindkey -e  # Use emacs key bindings (can change to -v for vi mode)
+# Use emacs key bindings
+bindkey -e
 
-# Explicitly bind common keys - try multiple variations for compatibility
+# Key bindings for common keys
 bindkey "^?" backward-delete-char      # Backspace (DEL)
-bindkey "^H" backward-delete-char      # Backspace (BS)
+bindkey "^H" backward-delete-char      # Backspace (BS)  
 bindkey "^[[3~" delete-char            # Delete
 bindkey "^[[H" beginning-of-line       # Home
 bindkey "^[[F" end-of-line             # End
@@ -20,16 +30,13 @@ bindkey "^[[A" up-line-or-history      # Up arrow
 bindkey "^[[B" down-line-or-history    # Down arrow
 bindkey "^[[C" forward-char            # Right arrow
 bindkey "^[[D" backward-char           # Left arrow
-bindkey "^[[3;5~" delete-char          # Ctrl+Delete
-
-# Fix common terminal issues (stty sometimes causes issues in containers)
-# stty erase '^?'  # Tell the terminal driver that backspace is DEL
 
 # Setup dotfiles sync
 export LIVE_DOTFILES_REPO_DIR="$HOME/.live-dotfiles"
 export LATEST_DOTFILES_COMMIT=""
 
 # Source and run sync_dotfiles function
-# TEMPORARILY DISABLED FOR DEBUGGING
-# source "$HOME/dotfiles/sync_dotfiles.sh"
-# sync_dotfiles
+if [[ -f "$HOME/dotfiles/sync_dotfiles.sh" ]]; then
+    source "$HOME/dotfiles/sync_dotfiles.sh"
+    sync_dotfiles
+fi
