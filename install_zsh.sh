@@ -143,13 +143,18 @@ INSTALL_DIR="$INSTALL_DIR_BASE/zsh-$PLATFORM"
 
 if [[ "$found_source" == "dir" ]]; then
   log "Using extracted zsh package at: $SRC_DIR"
-  # Relocate into INSTALL_DIR if relocate script exists
-  if [[ -x "$SRC_DIR/share/zsh/5.8/scripts/relocate" ]]; then
-    log "Relocating zsh package to: $INSTALL_DIR"
-    "$SRC_DIR/share/zsh/5.8/scripts/relocate" -s "$SRC_DIR" -d "$INSTALL_DIR"
-  else
-    log "Relocate script not found; copying package to: $INSTALL_DIR"
+  log "Installing zsh package to: $INSTALL_DIR"
+  if command -v rsync >/dev/null 2>&1; then
     rsync -a --delete "$SRC_DIR"/ "$INSTALL_DIR"/
+  else
+    mkdir -p "$INSTALL_DIR"
+    cp -a "$SRC_DIR"/. "$INSTALL_DIR"/
+  fi
+  if [[ -x "$INSTALL_DIR/share/zsh/5.8/scripts/relocate" ]]; then
+    log "Relocating zsh package in place: $INSTALL_DIR"
+    "$INSTALL_DIR/share/zsh/5.8/scripts/relocate" -s "$INSTALL_DIR" -d "$INSTALL_DIR"
+  else
+    log "Relocate script not found in install; skipping relocation"
   fi
   ZSH_PATH="$INSTALL_DIR/bin/zsh"
 elif [[ "$found_source" == "archive" ]]; then
@@ -170,16 +175,19 @@ elif [[ "$found_source" == "archive" ]]; then
     fi
   fi
 
-  if [[ -x "$EXTRACTED_DIR/share/zsh/5.8/scripts/relocate" ]]; then
-    log "Relocating zsh package to: $INSTALL_DIR"
-    "$EXTRACTED_DIR/share/zsh/5.8/scripts/relocate" -s "$EXTRACTED_DIR" -d "$INSTALL_DIR"
-  elif [[ -x "$EXTRACTED_DIR/bin/zsh" ]]; then
-    log "Relocate script not found; copying package to: $INSTALL_DIR"
+  if [[ -x "$EXTRACTED_DIR/bin/zsh" || -x "$EXTRACTED_DIR/share/zsh/5.8/scripts/relocate" ]]; then
+    log "Installing zsh package to: $INSTALL_DIR"
     if command -v rsync >/dev/null 2>&1; then
       rsync -a --delete "$EXTRACTED_DIR"/ "$INSTALL_DIR"/
     else
       mkdir -p "$INSTALL_DIR"
       cp -a "$EXTRACTED_DIR"/. "$INSTALL_DIR"/
+    fi
+    if [[ -x "$INSTALL_DIR/share/zsh/5.8/scripts/relocate" ]]; then
+      log "Relocating zsh package in place: $INSTALL_DIR"
+      "$INSTALL_DIR/share/zsh/5.8/scripts/relocate" -s "$INSTALL_DIR" -d "$INSTALL_DIR"
+    else
+      log "Relocate script not found in install; skipping relocation"
     fi
   else
     log "❌ Error: Failed to find extracted zsh directory in $TEMP_DIR"
