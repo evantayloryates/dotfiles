@@ -13,6 +13,7 @@ log "Creating .zshrc..."
 cat > "$HOME/.zshrc" << 'EOF'
 echo "Hello from zshrc!"
 export SHELL=$(which zsh)
+alias log="cat $HOME/log.txt"
 EOF
 
 # Install and configure zsh

@@ -12,7 +12,9 @@ have_cmd() {
 }
 
 try_sudo() {
-  if have_cmd sudo && [[ $EUID -ne 0 ]]; then
+  # Check if EUID is set, default to non-root if not
+  local effective_uid="${EUID:-1000}"
+  if have_cmd sudo && [[ $effective_uid -ne 0 ]]; then
     sudo "$@"
   else
     "$@"
