@@ -23,11 +23,11 @@ if [[ -z "$LATEST_DOTFILES_COMMIT" && -f "$HOME/.dotfiles_commit" ]]; then
     export LATEST_DOTFILES_COMMIT="$(cat "$HOME/.dotfiles_commit" 2>/dev/null)"
 fi
 
-# # Source and run sync_dotfiles function
-# if [[ -f "$HOME/dotfiles/sync_dotfiles.sh" ]]; then
-#     source "$HOME/dotfiles/sync_dotfiles.sh"
-#     sync_dotfiles
-# fi
+# Source and run sync_dotfiles function
+if [[ -f "$HOME/dotfiles/sync_dotfiles.sh" ]]; then
+    source "$HOME/dotfiles/sync_dotfiles.sh"
+    sync_dotfiles
+fi
 
 # Initialize completion system (AFTER syncing)
 autoload -Uz compinit && compinit
