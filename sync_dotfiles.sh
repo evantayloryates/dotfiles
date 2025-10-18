@@ -1,10 +1,10 @@
 #!/bin/zsh
 # Sync dotfiles from remote repository
 
-# Log function
 log() {
   local msg="[$(date '+%Y-%m-%d %H:%M:%S')] $*"
-  echo "$msg" | tee -a "$HOME/log.txt"
+  echo "$msg"
+  echo "$msg" >> "$HOME/log.txt"
 }
 
 sync_dotfiles() {

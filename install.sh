@@ -1,10 +1,11 @@
 #!/bin/bash
 
-# Log function
 log() {
   local msg="[$(date '+%Y-%m-%d %H:%M:%S')] $*"
-  echo "$msg" | tee -a "$HOME/log.txt"
+  echo "$msg"
+  echo "$msg" >> "$HOME/log.txt"
 }
+
 
 # Install zsh and configure auto-exec hooks
 bash "$(dirname "$0")/install_zsh.sh"

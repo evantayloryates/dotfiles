@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Log function
 log() {
   local msg="[$(date '+%Y-%m-%d %H:%M:%S')] $*"
-  echo "$msg" | tee -a "$HOME/log.txt"
+  echo "$msg"
+  echo "$msg" >> "$HOME/log.txt"
 }
 
 # Install ncurses-term and system zsh for terminal definitions (fixes backspace display issues)

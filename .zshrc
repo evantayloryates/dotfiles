@@ -1,6 +1,5 @@
 #!/bin/zsh
 
-# Log function
 log() {
   local msg="[$(date '+%Y-%m-%d %H:%M:%S')] $*"
   echo "$msg"
