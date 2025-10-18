@@ -194,16 +194,37 @@ grep "^$(whoami):" /etc/passwd | tee -a "$LOG_FILE"
 log ""
 
 # Set SHELL environment variable persistently for all sessions
-log "🔧 Setting SHELL environment variable..."
+log "🔧 Setting SHELL environment variable and auto-launch..."
 if [ "$CAN_SUDO" = true ]; then
-    # Try to create a profile.d script (system-wide)
+    # Create profile.d script for login shells
     if [ -d /etc/profile.d ]; then
         log "  Creating /etc/profile.d/zsh-default.sh..."
-        echo "export SHELL=$ZSH_PATH" | sudo tee /etc/profile.d/zsh-default.sh >> "$LOG_FILE" 2>&1
+        cat << EOF | sudo tee /etc/profile.d/zsh-default.sh >> "$LOG_FILE" 2>&1
+export SHELL=$ZSH_PATH
+export ENV=\$HOME/.shrc
+EOF
         sudo chmod +x /etc/profile.d/zsh-default.sh >> "$LOG_FILE" 2>&1
-        log "  ✅ Created profile.d script for SHELL variable"
+        log "  ✅ Created profile.d script"
+    fi
+    
+    # Create system-wide environment file for ALL shells
+    log "  Creating /etc/environment.d/zsh.conf (if supported)..."
+    if [ -d /etc/environment.d ]; then
+        echo "SHELL=$ZSH_PATH" | sudo tee /etc/environment.d/zsh.conf >> "$LOG_FILE" 2>&1
+        log "  ✅ Created environment.d config"
     fi
 fi
+
+# Create .shrc for dash/sh interactive shells (sourced via ENV variable)
+log "  Creating ~/.shrc for non-login shells..."
+cat > "$HOME/.shrc" << 'EOF'
+# Auto-launch zsh for interactive sh/dash shells
+if [ -t 1 ] && [ "$0" != "-zsh" ] && [ "$0" != "zsh" ] && command -v zsh >/dev/null 2>&1; then
+    export SHELL=$(command -v zsh)
+    exec zsh
+fi
+EOF
+log "  ✅ Created .shrc"
 
 # If shell change didn't work, we'll ensure zsh launches anyway
 if [ "$SHELL_CHANGED" = false ]; then
@@ -374,4 +395,4 @@ fi
 
 log ""
 log "Installation completed at: $(date)"
-log "VERSION: 1.2.0"
+log "VERSION: 1.3.0"
