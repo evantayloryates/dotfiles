@@ -359,3 +359,4 @@ fi
 
 log ""
 log "Installation completed at: $(date)"
+log "VERSION: 1.0.0"
