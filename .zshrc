@@ -30,5 +30,12 @@ if [[ "$SYNC_DOTFILES" -eq 1 && -f "$HOME/dotfiles/sync_dotfiles.sh" ]]; then
   source "$HOME/dotfiles/sync_dotfiles.sh"
   sync_dotfiles
 else
-  log 'SYNC_DOTFILES=0 → skipping dotfiles sync'
+  log 'SYNC_DOTFILES=0 → skipping dotfiles sync, loading local dotfiles'
+  # Load local dotfiles directly
+  if [[ -f "$HOME/dotfiles/src/index.sh" ]]; then
+    source "$HOME/dotfiles/src/index.sh"
+    log 'Loaded local dotfiles from $HOME/dotfiles/src/index.sh'
+  else
+    log 'WARNING: $HOME/dotfiles/src/index.sh not found'
+  fi
 fi
