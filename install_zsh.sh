@@ -243,41 +243,12 @@ else
   log "Updated current PATH to include: $INSTALL_DIR_BASE/bin"
 fi
 
-# --- Try to set as default shell (optional, may fail without proper setup) ---
-log "Attempting to register zsh as default shell..."
-
-# Ensure zsh path is listed in /etc/shells (try via sudo)
-if ! grep -qxF "$ZSH_PATH" /etc/shells 2>/dev/null; then
-  if echo "$ZSH_PATH" | sudo tee -a /etc/shells >/dev/null 2>&1; then
-    log "Added $ZSH_PATH to /etc/shells"
-  else
-    log "⚠️  Could not add to /etc/shells via sudo (continuing anyway)"
-  fi
-else
-  log "$ZSH_PATH already present in /etc/shells"
-fi
-
-# Try to change default shell (this often requires the binary to be in /etc/shells)
-set +e
-USER="${USER:-$(whoami)}"
-CURRENT_SHELL=$(getent passwd "$USER" 2>/dev/null | cut -d: -f7 || dscl . -read ~/ UserShell 2>/dev/null | awk '{print $2}' || echo "unknown")
-log "Current shell: $CURRENT_SHELL"
-
-if [[ "$CURRENT_SHELL" != "$ZSH_PATH" ]]; then
-  if command -v chsh &>/dev/null; then
-    log "Attempting to change shell with chsh..."
-    if chsh -s "$ZSH_PATH" "$USER" 2>&1 | tee -a "$HOME/log.txt"; then
-      log "✅ Successfully changed default shell to zsh"
-    else
-      log "⚠️  chsh failed or requires interaction"
-    fi
-  else
-    log "⚠️  chsh command not available"
-  fi
-else
-  log "zsh is already the default shell"
-fi
-set -e
+# --- Skip login shell change (slow/interactive) ---
+# We rely entirely on the bashrc auto-exec hook below for instant zsh activation.
+# If you want to set zsh as login shell manually later, run:
+#   sudo sh -c "echo $ZSH_PATH >> /etc/shells"
+#   chsh -s $ZSH_PATH $USER
+log "Skipping login shell change (instant bashrc auto-exec used instead)"
 
 # --- Setup auto-exec for devcontainers/non-login shells ---
 # In devcontainers and some environments, login shell changes are ignored.
