@@ -3,7 +3,7 @@
 
 alias loog="cat $HOME/log.txt"
 alias ls='ls -AGhlo'
-alias hello='echo "Hello, World!"'
+alias hello2='echo "Hello, World!"'
 
 # Directory navigation
 alias ..='cd ..'
