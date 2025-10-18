@@ -6,7 +6,6 @@ log() {
   echo "$msg" | tee -a "$HOME/log.txt"
 }
 
-# BENCHMARK START
 # Install ncurses-term and system zsh for terminal definitions (fixes backspace display issues)
 if ! command -v zsh >/dev/null 2>&1 || ! dpkg -l ncurses-term >/dev/null 2>&1; then
   if command -v apt-get >/dev/null 2>&1; then
@@ -14,9 +13,6 @@ if ! command -v zsh >/dev/null 2>&1 || ! dpkg -l ncurses-term >/dev/null 2>&1; t
     sudo apt-get install -y ncurses-term zsh >/dev/null 2>&1
   fi
 fi
-# BENCHMARK END
-
-
 
 # Add auto-exec hooks to .bashrc and .profile
 for rcfile in "$HOME/.bashrc" "$HOME/.profile"; do
