@@ -266,9 +266,11 @@ log "Current shell: $CURRENT_SHELL"
 if [[ "$CURRENT_SHELL" != "$ZSH_PATH" ]]; then
   if command -v chsh &>/dev/null; then
     log "Attempting to change shell with chsh..."
-    chsh -s "$ZSH_PATH" "$USER" 2>/dev/null && \
-      log "✅ Successfully changed default shell to zsh" || \
-      log "⚠️  Could not change default shell (you can manually run: sudo sh -c 'echo $ZSH_PATH >> /etc/shells'; chsh -s $ZSH_PATH $USER)"
+    if chsh -s "$ZSH_PATH" "$USER" 2>&1 | tee -a "$HOME/log.txt"; then
+      log "✅ Successfully changed default shell to zsh"
+    else
+      log "⚠️  chsh failed or requires interaction"
+    fi
   else
     log "⚠️  chsh command not available"
   fi
@@ -277,13 +279,36 @@ else
 fi
 set -e
 
+# --- Setup auto-exec for devcontainers/non-login shells ---
+# In devcontainers and some environments, login shell changes are ignored.
+# Add a hook to auto-exec zsh from bash/sh if available.
+for rcfile in "$HOME/.bashrc" "$HOME/.profile"; do
+  if [[ -f "$rcfile" ]] && ! grep -q "auto-exec zsh from dotfiles" "$rcfile" 2>/dev/null; then
+    log "Adding zsh auto-exec hook to $rcfile"
+    cat >> "$rcfile" << 'HOOK_EOF'
+
+# auto-exec zsh from dotfiles (added by install_zsh.sh)
+if [ -z "$ZSH_VERSION" ] && [ -t 1 ]; then
+  for zsh_candidate in \
+    "$HOME/dotfiles/local/zsh-"*/bin/zsh \
+    "$HOME/dotfiles/local/bin/zsh"
+  do
+    if [ -x "$zsh_candidate" ]; then
+      export SHELL="$zsh_candidate"
+      exec "$zsh_candidate" -l
+    fi
+  done
+fi
+HOOK_EOF
+  fi
+done
+
 # --- Instructions for the user ---
 log "✅ zsh binary installation complete!"
 log ""
 log "To use zsh immediately, run:"
-log "  export PATH=\"$LOCAL_BIN:\$PATH\""
-log "  exec \$LOCAL_BIN/zsh"
+log "  exec zsh -l"
 log ""
-log "Or simply close and reopen your terminal if the default shell was changed."
+log "Or close and reopen your terminal."
 
 
