@@ -3,6 +3,7 @@
 
 # Dotfiles sync
 alias sync='sync_dotfiles'
+alias nn='echo "Hello, World!"'
 alias ls='ls -AGhlo'
 
 # Directory navigation
