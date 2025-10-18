@@ -23,7 +23,7 @@ bindkey "^[[D" backward-char           # Left arrow
 bindkey "^[[3;5~" delete-char          # Ctrl+Delete
 
 # Fix common terminal issues
-stty erase ^?  # Tell the terminal driver that backspace is DEL
+stty erase '^?'  # Tell the terminal driver that backspace is DEL
 
 # Setup dotfiles sync
 export LIVE_DOTFILES_REPO_DIR="$HOME/.live-dotfiles"
