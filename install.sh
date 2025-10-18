@@ -19,11 +19,7 @@ fi
 
 # Create .zshrc FIRST (before slow zsh installation)
 log "Creating .zshrc..."
-cat > "$HOME/.zshrc" << 'EOF'
-echo "Hello from zshrc!"
-export SHELL=$(which zsh)
-alias log="cat $HOME/log.txt"
-EOF
+cp "$(dirname "$0")/.zshrc" "$HOME/.zshrc"
 
 # Install and configure zsh
 log "Installing/configuring zsh..."
