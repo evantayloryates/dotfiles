@@ -25,6 +25,21 @@ log "  DOTFILES_REPO_PATH=$DOTFILES_REPO_PATH"
 log "  HOME=$HOME"
 log "  USER=$(whoami)"
 log "  SHELL=$SHELL"
+log "  UID=$(id -u)"
+log ""
+
+# Check if we can use sudo
+CAN_SUDO=false
+if command -v sudo &> /dev/null; then
+    if sudo -n true 2>/dev/null; then
+        CAN_SUDO=true
+        log "✓ Sudo access available (passwordless)"
+    else
+        log "⚠️  Sudo available but requires password"
+    fi
+else
+    log "⚠️  Sudo not available"
+fi
 log ""
 
 # Function to detect package manager
@@ -52,37 +67,57 @@ if ! command -v zsh &> /dev/null; then
     PKG_MANAGER=$(detect_package_manager)
     log "  Detected package manager: $PKG_MANAGER"
     
-    case "$PKG_MANAGER" in
-        apt-get)
-            log "📦 Installing zsh via apt-get..."
-            apt-get update >> "$LOG_FILE" 2>&1 && apt-get install -y zsh >> "$LOG_FILE" 2>&1
-            ;;
-        yum)
-            log "📦 Installing zsh via yum..."
-            yum install -y zsh >> "$LOG_FILE" 2>&1
-            ;;
-        dnf)
-            log "📦 Installing zsh via dnf..."
-            dnf install -y zsh >> "$LOG_FILE" 2>&1
-            ;;
-        apk)
-            log "📦 Installing zsh via apk..."
-            apk add zsh >> "$LOG_FILE" 2>&1
-            ;;
-        brew)
-            log "📦 Installing zsh via brew..."
-            brew install zsh >> "$LOG_FILE" 2>&1
-            ;;
-        *)
-            log "❌ No supported package manager found. Cannot install zsh."
-            log "   Please install zsh manually and run this script again."
-            exit 1
-            ;;
-    esac
+    if [ "$CAN_SUDO" = true ]; then
+        case "$PKG_MANAGER" in
+            apt-get)
+                log "📦 Installing zsh via apt-get (with sudo)..."
+                sudo apt-get update >> "$LOG_FILE" 2>&1 && sudo apt-get install -y zsh >> "$LOG_FILE" 2>&1
+                ;;
+            yum)
+                log "📦 Installing zsh via yum (with sudo)..."
+                sudo yum install -y zsh >> "$LOG_FILE" 2>&1
+                ;;
+            dnf)
+                log "📦 Installing zsh via dnf (with sudo)..."
+                sudo dnf install -y zsh >> "$LOG_FILE" 2>&1
+                ;;
+            apk)
+                log "📦 Installing zsh via apk (with sudo)..."
+                sudo apk add zsh >> "$LOG_FILE" 2>&1
+                ;;
+            brew)
+                log "📦 Installing zsh via brew..."
+                brew install zsh >> "$LOG_FILE" 2>&1
+                ;;
+            *)
+                log "❌ No supported package manager found."
+                log "   Please add zsh to your container image."
+                log ""
+                log "   Add to your devcontainer.json:"
+                log '   "features": { "ghcr.io/devcontainers/features/common-utils:2": { "installZsh": true } }'
+                exit 1
+                ;;
+        esac
+    else
+        log "❌ Cannot install zsh without sudo access."
+        log ""
+        log "   Please add zsh to your container image before running this script."
+        log ""
+        log "   Option 1 - Add to Dockerfile:"
+        log "   RUN apt-get update && apt-get install -y zsh"
+        log ""
+        log "   Option 2 - Add to devcontainer.json features:"
+        log '   "features": { "ghcr.io/devcontainers/features/common-utils:2": { "installZsh": true } }'
+        log ""
+        log "   Option 3 - Run this script with sudo:"
+        log "   sudo -E bash $0"
+        exit 1
+    fi
     
     # Verify installation
     if ! command -v zsh &> /dev/null; then
         log "❌ Failed to install zsh"
+        log "   Check the log above for error details"
         exit 1
     fi
     
@@ -105,46 +140,61 @@ log ""
 
 # Set zsh as default shell
 log "🔧 Setting zsh as default shell..."
+SHELL_CHANGED=false
+
 if [ "$SHELL" != "$ZSH_PATH" ]; then
     # Add zsh to /etc/shells if not already there
-    if ! grep -q "$ZSH_PATH" /etc/shells 2>/dev/null; then
+    if ! grep -q "^$ZSH_PATH$" /etc/shells 2>/dev/null; then
         log "  Adding $ZSH_PATH to /etc/shells..."
-        echo "$ZSH_PATH" >> /etc/shells 2>> "$LOG_FILE"
-        if [ $? -eq 0 ]; then
-            log "  ✓ Added successfully"
+        if [ "$CAN_SUDO" = true ]; then
+            echo "$ZSH_PATH" | sudo tee -a /etc/shells >> "$LOG_FILE" 2>&1
+            if [ $? -eq 0 ]; then
+                log "  ✓ Added successfully"
+            else
+                log "  ⚠️  Failed to add to /etc/shells"
+            fi
         else
-            log "  ⚠️  Failed to add to /etc/shells (may need root)"
+            log "  ⚠️  Cannot modify /etc/shells without sudo"
         fi
     else
         log "  ✓ $ZSH_PATH already in /etc/shells"
     fi
     
-    # Change default shell
+    # Try to change default shell
     log "  Attempting to change shell with chsh..."
     if chsh -s "$ZSH_PATH" 2>> "$LOG_FILE"; then
-        log "✅ Default shell set to zsh via chsh"
+        log "  ✅ Default shell set via chsh"
+        SHELL_CHANGED=true
     else
-        log "⚠️  chsh failed (exit code: $?), trying usermod..."
-        # Fallback: try using usermod or direct setting
-        if command -v usermod &> /dev/null; then
-            usermod -s "$ZSH_PATH" "$(whoami)" >> "$LOG_FILE" 2>&1
-            if [ $? -eq 0 ]; then
-                log "✅ Default shell set to zsh via usermod"
+        log "  ⚠️  chsh failed (exit code: $?)"
+        
+        # Fallback: try using usermod with sudo
+        if [ "$CAN_SUDO" = true ] && command -v usermod &> /dev/null; then
+            log "  Trying usermod with sudo..."
+            if sudo usermod -s "$ZSH_PATH" "$(whoami)" >> "$LOG_FILE" 2>&1; then
+                log "  ✅ Default shell set via usermod"
+                SHELL_CHANGED=true
             else
-                log "⚠️  usermod failed (exit code: $?)"
+                log "  ⚠️  usermod also failed (exit code: $?)"
             fi
-        else
-            log "⚠️  usermod not available"
         fi
     fi
-    
-    # Check /etc/passwd
-    log ""
-    log "Current user entry in /etc/passwd:"
-    grep "^$(whoami):" /etc/passwd >> "$LOG_FILE" 2>&1
-    log ""
 else
     log "✅ zsh is already the default shell"
+    SHELL_CHANGED=true
+fi
+
+# Check /etc/passwd to verify
+log ""
+log "User entry in /etc/passwd:"
+grep "^$(whoami):" /etc/passwd | tee -a "$LOG_FILE"
+log ""
+
+# If shell change didn't work, we'll ensure zsh launches anyway
+if [ "$SHELL_CHANGED" = false ]; then
+    log "⚠️  Could not change default shell in system files"
+    log "  Will configure bash to auto-launch zsh instead"
+    log ""
 fi
 
 # Clone or update the repository
@@ -154,7 +204,7 @@ if [ ! -d "$DOTFILES_REPO_PATH" ]; then
         log "✅ Repository cloned successfully"
     else
         log "❌ Failed to clone repository"
-        log "Git clone output:"
+        log "Git clone output (last 20 lines):"
         tail -20 "$LOG_FILE"
         exit 1
     fi
@@ -165,7 +215,7 @@ else
     if git pull origin master >> "$LOG_FILE" 2>&1 || git pull origin main >> "$LOG_FILE" 2>&1; then
         log "✅ Repository updated"
     else
-        log "⚠️  Failed to update repository"
+        log "⚠️  Failed to update repository (may already be up to date)"
     fi
     cd - > /dev/null
 fi
@@ -250,19 +300,50 @@ else
     log "  DOTFILES_REPO_PATH already in .zshrc"
 fi
 
+# If default shell couldn't be changed, add auto-launch to .bashrc
+if [ "$SHELL_CHANGED" = false ]; then
+    log ""
+    log "🔧 Adding zsh auto-launch to .bashrc..."
+    
+    if [ -f "$HOME/.bashrc" ]; then
+        # Check if we already added the zsh launcher
+        if ! grep -q "# Auto-launch zsh" "$HOME/.bashrc" 2>/dev/null; then
+            cat >> "$HOME/.bashrc" << 'EOF'
+
+# Auto-launch zsh (added by dotfiles installer)
+if [ -t 1 ] && command -v zsh &> /dev/null; then
+    export SHELL=$(which zsh)
+    exec zsh
+fi
+EOF
+            log "✅ Added zsh auto-launch to .bashrc"
+        else
+            log "  Auto-launch already configured in .bashrc"
+        fi
+    fi
+fi
+
 log ""
 log "========================================"
 log "✨ Dotfiles system setup complete!"
 log "========================================"
 log ""
 log "📝 Summary:"
-log "   - Shell: zsh (default)"
+log "   - Shell: zsh"
+log "   - Default shell changed: $SHELL_CHANGED"
 log "   - Dotfiles repository: $DOTFILES_REPO_PATH"
 log "   - Auto-update interval: 5 minutes"
 log "   - Loader script: $DOTFILES_REPO_PATH/src/index.sh"
 log "   - Log file: $LOG_FILE"
 log ""
-log "🎉 Start a new zsh shell to activate your dotfiles!"
-log "   Run: exec zsh"
+
+if [ "$SHELL_CHANGED" = true ]; then
+    log "🎉 New terminals will automatically use zsh!"
+    log "   Current terminal: run 'exec zsh' or open a new terminal"
+else
+    log "🎉 Bash will automatically launch zsh on new terminals!"
+    log "   Current terminal: run 'zsh' or open a new terminal"
+fi
+
 log ""
 log "Installation completed at: $(date)"
