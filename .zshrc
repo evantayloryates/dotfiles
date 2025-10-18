@@ -1,10 +1,12 @@
 #!/bin/zsh
-export SHOULD_LOG=1
+export SHOULD_LOG=0
 
 log() {
+  if [[ "$SHOULD_LOG" -eq 1 ]]; then
   local msg="[$(date '+%Y-%m-%d %H:%M:%S')] $*"
-  echo "$msg"
-  echo "$msg" >> "$HOME/log.txt"
+    echo "$msg"
+    echo "$msg" >> "$HOME/log.txt"
+  fi
 }
 
 
