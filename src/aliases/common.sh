@@ -1,10 +1,9 @@
 #!/bin/zsh
-# Common aliases
 
-alias loog="cat $HOME/log.txt"
+
+# Dotfiles sync
+alias sync='sync_dotfiles'
 alias ls='ls -AGhlo'
-alias hello='echo "Hello, World!"'
-alias hello2='echo "Hello, World! 2"'
 
 # Directory navigation
 alias ..='cd ..'
