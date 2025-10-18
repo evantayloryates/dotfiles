@@ -80,9 +80,7 @@ reload_dotfiles() {
     fi
 }
 
-# Alias for convenience
-alias dotfiles-reload='reload_dotfiles'
-alias dr='reload_dotfiles'
+reload_dotfiles
 
 # Source the main loader script from the repo
 if [ -f "$DOTFILES_REPO_PATH/src/index.sh" ]; then
