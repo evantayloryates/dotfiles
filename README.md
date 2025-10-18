@@ -53,12 +53,34 @@ bash install.sh
 
 ## 🔄 How Auto-Update Works
 
-1. **On shell startup**: `.zshrc` checks for repo updates (every 5 minutes)
+1. **On shell startup**: `.zshrc` checks for repo updates (every 5 minutes, in background)
 2. **If updates found**: Silently pulls latest changes from GitHub
-3. **Always sources**: Fresh `src/index.sh` which loads all your configs
-4. **Result**: Changes propagate within 5 minutes without rebuilding container!
+3. **Always sources**: `src/index.sh` which loads all your configs
+4. **Important**: Background updates complete after the shell loads, so changes appear in the **next** new terminal
+
+### Getting Updates Immediately
+
+After pushing changes to GitHub, you have two options:
+
+**Option 1 - Reload in current shell:**
+```bash
+reload_dotfiles  # or use the alias: dr
+```
+
+**Option 2 - Open a new terminal:**
+```bash
+# Just open a new terminal tab/window
+# Updates will be pulled automatically (if 5+ minutes have passed)
+```
 
 ## ✍️ Making Changes
+
+### Typical Workflow
+
+1. Edit a file in `src/` (e.g., add an alias to `src/aliases/common.sh`)
+2. Commit and push to GitHub
+3. In your container, run `reload_dotfiles` (or `dr`) to apply changes immediately
+4. Or wait 5+ minutes and open a new terminal
 
 ### Files that live-update (edit these!)
 - `src/aliases/*.sh` - Add/modify aliases
@@ -67,8 +89,6 @@ bash install.sh
 - `src/hooks/*.sh` - Shell hooks
 - `src/path/*.sh` - PATH modifications
 - `src/index.sh` - Loader logic
-
-Push changes to GitHub → They'll appear in your container within 5 minutes!
 
 ### Files that DON'T live-update
 - `.zshrc` - Only copied once during initial setup (local changes preserved)
@@ -100,9 +120,14 @@ CHECK_INTERVAL=300  # Change to desired seconds
 
 ## 🔧 Advanced
 
-### Manual update check
+### Force immediate update
 ```bash
-rm ~/.dotfiles_last_check  # Force immediate check on next shell
+reload_dotfiles  # Pulls latest changes and reloads the current shell
+```
+
+Or force update on next shell startup:
+```bash
+rm ~/.dotfiles_last_check  # Bypasses the 5-minute interval
 ```
 
 ### Disable auto-pipe to zsh

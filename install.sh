@@ -324,6 +324,32 @@ check_and_update() {
 # Run update check in background
 check_and_update &
 
+# Function to manually reload dotfiles (useful after updates)
+reload_dotfiles() {
+    echo "🔄 Reloading dotfiles..."
+    if [ -d "$DOTFILES_REPO_PATH" ]; then
+        cd "$DOTFILES_REPO_PATH" || return 1
+        echo "📡 Fetching updates..."
+        git fetch origin master 2>/dev/null || git fetch origin main 2>/dev/null || return 1
+        echo "📥 Pulling latest changes..."
+        git pull origin master 2>/dev/null || git pull origin main 2>/dev/null
+        cd - > /dev/null
+    fi
+    
+    if [ -f "$DOTFILES_REPO_PATH/src/index.sh" ]; then
+        echo "✅ Sourcing updated configuration..."
+        source "$DOTFILES_REPO_PATH/src/index.sh"
+        echo "✨ Dotfiles reloaded!"
+    else
+        echo "❌ Failed to find index.sh"
+        return 1
+    fi
+}
+
+# Alias for convenience
+alias dotfiles-reload='reload_dotfiles'
+alias dr='reload_dotfiles'
+
 # Source the main loader script
 if [ -f "$DOTFILES_REPO_PATH/src/index.sh" ]; then
     source "$DOTFILES_REPO_PATH/src/index.sh"
@@ -476,7 +502,7 @@ fi
 
 log ""
 log "Installation completed at: $(date)"
-log "VERSION: 1.8.0"
+log "VERSION: 1.9.0"
 
 # Automatically switch this terminal to zsh if it's interactive (and enabled)
 if [ "$SHOULD_PIPE_ZSH" = "1" ] && [ -t 0 ] && [ -t 1 ]; then
