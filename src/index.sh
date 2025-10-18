@@ -5,8 +5,6 @@
 # Get the directory where this script is located
 DOTFILES_SRC_DIR="${0:A:h}"
 
-alias hello='echo "Hello, World!"'
-
 # Source all files in subdirectories
 for category in aliases exports functions hooks path; do
     category_dir="$DOTFILES_SRC_DIR/$category"
