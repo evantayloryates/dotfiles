@@ -26,6 +26,9 @@ fi
 
 # Source and run sync_dotfiles function only if SYNC_DOTFILES=1
 if [[ "$SYNC_DOTFILES" -eq 1 && -f "$HOME/dotfiles/sync_dotfiles.sh" ]]; then
+  log 'SYNC_DOTFILES=1 → running dotfiles sync'
   source "$HOME/dotfiles/sync_dotfiles.sh"
   sync_dotfiles
+else
+  log 'SYNC_DOTFILES=0 → skipping dotfiles sync'
 fi
