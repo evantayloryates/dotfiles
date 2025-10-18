@@ -246,15 +246,15 @@ fi
 # --- Try to set as default shell (optional, may fail without proper setup) ---
 log "Attempting to register zsh as default shell..."
 
-# Check if we can modify /etc/shells
-if [[ -w /etc/shells ]]; then
-  if ! grep -qxF "$ZSH_PATH" /etc/shells 2>/dev/null; then
-    echo "$ZSH_PATH" | sudo tee -a /etc/shells >/dev/null 2>&1 && \
-      log "Added $ZSH_PATH to /etc/shells" || \
-      log "⚠️  Could not add to /etc/shells (continuing anyway)"
+# Ensure zsh path is listed in /etc/shells (try via sudo)
+if ! grep -qxF "$ZSH_PATH" /etc/shells 2>/dev/null; then
+  if echo "$ZSH_PATH" | sudo tee -a /etc/shells >/dev/null 2>&1; then
+    log "Added $ZSH_PATH to /etc/shells"
+  else
+    log "⚠️  Could not add to /etc/shells via sudo (continuing anyway)"
   fi
 else
-  log "⚠️  Cannot modify /etc/shells (no write access)"
+  log "$ZSH_PATH already present in /etc/shells"
 fi
 
 # Try to change default shell (this often requires the binary to be in /etc/shells)
@@ -266,9 +266,9 @@ log "Current shell: $CURRENT_SHELL"
 if [[ "$CURRENT_SHELL" != "$ZSH_PATH" ]]; then
   if command -v chsh &>/dev/null; then
     log "Attempting to change shell with chsh..."
-    chsh -s "$ZSH_PATH" 2>/dev/null && \
+    chsh -s "$ZSH_PATH" "$USER" 2>/dev/null && \
       log "✅ Successfully changed default shell to zsh" || \
-      log "⚠️  Could not change default shell (you can manually run: chsh -s $ZSH_PATH)"
+      log "⚠️  Could not change default shell (you can manually run: sudo sh -c 'echo $ZSH_PATH >> /etc/shells'; chsh -s $ZSH_PATH $USER)"
   else
     log "⚠️  chsh command not available"
   fi
