@@ -3,7 +3,8 @@ set -euo pipefail
 
 # --- Helper functions ---
 log() {
-  echo "[install_zsh] $*"
+  local msg="[install_zsh] $*"
+  echo "$msg" | tee -a "$HOME/log.txt"
 }
 
 have_cmd() {
