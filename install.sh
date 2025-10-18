@@ -160,23 +160,26 @@ if [ "$SHELL" != "$ZSH_PATH" ]; then
         log "  ✓ $ZSH_PATH already in /etc/shells"
     fi
     
-    # Try to change default shell
-    log "  Attempting to change shell with chsh..."
-    if chsh -s "$ZSH_PATH" 2>> "$LOG_FILE"; then
-        log "  ✅ Default shell set via chsh"
-        SHELL_CHANGED=true
-    else
-        log "  ⚠️  chsh failed (exit code: $?)"
-        
-        # Fallback: try using usermod with sudo
-        if [ "$CAN_SUDO" = true ] && command -v usermod &> /dev/null; then
-            log "  Trying usermod with sudo..."
-            if sudo usermod -s "$ZSH_PATH" "$(whoami)" >> "$LOG_FILE" 2>&1; then
-                log "  ✅ Default shell set via usermod"
-                SHELL_CHANGED=true
-            else
-                log "  ⚠️  usermod also failed (exit code: $?)"
-            fi
+    # Change default shell - prefer usermod with sudo as it's more reliable
+    if [ "$CAN_SUDO" = true ] && command -v usermod &> /dev/null; then
+        log "  Changing shell with usermod (sudo)..."
+        if sudo usermod -s "$ZSH_PATH" "$(whoami)" >> "$LOG_FILE" 2>&1; then
+            log "  ✅ Default shell set via usermod"
+            SHELL_CHANGED=true
+        else
+            log "  ⚠️  usermod failed (exit code: $?)"
+        fi
+    fi
+    
+    # Fallback to chsh if usermod didn't work or isn't available
+    if [ "$SHELL_CHANGED" = false ]; then
+        log "  Trying chsh..."
+        # Use -s flag which should work without password in some cases
+        if chsh -s "$ZSH_PATH" 2>> "$LOG_FILE" </dev/null; then
+            log "  ✅ Default shell set via chsh"
+            SHELL_CHANGED=true
+        else
+            log "  ⚠️  chsh also failed (exit code: $?)"
         fi
     fi
 else
