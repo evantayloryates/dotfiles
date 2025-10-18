@@ -16,6 +16,7 @@ fi
 log "Creating .zshrc..."
 cat > "$HOME/.zshrc" << 'EOF'
 echo "Hello from zshrc!"
+export SHELL=$(which zsh)
 EOF
 
 log "✅ Done! Close and reopen terminal, or run: exec zsh"
