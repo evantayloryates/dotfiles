@@ -1,7 +1,7 @@
 #!/bin/zsh
 # Sync dotfiles from remote repository
 
-export SHOULD_LOG=0
+SHOULD_LOG="${SHOULD_LOG:-0}"
 
 log() {
   if [[ "$SHOULD_LOG" -eq 1 ]]; then
