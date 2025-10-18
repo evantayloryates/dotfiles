@@ -371,6 +371,46 @@ if [ -f "$HOME/.bashrc" ]; then
     fi
 fi
 
+# Configure VS Code/Cursor to use zsh by default
+log ""
+log "🔧 Configuring VS Code/Cursor terminal settings..."
+VSCODE_SETTINGS_DIR="$HOME/.vscode-server/data/Machine"
+if [ -d "$HOME/.vscode-server" ]; then
+    mkdir -p "$VSCODE_SETTINGS_DIR"
+    SETTINGS_FILE="$VSCODE_SETTINGS_DIR/settings.json"
+    
+    # Create or update settings.json
+    if [ -f "$SETTINGS_FILE" ]; then
+        log "  VS Code settings file exists, updating..."
+        # Backup existing settings
+        cp "$SETTINGS_FILE" "$SETTINGS_FILE.bak"
+    else
+        log "  Creating new VS Code settings file..."
+        echo "{}" > "$SETTINGS_FILE"
+    fi
+    
+    # Use jq if available, otherwise create a basic config
+    if command -v jq &> /dev/null; then
+        jq '. + {"terminal.integrated.defaultProfile.linux": "zsh", "terminal.integrated.profiles.linux": {"zsh": {"path": "'$ZSH_PATH'"}}}' "$SETTINGS_FILE" > "$SETTINGS_FILE.tmp" && mv "$SETTINGS_FILE.tmp" "$SETTINGS_FILE"
+        log "  ✅ Updated VS Code settings with jq"
+    else
+        # Fallback: just ensure zsh is set (may not be perfect JSON if file has other settings)
+        cat > "$SETTINGS_FILE" << EOF
+{
+  "terminal.integrated.defaultProfile.linux": "zsh",
+  "terminal.integrated.profiles.linux": {
+    "zsh": {
+      "path": "$ZSH_PATH"
+    }
+  }
+}
+EOF
+        log "  ✅ Created VS Code settings"
+    fi
+else
+    log "  VS Code server not detected, skipping settings config"
+fi
+
 log ""
 log "========================================"
 log "✨ Dotfiles system setup complete!"
@@ -395,4 +435,4 @@ fi
 
 log ""
 log "Installation completed at: $(date)"
-log "VERSION: 1.3.0"
+log "VERSION: 1.4.0"
