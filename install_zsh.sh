@@ -243,12 +243,25 @@ else
   log "Updated current PATH to include: $INSTALL_DIR_BASE/bin"
 fi
 
-# --- Skip login shell change (slow/interactive) ---
-# We rely entirely on the bashrc auto-exec hook below for instant zsh activation.
-# If you want to set zsh as login shell manually later, run:
-#   sudo sh -c "echo $ZSH_PATH >> /etc/shells"
-#   chsh -s $ZSH_PATH $USER
-log "Skipping login shell change (instant bashrc auto-exec used instead)"
+# --- Change shell from /bin/sh to /bin/bash (so bashrc hooks work) ---
+# /bin/sh doesn't source bashrc, but bash does. Change shell in /etc/passwd directly.
+USER="${USER:-$(whoami)}"
+CURRENT_SHELL=$(getent passwd "$USER" 2>/dev/null | cut -d: -f7 || echo "unknown")
+log "Current shell: $CURRENT_SHELL"
+
+if [[ "$CURRENT_SHELL" == "/bin/sh" ]] && [[ -x /bin/bash ]]; then
+  log "Changing shell from /bin/sh to /bin/bash in /etc/passwd (instant, enables bashrc hook)"
+  if sudo sed -i "s|^\($USER:.*:\)/bin/sh$|\1/bin/bash|" /etc/passwd 2>/dev/null; then
+    log "✅ Shell changed to /bin/bash"
+    CURRENT_SHELL="/bin/bash"
+  else
+    log "⚠️  Could not modify /etc/passwd (continuing anyway)"
+  fi
+elif [[ "$CURRENT_SHELL" != "$ZSH_PATH" ]]; then
+  log "Shell is $CURRENT_SHELL (bashrc auto-exec hook will activate zsh)"
+else
+  log "Shell is already set to zsh"
+fi
 
 # --- Setup auto-exec for devcontainers/non-login shells ---
 # In devcontainers and some environments, login shell changes are ignored.
