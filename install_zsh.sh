@@ -264,15 +264,15 @@ else
 fi
 
 # --- Setup auto-exec for devcontainers/non-login shells ---
-# In devcontainers and some environments, login shell changes are ignored.
-# Add a hook to auto-exec zsh from bash/sh if available.
+# Devcontainers often hardcode /bin/sh and ignore /etc/passwd.
+# Use ENV variable which /bin/sh sources even in non-interactive mode.
 
-# Try system-wide hook first (for /bin/sh non-login shells)
-SYSTEM_HOOK="/etc/profile.d/zsh-autoexec.sh"
-if [[ ! -f "$SYSTEM_HOOK" ]] || ! grep -q "auto-exec zsh from dotfiles" "$SYSTEM_HOOK" 2>/dev/null; then
-  log "Adding system-wide zsh auto-exec hook to $SYSTEM_HOOK"
-  sudo tee "$SYSTEM_HOOK" >/dev/null 2>&1 << 'HOOK_EOF' && log "✅ System-wide hook installed" || log "⚠️  Could not install system-wide hook (continuing with user hooks)"
+ENV_SCRIPT="/etc/zsh-autoexec.sh"
+if [[ ! -f "$ENV_SCRIPT" ]] || ! grep -q "auto-exec zsh from dotfiles" "$ENV_SCRIPT" 2>/dev/null; then
+  log "Creating ENV hook script at $ENV_SCRIPT"
+  sudo tee "$ENV_SCRIPT" >/dev/null 2>&1 << 'HOOK_EOF' && log "✅ ENV hook script created" || log "⚠️  Could not create ENV hook script"
 # auto-exec zsh from dotfiles (added by install_zsh.sh)
+# This is sourced by /bin/sh via ENV variable
 if [ -z "$ZSH_VERSION" ] && [ -t 1 ]; then
   for zsh_candidate in \
     "$HOME/dotfiles/local/zsh-"*/bin/zsh \
@@ -285,6 +285,15 @@ if [ -z "$ZSH_VERSION" ] && [ -t 1 ]; then
   done
 fi
 HOOK_EOF
+  sudo chmod +x "$ENV_SCRIPT" 2>/dev/null
+fi
+
+# Set ENV in /etc/environment so sh sources our script
+if ! grep -q "^ENV=" /etc/environment 2>/dev/null; then
+  log "Setting ENV variable in /etc/environment"
+  echo "ENV=$ENV_SCRIPT" | sudo tee -a /etc/environment >/dev/null 2>&1 && \
+    log "✅ ENV variable set (sh will source $ENV_SCRIPT)" || \
+    log "⚠️  Could not set ENV in /etc/environment"
 fi
 
 # Also add to user rc files as fallback
