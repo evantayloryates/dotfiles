@@ -3,23 +3,22 @@
 
 echo "Testing backspace in zsh..."
 echo ""
-echo "Starting zsh with minimal config..."
-echo "Type some text and try backspace. Type 'exit' when done."
-echo ""
+echo "Creating minimal zsh config..."
 
 # Create a minimal zshrc for testing
-cat > /tmp/.zshrc.test << 'EOF'
+mkdir -p /tmp/zsh-test
+cat > /tmp/zsh-test/.zshrc << 'EOF'
 # Minimal test config
 bindkey -e
 bindkey "^?" backward-delete-char
 bindkey "^H" backward-delete-char
-echo "Minimal zsh loaded. Try typing and using backspace:"
-PS1="%% "
+echo "=== Minimal zsh loaded ==="
+echo "Try typing and using backspace. Type 'exit' when done."
+PS1="test%% "
 EOF
 
-# Start zsh with the test config
-ZDOTDIR=/tmp HOME=/tmp zsh
-
+echo "Starting zsh with minimal config..."
 echo ""
-echo "Test complete. Did backspace work?"
 
+# Start zsh with the test config
+HOME=/tmp/zsh-test exec zsh
