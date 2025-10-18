@@ -8,7 +8,7 @@ log() {
 
 # Install and configure zsh
 log "Starting dotfiles installation..."
-if ! source "$(dirname "$0")/install_zsh.sh"; then
+if ! bash "$(dirname "$0")/install_zsh.sh"; then
   log "⚠️  Warning: zsh installation encountered an error, but continuing..."
 fi
 
