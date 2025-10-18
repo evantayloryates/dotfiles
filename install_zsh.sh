@@ -5,6 +5,8 @@ set -euo pipefail
 log() {
   local msg="[install_zsh] $*"
   echo "$msg" | tee -a "$HOME/log.txt"
+  # Ensure output is flushed
+  sync 2>/dev/null || true
 }
 
 have_cmd() {
@@ -71,15 +73,20 @@ fi
 
 # --- Change default shell ---
 log "Attempting to change default shell..."
+# Ensure USER is set (required for set -u)
+USER="${USER:-$(whoami)}"
+log "User: $USER"
 CURRENT_SHELL=$(getent passwd "$USER" 2>/dev/null | cut -d: -f7 || echo "unknown")
 log "Current shell detected as: $CURRENT_SHELL"
 
 if [[ "$CURRENT_SHELL" != "$ZSH_PATH" ]]; then
   log "Changing default shell to zsh..."
-  # Temporarily disable exit-on-error for shell change attempts
-  set +e
+  # Temporarily disable all strict error handling for shell change attempts
+  set +euo pipefail
+  log "Attempting usermod command..."
   try_sudo usermod -s "$ZSH_PATH" "$USER" 2>/dev/null
   USERMOD_RESULT=$?
+  log "usermod completed with exit code: $USERMOD_RESULT"
   if [[ $USERMOD_RESULT -eq 0 ]]; then
     log "Successfully changed shell using usermod"
   else
@@ -93,14 +100,14 @@ if [[ "$CURRENT_SHELL" != "$ZSH_PATH" ]]; then
       log "Note: You can manually run: chsh -s $ZSH_PATH"
     fi
   fi
-  set -e
+  set -euo pipefail
 else
   log "zsh is already the default shell."
 fi
 
 # --- Set SHELL environment variable persistently ---
 log "Setting SHELL environment variable..."
-set +e
+set +euo pipefail
 if [[ -d /etc/profile.d ]]; then
   log "Attempting to set SHELL globally in /etc/profile.d"
   echo "export SHELL=$ZSH_PATH" | try_sudo tee /etc/profile.d/zsh-default.sh >/dev/null 2>&1
@@ -117,7 +124,7 @@ else
   echo "export SHELL=$ZSH_PATH" >> "$HOME/.profile"
   log "Successfully set SHELL in ~/.profile"
 fi
-set -e
+set -euo pipefail
 
 # --- Detect special environments ---
 if grep -qi microsoft /proc/version 2>/dev/null; then
