@@ -57,6 +57,27 @@ BIN_DIR="$SCRIPT_DIR/bin"
 PLATFORM=$(detect_platform)
 log "Detected platform: $PLATFORM"
 
+# Build list of acceptable platform suffixes for asset name variations
+PLATFORM_OS="${PLATFORM%%-*}"
+PLATFORM_ARCH="${PLATFORM#*-}"
+declare -a PLATFORM_SUFFIXES
+PLATFORM_SUFFIXES=("$PLATFORM")
+
+# zsh-bin uses linux-aarch64 (not linux-arm64)
+if [[ "$PLATFORM_OS" == "linux" && "$PLATFORM_ARCH" == "arm64" ]]; then
+  PLATFORM_SUFFIXES+=("linux-aarch64")
+fi
+
+# Some linux 32-bit builds use i386/i586/i686 variants
+if [[ "$PLATFORM_OS" == "linux" && "$PLATFORM_ARCH" == "i686" ]]; then
+  PLATFORM_SUFFIXES+=("linux-i386" "linux-i586")
+fi
+
+# freebsd uses amd64 rather than x86_64 in zsh-bin releases
+if [[ "$PLATFORM_OS" == "freebsd" && "$PLATFORM_ARCH" == "x86_64" ]]; then
+  PLATFORM_SUFFIXES+=("freebsd-amd64")
+fi
+
 # zsh-bin naming uses versioned archives like zsh-5.8-<kernel>-<arch>.tar.gz
 # We support three sources, in order of preference:
 #  1) Extracted package dir at bin/zsh-*-<platform>/ with bin/zsh inside
@@ -69,36 +90,49 @@ ARCHIVE_FILE=""
 
 # 1) Look for extracted package dir
 if [[ -d "$BIN_DIR" ]]; then
-  while IFS= read -r -d '' dir; do
-    if [[ -x "$dir/bin/zsh" ]]; then
-      SRC_DIR="$dir"
-      found_source="dir"
-      break
-    fi
-  done < <(find "$BIN_DIR" -maxdepth 1 -type d -name "zsh-*-${PLATFORM}" -print0 2>/dev/null || true)
+  for suffix in "${PLATFORM_SUFFIXES[@]}"; do
+    while IFS= read -r -d '' dir; do
+      if [[ -x "$dir/bin/zsh" ]]; then
+        SRC_DIR="$dir"
+        found_source="dir"
+        break 2
+      fi
+    done < <(find "$BIN_DIR" -maxdepth 1 -type d -name "zsh-*-${suffix}" -print0 2>/dev/null || true)
+  done
 fi
 
 # 2) If not found, look for an archive
 if [[ -z "$found_source" && -d "$BIN_DIR" ]]; then
-  # Pick the first matching archive (sorted lexicographically)
-  ARCHIVE_FILE=$(ls -1 "$BIN_DIR"/zsh-*-"${PLATFORM}".tar.gz 2>/dev/null | head -n 1 || true)
-  if [[ -n "$ARCHIVE_FILE" ]]; then
-    found_source="archive"
-  fi
+  for suffix in "${PLATFORM_SUFFIXES[@]}"; do
+    ARCHIVE_FILE=$(ls -1 "$BIN_DIR"/zsh-*-${suffix}.tar.gz 2>/dev/null | head -n 1 || true)
+    if [[ -n "$ARCHIVE_FILE" ]]; then
+      found_source="archive"
+      break
+    fi
+  done
 fi
 
 # 3) Fallback to single binary
-ZSH_SINGLE_BIN="$BIN_DIR/zsh-$PLATFORM"
-if [[ -z "$found_source" && -f "$ZSH_SINGLE_BIN" ]]; then
-  found_source="single"
+ZSH_SINGLE_BIN=""
+if [[ -z "$found_source" ]]; then
+  for suffix in "${PLATFORM_SUFFIXES[@]}"; do
+    if [[ -f "$BIN_DIR/zsh-$suffix" ]]; then
+      ZSH_SINGLE_BIN="$BIN_DIR/zsh-$suffix"
+      found_source="single"
+      break
+    fi
+  done
 fi
 
 if [[ -z "$found_source" ]]; then
   log "❌ Error: No zsh package found for platform $PLATFORM"
-  log "Looked for:"
-  log "  - directory: $BIN_DIR/zsh-*-${PLATFORM}/bin/zsh"
-  log "  - archive:   $BIN_DIR/zsh-*-${PLATFORM}.tar.gz"
-  log "  - binary:    $ZSH_SINGLE_BIN"
+  log "Looked for these suffixes: ${PLATFORM_SUFFIXES[*]}"
+  log "Examples per suffix:"
+  for suffix in "${PLATFORM_SUFFIXES[@]}"; do
+    log "  - directory: $BIN_DIR/zsh-*-${suffix}/bin/zsh"
+    log "  - archive:   $BIN_DIR/zsh-*-${suffix}.tar.gz"
+    log "  - binary:    $BIN_DIR/zsh-${suffix}"
+  done
   exit 1
 fi
 
