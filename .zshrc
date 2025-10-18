@@ -9,7 +9,7 @@ log() {
 
 
 # Control whether to sync dotfiles
-export SYNC_DOTFILES=0
+export SYNC_DOTFILES=1
 
 # Find and use the best available zsh
 if [[ -n "$(command -v zsh)" ]]; then
