@@ -1,6 +1,9 @@
 # Dotfiles auto-update and loader
 # Note: changes to this file are not recommended since it is primarily a loader for live source files
 
+# Ensure SHELL is set correctly
+export SHELL=$(which zsh)
+
 # Configuration
 export DOTFILES_REPO_PATH="${DOTFILES_REPO_PATH:-$HOME/.dotfiles-repo}"
 DOTFILES_REPO_URL="https://github.com/evantayloryates/dotfiles.git"

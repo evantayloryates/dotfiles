@@ -193,6 +193,18 @@ log "User entry in /etc/passwd:"
 grep "^$(whoami):" /etc/passwd | tee -a "$LOG_FILE"
 log ""
 
+# Set SHELL environment variable persistently for all sessions
+log "🔧 Setting SHELL environment variable..."
+if [ "$CAN_SUDO" = true ]; then
+    # Try to create a profile.d script (system-wide)
+    if [ -d /etc/profile.d ]; then
+        log "  Creating /etc/profile.d/zsh-default.sh..."
+        echo "export SHELL=$ZSH_PATH" | sudo tee /etc/profile.d/zsh-default.sh >> "$LOG_FILE" 2>&1
+        sudo chmod +x /etc/profile.d/zsh-default.sh >> "$LOG_FILE" 2>&1
+        log "  ✅ Created profile.d script for SHELL variable"
+    fi
+fi
+
 # If shell change didn't work, we'll ensure zsh launches anyway
 if [ "$SHELL_CHANGED" = false ]; then
     log "⚠️  Could not change default shell in system files"
@@ -234,6 +246,9 @@ if [ ! -f "$HOME/.zshrc" ]; then
         cat > "$HOME/.zshrc" << 'EOF'
 # Dotfiles auto-update and loader
 # Note: changes to this file are not recommended since it is primarily a loader for live source files
+
+# Ensure SHELL is set correctly
+export SHELL=$(which zsh)
 
 # Configuration
 export DOTFILES_REPO_PATH="${DOTFILES_REPO_PATH:-$HOME/.dotfiles-repo}"
@@ -359,4 +374,4 @@ fi
 
 log ""
 log "Installation completed at: $(date)"
-log "VERSION: 1.0.0"
+log "VERSION: 1.2.0"
