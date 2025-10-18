@@ -17,4 +17,4 @@ export LSCOLORS=ExFxCxDxBxegedabagacad
 # Less
 export LESS='-R'
 
-export SHOULD_LOG=0
+export SHOULD_LOG=1
