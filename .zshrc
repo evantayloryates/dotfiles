@@ -35,17 +35,21 @@ autoload -Uz compinit && compinit
 # Use emacs key bindings (AFTER syncing to ensure they stick)
 bindkey -e
 
-# Custom widget to force display refresh after backspace
-# (Fixes visual issue where backspace works but screen doesn't update)
-_backward-delete-char-and-redisplay() {
+# Fix for backspace display issues - send explicit erase sequence
+_fix-backspace() {
+    # Delete the character
     zle .backward-delete-char
-    zle -R
+    # Force full line redraw
+    zle .redisplay
+    # Alternative: send explicit terminal control
+    # echoti cub1  # move cursor back
+    # echoti dch1  # delete character
 }
-zle -N backward-delete-char _backward-delete-char-and-redisplay
+zle -N _fix-backspace
 
 # Key bindings for common keys (AFTER syncing so these take precedence)
-bindkey "^?" backward-delete-char      # Backspace (DEL) with redisplay
-bindkey "^H" backward-delete-char      # Backspace (BS) with redisplay
+bindkey "^?" _fix-backspace            # Backspace (DEL) with redisplay
+bindkey "^H" _fix-backspace            # Backspace (BS) with redisplay
 bindkey "^[[3~" delete-char            # Delete
 bindkey "^[[H" beginning-of-line       # Home
 bindkey "^[[F" end-of-line             # End

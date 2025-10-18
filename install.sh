@@ -18,10 +18,11 @@ else
 fi
 
 # Install ncurses-term for terminal definitions (fixes backspace display issues)
-log "Installing ncurses-term package..."
+log "Installing ncurses-term and system zsh..."
 if command -v apt-get >/dev/null 2>&1; then
-  sudo apt-get update -qq >/dev/null 2>&1 && sudo apt-get install -y ncurses-term >/dev/null 2>&1 && \
-    log "✅ ncurses-term installed" || log "⚠️  Could not install ncurses-term"
+  sudo apt-get update -qq >/dev/null 2>&1 && \
+  sudo apt-get install -y ncurses-term zsh >/dev/null 2>&1 && \
+    log "✅ ncurses-term and zsh installed" || log "⚠️  Could not install packages"
 fi
 
 # Create .zshrc FIRST (before slow zsh installation)

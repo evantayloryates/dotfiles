@@ -225,10 +225,10 @@ if [[ -f "$HOME/.zshrc" ]]; then
     TARGET_BIN_DIR="$INSTALL_DIR_BASE/bin"
   fi
   if ! grep -q "$TARGET_BIN_DIR" "$HOME/.zshrc" 2>/dev/null; then
-    log "Adding $TARGET_BIN_DIR to PATH in .zshrc"
+    log "Adding $TARGET_BIN_DIR to PATH in .zshrc (as fallback after system zsh)"
     echo "" >> "$HOME/.zshrc"
-    echo "# Dotfiles local zsh" >> "$HOME/.zshrc"
-    echo "export PATH=\"$TARGET_BIN_DIR:\$PATH\"" >> "$HOME/.zshrc"
+    echo "# Dotfiles local zsh (fallback if system zsh not available)" >> "$HOME/.zshrc"
+    echo "export PATH=\"\$PATH:$TARGET_BIN_DIR\"" >> "$HOME/.zshrc"
   else
     log "PATH already includes $TARGET_BIN_DIR in .zshrc"
   fi
@@ -274,7 +274,10 @@ if [[ ! -f "$ENV_SCRIPT" ]] || ! grep -q "auto-exec zsh from dotfiles" "$ENV_SCR
 # auto-exec zsh from dotfiles (added by install_zsh.sh)
 # This is sourced by /bin/sh via ENV variable
 if [ -z "$ZSH_VERSION" ] && [ -t 1 ]; then
+  # Prefer system zsh if available
   for zsh_candidate in \
+    /usr/bin/zsh \
+    /bin/zsh \
     "$HOME/dotfiles/local/zsh-"*/bin/zsh \
     "$HOME/dotfiles/local/bin/zsh"
   do
@@ -312,7 +315,10 @@ for rcfile in "$HOME/.bashrc" "$HOME/.profile"; do
 
 # auto-exec zsh from dotfiles (added by install_zsh.sh)
 if [ -z "$ZSH_VERSION" ] && [ -t 1 ]; then
+  # Prefer system zsh if available
   for zsh_candidate in \
+    /usr/bin/zsh \
+    /bin/zsh \
     "$HOME/dotfiles/local/zsh-"*/bin/zsh \
     "$HOME/dotfiles/local/bin/zsh"
   do
