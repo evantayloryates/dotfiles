@@ -40,6 +40,11 @@ sync_dotfiles() {
         return 0
     fi
     
+    # Also persist if we have a commit but file doesn't exist
+    if [[ -n "$LATEST_DOTFILES_COMMIT" && ! -f "$HOME/.dotfiles_commit" ]]; then
+        echo "$LATEST_DOTFILES_COMMIT" > "$HOME/.dotfiles_commit"
+    fi
+    
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] Changes detected! Syncing..." >> "$LOG_FILE"
     
     # Step 3: Load changes to LIVE_DOTFILES_REPO_DIR
@@ -96,8 +101,9 @@ sync_dotfiles() {
     
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] Successfully sourced $INDEX_FILE" >> "$LOG_FILE"
     
-    # Update the LATEST_DOTFILES_COMMIT env var
+    # Update the LATEST_DOTFILES_COMMIT env var and persist it
     export LATEST_DOTFILES_COMMIT="$REMOTE_COMMIT"
+    echo "$REMOTE_COMMIT" > "$HOME/.dotfiles_commit"
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] Updated LATEST_DOTFILES_COMMIT to $REMOTE_COMMIT" >> "$LOG_FILE"
     
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] === Sync complete (changes applied) ===" >> "$LOG_FILE"
