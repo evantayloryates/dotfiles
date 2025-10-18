@@ -278,8 +278,8 @@ done
 log "✅ zsh binary installation complete!"
 log ""
 log "To use zsh immediately, run:"
-log "  exec zsh -l"
+log "  exec $ZSH_PATH -l"
 log ""
-log "Or close and reopen your terminal."
+log "Or close and reopen your terminal (auto-exec hook will start zsh automatically)."
 
 
