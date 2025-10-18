@@ -1,10 +1,14 @@
 #!/bin/zsh
 # Sync dotfiles from remote repository
 
+export SHOULD_LOG=0
+
 log() {
-  local msg="[$(date '+%Y-%m-%d %H:%M:%S')] $*"
-  echo "$msg"
-  echo "$msg" >> "$HOME/log.txt"
+  if [[ "$SHOULD_LOG" -eq 1 ]]; then
+    local msg="[$(date '+%Y-%m-%d %H:%M:%S')] $*"
+    echo "$msg"
+    echo "$msg" >> "$HOME/log.txt"
+  fi
 }
 
 sync_dotfiles() {
