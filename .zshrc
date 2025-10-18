@@ -1,7 +1,8 @@
 #!/bin/zsh
 
+# Note: these won't live update. Requires rebuild of container to take effect.
 export SYNC_DOTFILES=1
-export SHOULD_LOG=0
+export SHOULD_LOG=1
 
 log() {
   if [[ "$SHOULD_LOG" -eq 1 ]]; then
