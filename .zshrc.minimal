@@ -1,0 +1,5 @@
+# Minimal zshrc for debugging
+bindkey -e
+bindkey "^?" backward-delete-char
+bindkey "^H" backward-delete-char
+
