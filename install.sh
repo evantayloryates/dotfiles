@@ -49,6 +49,26 @@ if ! command -v zsh >/dev/null 2>&1; then
   log "Custom zsh installation took ${ZSH_DURATION}s"
 else
   log "System zsh detected at $(which zsh), skipping custom zsh installation"
+  
+  # Still need to add auto-exec hooks to .bashrc and .profile
+  log "Adding zsh auto-exec hooks..."
+  for rcfile in "$HOME/.bashrc" "$HOME/.profile"; do
+    if [[ -f "$rcfile" ]] && ! grep -q "auto-exec zsh" "$rcfile" 2>/dev/null; then
+      cat >> "$rcfile" << 'HOOK_EOF'
+
+# auto-exec zsh (added by install.sh)
+if [ -z "$ZSH_VERSION" ] && [ -t 1 ]; then
+  for zsh_candidate in /usr/bin/zsh /bin/zsh; do
+    if [ -x "$zsh_candidate" ]; then
+      export SHELL="$zsh_candidate"
+      exec "$zsh_candidate" -l
+    fi
+  done
+fi
+HOOK_EOF
+      log "✅ Added auto-exec hook to $rcfile"
+    fi
+  done
 fi
 
 # Calculate total setup time with precision
