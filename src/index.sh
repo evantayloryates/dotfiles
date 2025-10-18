@@ -19,4 +19,3 @@ done
 
 # Unset temporary variable
 unset DOTFILES_SRC_DIR category category_dir file
-
