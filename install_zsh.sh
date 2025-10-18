@@ -253,6 +253,28 @@ log "Skipping login shell change (instant bashrc auto-exec used instead)"
 # --- Setup auto-exec for devcontainers/non-login shells ---
 # In devcontainers and some environments, login shell changes are ignored.
 # Add a hook to auto-exec zsh from bash/sh if available.
+
+# Try system-wide hook first (for /bin/sh non-login shells)
+SYSTEM_HOOK="/etc/profile.d/zsh-autoexec.sh"
+if [[ ! -f "$SYSTEM_HOOK" ]] || ! grep -q "auto-exec zsh from dotfiles" "$SYSTEM_HOOK" 2>/dev/null; then
+  log "Adding system-wide zsh auto-exec hook to $SYSTEM_HOOK"
+  sudo tee "$SYSTEM_HOOK" >/dev/null 2>&1 << 'HOOK_EOF' && log "✅ System-wide hook installed" || log "⚠️  Could not install system-wide hook (continuing with user hooks)"
+# auto-exec zsh from dotfiles (added by install_zsh.sh)
+if [ -z "$ZSH_VERSION" ] && [ -t 1 ]; then
+  for zsh_candidate in \
+    "$HOME/dotfiles/local/zsh-"*/bin/zsh \
+    "$HOME/dotfiles/local/bin/zsh"
+  do
+    if [ -x "$zsh_candidate" ]; then
+      export SHELL="$zsh_candidate"
+      exec "$zsh_candidate" -l
+    fi
+  done
+fi
+HOOK_EOF
+fi
+
+# Also add to user rc files as fallback
 for rcfile in "$HOME/.bashrc" "$HOME/.profile"; do
   if [[ -f "$rcfile" ]] && ! grep -q "auto-exec zsh from dotfiles" "$rcfile" 2>/dev/null; then
     log "Adding zsh auto-exec hook to $rcfile"
