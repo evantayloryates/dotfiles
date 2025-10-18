@@ -105,6 +105,18 @@ CHECK_INTERVAL=300  # Change to desired seconds
 rm ~/.dotfiles_last_check  # Force immediate check on next shell
 ```
 
+### Disable auto-pipe to zsh
+By default, terminals will automatically switch to zsh. To disable this:
+```bash
+export SHOULD_PIPE_ZSH=0
+bash install.sh
+```
+
+Or set it in your `.zshrc`:
+```bash
+export SHOULD_PIPE_ZSH=0  # Set to 1 to re-enable
+```
+
 ### Repo location
 Set custom location before running install:
 ```bash

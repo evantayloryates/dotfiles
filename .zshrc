@@ -6,6 +6,7 @@ export SHELL=$(which zsh)
 
 # Configuration
 export DOTFILES_REPO_PATH="${DOTFILES_REPO_PATH:-$HOME/.dotfiles-repo}"
+export SHOULD_PIPE_ZSH="${SHOULD_PIPE_ZSH:-1}"  # Set to 0 to disable auto-launch to zsh
 DOTFILES_REPO_URL="https://github.com/evantayloryates/dotfiles.git"
 UPDATE_CHECK_FILE="$HOME/.dotfiles_last_check"
 CHECK_INTERVAL=300  # Check every 5 minutes (300 seconds)

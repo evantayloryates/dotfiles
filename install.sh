@@ -18,10 +18,12 @@ log "🚀 Setting up dotfiles system for dev container..."
 # Configuration
 DOTFILES_REPO_URL="https://github.com/evantayloryates/dotfiles.git"
 DOTFILES_REPO_PATH="${DOTFILES_REPO_PATH:-$HOME/.dotfiles-repo}"
+SHOULD_PIPE_ZSH="${SHOULD_PIPE_ZSH:-0}"  # Set to 0 to disable auto-launch to zsh
 
 log "Configuration:"
 log "  DOTFILES_REPO_URL=$DOTFILES_REPO_URL"
 log "  DOTFILES_REPO_PATH=$DOTFILES_REPO_PATH"
+log "  SHOULD_PIPE_ZSH=$SHOULD_PIPE_ZSH"
 log "  HOME=$HOME"
 log "  USER=$(whoami)"
 log "  SHELL=$SHELL"
@@ -216,18 +218,22 @@ EOF
 fi
 
 # Create .shrc for dash/sh interactive shells (sourced via ENV variable)
-log "  Creating ~/.shrc for non-login shells..."
-cat > "$HOME/.shrc" << 'EOF'
+if [ "$SHOULD_PIPE_ZSH" = "1" ]; then
+    log "  Creating ~/.shrc for non-login shells..."
+    cat > "$HOME/.shrc" << 'EOF'
 # Auto-launch zsh for interactive sh/dash shells
 if [ -t 1 ] && [ "$0" != "-zsh" ] && [ "$0" != "zsh" ] && command -v zsh >/dev/null 2>&1; then
     export SHELL=$(command -v zsh)
     exec zsh
 fi
 EOF
-log "  ✅ Created .shrc"
+    log "  ✅ Created .shrc"
+else
+    log "  ⏭️  Skipping .shrc creation (SHOULD_PIPE_ZSH=0)"
+fi
 
-# If shell change didn't work, we'll ensure zsh launches anyway
-if [ "$SHELL_CHANGED" = false ]; then
+# If shell change didn't work, we'll ensure zsh launches anyway (if auto-pipe is enabled)
+if [ "$SHELL_CHANGED" = false ] && [ "$SHOULD_PIPE_ZSH" = "1" ]; then
     log "⚠️  Could not change default shell in system files"
     log "  Will configure bash to auto-launch zsh instead"
     log ""
@@ -273,6 +279,7 @@ export SHELL=$(which zsh)
 
 # Configuration
 export DOTFILES_REPO_PATH="${DOTFILES_REPO_PATH:-$HOME/.dotfiles-repo}"
+export SHOULD_PIPE_ZSH="${SHOULD_PIPE_ZSH:-1}"  # Set to 0 to disable auto-launch to zsh
 DOTFILES_REPO_URL="https://github.com/evantayloryates/dotfiles.git"
 UPDATE_CHECK_FILE="$HOME/.dotfiles_last_check"
 CHECK_INTERVAL=300  # Check every 5 minutes
@@ -339,36 +346,41 @@ else
     log "  DOTFILES_REPO_PATH already in .zshrc"
 fi
 
-# Always add auto-launch to shell rc files as a fallback
+# Add auto-launch to shell rc files as a fallback (if enabled)
 # (VS Code/Cursor terminals don't always respect /etc/passwd shell changes)
-log ""
-log "🔧 Adding zsh auto-launch to shell rc files..."
+if [ "$SHOULD_PIPE_ZSH" = "1" ]; then
+    log ""
+    log "🔧 Adding zsh auto-launch to shell rc files..."
 
-ZSH_LAUNCH_CODE='
+    ZSH_LAUNCH_CODE='
 # Auto-launch zsh (added by dotfiles installer)
 if [ -t 1 ] && command -v zsh &> /dev/null; then
     export SHELL=$(which zsh)
     exec zsh
 fi'
 
-# Add to .profile (sourced by sh/dash/bash login shells)
-if [ -f "$HOME/.profile" ]; then
-    if ! grep -q "# Auto-launch zsh" "$HOME/.profile" 2>/dev/null; then
-        echo "$ZSH_LAUNCH_CODE" >> "$HOME/.profile"
-        log "✅ Added zsh auto-launch to .profile"
-    else
-        log "  Auto-launch already in .profile"
+    # Add to .profile (sourced by sh/dash/bash login shells)
+    if [ -f "$HOME/.profile" ]; then
+        if ! grep -q "# Auto-launch zsh" "$HOME/.profile" 2>/dev/null; then
+            echo "$ZSH_LAUNCH_CODE" >> "$HOME/.profile"
+            log "✅ Added zsh auto-launch to .profile"
+        else
+            log "  Auto-launch already in .profile"
+        fi
     fi
-fi
 
-# Add to .bashrc (sourced by interactive bash shells)
-if [ -f "$HOME/.bashrc" ]; then
-    if ! grep -q "# Auto-launch zsh" "$HOME/.bashrc" 2>/dev/null; then
-        echo "$ZSH_LAUNCH_CODE" >> "$HOME/.bashrc"
-        log "✅ Added zsh auto-launch to .bashrc"
-    else
-        log "  Auto-launch already in .bashrc"
+    # Add to .bashrc (sourced by interactive bash shells)
+    if [ -f "$HOME/.bashrc" ]; then
+        if ! grep -q "# Auto-launch zsh" "$HOME/.bashrc" 2>/dev/null; then
+            echo "$ZSH_LAUNCH_CODE" >> "$HOME/.bashrc"
+            log "✅ Added zsh auto-launch to .bashrc"
+        else
+            log "  Auto-launch already in .bashrc"
+        fi
     fi
+else
+    log ""
+    log "⏭️  Skipping zsh auto-launch setup (SHOULD_PIPE_ZSH=0)"
 fi
 
 # Configure VS Code/Cursor to use zsh by default
@@ -441,28 +453,38 @@ log ""
 log "📝 Summary:"
 log "   - Shell: zsh"
 log "   - Default shell changed: $SHELL_CHANGED"
+log "   - Auto-pipe to zsh: $SHOULD_PIPE_ZSH"
 log "   - Dotfiles repository: $DOTFILES_REPO_PATH"
 log "   - Auto-update interval: 5 minutes"
 log "   - Loader script: $DOTFILES_REPO_PATH/src/index.sh"
 log "   - Log file: $LOG_FILE"
 log ""
 
-if [ "$SHELL_CHANGED" = true ]; then
-    log "🎉 New terminals will automatically use zsh!"
-    log "   Current terminal: run 'exec zsh' or open a new terminal"
+if [ "$SHOULD_PIPE_ZSH" = "1" ]; then
+    if [ "$SHELL_CHANGED" = true ]; then
+        log "🎉 New terminals will automatically use zsh!"
+        log "   Current terminal: run 'exec zsh' or open a new terminal"
+    else
+        log "🎉 Bash will automatically launch zsh on new terminals!"
+        log "   Current terminal: run 'zsh' or open a new terminal"
+    fi
 else
-    log "🎉 Bash will automatically launch zsh on new terminals!"
-    log "   Current terminal: run 'zsh' or open a new terminal"
+    log "🎉 Dotfiles installed!"
+    log "   Auto-pipe to zsh is disabled (SHOULD_PIPE_ZSH=0)"
+    log "   Run 'zsh' manually when you want to use it"
 fi
 
 log ""
 log "Installation completed at: $(date)"
 log "VERSION: 1.8.0"
 
-# Automatically switch this terminal to zsh if it's interactive
-if [ -t 0 ] && [ -t 1 ]; then
+# Automatically switch this terminal to zsh if it's interactive (and enabled)
+if [ "$SHOULD_PIPE_ZSH" = "1" ] && [ -t 0 ] && [ -t 1 ]; then
     log ""
     log "🔄 Switching this terminal to zsh..."
     sleep 1
     exec "$ZSH_PATH" -l
+elif [ "$SHOULD_PIPE_ZSH" = "0" ]; then
+    log ""
+    log "⏭️  Not switching terminal to zsh (SHOULD_PIPE_ZSH=0)"
 fi
