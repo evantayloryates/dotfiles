@@ -374,28 +374,34 @@ fi
 # Configure VS Code/Cursor to use zsh by default
 log ""
 log "🔧 Configuring VS Code/Cursor terminal settings..."
-VSCODE_SETTINGS_DIR="$HOME/.vscode-server/data/Machine"
-if [ -d "$HOME/.vscode-server" ]; then
-    mkdir -p "$VSCODE_SETTINGS_DIR"
-    SETTINGS_FILE="$VSCODE_SETTINGS_DIR/settings.json"
+
+# Function to configure terminal settings for a given IDE server
+configure_ide_terminal() {
+    local IDE_NAME=$1
+    local SERVER_DIR=$2
+    local SETTINGS_DIR="$SERVER_DIR/data/Machine"
     
-    # Create or update settings.json
-    if [ -f "$SETTINGS_FILE" ]; then
-        log "  VS Code settings file exists, updating..."
-        # Backup existing settings
-        cp "$SETTINGS_FILE" "$SETTINGS_FILE.bak"
-    else
-        log "  Creating new VS Code settings file..."
-        echo "{}" > "$SETTINGS_FILE"
-    fi
-    
-    # Use jq if available, otherwise create a basic config
-    if command -v jq &> /dev/null; then
-        jq '. + {"terminal.integrated.defaultProfile.linux": "zsh", "terminal.integrated.profiles.linux": {"zsh": {"path": "'$ZSH_PATH'"}}}' "$SETTINGS_FILE" > "$SETTINGS_FILE.tmp" && mv "$SETTINGS_FILE.tmp" "$SETTINGS_FILE"
-        log "  ✅ Updated VS Code settings with jq"
-    else
-        # Fallback: just ensure zsh is set (may not be perfect JSON if file has other settings)
-        cat > "$SETTINGS_FILE" << EOF
+    if [ -d "$SERVER_DIR" ]; then
+        log "  Detected $IDE_NAME server at $SERVER_DIR"
+        mkdir -p "$SETTINGS_DIR"
+        local SETTINGS_FILE="$SETTINGS_DIR/settings.json"
+        
+        # Create or update settings.json
+        if [ -f "$SETTINGS_FILE" ]; then
+            log "    Settings file exists, backing up..."
+            cp "$SETTINGS_FILE" "$SETTINGS_FILE.bak"
+        else
+            log "    Creating new settings file..."
+            echo "{}" > "$SETTINGS_FILE"
+        fi
+        
+        # Use jq if available, otherwise create a basic config
+        if command -v jq &> /dev/null; then
+            jq '. + {"terminal.integrated.defaultProfile.linux": "zsh", "terminal.integrated.profiles.linux": {"zsh": {"path": "'$ZSH_PATH'"}}}' "$SETTINGS_FILE" > "$SETTINGS_FILE.tmp" && mv "$SETTINGS_FILE.tmp" "$SETTINGS_FILE"
+            log "    ✅ Updated $IDE_NAME settings with jq"
+        else
+            # Fallback: create a basic config
+            cat > "$SETTINGS_FILE" << EOF
 {
   "terminal.integrated.defaultProfile.linux": "zsh",
   "terminal.integrated.profiles.linux": {
@@ -405,10 +411,25 @@ if [ -d "$HOME/.vscode-server" ]; then
   }
 }
 EOF
-        log "  ✅ Created VS Code settings"
+            log "    ✅ Created $IDE_NAME settings"
+        fi
+        return 0
     fi
-else
-    log "  VS Code server not detected, skipping settings config"
+    return 1
+}
+
+# Try to configure both VS Code and Cursor
+CONFIGURED=false
+if configure_ide_terminal "Cursor" "$HOME/.cursor-server"; then
+    CONFIGURED=true
+fi
+if configure_ide_terminal "VS Code" "$HOME/.vscode-server"; then
+    CONFIGURED=true
+fi
+
+if [ "$CONFIGURED" = false ]; then
+    log "  ⚠️  No IDE server detected yet"
+    log "  Settings will be applied when you open a new terminal after this setup"
 fi
 
 log ""
@@ -435,4 +456,4 @@ fi
 
 log ""
 log "Installation completed at: $(date)"
-log "VERSION: 1.4.0"
+log "VERSION: 1.5.0"
