@@ -1,17 +1,15 @@
 #!/bin/zsh
+
+export SYNC_DOTFILES=1
 export SHOULD_LOG=0
 
 log() {
   if [[ "$SHOULD_LOG" -eq 1 ]]; then
-  local msg="[$(date '+%Y-%m-%d %H:%M:%S')] $*"
+    local msg="[$(date '+%Y-%m-%d %H:%M:%S')] $*"
     echo "$msg"
     echo "$msg" >> "$HOME/log.txt"
   fi
 }
-
-
-# Control whether to sync dotfiles
-export SYNC_DOTFILES=1
 
 # Find and use the best available zsh
 if [[ -n "$(command -v zsh)" ]]; then
