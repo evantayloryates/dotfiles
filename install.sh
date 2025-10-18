@@ -1,10 +1,31 @@
 #!/bin/bash
 
-echo "🚀 Setting up dotfiles system for dev container..."
+# Setup logging
+LOG_FILE="$HOME/log.txt"
+echo "========================================" > "$LOG_FILE"
+echo "Dotfiles Installation Log" >> "$LOG_FILE"
+echo "Started at: $(date)" >> "$LOG_FILE"
+echo "========================================" >> "$LOG_FILE"
+echo "" >> "$LOG_FILE"
+
+# Logging function
+log() {
+    echo "$1" | tee -a "$LOG_FILE"
+}
+
+log "🚀 Setting up dotfiles system for dev container..."
 
 # Configuration
 DOTFILES_REPO_URL="https://github.com/evantayloryates/dotfiles.git"
 DOTFILES_REPO_PATH="${DOTFILES_REPO_PATH:-$HOME/.dotfiles-repo}"
+
+log "Configuration:"
+log "  DOTFILES_REPO_URL=$DOTFILES_REPO_URL"
+log "  DOTFILES_REPO_PATH=$DOTFILES_REPO_PATH"
+log "  HOME=$HOME"
+log "  USER=$(whoami)"
+log "  SHELL=$SHELL"
+log ""
 
 # Function to detect package manager
 detect_package_manager() {
@@ -24,102 +45,139 @@ detect_package_manager() {
 }
 
 # Check if zsh is installed, install if needed
-echo "🔍 Checking for zsh..."
+log "🔍 Checking for zsh..."
 if ! command -v zsh &> /dev/null; then
-    echo "⚠️  zsh not found, attempting to install..."
+    log "⚠️  zsh not found, attempting to install..."
     
     PKG_MANAGER=$(detect_package_manager)
+    log "  Detected package manager: $PKG_MANAGER"
     
     case "$PKG_MANAGER" in
         apt-get)
-            echo "📦 Installing zsh via apt-get..."
-            apt-get update && apt-get install -y zsh
+            log "📦 Installing zsh via apt-get..."
+            apt-get update >> "$LOG_FILE" 2>&1 && apt-get install -y zsh >> "$LOG_FILE" 2>&1
             ;;
         yum)
-            echo "📦 Installing zsh via yum..."
-            yum install -y zsh
+            log "📦 Installing zsh via yum..."
+            yum install -y zsh >> "$LOG_FILE" 2>&1
             ;;
         dnf)
-            echo "📦 Installing zsh via dnf..."
-            dnf install -y zsh
+            log "📦 Installing zsh via dnf..."
+            dnf install -y zsh >> "$LOG_FILE" 2>&1
             ;;
         apk)
-            echo "📦 Installing zsh via apk..."
-            apk add zsh
+            log "📦 Installing zsh via apk..."
+            apk add zsh >> "$LOG_FILE" 2>&1
             ;;
         brew)
-            echo "📦 Installing zsh via brew..."
-            brew install zsh
+            log "📦 Installing zsh via brew..."
+            brew install zsh >> "$LOG_FILE" 2>&1
             ;;
         *)
-            echo "❌ No supported package manager found. Cannot install zsh."
-            echo "   Please install zsh manually and run this script again."
+            log "❌ No supported package manager found. Cannot install zsh."
+            log "   Please install zsh manually and run this script again."
             exit 1
             ;;
     esac
     
     # Verify installation
     if ! command -v zsh &> /dev/null; then
-        echo "❌ Failed to install zsh"
+        log "❌ Failed to install zsh"
         exit 1
     fi
     
-    echo "✅ zsh installed successfully"
+    log "✅ zsh installed successfully"
 else
-    echo "✅ zsh is already installed"
+    log "✅ zsh is already installed"
 fi
 
 # Get zsh path
 ZSH_PATH=$(which zsh)
-echo "📍 zsh location: $ZSH_PATH"
+log "📍 zsh location: $ZSH_PATH"
+
+# Log current shell information
+log ""
+log "Current shell information:"
+log "  SHELL environment variable: $SHELL"
+log "  /etc/shells contents:"
+cat /etc/shells >> "$LOG_FILE" 2>&1
+log ""
 
 # Set zsh as default shell
-echo "🔧 Setting zsh as default shell..."
+log "🔧 Setting zsh as default shell..."
 if [ "$SHELL" != "$ZSH_PATH" ]; then
     # Add zsh to /etc/shells if not already there
     if ! grep -q "$ZSH_PATH" /etc/shells 2>/dev/null; then
-        echo "$ZSH_PATH" >> /etc/shells
+        log "  Adding $ZSH_PATH to /etc/shells..."
+        echo "$ZSH_PATH" >> /etc/shells 2>> "$LOG_FILE"
+        if [ $? -eq 0 ]; then
+            log "  ✓ Added successfully"
+        else
+            log "  ⚠️  Failed to add to /etc/shells (may need root)"
+        fi
+    else
+        log "  ✓ $ZSH_PATH already in /etc/shells"
     fi
     
     # Change default shell
-    if chsh -s "$ZSH_PATH" 2>/dev/null; then
-        echo "✅ Default shell set to zsh"
+    log "  Attempting to change shell with chsh..."
+    if chsh -s "$ZSH_PATH" 2>> "$LOG_FILE"; then
+        log "✅ Default shell set to zsh via chsh"
     else
+        log "⚠️  chsh failed (exit code: $?), trying usermod..."
         # Fallback: try using usermod or direct setting
         if command -v usermod &> /dev/null; then
-            usermod -s "$ZSH_PATH" "$(whoami)" 2>/dev/null
+            usermod -s "$ZSH_PATH" "$(whoami)" >> "$LOG_FILE" 2>&1
+            if [ $? -eq 0 ]; then
+                log "✅ Default shell set to zsh via usermod"
+            else
+                log "⚠️  usermod failed (exit code: $?)"
+            fi
+        else
+            log "⚠️  usermod not available"
         fi
-        echo "✅ Attempted to set default shell to zsh"
     fi
+    
+    # Check /etc/passwd
+    log ""
+    log "Current user entry in /etc/passwd:"
+    grep "^$(whoami):" /etc/passwd >> "$LOG_FILE" 2>&1
+    log ""
 else
-    echo "✅ zsh is already the default shell"
+    log "✅ zsh is already the default shell"
 fi
 
 # Clone or update the repository
 if [ ! -d "$DOTFILES_REPO_PATH" ]; then
-    echo "📦 Cloning dotfiles repository to $DOTFILES_REPO_PATH..."
-    if git clone "$DOTFILES_REPO_URL" "$DOTFILES_REPO_PATH"; then
-        echo "✅ Repository cloned successfully"
+    log "📦 Cloning dotfiles repository to $DOTFILES_REPO_PATH..."
+    if git clone "$DOTFILES_REPO_URL" "$DOTFILES_REPO_PATH" >> "$LOG_FILE" 2>&1; then
+        log "✅ Repository cloned successfully"
     else
-        echo "❌ Failed to clone repository"
+        log "❌ Failed to clone repository"
+        log "Git clone output:"
+        tail -20 "$LOG_FILE"
         exit 1
     fi
 else
-    echo "📂 Dotfiles repository already exists at $DOTFILES_REPO_PATH"
+    log "📂 Dotfiles repository already exists at $DOTFILES_REPO_PATH"
     cd "$DOTFILES_REPO_PATH"
-    echo "🔄 Updating repository..."
-    git pull origin master 2>/dev/null || git pull origin main 2>/dev/null
+    log "🔄 Updating repository..."
+    if git pull origin master >> "$LOG_FILE" 2>&1 || git pull origin main >> "$LOG_FILE" 2>&1; then
+        log "✅ Repository updated"
+    else
+        log "⚠️  Failed to update repository"
+    fi
     cd - > /dev/null
 fi
 
 # Copy .zshrc to home directory (only if it doesn't exist)
-echo "🔧 Setting up .zshrc..."
+log "🔧 Setting up .zshrc..."
 if [ ! -f "$HOME/.zshrc" ]; then
     if [ -f "$DOTFILES_REPO_PATH/.zshrc" ]; then
         cp "$DOTFILES_REPO_PATH/.zshrc" "$HOME/.zshrc"
-        echo "✅ Copied .zshrc to home directory"
+        log "✅ Copied .zshrc to home directory"
     else
-        echo "⚠️  .zshrc not found in repo, creating a basic one..."
+        log "⚠️  .zshrc not found in repo, creating a basic one..."
         cat > "$HOME/.zshrc" << 'EOF'
 # Dotfiles auto-update and loader
 # Note: changes to this file are not recommended since it is primarily a loader for live source files
@@ -175,28 +233,36 @@ if [ -f "$DOTFILES_REPO_PATH/src/index.sh" ]; then
     source "$DOTFILES_REPO_PATH/src/index.sh"
 fi
 EOF
-        echo "✅ Created .zshrc"
+        log "✅ Created .zshrc"
     fi
 else
-    echo "✅ .zshrc already exists, skipping (to preserve local changes)"
+    log "✅ .zshrc already exists, skipping (to preserve local changes)"
 fi
 
 # Update DOTFILES_REPO_PATH in existing .zshrc if needed
 if ! grep -q "DOTFILES_REPO_PATH" "$HOME/.zshrc" 2>/dev/null; then
+    log "  Adding DOTFILES_REPO_PATH to .zshrc..."
     sed -i.bak "1i\\
 export DOTFILES_REPO_PATH=\"$DOTFILES_REPO_PATH\"\\
 " "$HOME/.zshrc"
-    echo "✅ Added DOTFILES_REPO_PATH to .zshrc"
+    log "✅ Added DOTFILES_REPO_PATH to .zshrc"
+else
+    log "  DOTFILES_REPO_PATH already in .zshrc"
 fi
 
-echo ""
-echo "✨ Dotfiles system setup complete!"
-echo ""
-echo "📝 Summary:"
-echo "   - Shell: zsh (default)"
-echo "   - Dotfiles repository: $DOTFILES_REPO_PATH"
-echo "   - Auto-update interval: 5 minutes"
-echo "   - Loader script: $DOTFILES_REPO_PATH/src/index.sh"
-echo ""
-echo "🎉 Start a new zsh shell to activate your dotfiles!"
-echo "   Run: exec zsh"
+log ""
+log "========================================"
+log "✨ Dotfiles system setup complete!"
+log "========================================"
+log ""
+log "📝 Summary:"
+log "   - Shell: zsh (default)"
+log "   - Dotfiles repository: $DOTFILES_REPO_PATH"
+log "   - Auto-update interval: 5 minutes"
+log "   - Loader script: $DOTFILES_REPO_PATH/src/index.sh"
+log "   - Log file: $LOG_FILE"
+log ""
+log "🎉 Start a new zsh shell to activate your dotfiles!"
+log "   Run: exec zsh"
+log ""
+log "Installation completed at: $(date)"
