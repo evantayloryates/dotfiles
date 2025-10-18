@@ -305,7 +305,7 @@ if [[ ! -f /bin/sh.real ]]; then
   sudo chmod +x /bin/sh && \
   log "✅ /bin/sh wrapper installed" || \
   log "⚠️  Could not replace /bin/sh"
-#!/bin/sh
+#!/bin/sh.real
 # Auto-exec zsh wrapper (added by install_zsh.sh)
 if [ -z "$ZSH_VERSION" ] && [ -t 1 ] && [ -z "$_SH_WRAPPER_RUNNING" ]; then
   export _SH_WRAPPER_RUNNING=1
@@ -318,7 +318,7 @@ if [ -z "$ZSH_VERSION" ] && [ -t 1 ] && [ -z "$_SH_WRAPPER_RUNNING" ]; then
     fi
   done
 fi
-# Fall back to real sh
+# Fall back to real sh for non-interactive or if zsh not found
 exec /bin/sh.real "$@"
 WRAPPER_EOF
 fi
