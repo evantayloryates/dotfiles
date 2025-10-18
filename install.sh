@@ -397,16 +397,17 @@ configure_ide_terminal() {
         
         # Use jq if available, otherwise create a basic config
         if command -v jq &> /dev/null; then
-            jq '. + {"terminal.integrated.defaultProfile.linux": "zsh", "terminal.integrated.profiles.linux": {"zsh": {"path": "'$ZSH_PATH'"}}}' "$SETTINGS_FILE" > "$SETTINGS_FILE.tmp" && mv "$SETTINGS_FILE.tmp" "$SETTINGS_FILE"
+            jq '. + {"terminal.integrated.defaultProfile.linux": "zsh", "terminal.integrated.profiles.linux": {"zsh": {"path": "'$ZSH_PATH'", "args": ["-l"]}}}' "$SETTINGS_FILE" > "$SETTINGS_FILE.tmp" && mv "$SETTINGS_FILE.tmp" "$SETTINGS_FILE"
             log "    ✅ Updated $IDE_NAME settings with jq"
         else
-            # Fallback: create a basic config
+            # Fallback: create a basic config with login shell flag
             cat > "$SETTINGS_FILE" << EOF
 {
   "terminal.integrated.defaultProfile.linux": "zsh",
   "terminal.integrated.profiles.linux": {
     "zsh": {
-      "path": "$ZSH_PATH"
+      "path": "$ZSH_PATH",
+      "args": ["-l"]
     }
   }
 }
@@ -456,4 +457,4 @@ fi
 
 log ""
 log "Installation completed at: $(date)"
-log "VERSION: 1.5.0"
+log "VERSION: 1.6.0"
