@@ -6,7 +6,6 @@ export SHOULD_LOG=1
 export EDITOR='vim'
 export VISUAL='vim'
 
-
 # History
 export HISTSIZE=10000
 export SAVEHIST=10000
