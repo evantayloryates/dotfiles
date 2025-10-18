@@ -157,18 +157,34 @@ elif [[ "$found_source" == "archive" ]]; then
   TEMP_DIR="${TMPDIR:-/tmp}/zsh-install.$$.tmp"
   mkdir -p "$TEMP_DIR"
   tar -xzf "$ARCHIVE_FILE" -C "$TEMP_DIR"
-  # The archive extracts into a directory named like the archive basename without .tar.gz
-  EXTRACTED_DIR="$(find "$TEMP_DIR" -maxdepth 1 -type d -name "zsh-*-${PLATFORM}" | head -n 1 || true)"
-  if [[ -z "$EXTRACTED_DIR" ]]; then
-    log "❌ Error: Failed to find extracted zsh directory in $TEMP_DIR"
-    exit 1
+
+  # zsh-bin archives typically extract bin/, share/, etc directly into the target directory.
+  EXTRACTED_DIR="$TEMP_DIR"
+
+  # If bin/zsh isn't at the root, try to find a single subdir containing bin/zsh
+  if [[ ! -x "$EXTRACTED_DIR/bin/zsh" ]]; then
+    CANDIDATE_DIR="$(find "$TEMP_DIR" -mindepth 1 -maxdepth 1 -type d \
+      -exec test -x '{}/bin/zsh' ';' -print | head -n 1 || true)"
+    if [[ -n "$CANDIDATE_DIR" ]]; then
+      EXTRACTED_DIR="$CANDIDATE_DIR"
+    fi
   fi
+
   if [[ -x "$EXTRACTED_DIR/share/zsh/5.8/scripts/relocate" ]]; then
     log "Relocating zsh package to: $INSTALL_DIR"
     "$EXTRACTED_DIR/share/zsh/5.8/scripts/relocate" -s "$EXTRACTED_DIR" -d "$INSTALL_DIR"
-  else
+  elif [[ -x "$EXTRACTED_DIR/bin/zsh" ]]; then
     log "Relocate script not found; copying package to: $INSTALL_DIR"
-    rsync -a --delete "$EXTRACTED_DIR"/ "$INSTALL_DIR"/
+    if command -v rsync >/dev/null 2>&1; then
+      rsync -a --delete "$EXTRACTED_DIR"/ "$INSTALL_DIR"/
+    else
+      mkdir -p "$INSTALL_DIR"
+      cp -a "$EXTRACTED_DIR"/. "$INSTALL_DIR"/
+    fi
+  else
+    log "❌ Error: Failed to find extracted zsh directory in $TEMP_DIR"
+    rm -rf "$TEMP_DIR"
+    exit 1
   fi
   rm -rf "$TEMP_DIR"
   ZSH_PATH="$INSTALL_DIR/bin/zsh"
