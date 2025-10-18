@@ -17,6 +17,13 @@ else
   log "Starting dotfiles installation (no pre-timestamp found)..."
 fi
 
+# Install ncurses-term for terminal definitions (fixes backspace display issues)
+log "Installing ncurses-term package..."
+if command -v apt-get >/dev/null 2>&1; then
+  sudo apt-get update -qq >/dev/null 2>&1 && sudo apt-get install -y ncurses-term >/dev/null 2>&1 && \
+    log "✅ ncurses-term installed" || log "⚠️  Could not install ncurses-term"
+fi
+
 # Create .zshrc FIRST (before slow zsh installation)
 log "Creating .zshrc..."
 cp "$(dirname "$0")/.zshrc" "$HOME/.zshrc"

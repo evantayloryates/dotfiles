@@ -3,6 +3,13 @@
 
 echo "Hello from zshrc!"
 
+# Set up TERMINFO path for zsh-bin's built-in terminfo database
+if [[ -d "$HOME/dotfiles/local/zsh-linux-arm64/share/terminfo" ]]; then
+    export TERMINFO="$HOME/dotfiles/local/zsh-linux-arm64/share/terminfo"
+elif [[ -d "$HOME/dotfiles/local/zsh-linux-x86_64/share/terminfo" ]]; then
+    export TERMINFO="$HOME/dotfiles/local/zsh-linux-x86_64/share/terminfo"
+fi
+
 # Ensure proper terminal type for VS Code
 export TERM="${TERM:-xterm-256color}"
 
