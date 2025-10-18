@@ -91,5 +91,3 @@ dist/*.example
 # Note: dist/build.sh is tracked (build script)
 # Note: src/ folder is tracked (source files)
 
-# Temporary vendored repo used only to extract binaries
-zsh-bin/
