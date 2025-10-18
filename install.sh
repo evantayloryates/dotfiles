@@ -303,15 +303,15 @@ else
     log "  DOTFILES_REPO_PATH already in .zshrc"
 fi
 
-# If default shell couldn't be changed, add auto-launch to .bashrc
-if [ "$SHELL_CHANGED" = false ]; then
-    log ""
-    log "🔧 Adding zsh auto-launch to .bashrc..."
-    
-    if [ -f "$HOME/.bashrc" ]; then
-        # Check if we already added the zsh launcher
-        if ! grep -q "# Auto-launch zsh" "$HOME/.bashrc" 2>/dev/null; then
-            cat >> "$HOME/.bashrc" << 'EOF'
+# Always add auto-launch to .bashrc as a fallback
+# (VS Code/Cursor terminals don't always respect /etc/passwd shell changes)
+log ""
+log "🔧 Adding zsh auto-launch to .bashrc..."
+
+if [ -f "$HOME/.bashrc" ]; then
+    # Check if we already added the zsh launcher
+    if ! grep -q "# Auto-launch zsh" "$HOME/.bashrc" 2>/dev/null; then
+        cat >> "$HOME/.bashrc" << 'EOF'
 
 # Auto-launch zsh (added by dotfiles installer)
 if [ -t 1 ] && command -v zsh &> /dev/null; then
@@ -319,10 +319,9 @@ if [ -t 1 ] && command -v zsh &> /dev/null; then
     exec zsh
 fi
 EOF
-            log "✅ Added zsh auto-launch to .bashrc"
-        else
-            log "  Auto-launch already configured in .bashrc"
-        fi
+        log "✅ Added zsh auto-launch to .bashrc"
+    else
+        log "  Auto-launch already configured in .bashrc"
     fi
 fi
 
