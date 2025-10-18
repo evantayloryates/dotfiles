@@ -1,6 +1,6 @@
 echo "Hello from zshrc!"
 export SHELL=$(which zsh)
-alias l="cat $HOME/log.txt"
+alias loog="cat $HOME/log.txt"
 
 # Enable zsh line editor and key bindings
 autoload -Uz compinit && compinit
