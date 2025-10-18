@@ -1,5 +1,6 @@
 #!/bin/zsh
-# Common exports
+
+export SHOULD_LOG=0
 
 # Editor
 export EDITOR='vim'
@@ -16,5 +17,3 @@ export LSCOLORS=ExFxCxDxBxegedabagacad
 
 # Less
 export LESS='-R'
-
-export SHOULD_LOG=1
