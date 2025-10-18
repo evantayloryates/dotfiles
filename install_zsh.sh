@@ -74,31 +74,48 @@ log "Current shell detected as: $CURRENT_SHELL"
 
 if [[ "$CURRENT_SHELL" != "$ZSH_PATH" ]]; then
   log "Changing default shell to zsh..."
-  if try_sudo usermod -s "$ZSH_PATH" "$USER" 2>/dev/null; then
+  # Temporarily disable exit-on-error for shell change attempts
+  set +e
+  try_sudo usermod -s "$ZSH_PATH" "$USER" 2>/dev/null
+  USERMOD_RESULT=$?
+  if [[ $USERMOD_RESULT -eq 0 ]]; then
     log "Successfully changed shell using usermod"
-  elif chsh -s "$ZSH_PATH" "$USER" 2>/dev/null; then
-    log "Successfully changed shell using chsh"
   else
-    log "Could not change shell automatically. Please run: chsh -s $ZSH_PATH"
+    log "usermod failed (exit code: $USERMOD_RESULT), trying chsh..."
+    chsh -s "$ZSH_PATH" "$USER" 2>/dev/null
+    CHSH_RESULT=$?
+    if [[ $CHSH_RESULT -eq 0 ]]; then
+      log "Successfully changed shell using chsh"
+    else
+      log "chsh failed (exit code: $CHSH_RESULT). Shell change unsuccessful but continuing..."
+      log "Note: You can manually run: chsh -s $ZSH_PATH"
+    fi
   fi
+  set -e
 else
   log "zsh is already the default shell."
 fi
 
 # --- Set SHELL environment variable persistently ---
 log "Setting SHELL environment variable..."
+set +e
 if [[ -d /etc/profile.d ]]; then
   log "Attempting to set SHELL globally in /etc/profile.d"
-  if echo "export SHELL=$ZSH_PATH" | try_sudo tee /etc/profile.d/zsh-default.sh >/dev/null 2>&1; then
+  echo "export SHELL=$ZSH_PATH" | try_sudo tee /etc/profile.d/zsh-default.sh >/dev/null 2>&1
+  GLOBAL_RESULT=$?
+  if [[ $GLOBAL_RESULT -eq 0 ]]; then
     log "Successfully set SHELL globally"
   else
-    log "Failed to set SHELL globally, falling back to ~/.profile"
+    log "Failed to set SHELL globally (exit code: $GLOBAL_RESULT), falling back to ~/.profile"
     echo "export SHELL=$ZSH_PATH" >> "$HOME/.profile"
+    log "Set SHELL in ~/.profile"
   fi
 else
   log "Setting SHELL in ~/.profile"
   echo "export SHELL=$ZSH_PATH" >> "$HOME/.profile"
+  log "Successfully set SHELL in ~/.profile"
 fi
+set -e
 
 # --- Detect special environments ---
 if grep -qi microsoft /proc/version 2>/dev/null; then
