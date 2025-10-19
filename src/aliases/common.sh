@@ -21,3 +21,6 @@ alias grep='grep --color=auto'
 alias mkdir='mkdir -pv'
 
 alias kit='kitty @ load-config /Users/taylor/.config/kitty/kitty.conf'
+
+alias password="python $DOTFILES_DIR/python/pwd.py"
+alias words="subl /Users/taylor/.dotfiles/assets/words.txt"

@@ -17,3 +17,8 @@ fi
 if [[ -d "/Applications/Cursor.app/Contents/Resources/app/bin" ]]; then
     export PATH="$PATH:/Applications/Cursor.app/Contents/Resources/app/bin"
 fi
+
+# Sublime Text CLI
+if [[ -d "/Applications/Sublime Text.app/Contents/SharedSupport/bin" ]]; then
+    export PATH="$PATH:/Applications/Sublime Text.app/Contents/SharedSupport/bin"
+fi
