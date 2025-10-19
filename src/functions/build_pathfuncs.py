@@ -36,7 +36,6 @@ CONFIG = [
   },
 ]
 
-
 def build_function(entry: Dict[str, Any]) -> str:
   slug = entry['slug']
   path = entry['path']
@@ -52,19 +51,23 @@ def build_function(entry: Dict[str, Any]) -> str:
   ]
 
   for name, cmd in commands.items():
-    # replace placeholders with dynamic references
     cmd_str = (
       cmd.replace('<path>', path)
          .replace('<args>', '"$args"')
     )
-
     fn.append(f'    {name})')
     fn.append(f'      {cmd_str}')
     fn.append('      ;;')
 
+  # --- Default case ---
+  fn.append('    "" )')
+  if default in commands:
+    # default is a defined subcommand -> call it directly
+    fn.append(f'      {default} "$@"')
+  else:
+    # default is an external command -> apply to path
+    fn.append(f'      {default} "{path}"')
   fn.extend([
-    '    "" )',
-    f'      {default} "{path}"',
     '      ;;',
     '    * )',
     f'      $subcmd "{path}" "$@"',
