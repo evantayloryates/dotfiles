@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-export SHOULD_LOG=1
+export SHOULD_LOG=0
 
 # Editor
 export EDITOR='vim'
