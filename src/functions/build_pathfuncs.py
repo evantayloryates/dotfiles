@@ -9,7 +9,7 @@ CONFIG = [
   {
     'slug': 'amp',
     'path': '/Users/taylor/src/github/amplify',
-    'default': 'cd',
+    'default': 'cursor',
     'commands': {
       # 'ls': 'ls -AGhlo <path> ; echo "<args>"' # allows for fine tuning commands here
     }
