@@ -14,6 +14,12 @@ CONFIG = [
       # 'ls': 'ls -AGhlo <path> ; echo "<args>"' # allows for fine tuning commands here
     }
   },
+  {
+    'slug': 's',
+    'path': '/Users/taylor/src',
+    'default': 'cd',
+    'commands': {},
+  },
 ]
 
 
