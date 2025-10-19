@@ -68,7 +68,7 @@ def chat_with_model(user_prompt: str) -> str:
     'input': {
       'prompt': conversation_text,
       'temperature': 0.2,
-      'max_tokens': 500
+      'max_tokens': 600
     }
   }, indent=2).encode('utf-8')
 
