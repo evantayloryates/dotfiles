@@ -30,6 +30,20 @@ function pretty_date() {
 }
 
 setopt PROMPT_SUBST
-export PS1='$(pretty_date) | %F{magenta}%B%d%b%f | '
+export PS1='$(pretty_date) | %F{magenta}%B%d%b%f
+      | '
+
+# Hook that runs before each command execution
+# This rewrites the 2-line prompt as a single line in the history
+function preexec() {
+  # Move cursor up one line and to the beginning
+  printf '\r\033[1A'
+  # Clear the current line
+  printf '\033[2K'
+  # Print the single-line version with the command
+  printf "$(pretty_date) | %s | %s\n" "$PWD" "$1"
+  # Clear the second line (where we were typing)
+  printf '\033[2K'
+}
 
 export TZ='America/New_York'
