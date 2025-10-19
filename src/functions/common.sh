@@ -38,15 +38,27 @@ img() {
   # Display image in Kitty
   kitty +kitten icat "$img_path"
 
-  # Copy path to clipboard (macOS pbcopy or Linux xclip/xsel)
-  if command -v pbcopy &>/dev/null; then
-    echo -n "$img_path" | pbcopy
+  # Copy file reference to clipboard (so Cmd+P works in Finder)
+  if command -v osascript &>/dev/null; then
+    if osascript -e "set the clipboard to POSIX file \"$img_path\"" 2>/dev/null; then
+      echo "✅ Image file copied to clipboard (as file reference): $img_path"
+    else
+      # Fallback: copy image data (works for pasting into Messages, Slack, etc.)
+      osascript -e "set the clipboard to (read (POSIX file \"$img_path\") as picture)"
+      echo "✅ Image data copied to clipboard: $img_path"
+    fi
+  elif command -v pbcopy &>/dev/null; then
+    # macOS fallback if osascript missing
+    osascript -e "set the clipboard to (read (POSIX file \"$img_path\") as picture)"
+    echo "✅ Image data copied to clipboard: $img_path"
   elif command -v xclip &>/dev/null; then
-    echo -n "$img_path" | xclip -selection clipboard
+    xclip -selection clipboard -t image/png -i "$img_path"
+    echo "✅ Image data copied to clipboard (xclip): $img_path"
   elif command -v xsel &>/dev/null; then
-    echo -n "$img_path" | xsel --clipboard --input
+    xsel --clipboard --input < "$img_path"
+    echo "✅ Image data copied to clipboard (xsel): $img_path"
   else
-    echo 'No clipboard utility found (pbcopy, xclip, or xsel).'
+    echo '⚠️ No compatible clipboard utility found.'
     return 1
   fi
 
