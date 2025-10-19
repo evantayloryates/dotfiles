@@ -2,6 +2,7 @@
 import os
 import tempfile
 import json
+from typing import Dict, Any
 
 # --- CONFIG ---
 CONFIG = [
@@ -10,26 +11,36 @@ CONFIG = [
     'path': '/Users/taylor/src/github/amplify',
     'default': 'cd',
     'commands': {
-      # 'ls': 'ls -AGhlo <path> | grep' # allow fine tuning commands here
+      # both <path> and <args> are replaced dynamically
+      'ls': 'ls -AGhlo <path> | grep <args>'
     }
   },
 ]
 
-def build_function(entry: dict) -> str:
+
+def build_function(entry: Dict[str, Any]) -> str:
   slug = entry['slug']
   path = entry['path']
   default = entry.get('default', 'cd')
   commands = entry.get('commands', {})
 
-  fn = [f'{slug}() {{',
-        '  local subcmd="$1"',
-        '  shift || true',
-        '  case "$subcmd" in']
+  fn = [
+    f'{slug}() {{',
+    '  local subcmd="$1"',
+    '  shift || true',
+    '  local args="$@"',
+    '  case "$subcmd" in'
+  ]
 
   for name, cmd in commands.items():
-    cmd_str = cmd.replace('<path>', path)
+    # replace placeholders with dynamic references
+    cmd_str = (
+      cmd.replace('<path>', path)
+         .replace('<args>', '"$args"')
+    )
+
     fn.append(f'    {name})')
-    fn.append(f'      {cmd_str} "$@"')
+    fn.append(f'      {cmd_str}')
     fn.append('      ;;')
 
   fn.extend([
@@ -47,12 +58,17 @@ def build_function(entry: dict) -> str:
 
 
 def main():
+  # join all generated functions
   functions = '\n\n'.join(build_function(entry) for entry in CONFIG)
+
+  # write to temp file
   fd, path = tempfile.mkstemp(prefix='pathfuncs_', suffix='.zsh')
   with os.fdopen(fd, 'w') as f:
     f.write('# Generated shell functions\n\n')
     f.write(functions)
     f.write('\n')
+
+  # print filepath so zshrc can source it
   print(path)
 
 
