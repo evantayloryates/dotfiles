@@ -15,7 +15,6 @@ if not REPLICATE_API_TOKEN:
   print('Missing REPLICATE_API_TOKEN', file=sys.stderr)
   sys.exit(1)
 
-
 MODEL = 'deepseek-ai/deepseek-v3.1'
 API_URL = f'https://api.replicate.com/v1/models/{MODEL}/predictions'
 
@@ -67,7 +66,7 @@ def generate_text(prompt: str) -> str:
 
   status = initial.get('status')
   data = initial
-  for _ in range(60):  # ~2 minutes
+  for _ in range(60):
     if status in ('succeeded', 'failed', 'canceled'):
       break
     time.sleep(2)
@@ -90,27 +89,32 @@ def generate_text(prompt: str) -> str:
   else:
     raise RuntimeError(f'Unexpected output format: {output!r}')
 
-  # Write result to temp file
   tmp_dir = os.getenv('TMPDIR', '/tmp')
   fd, path = tempfile.mkstemp(prefix='research_', suffix='.txt', dir=tmp_dir)
   os.close(fd)
   with open(path, 'w', encoding='utf-8') as f:
     f.write(text + '\n')
 
-  # Return path only
   return path
+
 
 if __name__ == '__main__':
   if len(sys.argv) < 2:
-    print('Usage: replicate.research.py <prompt>', file=sys.stderr)
+    print('Usage: replicate.research.py <input_filepath>', file=sys.stderr)
     sys.exit(1)
 
-  prompt = ' '.join(sys.argv[1:])
-  try:
-    file_path = generate_text(prompt)
+  input_path = sys.argv[1]
+  if not os.path.isfile(input_path):
+    print(f'Invalid file path: {input_path}', file=sys.stderr)
+    sys.exit(1)
 
-    # print absolute path, guaranteed newline, and flush output for zsh compatibility
+  try:
+    with open(input_path, 'r', encoding='utf-8') as f:
+      prompt = f.read().strip()
+
+    file_path = generate_text(prompt)
     print(file_path, flush=True)
+
   except Exception as e:
     log(f'Error: {e}')
     print(f'Error: {e}', file=sys.stderr)
