@@ -29,5 +29,7 @@ function pretty_date() {
   echo "$current_time"
 }
 
-export PS1="$(pretty_date) | %F{cyan}%B%n%b%f:%F{magenta}%B%d%b%f "
+setopt PROMPT_SUBST
+export PS1='$(pretty_date) | %F{magenta}%B%d%b%f
+           ↪ '
 export TZ='America/New_York'
