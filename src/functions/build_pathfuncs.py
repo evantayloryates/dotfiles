@@ -15,6 +15,12 @@ CONFIG = [
     },
   },
   {
+    'slug': 'd',
+    'path': '/Users/taylor/Desktop',
+    'default': 'cd',
+    'commands': {},
+  },
+  {
     'slug': 's',
     'path': '/Users/taylor/src',
     'default': 'cd',
