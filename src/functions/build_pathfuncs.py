@@ -27,7 +27,7 @@ CONFIG = [
     'commands': {},
   },
   {
-    'slug': 'dotold',
+    'slug': 'dot-old',
     'path': '/Users/taylor/.dotfiles',
     'default': 'cursor',
     'commands': {},
