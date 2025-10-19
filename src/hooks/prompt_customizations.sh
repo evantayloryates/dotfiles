@@ -41,12 +41,12 @@ function combine-lines-accept-line() {
   printf '\033[2K'
   # Print the single-line version with the command (use print -P for zsh prompt codes)
   if [[ -n "$BUFFER" ]]; then
-    print -P "$(pretty_date) | %F{magenta}%B$PWD%b%f $BUFFER"
+    print -n -P "$(pretty_date) | %F{magenta}%B$PWD%b%f $BUFFER"
   else
-    print -P "$(pretty_date) | %F{magenta}%B$PWD%b%f"
+    print -n -P "$(pretty_date) | %F{magenta}%B$PWD%b%f"
   fi
-  # Clear the second line (where we were typing)
-  printf '\033[2K'
+  # Move to the second line, clear it, and move cursor to end of first line
+  printf '\n\033[2K\033[1A\033[999C'
   # Call the original accept-line
   zle .accept-line
 }
