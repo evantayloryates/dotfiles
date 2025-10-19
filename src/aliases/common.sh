@@ -11,7 +11,7 @@ ls() { /bin/ls -AGhlo "$@"; }
 abs() { realpath "$@"; }
 src() { exec "$SHELL" -l; }
 env() { /usr/bin/env | sort; }
-alias path="python3 $DOTFILES_DIR/src/python/path.py"
+path() { python3 "$DOTFILES_DIR/src/python/path.py"; }
 
 # Git shortcuts
 alias gs='git status'
