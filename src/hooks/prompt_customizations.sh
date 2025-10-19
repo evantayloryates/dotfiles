@@ -6,7 +6,7 @@ function blue() {
 }
 
 function darkgray() {
-  echo "%B%F{8}$1%b%f"
+  echo "%B%F{236}$1%b%f"
 }
 
 
