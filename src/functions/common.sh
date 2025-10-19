@@ -10,6 +10,3 @@ else
   echo "Failed to generate path functions"
 fi
 
-src() {
-  exec "$SHELL" -l
-}
