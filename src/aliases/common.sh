@@ -5,8 +5,6 @@
 source "$HOME/dotfiles/sync_dotfiles.sh"
 alias sync='sync_dotfiles'
 
-alias d='cd $HOME/Desktop'
-
 alias nn='echo "Hello, World!"'
 alias bb='echo "Hello, World!"'
 alias ls='ls -AGhlo'
