@@ -5,18 +5,9 @@
 source "$HOME/dotfiles/sync_dotfiles.sh"
 alias sync='sync_dotfiles'
 
-function ls() { ls -AGhlo "$@"; }
+function ls() { /bin/ls -AGhlo "$@"; }
+
 alias src='source $HOME/.zshrc'
-
-# Directory navigation
-alias ..='cd ..'
-alias ...='cd ../..'
-alias ....='cd ../../..'
-
-# List directory contents
-alias ll='ls -lah'
-alias la='ls -A'
-alias l='ls -CF'
 
 # Git shortcuts
 alias gs='git status'
