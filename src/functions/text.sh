@@ -82,3 +82,50 @@ research() {
   pbcopy < "$output_path"
   echo "📋 Copied response to clipboard"
 }
+
+
+researchmd() {
+  prompt="$*"
+  if [[ -z "$prompt" ]]; then
+    echo "Usage: researchmd <prompt>"
+    return 1
+  fi
+
+  # Step 1: Create temp file for prompt
+  tmp_prompt="$(mktemp "$TMPDIR/researchmd_prompt_XXXXXX.txt")"
+  echo "$prompt" > "$tmp_prompt"
+
+  # Step 2: Run _research to get main response file
+  research_path=$(_research "$tmp_prompt")
+  rm -f "$tmp_prompt"
+
+  if [[ -z "$research_path" || ! -f "$research_path" ]]; then
+    echo "Failed to generate research response" >&2
+    return 1
+  fi
+
+  # Step 3: Create amended temp file (response + extra markdown prompt)
+  tmp_amended="$(mktemp "$TMPDIR/researchmd_amended_XXXXXX.txt")"
+  cat "$research_path" > "$tmp_amended"
+  printf '\n\nmarkdown_prompt\n' >> "$tmp_amended"
+
+  # Step 4: Pass amended file to _quick
+  quick_path=$(_quick "$tmp_amended")
+
+  # Cleanup intermediate file
+  rm -f "$tmp_amended"
+
+  if [[ -z "$quick_path" || ! -f "$quick_path" ]]; then
+    echo "Failed to generate markdown quick response" >&2
+    return 1
+  fi
+
+  # Step 5: Display result using mdcat
+  printf '\n'
+  mdcat "$quick_path"
+  printf '\n\n'
+
+  # Step 6: Copy result to clipboard and log
+  pbcopy < "$quick_path"
+  echo "📋 Copied markdown-enhanced response to clipboard"
+}
