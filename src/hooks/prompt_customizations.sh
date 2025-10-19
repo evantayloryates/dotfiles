@@ -30,16 +30,6 @@ function pretty_date() {
 }
 
 setopt PROMPT_SUBST
-export PS1='$(pretty_date) | %F{magenta}%B%d%b%f
-      | '
-
-# Hook that runs before each command execution
-# This moves the command up to the first line for cleaner output
-function preexec() {
-  # Move cursor up one line, to the end of the first line
-  printf '\033[1A\033[999C'
-  # Print the command on the same line
-  printf " | %s\n" "$1"
-}
+export PS1='$(pretty_date) | %F{magenta}%B%d%b%f | '
 
 export TZ='America/New_York'
