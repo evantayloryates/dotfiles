@@ -35,19 +35,21 @@ export PS1='$(pretty_date) | %F{magenta}%B%d%b%f
 
 # Custom accept-line widget to combine lines before executing
 function combine-lines-accept-line() {
-  # Move cursor up one line and to the beginning
-  printf '\r\033[1A'
-  # Clear the current line
-  printf '\033[2K'
-  # Print the single-line version with the command (use print -P for zsh prompt codes)
-  if [[ -n "$BUFFER" ]]; then
-    print -P "$(pretty_date) | %F{magenta}%B$PWD%b%f $BUFFER"
-  else
+  if [[ -z "$BUFFER" ]]; then
+    # Empty command: just show single line and redisplay prompt
+    printf '\r\033[1A'
+    printf '\033[2K'
     print -n -P "$(pretty_date) | %F{magenta}%B$PWD%b%f"
+    printf '\n\033[2K'
+    zle reset-prompt
+    return
   fi
-  # Move down and clear the second line (where we were typing)
+  
+  # Non-empty command: combine to single line and execute
+  printf '\r\033[1A'
+  printf '\033[2K'
+  print -P "$(pretty_date) | %F{magenta}%B$PWD%b%f $BUFFER"
   printf '\n\033[2K'
-  # Call the original accept-line
   zle .accept-line
 }
 
