@@ -41,7 +41,7 @@ function preexec() {
   # Clear the current line
   printf '\033[2K'
   # Print the single-line version with the command (use print -P for zsh prompt codes)
-  print -P "$(pretty_date) | %F{magenta}%B$PWD%b%f | $1"
+  print -P "$(pretty_date) | %F{magenta}%B$PWD%b%f $1"
   # Clear the second line (where we were typing)
   printf '\033[2K'
 }
