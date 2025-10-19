@@ -21,6 +21,7 @@ function pretty_date() {
     current_time=" $current_time"
   fi
 
+
   local prefix_time=$(echo "$current_time" | awk '{print substr($0, 1, index($0, ":") - 1)}')  
   local suffix_time=$(echo "$current_time" | awk '{print substr($0, index($0, ":") + 1, length($0) - index($0, ":"))}')
   suffix_time=$(echo "$suffix_time" | awk '{print substr($0, 1, length($0)-1)}')
