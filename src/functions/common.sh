@@ -14,7 +14,6 @@ fi
 
 
 
-reload() {
-  echo 'Reloading shell...'
+src() {
   exec "$SHELL" -l
 }
