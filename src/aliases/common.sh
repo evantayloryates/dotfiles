@@ -20,7 +20,6 @@ alias gp='git push'
 alias gl='git log --oneline'
 
 # Utilities
-alias grep='grep --color=auto'
 alias mkdir='mkdir -pv'
 
 alias kit='kitty @ load-config /Users/taylor/.config/kitty/kitty.conf'
