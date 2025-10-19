@@ -36,10 +36,10 @@ img() {
 
   # Copy file reference to clipboard (Cmd+P works in Finder)
   if osascript -e "set the clipboard to POSIX file \"$img_path\"" 2>/dev/null; then
-    echo "✅ Image file copied to clipboard (as file reference): $img_path"
+    echo "✅ Image file copied to clipboard"
   else
     # Fallback: copy image data (pasteable into Messages, Slack, etc.)
     osascript -e "set the clipboard to (read (POSIX file \"$img_path\") as picture)"
-    echo "✅ Image data copied to clipboard: $img_path"
+    echo "✅ Image data copied to clipboard"
   fi
 }
