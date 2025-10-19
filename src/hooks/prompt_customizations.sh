@@ -9,7 +9,6 @@ zstyle ':vcs_info:*' enable git
 
 # Prompt: user@host:cwd (git info) ➜
 PROMPT='%F{green}%n@%m%f:%F{yellow}%~%f ${vcs_info_msg_0_} %F{cyan}➜%f '
-
 RPROMPT='%F{magenta}%*%f'
 
 setopt prompt_subst
