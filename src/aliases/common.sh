@@ -5,11 +5,11 @@
 source "$HOME/dotfiles/sync_dotfiles.sh"
 alias sync='sync_dotfiles'
 
-function ls() { /bin/ls -AGhlo "$@"; }
+ls() { /bin/ls -AGhlo "$@"; }
 
 alias src='source $HOME/.zshrc'
 
-function abs() { realpath "$@"; }
+abs() { realpath "$@"; }
 
 
 # Git shortcuts
