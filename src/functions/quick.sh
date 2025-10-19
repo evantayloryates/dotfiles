@@ -8,7 +8,7 @@ quick() {
 
   printf '\n'
   cat "$filepath"
-  printf '\n'
+  printf '\n\n'
 
   pbcopy < "$filepath"
   echo "📋 Copied response to clipboard"
