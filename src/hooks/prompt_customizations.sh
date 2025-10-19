@@ -25,7 +25,7 @@ function pretty_date() {
   local suffix_time=$(echo "$current_time" | awk '{print substr($0, index($0, ":") + 1, length($0) - index($0, ":"))}')
   suffix_time=$(echo "$suffix_time" | awk '{print substr($0, 1, length($0)-1)}')
 
-  local colored_prefix=$(darkgray "$prefix_time")
+  local colored_prefix=$(red "$prefix_time")
   local colored_suffix=$(red "$suffix_time")
 
   current_time="${colored_prefix}:%B%F{white}%b%f${colored_suffix}%F{white}${am_pm_char}%f"
