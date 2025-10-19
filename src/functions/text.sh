@@ -84,19 +84,26 @@ research() {
 }
 
 render_md_to_image() {
-  mdfile="$1"
-  imgfile="${mdfile%.md}.png"
+  srcfile="$1"
+  tmp_md="$(mktemp "$TMPDIR/rendermd_XXXXXX.md")"
+  cp "$srcfile" "$tmp_md"
 
-  # Example using mdimg (NodeJS) — you may need to install it
-  mdimg -i "$mdfile" -o "$imgfile" --css github
+  imgfile="${tmp_md%.md}.png"
+
+  # Example using mdimg (NodeJS)
+  mdimg -i "$tmp_md" -o "$imgfile" --css github
 
   if [[ ! -f "$imgfile" ]]; then
     echo "Failed to render markdown to image" >&2
+    rm -f "$tmp_md"
     return 1
   fi
 
   # Display inline in kitty
   kitty +kitten icat "$imgfile"
+
+  # Clean up
+  rm -f "$tmp_md"
 }
 
 
