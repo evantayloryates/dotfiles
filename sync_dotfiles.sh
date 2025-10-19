@@ -55,10 +55,12 @@ sync_dotfiles() {
   if [[ -d "$LIVE_DOTFILES_REPO_DIR/.git" ]]; then
     # Repository exists, pull latest changes
     log 'Repository exists. Pulling latest changes...'
+    log "Changing directory from $(pwd) to $LIVE_DOTFILES_REPO_DIR"
     cd "$LIVE_DOTFILES_REPO_DIR" || {
       log "ERROR: Failed to cd to $LIVE_DOTFILES_REPO_DIR"
       return 1
     }
+    log "Now in directory: $(pwd)"
     
     git fetch origin 2>> "$LOG_FILE" 1>> "$LOG_FILE"
     if [[ $? -ne 0 ]]; then
