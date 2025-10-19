@@ -21,6 +21,18 @@ CONFIG = [
     'commands': {},
   },
   {
+    'slug': 'dot',
+    'path': '/Users/taylor/dotfiles',
+    'default': 'cursor',
+    'commands': {},
+  },
+  {
+    'slug': 'dotold',
+    'path': '/Users/taylor/dotfiles',
+    'default': 'cursor',
+    'commands': {},
+  },
+  {
     'slug': 'gh',
     'path': '/Users/taylor/src/github',
     'default': 'cd',
