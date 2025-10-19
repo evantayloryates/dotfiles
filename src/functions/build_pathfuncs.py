@@ -11,8 +11,7 @@ CONFIG = [
     'path': '/Users/taylor/src/github/amplify',
     'default': 'cd',
     'commands': {
-      # both <path> and <args> are replaced dynamically
-      'ls': 'ls -AGhlo <path> ; echo "<args>"'
+      # 'ls': 'ls -AGhlo <path> ; echo "<args>"' # allows for fine tuning commands here
     }
   },
 ]
