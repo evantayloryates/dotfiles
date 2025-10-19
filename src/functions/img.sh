@@ -32,7 +32,7 @@ img() {
   fi
 
   # Display image in Kitty
-  kitty +kitten icat "$img_path"
+  kitty +kitten icat --align left "$img_path"
 
   # Copy file reference to clipboard (Cmd+P works in Finder)
   if osascript -e "set the clipboard to POSIX file \"$img_path\"" 2>/dev/null; then
