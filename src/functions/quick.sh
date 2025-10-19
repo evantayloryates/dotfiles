@@ -1,22 +1,17 @@
 _quick() {
   filepath="$1"
   if [[ -z "$filepath" || ! -f "$filepath" ]]; then
-    echo "Invalid or missing filepath"
+    echo "Invalid or missing filepath" >&2
     return 1
   fi
 
   output_path=$(python3 "$DOTFILES_DIR/src/python/replicate.quick.py" "$filepath")
   if [[ -z "$output_path" || ! -f "$output_path" ]]; then
-    echo "Failed to generate text"
+    echo "Failed to generate text" >&2
     return 1
   fi
 
-  printf '\n'
-  cat "$output_path"
-  printf '\n\n'
-
-  pbcopy < "$output_path"
-  echo "📋 Copied response to clipboard"
+  echo "$output_path"
 }
 
 quick() {
@@ -29,6 +24,18 @@ quick() {
   tmpfile="$(mktemp "$TMPDIR/quick_prompt_XXXXXX.txt")"
   echo "$prompt" > "$tmpfile"
 
-  _quick "$tmpfile"
+  output_path=$(_quick "$tmpfile")
   rm -f "$tmpfile"
+
+  if [[ -z "$output_path" || ! -f "$output_path" ]]; then
+    echo "Failed to generate text" >&2
+    return 1
+  fi
+
+  printf '\n'
+  cat "$output_path"
+  printf '\n\n'
+
+  pbcopy < "$output_path"
+  echo "📋 Copied response to clipboard"
 }
