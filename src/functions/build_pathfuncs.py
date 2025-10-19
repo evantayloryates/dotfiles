@@ -26,7 +26,7 @@ def build_function(entry: Dict[str, Any]) -> str:
   fn = [
     f'{slug}() {{',
     '  local subcmd="$1"',
-    '  shift || true',
+    '  if [[ $# -gt 0 ]]; then shift; fi',
     '  local args="$@"',
     '  case "$subcmd" in'
   ]
