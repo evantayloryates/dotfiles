@@ -31,7 +31,7 @@ CONFIG = [
     'path': '/Users/taylor/src/github/nexrender-scripts',
     'default': 'ssh',
     'commands': {
-      'ssh': 'echo "TODO"'
+      'ssh': 'echo "TODO"',
     },
   },
 ]
