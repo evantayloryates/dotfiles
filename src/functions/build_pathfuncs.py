@@ -20,6 +20,20 @@ CONFIG = [
     'default': 'cd',
     'commands': {},
   },
+  {
+    'slug': 'gh',
+    'path': '/Users/taylor/src/github',
+    'default': 'cd',
+    'commands': {},
+  },
+  {
+    'slug': 'nex',
+    'path': '/Users/taylor/src/github/nexrender-scripts',
+    'default': 'ssh',
+    'commands': {
+      'ssh': 'echo "TODO"'
+    },
+  },
 ]
 
 
