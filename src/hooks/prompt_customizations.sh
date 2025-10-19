@@ -39,3 +39,27 @@ pretty_date() {
 precmd() {
   PS1="$(pretty_date) | %F{cyan}%B%n%b%f:%F{magenta}%B%d%b%f "
 }
+
+
+# Custom ZLE widget to select from cursor to end of line
+function select-to-end-of-line() {
+  zle set-mark-command
+  zle end-of-line
+  zle -U $'\x1b[23~'  # Trigger visual selection
+}
+zle -N select-to-end-of-line
+
+# Bind the escape sequence from kitty
+bindkey '^[[1;5C' select-to-end-of-line
+
+# Select from cursor to end of line (cmd+shift+right from kitty)
+function select-to-eol() {
+  CURSOR_START=$CURSOR
+  zle end-of-line
+  REGION_ACTIVE=1
+  zle set-mark-command
+  CURSOR=$CURSOR_START
+  zle end-of-line
+}
+zle -N select-to-eol
+bindkey '^[[1;5C' select-to-eol
