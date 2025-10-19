@@ -33,17 +33,25 @@ setopt PROMPT_SUBST
 export PS1='$(pretty_date) | %F{magenta}%B%d%b%f
       | '
 
-# Hook that runs before each command execution
-# This rewrites the 2-line prompt as a single line in the history
-function preexec() {
+# Custom accept-line widget to combine lines before executing
+function combine-lines-accept-line() {
   # Move cursor up one line and to the beginning
   printf '\r\033[1A'
   # Clear the current line
   printf '\033[2K'
   # Print the single-line version with the command (use print -P for zsh prompt codes)
-  print -P "$(pretty_date) | %F{magenta}%B$PWD%b%f $1"
+  if [[ -n "$BUFFER" ]]; then
+    print -P "$(pretty_date) | %F{magenta}%B$PWD%b%f $BUFFER"
+  else
+    print -P "$(pretty_date) | %F{magenta}%B$PWD%b%f"
+  fi
   # Clear the second line (where we were typing)
   printf '\033[2K'
+  # Call the original accept-line
+  zle .accept-line
 }
+
+# Create a zle widget and bind it to Enter
+zle -N accept-line combine-lines-accept-line
 
 export TZ='America/New_York'
