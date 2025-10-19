@@ -117,7 +117,16 @@ render_md_to_image() {
   fi
 
   # 3) Trim PNG via Python and capture resulting file path
-  trimmed_path=$(python3 "$DOTFILES_DIR/src/python/trim_png.py" "$imgfile")
+  # Prefer venv python if available
+  pybin="${VIRTUAL_ENV:+$VIRTUAL_ENV/bin/python}"
+  if [[ -z "$pybin" || ! -x "$pybin" ]]; then
+    if [[ -x "$HOME/.venvs/dotfiles/bin/python" ]]; then
+      pybin="$HOME/.venvs/dotfiles/bin/python"
+    else
+      pybin="python3"
+    fi
+  fi
+  trimmed_path=$("$pybin" "$DOTFILES_DIR/src/python/trim_png.py" "$imgfile")
   if [[ -z "$trimmed_path" || ! -f "$trimmed_path" ]]; then
     echo "Failed to trim PNG" >&2
     rm -f "$tmp_md" "$tmp_html"
