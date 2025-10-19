@@ -120,6 +120,8 @@ researchmd() {
     return 1
   fi
 
+echo "$quick_path"
+
   # clean the $quick_path file by trimming all leading characters up to the first occurance of "#"
   sed -i '' '1,/^#/ d' "$quick_path"
 
