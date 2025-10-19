@@ -9,6 +9,11 @@ function ls() { /bin/ls -AGhlo "$@"; }
 
 alias src='source $HOME/.zshrc'
 
+function abs() {
+  realpath "$@"
+}
+
+
 # Git shortcuts
 alias gs='git status'
 alias ga='git add'
