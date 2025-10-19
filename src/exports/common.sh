@@ -19,3 +19,4 @@ export LSCOLORS=ExFxCxDxBxegedabagacad
 export LESS='-R'
 
 export DOTFILES_DIR="$HOME/dotfiles"
+export TZ='America/New_York'
