@@ -16,11 +16,6 @@ alias gc='git commit'
 alias gp='git push'
 alias gl='git log --oneline'
 
-# Safety
-alias rm='rm -i'
-alias cp='cp -i'
-alias mv='mv -i'
-
 # Utilities
 alias grep='grep --color=auto'
 alias mkdir='mkdir -pv'
