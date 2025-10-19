@@ -11,6 +11,7 @@ log() {
   fi
 }
 
+
 sync_dotfiles() {
   local LOG_FILE="$HOME/log.txt"
   local REPO_URL="https://github.com/evantayloryates/dotfiles"
