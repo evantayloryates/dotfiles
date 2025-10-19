@@ -37,4 +37,3 @@ pretty_date() {
 }
 
 export PS1="$(pretty_date) | %F{cyan}%B%n%b%f:%F{magenta}%B%d%b%f "
-export TZ='America/New_York'
