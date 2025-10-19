@@ -9,7 +9,7 @@ ls() { /bin/ls -AGhlo "$@"; }
 
 
 abs() { realpath "$@"; }
-src() { exec "$SHELL" -l }
+src() { exec "$SHELL" -l; }
 
 # Git shortcuts
 alias gs='git status'
