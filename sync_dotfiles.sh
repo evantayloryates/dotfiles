@@ -49,14 +49,6 @@ sync_dotfiles() {
     echo "$LATEST_DOTFILES_COMMIT" > "$HOME/.dotfiles_commit"
   fi
   
-  log 'Changes detected! Syncing...'
-  log ''
-  log ''
-  log 'CHANGES'
-  log ''
-  log ''
-
-
   # Step 3: Load changes to LIVE_DOTFILES_REPO_DIR
   if [[ -d "$LIVE_DOTFILES_REPO_DIR/.git" ]]; then
     # Repository exists, pull latest changes
