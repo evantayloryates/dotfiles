@@ -41,17 +41,44 @@ quick() {
 }
 
 
-research() {
-  prompt="$*"
-  filepath=$(python3 "$DOTFILES_DIR/src/python/replicate.research.py" "$prompt")
+_research() {
+  filepath="$1"
   if [[ -z "$filepath" || ! -f "$filepath" ]]; then
-    echo "Failed to generate text"
+    echo "Invalid or missing filepath" >&2
     return 1
   fi
-  printf '\n\n'
-  cat "$filepath"
+
+  output_path=$(python3 "$DOTFILES_DIR/src/python/replicate.research.py" "$filepath")
+  if [[ -z "$output_path" || ! -f "$output_path" ]]; then
+    echo "Failed to generate text" >&2
+    return 1
+  fi
+
+  echo "$output_path"
+}
+
+research() {
+  prompt="$*"
+  if [[ -z "$prompt" ]]; then
+    echo "Usage: research <prompt>"
+    return 1
+  fi
+
+  tmpfile="$(mktemp "$TMPDIR/research_prompt_XXXXXX.txt")"
+  echo "$prompt" > "$tmpfile"
+
+  output_path=$(_research "$tmpfile")
+  rm -f "$tmpfile"
+
+  if [[ -z "$output_path" || ! -f "$output_path" ]]; then
+    echo "Failed to generate text" >&2
+    return 1
+  fi
+
+  printf '\n'
+  cat "$output_path"
   printf '\n\n'
 
-  pbcopy < "$filepath"
+  pbcopy < "$output_path"
   echo "📋 Copied response to clipboard"
 }
