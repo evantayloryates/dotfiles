@@ -9,8 +9,6 @@ darkgray() {
   echo "%B%F{236}$1%b%f"
 }
 
-# test fix
-
 pretty_date() {
   local current_time=$(TZ='America/New_York' date +%-I:%M%p)
   current_time=$(echo "$current_time" | awk '{print substr($0, 1, length($0)-2) tolower(substr($0, length($0)-1, 2))}')
