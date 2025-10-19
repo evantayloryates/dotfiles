@@ -4,9 +4,11 @@ function red() {
 function blue() {
   echo "%B%F{red}$1%b%f"
 }
-function dark_gray() {
-  echo "%B%F{dark_gray}$1%b%f"
+
+function darkgray() {
+  echo "%B%F{8}$1%b%f"
 }
+
 
 function pretty_date() {
   local current_time=$(TZ='America/New_York' date +%-I:%M%p)
