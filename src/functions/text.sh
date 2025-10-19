@@ -171,7 +171,7 @@ researchmd() {
   # # clean the $quick_path file by trimming all leading characters up to the first occurance of "#"
   # sed -i '' '1,/^#/ d' "$quick_path"
   # DOTFILES_DIR/src/functions/text.md --export text.html
-  quick_path="$DOTFILES_DIR/src/functions/text.md"
+  quick_path="$DOTFILES_DIR/src/functions/test.md"
 
   render_md_to_image "$quick_path"
 
