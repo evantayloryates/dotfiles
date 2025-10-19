@@ -31,6 +31,7 @@ function pretty_date() {
 
 setopt PROMPT_SUBST
 export PS1='$(pretty_date) | %F{magenta}%B%d%b%f
-      › '
+      | '
+      # › '
       # ↪ '
 export TZ='America/New_York'
