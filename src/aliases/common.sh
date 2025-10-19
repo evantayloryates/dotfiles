@@ -8,9 +8,9 @@ alias sync='sync_dotfiles'
 alias nn='echo "Hello, World!"'
 alias bb='echo "Hello, World!"'
 # alias ls='ls -AGhlo'
-# function ls() {
-#   ls -AGhlo "$@"
-# }
+function ls() {
+  /bin/ls -AGhlo "$@"
+}
 alias src='source $HOME/.zshrc'
 
 # Directory navigation
