@@ -83,6 +83,9 @@ research() {
   echo "📋 Copied response to clipboard"
 }
 
+# grip test2.md --export test2.html
+
+
 render_md_to_image() {
   srcfile="$1"
   tmp_md="$(mktemp "$TMPDIR/rendermd_XXXXXX.md")"

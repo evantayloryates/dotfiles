@@ -8043,3 +8043,62 @@ Assistant:
 }
 [2025-10-19 05:44:07 UTC] --- REQUEST END ---
 
+[2025-10-19 05:49:48 UTC] --- REQUEST START ---
+[2025-10-19 05:49:48 UTC] Flattened prompt text:
+[2025-10-19 05:49:48 UTC] System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.
+
+User: what is oneliner for scaling up images with convert
+Assistant: convert input.jpg -resize 200% output.jpg
+User: how to use ripgrep in current dir to find all files with "echo" in them ?
+Assistant: rg "echo"
+User: how to install mdimg on macos
+Assistant:
+[2025-10-19 05:49:48 UTC] JSON body:
+[2025-10-19 05:49:48 UTC] {
+  "input": {
+    "prompt": "System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.\n\nUser: what is oneliner for scaling up images with convert\nAssistant: convert input.jpg -resize 200% output.jpg\nUser: how to use ripgrep in current dir to find all files with \"echo\" in them ?\nAssistant: rg \"echo\"\nUser: how to install mdimg on macos\nAssistant:",
+    "temperature": 0.2,
+    "max_tokens": 600
+  }
+}
+[2025-10-19 05:49:50 UTC] Final status: succeeded
+[2025-10-19 05:49:50 UTC] Final response JSON:
+[2025-10-19 05:49:50 UTC] {
+  "id": "swx12rahznrma0cszc29vsks1c",
+  "model": "openai/gpt-4o",
+  "version": "hidden",
+  "input": {
+    "max_tokens": 600,
+    "prompt": "System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.\n\nUser: what is oneliner for scaling up images with convert\nAssistant: convert input.jpg -resize 200% output.jpg\nUser: how to use ripgrep in current dir to find all files with \"echo\" in them ?\nAssistant: rg \"echo\"\nUser: how to install mdimg on macos\nAssistant:",
+    "temperature": 0.2
+  },
+  "logs": "WARNING unknown input field ignored: max_tokens\nInput token count: 112\nOutput token count: 4\nTotal token count: 116\nTTFT: 0.26s\nFinish reason: stop\n",
+  "output": [
+    "",
+    "brew",
+    " install",
+    " md",
+    "img"
+  ],
+  "data_removed": false,
+  "error": null,
+  "status": "succeeded",
+  "created_at": "2025-10-19T05:49:48.413Z",
+  "started_at": "2025-10-19T05:49:48.416111557Z",
+  "completed_at": "2025-10-19T05:49:48.824300738Z",
+  "urls": {
+    "cancel": "https://api.replicate.com/v1/predictions/swx12rahznrma0cszc29vsks1c/cancel",
+    "get": "https://api.replicate.com/v1/predictions/swx12rahznrma0cszc29vsks1c",
+    "stream": "https://stream-b.svc.ric1.c.replicate.net/v1/streams/dr44534ekcyacwt2z5x4vqqlliryw737tbglfxzouyn2ae2e4kka",
+    "web": "https://replicate.com/p/swx12rahznrma0cszc29vsks1c"
+  },
+  "metrics": {
+    "input_token_count": 112,
+    "output_token_count": 4,
+    "predict_time": 0.408189182,
+    "time_to_first_token": 0.089934052,
+    "tokens_per_second": 12.568532673770255
+  }
+}
+[2025-10-19 05:49:50 UTC] --- REQUEST END ---
+
