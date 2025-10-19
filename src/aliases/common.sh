@@ -23,4 +23,4 @@ alias mkdir='mkdir -pv'
 alias kit='kitty @ load-config /Users/taylor/.config/kitty/kitty.conf'
 
 alias password="python $DOTFILES_DIR/src/python/password.py"
-alias words="subl $DOTFILES_DIR/src/assets/words.txt"
+alias words="subl $DOTFILES_DIR/src/__data/words.txt"
