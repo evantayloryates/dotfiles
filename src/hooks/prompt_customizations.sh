@@ -34,26 +34,26 @@ export PS1='$(pretty_date) | %F{magenta}%B%d%b%f
 '
 #        '
 
-# Custom accept-line widget to combine lines before executing
-function combine-lines-accept-line() {
-  # Move cursor up one line and to the beginning
-  printf '\r\033[1A'
+# # Custom accept-line widget to combine lines before executing
+# function combine-lines-accept-line() {
+#   # Move cursor up one line and to the beginning
+#   printf '\r\033[1A'
 
-  # Clear the current line
-  printf '\033[2K'
-  # Print the single-line version with the command (use print -P for zsh prompt codes)
-  if [[ -n "$BUFFER" ]]; then
-    print -n -P "$(pretty_date) | %F{magenta}%B$PWD%b%f $BUFFER"
-  else
-    print -n -P "$(pretty_date) | %F{magenta}%B$PWD%b%f"
-  fi
-  # Move to the second line, clear it, and move cursor to end of first line
-  printf '\n\033[2K\033[1A\033[999C'
-  # Call the original accept-line
-  zle .accept-line
-}
+#   # Clear the current line
+#   printf '\033[2K'
+#   # Print the single-line version with the command (use print -P for zsh prompt codes)
+#   if [[ -n "$BUFFER" ]]; then
+#     print -n -P "$(pretty_date) | %F{magenta}%B$PWD%b%f $BUFFER"
+#   else
+#     print -n -P "$(pretty_date) | %F{magenta}%B$PWD%b%f"
+#   fi
+#   # Move to the second line, clear it, and move cursor to end of first line
+#   printf '\n\033[2K\033[1A\033[999C'
+#   # Call the original accept-line
+#   zle .accept-line
+# }
 
-# Create a zle widget and bind it to Enter
-zle -N accept-line combine-lines-accept-line
+# # Create a zle widget and bind it to Enter
+# zle -N accept-line combine-lines-accept-line
 
 export TZ='America/New_York'
