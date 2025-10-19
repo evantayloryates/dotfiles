@@ -56,6 +56,7 @@ sync_dotfiles() {
   log ''
   log ''
 
+
   # Step 3: Load changes to LIVE_DOTFILES_REPO_DIR
   if [[ -d "$LIVE_DOTFILES_REPO_DIR/.git" ]]; then
     # Repository exists, pull latest changes
