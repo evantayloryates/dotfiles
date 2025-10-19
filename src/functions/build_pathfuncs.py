@@ -13,14 +13,6 @@ CONFIG = [
       'ls': 'ls -AGhlo <path> | grep'
     }
   },
-  {
-    'slug': 'space',
-    'path': '/Users/taylor/src/github/spaceback',
-    'default': 'cd',
-    'commands': {
-      'ls': 'ls -AGhlo <path> | grep'
-    }
-  }
 ]
 
 def build_function(entry: dict) -> str:
