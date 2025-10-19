@@ -1,15 +1,5 @@
 #!/usr/bin/env bash
 
-ZSHRC="$HOME/.zshrc"
-
-# Backup existing zshrc
-if [ -f "$ZSHRC" ]; then
-  cp "$ZSHRC" "$ZSHRC.backup.$(date +%Y%m%d%H%M%S)"
-fi
-
-cat > "$ZSHRC" <<'EOF'
-# --- ZSH Setup ---
-
 # Enable colors and git prompt support
 autoload -Uz colors && colors
 autoload -Uz vcs_info
@@ -53,24 +43,10 @@ precmd() {
   fi
 }
 
-# --- Aliases ---
-alias ll='ls -lah'
-alias gs='git status'
-alias gl='git log --oneline --graph --decorate'
-alias gc='git commit'
-alias gp='git push'
-alias gco='git checkout'
 
-# --- PATH Example ---
-export PATH="$HOME/bin:$PATH"
 
 # --- Completion and Syntax Highlighting (optional) ---
 if [ -d "$HOME/.zsh-plugins" ]; then
   source $HOME/.zsh-plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
   source $HOME/.zsh-plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 fi
-
-EOF
-
-echo "✅ New Zsh config written to $ZSHRC"
-echo "🔁 Reload with: source ~/.zshrc"
