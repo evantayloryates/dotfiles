@@ -930,3 +930,409 @@ Assistant:
 }
 [2025-10-19 05:13:17 UTC] --- REQUEST END ---
 
+[2025-10-19 05:13:45 UTC] --- REQUEST START ---
+[2025-10-19 05:13:45 UTC] Flattened prompt text:
+[2025-10-19 05:13:45 UTC] System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.
+
+User: what is oneliner for scaling up images with convert
+Assistant: convert input.jpg -resize 200% output.jpg
+User: how to use ripgrep in current dir to find all files with "echo" in them ?
+Assistant: rg "echo"
+User: ./image.jpg I need convert cli command to change the progressive encoding to baseline, while maintining as much quality as possible
+Assistant:
+[2025-10-19 05:13:45 UTC] JSON body:
+[2025-10-19 05:13:45 UTC] {
+  "input": {
+    "prompt": "System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.\n\nUser: what is oneliner for scaling up images with convert\nAssistant: convert input.jpg -resize 200% output.jpg\nUser: how to use ripgrep in current dir to find all files with \"echo\" in them ?\nAssistant: rg \"echo\"\nUser: ./image.jpg I need convert cli command to change the progressive encoding to baseline, while maintining as much quality as possible\nAssistant:",
+    "temperature": 0.2,
+    "max_tokens": 100
+  }
+}
+[2025-10-19 05:13:47 UTC] Final status: succeeded
+[2025-10-19 05:13:47 UTC] Final response JSON:
+[2025-10-19 05:13:47 UTC] {
+  "id": "pt85nythr5rmc0cszbhsy75q0m",
+  "model": "openai/gpt-4o",
+  "version": "hidden",
+  "input": {
+    "max_tokens": 100,
+    "prompt": "System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.\n\nUser: what is oneliner for scaling up images with convert\nAssistant: convert input.jpg -resize 200% output.jpg\nUser: how to use ripgrep in current dir to find all files with \"echo\" in them ?\nAssistant: rg \"echo\"\nUser: ./image.jpg I need convert cli command to change the progressive encoding to baseline, while maintining as much quality as possible\nAssistant:",
+    "temperature": 0.2
+  },
+  "logs": "WARNING unknown input field ignored: max_tokens\nInput token count: 128\nOutput token count: 16\nTotal token count: 144\nTTFT: 0.37s\nFinish reason: stop\n",
+  "output": [
+    "",
+    "convert",
+    " ./",
+    "image",
+    ".jpg",
+    " -",
+    "strip",
+    " -",
+    "inter",
+    "lace",
+    " none",
+    " -",
+    "quality",
+    " ",
+    "100",
+    " output",
+    ".jpg"
+  ],
+  "data_removed": false,
+  "error": null,
+  "status": "succeeded",
+  "created_at": "2025-10-19T05:13:45.665Z",
+  "started_at": "2025-10-19T05:13:45.668848389Z",
+  "completed_at": "2025-10-19T05:13:46.306935988Z",
+  "urls": {
+    "cancel": "https://api.replicate.com/v1/predictions/pt85nythr5rmc0cszbhsy75q0m/cancel",
+    "get": "https://api.replicate.com/v1/predictions/pt85nythr5rmc0cszbhsy75q0m",
+    "stream": "https://stream-b.svc.ric1.c.replicate.net/v1/streams/26o4kba5wcy2xucntpvh7znuf7y2xplmayudfqwiclkl4whpyp5a",
+    "web": "https://replicate.com/p/pt85nythr5rmc0cszbhsy75q0m"
+  },
+  "metrics": {
+    "input_token_count": 128,
+    "output_token_count": 16,
+    "predict_time": 0.6380876,
+    "time_to_first_token": 0.058201805,
+    "tokens_per_second": 27.591639833150246
+  }
+}
+[2025-10-19 05:13:47 UTC] --- REQUEST END ---
+
+[2025-10-19 05:14:37 UTC] --- REQUEST START ---
+[2025-10-19 05:14:37 UTC] Flattened prompt text:
+[2025-10-19 05:14:37 UTC] System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.
+
+User: what is oneliner for scaling up images with convert
+Assistant: convert input.jpg -resize 200% output.jpg
+User: how to use ripgrep in current dir to find all files with "echo" in them ?
+Assistant: rg "echo"
+User: how to install mdcat on macos for my kitty terminal
+Assistant:
+[2025-10-19 05:14:37 UTC] JSON body:
+[2025-10-19 05:14:37 UTC] {
+  "input": {
+    "prompt": "System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.\n\nUser: what is oneliner for scaling up images with convert\nAssistant: convert input.jpg -resize 200% output.jpg\nUser: how to use ripgrep in current dir to find all files with \"echo\" in them ?\nAssistant: rg \"echo\"\nUser: how to install mdcat on macos for my kitty terminal\nAssistant:",
+    "temperature": 0.2,
+    "max_tokens": 100
+  }
+}
+[2025-10-19 05:14:39 UTC] Final status: succeeded
+[2025-10-19 05:14:39 UTC] Final response JSON:
+[2025-10-19 05:14:39 UTC] {
+  "id": "vpra8ggxddrma0cszbjbr3kq2w",
+  "model": "openai/gpt-4o",
+  "version": "hidden",
+  "input": {
+    "max_tokens": 100,
+    "prompt": "System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.\n\nUser: what is oneliner for scaling up images with convert\nAssistant: convert input.jpg -resize 200% output.jpg\nUser: how to use ripgrep in current dir to find all files with \"echo\" in them ?\nAssistant: rg \"echo\"\nUser: how to install mdcat on macos for my kitty terminal\nAssistant:",
+    "temperature": 0.2
+  },
+  "logs": "WARNING unknown input field ignored: max_tokens\nInput token count: 116\nOutput token count: 4\nTotal token count: 120\nTTFT: 0.61s\nFinish reason: stop\n",
+  "output": [
+    "",
+    "brew",
+    " install",
+    " md",
+    "cat"
+  ],
+  "data_removed": false,
+  "error": null,
+  "status": "succeeded",
+  "created_at": "2025-10-19T05:14:37.803Z",
+  "started_at": "2025-10-19T05:14:37.807042901Z",
+  "completed_at": "2025-10-19T05:14:38.632981082Z",
+  "urls": {
+    "cancel": "https://api.replicate.com/v1/predictions/vpra8ggxddrma0cszbjbr3kq2w/cancel",
+    "get": "https://api.replicate.com/v1/predictions/vpra8ggxddrma0cszbjbr3kq2w",
+    "stream": "https://stream-b.svc.ric1.c.replicate.net/v1/streams/ogftwgtufjuotmj2pp2imz64lsmor3evhlciymhg3xkuj7sazala",
+    "web": "https://replicate.com/p/vpra8ggxddrma0cszbjbr3kq2w"
+  },
+  "metrics": {
+    "input_token_count": 116,
+    "output_token_count": 4,
+    "predict_time": 0.825938186,
+    "time_to_first_token": 0.011191826,
+    "tokens_per_second": 4.909503369858566
+  }
+}
+[2025-10-19 05:14:39 UTC] --- REQUEST END ---
+
+[2025-10-19 05:15:30 UTC] --- REQUEST START ---
+[2025-10-19 05:15:30 UTC] Flattened prompt text:
+[2025-10-19 05:15:30 UTC] System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.
+
+User: what is oneliner for scaling up images with convert
+Assistant: convert input.jpg -resize 200% output.jpg
+User: how to use ripgrep in current dir to find all files with "echo" in them ?
+Assistant: rg "echo"
+User: generate an exmaple readme file for a dotfiles repo
+Assistant:
+[2025-10-19 05:15:30 UTC] JSON body:
+[2025-10-19 05:15:30 UTC] {
+  "input": {
+    "prompt": "System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.\n\nUser: what is oneliner for scaling up images with convert\nAssistant: convert input.jpg -resize 200% output.jpg\nUser: how to use ripgrep in current dir to find all files with \"echo\" in them ?\nAssistant: rg \"echo\"\nUser: generate an exmaple readme file for a dotfiles repo\nAssistant:",
+    "temperature": 0.2,
+    "max_tokens": 100
+  }
+}
+[2025-10-19 05:15:34 UTC] Final status: succeeded
+[2025-10-19 05:15:34 UTC] Final response JSON:
+[2025-10-19 05:15:35 UTC] {
+  "id": "3whck77cnsrmc0cszbj8hsd4jc",
+  "model": "openai/gpt-4o",
+  "version": "hidden",
+  "input": {
+    "max_tokens": 100,
+    "prompt": "System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.\n\nUser: what is oneliner for scaling up images with convert\nAssistant: convert input.jpg -resize 200% output.jpg\nUser: how to use ripgrep in current dir to find all files with \"echo\" in them ?\nAssistant: rg \"echo\"\nUser: generate an exmaple readme file for a dotfiles repo\nAssistant:",
+    "temperature": 0.2
+  },
+  "logs": "WARNING unknown input field ignored: max_tokens\nInput token count: 117\nOutput token count: 221\nTotal token count: 338\nTTFT: 0.44s\nFinish reason: stop\n",
+  "output": [
+    "",
+    "#",
+    " Dot",
+    "files",
+    "\n\n",
+    "This",
+    " repository",
+    " contains",
+    " my",
+    " personal",
+    " configuration",
+    " files",
+    " for",
+    " various",
+    " applications",
+    " and",
+    " tools",
+    ".",
+    " These",
+    " dot",
+    "files",
+    " help",
+    " in",
+    " setting",
+    " up",
+    " a",
+    " consistent",
+    " development",
+    " environment",
+    " across",
+    " different",
+    " machines",
+    ".\n\n",
+    "##",
+    " Installation",
+    "\n\n",
+    "1",
+    ".",
+    " Clone",
+    " the",
+    " repository",
+    " to",
+    " your",
+    " home",
+    " directory",
+    ":\n\n",
+    "  ",
+    " ```",
+    "bash",
+    "\n",
+    "  ",
+    " git",
+    " clone",
+    " https",
+    "://",
+    "github",
+    ".com",
+    "/",
+    "your",
+    "username",
+    "/d",
+    "ot",
+    "files",
+    ".git",
+    " ~/",
+    "dot",
+    "files",
+    "\n",
+    "  ",
+    " ``",
+    "`\n\n",
+    "2",
+    ".",
+    " Navigate",
+    " to",
+    " the",
+    " dot",
+    "files",
+    " directory",
+    ":\n\n",
+    "  ",
+    " ```",
+    "bash",
+    "\n",
+    "  ",
+    " cd",
+    " ~/",
+    "dot",
+    "files",
+    "\n",
+    "  ",
+    " ``",
+    "`\n\n",
+    "3",
+    ".",
+    " Run",
+    " the",
+    " installation",
+    " script",
+    " to",
+    " create",
+    " symbolic",
+    " links",
+    ":\n\n",
+    "  ",
+    " ```",
+    "bash",
+    "\n",
+    "  ",
+    " ./",
+    "install",
+    ".sh",
+    "\n",
+    "  ",
+    " ``",
+    "`\n\n",
+    "##",
+    " Contents",
+    "\n\n",
+    "-",
+    " **",
+    ".",
+    "bash",
+    "rc",
+    "**",
+    ":",
+    " Bash",
+    " shell",
+    " configuration",
+    "\n",
+    "-",
+    " **",
+    ".",
+    "vim",
+    "rc",
+    "**",
+    ":",
+    " Vim",
+    " editor",
+    " configuration",
+    "\n",
+    "-",
+    " **",
+    ".",
+    "git",
+    "config",
+    "**",
+    ":",
+    " Git",
+    " configuration",
+    "\n",
+    "-",
+    " **",
+    ".",
+    "tm",
+    "ux",
+    ".conf",
+    "**",
+    ":",
+    " T",
+    "mux",
+    " configuration",
+    "\n\n",
+    "##",
+    " Custom",
+    "ization",
+    "\n\n",
+    "Feel",
+    " free",
+    " to",
+    " modify",
+    " these",
+    " files",
+    " to",
+    " suit",
+    " your",
+    " preferences",
+    ".",
+    " You",
+    " can",
+    " add",
+    " additional",
+    " configuration",
+    " files",
+    " as",
+    " needed",
+    ".\n\n",
+    "##",
+    " Con",
+    "tributing",
+    "\n\n",
+    "If",
+    " you",
+    " have",
+    " suggestions",
+    " or",
+    " improvements",
+    ",",
+    " feel",
+    " free",
+    " to",
+    " open",
+    " an",
+    " issue",
+    " or",
+    " submit",
+    " a",
+    " pull",
+    " request",
+    ".\n\n",
+    "##",
+    " License",
+    "\n\n",
+    "This",
+    " project",
+    " is",
+    " licensed",
+    " under",
+    " the",
+    " MIT",
+    " License",
+    "."
+  ],
+  "data_removed": false,
+  "error": null,
+  "status": "succeeded",
+  "created_at": "2025-10-19T05:15:30.862Z",
+  "started_at": "2025-10-19T05:15:30.864846255Z",
+  "completed_at": "2025-10-19T05:15:34.168794071Z",
+  "urls": {
+    "cancel": "https://api.replicate.com/v1/predictions/3whck77cnsrmc0cszbj8hsd4jc/cancel",
+    "get": "https://api.replicate.com/v1/predictions/3whck77cnsrmc0cszbj8hsd4jc",
+    "stream": "https://stream-b.svc.ric1.c.replicate.net/v1/streams/irxs6m2obz6wfoqfbadltbwn3upxdoy6xzn2lppa6cznsxa7ornq",
+    "web": "https://replicate.com/p/3whck77cnsrmc0cszbj8hsd4jc"
+  },
+  "metrics": {
+    "input_token_count": 117,
+    "output_token_count": 221,
+    "predict_time": 3.303947816,
+    "time_to_first_token": 0.058164375,
+    "tokens_per_second": 68.08833799827129
+  }
+}
+[2025-10-19 05:15:35 UTC] --- REQUEST END ---
+
