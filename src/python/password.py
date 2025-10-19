@@ -5,7 +5,7 @@ import random
 dotfiles_dir = os.getenv('DOTFILES_DIR')
 
 # Build the path to the words.txt file
-words_file_path = os.path.join(dotfiles_dir, 'assets', 'words.txt')
+words_file_path = os.path.join(dotfiles_dir, 'src', '__data', 'words.txt')
 
 # Open the words.txt file
 with open(words_file_path, 'r') as file:
