@@ -88,25 +88,48 @@ research() {
 
 render_md_to_image() {
   srcfile="$1"
+  if [[ -z "$srcfile" || ! -f "$srcfile" ]]; then
+    echo "Usage: render_md_to_image /absolute/path/to/file.md" >&2
+    return 1
+  fi
+
   tmp_md="$(mktemp "$TMPDIR/rendermd_XXXXXX.md")"
   cp "$srcfile" "$tmp_md"
 
-  imgfile="${tmp_md%.md}.png"
-
-  # Example using mdimg (NodeJS)
-  mdimg -i "$tmp_md" -o "$imgfile" --css github
-
-  if [[ ! -f "$imgfile" ]]; then
-    echo "Failed to render markdown to image" >&2
+  # 1) Render markdown to HTML using grip
+  tmp_html="${tmp_md%.md}.html"
+  grip --export "$tmp_md" "$tmp_html" >/dev/null 2>&1
+  if [[ ! -f "$tmp_html" ]]; then
+    echo "Failed to render markdown to HTML with grip" >&2
     rm -f "$tmp_md"
     return 1
   fi
 
-  # Display inline in kitty
-  kitty +kitten icat "$imgfile"
+  # 2) Convert HTML to PNG via Node script
+  node "$DOTFILES_DIR/src/javascript/html-to-png.js" "$tmp_html" > "$tmp_html.out" 2>/dev/null
+  imgfile="$(cat "$tmp_html.out" 2>/dev/null)"
+  rm -f "$tmp_html.out"
 
-  # Clean up
-  rm -f "$tmp_md"
+  if [[ -z "$imgfile" || ! -f "$imgfile" ]]; then
+    echo "Failed to render HTML to PNG" >&2
+    rm -f "$tmp_md" "$tmp_html"
+    return 1
+  fi
+
+  # 3) Trim PNG via Python and capture resulting file path
+  trimmed_path=$(python3 "$DOTFILES_DIR/src/python/trim_png.py" "$imgfile")
+  if [[ -z "$trimmed_path" || ! -f "$trimmed_path" ]]; then
+    echo "Failed to trim PNG" >&2
+    rm -f "$tmp_md" "$tmp_html"
+    return 1
+  fi
+
+  # 4) Display left-aligned in kitty
+  # Using placement=left can be emulated by setting align=left and a reasonable width
+  kitty +kitten icat --align left "$trimmed_path"
+
+  # Clean up intermediates (keep trimmed image)
+  rm -f "$tmp_md" "$tmp_html"
 }
 
 researchmd() {
