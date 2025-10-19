@@ -135,7 +135,11 @@ render_md_to_image() {
 
   # 4) Display left-aligned in kitty
   # Using placement=left can be emulated by setting align=left and a reasonable width
-  kitty +kitten icat --align left "$trimmed_path"
+  kitty +kitten icat \
+  --align left \
+  --scale-up \
+  --place "$(identify -format '%wx%h' "$trimmed_path")@0x0" \
+  "$trimmed_path"
 
   # Clean up intermediates (keep trimmed image)
   rm -f "$tmp_md" "$tmp_html"
