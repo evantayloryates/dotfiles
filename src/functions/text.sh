@@ -83,6 +83,22 @@ research() {
   echo "📋 Copied response to clipboard"
 }
 
+render_md_to_image() {
+  mdfile="$1"
+  imgfile="${mdfile%.md}.png"
+
+  # Example using mdimg (NodeJS) — you may need to install it
+  mdimg -i "$mdfile" -o "$imgfile" --css github
+
+  if [[ ! -f "$imgfile" ]]; then
+    echo "Failed to render markdown to image" >&2
+    return 1
+  fi
+
+  # Display inline in kitty
+  kitty +kitten icat "$imgfile"
+}
+
 
 researchmd() {
   prompt="$*"
@@ -120,17 +136,14 @@ researchmd() {
     return 1
   fi
 
-echo "$quick_path"
-
   # clean the $quick_path file by trimming all leading characters up to the first occurance of "#"
   sed -i '' '1,/^#/ d' "$quick_path"
 
-  # Step 5: Display result using mdcat
-  printf '\n'
-  mdcat --columns=80 "$quick_path"
-  printf '\n\n'
+  render_md_to_image "$quick_path"
 
   # Step 6: Copy result to clipboard and log
   pbcopy < "$quick_path"
   echo "📋 Copied markdown-enhanced response to clipboard"
 }
+
+
