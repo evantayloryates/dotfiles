@@ -21,12 +21,6 @@ CONFIG = [
     'commands': {},
   },
   {
-    'slug': 's',
-    'path': '/Users/taylor/src',
-    'default': 'cd',
-    'commands': {},
-  },
-  {
     'slug': 'gh',
     'path': '/Users/taylor/src/github',
     'default': 'cd',
@@ -39,6 +33,12 @@ CONFIG = [
     'commands': {
       'ssh': 'echo "TODO"',
     },
+  },
+  {
+    'slug': 's',
+    'path': '/Users/taylor/src',
+    'default': 'cd',
+    'commands': {},
   },
 ]
 
