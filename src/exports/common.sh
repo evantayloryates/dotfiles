@@ -17,3 +17,5 @@ export LSCOLORS=ExFxCxDxBxegedabagacad
 
 # Less
 export LESS='-R'
+
+export DOTFILES_DIR="$HOME/dotfiles"
