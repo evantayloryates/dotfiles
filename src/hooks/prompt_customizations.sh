@@ -43,10 +43,10 @@ function combine-lines-accept-line() {
   if [[ -n "$BUFFER" ]]; then
     print -P "$(pretty_date) | %F{magenta}%B$PWD%b%f $BUFFER"
   else
-    print -P "$(pretty_date) | %F{magenta}%B$PWD%b%f"
+    print -n -P "$(pretty_date) | %F{magenta}%B$PWD%b%f"
   fi
-  # Clear the second line (where we were typing)
-  printf '\033[2K'
+  # Move down and clear the second line (where we were typing)
+  printf '\n\033[2K'
   # Call the original accept-line
   zle .accept-line
 }
