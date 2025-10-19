@@ -107,7 +107,7 @@ researchmd() {
   # Step 3: Create amended temp file (response + extra markdown prompt)
   tmp_amended="$(mktemp "$TMPDIR/researchmd_amended_XXXXXX.txt")"
   cat "$research_path" > "$tmp_amended"
-  printf '\n\nPlease format this text block as markdown\n' >> "$tmp_amended"
+  printf '\n\nPlease format this text block as markdown. Respond only with the markdown text result\n' >> "$tmp_amended"
 
   # Step 4: Pass amended file to _quick
   quick_path=$(_quick "$tmp_amended")
