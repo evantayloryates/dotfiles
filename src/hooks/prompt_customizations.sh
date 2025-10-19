@@ -54,12 +54,9 @@ bindkey '^[[1;5C' select-to-end-of-line
 
 # Shell function that selects from current cursor to end of line
 function select-to-eol() {
-  CURSOR_START=$CURSOR          # Save current cursor index
-  zle end-of-line               # Move to end to get the end position
-  REGION_ACTIVE=1               # Activate selection mode
-  zle set-mark-command          # Set the mark at end
-  CURSOR=$CURSOR_START          # Jump back to original position
-  zle end-of-line               # Move to end again (creates selection from start to end)
+  zle set-mark-command          # Set mark at current position
+  zle end-of-line               # Move cursor to end
+  REGION_ACTIVE=1               # Activate visual selection
 }
 zle -N select-to-eol
 bindkey '^[[27;5;67~' select-to-eol
