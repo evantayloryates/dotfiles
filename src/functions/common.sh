@@ -61,6 +61,4 @@ img() {
     echo '⚠️ No compatible clipboard utility found.'
     return 1
   fi
-
-  echo "✅ Image path copied to clipboard: $img_path"
 }
