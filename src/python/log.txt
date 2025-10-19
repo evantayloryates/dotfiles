@@ -1,0 +1,720 @@
+[2025-10-19 04:47:36 UTC] --- REQUEST START ---
+[2025-10-19 04:47:36 UTC] System Prompt:
+[2025-10-19 04:47:36 UTC] You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.
+[2025-10-19 04:47:36 UTC] Conversation Messages:
+[2025-10-19 04:47:36 UTC] [
+  {
+    "role": "user",
+    "content": "what is oneliner for scaling up images with convert"
+  },
+  {
+    "role": "assistant",
+    "content": "convert input.jpg -resize 200% output.jpg"
+  },
+  {
+    "role": "user",
+    "content": "how to use ripgrep in current dir to find all files with \"echo\" in them ?"
+  },
+  {
+    "role": "assistant",
+    "content": "rg \"echo\""
+  },
+  {
+    "role": "user",
+    "content": "how to use ripgrep in current dir to find all files with echo in them o"
+  }
+]
+[2025-10-19 04:47:36 UTC] Full JSON body being sent to Replicate:
+[2025-10-19 04:47:36 UTC] {
+  "input": {
+    "system_prompt": "You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.",
+    "messages": [
+      {
+        "role": "user",
+        "content": "what is oneliner for scaling up images with convert"
+      },
+      {
+        "role": "assistant",
+        "content": "convert input.jpg -resize 200% output.jpg"
+      },
+      {
+        "role": "user",
+        "content": "how to use ripgrep in current dir to find all files with \"echo\" in them ?"
+      },
+      {
+        "role": "assistant",
+        "content": "rg \"echo\""
+      },
+      {
+        "role": "user",
+        "content": "how to use ripgrep in current dir to find all files with echo in them o"
+      }
+    ],
+    "temperature": 0.7,
+    "max_tokens": 500
+  }
+}
+[2025-10-19 04:47:36 UTC] Initial response JSON from Replicate (for confirmation):
+[2025-10-19 04:47:36 UTC] {
+  "id": "1yg9tnk0a9rme0cszb5v0hjrk4",
+  "model": "openai/gpt-4o",
+  "version": "hidden",
+  "input": {
+    "max_tokens": 500,
+    "messages": [
+      {
+        "content": "what is oneliner for scaling up images with convert",
+        "role": "user"
+      },
+      {
+        "content": "convert input.jpg -resize 200% output.jpg",
+        "role": "assistant"
+      },
+      {
+        "content": "how to use ripgrep in current dir to find all files with \"echo\" in them ?",
+        "role": "user"
+      },
+      {
+        "content": "rg \"echo\"",
+        "role": "assistant"
+      },
+      {
+        "content": "how to use ripgrep in current dir to find all files with echo in them o",
+        "role": "user"
+      }
+    ],
+    "system_prompt": "You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.",
+    "temperature": 0.7
+  },
+  "logs": "",
+  "output": null,
+  "data_removed": false,
+  "error": null,
+  "status": "starting",
+  "created_at": "2025-10-19T04:47:36.53Z",
+  "urls": {
+    "cancel": "https://api.replicate.com/v1/predictions/1yg9tnk0a9rme0cszb5v0hjrk4/cancel",
+    "get": "https://api.replicate.com/v1/predictions/1yg9tnk0a9rme0cszb5v0hjrk4",
+    "stream": "https://stream-b.svc.ric1.c.replicate.net/v1/streams/ajlmgmp3s5vusuxg3b7udlicta2efi6a5rxrmbfeqhuhdaj2icsq",
+    "web": "https://replicate.com/p/1yg9tnk0a9rme0cszb5v0hjrk4"
+  }
+}
+[2025-10-19 04:47:40 UTC] Final status: succeeded
+[2025-10-19 04:47:40 UTC] Final response JSON:
+[2025-10-19 04:47:40 UTC] {
+  "id": "1yg9tnk0a9rme0cszb5v0hjrk4",
+  "model": "openai/gpt-4o",
+  "version": "hidden",
+  "input": {
+    "max_tokens": 500,
+    "messages": [
+      {
+        "content": "what is oneliner for scaling up images with convert",
+        "role": "user"
+      },
+      {
+        "content": "convert input.jpg -resize 200% output.jpg",
+        "role": "assistant"
+      },
+      {
+        "content": "how to use ripgrep in current dir to find all files with \"echo\" in them ?",
+        "role": "user"
+      },
+      {
+        "content": "rg \"echo\"",
+        "role": "assistant"
+      },
+      {
+        "content": "how to use ripgrep in current dir to find all files with echo in them o",
+        "role": "user"
+      }
+    ],
+    "system_prompt": "You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.",
+    "temperature": 0.7
+  },
+  "logs": "WARNING unknown input field ignored: max_tokens\nInput token count: 84\nOutput token count: 114\nTotal token count: 198\nTTFT: 0.98s\nFinish reason: stop\n",
+  "output": [
+    "",
+    "To",
+    " find",
+    " all",
+    " files",
+    " in",
+    " the",
+    " current",
+    " directory",
+    " and",
+    " its",
+    " sub",
+    "directories",
+    " that",
+    " contain",
+    " the",
+    " string",
+    " \"",
+    "echo",
+    "\"",
+    " using",
+    " `",
+    "rip",
+    "grep",
+    "`,",
+    " you",
+    " can",
+    " use",
+    " the",
+    " following",
+    " command",
+    ":\n\n",
+    "```",
+    "bash",
+    "\n",
+    "rg",
+    " \"",
+    "echo",
+    "\"\n",
+    "``",
+    "`\n\n",
+    "This",
+    " command",
+    " will",
+    " search",
+    " for",
+    " the",
+    " string",
+    " \"",
+    "echo",
+    "\"",
+    " in",
+    " all",
+    " files",
+    " under",
+    " the",
+    " current",
+    " directory",
+    " and",
+    " list",
+    " the",
+    " files",
+    " and",
+    " lines",
+    " where",
+    " the",
+    " string",
+    " appears",
+    ".",
+    " If",
+    " you",
+    " only",
+    " want",
+    " the",
+    " list",
+    " of",
+    " file",
+    " names",
+    " containing",
+    " the",
+    " string",
+    " without",
+    " the",
+    " matched",
+    " lines",
+    ",",
+    " you",
+    " can",
+    " use",
+    " the",
+    " `",
+    "-",
+    "l",
+    "`",
+    " (",
+    "or",
+    " `",
+    "--",
+    "files",
+    "-with",
+    "-m",
+    "atches",
+    "`)",
+    " option",
+    ":\n\n",
+    "```",
+    "bash",
+    "\n",
+    "rg",
+    " -",
+    "l",
+    " \"",
+    "echo",
+    "\"\n",
+    "```"
+  ],
+  "data_removed": false,
+  "error": null,
+  "status": "succeeded",
+  "created_at": "2025-10-19T04:47:36.53Z",
+  "started_at": "2025-10-19T04:47:36.534427725Z",
+  "completed_at": "2025-10-19T04:47:38.99852946Z",
+  "urls": {
+    "cancel": "https://api.replicate.com/v1/predictions/1yg9tnk0a9rme0cszb5v0hjrk4/cancel",
+    "get": "https://api.replicate.com/v1/predictions/1yg9tnk0a9rme0cszb5v0hjrk4",
+    "stream": "https://stream-b.svc.ric1.c.replicate.net/v1/streams/ajlmgmp3s5vusuxg3b7udlicta2efi6a5rxrmbfeqhuhdaj2icsq",
+    "web": "https://replicate.com/p/1yg9tnk0a9rme0cszb5v0hjrk4"
+  },
+  "metrics": {
+    "input_token_count": 84,
+    "output_token_count": 114,
+    "predict_time": 2.4641017339999998,
+    "time_to_first_token": 0.08087967,
+    "tokens_per_second": 47.83440104975463
+  }
+}
+[2025-10-19 04:47:40 UTC] --- REQUEST END ---
+
+[2025-10-19 04:49:45 UTC] --- REQUEST START ---
+[2025-10-19 04:49:45 UTC] Flattened prompt text:
+[2025-10-19 04:49:45 UTC] System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.
+
+User: what is oneliner for scaling up images with convert
+Assistant: convert input.jpg -resize 200% output.jpg
+User: how to use ripgrep in current dir to find all files with "echo" in them ?
+Assistant: rg "echo"
+User: how to use ripgrep in current dir to find all files with echo in them o
+Assistant:
+[2025-10-19 04:49:45 UTC] JSON body:
+[2025-10-19 04:49:45 UTC] {
+  "input": {
+    "prompt": "System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.\n\nUser: what is oneliner for scaling up images with convert\nAssistant: convert input.jpg -resize 200% output.jpg\nUser: how to use ripgrep in current dir to find all files with \"echo\" in them ?\nAssistant: rg \"echo\"\nUser: how to use ripgrep in current dir to find all files with echo in them o\nAssistant:",
+    "temperature": 0.2,
+    "max_tokens": 100
+  }
+}
+[2025-10-19 04:49:47 UTC] Final status: succeeded
+[2025-10-19 04:49:47 UTC] Final response JSON:
+[2025-10-19 04:49:47 UTC] {
+  "id": "vn7jnfjr8nrmc0cszb6v51etg0",
+  "model": "openai/gpt-4o",
+  "version": "hidden",
+  "input": {
+    "max_tokens": 100,
+    "prompt": "System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.\n\nUser: what is oneliner for scaling up images with convert\nAssistant: convert input.jpg -resize 200% output.jpg\nUser: how to use ripgrep in current dir to find all files with \"echo\" in them ?\nAssistant: rg \"echo\"\nUser: how to use ripgrep in current dir to find all files with echo in them o\nAssistant:",
+    "temperature": 0.2
+  },
+  "logs": "WARNING unknown input field ignored: max_tokens\nInput token count: 121\nOutput token count: 6\nTotal token count: 127\nTTFT: 0.46s\nFinish reason: stop\n",
+  "output": [
+    "",
+    "rg",
+    " -",
+    "l",
+    " \"",
+    "echo",
+    "\""
+  ],
+  "data_removed": false,
+  "error": null,
+  "status": "succeeded",
+  "created_at": "2025-10-19T04:49:45.541Z",
+  "started_at": "2025-10-19T04:49:45.54467326Z",
+  "completed_at": "2025-10-19T04:49:46.656825806Z",
+  "urls": {
+    "cancel": "https://api.replicate.com/v1/predictions/vn7jnfjr8nrmc0cszb6v51etg0/cancel",
+    "get": "https://api.replicate.com/v1/predictions/vn7jnfjr8nrmc0cszb6v51etg0",
+    "stream": "https://stream-b.svc.ric1.c.replicate.net/v1/streams/bsewe4kieqlnkfr54bj6yzavbtlkl5glyp7otvmubugowlofnx5q",
+    "web": "https://replicate.com/p/vn7jnfjr8nrmc0cszb6v51etg0"
+  },
+  "metrics": {
+    "input_token_count": 121,
+    "output_token_count": 6,
+    "predict_time": 1.112152546,
+    "time_to_first_token": 0.099680331,
+    "tokens_per_second": 5.926088549501578
+  }
+}
+[2025-10-19 04:49:47 UTC] --- REQUEST END ---
+
+[2025-10-19 04:56:30 UTC] --- REQUEST START ---
+[2025-10-19 04:56:30 UTC] Flattened prompt text:
+[2025-10-19 04:56:30 UTC] System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.
+
+User: what is oneliner for scaling up images with convert
+Assistant: convert input.jpg -resize 200% output.jpg
+User: how to use ripgrep in current dir to find all files with "echo" in them ?
+Assistant: rg "echo"
+User: how to use ripgrep in current dir to find all files with echo in them o
+Assistant:
+[2025-10-19 04:56:30 UTC] JSON body:
+[2025-10-19 04:56:30 UTC] {
+  "input": {
+    "prompt": "System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.\n\nUser: what is oneliner for scaling up images with convert\nAssistant: convert input.jpg -resize 200% output.jpg\nUser: how to use ripgrep in current dir to find all files with \"echo\" in them ?\nAssistant: rg \"echo\"\nUser: how to use ripgrep in current dir to find all files with echo in them o\nAssistant:",
+    "temperature": 0.2,
+    "max_tokens": 100
+  }
+}
+[2025-10-19 04:56:32 UTC] Final status: succeeded
+[2025-10-19 04:56:32 UTC] Final response JSON:
+[2025-10-19 04:56:32 UTC] {
+  "id": "tys6xzm6v5rm80cszb9v096290",
+  "model": "openai/gpt-4o",
+  "version": "hidden",
+  "input": {
+    "max_tokens": 100,
+    "prompt": "System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.\n\nUser: what is oneliner for scaling up images with convert\nAssistant: convert input.jpg -resize 200% output.jpg\nUser: how to use ripgrep in current dir to find all files with \"echo\" in them ?\nAssistant: rg \"echo\"\nUser: how to use ripgrep in current dir to find all files with echo in them o\nAssistant:",
+    "temperature": 0.2
+  },
+  "logs": "WARNING unknown input field ignored: max_tokens\nInput token count: 121\nOutput token count: 6\nTotal token count: 127\nTTFT: 0.45s\nFinish reason: stop\n",
+  "output": [
+    "",
+    "rg",
+    " -",
+    "l",
+    " \"",
+    "echo",
+    "\""
+  ],
+  "data_removed": false,
+  "error": null,
+  "status": "succeeded",
+  "created_at": "2025-10-19T04:56:30.681Z",
+  "started_at": "2025-10-19T04:56:30.684015655Z",
+  "completed_at": "2025-10-19T04:56:31.226932082Z",
+  "urls": {
+    "cancel": "https://api.replicate.com/v1/predictions/tys6xzm6v5rm80cszb9v096290/cancel",
+    "get": "https://api.replicate.com/v1/predictions/tys6xzm6v5rm80cszb9v096290",
+    "stream": "https://stream-b.svc.ric1.c.replicate.net/v1/streams/n3gef6ctt562m6bkl7ouhfznkfgobqbes4o476lk5sbt7fwbtgfa",
+    "web": "https://replicate.com/p/tys6xzm6v5rm80cszb9v096290"
+  },
+  "metrics": {
+    "input_token_count": 121,
+    "output_token_count": 6,
+    "predict_time": 0.542916427,
+    "time_to_first_token": 0.035743369,
+    "tokens_per_second": 11.8302814105713
+  }
+}
+[2025-10-19 04:56:32 UTC] --- REQUEST END ---
+
+[2025-10-19 04:59:07 UTC] --- REQUEST START ---
+[2025-10-19 04:59:07 UTC] Flattened prompt text:
+[2025-10-19 04:59:07 UTC] System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.
+
+User: what is oneliner for scaling up images with convert
+Assistant: convert input.jpg -resize 200% output.jpg
+User: how to use ripgrep in current dir to find all files with "echo" in them ?
+Assistant: rg "echo"
+User: how to use ripgrep in current dir to find all files with echo in them o exclude node_modules and other common macos dirs that would not be relevant to me
+Assistant:
+[2025-10-19 04:59:07 UTC] JSON body:
+[2025-10-19 04:59:07 UTC] {
+  "input": {
+    "prompt": "System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.\n\nUser: what is oneliner for scaling up images with convert\nAssistant: convert input.jpg -resize 200% output.jpg\nUser: how to use ripgrep in current dir to find all files with \"echo\" in them ?\nAssistant: rg \"echo\"\nUser: how to use ripgrep in current dir to find all files with echo in them o exclude node_modules and other common macos dirs that would not be relevant to me\nAssistant:",
+    "temperature": 0.2,
+    "max_tokens": 100
+  }
+}
+[2025-10-19 04:59:09 UTC] Final status: succeeded
+[2025-10-19 04:59:09 UTC] Final response JSON:
+[2025-10-19 04:59:09 UTC] {
+  "id": "35m8vmqak5rm80cszbatwpkw6m",
+  "model": "openai/gpt-4o",
+  "version": "hidden",
+  "input": {
+    "max_tokens": 100,
+    "prompt": "System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.\n\nUser: what is oneliner for scaling up images with convert\nAssistant: convert input.jpg -resize 200% output.jpg\nUser: how to use ripgrep in current dir to find all files with \"echo\" in them ?\nAssistant: rg \"echo\"\nUser: how to use ripgrep in current dir to find all files with echo in them o exclude node_modules and other common macos dirs that would not be relevant to me\nAssistant:",
+    "temperature": 0.2
+  },
+  "logs": "WARNING unknown input field ignored: max_tokens\nInput token count: 137\nOutput token count: 24\nTotal token count: 161\nTTFT: 0.53s\nFinish reason: stop\n",
+  "output": [
+    "",
+    "rg",
+    " \"",
+    "echo",
+    "\"",
+    " --",
+    "glob",
+    " '!",
+    "node",
+    "_modules",
+    "'",
+    " --",
+    "glob",
+    " '",
+    "!.",
+    "DS",
+    "_",
+    "Store",
+    "'",
+    " --",
+    "glob",
+    " '",
+    "!.",
+    "git",
+    "'"
+  ],
+  "data_removed": false,
+  "error": null,
+  "status": "succeeded",
+  "created_at": "2025-10-19T04:59:07.289Z",
+  "started_at": "2025-10-19T04:59:07.294752721Z",
+  "completed_at": "2025-10-19T04:59:08.226956816Z",
+  "urls": {
+    "cancel": "https://api.replicate.com/v1/predictions/35m8vmqak5rm80cszbatwpkw6m/cancel",
+    "get": "https://api.replicate.com/v1/predictions/35m8vmqak5rm80cszbatwpkw6m",
+    "stream": "https://stream-b.svc.ric1.c.replicate.net/v1/streams/iaim7sjfe7dkvrmv3bra22tbvm4ng5uf4jlsljdnhvkgq5rofayq",
+    "web": "https://replicate.com/p/35m8vmqak5rm80cszbatwpkw6m"
+  },
+  "metrics": {
+    "input_token_count": 137,
+    "output_token_count": 24,
+    "predict_time": 0.932204094,
+    "time_to_first_token": 0.092372735,
+    "tokens_per_second": 28.577165811690058
+  }
+}
+[2025-10-19 04:59:09 UTC] --- REQUEST END ---
+
+[2025-10-19 05:01:50 UTC] --- REQUEST START ---
+[2025-10-19 05:01:50 UTC] Flattened prompt text:
+[2025-10-19 05:01:50 UTC] System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.
+
+User: what is oneliner for scaling up images with convert
+Assistant: convert input.jpg -resize 200% output.jpg
+User: how to use ripgrep in current dir to find all files with "echo" in them ?
+Assistant: rg "echo"
+User: in my git repo mast branch, i need to find the earliest commit has in the last 10 hours
+Assistant:
+[2025-10-19 05:01:50 UTC] JSON body:
+[2025-10-19 05:01:50 UTC] {
+  "input": {
+    "prompt": "System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.\n\nUser: what is oneliner for scaling up images with convert\nAssistant: convert input.jpg -resize 200% output.jpg\nUser: how to use ripgrep in current dir to find all files with \"echo\" in them ?\nAssistant: rg \"echo\"\nUser: in my git repo mast branch, i need to find the earliest commit has in the last 10 hours\nAssistant:",
+    "temperature": 0.2,
+    "max_tokens": 100
+  }
+}
+[2025-10-19 05:01:52 UTC] Final status: succeeded
+[2025-10-19 05:01:52 UTC] Final response JSON:
+[2025-10-19 05:01:52 UTC] {
+  "id": "4ptzpb392xrme0cszbc90wqd70",
+  "model": "openai/gpt-4o",
+  "version": "hidden",
+  "input": {
+    "max_tokens": 100,
+    "prompt": "System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.\n\nUser: what is oneliner for scaling up images with convert\nAssistant: convert input.jpg -resize 200% output.jpg\nUser: how to use ripgrep in current dir to find all files with \"echo\" in them ?\nAssistant: rg \"echo\"\nUser: in my git repo mast branch, i need to find the earliest commit has in the last 10 hours\nAssistant:",
+    "temperature": 0.2
+  },
+  "logs": "WARNING unknown input field ignored: max_tokens\nInput token count: 125\nOutput token count: 37\nTotal token count: 162\nTTFT: 0.38s\nFinish reason: stop\n",
+  "output": [
+    "",
+    "git",
+    " rev",
+    "-list",
+    " --",
+    "before",
+    "=\"$(",
+    "date",
+    " -",
+    "d",
+    " '",
+    "10",
+    " hours",
+    " ago",
+    "'",
+    " --",
+    "utc",
+    " +",
+    "%",
+    "Y",
+    "-%",
+    "m",
+    "-%",
+    "d",
+    "T",
+    "%",
+    "H",
+    ":%",
+    "M",
+    ":%",
+    "SZ",
+    ")\"",
+    " --",
+    "max",
+    "-count",
+    "=",
+    "1",
+    " mast"
+  ],
+  "data_removed": false,
+  "error": null,
+  "status": "succeeded",
+  "created_at": "2025-10-19T05:01:50.743Z",
+  "started_at": "2025-10-19T05:01:50.985928562Z",
+  "completed_at": "2025-10-19T05:01:51.756238252Z",
+  "urls": {
+    "cancel": "https://api.replicate.com/v1/predictions/4ptzpb392xrme0cszbc90wqd70/cancel",
+    "get": "https://api.replicate.com/v1/predictions/4ptzpb392xrme0cszbc90wqd70",
+    "stream": "https://stream-b.svc.ric1.c.replicate.net/v1/streams/vhf3jr6tgwcf6zna3mh6nkowdn5g3kjvtsqdiu472ohesklrgqtq",
+    "web": "https://replicate.com/p/4ptzpb392xrme0cszbc90wqd70"
+  },
+  "metrics": {
+    "input_token_count": 125,
+    "output_token_count": 37,
+    "predict_time": 0.770309691,
+    "time_to_first_token": 0.001539273,
+    "tokens_per_second": 48.12880299980533
+  }
+}
+[2025-10-19 05:01:52 UTC] --- REQUEST END ---
+
+[2025-10-19 05:02:11 UTC] --- REQUEST START ---
+[2025-10-19 05:02:11 UTC] Flattened prompt text:
+[2025-10-19 05:02:11 UTC] System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.
+
+User: what is oneliner for scaling up images with convert
+Assistant: convert input.jpg -resize 200% output.jpg
+User: how to use ripgrep in current dir to find all files with "echo" in them ?
+Assistant: rg "echo"
+User: git rev-list --before= --max-count=1 mast
+Assistant:
+[2025-10-19 05:02:11 UTC] JSON body:
+[2025-10-19 05:02:11 UTC] {
+  "input": {
+    "prompt": "System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.\n\nUser: what is oneliner for scaling up images with convert\nAssistant: convert input.jpg -resize 200% output.jpg\nUser: how to use ripgrep in current dir to find all files with \"echo\" in them ?\nAssistant: rg \"echo\"\nUser: git rev-list --before= --max-count=1 mast\nAssistant:",
+    "temperature": 0.2,
+    "max_tokens": 100
+  }
+}
+[2025-10-19 05:02:13 UTC] Final status: succeeded
+[2025-10-19 05:02:13 UTC] Final response JSON:
+[2025-10-19 05:02:13 UTC] {
+  "id": "gxzxhwxrvnrm80cszbcbqq55am",
+  "model": "openai/gpt-4o",
+  "version": "hidden",
+  "input": {
+    "max_tokens": 100,
+    "prompt": "System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.\n\nUser: what is oneliner for scaling up images with convert\nAssistant: convert input.jpg -resize 200% output.jpg\nUser: how to use ripgrep in current dir to find all files with \"echo\" in them ?\nAssistant: rg \"echo\"\nUser: git rev-list --before= --max-count=1 mast\nAssistant:",
+    "temperature": 0.2
+  },
+  "logs": "WARNING unknown input field ignored: max_tokens\nInput token count: 116\nOutput token count: 14\nTotal token count: 130\nTTFT: 0.44s\nFinish reason: stop\n",
+  "output": [
+    "",
+    "git",
+    " rev",
+    "-list",
+    " --",
+    "before",
+    "=<",
+    "date",
+    ">",
+    " --",
+    "max",
+    "-count",
+    "=",
+    "1",
+    " master"
+  ],
+  "data_removed": false,
+  "error": null,
+  "status": "succeeded",
+  "created_at": "2025-10-19T05:02:11.165Z",
+  "started_at": "2025-10-19T05:02:11.169550808Z",
+  "completed_at": "2025-10-19T05:02:12.389204788Z",
+  "urls": {
+    "cancel": "https://api.replicate.com/v1/predictions/gxzxhwxrvnrm80cszbcbqq55am/cancel",
+    "get": "https://api.replicate.com/v1/predictions/gxzxhwxrvnrm80cszbcbqq55am",
+    "stream": "https://stream-b.svc.ric1.c.replicate.net/v1/streams/3a2tw4bspxckmkqj2wckb7cybrrpbmp3wppjlvhzyyhxyqj5kzhq",
+    "web": "https://replicate.com/p/gxzxhwxrvnrm80cszbcbqq55am"
+  },
+  "metrics": {
+    "input_token_count": 116,
+    "output_token_count": 14,
+    "predict_time": 1.219653979,
+    "time_to_first_token": 0.531055992,
+    "tokens_per_second": 20.33116602764626
+  }
+}
+[2025-10-19 05:02:13 UTC] --- REQUEST END ---
+
+[2025-10-19 05:03:19 UTC] --- REQUEST START ---
+[2025-10-19 05:03:19 UTC] Flattened prompt text:
+[2025-10-19 05:03:19 UTC] System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.
+
+User: what is oneliner for scaling up images with convert
+Assistant: convert input.jpg -resize 200% output.jpg
+User: how to use ripgrep in current dir to find all files with "echo" in them ?
+Assistant: rg "echo"
+User: interactive rebase in current branch back to ff6eb42a3cda0ff6e961a74de92726871c3ab15d
+Assistant:
+[2025-10-19 05:03:19 UTC] JSON body:
+[2025-10-19 05:03:19 UTC] {
+  "input": {
+    "prompt": "System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.\n\nUser: what is oneliner for scaling up images with convert\nAssistant: convert input.jpg -resize 200% output.jpg\nUser: how to use ripgrep in current dir to find all files with \"echo\" in them ?\nAssistant: rg \"echo\"\nUser: interactive rebase in current branch back to ff6eb42a3cda0ff6e961a74de92726871c3ab15d\nAssistant:",
+    "temperature": 0.2,
+    "max_tokens": 100
+  }
+}
+[2025-10-19 05:03:21 UTC] Final status: succeeded
+[2025-10-19 05:03:21 UTC] Final response JSON:
+[2025-10-19 05:03:21 UTC] {
+  "id": "gvp03z64ksrma0cszbcrx510mr",
+  "model": "openai/gpt-4o",
+  "version": "hidden",
+  "input": {
+    "max_tokens": 100,
+    "prompt": "System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.\n\nUser: what is oneliner for scaling up images with convert\nAssistant: convert input.jpg -resize 200% output.jpg\nUser: how to use ripgrep in current dir to find all files with \"echo\" in them ?\nAssistant: rg \"echo\"\nUser: interactive rebase in current branch back to ff6eb42a3cda0ff6e961a74de92726871c3ab15d\nAssistant:",
+    "temperature": 0.2
+  },
+  "logs": "WARNING unknown input field ignored: max_tokens\nInput token count: 136\nOutput token count: 29\nTotal token count: 165\nTTFT: 0.39s\nFinish reason: stop\n",
+  "output": [
+    "",
+    "git",
+    " re",
+    "base",
+    " -",
+    "i",
+    " ff",
+    "6",
+    "eb",
+    "42",
+    "a",
+    "3",
+    "c",
+    "da",
+    "0",
+    "ff",
+    "6",
+    "e",
+    "961",
+    "a",
+    "74",
+    "de",
+    "927",
+    "268",
+    "71",
+    "c",
+    "3",
+    "ab",
+    "15",
+    "d"
+  ],
+  "data_removed": false,
+  "error": null,
+  "status": "succeeded",
+  "created_at": "2025-10-19T05:03:19.71Z",
+  "started_at": "2025-10-19T05:03:19.713907165Z",
+  "completed_at": "2025-10-19T05:03:20.647363377Z",
+  "urls": {
+    "cancel": "https://api.replicate.com/v1/predictions/gvp03z64ksrma0cszbcrx510mr/cancel",
+    "get": "https://api.replicate.com/v1/predictions/gvp03z64ksrma0cszbcrx510mr",
+    "stream": "https://stream-b.svc.ric1.c.replicate.net/v1/streams/zxi7357r72geyg2jf6gvabojrq6n66pecmhqg5ym64p3s4q33hma",
+    "web": "https://replicate.com/p/gvp03z64ksrma0cszbcrx510mr"
+  },
+  "metrics": {
+    "input_token_count": 136,
+    "output_token_count": 29,
+    "predict_time": 0.933456217,
+    "time_to_first_token": 0.052564505,
+    "tokens_per_second": 32.92118611736921
+  }
+}
+[2025-10-19 05:03:21 UTC] --- REQUEST END ---
+

@@ -36,4 +36,7 @@ pretty_date() {
   echo "$current_time"
 }
 
-export PS1="$(pretty_date) | %F{cyan}%B%n%b%f:%F{magenta}%B%d%b%f "
+
+precmd() {
+  PS1="$(pretty_date) | %F{cyan}%B%n%b%f:%F{magenta}%B%d%b%f "
+}

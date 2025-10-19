@@ -1,4 +1,4 @@
-img() {
+_show() {
   if [[ -z "$1" ]]; then
     echo 'Usage: img <image_path_or_url>'
     return 1
@@ -36,10 +36,20 @@ img() {
 
   # Copy file reference to clipboard (Cmd+P works in Finder)
   if osascript -e "set the clipboard to POSIX file \"$img_path\"" 2>/dev/null; then
-    echo "✅ Image file copied to clipboard"
+    echo "📋 Image file copied to clipboard"
   else
     # Fallback: copy image data (pasteable into Messages, Slack, etc.)
     osascript -e "set the clipboard to (read (POSIX file \"$img_path\") as picture)"
-    echo "✅ Image data copied to clipboard"
+    echo "📋 Image data copied to clipboard"
   fi
+}
+
+imagine() {
+  prompt="$*"
+  url=$(python3 "$DOTFILES_DIR/src/python/replicate.image.py" "$prompt")
+  if [[ -z "$url" ]]; then
+    echo "Failed to generate image"
+    return 1
+  fi
+  _show "$url"
 }

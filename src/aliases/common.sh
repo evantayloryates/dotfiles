@@ -13,6 +13,14 @@ src() { exec "$SHELL" -l; }
 env() { /usr/bin/env | sort; }
 path() { python3 "$DOTFILES_DIR/src/python/path.py"; }
 
+grep() {
+  if command -v rg >/dev/null 2>&1; then
+    /opt/homebrew/bin/rg "$@"
+  else
+    /usr/bin/grep "$@"
+  fi
+}
+
 # Git shortcuts
 alias gs='git status'
 alias ga='git add'
