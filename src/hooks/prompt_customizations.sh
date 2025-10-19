@@ -40,23 +40,11 @@ precmd() {
   PS1="$(pretty_date) | %F{cyan}%B%n%b%f:%F{magenta}%B%d%b%f "
 }
 
-
-# # Custom ZLE widget to select from cursor to end of line
-# function select-to-end-of-line() {
-#   zle set-mark-command
-#   zle end-of-line
-#   zle -U $'\x1b[23~'  # Trigger visual selection
-# }
-# zle -N select-to-end-of-line
-
-# # Bind the escape sequence from kitty
-# bindkey '^[[1;5C' select-to-end-of-line
-
 # Shell function that selects from current cursor to end of line
 function select-to-eol() {
-  zle set-mark-command          # Set mark at current position
-  zle end-of-line               # Move cursor to end
-  REGION_ACTIVE=1               # Activate visual selection
+  MARK=$CURSOR                  # Set mark at current cursor position
+  zle end-of-line               # Move cursor to end of line
+  REGION_ACTIVE=1               # Activate selection region
 }
 zle -N select-to-eol
 bindkey '^[[27;5;67~' select-to-eol
