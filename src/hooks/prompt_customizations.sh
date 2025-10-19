@@ -40,11 +40,3 @@ precmd() {
   PS1="$(pretty_date) | %F{cyan}%B%n%b%f:%F{magenta}%B%d%b%f "
 }
 
-# Shell function that selects from current cursor to end of line
-function select-to-eol() {
-  MARK=$CURSOR                  # Set mark at current cursor position
-  zle end-of-line               # Move cursor to end of line
-  REGION_ACTIVE=1               # Activate selection region
-}
-zle -N select-to-eol
-bindkey '^[[27;5;67~' select-to-eol
