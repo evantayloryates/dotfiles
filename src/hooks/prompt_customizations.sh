@@ -31,13 +31,13 @@ function pretty_date() {
 
 setopt PROMPT_SUBST
 export PS1='$(pretty_date) | %F{magenta}%B%d%b%f
-      | '
+        '
 
 # Custom accept-line widget to combine lines before executing
 function combine-lines-accept-line() {
   # Move cursor up one line and to the beginning
   printf '\r\033[1A'
-  
+
   # Clear the current line
   printf '\033[2K'
   # Print the single-line version with the command (use print -P for zsh prompt codes)
