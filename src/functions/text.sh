@@ -106,7 +106,6 @@ render_md_to_image() {
   rm -f "$tmp_md"
 }
 
-
 researchmd() {
   prompt="$*"
   if [[ -z "$prompt" ]]; then
