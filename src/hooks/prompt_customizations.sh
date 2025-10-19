@@ -41,16 +41,16 @@ precmd() {
 }
 
 
-# Custom ZLE widget to select from cursor to end of line
-function select-to-end-of-line() {
-  zle set-mark-command
-  zle end-of-line
-  zle -U $'\x1b[23~'  # Trigger visual selection
-}
-zle -N select-to-end-of-line
+# # Custom ZLE widget to select from cursor to end of line
+# function select-to-end-of-line() {
+#   zle set-mark-command
+#   zle end-of-line
+#   zle -U $'\x1b[23~'  # Trigger visual selection
+# }
+# zle -N select-to-end-of-line
 
-# Bind the escape sequence from kitty
-bindkey '^[[1;5C' select-to-end-of-line
+# # Bind the escape sequence from kitty
+# bindkey '^[[1;5C' select-to-end-of-line
 
 # Shell function that selects from current cursor to end of line
 function select-to-eol() {
