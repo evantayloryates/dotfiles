@@ -1,3 +1,41 @@
+#!/usr/bin/env python3
+import os
+import tempfile
+import json
+from typing import Dict, Any
+
+# --- CONFIG ---
+CONFIG = [
+  {
+    'slug': 'amp',
+    'path': '/Users/taylor/src/github/amplify',
+    'default': 'cursor',
+    'commands': {
+      # 'ls': 'ls -AGhlo <path> ; echo "<args>"' # allows for fine tuning commands here
+    },
+  },
+  {
+    'slug': 's',
+    'path': '/Users/taylor/src',
+    'default': 'cd',
+    'commands': {},
+  },
+  {
+    'slug': 'gh',
+    'path': '/Users/taylor/src/github',
+    'default': 'cd',
+    'commands': {},
+  },
+  {
+    'slug': 'nex',
+    'path': '/Users/taylor/src/github/nexrender-scripts',
+    'default': 'ssh',
+    'commands': {
+      'ssh': 'echo "TODO"',
+    },
+  },
+]
+
 def build_function(entry: Dict[str, Any]) -> str:
   slug = entry['slug']
   path = entry['path']
@@ -39,3 +77,21 @@ def build_function(entry: Dict[str, Any]) -> str:
   ])
 
   return '\n'.join(fn)
+
+def main():
+  # join all generated functions
+  functions = '\n\n'.join(build_function(entry) for entry in CONFIG)
+
+  # write to temp file
+  fd, path = tempfile.mkstemp(prefix='pathfuncs_', suffix='.zsh')
+  with os.fdopen(fd, 'w') as f:
+    f.write('# Generated shell functions\n\n')
+    f.write(functions)
+    f.write('\n')
+
+  # print filepath so zshrc can source it
+  print(path)
+
+
+if __name__ == '__main__':
+  main()
