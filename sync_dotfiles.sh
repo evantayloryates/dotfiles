@@ -53,24 +53,24 @@ sync_dotfiles() {
   
   # Step 3: Load changes to LIVE_DOTFILES_REPO_DIR
   if [[ -d "$LIVE_DOTFILES_REPO_DIR/.git" ]]; then
-  # Repository exists, pull latest changes
-  log 'Repository exists. Pulling latest changes...'
-  log "Running git commands in $LIVE_DOTFILES_REPO_DIR (current dir: $(pwd))"
-  
-  git -C "$LIVE_DOTFILES_REPO_DIR" fetch origin 2>> "$LOG_FILE" 1>> "$LOG_FILE"
-  if [[ $? -ne 0 ]]; then
-    log 'ERROR: git fetch failed'
-    return 1
-  fi
-  
-  git -C "$LIVE_DOTFILES_REPO_DIR" reset --hard origin/master 2>> "$LOG_FILE" 1>> "$LOG_FILE"
-  if [[ $? -ne 0 ]]; then
-    log 'ERROR: git reset failed'
-    return 1
-  fi
-  
-  log 'Successfully pulled latest changes'
-else
+    # Repository exists, pull latest changes
+    log 'Repository exists. Pulling latest changes...'
+    log "Running git commands in $LIVE_DOTFILES_REPO_DIR (current dir: $(pwd))"
+    
+    git -C "$LIVE_DOTFILES_REPO_DIR" fetch origin 2>> "$LOG_FILE" 1>> "$LOG_FILE"
+    if [[ $? -ne 0 ]]; then
+      log 'ERROR: git fetch failed'
+      return 1
+    fi
+    
+    git -C "$LIVE_DOTFILES_REPO_DIR" reset --hard origin/master 2>> "$LOG_FILE" 1>> "$LOG_FILE"
+    if [[ $? -ne 0 ]]; then
+      log 'ERROR: git reset failed'
+      return 1
+    fi
+    
+    log 'Successfully pulled latest changes'
+  else
 
     # Repository doesn't exist, clone it
     log 'Repository does not exist. Cloning...'
