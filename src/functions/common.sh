@@ -7,5 +7,3 @@ if [[ -f "$PATHFUNCS_FILE" ]]; then
 else
   echo "Failed to generate path functions"
 fi
-
-
