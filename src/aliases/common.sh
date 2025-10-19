@@ -6,7 +6,6 @@ source "$HOME/dotfiles/sync_dotfiles.sh"
 alias sync='sync_dotfiles'
 alias src='source $HOME/.zshrc'
 
-
 ls() { /bin/ls -AGhlo "$@"; }
 
 
