@@ -12,7 +12,7 @@ CONFIG = [
     'default': 'cursor',
     'commands': {
       # 'ls': 'ls -AGhlo <path> ; echo "<args>"' # allows for fine tuning commands here
-    }
+    },
   },
   {
     'slug': 's',
