@@ -15,7 +15,6 @@ if not REPLICATE_API_TOKEN:
   print('Missing REPLICATE_API_TOKEN', file=sys.stderr)
   sys.exit(1)
 
-
 MODEL = 'openai/gpt-4o'
 API_URL = f'https://api.replicate.com/v1/models/{MODEL}/predictions'
 
@@ -55,7 +54,6 @@ def chat_with_model(user_prompt: str) -> str:
     ('User', user_prompt)
   ]
 
-  # Flatten conversation into a single prompt text that includes the system instructions.
   conversation_text = f'System: {system_prompt}\n\n'
   for role, content in conversation:
     conversation_text += f'{role}: {content}\n'
@@ -69,8 +67,8 @@ def chat_with_model(user_prompt: str) -> str:
   body = json.dumps({
     'input': {
       'prompt': conversation_text,
-      'temperature': 0.2,   # lower temp = more deterministic, concise
-      'max_tokens': 100     # restrict verbosity further
+      'temperature': 0.2,
+      'max_tokens': 100
     }
   }, indent=2).encode('utf-8')
 
@@ -107,8 +105,6 @@ def chat_with_model(user_prompt: str) -> str:
 
   output = data.get('output')
   text = ''.join(part for part in output if isinstance(part, str)).strip() if isinstance(output, list) else str(output).strip()
-
-  # Strip any trailing newlines
   text = text.rstrip('\n')
 
   tmp_dir = os.getenv('TMPDIR', '/tmp')
@@ -122,13 +118,21 @@ def chat_with_model(user_prompt: str) -> str:
 
 if __name__ == '__main__':
   if len(sys.argv) < 2:
-    print('Usage: replicate.chat.py <prompt>', file=sys.stderr)
+    print('Usage: replicate.quick.py <input_filepath>', file=sys.stderr)
     sys.exit(1)
 
-  user_prompt = ' '.join(sys.argv[1:])
+  input_path = sys.argv[1]
+  if not os.path.isfile(input_path):
+    print(f'Invalid file path: {input_path}', file=sys.stderr)
+    sys.exit(1)
+
   try:
+    with open(input_path, 'r', encoding='utf-8') as f:
+      user_prompt = f.read().strip()
+
     file_path = chat_with_model(user_prompt)
     print(file_path, flush=True)
+
   except Exception as e:
     log(f'Error: {e}')
     print(f'Error: {e}', file=sys.stderr)
