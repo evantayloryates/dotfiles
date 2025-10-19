@@ -12,7 +12,7 @@ CONFIG = [
     'default': 'cd',
     'commands': {
       # both <path> and <args> are replaced dynamically
-      'ls': 'ls -AGhlo <path> | grep <args>'
+      'ls': 'ls -AGhlo <path> ; echo "<args>"'
     }
   },
 ]
