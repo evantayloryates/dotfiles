@@ -125,7 +125,7 @@ researchmd() {
 
   # Step 5: Display result using mdcat
   printf '\n'
-  mdcat --columns 80 "$quick_path"
+  mdcat --columns=80 "$quick_path"
   printf '\n\n'
 
   # Step 6: Copy result to clipboard and log
