@@ -108,11 +108,14 @@ def chat_with_model(user_prompt: str) -> str:
   output = data.get('output')
   text = ''.join(part for part in output if isinstance(part, str)).strip() if isinstance(output, list) else str(output).strip()
 
+  # Strip any trailing newlines
+  text = text.rstrip('\n')
+
   tmp_dir = os.getenv('TMPDIR', '/tmp')
   fd, path = tempfile.mkstemp(prefix='chat_', suffix='.txt', dir=tmp_dir)
   os.close(fd)
   with open(path, 'w', encoding='utf-8') as f:
-    f.write(text + '\n')
+    f.write(text)
 
   return path
 
