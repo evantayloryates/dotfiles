@@ -19,7 +19,15 @@ img() {
 
   # Check if input is a URL
   if [[ "$1" =~ ^https?:// ]]; then
-    local tmp_file="$TMPDIR/$(openssl rand -hex 8).img"
+    local tmp_dir="$TMPDIR/img-copies"
+    mkdir -p "$tmp_dir"
+
+    # Try to extract filename from URL, fallback to random hash
+    local fname
+    fname=$(basename "${1%%\?*}") # remove query params
+    [[ -z "$fname" || "$fname" == */* ]] && fname="$(openssl rand -hex 8).img"
+
+    local tmp_file="$tmp_dir/$fname"
     curl -s -L "$1" -o "$tmp_file"
     if [[ $? -ne 0 || ! -s "$tmp_file" ]]; then
       echo 'Failed to download image.'
