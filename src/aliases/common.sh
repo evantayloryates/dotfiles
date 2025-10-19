@@ -5,12 +5,7 @@
 source "$HOME/dotfiles/sync_dotfiles.sh"
 alias sync='sync_dotfiles'
 
-alias nn='echo "Hello, World!"'
-alias bb='echo "Hello, World!"'
-# alias ls='ls -AGhlo'
-function ls() {
-  /bin/ls -AGhlo "$@"
-}
+function ls() { ls -AGhlo "$@"; }
 alias src='source $HOME/.zshrc'
 
 # Directory navigation
