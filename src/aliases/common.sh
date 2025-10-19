@@ -38,4 +38,4 @@ alias mv='mv -i'
 alias grep='grep --color=auto'
 alias mkdir='mkdir -pv'
 
-alias kitty='kitty @ load-config /Users/taylor/.config/kitty/kitty.conf'
+alias kit='kitty @ load-config /Users/taylor/.config/kitty/kitty.conf'
