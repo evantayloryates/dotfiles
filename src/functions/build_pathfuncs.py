@@ -10,7 +10,7 @@ CONFIG = [
     'path': '/Users/taylor/src/github/amplify',
     'default': 'cd',
     'commands': {
-      'ls': 'ls -AGhlo <path> | grep'
+      # 'ls': 'ls -AGhlo <path> | grep' # allow fine tuning commands here
     }
   },
 ]
