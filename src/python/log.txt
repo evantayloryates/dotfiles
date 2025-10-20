@@ -12373,3 +12373,80 @@ Assistant:
 }
 [2025-10-20 16:37:49 UTC] --- REQUEST END ---
 
+[2025-10-20 19:36:39 UTC] --- REQUEST START ---
+[2025-10-20 19:36:39 UTC] Flattened prompt text:
+[2025-10-20 19:36:39 UTC] System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.
+
+User: what is oneliner for scaling up images with convert
+Assistant: convert input.jpg -resize 200% output.jpg
+User: how to use ripgrep in current dir to find all files with "echo" in them ?
+Assistant: rg "echo"
+User: ffmpeg to resample video audio rate to 48K and save as same filename but with.48k.mp4
+Assistant:
+[2025-10-20 19:36:39 UTC] JSON body:
+[2025-10-20 19:36:39 UTC] {
+  "input": {
+    "prompt": "System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.\n\nUser: what is oneliner for scaling up images with convert\nAssistant: convert input.jpg -resize 200% output.jpg\nUser: how to use ripgrep in current dir to find all files with \"echo\" in them ?\nAssistant: rg \"echo\"\nUser: ffmpeg to resample video audio rate to 48K and save as same filename but with.48k.mp4\nAssistant:",
+    "temperature": 0.2,
+    "max_tokens": 600
+  }
+}
+[2025-10-20 19:36:41 UTC] Final status: succeeded
+[2025-10-20 19:36:41 UTC] Final response JSON:
+[2025-10-20 19:36:41 UTC] {
+  "id": "gasqdq5gmsrmc0ct0cfthk9cj0",
+  "model": "openai/gpt-4o",
+  "version": "hidden",
+  "input": {
+    "max_tokens": 600,
+    "prompt": "System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.\n\nUser: what is oneliner for scaling up images with convert\nAssistant: convert input.jpg -resize 200% output.jpg\nUser: how to use ripgrep in current dir to find all files with \"echo\" in them ?\nAssistant: rg \"echo\"\nUser: ffmpeg to resample video audio rate to 48K and save as same filename but with.48k.mp4\nAssistant:",
+    "temperature": 0.2
+  },
+  "logs": "WARNING unknown input field ignored: max_tokens\nInput token count: 128\nOutput token count: 22\nTotal token count: 150\nTTFT: 0.36s\nFinish reason: stop\n",
+  "output": [
+    "",
+    "ff",
+    "mpeg",
+    " -",
+    "i",
+    " input",
+    ".mp",
+    "4",
+    " -",
+    "ar",
+    " ",
+    "480",
+    "00",
+    " -",
+    "c",
+    ":v",
+    " copy",
+    " input",
+    ".",
+    "48",
+    "k",
+    ".mp",
+    "4"
+  ],
+  "data_removed": false,
+  "error": null,
+  "status": "succeeded",
+  "created_at": "2025-10-20T19:36:39.846Z",
+  "started_at": "2025-10-20T19:36:39.849457701Z",
+  "completed_at": "2025-10-20T19:36:40.548870619Z",
+  "urls": {
+    "cancel": "https://api.replicate.com/v1/predictions/gasqdq5gmsrmc0ct0cfthk9cj0/cancel",
+    "get": "https://api.replicate.com/v1/predictions/gasqdq5gmsrmc0ct0cfthk9cj0",
+    "stream": "https://stream-b.svc.ric1.c.replicate.net/v1/streams/x2meskysdm6x2xh5pgoisf4ua7co5hsbza7unevn6fz7yefyfcua",
+    "web": "https://replicate.com/p/gasqdq5gmsrmc0ct0cfthk9cj0"
+  },
+  "metrics": {
+    "input_token_count": 128,
+    "output_token_count": 22,
+    "predict_time": 0.699412918,
+    "time_to_first_token": 0.076833201,
+    "tokens_per_second": 35.336840245953596
+  }
+}
+[2025-10-20 19:36:41 UTC] --- REQUEST END ---
+
