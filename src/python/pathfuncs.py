@@ -21,6 +21,12 @@ CONFIG = [
     'commands': {},
   },
   {
+    'slug': 'pathfuncs',
+    'path': '/Users/taylor/dotfiles/src/python/pathfuncs.py',
+    'default': 'cd',
+    'commands': {},
+  },
+  {
     'slug': 'dot',
     'path': '/Users/taylor/dotfiles',
     'default': 'cursor',
