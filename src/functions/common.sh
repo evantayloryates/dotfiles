@@ -16,28 +16,41 @@ for f in "$SCRIPT_DIR"/*.sh; do
 done
 
 
-check() {
+check_av_sync() {
   f="$1"
-  # video duration (fallback to nb_frames/avg_frame_rate if needed)
-  vd=$(ffprobe -v error -select_streams v:0 -show_entries stream=duration,nb_frames,avg_frame_rate \
-       -of default=nk=1:nw=1 "$f" | awk 'NR==1{vd=$1}
+
+  # video duration (fallback to nb_frames/avg_frame_rate)
+  vd=$(ffprobe -v error -select_streams v:0 \
+       -show_entries stream=duration,nb_frames,avg_frame_rate \
+       -of default=nk=1:nw=1 "$f" | awk '
+         NR==1{vd=$1}
          NR==2{nf=$1}
-         NR==3{split($1,a,"/"); if(a[2]>0) afr=a[1]/a[2]; else afr=0}
+         NR==3{split($1,a,"/"); afr=(a[2]>0?a[1]/a[2]:0)}
          END{
-           if(vd=="" || vd=="N/A" || vd==0){ if(nf!="" && afr>0){vd=nf/afr} }
+           if(vd=="" || vd=="N/A" || vd==0){
+             if(nf!="" && afr>0){vd=nf/afr}
+           }
            print vd
          }')
 
-  # audio: sample_rate, duration_ts * time_base (precise audio duration)
-  read sr ats tb <<<"$(ffprobe -v error -select_streams a:0 \
-    -show_entries stream=sample_rate,duration_ts,time_base \
-    -of default=nk=1:nw=1 "$f" | awk 'NR==1{sr=$1} NR==2{ats=$1} NR==3{tb=$1} END{print sr,ats,tb}')"
+  # audio: try duration_ts*time_base, else plain duration
+  read sr ats tb adur <<<"$(ffprobe -v error -select_streams a:0 \
+    -show_entries stream=sample_rate,duration_ts,time_base,duration \
+    -of default=nk=1:nw=1 "$f" | awk 'NR==1{sr=$1} NR==2{ats=$1} NR==3{tb=$1} NR==4{adur=$1} END{print sr,ats,tb,adur}')"
 
-  if [ -z "$sr" ] || [ -z "$ats" ] || [ -z "$tb" ]; then
-    echo "[$f] missing audio fields"; return 1
+  # compute audio duration
+  ad=0
+  if [ -n "$ats" ] && [ "$ats" != "N/A" ] && [ -n "$tb" ] && [ "$tb" != "N/A" ]; then
+    ad=$(awk -v ats="$ats" -v tb="$tb" 'BEGIN{split(tb,a,"/"); ad=ats*(a[1]/a[2]); print ad}')
+  elif [ -n "$adur" ] && [ "$adur" != "N/A" ]; then
+    ad="$adur"
   fi
 
-  ad=$(awk -v ats="$ats" -v tb="$tb" 'BEGIN{split(tb,a,"/"); ad=ats*(a[1]/a[2]); print ad}')
+  if [ -z "$sr" ] || [ -z "$vd" ] || [ "$sr" = "N/A" ]; then
+    echo "[$f] missing required fields"
+    return 1
+  fi
+
   exp_samples=$(awk -v vd="$vd" -v sr="$sr" 'BEGIN{printf "%.0f", vd*sr}')
   act_samples=$(awk -v ad="$ad" -v sr="$sr" 'BEGIN{printf "%.0f", ad*sr}')
   drift_samples=$((act_samples - exp_samples))
@@ -45,14 +58,13 @@ check() {
 
   printf "%s\n" "file=$f"
   printf " video_duration=%.6f s\n" "$vd"
-  printf " audio_duration=%.6f s (from duration_ts*time_base)\n" "$ad"
+  printf " audio_duration=%.6f s\n" "$ad"
   printf " sample_rate=%s Hz\n" "$sr"
   printf " expected_samples=%s\n" "$exp_samples"
   printf " actual_samples=%s\n" "$act_samples"
   printf " drift=%s samples (%.3f ms)\n" "$drift_samples" "$drift_ms"
-  # Simple pass/fail (tweak threshold as you like)
+
   awk -v dms="$drift_ms" 'BEGIN{exit (dms<5 && dms>-5)?0:1}' \
     && echo " ✅ audio rate aligns with video (|drift| < 5 ms)" \
     || echo " ⚠️ audio rate mismatch (|drift| ≥ 5 ms)"
 }
-
