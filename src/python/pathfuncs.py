@@ -21,9 +21,15 @@ CONFIG = [
     'commands': {},
   },
   {
-    'slug': 'pathfuncs',
-    'path': '/Users/taylor/dotfiles/src/python/pathfuncs.py',
-    'default': 'subl',
+    'slug': 'hb',
+    'path': '/Users/taylor/src/github/heartbeat',
+    'default': 'cursor',
+    'commands': {},
+  },
+  {
+    'slug': 'kit',
+    'path': '/Users/taylor/.config/kitty/',
+    'default': 'cursor',
     'commands': {},
   },
   {
@@ -51,6 +57,12 @@ CONFIG = [
     'commands': {
       'ssh': 'ssh -t -i ~/.ssh/aws-eb ec2-user@54.191.27.27 "export TERM=xterm; cd /Users/ec2-user/taylor; exec \$SHELL -l -i"',
     },
+  },
+  {
+    'slug': 'pathfuncs',
+    'path': '/Users/taylor/dotfiles/src/python/pathfuncs.py',
+    'default': 'subl',
+    'commands': {},
   },
   {
     'slug': 's',
