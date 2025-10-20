@@ -23,7 +23,7 @@ CONFIG = [
   {
     'slug': 'pathfuncs',
     'path': '/Users/taylor/dotfiles/src/python/pathfuncs.py',
-    'default': 'cd',
+    'default': 'subl',
     'commands': {},
   },
   {
