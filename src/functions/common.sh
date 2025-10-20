@@ -16,7 +16,7 @@ for f in "$SCRIPT_DIR"/*.sh; do
 done
 
 
-check_av_sync() {
+check() {
   f="$1"
   # video duration (fallback to nb_frames/avg_frame_rate if needed)
   vd=$(ffprobe -v error -select_streams v:0 -show_entries stream=duration,nb_frames,avg_frame_rate \
