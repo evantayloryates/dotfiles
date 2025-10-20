@@ -29,8 +29,10 @@ CONFIG = [
   {
     'slug': 'kit',
     'path': '/Users/taylor/.config/kitty/',
-    'default': 'cursor',
-    'commands': {},
+    'default': 'reload',
+    'commands': {
+      'reload': 'kitty @ load-config /Users/taylor/.config/kitty/kitty.conf'
+    },
   },
   {
     'slug': 'dot',
