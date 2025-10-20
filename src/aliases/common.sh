@@ -27,7 +27,7 @@ alias ga='git add'
 alias gc='git commit'
 alias gp='git push'
 alias gl='git log --oneline'
-
+alias dc="docker-compose"
 # Utilities
 alias mkdir='mkdir -pv'
 
