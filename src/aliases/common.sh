@@ -9,6 +9,8 @@ ls() { /bin/ls -AGhlo "$@"; }
 
 
 abs() { realpath "$@"; }
+# Note: this will overwrite the 
+# ex() { exiftool "$@"; }
 src() { exec "$SHELL" -l; }
 env() { /usr/bin/env | sort; }
 path() { python3 "$DOTFILES_DIR/src/python/path.py"; }
