@@ -16,67 +16,16 @@ for f in "$SCRIPT_DIR"/*.sh; do
 done
 
 
-check_av_sync() {
-  f="$1"
-
-  # ---- VIDEO DURATION ----
-  vd=$(ffprobe -v error -select_streams v:0 \
-       -show_entries stream=duration,nb_frames,avg_frame_rate \
-       -of default=nk=1:nw=1 "$f" | awk '
-         NR==1{vd=$1}
-         NR==2{nf=$1}
-         NR==3{split($1,a,"/"); afr=(a[2]>0?a[1]/a[2]:0)}
-         END{
-           if(vd=="" || vd=="N/A" || vd==0){
-             if(nf!="" && afr>0){vd=nf/afr}
-           }
-           print vd
-         }')
-
-  # ---- AUDIO FIELDS ----
-  read sr ats tb adur <<<"$(ffprobe -v error -select_streams a:0 \
-    -show_entries stream=sample_rate,duration_ts,time_base,duration \
-    -of default=nk=1:nw=1 "$f" | awk 'NR==1{sr=$1} NR==2{ats=$1} NR==3{tb=$1} NR==4{adur=$1} END{print sr,ats,tb,adur}')"
-
-  # ---- COMPUTE AUDIO DURATION ----
-  ad=0
-  if [ -n "$ats" ] && [ "$ats" != "N/A" ] && [ "$ats" != "0" ] && [ -n "$tb" ] && [ "$tb" != "N/A" ] && [[ "$tb" == */* ]]; then
-    num=${tb%/*}
-    den=${tb#*/}
-    if [ "$den" -gt 0 ] 2>/dev/null; then
-      ad=$(awk -v ats="$ats" -v num="$num" -v den="$den" 'BEGIN{ad=ats*(num/den); print ad}')
-    fi
+function sb() 
+{
+  if [ "$1" == "prod" ]; then
+    ssh-keygen -R ssh-app.spaceback.me
+    ssh -i ~/.ssh/aws-eb -tt root@ssh-app.spaceback.me 'echo "echo \"RUN: cd ~ && source activate && cd /app && rails c\" && source /root/activate" | bash -s && bash -i'
+  elif [ "$1" == "stage" ]; then
+    ssh-keygen -R ssh-app-stage.spaceback.me
+    ssh -i ~/.ssh/aws-eb -tt root@ssh-app-stage.spaceback.me 'echo "echo \"RUN: cd ~ && source activate && cd /app && rails c\" && source /root/activate" | bash -s && bash -i'
+  else
+    echo "Invalid argument. Use 'prod' or 'stage' to run the command."
   fi
-  if [ "$ad" = "0" ] && [ -n "$adur" ] && [ "$adur" != "N/A" ]; then
-    ad="$adur"
-  fi
-  if [ -z "$ad" ] || [ "$ad" = "N/A" ]; then ad=0; fi
-
-  # ---- CHECKS ----
-  if [ -z "$sr" ] || [ "$sr" = "N/A" ]; then
-    echo "[$f] missing audio sample rate"
-    return 1
-  fi
-  if [ -z "$vd" ] || [ "$vd" = "N/A" ]; then
-    echo "[$f] missing video duration"
-    return 1
-  fi
-
-  exp_samples=$(awk -v vd="$vd" -v sr="$sr" 'BEGIN{printf "%.0f", vd*sr}')
-  act_samples=$(awk -v ad="$ad" -v sr="$sr" 'BEGIN{printf "%.0f", ad*sr}')
-  drift_samples=$((act_samples - exp_samples))
-  drift_ms=$(awk -v ds="$drift_samples" -v sr="$sr" 'BEGIN{print (ds*1000.0)/sr}')
-
-  printf "%s\n" "file=$f"
-  printf " video_duration=%.6f s\n" "$vd"
-  printf " audio_duration=%.6f s\n" "$ad"
-  printf " sample_rate=%s Hz\n" "$sr"
-  printf " expected_samples=%s\n" "$exp_samples"
-  printf " actual_samples=%s\n" "$act_samples"
-  printf " drift=%s samples (%.3f ms)\n" "$drift_samples" "$drift_ms"
-
-  awk -v dms="$drift_ms" 'BEGIN{exit (dms<5 && dms>-5)?0:1}' \
-    && echo " ✅ audio rate aligns with video (|drift| < 5 ms)" \
-    || echo " ⚠️ audio rate mismatch (|drift| ≥ 5 ms)"
 }
 
