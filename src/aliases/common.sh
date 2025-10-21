@@ -11,6 +11,7 @@ ls() { /bin/ls -AGhlo "$@"; }
 abs() { realpath "$@"; }
 # Note: this will overwrite the /usr/bin/ex command
 ex() { exiftool "$@"; }
+convert() { magick "$@"; }
 src() { exec "$SHELL" -l; }
 env() { /usr/bin/env | sort; }
 path() { python3 "$DOTFILES_DIR/src/python/path.py"; }
