@@ -61,6 +61,12 @@ CONFIG = [
     },
   },
   {
+    'slug': 'notes',
+    'path': '/Users/taylor/Desktop/notes',
+    'default': 'cursor',
+    'commands': {},
+  },
+  {
     'slug': 'pathfuncs',
     'path': '/Users/taylor/dotfiles/src/python/pathfuncs.py',
     'default': 'subl',
