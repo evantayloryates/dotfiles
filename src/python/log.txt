@@ -12450,3 +12450,86 @@ Assistant:
 }
 [2025-10-20 19:36:41 UTC] --- REQUEST END ---
 
+[2025-10-21 21:16:50 UTC] --- REQUEST START ---
+[2025-10-21 21:16:50 UTC] Flattened prompt text:
+[2025-10-21 21:16:50 UTC] System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.
+
+User: what is oneliner for scaling up images with convert
+Assistant: convert input.jpg -resize 200% output.jpg
+User: how to use ripgrep in current dir to find all files with "echo" in them ?
+Assistant: rg "echo"
+User: ffmpeg command to resize ./video.mp4 to be 10% of original size
+Assistant:
+[2025-10-21 21:16:50 UTC] JSON body:
+[2025-10-21 21:16:50 UTC] {
+  "input": {
+    "prompt": "System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.\n\nUser: what is oneliner for scaling up images with convert\nAssistant: convert input.jpg -resize 200% output.jpg\nUser: how to use ripgrep in current dir to find all files with \"echo\" in them ?\nAssistant: rg \"echo\"\nUser: ffmpeg command to resize ./video.mp4 to be 10% of original size\nAssistant:",
+    "temperature": 0.2,
+    "max_tokens": 600
+  }
+}
+[2025-10-21 21:16:52 UTC] Final status: succeeded
+[2025-10-21 21:16:52 UTC] Final response JSON:
+[2025-10-21 21:16:52 UTC] {
+  "id": "1nsf4v643hrm80ct12grt9srp0",
+  "model": "openai/gpt-4o",
+  "version": "hidden",
+  "input": {
+    "max_tokens": 600,
+    "prompt": "System: You are a precise assistant. Respond only with what the user explicitly requests. No introductory text, no explanations, no extra formatting. Provide exactly what they asked for and nothing more.\n\nUser: what is oneliner for scaling up images with convert\nAssistant: convert input.jpg -resize 200% output.jpg\nUser: how to use ripgrep in current dir to find all files with \"echo\" in them ?\nAssistant: rg \"echo\"\nUser: ffmpeg command to resize ./video.mp4 to be 10% of original size\nAssistant:",
+    "temperature": 0.2
+  },
+  "logs": "WARNING unknown input field ignored: max_tokens\nInput token count: 121\nOutput token count: 28\nTotal token count: 149\nTTFT: 0.36s\nFinish reason: stop\n",
+  "output": [
+    "",
+    "ff",
+    "mpeg",
+    " -",
+    "i",
+    " ./",
+    "video",
+    ".mp",
+    "4",
+    " -",
+    "vf",
+    " \"",
+    "scale",
+    "=",
+    "iw",
+    "*",
+    "0",
+    ".",
+    "1",
+    ":",
+    "ih",
+    "*",
+    "0",
+    ".",
+    "1",
+    "\"",
+    " output",
+    ".mp",
+    "4"
+  ],
+  "data_removed": false,
+  "error": null,
+  "status": "succeeded",
+  "created_at": "2025-10-21T21:16:50.588Z",
+  "started_at": "2025-10-21T21:16:50.592930205Z",
+  "completed_at": "2025-10-21T21:16:51.456573601Z",
+  "urls": {
+    "cancel": "https://api.replicate.com/v1/predictions/1nsf4v643hrm80ct12grt9srp0/cancel",
+    "get": "https://api.replicate.com/v1/predictions/1nsf4v643hrm80ct12grt9srp0",
+    "stream": "https://stream-b.svc.ric1.c.replicate.net/v1/streams/e4cfu2y2fyggbfpejl663ynuh6e72wzk5bvbmdydudr5h7v2id4a",
+    "web": "https://replicate.com/p/1nsf4v643hrm80ct12grt9srp0"
+  },
+  "metrics": {
+    "input_token_count": 121,
+    "output_token_count": 28,
+    "predict_time": 0.863643395,
+    "time_to_first_token": 0.09397994,
+    "tokens_per_second": 36.379536819764944
+  }
+}
+[2025-10-21 21:16:52 UTC] --- REQUEST END ---
+
