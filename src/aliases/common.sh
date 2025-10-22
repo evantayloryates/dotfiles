@@ -33,6 +33,5 @@ alias gl='git log --oneline'
 alias dc="docker compose"
 # Utilities
 alias mkdir='mkdir -pv'
-echo "DOTFILES_DIR: $DOTFILES_DIR"
 alias password="python3 $DOTFILES_DIR/src/python/password.py"
 alias words="open $DOTFILES_DIR/src/__data/words.txt"
