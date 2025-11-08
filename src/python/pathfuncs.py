@@ -57,7 +57,7 @@ CONFIG = [
     'path': '/Users/taylor/src/github/nexrender-scripts',
     'default': 'ssh',
     'commands': {
-      'ssh': 'ssh -t -i ~/.ssh/aws-eb ec2-user@54.191.27.27 "export TERM=xterm; cd /Users/ec2-user/taylor; exec \$SHELL -l -i"',
+      'ssh': '/Users/taylor/src/github/nexrender-scripts/scripts/local/ssh',
     },
   },
   {
