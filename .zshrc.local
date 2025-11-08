@@ -28,7 +28,7 @@ is_vscode() {
 }
 
 # cd to last directory on shell load (unless VS Code)
-if [[ -f "$LAST_DIR_FILE" && ! $(is_vscode) ]]; then
+if [[ -f "$LAST_DIR_FILE" && ! is_vscode ]]; then
   echo "cd to last directory"
   echo $TERM_PROGRAM
   cd "$(cat "$LAST_DIR_FILE")"
