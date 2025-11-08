@@ -1,0 +1,11 @@
+{
+  "triggerTaskOnSave.tasks": {
+    "onsave": [
+      "**/*",
+      ".gitignore",
+      ".zshrc",
+      ".zshrc.local",
+      ".vscode/**/*",
+    ]
+  }
+}

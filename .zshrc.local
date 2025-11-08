@@ -1,0 +1,40 @@
+#!/bin/zsh
+
+# Note: these won't live update. Requires rebuild of container to take effect.
+export SYNC_DOTFILES=1
+export SHOULD_LOG=0
+
+log() {
+  if [[ "$SHOULD_LOG" -eq 1 ]]; then
+    local msg="[$(date '+%Y-%m-%d %H:%M:%S')] $*"
+    echo "$msg"
+    echo "$msg" >> "$HOME/log.txt"
+  fi
+}
+
+# Find and use the best available zsh
+if [[ -n "$(command -v zsh)" ]]; then
+  export SHELL="$(command -v zsh)"
+fi
+
+source "$HOME/dotfiles/src/index.sh"
+
+# File to store last directory
+LAST_DIR_FILE="${HOME}/.last_shell_dir"
+
+# cd to last directory on shell load
+if [[ -f "$LAST_DIR_FILE" ]]; then
+    cd "$(cat "$LAST_DIR_FILE")"
+fi
+
+# Save current directory before each prompt
+save_last_dir() {
+    pwd > "$LAST_DIR_FILE"
+}
+
+# Hook to save directory reactively
+autoload -Uz add-zsh-hook
+add-zsh-hook precmd save_last_dir
+
+
+source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
