@@ -12,7 +12,6 @@ log() {
   fi
 }
 
-
 # Find and use the best available zsh
 if [[ -n "$(command -v zsh)" ]]; then
   export SHELL="$(command -v zsh)"
