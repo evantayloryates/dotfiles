@@ -25,7 +25,6 @@ function print_agents ()
 	echo -e "\n"
 }
 
-
 function launch ()
 {
 	# Initialize dirs in case they don't exist
