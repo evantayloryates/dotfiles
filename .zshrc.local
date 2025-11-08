@@ -24,7 +24,7 @@ LAST_DIR_FILE="${HOME}/.last_shell_dir"
 
 # Detect if running inside VS Code terminal
 is_vscode() {
-  [[ "$TERM_PROGRAM" == 'vscode' || -n "$VSCODE_GIT_IPC_HANDLE" ]]
+  [[ "$TERM_PROGRAM" == 'vscode' ]]
 }
 
 # cd to last directory on shell load (unless VS Code)
