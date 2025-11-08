@@ -22,19 +22,25 @@ source "$HOME/dotfiles/src/index.sh"
 # File to store last directory
 LAST_DIR_FILE="${HOME}/.last_shell_dir"
 
-# cd to last directory on shell load
-if [[ -f "$LAST_DIR_FILE" ]]; then
-    cd "$(cat "$LAST_DIR_FILE")"
+# Detect if running inside VS Code terminal
+is_vscode() {
+  [[ "$TERM_PROGRAM" == 'vscode' || -n "$VSCODE_GIT_IPC_HANDLE" ]]
+}
+
+# cd to last directory on shell load (unless VS Code)
+if [[ -f "$LAST_DIR_FILE" && ! $(is_vscode) ]]; then
+  cd "$(cat "$LAST_DIR_FILE")"
 fi
 
 # Save current directory before each prompt
 save_last_dir() {
-    pwd > "$LAST_DIR_FILE"
+  pwd > "$LAST_DIR_FILE"
 }
 
 # Hook to save directory reactively
 autoload -Uz add-zsh-hook
 add-zsh-hook precmd save_last_dir
+
 
 
 source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
