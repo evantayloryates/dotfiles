@@ -8,7 +8,9 @@ CONFIG = [
     'slug': 'amp',
     'path': '/Users/taylor/src/github/amplify',
     'default': 'cursor',
-    'commands': {},
+    'commands': {
+      # 'ls': 'ls -AGhlo <path> ; echo "<args>"' # allows for fine tuning commands here
+    },
   },
   {
     'slug': 'd',
@@ -27,9 +29,8 @@ CONFIG = [
     'slug': 'kit',
     'aliases': ['kitty'],
     'path': '/Users/taylor/.config/kitty/',
-    'default': 'reload',
+    'default': 'cursor',
     'commands': {
-      'cursor': ''
       'reload': 'kitty @ load-config /Users/taylor/.config/kitty/kitty.conf'
     },
   },
