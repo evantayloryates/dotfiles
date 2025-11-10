@@ -105,6 +105,7 @@ CONFIG = [
   },
   {
     'slug': 'kit',
+    'aliases': ['kitty'],
     'path': '/Users/taylor/.config/kitty/',
     'default': 'reload',
     'commands': {
