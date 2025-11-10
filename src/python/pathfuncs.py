@@ -88,6 +88,38 @@ CONFIG = [
   },
 ]
 
+def is_valid_alias_name(alias: str) -> bool:
+  """
+  Validate POSIX-compliant alias name.
+  Valid characters: a-z, A-Z, 0-9, _
+  Must start with a letter or underscore (cannot start with a number)
+  """
+  if not alias:
+    return False
+  # Must start with letter or underscore, followed by any combination of letters, digits, underscores
+  pattern = r'^[a-zA-Z_][a-zA-Z0-9_]*$'
+  return bool(re.match(pattern, alias))
+
+def validate_aliases(entry: Dict[str, Any]) -> List[str]:
+  """
+  Validate and filter aliases for an entry.
+  Returns list of valid aliases, logs warnings for invalid ones.
+  """
+  aliases = entry.get('aliases', [])
+  if not aliases:
+    return []
+  
+  valid_aliases = []
+  slug = entry['slug']
+  
+  for alias in aliases:
+    if is_valid_alias_name(alias):
+      valid_aliases.append(alias)
+    else:
+      print(f"Warning: Invalid alias name '{alias}' for slug '{slug}' - skipping", flush=True)
+  
+  return valid_aliases
+
 def build_function(entry: Dict[str, Any]) -> str:
   slug = entry['slug']
   path = entry['path']
