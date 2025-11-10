@@ -41,6 +41,7 @@ CONFIG = [
     'path': '/Users/taylor/dotfiles',
     'default': 'cursor',
     'commands': {},
+    'aliases': ['dotfiles', 'df', '_myDotFiles'],  # example valid aliases
   },
   {
     'slug': 'dot-old',
