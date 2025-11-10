@@ -174,8 +174,21 @@ def build_alias_function(alias: str, slug: str) -> str:
   return '\n'.join(fn)
 
 def main():
-  # join all generated functions
-  functions = '\n\n'.join(build_function(entry) for entry in CONFIG)
+  # Generate all main functions
+  all_functions = []
+  
+  for entry in CONFIG:
+    # Build main function
+    all_functions.append(build_function(entry))
+    
+    # Build alias functions
+    valid_aliases = validate_aliases(entry)
+    slug = entry['slug']
+    for alias in valid_aliases:
+      all_functions.append(build_alias_function(alias, slug))
+  
+  # Join all functions
+  functions = '\n\n'.join(all_functions)
 
   # write to temp file
   fd, path = tempfile.mkstemp(prefix='pathfuncs_', suffix='.zsh')
