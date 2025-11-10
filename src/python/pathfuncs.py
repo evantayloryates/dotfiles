@@ -157,6 +157,7 @@ CONFIG = [
   },
 ]
 
+
 def build_function(entry: Dict[str, Any]) -> str:
   slug = entry['slug']
   path = entry['path']
@@ -195,7 +196,6 @@ def build_function(entry: Dict[str, Any]) -> str:
     '}'
   ])
 
-  # Alias redirect functions
   alias_funcs = [f'{alias}() {{ {slug} "$@"; }}' for alias in aliases]
 
   return '\n'.join([*fn, '', *alias_funcs])
@@ -222,7 +222,7 @@ def main():
     f.write('# Helper to list all path slugs\n')
     f.write(paths_helper)
     f.write('\n\n')
-    f.write('printf "\\n[paths] Run `paths` to see all available path functions.\\n"\\n')
+    f.write('printf "Reminder: run `paths` to list available pathfuncs\\n"\n')
 
   print(path)
 
