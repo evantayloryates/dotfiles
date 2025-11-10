@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 import os
 import tempfile
-import json
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 # --- CONFIG ---
 CONFIG = [
@@ -10,12 +9,11 @@ CONFIG = [
     'slug': 'amp',
     'path': '/Users/taylor/src/github/amplify',
     'default': 'cursor',
-    'commands': {
-      # 'ls': 'ls -AGhlo <path> ; echo "<args>"' # allows for fine tuning commands here
-    },
+    'commands': {},
   },
   {
     'slug': 'd',
+    'aliases': ['desk', 'desktop'],
     'path': '/Users/taylor/Desktop',
     'default': 'cd',
     'commands': {},
@@ -26,58 +24,6 @@ CONFIG = [
     'default': 'cursor',
     'commands': {},
   },
-  {
-    'slug': 'kit',
-    'path': '/Users/taylor/.config/kitty/',
-    'default': 'reload',
-    'commands': {
-      'reload': 'kitty @ load-config /Users/taylor/.config/kitty/kitty.conf'
-    },
-  },
-  {
-    'slug': 'dot',
-    'path': '/Users/taylor/dotfiles',
-    'default': 'cursor',
-    'commands': {},
-  },
-  {
-    'slug': 'dot-old',
-    'path': '/Users/taylor/.dotfiles',
-    'default': 'cursor',
-    'commands': {},
-  },
-  {
-    'slug': 'gh',
-    'path': '/Users/taylor/src/github',
-    'default': 'cd',
-    'commands': {},
-  },
-  {
-    'slug': 'nex',
-    'path': '/Users/taylor/src/github/nexrender-scripts',
-    'default': 'ssh',
-    'commands': {
-      'ssh': '/Users/taylor/src/github/nexrender-scripts/scripts/local/ssh',
-    },
-  },
-  {
-    'slug': 'notes',
-    'path': '/Users/taylor/Desktop/notes',
-    'default': 'cursor',
-    'commands': {},
-  },
-  {
-    'slug': 'pathfuncs',
-    'path': '/Users/taylor/dotfiles/src/python/pathfuncs.py',
-    'default': 'subl',
-    'commands': {},
-  },
-  {
-    'slug': 's',
-    'path': '/Users/taylor/src',
-    'default': 'cd',
-    'commands': {},
-  },
 ]
 
 def build_function(entry: Dict[str, Any]) -> str:
@@ -85,6 +31,7 @@ def build_function(entry: Dict[str, Any]) -> str:
   path = entry['path']
   default = entry.get('default', 'cd')
   commands = entry.get('commands', {})
+  aliases: List[str] = entry.get('aliases', [])
 
   fn = [
     f'{slug}() {{',
@@ -103,13 +50,10 @@ def build_function(entry: Dict[str, Any]) -> str:
     fn.append(f'      {cmd_str}')
     fn.append('      ;;')
 
-  # --- Default case ---
   fn.append('    "" )')
   if default in commands:
-    # default is a defined subcommand -> re-enter same function
     fn.append(f'      "$0" "{default}" "$@"')
   else:
-    # default is an external command -> apply to path
     fn.append(f'      {default} "{path}"')
   fn.extend([
     '      ;;',
@@ -120,20 +64,25 @@ def build_function(entry: Dict[str, Any]) -> str:
     '}'
   ])
 
-  return '\n'.join(fn)
+  # Generate alias redirect functions
+  alias_funcs = []
+  for alias in aliases:
+    alias_funcs.append(
+      f'{alias}() {{ {slug} "$@"; }}'
+    )
+
+  return '\n'.join([*fn, '', *alias_funcs])
+
 
 def main():
-  # join all generated functions
   functions = '\n\n'.join(build_function(entry) for entry in CONFIG)
 
-  # write to temp file
   fd, path = tempfile.mkstemp(prefix='pathfuncs_', suffix='.zsh')
   with os.fdopen(fd, 'w') as f:
     f.write('# Generated shell functions\n\n')
     f.write(functions)
     f.write('\n')
 
-  # print filepath so zshrc can source it
   print(path)
 
 
