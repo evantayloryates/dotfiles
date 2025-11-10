@@ -162,6 +162,17 @@ def build_function(entry: Dict[str, Any]) -> str:
 
   return '\n'.join(fn)
 
+def build_alias_function(alias: str, slug: str) -> str:
+  """
+  Build a function for an alias that redirects to the original slug's function.
+  """
+  fn = [
+    f'{alias}() {{',
+    f'  {slug} "$@"',
+    '}'
+  ]
+  return '\n'.join(fn)
+
 def main():
   # join all generated functions
   functions = '\n\n'.join(build_function(entry) for entry in CONFIG)
