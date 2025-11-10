@@ -20,6 +20,7 @@ CONFIG = [
     'path': '/Users/taylor/Desktop',
     'default': 'cd',
     'commands': {},
+    'aliases': [],  # optional: array of POSIX-compliant alias names
   },
   {
     'slug': 'hb',
