@@ -13,7 +13,6 @@ CONFIG = [
   },
   {
     'slug': 'd',
-    'aliases': ['desk', 'desktop'],
     'path': '/Users/taylor/Desktop',
     'default': 'cd',
     'commands': {},
