@@ -78,6 +78,12 @@ CONFIG = [
     'default': 'cd',
     'commands': {},
   },
+  {
+    'slug': 'kit',
+    'path': '/Users/taylor/.config/kitty',
+    'default': 'cd',
+    'commands': {},
+  },
 ]
 
 def build_function(entry: Dict[str, Any]) -> str:
