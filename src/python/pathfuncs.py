@@ -31,7 +31,7 @@ CONFIG = [
     'path': '/Users/taylor/.config/kitty/',
     'default': 'cursor',
     'commands': {
-      'reload': 'kitty @ load-config /Users/taylor/.config/kitty/kitty.conf'
+      'reload': '/Applications/kitty.app/Contents/MacOS/kitty @ load-config /Users/taylor/.config/kitty/kitty.conf'
     },
   },
   {
