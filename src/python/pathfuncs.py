@@ -68,6 +68,7 @@ CONFIG = [
     'path': '/Users/taylor/Desktop/notes',
     'default': 'cursor',
     'commands': {},
+    'aliases': ['n', 'my-notes', '2note', 'note@s'],  # mix of valid and invalid for testing
   },
   {
     'slug': 'pathfuncs',
