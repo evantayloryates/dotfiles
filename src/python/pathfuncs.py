@@ -1,3 +1,162 @@
+#!/usr/bin/env python3
+import os
+import tempfile
+from typing import Dict, Any, List
+
+CONFIG = [
+  {
+    'slug': 'amp',
+    'path': '/Users/taylor/src/github/amplify',
+    'default': 'cursor',
+    'commands': {
+      # 'ls': 'ls -AGhlo <path> ; echo "<args>"' # allows for fine tuning commands here
+    },
+  },
+  {
+    'slug': 'd',
+    'path': '/Users/taylor/Desktop',
+    'default': 'cd',
+    'commands': {},
+  },
+  {
+    'slug': 'hb',
+    'path': '/Users/taylor/src/github/heartbeat',
+    'default': 'cursor',
+    'commands': {},
+  },
+  {
+    'slug': 'kit',
+    'path': '/Users/taylor/.config/kitty/',
+    'default': 'reload',
+    'commands': {
+      'reload': 'kitty @ load-config /Users/taylor/.config/kitty/kitty.conf'
+    },
+  },
+  {
+    'slug': 'dot',
+    'path': '/Users/taylor/dotfiles',
+    'default': 'cursor',
+    'commands': {},
+  },
+  {
+    'slug': 'dot-old',
+    'path': '/Users/taylor/.dotfiles',
+    'default': 'cursor',
+    'commands': {},
+  },
+  {
+    'slug': 'gh',
+    'path': '/Users/taylor/src/github',
+    'default': 'cd',
+    'commands': {},
+  },
+  {
+    'slug': 'nex',
+    'path': '/Users/taylor/src/github/nexrender-scripts',
+    'default': 'ssh',
+    'commands': {
+      'ssh': '/Users/taylor/src/github/nexrender-scripts/scripts/local/ssh',
+    },
+  },
+  {
+    'slug': 'notes',
+    'path': '/Users/taylor/Desktop/notes',
+    'default': 'cursor',
+    'commands': {},
+  },
+  {
+    'slug': 'pathfuncs',
+    'path': '/Users/taylor/dotfiles/src/python/pathfuncs.py',
+    'default': 'subl',
+    'commands': {},
+  },
+  {
+    'slug': 's',
+    'path': '/Users/taylor/src',
+    'default': 'cd',
+    'commands': {},
+  },
+]
+
+#!/usr/bin/env python3
+import os
+import tempfile
+from typing import Dict, Any, List
+
+CONFIG = [
+  {
+    'slug': 'amp',
+    'path': '/Users/taylor/src/github/amplify',
+    'default': 'cursor',
+    'commands': {},
+  },
+  {
+    'slug': 'd',
+    'aliases': ['desk', 'desktop'],
+    'path': '/Users/taylor/Desktop',
+    'default': 'cd',
+    'commands': {},
+  },
+  {
+    'slug': 'hb',
+    'path': '/Users/taylor/src/github/heartbeat',
+    'default': 'cursor',
+    'commands': {},
+  },
+  {
+    'slug': 'kit',
+    'path': '/Users/taylor/.config/kitty/',
+    'default': 'reload',
+    'commands': {
+      'reload': 'kitty @ load-config /Users/taylor/.config/kitty/kitty.conf'
+    },
+  },
+  {
+    'slug': 'dot',
+    'path': '/Users/taylor/dotfiles',
+    'default': 'cursor',
+    'commands': {},
+  },
+  {
+    'slug': 'dot-old',
+    'path': '/Users/taylor/.dotfiles',
+    'default': 'cursor',
+    'commands': {},
+  },
+  {
+    'slug': 'gh',
+    'path': '/Users/taylor/src/github',
+    'default': 'cd',
+    'commands': {},
+  },
+  {
+    'slug': 'nex',
+    'path': '/Users/taylor/src/github/nexrender-scripts',
+    'default': 'ssh',
+    'commands': {
+      'ssh': '/Users/taylor/src/github/nexrender-scripts/scripts/local/ssh',
+    },
+  },
+  {
+    'slug': 'notes',
+    'path': '/Users/taylor/Desktop/notes',
+    'default': 'cursor',
+    'commands': {},
+  },
+  {
+    'slug': 'pathfuncs',
+    'path': '/Users/taylor/dotfiles/src/python/pathfuncs.py',
+    'default': 'subl',
+    'commands': {},
+  },
+  {
+    'slug': 's',
+    'path': '/Users/taylor/src',
+    'default': 'cd',
+    'commands': {},
+  },
+]
+
 def build_function(entry: Dict[str, Any]) -> str:
   slug = entry['slug']
   path = entry['path']
