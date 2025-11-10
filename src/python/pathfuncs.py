@@ -221,8 +221,9 @@ def main():
     f.write('\n\n')
     # f.write('# Helper to list all path slugs\n')
     f.write(paths_helper)
-    # f.write('\n\n')
-    f.write('printf "Reminder: run \\`paths\\` to list available pathfuncs\\n"\n')
+    f.write('\n')
+    # f.write('printf "Reminder: run \\`paths\\` to list available pathfuncs\\n"\n')
+    f.write('\n')
 
 
   print(path)
