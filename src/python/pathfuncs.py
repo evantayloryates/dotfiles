@@ -27,7 +27,7 @@ CONFIG = [
   },
   {
     'slug': 'kit',
-    'aliases': ['kitty'],
+    # 'aliases': ['kitty'],
     'path': '/Users/taylor/.config/kitty/',
     'default': 'cursor',
     'commands': {
