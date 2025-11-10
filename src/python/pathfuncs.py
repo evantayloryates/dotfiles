@@ -2,8 +2,7 @@
 import os
 import tempfile
 import json
-import re
-from typing import Dict, Any, List
+from typing import Dict, Any
 
 # --- CONFIG ---
 CONFIG = [
@@ -20,7 +19,6 @@ CONFIG = [
     'path': '/Users/taylor/Desktop',
     'default': 'cd',
     'commands': {},
-    'aliases': [],  # optional: array of POSIX-compliant alias names
   },
   {
     'slug': 'hb',
@@ -41,7 +39,6 @@ CONFIG = [
     'path': '/Users/taylor/dotfiles',
     'default': 'cursor',
     'commands': {},
-    'aliases': ['dotfiles', 'df', '_myDotFiles'],  # example valid aliases
   },
   {
     'slug': 'dot-old',
@@ -68,7 +65,6 @@ CONFIG = [
     'path': '/Users/taylor/Desktop/notes',
     'default': 'cursor',
     'commands': {},
-    'aliases': ['n', 'my-notes', '2note', 'note@s'],  # mix of valid and invalid for testing
   },
   {
     'slug': 'pathfuncs',
@@ -82,45 +78,7 @@ CONFIG = [
     'default': 'cd',
     'commands': {},
   },
-  {
-    'slug': 'kit',
-    'path': '/Users/taylor/.config/kitty',
-    'default': 'cd',
-    'commands': {},
-  },
 ]
-
-def is_valid_alias_name(alias: str) -> bool:
-  """
-  Validate POSIX-compliant alias name.
-  Valid characters: a-z, A-Z, 0-9, _
-  Must start with a letter or underscore (cannot start with a number)
-  """
-  if not alias:
-    return False
-  # Must start with letter or underscore, followed by any combination of letters, digits, underscores
-  pattern = r'^[a-zA-Z_][a-zA-Z0-9_]*$'
-  return bool(re.match(pattern, alias))
-
-def validate_aliases(entry: Dict[str, Any]) -> List[str]:
-  """
-  Validate and filter aliases for an entry.
-  Returns list of valid aliases, logs warnings for invalid ones.
-  """
-  aliases = entry.get('aliases', [])
-  if not aliases:
-    return []
-  
-  valid_aliases = []
-  slug = entry['slug']
-  
-  for alias in aliases:
-    if is_valid_alias_name(alias):
-      valid_aliases.append(alias)
-    else:
-      print(f"Warning: Invalid alias name '{alias}' for slug '{slug}' - skipping", flush=True)
-  
-  return valid_aliases
 
 def build_function(entry: Dict[str, Any]) -> str:
   slug = entry['slug']
@@ -164,33 +122,9 @@ def build_function(entry: Dict[str, Any]) -> str:
 
   return '\n'.join(fn)
 
-def build_alias_function(alias: str, slug: str) -> str:
-  """
-  Build a function for an alias that redirects to the original slug's function.
-  """
-  fn = [
-    f'{alias}() {{',
-    f'  {slug} "$@"',
-    '}'
-  ]
-  return '\n'.join(fn)
-
 def main():
-  # Generate all main functions
-  all_functions = []
-  
-  for entry in CONFIG:
-    # Build main function
-    all_functions.append(build_function(entry))
-    
-    # Build alias functions
-    valid_aliases = validate_aliases(entry)
-    slug = entry['slug']
-    for alias in valid_aliases:
-      all_functions.append(build_alias_function(alias, slug))
-  
-  # Join all functions
-  functions = '\n\n'.join(all_functions)
+  # join all generated functions
+  functions = '\n\n'.join(build_function(entry) for entry in CONFIG)
 
   # write to temp file
   fd, path = tempfile.mkstemp(prefix='pathfuncs_', suffix='.zsh')
