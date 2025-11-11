@@ -27,13 +27,8 @@ is_vscode() {
   [[ "$TERM_PROGRAM" == 'vscode' ]]
 }
 
-echo $LAST_DIR_FILE
-cat $LAST_DIR_FILE
-
 # cd to last directory on shell load (unless VS Code)
 if [[ -f "$LAST_DIR_FILE" ]] && ! is_vscode; then
-  echo "cd to last directory"
-  echo $TERM_PROGRAM
   cd "$(cat "$LAST_DIR_FILE")"
 fi
 
@@ -42,9 +37,11 @@ save_last_dir() {
   pwd > "$LAST_DIR_FILE"
 }
 
-# Hook to save directory reactively
-autoload -Uz add-zsh-hook
-add-zsh-hook precmd save_last_dir
+# Hook to save directory reactively (unless VS Code)
+if ! is_vscode; then
+  autoload -Uz add-zsh-hook
+  add-zsh-hook precmd save_last_dir
+fi
 
 
 
