@@ -28,12 +28,8 @@ is_vscode() {
 }
 
 echo $LAST_DIR_FILE
-echo $TERM_PROGRAM
-echo $TERM_PROGRAM
-echo $TERM_PROGRAM
-echo $TERM_PROGRAM
-echo $TERM_PROGRAM
-echo $TERM_PROGRAM
+cat $LAST_DIR_FILE
+
 # cd to last directory on shell load (unless VS Code)
 if [[ -f "$LAST_DIR_FILE" && ! is_vscode ]]; then
   echo "cd to last directory"
