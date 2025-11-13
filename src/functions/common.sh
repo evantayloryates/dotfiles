@@ -30,17 +30,14 @@ function sb() {
 
 json() {
   local TMPFILE
-  TMPFILE="$(mktemp /tmp/jsonfmt.XXXXXX.json)"
+  TMPFILE="$(mktemp /tmp/jsonfmt.XXXXXX)"
 
-  # Grab clipboard into temp file
   pbpaste > "$TMPFILE"
 
-  # Run formatter (adjust path & runner as needed)
   npx ts-node ~/src/scripts/json-inline-format.ts "$TMPFILE" >/dev/null 2>&1
 
-  # Copy back to clipboard
   pbcopy < "$TMPFILE"
 
-  echo "✅ JSON formatted and copied back to clipboard"
+  echo '✅ JSON formatted and copied back to clipboard'
   rm -f "$TMPFILE"
 }
