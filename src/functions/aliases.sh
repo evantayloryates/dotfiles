@@ -33,5 +33,5 @@ pip3() {
 }
 
 clip() {
-  "$@" | pbcopy
+  "$@" | perl -pe 'chomp if eof' | pbcopy
 }
