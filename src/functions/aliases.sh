@@ -31,3 +31,7 @@ pip3() {
 
   pip "$@"
 }
+
+function clip() {
+  pbcopy < "$1"
+}
