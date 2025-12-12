@@ -43,3 +43,8 @@ json() {
   rm -f "$TMPFILE"
 }
 
+note() {
+  clear
+  cat > "${1:-/dev/stdout}"
+}
+
