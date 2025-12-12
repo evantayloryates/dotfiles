@@ -68,6 +68,10 @@ def generate_image(prompt):
       'resolution': resolution,
     }
   }).encode('utf-8')
+  import json, tempfile
+  with tempfile.NamedTemporaryFile(delete=False, suffix='.json', mode='w') as _tmp:
+      json.dump(changeMe, _tmp, default=str, indent=2)
+      print(f'wrote {_tmp.name}')
   
 
   req = urllib.request.Request(API_URL, data=body, headers=headers, method='POST')
