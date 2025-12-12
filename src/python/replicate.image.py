@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import json, tempfile
 import os
 import sys
 import json
@@ -69,7 +69,7 @@ def generate_image(prompt):
     }
   }).encode('utf-8')
   
-  import json, tempfile
+  
   with tempfile.NamedTemporaryFile(delete=False, suffix='.json', mode='w') as _tmp:
       json.dump(body, _tmp, default=str, indent=2)
       print(f'wrote {_tmp.name}')
