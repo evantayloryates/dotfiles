@@ -1,8 +1,6 @@
 #!/bin/zsh
 
 
-
-
 # Generate the function file and source it
 PATHFUNCS_FILE="$(python3 $DOTFILES_DIR/src/python/pathfuncs.py)"
 if [[ -f "$PATHFUNCS_FILE" ]]; then
@@ -44,9 +42,4 @@ json() {
   echo '✅ JSON formatted and copied back to clipboard'
   rm -f "$TMPFILE"
 }
-
-c() {
-  cursor "$@"
-}
-
 
