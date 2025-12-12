@@ -44,6 +44,6 @@ json() {
 }
 
 note() {
-  printf '\033[2;1H\033[J'
+  echo -e "\033[1;1H\033[J"
   cat > "${1:-/dev/stdout}"
 }
