@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 log() {
   local msg="[$(date '+%Y-%m-%d %H:%M:%S')] $*"

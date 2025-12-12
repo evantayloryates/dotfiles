@@ -26,6 +26,12 @@ CONFIG = [
     'commands': {},
   },
   {
+    'slug': 'mesh',
+    'path': '/Users/taylor/src/github/mesh',
+    'default': 'cursor',
+    'commands': {},
+  },
+  {
     'slug': 'kit',
     'aliases': ['kitty'],
     'path': '/Users/taylor/.config/kitty/',
