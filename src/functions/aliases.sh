@@ -11,12 +11,8 @@ c() { cursor "$@"; }
 convert() { magick "$@"; }
 # Note: —
 
-_ 'some prefix comment'; env() { /usr/bin/env | sort; }
-# Note: this will overwrite the /usr/bin/ex command
+_; env() { /usr/bin/env | sort; }
 ex() { exiftool "$@"; }
-# Note: —
 ls() { /bin/ls -AGhlo "$@"; }
-# Note: —
 path() { python3 "$DOTFILES_DIR/src/python/path.py"; }
-# Note: —
 src() { exec "$SHELL" -l; }
