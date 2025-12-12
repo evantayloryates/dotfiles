@@ -78,6 +78,7 @@ def generate_image(prompt):
 
   try:
     with urllib.request.urlopen(req) as resp:
+      response_data
       response_data = json.loads(resp.read().decode('utf-8'))
   except Exception as e:
     log_error('API error', e)
