@@ -41,8 +41,24 @@ _show() {
   echo "{\"id\":\"log_$(date +%s)_img2\",\"timestamp\":$(date +%s)000,\"location\":\"img.sh:35\",\"message\":\"Executing command kitty\",\"data\":{\"command\":\"command kitty +kitten icat --align left $img_path\"},\"sessionId\":\"debug-session\",\"runId\":\"post-fix\",\"hypothesisId\":\"A\"}" >> /Users/taylor/dotfiles/.cursor/debug.log
   # #endregion agent log
   local kitty_stderr=$(mktemp)
-  command kitty +kitten icat --align left "$img_path" 2>"$kitty_stderr"
-  local kitty_exit_code=$?
+  # #region agent log
+  local test_command_kitty=$(command -v kitty 2>&1)
+  echo "{\"id\":\"log_$(date +%s)_img4\",\"timestamp\":$(date +%s)000,\"location\":\"img.sh:43\",\"message\":\"Testing command -v kitty\",\"data\":{\"result\":\"$test_command_kitty\"},\"sessionId\":\"debug-session\",\"runId\":\"post-fix\",\"hypothesisId\":\"C\"}" >> /Users/taylor/dotfiles/.cursor/debug.log
+  # #endregion agent log
+  # Try command kitty first, fallback to full path if needed
+  if command -v kitty >/dev/null 2>&1; then
+    # #region agent log
+    echo "{\"id\":\"log_$(date +%s)_img5\",\"timestamp\":$(date +%s)000,\"location\":\"img.sh:44\",\"message\":\"Using command kitty\",\"data\":{},\"sessionId\":\"debug-session\",\"runId\":\"post-fix\",\"hypothesisId\":\"C\"}" >> /Users/taylor/dotfiles/.cursor/debug.log
+    # #endregion agent log
+    command kitty +kitten icat --align left "$img_path" 2>"$kitty_stderr"
+    local kitty_exit_code=$?
+  else
+    # #region agent log
+    echo "{\"id\":\"log_$(date +%s)_img6\",\"timestamp\":$(date +%s)000,\"location\":\"img.sh:44\",\"message\":\"command -v kitty failed, trying /Applications/kitty.app\",\"data\":{},\"sessionId\":\"debug-session\",\"runId\":\"post-fix\",\"hypothesisId\":\"C\"}" >> /Users/taylor/dotfiles/.cursor/debug.log
+    # #endregion agent log
+    /Applications/kitty.app/Contents/MacOS/kitty +kitten icat --align left "$img_path" 2>"$kitty_stderr"
+    local kitty_exit_code=$?
+  fi
   # #region agent log
   local kitty_error=$(cat "$kitty_stderr" 2>/dev/null || echo "")
   echo "{\"id\":\"log_$(date +%s)_img3\",\"timestamp\":$(date +%s)000,\"location\":\"img.sh:35\",\"message\":\"After kitty command\",\"data\":{\"exit_code\":$kitty_exit_code,\"stderr\":\"$kitty_error\"},\"sessionId\":\"debug-session\",\"runId\":\"post-fix\",\"hypothesisId\":\"A\"}" >> /Users/taylor/dotfiles/.cursor/debug.log
