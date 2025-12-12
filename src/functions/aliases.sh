@@ -12,5 +12,5 @@ _; ls() { /bin/ls -AGhlo "$@"; }
 _; path() { python3 "$DOTFILES_DIR/src/python/path.py"; }
 _; src() { exec "$SHELL" -l; }
 function python() { /Users/taylor/.venvs/dotfiles/bin/python -q "$@"; }
-function python3() { python }
+function python3() { python "$@"; }
 # opt/homebrew/bin/python3
