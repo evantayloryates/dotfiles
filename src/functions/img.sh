@@ -33,18 +33,20 @@ _show() {
 
   # Display image in Kitty
   # #region agent log
-  echo "{\"id\":\"log_$(date +%s)_img1\",\"timestamp\":$(date +%s)000,\"location\":\"img.sh:34\",\"message\":\"Before kitty command\",\"data\":{\"img_path\":\"$img_path\",\"kitty_type\":\"$(type kitty 2>&1)\"},\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"A\"}" >> /Users/taylor/dotfiles/.cursor/debug.log
+  local kitty_type_output=$(type kitty 2>&1)
+  echo "{\"id\":\"log_$(date +%s)_img1\",\"timestamp\":$(date +%s)000,\"location\":\"img.sh:34\",\"message\":\"Before kitty command\",\"data\":{\"img_path\":\"$img_path\",\"kitty_type\":\"$kitty_type_output\"},\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"A\"}" >> /Users/taylor/dotfiles/.cursor/debug.log
   # #endregion agent log
   # #region agent log
   echo "{\"id\":\"log_$(date +%s)_img2\",\"timestamp\":$(date +%s)000,\"location\":\"img.sh:35\",\"message\":\"Executing kitty command\",\"data\":{\"command\":\"kitty +kitten icat --align left $img_path\"},\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"A\"}" >> /Users/taylor/dotfiles/.cursor/debug.log
   # #endregion agent log
-  kitty +kitten icat --align left "$img_path" 2>&1 | while IFS= read -r line; do
-    echo "{\"id\":\"log_$(date +%s)_img3\",\"timestamp\":$(date +%s)000,\"location\":\"img.sh:35\",\"message\":\"kitty stderr\",\"data\":{\"line\":\"$line\"},\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"A\"}" >> /Users/taylor/dotfiles/.cursor/debug.log
-  done
+  local kitty_stderr=$(mktemp)
+  kitty +kitten icat --align left "$img_path" 2>"$kitty_stderr"
   local kitty_exit_code=$?
   # #region agent log
-  echo "{\"id\":\"log_$(date +%s)_img4\",\"timestamp\":$(date +%s)000,\"location\":\"img.sh:35\",\"message\":\"After kitty command\",\"data\":{\"exit_code\":$kitty_exit_code},\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"A\"}" >> /Users/taylor/dotfiles/.cursor/debug.log
+  local kitty_error=$(cat "$kitty_stderr" 2>/dev/null || echo "")
+  echo "{\"id\":\"log_$(date +%s)_img3\",\"timestamp\":$(date +%s)000,\"location\":\"img.sh:35\",\"message\":\"After kitty command\",\"data\":{\"exit_code\":$kitty_exit_code,\"stderr\":\"$kitty_error\"},\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"A\"}" >> /Users/taylor/dotfiles/.cursor/debug.log
   # #endregion agent log
+  rm -f "$kitty_stderr"
 
   # Copy file reference to clipboard (Cmd+P works in Finder)
   if osascript -e "set the clipboard to POSIX file \"$img_path\"" 2>/dev/null; then
@@ -57,8 +59,14 @@ _show() {
 }
 
 imagine() {
+  # #region agent log
+  echo "{\"id\":\"log_$(date +%s)_img5\",\"timestamp\":$(date +%s)000,\"location\":\"img.sh:47\",\"message\":\"imagine function entry\",\"data\":{\"prompt\":\"$*\"},\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"B\"}" >> /Users/taylor/dotfiles/.cursor/debug.log
+  # #endregion agent log
   prompt="$*"
   url=$(python3 "$DOTFILES_DIR/src/python/replicate.image.py" "$prompt")
+  # #region agent log
+  echo "{\"id\":\"log_$(date +%s)_img6\",\"timestamp\":$(date +%s)000,\"location\":\"img.sh:49\",\"message\":\"After python call\",\"data\":{\"url\":\"$url\"},\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"B\"}" >> /Users/taylor/dotfiles/.cursor/debug.log
+  # #endregion agent log
   if [[ -z "$url" ]]; then
     echo "Failed to generate image"
     return 1
