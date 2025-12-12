@@ -42,8 +42,9 @@ cblue() {
 
 pbcopy() {
   if [ -t 0 ]; then
-    cblue "Tip: use 'clip <command>' to copy command output directly" >&2
-  else
     clip "$@"
+  else
+    cblue "Tip: use 'clip <command>' to copy command output directly" >&2
+    /usr/bin/pbcopy "$@"
   fi
 }
