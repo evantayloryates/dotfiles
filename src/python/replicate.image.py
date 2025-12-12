@@ -79,7 +79,6 @@ def generate_image(prompt):
   try:
     with urllib.request.urlopen(req) as resp:
       response_data = json.loads(resp.read().decode('utf-8'))
-      import json, tempfile
       with tempfile.NamedTemporaryFile(delete=False, suffix='.json', mode='w') as _tmp:
           json.dump(response_data, _tmp, default=str, indent=2)
           print(f'wrote {_tmp.name}')
