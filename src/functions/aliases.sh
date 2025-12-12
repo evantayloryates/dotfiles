@@ -19,11 +19,10 @@ clip() {
   "$@" | perl -pe 'chomp if eof' | /usr/bin/pbcopy
 }
 
-cblue() {
-  echo -e "\033[34m$*\033[0m"
-}
+
 
 pbcopy() {
+  cblue() { echo -e "\033[34m$*\033[0m"; }
   if [ -t 0 ]; then
     clip "$@"
   else
