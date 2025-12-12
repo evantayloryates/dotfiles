@@ -1,6 +1,5 @@
 # Aliases here always mean functions
 
-
 # Note: none
 abs() { realpath "$@"; }
 # Note: none
