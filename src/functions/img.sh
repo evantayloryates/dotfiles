@@ -32,7 +32,19 @@ _show() {
   fi
 
   # Display image in Kitty
-  kitty +kitten icat --align left "$img_path"
+  # #region agent log
+  echo "{\"id\":\"log_$(date +%s)_img1\",\"timestamp\":$(date +%s)000,\"location\":\"img.sh:34\",\"message\":\"Before kitty command\",\"data\":{\"img_path\":\"$img_path\",\"kitty_type\":\"$(type kitty 2>&1)\"},\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"A\"}" >> /Users/taylor/dotfiles/.cursor/debug.log
+  # #endregion agent log
+  # #region agent log
+  echo "{\"id\":\"log_$(date +%s)_img2\",\"timestamp\":$(date +%s)000,\"location\":\"img.sh:35\",\"message\":\"Executing kitty command\",\"data\":{\"command\":\"kitty +kitten icat --align left $img_path\"},\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"A\"}" >> /Users/taylor/dotfiles/.cursor/debug.log
+  # #endregion agent log
+  kitty +kitten icat --align left "$img_path" 2>&1 | while IFS= read -r line; do
+    echo "{\"id\":\"log_$(date +%s)_img3\",\"timestamp\":$(date +%s)000,\"location\":\"img.sh:35\",\"message\":\"kitty stderr\",\"data\":{\"line\":\"$line\"},\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"A\"}" >> /Users/taylor/dotfiles/.cursor/debug.log
+  done
+  local kitty_exit_code=$?
+  # #region agent log
+  echo "{\"id\":\"log_$(date +%s)_img4\",\"timestamp\":$(date +%s)000,\"location\":\"img.sh:35\",\"message\":\"After kitty command\",\"data\":{\"exit_code\":$kitty_exit_code},\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"A\"}" >> /Users/taylor/dotfiles/.cursor/debug.log
+  # #endregion agent log
 
   # Copy file reference to clipboard (Cmd+P works in Finder)
   if osascript -e "set the clipboard to POSIX file \"$img_path\"" 2>/dev/null; then
