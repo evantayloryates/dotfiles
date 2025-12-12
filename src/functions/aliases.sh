@@ -15,8 +15,6 @@ python() { /Users/taylor/.venvs/dotfiles/bin/python -q "$@"; }
 python3() { python "$@"; }
 pip3() { pip "$@"; }
 
-clip() {
-  "$@" | perl -pe 'chomp if eof' | /usr/bin/pbcopy
-}
+clip() { "$@" | perl -pe 'chomp if eof' | /usr/bin/pbcopy }
 
 
