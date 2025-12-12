@@ -66,9 +66,6 @@ def generate_image(prompt):
       'prompt': prompt,
       'aspect_ratio': aspect_ratio,
       'resolution': resolution,
-      'style_type': 'None',
-      'style_preset': 'None',
-      'magic_prompt_option': 'Auto'
     }
   }).encode('utf-8')
 
