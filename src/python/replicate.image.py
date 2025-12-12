@@ -10,12 +10,39 @@ if not REPLICATE_API_TOKEN:
   print('Missing REPLICATE_API_TOKEN', file=sys.stderr)
   sys.exit(1)
 
-
-# MODEL = 'ideogram-ai/ideogram-v3-turbo'
 MODEL = 'google/nano-banana-pro'
 API_URL = f'https://api.replicate.com/v1/models/{MODEL}/predictions'
 
-def generate_image(prompt: str) -> str:
+
+def log_error(prefix, err):
+  try:
+    msg = None
+
+    # HTTPError case
+    if hasattr(err, 'read'):
+      try:
+        raw = err.read()
+        if isinstance(raw, bytes):
+          raw = raw.decode('utf-8', 'replace')
+        try:
+          j = json.loads(raw)
+          msg = j.get('error') or j.get('message') or raw
+        except Exception:
+          msg = raw
+      except Exception:
+        msg = f'HTTP error without readable body: {getattr(err, "code", "?")}'
+
+    # General Exception
+    if msg is None:
+      msg = str(err) if str(err) else repr(err)
+
+    print(f'{prefix}: {msg}', file=sys.stderr)
+  except Exception:
+    # absolute last-resort fallback
+    print(f'{prefix}: <unprintable error>', file=sys.stderr)
+
+
+def generate_image(prompt):
   headers = {
     'Authorization': f'Bearer {REPLICATE_API_TOKEN}',
     'Content-Type': 'application/json',
@@ -34,16 +61,22 @@ def generate_image(prompt: str) -> str:
   }).encode('utf-8')
 
   req = urllib.request.Request(API_URL, data=body, headers=headers, method='POST')
-  with urllib.request.urlopen(req) as resp:
-    response_data = json.loads(resp.read().decode('utf-8'))
+
+  try:
+    with urllib.request.urlopen(req) as resp:
+      response_data = json.loads(resp.read().decode('utf-8'))
+  except Exception as e:
+    log_error('API error', e)
+    raise RuntimeError('Image generation failed')
 
   output = response_data.get('output')
   if isinstance(output, list) and output:
     return output[0]
-  elif isinstance(output, str):
+  if isinstance(output, str):
     return output
-  else:
-    raise RuntimeError(f'Unexpected output format: {output!r}')
+
+  raise RuntimeError(f'Unexpected output format: {output!r}')
+
 
 if __name__ == '__main__':
   if len(sys.argv) < 2:
@@ -54,5 +87,5 @@ if __name__ == '__main__':
   try:
     print(generate_image(prompt))
   except Exception as e:
-    print(f'Error: {e}', file=sys.stderr)
+    log_error('Fatal', e)
     sys.exit(1)
