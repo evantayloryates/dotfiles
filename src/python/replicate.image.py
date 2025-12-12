@@ -78,8 +78,11 @@ def generate_image(prompt):
 
   try:
     with urllib.request.urlopen(req) as resp:
-      response_data
       response_data = json.loads(resp.read().decode('utf-8'))
+      import json, tempfile
+      with tempfile.NamedTemporaryFile(delete=False, suffix='.json', mode='w') as _tmp:
+          json.dump(response_data, _tmp, default=str, indent=2)
+          print(f'wrote {_tmp.name}')
   except Exception as e:
     log_error('API error', e)
     raise RuntimeError('Image generation failed')
