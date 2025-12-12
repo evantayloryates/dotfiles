@@ -11,6 +11,12 @@ if not REPLICATE_API_TOKEN:
   sys.exit(1)
 
 MODEL = 'google/nano-banana-pro'
+DEFAULTS_BY_MODEL = {
+  'google/nano-banana-pro': {
+    'aspect_ratio': '1:1',
+    'resolution': '1K',
+  }
+}
 API_URL = f'https://api.replicate.com/v1/models/{MODEL}/predictions'
 
 
