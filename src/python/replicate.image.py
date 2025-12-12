@@ -17,6 +17,7 @@ DEFAULTS_BY_MODEL = {
     'resolution': '1K',
   }
 }
+
 API_URL = f'https://api.replicate.com/v1/models/{MODEL}/predictions'
 
 
@@ -55,11 +56,16 @@ def generate_image(prompt):
     'Prefer': 'wait'
   }
 
+  # apply model defaults safely
+  defaults = DEFAULTS_BY_MODEL.get(MODEL) or {}
+  aspect_ratio = defaults.get('aspect_ratio', '1:1')
+  resolution = defaults.get('resolution', 'None')
+
   body = json.dumps({
     'input': {
       'prompt': prompt,
-      'aspect_ratio': '1:1',
-      'resolution': 'None',
+      'aspect_ratio': aspect_ratio,
+      'resolution': resolution,
       'style_type': 'None',
       'style_preset': 'None',
       'magic_prompt_option': 'Auto'
