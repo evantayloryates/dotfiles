@@ -20,14 +20,3 @@ clip() {
 }
 
 
-
-pbcopy() {
-  
-  if [ -t 0 ]; then
-    clip "$@"
-  else
-    cblue() { echo -e "\033[34m$*\033[0m"; }
-    cblue "Tip: use 'clip <command>' to copy command output directly" >&2
-    /usr/bin/pbcopy "$@"
-  fi
-}
