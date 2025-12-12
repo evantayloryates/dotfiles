@@ -40,7 +40,7 @@ _show() {
   echo "{\"id\":\"log_$(date +%s)_img2\",\"timestamp\":$(date +%s)000,\"location\":\"img.sh:35\",\"message\":\"Executing kitty command\",\"data\":{\"command\":\"kitty +kitten icat --align left $img_path\"},\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"A\"}" >> /Users/taylor/dotfiles/.cursor/debug.log
   # #endregion agent log
   local kitty_stderr=$(mktemp)
-  kitty +kitten icat --align left "$img_path" 2>"$kitty_stderr"
+  command kitty +kitten icat --align left "$img_path" 2>"$kitty_stderr"
   local kitty_exit_code=$?
   # #region agent log
   local kitty_error=$(cat "$kitty_stderr" 2>/dev/null || echo "")
