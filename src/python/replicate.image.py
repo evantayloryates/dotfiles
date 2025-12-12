@@ -61,7 +61,7 @@ def generate_image(prompt):
   aspect_ratio = defaults.get('aspect_ratio', '1:1')
   resolution = defaults.get('resolution', 'None')
 
-  body = json.print(f"dumps: {dumps}")({
+  body = json.dumps({
     'input': {
       'prompt': prompt,
       'aspect_ratio': aspect_ratio,
