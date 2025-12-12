@@ -34,17 +34,18 @@ _show() {
   # Display image in Kitty
   # #region agent log
   local kitty_type_output=$(type kitty 2>&1)
-  echo "{\"id\":\"log_$(date +%s)_img1\",\"timestamp\":$(date +%s)000,\"location\":\"img.sh:34\",\"message\":\"Before kitty command\",\"data\":{\"img_path\":\"$img_path\",\"kitty_type\":\"$kitty_type_output\"},\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"A\"}" >> /Users/taylor/dotfiles/.cursor/debug.log
+  local command_kitty_path=$(command -v kitty 2>&1)
+  echo "{\"id\":\"log_$(date +%s)_img1\",\"timestamp\":$(date +%s)000,\"location\":\"img.sh:34\",\"message\":\"Before kitty command\",\"data\":{\"img_path\":\"$img_path\",\"kitty_type\":\"$kitty_type_output\",\"command_kitty_path\":\"$command_kitty_path\"},\"sessionId\":\"debug-session\",\"runId\":\"post-fix\",\"hypothesisId\":\"A\"}" >> /Users/taylor/dotfiles/.cursor/debug.log
   # #endregion agent log
   # #region agent log
-  echo "{\"id\":\"log_$(date +%s)_img2\",\"timestamp\":$(date +%s)000,\"location\":\"img.sh:35\",\"message\":\"Executing kitty command\",\"data\":{\"command\":\"kitty +kitten icat --align left $img_path\"},\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"A\"}" >> /Users/taylor/dotfiles/.cursor/debug.log
+  echo "{\"id\":\"log_$(date +%s)_img2\",\"timestamp\":$(date +%s)000,\"location\":\"img.sh:35\",\"message\":\"Executing command kitty\",\"data\":{\"command\":\"command kitty +kitten icat --align left $img_path\"},\"sessionId\":\"debug-session\",\"runId\":\"post-fix\",\"hypothesisId\":\"A\"}" >> /Users/taylor/dotfiles/.cursor/debug.log
   # #endregion agent log
   local kitty_stderr=$(mktemp)
   command kitty +kitten icat --align left "$img_path" 2>"$kitty_stderr"
   local kitty_exit_code=$?
   # #region agent log
   local kitty_error=$(cat "$kitty_stderr" 2>/dev/null || echo "")
-  echo "{\"id\":\"log_$(date +%s)_img3\",\"timestamp\":$(date +%s)000,\"location\":\"img.sh:35\",\"message\":\"After kitty command\",\"data\":{\"exit_code\":$kitty_exit_code,\"stderr\":\"$kitty_error\"},\"sessionId\":\"debug-session\",\"runId\":\"run1\",\"hypothesisId\":\"A\"}" >> /Users/taylor/dotfiles/.cursor/debug.log
+  echo "{\"id\":\"log_$(date +%s)_img3\",\"timestamp\":$(date +%s)000,\"location\":\"img.sh:35\",\"message\":\"After kitty command\",\"data\":{\"exit_code\":$kitty_exit_code,\"stderr\":\"$kitty_error\"},\"sessionId\":\"debug-session\",\"runId\":\"post-fix\",\"hypothesisId\":\"A\"}" >> /Users/taylor/dotfiles/.cursor/debug.log
   # #endregion agent log
   rm -f "$kitty_stderr"
 
