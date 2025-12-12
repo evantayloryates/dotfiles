@@ -44,7 +44,6 @@ json() {
 }
 
 note() {
-  tput cup $(($(tput lines) - 1)) 0
-  tput ed
+  echo -e "\033[1;1H\033[J"
   cat > "${1:-/dev/stdout}"
 }
