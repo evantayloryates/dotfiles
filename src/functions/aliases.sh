@@ -33,5 +33,14 @@ pip3() {
 }
 
 clip() {
-  "$@" | perl -pe 'chomp if eof' | pbcopy
+  "$@" | perl -pe 'chomp if eof' | /usr/bin/pbcopy
+}
+
+cblue() {
+  echo -e "\033[34m$*\033[0m"
+}
+
+pbcopy() {
+  cblue "Tip: use 'clip <command>' to copy command output directly" >&2
+  /usr/bin/pbcopy "$@"
 }
