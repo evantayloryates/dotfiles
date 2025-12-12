@@ -1,18 +1,18 @@
 # Aliases here always mean functions
 
-# Note: none
+# Note: —
 abs() { realpath "$@"; }
-# Note: none
+# Note: —
 c() { cursor "$@"; }
-# Note: none
+# Note: —
 convert() { magick "$@"; }
-# Note: none
+# Note: —
 env() { /usr/bin/env | sort; }
 # Note: this will overwrite the /usr/bin/ex command
 ex() { exiftool "$@"; }
-# Note: none
+# Note: —
 ls() { /bin/ls -AGhlo "$@"; }
-# Note: none
+# Note: —
 path() { python3 "$DOTFILES_DIR/src/python/path.py"; }
-# Note: none
+# Note: —
 src() { exec "$SHELL" -l; }
