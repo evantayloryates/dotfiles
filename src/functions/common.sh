@@ -44,7 +44,7 @@ json() {
 }
 
 note() {
-  clear
+  printf '\033[%d;0H\033[J' "$LINES"
   cat > "${1:-/dev/stdout}"
 }
 
