@@ -23,15 +23,15 @@ fi
 if [[ -f "$DOTFILES_PY_VENV_DIR/bin/activate" ]]; then
   source "$DOTFILES_PY_VENV_DIR/bin/activate"
 
-  # Ensure Pillow is available (quietly)
-  python - <<'PY'
-try:
-  import PIL  # noqa: F401
-except Exception:
-  import subprocess, sys
-  subprocess.run([sys.executable, '-m', 'pip', 'install', '--upgrade', 'pip'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-  subprocess.run([sys.executable, '-m', 'pip', 'install', 'pillow'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-PY
-fi
+#   # Ensure Pillow is available (quietly)
+#   python - <<'PY'
+# try:
+#   import PIL  # noqa: F401
+# except Exception:
+#   import subprocess, sys
+#   subprocess.run([sys.executable, '-m', 'pip', 'install', '--upgrade', 'pip'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+#   subprocess.run([sys.executable, '-m', 'pip', 'install', 'pillow'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+# PY
+# fi
 
 
