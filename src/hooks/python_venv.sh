@@ -19,6 +19,7 @@ if [[ ! -d "$DOTFILES_PY_VENV_DIR" ]]; then
   fi
 fi
 
+
 # Activate if present
 if [[ -f "$DOTFILES_PY_VENV_DIR/bin/activate" ]]; then
   source "$DOTFILES_PY_VENV_DIR/bin/activate"
