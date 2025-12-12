@@ -6,6 +6,7 @@
 DOTFILES_SRC_DIR="${0:A:h}"
 
 note:() { :; }
+_() { :; }
 
 # Source all files in subdirectories
 for category in aliases exports functions hooks path; do
