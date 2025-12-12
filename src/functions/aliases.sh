@@ -15,5 +15,3 @@ pip3    () { pip "$@"                                                     ;} #
 python  () { /Users/taylor/.venvs/dotfiles/bin/python -q "$@"             ;} # 
 python3 () { python "$@"                                                  ;} # 
 src     () { exec "$SHELL" -l                                             ;} # 
-
-
