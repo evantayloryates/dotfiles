@@ -135,7 +135,8 @@ render_md_to_image() {
 
   # 4) Display left-aligned in kitty
   # Using placement=left can be emulated by setting align=left and a reasonable width
-  kitty +kitten icat \
+  # Use absolute path to bypass kitty() function alias
+  /Applications/kitty.app/Contents/MacOS/kitty +kitten icat \
   --align left \
   --scale-up \
   --place "$(identify -format '%wx%h' "$trimmed_path")@0x0" \
