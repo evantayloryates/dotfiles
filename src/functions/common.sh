@@ -44,7 +44,7 @@ json() {
 }
 
 note() {
-  clear
+  tput cup $(($(tput lines) - 1)) 0
+  tput ed
   cat > "${1:-/dev/stdout}"
 }
-
