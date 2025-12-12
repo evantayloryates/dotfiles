@@ -3,12 +3,12 @@
 # This file must follow the pattern always. no divergences
 # A "Note" is anything that will provide context for the pattern.
 # : is offical syntax. 
-ex      () { exiftool "$@"                                       ;} # Note: this will overwrite the /usr/bin/ex command
 abs     () { realpath "$@"                                       ;} # 
 c       () { cursor "$@"                                         ;} # 
 clip    () { "$@" | perl -pe 'chomp if eof' | /usr/bin/pbcopy    ;} # 
 convert () { magick "$@"                                         ;} # 
 env     () { /usr/bin/env | sort                                 ;} # 
+ex      () { exiftool "$@"                                       ;} # Note: this will overwrite the /usr/bin/ex command
 ls      () { /bin/ls -AGhlo "$@"                                 ;} # 
 path    () { python3 "$DOTFILES_DIR/src/python/path.py"          ;} # 
 pip3    () { pip "$@"                                            ;} # 
