@@ -14,3 +14,20 @@ _; src() { exec "$SHELL" -l; }
 function python() { /Users/taylor/.venvs/dotfiles/bin/python -q "$@"; }
 function python3() { python "$@"; }
 function pip3() { pip "$@"; }
+python3() {
+  if [ "$VIRTUAL_ENV" != '/Users/taylor/.venvs/dotfiles' ]; then
+    echo 'error: dotfiles venv not active' >&2
+    return 1
+  fi
+
+  python "$@"
+}
+
+pip3() {
+  if [ "$VIRTUAL_ENV" != '/Users/taylor/.venvs/dotfiles' ]; then
+    echo 'error: dotfiles venv not active' >&2
+    return 1
+  fi
+
+  pip "$@"
+}
