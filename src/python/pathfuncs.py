@@ -1,98 +1,39 @@
 #!/usr/bin/env python3
 import os
 import tempfile
-from typing import Dict, Any, List
+
+HOME = '/Users/taylor'
+
+def p(slug, path, default='cursor', commands=None, aliases=None):
+  if path.startswith('~'):
+    path = HOME + path[1:]
+  entry = {'slug': slug, 'path': path, 'default': default, 'commands': commands or {}}
+  if aliases:
+    entry['aliases'] = aliases
+  return entry
+
 
 CONFIG = [
-  {
-    'slug': 'amp',
-    'path': '/Users/taylor/src/github/amplify',
-    'default': 'cursor',
-    'commands': {
-      # 'ls': 'ls -AGhlo <path> ; echo "<args>"' # allows for fine tuning commands here
-    },
-  },
-  {
-    'slug': 'd',
-    'aliases': ['desk', 'desktop'],
-    'path': '/Users/taylor/Desktop',
-    'default': 'cd',
-    'commands': {},
-  },
-  {
-    'slug': 'hb',
-    'path': '/Users/taylor/src/github/heartbeat',
-    'default': 'cursor',
-    'commands': {},
-  },
-  {
-    'slug': 'mesh',
-    'path': '/Users/taylor/src/github/mesh',
-    'default': 'cursor',
-    'commands': {},
-  },
-  {
-    'slug': 'kit',
-    'aliases': ['kitty'],
-    'path': '/Users/taylor/.config/kitty/',
-    'default': 'cursor',
-    'commands': {
-      'reload': '/Applications/kitty.app/Contents/MacOS/kitty @ load-config /Users/taylor/.config/kitty/kitty.conf'
-    },
-  },
-  {
-    'slug': 'dot',
-    'path': '/Users/taylor/dotfiles',
-    'default': 'cursor',
-    'commands': {},
-  },
-  {
-    'slug': 'dot-old',
-    'path': '/Users/taylor/.dotfiles',
-    'default': 'cursor',
-    'commands': {},
-  },
-  {
-    'slug': 'gh',
-    'path': '/Users/taylor/src/github',
-    'default': 'cd',
-    'commands': {},
-  },
-  {
-    'slug': 'nex',
-    'path': '/Users/taylor/src/github/nexrender-scripts',
-    'default': 'ssh',
-    'commands': {
-      'ssh': '/Users/taylor/src/github/nexrender-scripts/scripts/local/ssh',
-    },
-  },
-  {
-    'slug': 'notes',
-    'path': '/Users/taylor/Desktop/notes',
-    'default': 'cursor',
-    'commands': {},
-  },
-  {
-    'slug': 'pathfuncs',
-    'path': '/Users/taylor/dotfiles/src/python/pathfuncs.py',
-    'default': 'subl',
-    'commands': {},
-  },
-  {
-    'slug': 's',
-    'path': '/Users/taylor/src',
-    'default': 'cd',
-    'commands': {},
-  },
+  p('amp',        '~/src/github/amplify'),
+  p('d',          '~/Desktop',                         'cd',  aliases=['desk', 'desktop']),
+  p('hb',         '~/src/github/heartbeat'),
+  p('mesh',       '~/src/github/mesh'),
+  p('kit',        '~/.config/kitty/',                  aliases=['kitty'], commands={'reload': '/Applications/kitty.app/Contents/MacOS/kitty @ load-config /Users/taylor/.config/kitty/kitty.conf'}),
+  p('dot',        '~/dotfiles'),
+  p('dot-old',    '~/.dotfiles'),
+  p('gh',         '~/src/github',                      'cd'),
+  p('nex',        '~/src/github/nexrender-scripts',    'ssh', commands={'ssh': '/Users/taylor/src/github/nexrender-scripts/scripts/local/ssh'}),
+  p('notes',      '~/Desktop/notes'),
+  p('pathfuncs',  '~/dotfiles/src/python/pathfuncs.py','subl'),
+  p('s',          '~/src',                            ' cd'),
 ]
 
-
-def build_function(entry: Dict[str, Any]) -> str:
+def build_function(entry):
   slug = entry['slug']
   path = entry['path']
   default = entry.get('default', 'cd')
   commands = entry.get('commands', {})
-  aliases: List[str] = entry.get('aliases', [])
+  aliases = entry.get('aliases', [])
 
   fn = [
     f'{slug}() {{',
@@ -130,7 +71,7 @@ def build_function(entry: Dict[str, Any]) -> str:
   return '\n'.join([*fn, '', *alias_funcs])
 
 
-def build_paths_helper(config: List[Dict[str, Any]]) -> str:
+def build_paths_helper(config):
   slugs = [entry['slug'] for entry in config]
   lines = ['paths() {']
   for slug in slugs:
@@ -150,7 +91,6 @@ def main():
     f.write('\n\n')
     f.write(paths_helper)
     f.write('\n')
-
 
   print(path)
 
