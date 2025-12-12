@@ -4,18 +4,6 @@
 # Dotfiles sync
 source "$HOME/dotfiles/sync_dotfiles.sh"
 alias sync='sync_dotfiles'
-
-ls() { /bin/ls -AGhlo "$@"; }
-
-
-abs() { realpath "$@"; }
-# Note: this will overwrite the /usr/bin/ex command
-ex() { exiftool "$@"; }
-convert() { magick "$@"; }
-src() { exec "$SHELL" -l; }
-env() { /usr/bin/env | sort; }
-path() { python3 "$DOTFILES_DIR/src/python/path.py"; }
-
 # Git shortcuts
 alias gs='git status'
 alias ga='git add'
