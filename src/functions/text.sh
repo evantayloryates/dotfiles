@@ -83,9 +83,6 @@ research() {
   echo "📋 Copied response to clipboard"
 }
 
-# grip test2.md --export test2.html
-
-
 render_md_to_image() {
   srcfile="$1"
   if [[ -z "$srcfile" || ! -f "$srcfile" ]]; then
@@ -96,7 +93,6 @@ render_md_to_image() {
   tmp_md="$(mktemp "$TMPDIR/rendermd_XXXXXX.md")"
   cp "$srcfile" "$tmp_md"
 
-  # 1) Render markdown to HTML using grip
   tmp_html="${tmp_md%.md}.html"
   grip --export "$tmp_md" "$tmp_html" >/dev/null 2>&1
   if [[ ! -f "$tmp_html" ]]; then
@@ -105,7 +101,6 @@ render_md_to_image() {
     return 1
   fi
 
-  # 2) Convert HTML to PNG via Node script
   node "$DOTFILES_DIR/src/javascript/html-to-png.js" "$tmp_html" > "$tmp_html.out" 2>/dev/null
   imgfile="$(cat "$tmp_html.out" 2>/dev/null)"
   rm -f "$tmp_html.out"
@@ -116,8 +111,6 @@ render_md_to_image() {
     return 1
   fi
 
-  # 3) Trim PNG via Python and capture resulting file path
-  # Prefer venv python if available
   pybin="${VIRTUAL_ENV:+$VIRTUAL_ENV/bin/python}"
   if [[ -z "$pybin" || ! -x "$pybin" ]]; then
     if [[ -x "$HOME/.venvs/dotfiles/bin/python" ]]; then
@@ -133,16 +126,12 @@ render_md_to_image() {
     return 1
   fi
 
-  # 4) Display left-aligned in kitty
-  # Using placement=left can be emulated by setting align=left and a reasonable width
-  # Use absolute path to bypass kitty() function alias
   /Applications/kitty.app/Contents/MacOS/kitty +kitten icat \
   --align left \
   --scale-up \
   --place "$(identify -format '%wx%h' "$trimmed_path")@0x0" \
   "$trimmed_path"
 
-  # Clean up intermediates (keep trimmed image)
   rm -f "$tmp_md" "$tmp_html"
 }
 
@@ -153,11 +142,9 @@ researchmd() {
     return 1
   fi
 
-  # Step 1: Create temp file for prompt
   tmp_prompt="$(mktemp "$TMPDIR/researchmd_prompt_XXXXXX.txt")"
   echo "$prompt" > "$tmp_prompt"
 
-  # Step 2: Run _research to get main response file
   research_path=$(_research "$tmp_prompt")
   rm -f "$tmp_prompt"
 
@@ -166,15 +153,11 @@ researchmd() {
     return 1
   fi
 
-  # Step 3: Create amended temp file (response + extra markdown prompt)
   tmp_amended="$(mktemp "$TMPDIR/researchmd_amended_XXXXXX.txt")"
   cat "$research_path" > "$tmp_amended"
   printf '\n\nPlease format this text block as markdown. Respond only with the markdown text result\n' >> "$tmp_amended"
 
-  # Step 4: Pass amended file to _quick
   quick_path=$(_quick "$tmp_amended")
-
-  # Cleanup intermediate file
   rm -f "$tmp_amended"
 
   if [[ -z "$quick_path" || ! -f "$quick_path" ]]; then
@@ -182,17 +165,10 @@ researchmd() {
     return 1
   fi
 
-  # clean the $quick_path file by trimming all leading characters up to the first occurance of "#"
   sed -i '' '1,/^#/ d' "$quick_path"
-  
-  # # DOTFILES_DIR/src/functions/text.md --export text.html
-  # quick_path="$DOTFILES_DIR/src/functions/test.md"
 
   render_md_to_image "$quick_path"
 
-  # Step 6: Copy result to clipboard and log
   pbcopy < "$quick_path"
   echo "📋 Copied markdown-enhanced response to clipboard"
 }
-
-
