@@ -44,3 +44,4 @@ if ! is_vscode; then
 fi
 
 source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+export PYTHONSTARTUP=~/.pythonrc
