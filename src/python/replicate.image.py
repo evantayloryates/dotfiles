@@ -11,7 +11,8 @@ if not REPLICATE_API_TOKEN:
   sys.exit(1)
 
 
-MODEL = 'ideogram-ai/ideogram-v3-turbo'
+# MODEL = 'ideogram-ai/ideogram-v3-turbo'
+MODEL = 'google/nano-banana'
 API_URL = f'https://api.replicate.com/v1/models/{MODEL}/predictions'
 
 def generate_image(prompt: str) -> str:
