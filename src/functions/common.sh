@@ -41,3 +41,7 @@ json() {
   echo '✅ JSON formatted and copied back to clipboard'
   rm -f "$TMPFILE"
 }
+
+c() {
+  cursor "$@"
+}
