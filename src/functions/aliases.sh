@@ -11,7 +11,7 @@ _ ' Note: this will overwrite the /usr/bin/ex command'; ex() { exiftool "$@"; }
 _; ls() { /bin/ls -AGhlo "$@"; }
 _; path() { python3 "$DOTFILES_DIR/src/python/path.py"; }
 _; src() { exec "$SHELL" -l; }
-function python() { /Users/taylor/.venvs/dotfiles/bin/python -q "$@"; }
+python() { /Users/taylor/.venvs/dotfiles/bin/python -q "$@"; }
 # function python3() { python "$@"; }
 # function pip3() { pip "$@"; }
 python3() {
@@ -32,6 +32,6 @@ pip3() {
   pip "$@"
 }
 
-function clip() {
-  pbcopy < "$1"
+clip() {
+  "$@" | pbcopy
 }
