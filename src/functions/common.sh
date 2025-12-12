@@ -48,8 +48,7 @@ note() {
   cat > "${1:-/dev/stdout}"
 }
 
-pbcopy() {
-  
+pbcopy() {  
   if [ -t 0 ]; then
     clip "$@"
   else
