@@ -68,6 +68,7 @@ def generate_image(prompt):
       'resolution': resolution,
     }
   }).encode('utf-8')
+  print('hi')
   import json, tempfile
   with tempfile.NamedTemporaryFile(delete=False, suffix='.json', mode='w') as _tmp:
       json.dump(changeMe, _tmp, default=str, indent=2)
