@@ -69,6 +69,7 @@ def generate_image(prompt):
     }
   }).encode('utf-8')
   print('test only')
+  print('test only')
 print('test only')
 
   req = urllib.request.Request(API_URL, data=body, headers=headers, method='POST')
