@@ -33,6 +33,6 @@ if [[ -f "$DOTFILES_PY_VENV_DIR/bin/activate" ]]; then
 #   subprocess.run([sys.executable, '-m', 'pip', 'install', '--upgrade', 'pip'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 #   subprocess.run([sys.executable, '-m', 'pip', 'install', 'pillow'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 # PY
-# fi
+fi
 
 
