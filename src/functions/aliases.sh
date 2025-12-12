@@ -10,8 +10,8 @@ c() { cursor "$@"; }
 # Note: —
 convert() { magick "$@"; }
 # Note: —
-note: 'some prefix comment';
-env() { /usr/bin/env | sort; }
+
+note: 'some prefix comment'; env() { /usr/bin/env | sort; }
 # Note: this will overwrite the /usr/bin/ex command
 ex() { exiftool "$@"; }
 # Note: —
