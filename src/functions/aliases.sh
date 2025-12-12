@@ -1,6 +1,9 @@
 # Aliases here always mean functions
+# This file must follow the pattern always. no divergences
+# A "Note" is anything that will provide context for the pattern.
+# : is offical syntax. 
 
-# Note: —
+# Note: 
 abs() { realpath "$@"; }
 # Note: —
 c() { cursor "$@"; }
