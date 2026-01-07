@@ -4,6 +4,7 @@ import tempfile
 
 HOME = '/Users/taylor'
 
+# path macros
 def p(slug, path, default='cursor', commands=None, aliases=None):
   if path.startswith('~'):
     path = HOME + path[1:]
@@ -15,6 +16,7 @@ def p(slug, path, default='cursor', commands=None, aliases=None):
 
 CONFIG = [
   p('amp',        '~/src/github/amplify'),
+  p('app',        '/Applications',                     'open'),
   p('d',          '~/Desktop',                         'cd',  aliases=['desk', 'desktop']),
   p('hb',         '~/src/github/heartbeat'),
   p('mesh',       '~/src/github/mesh'),
