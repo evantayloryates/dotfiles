@@ -2,17 +2,13 @@
 # when working on remote servers, or when my dotfiles are unavailable.
 
 
-# __ () {
-#   # Lists all copier functions in this file
-#   # List copier functions (starting with _), excluding __, and log function and value sorted alphabetically
-#   for fn in $(declare -F | awk '{print $3}' | grep '^_' | grep -v '^__$' | sort); do
-#     # get string to be copied by capturing the command before /usr/bin/pbcopy
-#     body="$(declare -f "$fn" | grep -v '^}' | grep 'pbcopy' | sed -nE "s/.*printf[[:space:]]+['\"]([^'\"]*)['\"].*/\1/p")"
-#     printf "%s:\n\n%s\n\n" "$fn" "${body:-<could not determine value>}"
-#   done
-# }
 __ () {
-  echo hithereeeee
+  # Lists all copier functions in this file
+  local bold_blue="\033[1;34m"
+  local faded_blue="\033[2;34m"
+  local reset="\033[0m"
+  
+  printf "${bold_blue}_rs${reset}:\n\n${faded_blue}Hill world${reset}\n\n"
 }
 
 _rs () { printf "Hill world" | /usr/bin/pbcopy ;}
