@@ -16,4 +16,4 @@ pip3    () { pip "$@"                                                     ;} #
 python  () { /Users/taylor/.venvs/dotfiles/bin/python -q "$@"             ;} # 
 python3 () { python "$@"                                                  ;} # 
 src     () { clear; exec "$SHELL" -l                                      ;} # 
-reload  () { clear; exec "$SHELL" -l                                      ;} # same as src, but with a clear
+reload  () { echo "Use the src command instead of reload."; }
