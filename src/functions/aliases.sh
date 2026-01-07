@@ -5,6 +5,7 @@
 # : is offical syntax. 
 abs     () { realpath "$@"                                                ;} # 
 c       () { cursor "$@"                                                  ;} # 
+o       () { open .                                                       ;} # 
 clip    () { "$@" | perl -pe 'chomp if eof' | /usr/bin/pbcopy             ;} # 
 convert () { magick "$@"                                                  ;} # 
 env     () { /usr/bin/env | sort                                          ;} # 
