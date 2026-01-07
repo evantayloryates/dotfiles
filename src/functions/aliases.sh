@@ -16,4 +16,4 @@ pip3    () { pip "$@"                                                           
 python  () { /Users/taylor/.venvs/dotfiles/bin/python -q "$@"                        ;} # 
 python3 () { python "$@"                                                             ;} # 
 src     () { clear; exec "$SHELL" -l                                                 ;} # 
-reload  () { echo "NO EFFECT\nPlease use "$'\033[35m'"\`src\`"$'\033[0m'" instead.\n"; }
+reload  () { echo "NO EFFECT\nPlease use "$'\033[35m'"\`src\`"$'\033[0m'" instead.\n";} #
