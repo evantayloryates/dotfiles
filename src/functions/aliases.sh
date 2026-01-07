@@ -15,4 +15,5 @@ path    () { python3 "$DOTFILES_DIR/src/python/path.py"                   ;} #
 pip3    () { pip "$@"                                                     ;} # 
 python  () { /Users/taylor/.venvs/dotfiles/bin/python -q "$@"             ;} # 
 python3 () { python "$@"                                                  ;} # 
+reload  () { source ~/.zshrc                                              ;} # reload all .zsh shell startup files
 src     () { exec "$SHELL" -l                                             ;} # 
