@@ -16,9 +16,8 @@ def p(slug, path, default='cursor', commands=None, aliases=None):
 
 CONFIG = [
   p('amp',        '~/src/github/amplify', commands={
-    'disable': 'if [[ -f /Users/taylor/src/github/amplify/.git/hooks/pre-commit ]]; then mv /Users/taylor/src/github/amplify/.git/hooks/pre-commit /Users/taylor/src/github/amplify/.git/hooks/pre-commit.disabled && echo "Pre-commit hook disabled"; else echo "Pre-commit hook already disabled or not found"; fi',
-    'enable': 'if [[ -f /Users/taylor/src/github/amplify/.git/hooks/pre-commit.disabled ]]; then mv /Users/taylor/src/github/amplify/.git/hooks/pre-commit.disabled /Users/taylor/src/github/amplify/.git/hooks/pre-commit && echo "Pre-commit hook enabled"; else echo "Pre-commit hook already enabled or not found"; fi',
-    'test': 'echo <path>/.git/hooks/pre-commit.disabled',
+    'disable': 'if [[ -f <path>/.git/hooks/pre-commit ]]; then mv <path>/.git/hooks/pre-commit <path>/.git/hooks/pre-commit.disabled && echo "Pre-commit hook disabled"; else echo "Pre-commit hook already disabled or not found"; fi',
+    'enable': 'if [[ -f <path>/.git/hooks/pre-commit.disabled ]]; then mv <path>/.git/hooks/pre-commit.disabled <path>/.git/hooks/pre-commit && echo "Pre-commit hook enabled"; else echo "Pre-commit hook already enabled or not found"; fi',
   }),
   p('app',        '/Applications',                     'open'),
   p('d',          '~/Desktop',                         'cd',  aliases=['desk', 'desktop']),

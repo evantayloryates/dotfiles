@@ -57,3 +57,40 @@ pbcopy() {
     /usr/bin/pbcopy "$@"
   fi
 }
+
+
+# safemv <src> <dest>
+# Silently move src to dest with strict two-arg semantics.
+# Success (0):
+#   - src does not exist AND dest exists (noop)
+#   - src exists AND dest does not, and move succeeds
+# Failure (non-zero):
+#   - wrong arg count
+#   - both paths exist
+#   - neither path exists
+safemv() {
+  local src dest
+
+  # enforce exactly two args
+  [ "$#" -eq 2 ] || return 2
+
+  src=$1
+  dest=$2
+
+  # case 1: src missing, dest exists → success (noop)
+  if [ ! -e "$src" ] && [ -e "$dest" ]; then
+    return 0
+  fi
+
+  # case 2: src exists, dest missing → attempt move
+  if [ -e "$src" ] && [ ! -e "$dest" ]; then
+    mv "$src" "$dest" 2>/dev/null || return 1
+    [ -e "$dest" ] || return 1
+    return 0
+  fi
+
+  # all other cases are errors:
+  # - both exist
+  # - neither exist
+  return 1
+}
