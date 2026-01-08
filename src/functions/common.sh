@@ -58,7 +58,6 @@ pbcopy() {
   fi
 }
 
-
 # safemv <src> <dest>
 # Silently move src to dest with strict two-arg semantics.
 # Success (0):
