@@ -11,4 +11,4 @@ __ () {
   printf "\nCOPIERS\n${bold_blue}_rs${reset}:\n${faded_blue}Hill world${reset}\n\n"
 }
 
-_rs () { printf "Hill world" | /usr/bin/pbcopy ;}
+_rs () { printf "alias rs='DISABLE_SPRING=1 bin/rspec'" | /usr/bin/pbcopy ;}
