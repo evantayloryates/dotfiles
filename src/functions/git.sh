@@ -3,6 +3,11 @@ function my_branch {
   local base="origin/master"
   local email="taylor@spaceback.me"
 
+  # 0) ensure we are in a git repo
+  if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    return 1
+  fi
+
   # 1) ensure remote branch exists
   if ! git ls-remote --heads origin "$branch" >/dev/null; then
     return 1
