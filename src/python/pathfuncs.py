@@ -27,7 +27,7 @@ CONFIG = [
   p('dot',        '~/dotfiles'),
   p('dot-old',    '~/.dotfiles'),
   p('gh',         '~/src/github',                      'cd'),
-  p('mac',        '~/src/My Mac Services',             'cd'),
+  p('mac',        '~/src/My Mac Services',             'cursor'),
   p('nex',        '~/src/github/nexrender-scripts',    'ssh', commands={'ssh': '/Users/taylor/src/github/nexrender-scripts/scripts/local/ssh'}),
   p('notes',      '~/Desktop/notes'),
   p('pathfuncs',  '~/dotfiles/src/python/pathfuncs.py','cursor', aliases=['pathfunc', 'pathfns', 'pathfn', 'pathfuns', 'pathfun', 'pthfuncs', 'pthfunc', 'pthfns', 'pthfn', 'pthfuns', 'pthfun', 'pfuncs', 'pfunc', 'pfns', 'pfn', 'pfuns', 'pfun' ]),
@@ -78,7 +78,7 @@ def build_function(entry):
 
 
 def build_paths_helper(config):
-  slugs = [entry['slug'] for entry in config]
+  slugs = sorted(entry['slug'] for entry in config)
   lines = ['paths() {']
   for slug in slugs:
     lines.append(f'  echo "{slug}"')
