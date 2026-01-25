@@ -29,7 +29,7 @@ CONFIG = [
   p('gh',         '~/src/github',                      'cd'),
   p('nex',        '~/src/github/nexrender-scripts',    'ssh', commands={'ssh': '/Users/taylor/src/github/nexrender-scripts/scripts/local/ssh'}),
   p('notes',      '~/Desktop/notes'),
-  p('pathfuncs',  '~/dotfiles/src/python/pathfuncs.py','subl'),
+  p('pathfuncs',  '~/dotfiles/src/python/pathfuncs.py','cursor'),
   p('s',          '~/src',                            ' cd'),
 ]
 
