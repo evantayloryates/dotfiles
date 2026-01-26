@@ -24,8 +24,6 @@ yab     () { source ~/.yabairc                                                  
 
 
 
-
-git     () { if [[ $# -eq 1 && "$1" == "branch" ]]; then /usr/bin/git branch --sort=-committerdate; else /usr/bin/git "$@"; fi ;}
 # Dotfiles sync
 # source "$HOME/dotfiles/sync_dotfiles.sh"
 # alias sync='sync_dotfiles'
