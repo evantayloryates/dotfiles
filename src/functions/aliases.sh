@@ -177,7 +177,6 @@ gbs() {
     echo ""
     echo ""
 
-
     # Switch to selected branch
     /usr/bin/git checkout "${branch_map[$selection]}"
     echo ""
