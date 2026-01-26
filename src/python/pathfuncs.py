@@ -21,18 +21,18 @@ CONFIG = [
   }),
   p('app',         '/Applications',                     'open'),
   p('d',           '~/Desktop',                         'cd',  aliases=['desk', 'desktop']),
-  p('hb',          '~/src/github/heartbeat'),
-  p('mesh',        '~/src/github/mesh'),
-  p('kit',         '~/.config/kitty/',                  aliases=['kitty'], commands={'reload': '/Applications/kitty.app/Contents/MacOS/kitty @ load-config /Users/taylor/.config/kitty/kitty.conf'}),
-  p('dot',         '~/dotfiles'),
   p('dot-old',     '~/.dotfiles'),
-  p('screenshots', '~/Pictures/Screenshots',            'open', aliases=['ss', 'shots', 'screenshot']),
+  p('dot',         '~/dotfiles'),
   p('gh',          '~/src/github',                      'cd'),
+  p('hb',          '~/src/github/heartbeat'),
+  p('kit',         '~/.config/kitty/',                  aliases=['kitty'], commands={'reload': '/Applications/kitty.app/Contents/MacOS/kitty @ load-config /Users/taylor/.config/kitty/kitty.conf'}),
   p('mac',         '~/src/macos',                       'cursor', aliases=['macos']),
+  p('mesh',        '~/src/github/mesh'),
   p('nex',         '~/src/github/nexrender-scripts',    'ssh', commands={'ssh': '/Users/taylor/src/github/nexrender-scripts/scripts/local/ssh'}),
   p('notes',       '~/Desktop/notes'),
   p('pathfuncs',   '~/dotfiles/src/python/pathfuncs.py','cursor', aliases=['pathfunc', 'pathfns', 'pathfn', 'pathfuns', 'pathfun', 'pthfuncs', 'pthfunc', 'pthfns', 'pthfn', 'pthfuns', 'pthfun', 'pfuncs', 'pfunc', 'pfns', 'pfn', 'pfuns', 'pfun' ]),
   p('s',           '~/src',                            ' cd'),
+  p('screenshots', '~/Pictures/Screenshots',            'open', aliases=['ss', 'shots', 'screenshot']),
 ]
 
 def build_function(entry):
