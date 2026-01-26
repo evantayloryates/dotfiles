@@ -23,6 +23,8 @@ src     () { clear; exec "$SHELL" -l                                            
 yab     () { source ~/.yabairc                                                             ;} # 
 gbs     () { git branch --sort=-committerdate                                              ;} # "git branches sorted" (by last committed to) 
 git     () { if [[ $# -eq 1 && "$1" == "branch" ]]; then gbs; else /usr/bin/git "$@"; fi   ;}
+
+
 # Dotfiles sync
 # source "$HOME/dotfiles/sync_dotfiles.sh"
 # alias sync='sync_dotfiles'
