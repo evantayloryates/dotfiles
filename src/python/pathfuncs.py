@@ -24,7 +24,7 @@ CONFIG = [
   p('dot-old',     '~/.dotfiles'),
   p('dot',         '~/dotfiles'),
   p('gh',          '~/src/github',                      'cd'),
-  p('hb',          '~/src/github/heartbeat'),
+  p('hb',          '~/src/github/heartbeat', aliases=['heartbeat', 'heart']),
   p('kit',         '~/.config/kitty/',                  aliases=['kitty'], commands={'reload': '/Applications/kitty.app/Contents/MacOS/kitty @ load-config /Users/taylor/.config/kitty/kitty.conf'}),
   p('mac',         '~/src/macos',                       'cursor', aliases=['macos']),
   p('mesh',        '~/src/github/mesh'),
