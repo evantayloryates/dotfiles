@@ -4,7 +4,7 @@
 # A "Note" is anything that will provide context for the pattern.
 # : is offical syntax. 
 abs     () { realpath "$@"                                                           ;} # 
-c       () { cursor "$@"                                                             ;} # 
+c       () { clip "$@"                                                               ;} # 
 clip    () { { printf '$ %s\n' "$*"; "$@"; } | perl -pe 'chomp if eof' | /usr/bin/pbcopy ;} # 
 convert () { magick "$@"                                                             ;} # 
 env     () { /usr/bin/env | sort                                                     ;} # 
