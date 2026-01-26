@@ -15,6 +15,8 @@ path    () { python3 "$DOTFILES_DIR/src/python/path.py"                         
 pip3    () { pip "$@"                                                                ;} # 
 python  () { /Users/taylor/.venvs/dotfiles/bin/python -q "$@"                        ;} # 
 python3 () { python "$@"                                                             ;} # 
+py      () { python "$@"                                                             ;} # 
+py3     () { python "$@"                                                             ;} # 
 reload  () { echo "NO EFFECT\nPlease use "$'\033[35m'"\`src\`"$'\033[0m'" instead.\n";} #
 src     () { clear; exec "$SHELL" -l                                                 ;} # 
 yab     () { source ~/.yabairc                                                       ;} # 
@@ -34,6 +36,6 @@ alias gp='git push'
 alias gl='git log --oneline'
 alias dc="docker compose"
 # Utilities
-# alias mkdir='mkdir -pv'
+# alias mkdir='/bin/mkdir -pv'
 alias password="python3 $DOTFILES_DIR/src/python/password.py"
 alias words="open $DOTFILES_DIR/src/__data/words.txt"
