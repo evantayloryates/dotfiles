@@ -28,13 +28,13 @@ yab     () { source ~/.yabairc                                                  
 # source "$HOME/dotfiles/sync_dotfiles.sh"
 # alias sync='sync_dotfiles'
 # Git shortcuts
-alias gs='git status'
-alias ga='git add'
-alias gc='git commit'
-alias gb='git branch --sort=-committerdate'
-alias gp='git push'
-alias gl='git log --oneline'
-alias dc="docker compose"
+# alias gs='git status'
+# alias ga='git add'
+# alias gc='git commit'
+# alias gb='git branch --sort=-committerdate'
+# alias gp='git push'
+# alias gl='git log --oneline'
+# alias dc="docker compose"
 # Utilities
 # alias mkdir='/bin/mkdir -pv'
 alias password="python3 $DOTFILES_DIR/src/python/password.py"
