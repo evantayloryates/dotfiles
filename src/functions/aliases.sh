@@ -20,6 +20,7 @@ py3     () { python "$@"                                                        
 reload  () { echo "NO EFFECT\nPlease use "$'\033[35m'"\`src\`"$'\033[0m'" instead.\n"    ;} #
 src     () { clear; exec "$SHELL" -l                                                     ;} # 
 yab     () { source ~/.yabairc                                                           ;} # 
+dc      () { docker compose "$@"                                                         ;} # 
 
 
 
