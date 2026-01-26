@@ -20,7 +20,6 @@ python  () { /Users/taylor/.venvs/dotfiles/bin/python -q "$@"                   
 python3 () { python "$@"                                                                   ;} # 
 reload  () { echo "NO EFFECT\nPlease use "$'\033[35m'"\`src\`"$'\033[0m'" instead.\n"      ;} #
 src     () { clear; exec "$SHELL" -l                                                       ;} # 
-yab     () { source ~/.yabairc                                                             ;} # 
 git     () { if [[ $# -eq 1 && "$1" == "branch" ]]; then gbs; else /usr/bin/git "$@"; fi   ;}
 
 
