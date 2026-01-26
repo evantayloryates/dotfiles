@@ -5,7 +5,7 @@
 # : is offical syntax. 
 abs     () { realpath "$@"                                                           ;} # 
 c       () { cursor "$@"                                                             ;} # 
-clip    () { "$@" | perl -pe 'chomp if eof' | /usr/bin/pbcopy                        ;} # 
+clip    () { { printf '$ %s\n' "$*"; "$@"; } | perl -pe 'chomp if eof' | /usr/bin/pbcopy ;} # 
 convert () { magick "$@"                                                             ;} # 
 env     () { /usr/bin/env | sort                                                     ;} # 
 ex      () { exiftool "$@"                                                           ;} # Note: this will overwrite the /usr/bin/ex command
@@ -24,6 +24,7 @@ yab     () { source ~/.yabairc                                                  
 
 
 
+git     () { if [[ $# -eq 1 && "$1" == "branch" ]]; then /usr/bin/git branch --sort=-committerdate; else /usr/bin/git "$@"; fi ;}
 # Dotfiles sync
 # source "$HOME/dotfiles/sync_dotfiles.sh"
 # alias sync='sync_dotfiles'
@@ -31,7 +32,6 @@ yab     () { source ~/.yabairc                                                  
 # alias gs='git status'
 # alias ga='git add'
 # alias gc='git commit'
-# alias gb='git branch --sort=-committerdate'
 # alias gp='git push'
 # alias gl='git log --oneline'
 # alias dc="docker compose"
