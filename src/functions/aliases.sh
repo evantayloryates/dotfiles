@@ -41,19 +41,23 @@ alias words="open $DOTFILES_DIR/src/__data/words.txt"
 
 
 # gbs - "git branches sorted" with interactive selector
-# Displays branches in categories: Active, Recent, Reserved, Rest
-# Each branch appears only once (earlier sections take precedence)
+# Displays branches in categories: Active (not selectable), Last, Recent, Reserved, Rest
+# - Active branch is shown but not numbered (informational only)
+# - Last branch (git checkout -) is item 0, and also appears in its relevant category
+# - Reserved branches never appear in Recent, only in Reserved
 GBS_RECENT_WINDOW_DAYS=7
 GBS_RESERVED_BRANCHES=("main" "master" "production")
 
 gbs() {
-    local -a all_branches active_branches recent_branches reserved_branches rest_branches
+    local -a all_branches recent_branches reserved_branches rest_branches
     local -A branch_map
-    local -a seen
-    local active_branch idx=0 cutoff_date branch commit_date
+    local active_branch last_branch idx=1 cutoff_date branch commit_date
 
     # Get active branch
     active_branch=$(/usr/bin/git --no-pager branch --show-current 2>/dev/null)
+    
+    # Get last branch (the one we'd switch to with `git checkout -`)
+    last_branch=$(/usr/bin/git --no-pager rev-parse --symbolic-full-name @{-1} 2>/dev/null | sed 's|^refs/heads/||')
     
     # Calculate cutoff date for "recent" (commits within last N days)
     cutoff_date=$(date -v-${GBS_RECENT_WINDOW_DAYS}d +%s 2>/dev/null)
@@ -61,17 +65,16 @@ gbs() {
     # Get all local branches
     all_branches=($(/usr/bin/git --no-pager branch --format='%(refname:short)' 2>/dev/null))
     
-    # Categorize branches
+    # Categorize branches (excluding active branch from all categories)
     for branch in "${all_branches[@]}"; do
-        # Skip if already seen
-        if [[ " ${seen[*]} " == *" $branch "* ]]; then
+        # Skip active branch - it's shown separately and not selectable
+        if [[ "$branch" == "$active_branch" ]]; then
             continue
         fi
         
-        # Check if active
-        if [[ "$branch" == "$active_branch" ]]; then
-            active_branches+=("$branch")
-            seen+=("$branch")
+        # Check if reserved - these go to reserved only, never to recent
+        if [[ " ${GBS_RESERVED_BRANCHES[*]} " == *" $branch "* ]]; then
+            reserved_branches+=("$branch")
             continue
         fi
         
@@ -79,45 +82,47 @@ gbs() {
         commit_date=$(/usr/bin/git --no-pager log -1 --format='%ct' "$branch" -- 2>/dev/null)
         if [[ -n "$commit_date" && "$commit_date" -ge "$cutoff_date" ]]; then
             recent_branches+=("$branch")
-            seen+=("$branch")
-            continue
-        fi
-        
-        # Check if reserved
-        if [[ " ${GBS_RESERVED_BRANCHES[*]} " == *" $branch "* ]]; then
-            reserved_branches+=("$branch")
-            seen+=("$branch")
             continue
         fi
         
         # Otherwise it's "rest"
         rest_branches+=("$branch")
-        seen+=("$branch")
     done
     
     # Sort each category alphabetically
-    active_branches=($(printf '%s\n' "${active_branches[@]}" | sort))
     recent_branches=($(printf '%s\n' "${recent_branches[@]}" | sort))
     reserved_branches=($(printf '%s\n' "${reserved_branches[@]}" | sort))
     rest_branches=($(printf '%s\n' "${rest_branches[@]}" | sort))
     
-    # Calculate padding width based on total branch count
+    # Check if we have a valid last branch (different from active)
+    local has_last=0
+    if [[ -n "$last_branch" && "$last_branch" != "$active_branch" ]]; then
+        has_last=1
+    fi
+    
+    # Calculate padding width based on max index
     local total_count max_idx max_idx_len pad_width
-    total_count=$((${#active_branches[@]} + ${#recent_branches[@]} + ${#reserved_branches[@]} + ${#rest_branches[@]}))
-    max_idx=$((total_count - 1))
+    total_count=$((${#recent_branches[@]} + ${#reserved_branches[@]} + ${#rest_branches[@]}))
+    max_idx=$total_count
     max_idx_len=${#max_idx}
     pad_width=$((max_idx_len < 3 ? max_idx_len : 3))
+    [[ $pad_width -lt 1 ]] && pad_width=1
     
     # Print and build index map
     echo ""
     
-    if [[ ${#active_branches[@]} -gt 0 ]]; then
+    # Show active branch (not selectable)
+    if [[ -n "$active_branch" ]]; then
         echo "Active:"
-        for branch in "${active_branches[@]}"; do
-            printf "  %${pad_width}d) %s\n" "$idx" "$branch"
-            branch_map[$idx]="$branch"
-            ((idx++))
-        done
+        echo "  $active_branch"
+        echo ""
+    fi
+    
+    # Show last branch as item 0
+    if [[ $has_last -eq 1 ]]; then
+        echo "Last:"
+        printf "  %${pad_width}d) %s\n" 0 "$last_branch"
+        branch_map[0]="$last_branch"
         echo ""
     fi
     
@@ -163,9 +168,6 @@ gbs() {
         echo "Invalid selection: not a number"
         return 0
     fi
-    
-    # 0 = no-op (stay on current branch)
-    [[ "$selection" -eq 0 ]] && return 0
     
     # Check if selection exists in map
     if [[ -z "${branch_map[$selection]}" ]]; then
