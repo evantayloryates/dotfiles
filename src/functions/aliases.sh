@@ -44,7 +44,7 @@ alias words="open $DOTFILES_DIR/src/__data/words.txt"
 # Displays branches in categories: Active, Recent, Reserved, Rest
 # Each branch appears only once (earlier sections take precedence)
 GBS_RECENT_WINDOW_DAYS=7
-GBS_RESERVED_BRANCHES=("main" "master" "develop" "dev" "staging" "production")
+GBS_RESERVED_BRANCHES=("main" "master" "production")
 
 gbs() {
     local -a all_branches active_branches recent_branches reserved_branches rest_branches
