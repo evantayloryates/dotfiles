@@ -43,34 +43,37 @@ function _select_container() {
     webpack_dev
   )
 
+  local tty='/dev/tty'
+  if [ ! -r "${tty}" ] || [ ! -w "${tty}" ]; then
+    log '_select_container: /dev/tty not available'
+    return 1
+  fi
+
   local i=0
   while [ $i -lt ${#choices[@]} ]; do
-    printf '%s) %s\n' "$((i + 1))" "${choices[$i]}"
+    printf '%s) %s\n' "$((i + 1))" "${choices[$i]}" > "${tty}"
     i=$((i + 1))
   done
 
-  printf '\n'
+  printf '\n' > "${tty}"
 
   local input
-  printf 'Selected: '
-  read -r input
+  printf 'Selected: ' > "${tty}"
+  IFS= read -r input < "${tty}"
 
   if [ -z "${input}" ]; then
     echo 'app'
     return 0
   fi
 
-  # integer 1-13
   if echo "${input}" | grep -Eq '^[0-9]+$'; then
     if [ "${input}" -ge 1 ] && [ "${input}" -le ${#choices[@]} ]; then
       echo "${choices[$((input - 1))]}"
       return 0
     fi
-    echo ''
     return 1
   fi
 
-  # service name
   i=0
   while [ $i -lt ${#choices[@]} ]; do
     if [ "${input}" = "${choices[$i]}" ]; then
@@ -80,9 +83,9 @@ function _select_container() {
     i=$((i + 1))
   done
 
-  echo ''
   return 1
 }
+
 
 function _exec_amplify() {
   local service="$1"
