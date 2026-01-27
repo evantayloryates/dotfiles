@@ -18,27 +18,16 @@ spotlight_add_exclusions () {
 }
 
 spotlight_select_action () {
-  echo 'Select an action:'
-  echo '  1) list'
-  echo '  2) clean'
-  echo '  3) add'
-  printf '> '
+  local PS3='Select action: '
+  local options=('list' 'clean' 'add')
+  local opt
 
-  read -r choice
-
-  case "$choice" in
-    1)
-      spotlight_list_exclusions
-      ;;
-    2)
-      spotlight_clean_exclusions
-      ;;
-    3)
-      spotlight_add_exclusions
-      ;;
-    *)
-      echo 'Invalid selection (expected 1-3)'
-      return 1
-      ;;
-  esac
+  select opt in "${options[@]}"; do
+    case "$opt" in
+      list)  spotlight_list_exclusions; break ;;
+      clean) spotlight_clean_exclusions; break ;;
+      add)   spotlight_add_exclusions; break ;;
+      *)     echo 'Invalid selection';;
+    esac
+  done
 }
