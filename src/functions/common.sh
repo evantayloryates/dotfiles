@@ -51,6 +51,7 @@ function _exec_amplify() {
     return 0
   fi
 
+  echo "service: ${service}"
   # if service is empty, return 0
   if [ -z "${service}" ]; then
     return 0
