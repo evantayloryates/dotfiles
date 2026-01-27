@@ -18,24 +18,25 @@ spotlight_add_exclusions () {
 }
 
 spotlight_select_action () {
-  local PS3='Select action: '
-  local options=('list' 'clean' 'add')
-  local opt
-  local _columns="$COLUMNS"
+  echo '1) list'
+  echo '2) clean'
+  echo '3) add'
+  printf 'Select action: '
 
-  COLUMNS=1
-  select opt in "${options[@]}"; do
-    opt="${opt:-list}"
-    echo
+  read -r choice
 
-    case "$opt" in
-      list)  spotlight_list_exclusions ;;
-      clean) spotlight_clean_exclusions ;;
-      add)   spotlight_add_exclusions ;;
-    esac
-
-    break
-  done
-
-  COLUMNS="$_columns"
+  case "$choice" in
+    1)
+      spotlight_list_exclusions
+      ;;
+    2)
+      spotlight_clean_exclusions
+      ;;
+    3)
+      spotlight_add_exclusions
+      ;;
+    *)
+      return 0
+      ;;
+  esac
 }
