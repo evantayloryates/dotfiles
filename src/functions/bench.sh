@@ -33,14 +33,14 @@ bench() {
   
   # Get end time and calculate rounded milliseconds
   rounded=$(python3 -c "
-import time
-elapsed = (time.time() - $start) * 1000
-if elapsed < 5:
-    print(round(elapsed, 1))
-else:
-    print(round(elapsed))
-")
-  
+  import time
+  elapsed = (time.time() - $start) * 1000
+  if elapsed < 5:
+      print(round(elapsed, 1))
+  else:
+      print(round(elapsed))
+  ")
+    
   echo
   echo "${result_prefix_color} ↳ ${result_ms_color}${rounded}ms${reset}"
   
