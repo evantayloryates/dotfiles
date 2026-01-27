@@ -90,6 +90,7 @@ spotlight_watch_exclusions () {
     } | /usr/bin/pbcopy # use full path to bypass alias
 
     echo
+    echo
     printf '%sLogs stored to:\n' "$magenta"
     printf '  - %s\n' "$target"
     printf '  - clipboard%s\n' "$reset"
