@@ -29,6 +29,15 @@ function _ssh_stage() {
 _red() { printf '\033[31m%s\033[0m' "$1"; }
 _magenta() { printf '\033[35m%s\033[0m' "$1"; }
 
+function __log() {
+  local tty='/dev/tty'
+  if [ -w "${tty}" ]; then
+    printf '%s\n' "$1" > "${tty}"
+  else
+    printf '%s\n' "$1" >&2
+  fi
+}
+
 function _select_container() {
   setopt localoptions ksharrays
 
@@ -75,7 +84,7 @@ function _select_container() {
       return 0
     fi
 
-    log "$(_red 'Invalid input')"
+    __log "$(_red 'Invalid input')"
     return 1
   fi
 
@@ -89,26 +98,28 @@ function _select_container() {
     i=$((i + 1))
   done
 
-  log "$(_red 'Invalid input')"
+  __log "$(_red 'Invalid input')"
   return 1
 }
 
 function _exec_amplify() {
   local service="$1"
-  
+
   if [ -z "${service}" ]; then
     service="$(_select_container)" || true
     if [ -z "${service}" ]; then
-      log "exec_amplify: invalid selection"
+      __log "$(_red 'exec_amplify: invalid selection')"
       return 1
     fi
   fi
 
   # confirm service exists in this compose project
   if ! docker compose ps --services | grep -qx "${service}"; then
-    log "exec_amplify: unknown service '${service}'"
+    __log "$(_red "exec_amplify: unknown service '${service}'")"
     return 1
   fi
+
+  __log "Opening shell in service: $(_magenta "${service}")"
 
   # prefer bash if available; fall back to sh
   if docker compose exec -T "${service}" /bin/bash -lc 'exit' >/dev/null 2>&1; then
@@ -117,6 +128,7 @@ function _exec_amplify() {
     docker compose exec -it "${service}" /bin/sh
   fi
 }
+
 
 function sb() {
   local magenta="\033[35m"
