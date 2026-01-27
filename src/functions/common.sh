@@ -68,7 +68,7 @@ function _select_container() {
   printf '\n' > "${tty}"
 
   local input
-  printf 'Selected: ' > "${tty}"
+  printf '\033[90mSelected:\033[0m ' > "${tty}"
   IFS= read -r input < "${tty}"
 
   # empty → invalid
