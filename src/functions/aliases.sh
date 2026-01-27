@@ -17,7 +17,7 @@ git     () { if [[ $# -eq 1 && "$1" == "branch" ]]; then gbs; else /usr/bin/git 
 gb      () { git branch "$@"                                                                              ;} #
 gl      () { git log --oneline "$@"                                                                       ;} # 
 gp      () { git push "$@"                                                                                ;} # 
-ls      () { /bin/ls -1AGhlo "$@"                                                                         ;} # 
+ls      () { /bin/ls -AGhlo1 "$@"                                                                         ;} # 
 mkdir   () { [ "$#" -eq 1 ] && /bin/mkdir -pv "$1" || /bin/mkdir "$@"                                     ;} #
 o       () { if [ $# -eq 0 ]; then open "$(pwd -P 2>/dev/null || pwd)"; else open "$@"; fi                ;} # 
 path    () { python3 "$DOTFILES_DIR/src/python/path.py"                                                   ;} # 
