@@ -52,11 +52,6 @@ def read_with_default(prompt, default_value):
   finally:
     readline.set_startup_hook(None)
 
-# ...
-
-
-
-
 def print_options():
   options = sorted(OPTIONS, key=lambda o: o['name'])
 
@@ -85,14 +80,14 @@ def print_options():
   present('')
 
   default_input = '1'
-user_input = read_with_default('Selected: ', default_input)
+  user_input = read_with_default('Selected: ', default_input)
 
-# If they just hit Enter, treat it as default.
-input_value = user_input if user_input != '' else default_input
+  # If they just hit Enter, treat it as default.
+  input_value = user_input if user_input != '' else default_input
 
-# reset color (if you’re using it)
-_print(COLORS['reset'], file=sys.stderr, end='')
-return input_value
+  # reset color (if you’re using it)
+  _print(COLORS['reset'], file=sys.stderr, end='')
+  return input_value
 
 
 def main():
