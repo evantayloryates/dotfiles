@@ -132,7 +132,7 @@ def present_options():
 def main():
   present('')
 
-  selected = print_options()
+  selected = present_options()
   send(selected)
   
 if __name__ == '__main__':
