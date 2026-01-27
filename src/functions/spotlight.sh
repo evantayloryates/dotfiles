@@ -8,7 +8,7 @@ spotlight_select_action () {
   printf '1) list      | %sspot list%s or %sspot ls%s\n' "$magenta" "$reset" "$magenta" "$reset"
   printf '2) clean     | %sspot clean%s\n' "$magenta" "$reset"
   printf '3) add       | %sspot add%s or %sspot hush%s\n' "$magenta" "$reset" "$magenta" "$reset"
-  printf '4) watch     | %sspot add%s or %sspot hush%s\n' "$magenta" "$reset" "$magenta" "$reset"
+  printf '4) watch     | %sspot watch%s\n' "$magenta" "$reset"
   echo
   printf 'Selection: '
 
