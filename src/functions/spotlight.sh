@@ -5,10 +5,14 @@ spotlight_select_action () {
   local reset=$'\e[0m'
 
   echo
-  printf '1) list      | %sspot list%s or %sspot ls%s\n' "$magenta" "$reset" "$magenta" "$reset"
-  printf '2) clean     | %sspot clean%s\n' "$magenta" "$reset"
-  printf '3) add       | %sspot add%s or %sspot hush%s\n' "$magenta" "$reset" "$magenta" "$reset"
-  printf '4) watch     | %sspot watch%s\n' "$magenta" "$reset"
+  printf '1) list      | %sspot list%s, %sspot ls%s, %sspot l%s\n' \
+    "$magenta" "$reset" "$magenta" "$reset" "$magenta" "$reset"
+  printf '2) clean     | %sspot clean%s, %sspot c%s\n' \
+    "$magenta" "$reset" "$magenta" "$reset"
+  printf '3) add       | %sspot add%s, %sspot hush%s, %sspot h%s, %sspot a%s\n' \
+    "$magenta" "$reset" "$magenta" "$reset" "$magenta" "$reset" "$magenta" "$reset"
+  printf '4) watch     | %sspot watch%s, %sspot w%s\n' \
+    "$magenta" "$reset" "$magenta" "$reset"
   echo
   printf 'Selection: '
 
