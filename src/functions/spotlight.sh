@@ -1,23 +1,93 @@
-# # Step 1 — Disable Spotlight indexing (not the service)
-# sudo mdutil -i off /System/Volumes/Data
-# sudo mdutil -d /System/Volumes/Data
+spotlight_harden_a() {
+  set -euo pipefail
 
+  log() {
+    # shellcheck disable=SC2059
+    printf '[%s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*"
+  }
 
-# Step 2 — Permanently suppress mdworker spawning
-# # Unload the agent responsible for spawning mdworkers.
-# sudo launchctl bootout system /System/Library/LaunchDaemons/com.apple.metadata.mds.plist
-# # Then immediately reload only mds, not workers:
-# sudo launchctl bootstrap system /System/Library/LaunchDaemons/com.apple.metadata.mds.plist
+  local DATA_VOL='/System/Volumes/Data'
+  local MDS_PLIST='/System/Library/LaunchDaemons/com.apple.metadata.mds.plist'
+  local MDS_SERVICE='system/com.apple.metadata.mds'
 
+  # Step 1 — Check that SIP is disabled
+  local sip_status sip_disabled
+  sip_status="$(csrutil status 2>/dev/null || true)"
 
-# Step 3 — Block mdworker execution outright (hard stop)
-# sudo chmod 000 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mdworker_shared
-# sudo chmod 000 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mdworker
+  if echo "$sip_status" | grep -qiE 'status: disabled'; then
+    sip_disabled=true
+  else
+    sip_disabled=false
+  fi
 
+  if [[ "$sip_disabled" != true ]]; then
+    log "SIP must be disabled to continue."
+    log "Current: ${sip_status:-'unable to determine (run from macOS Recovery?)'}"
+    return 1
+  fi
 
+  log "SIP disabled: ok"
 
+  local changed=false
 
+  # Step 2 — Disable Spotlight indexing/searching on Data volume (idempotent check)
+  local md_status
+  md_status="$(mdutil -s "$DATA_VOL" 2>/dev/null || true)"
 
+  if echo "$md_status" | grep -qi 'disabled'; then
+    log "Spotlight already disabled on ${DATA_VOL}."
+  else
+    log "Disabling Spotlight indexing on ${DATA_VOL}..."
+    sudo mdutil -i off "$DATA_VOL" >/dev/null
+    log "Disabling Spotlight indexing AND searching on ${DATA_VOL}..."
+    sudo mdutil -d "$DATA_VOL" >/dev/null
+    changed=true
+    log "Spotlight disabled on ${DATA_VOL}."
+  fi
+
+  # Step 2b — Permanently suppress mdworker fan-out (only if needed)
+  # Heuristic: if mdworker_shared is running OR mds isn't loaded, cycle the job via bootout/bootstrap.
+  local mdworker_running=false
+  if pgrep -x mdworker_shared >/dev/null 2>&1; then
+    mdworker_running=true
+  fi
+
+  local mds_loaded=false
+  if launchctl print "$MDS_SERVICE" >/dev/null 2>&1; then
+    mds_loaded=true
+  fi
+
+  if [[ "$mdworker_running" == true || "$mds_loaded" == false ]]; then
+    if [[ "$mdworker_running" == true ]]; then
+      log "mdworker_shared is running; cycling mds to suppress fan-out..."
+    else
+      log "mds not loaded; bootstrapping it..."
+    fi
+
+    if [[ "$mds_loaded" == true ]]; then
+      log "Booting out ${MDS_SERVICE}..."
+      sudo launchctl bootout system "$MDS_PLIST" >/dev/null || true
+    fi
+
+    log "Bootstrapping ${MDS_SERVICE}..."
+    sudo launchctl bootstrap system "$MDS_PLIST" >/dev/null
+
+    changed=true
+  else
+    log "mds loaded and no mdworker_shared detected; skipping bootout/bootstrap."
+  fi
+
+  # Step 3 — Restart metadata subsystem cleanly (only if we changed anything)
+  if [[ "$changed" == true ]]; then
+    log "Restarting ${MDS_SERVICE} (kickstart)..."
+    sudo launchctl kickstart -k "$MDS_SERVICE" >/dev/null || true
+    log "Restart complete."
+  else
+    log "No changes applied; skipping kickstart."
+  fi
+
+  log "Done."
+}
 
 
 
