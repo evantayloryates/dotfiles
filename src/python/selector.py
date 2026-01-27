@@ -41,48 +41,6 @@ OPTIONS = [
   { 'name': 'webpack_dev',        'aliases': ['web']   },
 ]
 
-def process_invalid_input(user_input):
-  cleaned = (user_input or '').strip()
-  display = cleaned if cleaned != '' else '<empty>'
-
-  present(
-    f'{COLORS["red"]}Invalid input: {COLORS["white"]}{display}{COLORS["red"]}. Exiting...{COLORS["reset"]}'
-  )
-  return ''
-
-
-def resolve_selection(raw_value, options_sorted):
-  v = (raw_value or '').strip()
-
-  # 1) empty
-  if v == '':
-    return process_invalid_input(raw_value)
-
-  # 2) number -> option by index (1-based)
-  if v.isdigit():
-    idx = int(v)
-    if 1 <= idx <= len(options_sorted):
-      return options_sorted[idx - 1]['name']
-    return process_invalid_input(raw_value)
-
-  # 3) name/alias (case-insensitive)
-  v_lower = v.lower()
-  i = 0
-  while i < len(options_sorted):
-    opt = options_sorted[i]
-    if opt['name'].lower() == v_lower:
-      return opt['name']
-
-    aliases = opt.get('aliases', [])
-    j = 0
-    while j < len(aliases):
-      if aliases[j].lower() == v_lower:
-        return opt['name']
-      j += 1
-
-    i += 1
-
-  return process_invalid_input(raw_value)
 
 
 TTY = open('/dev/tty', 'r')
@@ -120,6 +78,46 @@ def print_options(options):
 
   present('')
 
+def process_invalid_input(user_input):
+  cleaned = (user_input or '').strip()
+  display = cleaned if cleaned != '' else '<empty>'
+
+  present(
+    f'{COLORS["red"]}Invalid input: {COLORS["white"]}{display}{COLORS["red"]}. Exiting...{COLORS["reset"]}'
+  )
+  return ''
+def resolve_selection(raw_value, options_sorted):
+  v = (raw_value or '').strip()
+
+  # 1) empty
+  if v == '':
+    return process_invalid_input(raw_value)
+
+  # 2) number -> option by index (1-based)
+  if v.isdigit():
+    idx = int(v)
+    if 1 <= idx <= len(options_sorted):
+      return options_sorted[idx - 1]['name']
+    return process_invalid_input(raw_value)
+
+  # 3) name/alias (case-insensitive)
+  v_lower = v.lower()
+  i = 0
+  while i < len(options_sorted):
+    opt = options_sorted[i]
+    if opt['name'].lower() == v_lower:
+      return opt['name']
+
+    aliases = opt.get('aliases', [])
+    j = 0
+    while j < len(aliases):
+      if aliases[j].lower() == v_lower:
+        return opt['name']
+      j += 1
+
+    i += 1
+
+  return process_invalid_input(raw_value)
 
 def present_options():
   options = sorted(OPTIONS, key=lambda o: o['name'])
