@@ -19,8 +19,9 @@ bench() {
   local white="\033[37m"
   local bold_white="\033[1;37m"
   
+  local result_prefix_color="${green}"
   local result_color="${green}"
-  local result_label_color="${bold_green}"
+  local result_ms_color="${bold_green}"
   # Get start time in seconds (with decimal precision)
   start=$(python3 -c 'import time; print(time.time())')
   
