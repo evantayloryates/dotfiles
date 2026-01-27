@@ -20,10 +20,11 @@ python  () { /Users/taylor/.venvs/dotfiles/bin/python -q "$@"                   
 python3 () { python "$@"                                                                                  ;} # 
 reload  () { echo "NO EFFECT\nPlease use "$'\033[35m'"\`src\`"$'\033[0m'" instead.\n"                     ;} #
 _kitsrc () { /Applications/kitty.app/Contents/MacOS/kitty @ load-config "$HOME/.config/kitty/kitty.conf"  ;} #
-src     () { _kitsrc; clear; exec "$SHELL" -il                                                             ;} # 
+# src     () { _kitsrc; clear; exec "$SHELL" -il                                                             ;} # 
+src     () { _kitsrc; clear; exec env -i TERM="$TERM" HOME="$HOME" USER="$USER" LOGNAME="$USER" SHELL="$SHELL" PATH="$PATH" "$SHELL" -il ;} # 
 git     () { if [[ $# -eq 1 && "$1" == "branch" ]]; then gbs; else /usr/bin/git "$@"; fi                  ;} #
 
-# src     () { _kitsrc; clear; exec env -i TERM="$TERM" HOME="$HOME" USER="$USER" LOGNAME="$USER" SHELL="$SHELL" PATH="$PATH" "$SHELL" -il ;} # 
+
 # Dotfiles sync
 # source "$HOME/dotfiles/sync_dotfiles.sh"
 # alias sync='sync_dotfiles'
