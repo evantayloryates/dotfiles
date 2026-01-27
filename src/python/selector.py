@@ -164,10 +164,11 @@ def read_input(prompt):
     return ''
   return user_input.rstrip('\n')
 
+def sorted_options():
+  return sorted(OPTIONS, key=lambda o: o['name'])
 
-def print_options():
-  options = sorted(OPTIONS, key=lambda o: o['name'])
 
+def print_options(options):
   i = 0
   while i < len(options):
     option = options[i]
@@ -191,6 +192,11 @@ def print_options():
     i += 1
 
   present('')
+
+
+def present_options():
+  options = sorted_options()
+  print_options(options)
 
   user_input = read_input('Selected: ')
   present('')  # newline after Enter for clean output
