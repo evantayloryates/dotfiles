@@ -19,7 +19,7 @@ bench() {
   local white="\033[37m"
   local bold_white="\033[1;37m"
   
-  local result_prefix_color="${green}"
+  local result_prefix_color="${red}"
   local result_color="${green}"
   local result_ms_color="${bold_green}"
   local reset="\033[0m"
