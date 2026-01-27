@@ -73,9 +73,9 @@ spotlight_setup_index_suppression() {
   set -euo pipefail
 
   log() {
-  # shellcheck disable=SC2059
-  printf '%s\n' "$*"
-}
+    # shellcheck disable=SC2059
+    printf '%s\n' "$*"
+  }
 
 
   local DATA_VOL='/System/Volumes/Data'
