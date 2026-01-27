@@ -23,6 +23,7 @@ CONFIG = [
   p('d',           '~/Desktop',                         'cd',  aliases=['desk', 'desktop']),
   p('dot-old',     '~/.dotfiles'),
   p('dot',         '~/dotfiles'),
+  p('down',        '~/Downloads',                       'cd'),
   p('gh',          '~/src/github',                      'cd'),
   p('hb',          '~/src/github/heartbeat',            aliases=['heartbeat', 'heart']),
   p('kit',         '~/.config/kitty/',                  aliases=['kitty'], commands={'reload': '/Applications/kitty.app/Contents/MacOS/kitty @ load-config /Users/taylor/.config/kitty/kitty.conf'}),
