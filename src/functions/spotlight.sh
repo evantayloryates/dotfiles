@@ -21,6 +21,7 @@ spotlight_select_action () {
   local magenta=$'\e[35m'
   local reset=$'\e[0m'
 
+  echo
   printf '1) list      | %sspot list%s or %sspot ls%s\n' "$magenta" "$reset" "$magenta" "$reset"
   printf '2) clean     | %sspot clean%s\n' "$magenta" "$reset"
   printf '3) add       | %sspot add%s or %sspot hush%s\n' "$magenta" "$reset" "$magenta" "$reset"
