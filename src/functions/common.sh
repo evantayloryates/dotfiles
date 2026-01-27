@@ -75,15 +75,26 @@ function _select_container() {
 
   local tty='/dev/tty'
 
+  # print menu (with padding)
   local i=0
   while [ $i -lt ${#choices[@]} ]; do
     local name="${choices[$i]}"
     local alias="${aliases[$name]}"
-    if [ -n "${alias}" ]; then
-      printf '%s) %s (%s)\n' "$((i + 1))" "${name}" "${alias}" > "${tty}"
+
+    local index=$((i + 1))
+    local index_fmt
+    if [ "${index}" -lt 10 ]; then
+      index_fmt=" ${index}"
     else
-      printf '%s) %s\n' "$((i + 1))" "${name}" > "${tty}"
+      index_fmt="${index}"
     fi
+
+    if [ -n "${alias}" ]; then
+      printf '%s) %s (%s)\n' "${index_fmt}" "${name}" "${alias}" > "${tty}"
+    else
+      printf '%s) %s\n' "${index_fmt}" "${name}" > "${tty}"
+    fi
+
     i=$((i + 1))
   done
 
@@ -111,33 +122,24 @@ function _select_container() {
     return 1
   fi
 
-  # service name OR alias
+  # service name OR alias (no printing here)
   local i=0
   while [ $i -lt ${#choices[@]} ]; do
     local name="${choices[$i]}"
     local alias="${aliases[$name]}"
 
-    local index=$((i + 1))
-    local index_fmt
-    if [ "${index}" -lt 10 ]; then
-      index_fmt=" ${index}"
-    else
-      index_fmt="${index}"
-    fi
-
-    if [ -n "${alias}" ]; then
-      printf '%s) %s (%s)\n' "${index_fmt}" "${name}" "${alias}" > "${tty}"
-    else
-      printf '%s) %s\n' "${index_fmt}" "${name}" > "${tty}"
+    if [ "${input}" = "${name}" ] || { [ -n "${alias}" ] && [ "${input}" = "${alias}" ]; }; then
+      echo "${name}"
+      return 0
     fi
 
     i=$((i + 1))
   done
 
-
   __log "$(_red 'Invalid input')"
   return 1
 }
+
 
 function _exec_amplify() {
   local service="$1"
