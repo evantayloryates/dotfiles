@@ -90,9 +90,9 @@ def print_options(options):
     present('')
 
 
-def process_invalid_input(user_input):
-    cleaned = (user_input or '').strip()
-    display = cleaned if cleaned != '' else '<empty>'
+def process_invalid_input(clean_input):
+    
+    display = clean_input if clean_input != '' else '<empty>'
 
     present(
         f'{COLORS["red"]}Invalid input: {COLORS["white"]}{display}{COLORS["red"]}. Exiting...{COLORS["reset"]}'
@@ -134,13 +134,12 @@ def lookup_option(clean_input, options_sorted, allow_index=True):
     return None
 
 
-def resolve_selection(raw_value, options_sorted):
-    clean_input = clean_input(raw_value)
+def resolve_selection(clean_input, options_sorted):
     opt = lookup_option(clean_input, options_sorted)
     if opt is None:
-        return process_invalid_input(clean_input)
+        return process_invalid_input(clean_input), None
 
-    return opt['name']
+    return None, opt['name']
 
 
 def present_options():
