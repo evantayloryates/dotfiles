@@ -29,7 +29,7 @@ spotlight_select_action () {
   local pipe=$'\e[90m'
   local reset=$'\e[0m'
 
-    echo
+  echo
   printf '1) add       %s|%s %sspot%s %sadd%s\n'  "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
   printf '            %s|%s %sspot%s %sa%s\n'     "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
   printf '            %s|%s %sspot%s %shush%s\n'  "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
