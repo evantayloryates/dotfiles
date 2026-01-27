@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import sys
 import os
+import readline
 
 _print = print
 COLORS = { 'red': '\033[31m', 'green': '\033[32m', 'yellow': '\033[33m', 'blue': '\033[34m', 'magenta': '\033[35m', 'cyan': '\033[36m', 'white': '\033[37m', 'reset': '\033[0m' }
@@ -39,6 +40,29 @@ OPTIONS = [
   { 'name': 'sidekiq',            'aliases': ['sk']    },
   { 'name': 'webpack_dev',        'aliases': ['web']   },
 ]
+
+def read_with_default(prompt, default_value):
+  # Prompt should NOT include the default value text.
+  def hook():
+    readline.insert_text(default_value)
+    readline.redisplay()
+  readline.set_startup_hook(hook)
+  try:
+    return input(prompt)
+  finally:
+    readline.set_startup_hook(None)
+
+# ...
+
+default_input = '1'
+user_input = read_with_default('Selected: ', default_input)
+
+# If they just hit Enter, treat it as default.
+input_value = user_input if user_input != '' else default_input
+
+# reset color (if you’re using it)
+_print(COLORS['reset'], file=sys.stderr, end='')
+return input_value
 
 
 def print_options():
