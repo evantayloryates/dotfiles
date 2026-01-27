@@ -18,8 +18,8 @@ spotlight_add_exclusions () {
 }
 
 spotlight_select_action () {
-  local magenta='\033[35m'
-  local reset='\033[0m'
+  local magenta=$'\e[35m'
+  local reset=$'\e[0m'
 
   printf '1) list      | %sspot list%s or %sspot ls%s\n' "$magenta" "$reset" "$magenta" "$reset"
   printf '2) clean     | %sspot clean%s\n' "$magenta" "$reset"
@@ -29,17 +29,9 @@ spotlight_select_action () {
   read -r choice
 
   case "$choice" in
-    1)
-      spotlight_list_exclusions
-      ;;
-    2)
-      spotlight_clean_exclusions
-      ;;
-    3)
-      spotlight_add_exclusions
-      ;;
-    *)
-      return 0
-      ;;
+    1) spotlight_list_exclusions ;;
+    2) spotlight_clean_exclusions ;;
+    3) spotlight_add_exclusions ;;
+    *) return 0 ;;
   esac
 }
