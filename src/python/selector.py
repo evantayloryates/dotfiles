@@ -11,13 +11,14 @@ COLORS = {
   'magenta': '\033[35m',
   'cyan': '\033[36m',
   'white': '\033[37m',
+  'reset': '\033[0m',
 }
 
-SCRIPT_NAME = os.path.basename(__file__)
+SCRIPT_NAME = os.path.splitext(os.path.basename(__file__))[0]
 LOG_COLOR = COLORS['green']
 
 def print(*args, **kwargs):
-  prefix = f'{LOG_COLOR}[{SCRIPT_NAME}]{COLORS['reset']}'
+  prefix = f'{LOG_COLOR}[{SCRIPT_NAME}]{COLORS["reset"]}'
   _print(prefix, *args, file=sys.stderr, **kwargs)
 
 
