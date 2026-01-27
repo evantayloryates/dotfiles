@@ -8,19 +8,19 @@ spotlight_select_action () {
 
   echo
   printf '1) list      | %sspot%s %slist%s/%sls%s/%sl%s\n' \
-    "$primary" "$reset" \
+    "$primary" "$reset"  
     "$secondary" "$reset" "$secondary" "$reset" "$secondary" "$reset"
 
   printf '2) clean     | %sspot%s %sclean%s/%sc%s\n' \
-    "$primary" "$reset" \
+    "$primary" "$reset"  
     "$secondary" "$reset" "$secondary" "$reset"
 
   printf '3) add       | %sspot%s %sadd%s/%sa%s/%shush%s/%sh%s\n' \
-    "$primary" "$reset" \
+    "$primary" "$reset"  
     "$secondary" "$reset" "$secondary" "$reset" "$secondary" "$reset" "$secondary" "$reset"
 
   printf '4) watch     | %sspot%s %swatch%s/%sw%s\n' \
-    "$primary" "$reset" \
+    "$primary" "$reset"  
     "$secondary" "$reset" "$secondary" "$reset"
 
   echo
