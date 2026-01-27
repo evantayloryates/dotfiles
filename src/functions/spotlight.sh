@@ -1,11 +1,11 @@
 RESERVED_SPOTLIGHT_EXCLUSION_DIR=/Users/taylor/hush-spotlight
 
 spotlight_select_action () {
-  
+
   # MAGENTA
   local primary=$'\e[35m'
   local secondary=$'\e[95m'
-  
+
   # BLUE
   # local primary=$'\e[34m'
   # local secondary=$'\e[94m'
@@ -13,7 +13,7 @@ spotlight_select_action () {
   # CYAN
   # local primary=$'\e[36m'
   # local secondary=$'\e[96m'
-  
+
   # GREEN
   # local primary=$'\e[32m'
   # local secondary=$'\e[92m'
@@ -29,21 +29,20 @@ spotlight_select_action () {
   local reset=$'\e[0m'
 
   echo
-  printf '1) list      | %sspot%s %slist%s/%sls%s/%sl%s\n' \
-    "$primary" "$reset" \
-    "$secondary" "$reset" "$secondary" "$reset" "$secondary" "$reset"
+  printf '1) list     | %sspot%s %slist%s\n' "$primary" "$reset" "$secondary" "$reset"
+  printf '            | %sspot%s %sls%s\n'   "$primary" "$reset" "$secondary" "$reset"
+  printf '            | %sspot%s %sl%s\n'    "$primary" "$reset" "$secondary" "$reset"
 
-  printf '2) clean     | %sspot%s %sclean%s/%sc%s\n' \
-    "$primary" "$reset" \
-    "$secondary" "$reset" "$secondary" "$reset"
+  printf '2) clean    | %sspot%s %sclean%s\n' "$primary" "$reset" "$secondary" "$reset"
+  printf '            | %sspot%s %sc%s\n'     "$primary" "$reset" "$secondary" "$reset"
 
-  printf '3) add       | %sspot%s %sadd%s/%sa%s/%shush%s/%sh%s\n' \
-    "$primary" "$reset" \
-    "$secondary" "$reset" "$secondary" "$reset" "$secondary" "$reset" "$secondary" "$reset"
+  printf '3) add      | %sspot%s %sadd%s\n'  "$primary" "$reset" "$secondary" "$reset"
+  printf '            | %sspot%s %sa%s\n'    "$primary" "$reset" "$secondary" "$reset"
+  printf '            | %sspot%s %shush%s\n' "$primary" "$reset" "$secondary" "$reset"
+  printf '            | %sspot%s %sh%s\n'    "$primary" "$reset" "$secondary" "$reset"
 
-  printf '4) watch     | %sspot%s %swatch%s/%sw%s\n' \
-    "$primary" "$reset" \
-    "$secondary" "$reset" "$secondary" "$reset"
+  printf '4) watch    | %sspot%s %swatch%s\n' "$primary" "$reset" "$secondary" "$reset"
+  printf '            | %sspot%s %sw%s\n'     "$primary" "$reset" "$secondary" "$reset"
 
   echo
   printf 'Selection: '
@@ -59,8 +58,6 @@ spotlight_select_action () {
     *) return 0 ;;
   esac
 }
-
-
 
 spotlight_list_exclusions () {
   sudo /usr/libexec/PlistBuddy -c "Print :Exclusions" /System/Volumes/Data/.Spotlight-V100/VolumeConfiguration.plist 2>/dev/null \
