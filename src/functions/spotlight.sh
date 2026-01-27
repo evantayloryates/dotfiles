@@ -77,7 +77,6 @@ spotlight_setup_index_suppression() {
     printf '%s\n' "$*"
   }
 
-
   local DATA_VOL='/System/Volumes/Data'
   local MDS_PLIST='/System/Library/LaunchDaemons/com.apple.metadata.mds.plist'
   local MDS_SERVICE='system/com.apple.metadata.mds'
