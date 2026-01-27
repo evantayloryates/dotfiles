@@ -109,23 +109,6 @@ _exec_amplify() {
   fi
 }
 
-_exec_amplify() {
-  local service="${1:-app}"
-
-  # confirm service exists in this compose project
-  if ! docker compose ps --services | grep -qx "${service}"; then
-    log "exec_amplify: unknown service '${service}'"
-    return 1
-  fi
-
-  # prefer bash if available; fall back to sh
-  if docker compose exec -T "${service}" /bin/bash -lc 'exit' >/dev/null 2>&1; then
-    docker compose exec -it "${service}" /bin/bash
-  else
-    docker compose exec -it "${service}" /bin/sh
-  fi
-}
-
 
 function sb() {
   local magenta="\033[35m"
