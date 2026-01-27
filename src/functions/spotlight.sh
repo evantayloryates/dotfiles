@@ -87,7 +87,7 @@ spotlight_watch_exclusions () {
     {
       printf '$ %s\n' "$cmd"
       cat "$target"
-    } | pbcopy
+    } | /usr/bin/pbcopy
 
     echo
     printf '%sLogs stored to %s and copied to clipboard%s\n' "$magenta" "$target" "$reset"
