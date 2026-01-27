@@ -55,8 +55,10 @@ def read_input(prompt):
         return ''
     return user_input.rstrip('\n')
 
+
 def sorted_options():
-  return sorted(OPTIONS, key=lambda o: o['name'].lower())
+    return sorted(OPTIONS, key=lambda o: o['name'].lower())
+
 
 def print_options(options):
     i = 0
@@ -92,6 +94,7 @@ def process_invalid_input(user_input):
         f'{COLORS["red"]}Invalid input: {COLORS["white"]}{display}{COLORS["red"]}. Exiting...{COLORS["reset"]}'
     )
     return ''
+
 
 def lookup_option(raw_value, options_sorted, allow_index=True):
     v = (raw_value or '').strip()
@@ -149,7 +152,7 @@ def main():
     incoming = sys.stdin.readline()
     incoming = incoming.rstrip('\n') if incoming else ''
     present(f'incoming: {incoming}')
-    result_option = lookup_option(incoming, sorted_options())
+    result_option = lookup_option(incoming, sorted_options(), allow_index=False)
     present(f'result_option: {result_option}')
 
     present('')
