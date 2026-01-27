@@ -16,6 +16,8 @@ ls() {
   local GRAY='%F{244}'
   local LYELLOW='%F{229}'
   local BLUE='%F{33}'
+  local BLUE='%F{33}'
+  local BOLD_BLUE='%B%F{33}'
   local DBLUE='%F{18}'
   
   # semantic colors
@@ -24,7 +26,7 @@ ls() {
   local FILE_LINK_DST="${LYELLOW}"
   local FILE="${LYELLOW}"
   local EXECUTABLE_FILE="${RED}"
-  local DIRECTORY="${BLUE}"
+  local DIRECTORY="${BOLD_BLUE}"
   local DIR_LINK_SRC="${DBLUE}"
   local DIR_LINK_DST="${LYELLOW}"
 
