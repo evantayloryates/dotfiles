@@ -30,7 +30,7 @@ ls() {
   local DIR_LINK_DST="${LYELLOW}"
 
   local COLUMN_PADDING=2
-  local LEFT_PAD_ARROW_GAP=2
+  local LEFT_PAD_ARROW_GAP=1
 
   _is_dir_link() {
     # symlink whose resolved target is a directory
