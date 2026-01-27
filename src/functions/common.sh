@@ -71,9 +71,10 @@ function _select_container() {
   printf 'Selected: ' > "${tty}"
   IFS= read -r input < "${tty}"
 
-  # empty → default to "1"
+  # empty → invalid
   if [ -z "${input}" ]; then
-    input='1'
+    __log "$(_red 'Invalid input')"
+    return 1
   fi
 
   # numeric selection
@@ -88,7 +89,7 @@ function _select_container() {
   fi
 
   # service name
-  i=0
+  local i=0
   while [ $i -lt ${#choices[@]} ]; do
     if [ "${input}" = "${choices[$i]}" ]; then
       echo "${input}"
@@ -100,6 +101,7 @@ function _select_container() {
   __log "$(_red 'Invalid input')"
   return 1
 }
+
 
 function _exec_amplify() {
   local service="$1"
