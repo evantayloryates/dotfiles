@@ -39,7 +39,7 @@ function __log() {
 }
 
 function _select_container() {
-  setopt localoptions ksharrays
+  setopt localoptions ksharrays noxtrace
 
   local choices=(
     app
