@@ -25,23 +25,16 @@ spotlight_select_action () {
 
   COLUMNS=1
   select opt in "${options[@]}"; do
+    opt="${opt:-list}"
+    echo
+
     case "$opt" in
-      list)
-        spotlight_list_exclusions
-        break
-        ;;
-      clean)
-        spotlight_clean_exclusions
-        break
-        ;;
-      add)
-        spotlight_add_exclusions
-        break
-        ;;
-      *)
-        echo 'Invalid selection'
-        ;;
+      list)  spotlight_list_exclusions ;;
+      clean) spotlight_clean_exclusions ;;
+      add)   spotlight_add_exclusions ;;
     esac
+
+    break
   done
 
   COLUMNS="$_columns"
