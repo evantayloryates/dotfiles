@@ -31,7 +31,7 @@ ls() {
 
   local COLUMN_PADDING=2
   local LEFT_PAD_ARROW_GAP=1
-  local CACHE_ENABLED=0 # 0 or 1
+  local CACHE_ENABLED=1 # 0 or 1
   # Pre-compute gap string once
   local GAP_STR=$(printf '%*s' $LEFT_PAD_ARROW_GAP '')
 
