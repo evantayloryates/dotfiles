@@ -60,16 +60,16 @@ def print_options():
       alias_str = ', '.join(aliases)
 
     if alias_str:
-      print(f'{index_fmt}) {option["name"]} — {alias_str}')
+      present(f'{index_fmt}) {option["name"]} — {alias_str}')
     else:
-      print(f'{index_fmt}) {option["name"]}')
+      present(f'{index_fmt}) {option["name"]}')
 
     i += 1
 
-  print('')
+  present('')
 
   default_input = '1'
-  _print(f'Selected: {default_input}\033[32m', file=sys.stderr, end='')
+  present(f'Selected: {default_input}\033[32m', file=sys.stderr, end='')
   input_value = default_input
   try:
     user_input = sys.stdin.readline()
