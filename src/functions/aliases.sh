@@ -23,7 +23,7 @@ _kitsrc () { /Applications/kitty.app/Contents/MacOS/kitty @ load-config "$HOME/.
 src     () { _kitsrc; clear; exec "$SHELL" -il                                                             ;} # 
 git     () { if [[ $# -eq 1 && "$1" == "branch" ]]; then gbs; else /usr/bin/git "$@"; fi                  ;} #
 
-
+# cool
 # Dotfiles sync
 # source "$HOME/dotfiles/sync_dotfiles.sh"
 # alias sync='sync_dotfiles'
