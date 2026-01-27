@@ -147,7 +147,6 @@ def present_options():
 
     return resolve_selection(user_input, options)
 
-
 def main():
     incoming = sys.stdin.readline()
     incoming = incoming.rstrip('\n') if incoming else ''
