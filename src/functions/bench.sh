@@ -17,7 +17,7 @@ bench() {
 
   # Greens (number darker, unit lighter)
   local green="$(fg_rgb 0 180 0)"       # number
-  local green_dark="$(fg_rgb 0, 144, 0)"       # number
+  local green_dark="$(fg_rgb 0 144 0)"       # number
   # local green_light="$(fg_rgb 0 255 160)"    # unit
 
   local result_prefix_color="${red}"
