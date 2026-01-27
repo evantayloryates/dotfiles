@@ -23,16 +23,17 @@ python  () { /Users/taylor/.venvs/dotfiles/bin/python -q "$@"                   
 python3 () { python "$@"                                                                                  ;} # 
 reload  () { echo "NO EFFECT\nPlease use "$'\033[35m'"\`src\`"$'\033[0m'" instead.\n"                     ;} #
 src     () { _kitsrc; clear; source "$HOME/dotfiles/src/index.sh"                                         ;} # 
-
+ga      () { git add "$@"                                                                                 ;} # 
+gc      () { git commit "$@"                                                                              ;} # 
+gp      () { git push "$@"                                                                                ;} # 
+gl      () { git log --oneline "$@"                                                                       ;} # 
 # Git shortcuts
 # alias gs='git status'
 # alias ga='git add'
 # alias gc='git commit'
 # alias gp='git push'
 # alias gl='git log --oneline'
-# alias dc="docker compose"
-# Utilities
-# alias mkdir=''
+
 alias password="python3 $DOTFILES_DIR/src/python/password.py"
 alias words="open $DOTFILES_DIR/src/__data/words.txt"
 
