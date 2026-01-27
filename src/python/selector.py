@@ -42,13 +42,13 @@ OPTIONS = [
 ]
 
 def read_with_default(prompt, default_value):
-  # Prompt should NOT include the default value text.
   def hook():
     readline.insert_text(default_value)
     readline.redisplay()
   readline.set_startup_hook(hook)
   try:
-    return input(prompt)
+    present(prompt, end='', flush=True)  # prompt to stderr
+    return input('')                    # read from stdin; no prompt to stdout
   finally:
     readline.set_startup_hook(None)
 
