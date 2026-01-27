@@ -199,7 +199,7 @@ def print_options():
 
 
 def main():
-  print('selecting container...')
+  present('')
 
   selected = print_options()
   send(selected)
