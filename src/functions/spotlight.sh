@@ -65,12 +65,15 @@ spotlight_list_exclusions () {
   local magenta=$'\e[35m'
   local reset=$'\e[0m'
 
-  sudo /usr/libexec/PlistBuddy -c 'Print :Exclusions' /System/Volumes/Data/.Spotlight-V100/VolumeConfiguration.plist 2>/dev/null \
-    | grep '^    ' \
-    | sed 's/^    //' \
-    | sort \
-    | tee /dev/tty \
-    | /usr/bin/pbcopy
+  local cmd="sudo /usr/libexec/PlistBuddy -c 'Print :Exclusions' /System/Volumes/Data/.Spotlight-V100/VolumeConfiguration.plist"
+
+  {
+    printf '$ %s\n' "$cmd"
+    sudo /usr/libexec/PlistBuddy -c 'Print :Exclusions' /System/Volumes/Data/.Spotlight-V100/VolumeConfiguration.plist 2>/dev/null \
+      | grep '^    ' \
+      | sed 's/^    //' \
+      | sort
+  } | tee /dev/tty | /usr/bin/pbcopy
 
   echo
   printf 'Output stored to %sclipboard%s\n' "$magenta" "$reset"
