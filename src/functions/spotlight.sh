@@ -6,9 +6,7 @@ list_spotlight() {
 }
 
 
-spotlight_select_action () {
-  echo "spotlight_select_action"
-}
+
 spotlight_list_exclusions () {
   echo "spotlight_list_exclusions"
 }
@@ -17,4 +15,30 @@ spotlight_clean_exclusions () {
 }
 spotlight_add_exclusions () {
   echo "spotlight_add_exclusions"
+}
+
+spotlight_select_action () {
+  echo 'Select an action:'
+  echo '  1) list'
+  echo '  2) clean'
+  echo '  3) add'
+  printf '> '
+
+  read -r choice
+
+  case "$choice" in
+    1)
+      spotlight_list_exclusions
+      ;;
+    2)
+      spotlight_clean_exclusions
+      ;;
+    3)
+      spotlight_add_exclusions
+      ;;
+    *)
+      echo 'Invalid selection (expected 1-3)'
+      return 1
+      ;;
+  esac
 }
