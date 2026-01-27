@@ -16,15 +16,33 @@ for f in "$SCRIPT_DIR"/*.sh; do
   [[ -f "$f" ]] && source "$f"
 done
 
-function _sb_prod() {
+function _ssh_prod() {
   ssh-keygen -R ssh-app.spaceback.me
   ssh -i ~/.ssh/aws-eb -tt root@ssh-app.spaceback.me 'echo "echo \"RUN: cd ~ && source activate && cd /app && rails c\" && source /root/activate" | bash -s && bash -i'
 }
 
-function _sb_stage() {
+function _ssh_stage() {
   ssh-keygen -R ssh-app-stage.spaceback.me
   ssh -i ~/.ssh/aws-eb -tt root@ssh-app-stage.spaceback.me 'echo "echo \"RUN: cd ~ && source activate && cd /app && rails c\" && source /root/activate" | bash -s && bash -i'
 }
+
+_exec_amplify() {
+  local service="${1:-app}"
+
+  # confirm service exists in this compose project
+  if ! docker compose ps --services | grep -qx "${service}"; then
+    log "exec_amplify: unknown service '${service}'"
+    return 1
+  fi
+
+  # prefer bash if available; fall back to sh
+  if docker compose exec -T "${service}" /bin/bash -lc 'exit' >/dev/null 2>&1; then
+    docker compose exec -it "${service}" /bin/bash
+  else
+    docker compose exec -it "${service}" /bin/sh
+  fi
+}
+
 
 function sb() {
   local magenta="\033[35m"
