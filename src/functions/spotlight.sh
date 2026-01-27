@@ -26,23 +26,24 @@ spotlight_select_action () {
   # local primary=$'\e[33m'
   # local secondary=$'\e[93m'
 
+  local pipe=$'\e[90m'
   local reset=$'\e[0m'
 
   echo
-  printf '1) list     | %sspot%s %slist%s\n' "$primary" "$reset" "$secondary" "$reset"
-  printf '              %sspot%s %sls%s\n'   "$primary" "$reset" "$secondary" "$reset"
-  printf '              %sspot%s %sl%s\n'    "$primary" "$reset" "$secondary" "$reset"
+  printf '1) list     %s|%s %sspot%s %slist%s\n' "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
+  printf '            %s|%s %sspot%s %sls%s\n'   "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
+  printf '            %s|%s %sspot%s %sl%s\n'    "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
 
-  printf '2) clean    | %sspot%s %sclean%s\n' "$primary" "$reset" "$secondary" "$reset"
-  printf '              %sspot%s %sc%s\n'     "$primary" "$reset" "$secondary" "$reset"
+  printf '2) clean    %s|%s %sspot%s %sclean%s\n' "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
+  printf '            %s|%s %sspot%s %sc%s\n'     "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
 
-  printf '3) add      | %sspot%s %sadd%s\n'  "$primary" "$reset" "$secondary" "$reset"
-  printf '              %sspot%s %sa%s\n'    "$primary" "$reset" "$secondary" "$reset"
-  printf '              %sspot%s %shush%s\n' "$primary" "$reset" "$secondary" "$reset"
-  printf '              %sspot%s %sh%s\n'    "$primary" "$reset" "$secondary" "$reset"
+  printf '3) add      %s|%s %sspot%s %sadd%s\n'  "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
+  printf '            %s|%s %sspot%s %sa%s\n'    "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
+  printf '            %s|%s %sspot%s %shush%s\n' "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
+  printf '            %s|%s %sspot%s %sh%s\n'    "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
 
-  printf '4) watch    | %sspot%s %swatch%s\n' "$primary" "$reset" "$secondary" "$reset"
-  printf '              %sspot%s %sw%s\n'     "$primary" "$reset" "$secondary" "$reset"
+  printf '4) watch    %s|%s %sspot%s %swatch%s\n' "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
+  printf '            %s|%s %sspot%s %sw%s\n'     "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
 
   echo
   printf 'Selection: '
@@ -58,6 +59,7 @@ spotlight_select_action () {
     *) return 0 ;;
   esac
 }
+
 
 spotlight_list_exclusions () {
   sudo /usr/libexec/PlistBuddy -c "Print :Exclusions" /System/Volumes/Data/.Spotlight-V100/VolumeConfiguration.plist 2>/dev/null \
