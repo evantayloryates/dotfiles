@@ -14,7 +14,8 @@ COLORS = {
   'reset': '\033[0m',
 }
 
-SCRIPT_NAME = os.path.splitext(os.path.basename(__file__))[0]
+SCRIPT_NAME = os.path.basename(__file__)
+
 LOG_COLOR = COLORS['green']
 
 def print(*args, **kwargs):
