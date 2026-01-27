@@ -26,6 +26,89 @@ function _ssh_stage() {
   ssh -i ~/.ssh/aws-eb -tt root@ssh-app-stage.spaceback.me 'echo "echo \"RUN: cd ~ && source activate && cd /app && rails c\" && source /root/activate" | bash -s && bash -i'
 }
 
+_select_container() {
+  local choices=(
+    app
+    browser
+    browserless
+    client_webpack_dev
+    memcached
+    minio
+    nginx
+    ngrok
+    postgres_db
+    proxy
+    redis
+    sidekiq
+    webpack_dev
+  )
+
+  local i=0
+  while [ $i -lt ${#choices[@]} ]; do
+    printf '%s) %s\n' "$((i + 1))" "${choices[$i]}"
+    i=$((i + 1))
+  done
+
+  printf '\n'
+
+  local input
+  printf 'Selected: '
+  read -r input
+
+  if [ -z "${input}" ]; then
+    echo 'app'
+    return 0
+  fi
+
+  # integer 1-13
+  if echo "${input}" | grep -Eq '^[0-9]+$'; then
+    if [ "${input}" -ge 1 ] && [ "${input}" -le ${#choices[@]} ]; then
+      echo "${choices[$((input - 1))]}"
+      return 0
+    fi
+    echo ''
+    return 1
+  fi
+
+  # service name
+  i=0
+  while [ $i -lt ${#choices[@]} ]; do
+    if [ "${input}" = "${choices[$i]}" ]; then
+      echo "${input}"
+      return 0
+    fi
+    i=$((i + 1))
+  done
+
+  echo ''
+  return 1
+}
+
+_exec_amplify() {
+  local service="$1"
+
+  if [ -z "${service}" ]; then
+    service="$(_select_container)" || true
+    if [ -z "${service}" ]; then
+      log "exec_amplify: invalid selection"
+      return 1
+    fi
+  fi
+
+  # confirm service exists in this compose project
+  if ! docker compose ps --services | grep -qx "${service}"; then
+    log "exec_amplify: unknown service '${service}'"
+    return 1
+  fi
+
+  # prefer bash if available; fall back to sh
+  if docker compose exec -T "${service}" /bin/bash -lc 'exit' >/dev/null 2>&1; then
+    docker compose exec -it "${service}" /bin/bash
+  else
+    docker compose exec -it "${service}" /bin/sh
+  fi
+}
+
 _exec_amplify() {
   local service="${1:-app}"
 
