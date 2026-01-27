@@ -19,7 +19,7 @@ ls() {
   local DBLUE='%F{18}'
   
   # semantic colors
-  local ARROW="${GRAY} -> ${RESET}"
+  local ARROW_COLOR="${GRAY}"
   local FILE_LINK_SRC="${MAG_BOLD}"
   local FILE_LINK_DST="${LYELLOW}"
   local FILE="${BLUE}"
@@ -27,6 +27,8 @@ ls() {
   local DIRECTORY="${DBLUE}"
   local DIR_LINK_SRC="${MAG_BOLD}"
   local DIR_LINK_DST="${LYELLOW}"
+
+  local ARROW="${ARROW_COLOR} -> ${RESET}"
 
   _is_dir_link() {
     # symlink whose resolved target is a directory
