@@ -85,9 +85,11 @@ def resolve_selection(raw_value, options_sorted):
   return process_invalid_input(raw_value)
 
 
+TTY = open('/dev/tty', 'r')
+
 def read_input(prompt):
   present(prompt, end='', flush=True)
-  user_input = sys.stdin.readline()
+  user_input = TTY.readline()
   if not user_input:
     return ''
   return user_input.rstrip('\n')
