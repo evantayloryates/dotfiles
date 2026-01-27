@@ -73,9 +73,10 @@ spotlight_setup_index_suppression() {
   set -euo pipefail
 
   log() {
-    # shellcheck disable=SC2059
-    printf '[%s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$*"
-  }
+  # shellcheck disable=SC2059
+  printf '%s\n' "$*"
+}
+
 
   local DATA_VOL='/System/Volumes/Data'
   local MDS_PLIST='/System/Library/LaunchDaemons/com.apple.metadata.mds.plist'
