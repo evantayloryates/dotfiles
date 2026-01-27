@@ -14,7 +14,7 @@ ex      () { exiftool "$@"                                                      
 git     () { if [[ $# -eq 1 && "$1" == "branch" ]]; then gbs; else /usr/bin/git "$@"; fi                  ;} #
 ls      () { /bin/ls -AGhlo "$@"                                                                          ;} # 
 mkdir   () { [ "$#" -eq 1 ] && /bin/mkdir -pv "$1" || /bin/mkdir "$@"                                     ;} #
-o       () { open "$(pwd -P 2>/dev/null || pwd)"                                                          ;} # 
+o       () { if [ $# -eq 0 ]; then open "$(pwd -P 2>/dev/null || pwd)"; else open "$@"; fi                ;} # 
 path    () { python3 "$DOTFILES_DIR/src/python/path.py"                                                   ;} # 
 pip3    () { pip "$@"                                                                                     ;} # 
 py      () { python "$@"                                                                                  ;} # 
