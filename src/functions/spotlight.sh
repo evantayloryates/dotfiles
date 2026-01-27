@@ -21,13 +21,28 @@ spotlight_select_action () {
   local PS3='Select action: '
   local options=('list' 'clean' 'add')
   local opt
+  local _columns="$COLUMNS"
 
+  COLUMNS=1
   select opt in "${options[@]}"; do
     case "$opt" in
-      list)  spotlight_list_exclusions; break ;;
-      clean) spotlight_clean_exclusions; break ;;
-      add)   spotlight_add_exclusions; break ;;
-      *)     echo 'Invalid selection';;
+      list)
+        spotlight_list_exclusions
+        break
+        ;;
+      clean)
+        spotlight_clean_exclusions
+        break
+        ;;
+      add)
+        spotlight_add_exclusions
+        break
+        ;;
+      *)
+        echo 'Invalid selection'
+        ;;
     esac
   done
+
+  COLUMNS="$_columns"
 }
