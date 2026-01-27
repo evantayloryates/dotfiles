@@ -1,11 +1,11 @@
 RESERVED_SPOTLIGHT_EXCLUSION_DIR=/Users/taylor/hush-spotlight
 
 spotlight_select_action () {
-  # blue
+  # BLUE
   # local primary=$'\e[34m'
   # local secondary=$'\e[94m'
 
-  # cyan
+  # CYAN
   # local primary=$'\e[36m'
   # local secondary=$'\e[96m'
 
