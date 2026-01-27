@@ -1,29 +1,4 @@
-
-
-spotlight_list_exclusions () {
-  sudo /usr/libexec/PlistBuddy -c "Print :Exclusions" /System/Volumes/Data/.Spotlight-V100/VolumeConfiguration.plist 2>/dev/null \
-    | grep "^    " \
-    | sed 's/^    //' \
-    | sort
-}
-
 RESERVED_SPOTLIGHT_EXCLUSION_DIR=/Users/taylor/hush-spotlight
-
-spotlight_clean_exclusions() {
-  local PLIST="/System/Volumes/Data/.Spotlight-V100/VolumeConfiguration.plist"
-  local count=$(sudo /usr/libexec/PlistBuddy -c "Print :Exclusions" "$PLIST" | grep -c "^    ")
-  local removed=0
-
-  for ((i=count-1; i>=0; i--)); do
-    entry=$(sudo /usr/libexec/PlistBuddy -c "Print :Exclusions:$i" "$PLIST")
-    if [[ "$entry" != "$RESERVED_SPOTLIGHT_EXCLUSION_DIR" ]]; then
-      sudo /usr/libexec/PlistBuddy -c "Delete :Exclusions:$i" "$PLIST"
-      ((removed++))
-    fi
-  done
-
-  echo "Removed $removed exclusions (kept: $RESERVED_SPOTLIGHT_EXCLUSION_DIR)"
-}
 
 spotlight_select_action () {
   local magenta=$'\e[35m'
@@ -47,6 +22,30 @@ spotlight_select_action () {
   esac
 }
 
+
+spotlight_list_exclusions () {
+  sudo /usr/libexec/PlistBuddy -c "Print :Exclusions" /System/Volumes/Data/.Spotlight-V100/VolumeConfiguration.plist 2>/dev/null \
+    | grep "^    " \
+    | sed 's/^    //' \
+    | sort
+}
+
+spotlight_clean_exclusions() {
+  local PLIST="/System/Volumes/Data/.Spotlight-V100/VolumeConfiguration.plist"
+  local count=$(sudo /usr/libexec/PlistBuddy -c "Print :Exclusions" "$PLIST" | grep -c "^    ")
+  local removed=0
+
+  for ((i=count-1; i>=0; i--)); do
+    entry=$(sudo /usr/libexec/PlistBuddy -c "Print :Exclusions:$i" "$PLIST")
+    if [[ "$entry" != "$RESERVED_SPOTLIGHT_EXCLUSION_DIR" ]]; then
+      sudo /usr/libexec/PlistBuddy -c "Delete :Exclusions:$i" "$PLIST"
+      ((removed++))
+    fi
+  done
+
+  echo "Removed $removed exclusions (kept: $RESERVED_SPOTLIGHT_EXCLUSION_DIR)"
+}
+
 spotlight_add_exclusions() {
   local LIBRARY="$HOME/Library"
   local KEEP_LIBRARY=('Messages' 'Notes')
@@ -58,7 +57,7 @@ spotlight_add_exclusions() {
   local added=0
 
   for item in "$HOME"/*; do
-    if [[ "$item" != "$LIBRARY" && ! "$current" =~ "$item" ]]; then
+    if [[ "$item" != "$LIBRARY" && "$item" != "$RESERVED_SPOTLIGHT_EXCLUSION_DIR" && ! "$current" =~ "$item" ]]; then
       sudo /usr/libexec/PlistBuddy -c "Add :Exclusions: string $item" "$PLIST"
       ((added++))
     fi
