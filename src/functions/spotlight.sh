@@ -71,6 +71,7 @@ spotlight_list_exclusions () {
 
 spotlight_watch_exclusions () {
   local target="$RESERVED_SPOTLIGHT_EXCLUSION_DIR/watch.log"
+  local cmd='sudo fs_usage -w -f filesys mds mdworker_shared'
 
   # MAGENTA (match your menu colors)
   local magenta=$'\e[35m'
@@ -81,23 +82,31 @@ spotlight_watch_exclusions () {
   # clobber at start
   : > "$target" || return 1
 
-  # ensure we print the closing message on Ctrl+C / termination
-  trap '
+  spotlight_watch__cleanup () {
+    # copy "$ <cmd>\n<contents>" to clipboard
+    {
+      printf '$ %s\n' "$cmd"
+      cat "$target"
+    } | pbcopy
+
     echo
-    printf "%sLogs stored to %s%s\n" "$magenta" "$target" "$reset"
+    printf '%sLogs stored to %s and copied to clipboard%s\n' "$magenta" "$target" "$reset"
+  }
+
+  trap '
     trap - INT TERM
+    spotlight_watch__cleanup
     return 130
   ' INT TERM
 
+  # stream live to stdout while also writing the file
   sudo fs_usage -w -f filesys mds mdworker_shared 2>&1 \
     | tee "$target"
   local rc=${PIPESTATUS[0]}
 
   trap - INT TERM
 
-  echo
-  printf '%sLogs stored to %s%s\n' "$magenta" "$target" "$reset"
-
+  spotlight_watch__cleanup
   return "$rc"
 }
 
