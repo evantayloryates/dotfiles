@@ -46,11 +46,9 @@ function _select_container() {
 function _exec_amplify() {
   local service="$1"
 
+  service="$(_select_container "${service}")" || true
   if [ -z "${service}" ]; then
-    service="$(_select_container "${service}")" || true
-    if [ -z "${service}" ]; then
-      return 0
-    fi
+    return 0
   fi
 
   # confirm service exists in this compose project
