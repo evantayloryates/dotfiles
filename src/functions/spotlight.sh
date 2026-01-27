@@ -2,7 +2,7 @@ RESERVED_SPOTLIGHT_EXCLUSION_DIR=/Users/taylor/hush-spotlight
 
 spotlight_select_action () {
   local primary=$'\e[34m'
-local secondary=$'\e[94m'
+  local secondary=$'\e[94m'
 
   local reset=$'\e[0m'
 
