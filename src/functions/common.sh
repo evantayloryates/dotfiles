@@ -26,6 +26,9 @@ function _ssh_stage() {
   ssh -i ~/.ssh/aws-eb -tt root@ssh-app-stage.spaceback.me 'echo "echo \"RUN: cd ~ && source activate && cd /app && rails c\" && source /root/activate" | bash -s && bash -i'
 }
 
+_red() { printf '\033[31m%s\033[0m' "$1"; }
+_magenta() { printf '\033[35m%s\033[0m' "$1"; }
+
 function _select_container() {
   setopt localoptions ksharrays
 
@@ -59,20 +62,25 @@ function _select_container() {
   printf 'Selected: ' > "${tty}"
   IFS= read -r input < "${tty}"
 
+  # empty → default
   if [ -z "${input}" ]; then
     echo 'app'
     return 0
   fi
 
+  # numeric selection
   if echo "${input}" | grep -Eq '^[0-9]+$'; then
     if [ "${input}" -ge 1 ] && [ "${input}" -le ${#choices[@]} ]; then
       echo "${choices[$((input - 1))]}"
       return 0
     fi
+
+    log "$(_red 'Invalid input')"
     return 1
   fi
 
-  local i=0
+  # service name
+  i=0
   while [ $i -lt ${#choices[@]} ]; do
     if [ "${input}" = "${choices[$i]}" ]; then
       echo "${input}"
@@ -81,6 +89,7 @@ function _select_container() {
     i=$((i + 1))
   done
 
+  log "$(_red 'Invalid input')"
   return 1
 }
 
