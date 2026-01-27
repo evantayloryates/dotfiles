@@ -31,14 +31,21 @@ CONFIG = [
   p('nex',         '~/src/github/nexrender-scripts',    'ssh', commands={'ssh': '/Users/taylor/src/github/nexrender-scripts/scripts/local/ssh'}),
   p('notes',       '~/Desktop/notes'),
   p('pathfuncs',   '~/dotfiles/src/python/pathfuncs.py','cursor', aliases=['pathfunc', 'pathfns', 'pathfn', 'pathfuns', 'pathfun', 'pthfuncs', 'pthfunc', 'pthfns', 'pthfn', 'pthfuns', 'pthfun', 'pfuncs', 'pfunc', 'pfns', 'pfn', 'pfuns', 'pfun' ]),
-  p('spot',        '~/hush-spotlight',                  'select', commands={
+  p(
+  'spot',
+  '~/hush-spotlight',
+  'select',
+  aliases=['spotlight'],
+  commands={
     'select': 'spotlight_select_action',
     'list': 'spotlight_list_exclusions',
     'ls': 'spotlight_list_exclusions',
     'clean': 'spotlight_clean_exclusions',
     'hush': 'spotlight_add_exclusions',
     'add': 'spotlight_add_exclusions',
-  }),
+  },
+),
+
   p('s',           '~/src',                            ' cd'),
   p('screenshots', '~/Pictures/Screenshots',            'open', aliases=['ss', 'shots', 'screenshot']),
 ]
