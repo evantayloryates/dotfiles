@@ -22,10 +22,10 @@ ls() {
   local ARROW_COLOR="${GRAY}"
   local FILE_LINK_SRC="${MAG_BOLD}"
   local FILE_LINK_DST="${LYELLOW}"
-  local FILE="${BLUE}"
+  local FILE="${LYELLOW}"
   local EXECUTABLE_FILE="${RED}"
-  local DIRECTORY="${DBLUE}"
-  local DIR_LINK_SRC="${MAG_BOLD}"
+  local DIRECTORY="${BLUE}"
+  local DIR_LINK_SRC="${DBLUE}"
   local DIR_LINK_DST="${LYELLOW}"
 
   local ARROW="${ARROW_COLOR} -> ${RESET}"
@@ -58,10 +58,10 @@ ls() {
       dst=$(_replace_home "$dst")
       local src="${name}/"
       [[ -n $dst && $dst != */ ]] && dst="${dst}/"
-      print -rP -- "${MAG_BOLD}${src}${RESET}${ARROW}${LYELLOW}${dst}${RESET}"
+      print -rP -- "${DIR_LINK_SRC}${src}${RESET}${ARROW}${DIR_LINK_DST}${dst}${RESET}"
     else
-      # blue dir name + dark-blue trailing slash
-      print -rP -- "${BLUE}${name}${RESET}${DBLUE}/${RESET}"
+      # directory name + trailing slash
+      print -rP -- "${DIRECTORY}${name}${RESET}${DIRECTORY}/${RESET}"
     fi
   }
 
@@ -74,10 +74,10 @@ ls() {
     if [[ -L $p ]]; then
       local dst=$(_readlink "$p")
       dst=$(_replace_home "$dst")
-      print -rP -- "${MAG_BOLD}${name}${RESET}${ARROW}${LYELLOW}${dst}${RESET}"
+      print -rP -- "${FILE_LINK_SRC}${name}${RESET}${ARROW}${FILE_LINK_DST}${dst}${RESET}"
     else
       if [[ -x $p ]]; then
-        print -rP -- "${RED}${name}${RESET}"
+        print -rP -- "${EXECUTABLE_FILE}${name}${RESET}"
       else
         print -r -- "$name"
       fi
