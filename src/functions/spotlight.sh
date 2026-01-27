@@ -1,4 +1,89 @@
-spotlight_setup() {
+ 
+RESERVED_SPOTLIGHT_EXCLUSION_DIR=/Users/taylor/hush-spotlight
+
+spotlight_select_action () {
+
+  # MAGENTA
+  local primary=$'\e[35m'
+  local secondary=$'\e[95m'
+
+  # BLUE
+  # local primary=$'\e[34m'
+  # local secondary=$'\e[94m'
+
+  # CYAN
+  # local primary=$'\e[36m'
+  # local secondary=$'\e[96m'
+
+  # GREEN
+  # local primary=$'\e[32m'
+  # local secondary=$'\e[92m'
+
+  # RED
+  # local primary=$'\e[31m'
+  # local secondary=$'\e[91m'
+
+  # YELLOW
+  # local primary=$'\e[33m'
+  # local secondary=$'\e[93m'
+
+  local pipe=$'\e[90m'
+  local reset=$'\e[0m'
+
+  echo
+  printf '1) add       %s|%s %sspot%s %sadd%s\n'  "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
+  printf '             %s|%s %sspot%s %sa%s\n'     "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
+  printf '             %s|%s %sspot%s %shush%s\n'  "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
+  printf '             %s|%s %sspot%s %sh%s\n'     "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
+
+  printf '2) clean     %s|%s %sspot%s %sclean%s\n' "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
+  printf '             %s|%s %sspot%s %sc%s\n'     "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
+
+  printf '3) list      %s|%s %sspot%s %slist%s\n' "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
+  printf '             %s|%s %sspot%s %sls%s\n'    "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
+  printf '             %s|%s %sspot%s %sl%s\n'     "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
+
+  printf '4) watch     %s|%s %sspot%s %swatch%s\n' "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
+  printf '             %s|%s %sspot%s %sw%s\n'     "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
+
+  echo
+  printf 'Selection: '
+
+  read -r choice
+  echo
+
+  case "$choice" in
+    1) spotlight_add_exclusions ;;
+    2) spotlight_clean_exclusions ;;
+    3) spotlight_list_exclusions ;;
+    4) spotlight_watch_exclusions ;;
+    *) return 0 ;;
+  esac
+
+}
+
+spotlight_list_exclusions () {
+  local magenta=$'\e[35m'
+  local reset=$'\e[0m'
+
+  local cmd="sudo /usr/libexec/PlistBuddy -c 'Print :Exclusions' /System/Volumes/Data/.Spotlight-V100/VolumeConfiguration.plist \
+| grep '^    ' \
+| sed 's/^    //' \
+| sort"
+
+  {
+    printf '$ %s\n' "$cmd"
+    sudo /usr/libexec/PlistBuddy -c 'Print :Exclusions' /System/Volumes/Data/.Spotlight-V100/VolumeConfiguration.plist 2>/dev/null \
+      | grep '^    ' \
+      | sed 's/^    //' \
+      | sort
+  } | tee /dev/tty | /usr/bin/pbcopy
+
+  echo
+  printf 'Output stored to %sclipboard%s\n' "$magenta" "$reset"
+}
+
+spotlight_setup_index_suppression() {
   set -euo pipefail
 
   log() {
@@ -88,98 +173,6 @@ spotlight_setup() {
 
   log "Done."
 }
-
-
-
-# 
-# Note: none of this is really respected, but I'll leave for now
-# 
-
-RESERVED_SPOTLIGHT_EXCLUSION_DIR=/Users/taylor/hush-spotlight
-
-spotlight_select_action () {
-
-  # MAGENTA
-  local primary=$'\e[35m'
-  local secondary=$'\e[95m'
-
-  # BLUE
-  # local primary=$'\e[34m'
-  # local secondary=$'\e[94m'
-
-  # CYAN
-  # local primary=$'\e[36m'
-  # local secondary=$'\e[96m'
-
-  # GREEN
-  # local primary=$'\e[32m'
-  # local secondary=$'\e[92m'
-
-  # RED
-  # local primary=$'\e[31m'
-  # local secondary=$'\e[91m'
-
-  # YELLOW
-  # local primary=$'\e[33m'
-  # local secondary=$'\e[93m'
-
-  local pipe=$'\e[90m'
-  local reset=$'\e[0m'
-
-  echo
-  printf '1) add       %s|%s %sspot%s %sadd%s\n'  "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
-  printf '             %s|%s %sspot%s %sa%s\n'     "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
-  printf '             %s|%s %sspot%s %shush%s\n'  "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
-  printf '             %s|%s %sspot%s %sh%s\n'     "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
-
-  printf '2) clean     %s|%s %sspot%s %sclean%s\n' "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
-  printf '             %s|%s %sspot%s %sc%s\n'     "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
-
-  printf '3) list      %s|%s %sspot%s %slist%s\n' "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
-  printf '             %s|%s %sspot%s %sls%s\n'    "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
-  printf '             %s|%s %sspot%s %sl%s\n'     "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
-
-  printf '4) watch     %s|%s %sspot%s %swatch%s\n' "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
-  printf '             %s|%s %sspot%s %sw%s\n'     "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
-
-  echo
-  printf 'Selection: '
-
-  read -r choice
-  echo
-
-  case "$choice" in
-    1) spotlight_add_exclusions ;;
-    2) spotlight_clean_exclusions ;;
-    3) spotlight_list_exclusions ;;
-    4) spotlight_watch_exclusions ;;
-    *) return 0 ;;
-  esac
-
-}
-
-spotlight_list_exclusions () {
-  local magenta=$'\e[35m'
-  local reset=$'\e[0m'
-
-  local cmd="sudo /usr/libexec/PlistBuddy -c 'Print :Exclusions' /System/Volumes/Data/.Spotlight-V100/VolumeConfiguration.plist \
-| grep '^    ' \
-| sed 's/^    //' \
-| sort"
-
-  {
-    printf '$ %s\n' "$cmd"
-    sudo /usr/libexec/PlistBuddy -c 'Print :Exclusions' /System/Volumes/Data/.Spotlight-V100/VolumeConfiguration.plist 2>/dev/null \
-      | grep '^    ' \
-      | sed 's/^    //' \
-      | sort
-  } | tee /dev/tty | /usr/bin/pbcopy
-
-  echo
-  printf 'Output stored to %sclipboard%s\n' "$magenta" "$reset"
-}
-
-
 
 spotlight_watch_exclusions () {
   local target="$RESERVED_SPOTLIGHT_EXCLUSION_DIR/watch.log"
