@@ -52,10 +52,6 @@ function _exec_amplify() {
   fi
 
   echo "service: ${service}"
-  # if service is empty, return 0
-  if [ -z "${service}" ]; then
-    return 0
-  fi
 
   # confirm service exists in this compose project
   if ! docker compose ps --services | grep -qx "${service}"; then
