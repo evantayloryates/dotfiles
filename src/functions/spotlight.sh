@@ -7,8 +7,22 @@ spotlight_list_exclusions () {
     | sort
 }
 
-spotlight_clean_exclusions () {
-  echo "spotlight_clean_exclusions"
+RESERVED_SPOTLIGHT_EXCLUSION_DIR=/Users/taylor/hush-spotlight
+
+spotlight_clean_exclusions() {
+  local PLIST="/System/Volumes/Data/.Spotlight-V100/VolumeConfiguration.plist"
+  local count=$(sudo /usr/libexec/PlistBuddy -c "Print :Exclusions" "$PLIST" | grep -c "^    ")
+  local removed=0
+
+  for ((i=count-1; i>=0; i--)); do
+    entry=$(sudo /usr/libexec/PlistBuddy -c "Print :Exclusions:$i" "$PLIST")
+    if [[ "$entry" != "$RESERVED_SPOTLIGHT_EXCLUSION_DIR" ]]; then
+      sudo /usr/libexec/PlistBuddy -c "Delete :Exclusions:$i" "$PLIST"
+      ((removed++))
+    fi
+  done
+
+  echo "Removed $removed exclusions (kept: $RESERVED_SPOTLIGHT_EXCLUSION_DIR)"
 }
 
 spotlight_select_action () {
