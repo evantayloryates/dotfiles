@@ -69,7 +69,7 @@ def print_options():
   present('')
 
   default_input = '1'
-  present(f'Selected: {default_input}\033[32m')
+  present(f'Selected: {default_input}', end='', flush=True)
   input_value = default_input
   try:
     user_input = sys.stdin.readline()
