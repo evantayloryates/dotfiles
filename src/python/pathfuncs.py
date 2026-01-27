@@ -18,6 +18,7 @@ CONFIG = [
   p('amp',        '~/src/github/amplify', aliases=['amplify'], commands={
     'disable': 'safemv <path>/.git/hooks/pre-commit <path>/.git/hooks/pre-commit.disabled && echo "pre-commit disabled" || echo "failed to disable"',
     'enable': 'safemv <path>/.git/hooks/pre-commit.disabled <path>/.git/hooks/pre-commit && echo "pre-commit enabled" || echo "failed to enable"',
+    'ssh': "_sb_prod",
     'prod': "_sb_prod",
     'stage': "_sb_stage",
   }),
