@@ -1,27 +1,27 @@
 RESERVED_SPOTLIGHT_EXCLUSION_DIR=/Users/taylor/hush-spotlight
 
 spotlight_select_action () {
-  local primary=$'\e[94m'
-  local secondary=$'\e[34m'
+  local primary=$'\e[34m'
+  local secondary=$'\e[94m'
 
   local reset=$'\e[0m'
 
   echo
   printf '1) list      | %sspot%s %slist%s/%sls%s/%sl%s\n' \
-    "$secondary" "$reset" \
-    "$primary" "$reset" "$primary" "$reset" "$primary" "$reset"
+    "$primary" "$reset" \
+    "$secondary" "$reset" "$secondary" "$reset" "$secondary" "$reset"
 
   printf '2) clean     | %sspot%s %sclean%s/%sc%s\n' \
-    "$secondary" "$reset" \
-    "$primary" "$reset" "$primary" "$reset"
+    "$primary" "$reset" \
+    "$secondary" "$reset" "$secondary" "$reset"
 
   printf '3) add       | %sspot%s %sadd%s/%sa%s/%shush%s/%sh%s\n' \
-    "$secondary" "$reset" \
-    "$primary" "$reset" "$primary" "$reset" "$primary" "$reset" "$primary" "$reset"
+    "$primary" "$reset" \
+    "$secondary" "$reset" "$secondary" "$reset" "$secondary" "$reset" "$secondary" "$reset"
 
   printf '4) watch     | %sspot%s %swatch%s/%sw%s\n' \
-    "$secondary" "$reset" \
-    "$primary" "$reset" "$primary" "$reset"
+    "$primary" "$reset" \
+    "$secondary" "$reset" "$secondary" "$reset"
 
   echo
   printf 'Selection: '
