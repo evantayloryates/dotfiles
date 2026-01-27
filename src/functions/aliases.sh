@@ -18,14 +18,6 @@ gb      () { git branch "$@"                                                    
 gl      () { git log --oneline "$@"                                                                       ;} # 
 gp      () { git push "$@"                                                                                ;} # 
 lsa     () { /bin/ls -AGhlo "$@"                                                                          ;} # 
-# ls() {
-#   {
-#     /bin/ls -AGhlo1d "$@" */ 2>/dev/null
-#     /bin/ls -AGhlo1p "$@" 2>/dev/null | awk '!/\/$/'
-#   }
-# }
-
-# ls      () { { /bin/ls -AGhlo1d "$@" */ 2>/dev/null; /bin/ls -AGhlo1 "$@" 2>/dev/null | awk '!/\/$/' ; }          ;} # 
 mkdir   () { [ "$#" -eq 1 ] && /bin/mkdir -pv "$1" || /bin/mkdir "$@"                                     ;} #
 o       () { if [ $# -eq 0 ]; then open "$(pwd -P 2>/dev/null || pwd)"; else open "$@"; fi                ;} # 
 path    () { python3 "$DOTFILES_DIR/src/python/path.py"                                                   ;} # 
