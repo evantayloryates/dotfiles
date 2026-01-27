@@ -92,7 +92,7 @@ def process_invalid_input(user_input):
     return ''
 
 
-def resolve_selection(raw_value, options_sorted):
+def lookup_option(raw_value, options_sorted):
     v = (raw_value or '').strip()
 
     # 1) empty
@@ -126,6 +126,10 @@ def resolve_selection(raw_value, options_sorted):
     return process_invalid_input(raw_value)
 
 
+def resolve_selection(raw_value, options_sorted):
+    return lookup_option(raw_value, options_sorted)
+
+
 def present_options():
     options = sorted(OPTIONS, key=lambda o: o['name'])
     print_options(options)
@@ -139,6 +143,7 @@ def present_options():
 def main():
     incoming = sys.stdin.readline()
     incoming = incoming.rstrip('\n') if incoming else ''
+    resolve_selection(incoming, OPTIONS)
     present(f'incoming: {incoming}')
 
     present('')
