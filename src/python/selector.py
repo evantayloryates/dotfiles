@@ -99,7 +99,7 @@ def process_invalid_input(clean_input):
     return ''
 
 
-def lookup_option(clean_input, options_sorted, allow_index=True):
+def lookup_option(clean_input, options_sorted, allow_index=False):
     v = clean_input
 
     # 1) empty
@@ -134,7 +134,7 @@ def lookup_option(clean_input, options_sorted, allow_index=True):
 
 
 def resolve_selection(clean_input, options_sorted):
-    opt = lookup_option(clean_input, options_sorted)
+    opt = lookup_option(clean_input, options_sorted, allow_index=True)
     if opt is None:
         return process_invalid_input(clean_input), None
 
@@ -151,16 +151,13 @@ def present_options():
     return resolve_selection(clean_input, options)
 
 
-def preresolve_from_input(incoming):
-    return lookup_option(incoming, sorted_options(), allow_index=False)
+def preresolve_from_input():
+    clean_input = clean_input(sys.stdin.readline())
+    return lookup_option(clean_input, sorted_options())
 
 
 def main():
-    incoming = sys.stdin.readline()
-    incoming = incoming.rstrip('\n') if incoming else ''
-
-    result_option = lookup_option(
-        incoming, sorted_options(), allow_index=False)
+    result_option = preresolve_from_input()
     present(f'result_option: {result_option}')
 
     present('')
