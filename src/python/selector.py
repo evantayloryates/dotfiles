@@ -82,7 +82,6 @@ def print_options():
 
 def main():
   print('selecting container...')
-  send('app')
 
-if __name__ == '__main__':
-  main()
+  selected = print_options()
+  send(selected)
