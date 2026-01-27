@@ -39,7 +39,7 @@ function __log() {
 }
 
 function _select_container() {
-  "${DOTFILES_DIR}/src/python/selector.py"
+  python3 "${DOTFILES_DIR}/src/python/selector.py"
 }
 
 
