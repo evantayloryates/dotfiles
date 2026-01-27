@@ -51,6 +51,11 @@ function _exec_amplify() {
     return 0
   fi
 
+  # if service is empty, return 0
+  if [ -z "${service}" ]; then
+    return 0
+  fi
+
   # confirm service exists in this compose project
   if ! docker compose ps --services | grep -qx "${service}"; then
     __log "$(_red "exec_amplify: unknown service '${service}'")"
