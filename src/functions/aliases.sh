@@ -42,7 +42,6 @@ alias password="python3 $DOTFILES_DIR/src/python/password.py"
 alias words="open $DOTFILES_DIR/src/__data/words.txt"
 
 ls() {
-  # >= 2 args: passthrough to BSD ls
   if (( $# >= 2 )); then
     /bin/ls "$@"
     return $?
@@ -53,91 +52,81 @@ ls() {
 
   local target=${1:-.}
 
-  # Colors (256-color)
-  local C_RESET='%f%b'
-  local C_RED='%F{red}'
-  local C_MAG_BOLD='%B%F{magenta}'
-  local C_GRAY='%F{244}'
-  local C_LYELLOW='%F{229}'
-  local C_BLUE='%F{33}'
-  local C_DBLUE='%F{18}'
+  # Colors (zsh prompt sequences; use print -P)
+  local RESET='%f%b'
+  local RED='%F{red}'
+  local MAG_BOLD='%B%F{magenta}'
+  local GRAY='%F{244}'
+  local LYELLOW='%F{229}'
+  local BLUE='%F{33}'
+  local DBLUE='%F{18}'
+  local ARROW="${GRAY} -> ${RESET}"
 
-  zmodload -F zsh/stat b:zstat 2>/dev/null || true
+  _is_dir_link() {
+    # symlink whose resolved target is a directory
+    local p=$1
+    [[ -L $p && -d $p ]]
+  }
 
-  # Formatters
-  local -r arrow="${C_GRAY} -> ${C_RESET}"
+  _readlink() {
+    command readlink -- "$1" 2>/dev/null
+  }
+
+  _print_dir() {
+    local p=$1
+    local name=${p:t}
+
+    [[ $name == '.DS_Store' || $name == '.' || $name == '..' ]] && return 0
+
+    if _is_dir_link "$p"; then
+      local dst=$(_readlink "$p")
+      local src="${name}/"
+      [[ -n $dst && $dst != */ ]] && dst="${dst}/"
+      print -rP -- "${MAG_BOLD}${src}${RESET}${ARROW}${LYELLOW}${dst}${RESET}"
+    else
+      # blue dir name + dark-blue trailing slash
+      print -rP -- "${BLUE}${name}${RESET}${DBLUE}/${RESET}"
+    fi
+  }
 
   _print_file() {
     local p=$1
     local name=${p:t}
-    [[ $name == '.' || $name == '..' || $name == '.DS_Store' ]] && return 0
+
+    [[ $name == '.DS_Store' || $name == '.' || $name == '..' ]] && return 0
 
     if [[ -L $p ]]; then
-      local dst
-      dst=$(command readlink -- "$p" 2>/dev/null || true)
-
-      # Executable if the resolved target is executable
-      local file_color=''
-      [[ -x $p ]] && file_color=$C_RED
-
-      print -rP -- "${C_MAG_BOLD}${name}${C_RESET}${arrow}${C_LYELLOW}${dst}${C_RESET}"
+      local dst=$(_readlink "$p")
+      print -rP -- "${MAG_BOLD}${name}${RESET}${ARROW}${LYELLOW}${dst}${RESET}"
     else
       if [[ -x $p ]]; then
-        print -rP -- "${C_RED}${name}${C_RESET}"
+        print -rP -- "${RED}${name}${RESET}"
       else
         print -r -- "$name"
       fi
     fi
   }
 
-  _print_dir() {
-    local p=$1
-    local name=${p:t}
-    [[ $name == '.' || $name == '..' || $name == '.DS_Store' ]] && return 0
-
-    if [[ -L $p ]]; then
-      local dst
-      dst=$(command readlink -- "$p" 2>/dev/null || true)
-
-      # ensure trailing slashes for src/dst
-      [[ $name != */ ]] && name="${name}/"
-      [[ $dst != */ ]] && dst="${dst}/"
-
-      print -rP -- "${C_MAG_BOLD}${name}${C_RESET}${arrow}${C_LYELLOW}${dst}${C_RESET}"
-    else
-      # blue dir name + dark-blue slash
-      print -rP -- "${C_BLUE}${name}${C_RESET}${C_DBLUE}/${C_RESET}"
-    fi
-  }
-
-  _sort_ci_hidden_first() {
-    # args: list of paths; output: sorted paths
+  _sort_hidden_first_ci() {
+    # Input: paths; Output: sorted paths (hidden first, case-insensitive)
     local -a hidden=() normal=()
     local p base
-
     for p in "$@"; do
       base=${p:t}
       [[ $base == .* ]] && hidden+=("$p") || normal+=("$p")
     done
 
-    local -a out=() s
-
     if (( ${#hidden[@]} )); then
-      s=("${(@f)$(printf '%s\n' "${hidden[@]}" | LC_ALL=C sort -f)}")
-      out+=("${s[@]}")
+      printf '%s\n' "${hidden[@]}" | LC_ALL=C sort -f
     fi
-
     if (( ${#normal[@]} )); then
-      s=("${(@f)$(printf '%s\n' "${normal[@]}" | LC_ALL=C sort -f)}")
-      out+=("${s[@]}")
+      printf '%s\n' "${normal[@]}" | LC_ALL=C sort -f
     fi
-
-    print -r -- "${out[@]}"
   }
 
-  # If target is a file/symlink: print just that one entry with custom styling
+  # If target is not a directory (or is a symlink), format just that entry
   if [[ ! -d $target || -L $target ]]; then
-    if [[ -d $target && -L $target ]]; then
+    if _is_dir_link "$target" || ([[ -d $target && ! -L $target ]]); then
       _print_dir "$target"
     else
       _print_file "$target"
@@ -145,36 +134,33 @@ ls() {
     return 0
   fi
 
-  # Directory listing (contents)
-  local -a entries=() dirs=() files=()
-  # include both visible and hidden (excluding . and .. via the pattern)
-  entries+=("$target"/*(N) "$target"/.*~"$target"/.(|.)(N))
+  # Directory contents: use zsh glob qualifiers to avoid '.' and '..'
+  # (D) include dotfiles, (N) nullglob
+  local -a entries
+  entries=( "$target"/*(DN) )
 
-  local p bn
+  # Split into dirs (including dir symlinks) vs files (including file symlinks)
+  local -a dirs files
+  local p
   for p in "${entries[@]}"; do
-    bn=${p:t}
+    local bn=${p:t}
     [[ $bn == '.DS_Store' ]] && continue
 
     if [[ -d $p && ! -L $p ]]; then
       dirs+=("$p")
-    elif [[ -L $p && -d $p ]]; then
-      # symlink that resolves to a dir -> treat as dir link
+    elif _is_dir_link "$p"; then
       dirs+=("$p")
     else
       files+=("$p")
     fi
   done
 
-  local -a sorted_dirs sorted_files
-  sorted_dirs=("${(@f)$(_sort_ci_hidden_first "${dirs[@]}")}")
-  sorted_files=("${(@f)$(_sort_ci_hidden_first "${files[@]}")}")
+  local line
+  while IFS= read -r line; do
+    [[ -n $line ]] && _print_dir "$line"
+  done < <(_sort_hidden_first_ci "${dirs[@]}")
 
-  local item
-  for item in "${sorted_dirs[@]}"; do
-    _print_dir "$item"
-  done
-
-  for item in "${sorted_files[@]}"; do
-    _print_file "$item"
-  done
+  while IFS= read -r line; do
+    [[ -n $line ]] && _print_file "$line"
+  done < <(_sort_hidden_first_ci "${files[@]}")
 }
