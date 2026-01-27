@@ -1,14 +1,10 @@
-list_spotlight() {
+
+
+spotlight_list_exclusions () {
   sudo /usr/libexec/PlistBuddy -c "Print :Exclusions" /System/Volumes/Data/.Spotlight-V100/VolumeConfiguration.plist 2>/dev/null \
     | grep "^    " \
     | sed 's/^    //' \
     | sort
-}
-
-
-
-spotlight_list_exclusions () {
-  echo "spotlight_list_exclusions"
 }
 spotlight_clean_exclusions () {
   echo "spotlight_clean_exclusions"
