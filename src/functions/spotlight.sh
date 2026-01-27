@@ -2,23 +2,24 @@ RESERVED_SPOTLIGHT_EXCLUSION_DIR=/Users/taylor/hush-spotlight
 
 spotlight_select_action () {
   local magenta=$'\e[35m'
+  local light_magenta=$'\e[95m'
   local reset=$'\e[0m'
 
   echo
   printf '1) list      | %sspot%s %slist%s/%sls%s/%sl%s\n' \
-    "$magenta" "$reset" \
+    "$light_magenta" "$reset" \
     "$magenta" "$reset" "$magenta" "$reset" "$magenta" "$reset"
 
   printf '2) clean     | %sspot%s %sclean%s/%sc%s\n' \
-    "$magenta" "$reset" \
+    "$light_magenta" "$reset" \
     "$magenta" "$reset" "$magenta" "$reset"
 
   printf '3) add       | %sspot%s %sadd%s/%sa%s/%shush%s/%sh%s\n' \
-    "$magenta" "$reset" \
+    "$light_magenta" "$reset" \
     "$magenta" "$reset" "$magenta" "$reset" "$magenta" "$reset" "$magenta" "$reset"
 
   printf '4) watch     | %sspot%s %swatch%s/%sw%s\n' \
-    "$magenta" "$reset" \
+    "$light_magenta" "$reset" \
     "$magenta" "$reset" "$magenta" "$reset"
 
   echo
@@ -35,6 +36,7 @@ spotlight_select_action () {
     *) return 0 ;;
   esac
 }
+
 
 
 spotlight_list_exclusions () {
