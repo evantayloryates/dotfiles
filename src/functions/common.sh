@@ -113,3 +113,42 @@ clipsend() {
   mv "$tmp" "$out"
   printf '%s\n' "$out"
 }
+
+say() {
+  local target_vol=25
+
+  if [[ $# -gt 0 && $1 =~ ^[0-9]{1,3}$ ]] && (( $1 >= 0 && $1 <= 100 )); then
+    target_vol=$1
+    shift
+  fi
+
+  # Build argv for /usr/bin/say with proper escaping via printf %q
+  local args=()
+  while (( $# )); do
+    args+=("$1")
+    shift
+  done
+
+  local say_cmd='/usr/bin/say'
+  if (( ${#args[@]} )); then
+    local q
+    for q in "${args[@]}"; do
+      say_cmd+=" $(printf '%q' "$q")"
+    done
+  fi
+
+  osascript -e 'on run argv
+    set targetVol to (item 1 of argv) as integer
+    set sayCmd to item 2 of argv
+
+    set ogVol to output volume of (get volume settings)
+    set volume output volume targetVol
+    try
+      do shell script sayCmd
+    on error errMsg number errNum
+      set volume output volume ogVol
+      error errMsg number errNum
+    end try
+    set volume output volume ogVol
+  end run' "$target_vol" "$say_cmd"
+}
