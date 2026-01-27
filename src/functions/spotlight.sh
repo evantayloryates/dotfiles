@@ -5,8 +5,9 @@ spotlight_select_action () {
   # local primary=$'\e[34m'
   # local secondary=$'\e[94m'
 
-  local primary=$'\e[36m'
-  local secondary=$'\e[96m'
+  # cyan
+  # local primary=$'\e[36m'
+  # local secondary=$'\e[96m'
 
   local reset=$'\e[0m'
 
