@@ -13,12 +13,8 @@ bench() {
   local reset='\033[0m'
 
   # --- colors --------------------------------------------------------------
-  local red='\033[31m'
-
-  # Greens (number darker, unit lighter)
-  local green="$(fg_rgb 0 180 0)"       # number
-  local green_dark="$(fg_rgb 0 144 0)"       # number
-  # local green_light="$(fg_rgb 0 255 160)"    # unit
+  local green="$(fg_rgb 0 180 0)"
+  local green_dark="$(fg_rgb 0 144 0)"
 
   local result_prefix_color="${red}"
   local result_number_color="${green}"
