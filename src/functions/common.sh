@@ -39,8 +39,10 @@ function __log() {
 }
 
 function _select_container() {
-  python3 "${DOTFILES_DIR}/src/python/selector.py"
+  local initial_input="$1"
+  printf '%s\n' "${initial_input}" | python3 "${DOTFILES_DIR}/src/python/selector.py"
 }
+
 
 
 function _exec_amplify() {
