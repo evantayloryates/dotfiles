@@ -135,9 +135,10 @@ def lookup_option(clean_input, options_sorted, allow_index=True):
 
 
 def resolve_selection(raw_value, options_sorted):
-    opt = lookup_option(raw_value, options_sorted)
+    clean_input = clean_input(raw_value)
+    opt = lookup_option(clean_input, options_sorted)
     if opt is None:
-        return process_invalid_input(raw_value)
+        return process_invalid_input(clean_input)
 
     return opt['name']
 
