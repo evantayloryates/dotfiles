@@ -71,10 +71,9 @@ function _select_container() {
   printf 'Selected: ' > "${tty}"
   IFS= read -r input < "${tty}"
 
-  # empty → default
+  # empty → default to "1"
   if [ -z "${input}" ]; then
-    echo 'app'
-    return 0
+    input='1'
   fi
 
   # numeric selection
@@ -101,6 +100,7 @@ function _select_container() {
   __log "$(_red 'Invalid input')"
   return 1
 }
+
 
 function _exec_amplify() {
   local service="$1"
