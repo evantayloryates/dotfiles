@@ -1,26 +1,27 @@
 RESERVED_SPOTLIGHT_EXCLUSION_DIR=/Users/taylor/hush-spotlight
 
 spotlight_select_action () {
-  local magenta=$'\e[35m'
-  local light_magenta=$'\e[95m'
+  local primary=$'\e[34m'
+local secondary=$'\e[94m'
+
   local reset=$'\e[0m'
 
   echo
   printf '1) list      | %sspot%s %slist%s/%sls%s/%sl%s\n' \
-    "$light_magenta" "$reset" \
-    "$magenta" "$reset" "$magenta" "$reset" "$magenta" "$reset"
+    "$secondary" "$reset" \
+    "$primary" "$reset" "$primary" "$reset" "$primary" "$reset"
 
   printf '2) clean     | %sspot%s %sclean%s/%sc%s\n' \
-    "$light_magenta" "$reset" \
-    "$magenta" "$reset" "$magenta" "$reset"
+    "$secondary" "$reset" \
+    "$primary" "$reset" "$primary" "$reset"
 
   printf '3) add       | %sspot%s %sadd%s/%sa%s/%shush%s/%sh%s\n' \
-    "$light_magenta" "$reset" \
-    "$magenta" "$reset" "$magenta" "$reset" "$magenta" "$reset" "$magenta" "$reset"
+    "$secondary" "$reset" \
+    "$primary" "$reset" "$primary" "$reset" "$primary" "$reset" "$primary" "$reset"
 
   printf '4) watch     | %sspot%s %swatch%s/%sw%s\n' \
-    "$light_magenta" "$reset" \
-    "$magenta" "$reset" "$magenta" "$reset"
+    "$secondary" "$reset" \
+    "$primary" "$reset" "$primary" "$reset"
 
   echo
   printf 'Selection: '
