@@ -31,6 +31,9 @@ ls() {
 
   local COLUMN_PADDING=2
   local LEFT_PAD_ARROW_GAP=1
+  local CACHE_ENABLED=0 # 0 or 1
+  # Pre-compute gap string once
+  local GAP_STR=$(printf '%*s' $LEFT_PAD_ARROW_GAP '')
 
   _is_dir_link() {
     # symlink whose resolved target is a directory
@@ -77,7 +80,8 @@ ls() {
     # Account for gap: total_chars - gap - 1 dashes, then the >
     local dash_count=$((total_chars > gap + 1 ? total_chars - gap - 1 : 0))
     if (( dash_count > 0 )); then
-      local dashes=$(printf '%*s' $dash_count '' | tr ' ' '-')
+      # Generate dashes efficiently using printf (faster than tr subprocess)
+      local dashes=$(printf '%.0s-' {1..$dash_count} 2>/dev/null || printf '%*s' $dash_count '' | tr ' ' '-')
       print -rP -- "${ARROW_COLOR}${dashes}>${RESET}"
     else
       print -rP -- "${ARROW_COLOR}>${RESET}"
@@ -88,18 +92,27 @@ ls() {
     local p=$1
     local name=${p:t}
     local width=${2:-0}
+    local cached_target=$3  # Optional: cached readlink result
 
     [[ $name == '.DS_Store' || $name == '.' || $name == '..' ]] && return 0
 
-    if _is_dir_link "$p"; then
+    # Use cached target if provided, otherwise check file system
+    if [[ -n $cached_target ]]; then
+      local dst=$(_replace_home "$cached_target")
+      local src="${name}/"
+      [[ -n $dst && $dst != */ ]] && dst="${dst}/"
+      local display_width=$((${#name} + 1))
+      local arrow=$(_make_arrow $display_width $width $LEFT_PAD_ARROW_GAP)
+      print -rP -- "${DIR_LINK_SRC}${src}${RESET}${GAP_STR}${arrow} ${DIR_LINK_DST}${dst}${RESET}"
+    elif [[ -L $p && -d $p ]]; then
+      # Fallback: not cached, check file system
       local dst=$(_readlink "$p")
       dst=$(_replace_home "$dst")
       local src="${name}/"
       [[ -n $dst && $dst != */ ]] && dst="${dst}/"
       local display_width=$((${#name} + 1))
-      local gap_str=$(printf '%*s' $LEFT_PAD_ARROW_GAP '')
       local arrow=$(_make_arrow $display_width $width $LEFT_PAD_ARROW_GAP)
-      print -rP -- "${DIR_LINK_SRC}${src}${RESET}${gap_str}${arrow} ${DIR_LINK_DST}${dst}${RESET}"
+      print -rP -- "${DIR_LINK_SRC}${src}${RESET}${GAP_STR}${arrow} ${DIR_LINK_DST}${dst}${RESET}"
     else
       # directory name + trailing slash
       print -rP -- "${DIRECTORY}${name}${RESET}${DIRECTORY}/${RESET}"
@@ -110,16 +123,23 @@ ls() {
     local p=$1
     local name=${p:t}
     local width=${2:-0}
+    local cached_target=$3  # Optional: cached readlink result
 
     [[ $name == '.DS_Store' || $name == '.' || $name == '..' ]] && return 0
 
-    if [[ -L $p ]]; then
+    if [[ -n $cached_target ]]; then
+      # Use cached target
+      local dst=$(_replace_home "$cached_target")
+      local display_width=${#name}
+      local arrow=$(_make_arrow $display_width $width $LEFT_PAD_ARROW_GAP)
+      print -rP -- "${FILE_LINK_SRC}${name}${RESET}${GAP_STR}${arrow} ${FILE_LINK_DST}${dst}${RESET}"
+    elif [[ -L $p ]]; then
+      # Fallback: not cached, check file system
       local dst=$(_readlink "$p")
       dst=$(_replace_home "$dst")
       local display_width=${#name}
-      local gap_str=$(printf '%*s' $LEFT_PAD_ARROW_GAP '')
       local arrow=$(_make_arrow $display_width $width $LEFT_PAD_ARROW_GAP)
-      print -rP -- "${FILE_LINK_SRC}${name}${RESET}${gap_str}${arrow} ${FILE_LINK_DST}${dst}${RESET}"
+      print -rP -- "${FILE_LINK_SRC}${name}${RESET}${GAP_STR}${arrow} ${FILE_LINK_DST}${dst}${RESET}"
     else
       if [[ -x $p ]]; then
         print -rP -- "${EXECUTABLE_FILE}${name}${RESET}"
@@ -161,37 +181,73 @@ ls() {
   local -a entries
   entries=( "$target"/*(DN) )
 
-  # Split into dirs (including dir symlinks) vs files (including file symlinks)
+  # Single pass: split into dirs/files, calculate max width, and cache symlink targets
+  # Use associative arrays to cache file type and readlink results
+  typeset -A link_targets
   local -a dirs files
-  local p
+  local max_width=0
+  local p bn name w is_link is_dir is_dir_link
+
   for p in "${entries[@]}"; do
-    local bn=${p:t}
+    bn=${p:t}
     [[ $bn == '.DS_Store' ]] && continue
 
-    if [[ -d $p && ! -L $p ]]; then
+    name=$bn
+    is_link=0
+    is_dir=0
+    is_dir_link=0
+
+    # Single file system check per entry
+    if [[ -L $p ]]; then
+      is_link=1
+      # Cache readlink result only if caching is enabled
+      if (( CACHE_ENABLED )); then
+        link_targets[$p]=$(_readlink "$p")
+      fi
+      # Check if symlink target is a directory (cached for later use)
+      [[ -d $p ]] && is_dir_link=1
+    elif [[ -d $p ]]; then
+      is_dir=1
+    fi
+
+    # Calculate display width immediately (avoid function call overhead)
+    if (( is_dir_link )); then
+      w=$((${#name} + 1))
       dirs+=("$p")
-    elif _is_dir_link "$p"; then
+    elif (( is_dir )); then
+      w=$((${#name} + 1))
       dirs+=("$p")
     else
+      w=${#name}
       files+=("$p")
     fi
-  done
 
-  # Calculate maximum display width for alignment
-  local max_width=0
-  local w
-  for p in "${files[@]}" "${dirs[@]}"; do
-    w=$(_get_display_width "$p")
+    # Track max width
     (( w > max_width )) && max_width=$w
   done
+
   local arrow_column_width=$((max_width + LEFT_PAD_ARROW_GAP + COLUMN_PADDING))
 
-  local line
+  local line cached_target
   while IFS= read -r line; do
-    [[ -n $line ]] && _print_file "$line" "$arrow_column_width"
+    if [[ -n $line ]]; then
+      if (( CACHE_ENABLED )); then
+        cached_target=${link_targets[$line]}
+      else
+        cached_target=""
+      fi
+      _print_file "$line" "$arrow_column_width" "$cached_target"
+    fi
   done < <(_sort_hidden_first_ci "${files[@]}")
 
   while IFS= read -r line; do
-    [[ -n $line ]] && _print_dir "$line" "$arrow_column_width"
+    if [[ -n $line ]]; then
+      if (( CACHE_ENABLED )); then
+        cached_target=${link_targets[$line]}
+      else
+        cached_target=""
+      fi
+      _print_dir "$line" "$arrow_column_width" "$cached_target"
+    fi
   done < <(_sort_hidden_first_ci "${dirs[@]}")
 }
