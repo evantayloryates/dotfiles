@@ -18,9 +18,12 @@ spotlight_add_exclusions () {
 }
 
 spotlight_select_action () {
-  echo '1) list      | `spot list` or `spot ls`'
-  echo '2) clean     | `spot clean`'
-  echo '3) add       | `spot add` or `spot hush`'
+  local magenta='\033[35m'
+  local reset='\033[0m'
+
+  printf '1) list      | %sspot list%s or %sspot ls%s\n' "$magenta" "$reset" "$magenta" "$reset"
+  printf '2) clean     | %sspot clean%s\n' "$magenta" "$reset"
+  printf '3) add       | %sspot add%s or %sspot hush%s\n' "$magenta" "$reset" "$magenta" "$reset"
   printf 'Select action: '
 
   read -r choice
