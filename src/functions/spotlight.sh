@@ -70,8 +70,28 @@ spotlight_list_exclusions () {
 }
 
 spotlight_watch_exclusions () {
-  echo "spotlight_watch_exclusions"
+  local target="$RESERVED_SPOTLIGHT_EXCLUSION_DIR/watch.log"
+
+  # MAGENTA (match your menu colors)
+  local magenta=$'\e[35m'
+  local reset=$'\e[0m'
+
+  mkdir -p "$RESERVED_SPOTLIGHT_EXCLUSION_DIR" || return 1
+
+  # clobber at start
+  : > "$target" || return 1
+
+  # write to log and stdout live; preserve sudo + fs_usage exit code
+  sudo fs_usage -w -f filesys mds mdworker_shared 2>&1 \
+    | tee "$target"
+  local rc=${PIPESTATUS[0]}
+
+  echo
+  printf '%sLogs stored to %s%s\n' "$magenta" "$target" "$reset"
+
+  return "$rc"
 }
+
 
 spotlight_clean_exclusions() {
   local PLIST="/System/Volumes/Data/.Spotlight-V100/VolumeConfiguration.plist"
