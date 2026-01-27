@@ -23,7 +23,8 @@ else:
 ")
   
   # Log the result
-  echo " ⤷ ⏱️  ${rounded}ms"
+  # echo " ⤷ ⏱️  ${rounded}ms"
+  echo " ↳ ⏱️  ${rounded}ms"
   
   return $exit_code
 }
