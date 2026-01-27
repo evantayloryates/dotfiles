@@ -130,6 +130,10 @@ def present_options():
 
 
 def main():
+  incoming = sys.stdin.readline()
+  incoming = incoming.rstrip('\n') if incoming else ''
+  present(f'incoming: {incoming}')
+
   present('')
 
   selected = present_options()
