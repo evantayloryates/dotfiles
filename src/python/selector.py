@@ -21,7 +21,6 @@ OPTIONS = OPTIONS = [
   { 'name': 'webpack_dev',        'aliases': ['web']   },
 ]
 
-
 SCRIPT_NAME = os.path.basename(__file__)
 LOG_COLOR = COLORS['green']
 
