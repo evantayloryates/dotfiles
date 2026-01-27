@@ -47,19 +47,16 @@ spotlight_select_action () {
   esac
 }
 
-spotlight_add_exclusions () {
+spotlight_add_exclusions() {
   local LIBRARY="$HOME/Library"
   local KEEP_LIBRARY=('Messages' 'Notes')
   local PLIST='/System/Volumes/Data/.Spotlight-V100/VolumeConfiguration.plist'
 
-  # Get current exclusions
   local current
   current=$(sudo /usr/libexec/PlistBuddy -c 'Print :Exclusions' "$PLIST" 2>/dev/null)
 
   local added=0
 
-  # Exclude everything in $HOME except Library
-  local item
   for item in "$HOME"/*; do
     if [[ "$item" != "$LIBRARY" && ! "$current" =~ "$item" ]]; then
       sudo /usr/libexec/PlistBuddy -c "Add :Exclusions: string $item" "$PLIST"
@@ -67,29 +64,19 @@ spotlight_add_exclusions () {
     fi
   done
 
-  # Exclude dotfiles/dotdirs in $HOME
   for item in "$HOME"/.*; do
-    local basename
-    basename=$(basename "$item")
-
-    # Skip . and ..
+    local basename=$(basename "$item")
     if [[ "$basename" != '.' && "$basename" != '..' && ! "$current" =~ "$item" ]]; then
       sudo /usr/libexec/PlistBuddy -c "Add :Exclusions: string $item" "$PLIST"
       ((added++))
     fi
   done
 
-  # Exclude Library subdirs except Messages and Notes
-  local dir
   for dir in "$LIBRARY"/*/; do
-    local dirname
-    dirname=$(basename "$dir")
-
-    if [[ ! " ${KEEP_LIBRARY[*]} " =~ " ${dirname} " ]]; then
-      if [[ ! "$current" =~ "$dir" ]]; then
-        sudo /usr/libexec/PlistBuddy -c "Add :Exclusions: string $dir" "$PLIST"
-        ((added++))
-      fi
+    local dirname=$(basename "$dir")
+    if [[ ! " ${KEEP_LIBRARY[*]} " =~ " ${dirname} " && ! "$current" =~ "$dir" ]]; then
+      sudo /usr/libexec/PlistBuddy -c "Add :Exclusions: string $dir" "$PLIST"
+      ((added++))
     fi
   done
 
