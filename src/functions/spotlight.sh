@@ -18,9 +18,9 @@ spotlight_add_exclusions () {
 }
 
 spotlight_select_action () {
-  echo '1) list'
-  echo '2) clean'
-  echo '3) add'
+  echo '1) list (`spot list` or `spot ls`)'
+  echo '2) clean (`spot clean`)'
+  echo '3) add (`spot add` or `spot hush`)'
   printf 'Select action: '
 
   read -r choice
