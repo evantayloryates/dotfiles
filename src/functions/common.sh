@@ -109,7 +109,6 @@ function _exec_amplify() {
   fi
 }
 
-
 function sb() {
   local magenta="\033[35m"
   local reset="\033[0m"
