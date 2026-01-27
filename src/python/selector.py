@@ -85,3 +85,6 @@ def main():
 
   selected = print_options()
   send(selected)
+  
+if __name__ == '__main__':
+  main()
