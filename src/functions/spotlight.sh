@@ -33,7 +33,7 @@ spotlight_list_exclusions () {
 }
 
 spotlight_watch_exclusions () {
- echo "spotlight_watch_exclusions"
+  echo "spotlight_watch_exclusions"
 }
 
 spotlight_clean_exclusions() {
