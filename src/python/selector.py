@@ -93,20 +93,19 @@ def process_invalid_input(user_input):
     )
     return ''
 
-
 def lookup_option(raw_value, options_sorted):
     v = (raw_value or '').strip()
 
     # 1) empty
     if v == '':
-        return process_invalid_input(raw_value)
+        return None
 
     # 2) number -> option by index (1-based)
     if v.isdigit():
         idx = int(v)
         if 1 <= idx <= len(options_sorted):
-            return options_sorted[idx - 1]['name']
-        return process_invalid_input(raw_value)
+            return options_sorted[idx - 1]
+        return None
 
     # 3) name/alias (case-insensitive)
     v_lower = v.lower()
@@ -114,22 +113,26 @@ def lookup_option(raw_value, options_sorted):
     while i < len(options_sorted):
         opt = options_sorted[i]
         if opt['name'].lower() == v_lower:
-            return opt['name']
+            return opt
 
         aliases = opt.get('aliases', [])
         j = 0
         while j < len(aliases):
             if aliases[j].lower() == v_lower:
-                return opt['name']
+                return opt
             j += 1
 
         i += 1
 
-    return process_invalid_input(raw_value)
+    return None
 
 
 def resolve_selection(raw_value, options_sorted):
-    return lookup_option(raw_value, options_sorted)
+    opt = lookup_option(raw_value, options_sorted)
+    if opt is None:
+        return process_invalid_input(raw_value)
+
+    return opt['name']
 
 
 def present_options():
