@@ -14,6 +14,7 @@ ex      () { exiftool "$@"                                                      
 ga      () { git add "$@"                                                                                 ;} # 
 gc      () { git commit "$@"                                                                              ;} # 
 git     () { if [[ $# -eq 1 && "$1" == "branch" ]]; then gbs; else /usr/bin/git "$@"; fi                  ;} #
+gb      () { git branch "$@"                                                                              ;} #
 gl      () { git log --oneline "$@"                                                                       ;} # 
 gp      () { git push "$@"                                                                                ;} # 
 ls      () { /bin/ls -AGhlo "$@"                                                                          ;} # 
