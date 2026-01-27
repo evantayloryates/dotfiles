@@ -16,7 +16,7 @@ ls() {
   local GRAY='%F{244}'
   local LYELLOW='%F{229}'
   local BLUE='%F{33}'
-  local DBLUE='%F{18}'
+  local DBLUE='%F{33}' # '%F{18}'
   local ARROW="${GRAY} -> ${RESET}"
 
   _is_dir_link() {
