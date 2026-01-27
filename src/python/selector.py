@@ -93,7 +93,7 @@ def process_invalid_input(user_input):
     )
     return ''
 
-def lookup_option(raw_value, options_sorted):
+def lookup_option(raw_value, options_sorted, allow_index=True):
     v = (raw_value or '').strip()
 
     # 1) empty
@@ -101,7 +101,7 @@ def lookup_option(raw_value, options_sorted):
         return None
 
     # 2) number -> option by index (1-based)
-    if v.isdigit():
+    if allow_index and v.isdigit():
         idx = int(v)
         if 1 <= idx <= len(options_sorted):
             return options_sorted[idx - 1]
