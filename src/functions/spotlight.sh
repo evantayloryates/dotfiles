@@ -13,9 +13,6 @@ spotlight_list_exclusions () {
 spotlight_clean_exclusions () {
   echo "spotlight_clean_exclusions"
 }
-spotlight_add_exclusions () {
-  echo "spotlight_add_exclusions"
-}
 
 spotlight_select_action () {
   local magenta=$'\e[35m'
@@ -37,4 +34,54 @@ spotlight_select_action () {
     3) spotlight_add_exclusions ;;
     *) return 0 ;;
   esac
+}
+
+spotlight_add_exclusions () {
+  local LIBRARY="$HOME/Library"
+  local KEEP_LIBRARY=('Messages' 'Notes')
+  local PLIST='/System/Volumes/Data/.Spotlight-V100/VolumeConfiguration.plist'
+
+  # Get current exclusions
+  local current
+  current=$(sudo /usr/libexec/PlistBuddy -c 'Print :Exclusions' "$PLIST" 2>/dev/null)
+
+  local added=0
+
+  # Exclude everything in $HOME except Library
+  local item
+  for item in "$HOME"/*; do
+    if [[ "$item" != "$LIBRARY" && ! "$current" =~ "$item" ]]; then
+      sudo /usr/libexec/PlistBuddy -c "Add :Exclusions: string $item" "$PLIST"
+      ((added++))
+    fi
+  done
+
+  # Exclude dotfiles/dotdirs in $HOME
+  for item in "$HOME"/.*; do
+    local basename
+    basename=$(basename "$item")
+
+    # Skip . and ..
+    if [[ "$basename" != '.' && "$basename" != '..' && ! "$current" =~ "$item" ]]; then
+      sudo /usr/libexec/PlistBuddy -c "Add :Exclusions: string $item" "$PLIST"
+      ((added++))
+    fi
+  done
+
+  # Exclude Library subdirs except Messages and Notes
+  local dir
+  for dir in "$LIBRARY"/*/; do
+    local dirname
+    dirname=$(basename "$dir")
+
+    if [[ ! " ${KEEP_LIBRARY[*]} " =~ " ${dirname} " ]]; then
+      if [[ ! "$current" =~ "$dir" ]]; then
+        sudo /usr/libexec/PlistBuddy -c "Add :Exclusions: string $dir" "$PLIST"
+        ((added++))
+      fi
+    fi
+  done
+
+  sudo launchctl stop com.apple.metadata.mds && sudo launchctl start com.apple.metadata.mds
+  echo "Done. Added $added new exclusions."
 }
