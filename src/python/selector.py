@@ -42,15 +42,18 @@ OPTIONS = [
 ]
 
 def read_with_default(prompt, default_value):
+  # GNU readline startup hook prefill (relies on readline being active for input()).
   def hook():
     readline.insert_text(default_value)
     readline.redisplay()
+
   readline.set_startup_hook(hook)
   try:
-    present(prompt, end='', flush=True)  # prompt to stderr
-    return input('')                    # read from stdin; no prompt to stdout
+    present(prompt, end='', flush=True)  # keep prompt off stdout
+    return input('')                    # readline should render default_value here
   finally:
     readline.set_startup_hook(None)
+
 
 def resolve_service(raw_value, options_sorted):
   v = (raw_value or '').strip()
@@ -108,11 +111,7 @@ def print_options():
   raw = user_input if user_input != '' else default_input
   service = resolve_service(raw, options)
 
-  if service is None:
-    return ''
-
-  return service
-
+  return service or ''
 
 def main():
   print('selecting container...')
