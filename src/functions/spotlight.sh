@@ -27,6 +27,7 @@ spotlight_select_action () {
   printf 'Select action: '
 
   read -r choice
+  echo
 
   case "$choice" in
     1) spotlight_list_exclusions ;;
