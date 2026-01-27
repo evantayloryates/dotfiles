@@ -27,14 +27,9 @@ function _sb_stage() {
 }
 
 function sb() {
-  if [ "$1" = "prod" ]; then
-    ssh-keygen -R ssh-app.spaceback.me && ssh -i ~/.ssh/aws-eb -tt root@ssh-app.spaceback.me 'echo "echo \"RUN: cd ~ && source activate && cd /app && rails c\" && source /root/activate" | bash -s && bash -i'
-  elif [ "$1" = "stage" ]; then
-    ssh-keygen -R ssh-app-stage.spaceback.me
-    ssh -i ~/.ssh/aws-eb -tt root@ssh-app-stage.spaceback.me 'echo "echo \"RUN: cd ~ && source activate && cd /app && rails c\" && source /root/activate" | bash -s && bash -i'
-  else
-    echo "Invalid argument. Use 'prod' or 'stage' to run the command."
-  fi
+  local magenta="\033[35m"
+  local reset="\033[0m"
+  echo "Deprecated. Use ${magenta}amp prod${reset} or ${magenta}amp stage${reset} instead"
 }
 
 json() {
