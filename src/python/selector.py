@@ -147,11 +147,13 @@ def present_options():
 
     return resolve_selection(user_input, options)
 
+
 def main():
     incoming = sys.stdin.readline()
     incoming = incoming.rstrip('\n') if incoming else ''
     present(f'incoming: {incoming}')
-    result_option = lookup_option(incoming, sorted_options(), allow_index=False)
+    result_option = lookup_option(
+        incoming, sorted_options(), allow_index=False)
     present(f'result_option: {result_option}')
 
     present('')
