@@ -87,10 +87,12 @@ spotlight_watch_exclusions () {
     {
       printf '$ %s\n' "$cmd"
       cat "$target"
-    } | /usr/bin/pbcopy
+    } | /usr/bin/pbcopy # use full path to bypass alias
 
     echo
-    printf '%sLogs stored to %s and copied to clipboard%s\n' "$magenta" "$target" "$reset"
+    printf '%sLogs stored to:\n' "$magenta"
+    printf '  - %s\n' "$target"
+    printf '  - clipboard%s\n' "$reset"
   }
 
   trap '
