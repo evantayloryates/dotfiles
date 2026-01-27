@@ -1,3 +1,30 @@
+# # Step 1 — Disable Spotlight indexing (not the service)
+# sudo mdutil -i off /System/Volumes/Data
+# sudo mdutil -d /System/Volumes/Data
+
+
+# Step 2 — Permanently suppress mdworker spawning
+# # Unload the agent responsible for spawning mdworkers.
+# sudo launchctl bootout system /System/Library/LaunchDaemons/com.apple.metadata.mds.plist
+# # Then immediately reload only mds, not workers:
+# sudo launchctl bootstrap system /System/Library/LaunchDaemons/com.apple.metadata.mds.plist
+
+
+# Step 3 — Block mdworker execution outright (hard stop)
+# sudo chmod 000 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mdworker_shared
+# sudo chmod 000 /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mdworker
+
+
+
+
+
+
+
+
+# 
+# Note: none of this is really respected, but I'll leave for now
+# 
+
 RESERVED_SPOTLIGHT_EXCLUSION_DIR=/Users/taylor/hush-spotlight
 
 spotlight_select_action () {
