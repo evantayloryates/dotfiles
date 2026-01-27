@@ -39,7 +39,7 @@ function __log() {
 }
 
 function _select_container() {
-  python3 "${DOTFILES_DIR}/src/python/selector.py"
+  /Users/taylor/.venvs/dotfiles/bin/python "${DOTFILES_DIR}/src/python/selector.py"
 }
 
 
