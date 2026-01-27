@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 import sys
+import os
 
 _print = print
 
+SCRIPT_NAME = os.path.splitext(os.path.basename(__file__))[0]
+
 def print(*args, **kwargs):
-  _print(*args, file=sys.stderr, **kwargs)
+  prefix = f'[{SCRIPT_NAME}]'
+  _print(prefix, *args, file=sys.stderr, **kwargs)
+
 
 def send(value):
   _print(value)
