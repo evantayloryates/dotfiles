@@ -83,18 +83,22 @@ spotlight_watch_exclusions () {
   : > "$target" || return 1
 
   spotlight_watch__cleanup () {
-    # copy "$ <cmd>\n<contents>" to clipboard
-    {
-      printf '$ %s\n' "$cmd"
-      cat "$target"
-    } | /usr/bin/pbcopy # use full path to bypass alias
+  # copy "$ <cmd>\n<contents>" to clipboard
+  {
+    printf '$ %s\n' "$cmd"
+    cat "$target"
+  } | /usr/bin/pbcopy # use full path to bypass alias
 
-    echo
-    echo
-    printf '%sLogs stored to:\n' "$magenta"
-    printf '  - %s\n' "$target"
-    printf '  - clipboard%s\n' "$reset"
-  }
+  # colors
+  local white=$'\e[97m'
+
+  echo
+  echo
+  printf '%sLogs stored to:%s\n' "$white" "$reset"
+  printf '%s  - %s%s\n' "$white" "$target" "$reset"
+  printf '%s  - clipboard%s\n' "$white" "$reset"
+}
+
 
   trap '
     trap - INT TERM
