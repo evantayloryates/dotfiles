@@ -16,11 +16,19 @@ for f in "$SCRIPT_DIR"/*.sh; do
   [[ -f "$f" ]] && source "$f"
 done
 
+function _sb_prod() {
+  ssh-keygen -R ssh-app.spaceback.me
+  ssh -i ~/.ssh/aws-eb -tt root@ssh-app.spaceback.me 'echo "echo \"RUN: cd ~ && source activate && cd /app && rails c\" && source /root/activate" | bash -s && bash -i'
+}
+
+function _sb_stage() {
+  ssh-keygen -R ssh-app-stage.spaceback.me
+  ssh -i ~/.ssh/aws-eb -tt root@ssh-app-stage.spaceback.me 'echo "echo \"RUN: cd ~ && source activate && cd /app && rails c\" && source /root/activate" | bash -s && bash -i'
+}
 
 function sb() {
   if [ "$1" = "prod" ]; then
-    ssh-keygen -R ssh-app.spaceback.me
-    ssh -i ~/.ssh/aws-eb -tt root@ssh-app.spaceback.me 'echo "echo \"RUN: cd ~ && source activate && cd /app && rails c\" && source /root/activate" | bash -s && bash -i'
+    ssh-keygen -R ssh-app.spaceback.me && ssh -i ~/.ssh/aws-eb -tt root@ssh-app.spaceback.me 'echo "echo \"RUN: cd ~ && source activate && cd /app && rails c\" && source /root/activate" | bash -s && bash -i'
   elif [ "$1" = "stage" ]; then
     ssh-keygen -R ssh-app-stage.spaceback.me
     ssh -i ~/.ssh/aws-eb -tt root@ssh-app-stage.spaceback.me 'echo "echo \"RUN: cd ~ && source activate && cd /app && rails c\" && source /root/activate" | bash -s && bash -i'

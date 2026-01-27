@@ -18,6 +18,8 @@ CONFIG = [
   p('amp',        '~/src/github/amplify', aliases=['amplify'], commands={
     'disable': 'safemv <path>/.git/hooks/pre-commit <path>/.git/hooks/pre-commit.disabled && echo "pre-commit disabled" || echo "failed to disable"',
     'enable': 'safemv <path>/.git/hooks/pre-commit.disabled <path>/.git/hooks/pre-commit && echo "pre-commit enabled" || echo "failed to enable"',
+    'prod': "ssh-keygen -R ssh-app.spaceback.me && ssh -i ~/.ssh/aws-eb -tt root@ssh-app.spaceback.me 'echo \"echo \\\"RUN: cd ~ && source activate && cd /app && rails c\\\" && source /root/activate\" | bash -s && bash -i'",
+    'stage': "ssh-keygen -R ssh-app.spaceback.me && ssh -i ~/.ssh/aws-eb -tt root@ssh-app.spaceback.me 'echo \"echo \\\"RUN: cd ~ && source activate && cd /app && rails c\\\" && source /root/activate\" | bash -s && bash -i'",
   }),
   p('app',         '/Applications',                     'open'), # TODO: link all app dirs /Applications, /System/Applications, /System/Applications/Utilities, /System/Library/CoreServices/Applications/ 
   p('d',           '~/Desktop',                         'cd',  aliases=['desk', 'desktop']),
