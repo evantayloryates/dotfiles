@@ -54,15 +54,7 @@ def read_with_default(prompt, default_value):
 
 # ...
 
-default_input = '1'
-user_input = read_with_default('Selected: ', default_input)
 
-# If they just hit Enter, treat it as default.
-input_value = user_input if user_input != '' else default_input
-
-# reset color (if you’re using it)
-_print(COLORS['reset'], file=sys.stderr, end='')
-return input_value
 
 
 def print_options():
@@ -93,18 +85,14 @@ def print_options():
   present('')
 
   default_input = '1'
-  present(f'Selected: {default_input}', end='', flush=True)
-  input_value = default_input
-  try:
-    user_input = sys.stdin.readline()
-    if user_input:
-      user_input = user_input.rstrip('\n')
-      if user_input != '':
-        input_value = user_input
-  finally:
-    _print(COLORS['reset'], file=sys.stderr, end='')
+user_input = read_with_default('Selected: ', default_input)
 
-  return input_value
+# If they just hit Enter, treat it as default.
+input_value = user_input if user_input != '' else default_input
+
+# reset color (if you’re using it)
+_print(COLORS['reset'], file=sys.stderr, end='')
+return input_value
 
 
 def main():
