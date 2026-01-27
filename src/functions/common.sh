@@ -57,11 +57,33 @@ function _select_container() {
     webpack_dev
   )
 
+  local -A aliases=(
+    app a
+    browser br
+    browserless bl
+    client_webpack_dev c
+    memcached mem
+    minio mio
+    nginx nx
+    ngrok ng
+    postgres_db pg
+    proxy pr
+    redis red
+    sidekiq sk
+    webpack_dev web
+  )
+
   local tty='/dev/tty'
 
   local i=0
   while [ $i -lt ${#choices[@]} ]; do
-    printf '%s) %s\n' "$((i + 1))" "${choices[$i]}" > "${tty}"
+    local name="${choices[$i]}"
+    local alias="${aliases[$name]}"
+    if [ -n "${alias}" ]; then
+      printf '%s) %s (%s)\n' "$((i + 1))" "${name}" "${alias}" > "${tty}"
+    else
+      printf '%s) %s\n' "$((i + 1))" "${name}" > "${tty}"
+    fi
     i=$((i + 1))
   done
 
@@ -71,7 +93,6 @@ function _select_container() {
   printf 'Selected: \033[32m' > "${tty}"
   IFS= read -r input < "${tty}"
   printf '\033[0m' > "${tty}"
-
 
   # empty → invalid
   if [ -z "${input}" ]; then
@@ -90,13 +111,17 @@ function _select_container() {
     return 1
   fi
 
-  # service name
+  # service name OR alias
   local i=0
   while [ $i -lt ${#choices[@]} ]; do
-    if [ "${input}" = "${choices[$i]}" ]; then
-      echo "${input}"
+    local name="${choices[$i]}"
+    local alias="${aliases[$name]}"
+
+    if [ "${input}" = "${name}" ] || { [ -n "${alias}" ] && [ "${input}" = "${alias}" ]; }; then
+      echo "${name}"
       return 0
     fi
+
     i=$((i + 1))
   done
 
