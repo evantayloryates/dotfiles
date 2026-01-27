@@ -104,19 +104,7 @@ clipsend() {
   ts="$(date '+%H%M%S')"
   tmp="$(mktemp)"
 
-  if command -v pbpaste >/dev/null 2>&1; then
-    pbpaste > "$tmp"
-  elif command -v xclip >/dev/null 2>&1; then
-    xclip -selection clipboard -o > "$tmp"
-  elif command -v xsel >/dev/null 2>&1; then
-    xsel --clipboard --output > "$tmp"
-  elif command -v wl-paste >/dev/null 2>&1; then
-    wl-paste > "$tmp"
-  else
-    rm -f "$tmp"
-    printf '%s\n' 'clipsend: no clipboard tool found (need pbpaste, xclip, xsel, or wl-paste)' >&2
-    return 1
-  fi
+  pbpaste > "$tmp"
 
   lines="$(wc -l < "$tmp" | tr -d '[:space:]')"
   out="$desktop/clipsend-$ts-$lines-lines.txt"
@@ -125,4 +113,3 @@ clipsend() {
   mv "$tmp" "$out"
   printf '%s\n' "$out"
 }
-
