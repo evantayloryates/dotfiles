@@ -28,7 +28,6 @@ spotlight_select_action () {
   esac
 }
 
-
 spotlight_list_exclusions () {
   sudo /usr/libexec/PlistBuddy -c "Print :Exclusions" /System/Volumes/Data/.Spotlight-V100/VolumeConfiguration.plist 2>/dev/null \
     | grep "^    " \
