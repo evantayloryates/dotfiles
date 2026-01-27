@@ -29,7 +29,8 @@ function _sb_stage() {
 function sb() {
   local magenta="\033[35m"
   local reset="\033[0m"
-  echo "Deprecated. Use ${magenta}amp prod${reset} or ${magenta}amp stage${reset} instead"
+  echo "NO EFFECT"
+  echo "Please use ${magenta}amp prod${reset} or ${magenta}amp stage${reset} instead"
 }
 
 json() {
