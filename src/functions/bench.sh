@@ -24,6 +24,7 @@ else:
   
   # Log the result
   # echo " ⤷ ⏱️  ${rounded}ms"
+  echo " |"
   echo " ↳ ⏱️  ${rounded}ms"
   
   return $exit_code
