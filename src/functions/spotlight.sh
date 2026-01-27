@@ -99,7 +99,6 @@ spotlight_watch_exclusions () {
     printf '%s  - clipboard%s\n' "$white" "$reset"
   }
 
-
   trap '
     trap - INT TERM
     spotlight_watch__cleanup
