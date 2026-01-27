@@ -41,40 +41,128 @@ OPTIONS = [
   { 'name': 'webpack_dev',        'aliases': ['web']   },
 ]
 
-def read_with_default(prompt, default_value):
-  # GNU readline startup hook prefill (relies on readline being active for input()).
-  def hook():
-    readline.insert_text(default_value)
-    readline.redisplay()
+# def read_with_default(prompt, default_value):
+#   # GNU readline startup hook prefill (relies on readline being active for input()).
+#   def hook():
+#     readline.insert_text(default_value)
+#     readline.redisplay()
 
-  readline.set_startup_hook(hook)
-  try:
-    present(prompt, end='', flush=True)  # keep prompt off stdout
-    return input('')                    # readline should render default_value here
-  finally:
-    readline.set_startup_hook(None)
+#   readline.set_startup_hook(hook)
+#   try:
+#     present(prompt, end='', flush=True)  # keep prompt off stdout
+#     return input('')                    # readline should render default_value here
+#   finally:
+#     readline.set_startup_hook(None)
+
+
+# def resolve_service(raw_value, options_sorted):
+#   v = (raw_value or '').strip()
+#   if v == '':
+#     return None
+
+#   if v.isdigit():
+#     idx = int(v)
+#     if 1 <= idx <= len(options_sorted):
+#       return options_sorted[idx - 1]['name']
+#     return None
+
+#   v_lower = v.lower()
+#   for opt in options_sorted:
+#     if opt['name'].lower() == v_lower:
+#       return opt['name']
+#     for a in opt.get('aliases', []):
+#       if a.lower() == v_lower:
+#         return opt['name']
+
+#   return None
+
+
+# def print_options():
+#   options = sorted(OPTIONS, key=lambda o: o['name'])
+
+#   i = 0
+#   while i < len(options):
+#     option = options[i]
+#     index = i + 1
+#     index_fmt = f' {index}' if index < 10 else f'{index}'
+
+#     aliases = option.get('aliases', [])
+#     alias_str = ''
+#     if len(aliases) == 1:
+#       alias_str = aliases[0]
+#     elif len(aliases) == 2:
+#       alias_str = f'{aliases[0]}, {aliases[1]}'
+#     elif len(aliases) > 2:
+#       alias_str = ', '.join(aliases)
+
+#     if alias_str:
+#       present(f'{index_fmt}) {option["name"]} — {alias_str}')
+#     else:
+#       present(f'{index_fmt}) {option["name"]}')
+
+#     i += 1
+
+#   present('')
+
+#   default_input = '1'
+#   user_input = read_with_default('Selected: ', default_input)
+#   present('')  # newline after Enter for clean output
+
+#   raw = user_input if user_input != '' else default_input
+#   service = resolve_service(raw, options)
+
+#   return service or ''
+
+def process_invalid_input(user_input):
+  cleaned = (user_input or '').strip()
+  display = cleaned if cleaned != '' else '<empty>'
+
+  present(
+    f'{COLORS["red"]}Invalid input: {COLORS["white"]}{display}{COLORS["red"]}. Exiting...{COLORS["reset"]}'
+  )
+  return ''
 
 
 def resolve_service(raw_value, options_sorted):
   v = (raw_value or '').strip()
-  if v == '':
-    return None
 
+  # 1) empty
+  if v == '':
+    return process_invalid_input(raw_value)
+
+  # 2) number -> option by index (1-based)
   if v.isdigit():
     idx = int(v)
     if 1 <= idx <= len(options_sorted):
       return options_sorted[idx - 1]['name']
-    return None
+    return process_invalid_input(raw_value)
 
+  # 3) name/alias (case-insensitive)
   v_lower = v.lower()
-  for opt in options_sorted:
+  i = 0
+  while i < len(options_sorted):
+    opt = options_sorted[i]
     if opt['name'].lower() == v_lower:
       return opt['name']
-    for a in opt.get('aliases', []):
-      if a.lower() == v_lower:
-        return opt['name']
 
-  return None
+    aliases = opt.get('aliases', [])
+    j = 0
+    while j < len(aliases):
+      if aliases[j].lower() == v_lower:
+        return opt['name']
+      j += 1
+
+    i += 1
+
+  return process_invalid_input(raw_value)
+
+
+def read_input(prompt):
+  present(prompt, end='', flush=True)
+  user_input = sys.stdin.readline()
+  if not user_input:
+    return ''
+  return user_input.rstrip('\n')
 
 
 def print_options():
@@ -104,14 +192,11 @@ def print_options():
 
   present('')
 
-  default_input = '1'
-  user_input = read_with_default('Selected: ', default_input)
+  user_input = read_input('Selected: ')
   present('')  # newline after Enter for clean output
 
-  raw = user_input if user_input != '' else default_input
-  service = resolve_service(raw, options)
+  return resolve_service(user_input, options)
 
-  return service or ''
 
 def main():
   print('selecting container...')
