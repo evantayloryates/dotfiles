@@ -55,6 +55,8 @@ def read_input(prompt):
         return ''
     return user_input.rstrip('\n')
 
+def sorted_options():
+  return sorted(OPTIONS, key=lambda o: o['name'].lower())
 
 def print_options(options):
     i = 0
@@ -131,7 +133,7 @@ def resolve_selection(raw_value, options_sorted):
 
 
 def present_options():
-    options = sorted(OPTIONS, key=lambda o: o['name'])
+    options = sorted_options()
     print_options(options)
 
     user_input = read_input('Selected: ')
@@ -143,7 +145,7 @@ def present_options():
 def main():
     incoming = sys.stdin.readline()
     incoming = incoming.rstrip('\n') if incoming else ''
-    resolve_selection(incoming, OPTIONS)
+    lookup_option(incoming, OPTIONS)
     present(f'incoming: {incoming}')
 
     present('')
