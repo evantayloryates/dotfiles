@@ -147,10 +147,10 @@ def present_options():
     options = sorted_options()
     print_options(options)
 
-    user_input = read_input('Selected: ')
+    clean_input = read_input('Selected: ')
     present('')  # newline after Enter for clean output
 
-    return resolve_selection(user_input, options)
+    return resolve_selection(clean_input, options)
 
 
 def preresolve_from_input(incoming):
