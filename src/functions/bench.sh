@@ -30,3 +30,6 @@ else:
   return $exit_code
 }
 
+b (){
+  bench "$@"
+}
