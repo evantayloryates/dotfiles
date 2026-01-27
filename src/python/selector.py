@@ -12,6 +12,9 @@ def print(*args, **kwargs):
   prefix = f'{LOG_COLOR}[{SCRIPT_NAME}]{COLORS["reset"]}'
   _print(prefix, *args, file=sys.stderr, **kwargs)
 
+def present(*args, **kwargs):
+  _print(*args, file=sys.stderr, **kwargs)
+
 
 def send(value):
   _print(value)
