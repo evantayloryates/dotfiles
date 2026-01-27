@@ -29,20 +29,20 @@ spotlight_select_action () {
   local reset=$'\e[0m'
 
   echo
-  printf '1) list     %sspot%s %slist%s\n' "$primary" "$reset" "$secondary" "$reset"
-  printf '            %sspot%s %sls%s\n'   "$primary" "$reset" "$secondary" "$reset"
-  printf '            %sspot%s %sl%s\n'    "$primary" "$reset" "$secondary" "$reset"
+  printf '1) list     | %sspot%s %slist%s\n' "$primary" "$reset" "$secondary" "$reset"
+  printf '            | %sspot%s %sls%s\n'   "$primary" "$reset" "$secondary" "$reset"
+  printf '            | %sspot%s %sl%s\n'    "$primary" "$reset" "$secondary" "$reset"
 
-  printf '2) clean    %sspot%s %sclean%s\n' "$primary" "$reset" "$secondary" "$reset"
-  printf '            %sspot%s %sc%s\n'     "$primary" "$reset" "$secondary" "$reset"
+  printf '2) clean    | %sspot%s %sclean%s\n' "$primary" "$reset" "$secondary" "$reset"
+  printf '            | %sspot%s %sc%s\n'     "$primary" "$reset" "$secondary" "$reset"
 
-  printf '3) add      %sspot%s %sadd%s\n'  "$primary" "$reset" "$secondary" "$reset"
-  printf '            %sspot%s %sa%s\n'    "$primary" "$reset" "$secondary" "$reset"
-  printf '            %sspot%s %shush%s\n' "$primary" "$reset" "$secondary" "$reset"
-  printf '            %sspot%s %sh%s\n'    "$primary" "$reset" "$secondary" "$reset"
+  printf '3) add      | %sspot%s %sadd%s\n'  "$primary" "$reset" "$secondary" "$reset"
+  printf '            | %sspot%s %sa%s\n'    "$primary" "$reset" "$secondary" "$reset"
+  printf '            | %sspot%s %shush%s\n' "$primary" "$reset" "$secondary" "$reset"
+  printf '            | %sspot%s %sh%s\n'    "$primary" "$reset" "$secondary" "$reset"
 
-  printf '4) watch    %sspot%s %swatch%s\n' "$primary" "$reset" "$secondary" "$reset"
-  printf '            %sspot%s %sw%s\n'     "$primary" "$reset" "$secondary" "$reset"
+  printf '4) watch    | %sspot%s %swatch%s\n' "$primary" "$reset" "$secondary" "$reset"
+  printf '            | %sspot%s %sw%s\n'     "$primary" "$reset" "$secondary" "$reset"
 
   echo
   printf 'Selection: '
