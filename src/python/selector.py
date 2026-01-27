@@ -49,7 +49,7 @@ TTY = open('/dev/tty', 'r')
 
 
 def clean_input(incoming):
-    return incoming.rstrip('\n') if incoming else ''
+    return (incoming or '').strip()
 
 
 def read_input(prompt):
@@ -57,7 +57,7 @@ def read_input(prompt):
     user_input = TTY.readline()
     if not user_input:
         return ''
-    return user_input.rstrip('\n')
+    return clean_input(user_input)
 
 
 def sorted_options():
@@ -100,8 +100,8 @@ def process_invalid_input(user_input):
     return ''
 
 
-def lookup_option(raw_value, options_sorted, allow_index=True):
-    v = (raw_value or '').strip()
+def lookup_option(clean_input, options_sorted, allow_index=True):
+    v = clean_input
 
     # 1) empty
     if v == '':
