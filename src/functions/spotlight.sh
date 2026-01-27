@@ -5,14 +5,22 @@ spotlight_select_action () {
   local reset=$'\e[0m'
 
   echo
-  printf '1) list      | %sspot list%s, %sspot ls%s, %sspot l%s\n' \
+  printf '1) list      | %sspot%s %slist%s/%sls%s/%sl%s\n' \
+    "$magenta" "$reset" \
     "$magenta" "$reset" "$magenta" "$reset" "$magenta" "$reset"
-  printf '2) clean     | %sspot clean%s, %sspot c%s\n' \
+
+  printf '2) clean     | %sspot%s %sclean%s/%sc%s\n' \
+    "$magenta" "$reset" \
     "$magenta" "$reset" "$magenta" "$reset"
-  printf '3) add       | %sspot add%s, %sspot hush%s, %sspot h%s, %sspot a%s\n' \
+
+  printf '3) add       | %sspot%s %sadd%s/%sa%s/%shush%s/%sh%s\n' \
+    "$magenta" "$reset" \
     "$magenta" "$reset" "$magenta" "$reset" "$magenta" "$reset" "$magenta" "$reset"
-  printf '4) watch     | %sspot watch%s, %sspot w%s\n' \
+
+  printf '4) watch     | %sspot%s %swatch%s/%sw%s\n' \
+    "$magenta" "$reset" \
     "$magenta" "$reset" "$magenta" "$reset"
+
   echo
   printf 'Selection: '
 
@@ -27,6 +35,7 @@ spotlight_select_action () {
     *) return 0 ;;
   esac
 }
+
 
 spotlight_list_exclusions () {
   sudo /usr/libexec/PlistBuddy -c "Print :Exclusions" /System/Volumes/Data/.Spotlight-V100/VolumeConfiguration.plist 2>/dev/null \
