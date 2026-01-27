@@ -16,7 +16,7 @@ ls() {
   local GRAY='%F{244}'
   local LYELLOW='%F{229}'
   local BLUE='%F{33}'
-  local DBLUE='%F{33}' # '%F{18}'
+  local DBLUE='%F{18}'
   local ARROW="${GRAY} -> ${RESET}"
 
   _is_dir_link() {
@@ -29,6 +29,13 @@ ls() {
     command readlink -- "$1" 2>/dev/null
   }
 
+  _replace_home() {
+    # Replace /Users/taylor with ~ in paths
+    local path=$1
+    [[ $path == /Users/taylor/* ]] && path="~${path#/Users/taylor}"
+    print -r -- "$path"
+  }
+
   _print_dir() {
     local p=$1
     local name=${p:t}
@@ -37,6 +44,7 @@ ls() {
 
     if _is_dir_link "$p"; then
       local dst=$(_readlink "$p")
+      dst=$(_replace_home "$dst")
       local src="${name}/"
       [[ -n $dst && $dst != */ ]] && dst="${dst}/"
       print -rP -- "${MAG_BOLD}${src}${RESET}${ARROW}${LYELLOW}${dst}${RESET}"
@@ -54,6 +62,7 @@ ls() {
 
     if [[ -L $p ]]; then
       local dst=$(_readlink "$p")
+      dst=$(_replace_home "$dst")
       print -rP -- "${MAG_BOLD}${name}${RESET}${ARROW}${LYELLOW}${dst}${RESET}"
     else
       if [[ -x $p ]]; then
@@ -114,10 +123,10 @@ ls() {
 
   local line
   while IFS= read -r line; do
-    [[ -n $line ]] && _print_dir "$line"
-  done < <(_sort_hidden_first_ci "${dirs[@]}")
-
-  while IFS= read -r line; do
     [[ -n $line ]] && _print_file "$line"
   done < <(_sort_hidden_first_ci "${files[@]}")
+
+  while IFS= read -r line; do
+    [[ -n $line ]] && _print_dir "$line"
+  done < <(_sort_hidden_first_ci "${dirs[@]}")
 }
