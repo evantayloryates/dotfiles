@@ -86,7 +86,7 @@ function _select_container() {
 
 function _exec_amplify() {
   local service="$1"
-  echo "service: $service"
+  
   if [ -z "${service}" ]; then
     service="$(_select_container)" || true
     if [ -z "${service}" ]; then
