@@ -109,8 +109,8 @@ function _exec_amplify() {
   if [ -z "${service}" ]; then
     service="$(_select_container)" || true
     if [ -z "${service}" ]; then
-      __log "$(_red 'exec_amplify: invalid selection')"
-      return 1
+      __log "No service selected. Exiting."
+      return 0
     fi
   fi
 
