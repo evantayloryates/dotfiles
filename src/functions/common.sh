@@ -43,8 +43,6 @@ function _select_container() {
   printf '%s\n' "${initial_input}" | python3 "${DOTFILES_DIR}/src/python/selector.py"
 }
 
-
-
 function _exec_amplify() {
   local service="$1"
 
