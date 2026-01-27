@@ -17,7 +17,7 @@ git     () { if [[ $# -eq 1 && "$1" == "branch" ]]; then gbs; else /usr/bin/git 
 gb      () { git branch "$@"                                                                              ;} #
 gl      () { git log --oneline "$@"                                                                       ;} # 
 gp      () { git push "$@"                                                                                ;} # 
-ls      () { /bin/ls -AGhlo "$@"                                                                          ;} # 
+lsa     () { /bin/ls -AGhlo "$@"                                                                          ;} # 
 # ls() {
 #   {
 #     /bin/ls -AGhlo1d "$@" */ 2>/dev/null
@@ -41,4 +41,140 @@ src     () { _kitsrc; clear; source "$HOME/dotfiles/src/index.sh"               
 alias password="python3 $DOTFILES_DIR/src/python/password.py"
 alias words="open $DOTFILES_DIR/src/__data/words.txt"
 
+ls() {
+  # >= 2 args: passthrough to BSD ls
+  if (( $# >= 2 )); then
+    /bin/ls "$@"
+    return $?
+  fi
 
+  emulate -L zsh
+  setopt null_glob
+
+  local target=${1:-.}
+
+  # Colors (256-color)
+  local C_RESET='%f%b'
+  local C_RED='%F{red}'
+  local C_MAG_BOLD='%B%F{magenta}'
+  local C_GRAY='%F{244}'
+  local C_LYELLOW='%F{229}'
+  local C_BLUE='%F{33}'
+  local C_DBLUE='%F{18}'
+
+  zmodload -F zsh/stat b:zstat 2>/dev/null || true
+
+  # Formatters
+  local -r arrow="${C_GRAY} -> ${C_RESET}"
+
+  _print_file() {
+    local p=$1
+    local name=${p:t}
+    [[ $name == '.' || $name == '..' || $name == '.DS_Store' ]] && return 0
+
+    if [[ -L $p ]]; then
+      local dst
+      dst=$(command readlink -- "$p" 2>/dev/null || true)
+
+      # Executable if the resolved target is executable
+      local file_color=''
+      [[ -x $p ]] && file_color=$C_RED
+
+      print -rP -- "${C_MAG_BOLD}${name}${C_RESET}${arrow}${C_LYELLOW}${dst}${C_RESET}"
+    else
+      if [[ -x $p ]]; then
+        print -rP -- "${C_RED}${name}${C_RESET}"
+      else
+        print -r -- "$name"
+      fi
+    fi
+  }
+
+  _print_dir() {
+    local p=$1
+    local name=${p:t}
+    [[ $name == '.' || $name == '..' || $name == '.DS_Store' ]] && return 0
+
+    if [[ -L $p ]]; then
+      local dst
+      dst=$(command readlink -- "$p" 2>/dev/null || true)
+
+      # ensure trailing slashes for src/dst
+      [[ $name != */ ]] && name="${name}/"
+      [[ $dst != */ ]] && dst="${dst}/"
+
+      print -rP -- "${C_MAG_BOLD}${name}${C_RESET}${arrow}${C_LYELLOW}${dst}${C_RESET}"
+    else
+      # blue dir name + dark-blue slash
+      print -rP -- "${C_BLUE}${name}${C_RESET}${C_DBLUE}/${C_RESET}"
+    fi
+  }
+
+  _sort_ci_hidden_first() {
+    # args: list of paths; output: sorted paths
+    local -a hidden=() normal=()
+    local p base
+
+    for p in "$@"; do
+      base=${p:t}
+      [[ $base == .* ]] && hidden+=("$p") || normal+=("$p")
+    done
+
+    local -a out=() s
+
+    if (( ${#hidden[@]} )); then
+      s=("${(@f)$(printf '%s\n' "${hidden[@]}" | LC_ALL=C sort -f)}")
+      out+=("${s[@]}")
+    fi
+
+    if (( ${#normal[@]} )); then
+      s=("${(@f)$(printf '%s\n' "${normal[@]}" | LC_ALL=C sort -f)}")
+      out+=("${s[@]}")
+    fi
+
+    print -r -- "${out[@]}"
+  }
+
+  # If target is a file/symlink: print just that one entry with custom styling
+  if [[ ! -d $target || -L $target ]]; then
+    if [[ -d $target && -L $target ]]; then
+      _print_dir "$target"
+    else
+      _print_file "$target"
+    fi
+    return 0
+  fi
+
+  # Directory listing (contents)
+  local -a entries=() dirs=() files=()
+  # include both visible and hidden (excluding . and .. via the pattern)
+  entries+=("$target"/*(N) "$target"/.*~"$target"/.(|.)(N))
+
+  local p bn
+  for p in "${entries[@]}"; do
+    bn=${p:t}
+    [[ $bn == '.DS_Store' ]] && continue
+
+    if [[ -d $p && ! -L $p ]]; then
+      dirs+=("$p")
+    elif [[ -L $p && -d $p ]]; then
+      # symlink that resolves to a dir -> treat as dir link
+      dirs+=("$p")
+    else
+      files+=("$p")
+    fi
+  done
+
+  local -a sorted_dirs sorted_files
+  sorted_dirs=("${(@f)$(_sort_ci_hidden_first "${dirs[@]}")}")
+  sorted_files=("${(@f)$(_sort_ci_hidden_first "${files[@]}")}")
+
+  local item
+  for item in "${sorted_dirs[@]}"; do
+    _print_dir "$item"
+  done
+
+  for item in "${sorted_files[@]}"; do
+    _print_file "$item"
+  done
+}
