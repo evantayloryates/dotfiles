@@ -1,4 +1,4 @@
-spotlight_harden_a() {
+spotlight_setup() {
   set -euo pipefail
 
   log() {
