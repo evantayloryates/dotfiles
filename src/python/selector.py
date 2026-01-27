@@ -48,7 +48,7 @@ OPTIONS = [
 TTY = open('/dev/tty', 'r')
 
 
-def clean_input(incoming):
+def cleaned(incoming):
     return (incoming or '').strip()
 
 
@@ -57,7 +57,7 @@ def read_input(prompt):
     user_input = TTY.readline()
     if not user_input:
         return ''
-    return clean_input(user_input)
+    return cleaned(user_input)
 
 
 def sorted_options():
@@ -152,7 +152,7 @@ def present_options():
 
 
 def preresolve_from_input():
-    clean_input = clean_input(sys.stdin.readline())
+    clean_input = cleaned(sys.stdin.readline())
     return lookup_option(clean_input, sorted_options())
 
 
