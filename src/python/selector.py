@@ -52,6 +52,28 @@ def read_with_default(prompt, default_value):
   finally:
     readline.set_startup_hook(None)
 
+def resolve_service(raw_value, options_sorted):
+  v = (raw_value or '').strip()
+  if v == '':
+    return None
+
+  if v.isdigit():
+    idx = int(v)
+    if 1 <= idx <= len(options_sorted):
+      return options_sorted[idx - 1]['name']
+    return None
+
+  v_lower = v.lower()
+  for opt in options_sorted:
+    if opt['name'].lower() == v_lower:
+      return opt['name']
+    for a in opt.get('aliases', []):
+      if a.lower() == v_lower:
+        return opt['name']
+
+  return None
+
+
 def print_options():
   options = sorted(OPTIONS, key=lambda o: o['name'])
 
@@ -81,13 +103,15 @@ def print_options():
 
   default_input = '1'
   user_input = read_with_default('Selected: ', default_input)
+  present('')  # newline after Enter for clean output
 
-  # If they just hit Enter, treat it as default.
-  input_value = user_input if user_input != '' else default_input
+  raw = user_input if user_input != '' else default_input
+  service = resolve_service(raw, options)
 
-  # reset color (if you’re using it)
-  _print(COLORS['reset'], file=sys.stderr, end='')
-  return input_value
+  if service is None:
+    return ''
+
+  return service
 
 
 def main():
