@@ -27,7 +27,7 @@ ls() {
   local FILE="${LYELLOW}"
   local EXECUTABLE_FILE="${RED}"
   local DIRECTORY="${BOLD_BLUE}"
-  local DIR_LINK_SRC="${DBLUE}"
+  local DIR_LINK_SRC="${BOLD_BLUE}"
   local DIR_LINK_DST="${LYELLOW}"
 
   local ARROW="${ARROW_COLOR} -> ${RESET}"
