@@ -27,6 +27,8 @@ function _ssh_stage() {
 }
 
 function _select_container() {
+  setopt localoptions ksharrays
+
   local choices=(
     app
     browser
@@ -44,10 +46,6 @@ function _select_container() {
   )
 
   local tty='/dev/tty'
-  if [ ! -r "${tty}" ] || [ ! -w "${tty}" ]; then
-    log '_select_container: /dev/tty not available'
-    return 1
-  fi
 
   local i=0
   while [ $i -lt ${#choices[@]} ]; do
@@ -74,7 +72,7 @@ function _select_container() {
     return 1
   fi
 
-  i=0
+  local i=0
   while [ $i -lt ${#choices[@]} ]; do
     if [ "${input}" = "${choices[$i]}" ]; then
       echo "${input}"
