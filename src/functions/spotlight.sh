@@ -6,6 +6,7 @@ spotlight_list_exclusions () {
     | sed 's/^    //' \
     | sort
 }
+
 spotlight_clean_exclusions () {
   echo "spotlight_clean_exclusions"
 }
