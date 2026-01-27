@@ -91,7 +91,6 @@ def print_options(options):
 
 
 def process_invalid_input(clean_input):
-    
     display = clean_input if clean_input != '' else '<empty>'
 
     present(
