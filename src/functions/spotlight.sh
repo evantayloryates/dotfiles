@@ -31,19 +31,19 @@ spotlight_select_action () {
 
   echo
   printf '1) add       %s|%s %sspot%s %sadd%s\n'  "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
-  printf '            %s|%s %sspot%s %sa%s\n'     "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
-  printf '            %s|%s %sspot%s %shush%s\n'  "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
-  printf '            %s|%s %sspot%s %sh%s\n'     "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
+  printf '             %s|%s %sspot%s %sa%s\n'     "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
+  printf '             %s|%s %sspot%s %shush%s\n'  "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
+  printf '             %s|%s %sspot%s %sh%s\n'     "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
 
   printf '2) clean     %s|%s %sspot%s %sclean%s\n' "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
-  printf '            %s|%s %sspot%s %sc%s\n'     "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
+  printf '             %s|%s %sspot%s %sc%s\n'     "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
 
   printf '3) list      %s|%s %sspot%s %slist%s\n' "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
-  printf '            %s|%s %sspot%s %sls%s\n'    "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
-  printf '            %s|%s %sspot%s %sl%s\n'     "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
+  printf '             %s|%s %sspot%s %sls%s\n'    "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
+  printf '             %s|%s %sspot%s %sl%s\n'     "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
 
   printf '4) watch     %s|%s %sspot%s %swatch%s\n' "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
-  printf '            %s|%s %sspot%s %sw%s\n'     "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
+  printf '             %s|%s %sspot%s %sw%s\n'     "$pipe" "$reset" "$primary" "$reset" "$secondary" "$reset"
 
   echo
   printf 'Selection: '
