@@ -4,7 +4,7 @@ import os
 
 _print = print
 
-SCRIPT_NAME = os.path.splitext(os.path.basename(__file__))[0]
+SCRIPT_NAME = os.path.basename(__file__)
 
 def print(*args, **kwargs):
   prefix = f'[{SCRIPT_NAME}]'
