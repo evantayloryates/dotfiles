@@ -26,7 +26,7 @@ spotlight_select_action () {
   printf '2) clean     | %sspot clean%s\n' "$magenta" "$reset"
   printf '3) add       | %sspot add%s or %sspot hush%s\n' "$magenta" "$reset" "$magenta" "$reset"
   echo
-  printf 'Select action: '
+  printf 'Selection: '
 
   read -r choice
   echo
