@@ -81,17 +81,25 @@ spotlight_watch_exclusions () {
   # clobber at start
   : > "$target" || return 1
 
-  # write to log and stdout live; preserve sudo + fs_usage exit code
+  # ensure we print the closing message on Ctrl+C / termination
+  trap '
+    echo
+    printf "%sLogs stored to %s%s\n" "$magenta" "$target" "$reset"
+    trap - INT TERM
+    return 130
+  ' INT TERM
+
   sudo fs_usage -w -f filesys mds mdworker_shared 2>&1 \
     | tee "$target"
   local rc=${PIPESTATUS[0]}
+
+  trap - INT TERM
 
   echo
   printf '%sLogs stored to %s%s\n' "$magenta" "$target" "$reset"
 
   return "$rc"
 }
-
 
 spotlight_clean_exclusions() {
   local PLIST="/System/Volumes/Data/.Spotlight-V100/VolumeConfiguration.plist"
