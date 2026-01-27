@@ -40,6 +40,7 @@ CONFIG = [
       'clean': 'spotlight_clean_exclusions',
       'hush': 'spotlight_add_exclusions',
       'add': 'spotlight_add_exclusions',
+      'watch': 'spotlight_watch_exclusions',
     },
   ),
   p('s',           '~/src',                            ' cd'),

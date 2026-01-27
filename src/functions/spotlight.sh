@@ -8,6 +8,7 @@ spotlight_select_action () {
   printf '1) list      | %sspot list%s or %sspot ls%s\n' "$magenta" "$reset" "$magenta" "$reset"
   printf '2) clean     | %sspot clean%s\n' "$magenta" "$reset"
   printf '3) add       | %sspot add%s or %sspot hush%s\n' "$magenta" "$reset" "$magenta" "$reset"
+  printf '4) watch     | %sspot add%s or %sspot hush%s\n' "$magenta" "$reset" "$magenta" "$reset"
   echo
   printf 'Selection: '
 
@@ -18,6 +19,7 @@ spotlight_select_action () {
     1) spotlight_list_exclusions ;;
     2) spotlight_clean_exclusions ;;
     3) spotlight_add_exclusions ;;
+    4) spotlight_watch_exclusions ;;
     *) return 0 ;;
   esac
 }
@@ -28,6 +30,10 @@ spotlight_list_exclusions () {
     | grep "^    " \
     | sed 's/^    //' \
     | sort
+}
+
+spotlight_watch_exclusions () {
+ echo "spotlight_watch_exclusions"
 }
 
 spotlight_clean_exclusions() {
