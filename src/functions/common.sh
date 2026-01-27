@@ -115,7 +115,7 @@ clipsend() {
 }
 
 say() {
-  local target_vol=25
+  local target_vol=30
 
   if [[ $# -gt 0 && $1 =~ ^[0-9]{1,3}$ ]] && (( $1 >= 0 && $1 <= 100 )); then
     target_vol=$1
