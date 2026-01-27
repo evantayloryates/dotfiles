@@ -122,7 +122,11 @@ say() {
     shift
   fi
 
-  # Build argv for /usr/bin/say with proper escaping via printf %q
+  # Default speech if nothing left
+  if (( $# == 0 )); then
+    set -- 'Hi'
+  fi
+
   local args=()
   while (( $# )); do
     args+=("$1")
@@ -130,12 +134,10 @@ say() {
   done
 
   local say_cmd='/usr/bin/say'
-  if (( ${#args[@]} )); then
-    local q
-    for q in "${args[@]}"; do
-      say_cmd+=" $(printf '%q' "$q")"
-    done
-  fi
+  local q
+  for q in "${args[@]}"; do
+    say_cmd+=" $(printf '%q' "$q")"
+  done
 
   osascript -e 'on run argv
     set targetVol to (item 1 of argv) as integer
