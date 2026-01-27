@@ -47,12 +47,11 @@ function _exec_amplify() {
   local service="$1"
 
   if [ -z "${service}" ]; then
-  service="$(_select_container "${service}")" || true
-  if [ -z "${service}" ]; then
-    return 0
+    service="$(_select_container "${service}")" || true
+    if [ -z "${service}" ]; then
+      return 0
+    fi
   fi
-fi
-
 
   # confirm service exists in this compose project
   if ! docker compose ps --services | grep -qx "${service}"; then
