@@ -16,7 +16,6 @@ ls() {
   local GRAY='%F{244}'
   local LYELLOW='%F{229}'
   local BLUE='%F{33}'
-  local BLUE='%F{33}'
   local BOLD_BLUE='%B%F{33}'
   local DBLUE='%F{18}'
   
@@ -30,7 +29,8 @@ ls() {
   local DIR_LINK_SRC="${BOLD_BLUE}"
   local DIR_LINK_DST="${LYELLOW}"
 
-  local ARROW="${ARROW_COLOR} -> ${RESET}"
+  local COLUMN_PADDING=2
+  local LEFT_PAD_ARROW_GAP=2
 
   _is_dir_link() {
     # symlink whose resolved target is a directory
@@ -49,9 +49,45 @@ ls() {
     print -r -- "$path"
   }
 
+  _get_display_width() {
+    # Get the display width of an entry name (without colors)
+    local p=$1
+    local name=${p:t}
+    if _is_dir_link "$p"; then
+      # Directory symlink: name + "/"
+      print -r -- $((${#name} + 1))
+    elif [[ -d $p && ! -L $p ]]; then
+      # Regular directory: name + "/"
+      print -r -- $((${#name} + 1))
+    else
+      # File (symlink or regular): just name
+      print -r -- ${#name}
+    fi
+  }
+
+  _make_arrow() {
+    # Create a dynamic arrow with dashes
+    # $1: current display width
+    # $2: target arrow column width
+    # $3: gap spaces before arrow
+    local current_width=$1
+    local target_width=$2
+    local gap=$3
+    local total_chars=$((target_width > current_width ? target_width - current_width : gap + 1))
+    # Account for gap: total_chars - gap - 1 dashes, then the >
+    local dash_count=$((total_chars > gap + 1 ? total_chars - gap - 1 : 0))
+    if (( dash_count > 0 )); then
+      local dashes=$(printf '%*s' $dash_count '' | tr ' ' '-')
+      print -rP -- "${ARROW_COLOR}${dashes}>${RESET}"
+    else
+      print -rP -- "${ARROW_COLOR}>${RESET}"
+    fi
+  }
+
   _print_dir() {
     local p=$1
     local name=${p:t}
+    local width=${2:-0}
 
     [[ $name == '.DS_Store' || $name == '.' || $name == '..' ]] && return 0
 
@@ -60,7 +96,10 @@ ls() {
       dst=$(_replace_home "$dst")
       local src="${name}/"
       [[ -n $dst && $dst != */ ]] && dst="${dst}/"
-      print -rP -- "${DIR_LINK_SRC}${src}${RESET}${ARROW}${DIR_LINK_DST}${dst}${RESET}"
+      local display_width=$((${#name} + 1))
+      local gap_str=$(printf '%*s' $LEFT_PAD_ARROW_GAP '')
+      local arrow=$(_make_arrow $display_width $width $LEFT_PAD_ARROW_GAP)
+      print -rP -- "${DIR_LINK_SRC}${src}${RESET}${gap_str}${arrow} ${DIR_LINK_DST}${dst}${RESET}"
     else
       # directory name + trailing slash
       print -rP -- "${DIRECTORY}${name}${RESET}${DIRECTORY}/${RESET}"
@@ -70,13 +109,17 @@ ls() {
   _print_file() {
     local p=$1
     local name=${p:t}
+    local width=${2:-0}
 
     [[ $name == '.DS_Store' || $name == '.' || $name == '..' ]] && return 0
 
     if [[ -L $p ]]; then
       local dst=$(_readlink "$p")
       dst=$(_replace_home "$dst")
-      print -rP -- "${FILE_LINK_SRC}${name}${RESET}${ARROW}${FILE_LINK_DST}${dst}${RESET}"
+      local display_width=${#name}
+      local gap_str=$(printf '%*s' $LEFT_PAD_ARROW_GAP '')
+      local arrow=$(_make_arrow $display_width $width $LEFT_PAD_ARROW_GAP)
+      print -rP -- "${FILE_LINK_SRC}${name}${RESET}${gap_str}${arrow} ${FILE_LINK_DST}${dst}${RESET}"
     else
       if [[ -x $p ]]; then
         print -rP -- "${EXECUTABLE_FILE}${name}${RESET}"
@@ -134,12 +177,21 @@ ls() {
     fi
   done
 
+  # Calculate maximum display width for alignment
+  local max_width=0
+  local w
+  for p in "${files[@]}" "${dirs[@]}"; do
+    w=$(_get_display_width "$p")
+    (( w > max_width )) && max_width=$w
+  done
+  local arrow_column_width=$((max_width + LEFT_PAD_ARROW_GAP + COLUMN_PADDING))
+
   local line
   while IFS= read -r line; do
-    [[ -n $line ]] && _print_file "$line"
+    [[ -n $line ]] && _print_file "$line" "$arrow_column_width"
   done < <(_sort_hidden_first_ci "${files[@]}")
 
   while IFS= read -r line; do
-    [[ -n $line ]] && _print_dir "$line"
+    [[ -n $line ]] && _print_dir "$line" "$arrow_column_width"
   done < <(_sort_hidden_first_ci "${dirs[@]}")
 }
