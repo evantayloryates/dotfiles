@@ -16,12 +16,13 @@ bench() {
   local red='\033[31m'
 
   # Greens (number darker, unit lighter)
-  local green_dark="$(fg_rgb 0 180 0)"       # number
-  local green_light="$(fg_rgb 0 255 160)"    # unit
+  local green="$(fg_rgb 0 180 0)"       # number
+  local green_dark="$(fg_rgb 0, 144, 0)"       # number
+  # local green_light="$(fg_rgb 0 255 160)"    # unit
 
   local result_prefix_color="${red}"
-  local result_number_color="${green_dark}"
-  local result_unit_color="${green_light}"
+  local result_number_color="${green}"
+  local result_unit_color="${green_dark}"
 
   # -------------------------------------------------------------------------
 
