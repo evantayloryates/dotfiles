@@ -145,8 +145,9 @@ def present_options():
 def main():
     incoming = sys.stdin.readline()
     incoming = incoming.rstrip('\n') if incoming else ''
-    lookup_option(incoming, sorted_options())
     present(f'incoming: {incoming}')
+    result_option = lookup_option(incoming, sorted_options())
+    present(f'result_option: {result_option}')
 
     present('')
 
