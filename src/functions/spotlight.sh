@@ -61,13 +61,21 @@ spotlight_select_action () {
 
 }
 
-
 spotlight_list_exclusions () {
-  sudo /usr/libexec/PlistBuddy -c "Print :Exclusions" /System/Volumes/Data/.Spotlight-V100/VolumeConfiguration.plist 2>/dev/null \
-    | grep "^    " \
+  local magenta=$'\e[35m'
+  local reset=$'\e[0m'
+
+  sudo /usr/libexec/PlistBuddy -c 'Print :Exclusions' /System/Volumes/Data/.Spotlight-V100/VolumeConfiguration.plist 2>/dev/null \
+    | grep '^    ' \
     | sed 's/^    //' \
-    | sort
+    | sort \
+    | tee /dev/tty \
+    | /usr/bin/pbcopy
+
+  echo
+  printf 'Output stored to %sclipboard%s\n' "$magenta" "$reset"
 }
+
 
 spotlight_watch_exclusions () {
   local target="$RESERVED_SPOTLIGHT_EXCLUSION_DIR/watch.log"
@@ -92,7 +100,7 @@ spotlight_watch_exclusions () {
 
     echo
     echo
-    printf '%sLogs stored to:%s\n' "$white" "$reset"
+    printf '%sOutput stored to:%s\n' "$white" "$reset"
     printf '%s  - %s%s%s\n' "$white" "$magenta" "$target" "$reset"
     printf '%s  - %sclipboard%s\n' "$white" "$magenta" "$reset"
   }
