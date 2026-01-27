@@ -51,7 +51,7 @@ def process_invalid_input(user_input):
   return ''
 
 
-def resolve_service(raw_value, options_sorted):
+def resolve_selection(raw_value, options_sorted):
   v = (raw_value or '').strip()
 
   # 1) empty
@@ -92,9 +92,6 @@ def read_input(prompt):
     return ''
   return user_input.rstrip('\n')
 
-def sorted_options():
-  return sorted(OPTIONS, key=lambda o: o['name'])
-
 
 def print_options(options):
   i = 0
@@ -123,13 +120,13 @@ def print_options(options):
 
 
 def present_options():
-  options = sorted_options()
+  options = sorted(OPTIONS, key=lambda o: o['name'])
   print_options(options)
 
   user_input = read_input('Selected: ')
   present('')  # newline after Enter for clean output
 
-  return resolve_service(user_input, options)
+  return resolve_selection(user_input, options)
 
 
 def main():
