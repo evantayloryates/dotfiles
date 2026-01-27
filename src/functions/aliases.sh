@@ -7,7 +7,7 @@ _kitsrc () { /Applications/kitty.app/Contents/MacOS/kitty @ load-config "$HOME/.
 abs     () { realpath "$@"                                                                                ;} # 
 c       () { clip "$@"                                                                                    ;} # 
 clip    () { { printf '$ %s\n' "$*"; "$@"; } | perl -pe 'chomp if eof' | /usr/bin/pbcopy                  ;} # 
-# convert () { magick "$@"                                                                                  ;} # 
+convert () { magick "$@"                                                                                  ;} # 
 dc      () { docker compose "$@"                                                                          ;} # 
 env     () { /usr/bin/env | sort                                                                          ;} # 
 ex      () { exiftool "$@"                                                                                ;} # Note: this will overwrite the /usr/bin/ex command
