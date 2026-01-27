@@ -26,7 +26,7 @@ function _ssh_stage() {
   ssh -i ~/.ssh/aws-eb -tt root@ssh-app-stage.spaceback.me 'echo "echo \"RUN: cd ~ && source activate && cd /app && rails c\" && source /root/activate" | bash -s && bash -i'
 }
 
-_select_container() {
+function _select_container() {
   local choices=(
     app
     browser
@@ -84,7 +84,7 @@ _select_container() {
   return 1
 }
 
-_exec_amplify() {
+function _exec_amplify() {
   local service="$1"
   echo "service: $service"
   if [ -z "${service}" ]; then
