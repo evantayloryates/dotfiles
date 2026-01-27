@@ -117,13 +117,23 @@ function _select_container() {
     local name="${choices[$i]}"
     local alias="${aliases[$name]}"
 
-    if [ "${input}" = "${name}" ] || { [ -n "${alias}" ] && [ "${input}" = "${alias}" ]; }; then
-      echo "${name}"
-      return 0
+    local index=$((i + 1))
+    local index_fmt
+    if [ "${index}" -lt 10 ]; then
+      index_fmt=" ${index}"
+    else
+      index_fmt="${index}"
+    fi
+
+    if [ -n "${alias}" ]; then
+      printf '%s) %s (%s)\n' "${index_fmt}" "${name}" "${alias}" > "${tty}"
+    else
+      printf '%s) %s\n' "${index_fmt}" "${name}" > "${tty}"
     fi
 
     i=$((i + 1))
   done
+
 
   __log "$(_red 'Invalid input')"
   return 1
