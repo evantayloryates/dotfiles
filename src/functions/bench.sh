@@ -22,6 +22,8 @@ bench() {
   local result_prefix_color="${green}"
   local result_color="${green}"
   local result_ms_color="${bold_green}"
+  local reset="\033[0m"
+  
   # Get start time in seconds (with decimal precision)
   start=$(python3 -c 'import time; print(time.time())')
   
@@ -39,10 +41,8 @@ else:
     print(round(elapsed))
 ")
   
-  # Log the result
-  # echo " ⤷ ⏱️  ${rounded}ms"
   echo
-  echo " ↳ ${rounded}ms"
+  echo "${result_prefix_color} ↳ ${result_ms_color}${rounded}ms${reset}"
   
   return $exit_code
 }
