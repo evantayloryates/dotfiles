@@ -48,6 +48,10 @@ OPTIONS = [
 TTY = open('/dev/tty', 'r')
 
 
+def clean_input(incoming):
+    return incoming.rstrip('\n') if incoming else ''
+
+
 def read_input(prompt):
     present(prompt, end='', flush=True)
     user_input = TTY.readline()
@@ -148,10 +152,14 @@ def present_options():
     return resolve_selection(user_input, options)
 
 
+def preresolve_from_input(incoming):
+    return lookup_option(incoming, sorted_options(), allow_index=False)
+
+
 def main():
     incoming = sys.stdin.readline()
     incoming = incoming.rstrip('\n') if incoming else ''
-    present(f'incoming: {incoming}')
+
     result_option = lookup_option(
         incoming, sorted_options(), allow_index=False)
     present(f'result_option: {result_option}')
