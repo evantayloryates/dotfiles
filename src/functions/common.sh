@@ -101,7 +101,6 @@ function _select_container() {
   return 1
 }
 
-
 function _exec_amplify() {
   local service="$1"
 
