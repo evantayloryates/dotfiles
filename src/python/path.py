@@ -53,10 +53,10 @@ COLOR_CODES = {
     'yellow': ['\033[33m', '\033[0m'],
 }
 
-COLOR_1 = 'cyan_bright'
-COLOR_2 = 'cyan_dim_bright'
-# COLOR_1 = 'blue_bright'
-# COLOR_2 = 'blue_dim_bright'
+# COLOR_1 = 'cyan_bright'
+# COLOR_2 = 'cyan_dim_bright'
+COLOR_1 = 'blue_bright'
+COLOR_2 = 'blue_dim_bright'
 # COLOR_1 = 'green_bright'
 # COLOR_2 = 'green_dim_bright'
 # COLOR_1 = 'white_bright'
