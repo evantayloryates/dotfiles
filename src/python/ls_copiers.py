@@ -158,7 +158,7 @@ def main():
 
     FN_COLOR = 'blue'
     VARIANT_COLOR = 'dark_blue'
-    ARROW_COLOR = 'gray'
+    ARROW_COLOR = 'black_dim'
     RESULT_COLOR = 'white'
 
     for name, value in rows:
