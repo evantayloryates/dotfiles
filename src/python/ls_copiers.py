@@ -220,7 +220,6 @@ def main():
             # f'{c("=>", ARROW_COLOR)} '
             # f'{c(value, RESULT_COLOR)}\n'
             f'{colored_name}{padding}\n'
-            
         )
 
 
