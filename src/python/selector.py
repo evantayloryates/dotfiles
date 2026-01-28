@@ -158,7 +158,11 @@ def preresolve_from_input():
 
 def main():
     result_option = preresolve_from_input()
-    present(f'result_option: {result_option}')
+    
+    # if result option is object and has 'name' attribute that is not empty return it, otherwise continue
+    if isinstance(result_option, dict) and 'name' in result_option and result_option['name']:
+        return result_option['name']
+  
 
     present('')
 
