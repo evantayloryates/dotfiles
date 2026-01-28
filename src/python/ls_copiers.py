@@ -57,7 +57,7 @@ def eval_copier_fn(copiers_path, copier_fn, variant=''):
         sys.stdout.write(f"FULL FN: {full_fn}\n")
     cmd = (
         f'source {copiers_path}; '
-        f'{sh_quote(full_fn)}; '
+        f'{full_fn}; '
         f'/usr/bin/pbpaste; '
         f': | /usr/bin/pbcopy'
     )
