@@ -75,11 +75,7 @@ def filtered_colors(checks):
 
 def random_color(checks=[]):
     return random.choice(filtered_colors(checks))
-  
-def random_magenta():
-    return random.choice(['magenta_bold_bright', 'magenta_bright', 'magenta_dim_bright'])
-def random_neutral():
-    return random.choice(NEUTRALS)
+
 # COLOR_1 = 'cyan_bright'
 # COLOR_2 = 'cyan_dim_bright'
 # COLOR_1 = 'blue_bright'
