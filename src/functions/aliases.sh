@@ -34,7 +34,7 @@ alias password="python3 $DOTFILES_DIR/src/python/password.py"
 alias words="open $DOTFILES_DIR/src/__data/words.txt"
 
 
-__clipper_helper () {
+__clpper_helper () {
   { cat; } | strip_ansi | /usr/bin/pbcopy
 }
 
