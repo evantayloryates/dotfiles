@@ -53,31 +53,33 @@ COLOR_CODES = {
     'yellow': ['\033[33m', '\033[0m'],
 }
 NEUTRALS = [
-  'white_bold_bright',
-  'white_bold',
-  'white_bright',
-  'white_dim_bright',
-  'white_dim',
-  'white',
-  'black_bold_bright',
-  'black_bold',
-  'black_bright',
-  'black_dim_bright',
-  'black_dim',
-  'black',
+    'white_bold_bright',
+    'white_bold',
+    'white_bright',
+    'white_dim_bright',
+    'white_dim',
+    'white',
+    'black_bold_bright',
+    'black_bold',
+    'black_bright',
+    'black_dim_bright',
+    'black_dim',
+    'black',
 ]
 
+
 def filtered_colors(checks):
-  if checks:
-    return [color for color in COLOR_CODES.keys() if any(check in color for check in checks)]
-  else:
-    return COLOR_CODES.keys()
+    if checks:
+        return [color for color in COLOR_CODES.keys() if any(check in color for check in checks)]
+    else:
+        return COLOR_CODES.keys()
+
 
 def random_color(checks=[]):
-  # if checks is a string, wrap in []
-  if isinstance(checks, str):
-    checks = [checks]
-  return random.choice(filtered_colors(checks))
+    # if checks is a string, wrap in []
+    if isinstance(checks, str):
+        checks = [checks]
+    return random.choice(filtered_colors(checks))
 
 # COLOR_1 = 'cyan_bright'
 # COLOR_2 = 'cyan_dim_bright'
@@ -141,7 +143,8 @@ for idx, i in enumerate(normalized):
     color = COLOR_1 if idx % 2 == 0 else COLOR_2
     segments = [seg for seg in i.split('/') if seg]
     colored_segments = [c(seg, color) for seg in segments]
-    colored_path = c('/', slash_color) + c('/', slash_color).join(colored_segments) if segments else ''
+    colored_path = c('/', slash_color) + c('/',
+                                           slash_color).join(colored_segments) if segments else ''
     # print(f"{colored_path} ({slash_color})")
     print(f"{colored_path}")
 
