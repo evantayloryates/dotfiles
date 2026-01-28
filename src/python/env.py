@@ -70,7 +70,7 @@ items = [
 
 items.sort(key=lambda x: x[0])
 
-PADDING_BUFFER = 2
+PADDING_BUFFER = 1
 max_name_len = max(len(k) for k, _ in items)
 pad_to = max_name_len + PADDING_BUFFER
 
