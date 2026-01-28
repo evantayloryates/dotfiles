@@ -23,9 +23,6 @@ def extract_variants(fn_name, lines, copiers_path):
     # remove empty string vals or vals with only spaces
     variants = [v for v in variants if v and not v.isspace()]
 
-    for variant in variants:
-        sys.stdout.write(f"VARIANT: {variant}\n")
-
     return variants
 
 
