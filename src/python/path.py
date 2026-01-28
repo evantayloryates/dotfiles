@@ -67,9 +67,17 @@ NEUTRALS = [
   'black',
 ]
 
-def random_color():
-    return random.choice(list(COLOR_CODES.keys()))
+def filtered_colors(checks):
+  if checks:
+    return [color for color in COLOR_CODES.keys() if any(check in color for check in checks)]
+  else:
+    return COLOR_CODES.keys()
+
+def random_color(checks=[]):
+    return random.choice(filtered_colors(checks))
   
+def random_magenta():
+    return random.choice(['magenta_bold_bright', 'magenta_bright', 'magenta_dim_bright'])
 def random_neutral():
     return random.choice(NEUTRALS)
 # COLOR_1 = 'cyan_bright'
@@ -117,7 +125,8 @@ print()
 override_1 = random_neutral()
 override_2 = override_1
 # slash_color = 'white'
-slash_color = random_color()
+# slash_color = random_color()
+slash_color = random_magenta()
 # for idx, i in enumerate(normalized[:5]):
 print(f"PRIMARY: {override_1}")
 print(f"SLASH:   {slash_color}")
