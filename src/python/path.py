@@ -16,7 +16,15 @@ normalized = []
 for item in path_items:
     # Replace multiple leading slashes with a single one
     item = re.sub(r'^/+', '/', item)
+
+    # Replace leading $HOME with ~
+    if HOME and item.startswith(HOME + '/'):
+        item = '~' + item[len(HOME):]
+    elif HOME and item == HOME:
+        item = '~'
+
     normalized.append(item)
+
 
 # dedupe
 normalized = list(set(normalized))
