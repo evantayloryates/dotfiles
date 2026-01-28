@@ -5,6 +5,16 @@ import sys
 COPIER_RE = re.compile(
     r'^(_[a-z0-9](?:[a-z0-9]*(_[a-z0-9]+)*)?) {0,5}\( {0,5}\) {0,5}\{')
 
+def extract_variants(fn_name, lines):
+    # first, check if the fn_name__variants function exists
+    if not fn_name in lines:
+        return []
+    variants = eval_command(f'source {sh_quote(copiers_path)}; {sh_quote(fn_name)}__variants')
+    # then, extract the variants from the result
+    variants = variants.split(' ')
+    return variants
+  
+  
 def extract_copiers(copiers_path):
     with open(copiers_path, 'r') as f:
         lines = f.read().splitlines()
