@@ -53,6 +53,7 @@ def eval_command(command):
 
 def eval_copier_fn(copiers_path, copier_fn, variant=''):
     full_fn = f"{copier_fn} {variant}".strip()
+    sys.stdout.write(f"{full_fn}\n")
     cmd = (
         f'source {sh_quote(copiers_path)}; '
         f'{sh_quote(full_fn)}; '
