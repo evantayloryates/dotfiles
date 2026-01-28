@@ -69,6 +69,9 @@ NEUTRALS = [
 
 def random_color():
     return random.choice(list(COLOR_CODES.keys()))
+  
+def random_neutral():
+    return random.choice(NEUTRALS)
 # COLOR_1 = 'cyan_bright'
 # COLOR_2 = 'cyan_dim_bright'
 # COLOR_1 = 'blue_bright'
@@ -110,8 +113,8 @@ normalized.sort(key=lambda p: (segment_count(p), p))
 
 print()
 
-override_1 = 'black_bold_bright'
-# override_1 = random_color()
+# override_1 = 'black_bold_bright'
+override_1 = random_neutral()
 override_2 = override_1
 # slash_color = 'white'
 slash_color = random_color()
