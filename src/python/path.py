@@ -104,6 +104,7 @@ slash_color = random_color()
 # for idx, i in enumerate(normalized[:5]):
 print(f"PRIMARY: {override_1}")
 print(f"SLASH:   {slash_color}")
+print()
 
 for idx, i in enumerate(normalized):
     while True:
