@@ -26,6 +26,8 @@ LOG_COLOR = COLORS['green']
 #     _print(value)
 
 def present(*args, **kwargs):
+    kwargs.setdefault('end', '\n')
+    kwargs.setdefault('flush', False)
     print(*args, file=sys.stderr, **kwargs)
 
 
@@ -59,18 +61,14 @@ TTY = open('/dev/tty', 'r')
 
 def cleaned(incoming):
     return (incoming or '').strip()
-
-
 def read_input(prompt):
     present(prompt, end='', flush=True)
 
     fd = TTY.fileno()
     old_attrs = termios.tcgetattr(fd)
-
     buf = []
 
     try:
-        # raw: no canonical mode, no echo; we will echo manually
         tty.setraw(fd)
 
         while True:
@@ -91,7 +89,7 @@ def read_input(prompt):
                 present('')
                 return ''
 
-            # Enter (raw mode usually yields '\r')
+            # Enter
             if ch in ('\r', '\n'):
                 present('')
                 return cleaned(''.join(buf))
@@ -100,20 +98,14 @@ def read_input(prompt):
             if ch in ('\x7f', '\b'):
                 if buf:
                     buf.pop()
-                    # move back, clear char, move back
                     present('\b \b', end='', flush=True)
                 continue
 
-            # Optional: ignore other control chars
             if ch < ' ':
                 continue
 
             buf.append(ch)
             present(ch, end='', flush=True)
-
-    except KeyboardInterrupt:
-        present('')
-        return ''
     finally:
         termios.tcsetattr(fd, termios.TCSADRAIN, old_attrs)
 
