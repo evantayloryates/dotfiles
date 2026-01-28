@@ -34,10 +34,10 @@ alias password="python3 $DOTFILES_DIR/src/python/password.py"
 alias words="open $DOTFILES_DIR/src/__data/words.txt"
 
 
-__clip () {
+__clipper_helper () {
   { cat; } | strip_ansi | /usr/bin/pbcopy
 }
 
 # alias -g CP='| __clip'
-alias -g clp='| __clip'
+alias -g clip='| __clipper_helper'
 # alias -g c='| clip'
