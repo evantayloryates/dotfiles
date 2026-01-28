@@ -52,9 +52,10 @@ def eval_command(command):
 
 
 def eval_copier_fn(copiers_path, copier_fn, variant=''):
+    full_fn = f"{copier_fn} {variant}".strip()
     cmd = (
         f'source {sh_quote(copiers_path)}; '
-        f'{sh_quote(copier_fn)}; '
+        f'{sh_quote(full_fn)}; '
         f'/usr/bin/pbpaste; '
         f': | /usr/bin/pbcopy'
     )
