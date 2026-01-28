@@ -103,6 +103,6 @@ for idx, i in enumerate(normalized):
         if COLOR_1 != COLOR_2:
             break
     color = COLOR_1 if idx % 2 == 0 else COLOR_2
-    print(c(i, color))
+    print(f"{c(i, color)} ({COLOR_1})")
 
 print()
