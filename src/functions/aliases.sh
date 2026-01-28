@@ -5,8 +5,7 @@
 # : is offical syntax. 
 _kitsrc () { /Applications/kitty.app/Contents/MacOS/kitty @ load-config "$HOME/.config/kitty/kitty.conf"  ;} #
 abs     () { realpath "$@"                                                                                ;} # 
-# c       () { clip "$@"                                                                                    ;} # 
-# clip   () { { printf '$ %s\n' "$*"; eval "$*"; } | strip_ansi | /usr/bin/pbcopy                          ;} #
+clip    () { { cat; } | strip_ansi | /usr/bin/pbcopy                                                      ;} #
 convert () { magick "$@"                                                                                  ;} # 
 dc      () { docker compose "$@"                                                                          ;} # 
 env     () { /usr/bin/env | sort                                                                          ;} # 
@@ -35,7 +34,7 @@ alias words="open $DOTFILES_DIR/src/__data/words.txt"
 
 
 clip () {
-  { cat; } | strip_ansi | /usr/bin/pbcopy
+  
 }
 
 alias -g c='| clip'
