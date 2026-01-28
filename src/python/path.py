@@ -10,7 +10,16 @@ for item in path_items:
   normalized.append(item)
 
 # dedupe
-normalized = sorted(set(normalized))
+normalized = list(set(normalized))
+
+
+def segment_count(path):
+  # split on '/', ignore empty segments
+  return len([p for p in path.split('/') if p])
+
+
+# sort: first by segment count, then alphabetically
+normalized.sort(key=lambda p: (segment_count(p), p))
 
 for i in normalized:
   print(i)
