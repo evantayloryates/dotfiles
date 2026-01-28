@@ -8,7 +8,10 @@ def c(s, color='white'):
     open_code, close_code = COLOR_CODES[color]
     return f'{open_code}{s}{close_code}'
 
-
+NAME_COLOR = 'magenta_bold_bright'
+DELIMITER_COLOR = 'yellow_bright'
+VALUE_COLOR = 'cyan_bold_bright'
+DELIMITER = '='
 items = [
     (k, v)
     for k, v in os.environ.items()
@@ -18,4 +21,8 @@ items = [
 items.sort(key=lambda x: x[0])
 
 for k, v in items:
-    print(f'{k}={v}')
+    print(
+        f'{c(k, NAME_COLOR)}'
+        f'{c(DELIMITER, DELIMITER_COLOR)}'
+        f'{c(v, VALUE_COLOR)}'
+    )
