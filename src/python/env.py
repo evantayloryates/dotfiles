@@ -12,7 +12,7 @@ def c(s, color='white'):
 NAME_COLOR = 'white'
 # NAME_COLOR = 'magenta_bold_bright'
 DELIMITER_COLOR = 'black_bold_bright'
-VALUE_COLOR = 'cyan_bold_bright'
+VALUE_COLOR = 'magenta_bold_bright'
 DELIMITER = '='
 items = [
     (k, v)
