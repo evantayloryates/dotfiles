@@ -39,11 +39,10 @@ def main():
   products = []
   for fn in copier_fns:
     value = eval_copier_fn(copiers_path, fn)
-    products.append({'name': fn, 'value': value})
+    products.append((fn, value))
 
-  # Example output; adjust as needed
-  for p in products:
-    sys.stdout.write(f"{p['name']}\t{p['value']}")
+  for fn, value in products:
+    sys.stdout.write(f"{fn}\n\t{value}\n")
 
 if __name__ == '__main__':
   main()
