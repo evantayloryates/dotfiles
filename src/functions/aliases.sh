@@ -6,7 +6,7 @@
 _kitsrc () { /Applications/kitty.app/Contents/MacOS/kitty @ load-config "$HOME/.config/kitty/kitty.conf"  ;} #
 abs     () { realpath "$@"                                                                                ;} # 
 c       () { clip "$@"                                                                                    ;} # 
-clip   () { { printf '$ %s\n' "$*"; eval "$*"; } | strip_ansi | /usr/bin/pbcopy                          ;} #
+# clip   () { { printf '$ %s\n' "$*"; eval "$*"; } | strip_ansi | /usr/bin/pbcopy                          ;} #
 convert () { magick "$@"                                                                                  ;} # 
 dc      () { docker compose "$@"                                                                          ;} # 
 env     () { /usr/bin/env | sort                                                                          ;} # 
@@ -33,3 +33,24 @@ src     () { _kitsrc; clear; source "$HOME/dotfiles/src/index.sh"               
 alias password="python3 $DOTFILES_DIR/src/python/password.py"
 alias words="open $DOTFILES_DIR/src/__data/words.txt"
 
+
+clip () {
+  if [[ -t 0 ]]; then
+    # No stdin: run the command given as argv and copy its output
+    {
+      printf '$ %s\n' "$*"
+      "$@"
+    } | strip_ansi | /usr/bin/pbcopy
+  else
+    # Has stdin: copy pipeline output
+    {
+      # Print a best-effort header (argv if present; otherwise generic)
+      if (( $# )); then
+        printf '$ %s\n' "$*"
+      else
+        printf '$ (stdin)\n'
+      fi
+      cat
+    } | strip_ansi | /usr/bin/pbcopy
+  fi
+}
