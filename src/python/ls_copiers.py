@@ -1,4 +1,5 @@
 import re
+import os
 import subprocess
 import sys
 
@@ -132,6 +133,19 @@ def c(s, color='white'):
 
 
 def main():
+    # Initialize DEBUG_TEST_INDEX if missing or invalid
+    try:
+        _ = int(os.environ.get('DEBUG_TEST_INDEX', ''))
+    except (TypeError, ValueError):
+        os.environ['DEBUG_TEST_INDEX'] = '-1'
+
+    # Read, increment, and persist
+    test_index = int(os.environ['DEBUG_TEST_INDEX']) + 1
+    print(f'DEBUG_TEST_INDEX: {test_index}')
+
+    os.environ['DEBUG_TEST_INDEX'] = str(test_index + 1)
+
+
     copiers_path = sys.argv[1]
     copiers = extract_copiers(copiers_path)
 
