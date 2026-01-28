@@ -46,7 +46,7 @@ def main():
   copier_fns = extract_copier_fns(copiers_path)
 
   products = []
-  for fn in copier_fns:
+  for copier_fn in copier_fns:
     value = eval_copier_fn(copiers_path, fn)
     products.append((fn, value))
 
