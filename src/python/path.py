@@ -122,7 +122,9 @@ normalized.sort(key=lambda p: (segment_count(p), p))
 
 print()
 
-# override_1 = 'white_bold_bright'
+# GOOD:
+#  - white_bold_bright
+# override_1 = 'white_bright'
 override_1 = random_color(['white'])
 override_2 = override_1
 # slash_color = 'white'
