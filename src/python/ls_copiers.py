@@ -35,8 +35,7 @@ def eval_copier_fn(copiers_path, copier_fn):
     f'/usr/bin/pbpaste; '
     f': | /usr/bin/pbcopy'
   )
-  result = eval_command(cmd)
-  return result.stdout
+  return eval_command(cmd)
 
 
 
