@@ -78,14 +78,15 @@ def main():
         variants = copier['variants']
         if len(variants) == 0:
             result = eval_copier_fn(copiers_path, fn_name)
-            sys.stdout.write(f"{fn_name}\n")
-            sys.stdout.write(f"{result}\n")
+            # sys.stdout.write(f"{fn_name}\n")
+            # sys.stdout.write(f"{result}\n")
         else:
             for variant in variants:
                 sys.stdout.write(f"DEBUG: {variant}\n")
                 result = eval_copier_fn(copiers_path, fn_name, variant)
-                sys.stdout.write(f"{fn_name} {variant}\n")
-                sys.stdout.write(f"{result}\n")
+                sys.stdout.write(f"DEBUG: {result}\n")
+                # sys.stdout.write(f"{fn_name} {variant}\n")
+                # sys.stdout.write(f"{result}\n")
 
 
 if __name__ == '__main__':
