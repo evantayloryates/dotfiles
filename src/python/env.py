@@ -57,10 +57,8 @@ def c(s, color='white'):
     return f'{open_code}{s}{close_code}'
 
 
-NAME_COLOR = 'black_bold_bright'
-# NAME_COLOR = 'magenta_bold_bright'
-DELIMITER_COLOR = 'magenta_dim'
-VALUE_COLOR = 'magenta_bold_bright'
+NAME_COLORS = ['magenta_dim', 'cyan_dim']
+VALUE_COLORS = ['magenta', 'cyan']
 DELIMITER = ''
 items = [
     (k, v)
@@ -77,8 +75,10 @@ pad_to = max_name_len + PADDING_BUFFER
 for k, v in items:
     padded_name = k.ljust(pad_to)
 
+    name_color = NAME_COLORS[idx % len(NAME_COLORS)]
+    value_color = VALUE_COLORS[idx % len(VALUE_COLORS)]
+
     print(
         f'{c(padded_name, NAME_COLOR)}'
-        f'{c(DELIMITER, DELIMITER_COLOR)}'
         f'{c(v, VALUE_COLOR)}'
     )
