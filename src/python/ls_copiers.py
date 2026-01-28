@@ -14,6 +14,22 @@ def extract_copier_fns(copiers_path):
       copier_fns.append(m.group(1))
   return copier_fns
 
+def eval_copier_fn(copiers_path, copier_fn):
+  # Runs: source <file>; <fn>; pbpaste
+  # Uses zsh since your copiers file uses zsh-specific ${(%)...} elsewhere.
+  cmd = f'source {sh_quote(copiers_path)}; {sh_quote(copier_fn)}; /usr/bin/pbpaste'
+  result = subprocess.run(
+    ['/bin/zsh', '-lc', cmd],
+    capture_output=True,
+    text=True,
+    check=True,
+  )
+  return result.stdout
+
+def sh_quote(s):
+  # minimal safe single-quote wrapper for shell strings
+  return "'" + s.replace("'", "'\\''") + "'"
+  
 def main():
   copiers_path = sys.argv[1]
 
