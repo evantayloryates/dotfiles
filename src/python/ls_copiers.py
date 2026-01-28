@@ -34,8 +34,15 @@ def main():
   copiers_path = sys.argv[1]
 
   copier_fns = extract_copier_fns(copiers_path)
-  sys.stdout.write(f'{copier_fns}\n')
-  
+
+  products = []
+  for fn in copier_fns:
+    value = eval_copier_fn(copiers_path, fn)
+    products.append({'name': fn, 'value': value})
+
+  # Example output; adjust as needed
+  for p in products:
+    sys.stdout.write(f"{p['name']}\t{p['value']}")
 
 if __name__ == '__main__':
   main()
