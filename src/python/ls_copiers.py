@@ -17,15 +17,10 @@ def extract_variants(fn_name, lines, copiers_path):
     if not variants_exist:
         return []
     cmd = f'source {copiers_path}; {full_variants_fn}'
-    sys.stdout.write(f"CMD: {cmd}\n")
-    
     result = eval_command(cmd)
-    variants = result.split(' ')
-    for variant in variants:
-        sys.stdout.write(f"VARIANT: {variant}\n")
      
     # then, extract the variants from the result
-    return variants.split(' ')
+    return result.split(' ')
 
 
 def extract_copiers(copiers_path):
