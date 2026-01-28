@@ -74,7 +74,10 @@ def filtered_colors(checks):
     return COLOR_CODES.keys()
 
 def random_color(checks=[]):
-    return random.choice(filtered_colors(checks))
+  # if checks is a string, wrap in []
+  if isinstance(checks, str):
+    checks = [checks]
+  return random.choice(filtered_colors(checks))
 
 # COLOR_1 = 'cyan_bright'
 # COLOR_2 = 'cyan_dim_bright'
@@ -118,7 +121,7 @@ normalized.sort(key=lambda p: (segment_count(p), p))
 print()
 
 # override_1 = 'black_bold_bright'
-override_1 = random_neutral()
+override_1 = random_color(['white', 'black'])
 override_2 = override_1
 # slash_color = 'white'
 # slash_color = random_color()
