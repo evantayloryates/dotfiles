@@ -24,7 +24,8 @@ __clip () {
   } | strip_ansi | /usr/bin/pbcopy
 }
 
-
+alias -g cl='| __clip'
+alias -g copy='| __clip'
 
 _glob () {
   case "$1" in
@@ -40,8 +41,6 @@ _glob () {
   esac
 }
 
-alias -g cl='| __clip'
-alias -g copy='| __clip'
 
 # Keeping for reference. the new official "clip" function strips ANSI (CSI + OSC) before copying.
 __oldclip () {
