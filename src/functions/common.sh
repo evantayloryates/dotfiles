@@ -70,6 +70,26 @@ function _amplify_exec() {
   fi
 }
 
+function _amplify_logs() {
+  local service="$1"
+  local amplify_dir="${HOME}/src/github/amplify"
+
+  service="$(_select_container "${service}")" || true
+  if [ -z "${service}" ]; then
+    return 0
+  fi
+
+  if ! docker compose --project-directory "${amplify_dir}" ps --services | grep -qx "${service}"; then
+    __log "$(_red "_amplify_logs: unknown service '${service}'")"
+    return 1
+  fi
+
+  __log "↓ Tailing logs for: $(_magenta "${service}")"
+  __log ""
+
+  dc --project-directory "${amplify_dir}" logs --tail=200 --follow "${service}"
+}
+
 
 function sb() {
   local magenta="\033[35m"

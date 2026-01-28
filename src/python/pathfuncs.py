@@ -15,15 +15,17 @@ def p(slug, path, default='cursor', commands=None, aliases=None):
 
 
 CONFIG = [
-  p('amp',        '~/src/github/amplify', aliases=['amplify'], commands={
-    'disable': 'safemv <path>/.git/hooks/pre-commit <path>/.git/hooks/pre-commit.disabled && echo "pre-commit disabled" || echo "failed to disable"',
-    'enable': 'safemv <path>/.git/hooks/pre-commit.disabled <path>/.git/hooks/pre-commit && echo "pre-commit enabled" || echo "failed to enable"',
-    'exec': "_amplify_exec <args>",
-    'login': "_amplify_exec <args>",
-    'ssh': "_ssh_prod",
-    'prod': "_ssh_prod",
-    'stage': "_ssh_stage",
-  }),
+  p('amp',        '~/src/github/amplify', aliases=['amplify'], 
+    commands={
+      'disable': 'safemv <path>/.git/hooks/pre-commit <path>/.git/hooks/pre-commit.disabled && echo "pre-commit disabled" || echo "failed to disable"',
+      'enable': 'safemv <path>/.git/hooks/pre-commit.disabled <path>/.git/hooks/pre-commit && echo "pre-commit enabled" || echo "failed to enable"',
+      'exec': "_amplify_exec <args>",
+      'login': "_amplify_exec <args>",
+      'ssh': "_ssh_prod",
+      'prod': "_ssh_prod",
+      'stage': "_ssh_stage",
+    }
+  ),
   p('app',         '/Applications',                     'open'), # TODO: link all app dirs /Applications, /System/Applications, /System/Applications/Utilities, /System/Library/CoreServices/Applications/ 
   p('d',           '~/Desktop',                         'cd',  aliases=['desk', 'desktop']),
   p('dot-old',     '~/.dotfiles'),
