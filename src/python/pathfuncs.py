@@ -34,10 +34,14 @@ CONFIG = [
   p('kit',         '~/.config/kitty/',                  aliases=['kitty'], commands={'reload': '/Applications/kitty.app/Contents/MacOS/kitty @ load-config /Users/taylor/.config/kitty/kitty.conf'}),
   p('mac',         '~/src/macos',                       'cursor', aliases=['macos']),
   p('mesh',        '~/src/github/mesh'),
-  p('nex',         '~/src/github/nexrender-scripts',    'ssh', 
+  p('nex',         '~/src/github/nexrender-scripts',    'dev', 
     commands={
-      'ssh': '/Users/taylor/src/github/nexrender-scripts/scripts/local/ssh',
-      'tmux': '/Users/taylor/src/github/nexrender-scripts/scripts/local/nex.sh',
+      'dev'      : '/Users/taylor/src/github/nexrender-scripts/scripts/local/ssh',
+      'ssh'      : 'make -C /Users/taylor/src/github/nexrender-api ssh',
+      'vnc'      : 'make -C /Users/taylor/src/github/nexrender-api vnc',
+      'pwd'      : 'make -C /Users/taylor/src/github/nexrender-api send-pwd',
+      'password' : 'make -C /Users/taylor/src/github/nexrender-api send-pwd',
+      'tmux'     : '/Users/taylor/src/github/nexrender-scripts/scripts/local/nex.sh',
     }
   ),
   p('notes',       '~/Desktop/notes'),

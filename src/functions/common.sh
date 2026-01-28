@@ -45,14 +45,16 @@ function _select_container() {
 
 function _exec_amplify() {
   local service="$1"
+  local amplify_dir="${HOME}/src/github/amplify"
 
   service="$(_select_container "${service}")" || true
   if [ -z "${service}" ]; then
     return 0
   fi
-  
+
+  # run from amplify project dir without changing cwd
   # confirm service exists in this compose project
-  if ! docker compose ps --services | grep -qx "${service}"; then
+  if ! docker compose --project-directory "${amplify_dir}" ps --services | grep -qx "${service}"; then
     __log "$(_red "exec_amplify: unknown service '${service}'")"
     return 1
   fi
@@ -60,12 +62,11 @@ function _exec_amplify() {
   __log "↓ Opening shell in: $(_magenta "${service}")"
   __log ""
 
-
   # prefer bash if available; fall back to sh
-  if docker compose exec -T "${service}" /bin/bash -lc 'exit' >/dev/null 2>&1; then
-    docker compose exec -it "${service}" /bin/bash
+  if docker compose --project-directory "${amplify_dir}" exec -T "${service}" /bin/bash -lc 'exit' >/dev/null 2>&1; then
+    docker compose --project-directory "${amplify_dir}" exec -it "${service}" /bin/bash
   else
-    docker compose exec -it "${service}" /bin/sh
+    docker compose --project-directory "${amplify_dir}" exec -it "${service}" /bin/sh
   fi
 }
 
