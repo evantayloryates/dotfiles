@@ -113,6 +113,7 @@ __oldclip () {
     "$@"
   } | perl -pe 'chomp if eof' | /usr/bin/pbcopy
 }
+
 clip () { 
   {
     # Print the command echoed, then run the command
