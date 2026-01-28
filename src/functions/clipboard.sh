@@ -8,7 +8,11 @@ clip () {
     printf '$ %s\n' "$cmd"
     "$@"
   } | strip_ansi | /usr/bin/pbcopy
+
+  # informational log (not copied to clipboard)
+  printf '\033[35myou can also use:\n[comand] cl\n\033[0mto copy piped commands\n' >&2
 }
+
 
 setopt extendedglob
 __CLIP_LASTLINE=''
