@@ -13,6 +13,8 @@ def c(s, color='white'):
 path_items = os.environ.get('PATH', '').split(':')
 normalized = []
 
+HOME = os.environ.get('HOME', '')
+
 for item in path_items:
     # Replace multiple leading slashes with a single one
     item = re.sub(r'^/+', '/', item)
