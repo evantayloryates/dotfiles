@@ -31,6 +31,16 @@ _glob () {
 
 lll() {
   local script_path="${(%):-%x}"
+
+  # save current clipboard
+  local __clipboard_backup
+  __clipboard_backup="$(/usr/bin/pbpaste)"
+
+  # run copier inspection
   python3 "${DOTFILES_DIR}/src/python/ls_copiers.py" "${script_path}"
+
+  # restore clipboard
+  printf '%s' "${__clipboard_backup}" | /usr/bin/pbcopy
 }
+
 puts ['...', *ActiveRecord::SchemaMigration.order(version: :desc).limit(5).pluck(:version).reverse].join("\n")
