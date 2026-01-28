@@ -61,6 +61,8 @@ TTY = open('/dev/tty', 'r')
 
 def cleaned(incoming):
     return (incoming or '').strip()
+
+
 def read_input(prompt):
     present(prompt, end='', flush=True)
 
@@ -196,9 +198,7 @@ def present_options():
     print_options(options)
 
     clean_input = read_input('Selected: ')
-
     return resolve_selection(clean_input, options)
-
 
 def preresolve_from_input():
     clean_input = cleaned(sys.stdin.readline())
