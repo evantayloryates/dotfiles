@@ -61,16 +61,6 @@ def eval_copier_fn(copiers_path, copier_fn, variant=''):
     return result
 
 
-def sanitize_inline(s):
-    # Keep output to a single line; preserve visible intent.
-    s = s.rstrip('\n')
-    s = s.replace('\\', '\\\\')
-    s = s.replace('\t', '\\t')
-    s = s.replace('\r', '\\r')
-    s = s.replace('\n', '\\n')
-    return s
-
-
 def display_name(fn_name, variant):
     return f'{fn_name} {variant}'.strip()
 
@@ -133,18 +123,6 @@ def c(s, color='white'):
 
 
 def main():
-    # Initialize DEBUG_TEST_INDEX if missing or invalid
-    try:
-        _ = int(os.environ.get('DEBUG_TEST_INDEX', ''))
-    except (TypeError, ValueError):
-        os.environ['DEBUG_TEST_INDEX'] = '-1'
-
-    # Read, increment, and persist
-    test_index = int(os.environ['DEBUG_TEST_INDEX']) + 1
-    print(f'DEBUG_TEST_INDEX: {test_index}')
-
-    os.environ['DEBUG_TEST_INDEX'] = str(test_index + 1)
-
     copiers_path = sys.argv[1]
     copiers = extract_copiers(copiers_path)
 
@@ -156,65 +134,23 @@ def main():
         if not variants:
             variant = ''
             result = eval_copier_fn(copiers_path, fn_name, variant)
-            rows.append((display_name(fn_name, variant),
-                        sanitize_inline(result)))
+            rows.append((display_name(fn_name, variant), result))
             continue
 
         for variant in variants:
             result = eval_copier_fn(copiers_path, fn_name, variant)
-            rows.append((display_name(fn_name, variant),
-                        sanitize_inline(result)))
+            rows.append((display_name(fn_name, variant), result))
 
     rows.sort(key=lambda x: x[0])
     max_len = max((len(name) for name, _ in rows), default=0)
     pad_to = max_len + PADDING_BUFFER
 
-    OPTIONS = [
-        ['blue_bold_bright', 'blue_bold'],
-        ['blue_bold_bright', 'blue_bright'],
-        ['blue_bold_bright', 'blue_dim_bright'],
-        ['blue_bold_bright', 'blue_dim'],
-        ['blue_bold_bright', 'blue'],
-        ['blue_bold', 'blue_bold_bright'],
-        ['blue_bold', 'blue_bright'],
-        ['blue_bold', 'blue_dim_bright'],
-        ['blue_bold', 'blue_dim'],
-        ['blue_bold', 'blue'],
-        ['blue_bright', 'blue_bold_bright'],
-        ['blue_bright', 'blue_bold'],
-        ['blue_bright', 'blue_dim_bright'],
-        ['blue_bright', 'blue_dim'],
-        ['blue_bright', 'blue'],
-        ['blue_dim_bright', 'blue_bold_bright'],
-        ['blue_dim_bright', 'blue_bold'],
-        ['blue_dim_bright', 'blue_bright'],
-        ['blue_dim_bright', 'blue_dim'],
-        ['blue_dim_bright', 'blue'],
-        ['blue_dim', 'blue_bold_bright'],
-        ['blue_dim', 'blue_bold'],
-        ['blue_dim', 'blue_bright'],
-        ['blue_dim', 'blue_dim_bright'],
-        ['blue_dim', 'blue'],
-        ['blue', 'blue_bold_bright'],
-        ['blue', 'blue_bold'],
-        ['blue', 'blue_bright'],
-        ['blue', 'blue_dim_bright'],
-        ['blue', 'blue_dim']
-    ]
-    test = OPTIONS[0]
-    FN_COLOR = test[0]
-    VARIANT_COLOR = test[1]
-
-    # NO:
-    #  - 'black_dim'
-    #  - 'white_dim'
-    #  - 'white_dim_bright'
-    #  - 'black_bright'
-    ARROW_COLOR = 'black_bold_bright'
-    RESULT_COLOR = 'white'
+    FN_COLOR = 'blue_bold_bright'
+    VARIANT_COLOR = 'blue_bold'
+    ARROW_COLOR = 'white'
+    RESULT_COLOR = 'black_bold_bright'
 
     for name, value in rows:
-        # split once: "_glob app" → "_glob", "app"
         if ' ' in name:
             fn, variant = name.split(' ', 1)
             colored_name = (
@@ -229,10 +165,9 @@ def main():
         padding = ' ' * (pad_to - len(name))
 
         sys.stdout.write(
-            # f'{colored_name}{padding}'
-            # f'{c("=>", ARROW_COLOR)} '
-            # f'{c(value, RESULT_COLOR)}\n'
-            f'{colored_name}{padding}\n'
+            f'{colored_name}{padding}'
+            f'{c("=>", ARROW_COLOR)} '
+            f'{c(value, RESULT_COLOR)}\n'
         )
 
 

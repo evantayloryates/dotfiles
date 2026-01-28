@@ -7,7 +7,7 @@ _kitsrc () { /Applications/kitty.app/Contents/MacOS/kitty @ load-config "$HOME/.
 abs     () { realpath "$@"                                                                                ;} # 
 convert () { magick "$@"                                                                                  ;} # 
 dc      () { docker compose "$@"                                                                          ;} # 
-env     () { python3 "$DOTFILES_DIR/src/python/env.py"                                                    ;} # 
+env     () { clear ; python3 "$DOTFILES_DIR/src/python/env.py"                                            ;} # 
 ex      () { exiftool "$@"                                                                                ;} # Note: this will overwrite the /usr/bin/ex command
 ga      () { git add "$@"                                                                                 ;} # 
 gc      () { git commit "$@"                                                                              ;} # 
@@ -18,7 +18,7 @@ gp      () { git push "$@"                                                      
 lsa     () { /bin/ls -AGhlo "$@"                                                                          ;} # 
 mkdir   () { [ "$#" -eq 1 ] && /bin/mkdir -pv "$1" || /bin/mkdir "$@"                                     ;} #
 o       () { if [ $# -eq 0 ]; then open "$(pwd -P 2>/dev/null || pwd)"; else open "$@"; fi                ;} # 
-path    () { python3 "$DOTFILES_DIR/src/python/path.py"                                                   ;} # 
+path    () { clear ; python3 "$DOTFILES_DIR/src/python/path.py"                                           ;} # 
 pip3    () { pip "$@"                                                                                     ;} # 
 py      () { python "$@"                                                                                  ;} # 
 py3     () { python "$@"                                                                                  ;} # 

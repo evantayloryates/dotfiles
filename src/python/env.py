@@ -57,8 +57,8 @@ def c(s, color='white'):
     return f'{open_code}{s}{close_code}'
 
 
-NAME_COLORS = ['magenta_dim', 'cyan_dim']
-VALUE_COLORS = ['magenta', 'cyan']
+NAME_COLORS = ['magenta_dim', 'black_bold_bright']
+VALUE_COLORS = ['magenta', 'white']
 DELIMITER = ''
 items = [
     (k, v)
@@ -72,13 +72,15 @@ PADDING_BUFFER = 1
 max_name_len = max(len(k) for k, _ in items)
 pad_to = max_name_len + PADDING_BUFFER
 
-for k, v in items:
+print()
+for idx, (k, v) in enumerate(items):
     padded_name = k.ljust(pad_to)
 
     name_color = NAME_COLORS[idx % len(NAME_COLORS)]
     value_color = VALUE_COLORS[idx % len(VALUE_COLORS)]
 
     print(
-        f'{c(padded_name, NAME_COLOR)}'
-        f'{c(v, VALUE_COLOR)}'
+        f'{c(padded_name, name_color)}'
+        f'{c(v, value_color)}'
     )
+print()
