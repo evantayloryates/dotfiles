@@ -19,7 +19,8 @@ def extract_variants(fn_name, lines, copiers_path):
     cmd = f'source {copiers_path}; {full_variants_fn}'
     sys.stdout.write(f"CMD: {cmd}\n")
     
-    variants = eval_command(cmd)
+    result = eval_command(cmd)
+    variants = result.split(' ')
     sys.stdout.write(f"VARIANTS: {variants.join('\n')}\n")
     
     # then, extract the variants from the result
