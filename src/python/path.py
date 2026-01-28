@@ -55,6 +55,15 @@ COLOR_CODES = {
 
 COLOR_1 = 'cyan_bright'
 COLOR_2 = 'cyan_dim_bright'
+# COLOR_1 = 'blue_bright'
+# COLOR_2 = 'blue_dim_bright'
+# COLOR_1 = 'green_bright'
+# COLOR_2 = 'green_dim_bright'
+# COLOR_1 = 'white_bright'
+# COLOR_2 = 'black_bright'
+# COLOR_1 = 'magenta_bright'
+# COLOR_2 = 'magenta_dim_bright'
+
 
 def c(s, color='white'):
     open_code, close_code = COLOR_CODES[color]
