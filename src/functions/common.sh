@@ -57,8 +57,8 @@ function _exec_amplify() {
     return 1
   fi
 
-  __log "Opening shell in service: $(_magenta "${service}")"
-  __log "↓"
+  __log "↓ Opening shell in service: $(_magenta "${service}")"
+  __log ""
 
 
   # prefer bash if available; fall back to sh
