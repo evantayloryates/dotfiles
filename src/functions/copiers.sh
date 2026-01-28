@@ -30,4 +30,4 @@ _glob () {
 }
 
  script_path="${(%):-%x}"
- printf '%s\n' "$script_path"
+#  printf '%s\n' "$script_path"
