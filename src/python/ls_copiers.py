@@ -59,7 +59,10 @@ def eval_copier_fn(copiers_path, copier_fn, variant=''):
         f'/usr/bin/pbpaste; '
         f': | /usr/bin/pbcopy'
     )
-    return eval_command(cmd)
+    result = eval_command(cmd)
+    # Clear clipboard
+    eval_command('pbcopy < /dev/null')
+    return result
 
 
 def sh_quote(s):
