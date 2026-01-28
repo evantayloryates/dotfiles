@@ -96,8 +96,8 @@ normalized.sort(key=lambda p: (segment_count(p), p))
 
 print()
 
-override_1 = 'yellow_bold'
-override_2 = 'magenta_bold_bright'
+override_1 = random_color()
+override_2 = override_1
 for idx, i in enumerate(normalized):
     while True:
         COLOR_1 = override_1 if override_1 else random_color()
