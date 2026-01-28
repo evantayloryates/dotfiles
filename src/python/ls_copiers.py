@@ -15,7 +15,7 @@ def extract_copiers(copiers_path):
         if m:
             copier_fn = {
                 'fn': m.group(1),
-                'variants': [],
+                'variants': eval_command(f'source {sh_quote(copiers_path)}; {sh_quote(m.group(1))}__variants'),
             }
             copiers.append(copier_fn)
     return copiers
