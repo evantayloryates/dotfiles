@@ -6,6 +6,7 @@
 _kitsrc () { /Applications/kitty.app/Contents/MacOS/kitty @ load-config "$HOME/.config/kitty/kitty.conf"  ;} #
 abs     () { realpath "$@"                                                                                ;} # 
 c       () { clip "$@"                                                                                    ;} # 
+clip    () { { printf '$ %s\n' "$*"; "$@"; } | strip_ansi | /usr/bin/pbcopy                               ;} #
 convert () { magick "$@"                                                                                  ;} # 
 dc      () { docker compose "$@"                                                                          ;} # 
 env     () { /usr/bin/env | sort                                                                          ;} # 

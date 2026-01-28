@@ -114,18 +114,15 @@ __oldclip () {
   } | perl -pe 'chomp if eof' | /usr/bin/pbcopy
 }
 
-clip () { 
-  {
-    # Print the command echoed, then run the command
-    printf '$ %s\n' "$*"
-    "$@"
-  } | perl -pe '
+# strips ANSI (CSI + OSC) then copies 
+strip_ansi() {
+  perl -pe '
     # Strip ANSI escape sequences (CSI + OSC)
     s/(?:\e\[|\x9b)[0-9;?]*[a-zA-Z]//g;
     s/\e\][^\e]*?(?:\a|\e\\)//g;
     chomp if eof
-  ' | /usr/bin/pbcopy
-} # strips ANSI (CSI + OSC) then copies 
+  '
+}
 
 # safemv <src> <dest>
 # Silently move src to dest with strict two-arg semantics.
