@@ -59,7 +59,7 @@ def c(s, color='white'):
 
 NAME_COLOR = 'black_bold_bright'
 # NAME_COLOR = 'magenta_bold_bright'
-DELIMITER_COLOR = 'white'
+DELIMITER_COLOR = 'magenta_dim'
 VALUE_COLOR = 'magenta_bold_bright'
 DELIMITER = '='
 items = [
