@@ -162,7 +162,8 @@ def main():
     #  - 'black_dim'
     #  - 'white_dim'
     #  - 'white_dim_bright'
-    ARROW_COLOR = 'black_bright'
+    #  - 'black_bright'
+    ARROW_COLOR = 'black_bold_bright'
     RESULT_COLOR = 'white'
 
     for name, value in rows:
