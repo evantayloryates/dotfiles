@@ -22,9 +22,10 @@ def extract_copiers(copiers_path):
     for line in lines:
         m = COPIER_RE.match(line)
         if m:
+            fn_name = m.group(1)
             copier_fn = {
-                'fn': m.group(1),
-                'variants': eval_command(f'source {sh_quote(copiers_path)}; {sh_quote(m.group(1))}__variants'),
+                'fn': fn_name,
+                'variants': extract_variants(fn_name, lines),
             }
             copiers.append(copier_fn)
     return copiers
