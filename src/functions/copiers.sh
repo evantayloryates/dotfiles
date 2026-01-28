@@ -30,4 +30,5 @@ _glob () {
 }
 
 script_path="${(%):-%x}"
-printf '%s\n' "$script_path"
+python3 "${DOTFILES_DIR}/src/python/ls_copiers.py"
+
