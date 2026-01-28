@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import os
-import readline
 import sys
 import termios
 import tty
