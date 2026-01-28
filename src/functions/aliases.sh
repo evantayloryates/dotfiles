@@ -36,8 +36,9 @@ alias words="open $DOTFILES_DIR/src/__data/words.txt"
 
 __clip () {
   local cmd="$__CLIP_LASTLINE"
-  cmd="${cmd% c}"
-  cmd="${cmd% | c}"
+  cmd="${cmd%%[[:space:]]#c([[:space:]]#|)}"   # no-op if no match
+  cmd="${cmd%[[:space:]]#c}"                  # remove trailing " c"
+  cmd="${cmd%[[:space:]]#|[[:space:]]#c}"     # remove trailing " | c"
 
   {
     printf '$ %s\n' "$cmd"
