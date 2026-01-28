@@ -16,9 +16,11 @@ def extract_variants(fn_name, lines, copiers_path):
 
     if not variants_exist:
         return []
+    
     variants = eval_command(
         f'source {copiers_path}; {full_variants_fn}')
     
+    sys.stdout.write(f"VARIANTS: {variants.join('\n')}\n")
     # then, extract the variants from the result
     return variants.split(' ')
 
