@@ -62,7 +62,6 @@ TTY = open('/dev/tty', 'r')
 def cleaned(incoming):
     return (incoming or '').strip()
 
-
 def read_input(prompt):
     present(prompt, end='', flush=True)
 
@@ -70,30 +69,34 @@ def read_input(prompt):
     old_attrs = termios.tcgetattr(fd)
     buf = []
 
+    def _crlf():
+        sys.stderr.write('\r\n')
+        sys.stderr.flush()
+
     try:
         tty.setraw(fd)
 
         while True:
             b = os.read(fd, 1)
             if not b:
-                present('')
+                _crlf()
                 return ''
 
             ch = b.decode('utf-8', errors='ignore')
 
             # Ctrl+C
             if ch == '\x03':
-                present('')
+                _crlf()
                 return ''
 
             # Escape
             if ch == '\x1b':
-                present('')
+                _crlf()
                 return ''
 
-            # Enter
+            # Enter (raw mode usually yields '\r')
             if ch in ('\r', '\n'):
-                present('')
+                _crlf()
                 return cleaned(''.join(buf))
 
             # Backspace (DEL) or Ctrl+H
