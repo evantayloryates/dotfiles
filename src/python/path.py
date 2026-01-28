@@ -1,6 +1,6 @@
 import os
 import re
-
+import random
 
 COLOR_CODES = {
     'black_bold_bright': ['\033[1;90m', '\033[0m'],
@@ -53,14 +53,16 @@ COLOR_CODES = {
     'yellow': ['\033[33m', '\033[0m'],
 }
 
+def random_color():
+    return random.choice(COLOR_1)
 # COLOR_1 = 'cyan_bright'
 # COLOR_2 = 'cyan_dim_bright'
 # COLOR_1 = 'blue_bright'
 # COLOR_2 = 'blue_dim_bright'
 # COLOR_1 = 'green_bright'
 # COLOR_2 = 'green_dim_bright'
-COLOR_1 = 'green_bright'
-COLOR_2 = 'blue_bright'
+# COLOR_1 = 'green_bright'
+# COLOR_2 = 'blue_bright'
 # COLOR_1 = 'white_bright'
 # COLOR_2 = 'black_bright'
 # COLOR_1 = 'magenta_bright'
@@ -95,6 +97,11 @@ normalized.sort(key=lambda p: (segment_count(p), p))
 print()
 
 for idx, i in enumerate(normalized):
+    while True:
+        COLOR_1 = random_color()
+        COLOR_2 = random_color()
+        if COLOR_1 != COLOR_2:
+            break
     color = COLOR_1 if idx % 2 == 0 else COLOR_2
     print(c(i, color))
 
