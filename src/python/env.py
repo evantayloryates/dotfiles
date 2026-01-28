@@ -9,7 +9,8 @@ def c(s, color='white'):
     return f'{open_code}{s}{close_code}'
 
 
-NAME_COLOR = 'magenta_bold_bright'
+NAME_COLOR = 'white'
+# NAME_COLOR = 'magenta_bold_bright'
 DELIMITER_COLOR = 'black_bold_bright'
 VALUE_COLOR = 'cyan_bold_bright'
 DELIMITER = '='
