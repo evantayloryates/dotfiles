@@ -53,7 +53,8 @@ for idx, i in enumerate(normalized):
         for seg in segments
     ]
 
-   if segments:
+
+    if segments:
         if segments[0] == '~':
             # home-relative path: no leading slash
             colored_path = c('/', slash_color).join(colored_segments)
