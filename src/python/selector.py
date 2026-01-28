@@ -200,6 +200,7 @@ def present_options():
     clean_input = read_input('Selected: ')
     return resolve_selection(clean_input, options)
 
+
 def preresolve_from_input():
     clean_input = cleaned(sys.stdin.readline())
     return lookup_option(clean_input, sorted_options())
