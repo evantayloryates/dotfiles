@@ -63,10 +63,10 @@ def main():
 
     copiers = extract_copiers(copiers_path)
 
-    for copier in copiers:
-        copier_name = copier['fn']
-        # write to stdout: copier_name
-        sys.stdout.write(f"{copier_name}\n")
+    # for copier in copiers:
+    #     copier_name = copier['fn']
+    #     # write to stdout: copier_name
+    #     sys.stdout.write(f"{copier_name}\n")
 
     # products = []
     # for copier_fn in copiers:
