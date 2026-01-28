@@ -127,7 +127,7 @@ print()
 #  - black_bold_bright
 # override_1 = random_color(['black'])
 override_1 = 'black_bold_bright'
-override_2 = override_1
+override_2 = 'yellow_bright'
 # slash_color = random_color(['bright'])
 slash_color = 'yellow_bright'
 # for idx, i in enumerate(normalized[:5]):
