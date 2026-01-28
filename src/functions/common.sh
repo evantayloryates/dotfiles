@@ -57,7 +57,7 @@ function _exec_amplify() {
     return 1
   fi
 
-  __log "↓ Running in container: $(_magenta "${service}")"
+  __log "↓ Opening shell in: $(_magenta "${service}")"
   __log ""
 
 
