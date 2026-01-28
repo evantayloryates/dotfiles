@@ -9,4 +9,4 @@ items = [
 items.sort(key=lambda x: x[0])
 
 for k, v in items:
-    print((k, v))
+    print(f'{k}={v}')
