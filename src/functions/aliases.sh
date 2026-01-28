@@ -35,16 +35,21 @@ alias words="open $DOTFILES_DIR/src/__data/words.txt"
 
 
 __clip () {
-  local cmd
-  cmd="$(fc -ln -1 | sed 's/^[[:space:]]*//')"
-
+  local cmd="${__CLIP_LASTLINE:-'(unknown)'}"
   {
     printf '$ %s\n' "$cmd"
     cat
   } | strip_ansi | /usr/bin/pbcopy
 }
 
+cliprun () {
+  __CLIP_LASTLINE="$*"
+  "$@"
+}
+
 alias -g c='| __clip'
+alias clip='cliprun'
+
 
 
 # alias -g CP='| __clip'
