@@ -7,7 +7,7 @@ _kitsrc () { /Applications/kitty.app/Contents/MacOS/kitty @ load-config "$HOME/.
 abs     () { realpath "$@"                                                                                ;} # 
 convert () { magick "$@"                                                                                  ;} # 
 dc      () { docker compose "$@"                                                                          ;} # 
-env    () { python3 "$DOTFILES_DIR/src/python/env.py"                                                   ;} # 
+env     () { python3 "$DOTFILES_DIR/src/python/env.py"                                                   ;} # 
 ex      () { exiftool "$@"                                                                                ;} # Note: this will overwrite the /usr/bin/ex command
 ga      () { git add "$@"                                                                                 ;} # 
 gc      () { git commit "$@"                                                                              ;} # 
