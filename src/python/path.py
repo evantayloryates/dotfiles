@@ -50,8 +50,8 @@ print()
 
 segment_color = 'black_bold_bright'
 slash_color = 'yellow_bright'
-# tilde_color = 'magenta_bold_bright'
-tilde_color = 'black_bold_bright'
+tilde_color = 'magenta_bold_bright'
+tilde_color = 'cyan'
 
 for idx, i in enumerate(normalized):
     segments = [seg for seg in i.split('/') if seg]
