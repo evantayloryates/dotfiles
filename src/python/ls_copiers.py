@@ -157,7 +157,7 @@ def main():
     pad_to = max_len + PADDING_BUFFER
 
     FN_COLOR = 'blue'
-    VARIANT_COLOR = 'dark_blue'
+    VARIANT_COLOR = 'blue_dim'
     ARROW_COLOR = 'black_dim'
     RESULT_COLOR = 'white'
 
