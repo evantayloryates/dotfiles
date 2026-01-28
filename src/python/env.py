@@ -22,9 +22,15 @@ items = [
 
 items.sort(key=lambda x: x[0])
 
+PADDING_BUFFER = 2
+max_name_len = max(len(k) for k, _ in items)
+pad_to = max_name_len + PADDING_BUFFER
+
 for k, v in items:
+    padded_name = k.ljust(pad_to)
+
     print(
-        f'{c(k, NAME_COLOR)}'
+        f'{c(padded_name, NAME_COLOR)}'
         f'{c(DELIMITER, DELIMITER_COLOR)}'
         f'{c(v, VALUE_COLOR)}'
     )
