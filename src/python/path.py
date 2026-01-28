@@ -98,7 +98,7 @@ print()
 
 override_1 = random_color()
 override_2 = override_1
-for idx, i in enumerate(normalized):
+for idx, i in enumerate(normalized[:5]):
     while True:
         COLOR_1 = override_1 if override_1 else random_color()
         COLOR_2 = override_2 if override_2 else random_color()
