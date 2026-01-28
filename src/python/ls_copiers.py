@@ -11,7 +11,8 @@ def extract_copier_fns(copiers_path):
   for line in lines:
     m = COPIER_RE.match(line)
     if m:
-      sys.stdout.write(f'{m.group(1)}\n')
+      copier_fns.append(m.group(1))
+  return copier_fns
 
 def main():
   copiers_path = sys.argv[1]
