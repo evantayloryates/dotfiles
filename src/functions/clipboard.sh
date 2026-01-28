@@ -38,7 +38,7 @@ _glob () {
   esac
 }
 
-alias -g c='| __clip'
+alias -g cl='| __clip'
 alias -g copy='| __clip'
 
 # Keeping for reference. the new official "clip" function strips ANSI (CSI + OSC) before copying.
