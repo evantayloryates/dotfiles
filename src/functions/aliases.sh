@@ -33,8 +33,6 @@ alias password="python3 $DOTFILES_DIR/src/python/password.py"
 alias words="open $DOTFILES_DIR/src/__data/words.txt"
 
 
-clip () {
-  
-}
 
-alias -g c='| clip'
+alias -g c='| __clip'
+alias -g clip='| __clip'
