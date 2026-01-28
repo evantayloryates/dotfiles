@@ -17,16 +17,14 @@ _mig () { printf "puts ['...', *ActiveRecord::SchemaMigration.order(version: :de
 
 _glob () {
   case "$1" in
-    a|app)   ___glob_app ;;
-    c|client) ___glob_client ;;
-    *)       echo "Usage: _glob [app|a|client|c]" >&2 ;;
+    a|app)
+      printf '*.{arm,axlsx,conf,css,default,erb,jbuilder,js,json,jsx,lock,md,rb,ru,scss,sh,template,txt}' | /usr/bin/pbcopy
+      ;;
+    c|client)
+      printf '*.{js,json,md,scss,ts,tsx}' | /usr/bin/pbcopy
+      ;;
+    *)
+      echo "Usage: _glob [app|a|client|c]" >&2
+      ;;
   esac
-}
-
-___glob_app () {
-  printf '*.{arm,axlsx,conf,css,default,erb,jbuilder,js,json,jsx,lock,md,rb,ru,scss,sh,template,txt}' | /usr/bin/pbcopy
-}
-
-___glob_client () {
-  printf '*.{js,json,md,scss,ts,tsx}' | /usr/bin/pbcopy
 }
