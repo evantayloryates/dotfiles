@@ -39,4 +39,4 @@ __clip () {
 }
 
 # alias -g c='| clip'
-alias -g clip='| clip'
+alias -g CP='| clip'
