@@ -10,7 +10,7 @@ clip () {
   } | strip_ansi | /usr/bin/pbcopy
 
   # informational log (not copied to clipboard)
-  printf 'Tip: use \033[35m[comand] cl\033[0m for a more robust copy\n' >&2
+  printf 'Tip: use \033[35m[command] cl\033[0m for a more robust copy\n' >&2
 }
 
 setopt extendedglob
