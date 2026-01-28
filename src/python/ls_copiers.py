@@ -79,7 +79,7 @@ COLOR_CODES = {
     'red': '31',
     'green': '32',
     'yellow': '33',
-    'blue': '34',
+    'blue': ['\033[34m', '\033[0m'],
     'magenta': '35',
     'cyan': '36',
     'white': '37',
@@ -89,7 +89,8 @@ COLOR_CODES = {
 
 
 def c(s, color='white'):
-    return f'\033[{COLOR_CODES[color]}m{s}\033[0m'
+    open_code, close_code = COLOR_CODES[color]
+    return f'{open_code}{s}{close_code}'
 
 
 def main():
