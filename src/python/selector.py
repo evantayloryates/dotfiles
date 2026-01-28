@@ -197,7 +197,6 @@ def present_options():
     print_options(options)
 
     clean_input = read_input('Selected: ')
-    present('')  # newline after Enter for clean output
 
     return resolve_selection(clean_input, options)
 
