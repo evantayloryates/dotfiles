@@ -42,7 +42,7 @@ def main():
     products.append((fn, value))
 
   for fn, value in products:
-    sys.stdout.write(f"{fn}\n\t{value}\n")
+    sys.stdout.write(f"{fn}\n  {value}\n")
 
 if __name__ == '__main__':
   main()
