@@ -14,3 +14,23 @@ __ () {
 _rs () { printf "alias rs='DISABLE_SPRING=1 bin/rspec'" | /usr/bin/pbcopy ;}
 _cache () { printf "/Library/Caches/nexrender/versions/vast-enhanced-monolith/AE25/v1.2" | /usr/bin/pbcopy ;}
 _mig () { printf "puts ['...', *ActiveRecord::SchemaMigration.order(version: :desc).limit(5).pluck(:version).reverse].join(\"\\n\")" | /usr/bin/pbcopy ;}
+
+_glob () {
+  case "$1" in
+    app)   ___glob_app ;;
+    client) ___glob_client ;;
+    *)     echo "Usage: _glob [app|client]" >&2 ;;
+  esac
+}
+
+# ================ #
+# INTERNAL HELPERS #
+# ================ #
+
+___glob_app () {
+  printf '*.{arm,axlsx,conf,css,default,erb,jbuilder,js,json,jsx,lock,md,rb,ru,scss,sh,template,txt}' | /usr/bin/pbcopy
+}
+
+___glob_client () {
+  printf '*.{ts,tsx,json,js}' | /usr/bin/pbcopy
+}
