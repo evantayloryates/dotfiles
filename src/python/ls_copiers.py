@@ -19,13 +19,13 @@ def extract_variants(fn_name, lines, copiers_path):
     cmd = f'source {copiers_path}; {full_variants_fn}'
     result = eval_command(cmd)
     variants = result.strip().split(' ')
-    
+
     # remove empty string vals or vals with only spaces
     variants = [v for v in variants if v and not v.isspace()]
-    
+
     for variant in variants:
         sys.stdout.write(f"VARIANT: {variant}\n")
-    
+
     return variants
 
 
