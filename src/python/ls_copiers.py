@@ -1,4 +1,5 @@
 import re
+import subprocess
 import sys
 
 COPIER_RE = re.compile(r'^(_[a-z0-9][a-z0-9_-]*) {0,5}\( {0,5}\) {0,5}\{')
