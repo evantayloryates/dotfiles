@@ -101,7 +101,8 @@ override_1 = 'magenta_bold_bright'
 override_2 = override_1
 # slash_color = 'white'
 slash_color = random_color()
-for idx, i in enumerate(normalized[:5]):
+# for idx, i in enumerate(normalized[:5]):
+for idx, i in enumerate(normalized):
     while True:
         COLOR_1 = override_1 if override_1 else random_color()
         COLOR_2 = override_2 if override_2 else random_color()
