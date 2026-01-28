@@ -126,10 +126,8 @@ segment_color = 'black_bold_bright'
 slash_color = 'yellow_bright'
 
 for idx, i in enumerate(normalized):
-    color = override_1 if idx % 2 == 0 else override_2
-    slash_color = slash_color_1 if idx % 2 == 0 else slash_color_2
     segments = [seg for seg in i.split('/') if seg]
-    colored_segments = [c(seg, color) for seg in segments]
+    colored_segments = [c(seg, segment_color) for seg in segments]
     colored_path = c('/', slash_color) + c('/',
                                            slash_color).join(colored_segments) if segments else ''
     # print(f"{colored_path} ({slash_color})")
