@@ -1,3 +1,14 @@
+# clip [command]
+# Note: this won't work for pipelines. use either of these approaches for complex clip:
+#  1. [command] c
+#  2. [command] copy
+clip () {
+  local cmd="$*"
+  {
+    printf '$ %s\n' "$cmd"
+    "$@"
+  } | strip_ansi | /usr/bin/pbcopy
+}
 
 setopt extendedglob
 __CLIP_LASTLINE=''
