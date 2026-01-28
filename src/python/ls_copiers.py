@@ -216,9 +216,11 @@ def main():
         padding = ' ' * (pad_to - len(name))
 
         sys.stdout.write(
-            f'{colored_name}{padding}'
+            # f'{colored_name}{padding}'
             # f'{c("=>", ARROW_COLOR)} '
             # f'{c(value, RESULT_COLOR)}\n'
+            f'{colored_name}{padding}\n'
+            
         )
 
 
