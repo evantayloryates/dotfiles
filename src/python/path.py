@@ -102,6 +102,9 @@ override_2 = override_1
 # slash_color = 'white'
 slash_color = random_color()
 # for idx, i in enumerate(normalized[:5]):
+print(f"PRIMARY: {override_1}")
+print(f"SLASH:   {slash_color}")
+
 for idx, i in enumerate(normalized):
     while True:
         COLOR_1 = override_1 if override_1 else random_color()
