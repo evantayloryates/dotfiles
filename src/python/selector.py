@@ -54,10 +54,15 @@ def cleaned(incoming):
 
 def read_input(prompt):
     present(prompt, end='', flush=True)
-    user_input = TTY.readline()
+    try:
+        user_input = TTY.readline()
+    except KeyboardInterrupt:
+        present('')  # newline after ^C for clean output
+        return None
     if not user_input:
         return ''
     return cleaned(user_input)
+
 
 
 def sorted_options():
