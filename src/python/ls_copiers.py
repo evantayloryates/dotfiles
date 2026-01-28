@@ -62,7 +62,7 @@ def eval_copier_fn(copiers_path, copier_fn, variant=''):
     result = eval_command(cmd)
     # Clear clipboard
     eval_command('pbcopy < /dev/null')
-    
+
     return result
 
 
@@ -87,12 +87,11 @@ def main():
             for variant in variants:
                 result = eval_copier_fn(copiers_path, fn_name, variant)
                 products.append((fn_name, variant, result))
-    
+
     sorted_products = sorted(products, key=lambda x: x[0])
     for fn_name, variant, result in sorted_products:
         sys.stdout.write(f"{fn_name} {variant}\n")
         sys.stdout.write(f"{result}\n")
-
 
 
 if __name__ == '__main__':
