@@ -139,13 +139,8 @@ print(f"SLASH_2:   {slash_color_2}")
 print()
 
 for idx, i in enumerate(normalized):
-    while True:
-        COLOR_1 = override_1 if override_1 else random_color()
-        COLOR_2 = override_2 if override_2 else random_color()
-        # if COLOR_1 != COLOR_2:
-        if True:
-            break
-    color = COLOR_1 if idx % 2 == 0 else COLOR_2
+    color = override_1 if idx % 2 == 0 else override_2
+    slash_color = slash_color_1 if idx % 2 == 0 else slash_color_2
     segments = [seg for seg in i.split('/') if seg]
     colored_segments = [c(seg, color) for seg in segments]
     colored_path = c('/', slash_color) + c('/',
