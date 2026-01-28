@@ -21,5 +21,7 @@ def segment_count(path):
 # sort: first by segment count, then alphabetically
 normalized.sort(key=lambda p: (segment_count(p), p))
 
+print()
 for i in normalized:
   print(i)
+print()
