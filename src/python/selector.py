@@ -62,6 +62,7 @@ TTY = open('/dev/tty', 'r')
 def cleaned(incoming):
     return (incoming or '').strip()
 
+
 def read_input(prompt):
     present(prompt, end='', flush=True)
 
