@@ -1,7 +1,7 @@
 import re
 import sys
 
-COPIER_RE = re.compile(r'^(_[a-z0-9_-]+) {0,5}\( {0,5}\) {0,5}\{')
+COPIER_RE = re.compile(r'^(_[a-z0-9][a-z0-9_-]*) {0,5}\( {0,5}\) {0,5}\{')
 
 def main():
   copiers_path = sys.argv[1]
@@ -12,8 +12,7 @@ def main():
   for line in lines:
     m = COPIER_RE.match(line)
     if m:
-      name = m.group(1)  # e.g. "_cache"
-      sys.stdout.write(f'{name}\n')
+      sys.stdout.write(f'{m.group(1)}\n')
 
 if __name__ == '__main__':
   main()
