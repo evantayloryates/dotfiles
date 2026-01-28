@@ -38,4 +38,4 @@ clip () {
   { cat; } | strip_ansi | /usr/bin/pbcopy
 }
 
-alias -g CP='| clip'
+alias -g ccc='| clip'
