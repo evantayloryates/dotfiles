@@ -114,7 +114,7 @@ def main():
     pad_to = max_len + PADDING_BUFFER
 
     for name, value in rows:
-        sys.stdout.write(f'{c(name, "blue").ljust(pad_to)}=> {value}\n')
+        sys.stdout.write(f'{name.ljust(pad_to)}=> {value}\n')
 
 
 if __name__ == '__main__':
