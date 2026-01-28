@@ -19,6 +19,14 @@ def extract_copiers(copiers_path):
       copiers.append(copier_fn)
   return copiers
 
+def eval_command(command):
+  return subprocess.run(
+    ['/bin/zsh', '-lc', command],
+    capture_output=True,
+    text=True,
+    check=True,
+  )
+
 def eval_copier_fn(copiers_path, copier_fn):
   cmd = (
     f'source {sh_quote(copiers_path)}; '
