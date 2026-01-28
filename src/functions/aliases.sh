@@ -5,7 +5,7 @@
 # : is offical syntax. 
 _kitsrc () { /Applications/kitty.app/Contents/MacOS/kitty @ load-config "$HOME/.config/kitty/kitty.conf"  ;} #
 abs     () { realpath "$@"                                                                                ;} # 
-clip    () { { cat; } | strip_ansi | /usr/bin/pbcopy                                                      ;} #
+__clip  () { { cat; } | strip_ansi | /usr/bin/pbcopy                                                      ;} # Used by the "c" and "clip" global aliases
 convert () { magick "$@"                                                                                  ;} # 
 dc      () { docker compose "$@"                                                                          ;} # 
 env     () { /usr/bin/env | sort                                                                          ;} # 
