@@ -96,10 +96,12 @@ normalized.sort(key=lambda p: (segment_count(p), p))
 
 print()
 
+override_1 = 'cyan_bright'
+override_2 = 'cyan_dim_bright'
 for idx, i in enumerate(normalized):
     while True:
-        COLOR_1 = random_color()
-        COLOR_2 = random_color()
+        COLOR_1 = override_1 if override_1 else random_color()
+        COLOR_2 = override_2 if override_2 else random_color()
         if COLOR_1 != COLOR_2:
             break
     color = COLOR_1 if idx % 2 == 0 else COLOR_2
