@@ -15,3 +15,11 @@ __clip () {
 
 alias -g c='| __clip'
 alias -g copy='| __clip'
+
+# Keeping for reference. the new official "clip" function strips ANSI (CSI + OSC) before copying.
+__oldclip () {
+  {
+    printf '$ %s\n' "$@"
+    "$@"
+  } | perl -pe 'chomp if eof' | /usr/bin/pbcopy
+}
