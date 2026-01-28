@@ -125,7 +125,7 @@ print()
 # GOOD:
 #  - white_bold_bright
 # override_1 = 'white_bright'
-override_1 = random_color(['white'])
+override_1 = random_color(['black'])
 override_2 = override_1
 # slash_color = 'white'
 slash_color = 'magenta_bold_bright'
