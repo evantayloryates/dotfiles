@@ -55,45 +55,65 @@ def cleaned(incoming):
 import termios
 import tty
 
+import os
+import termios
+import tty
+
 def read_input(prompt):
     present(prompt, end='', flush=True)
 
     fd = TTY.fileno()
     old_attrs = termios.tcgetattr(fd)
 
+    buf = []
+
     try:
-        # disable canonical mode + echo
+        # raw: no canonical mode, no echo; we will echo manually
         tty.setraw(fd)
 
-        chars = []
         while True:
-            ch = TTY.read(1)
+            b = os.read(fd, 1)
+            if not b:
+                present('')
+                return ''
+
+            ch = b.decode('utf-8', errors='ignore')
 
             # Ctrl+C
             if ch == '\x03':
                 present('')
                 return ''
 
-            # Escape key
+            # Escape
             if ch == '\x1b':
                 present('')
                 return ''
 
-            # Enter
+            # Enter (raw mode usually yields '\r')
             if ch in ('\r', '\n'):
-                break
+                present('')
+                return cleaned(''.join(buf))
 
-            chars.append(ch)
+            # Backspace (DEL) or Ctrl+H
+            if ch in ('\x7f', '\b'):
+                if buf:
+                    buf.pop()
+                    # move back, clear char, move back
+                    present('\b \b', end='', flush=True)
+                continue
+
+            # Optional: ignore other control chars
+            if ch < ' ':
+                continue
+
+            buf.append(ch)
+            present(ch, end='', flush=True)
 
     except KeyboardInterrupt:
         present('')
         return ''
-
     finally:
         termios.tcsetattr(fd, termios.TCSADRAIN, old_attrs)
-
-    return cleaned(''.join(chars))
-
 
 
 
