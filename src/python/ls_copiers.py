@@ -53,16 +53,12 @@ def eval_command(command):
 
 def eval_copier_fn(copiers_path, copier_fn, variant=''):
     full_fn = f"{copier_fn} {variant}".strip()
-    if variant:
-        sys.stdout.write(f"FULL FN: {full_fn}\n")
     cmd = (
         f'source {copiers_path}; '
         f'{full_fn}; '
         f'/usr/bin/pbpaste; '
         f': | /usr/bin/pbcopy'
     )
-    if variant:
-      sys.stdout.write(f"CMD: {cmd}\n")
     return eval_command(cmd)
 
 
