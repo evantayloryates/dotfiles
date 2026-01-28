@@ -61,7 +61,7 @@ NAME_COLOR = 'black_bold_bright'
 # NAME_COLOR = 'magenta_bold_bright'
 DELIMITER_COLOR = 'magenta_dim'
 VALUE_COLOR = 'magenta_bold_bright'
-DELIMITER = '='
+DELIMITER = ''
 items = [
     (k, v)
     for k, v in os.environ.items()
