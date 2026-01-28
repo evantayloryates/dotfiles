@@ -82,11 +82,11 @@ def main():
         variants = copier['variants']
         if len(variants) == 0:
             result = eval_copier_fn(copiers_path, fn_name)
-            products.append((fn_name, result))
+            products.append((fn_name, result, ''))
         else:
             for variant in variants:
                 result = eval_copier_fn(copiers_path, fn_name, variant)
-                products.append((fn_name, variant, result))
+                products.append((fn_name, result, variant))
 
     sorted_products = sorted(products, key=lambda x: x[0])
     for fn_name, variant, result in sorted_products:
