@@ -28,3 +28,6 @@ _glob () {
       ;;
   esac
 }
+
+ script_path="${(%):-%x}"
+ printf '%s\n' "$script_path"
