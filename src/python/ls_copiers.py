@@ -156,8 +156,42 @@ def main():
     max_len = max((len(name) for name, _ in rows), default=0)
     pad_to = max_len + PADDING_BUFFER
 
-    FN_COLOR = 'blue'
-    VARIANT_COLOR = 'blue_dim'
+    OPTIONS = [
+        ['blue_bold_bright', 'blue_bold'],
+        ['blue_bold_bright', 'blue_bright'],
+        ['blue_bold_bright', 'blue_dim_bright'],
+        ['blue_bold_bright', 'blue_dim'],
+        ['blue_bold_bright', 'blue'],
+        ['blue_bold', 'blue_bold_bright'],
+        ['blue_bold', 'blue_bright'],
+        ['blue_bold', 'blue_dim_bright'],
+        ['blue_bold', 'blue_dim'],
+        ['blue_bold', 'blue'],
+        ['blue_bright', 'blue_bold_bright'],
+        ['blue_bright', 'blue_bold'],
+        ['blue_bright', 'blue_dim_bright'],
+        ['blue_bright', 'blue_dim'],
+        ['blue_bright', 'blue'],
+        ['blue_dim_bright', 'blue_bold_bright'],
+        ['blue_dim_bright', 'blue_bold'],
+        ['blue_dim_bright', 'blue_bright'],
+        ['blue_dim_bright', 'blue_dim'],
+        ['blue_dim_bright', 'blue'],
+        ['blue_dim', 'blue_bold_bright'],
+        ['blue_dim', 'blue_bold'],
+        ['blue_dim', 'blue_bright'],
+        ['blue_dim', 'blue_dim_bright'],
+        ['blue_dim', 'blue'],
+        ['blue', 'blue_bold_bright'],
+        ['blue', 'blue_bold'],
+        ['blue', 'blue_bright'],
+        ['blue', 'blue_dim_bright'],
+        ['blue', 'blue_dim']
+    ]
+    test = OPTIONS[0]
+    FN_COLOR = test[0]
+    VARIANT_COLOR = test[1]
+
     # NO:
     #  - 'black_dim'
     #  - 'white_dim'
