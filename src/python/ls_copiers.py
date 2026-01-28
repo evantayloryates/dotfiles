@@ -18,8 +18,7 @@ def extract_variants(fn_name, lines, copiers_path):
         return []
     variants = eval_command(
         f'source {sh_quote(copiers_path)}; {sh_quote(full_variants_fn)}')
-    # write to stdout: variants
-    sys.stdout.write(f"{variants}\n")
+    
     # then, extract the variants from the result
     return variants.split(' ')
 
