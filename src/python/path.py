@@ -38,7 +38,14 @@ def segment_count(path):
 
 
 # sort: first by segment count, then alphabetically
-normalized.sort(key=lambda p: (segment_count(p), p))
+normalized.sort(
+    key=lambda p: (
+        0 if p.startswith('~') else 1,  # ~ paths first
+        segment_count(p),
+        p,
+    )
+)
+
 
 print()
 
