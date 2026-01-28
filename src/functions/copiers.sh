@@ -17,9 +17,9 @@ _mig () { printf "puts ['...', *ActiveRecord::SchemaMigration.order(version: :de
 
 _glob () {
   case "$1" in
-    app)   ___glob_app ;;
-    client) ___glob_client ;;
-    *)     echo "Usage: _glob [app|client]" >&2 ;;
+    a|app)   ___glob_app ;;
+    c|client) ___glob_client ;;
+    *)       echo "Usage: _glob [app|a|client|c]" >&2 ;;
   esac
 }
 
