@@ -106,14 +106,6 @@ pbcopy() {
   fi
 }
 
-# Keeping for reference. the new official "clip" function strips ANSI (CSI + OSC) before copying.
-__oldclip () {
-  {
-    printf '$ %s\n' "$@"
-    "$@"
-  } | perl -pe 'chomp if eof' | /usr/bin/pbcopy
-}
-
 # strips ANSI (CSI + OSC) then copies 
 strip_ansi() {
   perl -pe '
