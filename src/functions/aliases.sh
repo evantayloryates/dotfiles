@@ -40,7 +40,8 @@ preexec() { __CLIP_LASTLINE="$2" }
 
 __clip () {
   local cmd="$__CLIP_LASTLINE"
-  cmd="${cmd%%[[:space:]]##c([[:space:]]##)#}"  # drop trailing " c"
+  cmd="${cmd%%[[:space:]]##\|[[:space:]]##__clip([[:space:]]##)#}" # drop "| __clip"
+  cmd="${cmd%%[[:space:]]##c([[:space:]]##)#}"                    # drop trailing " c"
   {
     printf '$ %s\n' "$cmd"
     cat
@@ -48,10 +49,3 @@ __clip () {
 }
 
 alias -g c='| __clip'
-
-
-
-
-
-# alias -g CP='| __clip'
-# alias -g c='| clip'
