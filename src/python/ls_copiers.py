@@ -159,7 +159,7 @@ def main():
     FN_COLOR = 'blue'
     VARIANT_COLOR = 'dark_blue'
     ARROW_COLOR = 'gray'
-    RESULT_COLORS = 'white'
+    RESULT_COLOR = 'white'
 
     for name, value in rows:
         # split once: "_glob app" → "_glob", "app"
