@@ -12,7 +12,11 @@ def extract_copier_fns(copiers_path):
   for line in lines:
     m = COPIER_RE.match(line)
     if m:
-      copier_fns.append(m.group(1))
+      new_dict = {
+        'fn': m.group(1),
+        'variants': [],
+      }
+      copier_fns.append(new_dict)
   return copier_fns
 
 def eval_copier_fn(copiers_path, copier_fn):
