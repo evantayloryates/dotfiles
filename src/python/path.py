@@ -102,7 +102,8 @@ for idx, i in enumerate(normalized):
     while True:
         COLOR_1 = override_1 if override_1 else random_color()
         COLOR_2 = override_2 if override_2 else random_color()
-        if COLOR_1 != COLOR_2:
+        # if COLOR_1 != COLOR_2:
+        if True:
             break
     color = COLOR_1 if idx % 2 == 0 else COLOR_2
     print(f"{c(i, color)} ({COLOR_1})")
