@@ -39,5 +39,5 @@ __clpper_helper () {
 }
 
 # alias -g CP='| __clip'
-alias -g clip='| __clipper_helper'
+alias -g clip='| __clpper_helper'
 # alias -g c='| clip'
