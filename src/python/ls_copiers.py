@@ -145,7 +145,6 @@ def main():
 
     os.environ['DEBUG_TEST_INDEX'] = str(test_index + 1)
 
-
     copiers_path = sys.argv[1]
     copiers = extract_copiers(copiers_path)
 
