@@ -32,10 +32,6 @@ for item in path_items:
 normalized = list(set(normalized))
 
 
-for item in normalized:
-    print(item)
-
-
 def segment_count(path):
     # split on '/', ignore empty segments
     return len([p for p in path.split('/') if p])
