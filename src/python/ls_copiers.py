@@ -49,7 +49,7 @@ def eval_command(command):
     return result.stdout
 
 
-def eval_copier_fn(copiers_path, copier_fn):
+def eval_copier_fn(copiers_path, copier_fn, variant=''):
     cmd = (
         f'source {sh_quote(copiers_path)}; '
         f'{sh_quote(copier_fn)}; '
@@ -69,18 +69,18 @@ def main():
 
     copiers = extract_copiers(copiers_path)
 
-    # for copier in copiers:
-    #     copier_name = copier['fn']
-    #     # write to stdout: copier_name
-    #     sys.stdout.write(f"{copier_name}\n")
-
-    # products = []
-    # for copier_fn in copiers:
-    #   value = eval_copier_fn(copiers_path, fn)
-    #   products.append((fn, value))
-
-    # for fn, value in products:
-    #   sys.stdout.write(f"{fn}\n ↳ {value}\n")
+    for copier in copiers:
+        fn_name = copier['fn']
+        variants = copier['variants']
+        if len(variants) == 0:
+          result = eval_copier_fn(copiers_path, fn_name)
+          sys.stdout.write(f"{fn_name}\n")
+          sys.stdout.write(f"{result}\n")
+        else:
+          for variant in variants:
+            result = eval_copier_fn(copiers_path, fn_name, variant)
+            sys.stdout.write(f"{fn_name} {variant}\n")
+            sys.stdout.write(f"{result}\n")
 
 
 if __name__ == '__main__':
