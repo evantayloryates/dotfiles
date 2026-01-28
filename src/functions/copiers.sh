@@ -42,5 +42,3 @@ lll() {
   # restore clipboard
   printf '%s' "${__clipboard_backup}" | /usr/bin/pbcopy
 }
-
-puts ['...', *ActiveRecord::SchemaMigration.order(version: :desc).limit(5).pluck(:version).reverse].join("\n")
