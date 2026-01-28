@@ -54,7 +54,7 @@ COLOR_CODES = {
 }
 
 def random_color():
-    return random.choice(COLOR_1)
+    return random.choice(list(COLOR_CODES.keys()))
 # COLOR_1 = 'cyan_bright'
 # COLOR_2 = 'cyan_dim_bright'
 # COLOR_1 = 'blue_bright'
