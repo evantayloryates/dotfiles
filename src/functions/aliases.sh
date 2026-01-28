@@ -35,22 +35,7 @@ alias words="open $DOTFILES_DIR/src/__data/words.txt"
 
 
 clip () {
-  if [[ -t 0 ]]; then
-    # No stdin: run the command given as argv and copy its output
-    {
-      printf '$ %s\n' "$*"
-      "$@"
-    } | strip_ansi | /usr/bin/pbcopy
-  else
-    # Has stdin: copy pipeline output
-    {
-      # Print a best-effort header (argv if present; otherwise generic)
-      if (( $# )); then
-        printf '$ %s\n' "$*"
-      else
-        printf '$ (stdin)\n'
-      fi
-      cat
-    } | strip_ansi | /usr/bin/pbcopy
-  fi
+  { cat; } | strip_ansi | /usr/bin/pbcopy
 }
+
+alias -g c='| clip'
