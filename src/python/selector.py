@@ -52,16 +52,48 @@ def cleaned(incoming):
     return (incoming or '').strip()
 
 
+import termios
+import tty
+
 def read_input(prompt):
     present(prompt, end='', flush=True)
+
+    fd = TTY.fileno()
+    old_attrs = termios.tcgetattr(fd)
+
     try:
-        user_input = TTY.readline()
+        # disable canonical mode + echo
+        tty.setraw(fd)
+
+        chars = []
+        while True:
+            ch = TTY.read(1)
+
+            # Ctrl+C
+            if ch == '\x03':
+                present('')
+                return ''
+
+            # Escape key
+            if ch == '\x1b':
+                present('')
+                return ''
+
+            # Enter
+            if ch in ('\r', '\n'):
+                break
+
+            chars.append(ch)
+
     except KeyboardInterrupt:
-        present('')  # newline after ^C for clean output
+        present('')
         return ''
-    if not user_input:
-        return ''
-    return cleaned(user_input)
+
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, old_attrs)
+
+    return cleaned(''.join(chars))
+
 
 
 
