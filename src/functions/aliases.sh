@@ -35,9 +35,17 @@ alias words="open $DOTFILES_DIR/src/__data/words.txt"
 
 
 __clip () {
-  { cat; } | strip_ansi | /usr/bin/pbcopy
+  local cmd
+  cmd="$(fc -ln -1 | sed 's/^[[:space:]]*//')"
+
+  {
+    printf '$ %s\n' "$cmd"
+    cat
+  } | strip_ansi | /usr/bin/pbcopy
 }
+
 alias -g c='| __clip'
+
 
 # alias -g CP='| __clip'
 # alias -g c='| clip'
