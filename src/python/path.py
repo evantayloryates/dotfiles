@@ -9,7 +9,8 @@ for item in path_items:
   item = re.sub(r'^/+', '/', item)
   normalized.append(item)
 
-normalized.sort()
+# dedupe
+normalized = sorted(set(normalized))
 
 for i in normalized:
   print(i)
