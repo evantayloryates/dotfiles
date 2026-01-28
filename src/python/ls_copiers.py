@@ -20,12 +20,13 @@ def extract_copiers(copiers_path):
   return copiers
 
 def eval_command(command):
-  return subprocess.run(
+  result = subprocess.run(
     ['/bin/zsh', '-lc', command],
     capture_output=True,
     text=True,
     check=True,
   )
+  return result.stdout
 
 def eval_copier_fn(copiers_path, copier_fn):
   cmd = (
@@ -34,14 +35,9 @@ def eval_copier_fn(copiers_path, copier_fn):
     f'/usr/bin/pbpaste; '
     f': | /usr/bin/pbcopy'
   )
-
-  result = subprocess.run(
-    ['/bin/zsh', '-lc', cmd],
-    capture_output=True,
-    text=True,
-    check=True,
-  )
+  result = eval_command(cmd)
   return result.stdout
+
 
 
 def sh_quote(s):
