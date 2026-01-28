@@ -27,6 +27,8 @@ __clip () {
   } | strip_ansi | /usr/bin/pbcopy
 }
 
+# Cases that failed:
+#  - docker compose up -d --remove-orphans cl 
 alias -g cl='| __clip'
 alias -g copy='| __clip'
 
