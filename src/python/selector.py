@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
-import sys
 import os
 import readline
+import sys
+import termios
+import tty
+
 
 _print = print
 COLORS = {'red': '\033[31m', 'green': '\033[32m', 'yellow': '\033[33m', 'blue': '\033[34m',
@@ -51,13 +54,6 @@ TTY = open('/dev/tty', 'r')
 def cleaned(incoming):
     return (incoming or '').strip()
 
-
-import termios
-import tty
-
-import os
-import termios
-import tty
 
 def read_input(prompt):
     present(prompt, end='', flush=True)
@@ -114,7 +110,6 @@ def read_input(prompt):
         return ''
     finally:
         termios.tcsetattr(fd, termios.TCSADRAIN, old_attrs)
-
 
 
 def sorted_options():
@@ -224,7 +219,6 @@ def main():
 
     selected = present_options()
     send(selected)
-
 
 
 if __name__ == '__main__':
