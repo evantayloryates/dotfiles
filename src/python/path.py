@@ -44,15 +44,16 @@ print()
 
 segment_color = 'black_bold_bright'
 slash_color = 'yellow_bright'
+tilde_color = 'magenta_bold_bright'
 
 for idx, i in enumerate(normalized):
     segments = [seg for seg in i.split('/') if seg]
     colored_segments = [
-        c(seg, slash_color) if seg == '~' else c(seg, segment_color)
+        c(seg, tilde_color) if seg == '~' else c(seg, segment_color)
         for seg in segments
     ]
 
-    if segments:
+   if segments:
         if segments[0] == '~':
             # home-relative path: no leading slash
             colored_path = c('/', slash_color).join(colored_segments)
