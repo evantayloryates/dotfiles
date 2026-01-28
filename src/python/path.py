@@ -126,8 +126,8 @@ override_1 = 'white_bold_bright'
 # override_1 = random_color(['white', 'black'])
 override_2 = override_1
 # slash_color = 'white'
-# slash_color = random_color()
-slash_color = random_color(['bold', 'magenta'])
+slash_color = 'magenta_bold_bright'
+# slash_color = random_color(['bold', 'magenta'])
 # for idx, i in enumerate(normalized[:5]):
 print(f"PRIMARY: {override_1}")
 print(f"SLASH:   {slash_color}")
