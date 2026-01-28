@@ -47,7 +47,11 @@ slash_color = 'yellow_bright'
 
 for idx, i in enumerate(normalized):
     segments = [seg for seg in i.split('/') if seg]
-    colored_segments = [c(seg, segment_color) for seg in segments]
+    colored_segments = [
+        c(seg, slash_color) if seg == '~' else c(seg, segment_color)
+        for seg in segments
+    ]
+
     if segments:
         if segments[0] == '~':
             # home-relative path: no leading slash
