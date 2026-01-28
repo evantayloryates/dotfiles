@@ -203,6 +203,7 @@ def preresolve_from_input():
 
 
 def main():
+    log('Starting selector...')
     result_option = preresolve_from_input()
 
     if isinstance(result_option, dict):
