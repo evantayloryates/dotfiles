@@ -37,7 +37,7 @@ alias words="open $DOTFILES_DIR/src/__data/words.txt"
 __clip () {
   { cat; } | strip_ansi | /usr/bin/pbcopy
 }
+alias -g clp='| __clip'
 
 # alias -g CP='| __clip'
-alias -g clp='| __clip'
 # alias -g c='| clip'
