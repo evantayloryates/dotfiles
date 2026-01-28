@@ -24,7 +24,7 @@ __clip () {
   } | strip_ansi | /usr/bin/pbcopy
 }
 
-alias -g cl='| __clip'
+alias -g c='| __clip'
 alias -g copy='| __clip'
 
 _glob () {
