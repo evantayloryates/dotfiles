@@ -50,7 +50,7 @@ function _exec_amplify() {
   if [ -z "${service}" ]; then
     return 0
   fi
-
+  
   # confirm service exists in this compose project
   if ! docker compose ps --services | grep -qx "${service}"; then
     __log "$(_red "exec_amplify: unknown service '${service}'")"
@@ -58,6 +58,8 @@ function _exec_amplify() {
   fi
 
   __log "Opening shell in service: $(_magenta "${service}")"
+  __log "↓"
+
 
   # prefer bash if available; fall back to sh
   if docker compose exec -T "${service}" /bin/bash -lc 'exit' >/dev/null 2>&1; then
