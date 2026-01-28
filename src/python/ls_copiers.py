@@ -61,6 +61,8 @@ def eval_copier_fn(copiers_path, copier_fn, variant=''):
         f'/usr/bin/pbpaste; '
         f': | /usr/bin/pbcopy'
     )
+    if variant:
+      sys.stdout.write(f"CMD: {cmd}\n")
     return eval_command(cmd)
 
 
