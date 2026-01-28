@@ -28,3 +28,4 @@ _glob () {
       ;;
   esac
 }
+*.{arm,axlsx,conf,css,default,erb,jbuilder,js,json,jsx,lock,md,rb,ru,scss,sh,template,txt}
