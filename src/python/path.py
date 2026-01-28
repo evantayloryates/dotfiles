@@ -40,7 +40,6 @@ for idx, i in enumerate(normalized):
     colored_segments = [c(seg, segment_color) for seg in segments]
     colored_path = c('/', slash_color) + c('/',
                                            slash_color).join(colored_segments) if segments else ''
-    # print(f"{colored_path} ({slash_color})")
     print(f"{colored_path}")
 
 print()
