@@ -7,6 +7,7 @@ _kitsrc () { /Applications/kitty.app/Contents/MacOS/kitty @ load-config "$HOME/.
 abs     () { realpath "$@"                                                                                ;} # 
 c       () { clip "$@"                                                                                    ;} # 
 clip    () { if [[ "$*" == *'|'* ]]; then { printf '$ %s\n' "$*"; eval "$*"; } | strip_ansi | /usr/bin/pbcopy; else { printf '$ %s\n' "$*"; "$@"; } | strip_ansi | /usr/bin/pbcopy; fi;} # Note: for pipelines use clip 'cmd | cmd'. See __oldclip for the original version that does not strip ANSI
+clip2   () { { printf '$ %s\n' "$*"; eval "$*"; } | strip_ansi | /usr/bin/pbcopy; }
 convert () { magick "$@"                                                                                  ;} # 
 dc      () { docker compose "$@"                                                                          ;} # 
 env     () { /usr/bin/env | sort                                                                          ;} # 
