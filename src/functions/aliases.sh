@@ -6,7 +6,6 @@
 _kitsrc () { /Applications/kitty.app/Contents/MacOS/kitty @ load-config "$HOME/.config/kitty/kitty.conf"  ;} #
 abs     () { realpath "$@"                                                                                ;} # 
 c       () { clip "$@"                                                                                    ;} # 
-clip    () { { printf '$ %s\n' "$*"; "$@"; } | perl -pe 's/(?:\e\[|\x9b)[0-9;?]*[a-zA-Z]//g; s/\e\][^\e]*?(?:\a|\e\\)//g; chomp if eof' | /usr/bin/pbcopy ;} # strips ANSI (CSI + OSC) then copies 
 convert () { magick "$@"                                                                                  ;} # 
 dc      () { docker compose "$@"                                                                          ;} # 
 env     () { /usr/bin/env | sort                                                                          ;} # 
