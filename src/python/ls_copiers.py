@@ -21,8 +21,9 @@ def extract_variants(fn_name, lines, copiers_path):
     
     result = eval_command(cmd)
     variants = result.split(' ')
-    sys.stdout.write(f"VARIANTS: {variants.join('\n')}\n")
-    
+    for variant in variants:
+        sys.stdout.write(f"VARIANT: {variant}\n")
+     
     # then, extract the variants from the result
     return variants.split(' ')
 
