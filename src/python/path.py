@@ -128,8 +128,8 @@ print()
 # override_1 = random_color(['black'])
 override_1 = 'black_bold_bright'
 slash_color_1 = 'yellow_bright'
-override_2 = 'black_bold_bright'
-slash_color_2 = 'yellow_bright'
+override_2 = 'yellow_bright'
+slash_color_2 = 'black_bold_bright'
 # for idx, i in enumerate(normalized[:5]):
 print(f"PRIMARY:   {override_1}")
 print(f"SECONDARY: {override_1}")
