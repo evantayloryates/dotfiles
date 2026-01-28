@@ -46,7 +46,6 @@ normalized.sort(
     )
 )
 
-
 print()
 
 segment_color = 'black_bold_bright'
