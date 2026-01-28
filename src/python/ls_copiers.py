@@ -10,6 +10,8 @@ def extract_variants(fn_name, lines):
     if not fn_name in lines:
         return []
     variants = eval_command(f'source {sh_quote(copiers_path)}; {sh_quote(fn_name)}__variants')
+    # write to stdout: variants
+    sys.stdout.write(f"{variants}\n")
     # then, extract the variants from the result
     return variants.split(' ')
   
