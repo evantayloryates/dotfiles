@@ -2,22 +2,22 @@ import re
 import subprocess
 import sys
 
-COPIER_RE = re.compile(r'^(_[a-z0-9][a-z0-9_-]*) {0,5}\( {0,5}\) {0,5}\{')
+COPIER_RE = re.compile(r'^(_[a-z0-9](?:[a-z0-9]*(_[a-z0-9]+)*)?) {0,5}\( {0,5}\) {0,5}\{')
 
-def extract_copier_fns(copiers_path):
+def extract_copiers(copiers_path):
   with open(copiers_path, 'r') as f:
     lines = f.read().splitlines()
 
-  copier_fns = []
+  copiers = []
   for line in lines:
     m = COPIER_RE.match(line)
     if m:
-      new_dict = {
+      copier_fn = {
         'fn': m.group(1),
         'variants': [],
       }
-      copier_fns.append(new_dict)
-  return copier_fns
+      copiers.append(copier_fn)
+  return copiers
 
 def eval_copier_fn(copiers_path, copier_fn):
   cmd = (
@@ -43,10 +43,10 @@ def sh_quote(s):
 def main():
   copiers_path = sys.argv[1]
 
-  copier_fns = extract_copier_fns(copiers_path)
+  copiers = extract_copiers(copiers_path)
 
   products = []
-  for copier_fn in copier_fns:
+  for copier_fn in copiers:
     value = eval_copier_fn(copiers_path, fn)
     products.append((fn, value))
 
