@@ -20,7 +20,7 @@ CONFIG = [
       'disable': 'safemv <path>/.git/hooks/pre-commit <path>/.git/hooks/pre-commit.disabled && echo "pre-commit disabled" || echo "failed to disable"',
       'enable': 'safemv <path>/.git/hooks/pre-commit.disabled <path>/.git/hooks/pre-commit && echo "pre-commit enabled" || echo "failed to enable"',
       'exec': "_amplify_exec <args>",
-      'login': "_amplify_exec <args>",
+      'logs': "_amplify_logs <args>",
       'ssh': "_ssh_prod",
       'prod': "_ssh_prod",
       'stage': "_ssh_stage",
