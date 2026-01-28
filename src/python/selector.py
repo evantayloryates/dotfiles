@@ -136,9 +136,9 @@ def lookup_option(clean_input, options_sorted, allow_index=False):
 def resolve_selection(clean_input, options_sorted):
     opt = lookup_option(clean_input, options_sorted, allow_index=True)
     if opt is None:
-        return process_invalid_input(clean_input), None
+        return process_invalid_input(clean_input)
 
-    return None, opt['name']
+    return opt['name']
 
 
 def present_options():
