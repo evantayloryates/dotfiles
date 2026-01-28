@@ -32,5 +32,6 @@ ___glob_app () {
 }
 
 ___glob_client () {
-  printf '*.{js,json,md,scss,ts,tsx}' | /usr/bin/pbcopy
+  # printf '*.{js,json,md,scss,ts,tsx}' | /usr/bin/pbcopy
+  printf '*.{js,json,md,scss,ts,tsx}'
 }
