@@ -160,7 +160,8 @@ def main():
     VARIANT_COLOR = 'blue_dim'
     # NO:
     #  - 'black_dim'
-    ARROW_COLOR = 'white_dim'
+    #  - 'white_dim'
+    ARROW_COLOR = 'white_dim_bright'
     RESULT_COLOR = 'white'
 
     for name, value in rows:
