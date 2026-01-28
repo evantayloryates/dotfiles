@@ -29,6 +29,7 @@ _glob () {
   esac
 }
 
-script_path="${(%):-%x}"
-python3 "${DOTFILES_DIR}/src/python/ls_copiers.py"
-
+lll() {
+  local script_path="${(%):-%x}"
+  printf '%s\n' "${script_path}" | python3 "${DOTFILES_DIR}/src/python/selector.py"
+}
