@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import select
 import sys
 import termios
 import tty
@@ -82,10 +83,24 @@ def read_input(prompt):
                 _crlf()
                 return ''
 
-            # Escape
+            # Escape — distinguish bare ESC (exit) from escape sequences (arrow keys, etc.)
             if ch == '\x1b':
-                _crlf()
-                return ''
+                if select.select([fd], [], [], 0.05)[0]:
+                    # More data — consume the full escape sequence
+                    while True:
+                        extra = os.read(fd, 1)
+                        if not extra:
+                            break
+                        c = extra.decode('utf-8', errors='ignore')
+                        # CSI/SS3 sequences end with letter or ~ (not '[' which starts CSI)
+                        if c.isalpha() or c == '~':
+                            break
+                        if not select.select([fd], [], [], 0.05)[0]:
+                            break
+                else:
+                    # No more data — bare Escape, exit
+                    _crlf()
+                    return ''
 
             # Enter (raw mode usually yields '\r')
             if ch in ('\r', '\n'):

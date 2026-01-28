@@ -43,7 +43,7 @@ function _select_container() {
   printf '%s\n' "${initial_input}" | python3 "${DOTFILES_DIR}/src/python/selector.py"
 }
 
-function _exec_amplify() {
+function _amplify_exec() {
   local service="$1"
   local amplify_dir="${HOME}/src/github/amplify"
 
