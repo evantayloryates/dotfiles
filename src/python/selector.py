@@ -11,7 +11,7 @@ COLORS = {'red': '\033[31m', 'green': '\033[32m', 'yellow': '\033[33m', 'blue': 
 SCRIPT_NAME = os.path.basename(__file__)
 LOG_COLOR = COLORS['green']
 
-# Used for debugging. Keep this even if its unused
+# Used for debugging. Keep this even if it's unused
 def log(*args, **kwargs):
   kwargs.setdefault('end', '\n')
   kwargs.setdefault('flush', False)
