@@ -52,6 +52,20 @@ COLOR_CODES = {
     'yellow_dim': ['\033[2;33m', '\033[0m'],
     'yellow': ['\033[33m', '\033[0m'],
 }
+NEUTRALS = [
+  'white_bold_bright',
+  'white_bold',
+  'white_bright',
+  'white_dim_bright',
+  'white_dim',
+  'white',
+  'black_bold_bright',
+  'black_bold',
+  'black_bright',
+  'black_dim_bright',
+  'black_dim',
+  'black',
+]
 
 def random_color():
     return random.choice(list(COLOR_CODES.keys()))
