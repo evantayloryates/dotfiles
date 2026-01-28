@@ -122,20 +122,8 @@ normalized.sort(key=lambda p: (segment_count(p), p))
 
 print()
 
-# GOOD:
-#  - white_bold_bright
-#  - black_bold_bright
-# override_1 = random_color(['black'])
-override_1 = 'black_bold_bright'
-slash_color_1 = 'yellow_bright'
-override_2 = random_color(['white'])
-slash_color_2 = 'magenta_bold_bright'
-# for idx, i in enumerate(normalized[:5]):
-print(f"PRIMARY:   {override_1}")
-print(f"SECONDARY: {override_1}")
-print(f"SLASH_1:   {slash_color_1}")
-print(f"SLASH_2:   {slash_color_2}")
-print()
+segment_color = 'black_bold_bright'
+slash_color = 'yellow_bright'
 
 for idx, i in enumerate(normalized):
     color = override_1 if idx % 2 == 0 else override_2
