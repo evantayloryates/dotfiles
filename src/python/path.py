@@ -49,15 +49,15 @@ for idx, i in enumerate(normalized):
     segments = [seg for seg in i.split('/') if seg]
     colored_segments = [c(seg, segment_color) for seg in segments]
     if segments:
-      if segments[0] == '~':
-          # home-relative path: no leading slash
-          colored_path = c('/', slash_color).join(colored_segments)
-      else:
-          # absolute path
-          colored_path = (
-              c('/', slash_color) +
-              c('/', slash_color).join(colored_segments)
-          )
+        if segments[0] == '~':
+            # home-relative path: no leading slash
+            colored_path = c('/', slash_color).join(colored_segments)
+        else:
+            # absolute path
+            colored_path = (
+                c('/', slash_color) +
+                c('/', slash_color).join(colored_segments)
+            )
     else:
         colored_path = ''
 
