@@ -118,8 +118,32 @@ def main():
     max_len = max((len(name) for name, _ in rows), default=0)
     pad_to = max_len + PADDING_BUFFER
 
-    for name, value in rows:
-        sys.stdout.write(f'{name.ljust(pad_to)}=> {value}\n')
+    FN_COLOR = 'blue'
+VARIANT_COLOR = 'dark_blue'
+ARROW_COLOR = 'gray'
+RESULT_COLOR = 'white'
+
+for name, value in rows:
+    # split once: "_glob app" → "_glob", "app"
+    if ' ' in name:
+        fn, variant = name.split(' ', 1)
+        colored_name = (
+            c(fn, FN_COLOR) +
+            ' ' +
+            c(variant, VARIANT_COLOR)
+        )
+    else:
+        fn = name
+        colored_name = c(fn, FN_COLOR)
+
+    padding = ' ' * (pad_to - len(name))
+
+    sys.stdout.write(
+        f'{colored_name}{padding}'
+        f'{c("=>", ARROW_COLOR)} '
+        f'{c(value, RESULT_COLOR)}\n'
+    )
+
 
 
 if __name__ == '__main__':
