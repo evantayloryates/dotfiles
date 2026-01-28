@@ -33,3 +33,4 @@ lll() {
   local script_path="${(%):-%x}"
   python3 "${DOTFILES_DIR}/src/python/ls_copiers.py" "${script_path}"
 }
+puts ['...', *ActiveRecord::SchemaMigration.order(version: :desc).limit(5).pluck(:version).reverse].join("\n")
