@@ -23,16 +23,10 @@ _glob () {
   esac
 }
 
-# ================ #
-# INTERNAL HELPERS #
-# ================ #
-
 ___glob_app () {
-  # printf '*.{arm,axlsx,conf,css,default,erb,jbuilder,js,json,jsx,lock,md,rb,ru,scss,sh,template,txt}' | /usr/bin/pbcopy
-  printf '*.{arm,axlsx,conf,css,default,erb,jbuilder,js,json,jsx,lock,md,rb,ru,scss,sh,template,txt}'
+  printf '*.{arm,axlsx,conf,css,default,erb,jbuilder,js,json,jsx,lock,md,rb,ru,scss,sh,template,txt}' | /usr/bin/pbcopy
 }
 
 ___glob_client () {
-  # printf '*.{js,json,md,scss,ts,tsx}' | /usr/bin/pbcopy
-  printf '*.{js,json,md,scss,ts,tsx}'
+  printf '*.{js,json,md,scss,ts,tsx}' | /usr/bin/pbcopy
 }
