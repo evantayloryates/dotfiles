@@ -45,13 +45,18 @@ def main():
 
   copiers = extract_copiers(copiers_path)
 
-  products = []
-  for copier_fn in copiers:
-    value = eval_copier_fn(copiers_path, fn)
-    products.append((fn, value))
+  for copier in copiers:
+    copier_name = copier['fn']
+    # write to stdout: copier_name
+    sys.stdout.write(f"{copier_name}\n")
 
-  for fn, value in products:
-    sys.stdout.write(f"{fn}\n ↳ {value}\n")
+  # products = []
+  # for copier_fn in copiers:
+  #   value = eval_copier_fn(copiers_path, fn)
+  #   products.append((fn, value))
+
+  # for fn, value in products:
+  #   sys.stdout.write(f"{fn}\n ↳ {value}\n")
 
 if __name__ == '__main__':
   main()
