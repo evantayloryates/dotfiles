@@ -108,6 +108,9 @@ for idx, i in enumerate(normalized[:5]):
         if True:
             break
     color = COLOR_1 if idx % 2 == 0 else COLOR_2
-    print(f"{c(i, color)} ({COLOR_1})")
+    segments = [seg for seg in i.split('/') if seg]
+    colored_segments = [c(seg, color) for seg in segments]
+    colored_path = c('/', slash_color) + c('/', slash_color).join(colored_segments) if segments else ''
+    print(f"{colored_path} ({COLOR_1})")
 
 print()
