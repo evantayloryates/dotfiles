@@ -58,7 +58,7 @@ def read_input(prompt):
         user_input = TTY.readline()
     except KeyboardInterrupt:
         present('')  # newline after ^C for clean output
-        return None
+        return ''
     if not user_input:
         return ''
     return cleaned(user_input)
