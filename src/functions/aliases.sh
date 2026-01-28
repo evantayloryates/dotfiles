@@ -34,21 +34,18 @@ alias password="python3 $DOTFILES_DIR/src/python/password.py"
 alias words="open $DOTFILES_DIR/src/__data/words.txt"
 
 
+__CLIP_LASTLINE=''
+preexec() { __CLIP_LASTLINE="$1" }
+
 __clip () {
-  local cmd="${__CLIP_LASTLINE:-'(unknown)'}"
   {
-    printf '$ %s\n' "$cmd"
+    printf '$ %s\n' "$__CLIP_LASTLINE"
     cat
   } | strip_ansi | /usr/bin/pbcopy
 }
 
-cliprun () {
-  __CLIP_LASTLINE="$*"
-  "$@"
-}
-
 alias -g c='| __clip'
-alias clip='cliprun'
+
 
 
 
