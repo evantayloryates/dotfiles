@@ -62,6 +62,7 @@ def eval_copier_fn(copiers_path, copier_fn, variant=''):
     result = eval_command(cmd)
     # Clear clipboard
     eval_command('pbcopy < /dev/null')
+    
     return result
 
 
