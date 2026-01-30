@@ -31,6 +31,8 @@ __clip () {
 #  - docker compose up -d --remove-orphans cl 
 #  - dc logs --tail=200 --follow --ansi=always sidekiq cl
 #   - this command throws an error, so we may need to update the logic to capture stderr as well
+# improvements:
+#  - add final $ line to indicate where the new terminal prompt begins
 alias -g cl='| __clip'
 alias -g copy='| __clip'
 
