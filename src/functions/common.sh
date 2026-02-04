@@ -249,4 +249,5 @@ r.context.lodash = require("lodash")
 
 esc() { escape "$@"; }
 escape() { pbpaste | sed 's/"/\\"/g' | /usr/bin/pbcopy; }
+esc!() { escape "$@"; }
 unescape() { pbpaste | sed 's/\\"/"/g' | /usr/bin/pbcopy; }
