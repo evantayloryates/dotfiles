@@ -20,6 +20,10 @@ _glob () {
   esac
 }
 
+_ship () {
+  printf "def ship(cid) = Creative.find(cid).update(account_id: 1, workspace_id: 1801, campaign_id: nil)\nship " | /usr/bin/pbcopy
+}
+
 __() {
   clear;
   local script_path="${(%):-%x}"
