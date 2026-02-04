@@ -246,3 +246,6 @@ r.context.lodash = require("lodash")
     command /opt/homebrew/bin/node "$@"
   fi
 }
+
+esc() { escape "$@"; }
+escape() { pbpaste | sed 's/"/\\"/g' | pbcopy; }
