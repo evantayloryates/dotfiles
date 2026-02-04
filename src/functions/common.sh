@@ -233,3 +233,16 @@ say() {
     set volume output volume ogVol
   end run' "$target_vol" "$say_cmd"
 }
+
+
+node() {
+  if [[ $# -eq 0 ]]; then
+    command /opt/homebrew/bin/node -e '
+const repl = require("node:repl")
+const r = repl.start()
+r.context.lodash = require("lodash")
+'
+  else
+    command /opt/homebrew/bin/node "$@"
+  fi
+}
