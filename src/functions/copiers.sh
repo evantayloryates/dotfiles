@@ -21,7 +21,13 @@ _glob () {
 }
 
 _ship () {
-  printf "def ship(cid) = Creative.find(cid).update(account_id: 1, workspace_id: 1801, campaign_id: nil)\nship " | /usr/bin/pbcopy
+  local target_id
+  local clip
+  clip="$(/usr/bin/pbpaste | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+  if [[ "$clip" =~ ^[0-9]{1,9}$ ]]; then
+    target_id="$clip"
+  fi
+  printf "def ship(cid) = Creative.find(cid).update(account_id: 1, workspace_id: 1801, campaign_id: nil)\nship %s" "${target_id:-}" | /usr/bin/pbcopy
 }
 
 __() {
