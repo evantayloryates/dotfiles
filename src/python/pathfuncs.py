@@ -40,6 +40,7 @@ CONFIG = [
   p('nex',         '~/src/github/nexrender-scripts',    'dev', 
     commands={
       'dev'      : '/Users/taylor/src/github/nexrender-scripts/scripts/local/ssh',
+      'get'      : '/Users/taylor/src/github/nexrender-scripts/scripts/local/get',
       'ssh'      : 'make -C /Users/taylor/src/github/nexrender-api ssh',
       'vnc'      : 'make -C /Users/taylor/src/github/nexrender-api vnc',
       'pwd'      : 'make -C /Users/taylor/src/github/nexrender-api send-pwd',
