@@ -20,7 +20,7 @@ preexec() { __CLIP_LASTLINE="$2" }
 __clip () {
   local cmd="$__CLIP_LASTLINE"
   cmd="${cmd%%[[:space:]]##\|[[:space:]]##__clip([[:space:]]##)#}" # drop "| __clip"
-  cmd="${cmd%%[[:space:]]##\|[[:space:]]##copy([[:space:]]##)#}"   # drop "| copy"
+  # cmd="${cmd%%[[:space:]]##\|[[:space:]]##copy([[:space:]]##)#}"   # drop "| copy"
   {
     printf '$ %s\n' "$cmd"
     cat
@@ -34,7 +34,7 @@ __clip () {
 # improvements:
 #  - add final $ line to indicate where the new terminal prompt begins
 alias -g cl='| __clip'
-alias -g copy='| __clip'
+# alias -g copy='| __clip'
 
 # Keeping for reference. the new official "clip" function strips ANSI (CSI + OSC) before copying.
 __oldclip () {
