@@ -47,3 +47,10 @@ source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 export PYTHONSTARTUP=~/.pythonrc
 
 
+
+# bun completions
+[ -s "/Users/taylor/.bun/_bun" ] && source "/Users/taylor/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
