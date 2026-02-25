@@ -25,7 +25,7 @@ CONFIG = [
       'ssh': '_ssh_prod',
       'prod': '_ssh_prod',
       'stage': '_ssh_stage',
-      'lint': '<path>/scripts/lint -A <args>',
+      'lint': '<path>/scripts/lint -A',
     }
   ),
   p('app',         '/Applications',                     'open'), # TODO: link all app dirs /Applications, /System/Applications, /System/Applications/Utilities, /System/Library/CoreServices/Applications/
