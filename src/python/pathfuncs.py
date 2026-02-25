@@ -15,19 +15,20 @@ def p(slug, path, default='cursor', commands=None, aliases=None):
 
 
 CONFIG = [
-  p('amp',        '~/src/github/amplify', aliases=['amplify'], 
+  p('amp',        '~/src/github/amplify', aliases=['amplify'],
     commands={
       'disable': 'safemv <path>/.git/hooks/pre-commit <path>/.git/hooks/pre-commit.disabled && echo "pre-commit disabled" || echo "failed to disable"',
       'enable': 'safemv <path>/.git/hooks/pre-commit.disabled <path>/.git/hooks/pre-commit && echo "pre-commit enabled" || echo "failed to enable"',
-      'exec': "_amplify_exec <args>",
-      'logs': "_amplify_logs <args>",
-      'log': "_amplify_logs <args>",
-      'ssh': "_ssh_prod",
-      'prod': "_ssh_prod",
-      'stage': "_ssh_stage",
+      'exec': '_amplify_exec <args>',
+      'logs': '_amplify_logs <args>',
+      'log': '_amplify_logs <args>',
+      'ssh': '_ssh_prod',
+      'prod': '_ssh_prod',
+      'stage': '_ssh_stage',
+      'lint': '<path>/scripts/lint -A <args>',
     }
   ),
-  p('app',         '/Applications',                     'open'), # TODO: link all app dirs /Applications, /System/Applications, /System/Applications/Utilities, /System/Library/CoreServices/Applications/ 
+  p('app',         '/Applications',                     'open'), # TODO: link all app dirs /Applications, /System/Applications, /System/Applications/Utilities, /System/Library/CoreServices/Applications/
   p('d',           '~/Desktop',                         'cd',  aliases=['desk', 'desktop']),
   p('dot-old',     '~/.dotfiles'),
   p('dot',         '~/dotfiles'),
@@ -38,7 +39,7 @@ CONFIG = [
   p('kit',         '~/.config/kitty/',                  aliases=['kitty'], commands={'reload': '/Applications/kitty.app/Contents/MacOS/kitty @ load-config /Users/taylor/.config/kitty/kitty.conf'}),
   p('mac',         '~/src/macos',                       'cursor', aliases=['macos']),
   p('mesh',        '~/src/github/mesh'),
-  p('nex',         '~/src/github/nexrender-scripts',    'dev', 
+  p('nex',         '~/src/github/nexrender-scripts',    'dev',
     commands={
       'dev'      : '/Users/taylor/src/github/nexrender-scripts/scripts/local/ssh',
       'get'      : '/Users/taylor/src/github/nexrender-scripts/scripts/local/get <args>',
