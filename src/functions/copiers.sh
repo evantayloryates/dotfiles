@@ -30,6 +30,39 @@ _ship () {
   printf "def ship(cid) = Creative.find(cid).update(account_id: 1, workspace_id: 1801, campaign_id: nil)\nship %s" "${target_id:-}" | /usr/bin/pbcopy
 }
 
+_patch () {
+  local repo_path="/Users/taylor/src/github/amplify"
+  local current_branch diff_output temp_file formatted_output git_cmd
+  
+  # Get current branch name
+  current_branch="$(git -C "$repo_path" rev-parse --abbrev-ref HEAD)"
+  
+  # Create temp file for diff output
+  temp_file="$(mktemp)"
+  
+  # Run git diff using three-dot syntax to compare against master
+  # This shows only changes unique to current branch, excluding intermediate branches
+  git_cmd="git diff master...$current_branch"
+  git -C "$repo_path" diff master..."$current_branch" > "$temp_file"
+  
+  # Read diff content
+  diff_output="$(cat "$temp_file")"
+  
+  # Format the complete string: $ command\n\n<diff content>
+  formatted_output="$ git -C $repo_path diff master...$current_branch
+
+$diff_output"
+  
+  # Copy to clipboard
+  printf '%s' "$formatted_output" | /usr/bin/pbcopy
+  
+  # Print yellow ANSI message
+  echo -e "\033[33mPatch file content was stored to clipboard\033[0m"
+  
+  # Clean up temp file
+  rm -f "$temp_file"
+}
+
 __() {
   clear;
   local script_path="${(%):-%x}"
