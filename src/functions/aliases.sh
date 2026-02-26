@@ -11,7 +11,7 @@ env     () { clear ; python3 "$DOTFILES_DIR/src/python/env.py"                  
 ex      () { exiftool "$@"                                                                                ;} # Note: this will overwrite the /usr/bin/ex command
 ga      () { git add "$@"                                                                                 ;} # 
 gc      () { git commit "$@"                                                                              ;} # 
-git     () { if [[ $# -eq 1 && "$1" == "branch" ]]; then gbs; else /usr/bin/git "$@"; fi                  ;} #
+git     () { if [[ $# -eq 1 && "$1" == "branch" ]]; then gbs; elif [[ $# -eq 1 && "$1" == "log" ]]; then git_log_local_pretty; else /usr/bin/git "$@"; fi ;} #
 gb      () { git branch "$@"                                                                              ;} #
 gl      () { git log --oneline "$@"                                                                       ;} # 
 gp      () { git push "$@"                                                                                ;} # 

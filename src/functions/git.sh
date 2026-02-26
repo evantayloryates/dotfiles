@@ -5,6 +5,8 @@
 # - Reserved branches never appear in Recent, only in Reserved
 GBS_RECENT_WINDOW_DAYS=7
 GBS_RESERVED_BRANCHES=("main" "master" "production")
+GIT_LOG_MAX_MSG_LEN=50
+GIT_LOG_EXTRA_PADDING=2
 
 gbs() {
     local -a all_branches recent_branches reserved_branches rest_branches
@@ -248,4 +250,62 @@ function rm_branch {
   fi
 
   return 0
+}
+
+function git_log_local_pretty {
+  local max_msg_len="${GIT_LOG_MAX_MSG_LEN:-50}"
+  local extra_padding="${GIT_LOG_EXTRA_PADDING:-2}"
+  local head_hash head_branch hash_color reset_color extra_pad merge_base
+
+  head_hash=$(/usr/bin/git rev-parse HEAD 2>/dev/null) || return 1
+  head_branch=$(/usr/bin/git symbolic-ref --quiet --short HEAD 2>/dev/null || true)
+  merge_base=$(/usr/bin/git merge-base master HEAD 2>/dev/null || true)
+
+  hash_color=""
+  reset_color=""
+  if [[ -t 1 ]]; then
+    hash_color=$'\033[90m'
+    reset_color=$'\033[0m'
+  fi
+
+  printf -v extra_pad '%*s' "$extra_padding" ''
+
+  {
+    /usr/bin/git --no-pager log --format='%H%x1f%h%x1f%s' master..HEAD
+    if [[ -n "$merge_base" ]]; then
+      /usr/bin/git --no-pager show -s --format='%H%x1f%h%x1f%s' "$merge_base"
+    fi
+  } | while IFS=$'\x1f' read -r full_hash short_hash subject; do
+    local display_subject="$subject" decoration="" other_local_refs="" ref=""
+
+    if (( ${#display_subject} > max_msg_len )); then
+      display_subject="${display_subject:0:$((max_msg_len - 3))}..."
+    fi
+    printf -v display_subject "%-${max_msg_len}s" "$display_subject"
+
+    while IFS= read -r ref; do
+      [[ -z "$ref" ]] && continue
+      if [[ "$full_hash" == "$head_hash" && -n "$head_branch" && "$ref" == "$head_branch" ]]; then
+        continue
+      fi
+      if [[ -z "$other_local_refs" ]]; then
+        other_local_refs="$ref"
+      else
+        other_local_refs="$other_local_refs, $ref"
+      fi
+    done < <(/usr/bin/git for-each-ref --format='%(refname:short)' --points-at "$full_hash" refs/heads 2>/dev/null)
+
+    if [[ "$full_hash" == "$head_hash" && -n "$head_branch" ]]; then
+      decoration="HEAD -> $head_branch"
+      [[ -n "$other_local_refs" ]] && decoration="$decoration, $other_local_refs"
+    else
+      decoration="$other_local_refs"
+    fi
+
+    if [[ -n "$decoration" ]]; then
+      printf '%s%s%s %s%s(%s)\n' "$hash_color" "$short_hash" "$reset_color" "$display_subject" "$extra_pad" "$decoration"
+    else
+      printf '%s%s%s %s\n' "$hash_color" "$short_hash" "$reset_color" "$display_subject"
+    fi
+  done
 }
