@@ -144,6 +144,10 @@ gbs() {
     echo ""
 }
 
+gbc() {
+    /usr/bin/git branch --show-current
+}
+
 function my_branch {
   local branch="$1"
   local base="origin/master"
