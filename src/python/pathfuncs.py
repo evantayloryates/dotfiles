@@ -74,6 +74,7 @@ CONFIG = [
   ),
   p('s',           '~/src',                            ' cd'),
   p('screenshots', '~/Pictures/Screenshots',            'open', aliases=['ss', 'shots', 'screenshot']),
+  p('vsx',         '~/src/vscode-extensions'),
 ]
 
 def build_function(entry):
