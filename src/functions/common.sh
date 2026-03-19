@@ -90,6 +90,26 @@ function _amplify_logs() {
   dc --project-directory "${amplify_dir}" logs --tail=200 --follow "${service}"
 }
 
+function _amplify_restart() {
+  local service="$1"
+  local amplify_dir="${HOME}/src/github/amplify"
+
+  service="$(_select_container "${service}")" || true
+  if [ -z "${service}" ]; then
+    return 0
+  fi
+
+  if ! docker compose --project-directory "${amplify_dir}" ps --services | grep -qx "${service}"; then
+    __log "$(_red "_amplify_restart: unknown service '${service}'")"
+    return 1
+  fi
+
+  __log "↓ Restarting container: $(_magenta "${service}")"
+  __log ""
+
+  dc --project-directory "${amplify_dir}" restart "${service}"
+}
+
 
 function sb() {
   local magenta="\033[35m"

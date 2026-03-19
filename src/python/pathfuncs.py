@@ -22,6 +22,7 @@ CONFIG = [
       'exec': '_amplify_exec <args>',
       'logs': '_amplify_logs <args>',
       'log': '_amplify_logs <args>',
+      'restart': '_amplify_restart <args>',
       'ssh': '_ssh_prod',
       'prod': '_ssh_prod',
       'stage': '_ssh_stage',
