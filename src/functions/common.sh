@@ -193,10 +193,15 @@ safemv() {
 
 clipsend() {
   local desktop="$HOME/Desktop"
+  local custom_name="$1"
   local ts
   local tmp
   local lines
   local out
+  local stem
+  local ext
+  local candidate
+  local n
 
   ts="$(date '+%H%M%S')"
   tmp="$(mktemp)"
@@ -204,9 +209,33 @@ clipsend() {
   pbpaste > "$tmp"
 
   lines="$(wc -l < "$tmp" | tr -d '[:space:]')"
-  out="$desktop/clipsend-$ts-$lines-lines.txt"
-
   mkdir -p "$desktop"
+
+  if [[ -n "$custom_name" ]]; then
+    custom_name="${custom_name##*/}"
+    out="$desktop/$custom_name"
+
+    if [[ -e "$out" ]]; then
+      if [[ "$custom_name" == *.* && "$custom_name" != .* ]]; then
+        stem="${custom_name%.*}"
+        ext=".${custom_name##*.}"
+      else
+        stem="$custom_name"
+        ext=""
+      fi
+
+      n=1
+      candidate="$desktop/${stem}-${n}${ext}"
+      while [[ -e "$candidate" ]]; do
+        ((n++))
+        candidate="$desktop/${stem}-${n}${ext}"
+      done
+      out="$candidate"
+    fi
+  else
+    out="$desktop/clipsend-$ts-$lines-lines.txt"
+  fi
+
   mv "$tmp" "$out"
   printf '%s' "$out" | /usr/bin/pbcopy
   printf '%s\n' "$out"
