@@ -210,6 +210,7 @@ clipsend() {
   mv "$tmp" "$out"
   printf '%s' "$out" | /usr/bin/pbcopy
   printf '%s\n' "$out"
+  echo '✅ File path copied to clipboard'
 }
 
 say() {
