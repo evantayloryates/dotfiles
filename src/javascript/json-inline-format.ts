@@ -1,0 +1,229 @@
+#!/usr/bin/env node
+import { promisify } from 'util'
+import { execFile } from 'child_process'
+import { promises as fs } from 'fs'
+import path from 'path'
+
+const execFileAsync = promisify(execFile)
+
+const usage = () => {
+  console.error('Usage: json-inline-format <path-to-input-file>')
+  process.exit(1)
+}
+
+const toBackupPath = (p: string) => {
+  const { dir, name, ext } = path.parse(p)
+  return path.join(dir || '.', `${name}.bak${ext || '.txt'}`)
+}
+
+const pad = (s: string, len: number) => s + ' '.repeat(Math.max(0, len - s.length))
+
+const isPlainObject = (value: unknown): value is Record<string, unknown> => {
+  return !!value && typeof value === 'object' && !Array.isArray(value)
+}
+
+const isPrimitive = (value: unknown) => {
+  return value === null || ['string', 'number', 'boolean'].includes(typeof value)
+}
+
+const getMaxDepth = (value: unknown): number => {
+  if (isPrimitive(value)) return 0
+
+  if (Array.isArray(value)) {
+    if (value.length === 0) return 1
+    return 1 + Math.max(...value.map(getMaxDepth))
+  }
+
+  if (isPlainObject(value)) {
+    const values = Object.values(value)
+    if (values.length === 0) return 1
+    return 1 + Math.max(...values.map(getMaxDepth))
+  }
+
+  return 0
+}
+
+const isFlatObject = (value: unknown): value is Record<string, unknown> => {
+  if (!isPlainObject(value)) return false
+  return Object.values(value).every(v => isPrimitive(v))
+}
+
+const extractJsonLikeSubstring = (input: string) => {
+  const firstArrayIndex = input.indexOf('[')
+  const firstObjectIndex = input.indexOf('{')
+
+  let firstIndex = -1
+  let foundChar: '[' | '{' | null = null
+
+  if (firstArrayIndex === -1 && firstObjectIndex === -1) {
+    throw new Error('Could not find "[" or "{" in input.')
+  }
+
+  if (firstArrayIndex === -1) {
+    firstIndex = firstObjectIndex
+    foundChar = '{'
+  } else if (firstObjectIndex === -1) {
+    firstIndex = firstArrayIndex
+    foundChar = '['
+  } else if (firstArrayIndex < firstObjectIndex) {
+    firstIndex = firstArrayIndex
+    foundChar = '['
+  } else {
+    firstIndex = firstObjectIndex
+    foundChar = '{'
+  }
+
+  const closingChar = foundChar === '[' ? ']' : '}'
+  const lastIndex = input.lastIndexOf(closingChar)
+
+  if (lastIndex === -1) {
+    throw new Error(`Could not find closing "${closingChar}" in input.`)
+  }
+
+  if (lastIndex < firstIndex) {
+    throw new Error('Closing bracket was found before opening bracket.')
+  }
+
+  return {
+    foundChar,
+    firstIndex,
+    lastIndex,
+    stripped: input.slice(firstIndex, lastIndex + 1)
+  }
+}
+
+const evaluateInterpolatedJsonLikeString = (stripped: string) => {
+  try {
+    return new Function(`return (${stripped})`)()
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    throw new Error(`Inline evaluation failed: ${message}`)
+  }
+}
+
+const formatFlatArrayInline = (arr: Record<string, unknown>[]) => {
+  if (arr.length === 0) return '[]\n'
+
+  const keys = Object.keys(arr[0])
+  const colLen: Record<string, number> = {}
+
+  for (const key of keys) {
+    let maxLen = key.length + 4
+
+    for (const obj of arr) {
+      const valStr = JSON.stringify(obj[key])
+      const len = key.length + valStr.length + 4
+      if (len > maxLen) maxLen = len
+    }
+
+    colLen[key] = maxLen
+  }
+
+  const formatted = arr.map(obj => {
+    const pairs = keys.map(key => {
+      const keyStr = `"${key}": ${JSON.stringify(obj[key])}`
+      return pad(keyStr, colLen[key])
+    })
+
+    return `  { ${pairs.join(', ')} }`
+  })
+
+  return `[\n${formatted.join(',\n')}\n]\n`
+}
+
+const copyToClipboard = async (text: string) => {
+  try {
+    await execFileAsync('pbcopy', [], { input: text })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    throw new Error(`Clipboard write failed: ${message}`)
+  }
+}
+
+const main = async () => {
+  const input = process.argv[2]
+  if (!input) usage()
+
+  const backup = toBackupPath(input)
+
+  try {
+    await fs.rm(backup, { force: true }).catch(() => {})
+    await fs.copyFile(input, backup)
+    console.log(`Backup created: ${backup}`)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    console.error(`Error creating backup: ${message}`)
+    process.exit(2)
+  }
+
+  let raw: string
+  try {
+    raw = await fs.readFile(backup, 'utf8')
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    console.error(`Error reading backup file: ${message}`)
+    process.exit(3)
+  }
+
+  let stripped: string
+  try {
+    const extracted = extractJsonLikeSubstring(raw)
+    stripped = extracted.stripped
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    console.error(`Error normalizing input: ${message}`)
+    process.exit(4)
+  }
+
+  let parsed: unknown
+  try {
+    parsed = evaluateInterpolatedJsonLikeString(stripped)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    console.error(message)
+    process.exit(5)
+  }
+
+  let pretty: string
+  try {
+    pretty = JSON.stringify(parsed, null, 2)
+    if (typeof pretty !== 'string') {
+      throw new Error('JSON.stringify returned a non-string result.')
+    }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    console.error(`Error converting parsed value to JSON: ${message}`)
+    process.exit(6)
+  }
+
+  let output: string
+  try {
+    const shouldInlineFormat =
+      Array.isArray(parsed) &&
+      parsed.every(isFlatObject) &&
+      getMaxDepth(parsed) <= 2
+
+    output = shouldInlineFormat
+      ? formatFlatArrayInline(parsed as Record<string, unknown>[])
+      : `${pretty}\n`
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    console.error(`Error formatting output: ${message}`)
+    process.exit(7)
+  }
+
+  try {
+    await copyToClipboard(output)
+    console.log('Formatted JSON copied to clipboard.')
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    console.error(message)
+    process.exit(8)
+  }
+}
+
+main().catch(err => {
+  const message = err instanceof Error ? err.message : String(err)
+  console.error(`Unexpected error: ${message}`)
+  process.exit(99)
+})
