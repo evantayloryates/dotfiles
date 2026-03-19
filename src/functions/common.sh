@@ -104,7 +104,8 @@ json() {
 
   pbpaste > "$TMPFILE"
 
-  npx ts-node ~/src/scripts/json-inline-format.ts "$TMPFILE" >/dev/null 2>&1
+  # npx node ~/src/scripts/json-inline-format.ts "$TMPFILE" >/dev/null 2>&1
+  /opt/homebrew/bin/node "$DOTFILES_DIR/src/javascript/json-inline-format.js" "$TMPFILE" >/dev/null 2>&1
 
   pbcopy < "$TMPFILE"
 
