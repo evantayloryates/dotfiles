@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 import { promises as fs, appendFileSync, writeFileSync } from 'fs'
 
+const MAX_INLINE_CHARS = 80
+const INDENT = '  '
+const SPECIAL_KEYS = [ 'id' ]
 
 const LOG_PATH = '/Users/taylor/Desktop/log.txt'
 
@@ -27,9 +30,6 @@ const describeValue = value => {
   if (isPlainObject(value)) return `object(keys=${Object.keys(value).length})`
   return typeof value
 }
-
-const MAX_INLINE_CHARS = 80
-const INDENT = '  '
 
 const usage = () => {
   log('usage(): missing input path argument')
@@ -172,14 +172,25 @@ const isInlineScalarObject = value => {
   return isScalarObject(value) && JSON.stringify(value).length <= MAX_INLINE_CHARS
 }
 
+const isInlineSingleScalarObjectArray = value => {
+  return (
+    Array.isArray(value) &&
+    value.length === 1 &&
+    value.every(isScalarObject) &&
+    allObjectsHaveSameKeys(value) &&
+    JSON.stringify(value).length <= MAX_INLINE_CHARS
+  )
+}
+
 const classifyObjectValue = value => {
   if (isScalar(value)) return 0
   if (isInlineScalarArray(value)) return 1
   if (isInlineScalarObject(value)) return 2
-  if (isScalarArray(value)) return 3
-  if (isAlignedScalarObjectArray(value)) return 4
-  if (isDepthOneObjectArray(value)) return 5
-  return 6
+  if (isInlineSingleScalarObjectArray(value)) return 3
+  if (isScalarArray(value)) return 4
+  if (isAlignedScalarObjectArray(value)) return 5
+  if (isDepthOneObjectArray(value)) return 6
+  return 7
 }
 
 const compareKeys = (a, b) => a.localeCompare(b)
@@ -192,8 +203,12 @@ const sortObjectKeysForFormatting = obj => {
     if (aClass !== bClass) return aClass - bClass
 
     if (aClass === 0) {
-      if (a === 'id' && b !== 'id') return -1
-      if (b === 'id' && a !== 'id') return 1
+      const aSpecialRank = SPECIAL_KEYS.indexOf(a)
+      const bSpecialRank = SPECIAL_KEYS.indexOf(b)
+
+      if (aSpecialRank !== -1 && bSpecialRank === -1) return -1
+      if (bSpecialRank !== -1 && aSpecialRank === -1) return 1
+      if (aSpecialRank !== -1 && bSpecialRank !== -1) return aSpecialRank - bSpecialRank
     }
 
     return compareKeys(a, b)
@@ -280,12 +295,7 @@ const formatValue = (value, indentLevel = 0) => {
       return formatAlignedObjectArray(value, indentLevel)
     }
 
-    if (
-      value.length === 1 &&
-      value.every(isScalarObject) &&
-      allObjectsHaveSameKeys(value) &&
-      JSON.stringify(value).length <= MAX_INLINE_CHARS
-    ) {
+    if (isInlineSingleScalarObjectArray(value)) {
       return inlineScalarArray(value)
     }
 
