@@ -13,16 +13,16 @@ const usage = () => {
   process.exit(1)
 }
 
-const toBackupPath = (p: string) => {
+const toBackupPath = p => {
   const { dir, name, ext } = path.parse(p)
   return path.join(dir || '.', `${name}.bak${ext || '.txt'}`)
 }
 
-const isPlainObject = (value: unknown): value is Record<string, unknown> => {
+const isPlainObject = value => {
   return !!value && typeof value === 'object' && !Array.isArray(value)
 }
 
-const isScalar = (value: unknown) => {
+const isScalar = value => {
   return (
     value === null ||
     typeof value === 'string' ||
@@ -31,7 +31,7 @@ const isScalar = (value: unknown) => {
   )
 }
 
-const getDepth = (value: unknown): number => {
+const getDepth = value => {
   if (isScalar(value)) return 0
 
   if (Array.isArray(value)) {
@@ -48,20 +48,20 @@ const getDepth = (value: unknown): number => {
   return 0
 }
 
-const isScalarObject = (value: unknown): value is Record<string, unknown> => {
+const isScalarObject = value => {
   if (!isPlainObject(value)) return false
   return Object.values(value).every(v => isScalar(v))
 }
 
-const isScalarArray = (value: unknown): value is unknown[] => {
+const isScalarArray = value => {
   return Array.isArray(value) && value.every(v => isScalar(v))
 }
 
-const isDepthOneObjectArray = (value: unknown): value is Record<string, unknown>[] => {
+const isDepthOneObjectArray = value => {
   return Array.isArray(value) && value.every(v => isPlainObject(v) && getDepth(v) === 1)
 }
 
-const allObjectsHaveSameKeys = (arr: Record<string, unknown>[]) => {
+const allObjectsHaveSameKeys = arr => {
   if (arr.length === 0) return true
 
   const firstKeys = Object.keys(arr[0]).sort()
@@ -71,12 +71,12 @@ const allObjectsHaveSameKeys = (arr: Record<string, unknown>[]) => {
   })
 }
 
-const extractJsonLikeSubstring = (input: string) => {
+const extractJsonLikeSubstring = input => {
   const firstArrayIndex = input.indexOf('[')
   const firstObjectIndex = input.indexOf('{')
 
   let firstIndex = -1
-  let foundChar: '[' | '{' | null = null
+  let foundChar = null
 
   if (firstArrayIndex === -1 && firstObjectIndex === -1) {
     throw new Error('Could not find "[" or "{" in input.')
@@ -115,7 +115,7 @@ const extractJsonLikeSubstring = (input: string) => {
   }
 }
 
-const evaluateInterpolatedJsonLikeString = (stripped: string) => {
+const evaluateInterpolatedJsonLikeString = stripped => {
   try {
     return new Function(`return (${stripped})`)()
   } catch (err) {
@@ -124,16 +124,16 @@ const evaluateInterpolatedJsonLikeString = (stripped: string) => {
   }
 }
 
-const classifyObjectValue = (value: unknown) => {
+const classifyObjectValue = value => {
   if (isScalar(value)) return 0
   if (isScalarArray(value)) return 1
   if (isDepthOneObjectArray(value)) return 2
   return 3
 }
 
-const compareKeys = (a: string, b: string) => a.localeCompare(b)
+const compareKeys = (a, b) => a.localeCompare(b)
 
-const sortObjectKeysForFormatting = (obj: Record<string, unknown>) => {
+const sortObjectKeysForFormatting = obj => {
   return Object.keys(obj).sort((a, b) => {
     const aClass = classifyObjectValue(obj[a])
     const bClass = classifyObjectValue(obj[b])
@@ -149,7 +149,7 @@ const sortObjectKeysForFormatting = (obj: Record<string, unknown>) => {
   })
 }
 
-const sortRecursively = (value: unknown): unknown => {
+const sortRecursively = value => {
   if (isScalar(value)) return value
 
   if (Array.isArray(value)) {
@@ -158,7 +158,7 @@ const sortRecursively = (value: unknown): unknown => {
 
   if (isPlainObject(value)) {
     const sortedKeys = sortObjectKeysForFormatting(value)
-    const result: Record<string, unknown> = {}
+    const result = {}
 
     for (const key of sortedKeys) {
       result[key] = sortRecursively(value[key])
@@ -170,22 +170,22 @@ const sortRecursively = (value: unknown): unknown => {
   return value
 }
 
-const inlineScalarArray = (arr: unknown[]) => {
+const inlineScalarArray = arr => {
   const minified = JSON.stringify(arr)
   const inner = minified.slice(1, -1)
   return `[ ${inner} ]`
 }
 
-const inlineScalarObject = (obj: Record<string, unknown>) => {
+const inlineScalarObject = obj => {
   const entries = Object.entries(obj).map(([key, value]) => `${JSON.stringify(key)}: ${JSON.stringify(value)}`)
   return `{ ${entries.join(', ')} }`
 }
 
-const formatAlignedObjectArray = (arr: Record<string, unknown>[], indentLevel: number) => {
+const formatAlignedObjectArray = (arr, indentLevel) => {
   if (arr.length === 0) return '[]'
 
   const keys = Object.keys(arr[0])
-  const colWidths: Record<string, number> = {}
+  const colWidths = {}
 
   for (const key of keys) {
     let maxLen = 0
@@ -213,7 +213,7 @@ const formatAlignedObjectArray = (arr: Record<string, unknown>[], indentLevel: n
   return `[\n${lines.join(',\n')}\n${currentIndent}]`
 }
 
-const formatValue = (value: unknown, indentLevel = 0): string => {
+const formatValue = (value, indentLevel = 0) => {
   if (isScalar(value)) {
     return JSON.stringify(value)
   }
@@ -227,9 +227,9 @@ const formatValue = (value: unknown, indentLevel = 0): string => {
 
     if (
       value.every(isScalarObject) &&
-      allObjectsHaveSameKeys(value as Record<string, unknown>[])
+      allObjectsHaveSameKeys(value)
     ) {
-      return formatAlignedObjectArray(value as Record<string, unknown>[], indentLevel)
+      return formatAlignedObjectArray(value, indentLevel)
     }
 
     const currentIndent = INDENT.repeat(indentLevel)
@@ -261,7 +261,7 @@ const formatValue = (value: unknown, indentLevel = 0): string => {
   return JSON.stringify(value)
 }
 
-const copyToClipboard = async (text: string) => {
+const copyToClipboard = async text => {
   try {
     await execFileAsync('pbcopy', [], { input: text })
   } catch (err) {
@@ -286,7 +286,7 @@ const main = async () => {
     process.exit(2)
   }
 
-  let raw: string
+  let raw
   try {
     raw = await fs.readFile(backup, 'utf8')
   } catch (err) {
@@ -295,7 +295,7 @@ const main = async () => {
     process.exit(3)
   }
 
-  let stripped: string
+  let stripped
   try {
     const extracted = extractJsonLikeSubstring(raw)
     stripped = extracted.stripped
@@ -305,7 +305,7 @@ const main = async () => {
     process.exit(4)
   }
 
-  let parsed: unknown
+  let parsed
   try {
     parsed = evaluateInterpolatedJsonLikeString(stripped)
   } catch (err) {
@@ -314,7 +314,7 @@ const main = async () => {
     process.exit(5)
   }
 
-  let sorted: unknown
+  let sorted
   try {
     sorted = sortRecursively(parsed)
   } catch (err) {
@@ -323,7 +323,7 @@ const main = async () => {
     process.exit(6)
   }
 
-  let output: string
+  let output
   try {
     output = `${formatValue(sorted)}\n`
   } catch (err) {
