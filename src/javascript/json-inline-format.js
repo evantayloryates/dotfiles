@@ -37,6 +37,15 @@ const usage = () => {
   process.exit(1)
 }
 
+const isAlignedScalarObjectArray = value => {
+  return (
+    Array.isArray(value) &&
+    value.length > 1 &&
+    value.every(isScalarObject) &&
+    allObjectsHaveSameKeys(value)
+  )
+}
+
 const isPlainObject = value => {
   return !!value && typeof value === 'object' && !Array.isArray(value)
 }
@@ -168,8 +177,9 @@ const classifyObjectValue = value => {
   if (isInlineScalarArray(value)) return 1
   if (isInlineScalarObject(value)) return 2
   if (isScalarArray(value)) return 3
-  if (isDepthOneObjectArray(value)) return 4
-  return 5
+  if (isAlignedScalarObjectArray(value)) return 4
+  if (isDepthOneObjectArray(value)) return 5
+  return 6
 }
 
 const compareKeys = (a, b) => a.localeCompare(b)
@@ -266,11 +276,17 @@ const formatValue = (value, indentLevel = 0) => {
       return inlineScalarArray(value)
     }
 
-    if (
-      value.every(isScalarObject) &&
-      allObjectsHaveSameKeys(value)
-    ) {
+    if (isAlignedScalarObjectArray(value)) {
       return formatAlignedObjectArray(value, indentLevel)
+    }
+    
+    if (
+      value.length === 1 &&
+      value.every(isScalarObject) &&
+      allObjectsHaveSameKeys(value) &&
+      JSON.stringify(value).length <= MAX_INLINE_CHARS
+    ) {
+      return inlineScalarArray(value)
     }
 
     const currentIndent = INDENT.repeat(indentLevel)
