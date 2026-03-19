@@ -4,6 +4,14 @@ import { execFile } from 'child_process'
 import { promises as fs } from 'fs'
 import path from 'path'
 
+
+const LOG_PATH = '/Users/taylor/Desktop/log.txt'
+
+const logMessage = async message => {
+  const line = `[${new Date().toISOString()}] ${message}\n`
+  await fs.appendFile(LOG_PATH, line, 'utf8')
+}
+
 const execFileAsync = promisify(execFile)
 const MAX_INLINE_CHARS = 80
 const INDENT = '  '
