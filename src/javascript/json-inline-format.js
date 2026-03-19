@@ -5,6 +5,8 @@ import { promises as fs } from 'fs'
 import path from 'path'
 
 const execFileAsync = promisify(execFile)
+const MAX_INLINE_CHARS = 80
+const INDENT = '  '
 
 const usage = () => {
   console.error('Usage: json-inline-format <path-to-input-file>')
@@ -16,36 +18,57 @@ const toBackupPath = (p: string) => {
   return path.join(dir || '.', `${name}.bak${ext || '.txt'}`)
 }
 
-const pad = (s: string, len: number) => s + ' '.repeat(Math.max(0, len - s.length))
-
 const isPlainObject = (value: unknown): value is Record<string, unknown> => {
   return !!value && typeof value === 'object' && !Array.isArray(value)
 }
 
-const isPrimitive = (value: unknown) => {
-  return value === null || ['string', 'number', 'boolean'].includes(typeof value)
+const isScalar = (value: unknown) => {
+  return (
+    value === null ||
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'boolean'
+  )
 }
 
-const getMaxDepth = (value: unknown): number => {
-  if (isPrimitive(value)) return 0
+const getDepth = (value: unknown): number => {
+  if (isScalar(value)) return 0
 
   if (Array.isArray(value)) {
     if (value.length === 0) return 1
-    return 1 + Math.max(...value.map(getMaxDepth))
+    return 1 + Math.max(...value.map(getDepth))
   }
 
   if (isPlainObject(value)) {
     const values = Object.values(value)
     if (values.length === 0) return 1
-    return 1 + Math.max(...values.map(getMaxDepth))
+    return 1 + Math.max(...values.map(getDepth))
   }
 
   return 0
 }
 
-const isFlatObject = (value: unknown): value is Record<string, unknown> => {
+const isScalarObject = (value: unknown): value is Record<string, unknown> => {
   if (!isPlainObject(value)) return false
-  return Object.values(value).every(v => isPrimitive(v))
+  return Object.values(value).every(v => isScalar(v))
+}
+
+const isScalarArray = (value: unknown): value is unknown[] => {
+  return Array.isArray(value) && value.every(v => isScalar(v))
+}
+
+const isDepthOneObjectArray = (value: unknown): value is Record<string, unknown>[] => {
+  return Array.isArray(value) && value.every(v => isPlainObject(v) && getDepth(v) === 1)
+}
+
+const allObjectsHaveSameKeys = (arr: Record<string, unknown>[]) => {
+  if (arr.length === 0) return true
+
+  const firstKeys = Object.keys(arr[0]).sort()
+  return arr.every(obj => {
+    const keys = Object.keys(obj).sort()
+    return keys.length === firstKeys.length && keys.every((key, i) => key === firstKeys[i])
+  })
 }
 
 const extractJsonLikeSubstring = (input: string) => {
@@ -101,34 +124,141 @@ const evaluateInterpolatedJsonLikeString = (stripped: string) => {
   }
 }
 
-const formatFlatArrayInline = (arr: Record<string, unknown>[]) => {
-  if (arr.length === 0) return '[]\n'
+const classifyObjectValue = (value: unknown) => {
+  if (isScalar(value)) return 0
+  if (isScalarArray(value)) return 1
+  if (isDepthOneObjectArray(value)) return 2
+  return 3
+}
 
-  const keys = Object.keys(arr[0])
-  const colLen: Record<string, number> = {}
+const compareKeys = (a: string, b: string) => a.localeCompare(b)
 
-  for (const key of keys) {
-    let maxLen = key.length + 4
+const sortObjectKeysForFormatting = (obj: Record<string, unknown>) => {
+  return Object.keys(obj).sort((a, b) => {
+    const aClass = classifyObjectValue(obj[a])
+    const bClass = classifyObjectValue(obj[b])
 
-    for (const obj of arr) {
-      const valStr = JSON.stringify(obj[key])
-      const len = key.length + valStr.length + 4
-      if (len > maxLen) maxLen = len
+    if (aClass !== bClass) return aClass - bClass
+
+    if (aClass === 0) {
+      if (a === 'id' && b !== 'id') return -1
+      if (b === 'id' && a !== 'id') return 1
     }
 
-    colLen[key] = maxLen
+    return compareKeys(a, b)
+  })
+}
+
+const sortRecursively = (value: unknown): unknown => {
+  if (isScalar(value)) return value
+
+  if (Array.isArray(value)) {
+    return value.map(sortRecursively)
   }
 
-  const formatted = arr.map(obj => {
+  if (isPlainObject(value)) {
+    const sortedKeys = sortObjectKeysForFormatting(value)
+    const result: Record<string, unknown> = {}
+
+    for (const key of sortedKeys) {
+      result[key] = sortRecursively(value[key])
+    }
+
+    return result
+  }
+
+  return value
+}
+
+const inlineScalarArray = (arr: unknown[]) => {
+  const minified = JSON.stringify(arr)
+  const inner = minified.slice(1, -1)
+  return `[ ${inner} ]`
+}
+
+const inlineScalarObject = (obj: Record<string, unknown>) => {
+  const entries = Object.entries(obj).map(([key, value]) => `${JSON.stringify(key)}: ${JSON.stringify(value)}`)
+  return `{ ${entries.join(', ')} }`
+}
+
+const formatAlignedObjectArray = (arr: Record<string, unknown>[], indentLevel: number) => {
+  if (arr.length === 0) return '[]'
+
+  const keys = Object.keys(arr[0])
+  const colWidths: Record<string, number> = {}
+
+  for (const key of keys) {
+    let maxLen = 0
+
+    for (const obj of arr) {
+      const pair = `${JSON.stringify(key)}: ${JSON.stringify(obj[key])}`
+      if (pair.length > maxLen) maxLen = pair.length
+    }
+
+    colWidths[key] = maxLen
+  }
+
+  const currentIndent = INDENT.repeat(indentLevel)
+  const innerIndent = INDENT.repeat(indentLevel + 1)
+
+  const lines = arr.map(obj => {
     const pairs = keys.map(key => {
-      const keyStr = `"${key}": ${JSON.stringify(obj[key])}`
-      return pad(keyStr, colLen[key])
+      const pair = `${JSON.stringify(key)}: ${JSON.stringify(obj[key])}`
+      return pair.padEnd(colWidths[key], ' ')
     })
 
-    return `  { ${pairs.join(', ')} }`
+    return `${innerIndent}{ ${pairs.join(', ')} }`
   })
 
-  return `[\n${formatted.join(',\n')}\n]\n`
+  return `[\n${lines.join(',\n')}\n${currentIndent}]`
+}
+
+const formatValue = (value: unknown, indentLevel = 0): string => {
+  if (isScalar(value)) {
+    return JSON.stringify(value)
+  }
+
+  if (Array.isArray(value)) {
+    if (value.length === 0) return '[]'
+
+    if (isScalarArray(value) && JSON.stringify(value).length <= MAX_INLINE_CHARS) {
+      return inlineScalarArray(value)
+    }
+
+    if (
+      value.every(isScalarObject) &&
+      allObjectsHaveSameKeys(value as Record<string, unknown>[])
+    ) {
+      return formatAlignedObjectArray(value as Record<string, unknown>[], indentLevel)
+    }
+
+    const currentIndent = INDENT.repeat(indentLevel)
+    const innerIndent = INDENT.repeat(indentLevel + 1)
+
+    const lines = value.map(item => `${innerIndent}${formatValue(item, indentLevel + 1)}`)
+    return `[\n${lines.join(',\n')}\n${currentIndent}]`
+  }
+
+  if (isPlainObject(value)) {
+    const keys = Object.keys(value)
+
+    if (keys.length === 0) return '{}'
+
+    if (isScalarObject(value) && JSON.stringify(value).length <= MAX_INLINE_CHARS) {
+      return inlineScalarObject(value)
+    }
+
+    const currentIndent = INDENT.repeat(indentLevel)
+    const innerIndent = INDENT.repeat(indentLevel + 1)
+
+    const lines = keys.map(key => {
+      return `${innerIndent}${JSON.stringify(key)}: ${formatValue(value[key], indentLevel + 1)}`
+    })
+
+    return `{\n${lines.join(',\n')}\n${currentIndent}}`
+  }
+
+  return JSON.stringify(value)
 }
 
 const copyToClipboard = async (text: string) => {
@@ -184,28 +314,18 @@ const main = async () => {
     process.exit(5)
   }
 
-  let pretty: string
+  let sorted: unknown
   try {
-    pretty = JSON.stringify(parsed, null, 2)
-    if (typeof pretty !== 'string') {
-      throw new Error('JSON.stringify returned a non-string result.')
-    }
+    sorted = sortRecursively(parsed)
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
-    console.error(`Error converting parsed value to JSON: ${message}`)
+    console.error(`Error sorting parsed value: ${message}`)
     process.exit(6)
   }
 
   let output: string
   try {
-    const shouldInlineFormat =
-      Array.isArray(parsed) &&
-      parsed.every(isFlatObject) &&
-      getMaxDepth(parsed) <= 2
-
-    output = shouldInlineFormat
-      ? formatFlatArrayInline(parsed as Record<string, unknown>[])
-      : `${pretty}\n`
+    output = `${formatValue(sorted)}\n`
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
     console.error(`Error formatting output: ${message}`)
@@ -214,7 +334,7 @@ const main = async () => {
 
   try {
     await copyToClipboard(output)
-    console.log('Formatted JSON copied to clipboard.')
+    console.log('Custom formatted JSON copied to clipboard.')
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
     console.error(message)
