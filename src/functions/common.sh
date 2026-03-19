@@ -208,7 +208,7 @@ clipsend() {
 
   mkdir -p "$desktop"
   mv "$tmp" "$out"
-  printf '%s' "$out" | pbcopy
+  printf '%s' "$out" | /usr/bin/pbcopy
   printf '%s\n' "$out"
 }
 
