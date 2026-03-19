@@ -120,7 +120,7 @@ json() {
     ERROR_MESSAGE="${TMPFILE_CONTENT:$SIGNAL_LEN}"
     ERROR_MESSAGE="${ERROR_MESSAGE#\[}"
     ERROR_MESSAGE="${ERROR_MESSAGE%\]}"
-    printf '❗️Error parsing JSON:\n ==> \033[1;31m%s\033[0m\n\n' "$ERROR_MESSAGE"
+    printf 'Error parsing JSON:\n ==> \033[1;31m%s\033[0m\n\n' "$ERROR_MESSAGE"
   else
     pbcopy < "$TMPFILE"
     echo '✅ JSON formatted and copied back to clipboard'
