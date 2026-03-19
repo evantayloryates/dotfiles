@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import { promises as fs, appendFileSync, writeFileSync } from 'fs'
 
-const MAX_INLINE_CHARS = 80
+const MAX_INLINE_CHARS = 100
 const INDENT = '  '
-const SPECIAL_KEYS = [ 'id' ]
+const SPECIAL_KEYS = [ 'id', 'uid' ]
 
 const LOG_PATH = '/Users/taylor/Desktop/log.txt'
 
