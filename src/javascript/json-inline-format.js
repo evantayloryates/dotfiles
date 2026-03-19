@@ -279,7 +279,7 @@ const formatValue = (value, indentLevel = 0) => {
     if (isAlignedScalarObjectArray(value)) {
       return formatAlignedObjectArray(value, indentLevel)
     }
-    
+
     if (
       value.length === 1 &&
       value.every(isScalarObject) &&
