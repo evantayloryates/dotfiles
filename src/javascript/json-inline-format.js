@@ -6,6 +6,7 @@ const INDENT = '  '
 const SPECIAL_KEYS = [ 'id', 'uid' ]
 
 const LOG_PATH = '/Users/taylor/Desktop/log.txt'
+const ERROR_SIGNAL = process.env.JSON_PARSE_ERROR_SIGNAL || '[JSON_PARSE_ERROR_SIGNAL]'
 
 const log = message => {
   const line = `[${new Date().toISOString()}] ${message}\n`
@@ -35,6 +36,34 @@ const usage = () => {
   log('usage(): missing input path argument')
   console.error('Usage: json-inline-format <path-to-input-file>')
   process.exit(1)
+}
+
+const toErrorMessage = err => (err instanceof Error ? err.message : String(err))
+
+const signalErrorMessage = message => `${ERROR_SIGNAL}[${message}]`
+
+const runStep = async (label, fn) => {
+  log(`${label}: start`)
+  try {
+    const result = await fn()
+    log(`${label}: success`)
+    return result
+  } catch (err) {
+    const message = toErrorMessage(err)
+    log(`${label}: error, message=${message}`)
+    throw new Error(`${label}: ${message}`)
+  }
+}
+
+const writeSignaledErrorToFile = async (path, message) => {
+  try {
+    const signaledMessage = signalErrorMessage(message)
+    await fs.writeFile(path, signaledMessage, 'utf8')
+    log(`writeSignaledErrorToFile(): wrote signal to file, path=${path}, len=${signaledMessage.length}`)
+  } catch (err) {
+    const writeMessage = toErrorMessage(err)
+    log(`writeSignaledErrorToFile(): failed, message=${writeMessage}`)
+  }
 }
 
 const isAlignedScalarObjectArray = value => {
@@ -195,7 +224,9 @@ const classifyObjectValue = value => {
 
 const compareKeys = (a, b) => a.localeCompare(b)
 
-const sortObjectKeysForFormatting = obj => {
+const getStringifiedLength = value => JSON.stringify(value).length
+
+const sortObjectKeysForFormatting = (obj, { isTopLevel = false } = {}) => {
   return Object.keys(obj).sort((a, b) => {
     const aClass = classifyObjectValue(obj[a])
     const bClass = classifyObjectValue(obj[b])
@@ -211,23 +242,30 @@ const sortObjectKeysForFormatting = obj => {
       if (aSpecialRank !== -1 && bSpecialRank !== -1) return aSpecialRank - bSpecialRank
     }
 
+    if (isTopLevel && isPlainObject(obj[a]) && isPlainObject(obj[b])) {
+      const aLength = getStringifiedLength(obj[a])
+      const bLength = getStringifiedLength(obj[b])
+
+      if (aLength !== bLength) return aLength - bLength
+    }
+
     return compareKeys(a, b)
   })
 }
 
-const sortRecursively = value => {
+const sortRecursively = (value, depth = 0) => {
   if (isScalar(value)) return value
 
   if (Array.isArray(value)) {
-    return value.map(sortRecursively)
+    return value.map(item => sortRecursively(item, depth + 1))
   }
 
   if (isPlainObject(value)) {
-    const sortedKeys = sortObjectKeysForFormatting(value)
+    const sortedKeys = sortObjectKeysForFormatting(value, { isTopLevel: depth === 0 })
     const result = {}
 
     for (const key of sortedKeys) {
-      result[key] = sortRecursively(value[key])
+      result[key] = sortRecursively(value[key], depth + 1)
     }
 
     return result
@@ -329,6 +367,7 @@ const formatValue = (value, indentLevel = 0) => {
 }
 
 const main = async () => {
+  // throw new Error('Artificial test error (intentional)')
   resetLog()
   log('main(): started')
   log(`main(): argv=${JSON.stringify(process.argv)}`)
@@ -336,82 +375,34 @@ const main = async () => {
   if (!input) usage()
   log(`main(): input=${input}`)
 
-  let raw
   try {
-    log('main(): reading input file')
-    raw = await fs.readFile(input, 'utf8')
-    log(`main(): input read complete, rawLen=${raw.length}`)
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err)
-    log(`main(): read input failed, message=${message}`)
-    console.error(`Error reading input file: ${message}`)
-    process.exit(2)
-  }
+    const raw = await runStep('Error reading input file', () => fs.readFile(input, 'utf8'))
+    const stripped = await runStep('Error normalizing input', () => {
+      const extracted = extractJsonLikeSubstring(raw)
+      return extracted.stripped
+    })
+    const parsed = await runStep('Error evaluating input', () => evaluateInterpolatedJsonLikeString(stripped))
+    const sorted = await runStep('Error sorting parsed value', () => sortRecursively(parsed))
+    const output = await runStep('Error formatting output', () => `${formatValue(sorted)}\n`)
+    await runStep('Error writing output file', () => fs.writeFile(input, output, 'utf8'))
 
-  let stripped
-  try {
-    log('main(): extracting JSON-like substring')
-    const extracted = extractJsonLikeSubstring(raw)
-    stripped = extracted.stripped
-    log(`main(): extraction complete, strippedLen=${stripped.length}`)
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err)
-    log(`main(): normalize/extract failed, message=${message}`)
-    console.error(`Error normalizing input: ${message}`)
-    process.exit(3)
-  }
-
-  let parsed
-  try {
-    log('main(): evaluating extracted content')
-    parsed = evaluateInterpolatedJsonLikeString(stripped)
-    log(`main(): evaluation complete, parsed=${describeValue(parsed)}`)
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err)
-    log(`main(): evaluation failed, message=${message}`)
-    console.error(message)
-    process.exit(4)
-  }
-
-  let sorted
-  try {
-    log('main(): sorting parsed value recursively')
-    sorted = sortRecursively(parsed)
-    log(`main(): sorting complete, sorted=${describeValue(sorted)}`)
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err)
-    log(`main(): sorting failed, message=${message}`)
-    console.error(`Error sorting parsed value: ${message}`)
-    process.exit(5)
-  }
-
-  let output
-  try {
-    log('main(): formatting output')
-    output = `${formatValue(sorted)}\n`
-    log(`main(): formatting complete, outputLen=${output.length}`)
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err)
-    log(`main(): formatting failed, message=${message}`)
-    console.error(`Error formatting output: ${message}`)
-    process.exit(6)
-  }
-
-  try {
-    log(`main(): writing formatted output to input file, bytes=${Buffer.byteLength(output, 'utf8')}`)
-    await fs.writeFile(input, output, 'utf8')
     log('main(): completed successfully')
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err)
-    log(`main(): write output failed, message=${message}`)
-    console.error(`Error writing output file: ${message}`)
-    process.exit(7)
+    const message = toErrorMessage(err)
+    log(`main(): failed, message=${message}`)
+    await writeSignaledErrorToFile(input, message)
+    console.error(message)
+    process.exit(1)
   }
 }
 
-main().catch(err => {
-  const message = err instanceof Error ? err.message : String(err)
+main().catch(async err => {
+  const message = toErrorMessage(err)
+  const input = process.argv[2]
   log(`main(): unexpected fatal error, message=${message}`)
+  if (input) {
+    await writeSignaledErrorToFile(input, message)
+  }
   console.error(`Unexpected error: ${message}`)
   process.exit(99)
 })

@@ -100,6 +100,13 @@ function sb() {
 
 json() {
   local TMPFILE
+  local JSON_PARSE_ERROR_SIGNAL
+  local TMPFILE_CONTENT
+  local ERROR_MESSAGE
+  local SIGNAL_LEN
+
+  JSON_PARSE_ERROR_SIGNAL='[JSON_PARSE_ERROR_SIGNAL]'
+  export JSON_PARSE_ERROR_SIGNAL
   TMPFILE="$(mktemp /tmp/jsonfmt.XXXXXX)"
 
   pbpaste > "$TMPFILE"
@@ -107,9 +114,19 @@ json() {
   # npx node ~/src/scripts/json-inline-format.ts "$TMPFILE" >/dev/null 2>&1
   /opt/homebrew/bin/node "$DOTFILES_DIR/src/javascript/json-inline-format.js" "$TMPFILE" >/dev/null 2>&1
 
-  pbcopy < "$TMPFILE"
+  TMPFILE_CONTENT="$(<"$TMPFILE")"
+  if [[ "$TMPFILE_CONTENT" == "${JSON_PARSE_ERROR_SIGNAL}"* ]]; then
+    SIGNAL_LEN=${#JSON_PARSE_ERROR_SIGNAL}
+    ERROR_MESSAGE="${TMPFILE_CONTENT:$SIGNAL_LEN}"
+    ERROR_MESSAGE="${ERROR_MESSAGE#\[}"
+    ERROR_MESSAGE="${ERROR_MESSAGE%\]}"
+    printf '❗️Error parsing JSON:\n ==> \033[1;31m%s\033[0m\n\n' "$ERROR_MESSAGE"
+  else
+    pbcopy < "$TMPFILE"
+    echo '✅ JSON formatted and copied back to clipboard'
+  fi
 
-  echo '✅ JSON formatted and copied back to clipboard'
+  unset JSON_PARSE_ERROR_SIGNAL
   rm -f "$TMPFILE"
 }
 
@@ -191,6 +208,7 @@ clipsend() {
 
   mkdir -p "$desktop"
   mv "$tmp" "$out"
+  printf '%s' "$out" | pbcopy
   printf '%s\n' "$out"
 }
 
