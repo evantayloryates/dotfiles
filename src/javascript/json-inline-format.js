@@ -1,29 +1,40 @@
 #!/usr/bin/env node
-import { promisify } from 'util'
-import { execFile } from 'child_process'
-import { promises as fs } from 'fs'
-import path from 'path'
+import { promises as fs, appendFileSync, writeFileSync } from 'fs'
 
 
 const LOG_PATH = '/Users/taylor/Desktop/log.txt'
 
-const logMessage = async message => {
+const log = message => {
   const line = `[${new Date().toISOString()}] ${message}\n`
-  await fs.appendFile(LOG_PATH, line, 'utf8')
+  try {
+    appendFileSync(LOG_PATH, line, 'utf8')
+  } catch {
+    // Logging should never interrupt main script execution.
+  }
 }
 
-const execFileAsync = promisify(execFile)
+const resetLog = () => {
+  try {
+    writeFileSync(LOG_PATH, '', 'utf8')
+  } catch {
+    // If log reset fails, continue with best-effort logging.
+  }
+}
+
+const describeValue = value => {
+  if (value === null) return 'null'
+  if (Array.isArray(value)) return `array(len=${value.length})`
+  if (isPlainObject(value)) return `object(keys=${Object.keys(value).length})`
+  return typeof value
+}
+
 const MAX_INLINE_CHARS = 80
 const INDENT = '  '
 
 const usage = () => {
+  log('usage(): missing input path argument')
   console.error('Usage: json-inline-format <path-to-input-file>')
   process.exit(1)
-}
-
-const toBackupPath = p => {
-  const { dir, name, ext } = path.parse(p)
-  return path.join(dir || '.', `${name}.bak${ext || '.txt'}`)
 }
 
 const isPlainObject = value => {
@@ -80,13 +91,16 @@ const allObjectsHaveSameKeys = arr => {
 }
 
 const extractJsonLikeSubstring = input => {
+  log(`extractJsonLikeSubstring(): start, inputLen=${input.length}`)
   const firstArrayIndex = input.indexOf('[')
   const firstObjectIndex = input.indexOf('{')
+  log(`extractJsonLikeSubstring(): firstArrayIndex=${firstArrayIndex}, firstObjectIndex=${firstObjectIndex}`)
 
   let firstIndex = -1
   let foundChar = null
 
   if (firstArrayIndex === -1 && firstObjectIndex === -1) {
+    log('extractJsonLikeSubstring(): no opening [ or { found')
     throw new Error('Could not find "[" or "{" in input.')
   }
 
@@ -106,37 +120,56 @@ const extractJsonLikeSubstring = input => {
 
   const closingChar = foundChar === '[' ? ']' : '}'
   const lastIndex = input.lastIndexOf(closingChar)
+  log(`extractJsonLikeSubstring(): foundChar=${foundChar}, closingChar=${closingChar}, lastIndex=${lastIndex}`)
 
   if (lastIndex === -1) {
+    log('extractJsonLikeSubstring(): no matching closing char found')
     throw new Error(`Could not find closing "${closingChar}" in input.`)
   }
 
   if (lastIndex < firstIndex) {
+    log('extractJsonLikeSubstring(): closing index is before opening index')
     throw new Error('Closing bracket was found before opening bracket.')
   }
 
+  const stripped = input.slice(firstIndex, lastIndex + 1)
+  log(`extractJsonLikeSubstring(): success, firstIndex=${firstIndex}, lastIndex=${lastIndex}, strippedLen=${stripped.length}`)
   return {
     foundChar,
     firstIndex,
     lastIndex,
-    stripped: input.slice(firstIndex, lastIndex + 1)
+    stripped
   }
 }
 
 const evaluateInterpolatedJsonLikeString = stripped => {
+  log(`evaluateInterpolatedJsonLikeString(): start, strippedLen=${stripped.length}`)
   try {
-    return new Function(`return (${stripped})`)()
+    const value = new Function(`return (${stripped})`)()
+    log(`evaluateInterpolatedJsonLikeString(): success, result=${describeValue(value)}`)
+    return value
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
+    log(`evaluateInterpolatedJsonLikeString(): error, message=${message}`)
     throw new Error(`Inline evaluation failed: ${message}`)
   }
 }
 
+const isInlineScalarArray = value => {
+  return isScalarArray(value) && JSON.stringify(value).length <= MAX_INLINE_CHARS
+}
+
+const isInlineScalarObject = value => {
+  return isScalarObject(value) && JSON.stringify(value).length <= MAX_INLINE_CHARS
+}
+
 const classifyObjectValue = value => {
   if (isScalar(value)) return 0
-  if (isScalarArray(value)) return 1
-  if (isDepthOneObjectArray(value)) return 2
-  return 3
+  if (isInlineScalarArray(value)) return 1
+  if (isInlineScalarObject(value)) return 2
+  if (isScalarArray(value)) return 3
+  if (isDepthOneObjectArray(value)) return 4
+  return 5
 }
 
 const compareKeys = (a, b) => a.localeCompare(b)
@@ -269,89 +302,90 @@ const formatValue = (value, indentLevel = 0) => {
   return JSON.stringify(value)
 }
 
-const copyToClipboard = async text => {
-  try {
-    await execFileAsync('pbcopy', [], { input: text })
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err)
-    throw new Error(`Clipboard write failed: ${message}`)
-  }
-}
-
 const main = async () => {
+  resetLog()
+  log('main(): started')
+  log(`main(): argv=${JSON.stringify(process.argv)}`)
   const input = process.argv[2]
   if (!input) usage()
-
-  const backup = toBackupPath(input)
-
-  try {
-    await fs.rm(backup, { force: true }).catch(() => {})
-    await fs.copyFile(input, backup)
-    console.log(`Backup created: ${backup}`)
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err)
-    console.error(`Error creating backup: ${message}`)
-    process.exit(2)
-  }
+  log(`main(): input=${input}`)
 
   let raw
   try {
-    raw = await fs.readFile(backup, 'utf8')
+    log('main(): reading input file')
+    raw = await fs.readFile(input, 'utf8')
+    log(`main(): input read complete, rawLen=${raw.length}`)
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
-    console.error(`Error reading backup file: ${message}`)
-    process.exit(3)
+    log(`main(): read input failed, message=${message}`)
+    console.error(`Error reading input file: ${message}`)
+    process.exit(2)
   }
 
   let stripped
   try {
+    log('main(): extracting JSON-like substring')
     const extracted = extractJsonLikeSubstring(raw)
     stripped = extracted.stripped
+    log(`main(): extraction complete, strippedLen=${stripped.length}`)
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
+    log(`main(): normalize/extract failed, message=${message}`)
     console.error(`Error normalizing input: ${message}`)
-    process.exit(4)
+    process.exit(3)
   }
 
   let parsed
   try {
+    log('main(): evaluating extracted content')
     parsed = evaluateInterpolatedJsonLikeString(stripped)
+    log(`main(): evaluation complete, parsed=${describeValue(parsed)}`)
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
+    log(`main(): evaluation failed, message=${message}`)
     console.error(message)
-    process.exit(5)
+    process.exit(4)
   }
 
   let sorted
   try {
+    log('main(): sorting parsed value recursively')
     sorted = sortRecursively(parsed)
+    log(`main(): sorting complete, sorted=${describeValue(sorted)}`)
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
+    log(`main(): sorting failed, message=${message}`)
     console.error(`Error sorting parsed value: ${message}`)
-    process.exit(6)
+    process.exit(5)
   }
 
   let output
   try {
+    log('main(): formatting output')
     output = `${formatValue(sorted)}\n`
+    log(`main(): formatting complete, outputLen=${output.length}`)
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
+    log(`main(): formatting failed, message=${message}`)
     console.error(`Error formatting output: ${message}`)
-    process.exit(7)
+    process.exit(6)
   }
 
   try {
-    await copyToClipboard(output)
-    console.log('Custom formatted JSON copied to clipboard.')
+    log(`main(): writing formatted output to input file, bytes=${Buffer.byteLength(output, 'utf8')}`)
+    await fs.writeFile(input, output, 'utf8')
+    log('main(): completed successfully')
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
-    console.error(message)
-    process.exit(8)
+    log(`main(): write output failed, message=${message}`)
+    console.error(`Error writing output file: ${message}`)
+    process.exit(7)
   }
 }
 
 main().catch(err => {
   const message = err instanceof Error ? err.message : String(err)
+  log(`main(): unexpected fatal error, message=${message}`)
   console.error(`Unexpected error: ${message}`)
   process.exit(99)
 })
