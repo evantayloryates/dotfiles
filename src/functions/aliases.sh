@@ -27,6 +27,7 @@ python  () { /Users/taylor/.venvs/dotfiles/bin/python -q "$@"                   
 python3 () { python "$@"                                                                                  ;} # 
 reload  () { echo "NO EFFECT\nPlease use "$'\033[35m'"\`src\`"$'\033[0m'" instead.\n"                     ;} #
 src     () { _kitsrc; clear; source "$HOME/dotfiles/src/index.sh"                                         ;} # 
+touch   () { if [ "$#" -eq 1 ] && [[ "$1" != -* ]]; then /bin/mkdir -p "${1:h}" && /usr/bin/touch "$1"; else /usr/bin/touch "$@"; fi ;} #
 
 
 alias password="python3 $DOTFILES_DIR/src/python/password.py"
