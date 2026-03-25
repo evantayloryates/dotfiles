@@ -112,12 +112,23 @@ function _amplify_restart() {
 
 function _amplify_update() {
   local amplify_dir="${HOME}/src/github/amplify"
+  local branch
+  branch="$(git -C "${amplify_dir}" rev-parse --abbrev-ref HEAD 2>/dev/null)" || {
+    __log "$(_red "_amplify_update: cannot determine current branch")"
+    return 1
+  }
+  case "$branch" in
+    master | production)
+      __log "$(_red "_amplify_update: refused on branch '${branch}'")"
+      return 1
+      ;;
+  esac
   local msg="$*"
   [[ -z "$msg" ]] && msg="updates"
   git -C "${amplify_dir}" add -A &&
     git -C "${amplify_dir}" reset -- config/application.rb config/environments/development.rb &&
     git -C "${amplify_dir}" commit -m "${msg}" &&
-    git -C "${amplify_dir}" push
+    # git -C "${amplify_dir}" push
 }
 
 function sb() {
