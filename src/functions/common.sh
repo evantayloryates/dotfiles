@@ -117,7 +117,7 @@ function _amplify_update() {
     __log "$(_red "_amplify_update: cannot determine current branch")"
     return 1
   }
-  $branch
+  printf '%s\n' "dbg: branch=$(printf %q <<< \"branch\")"
   case "$branch" in
     master | production)
       __log "$(_red "_amplify_update: refused on branch '${branch}'")"
