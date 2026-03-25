@@ -129,7 +129,7 @@ function _amplify_update() {
   git -C "${amplify_dir}" add -A &&
     git -C "${amplify_dir}" reset -- config/application.rb config/environments/development.rb &&
     git -C "${amplify_dir}" commit -m "${msg}" &&
-    git -C "${amplify_dir}" push
+    git -C "${amplify_dir}" push -f
 }
 
 function sb() {
