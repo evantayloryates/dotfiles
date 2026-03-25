@@ -5,17 +5,19 @@ import tempfile
 HOME = '/Users/taylor'
 
 # path macros
-def p(slug, path, default='cursor', commands=None, aliases=None):
+def p(slug, path, default='cursor', commands=None, aliases=None, alias_cmds=None):
   if path.startswith('~'):
     path = HOME + path[1:]
   entry = {'slug': slug, 'path': path, 'default': default, 'commands': commands or {}}
   if aliases:
     entry['aliases'] = aliases
+  if alias_cmds:
+    entry['alias_cmds'] = alias_cmds
   return entry
 
 
 CONFIG = [
-  p('amp',        '~/src/github/amplify', aliases=['amplify'],
+  p('amp',        '~/src/github/amplify', aliases=['amplify'], alias_cmds={'up': 'update'},
     commands={
       'disable': 'safemv <path>/.git/hooks/pre-commit <path>/.git/hooks/pre-commit.disabled && echo "pre-commit disabled" || echo "failed to disable"',
       'enable': 'safemv <path>/.git/hooks/pre-commit.disabled <path>/.git/hooks/pre-commit && echo "pre-commit enabled" || echo "failed to enable"',
@@ -119,6 +121,10 @@ def build_function(entry):
   ])
 
   alias_funcs = [f'{alias}() {{ {slug} "$@"; }}' for alias in aliases]
+  alias_cmds = entry.get('alias_cmds', {})
+  alias_funcs += [
+    f'{name}() {{ {slug} {subcmd} "$@"; }}' for name, subcmd in alias_cmds.items()
+  ]
 
   return '\n'.join([*fn, '', *alias_funcs])
 
