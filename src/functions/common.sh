@@ -117,6 +117,7 @@ function _amplify_update() {
     __log "$(_red "_amplify_update: cannot determine current branch")"
     return 1
   }
+  $branch
   case "$branch" in
     master | production)
       __log "$(_red "_amplify_update: refused on branch '${branch}'")"
@@ -128,7 +129,7 @@ function _amplify_update() {
   git -C "${amplify_dir}" add -A &&
     git -C "${amplify_dir}" reset -- config/application.rb config/environments/development.rb &&
     git -C "${amplify_dir}" commit -m "${msg}" &&
-    # git -C "${amplify_dir}" push
+    git -C "${amplify_dir}" push
 }
 
 function sb() {
