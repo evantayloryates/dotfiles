@@ -119,7 +119,7 @@ function _amplify_update() {
   }
 
   case "$branch" in
-    master | production | update-template-hotfix)
+    master | production)
       __log "$(_red "_amplify_update: refused on branch '${branch}'")"
       return 1
       ;;
