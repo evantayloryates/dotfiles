@@ -27,6 +27,7 @@ CONFIG = [
       'prod': '_ssh_prod',
       'stage': '_ssh_stage',
       'lint': '<path>/scripts/lint -A',
+      'update': '_amplify_update <args>',
     }
   ),
   p('app',         '/Applications',                     'open'), # TODO: link all app dirs /Applications, /System/Applications, /System/Applications/Utilities, /System/Library/CoreServices/Applications/

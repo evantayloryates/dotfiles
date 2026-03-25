@@ -110,6 +110,12 @@ function _amplify_restart() {
   dc --project-directory "${amplify_dir}" restart "${service}"
 }
 
+function _amplify_update() {
+  local amplify_dir="${HOME}/src/github/amplify"
+  local msg="$*"
+  [[ -z "$msg" ]] && msg="updates"
+  git -C "${amplify_dir}" add . && git -C "${amplify_dir}" commit -m "${msg}" && git -C "${amplify_dir}" push
+}
 
 function sb() {
   local magenta="\033[35m"
