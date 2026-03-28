@@ -145,6 +145,11 @@ json() {
   local TMPFILE_CONTENT
   local ERROR_MESSAGE
   local SIGNAL_LEN
+  local MINIFY_ARGS=()
+
+  if [[ "$2" == min ]] || { [[ "$1" == min ]] && [[ $# -eq 1 ]]; }; then
+    MINIFY_ARGS=(min)
+  fi
 
   JSON_PARSE_ERROR_SIGNAL='[JSON_PARSE_ERROR_SIGNAL]'
   export JSON_PARSE_ERROR_SIGNAL
@@ -153,7 +158,7 @@ json() {
   pbpaste > "$TMPFILE"
 
   # npx node ~/src/scripts/json-inline-format.ts "$TMPFILE" >/dev/null 2>&1
-  /opt/homebrew/bin/node "$DOTFILES_DIR/src/javascript/json-inline-format.js" "$TMPFILE" >/dev/null 2>&1
+  /opt/homebrew/bin/node "$DOTFILES_DIR/src/javascript/json-inline-format.js" "$TMPFILE" "${MINIFY_ARGS[@]}" >/dev/null 2>&1
 
   TMPFILE_CONTENT="$(<"$TMPFILE")"
   if [[ "$TMPFILE_CONTENT" == "${JSON_PARSE_ERROR_SIGNAL}"* ]]; then
@@ -164,7 +169,11 @@ json() {
     printf 'Error parsing JSON:\n\n \033[0;90m==>\033[0m \033[1;31m%s\033[0m\n\n' "$ERROR_MESSAGE"
   else
     pbcopy < "$TMPFILE"
-    echo '✅ JSON formatted and copied back to clipboard'
+    if [[ ${#MINIFY_ARGS[@]} -gt 0 ]]; then
+      echo '✅ JSON minified and copied back to clipboard'
+    else
+      echo '✅ JSON formatted and copied back to clipboard'
+    fi
   fi
 
   unset JSON_PARSE_ERROR_SIGNAL

@@ -34,7 +34,7 @@ const describeValue = value => {
 
 const usage = () => {
   log('usage(): missing input path argument')
-  console.error('Usage: json-inline-format <path-to-input-file>')
+  console.error('Usage: json-inline-format <path-to-input-file> [min]')
   process.exit(1)
 }
 
@@ -373,7 +373,8 @@ const main = async () => {
   log(`main(): argv=${JSON.stringify(process.argv)}`)
   const input = process.argv[2]
   if (!input) usage()
-  log(`main(): input=${input}`)
+  const minify = process.argv[3] === 'min'
+  log(`main(): input=${input} minify=${minify}`)
 
   try {
     const raw = await runStep('Error reading input file', () => fs.readFile(input, 'utf8'))
@@ -383,7 +384,9 @@ const main = async () => {
     })
     const parsed = await runStep('Error evaluating input', () => evaluateInterpolatedJsonLikeString(stripped))
     const sorted = await runStep('Error sorting parsed value', () => sortRecursively(parsed))
-    const output = await runStep('Error formatting output', () => `${formatValue(sorted)}\n`)
+    const output = minify
+      ? await runStep('Error serializing output', () => `${JSON.stringify(sorted)}\n`)
+      : await runStep('Error formatting output', () => `${formatValue(sorted)}\n`)
     await runStep('Error writing output file', () => fs.writeFile(input, output, 'utf8'))
 
     log('main(): completed successfully')
