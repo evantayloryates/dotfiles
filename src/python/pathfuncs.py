@@ -88,6 +88,7 @@ def build_function(entry):
   default = entry.get('default', 'cd')
   commands = entry.get('commands', {})
   aliases = entry.get('aliases', [])
+  alias_cmds = entry.get('alias_cmds', {})
 
   fn = [
     f'{slug}() {{',
@@ -106,6 +107,11 @@ def build_function(entry):
     fn.append(f'      {cmd_str}')
     fn.append('      ;;')
 
+  for name, subcmd in alias_cmds.items():
+    fn.append(f'    {name})')
+    fn.append(f'      {slug} "{subcmd}" "$@"')
+    fn.append('      ;;')
+
   fn.append('    "" )')
   if default in commands:
     fn.append(f'      "$0" "{default}" "$@"')
@@ -121,7 +127,6 @@ def build_function(entry):
   ])
 
   alias_funcs = [f'{alias}() {{ {slug} "$@"; }}' for alias in aliases]
-  alias_cmds = entry.get('alias_cmds', {})
   alias_funcs += [
     f'{name}() {{ {slug} {subcmd} "$@"; }}' for name, subcmd in alias_cmds.items()
   ]
