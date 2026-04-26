@@ -24,8 +24,11 @@ def present(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
 
-def send(value):
-    print(value)
+def send(values):
+    if isinstance(values, str):
+        values = [values] if values else []
+    for v in values:
+        print(v)
 
 
 # ============ #
@@ -44,9 +47,19 @@ OPTIONS = [
     {'name': 'postgres_db',        'aliases': ['pg']},
     {'name': 'proxy',              'aliases': ['pr']},
     {'name': 'redis',              'aliases': ['red']},
+    {'name': 'remotion_renderer',  'aliases': ['r'], 'services': [
+        'remotion_renderer_1',
+        'remotion_renderer_2',
+        'remotion_renderer_3',
+        'remotion_renderer_4',
+    ]},
     {'name': 'sidekiq',            'aliases': ['sk']},
     {'name': 'webpack_dev',        'aliases': ['web']},
 ]
+
+
+def option_services(option):
+    return option.get('services') or [option['name']]
 
 
 TTY = open('/dev/tty', 'r')
@@ -199,9 +212,10 @@ def lookup_option(clean_input, options_sorted, allow_index=False):
 def resolve_selection(clean_input, options_sorted):
     opt = lookup_option(clean_input, options_sorted, allow_index=True)
     if opt is None:
-        return process_invalid_input(clean_input)
+        process_invalid_input(clean_input)
+        return []
 
-    return opt['name']
+    return option_services(opt)
 
 
 def present_options():
@@ -222,9 +236,9 @@ def main():
     result_option = preresolve_from_input()
 
     if isinstance(result_option, dict):
-        name = cleaned(result_option.get('name', ''))
-        if name != '':
-            send(name)
+        services = option_services(result_option)
+        if services:
+            send(services)
             return
 
     selected = present_options()

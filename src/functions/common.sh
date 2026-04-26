@@ -43,21 +43,35 @@ function _select_container() {
   printf '%s\n' "${initial_input}" | python3 "${DOTFILES_DIR}/src/python/selector.py"
 }
 
+function _amplify_validate_services() {
+  local caller="$1"
+  shift
+  local amplify_dir="${HOME}/src/github/amplify"
+  local available
+  available="$(docker compose --project-directory "${amplify_dir}" ps --services)" || return 1
+
+  local s
+  for s in "$@"; do
+    if ! grep -qx "${s}" <<<"${available}"; then
+      __log "$(_red "${caller}: unknown service '${s}'")"
+      return 1
+    fi
+  done
+}
+
 function _amplify_exec() {
-  local service="$1"
+  local raw="$1"
   local amplify_dir="${HOME}/src/github/amplify"
 
-  service="$(_select_container "${service}")" || true
-  if [ -z "${service}" ]; then
+  raw="$(_select_container "${raw}")" || true
+  if [ -z "${raw}" ]; then
     return 0
   fi
 
-  # run from amplify project dir without changing cwd
-  # confirm service exists in this compose project
-  if ! docker compose --project-directory "${amplify_dir}" ps --services | grep -qx "${service}"; then
-    __log "$(_red "exec_amplify: unknown service '${service}'")"
-    return 1
-  fi
+  # exec only targets a single container; take the first selected service
+  local service="${raw%%$'\n'*}"
+
+  _amplify_validate_services "exec_amplify" "${service}" || return 1
 
   __log "↓ Opening shell in: $(_magenta "${service}")"
   __log ""
@@ -71,43 +85,43 @@ function _amplify_exec() {
 }
 
 function _amplify_logs() {
-  local service="$1"
+  local raw="$1"
   local amplify_dir="${HOME}/src/github/amplify"
 
-  service="$(_select_container "${service}")" || true
-  if [ -z "${service}" ]; then
+  raw="$(_select_container "${raw}")" || true
+  if [ -z "${raw}" ]; then
     return 0
   fi
 
-  if ! docker compose --project-directory "${amplify_dir}" ps --services | grep -qx "${service}"; then
-    __log "$(_red "_amplify_logs: unknown service '${service}'")"
-    return 1
-  fi
+  local -a services
+  services=(${(f)raw})
 
-  __log "↓ Tailing logs for: $(_magenta "${service}")"
+  _amplify_validate_services "_amplify_logs" "${services[@]}" || return 1
+
+  __log "↓ Tailing logs for: $(_magenta "${services[*]}")"
   __log ""
 
-  dc --project-directory "${amplify_dir}" logs --tail=200 --follow "${service}"
+  dc --project-directory "${amplify_dir}" logs --tail=200 --follow "${services[@]}"
 }
 
 function _amplify_restart() {
-  local service="$1"
+  local raw="$1"
   local amplify_dir="${HOME}/src/github/amplify"
 
-  service="$(_select_container "${service}")" || true
-  if [ -z "${service}" ]; then
+  raw="$(_select_container "${raw}")" || true
+  if [ -z "${raw}" ]; then
     return 0
   fi
 
-  if ! docker compose --project-directory "${amplify_dir}" ps --services | grep -qx "${service}"; then
-    __log "$(_red "_amplify_restart: unknown service '${service}'")"
-    return 1
-  fi
+  local -a services
+  services=(${(f)raw})
 
-  __log "↓ Restarting container: $(_magenta "${service}")"
+  _amplify_validate_services "_amplify_restart" "${services[@]}" || return 1
+
+  __log "↓ Restarting container: $(_magenta "${services[*]}")"
   __log ""
 
-  dc --project-directory "${amplify_dir}" restart "${service}"
+  dc --project-directory "${amplify_dir}" restart "${services[@]}"
 }
 
 function _amplify_update() {
