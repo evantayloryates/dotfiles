@@ -40,6 +40,7 @@ CONFIG = [
   p('ghub',        '~/src/github',                      'cd'),
   p('izzy',        '~/src/github/isabella',             'cursor'),
   p('hb',          '~/src/github/heartbeat',            aliases=['heartbeat', 'heart']),
+  p('joe',         '~/src/github/joe-airbrand',         'cursor'),
   p('kit',         '~/.config/kitty/',                  aliases=['kitty'], commands={'reload': '/Applications/kitty.app/Contents/MacOS/kitty @ load-config /Users/taylor/.config/kitty/kitty.conf'}),
   p('mac',         '~/src/macos',                       'cursor', aliases=['macos']),
   p('mesh',        '~/src/github/mesh'),
