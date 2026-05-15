@@ -37,7 +37,7 @@ CONFIG = [
   p('dot-old',     '~/.dotfiles'),
   p('dot',         '~/dotfiles'),
   p('down',        '~/Downloads',                       'cd'),
-  p('ghub',        '~/src/github',                      'cd'),
+  p('github',      '~/src/github',                      'cd'),
   p('izzy',        '~/src/github/isabella',             'cursor'),
   p('hb',          '~/src/github/heartbeat',            aliases=['heartbeat', 'heart']),
   p('joe',         '~/src/github/joe-airbrand',         'cursor'),
