@@ -5,7 +5,7 @@ import tempfile
 HOME = '/Users/taylor'
 
 # path macros
-def p(slug, path, default='cursor', commands=None, aliases=None, alias_cmds=None):
+def p(slug, path, default='cd_and_cursor', commands=None, aliases=None, alias_cmds=None):
   if path.startswith('~'):
     path = HOME + path[1:]
   entry = {'slug': slug, 'path': path, 'default': default, 'commands': commands or {}}
@@ -37,12 +37,12 @@ CONFIG = [
   p('dot-old',     '~/.dotfiles'),
   p('dot',         '~/dotfiles'),
   p('down',        '~/Downloads',                       'cd'),
-  p('github',      '~/src/github',                      'cd'),
-  p('izzy',        '~/src/github/isabella',             'cursor'),
+  p('github',      '~/src/github',                      'cd', aliases=['ghb', 'gthb', 'ghub', 'gith']),
+  p('izzy',        '~/src/github/isabella',             'cd_and_cursor'),
   p('hb',          '~/src/github/heartbeat',            aliases=['heartbeat', 'heart']),
-  p('joe',         '~/src/github/joe-airbrand',         'cursor'),
+  p('joe',         '~/src/github/joe-airbrand',         'cd_and_cursor'),
   p('kit',         '~/.config/kitty/',                  aliases=['kitty'], commands={'reload': '/Applications/kitty.app/Contents/MacOS/kitty @ load-config /Users/taylor/.config/kitty/kitty.conf'}),
-  p('mac',         '~/src/macos',                       'cursor', aliases=['macos']),
+  p('mac',         '~/src/macos',                       'cd_and_cursor', aliases=['macos']),
   p('mesh',        '~/src/github/mesh'),
   p('nex',         '~/src/github/nexrender-scripts',    'dev',
     commands={
@@ -56,8 +56,9 @@ CONFIG = [
     }
   ),
   p('notes',       '~/Desktop/notes'),
-  p('pod',         '~/src/github/podsauce',             'cursor'),
-  p('pathfuncs',   '~/dotfiles/src/python/pathfuncs.py','cursor', aliases=['pathfunc', 'pathfns', 'pathfn', 'pathfuns', 'pathfun', 'pthfuncs', 'pthfunc', 'pthfns', 'pthfn', 'pthfuns', 'pthfun', 'pfuncs', 'pfunc', 'pfns', 'pfn', 'pfuns', 'pfun' ]),
+  p('pod',         '~/src/github/podsauce',             'cd_and_cursor'),
+  p('r1',          '~/src/github/r1',                   'cd_and_cursor', aliases=['rone', 'rem']),
+  p('pathfuncs',   '~/dotfiles/src/python/pathfuncs.py','cd_and_cursor', aliases=['pathfunc', 'pathfns', 'pathfn', 'pathfuns', 'pathfun', 'pthfuncs', 'pthfunc', 'pthfns', 'pthfn', 'pthfuns', 'pthfun', 'pfuncs', 'pfunc', 'pfns', 'pfn', 'pfuns', 'pfun' ]),
   p('spot',        '~/hush-spotlight', 'select',
     aliases=['spotlight'],
     commands={

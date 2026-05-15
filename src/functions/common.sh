@@ -365,3 +365,34 @@ escape() { pbpaste | sed 's/"/\\"/g' | /usr/bin/pbcopy; }
 unesc() { unescape "$@"; }
 noesc() { unescape "$@"; }
 unescape() { pbpaste | sed 's/\\"/"/g' | /usr/bin/pbcopy; }
+
+cd_and_cursor() {
+  local target_item="${1:-.}"
+
+  if [[ ! -e "$target_item" ]]; then
+    __log "$(_red "cd_and_cursor: invalid target '${target_item}'")"
+    return 1
+  fi
+
+  local target_dir
+  local cursor_arg
+  if [[ -d "$target_item" ]]; then
+    target_dir="$target_item"
+    cursor_arg="."
+  else
+    target_dir="$(dirname "$target_item")"
+    cursor_arg="$(basename "$target_item")"
+  fi
+
+  local original_dir="$PWD"
+  if ! cd "$target_dir" 2>/dev/null; then
+    __log "$(_red "cd_and_cursor: failed to cd to '${target_dir}'")"
+    return 1
+  fi
+
+  if ! cursor "$cursor_arg"; then
+    __log "$(_red "cd_and_cursor: cursor failed for '${cursor_arg}'")"
+    cd "$original_dir" 2>/dev/null || true
+    return 1
+  fi
+}
