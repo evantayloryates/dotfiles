@@ -34,16 +34,12 @@ CONFIG = [
   ),
   p('app',         '/Applications',                     'open'), # TODO: link all app dirs /Applications, /System/Applications, /System/Applications/Utilities, /System/Library/CoreServices/Applications/
   p('d',           '~/Desktop',                         'cd',  aliases=['desk', 'desktop']),
-  p('dot-old',     '~/.dotfiles'),
   p('dot',         '~/dotfiles'),
   p('down',        '~/Downloads',                       'cd'),
   p('github',      '~/src/github',                      'cd', aliases=['ghb', 'gthb', 'ghub', 'gith']),
-  p('izzy',        '~/src/github/isabella',             'cd_and_cursor'),
-  p('hb',          '~/src/github/heartbeat',            aliases=['heartbeat', 'heart']),
   p('joe',         '~/src/github/joe-airbrand',         'cd_and_cursor'),
   p('kit',         '~/.config/kitty/',                  aliases=['kitty'], commands={'reload': '/Applications/kitty.app/Contents/MacOS/kitty @ load-config /Users/taylor/.config/kitty/kitty.conf'}),
   p('mac',         '~/src/macos',                       'cd_and_cursor', aliases=['macos']),
-  p('mesh',        '~/src/github/mesh'),
   p('nex',         '~/src/github/nexrender-scripts',    'dev',
     commands={
       'dev'      : '/Users/taylor/src/github/nexrender-scripts/scripts/local/ssh',
@@ -59,27 +55,6 @@ CONFIG = [
   p('pod',         '~/src/github/podsauce',             'cd_and_cursor'),
   p('r1',          '~/src/github/r1',                   'cd_and_cursor', aliases=['rone', 'rem']),
   p('pathfuncs',   '~/dotfiles/src/python/pathfuncs.py','cd_and_cursor', aliases=['pathfunc', 'pathfns', 'pathfn', 'pathfuns', 'pathfun', 'pthfuncs', 'pthfunc', 'pthfns', 'pthfn', 'pthfuns', 'pthfun', 'pfuncs', 'pfunc', 'pfns', 'pfn', 'pfuns', 'pfun' ]),
-  p('spot',        '~/hush-spotlight', 'select',
-    aliases=['spotlight'],
-    commands={
-      'select': 'spotlight_select_action',
-      'a': 'spotlight_add_exclusions',
-      'add': 'spotlight_add_exclusions',
-      'c': 'spotlight_clean_exclusions',
-      'clean': 'spotlight_clean_exclusions',
-      'h': 'spotlight_add_exclusions',
-      'hush': 'spotlight_add_exclusions',
-      'l': 'spotlight_list_exclusions',
-      'list': 'spotlight_list_exclusions',
-      'ls': 'spotlight_list_exclusions',
-      'setup': 'spotlight_setup_index_suppression',
-      'suppress': 'spotlight_setup_index_suppression',
-      's': 'spotlight_setup_index_suppression',
-      'w': 'spotlight_watch_exclusions',
-      'watch': 'spotlight_watch_exclusions',
-    },
-  ),
-  p('s',           '~/src',                            ' cd'),
   p('screenshots', '~/Pictures/Screenshots',            'open', aliases=['ss', 'shots', 'screenshot']),
   p('vsx',         '~/src/vscode-extensions'),
 ]
@@ -162,3 +137,34 @@ def main():
 
 if __name__ == '__main__':
   main()
+
+
+# ARCHIVED
+# ----------------------------------------------------------------------------
+# Entries previously in CONFIG, kept here for reference. To restore, move back
+# into the CONFIG list above.
+#
+# p('dot-old',     '~/.dotfiles'),
+# p('izzy',        '~/src/github/isabella',             'cd_and_cursor'),
+# p('hb',          '~/src/github/heartbeat',            aliases=['heartbeat', 'heart']),
+# p('mesh',        '~/src/github/mesh'),
+# p('spot',        '~/hush-spotlight', 'select',
+#   aliases=['spotlight'],
+#   commands={
+#     'select': 'spotlight_select_action',
+#     'a': 'spotlight_add_exclusions',
+#     'add': 'spotlight_add_exclusions',
+#     'c': 'spotlight_clean_exclusions',
+#     'clean': 'spotlight_clean_exclusions',
+#     'h': 'spotlight_add_exclusions',
+#     'hush': 'spotlight_add_exclusions',
+#     'l': 'spotlight_list_exclusions',
+#     'list': 'spotlight_list_exclusions',
+#     'ls': 'spotlight_list_exclusions',
+#     'setup': 'spotlight_setup_index_suppression',
+#     'suppress': 'spotlight_setup_index_suppression',
+#     's': 'spotlight_setup_index_suppression',
+#     'w': 'spotlight_watch_exclusions',
+#     'watch': 'spotlight_watch_exclusions',
+#   },
+# ),
