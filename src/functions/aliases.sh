@@ -6,7 +6,7 @@
 _kitsrc () { /Applications/kitty.app/Contents/MacOS/kitty @ load-config "$HOME/.config/kitty/kitty.conf"  ;} #
 abs     () { realpath "$@"                                                                                ;} # 
 convert () { magick "$@"                                                                                  ;} # 
-cur     () { /usr/local/bin/cursor "$@"                                                                   ;} # 
+cur     () { if [ $# -eq 0 ]; then /usr/local/bin/cursor "$(pwd -P 2>/dev/null || pwd)"; else /usr/local/bin/cursor "$@"; fi ;} # 
 dc      () { docker compose "$@"                                                                          ;} # 
 env     () { clear ; python3 "$DOTFILES_DIR/src/python/env.py"                                            ;} # 
 ex      () { exiftool "$@"                                                                                ;} # Note: this will overwrite the /usr/bin/ex command
