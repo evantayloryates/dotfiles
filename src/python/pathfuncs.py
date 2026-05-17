@@ -51,6 +51,7 @@ CONFIG = [
       'tmux'     : '/Users/taylor/src/github/nexrender-scripts/scripts/local/nex.sh',
     }
   ),
+  p('s',           '~/src',                            ' cd'),
   p('notes',       '~/Desktop/notes'),
   p('pod',         '~/src/github/podsauce',             'cd_and_cursor'),
   p('r1',          '~/src/github/r1',                   'cd_and_cursor', aliases=['rone', 'rem']),
