@@ -17,6 +17,21 @@ def p(slug, path, default='cd_and_cursor', commands=None, aliases=None, alias_cm
 
 
 CONFIG = [
+  p('app',         '/Applications',                     'open'), # TODO: link all app dirs /Applications, /System/Applications, /System/Applications/Utilities, /System/Library/CoreServices/Applications/
+  p('d',           '~/Desktop',                         'cd',  aliases=['desk', 'desktop']),
+  p('dot',         '~/dotfiles'),
+  p('down',        '~/Downloads',                       'cd'),
+  p('github',      '~/src/github',                      'cd', aliases=['ghb', 'gthb', 'ghub', 'gith']),
+  p('joe',         '~/src/github/joe-airbrand',         'cd_and_cursor'),
+  p('kit',         '~/.config/kitty/',                  aliases=['kitty'], commands={'reload': '/Applications/kitty.app/Contents/MacOS/kitty @ load-config /Users/taylor/.config/kitty/kitty.conf'}),
+  p('mac',         '~/src/macos',                       'cd_and_cursor', aliases=['macos']),
+  p('notes',       '~/Desktop/notes'),
+  p('pathfuncs',   '~/dotfiles/src/python/pathfuncs.py','cd_and_cursor', aliases=['pathfunc', 'pathfns', 'pathfn', 'pathfuns', 'pathfun', 'pthfuncs', 'pthfunc', 'pthfns', 'pthfn', 'pthfuns', 'pthfun', 'pfuncs', 'pfunc', 'pfns', 'pfn', 'pfuns', 'pfun' ]),
+  p('pod',         '~/src/github/podsauce',             'cd_and_cursor'),
+  p('r1',          '~/src/github/r1',                   'cd_and_cursor', aliases=['rone', 'rem']),
+  p('s',           '~/src',                            ' cd'),
+  p('screenshots', '~/Pictures/Screenshots',            'open', aliases=['ss', 'shots', 'screenshot']),
+  p('vsx',         '~/src/vscode-extensions'),
   p('amp',        '~/src/github/amplify', aliases=['amplify'], alias_cmds={'up': 'update'},
     commands={
       'disable': 'safemv <path>/.git/hooks/pre-commit <path>/.git/hooks/pre-commit.disabled && echo "pre-commit disabled" || echo "failed to disable"',
@@ -32,14 +47,6 @@ CONFIG = [
       'update': '_amplify_update <args>',
     }
   ),
-  p('app',         '/Applications',                     'open'), # TODO: link all app dirs /Applications, /System/Applications, /System/Applications/Utilities, /System/Library/CoreServices/Applications/
-  p('d',           '~/Desktop',                         'cd',  aliases=['desk', 'desktop']),
-  p('dot',         '~/dotfiles'),
-  p('down',        '~/Downloads',                       'cd'),
-  p('github',      '~/src/github',                      'cd', aliases=['ghb', 'gthb', 'ghub', 'gith']),
-  p('joe',         '~/src/github/joe-airbrand',         'cd_and_cursor'),
-  p('kit',         '~/.config/kitty/',                  aliases=['kitty'], commands={'reload': '/Applications/kitty.app/Contents/MacOS/kitty @ load-config /Users/taylor/.config/kitty/kitty.conf'}),
-  p('mac',         '~/src/macos',                       'cd_and_cursor', aliases=['macos']),
   p('nex',         '~/src/github/nexrender-scripts',    'dev',
     commands={
       'dev'      : '/Users/taylor/src/github/nexrender-scripts/scripts/local/ssh',
@@ -51,13 +58,6 @@ CONFIG = [
       'tmux'     : '/Users/taylor/src/github/nexrender-scripts/scripts/local/nex.sh',
     }
   ),
-  p('s',           '~/src',                            ' cd'),
-  p('notes',       '~/Desktop/notes'),
-  p('pod',         '~/src/github/podsauce',             'cd_and_cursor'),
-  p('r1',          '~/src/github/r1',                   'cd_and_cursor', aliases=['rone', 'rem']),
-  p('pathfuncs',   '~/dotfiles/src/python/pathfuncs.py','cd_and_cursor', aliases=['pathfunc', 'pathfns', 'pathfn', 'pathfuns', 'pathfun', 'pthfuncs', 'pthfunc', 'pthfns', 'pthfn', 'pthfuns', 'pthfun', 'pfuncs', 'pfunc', 'pfns', 'pfn', 'pfuns', 'pfun' ]),
-  p('screenshots', '~/Pictures/Screenshots',            'open', aliases=['ss', 'shots', 'screenshot']),
-  p('vsx',         '~/src/vscode-extensions'),
 ]
 
 def build_function(entry):
