@@ -21,6 +21,9 @@ export LESS='-R'
 export DOTFILES_DIR="$HOME/dotfiles"
 export TZ='America/New_York'
 
+# Claude Code
+ export PATH="$HOME/.local/bin:$PATH"
+
 # Load environment variables from .env file
 if [ -f "$DOTFILES_DIR/.env" ]; then
   while IFS= read -r line || [ -n "$line" ]; do
