@@ -2,6 +2,9 @@
 
 export SHOULD_LOG=0
 
+# Shell options
+setopt interactive_comments  # Allow inline # comments in interactive shell
+
 # Editor
 export EDITOR='vim'
 export VISUAL='vim'

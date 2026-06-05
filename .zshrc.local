@@ -56,6 +56,3 @@ export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 export PATH=$PATH:$HOME/.maestro/bin
 export PATH=$PATH:$HOME/.maestro/bin
-
-# Allow inline # comments in interactive shell
-setopt interactive_comments
