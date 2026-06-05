@@ -4,6 +4,7 @@
 _rs () { printf "alias rs='DISABLE_SPRING=1 bin/rspec'" | /usr/bin/pbcopy ;}
 _cache () { printf "/Library/Caches/nexrender/versions/vast-enhanced-monolith/AE25/v1.3" | /usr/bin/pbcopy ;}
 _mig () { printf "puts ['...', *ActiveRecord::SchemaMigration.order(version: :desc).limit(5).pluck(:version).reverse].join(\"\\\n\")" | /usr/bin/pbcopy ;}
+_tail () { printf "tail -n200 -F /Users/ec2-user/.pm2/logs/worker-1-out.log /Users/ec2-user/taylor/log.txt" | /usr/bin/pbcopy ;}
 
 _glob__variants() { echo 'app client'; }
 _glob () {
