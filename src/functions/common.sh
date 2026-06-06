@@ -141,7 +141,7 @@ function _amplify_update() {
   local msg="$*"
   [[ -z "$msg" ]] && msg="updates"
   git -C "${amplify_dir}" add -A ;
-    git -C "${amplify_dir}" reset -- config/application.rb config/environments/development.rb packages ios/ spec/fixtures/files/.X11-unix/ ;
+    git -C "${amplify_dir}" reset -- config/application.rb config/environments/development.rb packages spec/fixtures/files/.X11-unix/ ;
     git -C "${amplify_dir}" commit -m "${msg}" ;
     git -C "${amplify_dir}" push -f
 }
