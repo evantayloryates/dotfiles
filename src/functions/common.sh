@@ -398,4 +398,36 @@ cd_and_cursor() {
 }
 
 
-cc      () { case "$1" in fab|fab5|fable|fable5) shift; "$HOME/.local/bin/claude" --dangerously-skip-permissions --model claude-fable-5 "$@" ;; hai|hai4|hai45|haiku|haiku4|haiku45) shift; "$HOME/.local/bin/claude" --dangerously-skip-permissions --model claude-haiku-4-5-20251001 "$@" ;; op41|opus41) shift; "$HOME/.local/bin/claude" --dangerously-skip-permissions --model claude-opus-4-1-20250805 "$@" ;; op42|opus42) shift; "$HOME/.local/bin/claude" --dangerously-skip-permissions --model claude-opus-4-20250514 "$@" ;; op45|opus45) shift; "$HOME/.local/bin/claude" --dangerously-skip-permissions --model claude-opus-4-5-20251101 "$@" ;; op46|opus46) shift; "$HOME/.local/bin/claude" --dangerously-skip-permissions --model claude-opus-4-6 "$@" ;; op47|opus47) shift; "$HOME/.local/bin/claude" --dangerously-skip-permissions --model claude-opus-4-7 "$@" ;; op|op4|op48|opus|opus4|opus48) shift; "$HOME/.local/bin/claude" --dangerously-skip-permissions --model claude-opus-4-8 "$@" ;; son40|sonnet40) shift; "$HOME/.local/bin/claude" --dangerously-skip-permissions --model claude-sonnet-4-20250514 "$@" ;; son45|sonnet45) shift; "$HOME/.local/bin/claude" --dangerously-skip-permissions --model claude-sonnet-4-5-20250929 "$@" ;; son|son4|son46|sonnet|sonnet4|sonnet46) shift; "$HOME/.local/bin/claude" --dangerously-skip-permissions --model claude-sonnet-4-6 "$@" ;; *) "$HOME/.local/bin/claude" --dangerously-skip-permissions "$@" ;; esac ;} # Note: this will overwrite the /usr/bin/cc command
+typeset -A _cc_models
+_cc_model_slug() {
+  local model="$1"
+  shift
+  local slug
+  for slug in "$@"; do
+    _cc_models[$slug]="$model"
+  done
+}
+
+_cc_model_slug claude-fable-5              fab fab5 fable fable5
+_cc_model_slug claude-haiku-4-5-20251001   hai hai4 hai45 haiku haiku4 haiku45
+_cc_model_slug claude-opus-4-1-20250805    op41 opus41
+_cc_model_slug claude-opus-4-20250514      op42 opus42
+_cc_model_slug claude-opus-4-5-20251101    op45 opus45
+_cc_model_slug claude-opus-4-6             op46 opus46
+_cc_model_slug claude-opus-4-7             op47 opus47
+_cc_model_slug claude-opus-4-8             op op4 op48 opus opus4 opus48
+_cc_model_slug claude-sonnet-4-20250514    son40 sonnet40
+_cc_model_slug claude-sonnet-4-5-20250929  son45 sonnet45
+_cc_model_slug claude-sonnet-4-6           son son4 son46 sonnet sonnet4 sonnet46
+
+# Note: this will overwrite the /usr/bin/cc command
+cc() {
+  local model
+  if [[ -n "${_cc_models[$1]:-}" ]]; then
+    model="${_cc_models[$1]}"
+    shift
+    "$HOME/.local/bin/claude" --dangerously-skip-permissions --model "$model" "$@"
+  else
+    "$HOME/.local/bin/claude" --dangerously-skip-permissions "$@"
+  fi
+}
