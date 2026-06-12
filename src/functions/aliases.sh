@@ -5,7 +5,6 @@
 # : is offical syntax. 
 _kitsrc () { /Applications/kitty.app/Contents/MacOS/kitty @ load-config "$HOME/.config/kitty/kitty.conf"  ;} #
 abs     () { realpath "$@"                                                                                ;} # 
-cc      () { "$HOME/.local/bin/claude" --dangerously-skip-permissions "$@"                               ;} # Note: this will overwrite the /usr/bin/cc command
 convert () { magick "$@"                                                                                  ;} # 
 cur     () { if [ $# -eq 0 ]; then /usr/local/bin/cursor "$(pwd -P 2>/dev/null || pwd)"; else /usr/local/bin/cursor "$@"; fi ;} # 
 dc      () { docker compose "$@"                                                                          ;} # 
