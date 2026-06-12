@@ -426,6 +426,7 @@ cc() {
   if [[ -n "${_cc_models[$1]:-}" ]]; then
     model="${_cc_models[$1]}"
     shift
+    echo "SUCCESS"
     "$HOME/.local/bin/claude" --dangerously-skip-permissions --model "$model" "$@"
   else
     "$HOME/.local/bin/claude" --dangerously-skip-permissions "$@"
