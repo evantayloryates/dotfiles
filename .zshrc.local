@@ -56,3 +56,6 @@ export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 export PATH=$PATH:$HOME/.maestro/bin
 export PATH=$PATH:$HOME/.maestro/bin
+
+# opencode
+export PATH=/Users/taylor/.opencode/bin:$PATH
