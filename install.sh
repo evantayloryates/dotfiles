@@ -13,6 +13,14 @@ bash "$(dirname "$0")/install_zsh.sh"
 # Create .zshrc
 cp "$(dirname "$0")/.zshrc" "$HOME/.zshrc"
 
+# Ensure non-interactive shells (agents, scripts, `zsh -c`) load exported
+# .env vars. ~/.zshenv is the only startup file sourced for every shell type.
+# Append idempotently so we don't clobber existing ~/.zshenv content.
+ZSHENV="$HOME/.zshenv"
+ZSHENV_LINE='source "$HOME/dotfiles/src/exports/dotenv.sh"'
+touch "$ZSHENV"
+grep -qF "$ZSHENV_LINE" "$ZSHENV" || printf '\n# Load exported dotfiles env (.env) for ALL shells, incl. non-interactive\n%s\n' "$ZSHENV_LINE" >> "$ZSHENV"
+
 # Capture start time from devcontainer onCreateCommand and calculate total setup time
 START_TIMESTAMP_FILE="/tmp/dotfiles-setup-start.timestamp"
 if [[ -f "$START_TIMESTAMP_FILE" ]]; then

@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Schema for a single entry in a tunes.jsonl file",
+  "type": "object",
+  "required": ["id", "role", "content"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9]{6}$",
+      "description": "Six-character alphanumeric unique identifier"
+    },
+    "role": {
+      "type": "string",
+      "enum": ["user", "assistant"]
+    },
+    "content": {
+      "description": "Tune message content — string or structured object",
+      "oneOf": [
+        { "type": "string", "minLength": 1 },
+        { "type": "object" }
+      ]
+    }
+  }
+}

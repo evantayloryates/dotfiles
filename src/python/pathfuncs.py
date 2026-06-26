@@ -30,6 +30,7 @@ CONFIG = [
   p('pod',         '~/src/github/podsauce',             'cd_and_cursor'),
   p('r1',          '~/src/github/r1',                   'cd_and_cursor', aliases=['rone', 'rem']),
   p('s',           '~/src',                            ' cd'),
+  p('sca',         '~/src/github/r1/sca',               'cd_and_cursor'),
   p('screenshots', '~/Pictures/Screenshots',            'open', aliases=['ss', 'shots', 'screenshot']),
   p('vsx',         '~/src/vscode-extensions'),
   p('amp',        '~/src/github/amplify', aliases=['amplify'], alias_cmds={'up': 'update'},

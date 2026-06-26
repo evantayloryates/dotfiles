@@ -28,12 +28,5 @@ export TZ='America/New_York'
 # Claude Code
  export PATH="$HOME/.local/bin:$PATH"
 
-# Load environment variables from .env file
-if [ -f "$DOTFILES_DIR/.env" ]; then
-  while IFS= read -r line || [ -n "$line" ]; do
-    # Skip empty lines and comments
-    [[ -z "$line" || "$line" =~ ^[[:space:]]*# ]] && continue
-    # Export the variable
-    export "$line"
-  done < "$DOTFILES_DIR/.env"
-fi
+# Environment variables from .env are loaded by exports/dotenv.sh, which is
+# also sourced from ~/.zshenv so non-interactive shells get them too.
