@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!--
+    Runs docker-prune.sh every 4 hours to keep Docker's disk footprint from
+    creeping (dangling images, detached anonymous volumes, unused build cache).
+    Safe to fire anytime: it no-ops when Docker isn't running. See README.md.
+
+    NOTE: launchd does not expand ~ or $HOME in ProgramArguments, so the path is
+    absolute. install.sh symlinks this file into ~/Library/LaunchAgents/.
+  -->
+  <key>Label</key>
+  <string>com.taylor.docker-prune</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/zsh</string>
+    <string>/Users/taylor/dotfiles/src/launchd/docker-prune.sh</string>
+  </array>
+  <!-- Every 4 hours. Coalesced across sleep; multiple missed fires run once on wake. -->
+  <key>StartInterval</key>
+  <integer>14400</integer>
+  <!-- Also run once when the agent loads (login / re-install). -->
+  <key>RunAtLoad</key>
+  <true/>
+  <!-- Maintenance work: low scheduling + I/O priority so it never competes with foreground tasks. -->
+  <key>ProcessType</key>
+  <string>Background</string>
+  <key>LowPriorityIO</key>
+  <true/>
+</dict>
+</plist>

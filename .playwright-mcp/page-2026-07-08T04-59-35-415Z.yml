@@ -1,0 +1,498 @@
+- generic [ref=f67e2]:
+  - heading "0 notifications" [level=2] [ref=f67e3]
+  - generic [ref=f67e4]:
+    - generic:
+      - generic "Skip navigation menu":
+        - generic [ref=f67e5]:
+          - button "Skip to search" [ref=f67e6] [cursor=pointer]:
+            - generic [ref=f67e8]: Skip to search
+          - button "Skip to main content" [ref=f67e9] [cursor=pointer]:
+            - generic [ref=f67e11]: Skip to main content
+          - button "Skip to primary content" [ref=f67e12] [cursor=pointer]:
+            - generic [ref=f67e14]: Skip to primary content
+          - button "Skip to aside" [ref=f67e15] [cursor=pointer]:
+            - generic [ref=f67e17]: Skip to aside
+          - button "Skip to footer" [ref=f67e18] [cursor=pointer]:
+            - generic [ref=f67e20]: Skip to footer
+          - button "Close jump menu" [ref=f67e22] [cursor=pointer]:
+            - img [ref=f67e24]
+    - generic [ref=f67e26]:
+      - banner [ref=f67e28]:
+        - generic [ref=f67e31]:
+          - button "LinkedIn" [ref=f67e32] [cursor=pointer]:
+            - img "LinkedIn" [ref=f67e33]
+          - generic [ref=f67e35]:
+            - status [ref=f67e36]
+            - search [ref=f67e37]:
+              - generic [ref=f67e38]:
+                - img [ref=f67e40]
+                - textbox "I'm looking for…" [ref=f67e42]
+          - generic [ref=f67e44]:
+            - figure [ref=f67e49]
+            - navigation [ref=f67e53]:
+              - list [ref=f67e54]:
+                - listitem [ref=f67e55]:
+                  - button "Home, 1 new notification" [ref=f67e56] [cursor=pointer]:
+                    - img [ref=f67e58]
+                    - generic [ref=f67e62]: Home
+                - listitem [ref=f67e63]:
+                  - link "My Network, 0 new notifications" [ref=f67e64] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/mynetwork
+                    - img [ref=f67e66]
+                    - generic [ref=f67e69]: My Network
+                - listitem [ref=f67e70]:
+                  - link "Jobs, 0 new notifications" [ref=f67e71] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/jobs/
+                    - img [ref=f67e73]
+                    - generic [ref=f67e76]: Jobs
+                - listitem [ref=f67e77]:
+                  - link "Messaging, 0 new notifications" [ref=f67e78] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/messaging/
+                    - img [ref=f67e80]
+                    - generic [ref=f67e83]: Messaging
+                - listitem [ref=f67e84]:
+                  - link "Notifications, 20 new notifications" [ref=f67e85] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/notifications/
+                    - generic [ref=f67e86]:
+                      - img [ref=f67e87]
+                      - generic [ref=f67e89]: "20"
+                    - generic [ref=f67e91]: Notifications
+                - listitem [ref=f67e92]:
+                  - button "Me" [ref=f67e93] [cursor=pointer]:
+                    - figure [ref=f67e95]
+                    - generic [ref=f67e97]:
+                      - text: Me
+                      - img [ref=f67e98]
+            - generic [ref=f67e101]:
+              - navigation [ref=f67e102]:
+                - list [ref=f67e103]:
+                  - listitem [ref=f67e104]:
+                    - button "For Business" [ref=f67e105] [cursor=pointer]:
+                      - img [ref=f67e107]
+                      - generic [ref=f67e110]:
+                        - text: For Business
+                        - img [ref=f67e111]
+              - link "Retry Premium" [ref=f67e114] [cursor=pointer]:
+                - /url: https://www.linkedin.com/in/ryanliebling/
+                - generic [ref=f67e115]:
+                  - img [ref=f67e116]
+                  - paragraph [ref=f67e122]: Retry Premium
+      - generic [ref=f67e124]:
+        - toolbar [ref=f67e125]:
+          - generic [ref=f67e129]:
+            - link "Ryan Liebling" [ref=f67e130] [cursor=pointer]:
+              - /url: https://www.linkedin.com/in/ryanliebling/
+              - generic "Ryan Liebling" [ref=f67e131]:
+                - figure [ref=f67e132]
+                - generic [ref=f67e133]:
+                  - paragraph [ref=f67e134]: Ryan Liebling
+                  - paragraph [ref=f67e136]: Verticals Lead, Restaurants, Alcohol & Publishing @ Reddit, Inc.
+            - generic [ref=f67e137]:
+              - button "More" [ref=f67e139] [cursor=pointer]:
+                - generic [ref=f67e141]: More
+              - link "Message" [ref=f67e143] [cursor=pointer]:
+                - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAAEQ2RcB8kr5plnWiDcVxzLfIhFfnBLF2ho&recipient=ACoAAAEQ2RcB8kr5plnWiDcVxzLfIhFfnBLF2ho&screenContext=NON_SELF_PROFILE_VIEW&interop=msgOverlay
+                - generic [ref=f67e144]:
+                  - img [ref=f67e145]
+                  - generic [ref=f67e147]: Message
+              - link "Invite Ryan Liebling to connect" [ref=f67e151] [cursor=pointer]:
+                - /url: /preload/custom-invite/?vanityName=ryanliebling
+                - generic [ref=f67e152]:
+                  - img [ref=f67e153]
+                  - generic [ref=f67e156]: Connect
+        - main [ref=f67e157]:
+          - generic [ref=f67e159]:
+            - region "Primary content" [ref=f67e160]:
+              - generic [ref=f67e162]:
+                - generic [ref=f67e167]:
+                  - generic [ref=f67e168]:
+                    - button [ref=f67e171] [cursor=pointer]:
+                      - figure [ref=f67e172]:
+                        - img "Cover photo" [ref=f67e173]
+                    - link "Profile photo" [ref=f67e174] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/ryanliebling/
+                      - generic "Profile photo" [ref=f67e175]:
+                        - figure [ref=f67e176]
+                  - generic [ref=f67e177]:
+                    - generic [ref=f67e178]:
+                      - generic [ref=f67e180]:
+                        - generic [ref=f67e181]:
+                          - link "Ryan Liebling View Ryan’s verifications" [ref=f67e184] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/ryanliebling/
+                            - generic [ref=f67e186]:
+                              - heading "Ryan Liebling" [level=2] [ref=f67e187]
+                              - img "View Ryan’s verifications" [ref=f67e188]
+                          - paragraph [ref=f67e190]: He/Him
+                          - paragraph [ref=f67e191]: · 2nd
+                        - paragraph [ref=f67e192]: Verticals Lead, Restaurants, Alcohol & Publishing @ Reddit, Inc.
+                        - generic [ref=f67e193]:
+                          - paragraph [ref=f67e194]: Los Angeles Metropolitan Area
+                          - paragraph [ref=f67e195]: ·
+                          - paragraph [ref=f67e196]:
+                            - link "Contact info" [ref=f67e197] [cursor=pointer]:
+                              - /url: https://www.linkedin.com/in/ryanliebling/overlay/contact-info/
+                      - button "Reddit, Inc." [ref=f67e200] [cursor=pointer]:
+                        - generic [ref=f67e201]:
+                          - figure [ref=f67e202]
+                          - paragraph [ref=f67e206]: Reddit, Inc.
+                    - generic [ref=f67e207]:
+                      - paragraph [ref=f67e208]: 500+
+                      - paragraph [ref=f67e209]: connections
+                    - link "Jordan and Ryan are mutual connections" [ref=f67e210] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/search/results/people/?origin=MEMBER_PROFILE_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAAEQ2RcB8kr5plnWiDcVxzLfIhFfnBLF2ho%22%5D
+                      - generic [ref=f67e211]:
+                        - figure [ref=f67e212]
+                        - figure [ref=f67e213]
+                        - paragraph [ref=f67e215]:
+                          - link "Jordan and Ryan are mutual connections" [ref=f67e217]:
+                            - /url: https://www.linkedin.com/search/results/people/?origin=MEMBER_PROFILE_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAAEQ2RcB8kr5plnWiDcVxzLfIhFfnBLF2ho%22%5D
+                            - strong [ref=f67e218]: Jordan
+                            - text: and
+                            - strong [ref=f67e219]: Ryan
+                            - text: are mutual connections
+                    - generic [ref=f67e223]:
+                      - link "Invite Ryan Liebling to connect" [ref=f67e227] [cursor=pointer]:
+                        - /url: /preload/custom-invite/?vanityName=ryanliebling
+                        - generic [ref=f67e228]:
+                          - img [ref=f67e229]
+                          - generic [ref=f67e232]: Connect
+                      - link "Message" [ref=f67e234] [cursor=pointer]:
+                        - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAAEQ2RcB8kr5plnWiDcVxzLfIhFfnBLF2ho&recipient=ACoAAAEQ2RcB8kr5plnWiDcVxzLfIhFfnBLF2ho&screenContext=NON_SELF_PROFILE_VIEW&interop=msgOverlay
+                        - generic [ref=f67e235]:
+                          - img [ref=f67e236]
+                          - generic [ref=f67e238]: Message
+                      - button "More" [ref=f67e240] [cursor=pointer]:
+                        - generic [ref=f67e242]: More
+                - generic [ref=f67e250]:
+                  - heading "About" [level=2] [ref=f67e252]
+                  - generic [ref=f67e253]:
+                    - paragraph [ref=f67e254]:
+                      - generic [ref=f67e255]:
+                        - text: At Reddit, Inc. our team has been pivotal in fostering strategic relationships and spearheading innovative strategies to propel the value for our clients across CPG, Media & Entertainment, Alcohol, and Restaurants/QSR.
+                        - text: My expertise lies in strategic thinking, client value creation, creative ideation/execution and team leadership.
+                        - text: Committed to Reddit's mission of empowering communities, I leverage my skills to drive value and innovation, aligning with the company's culture and contributing diverse perspectives to our collaborative team.
+                        - button:
+                          - generic [ref=f67e258] [cursor=pointer]: … more
+                    - generic [ref=f67e261]:
+                      - generic [ref=f67e262]:
+                        - img [ref=f67e263]
+                        - generic [ref=f67e265]:
+                          - paragraph [ref=f67e266]: Top skills
+                          - paragraph [ref=f67e267]: Teamwork • Leadership Development • Interpersonal Skills • Talent Management • Account Management
+                      - link "Show top skills" [ref=f67e268] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/in/ryanliebling/overlay/top-skills-details/
+                        - img [ref=f67e270]
+            - complementary "Aside" [ref=f67e324]:
+              - generic [ref=f67e326]:
+                - iframe [ref=f67e329]:
+                  - generic [ref=f69e2]:
+                    - generic [ref=f69e3]: Ad
+                    - img "overflow-web-small" [ref=f69e6] [cursor=pointer]
+                    - link "The Wall Street Journal" [ref=f69e10] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/li/tscp/sct?destinationUrl=https%3A%2F%2Fwww.wsj.com%2Fsubscribe%2F%3Fswg%3Dtrue%26trackingCode%3Da0d54317%26ucid%3DWSJ_SMD_LNK_ACQ_SAL_SLT_RET_2PW_SF2_WSP%26n2IKsaD9%3Dn2IKsaD9%26Pg9aWOPT%3DPg9aWOPT%26Cp5dKJWb%3DCp5dKJWb%26APCc9OU1%3DAPCc9OU1%26AP1F4404%3DAP1F4404%26li_fat_id%3Db9537c27-8f45-42aa-9cf1-0006882e482d&trackingEvent=%5B%7B%22eventInfo%22%3A%7B%22appId%22%3A%22com.linkedin.ads.rendering.d_web%22%2C%22eventName%22%3A%22SponsoredRightRailContentActionEvent%22%2C%22topicName%22%3A%22SponsoredRightRailContentActionEvent%22%7D%2C%22eventBody%22%3A%7B%22sponsoredEventHeader%22%3A%7B%22encryptedTrackingData%22%3A%22CwEAAAGfQBh96qodCyZZvEx7JXCY_kYbxVPWXN3dL2XKlM2psMakAb7H89_JDG5RpZ9ERH7Rcdp7fwLnogDNl4jWsqaZe5ZHQneGQOy09EaeDPnaPXtvduk6PZUHu0f3bGlu59nLbZdngTMfZ1Jsm11ZyG7-fPJ8gxyXtct6icKV5Ugs7zD2Bro3LGJ1MiQR58zSSL-2LkxiY0QegBRKbiNW91eaY4o8_KHP3kuFEyPExODv_F0uZ4ivRZ-c7vVr9lxVjfo96IEWncMujQITSb0GHgbdfWRAVbUa3YOqJnUzS59b1EgND7NPKFWJn3vnJAXk7mN4WwXk3Ht_5Y8w8rjZYu1l-rldjNX4sytOyH48x9blCoNYr_D8kzeJ0VvCX1azNtnrruHGNeiPh3zlGv08z2lxzmNq3akoBhiHO_Y0_OaPj-MW1oMSndHQ_0thKzE-xMnYB3kKT01-dc3xSV2s9EGNfTne4fF-ukS-1sDw7F6gQnd4GLPPTs1e-CBLqbcFUyoLoSPu1fUCXWiDtpt9MzQPop4NGWbFLywoBETZaPnnoeS4s3ku2ArnY5jgu9tVjl077GJ1cX-xYYCr1nebKhQw5SW2uG1VVT1apG_7y26YNtsk7n7LexKjZP-6fOcoDpmWg49VL80U0lx26uPB5B9-RaVhwODoIGanqF59D1s2QBuzBKxnaHRP7Kl2VN7OhCGe0sLj6F9BoZFz2W69fW_UIDiy41XJEfJMOlX7nYs5oHFSm97An5xa4XpMtR_gUWzn9_d11plvlm-IKYOhLnfGorUMuv1vsbnY0O-LQB6n_wUEOfRZ6AzwOn_8cZCQRGkiJKP3bjQdoaAht5fj4yH2ZqKFFii002N6pQ282S1hcPU73cVrPOMCsd_BKkzoCOQWcQDtZ1RH9sopz7MdQhWjCEEV2td3jFghHeptZTTslvAniVJhpslqwYyhTElTZXucIBch1-RoKct1hYm7e-aMm7c-vahuqFEfoeg0cyZ7nL3zXpqzIAAhFzgzgpuv8Ud0u1xKn2vC8QHh4OTUqwxr5CF3nIGRynVV9VUyt7ooU-5grCdk8v5CA2mmvZE6qHCb2PJwJ8WahvozczzgmqqZ6Y38qzSww2RRgfBzAEpF0pTHK6rdSS0eXwBhZ2BBS54yqucazIWtOfD4uA%22%7D%2C%22header%22%3A%7B%22pageInstance%22%3A%7B%22pageUrn%22%3A%22urn%3Ali%3Apage%3Ad_flagship3_profile_view_base%22%2C%22trackingId%22%3A%22908d2851-530f-4033-944c-10ab47138b5c%22%7D%2C%22time%22%3A1783486774719%2C%22version%22%3A%220.0.0%22%7D%2C%22requestHeader%22%3A%7B%22pageKey%22%3A%22d_flagship3_profile_view_base%22%2C%22interfaceLocale%22%3A%22en-US%22%7D%7D%7D%5D&csrfToken=ajax%3A1061531063325413417
+                    - generic [ref=f69e11]:
+                      - heading "Limited-Time Sale" [level=2] [ref=f69e14]
+                      - generic [ref=f69e16]:
+                        - img "Taylor" [ref=f69e17]
+                        - generic [ref=f69e18]:
+                          - link "The Wall Street Journal" [ref=f69e19] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/li/tscp/sct?destinationUrl=https%3A%2F%2Fwww.wsj.com%2Fsubscribe%2F%3Fswg%3Dtrue%26trackingCode%3Da0d54317%26ucid%3DWSJ_SMD_LNK_ACQ_SAL_SLT_RET_2PW_SF2_WSP%26n2IKsaD9%3Dn2IKsaD9%26Pg9aWOPT%3DPg9aWOPT%26Cp5dKJWb%3DCp5dKJWb%26APCc9OU1%3DAPCc9OU1%26AP1F4404%3DAP1F4404%26li_fat_id%3Db9537c27-8f45-42aa-9cf1-0006882e482d&trackingEvent=%5B%7B%22eventInfo%22%3A%7B%22appId%22%3A%22com.linkedin.ads.rendering.d_web%22%2C%22eventName%22%3A%22SponsoredRightRailContentActionEvent%22%2C%22topicName%22%3A%22SponsoredRightRailContentActionEvent%22%7D%2C%22eventBody%22%3A%7B%22sponsoredEventHeader%22%3A%7B%22encryptedTrackingData%22%3A%22CwEAAAGfQBh96qodCyZZvEx7JXCY_kYbxVPWXN3dL2XKlM2psMakAb7H89_JDG5RpZ9ERH7Rcdp7fwLnogDNl4jWsqaZe5ZHQneGQOy09EaeDPnaPXtvduk6PZUHu0f3bGlu59nLbZdngTMfZ1Jsm11ZyG7-fPJ8gxyXtct6icKV5Ugs7zD2Bro3LGJ1MiQR58zSSL-2LkxiY0QegBRKbiNW91eaY4o8_KHP3kuFEyPExODv_F0uZ4ivRZ-c7vVr9lxVjfo96IEWncMujQITSb0GHgbdfWRAVbUa3YOqJnUzS59b1EgND7NPKFWJn3vnJAXk7mN4WwXk3Ht_5Y8w8rjZYu1l-rldjNX4sytOyH48x9blCoNYr_D8kzeJ0VvCX1azNtnrruHGNeiPh3zlGv08z2lxzmNq3akoBhiHO_Y0_OaPj-MW1oMSndHQ_0thKzE-xMnYB3kKT01-dc3xSV2s9EGNfTne4fF-ukS-1sDw7F6gQnd4GLPPTs1e-CBLqbcFUyoLoSPu1fUCXWiDtpt9MzQPop4NGWbFLywoBETZaPnnoeS4s3ku2ArnY5jgu9tVjl077GJ1cX-xYYCr1nebKhQw5SW2uG1VVT1apG_7y26YNtsk7n7LexKjZP-6fOcoDpmWg49VL80U0lx26uPB5B9-RaVhwODoIGanqF59D1s2QBuzBKxnaHRP7Kl2VN7OhCGe0sLj6F9BoZFz2W69fW_UIDiy41XJEfJMOlX7nYs5oHFSm97An5xa4XpMtR_gUWzn9_d11plvlm-IKYOhLnfGorUMuv1vsbnY0O-LQB6n_wUEOfRZ6AzwOn_8cZCQRGkiJKP3bjQdoaAht5fj4yH2ZqKFFii002N6pQ282S1hcPU73cVrPOMCsd_BKkzoCOQWcQDtZ1RH9sopz7MdQhWjCEEV2td3jFghHeptZTTslvAniVJhpslqwYyhTElTZXucIBch1-RoKct1hYm7e-aMm7c-vahuqFEfoeg0cyZ7nL3zXpqzIAAhFzgzgpuv8Ud0u1xKn2vC8QHh4OTUqwxr5CF3nIGRynVV9VUyt7ooU-5grCdk8v5CA2mmvZE6qHCb2PJwJ8WahvozczzgmqqZ6Y38qzSww2RRgfBzAEpF0pTHK6rdSS0eXwBhZ2BBS54yqucazIWtOfD4uA%22%7D%2C%22header%22%3A%7B%22pageInstance%22%3A%7B%22pageUrn%22%3A%22urn%3Ali%3Apage%3Ad_flagship3_profile_view_base%22%2C%22trackingId%22%3A%22908d2851-530f-4033-944c-10ab47138b5c%22%7D%2C%22time%22%3A1783486774719%2C%22version%22%3A%220.0.0%22%7D%2C%22requestHeader%22%3A%7B%22pageKey%22%3A%22d_flagship3_profile_view_base%22%2C%22interfaceLocale%22%3A%22en-US%22%7D%7D%7D%5D&csrfToken=ajax%3A1061531063325413417
+                            - img "The Wall Street Journal" [ref=f69e20]
+                          - tooltip "The Wall Street Journal" [ref=f69e21]
+                      - generic [ref=f69e22]:
+                        - heading "Join the conversation." [level=2] [ref=f69e25]
+                        - link "Subscribe" [ref=f69e27] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/li/tscp/sct?destinationUrl=https%3A%2F%2Fwww.wsj.com%2Fsubscribe%2F%3Fswg%3Dtrue%26trackingCode%3Da0d54317%26ucid%3DWSJ_SMD_LNK_ACQ_SAL_SLT_RET_2PW_SF2_WSP%26n2IKsaD9%3Dn2IKsaD9%26Pg9aWOPT%3DPg9aWOPT%26Cp5dKJWb%3DCp5dKJWb%26APCc9OU1%3DAPCc9OU1%26AP1F4404%3DAP1F4404%26li_fat_id%3Db9537c27-8f45-42aa-9cf1-0006882e482d&trackingEvent=%5B%7B%22eventInfo%22%3A%7B%22appId%22%3A%22com.linkedin.ads.rendering.d_web%22%2C%22eventName%22%3A%22SponsoredRightRailContentActionEvent%22%2C%22topicName%22%3A%22SponsoredRightRailContentActionEvent%22%7D%2C%22eventBody%22%3A%7B%22sponsoredEventHeader%22%3A%7B%22encryptedTrackingData%22%3A%22CwEAAAGfQBh96qodCyZZvEx7JXCY_kYbxVPWXN3dL2XKlM2psMakAb7H89_JDG5RpZ9ERH7Rcdp7fwLnogDNl4jWsqaZe5ZHQneGQOy09EaeDPnaPXtvduk6PZUHu0f3bGlu59nLbZdngTMfZ1Jsm11ZyG7-fPJ8gxyXtct6icKV5Ugs7zD2Bro3LGJ1MiQR58zSSL-2LkxiY0QegBRKbiNW91eaY4o8_KHP3kuFEyPExODv_F0uZ4ivRZ-c7vVr9lxVjfo96IEWncMujQITSb0GHgbdfWRAVbUa3YOqJnUzS59b1EgND7NPKFWJn3vnJAXk7mN4WwXk3Ht_5Y8w8rjZYu1l-rldjNX4sytOyH48x9blCoNYr_D8kzeJ0VvCX1azNtnrruHGNeiPh3zlGv08z2lxzmNq3akoBhiHO_Y0_OaPj-MW1oMSndHQ_0thKzE-xMnYB3kKT01-dc3xSV2s9EGNfTne4fF-ukS-1sDw7F6gQnd4GLPPTs1e-CBLqbcFUyoLoSPu1fUCXWiDtpt9MzQPop4NGWbFLywoBETZaPnnoeS4s3ku2ArnY5jgu9tVjl077GJ1cX-xYYCr1nebKhQw5SW2uG1VVT1apG_7y26YNtsk7n7LexKjZP-6fOcoDpmWg49VL80U0lx26uPB5B9-RaVhwODoIGanqF59D1s2QBuzBKxnaHRP7Kl2VN7OhCGe0sLj6F9BoZFz2W69fW_UIDiy41XJEfJMOlX7nYs5oHFSm97An5xa4XpMtR_gUWzn9_d11plvlm-IKYOhLnfGorUMuv1vsbnY0O-LQB6n_wUEOfRZ6AzwOn_8cZCQRGkiJKP3bjQdoaAht5fj4yH2ZqKFFii002N6pQ282S1hcPU73cVrPOMCsd_BKkzoCOQWcQDtZ1RH9sopz7MdQhWjCEEV2td3jFghHeptZTTslvAniVJhpslqwYyhTElTZXucIBch1-RoKct1hYm7e-aMm7c-vahuqFEfoeg0cyZ7nL3zXpqzIAAhFzgzgpuv8Ud0u1xKn2vC8QHh4OTUqwxr5CF3nIGRynVV9VUyt7ooU-5grCdk8v5CA2mmvZE6qHCb2PJwJ8WahvozczzgmqqZ6Y38qzSww2RRgfBzAEpF0pTHK6rdSS0eXwBhZ2BBS54yqucazIWtOfD4uA%22%7D%2C%22header%22%3A%7B%22pageInstance%22%3A%7B%22pageUrn%22%3A%22urn%3Ali%3Apage%3Ad_flagship3_profile_view_base%22%2C%22trackingId%22%3A%22908d2851-530f-4033-944c-10ab47138b5c%22%7D%2C%22time%22%3A1783486774719%2C%22version%22%3A%220.0.0%22%7D%2C%22requestHeader%22%3A%7B%22pageKey%22%3A%22d_flagship3_profile_view_base%22%2C%22interfaceLocale%22%3A%22en-US%22%7D%7D%7D%5D&csrfToken=ajax%3A1061531063325413417
+                - generic [ref=f67e334]:
+                  - heading "More profiles for you" [level=3] [ref=f67e338]
+                  - generic [ref=f67e340]:
+                    - generic [ref=f67e342]:
+                      - link "Elizabeth O. Premium · 2nd Industry Manager, Large Customer Sales at Reddit, Inc." [ref=f67e345] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/in/elizabetholeary/
+                        - generic [ref=f67e346]:
+                          - figure [ref=f67e347]
+                          - generic [ref=f67e348]:
+                            - generic [ref=f67e349]:
+                              - paragraph [ref=f67e351]:
+                                - link "Elizabeth O. Premium" [ref=f67e353]:
+                                  - /url: https://www.linkedin.com/in/elizabetholeary/
+                                  - text: Elizabeth O.
+                                  - img "Premium" [ref=f67e354]:
+                                    - img [ref=f67e355]
+                              - paragraph [ref=f67e357]: · 2nd
+                            - paragraph [ref=f67e359]: Industry Manager, Large Customer Sales at Reddit, Inc.
+                      - button "Invite Elizabeth O. to connect" [ref=f67e365] [cursor=pointer]:
+                        - generic [ref=f67e366]:
+                          - img [ref=f67e367]
+                          - generic [ref=f67e370]: Connect
+                    - generic [ref=f67e372]:
+                      - link "Leo Londoño Verified · 2nd Senior Client Partner II, LCS at Reddit, Inc." [ref=f67e375] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/in/leolon/
+                        - generic [ref=f67e376]:
+                          - figure [ref=f67e377]
+                          - generic [ref=f67e378]:
+                            - generic [ref=f67e379]:
+                              - paragraph [ref=f67e381]:
+                                - link "Leo Londoño Verified" [ref=f67e383]:
+                                  - /url: https://www.linkedin.com/in/leolon/
+                                  - text: Leo Londoño
+                                  - img "Verified" [ref=f67e384]:
+                                    - img [ref=f67e385]
+                              - paragraph [ref=f67e387]: · 2nd
+                            - paragraph [ref=f67e389]: Senior Client Partner II, LCS at Reddit, Inc.
+                      - button "Invite Leo Londoño to connect" [ref=f67e395] [cursor=pointer]:
+                        - generic [ref=f67e396]:
+                          - img [ref=f67e397]
+                          - generic [ref=f67e400]: Connect
+                    - generic [ref=f67e402]:
+                      - link "Andrea Carrasquel · 3rd Brand Partnerships at Reddit, Inc." [ref=f67e405] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/in/andreacarrasquel/
+                        - generic [ref=f67e406]:
+                          - figure [ref=f67e407]
+                          - generic [ref=f67e408]:
+                            - generic [ref=f67e409]:
+                              - paragraph [ref=f67e411]:
+                                - link "Andrea Carrasquel" [ref=f67e413]:
+                                  - /url: https://www.linkedin.com/in/andreacarrasquel/
+                              - paragraph [ref=f67e414]: · 3rd
+                            - paragraph [ref=f67e416]: Brand Partnerships at Reddit, Inc.
+                      - link "Message Andrea Carrasquel" [ref=f67e420] [cursor=pointer]:
+                        - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAATIkx8BUQ3VJK_tu94TjEGCLyJ6kAmVamM&recipient=ACoAAATIkx8BUQ3VJK_tu94TjEGCLyJ6kAmVamM&screenContext=NON_SELF_PROFILE_VIEW&interop=msgOverlay
+                        - generic [ref=f67e421]:
+                          - img [ref=f67e422]
+                          - generic [ref=f67e424]: Message
+                    - generic [ref=f67e426]:
+                      - link "Adam Collins Verified · 3rd Chief Communications Officer at Reddit" [ref=f67e429] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/in/adamdcollins/
+                        - generic [ref=f67e430]:
+                          - figure [ref=f67e431]
+                          - generic [ref=f67e432]:
+                            - generic [ref=f67e433]:
+                              - paragraph [ref=f67e435]:
+                                - link "Adam Collins Verified" [ref=f67e437]:
+                                  - /url: https://www.linkedin.com/in/adamdcollins/
+                                  - text: Adam Collins
+                                  - img "Verified" [ref=f67e438]:
+                                    - img [ref=f67e439]
+                              - paragraph [ref=f67e441]: · 3rd
+                            - paragraph [ref=f67e443]: Chief Communications Officer at Reddit
+                      - button "Follow Adam Collins" [ref=f67e449] [cursor=pointer]:
+                        - generic [ref=f67e450]:
+                          - img [ref=f67e451]
+                          - generic [ref=f67e454]: Follow
+                    - generic [ref=f67e456]:
+                      - link "Matt Peterson Verified · 2nd Client Partner @ Reddit" [ref=f67e459] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/in/matt-peterson-25546469/
+                        - generic [ref=f67e460]:
+                          - figure [ref=f67e461]
+                          - generic [ref=f67e462]:
+                            - generic [ref=f67e463]:
+                              - paragraph [ref=f67e465]:
+                                - link "Matt Peterson Verified" [ref=f67e467]:
+                                  - /url: https://www.linkedin.com/in/matt-peterson-25546469/
+                                  - text: Matt Peterson
+                                  - img "Verified" [ref=f67e468]:
+                                    - img [ref=f67e469]
+                              - paragraph [ref=f67e471]: · 2nd
+                            - paragraph [ref=f67e473]: Client Partner @ Reddit
+                      - button "Invite Matt Peterson to connect" [ref=f67e479] [cursor=pointer]:
+                        - generic [ref=f67e480]:
+                          - img [ref=f67e481]
+                          - generic [ref=f67e484]: Connect
+                  - link "Show all more profiles for you" [ref=f67e486] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/in/ryanliebling/overlay/browsemap-recommendations/
+                    - generic [ref=f67e487]:
+                      - img [ref=f67e488]
+                      - generic [ref=f67e490]: Show all
+                - generic [ref=f67e493]:
+                  - heading "Get advice on software development" [level=2] [ref=f67e495]
+                  - generic [ref=f67e497]:
+                    - generic [ref=f67e499]:
+                      - link "Neha Jain Premium · 3rd Engineering Leader @ LinkedIn | AI-Powered Product Builder | 0→1 Growth at Scale | Creative Thinker & Author" [ref=f67e502] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/in/nehajainhbti/
+                        - generic [ref=f67e503]:
+                          - figure [ref=f67e504]
+                          - generic [ref=f67e505]:
+                            - generic [ref=f67e506]:
+                              - paragraph [ref=f67e508]:
+                                - link "Neha Jain Premium" [ref=f67e510]:
+                                  - /url: https://www.linkedin.com/in/nehajainhbti/
+                                  - text: Neha Jain
+                                  - img "Premium" [ref=f67e511]:
+                                    - img [ref=f67e512]
+                              - paragraph [ref=f67e514]: · 3rd
+                            - paragraph [ref=f67e516]: Engineering Leader @ LinkedIn | AI-Powered Product Builder | 0→1 Growth at Scale | Creative Thinker & Author
+                      - link "Get advice from me" [ref=f67e520] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/meetings/AGsAAAOLIzMBr5rS2z3gTmSvV_pZGHI71bTl-ag/acbd14e8-52a8-4e63-a749-56ca21037ae3/book/
+                        - generic [ref=f67e522]: Get advice from me
+                    - generic [ref=f67e524]:
+                      - link "Johnson Kan Premium · 3rd Senior Staff Software Engineer @ LinkedIn" [ref=f67e527] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/in/johnsonkan/
+                        - generic [ref=f67e528]:
+                          - figure [ref=f67e529]
+                          - generic [ref=f67e530]:
+                            - generic [ref=f67e531]:
+                              - paragraph [ref=f67e533]:
+                                - link "Johnson Kan Premium" [ref=f67e535]:
+                                  - /url: https://www.linkedin.com/in/johnsonkan/
+                                  - text: Johnson Kan
+                                  - img "Premium" [ref=f67e536]:
+                                    - img [ref=f67e537]
+                              - paragraph [ref=f67e539]: · 3rd
+                            - paragraph [ref=f67e541]: Senior Staff Software Engineer @ LinkedIn
+                      - link "Get advice from me" [ref=f67e545] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/meetings/AGsAAAcP_CQBLgQPdOccitLezUvTbGdFVLiZl8M/39bd0965-a18b-48ef-928a-75fc0bc2ee1d/book/
+                        - generic [ref=f67e547]: Get advice from me
+                    - generic [ref=f67e549]:
+                      - link "Samir Tata Premium · 3rd Senior Engineering Manager at LinkedIn" [ref=f67e552] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/in/samirtata/
+                        - generic [ref=f67e553]:
+                          - figure [ref=f67e554]
+                          - generic [ref=f67e555]:
+                            - generic [ref=f67e556]:
+                              - paragraph [ref=f67e558]:
+                                - link "Samir Tata Premium" [ref=f67e560]:
+                                  - /url: https://www.linkedin.com/in/samirtata/
+                                  - text: Samir Tata
+                                  - img "Premium" [ref=f67e561]:
+                                    - img [ref=f67e562]
+                              - paragraph [ref=f67e564]: · 3rd
+                            - paragraph [ref=f67e566]: Senior Engineering Manager at LinkedIn
+                      - link "Get advice from me" [ref=f67e570] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/meetings/AGsAAAFMzAUB8NDId26qIbKHrM5tjI6AWR0HdR8/abdda6f5-ff35-4446-8fe8-bbb109d470c1/book/
+                        - generic [ref=f67e572]: Get advice from me
+                    - generic [ref=f67e574]:
+                      - link "Qingchun(Quincie) L. Premium · 3rd Senior Software Engineer at LinkedIn" [ref=f67e577] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/in/qingchun-quincie-li/
+                        - generic [ref=f67e578]:
+                          - figure [ref=f67e579]:
+                            - img [ref=f67e580]
+                          - generic [ref=f67e586]:
+                            - generic [ref=f67e587]:
+                              - paragraph [ref=f67e589]:
+                                - link "Qingchun(Quincie) L. Premium" [ref=f67e591]:
+                                  - /url: https://www.linkedin.com/in/qingchun-quincie-li/
+                                  - text: Qingchun(Quincie) L.
+                                  - img "Premium" [ref=f67e592]:
+                                    - img [ref=f67e593]
+                              - paragraph [ref=f67e595]: · 3rd
+                            - paragraph [ref=f67e597]: Senior Software Engineer at LinkedIn
+                      - link "Get advice from me" [ref=f67e601] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/meetings/AGsAAA_xoIEB2LX0w_sB_zrlibeHLvWZw3X-Pag/558a92c9-7a24-4108-af20-6eaafb13dd75/book/
+                        - generic [ref=f67e603]: Get advice from me
+            - generic "Footer" [ref=f67e604]:
+              - generic [ref=f67e607]:
+                - generic [ref=f67e608]:
+                  - navigation [ref=f67e609]:
+                    - link "About" [ref=f67e610] [cursor=pointer]:
+                      - /url: https://about.linkedin.com/
+                      - paragraph [ref=f67e611]: About
+                    - link "Accessibility" [ref=f67e612] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/accessibility/
+                      - paragraph [ref=f67e613]: Accessibility
+                    - link "Talent Solutions" [ref=f67e614] [cursor=pointer]:
+                      - /url: https://business.linkedin.com/talent-solutions?trk=flagship_nav&veh=li-footer-lts-control&src=li-footer
+                      - paragraph [ref=f67e615]: Talent Solutions
+                    - link "Community Guidelines" [ref=f67e616] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/legal/professional-community-policies/
+                      - paragraph [ref=f67e617]: Community Guidelines
+                    - link "Careers" [ref=f67e618] [cursor=pointer]:
+                      - /url: https://careers.linkedin.com/
+                      - paragraph [ref=f67e619]: Careers
+                    - link "Marketing Solutions" [ref=f67e620] [cursor=pointer]:
+                      - /url: https://business.linkedin.com/advertise?trk=n_nav_lms_f&src=li-footer
+                      - paragraph [ref=f67e621]: Marketing Solutions
+                    - button "Privacy & Terms" [ref=f67e622] [cursor=pointer]:
+                      - generic [ref=f67e623]:
+                        - paragraph [ref=f67e624]: Privacy & Terms
+                        - img [ref=f67e625]
+                    - link "Ad Choices" [ref=f67e627] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/help/linkedin/answer/62931/
+                      - paragraph [ref=f67e628]: Ad Choices
+                    - link "Advertising" [ref=f67e629] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/ad/start/?trk=n_nav_ads_rr
+                      - paragraph [ref=f67e630]: Advertising
+                    - link "Sales Solutions" [ref=f67e631] [cursor=pointer]:
+                      - /url: https://business.linkedin.com/sales-solutions?trk=flagship_nav&veh=li-footer-lss-control&src=li-footer
+                      - paragraph [ref=f67e632]: Sales Solutions
+                    - link "Mobile" [ref=f67e633] [cursor=pointer]:
+                      - /url: https://mobile.linkedin.com/
+                      - paragraph [ref=f67e634]: Mobile
+                    - link "Small Business" [ref=f67e635] [cursor=pointer]:
+                      - /url: https://business.linkedin.com/grow?src=li-footer
+                      - paragraph [ref=f67e636]: Small Business
+                    - link "Safety Center" [ref=f67e637] [cursor=pointer]:
+                      - /url: https://safety.linkedin.com/
+                      - paragraph [ref=f67e638]: Safety Center
+                  - paragraph [ref=f67e640]: LinkedIn Corporation © 2026
+                - generic [ref=f67e641]:
+                  - list [ref=f67e642]:
+                    - listitem [ref=f67e643]:
+                      - generic [ref=f67e644]:
+                        - img [ref=f67e645]
+                        - generic [ref=f67e647]:
+                          - link "Questions?" [ref=f67e648] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/help/linkedin/
+                            - paragraph [ref=f67e649]: Questions?
+                          - paragraph [ref=f67e650]: Visit our Help Center.
+                    - listitem [ref=f67e651]:
+                      - generic [ref=f67e652]:
+                        - img [ref=f67e653]
+                        - generic [ref=f67e655]:
+                          - link "Manage your account and privacy" [ref=f67e656] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/mypreferences/d/
+                            - paragraph [ref=f67e657]: Manage your account and privacy
+                          - paragraph [ref=f67e658]: Go to your Settings.
+                    - listitem [ref=f67e659]:
+                      - generic [ref=f67e660]:
+                        - img [ref=f67e661]
+                        - generic [ref=f67e663]:
+                          - link "Recommendation transparency" [ref=f67e664] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/help/linkedin/answer/a1339724/
+                            - paragraph [ref=f67e665]: Recommendation transparency
+                          - paragraph [ref=f67e666]: Learn more about Recommended Content.
+                  - generic [ref=f67e668]:
+                    - paragraph [ref=f67e670]: Select language
+                    - generic [ref=f67e671]:
+                      - combobox "Select language" [ref=f67e672] [cursor=pointer]:
+                        - option "العربية (Arabic)"
+                        - option "বাংলা (Bangla)"
+                        - option "Čeština (Czech)"
+                        - option "Dansk (Danish)"
+                        - option "Deutsch (German)"
+                        - option "Ελληνικά (Greek)"
+                        - option "English (English)" [selected]
+                        - option "Español (Spanish)"
+                        - option "فارسی (Persian)"
+                        - option "Suomi (Finnish)"
+                        - option "Français (French)"
+                        - option "हिंदी (Hindi)"
+                        - option "Magyar (Hungarian)"
+                        - option "Bahasa Indonesia (Indonesian)"
+                        - option "Italiano (Italian)"
+                        - option "עברית (Hebrew)"
+                        - option "日本語 (Japanese)"
+                        - option "한국어 (Korean)"
+                        - option "मराठी (Marathi)"
+                        - option "Bahasa Malaysia (Malay)"
+                        - option "Nederlands (Dutch)"
+                        - option "Norsk (Norwegian)"
+                        - option "ਪੰਜਾਬੀ (Punjabi)"
+                        - option "Polski (Polish)"
+                        - option "Português (Portuguese)"
+                        - option "Română (Romanian)"
+                        - option "Русский (Russian)"
+                        - option "Svenska (Swedish)"
+                        - option "తెలుగు (Telugu)"
+                        - option "ภาษาไทย (Thai)"
+                        - option "Tagalog (Tagalog)"
+                        - option "Türkçe (Turkish)"
+                        - option "Українська (Ukrainian)"
+                        - option "Tiếng Việt (Vietnamese)"
+                        - option "简体中文 (Chinese (Simplified))"
+                        - option "正體中文 (Chinese (Traditional))"
+                      - img
+  - iframe [ref=f67e673]:
+    - generic [active]:
+      - img [ref=f70e6]
+      - region [ref=f70e12]

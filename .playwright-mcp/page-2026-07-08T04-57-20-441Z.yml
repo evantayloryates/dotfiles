@@ -1,0 +1,373 @@
+- generic [ref=f44e2]:
+  - heading "0 notifications" [level=2] [ref=f44e3]
+  - generic [ref=f44e4]:
+    - generic:
+      - generic "Skip navigation menu":
+        - button "Close jump menu" [ref=f44e6] [cursor=pointer]
+    - generic [ref=f44e9]:
+      - banner [ref=f44e11]:
+        - generic [ref=f44e14]:
+          - button [ref=f44e15] [cursor=pointer]
+          - generic [ref=f44e17]:
+            - status [ref=f44e18]
+            - search [ref=f44e19]:
+              - textbox "I'm looking for…" [ref=f44e23]
+          - generic [ref=f44e25]:
+            - navigation [ref=f44e29]:
+              - list [ref=f44e30]:
+                - listitem [ref=f44e31]:
+                  - button "Home, 1 new notification" [ref=f44e32] [cursor=pointer]:
+                    - img [ref=f44e34]
+                    - generic [ref=f44e37]: Home
+                - listitem [ref=f44e38]:
+                  - link "My Network, 0 new notifications" [ref=f44e39] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/mynetwork
+                    - img [ref=f44e41]
+                    - generic [ref=f44e44]: My Network
+                - listitem [ref=f44e45]:
+                  - link "Jobs, 0 new notifications" [ref=f44e46] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/jobs/
+                    - img [ref=f44e48]
+                    - generic [ref=f44e51]: Jobs
+                - listitem [ref=f44e52]:
+                  - link "Messaging, 0 new notifications" [ref=f44e53] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/messaging/
+                    - img [ref=f44e55]
+                    - generic [ref=f44e58]: Messaging
+                - listitem [ref=f44e59]:
+                  - link "Notifications, 20 new notifications" [ref=f44e60] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/notifications/
+                    - generic [ref=f44e61]:
+                      - img [ref=f44e62]
+                      - generic [ref=f44e64]: "20"
+                    - generic [ref=f44e66]: Notifications
+                - listitem [ref=f44e67]:
+                  - button "Me" [ref=f44e68] [cursor=pointer]:
+                    - figure [ref=f44e70]
+                    - generic [ref=f44e72]: Me
+            - generic [ref=f44e75]:
+              - navigation [ref=f44e76]:
+                - list [ref=f44e77]:
+                  - listitem [ref=f44e78]:
+                    - button "For Business" [ref=f44e79] [cursor=pointer]:
+                      - img [ref=f44e81]
+                      - generic [ref=f44e84]: For Business
+              - link "Retry Premium" [ref=f44e87] [cursor=pointer]:
+                - /url: https://www.linkedin.com/
+                - paragraph [ref=f44e93]: Retry Premium
+      - generic [ref=f44e94]:
+        - toolbar [ref=f44e95]
+        - main [ref=f44e109]:
+          - generic [ref=f44e114]:
+            - region "Primary content" [ref=f44e115]:
+              - generic [ref=f44e119]:
+                - list [ref=f44e121]:
+                  - listitem [ref=f44e123]:
+                    - generic [ref=f44e124]:
+                      - link:
+                        - /url: https://www.linkedin.com/in/joehall6/
+                      - generic [ref=f44e125]:
+                        - link:
+                          - /url: https://www.linkedin.com/in/joehall6/
+                        - generic [ref=f44e126]:
+                          - link [ref=f44e127] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/joehall6/
+                            - figure [ref=f44e128]
+                          - generic [ref=f44e129]:
+                            - link:
+                              - /url: https://www.linkedin.com/in/joehall6/
+                            - paragraph [ref=f44e130]:
+                              - link:
+                                - /url: https://www.linkedin.com/in/joehall6/
+                              - link "Joe Hall Verified" [ref=f44e131] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/joehall6/
+                                - text: Joe Hall
+                                - img "Verified" [ref=f44e132]
+                              - generic [ref=f44e134]: • 1st
+                            - paragraph [ref=f44e136]: Co-Founder @Adexy • Co-Founder @Spaceback • Product & Design
+                            - paragraph [ref=f44e138]: United States
+                        - paragraph [ref=f44e140]:
+                          - generic [ref=f44e141]:
+                            - text: "Current: Co-Founder at"
+                            - strong [ref=f44e142]: Adexy
+                        - generic [ref=f44e143]:
+                          - figure [ref=f44e144]
+                          - figure [ref=f44e145]
+                          - figure [ref=f44e146]
+                          - paragraph [ref=f44e148]:
+                            - generic [ref=f44e149]:
+                              - link "Ben Trenda" [ref=f44e150] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/bentrenda/
+                                - strong [ref=f44e151]: Ben Trenda
+                              - text: ","
+                              - link "David Peterson" [ref=f44e152] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/davidcpeterson/
+                                - strong [ref=f44e153]: David Peterson
+                              - text: and
+                              - link "52 other mutual connections" [ref=f44e154] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/people/?origin=SHARED_CONNECTIONS_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAAYxir8BeCekMlKbmHqFCmvzNIlXWxdIb98%22%5D
+                                - strong [ref=f44e155]: 52 other mutual connections
+                  - listitem [ref=f44e157]:
+                    - generic [ref=f44e158]:
+                      - link:
+                        - /url: https://www.linkedin.com/in/adexy-ala%C3%B1a-galu%C3%A9-10b235100/
+                      - generic [ref=f44e159]:
+                        - link:
+                          - /url: https://www.linkedin.com/in/adexy-ala%C3%B1a-galu%C3%A9-10b235100/
+                        - generic [ref=f44e160]:
+                          - link [ref=f44e161] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/adexy-ala%C3%B1a-galu%C3%A9-10b235100/
+                            - figure [ref=f44e162]
+                          - generic [ref=f44e163]:
+                            - link:
+                              - /url: https://www.linkedin.com/in/adexy-ala%C3%B1a-galu%C3%A9-10b235100/
+                            - paragraph [ref=f44e164]:
+                              - link:
+                                - /url: https://www.linkedin.com/in/adexy-ala%C3%B1a-galu%C3%A9-10b235100/
+                              - link "Adexy Alaña Galué Verified" [ref=f44e165] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/adexy-ala%C3%B1a-galu%C3%A9-10b235100/
+                                - text: Adexy Alaña Galué
+                                - img "Verified" [ref=f44e166]
+                              - generic [ref=f44e168]: • 3rd+
+                            - paragraph [ref=f44e170]: Ingeniera Industrial/Apoyo Team Leader de Transporte en Logisfashion Chile Spa
+                            - paragraph [ref=f44e172]: Santiago Metropolitan Area
+                  - generic [ref=f44e179]:
+                    - paragraph [ref=f44e181]: Easily find people who are actively hiring
+                    - paragraph [ref=f44e182]: Search more efficiently with advanced search filters
+                    - link "Retry Premium for $0" [ref=f44e183] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/premium/products/?upsellOrderOrigin=Tracking%3Av1%3Apremium_advanced_people_search_filter_inline_result_jobseeker_upsell%3AJob+Seeker%3AIn-Product&utype=job_marketing&referenceId=%2BmuKWicXRkWahbae8NkIig%3D%3D&isSS=false&upsellSlotId=ADVANCED_PEOPLE_SEARCH_FILTER_INLINE_RESULT
+                      - generic [ref=f44e185]: Retry Premium for $0
+                    - paragraph [ref=f44e186]: 1-month free trial. Easy to cancel. We’ll remind you 7 days before your trial ends.
+                  - listitem [ref=f44e188]:
+                    - generic [ref=f44e189]:
+                      - link:
+                        - /url: https://www.linkedin.com/in/shomudro/
+                      - generic [ref=f44e190]:
+                        - link:
+                          - /url: https://www.linkedin.com/in/shomudro/
+                        - generic [ref=f44e191]:
+                          - link [ref=f44e192] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/shomudro/
+                            - figure [ref=f44e193]
+                          - generic [ref=f44e194]:
+                            - link:
+                              - /url: https://www.linkedin.com/in/shomudro/
+                            - paragraph [ref=f44e195]:
+                              - link:
+                                - /url: https://www.linkedin.com/in/shomudro/
+                              - link "Samiur R" [ref=f44e196] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/shomudro/
+                              - generic [ref=f44e197]: • 3rd+
+                            - paragraph [ref=f44e199]: Founder and Managing Director, Adexy Communication Ltd.
+                            - paragraph [ref=f44e201]: Dhaka, Bangladesh
+                        - paragraph [ref=f44e203]:
+                          - generic [ref=f44e204]:
+                            - text: "Current:"
+                            - strong [ref=f44e205]: Adexy
+                            - text: Consultancy is a Student Consultancy service company
+                        - paragraph [ref=f44e209]:
+                          - link "262 followers" [ref=f44e211] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/search/results/people/?origin=SHARED_FOLLOWERS_CANNED_SEARCH&followerOf=%5B%22ACoAADZr9m0B-p5mmYz-OoQt_Zo3OvksxAfI13Y%22%5D
+                  - listitem [ref=f44e213]:
+                    - generic [ref=f44e214]:
+                      - link:
+                        - /url: https://www.linkedin.com/in/taiwo-waliu-89a348207/
+                      - generic [ref=f44e215]:
+                        - link:
+                          - /url: https://www.linkedin.com/in/taiwo-waliu-89a348207/
+                        - generic [ref=f44e216]:
+                          - link [ref=f44e217] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/taiwo-waliu-89a348207/
+                            - figure [ref=f44e218]
+                          - generic [ref=f44e219]:
+                            - link:
+                              - /url: https://www.linkedin.com/in/taiwo-waliu-89a348207/
+                            - paragraph [ref=f44e220]:
+                              - link:
+                                - /url: https://www.linkedin.com/in/taiwo-waliu-89a348207/
+                              - link "Taiwo Waliu" [ref=f44e221] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/taiwo-waliu-89a348207/
+                              - generic [ref=f44e222]: • 3rd+
+                            - paragraph [ref=f44e224]: Electrical Engineer | Master in Electrical and Electronics Engineering
+                            - paragraph [ref=f44e226]: Lagos, Lagos State, Nigeria
+                  - listitem [ref=f44e228]:
+                    - generic [ref=f44e229]:
+                      - link:
+                        - /url: https://www.linkedin.com/in/adeyinka-oluwaseyi-okedare-97b1a56a/
+                      - generic [ref=f44e230]:
+                        - link:
+                          - /url: https://www.linkedin.com/in/adeyinka-oluwaseyi-okedare-97b1a56a/
+                        - generic [ref=f44e231]:
+                          - link [ref=f44e232] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/adeyinka-oluwaseyi-okedare-97b1a56a/
+                            - figure [ref=f44e233]
+                          - generic [ref=f44e234]:
+                            - link:
+                              - /url: https://www.linkedin.com/in/adeyinka-oluwaseyi-okedare-97b1a56a/
+                            - paragraph [ref=f44e235]:
+                              - link:
+                                - /url: https://www.linkedin.com/in/adeyinka-oluwaseyi-okedare-97b1a56a/
+                              - link "Adeyinka Oluwaseyi Okedare" [ref=f44e236] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/adeyinka-oluwaseyi-okedare-97b1a56a/
+                              - generic [ref=f44e237]: • 3rd+
+                            - paragraph [ref=f44e239]: Administrative Officer
+                            - paragraph [ref=f44e241]: Lagos, Lagos State, Nigeria
+                  - listitem [ref=f44e243]:
+                    - generic [ref=f44e244]:
+                      - link:
+                        - /url: https://www.linkedin.com/in/vivian-nwana-83260a164/
+                      - generic [ref=f44e245]:
+                        - link:
+                          - /url: https://www.linkedin.com/in/vivian-nwana-83260a164/
+                        - generic [ref=f44e246]:
+                          - link [ref=f44e247] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/vivian-nwana-83260a164/
+                            - figure [ref=f44e248]
+                          - generic [ref=f44e249]:
+                            - link:
+                              - /url: https://www.linkedin.com/in/vivian-nwana-83260a164/
+                            - paragraph [ref=f44e250]:
+                              - link:
+                                - /url: https://www.linkedin.com/in/vivian-nwana-83260a164/
+                              - link "Vivian Nwana" [ref=f44e251] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/vivian-nwana-83260a164/
+                              - generic [ref=f44e252]: • 3rd+
+                            - paragraph [ref=f44e254]: supermarket
+                            - paragraph [ref=f44e256]: Eti Osa, Lagos State, Nigeria
+                  - listitem [ref=f44e258]:
+                    - generic [ref=f44e259]:
+                      - link:
+                        - /url: https://www.linkedin.com/in/rashedimashfiqur/
+                      - generic [ref=f44e260]:
+                        - link:
+                          - /url: https://www.linkedin.com/in/rashedimashfiqur/
+                        - generic [ref=f44e261]:
+                          - link [ref=f44e262] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/rashedimashfiqur/
+                            - figure [ref=f44e263]
+                          - generic [ref=f44e264]:
+                            - link:
+                              - /url: https://www.linkedin.com/in/rashedimashfiqur/
+                            - paragraph [ref=f44e265]:
+                              - link:
+                                - /url: https://www.linkedin.com/in/rashedimashfiqur/
+                              - link "Mashfiqur R. Rashedi Verified" [ref=f44e266] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/rashedimashfiqur/
+                                - text: Mashfiqur R. Rashedi
+                                - img "Verified" [ref=f44e267]
+                              - generic [ref=f44e269]: • 3rd+
+                            - paragraph [ref=f44e271]: Founder | Building Businesses That Scale with Purpose
+                            - paragraph [ref=f44e273]: Dhaka, Bangladesh
+                        - paragraph [ref=f44e275]:
+                          - generic [ref=f44e276]:
+                            - text: "Current: Director at"
+                            - strong [ref=f44e277]: Adexy Communication
+                  - listitem [ref=f44e279]:
+                    - generic [ref=f44e280]:
+                      - link:
+                        - /url: https://www.linkedin.com/in/romjan1412/
+                      - generic [ref=f44e281]:
+                        - link:
+                          - /url: https://www.linkedin.com/in/romjan1412/
+                        - generic [ref=f44e282]:
+                          - link [ref=f44e283] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/romjan1412/
+                            - figure [ref=f44e284]
+                          - generic [ref=f44e285]:
+                            - link:
+                              - /url: https://www.linkedin.com/in/romjan1412/
+                            - paragraph [ref=f44e286]:
+                              - link:
+                                - /url: https://www.linkedin.com/in/romjan1412/
+                              - link "Romjan D. Hossain Verified" [ref=f44e287] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/romjan1412/
+                                - text: Romjan D. Hossain
+                                - img "Verified" [ref=f44e288]
+                              - generic [ref=f44e290]: • 3rd+
+                            - paragraph [ref=f44e292]: Flutter Developer | Python Developer | Web scrapping | Linux
+                            - paragraph [ref=f44e294]: Dhaka, Dhaka, Bangladesh
+                        - paragraph [ref=f44e296]:
+                          - generic [ref=f44e297]:
+                            - text: "Past: Mobile Application Developer at"
+                            - strong [ref=f44e298]: Adexy Communication
+                        - paragraph [ref=f44e302]:
+                          - link "66 followers" [ref=f44e304] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/search/results/people/?origin=SHARED_FOLLOWERS_CANNED_SEARCH&followerOf=%5B%22ACoAACwetiIB3IB60CB8jz4xi6CaE6INreQNwNc%22%5D
+                  - listitem [ref=f44e306]:
+                    - generic [ref=f44e307]:
+                      - link:
+                        - /url: https://www.linkedin.com/in/i-am-sajjad/
+                      - generic [ref=f44e308]:
+                        - link:
+                          - /url: https://www.linkedin.com/in/i-am-sajjad/
+                        - generic [ref=f44e309]:
+                          - link [ref=f44e310] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/i-am-sajjad/
+                            - figure [ref=f44e311]
+                          - generic [ref=f44e312]:
+                            - link:
+                              - /url: https://www.linkedin.com/in/i-am-sajjad/
+                            - paragraph [ref=f44e313]:
+                              - link:
+                                - /url: https://www.linkedin.com/in/i-am-sajjad/
+                              - link "Md. Sajjad Hossain Chowdhury" [ref=f44e314] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/i-am-sajjad/
+                              - generic [ref=f44e315]: • 3rd+
+                            - paragraph [ref=f44e317]: Graphic Designer | Motion Designer | Video Editor | 3D Artist
+                            - paragraph [ref=f44e319]: Dhaka, Bangladesh
+                        - paragraph [ref=f44e321]:
+                          - generic [ref=f44e322]:
+                            - text: "Past: Graphic Designer at"
+                            - strong [ref=f44e323]: Adexy Communication
+                        - paragraph [ref=f44e327]:
+                          - link "364 followers" [ref=f44e329] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/search/results/people/?origin=SHARED_FOLLOWERS_CANNED_SEARCH&followerOf=%5B%22ACoAAEXZPsgBJImF8Sw9x5O0sEVte9pbf1R93hE%22%5D
+                  - listitem [ref=f44e331]:
+                    - generic [ref=f44e332]:
+                      - link:
+                        - /url: https://www.linkedin.com/in/nayeema-siddiqua-1b0b5b129/
+                      - generic [ref=f44e333]:
+                        - link:
+                          - /url: https://www.linkedin.com/in/nayeema-siddiqua-1b0b5b129/
+                        - generic [ref=f44e334]:
+                          - link [ref=f44e335] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/nayeema-siddiqua-1b0b5b129/
+                            - figure [ref=f44e336]
+                          - generic [ref=f44e337]:
+                            - link:
+                              - /url: https://www.linkedin.com/in/nayeema-siddiqua-1b0b5b129/
+                            - paragraph [ref=f44e338]:
+                              - link:
+                                - /url: https://www.linkedin.com/in/nayeema-siddiqua-1b0b5b129/
+                              - link "Nayeema Siddiqua Verified" [ref=f44e339] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/nayeema-siddiqua-1b0b5b129/
+                                - text: Nayeema Siddiqua
+                                - img "Verified" [ref=f44e340]
+                              - generic [ref=f44e342]: • 3rd+
+                            - paragraph [ref=f44e344]: Graphic Designer Specialist
+                            - paragraph [ref=f44e346]: Bangladesh
+                        - paragraph [ref=f44e348]:
+                          - generic [ref=f44e349]:
+                            - text: "Past: Senior Executive Creative at"
+                            - strong [ref=f44e350]: Adexy Communication
+                - generic [ref=f44e353]:
+                  - generic [ref=f44e354]:
+                    - paragraph [ref=f44e355]: Are these results helpful?
+                    - paragraph [ref=f44e356]: Your feedback helps us improve search results
+                  - generic [ref=f44e357]:
+                    - button "Are these results helpful? Yes, these search results are helpful" [ref=f44e358] [cursor=pointer]
+                    - button "Are these results helpful? No, these search results are not helpful" [ref=f44e361] [cursor=pointer]
+                - generic [ref=f44e365]:
+                  - list [ref=f44e366]:
+                    - listitem [ref=f44e367]:
+                      - button "Page 1" [ref=f44e368] [cursor=pointer]:
+                        - generic [ref=f44e369]: "1"
+                    - listitem [ref=f44e370]:
+                      - button "Page 2" [ref=f44e371] [cursor=pointer]:
+                        - generic [ref=f44e372]: "2"
+                    - listitem [ref=f44e373]:
+                      - button "Page 3" [ref=f44e374] [cursor=pointer]:
+                        - generic [ref=f44e375]: "3"
+                  - button "Next" [ref=f44e376] [cursor=pointer]:
+                    - generic [ref=f44e379]: Next
+            - complementary "Aside" [ref=f44e380]

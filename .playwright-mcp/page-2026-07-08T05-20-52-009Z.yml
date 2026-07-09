@@ -1,0 +1,1780 @@
+- generic [ref=f80e2]:
+  - heading "0 notifications" [level=2] [ref=f80e433]
+  - generic [ref=f80e434]:
+    - generic:
+      - generic "Skip navigation menu":
+        - generic [ref=f80e435]:
+          - button "Skip to search" [ref=f80e436] [cursor=pointer]:
+            - generic [ref=f80e438]: Skip to search
+          - button "Skip to main content" [ref=f80e439] [cursor=pointer]:
+            - generic [ref=f80e441]: Skip to main content
+          - button "Skip to primary content" [ref=f80e442] [cursor=pointer]:
+            - generic [ref=f80e444]: Skip to primary content
+          - button "Skip to aside" [ref=f80e445] [cursor=pointer]:
+            - generic [ref=f80e447]: Skip to aside
+          - button "Skip to footer" [ref=f80e448] [cursor=pointer]:
+            - generic [ref=f80e450]: Skip to footer
+          - button "Close jump menu" [ref=f80e452] [cursor=pointer]:
+            - img [ref=f80e454]
+    - generic [ref=f80e456]:
+      - banner [ref=f80e458]:
+        - generic [ref=f80e461]:
+          - button "LinkedIn" [ref=f80e462] [cursor=pointer]:
+            - img "LinkedIn" [ref=f80e463]
+          - generic [ref=f80e465]:
+            - status [ref=f80e466]
+            - search [ref=f80e467]:
+              - generic [ref=f80e468]:
+                - img [ref=f80e470]
+                - textbox "I'm looking for…" [ref=f80e472]
+          - generic [ref=f80e474]:
+            - figure [ref=f80e479]
+            - navigation [ref=f80e483]:
+              - list [ref=f80e484]:
+                - listitem [ref=f80e485]:
+                  - button "Home, 1 new notification" [ref=f80e486] [cursor=pointer]:
+                    - img [ref=f80e488]
+                    - generic [ref=f80e492]: Home
+                - listitem [ref=f80e493]:
+                  - link "My Network, 0 new notifications" [ref=f80e494] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/mynetwork
+                    - img [ref=f80e496]
+                    - generic [ref=f80e499]: My Network
+                - listitem [ref=f80e500]:
+                  - link "Jobs, 0 new notifications" [ref=f80e501] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/jobs/
+                    - img [ref=f80e503]
+                    - generic [ref=f80e506]: Jobs
+                - listitem [ref=f80e507]:
+                  - link "Messaging, 0 new notifications" [ref=f80e508] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/messaging/
+                    - img [ref=f80e510]
+                    - generic [ref=f80e513]: Messaging
+                - listitem [ref=f80e514]:
+                  - link "Notifications, 20 new notifications" [ref=f80e515] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/notifications/
+                    - generic [ref=f80e516]:
+                      - img [ref=f80e517]
+                      - generic [ref=f80e519]: "20"
+                    - generic [ref=f80e521]: Notifications
+                - listitem [ref=f80e522]:
+                  - button "Me" [ref=f80e523] [cursor=pointer]:
+                    - figure [ref=f80e525]
+                    - generic [ref=f80e527]:
+                      - text: Me
+                      - img [ref=f80e528]
+            - generic [ref=f80e531]:
+              - navigation [ref=f80e532]:
+                - list [ref=f80e533]:
+                  - listitem [ref=f80e534]:
+                    - button "For Business" [ref=f80e535] [cursor=pointer]:
+                      - img [ref=f80e537]
+                      - generic [ref=f80e540]:
+                        - text: For Business
+                        - img [ref=f80e541]
+              - link "Retry Premium" [ref=f80e544] [cursor=pointer]:
+                - /url: https://www.linkedin.com/in/ryanliebling/
+                - generic [ref=f80e545]:
+                  - img [ref=f80e546]
+                  - paragraph [ref=f80e552]: Retry Premium
+      - generic [ref=f80e554]:
+        - toolbar [ref=f80e555]:
+          - generic [ref=f80e559]:
+            - link "Ryan Liebling" [ref=f80e560] [cursor=pointer]:
+              - /url: https://www.linkedin.com/in/ryanliebling/
+              - generic "Ryan Liebling" [ref=f80e561]:
+                - figure [ref=f80e562]
+                - generic [ref=f80e563]:
+                  - paragraph [ref=f80e564]: Ryan Liebling
+                  - paragraph [ref=f80e566]: Verticals Lead, Restaurants, Alcohol & Publishing @ Reddit, Inc.
+            - generic [ref=f80e567]:
+              - button "More" [ref=f80e569] [cursor=pointer]:
+                - generic [ref=f80e571]: More
+              - link "Message" [ref=f80e573] [cursor=pointer]:
+                - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAAEQ2RcB8kr5plnWiDcVxzLfIhFfnBLF2ho&recipient=ACoAAAEQ2RcB8kr5plnWiDcVxzLfIhFfnBLF2ho&screenContext=NON_SELF_PROFILE_VIEW&interop=msgOverlay
+                - generic [ref=f80e574]:
+                  - img [ref=f80e575]
+                  - generic [ref=f80e577]: Message
+              - link "Invite Ryan Liebling to connect" [ref=f80e581] [cursor=pointer]:
+                - /url: /preload/custom-invite/?vanityName=ryanliebling
+                - generic [ref=f80e582]:
+                  - img [ref=f80e583]
+                  - generic [ref=f80e586]: Connect
+        - main [ref=f80e587]:
+          - generic [ref=f80e589]:
+            - region "Primary content" [ref=f80e590]:
+              - generic [ref=f80e592]:
+                - generic [ref=f80e597]:
+                  - generic [ref=f80e598]:
+                    - button [ref=f80e601] [cursor=pointer]:
+                      - figure [ref=f80e602]:
+                        - img "Cover photo" [ref=f80e603]
+                    - link "Profile photo" [ref=f80e604] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/ryanliebling/
+                      - generic "Profile photo" [ref=f80e605]:
+                        - figure [ref=f80e606]
+                  - generic [ref=f80e607]:
+                    - generic [ref=f80e608]:
+                      - generic [ref=f80e610]:
+                        - generic [ref=f80e611]:
+                          - link "Ryan Liebling View Ryan’s verifications" [ref=f80e614] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/ryanliebling/
+                            - generic [ref=f80e616]:
+                              - heading "Ryan Liebling" [level=2] [ref=f80e617]
+                              - img "View Ryan’s verifications" [ref=f80e618]
+                          - paragraph [ref=f80e620]: He/Him
+                          - paragraph [ref=f80e621]: · 2nd
+                        - paragraph [ref=f80e622]: Verticals Lead, Restaurants, Alcohol & Publishing @ Reddit, Inc.
+                        - generic [ref=f80e623]:
+                          - paragraph [ref=f80e624]: Los Angeles Metropolitan Area
+                          - paragraph [ref=f80e625]: ·
+                          - paragraph [ref=f80e626]:
+                            - link "Contact info" [ref=f80e627] [cursor=pointer]:
+                              - /url: https://www.linkedin.com/in/ryanliebling/overlay/contact-info/
+                      - button "Reddit, Inc." [ref=f80e630] [cursor=pointer]:
+                        - generic [ref=f80e631]:
+                          - figure [ref=f80e632]
+                          - paragraph [ref=f80e636]: Reddit, Inc.
+                    - generic [ref=f80e637]:
+                      - paragraph [ref=f80e638]: 500+
+                      - paragraph [ref=f80e639]: connections
+                    - link "Jordan and Ryan are mutual connections" [ref=f80e640] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/search/results/people/?origin=MEMBER_PROFILE_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAAEQ2RcB8kr5plnWiDcVxzLfIhFfnBLF2ho%22%5D
+                      - generic [ref=f80e641]:
+                        - figure [ref=f80e642]
+                        - figure [ref=f80e643]
+                        - paragraph [ref=f80e645]:
+                          - link "Jordan and Ryan are mutual connections" [ref=f80e647]:
+                            - /url: https://www.linkedin.com/search/results/people/?origin=MEMBER_PROFILE_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAAEQ2RcB8kr5plnWiDcVxzLfIhFfnBLF2ho%22%5D
+                            - strong [ref=f80e648]: Jordan
+                            - text: and
+                            - strong [ref=f80e649]: Ryan
+                            - text: are mutual connections
+                    - generic [ref=f80e653]:
+                      - link "Invite Ryan Liebling to connect" [ref=f80e657] [cursor=pointer]:
+                        - /url: /preload/custom-invite/?vanityName=ryanliebling
+                        - generic [ref=f80e658]:
+                          - img [ref=f80e659]
+                          - generic [ref=f80e662]: Connect
+                      - link "Message" [ref=f80e664] [cursor=pointer]:
+                        - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAAEQ2RcB8kr5plnWiDcVxzLfIhFfnBLF2ho&recipient=ACoAAAEQ2RcB8kr5plnWiDcVxzLfIhFfnBLF2ho&screenContext=NON_SELF_PROFILE_VIEW&interop=msgOverlay
+                        - generic [ref=f80e665]:
+                          - img [ref=f80e666]
+                          - generic [ref=f80e668]: Message
+                      - button "More" [ref=f80e670] [cursor=pointer]:
+                        - generic [ref=f80e672]: More
+                - generic [ref=f80e680]:
+                  - heading "About" [level=2] [ref=f80e682]
+                  - generic [ref=f80e683]:
+                    - paragraph [ref=f80e684]:
+                      - generic [ref=f80e685]:
+                        - text: At Reddit, Inc. our team has been pivotal in fostering strategic relationships and spearheading innovative strategies to propel the value for our clients across CPG, Media & Entertainment, Alcohol, and Restaurants/QSR.
+                        - text: My expertise lies in strategic thinking, client value creation, creative ideation/execution and team leadership.
+                        - text: Committed to Reddit's mission of empowering communities, I leverage my skills to drive value and innovation, aligning with the company's culture and contributing diverse perspectives to our collaborative team.
+                        - button:
+                          - generic [ref=f80e688] [cursor=pointer]: … more
+                    - generic [ref=f80e691]:
+                      - generic [ref=f80e692]:
+                        - img [ref=f80e693]
+                        - generic [ref=f80e695]:
+                          - paragraph [ref=f80e696]: Top skills
+                          - paragraph [ref=f80e697]: Teamwork • Leadership Development • Interpersonal Skills • Talent Management • Account Management
+                      - link "Show top skills" [ref=f80e698] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/in/ryanliebling/overlay/top-skills-details/
+                        - img [ref=f80e700]
+                - generic [ref=f80e707]:
+                  - generic [ref=f80e708]:
+                    - generic [ref=f80e709]:
+                      - heading "Activity" [level=2] [ref=f80e710]
+                      - paragraph [ref=f80e712]: 2,757 followers
+                    - button "Follow Ryan Liebling" [ref=f80e715] [cursor=pointer]:
+                      - generic [ref=f80e716]:
+                        - img [ref=f80e717]
+                        - generic [ref=f80e720]: Follow
+                  - generic [ref=f80e721]:
+                    - radio "Posts" [checked] [ref=f80e722] [cursor=pointer]:
+                      - generic [ref=f80e723]:
+                        - checkbox "Posts" [checked]
+                        - generic [ref=f80e724]: Posts
+                    - radio "Comments" [ref=f80e725] [cursor=pointer]:
+                      - generic [ref=f80e726]:
+                        - checkbox "Comments"
+                        - generic [ref=f80e727]: Comments
+                    - radio "Images" [ref=f80e728] [cursor=pointer]:
+                      - generic [ref=f80e729]:
+                        - checkbox "Images"
+                        - generic [ref=f80e730]: Images
+                  - generic [ref=f80e732]:
+                    - generic [ref=f80e738]:
+                      - list [ref=f80e739]:
+                        - list [ref=f80e740]:
+                          - listitem [ref=f80e741]:
+                            - listitem [ref=f80e743]:
+                              - generic [ref=f80e744]:
+                                - generic [ref=f80e745]:
+                                  - link [ref=f80e746] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/ryanliebling/
+                                    - figure [ref=f80e747]:
+                                      - img "View Ryan Liebling’s profile" [ref=f80e748]
+                                  - generic [ref=f80e750]:
+                                    - link "Ryan Liebling Verified Profile 2nd" [ref=f80e753] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/ryanliebling/
+                                      - generic "Ryan Liebling Verified Profile 2nd" [ref=f80e755]:
+                                        - paragraph [ref=f80e758]: Ryan Liebling
+                                        - paragraph [ref=f80e760]:
+                                          - generic [ref=f80e761]:
+                                            - img [ref=f80e763]
+                                            - text: • 2nd
+                                    - paragraph [ref=f80e766]: Verticals Lead, Restaurants, Alcohol & Publishing @ Reddit, Inc.
+                                    - paragraph [ref=f80e768]:
+                                      - generic [ref=f80e769]:
+                                        - text: 1w •
+                                        - 'img "Visibility: Global" [ref=f80e770]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/in/ryanliebling/
+                                  - button "Open control menu for post by Ryan Liebling" [ref=f80e772] [cursor=pointer]:
+                                    - img [ref=f80e774]
+                                - link "Our team is growing, adding a Sr. Client Account Manager in Chicago or New York City! If you, or someone you know, are interested, please apply for one of the best teams in the industry! https://lnkd.in/ga8DzHHA" [ref=f80e776] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7477765005996752896/
+                                  - paragraph [ref=f80e777]:
+                                    - generic [ref=f80e778]:
+                                      - text: Our team is growing, adding a Sr. Client Account Manager in Chicago or New York City!
+                                      - text: If you, or someone you know, are interested, please apply for one of the best teams in the industry!
+                                      - link "https://lnkd.in/ga8DzHHA" [ref=f80e779]:
+                                        - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Flnkd%2Ein%2Fga8DzHHA&urlhash=t5aH&mt=ZRXmCFPL_M__rB9Ifm82vf9YLKMDfhH7LUfQj6dMxP0PhUJgL1iqs2Zxdc6SdgApJGc0gnfyL58dg_ZoUqGSaKBgsuan7aOa4r0o3UCwUEYH_ZtVFB0Z0fI92w&isSdui=true
+                                        - strong [ref=f80e781]: https://lnkd.in/ga8DzHHA
+                                      - button:
+                                        - generic [ref=f80e783]: … more
+                                - link "Senior Client Account Manager, Large Customer Sales (Restaurants and Drinks) job-boards.greenhouse.io" [ref=f80e784] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Fjob-boards%2Egreenhouse%2Eio%2Freddit%2Fjobs%2F8022663&urlhash=H2fD&mt=UV_lCZebvOvZ7C3Jxuzznn5voAwnqILCT4Xl62VAd0d8j-XMBYy0DcAgIHEpXIj1NNehKA9URteIbc2Mw6TMI1IumES_UahOT0XyOTvGSiZI8XZrXAJ8wpCrgQ&isSdui=true
+                                  - generic [ref=f80e785]:
+                                    - figure [ref=f80e786]
+                                    - generic [ref=f80e787]:
+                                      - paragraph [ref=f80e789]:
+                                        - generic [ref=f80e790]:
+                                          - generic [ref=f80e791]: Senior Client Account Manager, Large Customer Sales (Restaurants and Drinks)
+                                          - text: Senior Client Account Manager, Large Customer Sales (Restaurants and Drinks)
+                                      - paragraph [ref=f80e793]: job-boards.greenhouse.io
+                              - generic [ref=f80e795]:
+                                - generic [ref=f80e796]:
+                                  - 'button "Reaction button state: no reaction" [ref=f80e799] [cursor=pointer]':
+                                    - generic [ref=f80e800]:
+                                      - img [ref=f80e801]
+                                      - generic [ref=f80e803]: "59"
+                                  - button "Open reactions menu":
+                                    - img [ref=f80e805] [cursor=pointer]
+                                - link "Comment" [ref=f80e807] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7477765005996752896/
+                                  - generic [ref=f80e808]:
+                                    - img [ref=f80e809]
+                                    - generic [ref=f80e811]: "2"
+                                - button "Repost" [ref=f80e812] [cursor=pointer]:
+                                  - generic [ref=f80e813]:
+                                    - img [ref=f80e814]
+                                    - generic [ref=f80e816]: "1"
+                                - link "Send" [ref=f80e817] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/ryanliebling/
+                                  - img [ref=f80e819]
+                                - link [ref=f80e821] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/ryanliebling/
+                                  - generic "59 reactions" [ref=f80e822]:
+                                    - img [ref=f80e823]
+                                    - img [ref=f80e829]
+                                    - img [ref=f80e835]
+                          - listitem [ref=f80e849]:
+                            - listitem [ref=f80e851]:
+                              - generic [ref=f80e852]:
+                                - generic [ref=f80e853]:
+                                  - link [ref=f80e854] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/ryanliebling/
+                                    - figure [ref=f80e855]:
+                                      - img "View Ryan Liebling’s profile" [ref=f80e856]
+                                  - generic [ref=f80e858]:
+                                    - link "Ryan Liebling Verified Profile 2nd" [ref=f80e861] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/ryanliebling/
+                                      - generic "Ryan Liebling Verified Profile 2nd" [ref=f80e863]:
+                                        - paragraph [ref=f80e866]: Ryan Liebling
+                                        - paragraph [ref=f80e868]:
+                                          - generic [ref=f80e869]:
+                                            - img [ref=f80e871]
+                                            - text: • 2nd
+                                    - paragraph [ref=f80e874]: Verticals Lead, Restaurants, Alcohol & Publishing @ Reddit, Inc.
+                                    - paragraph [ref=f80e876]:
+                                      - generic [ref=f80e877]:
+                                        - text: 1mo • Edited •
+                                        - 'img "Visibility: Global" [ref=f80e878]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/in/ryanliebling/
+                                  - button "Open control menu for post by Ryan Liebling" [ref=f80e880] [cursor=pointer]:
+                                    - img [ref=f80e882]
+                                - link "Score a Goooooal and pull the tap as many times as possible on this Coors Light Ad on Reddit! https://lnkd.in/eJc44x6J Amazing work across teams/companies to bring this to life!!! 🍻" [ref=f80e884] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7468016505079754753/
+                                  - paragraph [ref=f80e885]:
+                                    - generic [ref=f80e886]:
+                                      - text: Score a Goooooal and pull the tap as many times as possible on this Coors Light Ad on Reddit!
+                                      - link "https://lnkd.in/eJc44x6J" [ref=f80e888]:
+                                        - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Flnkd%2Ein%2FeJc44x6J&urlhash=4tSq&mt=8rfrJCHzAESgiLlcBfy1vTAOLcoH2rm6Tu-EaH_0bgpQyxfo-FMeZ5hxsvc1l8JDr1hJFjwsD_L8KT5Y9MumMHi6NqPxOTqkccA7xufGKQOmtcDFtL-54P6jUw&isSdui=true
+                                        - strong [ref=f80e890]: https://lnkd.in/eJc44x6J
+                                      - text: Amazing work across teams/companies to bring this to life!!! 🍻
+                                      - button:
+                                        - generic [ref=f80e892]: … more
+                                - generic [ref=f80e893]:
+                                  - generic [ref=f80e894]:
+                                    - link [ref=f80e895] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/company/reddit-for-business/posts/
+                                      - figure [ref=f80e896]:
+                                        - 'img "View company: Reddit for Business" [ref=f80e897]'
+                                    - generic [ref=f80e899]:
+                                      - link "Reddit for Business" [ref=f80e902] [cursor=pointer]:
+                                        - /url: https://www.linkedin.com/company/reddit-for-business/posts/
+                                        - paragraph [ref=f80e907]: Reddit for Business
+                                      - paragraph [ref=f80e909]:
+                                        - generic [ref=f80e910]:
+                                          - text: 1mo •
+                                          - 'img "Visibility: Global" [ref=f80e911]'
+                                      - link:
+                                        - /url: https://www.linkedin.com/company/reddit-for-business/posts/
+                                  - link "During the summer soccer season, Redditors are invited to build the world’s longest Coors chant through a first-of-its-kind interactive ad. The experience allows users to virtually pull a beer tap, adding an \"o\" to a scrolling \"COOOORS\" chant that stretches across the frozen peaks of the Rocky Mountains. With every pull of the tap, fans trigger the legendary voice of iconic sportscaster Andrés Cantor, whose iconic, lung-busting \"Gooooal!\" is reimagined for the perfect pour. https://lnkd.in/eJc44x6J" [ref=f80e913] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/feed/update/urn:li:ugcPost:7467957684768550912/
+                                    - paragraph [ref=f80e914]:
+                                      - generic [ref=f80e915]:
+                                        - text: During the summer soccer season, Redditors are invited to build the world’s longest Coors chant through a first-of-its-kind interactive ad. The experience allows users to virtually pull a beer tap, adding an "o" to a scrolling "COOOORS" chant that stretches across the frozen peaks of the Rocky Mountains. With every pull of the tap, fans trigger the legendary voice of iconic sportscaster Andrés Cantor, whose iconic, lung-busting "Gooooal!" is reimagined for the perfect pour.
+                                        - link "https://lnkd.in/eJc44x6J" [ref=f80e916]:
+                                          - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Flnkd%2Ein%2FeJc44x6J&urlhash=4tSq&mt=V2k7CtUqJBNcjnH9WArflDHgiDw0utzV7cuRDjeMV53TMSwUykPyazfOibkcPxQQZkVV074ni1OoJf711lPOue4HTVeqYy2Jx6dIt3EyMKjmPrPge07uhXM9&isSdui=true
+                                          - strong [ref=f80e918]: https://lnkd.in/eJc44x6J
+                                        - button:
+                                          - generic [ref=f80e920]: … more
+                                  - generic [ref=f80e921]:
+                                    - region "Video Player" [ref=f80e923]:             
+                                    - link "Play video" [ref=f80e928] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/feed/update/urn:li:ugcPost:7467957684768550912/
+                                      - img [ref=f80e930]
+                              - generic [ref=f80e933]:
+                                - generic [ref=f80e934]:
+                                  - 'button "Reaction button state: no reaction" [ref=f80e937] [cursor=pointer]':
+                                    - generic [ref=f80e938]:
+                                      - img [ref=f80e939]
+                                      - generic [ref=f80e941]: "38"
+                                  - button "Open reactions menu":
+                                    - img [ref=f80e943] [cursor=pointer]
+                                - link "Comment" [ref=f80e945] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7468016505079754753/
+                                  - generic [ref=f80e946]:
+                                    - img [ref=f80e947]
+                                    - generic [ref=f80e949]: "2"
+                                - button "Repost" [ref=f80e950] [cursor=pointer]:
+                                  - img [ref=f80e952]
+                                - link "Send" [ref=f80e954] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/ryanliebling/
+                                  - img [ref=f80e956]
+                                - link [ref=f80e958] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/ryanliebling/
+                                  - generic "38 reactions" [ref=f80e959]:
+                                    - img [ref=f80e960]
+                                    - img [ref=f80e966]
+                                    - img [ref=f80e980]
+                          - listitem [ref=f80e986]:
+                            - listitem [ref=f80e988]:
+                              - generic [ref=f80e989]:
+                                - generic [ref=f80e990]:
+                                  - link [ref=f80e991] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/ryanliebling/
+                                    - figure [ref=f80e992]:
+                                      - img "View Ryan Liebling’s profile" [ref=f80e993]
+                                  - generic [ref=f80e995]:
+                                    - link "Ryan Liebling Verified Profile 2nd" [ref=f80e998] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/ryanliebling/
+                                      - generic "Ryan Liebling Verified Profile 2nd" [ref=f80e1000]:
+                                        - paragraph [ref=f80e1003]: Ryan Liebling
+                                        - paragraph [ref=f80e1005]:
+                                          - generic [ref=f80e1006]:
+                                            - img [ref=f80e1008]
+                                            - text: • 2nd
+                                    - paragraph [ref=f80e1011]: Verticals Lead, Restaurants, Alcohol & Publishing @ Reddit, Inc.
+                                    - paragraph [ref=f80e1013]:
+                                      - generic [ref=f80e1014]:
+                                        - text: 3mo •
+                                        - 'img "Visibility: Global" [ref=f80e1015]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/in/ryanliebling/
+                                  - button "Open control menu for post by Ryan Liebling" [ref=f80e1017] [cursor=pointer]:
+                                    - img [ref=f80e1019]
+                                - link "Reddit, Inc.'s inclusion in Fast Company's 2026 Most Innovative Companies is a great designation of the great work done and what's ahead of us! LFG! \"Reddit has become the internet’s indispensable wellspring of advice, opinion, and camaraderie on every topic imaginable...\"" [ref=f80e1021] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7440816153419145216/
+                                  - paragraph [ref=f80e1022]:
+                                    - generic [ref=f80e1023]:
+                                      - link "Reddit, Inc." [ref=f80e1024]:
+                                        - /url: https://www.linkedin.com/company/reddit-com/
+                                        - strong [ref=f80e1026]: Reddit, Inc.
+                                      - text: "'s inclusion in"
+                                      - link "Fast Company" [ref=f80e1027]:
+                                        - /url: https://www.linkedin.com/company/fast-company/
+                                        - strong [ref=f80e1029]: Fast Company
+                                      - text: "'s 2026 Most Innovative Companies is a great designation of the great work done and what's ahead of us! LFG!"
+                                      - text: "\"Reddit has become the internet’s indispensable wellspring of advice, opinion, and camaraderie on every topic imaginable...\""
+                                      - button:
+                                        - generic [ref=f80e1031]: … more
+                                - generic [ref=f80e1032]:
+                                  - generic [ref=f80e1033]:
+                                    - link [ref=f80e1034] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/company/fast-company/posts/
+                                      - figure [ref=f80e1035]:
+                                        - 'img "View company: Fast Company" [ref=f80e1036]'
+                                    - generic [ref=f80e1038]:
+                                      - link "Fast Company" [ref=f80e1041] [cursor=pointer]:
+                                        - /url: https://www.linkedin.com/company/fast-company/posts/
+                                        - paragraph [ref=f80e1046]: Fast Company
+                                      - paragraph [ref=f80e1048]:
+                                        - generic [ref=f80e1049]:
+                                          - text: 3mo • Edited •
+                                          - 'img "Visibility: Global" [ref=f80e1050]'
+                                      - link:
+                                        - /url: https://www.linkedin.com/company/fast-company/posts/
+                                  - link [ref=f80e1052] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/feed/update/urn:li:share:7440751531005517825/
+                                    - paragraph [ref=f80e1053]:
+                                      - generic [ref=f80e1054]:
+                                        - text: Serendipitous weirdness has been core to Reddit’s character since
+                                        - link "Steve Huffman" [ref=f80e1055]:
+                                          - /url: https://www.linkedin.com/in/shuffman56/
+                                          - strong [ref=f80e1057]: Steve Huffman
+                                        - text: and Alexis Ohanian cofounded the site in 2005. But along the way, their brainchild also grew up into something far greater.
+                                        - link "Reddit, Inc." [ref=f80e1058]:
+                                          - /url: https://www.linkedin.com/company/reddit-com/
+                                          - strong [ref=f80e1060]: Reddit, Inc.
+                                        - text: "has become the internet’s indispensable wellspring of advice, opinion, and camaraderie on every topic imaginable: which new EVs are most exciting, how to find a job overseas, where to recycle scrap metal, what to do if your boyfriend is jealous of your pet fish."
+                                        - text: Helping people help other people has made Reddit the 5th most-visited site in the U.S. and the 8th worldwide as of January, according to market intelligence firm Similarweb. Lately, it's also made for a burgeoning financial success story.
+                                        - text: "Reddit is already so well established, popular, and adept at convincing marketers of its audience’s worth that you might wonder how much it has left to prove. As Huffman sees it: quite a lot."
+                                        - text: "Learn how Reddit clinched its spot on the 2026 Most Innovative Companies list:"
+                                        - link "https://bit.ly/4sgqYEs" [ref=f80e1061]:
+                                          - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Fbit%2Ely%2F4sgqYEs&urlhash=Ogi7&mt=UyynkYCeysMWmeb_JJMW65DqO-C0H5MFWbHBKDBf0zg676dyZSSHtRnS7PRDoaBiPfQXWERrrEOBHpS2GAa8R1Gdiiojm7D_DIhuQoCEgWYCPfj8XKucsQ&isSdui=true
+                                          - strong [ref=f80e1063]: https://bit.ly/4sgqYEs
+                                        - button:
+                                          - generic [ref=f80e1065]: … more
+                                  - link [ref=f80e1067] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/feed/update/urn:li:share:7440751531005517825/
+                                    - figure [ref=f80e1068]:
+                                      - img "View image" [ref=f80e1069]
+                              - generic [ref=f80e1071]:
+                                - generic [ref=f80e1072]:
+                                  - 'button "Reaction button state: no reaction" [ref=f80e1075] [cursor=pointer]':
+                                    - generic [ref=f80e1076]:
+                                      - img [ref=f80e1077]
+                                      - generic [ref=f80e1079]: "30"
+                                  - button "Open reactions menu":
+                                    - img [ref=f80e1081] [cursor=pointer]
+                                - link "Comment" [ref=f80e1083] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7440816153419145216/
+                                  - img [ref=f80e1085]
+                                - button "Repost" [ref=f80e1087] [cursor=pointer]:
+                                  - img [ref=f80e1089]
+                                - link "Send" [ref=f80e1091] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/ryanliebling/
+                                  - img [ref=f80e1093]
+                                - link [ref=f80e1095] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/ryanliebling/
+                                  - generic "30 reactions" [ref=f80e1096]:
+                                    - img [ref=f80e1097]
+                                    - img [ref=f80e1103]
+                                    - img [ref=f80e1109]
+                          - listitem [ref=f80e1123]:
+                            - listitem [ref=f80e1125]:
+                              - generic [ref=f80e1126]:
+                                - generic [ref=f80e1127]:
+                                  - link [ref=f80e1128] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/ryanliebling/
+                                    - figure [ref=f80e1129]:
+                                      - img "View Ryan Liebling’s profile" [ref=f80e1130]
+                                  - generic [ref=f80e1132]:
+                                    - link "Ryan Liebling Verified Profile 2nd" [ref=f80e1135] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/ryanliebling/
+                                      - generic "Ryan Liebling Verified Profile 2nd" [ref=f80e1137]:
+                                        - paragraph [ref=f80e1140]: Ryan Liebling
+                                        - paragraph [ref=f80e1142]:
+                                          - generic [ref=f80e1143]:
+                                            - img [ref=f80e1145]
+                                            - text: • 2nd
+                                    - paragraph [ref=f80e1148]: Verticals Lead, Restaurants, Alcohol & Publishing @ Reddit, Inc.
+                                    - paragraph [ref=f80e1150]:
+                                      - generic [ref=f80e1151]:
+                                        - text: 3mo •
+                                        - 'img "Visibility: Global" [ref=f80e1152]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/in/ryanliebling/
+                                  - button "Open control menu for post by Ryan Liebling" [ref=f80e1154] [cursor=pointer]:
+                                    - img [ref=f80e1156]
+                                - link "I'll be heading to Miami for POSSIBLE this year and would love to meet up! Please let me know if you'll be there and want to connect over a Mojito 🌴🍹!" [ref=f80e1158] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7436878134014242816/
+                                  - paragraph [ref=f80e1159]:
+                                    - generic [ref=f80e1160]:
+                                      - text: I'll be heading to Miami for
+                                      - link "POSSIBLE" [ref=f80e1161]:
+                                        - /url: https://www.linkedin.com/company/possible-event/
+                                        - strong [ref=f80e1163]: POSSIBLE
+                                      - text: this year and would love to meet up! Please let me know if you'll be there and want to connect over a Mojito 🌴🍹!
+                                - generic [ref=f80e1164]:
+                                  - generic [ref=f80e1165]:
+                                    - link [ref=f80e1166] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/company/reddit-for-business/posts/
+                                      - figure [ref=f80e1167]:
+                                        - 'img "View company: Reddit for Business" [ref=f80e1168]'
+                                    - generic [ref=f80e1170]:
+                                      - link "Reddit for Business" [ref=f80e1173] [cursor=pointer]:
+                                        - /url: https://www.linkedin.com/company/reddit-for-business/posts/
+                                        - paragraph [ref=f80e1178]: Reddit for Business
+                                      - paragraph [ref=f80e1180]:
+                                        - generic [ref=f80e1181]:
+                                          - text: 3mo •
+                                          - 'img "Visibility: Global" [ref=f80e1182]'
+                                      - link:
+                                        - /url: https://www.linkedin.com/company/reddit-for-business/posts/
+                                  - 'link "Reddit is heading back to Miami for POSSIBLE. 🌴 All week at Reddit HQ (Expo Booth #500), we’re hosting conversations with marketers and brands about how Reddit communities influence product discovery, brand perception, and real-world decisions. 📍 Fontainebleau Hotel 📅 April 27–28 In town for POSSIBLE? Stop by and see what’s shaping the next wave of marketing conversations on Reddit. #RedditatPOSSIBLE" [ref=f80e1184] [cursor=pointer]':
+                                    - /url: https://www.linkedin.com/feed/update/urn:li:share:7436871758483357696/
+                                    - paragraph [ref=f80e1185]:
+                                      - generic [ref=f80e1186]:
+                                        - text: Reddit is heading back to Miami for
+                                        - link "POSSIBLE" [ref=f80e1187]:
+                                          - /url: https://www.linkedin.com/company/possible-event/
+                                          - strong [ref=f80e1189]: POSSIBLE
+                                        - text: ". 🌴 All week at Reddit HQ (Expo Booth #500), we’re hosting conversations with marketers and brands about how Reddit communities influence product discovery, brand perception, and real-world decisions."
+                                        - text: 📍 Fontainebleau Hotel
+                                        - text: 📅 April 27–28
+                                        - text: In town for POSSIBLE? Stop by and see what’s shaping the next wave of marketing conversations on Reddit.
+                                        - link "#RedditatPOSSIBLE" [ref=f80e1190]:
+                                          - /url: https://www.linkedin.com/search/results/all/?keywords=%23redditatpossible&origin=HASH_TAG_FROM_FEED
+                                          - strong [ref=f80e1192]: "#RedditatPOSSIBLE"
+                                        - button:
+                                          - generic [ref=f80e1194]: … more
+                                  - link [ref=f80e1196] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/feed/update/urn:li:share:7436871758483357696/
+                                    - figure [ref=f80e1197]:
+                                      - img "View image" [ref=f80e1198]
+                              - generic [ref=f80e1200]:
+                                - generic [ref=f80e1201]:
+                                  - 'button "Reaction button state: no reaction" [ref=f80e1204] [cursor=pointer]':
+                                    - generic [ref=f80e1205]:
+                                      - img [ref=f80e1206]
+                                      - generic [ref=f80e1208]: "36"
+                                  - button "Open reactions menu":
+                                    - img [ref=f80e1210] [cursor=pointer]
+                                - link "Comment" [ref=f80e1212] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7436878134014242816/
+                                  - generic [ref=f80e1213]:
+                                    - img [ref=f80e1214]
+                                    - generic [ref=f80e1216]: "4"
+                                - button "Repost" [ref=f80e1217] [cursor=pointer]:
+                                  - generic [ref=f80e1218]:
+                                    - img [ref=f80e1219]
+                                    - generic [ref=f80e1221]: "1"
+                                - link "Send" [ref=f80e1222] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/ryanliebling/
+                                  - img [ref=f80e1224]
+                                - link [ref=f80e1226] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/ryanliebling/
+                                  - generic "36 reactions" [ref=f80e1227]:
+                                    - img [ref=f80e1228]
+                                    - img [ref=f80e1234]
+                                    - img [ref=f80e1248]
+                          - listitem [ref=f80e1254]:
+                            - listitem [ref=f80e1256]:
+                              - generic [ref=f80e1257]:
+                                - generic [ref=f80e1258]:
+                                  - link [ref=f80e1259] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/ryanliebling/
+                                    - figure [ref=f80e1260]:
+                                      - img "View Ryan Liebling’s profile" [ref=f80e1261]
+                                  - generic [ref=f80e1263]:
+                                    - link "Ryan Liebling Verified Profile 2nd" [ref=f80e1266] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/ryanliebling/
+                                      - generic "Ryan Liebling Verified Profile 2nd" [ref=f80e1268]:
+                                        - paragraph [ref=f80e1271]: Ryan Liebling
+                                        - paragraph [ref=f80e1273]:
+                                          - generic [ref=f80e1274]:
+                                            - img [ref=f80e1276]
+                                            - text: • 2nd
+                                    - paragraph [ref=f80e1279]: Verticals Lead, Restaurants, Alcohol & Publishing @ Reddit, Inc.
+                                    - paragraph [ref=f80e1281]:
+                                      - generic [ref=f80e1282]:
+                                        - text: 5mo •
+                                        - 'img "Visibility: Global" [ref=f80e1283]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/in/ryanliebling/
+                                  - button "Open control menu for post by Ryan Liebling" [ref=f80e1285] [cursor=pointer]:
+                                    - img [ref=f80e1287]
+                                - link "Great way to close out 2025 and open up 2026! 💥" [ref=f80e1289] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7425328118145544192/
+                                  - paragraph [ref=f80e1290]:
+                                    - generic [ref=f80e1291]: Great way to close out 2025 and open up 2026! 💥
+                                - generic [ref=f80e1292]:
+                                  - generic [ref=f80e1293]:
+                                    - link [ref=f80e1294] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/adamdcollins/
+                                      - figure [ref=f80e1295]:
+                                        - img "View Adam Collins’ profile" [ref=f80e1296]
+                                    - generic [ref=f80e1298]:
+                                      - link "Adam Collins Verified Profile 3rd+" [ref=f80e1301] [cursor=pointer]:
+                                        - /url: https://www.linkedin.com/in/adamdcollins/
+                                        - generic "Adam Collins Verified Profile 3rd+" [ref=f80e1303]:
+                                          - paragraph [ref=f80e1306]: Adam Collins
+                                          - paragraph [ref=f80e1308]:
+                                            - generic [ref=f80e1309]:
+                                              - img [ref=f80e1311]
+                                              - text: • 3rd+
+                                      - paragraph [ref=f80e1314]: Chief Communications Officer at Reddit
+                                      - paragraph [ref=f80e1316]:
+                                        - generic [ref=f80e1317]:
+                                          - text: 5mo •
+                                          - 'img "Visibility: Global" [ref=f80e1318]'
+                                      - link:
+                                        - /url: https://www.linkedin.com/in/adamdcollins/
+                                  - link "Q4 was a strong finish to another solid year for Reddit, Inc. Our annual revenue grew 69% year-over-year, surpassing $2B for the first time, and our net income topped $500M for the first time too. In Q4 alone, daily active users on Reddit rose 19% year-over-year to 121M. And weekly active users rose 24% to 471M. Today, more than half of the people in the U.S. use Reddit every week As AI becomes increasingly ubiquitous, people are craving authentic human connection - and Reddit is the most human place on the internet. Looking forward to a bright future in 2026 and continuing to deliver with the great team here at Reddit! https://lnkd.in/gYMrXNTq" [ref=f80e1320] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/feed/update/urn:li:share:7425306354887880704/
+                                    - paragraph [ref=f80e1321]:
+                                      - generic [ref=f80e1322]:
+                                        - text: Q4 was a strong finish to another solid year for
+                                        - link "Reddit, Inc." [ref=f80e1323]:
+                                          - /url: https://www.linkedin.com/company/reddit-com/
+                                          - strong [ref=f80e1325]: Reddit, Inc.
+                                        - text: Our annual revenue grew 69% year-over-year, surpassing $2B for the first time, and our net income topped $500M for the first time too.
+                                        - text: In Q4 alone, daily active users on Reddit rose 19% year-over-year to 121M. And weekly active users rose 24% to 471M.
+                                        - text: Today, more than half of the people in the U.S. use Reddit every week
+                                        - text: As AI becomes increasingly ubiquitous, people are craving authentic human connection - and Reddit is the most human place on the internet.
+                                        - text: Looking forward to a bright future in 2026 and continuing to deliver with the great team here at Reddit!
+                                        - link "https://lnkd.in/gYMrXNTq" [ref=f80e1326]:
+                                          - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Flnkd%2Ein%2FgYMrXNTq&urlhash=MHHn&mt=Zr0zUOmTr6v7EjGUeXXeNpStZIFyoFGxuqoz9V51EBLlOXZIiwv8uGZ1tu7VCbtjB7_dtDCGnUVDobml1cAVUAVCKw_m6z22o14tq9h7LcwZQPiaa3yx1g&isSdui=true
+                                          - strong [ref=f80e1328]: https://lnkd.in/gYMrXNTq
+                                        - button:
+                                          - generic [ref=f80e1330]: … more
+                                  - link "Reddit reported fourth-quarter earnings and revealed strong guidance and $1 billion buyback cnbc.com" [ref=f80e1331] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Fwww%2Ecnbc%2Ecom%2F2026%2F02%2F05%2Freddit-rddt-q4-2025%2Ehtml%3F%26qsearchterm%3DReddit&urlhash=aNCy&mt=SEJNx2KVoenNF5EJZvtsccBmVSmUVYUNJe2uw4mkC_EurMoYDeSUx2xyzPYAOO6gFwZtLh5nNE1IG8ZZs-Y4lTQPuVDzhWhpIZ_uFaw3mViMTlpdFSgQ7g&isSdui=true
+                                    - generic [ref=f80e1332]:
+                                      - figure [ref=f80e1333]
+                                      - generic [ref=f80e1334]:
+                                        - paragraph [ref=f80e1336]:
+                                          - generic [ref=f80e1337]:
+                                            - generic [ref=f80e1338]: Reddit reported fourth-quarter earnings and revealed strong guidance and $1 billion buyback
+                                            - text: Reddit reported fourth-quarter earnings and revealed strong guidance and $1 billion buyback
+                                        - paragraph [ref=f80e1340]: cnbc.com
+                              - generic [ref=f80e1342]:
+                                - generic [ref=f80e1343]:
+                                  - 'button "Reaction button state: no reaction" [ref=f80e1346] [cursor=pointer]':
+                                    - generic [ref=f80e1347]:
+                                      - img [ref=f80e1348]
+                                      - generic [ref=f80e1350]: "27"
+                                  - button "Open reactions menu":
+                                    - img [ref=f80e1352] [cursor=pointer]
+                                - link "Comment" [ref=f80e1354] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7425328118145544192/
+                                  - img [ref=f80e1356]
+                                - button "Repost" [ref=f80e1358] [cursor=pointer]:
+                                  - img [ref=f80e1360]
+                                - link "Send" [ref=f80e1362] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/ryanliebling/
+                                  - img [ref=f80e1364]
+                                - link [ref=f80e1366] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/ryanliebling/
+                                  - generic "27 reactions" [ref=f80e1367]:
+                                    - img [ref=f80e1368]
+                                    - img [ref=f80e1374]
+                                    - img [ref=f80e1388]
+                          - listitem [ref=f80e1394]:
+                            - listitem [ref=f80e1396]:
+                              - generic [ref=f80e1397]:
+                                - generic [ref=f80e1398]:
+                                  - link [ref=f80e1399] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/ryanliebling/
+                                    - figure [ref=f80e1400]:
+                                      - img "View Ryan Liebling’s profile" [ref=f80e1401]
+                                  - generic [ref=f80e1403]:
+                                    - link "Ryan Liebling Verified Profile 2nd" [ref=f80e1406] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/ryanliebling/
+                                      - generic "Ryan Liebling Verified Profile 2nd" [ref=f80e1408]:
+                                        - paragraph [ref=f80e1411]: Ryan Liebling
+                                        - paragraph [ref=f80e1413]:
+                                          - generic [ref=f80e1414]:
+                                            - img [ref=f80e1416]
+                                            - text: • 2nd
+                                    - paragraph [ref=f80e1419]: Verticals Lead, Restaurants, Alcohol & Publishing @ Reddit, Inc.
+                                    - paragraph [ref=f80e1421]:
+                                      - generic [ref=f80e1422]:
+                                        - text: 7mo • Edited •
+                                        - 'img "Visibility: Global" [ref=f80e1423]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/in/ryanliebling/
+                                  - button "Open control menu for post by Ryan Liebling" [ref=f80e1425] [cursor=pointer]:
+                                    - img [ref=f80e1427]
+                                - 'link "The Reddit Chicago Sports Summit we held was outstanding! We heard from top sports marketers, discussed communities in-depth, learned about the ways Reddit can unlock value for advertisers...and smashed golf balls! https://lnkd.in/grZHzuQy Ping me if you''re interested in connecting re: Reddit, Sports, etc., or if you''re interested in joining our next session!" [ref=f80e1429] [cursor=pointer]':
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7402030244897153024/
+                                  - paragraph [ref=f80e1430]:
+                                    - generic [ref=f80e1431]:
+                                      - text: The Reddit Chicago Sports Summit we held was outstanding! We heard from top sports marketers, discussed communities in-depth, learned about the ways Reddit can unlock value for advertisers...and smashed golf balls!
+                                      - link "https://lnkd.in/grZHzuQy" [ref=f80e1432]:
+                                        - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Flnkd%2Ein%2FgrZHzuQy&urlhash=B6G0&mt=Eq-mwjkwCA7jXgMqhZwJb79BM5luUF-HYH04Ap6Jq2nwpW6yThjOJ1RmCvKvDdh-PjRPweoi4RV_0MPsVWUR_3wPdRYVxaNFTWLy8eReg3SSV44F1CfHSZNwKQ&isSdui=true
+                                        - strong [ref=f80e1434]: https://lnkd.in/grZHzuQy
+                                      - text: "Ping me if you're interested in connecting re: Reddit, Sports, etc., or if you're interested in joining our next session!"
+                                      - button:
+                                        - generic [ref=f80e1436]: … more
+                                - link [ref=f80e1438] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7402030244897153024/
+                                  - figure [ref=f80e1439]:
+                                    - img "View image" [ref=f80e1440]
+                              - generic [ref=f80e1442]:
+                                - generic [ref=f80e1443]:
+                                  - 'button "Reaction button state: no reaction" [ref=f80e1446] [cursor=pointer]':
+                                    - generic [ref=f80e1447]:
+                                      - img [ref=f80e1448]
+                                      - generic [ref=f80e1450]: "189"
+                                  - button "Open reactions menu":
+                                    - img [ref=f80e1452] [cursor=pointer]
+                                - link "Comment" [ref=f80e1454] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7402030244897153024/
+                                  - generic [ref=f80e1455]:
+                                    - img [ref=f80e1456]
+                                    - generic [ref=f80e1458]: "10"
+                                - button "Repost" [ref=f80e1459] [cursor=pointer]:
+                                  - generic [ref=f80e1460]:
+                                    - img [ref=f80e1461]
+                                    - generic [ref=f80e1463]: "1"
+                                - link "Send" [ref=f80e1464] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/ryanliebling/
+                                  - img [ref=f80e1466]
+                                - link [ref=f80e1468] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/ryanliebling/
+                                  - generic "189 reactions" [ref=f80e1469]:
+                                    - img [ref=f80e1470]
+                                    - img [ref=f80e1476]
+                                    - img [ref=f80e1490]
+                          - listitem [ref=f80e1496]:
+                            - listitem [ref=f80e1498]:
+                              - generic [ref=f80e1499]:
+                                - generic [ref=f80e1500]:
+                                  - link [ref=f80e1501] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/ryanliebling/
+                                    - figure [ref=f80e1502]:
+                                      - img "View Ryan Liebling’s profile" [ref=f80e1503]
+                                  - generic [ref=f80e1505]:
+                                    - link "Ryan Liebling Verified Profile 2nd" [ref=f80e1508] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/ryanliebling/
+                                      - generic "Ryan Liebling Verified Profile 2nd" [ref=f80e1510]:
+                                        - paragraph [ref=f80e1513]: Ryan Liebling
+                                        - paragraph [ref=f80e1515]:
+                                          - generic [ref=f80e1516]:
+                                            - img [ref=f80e1518]
+                                            - text: • 2nd
+                                    - paragraph [ref=f80e1521]: Verticals Lead, Restaurants, Alcohol & Publishing @ Reddit, Inc.
+                                    - paragraph [ref=f80e1523]:
+                                      - generic [ref=f80e1524]:
+                                        - text: 11mo •
+                                        - 'img "Visibility: Global" [ref=f80e1525]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/in/ryanliebling/
+                                  - button "Open control menu for post by Ryan Liebling" [ref=f80e1527] [cursor=pointer]:
+                                    - img [ref=f80e1529]
+                                - link "🚨Our east coast team is hiring! 💥" [ref=f80e1531] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7358825236152115200/
+                                  - paragraph [ref=f80e1532]:
+                                    - generic [ref=f80e1533]: 🚨Our east coast team is hiring! 💥
+                                - generic [ref=f80e1534]:
+                                  - generic [ref=f80e1535]:
+                                    - link [ref=f80e1536] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/elizabetholeary/
+                                      - figure [ref=f80e1537]:
+                                        - img "View Elizabeth O.’s profile" [ref=f80e1538]
+                                    - generic [ref=f80e1540]:
+                                      - link "Elizabeth O. Premium Profile 2nd" [ref=f80e1543] [cursor=pointer]:
+                                        - /url: https://www.linkedin.com/in/elizabetholeary/
+                                        - generic "Elizabeth O. Premium Profile 2nd" [ref=f80e1545]:
+                                          - paragraph [ref=f80e1548]: Elizabeth O.
+                                          - paragraph [ref=f80e1550]:
+                                            - generic [ref=f80e1551]:
+                                              - img [ref=f80e1553]
+                                              - text: • 2nd
+                                      - paragraph [ref=f80e1556]: Industry Manager, Large Customer Sales at Reddit, Inc.
+                                      - paragraph [ref=f80e1558]:
+                                        - generic [ref=f80e1559]:
+                                          - text: 11mo •
+                                          - 'img "Visibility: Global" [ref=f80e1560]'
+                                      - link:
+                                        - /url: https://www.linkedin.com/in/elizabetholeary/
+                                  - link "🚀 My team at Reddit is growing!! 🚀 Know a Senior CP who would be a great fit? Please let me know!! https://lnkd.in/eJhb7iFe" [ref=f80e1562] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/feed/update/urn:li:share:7358653306623119362/
+                                    - paragraph [ref=f80e1563]:
+                                      - generic [ref=f80e1564]:
+                                        - text: 🚀 My team at Reddit is growing!! 🚀
+                                        - text: Know a Senior CP who would be a great fit? Please let me know!!
+                                        - link "https://lnkd.in/eJhb7iFe" [ref=f80e1565]:
+                                          - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Flnkd%2Ein%2FeJhb7iFe&urlhash=dRfD&mt=vFLp88F4k_cMOLu6vbXcz6RSGN-eEXXFEhToG_UQhECqL0-epHZZaxJ9rZMfrjWzVBHs2fQY8-WF7474f7-G_WckNkhnryyoifMMf0MPcPuaya__XkeFMg&isSdui=true
+                                          - strong [ref=f80e1567]: https://lnkd.in/eJhb7iFe
+                                        - button:
+                                          - generic [ref=f80e1569]: … more
+                                  - link "Senior Client Partner, Large Customer Sales (Restaurants & AlcBev) job-boards.greenhouse.io" [ref=f80e1570] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Fjob-boards%2Egreenhouse%2Eio%2Freddit%2Fjobs%2F7033516&urlhash=xUM3&mt=FG8k8AmBtOSwCnhfsReLxuffJfxZAWA-mpq8W7Uy0yIakCZngSouVFvVIWnISW7g4WaRNvg-r05Lc6aLNbA5iB3bpVwUAETxlX8ozYm9xsn3ReOtABsc8w&isSdui=true
+                                    - generic [ref=f80e1571]:
+                                      - figure [ref=f80e1572]
+                                      - generic [ref=f80e1573]:
+                                        - paragraph [ref=f80e1575]:
+                                          - generic [ref=f80e1576]:
+                                            - generic [ref=f80e1577]: Senior Client Partner, Large Customer Sales (Restaurants & AlcBev)
+                                            - text: Senior Client Partner, Large Customer Sales (Restaurants & AlcBev)
+                                        - paragraph [ref=f80e1579]: job-boards.greenhouse.io
+                              - generic [ref=f80e1581]:
+                                - generic [ref=f80e1582]:
+                                  - 'button "Reaction button state: no reaction" [ref=f80e1585] [cursor=pointer]':
+                                    - generic [ref=f80e1586]:
+                                      - img [ref=f80e1587]
+                                      - generic [ref=f80e1589]: "18"
+                                  - button "Open reactions menu":
+                                    - img [ref=f80e1591] [cursor=pointer]
+                                - link "Comment" [ref=f80e1593] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7358825236152115200/
+                                  - img [ref=f80e1595]
+                                - button "Repost" [ref=f80e1597] [cursor=pointer]:
+                                  - img [ref=f80e1599]
+                                - link "Send" [ref=f80e1601] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/ryanliebling/
+                                  - img [ref=f80e1603]
+                                - link [ref=f80e1605] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/ryanliebling/
+                                  - generic "18 reactions" [ref=f80e1606]:
+                                    - img [ref=f80e1607]
+                                    - img [ref=f80e1613]
+                                    - img [ref=f80e1627]
+                          - listitem [ref=f80e1633]:
+                            - listitem [ref=f80e1635]:
+                              - generic [ref=f80e1636]:
+                                - generic [ref=f80e1637]:
+                                  - link [ref=f80e1638] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/ryanliebling/
+                                    - figure [ref=f80e1639]:
+                                      - img "View Ryan Liebling’s profile" [ref=f80e1640]
+                                  - generic [ref=f80e1642]:
+                                    - link "Ryan Liebling Verified Profile 2nd" [ref=f80e1645] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/ryanliebling/
+                                      - generic "Ryan Liebling Verified Profile 2nd" [ref=f80e1647]:
+                                        - paragraph [ref=f80e1650]: Ryan Liebling
+                                        - paragraph [ref=f80e1652]:
+                                          - generic [ref=f80e1653]:
+                                            - img [ref=f80e1655]
+                                            - text: • 2nd
+                                    - paragraph [ref=f80e1658]: Verticals Lead, Restaurants, Alcohol & Publishing @ Reddit, Inc.
+                                    - paragraph [ref=f80e1660]:
+                                      - generic [ref=f80e1661]:
+                                        - text: 11mo •
+                                        - 'img "Visibility: Global" [ref=f80e1662]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/in/ryanliebling/
+                                  - button "Open control menu for post by Ryan Liebling" [ref=f80e1664] [cursor=pointer]:
+                                    - img [ref=f80e1666]
+                                - link "Reddit, Inc. is becoming a key input for how LLMs like ChatGPT, Gemini, and Perplexity learn and generate answers. Check out the thought leadership from Alan Herrera!" [ref=f80e1668] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7356756612000215040/
+                                  - paragraph [ref=f80e1669]:
+                                    - generic [ref=f80e1670]:
+                                      - link "Reddit, Inc." [ref=f80e1671]:
+                                        - /url: https://www.linkedin.com/company/reddit-com/
+                                        - strong [ref=f80e1673]: Reddit, Inc.
+                                      - text: is becoming a key input for how LLMs like ChatGPT, Gemini, and Perplexity learn and generate answers.
+                                      - text: Check out the thought leadership from
+                                      - link "Alan Herrera" [ref=f80e1675]:
+                                        - /url: https://www.linkedin.com/in/herreraalan/
+                                        - strong [ref=f80e1677]: Alan Herrera
+                                      - text: "!"
+                                      - button:
+                                        - generic [ref=f80e1679]: … more
+                                - generic [ref=f80e1680]:
+                                  - generic [ref=f80e1681]:
+                                    - link [ref=f80e1682] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/herreraalan/
+                                      - figure [ref=f80e1683]:
+                                        - img "View Alan Herrera’s profile" [ref=f80e1684]
+                                    - generic [ref=f80e1686]:
+                                      - link "Alan Herrera Premium Profile 3rd+" [ref=f80e1689] [cursor=pointer]:
+                                        - /url: https://www.linkedin.com/in/herreraalan/
+                                        - generic "Alan Herrera Premium Profile 3rd+" [ref=f80e1691]:
+                                          - paragraph [ref=f80e1694]: Alan Herrera
+                                          - paragraph [ref=f80e1696]:
+                                            - generic [ref=f80e1697]:
+                                              - img [ref=f80e1699]
+                                              - text: • 3rd+
+                                      - paragraph [ref=f80e1702]: Senior Client Account Manager @ Reddit | LinkedIn Alum
+                                      - paragraph [ref=f80e1704]:
+                                        - generic [ref=f80e1705]:
+                                          - text: 11mo • Edited •
+                                          - 'img "Visibility: Global" [ref=f80e1706]'
+                                      - link:
+                                        - /url: https://www.linkedin.com/in/herreraalan/
+                                  - 'link "Reddit, Inc.. is becoming a key input for how LLMs like ChatGPT, Gemini, and Perplexity learn and generate answers. According to Search Engine Journal, platforms like Reddit are trusted training grounds for LLMs because they offer: ✔️ Trusted UGC that LLMs rely on ✔️ Cleaner data thanks to moderation ✔️ Language that reflects real consumer behavior 🗒️ Takeaway for brands: “If you can influence how you or your competitors show up there, you might want to do so,” per Search Engine Journal. #AIsearch #LLMs #Reddit #SEO #UGC #SearchMarketing #ContentStrategy" [ref=f80e1708] [cursor=pointer]':
+                                    - /url: https://www.linkedin.com/feed/update/urn:li:share:7356672594336534528/
+                                    - paragraph [ref=f80e1709]:
+                                      - generic [ref=f80e1710]:
+                                        - link "Reddit, Inc." [ref=f80e1711]:
+                                          - /url: https://www.linkedin.com/company/reddit-com/
+                                          - strong [ref=f80e1713]: Reddit, Inc.
+                                        - text: . is becoming a key input for how LLMs like ChatGPT, Gemini, and Perplexity learn and generate answers.
+                                        - text: According to
+                                        - link "Search Engine Journal" [ref=f80e1715]:
+                                          - /url: https://www.linkedin.com/company/search-engine-journal/
+                                          - strong [ref=f80e1717]: Search Engine Journal
+                                        - text: ", platforms like Reddit are trusted training grounds for LLMs because they offer:"
+                                        - text: ✔️ Trusted UGC that LLMs rely on
+                                        - text: ✔️ Cleaner data thanks to moderation
+                                        - text: ✔️ Language that reflects real consumer behavior
+                                        - text: "🗒️ Takeaway for brands:"
+                                        - text: “If you can influence how you or your competitors show up there, you might want to do so,” per Search Engine Journal.
+                                        - link "#AIsearch" [ref=f80e1718]:
+                                          - /url: https://www.linkedin.com/search/results/all/?keywords=%23aisearch&origin=HASH_TAG_FROM_FEED
+                                          - strong [ref=f80e1720]: "#AIsearch"
+                                        - link "#LLMs" [ref=f80e1721]:
+                                          - /url: https://www.linkedin.com/search/results/all/?keywords=%23llms&origin=HASH_TAG_FROM_FEED
+                                          - strong [ref=f80e1723]: "#LLMs"
+                                        - link "#Reddit" [ref=f80e1724]:
+                                          - /url: https://www.linkedin.com/search/results/all/?keywords=%23reddit&origin=HASH_TAG_FROM_FEED
+                                          - strong [ref=f80e1726]: "#Reddit"
+                                        - link "#SEO" [ref=f80e1727]:
+                                          - /url: https://www.linkedin.com/search/results/all/?keywords=%23seo&origin=HASH_TAG_FROM_FEED
+                                          - strong [ref=f80e1729]: "#SEO"
+                                        - link "#UGC" [ref=f80e1730]:
+                                          - /url: https://www.linkedin.com/search/results/all/?keywords=%23ugc&origin=HASH_TAG_FROM_FEED
+                                          - strong [ref=f80e1732]: "#UGC"
+                                        - link "#SearchMarketing" [ref=f80e1733]:
+                                          - /url: https://www.linkedin.com/search/results/all/?keywords=%23searchmarketing&origin=HASH_TAG_FROM_FEED
+                                          - strong [ref=f80e1735]: "#SearchMarketing"
+                                        - link "#ContentStrategy" [ref=f80e1736]:
+                                          - /url: https://www.linkedin.com/search/results/all/?keywords=%23contentstrategy&origin=HASH_TAG_FROM_FEED
+                                          - strong [ref=f80e1738]: "#ContentStrategy"
+                                        - button:
+                                          - generic [ref=f80e1740]: … more
+                                  - link "How To Win In Generative Engine Optimization (GEO) searchenginejournal.com" [ref=f80e1741] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Fwww%2Esearchenginejournal%2Ecom%2Fwin-generative-engine-optimization-peecai-spa%2F550612%2F&urlhash=pcgL&mt=aJcPjozecwaRh6u_H0ifIId9IZ6lqePyA4U2Mc-mwlaMldKk5gjtKX4WRk4t9nYcYVQZVDiCdFHRJGwI75_7B3DZaUPUfAwNQZ4WsEeT0ii_811b1GIUfA&isSdui=true
+                                    - generic [ref=f80e1742]:
+                                      - figure [ref=f80e1743]
+                                      - generic [ref=f80e1744]:
+                                        - paragraph [ref=f80e1746]:
+                                          - generic [ref=f80e1747]:
+                                            - generic [ref=f80e1748]: How To Win In Generative Engine Optimization (GEO)
+                                            - text: How To Win In Generative Engine Optimization (GEO)
+                                        - paragraph [ref=f80e1750]: searchenginejournal.com
+                              - generic [ref=f80e1752]:
+                                - generic [ref=f80e1753]:
+                                  - 'button "Reaction button state: no reaction" [ref=f80e1756] [cursor=pointer]':
+                                    - generic [ref=f80e1757]:
+                                      - img [ref=f80e1758]
+                                      - generic [ref=f80e1760]: "22"
+                                  - button "Open reactions menu":
+                                    - img [ref=f80e1762] [cursor=pointer]
+                                - link "Comment" [ref=f80e1764] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7356756612000215040/
+                                  - img [ref=f80e1766]
+                                - button "Repost" [ref=f80e1768] [cursor=pointer]:
+                                  - img [ref=f80e1770]
+                                - link "Send" [ref=f80e1772] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/ryanliebling/
+                                  - img [ref=f80e1774]
+                                - link [ref=f80e1776] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/ryanliebling/
+                                  - generic "22 reactions" [ref=f80e1777]:
+                                    - img [ref=f80e1778]
+                                    - img [ref=f80e1784]
+                                    - img [ref=f80e1798]
+                          - listitem [ref=f80e1804]:
+                            - listitem [ref=f80e1806]:
+                              - generic [ref=f80e1807]:
+                                - generic [ref=f80e1808]:
+                                  - link [ref=f80e1809] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/ryanliebling/
+                                    - figure [ref=f80e1810]:
+                                      - img "View Ryan Liebling’s profile" [ref=f80e1811]
+                                  - generic [ref=f80e1813]:
+                                    - link "Ryan Liebling Verified Profile 2nd" [ref=f80e1816] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/ryanliebling/
+                                      - generic "Ryan Liebling Verified Profile 2nd" [ref=f80e1818]:
+                                        - paragraph [ref=f80e1821]: Ryan Liebling
+                                        - paragraph [ref=f80e1823]:
+                                          - generic [ref=f80e1824]:
+                                            - img [ref=f80e1826]
+                                            - text: • 2nd
+                                    - paragraph [ref=f80e1829]: Verticals Lead, Restaurants, Alcohol & Publishing @ Reddit, Inc.
+                                    - paragraph [ref=f80e1831]:
+                                      - generic [ref=f80e1832]:
+                                        - text: 11mo •
+                                        - 'img "Visibility: Global" [ref=f80e1833]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/in/ryanliebling/
+                                  - button "Open control menu for post by Ryan Liebling" [ref=f80e1835] [cursor=pointer]:
+                                    - img [ref=f80e1837]
+                                - link "This was an outstanding event, showcasing how Conversations Drive Conversions with the Los Angeles Rams at Loyola Marymount University! Check out the Reddit Fandom Playbook! https://lnkd.in/euJjPQNb" [ref=f80e1839] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7356347380675342337/
+                                  - paragraph [ref=f80e1840]:
+                                    - generic [ref=f80e1841]:
+                                      - text: This was an outstanding event, showcasing how Conversations Drive Conversions with the
+                                      - link "Los Angeles Rams" [ref=f80e1842]:
+                                        - /url: https://www.linkedin.com/company/los-angeles-rams/
+                                        - strong [ref=f80e1844]: Los Angeles Rams
+                                      - text: at
+                                      - link "Loyola Marymount University" [ref=f80e1845]:
+                                        - /url: https://www.linkedin.com/company/loyola-marymount-university/
+                                        - strong [ref=f80e1847]: Loyola Marymount University
+                                      - text: "!"
+                                      - text: Check out the Reddit Fandom Playbook!
+                                      - link "https://lnkd.in/euJjPQNb" [ref=f80e1848]:
+                                        - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Flnkd%2Ein%2FeuJjPQNb&urlhash=mNpU&mt=6roBxuBLv-NtTvuwKQJ4agMN_VSpRWwMDntN6nynLw3oDC5eLc1W_cYDh15HMmlW55P-iEErByUy-O6bCVWfMr2XL1qNVhl9r6kHFMndoLr7GCjzyqAVsFxKWQ&isSdui=true
+                                        - strong [ref=f80e1850]: https://lnkd.in/euJjPQNb
+                                      - button:
+                                        - generic [ref=f80e1852]: … more
+                                - generic [ref=f80e1853]:
+                                  - generic [ref=f80e1854]:
+                                    - link [ref=f80e1855] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/company/reddit-for-business/posts/
+                                      - figure [ref=f80e1856]:
+                                        - 'img "View company: Reddit for Business" [ref=f80e1857]'
+                                    - generic [ref=f80e1859]:
+                                      - link "Reddit for Business" [ref=f80e1862] [cursor=pointer]:
+                                        - /url: https://www.linkedin.com/company/reddit-for-business/posts/
+                                        - paragraph [ref=f80e1867]: Reddit for Business
+                                      - paragraph [ref=f80e1869]:
+                                        - generic [ref=f80e1870]:
+                                          - text: 11mo •
+                                          - 'img "Visibility: Global" [ref=f80e1871]'
+                                      - link:
+                                        - /url: https://www.linkedin.com/company/reddit-for-business/posts/
+                                  - 'link "Last week, Conversations drive fandom brought together marketers, creatives, and NFL legends to explore what fuels real fan connection. The day featured a fieldside chat with the LA Rams leadership team, including Kathryn Kai-ling Frederick, CMO, and Jennifer Prince, CCO. Guests also participated in an AMA™ with Rams legend Vince Ferragamo and got exclusive behind-the-scenes access to the Los Angeles Rams Training Camp. From IRL moments to online conversations, it’s clear: fandom starts where real talk happens. Want to know how your brand can show up where fans actually are? Start with the Reddit Fandom Playbook: https://lnkd.in/euJjPQNb" [ref=f80e1873] [cursor=pointer]':
+                                    - /url: https://www.linkedin.com/feed/update/urn:li:ugcPost:7355980316290740224/
+                                    - paragraph [ref=f80e1874]:
+                                      - generic [ref=f80e1875]:
+                                        - text: Last week, Conversations drive fandom brought together marketers, creatives, and NFL legends to explore what fuels real fan connection.
+                                        - text: The day featured a fieldside chat with the LA Rams leadership team, including
+                                        - link "Kathryn Kai-ling Frederick" [ref=f80e1877]:
+                                          - /url: https://www.linkedin.com/in/kathrynkfrederick/
+                                          - strong [ref=f80e1879]: Kathryn Kai-ling Frederick
+                                        - text: ", CMO, and"
+                                        - link "Jennifer Prince" [ref=f80e1880]:
+                                          - /url: https://www.linkedin.com/in/jenmprince/
+                                          - strong [ref=f80e1882]: Jennifer Prince
+                                        - text: ", CCO. Guests also participated in an AMA™ with Rams legend Vince Ferragamo and got exclusive behind-the-scenes access to the"
+                                        - link "Los Angeles Rams" [ref=f80e1883]:
+                                          - /url: https://www.linkedin.com/company/los-angeles-rams/
+                                          - strong [ref=f80e1885]: Los Angeles Rams
+                                        - text: Training Camp.
+                                        - text: "From IRL moments to online conversations, it’s clear: fandom starts where real talk happens. Want to know how your brand can show up where fans actually are? Start with the Reddit Fandom Playbook:"
+                                        - link "https://lnkd.in/euJjPQNb" [ref=f80e1886]:
+                                          - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Flnkd%2Ein%2FeuJjPQNb&urlhash=mNpU&mt=MY9kWbJfDojGEbNgWZ3pCS2G4Cko-TVnJT1Cmx8KzT5E444EFKowrenCR-RxdwICiEGxi4XxcOsVzJK4SHjjHBocROHCoQ6SE8cirMzT4XaRVRCYOxOj13iT&isSdui=true
+                                          - strong [ref=f80e1888]: https://lnkd.in/euJjPQNb
+                                        - button:
+                                          - generic [ref=f80e1890]: … more
+                                  - generic [ref=f80e1893]:
+                                    - link [ref=f80e1894] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/ryanliebling/
+                                      - figure [ref=f80e1895]:
+                                        - img "View image" [ref=f80e1896]
+                                    - paragraph [ref=f80e1897]: 1/9
+                              - generic [ref=f80e1899]:
+                                - generic [ref=f80e1900]:
+                                  - 'button "Reaction button state: no reaction" [ref=f80e1903] [cursor=pointer]':
+                                    - generic [ref=f80e1904]:
+                                      - img [ref=f80e1905]
+                                      - generic [ref=f80e1907]: "30"
+                                  - button "Open reactions menu":
+                                    - img [ref=f80e1909] [cursor=pointer]
+                                - link "Comment" [ref=f80e1911] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7356347380675342337/
+                                  - generic [ref=f80e1912]:
+                                    - img [ref=f80e1913]
+                                    - generic [ref=f80e1915]: "1"
+                                - button "Repost" [ref=f80e1916] [cursor=pointer]:
+                                  - img [ref=f80e1918]
+                                - link "Send" [ref=f80e1920] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/ryanliebling/
+                                  - img [ref=f80e1922]
+                                - link [ref=f80e1924] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/ryanliebling/
+                                  - generic "30 reactions" [ref=f80e1925]:
+                                    - img [ref=f80e1926]
+                                    - img [ref=f80e1932]
+                                    - img [ref=f80e1946]
+                          - listitem [ref=f80e1952]:
+                            - listitem [ref=f80e1954]:
+                              - generic [ref=f80e1955]:
+                                - generic [ref=f80e1956]:
+                                  - generic [ref=f80e1957]:
+                                    - link [ref=f80e1958] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/ryanliebling/
+                                      - figure [ref=f80e1959]:
+                                        - img "View Ryan Liebling’s profile" [ref=f80e1960]
+                                    - paragraph [ref=f80e1962]:
+                                      - generic [ref=f80e1963]:
+                                        - link "Ryan Liebling" [ref=f80e1964] [cursor=pointer]:
+                                          - /url: https://www.linkedin.com/in/ryanliebling/
+                                          - strong [ref=f80e1965]: Ryan Liebling
+                                        - text: reposted this
+                                  - button "Open control menu for post by Reddit for Business" [ref=f80e1966] [cursor=pointer]:
+                                    - img [ref=f80e1968]
+                                - generic [ref=f80e1970]:
+                                  - link [ref=f80e1971] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/company/reddit-for-business/posts/
+                                    - figure [ref=f80e1972]:
+                                      - 'img "View company: Reddit for Business" [ref=f80e1973]'
+                                  - generic [ref=f80e1975]:
+                                    - link "Reddit for Business" [ref=f80e1978] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/company/reddit-for-business/posts/
+                                      - paragraph [ref=f80e1983]: Reddit for Business
+                                    - paragraph [ref=f80e1985]:
+                                      - generic [ref=f80e1986]:
+                                        - text: 11mo • Edited •
+                                        - 'img "Visibility: Global" [ref=f80e1987]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/company/reddit-for-business/posts/
+                                - 'link "Tomorrow, we’re kicking off a different kind of conversation. One where fandom meets community, culture, and context. Reddit for Business is teaming up with the Los Angeles Rams for an afternoon of insight and storytelling featuring: 🔥 Fireside chat with the LA Rams leadership team: Kathryn Kai-ling Frederick (CMO) and Jennifer Prince (CCO) 🏈 AMA™ Vince Ferragamo, Los Angeles Rams Legend From brand-building to fan-building, we’re excited to explore how conversations drive fandom and how brands can meet fans where passion lives." [ref=f80e1989] [cursor=pointer]':
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7353890758958993411/
+                                  - paragraph [ref=f80e1990]:
+                                    - generic [ref=f80e1991]:
+                                      - text: Tomorrow, we’re kicking off a different kind of conversation. One where fandom meets community, culture, and context.
+                                      - link "Reddit for Business" [ref=f80e1993]:
+                                        - /url: https://www.linkedin.com/company/reddit-for-business/
+                                        - strong [ref=f80e1995]: Reddit for Business
+                                      - text: is teaming up with the
+                                      - link "Los Angeles Rams" [ref=f80e1996]:
+                                        - /url: https://www.linkedin.com/company/los-angeles-rams/
+                                        - strong [ref=f80e1998]: Los Angeles Rams
+                                      - text: "for an afternoon of insight and storytelling featuring:"
+                                      - text: "🔥 Fireside chat with the LA Rams leadership team:"
+                                      - link "Kathryn Kai-ling Frederick" [ref=f80e1999]:
+                                        - /url: https://www.linkedin.com/in/kathrynkfrederick/
+                                        - strong [ref=f80e2001]: Kathryn Kai-ling Frederick
+                                      - text: (CMO) and
+                                      - link "Jennifer Prince" [ref=f80e2002]:
+                                        - /url: https://www.linkedin.com/in/jenmprince/
+                                        - strong [ref=f80e2004]: Jennifer Prince
+                                      - text: (CCO)
+                                      - text: 🏈 AMA™ Vince Ferragamo, Los Angeles Rams Legend
+                                      - text: From brand-building to fan-building, we’re excited to explore how conversations drive fandom and how brands can meet fans where passion lives.
+                                      - button:
+                                        - generic [ref=f80e2006]: … more
+                                - link "Conversations drive fandom 2 pages" [ref=f80e2007] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7353890758958993411/
+                                  - generic [ref=f80e2008]:
+                                    - figure [ref=f80e2010]
+                                    - generic [ref=f80e2011]:
+                                      - paragraph [ref=f80e2013]: Conversations drive fandom
+                                      - paragraph [ref=f80e2015]: 2 pages
+                              - generic [ref=f80e2017]:
+                                - generic [ref=f80e2018]:
+                                  - 'button "Reaction button state: no reaction" [ref=f80e2021] [cursor=pointer]':
+                                    - generic [ref=f80e2022]:
+                                      - img [ref=f80e2023]
+                                      - generic [ref=f80e2025]: "42"
+                                  - button "Open reactions menu":
+                                    - img [ref=f80e2027] [cursor=pointer]
+                                - link "Comment" [ref=f80e2029] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7353890758958993411/
+                                  - img [ref=f80e2031]
+                                - button "Repost" [ref=f80e2033] [cursor=pointer]:
+                                  - generic [ref=f80e2034]:
+                                    - img [ref=f80e2035]
+                                    - generic [ref=f80e2037]: "5"
+                                - link "Send" [ref=f80e2038] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/ryanliebling/
+                                  - img [ref=f80e2040]
+                                - link [ref=f80e2042] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/ryanliebling/
+                                  - generic "42 reactions" [ref=f80e2043]:
+                                    - img [ref=f80e2044]
+                                    - img [ref=f80e2050]
+                                    - img [ref=f80e2056]
+                      - button "Next" [ref=f80e2070] [cursor=pointer]:
+                        - img [ref=f80e2072]
+                    - link "Show all posts" [ref=f80e2075] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/ryanliebling/recent-activity/all/
+                      - generic [ref=f80e2076]:
+                        - img [ref=f80e2077]
+                        - generic [ref=f80e2079]: Show all posts
+            - complementary "Aside" [ref=f80e2101]:
+              - generic [ref=f80e2102]:
+                - generic [ref=f80e2103]:
+                  - iframe [ref=f80e2106]:
+                    - main "Work With Us Container" [ref=f82e3]:
+                      - generic [ref=f82e4]:
+                        - img [ref=f82e6]
+                        - generic [ref=f82e7]:
+                          - img "Taylor" [ref=f82e8]
+                          - link "Mediaocean" [ref=f82e9] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/li/tscp/sct?destinationUrl=http%3A%2F%2Fwww.linkedin.com%2Fcompany%2F20282%2Flife&trackingEvent=%5B%7B%22eventInfo%22%3A%7B%22appId%22%3A%22com.linkedin.ads.rendering.d_web%22%2C%22eventName%22%3A%22SponsoredRightRailContentActionEvent%22%2C%22topicName%22%3A%22SponsoredRightRailContentActionEvent%22%7D%2C%22eventBody%22%3A%7B%22sponsoredEventHeader%22%3A%7B%22encryptedTrackingData%22%3A%22CwEAAAGfQCvk04oOT-s-mSLDovOIDOvpuUTRjVmQ70DJ8aZIVXkOmD5pncbGeHn_4khena34_4aSr0CMOhZPOobZI-7F0gLlMbWzmdEMIiiJnizWPwQaNFJDphi1EeIBp1K9FrqppoXIxbLP1oXfnQP6UWlWAdo6XUx0gd8w5Oef1adh_7t8oa9EWS7Vg89kSUnTT7_R1RKFDCJqAyOe_ICaB7CjMTUqKb1zablrjY7FjrO-W7-SZOwHCKBHa2UFiw9DAznID60zMrmzIldty4aZKSGwRoOBzvf-ZBN6qVwXTpzKT069dThRAfJoh7MHTkW0EfXgTXV1QhqzKz8bhdhy8kY4ZOp_HlqpXgtLPz6ObP-Zoom8mdaanCPQCkvSwHZzEaJAmSDS3fFgVCl6G9MGM7OB3jUGQfAKjibDkHFZSsxDg-cmqLw0ViGr6JnmVzGiNhbkGMwF-uR8QgZW6bjY2qGRPlvxf5RaOm60xxD5CcwtAJ69teh36GN9xR4uCOo000LsQFxg77EBqH_PbiquOSKcduR3kDTHYNFxD1azl_4oKP1mQPEdqlB9nCfR5z62cM-4LdV_jmP3Frm0DnTH7XLyuLZHhyUwh_LprsVehC9XBK5ejJdggfO8I_yw69FymWcctMGHQPV3HJ62F7hn6jFollCA00vt0OvkbkjYfYlUasfM43ZTwlpu-_3XeH7BSjU2TRWfacVwPdNeOw97sZZ3u0VfZmNd9i4an-_pN5QERhXtThGdrep26eNwvEkQm8FqShOHn06-SW1_ZOfmgfa5TFYcFNoP9C8rBai5arqP0QDxteCLfjzvsv8kqf0DOyrEp84-x75k7u8P3EAK4VBx6yTpHlKXZG2m7CONcBbt_7fhGLAi8FOesoDfacN0SfP24hG8PJyybodzWiTod9_2fewiayB16sNpk8MNf2AmqdQYjky9wYr46gsWqEHmCcH8d5bzV8inRwPmknO4TLU5wgPhbfjUl9TO2NO5ys4a2qDgiruY6IPHWpT094CYSxZapkfMotsUhXKvhIdd-c5kufg1Wg-ke7S0V9fgLafPZpSv0Y2HynxtnAWiiVQy92TZZwRGKH77NCnn%22%7D%2C%22header%22%3A%7B%22pageInstance%22%3A%7B%22pageUrn%22%3A%22urn%3Ali%3Apage%3Ad_flagship3_profile_view_base%22%2C%22trackingId%22%3A%2292636533-984e-475c-a780-c631254d1a5f%22%7D%2C%22time%22%3A1783488046231%2C%22version%22%3A%220.0.0%22%7D%2C%22requestHeader%22%3A%7B%22pageKey%22%3A%22d_flagship3_profile_view_base%22%2C%22interfaceLocale%22%3A%22en-US%22%7D%7D%7D%5D&csrfToken=ajax%3A1061531063325413417
+                            - img "Mediaocean" [ref=f82e10]
+                      - generic [ref=f82e11]:
+                        - generic [ref=f82e12]:
+                          - paragraph [ref=f82e13]: Taylor, explore relevant opportunities with Mediaocean
+                          - paragraph [ref=f82e14]: Get the latest jobs and industry news
+                        - link "Follow" [ref=f82e15] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/li/tscp/sct?destinationUrl=http%3A%2F%2Fwww.linkedin.com%2Fcompany%2F20282%2Flife%3FisFollowingPage%3Dtrue&trackingEvent=%5B%7B%22eventInfo%22%3A%7B%22appId%22%3A%22com.linkedin.ads.rendering.d_web%22%2C%22eventName%22%3A%22SponsoredRightRailContentActionEvent%22%2C%22topicName%22%3A%22SponsoredRightRailContentActionEvent%22%7D%2C%22eventBody%22%3A%7B%22sponsoredEventHeader%22%3A%7B%22encryptedTrackingData%22%3A%22CwEAAAGfQCvk060wpW0Yu3miVva_qYNyHJRje8iQYvV24ouWpfheQvllcMUK5IjdWiIMysTIZa6x1I0Rds2i32pCH8gKuP15xY93VLz_-aKmRNJjz0f0OWiaTKJUR1hyXlmlrhmwal4oQyUx5mrYksGMOq_u61wcb4DIt84S-JX8TiTHFiY3fofnBlX-IUN2CjvINTzJ_opeCFz8LEejBxZKBy3YlAa3Tae0MPhugqklFElCraq-t-kzKMHrdYPjAEuvIRz0nKdMFr-nQyL8Lriz8dWQBXJc6DrCi2qe2Nuf4oFT4I2sDFjUQS65E7x5TgyfKjKgwrI9FD8EZzxpn2hbhYbiDVzOH1CfStTTDOB7ZrtZ_MBo9NTNtjiFKgzNGFGBnDwh0R2HkY8CAg1fYQDZpq6S4Rs3wAiNqIir4d5iy_bhzBQ-qcThBcv0XJ54B225IdIw4YbR59Euj-eltikaD5i-ijd_upXL2tbvVgRfS_haqh5OU7Gb_TGqjqnEwEGYzxBGwpEKYlc1dc52d6PNbTb_olcLFDEzJyJitfwsoSZI6M9uPFymysycNcZdtYp1NJyMVlhUjoEjyZ6IS8cde3Sv4hPw_Tp_l-bobq7Mcnex6ZFJpzqiGfWbroNZRptQwbY1pG6kT8Km2N7VkKByAQmJHW6lEjenhhebEm7T5sjMIyBBM1nSiw-LHsQhRcfHIpY_tM2azl4KxQDjngvsi4o9f360WTyF7v40bKswE22KYySp2LR5XhtJ8jZht3FLm9KvaouhaDrVvcS0fTmBK9VQMFTO_IeRDwbjuYTGsVLguzZVL0jee2eJj8XxNtebjVbJe_3xj3xEqZJOngRosTktOp9EOS7vWSE4EgxOQBdASjbCJW67oHdvFb4kvo7e-yLk4Ex9qNKZMsNcb-Ebv9HWc9hvJZsbxGkQptcL5FdyxWee-ILVTgTaDkm8y9avD1Xr1WMpaHOBlVqAdBkbPtTH5N8lTSMj1gq7oIDpxEvIijyRfa4VlIJvvA0LB2yp4DBeRasFweDDx2P0kOwXggSnX8OMI07CElaaPmjBdT_GxBJMJvxevzcmGj0EMK__0DLA2ff25owGYaT9SAEq2-LnwUB0A2NTnYmAuYeyMwfnh-p5ooYHj57G%22%7D%2C%22header%22%3A%7B%22pageInstance%22%3A%7B%22pageUrn%22%3A%22urn%3Ali%3Apage%3Ad_flagship3_profile_view_base%22%2C%22trackingId%22%3A%225fd65b3b-4997-4090-8965-ddbc5413f26e%22%7D%2C%22time%22%3A1783488046231%2C%22version%22%3A%220.0.0%22%7D%2C%22requestHeader%22%3A%7B%22pageKey%22%3A%22d_flagship3_profile_view_base%22%2C%22interfaceLocale%22%3A%22en-US%22%7D%7D%7D%5D&csrfToken=ajax%3A1061531063325413417
+                      - generic [ref=f82e16]:
+                        - paragraph [ref=f82e17]: Promoted
+                        - button "Ad Options" [ref=f82e18] [cursor=pointer]:
+                          - img [ref=f82e19]
+                          - generic [ref=f82e23]: Ad Options
+                  - generic [ref=f80e2111]:
+                    - heading "More profiles for you" [level=3] [ref=f80e2115]
+                    - generic [ref=f80e2117]:
+                      - generic [ref=f80e2119]:
+                        - link "Elizabeth O. Premium · 2nd Industry Manager, Large Customer Sales at Reddit, Inc." [ref=f80e2122] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/elizabetholeary/
+                          - generic [ref=f80e2123]:
+                            - figure [ref=f80e2124]
+                            - generic [ref=f80e2125]:
+                              - generic [ref=f80e2126]:
+                                - paragraph [ref=f80e2128]:
+                                  - link "Elizabeth O. Premium" [ref=f80e2130]:
+                                    - /url: https://www.linkedin.com/in/elizabetholeary/
+                                    - text: Elizabeth O.
+                                    - img "Premium" [ref=f80e2131]:
+                                      - img [ref=f80e2132]
+                                - paragraph [ref=f80e2134]: · 2nd
+                              - paragraph [ref=f80e2136]: Industry Manager, Large Customer Sales at Reddit, Inc.
+                        - button "Invite Elizabeth O. to connect" [ref=f80e2142] [cursor=pointer]:
+                          - generic [ref=f80e2143]:
+                            - img [ref=f80e2144]
+                            - generic [ref=f80e2147]: Connect
+                      - generic [ref=f80e2149]:
+                        - link "Leo Londoño Verified · 2nd Senior Client Partner II, LCS at Reddit, Inc." [ref=f80e2152] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/leolon/
+                          - generic [ref=f80e2153]:
+                            - figure [ref=f80e2154]
+                            - generic [ref=f80e2155]:
+                              - generic [ref=f80e2156]:
+                                - paragraph [ref=f80e2158]:
+                                  - link "Leo Londoño Verified" [ref=f80e2160]:
+                                    - /url: https://www.linkedin.com/in/leolon/
+                                    - text: Leo Londoño
+                                    - img "Verified" [ref=f80e2161]:
+                                      - img [ref=f80e2162]
+                                - paragraph [ref=f80e2164]: · 2nd
+                              - paragraph [ref=f80e2166]: Senior Client Partner II, LCS at Reddit, Inc.
+                        - button "Invite Leo Londoño to connect" [ref=f80e2172] [cursor=pointer]:
+                          - generic [ref=f80e2173]:
+                            - img [ref=f80e2174]
+                            - generic [ref=f80e2177]: Connect
+                      - generic [ref=f80e2179]:
+                        - link "Andrea Carrasquel · 3rd Brand Partnerships at Reddit, Inc." [ref=f80e2182] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/andreacarrasquel/
+                          - generic [ref=f80e2183]:
+                            - figure [ref=f80e2184]
+                            - generic [ref=f80e2185]:
+                              - generic [ref=f80e2186]:
+                                - paragraph [ref=f80e2188]:
+                                  - link "Andrea Carrasquel" [ref=f80e2190]:
+                                    - /url: https://www.linkedin.com/in/andreacarrasquel/
+                                - paragraph [ref=f80e2191]: · 3rd
+                              - paragraph [ref=f80e2193]: Brand Partnerships at Reddit, Inc.
+                        - link "Message Andrea Carrasquel" [ref=f80e2197] [cursor=pointer]:
+                          - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAATIkx8BUQ3VJK_tu94TjEGCLyJ6kAmVamM&recipient=ACoAAATIkx8BUQ3VJK_tu94TjEGCLyJ6kAmVamM&screenContext=NON_SELF_PROFILE_VIEW&interop=msgOverlay
+                          - generic [ref=f80e2198]:
+                            - img [ref=f80e2199]
+                            - generic [ref=f80e2201]: Message
+                      - generic [ref=f80e2203]:
+                        - link "Adam Collins Verified · 3rd Chief Communications Officer at Reddit" [ref=f80e2206] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/adamdcollins/
+                          - generic [ref=f80e2207]:
+                            - figure [ref=f80e2208]
+                            - generic [ref=f80e2209]:
+                              - generic [ref=f80e2210]:
+                                - paragraph [ref=f80e2212]:
+                                  - link "Adam Collins Verified" [ref=f80e2214]:
+                                    - /url: https://www.linkedin.com/in/adamdcollins/
+                                    - text: Adam Collins
+                                    - img "Verified" [ref=f80e2215]:
+                                      - img [ref=f80e2216]
+                                - paragraph [ref=f80e2218]: · 3rd
+                              - paragraph [ref=f80e2220]: Chief Communications Officer at Reddit
+                        - button "Follow Adam Collins" [ref=f80e2226] [cursor=pointer]:
+                          - generic [ref=f80e2227]:
+                            - img [ref=f80e2228]
+                            - generic [ref=f80e2231]: Follow
+                      - generic [ref=f80e2233]:
+                        - link "Matt Peterson Verified · 2nd Client Partner @ Reddit" [ref=f80e2236] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/matt-peterson-25546469/
+                          - generic [ref=f80e2237]:
+                            - figure [ref=f80e2238]
+                            - generic [ref=f80e2239]:
+                              - generic [ref=f80e2240]:
+                                - paragraph [ref=f80e2242]:
+                                  - link "Matt Peterson Verified" [ref=f80e2244]:
+                                    - /url: https://www.linkedin.com/in/matt-peterson-25546469/
+                                    - text: Matt Peterson
+                                    - img "Verified" [ref=f80e2245]:
+                                      - img [ref=f80e2246]
+                                - paragraph [ref=f80e2248]: · 2nd
+                              - paragraph [ref=f80e2250]: Client Partner @ Reddit
+                        - button "Invite Matt Peterson to connect" [ref=f80e2256] [cursor=pointer]:
+                          - generic [ref=f80e2257]:
+                            - img [ref=f80e2258]
+                            - generic [ref=f80e2261]: Connect
+                    - link "Show all more profiles for you" [ref=f80e2263] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/ryanliebling/overlay/browsemap-recommendations/
+                      - generic [ref=f80e2264]:
+                        - img [ref=f80e2265]
+                        - generic [ref=f80e2267]: Show all
+                  - generic [ref=f80e2270]:
+                    - heading "Get advice on software development" [level=2] [ref=f80e2272]
+                    - generic [ref=f80e2274]:
+                      - generic [ref=f80e2276]:
+                        - link "Johnson Kan Premium · 3rd Senior Staff Software Engineer @ LinkedIn" [ref=f80e2279] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/johnsonkan/
+                          - generic [ref=f80e2280]:
+                            - figure [ref=f80e2281]
+                            - generic [ref=f80e2282]:
+                              - generic [ref=f80e2283]:
+                                - paragraph [ref=f80e2285]:
+                                  - link "Johnson Kan Premium" [ref=f80e2287]:
+                                    - /url: https://www.linkedin.com/in/johnsonkan/
+                                    - text: Johnson Kan
+                                    - img "Premium" [ref=f80e2288]:
+                                      - img [ref=f80e2289]
+                                - paragraph [ref=f80e2291]: · 3rd
+                              - paragraph [ref=f80e2293]: Senior Staff Software Engineer @ LinkedIn
+                        - link "Get advice from me" [ref=f80e2297] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/meetings/AGsAAAcP_CQBLgQPdOccitLezUvTbGdFVLiZl8M/39bd0965-a18b-48ef-928a-75fc0bc2ee1d/book/
+                          - generic [ref=f80e2299]: Get advice from me
+                      - generic [ref=f80e2301]:
+                        - link "Samir Tata Premium · 3rd Senior Engineering Manager at LinkedIn" [ref=f80e2304] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/samirtata/
+                          - generic [ref=f80e2305]:
+                            - figure [ref=f80e2306]
+                            - generic [ref=f80e2307]:
+                              - generic [ref=f80e2308]:
+                                - paragraph [ref=f80e2310]:
+                                  - link "Samir Tata Premium" [ref=f80e2312]:
+                                    - /url: https://www.linkedin.com/in/samirtata/
+                                    - text: Samir Tata
+                                    - img "Premium" [ref=f80e2313]:
+                                      - img [ref=f80e2314]
+                                - paragraph [ref=f80e2316]: · 3rd
+                              - paragraph [ref=f80e2318]: Senior Engineering Manager at LinkedIn
+                        - link "Get advice from me" [ref=f80e2322] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/meetings/AGsAAAFMzAUB8NDId26qIbKHrM5tjI6AWR0HdR8/abdda6f5-ff35-4446-8fe8-bbb109d470c1/book/
+                          - generic [ref=f80e2324]: Get advice from me
+                      - generic [ref=f80e2326]:
+                        - link "Neha Jain Premium · 3rd Engineering Leader @ LinkedIn | AI-Powered Product Builder | 0→1 Growth at Scale | Creative Thinker & Author" [ref=f80e2329] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/nehajainhbti/
+                          - generic [ref=f80e2330]:
+                            - figure [ref=f80e2331]
+                            - generic [ref=f80e2332]:
+                              - generic [ref=f80e2333]:
+                                - paragraph [ref=f80e2335]:
+                                  - link "Neha Jain Premium" [ref=f80e2337]:
+                                    - /url: https://www.linkedin.com/in/nehajainhbti/
+                                    - text: Neha Jain
+                                    - img "Premium" [ref=f80e2338]:
+                                      - img [ref=f80e2339]
+                                - paragraph [ref=f80e2341]: · 3rd
+                              - paragraph [ref=f80e2343]: Engineering Leader @ LinkedIn | AI-Powered Product Builder | 0→1 Growth at Scale | Creative Thinker & Author
+                        - link "Get advice from me" [ref=f80e2347] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/meetings/AGsAAAOLIzMBr5rS2z3gTmSvV_pZGHI71bTl-ag/acbd14e8-52a8-4e63-a749-56ca21037ae3/book/
+                          - generic [ref=f80e2349]: Get advice from me
+                      - generic [ref=f80e2351]:
+                        - link "Qingchun(Quincie) L. Premium · 3rd Senior Software Engineer at LinkedIn" [ref=f80e2354] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/qingchun-quincie-li/
+                          - generic [ref=f80e2355]:
+                            - figure [ref=f80e2356]:
+                              - img [ref=f80e2357]
+                            - generic [ref=f80e2363]:
+                              - generic [ref=f80e2364]:
+                                - paragraph [ref=f80e2366]:
+                                  - link "Qingchun(Quincie) L. Premium" [ref=f80e2368]:
+                                    - /url: https://www.linkedin.com/in/qingchun-quincie-li/
+                                    - text: Qingchun(Quincie) L.
+                                    - img "Premium" [ref=f80e2369]:
+                                      - img [ref=f80e2370]
+                                - paragraph [ref=f80e2372]: · 3rd
+                              - paragraph [ref=f80e2374]: Senior Software Engineer at LinkedIn
+                        - link "Get advice from me" [ref=f80e2378] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/meetings/AGsAAA_xoIEB2LX0w_sB_zrlibeHLvWZw3X-Pag/558a92c9-7a24-4108-af20-6eaafb13dd75/book/
+                          - generic [ref=f80e2380]: Get advice from me
+                  - generic [ref=f80e2385]:
+                    - generic [ref=f80e2387]:
+                      - heading "People you may know" [level=2] [ref=f80e2388]
+                      - paragraph [ref=f80e2389]: From Ryan's industry
+                    - generic [ref=f80e2391]:
+                      - generic [ref=f80e2393]:
+                        - link "Jennifer Ferch · 2nd Devoted to Faith, Hope, and Love" [ref=f80e2395] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/jennifer-ferch-a13725b/
+                          - generic [ref=f80e2396]:
+                            - figure [ref=f80e2397]
+                            - generic [ref=f80e2398]:
+                              - generic [ref=f80e2399]:
+                                - paragraph [ref=f80e2401]:
+                                  - link "Jennifer Ferch" [ref=f80e2403]:
+                                    - /url: https://www.linkedin.com/in/jennifer-ferch-a13725b/
+                                - paragraph [ref=f80e2404]: · 2nd
+                              - paragraph [ref=f80e2406]: Devoted to Faith, Hope, and Love
+                        - button "Invite Jennifer Ferch to connect" [ref=f80e2410] [cursor=pointer]:
+                          - generic [ref=f80e2411]:
+                            - img [ref=f80e2412]
+                            - generic [ref=f80e2415]: Connect
+                      - generic [ref=f80e2417]:
+                        - link "Jocelyn Livier Premium · 2nd CoS @ Internet Backyard" [ref=f80e2419] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/jocelynlivier/
+                          - generic [ref=f80e2420]:
+                            - figure [ref=f80e2421]:
+                              - img "Jocelyn Livier is hiring" [ref=f80e2422]
+                            - generic [ref=f80e2423]:
+                              - generic [ref=f80e2424]:
+                                - paragraph [ref=f80e2426]:
+                                  - link "Jocelyn Livier Premium" [ref=f80e2428]:
+                                    - /url: https://www.linkedin.com/in/jocelynlivier/
+                                    - text: Jocelyn Livier
+                                    - img "Premium" [ref=f80e2429]:
+                                      - img [ref=f80e2430]
+                                - paragraph [ref=f80e2432]: · 2nd
+                              - paragraph [ref=f80e2434]: CoS @ Internet Backyard
+                        - button "Invite Jocelyn Livier to connect" [ref=f80e2438] [cursor=pointer]:
+                          - generic [ref=f80e2439]:
+                            - img [ref=f80e2440]
+                            - generic [ref=f80e2443]: Connect
+                      - generic [ref=f80e2445]:
+                        - link "Scott Parmely Verified · 2nd Sales Engineering at Finvari | Ex-Smartheet & Ex-Zapier" [ref=f80e2447] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/parmely/
+                          - generic [ref=f80e2448]:
+                            - figure [ref=f80e2449]
+                            - generic [ref=f80e2450]:
+                              - generic [ref=f80e2451]:
+                                - paragraph [ref=f80e2453]:
+                                  - link "Scott Parmely Verified" [ref=f80e2455]:
+                                    - /url: https://www.linkedin.com/in/parmely/
+                                    - text: Scott Parmely
+                                    - img "Verified" [ref=f80e2456]:
+                                      - img [ref=f80e2457]
+                                - paragraph [ref=f80e2459]: · 2nd
+                              - paragraph [ref=f80e2461]: Sales Engineering at Finvari | Ex-Smartheet & Ex-Zapier
+                        - button "Invite Scott Parmely to connect" [ref=f80e2465] [cursor=pointer]:
+                          - generic [ref=f80e2466]:
+                            - img [ref=f80e2467]
+                            - generic [ref=f80e2470]: Connect
+                      - generic [ref=f80e2472]:
+                        - link "Austin Sypek · 3rd+ Buisness content" [ref=f80e2474] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/austin-sypek-854426417/
+                          - generic [ref=f80e2475]:
+                            - figure [ref=f80e2476]
+                            - generic [ref=f80e2477]:
+                              - generic [ref=f80e2478]:
+                                - paragraph [ref=f80e2480]:
+                                  - link "Austin Sypek" [ref=f80e2482]:
+                                    - /url: https://www.linkedin.com/in/austin-sypek-854426417/
+                                - paragraph [ref=f80e2483]: · 3rd+
+                              - paragraph [ref=f80e2485]: Buisness content
+                        - button "Invite Austin Sypek to connect" [ref=f80e2489] [cursor=pointer]:
+                          - generic [ref=f80e2490]:
+                            - img [ref=f80e2491]
+                            - generic [ref=f80e2494]: Connect
+                      - generic [ref=f80e2496]:
+                        - link "Ryan DeBiase Premium · 2nd Sales Development Representative at Rippling" [ref=f80e2498] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/ryan-debiase/
+                          - generic [ref=f80e2499]:
+                            - figure [ref=f80e2500]
+                            - generic [ref=f80e2501]:
+                              - generic [ref=f80e2502]:
+                                - paragraph [ref=f80e2504]:
+                                  - link "Ryan DeBiase Premium" [ref=f80e2506]:
+                                    - /url: https://www.linkedin.com/in/ryan-debiase/
+                                    - text: Ryan DeBiase
+                                    - img "Premium" [ref=f80e2507]:
+                                      - img [ref=f80e2508]
+                                - paragraph [ref=f80e2510]: · 2nd
+                              - paragraph [ref=f80e2512]: Sales Development Representative at Rippling
+                        - button "Invite Ryan DeBiase to connect" [ref=f80e2516] [cursor=pointer]:
+                          - generic [ref=f80e2517]:
+                            - img [ref=f80e2518]
+                            - generic [ref=f80e2521]: Connect
+                    - link "Show all people you may know" [ref=f80e2523] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/ryanliebling/
+                      - generic [ref=f80e2524]:
+                        - img [ref=f80e2525]
+                        - generic [ref=f80e2527]: Show all
+                  - generic [ref=f80e2532]:
+                    - generic [ref=f80e2534]:
+                      - heading "You might like" [level=2] [ref=f80e2535]
+                      - paragraph [ref=f80e2536]: Pages for you
+                    - generic [ref=f80e2538]:
+                      - generic [ref=f80e2541]:
+                        - link "PUMA Group Retail 1,737,365 followers" [ref=f80e2542] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/company/puma/
+                          - generic [ref=f80e2543]:
+                            - figure [ref=f80e2544]
+                            - generic [ref=f80e2545]:
+                              - paragraph [ref=f80e2548]: PUMA Group
+                              - paragraph [ref=f80e2550]: Retail
+                              - paragraph [ref=f80e2551]: 1,737,365 followers
+                        - generic [ref=f80e2552]:
+                          - link "Rachel & 5 other connections follow this page" [ref=f80e2553] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/ryanliebling/
+                            - generic [ref=f80e2554]:
+                              - figure [ref=f80e2555]
+                              - paragraph [ref=f80e2557]:
+                                - link "Rachel & 5 other connections follow this page" [ref=f80e2559]:
+                                  - /url: https://www.linkedin.com/in/ryanliebling/
+                          - button "Follow PUMA Group" [ref=f80e2562] [cursor=pointer]:
+                            - generic [ref=f80e2563]:
+                              - img [ref=f80e2564]
+                              - generic [ref=f80e2566]: Follow
+                      - generic [ref=f80e2569]:
+                        - link "Pinterest Software Development 1,383,697 followers" [ref=f80e2570] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/company/pinterest/
+                          - generic [ref=f80e2571]:
+                            - figure [ref=f80e2572]
+                            - generic [ref=f80e2573]:
+                              - paragraph [ref=f80e2576]: Pinterest
+                              - paragraph [ref=f80e2578]: Software Development
+                              - paragraph [ref=f80e2579]: 1,383,697 followers
+                        - generic [ref=f80e2580]:
+                          - generic [ref=f80e2581]:
+                            - figure [ref=f80e2582]
+                            - paragraph [ref=f80e2584]:
+                              - link "Tierra works here" [ref=f80e2586] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/tierrapatmavanu/
+                          - button "Follow Pinterest" [ref=f80e2589] [cursor=pointer]:
+                            - generic [ref=f80e2590]:
+                              - img [ref=f80e2591]
+                              - generic [ref=f80e2593]: Follow
+                    - link "Show all pages you might like" [ref=f80e2595] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/ryanliebling/
+                      - generic [ref=f80e2596]:
+                        - img [ref=f80e2597]
+                        - generic [ref=f80e2599]: Show all
+                - iframe [ref=f80e2604]:
+                  - generic [ref=f83e3]:
+                    - banner [ref=f83e4]:
+                      - generic [ref=f83e5]:
+                        - link "Promoted" [ref=f83e6] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/ads/start?src=en-all-ad-li-ads_by_li&trk=ads_by_li&utm_medium=ad&utm_source=li&utm_campaign=ads_by_li
+                        - button [ref=f83e7] [cursor=pointer]:
+                          - img [ref=f83e8]
+                    - generic [ref=f83e13]:
+                      - link "Ad Image 1,408,144,566 Your Next SWE Role Awaits Join Intuit's SWE community for job alerts, events, and career content. Arvind Arvind & 31 other connections also follow Intuit" [ref=f83e14] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/li/tscp/sct?destinationUrl=https%3A%2F%2Ftalenteq.intuit.com%2Fgrow-your-engineering-career-at-intuit%3Fcid%3Ddis_litext_gen_us_swe-fy26_npa_swelp_link_inti-tm%26li_fat_id%3Db9537c27-8f45-42aa-9cf1-0006882e482d&trackingEvent=%5B%7B%22eventInfo%22%3A%7B%22appId%22%3A%22com.linkedin.ads.rendering.d_web%22%2C%22eventName%22%3A%22SponsoredRightRailContentActionEvent%22%2C%22topicName%22%3A%22SponsoredRightRailContentActionEvent%22%7D%2C%22eventBody%22%3A%7B%22sponsoredEventHeader%22%3A%7B%22encryptedTrackingData%22%3A%22CwEAAAGfQCvk4lVFOz8bEqq00G_Q0i8ckZ555QuHpXhcGEaoB2WYtrh43IbIhYeCQg5VQyRVATKKUbkSMZo0QXZq6TI7iuYtwCxIzI7JdTMxJLAdkseOZyotE-F9qEo6_f3DGWS_BajFuzFG83p_zTLQSWwVjLJch0uTm_Zd6bmgo-rwASIuaSAP8HK11J-elJ4NVaH5h_xbUL4noFMgOT-5ZXUw3Pt0JhoqoNgpqQg5PGO_1cIH3Qb1iBF9dS4sU9tUYGkK9Kv2fBeY8gywVFhrRHpKwGYMIcfnLeA_QwU4L7vdqJoyty7kei55WorsgrCWY6jrnrqlb4TxKBZbF1s1Q0tZfcQPgrmrEm91I3du6tE16oqwSYIkZSs28JtPzZAh0HctXBqwEl-_qyx2RkOVw-KEnmruirll80DFpyitCLW_zx7eJDNjnIgNB-lDqdrNWpIsS61kyy-2gDWNW2DtB9ZPl59q51HBynM5lPgL0g-q-KlaATkWHCmykIUrQTrGUeE2vZqdpPx4q1Me6crblv16ElGEomEhT58mnx5YpXgdDuuD9JCF9z549xl337wwr6NWDKAi_KrCKRgsQKo4SqlIHJQuvThqepRTbYxwosu3ciLIf1A92hEVVwuXFhgj9v1HrblwQJKzkdGTkX69vEf9OSM2M2fh_XHJGvXmwmsxwpQSJU6sAoGSV4QLUGEkeNCaHe9jWYJ1YirQEurqTjzep9OUwTViTvErUBAbkOW5AfmXXGk1ZbYZqiJoEiaOIvEpSjzfkQQqT04gifObcBolJlnBEFkLDoWcgaMmqcKMQpM16TmnMi2Fg1VEgob-SkIyZUkGFR4XpV4OxlvEaEse8OwwKOn-89nva0WZG4G1LjWPInrLRwjgqHYGkDUph7GqNLEaoIlkX7IF67FI9cD6_jluOggcUxSwOFO5Fshcfzy5KSKrzuAkOeKp7vfArRwHThMqNoRVDbUVonmvIO9R6CFKV-yYW5608sQ4REQ0aLwyfxB7HJRiq0E847uCRQ%22%7D%2C%22header%22%3A%7B%22pageInstance%22%3A%7B%22pageUrn%22%3A%22urn%3Ali%3Apage%3Ad_flagship3_profile_view_base%22%2C%22trackingId%22%3A%229a5051f8-f699-4045-825c-3c0a799cb756%22%7D%2C%22time%22%3A1783488046306%2C%22version%22%3A%220.0.0%22%7D%2C%22requestHeader%22%3A%7B%22pageKey%22%3A%22d_flagship3_profile_view_base%22%2C%22interfaceLocale%22%3A%22en-US%22%7D%7D%7D%5D&csrfToken=ajax%3A1061531063325413417
+                        - img "Ad Image 1,408,144,566" [ref=f83e16]
+                        - generic [ref=f83e17]:
+                          - heading "Your Next SWE Role Awaits" [level=4] [ref=f83e18]
+                          - paragraph [ref=f83e19]: Join Intuit's SWE community for job alerts, events, and career content.
+                          - generic [ref=f83e20]:
+                            - img "Arvind" [ref=f83e22]
+                            - paragraph [ref=f83e23]: Arvind & 31 other connections also follow Intuit
+                      - link "Ad Image 1,462,375,514 Limited-Time Sale The stories you need to know about now. Subscribe today for $2 per week. Brian Brian & 128 other connections also follow The Wall Street Journal" [ref=f83e24] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/li/tscp/sct?destinationUrl=https%3A%2F%2Fwww.wsj.com%2Fsubscribe%2F%3Fswg%3Dtrue%26trackingCode%3Da0e889d4%26ucid%3DWSJ_SMD_LNK_ACQ_SAL_SLT_RET_2PW_SF1_WSP%26n2IKsaD9%3Dn2IKsaD9%26Pg9aWOPT%3DPg9aWOPT%26Cp5dKJWb%3DCp5dKJWb%26APCc9OU1%3DAPCc9OU1%26AP1F4404%3DAP1F4404%26li_fat_id%3Db9537c27-8f45-42aa-9cf1-0006882e482d&trackingEvent=%5B%7B%22eventInfo%22%3A%7B%22appId%22%3A%22com.linkedin.ads.rendering.d_web%22%2C%22eventName%22%3A%22SponsoredRightRailContentActionEvent%22%2C%22topicName%22%3A%22SponsoredRightRailContentActionEvent%22%7D%2C%22eventBody%22%3A%7B%22sponsoredEventHeader%22%3A%7B%22encryptedTrackingData%22%3A%22CwEAAAGfQCvk40P_O3frh5TjtWRcG_-1ZVKtblCLEj_37rPMIseNn7K-BEu4fTbov-ijPpbLFg33pK6WZD1XWDk1kpTC5ng0lkI1jxLJzpl7UUq4lUZYJy0ehpUtxa02NiNTR2SKOIuRNYd1WICuo6LLjyjIAGoZATeiwAAQqKMVOTXMJYDbM7fdOGlVyi73Lj0TVHEe8FdbsSPruYROMk7FVIuQhvzeTqcytkTKIO8sjFzOV5YuIXyhQ9rm8q0M4v3FrWtCTHNqypQscnL1DhaAJxriHM0trdKAXBRNZ9HCa8os0cpChcscE2s9NP1bb2JUrqLVmM2MEkfA7DNZ1FOju8fQ5LQ4wGccjAIjM-jNTK0b5rYgHv6gkrImRA76ebTcYI1kVWIguJhkL4tHZTckEuOwNBZrOV9TIhfffQoC9l2hLkfvxx1NtumQLvuJWm_AxLcH7Z6Ebsh5272aJP-UjtK7JRsnsJIw_6jeVG8YeKDwrZx_89VB8vmFITayvOB7x_tQgUaFS-93XxY4WiYa7IRxm7q1lfn067jazk17u4nExx8dfkicKnfni3d1vMgdzySb0akkusV2xlTVBEKycHKlgTwoaC0eaedsccRP0mdWfKWAR4iCCEhdQ10I2vLKBmH08bqfMaD2P7qoNbtFLLrP62Q96vWuMqrWU5lG_Yqq-oeV88GPRgktWY32nvcE92Ho5DeuNpqMzf7MMTXTbkD6jod4XlcrKfRlM5p2wCGT-fbWXLz572M20VQKewsAnwdIq3zCbCxPSxe2MA_VdiRGnlgIO94scJQ0Z_MiaL84iqUmdTR_B738Yg07ypgPG_k0zGvR6g9YJIju27peDxXiZkr8TQOjd-JKPUHZ92Outg7PqX0RUNIZx0SL5WQ2ecaSrhPT9SykrYTVu6bmOKV61lGT8vNnZBtCw6BHPeXwygWUwTGV1FCDBxhuYaQ7txPTOFbezAMJ61ZPR0J8ryxwHdzKJu6E18aiNByA1GbKML9Y1GicO0NXL5Ifz3FsZCcz2X-HPyZvF95F%22%7D%2C%22header%22%3A%7B%22pageInstance%22%3A%7B%22pageUrn%22%3A%22urn%3Ali%3Apage%3Ad_flagship3_profile_view_base%22%2C%22trackingId%22%3A%22aff1c305-14cd-457f-9895-92c9f5e2c903%22%7D%2C%22time%22%3A1783488046307%2C%22version%22%3A%220.0.0%22%7D%2C%22requestHeader%22%3A%7B%22pageKey%22%3A%22d_flagship3_profile_view_base%22%2C%22interfaceLocale%22%3A%22en-US%22%7D%7D%7D%5D&csrfToken=ajax%3A1061531063325413417
+                        - img "Ad Image 1,462,375,514" [ref=f83e26]
+                        - generic [ref=f83e27]:
+                          - heading "Limited-Time Sale" [level=4] [ref=f83e28]
+                          - paragraph [ref=f83e29]: The stories you need to know about now. Subscribe today for $2 per week.
+                          - generic [ref=f83e30]:
+                            - img "Brian" [ref=f83e32]
+                            - paragraph [ref=f83e33]: Brian & 128 other connections also follow The Wall Street Journal
+            - generic "Footer" [ref=f80e2605]:
+              - generic [ref=f80e2608]:
+                - generic [ref=f80e2609]:
+                  - navigation [ref=f80e2610]:
+                    - link "About" [ref=f80e2611] [cursor=pointer]:
+                      - /url: https://about.linkedin.com/
+                      - paragraph [ref=f80e2612]: About
+                    - link "Accessibility" [ref=f80e2613] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/accessibility/
+                      - paragraph [ref=f80e2614]: Accessibility
+                    - link "Talent Solutions" [ref=f80e2615] [cursor=pointer]:
+                      - /url: https://business.linkedin.com/talent-solutions?trk=flagship_nav&veh=li-footer-lts-control&src=li-footer
+                      - paragraph [ref=f80e2616]: Talent Solutions
+                    - link "Community Guidelines" [ref=f80e2617] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/legal/professional-community-policies/
+                      - paragraph [ref=f80e2618]: Community Guidelines
+                    - link "Careers" [ref=f80e2619] [cursor=pointer]:
+                      - /url: https://careers.linkedin.com/
+                      - paragraph [ref=f80e2620]: Careers
+                    - link "Marketing Solutions" [ref=f80e2621] [cursor=pointer]:
+                      - /url: https://business.linkedin.com/advertise?trk=n_nav_lms_f&src=li-footer
+                      - paragraph [ref=f80e2622]: Marketing Solutions
+                    - button "Privacy & Terms" [ref=f80e2623] [cursor=pointer]:
+                      - generic [ref=f80e2624]:
+                        - paragraph [ref=f80e2625]: Privacy & Terms
+                        - img [ref=f80e2626]
+                    - link "Ad Choices" [ref=f80e2628] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/help/linkedin/answer/62931/
+                      - paragraph [ref=f80e2629]: Ad Choices
+                    - link "Advertising" [ref=f80e2630] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/ad/start/?trk=n_nav_ads_rr
+                      - paragraph [ref=f80e2631]: Advertising
+                    - link "Sales Solutions" [ref=f80e2632] [cursor=pointer]:
+                      - /url: https://business.linkedin.com/sales-solutions?trk=flagship_nav&veh=li-footer-lss-control&src=li-footer
+                      - paragraph [ref=f80e2633]: Sales Solutions
+                    - link "Mobile" [ref=f80e2634] [cursor=pointer]:
+                      - /url: https://mobile.linkedin.com/
+                      - paragraph [ref=f80e2635]: Mobile
+                    - link "Small Business" [ref=f80e2636] [cursor=pointer]:
+                      - /url: https://business.linkedin.com/grow?src=li-footer
+                      - paragraph [ref=f80e2637]: Small Business
+                    - link "Safety Center" [ref=f80e2638] [cursor=pointer]:
+                      - /url: https://safety.linkedin.com/
+                      - paragraph [ref=f80e2639]: Safety Center
+                  - paragraph [ref=f80e2641]: LinkedIn Corporation © 2026
+                - generic [ref=f80e2642]:
+                  - list [ref=f80e2643]:
+                    - listitem [ref=f80e2644]:
+                      - generic [ref=f80e2645]:
+                        - img [ref=f80e2646]
+                        - generic [ref=f80e2648]:
+                          - link "Questions?" [ref=f80e2649] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/help/linkedin/
+                            - paragraph [ref=f80e2650]: Questions?
+                          - paragraph [ref=f80e2651]: Visit our Help Center.
+                    - listitem [ref=f80e2652]:
+                      - generic [ref=f80e2653]:
+                        - img [ref=f80e2654]
+                        - generic [ref=f80e2656]:
+                          - link "Manage your account and privacy" [ref=f80e2657] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/mypreferences/d/
+                            - paragraph [ref=f80e2658]: Manage your account and privacy
+                          - paragraph [ref=f80e2659]: Go to your Settings.
+                    - listitem [ref=f80e2660]:
+                      - generic [ref=f80e2661]:
+                        - img [ref=f80e2662]
+                        - generic [ref=f80e2664]:
+                          - link "Recommendation transparency" [ref=f80e2665] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/help/linkedin/answer/a1339724/
+                            - paragraph [ref=f80e2666]: Recommendation transparency
+                          - paragraph [ref=f80e2667]: Learn more about Recommended Content.
+                  - generic [ref=f80e2669]:
+                    - paragraph [ref=f80e2671]: Select language
+                    - generic [ref=f80e2672]:
+                      - combobox "Select language" [ref=f80e2673] [cursor=pointer]:
+                        - option "العربية (Arabic)"
+                        - option "বাংলা (Bangla)"
+                        - option "Čeština (Czech)"
+                        - option "Dansk (Danish)"
+                        - option "Deutsch (German)"
+                        - option "Ελληνικά (Greek)"
+                        - option "English (English)" [selected]
+                        - option "Español (Spanish)"
+                        - option "فارسی (Persian)"
+                        - option "Suomi (Finnish)"
+                        - option "Français (French)"
+                        - option "हिंदी (Hindi)"
+                        - option "Magyar (Hungarian)"
+                        - option "Bahasa Indonesia (Indonesian)"
+                        - option "Italiano (Italian)"
+                        - option "עברית (Hebrew)"
+                        - option "日本語 (Japanese)"
+                        - option "한국어 (Korean)"
+                        - option "मराठी (Marathi)"
+                        - option "Bahasa Malaysia (Malay)"
+                        - option "Nederlands (Dutch)"
+                        - option "Norsk (Norwegian)"
+                        - option "ਪੰਜਾਬੀ (Punjabi)"
+                        - option "Polski (Polish)"
+                        - option "Português (Portuguese)"
+                        - option "Română (Romanian)"
+                        - option "Русский (Russian)"
+                        - option "Svenska (Swedish)"
+                        - option "తెలుగు (Telugu)"
+                        - option "ภาษาไทย (Thai)"
+                        - option "Tagalog (Tagalog)"
+                        - option "Türkçe (Turkish)"
+                        - option "Українська (Ukrainian)"
+                        - option "Tiếng Việt (Vietnamese)"
+                        - option "简体中文 (Chinese (Simplified))"
+                        - option "正體中文 (Chinese (Traditional))"
+                      - img
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - complementary:
+            - generic [ref=f80e2675]:
+              - generic [ref=f80e2677] [cursor=pointer]:
+                - generic [ref=f80e2678]:
+                  - img "Taylor Yates" [ref=f80e2679]
+                  - generic [ref=f80e2681]: Status is online
+                - button "You are on the messaging overlay. Press enter to open the list of conversations." [ref=f80e2682]:
+                  - generic [ref=f80e2683]:
+                    - generic [ref=f80e2684]: Messaging
+                    - generic [ref=f80e2685]: You are on the messaging overlay. Press enter to open the list of conversations.
+              - generic [ref=f80e2686]:
+                - button "Open messenger dropdown menu" [ref=f80e2688] [cursor=pointer]:
+                  - img "Open messenger dropdown menu" [ref=f80e2689]
+                - button "Compose message" [ref=f80e2692] [cursor=pointer]:
+                  - img [ref=f80e2693]
+                  - generic [ref=f80e2695]: Compose message
+                - button "You are on the messaging overlay. Press enter to open the list of conversations." [ref=f80e2696] [cursor=pointer]:
+                  - img [ref=f80e2697]
+                  - generic [ref=f80e2699]: You are on the messaging overlay. Press enter to open the list of conversations.
+          - complementary "AI-powered assistant to get help with your career, jobs etc"
+  - iframe [ref=f80e2700]:
+    - generic [active] [ref=f84e1]:
+      - generic:
+        - region "Toast message":
+          - heading "0 notifications total" [level=2] [ref=f84e3]
+          - alert
+      - region [ref=f84e4]
+      - generic [ref=f84e5]:
+        - generic [ref=f84e7]:
+          - button "Skip to search" [ref=f84e8] [cursor=pointer]:
+            - generic [ref=f84e9]: Skip to search
+          - button "Skip to main content" [ref=f84e10] [cursor=pointer]:
+            - generic [ref=f84e11]: Skip to main content
+          - button "Keyboard shortcuts" [ref=f84e12] [cursor=pointer]:
+            - generic [ref=f84e13]: Keyboard shortcuts
+          - button "Close jump menu" [ref=f84e14] [cursor=pointer]:
+            - img [ref=f84e15]
+            - generic [ref=f84e17]: Close jump menu
+        - banner "Global Navigation" [ref=f84e18]:
+          - generic [ref=f84e19]:
+            - link "LinkedIn" [ref=f84e20] [cursor=pointer]:
+              - /url: https://www.linkedin.com/feed/
+              - img "LinkedIn" [ref=f84e23]:
+                - img [ref=f84e24]
+            - generic [ref=f84e28]:
+              - combobox "I’m looking for..." [ref=f84e29]
+              - generic:
+                - img
+            - navigation "Primary Navigation" [ref=f84e30]:
+              - list [ref=f84e31]:
+                - listitem [ref=f84e32]:
+                  - link "new feed updates notifications Home" [ref=f84e33] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/feed/
+                    - generic [ref=f84e34]:
+                      - generic [ref=f84e37]: new feed updates notifications
+                      - img [ref=f84e41]
+                    - generic "Home" [ref=f84e43]
+                - listitem [ref=f84e44]:
+                  - link "My Network" [ref=f84e45] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/mynetwork/?
+                    - img [ref=f84e49]
+                    - generic "My Network" [ref=f84e51]
+                - listitem [ref=f84e52]:
+                  - link "Jobs" [ref=f84e53] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/jobs/?
+                    - img [ref=f84e57]
+                    - generic "Jobs" [ref=f84e59]
+                - listitem [ref=f84e60]:
+                  - link "Messaging" [ref=f84e61] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/messaging/?
+                    - img [ref=f84e65]
+                    - generic "Messaging" [ref=f84e67]
+                - listitem [ref=f84e68]:
+                  - link "20 new notifications Notifications" [ref=f84e69] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/notifications/?
+                    - generic [ref=f84e70]:
+                      - generic [ref=f84e71]:
+                        - generic [ref=f84e72]: "20"
+                        - generic [ref=f84e73]: 20 new notifications
+                      - img [ref=f84e77]
+                    - generic "Notifications" [ref=f84e79]
+                - listitem [ref=f84e80]:
+                  - button "Taylor Yates Me" [ref=f84e82] [cursor=pointer]:
+                    - img "Taylor Yates" [ref=f84e83]
+                    - generic [ref=f84e84]:
+                      - text: Me
+                      - img [ref=f84e85]
+                - listitem [ref=f84e87]:
+                  - button "For Business" [ref=f84e89] [cursor=pointer]:
+                    - img [ref=f84e93]
+                    - generic "For Business" [ref=f84e95]:
+                      - text: For Business
+                      - img [ref=f84e96]
+                - listitem [ref=f84e98]:
+                  - link "Retry Premium" [ref=f84e100] [cursor=pointer]:
+                    - /url: javascript:void(0)
+                    - generic [ref=f84e101]:
+                      - img [ref=f84e102]
+                      - generic [ref=f84e104]: Retry Premium

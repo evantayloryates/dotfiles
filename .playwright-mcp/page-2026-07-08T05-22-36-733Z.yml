@@ -1,0 +1,706 @@
+- generic [ref=f154e2]:
+  - heading "0 notifications" [level=2] [ref=f154e476]
+  - generic [ref=f154e477]:
+    - generic:
+      - generic "Skip navigation menu":
+        - generic [ref=f154e478]:
+          - button "Skip to search" [ref=f154e479] [cursor=pointer]:
+            - generic [ref=f154e481]: Skip to search
+          - button "Skip to main content" [ref=f154e482] [cursor=pointer]:
+            - generic [ref=f154e484]: Skip to main content
+          - button "Skip to primary content" [ref=f154e485] [cursor=pointer]:
+            - generic [ref=f154e487]: Skip to primary content
+          - button "Skip to aside" [ref=f154e488] [cursor=pointer]:
+            - generic [ref=f154e490]: Skip to aside
+          - button "Close jump menu" [ref=f154e492] [cursor=pointer]:
+            - img [ref=f154e494]
+    - generic [ref=f154e496]:
+      - banner [ref=f154e498]:
+        - generic [ref=f154e501]:
+          - button "LinkedIn" [ref=f154e502] [cursor=pointer]:
+            - img "LinkedIn" [ref=f154e503]
+          - generic [ref=f154e505]:
+            - status [ref=f154e506]
+            - search [ref=f154e507]:
+              - generic [ref=f154e508]:
+                - img [ref=f154e510]
+                - textbox "I'm looking for…" [ref=f154e512]
+          - generic [ref=f154e514]:
+            - figure [ref=f154e519]
+            - navigation [ref=f154e523]:
+              - list [ref=f154e524]:
+                - listitem [ref=f154e525]:
+                  - button "Home, 1 new notification" [ref=f154e526] [cursor=pointer]:
+                    - img [ref=f154e528]
+                    - generic [ref=f154e531]: Home
+                - listitem [ref=f154e532]:
+                  - link "My Network, 0 new notifications" [ref=f154e533] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/mynetwork
+                    - img [ref=f154e535]
+                    - generic [ref=f154e537]: My Network
+                - listitem [ref=f154e538]:
+                  - link "Jobs, 0 new notifications" [ref=f154e539] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/jobs/
+                    - img [ref=f154e541]
+                    - generic [ref=f154e543]: Jobs
+                - listitem [ref=f154e544]:
+                  - link "Messaging, 0 new notifications" [ref=f154e545] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/messaging/
+                    - img [ref=f154e547]
+                    - generic [ref=f154e549]: Messaging
+                - listitem [ref=f154e550]:
+                  - link "Notifications, 20 new notifications" [ref=f154e551] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/notifications/
+                    - generic [ref=f154e552]:
+                      - img [ref=f154e553]
+                      - generic [ref=f154e555]: "20"
+                    - generic [ref=f154e556]: Notifications
+                - listitem [ref=f154e557]:
+                  - button "Me" [ref=f154e558] [cursor=pointer]:
+                    - figure [ref=f154e560]
+                    - generic [ref=f154e561]:
+                      - text: Me
+                      - img [ref=f154e562]
+            - generic [ref=f154e565]:
+              - navigation [ref=f154e566]:
+                - list [ref=f154e567]:
+                  - listitem [ref=f154e568]:
+                    - button "For Business" [ref=f154e569] [cursor=pointer]:
+                      - img [ref=f154e571]
+                      - generic [ref=f154e573]:
+                        - text: For Business
+                        - img [ref=f154e574]
+              - link "Retry Premium" [ref=f154e577] [cursor=pointer]:
+                - /url: https://www.linkedin.com/search/results/people/?origin=MEMBER_PROFILE_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAAKKCpkBZExkyvfipNhpTyygScMXTuZSMps%22%5D
+                - generic [ref=f154e578]:
+                  - img [ref=f154e579]
+                  - paragraph [ref=f154e585]: Retry Premium
+      - generic [ref=f154e586]:
+        - toolbar [ref=f154e587]:
+          - generic [ref=f154e592]:
+            - button "Filter by People" [ref=f154e594] [cursor=pointer]:
+              - generic "Filter by People" [ref=f154e595]:
+                - checkbox "People" [checked]
+                - generic [ref=f154e596]:
+                  - text: People
+                  - img [ref=f154e597]
+            - radio "Filter by 1st connections" [checked] [ref=f154e600] [cursor=pointer]:
+              - generic "Filter by 1st connections" [ref=f154e601]:
+                - checkbox "1st" [checked]
+                - generic [ref=f154e602]: 1st
+            - radio "Filter by 2nd connections" [ref=f154e604] [cursor=pointer]:
+              - generic "Filter by 2nd connections" [ref=f154e605]:
+                - checkbox "2nd"
+                - generic [ref=f154e606]: 2nd
+            - radio "Filter by 3rd+ connections" [ref=f154e608] [cursor=pointer]:
+              - generic "Filter by 3rd+ connections" [ref=f154e609]:
+                - checkbox "3rd+"
+                - generic [ref=f154e610]: 3rd+
+            - button "Filter by Brady Akers" [ref=f154e612] [cursor=pointer]:
+              - generic "Filter by Brady Akers" [ref=f154e613]:
+                - checkbox "Brady Akers" [checked]
+                - generic [ref=f154e614]:
+                  - text: Brady Akers
+                  - img [ref=f154e615]
+            - button "Filter by Locations" [ref=f154e618] [cursor=pointer]:
+              - generic "Filter by Locations" [ref=f154e619]:
+                - checkbox "Locations"
+                - generic [ref=f154e620]:
+                  - text: Locations
+                  - img [ref=f154e621]
+            - button "Filter by Current companies" [ref=f154e624] [cursor=pointer]:
+              - generic "Filter by Current companies" [ref=f154e625]:
+                - checkbox "Current companies"
+                - generic [ref=f154e626]:
+                  - text: Current companies
+                  - img [ref=f154e627]
+            - button "All filters" [ref=f154e629] [cursor=pointer]:
+              - generic [ref=f154e631]: All filters
+            - link "Reset" [ref=f154e632] [cursor=pointer]:
+              - /url: https://www.linkedin.com/search/results/people/?origin=FACETED_SEARCH
+              - generic [ref=f154e634]: Reset
+        - main [ref=f154e635]:
+          - generic [ref=f154e640]:
+            - region "Primary content" [ref=f154e641]:
+              - generic [ref=f154e645]:
+                - list [ref=f154e647]:
+                  - listitem [ref=f154e649]:
+                    - link "Ant Utt Premium • 1st Senior Software Engineer Roanoke, Virginia, United States Send a message to Ant Utt Ben Trenda, Dan Alexander and 41 other mutual connections" [ref=f154e651] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/anthonyutt/
+                      - generic [ref=f154e652]:
+                        - generic [ref=f154e653]:
+                          - figure [ref=f154e654]
+                          - generic [ref=f154e655]:
+                            - paragraph [ref=f154e656]:
+                              - link "Ant Utt Premium" [ref=f154e657]:
+                                - /url: https://www.linkedin.com/in/anthonyutt/
+                                - text: Ant Utt
+                                - img "Premium" [ref=f154e658]:
+                                  - img [ref=f154e659]
+                              - generic [ref=f154e661]: • 1st
+                            - paragraph [ref=f154e663]: Senior Software Engineer
+                            - paragraph [ref=f154e665]: Roanoke, Virginia, United States
+                          - link "Send a message to Ant Utt" [ref=f154e671]:
+                            - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAACK0m2wB5S84vxemtdLp31nIf9m4GG8Akh8&recipient=ACoAACK0m2wB5S84vxemtdLp31nIf9m4GG8Akh8&screenContext=SEARCH&interop=msgOverlay
+                            - generic [ref=f154e672]:
+                              - img [ref=f154e673]
+                              - generic [ref=f154e675]: Message
+                        - generic [ref=f154e676]:
+                          - figure [ref=f154e677]
+                          - figure [ref=f154e678]
+                          - figure [ref=f154e679]
+                          - paragraph [ref=f154e681]:
+                            - generic [ref=f154e682]:
+                              - link "Ben Trenda" [ref=f154e683]:
+                                - /url: https://www.linkedin.com/in/bentrenda/
+                                - strong [ref=f154e684]: Ben Trenda
+                              - text: ","
+                              - link "Dan Alexander" [ref=f154e685]:
+                                - /url: https://www.linkedin.com/in/danalexander99/
+                                - strong [ref=f154e686]: Dan Alexander
+                              - text: and
+                              - link "41 other mutual connections" [ref=f154e687]:
+                                - /url: https://www.linkedin.com/search/results/people/?origin=SHARED_CONNECTIONS_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAACK0m2wB5S84vxemtdLp31nIf9m4GG8Akh8%22%5D
+                                - strong [ref=f154e688]: 41 other mutual connections
+                  - listitem [ref=f154e690]:
+                    - link "Joey Stevens Verified • 1st Lead DevOps Engineer at SalesAi United States Send a message to Joey Stevens Ben Trenda, Dan Alexander and 24 other mutual connections" [ref=f154e692] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/joey-stevens-605b47120/
+                      - generic [ref=f154e693]:
+                        - generic [ref=f154e694]:
+                          - figure [ref=f154e695]
+                          - generic [ref=f154e696]:
+                            - paragraph [ref=f154e697]:
+                              - link "Joey Stevens Verified" [ref=f154e698]:
+                                - /url: https://www.linkedin.com/in/joey-stevens-605b47120/
+                                - text: Joey Stevens
+                                - img "Verified" [ref=f154e699]:
+                                  - img [ref=f154e700]
+                              - generic [ref=f154e702]: • 1st
+                            - paragraph [ref=f154e704]: Lead DevOps Engineer at SalesAi
+                            - paragraph [ref=f154e706]: United States
+                          - link "Send a message to Joey Stevens" [ref=f154e712]:
+                            - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAB4RuqUB6S4G_1T9GSj5B1isGfYjHN22Q1M&recipient=ACoAAB4RuqUB6S4G_1T9GSj5B1isGfYjHN22Q1M&screenContext=SEARCH&interop=msgOverlay
+                            - generic [ref=f154e713]:
+                              - img [ref=f154e714]
+                              - generic [ref=f154e716]: Message
+                        - generic [ref=f154e717]:
+                          - figure [ref=f154e718]
+                          - figure [ref=f154e719]
+                          - figure [ref=f154e720]
+                          - paragraph [ref=f154e722]:
+                            - generic [ref=f154e723]:
+                              - link "Ben Trenda" [ref=f154e724]:
+                                - /url: https://www.linkedin.com/in/bentrenda/
+                                - strong [ref=f154e725]: Ben Trenda
+                              - text: ","
+                              - link "Dan Alexander" [ref=f154e726]:
+                                - /url: https://www.linkedin.com/in/danalexander99/
+                                - strong [ref=f154e727]: Dan Alexander
+                              - text: and
+                              - link "24 other mutual connections" [ref=f154e728]:
+                                - /url: https://www.linkedin.com/search/results/people/?origin=SHARED_CONNECTIONS_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAB4RuqUB6S4G_1T9GSj5B1isGfYjHN22Q1M%22%5D
+                                - strong [ref=f154e729]: 24 other mutual connections
+                  - generic [ref=f154e734]:
+                    - img [ref=f154e735]
+                    - generic [ref=f154e747]:
+                      - paragraph [ref=f154e749]: Easily find people who are actively hiring
+                      - paragraph [ref=f154e750]: Search more efficiently with advanced search filters
+                      - link "Retry Premium for $0" [ref=f154e751] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/premium/products/?upsellOrderOrigin=Tracking%3Av1%3Apremium_advanced_people_search_filter_inline_result_jobseeker_upsell%3AJob+Seeker%3AIn-Product&utype=job_marketing&referenceId=JD7mqCpKRNy4QcxUXBfRuw%3D%3D&isSS=false&upsellSlotId=ADVANCED_PEOPLE_SEARCH_FILTER_INLINE_RESULT
+                        - generic [ref=f154e753]: Retry Premium for $0
+                      - paragraph [ref=f154e754]: 1-month free trial. Easy to cancel. We’ll remind you 7 days before your trial ends.
+                  - listitem [ref=f154e756]:
+                    - link "Kevin James Coleman Verified • 1st Software Engineer Greater Seattle Area Send a message to Kevin James Coleman Craig Mytton, David Wiener and 30 other mutual connections" [ref=f154e758] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/kevinjamescoleman/
+                      - generic [ref=f154e759]:
+                        - generic [ref=f154e760]:
+                          - figure [ref=f154e761]
+                          - generic [ref=f154e762]:
+                            - paragraph [ref=f154e763]:
+                              - link "Kevin James Coleman Verified" [ref=f154e764]:
+                                - /url: https://www.linkedin.com/in/kevinjamescoleman/
+                                - text: Kevin James Coleman
+                                - img "Verified" [ref=f154e765]:
+                                  - img [ref=f154e766]
+                              - generic [ref=f154e768]: • 1st
+                            - paragraph [ref=f154e770]: Software Engineer
+                            - paragraph [ref=f154e772]: Greater Seattle Area
+                          - link "Send a message to Kevin James Coleman" [ref=f154e778]:
+                            - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAABOSixMB4n6BwyWTXJrAe8HL1-nrD8dI9Ds&recipient=ACoAABOSixMB4n6BwyWTXJrAe8HL1-nrD8dI9Ds&screenContext=SEARCH&interop=msgOverlay
+                            - generic [ref=f154e779]:
+                              - img [ref=f154e780]
+                              - generic [ref=f154e782]: Message
+                        - generic [ref=f154e783]:
+                          - figure [ref=f154e784]
+                          - figure [ref=f154e785]
+                          - figure [ref=f154e786]
+                          - paragraph [ref=f154e788]:
+                            - generic [ref=f154e789]:
+                              - link "Craig Mytton" [ref=f154e790]:
+                                - /url: https://www.linkedin.com/in/craig-mytton-a008441/
+                                - strong [ref=f154e791]: Craig Mytton
+                              - text: ","
+                              - link "David Wiener" [ref=f154e792]:
+                                - /url: https://www.linkedin.com/in/thedavidwiener/
+                                - strong [ref=f154e793]: David Wiener
+                              - text: and
+                              - link "30 other mutual connections" [ref=f154e794]:
+                                - /url: https://www.linkedin.com/search/results/people/?origin=SHARED_CONNECTIONS_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAABOSixMB4n6BwyWTXJrAe8HL1-nrD8dI9Ds%22%5D
+                                - strong [ref=f154e795]: 30 other mutual connections
+                  - listitem [ref=f154e797]:
+                    - link "Ben Trenda Premium • 1st Timing is everything. Chief Revenue Officer and Founder with 0-to-1 and $0 -> $100M experience | Strategic Partnerships United States Send a message to Ben Trenda 5K followers David Peterson, Dan Alexander and 25 other mutual connections" [ref=f154e799] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/bentrenda/
+                      - generic [ref=f154e800]:
+                        - generic [ref=f154e801]:
+                          - figure [ref=f154e802]
+                          - generic [ref=f154e803]:
+                            - paragraph [ref=f154e804]:
+                              - link "Ben Trenda Premium" [ref=f154e805]:
+                                - /url: https://www.linkedin.com/in/bentrenda/
+                                - text: Ben Trenda
+                                - img "Premium" [ref=f154e806]:
+                                  - img [ref=f154e807]
+                              - generic [ref=f154e809]: • 1st
+                            - paragraph [ref=f154e811]: Timing is everything. Chief Revenue Officer and Founder with 0-to-1 and $0 -> $100M experience | Strategic Partnerships
+                            - paragraph [ref=f154e813]: United States
+                          - link "Send a message to Ben Trenda" [ref=f154e819]:
+                            - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAAAAvj8B51bQ1xCH_SgwvmlAFTdplBlBmXY&recipient=ACoAAAAAvj8B51bQ1xCH_SgwvmlAFTdplBlBmXY&screenContext=SEARCH&interop=msgOverlay
+                            - generic [ref=f154e820]:
+                              - img [ref=f154e821]
+                              - generic [ref=f154e823]: Message
+                        - generic [ref=f154e824]:
+                          - img [ref=f154e825]
+                          - paragraph [ref=f154e828]:
+                            - link "5K followers" [ref=f154e830]:
+                              - /url: https://www.linkedin.com/search/results/people/?origin=SHARED_FOLLOWERS_CANNED_SEARCH&followerOf=%5B%22ACoAAAAAvj8B51bQ1xCH_SgwvmlAFTdplBlBmXY%22%5D
+                        - generic [ref=f154e831]:
+                          - figure [ref=f154e832]
+                          - figure [ref=f154e833]
+                          - figure [ref=f154e834]
+                          - paragraph [ref=f154e836]:
+                            - generic [ref=f154e837]:
+                              - link "David Peterson" [ref=f154e838]:
+                                - /url: https://www.linkedin.com/in/davidcpeterson/
+                                - strong [ref=f154e839]: David Peterson
+                              - text: ","
+                              - link "Dan Alexander" [ref=f154e840]:
+                                - /url: https://www.linkedin.com/in/danalexander99/
+                                - strong [ref=f154e841]: Dan Alexander
+                              - text: and
+                              - link "25 other mutual connections" [ref=f154e842]:
+                                - /url: https://www.linkedin.com/search/results/people/?origin=SHARED_CONNECTIONS_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAAAAvj8B51bQ1xCH_SgwvmlAFTdplBlBmXY%22%5D
+                                - strong [ref=f154e843]: 25 other mutual connections
+                  - listitem [ref=f154e845]:
+                    - link "Mark Dinets Premium • 1st Sales & Partnerships Leader Los Angeles Metropolitan Area Send a message to Mark Dinets Ben Trenda, Dan Alexander and 30 other mutual connections" [ref=f154e847] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/markdinets/
+                      - generic [ref=f154e848]:
+                        - generic [ref=f154e849]:
+                          - figure [ref=f154e850]
+                          - generic [ref=f154e851]:
+                            - paragraph [ref=f154e852]:
+                              - link "Mark Dinets Premium" [ref=f154e853]:
+                                - /url: https://www.linkedin.com/in/markdinets/
+                                - text: Mark Dinets
+                                - img "Premium" [ref=f154e854]:
+                                  - img [ref=f154e855]
+                              - generic [ref=f154e857]: • 1st
+                            - paragraph [ref=f154e859]: Sales & Partnerships Leader
+                            - paragraph [ref=f154e861]: Los Angeles Metropolitan Area
+                          - link "Send a message to Mark Dinets" [ref=f154e867]:
+                            - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAAK2v8UBFFLmiDh61uTCd9fWLne1U7NAvts&recipient=ACoAAAK2v8UBFFLmiDh61uTCd9fWLne1U7NAvts&screenContext=SEARCH&interop=msgOverlay
+                            - generic [ref=f154e868]:
+                              - img [ref=f154e869]
+                              - generic [ref=f154e871]: Message
+                        - generic [ref=f154e872]:
+                          - figure [ref=f154e873]
+                          - figure [ref=f154e874]
+                          - figure [ref=f154e875]
+                          - paragraph [ref=f154e877]:
+                            - generic [ref=f154e878]:
+                              - link "Ben Trenda" [ref=f154e879]:
+                                - /url: https://www.linkedin.com/in/bentrenda/
+                                - strong [ref=f154e880]: Ben Trenda
+                              - text: ","
+                              - link "Dan Alexander" [ref=f154e881]:
+                                - /url: https://www.linkedin.com/in/danalexander99/
+                                - strong [ref=f154e882]: Dan Alexander
+                              - text: and
+                              - link "30 other mutual connections" [ref=f154e883]:
+                                - /url: https://www.linkedin.com/search/results/people/?origin=SHARED_CONNECTIONS_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAAK2v8UBFFLmiDh61uTCd9fWLne1U7NAvts%22%5D
+                                - strong [ref=f154e884]: 30 other mutual connections
+                  - listitem [ref=f154e886]:
+                    - link "Chady Karlitch • 1st Software programmer | Technical Artist Lebanon Send a message to Chady Karlitch David Wiener, Casey Saran and 9 other mutual connections" [ref=f154e888] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/chady-karlitch/
+                      - generic [ref=f154e889]:
+                        - generic [ref=f154e890]:
+                          - figure [ref=f154e891]:
+                            - img "Chady Karlitch" [ref=f154e892]
+                          - generic [ref=f154e893]:
+                            - paragraph [ref=f154e894]:
+                              - link "Chady Karlitch" [ref=f154e895]:
+                                - /url: https://www.linkedin.com/in/chady-karlitch/
+                              - generic [ref=f154e896]: • 1st
+                            - paragraph [ref=f154e898]: Software programmer | Technical Artist
+                            - paragraph [ref=f154e900]: Lebanon
+                          - link "Send a message to Chady Karlitch" [ref=f154e906]:
+                            - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAABBmWw4BxHBP_6y8UUtf1MzTDqp-YCBeoeI&recipient=ACoAABBmWw4BxHBP_6y8UUtf1MzTDqp-YCBeoeI&screenContext=SEARCH&interop=msgOverlay
+                            - generic [ref=f154e907]:
+                              - img [ref=f154e908]
+                              - generic [ref=f154e910]: Message
+                        - generic [ref=f154e911]:
+                          - figure [ref=f154e912]
+                          - figure [ref=f154e913]
+                          - figure [ref=f154e914]
+                          - paragraph [ref=f154e916]:
+                            - generic [ref=f154e917]:
+                              - link "David Wiener" [ref=f154e918]:
+                                - /url: https://www.linkedin.com/in/thedavidwiener/
+                                - strong [ref=f154e919]: David Wiener
+                              - text: ","
+                              - link "Casey Saran" [ref=f154e920]:
+                                - /url: https://www.linkedin.com/in/caseysaran/
+                                - strong [ref=f154e921]: Casey Saran
+                              - text: and
+                              - link "9 other mutual connections" [ref=f154e922]:
+                                - /url: https://www.linkedin.com/search/results/people/?origin=SHARED_CONNECTIONS_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAABBmWw4BxHBP_6y8UUtf1MzTDqp-YCBeoeI%22%5D
+                                - strong [ref=f154e923]: 9 other mutual connections
+                  - listitem [ref=f154e925]:
+                    - link "Richard Gascoyne Verified • 1st B2B Sales Pro | $1M+ Revenue Closed | Enterprise Accounts | SaaS | Cold Outreach | CRM Automation Honolulu Metropolitan Area Send a message to Richard Gascoyne Craig Mytton, Casey Saran and 18 other mutual connections" [ref=f154e927] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/macgascoyne/
+                      - generic [ref=f154e928]:
+                        - generic [ref=f154e929]:
+                          - figure [ref=f154e930]
+                          - generic [ref=f154e931]:
+                            - paragraph [ref=f154e932]:
+                              - link "Richard Gascoyne Verified" [ref=f154e933]:
+                                - /url: https://www.linkedin.com/in/macgascoyne/
+                                - text: Richard Gascoyne
+                                - img "Verified" [ref=f154e934]:
+                                  - img [ref=f154e935]
+                              - generic [ref=f154e937]: • 1st
+                            - paragraph [ref=f154e939]: B2B Sales Pro | $1M+ Revenue Closed | Enterprise Accounts | SaaS | Cold Outreach | CRM Automation
+                            - paragraph [ref=f154e941]: Honolulu Metropolitan Area
+                          - link "Send a message to Richard Gascoyne" [ref=f154e947]:
+                            - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAC5_maQBrpuzm97-ymm5zEhUsSByDB-2tfI&recipient=ACoAAC5_maQBrpuzm97-ymm5zEhUsSByDB-2tfI&screenContext=SEARCH&interop=msgOverlay
+                            - generic [ref=f154e948]:
+                              - img [ref=f154e949]
+                              - generic [ref=f154e951]: Message
+                        - generic [ref=f154e952]:
+                          - figure [ref=f154e953]
+                          - figure [ref=f154e954]
+                          - figure [ref=f154e955]
+                          - paragraph [ref=f154e957]:
+                            - generic [ref=f154e958]:
+                              - link "Craig Mytton" [ref=f154e959]:
+                                - /url: https://www.linkedin.com/in/craig-mytton-a008441/
+                                - strong [ref=f154e960]: Craig Mytton
+                              - text: ","
+                              - link "Casey Saran" [ref=f154e961]:
+                                - /url: https://www.linkedin.com/in/caseysaran/
+                                - strong [ref=f154e962]: Casey Saran
+                              - text: and
+                              - link "18 other mutual connections" [ref=f154e963]:
+                                - /url: https://www.linkedin.com/search/results/people/?origin=SHARED_CONNECTIONS_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAC5_maQBrpuzm97-ymm5zEhUsSByDB-2tfI%22%5D
+                                - strong [ref=f154e964]: 18 other mutual connections
+                  - listitem [ref=f154e966]:
+                    - 'link "Elad Druckman Premium • 1st BD, Corp Dev & Strategy | Perion Network (NASDAQ: PERI) New York, New York, United States Send a message to Elad Druckman Ben Trenda, Dan Alexander and 7 other mutual connections" [ref=f154e968] [cursor=pointer]':
+                      - /url: https://www.linkedin.com/in/eladdrukman/
+                      - generic [ref=f154e969]:
+                        - generic [ref=f154e970]:
+                          - figure [ref=f154e971]
+                          - generic [ref=f154e972]:
+                            - paragraph [ref=f154e973]:
+                              - link "Elad Druckman Premium" [ref=f154e974]:
+                                - /url: https://www.linkedin.com/in/eladdrukman/
+                                - text: Elad Druckman
+                                - img "Premium" [ref=f154e975]:
+                                  - img [ref=f154e976]
+                              - generic [ref=f154e978]: • 1st
+                            - paragraph [ref=f154e980]: "BD, Corp Dev & Strategy | Perion Network (NASDAQ: PERI)"
+                            - paragraph [ref=f154e982]: New York, New York, United States
+                          - link "Send a message to Elad Druckman" [ref=f154e988]:
+                            - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAAFRGJcBdrYDlujyTOvvsEY97iDTtVaU6Vk&recipient=ACoAAAFRGJcBdrYDlujyTOvvsEY97iDTtVaU6Vk&screenContext=SEARCH&interop=msgOverlay
+                            - generic [ref=f154e989]:
+                              - img [ref=f154e990]
+                              - generic [ref=f154e992]: Message
+                        - generic [ref=f154e993]:
+                          - figure [ref=f154e994]
+                          - figure [ref=f154e995]
+                          - figure [ref=f154e996]
+                          - paragraph [ref=f154e998]:
+                            - generic [ref=f154e999]:
+                              - link "Ben Trenda" [ref=f154e1000]:
+                                - /url: https://www.linkedin.com/in/bentrenda/
+                                - strong [ref=f154e1001]: Ben Trenda
+                              - text: ","
+                              - link "Dan Alexander" [ref=f154e1002]:
+                                - /url: https://www.linkedin.com/in/danalexander99/
+                                - strong [ref=f154e1003]: Dan Alexander
+                              - text: and
+                              - link "7 other mutual connections" [ref=f154e1004]:
+                                - /url: https://www.linkedin.com/search/results/people/?origin=SHARED_CONNECTIONS_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAAFRGJcBdrYDlujyTOvvsEY97iDTtVaU6Vk%22%5D
+                                - strong [ref=f154e1005]: 7 other mutual connections
+                  - listitem [ref=f154e1007]:
+                    - link "Tim O'Connor Verified • 1st Proven sales leader New York, New York, United States Send a message to Tim O'Connor Ben Trenda, Dan Alexander and 14 other mutual connections" [ref=f154e1009] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/tim-o-connor-5671572/
+                      - generic [ref=f154e1010]:
+                        - generic [ref=f154e1011]:
+                          - figure [ref=f154e1012]
+                          - generic [ref=f154e1013]:
+                            - paragraph [ref=f154e1014]:
+                              - link "Tim O'Connor Verified" [ref=f154e1015]:
+                                - /url: https://www.linkedin.com/in/tim-o-connor-5671572/
+                                - text: Tim O'Connor
+                                - img "Verified" [ref=f154e1016]:
+                                  - img [ref=f154e1017]
+                              - generic [ref=f154e1019]: • 1st
+                            - paragraph [ref=f154e1021]: Proven sales leader
+                            - paragraph [ref=f154e1023]: New York, New York, United States
+                          - link "Send a message to Tim O'Connor" [ref=f154e1029]:
+                            - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAABgs18Bjna7HqRvzyo9dqdibVmfkpEYrww&recipient=ACoAAABgs18Bjna7HqRvzyo9dqdibVmfkpEYrww&screenContext=SEARCH&interop=msgOverlay
+                            - generic [ref=f154e1030]:
+                              - img [ref=f154e1031]
+                              - generic [ref=f154e1033]: Message
+                        - generic [ref=f154e1034]:
+                          - figure [ref=f154e1035]
+                          - figure [ref=f154e1036]
+                          - figure [ref=f154e1037]
+                          - paragraph [ref=f154e1039]:
+                            - generic [ref=f154e1040]:
+                              - link "Ben Trenda" [ref=f154e1041]:
+                                - /url: https://www.linkedin.com/in/bentrenda/
+                                - strong [ref=f154e1042]: Ben Trenda
+                              - text: ","
+                              - link "Dan Alexander" [ref=f154e1043]:
+                                - /url: https://www.linkedin.com/in/danalexander99/
+                                - strong [ref=f154e1044]: Dan Alexander
+                              - text: and
+                              - link "14 other mutual connections" [ref=f154e1045]:
+                                - /url: https://www.linkedin.com/search/results/people/?origin=SHARED_CONNECTIONS_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAABgs18Bjna7HqRvzyo9dqdibVmfkpEYrww%22%5D
+                                - strong [ref=f154e1046]: 14 other mutual connections
+                  - listitem [ref=f154e1048]:
+                    - link "Rishav Jalan Verified • 1st Co-Founder @ Rembrand | former Engineering Director at Cisco San Francisco Bay Area Send a message to Rishav Jalan David Wiener, Karol Ottley and 29 other mutual connections" [ref=f154e1050] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/rishavjalan/
+                      - generic [ref=f154e1051]:
+                        - generic [ref=f154e1052]:
+                          - figure [ref=f154e1053]
+                          - generic [ref=f154e1054]:
+                            - paragraph [ref=f154e1055]:
+                              - link "Rishav Jalan Verified" [ref=f154e1056]:
+                                - /url: https://www.linkedin.com/in/rishavjalan/
+                                - text: Rishav Jalan
+                                - img "Verified" [ref=f154e1057]:
+                                  - img [ref=f154e1058]
+                              - generic [ref=f154e1060]: • 1st
+                            - paragraph [ref=f154e1062]: Co-Founder @ Rembrand | former Engineering Director at Cisco
+                            - paragraph [ref=f154e1064]: San Francisco Bay Area
+                          - link "Send a message to Rishav Jalan" [ref=f154e1070]:
+                            - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAAXi-ZEBY6Lu74Tfwnon1B-zZghs6mTo5i8&recipient=ACoAAAXi-ZEBY6Lu74Tfwnon1B-zZghs6mTo5i8&screenContext=SEARCH&interop=msgOverlay
+                            - generic [ref=f154e1071]:
+                              - img [ref=f154e1072]
+                              - generic [ref=f154e1074]: Message
+                        - generic [ref=f154e1075]:
+                          - figure [ref=f154e1076]
+                          - figure [ref=f154e1077]
+                          - figure [ref=f154e1078]
+                          - paragraph [ref=f154e1080]:
+                            - generic [ref=f154e1081]:
+                              - link "David Wiener" [ref=f154e1082]:
+                                - /url: https://www.linkedin.com/in/thedavidwiener/
+                                - strong [ref=f154e1083]: David Wiener
+                              - text: ","
+                              - link "Karol Ottley" [ref=f154e1084]:
+                                - /url: https://www.linkedin.com/in/karolottley/
+                                - strong [ref=f154e1085]: Karol Ottley
+                              - text: and
+                              - link "29 other mutual connections" [ref=f154e1086]:
+                                - /url: https://www.linkedin.com/search/results/people/?origin=SHARED_CONNECTIONS_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAAXi-ZEBY6Lu74Tfwnon1B-zZghs6mTo5i8%22%5D
+                                - strong [ref=f154e1087]: 29 other mutual connections
+                - generic [ref=f154e1090]:
+                  - generic [ref=f154e1091]:
+                    - paragraph [ref=f154e1092]: Are these results helpful?
+                    - paragraph [ref=f154e1093]: Your feedback helps us improve search results
+                  - generic [ref=f154e1094]:
+                    - button "Are these results helpful? Yes, these search results are helpful" [ref=f154e1095] [cursor=pointer]:
+                      - img [ref=f154e1097]
+                    - button "Are these results helpful? No, these search results are not helpful" [ref=f154e1099] [cursor=pointer]:
+                      - img [ref=f154e1101]
+                - generic [ref=f154e1104]:
+                  - list [ref=f154e1105]:
+                    - listitem [ref=f154e1106]:
+                      - button "Page 1" [ref=f154e1107] [cursor=pointer]:
+                        - generic [ref=f154e1108]: "1"
+                    - listitem [ref=f154e1109]:
+                      - button "Page 2" [ref=f154e1110] [cursor=pointer]:
+                        - generic [ref=f154e1111]: "2"
+                    - listitem [ref=f154e1112]:
+                      - button "Page 3" [ref=f154e1113] [cursor=pointer]:
+                        - generic [ref=f154e1114]: "3"
+                    - listitem [ref=f154e1115]:
+                      - button "Page 4" [ref=f154e1116] [cursor=pointer]:
+                        - generic [ref=f154e1117]: "4"
+                    - listitem [ref=f154e1118]:
+                      - button "Page 5" [ref=f154e1119] [cursor=pointer]:
+                        - generic [ref=f154e1120]: "5"
+                  - button "Next" [ref=f154e1121] [cursor=pointer]:
+                    - generic [ref=f154e1122]:
+                      - img [ref=f154e1123]
+                      - generic [ref=f154e1125]: Next
+            - complementary "Aside" [ref=f154e1126]:
+              - generic [ref=f154e1130]:
+                - iframe [ref=f154e1131]:
+                  - generic [ref=f155e2]:
+                    - generic [ref=f155e3]: Ad
+                    - img "overflow-web-small" [ref=f155e6] [cursor=pointer]
+                    - link "The Wall Street Journal" [ref=f155e10] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/li/tscp/sct?destinationUrl=https%3A%2F%2Fwww.wsj.com%2Fsubscribe%2F%3Fswg%3Dtrue%26trackingCode%3Da0d54317%26ucid%3DWSJ_SMD_LNK_ACQ_SAL_SLT_RET_2PW_SF2_WSP%26n2IKsaD9%3Dn2IKsaD9%26Pg9aWOPT%3DPg9aWOPT%26Cp5dKJWb%3DCp5dKJWb%26APCc9OU1%3DAPCc9OU1%26AP1F4404%3DAP1F4404%26li_fat_id%3Db9537c27-8f45-42aa-9cf1-0006882e482d&trackingEvent=%5B%7B%22eventInfo%22%3A%7B%22appId%22%3A%22com.linkedin.ads.rendering.d_web%22%2C%22eventName%22%3A%22SponsoredRightRailContentActionEvent%22%2C%22topicName%22%3A%22SponsoredRightRailContentActionEvent%22%7D%2C%22eventBody%22%3A%7B%22sponsoredEventHeader%22%3A%7B%22encryptedTrackingData%22%3A%22CwEAAAGfQC1_5UO15Fv8Mz1V48hVQdEJvFaINATnPKJDUbn3QF8zLrU1T2kvzWnVlmbtU-xjIBoZpV8QGu16RajPeR-f3fdsshd6VBBwia-z2Pw8VlCiBrgMkwRiJ_mY9dmlz5fvGJSVgOYu_Cx1FvQKqEh7qm19ZeQlflMUs-Ed7dmZfIhZeGZxPN8Teu5qHZDeIs9TClx1SkTg6i3-PM4ZHpRXrNFyqt-uwbJ1R7042Ww4JrPpKcmTvQBym46OdO9zOwAJSp08wGuuDGjOai0oE5pZ2xbvabuVQAZxdpkzo17b3_NsaDTe5QxUTnuTT-bO8zjkE2xTgw222wKWfjdchA5TCcDsADrjd49jszBmoX5QV0LTpwEPJBWL6D7IeCd-sufBx2WRc0v5_AGz-e4Udfpk1fxjbb15u42QURY2zYxV-otZob15YLtdvnWkwf-5JiQbe1N2wjuPIC2Fj1sF0P8f3zSKrbiIFoOXwvi0jMTWFrnRJhJau1sdL8ysrl65nwLwedYaMjplDvO5uBbkW3bcA8NigLF7eFYfnJbnOAYap_MxBj-xkvDjitz9vXIcO7aokfdvzzAiDrzZ59q8GvpI2Hz9_kMDH7WKoXwkrX6WyaYI0vHSn2sh17ZnSoQF2958nM4Lukn6lw2ejfVPlPh6YRm7J7Ac4uTOEkSm2y132PRpjg221WU3OUEhXG31jsi_daMwpAP5QLLbGO8BV83oD-X3mZNj0BEYs2uAAp_7ErJpsjY644kW1FpgzdcUVujT8Dk69UEPHNEmNQYMTdtqjDUjs1gMyqSODG3S7dsubrEbs--UvoJvYu971E_PgbsG1b9dhveTaryqab8Lu-J7FlX0uVZBoBTpABO7fDyhno0gA2bdC_niNJw1nf_1s_0eV9XSomiDkhjWjUD3uR2wafukcM5pJ6d5VbkDAxzHimIhd_nDlUT-0sEYiyOXdMvorwWK62k2iKoWPiIPoFvmGvGr66stwsBXA_TxaSAbJvuBrzDbhvwvqcvgUOdgw4hmfIhjYcC09PmW2ci_Bg6goWNWxxaAhaivmIe71sSt2gbcSLvzsnbicpJnRbSelucT9y1yOa1GbsGa83zwr8V-9AZLUFYyEfAVb_T6tTG4tetHck0gV_MnsZhNPXWEr-FTkRvtUO1UabQJ2Q%22%7D%2C%22header%22%3A%7B%22pageInstance%22%3A%7B%22pageUrn%22%3A%22urn%3Ali%3Apage%3Ad_flagship3_search_srp_people%22%2C%22trackingId%22%3A%222966f0da-d739-4077-895a-d06bd730ac08%22%7D%2C%22time%22%3A1783488151481%2C%22version%22%3A%220.0.0%22%7D%2C%22requestHeader%22%3A%7B%22pageKey%22%3A%22d_flagship3_search_srp_people%22%2C%22interfaceLocale%22%3A%22en-US%22%7D%7D%7D%5D&csrfToken=ajax%3A1061531063325413417
+                    - generic [ref=f155e11]:
+                      - heading "Limited-Time Sale" [level=2] [ref=f155e14]
+                      - generic [ref=f155e16]:
+                        - img "Taylor" [ref=f155e17]
+                        - generic [ref=f155e18]:
+                          - link "The Wall Street Journal" [ref=f155e19] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/li/tscp/sct?destinationUrl=https%3A%2F%2Fwww.wsj.com%2Fsubscribe%2F%3Fswg%3Dtrue%26trackingCode%3Da0d54317%26ucid%3DWSJ_SMD_LNK_ACQ_SAL_SLT_RET_2PW_SF2_WSP%26n2IKsaD9%3Dn2IKsaD9%26Pg9aWOPT%3DPg9aWOPT%26Cp5dKJWb%3DCp5dKJWb%26APCc9OU1%3DAPCc9OU1%26AP1F4404%3DAP1F4404%26li_fat_id%3Db9537c27-8f45-42aa-9cf1-0006882e482d&trackingEvent=%5B%7B%22eventInfo%22%3A%7B%22appId%22%3A%22com.linkedin.ads.rendering.d_web%22%2C%22eventName%22%3A%22SponsoredRightRailContentActionEvent%22%2C%22topicName%22%3A%22SponsoredRightRailContentActionEvent%22%7D%2C%22eventBody%22%3A%7B%22sponsoredEventHeader%22%3A%7B%22encryptedTrackingData%22%3A%22CwEAAAGfQC1_5UO15Fv8Mz1V48hVQdEJvFaINATnPKJDUbn3QF8zLrU1T2kvzWnVlmbtU-xjIBoZpV8QGu16RajPeR-f3fdsshd6VBBwia-z2Pw8VlCiBrgMkwRiJ_mY9dmlz5fvGJSVgOYu_Cx1FvQKqEh7qm19ZeQlflMUs-Ed7dmZfIhZeGZxPN8Teu5qHZDeIs9TClx1SkTg6i3-PM4ZHpRXrNFyqt-uwbJ1R7042Ww4JrPpKcmTvQBym46OdO9zOwAJSp08wGuuDGjOai0oE5pZ2xbvabuVQAZxdpkzo17b3_NsaDTe5QxUTnuTT-bO8zjkE2xTgw222wKWfjdchA5TCcDsADrjd49jszBmoX5QV0LTpwEPJBWL6D7IeCd-sufBx2WRc0v5_AGz-e4Udfpk1fxjbb15u42QURY2zYxV-otZob15YLtdvnWkwf-5JiQbe1N2wjuPIC2Fj1sF0P8f3zSKrbiIFoOXwvi0jMTWFrnRJhJau1sdL8ysrl65nwLwedYaMjplDvO5uBbkW3bcA8NigLF7eFYfnJbnOAYap_MxBj-xkvDjitz9vXIcO7aokfdvzzAiDrzZ59q8GvpI2Hz9_kMDH7WKoXwkrX6WyaYI0vHSn2sh17ZnSoQF2958nM4Lukn6lw2ejfVPlPh6YRm7J7Ac4uTOEkSm2y132PRpjg221WU3OUEhXG31jsi_daMwpAP5QLLbGO8BV83oD-X3mZNj0BEYs2uAAp_7ErJpsjY644kW1FpgzdcUVujT8Dk69UEPHNEmNQYMTdtqjDUjs1gMyqSODG3S7dsubrEbs--UvoJvYu971E_PgbsG1b9dhveTaryqab8Lu-J7FlX0uVZBoBTpABO7fDyhno0gA2bdC_niNJw1nf_1s_0eV9XSomiDkhjWjUD3uR2wafukcM5pJ6d5VbkDAxzHimIhd_nDlUT-0sEYiyOXdMvorwWK62k2iKoWPiIPoFvmGvGr66stwsBXA_TxaSAbJvuBrzDbhvwvqcvgUOdgw4hmfIhjYcC09PmW2ci_Bg6goWNWxxaAhaivmIe71sSt2gbcSLvzsnbicpJnRbSelucT9y1yOa1GbsGa83zwr8V-9AZLUFYyEfAVb_T6tTG4tetHck0gV_MnsZhNPXWEr-FTkRvtUO1UabQJ2Q%22%7D%2C%22header%22%3A%7B%22pageInstance%22%3A%7B%22pageUrn%22%3A%22urn%3Ali%3Apage%3Ad_flagship3_search_srp_people%22%2C%22trackingId%22%3A%222966f0da-d739-4077-895a-d06bd730ac08%22%7D%2C%22time%22%3A1783488151481%2C%22version%22%3A%220.0.0%22%7D%2C%22requestHeader%22%3A%7B%22pageKey%22%3A%22d_flagship3_search_srp_people%22%2C%22interfaceLocale%22%3A%22en-US%22%7D%7D%7D%5D&csrfToken=ajax%3A1061531063325413417
+                            - img "The Wall Street Journal" [ref=f155e20]
+                          - tooltip "The Wall Street Journal" [ref=f155e21]
+                      - generic [ref=f155e22]:
+                        - heading "Join the conversation." [level=2] [ref=f155e25]
+                        - link "Subscribe" [ref=f155e27] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/li/tscp/sct?destinationUrl=https%3A%2F%2Fwww.wsj.com%2Fsubscribe%2F%3Fswg%3Dtrue%26trackingCode%3Da0d54317%26ucid%3DWSJ_SMD_LNK_ACQ_SAL_SLT_RET_2PW_SF2_WSP%26n2IKsaD9%3Dn2IKsaD9%26Pg9aWOPT%3DPg9aWOPT%26Cp5dKJWb%3DCp5dKJWb%26APCc9OU1%3DAPCc9OU1%26AP1F4404%3DAP1F4404%26li_fat_id%3Db9537c27-8f45-42aa-9cf1-0006882e482d&trackingEvent=%5B%7B%22eventInfo%22%3A%7B%22appId%22%3A%22com.linkedin.ads.rendering.d_web%22%2C%22eventName%22%3A%22SponsoredRightRailContentActionEvent%22%2C%22topicName%22%3A%22SponsoredRightRailContentActionEvent%22%7D%2C%22eventBody%22%3A%7B%22sponsoredEventHeader%22%3A%7B%22encryptedTrackingData%22%3A%22CwEAAAGfQC1_5UO15Fv8Mz1V48hVQdEJvFaINATnPKJDUbn3QF8zLrU1T2kvzWnVlmbtU-xjIBoZpV8QGu16RajPeR-f3fdsshd6VBBwia-z2Pw8VlCiBrgMkwRiJ_mY9dmlz5fvGJSVgOYu_Cx1FvQKqEh7qm19ZeQlflMUs-Ed7dmZfIhZeGZxPN8Teu5qHZDeIs9TClx1SkTg6i3-PM4ZHpRXrNFyqt-uwbJ1R7042Ww4JrPpKcmTvQBym46OdO9zOwAJSp08wGuuDGjOai0oE5pZ2xbvabuVQAZxdpkzo17b3_NsaDTe5QxUTnuTT-bO8zjkE2xTgw222wKWfjdchA5TCcDsADrjd49jszBmoX5QV0LTpwEPJBWL6D7IeCd-sufBx2WRc0v5_AGz-e4Udfpk1fxjbb15u42QURY2zYxV-otZob15YLtdvnWkwf-5JiQbe1N2wjuPIC2Fj1sF0P8f3zSKrbiIFoOXwvi0jMTWFrnRJhJau1sdL8ysrl65nwLwedYaMjplDvO5uBbkW3bcA8NigLF7eFYfnJbnOAYap_MxBj-xkvDjitz9vXIcO7aokfdvzzAiDrzZ59q8GvpI2Hz9_kMDH7WKoXwkrX6WyaYI0vHSn2sh17ZnSoQF2958nM4Lukn6lw2ejfVPlPh6YRm7J7Ac4uTOEkSm2y132PRpjg221WU3OUEhXG31jsi_daMwpAP5QLLbGO8BV83oD-X3mZNj0BEYs2uAAp_7ErJpsjY644kW1FpgzdcUVujT8Dk69UEPHNEmNQYMTdtqjDUjs1gMyqSODG3S7dsubrEbs--UvoJvYu971E_PgbsG1b9dhveTaryqab8Lu-J7FlX0uVZBoBTpABO7fDyhno0gA2bdC_niNJw1nf_1s_0eV9XSomiDkhjWjUD3uR2wafukcM5pJ6d5VbkDAxzHimIhd_nDlUT-0sEYiyOXdMvorwWK62k2iKoWPiIPoFvmGvGr66stwsBXA_TxaSAbJvuBrzDbhvwvqcvgUOdgw4hmfIhjYcC09PmW2ci_Bg6goWNWxxaAhaivmIe71sSt2gbcSLvzsnbicpJnRbSelucT9y1yOa1GbsGa83zwr8V-9AZLUFYyEfAVb_T6tTG4tetHck0gV_MnsZhNPXWEr-FTkRvtUO1UabQJ2Q%22%7D%2C%22header%22%3A%7B%22pageInstance%22%3A%7B%22pageUrn%22%3A%22urn%3Ali%3Apage%3Ad_flagship3_search_srp_people%22%2C%22trackingId%22%3A%222966f0da-d739-4077-895a-d06bd730ac08%22%7D%2C%22time%22%3A1783488151481%2C%22version%22%3A%220.0.0%22%7D%2C%22requestHeader%22%3A%7B%22pageKey%22%3A%22d_flagship3_search_srp_people%22%2C%22interfaceLocale%22%3A%22en-US%22%7D%7D%7D%5D&csrfToken=ajax%3A1061531063325413417
+                - generic [ref=f154e1132]:
+                  - generic [ref=f154e1133]:
+                    - link "About" [ref=f154e1134] [cursor=pointer]:
+                      - /url: https://about.linkedin.com/
+                      - paragraph [ref=f154e1135]: About
+                    - link "Accessibility" [ref=f154e1136] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/accessibility/
+                      - paragraph [ref=f154e1137]: Accessibility
+                    - link "Help Center" [ref=f154e1138] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/help/linkedin/
+                      - paragraph [ref=f154e1139]: Help Center
+                    - button "Privacy & Terms" [ref=f154e1140] [cursor=pointer]:
+                      - generic [ref=f154e1141]:
+                        - paragraph [ref=f154e1142]: Privacy & Terms
+                        - img [ref=f154e1143]
+                    - link "Ad Choices" [ref=f154e1145] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/help/linkedin/answer/62931/
+                      - paragraph [ref=f154e1146]: Ad Choices
+                    - link "Advertising" [ref=f154e1147] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/ad/start/?trk=n_nav_ads_rr
+                      - paragraph [ref=f154e1148]: Advertising
+                    - button "Business Services" [ref=f154e1149] [cursor=pointer]:
+                      - generic [ref=f154e1150]:
+                        - paragraph [ref=f154e1151]: Business Services
+                        - img [ref=f154e1152]
+                    - link "Get the LinkedIn app" [ref=f154e1154] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/mobile/
+                      - paragraph [ref=f154e1155]: Get the LinkedIn app
+                    - link "More" [ref=f154e1156] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/search/results/people/?origin=MEMBER_PROFILE_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAAKKCpkBZExkyvfipNhpTyygScMXTuZSMps%22%5D
+                      - paragraph [ref=f154e1157]: More
+                  - generic [ref=f154e1158]:
+                    - img [ref=f154e1159]
+                    - paragraph [ref=f154e1161]: LinkedIn Corporation © 2026
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - complementary:
+            - generic [ref=f154e1163]:
+              - generic [ref=f154e1165] [cursor=pointer]:
+                - generic [ref=f154e1166]:
+                  - img "Taylor Yates" [ref=f154e1167]
+                  - generic [ref=f154e1169]: Status is online
+                - button "You are on the messaging overlay. Press enter to open the list of conversations." [ref=f154e1170]:
+                  - generic [ref=f154e1171]:
+                    - generic [ref=f154e1172]: Messaging
+                    - generic [ref=f154e1173]: You are on the messaging overlay. Press enter to open the list of conversations.
+              - generic [ref=f154e1174]:
+                - button "Open messenger dropdown menu" [ref=f154e1176] [cursor=pointer]:
+                  - img "Open messenger dropdown menu" [ref=f154e1177]
+                - button "Compose message" [ref=f154e1180] [cursor=pointer]:
+                  - img [ref=f154e1181]
+                  - generic [ref=f154e1183]: Compose message
+                - button "You are on the messaging overlay. Press enter to open the list of conversations." [ref=f154e1184] [cursor=pointer]:
+                  - img [ref=f154e1185]
+                  - generic [ref=f154e1187]: You are on the messaging overlay. Press enter to open the list of conversations.
+          - complementary "AI-powered assistant to get help with your career, jobs etc"
+  - iframe [ref=f154e1188]:
+    - generic [active] [ref=f156e1]:
+      - generic:
+        - region "Toast message":
+          - heading "0 notifications total" [level=2] [ref=f156e3]
+          - alert
+      - region [ref=f156e4]
+      - generic [ref=f156e5]:
+        - generic [ref=f156e7]:
+          - button "Skip to search" [ref=f156e8] [cursor=pointer]:
+            - generic [ref=f156e9]: Skip to search
+          - button "Skip to main content" [ref=f156e10] [cursor=pointer]:
+            - generic [ref=f156e11]: Skip to main content
+          - button "Keyboard shortcuts" [ref=f156e12] [cursor=pointer]:
+            - generic [ref=f156e13]: Keyboard shortcuts
+          - button "Close jump menu" [ref=f156e14] [cursor=pointer]:
+            - img [ref=f156e15]
+            - generic [ref=f156e17]: Close jump menu
+        - banner "Global Navigation" [ref=f156e18]:
+          - generic [ref=f156e19]:
+            - link "LinkedIn" [ref=f156e20] [cursor=pointer]:
+              - /url: https://www.linkedin.com/feed/
+              - img "LinkedIn" [ref=f156e23]:
+                - img [ref=f156e24]
+            - generic [ref=f156e28]:
+              - combobox "I’m looking for..." [ref=f156e29]
+              - generic:
+                - img
+            - navigation "Primary Navigation" [ref=f156e30]:
+              - list [ref=f156e31]:
+                - listitem [ref=f156e32]:
+                  - link "new feed updates notifications Home" [ref=f156e33] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/feed/
+                    - generic [ref=f156e34]:
+                      - generic [ref=f156e37]: new feed updates notifications
+                      - img [ref=f156e41]
+                    - generic "Home" [ref=f156e43]
+                - listitem [ref=f156e44]:
+                  - link "My Network" [ref=f156e45] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/mynetwork/?
+                    - img [ref=f156e49]
+                    - generic "My Network" [ref=f156e51]
+                - listitem [ref=f156e52]:
+                  - link "Jobs" [ref=f156e53] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/jobs/?
+                    - img [ref=f156e57]
+                    - generic "Jobs" [ref=f156e59]
+                - listitem [ref=f156e60]:
+                  - link "Messaging" [ref=f156e61] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/messaging/?
+                    - img [ref=f156e65]
+                    - generic "Messaging" [ref=f156e67]
+                - listitem [ref=f156e68]:
+                  - link "20 new notifications Notifications" [ref=f156e69] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/notifications/?
+                    - generic [ref=f156e70]:
+                      - generic [ref=f156e71]:
+                        - generic [ref=f156e72]: "20"
+                        - generic [ref=f156e73]: 20 new notifications
+                      - img [ref=f156e77]
+                    - generic "Notifications" [ref=f156e79]
+                - listitem [ref=f156e80]:
+                  - button "Taylor Yates Me" [ref=f156e82] [cursor=pointer]:
+                    - img "Taylor Yates" [ref=f156e83]
+                    - generic [ref=f156e84]:
+                      - text: Me
+                      - img [ref=f156e85]
+                - listitem [ref=f156e87]:
+                  - button "For Business" [ref=f156e89] [cursor=pointer]:
+                    - img [ref=f156e93]
+                    - generic "For Business" [ref=f156e95]:
+                      - text: For Business
+                      - img [ref=f156e96]
+                - listitem [ref=f156e98]:
+                  - link "Retry Premium" [ref=f156e100] [cursor=pointer]:
+                    - /url: javascript:void(0)
+                    - generic [ref=f156e101]:
+                      - img [ref=f156e102]
+                      - generic [ref=f156e104]: Retry Premium

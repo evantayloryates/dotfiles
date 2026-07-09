@@ -1,0 +1,113 @@
+- generic [ref=f22e2]:
+  - heading "0 notifications" [level=2] [ref=f22e3]
+  - generic [ref=f22e4]:
+    - generic:
+      - generic "Skip navigation menu":
+        - button "Close jump menu" [ref=f22e6] [cursor=pointer]
+    - generic [ref=f22e9]:
+      - banner [ref=f22e11]:
+        - generic [ref=f22e14]:
+          - button [ref=f22e15] [cursor=pointer]
+          - generic [ref=f22e17]:
+            - status [ref=f22e18]
+            - search [ref=f22e19]:
+              - textbox "I'm looking for…" [ref=f22e23]
+          - generic [ref=f22e25]:
+            - navigation [ref=f22e29]:
+              - list [ref=f22e30]:
+                - listitem [ref=f22e31]:
+                  - button "Home, 1 new notification" [ref=f22e32] [cursor=pointer]:
+                    - img [ref=f22e34]
+                    - generic [ref=f22e37]: Home
+                - listitem [ref=f22e38]:
+                  - link "My Network, 0 new notifications" [ref=f22e39] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/mynetwork
+                    - img [ref=f22e41]
+                    - generic [ref=f22e44]: My Network
+                - listitem [ref=f22e45]:
+                  - link "Jobs, 0 new notifications" [ref=f22e46] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/jobs/
+                    - img [ref=f22e48]
+                    - generic [ref=f22e51]: Jobs
+                - listitem [ref=f22e52]:
+                  - link "Messaging, 0 new notifications" [ref=f22e53] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/messaging/
+                    - img [ref=f22e55]
+                    - generic [ref=f22e58]: Messaging
+                - listitem [ref=f22e59]:
+                  - link "Notifications, 20 new notifications" [ref=f22e60] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/notifications/
+                    - generic [ref=f22e61]:
+                      - img [ref=f22e62]
+                      - generic [ref=f22e64]: "20"
+                    - generic [ref=f22e66]: Notifications
+                - listitem [ref=f22e67]:
+                  - button "Me" [ref=f22e68] [cursor=pointer]:
+                    - figure [ref=f22e70]
+                    - generic [ref=f22e72]: Me
+            - generic [ref=f22e75]:
+              - navigation [ref=f22e76]:
+                - list [ref=f22e77]:
+                  - listitem [ref=f22e78]:
+                    - button "For Business" [ref=f22e79] [cursor=pointer]:
+                      - img [ref=f22e81]
+                      - generic [ref=f22e84]: For Business
+              - link "Retry Premium" [ref=f22e87] [cursor=pointer]:
+                - /url: https://www.linkedin.com/
+                - paragraph [ref=f22e93]: Retry Premium
+      - generic [ref=f22e94]:
+        - toolbar [ref=f22e95]
+        - main [ref=f22e109]:
+          - generic [ref=f22e114]:
+            - region "Primary content" [ref=f22e115]:
+              - generic [ref=f22e119]:
+                - list [ref=f22e121]:
+                  - listitem [ref=f22e123]:
+                    - generic [ref=f22e124]:
+                      - link:
+                        - /url: https://www.linkedin.com/in/joehall6/
+                      - generic [ref=f22e125]:
+                        - link:
+                          - /url: https://www.linkedin.com/in/joehall6/
+                        - generic [ref=f22e126]:
+                          - link [ref=f22e127] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/joehall6/
+                            - figure [ref=f22e128]
+                          - generic [ref=f22e129]:
+                            - link:
+                              - /url: https://www.linkedin.com/in/joehall6/
+                            - paragraph [ref=f22e130]:
+                              - link:
+                                - /url: https://www.linkedin.com/in/joehall6/
+                              - link "Joe Hall Verified" [ref=f22e131] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/joehall6/
+                                - text: Joe Hall
+                                - img "Verified" [ref=f22e132]
+                              - generic [ref=f22e134]: • 1st
+                            - paragraph [ref=f22e136]: Co-Founder @Adexy • Co-Founder @Spaceback • Product & Design
+                            - paragraph [ref=f22e138]: United States
+                        - generic [ref=f22e139]:
+                          - figure [ref=f22e140]
+                          - figure [ref=f22e141]
+                          - figure [ref=f22e142]
+                          - paragraph [ref=f22e144]:
+                            - generic [ref=f22e145]:
+                              - link "Ben Trenda" [ref=f22e146] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/bentrenda/
+                                - strong [ref=f22e147]: Ben Trenda
+                              - text: ","
+                              - link "David Peterson" [ref=f22e148] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/davidcpeterson/
+                                - strong [ref=f22e149]: David Peterson
+                              - text: and
+                              - link "52 other mutual connections" [ref=f22e150] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/people/?origin=SHARED_CONNECTIONS_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAAYxir8BeCekMlKbmHqFCmvzNIlXWxdIb98%22%5D
+                                - strong [ref=f22e151]: 52 other mutual connections
+                - generic [ref=f22e154]:
+                  - generic [ref=f22e155]:
+                    - paragraph [ref=f22e156]: Are these results helpful?
+                    - paragraph [ref=f22e157]: Your feedback helps us improve search results
+                  - generic [ref=f22e158]:
+                    - button "Are these results helpful? Yes, these search results are helpful" [ref=f22e159] [cursor=pointer]
+                    - button "Are these results helpful? No, these search results are not helpful" [ref=f22e162] [cursor=pointer]
+            - complementary "Aside" [ref=f22e165]

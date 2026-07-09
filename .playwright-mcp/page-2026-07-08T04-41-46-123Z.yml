@@ -1,0 +1,133 @@
+- generic [active] [ref=f73e1]:
+  - generic:
+    - region "Toast message":
+      - heading "0 notifications total" [level=2] [ref=f73e3]
+      - alert
+  - generic [ref=f73e4]:
+    - generic [ref=f73e6]:
+      - button "Skip to search" [ref=f73e7] [cursor=pointer]:
+        - generic [ref=f73e8]: Skip to search
+      - button "Skip to main content" [ref=f73e9] [cursor=pointer]:
+        - generic [ref=f73e10]: Skip to main content
+      - button "Keyboard shortcuts" [ref=f73e11] [cursor=pointer]:
+        - generic [ref=f73e12]: Keyboard shortcuts
+      - button "Close jump menu" [ref=f73e13] [cursor=pointer]:
+        - img [ref=f73e14]
+        - generic [ref=f73e16]: Close jump menu
+    - banner "Global Navigation" [ref=f73e17]:
+      - generic [ref=f73e18]:
+        - link "LinkedIn" [ref=f73e19] [cursor=pointer]:
+          - /url: https://www.linkedin.com/feed/?nis=true
+          - img "LinkedIn" [ref=f73e22]:
+            - img [ref=f73e23]
+        - generic [ref=f73e27]:
+          - combobox "I’m looking for..." [ref=f73e28]
+          - generic:
+            - img
+        - navigation "Primary Navigation" [ref=f73e29]:
+          - list [ref=f73e30]:
+            - listitem [ref=f73e31]:
+              - link "new feed updates notifications Home" [ref=f73e32] [cursor=pointer]:
+                - /url: https://www.linkedin.com/feed/?nis=true&
+                - generic [ref=f73e33]:
+                  - generic [ref=f73e36]: new feed updates notifications
+                  - img [ref=f73e40]
+                - generic "Home" [ref=f73e42]
+            - listitem [ref=f73e43]:
+              - link "My Network" [ref=f73e44] [cursor=pointer]:
+                - /url: https://www.linkedin.com/mynetwork/?
+                - img [ref=f73e48]
+                - generic "My Network" [ref=f73e50]
+            - listitem [ref=f73e51]:
+              - link "Jobs" [ref=f73e52] [cursor=pointer]:
+                - /url: https://www.linkedin.com/jobs/?
+                - img [ref=f73e56]
+                - generic "Jobs" [ref=f73e58]
+            - listitem [ref=f73e59]:
+              - link "Messaging" [ref=f73e60] [cursor=pointer]:
+                - /url: https://www.linkedin.com/messaging/?
+                - img [ref=f73e64]
+                - generic "Messaging" [ref=f73e66]
+            - listitem [ref=f73e67]:
+              - link "20 new notifications Notifications" [ref=f73e68] [cursor=pointer]:
+                - /url: https://www.linkedin.com/notifications/?
+                - generic [ref=f73e69]:
+                  - generic [ref=f73e70]:
+                    - generic [ref=f73e71]: "20"
+                    - generic [ref=f73e72]: 20 new notifications
+                  - img [ref=f73e76]
+                - generic "Notifications" [ref=f73e78]
+            - listitem [ref=f73e79]:
+              - button "Taylor Yates Me" [ref=f73e81] [cursor=pointer]:
+                - img "Taylor Yates" [ref=f73e82]
+                - generic [ref=f73e83]:
+                  - text: Me
+                  - img [ref=f73e84]
+            - listitem [ref=f73e86]:
+              - button "For Business" [ref=f73e88] [cursor=pointer]:
+                - img [ref=f73e92]
+                - generic "For Business" [ref=f73e94]:
+                  - text: For Business
+                  - img [ref=f73e95]
+            - listitem [ref=f73e97]:
+              - link "Retry Premium" [ref=f73e99] [cursor=pointer]:
+                - /url: javascript:void(0)
+                - generic [ref=f73e100]:
+                  - img [ref=f73e101]
+                  - generic [ref=f73e103]: Retry Premium
+    - generic [ref=f73e109]:
+      - complementary [ref=f73e110]:
+        - generic [ref=f73e113]:
+          - img "PREMIUM" [ref=f73e118]:
+            - img [ref=f73e119]
+          - link "David Samuel Kim" [ref=f73e122] [cursor=pointer]:
+            - /url: /in/dasaki/
+            - img "David Samuel Kim" [ref=f73e123]
+          - generic [ref=f73e124]:
+            - link "David Samuel Kim David Samuel Kim is a Premium member" [ref=f73e125] [cursor=pointer]:
+              - /url: /in/dasaki/
+              - heading "David Samuel Kim David Samuel Kim is a Premium member" [level=3] [ref=f73e126]:
+                - text: David Samuel Kim
+                - img "David Samuel Kim is a Premium member" [ref=f73e128]:
+                  - img [ref=f73e129]
+            - heading "Product Manager" [level=4] [ref=f73e131]
+          - generic [ref=f73e133]:
+            - generic [ref=f73e134]:
+              - generic [ref=f73e135]: Followers
+              - generic [ref=f73e136]: "870"
+            - generic [ref=f73e137]:
+              - button "Invite David Samuel Kim to connect" [ref=f73e138] [cursor=pointer]:
+                - generic [ref=f73e139]: Connect
+              - button "Message David Samuel" [disabled] [ref=f73e141]:
+                - generic: Message
+      - main [ref=f73e142]:
+        - separator [ref=f73e167]
+      - complementary "Interests" [ref=f73e185]:
+        - generic "LinkedIn Footer Content" [ref=f73e247]:
+          - generic [ref=f73e248]:
+            - list
+            - generic [ref=f73e249]:
+              - img "LinkedIn" [ref=f73e250]:
+                - img [ref=f73e251]
+              - text: LinkedIn Corporation © 2026
+    - generic:
+      - generic:
+        - complementary:
+          - generic [ref=f73e254]:
+            - generic [ref=f73e256] [cursor=pointer]:
+              - img "Taylor Yates" [ref=f73e258]
+              - button "You are on the messaging overlay. Press enter to open the list of conversations." [ref=f73e259]:
+                - generic [ref=f73e260]:
+                  - generic [ref=f73e261]: Messaging
+                  - generic [ref=f73e262]: You are on the messaging overlay. Press enter to open the list of conversations.
+            - generic [ref=f73e263]:
+              - button "Open messenger dropdown menu" [ref=f73e265] [cursor=pointer]:
+                - img "Open messenger dropdown menu" [ref=f73e266]
+              - button "Compose message" [ref=f73e269] [cursor=pointer]:
+                - img [ref=f73e270]
+                - generic [ref=f73e272]: Compose message
+              - button "You are on the messaging overlay. Press enter to open the list of conversations." [ref=f73e273] [cursor=pointer]:
+                - img [ref=f73e274]
+                - generic [ref=f73e276]: You are on the messaging overlay. Press enter to open the list of conversations.
+        - complementary "AI-powered assistant to get help with your career, jobs etc"
+  - region [ref=f73e277]

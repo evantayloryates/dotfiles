@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+account="${1:-}"
+if [[ -z "$account" ]]; then
+  echo "Usage: $0 <personal-primary|work-primary> [gmail-mcp-multiauth args...]" >&2
+  exit 64
+fi
+shift || true
+
+case "$account" in
+  personal-primary|work-primary)
+    ;;
+  *)
+    echo "Unknown Gmail MCP account: $account" >&2
+    exit 64
+    ;;
+esac
+
+env_file="/Users/taylor/dotfiles/.env"
+if [[ -f "$env_file" ]]; then
+  set -a
+  # shellcheck disable=SC1090
+  source "$env_file"
+  set +a
+fi
+
+: "${PERSONAL_GMAIL_APP_SECRET:?PERSONAL_GMAIL_APP_SECRET is required in /Users/taylor/dotfiles/.env}"
+
+state_dir="${HOME}/.gmail-mcp-accounts/${account}"
+mkdir -p "$state_dir"
+chmod 700 "${HOME}/.gmail-mcp-accounts" "$state_dir"
+
+oauth_file="$(mktemp "${TMPDIR:-/tmp}/gmail-mcp-oauth.XXXXXX")"
+chmod 600 "$oauth_file"
+
+cleanup() {
+  rm -f "$oauth_file"
+}
+trap cleanup EXIT
+
+python3 - "$oauth_file" <<'PY'
+import json
+import os
+import sys
+
+oauth_file = sys.argv[1]
+client_secret = os.environ["PERSONAL_GMAIL_APP_SECRET"]
+payload = {
+    "installed": {
+        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+        "client_id": "273820616934-0vft5b75pd6o762fgkhhtv9c1hr60pjf.apps.googleusercontent.com",
+        "client_secret": client_secret,
+        "project_id": "project-0ea65f1d-557b-427d-8f5",
+        "token_uri": "https://oauth2.googleapis.com/token",
+        "redirect_uris": ["http://localhost"],
+    }
+}
+with open(oauth_file, "w", encoding="utf-8") as f:
+    json.dump(payload, f)
+PY
+
+export GMAIL_OAUTH_PATH="$oauth_file"
+export GMAIL_CREDENTIALS_PATH="${state_dir}/credentials.json"
+export GMAIL_ACCOUNT_NAME="$account"
+
+npx -y gmail-mcp-multiauth "$@"

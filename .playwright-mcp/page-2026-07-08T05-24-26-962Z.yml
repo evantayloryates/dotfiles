@@ -1,0 +1,286 @@
+- generic [active] [ref=f165e1]:
+  - banner [ref=f165e2]:
+    - generic [ref=f165e3]:
+      - generic [ref=f165e4]:
+        - generic [ref=f165e5]:
+          - generic [ref=f165e6]: Research hub
+          - heading "Adexy lead map" [level=1] [ref=f165e7]
+          - paragraph [ref=f165e8]: "A compact reference for the strongest Adexy findings: public company footprint, Reddit Devvit trail, campaign-side people, and the best current theories worth retaining."
+        - complementary "Codex session reference" [ref=f165e9]:
+          - heading "Codex session" [level=2] [ref=f165e10]
+          - link "Open this research thread" [ref=f165e11] [cursor=pointer]:
+            - /url: codex://threads/019f3fca-b723-7941-aae0-1d8db42282a4
+          - code [ref=f165e12]: 019f3fca-b723-7941-aae0-1d8db42282a4
+          - generic [ref=f165e13]:
+            - link "Adexy site" [ref=f165e14] [cursor=pointer]:
+              - /url: https://www.adexy.ai/
+            - link "Devvit app" [ref=f165e15] [cursor=pointer]:
+              - /url: https://developers.reddit.com/apps/coors-chant
+      - generic "Top-level summary" [ref=f165e16]:
+        - generic [ref=f165e17]:
+          - strong [ref=f165e18]: "1"
+          - text: "Visible Adexy employee on LinkedIn: Joe Hall."
+        - generic [ref=f165e19]:
+          - strong [ref=f165e20]: Devvit
+          - text: "`coors-chant` is the technical trail worth preserving."
+        - generic [ref=f165e21]:
+          - strong [ref=f165e22]: DK
+          - text: David Samuel Kim remains the strongest Reddit-side named connection.
+        - generic [ref=f165e23]:
+          - strong [ref=f165e24]: "3"
+          - text: Casey, Brady, and Chris are the strongest Spaceback-side candidates.
+  - main [ref=f165e25]:
+    - generic [ref=f165e26]:
+      - generic [ref=f165e27]:
+        - generic [ref=f165e28]: Findings
+        - generic [ref=f165e29]:
+          - heading "High confidence" [level=2] [ref=f165e30]
+          - paragraph [ref=f165e31]: These are the findings that have direct supporting references and should be treated as the stable hub for future follow-up.
+      - generic [ref=f165e32]:
+        - group [ref=f165e33]:
+          - 'generic "Joe Hall is the only visible Adexy employee/cofounder on LinkedIn. Adexy company search showed one current-company result: Joe Hall. Confirmed" [ref=f165e34] [cursor=pointer]':
+            - generic [ref=f165e35]:
+              - generic [ref=f165e36]:
+                - heading "Joe Hall is the only visible Adexy employee/cofounder on LinkedIn." [level=3] [ref=f165e37]
+                - paragraph [ref=f165e38]: "Adexy company search showed one current-company result: Joe Hall."
+              - generic [ref=f165e39]: Confirmed
+          - generic [ref=f165e40]:
+            - generic [ref=f165e41]:
+              - paragraph [ref=f165e42]: LinkedIn's Adexy company page described the company as 2-10 employees and showed "Joe works here." The current-company people search for Adexy returned only Joe Hall.
+              - list [ref=f165e43]:
+                - listitem [ref=f165e44]: "Joe's headline: Co-Founder @Adexy, Co-Founder @Spaceback, Product & Design."
+                - listitem [ref=f165e45]: Public launch post frames Adexy as Joe's next chapter after Spaceback.
+                - listitem [ref=f165e46]: No other public LinkedIn employee result surfaced for the Adexy company page.
+            - generic [ref=f165e47]:
+              - heading "References" [level=4] [ref=f165e48]
+              - link "Joe Hall profile" [ref=f165e49] [cursor=pointer]:
+                - /url: https://www.linkedin.com/in/joehall6/
+              - link "Adexy LinkedIn company page" [ref=f165e50] [cursor=pointer]:
+                - /url: https://www.linkedin.com/company/adexy-ai/
+              - link "Joe launch post" [ref=f165e51] [cursor=pointer]:
+                - /url: https://www.linkedin.com/posts/joehall6_adexy-interactive-brand-experiences-inside-activity-7473744657777065984-iX0b
+        - group [ref=f165e52]:
+          - 'generic "The Coors Chant app is the core technical artifact. Reddit''s developer page lists `dathtohn` as creator and links to Adexy legal URLs. Confirmed" [ref=f165e53] [cursor=pointer]':
+            - generic [ref=f165e54]:
+              - generic [ref=f165e55]:
+                - heading "The Coors Chant app is the core technical artifact." [level=3] [ref=f165e56]
+                - paragraph [ref=f165e57]: "Reddit's developer page lists `dathtohn` as creator and links to Adexy legal URLs."
+              - generic [ref=f165e58]: Confirmed
+          - generic [ref=f165e59]:
+            - generic [ref=f165e60]:
+              - paragraph [ref=f165e61]: "The Reddit for Developers page for `coors-chant` is the most concrete technical reference found. It lists the creator as `dathtohn`, app identifier `coors-chant`, version `0.0.36`, and last updated Jun. 4, 2026."
+              - list [ref=f165e62]:
+                - listitem [ref=f165e63]: "Terms link points to `adexy.ai`."
+                - listitem [ref=f165e64]: "Privacy policy link points to `www.adexy.ai`."
+                - listitem [ref=f165e65]: "The related subreddit page shows `coors-chant` installed in `r/dktesting187`."
+            - generic [ref=f165e66]:
+              - heading "References" [level=4] [ref=f165e67]
+              - link "coors-chant Devvit app" [ref=f165e68] [cursor=pointer]:
+                - /url: https://developers.reddit.com/apps/coors-chant
+              - link "r/dktesting187" [ref=f165e69] [cursor=pointer]:
+                - /url: https://www.reddit.com/r/dktesting187/
+              - link "u/dathtohn" [ref=f165e70] [cursor=pointer]:
+                - /url: https://www.reddit.com/user/dathtohn/
+        - group [ref=f165e71]:
+          - generic "Adexy publicly positions itself as interactive Reddit advertising on Devvit. The homepage and case study both tie the product to Reddit-native playable ads. Confirmed" [ref=f165e72] [cursor=pointer]:
+            - generic [ref=f165e73]:
+              - generic [ref=f165e74]:
+                - heading "Adexy publicly positions itself as interactive Reddit advertising on Devvit." [level=3] [ref=f165e75]
+                - paragraph [ref=f165e76]: The homepage and case study both tie the product to Reddit-native playable ads.
+              - generic [ref=f165e77]: Confirmed
+    - generic [ref=f165e78]:
+      - generic [ref=f165e79]:
+        - generic [ref=f165e80]: People map
+        - generic [ref=f165e81]:
+          - heading "Named leads" [level=2] [ref=f165e82]
+          - paragraph [ref=f165e83]: This section keeps only people with a meaningful public link to Adexy, the Coors campaign, Reddit Devvit, or Joe's immediate Spaceback transition.
+      - generic [ref=f165e84]:
+        - article [ref=f165e85]:
+          - generic [ref=f165e86]: Reddit-side, strong
+          - heading "David Samuel Kim" [level=3] [ref=f165e87]
+          - paragraph [ref=f165e88]: "Product Manager at Reddit on the developer platform. Strong contextual fit for Reddit Devvit, `dktesting187`, and mutual Spaceback/Joe connections."
+          - link "LinkedIn profile" [ref=f165e89] [cursor=pointer]:
+            - /url: https://www.linkedin.com/in/dasaki/
+        - article [ref=f165e90]:
+          - generic [ref=f165e91]: Technical, unresolved
+          - heading "dathtohn" [level=3] [ref=f165e92]
+          - paragraph [ref=f165e93]: "Creator listed on the `coors-chant` Devvit app. The handle predates Adexy, so it is likely a legacy personal account rather than a fresh project alias."
+          - link "Reddit profile" [ref=f165e94] [cursor=pointer]:
+            - /url: https://www.reddit.com/user/dathtohn/
+        - article [ref=f165e95]:
+          - generic [ref=f165e96]: Campaign-side, strong
+          - heading "Ryan Liebling" [level=3] [ref=f165e97]
+          - paragraph [ref=f165e98]: Reddit verticals lead for Restaurants, Alcohol and Publishing. Posted about the Coors Light ad, credited work across teams/companies, and has Jordan Mandel as a mutual connection.
+          - link "Coors post" [ref=f165e99] [cursor=pointer]:
+            - /url: https://www.linkedin.com/posts/ryanliebling_score-a-goooooal-and-pull-the-tap-as-many-activity-7468016505079754753-nAOD
+        - article [ref=f165e100]:
+          - generic [ref=f165e101]: Bridge, strong
+          - heading "Jordan Mandel" [level=3] [ref=f165e102]
+          - paragraph [ref=f165e103]: Global VP of Sales, Spaceback at Rembrand. Appears as a mutual connection with Ryan Liebling and as a Cannes-facing Spaceback operator with Joe and Brady.
+          - link "LinkedIn profile" [ref=f165e104] [cursor=pointer]:
+            - /url: https://www.linkedin.com/in/jordan-mandel/
+        - article [ref=f165e105]:
+          - generic [ref=f165e106]: Business-side, strong
+          - heading "Casey Saran" [level=3] [ref=f165e107]
+          - paragraph [ref=f165e108]: Founder of Spaceback and board member at Rembrand. Dense mutual graph, recent AI creative/CTV activity, and direct Joe/Spaceback founder relationship make him a top business-side candidate.
+          - link "LinkedIn profile" [ref=f165e109] [cursor=pointer]:
+            - /url: https://www.linkedin.com/in/caseysaran/
+        - article [ref=f165e110]:
+          - generic [ref=f165e111]: Technical-side, strong
+          - heading "Chris Baclig" [level=3] [ref=f165e112]
+          - paragraph [ref=f165e113]: CTO at Spaceback with a current Rembrand profile signal. Strongest technical Spaceback-side candidate by background, though recent public activity still points to Spaceback/Rembrand.
+          - link "LinkedIn profile" [ref=f165e114] [cursor=pointer]:
+            - /url: https://www.linkedin.com/in/chrisbaclig/
+        - article [ref=f165e115]:
+          - generic [ref=f165e116]: Customer-side, strong
+          - heading "Brady Akers" [level=3] [ref=f165e117]
+          - paragraph [ref=f165e118]: Customer/commercial Spaceback leader with a generic current headline, Rembrand profile signal, Cannes history with Joe/Jordan, and recent departure post. A top relationship-side candidate.
+          - link "Departure post" [ref=f165e119] [cursor=pointer]:
+            - /url: https://www.linkedin.com/posts/brady-akers_after-nearly-85-years-ive-made-the-decision-activity-7470852617171177472-qrhQ
+        - article [ref=f165e120]:
+          - generic [ref=f165e121]: Agency/media-side
+          - heading "Jen Duensing" [level=3] [ref=f165e122]
+          - paragraph [ref=f165e123]: SVP Performance Media at Spark Foundry. Commented supportively on Reddit for Business's Coors Chant post. Useful because the case study names Publicis.
+          - link "LinkedIn profile" [ref=f165e124] [cursor=pointer]:
+            - /url: https://www.linkedin.com/in/jenniferduensing/
+    - generic [ref=f165e125]:
+      - generic [ref=f165e126]:
+        - generic [ref=f165e127]: Strong theories
+        - generic [ref=f165e128]:
+          - heading "Keep these in mind" [level=2] [ref=f165e129]
+          - paragraph [ref=f165e130]: These are not confirmed identities, but the supporting evidence is strong enough to preserve for future follow-up.
+      - generic [ref=f165e131]:
+        - group [ref=f165e132]:
+          - generic "Ryan Liebling bridges the Coors campaign back into the Spaceback network. Ryan is not just a generic Reddit repost; his mutual graph includes Jordan Mandel at Spaceback/Rembrand. Strong inference" [ref=f165e133] [cursor=pointer]:
+            - generic [ref=f165e134]:
+              - generic [ref=f165e135]:
+                - heading "Ryan Liebling bridges the Coors campaign back into the Spaceback network." [level=3] [ref=f165e136]
+                - paragraph [ref=f165e137]: Ryan is not just a generic Reddit repost; his mutual graph includes Jordan Mandel at Spaceback/Rembrand.
+              - generic [ref=f165e138]: Strong inference
+          - generic [ref=f165e139]:
+            - generic [ref=f165e140]:
+              - paragraph [ref=f165e141]: Ryan's profile shows him as Reddit's verticals lead for Restaurants, Alcohol and Publishing, which maps directly to the Coors Light campaign. He posted about the Coors Light Reddit ad and credited work across teams/companies. The logged-in mutual search for Ryan surfaced Jordan Mandel, Global VP of Sales, Spaceback at Rembrand.
+              - list [ref=f165e142]:
+                - listitem [ref=f165e143]: Ryan's current role is highly aligned with Coors Light, alcohol, and Reddit advertiser relationships.
+                - listitem [ref=f165e144]: Ryan's Coors post says the ad was brought to life across teams/companies.
+                - listitem [ref=f165e145]: Jordan Mandel links Ryan to the Spaceback/Rembrand commercial network, not only the Reddit side.
+            - generic [ref=f165e146]:
+              - heading "References" [level=4] [ref=f165e147]
+              - link "Ryan Liebling" [ref=f165e148] [cursor=pointer]:
+                - /url: https://www.linkedin.com/in/ryanliebling/
+              - link "Ryan Coors post" [ref=f165e149] [cursor=pointer]:
+                - /url: https://www.linkedin.com/posts/ryanliebling_score-a-goooooal-and-pull-the-tap-as-many-activity-7468016505079754753-nAOD
+              - link "Jordan Mandel" [ref=f165e150] [cursor=pointer]:
+                - /url: https://www.linkedin.com/in/jordan-mandel/
+        - group [ref=f165e151]:
+          - 'generic "Casey Saran, Brady Akers, and Chris Baclig remain the strongest Spaceback-side candidates. They each map to a different likely need: executive access, customer relationships, and technical execution. Strong inference" [ref=f165e152] [cursor=pointer]':
+            - generic [ref=f165e153]:
+              - generic [ref=f165e154]:
+                - heading "Casey Saran, Brady Akers, and Chris Baclig remain the strongest Spaceback-side candidates." [level=3] [ref=f165e155]
+                - paragraph [ref=f165e156]: "They each map to a different likely need: executive access, customer relationships, and technical execution."
+              - generic [ref=f165e157]: Strong inference
+          - generic [ref=f165e158]:
+            - generic [ref=f165e159]:
+              - paragraph [ref=f165e160]: "None of the three publicly list Adexy as an employer. The reason they stay high on the list is the combined pattern: Joe names them in the Adexy launch post, all three are central Spaceback operators, and their recent public activity sits in AI creative, CTV, adtech partnerships, Cannes, or Rembrand/Spaceback transition work."
+              - list [ref=f165e161]:
+                - listitem [ref=f165e162]: "Casey: founder/CEO profile, current public Rembrand board signal, dense mutual graph, and recent AI creative/CTV posts."
+                - listitem [ref=f165e163]: "Brady: commercial/customer profile, generic current headline, Rembrand signal, Cannes history with Joe/Jordan, and recent departure post."
+                - listitem [ref=f165e164]: "Chris: CTO profile, active Spaceback/Rembrand technical signal, and explicit founder-trust relationship with Casey/Joe/Brady."
+            - generic [ref=f165e165]:
+              - heading "References" [level=4] [ref=f165e166]
+              - link "Casey Saran" [ref=f165e167] [cursor=pointer]:
+                - /url: https://www.linkedin.com/in/caseysaran/
+              - link "Brady Akers" [ref=f165e168] [cursor=pointer]:
+                - /url: https://www.linkedin.com/in/brady-akers/
+              - link "Chris Baclig" [ref=f165e169] [cursor=pointer]:
+                - /url: https://www.linkedin.com/in/chrisbaclig/
+              - link "Joe Adexy launch post" [ref=f165e170] [cursor=pointer]:
+                - /url: https://www.linkedin.com/posts/joehall6_adexy-interactive-brand-experiences-inside-activity-7473744657777065984-iX0b
+        - group [ref=f165e171]:
+          - 'generic "`dktesting187` is likely connected to David Kim or Reddit Dev Platform testing. The `DK` prefix, David''s Dev Platform role, and the Coors test path make this a strong working theory. Strong inference" [ref=f165e172] [cursor=pointer]':
+            - generic [ref=f165e173]:
+              - generic [ref=f165e174]:
+                - 'heading "`dktesting187` is likely connected to David Kim or Reddit Dev Platform testing." [level=3] [ref=f165e175]'
+                - paragraph [ref=f165e176]: "The `DK` prefix, David's Dev Platform role, and the Coors test path make this a strong working theory."
+              - generic [ref=f165e177]: Strong inference
+          - generic [ref=f165e178]:
+            - generic [ref=f165e179]:
+              - paragraph [ref=f165e180]: "The strongest non-random interpretation is that `dk` maps to David Kim, or at minimum a Reddit Dev Platform test environment connected to the same team. David's known username pattern, `dasaki`, uses name chunks: `DA`vid `SA`muel `KI`m."
+              - list [ref=f165e181]:
+                - listitem [ref=f165e182]: "`r/dktesting187` contains the Coors Light test post and installed Devvit apps."
+                - listitem [ref=f165e183]: "David's LinkedIn role is Product Manager at Reddit on `developers.reddit.com`."
+                - listitem [ref=f165e184]: David has direct mutuals with Joe, Chris, Casey, and Marty.
+            - generic [ref=f165e185]:
+              - heading "References" [level=4] [ref=f165e186]
+              - link "r/dktesting187" [ref=f165e187] [cursor=pointer]:
+                - /url: https://www.reddit.com/r/dktesting187/
+              - link "David Samuel Kim" [ref=f165e188] [cursor=pointer]:
+                - /url: https://www.linkedin.com/in/dasaki/
+              - link "coors-chant Devvit app" [ref=f165e189] [cursor=pointer]:
+                - /url: https://developers.reddit.com/apps/coors-chant
+        - group [ref=f165e190]:
+          - 'generic "`dathtohn` is probably not David Kim. The handle is old, public, and does not fit the `dasaki` username construction cleanly. Strong inference" [ref=f165e191] [cursor=pointer]':
+            - generic [ref=f165e192]:
+              - generic [ref=f165e193]:
+                - 'heading "`dathtohn` is probably not David Kim." [level=3] [ref=f165e194]'
+                - paragraph [ref=f165e195]: "The handle is old, public, and does not fit the `dasaki` username construction cleanly."
+              - generic [ref=f165e196]: Strong inference
+    - generic [ref=f165e197]:
+      - generic [ref=f165e198]:
+        - generic [ref=f165e199]: Link hub
+        - generic [ref=f165e200]:
+          - heading "Primary references" [level=2] [ref=f165e201]
+          - paragraph [ref=f165e202]: Quick links grouped by what they establish.
+      - generic [ref=f165e203]:
+        - article [ref=f165e204]:
+          - heading "Adexy product" [level=3] [ref=f165e205]
+          - paragraph [ref=f165e206]: Company positioning, process, partner logos, Devvit positioning.
+          - link "https://www.adexy.ai/" [ref=f165e207] [cursor=pointer]:
+            - /url: https://www.adexy.ai/
+        - article [ref=f165e208]:
+          - heading "Coors case study" [level=3] [ref=f165e209]
+          - paragraph [ref=f165e210]: Publicis, Molson Coors, Reddit and Adexy named together.
+          - link "Coors Chant case study" [ref=f165e211] [cursor=pointer]:
+            - /url: https://www.adexy.ai/case-studies/coors-chant
+        - article [ref=f165e212]:
+          - heading "Devvit app" [level=3] [ref=f165e213]
+          - paragraph [ref=f165e214]: "Creator `dathtohn`, app id `coors-chant`, Adexy terms/privacy links."
+          - link "coors-chant on Reddit for Developers" [ref=f165e215] [cursor=pointer]:
+            - /url: https://developers.reddit.com/apps/coors-chant
+        - article [ref=f165e216]:
+          - heading "Reddit test surface" [level=3] [ref=f165e217]
+          - paragraph [ref=f165e218]: Subreddit containing Coors test post and installed Devvit apps.
+          - link "r/dktesting187" [ref=f165e219] [cursor=pointer]:
+            - /url: https://www.reddit.com/r/dktesting187/
+        - article [ref=f165e220]:
+          - heading "Reddit launch post" [level=3] [ref=f165e221]
+          - paragraph [ref=f165e222]: Public Reddit for Business announcement for the campaign.
+          - link "Coors Light and Reddit post" [ref=f165e223] [cursor=pointer]:
+            - /url: https://www.reddit.com/r/RedditforBusiness/comments/1tvwgao/coors_light_and_reddit_are_building_the_longest/
+        - article [ref=f165e224]:
+          - heading "LinkedIn campaign post" [level=3] [ref=f165e225]
+          - paragraph [ref=f165e226]: Reddit for Business LinkedIn post and comments.
+          - link "Reddit for Business LinkedIn post" [ref=f165e227] [cursor=pointer]:
+            - /url: https://www.linkedin.com/posts/reddit-for-business_during-the-summer-soccer-season-redditors-activity-7467957717660225538-9zNm
+        - article [ref=f165e228]:
+          - heading "Joe launch post" [level=3] [ref=f165e229]
+          - paragraph [ref=f165e230]: Adexy announcement and Spaceback orbit names.
+          - link "Joe Hall Adexy launch" [ref=f165e231] [cursor=pointer]:
+            - /url: https://www.linkedin.com/posts/joehall6_adexy-interactive-brand-experiences-inside-activity-7473744657777065984-iX0b
+        - article [ref=f165e232]:
+          - heading "David Kim" [level=3] [ref=f165e233]
+          - paragraph [ref=f165e234]: Reddit Dev Platform role and Spaceback mutual connection fit.
+          - link "David Samuel Kim profile" [ref=f165e235] [cursor=pointer]:
+            - /url: https://www.linkedin.com/in/dasaki/
+        - article [ref=f165e236]:
+          - heading "Ryan and Jordan" [level=3] [ref=f165e237]
+          - paragraph [ref=f165e238]: Reddit alcohol vertical lead plus Spaceback/Rembrand sales bridge.
+          - link "Ryan Liebling profile" [ref=f165e239] [cursor=pointer]:
+            - /url: https://www.linkedin.com/in/ryanliebling/
+        - article [ref=f165e240]:
+          - heading "Spaceback merger" [level=3] [ref=f165e241]
+          - paragraph [ref=f165e242]: Adweek reference for Spaceback cofounders joining Rembrand and Casey taking a board seat.
+          - link "Rembrand merges with Spaceback" [ref=f165e243] [cursor=pointer]:
+            - /url: https://www.adweek.com/media/rembrand-spaceback-acquisition-merger-ai-ad-factory/
+  - contentinfo [ref=f165e244]:
+    - generic [ref=f165e245]: Built as a static reference page for Taylor. Last updated July 8, 2026. This page intentionally omits dead search paths and low-confidence guesses.

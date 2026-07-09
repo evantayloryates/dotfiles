@@ -1,0 +1,284 @@
+[      29ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[     134ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[     235ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[     270ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_TIMED_OUT @ https://ads.stickyadstv.com/user-matching?id=3661&_t=1783486595105:0
+[     336ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[     437ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[     539ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[     640ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[     743ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[     844ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[     948ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    1052ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    1158ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    1260ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    1361ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    1462ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    1839ms] Error: Minified React error #418; visit https://react.dev/errors/418?args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+    at rO (https://static.licdn.com/aero-v1/sc/h/assets/kuu7tUnu.js:1:50371)
+    at oV (https://static.licdn.com/aero-v1/sc/h/assets/kuu7tUnu.js:1:99613)
+    at sh (https://static.licdn.com/aero-v1/sc/h/assets/kuu7tUnu.js:1:128139)
+    at https://static.licdn.com/aero-v1/sc/h/assets/kuu7tUnu.js:1:124314
+    at https://static.licdn.com/aero-v1/sc/h/assets/kuu7tUnu.js:1:124322
+    at sr (https://static.licdn.com/aero-v1/sc/h/assets/kuu7tUnu.js:1:124419)
+    at sV (https://static.licdn.com/aero-v1/sc/h/assets/kuu7tUnu.js:1:145647)
+    at MessagePort.T (https://static.licdn.com/aero-v1/sc/h/assets/kuu7tUnu.js:1:14547)
+[    1844ms] [WARNING] Attribute 'exception.tags' of type 'object' could not be converted to a proto attribute. @ https://static.licdn.com/aero-v1/sc/h/assets/Cq3LkPDm.js:2
+[    1844ms] [WARNING] Attribute 'exception.tags' of type 'object' could not be converted to a proto attribute. @ https://static.licdn.com/aero-v1/sc/h/assets/Cq3LkPDm.js:2
+[    2101ms] [WARNING] Attribute 'exception.tags' of type 'object' could not be converted to a proto attribute. @ https://static.licdn.com/aero-v1/sc/h/assets/Cq3LkPDm.js:2
+[    2102ms] [WARNING] Attribute 'exception.tags' of type 'object' could not be converted to a proto attribute. @ https://static.licdn.com/aero-v1/sc/h/assets/Cq3LkPDm.js:2
+[    2608ms] [WARNING] VIDEOJS: WARN: Using the tech directly can be dangerous. I hope you know what you're doing.
+See https://github.com/videojs/video.js/issues/2617 for more info.
+ @ https://static.licdn.com/aero-v1/sc/h/assets/ljCsPg2B.js:0
+[    2613ms] [ERROR] Content contains tags or attributes that are not allowed:
+Content: <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:mpeg:dash:schema:mpd:2011 http://standards.iso.org/ittf/PubliclyAvailableStandards/MPEG-DASH_schema_files/DASH-MPD.xsd" id="D5610AQGVgNZQD_hNew" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT10.64S" minBufferTime="PT1.5S">
+  <Period duration="PT10.64S">
+    <AdaptationSet contentType="video" segmentAlignment="true" codecs="avc1.42001e,mp4a.40.2">
+      <Representation id="B56Z8yJp2dGQCk-" bandwidth="1197502" width="960" height="540" codecs="avc1.42001e,mp4a.40.2" sar="16:9" frameRate="25/1" mimeType="video/iso.segment" qualityRanking="2">
+        <SegmentList duration="4">
+          <Initialization sourceURL="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-540p-quality-analysis/B56Z8yJp2dGQCk-/1/1783252826072?e=1784094870&amp;v=beta&amp;t=ebV05i3ZIN2efVhhno18dABN5lKZMWZpDM7azWicNmo"/>
+          <SegmentURL media="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-540p-quality-analysis/B56Z8yJp2dGQCk-/2/1783252826072?e=1784094870&amp;v=beta&amp;t=g6xWatG4CtnW8avWwtZoO1n-GyCu7T5tc_-cEnrE5kA"/>
+          <SegmentURL media="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-540p-quality-analysis/B56Z8yJp2dGQCk-/3/1783252826072?e=1784094870&amp;v=beta&amp;t=eUvB8co-kGtmmI5aS_U6BkcBQK_V6vM-ZclJVz8k4M4"/>
+          <SegmentURL media="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-540p-quality-analysis/B56Z8yJp2dGQCk-/4/1783252826072?e=1784094870&amp;v=beta&amp;t=pxrawLqS2b-s3IT8eMOWcaq6o70AQGOkUGaSMCVn7sw"/>
+        </SegmentList>
+      </Representation>
+      <Representation id="B56Z8yJp2dGQCo-" bandwidth="600334" width="854" height="480" codecs="avc1.42001e,mp4a.40.2" sar="16:9" frameRate="25/1" mimeType="video/iso.segment" qualityRanking="3">
+        <SegmentList duration="4">
+          <Initialization sourceURL="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-480p-quality-analysis/B56Z8yJp2dGQCo-/1/1783252826072?e=1784094870&amp;v=beta&amp;t=DfDpgtwAbYUL81Vdu8ira-MkjFupvpvd8SJOTaZoqrI"/>
+          <SegmentURL media="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-480p-quality-analysis/B56Z8yJp2dGQCo-/2/1783252826072?e=1784094870&amp;v=beta&amp;t=9J8e3lYD7k1bbEUI2CjZM_Q7yFTMnGyjiak_Lj5XEo4"/>
+          <SegmentURL media="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-480p-quality-analysis/B56Z8yJp2dGQCo-/3/1783252826072?e=1784094870&amp;v=beta&amp;t=fk_JyrOVo9c1CEJ6jnWexT0iwLoYi2ZMOEaDWb-AFPU"/>
+          <SegmentURL media="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-480p-quality-analysis/B56Z8yJp2dGQCo-/4/1783252826072?e=1784094870&amp;v=beta&amp;t=vl9Jjkb5Lh4U6Y_u1WAuGCFeUyDzbBUj2ewQE7s7fR4"/>
+        </SegmentList>
+      </Representation>
+      <Representation id="B56Z8yJp2dGQB8-" bandwidth="452800" width="640" height="360" codecs="avc1.42001e,mp4a.40.2" sar="16:9" frameRate="25/1" mimeType="video/iso.segment" qualityRanking="4">
+        <SegmentList duration="4">
+          <Initialization sourceURL="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-360p-quality-analysis/B56Z8yJp2dGQB8-/1/1783252826072?e=1784094870&amp;v=beta&amp;t=SBlV3EDZqoSWL7Rq6Rr-LTeGYc_LyczIrZJzvnJ7L6U"/>
+          <SegmentURL media="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-360p-quality-analysis/B56Z8yJp2dGQB8-/2/1783252826072?e=1784094870&amp;v=beta&amp;t=w8wCuItdyqyNcTYszKyC7L9lNMWeZ8thCvfxhx0QOuA"/>
+          <SegmentURL media="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-360p-quality-analysis/B56Z8yJp2dGQB8-/3/1783252826072?e=1784094870&amp;v=beta&amp;t=iRcXp1Jq3s1nJO3W9En3DAc237ePO3ebM4wZqz_oHjo"/>
+          <SegmentURL media="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-360p-quality-analysis/B56Z8yJp2dGQB8-/4/1783252826072?e=1784094870&amp;v=beta&amp;t=h4H1AQQdWno4k3IcFvajMfVLgAuwqgyfIKu1wHrV7oA"/>
+        </SegmentList>
+      </Representation>
+      <Representation id="B56Z8yJp2dGQCw-" bandwidth="1889868" width="1280" height="720" codecs="avc1.42001e,mp4a.40.2" sar="16:9" frameRate="25/1" mimeType="video/iso.segment" qualityRanking="1">
+        <SegmentList duration="4">
+          <Initialization sourceURL="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-720p-quality-analysis/B56Z8yJp2dGQCw-/1/1783252826072?e=1784094870&amp;v=beta&amp;t=IBT1hE_5_L61NKV4dHZXV8z_UPeQ0tdNfHnNrk5gEl0"/>
+          <SegmentURL media="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-720p-quality-analysis/B56Z8yJp2dGQCw-/2/1783252826072?e=1784094870&amp;v=beta&amp;t=dA7QN51-iJZ4oWHL-GfYiu439GxTtvPrvBIbMPIfh_4"/>
+          <SegmentURL media="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-720p-quality-analysis/B56Z8yJp2dGQCw-/3/1783252826072?e=1784094870&amp;v=beta&amp;t=_liDFh0e4WSUWB46Zw_n5pHHG9qxmpWLOX0cXmFDju4"/>
+          <SegmentURL media="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-720p-quality-analysis/B56Z8yJp2dGQCw-/4/1783252826072?e=1784094870&amp;v=beta&amp;t=dRHpGdZDI_qxe4TztJPRGwiAbV5DxQaEZzzKRzpyNG4"/>
+        </SegmentList>
+      </Representation>
+    </AdaptationSet>
+    <AdaptationSet contentType="video" segmentAlignment="true" codecs="av01.0.04M.10,mp4a.40.2">
+      <Representation id="B56Z8yJp2dGQCA-" bandwidth="2281714" width="1280" height="720" codecs="av01.0.04M.10,mp4a.40.2" sar="16:9" frameRate="25/1" mimeType="video/iso.segment" qualityRanking="0">
+        <SegmentList duration="4">
+          <Initialization sourceURL="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-av1-720p-quality-analysis/B56Z8yJp2dGQCA-/1/1783252880773?e=1784094870&amp;v=beta&amp;t=h0DT_eSUkRUCaXlmvW16nZXQ_1xX_Lp17sfdW29fok8"/>
+          <SegmentURL media="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-av1-720p-quality-analysis/B56Z8yJp2dGQCA-/2/1783252880773?e=1784094870&amp;v=beta&amp;t=qddvj12tNzJ1HTdHeeoAm3Hi0Qq2TahVkVSAjYbNvUw"/>
+          <SegmentURL media="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-av1-720p-quality-analysis/B56Z8yJp2dGQCA-/3/1783252880773?e=1784094870&amp;v=beta&amp;t=NmhNnjQJ4Web-_qAzF6lNXfVtEV4kFQjYyHc_GHAbsc"/>
+          <SegmentURL media="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-av1-720p-quality-analysis/B56Z8yJp2dGQCA-/4/1783252880773?e=1784094870&amp;v=beta&amp;t=8rpH_3cl9vFRfBmJwkq-OzWMuejpf1ZtCD2975i9F2w"/>
+        </SegmentList>
+      </Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>
+ @ https://static.licdn.com/aero-v1/sc/h/assets/CoFIYgbG.js:0
+[    2613ms] [ERROR] HTML sanitized: <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:mpeg:dash:schema:mpd:2011 http://standards.iso.org/ittf/PubliclyAvailableStandards/MPEG-DASH_schema_files/DASH-MPD.xsd" id="D5610AQGVgNZQD_hNew" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT10.64S" minBufferTime="PT1.5S">
+  <Period duration="PT10.64S">
+    <AdaptationSet contentType="video" segmentAlignment="true" codecs="avc1.42001e,mp4a.40.2">
+      <Representation id="B56Z8yJp2dGQCk-" bandwidth="1197502" width="960" height="540" codecs="avc1.42001e,mp4a.40.2" sar="16:9" frameRate="25/1" mimeType="video/iso.segment" qualityRanking="2">
+        <SegmentList duration="4">
+          <Initialization sourceURL="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-540p-quality-analysis/B56Z8yJp2dGQCk-/1/1783252826072?e=1784094870&amp;v=beta&amp;t=ebV05i3ZIN2efVhhno18dABN5lKZMWZpDM7azWicNmo"/>
+          <SegmentURL media="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-540p-quality-analysis/B56Z8yJp2dGQCk-/2/1783252826072?e=1784094870&amp;v=beta&amp;t=g6xWatG4CtnW8avWwtZoO1n-GyCu7T5tc_-cEnrE5kA"/>
+          <SegmentURL media="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-540p-quality-analysis/B56Z8yJp2dGQCk-/3/1783252826072?e=1784094870&amp;v=beta&amp;t=eUvB8co-kGtmmI5aS_U6BkcBQK_V6vM-ZclJVz8k4M4"/>
+          <SegmentURL media="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-540p-quality-analysis/B56Z8yJp2dGQCk-/4/1783252826072?e=1784094870&amp;v=beta&amp;t=pxrawLqS2b-s3IT8eMOWcaq6o70AQGOkUGaSMCVn7sw"/>
+        </SegmentList>
+      </Representation>
+      <Representation id="B56Z8yJp2dGQCo-" bandwidth="600334" width="854" height="480" codecs="avc1.42001e,mp4a.40.2" sar="16:9" frameRate="25/1" mimeType="video/iso.segment" qualityRanking="3">
+        <SegmentList duration="4">
+          <Initialization sourceURL="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-480p-quality-analysis/B56Z8yJp2dGQCo-/1/1783252826072?e=1784094870&amp;v=beta&amp;t=DfDpgtwAbYUL81Vdu8ira-MkjFupvpvd8SJOTaZoqrI"/>
+          <SegmentURL media="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-480p-quality-analysis/B56Z8yJp2dGQCo-/2/1783252826072?e=1784094870&amp;v=beta&amp;t=9J8e3lYD7k1bbEUI2CjZM_Q7yFTMnGyjiak_Lj5XEo4"/>
+          <SegmentURL media="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-480p-quality-analysis/B56Z8yJp2dGQCo-/3/1783252826072?e=1784094870&amp;v=beta&amp;t=fk_JyrOVo9c1CEJ6jnWexT0iwLoYi2ZMOEaDWb-AFPU"/>
+          <SegmentURL media="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-480p-quality-analysis/B56Z8yJp2dGQCo-/4/1783252826072?e=1784094870&amp;v=beta&amp;t=vl9Jjkb5Lh4U6Y_u1WAuGCFeUyDzbBUj2ewQE7s7fR4"/>
+        </SegmentList>
+      </Representation>
+      <Representation id="B56Z8yJp2dGQB8-" bandwidth="452800" width="640" height="360" codecs="avc1.42001e,mp4a.40.2" sar="16:9" frameRate="25/1" mimeType="video/iso.segment" qualityRanking="4">
+        <SegmentList duration="4">
+          <Initialization sourceURL="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-360p-quality-analysis/B56Z8yJp2dGQB8-/1/1783252826072?e=1784094870&amp;v=beta&amp;t=SBlV3EDZqoSWL7Rq6Rr-LTeGYc_LyczIrZJzvnJ7L6U"/>
+          <SegmentURL media="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-360p-quality-analysis/B56Z8yJp2dGQB8-/2/1783252826072?e=1784094870&amp;v=beta&amp;t=w8wCuItdyqyNcTYszKyC7L9lNMWeZ8thCvfxhx0QOuA"/>
+          <SegmentURL media="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-360p-quality-analysis/B56Z8yJp2dGQB8-/3/1783252826072?e=1784094870&amp;v=beta&amp;t=iRcXp1Jq3s1nJO3W9En3DAc237ePO3ebM4wZqz_oHjo"/>
+          <SegmentURL media="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-360p-quality-analysis/B56Z8yJp2dGQB8-/4/1783252826072?e=1784094870&amp;v=beta&amp;t=h4H1AQQdWno4k3IcFvajMfVLgAuwqgyfIKu1wHrV7oA"/>
+        </SegmentList>
+      </Representation>
+      <Representation id="B56Z8yJp2dGQCw-" bandwidth="1889868" width="1280" height="720" codecs="avc1.42001e,mp4a.40.2" sar="16:9" frameRate="25/1" mimeType="video/iso.segment" qualityRanking="1">
+        <SegmentList duration="4">
+          <Initialization sourceURL="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-720p-quality-analysis/B56Z8yJp2dGQCw-/1/1783252826072?e=1784094870&amp;v=beta&amp;t=IBT1hE_5_L61NKV4dHZXV8z_UPeQ0tdNfHnNrk5gEl0"/>
+          <SegmentURL media="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-720p-quality-analysis/B56Z8yJp2dGQCw-/2/1783252826072?e=1784094870&amp;v=beta&amp;t=dA7QN51-iJZ4oWHL-GfYiu439GxTtvPrvBIbMPIfh_4"/>
+          <SegmentURL media="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-720p-quality-analysis/B56Z8yJp2dGQCw-/3/1783252826072?e=1784094870&amp;v=beta&amp;t=_liDFh0e4WSUWB46Zw_n5pHHG9qxmpWLOX0cXmFDju4"/>
+          <SegmentURL media="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-720p-quality-analysis/B56Z8yJp2dGQCw-/4/1783252826072?e=1784094870&amp;v=beta&amp;t=dRHpGdZDI_qxe4TztJPRGwiAbV5DxQaEZzzKRzpyNG4"/>
+        </SegmentList>
+      </Representation>
+    </AdaptationSet>
+    <AdaptationSet contentType="video" segmentAlignment="true" codecs="av01.0.04M.10,mp4a.40.2">
+      <Representation id="B56Z8yJp2dGQCA-" bandwidth="2281714" width="1280" height="720" codecs="av01.0.04M.10,mp4a.40.2" sar="16:9" frameRate="25/1" mimeType="video/iso.segment" qualityRanking="0">
+        <SegmentList duration="4">
+          <Initialization sourceURL="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-av1-720p-quality-analysis/B56Z8yJp2dGQCA-/1/1783252880773?e=1784094870&amp;v=beta&amp;t=h0DT_eSUkRUCaXlmvW16nZXQ_1xX_Lp17sfdW29fok8"/>
+          <SegmentURL media="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-av1-720p-quality-analysis/B56Z8yJp2dGQCA-/2/1783252880773?e=1784094870&amp;v=beta&amp;t=qddvj12tNzJ1HTdHeeoAm3Hi0Qq2TahVkVSAjYbNvUw"/>
+          <SegmentURL media="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-av1-720p-quality-analysis/B56Z8yJp2dGQCA-/3/1783252880773?e=1784094870&amp;v=beta&amp;t=NmhNnjQJ4Web-_qAzF6lNXfVtEV4kFQjYyHc_GHAbsc"/>
+          <SegmentURL media="https://dms.licdn.com/playlist/vid/v2/D5610AQGVgNZQD_hNew/hls-av1-720p-quality-analysis/B56Z8yJp2dGQCA-/4/1783252880773?e=1784094870&amp;v=beta&amp;t=8rpH_3cl9vFRfBmJwkq-OzWMuejpf1ZtCD2975i9F2w"/>
+        </SegmentList>
+      </Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>
+ @ https://static.licdn.com/aero-v1/sc/h/assets/CoFIYgbG.js:0
+[    2885ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    2987ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    3088ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    3192ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    3293ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    3394ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    3496ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    3596ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    3699ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    3801ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    3908ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    4010ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    4113ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    4218ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    4325ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    4428ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    4531ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    4634ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    4738ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    4843ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    4947ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    5049ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    5152ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    5252ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    5354ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    5455ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    5558ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    5661ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    5763ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    5864ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    5969ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    6073ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    6175ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    6276ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    6377ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    6483ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    6588ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    6692ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    6798ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    6901ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    7001ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    7103ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    7204ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    7306ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    7412ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    7513ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    7618ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    7720ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    7827ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    7928ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    8030ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    8131ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    8235ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    8338ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    8443ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    8547ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    8651ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    8752ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    8853ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    8954ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    9055ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    9158ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    9260ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    9362ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    9466ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    9569ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    9673ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    9779ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    9882ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[    9983ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   10085ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   10191ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   10291ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   10395ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   10496ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   10602ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   10709ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   10815ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   10918ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   11022ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   11123ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   11225ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   11329ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   11431ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   11533ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   11638ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   11745ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   11849ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   11950ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   12051ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   12153ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   12255ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   12357ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   12459ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   12564ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   12667ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   12768ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   12870ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   12973ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   13076ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   13177ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   13280ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   13383ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   13487ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   13594ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   13698ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   13804ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   13909ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   14010ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   14116ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   14217ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   14324ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   14426ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   14529ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   14630ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   14733ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   14837ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   14939ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   15041ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   15147ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   15248ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   15351ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   15453ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   15555ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   15657ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   15761ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   15862ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   15967ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   16069ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   16172ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   16278ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   16380ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   16485ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   16587ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   16689ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   16794ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   16897ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   17001ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   17104ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   17210ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   17313ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   17418ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   17523ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   17625ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   17725ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   17827ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   17931ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   18036ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   18144ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   18248ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   18351ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   18453ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0
+[   18555ms] [ERROR] Failed to load resource: net::ERR_FAILED @ chrome-extension://invalid/:0

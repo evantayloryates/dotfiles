@@ -1,0 +1,351 @@
+- generic [ref=f33e2]:
+  - heading "0 notifications" [level=2] [ref=f33e3]
+  - generic [ref=f33e4]:
+    - generic:
+      - generic "Skip navigation menu":
+        - button "Close jump menu" [ref=f33e6] [cursor=pointer]
+    - generic [ref=f33e9]:
+      - banner [ref=f33e11]:
+        - generic [ref=f33e14]:
+          - button [ref=f33e15] [cursor=pointer]
+          - generic [ref=f33e17]:
+            - status [ref=f33e18]
+            - search [ref=f33e19]:
+              - textbox "I'm looking for…" [ref=f33e23]
+          - generic [ref=f33e25]:
+            - navigation [ref=f33e29]:
+              - list [ref=f33e30]:
+                - listitem [ref=f33e31]:
+                  - button "Home, 1 new notification" [ref=f33e32] [cursor=pointer]:
+                    - img [ref=f33e34]
+                    - generic [ref=f33e37]: Home
+                - listitem [ref=f33e38]:
+                  - link "My Network, 0 new notifications" [ref=f33e39] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/mynetwork
+                    - img [ref=f33e41]
+                    - generic [ref=f33e44]: My Network
+                - listitem [ref=f33e45]:
+                  - link "Jobs, 0 new notifications" [ref=f33e46] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/jobs/
+                    - img [ref=f33e48]
+                    - generic [ref=f33e51]: Jobs
+                - listitem [ref=f33e52]:
+                  - link "Messaging, 0 new notifications" [ref=f33e53] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/messaging/
+                    - img [ref=f33e55]
+                    - generic [ref=f33e58]: Messaging
+                - listitem [ref=f33e59]:
+                  - link "Notifications, 20 new notifications" [ref=f33e60] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/notifications/
+                    - generic [ref=f33e61]:
+                      - img [ref=f33e62]
+                      - generic [ref=f33e64]: "20"
+                    - generic [ref=f33e66]: Notifications
+                - listitem [ref=f33e67]:
+                  - button "Me" [ref=f33e68] [cursor=pointer]:
+                    - figure [ref=f33e70]
+                    - generic [ref=f33e72]: Me
+            - generic [ref=f33e75]:
+              - navigation [ref=f33e76]:
+                - list [ref=f33e77]:
+                  - listitem [ref=f33e78]:
+                    - button "For Business" [ref=f33e79] [cursor=pointer]:
+                      - img [ref=f33e81]
+                      - generic [ref=f33e84]: For Business
+              - link "Retry Premium" [ref=f33e87] [cursor=pointer]:
+                - /url: https://www.linkedin.com/
+                - paragraph [ref=f33e93]: Retry Premium
+      - generic [ref=f33e94]:
+        - toolbar [ref=f33e95]
+        - main [ref=f33e109]:
+          - region "Primary content" [ref=f33e113]:
+            - generic [ref=f33e116]:
+              - listitem [ref=f33e120]:
+                - generic [ref=f33e122]:
+                  - heading "Feed post" [level=2]:
+                    - generic [ref=f33e123]: Feed post
+                  - generic [ref=f33e124]:
+                    - link [ref=f33e125] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/joehall6/
+                      - figure [ref=f33e126]
+                    - generic [ref=f33e128]:
+                      - link "Joe Hall Verified Profile 1st" [ref=f33e131] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/in/joehall6/
+                        - generic "Joe Hall Verified Profile 1st" [ref=f33e133]:
+                          - paragraph [ref=f33e136]: Joe Hall
+                          - paragraph [ref=f33e138]:
+                            - generic [ref=f33e139]: • 1st
+                      - paragraph [ref=f33e143]: Co-Founder @Adexy • Co-Founder @Spaceback • Product & Design
+                      - paragraph [ref=f33e145]:
+                        - generic [ref=f33e146]: 2w •
+                      - link:
+                        - /url: https://www.linkedin.com/in/joehall6/
+                    - button "Open control menu for post by Joe Hall" [ref=f33e148] [cursor=pointer]
+                  - paragraph [ref=f33e151]:
+                    - generic [ref=f33e152]:
+                      - text: I had hoped to take time off.
+                      - text: But some habits are hard to break.
+                      - text: As co-founder of
+                      - link "Spaceback" [ref=f33e154] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/company/spaceback/
+                        - strong [ref=f33e156]: Spaceback
+                      - text: ", I’m proud of what we built. And I love the people we built it with."
+                      - link "Casey Saran" [ref=f33e157] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/in/caseysaran/
+                        - strong [ref=f33e159]: Casey Saran
+                      - text: ","
+                      - link "Chris Baclig" [ref=f33e160] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/in/chrisbaclig/
+                        - strong [ref=f33e162]: Chris Baclig
+                      - text: ","
+                      - link "Brady Akers" [ref=f33e163] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/in/brady-akers/
+                        - strong [ref=f33e165]: Brady Akers
+                      - text: ", and the entire team."
+                      - text: The journey was a beautiful one filled with some of the most challenging days and some of the most fulfilling ones at the same time.
+                      - text: But I find myself at that fork in the road. That decision point. My feet facing one way. My heart getting pulled in another direction.
+                      - text: So, it’s time for what is next.
+                      - link "Adexy.ai" [ref=f33e166] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/safety/go/?url=http%3A%2F%2FAdexy%2Eai&urlhash=1bVE&mt=qT6IoEDCdP-sGz0CnL8mMBXygC9eQOoV42DNGbercN0UvP6iX4rLobTWjZo4ccfbiCRzp2-cttTJM00zUjL7npazIdAv8ETsLOYVeu-4NAEi4ryNT3bBEIuWJA&isSdui=true
+                        - strong [ref=f33e168]: Adexy.ai
+                      - text: It’s a small start to a larger vision.
+                      - text: But most importantly, it answers something I can’t ignore. I have to turn over more rocks, round more corners, pull more threads and uncover new opportunities.
+                      - text: So much new to learn. I’m a little scared, but also, I couldn’t be more excited.
+                      - text: If you’re thinking about where brand and AI intersect, I’d love to compare notes. Find me in Cannes or drop me a DM.
+                  - link "Adexy — Interactive Brand Experiences Inside Reddit adexy.ai" [ref=f33e169] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/safety/go/?url=http%3A%2F%2FAdexy%2Eai&urlhash=1bVE&mt=bt4msCtqlP1HYqVL6AF8K2igx4l7e23wVY_MvdRcpNoCXK8ahmt0qeAcjKOmQc-tMOT5BH77VxNFxBpSvkeGU4-sH9ZjgrMejgIt8c7amqompmmK7aPW0xKgyQ&isSdui=true
+                    - generic [ref=f33e170]:
+                      - figure [ref=f33e171]
+                      - generic [ref=f33e172]:
+                        - paragraph [ref=f33e174]:
+                          - generic [ref=f33e175]:
+                            - generic [ref=f33e176]: Adexy — Interactive Brand Experiences Inside Reddit
+                            - text: Adexy — Interactive Brand Experiences Inside Reddit
+                        - paragraph [ref=f33e178]: adexy.ai
+                  - generic [ref=f33e179]:
+                    - generic [ref=f33e180]:
+                      - 'button "Reaction button state: Love" [ref=f33e183] [cursor=pointer]':
+                        - generic [ref=f33e186]: "110"
+                      - button "Open reactions menu"
+                    - button "Comment" [ref=f33e187] [cursor=pointer]:
+                      - generic [ref=f33e190]: "57"
+                    - button "Repost" [ref=f33e191] [cursor=pointer]:
+                      - generic [ref=f33e194]: "1"
+                    - link "Send" [ref=f33e195] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/
+                    - link [ref=f33e198] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/
+                      - generic "110 reactions" [ref=f33e199]
+              - listitem [ref=f33e207]:
+                - generic [ref=f33e209]:
+                  - heading "Feed post" [level=2]:
+                    - generic [ref=f33e210]: Feed post
+                  - generic [ref=f33e211]:
+                    - link [ref=f33e212] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/hrushikesh-mohapatra/
+                      - figure [ref=f33e213]
+                    - generic [ref=f33e215]:
+                      - link "Hrushikesh Mohapatro Verified Profile 2nd" [ref=f33e218] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/in/hrushikesh-mohapatra/
+                        - generic "Hrushikesh Mohapatro Verified Profile 2nd" [ref=f33e220]:
+                          - paragraph [ref=f33e223]: Hrushikesh Mohapatro
+                          - paragraph [ref=f33e225]:
+                            - generic [ref=f33e226]: • 2nd
+                      - paragraph [ref=f33e230]: India’s Trusted Partner for Talent, Technology, Career & Business Growth | Building People Before They Build Businesses | Building Recruitment Entrepreneurs | Author | Coach | Founder @ B2 Tech Services & Gyaan AUR Dhan
+                      - paragraph [ref=f33e232]:
+                        - generic [ref=f33e233]: 1d •
+                      - link:
+                        - /url: https://www.linkedin.com/in/hrushikesh-mohapatra/
+                    - button "Follow Hrushikesh Mohapatro" [ref=f33e238] [cursor=pointer]:
+                      - generic [ref=f33e242]: Follow
+                    - button "Open control menu for post by Hrushikesh Mohapatro" [ref=f33e243] [cursor=pointer]
+                  - paragraph [ref=f33e246]:
+                    - generic [ref=f33e247]:
+                      - text: 🚨 Over 4,700 Executive Leaders Have Already Joined.
+                      - text: The real question isn't whether you should join.
+                      - text: It's whether you can afford to stay outside the conversation.
+                      - text: Every industry-defining partnership begins with a conversation.
+                      - text: Every breakthrough strategy begins with a fresh perspective.
+                      - text: Every transformative business decision is influenced by the people in the room.
+                      - text: In today's interconnected world, one of the greatest competitive advantages isn't just knowledge or experience.
+                      - text: It's access to the right leaders at the right time.
+                      - text: The most successful executives don't simply expand their networks.
+                      - text: They build trusted relationships that open doors to opportunities, partnerships, investments, innovation, and long-term business growth.
+                      - text: That's why we created the Executive Leadership Network—a community built for senior decision-makers who believe that leadership is strengthened through collaboration, shared knowledge, and meaningful connections.
+                      - text: Who You'll Connect With
+                      - text: ✔ CEOs
+                      - text: ✔ CTOs
+                      - text: ✔ COOs
+                      - text: ✔ CFOs
+                      - text: ✔ CIOs
+                      - text: ✔ Vice Presidents
+                      - text: ✔ Directors
+                      - text: ✔ Business Unit Heads
+                      - text: ✔ Digital & Business Transformation Leaders
+                      - text: ✔ Entrepreneurs & Founders
+                      - text: ✔ Industry Experts & Executive Advisors
+                      - text: Today, 4,700+ executive leaders are already part of this growing community.
+                      - text: They didn't join simply to increase their contacts.
+                      - text: "They joined to gain something far more valuable:"
+                      - text: Access.
+                      - text: 🔹 Access to strategic business insights
+                      - text: 🔹 Access to experienced decision-makers
+                      - text: 🔹 Access to high-value collaborations
+                      - text: 🔹 Access to business growth opportunities
+                      - text: 🔹 Access to leadership perspectives from across industries
+                      - text: 🔹 Access to conversations shaping the future of business and technology
+                      - text: Because the next opportunity often begins long before it's publicly visible.
+                      - text: Your next client could already be here.
+                      - text: Your next strategic partner could already be here.
+                      - text: Your next investor, advisor, board member, or executive opportunity could already be one introduction away.
+                      - text: "The leaders shaping the next decade understand one principle:"
+                      - text: Growth is no longer achieved in isolation. It's created through trusted relationships, collective intelligence, and purposeful collaboration.
+                      - text: Inside the Community
+                      - text: ✅ Executive Leadership Discussions
+                      - text: ✅ Cross-Industry Collaboration
+                      - text: ✅ Digital Transformation & AI Insights
+                      - text: ✅ Business Growth & Innovation
+                      - text: ✅ Strategic Partnerships
+                      - text: ✅ Leadership Perspectives from Global Executives
+                      - text: If you're committed to leading organizations, scaling businesses, driving innovation, or expanding your executive influence, this is where meaningful conversations begin.
+                      - text: 📈 4,700+ Executive Leaders
+                      - text: 🌍 A Global Community of Decision-Makers
+                      - text: 🚀 Built for Leaders Who Think Beyond Today
+                      - text: "Join the Executive Leadership Network:"
+                      - text: 🔗
+                      - link "https://lnkd.in/gEszYEXc" [ref=f33e249] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Flnkd%2Ein%2FgEszYEXc&urlhash=C-2v&mt=dnkCRB6lyDq_rTZzf19iKPbZqHwgZois-Pn0-HOGD33voQqjnjZ10aP1zWVC3i6WjCnuJeaJHp-ZvjzCJdtJhCY8U0xum8nNhZueKy-7nVwLoN01x6UEOGfwpg&isSdui=true
+                        - strong [ref=f33e251]: https://lnkd.in/gEszYEXc
+                      - text: One conversation. One trusted relationship. One opportunity.
+                      - text: Sometimes, that's all it takes to redefine a career, transform a business, or shape the future of an organisation.
+                  - 'link "Group: Executive Leadership Network - For CTOs, COOs, CEOs, CFOs , VPs, Directors, Heads and Senior Leaders" [ref=f33e252] [cursor=pointer]':
+                    - /url: https://www.linkedin.com/groups/14536199/
+                    - 'generic "Group: Executive Leadership Network - For CTOs, COOs, CEOs, CFOs , VPs, Directors, Heads and Senior Leaders" [ref=f33e253]':
+                      - figure [ref=f33e254]
+                      - generic [ref=f33e255]:
+                        - paragraph [ref=f33e257]: Executive Leadership Network - For CTOs, COOs, CEOs, CFOs , VPs, Directors, Heads and Senior Leaders
+                        - paragraph [ref=f33e259]: 4,725 members
+                  - generic [ref=f33e260]:
+                    - generic [ref=f33e261]:
+                      - 'button "Reaction button state: no reaction" [ref=f33e264] [cursor=pointer]':
+                        - generic [ref=f33e267]: "5"
+                      - button "Open reactions menu"
+                    - button "Comment" [ref=f33e268] [cursor=pointer]
+                    - button "Repost" [ref=f33e271] [cursor=pointer]
+                    - link "Send" [ref=f33e274] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/
+                    - link [ref=f33e277] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/
+                      - generic "5 reactions" [ref=f33e278]
+              - listitem [ref=f33e284]:
+                - generic [ref=f33e286]:
+                  - heading "Feed post" [level=2]:
+                    - generic [ref=f33e287]: Feed post
+                  - generic [ref=f33e288]:
+                    - link [ref=f33e289] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/stevencoufal/
+                      - figure [ref=f33e290]
+                    - generic [ref=f33e292]:
+                      - link "Steven Coufal Verified Profile 3rd+" [ref=f33e295] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/in/stevencoufal/
+                        - generic "Steven Coufal Verified Profile 3rd+" [ref=f33e297]:
+                          - paragraph [ref=f33e300]: Steven Coufal
+                          - paragraph [ref=f33e302]:
+                            - generic [ref=f33e303]: • 3rd+
+                      - paragraph [ref=f33e307]: VP of Organic Growth
+                      - paragraph [ref=f33e309]:
+                        - generic [ref=f33e310]: 1w •
+                      - link:
+                        - /url: https://www.linkedin.com/in/stevencoufal/
+                    - button "Invite Steven Coufal to connect" [ref=f33e315] [cursor=pointer]:
+                      - generic [ref=f33e319]: Connect
+                    - button "Open control menu for post by Steven Coufal" [ref=f33e320] [cursor=pointer]
+                  - paragraph [ref=f33e323]:
+                    - generic [ref=f33e324]: Any company that hires Ken will be making the best decision
+                  - generic [ref=f33e325]:
+                    - generic [ref=f33e326]:
+                      - link [ref=f33e327] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/in/kennethkleb/
+                        - figure [ref=f33e328]
+                      - generic [ref=f33e330]:
+                        - link "Kenneth K., Open to work Premium Profile 3rd+" [ref=f33e333] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/kennethkleb/
+                          - generic "Kenneth K., Open to work Premium Profile 3rd+" [ref=f33e335]:
+                            - paragraph [ref=f33e338]: Kenneth K.
+                            - paragraph [ref=f33e340]:
+                              - generic [ref=f33e341]: • 3rd+
+                        - paragraph [ref=f33e345]: Customer Success Advisor @ Equity | Driving Software Adoption, Revenue Growth
+                        - paragraph [ref=f33e347]:
+                          - generic [ref=f33e348]: 1w •
+                        - link:
+                          - /url: https://www.linkedin.com/in/kennethkleb/
+                      - button "Follow Kenneth K." [ref=f33e353] [cursor=pointer]:
+                        - generic [ref=f33e357]: Follow
+                    - link:
+                      - /url: https://www.linkedin.com/feed/update/urn:li:ugcPost:7477446750660886528/
+                    - paragraph [ref=f33e358]:
+                      - link [ref=f33e359] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/feed/update/urn:li:ugcPost:7477446750660886528/
+                        - generic [ref=f33e360]:
+                          - text: Hey LinkedIn! 👋
+                          - text: After an incredible run building client relationships and driving renewals across SaaS and engineering software, I'm officially on the hunt for my next opportunity — and I'd love your help.
+                          - text: I bring 7+ years of experience in customer success and account management, with a track record of managing large portfolios, owning renewals end-to-end, and genuinely caring about the clients I work with. I've had the privilege of doing this at some great companies — Procore Technologies, HUVRdata, and most recently Equity Engineering Group — and I'm ready to bring that energy somewhere new.
+                          - text: "What I'm looking for:"
+                          - text: Customer Success Manager / Advisor / Specialist
+                          - text: Customer Success Engineer
+                          - text: Account Manager
+                          - text: Account Executive
+                          - text: "Where: Remote or Austin TX"
+                          - text: If you know of something, hear of something, or just want to reconnect — drop a comment, send a DM, or share this post. Every little bit helps and genuinely means the world. 🙏
+                          - text: Let's connect. 🤝
+                      - link "#OpenToWork" [ref=f33e361] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23opentowork&origin=HASH_TAG_FROM_FEED
+                        - strong [ref=f33e363]: "#OpenToWork"
+                      - link "#CustomerSuccess" [ref=f33e364] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23customersuccess&origin=HASH_TAG_FROM_FEED
+                        - strong [ref=f33e366]: "#CustomerSuccess"
+                      - link "#CSM" [ref=f33e367] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23csm&origin=HASH_TAG_FROM_FEED
+                        - strong [ref=f33e369]: "#CSM"
+                      - link "#AccountManagement" [ref=f33e370] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23accountmanagement&origin=HASH_TAG_FROM_FEED
+                        - strong [ref=f33e372]: "#AccountManagement"
+                      - link "#SaaS" [ref=f33e373] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23saas&origin=HASH_TAG_FROM_FEED
+                        - strong [ref=f33e375]: "#SaaS"
+                      - link "#Austin" [ref=f33e376] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23austin&origin=HASH_TAG_FROM_FEED
+                        - strong [ref=f33e378]: "#Austin"
+                      - link "#Hiring" [ref=f33e379] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23hiring&origin=HASH_TAG_FROM_FEED
+                        - strong [ref=f33e381]: "#Hiring"
+                    - generic [ref=f33e384]:
+                      - figure [ref=f33e386]
+                      - generic [ref=f33e387]:
+                        - paragraph [ref=f33e389]: Kenneth is open to work
+                        - paragraph [ref=f33e392]: Looking for Hybrid or Remote or On-site roles in United States, Austin, TX and Austin, Texas Metropolitan Area
+                        - link:
+                          - /url: https://www.linkedin.com/
+                        - link "View job preferences" [ref=f33e393] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/
+                          - generic [ref=f33e395]: View job preferences
+                  - generic [ref=f33e396]:
+                    - generic [ref=f33e397]:
+                      - 'button "Reaction button state: no reaction" [ref=f33e400] [cursor=pointer]':
+                        - generic [ref=f33e403]: "3"
+                      - button "Open reactions menu"
+                    - button "Comment" [ref=f33e404] [cursor=pointer]
+                    - button "Repost" [ref=f33e407] [cursor=pointer]
+                    - link "Send" [ref=f33e410] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/
+                    - link [ref=f33e413] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/
+                      - generic "3 reactions" [ref=f33e414]
+              - generic [ref=f33e419]:
+                - generic [ref=f33e420]:
+                  - paragraph [ref=f33e421]: Are these results helpful?
+                  - paragraph [ref=f33e422]: Your feedback helps us improve search results
+                - generic [ref=f33e423]:
+                  - button "Are these results helpful? Yes, these search results are helpful" [ref=f33e424] [cursor=pointer]
+                  - button "Are these results helpful? No, these search results are not helpful" [ref=f33e427] [cursor=pointer]
+              - progressbar [ref=f33e432]

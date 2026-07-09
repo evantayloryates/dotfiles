@@ -6,6 +6,7 @@
       ".zshrc",
       ".zshrc.local",
       ".vscode/**/*",
+      ".vscode/.onsave-toggle"
     ]
   }
 }

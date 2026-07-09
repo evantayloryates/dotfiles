@@ -1,0 +1,337 @@
+- generic [ref=f17e2]:
+  - heading "0 notifications" [level=2] [ref=f17e3]
+  - generic [ref=f17e4]:
+    - generic:
+      - generic "Skip navigation menu":
+        - button "Close jump menu" [ref=f17e6] [cursor=pointer]
+    - generic [ref=f17e9]:
+      - banner [ref=f17e11]:
+        - generic [ref=f17e14]:
+          - button [ref=f17e15] [cursor=pointer]
+          - generic [ref=f17e17]:
+            - status [ref=f17e18]
+            - search [ref=f17e19]:
+              - textbox "I'm looking for…" [ref=f17e23]
+          - generic [ref=f17e25]:
+            - navigation [ref=f17e29]:
+              - list [ref=f17e30]:
+                - listitem [ref=f17e31]:
+                  - button "Home, 1 new notification" [ref=f17e32] [cursor=pointer]:
+                    - img [ref=f17e34]
+                    - generic [ref=f17e37]: Home
+                - listitem [ref=f17e38]:
+                  - link "My Network, 0 new notifications" [ref=f17e39] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/mynetwork
+                    - img [ref=f17e41]
+                    - generic [ref=f17e44]: My Network
+                - listitem [ref=f17e45]:
+                  - link "Jobs, 0 new notifications" [ref=f17e46] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/jobs/
+                    - img [ref=f17e48]
+                    - generic [ref=f17e51]: Jobs
+                - listitem [ref=f17e52]:
+                  - link "Messaging, 0 new notifications" [ref=f17e53] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/messaging/
+                    - img [ref=f17e55]
+                    - generic [ref=f17e58]: Messaging
+                - listitem [ref=f17e59]:
+                  - link "Notifications, 20 new notifications" [ref=f17e60] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/notifications/
+                    - generic [ref=f17e61]:
+                      - img [ref=f17e62]
+                      - generic [ref=f17e64]: "20"
+                    - generic [ref=f17e66]: Notifications
+                - listitem [ref=f17e67]:
+                  - button "Me" [ref=f17e68] [cursor=pointer]:
+                    - figure [ref=f17e70]
+                    - generic [ref=f17e72]: Me
+            - generic [ref=f17e75]:
+              - navigation [ref=f17e76]:
+                - list [ref=f17e77]:
+                  - listitem [ref=f17e78]:
+                    - button "For Business" [ref=f17e79] [cursor=pointer]:
+                      - img [ref=f17e81]
+                      - generic [ref=f17e84]: For Business
+              - link "Retry Premium" [ref=f17e87] [cursor=pointer]:
+                - /url: https://www.linkedin.com/
+                - paragraph [ref=f17e93]: Retry Premium
+      - generic [ref=f17e95]:
+        - toolbar [ref=f17e96]:
+          - generic [ref=f17e100]:
+            - link "David Samuel Kim" [ref=f17e101] [cursor=pointer]:
+              - /url: https://www.linkedin.com/in/dasaki/
+              - generic "David Samuel Kim" [ref=f17e102]:
+                - figure [ref=f17e103]
+                - generic [ref=f17e104]:
+                  - paragraph [ref=f17e105]: David Samuel Kim
+                  - paragraph [ref=f17e107]: Product Manager
+            - generic [ref=f17e108]:
+              - button "More" [ref=f17e110] [cursor=pointer]:
+                - generic [ref=f17e112]: More
+              - link "Message" [ref=f17e114] [cursor=pointer]:
+                - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAAct8AcB5aH2sbDUoeegvj6ImjwlgadHO48&recipient=ACoAAAct8AcB5aH2sbDUoeegvj6ImjwlgadHO48&screenContext=NON_SELF_PROFILE_VIEW&interop=msgOverlay
+                - generic [ref=f17e117]: Message
+              - link "Invite David Samuel Kim to connect" [ref=f17e121] [cursor=pointer]:
+                - /url: /preload/custom-invite/?vanityName=dasaki
+                - generic [ref=f17e125]: Connect
+        - main [ref=f17e126]:
+          - generic [ref=f17e128]:
+            - region "Primary content" [ref=f17e129]:
+              - generic [ref=f17e136]:
+                - generic [ref=f17e137]:
+                  - button [ref=f17e140] [cursor=pointer]:
+                    - figure [ref=f17e141]
+                  - link "Profile photo" [ref=f17e142] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/
+                    - generic "Profile photo" [ref=f17e143]:
+                      - figure [ref=f17e144]
+                  - link [ref=f17e147] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/
+                - generic [ref=f17e149]:
+                  - generic [ref=f17e150]:
+                    - generic [ref=f17e152]:
+                      - generic [ref=f17e153]:
+                        - link "David Samuel Kim" [ref=f17e156] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/
+                          - heading "David Samuel Kim" [level=2] [ref=f17e159]
+                        - paragraph [ref=f17e161]: · 2nd
+                      - paragraph [ref=f17e162]: Product Manager
+                      - generic [ref=f17e163]:
+                        - paragraph [ref=f17e164]: Santa Monica, California, United States
+                        - paragraph [ref=f17e165]: ·
+                        - paragraph [ref=f17e166]:
+                          - link "Contact info" [ref=f17e167] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/dasaki/overlay/contact-info/
+                    - generic [ref=f17e169]:
+                      - button "Reddit, Inc." [ref=f17e170] [cursor=pointer]:
+                        - generic [ref=f17e171]:
+                          - figure [ref=f17e172]
+                          - paragraph [ref=f17e176]: Reddit, Inc.
+                      - button "University of Illinois at Urbana-Champaign" [ref=f17e177] [cursor=pointer]:
+                        - generic [ref=f17e178]:
+                          - figure [ref=f17e179]
+                          - paragraph [ref=f17e183]: University of Illinois at Urbana-Champaign
+                  - link:
+                    - /url: https://www.linkedin.com/search/results/people/?origin=MEMBER_PROFILE_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAAct8AcB5aH2sbDUoeegvj6ImjwlgadHO48%22%5D
+                  - generic [ref=f17e184]:
+                    - link [ref=f17e185] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/search/results/people/?origin=MEMBER_PROFILE_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAAct8AcB5aH2sbDUoeegvj6ImjwlgadHO48%22%5D
+                      - figure [ref=f17e186]
+                      - figure [ref=f17e187]
+                    - generic [ref=f17e188]:
+                      - link:
+                        - /url: https://www.linkedin.com/search/results/people/?origin=MEMBER_PROFILE_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAAct8AcB5aH2sbDUoeegvj6ImjwlgadHO48%22%5D
+                      - paragraph [ref=f17e189]:
+                        - link:
+                          - /url: https://www.linkedin.com/search/results/people/?origin=MEMBER_PROFILE_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAAct8AcB5aH2sbDUoeegvj6ImjwlgadHO48%22%5D
+                        - link "Chris, Casey and 2 other mutual connections" [ref=f17e190] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/search/results/people/?origin=MEMBER_PROFILE_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAAct8AcB5aH2sbDUoeegvj6ImjwlgadHO48%22%5D
+                          - strong [ref=f17e191]: Chris
+                          - text: ","
+                          - strong [ref=f17e192]: Casey
+                          - text: and 2 other mutual connections
+                  - generic [ref=f17e196]:
+                    - link "Invite David Samuel Kim to connect" [ref=f17e200] [cursor=pointer]:
+                      - /url: /preload/custom-invite/?vanityName=dasaki
+                      - generic [ref=f17e204]: Connect
+                    - link "Message" [ref=f17e206] [cursor=pointer]:
+                      - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAAct8AcB5aH2sbDUoeegvj6ImjwlgadHO48&recipient=ACoAAAct8AcB5aH2sbDUoeegvj6ImjwlgadHO48&screenContext=NON_SELF_PROFILE_VIEW&interop=msgOverlay
+                      - generic [ref=f17e209]: Message
+                    - button "More" [ref=f17e211] [cursor=pointer]:
+                      - generic [ref=f17e213]: More
+            - complementary "Aside" [ref=f17e269]:
+              - generic [ref=f17e271]:
+                - iframe [ref=f17e274]:
+                  
+                - generic [ref=f17e277]:
+                  - heading "Software engineering content you might be interested in" [level=2] [ref=f17e279]
+                  - generic [ref=f17e281]:
+                    - generic [ref=f17e283]:
+                      - generic [ref=f17e285]:
+                        - link:
+                          - /url: https://www.linkedin.com/in/nitingupta910/
+                        - generic [ref=f17e286]:
+                          - link [ref=f17e287] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/nitingupta910/
+                            - figure [ref=f17e288]
+                          - generic [ref=f17e289]:
+                            - link:
+                              - /url: https://www.linkedin.com/in/nitingupta910/
+                            - generic [ref=f17e290]:
+                              - link:
+                                - /url: https://www.linkedin.com/in/nitingupta910/
+                              - generic [ref=f17e291]:
+                                - link:
+                                  - /url: https://www.linkedin.com/in/nitingupta910/
+                                - paragraph [ref=f17e292]:
+                                  - link:
+                                    - /url: https://www.linkedin.com/in/nitingupta910/
+                                  - link "Nitin Gupta Premium" [ref=f17e293] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/nitingupta910/
+                                    - text: Nitin Gupta
+                                    - img "Premium" [ref=f17e294]
+                              - paragraph [ref=f17e296]: · 3rd
+                            - paragraph [ref=f17e298]: Sr Staff Software Engineer at NVIDIA
+                      - link "View my blog" [ref=f17e302] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Fnitingupta%2Edev%2F&urlhash=SgY8&mt=Txd92-KMGXDco3Y1ubiN28XqldtFVg9Vl2uGQcZI5Fd44rRRhvblBsTkEGbCEr-X_kW9WAp0oxojS9DLnYw-70iod1c&isSdui=true
+                        - generic [ref=f17e304]: View my blog
+                    - generic [ref=f17e306]:
+                      - generic [ref=f17e308]:
+                        - link:
+                          - /url: https://www.linkedin.com/in/yassertoruno/
+                        - generic [ref=f17e309]:
+                          - link [ref=f17e310] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/yassertoruno/
+                            - figure [ref=f17e311]
+                          - generic [ref=f17e312]:
+                            - link:
+                              - /url: https://www.linkedin.com/in/yassertoruno/
+                            - generic [ref=f17e313]:
+                              - link:
+                                - /url: https://www.linkedin.com/in/yassertoruno/
+                              - generic [ref=f17e314]:
+                                - link:
+                                  - /url: https://www.linkedin.com/in/yassertoruno/
+                                - paragraph [ref=f17e315]:
+                                  - link:
+                                    - /url: https://www.linkedin.com/in/yassertoruno/
+                                  - link "Yasser Toruño Premium" [ref=f17e316] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/yassertoruno/
+                                    - text: Yasser Toruño
+                                    - img "Premium" [ref=f17e317]
+                              - paragraph [ref=f17e319]: · 3rd
+                            - paragraph [ref=f17e321]: Engineering Leader | Open Source Creator | Entrepreneur
+                      - link "Visit my website" [ref=f17e325] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Fyassi%2Edev&urlhash=cTSm&mt=lfqlJcedkWaJNTcvvcCGjJ6aYAts0YiuXnTjcLZ1Xre3hUvKmSwwYO8Oo6YyD_GpN2jvLygsvL6ssM8ikRSYeZy3awM&isSdui=true
+                        - generic [ref=f17e327]: Visit my website
+                    - generic [ref=f17e329]:
+                      - generic [ref=f17e331]:
+                        - link:
+                          - /url: https://www.linkedin.com/in/arslanahmad/
+                        - generic [ref=f17e332]:
+                          - link [ref=f17e333] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/arslanahmad/
+                            - figure [ref=f17e334]
+                          - generic [ref=f17e335]:
+                            - link:
+                              - /url: https://www.linkedin.com/in/arslanahmad/
+                            - generic [ref=f17e336]:
+                              - link:
+                                - /url: https://www.linkedin.com/in/arslanahmad/
+                              - generic [ref=f17e337]:
+                                - link:
+                                  - /url: https://www.linkedin.com/in/arslanahmad/
+                                - paragraph [ref=f17e338]:
+                                  - link:
+                                    - /url: https://www.linkedin.com/in/arslanahmad/
+                                  - link "Arslan Ahmad Premium" [ref=f17e339] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/arslanahmad/
+                                    - text: Arslan Ahmad
+                                    - img "Premium" [ref=f17e340]
+                              - paragraph [ref=f17e342]: · 2nd
+                            - paragraph [ref=f17e344]: Author of Bestselling ‘Grokking’ Series on System Design, Software Architecture & Coding Patterns | Founder DesignGurus.io
+                      - link "View my blog" [ref=f17e348] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Fgithub%2Ecom%2Fdesign-gurus%2Fgrokking-system-design&urlhash=-1kF&mt=J5T3wKYEdF92AfVm-lKGxgCRPjEwM9d3jckCwPt04F-oTKFMOz-3Ykksn-Hjshcu121sDcWJRr3GVc0eEW5RrxLZ4to&isSdui=true
+                        - generic [ref=f17e350]: View my blog
+            - generic "Footer" [ref=f17e351]:
+              - generic [ref=f17e354]:
+                - generic [ref=f17e355]:
+                  - navigation [ref=f17e356]:
+                    - link "About" [ref=f17e357] [cursor=pointer]:
+                      - /url: https://about.linkedin.com/
+                      - paragraph [ref=f17e358]: About
+                    - link "Accessibility" [ref=f17e359] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/accessibility/
+                      - paragraph [ref=f17e360]: Accessibility
+                    - link "Talent Solutions" [ref=f17e361] [cursor=pointer]:
+                      - /url: https://business.linkedin.com/talent-solutions?trk=flagship_nav&veh=li-footer-lts-control&src=li-footer
+                      - paragraph [ref=f17e362]: Talent Solutions
+                    - link "Community Guidelines" [ref=f17e363] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/legal/professional-community-policies/
+                      - paragraph [ref=f17e364]: Community Guidelines
+                    - link "Careers" [ref=f17e365] [cursor=pointer]:
+                      - /url: https://careers.linkedin.com/
+                      - paragraph [ref=f17e366]: Careers
+                    - link "Marketing Solutions" [ref=f17e367] [cursor=pointer]:
+                      - /url: https://business.linkedin.com/advertise?trk=n_nav_lms_f&src=li-footer
+                      - paragraph [ref=f17e368]: Marketing Solutions
+                    - button "Privacy & Terms" [ref=f17e369] [cursor=pointer]:
+                      - paragraph [ref=f17e371]: Privacy & Terms
+                    - link "Ad Choices" [ref=f17e373] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/help/linkedin/answer/62931/
+                      - paragraph [ref=f17e374]: Ad Choices
+                    - link "Advertising" [ref=f17e375] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/ad/start/?trk=n_nav_ads_rr
+                      - paragraph [ref=f17e376]: Advertising
+                    - link "Sales Solutions" [ref=f17e377] [cursor=pointer]:
+                      - /url: https://business.linkedin.com/sales-solutions?trk=flagship_nav&veh=li-footer-lss-control&src=li-footer
+                      - paragraph [ref=f17e378]: Sales Solutions
+                    - link "Mobile" [ref=f17e379] [cursor=pointer]:
+                      - /url: https://mobile.linkedin.com/
+                      - paragraph [ref=f17e380]: Mobile
+                    - link "Small Business" [ref=f17e381] [cursor=pointer]:
+                      - /url: https://business.linkedin.com/grow?src=li-footer
+                      - paragraph [ref=f17e382]: Small Business
+                    - link "Safety Center" [ref=f17e383] [cursor=pointer]:
+                      - /url: https://safety.linkedin.com/
+                      - paragraph [ref=f17e384]: Safety Center
+                  - paragraph [ref=f17e386]: LinkedIn Corporation © 2026
+                - generic [ref=f17e387]:
+                  - list [ref=f17e388]:
+                    - listitem [ref=f17e389]:
+                      - generic [ref=f17e392]:
+                        - link "Questions?" [ref=f17e393] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/help/linkedin/
+                          - paragraph [ref=f17e394]: Questions?
+                        - paragraph [ref=f17e395]: Visit our Help Center.
+                    - listitem [ref=f17e396]:
+                      - generic [ref=f17e399]:
+                        - link "Manage your account and privacy" [ref=f17e400] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/mypreferences/d/
+                          - paragraph [ref=f17e401]: Manage your account and privacy
+                        - paragraph [ref=f17e402]: Go to your Settings.
+                    - listitem [ref=f17e403]:
+                      - generic [ref=f17e406]:
+                        - link "Recommendation transparency" [ref=f17e407] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/help/linkedin/answer/a1339724/
+                          - paragraph [ref=f17e408]: Recommendation transparency
+                        - paragraph [ref=f17e409]: Learn more about Recommended Content.
+                  - generic [ref=f17e411]:
+                    - paragraph [ref=f17e413]: Select language
+                    - combobox "Select language" [ref=f17e415] [cursor=pointer]:
+                      - option "العربية (Arabic)"
+                      - option "বাংলা (Bangla)"
+                      - option "Čeština (Czech)"
+                      - option "Dansk (Danish)"
+                      - option "Deutsch (German)"
+                      - option "Ελληνικά (Greek)"
+                      - option "English (English)" [selected]
+                      - option "Español (Spanish)"
+                      - option "فارسی (Persian)"
+                      - option "Suomi (Finnish)"
+                      - option "Français (French)"
+                      - option "हिंदी (Hindi)"
+                      - option "Magyar (Hungarian)"
+                      - option "Bahasa Indonesia (Indonesian)"
+                      - option "Italiano (Italian)"
+                      - option "עברית (Hebrew)"
+                      - option "日本語 (Japanese)"
+                      - option "한국어 (Korean)"
+                      - option "मराठी (Marathi)"
+                      - option "Bahasa Malaysia (Malay)"
+                      - option "Nederlands (Dutch)"
+                      - option "Norsk (Norwegian)"
+                      - option "ਪੰਜਾਬੀ (Punjabi)"
+                      - option "Polski (Polish)"
+                      - option "Português (Portuguese)"
+                      - option "Română (Romanian)"
+                      - option "Русский (Russian)"
+                      - option "Svenska (Swedish)"
+                      - option "తెలుగు (Telugu)"
+                      - option "ภาษาไทย (Thai)"
+                      - option "Tagalog (Tagalog)"
+                      - option "Türkçe (Turkish)"
+                      - option "Українська (Ukrainian)"
+                      - option "Tiếng Việt (Vietnamese)"
+                      - option "简体中文 (Chinese (Simplified))"
+                      - option "正體中文 (Chinese (Traditional))"

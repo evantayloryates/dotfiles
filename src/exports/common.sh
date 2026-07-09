@@ -26,7 +26,13 @@ export DOTFILES_DIR="$HOME/dotfiles"
 export TZ='America/New_York'
 
 # Claude Code
- export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
+
+# opencode
+export PATH=/Users/taylor/.opencode/bin:$PATH
+
+# Added by Holistics CLI installer
+export PATH="$HOME/.holistics/bin:$PATH"
 
 # Environment variables from .env are loaded by exports/dotenv.sh, which is
 # also sourced from ~/.zshenv so non-interactive shells get them too.

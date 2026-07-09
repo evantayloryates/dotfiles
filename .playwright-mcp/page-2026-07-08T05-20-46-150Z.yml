@@ -1,0 +1,364 @@
+- generic [ref=f80e2]:
+  - heading "0 notifications" [level=2] [ref=f80e3]
+  - generic [ref=f80e4]:
+    - generic:
+      - generic "Skip navigation menu":
+        - button "Close jump menu" [ref=f80e6] [cursor=pointer]
+    - generic [ref=f80e9]:
+      - banner [ref=f80e11]:
+        - generic [ref=f80e14]:
+          - button [ref=f80e15] [cursor=pointer]
+          - generic [ref=f80e17]:
+            - status [ref=f80e18]
+            - search [ref=f80e19]:
+              - textbox "I'm looking for…" [ref=f80e23]
+          - generic [ref=f80e25]:
+            - navigation [ref=f80e29]:
+              - list [ref=f80e30]:
+                - listitem [ref=f80e31]:
+                  - button "Home, 1 new notification" [ref=f80e32] [cursor=pointer]:
+                    - img [ref=f80e34]
+                    - generic [ref=f80e37]: Home
+                - listitem [ref=f80e38]:
+                  - link "My Network, 0 new notifications" [ref=f80e39] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/mynetwork
+                    - img [ref=f80e41]
+                    - generic [ref=f80e44]: My Network
+                - listitem [ref=f80e45]:
+                  - link "Jobs, 0 new notifications" [ref=f80e46] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/jobs/
+                    - img [ref=f80e48]
+                    - generic [ref=f80e51]: Jobs
+                - listitem [ref=f80e52]:
+                  - link "Messaging, 0 new notifications" [ref=f80e53] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/messaging/
+                    - img [ref=f80e55]
+                    - generic [ref=f80e58]: Messaging
+                - listitem [ref=f80e59]:
+                  - link "Notifications, 20 new notifications" [ref=f80e60] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/notifications/
+                    - generic [ref=f80e61]:
+                      - img [ref=f80e62]
+                      - generic [ref=f80e64]: "20"
+                    - generic [ref=f80e66]: Notifications
+                - listitem [ref=f80e67]:
+                  - button "Me" [ref=f80e68] [cursor=pointer]:
+                    - figure [ref=f80e70]
+                    - generic [ref=f80e72]: Me
+            - generic [ref=f80e75]:
+              - navigation [ref=f80e76]:
+                - list [ref=f80e77]:
+                  - listitem [ref=f80e78]:
+                    - button "For Business" [ref=f80e79] [cursor=pointer]:
+                      - img [ref=f80e81]
+                      - generic [ref=f80e84]: For Business
+              - link "Retry Premium" [ref=f80e87] [cursor=pointer]:
+                - /url: https://www.linkedin.com/
+                - paragraph [ref=f80e93]: Retry Premium
+      - generic [ref=f80e95]:
+        - toolbar [ref=f80e96]:
+          - generic [ref=f80e100]:
+            - link "Ryan Liebling" [ref=f80e101] [cursor=pointer]:
+              - /url: https://www.linkedin.com/in/ryanliebling/
+              - generic "Ryan Liebling" [ref=f80e102]:
+                - figure [ref=f80e103]
+                - generic [ref=f80e104]:
+                  - paragraph [ref=f80e105]: Ryan Liebling
+                  - paragraph [ref=f80e107]: Verticals Lead, Restaurants, Alcohol & Publishing @ Reddit, Inc.
+            - generic [ref=f80e108]:
+              - button "More" [ref=f80e110] [cursor=pointer]:
+                - generic [ref=f80e112]: More
+              - link "Message" [ref=f80e114] [cursor=pointer]:
+                - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAAEQ2RcB8kr5plnWiDcVxzLfIhFfnBLF2ho&recipient=ACoAAAEQ2RcB8kr5plnWiDcVxzLfIhFfnBLF2ho&screenContext=NON_SELF_PROFILE_VIEW&interop=msgOverlay
+                - generic [ref=f80e117]: Message
+              - link "Invite Ryan Liebling to connect" [ref=f80e121] [cursor=pointer]:
+                - /url: /preload/custom-invite/?vanityName=ryanliebling
+                - generic [ref=f80e125]: Connect
+        - main [ref=f80e126]:
+          - generic [ref=f80e128]:
+            - region "Primary content" [ref=f80e129]:
+              - generic [ref=f80e136]:
+                - generic [ref=f80e137]:
+                  - button [ref=f80e140] [cursor=pointer]:
+                    - figure [ref=f80e141]:
+                      - img "Cover photo" [ref=f80e142]
+                  - link "Profile photo" [ref=f80e143] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/
+                    - generic "Profile photo" [ref=f80e144]:
+                      - figure [ref=f80e145]
+                - generic [ref=f80e146]:
+                  - generic [ref=f80e147]:
+                    - generic [ref=f80e149]:
+                      - generic [ref=f80e150]:
+                        - link "Ryan Liebling" [ref=f80e153] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/
+                          - heading "Ryan Liebling" [level=2] [ref=f80e156]
+                        - paragraph [ref=f80e158]: He/Him
+                        - paragraph [ref=f80e159]: · 2nd
+                      - paragraph [ref=f80e160]: Verticals Lead, Restaurants, Alcohol & Publishing @ Reddit, Inc.
+                      - generic [ref=f80e161]:
+                        - paragraph [ref=f80e162]: Los Angeles Metropolitan Area
+                        - paragraph [ref=f80e163]: ·
+                        - paragraph [ref=f80e164]:
+                          - link "Contact info" [ref=f80e165] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/ryanliebling/overlay/contact-info/
+                    - button "Reddit, Inc." [ref=f80e168] [cursor=pointer]:
+                      - generic [ref=f80e169]:
+                        - figure [ref=f80e170]
+                        - paragraph [ref=f80e174]: Reddit, Inc.
+                  - generic [ref=f80e175]:
+                    - paragraph [ref=f80e176]: 500+
+                    - paragraph [ref=f80e177]: connections
+                  - link:
+                    - /url: https://www.linkedin.com/search/results/people/?origin=MEMBER_PROFILE_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAAEQ2RcB8kr5plnWiDcVxzLfIhFfnBLF2ho%22%5D
+                  - generic [ref=f80e178]:
+                    - link [ref=f80e179] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/search/results/people/?origin=MEMBER_PROFILE_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAAEQ2RcB8kr5plnWiDcVxzLfIhFfnBLF2ho%22%5D
+                      - figure [ref=f80e180]
+                      - figure [ref=f80e181]
+                    - generic [ref=f80e182]:
+                      - link:
+                        - /url: https://www.linkedin.com/search/results/people/?origin=MEMBER_PROFILE_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAAEQ2RcB8kr5plnWiDcVxzLfIhFfnBLF2ho%22%5D
+                      - paragraph [ref=f80e183]:
+                        - link:
+                          - /url: https://www.linkedin.com/search/results/people/?origin=MEMBER_PROFILE_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAAEQ2RcB8kr5plnWiDcVxzLfIhFfnBLF2ho%22%5D
+                        - link "Jordan and Ryan are mutual connections" [ref=f80e184] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/search/results/people/?origin=MEMBER_PROFILE_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAAEQ2RcB8kr5plnWiDcVxzLfIhFfnBLF2ho%22%5D
+                          - strong [ref=f80e185]: Jordan
+                          - text: and
+                          - strong [ref=f80e186]: Ryan
+                          - text: are mutual connections
+                  - generic [ref=f80e190]:
+                    - link "Invite Ryan Liebling to connect" [ref=f80e194] [cursor=pointer]:
+                      - /url: /preload/custom-invite/?vanityName=ryanliebling
+                      - generic [ref=f80e198]: Connect
+                    - link "Message" [ref=f80e200] [cursor=pointer]:
+                      - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAAEQ2RcB8kr5plnWiDcVxzLfIhFfnBLF2ho&recipient=ACoAAAEQ2RcB8kr5plnWiDcVxzLfIhFfnBLF2ho&screenContext=NON_SELF_PROFILE_VIEW&interop=msgOverlay
+                      - generic [ref=f80e203]: Message
+                    - button "More" [ref=f80e205] [cursor=pointer]:
+                      - generic [ref=f80e207]: More
+            - complementary "Aside" [ref=f80e263]:
+              - generic [ref=f80e265]:
+                - iframe [ref=f80e268]:
+                  
+                - generic [ref=f80e271]:
+                  - heading "Get advice on software development" [level=2] [ref=f80e273]
+                  - generic [ref=f80e275]:
+                    - generic [ref=f80e277]:
+                      - generic [ref=f80e279]:
+                        - link:
+                          - /url: https://www.linkedin.com/in/johnsonkan/
+                        - generic [ref=f80e280]:
+                          - link [ref=f80e281] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/johnsonkan/
+                            - figure [ref=f80e282]
+                          - generic [ref=f80e283]:
+                            - link:
+                              - /url: https://www.linkedin.com/in/johnsonkan/
+                            - generic [ref=f80e284]:
+                              - link:
+                                - /url: https://www.linkedin.com/in/johnsonkan/
+                              - generic [ref=f80e285]:
+                                - link:
+                                  - /url: https://www.linkedin.com/in/johnsonkan/
+                                - paragraph [ref=f80e286]:
+                                  - link:
+                                    - /url: https://www.linkedin.com/in/johnsonkan/
+                                  - link "Johnson Kan Premium" [ref=f80e287] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/johnsonkan/
+                                    - text: Johnson Kan
+                                    - img "Premium" [ref=f80e288]
+                              - paragraph [ref=f80e290]: · 3rd
+                            - paragraph [ref=f80e292]: Senior Staff Software Engineer @ LinkedIn
+                      - link "Get advice from me" [ref=f80e296] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/meetings/AGsAAAcP_CQBLgQPdOccitLezUvTbGdFVLiZl8M/39bd0965-a18b-48ef-928a-75fc0bc2ee1d/book/
+                        - generic [ref=f80e298]: Get advice from me
+                    - generic [ref=f80e300]:
+                      - generic [ref=f80e302]:
+                        - link:
+                          - /url: https://www.linkedin.com/in/samirtata/
+                        - generic [ref=f80e303]:
+                          - link [ref=f80e304] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/samirtata/
+                            - figure [ref=f80e305]
+                          - generic [ref=f80e306]:
+                            - link:
+                              - /url: https://www.linkedin.com/in/samirtata/
+                            - generic [ref=f80e307]:
+                              - link:
+                                - /url: https://www.linkedin.com/in/samirtata/
+                              - generic [ref=f80e308]:
+                                - link:
+                                  - /url: https://www.linkedin.com/in/samirtata/
+                                - paragraph [ref=f80e309]:
+                                  - link:
+                                    - /url: https://www.linkedin.com/in/samirtata/
+                                  - link "Samir Tata Premium" [ref=f80e310] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/samirtata/
+                                    - text: Samir Tata
+                                    - img "Premium" [ref=f80e311]
+                              - paragraph [ref=f80e313]: · 3rd
+                            - paragraph [ref=f80e315]: Senior Engineering Manager at LinkedIn
+                      - link "Get advice from me" [ref=f80e319] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/meetings/AGsAAAFMzAUB8NDId26qIbKHrM5tjI6AWR0HdR8/abdda6f5-ff35-4446-8fe8-bbb109d470c1/book/
+                        - generic [ref=f80e321]: Get advice from me
+                    - generic [ref=f80e323]:
+                      - generic [ref=f80e325]:
+                        - link:
+                          - /url: https://www.linkedin.com/in/nehajainhbti/
+                        - generic [ref=f80e326]:
+                          - link [ref=f80e327] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/nehajainhbti/
+                            - figure [ref=f80e328]
+                          - generic [ref=f80e329]:
+                            - link:
+                              - /url: https://www.linkedin.com/in/nehajainhbti/
+                            - generic [ref=f80e330]:
+                              - link:
+                                - /url: https://www.linkedin.com/in/nehajainhbti/
+                              - generic [ref=f80e331]:
+                                - link:
+                                  - /url: https://www.linkedin.com/in/nehajainhbti/
+                                - paragraph [ref=f80e332]:
+                                  - link:
+                                    - /url: https://www.linkedin.com/in/nehajainhbti/
+                                  - link "Neha Jain Premium" [ref=f80e333] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/nehajainhbti/
+                                    - text: Neha Jain
+                                    - img "Premium" [ref=f80e334]
+                              - paragraph [ref=f80e336]: · 3rd
+                            - paragraph [ref=f80e338]: Engineering Leader @ LinkedIn | AI-Powered Product Builder | 0→1 Growth at Scale | Creative Thinker & Author
+                      - link "Get advice from me" [ref=f80e342] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/meetings/AGsAAAOLIzMBr5rS2z3gTmSvV_pZGHI71bTl-ag/acbd14e8-52a8-4e63-a749-56ca21037ae3/book/
+                        - generic [ref=f80e344]: Get advice from me
+                    - generic [ref=f80e346]:
+                      - generic [ref=f80e348]:
+                        - link:
+                          - /url: https://www.linkedin.com/in/qingchun-quincie-li/
+                        - generic [ref=f80e349]:
+                          - link [ref=f80e350] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/qingchun-quincie-li/
+                            - figure [ref=f80e351]
+                          - generic [ref=f80e352]:
+                            - link:
+                              - /url: https://www.linkedin.com/in/qingchun-quincie-li/
+                            - generic [ref=f80e353]:
+                              - link:
+                                - /url: https://www.linkedin.com/in/qingchun-quincie-li/
+                              - generic [ref=f80e354]:
+                                - link:
+                                  - /url: https://www.linkedin.com/in/qingchun-quincie-li/
+                                - paragraph [ref=f80e355]:
+                                  - link:
+                                    - /url: https://www.linkedin.com/in/qingchun-quincie-li/
+                                  - link "Qingchun(Quincie) L. Premium" [ref=f80e356] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/qingchun-quincie-li/
+                                    - text: Qingchun(Quincie) L.
+                                    - img "Premium" [ref=f80e357]
+                              - paragraph [ref=f80e359]: · 3rd
+                            - paragraph [ref=f80e361]: Senior Software Engineer at LinkedIn
+                      - link "Get advice from me" [ref=f80e365] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/meetings/AGsAAA_xoIEB2LX0w_sB_zrlibeHLvWZw3X-Pag/558a92c9-7a24-4108-af20-6eaafb13dd75/book/
+                        - generic [ref=f80e367]: Get advice from me
+            - generic "Footer" [ref=f80e368]:
+              - generic [ref=f80e371]:
+                - generic [ref=f80e372]:
+                  - navigation [ref=f80e373]:
+                    - link "About" [ref=f80e374] [cursor=pointer]:
+                      - /url: https://about.linkedin.com/
+                      - paragraph [ref=f80e375]: About
+                    - link "Accessibility" [ref=f80e376] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/accessibility/
+                      - paragraph [ref=f80e377]: Accessibility
+                    - link "Talent Solutions" [ref=f80e378] [cursor=pointer]:
+                      - /url: https://business.linkedin.com/talent-solutions?trk=flagship_nav&veh=li-footer-lts-control&src=li-footer
+                      - paragraph [ref=f80e379]: Talent Solutions
+                    - link "Community Guidelines" [ref=f80e380] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/legal/professional-community-policies/
+                      - paragraph [ref=f80e381]: Community Guidelines
+                    - link "Careers" [ref=f80e382] [cursor=pointer]:
+                      - /url: https://careers.linkedin.com/
+                      - paragraph [ref=f80e383]: Careers
+                    - link "Marketing Solutions" [ref=f80e384] [cursor=pointer]:
+                      - /url: https://business.linkedin.com/advertise?trk=n_nav_lms_f&src=li-footer
+                      - paragraph [ref=f80e385]: Marketing Solutions
+                    - button "Privacy & Terms" [ref=f80e386] [cursor=pointer]:
+                      - paragraph [ref=f80e388]: Privacy & Terms
+                    - link "Ad Choices" [ref=f80e390] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/help/linkedin/answer/62931/
+                      - paragraph [ref=f80e391]: Ad Choices
+                    - link "Advertising" [ref=f80e392] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/ad/start/?trk=n_nav_ads_rr
+                      - paragraph [ref=f80e393]: Advertising
+                    - link "Sales Solutions" [ref=f80e394] [cursor=pointer]:
+                      - /url: https://business.linkedin.com/sales-solutions?trk=flagship_nav&veh=li-footer-lss-control&src=li-footer
+                      - paragraph [ref=f80e395]: Sales Solutions
+                    - link "Mobile" [ref=f80e396] [cursor=pointer]:
+                      - /url: https://mobile.linkedin.com/
+                      - paragraph [ref=f80e397]: Mobile
+                    - link "Small Business" [ref=f80e398] [cursor=pointer]:
+                      - /url: https://business.linkedin.com/grow?src=li-footer
+                      - paragraph [ref=f80e399]: Small Business
+                    - link "Safety Center" [ref=f80e400] [cursor=pointer]:
+                      - /url: https://safety.linkedin.com/
+                      - paragraph [ref=f80e401]: Safety Center
+                  - paragraph [ref=f80e403]: LinkedIn Corporation © 2026
+                - generic [ref=f80e404]:
+                  - list [ref=f80e405]:
+                    - listitem [ref=f80e406]:
+                      - generic [ref=f80e409]:
+                        - link "Questions?" [ref=f80e410] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/help/linkedin/
+                          - paragraph [ref=f80e411]: Questions?
+                        - paragraph [ref=f80e412]: Visit our Help Center.
+                    - listitem [ref=f80e413]:
+                      - generic [ref=f80e416]:
+                        - link "Manage your account and privacy" [ref=f80e417] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/mypreferences/d/
+                          - paragraph [ref=f80e418]: Manage your account and privacy
+                        - paragraph [ref=f80e419]: Go to your Settings.
+                    - listitem [ref=f80e420]:
+                      - generic [ref=f80e423]:
+                        - link "Recommendation transparency" [ref=f80e424] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/help/linkedin/answer/a1339724/
+                          - paragraph [ref=f80e425]: Recommendation transparency
+                        - paragraph [ref=f80e426]: Learn more about Recommended Content.
+                  - generic [ref=f80e428]:
+                    - paragraph [ref=f80e430]: Select language
+                    - combobox "Select language" [ref=f80e432] [cursor=pointer]:
+                      - option "العربية (Arabic)"
+                      - option "বাংলা (Bangla)"
+                      - option "Čeština (Czech)"
+                      - option "Dansk (Danish)"
+                      - option "Deutsch (German)"
+                      - option "Ελληνικά (Greek)"
+                      - option "English (English)" [selected]
+                      - option "Español (Spanish)"
+                      - option "فارسی (Persian)"
+                      - option "Suomi (Finnish)"
+                      - option "Français (French)"
+                      - option "हिंदी (Hindi)"
+                      - option "Magyar (Hungarian)"
+                      - option "Bahasa Indonesia (Indonesian)"
+                      - option "Italiano (Italian)"
+                      - option "עברית (Hebrew)"
+                      - option "日本語 (Japanese)"
+                      - option "한국어 (Korean)"
+                      - option "मराठी (Marathi)"
+                      - option "Bahasa Malaysia (Malay)"
+                      - option "Nederlands (Dutch)"
+                      - option "Norsk (Norwegian)"
+                      - option "ਪੰਜਾਬੀ (Punjabi)"
+                      - option "Polski (Polish)"
+                      - option "Português (Portuguese)"
+                      - option "Română (Romanian)"
+                      - option "Русский (Russian)"
+                      - option "Svenska (Swedish)"
+                      - option "తెలుగు (Telugu)"
+                      - option "ภาษาไทย (Thai)"
+                      - option "Tagalog (Tagalog)"
+                      - option "Türkçe (Turkish)"
+                      - option "Українська (Ukrainian)"
+                      - option "Tiếng Việt (Vietnamese)"
+                      - option "简体中文 (Chinese (Simplified))"
+                      - option "正體中文 (Chinese (Traditional))"

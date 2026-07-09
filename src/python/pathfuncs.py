@@ -5,7 +5,7 @@ import tempfile
 HOME = '/Users/taylor'
 
 # path macros
-def p(slug, path, default='cd_and_cursor', commands=None, aliases=None, alias_cmds=None):
+def p(slug, path, default='cursor_path', commands=None, aliases=None, alias_cmds=None):
   if path.startswith('~'):
     path = HOME + path[1:]
   entry = {'slug': slug, 'path': path, 'default': default, 'commands': commands or {}}
@@ -22,15 +22,16 @@ CONFIG = [
   p('dot',         '~/dotfiles'),
   p('down',        '~/Downloads',                       'cd'),
   p('github',      '~/src/github',                      'cd', aliases=['ghb', 'gthb', 'ghub', 'gith']),
-  p('joe',         '~/src/github/joe-airbrand',         'cd_and_cursor'),
+  p('ideas',       '~/Desktop/ideas',                   'cur'),
+  p('joe',         '~/src/github/joe-airbrand',         'cursor_path'),
   p('kit',         '~/.config/kitty/',                  aliases=['kitty'], commands={'reload': '/Applications/kitty.app/Contents/MacOS/kitty @ load-config /Users/taylor/.config/kitty/kitty.conf'}),
-  p('mac',         '~/src/macos',                       'cd_and_cursor', aliases=['macos']),
+  p('mac',         '~/src/macos',                       'cursor_path', aliases=['macos']),
   p('notes',       '~/Desktop/notes'),
-  p('pathfuncs',   '~/dotfiles/src/python/pathfuncs.py','cd_and_cursor', aliases=['pathfunc', 'pathfns', 'pathfn', 'pathfuns', 'pathfun', 'pthfuncs', 'pthfunc', 'pthfns', 'pthfn', 'pthfuns', 'pthfun', 'pfuncs', 'pfunc', 'pfns', 'pfn', 'pfuns', 'pfun' ]),
-  p('pod',         '~/src/github/podsauce',             'cd_and_cursor'),
-  p('r1',          '~/src/github/r1',                   'cd_and_cursor', aliases=['rone', 'rem']),
+  p('pathfuncs',   '~/dotfiles/src/python/pathfuncs.py','cursor_path', aliases=['pathfunc', 'pathfns', 'pathfn', 'pathfuns', 'pathfun', 'pthfuncs', 'pthfunc', 'pthfns', 'pthfn', 'pthfuns', 'pthfun', 'pfuncs', 'pfunc', 'pfns', 'pfn', 'pfuns', 'pfun' ]),
+  p('pod',         '~/src/github/podsauce',             'cursor_path'),
+  p('r1',          '~/src/github/r1',                   'cursor_path', aliases=['rone', 'rem']),
   p('s',           '~/src',                            ' cd'),
-  p('sca',         '~/src/github/r1/sca',               'cd_and_cursor'),
+  p('sca',         '~/src/github/r1/sca',               'cursor_path'),
   p('screenshots', '~/Pictures/Screenshots',            'open', aliases=['ss', 'shots', 'screenshot']),
   p('vsx',         '~/src/vscode-extensions'),
   p('amp',        '~/src/github/amplify', aliases=['amplify'], alias_cmds={'up': 'update'},

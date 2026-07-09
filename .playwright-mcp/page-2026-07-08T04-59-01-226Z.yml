@@ -1,0 +1,109 @@
+- generic [ref=f55e2]:
+  - heading "0 notifications" [level=2] [ref=f55e3]
+  - generic [ref=f55e4]:
+    - generic:
+      - generic "Skip navigation menu":
+        - button "Close jump menu" [ref=f55e6] [cursor=pointer]
+    - generic [ref=f55e9]:
+      - banner [ref=f55e11]:
+        - generic [ref=f55e14]:
+          - button [ref=f55e15] [cursor=pointer]
+          - generic [ref=f55e17]:
+            - status [ref=f55e18]
+            - search [ref=f55e19]:
+              - textbox "I'm looking for…" [ref=f55e23]
+          - generic [ref=f55e25]:
+            - navigation [ref=f55e29]:
+              - list [ref=f55e30]:
+                - listitem [ref=f55e31]:
+                  - button "Home, 1 new notification" [ref=f55e32] [cursor=pointer]:
+                    - img [ref=f55e34]
+                    - generic [ref=f55e37]: Home
+                - listitem [ref=f55e38]:
+                  - link "My Network, 0 new notifications" [ref=f55e39] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/mynetwork
+                    - img [ref=f55e41]
+                    - generic [ref=f55e44]: My Network
+                - listitem [ref=f55e45]:
+                  - link "Jobs, 0 new notifications" [ref=f55e46] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/jobs/
+                    - img [ref=f55e48]
+                    - generic [ref=f55e51]: Jobs
+                - listitem [ref=f55e52]:
+                  - link "Messaging, 0 new notifications" [ref=f55e53] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/messaging/
+                    - img [ref=f55e55]
+                    - generic [ref=f55e58]: Messaging
+                - listitem [ref=f55e59]:
+                  - link "Notifications, 20 new notifications" [ref=f55e60] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/notifications/
+                    - generic [ref=f55e61]:
+                      - img [ref=f55e62]
+                      - generic [ref=f55e64]: "20"
+                    - generic [ref=f55e66]: Notifications
+                - listitem [ref=f55e67]:
+                  - button "Me" [ref=f55e68] [cursor=pointer]:
+                    - figure [ref=f55e70]
+                    - generic [ref=f55e72]: Me
+            - generic [ref=f55e75]:
+              - navigation [ref=f55e76]:
+                - list [ref=f55e77]:
+                  - listitem [ref=f55e78]:
+                    - button "For Business" [ref=f55e79] [cursor=pointer]:
+                      - img [ref=f55e81]
+                      - generic [ref=f55e84]: For Business
+              - link "Retry Premium" [ref=f55e87] [cursor=pointer]:
+                - /url: https://www.linkedin.com/
+                - paragraph [ref=f55e93]: Retry Premium
+      - generic [ref=f55e94]:
+        - toolbar [ref=f55e95]
+        - main [ref=f55e109]:
+          - region "Primary content" [ref=f55e113]:
+            - generic [ref=f55e116]:
+              - listitem [ref=f55e120]:
+                - generic [ref=f55e122]:
+                  - heading "Feed post" [level=2]:
+                    - generic [ref=f55e123]: Feed post
+                  - generic [ref=f55e124]:
+                    - link [ref=f55e125] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/company/reddit-for-business/posts/
+                      - figure [ref=f55e126]
+                    - generic [ref=f55e128]:
+                      - link "Reddit for Business" [ref=f55e131] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/company/reddit-for-business/posts/
+                        - paragraph [ref=f55e136]: Reddit for Business
+                      - paragraph [ref=f55e138]:
+                        - generic [ref=f55e139]: 1mo •
+                      - link:
+                        - /url: https://www.linkedin.com/company/reddit-for-business/posts/
+                    - button "Follow Reddit for Business" [ref=f55e144] [cursor=pointer]:
+                      - generic [ref=f55e148]: Follow
+                    - button "Open control menu for post by Reddit for Business" [ref=f55e149] [cursor=pointer]
+                  - paragraph [ref=f55e152]:
+                    - generic [ref=f55e153]:
+                      - text: During the summer soccer season, Redditors are invited to build the world’s longest Coors chant through a first-of-its-kind interactive ad. The experience allows users to virtually pull a beer tap, adding an "o" to a scrolling "COOOORS" chant that stretches across the frozen peaks of the Rocky Mountains. With every pull of the tap, fans trigger the legendary voice of iconic sportscaster Andrés Cantor, whose iconic, lung-busting "Gooooal!" is reimagined for the perfect pour.
+                      - link "https://lnkd.in/eJc44x6J" [ref=f55e154] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Flnkd%2Ein%2FeJc44x6J&urlhash=4tSq&mt=jQ5ilrQHW_Gqh-1i6cE28JSA1se9GZC5ml45ei57pOZsJekV3n1-D3FY1jwjuy25-sIhgyTtS6q1ytnB9eDxEHlrWvgYfnE8T5YBav7PKMu6NOQLFjKymuPE8Q&isSdui=true
+                        - strong [ref=f55e156]: https://lnkd.in/eJc44x6J
+                  - button "Play video" [ref=f55e161] [cursor=pointer]
+                  - generic [ref=f55e164]:
+                    - generic [ref=f55e165]:
+                      - 'button "Reaction button state: no reaction" [ref=f55e168] [cursor=pointer]':
+                        - generic [ref=f55e171]: "43"
+                      - button "Open reactions menu"
+                    - button "Comment" [ref=f55e172] [cursor=pointer]:
+                      - generic [ref=f55e175]: "1"
+                    - button "Repost" [ref=f55e176] [cursor=pointer]:
+                      - generic [ref=f55e179]: "7"
+                    - link "Send" [ref=f55e180] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/
+                    - link [ref=f55e183] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/
+                      - generic "43 reactions" [ref=f55e184]
+              - generic [ref=f55e191]:
+                - generic [ref=f55e192]:
+                  - paragraph [ref=f55e193]: Are these results helpful?
+                  - paragraph [ref=f55e194]: Your feedback helps us improve search results
+                - generic [ref=f55e195]:
+                  - button "Are these results helpful? Yes, these search results are helpful" [ref=f55e196] [cursor=pointer]
+                  - button "Are these results helpful? No, these search results are not helpful" [ref=f55e199] [cursor=pointer]

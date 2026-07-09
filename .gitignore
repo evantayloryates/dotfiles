@@ -2,4 +2,13 @@
 .env
 node_modules/
 __old
-/tmp/
+
+# Local on-save auto-commit flag (each clone keeps its own ON/OFF)
+.vscode/.onsave-toggle
+
+# Ignore everything in the temp directory, but keep the temp directory itself in source control.  
+/tmp/*
+!/tmp/.gitkeep
+
+# Cerebras training data (JSONL)
+src/python/cerebras/**/*.jsonl

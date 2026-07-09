@@ -1,0 +1,1170 @@
+- generic [ref=e2]:
+  - heading "0 notifications" [level=2] [ref=e3]
+  - generic [ref=e4]:
+    - generic:
+      - generic "Skip navigation menu":
+        - button "Close jump menu" [ref=e6] [cursor=pointer]
+    - generic [ref=e9]:
+      - banner [ref=e11]:
+        - generic [ref=e14]:
+          - button [ref=e15] [cursor=pointer]
+          - generic [ref=e17]:
+            - status [ref=e18]
+            - search [ref=e19]:
+              - textbox "I'm looking for…" [ref=e23]
+          - generic [ref=e25]:
+            - navigation [ref=e29]:
+              - list [ref=e30]:
+                - listitem [ref=e31]:
+                  - button "Home, 1 new notification" [ref=e32] [cursor=pointer]:
+                    - img [ref=e34]
+                    - generic [ref=e37]: Home
+                - listitem [ref=e38]:
+                  - link "My Network, 0 new notifications" [ref=e39] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/mynetwork
+                    - img [ref=e41]
+                    - generic [ref=e44]: My Network
+                - listitem [ref=e45]:
+                  - link "Jobs, 0 new notifications" [ref=e46] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/jobs/
+                    - img [ref=e48]
+                    - generic [ref=e51]: Jobs
+                - listitem [ref=e52]:
+                  - link "Messaging, 0 new notifications" [ref=e53] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/messaging/
+                    - img [ref=e55]
+                    - generic [ref=e58]: Messaging
+                - listitem [ref=e59]:
+                  - link "Notifications, 20 new notifications" [ref=e60] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/notifications/
+                    - generic [ref=e61]:
+                      - img [ref=e62]
+                      - generic [ref=e64]: "20"
+                    - generic [ref=e66]: Notifications
+                - listitem [ref=e67]:
+                  - button "Me" [ref=e68] [cursor=pointer]:
+                    - figure [ref=e70]
+                    - generic [ref=e72]: Me
+            - generic [ref=e75]:
+              - navigation [ref=e76]:
+                - list [ref=e77]:
+                  - listitem [ref=e78]:
+                    - button "For Business" [ref=e79] [cursor=pointer]:
+                      - img [ref=e81]
+                      - generic [ref=e84]: For Business
+              - link "Retry Premium" [ref=e87] [cursor=pointer]:
+                - /url: https://www.linkedin.com/
+                - paragraph [ref=e93]: Retry Premium
+      - generic [ref=e94]:
+        - toolbar [ref=e95]
+        - main [ref=e109]:
+          - generic [ref=e112]:
+            - complementary "Sidebar" [ref=e113]
+            - region "Primary content" [ref=e114]:
+              - generic [ref=e116]:
+                - generic [ref=e118]:
+                  - generic [ref=e119]:
+                    - heading "Posts" [level=2] [ref=e120]
+                    - generic [ref=e121]:
+                      - radio "Filter by From my network" [ref=e122] [cursor=pointer]:
+                        - generic "Filter by From my network" [ref=e123]:
+                          - checkbox "From my network"
+                          - generic [ref=e124]: From my network
+                      - radiogroup "Filter by date posted" [ref=e125]:
+                        - radio "Filter by Past 24 hours" [ref=e126] [cursor=pointer]:
+                          - generic "Filter by Past 24 hours" [ref=e127]:
+                            - checkbox "Past 24 hours"
+                            - generic [ref=e128]: Past 24 hours
+                        - radio "Filter by Past week" [ref=e129] [cursor=pointer]:
+                          - generic "Filter by Past week" [ref=e130]:
+                            - checkbox "Past week"
+                            - generic [ref=e131]: Past week
+                    - list [ref=e132]:
+                      - listitem [ref=e136]:
+                        - generic [ref=e138]:
+                          - heading "Feed post" [level=2]:
+                            - generic [ref=e139]: Feed post
+                          - generic [ref=e140]:
+                            - link [ref=e141] [cursor=pointer]:
+                              - /url: https://www.linkedin.com/in/joehall6/
+                              - figure [ref=e142]
+                            - generic [ref=e144]:
+                              - link "Joe Hall Verified Profile 1st" [ref=e147] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/joehall6/
+                                - generic "Joe Hall Verified Profile 1st" [ref=e149]:
+                                  - paragraph [ref=e152]: Joe Hall
+                                  - paragraph [ref=e154]:
+                                    - generic [ref=e155]: • 1st
+                              - paragraph [ref=e159]: Co-Founder @Adexy • Co-Founder @Spaceback • Product & Design
+                              - paragraph [ref=e161]:
+                                - generic [ref=e162]: 2w •
+                              - link:
+                                - /url: https://www.linkedin.com/in/joehall6/
+                            - button "Open control menu for post by Joe Hall" [ref=e164] [cursor=pointer]
+                          - paragraph [ref=e167]:
+                            - generic [ref=e168]:
+                              - text: I had hoped to take time off.
+                              - text: But some habits are hard to break.
+                              - text: As co-founder of
+                              - link "Spaceback" [ref=e170] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/company/spaceback/
+                                - strong [ref=e172]: Spaceback
+                              - text: ", I’m proud of what we built. And I love the people we built it with."
+                              - link "Casey Saran" [ref=e173] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/caseysaran/
+                                - strong [ref=e175]: Casey Saran
+                              - text: ","
+                              - link "Chris Baclig" [ref=e176] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/chrisbaclig/
+                                - strong [ref=e178]: Chris Baclig
+                              - text: ","
+                              - link "Brady Akers" [ref=e179] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/brady-akers/
+                                - strong [ref=e181]: Brady Akers
+                              - text: ", and the entire team."
+                              - text: The journey was a beautiful one filled with some of the most challenging days and some of the most fulfilling ones at the same time.
+                              - text: But I find myself at that fork in the road. That decision point. My feet facing one way. My heart getting pulled in another direction.
+                              - text: So, it’s time for what is next.
+                              - link "Adexy.ai" [ref=e182] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/safety/go/?url=http%3A%2F%2FAdexy%2Eai&urlhash=1bVE&mt=jd1GY6_zmJPkA8NBv0M992JpBeNy0ZQTMd5ZhxXabF9ykWFoD0p0nrlLnd9pBBqt63Y72eD25UlaxBjxCLWjYgUKa5r8DD9ilL8wNwy1OfL61d-4swBXzclcQg&isSdui=true
+                                - strong [ref=e184]: Adexy.ai
+                              - text: It’s a small start to a larger vision.
+                              - text: But most importantly, it answers something I can’t ignore. I have to turn over more rocks, round more corners, pull more threads and uncover new opportunities.
+                              - text: So much new to learn. I’m a little scared, but also, I couldn’t be more excited.
+                              - text: If you’re thinking about where brand and AI intersect, I’d love to compare notes. Find me in Cannes or drop me a DM.
+                          - link "Adexy — Interactive Brand Experiences Inside Reddit adexy.ai" [ref=e185] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/safety/go/?url=http%3A%2F%2FAdexy%2Eai&urlhash=1bVE&mt=jeX3g5ztzB6tt3n-_MP5YYXJtV6j4OHYvXyK2h8kIr37xXOj1wc_fdUij2gXrS_g6Pa2qj5-uSrtgkhuI9M2W7VFTWgqc2U3LDkK_LLAw5NDAEE98iY-f3tHEw&isSdui=true
+                            - generic [ref=e186]:
+                              - figure [ref=e187]
+                              - generic [ref=e188]:
+                                - paragraph [ref=e190]:
+                                  - generic [ref=e191]:
+                                    - generic [ref=e192]: Adexy — Interactive Brand Experiences Inside Reddit
+                                    - text: Adexy — Interactive Brand Experiences Inside Reddit
+                                - paragraph [ref=e194]: adexy.ai
+                          - generic [ref=e195]:
+                            - generic [ref=e196]:
+                              - 'button "Reaction button state: Love" [ref=e199] [cursor=pointer]':
+                                - generic [ref=e202]: "110"
+                              - button "Open reactions menu"
+                            - button "Comment" [ref=e203] [cursor=pointer]:
+                              - generic [ref=e206]: "57"
+                            - button "Repost" [ref=e207] [cursor=pointer]:
+                              - generic [ref=e210]: "1"
+                            - link "Send" [ref=e211] [cursor=pointer]:
+                              - /url: https://www.linkedin.com/
+                            - link [ref=e214] [cursor=pointer]:
+                              - /url: https://www.linkedin.com/
+                              - generic "110 reactions" [ref=e215]
+                      - listitem [ref=e222]:
+                        - generic [ref=e224]:
+                          - heading "Feed post" [level=2]:
+                            - generic [ref=e225]: Feed post
+                          - generic [ref=e226]:
+                            - link [ref=e227] [cursor=pointer]:
+                              - /url: https://www.linkedin.com/in/hrushikesh-mohapatra/
+                              - figure [ref=e228]
+                            - generic [ref=e230]:
+                              - link "Hrushikesh Mohapatro Verified Profile 2nd" [ref=e233] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/hrushikesh-mohapatra/
+                                - generic "Hrushikesh Mohapatro Verified Profile 2nd" [ref=e235]:
+                                  - paragraph [ref=e238]: Hrushikesh Mohapatro
+                                  - paragraph [ref=e240]:
+                                    - generic [ref=e241]: • 2nd
+                              - paragraph [ref=e245]: India’s Trusted Partner for Talent, Technology, Career & Business Growth | Building People Before They Build Businesses | Building Recruitment Entrepreneurs | Author | Coach | Founder @ B2 Tech Services & Gyaan AUR Dhan
+                              - paragraph [ref=e247]:
+                                - generic [ref=e248]: 1d •
+                              - link:
+                                - /url: https://www.linkedin.com/in/hrushikesh-mohapatra/
+                            - button "Follow Hrushikesh Mohapatro" [ref=e253] [cursor=pointer]:
+                              - generic [ref=e257]: Follow
+                            - button "Open control menu for post by Hrushikesh Mohapatro" [ref=e258] [cursor=pointer]
+                          - paragraph [ref=e261]:
+                            - generic [ref=e262]:
+                              - text: 🚨 Over 4,700 Executive Leaders Have Already Joined.
+                              - text: The real question isn't whether you should join.
+                              - text: It's whether you can afford to stay outside the conversation.
+                              - text: Every industry-defining partnership begins with a conversation.
+                              - text: Every breakthrough strategy begins with a fresh perspective.
+                              - text: Every transformative business decision is influenced by the people in the room.
+                              - text: In today's interconnected world, one of the greatest competitive advantages isn't just knowledge or experience.
+                              - text: It's access to the right leaders at the right time.
+                              - text: The most successful executives don't simply expand their networks.
+                              - text: They build trusted relationships that open doors to opportunities, partnerships, investments, innovation, and long-term business growth.
+                              - text: That's why we created the Executive Leadership Network—a community built for senior decision-makers who believe that leadership is strengthened through collaboration, shared knowledge, and meaningful connections.
+                              - text: Who You'll Connect With
+                              - text: ✔ CEOs
+                              - text: ✔ CTOs
+                              - text: ✔ COOs
+                              - text: ✔ CFOs
+                              - text: ✔ CIOs
+                              - text: ✔ Vice Presidents
+                              - text: ✔ Directors
+                              - text: ✔ Business Unit Heads
+                              - text: ✔ Digital & Business Transformation Leaders
+                              - text: ✔ Entrepreneurs & Founders
+                              - text: ✔ Industry Experts & Executive Advisors
+                              - text: Today, 4,700+ executive leaders are already part of this growing community.
+                              - text: They didn't join simply to increase their contacts.
+                              - text: "They joined to gain something far more valuable:"
+                              - text: Access.
+                              - text: 🔹 Access to strategic business insights
+                              - text: 🔹 Access to experienced decision-makers
+                              - text: 🔹 Access to high-value collaborations
+                              - text: 🔹 Access to business growth opportunities
+                              - text: 🔹 Access to leadership perspectives from across industries
+                              - text: 🔹 Access to conversations shaping the future of business and technology
+                              - text: Because the next opportunity often begins long before it's publicly visible.
+                              - text: Your next client could already be here.
+                              - text: Your next strategic partner could already be here.
+                              - text: Your next investor, advisor, board member, or executive opportunity could already be one introduction away.
+                              - text: "The leaders shaping the next decade understand one principle:"
+                              - text: Growth is no longer achieved in isolation. It's created through trusted relationships, collective intelligence, and purposeful collaboration.
+                              - text: Inside the Community
+                              - text: ✅ Executive Leadership Discussions
+                              - text: ✅ Cross-Industry Collaboration
+                              - text: ✅ Digital Transformation & AI Insights
+                              - text: ✅ Business Growth & Innovation
+                              - text: ✅ Strategic Partnerships
+                              - text: ✅ Leadership Perspectives from Global Executives
+                              - text: If you're committed to leading organizations, scaling businesses, driving innovation, or expanding your executive influence, this is where meaningful conversations begin.
+                              - text: 📈 4,700+ Executive Leaders
+                              - text: 🌍 A Global Community of Decision-Makers
+                              - text: 🚀 Built for Leaders Who Think Beyond Today
+                              - text: "Join the Executive Leadership Network:"
+                              - text: 🔗
+                              - link "https://lnkd.in/gEszYEXc" [ref=e264] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Flnkd%2Ein%2FgEszYEXc&urlhash=C-2v&mt=A43rZm7Jg7sqxPRCXBSy9tCA6dJfAFbqKg-L7ogyTT6gVg6ndMHdM55GZ_Hkq6RQZecSxAL_eJA8b-tmer6UZvMaKIQW9GN_xyMUm81YVi2FgWnhhO4ow986mw&isSdui=true
+                                - strong [ref=e266]: https://lnkd.in/gEszYEXc
+                              - text: One conversation. One trusted relationship. One opportunity.
+                              - text: Sometimes, that's all it takes to redefine a career, transform a business, or shape the future of an organisation.
+                          - 'link "Group: Executive Leadership Network - For CTOs, COOs, CEOs, CFOs , VPs, Directors, Heads and Senior Leaders" [ref=e267] [cursor=pointer]':
+                            - /url: https://www.linkedin.com/groups/14536199/
+                            - 'generic "Group: Executive Leadership Network - For CTOs, COOs, CEOs, CFOs , VPs, Directors, Heads and Senior Leaders" [ref=e268]':
+                              - figure [ref=e269]
+                              - generic [ref=e270]:
+                                - paragraph [ref=e272]: Executive Leadership Network - For CTOs, COOs, CEOs, CFOs , VPs, Directors, Heads and Senior Leaders
+                                - paragraph [ref=e274]: 4,725 members
+                          - generic [ref=e275]:
+                            - generic [ref=e276]:
+                              - 'button "Reaction button state: no reaction" [ref=e279] [cursor=pointer]':
+                                - generic [ref=e282]: "5"
+                              - button "Open reactions menu"
+                            - button "Comment" [ref=e283] [cursor=pointer]
+                            - button "Repost" [ref=e286] [cursor=pointer]
+                            - link "Send" [ref=e289] [cursor=pointer]:
+                              - /url: https://www.linkedin.com/
+                            - link [ref=e292] [cursor=pointer]:
+                              - /url: https://www.linkedin.com/
+                              - generic "5 reactions" [ref=e293]
+                      - listitem [ref=e298]:
+                        - generic [ref=e300]:
+                          - heading "Feed post" [level=2]:
+                            - generic [ref=e301]: Feed post
+                          - generic [ref=e302]:
+                            - link [ref=e303] [cursor=pointer]:
+                              - /url: https://www.linkedin.com/in/stevencoufal/
+                              - figure [ref=e304]
+                            - generic [ref=e306]:
+                              - link "Steven Coufal Verified Profile 3rd+" [ref=e309] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/stevencoufal/
+                                - generic "Steven Coufal Verified Profile 3rd+" [ref=e311]:
+                                  - paragraph [ref=e314]: Steven Coufal
+                                  - paragraph [ref=e316]:
+                                    - generic [ref=e317]: • 3rd+
+                              - paragraph [ref=e321]: VP of Organic Growth
+                              - paragraph [ref=e323]:
+                                - generic [ref=e324]: 1w •
+                              - link:
+                                - /url: https://www.linkedin.com/in/stevencoufal/
+                            - button "Invite Steven Coufal to connect" [ref=e329] [cursor=pointer]:
+                              - generic [ref=e333]: Connect
+                            - button "Open control menu for post by Steven Coufal" [ref=e334] [cursor=pointer]
+                          - paragraph [ref=e337]:
+                            - generic [ref=e338]: Any company that hires Ken will be making the best decision
+                          - generic [ref=e339]:
+                            - generic [ref=e340]:
+                              - link [ref=e341] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/kennethkleb/
+                                - figure [ref=e342]
+                              - generic [ref=e344]:
+                                - link "Kenneth K., Open to work Premium Profile 3rd+" [ref=e347] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/kennethkleb/
+                                  - generic "Kenneth K., Open to work Premium Profile 3rd+" [ref=e349]:
+                                    - paragraph [ref=e352]: Kenneth K.
+                                    - paragraph [ref=e354]:
+                                      - generic [ref=e355]: • 3rd+
+                                - paragraph [ref=e359]: Customer Success Advisor @ Equity | Driving Software Adoption, Revenue Growth
+                                - paragraph [ref=e361]:
+                                  - generic [ref=e362]: 1w •
+                                - link:
+                                  - /url: https://www.linkedin.com/in/kennethkleb/
+                              - button "Follow Kenneth K." [ref=e367] [cursor=pointer]:
+                                - generic [ref=e371]: Follow
+                            - link:
+                              - /url: https://www.linkedin.com/feed/update/urn:li:ugcPost:7477446750660886528/
+                            - paragraph [ref=e372]:
+                              - link [ref=e373] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/feed/update/urn:li:ugcPost:7477446750660886528/
+                                - generic [ref=e374]:
+                                  - text: Hey LinkedIn! 👋
+                                  - text: After an incredible run building client relationships and driving renewals across SaaS and engineering software, I'm officially on the hunt for my next opportunity — and I'd love your help.
+                                  - text: I bring 7+ years of experience in customer success and account management, with a track record of managing large portfolios, owning renewals end-to-end, and genuinely caring about the clients I work with. I've had the privilege of doing this at some great companies — Procore Technologies, HUVRdata, and most recently Equity Engineering Group — and I'm ready to bring that energy somewhere new.
+                                  - text: "What I'm looking for:"
+                                  - text: Customer Success Manager / Advisor / Specialist
+                                  - text: Customer Success Engineer
+                                  - text: Account Manager
+                                  - text: Account Executive
+                                  - text: "Where: Remote or Austin TX"
+                                  - text: If you know of something, hear of something, or just want to reconnect — drop a comment, send a DM, or share this post. Every little bit helps and genuinely means the world. 🙏
+                                  - text: Let's connect. 🤝
+                              - link "#OpenToWork" [ref=e375] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23opentowork&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e377]: "#OpenToWork"
+                              - link "#CustomerSuccess" [ref=e378] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23customersuccess&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e380]: "#CustomerSuccess"
+                              - link "#CSM" [ref=e381] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23csm&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e383]: "#CSM"
+                              - link "#AccountManagement" [ref=e384] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23accountmanagement&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e386]: "#AccountManagement"
+                              - link "#SaaS" [ref=e387] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23saas&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e389]: "#SaaS"
+                              - link "#Austin" [ref=e390] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23austin&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e392]: "#Austin"
+                              - link "#Hiring" [ref=e393] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23hiring&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e395]: "#Hiring"
+                            - generic [ref=e398]:
+                              - figure [ref=e400]
+                              - generic [ref=e401]:
+                                - paragraph [ref=e403]: Kenneth is open to work
+                                - paragraph [ref=e406]: Looking for Hybrid or Remote or On-site roles in United States, Austin, TX and Austin, Texas Metropolitan Area
+                                - link:
+                                  - /url: https://www.linkedin.com/
+                                - link "View job preferences" [ref=e407] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/
+                                  - generic [ref=e409]: View job preferences
+                          - generic [ref=e410]:
+                            - generic [ref=e411]:
+                              - 'button "Reaction button state: no reaction" [ref=e414] [cursor=pointer]':
+                                - generic [ref=e417]: "3"
+                              - button "Open reactions menu"
+                            - button "Comment" [ref=e418] [cursor=pointer]
+                            - button "Repost" [ref=e421] [cursor=pointer]
+                            - link "Send" [ref=e424] [cursor=pointer]:
+                              - /url: https://www.linkedin.com/
+                            - link [ref=e427] [cursor=pointer]:
+                              - /url: https://www.linkedin.com/
+                              - generic "3 reactions" [ref=e428]
+                      - listitem [ref=e433]:
+                        - generic [ref=e435]:
+                          - heading "Feed post" [level=2]:
+                            - generic [ref=e436]: Feed post
+                          - generic [ref=e437]:
+                            - link [ref=e438] [cursor=pointer]:
+                              - /url: https://www.linkedin.com/in/damonpistulka/
+                              - figure [ref=e439]
+                            - generic [ref=e441]:
+                              - link "Damon Pistulka √ Premium Profile 2nd" [ref=e444] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/damonpistulka/
+                                - generic "Damon Pistulka √ Premium Profile 2nd" [ref=e446]:
+                                  - paragraph [ref=e449]: Damon Pistulka √
+                                  - paragraph [ref=e451]:
+                                    - generic [ref=e452]: • 2nd
+                              - paragraph [ref=e456]: Helping Industrial & Manufacturing Companies Get Seen, Get Chosen, Break Through Growth Bottlenecks | From Visibility to Scalable Growth
+                              - link "View my newsletter" [ref=e460] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Fapi%2Esbtbks%2Ecom%2Fwidget%2Fform%2FGr7Tiwa4VrWRm1Z8akBi&urlhash=dclY&mt=R2wjATMxxwu0j13u4_cjmLXnW-XX-cVSzF8nyF6RFRokNsf3LBxReNFQVFHnkRAj3UdhqUhyh-YbaD7FTiZ8EsA4CCv6KEoorah7Yis&isSdui=true
+                                - paragraph [ref=e461]: View my newsletter
+                              - paragraph [ref=e463]:
+                                - generic [ref=e464]: 2d •
+                              - link:
+                                - /url: https://www.linkedin.com/in/damonpistulka/
+                            - button "Follow Damon Pistulka √" [ref=e469] [cursor=pointer]:
+                              - generic [ref=e473]: Follow
+                            - button "Open control menu for post by Damon Pistulka √" [ref=e474] [cursor=pointer]
+                          - paragraph [ref=e477]:
+                            - generic [ref=e478]:
+                              - text: A team solved what I couldn't alone.
+                              - text: The breakthrough was theirs.
+                              - text: Early in my manufacturing career, we faced a defect problem I could not crack on my own.
+                              - text: The team did what I could not.
+                              - text: 🔷 Problems too big for one person
+                              - text: 🔷 Leaders carrying it all alone
+                              - text: 🔷 Answers hiding inside the team
+                              - text: Trusting them was the key.
+                              - text: When the team owns the problem, they find the answer.
+                              - text: 🔥 Give the team the real problem
+                              - text: 🔥 Trust their judgment to solve it
+                              - text: 🔥 Step back and let them work
+                              - text: The best results came from the whole team.
+                              - text: ⚡ A team that owns the problem will outperform any single leader. ⚡
+                              - text: What problem could your team own & solve if you let them?
+                              - text: ⭐ Helping owners grow their businesses with coaching, training, systems, and a supportive community. ⭐
+                              - text: 👉 Subscribe to my newsletter, AI Without the Hype, for practical AI that any business can actually use.
+                              - text: 🔔 Follow me for thoughts on relentless business growth, leadership, and life.
+                              - text: Video credit - FORMULA1
+                              - link "#leadership" [ref=e480] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23leadership&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e482]: "#leadership"
+                              - link "#businessgrowth" [ref=e483] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23businessgrowth&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e485]: "#businessgrowth"
+                              - link "#management" [ref=e486] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23management&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e488]: "#management"
+                              - link "#entrepreneurship" [ref=e489] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23entrepreneurship&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e491]: "#entrepreneurship"
+                              - link "#success" [ref=e492] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23success&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e494]: "#success"
+                          - button "Play video" [ref=e499] [cursor=pointer]
+                          - generic [ref=e502]:
+                            - generic [ref=e503]:
+                              - 'button "Reaction button state: no reaction" [ref=e506] [cursor=pointer]':
+                                - generic [ref=e509]: "29"
+                              - button "Open reactions menu"
+                            - button "Comment" [ref=e510] [cursor=pointer]:
+                              - generic [ref=e513]: "7"
+                            - button "Repost" [ref=e514] [cursor=pointer]:
+                              - generic [ref=e517]: "2"
+                            - link "Send" [ref=e518] [cursor=pointer]:
+                              - /url: https://www.linkedin.com/
+                            - link [ref=e521] [cursor=pointer]:
+                              - /url: https://www.linkedin.com/
+                              - generic "29 reactions" [ref=e522]
+                      - listitem [ref=e529]:
+                        - generic [ref=e531]:
+                          - heading "Feed post" [level=2]:
+                            - generic [ref=e532]: Feed post
+                          - generic [ref=e533]:
+                            - link [ref=e534] [cursor=pointer]:
+                              - /url: https://www.linkedin.com/in/ameuradl/
+                              - figure [ref=e535]
+                            - generic [ref=e537]:
+                              - link "Adel Ameur 3rd+" [ref=e540] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/ameuradl/
+                                - generic "Adel Ameur 3rd+" [ref=e542]:
+                                  - paragraph [ref=e545]: Adel Ameur
+                                  - paragraph [ref=e547]: • 3rd+
+                              - paragraph [ref=e549]: Founder & Creative Director @ Adexy | Bachelor’s in Business & Marketing
+                              - paragraph [ref=e551]:
+                                - generic [ref=e552]: 10mo •
+                              - link:
+                                - /url: https://www.linkedin.com/in/ameuradl/
+                            - button "Follow Adel Ameur" [ref=e557] [cursor=pointer]:
+                              - generic [ref=e561]: Follow
+                            - button "Open control menu for post by Adel Ameur" [ref=e562] [cursor=pointer]
+                          - paragraph [ref=e565]:
+                            - generic [ref=e566]:
+                              - text: Last year, I was sitting with merely an idea in my notebook.
+                              - text: I didn't have a luxurious office at my disposal. No large budget. No team. Just me, my laptop, and a vision.
+                              - text: Today, that notion has developed into Adexy—a creative agency helping clients convey their stories through cinematic advertisements and AI-powered content.
+                              - text: It wasn’t easy.
+                              - text: 👉 Countless late nights studying tools.
+                              - text: 👉 Pitching clients who didn’t believe at first.
+                              - text: 👉 Designing until the sun came up.
+                              - text: "But here’s the truth: you don’t need flawless conditions to start."
+                              - text: You need to start messy, learn fast, and adjust even faster.
+                              - text: "If there’s one thing I’ve learned, it’s this: \"Execution beats ideas.\""
+                              - text: Grateful for the early sponsors, the first clients that trusted me, and the community that encourages me to grow.
+                              - text: This is just the beginning.
+                              - link "#Adexy" [ref=e568] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23adexy&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e570]: "#Adexy"
+                              - link "#Entrepreneurship" [ref=e571] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23entrepreneurship&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e573]: "#Entrepreneurship"
+                              - link "#ContentCreation" [ref=e574] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23contentcreation&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e576]: "#ContentCreation"
+                              - link "#AI" [ref=e577] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23ai&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e579]: "#AI"
+                              - link "#Branding" [ref=e580] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23branding&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e582]: "#Branding"
+                          - link [ref=e584] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/
+                            - figure [ref=e585]:
+                              - img "View image" [ref=e586]
+                          - generic [ref=e587]:
+                            - generic [ref=e588]:
+                              - 'button "Reaction button state: no reaction" [ref=e591] [cursor=pointer]':
+                                - generic [ref=e594]: "4"
+                              - button "Open reactions menu"
+                            - button "Comment" [ref=e595] [cursor=pointer]
+                            - button "Repost" [ref=e598] [cursor=pointer]
+                            - link "Send" [ref=e601] [cursor=pointer]:
+                              - /url: https://www.linkedin.com/
+                            - link [ref=e604] [cursor=pointer]:
+                              - /url: https://www.linkedin.com/
+                              - generic "4 reactions" [ref=e605]
+                    - link "Show all" [ref=e608] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/search/results/content/?keywords=Adexy&origin=CLUSTER_EXPANSION
+                      - generic [ref=e611]: Show all
+                  - generic [ref=e612]:
+                    - heading "Companies" [level=2] [ref=e613]
+                    - list [ref=e614]:
+                      - generic [ref=e615]:
+                        - link:
+                          - /url: https://www.linkedin.com/company/adexy-ai/
+                        - listitem "Adexy" [ref=e616]:
+                          - generic [ref=e617]:
+                            - figure [ref=e618]
+                            - generic [ref=e619]:
+                              - paragraph [ref=e620]:
+                                - link "Adexy" [ref=e621] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/company/adexy-ai/
+                              - paragraph [ref=e623]: Technology, Information and Internet
+                            - button "Follow Adexy" [ref=e628] [cursor=pointer]:
+                              - generic [ref=e632]: Follow
+                          - generic [ref=e635]:
+                            - paragraph [ref=e637]:
+                              - generic [ref=e638]:
+                                - strong [ref=e639]: Adexy
+                                - text: is an AI-native ad creative platform that turns ads into interactive, code-built experiences that drive better engagement and dwell time. We work directly with brands and agencies and partner with Reddit partner to bring interactive ad creatives to one of the web's most engaged communities.
+                            - paragraph [ref=e643]: 14 followers
+                            - generic [ref=e644]:
+                              - figure [ref=e645]
+                              - paragraph [ref=e647]:
+                                - link "Joe works here" [ref=e649] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/search/results/people/?origin=SHARED_CONNECTIONS_IN_COMPANY_CANNED_SEARCH&network=%5B%22F%22%5D&currentCompany=%5B%22132174402%22%5D
+                      - generic [ref=e650]:
+                        - link:
+                          - /url: https://www.linkedin.com/company/adexy-communication/
+                        - listitem "Adexy Communication" [ref=e651]:
+                          - generic [ref=e652]:
+                            - figure [ref=e653]
+                            - generic [ref=e654]:
+                              - paragraph [ref=e655]:
+                                - link "Adexy Communication" [ref=e656] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/company/adexy-communication/
+                              - paragraph [ref=e658]: Advertising Services
+                            - button "Follow Adexy Communication" [ref=e663] [cursor=pointer]:
+                              - generic [ref=e667]: Follow
+                          - generic [ref=e670]:
+                            - paragraph [ref=e672]:
+                              - generic [ref=e673]:
+                                - strong [ref=e674]: Adexy
+                                - text: .co is an initiative of a group of young Advertising veterans committed to creative brilliance.
+                            - paragraph [ref=e678]: 42 followers
+                      - generic [ref=e679]:
+                        - link:
+                          - /url: https://www.linkedin.com/company/construction-adexy/
+                        - listitem "Construction ADEXY" [ref=e680]:
+                          - generic [ref=e681]:
+                            - figure [ref=e682]
+                            - generic [ref=e683]:
+                              - paragraph [ref=e684]:
+                                - link "Construction ADEXY" [ref=e685] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/company/construction-adexy/
+                              - paragraph [ref=e687]: Construction
+                              - paragraph [ref=e689]: La Prairie, Quebec
+                            - button "Follow Construction ADEXY" [ref=e694] [cursor=pointer]:
+                              - generic [ref=e698]: Follow
+                          - generic [ref=e701]:
+                            - paragraph [ref=e703]:
+                              - generic [ref=e704]:
+                                - text: Entrepreneur général en projets de construction et rénovation.
+                                - text: General contractor in construction and renovation projets.
+                            - paragraph [ref=e708]: 34 followers
+                    - link "Show all" [ref=e710] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/search/results/companies/?keywords=Adexy&origin=CLUSTER_EXPANSION
+                      - generic [ref=e713]: Show all
+                  - generic [ref=e714]:
+                    - heading "People" [level=2] [ref=e715]
+                    - radiogroup "Filter by connections" [ref=e717]:
+                      - radio "Filter by 1st connections" [ref=e718] [cursor=pointer]:
+                        - generic "Filter by 1st connections" [ref=e719]:
+                          - checkbox "1st"
+                          - generic [ref=e720]: 1st
+                      - radio "Filter by 2nd connections" [ref=e721] [cursor=pointer]:
+                        - generic "Filter by 2nd connections" [ref=e722]:
+                          - checkbox "2nd"
+                          - generic [ref=e723]: 2nd
+                      - radio "Filter by 3rd+ connections" [ref=e724] [cursor=pointer]:
+                        - generic "Filter by 3rd+ connections" [ref=e725]:
+                          - checkbox "3rd+"
+                          - generic [ref=e726]: 3rd+
+                    - list [ref=e727]:
+                      - listitem [ref=e729]:
+                        - generic [ref=e730]:
+                          - link:
+                            - /url: https://www.linkedin.com/in/joehall6/
+                          - generic [ref=e731]:
+                            - link:
+                              - /url: https://www.linkedin.com/in/joehall6/
+                            - generic [ref=e732]:
+                              - link [ref=e733] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/joehall6/
+                                - figure [ref=e734]
+                              - generic [ref=e735]:
+                                - link:
+                                  - /url: https://www.linkedin.com/in/joehall6/
+                                - paragraph [ref=e736]:
+                                  - link:
+                                    - /url: https://www.linkedin.com/in/joehall6/
+                                  - link "Joe Hall Verified" [ref=e737] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/joehall6/
+                                    - text: Joe Hall
+                                    - img "Verified" [ref=e738]
+                                  - generic [ref=e740]: • 1st
+                                - paragraph [ref=e742]: Co-Founder @Adexy • Co-Founder @Spaceback • Product & Design
+                                - paragraph [ref=e744]: United States
+                            - generic [ref=e745]:
+                              - figure [ref=e746]
+                              - figure [ref=e747]
+                              - figure [ref=e748]
+                              - paragraph [ref=e750]:
+                                - generic [ref=e751]:
+                                  - link "Ben Trenda" [ref=e752] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/bentrenda/
+                                    - strong [ref=e753]: Ben Trenda
+                                  - text: ","
+                                  - link "David Peterson" [ref=e754] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/davidcpeterson/
+                                    - strong [ref=e755]: David Peterson
+                                  - text: and
+                                  - link "52 other mutual connections" [ref=e756] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/search/results/people/?origin=SHARED_CONNECTIONS_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAAYxir8BeCekMlKbmHqFCmvzNIlXWxdIb98%22%5D
+                                    - strong [ref=e757]: 52 other mutual connections
+                      - listitem [ref=e759]:
+                        - generic [ref=e760]:
+                          - link:
+                            - /url: https://www.linkedin.com/in/adexy-ala%C3%B1a-galu%C3%A9-10b235100/
+                          - generic [ref=e761]:
+                            - link:
+                              - /url: https://www.linkedin.com/in/adexy-ala%C3%B1a-galu%C3%A9-10b235100/
+                            - generic [ref=e762]:
+                              - link [ref=e763] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/adexy-ala%C3%B1a-galu%C3%A9-10b235100/
+                                - figure [ref=e764]
+                              - generic [ref=e765]:
+                                - link:
+                                  - /url: https://www.linkedin.com/in/adexy-ala%C3%B1a-galu%C3%A9-10b235100/
+                                - paragraph [ref=e766]:
+                                  - link:
+                                    - /url: https://www.linkedin.com/in/adexy-ala%C3%B1a-galu%C3%A9-10b235100/
+                                  - link "Adexy Alaña Galué Verified" [ref=e767] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/adexy-ala%C3%B1a-galu%C3%A9-10b235100/
+                                    - text: Adexy Alaña Galué
+                                    - img "Verified" [ref=e768]
+                                  - generic [ref=e770]: • 3rd+
+                                - paragraph [ref=e772]: Ingeniera Industrial/Apoyo Team Leader de Transporte en Logisfashion Chile Spa
+                                - paragraph [ref=e774]: Santiago Metropolitan Area
+                      - listitem [ref=e776]:
+                        - generic [ref=e777]:
+                          - link:
+                            - /url: https://www.linkedin.com/in/shomudro/
+                          - generic [ref=e778]:
+                            - link:
+                              - /url: https://www.linkedin.com/in/shomudro/
+                            - generic [ref=e779]:
+                              - link [ref=e780] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/shomudro/
+                                - figure [ref=e781]
+                              - generic [ref=e782]:
+                                - link:
+                                  - /url: https://www.linkedin.com/in/shomudro/
+                                - paragraph [ref=e783]:
+                                  - link:
+                                    - /url: https://www.linkedin.com/in/shomudro/
+                                  - link "Samiur R" [ref=e784] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/shomudro/
+                                  - generic [ref=e785]: • 3rd+
+                                - paragraph [ref=e787]: Founder and Managing Director, Adexy Communication Ltd.
+                                - paragraph [ref=e789]: Dhaka, Bangladesh
+                            - paragraph [ref=e793]:
+                              - link "262 followers" [ref=e795] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/people/?origin=SHARED_FOLLOWERS_CANNED_SEARCH&followerOf=%5B%22ACoAADZr9m0B-p5mmYz-OoQt_Zo3OvksxAfI13Y%22%5D
+                    - link "Show all" [ref=e797] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/search/results/people/?keywords=Adexy&origin=CLUSTER_EXPANSION
+                      - generic [ref=e800]: Show all
+                  - generic [ref=e801]:
+                    - heading "More posts" [level=2] [ref=e802]
+                    - generic [ref=e803]:
+                      - radio "Filter by From my network" [ref=e804] [cursor=pointer]:
+                        - generic "Filter by From my network" [ref=e805]:
+                          - checkbox "From my network"
+                          - generic [ref=e806]: From my network
+                      - radiogroup "Filter by date posted" [ref=e807]:
+                        - radio "Filter by Past 24 hours" [ref=e808] [cursor=pointer]:
+                          - generic "Filter by Past 24 hours" [ref=e809]:
+                            - checkbox "Past 24 hours"
+                            - generic [ref=e810]: Past 24 hours
+                        - radio "Filter by Past week" [ref=e811] [cursor=pointer]:
+                          - generic "Filter by Past week" [ref=e812]:
+                            - checkbox "Past week"
+                            - generic [ref=e813]: Past week
+                    - list [ref=e814]:
+                      - listitem [ref=e818]:
+                        - generic [ref=e820]:
+                          - heading "Feed post" [level=2]:
+                            - generic [ref=e821]: Feed post
+                          - generic [ref=e822]:
+                            - link [ref=e823] [cursor=pointer]:
+                              - /url: https://www.linkedin.com/in/paulbhatti/
+                              - figure [ref=e824]
+                            - generic [ref=e826]:
+                              - link "Paul Bhatti Premium Profile 3rd+" [ref=e829] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/paulbhatti/
+                                - generic "Paul Bhatti Premium Profile 3rd+" [ref=e831]:
+                                  - paragraph [ref=e834]: Paul Bhatti
+                                  - paragraph [ref=e836]:
+                                    - generic [ref=e837]: • 3rd+
+                              - paragraph [ref=e841]: CEO, KRONK® | Scaling a Global Boxing Institution | Licensing, Consumer Products & Media
+                              - paragraph [ref=e843]:
+                                - generic [ref=e844]: 6d • Edited •
+                              - link:
+                                - /url: https://www.linkedin.com/in/paulbhatti/
+                            - button "Follow Paul Bhatti" [ref=e849] [cursor=pointer]:
+                              - generic [ref=e853]: Follow
+                            - button "Open control menu for post by Paul Bhatti" [ref=e854] [cursor=pointer]
+                          - paragraph [ref=e857]:
+                            - generic [ref=e858]:
+                              - text: Two years have now passed since I stepped away from my 31 year career in IT.
+                              - text: It was the only industry I’d ever known, and I’ll always be grateful for the people, customers, experiences, and lessons it gave me. Those years shaped how I lead, how I think, and who I am.
+                              - text: Today, I’m applying those same principles in a completely different world as we build
+                              - link "KRONK®" [ref=e859] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/company/realkronkgym/
+                                - strong [ref=e861]: KRONK®
+                              - text: into a sports, media and licensing platform, underpinned by an unmatched heritage in the world of Boxing - where we are developing amateurs and professional fighters for the future.
+                              - text: Despite the completely different industry, for me, the same fundamentals and lived experiences apply.
+                              - text: People, leadership, culture, growth, execution and relationships …
+                              - text: We have made a lot of impact across multiple businesses under the
+                              - link "KRONK®" [ref=e862] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/company/realkronkgym/
+                                - strong [ref=e864]: KRONK®
+                              - text: umbrella over the last 2 years, and there is so much more we’re excited to unlock …
+                              - text: ON WE GO® 👊🏼🥊
+                              - link "#Leadership" [ref=e865] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23leadership&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e867]: "#Leadership"
+                              - link "#SportsBusiness" [ref=e868] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23sportsbusiness&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e870]: "#SportsBusiness"
+                              - link "#Boxing" [ref=e871] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23boxing&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e873]: "#Boxing"
+                              - link "#KRONK" [ref=e874] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23kronk&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e876]: "#KRONK"
+                              - link "#Detroit" [ref=e877] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23detroit&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e879]: "#Detroit"
+                              - link "#BrandBuilding" [ref=e880] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23brandbuilding&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e882]: "#BrandBuilding"
+                              - link "#Legacy" [ref=e883] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23legacy&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e885]: "#Legacy"
+                              - link "#Growth" [ref=e886] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23growth&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e888]: "#Growth"
+                              - link "#Culture" [ref=e889] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23culture&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e891]: "#Culture"
+                              - link "#DetroitsFifthFranchise" [ref=e892] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23detroitsfifthfranchise&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e894]: "#DetroitsFifthFranchise"
+                          - generic [ref=e895]:
+                            - generic [ref=e896]:
+                              - 'button "Reaction button state: no reaction" [ref=e899] [cursor=pointer]':
+                                - generic [ref=e902]: "235"
+                              - button "Open reactions menu"
+                            - button "Comment" [ref=e903] [cursor=pointer]:
+                              - generic [ref=e906]: "14"
+                            - button "Repost" [ref=e907] [cursor=pointer]:
+                              - generic [ref=e910]: "1"
+                            - link "Send" [ref=e911] [cursor=pointer]:
+                              - /url: https://www.linkedin.com/
+                            - link [ref=e914] [cursor=pointer]:
+                              - /url: https://www.linkedin.com/
+                              - generic "235 reactions" [ref=e915]
+                      - listitem [ref=e922]:
+                        - generic [ref=e924]:
+                          - heading "Feed post" [level=2]:
+                            - generic [ref=e925]: Feed post
+                          - generic [ref=e926]:
+                            - link [ref=e927] [cursor=pointer]:
+                              - /url: https://www.linkedin.com/company/the-real-biz-life-chronicles-podcast/posts/
+                              - figure [ref=e928]
+                            - generic [ref=e930]:
+                              - link "The Real Biz Life Chronicles Podcast" [ref=e933] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/company/the-real-biz-life-chronicles-podcast/posts/
+                                - paragraph [ref=e938]: The Real Biz Life Chronicles Podcast
+                              - paragraph [ref=e940]:
+                                - generic [ref=e941]: 4h •
+                              - link:
+                                - /url: https://www.linkedin.com/company/the-real-biz-life-chronicles-podcast/posts/
+                            - button "Follow The Real Biz Life Chronicles Podcast" [ref=e946] [cursor=pointer]:
+                              - generic [ref=e950]: Follow
+                            - button "Open control menu for post by The Real Biz Life Chronicles Podcast" [ref=e951] [cursor=pointer]
+                          - paragraph [ref=e954]:
+                            - generic [ref=e955]:
+                              - text: I've lost count of the ideas I sat on because I was waiting to feel ready. Waiting for the plan to be tighter. The offer to be perfect. The timing to be right.
+                              - text: That moment never arrives the way you think it will. You just get older, and the idea gets quieter.
+                              - link "Vnoth Gunasegaran ( Vee )" [ref=e957] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/vnoth/
+                                - strong [ref=e959]: Vnoth Gunasegaran ( Vee )
+                              - text: left a running business in the middle of COVID to start a coffee company everyone told him would fail. Nearly six years on,
+                              - link "Cuppa Cartel" [ref=e960] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/company/cuppa-cartel/
+                                - strong [ref=e962]: Cuppa Cartel
+                              - text: is still standing. When a client once asked if he did valet service, the answer he gave on the spot was "yeah, of course we do."
+                              - link "Laki Mafi" [ref=e963] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/laki-mafi-4b8bb627a/
+                                - strong [ref=e965]: Laki Mafi
+                              - text: is a former military operator with two deployments to Afghanistan, now co-owner of a roadworks company and a coach for men off the tools. I asked him what he's learned about love. What he told me will stay with you.
+                              - text: Full article below 👇
+                              - link "#TheRealBizLifeChronicles" [ref=e966] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23therealbizlifechronicles&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e968]: "#TheRealBizLifeChronicles"
+                              - link "#TracyFryer" [ref=e969] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23tracyfryer&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e971]: "#TracyFryer"
+                              - link "#LeadWithDistinction" [ref=e972] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23leadwithdistinction&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e974]: "#LeadWithDistinction"
+                              - link "#JustStart" [ref=e975] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23juststart&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e977]: "#JustStart"
+                              - link "#FounderMindset" [ref=e978] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23foundermindset&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e980]: "#FounderMindset"
+                              - link "#BackYourself" [ref=e981] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23backyourself&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e983]: "#BackYourself"
+                              - link "#ResilienceInBusiness" [ref=e984] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23resilienceinbusiness&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e986]: "#ResilienceInBusiness"
+                          - generic [ref=e987]:
+                            - link [ref=e988] [cursor=pointer]:
+                              - /url: https://www.linkedin.com/pulse/you-never-feel-ready-the-real-biz-life-chronicles-podca-najec/
+                              - figure [ref=e989]:
+                                - img "You will never feel ready..." [ref=e990]
+                            - link:
+                              - /url: https://www.linkedin.com/pulse/you-never-feel-ready-the-real-biz-life-chronicles-podca-najec/
+                            - generic [ref=e991]:
+                              - link:
+                                - /url: https://www.linkedin.com/pulse/you-never-feel-ready-the-real-biz-life-chronicles-podca-najec/
+                              - link "The Real Biz Life Chronicles Subscribe to The Real Biz Life Chronicles newsletter" [ref=e992] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/newsletters/the-real-biz-life-chronicles-7472585702505959424/
+                                - generic [ref=e993]:
+                                  - figure [ref=e994]
+                                  - paragraph [ref=e996]: The Real Biz Life Chronicles
+                                  - button "Subscribe to The Real Biz Life Chronicles newsletter" [ref=e998]:
+                                    - generic [ref=e1001]: Subscribe
+                              - paragraph [ref=e1003]: You will never feel ready...
+                              - paragraph [ref=e1005]: The Real Biz Life Chronicles Podcast
+                          - generic [ref=e1006]:
+                            - generic [ref=e1007]:
+                              - 'button "Reaction button state: no reaction" [ref=e1010] [cursor=pointer]'
+                              - button "Open reactions menu"
+                            - button "Comment" [ref=e1013] [cursor=pointer]
+                            - button "Repost" [ref=e1016] [cursor=pointer]
+                            - link "Send" [ref=e1019] [cursor=pointer]:
+                              - /url: https://www.linkedin.com/
+                      - listitem [ref=e1025]:
+                        - generic [ref=e1027]:
+                          - heading "Feed post" [level=2]:
+                            - generic [ref=e1028]: Feed post
+                          - generic [ref=e1029]:
+                            - link [ref=e1030] [cursor=pointer]:
+                              - /url: https://www.linkedin.com/in/pubudud/
+                              - figure [ref=e1031]
+                            - generic [ref=e1033]:
+                              - link "Pubudu Dissanayake Verified Profile 3rd+" [ref=e1036] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/pubudud/
+                                - generic "Pubudu Dissanayake Verified Profile 3rd+" [ref=e1038]:
+                                  - paragraph [ref=e1041]: Pubudu Dissanayake
+                                  - paragraph [ref=e1043]:
+                                    - generic [ref=e1044]: • 3rd+
+                              - paragraph [ref=e1048]: Technology Leadership |Business Consulting | Technology Evangelist | Digital Transformation | Client Servicing | Sales, Marketing & Presales | Driving Enterprise Digital Strategy Through AI Led Value Drivers
+                              - paragraph [ref=e1050]:
+                                - generic [ref=e1051]: 16h • Edited •
+                              - link:
+                                - /url: https://www.linkedin.com/in/pubudud/
+                            - button "Follow Pubudu Dissanayake" [ref=e1056] [cursor=pointer]:
+                              - generic [ref=e1060]: Follow
+                            - button "Open control menu for post by Pubudu Dissanayake" [ref=e1061] [cursor=pointer]
+                          - paragraph [ref=e1064]:
+                            - generic [ref=e1065]:
+                              - text: Third time posting this. Still haven't found the right person.
+                              - text: And I think I now understand why.
+                              - text: After multiple rounds of applications, the pattern is clear — most people are applying without actually reading the post. Not skimming it. Not reading it.
+                              - text: That alone disqualifies you for this role.
+                              - text: Here's why that matters 👇
+                              - text: A Product Owner's job — at its most fundamental level — is attention to detail. It's reading requirements carefully. It's understanding context before acting. It's not moving forward until you're confident you've understood the brief.
+                              - text: If you can't demonstrate that in how you apply, I have no reason to believe you'll demonstrate it on the job.
+                              - text: So before you do anything else — read the full post below. Slowly. Carefully.
+                              - text: "Then ask yourself:"
+                              - text: 📍 Am I actually based in Colombo, Sri Lanka or Chennai, India?
+                              - text: This is not flexible. Remote means remote from Colombo or Chennai — not from anywhere else.
+                              - text: 🛠 Do I genuinely have the mandatory technical skills?
+                              - text: Not "I've heard of Jira." Not "I've used ChatGPT a few times."
+                              - text: Hands-on. Demonstrable. On your CV.
+                              - text: 🧠 Do I understand what a Product Owner actually does?
+                              - text: Not the theory. The real work — client conversations, backlog ownership, user stories, stakeholder management, research, decisions.
+                              - text: 📄 Does my CV show the match — clearly and without ambiguity?
+                              - text: If I have to dig for evidence that you qualify, the answer is no.
+                              - text: I'm not raising the bar. The bar was always there. I'm just asking you to clear it.
+                              - text: The right person is out there. They'll read this carefully, check themselves honestly, and apply with a CV that speaks for itself.
+                              - text: Are you that person? 👇
+                              - link "DigitalT3" [ref=e1067] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/company/digitalt3/
+                                - strong [ref=e1069]: DigitalT3
+                              - link "#StillHiring" [ref=e1070] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23stillhiring&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e1072]: "#StillHiring"
+                              - link "#ThirdCall" [ref=e1073] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23thirdcall&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e1075]: "#ThirdCall"
+                              - link "#ProductOwner" [ref=e1076] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23productowner&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e1078]: "#ProductOwner"
+                              - link "#AssociateProductOwner" [ref=e1079] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23associateproductowner&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e1081]: "#AssociateProductOwner"
+                              - link "#Colombo" [ref=e1082] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23colombo&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e1084]: "#Colombo"
+                              - link "#SriLanka" [ref=e1085] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23srilanka&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e1087]: "#SriLanka"
+                              - link "#RemoteWork" [ref=e1088] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23remotework&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e1090]: "#RemoteWork"
+                              - link "#DigitalT3" [ref=e1091] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23digitalt3&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e1093]: "#DigitalT3"
+                              - link "#AttentionToDetail" [ref=e1094] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23attentiontodetail&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e1096]: "#AttentionToDetail"
+                              - link "#ProductManagement" [ref=e1097] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23productmanagement&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e1099]: "#ProductManagement"
+                              - link "#NowHiring" [ref=e1100] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23nowhiring&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e1102]: "#NowHiring"
+                              - link "#India" [ref=e1103] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23india&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e1105]: "#India"
+                              - link "#Chennai" [ref=e1106] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23chennai&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e1108]: "#Chennai"
+                          - generic [ref=e1109]:
+                            - generic [ref=e1110]:
+                              - link [ref=e1111] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/pubudud/
+                                - figure [ref=e1112]
+                              - generic [ref=e1114]:
+                                - link "Pubudu Dissanayake Verified Profile 3rd+" [ref=e1117] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/pubudud/
+                                  - generic "Pubudu Dissanayake Verified Profile 3rd+" [ref=e1119]:
+                                    - paragraph [ref=e1122]: Pubudu Dissanayake
+                                    - paragraph [ref=e1124]:
+                                      - generic [ref=e1125]: • 3rd+
+                                - paragraph [ref=e1129]: Technology Leadership |Business Consulting | Technology Evangelist | Digital Transformation | Client Servicing | Sales, Marketing & Presales | Driving Enterprise Digital Strategy Through AI Led Value Drivers
+                                - paragraph [ref=e1131]:
+                                  - generic [ref=e1132]: 1mo • Edited •
+                                - link:
+                                  - /url: https://www.linkedin.com/in/pubudud/
+                              - button "Follow Pubudu Dissanayake" [ref=e1137] [cursor=pointer]:
+                                - generic [ref=e1141]: Follow
+                            - link:
+                              - /url: https://www.linkedin.com/feed/update/urn:li:share:7465265351677874176/
+                            - paragraph [ref=e1142]:
+                              - link "🚀 We're hiring! | Associate Product Owner at" [ref=e1143] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/feed/update/urn:li:share:7465265351677874176/
+                                - generic [ref=e1144]: 🚀 We're hiring! | Associate Product Owner at
+                              - link "DigitalT3" [ref=e1145] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/company/digitalt3/
+                                - strong [ref=e1147]: DigitalT3
+                              - text: This role isn't for everyone — and that's intentional.
+                              - text: We're looking for someone who brings more than a CV. Someone who walks into a client room with confidence, asks the right questions, and leaves with clarity. Someone who can break down a complex problem analytically, back it up with research, and then own the outcome — start to finish.
+                              - text: "📍 Location: Colombo, Sri Lanka or Chennai, India — 100% remote (in mentioned locations)"
+                              - text: "Experience: 6 months – 2 years"
+                              - text: Here's the kind of person we're looking for 👇
+                              - text: 💬 Outgoing & people-first
+                              - text: You're the person clients actually enjoy working with. You build rapport quickly, communicate with ease, and know how to read a room. Product management is a people sport — and you get that.
+                              - text: 🧠 Analytical & logical
+                              - text: You don't just collect information — you make sense of it. You can spot patterns, challenge assumptions, and turn messy inputs into clear, structured thinking.
+                              - text: 📋 Real client & BA experience
+                              - text: You've worked on live products or business analysis — not just theory. You understand what it means to gather requirements in the real world, navigate stakeholder expectations, and translate business needs into actionable deliverables.
+                              - text: 🔬 Research-driven
+                              - text: You dig deeper than the surface. Whether it's market research, competitor analysis, or user feedback — you bring evidence to the table, not just opinions.
+                              - text: 🗣️ Excellent communicator
+                              - text: Written, verbal, async, in a meeting — it doesn't matter. You articulate ideas clearly, adapt your style to your audience, and make complex things simple.
+                              - text: 🎯 Accountability & ownership
+                              - text: You don't wait to be chased. You take responsibility for your work, flag issues early, and see things through. If it's on your plate, it gets done.
+                              - text: ─────────────────────────────
+                              - text: 🛠 Technical skills you must have
+                              - text: "These aren't nice-to-haves. They're required:"
+                              - text: • Hands-on experience with product management tools — Jira, Confluence, Trello, or similar
+                              - text: • Working knowledge of the software development lifecycle (SDLC)
+                              - text: • Proficiency in Microsoft Office Suite and/or Google Workspace
+                              - text: • Data analysis using Excel or Google Sheets
+                              - text: • AI tool fluency — ChatGPT, Claude, Notion AI, or similar
+                              - text: • Prompt engineering skills for generating requirements, user stories, and product visions
+                              - text: • Familiarity with AI-powered productivity tools (Grammarly, Notion AI, etc.)
+                              - text: • Understanding of AI concepts — ML, LLMs, training data, AI ethics & bias
+                              - text: ─────────────────────────────
+                              - text: ⚠️ Please apply only if you have 60%+ alignment to the required skills. We value quality over volume — apply if it genuinely fits, not just because it's open.
+                              - text: Certifications (CSPO, PSPO I, AI fundamentals) are a plus, not a prerequisite.
+                              - text: If you recognise yourself in this — or know someone who does, send your profile to
+                              - link "pd@digitalt3.com" [ref=e1149] [cursor=pointer]:
+                                - /url: mailto:pd@digitalt3.com
+                                - strong [ref=e1151]: pd@digitalt3.com
+                              - link "Rekha Dave" [ref=e1152] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/rekha-dave-baa79157/
+                                - strong [ref=e1154]: Rekha Dave
+                              - link "Warren Sequeira" [ref=e1155] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/warren-sequeira-514a385/
+                                - strong [ref=e1157]: Warren Sequeira
+                              - link "Alfred G." [ref=e1158] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/alfred-gracias/
+                                - strong [ref=e1160]: Alfred G.
+                              - link "#AssociateProductOwner" [ref=e1161] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23associateproductowner&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e1163]: "#AssociateProductOwner"
+                              - link "#RemoteWork" [ref=e1164] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23remotework&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e1166]: "#RemoteWork"
+                              - link "#BusinessAnalysis" [ref=e1167] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23businessanalysis&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e1169]: "#BusinessAnalysis"
+                              - link "#ProductOwner" [ref=e1170] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23productowner&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e1172]: "#ProductOwner"
+                              - link "#Hiring" [ref=e1173] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23hiring&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e1175]: "#Hiring"
+                              - link "#DigitalT3" [ref=e1176] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/all/?keywords=%23digitalt3&origin=HASH_TAG_FROM_FEED
+                                - strong [ref=e1178]: "#DigitalT3"
+                          - generic [ref=e1179]:
+                            - generic [ref=e1180]:
+                              - 'button "Reaction button state: no reaction" [ref=e1183] [cursor=pointer]':
+                                - generic [ref=e1186]: "3"
+                              - button "Open reactions menu"
+                            - button "Comment" [ref=e1187] [cursor=pointer]
+                            - button "Repost" [ref=e1190] [cursor=pointer]:
+                              - generic [ref=e1193]: "1"
+                            - link "Send" [ref=e1194] [cursor=pointer]:
+                              - /url: https://www.linkedin.com/
+                            - link [ref=e1197] [cursor=pointer]:
+                              - /url: https://www.linkedin.com/
+                              - generic "3 reactions" [ref=e1198]
+                      - listitem [ref=e1204]:
+                        - generic [ref=e1206]:
+                          - heading "Feed post" [level=2]:
+                            - generic [ref=e1207]: Feed post
+                          - generic [ref=e1208]:
+                            - link [ref=e1209] [cursor=pointer]:
+                              - /url: https://www.linkedin.com/in/caleb-b-a3301a221/
+                              - figure [ref=e1210]
+                            - generic [ref=e1212]:
+                              - link "Caleb B., Open to work 3rd+" [ref=e1215] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/caleb-b-a3301a221/
+                                - generic "Caleb B., Open to work 3rd+" [ref=e1217]:
+                                  - paragraph [ref=e1220]: Caleb B.
+                                  - paragraph [ref=e1222]: • 3rd+
+                              - paragraph [ref=e1224]: Functional Programming | Mentorship | Consulting
+                              - paragraph [ref=e1226]:
+                                - generic [ref=e1227]: 6h •
+                              - link:
+                                - /url: https://www.linkedin.com/in/caleb-b-a3301a221/
+                            - button "Follow Caleb B." [ref=e1232] [cursor=pointer]:
+                              - generic [ref=e1236]: Follow
+                            - button "Open control menu for post by Caleb B." [ref=e1237] [cursor=pointer]
+                          - paragraph [ref=e1240]:
+                            - generic [ref=e1241]:
+                              - text: "We know about Greenspun's tenth rule: \"Any sufficiently complicated C or Fortran program contains an ad hoc, informally-specified, bug-ridden, slow implementation of half of Common Lisp.\""
+                              - text: We could, perhaps, derive a similar rule for Elixir. "Any Java, C#, or Python application dealing with sufficient levels of concurrency contains an ad hoc, compute-hungry, infra-intensive, slow, unreliable implementation of half of OTP."
+                          - generic [ref=e1243]:
+                            - generic [ref=e1244]:
+                              - link [ref=e1245] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/jasonwaldrip/
+                                - figure [ref=e1246]
+                              - generic [ref=e1248]:
+                                - link "Jason Waldrip, Open to work Verified Profile 3rd+" [ref=e1251] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/jasonwaldrip/
+                                  - generic "Jason Waldrip, Open to work Verified Profile 3rd+" [ref=e1253]:
+                                    - paragraph [ref=e1256]: Jason Waldrip
+                                    - paragraph [ref=e1258]:
+                                      - generic [ref=e1259]: • 3rd+
+                                - paragraph [ref=e1263]: Fractional Technology Leadership
+                                - paragraph [ref=e1265]:
+                                  - generic [ref=e1266]: 5d •
+                                - link:
+                                  - /url: https://www.linkedin.com/in/jasonwaldrip/
+                              - button "Follow Jason Waldrip" [ref=e1271] [cursor=pointer]:
+                                - generic [ref=e1275]: Follow
+                            - link:
+                              - /url: https://www.linkedin.com/feed/update/urn:li:share:7478462859723833345/
+                            - paragraph [ref=e1276]:
+                              - link "Watching teams reach for the runtime that's easiest to hire for, then hand-roll fault tolerance on top of it. A real-time marketplace is a concurrency problem wearing a product costume. At GigSmart I reached for Elixir because process isolation was the floor, not an upgrade I had to build myself. One slow request shouldn't take down the ones next to it — on the BEAM it doesn't, by default. Reach for that kind of runtime when concurrency is the product. When it isn't, it's a tax you didn't need. →" [ref=e1277] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/feed/update/urn:li:share:7478462859723833345/
+                                - generic [ref=e1278]:
+                                  - text: Watching teams reach for the runtime that's easiest to hire for, then hand-roll fault tolerance on top of it.
+                                  - text: A real-time marketplace is a concurrency problem wearing a product costume. At GigSmart I reached for Elixir because process isolation was the floor, not an upgrade I had to build myself. One slow request shouldn't take down the ones next to it — on the BEAM it doesn't, by default.
+                                  - text: Reach for that kind of runtime when concurrency is the product. When it isn't, it's a tax you didn't need.
+                                  - text: →
+                              - link "https://lnkd.in/gDmct5UM" [ref=e1279] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Flnkd%2Ein%2FgDmct5UM&urlhash=FER5&mt=p5d3_lRzAfg-Oo6UxYfNHuJPJog4Ef7GoC3tOG_pbDquVpY1oBcB_cMs9SJ4M5G8aba2lxnL7M8wz5SmnQ6ov4FMaRHqHYOpaMIS23yeJqDY6lA9LM8Y9A&isSdui=true
+                                - strong [ref=e1281]: https://lnkd.in/gDmct5UM
+                          - generic [ref=e1282]:
+                            - generic [ref=e1283]:
+                              - 'button "Reaction button state: no reaction" [ref=e1286] [cursor=pointer]'
+                              - button "Open reactions menu"
+                            - button "Comment" [ref=e1289] [cursor=pointer]
+                            - button "Repost" [ref=e1292] [cursor=pointer]
+                            - link "Send" [ref=e1295] [cursor=pointer]:
+                              - /url: https://www.linkedin.com/
+                  - generic [ref=e1300]:
+                    - generic [ref=e1301]:
+                      - paragraph [ref=e1302]: Are these results helpful?
+                      - paragraph [ref=e1303]: Your feedback helps us improve search results
+                    - generic [ref=e1304]:
+                      - button "Are these results helpful? Yes, these search results are helpful" [ref=e1305] [cursor=pointer]
+                      - button "Are these results helpful? No, these search results are not helpful" [ref=e1308] [cursor=pointer]
+                - progressbar [ref=e1313]
+            - complementary "Aside" [ref=e1314]:
+              - generic [ref=e1317]:
+                - iframe [ref=e1318]:
+                  
+                - generic [ref=e1319]:
+                  - generic [ref=e1320]:
+                    - link "About" [ref=e1321] [cursor=pointer]:
+                      - /url: https://about.linkedin.com/
+                      - paragraph [ref=e1322]: About
+                    - link "Accessibility" [ref=e1323] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/accessibility/
+                      - paragraph [ref=e1324]: Accessibility
+                    - link "Help Center" [ref=e1325] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/help/linkedin/
+                      - paragraph [ref=e1326]: Help Center
+                    - button "Privacy & Terms" [ref=e1327] [cursor=pointer]:
+                      - paragraph [ref=e1329]: Privacy & Terms
+                    - link "Ad Choices" [ref=e1331] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/help/linkedin/answer/62931/
+                      - paragraph [ref=e1332]: Ad Choices
+                    - link "Advertising" [ref=e1333] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/ad/start/?trk=n_nav_ads_rr
+                      - paragraph [ref=e1334]: Advertising
+                    - button "Business Services" [ref=e1335] [cursor=pointer]:
+                      - paragraph [ref=e1337]: Business Services
+                    - link "Get the LinkedIn app" [ref=e1339] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/mobile/
+                      - paragraph [ref=e1340]: Get the LinkedIn app
+                    - link "More" [ref=e1341] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/
+                      - paragraph [ref=e1342]: More
+                  - paragraph [ref=e1345]: LinkedIn Corporation © 2026

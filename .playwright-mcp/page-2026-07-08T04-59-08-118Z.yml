@@ -1,0 +1,340 @@
+- generic [ref=f55e2]:
+  - heading "0 notifications" [level=2] [ref=f55e3]
+  - generic [ref=f55e4]:
+    - generic:
+      - generic "Skip navigation menu":
+        - generic [ref=f55e203]:
+          - button "Skip to search" [ref=f55e204] [cursor=pointer]:
+            - generic [ref=f55e206]: Skip to search
+          - button "Skip to main content" [ref=f55e207] [cursor=pointer]:
+            - generic [ref=f55e209]: Skip to main content
+          - button "Skip to primary content" [ref=f55e210] [cursor=pointer]:
+            - generic [ref=f55e212]: Skip to primary content
+          - button "Close jump menu" [ref=f55e6] [cursor=pointer]:
+            - img [ref=f55e213]
+    - generic [ref=f55e9]:
+      - banner [ref=f55e11]:
+        - generic [ref=f55e14]:
+          - button "LinkedIn" [ref=f55e215] [cursor=pointer]:
+            - img "LinkedIn" [ref=f55e216]
+          - generic [ref=f55e17]:
+            - status [ref=f55e18]
+            - search [ref=f55e19]:
+              - generic [ref=f55e20]:
+                - img [ref=f55e218]
+                - textbox "I'm looking for…" [ref=f55e23]: "\"Coors Chant\""
+          - generic [ref=f55e25]:
+            - figure [ref=f55e224]
+            - navigation [ref=f55e29]:
+              - list [ref=f55e30]:
+                - listitem [ref=f55e31]:
+                  - button "Home, 1 new notification" [ref=f55e32] [cursor=pointer]:
+                    - img [ref=f55e34]
+                    - generic [ref=f55e37]: Home
+                - listitem [ref=f55e38]:
+                  - link "My Network, 0 new notifications" [ref=f55e39] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/mynetwork
+                    - img [ref=f55e41]
+                    - generic [ref=f55e44]: My Network
+                - listitem [ref=f55e45]:
+                  - link "Jobs, 0 new notifications" [ref=f55e46] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/jobs/
+                    - img [ref=f55e48]
+                    - generic [ref=f55e51]: Jobs
+                - listitem [ref=f55e52]:
+                  - link "Messaging, 0 new notifications" [ref=f55e53] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/messaging/
+                    - img [ref=f55e55]
+                    - generic [ref=f55e58]: Messaging
+                - listitem [ref=f55e59]:
+                  - link "Notifications, 20 new notifications" [ref=f55e60] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/notifications/
+                    - generic [ref=f55e61]:
+                      - img [ref=f55e62]
+                      - generic [ref=f55e64]: "20"
+                    - generic [ref=f55e66]: Notifications
+                - listitem [ref=f55e67]:
+                  - button "Me" [ref=f55e68] [cursor=pointer]:
+                    - figure [ref=f55e70]
+                    - generic [ref=f55e72]:
+                      - text: Me
+                      - img [ref=f55e226]
+            - generic [ref=f55e75]:
+              - navigation [ref=f55e76]:
+                - list [ref=f55e77]:
+                  - listitem [ref=f55e78]:
+                    - button "For Business" [ref=f55e79] [cursor=pointer]:
+                      - img [ref=f55e81]
+                      - generic [ref=f55e84]:
+                        - text: For Business
+                        - img [ref=f55e228]
+              - link "Retry Premium" [ref=f55e87] [cursor=pointer]:
+                - /url: https://www.linkedin.com/
+                - generic [ref=f55e88]:
+                  - img [ref=f55e230]
+                  - paragraph [ref=f55e93]: Retry Premium
+      - generic [ref=f55e94]:
+        - toolbar [ref=f55e95]:
+          - generic [ref=f55e234]:
+            - button "Filter by Posts" [ref=f55e236] [cursor=pointer]:
+              - generic "Filter by Posts" [ref=f55e237]:
+                - checkbox "Posts" [checked]
+                - generic [ref=f55e238]:
+                  - text: Posts
+                  - img [ref=f55e239]
+            - button "Filter by Sort by" [ref=f55e242] [cursor=pointer]:
+              - generic "Filter by Sort by" [ref=f55e243]:
+                - checkbox "Sort by"
+                - generic [ref=f55e244]:
+                  - text: Sort by
+                  - img [ref=f55e245]
+            - button "Filter by Date posted" [ref=f55e248] [cursor=pointer]:
+              - generic "Filter by Date posted" [ref=f55e249]:
+                - checkbox "Date posted"
+                - generic [ref=f55e250]:
+                  - text: Date posted
+                  - img [ref=f55e251]
+            - button "Filter by Content type" [ref=f55e254] [cursor=pointer]:
+              - generic "Filter by Content type" [ref=f55e255]:
+                - checkbox "Content type"
+                - generic [ref=f55e256]:
+                  - text: Content type
+                  - img [ref=f55e257]
+            - button "Filter by From member" [ref=f55e260] [cursor=pointer]:
+              - generic "Filter by From member" [ref=f55e261]:
+                - checkbox "From member"
+                - generic [ref=f55e262]:
+                  - text: From member
+                  - img [ref=f55e263]
+            - button "All filters" [ref=f55e265] [cursor=pointer]:
+              - generic [ref=f55e267]: All filters
+        - main [ref=f55e109]:
+          - region "Primary content" [ref=f55e113]:
+            - generic [ref=f55e114]:
+              - generic [ref=f55e116]:
+                - listitem [ref=f55e120]:
+                  - generic [ref=f55e122]:
+                    - heading "Feed post" [level=2]:
+                      - generic [ref=f55e123]: Feed post
+                    - generic [ref=f55e124]:
+                      - link [ref=f55e125] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/company/reddit-for-business/posts/
+                        - figure [ref=f55e126]:
+                          - 'img "View company: Reddit for Business" [ref=f55e268]'
+                      - generic [ref=f55e128]:
+                        - link "Reddit for Business" [ref=f55e131] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/company/reddit-for-business/posts/
+                          - paragraph [ref=f55e136]: Reddit for Business
+                        - paragraph [ref=f55e138]:
+                          - generic [ref=f55e139]:
+                            - text: 1mo •
+                            - 'img "Visibility: Global" [ref=f55e269]'
+                        - link:
+                          - /url: https://www.linkedin.com/company/reddit-for-business/posts/
+                      - button "Follow Reddit for Business" [ref=f55e144] [cursor=pointer]:
+                        - generic [ref=f55e145]:
+                          - img [ref=f55e271]
+                          - generic [ref=f55e148]: Follow
+                      - button "Open control menu for post by Reddit for Business" [ref=f55e149] [cursor=pointer]:
+                        - img [ref=f55e273]
+                    - paragraph [ref=f55e152]:
+                      - generic [ref=f55e153]:
+                        - text: During the summer soccer season, Redditors are invited to build the world’s longest Coors chant through a first-of-its-kind interactive ad. The experience allows users to virtually pull a beer tap, adding an "o" to a scrolling "COOOORS" chant that stretches across the frozen peaks of the Rocky Mountains. With every pull of the tap, fans trigger the legendary voice of iconic sportscaster Andrés Cantor, whose iconic, lung-busting "Gooooal!" is reimagined for the perfect pour.
+                        - link "https://lnkd.in/eJc44x6J" [ref=f55e154] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Flnkd%2Ein%2FeJc44x6J&urlhash=4tSq&mt=jQ5ilrQHW_Gqh-1i6cE28JSA1se9GZC5ml45ei57pOZsJekV3n1-D3FY1jwjuy25-sIhgyTtS6q1ytnB9eDxEHlrWvgYfnE8T5YBav7PKMu6NOQLFjKymuPE8Q&isSdui=true
+                          - strong [ref=f55e156]: https://lnkd.in/eJc44x6J
+                        - button:
+                          - generic [ref=f55e276] [cursor=pointer]: … more
+                    - region "Video Player" [ref=f55e277]:             
+                    - generic [ref=f55e164]:
+                      - generic [ref=f55e165]:
+                        - 'button "Reaction button state: no reaction" [ref=f55e168] [cursor=pointer]':
+                          - generic [ref=f55e169]:
+                            - img [ref=f55e280]
+                            - generic [ref=f55e171]: "43"
+                        - button "Open reactions menu":
+                          - img [ref=f55e283] [cursor=pointer]
+                      - button "Comment" [ref=f55e172] [cursor=pointer]:
+                        - generic [ref=f55e173]:
+                          - img [ref=f55e285]
+                          - generic [ref=f55e175]: "1"
+                      - button "Repost" [ref=f55e176] [cursor=pointer]:
+                        - generic [ref=f55e177]:
+                          - img [ref=f55e287]
+                          - generic [ref=f55e179]: "7"
+                      - link "Send" [ref=f55e180] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/
+                        - img [ref=f55e289]
+                      - link [ref=f55e183] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/
+                        - generic "43 reactions" [ref=f55e184]:
+                          - img [ref=f55e291]
+                          - img [ref=f55e297]
+                          - img [ref=f55e311]
+                - generic [ref=f55e191]:
+                  - generic [ref=f55e192]:
+                    - paragraph [ref=f55e193]: Are these results helpful?
+                    - paragraph [ref=f55e194]: Your feedback helps us improve search results
+                  - generic [ref=f55e195]:
+                    - button "Are these results helpful? Yes, these search results are helpful" [ref=f55e196] [cursor=pointer]:
+                      - img [ref=f55e317]
+                    - button "Are these results helpful? No, these search results are not helpful" [ref=f55e199] [cursor=pointer]:
+                      - img [ref=f55e319]
+              - generic [ref=f55e323]:
+                - iframe [ref=f55e324]:
+                  - main "Work With Us Container" [ref=f62e3]:
+                    - generic [ref=f62e4]:
+                      - img [ref=f62e6]
+                      - generic [ref=f62e7]:
+                        - img "Taylor" [ref=f62e8]
+                        - link "Vimeo" [ref=f62e9] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/li/tscp/sct?destinationUrl=http%3A%2F%2Fwww.linkedin.com%2Fcompany%2F167813%2Flife&trackingEvent=%5B%7B%22eventInfo%22%3A%7B%22appId%22%3A%22com.linkedin.ads.rendering.d_web%22%2C%22eventName%22%3A%22SponsoredRightRailContentActionEvent%22%2C%22topicName%22%3A%22SponsoredRightRailContentActionEvent%22%7D%2C%22eventBody%22%3A%7B%22sponsoredEventHeader%22%3A%7B%22encryptedTrackingData%22%3A%22CwEAAAGfQBgArOmDnms7yr2fbBQuNexe9fWkfmxASPOL-etXwoMF6XGKHKC9U_RJ_BFuoA6AzEmcEACBBGDnl_EiJBAWtXBileoX9P6gDUhrjQC8v1d13G_RY17jR5eij_Lhhgb7CfxvhLAkSCl7QqhdeEW2-OfnPSND0JcfJHv_CUsq7kodcVx5qhCseYRq59fw6uomODY6cXCUIY765-JWvIQatfEnWDWfvYQTvpsatHXfqFRbCMBdrlRRj6TD9o7AD3uAMYcW2GEBem7amgBcKXw2igj1HvPCHvtaVuvhMtbbEjxzfAbK7AJJuvp5dz5IrYdmuZBGmGw7lJ_A1n-_gLCex8WWagYmP5bXfe8bfK3yGSTvLTurI2MpsJUgU7NGI32Y7lRqkKvVrHtJ-K-8DwOsNUaH72uPFd-9rgNCAG-S1PVx9mClQInVSvxuZ2hAOvrN6-_yxwbyd7AvQCImRUWUA1vlEQzLYytZXekKSOAkeRYD1Brh-LAi4-4tWwPHiewGBHb0Qc9-SfmGXFhc8CxYSMl0hz9nGep8atqqzqa8fAoN_fUr8UQIO4jnhcH2Ycw9fMKv1JmOtArHdLvFQxwA7qXJYNyb3k32250o5AOlq_J5WpMNFrs9b6F0s9PE45eYOqlMlSbF2cvKHrTXOeyjkfuXTvXKjh6qYpkEx6ilQQkoQUr1iRXz4r0rTwFgX9qI4j9BS74QcRYPUb6BRVL1zR8uvsAj1o8sxoKh3jijG9UZshXL-0-P3mG7CdlWM0qy7soQMObR2hEFJ0R6E0I6jJHVEh7dRuFrcjNuUOZndjjB0hKBJhUA3j0snfpKg9Celpy3nLtzAQFQRaZfkPWyT99rczKNqG6Gqbz456TgrJRfU9m0Y5Aot-5pffVNxSE9S0zi1_y4zBKvD5T3kIWiFF_LQ2WJWGXSETjWiMUm6l5fF4hsjAaixbHZQYIrimn2lbOcxvzToeb19YvGIx4rY4IWtPppeyjt5vxRl4njJrXM0gv4Gbe_mOICFm40PotEocwWe3dBdqgtJ3X4sRxJ0ci7IJ6zgf9Q0GKyqEhnaJU-VNdD8XRhtr6h8jUpjzT7i3MEeCsO6DFp%22%7D%2C%22header%22%3A%7B%22pageInstance%22%3A%7B%22pageUrn%22%3A%22urn%3Ali%3Apage%3Ad_flagship3_search_srp_content%22%2C%22trackingId%22%3A%22fdef1538-8e57-47ec-93d3-28d647d88d1b%22%7D%2C%22time%22%3A1783486742654%2C%22version%22%3A%220.0.0%22%7D%2C%22requestHeader%22%3A%7B%22pageKey%22%3A%22d_flagship3_search_srp_content%22%2C%22interfaceLocale%22%3A%22en-US%22%7D%7D%7D%5D&csrfToken=ajax%3A1061531063325413417
+                          - img "Vimeo" [ref=f62e10]
+                    - generic [ref=f62e11]:
+                      - generic [ref=f62e12]:
+                        - paragraph [ref=f62e13]: Taylor, explore relevant opportunities with Vimeo
+                        - paragraph [ref=f62e14]: Get the latest jobs and industry news
+                      - link "Follow" [ref=f62e15] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/li/tscp/sct?destinationUrl=http%3A%2F%2Fwww.linkedin.com%2Fcompany%2F167813%2Flife%3FisFollowingPage%3Dtrue&trackingEvent=%5B%7B%22eventInfo%22%3A%7B%22appId%22%3A%22com.linkedin.ads.rendering.d_web%22%2C%22eventName%22%3A%22SponsoredRightRailContentActionEvent%22%2C%22topicName%22%3A%22SponsoredRightRailContentActionEvent%22%7D%2C%22eventBody%22%3A%7B%22sponsoredEventHeader%22%3A%7B%22encryptedTrackingData%22%3A%22CwEAAAGfQBgArLM9Sz1d8sjIIl-kvaPx665FYwMEwxLHp66fjM3y-lXIPmSLSR2CngjT7HNU7e2e-X-p-T4apzpCMw3IBX7gwiErwafBI5RaaiIMhRMeqGrcA5qR41GRUcqcro2euZ52xA6wrzT2W2c1OcHuPIoua_cTFr2alK9rviuKkJXBr_Ufy1HpHY7_pSN7nMABKstB9HACSRAiah6FpNHh-POEID-vdYvPvToczPid6Ar3vbzO40td_pNr14_dyRvDIep0MWFnNYsrxHhnQp1e55rOR62lw0AkWZPFf9urbuAWVcGpg1p9GzoPTLmzvY98SH__zsChnZiVcvMRA7hnQP8ra777IKh3gT3gtFHwySGv-WwukCNQNbA1J8A5wesR7rID1CyPkQC78k-mKBV00AU5r7uBKXama0XK2JCjcXEo8HEPPckJ1qQg5ts-s1yU0XLTY-JnPkAgf5_vILNJvbcSzH_PLSUxDmel2MwHBiEFuiBKqnQZ2lqSWI8Hc0FzFFTSyvO9HBVT3ZRrOK-MZD1eA6RY8ydK-gKuPcWlSOhar7sE_W72kRHlvBvAxf9DzBhp9PgMslVbCuongaw0ZyFvMth9iWy7NXmUkjr2JQeobOyYkYGgYa2VTlkz_nMmkziAEFnPnUktIE-5W4kaZ6-hTAcDvtttTj1L8MyW7LkfCDs6se9PKdtEvO866nRP5IRINJi6IMitM1SIu9_dNl9KaIwWkaH3jbBxfCW33uKJA5mZvUEZUk68S0lCi9qmVFvp9ziZkHfPWUGzK4grsaPHF8LmwtxXt3pNNaYsdDcI2ly3tZj1sdEk1_VnERp1SW_sT1rgxh_CyFnowv5L5fVOUohDo8xBSrDh6aXQWRvjn9862ZQ3jdPdKfb7EWltUk9Rmh_zPdZ2ePpnpd1aRzrFRMwQemNL9uvPvmFh8UpjYUBN2UcMkPX4Q7SNvsdByi5fsgakLGIxUy2wDLQcT3WkyHHeB4w0cR6gE70slAtVPEzm09Yz5KRxVaT9n23VebYtWsDP2EDTjZ-m_9qObfKvLu-gQVvaQfyapFd57OdhT5zEhrwxGUlfhyl7M1CpWUhjoUnpW4JZ895TKeWSSVjMrCt1aVTJ9-utb127MrNgAqbJGneXNg%22%7D%2C%22header%22%3A%7B%22pageInstance%22%3A%7B%22pageUrn%22%3A%22urn%3Ali%3Apage%3Ad_flagship3_search_srp_content%22%2C%22trackingId%22%3A%2217d7586d-83c7-4800-b2c8-58c3598bdcb9%22%7D%2C%22time%22%3A1783486742654%2C%22version%22%3A%220.0.0%22%7D%2C%22requestHeader%22%3A%7B%22pageKey%22%3A%22d_flagship3_search_srp_content%22%2C%22interfaceLocale%22%3A%22en-US%22%7D%7D%7D%5D&csrfToken=ajax%3A1061531063325413417
+                    - generic [ref=f62e16]:
+                      - paragraph [ref=f62e17]: Promoted
+                      - button "Ad Options" [ref=f62e18] [cursor=pointer]:
+                        - img [ref=f62e19]
+                        - generic [ref=f62e23]: Ad Options
+                - generic [ref=f55e325]:
+                  - generic [ref=f55e326]:
+                    - link "About" [ref=f55e327] [cursor=pointer]:
+                      - /url: https://about.linkedin.com/
+                      - paragraph [ref=f55e328]: About
+                    - link "Accessibility" [ref=f55e329] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/accessibility/
+                      - paragraph [ref=f55e330]: Accessibility
+                    - link "Help Center" [ref=f55e331] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/help/linkedin/
+                      - paragraph [ref=f55e332]: Help Center
+                    - button "Privacy & Terms" [ref=f55e333] [cursor=pointer]:
+                      - generic [ref=f55e334]:
+                        - paragraph [ref=f55e335]: Privacy & Terms
+                        - img [ref=f55e336]
+                    - link "Ad Choices" [ref=f55e338] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/help/linkedin/answer/62931/
+                      - paragraph [ref=f55e339]: Ad Choices
+                    - link "Advertising" [ref=f55e340] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/ad/start/?trk=n_nav_ads_rr
+                      - paragraph [ref=f55e341]: Advertising
+                    - button "Business Services" [ref=f55e342] [cursor=pointer]:
+                      - generic [ref=f55e343]:
+                        - paragraph [ref=f55e344]: Business Services
+                        - img [ref=f55e345]
+                    - link "Get the LinkedIn app" [ref=f55e347] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/mobile/
+                      - paragraph [ref=f55e348]: Get the LinkedIn app
+                    - link "More" [ref=f55e349] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/search/results/content/?keywords=%22Coors%20Chant%22&origin=GLOBAL_SEARCH_HEADER
+                      - paragraph [ref=f55e350]: More
+                  - generic [ref=f55e351]:
+                    - img [ref=f55e352]
+                    - paragraph [ref=f55e354]: LinkedIn Corporation © 2026
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - complementary:
+            - generic [ref=f55e356]:
+              - generic [ref=f55e358] [cursor=pointer]:
+                - generic [ref=f55e359]:
+                  - img "Taylor Yates" [ref=f55e360]
+                  - generic [ref=f55e362]: Status is online
+                - button "You are on the messaging overlay. Press enter to open the list of conversations." [ref=f55e363]:
+                  - generic [ref=f55e364]:
+                    - generic [ref=f55e365]: Messaging
+                    - generic [ref=f55e366]: You are on the messaging overlay. Press enter to open the list of conversations.
+              - generic [ref=f55e367]:
+                - button "Open messenger dropdown menu" [ref=f55e369] [cursor=pointer]:
+                  - img "Open messenger dropdown menu" [ref=f55e370]
+                - button "Compose message" [ref=f55e373] [cursor=pointer]:
+                  - img [ref=f55e374]
+                  - generic [ref=f55e376]: Compose message
+                - button "You are on the messaging overlay. Press enter to open the list of conversations." [ref=f55e377] [cursor=pointer]:
+                  - img [ref=f55e378]
+                  - generic [ref=f55e380]: You are on the messaging overlay. Press enter to open the list of conversations.
+          - complementary "AI-powered assistant to get help with your career, jobs etc"
+  - iframe [ref=f55e381]:
+    - generic [active] [ref=f57e1]:
+      - generic:
+        - region "Toast message":
+          - heading "0 notifications total" [level=2] [ref=f57e3]
+          - alert
+      - region [ref=f57e4]
+      - generic [ref=f57e5]:
+        - generic [ref=f57e7]:
+          - button "Skip to search" [ref=f57e8] [cursor=pointer]:
+            - generic [ref=f57e9]: Skip to search
+          - button "Skip to main content" [ref=f57e10] [cursor=pointer]:
+            - generic [ref=f57e11]: Skip to main content
+          - button "Keyboard shortcuts" [ref=f57e12] [cursor=pointer]:
+            - generic [ref=f57e13]: Keyboard shortcuts
+          - button "Close jump menu" [ref=f57e14] [cursor=pointer]:
+            - img [ref=f57e15]
+            - generic [ref=f57e17]: Close jump menu
+        - banner "Global Navigation" [ref=f57e18]:
+          - generic [ref=f57e19]:
+            - link "LinkedIn" [ref=f57e20] [cursor=pointer]:
+              - /url: https://www.linkedin.com/feed/
+              - img "LinkedIn" [ref=f57e23]:
+                - img [ref=f57e24]
+            - generic [ref=f57e28]:
+              - combobox "I’m looking for..." [ref=f57e29]
+              - generic:
+                - img
+            - navigation "Primary Navigation" [ref=f57e30]:
+              - list [ref=f57e31]:
+                - listitem [ref=f57e32]:
+                  - link "new feed updates notifications Home" [ref=f57e33] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/feed/
+                    - generic [ref=f57e34]:
+                      - generic [ref=f57e37]: new feed updates notifications
+                      - img [ref=f57e41]
+                    - generic "Home" [ref=f57e43]
+                - listitem [ref=f57e44]:
+                  - link "My Network" [ref=f57e45] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/mynetwork/?
+                    - img [ref=f57e49]
+                    - generic "My Network" [ref=f57e51]
+                - listitem [ref=f57e52]:
+                  - link "Jobs" [ref=f57e53] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/jobs/?
+                    - img [ref=f57e57]
+                    - generic "Jobs" [ref=f57e59]
+                - listitem [ref=f57e60]:
+                  - link "Messaging" [ref=f57e61] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/messaging/?
+                    - img [ref=f57e65]
+                    - generic "Messaging" [ref=f57e67]
+                - listitem [ref=f57e68]:
+                  - link "20 new notifications Notifications" [ref=f57e69] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/notifications/?
+                    - generic [ref=f57e70]:
+                      - generic [ref=f57e71]:
+                        - generic [ref=f57e72]: "20"
+                        - generic [ref=f57e73]: 20 new notifications
+                      - img [ref=f57e77]
+                    - generic "Notifications" [ref=f57e79]
+                - listitem [ref=f57e80]:
+                  - button "Taylor Yates Me" [ref=f57e82] [cursor=pointer]:
+                    - img "Taylor Yates" [ref=f57e83]
+                    - generic [ref=f57e84]:
+                      - text: Me
+                      - img [ref=f57e85]
+                - listitem [ref=f57e87]:
+                  - button "For Business" [ref=f57e89] [cursor=pointer]:
+                    - img [ref=f57e93]
+                    - generic "For Business" [ref=f57e95]:
+                      - text: For Business
+                      - img [ref=f57e96]
+                - listitem [ref=f57e98]:
+                  - link "Retry Premium" [ref=f57e100] [cursor=pointer]:
+                    - /url: javascript:void(0)
+                    - generic [ref=f57e101]:
+                      - img [ref=f57e102]
+                      - generic [ref=f57e104]: Retry Premium

@@ -11,9 +11,9 @@ dc      () { docker compose "$@"                                                
 env     () { clear ; python3 "$DOTFILES_DIR/src/python/env.py"                                            ;} # 
 ex      () { exiftool "$@"                                                                                ;} # Note: this will overwrite the /usr/bin/ex command
 ga      () { git add "$@"                                                                                 ;} # 
-gb      () { git branch "$@"                                                                              ;} #
+gb      () { gbs                                                                                          ;} #
 gc      () { git commit "$@"                                                                              ;} # 
-git     () { if [[ $# -eq 1 && "$1" == "branch" ]]; then gbs; elif [[ $# -eq 2 && "$1" == "branch" && "$2" == "c" ]]; then gbc; elif [[ $# -eq 1 && "$1" == "log" ]]; then git_log_local_pretty; else /usr/bin/git "$@"; fi ;} #
+git     () { if [[ $# -eq 2 && "$1" == "branch" && "$2" == "c" ]]; then gbc; elif [[ $# -eq 1 && "$1" == "log" ]]; then git_log_local_pretty; else /usr/bin/git "$@"; fi ;} #
 gl      () { git log --oneline "$@"                                                                       ;} # 
 gp      () { git push "$@"                                                                                ;} # 
 lsa     () { /bin/ls -AGhlo "$@"                                                                          ;} # 

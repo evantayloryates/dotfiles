@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!--
+    Runs export-mcp-tokens.sh at login to bridge dotfiles/.env MCP tokens into
+    the launchd user session so GUI apps (Claude desktop) inherit them.
+    See README.md in this directory. Contains no secrets.
+
+    NOTE: launchd does not expand ~ or $HOME in ProgramArguments, so the path
+    is absolute. install.sh symlinks this file into ~/Library/LaunchAgents/.
+  -->
+  <key>Label</key>
+  <string>com.taylor.mcp-tokens</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/zsh</string>
+    <string>/Users/taylor/dotfiles/src/launchd/export-mcp-tokens.sh</string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
+</dict>
+</plist>

@@ -1,0 +1,1868 @@
+- generic [ref=f128e2]:
+  - heading "0 notifications" [level=2] [ref=f128e427]
+  - generic [ref=f128e428]:
+    - generic:
+      - generic "Skip navigation menu":
+        - generic [ref=f128e429]:
+          - button "Skip to search" [ref=f128e430] [cursor=pointer]:
+            - generic [ref=f128e432]: Skip to search
+          - button "Skip to main content" [ref=f128e433] [cursor=pointer]:
+            - generic [ref=f128e435]: Skip to main content
+          - button "Skip to primary content" [ref=f128e436] [cursor=pointer]:
+            - generic [ref=f128e438]: Skip to primary content
+          - button "Skip to aside" [ref=f128e439] [cursor=pointer]:
+            - generic [ref=f128e441]: Skip to aside
+          - button "Skip to footer" [ref=f128e442] [cursor=pointer]:
+            - generic [ref=f128e444]: Skip to footer
+          - button "Close jump menu" [ref=f128e446] [cursor=pointer]:
+            - img [ref=f128e448]
+    - generic [ref=f128e450]:
+      - banner [ref=f128e452]:
+        - generic [ref=f128e455]:
+          - button "LinkedIn" [ref=f128e456] [cursor=pointer]:
+            - img "LinkedIn" [ref=f128e457]
+          - generic [ref=f128e459]:
+            - status [ref=f128e460]
+            - search [ref=f128e461]:
+              - generic [ref=f128e462]:
+                - img [ref=f128e464]
+                - textbox "I'm looking for…" [ref=f128e466]
+          - generic [ref=f128e468]:
+            - figure [ref=f128e473]
+            - navigation [ref=f128e477]:
+              - list [ref=f128e478]:
+                - listitem [ref=f128e479]:
+                  - button "Home, 1 new notification" [ref=f128e480] [cursor=pointer]:
+                    - img [ref=f128e482]
+                    - generic [ref=f128e486]: Home
+                - listitem [ref=f128e487]:
+                  - link "My Network, 0 new notifications" [ref=f128e488] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/mynetwork
+                    - img [ref=f128e490]
+                    - generic [ref=f128e493]: My Network
+                - listitem [ref=f128e494]:
+                  - link "Jobs, 0 new notifications" [ref=f128e495] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/jobs/
+                    - img [ref=f128e497]
+                    - generic [ref=f128e500]: Jobs
+                - listitem [ref=f128e501]:
+                  - link "Messaging, 0 new notifications" [ref=f128e502] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/messaging/
+                    - img [ref=f128e504]
+                    - generic [ref=f128e507]: Messaging
+                - listitem [ref=f128e508]:
+                  - link "Notifications, 20 new notifications" [ref=f128e509] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/notifications/
+                    - generic [ref=f128e510]:
+                      - img [ref=f128e511]
+                      - generic [ref=f128e513]: "20"
+                    - generic [ref=f128e515]: Notifications
+                - listitem [ref=f128e516]:
+                  - button "Me" [ref=f128e517] [cursor=pointer]:
+                    - figure [ref=f128e519]
+                    - generic [ref=f128e521]:
+                      - text: Me
+                      - img [ref=f128e522]
+            - generic [ref=f128e525]:
+              - navigation [ref=f128e526]:
+                - list [ref=f128e527]:
+                  - listitem [ref=f128e528]:
+                    - button "For Business" [ref=f128e529] [cursor=pointer]:
+                      - img [ref=f128e531]
+                      - generic [ref=f128e534]:
+                        - text: For Business
+                        - img [ref=f128e535]
+              - link "Retry Premium" [ref=f128e538] [cursor=pointer]:
+                - /url: https://www.linkedin.com/in/chrisbaclig/
+                - generic [ref=f128e539]:
+                  - img [ref=f128e540]
+                  - paragraph [ref=f128e546]: Retry Premium
+      - generic [ref=f128e548]:
+        - toolbar [ref=f128e549]:
+          - generic [ref=f128e553]:
+            - link "Chris Baclig" [ref=f128e554] [cursor=pointer]:
+              - /url: https://www.linkedin.com/in/chrisbaclig/
+              - generic "Chris Baclig" [ref=f128e555]:
+                - figure [ref=f128e556]
+                - generic [ref=f128e557]:
+                  - paragraph [ref=f128e558]: Chris Baclig
+                  - paragraph [ref=f128e560]: CTO at Spaceback
+            - generic [ref=f128e561]:
+              - button "More" [ref=f128e563] [cursor=pointer]:
+                - generic [ref=f128e565]: More
+              - link "Message" [ref=f128e567] [cursor=pointer]:
+                - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAASh8SsBLZr-BaIIzBrC6riqAUNXddA6p1k&recipient=ACoAAASh8SsBLZr-BaIIzBrC6riqAUNXddA6p1k&screenContext=NON_SELF_PROFILE_VIEW&interop=msgOverlay
+                - generic [ref=f128e568]:
+                  - img [ref=f128e569]
+                  - generic [ref=f128e571]: Message
+        - main [ref=f128e572]:
+          - generic [ref=f128e574]:
+            - region "Primary content" [ref=f128e575]:
+              - generic [ref=f128e577]:
+                - generic [ref=f128e582]:
+                  - generic [ref=f128e583]:
+                    - button [ref=f128e586] [cursor=pointer]:
+                      - figure [ref=f128e587]:
+                        - img "Cover photo" [ref=f128e588]
+                    - link "Profile photo" [ref=f128e594] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/chrisbaclig/
+                      - generic "Profile photo" [ref=f128e595]:
+                        - figure [ref=f128e596]
+                    - link "Manage notifications about Chris Baclig" [ref=f128e598] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/chrisbaclig/
+                      - img [ref=f128e600]
+                  - generic [ref=f128e602]:
+                    - generic [ref=f128e603]:
+                      - generic [ref=f128e605]:
+                        - generic [ref=f128e606]:
+                          - link "Chris Baclig View Chris’s verifications" [ref=f128e609] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/chrisbaclig/
+                            - generic [ref=f128e611]:
+                              - heading "Chris Baclig" [level=2] [ref=f128e612]
+                              - img "View Chris’s verifications" [ref=f128e613]
+                          - paragraph [ref=f128e615]: He/Him
+                          - paragraph [ref=f128e616]: · 1st
+                        - paragraph [ref=f128e617]: CTO at Spaceback
+                        - generic [ref=f128e618]:
+                          - paragraph [ref=f128e619]: Los Angeles, California, United States
+                          - paragraph [ref=f128e620]: ·
+                          - paragraph [ref=f128e621]:
+                            - link "Contact info" [ref=f128e622] [cursor=pointer]:
+                              - /url: https://www.linkedin.com/in/chrisbaclig/overlay/contact-info/
+                      - generic [ref=f128e624]:
+                        - button "Rembrand" [ref=f128e625] [cursor=pointer]:
+                          - generic [ref=f128e626]:
+                            - figure [ref=f128e627]
+                            - paragraph [ref=f128e631]: Rembrand
+                        - button "Stanford University" [ref=f128e632] [cursor=pointer]:
+                          - generic [ref=f128e633]:
+                            - figure [ref=f128e634]
+                            - paragraph [ref=f128e638]: Stanford University
+                    - link "500+ connections" [ref=f128e640] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/search/results/people/?origin=MEMBER_PROFILE_CANNED_SEARCH&connectionOf=["ACoAAASh8SsBLZr-BaIIzBrC6riqAUNXddA6p1k"]&network=["F","S"]
+                      - paragraph [ref=f128e641]: 500+ connections
+                    - link "Ellen, Rachel and 43 other mutual connections" [ref=f128e642] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/search/results/people/?origin=MEMBER_PROFILE_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAASh8SsBLZr-BaIIzBrC6riqAUNXddA6p1k%22%5D
+                      - generic [ref=f128e643]:
+                        - figure [ref=f128e644]
+                        - figure [ref=f128e645]
+                        - paragraph [ref=f128e647]:
+                          - link "Ellen, Rachel and 43 other mutual connections" [ref=f128e649]:
+                            - /url: https://www.linkedin.com/search/results/people/?origin=MEMBER_PROFILE_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAASh8SsBLZr-BaIIzBrC6riqAUNXddA6p1k%22%5D
+                            - strong [ref=f128e650]: Ellen
+                            - text: ","
+                            - strong [ref=f128e651]: Rachel
+                            - text: and 43 other mutual connections
+                    - generic [ref=f128e655]:
+                      - link "Message" [ref=f128e657] [cursor=pointer]:
+                        - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAASh8SsBLZr-BaIIzBrC6riqAUNXddA6p1k&recipient=ACoAAASh8SsBLZr-BaIIzBrC6riqAUNXddA6p1k&screenContext=NON_SELF_PROFILE_VIEW&interop=msgOverlay
+                        - generic [ref=f128e658]:
+                          - img [ref=f128e659]
+                          - generic [ref=f128e661]: Message
+                      - button "More" [ref=f128e663] [cursor=pointer]:
+                        - generic [ref=f128e665]: More
+                - generic [ref=f128e668]:
+                  - generic [ref=f128e674]:
+                    - heading "Highlights" [level=2] [ref=f128e676]
+                    - generic [ref=f128e680]:
+                      - link [ref=f128e681] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/company/18014720/
+                        - figure [ref=f128e682]:
+                          - img "Spaceback logo" [ref=f128e683]
+                      - generic [ref=f128e684]:
+                        - link "You both work at Spaceback Chris started at Spaceback 4 years before you did" [ref=f128e686] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/company/18014720/
+                          - generic [ref=f128e688]:
+                            - paragraph [ref=f128e689]: You both work at Spaceback
+                            - paragraph [ref=f128e690]: Chris started at Spaceback 4 years before you did
+                        - link "Message with Premium" [ref=f128e691] [cursor=pointer]:
+                          - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAASh8SsBLZr-BaIIzBrC6riqAUNXddA6p1k&recipient=ACoAAASh8SsBLZr-BaIIzBrC6riqAUNXddA6p1k&screenContext=PROFILE_HIGHLIGHTS&body=Hi+Chris%2C+we+both+work+at+Spaceback...&subject=Hello+from+a+Spaceback+colleague...&interop=msgOverlay
+                          - generic [ref=f128e692]:
+                            - img [ref=f128e693]
+                            - generic [ref=f128e695]: Message
+                  - generic [ref=f128e700]:
+                    - heading "About" [level=2] [ref=f128e702]
+                    - paragraph [ref=f128e704]:
+                      - generic [ref=f128e705]:
+                        - text: I'm a builder by nature and enjoy solving the problems that no one else has before in ways that are simple but powerful. Technology in itself is not the solution to any problem, but it's a tool that enables simplicity that was never possible before it. It's out of that simplicity that great solutions are born.
+                        - text: I believe that quality of a product is is measured by both it's effectiveness to solve human problems and it's ability to adapt when those problems change. I've found that the most effective ways to build quality products require fast iterations, solid programming fundamentals and continuous integration. Miscues are inevitable, but the quickest way to learn from your mistakes is to fail faster.
+                        - text: I excel in a fast-paced environment, where success is only limited by what you limit it to. I'm a team-player at the core and am willing to be whoever I need to be in order to get the whole team across the finish line. I've learned that being a leader is less about giving orders to followers and more about giving context to partners.
+                        - button:
+                          - generic [ref=f128e708] [cursor=pointer]: … more
+                  - generic [ref=f128e713]:
+                    - heading "Featured" [level=2] [ref=f128e715]
+                    - list [ref=f128e719]:
+                      - listitem [ref=f128e720]:
+                        - listitem [ref=f128e721]:
+                          - 'link "Reshared by Chris Baclig Very proud of the hard work the entire Spaceback team has put into this one. Easily the most exciting product I’ve helped bring to market! 💪 Shout out to Evan Taylor Yates, Anthony Utt and Kevin James Coleman and extra special shout out to Joe Hall for delivering such a beautiful, powerful and uniquely Spaceback experience. Excited to bring #SocialCTV to the masses! 📺 How retailer CB2 is using AI to make streaming TV ads from its social media content adage.com 43, number of reactions 4 comments" [ref=f128e724] [cursor=pointer]':
+                            - /url: https://www.linkedin.com/feed/update/urn:li:activity:7113264207608872960/
+                            - generic [ref=f128e725]:
+                              - button "Reshared by Chris Baclig" [ref=f128e726]
+                              - generic [ref=f128e727]:
+                                - figure [ref=f128e728]
+                                - generic [ref=f128e729]:
+                                  - paragraph [ref=f128e731]:
+                                    - generic [ref=f128e732]:
+                                      - text: Very proud of the hard work the entire
+                                      - link "Spaceback" [ref=f128e733]:
+                                        - /url: https://www.linkedin.com/company/spaceback/
+                                      - text: team has put into this one. Easily the most exciting product I’ve helped bring to market! 💪
+                                      - text: Shout out to
+                                      - link "Evan Taylor Yates" [ref=f128e734]:
+                                        - /url: https://www.linkedin.com/in/evantayloryates/
+                                      - text: ","
+                                      - link "Anthony Utt" [ref=f128e735]:
+                                        - /url: https://www.linkedin.com/in/anthonyutt/
+                                      - text: and
+                                      - link "Kevin James Coleman" [ref=f128e736]:
+                                        - /url: https://www.linkedin.com/in/kevinjamescoleman/
+                                      - text: and extra special shout out to
+                                      - link "Joe Hall" [ref=f128e737]:
+                                        - /url: https://www.linkedin.com/in/joehall6/
+                                      - text: for delivering such a beautiful, powerful and uniquely Spaceback experience.
+                                      - text: Excited to bring
+                                      - link "#SocialCTV" [ref=f128e738]:
+                                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23socialctv
+                                      - text: to the masses! 📺
+                                  - generic [ref=f128e739]:
+                                    - paragraph [ref=f128e740]: How retailer CB2 is using AI to make streaming TV ads from its social media content
+                                    - paragraph [ref=f128e741]: adage.com
+                              - generic [ref=f128e742]:
+                                - generic [ref=f128e743]:
+                                  - img [ref=f128e744]
+                                  - img [ref=f128e749]
+                                  - img [ref=f128e763]
+                                  - paragraph [ref=f128e769]:
+                                    - generic [ref=f128e770]: 43, number of reactions
+                                    - text: "43"
+                                - paragraph [ref=f128e771]: 4 comments
+                - generic [ref=f128e777]:
+                  - generic [ref=f128e779]:
+                    - heading "Activity" [level=2] [ref=f128e780]
+                    - paragraph [ref=f128e782]: 1,050 followers
+                  - generic [ref=f128e783]:
+                    - radio "Posts" [checked] [ref=f128e784] [cursor=pointer]:
+                      - generic [ref=f128e785]:
+                        - checkbox "Posts" [checked]
+                        - generic [ref=f128e786]: Posts
+                    - radio "Comments" [ref=f128e787] [cursor=pointer]:
+                      - generic [ref=f128e788]:
+                        - checkbox "Comments"
+                        - generic [ref=f128e789]: Comments
+                  - generic [ref=f128e791]:
+                    - generic [ref=f128e797]:
+                      - list [ref=f128e798]:
+                        - list [ref=f128e799]:
+                          - listitem [ref=f128e800]:
+                            - listitem [ref=f128e802]:
+                              - generic [ref=f128e803]:
+                                - generic [ref=f128e804]:
+                                  - generic [ref=f128e805]:
+                                    - link [ref=f128e806] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/chrisbaclig/
+                                      - figure [ref=f128e807]:
+                                        - img "View Chris Baclig’s profile" [ref=f128e808]
+                                    - paragraph [ref=f128e810]:
+                                      - generic [ref=f128e811]:
+                                        - link "Chris Baclig" [ref=f128e812] [cursor=pointer]:
+                                          - /url: https://www.linkedin.com/in/chrisbaclig/
+                                          - strong [ref=f128e813]: Chris Baclig
+                                        - text: reposted this
+                                  - button "Open control menu for post by Danny Greeff" [ref=f128e814] [cursor=pointer]:
+                                    - img [ref=f128e816]
+                                - generic [ref=f128e818]:
+                                  - link [ref=f128e819] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/dannygreeff/
+                                    - figure [ref=f128e820]:
+                                      - img "View Danny Greeff’s profile" [ref=f128e821]
+                                  - generic [ref=f128e823]:
+                                    - link "Danny Greeff Premium Profile 1st" [ref=f128e826] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/dannygreeff/
+                                      - generic "Danny Greeff Premium Profile 1st" [ref=f128e828]:
+                                        - paragraph [ref=f128e831]: Danny Greeff
+                                        - paragraph [ref=f128e833]:
+                                          - generic [ref=f128e834]:
+                                            - img [ref=f128e836]
+                                            - text: • 1st
+                                    - paragraph [ref=f128e839]: Founder at RebelRebel
+                                    - link "Visit my website" [ref=f128e843] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/safety/go/?url=http%3A%2F%2Frebelrebel%2Edigital&urlhash=XnOd&mt=LHEREG_33D2bVzu53w81YEYoi2c9CZbfrFDd4L03QRR3BcIt3oFrPF1AO0XZlakP1DkVrvrgW0LtfIvrB1UlJHXPDKUYtSgMv0mL-JsM&isSdui=true
+                                      - paragraph [ref=f128e844]: Visit my website
+                                    - paragraph [ref=f128e846]:
+                                      - generic [ref=f128e847]:
+                                        - text: 2w •
+                                        - 'img "Visibility: Global" [ref=f128e848]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/in/dannygreeff/
+                                - 'link "I''ve been working with Spaceback since before it was even a platform, so to be able to share this news today is a real treat. -- Rembrand, who acquired the platform last year, has rebuilt Spaceback as an AI-native system that analyses brands'' owned and earned social content, as well as their competitors'', to recommend which posts are most likely to perform as paid programmatic ads across display, outstream, CTV and DOOH. This level of social intelligence is already changing how RebelRebel approaches campaigns for our partners, and we cannot wait to start showcasing the new features with everyone throughout Africa. DM me if you''d like to find out more, and click on the link in the comments to read Trishla''s piece for ADWEEK. cc: David Wiener, Cory Treffiletti, Patrick Candela" [ref=f128e850] [cursor=pointer]':
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7473893816719056896/
+                                  - paragraph [ref=f128e851]:
+                                    - generic [ref=f128e852]:
+                                      - text: I've been working with
+                                      - link "Spaceback" [ref=f128e853]:
+                                        - /url: https://www.linkedin.com/company/spaceback/
+                                        - strong [ref=f128e855]: Spaceback
+                                      - text: since before it was even a platform, so to be able to share this news today is a real treat.
+                                      - text: "--"
+                                      - link "Rembrand" [ref=f128e857]:
+                                        - /url: https://www.linkedin.com/company/getrembrand/
+                                        - strong [ref=f128e859]: Rembrand
+                                      - text: ", who acquired the platform last year, has rebuilt Spaceback as an AI-native system that analyses brands' owned and earned social content, as well as their competitors', to recommend which posts are most likely to perform as paid programmatic ads across display, outstream, CTV and DOOH."
+                                      - text: This level of social intelligence is already changing how
+                                      - link "RebelRebel" [ref=f128e860]:
+                                        - /url: https://www.linkedin.com/company/rebelrebelza/
+                                        - strong [ref=f128e862]: RebelRebel
+                                      - text: approaches campaigns for our partners, and we cannot wait to start showcasing the new features with everyone throughout Africa.
+                                      - text: DM me if you'd like to find out more, and click on the link in the comments to read
+                                      - link "Trishla" [ref=f128e863]:
+                                        - /url: https://www.linkedin.com/in/trishlaostwal/
+                                        - strong [ref=f128e865]: Trishla
+                                      - text: "'s piece for"
+                                      - link "ADWEEK" [ref=f128e866]:
+                                        - /url: https://www.linkedin.com/company/adweek/
+                                        - strong [ref=f128e868]: ADWEEK
+                                      - text: .
+                                      - text: "cc:"
+                                      - link "David Wiener" [ref=f128e869]:
+                                        - /url: https://www.linkedin.com/in/thedavidwiener/
+                                        - strong [ref=f128e871]: David Wiener
+                                      - text: ","
+                                      - link "Cory Treffiletti" [ref=f128e872]:
+                                        - /url: https://www.linkedin.com/in/ctreff/
+                                        - strong [ref=f128e874]: Cory Treffiletti
+                                      - text: ","
+                                      - link "Patrick Candela" [ref=f128e875]:
+                                        - /url: https://www.linkedin.com/in/patrick-candela-3453b71a/
+                                        - strong [ref=f128e877]: Patrick Candela
+                                      - button:
+                                        - generic [ref=f128e879]: … more
+                                - link [ref=f128e881] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7473893816719056896/
+                                  - figure [ref=f128e882]:
+                                    - img "View image" [ref=f128e883]
+                              - generic [ref=f128e885]:
+                                - generic [ref=f128e886]:
+                                  - 'button "Reaction button state: no reaction" [ref=f128e889] [cursor=pointer]':
+                                    - generic [ref=f128e890]:
+                                      - img [ref=f128e891]
+                                      - generic [ref=f128e893]: "72"
+                                  - button "Open reactions menu":
+                                    - img [ref=f128e895] [cursor=pointer]
+                                - link "Comment" [ref=f128e897] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7473893816719056896/
+                                  - generic [ref=f128e898]:
+                                    - img [ref=f128e899]
+                                    - generic [ref=f128e901]: "6"
+                                - button "Repost" [ref=f128e902] [cursor=pointer]:
+                                  - generic [ref=f128e903]:
+                                    - img [ref=f128e904]
+                                    - generic [ref=f128e906]: "6"
+                                - link "Send" [ref=f128e907] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/chrisbaclig/
+                                  - img [ref=f128e909]
+                                - link [ref=f128e911] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/chrisbaclig/
+                                  - generic "72 reactions" [ref=f128e912]:
+                                    - img [ref=f128e913]
+                                    - img [ref=f128e919]
+                                    - img [ref=f128e933]
+                          - listitem [ref=f128e939]:
+                            - listitem [ref=f128e941]:
+                              - generic [ref=f128e942]:
+                                - generic [ref=f128e943]:
+                                  - generic [ref=f128e944]:
+                                    - link [ref=f128e945] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/chrisbaclig/
+                                      - figure [ref=f128e946]:
+                                        - img "View Chris Baclig’s profile" [ref=f128e947]
+                                    - paragraph [ref=f128e949]:
+                                      - generic [ref=f128e950]:
+                                        - link "Chris Baclig" [ref=f128e951] [cursor=pointer]:
+                                          - /url: https://www.linkedin.com/in/chrisbaclig/
+                                          - strong [ref=f128e952]: Chris Baclig
+                                        - text: reposted this
+                                  - button "Open control menu for post by Spaceback" [ref=f128e953] [cursor=pointer]:
+                                    - img [ref=f128e955]
+                                - generic [ref=f128e957]:
+                                  - link [ref=f128e958] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/company/spaceback/posts/
+                                    - figure [ref=f128e959]:
+                                      - 'img "View company: Spaceback" [ref=f128e960]'
+                                  - generic [ref=f128e962]:
+                                    - link "Spaceback" [ref=f128e965] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/company/spaceback/posts/
+                                      - paragraph [ref=f128e970]: Spaceback
+                                    - paragraph [ref=f128e972]:
+                                      - generic [ref=f128e973]:
+                                        - text: 4mo • Edited •
+                                        - 'img "Visibility: Global" [ref=f128e974]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/company/spaceback/posts/
+                                - 'link "We’re excited to introduce a major evolution of Spaceback’s AI capabilities, powered by Rembrand’s new AI Intelligence Suite. 💥 For the first time, our AI moves from behind-the-scenes acceleration to forward-facing creative control, giving brands new tools to scale and enhance their social content for CTV, online video, & pause ads. 📺 From intelligent content discovery and AI audio generation to dynamic backgrounds, marketers can transform more content faster without sacrificing brand governance. ⚡️ The result? Exponentially more creative, derived from the social content that already performs, ready for every screen. 🔥 Discover more in the press release below: 👇 https://lnkd.in/ezmAV7kT #AI #creativeautomation #adcreative" [ref=f128e976] [cursor=pointer]':
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7427394596596432897/
+                                  - paragraph [ref=f128e977]:
+                                    - generic [ref=f128e978]:
+                                      - text: We’re excited to introduce a major evolution of Spaceback’s AI capabilities, powered by
+                                      - link "Rembrand" [ref=f128e979]:
+                                        - /url: https://www.linkedin.com/company/getrembrand/
+                                        - strong [ref=f128e981]: Rembrand
+                                      - text: ’s new AI Intelligence Suite. 💥
+                                      - text: For the first time, our AI moves from behind-the-scenes acceleration to forward-facing creative control, giving brands new tools to scale and enhance their social content for CTV, online video, & pause ads. 📺
+                                      - text: From intelligent content discovery and AI audio generation to dynamic backgrounds, marketers can transform more content faster without sacrificing brand governance. ⚡️
+                                      - text: The result? Exponentially more creative, derived from the social content that already performs, ready for every screen. 🔥
+                                      - text: "Discover more in the press release below: 👇"
+                                      - link "https://lnkd.in/ezmAV7kT" [ref=f128e983]:
+                                        - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Flnkd%2Ein%2FezmAV7kT&urlhash=wFf-&mt=GqU5T1QBr7a3Y5zbCVV2l0LpnmlpLVXUVEI77GV4LyGPoAQow3sAZYGNZh0ZgTJHC1zHVvm3iSWFIYVDRsMJlOZyLwACVxxr-uI6sy36OZ24T2El62iA5rqnqQ&isSdui=true
+                                        - strong [ref=f128e985]: https://lnkd.in/ezmAV7kT
+                                      - link "#AI" [ref=f128e986]:
+                                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23ai&origin=HASH_TAG_FROM_FEED
+                                        - strong [ref=f128e988]: "#AI"
+                                      - link "#creativeautomation" [ref=f128e989]:
+                                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23creativeautomation&origin=HASH_TAG_FROM_FEED
+                                        - strong [ref=f128e991]: "#creativeautomation"
+                                      - link "#adcreative" [ref=f128e992]:
+                                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23adcreative&origin=HASH_TAG_FROM_FEED
+                                        - strong [ref=f128e994]: "#adcreative"
+                                      - button:
+                                        - generic [ref=f128e996]: … more
+                              - generic [ref=f128e998]:
+                                - generic [ref=f128e999]:
+                                  - 'button "Reaction button state: no reaction" [ref=f128e1002] [cursor=pointer]':
+                                    - generic [ref=f128e1003]:
+                                      - img [ref=f128e1004]
+                                      - generic [ref=f128e1006]: "37"
+                                  - button "Open reactions menu":
+                                    - img [ref=f128e1008] [cursor=pointer]
+                                - link "Comment" [ref=f128e1010] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7427394596596432897/
+                                  - generic [ref=f128e1011]:
+                                    - img [ref=f128e1012]
+                                    - generic [ref=f128e1014]: "2"
+                                - button "Repost" [ref=f128e1015] [cursor=pointer]:
+                                  - generic [ref=f128e1016]:
+                                    - img [ref=f128e1017]
+                                    - generic [ref=f128e1019]: "6"
+                                - link "Send" [ref=f128e1020] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/chrisbaclig/
+                                  - img [ref=f128e1022]
+                                - link [ref=f128e1024] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/chrisbaclig/
+                                  - generic "37 reactions" [ref=f128e1025]:
+                                    - img [ref=f128e1026]
+                                    - img [ref=f128e1032]
+                                    - img [ref=f128e1046]
+                          - listitem [ref=f128e1052]:
+                            - listitem [ref=f128e1054]:
+                              - generic [ref=f128e1055]:
+                                - generic [ref=f128e1056]:
+                                  - link [ref=f128e1057] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/chrisbaclig/
+                                    - figure [ref=f128e1058]:
+                                      - img "View Chris Baclig’s profile" [ref=f128e1059]
+                                  - generic [ref=f128e1061]:
+                                    - link "Chris Baclig Verified Profile 1st" [ref=f128e1064] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/chrisbaclig/
+                                      - generic "Chris Baclig Verified Profile 1st" [ref=f128e1066]:
+                                        - paragraph [ref=f128e1069]: Chris Baclig
+                                        - paragraph [ref=f128e1071]:
+                                          - generic [ref=f128e1072]:
+                                            - img [ref=f128e1074]
+                                            - text: • 1st
+                                    - paragraph [ref=f128e1077]: CTO at Spaceback
+                                    - paragraph [ref=f128e1079]:
+                                      - generic [ref=f128e1080]:
+                                        - text: 5mo •
+                                        - 'img "Visibility: Global" [ref=f128e1081]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/in/chrisbaclig/
+                                  - button "Open control menu for post by Chris Baclig" [ref=f128e1083] [cursor=pointer]:
+                                    - img [ref=f128e1085]
+                                - link "I’m happy to share that I’m starting a new position as CTO, Spaceback at Rembrand!" [ref=f128e1087] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7419474716026941440/
+                                  - paragraph [ref=f128e1088]:
+                                    - generic [ref=f128e1089]:
+                                      - text: I’m happy to share that I’m starting a new position as CTO, Spaceback at
+                                      - link "Rembrand" [ref=f128e1090]:
+                                        - /url: https://www.linkedin.com/company/getrembrand/
+                                        - strong [ref=f128e1092]: Rembrand
+                                      - text: "!"
+                                - generic [ref=f128e1093]:
+                                  - link [ref=f128e1094] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/chrisbaclig/
+                                    - figure [ref=f128e1095]:
+                                      - img "View celebration image" [ref=f128e1096]
+                                  - link "Starting a new position" [ref=f128e1097] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/feed/update/urn:li:activity:7419474716026941440/
+                                    - paragraph [ref=f128e1098]: Starting a new position
+                              - generic [ref=f128e1100]:
+                                - generic [ref=f128e1101]:
+                                  - 'button "Reaction button state: no reaction" [ref=f128e1104] [cursor=pointer]':
+                                    - generic [ref=f128e1105]:
+                                      - img [ref=f128e1106]
+                                      - generic [ref=f128e1108]: "89"
+                                  - button "Open reactions menu":
+                                    - img [ref=f128e1110] [cursor=pointer]
+                                - link "Comment" [ref=f128e1112] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7419474716026941440/
+                                  - generic [ref=f128e1113]:
+                                    - img [ref=f128e1114]
+                                    - generic [ref=f128e1116]: "10"
+                                - button "Repost" [ref=f128e1117] [cursor=pointer]:
+                                  - img [ref=f128e1119]
+                                - link "Send" [ref=f128e1121] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/chrisbaclig/
+                                  - img [ref=f128e1123]
+                                - link [ref=f128e1125] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/chrisbaclig/
+                                  - generic "89 reactions" [ref=f128e1126]:
+                                    - img [ref=f128e1127]
+                                    - img [ref=f128e1133]
+                                    - img [ref=f128e1147]
+                          - listitem [ref=f128e1153]:
+                            - listitem [ref=f128e1155]:
+                              - generic [ref=f128e1156]:
+                                - generic [ref=f128e1157]:
+                                  - link [ref=f128e1158] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/chrisbaclig/
+                                    - figure [ref=f128e1159]:
+                                      - img "View Chris Baclig’s profile" [ref=f128e1160]
+                                  - generic [ref=f128e1162]:
+                                    - link "Chris Baclig Verified Profile 1st" [ref=f128e1165] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/chrisbaclig/
+                                      - generic "Chris Baclig Verified Profile 1st" [ref=f128e1167]:
+                                        - paragraph [ref=f128e1170]: Chris Baclig
+                                        - paragraph [ref=f128e1172]:
+                                          - generic [ref=f128e1173]:
+                                            - img [ref=f128e1175]
+                                            - text: • 1st
+                                    - paragraph [ref=f128e1178]: CTO at Spaceback
+                                    - paragraph [ref=f128e1180]:
+                                      - generic [ref=f128e1181]:
+                                        - text: 9mo •
+                                        - 'img "Visibility: Global" [ref=f128e1182]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/in/chrisbaclig/
+                                  - button "Open control menu for post by Chris Baclig" [ref=f128e1184] [cursor=pointer]:
+                                    - img [ref=f128e1186]
+                                - link "Building a company is hard, so if you're going to do it you better do it with people that you trust, respect and just generally like (since you're going to be spending a lot of time with them...) Casey Saran, Joe Hall and Brady Akers more than check all the boxes, and it's been amazing to grow Spaceback together these 8+ years 🫶 We think a lot about what the future of advertising and creative will be, especially as AI has changed the conversation, and I'm excited to now be squarely in the middle of that conversation as we join forces with Rembrand. 🚀🚀🚀" [ref=f128e1188] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7373451076617891841/
+                                  - paragraph [ref=f128e1189]:
+                                    - generic [ref=f128e1190]:
+                                      - text: Building a company is hard, so if you're going to do it you better do it with people that you trust, respect and just generally like (since you're going to be spending a lot of time with them...)
+                                      - link "Casey Saran" [ref=f128e1191]:
+                                        - /url: https://www.linkedin.com/in/caseysaran/
+                                        - strong [ref=f128e1193]: Casey Saran
+                                      - text: ","
+                                      - link "Joe Hall" [ref=f128e1194]:
+                                        - /url: https://www.linkedin.com/in/joehall6/
+                                        - strong [ref=f128e1196]: Joe Hall
+                                      - text: and
+                                      - link "Brady Akers" [ref=f128e1197]:
+                                        - /url: https://www.linkedin.com/in/brady-akers/
+                                        - strong [ref=f128e1199]: Brady Akers
+                                      - text: more than check all the boxes, and it's been amazing to grow
+                                      - link "Spaceback" [ref=f128e1200]:
+                                        - /url: https://www.linkedin.com/company/spaceback/
+                                        - strong [ref=f128e1202]: Spaceback
+                                      - text: together these 8+ years 🫶
+                                      - text: We think a lot about what the future of advertising and creative will be, especially as AI has changed the conversation, and I'm excited to now be squarely in the middle of that conversation as we join forces with
+                                      - link "Rembrand" [ref=f128e1203]:
+                                        - /url: https://www.linkedin.com/company/getrembrand/
+                                        - strong [ref=f128e1205]: Rembrand
+                                      - text: .
+                                      - text: 🚀🚀🚀
+                                      - button:
+                                        - generic [ref=f128e1207]: … more
+                                - generic [ref=f128e1208]:
+                                  - generic [ref=f128e1209]:
+                                    - link [ref=f128e1210] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/company/spaceback/posts/
+                                      - figure [ref=f128e1211]:
+                                        - 'img "View company: Spaceback" [ref=f128e1212]'
+                                    - generic [ref=f128e1214]:
+                                      - link "Spaceback" [ref=f128e1217] [cursor=pointer]:
+                                        - /url: https://www.linkedin.com/company/spaceback/posts/
+                                        - paragraph [ref=f128e1222]: Spaceback
+                                      - paragraph [ref=f128e1224]:
+                                        - generic [ref=f128e1225]:
+                                          - text: 9mo • Edited •
+                                          - 'img "Visibility: Global" [ref=f128e1226]'
+                                      - link:
+                                        - /url: https://www.linkedin.com/company/spaceback/posts/
+                                  - 'link "Big news: Spaceback is merging with Rembrand! 🎉 We’re so proud of what this team has built, and excited to take the next step alongside Omar Tawakol and the Rembrand crew. Together, we’ll accelerate innovation for our partners and bring new opportunities to the adtech ecosystem. 🔥 This is a milestone for our company and our people — and just the beginning of what’s ahead. Check out the ADWEEK article for more. 🚀 https://lnkd.in/gPNV8HbH #AI #socialextenstion #adcreative" [ref=f128e1228] [cursor=pointer]':
+                                    - /url: https://www.linkedin.com/feed/update/urn:li:share:7373323035753377792/
+                                    - paragraph [ref=f128e1229]:
+                                      - generic [ref=f128e1230]:
+                                        - text: "Big news: Spaceback is merging with"
+                                        - link "Rembrand" [ref=f128e1231]:
+                                          - /url: https://www.linkedin.com/company/getrembrand/
+                                          - strong [ref=f128e1233]: Rembrand
+                                        - text: "! 🎉"
+                                        - text: We’re so proud of what this team has built, and excited to take the next step alongside
+                                        - link "Omar Tawakol" [ref=f128e1235]:
+                                          - /url: https://www.linkedin.com/in/omartawakol/
+                                          - strong [ref=f128e1237]: Omar Tawakol
+                                        - text: and the
+                                        - link "Rembrand" [ref=f128e1238]:
+                                          - /url: https://www.linkedin.com/company/getrembrand/
+                                          - strong [ref=f128e1240]: Rembrand
+                                        - text: crew. Together, we’ll accelerate innovation for our partners and bring new opportunities to the adtech ecosystem. 🔥
+                                        - text: This is a milestone for our company and our people — and just the beginning of what’s ahead. Check out the
+                                        - link "ADWEEK" [ref=f128e1241]:
+                                          - /url: https://www.linkedin.com/company/adweek/
+                                          - strong [ref=f128e1243]: ADWEEK
+                                        - text: article for more. 🚀
+                                        - link "https://lnkd.in/gPNV8HbH" [ref=f128e1244]:
+                                          - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Flnkd%2Ein%2FgPNV8HbH&urlhash=nU4K&mt=ssPDrUl4qfB9jWhjCyk0yTmECzdcvoJFrop5KTo4hULg-5ALsJZxmMEPxVx7d2V4HjYJiCya3fanf3sAkNY41US6vKnYG9ALUi4SpXqVA-zozcZCxh87KQ&isSdui=true
+                                          - strong [ref=f128e1246]: https://lnkd.in/gPNV8HbH
+                                        - link "#AI" [ref=f128e1247]:
+                                          - /url: https://www.linkedin.com/search/results/all/?keywords=%23ai&origin=HASH_TAG_FROM_FEED
+                                          - strong [ref=f128e1249]: "#AI"
+                                        - link "#socialextenstion" [ref=f128e1250]:
+                                          - /url: https://www.linkedin.com/search/results/all/?keywords=%23socialextenstion&origin=HASH_TAG_FROM_FEED
+                                          - strong [ref=f128e1252]: "#socialextenstion"
+                                        - link "#adcreative" [ref=f128e1253]:
+                                          - /url: https://www.linkedin.com/search/results/all/?keywords=%23adcreative&origin=HASH_TAG_FROM_FEED
+                                          - strong [ref=f128e1255]: "#adcreative"
+                                        - button:
+                                          - generic [ref=f128e1257]: … more
+                                  - link "Rembrand Merges With Spaceback to Build AI-Powered 'Ad Factory' adweek.com" [ref=f128e1258] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Fwww%2Eadweek%2Ecom%2Fmedia%2Frembrand-spaceback-acquisition-merger-ai-ad-factory%2F&urlhash=lF67&mt=b3a-x7njUEW7jujfLL5ErrimmkdfeLWFl3gwFk1uyiN8XJQEON1BHQ-qu5cmarkyHYTIZVrhBBP_R73pzhZLNzv9tIvnXpsdZmGcZ0uEUO_i5HGKw4DQig&isSdui=true
+                                    - generic [ref=f128e1259]:
+                                      - figure [ref=f128e1260]
+                                      - generic [ref=f128e1261]:
+                                        - paragraph [ref=f128e1263]:
+                                          - generic [ref=f128e1264]:
+                                            - generic [ref=f128e1265]: Rembrand Merges With Spaceback to Build AI-Powered 'Ad Factory'
+                                            - text: Rembrand Merges With Spaceback to Build AI-Powered 'Ad Factory'
+                                        - paragraph [ref=f128e1267]: adweek.com
+                              - generic [ref=f128e1269]:
+                                - generic [ref=f128e1270]:
+                                  - 'button "Reaction button state: no reaction" [ref=f128e1273] [cursor=pointer]':
+                                    - generic [ref=f128e1274]:
+                                      - img [ref=f128e1275]
+                                      - generic [ref=f128e1277]: "49"
+                                  - button "Open reactions menu":
+                                    - img [ref=f128e1279] [cursor=pointer]
+                                - link "Comment" [ref=f128e1281] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7373451076617891841/
+                                  - generic [ref=f128e1282]:
+                                    - img [ref=f128e1283]
+                                    - generic [ref=f128e1285]: "1"
+                                - button "Repost" [ref=f128e1286] [cursor=pointer]:
+                                  - generic [ref=f128e1287]:
+                                    - img [ref=f128e1288]
+                                    - generic [ref=f128e1290]: "1"
+                                - link "Send" [ref=f128e1291] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/chrisbaclig/
+                                  - img [ref=f128e1293]
+                                - link [ref=f128e1295] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/chrisbaclig/
+                                  - generic "49 reactions" [ref=f128e1296]:
+                                    - img [ref=f128e1297]
+                                    - img [ref=f128e1303]
+                                    - img [ref=f128e1317]
+                          - listitem [ref=f128e1323]:
+                            - listitem [ref=f128e1325]:
+                              - generic [ref=f128e1326]:
+                                - generic [ref=f128e1327]:
+                                  - generic [ref=f128e1328]:
+                                    - link [ref=f128e1329] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/chrisbaclig/
+                                      - figure [ref=f128e1330]:
+                                        - img "View Chris Baclig’s profile" [ref=f128e1331]
+                                    - paragraph [ref=f128e1333]:
+                                      - generic [ref=f128e1334]:
+                                        - link "Chris Baclig" [ref=f128e1335] [cursor=pointer]:
+                                          - /url: https://www.linkedin.com/in/chrisbaclig/
+                                          - strong [ref=f128e1336]: Chris Baclig
+                                        - text: reposted this
+                                  - button "Open control menu for post by Karol Ottley" [ref=f128e1337] [cursor=pointer]:
+                                    - img [ref=f128e1339]
+                                - generic [ref=f128e1341]:
+                                  - link [ref=f128e1342] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/karolottley/
+                                    - figure [ref=f128e1343]:
+                                      - img "View Karol Ottley’s profile" [ref=f128e1344]
+                                  - generic [ref=f128e1346]:
+                                    - link "Karol Ottley Premium Profile 1st" [ref=f128e1349] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/karolottley/
+                                      - generic "Karol Ottley Premium Profile 1st" [ref=f128e1351]:
+                                        - paragraph [ref=f128e1354]: Karol Ottley
+                                        - paragraph [ref=f128e1356]:
+                                          - generic [ref=f128e1357]:
+                                            - img [ref=f128e1359]
+                                            - text: • 1st
+                                    - paragraph [ref=f128e1362]: Digital Media & AI AdTech Sales Leader | CTV | Programmatic | Agency & Brand Partnerships
+                                    - paragraph [ref=f128e1364]:
+                                      - generic [ref=f128e1365]:
+                                        - text: 11mo • Edited •
+                                        - 'img "Visibility: Global" [ref=f128e1366]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/in/karolottley/
+                                - 'link "Thank you to Ad Relief of Greater Los Angeles, for bringing our incredible collective strength and goodwill together for a night of fun. It was special to spend time with individuals who were supported when impacted and also what the scope of support is for those affected by LA wildfires. The hearts behind this organization are as big as the goodwill, ingenuity, and resilience of our large Ad community. See you in September! 📸 : Gretchen Paige Chris Baclig Spaceback" [ref=f128e1368] [cursor=pointer]':
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7355668119614337026/
+                                  - paragraph [ref=f128e1369]:
+                                    - generic [ref=f128e1370]:
+                                      - text: Thank you to
+                                      - link "Ad Relief of Greater Los Angeles" [ref=f128e1371]:
+                                        - /url: https://www.linkedin.com/company/ad-relief-greater-los-angeles/
+                                        - strong [ref=f128e1373]: Ad Relief of Greater Los Angeles
+                                      - text: ", for bringing our incredible collective strength and goodwill together for a night of fun. It was special to spend time with individuals who were supported when impacted and also what the scope of support is for those affected by LA wildfires. The hearts behind this organization are as big as the goodwill, ingenuity, and resilience of our large Ad community. See you in September!"
+                                      - text: "📸 :"
+                                      - link "Gretchen Paige" [ref=f128e1374]:
+                                        - /url: https://www.linkedin.com/in/gretchen-paige-181051125/
+                                        - strong [ref=f128e1376]: Gretchen Paige
+                                      - link "Chris Baclig" [ref=f128e1377]:
+                                        - /url: https://www.linkedin.com/in/chrisbaclig/
+                                        - strong [ref=f128e1379]: Chris Baclig
+                                      - link "Spaceback" [ref=f128e1380]:
+                                        - /url: https://www.linkedin.com/company/spaceback/
+                                        - strong [ref=f128e1382]: Spaceback
+                                      - button:
+                                        - generic [ref=f128e1384]: … more
+                                - link [ref=f128e1386] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7355668119614337026/
+                                  - figure [ref=f128e1387]:
+                                    - img "View image" [ref=f128e1388]
+                              - generic [ref=f128e1390]:
+                                - generic [ref=f128e1391]:
+                                  - 'button "Reaction button state: Love" [ref=f128e1394] [cursor=pointer]':
+                                    - generic [ref=f128e1395]:
+                                      - img [ref=f128e1396]
+                                      - generic [ref=f128e1402]: "39"
+                                  - button "Open reactions menu":
+                                    - img [ref=f128e1404] [cursor=pointer]
+                                - link "Comment" [ref=f128e1406] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7355668119614337026/
+                                  - generic [ref=f128e1407]:
+                                    - img [ref=f128e1408]
+                                    - generic [ref=f128e1410]: "1"
+                                - button "Repost" [ref=f128e1411] [cursor=pointer]:
+                                  - generic [ref=f128e1412]:
+                                    - img [ref=f128e1413]
+                                    - generic [ref=f128e1415]: "4"
+                                - link "Send" [ref=f128e1416] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/chrisbaclig/
+                                  - img [ref=f128e1418]
+                                - link [ref=f128e1420] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/chrisbaclig/
+                                  - generic "39 reactions" [ref=f128e1421]:
+                                    - img [ref=f128e1422]
+                                    - img [ref=f128e1428]
+                                    - img [ref=f128e1434]
+                          - listitem [ref=f128e1448]:
+                            - listitem [ref=f128e1450]:
+                              - generic [ref=f128e1451]:
+                                - generic [ref=f128e1452]:
+                                  - link [ref=f128e1453] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/chrisbaclig/
+                                    - figure [ref=f128e1454]:
+                                      - img "View Chris Baclig’s profile" [ref=f128e1455]
+                                  - generic [ref=f128e1457]:
+                                    - link "Chris Baclig Verified Profile 1st" [ref=f128e1460] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/chrisbaclig/
+                                      - generic "Chris Baclig Verified Profile 1st" [ref=f128e1462]:
+                                        - paragraph [ref=f128e1465]: Chris Baclig
+                                        - paragraph [ref=f128e1467]:
+                                          - generic [ref=f128e1468]:
+                                            - img [ref=f128e1470]
+                                            - text: • 1st
+                                    - paragraph [ref=f128e1473]: CTO at Spaceback
+                                    - paragraph [ref=f128e1475]:
+                                      - generic [ref=f128e1476]:
+                                        - text: 1yr •
+                                        - 'img "Visibility: Global" [ref=f128e1477]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/in/chrisbaclig/
+                                  - button "Open control menu for post by Chris Baclig" [ref=f128e1479] [cursor=pointer]:
+                                    - img [ref=f128e1481]
+                                - link "Today is launch day, but this is truly the culmination of all of our experience in both display and video. Fast. Easy. Beautiful." [ref=f128e1483] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7328077951302848512/
+                                  - paragraph [ref=f128e1484]:
+                                    - generic [ref=f128e1485]: Today is launch day, but this is truly the culmination of all of our experience in both display and video. Fast. Easy. Beautiful.
+                                - generic [ref=f128e1486]:
+                                  - generic [ref=f128e1487]:
+                                    - link [ref=f128e1488] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/company/spaceback/posts/
+                                      - figure [ref=f128e1489]:
+                                        - 'img "View company: Spaceback" [ref=f128e1490]'
+                                    - generic [ref=f128e1492]:
+                                      - link "Spaceback" [ref=f128e1495] [cursor=pointer]:
+                                        - /url: https://www.linkedin.com/company/spaceback/posts/
+                                        - paragraph [ref=f128e1500]: Spaceback
+                                      - paragraph [ref=f128e1502]:
+                                        - generic [ref=f128e1503]:
+                                          - text: 1yr •
+                                          - 'img "Visibility: Global" [ref=f128e1504]'
+                                      - link:
+                                        - /url: https://www.linkedin.com/company/spaceback/posts/
+                                  - link [ref=f128e1506] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/feed/update/urn:li:share:7328056430425485314/
+                                    - paragraph [ref=f128e1507]:
+                                      - generic [ref=f128e1508]:
+                                        - text: We’re thrilled to announce CTV Launchpad! 🚀
+                                        - text: Designed to deliver creative agility, CTV Launchpad makes it even easier to use Spaceback’s Social CTV™. It introduces a host of new capabilities including pause ads, branding, versioning, and more. Get the ease and authenticity of social and the reach and big format of CTV in one place with no additional creative cost. 🔥
+                                        - text: CTV Launchpad is for every advertiser, from enterprises looking to leverage the value of social content (or even other videos that don’t live on social) to small businesses looking to unlock CTV as a new advertising channel. With Spaceback, creative has never been a barrier to entry for CTV advertising. 📺
+                                        - text: Huge shoutout to
+                                        - link "Dickies®" [ref=f128e1509]:
+                                          - /url: https://www.linkedin.com/company/dickies/
+                                          - strong [ref=f128e1511]: Dickies®
+                                        - text: ","
+                                        - link "Section 119" [ref=f128e1512]:
+                                          - /url: https://www.linkedin.com/company/section119/
+                                          - strong [ref=f128e1514]: Section 119
+                                        - text: ","
+                                        - link "Epsilon" [ref=f128e1515]:
+                                          - /url: https://www.linkedin.com/company/epsilon/
+                                          - strong [ref=f128e1517]: Epsilon
+                                        - text: ","
+                                        - link "Roku Advertising" [ref=f128e1518]:
+                                          - /url: https://www.linkedin.com/company/roku-advertising/
+                                          - strong [ref=f128e1520]: Roku Advertising
+                                        - text: ", &"
+                                        - link "Universal Ads" [ref=f128e1521]:
+                                          - /url: https://www.linkedin.com/company/universal-ads/
+                                          - strong [ref=f128e1523]: Universal Ads
+                                        - text: for helping us announce CTV Launchpad and speaking to why this platform works for all advertisers. 💥
+                                        - text: Check out the full press release at the link below. 👇
+                                        - link "https://lnkd.in/e3CBTzMW" [ref=f128e1524]:
+                                          - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Flnkd%2Ein%2Fe3CBTzMW&urlhash=mpEb&mt=hqynKRsN3rYONDAqPM7pC23VIkEZL8pt8WMC9GGihtrTIvfFCxFeXsoPGT0qpsUQUQb2Y2IwgT8A2_Kd_UWhavSsLzzY5zDpZ3-YS8WLc-gTf3rxYdXu8Q&isSdui=true
+                                          - strong [ref=f128e1526]: https://lnkd.in/e3CBTzMW
+                                        - link "#CTVLaunchpad" [ref=f128e1527]:
+                                          - /url: https://www.linkedin.com/search/results/all/?keywords=%23ctvlaunchpad&origin=HASH_TAG_FROM_FEED
+                                          - strong [ref=f128e1529]: "#CTVLaunchpad"
+                                        - link "#SocialCTV" [ref=f128e1530]:
+                                          - /url: https://www.linkedin.com/search/results/all/?keywords=%23socialctv&origin=HASH_TAG_FROM_FEED
+                                          - strong [ref=f128e1532]: "#SocialCTV"
+                                        - link "#CTVadvertising" [ref=f128e1533]:
+                                          - /url: https://www.linkedin.com/search/results/all/?keywords=%23ctvadvertising&origin=HASH_TAG_FROM_FEED
+                                          - strong [ref=f128e1535]: "#CTVadvertising"
+                                        - button:
+                                          - generic [ref=f128e1537]: … more
+                                  - link "Spaceback Introduces CTV Launchpad for Advertisers globenewswire.com" [ref=f128e1538] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Fwww%2Eglobenewswire%2Ecom%2Fnews-release%2F2025%2F05%2F13%2F3080065%2F0%2Fen%2FSpaceback-Introduces-CTV-Launchpad-for-Advertisers%2Ehtml&urlhash=K8-H&mt=Xwd73CBUl-ZyBb27wHfVzz4fymUCQAFNqW80fvt4e4Ai0UjV5a-FhQErD1aow4UHW7dw0rn69D3a-fPDns-OXjIyVLfPh4yPJTguhA5qfrh8eG25taxdEw&isSdui=true
+                                    - generic [ref=f128e1539]:
+                                      - figure [ref=f128e1540]
+                                      - generic [ref=f128e1541]:
+                                        - paragraph [ref=f128e1543]:
+                                          - generic [ref=f128e1544]:
+                                            - generic [ref=f128e1545]: Spaceback Introduces CTV Launchpad for Advertisers
+                                            - text: Spaceback Introduces CTV Launchpad for Advertisers
+                                        - paragraph [ref=f128e1547]: globenewswire.com
+                              - generic [ref=f128e1549]:
+                                - generic [ref=f128e1550]:
+                                  - 'button "Reaction button state: Celebrate" [ref=f128e1553] [cursor=pointer]':
+                                    - generic [ref=f128e1554]:
+                                      - img [ref=f128e1555]
+                                      - generic [ref=f128e1569]: "41"
+                                  - button "Open reactions menu":
+                                    - img [ref=f128e1571] [cursor=pointer]
+                                - link "Comment" [ref=f128e1573] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7328077951302848512/
+                                  - generic [ref=f128e1574]:
+                                    - img [ref=f128e1575]
+                                    - generic [ref=f128e1577]: "1"
+                                - button "Repost" [ref=f128e1578] [cursor=pointer]:
+                                  - img [ref=f128e1580]
+                                - link "Send" [ref=f128e1582] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/chrisbaclig/
+                                  - img [ref=f128e1584]
+                                - link [ref=f128e1586] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/chrisbaclig/
+                                  - generic "41 reactions" [ref=f128e1587]:
+                                    - img [ref=f128e1588]
+                                    - img [ref=f128e1594]
+                                    - img [ref=f128e1608]
+                          - listitem [ref=f128e1614]:
+                            - listitem [ref=f128e1616]:
+                              - generic [ref=f128e1617]:
+                                - generic [ref=f128e1618]:
+                                  - link [ref=f128e1619] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/chrisbaclig/
+                                    - figure [ref=f128e1620]:
+                                      - img "View Chris Baclig’s profile" [ref=f128e1621]
+                                  - generic [ref=f128e1623]:
+                                    - link "Chris Baclig Verified Profile 1st" [ref=f128e1626] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/chrisbaclig/
+                                      - generic "Chris Baclig Verified Profile 1st" [ref=f128e1628]:
+                                        - paragraph [ref=f128e1631]: Chris Baclig
+                                        - paragraph [ref=f128e1633]:
+                                          - generic [ref=f128e1634]:
+                                            - img [ref=f128e1636]
+                                            - text: • 1st
+                                    - paragraph [ref=f128e1639]: CTO at Spaceback
+                                    - paragraph [ref=f128e1641]:
+                                      - generic [ref=f128e1642]:
+                                        - text: 1yr •
+                                        - 'img "Visibility: Global" [ref=f128e1643]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/in/chrisbaclig/
+                                  - button "Open control menu for post by Chris Baclig" [ref=f128e1645] [cursor=pointer]:
+                                    - img [ref=f128e1647]
+                                - link "❤️" [ref=f128e1649] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7292958231620984832/
+                                  - paragraph [ref=f128e1650]:
+                                    - generic [ref=f128e1651]: ❤️
+                                - generic [ref=f128e1652]:
+                                  - generic [ref=f128e1653]:
+                                    - link [ref=f128e1654] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/company/spaceback/posts/
+                                      - figure [ref=f128e1655]:
+                                        - 'img "View company: Spaceback" [ref=f128e1656]'
+                                    - generic [ref=f128e1658]:
+                                      - link "Spaceback" [ref=f128e1661] [cursor=pointer]:
+                                        - /url: https://www.linkedin.com/company/spaceback/posts/
+                                        - paragraph [ref=f128e1666]: Spaceback
+                                      - paragraph [ref=f128e1668]:
+                                        - generic [ref=f128e1669]:
+                                          - text: 1yr •
+                                          - 'img "Visibility: Global" [ref=f128e1670]'
+                                      - link:
+                                        - /url: https://www.linkedin.com/company/spaceback/posts/
+                                  - 'link "We’re excited to share that Spaceback is a top remote company to work for according to Purpose Jobs! 🎉 Check out all the details and full list of winners at the link in the comments below. 👇 #remotework #companyculture #startup" [ref=f128e1672] [cursor=pointer]':
+                                    - /url: https://www.linkedin.com/feed/update/urn:li:share:7292919918931378178/
+                                    - paragraph [ref=f128e1673]:
+                                      - generic [ref=f128e1674]:
+                                        - text: We’re excited to share that Spaceback is a top remote company to work for according to
+                                        - link "Purpose Jobs" [ref=f128e1675]:
+                                          - /url: https://www.linkedin.com/company/purposejobs/
+                                          - strong [ref=f128e1677]: Purpose Jobs
+                                        - text: "! 🎉"
+                                        - text: Check out all the details and full list of winners at the link in the comments below. 👇
+                                        - link "#remotework" [ref=f128e1679]:
+                                          - /url: https://www.linkedin.com/search/results/all/?keywords=%23remotework&origin=HASH_TAG_FROM_FEED
+                                          - strong [ref=f128e1681]: "#remotework"
+                                        - link "#companyculture" [ref=f128e1682]:
+                                          - /url: https://www.linkedin.com/search/results/all/?keywords=%23companyculture&origin=HASH_TAG_FROM_FEED
+                                          - strong [ref=f128e1684]: "#companyculture"
+                                        - link "#startup" [ref=f128e1685]:
+                                          - /url: https://www.linkedin.com/search/results/all/?keywords=%23startup&origin=HASH_TAG_FROM_FEED
+                                          - strong [ref=f128e1687]: "#startup"
+                                        - button:
+                                          - generic [ref=f128e1689]: … more
+                                  - link [ref=f128e1691] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/feed/update/urn:li:share:7292919918931378178/
+                                    - figure [ref=f128e1692]:
+                                      - img "View image" [ref=f128e1693]
+                              - generic [ref=f128e1695]:
+                                - generic [ref=f128e1696]:
+                                  - 'button "Reaction button state: no reaction" [ref=f128e1699] [cursor=pointer]':
+                                    - generic [ref=f128e1700]:
+                                      - img [ref=f128e1701]
+                                      - generic [ref=f128e1703]: "25"
+                                  - button "Open reactions menu":
+                                    - img [ref=f128e1705] [cursor=pointer]
+                                - link "Comment" [ref=f128e1707] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7292958231620984832/
+                                  - img [ref=f128e1709]
+                                - button "Repost" [ref=f128e1711] [cursor=pointer]:
+                                  - img [ref=f128e1713]
+                                - link "Send" [ref=f128e1715] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/chrisbaclig/
+                                  - img [ref=f128e1717]
+                                - link [ref=f128e1719] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/chrisbaclig/
+                                  - generic "25 reactions" [ref=f128e1720]:
+                                    - img [ref=f128e1721]
+                                    - img [ref=f128e1727]
+                                    - img [ref=f128e1741]
+                          - listitem [ref=f128e1747]:
+                            - listitem [ref=f128e1749]:
+                              - generic [ref=f128e1750]:
+                                - generic [ref=f128e1751]:
+                                  - generic [ref=f128e1752]:
+                                    - link [ref=f128e1753] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/chrisbaclig/
+                                      - figure [ref=f128e1754]:
+                                        - img "View Chris Baclig’s profile" [ref=f128e1755]
+                                    - paragraph [ref=f128e1757]:
+                                      - generic [ref=f128e1758]:
+                                        - link "Chris Baclig" [ref=f128e1759] [cursor=pointer]:
+                                          - /url: https://www.linkedin.com/in/chrisbaclig/
+                                          - strong [ref=f128e1760]: Chris Baclig
+                                        - text: reposted this
+                                  - button "Open control menu for post by Spaceback" [ref=f128e1761] [cursor=pointer]:
+                                    - img [ref=f128e1763]
+                                - generic [ref=f128e1765]:
+                                  - link [ref=f128e1766] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/company/spaceback/posts/
+                                    - figure [ref=f128e1767]:
+                                      - 'img "View company: Spaceback" [ref=f128e1768]'
+                                  - generic [ref=f128e1770]:
+                                    - link "Spaceback" [ref=f128e1773] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/company/spaceback/posts/
+                                      - paragraph [ref=f128e1778]: Spaceback
+                                    - paragraph [ref=f128e1780]:
+                                      - generic [ref=f128e1781]:
+                                        - text: 1yr • Edited •
+                                        - 'img "Visibility: Global" [ref=f128e1782]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/company/spaceback/posts/
+                                - 'link "Running quality creative on the TV screen has never been easier. 📺 Taking advantage of our partnership with Roku Advertising to run Social CTV creative free of cost is the perfect way to test CTV. 🔥 Get started today at the link in the comments. 👇 #SocialCTV #CTVadvertising #RokuAdvertising" [ref=f128e1784] [cursor=pointer]':
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7273374726247362560/
+                                  - paragraph [ref=f128e1785]:
+                                    - generic [ref=f128e1786]:
+                                      - text: Running quality creative on the TV screen has never been easier. 📺 Taking advantage of our partnership with
+                                      - link "Roku Advertising" [ref=f128e1787]:
+                                        - /url: https://www.linkedin.com/company/roku-advertising/
+                                        - strong [ref=f128e1789]: Roku Advertising
+                                      - text: to run Social CTV creative free of cost is the perfect way to test CTV. 🔥
+                                      - text: Get started today at the link in the comments. 👇
+                                      - link "#SocialCTV" [ref=f128e1790]:
+                                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23socialctv&origin=HASH_TAG_FROM_FEED
+                                        - strong [ref=f128e1792]: "#SocialCTV"
+                                      - link "#CTVadvertising" [ref=f128e1793]:
+                                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23ctvadvertising&origin=HASH_TAG_FROM_FEED
+                                        - strong [ref=f128e1795]: "#CTVadvertising"
+                                      - link "#RokuAdvertising" [ref=f128e1796]:
+                                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23rokuadvertising&origin=HASH_TAG_FROM_FEED
+                                        - strong [ref=f128e1798]: "#RokuAdvertising"
+                                      - button:
+                                        - generic [ref=f128e1800]: … more
+                                - generic [ref=f128e1801]:
+                                  - region "Video Player" [ref=f128e1803]:             
+                                  - link "Play video" [ref=f128e1808] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/feed/update/urn:li:activity:7273374726247362560/
+                                    - img [ref=f128e1810]
+                                - paragraph [ref=f128e1815]: Get Free Social CTV Creative with Roku Ads Manager 💥
+                              - generic [ref=f128e1817]:
+                                - generic [ref=f128e1818]:
+                                  - 'button "Reaction button state: Celebrate" [ref=f128e1821] [cursor=pointer]':
+                                    - generic [ref=f128e1822]:
+                                      - img [ref=f128e1823]
+                                      - generic [ref=f128e1837]: "44"
+                                  - button "Open reactions menu":
+                                    - img [ref=f128e1839] [cursor=pointer]
+                                - link "Comment" [ref=f128e1841] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7273374726247362560/
+                                  - img [ref=f128e1843]
+                                - button "Repost" [ref=f128e1845] [cursor=pointer]:
+                                  - generic [ref=f128e1846]:
+                                    - img [ref=f128e1847]
+                                    - generic [ref=f128e1849]: "8"
+                                - link "Send" [ref=f128e1850] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/chrisbaclig/
+                                  - img [ref=f128e1852]
+                                - link [ref=f128e1854] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/chrisbaclig/
+                                  - generic "44 reactions" [ref=f128e1855]:
+                                    - img [ref=f128e1856]
+                                    - img [ref=f128e1862]
+                                    - img [ref=f128e1876]
+                          - listitem [ref=f128e1882]:
+                            - listitem [ref=f128e1884]:
+                              - generic [ref=f128e1885]:
+                                - generic [ref=f128e1886]:
+                                  - generic [ref=f128e1887]:
+                                    - link [ref=f128e1888] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/chrisbaclig/
+                                      - figure [ref=f128e1889]:
+                                        - img "View Chris Baclig’s profile" [ref=f128e1890]
+                                    - paragraph [ref=f128e1892]:
+                                      - generic [ref=f128e1893]:
+                                        - link "Chris Baclig" [ref=f128e1894] [cursor=pointer]:
+                                          - /url: https://www.linkedin.com/in/chrisbaclig/
+                                          - strong [ref=f128e1895]: Chris Baclig
+                                        - text: reposted this
+                                  - button "Open control menu for post by Spaceback" [ref=f128e1896] [cursor=pointer]:
+                                    - img [ref=f128e1898]
+                                - generic [ref=f128e1900]:
+                                  - link [ref=f128e1901] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/company/spaceback/posts/
+                                    - figure [ref=f128e1902]:
+                                      - 'img "View company: Spaceback" [ref=f128e1903]'
+                                  - generic [ref=f128e1905]:
+                                    - link "Spaceback" [ref=f128e1908] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/company/spaceback/posts/
+                                      - paragraph [ref=f128e1913]: Spaceback
+                                    - paragraph [ref=f128e1915]:
+                                      - generic [ref=f128e1916]:
+                                        - text: 1yr •
+                                        - 'img "Visibility: Global" [ref=f128e1917]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/company/spaceback/posts/
+                                - 'link "🚨 Big news for advertisers: 🚨 Roku Advertising is covering the cost of ad creative when brands build Spaceback’s Social CTV creative and launch on Roku Ads Manager! 🎉 Check out the full details in Chris Kelly''s Industry Dive article in the comments below. 👇 #SocialCTV #RokuAdsManager #CTVadvertising" [ref=f128e1919] [cursor=pointer]':
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7272648087284674561/
+                                  - paragraph [ref=f128e1920]:
+                                    - generic [ref=f128e1921]:
+                                      - text: "🚨 Big news for advertisers: 🚨"
+                                      - link "Roku Advertising" [ref=f128e1922]:
+                                        - /url: https://www.linkedin.com/company/roku-advertising/
+                                        - strong [ref=f128e1924]: Roku Advertising
+                                      - text: is covering the cost of ad creative when brands build Spaceback’s Social CTV creative and launch on Roku Ads Manager! 🎉
+                                      - text: Check out the full details in Chris Kelly's
+                                      - link "Industry Dive" [ref=f128e1925]:
+                                        - /url: https://www.linkedin.com/company/industry-dive/
+                                        - strong [ref=f128e1927]: Industry Dive
+                                      - text: article in the comments below. 👇
+                                      - link "#SocialCTV" [ref=f128e1928]:
+                                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23socialctv&origin=HASH_TAG_FROM_FEED
+                                        - strong [ref=f128e1930]: "#SocialCTV"
+                                      - link "#RokuAdsManager" [ref=f128e1931]:
+                                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23rokuadsmanager&origin=HASH_TAG_FROM_FEED
+                                        - strong [ref=f128e1933]: "#RokuAdsManager"
+                                      - link "#CTVadvertising" [ref=f128e1934]:
+                                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23ctvadvertising&origin=HASH_TAG_FROM_FEED
+                                        - strong [ref=f128e1936]: "#CTVadvertising"
+                                      - button:
+                                        - generic [ref=f128e1938]: … more
+                                - link [ref=f128e1940] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7272648087284674561/
+                                  - figure [ref=f128e1941]:
+                                    - img "View image" [ref=f128e1942]
+                              - generic [ref=f128e1944]:
+                                - generic [ref=f128e1945]:
+                                  - 'button "Reaction button state: Celebrate" [ref=f128e1948] [cursor=pointer]':
+                                    - generic [ref=f128e1949]:
+                                      - img [ref=f128e1950]
+                                      - generic [ref=f128e1964]: "101"
+                                  - button "Open reactions menu":
+                                    - img [ref=f128e1966] [cursor=pointer]
+                                - link "Comment" [ref=f128e1968] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7272648087284674561/
+                                  - generic [ref=f128e1969]:
+                                    - img [ref=f128e1970]
+                                    - generic [ref=f128e1972]: "14"
+                                - button "Repost" [ref=f128e1973] [cursor=pointer]:
+                                  - generic [ref=f128e1974]:
+                                    - img [ref=f128e1975]
+                                    - generic [ref=f128e1977]: "23"
+                                - link "Send" [ref=f128e1978] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/chrisbaclig/
+                                  - img [ref=f128e1980]
+                                - link [ref=f128e1982] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/chrisbaclig/
+                                  - generic "101 reactions" [ref=f128e1983]:
+                                    - img [ref=f128e1984]
+                                    - img [ref=f128e1990]
+                                    - img [ref=f128e2004]
+                          - listitem [ref=f128e2010]:
+                            - listitem [ref=f128e2012]:
+                              - generic [ref=f128e2013]:
+                                - generic [ref=f128e2014]:
+                                  - link [ref=f128e2015] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/chrisbaclig/
+                                    - figure [ref=f128e2016]:
+                                      - img "View Chris Baclig’s profile" [ref=f128e2017]
+                                  - generic [ref=f128e2019]:
+                                    - link "Chris Baclig Verified Profile 1st" [ref=f128e2022] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/chrisbaclig/
+                                      - generic "Chris Baclig Verified Profile 1st" [ref=f128e2024]:
+                                        - paragraph [ref=f128e2027]: Chris Baclig
+                                        - paragraph [ref=f128e2029]:
+                                          - generic [ref=f128e2030]:
+                                            - img [ref=f128e2032]
+                                            - text: • 1st
+                                    - paragraph [ref=f128e2035]: CTO at Spaceback
+                                    - paragraph [ref=f128e2037]:
+                                      - generic [ref=f128e2038]:
+                                        - text: 2yr •
+                                        - 'img "Visibility: Global" [ref=f128e2039]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/in/chrisbaclig/
+                                  - button "Open control menu for post by Chris Baclig" [ref=f128e2041] [cursor=pointer]:
+                                    - img [ref=f128e2043]
+                                - 'link "Very proud of the hard work the entire Spaceback team has put into this one. Easily the most exciting product I’ve helped bring to market! 💪 Shout out to Evan Taylor Yates, Anthony Utt and Kevin James Coleman and extra special shout out to Joe Hall for delivering such a beautiful, powerful and uniquely Spaceback experience. Excited to bring #SocialCTV to the masses! 📺" [ref=f128e2045] [cursor=pointer]':
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7113264207608872960/
+                                  - paragraph [ref=f128e2046]:
+                                    - generic [ref=f128e2047]:
+                                      - text: Very proud of the hard work the entire
+                                      - link "Spaceback" [ref=f128e2048]:
+                                        - /url: https://www.linkedin.com/company/spaceback/
+                                        - strong [ref=f128e2050]: Spaceback
+                                      - text: team has put into this one. Easily the most exciting product I’ve helped bring to market! 💪
+                                      - text: Shout out to
+                                      - link "Evan Taylor Yates" [ref=f128e2051]:
+                                        - /url: https://www.linkedin.com/in/evantayloryates/
+                                        - strong [ref=f128e2053]: Evan Taylor Yates
+                                      - text: ","
+                                      - link "Anthony Utt" [ref=f128e2054]:
+                                        - /url: https://www.linkedin.com/in/anthonyutt/
+                                        - strong [ref=f128e2056]: Anthony Utt
+                                      - text: and
+                                      - link "Kevin James Coleman" [ref=f128e2057]:
+                                        - /url: https://www.linkedin.com/in/kevinjamescoleman/
+                                        - strong [ref=f128e2059]: Kevin James Coleman
+                                      - text: and extra special shout out to
+                                      - link "Joe Hall" [ref=f128e2060]:
+                                        - /url: https://www.linkedin.com/in/joehall6/
+                                        - strong [ref=f128e2062]: Joe Hall
+                                      - text: for delivering such a beautiful, powerful and uniquely Spaceback experience.
+                                      - text: Excited to bring
+                                      - link "#SocialCTV" [ref=f128e2063]:
+                                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23socialctv&origin=HASH_TAG_FROM_FEED
+                                        - strong [ref=f128e2065]: "#SocialCTV"
+                                      - text: to the masses! 📺
+                                      - button:
+                                        - generic [ref=f128e2067]: … more
+                                - generic [ref=f128e2068]:
+                                  - generic [ref=f128e2069]:
+                                    - link [ref=f128e2070] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/company/spaceback/posts/
+                                      - figure [ref=f128e2071]:
+                                        - 'img "View company: Spaceback" [ref=f128e2072]'
+                                    - generic [ref=f128e2074]:
+                                      - link "Spaceback" [ref=f128e2077] [cursor=pointer]:
+                                        - /url: https://www.linkedin.com/company/spaceback/posts/
+                                        - paragraph [ref=f128e2082]: Spaceback
+                                      - paragraph [ref=f128e2084]:
+                                        - generic [ref=f128e2085]:
+                                          - text: 2yr •
+                                          - 'img "Visibility: Global" [ref=f128e2086]'
+                                      - link:
+                                        - /url: https://www.linkedin.com/company/spaceback/posts/
+                                  - 'link "We have some very exciting news to share: Spaceback has expanded its capabilities into TV! Now, you can bring your social media videos to the largest screen in the home with Social CTV. 🚀 CB2 recently partnered with Spaceback to launch a Social CTV campaign. You can learn more about their experience and how Social CTV works at the link below. Thank you to Adrianne Pasquarelli at Ad Age for helping us bring this story to life. 🤩 https://lnkd.in/etfuGrMJ #SocialCTV #CTVadvertising #programmaticadvertising" [ref=f128e2088] [cursor=pointer]':
+                                    - /url: https://www.linkedin.com/feed/update/urn:li:share:7113160590004477954/
+                                    - paragraph [ref=f128e2089]:
+                                      - generic [ref=f128e2090]:
+                                        - text: "We have some very exciting news to share: Spaceback has expanded its capabilities into TV! Now, you can bring your social media videos to the largest screen in the home with Social CTV. 🚀"
+                                        - link "CB2" [ref=f128e2091]:
+                                          - /url: https://www.linkedin.com/company/cb2/
+                                          - strong [ref=f128e2093]: CB2
+                                        - text: recently partnered with Spaceback to launch a Social CTV campaign.
+                                        - text: You can learn more about their experience and how Social CTV works at the link below. Thank you to
+                                        - link "Adrianne Pasquarelli" [ref=f128e2094]:
+                                          - /url: https://www.linkedin.com/in/adrianne-pasquarelli-68247a7/
+                                          - strong [ref=f128e2096]: Adrianne Pasquarelli
+                                        - text: at
+                                        - link "Ad Age" [ref=f128e2097]:
+                                          - /url: https://www.linkedin.com/company/ad-age/
+                                          - strong [ref=f128e2099]: Ad Age
+                                        - text: for helping us bring this story to life. 🤩
+                                        - link "https://lnkd.in/etfuGrMJ" [ref=f128e2100]:
+                                          - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Flnkd%2Ein%2FetfuGrMJ&urlhash=XDeo&mt=SExgK89NJuhCEQ-s_k4XRitNTQT1Swy9N5WjiTjbuS45u_6poMV_5yZ4xkz60ijxGkyissZv6Uj2a3HzxqPA-sBO-uSLVDoLa7uStyGPXnMbqwu0lvaeaQ&isSdui=true
+                                          - strong [ref=f128e2102]: https://lnkd.in/etfuGrMJ
+                                        - link "#SocialCTV" [ref=f128e2103]:
+                                          - /url: https://www.linkedin.com/search/results/all/?keywords=%23socialctv&origin=HASH_TAG_FROM_FEED
+                                          - strong [ref=f128e2105]: "#SocialCTV"
+                                        - link "#CTVadvertising" [ref=f128e2106]:
+                                          - /url: https://www.linkedin.com/search/results/all/?keywords=%23ctvadvertising&origin=HASH_TAG_FROM_FEED
+                                          - strong [ref=f128e2108]: "#CTVadvertising"
+                                        - link "#programmaticadvertising" [ref=f128e2109]:
+                                          - /url: https://www.linkedin.com/search/results/all/?keywords=%23programmaticadvertising&origin=HASH_TAG_FROM_FEED
+                                          - strong [ref=f128e2111]: "#programmaticadvertising"
+                                        - button:
+                                          - generic [ref=f128e2113]: … more
+                                  - link "How retailer CB2 is using AI to make streaming TV ads from its social media content adage.com" [ref=f128e2114] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Fadage%2Ecom%2Farticle%2Fmarketing-news-strategy%2Fretailer-cb2-uses-ai-convert-social-media-content-streaming-tv-ads%2F2518986&urlhash=tZFY&mt=7zs5kwckYCluN06TdPeWEILhKlMl3Leea78ICuGkUjT8RCMQPVWR_t1i4I0C5-hecoyA3JY8rpzEAXevGGNr6N7O2Pb70qO0F7JXDKoVMLYYp_UXOgK-sQ&isSdui=true
+                                    - generic [ref=f128e2115]:
+                                      - figure [ref=f128e2116]
+                                      - generic [ref=f128e2117]:
+                                        - paragraph [ref=f128e2119]:
+                                          - generic [ref=f128e2120]:
+                                            - generic [ref=f128e2121]: How retailer CB2 is using AI to make streaming TV ads from its social media content
+                                            - text: How retailer CB2 is using AI to make streaming TV ads from its social media content
+                                        - paragraph [ref=f128e2123]: adage.com
+                              - generic [ref=f128e2125]:
+                                - generic [ref=f128e2126]:
+                                  - 'button "Reaction button state: Love" [ref=f128e2129] [cursor=pointer]':
+                                    - generic [ref=f128e2130]:
+                                      - img [ref=f128e2131]
+                                      - generic [ref=f128e2137]: "43"
+                                  - button "Open reactions menu":
+                                    - img [ref=f128e2139] [cursor=pointer]
+                                - link "Comment" [ref=f128e2141] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7113264207608872960/
+                                  - generic [ref=f128e2142]:
+                                    - img [ref=f128e2143]
+                                    - generic [ref=f128e2145]: "4"
+                                - button "Repost" [ref=f128e2146] [cursor=pointer]:
+                                  - img [ref=f128e2148]
+                                - link "Send" [ref=f128e2150] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/chrisbaclig/
+                                  - img [ref=f128e2152]
+                                - link [ref=f128e2154] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/chrisbaclig/
+                                  - generic "43 reactions" [ref=f128e2155]:
+                                    - img [ref=f128e2156]
+                                    - img [ref=f128e2162]
+                                    - img [ref=f128e2176]
+                      - button "Next" [ref=f128e2182] [cursor=pointer]:
+                        - img [ref=f128e2184]
+                    - link "Show all posts" [ref=f128e2187] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/chrisbaclig/recent-activity/all/
+                      - generic [ref=f128e2188]:
+                        - img [ref=f128e2189]
+                        - generic [ref=f128e2191]: Show all posts
+            - complementary "Aside" [ref=f128e2213]:
+              - generic [ref=f128e2214]:
+                - generic [ref=f128e2215]:
+                  - iframe [ref=f128e2218]:
+                    - main "Work With Us Container" [ref=f130e3]:
+                      - generic [ref=f130e4]:
+                        - img [ref=f130e6]
+                        - generic [ref=f130e7]:
+                          - img "Taylor" [ref=f130e8]
+                          - link "Rithum" [ref=f130e9] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/li/tscp/sct?destinationUrl=http%3A%2F%2Fwww.linkedin.com%2Fcompany%2F92636929%2Flife&trackingEvent=%5B%7B%22eventInfo%22%3A%7B%22appId%22%3A%22com.linkedin.ads.rendering.d_web%22%2C%22eventName%22%3A%22SponsoredRightRailContentActionEvent%22%2C%22topicName%22%3A%22SponsoredRightRailContentActionEvent%22%7D%2C%22eventBody%22%3A%7B%22sponsoredEventHeader%22%3A%7B%22encryptedTrackingData%22%3A%22CwEAAAGfQCzgs1mb18y7aDFUGPF0Riat2OSF-oO15oJvQ4yZ4UbGz1zFnn0vduU9hgfTIerd40_5_SjqHIGTk1UeHJI0ajGRQoc1xbxSZVviDVyAyGXwkpfxgEQmxPjaKUMB_ms-3_UTECLAAy_-Uk-9m7eK8EE_Jgei6MnJ6WTM1O7zf7N-ZIMVo9HzlXQUosniUdQN43SSCVw4znrSXnZXaXPfbvl2Tc9Zs-3dJ_f2LYoaWgIOPDUQ7oaDNKLnU4iCHgo0o6FIoiNp7d_BSPvHOrHKJNxpT-jQvFW4_SCOeNBtBbcArVPLLQdlwhs5rNmfSrphYkqOBnLjHDBxzPIBTe1lUtVNXwO4nRmgenIpTejSOV84y_yKYDA2-v2pZ7VsqJaSBQNCuznfu2JNyL6S56s-DoKlav9j-XdB9cKwyDBE8qdLaAcYXEI-yLvrtYLoBtfwd5awT0f3f7VkVkXaNFxhVXAxTTLg0rJK_SfUzIl-WGCH91T7EkGgolKStyZPnuH0EwK34NECrdiCayE4Qazx1LdQnsVysEQTDrgqjuHXvta7aUmncBauc4Ds_Dj1EPt3dW34AuFP8VTDgzOxJyEecWZZtE7VY9eSVrMKQybWSJit7CSbV3W0a9aqzUgK84roXr4eV5vRaJifJEpNR3dkQ7ezypixUAZ4tNfG05naig-c-W_v5RCsenLqhpfQzF156gM_UgSl2_UuNiU9UTubJAP12bA6NNpjKmdfHHPbxsjxQik10MwswESnqSDk3_sujqsrk160pdNv5jlsrKcVg-3l-OLWWr2q635IPHOSzGNkWd-GEqiL9USEQL7yLf31u7lmWEZxmVhKZ-nND3ytinMtnK1LBSKSx5V6-_PBEXcFLFXleYSJoFwc-JFnRVJ19QM5wERLttBXxZQI2lcPYXtRk28jFvN7SqKG_lQ_PLG2-hX3ZcaP9p6TuNSajEzZPJaNNunqxKUlL9ERIeLashoKnX3mRKci8uSfcU9oBo03Fsxj4yY1zjAzuTmNdQNilYdewTRKi9hzgeAdJSlxNGbXuFybTKV-DR6mjZ1A2_W5sL6d-3oDFYFOpke5PtzeEhTym2Y25wo2%22%7D%2C%22header%22%3A%7B%22pageInstance%22%3A%7B%22pageUrn%22%3A%22urn%3Ali%3Apage%3Ad_flagship3_profile_view_base%22%2C%22trackingId%22%3A%222fbe7533-d1fb-4761-9e95-aa343f8a67d7%22%7D%2C%22time%22%3A1783488110713%2C%22version%22%3A%220.0.0%22%7D%2C%22requestHeader%22%3A%7B%22pageKey%22%3A%22d_flagship3_profile_view_base%22%2C%22interfaceLocale%22%3A%22en-US%22%7D%7D%7D%5D&csrfToken=ajax%3A1061531063325413417
+                            - img "Rithum" [ref=f130e10]
+                      - generic [ref=f130e11]:
+                        - generic [ref=f130e12]:
+                          - paragraph [ref=f130e13]: Taylor, explore relevant opportunities with Rithum
+                          - paragraph [ref=f130e14]: Get the latest jobs and industry news
+                        - link "Follow" [ref=f130e15] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/li/tscp/sct?destinationUrl=http%3A%2F%2Fwww.linkedin.com%2Fcompany%2F92636929%2Flife%3FisFollowingPage%3Dtrue&trackingEvent=%5B%7B%22eventInfo%22%3A%7B%22appId%22%3A%22com.linkedin.ads.rendering.d_web%22%2C%22eventName%22%3A%22SponsoredRightRailContentActionEvent%22%2C%22topicName%22%3A%22SponsoredRightRailContentActionEvent%22%7D%2C%22eventBody%22%3A%7B%22sponsoredEventHeader%22%3A%7B%22encryptedTrackingData%22%3A%22CwEAAAGfQCzgs5-khs0nl_PbSM7gxAQK9bH_LcDND-fmrHHTZpvJrufZmCtzxHyL4gxkb04W3UTMhYRlQ2aiKTaQVOaQUg5ET4-GMpOF4xytzktMJnECbajkkfDLedrTId3aAbbUTNDlYtd7urv6bOUbK0GstJdf8mUm8NPl5fuPACr12z39OLErGYFum3t354mjaqv9sXFawslCaTwmK7l-q1oXEJOZxMakAjHWCchi-DClGax1v65h5U82tBvj6A7Q4ahKMZXydc-_INw08ok5EE5oPPet6EAxZIwKlRfuvGX1o73sOVz2HM99Yeyo3NibDaG0KUtc-XpUuwUB8u0WQB-6aRWxjh3uCwPC51YRbE7U9jr70QxuUblHI9bEOracorFIok08zCGucDKZLYRFTfnEg9naLbkS733MMTvRFaGi4c6FyNhvArBEAYUb4cUnD0W3F0LC1GqjSAZWUYSqc_kogx26XV_XZ9j1OeVuZj_VnhfKAp_2dIy4DmonzF2wdemcnU7rmiLvoTnZpDGQnGsVsugpoheUgnTdC1LJwM-UcSzBOi3UsXXFeEAW0NUigyuRcIV-DMtoDgjTT_A8JzZ4M4Qf_mtljFGbdrIoVxJx0C8z3zl713nv2C7CC4GbnaEPbS2QHo_PGf8JPEiLiPDxJR7vXczojNOnLfBS_Ri_cDrMfCqL8I_RhKSw8vl37iHtVwPbAxaKUIUN7mcVnFQ1OXudkN_JeYt61gs0j84NDCQeP2aQku7lSyuvEAm48H-egiyqbjus7zJ664YnABxCDBWNfJ_G7WwDjSgzIq_wGHW254U6kPsDWoCrYoYCEUvNsd-X01YxrvR7aE5_yjWjvC9S9AUq6QPa16G0tBOg2fYdPprMKB249C1CUnyELrT0hJKX8FNRdJExx2cjtUYjcDy7oWIAENQ6jdAbCO8hf2OfjXFXlBwZz2oo7xMDQpOkWHmK6qxWNZnY-yrQ2DVXEwmJ8A1IX3j3z2fo2tOoLEKSFj0YZuGx5XM39AjZlbe3xMYZeaDfPf3PzD50Oi-4dkFZZYIxn-w9O3I-DWnFPkLeOqpmq0fRrrUsGpDPaYE91PiuaFkzDsRyZqlvTlRnWffqYfLG0JIdB173IQDzedOZ_Eep-8P0umAb%22%7D%2C%22header%22%3A%7B%22pageInstance%22%3A%7B%22pageUrn%22%3A%22urn%3Ali%3Apage%3Ad_flagship3_profile_view_base%22%2C%22trackingId%22%3A%22d6b8f29d-fc7d-4023-a848-576a299a9c9e%22%7D%2C%22time%22%3A1783488110713%2C%22version%22%3A%220.0.0%22%7D%2C%22requestHeader%22%3A%7B%22pageKey%22%3A%22d_flagship3_profile_view_base%22%2C%22interfaceLocale%22%3A%22en-US%22%7D%7D%7D%5D&csrfToken=ajax%3A1061531063325413417
+                      - generic [ref=f130e16]:
+                        - paragraph [ref=f130e17]: Promoted
+                        - button "Ad Options" [ref=f130e18] [cursor=pointer]:
+                          - img [ref=f130e19]
+                          - generic [ref=f130e23]: Ad Options
+                  - generic [ref=f128e2223]:
+                    - heading "More profiles for you" [level=3] [ref=f128e2227]
+                    - generic [ref=f128e2229]:
+                      - generic [ref=f128e2231]:
+                        - link "Joe Hall Verified · 1st Co-Founder @Adexy • Co-Founder @Spaceback • Product & Design" [ref=f128e2234] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/joehall6/
+                          - generic [ref=f128e2235]:
+                            - figure [ref=f128e2236]
+                            - generic [ref=f128e2237]:
+                              - generic [ref=f128e2238]:
+                                - paragraph [ref=f128e2240]:
+                                  - link "Joe Hall Verified" [ref=f128e2242]:
+                                    - /url: https://www.linkedin.com/in/joehall6/
+                                    - text: Joe Hall
+                                    - img "Verified" [ref=f128e2243]:
+                                      - img [ref=f128e2244]
+                                - paragraph [ref=f128e2246]: · 1st
+                              - paragraph [ref=f128e2248]: Co-Founder @Adexy • Co-Founder @Spaceback • Product & Design
+                        - link "Message Joe Hall" [ref=f128e2252] [cursor=pointer]:
+                          - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAAYxir8BeCekMlKbmHqFCmvzNIlXWxdIb98&recipient=ACoAAAYxir8BeCekMlKbmHqFCmvzNIlXWxdIb98&screenContext=NON_SELF_PROFILE_VIEW&interop=msgOverlay
+                          - generic [ref=f128e2253]:
+                            - img [ref=f128e2254]
+                            - generic [ref=f128e2256]: Message
+                      - generic [ref=f128e2258]:
+                        - link "Casey Saran Verified · 1st Founder @ Spaceback -> Board Member @ Rembrand" [ref=f128e2261] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/caseysaran/
+                          - generic [ref=f128e2262]:
+                            - figure [ref=f128e2263]
+                            - generic [ref=f128e2264]:
+                              - generic [ref=f128e2265]:
+                                - paragraph [ref=f128e2267]:
+                                  - link "Casey Saran Verified" [ref=f128e2269]:
+                                    - /url: https://www.linkedin.com/in/caseysaran/
+                                    - text: Casey Saran
+                                    - img "Verified" [ref=f128e2270]:
+                                      - img [ref=f128e2271]
+                                - paragraph [ref=f128e2273]: · 1st
+                              - paragraph [ref=f128e2275]: Founder @ Spaceback -> Board Member @ Rembrand
+                        - link "Message Casey Saran" [ref=f128e2279] [cursor=pointer]:
+                          - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAAF4_ccBMGk5P2KyRs2T7zPHOr5HhATP1P0&recipient=ACoAAAF4_ccBMGk5P2KyRs2T7zPHOr5HhATP1P0&screenContext=NON_SELF_PROFILE_VIEW&interop=msgOverlay
+                          - generic [ref=f128e2280]:
+                            - img [ref=f128e2281]
+                            - generic [ref=f128e2283]: Message
+                      - generic [ref=f128e2285]:
+                        - link "Brady Akers Verified · 1st Technology and startup enthusiast. Above average guy." [ref=f128e2288] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/brady-akers/
+                          - generic [ref=f128e2289]:
+                            - figure [ref=f128e2290]
+                            - generic [ref=f128e2291]:
+                              - generic [ref=f128e2292]:
+                                - paragraph [ref=f128e2294]:
+                                  - link "Brady Akers Verified" [ref=f128e2296]:
+                                    - /url: https://www.linkedin.com/in/brady-akers/
+                                    - text: Brady Akers
+                                    - img "Verified" [ref=f128e2297]:
+                                      - img [ref=f128e2298]
+                                - paragraph [ref=f128e2300]: · 1st
+                              - paragraph [ref=f128e2302]: Technology and startup enthusiast. Above average guy.
+                        - link "Message Brady Akers" [ref=f128e2306] [cursor=pointer]:
+                          - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAAKKCpkBZExkyvfipNhpTyygScMXTuZSMps&recipient=ACoAAAKKCpkBZExkyvfipNhpTyygScMXTuZSMps&screenContext=NON_SELF_PROFILE_VIEW&interop=msgOverlay
+                          - generic [ref=f128e2307]:
+                            - img [ref=f128e2308]
+                            - generic [ref=f128e2310]: Message
+                      - generic [ref=f128e2312]:
+                        - link "Amy Brewster-Kelly Premium · 1st VP of People Operations at Rembrand" [ref=f128e2315] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/abrewbrew/
+                          - generic [ref=f128e2316]:
+                            - figure [ref=f128e2317]
+                            - generic [ref=f128e2318]:
+                              - generic [ref=f128e2319]:
+                                - paragraph [ref=f128e2321]:
+                                  - link "Amy Brewster-Kelly Premium" [ref=f128e2323]:
+                                    - /url: https://www.linkedin.com/in/abrewbrew/
+                                    - text: Amy Brewster-Kelly
+                                    - img "Premium" [ref=f128e2324]:
+                                      - img [ref=f128e2325]
+                                - paragraph [ref=f128e2327]: · 1st
+                              - paragraph [ref=f128e2329]: VP of People Operations at Rembrand
+                        - link "Message Amy Brewster-Kelly" [ref=f128e2333] [cursor=pointer]:
+                          - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAAhID40BdLXVTwoEtI13D3Ev5hoHaB6BwHQ&recipient=ACoAAAhID40BdLXVTwoEtI13D3Ev5hoHaB6BwHQ&screenContext=NON_SELF_PROFILE_VIEW&interop=msgOverlay
+                          - generic [ref=f128e2334]:
+                            - img [ref=f128e2335]
+                            - generic [ref=f128e2337]: Message
+                      - generic [ref=f128e2339]:
+                        - link "Rishav Jalan Verified · 1st Co-Founder @ Rembrand | former Engineering Director at Cisco" [ref=f128e2342] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/rishavjalan/
+                          - generic [ref=f128e2343]:
+                            - figure [ref=f128e2344]
+                            - generic [ref=f128e2345]:
+                              - generic [ref=f128e2346]:
+                                - paragraph [ref=f128e2348]:
+                                  - link "Rishav Jalan Verified" [ref=f128e2350]:
+                                    - /url: https://www.linkedin.com/in/rishavjalan/
+                                    - text: Rishav Jalan
+                                    - img "Verified" [ref=f128e2351]:
+                                      - img [ref=f128e2352]
+                                - paragraph [ref=f128e2354]: · 1st
+                              - paragraph [ref=f128e2356]: Co-Founder @ Rembrand | former Engineering Director at Cisco
+                        - link "Message Rishav Jalan" [ref=f128e2360] [cursor=pointer]:
+                          - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAAXi-ZEBY6Lu74Tfwnon1B-zZghs6mTo5i8&recipient=ACoAAAXi-ZEBY6Lu74Tfwnon1B-zZghs6mTo5i8&screenContext=NON_SELF_PROFILE_VIEW&interop=msgOverlay
+                          - generic [ref=f128e2361]:
+                            - img [ref=f128e2362]
+                            - generic [ref=f128e2364]: Message
+                    - link "Show all more profiles for you" [ref=f128e2366] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/chrisbaclig/overlay/browsemap-recommendations/
+                      - generic [ref=f128e2367]:
+                        - img [ref=f128e2368]
+                        - generic [ref=f128e2370]: Show all
+                  - generic [ref=f128e2373]:
+                    - heading "Get advice on software development" [level=2] [ref=f128e2375]
+                    - generic [ref=f128e2377]:
+                      - generic [ref=f128e2379]:
+                        - link "Qingchun(Quincie) L. Premium · 3rd Senior Software Engineer at LinkedIn" [ref=f128e2382] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/qingchun-quincie-li/
+                          - generic [ref=f128e2383]:
+                            - figure [ref=f128e2384]:
+                              - img [ref=f128e2385]
+                            - generic [ref=f128e2391]:
+                              - generic [ref=f128e2392]:
+                                - paragraph [ref=f128e2394]:
+                                  - link "Qingchun(Quincie) L. Premium" [ref=f128e2396]:
+                                    - /url: https://www.linkedin.com/in/qingchun-quincie-li/
+                                    - text: Qingchun(Quincie) L.
+                                    - img "Premium" [ref=f128e2397]:
+                                      - img [ref=f128e2398]
+                                - paragraph [ref=f128e2400]: · 3rd
+                              - paragraph [ref=f128e2402]: Senior Software Engineer at LinkedIn
+                        - link "Get advice from me" [ref=f128e2406] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/meetings/AGsAAA_xoIEB2LX0w_sB_zrlibeHLvWZw3X-Pag/558a92c9-7a24-4108-af20-6eaafb13dd75/book/
+                          - generic [ref=f128e2408]: Get advice from me
+                      - generic [ref=f128e2410]:
+                        - link "Samir Tata Premium · 3rd Senior Engineering Manager at LinkedIn" [ref=f128e2413] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/samirtata/
+                          - generic [ref=f128e2414]:
+                            - figure [ref=f128e2415]
+                            - generic [ref=f128e2416]:
+                              - generic [ref=f128e2417]:
+                                - paragraph [ref=f128e2419]:
+                                  - link "Samir Tata Premium" [ref=f128e2421]:
+                                    - /url: https://www.linkedin.com/in/samirtata/
+                                    - text: Samir Tata
+                                    - img "Premium" [ref=f128e2422]:
+                                      - img [ref=f128e2423]
+                                - paragraph [ref=f128e2425]: · 3rd
+                              - paragraph [ref=f128e2427]: Senior Engineering Manager at LinkedIn
+                        - link "Get advice from me" [ref=f128e2431] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/meetings/AGsAAAFMzAUB8NDId26qIbKHrM5tjI6AWR0HdR8/abdda6f5-ff35-4446-8fe8-bbb109d470c1/book/
+                          - generic [ref=f128e2433]: Get advice from me
+                      - generic [ref=f128e2435]:
+                        - link "Neha Jain Premium · 3rd Engineering Leader @ LinkedIn | AI-Powered Product Builder | 0→1 Growth at Scale | Creative Thinker & Author" [ref=f128e2438] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/nehajainhbti/
+                          - generic [ref=f128e2439]:
+                            - figure [ref=f128e2440]
+                            - generic [ref=f128e2441]:
+                              - generic [ref=f128e2442]:
+                                - paragraph [ref=f128e2444]:
+                                  - link "Neha Jain Premium" [ref=f128e2446]:
+                                    - /url: https://www.linkedin.com/in/nehajainhbti/
+                                    - text: Neha Jain
+                                    - img "Premium" [ref=f128e2447]:
+                                      - img [ref=f128e2448]
+                                - paragraph [ref=f128e2450]: · 3rd
+                              - paragraph [ref=f128e2452]: Engineering Leader @ LinkedIn | AI-Powered Product Builder | 0→1 Growth at Scale | Creative Thinker & Author
+                        - link "Get advice from me" [ref=f128e2456] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/meetings/AGsAAAOLIzMBr5rS2z3gTmSvV_pZGHI71bTl-ag/acbd14e8-52a8-4e63-a749-56ca21037ae3/book/
+                          - generic [ref=f128e2458]: Get advice from me
+                      - generic [ref=f128e2460]:
+                        - link "Johnson Kan Premium · 3rd Senior Staff Software Engineer @ LinkedIn" [ref=f128e2463] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/johnsonkan/
+                          - generic [ref=f128e2464]:
+                            - figure [ref=f128e2465]
+                            - generic [ref=f128e2466]:
+                              - generic [ref=f128e2467]:
+                                - paragraph [ref=f128e2469]:
+                                  - link "Johnson Kan Premium" [ref=f128e2471]:
+                                    - /url: https://www.linkedin.com/in/johnsonkan/
+                                    - text: Johnson Kan
+                                    - img "Premium" [ref=f128e2472]:
+                                      - img [ref=f128e2473]
+                                - paragraph [ref=f128e2475]: · 3rd
+                              - paragraph [ref=f128e2477]: Senior Staff Software Engineer @ LinkedIn
+                        - link "Get advice from me" [ref=f128e2481] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/meetings/AGsAAAcP_CQBLgQPdOccitLezUvTbGdFVLiZl8M/39bd0965-a18b-48ef-928a-75fc0bc2ee1d/book/
+                          - generic [ref=f128e2483]: Get advice from me
+                  - generic [ref=f128e2488]:
+                    - generic [ref=f128e2490]:
+                      - heading "People you may know" [level=2] [ref=f128e2491]
+                      - paragraph [ref=f128e2492]: From Chris's company
+                    - generic [ref=f128e2494]:
+                      - generic [ref=f128e2496]:
+                        - link "Hamzah Shakeel Verified · 2nd Head of Finance & Accounting at Rembrand" [ref=f128e2498] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/hamzahshakeel/
+                          - generic [ref=f128e2499]:
+                            - figure [ref=f128e2500]
+                            - generic [ref=f128e2501]:
+                              - generic [ref=f128e2502]:
+                                - paragraph [ref=f128e2504]:
+                                  - link "Hamzah Shakeel Verified" [ref=f128e2506]:
+                                    - /url: https://www.linkedin.com/in/hamzahshakeel/
+                                    - text: Hamzah Shakeel
+                                    - img "Verified" [ref=f128e2507]:
+                                      - img [ref=f128e2508]
+                                - paragraph [ref=f128e2510]: · 2nd
+                              - paragraph [ref=f128e2512]: Head of Finance & Accounting at Rembrand
+                        - button "Invite Hamzah Shakeel to connect" [ref=f128e2516] [cursor=pointer]:
+                          - generic [ref=f128e2517]:
+                            - img [ref=f128e2518]
+                            - generic [ref=f128e2521]: Connect
+                      - generic [ref=f128e2523]:
+                        - link "Roman Mesh Verified · 2nd Performance marketing strategist | Turning ads data into profit" [ref=f128e2525] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/romanmesh/
+                          - generic [ref=f128e2526]:
+                            - figure [ref=f128e2527]
+                            - generic [ref=f128e2528]:
+                              - generic [ref=f128e2529]:
+                                - paragraph [ref=f128e2531]:
+                                  - link "Roman Mesh Verified" [ref=f128e2533]:
+                                    - /url: https://www.linkedin.com/in/romanmesh/
+                                    - text: Roman Mesh
+                                    - img "Verified" [ref=f128e2534]:
+                                      - img [ref=f128e2535]
+                                - paragraph [ref=f128e2537]: · 2nd
+                              - paragraph [ref=f128e2539]: Performance marketing strategist | Turning ads data into profit
+                        - button "Invite Roman Mesh to connect" [ref=f128e2543] [cursor=pointer]:
+                          - generic [ref=f128e2544]:
+                            - img [ref=f128e2545]
+                            - generic [ref=f128e2548]: Connect
+                      - generic [ref=f128e2550]:
+                        - link "Mohamed Ahmed Premium · 2nd Computer Vision Engineer @ Rembrand | MSc. student and TA @ Cairo University" [ref=f128e2552] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/mohamedahmed228/
+                          - generic [ref=f128e2553]:
+                            - figure [ref=f128e2554]
+                            - generic [ref=f128e2555]:
+                              - generic [ref=f128e2556]:
+                                - paragraph [ref=f128e2558]:
+                                  - link "Mohamed Ahmed Premium" [ref=f128e2560]:
+                                    - /url: https://www.linkedin.com/in/mohamedahmed228/
+                                    - text: Mohamed Ahmed
+                                    - img "Premium" [ref=f128e2561]:
+                                      - img [ref=f128e2562]
+                                - paragraph [ref=f128e2564]: · 2nd
+                              - paragraph [ref=f128e2566]: Computer Vision Engineer @ Rembrand | MSc. student and TA @ Cairo University
+                        - button "Invite Mohamed Ahmed to connect" [ref=f128e2570] [cursor=pointer]:
+                          - generic [ref=f128e2571]:
+                            - img [ref=f128e2572]
+                            - generic [ref=f128e2575]: Connect
+                      - generic [ref=f128e2577]:
+                        - link "Ahmed Adham Verified · 2nd Computer Vision Engineer | Deep Learning & Real-Time C++ | Perception, AR & Autonomous Systems." [ref=f128e2579] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/ahmed-adhaam/
+                          - generic [ref=f128e2580]:
+                            - figure [ref=f128e2581]
+                            - generic [ref=f128e2582]:
+                              - generic [ref=f128e2583]:
+                                - paragraph [ref=f128e2585]:
+                                  - link "Ahmed Adham Verified" [ref=f128e2587]:
+                                    - /url: https://www.linkedin.com/in/ahmed-adhaam/
+                                    - text: Ahmed Adham
+                                    - img "Verified" [ref=f128e2588]:
+                                      - img [ref=f128e2589]
+                                - paragraph [ref=f128e2591]: · 2nd
+                              - paragraph [ref=f128e2593]: Computer Vision Engineer | Deep Learning & Real-Time C++ | Perception, AR & Autonomous Systems.
+                        - button "Invite Ahmed Adham to connect" [ref=f128e2597] [cursor=pointer]:
+                          - generic [ref=f128e2598]:
+                            - img [ref=f128e2599]
+                            - generic [ref=f128e2602]: Connect
+                      - generic [ref=f128e2604]:
+                        - link "Jared Hand Premium · 2nd Commercial Leader | Head of Revenue & Sales | SaaS | MarTech/AdTech | Data | Currently, Managing Director, US Sales @ Rembrand" [ref=f128e2606] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/jghand/
+                          - generic [ref=f128e2607]:
+                            - figure [ref=f128e2608]
+                            - generic [ref=f128e2609]:
+                              - generic [ref=f128e2610]:
+                                - paragraph [ref=f128e2612]:
+                                  - link "Jared Hand Premium" [ref=f128e2614]:
+                                    - /url: https://www.linkedin.com/in/jghand/
+                                    - text: Jared Hand
+                                    - img "Premium" [ref=f128e2615]:
+                                      - img [ref=f128e2616]
+                                - paragraph [ref=f128e2618]: · 2nd
+                              - paragraph [ref=f128e2620]: Commercial Leader | Head of Revenue & Sales | SaaS | MarTech/AdTech | Data | Currently, Managing Director, US Sales @ Rembrand
+                        - button "Invite Jared Hand to connect" [ref=f128e2624] [cursor=pointer]:
+                          - generic [ref=f128e2625]:
+                            - img [ref=f128e2626]
+                            - generic [ref=f128e2629]: Connect
+                    - link "Show all people you may know" [ref=f128e2631] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/chrisbaclig/
+                      - generic [ref=f128e2632]:
+                        - img [ref=f128e2633]
+                        - generic [ref=f128e2635]: Show all
+                  - generic [ref=f128e2640]:
+                    - generic [ref=f128e2642]:
+                      - heading "You might like" [level=2] [ref=f128e2643]
+                      - paragraph [ref=f128e2644]: Pages for you
+                    - generic [ref=f128e2646]:
+                      - generic [ref=f128e2649]:
+                        - link "Speechify Software Development 37,427 followers" [ref=f128e2650] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/company/speechifyinc/
+                          - generic [ref=f128e2651]:
+                            - figure [ref=f128e2652]
+                            - generic [ref=f128e2653]:
+                              - paragraph [ref=f128e2656]: Speechify
+                              - paragraph [ref=f128e2658]: Software Development
+                              - paragraph [ref=f128e2659]: 37,427 followers
+                        - generic [ref=f128e2660]:
+                          - link "Ant & 1 other connection follow this page" [ref=f128e2661] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/chrisbaclig/
+                            - generic [ref=f128e2662]:
+                              - figure [ref=f128e2663]
+                              - paragraph [ref=f128e2665]:
+                                - link "Ant & 1 other connection follow this page" [ref=f128e2667]:
+                                  - /url: https://www.linkedin.com/in/chrisbaclig/
+                          - button "Follow Speechify" [ref=f128e2670] [cursor=pointer]:
+                            - generic [ref=f128e2671]:
+                              - img [ref=f128e2672]
+                              - generic [ref=f128e2674]: Follow
+                      - generic [ref=f128e2677]:
+                        - link "Pinterest Software Development 1,383,698 followers" [ref=f128e2678] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/company/pinterest/
+                          - generic [ref=f128e2679]:
+                            - figure [ref=f128e2680]
+                            - generic [ref=f128e2681]:
+                              - paragraph [ref=f128e2684]: Pinterest
+                              - paragraph [ref=f128e2686]: Software Development
+                              - paragraph [ref=f128e2687]: 1,383,698 followers
+                        - generic [ref=f128e2688]:
+                          - generic [ref=f128e2689]:
+                            - figure [ref=f128e2690]
+                            - paragraph [ref=f128e2692]:
+                              - link "Tierra works here" [ref=f128e2694] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/tierrapatmavanu/
+                          - button "Follow Pinterest" [ref=f128e2697] [cursor=pointer]:
+                            - generic [ref=f128e2698]:
+                              - img [ref=f128e2699]
+                              - generic [ref=f128e2701]: Follow
+                    - link "Show all pages you might like" [ref=f128e2703] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/chrisbaclig/
+                      - generic [ref=f128e2704]:
+                        - img [ref=f128e2705]
+                        - generic [ref=f128e2707]: Show all
+                - iframe [ref=f128e2712]:
+                  - link "Advertise on LinkedIn" [ref=f131e4] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/jobs/?trk=li_FA_global_careers_jobsgtm_jsFA_v1&mcid=6899045044465016833
+                    - img "Advertise on LinkedIn" [ref=f131e5]
+            - generic "Footer" [ref=f128e2713]:
+              - generic [ref=f128e2716]:
+                - generic [ref=f128e2717]:
+                  - navigation [ref=f128e2718]:
+                    - link "About" [ref=f128e2719] [cursor=pointer]:
+                      - /url: https://about.linkedin.com/
+                      - paragraph [ref=f128e2720]: About
+                    - link "Accessibility" [ref=f128e2721] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/accessibility/
+                      - paragraph [ref=f128e2722]: Accessibility
+                    - link "Talent Solutions" [ref=f128e2723] [cursor=pointer]:
+                      - /url: https://business.linkedin.com/talent-solutions?trk=flagship_nav&veh=li-footer-lts-control&src=li-footer
+                      - paragraph [ref=f128e2724]: Talent Solutions
+                    - link "Community Guidelines" [ref=f128e2725] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/legal/professional-community-policies/
+                      - paragraph [ref=f128e2726]: Community Guidelines
+                    - link "Careers" [ref=f128e2727] [cursor=pointer]:
+                      - /url: https://careers.linkedin.com/
+                      - paragraph [ref=f128e2728]: Careers
+                    - link "Marketing Solutions" [ref=f128e2729] [cursor=pointer]:
+                      - /url: https://business.linkedin.com/advertise?trk=n_nav_lms_f&src=li-footer
+                      - paragraph [ref=f128e2730]: Marketing Solutions
+                    - button "Privacy & Terms" [ref=f128e2731] [cursor=pointer]:
+                      - generic [ref=f128e2732]:
+                        - paragraph [ref=f128e2733]: Privacy & Terms
+                        - img [ref=f128e2734]
+                    - link "Ad Choices" [ref=f128e2736] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/help/linkedin/answer/62931/
+                      - paragraph [ref=f128e2737]: Ad Choices
+                    - link "Advertising" [ref=f128e2738] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/ad/start/?trk=n_nav_ads_rr
+                      - paragraph [ref=f128e2739]: Advertising
+                    - link "Sales Solutions" [ref=f128e2740] [cursor=pointer]:
+                      - /url: https://business.linkedin.com/sales-solutions?trk=flagship_nav&veh=li-footer-lss-control&src=li-footer
+                      - paragraph [ref=f128e2741]: Sales Solutions
+                    - link "Mobile" [ref=f128e2742] [cursor=pointer]:
+                      - /url: https://mobile.linkedin.com/
+                      - paragraph [ref=f128e2743]: Mobile
+                    - link "Small Business" [ref=f128e2744] [cursor=pointer]:
+                      - /url: https://business.linkedin.com/grow?src=li-footer
+                      - paragraph [ref=f128e2745]: Small Business
+                    - link "Safety Center" [ref=f128e2746] [cursor=pointer]:
+                      - /url: https://safety.linkedin.com/
+                      - paragraph [ref=f128e2747]: Safety Center
+                  - paragraph [ref=f128e2749]: LinkedIn Corporation © 2026
+                - generic [ref=f128e2750]:
+                  - list [ref=f128e2751]:
+                    - listitem [ref=f128e2752]:
+                      - generic [ref=f128e2753]:
+                        - img [ref=f128e2754]
+                        - generic [ref=f128e2756]:
+                          - link "Questions?" [ref=f128e2757] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/help/linkedin/
+                            - paragraph [ref=f128e2758]: Questions?
+                          - paragraph [ref=f128e2759]: Visit our Help Center.
+                    - listitem [ref=f128e2760]:
+                      - generic [ref=f128e2761]:
+                        - img [ref=f128e2762]
+                        - generic [ref=f128e2764]:
+                          - link "Manage your account and privacy" [ref=f128e2765] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/mypreferences/d/
+                            - paragraph [ref=f128e2766]: Manage your account and privacy
+                          - paragraph [ref=f128e2767]: Go to your Settings.
+                    - listitem [ref=f128e2768]:
+                      - generic [ref=f128e2769]:
+                        - img [ref=f128e2770]
+                        - generic [ref=f128e2772]:
+                          - link "Recommendation transparency" [ref=f128e2773] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/help/linkedin/answer/a1339724/
+                            - paragraph [ref=f128e2774]: Recommendation transparency
+                          - paragraph [ref=f128e2775]: Learn more about Recommended Content.
+                  - generic [ref=f128e2777]:
+                    - paragraph [ref=f128e2779]: Select language
+                    - generic [ref=f128e2780]:
+                      - combobox "Select language" [ref=f128e2781] [cursor=pointer]:
+                        - option "العربية (Arabic)"
+                        - option "বাংলা (Bangla)"
+                        - option "Čeština (Czech)"
+                        - option "Dansk (Danish)"
+                        - option "Deutsch (German)"
+                        - option "Ελληνικά (Greek)"
+                        - option "English (English)" [selected]
+                        - option "Español (Spanish)"
+                        - option "فارسی (Persian)"
+                        - option "Suomi (Finnish)"
+                        - option "Français (French)"
+                        - option "हिंदी (Hindi)"
+                        - option "Magyar (Hungarian)"
+                        - option "Bahasa Indonesia (Indonesian)"
+                        - option "Italiano (Italian)"
+                        - option "עברית (Hebrew)"
+                        - option "日本語 (Japanese)"
+                        - option "한국어 (Korean)"
+                        - option "मराठी (Marathi)"
+                        - option "Bahasa Malaysia (Malay)"
+                        - option "Nederlands (Dutch)"
+                        - option "Norsk (Norwegian)"
+                        - option "ਪੰਜਾਬੀ (Punjabi)"
+                        - option "Polski (Polish)"
+                        - option "Português (Portuguese)"
+                        - option "Română (Romanian)"
+                        - option "Русский (Russian)"
+                        - option "Svenska (Swedish)"
+                        - option "తెలుగు (Telugu)"
+                        - option "ภาษาไทย (Thai)"
+                        - option "Tagalog (Tagalog)"
+                        - option "Türkçe (Turkish)"
+                        - option "Українська (Ukrainian)"
+                        - option "Tiếng Việt (Vietnamese)"
+                        - option "简体中文 (Chinese (Simplified))"
+                        - option "正體中文 (Chinese (Traditional))"
+                      - img
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - complementary:
+            - generic [ref=f128e2783]:
+              - generic [ref=f128e2785] [cursor=pointer]:
+                - generic [ref=f128e2786]:
+                  - img "Taylor Yates" [ref=f128e2787]
+                  - generic [ref=f128e2789]: Status is online
+                - button "You are on the messaging overlay. Press enter to open the list of conversations." [ref=f128e2790]:
+                  - generic [ref=f128e2791]:
+                    - generic [ref=f128e2792]: Messaging
+                    - generic [ref=f128e2793]: You are on the messaging overlay. Press enter to open the list of conversations.
+              - generic [ref=f128e2794]:
+                - button "Open messenger dropdown menu" [ref=f128e2796] [cursor=pointer]:
+                  - img "Open messenger dropdown menu" [ref=f128e2797]
+                - button "Compose message" [ref=f128e2800] [cursor=pointer]:
+                  - img [ref=f128e2801]
+                  - generic [ref=f128e2803]: Compose message
+                - button "You are on the messaging overlay. Press enter to open the list of conversations." [ref=f128e2804] [cursor=pointer]:
+                  - img [ref=f128e2805]
+                  - generic [ref=f128e2807]: You are on the messaging overlay. Press enter to open the list of conversations.
+          - complementary "AI-powered assistant to get help with your career, jobs etc"
+  - iframe [ref=f128e2808]:
+    - generic [active] [ref=f132e1]:
+      - generic:
+        - region "Toast message":
+          - heading "0 notifications total" [level=2] [ref=f132e3]
+          - alert
+      - region [ref=f132e4]
+      - generic [ref=f132e5]:
+        - generic [ref=f132e7]:
+          - button "Skip to search" [ref=f132e8] [cursor=pointer]:
+            - generic [ref=f132e9]: Skip to search
+          - button "Skip to main content" [ref=f132e10] [cursor=pointer]:
+            - generic [ref=f132e11]: Skip to main content
+          - button "Keyboard shortcuts" [ref=f132e12] [cursor=pointer]:
+            - generic [ref=f132e13]: Keyboard shortcuts
+          - button "Close jump menu" [ref=f132e14] [cursor=pointer]:
+            - img [ref=f132e15]
+            - generic [ref=f132e17]: Close jump menu
+        - banner "Global Navigation" [ref=f132e18]:
+          - generic [ref=f132e19]:
+            - link "LinkedIn" [ref=f132e20] [cursor=pointer]:
+              - /url: https://www.linkedin.com/feed/
+              - img "LinkedIn" [ref=f132e23]:
+                - img [ref=f132e24]
+            - generic [ref=f132e28]:
+              - combobox "I’m looking for..." [ref=f132e29]
+              - generic:
+                - img
+            - navigation "Primary Navigation" [ref=f132e30]:
+              - list [ref=f132e31]:
+                - listitem [ref=f132e32]:
+                  - link "new feed updates notifications Home" [ref=f132e33] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/feed/
+                    - generic [ref=f132e34]:
+                      - generic [ref=f132e37]: new feed updates notifications
+                      - img [ref=f132e41]
+                    - generic "Home" [ref=f132e43]
+                - listitem [ref=f132e44]:
+                  - link "My Network" [ref=f132e45] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/mynetwork/?
+                    - img [ref=f132e49]
+                    - generic "My Network" [ref=f132e51]
+                - listitem [ref=f132e52]:
+                  - link "Jobs" [ref=f132e53] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/jobs/?
+                    - img [ref=f132e57]
+                    - generic "Jobs" [ref=f132e59]
+                - listitem [ref=f132e60]:
+                  - link "Messaging" [ref=f132e61] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/messaging/?
+                    - img [ref=f132e65]
+                    - generic "Messaging" [ref=f132e67]
+                - listitem [ref=f132e68]:
+                  - link "20 new notifications Notifications" [ref=f132e69] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/notifications/?
+                    - generic [ref=f132e70]:
+                      - generic [ref=f132e71]:
+                        - generic [ref=f132e72]: "20"
+                        - generic [ref=f132e73]: 20 new notifications
+                      - img [ref=f132e77]
+                    - generic "Notifications" [ref=f132e79]
+                - listitem [ref=f132e80]:
+                  - button "Taylor Yates Me" [ref=f132e82] [cursor=pointer]:
+                    - img "Taylor Yates" [ref=f132e83]
+                    - generic [ref=f132e84]:
+                      - text: Me
+                      - img [ref=f132e85]
+                - listitem [ref=f132e87]:
+                  - button "For Business" [ref=f132e89] [cursor=pointer]:
+                    - img [ref=f132e93]
+                    - generic "For Business" [ref=f132e95]:
+                      - text: For Business
+                      - img [ref=f132e96]
+                - listitem [ref=f132e98]:
+                  - link "Retry Premium" [ref=f132e100] [cursor=pointer]:
+                    - /url: javascript:void(0)
+                    - generic [ref=f132e101]:
+                      - img [ref=f132e102]
+                      - generic [ref=f132e104]: Retry Premium

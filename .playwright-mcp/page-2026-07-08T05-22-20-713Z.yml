@@ -1,0 +1,1799 @@
+- generic [ref=f141e2]:
+  - heading "0 notifications" [level=2] [ref=f141e400]
+  - generic [ref=f141e401]:
+    - generic:
+      - generic "Skip navigation menu":
+        - generic [ref=f141e402]:
+          - button "Skip to search" [ref=f141e403] [cursor=pointer]:
+            - generic [ref=f141e405]: Skip to search
+          - button "Skip to main content" [ref=f141e406] [cursor=pointer]:
+            - generic [ref=f141e408]: Skip to main content
+          - button "Skip to primary content" [ref=f141e409] [cursor=pointer]:
+            - generic [ref=f141e411]: Skip to primary content
+          - button "Skip to aside" [ref=f141e412] [cursor=pointer]:
+            - generic [ref=f141e414]: Skip to aside
+          - button "Skip to footer" [ref=f141e415] [cursor=pointer]:
+            - generic [ref=f141e417]: Skip to footer
+          - button "Close jump menu" [ref=f141e419] [cursor=pointer]:
+            - img [ref=f141e421]
+    - generic [ref=f141e423]:
+      - banner [ref=f141e425]:
+        - generic [ref=f141e428]:
+          - button "LinkedIn" [ref=f141e429] [cursor=pointer]:
+            - img "LinkedIn" [ref=f141e430]
+          - generic [ref=f141e432]:
+            - status [ref=f141e433]
+            - search [ref=f141e434]:
+              - generic [ref=f141e435]:
+                - img [ref=f141e437]
+                - textbox "I'm looking for…" [ref=f141e439]
+          - generic [ref=f141e441]:
+            - figure [ref=f141e446]
+            - navigation [ref=f141e450]:
+              - list [ref=f141e451]:
+                - listitem [ref=f141e452]:
+                  - button "Home, 1 new notification" [ref=f141e453] [cursor=pointer]:
+                    - img [ref=f141e455]
+                    - generic [ref=f141e459]: Home
+                - listitem [ref=f141e460]:
+                  - link "My Network, 0 new notifications" [ref=f141e461] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/mynetwork
+                    - img [ref=f141e463]
+                    - generic [ref=f141e466]: My Network
+                - listitem [ref=f141e467]:
+                  - link "Jobs, 0 new notifications" [ref=f141e468] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/jobs/
+                    - img [ref=f141e470]
+                    - generic [ref=f141e473]: Jobs
+                - listitem [ref=f141e474]:
+                  - link "Messaging, 0 new notifications" [ref=f141e475] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/messaging/
+                    - img [ref=f141e477]
+                    - generic [ref=f141e480]: Messaging
+                - listitem [ref=f141e481]:
+                  - link "Notifications, 20 new notifications" [ref=f141e482] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/notifications/
+                    - generic [ref=f141e483]:
+                      - img [ref=f141e484]
+                      - generic [ref=f141e486]: "20"
+                    - generic [ref=f141e488]: Notifications
+                - listitem [ref=f141e489]:
+                  - button "Me" [ref=f141e490] [cursor=pointer]:
+                    - figure [ref=f141e492]
+                    - generic [ref=f141e494]:
+                      - text: Me
+                      - img [ref=f141e495]
+            - generic [ref=f141e498]:
+              - navigation [ref=f141e499]:
+                - list [ref=f141e500]:
+                  - listitem [ref=f141e501]:
+                    - button "For Business" [ref=f141e502] [cursor=pointer]:
+                      - img [ref=f141e504]
+                      - generic [ref=f141e507]:
+                        - text: For Business
+                        - img [ref=f141e508]
+              - link "Retry Premium" [ref=f141e511] [cursor=pointer]:
+                - /url: https://www.linkedin.com/in/brady-akers/
+                - generic [ref=f141e512]:
+                  - img [ref=f141e513]
+                  - paragraph [ref=f141e519]: Retry Premium
+      - generic [ref=f141e521]:
+        - toolbar [ref=f141e522]:
+          - generic [ref=f141e526]:
+            - link "Brady Akers" [ref=f141e527] [cursor=pointer]:
+              - /url: https://www.linkedin.com/in/brady-akers/
+              - generic "Brady Akers" [ref=f141e528]:
+                - figure [ref=f141e529]
+                - generic [ref=f141e530]:
+                  - paragraph [ref=f141e531]: Brady Akers
+                  - paragraph [ref=f141e533]: Technology and startup enthusiast. Above average guy.
+            - generic [ref=f141e534]:
+              - button "More" [ref=f141e536] [cursor=pointer]:
+                - generic [ref=f141e538]: More
+              - link "Message" [ref=f141e540] [cursor=pointer]:
+                - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAAKKCpkBZExkyvfipNhpTyygScMXTuZSMps&recipient=ACoAAAKKCpkBZExkyvfipNhpTyygScMXTuZSMps&screenContext=NON_SELF_PROFILE_VIEW&interop=msgOverlay
+                - generic [ref=f141e541]:
+                  - img [ref=f141e542]
+                  - generic [ref=f141e544]: Message
+        - main [ref=f141e545]:
+          - generic [ref=f141e547]:
+            - region "Primary content" [ref=f141e548]:
+              - generic [ref=f141e550]:
+                - generic [ref=f141e555]:
+                  - generic [ref=f141e556]:
+                    - button [ref=f141e559] [cursor=pointer]:
+                      - figure [ref=f141e560]:
+                        - img "Cover photo" [ref=f141e561]
+                    - link "Profile photo" [ref=f141e567] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/brady-akers/
+                      - generic "Profile photo" [ref=f141e568]:
+                        - figure [ref=f141e569]
+                    - link "Manage notifications about Brady Akers" [ref=f141e571] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/brady-akers/
+                      - img [ref=f141e573]
+                  - generic [ref=f141e575]:
+                    - generic [ref=f141e576]:
+                      - generic [ref=f141e578]:
+                        - generic [ref=f141e579]:
+                          - link "Brady Akers View Brady’s verifications" [ref=f141e582] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/brady-akers/
+                            - generic [ref=f141e584]:
+                              - heading "Brady Akers" [level=2] [ref=f141e585]
+                              - img "View Brady’s verifications" [ref=f141e586]
+                          - paragraph [ref=f141e588]: · 1st
+                        - paragraph [ref=f141e589]: Technology and startup enthusiast. Above average guy.
+                        - generic [ref=f141e590]:
+                          - paragraph [ref=f141e591]: Charleston, South Carolina, United States
+                          - paragraph [ref=f141e592]: ·
+                          - paragraph [ref=f141e593]:
+                            - link "Contact info" [ref=f141e594] [cursor=pointer]:
+                              - /url: https://www.linkedin.com/in/brady-akers/overlay/contact-info/
+                      - generic [ref=f141e596]:
+                        - button "Rembrand" [ref=f141e597] [cursor=pointer]:
+                          - generic [ref=f141e598]:
+                            - figure [ref=f141e599]
+                            - paragraph [ref=f141e603]: Rembrand
+                        - button "Duke University" [ref=f141e604] [cursor=pointer]:
+                          - generic [ref=f141e605]:
+                            - figure [ref=f141e606]
+                            - paragraph [ref=f141e610]: Duke University
+                    - link "Ellen, Rachel and 44 other mutual connections" [ref=f141e611] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/search/results/people/?origin=MEMBER_PROFILE_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAAKKCpkBZExkyvfipNhpTyygScMXTuZSMps%22%5D
+                      - generic [ref=f141e612]:
+                        - figure [ref=f141e613]
+                        - figure [ref=f141e614]
+                        - paragraph [ref=f141e616]:
+                          - link "Ellen, Rachel and 44 other mutual connections" [ref=f141e618]:
+                            - /url: https://www.linkedin.com/search/results/people/?origin=MEMBER_PROFILE_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAAKKCpkBZExkyvfipNhpTyygScMXTuZSMps%22%5D
+                            - strong [ref=f141e619]: Ellen
+                            - text: ","
+                            - strong [ref=f141e620]: Rachel
+                            - text: and 44 other mutual connections
+                    - generic [ref=f141e624]:
+                      - link "Message" [ref=f141e626] [cursor=pointer]:
+                        - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAAKKCpkBZExkyvfipNhpTyygScMXTuZSMps&recipient=ACoAAAKKCpkBZExkyvfipNhpTyygScMXTuZSMps&screenContext=NON_SELF_PROFILE_VIEW&interop=msgOverlay
+                        - generic [ref=f141e627]:
+                          - img [ref=f141e628]
+                          - generic [ref=f141e630]: Message
+                      - button "More" [ref=f141e632] [cursor=pointer]:
+                        - generic [ref=f141e634]: More
+                - generic [ref=f141e643]:
+                  - heading "Highlights" [level=2] [ref=f141e645]
+                  - generic [ref=f141e649]:
+                    - link [ref=f141e650] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/company/18014720/
+                      - figure [ref=f141e651]:
+                        - img "Spaceback logo" [ref=f141e652]
+                    - generic [ref=f141e653]:
+                      - link "You both work at Spaceback Brady started at Spaceback 3 years and 4 months before you did" [ref=f141e655] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/company/18014720/
+                        - generic [ref=f141e657]:
+                          - paragraph [ref=f141e658]: You both work at Spaceback
+                          - paragraph [ref=f141e659]: Brady started at Spaceback 3 years and 4 months before you did
+                      - link "Message with Premium" [ref=f141e660] [cursor=pointer]:
+                        - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAAKKCpkBZExkyvfipNhpTyygScMXTuZSMps&recipient=ACoAAAKKCpkBZExkyvfipNhpTyygScMXTuZSMps&screenContext=PROFILE_HIGHLIGHTS&body=Hi+Brady%2C+we+both+work+at+Spaceback...&subject=Hello+from+a+Spaceback+colleague...&interop=msgOverlay
+                        - generic [ref=f141e661]:
+                          - img [ref=f141e662]
+                          - generic [ref=f141e664]: Message
+                - generic [ref=f141e670]:
+                  - generic [ref=f141e672]:
+                    - heading "Activity" [level=2] [ref=f141e673]
+                    - paragraph [ref=f141e675]: 1,779 followers
+                  - generic [ref=f141e676]:
+                    - radio "Posts" [checked] [ref=f141e677] [cursor=pointer]:
+                      - generic [ref=f141e678]:
+                        - checkbox "Posts" [checked]
+                        - generic [ref=f141e679]: Posts
+                    - radio "Comments" [ref=f141e680] [cursor=pointer]:
+                      - generic [ref=f141e681]:
+                        - checkbox "Comments"
+                        - generic [ref=f141e682]: Comments
+                    - radio "Videos" [ref=f141e683] [cursor=pointer]:
+                      - generic [ref=f141e684]:
+                        - checkbox "Videos"
+                        - generic [ref=f141e685]: Videos
+                    - radio "Images" [ref=f141e686] [cursor=pointer]:
+                      - generic [ref=f141e687]:
+                        - checkbox "Images"
+                        - generic [ref=f141e688]: Images
+                  - generic [ref=f141e690]:
+                    - generic [ref=f141e696]:
+                      - list [ref=f141e697]:
+                        - list [ref=f141e698]:
+                          - listitem [ref=f141e699]:
+                            - listitem [ref=f141e701]:
+                              - generic [ref=f141e702]:
+                                - generic [ref=f141e703]:
+                                  - link [ref=f141e704] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/brady-akers/
+                                    - figure [ref=f141e705]:
+                                      - img "View Brady Akers’ profile" [ref=f141e706]
+                                  - generic [ref=f141e708]:
+                                    - link "Brady Akers Verified Profile 1st" [ref=f141e711] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/brady-akers/
+                                      - generic "Brady Akers Verified Profile 1st" [ref=f141e713]:
+                                        - paragraph [ref=f141e716]: Brady Akers
+                                        - paragraph [ref=f141e718]:
+                                          - generic [ref=f141e719]:
+                                            - img [ref=f141e721]
+                                            - text: • 1st
+                                    - paragraph [ref=f141e724]: Technology and startup enthusiast. Above average guy.
+                                    - paragraph [ref=f141e726]:
+                                      - generic [ref=f141e727]:
+                                        - text: 3w •
+                                        - 'img "Visibility: Global" [ref=f141e728]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/in/brady-akers/
+                                  - button "Open control menu for post by Brady Akers" [ref=f141e730] [cursor=pointer]:
+                                    - img [ref=f141e732]
+                                - link [ref=f141e734] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7470852617171177472/
+                                  - paragraph [ref=f141e735]:
+                                    - generic [ref=f141e736]:
+                                      - text: After nearly 8.5 years, I’ve made the decision to hang it up and step down from my role as Chief Customer Officer at Spaceback by Rembrand.
+                                      - text: I still fondly remember the early days of Spaceback, filled with kind of optimism that only exists before you know how hard the thing actually is.
+                                      - text: We set out to provide users with a better ad experience—one that prioritizes social content over promotional banners and commercials. In the process we built an all star team, an innovative platform, an enviable brand, and an entirely new creative category around it (which spawned many copycats). I’m so grateful to all of our brands, agencies, and partners who trusted us along the way. Our years of dedication culminated in a successful exit to one of the truly unique AI advertising companies in the world.
+                                      - text: The right ending to a great chapter is knowing when to start the next one. Amidst the brain fog of sleepless nights during paternity leave, I found the clarity and confidence to take this next step. So this summer I’m logging off and spending it where it matters most—with my family. That early days feeling of optimism for what lies ahead has returned.
+                                      - text: I could paint the rest of this post blue with gratitude to all the teammates, investors, advisors who have been on this ride with me along the way. But special shout out to
+                                      - link "Casey Saran" [ref=f141e738]:
+                                        - /url: https://www.linkedin.com/in/caseysaran/
+                                        - strong [ref=f141e740]: Casey Saran
+                                      - text: ","
+                                      - link "Joe Hall" [ref=f141e741]:
+                                        - /url: https://www.linkedin.com/in/joehall6/
+                                        - strong [ref=f141e743]: Joe Hall
+                                      - text: ", and"
+                                      - link "Chris Baclig" [ref=f141e744]:
+                                        - /url: https://www.linkedin.com/in/chrisbaclig/
+                                        - strong [ref=f141e746]: Chris Baclig
+                                      - text: "—it has been an honor and a blast building this dream together. To everyone at Rembrand: keep building the future. I’ll be cheering like crazie from the sidelines."
+                                      - button:
+                                        - generic [ref=f141e748]: … more
+                                - link [ref=f141e750] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7470852617171177472/
+                                  - figure [ref=f141e751]:
+                                    - img "View image" [ref=f141e752]
+                              - generic [ref=f141e754]:
+                                - generic [ref=f141e755]:
+                                  - 'button "Reaction button state: no reaction" [ref=f141e758] [cursor=pointer]':
+                                    - generic [ref=f141e759]:
+                                      - img [ref=f141e760]
+                                      - generic [ref=f141e762]: "215"
+                                  - button "Open reactions menu":
+                                    - img [ref=f141e764] [cursor=pointer]
+                                - link "Comment" [ref=f141e766] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7470852617171177472/
+                                  - generic [ref=f141e767]:
+                                    - img [ref=f141e768]
+                                    - generic [ref=f141e770]: "28"
+                                - button "Repost" [ref=f141e771] [cursor=pointer]:
+                                  - img [ref=f141e773]
+                                - link "Send" [ref=f141e775] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/brady-akers/
+                                  - img [ref=f141e777]
+                                - link [ref=f141e779] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/brady-akers/
+                                  - generic "215 reactions" [ref=f141e780]:
+                                    - img [ref=f141e781]
+                                    - img [ref=f141e787]
+                                    - img [ref=f141e801]
+                          - listitem [ref=f141e807]:
+                            - listitem [ref=f141e809]:
+                              - generic [ref=f141e810]:
+                                - generic [ref=f141e811]:
+                                  - generic [ref=f141e812]:
+                                    - link [ref=f141e813] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/brady-akers/
+                                      - figure [ref=f141e814]:
+                                        - img "View Brady Akers’ profile" [ref=f141e815]
+                                    - paragraph [ref=f141e817]:
+                                      - generic [ref=f141e818]:
+                                        - link "Brady Akers" [ref=f141e819] [cursor=pointer]:
+                                          - /url: https://www.linkedin.com/in/brady-akers/
+                                          - strong [ref=f141e820]: Brady Akers
+                                        - text: reposted this
+                                  - button "Open control menu for post by LG Ad Solutions" [ref=f141e821] [cursor=pointer]:
+                                    - img [ref=f141e823]
+                                - generic [ref=f141e825]:
+                                  - link [ref=f141e826] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/company/lgads/posts/
+                                    - figure [ref=f141e827]:
+                                      - 'img "View company: LG Ad Solutions" [ref=f141e828]'
+                                  - generic [ref=f141e830]:
+                                    - link "LG Ad Solutions" [ref=f141e833] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/company/lgads/posts/
+                                      - paragraph [ref=f141e838]: LG Ad Solutions
+                                    - paragraph [ref=f141e840]:
+                                      - generic [ref=f141e841]:
+                                        - text: 9mo • Edited •
+                                        - 'img "Visibility: Global" [ref=f141e842]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/company/lgads/posts/
+                                - link [ref=f141e844] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7377408835436568576/
+                                  - paragraph [ref=f141e845]:
+                                    - generic [ref=f141e846]:
+                                      - text: We're excited to announce our latest product, Social Sync, in partnership with
+                                      - link "Spaceback" [ref=f141e847]:
+                                        - /url: https://www.linkedin.com/company/spaceback/
+                                        - strong [ref=f141e849]: Spaceback
+                                      - text: "!🚀"
+                                      - text: With Social Sync, brands can now take their most engaging social content and bring it to the biggest screen in the home!
+                                      - text: "And the results speak for themselves:"
+                                      - text: ✅ 22% lift in awareness
+                                      - text: ✅ 26.1% lift in consideration
+                                      - text: ✅ 18.4% lift in purchase intent
+                                      - text: “Social Sync is the next evolution in creative storytelling for television,” said
+                                      - link "Ed Wale" [ref=f141e851]:
+                                        - /url: https://www.linkedin.com/in/ed-wale-405a9a13/
+                                        - strong [ref=f141e853]: Ed Wale
+                                      - text: ", VP, International at LG Ad Solutions. “Brands now have a powerful way to extend their most engaging social campaigns into premium CTV environments - maintaining creative consistency across screens, amplifying performance, and delivering measurable impact without reinventing the wheel.”"
+                                      - text: "Advertisers can now achieve creative consistency across platforms without reinventing the wheel, making every campaign work harder. Read our full announcement here:"
+                                      - link "https://hubs.ly/Q03KVgTH0" [ref=f141e854]:
+                                        - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Fhubs%2Ely%2FQ03KVgTH0&urlhash=-sr4&mt=bTpq-7OojAA-S__Ahxx3ovP2nyucbvS7l7MbQJQLscrmaR4LSyeiatwXe0ERLauSoK6EkPXQPKbroGB2cBbRdkxOYOM271QZKvbdVVFolWWAsLdaNp9_jFqEdw&isSdui=true
+                                        - strong [ref=f141e856]: https://hubs.ly/Q03KVgTH0
+                                      - button:
+                                        - generic [ref=f141e858]: … more
+                                - link [ref=f141e860] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7377408835436568576/
+                                  - figure [ref=f141e861]:
+                                    - img "View image" [ref=f141e862]
+                              - generic [ref=f141e864]:
+                                - generic [ref=f141e865]:
+                                  - 'button "Reaction button state: Like" [ref=f141e868] [cursor=pointer]':
+                                    - generic [ref=f141e869]:
+                                      - img [ref=f141e870]
+                                      - generic [ref=f141e875]: "74"
+                                  - button "Open reactions menu":
+                                    - img [ref=f141e877] [cursor=pointer]
+                                - link "Comment" [ref=f141e879] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7377408835436568576/
+                                  - generic [ref=f141e880]:
+                                    - img [ref=f141e881]
+                                    - generic [ref=f141e883]: "3"
+                                - button "Repost" [ref=f141e884] [cursor=pointer]:
+                                  - generic [ref=f141e885]:
+                                    - img [ref=f141e886]
+                                    - generic [ref=f141e888]: "15"
+                                - link "Send" [ref=f141e889] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/brady-akers/
+                                  - img [ref=f141e891]
+                                - link [ref=f141e893] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/brady-akers/
+                                  - generic "74 reactions" [ref=f141e894]:
+                                    - img [ref=f141e895]
+                                    - img [ref=f141e901]
+                                    - img [ref=f141e915]
+                          - listitem [ref=f141e921]:
+                            - listitem [ref=f141e923]:
+                              - generic [ref=f141e924]:
+                                - generic [ref=f141e925]:
+                                  - link [ref=f141e926] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/brady-akers/
+                                    - figure [ref=f141e927]:
+                                      - img "View Brady Akers’ profile" [ref=f141e928]
+                                  - generic [ref=f141e930]:
+                                    - link "Brady Akers Verified Profile 1st" [ref=f141e933] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/brady-akers/
+                                      - generic "Brady Akers Verified Profile 1st" [ref=f141e935]:
+                                        - paragraph [ref=f141e938]: Brady Akers
+                                        - paragraph [ref=f141e940]:
+                                          - generic [ref=f141e941]:
+                                            - img [ref=f141e943]
+                                            - text: • 1st
+                                    - paragraph [ref=f141e946]: Technology and startup enthusiast. Above average guy.
+                                    - paragraph [ref=f141e948]:
+                                      - generic [ref=f141e949]:
+                                        - text: 9mo •
+                                        - 'img "Visibility: Global" [ref=f141e950]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/in/brady-akers/
+                                  - button "Open control menu for post by Brady Akers" [ref=f141e952] [cursor=pointer]:
+                                    - img [ref=f141e954]
+                                - link [ref=f141e956] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7373357112959217665/
+                                  - paragraph [ref=f141e957]:
+                                    - generic [ref=f141e958]:
+                                      - text: "🚀 Big news today:"
+                                      - link "Spaceback" [ref=f141e959]:
+                                        - /url: https://www.linkedin.com/company/spaceback/
+                                        - strong [ref=f141e961]: Spaceback
+                                      - text: is merging with
+                                      - link "Rembrand" [ref=f141e962]:
+                                        - /url: https://www.linkedin.com/company/getrembrand/
+                                        - strong [ref=f141e964]: Rembrand
+                                      - text: "From day one, our mission at Spaceback has been simple: ads don’t have to suck. We set out to make advertising feel more like content — authentic, creative, and aligned with how people actually consume media."
+                                      - text: "Now, by joining forces with Rembrand, we’re taking that mission further. Together we’re building the industry’s premier AI creative platform for programmatic video advertising — one that brings:"
+                                      - text: ✨ Virtual Product Placement
+                                      - text: ✨ Social Content Ads
+                                      - text: ✨ Streamlined activation across CTV, digital video, and display
+                                      - text: For our clients and partners, this means speed, scale, and a new level of creative storytelling that doesn’t interrupt — it connects.
+                                      - text: This is a huge moment for our team (special shoutout to
+                                      - link "Casey Saran" [ref=f141e966]:
+                                        - /url: https://www.linkedin.com/in/caseysaran/
+                                        - strong [ref=f141e968]: Casey Saran
+                                      - link "Joe Hall" [ref=f141e969]:
+                                        - /url: https://www.linkedin.com/in/joehall6/
+                                        - strong [ref=f141e971]: Joe Hall
+                                      - text: and
+                                      - link "Chris Baclig" [ref=f141e972]:
+                                        - /url: https://www.linkedin.com/in/chrisbaclig/
+                                        - strong [ref=f141e974]: Chris Baclig
+                                      - text: who have been absolutely the best execs to build a company with) and a major opportunity for all of the brands, agencies, and platforms we work with every day. Excited to continue building the future of advertising together with our newly expanded team of ad tech superstars and a very deep bench of AI engineers.
+                                      - text: Here’s to the next chapter. 🙌
+                                      - link "Omar Tawakol" [ref=f141e975]:
+                                        - /url: https://www.linkedin.com/in/omartawakol/
+                                        - strong [ref=f141e977]: Omar Tawakol
+                                      - link "David Wiener" [ref=f141e978]:
+                                        - /url: https://www.linkedin.com/in/thedavidwiener/
+                                        - strong [ref=f141e980]: David Wiener
+                                      - link "Cory Treffiletti" [ref=f141e981]:
+                                        - /url: https://www.linkedin.com/in/ctreff/
+                                        - strong [ref=f141e983]: Cory Treffiletti
+                                      - link "John Sedlak" [ref=f141e984]:
+                                        - /url: https://www.linkedin.com/in/john-sedlak-5a221b1/
+                                        - strong [ref=f141e986]: John Sedlak
+                                      - button:
+                                        - generic [ref=f141e988]: … more
+                                - generic [ref=f141e989]:
+                                  - region "Video Player" [ref=f141e991]:             
+                                  - link "Play video" [ref=f141e996] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/feed/update/urn:li:activity:7373357112959217665/
+                                    - img [ref=f141e998]
+                              - generic [ref=f141e1001]:
+                                - generic [ref=f141e1002]:
+                                  - 'button "Reaction button state: no reaction" [ref=f141e1005] [cursor=pointer]':
+                                    - generic [ref=f141e1006]:
+                                      - img [ref=f141e1007]
+                                      - generic [ref=f141e1009]: "71"
+                                  - button "Open reactions menu":
+                                    - img [ref=f141e1011] [cursor=pointer]
+                                - link "Comment" [ref=f141e1013] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7373357112959217665/
+                                  - generic [ref=f141e1014]:
+                                    - img [ref=f141e1015]
+                                    - generic [ref=f141e1017]: "6"
+                                - button "Repost" [ref=f141e1018] [cursor=pointer]:
+                                  - generic [ref=f141e1019]:
+                                    - img [ref=f141e1020]
+                                    - generic [ref=f141e1022]: "3"
+                                - link "Send" [ref=f141e1023] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/brady-akers/
+                                  - img [ref=f141e1025]
+                                - link [ref=f141e1027] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/brady-akers/
+                                  - generic "71 reactions" [ref=f141e1028]:
+                                    - img [ref=f141e1029]
+                                    - img [ref=f141e1035]
+                                    - img [ref=f141e1049]
+                          - listitem [ref=f141e1055]:
+                            - listitem [ref=f141e1057]:
+                              - generic [ref=f141e1058]:
+                                - generic [ref=f141e1059]:
+                                  - link [ref=f141e1060] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/brady-akers/
+                                    - figure [ref=f141e1061]:
+                                      - img "View Brady Akers’ profile" [ref=f141e1062]
+                                  - generic [ref=f141e1064]:
+                                    - link "Brady Akers Verified Profile 1st" [ref=f141e1067] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/brady-akers/
+                                      - generic "Brady Akers Verified Profile 1st" [ref=f141e1069]:
+                                        - paragraph [ref=f141e1072]: Brady Akers
+                                        - paragraph [ref=f141e1074]:
+                                          - generic [ref=f141e1075]:
+                                            - img [ref=f141e1077]
+                                            - text: • 1st
+                                    - paragraph [ref=f141e1080]: Technology and startup enthusiast. Above average guy.
+                                    - paragraph [ref=f141e1082]:
+                                      - generic [ref=f141e1083]:
+                                        - text: 1yr •
+                                        - 'img "Visibility: Global" [ref=f141e1084]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/in/brady-akers/
+                                  - button "Open control menu for post by Brady Akers" [ref=f141e1086] [cursor=pointer]:
+                                    - img [ref=f141e1088]
+                                - link [ref=f141e1090] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7343302152016048130/
+                                  - paragraph [ref=f141e1091]:
+                                    - generic [ref=f141e1092]:
+                                      - text: It's easy and obvious to say that AI was a focal point at Cannes this year but beyond that buzz, the real excitement was taking place in CTV among the streaming platforms.
+                                      - text: "Despite all the innovative tech being developed (hot take: generative AI video creative is still far inferior to content created by humans), it is old-fashioned partnerships and collaboration advancing the industry. A slew of partnership announcements were released by leaders (and sometimes competitors) like Amazon, Roku, Comcast Universal Ads, LG Ads, Walmart, TTD, Disney, NBCU and Netflix propelling the industry toward a more symbiotic ecosystem that will benefit advertisers of all sizes."
+                                      - text: Partnerships are accelerating outcomes and enabling brands to more easily connect with audiences in the living room in smarter, more engaging and scalable ways. We're grateful to be in the room (beach/yacht/gutter bar) where it happened.
+                                      - text: Many thanks to our fantastic partners
+                                      - link "Amazon Ads" [ref=f141e1093]:
+                                        - /url: https://www.linkedin.com/company/amazonadvertising/
+                                        - strong [ref=f141e1095]: Amazon Ads
+                                      - text: ","
+                                      - link "LG Ad Solutions" [ref=f141e1096]:
+                                        - /url: https://www.linkedin.com/company/lgads/
+                                        - strong [ref=f141e1098]: LG Ad Solutions
+                                      - text: ","
+                                      - link "Walmart Connect" [ref=f141e1099]:
+                                        - /url: https://www.linkedin.com/company/walmart-connect/
+                                        - strong [ref=f141e1101]: Walmart Connect
+                                      - text: ","
+                                      - link "Roku" [ref=f141e1102]:
+                                        - /url: https://www.linkedin.com/company/roku/
+                                        - strong [ref=f141e1104]: Roku
+                                      - text: ","
+                                      - link "Universal Ads" [ref=f141e1105]:
+                                        - /url: https://www.linkedin.com/company/universal-ads/
+                                        - strong [ref=f141e1107]: Universal Ads
+                                      - text: ","
+                                      - link "FreeWheel" [ref=f141e1108]:
+                                        - /url: https://www.linkedin.com/company/freewheel/
+                                        - strong [ref=f141e1110]: FreeWheel
+                                      - text: ","
+                                      - link "Viant Technology" [ref=f141e1111]:
+                                        - /url: https://www.linkedin.com/company/viant-technology/
+                                        - strong [ref=f141e1113]: Viant Technology
+                                      - text: ","
+                                      - link "Basis Technologies" [ref=f141e1114]:
+                                        - /url: https://www.linkedin.com/company/basis-technologies/
+                                        - strong [ref=f141e1116]: Basis Technologies
+                                      - text: ","
+                                      - link "OpenX" [ref=f141e1117]:
+                                        - /url: https://www.linkedin.com/company/openx/
+                                        - strong [ref=f141e1119]: OpenX
+                                      - text: ","
+                                      - link "Numatec" [ref=f141e1120]:
+                                        - /url: https://www.linkedin.com/company/numatec-group/
+                                        - strong [ref=f141e1122]: Numatec
+                                      - text: ", and"
+                                      - link "Brand Innovators" [ref=f141e1123]:
+                                        - /url: https://www.linkedin.com/company/brand-innovators-llc/
+                                        - strong [ref=f141e1125]: Brand Innovators
+                                      - text: for such a stimulating week.
+                                      - text: Shout out to the all-star cast featured in our highlights!
+                                      - link "Wyclef Jean" [ref=f141e1126]:
+                                        - /url: https://www.linkedin.com/in/wyclefjean/
+                                        - strong [ref=f141e1128]: Wyclef Jean
+                                      - link "Jim Stengel" [ref=f141e1129]:
+                                        - /url: https://www.linkedin.com/in/jimstengel/
+                                        - strong [ref=f141e1131]: Jim Stengel
+                                      - text: Calum Laming
+                                      - link "Kelly Mahoney" [ref=f141e1132]:
+                                        - /url: https://www.linkedin.com/in/kelly-mahoney-3546806/
+                                        - strong [ref=f141e1134]: Kelly Mahoney
+                                      - link "Harry Kargman" [ref=f141e1135]:
+                                        - /url: https://www.linkedin.com/in/harrykargman/
+                                        - strong [ref=f141e1137]: Harry Kargman
+                                      - link "Melissa Hobley" [ref=f141e1138]:
+                                        - /url: https://www.linkedin.com/in/melissahobley/
+                                        - strong [ref=f141e1140]: Melissa Hobley
+                                      - link "Marion Brooks, MBA" [ref=f141e1141]:
+                                        - /url: https://www.linkedin.com/in/marionbrooks/
+                                        - strong [ref=f141e1143]: Marion Brooks, MBA
+                                      - text: Richard Lui
+                                      - link "Krishan Bhatia" [ref=f141e1144]:
+                                        - /url: https://www.linkedin.com/in/krishanbhatia/
+                                        - strong [ref=f141e1146]: Krishan Bhatia
+                                      - link "Kristina Hahn" [ref=f141e1147]:
+                                        - /url: https://www.linkedin.com/in/kristinahahn1/
+                                        - strong [ref=f141e1149]: Kristina Hahn
+                                      - link "Jeffrey Cohen" [ref=f141e1150]:
+                                        - /url: https://www.linkedin.com/in/jeffreycohen/
+                                        - strong [ref=f141e1152]: Jeffrey Cohen
+                                      - link "Samantha Avivi" [ref=f141e1153]:
+                                        - /url: https://www.linkedin.com/in/samavivi/
+                                        - strong [ref=f141e1155]: Samantha Avivi
+                                      - link "Spaceback" [ref=f141e1156]:
+                                        - /url: https://www.linkedin.com/company/spaceback/
+                                        - strong [ref=f141e1158]: Spaceback
+                                      - button:
+                                        - generic [ref=f141e1160]: … more
+                                - generic [ref=f141e1161]:
+                                  - region "Video Player" [ref=f141e1163]:             
+                                  - link "Play video" [ref=f141e1168] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/feed/update/urn:li:activity:7343302152016048130/
+                                    - img [ref=f141e1170]
+                              - generic [ref=f141e1173]:
+                                - generic [ref=f141e1174]:
+                                  - 'button "Reaction button state: Like" [ref=f141e1177] [cursor=pointer]':
+                                    - generic [ref=f141e1178]:
+                                      - img [ref=f141e1179]
+                                      - generic [ref=f141e1184]: "58"
+                                  - button "Open reactions menu":
+                                    - img [ref=f141e1186] [cursor=pointer]
+                                - link "Comment" [ref=f141e1188] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7343302152016048130/
+                                  - generic [ref=f141e1189]:
+                                    - img [ref=f141e1190]
+                                    - generic [ref=f141e1192]: "3"
+                                - button "Repost" [ref=f141e1193] [cursor=pointer]:
+                                  - generic [ref=f141e1194]:
+                                    - img [ref=f141e1195]
+                                    - generic [ref=f141e1197]: "5"
+                                - link "Send" [ref=f141e1198] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/brady-akers/
+                                  - img [ref=f141e1200]
+                                - link [ref=f141e1202] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/brady-akers/
+                                  - generic "58 reactions" [ref=f141e1203]:
+                                    - img [ref=f141e1204]
+                                    - img [ref=f141e1210]
+                                    - img [ref=f141e1216]
+                          - listitem [ref=f141e1230]:
+                            - listitem [ref=f141e1232]:
+                              - generic [ref=f141e1233]:
+                                - generic [ref=f141e1234]:
+                                  - generic [ref=f141e1235]:
+                                    - link [ref=f141e1236] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/brady-akers/
+                                      - figure [ref=f141e1237]:
+                                        - img "View Brady Akers’ profile" [ref=f141e1238]
+                                    - paragraph [ref=f141e1240]:
+                                      - generic [ref=f141e1241]:
+                                        - link "Brady Akers" [ref=f141e1242] [cursor=pointer]:
+                                          - /url: https://www.linkedin.com/in/brady-akers/
+                                          - strong [ref=f141e1243]: Brady Akers
+                                        - text: reposted this
+                                  - button "Open control menu for post by Spaceback" [ref=f141e1244] [cursor=pointer]:
+                                    - img [ref=f141e1246]
+                                - generic [ref=f141e1248]:
+                                  - link [ref=f141e1249] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/company/spaceback/posts/
+                                    - figure [ref=f141e1250]:
+                                      - 'img "View company: Spaceback" [ref=f141e1251]'
+                                  - generic [ref=f141e1253]:
+                                    - link "Spaceback" [ref=f141e1256] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/company/spaceback/posts/
+                                      - paragraph [ref=f141e1261]: Spaceback
+                                    - paragraph [ref=f141e1263]:
+                                      - generic [ref=f141e1264]:
+                                        - text: 1yr •
+                                        - 'img "Visibility: Global" [ref=f141e1265]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/company/spaceback/posts/
+                                - 'link "We’re just a few weeks away from one of the most exciting weeks of the year: Cannes Lions International Festival of Creativity! 🏖️ Joe Hall, Brady Akers, and Jordan Mandel will be on the ground representing Spaceback this year. 🔥 We’d love to see you on the Croisette and discuss all the ways CTV Launchpad can help you win. 🚀 #Cannes2025 #CTVLaunchpad #advertising" [ref=f141e1267] [cursor=pointer]':
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7335371975063744512/
+                                  - paragraph [ref=f141e1268]:
+                                    - generic [ref=f141e1269]:
+                                      - text: "We’re just a few weeks away from one of the most exciting weeks of the year:"
+                                      - link "Cannes Lions International Festival of Creativity" [ref=f141e1270]:
+                                        - /url: https://www.linkedin.com/company/cannes-lions-international-advertising-festival/
+                                        - strong [ref=f141e1272]: Cannes Lions International Festival of Creativity
+                                      - text: "! 🏖️"
+                                      - link "Joe Hall" [ref=f141e1274]:
+                                        - /url: https://www.linkedin.com/in/joehall6/
+                                        - strong [ref=f141e1276]: Joe Hall
+                                      - text: ","
+                                      - link "Brady Akers" [ref=f141e1277]:
+                                        - /url: https://www.linkedin.com/in/brady-akers/
+                                        - strong [ref=f141e1279]: Brady Akers
+                                      - text: ", and"
+                                      - link "Jordan Mandel" [ref=f141e1280]:
+                                        - /url: https://www.linkedin.com/in/jordan-mandel/
+                                        - strong [ref=f141e1282]: Jordan Mandel
+                                      - text: will be on the ground representing Spaceback this year. 🔥
+                                      - text: We’d love to see you on the Croisette and discuss all the ways CTV Launchpad can help you win. 🚀
+                                      - link "#Cannes2025" [ref=f141e1283]:
+                                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23cannes2025&origin=HASH_TAG_FROM_FEED
+                                        - strong [ref=f141e1285]: "#Cannes2025"
+                                      - link "#CTVLaunchpad" [ref=f141e1286]:
+                                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23ctvlaunchpad&origin=HASH_TAG_FROM_FEED
+                                        - strong [ref=f141e1288]: "#CTVLaunchpad"
+                                      - link "#advertising" [ref=f141e1289]:
+                                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23advertising&origin=HASH_TAG_FROM_FEED
+                                        - strong [ref=f141e1291]: "#advertising"
+                                      - button:
+                                        - generic [ref=f141e1293]: … more
+                                - generic [ref=f141e1294]:
+                                  - link [ref=f141e1295] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/feed/update/urn:li:activity:7335371975063744512/
+                                    - figure [ref=f141e1296]:
+                                      - img "View image" [ref=f141e1297]
+                                  - button "View tagged entities" [ref=f141e1298] [cursor=pointer]:
+                                    - img [ref=f141e1300]
+                              - generic [ref=f141e1303]:
+                                - generic [ref=f141e1304]:
+                                  - 'button "Reaction button state: Celebrate" [ref=f141e1307] [cursor=pointer]':
+                                    - generic [ref=f141e1308]:
+                                      - img [ref=f141e1309]
+                                      - generic [ref=f141e1323]: "43"
+                                  - button "Open reactions menu":
+                                    - img [ref=f141e1325] [cursor=pointer]
+                                - link "Comment" [ref=f141e1327] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7335371975063744512/
+                                  - generic [ref=f141e1328]:
+                                    - img [ref=f141e1329]
+                                    - generic [ref=f141e1331]: "2"
+                                - button "Repost" [ref=f141e1332] [cursor=pointer]:
+                                  - generic [ref=f141e1333]:
+                                    - img [ref=f141e1334]
+                                    - generic [ref=f141e1336]: "6"
+                                - link "Send" [ref=f141e1337] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/brady-akers/
+                                  - img [ref=f141e1339]
+                                - link [ref=f141e1341] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/brady-akers/
+                                  - generic "43 reactions" [ref=f141e1342]:
+                                    - img [ref=f141e1343]
+                                    - img [ref=f141e1349]
+                                    - img [ref=f141e1363]
+                          - listitem [ref=f141e1369]:
+                            - listitem [ref=f141e1371]:
+                              - generic [ref=f141e1372]:
+                                - generic [ref=f141e1373]:
+                                  - generic [ref=f141e1374]:
+                                    - link [ref=f141e1375] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/brady-akers/
+                                      - figure [ref=f141e1376]:
+                                        - img "View Brady Akers’ profile" [ref=f141e1377]
+                                    - paragraph [ref=f141e1379]:
+                                      - generic [ref=f141e1380]:
+                                        - link "Brady Akers" [ref=f141e1381] [cursor=pointer]:
+                                          - /url: https://www.linkedin.com/in/brady-akers/
+                                          - strong [ref=f141e1382]: Brady Akers
+                                        - text: reposted this
+                                  - button "Open control menu for post by Spaceback" [ref=f141e1383] [cursor=pointer]:
+                                    - img [ref=f141e1385]
+                                - generic [ref=f141e1387]:
+                                  - link [ref=f141e1388] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/company/spaceback/posts/
+                                    - figure [ref=f141e1389]:
+                                      - 'img "View company: Spaceback" [ref=f141e1390]'
+                                  - generic [ref=f141e1392]:
+                                    - link "Spaceback" [ref=f141e1395] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/company/spaceback/posts/
+                                      - paragraph [ref=f141e1400]: Spaceback
+                                    - paragraph [ref=f141e1402]:
+                                      - generic [ref=f141e1403]:
+                                        - text: 1yr •
+                                        - 'img "Visibility: Global" [ref=f141e1404]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/company/spaceback/posts/
+                                - 'link "Anotha one! 🗣️ Spaceback is hiring a Customer Success Manager to join our remote team. 🎉 Check out Ellen’s post below for more details and apply today. 👇 #hiring #customersuccess #remotework" [ref=f141e1406] [cursor=pointer]':
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7269742288472326145/
+                                  - paragraph [ref=f141e1407]:
+                                    - generic [ref=f141e1408]:
+                                      - text: Anotha one! 🗣️
+                                      - text: Spaceback is hiring a Customer Success Manager to join our remote team. 🎉 Check out
+                                      - link "Ellen" [ref=f141e1409]:
+                                        - /url: https://www.linkedin.com/in/ellen-savatski/
+                                        - strong [ref=f141e1411]: Ellen
+                                      - text: ’s post below for more details and apply today. 👇
+                                      - link "#hiring" [ref=f141e1412]:
+                                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23hiring&origin=HASH_TAG_FROM_FEED
+                                        - strong [ref=f141e1414]: "#hiring"
+                                      - link "#customersuccess" [ref=f141e1415]:
+                                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23customersuccess&origin=HASH_TAG_FROM_FEED
+                                        - strong [ref=f141e1417]: "#customersuccess"
+                                      - link "#remotework" [ref=f141e1418]:
+                                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23remotework&origin=HASH_TAG_FROM_FEED
+                                        - strong [ref=f141e1420]: "#remotework"
+                                      - button:
+                                        - generic [ref=f141e1422]: … more
+                                - generic [ref=f141e1423]:
+                                  - generic [ref=f141e1424]:
+                                    - link [ref=f141e1425] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/ellen-savatski/
+                                      - figure [ref=f141e1426]:
+                                        - img "View Ellen Savatski’s profile" [ref=f141e1427]
+                                    - generic [ref=f141e1429]:
+                                      - link "Ellen Savatski Verified Profile 1st" [ref=f141e1432] [cursor=pointer]:
+                                        - /url: https://www.linkedin.com/in/ellen-savatski/
+                                        - generic "Ellen Savatski Verified Profile 1st" [ref=f141e1434]:
+                                          - paragraph [ref=f141e1437]: Ellen Savatski
+                                          - paragraph [ref=f141e1439]:
+                                            - generic [ref=f141e1440]:
+                                              - img [ref=f141e1442]
+                                              - text: • 1st
+                                      - paragraph [ref=f141e1445]: Director of Customer Success at Rembrand
+                                      - paragraph [ref=f141e1447]:
+                                        - generic [ref=f141e1448]:
+                                          - text: 1yr •
+                                          - 'img "Visibility: Global" [ref=f141e1449]'
+                                      - link:
+                                        - /url: https://www.linkedin.com/in/ellen-savatski/
+                                  - link "Looking to make a stellar addition to our CSM team at Spaceback! 🚀 If you're passionate about customer relationships, creative strategy, and working with the leaders in Social Display & Social Video/CTV - please reach out!" [ref=f141e1451] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/feed/update/urn:li:share:7269384015311187968/
+                                    - paragraph [ref=f141e1452]:
+                                      - generic [ref=f141e1453]:
+                                        - text: Looking to make a stellar addition to our CSM team at
+                                        - link "Spaceback" [ref=f141e1454]:
+                                          - /url: https://www.linkedin.com/company/spaceback/
+                                          - strong [ref=f141e1456]: Spaceback
+                                        - text: "! 🚀"
+                                        - text: If you're passionate about customer relationships, creative strategy, and working with the leaders in Social Display & Social Video/CTV - please reach out!
+                                        - button:
+                                          - generic [ref=f141e1459]: … more
+                                  - link "Spaceback Social Display United States (Remote) View job 6 benefits 19 connections work here" [ref=f141e1460] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/jobs/view/4087166633/?trackingId=2TvNPVOXT%2F2rst4AZ%2F%2BRsA%3D%3D&isJobSearch=false
+                                    - generic [ref=f141e1462]:
+                                      - figure [ref=f141e1463]
+                                      - generic [ref=f141e1464]:
+                                        - generic [ref=f141e1465]:
+                                          - generic [ref=f141e1467]:
+                                            - paragraph [ref=f141e1469]: Customer Success Manager
+                                            - paragraph [ref=f141e1472]: Spaceback Social Display
+                                            - paragraph [ref=f141e1473]: United States (Remote)
+                                          - link "View job" [ref=f141e1475]:
+                                            - /url: https://www.linkedin.com/jobs/view/4087166633/?trackingId=2TvNPVOXT%2F2rst4AZ%2F%2BRsA%3D%3D&isJobSearch=false
+                                            - generic [ref=f141e1477]: View job
+                                        - generic [ref=f141e1478]:
+                                          - paragraph [ref=f141e1481]: 6 benefits
+                                          - generic [ref=f141e1482]:
+                                            - figure [ref=f141e1483]
+                                            - figure [ref=f141e1484]
+                                            - figure [ref=f141e1485]
+                                            - paragraph [ref=f141e1487]: 19 connections work here
+                              - generic [ref=f141e1489]:
+                                - generic [ref=f141e1490]:
+                                  - 'button "Reaction button state: Celebrate" [ref=f141e1493] [cursor=pointer]':
+                                    - generic [ref=f141e1494]:
+                                      - img [ref=f141e1495]
+                                      - generic [ref=f141e1509]: "20"
+                                  - button "Open reactions menu":
+                                    - img [ref=f141e1511] [cursor=pointer]
+                                - link "Comment" [ref=f141e1513] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7269742288472326145/
+                                  - generic [ref=f141e1514]:
+                                    - img [ref=f141e1515]
+                                    - generic [ref=f141e1517]: "2"
+                                - button "Repost" [ref=f141e1518] [cursor=pointer]:
+                                  - generic [ref=f141e1519]:
+                                    - img [ref=f141e1520]
+                                    - generic [ref=f141e1522]: "4"
+                                - link "Send" [ref=f141e1523] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/brady-akers/
+                                  - img [ref=f141e1525]
+                                - link [ref=f141e1527] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/brady-akers/
+                                  - generic "20 reactions" [ref=f141e1528]:
+                                    - img [ref=f141e1529]
+                                    - img [ref=f141e1535]
+                                    - img [ref=f141e1549]
+                          - listitem [ref=f141e1555]:
+                            - listitem [ref=f141e1557]:
+                              - generic [ref=f141e1558]:
+                                - generic [ref=f141e1559]:
+                                  - generic [ref=f141e1560]:
+                                    - link [ref=f141e1561] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/brady-akers/
+                                      - figure [ref=f141e1562]:
+                                        - img "View Brady Akers’ profile" [ref=f141e1563]
+                                    - paragraph [ref=f141e1565]:
+                                      - generic [ref=f141e1566]:
+                                        - link "Brady Akers" [ref=f141e1567] [cursor=pointer]:
+                                          - /url: https://www.linkedin.com/in/brady-akers/
+                                          - strong [ref=f141e1568]: Brady Akers
+                                        - text: reposted this
+                                  - button "Open control menu for post by Spaceback" [ref=f141e1569] [cursor=pointer]:
+                                    - img [ref=f141e1571]
+                                - generic [ref=f141e1573]:
+                                  - link [ref=f141e1574] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/company/spaceback/posts/
+                                    - figure [ref=f141e1575]:
+                                      - 'img "View company: Spaceback" [ref=f141e1576]'
+                                  - generic [ref=f141e1578]:
+                                    - link "Spaceback" [ref=f141e1581] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/company/spaceback/posts/
+                                      - paragraph [ref=f141e1586]: Spaceback
+                                    - paragraph [ref=f141e1588]:
+                                      - generic [ref=f141e1589]:
+                                        - text: 2yr •
+                                        - 'img "Visibility: Global" [ref=f141e1590]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/company/spaceback/posts/
+                                - 'link "We have some very exciting news to share: Spaceback has expanded its capabilities into TV! Now, you can bring your social media videos to the largest screen in the home with Social CTV. 🚀 CB2 recently partnered with Spaceback to launch a Social CTV campaign. You can learn more about their experience and how Social CTV works at the link below. Thank you to Adrianne Pasquarelli at Ad Age for helping us bring this story to life. 🤩 https://lnkd.in/etfuGrMJ #SocialCTV #CTVadvertising #programmaticadvertising" [ref=f141e1592] [cursor=pointer]':
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7113162784791568384/
+                                  - paragraph [ref=f141e1593]:
+                                    - generic [ref=f141e1594]:
+                                      - text: "We have some very exciting news to share: Spaceback has expanded its capabilities into TV! Now, you can bring your social media videos to the largest screen in the home with Social CTV. 🚀"
+                                      - link "CB2" [ref=f141e1595]:
+                                        - /url: https://www.linkedin.com/company/cb2/
+                                        - strong [ref=f141e1597]: CB2
+                                      - text: recently partnered with Spaceback to launch a Social CTV campaign.
+                                      - text: You can learn more about their experience and how Social CTV works at the link below. Thank you to
+                                      - link "Adrianne Pasquarelli" [ref=f141e1598]:
+                                        - /url: https://www.linkedin.com/in/adrianne-pasquarelli-68247a7/
+                                        - strong [ref=f141e1600]: Adrianne Pasquarelli
+                                      - text: at
+                                      - link "Ad Age" [ref=f141e1601]:
+                                        - /url: https://www.linkedin.com/company/ad-age/
+                                        - strong [ref=f141e1603]: Ad Age
+                                      - text: for helping us bring this story to life. 🤩
+                                      - link "https://lnkd.in/etfuGrMJ" [ref=f141e1604]:
+                                        - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Flnkd%2Ein%2FetfuGrMJ&urlhash=XDeo&mt=52u4tbjah_4uKovfbbq1yMarkIuojE9XfZ7symL_W_3Xm9BZInLKKB2VNMdVcC5quXgoScOORdecK5i7q2pdjQ9I3ACDW20XSekWzf7qKh_M6HAIcKv2ZZtsTw&isSdui=true
+                                        - strong [ref=f141e1606]: https://lnkd.in/etfuGrMJ
+                                      - link "#SocialCTV" [ref=f141e1607]:
+                                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23socialctv&origin=HASH_TAG_FROM_FEED
+                                        - strong [ref=f141e1609]: "#SocialCTV"
+                                      - link "#CTVadvertising" [ref=f141e1610]:
+                                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23ctvadvertising&origin=HASH_TAG_FROM_FEED
+                                        - strong [ref=f141e1612]: "#CTVadvertising"
+                                      - link "#programmaticadvertising" [ref=f141e1613]:
+                                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23programmaticadvertising&origin=HASH_TAG_FROM_FEED
+                                        - strong [ref=f141e1615]: "#programmaticadvertising"
+                                      - button:
+                                        - generic [ref=f141e1617]: … more
+                                - link "How retailer CB2 is using AI to make streaming TV ads from its social media content adage.com" [ref=f141e1618] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Fadage%2Ecom%2Farticle%2Fmarketing-news-strategy%2Fretailer-cb2-uses-ai-convert-social-media-content-streaming-tv-ads%2F2518986&urlhash=tZFY&mt=E0-vzPAOdrvknSQGZ5j4FzXF7SRazQxZZ_gGkeBcNruFvA_FuJScACFdyy6GjGCZoZ2yReALJ8WgYl-Auv5zqob_bAgHksyk__NhWOJD-uGhXSm-OV4EGQA9eg&isSdui=true
+                                  - generic [ref=f141e1619]:
+                                    - figure [ref=f141e1620]
+                                    - generic [ref=f141e1621]:
+                                      - paragraph [ref=f141e1623]:
+                                        - generic [ref=f141e1624]:
+                                          - generic [ref=f141e1625]: How retailer CB2 is using AI to make streaming TV ads from its social media content
+                                          - text: How retailer CB2 is using AI to make streaming TV ads from its social media content
+                                      - paragraph [ref=f141e1627]: adage.com
+                              - generic [ref=f141e1629]:
+                                - generic [ref=f141e1630]:
+                                  - 'button "Reaction button state: Like" [ref=f141e1633] [cursor=pointer]':
+                                    - generic [ref=f141e1634]:
+                                      - img [ref=f141e1635]
+                                      - generic [ref=f141e1640]: "77"
+                                  - button "Open reactions menu":
+                                    - img [ref=f141e1642] [cursor=pointer]
+                                - link "Comment" [ref=f141e1644] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7113162784791568384/
+                                  - generic [ref=f141e1645]:
+                                    - img [ref=f141e1646]
+                                    - generic [ref=f141e1648]: "4"
+                                - button "Repost" [ref=f141e1649] [cursor=pointer]:
+                                  - generic [ref=f141e1650]:
+                                    - img [ref=f141e1651]
+                                    - generic [ref=f141e1653]: "28"
+                                - link "Send" [ref=f141e1654] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/brady-akers/
+                                  - img [ref=f141e1656]
+                                - link [ref=f141e1658] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/brady-akers/
+                                  - generic "77 reactions" [ref=f141e1659]:
+                                    - img [ref=f141e1660]
+                                    - img [ref=f141e1666]
+                                    - img [ref=f141e1672]
+                          - listitem [ref=f141e1686]:
+                            - listitem [ref=f141e1688]:
+                              - generic [ref=f141e1689]:
+                                - generic [ref=f141e1690]:
+                                  - link [ref=f141e1691] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/brady-akers/
+                                    - figure [ref=f141e1692]:
+                                      - img "View Brady Akers’ profile" [ref=f141e1693]
+                                  - generic [ref=f141e1695]:
+                                    - link "Brady Akers Verified Profile 1st" [ref=f141e1698] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/brady-akers/
+                                      - generic "Brady Akers Verified Profile 1st" [ref=f141e1700]:
+                                        - paragraph [ref=f141e1703]: Brady Akers
+                                        - paragraph [ref=f141e1705]:
+                                          - generic [ref=f141e1706]:
+                                            - img [ref=f141e1708]
+                                            - text: • 1st
+                                    - paragraph [ref=f141e1711]: Technology and startup enthusiast. Above average guy.
+                                    - paragraph [ref=f141e1713]:
+                                      - generic [ref=f141e1714]:
+                                        - text: 2yr •
+                                        - 'img "Visibility: Global" [ref=f141e1715]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/in/brady-akers/
+                                  - button "Open control menu for post by Brady Akers" [ref=f141e1717] [cursor=pointer]:
+                                    - img [ref=f141e1719]
+                                - link "Looking forward to being back in NYC for Prog IO. Hit me up if you'll be around and available to connect!" [ref=f141e1721] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7110998394218676224/
+                                  - paragraph [ref=f141e1722]:
+                                    - generic [ref=f141e1723]: Looking forward to being back in NYC for Prog IO. Hit me up if you'll be around and available to connect!
+                                - generic [ref=f141e1724]:
+                                  - generic [ref=f141e1725]:
+                                    - link [ref=f141e1726] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/company/spaceback/posts/
+                                      - figure [ref=f141e1727]:
+                                        - 'img "View company: Spaceback" [ref=f141e1728]'
+                                    - generic [ref=f141e1730]:
+                                      - link "Spaceback" [ref=f141e1733] [cursor=pointer]:
+                                        - /url: https://www.linkedin.com/company/spaceback/posts/
+                                        - paragraph [ref=f141e1738]: Spaceback
+                                      - paragraph [ref=f141e1740]:
+                                        - generic [ref=f141e1741]:
+                                          - text: 2yr •
+                                          - 'img "Visibility: Global" [ref=f141e1742]'
+                                      - link:
+                                        - /url: https://www.linkedin.com/company/spaceback/posts/
+                                  - 'link "Guess what’s happening next week? AdExchanger’s Programmatic I/O in New York! 🤩 Spaceback’s Brady Akers will be there to chat all about the newest innovations in the programmatic space. Reach out to Brady if you’ll be attending too. We’re looking forward to it! 🚀 #PROGIO #adtech #programmaticio" [ref=f141e1744] [cursor=pointer]':
+                                    - /url: https://www.linkedin.com/feed/update/urn:li:share:7109633526781624320/
+                                    - paragraph [ref=f141e1745]:
+                                      - generic [ref=f141e1746]:
+                                        - text: Guess what’s happening next week?
+                                        - link "AdExchanger" [ref=f141e1747]:
+                                          - /url: https://www.linkedin.com/company/adexchanger-com/
+                                          - strong [ref=f141e1749]: AdExchanger
+                                        - text: ’s Programmatic I/O in New York! 🤩
+                                        - text: Spaceback’s
+                                        - link "Brady Akers" [ref=f141e1751]:
+                                          - /url: https://www.linkedin.com/in/brady-akers/
+                                          - strong [ref=f141e1753]: Brady Akers
+                                        - text: will be there to chat all about the newest innovations in the programmatic space. Reach out to Brady if you’ll be attending too. We’re looking forward to it! 🚀
+                                        - link "#PROGIO" [ref=f141e1754]:
+                                          - /url: https://www.linkedin.com/search/results/all/?keywords=%23progio&origin=HASH_TAG_FROM_FEED
+                                          - strong [ref=f141e1756]: "#PROGIO"
+                                        - link "#adtech" [ref=f141e1757]:
+                                          - /url: https://www.linkedin.com/search/results/all/?keywords=%23adtech&origin=HASH_TAG_FROM_FEED
+                                          - strong [ref=f141e1759]: "#adtech"
+                                        - link "#programmaticio" [ref=f141e1760]:
+                                          - /url: https://www.linkedin.com/search/results/all/?keywords=%23programmaticio&origin=HASH_TAG_FROM_FEED
+                                          - strong [ref=f141e1762]: "#programmaticio"
+                                        - button:
+                                          - generic [ref=f141e1764]: … more
+                                  - generic [ref=f141e1765]:
+                                    - link [ref=f141e1766] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/feed/update/urn:li:share:7109633526781624320/
+                                      - figure [ref=f141e1767]:
+                                        - img "View image" [ref=f141e1768]
+                                    - button "View tagged entities" [ref=f141e1769] [cursor=pointer]:
+                                      - img [ref=f141e1771]
+                              - generic [ref=f141e1774]:
+                                - generic [ref=f141e1775]:
+                                  - 'button "Reaction button state: no reaction" [ref=f141e1778] [cursor=pointer]':
+                                    - generic [ref=f141e1779]:
+                                      - img [ref=f141e1780]
+                                      - generic [ref=f141e1782]: "19"
+                                  - button "Open reactions menu":
+                                    - img [ref=f141e1784] [cursor=pointer]
+                                - link "Comment" [ref=f141e1786] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7110998394218676224/
+                                  - generic [ref=f141e1787]:
+                                    - img [ref=f141e1788]
+                                    - generic [ref=f141e1790]: "1"
+                                - button "Repost" [ref=f141e1791] [cursor=pointer]:
+                                  - img [ref=f141e1793]
+                                - link "Send" [ref=f141e1795] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/brady-akers/
+                                  - img [ref=f141e1797]
+                                - link [ref=f141e1799] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/brady-akers/
+                                  - generic "19 reactions" [ref=f141e1800]:
+                                    - img [ref=f141e1801]
+                                    - img [ref=f141e1807]
+                          - listitem [ref=f141e1821]:
+                            - listitem [ref=f141e1823]:
+                              - generic [ref=f141e1824]:
+                                - generic [ref=f141e1825]:
+                                  - link [ref=f141e1826] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/brady-akers/
+                                    - figure [ref=f141e1827]:
+                                      - img "View Brady Akers’ profile" [ref=f141e1828]
+                                  - generic [ref=f141e1830]:
+                                    - link "Brady Akers Verified Profile 1st" [ref=f141e1833] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/brady-akers/
+                                      - generic "Brady Akers Verified Profile 1st" [ref=f141e1835]:
+                                        - paragraph [ref=f141e1838]: Brady Akers
+                                        - paragraph [ref=f141e1840]:
+                                          - generic [ref=f141e1841]:
+                                            - img [ref=f141e1843]
+                                            - text: • 1st
+                                    - paragraph [ref=f141e1846]: Technology and startup enthusiast. Above average guy.
+                                    - paragraph [ref=f141e1848]:
+                                      - generic [ref=f141e1849]:
+                                        - text: 4yr •
+                                        - 'img "Visibility: Global" [ref=f141e1850]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/in/brady-akers/
+                                  - button "Open control menu for post by Brady Akers" [ref=f141e1852] [cursor=pointer]:
+                                    - img [ref=f141e1854]
+                                - link "Excited to be joining Casey Saran at Cannes next week! If you're planning on attending, let's connect 🥂" [ref=f141e1856] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:6942517176138444800/
+                                  - paragraph [ref=f141e1857]:
+                                    - generic [ref=f141e1858]:
+                                      - text: Excited to be joining
+                                      - link "Casey Saran" [ref=f141e1859]:
+                                        - /url: https://www.linkedin.com/in/caseysaran/
+                                        - strong [ref=f141e1861]: Casey Saran
+                                      - text: at Cannes next week! If you're planning on attending, let's connect 🥂
+                                - generic [ref=f141e1862]:
+                                  - generic [ref=f141e1863]:
+                                    - link [ref=f141e1864] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/caseysaran/
+                                      - figure [ref=f141e1865]:
+                                        - img "View Casey Saran’s profile" [ref=f141e1866]
+                                    - generic [ref=f141e1868]:
+                                      - link "Casey Saran Verified Profile 1st" [ref=f141e1871] [cursor=pointer]:
+                                        - /url: https://www.linkedin.com/in/caseysaran/
+                                        - generic "Casey Saran Verified Profile 1st" [ref=f141e1873]:
+                                          - paragraph [ref=f141e1876]: Casey Saran
+                                          - paragraph [ref=f141e1878]:
+                                            - generic [ref=f141e1879]:
+                                              - img [ref=f141e1881]
+                                              - text: • 1st
+                                      - paragraph [ref=f141e1884]: Founder @ Spaceback -> Board Member @ Rembrand
+                                      - paragraph [ref=f141e1886]:
+                                        - generic [ref=f141e1887]:
+                                          - text: 4yr •
+                                          - 'img "Visibility: Global" [ref=f141e1888]'
+                                      - link:
+                                        - /url: https://www.linkedin.com/in/caseysaran/
+                                  - link "Spaceback Social Display is doing Cannes in style with Brand Innovators this year! 😎" [ref=f141e1890] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/feed/update/urn:li:ugcPost:6940718216906248192/
+                                    - paragraph [ref=f141e1891]:
+                                      - generic [ref=f141e1892]:
+                                        - link "Spaceback Social Display" [ref=f141e1893]:
+                                          - /url: https://www.linkedin.com/company/spaceback/
+                                          - strong [ref=f141e1895]: Spaceback Social Display
+                                        - text: is doing Cannes in style with
+                                        - link "Brand Innovators" [ref=f141e1896]:
+                                          - /url: https://www.linkedin.com/company/brand-innovators-llc/
+                                          - strong [ref=f141e1898]: Brand Innovators
+                                        - text: this year! 😎
+                                  - generic [ref=f141e1899]:
+                                    - region "Video Player" [ref=f141e1901]:             
+                                    - link "Play video" [ref=f141e1906] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/feed/update/urn:li:ugcPost:6940718216906248192/
+                                      - img [ref=f141e1908]
+                              - generic [ref=f141e1911]:
+                                - generic [ref=f141e1912]:
+                                  - 'button "Reaction button state: no reaction" [ref=f141e1915] [cursor=pointer]':
+                                    - generic [ref=f141e1916]:
+                                      - img [ref=f141e1917]
+                                      - generic [ref=f141e1919]: "4"
+                                  - button "Open reactions menu":
+                                    - img [ref=f141e1921] [cursor=pointer]
+                                - link "Comment" [ref=f141e1923] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:6942517176138444800/
+                                  - generic [ref=f141e1924]:
+                                    - img [ref=f141e1925]
+                                    - generic [ref=f141e1927]: "1"
+                                - button "Repost" [ref=f141e1928] [cursor=pointer]:
+                                  - img [ref=f141e1930]
+                                - link "Send" [ref=f141e1932] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/brady-akers/
+                                  - img [ref=f141e1934]
+                                - link [ref=f141e1936] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/brady-akers/
+                                  - generic "4 reactions" [ref=f141e1937]:
+                                    - img [ref=f141e1938]
+                          - listitem [ref=f141e1944]:
+                            - listitem [ref=f141e1946]:
+                              - generic [ref=f141e1947]:
+                                - generic [ref=f141e1948]:
+                                  - link [ref=f141e1949] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/brady-akers/
+                                    - figure [ref=f141e1950]:
+                                      - img "View Brady Akers’ profile" [ref=f141e1951]
+                                  - generic [ref=f141e1953]:
+                                    - link "Brady Akers Verified Profile 1st" [ref=f141e1956] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/brady-akers/
+                                      - generic "Brady Akers Verified Profile 1st" [ref=f141e1958]:
+                                        - paragraph [ref=f141e1961]: Brady Akers
+                                        - paragraph [ref=f141e1963]:
+                                          - generic [ref=f141e1964]:
+                                            - img [ref=f141e1966]
+                                            - text: • 1st
+                                    - paragraph [ref=f141e1969]: Technology and startup enthusiast. Above average guy.
+                                    - paragraph [ref=f141e1971]:
+                                      - generic [ref=f141e1972]:
+                                        - text: 5yr •
+                                        - 'img "Visibility: Global" [ref=f141e1973]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/in/brady-akers/
+                                  - button "Open control menu for post by Brady Akers" [ref=f141e1975] [cursor=pointer]:
+                                    - img [ref=f141e1977]
+                                - link "Our (inter)stellar team is growing quickly and still has some additional openings available!" [ref=f141e1979] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:6775493024735666176/
+                                  - paragraph [ref=f141e1980]:
+                                    - generic [ref=f141e1981]: Our (inter)stellar team is growing quickly and still has some additional openings available!
+                                - generic [ref=f141e1982]:
+                                  - generic [ref=f141e1983]:
+                                    - link [ref=f141e1984] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/company/spaceback/posts/
+                                      - figure [ref=f141e1985]:
+                                        - 'img "View company: Spaceback" [ref=f141e1986]'
+                                    - generic [ref=f141e1988]:
+                                      - link "Spaceback" [ref=f141e1991] [cursor=pointer]:
+                                        - /url: https://www.linkedin.com/company/spaceback/posts/
+                                        - paragraph [ref=f141e1996]: Spaceback
+                                      - paragraph [ref=f141e1998]:
+                                        - generic [ref=f141e1999]:
+                                          - text: 5yr •
+                                          - 'img "Visibility: Global" [ref=f141e2000]'
+                                      - link:
+                                        - /url: https://www.linkedin.com/company/spaceback/posts/
+                                  - link "Join our amazing team! Spaceback is hiring 🎉 • Full Stack Engineer • Customer Success Manager https://lnkd.in/g-nUJGk" [ref=f141e2002] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/feed/update/urn:li:share:6772553039510417409/
+                                    - paragraph [ref=f141e2003]:
+                                      - generic [ref=f141e2004]:
+                                        - text: Join our amazing team! Spaceback is hiring 🎉
+                                        - text: • Full Stack Engineer
+                                        - text: • Customer Success Manager
+                                        - text: https://lnkd.in/g-nUJGk
+                                        - button:
+                                          - generic [ref=f141e2007]: … more
+                                  - link "Careers spaceback.com" [ref=f141e2008] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Fwww%2Espaceback%2Ecom%2Fcareers&urlhash=rI-K&mt=BYldLu06gxoEu_boX2GF-Hk6FTFyQCMaZp3vmNXTCW1q-Yxn8ajyHv_8ClJcB1YwwDVMSCX8QSLryTMOe8YqlrF-6KoQL-EzDsIGWqq8q-nwFi3IA5DNDQ&isSdui=true
+                                    - generic [ref=f141e2009]:
+                                      - figure [ref=f141e2010]
+                                      - generic [ref=f141e2011]:
+                                        - paragraph [ref=f141e2013]:
+                                          - generic [ref=f141e2014]:
+                                            - generic [ref=f141e2015]: Careers
+                                            - text: Careers
+                                        - paragraph [ref=f141e2017]: spaceback.com
+                              - generic [ref=f141e2019]:
+                                - generic [ref=f141e2020]:
+                                  - 'button "Reaction button state: no reaction" [ref=f141e2023] [cursor=pointer]':
+                                    - generic [ref=f141e2024]:
+                                      - img [ref=f141e2025]
+                                      - generic [ref=f141e2027]: "8"
+                                  - button "Open reactions menu":
+                                    - img [ref=f141e2029] [cursor=pointer]
+                                - link "Comment" [ref=f141e2031] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:6775493024735666176/
+                                  - img [ref=f141e2033]
+                                - button "Repost" [ref=f141e2035] [cursor=pointer]:
+                                  - img [ref=f141e2037]
+                                - link "Send" [ref=f141e2039] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/brady-akers/
+                                  - img [ref=f141e2041]
+                                - link [ref=f141e2043] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/brady-akers/
+                                  - generic "8 reactions" [ref=f141e2044]:
+                                    - img [ref=f141e2045]
+                                    - img [ref=f141e2051]
+                      - button "Next" [ref=f141e2065] [cursor=pointer]:
+                        - img [ref=f141e2067]
+                    - link "Show all posts" [ref=f141e2070] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/brady-akers/recent-activity/all/
+                      - generic [ref=f141e2071]:
+                        - img [ref=f141e2072]
+                        - generic [ref=f141e2074]: Show all posts
+            - complementary "Aside" [ref=f141e2096]:
+              - generic [ref=f141e2097]:
+                - generic [ref=f141e2098]:
+                  - iframe [ref=f141e2101]:
+                    - main "Work With Us Container" [ref=f143e3]:
+                      - generic [ref=f143e4]:
+                        - img [ref=f143e6]
+                        - generic [ref=f143e7]:
+                          - img "Taylor" [ref=f143e8]
+                          - link "Jacobs" [ref=f143e9] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/li/tscp/sct?destinationUrl=http%3A%2F%2Fwww.linkedin.com%2Fcompany%2F4025%2Flife&trackingEvent=%5B%7B%22eventInfo%22%3A%7B%22appId%22%3A%22com.linkedin.ads.rendering.d_web%22%2C%22eventName%22%3A%22SponsoredRightRailContentActionEvent%22%2C%22topicName%22%3A%22SponsoredRightRailContentActionEvent%22%7D%2C%22eventBody%22%3A%7B%22sponsoredEventHeader%22%3A%7B%22encryptedTrackingData%22%3A%22CwEAAAGfQC00vpvlBbYPLcvSIukc4cL1T0jLpqBuRL2TuEXdFsb9vHONTgUvlUayMzLdr_Cz3YiccgvwsoQtGsk6JUQGRAYXhx3CIHsWxitgNUj_l02T2Ik8jhlSRZ9P-JiDkoQ3YmvEHKk-UR7E_J3PUlM6r-nPwyIlkBEQZtSMfI0_cAfjpa2SUcOPRFt2wZdCqGeTIggSqUEQepMr21KU02mRURQ8zkMORMBYWQdoemELcsi3K0ihDnH36aiD65Km8aQKKDiq8xA5V8Pk0cqxHnFtrPQodC4pcv3jKOlWxA1T1uXJ7gzoa3nbS-FxIII8el6YZnefpsjVBAhCyI1wpIdIkMA1f8tK58Uk2DNN6ATf0irFCdBr-jO9wCfzbWE44GJnP4O7TJO9IQmagkfrf3EdcBPqHfBxzh_LFqZC5BinA7mNsYKSZiHr0wSchAaaPPhVDcONtct1rzafnWIolIThCLgLpK3yvNVQJ-voBt6ssvzPIbK2HPIUtw1x2JRv3mkjhPQx929lZlp2jXebStEnI_xiUezrIqFznHbBhnhxPi81tJjaxUBgBT4I1gU-Sog5q0W3NmXPbpbA9rTxfTT0mae_Gyvi2-elp8FSaYwKgDsqm1pAbcC2WqLq2CR_2-eWjG7T_WCI-R81R6l_dvPNoNRGy5F_oT0T5jbWEvWBTBLUrl1l1mqvsgJQ4HOa_eCIgepzMkgnSVsci-6OiJ40H-Ck0kISTaUH11vlD57qZj-Xnww7_vB2o7TFBAMX7FsYx7aB8nkkeZykAz6sve3haTUkCrfpElT2iKTOklnn6G53BuWn5oHdvFzlrVNwpC_toXpNiLCt2AcWRstNUeAIQtcQJ1Nl4ioxMnIM74U_0l28YnfQTLektJgMZiYhZ4KZEosCkIY_T5hX1gPG1O8-DsuCa_xDjjXiYi9kHesZSPUm5rsgyHrKYrHoOTrhbS8aIIgfIN3cgD2D5HZKSPEQt0dNPE76JCwq20ip4GU2ac8kCv07xxTzBp5KhRteJuDLTtIAE2nJ-1KPFqPlTTjzuU5oiTk_QhCo0nelRK7vvz7rM32VgAm9_JxhVXzeQYV39_tgh-oaxOii%22%7D%2C%22header%22%3A%7B%22pageInstance%22%3A%7B%22pageUrn%22%3A%22urn%3Ali%3Apage%3Ad_flagship3_profile_view_base%22%2C%22trackingId%22%3A%22ba86afac-e17d-4f7e-8463-44550d1bff1b%22%7D%2C%22time%22%3A1783488132229%2C%22version%22%3A%220.0.0%22%7D%2C%22requestHeader%22%3A%7B%22pageKey%22%3A%22d_flagship3_profile_view_base%22%2C%22interfaceLocale%22%3A%22en-US%22%7D%7D%7D%5D&csrfToken=ajax%3A1061531063325413417
+                            - img "Jacobs" [ref=f143e10]
+                      - generic [ref=f143e11]:
+                        - generic [ref=f143e12]:
+                          - paragraph [ref=f143e13]: Taylor, explore relevant opportunities with Jacobs
+                          - paragraph [ref=f143e14]: Get the latest jobs and industry news
+                        - link "Follow" [ref=f143e15] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/li/tscp/sct?destinationUrl=http%3A%2F%2Fwww.linkedin.com%2Fcompany%2F4025%2Flife%3FisFollowingPage%3Dtrue&trackingEvent=%5B%7B%22eventInfo%22%3A%7B%22appId%22%3A%22com.linkedin.ads.rendering.d_web%22%2C%22eventName%22%3A%22SponsoredRightRailContentActionEvent%22%2C%22topicName%22%3A%22SponsoredRightRailContentActionEvent%22%7D%2C%22eventBody%22%3A%7B%22sponsoredEventHeader%22%3A%7B%22encryptedTrackingData%22%3A%22CwEAAAGfQC00vvDyxvLgpqFmSp_PCivILk6cXWa7Rbfx69QTlgwtTqQdsOiYQsO5mmolE_nNq-89jjtr8l6xg7MdKQ7lcjYgliqLr5OuH_gAuJxwKMNRtUhfIoJCRc4Gm17j2YnSbdmOW6CUs-qB5FhEN6knK56DFDP9P1Xpj79ONigj58zuhYCi3-KsZxZ6WjxppfulUWJy5jFLUoIQ97hJEgZ9QTWRcCGEB-9aIFVP1euHOKYuMUu1qXNL-J3gul750AK4uJkCNi-nzWvcVpkq-zJgZMKBqiDGbZ5_j6OP1vHBSB6Io69naQYTMmfABxjJz0BtaX1Md5TMIFZSC7nqgEug0mt-8P2TrcRTbxzQjxsrQ2LvUGVnfqznR1VYa11FvoG1zNEntGpsUd6PRPUSEVstLLbgolAemP6mwY5EgRwBZy41bRUJCOe0yKsOVYSSh3dnigPeMiqKF0JeD01lazeoJQkV4HvczNDNCR3RBJFQTFrDYfDvS5UmeNH75dd3h-Q3DuY8bOorjgmoMuYscUP93kcFQodR0h04ByB37tbVCx_Pi6xjeZwJcOlnLuyz-bIGdGLKHezUu0OG6gFK58zlC6NpGYPkuAtjmvCA0EeCoal4iM85bz8OxorVn6pojuin_-tyHFfLynlJhsCA91eiE0IY6JeihLXOXym8COU78kIGohCFDXPEpPOpmPKjGukqf0fmyQGOW7oul4bFRH0wf0u_vPX7v_sVClrhxwP4P-XDu_hSEsSYvjnOHSiCK8Pv5ajBh0Xc7TxHocYxap5oDRz-1k_Ohc6LRhwN5MbDFb20HN_Gi30JmObojlGZgW1OKKD9MHNolXPDwH-qsI4xrcbAOfgfkL7DVKxsgkaedM-wGv8sDMRc5QeH0voLdt3Zkd5q1zrPDQeG22qmSb23p2vk5CSJTcNUbYc4jgVmrAL9jgCyU4obYk4TvWzcKHkgLRi2f5R4Se5Gpnt2_ydaUFqsH5bFr4uT4KpIEHkl_j8RRTHZYLYYI-0I1cWuwrwkBxH9lRPkemndhGISn-tUwx7X162yqWFNcOLYPP95Nsx9DKWPsDwAOe8YApe4GDM59oDIkONhS_fK4mZbeJ_seTL0AA2LbHvvn3V9zYn-JGaiO2L3Wgg%22%7D%2C%22header%22%3A%7B%22pageInstance%22%3A%7B%22pageUrn%22%3A%22urn%3Ali%3Apage%3Ad_flagship3_profile_view_base%22%2C%22trackingId%22%3A%22353af15a-e500-4233-93de-897628b93fb7%22%7D%2C%22time%22%3A1783488132229%2C%22version%22%3A%220.0.0%22%7D%2C%22requestHeader%22%3A%7B%22pageKey%22%3A%22d_flagship3_profile_view_base%22%2C%22interfaceLocale%22%3A%22en-US%22%7D%7D%7D%5D&csrfToken=ajax%3A1061531063325413417
+                      - generic [ref=f143e16]:
+                        - paragraph [ref=f143e17]: Promoted
+                        - button "Ad Options" [ref=f143e18] [cursor=pointer]:
+                          - img [ref=f143e19]
+                          - generic [ref=f143e23]: Ad Options
+                  - generic [ref=f141e2106]:
+                    - heading "More profiles for you" [level=3] [ref=f141e2110]
+                    - generic [ref=f141e2112]:
+                      - generic [ref=f141e2114]:
+                        - link "Casey Saran Verified · 1st Founder @ Spaceback -> Board Member @ Rembrand" [ref=f141e2117] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/caseysaran/
+                          - generic [ref=f141e2118]:
+                            - figure [ref=f141e2119]
+                            - generic [ref=f141e2120]:
+                              - generic [ref=f141e2121]:
+                                - paragraph [ref=f141e2123]:
+                                  - link "Casey Saran Verified" [ref=f141e2125]:
+                                    - /url: https://www.linkedin.com/in/caseysaran/
+                                    - text: Casey Saran
+                                    - img "Verified" [ref=f141e2126]:
+                                      - img [ref=f141e2127]
+                                - paragraph [ref=f141e2129]: · 1st
+                              - paragraph [ref=f141e2131]: Founder @ Spaceback -> Board Member @ Rembrand
+                        - link "Message Casey Saran" [ref=f141e2135] [cursor=pointer]:
+                          - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAAF4_ccBMGk5P2KyRs2T7zPHOr5HhATP1P0&recipient=ACoAAAF4_ccBMGk5P2KyRs2T7zPHOr5HhATP1P0&screenContext=NON_SELF_PROFILE_VIEW&interop=msgOverlay
+                          - generic [ref=f141e2136]:
+                            - img [ref=f141e2137]
+                            - generic [ref=f141e2139]: Message
+                      - generic [ref=f141e2141]:
+                        - link "Joe Hall Verified · 1st Co-Founder @Adexy • Co-Founder @Spaceback • Product & Design" [ref=f141e2144] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/joehall6/
+                          - generic [ref=f141e2145]:
+                            - figure [ref=f141e2146]
+                            - generic [ref=f141e2147]:
+                              - generic [ref=f141e2148]:
+                                - paragraph [ref=f141e2150]:
+                                  - link "Joe Hall Verified" [ref=f141e2152]:
+                                    - /url: https://www.linkedin.com/in/joehall6/
+                                    - text: Joe Hall
+                                    - img "Verified" [ref=f141e2153]:
+                                      - img [ref=f141e2154]
+                                - paragraph [ref=f141e2156]: · 1st
+                              - paragraph [ref=f141e2158]: Co-Founder @Adexy • Co-Founder @Spaceback • Product & Design
+                        - link "Message Joe Hall" [ref=f141e2162] [cursor=pointer]:
+                          - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAAYxir8BeCekMlKbmHqFCmvzNIlXWxdIb98&recipient=ACoAAAYxir8BeCekMlKbmHqFCmvzNIlXWxdIb98&screenContext=NON_SELF_PROFILE_VIEW&interop=msgOverlay
+                          - generic [ref=f141e2163]:
+                            - img [ref=f141e2164]
+                            - generic [ref=f141e2166]: Message
+                      - generic [ref=f141e2168]:
+                        - link "Chris Baclig Verified · 1st CTO at Spaceback" [ref=f141e2171] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/chrisbaclig/
+                          - generic [ref=f141e2172]:
+                            - figure [ref=f141e2173]
+                            - generic [ref=f141e2174]:
+                              - generic [ref=f141e2175]:
+                                - paragraph [ref=f141e2177]:
+                                  - link "Chris Baclig Verified" [ref=f141e2179]:
+                                    - /url: https://www.linkedin.com/in/chrisbaclig/
+                                    - text: Chris Baclig
+                                    - img "Verified" [ref=f141e2180]:
+                                      - img [ref=f141e2181]
+                                - paragraph [ref=f141e2183]: · 1st
+                              - paragraph [ref=f141e2185]: CTO at Spaceback
+                        - link "Message Chris Baclig" [ref=f141e2189] [cursor=pointer]:
+                          - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAASh8SsBLZr-BaIIzBrC6riqAUNXddA6p1k&recipient=ACoAAASh8SsBLZr-BaIIzBrC6riqAUNXddA6p1k&screenContext=NON_SELF_PROFILE_VIEW&interop=msgOverlay
+                          - generic [ref=f141e2190]:
+                            - img [ref=f141e2191]
+                            - generic [ref=f141e2193]: Message
+                      - generic [ref=f141e2195]:
+                        - link "Jordan Mandel Premium · 1st Global VP of Sales, Spaceback at Rembrand" [ref=f141e2198] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/jordan-mandel/
+                          - generic [ref=f141e2199]:
+                            - figure [ref=f141e2200]
+                            - generic [ref=f141e2201]:
+                              - generic [ref=f141e2202]:
+                                - paragraph [ref=f141e2204]:
+                                  - link "Jordan Mandel Premium" [ref=f141e2206]:
+                                    - /url: https://www.linkedin.com/in/jordan-mandel/
+                                    - text: Jordan Mandel
+                                    - img "Premium" [ref=f141e2207]:
+                                      - img [ref=f141e2208]
+                                - paragraph [ref=f141e2210]: · 1st
+                              - paragraph [ref=f141e2212]: Global VP of Sales, Spaceback at Rembrand
+                        - link "Message Jordan Mandel" [ref=f141e2216] [cursor=pointer]:
+                          - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAAJWwt4B3Q-V_gau6xDJJmBNwi-pMCJmjyI&recipient=ACoAAAJWwt4B3Q-V_gau6xDJJmBNwi-pMCJmjyI&screenContext=NON_SELF_PROFILE_VIEW&interop=msgOverlay
+                          - generic [ref=f141e2217]:
+                            - img [ref=f141e2218]
+                            - generic [ref=f141e2220]: Message
+                      - generic [ref=f141e2222]:
+                        - link "Rishav Jalan Verified · 1st Co-Founder @ Rembrand | former Engineering Director at Cisco" [ref=f141e2225] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/rishavjalan/
+                          - generic [ref=f141e2226]:
+                            - figure [ref=f141e2227]
+                            - generic [ref=f141e2228]:
+                              - generic [ref=f141e2229]:
+                                - paragraph [ref=f141e2231]:
+                                  - link "Rishav Jalan Verified" [ref=f141e2233]:
+                                    - /url: https://www.linkedin.com/in/rishavjalan/
+                                    - text: Rishav Jalan
+                                    - img "Verified" [ref=f141e2234]:
+                                      - img [ref=f141e2235]
+                                - paragraph [ref=f141e2237]: · 1st
+                              - paragraph [ref=f141e2239]: Co-Founder @ Rembrand | former Engineering Director at Cisco
+                        - link "Message Rishav Jalan" [ref=f141e2243] [cursor=pointer]:
+                          - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAAXi-ZEBY6Lu74Tfwnon1B-zZghs6mTo5i8&recipient=ACoAAAXi-ZEBY6Lu74Tfwnon1B-zZghs6mTo5i8&screenContext=NON_SELF_PROFILE_VIEW&interop=msgOverlay
+                          - generic [ref=f141e2244]:
+                            - img [ref=f141e2245]
+                            - generic [ref=f141e2247]: Message
+                    - link "Show all more profiles for you" [ref=f141e2249] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/brady-akers/overlay/browsemap-recommendations/
+                      - generic [ref=f141e2250]:
+                        - img [ref=f141e2251]
+                        - generic [ref=f141e2253]: Show all
+                  - generic [ref=f141e2256]:
+                    - heading "Software engineering content you might be interested in" [level=2] [ref=f141e2258]
+                    - generic [ref=f141e2260]:
+                      - generic [ref=f141e2262]:
+                        - link "Yasser Toruño Premium · 3rd Engineering Leader | Open Source Creator | Entrepreneur" [ref=f141e2265] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/yassertoruno/
+                          - generic [ref=f141e2266]:
+                            - figure [ref=f141e2267]
+                            - generic [ref=f141e2268]:
+                              - generic [ref=f141e2269]:
+                                - paragraph [ref=f141e2271]:
+                                  - link "Yasser Toruño Premium" [ref=f141e2273]:
+                                    - /url: https://www.linkedin.com/in/yassertoruno/
+                                    - text: Yasser Toruño
+                                    - img "Premium" [ref=f141e2274]:
+                                      - img [ref=f141e2275]
+                                - paragraph [ref=f141e2277]: · 3rd
+                              - paragraph [ref=f141e2279]: Engineering Leader | Open Source Creator | Entrepreneur
+                        - link "Visit my website" [ref=f141e2283] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Fyassi%2Edev&urlhash=cTSm&mt=7W-61ZpAjmPsv_gljzmNCDk91eA_FPoZXR7FgOSe3e1K4h02zdZbg5fo3L5BUXXFJIkSNH9Z6J1AfFy1ePcNyRF58YQ&isSdui=true
+                          - generic [ref=f141e2285]: Visit my website
+                      - generic [ref=f141e2287]:
+                        - link "Nitin Gupta Premium · 3rd Sr Staff Software Engineer at NVIDIA" [ref=f141e2290] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/nitingupta910/
+                          - generic [ref=f141e2291]:
+                            - figure [ref=f141e2292]
+                            - generic [ref=f141e2293]:
+                              - generic [ref=f141e2294]:
+                                - paragraph [ref=f141e2296]:
+                                  - link "Nitin Gupta Premium" [ref=f141e2298]:
+                                    - /url: https://www.linkedin.com/in/nitingupta910/
+                                    - text: Nitin Gupta
+                                    - img "Premium" [ref=f141e2299]:
+                                      - img [ref=f141e2300]
+                                - paragraph [ref=f141e2302]: · 3rd
+                              - paragraph [ref=f141e2304]: Sr Staff Software Engineer at NVIDIA
+                        - link "View my blog" [ref=f141e2308] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Fnitingupta%2Edev%2F&urlhash=SgY8&mt=7gE5pKcqmoVSOegaPpuoXll7XJI-nhe-gvJcT1hTaVf7GnUZL61wFIRuJTnliJE81uB9ZUvnTPMp-FOugHKqWbg_v8c&isSdui=true
+                          - generic [ref=f141e2310]: View my blog
+                      - generic [ref=f141e2312]:
+                        - link "Abdul Rafay Abbasi Premium · 3rd Co-Founder @ Design Gurus | Software Design, Software Engineering" [ref=f141e2315] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/rafayabb/
+                          - generic [ref=f141e2316]:
+                            - figure [ref=f141e2317]
+                            - generic [ref=f141e2318]:
+                              - generic [ref=f141e2319]:
+                                - paragraph [ref=f141e2321]:
+                                  - link "Abdul Rafay Abbasi Premium" [ref=f141e2323]:
+                                    - /url: https://www.linkedin.com/in/rafayabb/
+                                    - text: Abdul Rafay Abbasi
+                                    - img "Premium" [ref=f141e2324]:
+                                      - img [ref=f141e2325]
+                                - paragraph [ref=f141e2327]: · 3rd
+                              - paragraph [ref=f141e2329]: Co-Founder @ Design Gurus | Software Design, Software Engineering
+                        - link "View my newsletter" [ref=f141e2333] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Fpostsyntax%2Esubstack%2Ecom%2F&urlhash=sxoo&mt=hGP7E1wV7UNP7bD9xpjDNygrH5mmb72ghPCHUpivpV0ZyOG8j0tGQInUR_jE9Kc8YcoQt1OZ3MmoHGLVckE-tBKPzww&isSdui=true
+                          - generic [ref=f141e2335]: View my newsletter
+                  - generic [ref=f141e2340]:
+                    - generic [ref=f141e2342]:
+                      - heading "People you may know" [level=2] [ref=f141e2343]
+                      - paragraph [ref=f141e2344]: From Brady's company
+                    - generic [ref=f141e2346]:
+                      - generic [ref=f141e2348]:
+                        - link "Hamzah Shakeel Verified · 2nd Head of Finance & Accounting at Rembrand" [ref=f141e2350] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/hamzahshakeel/
+                          - generic [ref=f141e2351]:
+                            - figure [ref=f141e2352]
+                            - generic [ref=f141e2353]:
+                              - generic [ref=f141e2354]:
+                                - paragraph [ref=f141e2356]:
+                                  - link "Hamzah Shakeel Verified" [ref=f141e2358]:
+                                    - /url: https://www.linkedin.com/in/hamzahshakeel/
+                                    - text: Hamzah Shakeel
+                                    - img "Verified" [ref=f141e2359]:
+                                      - img [ref=f141e2360]
+                                - paragraph [ref=f141e2362]: · 2nd
+                              - paragraph [ref=f141e2364]: Head of Finance & Accounting at Rembrand
+                        - button "Invite Hamzah Shakeel to connect" [ref=f141e2368] [cursor=pointer]:
+                          - generic [ref=f141e2369]:
+                            - img [ref=f141e2370]
+                            - generic [ref=f141e2373]: Connect
+                      - generic [ref=f141e2375]:
+                        - link "Roman Mesh Verified · 2nd Performance marketing strategist | Turning ads data into profit" [ref=f141e2377] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/romanmesh/
+                          - generic [ref=f141e2378]:
+                            - figure [ref=f141e2379]
+                            - generic [ref=f141e2380]:
+                              - generic [ref=f141e2381]:
+                                - paragraph [ref=f141e2383]:
+                                  - link "Roman Mesh Verified" [ref=f141e2385]:
+                                    - /url: https://www.linkedin.com/in/romanmesh/
+                                    - text: Roman Mesh
+                                    - img "Verified" [ref=f141e2386]:
+                                      - img [ref=f141e2387]
+                                - paragraph [ref=f141e2389]: · 2nd
+                              - paragraph [ref=f141e2391]: Performance marketing strategist | Turning ads data into profit
+                        - button "Invite Roman Mesh to connect" [ref=f141e2395] [cursor=pointer]:
+                          - generic [ref=f141e2396]:
+                            - img [ref=f141e2397]
+                            - generic [ref=f141e2400]: Connect
+                      - generic [ref=f141e2402]:
+                        - link "Mohamed Ahmed Premium · 2nd Computer Vision Engineer @ Rembrand | MSc. student and TA @ Cairo University" [ref=f141e2404] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/mohamedahmed228/
+                          - generic [ref=f141e2405]:
+                            - figure [ref=f141e2406]
+                            - generic [ref=f141e2407]:
+                              - generic [ref=f141e2408]:
+                                - paragraph [ref=f141e2410]:
+                                  - link "Mohamed Ahmed Premium" [ref=f141e2412]:
+                                    - /url: https://www.linkedin.com/in/mohamedahmed228/
+                                    - text: Mohamed Ahmed
+                                    - img "Premium" [ref=f141e2413]:
+                                      - img [ref=f141e2414]
+                                - paragraph [ref=f141e2416]: · 2nd
+                              - paragraph [ref=f141e2418]: Computer Vision Engineer @ Rembrand | MSc. student and TA @ Cairo University
+                        - button "Invite Mohamed Ahmed to connect" [ref=f141e2422] [cursor=pointer]:
+                          - generic [ref=f141e2423]:
+                            - img [ref=f141e2424]
+                            - generic [ref=f141e2427]: Connect
+                      - generic [ref=f141e2429]:
+                        - link "Ahmed Adham Verified · 2nd Computer Vision Engineer | Deep Learning & Real-Time C++ | Perception, AR & Autonomous Systems." [ref=f141e2431] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/ahmed-adhaam/
+                          - generic [ref=f141e2432]:
+                            - figure [ref=f141e2433]
+                            - generic [ref=f141e2434]:
+                              - generic [ref=f141e2435]:
+                                - paragraph [ref=f141e2437]:
+                                  - link "Ahmed Adham Verified" [ref=f141e2439]:
+                                    - /url: https://www.linkedin.com/in/ahmed-adhaam/
+                                    - text: Ahmed Adham
+                                    - img "Verified" [ref=f141e2440]:
+                                      - img [ref=f141e2441]
+                                - paragraph [ref=f141e2443]: · 2nd
+                              - paragraph [ref=f141e2445]: Computer Vision Engineer | Deep Learning & Real-Time C++ | Perception, AR & Autonomous Systems.
+                        - button "Invite Ahmed Adham to connect" [ref=f141e2449] [cursor=pointer]:
+                          - generic [ref=f141e2450]:
+                            - img [ref=f141e2451]
+                            - generic [ref=f141e2454]: Connect
+                      - generic [ref=f141e2456]:
+                        - link "Jared Hand Premium · 2nd Commercial Leader | Head of Revenue & Sales | SaaS | MarTech/AdTech | Data | Currently, Managing Director, US Sales @ Rembrand" [ref=f141e2458] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/jghand/
+                          - generic [ref=f141e2459]:
+                            - figure [ref=f141e2460]
+                            - generic [ref=f141e2461]:
+                              - generic [ref=f141e2462]:
+                                - paragraph [ref=f141e2464]:
+                                  - link "Jared Hand Premium" [ref=f141e2466]:
+                                    - /url: https://www.linkedin.com/in/jghand/
+                                    - text: Jared Hand
+                                    - img "Premium" [ref=f141e2467]:
+                                      - img [ref=f141e2468]
+                                - paragraph [ref=f141e2470]: · 2nd
+                              - paragraph [ref=f141e2472]: Commercial Leader | Head of Revenue & Sales | SaaS | MarTech/AdTech | Data | Currently, Managing Director, US Sales @ Rembrand
+                        - button "Invite Jared Hand to connect" [ref=f141e2476] [cursor=pointer]:
+                          - generic [ref=f141e2477]:
+                            - img [ref=f141e2478]
+                            - generic [ref=f141e2481]: Connect
+                    - link "Show all people you may know" [ref=f141e2483] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/brady-akers/
+                      - generic [ref=f141e2484]:
+                        - img [ref=f141e2485]
+                        - generic [ref=f141e2487]: Show all
+                  - generic [ref=f141e2492]:
+                    - generic [ref=f141e2494]:
+                      - heading "You might like" [level=2] [ref=f141e2495]
+                      - paragraph [ref=f141e2496]: Pages for you
+                    - generic [ref=f141e2498]:
+                      - generic [ref=f141e2501]:
+                        - link "Pinterest Software Development 1,383,698 followers" [ref=f141e2502] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/company/pinterest/
+                          - generic [ref=f141e2503]:
+                            - figure [ref=f141e2504]
+                            - generic [ref=f141e2505]:
+                              - paragraph [ref=f141e2508]: Pinterest
+                              - paragraph [ref=f141e2510]: Software Development
+                              - paragraph [ref=f141e2511]: 1,383,698 followers
+                        - generic [ref=f141e2512]:
+                          - generic [ref=f141e2513]:
+                            - figure [ref=f141e2514]
+                            - paragraph [ref=f141e2516]:
+                              - link "Tierra works here" [ref=f141e2518] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/tierrapatmavanu/
+                          - button "Follow Pinterest" [ref=f141e2521] [cursor=pointer]:
+                            - generic [ref=f141e2522]:
+                              - img [ref=f141e2523]
+                              - generic [ref=f141e2525]: Follow
+                      - generic [ref=f141e2528]:
+                        - link "adidas Sporting Goods 4,828,471 followers" [ref=f141e2529] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/company/adidas/
+                          - generic [ref=f141e2530]:
+                            - figure [ref=f141e2531]
+                            - generic [ref=f141e2532]:
+                              - paragraph [ref=f141e2535]: adidas
+                              - paragraph [ref=f141e2537]: Sporting Goods
+                              - paragraph [ref=f141e2538]: 4,828,471 followers
+                        - generic [ref=f141e2539]:
+                          - link "Rachel & 17 other connections follow this page" [ref=f141e2540] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/brady-akers/
+                            - generic [ref=f141e2541]:
+                              - figure [ref=f141e2542]
+                              - paragraph [ref=f141e2544]:
+                                - link "Rachel & 17 other connections follow this page" [ref=f141e2546]:
+                                  - /url: https://www.linkedin.com/in/brady-akers/
+                          - button "Follow adidas" [ref=f141e2549] [cursor=pointer]:
+                            - generic [ref=f141e2550]:
+                              - img [ref=f141e2551]
+                              - generic [ref=f141e2553]: Follow
+                    - link "Show all pages you might like" [ref=f141e2555] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/brady-akers/
+                      - generic [ref=f141e2556]:
+                        - img [ref=f141e2557]
+                        - generic [ref=f141e2559]: Show all
+                - iframe [ref=f141e2564]:
+                  - link "Advertise on LinkedIn" [ref=f144e4] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/jobs/?trk=li_FA_global_careers_jobsgtm_jsFA_v1&mcid=6899045044465016833
+                    - img "Advertise on LinkedIn" [ref=f144e5]
+            - generic "Footer" [ref=f141e2565]:
+              - generic [ref=f141e2568]:
+                - generic [ref=f141e2569]:
+                  - navigation [ref=f141e2570]:
+                    - link "About" [ref=f141e2571] [cursor=pointer]:
+                      - /url: https://about.linkedin.com/
+                      - paragraph [ref=f141e2572]: About
+                    - link "Accessibility" [ref=f141e2573] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/accessibility/
+                      - paragraph [ref=f141e2574]: Accessibility
+                    - link "Talent Solutions" [ref=f141e2575] [cursor=pointer]:
+                      - /url: https://business.linkedin.com/talent-solutions?trk=flagship_nav&veh=li-footer-lts-control&src=li-footer
+                      - paragraph [ref=f141e2576]: Talent Solutions
+                    - link "Community Guidelines" [ref=f141e2577] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/legal/professional-community-policies/
+                      - paragraph [ref=f141e2578]: Community Guidelines
+                    - link "Careers" [ref=f141e2579] [cursor=pointer]:
+                      - /url: https://careers.linkedin.com/
+                      - paragraph [ref=f141e2580]: Careers
+                    - link "Marketing Solutions" [ref=f141e2581] [cursor=pointer]:
+                      - /url: https://business.linkedin.com/advertise?trk=n_nav_lms_f&src=li-footer
+                      - paragraph [ref=f141e2582]: Marketing Solutions
+                    - button "Privacy & Terms" [ref=f141e2583] [cursor=pointer]:
+                      - generic [ref=f141e2584]:
+                        - paragraph [ref=f141e2585]: Privacy & Terms
+                        - img [ref=f141e2586]
+                    - link "Ad Choices" [ref=f141e2588] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/help/linkedin/answer/62931/
+                      - paragraph [ref=f141e2589]: Ad Choices
+                    - link "Advertising" [ref=f141e2590] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/ad/start/?trk=n_nav_ads_rr
+                      - paragraph [ref=f141e2591]: Advertising
+                    - link "Sales Solutions" [ref=f141e2592] [cursor=pointer]:
+                      - /url: https://business.linkedin.com/sales-solutions?trk=flagship_nav&veh=li-footer-lss-control&src=li-footer
+                      - paragraph [ref=f141e2593]: Sales Solutions
+                    - link "Mobile" [ref=f141e2594] [cursor=pointer]:
+                      - /url: https://mobile.linkedin.com/
+                      - paragraph [ref=f141e2595]: Mobile
+                    - link "Small Business" [ref=f141e2596] [cursor=pointer]:
+                      - /url: https://business.linkedin.com/grow?src=li-footer
+                      - paragraph [ref=f141e2597]: Small Business
+                    - link "Safety Center" [ref=f141e2598] [cursor=pointer]:
+                      - /url: https://safety.linkedin.com/
+                      - paragraph [ref=f141e2599]: Safety Center
+                  - paragraph [ref=f141e2601]: LinkedIn Corporation © 2026
+                - generic [ref=f141e2602]:
+                  - list [ref=f141e2603]:
+                    - listitem [ref=f141e2604]:
+                      - generic [ref=f141e2605]:
+                        - img [ref=f141e2606]
+                        - generic [ref=f141e2608]:
+                          - link "Questions?" [ref=f141e2609] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/help/linkedin/
+                            - paragraph [ref=f141e2610]: Questions?
+                          - paragraph [ref=f141e2611]: Visit our Help Center.
+                    - listitem [ref=f141e2612]:
+                      - generic [ref=f141e2613]:
+                        - img [ref=f141e2614]
+                        - generic [ref=f141e2616]:
+                          - link "Manage your account and privacy" [ref=f141e2617] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/mypreferences/d/
+                            - paragraph [ref=f141e2618]: Manage your account and privacy
+                          - paragraph [ref=f141e2619]: Go to your Settings.
+                    - listitem [ref=f141e2620]:
+                      - generic [ref=f141e2621]:
+                        - img [ref=f141e2622]
+                        - generic [ref=f141e2624]:
+                          - link "Recommendation transparency" [ref=f141e2625] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/help/linkedin/answer/a1339724/
+                            - paragraph [ref=f141e2626]: Recommendation transparency
+                          - paragraph [ref=f141e2627]: Learn more about Recommended Content.
+                  - generic [ref=f141e2629]:
+                    - paragraph [ref=f141e2631]: Select language
+                    - generic [ref=f141e2632]:
+                      - combobox "Select language" [ref=f141e2633] [cursor=pointer]:
+                        - option "العربية (Arabic)"
+                        - option "বাংলা (Bangla)"
+                        - option "Čeština (Czech)"
+                        - option "Dansk (Danish)"
+                        - option "Deutsch (German)"
+                        - option "Ελληνικά (Greek)"
+                        - option "English (English)" [selected]
+                        - option "Español (Spanish)"
+                        - option "فارسی (Persian)"
+                        - option "Suomi (Finnish)"
+                        - option "Français (French)"
+                        - option "हिंदी (Hindi)"
+                        - option "Magyar (Hungarian)"
+                        - option "Bahasa Indonesia (Indonesian)"
+                        - option "Italiano (Italian)"
+                        - option "עברית (Hebrew)"
+                        - option "日本語 (Japanese)"
+                        - option "한국어 (Korean)"
+                        - option "मराठी (Marathi)"
+                        - option "Bahasa Malaysia (Malay)"
+                        - option "Nederlands (Dutch)"
+                        - option "Norsk (Norwegian)"
+                        - option "ਪੰਜਾਬੀ (Punjabi)"
+                        - option "Polski (Polish)"
+                        - option "Português (Portuguese)"
+                        - option "Română (Romanian)"
+                        - option "Русский (Russian)"
+                        - option "Svenska (Swedish)"
+                        - option "తెలుగు (Telugu)"
+                        - option "ภาษาไทย (Thai)"
+                        - option "Tagalog (Tagalog)"
+                        - option "Türkçe (Turkish)"
+                        - option "Українська (Ukrainian)"
+                        - option "Tiếng Việt (Vietnamese)"
+                        - option "简体中文 (Chinese (Simplified))"
+                        - option "正體中文 (Chinese (Traditional))"
+                      - img
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - complementary:
+            - generic [ref=f141e2635]:
+              - generic [ref=f141e2637] [cursor=pointer]:
+                - generic [ref=f141e2638]:
+                  - img "Taylor Yates" [ref=f141e2639]
+                  - generic [ref=f141e2641]: Status is online
+                - button "You are on the messaging overlay. Press enter to open the list of conversations." [ref=f141e2642]:
+                  - generic [ref=f141e2643]:
+                    - generic [ref=f141e2644]: Messaging
+                    - generic [ref=f141e2645]: You are on the messaging overlay. Press enter to open the list of conversations.
+              - generic [ref=f141e2646]:
+                - button "Open messenger dropdown menu" [ref=f141e2648] [cursor=pointer]:
+                  - img "Open messenger dropdown menu" [ref=f141e2649]
+                - button "Compose message" [ref=f141e2652] [cursor=pointer]:
+                  - img [ref=f141e2653]
+                  - generic [ref=f141e2655]: Compose message
+                - button "You are on the messaging overlay. Press enter to open the list of conversations." [ref=f141e2656] [cursor=pointer]:
+                  - img [ref=f141e2657]
+                  - generic [ref=f141e2659]: You are on the messaging overlay. Press enter to open the list of conversations.
+          - complementary "AI-powered assistant to get help with your career, jobs etc"
+  - iframe [ref=f141e2660]:
+    - generic [active] [ref=f145e1]:
+      - generic:
+        - region "Toast message":
+          - heading "0 notifications total" [level=2] [ref=f145e3]
+          - alert
+      - region [ref=f145e4]
+      - generic [ref=f145e5]:
+        - generic [ref=f145e7]:
+          - button "Skip to search" [ref=f145e8] [cursor=pointer]:
+            - generic [ref=f145e9]: Skip to search
+          - button "Skip to main content" [ref=f145e10] [cursor=pointer]:
+            - generic [ref=f145e11]: Skip to main content
+          - button "Keyboard shortcuts" [ref=f145e12] [cursor=pointer]:
+            - generic [ref=f145e13]: Keyboard shortcuts
+          - button "Close jump menu" [ref=f145e14] [cursor=pointer]:
+            - img [ref=f145e15]
+            - generic [ref=f145e17]: Close jump menu
+        - banner "Global Navigation" [ref=f145e18]:
+          - generic [ref=f145e19]:
+            - link "LinkedIn" [ref=f145e20] [cursor=pointer]:
+              - /url: https://www.linkedin.com/feed/
+              - img "LinkedIn" [ref=f145e23]:
+                - img [ref=f145e24]
+            - generic [ref=f145e28]:
+              - combobox "I’m looking for..." [ref=f145e29]
+              - generic:
+                - img
+            - navigation "Primary Navigation" [ref=f145e30]:
+              - list [ref=f145e31]:
+                - listitem [ref=f145e32]:
+                  - link "new feed updates notifications Home" [ref=f145e33] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/feed/
+                    - generic [ref=f145e34]:
+                      - generic [ref=f145e37]: new feed updates notifications
+                      - img [ref=f145e41]
+                    - generic "Home" [ref=f145e43]
+                - listitem [ref=f145e44]:
+                  - link "My Network" [ref=f145e45] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/mynetwork/?
+                    - img [ref=f145e49]
+                    - generic "My Network" [ref=f145e51]
+                - listitem [ref=f145e52]:
+                  - link "Jobs" [ref=f145e53] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/jobs/?
+                    - img [ref=f145e57]
+                    - generic "Jobs" [ref=f145e59]
+                - listitem [ref=f145e60]:
+                  - link "Messaging" [ref=f145e61] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/messaging/?
+                    - img [ref=f145e65]
+                    - generic "Messaging" [ref=f145e67]
+                - listitem [ref=f145e68]:
+                  - link "20 new notifications Notifications" [ref=f145e69] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/notifications/?
+                    - generic [ref=f145e70]:
+                      - generic [ref=f145e71]:
+                        - generic [ref=f145e72]: "20"
+                        - generic [ref=f145e73]: 20 new notifications
+                      - img [ref=f145e77]
+                    - generic "Notifications" [ref=f145e79]
+                - listitem [ref=f145e80]:
+                  - button "Taylor Yates Me" [ref=f145e82] [cursor=pointer]:
+                    - img "Taylor Yates" [ref=f145e83]
+                    - generic [ref=f145e84]:
+                      - text: Me
+                      - img [ref=f145e85]
+                - listitem [ref=f145e87]:
+                  - button "For Business" [ref=f145e89] [cursor=pointer]:
+                    - img [ref=f145e93]
+                    - generic "For Business" [ref=f145e95]:
+                      - text: For Business
+                      - img [ref=f145e96]
+                - listitem [ref=f145e98]:
+                  - link "Retry Premium" [ref=f145e100] [cursor=pointer]:
+                    - /url: javascript:void(0)
+                    - generic [ref=f145e101]:
+                      - img [ref=f145e102]
+                      - generic [ref=f145e104]: Retry Premium

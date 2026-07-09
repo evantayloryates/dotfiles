@@ -1,0 +1,246 @@
+- generic [ref=f30e2]:
+  - heading "0 notifications" [level=2] [ref=f30e3]
+  - generic [ref=f30e4]:
+    - generic:
+      - generic "Skip navigation menu":
+        - button "Close jump menu" [ref=f30e6] [cursor=pointer]
+    - generic [ref=f30e9]:
+      - banner [ref=f30e11]:
+        - generic [ref=f30e14]:
+          - button [ref=f30e15] [cursor=pointer]
+          - generic [ref=f30e17]:
+            - status [ref=f30e18]
+            - search [ref=f30e19]:
+              - textbox "I'm looking for…" [ref=f30e23]
+          - generic [ref=f30e25]:
+            - navigation [ref=f30e29]:
+              - list [ref=f30e30]:
+                - listitem [ref=f30e31]:
+                  - button "Home, 1 new notification" [ref=f30e32] [cursor=pointer]:
+                    - img [ref=f30e34]
+                    - generic [ref=f30e37]: Home
+                - listitem [ref=f30e38]:
+                  - link "My Network, 0 new notifications" [ref=f30e39] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/mynetwork
+                    - img [ref=f30e41]
+                    - generic [ref=f30e44]: My Network
+                - listitem [ref=f30e45]:
+                  - link "Jobs, 0 new notifications" [ref=f30e46] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/jobs/
+                    - img [ref=f30e48]
+                    - generic [ref=f30e51]: Jobs
+                - listitem [ref=f30e52]:
+                  - link "Messaging, 0 new notifications" [ref=f30e53] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/messaging/
+                    - img [ref=f30e55]
+                    - generic [ref=f30e58]: Messaging
+                - listitem [ref=f30e59]:
+                  - link "Notifications, 20 new notifications" [ref=f30e60] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/notifications/
+                    - generic [ref=f30e61]:
+                      - img [ref=f30e62]
+                      - generic [ref=f30e64]: "20"
+                    - generic [ref=f30e66]: Notifications
+                - listitem [ref=f30e67]:
+                  - button "Me" [ref=f30e68] [cursor=pointer]:
+                    - figure [ref=f30e70]
+                    - generic [ref=f30e72]: Me
+            - generic [ref=f30e75]:
+              - navigation [ref=f30e76]:
+                - list [ref=f30e77]:
+                  - listitem [ref=f30e78]:
+                    - button "For Business" [ref=f30e79] [cursor=pointer]:
+                      - img [ref=f30e81]
+                      - generic [ref=f30e84]: For Business
+              - link "Retry Premium" [ref=f30e87] [cursor=pointer]:
+                - /url: https://www.linkedin.com/
+                - paragraph [ref=f30e93]: Retry Premium
+      - generic [ref=f30e94]:
+        - toolbar [ref=f30e95]
+        - main [ref=f30e109]:
+          - generic [ref=f30e114]:
+            - region "Primary content" [ref=f30e115]:
+              - generic [ref=f30e119]:
+                - list [ref=f30e121]:
+                  - listitem [ref=f30e123]:
+                    - generic [ref=f30e124]:
+                      - link:
+                        - /url: https://www.linkedin.com/in/chrisbaclig/
+                      - generic [ref=f30e125]:
+                        - link:
+                          - /url: https://www.linkedin.com/in/chrisbaclig/
+                        - generic [ref=f30e126]:
+                          - link [ref=f30e127] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/chrisbaclig/
+                            - figure [ref=f30e128]
+                          - generic [ref=f30e129]:
+                            - link:
+                              - /url: https://www.linkedin.com/in/chrisbaclig/
+                            - paragraph [ref=f30e130]:
+                              - link:
+                                - /url: https://www.linkedin.com/in/chrisbaclig/
+                              - link "Chris Baclig Verified" [ref=f30e131] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/chrisbaclig/
+                                - text: Chris Baclig
+                                - img "Verified" [ref=f30e132]
+                              - generic [ref=f30e134]: • 1st
+                            - paragraph [ref=f30e136]: CTO at Spaceback
+                            - paragraph [ref=f30e138]: Los Angeles, California, United States
+                        - generic [ref=f30e139]:
+                          - figure [ref=f30e140]
+                          - figure [ref=f30e141]
+                          - figure [ref=f30e142]
+                          - paragraph [ref=f30e144]:
+                            - generic [ref=f30e145]:
+                              - link "Ben Trenda" [ref=f30e146] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/bentrenda/
+                                - strong [ref=f30e147]: Ben Trenda
+                              - text: ","
+                              - link "David Peterson" [ref=f30e148] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/davidcpeterson/
+                                - strong [ref=f30e149]: David Peterson
+                              - text: and
+                              - link "43 other mutual connections" [ref=f30e150] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/people/?origin=SHARED_CONNECTIONS_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAASh8SsBLZr-BaIIzBrC6riqAUNXddA6p1k%22%5D
+                                - strong [ref=f30e151]: 43 other mutual connections
+                  - listitem [ref=f30e153]:
+                    - generic [ref=f30e154]:
+                      - link:
+                        - /url: https://www.linkedin.com/in/joehall6/
+                      - generic [ref=f30e155]:
+                        - link:
+                          - /url: https://www.linkedin.com/in/joehall6/
+                        - generic [ref=f30e156]:
+                          - link [ref=f30e157] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/joehall6/
+                            - figure [ref=f30e158]
+                          - generic [ref=f30e159]:
+                            - link:
+                              - /url: https://www.linkedin.com/in/joehall6/
+                            - paragraph [ref=f30e160]:
+                              - link:
+                                - /url: https://www.linkedin.com/in/joehall6/
+                              - link "Joe Hall Verified" [ref=f30e161] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/joehall6/
+                                - text: Joe Hall
+                                - img "Verified" [ref=f30e162]
+                              - generic [ref=f30e164]: • 1st
+                            - paragraph [ref=f30e166]: Co-Founder @Adexy • Co-Founder @Spaceback • Product & Design
+                            - paragraph [ref=f30e168]: United States
+                        - generic [ref=f30e169]:
+                          - figure [ref=f30e170]
+                          - figure [ref=f30e171]
+                          - figure [ref=f30e172]
+                          - paragraph [ref=f30e174]:
+                            - generic [ref=f30e175]:
+                              - link "Ben Trenda" [ref=f30e176] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/bentrenda/
+                                - strong [ref=f30e177]: Ben Trenda
+                              - text: ","
+                              - link "David Peterson" [ref=f30e178] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/davidcpeterson/
+                                - strong [ref=f30e179]: David Peterson
+                              - text: and
+                              - link "52 other mutual connections" [ref=f30e180] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/people/?origin=SHARED_CONNECTIONS_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAAYxir8BeCekMlKbmHqFCmvzNIlXWxdIb98%22%5D
+                                - strong [ref=f30e181]: 52 other mutual connections
+                  - generic [ref=f30e188]:
+                    - paragraph [ref=f30e190]: Easily find people who are actively hiring
+                    - paragraph [ref=f30e191]: Search more efficiently with advanced search filters
+                    - link "Retry Premium for $0" [ref=f30e192] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/premium/products/?upsellOrderOrigin=Tracking%3Av1%3Apremium_advanced_people_search_filter_inline_result_jobseeker_upsell%3AJob+Seeker%3AIn-Product&utype=job_marketing&referenceId=%2F%2F22yG0fQYusXeyMV4dqAQ%3D%3D&isSS=false&upsellSlotId=ADVANCED_PEOPLE_SEARCH_FILTER_INLINE_RESULT
+                      - generic [ref=f30e194]: Retry Premium for $0
+                    - paragraph [ref=f30e195]: 1-month free trial. Easy to cancel. We’ll remind you 7 days before your trial ends.
+                  - listitem [ref=f30e197]:
+                    - generic [ref=f30e198]:
+                      - link:
+                        - /url: https://www.linkedin.com/in/caseysaran/
+                      - generic [ref=f30e199]:
+                        - link:
+                          - /url: https://www.linkedin.com/in/caseysaran/
+                        - generic [ref=f30e200]:
+                          - link [ref=f30e201] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/caseysaran/
+                            - figure [ref=f30e202]
+                          - generic [ref=f30e203]:
+                            - link:
+                              - /url: https://www.linkedin.com/in/caseysaran/
+                            - paragraph [ref=f30e204]:
+                              - link:
+                                - /url: https://www.linkedin.com/in/caseysaran/
+                              - link "Casey Saran Verified" [ref=f30e205] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/caseysaran/
+                                - text: Casey Saran
+                                - img "Verified" [ref=f30e206]
+                              - generic [ref=f30e208]: • 1st
+                            - paragraph [ref=f30e210]: Founder @ Spaceback -> Board Member @ Rembrand
+                            - paragraph [ref=f30e212]: San Francisco Bay Area
+                        - paragraph [ref=f30e216]:
+                          - link "7K followers" [ref=f30e218] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/search/results/people/?origin=SHARED_FOLLOWERS_CANNED_SEARCH&followerOf=%5B%22ACoAAAF4_ccBMGk5P2KyRs2T7zPHOr5HhATP1P0%22%5D
+                        - generic [ref=f30e219]:
+                          - figure [ref=f30e220]
+                          - figure [ref=f30e221]
+                          - figure [ref=f30e222]
+                          - paragraph [ref=f30e224]:
+                            - generic [ref=f30e225]:
+                              - link "Ben Trenda" [ref=f30e226] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/bentrenda/
+                                - strong [ref=f30e227]: Ben Trenda
+                              - text: ","
+                              - link "David Peterson" [ref=f30e228] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/davidcpeterson/
+                                - strong [ref=f30e229]: David Peterson
+                              - text: and
+                              - link "51 other mutual connections" [ref=f30e230] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/people/?origin=SHARED_CONNECTIONS_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAAF4_ccBMGk5P2KyRs2T7zPHOr5HhATP1P0%22%5D
+                                - strong [ref=f30e231]: 51 other mutual connections
+                  - listitem [ref=f30e233]:
+                    - generic [ref=f30e234]:
+                      - link:
+                        - /url: https://www.linkedin.com/in/martinkratkykatz/
+                      - generic [ref=f30e235]:
+                        - link:
+                          - /url: https://www.linkedin.com/in/martinkratkykatz/
+                        - generic [ref=f30e236]:
+                          - link [ref=f30e237] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/martinkratkykatz/
+                            - figure [ref=f30e238]
+                          - generic [ref=f30e239]:
+                            - link:
+                              - /url: https://www.linkedin.com/in/martinkratkykatz/
+                            - paragraph [ref=f30e240]:
+                              - link:
+                                - /url: https://www.linkedin.com/in/martinkratkykatz/
+                              - link "Marty Krátký-Katz Premium" [ref=f30e241] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/martinkratkykatz/
+                                - text: Marty Krátký-Katz
+                                - img "Premium" [ref=f30e242]
+                              - generic [ref=f30e244]: • 1st
+                            - paragraph [ref=f30e246]: Exited Tech Founder
+                            - paragraph [ref=f30e248]: Canada
+                        - generic [ref=f30e249]:
+                          - figure [ref=f30e250]
+                          - figure [ref=f30e251]
+                          - figure [ref=f30e252]
+                          - paragraph [ref=f30e254]:
+                            - generic [ref=f30e255]:
+                              - link "Ben Trenda" [ref=f30e256] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/bentrenda/
+                                - strong [ref=f30e257]: Ben Trenda
+                              - text: ","
+                              - link "Raj Chauhan" [ref=f30e258] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/rajchauhan/
+                                - strong [ref=f30e259]: Raj Chauhan
+                              - text: and
+                              - link "10 other mutual connections" [ref=f30e260] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/search/results/people/?origin=SHARED_CONNECTIONS_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAAVTohQBiM25yhz5JFz4VqIX0QFHbpBn8nk%22%5D
+                                - strong [ref=f30e261]: 10 other mutual connections
+                - generic [ref=f30e264]:
+                  - generic [ref=f30e265]:
+                    - paragraph [ref=f30e266]: Are these results helpful?
+                    - paragraph [ref=f30e267]: Your feedback helps us improve search results
+                  - generic [ref=f30e268]:
+                    - button "Are these results helpful? Yes, these search results are helpful" [ref=f30e269] [cursor=pointer]
+                    - button "Are these results helpful? No, these search results are not helpful" [ref=f30e272] [cursor=pointer]
+            - complementary "Aside" [ref=f30e275]

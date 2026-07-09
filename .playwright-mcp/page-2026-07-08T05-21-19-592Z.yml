@@ -1,0 +1,1709 @@
+- generic [ref=f104e2]:
+  - heading "0 notifications" [level=2] [ref=f104e429]
+  - generic [ref=f104e430]:
+    - generic:
+      - generic "Skip navigation menu":
+        - generic [ref=f104e431]:
+          - button "Skip to search" [ref=f104e432] [cursor=pointer]:
+            - generic [ref=f104e434]: Skip to search
+          - button "Skip to main content" [ref=f104e435] [cursor=pointer]:
+            - generic [ref=f104e437]: Skip to main content
+          - button "Skip to primary content" [ref=f104e438] [cursor=pointer]:
+            - generic [ref=f104e440]: Skip to primary content
+          - button "Skip to aside" [ref=f104e441] [cursor=pointer]:
+            - generic [ref=f104e443]: Skip to aside
+          - button "Skip to footer" [ref=f104e444] [cursor=pointer]:
+            - generic [ref=f104e446]: Skip to footer
+          - button "Close jump menu" [ref=f104e448] [cursor=pointer]:
+            - img [ref=f104e450]
+    - generic [ref=f104e452]:
+      - banner [ref=f104e454]:
+        - generic [ref=f104e457]:
+          - button "LinkedIn" [ref=f104e458] [cursor=pointer]:
+            - img "LinkedIn" [ref=f104e459]
+          - generic [ref=f104e461]:
+            - status [ref=f104e462]
+            - search [ref=f104e463]:
+              - generic [ref=f104e464]:
+                - img [ref=f104e466]
+                - textbox "I'm looking for…" [ref=f104e468]
+          - generic [ref=f104e470]:
+            - figure [ref=f104e475]
+            - navigation [ref=f104e479]:
+              - list [ref=f104e480]:
+                - listitem [ref=f104e481]:
+                  - button "Home, 1 new notification" [ref=f104e482] [cursor=pointer]:
+                    - img [ref=f104e484]
+                    - generic [ref=f104e488]: Home
+                - listitem [ref=f104e489]:
+                  - link "My Network, 0 new notifications" [ref=f104e490] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/mynetwork
+                    - img [ref=f104e492]
+                    - generic [ref=f104e495]: My Network
+                - listitem [ref=f104e496]:
+                  - link "Jobs, 0 new notifications" [ref=f104e497] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/jobs/
+                    - img [ref=f104e499]
+                    - generic [ref=f104e502]: Jobs
+                - listitem [ref=f104e503]:
+                  - link "Messaging, 0 new notifications" [ref=f104e504] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/messaging/
+                    - img [ref=f104e506]
+                    - generic [ref=f104e509]: Messaging
+                - listitem [ref=f104e510]:
+                  - link "Notifications, 20 new notifications" [ref=f104e511] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/notifications/
+                    - generic [ref=f104e512]:
+                      - img [ref=f104e513]
+                      - generic [ref=f104e515]: "20"
+                    - generic [ref=f104e517]: Notifications
+                - listitem [ref=f104e518]:
+                  - button "Me" [ref=f104e519] [cursor=pointer]:
+                    - figure [ref=f104e521]
+                    - generic [ref=f104e523]:
+                      - text: Me
+                      - img [ref=f104e524]
+            - generic [ref=f104e527]:
+              - navigation [ref=f104e528]:
+                - list [ref=f104e529]:
+                  - listitem [ref=f104e530]:
+                    - button "For Business" [ref=f104e531] [cursor=pointer]:
+                      - img [ref=f104e533]
+                      - generic [ref=f104e536]:
+                        - text: For Business
+                        - img [ref=f104e537]
+              - link "Retry Premium" [ref=f104e540] [cursor=pointer]:
+                - /url: https://www.linkedin.com/in/caseysaran/
+                - generic [ref=f104e541]:
+                  - img [ref=f104e542]
+                  - paragraph [ref=f104e548]: Retry Premium
+      - generic [ref=f104e550]:
+        - toolbar [ref=f104e551]:
+          - generic [ref=f104e555]:
+            - link "Casey Saran" [ref=f104e556] [cursor=pointer]:
+              - /url: https://www.linkedin.com/in/caseysaran/
+              - generic "Casey Saran" [ref=f104e557]:
+                - figure [ref=f104e558]
+                - generic [ref=f104e559]:
+                  - paragraph [ref=f104e560]: Casey Saran
+                  - paragraph [ref=f104e562]: Founder @ Spaceback -> Board Member @ Rembrand
+            - generic [ref=f104e563]:
+              - button "More" [ref=f104e565] [cursor=pointer]:
+                - generic [ref=f104e567]: More
+              - link "Message" [ref=f104e569] [cursor=pointer]:
+                - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAAF4_ccBMGk5P2KyRs2T7zPHOr5HhATP1P0&recipient=ACoAAAF4_ccBMGk5P2KyRs2T7zPHOr5HhATP1P0&screenContext=NON_SELF_PROFILE_VIEW&interop=msgOverlay
+                - generic [ref=f104e570]:
+                  - img [ref=f104e571]
+                  - generic [ref=f104e573]: Message
+        - main [ref=f104e574]:
+          - generic [ref=f104e576]:
+            - region "Primary content" [ref=f104e577]:
+              - generic [ref=f104e579]:
+                - generic [ref=f104e584]:
+                  - generic [ref=f104e585]:
+                    - button [ref=f104e588] [cursor=pointer]:
+                      - figure [ref=f104e589]:
+                        - img "Cover photo" [ref=f104e590]
+                    - link "Profile photo" [ref=f104e591] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/caseysaran/
+                      - generic "Profile photo" [ref=f104e592]:
+                        - figure [ref=f104e593]
+                    - link "Manage notifications about Casey Saran" [ref=f104e595] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/caseysaran/
+                      - img [ref=f104e597]
+                  - generic [ref=f104e599]:
+                    - generic [ref=f104e600]:
+                      - generic [ref=f104e602]:
+                        - generic [ref=f104e603]:
+                          - link "Casey Saran View Casey’s verifications" [ref=f104e606] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/caseysaran/
+                            - generic [ref=f104e608]:
+                              - heading "Casey Saran" [level=2] [ref=f104e609]
+                              - img "View Casey’s verifications" [ref=f104e610]
+                          - paragraph [ref=f104e612]: · 1st
+                        - paragraph [ref=f104e613]: Founder @ Spaceback -> Board Member @ Rembrand
+                        - generic [ref=f104e614]:
+                          - paragraph [ref=f104e615]: San Francisco Bay Area
+                          - paragraph [ref=f104e616]: ·
+                          - paragraph [ref=f104e617]:
+                            - link "Contact info" [ref=f104e618] [cursor=pointer]:
+                              - /url: https://www.linkedin.com/in/caseysaran/overlay/contact-info/
+                      - generic [ref=f104e620]:
+                        - button "Rembrand" [ref=f104e621] [cursor=pointer]:
+                          - generic [ref=f104e622]:
+                            - figure [ref=f104e623]
+                            - paragraph [ref=f104e627]: Rembrand
+                        - button "University of California, Berkeley" [ref=f104e628] [cursor=pointer]:
+                          - generic [ref=f104e629]:
+                            - figure [ref=f104e630]
+                            - paragraph [ref=f104e634]: University of California, Berkeley
+                    - generic [ref=f104e635]:
+                      - paragraph [ref=f104e636]: 7,057 followers
+                      - paragraph [ref=f104e637]: ·
+                      - link "500+ connections" [ref=f104e638] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/search/results/people/?origin=MEMBER_PROFILE_CANNED_SEARCH&connectionOf=["ACoAAAF4_ccBMGk5P2KyRs2T7zPHOr5HhATP1P0"]&network=["F","S"]
+                        - paragraph [ref=f104e639]: 500+ connections
+                    - link "Ellen, Rachel and 51 other mutual connections" [ref=f104e640] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/search/results/people/?origin=MEMBER_PROFILE_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAAF4_ccBMGk5P2KyRs2T7zPHOr5HhATP1P0%22%5D
+                      - generic [ref=f104e641]:
+                        - figure [ref=f104e642]
+                        - figure [ref=f104e643]
+                        - paragraph [ref=f104e645]:
+                          - link "Ellen, Rachel and 51 other mutual connections" [ref=f104e647]:
+                            - /url: https://www.linkedin.com/search/results/people/?origin=MEMBER_PROFILE_CANNED_SEARCH&network=%5B%22F%22%5D&connectionOf=%5B%22ACoAAAF4_ccBMGk5P2KyRs2T7zPHOr5HhATP1P0%22%5D
+                            - strong [ref=f104e648]: Ellen
+                            - text: ","
+                            - strong [ref=f104e649]: Rachel
+                            - text: and 51 other mutual connections
+                    - generic [ref=f104e653]:
+                      - link "Message" [ref=f104e655] [cursor=pointer]:
+                        - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAAF4_ccBMGk5P2KyRs2T7zPHOr5HhATP1P0&recipient=ACoAAAF4_ccBMGk5P2KyRs2T7zPHOr5HhATP1P0&screenContext=NON_SELF_PROFILE_VIEW&interop=msgOverlay
+                        - generic [ref=f104e656]:
+                          - img [ref=f104e657]
+                          - generic [ref=f104e659]: Message
+                      - button "More" [ref=f104e661] [cursor=pointer]:
+                        - generic [ref=f104e663]: More
+                - generic [ref=f104e672]:
+                  - heading "Highlights" [level=2] [ref=f104e674]
+                  - generic [ref=f104e676]:
+                    - generic [ref=f104e678]:
+                      - link [ref=f104e679] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/feed/update/urn:li:activity:7470574659546140672/
+                        - img [ref=f104e680]
+                      - generic [ref=f104e682]:
+                        - link "Casey was promoted to Board Member at Rembrand" [ref=f104e684] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/feed/update/urn:li:activity:7470574659546140672/
+                          - paragraph [ref=f104e687]: Casey was promoted to Board Member at Rembrand
+                        - link "Message with Premium" [ref=f104e688] [cursor=pointer]:
+                          - /url: /messaging/compose/?screenContext=PROFILE_HIGHLIGHTS&body=Congrats+on+the+promotion%21&interop=msgOverlay
+                          - generic [ref=f104e689]:
+                            - img [ref=f104e690]
+                            - generic [ref=f104e692]: Message
+                    - generic [ref=f104e694]:
+                      - link [ref=f104e695] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/company/87701035/
+                        - figure [ref=f104e696]:
+                          - img "Rembrand logo" [ref=f104e697]
+                      - generic [ref=f104e698]:
+                        - link "You both work at Rembrand Casey started at Rembrand the same month as you" [ref=f104e700] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/company/87701035/
+                          - generic [ref=f104e702]:
+                            - paragraph [ref=f104e703]: You both work at Rembrand
+                            - paragraph [ref=f104e704]: Casey started at Rembrand the same month as you
+                        - link "Message with Premium" [ref=f104e705] [cursor=pointer]:
+                          - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAAF4_ccBMGk5P2KyRs2T7zPHOr5HhATP1P0&recipient=ACoAAAF4_ccBMGk5P2KyRs2T7zPHOr5HhATP1P0&screenContext=PROFILE_HIGHLIGHTS&body=Hi+Casey%2C+we+both+work+at+Rembrand...&subject=Hello+from+a+Rembrand+colleague...&interop=msgOverlay
+                          - generic [ref=f104e706]:
+                            - img [ref=f104e707]
+                            - generic [ref=f104e709]: Message
+                - generic [ref=f104e715]:
+                  - generic [ref=f104e717]:
+                    - heading "Activity" [level=2] [ref=f104e718]
+                    - paragraph [ref=f104e720]: 7,057 followers
+                  - generic [ref=f104e721]:
+                    - radio "Posts" [checked] [ref=f104e722] [cursor=pointer]:
+                      - generic [ref=f104e723]:
+                        - checkbox "Posts" [checked]
+                        - generic [ref=f104e724]: Posts
+                    - radio "Comments" [ref=f104e725] [cursor=pointer]:
+                      - generic [ref=f104e726]:
+                        - checkbox "Comments"
+                        - generic [ref=f104e727]: Comments
+                    - radio "Images" [ref=f104e728] [cursor=pointer]:
+                      - generic [ref=f104e729]:
+                        - checkbox "Images"
+                        - generic [ref=f104e730]: Images
+                  - generic [ref=f104e732]:
+                    - generic [ref=f104e738]:
+                      - list [ref=f104e739]:
+                        - list [ref=f104e740]:
+                          - listitem [ref=f104e741]:
+                            - listitem [ref=f104e743]:
+                              - generic [ref=f104e744]:
+                                - generic [ref=f104e745]:
+                                  - link [ref=f104e746] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/caseysaran/
+                                    - figure [ref=f104e747]:
+                                      - img "View Casey Saran’s profile" [ref=f104e748]
+                                  - generic [ref=f104e750]:
+                                    - link "Casey Saran Verified Profile 1st" [ref=f104e753] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/caseysaran/
+                                      - generic "Casey Saran Verified Profile 1st" [ref=f104e755]:
+                                        - paragraph [ref=f104e758]: Casey Saran
+                                        - paragraph [ref=f104e760]:
+                                          - generic [ref=f104e761]:
+                                            - img [ref=f104e763]
+                                            - text: • 1st
+                                    - paragraph [ref=f104e766]: Founder @ Spaceback -> Board Member @ Rembrand
+                                    - paragraph [ref=f104e768]:
+                                      - generic [ref=f104e769]:
+                                        - text: 3w •
+                                        - 'img "Visibility: Global" [ref=f104e770]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/in/caseysaran/
+                                  - button "Open control menu for post by Casey Saran" [ref=f104e772] [cursor=pointer]:
+                                    - img [ref=f104e774]
+                                - link [ref=f104e776] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7470566175886925826/
+                                  - paragraph [ref=f104e777]:
+                                    - generic [ref=f104e778]:
+                                      - text: Nearly ten years ago,
+                                      - link "Joe Hall" [ref=f104e779]:
+                                        - /url: https://www.linkedin.com/in/joehall6/
+                                        - strong [ref=f104e781]: Joe Hall
+                                      - text: and I started
+                                      - link "Spaceback" [ref=f104e782]:
+                                        - /url: https://www.linkedin.com/company/spaceback/
+                                        - strong [ref=f104e784]: Spaceback
+                                      - text: with a crazy idea and not even a whiteboard. Today, I’m officially stepping down as CEO after helping lead the company to a successful exit.
+                                      - text: What a ride.
+                                      - text: We always believed that social content would become one of the most important forms of media in the world and that brands would need better ways to use it. We built products, won customers, raised capital, navigated more twists and turns than I can count, and ultimately built a business that created meaningful value for employees, investors, customers, and partners.
+                                      - text: Very few founders get to write a sentence like that.
+                                      - text: For nearly a decade, we managed to keep the core of this team together through all the highs, lows, pivots, challenges, and opportunities that come with building a startup. I got the chance to take this wild ride, which has been the greatest wild ride of my life, because of the partners, customers, investors, employees, advisors, friends, and family who believed in what we were doing. What a gift!
+                                      - text: Thank you from the centroid of my heart.
+                                      - text: "I’m stepping down to do something I’ve never done: take a summer off! I'll be spending the next few months with my wife and our one-year-old before sharing what's next later this year."
+                                      - button:
+                                        - generic [ref=f104e786]: … more
+                              - generic [ref=f104e788]:
+                                - generic [ref=f104e789]:
+                                  - 'button "Reaction button state: Love" [ref=f104e792] [cursor=pointer]':
+                                    - generic [ref=f104e793]:
+                                      - img [ref=f104e794]
+                                      - generic [ref=f104e800]: "680"
+                                  - button "Open reactions menu":
+                                    - img [ref=f104e802] [cursor=pointer]
+                                - link "Comment" [ref=f104e804] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7470566175886925826/
+                                  - generic [ref=f104e805]:
+                                    - img [ref=f104e806]
+                                    - generic [ref=f104e808]: "136"
+                                - button "Repost" [ref=f104e809] [cursor=pointer]:
+                                  - generic [ref=f104e810]:
+                                    - img [ref=f104e811]
+                                    - generic [ref=f104e813]: "1"
+                                - link "Send" [ref=f104e814] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/caseysaran/
+                                  - img [ref=f104e816]
+                                - link [ref=f104e818] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/caseysaran/
+                                  - generic "680 reactions" [ref=f104e819]:
+                                    - img [ref=f104e820]
+                                    - img [ref=f104e826]
+                                    - img [ref=f104e840]
+                          - listitem [ref=f104e846]:
+                            - listitem [ref=f104e848]:
+                              - generic [ref=f104e849]:
+                                - generic [ref=f104e850]:
+                                  - link [ref=f104e851] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/caseysaran/
+                                    - figure [ref=f104e852]:
+                                      - img "View Casey Saran’s profile" [ref=f104e853]
+                                  - generic [ref=f104e855]:
+                                    - link "Casey Saran Verified Profile 1st" [ref=f104e858] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/caseysaran/
+                                      - generic "Casey Saran Verified Profile 1st" [ref=f104e860]:
+                                        - paragraph [ref=f104e863]: Casey Saran
+                                        - paragraph [ref=f104e865]:
+                                          - generic [ref=f104e866]:
+                                            - img [ref=f104e868]
+                                            - text: • 1st
+                                    - paragraph [ref=f104e871]: Founder @ Spaceback -> Board Member @ Rembrand
+                                    - paragraph [ref=f104e873]:
+                                      - generic [ref=f104e874]:
+                                        - text: 3mo •
+                                        - 'img "Visibility: Global" [ref=f104e875]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/in/caseysaran/
+                                  - button "Open control menu for post by Casey Saran" [ref=f104e877] [cursor=pointer]:
+                                    - img [ref=f104e879]
+                                - link "Great conversation here. Brady Akers and Omar Tawakol know a thing or two about using AI to transform social posts into production-ready creative for programmatic" [ref=f104e881] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7440089385225822208/
+                                  - paragraph [ref=f104e882]:
+                                    - generic [ref=f104e883]:
+                                      - text: Great conversation here.
+                                      - link "Brady Akers" [ref=f104e884]:
+                                        - /url: https://www.linkedin.com/in/brady-akers/
+                                        - strong [ref=f104e886]: Brady Akers
+                                      - text: and
+                                      - link "Omar Tawakol" [ref=f104e887]:
+                                        - /url: https://www.linkedin.com/in/omartawakol/
+                                        - strong [ref=f104e889]: Omar Tawakol
+                                      - text: know a thing or two about using AI to transform social posts into production-ready creative for programmatic
+                                      - button:
+                                        - generic [ref=f104e891]: … more
+                                - generic [ref=f104e892]:
+                                  - generic [ref=f104e893]:
+                                    - link [ref=f104e894] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/company/getrembrand/posts/
+                                      - figure [ref=f104e895]:
+                                        - 'img "View company: Rembrand" [ref=f104e896]'
+                                    - generic [ref=f104e898]:
+                                      - link "Rembrand" [ref=f104e901] [cursor=pointer]:
+                                        - /url: https://www.linkedin.com/company/getrembrand/posts/
+                                        - paragraph [ref=f104e906]: Rembrand
+                                      - paragraph [ref=f104e908]:
+                                        - generic [ref=f104e909]:
+                                          - text: 3mo •
+                                          - 'img "Visibility: Global" [ref=f104e910]'
+                                      - link:
+                                        - /url: https://www.linkedin.com/company/getrembrand/posts/
+                                  - 'link "Social content moves fast. TV production traditionally… doesn’t. That’s changing. 🚀 In this interview, Rembrand CEO Omar Tawakol joins Brady Akers, Chief Customer Officer at Spaceback, to discuss how AI-powered enhancements are helping advertisers turn everyday social posts into polished, high-performing CTV ads. 📺 Watch the full conversation below. 🔥 #AI #adcreative #CTVadvertising" [ref=f104e912] [cursor=pointer]':
+                                    - /url: https://www.linkedin.com/feed/update/urn:li:ugcPost:7439408674692882432/
+                                    - paragraph [ref=f104e913]:
+                                      - generic [ref=f104e914]:
+                                        - text: Social content moves fast. TV production traditionally… doesn’t. That’s changing. 🚀
+                                        - text: In this interview, Rembrand CEO
+                                        - link "Omar Tawakol" [ref=f104e916]:
+                                          - /url: https://www.linkedin.com/in/omartawakol/
+                                          - strong [ref=f104e918]: Omar Tawakol
+                                        - text: joins
+                                        - link "Brady Akers" [ref=f104e919]:
+                                          - /url: https://www.linkedin.com/in/brady-akers/
+                                          - strong [ref=f104e921]: Brady Akers
+                                        - text: ", Chief Customer Officer at"
+                                        - link "Spaceback" [ref=f104e922]:
+                                          - /url: https://www.linkedin.com/company/spaceback/
+                                          - strong [ref=f104e924]: Spaceback
+                                        - text: ", to discuss how AI-powered enhancements are helping advertisers turn everyday social posts into polished, high-performing CTV ads. 📺"
+                                        - text: Watch the full conversation below. 🔥
+                                        - link "#AI" [ref=f104e925]:
+                                          - /url: https://www.linkedin.com/search/results/all/?keywords=%23ai&origin=HASH_TAG_FROM_FEED
+                                          - strong [ref=f104e927]: "#AI"
+                                        - link "#adcreative" [ref=f104e928]:
+                                          - /url: https://www.linkedin.com/search/results/all/?keywords=%23adcreative&origin=HASH_TAG_FROM_FEED
+                                          - strong [ref=f104e930]: "#adcreative"
+                                        - link "#CTVadvertising" [ref=f104e931]:
+                                          - /url: https://www.linkedin.com/search/results/all/?keywords=%23ctvadvertising&origin=HASH_TAG_FROM_FEED
+                                          - strong [ref=f104e933]: "#CTVadvertising"
+                                        - button:
+                                          - generic [ref=f104e935]: … more
+                                  - generic [ref=f104e936]:
+                                    - region "Video Player" [ref=f104e938]:             
+                                    - link "Play video" [ref=f104e943] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/feed/update/urn:li:ugcPost:7439408674692882432/
+                                      - img [ref=f104e945]
+                                  - paragraph [ref=f104e950]: Turning Social Posts into CTV Ads with AI
+                              - generic [ref=f104e952]:
+                                - generic [ref=f104e953]:
+                                  - 'button "Reaction button state: no reaction" [ref=f104e956] [cursor=pointer]':
+                                    - generic [ref=f104e957]:
+                                      - img [ref=f104e958]
+                                      - generic [ref=f104e960]: "30"
+                                  - button "Open reactions menu":
+                                    - img [ref=f104e962] [cursor=pointer]
+                                - link "Comment" [ref=f104e964] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7440089385225822208/
+                                  - generic [ref=f104e965]:
+                                    - img [ref=f104e966]
+                                    - generic [ref=f104e968]: "1"
+                                - button "Repost" [ref=f104e969] [cursor=pointer]:
+                                  - img [ref=f104e971]
+                                - link "Send" [ref=f104e973] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/caseysaran/
+                                  - img [ref=f104e975]
+                                - link [ref=f104e977] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/caseysaran/
+                                  - generic "30 reactions" [ref=f104e978]:
+                                    - img [ref=f104e979]
+                                    - img [ref=f104e985]
+                                    - img [ref=f104e999]
+                          - listitem [ref=f104e1007]:
+                            - listitem [ref=f104e1009]:
+                              - generic [ref=f104e1010]:
+                                - generic [ref=f104e1011]:
+                                  - link [ref=f104e1012] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/caseysaran/
+                                    - figure [ref=f104e1013]:
+                                      - img "View Casey Saran’s profile" [ref=f104e1014]
+                                  - generic [ref=f104e1016]:
+                                    - link "Casey Saran Verified Profile 1st" [ref=f104e1019] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/caseysaran/
+                                      - generic "Casey Saran Verified Profile 1st" [ref=f104e1021]:
+                                        - paragraph [ref=f104e1024]: Casey Saran
+                                        - paragraph [ref=f104e1026]:
+                                          - generic [ref=f104e1027]:
+                                            - img [ref=f104e1029]
+                                            - text: • 1st
+                                    - paragraph [ref=f104e1032]: Founder @ Spaceback -> Board Member @ Rembrand
+                                    - paragraph [ref=f104e1034]:
+                                      - generic [ref=f104e1035]:
+                                        - text: 4mo •
+                                        - 'img "Visibility: Global" [ref=f104e1036]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/in/caseysaran/
+                                  - button "Open control menu for post by Casey Saran" [ref=f104e1038] [cursor=pointer]:
+                                    - img [ref=f104e1040]
+                                - link "On a daily basis, Ahmed Saad pushes my understanding of what AI is capable of. He truly deserves his spot on this list of top AI-Powered Executives" [ref=f104e1042] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7435349096346980352/
+                                  - paragraph [ref=f104e1043]:
+                                    - generic [ref=f104e1044]:
+                                      - text: On a daily basis,
+                                      - link "Ahmed Saad" [ref=f104e1045]:
+                                        - /url: https://www.linkedin.com/in/ahmed-saad-b0b681168/
+                                        - strong [ref=f104e1047]: Ahmed Saad
+                                      - text: pushes my understanding of what AI is capable of. He truly deserves his spot on this list of top AI-Powered Executives
+                                      - button:
+                                        - generic [ref=f104e1049]: … more
+                                - generic [ref=f104e1050]:
+                                  - generic [ref=f104e1051]:
+                                    - link [ref=f104e1052] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/company/getrembrand/posts/
+                                      - figure [ref=f104e1053]:
+                                        - 'img "View company: Rembrand" [ref=f104e1054]'
+                                    - generic [ref=f104e1056]:
+                                      - link "Rembrand" [ref=f104e1059] [cursor=pointer]:
+                                        - /url: https://www.linkedin.com/company/getrembrand/posts/
+                                        - paragraph [ref=f104e1064]: Rembrand
+                                      - paragraph [ref=f104e1066]:
+                                        - generic [ref=f104e1067]:
+                                          - text: 4mo •
+                                          - 'img "Visibility: Global" [ref=f104e1068]'
+                                      - link:
+                                        - /url: https://www.linkedin.com/company/getrembrand/posts/
+                                  - 'link "We’re proud to share that Ahmed Saad, Rembrand’s CTO & Head of AI, has been named to the ADWEEK AI Power 50 for 2026. 🎉 This recognition highlights Ahmed’s leadership in advancing In-Content Advertising and pioneering virtual placement technology that’s redefining what’s possible in video. His work continues to push our industry beyond traditional formats and into truly native, AI-powered brand experiences. 💥 Congratulations, Ahmed! This is incredibly well deserved. 👏 View the full AI Power 50 list at the link in the comments below. 👇 #AI #AIPower50 #InContentAdvertising" [ref=f104e1070] [cursor=pointer]':
+                                    - /url: https://www.linkedin.com/feed/update/urn:li:share:7434613578562691072/
+                                    - paragraph [ref=f104e1071]:
+                                      - generic [ref=f104e1072]:
+                                        - text: We’re proud to share that
+                                        - link "Ahmed Saad" [ref=f104e1073]:
+                                          - /url: https://www.linkedin.com/in/ahmed-saad-b0b681168/
+                                          - strong [ref=f104e1075]: Ahmed Saad
+                                        - text: ", Rembrand’s CTO & Head of AI, has been named to the"
+                                        - link "ADWEEK" [ref=f104e1076]:
+                                          - /url: https://www.linkedin.com/company/adweek/
+                                          - strong [ref=f104e1078]: ADWEEK
+                                        - text: AI Power 50 for 2026. 🎉
+                                        - text: This recognition highlights Ahmed’s leadership in advancing In-Content Advertising and pioneering virtual placement technology that’s redefining what’s possible in video. His work continues to push our industry beyond traditional formats and into truly native, AI-powered brand experiences. 💥
+                                        - text: Congratulations, Ahmed! This is incredibly well deserved. 👏
+                                        - text: View the full AI Power 50 list at the link in the comments below. 👇
+                                        - link "#AI" [ref=f104e1080]:
+                                          - /url: https://www.linkedin.com/search/results/all/?keywords=%23ai&origin=HASH_TAG_FROM_FEED
+                                          - strong [ref=f104e1082]: "#AI"
+                                        - link "#AIPower50" [ref=f104e1083]:
+                                          - /url: https://www.linkedin.com/search/results/all/?keywords=%23aipower50&origin=HASH_TAG_FROM_FEED
+                                          - strong [ref=f104e1085]: "#AIPower50"
+                                        - link "#InContentAdvertising" [ref=f104e1086]:
+                                          - /url: https://www.linkedin.com/search/results/all/?keywords=%23incontentadvertising&origin=HASH_TAG_FROM_FEED
+                                          - strong [ref=f104e1088]: "#InContentAdvertising"
+                                        - button:
+                                          - generic [ref=f104e1090]: … more
+                                  - generic [ref=f104e1091]:
+                                    - link [ref=f104e1092] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/feed/update/urn:li:share:7434613578562691072/
+                                      - figure [ref=f104e1093]:
+                                        - img "View image" [ref=f104e1094]
+                                    - button "View tagged entities" [ref=f104e1095] [cursor=pointer]:
+                                      - img [ref=f104e1097]
+                              - generic [ref=f104e1100]:
+                                - generic [ref=f104e1101]:
+                                  - 'button "Reaction button state: no reaction" [ref=f104e1104] [cursor=pointer]':
+                                    - generic [ref=f104e1105]:
+                                      - img [ref=f104e1106]
+                                      - generic [ref=f104e1108]: "19"
+                                  - button "Open reactions menu":
+                                    - img [ref=f104e1110] [cursor=pointer]
+                                - link "Comment" [ref=f104e1112] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7435349096346980352/
+                                  - img [ref=f104e1114]
+                                - button "Repost" [ref=f104e1116] [cursor=pointer]:
+                                  - img [ref=f104e1118]
+                                - link "Send" [ref=f104e1120] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/caseysaran/
+                                  - img [ref=f104e1122]
+                                - link [ref=f104e1124] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/caseysaran/
+                                  - generic "19 reactions" [ref=f104e1125]:
+                                    - img [ref=f104e1126]
+                                    - img [ref=f104e1132]
+                                    - img [ref=f104e1146]
+                          - listitem [ref=f104e1157]:
+                            - listitem [ref=f104e1159]:
+                              - generic [ref=f104e1160]:
+                                - generic [ref=f104e1161]:
+                                  - link [ref=f104e1162] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/caseysaran/
+                                    - figure [ref=f104e1163]:
+                                      - img "View Casey Saran’s profile" [ref=f104e1164]
+                                  - generic [ref=f104e1166]:
+                                    - link "Casey Saran Verified Profile 1st" [ref=f104e1169] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/caseysaran/
+                                      - generic "Casey Saran Verified Profile 1st" [ref=f104e1171]:
+                                        - paragraph [ref=f104e1174]: Casey Saran
+                                        - paragraph [ref=f104e1176]:
+                                          - generic [ref=f104e1177]:
+                                            - img [ref=f104e1179]
+                                            - text: • 1st
+                                    - paragraph [ref=f104e1182]: Founder @ Spaceback -> Board Member @ Rembrand
+                                    - paragraph [ref=f104e1184]:
+                                      - generic [ref=f104e1185]:
+                                        - text: 4mo •
+                                        - 'img "Visibility: Global" [ref=f104e1186]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/in/caseysaran/
+                                  - button "Open control menu for post by Casey Saran" [ref=f104e1188] [cursor=pointer]:
+                                    - img [ref=f104e1190]
+                                - link "this is why Spaceback merged with Rembrand. welcome to the future of controllable gen AI creative automation. more big announcements coming soon!" [ref=f104e1192] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7427372611346608129/
+                                  - paragraph [ref=f104e1193]:
+                                    - generic [ref=f104e1194]:
+                                      - text: this is why
+                                      - link "Spaceback" [ref=f104e1195]:
+                                        - /url: https://www.linkedin.com/company/spaceback/
+                                        - strong [ref=f104e1197]: Spaceback
+                                      - text: merged with
+                                      - link "Rembrand" [ref=f104e1198]:
+                                        - /url: https://www.linkedin.com/company/getrembrand/
+                                        - strong [ref=f104e1200]: Rembrand
+                                      - text: . welcome to the future of controllable gen AI creative automation. more big announcements coming soon!
+                                      - button:
+                                        - generic [ref=f104e1202]: … more
+                                - generic [ref=f104e1203]:
+                                  - generic [ref=f104e1204]:
+                                    - link [ref=f104e1205] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/company/spaceback/posts/
+                                      - figure [ref=f104e1206]:
+                                        - 'img "View company: Spaceback" [ref=f104e1207]'
+                                    - generic [ref=f104e1209]:
+                                      - link "Spaceback" [ref=f104e1212] [cursor=pointer]:
+                                        - /url: https://www.linkedin.com/company/spaceback/posts/
+                                        - paragraph [ref=f104e1217]: Spaceback
+                                      - paragraph [ref=f104e1219]:
+                                        - generic [ref=f104e1220]:
+                                          - text: 4mo • Edited •
+                                          - 'img "Visibility: Global" [ref=f104e1221]'
+                                      - link:
+                                        - /url: https://www.linkedin.com/company/spaceback/posts/
+                                  - 'link "We’re excited to introduce a major evolution of Spaceback’s AI capabilities, powered by Rembrand’s new AI Intelligence Suite. 💥 For the first time, our AI moves from behind-the-scenes acceleration to forward-facing creative control, giving brands new tools to scale and enhance their social content for CTV, online video, & pause ads. 📺 From intelligent content discovery and AI audio generation to dynamic backgrounds, marketers can transform more content faster without sacrificing brand governance. ⚡️ The result? Exponentially more creative, derived from the social content that already performs, ready for every screen. 🔥 Discover more in the press release below: 👇 https://lnkd.in/ezmAV7kT #AI #creativeautomation #adcreative" [ref=f104e1223] [cursor=pointer]':
+                                    - /url: https://www.linkedin.com/feed/update/urn:li:share:7427365826992992256/
+                                    - paragraph [ref=f104e1224]:
+                                      - generic [ref=f104e1225]:
+                                        - text: We’re excited to introduce a major evolution of Spaceback’s AI capabilities, powered by
+                                        - link "Rembrand" [ref=f104e1226]:
+                                          - /url: https://www.linkedin.com/company/getrembrand/
+                                          - strong [ref=f104e1228]: Rembrand
+                                        - text: ’s new AI Intelligence Suite. 💥
+                                        - text: For the first time, our AI moves from behind-the-scenes acceleration to forward-facing creative control, giving brands new tools to scale and enhance their social content for CTV, online video, & pause ads. 📺
+                                        - text: From intelligent content discovery and AI audio generation to dynamic backgrounds, marketers can transform more content faster without sacrificing brand governance. ⚡️
+                                        - text: The result? Exponentially more creative, derived from the social content that already performs, ready for every screen. 🔥
+                                        - text: "Discover more in the press release below: 👇"
+                                        - link "https://lnkd.in/ezmAV7kT" [ref=f104e1230]:
+                                          - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Flnkd%2Ein%2FezmAV7kT&urlhash=wFf-&mt=geIGlXSi9pFmb_AtapM5hiC8dhpfd0m8BF9RFGQT29Slvt0EeayXj4lC3cvnVAmsmhmfY3E3rq6pWA2hdwAO23nSGKV2kbXbrYC8uByp1bOO94uf7ZuJHg&isSdui=true
+                                          - strong [ref=f104e1232]: https://lnkd.in/ezmAV7kT
+                                        - link "#AI" [ref=f104e1233]:
+                                          - /url: https://www.linkedin.com/search/results/all/?keywords=%23ai&origin=HASH_TAG_FROM_FEED
+                                          - strong [ref=f104e1235]: "#AI"
+                                        - link "#creativeautomation" [ref=f104e1236]:
+                                          - /url: https://www.linkedin.com/search/results/all/?keywords=%23creativeautomation&origin=HASH_TAG_FROM_FEED
+                                          - strong [ref=f104e1238]: "#creativeautomation"
+                                        - link "#adcreative" [ref=f104e1239]:
+                                          - /url: https://www.linkedin.com/search/results/all/?keywords=%23adcreative&origin=HASH_TAG_FROM_FEED
+                                          - strong [ref=f104e1241]: "#adcreative"
+                                        - button:
+                                          - generic [ref=f104e1243]: … more
+                              - generic [ref=f104e1245]:
+                                - generic [ref=f104e1246]:
+                                  - 'button "Reaction button state: no reaction" [ref=f104e1249] [cursor=pointer]':
+                                    - generic [ref=f104e1250]:
+                                      - img [ref=f104e1251]
+                                      - generic [ref=f104e1253]: "63"
+                                  - button "Open reactions menu":
+                                    - img [ref=f104e1255] [cursor=pointer]
+                                - link "Comment" [ref=f104e1257] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7427372611346608129/
+                                  - generic [ref=f104e1258]:
+                                    - img [ref=f104e1259]
+                                    - generic [ref=f104e1261]: "1"
+                                - button "Repost" [ref=f104e1262] [cursor=pointer]:
+                                  - generic [ref=f104e1263]:
+                                    - img [ref=f104e1264]
+                                    - generic [ref=f104e1266]: "1"
+                                - link "Send" [ref=f104e1267] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/caseysaran/
+                                  - img [ref=f104e1269]
+                                - link [ref=f104e1271] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/caseysaran/
+                                  - generic "63 reactions" [ref=f104e1272]:
+                                    - img [ref=f104e1273]
+                                    - img [ref=f104e1279]
+                                    - img [ref=f104e1293]
+                          - listitem [ref=f104e1299]:
+                            - listitem [ref=f104e1301]:
+                              - generic [ref=f104e1302]:
+                                - generic [ref=f104e1303]:
+                                  - generic [ref=f104e1304]:
+                                    - link [ref=f104e1305] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/caseysaran/
+                                      - figure [ref=f104e1306]:
+                                        - img "View Casey Saran’s profile" [ref=f104e1307]
+                                    - paragraph [ref=f104e1309]:
+                                      - generic [ref=f104e1310]:
+                                        - link "Casey Saran" [ref=f104e1311] [cursor=pointer]:
+                                          - /url: https://www.linkedin.com/in/caseysaran/
+                                          - strong [ref=f104e1312]: Casey Saran
+                                        - text: reposted this
+                                  - button "Open control menu for post by Spaceback" [ref=f104e1313] [cursor=pointer]:
+                                    - img [ref=f104e1315]
+                                - generic [ref=f104e1317]:
+                                  - link [ref=f104e1318] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/company/spaceback/posts/
+                                    - figure [ref=f104e1319]:
+                                      - 'img "View company: Spaceback" [ref=f104e1320]'
+                                  - generic [ref=f104e1322]:
+                                    - link "Spaceback" [ref=f104e1325] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/company/spaceback/posts/
+                                      - paragraph [ref=f104e1330]: Spaceback
+                                    - paragraph [ref=f104e1332]:
+                                      - generic [ref=f104e1333]:
+                                        - text: 5mo •
+                                        - 'img "Visibility: Global" [ref=f104e1334]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/company/spaceback/posts/
+                                - 'link "Big events like the Olympics and the Super Bowl don’t just capture attention; they shape what advertising becomes next. 🏟️ In a new byline for Streaming Media Magazine, Casey Saran breaks down three CTV ad innovations debuting on the biggest stages this month that won’t fade when the games end. 🔥 From virtual placements to social CTV and ad pod personalization, these shifts are setting a new baseline for streaming ads. Discover how at the link below. 🚀 https://lnkd.in/e-H4Mznr #SocialCTV #Olympicsads #SuperBowlads" [ref=f104e1336] [cursor=pointer]':
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7425219978603458560/
+                                  - paragraph [ref=f104e1337]:
+                                    - generic [ref=f104e1338]:
+                                      - text: Big events like the Olympics and the Super Bowl don’t just capture attention; they shape what advertising becomes next. 🏟️
+                                      - text: In a new byline for
+                                      - link "Streaming Media Magazine" [ref=f104e1340]:
+                                        - /url: https://www.linkedin.com/company/streaming-media-magazine/
+                                        - strong [ref=f104e1342]: Streaming Media Magazine
+                                      - text: ","
+                                      - link "Casey Saran" [ref=f104e1343]:
+                                        - /url: https://www.linkedin.com/in/caseysaran/
+                                        - strong [ref=f104e1345]: Casey Saran
+                                      - text: breaks down three CTV ad innovations debuting on the biggest stages this month that won’t fade when the games end. 🔥
+                                      - text: From virtual placements to social CTV and ad pod personalization, these shifts are setting a new baseline for streaming ads. Discover how at the link below. 🚀
+                                      - link "https://lnkd.in/e-H4Mznr" [ref=f104e1346]:
+                                        - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Flnkd%2Ein%2Fe-H4Mznr&urlhash=nSPN&mt=XXiH7AIzlRshHQupo2lBJkMqsiXYKURLrtNhIcrzL7yF2uaPc5zH_w6m1MbPu2wH6riDqhf6IwjG_R7P5uCUTLhNxPS9d2oKO01cfaAnHQ3Z5LF7T4wzs_90Ag&isSdui=true
+                                        - strong [ref=f104e1348]: https://lnkd.in/e-H4Mznr
+                                      - link "#SocialCTV" [ref=f104e1349]:
+                                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23socialctv&origin=HASH_TAG_FROM_FEED
+                                        - strong [ref=f104e1351]: "#SocialCTV"
+                                      - link "#Olympicsads" [ref=f104e1352]:
+                                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23olympicsads&origin=HASH_TAG_FROM_FEED
+                                        - strong [ref=f104e1354]: "#Olympicsads"
+                                      - link "#SuperBowlads" [ref=f104e1355]:
+                                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23superbowlads&origin=HASH_TAG_FROM_FEED
+                                        - strong [ref=f104e1357]: "#SuperBowlads"
+                                      - button:
+                                        - generic [ref=f104e1359]: … more
+                                - link "Three CTV Ad Innovations That Will Stick Around After The Olympics streamingmedia.com" [ref=f104e1360] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Fwww%2Estreamingmedia%2Ecom%2FArticles%2FPost%2FBlog%2FThree-CTV-Ad-Innovations-That-Will-Stick-Around-After-The-Olympics-173374%2Easpx&urlhash=HX1c&mt=96xEeK89DlCIv_3JPYFwIWFkyd0_lph7bWf2Xc9m0nXI1Ecy9AThdTpzE9yw3mAt1V5CxHqKDcfu7sVfa3lZp0xUkoD7M1Buf05P1t5dq0zFAhkGrHwVybuw3A&isSdui=true
+                                  - generic [ref=f104e1361]:
+                                    - figure [ref=f104e1362]
+                                    - generic [ref=f104e1363]:
+                                      - paragraph [ref=f104e1365]:
+                                        - generic [ref=f104e1366]:
+                                          - generic [ref=f104e1367]: Three CTV Ad Innovations That Will Stick Around After The Olympics
+                                          - text: Three CTV Ad Innovations That Will Stick Around After The Olympics
+                                      - paragraph [ref=f104e1369]: streamingmedia.com
+                              - generic [ref=f104e1371]:
+                                - generic [ref=f104e1372]:
+                                  - 'button "Reaction button state: no reaction" [ref=f104e1375] [cursor=pointer]':
+                                    - generic [ref=f104e1376]:
+                                      - img [ref=f104e1377]
+                                      - generic [ref=f104e1379]: "41"
+                                  - button "Open reactions menu":
+                                    - img [ref=f104e1381] [cursor=pointer]
+                                - link "Comment" [ref=f104e1383] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7425219978603458560/
+                                  - img [ref=f104e1385]
+                                - button "Repost" [ref=f104e1387] [cursor=pointer]:
+                                  - generic [ref=f104e1388]:
+                                    - img [ref=f104e1389]
+                                    - generic [ref=f104e1391]: "3"
+                                - link "Send" [ref=f104e1392] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/caseysaran/
+                                  - img [ref=f104e1394]
+                                - link [ref=f104e1396] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/caseysaran/
+                                  - generic "41 reactions" [ref=f104e1397]:
+                                    - img [ref=f104e1398]
+                                    - img [ref=f104e1404]
+                                    - img [ref=f104e1418]
+                          - listitem [ref=f104e1424]:
+                            - listitem [ref=f104e1426]:
+                              - generic [ref=f104e1427]:
+                                - generic [ref=f104e1428]:
+                                  - link [ref=f104e1429] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/caseysaran/
+                                    - figure [ref=f104e1430]:
+                                      - img "View Casey Saran’s profile" [ref=f104e1431]
+                                  - generic [ref=f104e1433]:
+                                    - link "Casey Saran Verified Profile 1st" [ref=f104e1436] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/caseysaran/
+                                      - generic "Casey Saran Verified Profile 1st" [ref=f104e1438]:
+                                        - paragraph [ref=f104e1441]: Casey Saran
+                                        - paragraph [ref=f104e1443]:
+                                          - generic [ref=f104e1444]:
+                                            - img [ref=f104e1446]
+                                            - text: • 1st
+                                    - paragraph [ref=f104e1449]: Founder @ Spaceback -> Board Member @ Rembrand
+                                    - paragraph [ref=f104e1451]:
+                                      - generic [ref=f104e1452]:
+                                        - text: 5mo •
+                                        - 'img "Visibility: Global" [ref=f104e1453]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/in/caseysaran/
+                                  - button "Open control menu for post by Casey Saran" [ref=f104e1455] [cursor=pointer]:
+                                    - img [ref=f104e1457]
+                                - 'link "I’m happy to share: it''s now \"Linkedin Official\" that I''m starting a new position as President at Rembrand! 😎" [ref=f104e1459] [cursor=pointer]':
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7419472738089709568/
+                                  - paragraph [ref=f104e1460]:
+                                    - generic [ref=f104e1461]:
+                                      - text: "I’m happy to share: it's now \"Linkedin Official\" that I'm starting a new position as President at"
+                                      - link "Rembrand" [ref=f104e1462]:
+                                        - /url: https://www.linkedin.com/company/getrembrand/
+                                        - strong [ref=f104e1464]: Rembrand
+                                      - text: "! 😎"
+                              - generic [ref=f104e1466]:
+                                - generic [ref=f104e1467]:
+                                  - 'button "Reaction button state: no reaction" [ref=f104e1470] [cursor=pointer]':
+                                    - generic [ref=f104e1471]:
+                                      - img [ref=f104e1472]
+                                      - generic [ref=f104e1474]: "472"
+                                  - button "Open reactions menu":
+                                    - img [ref=f104e1476] [cursor=pointer]
+                                - link "Comment" [ref=f104e1478] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7419472738089709568/
+                                  - generic [ref=f104e1479]:
+                                    - img [ref=f104e1480]
+                                    - generic [ref=f104e1482]: "51"
+                                - button "Repost" [ref=f104e1483] [cursor=pointer]:
+                                  - img [ref=f104e1485]
+                                - link "Send" [ref=f104e1487] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/caseysaran/
+                                  - img [ref=f104e1489]
+                                - link [ref=f104e1491] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/caseysaran/
+                                  - generic "472 reactions" [ref=f104e1492]:
+                                    - img [ref=f104e1493]
+                                    - img [ref=f104e1499]
+                                    - img [ref=f104e1513]
+                          - listitem [ref=f104e1519]:
+                            - listitem [ref=f104e1521]:
+                              - generic [ref=f104e1522]:
+                                - generic [ref=f104e1523]:
+                                  - link [ref=f104e1524] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/caseysaran/
+                                    - figure [ref=f104e1525]:
+                                      - img "View Casey Saran’s profile" [ref=f104e1526]
+                                  - generic [ref=f104e1528]:
+                                    - link "Casey Saran Verified Profile 1st" [ref=f104e1531] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/caseysaran/
+                                      - generic "Casey Saran Verified Profile 1st" [ref=f104e1533]:
+                                        - paragraph [ref=f104e1536]: Casey Saran
+                                        - paragraph [ref=f104e1538]:
+                                          - generic [ref=f104e1539]:
+                                            - img [ref=f104e1541]
+                                            - text: • 1st
+                                    - paragraph [ref=f104e1544]: Founder @ Spaceback -> Board Member @ Rembrand
+                                    - paragraph [ref=f104e1546]:
+                                      - generic [ref=f104e1547]:
+                                        - text: 7mo •
+                                        - 'img "Visibility: Global" [ref=f104e1548]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/in/caseysaran/
+                                  - button "Open control menu for post by Casey Saran" [ref=f104e1550] [cursor=pointer]:
+                                    - img [ref=f104e1552]
+                                - link "This is what happens when you try to write a serious byline about creative tech but your brain is already waxing skis ⛷️ 🏂 and checking snow reports 🗻 ❄️ . Appreciate you riding along, Advertising Week! https://lnkd.in/gRZs8V3X" [ref=f104e1554] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7395148279782498304/
+                                  - paragraph [ref=f104e1555]:
+                                    - generic [ref=f104e1556]:
+                                      - text: This is what happens when you try to write a serious byline about creative tech but your brain is already waxing skis ⛷️ 🏂 and checking snow reports 🗻 ❄️ .
+                                      - text: Appreciate you riding along,
+                                      - link "Advertising Week" [ref=f104e1557]:
+                                        - /url: https://www.linkedin.com/company/advertising-week/
+                                        - strong [ref=f104e1559]: Advertising Week
+                                      - text: "!"
+                                      - link "https://lnkd.in/gRZs8V3X" [ref=f104e1560]:
+                                        - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Flnkd%2Ein%2FgRZs8V3X&urlhash=MmaL&mt=r_V_bNismHY2Yh2oPmiXUveGCbpLDiChC3DhDxgJbcKDKz2AYR9HzHIz6NTdHMvufISHavGWLezqK_yv-JaIXxOMzdpDpqx-VqN_sjOUK7m5N98WXt23aKSszA&isSdui=true
+                                        - strong [ref=f104e1562]: https://lnkd.in/gRZs8V3X
+                                      - button:
+                                        - generic [ref=f104e1564]: … more
+                                - link "How Creative Tech Fits in Streaming Media Sales advertisingweek.com" [ref=f104e1565] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Fadvertisingweek%2Ecom%2Fhow-creative-tech-fits-in-streaming-media-sales%2F&urlhash=OGFa&mt=rELtnPYtcg5nLGg9RKgkQZjII8YSS0PAko8VdbVUaKnXRyeIqgnPrvwsnk1NiBEYso8-F2BBXwH4zSzO5VarSgDCg8QH0ZR4eC8tZuz9Zo_EkorwFSvCWAof_A&isSdui=true
+                                  - generic [ref=f104e1567]:
+                                    - paragraph [ref=f104e1569]:
+                                      - generic [ref=f104e1570]:
+                                        - generic [ref=f104e1571]: How Creative Tech Fits in Streaming Media Sales
+                                        - text: How Creative Tech Fits in Streaming Media Sales
+                                    - paragraph [ref=f104e1573]: advertisingweek.com
+                              - generic [ref=f104e1575]:
+                                - generic [ref=f104e1576]:
+                                  - 'button "Reaction button state: no reaction" [ref=f104e1579] [cursor=pointer]':
+                                    - generic [ref=f104e1580]:
+                                      - img [ref=f104e1581]
+                                      - generic [ref=f104e1583]: "37"
+                                  - button "Open reactions menu":
+                                    - img [ref=f104e1585] [cursor=pointer]
+                                - link "Comment" [ref=f104e1587] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7395148279782498304/
+                                  - generic [ref=f104e1588]:
+                                    - img [ref=f104e1589]
+                                    - generic [ref=f104e1591]: "3"
+                                - button "Repost" [ref=f104e1592] [cursor=pointer]:
+                                  - img [ref=f104e1594]
+                                - link "Send" [ref=f104e1596] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/caseysaran/
+                                  - img [ref=f104e1598]
+                                - link [ref=f104e1600] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/caseysaran/
+                                  - generic "37 reactions" [ref=f104e1601]:
+                                    - img [ref=f104e1602]
+                                    - img [ref=f104e1608]
+                                    - img [ref=f104e1622]
+                          - listitem [ref=f104e1633]:
+                            - listitem [ref=f104e1635]:
+                              - generic [ref=f104e1636]:
+                                - generic [ref=f104e1637]:
+                                  - link [ref=f104e1638] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/in/caseysaran/
+                                    - figure [ref=f104e1639]:
+                                      - img "View Casey Saran’s profile" [ref=f104e1640]
+                                  - generic [ref=f104e1642]:
+                                    - link "Casey Saran Verified Profile 1st" [ref=f104e1645] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/caseysaran/
+                                      - generic "Casey Saran Verified Profile 1st" [ref=f104e1647]:
+                                        - paragraph [ref=f104e1650]: Casey Saran
+                                        - paragraph [ref=f104e1652]:
+                                          - generic [ref=f104e1653]:
+                                            - img [ref=f104e1655]
+                                            - text: • 1st
+                                    - paragraph [ref=f104e1658]: Founder @ Spaceback -> Board Member @ Rembrand
+                                    - paragraph [ref=f104e1660]:
+                                      - generic [ref=f104e1661]:
+                                        - text: 9mo •
+                                        - 'img "Visibility: Global" [ref=f104e1662]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/in/caseysaran/
+                                  - button "Open control menu for post by Casey Saran" [ref=f104e1664] [cursor=pointer]:
+                                    - img [ref=f104e1666]
+                                - link [ref=f104e1668] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7373323302364172288/
+                                  - paragraph [ref=f104e1669]:
+                                    - generic [ref=f104e1670]:
+                                      - text: When
+                                      - link "Joe Hall" [ref=f104e1671]:
+                                        - /url: https://www.linkedin.com/in/joehall6/
+                                        - strong [ref=f104e1673]: Joe Hall
+                                      - text: and I founded
+                                      - link "Spaceback" [ref=f104e1674]:
+                                        - /url: https://www.linkedin.com/company/spaceback/
+                                        - strong [ref=f104e1676]: Spaceback
+                                      - text: "in 2017, our north star was simple: we wanted to build an ad tech company that put the user experience first. We believed ads could feel like content—and that doing right by people would create better results for brands and publishers too. That belief led to Social Display, and it’s taken us on an incredible journey with thousands of brands, hundreds of partners, and the best team in ad tech."
+                                      - text: Now we’re joining forces with
+                                      - link "Omar Tawakol" [ref=f104e1677]:
+                                        - /url: https://www.linkedin.com/in/omartawakol/
+                                        - strong [ref=f104e1679]: Omar Tawakol
+                                      - text: and the amazing
+                                      - link "Rembrand" [ref=f104e1680]:
+                                        - /url: https://www.linkedin.com/company/getrembrand/
+                                        - strong [ref=f104e1682]: Rembrand
+                                      - text: "team to build what’s next: AI-powered creative automation and virtual product placement for the future of TV. Together, we believe the future of advertising won’t look like the past—it will be more personalized, more contextual, and most importantly, more valuable for people."
+                                      - text: This has been the best chapter of my career so far! And I couldn't be more excited about what's ahead.
+                                      - link "https://lnkd.in/gRrUxbyH" [ref=f104e1683]:
+                                        - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Flnkd%2Ein%2FgRrUxbyH&urlhash=cA39&mt=3YpxpfSRu5J5C5rqlECtkx06yPustDAmNHNUrJnG9bJJOMsX9xJqFQHhzqzBwTfMBjZP_Amgwh9PymP-MiaPeJfRZZQTweGj9fYkrWInBYWvKqiwegV4zE7SQQ&isSdui=true
+                                        - strong [ref=f104e1685]: https://lnkd.in/gRrUxbyH
+                                      - button:
+                                        - generic [ref=f104e1687]: … more
+                                - link "Rembrand Merges With Spaceback to Build AI-Powered 'Ad Factory' adweek.com" [ref=f104e1688] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Fwww%2Eadweek%2Ecom%2Fmedia%2Frembrand-spaceback-acquisition-merger-ai-ad-factory%2F&urlhash=lF67&mt=8_OW0tpqNHXAOLTje0ZEZrm0cvP0Nt27wSVsCnC76PTQyZFfQeXFEMKqnNPIsQw9PyDX3WJ8118NDd0Sx5V8eUeK2DhOaVERObAKji-R1EYVRRnfzQ8cqkJF_w&isSdui=true
+                                  - generic [ref=f104e1689]:
+                                    - figure [ref=f104e1690]
+                                    - generic [ref=f104e1691]:
+                                      - paragraph [ref=f104e1693]:
+                                        - generic [ref=f104e1694]:
+                                          - generic [ref=f104e1695]: Rembrand Merges With Spaceback to Build AI-Powered 'Ad Factory'
+                                          - text: Rembrand Merges With Spaceback to Build AI-Powered 'Ad Factory'
+                                      - paragraph [ref=f104e1697]: adweek.com
+                              - generic [ref=f104e1699]:
+                                - generic [ref=f104e1700]:
+                                  - 'button "Reaction button state: Celebrate" [ref=f104e1703] [cursor=pointer]':
+                                    - generic [ref=f104e1704]:
+                                      - img [ref=f104e1705]
+                                      - generic [ref=f104e1719]: "352"
+                                  - button "Open reactions menu":
+                                    - img [ref=f104e1721] [cursor=pointer]
+                                - link "Comment" [ref=f104e1723] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7373323302364172288/
+                                  - generic [ref=f104e1724]:
+                                    - img [ref=f104e1725]
+                                    - generic [ref=f104e1727]: "90"
+                                - button "Repost" [ref=f104e1728] [cursor=pointer]:
+                                  - generic [ref=f104e1729]:
+                                    - img [ref=f104e1730]
+                                    - generic [ref=f104e1732]: "3"
+                                - link "Send" [ref=f104e1733] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/caseysaran/
+                                  - img [ref=f104e1735]
+                                - link [ref=f104e1737] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/caseysaran/
+                                  - generic "352 reactions" [ref=f104e1738]:
+                                    - img [ref=f104e1739]
+                                    - img [ref=f104e1745]
+                                    - img [ref=f104e1759]
+                          - listitem [ref=f104e1765]:
+                            - listitem [ref=f104e1767]:
+                              - generic [ref=f104e1768]:
+                                - generic [ref=f104e1769]:
+                                  - generic [ref=f104e1770]:
+                                    - link [ref=f104e1771] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/caseysaran/
+                                      - figure [ref=f104e1772]:
+                                        - img "View Casey Saran’s profile" [ref=f104e1773]
+                                    - paragraph [ref=f104e1775]:
+                                      - generic [ref=f104e1776]:
+                                        - link "Casey Saran" [ref=f104e1777] [cursor=pointer]:
+                                          - /url: https://www.linkedin.com/in/caseysaran/
+                                          - strong [ref=f104e1778]: Casey Saran
+                                        - text: reposted this
+                                  - button "Open control menu for post by Spaceback" [ref=f104e1779] [cursor=pointer]:
+                                    - img [ref=f104e1781]
+                                - generic [ref=f104e1783]:
+                                  - link [ref=f104e1784] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/company/spaceback/posts/
+                                    - figure [ref=f104e1785]:
+                                      - 'img "View company: Spaceback" [ref=f104e1786]'
+                                  - generic [ref=f104e1788]:
+                                    - link "Spaceback" [ref=f104e1791] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/company/spaceback/posts/
+                                      - paragraph [ref=f104e1796]: Spaceback
+                                    - paragraph [ref=f104e1798]:
+                                      - generic [ref=f104e1799]:
+                                        - text: 10mo •
+                                        - 'img "Visibility: Global" [ref=f104e1800]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/company/spaceback/posts/
+                                - 'link "Meta’s latest earnings call hints at a future where AI reshapes ad creative for both big brands and small businesses. 🤔 In Streaming Media Magazine, Casey Saran explores how this same transformation is unfolding in CTV: Opening the door for long-tail advertisers to access TV ad inventory with the ease of self-serve platforms like Facebook. 📺 What does this mean for advertisers and the future of CTV? Read the full piece below: 🚀 https://lnkd.in/eJujaBAP #adcreative #AI #CTVadvertising" [ref=f104e1802] [cursor=pointer]':
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7366153822865403904/
+                                  - paragraph [ref=f104e1803]:
+                                    - generic [ref=f104e1804]:
+                                      - link "Meta" [ref=f104e1805]:
+                                        - /url: https://www.linkedin.com/company/meta/
+                                        - strong [ref=f104e1807]: Meta
+                                      - text: ’s latest earnings call hints at a future where AI reshapes ad creative for both big brands and small businesses. 🤔
+                                      - text: In
+                                      - link "Streaming Media Magazine" [ref=f104e1809]:
+                                        - /url: https://www.linkedin.com/company/streaming-media-magazine/
+                                        - strong [ref=f104e1811]: Streaming Media Magazine
+                                      - text: ","
+                                      - link "Casey Saran" [ref=f104e1812]:
+                                        - /url: https://www.linkedin.com/in/caseysaran/
+                                        - strong [ref=f104e1814]: Casey Saran
+                                      - text: "explores how this same transformation is unfolding in CTV: Opening the door for long-tail advertisers to access TV ad inventory with the ease of self-serve platforms like Facebook. 📺"
+                                      - text: "What does this mean for advertisers and the future of CTV? Read the full piece below: 🚀"
+                                      - link "https://lnkd.in/eJujaBAP" [ref=f104e1815]:
+                                        - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Flnkd%2Ein%2FeJujaBAP&urlhash=x7PA&mt=cwoKcWPuRUsWoIm-edZWdl2JcMTpF2loZ3Eylt9TCBadXz2gYU6VOmGV6jhrU9XZyofRe4FitsJODXYdD-2u97uc5R7p8G0HphQA2oUBjoyo_PeLQYi_lK_UBg&isSdui=true
+                                        - strong [ref=f104e1817]: https://lnkd.in/eJujaBAP
+                                      - link "#adcreative" [ref=f104e1818]:
+                                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23adcreative&origin=HASH_TAG_FROM_FEED
+                                        - strong [ref=f104e1820]: "#adcreative"
+                                      - link "#AI" [ref=f104e1821]:
+                                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23ai&origin=HASH_TAG_FROM_FEED
+                                        - strong [ref=f104e1823]: "#AI"
+                                      - link "#CTVadvertising" [ref=f104e1824]:
+                                        - /url: https://www.linkedin.com/search/results/all/?keywords=%23ctvadvertising&origin=HASH_TAG_FROM_FEED
+                                        - strong [ref=f104e1826]: "#CTVadvertising"
+                                      - button:
+                                        - generic [ref=f104e1828]: … more
+                                - link "Meta's Earnings Call Hints At the Future of CTV Advertising streamingmedia.com" [ref=f104e1829] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Fwww%2Estreamingmedia%2Ecom%2FArticles%2FReadArticle%2Easpx%3FArticleID%3D171103&urlhash=ids7&mt=c_ttcaQJ_jSdUhYj_B6u6dLmGMjt2ifZPgDYNKbRkSy2u3Gn_GJbLbZQ--YxnjsIxnom7j7GT6UE2gwoG8E7dr_c9PbW74dlf8gxyJykfM_B33sugA2kKih9cg&isSdui=true
+                                  - generic [ref=f104e1830]:
+                                    - figure [ref=f104e1831]
+                                    - generic [ref=f104e1832]:
+                                      - paragraph [ref=f104e1834]:
+                                        - generic [ref=f104e1835]:
+                                          - generic [ref=f104e1836]: Meta's Earnings Call Hints At the Future of CTV Advertising
+                                          - text: Meta's Earnings Call Hints At the Future of CTV Advertising
+                                      - paragraph [ref=f104e1838]: streamingmedia.com
+                              - generic [ref=f104e1840]:
+                                - generic [ref=f104e1841]:
+                                  - 'button "Reaction button state: Celebrate" [ref=f104e1844] [cursor=pointer]':
+                                    - generic [ref=f104e1845]:
+                                      - img [ref=f104e1846]
+                                      - generic [ref=f104e1860]: "48"
+                                  - button "Open reactions menu":
+                                    - img [ref=f104e1862] [cursor=pointer]
+                                - link "Comment" [ref=f104e1864] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7366153822865403904/
+                                  - generic [ref=f104e1865]:
+                                    - img [ref=f104e1866]
+                                    - generic [ref=f104e1868]: "1"
+                                - button "Repost" [ref=f104e1869] [cursor=pointer]:
+                                  - generic [ref=f104e1870]:
+                                    - img [ref=f104e1871]
+                                    - generic [ref=f104e1873]: "6"
+                                - link "Send" [ref=f104e1874] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/caseysaran/
+                                  - img [ref=f104e1876]
+                                - link [ref=f104e1878] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/caseysaran/
+                                  - generic "48 reactions" [ref=f104e1879]:
+                                    - img [ref=f104e1880]
+                                    - img [ref=f104e1886]
+                                    - img [ref=f104e1900]
+                          - listitem [ref=f104e1908]:
+                            - listitem [ref=f104e1910]:
+                              - generic [ref=f104e1911]:
+                                - generic [ref=f104e1912]:
+                                  - generic [ref=f104e1913]:
+                                    - link [ref=f104e1914] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/in/caseysaran/
+                                      - figure [ref=f104e1915]:
+                                        - img "View Casey Saran’s profile" [ref=f104e1916]
+                                    - paragraph [ref=f104e1918]:
+                                      - generic [ref=f104e1919]:
+                                        - link "Casey Saran" [ref=f104e1920] [cursor=pointer]:
+                                          - /url: https://www.linkedin.com/in/caseysaran/
+                                          - strong [ref=f104e1921]: Casey Saran
+                                        - text: reposted this
+                                  - button "Open control menu for post by Spaceback" [ref=f104e1922] [cursor=pointer]:
+                                    - img [ref=f104e1924]
+                                - generic [ref=f104e1926]:
+                                  - link [ref=f104e1927] [cursor=pointer]:
+                                    - /url: https://www.linkedin.com/company/spaceback/posts/
+                                    - figure [ref=f104e1928]:
+                                      - 'img "View company: Spaceback" [ref=f104e1929]'
+                                  - generic [ref=f104e1931]:
+                                    - link "Spaceback" [ref=f104e1934] [cursor=pointer]:
+                                      - /url: https://www.linkedin.com/company/spaceback/posts/
+                                      - paragraph [ref=f104e1939]: Spaceback
+                                    - paragraph [ref=f104e1941]:
+                                      - generic [ref=f104e1942]:
+                                        - text: 10mo •
+                                        - 'img "Visibility: Global" [ref=f104e1943]'
+                                    - link:
+                                      - /url: https://www.linkedin.com/company/spaceback/posts/
+                                - link "AI-powered creative tech is here, but unlocking its full value requires real-time creative–media collaboration, streamlined approvals, and continuous optimization. Read more about Casey Saran's perspective on this in the Advertising Week article below 👇 https://lnkd.in/emztXDm2" [ref=f104e1945] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7361801542556897280/
+                                  - paragraph [ref=f104e1946]:
+                                    - generic [ref=f104e1947]:
+                                      - text: AI-powered creative tech is here, but unlocking its full value requires real-time creative–media collaboration, streamlined approvals, and continuous optimization.
+                                      - text: Read more about
+                                      - link "Casey Saran" [ref=f104e1948]:
+                                        - /url: https://www.linkedin.com/in/caseysaran/
+                                        - strong [ref=f104e1950]: Casey Saran
+                                      - text: "'s perspective on this in the Advertising Week article below 👇"
+                                      - link "https://lnkd.in/emztXDm2" [ref=f104e1951]:
+                                        - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Flnkd%2Ein%2FemztXDm2&urlhash=dDM6&mt=zODXYv6yGI54uuHZiutHa9sVP62o_R979BLDbS-qdkz13FhrlPc4pvT7ThvmMNSzXgGJMG0TUVkGWOkfCzHw2JB4GZhEodwpc0hdFsHmgDGazYVylKRIp0N1hg&isSdui=true
+                                        - strong [ref=f104e1953]: https://lnkd.in/emztXDm2
+                                      - button:
+                                        - generic [ref=f104e1955]: … more
+                                - link "Media Buyers Need Some New Strategies to Make the Most of Creative Tech by Casey Saran, CEO at Spaceback advertisingweek.com" [ref=f104e1956] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/safety/go/?url=https%3A%2F%2Fadvertisingweek%2Ecom%2Fmedia-buyers-need-some-new-strategies-to-make-the-most-of-creative-tech-by-casey-saran-ceo-at-spaceback%2F&urlhash=aD4m&mt=6fcoXgJkhX8KMarZaOCAMEfmUcCKtzemIQxyFlS7oYZikfsC-GnBfJPgH2cPk4gOTjtf6GTlWbBmBpiTw-DmlR7yDHJGypZiBQe1mn8zvCJLG6yxa0-m0Dl1kw&isSdui=true
+                                  - generic [ref=f104e1957]:
+                                    - figure [ref=f104e1958]
+                                    - generic [ref=f104e1959]:
+                                      - paragraph [ref=f104e1961]:
+                                        - generic [ref=f104e1962]:
+                                          - generic [ref=f104e1963]: Media Buyers Need Some New Strategies to Make the Most of Creative Tech by Casey Saran, CEO at Spaceback
+                                          - text: Media Buyers Need Some New Strategies to Make the Most of Creative Tech by Casey Saran, CEO at Spaceback
+                                      - paragraph [ref=f104e1965]: advertisingweek.com
+                              - generic [ref=f104e1967]:
+                                - generic [ref=f104e1968]:
+                                  - 'button "Reaction button state: Celebrate" [ref=f104e1971] [cursor=pointer]':
+                                    - generic [ref=f104e1972]:
+                                      - img [ref=f104e1973]
+                                      - generic [ref=f104e1987]: "39"
+                                  - button "Open reactions menu":
+                                    - img [ref=f104e1989] [cursor=pointer]
+                                - link "Comment" [ref=f104e1991] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/feed/update/urn:li:activity:7361801542556897280/
+                                  - generic [ref=f104e1992]:
+                                    - img [ref=f104e1993]
+                                    - generic [ref=f104e1995]: "1"
+                                - button "Repost" [ref=f104e1996] [cursor=pointer]:
+                                  - generic [ref=f104e1997]:
+                                    - img [ref=f104e1998]
+                                    - generic [ref=f104e2000]: "3"
+                                - link "Send" [ref=f104e2001] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/caseysaran/
+                                  - img [ref=f104e2003]
+                                - link [ref=f104e2005] [cursor=pointer]:
+                                  - /url: https://www.linkedin.com/in/caseysaran/
+                                  - generic "39 reactions" [ref=f104e2006]:
+                                    - img [ref=f104e2007]
+                                    - img [ref=f104e2013]
+                                    - img [ref=f104e2027]
+                      - button "Next" [ref=f104e2033] [cursor=pointer]:
+                        - img [ref=f104e2035]
+                    - link "Show all posts" [ref=f104e2038] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/caseysaran/recent-activity/all/
+                      - generic [ref=f104e2039]:
+                        - img [ref=f104e2040]
+                        - generic [ref=f104e2042]: Show all posts
+            - complementary "Aside" [ref=f104e2064]:
+              - generic [ref=f104e2065]:
+                - generic [ref=f104e2066]:
+                  - iframe [ref=f104e2069]:
+                    - main "Work With Us Container" [ref=f106e3]:
+                      - generic [ref=f106e4]:
+                        - img [ref=f106e6]
+                        - generic [ref=f106e7]:
+                          - img "Taylor" [ref=f106e8]
+                          - link "Montrose Environmental" [ref=f106e9] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/li/tscp/sct?destinationUrl=http%3A%2F%2Fwww.linkedin.com%2Fcompany%2F3867031%2Flife&trackingEvent=%5B%7B%22eventInfo%22%3A%7B%22appId%22%3A%22com.linkedin.ads.rendering.d_web%22%2C%22eventName%22%3A%22SponsoredRightRailContentActionEvent%22%2C%22topicName%22%3A%22SponsoredRightRailContentActionEvent%22%7D%2C%22eventBody%22%3A%7B%22sponsoredEventHeader%22%3A%7B%22encryptedTrackingData%22%3A%22CwEAAAGfQCxQReW4E1zz20JbGCZA4nfoBv8Uk9KKPOdJbpcA7_lnouPM9w3pqYGvy_Mu2YC0nkGbR-i6jRCf53u2_cN31UHA8l94N-3INGMT-eRwHgoe0hlDKk1kSFROK_YWBcLex2HsEHpl8VjmoA_5AJtVdYtc0D6Y5A4tWpMq3nIblTlRm-6UOAnO3zR-FGQJ-fYBRz2AoKtqnOyeKi7YbQVUjdTfrXCCJZ2jB1xxIYZ2StNIh5YZGO9GXlBF1qwEM6OY08s6KtL3Z4HZvYUF8ofkbpcBqdzKaAcmGKOM9hEixjXB4nZ4rtHFB0eicKHChrSyW9Ock7AR0EbRvYfHMgr26texVJcuzic4KoIEOw7msLbLYR4hfU6cVAIWfWgdNzYj5nKAsiZkf7m6mveIRwk8umjR7NpsiKQ97I5-cSyG2Wz-O8TN7j6XQ52WgRaF8mOPKl3ggiJkWMJJGxk0MqxXTiNdnTixcEY_UDipw7NgJWcBv5ah3xNUllHWQ3cezBuJrBv8zoXbM5VmP8LlezvuECh63xJ-mYdgxz5jQ653sqMu-OJt2MXlhrRLufXXOLhq9-MpzYV40JBFIP4re0a-DnRUhWzcwlL0_FSoCJyECFgpXjjNftwX5VKYrb-bhBGuS7d7vrLmuI72Qx-lcf2TVtz0Uy7_val5VOTHoMPLrCdAd3rE6WrXJxi1OawdDVVeIF8bjbA4QSMEnp1dIDj_L4Z-dSb-ES53ElUPqOqvI8hPok8xA9paPFi1mgcJS_4s_PskCYG6uHxTc4UxrmuealklzmqScDLZF6ortwvS-cC_ldd6GEusVHo-44JpEstjqVA8_KmS13mBCwvrDrtAO6XPq1iS5eUWF0QZuKiQyAQPzjNwCw8bQVugMYgQhoUO2b1yE0Nsejf7UMk1bNuwk96Hk6BTbxl8YTdIm94TG3qnuMXlgEOy384Dvn5nbwMGZQluECpTyItyFZw4rOlRQ7BicJqUx8rZEOKYWUWXDF1R6qlSMQah2rVfRN-FCbP3665V713iYJlGJjEJwg75Yk30ScRDXCFC4OQ-qhVcjiqI5lxPR_5egjvQ1MfTLC7ITj3TZhu-72qS%22%7D%2C%22header%22%3A%7B%22pageInstance%22%3A%7B%22pageUrn%22%3A%22urn%3Ali%3Apage%3Ad_flagship3_profile_view_base%22%2C%22trackingId%22%3A%22bb407eda-1adb-418c-92e0-c93badb2b1c1%22%7D%2C%22time%22%3A1783488073737%2C%22version%22%3A%220.0.0%22%7D%2C%22requestHeader%22%3A%7B%22pageKey%22%3A%22d_flagship3_profile_view_base%22%2C%22interfaceLocale%22%3A%22en-US%22%7D%7D%7D%5D&csrfToken=ajax%3A1061531063325413417
+                            - img "Montrose Environmental" [ref=f106e10]
+                      - generic [ref=f106e11]:
+                        - generic [ref=f106e12]:
+                          - paragraph [ref=f106e13]: Taylor, explore relevant opportunities with Montrose Environmental
+                          - paragraph [ref=f106e14]: Get the latest jobs and industry news
+                        - link "Follow" [ref=f106e15] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/li/tscp/sct?destinationUrl=http%3A%2F%2Fwww.linkedin.com%2Fcompany%2F3867031%2Flife%3FisFollowingPage%3Dtrue&trackingEvent=%5B%7B%22eventInfo%22%3A%7B%22appId%22%3A%22com.linkedin.ads.rendering.d_web%22%2C%22eventName%22%3A%22SponsoredRightRailContentActionEvent%22%2C%22topicName%22%3A%22SponsoredRightRailContentActionEvent%22%7D%2C%22eventBody%22%3A%7B%22sponsoredEventHeader%22%3A%7B%22encryptedTrackingData%22%3A%22CwEAAAGfQCxQRRWIb6rTDeOpQtP1fe6QsH510rn7Jv-VH2j29vBsl2tyNb4z64TndcMzkeZ_SUTo91vqEbl5bsZf_Rgg6BdYBwysEyfyUckMpkwmUWngRQk6RwfJqzG_9ALfIpD7Rlf7EqC-3FT2VzGuzMm7biXCbM2kwjcEglV4ztRiCFKO5qyXxPlEjdSuoqAbnk5hzSsBefq4ywkkQjnxI3tAFymZDtLTv5ikIhH_v9yWp5X73Hqg8tpIoN_Brp5jroyqPO_VJM8ABIwlriSGINoy00O34hIpLTvP_MA188EYEYYE5xIq-zD-iB7pJ2wLEot4fB-xpLOeK6WJ_mLCfUlYSQvi_NL3GXq7Un8yPA5wFBzDv16ga88Jwq1R_2jJaeigwFlmNASYR2i2bPlNI_wG83xVbh3HyFqvKw11kJ-pJWdTOxDpmHeuqTmyEZf1gLqUJ9v6kzNNXXqBQfclbO5wa8GDkTVfwdMJ-d6IyzWECnZ-QFujj_QN3XapuF04VHxYp9E3hI-w01Trzm8BGbxtHNjshRQAa8H4WW4cWOktAZRM0UdG9Wb7w7jHSObmxB6PX-UEuRc6LCsGfoaNewVDqZ8KWUGQPv9rawWbd2lc9oN17SQTewa-PHTb86C-BN07SM7TKd-bZGrK4qEJZLf-N_z_m1wlVUZVoqooO8ejqvfr46WC5vE9OglT7cGeoOGRC9cUVE0G1rFCnaKTyCgbAsJCDgdPxHNkuZAdmnLp14KcyKETm-pafMQiU7s0SRjMy693BbYciRL1ouUe6TKTOK6bXt7LmTecJ_syNQOP7Mu1imiFBl4pQ5a1l-NwCooR0pHdk1eVjpU1pPxI7b-YKosLYe6M1bJv3XRJP_brzLCZ9VHbGhbbBqbmyC2jsEbFUigIPlwHwBfRnuR8s_3rdBPVDktXeDUfDi5IH0bSs83dFmRRcRi3nhpENqOUvLupLR0a0N2tn0vpUpASBFYekHxH0GJDL_6X8U4b-YCNGlqPLLsMXpfclTOUMHKm9G-GaewDK9VRQk2pEVeLU2HAmQpI5nBKDYqFNDVbOlMJYJHCTy_9lZJcPgYxHxhoZuYIStghAEOBwzqXWNlGb0d7gT599m9X43Rq9OaXvF5L7aCzQR6OXAjlpmI%22%7D%2C%22header%22%3A%7B%22pageInstance%22%3A%7B%22pageUrn%22%3A%22urn%3Ali%3Apage%3Ad_flagship3_profile_view_base%22%2C%22trackingId%22%3A%2224dcb7fc-0494-47e6-9a05-e65ffd93e23e%22%7D%2C%22time%22%3A1783488073737%2C%22version%22%3A%220.0.0%22%7D%2C%22requestHeader%22%3A%7B%22pageKey%22%3A%22d_flagship3_profile_view_base%22%2C%22interfaceLocale%22%3A%22en-US%22%7D%7D%7D%5D&csrfToken=ajax%3A1061531063325413417
+                      - generic [ref=f106e16]:
+                        - paragraph [ref=f106e17]: Promoted
+                        - button "Ad Options" [ref=f106e18] [cursor=pointer]:
+                          - img [ref=f106e19]
+                          - generic [ref=f106e23]: Ad Options
+                  - generic [ref=f104e2074]:
+                    - heading "More profiles for you" [level=3] [ref=f104e2078]
+                    - generic [ref=f104e2080]:
+                      - generic [ref=f104e2082]:
+                        - link "Joe Hall Verified · 1st Co-Founder @Adexy • Co-Founder @Spaceback • Product & Design" [ref=f104e2085] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/joehall6/
+                          - generic [ref=f104e2086]:
+                            - figure [ref=f104e2087]
+                            - generic [ref=f104e2088]:
+                              - generic [ref=f104e2089]:
+                                - paragraph [ref=f104e2091]:
+                                  - link "Joe Hall Verified" [ref=f104e2093]:
+                                    - /url: https://www.linkedin.com/in/joehall6/
+                                    - text: Joe Hall
+                                    - img "Verified" [ref=f104e2094]:
+                                      - img [ref=f104e2095]
+                                - paragraph [ref=f104e2097]: · 1st
+                              - paragraph [ref=f104e2099]: Co-Founder @Adexy • Co-Founder @Spaceback • Product & Design
+                        - link "Message Joe Hall" [ref=f104e2103] [cursor=pointer]:
+                          - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAAYxir8BeCekMlKbmHqFCmvzNIlXWxdIb98&recipient=ACoAAAYxir8BeCekMlKbmHqFCmvzNIlXWxdIb98&screenContext=NON_SELF_PROFILE_VIEW&interop=msgOverlay
+                          - generic [ref=f104e2104]:
+                            - img [ref=f104e2105]
+                            - generic [ref=f104e2107]: Message
+                      - generic [ref=f104e2109]:
+                        - link "Omar Tawakol Premium · 2nd CEO of Rembrand, fmr CEO BlueKai (acquired by Oracle), fmr CEO Voicea (acquired by Cisco)" [ref=f104e2112] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/omartawakol/
+                          - generic [ref=f104e2113]:
+                            - figure [ref=f104e2114]
+                            - generic [ref=f104e2115]:
+                              - generic [ref=f104e2116]:
+                                - paragraph [ref=f104e2118]:
+                                  - link "Omar Tawakol Premium" [ref=f104e2120]:
+                                    - /url: https://www.linkedin.com/in/omartawakol/
+                                    - text: Omar Tawakol
+                                    - img "Premium" [ref=f104e2121]:
+                                      - img [ref=f104e2122]
+                                - paragraph [ref=f104e2124]: · 2nd
+                              - paragraph [ref=f104e2126]: CEO of Rembrand, fmr CEO BlueKai (acquired by Oracle), fmr CEO Voicea (acquired by Cisco)
+                        - link "Message Omar Tawakol" [ref=f104e2130] [cursor=pointer]:
+                          - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAAAARhYB6bYuh3owubJmgBhbccWwaUbAE68&recipient=ACoAAAAARhYB6bYuh3owubJmgBhbccWwaUbAE68&screenContext=NON_SELF_PROFILE_VIEW&interop=msgOverlay
+                          - generic [ref=f104e2131]:
+                            - img [ref=f104e2132]
+                            - generic [ref=f104e2134]: Message
+                      - generic [ref=f104e2136]:
+                        - link "Brady Akers Verified · 1st Technology and startup enthusiast. Above average guy." [ref=f104e2139] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/brady-akers/
+                          - generic [ref=f104e2140]:
+                            - figure [ref=f104e2141]
+                            - generic [ref=f104e2142]:
+                              - generic [ref=f104e2143]:
+                                - paragraph [ref=f104e2145]:
+                                  - link "Brady Akers Verified" [ref=f104e2147]:
+                                    - /url: https://www.linkedin.com/in/brady-akers/
+                                    - text: Brady Akers
+                                    - img "Verified" [ref=f104e2148]:
+                                      - img [ref=f104e2149]
+                                - paragraph [ref=f104e2151]: · 1st
+                              - paragraph [ref=f104e2153]: Technology and startup enthusiast. Above average guy.
+                        - link "Message Brady Akers" [ref=f104e2157] [cursor=pointer]:
+                          - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAAKKCpkBZExkyvfipNhpTyygScMXTuZSMps&recipient=ACoAAAKKCpkBZExkyvfipNhpTyygScMXTuZSMps&screenContext=NON_SELF_PROFILE_VIEW&interop=msgOverlay
+                          - generic [ref=f104e2158]:
+                            - img [ref=f104e2159]
+                            - generic [ref=f104e2161]: Message
+                      - generic [ref=f104e2163]:
+                        - link "David Wiener Verified · 1st Founder @ Rembrand" [ref=f104e2166] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/thedavidwiener/
+                          - generic [ref=f104e2167]:
+                            - figure [ref=f104e2168]
+                            - generic [ref=f104e2169]:
+                              - generic [ref=f104e2170]:
+                                - paragraph [ref=f104e2172]:
+                                  - link "David Wiener Verified" [ref=f104e2174]:
+                                    - /url: https://www.linkedin.com/in/thedavidwiener/
+                                    - text: David Wiener
+                                    - img "Verified" [ref=f104e2175]:
+                                      - img [ref=f104e2176]
+                                - paragraph [ref=f104e2178]: · 1st
+                              - paragraph [ref=f104e2180]: Founder @ Rembrand
+                        - link "Message David Wiener" [ref=f104e2184] [cursor=pointer]:
+                          - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAABiD7IBQEzI5-PHDfGikggtkisrxT0jrGU&recipient=ACoAAABiD7IBQEzI5-PHDfGikggtkisrxT0jrGU&screenContext=NON_SELF_PROFILE_VIEW&interop=msgOverlay
+                          - generic [ref=f104e2185]:
+                            - img [ref=f104e2186]
+                            - generic [ref=f104e2188]: Message
+                      - generic [ref=f104e2190]:
+                        - link "Chris Baclig Verified · 1st CTO at Spaceback" [ref=f104e2193] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/chrisbaclig/
+                          - generic [ref=f104e2194]:
+                            - figure [ref=f104e2195]
+                            - generic [ref=f104e2196]:
+                              - generic [ref=f104e2197]:
+                                - paragraph [ref=f104e2199]:
+                                  - link "Chris Baclig Verified" [ref=f104e2201]:
+                                    - /url: https://www.linkedin.com/in/chrisbaclig/
+                                    - text: Chris Baclig
+                                    - img "Verified" [ref=f104e2202]:
+                                      - img [ref=f104e2203]
+                                - paragraph [ref=f104e2205]: · 1st
+                              - paragraph [ref=f104e2207]: CTO at Spaceback
+                        - link "Message Chris Baclig" [ref=f104e2211] [cursor=pointer]:
+                          - /url: /messaging/compose/?profileUrn=urn%3Ali%3Afsd_profile%3AACoAAASh8SsBLZr-BaIIzBrC6riqAUNXddA6p1k&recipient=ACoAAASh8SsBLZr-BaIIzBrC6riqAUNXddA6p1k&screenContext=NON_SELF_PROFILE_VIEW&interop=msgOverlay
+                          - generic [ref=f104e2212]:
+                            - img [ref=f104e2213]
+                            - generic [ref=f104e2215]: Message
+                    - link "Show all more profiles for you" [ref=f104e2217] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/caseysaran/overlay/browsemap-recommendations/
+                      - generic [ref=f104e2218]:
+                        - img [ref=f104e2219]
+                        - generic [ref=f104e2221]: Show all
+                  - generic [ref=f104e2224]:
+                    - heading "Get advice on software development" [level=2] [ref=f104e2226]
+                    - generic [ref=f104e2228]:
+                      - generic [ref=f104e2230]:
+                        - link "Samir Tata Premium · 3rd Senior Engineering Manager at LinkedIn" [ref=f104e2233] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/samirtata/
+                          - generic [ref=f104e2234]:
+                            - figure [ref=f104e2235]
+                            - generic [ref=f104e2236]:
+                              - generic [ref=f104e2237]:
+                                - paragraph [ref=f104e2239]:
+                                  - link "Samir Tata Premium" [ref=f104e2241]:
+                                    - /url: https://www.linkedin.com/in/samirtata/
+                                    - text: Samir Tata
+                                    - img "Premium" [ref=f104e2242]:
+                                      - img [ref=f104e2243]
+                                - paragraph [ref=f104e2245]: · 3rd
+                              - paragraph [ref=f104e2247]: Senior Engineering Manager at LinkedIn
+                        - link "Get advice from me" [ref=f104e2251] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/meetings/AGsAAAFMzAUB8NDId26qIbKHrM5tjI6AWR0HdR8/abdda6f5-ff35-4446-8fe8-bbb109d470c1/book/
+                          - generic [ref=f104e2253]: Get advice from me
+                      - generic [ref=f104e2255]:
+                        - link "Qingchun(Quincie) L. Premium · 3rd Senior Software Engineer at LinkedIn" [ref=f104e2258] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/qingchun-quincie-li/
+                          - generic [ref=f104e2259]:
+                            - figure [ref=f104e2260]:
+                              - img [ref=f104e2261]
+                            - generic [ref=f104e2267]:
+                              - generic [ref=f104e2268]:
+                                - paragraph [ref=f104e2270]:
+                                  - link "Qingchun(Quincie) L. Premium" [ref=f104e2272]:
+                                    - /url: https://www.linkedin.com/in/qingchun-quincie-li/
+                                    - text: Qingchun(Quincie) L.
+                                    - img "Premium" [ref=f104e2273]:
+                                      - img [ref=f104e2274]
+                                - paragraph [ref=f104e2276]: · 3rd
+                              - paragraph [ref=f104e2278]: Senior Software Engineer at LinkedIn
+                        - link "Get advice from me" [ref=f104e2282] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/meetings/AGsAAA_xoIEB2LX0w_sB_zrlibeHLvWZw3X-Pag/558a92c9-7a24-4108-af20-6eaafb13dd75/book/
+                          - generic [ref=f104e2284]: Get advice from me
+                      - generic [ref=f104e2286]:
+                        - link "Johnson Kan Premium · 3rd Senior Staff Software Engineer @ LinkedIn" [ref=f104e2289] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/johnsonkan/
+                          - generic [ref=f104e2290]:
+                            - figure [ref=f104e2291]
+                            - generic [ref=f104e2292]:
+                              - generic [ref=f104e2293]:
+                                - paragraph [ref=f104e2295]:
+                                  - link "Johnson Kan Premium" [ref=f104e2297]:
+                                    - /url: https://www.linkedin.com/in/johnsonkan/
+                                    - text: Johnson Kan
+                                    - img "Premium" [ref=f104e2298]:
+                                      - img [ref=f104e2299]
+                                - paragraph [ref=f104e2301]: · 3rd
+                              - paragraph [ref=f104e2303]: Senior Staff Software Engineer @ LinkedIn
+                        - link "Get advice from me" [ref=f104e2307] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/meetings/AGsAAAcP_CQBLgQPdOccitLezUvTbGdFVLiZl8M/39bd0965-a18b-48ef-928a-75fc0bc2ee1d/book/
+                          - generic [ref=f104e2309]: Get advice from me
+                      - generic [ref=f104e2311]:
+                        - link "Neha Jain Premium · 3rd Engineering Leader @ LinkedIn | AI-Powered Product Builder | 0→1 Growth at Scale | Creative Thinker & Author" [ref=f104e2314] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/nehajainhbti/
+                          - generic [ref=f104e2315]:
+                            - figure [ref=f104e2316]
+                            - generic [ref=f104e2317]:
+                              - generic [ref=f104e2318]:
+                                - paragraph [ref=f104e2320]:
+                                  - link "Neha Jain Premium" [ref=f104e2322]:
+                                    - /url: https://www.linkedin.com/in/nehajainhbti/
+                                    - text: Neha Jain
+                                    - img "Premium" [ref=f104e2323]:
+                                      - img [ref=f104e2324]
+                                - paragraph [ref=f104e2326]: · 3rd
+                              - paragraph [ref=f104e2328]: Engineering Leader @ LinkedIn | AI-Powered Product Builder | 0→1 Growth at Scale | Creative Thinker & Author
+                        - link "Get advice from me" [ref=f104e2332] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/meetings/AGsAAAOLIzMBr5rS2z3gTmSvV_pZGHI71bTl-ag/acbd14e8-52a8-4e63-a749-56ca21037ae3/book/
+                          - generic [ref=f104e2334]: Get advice from me
+                  - generic [ref=f104e2339]:
+                    - generic [ref=f104e2341]:
+                      - heading "People you may know" [level=2] [ref=f104e2342]
+                      - paragraph [ref=f104e2343]: From Casey's job title
+                    - generic [ref=f104e2345]:
+                      - generic [ref=f104e2347]:
+                        - link "Patricio Aguilar Alvarez Verified · 2nd MBA Candidate at Chicago Booth" [ref=f104e2349] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/patricioaguilar/
+                          - generic [ref=f104e2350]:
+                            - figure [ref=f104e2351]
+                            - generic [ref=f104e2352]:
+                              - generic [ref=f104e2353]:
+                                - paragraph [ref=f104e2355]:
+                                  - link "Patricio Aguilar Alvarez Verified" [ref=f104e2357]:
+                                    - /url: https://www.linkedin.com/in/patricioaguilar/
+                                    - text: Patricio Aguilar Alvarez
+                                    - img "Verified" [ref=f104e2358]:
+                                      - img [ref=f104e2359]
+                                - paragraph [ref=f104e2361]: · 2nd
+                              - paragraph [ref=f104e2363]: MBA Candidate at Chicago Booth
+                        - button "Invite Patricio Aguilar Alvarez to connect" [ref=f104e2367] [cursor=pointer]:
+                          - generic [ref=f104e2368]:
+                            - img [ref=f104e2369]
+                            - generic [ref=f104e2372]: Connect
+                      - generic [ref=f104e2374]:
+                        - link "Henri Levenson Verified · 2nd MBA Candidate at the Tuck School of Business at Dartmouth" [ref=f104e2376] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/henri-levenson/
+                          - generic [ref=f104e2377]:
+                            - figure [ref=f104e2378]
+                            - generic [ref=f104e2379]:
+                              - generic [ref=f104e2380]:
+                                - paragraph [ref=f104e2382]:
+                                  - link "Henri Levenson Verified" [ref=f104e2384]:
+                                    - /url: https://www.linkedin.com/in/henri-levenson/
+                                    - text: Henri Levenson
+                                    - img "Verified" [ref=f104e2385]:
+                                      - img [ref=f104e2386]
+                                - paragraph [ref=f104e2388]: · 2nd
+                              - paragraph [ref=f104e2390]: MBA Candidate at the Tuck School of Business at Dartmouth
+                        - button "Invite Henri Levenson to connect" [ref=f104e2394] [cursor=pointer]:
+                          - generic [ref=f104e2395]:
+                            - img [ref=f104e2396]
+                            - generic [ref=f104e2399]: Connect
+                      - generic [ref=f104e2401]:
+                        - link "Catherine Cable Verified · 2nd MBA Candidate at London Business School" [ref=f104e2403] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/catherinelcable/
+                          - generic [ref=f104e2404]:
+                            - figure [ref=f104e2405]
+                            - generic [ref=f104e2406]:
+                              - generic [ref=f104e2407]:
+                                - paragraph [ref=f104e2409]:
+                                  - link "Catherine Cable Verified" [ref=f104e2411]:
+                                    - /url: https://www.linkedin.com/in/catherinelcable/
+                                    - text: Catherine Cable
+                                    - img "Verified" [ref=f104e2412]:
+                                      - img [ref=f104e2413]
+                                - paragraph [ref=f104e2415]: · 2nd
+                              - paragraph [ref=f104e2417]: MBA Candidate at London Business School
+                        - button "Invite Catherine Cable to connect" [ref=f104e2421] [cursor=pointer]:
+                          - generic [ref=f104e2422]:
+                            - img [ref=f104e2423]
+                            - generic [ref=f104e2426]: Connect
+                      - generic [ref=f104e2428]:
+                        - link "Odotty undefined · 3rd+ TAG at Syep" [ref=f104e2430] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/odotty-undefined-364415412/
+                          - generic [ref=f104e2431]:
+                            - figure [ref=f104e2432]
+                            - generic [ref=f104e2433]:
+                              - generic [ref=f104e2434]:
+                                - paragraph [ref=f104e2436]:
+                                  - link "Odotty undefined" [ref=f104e2438]:
+                                    - /url: https://www.linkedin.com/in/odotty-undefined-364415412/
+                                - paragraph [ref=f104e2439]: · 3rd+
+                              - paragraph [ref=f104e2441]: TAG at Syep
+                        - button "Invite Odotty undefined to connect" [ref=f104e2445] [cursor=pointer]:
+                          - generic [ref=f104e2446]:
+                            - img [ref=f104e2447]
+                            - generic [ref=f104e2450]: Connect
+                      - generic [ref=f104e2452]:
+                        - link "Ed Schlect · 2nd Strategy Advisor, Venture Portfolio Board Member" [ref=f104e2454] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/in/ed-schlect-9778b18/
+                          - generic [ref=f104e2455]:
+                            - figure [ref=f104e2456]
+                            - generic [ref=f104e2457]:
+                              - generic [ref=f104e2458]:
+                                - paragraph [ref=f104e2460]:
+                                  - link "Ed Schlect" [ref=f104e2462]:
+                                    - /url: https://www.linkedin.com/in/ed-schlect-9778b18/
+                                - paragraph [ref=f104e2463]: · 2nd
+                              - paragraph [ref=f104e2465]: Strategy Advisor, Venture Portfolio Board Member
+                        - button "Invite Ed Schlect to connect" [ref=f104e2469] [cursor=pointer]:
+                          - generic [ref=f104e2470]:
+                            - img [ref=f104e2471]
+                            - generic [ref=f104e2474]: Connect
+                    - link "Show all people you may know" [ref=f104e2476] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/caseysaran/
+                      - generic [ref=f104e2477]:
+                        - img [ref=f104e2478]
+                        - generic [ref=f104e2480]: Show all
+                  - generic [ref=f104e2485]:
+                    - generic [ref=f104e2487]:
+                      - heading "You might like" [level=2] [ref=f104e2488]
+                      - paragraph [ref=f104e2489]: Pages for you
+                    - generic [ref=f104e2491]:
+                      - generic [ref=f104e2494]:
+                        - link "Yoodli AI Roleplays Software Development 17,735 followers" [ref=f104e2495] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/company/yoodli/
+                          - generic [ref=f104e2496]:
+                            - figure [ref=f104e2497]
+                            - generic [ref=f104e2498]:
+                              - paragraph [ref=f104e2501]: Yoodli AI Roleplays
+                              - paragraph [ref=f104e2503]: Software Development
+                              - paragraph [ref=f104e2504]: 17,735 followers
+                        - generic [ref=f104e2505]:
+                          - generic [ref=f104e2506]:
+                            - figure [ref=f104e2507]
+                            - paragraph [ref=f104e2509]:
+                              - link "Varun works here" [ref=f104e2511] [cursor=pointer]:
+                                - /url: https://www.linkedin.com/in/varun-puri001/
+                          - button "Follow Yoodli AI Roleplays" [ref=f104e2514] [cursor=pointer]:
+                            - generic [ref=f104e2515]:
+                              - img [ref=f104e2516]
+                              - generic [ref=f104e2518]: Follow
+                      - generic [ref=f104e2521]:
+                        - link "CACI International Inc Defense and Space Manufacturing 287,647 followers" [ref=f104e2522] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/company/caci-international-inc/
+                          - generic [ref=f104e2523]:
+                            - figure [ref=f104e2524]
+                            - generic [ref=f104e2525]:
+                              - paragraph [ref=f104e2528]: CACI International Inc
+                              - paragraph [ref=f104e2530]: Defense and Space Manufacturing
+                              - paragraph [ref=f104e2531]: 287,647 followers
+                        - generic [ref=f104e2532]:
+                          - link "Drew & 4 other connections follow this page" [ref=f104e2533] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/in/caseysaran/
+                            - generic [ref=f104e2534]:
+                              - figure [ref=f104e2535]
+                              - paragraph [ref=f104e2537]:
+                                - link "Drew & 4 other connections follow this page" [ref=f104e2539]:
+                                  - /url: https://www.linkedin.com/in/caseysaran/
+                          - button "Follow CACI International Inc" [ref=f104e2542] [cursor=pointer]:
+                            - generic [ref=f104e2543]:
+                              - img [ref=f104e2544]
+                              - generic [ref=f104e2546]: Follow
+                    - link "Show all pages you might like" [ref=f104e2548] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/caseysaran/
+                      - generic [ref=f104e2549]:
+                        - img [ref=f104e2550]
+                        - generic [ref=f104e2552]: Show all
+                - iframe [ref=f104e2557]:
+                  - link "Advertise on LinkedIn" [ref=f107e4] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/jobs/?trk=li_FA_global_careers_jobsgtm_jsFA_v1&mcid=6899045044465016833
+                    - img "Advertise on LinkedIn" [ref=f107e5]
+            - generic "Footer" [ref=f104e2558]:
+              - generic [ref=f104e2561]:
+                - generic [ref=f104e2562]:
+                  - navigation [ref=f104e2563]:
+                    - link "About" [ref=f104e2564] [cursor=pointer]:
+                      - /url: https://about.linkedin.com/
+                      - paragraph [ref=f104e2565]: About
+                    - link "Accessibility" [ref=f104e2566] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/accessibility/
+                      - paragraph [ref=f104e2567]: Accessibility
+                    - link "Talent Solutions" [ref=f104e2568] [cursor=pointer]:
+                      - /url: https://business.linkedin.com/talent-solutions?trk=flagship_nav&veh=li-footer-lts-control&src=li-footer
+                      - paragraph [ref=f104e2569]: Talent Solutions
+                    - link "Community Guidelines" [ref=f104e2570] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/legal/professional-community-policies/
+                      - paragraph [ref=f104e2571]: Community Guidelines
+                    - link "Careers" [ref=f104e2572] [cursor=pointer]:
+                      - /url: https://careers.linkedin.com/
+                      - paragraph [ref=f104e2573]: Careers
+                    - link "Marketing Solutions" [ref=f104e2574] [cursor=pointer]:
+                      - /url: https://business.linkedin.com/advertise?trk=n_nav_lms_f&src=li-footer
+                      - paragraph [ref=f104e2575]: Marketing Solutions
+                    - button "Privacy & Terms" [ref=f104e2576] [cursor=pointer]:
+                      - generic [ref=f104e2577]:
+                        - paragraph [ref=f104e2578]: Privacy & Terms
+                        - img [ref=f104e2579]
+                    - link "Ad Choices" [ref=f104e2581] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/help/linkedin/answer/62931/
+                      - paragraph [ref=f104e2582]: Ad Choices
+                    - link "Advertising" [ref=f104e2583] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/ad/start/?trk=n_nav_ads_rr
+                      - paragraph [ref=f104e2584]: Advertising
+                    - link "Sales Solutions" [ref=f104e2585] [cursor=pointer]:
+                      - /url: https://business.linkedin.com/sales-solutions?trk=flagship_nav&veh=li-footer-lss-control&src=li-footer
+                      - paragraph [ref=f104e2586]: Sales Solutions
+                    - link "Mobile" [ref=f104e2587] [cursor=pointer]:
+                      - /url: https://mobile.linkedin.com/
+                      - paragraph [ref=f104e2588]: Mobile
+                    - link "Small Business" [ref=f104e2589] [cursor=pointer]:
+                      - /url: https://business.linkedin.com/grow?src=li-footer
+                      - paragraph [ref=f104e2590]: Small Business
+                    - link "Safety Center" [ref=f104e2591] [cursor=pointer]:
+                      - /url: https://safety.linkedin.com/
+                      - paragraph [ref=f104e2592]: Safety Center
+                  - paragraph [ref=f104e2594]: LinkedIn Corporation © 2026
+                - generic [ref=f104e2595]:
+                  - list [ref=f104e2596]:
+                    - listitem [ref=f104e2597]:
+                      - generic [ref=f104e2598]:
+                        - img [ref=f104e2599]
+                        - generic [ref=f104e2601]:
+                          - link "Questions?" [ref=f104e2602] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/help/linkedin/
+                            - paragraph [ref=f104e2603]: Questions?
+                          - paragraph [ref=f104e2604]: Visit our Help Center.
+                    - listitem [ref=f104e2605]:
+                      - generic [ref=f104e2606]:
+                        - img [ref=f104e2607]
+                        - generic [ref=f104e2609]:
+                          - link "Manage your account and privacy" [ref=f104e2610] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/mypreferences/d/
+                            - paragraph [ref=f104e2611]: Manage your account and privacy
+                          - paragraph [ref=f104e2612]: Go to your Settings.
+                    - listitem [ref=f104e2613]:
+                      - generic [ref=f104e2614]:
+                        - img [ref=f104e2615]
+                        - generic [ref=f104e2617]:
+                          - link "Recommendation transparency" [ref=f104e2618] [cursor=pointer]:
+                            - /url: https://www.linkedin.com/help/linkedin/answer/a1339724/
+                            - paragraph [ref=f104e2619]: Recommendation transparency
+                          - paragraph [ref=f104e2620]: Learn more about Recommended Content.
+                  - generic [ref=f104e2622]:
+                    - paragraph [ref=f104e2624]: Select language
+                    - generic [ref=f104e2625]:
+                      - combobox "Select language" [ref=f104e2626] [cursor=pointer]:
+                        - option "العربية (Arabic)"
+                        - option "বাংলা (Bangla)"
+                        - option "Čeština (Czech)"
+                        - option "Dansk (Danish)"
+                        - option "Deutsch (German)"
+                        - option "Ελληνικά (Greek)"
+                        - option "English (English)" [selected]
+                        - option "Español (Spanish)"
+                        - option "فارسی (Persian)"
+                        - option "Suomi (Finnish)"
+                        - option "Français (French)"
+                        - option "हिंदी (Hindi)"
+                        - option "Magyar (Hungarian)"
+                        - option "Bahasa Indonesia (Indonesian)"
+                        - option "Italiano (Italian)"
+                        - option "עברית (Hebrew)"
+                        - option "日本語 (Japanese)"
+                        - option "한국어 (Korean)"
+                        - option "मराठी (Marathi)"
+                        - option "Bahasa Malaysia (Malay)"
+                        - option "Nederlands (Dutch)"
+                        - option "Norsk (Norwegian)"
+                        - option "ਪੰਜਾਬੀ (Punjabi)"
+                        - option "Polski (Polish)"
+                        - option "Português (Portuguese)"
+                        - option "Română (Romanian)"
+                        - option "Русский (Russian)"
+                        - option "Svenska (Swedish)"
+                        - option "తెలుగు (Telugu)"
+                        - option "ภาษาไทย (Thai)"
+                        - option "Tagalog (Tagalog)"
+                        - option "Türkçe (Turkish)"
+                        - option "Українська (Ukrainian)"
+                        - option "Tiếng Việt (Vietnamese)"
+                        - option "简体中文 (Chinese (Simplified))"
+                        - option "正體中文 (Chinese (Traditional))"
+                      - img
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - complementary:
+            - generic [ref=f104e2628]:
+              - generic [ref=f104e2630] [cursor=pointer]:
+                - generic [ref=f104e2631]:
+                  - img "Taylor Yates" [ref=f104e2632]
+                  - generic [ref=f104e2634]: Status is online
+                - button "You are on the messaging overlay. Press enter to open the list of conversations." [ref=f104e2635]:
+                  - generic [ref=f104e2636]:
+                    - generic [ref=f104e2637]: Messaging
+                    - generic [ref=f104e2638]: You are on the messaging overlay. Press enter to open the list of conversations.
+              - generic [ref=f104e2639]:
+                - button "Open messenger dropdown menu" [ref=f104e2641] [cursor=pointer]:
+                  - img "Open messenger dropdown menu" [ref=f104e2642]
+                - button "Compose message" [ref=f104e2645] [cursor=pointer]:
+                  - img [ref=f104e2646]
+                  - generic [ref=f104e2648]: Compose message
+                - button "You are on the messaging overlay. Press enter to open the list of conversations." [ref=f104e2649] [cursor=pointer]:
+                  - img [ref=f104e2650]
+                  - generic [ref=f104e2652]: You are on the messaging overlay. Press enter to open the list of conversations.
+          - complementary "AI-powered assistant to get help with your career, jobs etc"
+  - iframe [ref=f104e2653]:
+    - generic [active] [ref=f108e1]:
+      - generic:
+        - region "Toast message":
+          - heading "0 notifications total" [level=2] [ref=f108e3]
+          - alert
+      - region [ref=f108e4]
+      - generic [ref=f108e5]:
+        - generic [ref=f108e7]:
+          - button "Skip to search" [ref=f108e8] [cursor=pointer]:
+            - generic [ref=f108e9]: Skip to search
+          - button "Skip to main content" [ref=f108e10] [cursor=pointer]:
+            - generic [ref=f108e11]: Skip to main content
+          - button "Keyboard shortcuts" [ref=f108e12] [cursor=pointer]:
+            - generic [ref=f108e13]: Keyboard shortcuts
+          - button "Close jump menu" [ref=f108e14] [cursor=pointer]:
+            - img [ref=f108e15]
+            - generic [ref=f108e17]: Close jump menu
+        - banner "Global Navigation" [ref=f108e18]:
+          - generic [ref=f108e19]:
+            - link "LinkedIn" [ref=f108e20] [cursor=pointer]:
+              - /url: https://www.linkedin.com/feed/
+              - img "LinkedIn" [ref=f108e23]:
+                - img [ref=f108e24]
+            - generic [ref=f108e28]:
+              - combobox "I’m looking for..." [ref=f108e29]
+              - generic:
+                - img
+            - navigation "Primary Navigation" [ref=f108e30]:
+              - list [ref=f108e31]:
+                - listitem [ref=f108e32]:
+                  - link "new feed updates notifications Home" [ref=f108e33] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/feed/
+                    - generic [ref=f108e34]:
+                      - generic [ref=f108e37]: new feed updates notifications
+                      - img [ref=f108e41]
+                    - generic "Home" [ref=f108e43]
+                - listitem [ref=f108e44]:
+                  - link "My Network" [ref=f108e45] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/mynetwork/?
+                    - img [ref=f108e49]
+                    - generic "My Network" [ref=f108e51]
+                - listitem [ref=f108e52]:
+                  - link "Jobs" [ref=f108e53] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/jobs/?
+                    - img [ref=f108e57]
+                    - generic "Jobs" [ref=f108e59]
+                - listitem [ref=f108e60]:
+                  - link "Messaging" [ref=f108e61] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/messaging/?
+                    - img [ref=f108e65]
+                    - generic "Messaging" [ref=f108e67]
+                - listitem [ref=f108e68]:
+                  - link "20 new notifications Notifications" [ref=f108e69] [cursor=pointer]:
+                    - /url: https://www.linkedin.com/notifications/?
+                    - generic [ref=f108e70]:
+                      - generic [ref=f108e71]:
+                        - generic [ref=f108e72]: "20"
+                        - generic [ref=f108e73]: 20 new notifications
+                      - img [ref=f108e77]
+                    - generic "Notifications" [ref=f108e79]
+                - listitem [ref=f108e80]:
+                  - button "Taylor Yates Me" [ref=f108e82] [cursor=pointer]:
+                    - img "Taylor Yates" [ref=f108e83]
+                    - generic [ref=f108e84]:
+                      - text: Me
+                      - img [ref=f108e85]
+                - listitem [ref=f108e87]:
+                  - button "For Business" [ref=f108e89] [cursor=pointer]:
+                    - img [ref=f108e93]
+                    - generic "For Business" [ref=f108e95]:
+                      - text: For Business
+                      - img [ref=f108e96]
+                - listitem [ref=f108e98]:
+                  - link "Retry Premium" [ref=f108e100] [cursor=pointer]:
+                    - /url: javascript:void(0)
+                    - generic [ref=f108e101]:
+                      - img [ref=f108e102]
+                      - generic [ref=f108e104]: Retry Premium

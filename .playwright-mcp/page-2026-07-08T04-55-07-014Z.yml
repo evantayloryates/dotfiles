@@ -1,0 +1,380 @@
+- generic [active] [ref=f12e1]:
+  - generic:
+    - region "Toast message":
+      - heading "0 notifications total" [level=2] [ref=f12e3]
+      - alert
+  - generic [ref=f12e4]:
+    - generic [ref=f12e6]:
+      - button "Skip to search" [ref=f12e7] [cursor=pointer]:
+        - generic [ref=f12e8]: Skip to search
+      - button "Skip to main content" [ref=f12e9] [cursor=pointer]:
+        - generic [ref=f12e10]: Skip to main content
+      - button "Keyboard shortcuts" [ref=f12e11] [cursor=pointer]:
+        - generic [ref=f12e12]: Keyboard shortcuts
+      - button "Close jump menu" [ref=f12e13] [cursor=pointer]:
+        - img [ref=f12e14]
+        - generic [ref=f12e16]: Close jump menu
+    - banner "Global Navigation" [ref=f12e17]:
+      - generic [ref=f12e18]:
+        - link "LinkedIn" [ref=f12e19] [cursor=pointer]:
+          - /url: https://www.linkedin.com/feed/?nis=true
+          - img "LinkedIn" [ref=f12e22]:
+            - img [ref=f12e23]
+        - generic [ref=f12e27]:
+          - combobox "I’m looking for..." [ref=f12e28]
+          - generic:
+            - img
+        - navigation "Primary Navigation" [ref=f12e29]:
+          - list [ref=f12e30]:
+            - listitem [ref=f12e31]:
+              - link "new feed updates notifications Home" [ref=f12e32] [cursor=pointer]:
+                - /url: https://www.linkedin.com/feed/?nis=true&
+                - generic [ref=f12e33]:
+                  - generic [ref=f12e36]: new feed updates notifications
+                  - img [ref=f12e40]
+                - generic "Home" [ref=f12e42]
+            - listitem [ref=f12e43]:
+              - link "My Network" [ref=f12e44] [cursor=pointer]:
+                - /url: https://www.linkedin.com/mynetwork/?
+                - img [ref=f12e48]
+                - generic "My Network" [ref=f12e50]
+            - listitem [ref=f12e51]:
+              - link "Jobs" [ref=f12e52] [cursor=pointer]:
+                - /url: https://www.linkedin.com/jobs/?
+                - img [ref=f12e56]
+                - generic "Jobs" [ref=f12e58]
+            - listitem [ref=f12e59]:
+              - link "Messaging" [ref=f12e60] [cursor=pointer]:
+                - /url: https://www.linkedin.com/messaging/?
+                - img [ref=f12e64]
+                - generic "Messaging" [ref=f12e66]
+            - listitem [ref=f12e67]:
+              - link "20 new notifications Notifications" [ref=f12e68] [cursor=pointer]:
+                - /url: https://www.linkedin.com/notifications/?
+                - generic [ref=f12e69]:
+                  - generic [ref=f12e70]:
+                    - generic [ref=f12e71]: "20"
+                    - generic [ref=f12e72]: 20 new notifications
+                  - img [ref=f12e76]
+                - generic "Notifications" [ref=f12e78]
+            - listitem [ref=f12e79]:
+              - button "Taylor Yates Me" [ref=f12e81] [cursor=pointer]:
+                - img "Taylor Yates" [ref=f12e82]
+                - generic [ref=f12e83]:
+                  - text: Me
+                  - img [ref=f12e84]
+            - listitem [ref=f12e86]:
+              - button "For Business" [ref=f12e88] [cursor=pointer]:
+                - img [ref=f12e92]
+                - generic "For Business" [ref=f12e94]:
+                  - text: For Business
+                  - img [ref=f12e95]
+            - listitem [ref=f12e97]:
+              - link "Retry Premium" [ref=f12e99] [cursor=pointer]:
+                - /url: javascript:void(0)
+                - generic [ref=f12e100]:
+                  - img [ref=f12e101]
+                  - generic [ref=f12e103]: Retry Premium
+    - generic [ref=f12e108]:
+      - main "Organization page for Adexy" [ref=f12e109]:
+        - generic [ref=f12e112]:
+          - button [ref=f12e115]
+          - generic [ref=f12e118]:
+            - generic [ref=f12e120]:
+              - generic [ref=f12e121]:
+                - img "Adexy logo" [ref=f12e122]
+                - generic [ref=f12e124]:
+                  - heading "Adexy" [level=1] [ref=f12e125]
+                  - paragraph [ref=f12e126]: AI-native interactive ad creatives, built in code
+                  - generic [ref=f12e127]:
+                    - generic [ref=f12e128]: · Technology, Information and Internet
+                    - generic [ref=f12e129]:
+                      - generic [ref=f12e130]: · 14 followers
+                      - link "· 2-10 employees" [ref=f12e131] [cursor=pointer]:
+                        - /url: /search/results/people/?currentCompany=%5B%22132174402%22%5D&origin=COMPANY_PAGE_CANNED_SEARCH
+                        - text: ·
+                        - generic [ref=f12e132]: 2-10 employees
+              - link "Joe Hall Joe works here" [ref=f12e136] [cursor=pointer]:
+                - /url: http://www.linkedin.com/in/joehall6
+                - img "Joe Hall" [ref=f12e139]
+                - heading "Joe works here" [level=2] [ref=f12e140]
+              - generic [ref=f12e142]:
+                - region [ref=f12e144]:
+                  - button "Follow" [ref=f12e145] [cursor=pointer]:
+                    - img [ref=f12e146]
+                    - generic [ref=f12e148]: Follow
+                  - button "Message Adexy" [ref=f12e149] [cursor=pointer]:
+                    - img [ref=f12e150]
+                    - generic [ref=f12e152]: Message
+                - button "Overflow Actions" [ref=f12e156] [cursor=pointer]:
+                  - img "Overflow Actions" [ref=f12e157]
+            - navigation "Organization’s page navigation" [ref=f12e160]:
+              - list [ref=f12e161]:
+                - listitem [ref=f12e162]:
+                  - link "Home" [ref=f12e163] [cursor=pointer]:
+                    - /url: /company/adexy-ai/
+                - listitem [ref=f12e164]:
+                  - link "About" [ref=f12e165] [cursor=pointer]:
+                    - /url: /company/adexy-ai/about/
+                - listitem [ref=f12e166]:
+                  - link "Posts" [ref=f12e167] [cursor=pointer]:
+                    - /url: /company/adexy-ai/posts/
+                - listitem [ref=f12e168]:
+                  - link "Jobs" [ref=f12e169] [cursor=pointer]:
+                    - /url: /company/adexy-ai/jobs/
+                - listitem [ref=f12e170]:
+                  - link "People" [ref=f12e171] [cursor=pointer]:
+                    - /url: /company/adexy-ai/people/
+        - generic [ref=f12e174]:
+          - generic [ref=f12e189]:
+            - generic [ref=f12e190]:
+              - heading "Overview" [level=2] [ref=f12e192]
+              - generic [ref=f12e195]:
+                - text: Adexy is an AI-native ad creative platform that turns ads into interactive, code-built experiences that drive better engagement and dwell time. We work directly with brands and agencies and partner with
+                - generic [ref=f12e196]: Reddit partner to bring interactive ad creatives to one of the web's most engaged communities.
+            - link "See all details about Adexy" [ref=f12e198] [cursor=pointer]:
+              - /url: /company/adexy-ai/about/
+              - generic [ref=f12e199]: Show all details
+              - img [ref=f12e201]
+          - generic [ref=f12e218]:
+            - generic [ref=f12e219]:
+              - navigation [ref=f12e220]:
+                - list
+              - generic [ref=f12e222]:
+                - list [ref=f12e223]:
+                  - listitem [ref=f12e224]:
+                    - img [ref=f12e225]
+                    - generic [ref=f12e227]:
+                      - link "Questions? Visit our Help Center." [ref=f12e228] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/help/linkedin?trk=d_flagship3_company
+                        - text: Questions?
+                      - paragraph [ref=f12e229]: Visit our Help Center.
+                  - listitem [ref=f12e230]:
+                    - img [ref=f12e231]
+                    - generic [ref=f12e233]:
+                      - link "Manage your account and privacy Go to your Settings." [ref=f12e234] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/psettings/
+                        - text: Manage your account and privacy
+                      - paragraph [ref=f12e235]: Go to your Settings.
+                  - listitem [ref=f12e236]:
+                    - img [ref=f12e237]
+                    - generic [ref=f12e239]:
+                      - link "Recommendation transparency Learn more about Recommended Content." [ref=f12e240] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/help/linkedin/answer/a1339724
+                        - text: Recommendation transparency
+                      - paragraph [ref=f12e241]: Learn more about Recommended Content.
+                - generic [ref=f12e242]:
+                  - generic [ref=f12e243]: Select Language
+                  - combobox "Select Language" [ref=f12e244]:
+                    - option "العربية (Arabic)"
+                    - option "বাংলা (Bangla)"
+                    - option "Čeština (Czech)"
+                    - option "Dansk (Danish)"
+                    - option "Deutsch (German)"
+                    - option "Ελληνικά (Greek)"
+                    - option "English (English)" [selected]
+                    - option "Español (Spanish)"
+                    - option "فارسی (Persian)"
+                    - option "Suomi (Finnish)"
+                    - option "Français (French)"
+                    - option "हिंदी (Hindi)"
+                    - option "Magyar (Hungarian)"
+                    - option "Bahasa Indonesia (Indonesian)"
+                    - option "Italiano (Italian)"
+                    - option "עברית (Hebrew)"
+                    - option "日本語 (Japanese)"
+                    - option "한국어 (Korean)"
+                    - option "मराठी (Marathi)"
+                    - option "Bahasa Malaysia (Malay)"
+                    - option "Nederlands (Dutch)"
+                    - option "Norsk (Norwegian)"
+                    - option "ਪੰਜਾਬੀ (Punjabi)"
+                    - option "Polski (Polish)"
+                    - option "Português (Portuguese)"
+                    - option "Română (Romanian)"
+                    - option "Русский (Russian)"
+                    - option "Svenska (Swedish)"
+                    - option "తెలుగు (Telugu)"
+                    - option "ภาษาไทย (Thai)"
+                    - option "Tagalog (Tagalog)"
+                    - option "Türkçe (Turkish)"
+                    - option "Українська (Ukrainian)"
+                    - option "Tiếng Việt (Vietnamese)"
+                    - option "简体中文 (Chinese (Simplified))"
+                    - option "正體中文 (Chinese (Traditional))"
+            - paragraph [ref=f12e245]: LinkedIn Corporation © 2026
+      - complementary "Advertisement" [ref=f12e246]:
+        - generic [ref=f12e250]:
+          - generic [ref=f12e255]:
+            - heading "Pages people also viewed" [level=3] [ref=f12e257]
+            - list [ref=f12e259]:
+              - listitem [ref=f12e260]:
+                - generic [ref=f12e261]:
+                  - generic [ref=f12e262]:
+                    - link "Adexy Communication page logo" [ref=f12e264] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/company/adexy-communication/
+                      - generic "Adexy Communication page logo" [ref=f12e266]:
+                        - img "Adexy Communication page logo" [ref=f12e268]
+                    - link "Adexy Communication Advertising Services 42 followers" [ref=f12e271] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/company/adexy-communication/
+                      - generic [ref=f12e272]:
+                        - generic [ref=f12e274]: Adexy Communication
+                        - generic [ref=f12e276]: Advertising Services
+                        - generic [ref=f12e278]: 42 followers
+                  - button "Follow Adexy Communication" [ref=f12e280] [cursor=pointer]:
+                    - img [ref=f12e281]
+                    - generic [ref=f12e283]: Follow
+              - listitem [ref=f12e284]:
+                - generic [ref=f12e285]:
+                  - generic [ref=f12e286]:
+                    - link "Rubicon Project page logo" [ref=f12e288] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/company/the-rubicon-project/
+                      - generic "Rubicon Project page logo" [ref=f12e290]:
+                        - img "Rubicon Project page logo" [ref=f12e292]
+                    - generic [ref=f12e293]:
+                      - link "Rubicon Project Technology, Information and Internet 26,473 followers" [ref=f12e295] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/company/the-rubicon-project/
+                        - generic [ref=f12e296]:
+                          - generic [ref=f12e298]: Rubicon Project
+                          - generic [ref=f12e300]: Technology, Information and Internet
+                          - generic [ref=f12e302]: 26,473 followers
+                      - link "Chris Baclig Chris & 12 other connections follow this page" [ref=f12e304] [cursor=pointer]:
+                        - /url: http://www.linkedin.com/company/the-rubicon-project/?showInNetworkFollowers=true
+                        - img "Chris Baclig" [ref=f12e307]
+                        - generic [ref=f12e308]: Chris & 12 other connections follow this page
+                  - button "Follow Rubicon Project" [ref=f12e310] [cursor=pointer]:
+                    - img [ref=f12e311]
+                    - generic [ref=f12e313]: Follow
+              - listitem [ref=f12e314]:
+                - generic [ref=f12e315]:
+                  - generic [ref=f12e316]:
+                    - link "Rembrand page logo" [ref=f12e318] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/company/getrembrand/
+                      - generic "Rembrand page logo" [ref=f12e320]:
+                        - img "Rembrand page logo" [ref=f12e322]
+                    - generic [ref=f12e323]:
+                      - link "Rembrand Technology, Information and Internet 5,475 followers" [ref=f12e325] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/company/getrembrand/
+                        - generic [ref=f12e326]:
+                          - generic [ref=f12e328]: Rembrand
+                          - generic [ref=f12e330]: Technology, Information and Internet
+                          - generic [ref=f12e332]: 5,475 followers
+                      - link "Brent Dismuke Brent & 24 other connections work here" [ref=f12e334] [cursor=pointer]:
+                        - /url: http://www.linkedin.com/search/results/people/?origin=COMPANY_PAGE_CANNED_SEARCH&network=%5B%22F%22%5D&currentCompany=%5B%2287701035%22%5D
+                        - img "Brent Dismuke" [ref=f12e337]
+                        - generic [ref=f12e338]: Brent & 24 other connections work here
+                  - button "Following Rembrand. Click to unfollow." [pressed] [ref=f12e340] [cursor=pointer]:
+                    - img [ref=f12e341]
+                    - generic [ref=f12e343]: Following
+          - generic [ref=f12e347]:
+            - generic [ref=f12e348]:
+              - heading "People also follow" [level=3] [ref=f12e350]
+              - list [ref=f12e352]:
+                - listitem [ref=f12e353]:
+                  - generic [ref=f12e354]:
+                    - generic [ref=f12e355]:
+                      - link "On page logo" [ref=f12e357] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/company/on-ag/
+                        - generic "On page logo" [ref=f12e359]:
+                          - img "On page logo" [ref=f12e361]
+                      - generic [ref=f12e362]:
+                        - link "On Retail 537,050 followers" [ref=f12e364] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/company/on-ag/
+                          - generic [ref=f12e365]:
+                            - generic [ref=f12e367]: "On"
+                            - generic [ref=f12e369]: Retail
+                            - generic [ref=f12e371]: 537,050 followers
+                        - link "Jennifer (Mace) de Silva, CFA Jennifer & 2 other connections follow this page" [ref=f12e373] [cursor=pointer]:
+                          - /url: http://www.linkedin.com/company/on-ag/?showInNetworkFollowers=true
+                          - img "Jennifer (Mace) de Silva, CFA" [ref=f12e376]
+                          - generic [ref=f12e377]: Jennifer & 2 other connections follow this page
+                    - button "Follow On" [ref=f12e379] [cursor=pointer]:
+                      - img [ref=f12e380]
+                      - generic [ref=f12e382]: Follow
+                - listitem [ref=f12e383]:
+                  - generic [ref=f12e384]:
+                    - generic [ref=f12e385]:
+                      - link "Pinterest page logo" [ref=f12e387] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/company/pinterest/
+                        - generic "Pinterest page logo" [ref=f12e389]:
+                          - img "Pinterest page logo" [ref=f12e391]
+                      - generic [ref=f12e392]:
+                        - link "Pinterest Software Development 1,383,668 followers" [ref=f12e394] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/company/pinterest/
+                          - generic [ref=f12e395]:
+                            - generic [ref=f12e397]: Pinterest
+                            - generic [ref=f12e399]: Software Development
+                            - generic [ref=f12e401]: 1,383,668 followers
+                        - link "Tierra Patmavanu Tierra works here" [ref=f12e403] [cursor=pointer]:
+                          - /url: http://www.linkedin.com/in/tierrapatmavanu
+                          - img "Tierra Patmavanu" [ref=f12e406]
+                          - generic [ref=f12e407]: Tierra works here
+                    - button "Follow Pinterest" [ref=f12e409] [cursor=pointer]:
+                      - img [ref=f12e410]
+                      - generic [ref=f12e412]: Follow
+                - listitem [ref=f12e413]:
+                  - generic [ref=f12e414]:
+                    - generic [ref=f12e415]:
+                      - link "adidas page logo" [ref=f12e417] [cursor=pointer]:
+                        - /url: https://www.linkedin.com/company/adidas/
+                        - generic "adidas page logo" [ref=f12e419]:
+                          - img "adidas page logo" [ref=f12e421]
+                      - generic [ref=f12e422]:
+                        - link "adidas Sporting Goods 4,828,414 followers" [ref=f12e424] [cursor=pointer]:
+                          - /url: https://www.linkedin.com/company/adidas/
+                          - generic [ref=f12e425]:
+                            - generic [ref=f12e427]: adidas
+                            - generic [ref=f12e429]: Sporting Goods
+                            - generic [ref=f12e431]: 4,828,414 followers
+                        - link "Rachel Villalobos, MSA Rachel & 17 other connections follow this page" [ref=f12e433] [cursor=pointer]:
+                          - /url: http://www.linkedin.com/company/adidas/?showInNetworkFollowers=true
+                          - img "Rachel Villalobos, MSA" [ref=f12e436]
+                          - generic [ref=f12e437]: Rachel & 17 other connections follow this page
+                    - button "Follow adidas" [ref=f12e439] [cursor=pointer]:
+                      - img [ref=f12e440]
+                      - generic [ref=f12e442]: Follow
+            - button "Show all recommended pages" [ref=f12e444] [cursor=pointer]:
+              - img [ref=f12e445]
+              - generic [ref=f12e447]: Show all
+          - generic [ref=f12e454]:
+            - heading "Connections that work here" [level=3] [ref=f12e456]
+            - list [ref=f12e458]:
+              - listitem [ref=f12e459]:
+                - generic [ref=f12e460]:
+                  - generic [ref=f12e461]:
+                    - link "Joe Hall profile picture" [ref=f12e463] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/joehall6
+                      - generic "Joe Hall profile picture" [ref=f12e465]:
+                        - img "Joe Hall" [ref=f12e467]
+                    - link "Joe Hall 1st Co-Founder @Adexy • Co-Founder @Spaceback • Product & Design" [ref=f12e470] [cursor=pointer]:
+                      - /url: https://www.linkedin.com/in/joehall6
+                      - generic [ref=f12e471]:
+                        - generic [ref=f12e472]:
+                          - generic [ref=f12e473]: Joe Hall
+                          - generic [ref=f12e474]:
+                            - generic [ref=f12e475]: 1st
+                            - generic [ref=f12e476]: · 1st
+                        - generic [ref=f12e478]: Co-Founder @Adexy • Co-Founder @Spaceback • Product & Design
+                  - button "Joe Hall Message" [ref=f12e481] [cursor=pointer]:
+                    - generic [ref=f12e482]: Message
+    - generic:
+      - generic:
+        - complementary:
+          - generic [ref=f12e486]:
+            - generic [ref=f12e488] [cursor=pointer]:
+              - img "Taylor Yates" [ref=f12e490]
+              - button "You are on the messaging overlay. Press enter to open the list of conversations." [ref=f12e491]:
+                - generic [ref=f12e492]:
+                  - generic [ref=f12e493]: Messaging
+                  - generic [ref=f12e494]: You are on the messaging overlay. Press enter to open the list of conversations.
+            - generic [ref=f12e495]:
+              - button "Open messenger dropdown menu" [ref=f12e497] [cursor=pointer]:
+                - img "Open messenger dropdown menu" [ref=f12e498]
+              - button "Compose message" [ref=f12e501] [cursor=pointer]:
+                - img [ref=f12e502]
+                - generic [ref=f12e504]: Compose message
+              - button "You are on the messaging overlay. Press enter to open the list of conversations." [ref=f12e505] [cursor=pointer]:
+                - img [ref=f12e506]
+                - generic [ref=f12e508]: You are on the messaging overlay. Press enter to open the list of conversations.
+        - complementary "AI-powered assistant to get help with your career, jobs etc"
+  - region [ref=f12e509]
