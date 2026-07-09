@@ -10,5 +10,9 @@ __old
 /tmp/*
 !/tmp/.gitkeep
 
+# Machine-local runtime data store (tracked dir, ignored contents except carve-outs)
+/data/*
+!/data/README.md
+
 # Cerebras training data (JSONL)
 src/python/cerebras/**/*.jsonl

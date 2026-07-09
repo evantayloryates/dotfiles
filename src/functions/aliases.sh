@@ -31,4 +31,4 @@ touch   () { if [ "$#" -eq 1 ] && [[ "$1" != -* ]]; then /bin/mkdir -p "${1:h}" 
 
 
 alias password="python3 $DOTFILES_DIR/src/python/password.py"
-alias words="open $DOTFILES_DIR/src/__data/words.txt"
+alias words="open $DOTFILES_DIR/src/__assets/words.txt"

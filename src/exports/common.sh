@@ -22,7 +22,8 @@ export LSCOLORS=ExFxCxDxBxegedabagacad
 # Less
 export LESS='-R'
 
-export DOTFILES_DIR="$HOME/dotfiles"
+export DOTFILES_DIR="${DOTFILES_DIR:-$HOME/dotfiles}"
+export DOTFILES_DATA_DIR="${DOTFILES_DATA_DIR:-$DOTFILES_DIR/data}"
 export TZ='America/New_York'
 
 # Claude Code
