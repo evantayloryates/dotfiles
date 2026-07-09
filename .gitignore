@@ -6,9 +6,14 @@ __old
 # Local on-save auto-commit flag (each clone keeps its own ON/OFF)
 .vscode/.onsave-toggle
 
-# Ignore everything in the temp directory, but keep the temp directory itself in source control.  
+# Ignore everything in the temp directory, but keep the temp directory itself in source control.
 /tmp/*
 !/tmp/.gitkeep
+
+# Machine-local runtime data store: track the directory, ignore its contents.
+# Explicit carve-outs only for intentionally tracked docs/placeholders.
+/data/*
+!/data/README.md
 
 # Cerebras training data (JSONL)
 src/python/cerebras/**/*.jsonl

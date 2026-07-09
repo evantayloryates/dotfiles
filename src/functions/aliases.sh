@@ -11,7 +11,8 @@ dc      () { docker compose "$@"                                                
 env     () { clear ; python3 "$DOTFILES_DIR/src/python/env.py"                                            ;} # 
 ex      () { exiftool "$@"                                                                                ;} # Note: this will overwrite the /usr/bin/ex command
 ga      () { git add "$@"                                                                                 ;} # 
-gb      () { gbs                                                                                          ;} #
+gb      () { gbs "$@"                                                                                     ;} #
+gbv     () { gbs --verbose "$@"                                                                           ;} #
 gc      () { git commit "$@"                                                                              ;} # 
 git     () { if [[ $# -eq 2 && "$1" == "branch" && "$2" == "c" ]]; then gbc; elif [[ $# -eq 1 && "$1" == "log" ]]; then git_log_local_pretty; else /usr/bin/git "$@"; fi ;} #
 gl      () { git log --oneline "$@"                                                                       ;} # 
@@ -31,4 +32,4 @@ touch   () { if [ "$#" -eq 1 ] && [[ "$1" != -* ]]; then /bin/mkdir -p "${1:h}" 
 
 
 alias password="python3 $DOTFILES_DIR/src/python/password.py"
-alias words="open $DOTFILES_DIR/src/__data/words.txt"
+alias words="open $DOTFILES_DIR/src/__assets/words.txt"
