@@ -23,6 +23,9 @@ export LSCOLORS=ExFxCxDxBxegedabagacad
 export LESS='-R'
 
 export DOTFILES_DIR="$HOME/dotfiles"
+# Machine-local runtime data store (git-ignored contents). All dotfile scripting
+# addresses runtime data through this var, never a hard-coded path. See data/README.md.
+export DOTFILES_DATA_DIR="$DOTFILES_DIR/data"
 export TZ='America/New_York'
 
 # Claude Code
