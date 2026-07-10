@@ -116,60 +116,155 @@ function rm_branch {
   return 0
 }
 
+# Resolve local/remote trunk: prefer master, then main.
+_git_log_resolve_trunk() {
+  local ref
+  for ref in master main origin/master origin/main; do
+    if /usr/bin/git rev-parse --verify --quiet "$ref^{commit}" >/dev/null; then
+      print -r -- "$ref"
+      return 0
+    fi
+  done
+  return 1
+}
+
+# Print one pretty log line: colored hash, padded subject, optional decorations.
+_git_log_print_line() {
+  local full_hash="$1" short_hash="$2" subject="$3" color="$4"
+  local head_hash="$5" head_branch="$6" max_msg_len="$7" extra_pad="$8" reset_color="$9"
+  local display_subject="$subject" decoration="" other_local_refs="" ref=""
+
+  if (( ${#display_subject} > max_msg_len )); then
+    display_subject="${display_subject:0:$((max_msg_len - 3))}..."
+  fi
+  printf -v display_subject "%-${max_msg_len}s" "$display_subject"
+
+  while IFS= read -r ref; do
+    [[ -z "$ref" ]] && continue
+    if [[ "$full_hash" == "$head_hash" && -n "$head_branch" && "$ref" == "$head_branch" ]]; then
+      continue
+    fi
+    if [[ -z "$other_local_refs" ]]; then
+      other_local_refs="$ref"
+    else
+      other_local_refs="$other_local_refs, $ref"
+    fi
+  done < <(/usr/bin/git for-each-ref --format='%(refname:short)' --points-at "$full_hash" refs/heads 2>/dev/null)
+
+  if [[ "$full_hash" == "$head_hash" && -n "$head_branch" ]]; then
+    decoration="HEAD -> $head_branch"
+    [[ -n "$other_local_refs" ]] && decoration="$decoration, $other_local_refs"
+  else
+    decoration="$other_local_refs"
+  fi
+
+  if [[ -n "$decoration" ]]; then
+    printf '%s%s%s %s%s(%s)\n' "$color" "$short_hash" "$reset_color" "$display_subject" "$extra_pad" "$decoration"
+  else
+    printf '%s%s%s %s\n' "$color" "$short_hash" "$reset_color" "$display_subject"
+  fi
+}
+
+# Pretty local log for `gl`: walk HEAD → nearest stacked branch tips → trunk,
+# coloring each segment, then show the trunk merge-base plus one older trunk
+# commit for context. Works in any repo whose trunk is master or main.
 function git_log_local_pretty {
   local max_msg_len="${GIT_LOG_MAX_MSG_LEN:-50}"
   local extra_padding="${GIT_LOG_EXTRA_PADDING:-2}"
-  local head_hash head_branch hash_color reset_color extra_pad merge_base
+  local head_hash head_branch trunk merge_base extra_pad
+  local reset_color trunk_color
+  local -a seg_colors
+  local -a boundary_hashes
+  local -A on_path seen_boundary
 
   head_hash=$(/usr/bin/git rev-parse HEAD 2>/dev/null) || return 1
   head_branch=$(/usr/bin/git symbolic-ref --quiet --short HEAD 2>/dev/null || true)
-  merge_base=$(/usr/bin/git merge-base master HEAD 2>/dev/null || true)
+  trunk=$(_git_log_resolve_trunk) || {
+    printf '%s\n' 'git_log_local_pretty: no master/main trunk found'
+    return 1
+  }
+  merge_base=$(/usr/bin/git merge-base "$trunk" HEAD 2>/dev/null) || {
+    printf '%s\n' "git_log_local_pretty: cannot find merge-base with $trunk"
+    return 1
+  }
 
-  hash_color=""
   reset_color=""
+  trunk_color=""
+  seg_colors=()
   if [[ -t 1 ]]; then
-    hash_color=$'\033[90m'
     reset_color=$'\033[0m'
+    trunk_color=$'\033[90m'
+    seg_colors=(
+      $'\033[36m'  # cyan — current feature
+      $'\033[33m'  # yellow — parent feature
+      $'\033[32m'  # green
+      $'\033[35m'  # magenta
+      $'\033[34m'  # blue
+      $'\033[31m'  # red
+    )
   fi
 
   printf -v extra_pad '%*s' "$extra_padding" ''
 
-  {
-    /usr/bin/git --no-pager log --format='%H%x1f%h%x1f%s' master..HEAD
-    if [[ -n "$merge_base" ]]; then
-      /usr/bin/git --no-pager show -s --format='%H%x1f%h%x1f%s' "$merge_base"
-    fi
-  } | while IFS=$'\x1f' read -r full_hash short_hash subject; do
-    local display_subject="$subject" decoration="" other_local_refs="" ref=""
+  # Commits on the first-parent path from HEAD down to (excluding) merge-base.
+  local c
+  while IFS= read -r c; do
+    [[ -n "$c" ]] && on_path[$c]=1
+  done < <(/usr/bin/git rev-list --first-parent "${merge_base}..HEAD" 2>/dev/null)
 
-    if (( ${#display_subject} > max_msg_len )); then
-      display_subject="${display_subject:0:$((max_msg_len - 3))}..."
-    fi
-    printf -v display_subject "%-${max_msg_len}s" "$display_subject"
+  # Local branch tips that sit on that path (stacked parents), excluding HEAD tip.
+  local hash name
+  while IFS=' ' read -r hash name; do
+    [[ -z "$hash" || -z "$name" ]] && continue
+    [[ "$hash" == "$head_hash" ]] && continue
+    [[ -z "${on_path[$hash]}" ]] && continue
+    [[ -n "${seen_boundary[$hash]}" ]] && continue
+    seen_boundary[$hash]=1
+    boundary_hashes+=("$hash")
+  done < <(/usr/bin/git for-each-ref --format='%(objectname) %(refname:short)' refs/heads 2>/dev/null)
 
-    while IFS= read -r ref; do
-      [[ -z "$ref" ]] && continue
-      if [[ "$full_hash" == "$head_hash" && -n "$head_branch" && "$ref" == "$head_branch" ]]; then
-        continue
-      fi
-      if [[ -z "$other_local_refs" ]]; then
-        other_local_refs="$ref"
-      else
-        other_local_refs="$other_local_refs, $ref"
-      fi
-    done < <(/usr/bin/git for-each-ref --format='%(refname:short)' --points-at "$full_hash" refs/heads 2>/dev/null)
+  # Nearest stacked tip first (fewest commits from HEAD).
+  if (( ${#boundary_hashes} )); then
+    local -a sorted_boundaries=()
+    local dist
+    while IFS=' ' read -r dist hash; do
+      [[ -n "$hash" ]] && sorted_boundaries+=("$hash")
+    done < <(
+      for hash in "${boundary_hashes[@]}"; do
+        dist=$(/usr/bin/git rev-list --first-parent --count "${hash}..HEAD" 2>/dev/null) || continue
+        printf '%s %s\n' "$dist" "$hash"
+      done | sort -n
+    )
+    boundary_hashes=("${sorted_boundaries[@]}")
+  fi
 
-    if [[ "$full_hash" == "$head_hash" && -n "$head_branch" ]]; then
-      decoration="HEAD -> $head_branch"
-      [[ -n "$other_local_refs" ]] && decoration="$decoration, $other_local_refs"
-    else
-      decoration="$other_local_refs"
-    fi
+  # Emit feature/stack segments: HEAD → tip1 → tip2 → … → merge-base.
+  local -a range_ends=("${boundary_hashes[@]}" "$merge_base")
+  local range_start="$head_hash"
+  local seg_i=0 color end_hash
 
-    if [[ -n "$decoration" ]]; then
-      printf '%s%s%s %s%s(%s)\n' "$hash_color" "$short_hash" "$reset_color" "$display_subject" "$extra_pad" "$decoration"
-    else
-      printf '%s%s%s %s\n' "$hash_color" "$short_hash" "$reset_color" "$display_subject"
+  for end_hash in "${range_ends[@]}"; do
+    color=""
+    if (( ${#seg_colors} )); then
+      color="${seg_colors[$((seg_i % ${#seg_colors[@]} + 1))]}"
     fi
+    # Commits reachable from range_start but not end_hash (newest first).
+    while IFS=$'\x1f' read -r full_hash short_hash subject; do
+      [[ -z "$full_hash" ]] && continue
+      _git_log_print_line "$full_hash" "$short_hash" "$subject" "$color" \
+        "$head_hash" "$head_branch" "$max_msg_len" "$extra_pad" "$reset_color"
+    done < <(/usr/bin/git --no-pager log --first-parent --format='%H%x1f%h%x1f%s' "${end_hash}..${range_start}")
+    range_start="$end_hash"
+    (( seg_i++ ))
   done
+
+  # Trunk context: merge-base, then one older trunk commit.
+  local trunk_ctx=0
+  while IFS=$'\x1f' read -r full_hash short_hash subject; do
+    [[ -z "$full_hash" ]] && continue
+    _git_log_print_line "$full_hash" "$short_hash" "$subject" "$trunk_color" \
+      "$head_hash" "$head_branch" "$max_msg_len" "$extra_pad" "$reset_color"
+    (( trunk_ctx++ ))
+    (( trunk_ctx >= 2 )) && break
+  done < <(/usr/bin/git --no-pager log --first-parent --format='%H%x1f%h%x1f%s' -n 2 "$merge_base")
 }

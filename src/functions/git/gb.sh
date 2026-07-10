@@ -12,7 +12,7 @@
 # prompt — highest at the top of Rest, 0 (current) at the very bottom of Recent.
 
 # --- Named constants -------------------------------------------------------
-GB_RECENT_WINDOW_SECONDS=$(( 14 * 24 * 60 * 60 ))   # 2 weeks: eligibility for Recent
+GB_RECENT_WINDOW_SECONDS=$(( 14 * 24 * 60 * 60 ))   # 2 weeks: Recent eligibility (touch-confirmed only)
 GB_RECENT_MAX_ITEMS=7                               # cap Recent (excludes current)
 GB_REST_FILTER_SECONDS=$(( 90 * 24 * 60 * 60 ))     # 3 months: default Rest cutoff
 
@@ -32,16 +32,19 @@ gbs() {
     }
     current=$(/usr/bin/git symbolic-ref --quiet --short HEAD 2>/dev/null)
 
-    # Effective last-used per branch (touch entry, else last_used entry), via the
-    # co-located python helper for robust JSONL parsing. Self-seed the data dir.
+    # Effective last-used per branch (touch entry, else last_used entry) plus its
+    # source (touch|index), via the co-located python helper for robust JSONL
+    # parsing. Self-seed the data dir. The source matters: only confirmed touch
+    # data (the shell hook actually saw you on the branch) qualifies for Recent;
+    # index data merely window-filters the Rest list.
     local dir
     dir=$(_gbh_repo_data_dir "$root")
     _gbh_ensure_init "$dir"
 
-    typeset -A eff
-    local b e
-    while IFS=$'\t' read -r b e; do
-        [[ -n "$b" ]] && eff[$b]=$e
+    typeset -A eff src
+    local b e s
+    while IFS=$'\t' read -r b e s; do
+        [[ -n "$b" ]] && eff[$b]=$e && src[$b]=$s
     done < <(python3 "$DOTFILES_DIR/src/functions/git/git_branch_history.py" \
         resolve_usage "$dir/touches.jsonl" "$dir/last_used.jsonl" 2>/dev/null)
 
@@ -53,27 +56,30 @@ gbs() {
     local -a locals
     locals=( ${(f)"$(/usr/bin/git for-each-ref --format='%(refname:short)' refs/heads 2>/dev/null)"} )
 
-    # Classify every non-current branch.
+    # Classify every branch. Trunk is pinned FIRST, before the current-branch
+    # skip: trunk always sits at the bottom of Rest — even when it is also the
+    # current branch (the one sanctioned duplication: it then appears both as
+    # the pinned trunk line and as item 0 at the bottom of Recent).
     local -a recent rest missing trunk_pinned
     local ev is_trunk
     for b in $locals; do
-        [[ "$b" == "$current" ]] && continue          # current is item 0
         is_trunk=0
         [[ "$b" == "main" || "$b" == "master" ]] && is_trunk=1
-        ev="${eff[$b]}"
-
         if (( is_trunk )); then
             trunk_pinned+=("$b")                       # always shown, exempt from filters
             continue
         fi
+        [[ "$b" == "$current" ]] && continue          # current is item 0
+        ev="${eff[$b]}"
+
         if [[ -z "$ev" ]]; then
             if (( verbose )); then rest+=("$b"); else missing+=("$b"); fi
             continue
         fi
-        if (( ev >= recent_cutoff )); then
-            recent+=("$b")
+        if [[ "${src[$b]}" == "touch" ]] && (( ev >= recent_cutoff )); then
+            recent+=("$b")                             # Recent = confirmed touches only
         elif (( verbose )) || (( ev >= rest_cutoff )); then
-            rest+=("$b")
+            rest+=("$b")                               # index-only recency lands here
         fi
         # else: has history but older than 3 months and not verbose -> hidden
     done
@@ -167,6 +173,8 @@ gbs() {
         print -r -- "Invalid selection: $selection not in list"
         return 0
     fi
+    # Picking the pinned trunk line while already on trunk: same clean no-op as 0.
+    [[ "${branch_map[$selection]}" == "$current" ]] && return 0
 
     print ""
     print ""

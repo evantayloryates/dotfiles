@@ -14,8 +14,8 @@ ga      () { git add "$@"                                                       
 gb      () { gbs "$@"                                                                                     ;} #
 gbv     () { gbs --verbose "$@"                                                                           ;} #
 gc      () { git commit "$@"                                                                              ;} # 
-git     () { if [[ $# -eq 2 && "$1" == "branch" && "$2" == "c" ]]; then gbc; elif [[ $# -eq 1 && "$1" == "log" ]]; then git_log_local_pretty; else /usr/bin/git "$@"; fi ;} #
-gl      () { git log --oneline "$@"                                                                       ;} # 
+git     () { if [[ $# -eq 2 && "$1" == "branch" && "$2" == "c" ]]; then gbc; else /usr/bin/git "$@"; fi ;} #
+gl      () { git_log_local_pretty                                                                         ;} # 
 gp      () { git push "$@"                                                                                ;} # 
 lsa     () { /bin/ls -AGhlo "$@"                                                                          ;} # 
 mkdir   () { [ "$#" -eq 1 ] && /bin/mkdir -pv "$1" || /bin/mkdir "$@"                                     ;} #

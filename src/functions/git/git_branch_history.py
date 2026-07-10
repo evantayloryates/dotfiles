@@ -56,11 +56,14 @@ def _epoch(obj, *keys):
 
 
 def resolve_usage(touches_path, last_used_path):
-    """Print `branch\\tepoch` for every branch with history.
+    """Print `branch\\tepoch\\tsource` for every branch with history.
 
     Effective last-used precedence (per plan 4.7):
-      1. newest touch entry (start/latest/final) for the branch, else
-      2. newest branch_last_used entry for the branch.
+      1. newest touch entry (start/latest/final) for the branch (source=touch), else
+      2. newest branch_last_used entry for the branch (source=index).
+    The source column matters to the selector: only touch-confirmed branches are
+    eligible for the Recent group (touches are ground truth of actually being on
+    the branch); index-derived epochs only window-filter the Rest list.
     Branches with neither are simply absent from the output; the shell layer
     diffs against the live branch list to discover "missing history" branches.
     """
@@ -90,16 +93,16 @@ def resolve_usage(touches_path, last_used_path):
 
     out = []
     for b in set(touch_best) | set(index_best):
-        eff = touch_best.get(b)
-        if eff is None:
-            eff = index_best.get(b)
-        out.append((b, eff))
+        if b in touch_best:
+            out.append((b, touch_best[b], "touch"))
+        else:
+            out.append((b, index_best[b], "index"))
 
     # Deterministic ordering (branch name) — the shell re-sorts anyway.
     out.sort(key=lambda t: t[0])
     w = sys.stdout.write
-    for b, e in out:
-        w("%s\t%d\n" % (b, e))
+    for b, e, s in out:
+        w("%s\t%d\t%s\n" % (b, e, s))
     return 0
 
 
