@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+umask 077
 
 account="${1:-}"
 if [[ -z "$account" ]]; then
@@ -65,4 +66,4 @@ export GMAIL_OAUTH_PATH="$oauth_file"
 export GMAIL_CREDENTIALS_PATH="${state_dir}/credentials.json"
 export GMAIL_ACCOUNT_NAME="$account"
 
-npx -y gmail-mcp-multiauth "$@"
+npx -y gmail-mcp-multiauth@1.4.6 "$@"
