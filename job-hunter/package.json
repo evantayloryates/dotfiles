@@ -1,0 +1,18 @@
+{
+  "name": "job-hunter",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Local, explainable multi-source job opportunity ingestion and dashboard.",
+  "bin": { "job-hunter": "./bin/job-hunter" },
+  "scripts": {
+    "test": "node --test --test-concurrency=1 'test/*.test.js' 'test/sources/*.test.js'",
+    "validate": "./bin/job-hunter validate",
+    "dashboard": "./bin/job-hunter dashboard"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.17.1",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
+  }
+}

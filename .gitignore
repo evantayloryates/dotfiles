@@ -17,3 +17,19 @@ __old
 
 # Cerebras training data (JSONL)
 src/python/cerebras/**/*.jsonl
+
+# Job Hunter machine-local/generated artifacts
+/job-hunter/data/*
+!/job-hunter/data/.gitkeep
+!/job-hunter/data/quarantine/
+!/job-hunter/data/quarantine/.gitkeep
+!/job-hunter/data/raw/
+!/job-hunter/data/raw/.gitkeep
+/job-hunter/data/quarantine/*
+!/job-hunter/data/quarantine/.gitkeep
+/job-hunter/data/raw/*
+!/job-hunter/data/raw/.gitkeep
+/job-hunter/dashboard/index.html
+/job-hunter/dashboard/assets/
+/job-hunter/.job-hunter.lock
+/job-hunter/.tmp/

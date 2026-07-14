@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "compensation": { "hard_floor": 190000, "target": 240000, "currency": "USD" },
+  "overlap_hours": 48,
+  "dedupe": { "candidate_limit": 5, "auto_merge_threshold": 0.92, "auto_separate_threshold": 0.35, "ai_confidence_threshold": 0.9, "max_ai_decisions_per_run": 3 },
+  "weights": { "compensation": 25, "role_level": 20, "product_ui": 15, "ai_workflows": 15, "location": 10, "creative_adtech": 10, "freshness_direct": 5 },
+  "preferred_role_terms": ["senior", "staff", "principal", "lead", "founding engineer", "head of engineering", "cto"],
+  "product_ui_terms": ["product engineer", "frontend", "front-end", "user-facing", "design system", "ui", "ux"],
+  "ai_terms": ["ai", "agent", "agentic", "llm", "machine learning", "workflow"],
+  "creative_adtech_terms": ["creative", "video", "templating", "effects", "advertising", "adtech", "media"],
+  "negative_signals": ["staffing agency", "contract only", "mandatory relocation"],
+  "company_aliases": {}
+}

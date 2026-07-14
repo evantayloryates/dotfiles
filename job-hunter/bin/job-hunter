@@ -1,0 +1,5 @@
+#!/usr/bin/env node
+import('../src/cli.js').then(({ main }) => main(process.argv.slice(2))).catch((error) => {
+  console.error(error?.stack || error);
+  process.exitCode = error?.exitCode || 1;
+});

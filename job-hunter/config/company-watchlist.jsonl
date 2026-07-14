@@ -1,0 +1,8 @@
+{"schema_version":1,"name":"Anthropic","domain":"anthropic.com","greenhouse_token":"anthropic"}
+{"schema_version":1,"name":"Figma","domain":"figma.com","greenhouse_token":"figma"}
+{"schema_version":1,"name":"Vercel","domain":"vercel.com","ashby_board":"vercel"}
+{"schema_version":1,"name":"Descript","domain":"descript.com","greenhouse_token":"descript"}
+{"schema_version":1,"name":"Ramp","domain":"ramp.com","ashby_board":"ramp"}
+{"schema_version":1,"name":"Palantir","domain":"palantir.com","lever_site":"palantir"}
+{"schema_version":1,"name":"Perplexity","domain":"perplexity.ai","ashby_board":"perplexity"}
+{"schema_version":1,"name":"Clear Street","domain":"clearstreet.io","greenhouse_token":"clearstreet"}

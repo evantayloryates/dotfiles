@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {"source":"greenhouse","enabled":true,"access_type":"public_api","supports_incremental":true,"supports_salary":true,"terms_notes":"Official Greenhouse Job Board API"},
+    {"source":"lever","enabled":true,"access_type":"public_api","supports_incremental":true,"supports_salary":true,"terms_notes":"Official Lever Postings API"},
+    {"source":"ashby","enabled":true,"access_type":"public_api","supports_incremental":true,"supports_salary":true,"terms_notes":"Official Ashby public job postings API"},
+    {"source":"hacker_news","enabled":true,"access_type":"public_api","supports_incremental":true,"supports_salary":false,"terms_notes":"Official HN Firebase API plus Algolia HN search"},
+    {"source":"linkedin_email","enabled":true,"access_type":"authenticated_email_mcp","supports_incremental":true,"supports_salary":true,"terms_notes":"Existing personal Gmail MCP; bounded queued messages only"},
+    {"source":"adzuna","enabled":false,"access_type":"optional_api_key","supports_incremental":true,"supports_salary":true,"terms_notes":"Requires ADZUNA_APP_ID and ADZUNA_APP_KEY"},
+    {"source":"theirstack","enabled":false,"access_type":"optional_paid_api_key","supports_incremental":true,"supports_salary":true,"terms_notes":"Requires THEIRSTACK_API_KEY"},
+    {"source":"serpapi_google_jobs","enabled":false,"access_type":"optional_paid_api_key","supports_incremental":false,"supports_salary":true,"terms_notes":"Requires SERPAPI_API_KEY"}
+  ]
+}
