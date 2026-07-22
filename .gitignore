@@ -3,6 +3,12 @@
 node_modules/
 __old
 
+# Backup files
+*.bak
+*.bak.*
+*~
+*.orig
+
 # Local on-save auto-commit flag (each clone keeps its own ON/OFF)
 .vscode/.onsave-toggle
 
