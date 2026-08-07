@@ -19,20 +19,26 @@ def p(slug, path, default='cursor_path', commands=None, aliases=None, alias_cmds
 CONFIG = [
   p('app',         '/Applications',                     'open'), # TODO: link all app dirs /Applications, /System/Applications, /System/Applications/Utilities, /System/Library/CoreServices/Applications/
   p('d',           '~/Desktop',                         'cd',  aliases=['desk', 'desktop']),
+  p('docs',        '~/src/docs',                        'cd', aliases=['doc']),
   p('dot',         '~/dotfiles'),
   p('down',        '~/Downloads',                       'cd'),
   p('github',      '~/src/github',                      'cd', aliases=['ghb', 'gthb', 'ghub', 'gith']),
+  p('html',        '~/src/docs/html',                   'select', aliases=['htm'],
+    commands={'select': '_html_select <path>'}),
   p('ideas',       '~/Desktop/ideas',                   'cur'),
   p('joe',         '~/src/github/joe-airbrand',         'cursor_path'),
   p('kit',         '~/.config/kitty/',                  aliases=['kitty'], commands={'reload': '/Applications/kitty.app/Contents/MacOS/kitty @ load-config /Users/taylor/.config/kitty/kitty.conf'}),
   p('mac',         '~/src/macos',                       'cursor_path', aliases=['macos']),
   p('notes',       '~/Desktop/notes'),
   p('pathfuncs',   '~/dotfiles/src/python/pathfuncs.py','cursor_path', aliases=['pathfunc', 'pathfns', 'pathfn', 'pathfuns', 'pathfun', 'pthfuncs', 'pthfunc', 'pthfns', 'pthfn', 'pthfuns', 'pthfun', 'pfuncs', 'pfunc', 'pfns', 'pfn', 'pfuns', 'pfun' ]),
+  p('plans',       '~/src/docs/plans',                  'open', aliases=['pln', 'plan']),
   p('pod',         '~/src/github/podsauce',             'cursor_path'),
   p('r1',          '~/src/github/r1',                   'cursor_path', aliases=['rone', 'rem']),
   p('s',           '~/src',                            ' cd'),
   p('sca',         '~/src/github/r1/sca',               'cursor_path'),
   p('screenshots', '~/Pictures/Screenshots',            'open', aliases=['ss', 'shots', 'screenshot']),
+  p('skills',      '~/src/docs/skills',                 'select', aliases=['skl', 'skill'],
+    commands={'select': '_skills_select <path>'}),
   p('vsx',         '~/src/vscode-extensions'),
   p('amp',        '~/src/github/amplify', aliases=['amplify'], alias_cmds={'up': 'update'},
     commands={
@@ -130,6 +136,7 @@ def main():
   fd, path = tempfile.mkstemp(prefix='pathfuncs_', suffix='.zsh')
   with os.fdopen(fd, 'w') as f:
     f.write('# Generated shell functions\n\n')
+    f.write('source "$DOTFILES_DIR/src/python/pathfuncs.sh"\n\n')
     f.write(functions)
     f.write('\n\n')
     f.write(paths_helper)
