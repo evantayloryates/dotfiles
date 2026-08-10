@@ -18,7 +18,8 @@ def p(slug, path, default='cursor_path', commands=None, aliases=None, alias_cmds
 
 CONFIG = [
   p('app',         '/Applications',                     'open'), # TODO: link all app dirs /Applications, /System/Applications, /System/Applications/Utilities, /System/Library/CoreServices/Applications/
-  p('d',           '~/Desktop',                         'cd',  aliases=['desk', 'desktop']),
+  p('d',           '~/Desktop',                         'cd',  aliases=['desk', 'desktop'],
+    commands={'clean': '_desk_clean <args>'}),
   p('docs',        '~/src/docs',                        'cd', aliases=['doc']),
   p('dot',         '~/dotfiles'),
   p('down',        '~/Downloads',                       'cd'),

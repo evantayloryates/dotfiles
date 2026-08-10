@@ -1,3 +1,11 @@
+# Render an image inline in the terminal. Goes through kitty's standalone
+# `kitten` binary rather than the `kitty +kitten` launcher: kitten negotiates
+# the Kitty graphics protocol with whatever terminal it is running under, and
+# Ghostty implements that protocol, so this works in both.
+_term_image() {
+  /Applications/kitty.app/Contents/MacOS/kitten icat "$@"
+}
+
 _show() {
   if [[ -z "$1" ]]; then
     echo 'Usage: img <image_path_or_url>'

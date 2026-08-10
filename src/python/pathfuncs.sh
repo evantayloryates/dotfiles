@@ -37,3 +37,8 @@ _skills_select() {
 _html_select() {
   _pathfuncs_run_select html "${1:?html root required}"
 }
+
+# Desktop arrangement — args arrive as one string from the generated case arm.
+_desk_clean() {
+  python3 "$DOTFILES_DIR/src/python/desktop.py" clean ${=1}
+}
