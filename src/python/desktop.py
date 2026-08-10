@@ -68,7 +68,7 @@ PINNED_FOLDERS = frozenset({
 # Rows a folder column uses before wrapping to the next one. Stopping short of
 # the full grid height keeps the dated folders clear of the pinned block and
 # leaves a blank row between the two.
-FOLDER_COLUMN_DEPTH = 18
+FOLDER_COLUMN_DEPTH = 16
 
 # Share of icons that must sit off the cached lattice before we assume the grid
 # itself changed rather than a few icons having been dragged loose.
