@@ -4,10 +4,11 @@
 Both groups are ordered by creation date and packed into the icon grid a column
 at a time. Folders start at the top-left corner and march inward, filling only
 the top eighteen rows of each column; files start at the top-right and march
-inward to meet them, using whole columns. A short list of pinned folders is
-exempt, sitting alphabetically in a block anchored to the bottom of the
-leftmost column. Symlinks are judged by what they point at, so a link to a
-directory sorts as a folder and uses the target's creation date.
+inward to meet them, using whole columns. Two sets of folders are exempt and
+sit alphabetically in blocks anchored to the bottom of a column: a named list
+in the first, anything ending in a star in the second. Symlinks are judged by
+what they point at, so a link to a directory sorts as a folder and uses the
+target's creation date.
 
 Cost model, measured on a 145-icon desktop under macOS 26:
 
@@ -58,12 +59,14 @@ PACKAGE_SUFFIXES = frozenset({
     '.xcodeproj',
 })
 
-# Folders that always live in the same place: an alphabetical block anchored to
-# the bottom of the leftmost column, exempt from the creation-date ordering.
+# Folders that always live in the same place, exempt from the creation-date
+# ordering: each set forms an alphabetical block anchored to the bottom of one
+# column. Named folders hold the leftmost column, starred ones the next.
 PINNED_FOLDERS = frozenset({
     'Documents', 'Downloads', 'Fonts', 'Library', 'Movies', 'Music',
     'Pictures', 'Screenshots',
 })
+STARRED_SUFFIX = '\N{GLOWING STAR}'
 
 # Rows a folder column uses before wrapping to the next one. Stopping short of
 # the full grid height keeps the dated folders clear of the pinned block and
@@ -382,6 +385,14 @@ def scan_entries() -> List[Entry]:
 
 # ── layout ───────────────────────────────────────────────────────────────────
 
+def _alpha(entry: Entry):
+    return entry.name.casefold()
+
+
+def _by_date(entry: Entry):
+    return entry.created, entry.name
+
+
 def _columns_fill(columns: Iterable[int], depth: int, queue: List[Entry],
                   taken: Set[Cell], plan: Dict[str, Cell]) -> List[Entry]:
     """Pour `queue` down `depth` rows of each column; return what did not fit."""
@@ -400,41 +411,68 @@ def _columns_fill(columns: Iterable[int], depth: int, queue: List[Entry],
     return ([current] if current is not None else []) + list(pending)
 
 
+def is_starred(name: str) -> bool:
+    """True for names ending in the star, with or without a variation selector.
+
+    The same emoji arrives with a trailing U+FE0F from some pickers, which a
+    bare endswith would silently miss.
+    """
+    return name.rstrip('\ufe0e\ufe0f').endswith(STARRED_SUFFIX)
+
+
+def group_folders(entries: Sequence[Entry], newest_first: bool = False):
+    """Split folders into the two pinned blocks and the date-ordered remainder."""
+    folders = [e for e in entries if e.is_folder]
+    pinned = sorted((e for e in folders if e.name in PINNED_FOLDERS), key=_alpha)
+    starred = sorted((e for e in folders
+                      if e.name not in PINNED_FOLDERS and is_starred(e.name)),
+                     key=_alpha)
+    fixed = {e.name for e in pinned} | {e.name for e in starred}
+    dated = sorted((e for e in folders if e.name not in fixed),
+                   key=_by_date, reverse=newest_first)
+    return pinned, starred, dated
+
+
+def _pin_block(grid: Grid, column: int, block: Sequence[Entry],
+               taken: Set[Cell], plan: Dict[str, Cell]) -> None:
+    """Park `block` against the foot of `column`, in the order given.
+
+    Anchoring at the bottom means the block grows and shrinks upward while its
+    last row stays put. These cells are claimed outright, before anything else
+    is placed, so a pinned folder holds its slot wherever it started.
+    """
+    if column >= grid.cols:
+        return
+    block = block[-grid.rows:]
+    for offset, entry in enumerate(block):
+        cell = Cell(column, grid.rows - len(block) + offset)
+        plan[entry.name] = cell
+        taken.add(cell)
+
+
 def plan_layout(entries: Sequence[Entry], grid: Grid, reserved: Set[Cell],
                 newest_first: bool = False) -> Dict[str, Cell]:
     """Assign every entry a grid cell.
 
-    Three groups, laid down in order. Pinned folders take a fixed alphabetical
-    block at the foot of the leftmost column. The remaining folders run by
-    creation date from the top-left, eighteen rows per column, marching right.
-    Files run by creation date from the top-right, full columns, marching left
-    to meet them.
+    Four groups, laid down in order. The two pinned blocks take fixed
+    alphabetical runs at the feet of the first and second columns. The
+    remaining folders run by creation date from the top-left, eighteen rows per
+    column, marching right. Files run by creation date from the top-right, full
+    columns, marching left to meet them.
 
     Ordering by creation date ascending is also the cheapest to maintain — a
     newly created item sorts to the end of its group and displaces nothing,
     so the next run rewrites one icon instead of shuffling the whole desktop.
     """
-    def order(e: Entry):
-        return e.created, e.name
-
-    folders = [e for e in entries if e.is_folder]
-    pinned = sorted((e for e in folders if e.name in PINNED_FOLDERS),
-                    key=lambda e: e.name.casefold())[-grid.rows:]
-    dated = sorted((e for e in folders if e.name not in PINNED_FOLDERS),
-                   key=order, reverse=newest_first)
+    pinned, starred, dated = group_folders(entries, newest_first)
     files = sorted((e for e in entries if not e.is_folder),
-                   key=order, reverse=newest_first)
+                   key=_by_date, reverse=newest_first)
 
     plan: Dict[str, Cell] = {}
     taken = set(reserved)
 
-    # Anchored to the bottom, so the block grows and shrinks upward and its
-    # last row never moves. These cells are claimed outright: a pinned folder
-    # holds its slot regardless of what else is sitting there.
-    for offset, entry in enumerate(pinned):
-        cell = Cell(0, grid.rows - len(pinned) + offset)
-        plan[entry.name] = cell
-        taken.add(cell)
+    _pin_block(grid, 0, pinned, taken, plan)
+    _pin_block(grid, 1, starred, taken, plan)
 
     spilled = _columns_fill(range(grid.cols), min(FOLDER_COLUMN_DEPTH, grid.rows),
                             dated, taken, plan)
@@ -492,11 +530,11 @@ def clean_desktop(newest_first: bool = False, dry_run: bool = False,
         key=lambda m: (m[1].x, m[1].y),
     )
 
-    pinned = sum(1 for e in entries if e.is_folder and e.name in PINNED_FOLDERS)
-    folders = sum(1 for e in entries if e.is_folder) - pinned
-    head = (f'{folders} folders from top-left, {pinned} pinned bottom-left, '
-            f'{len(entries) - folders - pinned} files from top-right '
-            f'({grid.cols}x{grid.rows} grid)')
+    pinned, starred, dated = group_folders(entries)
+    files = len(entries) - len(pinned) - len(starred) - len(dated)
+    head = (f'{len(dated)} folders from top-left, {len(pinned)} pinned and '
+            f'{len(starred)} starred at the column feet, {files} files from '
+            f'top-right ({grid.cols}x{grid.rows} grid)')
 
     if dry_run:
         print(head)
