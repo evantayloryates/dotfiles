@@ -8,7 +8,7 @@ abs     () { realpath "$@"                                                      
 convert () { magick "$@"                                                                                  ;} # 
 cur     () { if [ $# -eq 0 ]; then /usr/local/bin/cursor --classic "$(pwd -P 2>/dev/null || pwd)"; else /usr/local/bin/cursor --classic "$@"; fi ;} # 
 dc      () { docker compose "$@"                                                                          ;} # 
-env     () { clear ; python3 "$DOTFILES_DIR/src/python/env.py"                                            ;} # 
+env     () { if [ $# -eq 0 ]; then clear; python3 "$DOTFILES_DIR/src/python/env.py"; else /usr/bin/env "$@"; fi ;} # Note: bare env pretty-prints (secrets masked; ENV_REVEAL=1 reveals); with args, real /usr/bin/env
 ex      () { exiftool "$@"                                                                                ;} # Note: this will overwrite the /usr/bin/ex command
 ga      () { git add "$@"                                                                                 ;} # 
 gb      () { gbs "$@"                                                                                     ;} #

@@ -1,4 +1,6 @@
 import os
+import re
+import sys
 
 COLOR_CODES = {
     'black_bold_bright':   ['\033[1;90m', '\033[0m'],
@@ -57,6 +59,30 @@ def c(s, color='white'):
     return f'{open_code}{s}{close_code}'
 
 
+# Values for keys that look like credentials are masked by default so a stray
+# `env` — or any tool/agent/CI step that runs it — never spills secrets to
+# stdout or logs. Reveal with `ENV_REVEAL=1 env` or `env.py --reveal`.
+SENSITIVE = re.compile(
+    r'KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL|AUTH|COOKIE|SESSION|PRIVATE|PAT',
+    re.IGNORECASE,
+)
+REVEAL = os.environ.get('ENV_REVEAL') == '1' or '--reveal' in sys.argv
+
+
+def mask(value):
+    if not value:
+        return ''
+    if len(value) <= 8:
+        return '•' * len(value)
+    return f'{value[:3]}…{value[-2:]} ({len(value)} chars)'
+
+
+def display_value(key, value):
+    if REVEAL or not SENSITIVE.search(key):
+        return value
+    return mask(value)
+
+
 NAME_COLORS = ['magenta_dim', 'black_bold_bright']
 VALUE_COLORS = ['magenta', 'white']
 DELIMITER = ''
@@ -81,6 +107,6 @@ for idx, (k, v) in enumerate(items):
 
     print(
         f'{c(padded_name, name_color)}'
-        f'{c(v, value_color)}'
+        f'{c(display_value(k, v), value_color)}'
     )
 print()
