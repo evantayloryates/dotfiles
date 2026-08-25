@@ -374,7 +374,10 @@ cursor_path() {
     return 1
   fi
 
-  if ! cursor "$target_item"; then
+  # --classic disables Cursor's "glass" multi-workbench mode, which otherwise
+  # opens the target in the agents window instead of a normal editor window.
+  # Matches the `cur` alias, which has always passed it.
+  if ! command cursor --classic "$target_item"; then
     __log "$(_red "cursor_path: cursor failed for '${target_item}'")"
     return 1
   fi
