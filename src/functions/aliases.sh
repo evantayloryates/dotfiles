@@ -6,7 +6,7 @@
 _kitsrc () { /Applications/kitty.app/Contents/MacOS/kitty @ load-config "$HOME/.config/kitty/kitty.conf"  ;} #
 abs     () { realpath "$@"                                                                                ;} # 
 convert () { magick "$@"                                                                                  ;} # 
-cur     () { if [ $# -eq 0 ]; then /usr/local/bin/cursor --classic "$(pwd -P 2>/dev/null || pwd)"; else /usr/local/bin/cursor --classic "$@"; fi ;} # 
+cur     () { if [ $# -eq 0 ]; then command cursor --classic "$(pwd -P 2>/dev/null || pwd)"; else command cursor --classic "$@"; fi ;} # Note: resolved from PATH, not hard-coded — the brew cask links /opt/homebrew/bin/cursor, Cursor's own "Install command" links /usr/local/bin/cursor
 dc      () { docker compose "$@"                                                                          ;} # 
 env     () { if [ $# -eq 0 ]; then clear; python3 "$DOTFILES_DIR/src/python/env.py"; else /usr/bin/env "$@"; fi ;} # Note: bare env pretty-prints (secrets masked; ENV_REVEAL=1 reveals); with args, real /usr/bin/env
 ex      () { exiftool "$@"                                                                                ;} # Note: this will overwrite the /usr/bin/ex command

@@ -21,13 +21,22 @@ ZSHENV_LINE='source "$HOME/dotfiles/src/exports/dotenv.sh"'
 touch "$ZSHENV"
 grep -qF "$ZSHENV_LINE" "$ZSHENV" || printf '\n# Load exported dotfiles env (.env) for ALL shells, incl. non-interactive\n%s\n' "$ZSHENV_LINE" >> "$ZSHENV"
 
-# macOS only: install user LaunchAgents kept in src/launchd/. See its README.md.
+# macOS only: quiet the login banner, then install the user LaunchAgents kept
+# in src/launchd/. See its README.md.
 #   - com.taylor.mcp-tokens: bridge .env tokens into the launchd session at login
 #     so GUI apps (Claude desktop, which don't read ~/.zshenv) inherit them.
 #   - com.taylor.docker-prune: periodic safe Docker cleanup (no-ops when Docker
 #     is down).
 # No-op on Linux/devcontainers.
 if [[ "$(uname)" == "Darwin" ]]; then
+  # ~/.hushlogin suppresses Terminal's "Last login: ..." banner on every new
+  # shell. Presence is the whole signal — the file's contents are irrelevant, so
+  # creating it is idempotent and never clobbers anything.
+  if [[ ! -f "$HOME/.hushlogin" ]]; then
+    touch "$HOME/.hushlogin"
+    log "🤫 Created ~/.hushlogin (silences the login banner)"
+  fi
+
   DOTFILES_DIR="$(cd "$(dirname "$0")" && pwd)"
   UID_NUM=$(id -u)
   mkdir -p "$HOME/Library/LaunchAgents"
