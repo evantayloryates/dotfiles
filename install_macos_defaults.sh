@@ -49,6 +49,20 @@ else
   log "🟰 Dock settings already correct — not restarting Dock"
 fi
 
+# --- Finder -----------------------------------------------------------------
+# Show dotfiles and other hidden entries. Same gating as the Dock: `killall
+# Finder` closes every open Finder window, so it only fires when the key
+# actually moved.
+
+finder_changed=0
+defaults_set com.apple.finder AppleShowAllFiles -bool true && finder_changed=1
+
+if [[ "$finder_changed" -eq 1 ]]; then
+  killall Finder 2>/dev/null && log "🔄 Restarted Finder to pick up the new settings"
+else
+  log "🟰 Finder settings already correct — not restarting Finder"
+fi
+
 # --- Key repeat -------------------------------------------------------------
 # Two surfaces, and they are INDEPENDENT stores (verified: deleting both
 # NSGlobalDomain keys left hidutil reporting its previous values unchanged):

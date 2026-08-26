@@ -129,6 +129,10 @@ key genuinely moved.
 if one of the four Dock keys actually changed**. A re-run with everything already
 correct leaves the Dock process untouched.
 
+**Finder** — `AppleShowAllFiles` on, so dotfiles and other hidden entries are
+visible. Gated exactly like the Dock: `killall Finder` closes every open Finder
+window, so it only fires when the key actually moved.
+
 **Key repeat** — `InitialKeyRepeat` 10, `KeyRepeat` 1 (in 1/60 s ticks: ~167 ms to
 the first repeat, ~17 ms between repeats). The two surfaces that control this are
 **independent stores**, and neither alone is enough:
