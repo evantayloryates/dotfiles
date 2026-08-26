@@ -118,3 +118,73 @@ Verify it is loaded: `launchctl print gui/$(id -u)/com.taylor.docker-prune`.
 Edit `StartInterval` in the plist (seconds), then re-run the install steps (or
 `install.sh`) to reload. To pause it: `launchctl bootout
 gui/$(id -u)/com.taylor.docker-prune`.
+
+## `com.taylor.keyrepeat`
+
+Runs `key-repeat.sh` **at login** to push the persisted key-repeat preference
+into the live HID event system.
+
+### Why
+
+The two surfaces that control key repeat are **independent stores**, and neither
+one alone does the job:
+
+| Store | Applies immediately | Survives reboot |
+|---|---|---|
+| `NSGlobalDomain` `InitialKeyRepeat` / `KeyRepeat` (`defaults write -g`) | ✗ | ✓ |
+| HID event system `HIDInitialKeyRepeat` / `HIDKeyRepeat` (`hidutil property`) | ✓ | ✗ |
+
+That they are genuinely independent was confirmed empirically: deleting **both**
+`NSGlobalDomain` keys left `hidutil` reporting its previous values unchanged, and
+writing them back did not move the live value. So `defaults write` alone cannot be
+relied on to reach the live system, and `hidutil` alone evaporates on reboot.
+
+This agent is the bridge. At every login it reads the persisted preference and
+applies it live, so **no manual `hidutil` re-run is ever needed after a reboot**.
+`install_macos_defaults.sh` handles the *current* session; this agent handles
+every session after it.
+
+### The preference is the single source of truth
+
+The script hardcodes no rate — it reads `defaults read -g InitialKeyRepeat` and
+`KeyRepeat`. Change the rate with `install_macos_defaults.sh`, a plain
+`defaults write -g`, or even the System Settings slider, and the next login picks
+it up. Because both halves read the same preference, it does not matter whether
+macOS applies its own value before or after this agent runs — they agree.
+
+Degenerate inputs no-op rather than forcing a rate: an **unset** preference leaves
+the system default alone, and a non-numeric one is skipped with a log line.
+
+Units differ between the two stores — the `NSGlobalDomain` keys count 1/60 s
+ticks, `hidutil` wants nanoseconds. The conversion runs through `awk`
+(`ticks * 1000000000 / 60`, truncated) so it matches what `hidutil` reports back
+exactly: 10 ticks is `166666666` ns, *not* 10 × `16666666`.
+
+### Logs
+
+Appended to `~/Library/Logs/com.taylor.keyrepeat.log`, self-trimmed to the last
+~100 lines.
+
+```sh
+tail -n 10 ~/Library/Logs/com.taylor.keyrepeat.log
+```
+
+### Install / activate
+
+`install.sh` symlinks the plist and loads it (same loop as the agents above).
+Manually:
+
+```sh
+ln -sf "$HOME/dotfiles/src/launchd/com.taylor.keyrepeat.plist" \
+       "$HOME/Library/LaunchAgents/com.taylor.keyrepeat.plist"
+launchctl bootstrap gui/$(id -u) \
+       "$HOME/Library/LaunchAgents/com.taylor.keyrepeat.plist"
+launchctl kickstart -k gui/$(id -u)/com.taylor.keyrepeat   # run now
+```
+
+Verify the live values match the preference:
+
+```sh
+hidutil property --get HIDKeyRepeat        # 16666666 when KeyRepeat=1
+hidutil property --get HIDInitialKeyRepeat # 166666666 when InitialKeyRepeat=10
+```

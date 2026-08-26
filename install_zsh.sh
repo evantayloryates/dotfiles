@@ -6,9 +6,12 @@ log() {
   echo "$msg" >> "$HOME/log.txt"
 }
 
-# Install ncurses-term and system zsh for terminal definitions (fixes backspace display issues)
-if ! command -v zsh >/dev/null 2>&1 || ! dpkg -l ncurses-term >/dev/null 2>&1; then
-  if command -v apt-get >/dev/null 2>&1; then
+# Install ncurses-term and system zsh for terminal definitions (fixes backspace
+# display issues). Debian/Ubuntu only — gate on apt-get first so the dpkg probe
+# is never reached on macOS, where `dpkg` is absent and `! dpkg ...` would
+# otherwise read as "package missing" from a command-not-found exit.
+if command -v apt-get >/dev/null 2>&1; then
+  if ! command -v zsh >/dev/null 2>&1 || ! dpkg -s ncurses-term >/dev/null 2>&1; then
     sudo apt-get update -qq >/dev/null 2>&1
     sudo apt-get install -y ncurses-term zsh >/dev/null 2>&1
   fi

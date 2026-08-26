@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!--
+    Runs key-repeat.sh at login to push the persisted NSGlobalDomain key-repeat
+    preferences into the live HID event system, which resets every boot.
+    Without this, `defaults write -g KeyRepeat` alone does not reliably reach
+    the live system and a manual `hidutil` re-run would be needed after every
+    reboot. See README.md in this directory.
+
+    NOTE: launchd does not expand ~ or $HOME in ProgramArguments, so the path is
+    absolute. install.sh symlinks this file into ~/Library/LaunchAgents/.
+  -->
+  <key>Label</key>
+  <string>com.taylor.keyrepeat</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/zsh</string>
+    <string>/Users/taylor/dotfiles/src/launchd/key-repeat.sh</string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
+</dict>
+</plist>
