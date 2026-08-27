@@ -50,12 +50,18 @@ else
 fi
 
 # --- Finder -----------------------------------------------------------------
-# Show dotfiles and other hidden entries. Same gating as the Dock: `killall
-# Finder` closes every open Finder window, so it only fires when the key
-# actually moved.
+# Everything that needs a Finder restart to take effect, gated as a group. Same
+# rule as the Dock: `killall Finder` closes every open Finder window, so it
+# fires at most once per run and only if some key below actually moved.
+#
+# Note the two different domains. Hidden-file visibility is Finder's own
+# preference, but file-extension visibility is a GLOBAL (NSGlobalDomain) key
+# that Finder merely reads — it still needs the same restart, so it belongs in
+# this block rather than with the other NSGlobalDomain writes further down.
 
 finder_changed=0
-defaults_set com.apple.finder AppleShowAllFiles -bool true && finder_changed=1
+defaults_set com.apple.finder AppleShowAllFiles      -bool true && finder_changed=1
+defaults_set NSGlobalDomain   AppleShowAllExtensions -bool true && finder_changed=1
 
 if [[ "$finder_changed" -eq 1 ]]; then
   killall Finder 2>/dev/null && log "🔄 Restarted Finder to pick up the new settings"

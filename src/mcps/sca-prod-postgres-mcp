@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Read-only Postgres MCP for the SCA (spaceback) prod database.
+# Mirrors amplify-prod-postgres-mcp:
+#   1. SSH tunnel through the ops bastion to the private RDS instance
+#   2. @modelcontextprotocol/server-postgres over that tunnel
+#
+# Writes are impossible at BOTH the role level (dedicated read-only role) and the
+# server level: this targets the Aurora READER endpoint, a physical replica that
+# rejects writes even if the role tried.
+#
+# Connection details (bastion, RDS endpoint, db name, role) and the password all
+# live in dotfiles/.env, NOT here — this repo is public. See read-env.sh.
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+. "${SCRIPT_DIR}/../lib/resolve-binary.sh"
+. "${SCRIPT_DIR}/../lib/read-env.sh"
+
+# npx is resolved rather than taken from PATH: spawned by a GUI app, PATH is minimal.
+NPX="$(resolve_binary npx)"
+
+export ENV_FILE="${DOTFILES_DIR:-$HOME/dotfiles}/.env"
+eval "$(env_export \
+  SPBK_BASTION_HOST SPBK_BASTION_USER \
+  SCA_PROD_DB_HOST SCA_PROD_DB_NAME SCA_PROD_DB_USER \
+  SCA_READ_ONLY_FIVETRAN_PROD_DB_PASSWORD)"
+
+SSH_KEY="${HOME}/.ssh/spbk-ops.pem"
+LOCAL_PORT="15434"   # distinct port (reader); avoids reusing a writer tunnel
+RDS_PORT="5432"
+
+# 1. Ensure the SSH tunnel is up.
+if ! nc -z 127.0.0.1 "$LOCAL_PORT" >/dev/null 2>&1; then
+  ssh -f -N \
+    -i "$SSH_KEY" \
+    -L "127.0.0.1:${LOCAL_PORT}:${SCA_PROD_DB_HOST}:${RDS_PORT}" \
+    -o ExitOnForwardFailure=yes \
+    -o StrictHostKeyChecking=accept-new \
+    -o PubkeyAcceptedAlgorithms=+ssh-rsa \
+    -o HostkeyAlgorithms=+ssh-rsa \
+    -o ServerAliveInterval=60 \
+    -o ServerAliveCountMax=3 \
+    "${SPBK_BASTION_USER}@${SPBK_BASTION_HOST}" || true
+fi
+
+for _ in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
+  nc -z 127.0.0.1 "$LOCAL_PORT" >/dev/null 2>&1 && break
+  sleep 0.2
+done
+
+if ! nc -z 127.0.0.1 "$LOCAL_PORT" >/dev/null 2>&1; then
+  echo "Cannot reach SSH tunnel on 127.0.0.1:${LOCAL_PORT}" >&2
+  exit 1
+fi
+
+encoded_password="$(
+  PASSWORD="$SCA_READ_ONLY_FIVETRAN_PROD_DB_PASSWORD" python3 - <<'PY'
+import os
+from urllib.parse import quote
+print(quote(os.environ["PASSWORD"], safe=""), end="")
+PY
+)"
+
+# Defense-in-depth (no DB-side change): force the session default to read-only and
+# cap statement time. Now largely redundant — the reader endpoint + read-only role
+# already make writes impossible — but harmless belt-and-suspenders.
+CONN_OPTS="options=-c%20default_transaction_read_only%3Don%20-c%20statement_timeout%3D60000"
+exec "$NPX" -y @modelcontextprotocol/server-postgres \
+  "postgresql://${SCA_PROD_DB_USER}:${encoded_password}@127.0.0.1:${LOCAL_PORT}/${SCA_PROD_DB_NAME}?sslmode=no-verify&${CONN_OPTS}"

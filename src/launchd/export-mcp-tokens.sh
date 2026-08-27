@@ -34,3 +34,15 @@ for var in ${(f)"$(grep -oE '^[[:space:]]*(export[[:space:]]+)?[A-Za-z_][A-Za-z0
     launchctl setenv "$var" "$val"
   fi
 done
+
+# Non-secret interpreter overrides (NPX_PATH and friends) live in source control
+# under src/exports/, not .env, so the loop above never sees them. Bridge them
+# explicitly — otherwise a GUI-launched MCP launcher falls back to probing while
+# the terminal uses the pinned path, and the two disagree about which npx runs.
+source "$DOTFILES_DIR/src/exports/binaries.sh"
+for var in NPX_PATH; do
+  val="${(P)var}"
+  if [[ -n "$val" ]]; then
+    launchctl setenv "$var" "$val"
+  fi
+done
