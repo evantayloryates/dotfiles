@@ -95,9 +95,16 @@ fi
 # apps keep the old behavior until relaunched. Nothing to restart here, hence
 # the log line instead of a killall.
 #
-# CAVEAT: this is an AppKit default. Apps that draw their own title bars —
-# Electron (Cursor, VS Code, Slack) and Chrome — implement double-click zoom
-# themselves and ignore it entirely. No `defaults` key will change those.
+# A FULL QUIT is required, not just closing the window: an app that is already
+# running keeps the old behavior indefinitely. This is the usual reason the
+# setting looks like it "did nothing" — verified 2026-08-26 with Arc, which was
+# still animating until ⌘Q + relaunch, then stopped.
+#
+# Chromium/Electron apps that draw their own title bars are commonly said to
+# ignore this key. Arc disproves that as a blanket claim — it honors it fine
+# once relaunched. If some app genuinely does ignore it, that app is handling
+# double-click zoom internally and no `defaults` key will reach it; the only
+# remaining lever there is Accessibility → Reduce Motion, which is system-wide.
 
 window_anim_changed=0
 defaults_set -g NSWindowResizeTime                 -float 0.001 && window_anim_changed=1
