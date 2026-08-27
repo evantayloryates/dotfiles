@@ -79,6 +79,36 @@ else
   log "🟰 Finder settings already correct — not restarting Finder"
 fi
 
+# --- Window animations ------------------------------------------------------
+# Suppress the animated window resize, including the zoom/fill that plays when
+# you double-click a title bar.
+#
+#   NSWindowResizeTime ................. duration of AppKit's animated resize.
+#     0.001 rather than 0 — Apple documents this key, and 0 has historically
+#     failed to disable the animation rather than making it instant.
+#   NSAutomaticWindowAnimationsEnabled . the automatic window animations toggle.
+#
+# Both are needed; setting only the first is why this looked "fixed" and then
+# appeared to regress.
+#
+# No live-apply step exists: AppKit reads these ONCE at app launch, so running
+# apps keep the old behavior until relaunched. Nothing to restart here, hence
+# the log line instead of a killall.
+#
+# CAVEAT: this is an AppKit default. Apps that draw their own title bars —
+# Electron (Cursor, VS Code, Slack) and Chrome — implement double-click zoom
+# themselves and ignore it entirely. No `defaults` key will change those.
+
+window_anim_changed=0
+defaults_set -g NSWindowResizeTime                 -float 0.001 && window_anim_changed=1
+defaults_set -g NSAutomaticWindowAnimationsEnabled -bool  false && window_anim_changed=1
+
+if [[ "$window_anim_changed" -eq 1 ]]; then
+  log "💤 Window animation settings changed — relaunch apps to pick them up"
+else
+  log "🟰 Window animation settings already correct"
+fi
+
 # --- Trackpad ---------------------------------------------------------------
 # Tap-to-click. By default macOS wants a full press until the haptic pulse
 # fires; this makes a light tap register as a click.
