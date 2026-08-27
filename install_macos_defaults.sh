@@ -117,27 +117,65 @@ else
 fi
 
 # --- Trackpad ---------------------------------------------------------------
-# Tap-to-click. By default macOS wants a full press until the haptic pulse
-# fires; this makes a light tap register as a click.
+# Three groups of settings, all sharing ONE activation at the end: tap-to-click,
+# three-finger drag, and tracking speed. activateSettings -u is what pushes any
+# of them into the running session, so no logout is needed — it fires at most
+# once per run, and only if something actually moved.
 #
-# Four writes, all load-bearing:
-#   AppleMultitouchTrackpad ............ the built-in trackpad
-#   AppleBluetoothMultitouch.trackpad .. an external Magic Trackpad
-#   com.apple.mouse.tapBehavior ........ what AppKit/apps actually consult
-#
-# tapBehavior is written TWICE on purpose, to two different stores: the
-# -currentHost (ByHost) copy is what the running login session reads, and the
-# plain one seeds sessions created later. Writing only one of them is the usual
-# reason a correct-looking recipe silently does nothing.
-#
-# activateSettings -u then pushes the change into the live session, so no logout
-# is needed (verified 2026-08-26: tapping worked immediately after a run).
+# Every trackpad setting is written to as many as three stores, and which ones
+# matter varies by key. Skipping one is the usual reason a correct-looking
+# recipe silently does nothing:
+#   com.apple.AppleMultitouchTrackpad ................ the built-in trackpad
+#   com.apple.driver.AppleBluetoothMultitouch.trackpad an external Magic Trackpad
+#   NSGlobalDomain, usually -currentHost .............. what AppKit/the session reads
+
+TRACKPAD_BUILTIN=com.apple.AppleMultitouchTrackpad
+TRACKPAD_BT=com.apple.driver.AppleBluetoothMultitouch.trackpad
 
 trackpad_changed=0
-defaults_set com.apple.AppleMultitouchTrackpad                Clicking -bool true && trackpad_changed=1
-defaults_set com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true && trackpad_changed=1
+
+# Tap to click — macOS otherwise wants a full press until the haptic pulse.
+# tapBehavior goes to BOTH global stores: the -currentHost copy is what the
+# running session reads, the plain one seeds sessions created later.
+defaults_set "$TRACKPAD_BUILTIN" Clicking -bool true && trackpad_changed=1
+defaults_set "$TRACKPAD_BT"      Clicking -bool true && trackpad_changed=1
 defaults_set -currentHost NSGlobalDomain com.apple.mouse.tapBehavior -int 1 && trackpad_changed=1
 defaults_set              NSGlobalDomain com.apple.mouse.tapBehavior -int 1 && trackpad_changed=1
+
+# Three-finger drag — drag a window by moving three fingers, no click needed.
+#
+# The swipe reassignment below is NOT optional. Three-finger swipe is Spaces
+# (horizontal) and Mission Control (vertical); leaving either on three fingers
+# makes it fight the drag. macOS's own Accessibility toggle moves BOTH axes to
+# four fingers, and this mirrors that. 0 = off, 2 = enabled.
+defaults_set "$TRACKPAD_BUILTIN" TrackpadThreeFingerDrag -bool true && trackpad_changed=1
+defaults_set "$TRACKPAD_BT"      TrackpadThreeFingerDrag -bool true && trackpad_changed=1
+defaults_set -currentHost NSGlobalDomain com.apple.trackpad.threeFingerDragGesture -bool true && trackpad_changed=1
+
+for _tp_domain in "$TRACKPAD_BUILTIN" "$TRACKPAD_BT"; do
+  defaults_set "$_tp_domain" TrackpadThreeFingerHorizSwipeGesture -int 0 && trackpad_changed=1
+  defaults_set "$_tp_domain" TrackpadThreeFingerVertSwipeGesture  -int 0 && trackpad_changed=1
+  defaults_set "$_tp_domain" TrackpadFourFingerHorizSwipeGesture  -int 2 && trackpad_changed=1
+  defaults_set "$_tp_domain" TrackpadFourFingerVertSwipeGesture   -int 2 && trackpad_changed=1
+done
+unset _tp_domain
+
+defaults_set -currentHost NSGlobalDomain com.apple.trackpad.threeFingerHorizSwipeGesture -int 0 && trackpad_changed=1
+defaults_set -currentHost NSGlobalDomain com.apple.trackpad.threeFingerVertSwipeGesture  -int 0 && trackpad_changed=1
+defaults_set -currentHost NSGlobalDomain com.apple.trackpad.fourFingerHorizSwipeGesture  -int 2 && trackpad_changed=1
+defaults_set -currentHost NSGlobalDomain com.apple.trackpad.fourFingerVertSwipeGesture   -int 2 && trackpad_changed=1
+
+# Tracking speed. The System Settings slider is a discrete ladder, not a free
+# scale — 0, 0.125, 0.3125, 0.5, 0.6875, 0.875, 1.0, 1.5, 2.0, 3.0 — and the
+# live IOHIDSystem value is this number in 16.16 fixed point (x * 65536), which
+# is how to verify it landed:
+#   ioreg -c IOHIDSystem -r | grep -o '"HIDTrackpadAcceleration"=[0-9]*'
+#
+# NOTE: hidutil does NOT work here. Unlike key repeat below, it does not expose
+# HIDTrackpadAcceleration at all — `--set` reports success and changes nothing.
+# activateSettings is the only lever.
+TRACKPAD_SCALING=0.875
+defaults_set -g com.apple.trackpad.scaling -float "$TRACKPAD_SCALING" && trackpad_changed=1
 
 ACTIVATE_SETTINGS=/System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings
 
@@ -145,9 +183,9 @@ if [[ "$trackpad_changed" -eq 1 ]]; then
   if [[ -x "$ACTIVATE_SETTINGS" ]]; then
     "$ACTIVATE_SETTINGS" -u >/dev/null 2>&1 \
       && log "🔄 Pushed trackpad settings live — no logout needed" \
-      || log "⚠️  activateSettings failed — tap-to-click applies after the next login"
+      || log "⚠️  activateSettings failed — trackpad settings apply after the next login"
   else
-    log "⚠️  activateSettings not found — tap-to-click applies after the next login"
+    log "⚠️  activateSettings not found — trackpad settings apply after the next login"
   fi
 else
   log "🟰 Trackpad settings already correct — nothing to activate"
