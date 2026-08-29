@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Arrange the macOS desktop: folders down the left, files down the right.
+"""Arrange the primary macOS desktop: folders left, files right.
 
 Both groups are ordered by creation date and packed into the icon grid a column
 at a time. Folders start at the top-left corner and march inward, filling only
-the top eighteen rows of each column; files start at the top-right and march
+the top sixteen rows of each column; files start at the top-right and march
 inward to meet them, using whole columns. Two sets of folders are exempt and
 sit alphabetically in blocks anchored to the bottom of a column: a named list
 in the first, anything ending in a star in the second. Symlinks are judged by
@@ -16,7 +16,7 @@ Cost model, measured on a 145-icon desktop under macOS 26:
     osascript process start      ~25 ms
     read every name + position  ~450 ms   (one round trip)
     write one icon position      ~8.4 ms  (per icon)
-    clean up                     ~10 ms
+    verification read          ~450 ms   (only after writes or when requested)
 
 Two facts shape the design. Finder is roughly a thousand times more expensive
 than the filesystem, so every fact that `os.scandir` can supply comes from
@@ -27,12 +27,15 @@ than by name — so the only lever left is writing fewer icons. The desired
 layout is therefore diffed against the live one and only genuinely misplaced
 icons are touched, which collapses an already-tidy desktop to a single read.
 
-That leaves two Apple Event round trips for a normal run: one to read the
-desktop, one to write the diff and snap the result to the grid.
+A no-op run is one Apple Event round trip. A changed run adds a write and a
+verification read. Grid calibration is cached separately and is scoped to the
+primary display; treating Finder's multi-display coordinate space as one
+rectangular grid produces bogus one-pixel pitches.
 """
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import json
 import math
 import os
@@ -77,6 +80,15 @@ FOLDER_COLUMN_DEPTH = 16
 # itself changed rather than a few icons having been dragged loose.
 _RECALIBRATE_FRACTION = 0.2
 
+# Cache format version. Version 1 could accept a corrupt 1- or 2-pixel lattice
+# forever because every integer coordinate appears to be on such a grid.
+_CACHE_VERSION = 2
+
+# A real Finder grid cannot pack icon anchors more tightly than the icon
+# itself. This also gives cache validation a hard lower bound independent of
+# how many icons happen to be on the Desktop.
+_MIN_ICON_SIZE = 16
+
 
 class DesktopError(RuntimeError):
     pass
@@ -99,6 +111,33 @@ class Rect(NamedTuple):
     height: int
 
 
+class Frame(NamedTuple):
+    """A display rectangle in Finder's top-left-origin coordinate space."""
+
+    origin: Point
+    size: Rect
+
+    @property
+    def right(self) -> int:
+        return self.origin.x + self.size.width
+
+    @property
+    def bottom(self) -> int:
+        return self.origin.y + self.size.height
+
+    def contains(self, pos: Point) -> bool:
+        return (
+            self.origin.x <= pos.x < self.right
+            and self.origin.y <= pos.y < self.bottom
+        )
+
+
+class Screen(NamedTuple):
+    frame: Frame
+    visible: Frame
+    primary: bool
+
+
 class DesktopItem(NamedTuple):
     name: str
     pos: Point
@@ -116,9 +155,16 @@ class Snapshot(NamedTuple):
     bounds: Rect
     view: str
     items: List[DesktopItem]
+    screens: List[Screen]
 
     def positions(self) -> Dict[str, Point]:
         return {i.name: i.pos for i in self.items}
+
+    def primary_screen(self) -> Screen:
+        try:
+            return next(screen for screen in self.screens if screen.primary)
+        except StopIteration as exc:
+            raise DesktopError('macOS did not report a primary display') from exc
 
 
 class Grid(NamedTuple):
@@ -178,33 +224,61 @@ def _jxa(body: str):
 
 
 def snapshot() -> Snapshot:
-    """Desktop bounds, icon view settings and every icon position, in one trip.
+    """Displays, icon view settings and every icon position, in one trip.
 
     Everything Finder is asked for over a normal run is gathered here, because
     the round trip dominates and a second one would roughly double the cost.
+    AppKit reports screens bottom-up while Finder reports icon positions
+    top-down, so display rectangles are converted before leaving JXA.
     """
     raw = _jxa(
+        'ObjC.import("AppKit");\n'
         'const w = F.desktop.window, b = w.bounds(), o = w.iconViewOptions;\n'
         'const n = F.desktop.items.name(), p = F.desktop.items.desktopPosition();\n'
+        'const screens = $.NSScreen.screens.js;\n'
+        'const frames = screens.map(s => ObjC.deepUnwrap(s.frame));\n'
+        'const visible = screens.map(s => ObjC.deepUnwrap(s.visibleFrame));\n'
+        'const primary = frames.findIndex(f => f.origin.x === 0 && f.origin.y === 0);\n'
+        'const primaryIndex = primary >= 0 ? primary : 0;\n'
+        'const referenceTop = frames[primaryIndex].origin.y + '
+        'frames[primaryIndex].size.height;\n'
+        'const topDown = r => [r.origin.x, '
+        'referenceTop - r.origin.y - r.size.height, '
+        'r.size.width, r.size.height];\n'
         'JSON.stringify({\n'
         '  bounds: [b.width, b.height],\n'
         '  view: [o.iconSize(), String(o.arrangement()), String(o.labelPosition())],\n'
         '  items: n.map((name, i) => [name, p[i].x, p[i].y]),\n'
+        '  screens: frames.map((f, i) => ({\n'
+        '    frame: topDown(f), visible: topDown(visible[i]), '
+        'primary: i === primaryIndex,\n'
+        '  })),\n'
         '})'
     )
+
+    def frame(values) -> Frame:
+        x, y, width, height = (int(v) for v in values)
+        return Frame(Point(x, y), Rect(width, height))
+
     return Snapshot(
         bounds=Rect(int(raw['bounds'][0]), int(raw['bounds'][1])),
         view='|'.join(str(v) for v in raw['view']),
         items=[DesktopItem(n, Point(int(x), int(y))) for n, x, y in raw['items']],
+        screens=[Screen(frame(s['frame']), frame(s['visible']), bool(s['primary']))
+                 for s in raw['screens']],
     )
 
 
-def apply_moves(moves: Sequence[tuple], clean: bool = True) -> List[str]:
+def apply_moves(moves: Sequence[tuple], clean: bool = False) -> List[str]:
     """Write every position in one round trip; return the names that failed.
 
     Each write is its own Apple Event no matter how they are issued, so the
     only thing batching saves is process startup — but a stale name would
     otherwise abort the run partway, hence the per-item catch.
+
+    The caller normally leaves ``clean`` false. Every managed icon receives an
+    exact lattice position, while a window-wide Finder Clean Up can also touch
+    unmanaged icons or icons on another display.
     """
     if not moves and not clean:
         return []
@@ -232,62 +306,133 @@ def find(items: Sequence[DesktopItem], name: str) -> DesktopItem:
 
 # ── grid measurement ─────────────────────────────────────────────────────────
 
-def _axis_step(values: Sequence[int]) -> int:
-    """Slot pitch along one axis: the GCD of gaps between occupied lines."""
+def _axis_step(values: Sequence[int], minimum: int) -> int:
+    """Slot pitch along one axis from positions known to have been snapped."""
     lines = sorted(set(values))
     if len(lines) < 2:
         raise DesktopError('not enough icons on the desktop to measure the grid')
     step = 0
     for a, b in zip(lines, lines[1:]):
         step = math.gcd(step, b - a)
-    if step <= 0:
-        raise DesktopError('could not determine grid spacing')
+    if step < minimum:
+        raise DesktopError(
+            f'implausible {step}px grid spacing (minimum is {minimum}px)'
+        )
     return step
 
 
-def _probe(name: str, pos: Point) -> Point:
-    """Park an icon at `pos`, let clean up clamp it onto the grid, report where."""
+def _probe_many(name: str, targets: Sequence[Point]) -> List[Point]:
+    """Snap one borrowed icon at several targets, then restore it exactly.
+
+    Probe results, unlike the existing Desktop, are known to have gone through
+    Finder's current snapping logic. The original position is restored without
+    another clean-up pass so calibration cannot tidy or relocate user state as
+    a side effect.
+    """
+    payload = json.dumps([[p.x, p.y] for p in targets])
     landed = _jxa(
         f'const it = F.desktop.items.byName({json.dumps(name)});\n'
-        f'it.desktopPosition = {{x: {pos.x}, y: {pos.y}}};\n'
-        'F.cleanUp(F.desktop.window);\n'
-        'const p = it.desktopPosition();\n'
-        'JSON.stringify([p.x, p.y])'
+        f'const targets = {payload};\n'
+        'const original = it.desktopPosition();\n'
+        'const result = [];\n'
+        'try {\n'
+        '  for (const target of targets) {\n'
+        '    it.desktopPosition = {x: target[0], y: target[1]};\n'
+        '    F.cleanUp(F.desktop.window);\n'
+        '    const p = it.desktopPosition();\n'
+        '    result.push([p.x, p.y]);\n'
+        '  }\n'
+        '} finally {\n'
+        '  it.desktopPosition = original;\n'
+        '}\n'
+        'JSON.stringify(result)'
     )
-    return Point(int(landed[0]), int(landed[1]))
+    return [Point(int(x), int(y)) for x, y in landed]
+
+
+def _spread(start: int, end: int, count: int) -> List[int]:
+    if count <= 1 or start == end:
+        return [start]
+    return [round(start + (end - start) * i / (count - 1))
+            for i in range(count)]
+
+
+def _probe_targets(screen: Screen, icon_size: int) -> tuple[List[Point], int]:
+    """Targets that exercise both axes and several points along every edge."""
+    visible = screen.visible
+    pad = max(1, icon_size // 2)
+    left, right = visible.origin.x + pad, visible.right - pad
+    top, bottom = visible.origin.y + pad, visible.bottom - pad
+    if left >= right or top >= bottom:
+        raise DesktopError('primary display has no usable Desktop area')
+
+    middle_x = (left + right) // 2
+    middle_y = (top + bottom) // 2
+    horizontal = [Point(x, middle_y) for x in _spread(left, right, 13)]
+    vertical = [Point(middle_x, y) for y in _spread(top, bottom, 21)]
+
+    # A populated edge cell can push a probe to its neighbour. Sampling the
+    # edge at multiple cross-axis positions makes it very unlikely that every
+    # edge observation is blocked, and occupied icons are added as corroborating
+    # evidence below.
+    xs = _spread(left, right, 5)[1:-1]
+    ys = _spread(top, bottom, 5)[1:-1]
+    edges = [Point(left, y) for y in ys] + [Point(right, y) for y in ys]
+    edges += [Point(x, top) for x in xs] + [Point(x, bottom) for x in xs]
+    return horizontal + vertical + edges, len(horizontal)
+
+
+def _mode_remainder(values: Sequence[int], step: int) -> int:
+    if not values:
+        raise DesktopError('could not determine grid alignment')
+    return Counter(v % step for v in values).most_common(1)[0][0]
 
 
 def measure_grid(snap: Snapshot, probe_name: Optional[str] = None) -> Grid:
-    """Measure the slot lattice, briefly borrowing one icon as a test probe.
+    """Measure the primary display's slot lattice with an actively snapped icon.
 
-    Pitch comes from icons Finder has already snapped. The extent comes from
-    parking the probe outside the grid and letting clean up clamp it back in.
-
-    Clamping lands on the nearest *free* slot, so a probe alone under-reports a
-    crowded edge — it would call an occupied top-left corner row one. Every
-    icon already sitting on the desktop proves its own slot exists, though, so
-    the two sources are combined: the extremes of the lattice are the furthest
-    point either the probe or an existing icon can vouch for. Between them they
-    cover both a packed desktop and a nearly empty one.
+    Finder exposes one Desktop item collection across every display, but each
+    display has its own origin, extent and sometimes scale. Mixing their icon
+    coordinates makes a GCD-based pitch collapse to one or two pixels. Active
+    samples are therefore filtered to the primary display before inferring the
+    lattice; existing icons on that display only corroborate its edges.
     """
     if not snap.items:
         raise DesktopError('no icons on the desktop to measure the grid')
+    probe = next((i for i in snap.items if i.name == probe_name), snap.items[0])
+    screen = snap.primary_screen()
+    try:
+        icon_size = max(_MIN_ICON_SIZE, int(snap.view.split('|', 1)[0]))
+    except (ValueError, IndexError):
+        icon_size = _MIN_ICON_SIZE
 
+    targets, horizontal_count = _probe_targets(screen, icon_size)
+    probed = _probe_many(probe.name, targets)
+    horizontal = [p for p in probed[:horizontal_count]
+                  if screen.frame.contains(p)]
+    vertical = [p for p in probed[horizontal_count:horizontal_count + 21]
+                if screen.frame.contains(p)]
+    samples = [p for p in probed if screen.frame.contains(p)]
+    minimum = max(_MIN_ICON_SIZE, icon_size)
     step = Point(
-        _axis_step([i.pos.x for i in snap.items]),
-        _axis_step([i.pos.y for i in snap.items]),
+        _axis_step([p.x for p in horizontal], minimum),
+        _axis_step([p.y for p in vertical], minimum),
     )
 
-    probe = next((i for i in snap.items if i.name == probe_name), snap.items[0])
-    near = _probe(probe.name, Point(0, 0))
-    far = _probe(probe.name, Point(snap.bounds.width, snap.bounds.height))
-    _probe(probe.name, probe.pos)
+    x_phase = _mode_remainder([p.x for p in horizontal], step.x)
+    y_phase = _mode_remainder([p.y for p in vertical], step.y)
+    aligned = [i.pos for i in snap.items
+               if screen.frame.contains(i.pos)
+               and i.pos.x % step.x == x_phase
+               and i.pos.y % step.y == y_phase]
+    evidence = samples + aligned
+    xs = [p.x for p in evidence if p.x % step.x == x_phase]
+    ys = [p.y for p in evidence if p.y % step.y == y_phase]
+    if not xs or not ys:
+        raise DesktopError('could not determine primary display grid extent')
 
-    xs = [i.pos.x for i in snap.items]
-    ys = [i.pos.y for i in snap.items]
-    origin = Point(min([near.x] + xs), min([near.y] + ys))
-    last_x = max([far.x] + xs)
-    last_y = max([far.y] + ys)
+    origin = Point(min(xs), min(ys))
+    last_x, last_y = max(xs), max(ys)
     return Grid(
         origin=origin,
         step=step,
@@ -297,17 +442,29 @@ def measure_grid(snap: Snapshot, probe_name: Optional[str] = None) -> Grid:
 
 
 def _signature(snap: Snapshot) -> str:
-    return f'{snap.bounds.width}x{snap.bounds.height}|{snap.view}'
+    screens = ';'.join(
+        f'{s.frame.origin.x},{s.frame.origin.y},'
+        f'{s.frame.size.width}x{s.frame.size.height}/'
+        f'{s.visible.origin.x},{s.visible.origin.y},'
+        f'{s.visible.size.width}x{s.visible.size.height}'
+        for s in snap.screens
+    )
+    return f'{snap.view}|{screens}'
 
 
 def _read_cache(signature: str) -> Optional[Grid]:
     try:
         with open(CACHE_PATH, encoding='utf-8') as f:
             cached = json.load(f)
-        if cached.get('signature') != signature:
+        if (cached.get('version') != _CACHE_VERSION
+                or cached.get('signature') != signature):
             return None
         g = cached['grid']
-        return Grid(Point(*g['origin']), Point(*g['step']), g['cols'], g['rows'])
+        grid = Grid(Point(*g['origin']), Point(*g['step']), g['cols'], g['rows'])
+        if (grid.step.x < _MIN_ICON_SIZE or grid.step.y < _MIN_ICON_SIZE
+                or grid.cols < 1 or grid.rows < 1):
+            return None
+        return grid
     except (OSError, ValueError, KeyError, TypeError):
         return None
 
@@ -317,6 +474,7 @@ def _write_cache(signature: str, grid: Grid) -> None:
         os.makedirs(os.path.dirname(CACHE_PATH), exist_ok=True)
         with open(CACHE_PATH, 'w', encoding='utf-8') as f:
             json.dump({
+                'version': _CACHE_VERSION,
                 'signature': signature,
                 'grid': {
                     'origin': list(grid.origin),
@@ -337,15 +495,19 @@ def load_grid(snap: Snapshot, refresh: bool = False,
     not publish grid spacing, so the cached lattice is also checked against the
     snapshot: if most icons no longer sit on it, the geometry moved underneath
     us and it is re-measured. That check is free, since it reads data already
-    in hand, whereas re-measuring costs three round trips.
+    in hand, whereas re-measuring temporarily probes Finder's current grid.
     """
     signature = _signature(snap)
     if not refresh:
         grid = _read_cache(signature)
         if grid is not None:
-            stray = sum(1 for i in snap.items if not grid.on_lattice(i.pos))
-            if stray <= max(3, _RECALIBRATE_FRACTION * len(snap.items)):
-                return grid
+            primary = snap.primary_screen().frame
+            last = grid.point_at(Cell(grid.cols - 1, grid.rows - 1))
+            if primary.contains(grid.origin) and primary.contains(last):
+                on_primary = [i for i in snap.items if primary.contains(i.pos)]
+                stray = sum(1 for i in on_primary if not grid.on_lattice(i.pos))
+                if stray <= max(3, _RECALIBRATE_FRACTION * len(on_primary)):
+                    return grid
 
     grid = measure_grid(snap, probe_name)
     _write_cache(signature, grid)
@@ -456,7 +618,7 @@ def plan_layout(entries: Sequence[Entry], grid: Grid, reserved: Set[Cell],
 
     Four groups, laid down in order. The two pinned blocks take fixed
     alphabetical runs at the feet of the first and second columns. The
-    remaining folders run by creation date from the top-left, eighteen rows per
+    remaining folders run by creation date from the top-left, sixteen rows per
     column, marching right. Files run by creation date from the top-right, full
     columns, marching left to meet them.
 
@@ -514,6 +676,14 @@ def clean_desktop(newest_first: bool = False, dry_run: bool = False,
     missing = [e.name for e in entries if e.name not in visible]
     entries = [e for e in entries if e.name in visible]
 
+    if not entries:
+        for name in missing:
+            print(style(f'not drawn by Finder yet, skipped: {name}', THEME['error']))
+        if missing:
+            return 1
+        print('desktop has no files or folders to arrange')
+        return 0
+
     managed = {e.name for e in entries}
     # Calibration shoves its probe around, so lend it something we own rather
     # than a mounted volume that happens to sort first.
@@ -545,12 +715,8 @@ def clean_desktop(newest_first: bool = False, dry_run: bool = False,
             print(style(f'  ... {len(moves) - 20} more', THEME['dim']))
         return 0
 
-    # Writes land icons on exact slots, so the snap pass only earns its round
-    # trip when something is genuinely loose — which the snapshot already told
-    # us, for free.
-    loose = any(not grid.on_lattice(i.pos) for i in snap.items)
     write_at = time.perf_counter()
-    failed = apply_moves(moves, clean=True) if moves or loose else []
+    failed = apply_moves(moves) if moves else []
     write_s = time.perf_counter() - write_at
 
     print(head)
@@ -563,20 +729,30 @@ def clean_desktop(newest_first: bool = False, dry_run: bool = False,
 
     for name in missing:
         print(style(f'not drawn by Finder yet, skipped: {name}', THEME['error']))
-    for name in failed:
-        print(style(f'could not move: {name}', THEME['error']))
 
-    if verify:
+    wrong: List[str] = []
+    if verify or moves:
         after = snapshot().positions()
         wrong = [n for n, cell in plan.items()
                  if after.get(n) != grid.point_at(cell)]
+        # Finder can occasionally miss a position write while refreshing the
+        # Desktop. One focused retry is cheap and avoids leaving a partial
+        # arrangement that still exits successfully.
         if wrong:
+            retry = [(n, grid.point_at(plan[n])) for n in wrong]
+            apply_moves(retry)
+            after = snapshot().positions()
+            wrong = [n for n, cell in plan.items()
+                     if after.get(n) != grid.point_at(cell)]
+        if wrong:
+            for name in wrong:
+                print(style(f'could not place: {name}', THEME['error']))
             print(style(f'{len(wrong)} icon(s) not where planned, '
                         f'starting with {wrong[0]!r}', THEME['error']))
             return 1
         print(style('verified: every icon is on its planned slot', THEME['dim']))
 
-    return 1 if failed else 0
+    return 1 if missing else 0
 
 
 # ── CLI ──────────────────────────────────────────────────────────────────────
@@ -589,7 +765,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     p.add_argument('-n', '--dry-run', action='store_true',
                    help='show what would move without touching anything')
     p.add_argument('--verify', action='store_true',
-                   help='re-read the desktop afterwards to confirm the layout')
+                   help='verify even when no icons need moving')
     p.add_argument('--recalibrate', action='store_true', help='re-measure the grid')
     args = p.parse_args(argv)
 
