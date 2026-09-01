@@ -19,5 +19,24 @@
   </array>
   <key>RunAtLoad</key>
   <true/>
+
+  <!--
+    Re-run whenever .env changes. Without this the bridge is login-only, so
+    editing .env leaves the launchd session (and therefore every already
+    running GUI app) holding stale or missing values: on 2026-08-27 the
+    session was short 8 variables and carried an outdated ROLLBAR_TOKEN
+    because .env had been edited after the last login.
+
+    WatchPaths fires on the real path, not the ~/dotfiles symlink, because
+    launchd registers a kqueue on the resolved file.
+
+    NOTE: this refreshes the launchd session only. A GUI app keeps the
+    environment it was launched with, so still relaunch Claude after a
+    token change.
+  -->
+  <key>WatchPaths</key>
+  <array>
+    <string>/Users/taylor/src/github/dotfiles/.env</string>
+  </array>
 </dict>
 </plist>
