@@ -63,6 +63,9 @@ grep -qF "$ZSHENV_LINE" "$ZSHENV" || printf '\n# Load exported dotfiles env (.en
 # actually missing. macOS only; never fatal.
 bash "$DOTFILES_DIR/install_brew.sh"
 
+# Shell-independent op wrapper and its user LaunchAgents.
+bash "$DOTFILES_DIR/install_op_agent.sh"
+
 # Clone the GitHub repos this machine expects into ~/src/github. Skips repos
 # already on disk and repos the current git auth can't reach; never fatal.
 bash "$DOTFILES_DIR/install_repos.sh"

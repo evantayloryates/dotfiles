@@ -54,3 +54,6 @@ export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 export PATH=$PATH:$HOME/.maestro/bin
 export PATH=$PATH:$HOME/.maestro/bin
+
+# Keep executable overrides ahead of subsequent Homebrew/bun PATH changes.
+. "$HOME/dotfiles/src/path/overrides.sh"

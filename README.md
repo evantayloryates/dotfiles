@@ -302,3 +302,12 @@ bash install.sh
 - All `*.sh` files in src subdirectories are automatically sourced
 - Update checks run in background to keep shell startup fast
 - Git operations are silenced to avoid noise during normal shell use
+
+### Shared 1Password CLI session
+
+The macOS `bin/op` override routes CLI calls through a persistent user LaunchAgent
+so ordinary calls from different Codex tasks share one terminal authorization.
+Install with `./install_op_agent.sh` (also included in `install.sh`). Source and
+configuration, including shell and GUI PATH wiring, are tracked here. Existing
+GUI apps need a restart to inherit the new PATH. See
+[`src/onepassword/README.md`](src/onepassword/README.md) for details and tests.

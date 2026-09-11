@@ -40,3 +40,6 @@ else
     log 'WARNING: $HOME/dotfiles/src/index.sh not found'
   fi
 fi
+
+# Keep executable overrides ahead of subsequent Homebrew/bun PATH changes.
+. "$HOME/dotfiles/src/path/overrides.sh"

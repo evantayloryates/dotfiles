@@ -22,3 +22,6 @@ fi
 if [[ -d "/Applications/Sublime Text.app/Contents/SharedSupport/bin" ]]; then
     export PATH="$PATH:/Applications/Sublime Text.app/Contents/SharedSupport/bin"
 fi
+
+# Keep executable overrides ahead of subsequent Homebrew/bun PATH changes.
+. "$HOME/dotfiles/src/path/overrides.sh"

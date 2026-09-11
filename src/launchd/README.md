@@ -188,3 +188,12 @@ Verify the live values match the preference:
 hidutil property --get HIDKeyRepeat        # 16666666 when KeyRepeat=1
 hidutil property --get HIDInitialKeyRepeat # 166666666 when InitialKeyRepeat=10
 ```
+
+## 1Password CLI broker and executable PATH
+
+`com.taylor.op-agent` keeps one controlling terminal for the official `op` CLI.
+`com.taylor.dotfiles-path` puts `~/dotfiles/bin` first in the user launchd PATH so
+new GUI apps discover its thin `op` client. The scoped `install_op_agent.sh`
+installs both without restarting an already running broker. See
+[`../onepassword/README.md`](../onepassword/README.md) for shell coverage,
+authorization behavior, runtime files, tests, and explicit restart instructions.
