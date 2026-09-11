@@ -2,8 +2,20 @@
 
 `~/dotfiles/bin/op` is the normal command. It sends each request to a per-user
 LaunchAgent that owns one persistent controlling terminal (PTY). The broker
-runs the official Homebrew `op` binary in that session. You authorize each
-1Password account through the native desktop prompt.
+runs the official Homebrew `op` binary in that session. A locally signed background
+app, **1Password CLI Broker**, hosts the worker so macOS shares its App Data
+permission across CLI calls for the lifetime of that app process. You authorize each 1Password account through the native desktop prompt.
+
+There are two independent approvals: macOS's access-to-other-apps-data prompt
+once per broker app lifetime, and 1Password's per-account Touch ID authorization.
+A naked launchd/Python worker caused macOS to ask about each new `op` process;
+the native app host fixes that attribution. Apple explicitly limits this data
+access consent to the lifetime of the requesting app. A broker restart, crash,
+or Mac logout/reboot requires this approval again, even with unchanged code.
+Restarting Codex does not restart the independent broker. Ten minutes of CLI
+inactivity only expires 1Password authorization, not this macOS app permission.
+Full Disk Access is not required or configured. See:
+https://developer.apple.com/documentation/security/accessing-files-from-the-macos-app-sandbox
 
 1Password remains responsible for authorization: ten minutes of inactivity,
 a twelve-hour maximum, and revocation when the desktop app locks. There are no
@@ -21,8 +33,12 @@ must point to this checkout. Run:
 ```
 
 The broader `install.sh` also invokes this scoped installer. The scoped command
-only installs startup hooks and the two relevant LaunchAgents. It is safe to
-repeat: it does not restart an already loaded broker or invalidate its session.
+builds/registers the app host, installs startup hooks, and installs two LaunchAgents.
+An unchanged reinstall preserves the running broker and its authorization.
+Changing the broker/app sources rebuilds its bundle and restarts the service;
+installation refuses that update while a command is running. Any restarted broker app needs a new macOS privacy approval on its first CLI
+access. No signing certificate or
+Apple developer account is required; the installer uses ad-hoc local signing.
 
 All implementation and configuration live in this repository. Outside it, the
 installer creates source lines in shell startup files, LaunchAgent symlinks,
@@ -57,8 +73,11 @@ sandbox. No Homebrew binary or symlink is modified.
 
 ## Process and data handling
 
-- `com.taylor.op-agent` runs a small Python supervisor. Its worker owns a PTY and
-  serially executes requests without replacing that terminal session.
+- `com.taylor.op-agent` runs the native background app from
+  `data/op-agent/1Password CLI Broker.app`. Its Python worker owns a PTY and
+  serially executes requests without replacing that terminal session. The app
+  launches Python with a minimal environment instead of forwarding launchd's
+  globally exported credentials; requests still carry their caller environment.
 - A file lock prevents duplicate brokers. The Unix socket is mode 600 inside a
   mode-700 directory owned by the current user. Both endpoints check peer UID.
 - Arguments, environment, cwd, and umask belong to the individual request.
@@ -86,19 +105,26 @@ sandbox. No Homebrew binary or symlink is modified.
 Runtime files live in `~/Library/Caches/com.taylor.op-agent/`: a lock, socket,
 and non-secret status metadata (PID, session ID, TTY, executable path).
 LaunchAgent symlinks live in `~/Library/LaunchAgents/` and point at the two
-tracked plist files in `src/launchd/`. Runtime state is not source controlled.
+tracked plist files in `src/launchd/`. Native source and Info.plist are in
+`src/onepassword/app/`; `build_app.py` builds and signs them into ignored
+`data/op-agent/`, with a sealed copy of the Python worker as an app resource.
+Runtime state and generated binaries are not source controlled.
 
 Inspect launchd state:
 
 ```sh
-launchctl print "gui/$(id -u)/com.taylor.op-agent"
+/usr/bin/python3 -B ~/dotfiles/src/onepassword/op_agent.py status
 ```
 
-After updating broker code, restart it when no command is running. This cancels
-any active command and requires fresh 1Password authorization:
+Do not dump raw `launchctl print` output: it can include inherited credentials.
+The status command above reports only non-secret process metadata.
+
+After updating broker code, rerun `~/dotfiles/install_op_agent.sh` to rebuild the
+sealed app resource. To restart unchanged code, use this when no command is
+running; it cancels active work and requires fresh Touch ID authorization:
 
 ```sh
-launchctl kickstart -k "gui/$(id -u)/com.taylor.op-agent"
+launchctl kill SIGTERM "gui/$(id -u)/com.taylor.op-agent"
 ```
 
 To disable the override, remove the tracked `bin/op` wrapper from PATH (or move
@@ -120,4 +146,7 @@ They cover persistent terminal identity, request isolation, cwd/umask,
 binary streams, cancellation/disconnection, queue cancellation, nested calls,
 singleton locking, malformed requests, unavailable service, installer
 idempotence, and shell PATH precedence. Real Touch ID reuse must additionally
-be checked against the installed 1Password desktop app.
+be checked against the installed 1Password desktop app. Verify macOS App Data
+approval separately: subsequent calls in one app lifetime should not prompt,
+whereas the first call after an unchanged app restart does prompt by design.
+Touch ID reuse alone does not establish macOS privacy permission behavior.

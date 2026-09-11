@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import sys
 import time
+from build_app import APP, build, needs_build
 
 LINE = '. "$HOME/dotfiles/src/path/overrides.sh"'
 MARKER = '# Dotfiles executable overrides (interactive, scripts and agent shells).'
@@ -47,6 +48,22 @@ def install_agents(home):
     dest = home / 'Library/LaunchAgents'
     dest.mkdir(parents=True, exist_ok=True)
     domain = 'gui/' + str(os.getuid())
+    service = domain + '/com.taylor.op-agent'
+    # launchctl print includes inherited secrets. Capture it privately, inspect
+    # only the program line, and never print the raw result or exception output.
+    state = subprocess.run(['/bin/launchctl', 'print', service], capture_output=True, text=True)
+    loaded = state.returncode == 0
+    native = any(line.strip().startswith('program = ') and 'op-agent-host' in line for line in state.stdout.splitlines())
+    del state
+    replace = needs_build() or (loaded and not native)
+    if loaded and replace:
+        import json
+        status = json.loads((home / 'Library/Caches/com.taylor.op-agent/status.json').read_text())
+        parents = subprocess.run(['/bin/ps', '-axo', 'ppid='], capture_output=True, text=True, check=True).stdout.split()
+        if str(status['pid']) in parents:
+            raise RuntimeError('A broker command is running; retry installation after it finishes')
+        subprocess.run(['/bin/launchctl', 'bootout', service], check=True, capture_output=True)
+    build()
     for label in LABELS:
         source = ROOT / 'src/launchd' / (label + '.plist')
         target = dest / source.name
@@ -56,11 +73,9 @@ def install_agents(home):
             raise RuntimeError('Existing LaunchAgent differs: ' + str(target))
         else:
             target.symlink_to(source)
-        # Re-running installs hooks and refreshes GUI PATH without destroying an
-        # active broker session. Restarting changed broker code is explicit.
         loaded = subprocess.run(['/bin/launchctl', 'print', domain + '/' + label], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
         if not loaded:
-            subprocess.run(['/bin/launchctl', 'bootstrap', domain, str(target)], check=True)
+            subprocess.run(['/bin/launchctl', 'bootstrap', domain, str(target)], check=True, capture_output=True)
     subprocess.run(['/bin/sh', str(ROOT / 'src/launchd/export-dotfiles-path.sh')], check=True)
     endpoint = home / 'Library/Caches/com.taylor.op-agent/agent.sock'
     for _ in range(50):
@@ -68,7 +83,7 @@ def install_agents(home):
             break
         time.sleep(0.1)
     else:
-        raise RuntimeError('Broker did not create its socket; inspect launchctl print ' + domain + '/com.taylor.op-agent')
+        raise RuntimeError('Broker did not create its socket; check its status command')
 
 
 def main():

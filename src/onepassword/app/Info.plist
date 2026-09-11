@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>CFBundleIdentifier</key><string>com.taylor.op-agent</string>
+  <key>CFBundleName</key><string>1Password CLI Broker</string>
+  <key>CFBundleDisplayName</key><string>1Password CLI Broker</string>
+  <key>CFBundleExecutable</key><string>op-agent-host</string>
+  <key>CFBundlePackageType</key><string>APPL</string>
+  <key>CFBundleVersion</key><string>1</string>
+  <key>LSUIElement</key><true/>
+  <key>NSAppDataUsageDescription</key><string>Run the official 1Password CLI using a shared terminal session. The CLI reads 1Password's local app settings.</string>
+</dict></plist>
