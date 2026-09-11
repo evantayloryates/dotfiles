@@ -21,6 +21,7 @@ CONFIG = [
   p('d',           '~/Desktop',                         'cd',  aliases=['desk', 'desktop'],
     commands={'clean': '_desk_clean <args>'}),
   p('docs',        '~/src/docs',                        'cd', aliases=['doc']),
+  p('domputer',    '~/src/github/domputer',             'cursor_path', aliases=['dom']),
   p('dot',         '~/dotfiles'),
   p('down',        '~/Downloads',                       'cd'),
   p('github',      '~/src/github',                      'cd', aliases=['ghb', 'gthb', 'ghub', 'gith']),
