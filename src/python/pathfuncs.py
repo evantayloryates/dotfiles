@@ -41,6 +41,7 @@ CONFIG = [
   p('screenshots', '~/Pictures/Screenshots',            'open', aliases=['ss', 'shots', 'screenshot']),
   p('skills',      '~/src/docs/skills',                 'select', aliases=['skl', 'skill'],
     commands={'select': '_skills_select <path>'}),
+  p('taxes',       '~/Documents/Taxes',                 'cd', aliases=['tax']),
   p('vsx',         '~/src/vscode-extensions'),
   p('amp',        '~/src/github/amplify', aliases=['amplify'], alias_cmds={'up': 'update'},
     commands={
