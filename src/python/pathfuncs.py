@@ -29,7 +29,7 @@ CONFIG = [
     commands={'select': '_html_select <path>'}),
   p('ideas',       '~/Desktop/ideas',                   'code'),
   p('joe',         '~/src/github/joe-airbrand',         'code'),
-  p('kickoff',     '~/src/github/kickoff',              'code', aliases=['kick']),
+  p('kickoff',     '~/src/github/kickoff',              'code', aliases=['kick', 'kck']),
   p('kit',         '~/.config/kitty/',                  aliases=['kitty'], commands={'reload': '/Applications/kitty.app/Contents/MacOS/kitty @ load-config /Users/taylor/.config/kitty/kitty.conf'}),
   p('mac',         '~/src/macos',                       'code', aliases=['macos']),
   p('notes',       '~/Desktop/notes'),
