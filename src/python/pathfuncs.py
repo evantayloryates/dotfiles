@@ -5,7 +5,7 @@ import tempfile
 HOME = '/Users/taylor'
 
 # path macros
-def p(slug, path, default='cursor_path', commands=None, aliases=None, alias_cmds=None):
+def p(slug, path, default='code', commands=None, aliases=None, alias_cmds=None):
   if path.startswith('~'):
     path = HOME + path[1:]
   entry = {'slug': slug, 'path': path, 'default': default, 'commands': commands or {}}
@@ -21,23 +21,24 @@ CONFIG = [
   p('d',           '~/Desktop',                         'cd',  aliases=['desk', 'desktop'],
     commands={'clean': '_desk_clean <args>'}),
   p('docs',        '~/src/docs',                        'cd', aliases=['doc']),
-  p('domputer',    '~/src/github/domputer',             'cursor_path', aliases=['dom']),
+  p('domputer',    '~/src/github/domputer',             'code', aliases=['dom']),
   p('dot',         '~/dotfiles'),
   p('down',        '~/Downloads',                       'cd'),
   p('github',      '~/src/github',                      'cd', aliases=['ghb', 'gthb', 'ghub', 'gith']),
   p('html',        '~/src/docs/html',                   'select', aliases=['htm'],
     commands={'select': '_html_select <path>'}),
-  p('ideas',       '~/Desktop/ideas',                   'cur'),
-  p('joe',         '~/src/github/joe-airbrand',         'cursor_path'),
+  p('ideas',       '~/Desktop/ideas',                   'code'),
+  p('joe',         '~/src/github/joe-airbrand',         'code'),
+  p('kickoff',     '~/src/github/kickoff',              'code', aliases=['kick']),
   p('kit',         '~/.config/kitty/',                  aliases=['kitty'], commands={'reload': '/Applications/kitty.app/Contents/MacOS/kitty @ load-config /Users/taylor/.config/kitty/kitty.conf'}),
-  p('mac',         '~/src/macos',                       'cursor_path', aliases=['macos']),
+  p('mac',         '~/src/macos',                       'code', aliases=['macos']),
   p('notes',       '~/Desktop/notes'),
-  p('pathfuncs',   '~/dotfiles/src/python/pathfuncs.py','cursor_path', aliases=['pathfunc', 'pathfns', 'pathfn', 'pathfuns', 'pathfun', 'pthfuncs', 'pthfunc', 'pthfns', 'pthfn', 'pthfuns', 'pthfun', 'pfuncs', 'pfunc', 'pfns', 'pfn', 'pfuns', 'pfun' ]),
+  p('pathfuncs',   '~/dotfiles/src/python/pathfuncs.py','code', aliases=['pathfunc', 'pathfns', 'pathfn', 'pathfuns', 'pathfun', 'pthfuncs', 'pthfunc', 'pthfns', 'pthfn', 'pthfuns', 'pthfun', 'pfuncs', 'pfunc', 'pfns', 'pfn', 'pfuns', 'pfun' ]),
   p('plans',       '~/src/docs/plans',                  'open', aliases=['pln', 'plan']),
-  p('pod',         '~/src/github/podsauce',             'cursor_path'),
-  p('r1',          '~/src/github/r1',                   'cursor_path', aliases=['rone', 'rem']),
+  p('pod',         '~/src/github/podsauce',             'code'),
+  p('r1',          '~/src/github/r1',                   'code', aliases=['rone', 'rem']),
   p('s',           '~/src',                            ' cd'),
-  p('sca',         '~/src/github/r1/sca',               'cursor_path'),
+  p('sca',         '~/src/github/r1/sca',               'code'),
   p('screenshots', '~/Pictures/Screenshots',            'open', aliases=['ss', 'shots', 'screenshot']),
   p('skills',      '~/src/docs/skills',                 'select', aliases=['skl', 'skill'],
     commands={'select': '_skills_select <path>'}),

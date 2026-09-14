@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# User-scoped Kickoff Notion MCP. The PAT stays in dotfiles/.env.
+# Pin upgrades so a new server release is smoke-tested before use.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+. "${SCRIPT_DIR}/../lib/resolve-binary.sh"
+. "${SCRIPT_DIR}/../lib/read-env.sh"
+
+NODE="$(resolve_binary node)"
+NPX="$(resolve_binary npx)"
+export PATH="$(dirname "$NODE"):$PATH"
+
+export ENV_FILE="${DOTFILES_DIR:-$HOME/dotfiles}/.env"
+notion_env="$(env_export KICKOFF_NOTION_PAT)"
+eval "$notion_env"
+unset notion_env
+: "${KICKOFF_NOTION_PAT:?KICKOFF_NOTION_PAT must be set in dotfiles/.env}"
+export NOTION_TOKEN="$KICKOFF_NOTION_PAT"
+unset KICKOFF_NOTION_PAT OPENAPI_MCP_HEADERS
+
+exec "$NPX" --yes @notionhq/notion-mcp-server@2.5.1 --transport stdio
