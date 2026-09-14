@@ -116,10 +116,10 @@ function rm_branch {
   return 0
 }
 
-# Resolve local/remote trunk: prefer master, then main.
+# Resolve local/remote trunk: prefer master, then main, then develop.
 _git_log_resolve_trunk() {
   local ref
-  for ref in master main origin/master origin/main; do
+  for ref in master main develop origin/master origin/main origin/develop; do
     if /usr/bin/git rev-parse --verify --quiet "$ref^{commit}" >/dev/null; then
       print -r -- "$ref"
       return 0
@@ -167,7 +167,7 @@ _git_log_print_line() {
 
 # Pretty local log for `gl`: walk HEAD → nearest stacked branch tips → trunk,
 # coloring each segment, then show the trunk merge-base plus one older trunk
-# commit for context. Works in any repo whose trunk is master or main.
+# commit for context. Works in any repo whose trunk is master, main, or develop.
 function git_log_local_pretty {
   local max_msg_len="${GIT_LOG_MAX_MSG_LEN:-50}"
   local extra_padding="${GIT_LOG_EXTRA_PADDING:-2}"
@@ -180,7 +180,7 @@ function git_log_local_pretty {
   head_hash=$(/usr/bin/git rev-parse HEAD 2>/dev/null) || return 1
   head_branch=$(/usr/bin/git symbolic-ref --quiet --short HEAD 2>/dev/null || true)
   trunk=$(_git_log_resolve_trunk) || {
-    printf '%s\n' 'git_log_local_pretty: no master/main trunk found'
+    printf '%s\n' 'git_log_local_pretty: no master/main/develop trunk found'
     return 1
   }
   merge_base=$(/usr/bin/git merge-base "$trunk" HEAD 2>/dev/null) || {
