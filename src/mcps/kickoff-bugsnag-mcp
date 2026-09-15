@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# User-scoped Kickoff BugSnag MCP. The PAT stays in dotfiles/.env.
+# Pin upgrades so a new server release is smoke-tested before use.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+. "${SCRIPT_DIR}/../lib/resolve-binary.sh"
+. "${SCRIPT_DIR}/../lib/read-env.sh"
+
+NODE="$(resolve_binary node)"
+NPX="$(resolve_binary npx)"
+export PATH="$(dirname "$NODE"):$PATH"
+
+export ENV_FILE="${DOTFILES_DIR:-$HOME/dotfiles}/.env"
+bugsnag_env="$(env_export KICKOFF_BUGSNAG_TOKEN)"
+eval "$bugsnag_env"
+unset bugsnag_env
+: "${KICKOFF_BUGSNAG_TOKEN:?KICKOFF_BUGSNAG_TOKEN must be set in dotfiles/.env}"
+export BUGSNAG_AUTH_TOKEN="$KICKOFF_BUGSNAG_TOKEN"
+unset KICKOFF_BUGSNAG_TOKEN
+
+exec "$NPX" --yes @smartbear/mcp@0.40.0
