@@ -244,4 +244,16 @@ else
   log "⚠️  hidutil not found — key repeat applies after the next login"
 fi
 
+# --- Modifier keys ----------------------------------------------------------
+# Match System Settings > Keyboard > Keyboard Shortcuts > Modifier Keys.
+# Per-keyboard ByHost preferences persist across login/reboot; activateSettings
+# applies them live. Keep other modifier mappings on each keyboard intact.
+if command -v python3 >/dev/null 2>&1; then
+  python3 "$(cd "$(dirname "$0")" && pwd)/src/python/macos_keyboard.py" \
+    || { log "⚠️  Keyboard modifier setup failed"; exit 1; }
+else
+  log "⚠️  python3 is required to configure Caps Lock → Control"
+  exit 1
+fi
+
 exit 0

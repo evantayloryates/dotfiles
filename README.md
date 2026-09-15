@@ -133,6 +133,28 @@ correct leaves the Dock process untouched.
 visible. Gated exactly like the Dock: `killall Finder` closes every open Finder
 window, so it only fires when the key actually moved.
 
+**Modifier keys** — Caps Lock → Control for each connected keyboard, matching
+System Settings → Keyboard → Keyboard Shortcuts → Modifier Keys. Setup detects
+keyboard vendor/product IDs, preserves other modifier mappings, and writes
+`com.apple.keyboard.modifiermapping.<vendor>-<product>-0` in the current host's
+global preferences. `activateSettings -u` applies the saved mapping immediately;
+macOS retains the preference across logins and reboots. Run setup again when
+adding a different keyboard. Requires `python3` (provided by Xcode Command Line
+Tools on this Mac).
+
+To apply only the keyboard mapping:
+
+```bash
+python3 ~/dotfiles/src/python/macos_keyboard.py
+```
+
+The [Apple key-code reference](https://developer.apple.com/library/archive/technotes/tn2450/)
+defines Caps Lock as `0x700000039`. On macOS 26.5.1, choosing Control in System
+Settings writes `0x7000000E4` (Right Control). The persistent preference and live
+`HIDEventServiceProperties.HIDKeyboardModifierMappingPairs` were checked against
+the UI on that version. A standalone `hidutil UserKeyMapping` is a separate,
+temporary mapping, so setup uses the persistent Modifier Keys preference.
+
 **Key repeat** — `InitialKeyRepeat` 10, `KeyRepeat` 1 (in 1/60 s ticks: ~167 ms to
 the first repeat, ~17 ms between repeats). The two surfaces that control this are
 **independent stores**, and neither alone is enough:

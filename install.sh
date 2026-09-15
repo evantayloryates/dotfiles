@@ -70,9 +70,9 @@ bash "$DOTFILES_DIR/install_op_agent.sh"
 # already on disk and repos the current git auth can't reach; never fatal.
 bash "$DOTFILES_DIR/install_repos.sh"
 
-# macOS system preferences (Dock position/autohide, key repeat rate). No-ops on
+# macOS system preferences (Dock, key repeat, Caps Lock → Control). No-ops on
 # Linux, and only restarts the Dock when a Dock key actually changed.
-bash "$DOTFILES_DIR/install_macos_defaults.sh"
+bash "$DOTFILES_DIR/install_macos_defaults.sh" || exit 1
 
 # Desktop wallpaper from assets/. No-ops on Linux, and only touches System
 # Events when a desktop isn't already showing it.
