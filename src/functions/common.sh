@@ -398,27 +398,40 @@ _cc_model_slug() {
   done
 }
 
-_cc_model_slug claude-fable-5              fab fab5 fable fable5
+_cc_model_slug claude-fable-5-1            fab fab5 fable fable5 fab51 fable51
+_cc_model_slug claude-fable-5              fab50 fable50
 _cc_model_slug claude-haiku-4-5-20251001   hai hai4 hai45 haiku haiku4 haiku45
-_cc_model_slug claude-opus-4-8             op op4 op48 opus opus4 opus48
+_cc_model_slug claude-opus-5               op op5 opus opus5
+_cc_model_slug claude-opus-4-8             op4 op48 opus4 opus48
 _cc_model_slug claude-opus-4-7             op47 opus47
 _cc_model_slug claude-opus-4-6             op46 opus46
 _cc_model_slug claude-opus-4-5-20251101    op45 opus45
 _cc_model_slug claude-opus-4-20250514      op42 opus42
 _cc_model_slug claude-opus-4-1-20250805    op41 opus41
-_cc_model_slug claude-sonnet-4-6           son son4 son46 sonnet sonnet4 sonnet46
+_cc_model_slug claude-sonnet-5             son son5 sonnet sonnet5
+_cc_model_slug claude-sonnet-4-6           son4 son46 sonnet4 sonnet46
 _cc_model_slug claude-sonnet-4-5-20250929  son45 sonnet45
 _cc_model_slug claude-sonnet-4-20250514    son40 sonnet40
 
+# Model used when `cc` is called without a slug or an explicit --model.
+_CC_DEFAULT_MODEL=claude-opus-5
+
 # Note: this will overwrite the /usr/bin/cc command
 cc() {
-  local model
-  if [[ -n "${_cc_models[$1]:-}" ]]; then
+  local model="$_CC_DEFAULT_MODEL"
+  if [[ -n "$1" && -n "${_cc_models[$1]:-}" ]]; then
     model="${_cc_models[$1]}"
     shift
-    echo "SUCCESS"
-    "$HOME/.local/bin/claude" --dangerously-skip-permissions --model "$model" "$@"
-  else
-    "$HOME/.local/bin/claude" --dangerously-skip-permissions "$@"
   fi
+
+  # An explicit --model/--model=... in the args wins over the default.
+  local arg
+  for arg in "$@"; do
+    if [[ "$arg" == --model || "$arg" == --model=* ]]; then
+      "$HOME/.local/bin/claude" --dangerously-skip-permissions "$@"
+      return
+    fi
+  done
+
+  "$HOME/.local/bin/claude" --dangerously-skip-permissions --model "$model" "$@"
 }
