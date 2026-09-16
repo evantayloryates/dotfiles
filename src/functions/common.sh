@@ -255,55 +255,120 @@ safemv() {
   return 1
 }
 
+# Echo a path in $1 for name $2 that does not exist yet, adding -1, -2, ...
+# before the extension until it is free.
+__clipsend_free_path() {
+  local dir="$1"
+  local name="$2"
+  local stem="$name"
+  local ext=""
+  local candidate="$dir/$name"
+  local n=1
+
+  if [[ "$name" == *.* && "$name" != .* ]]; then
+    stem="${name%.*}"
+    ext=".${name##*.}"
+  fi
+
+  while [[ -e "$candidate" ]]; do
+    candidate="$dir/${stem}-${n}${ext}"
+    ((n++))
+  done
+  printf '%s' "$candidate"
+}
+
+# Save the clipboard to ~/Desktop and put the saved path on the clipboard.
+#   clipsend [name]
+# Text is written as-is. A copied Finder file (or several) is copied over with
+# its own name. Image data (screenshot, "Copy Image") is saved as PNG, or as
+# the format the name's extension asks for (.jpg, .tiff, .gif, .bmp).
 clipsend() {
   local desktop="$HOME/Desktop"
-  local custom_name="$1"
+  local custom_name="${1##*/}"
+  local helper="$DOTFILES_DIR/src/javascript/clipsend-pasteboard.js"
   local ts
+  local info
+  local kind
+  local src
+  local name
+  local fmt
   local tmp
   local lines
   local out
-  local stem
-  local ext
-  local candidate
-  local n
+  local -a sources
+  local -a outs
 
   ts="$(date '+%H%M%S')"
-  tmp="$(mktemp)"
-
-  pbpaste > "$tmp"
-
-  lines="$(wc -l < "$tmp" | tr -d '[:space:]')"
   mkdir -p "$desktop"
 
-  if [[ -n "$custom_name" ]]; then
-    custom_name="${custom_name##*/}"
-    out="$desktop/$custom_name"
-
-    if [[ -e "$out" ]]; then
-      if [[ "$custom_name" == *.* && "$custom_name" != .* ]]; then
-        stem="${custom_name%.*}"
-        ext=".${custom_name##*.}"
-      else
-        stem="$custom_name"
-        ext=""
-      fi
-
-      n=1
-      candidate="$desktop/${stem}-${n}${ext}"
-      while [[ -e "$candidate" ]]; do
-        ((n++))
-        candidate="$desktop/${stem}-${n}${ext}"
-      done
-      out="$candidate"
-    fi
-  else
-    out="$desktop/clipsend-$ts-$lines-lines.txt"
+  if ! info="$(/usr/bin/osascript -l JavaScript "$helper" inspect 2>&1)"; then
+    echo "❌ Could not read the clipboard: $info" >&2
+    return 1
   fi
+  kind="${info%%$'\n'*}"
 
-  mv "$tmp" "$out"
-  printf '%s' "$out" | /usr/bin/pbcopy
-  printf '%s\n' "$out"
-  echo '✅ File path copied to clipboard'
+  case "$kind" in
+    files)
+      sources=("${(@f)${info#*$'\n'}}")
+      if [[ -n "$custom_name" && ${#sources} -gt 1 ]]; then
+        echo "⚠️  ${#sources} files on the clipboard; ignoring name '$custom_name'" >&2
+        custom_name=""
+      fi
+      for src in "${sources[@]}"; do
+        name="${src:t}"
+        if [[ -n "$custom_name" ]]; then
+          name="$custom_name"
+          # keep the source extension when the given name has none
+          if [[ "$name" != *.* && "${src:t}" == ?*.* ]]; then
+            name="$name.${src:t:e}"
+          fi
+        fi
+        out="$(__clipsend_free_path "$desktop" "$name")"
+        if ! /bin/cp -Rp "$src" "$out"; then
+          echo "❌ Could not copy $src" >&2
+          return 1
+        fi
+        outs+=("$out")
+      done
+      ;;
+    image)
+      name="${custom_name:-clipsend-$ts-image.png}"
+      case "${name:e:l}" in
+        png) fmt=png ;;
+        jpg|jpeg) fmt=jpeg ;;
+        tif|tiff) fmt=tiff ;;
+        gif) fmt=gif ;;
+        bmp) fmt=bmp ;;
+        *) fmt=png; name="$name.png" ;;
+      esac
+      out="$(__clipsend_free_path "$desktop" "$name")"
+      if ! info="$(/usr/bin/osascript -l JavaScript "$helper" write-image "$out" "$fmt" 2>&1)"; then
+        echo "❌ Could not save clipboard image: $info" >&2
+        return 1
+      fi
+      outs+=("$out")
+      ;;
+    empty)
+      echo '❌ Nothing on the clipboard that clipsend can save' >&2
+      return 1
+      ;;
+    *)
+      tmp="$(mktemp)"
+      pbpaste > "$tmp"
+      lines="$(wc -l < "$tmp" | tr -d '[:space:]')"
+      out="$(__clipsend_free_path "$desktop" "${custom_name:-clipsend-$ts-$lines-lines.txt}")"
+      mv "$tmp" "$out"
+      outs+=("$out")
+      ;;
+  esac
+
+  printf '%s' "${(F)outs}" | /usr/bin/pbcopy
+  printf '%s\n' "${outs[@]}"
+  if (( ${#outs} > 1 )); then
+    echo '✅ File paths copied to clipboard'
+  else
+    echo '✅ File path copied to clipboard'
+  fi
 }
 
 say() {
