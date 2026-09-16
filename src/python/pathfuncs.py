@@ -39,6 +39,7 @@ CONFIG = [
   p('mac',         '~/src/macos',                       'cd', aliases=['macos']),
   p('notes',       '~/Desktop/notes'),
   p('pathfuncs',   '~/dotfiles/src/python/pathfuncs.py','code', aliases=['pathfunc', 'pathfns', 'pathfn', 'pathfuns', 'pathfun', 'pthfuncs', 'pthfunc', 'pthfns', 'pthfn', 'pthfuns', 'pthfun', 'pfuncs', 'pfunc', 'pfns', 'pfn', 'pfuns', 'pfun' ]),
+  p('pictures',    '~/Pictures',                        'cd', aliases=['pics', 'pic']),
   p('plans',       '~/src/docs/plans',                  'open', aliases=['pln', 'plan']),
   p('pod',         '~/src/github/podsauce',             'cd'),
   p('r1',          '~/src/github/r1',                   'cd', aliases=['rone', 'rem']),
