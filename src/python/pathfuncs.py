@@ -5,7 +5,7 @@ import tempfile
 HOME = '/Users/taylor'
 
 # path macros
-def p(slug, path, default='code', commands=None, aliases=None, alias_cmds=None):
+def p(slug, path, default='cd', commands=None, aliases=None, alias_cmds=None):
   if path.startswith('~'):
     path = HOME + path[1:]
   entry = {'slug': slug, 'path': path, 'default': default, 'commands': commands or {}}
@@ -16,31 +16,34 @@ def p(slug, path, default='code', commands=None, aliases=None, alias_cmds=None):
   return entry
 
 
+KICKOFF_CONTAINER = 'code --folder-uri vscode-remote://ssh-remote+kickoff.devpod/workspaces'
+
 CONFIG = [
   p('app',         '/Applications',                     'open'), # TODO: link all app dirs /Applications, /System/Applications, /System/Applications/Utilities, /System/Library/CoreServices/Applications/
   p('d',           '~/Desktop',                         'cd',  aliases=['desk', 'desktop'],
     commands={'clean': '_desk_clean <args>'}),
   p('docs',        '~/src/docs',                        'cd', aliases=['doc']),
-  p('domputer',    '~/src/github/domputer',             'code', aliases=['dom']),
+  p('domputer',    '~/src/github/domputer',             'cd', aliases=['dom']),
   p('dot',         '~/dotfiles'),
   p('down',        '~/Downloads',                       'cd'),
   p('github',      '~/src/github',                      'cd', aliases=['ghb', 'gthb', 'ghub', 'gith']),
   p('html',        '~/src/docs/html',                   'select', aliases=['htm'],
     commands={'select': '_html_select <path>'}),
-  p('ideas',       '~/Desktop/ideas',                   'code'),
-  p('joe',         '~/src/github/joe-airbrand',         'code'),
+  p('ideas',       '~/Desktop/ideas',                   'cd'),
+  p('joe',         '~/src/github/joe-airbrand',         'cd'),
+  # `kickoff code` (and every alias) opens the dev container instead of the local folder.
   # Connect directly: `devpod up` reruns host-init and can remove the running DB.
-  p('kickoff',     '~/src/github/kickoff',              'container', aliases=['kick', 'kck'],
-    commands={'container': 'code --folder-uri vscode-remote://ssh-remote+kickoff.devpod/workspaces'}),
+  p('kickoff',     '~/src/github/kickoff',              'cd', aliases=['kick', 'kck'],
+    commands={'code': KICKOFF_CONTAINER, 'container': KICKOFF_CONTAINER}),
   p('kit',         '~/.config/kitty/',                  aliases=['kitty'], commands={'reload': '/Applications/kitty.app/Contents/MacOS/kitty @ load-config /Users/taylor/.config/kitty/kitty.conf'}),
-  p('mac',         '~/src/macos',                       'code', aliases=['macos']),
+  p('mac',         '~/src/macos',                       'cd', aliases=['macos']),
   p('notes',       '~/Desktop/notes'),
   p('pathfuncs',   '~/dotfiles/src/python/pathfuncs.py','code', aliases=['pathfunc', 'pathfns', 'pathfn', 'pathfuns', 'pathfun', 'pthfuncs', 'pthfunc', 'pthfns', 'pthfn', 'pthfuns', 'pthfun', 'pfuncs', 'pfunc', 'pfns', 'pfn', 'pfuns', 'pfun' ]),
   p('plans',       '~/src/docs/plans',                  'open', aliases=['pln', 'plan']),
-  p('pod',         '~/src/github/podsauce',             'code'),
-  p('r1',          '~/src/github/r1',                   'code', aliases=['rone', 'rem']),
-  p('s',           '~/src',                            ' cd'),
-  p('sca',         '~/src/github/r1/sca',               'code'),
+  p('pod',         '~/src/github/podsauce',             'cd'),
+  p('r1',          '~/src/github/r1',                   'cd', aliases=['rone', 'rem']),
+  p('s',           '~/src',                            'cd'),
+  p('sca',         '~/src/github/r1/sca',               'cd'),
   p('screenshots', '~/Pictures/Screenshots',            'open', aliases=['ss', 'shots', 'screenshot']),
   p('skills',      '~/src/docs/skills',                 'select', aliases=['skl', 'skill'],
     commands={'select': '_skills_select <path>'}),

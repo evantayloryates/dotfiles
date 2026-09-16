@@ -77,3 +77,24 @@ claude mcp add amplify-prod-readonly-db -s user --env PGSSLMODE=no-verify \
 
   It runs a one-time browser OAuth flow on first use after launch (dynamic
   client registration + PKCE). Don't rebuild the REST wrapper.
+
+## Kickoff Cloudinary
+
+`kickoff-cloudinary-mcp` launches Cloudinary's official
+`@cloudinary/asset-management-mcp@0.11.0` over stdio. It reads only these keys
+from the ignored dotfiles `.env`:
+
+- `KICKOFF_CLOUDINARY_TOKEN`: the API **secret**, despite the token name.
+- `KICKOFF_CLOUDINARY_API_KEY`: its matching API key.
+- `KICKOFF_CLOUDINARY_CLOUD_NAME`: the product environment.
+
+No credential is put in Codex's config or command arguments. The launcher reads
+current values on each start, including when a GUI process has an older environment.
+
+```sh
+codex mcp add kickoff-cloudinary -- /Users/taylor/dotfiles/src/mcps/kickoff-cloudinary-mcp
+```
+
+The key's Cloudinary permissions still apply to every tool. A successful MCP
+connection or search count does not guarantee permission to read asset details
+or mutate media. Verify the specific operation before claiming it is available.

@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Official Cloudinary MCP, using Taylor's Kickoff key pair from ignored .env.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+. "${SCRIPT_DIR}/../lib/resolve-binary.sh"
+. "${SCRIPT_DIR}/../lib/read-env.sh"
+NODE="$(resolve_binary node)"
+NPX="$(resolve_binary npx)"
+export PATH="$(dirname "$NODE"):$PATH"
+export ENV_FILE="${DOTFILES_DIR:-$HOME/dotfiles}/.env"
+cloudinary_env="$(env_export KICKOFF_CLOUDINARY_TOKEN KICKOFF_CLOUDINARY_API_KEY KICKOFF_CLOUDINARY_CLOUD_NAME)"
+eval "$cloudinary_env"
+unset cloudinary_env
+: "${KICKOFF_CLOUDINARY_TOKEN:?Cloudinary API secret is missing}"
+: "${KICKOFF_CLOUDINARY_API_KEY:?Cloudinary API key is missing}"
+: "${KICKOFF_CLOUDINARY_CLOUD_NAME:?Cloudinary cloud name is missing}"
+export CLOUDINARY_API_SECRET="$KICKOFF_CLOUDINARY_TOKEN"
+export CLOUDINARY_API_KEY="$KICKOFF_CLOUDINARY_API_KEY"
+export CLOUDINARY_CLOUD_NAME="$KICKOFF_CLOUDINARY_CLOUD_NAME"
+unset KICKOFF_CLOUDINARY_TOKEN KICKOFF_CLOUDINARY_API_KEY KICKOFF_CLOUDINARY_CLOUD_NAME
+exec "$NPX" --yes @cloudinary/asset-management-mcp@0.11.0 start
