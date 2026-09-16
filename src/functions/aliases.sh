@@ -18,7 +18,7 @@ git     () { if [[ $# -eq 2 && "$1" == "branch" && "$2" == "c" ]]; then gbc; els
 gl      () { git_log_local_pretty                                                                         ;} # 
 gp      () { git push "$@"                                                                                ;} # 
 lsa     () { /bin/ls -AGhlo "$@"                                                                          ;} # 
-mkdir   () { [ "$#" -eq 1 ] && /bin/mkdir -pv "$1" || /bin/mkdir "$@"                                     ;} #
+mkdir   () { [ "$#" -eq 1 ] && /bin/mkdir -pv "$1" || /bin/mkdir "$@"                                     ;} # interactive convenience: -pv prints the path. Scripts/hooks in src must call `command mkdir`.
 o       () { if [ $# -eq 0 ]; then open "$(pwd -P 2>/dev/null || pwd)"; else open "$@"; fi                ;} # 
 path    () { clear ; python3 "$DOTFILES_DIR/src/python/path.py"                                           ;} # 
 pip3    () { pip "$@"                                                                                     ;} # 

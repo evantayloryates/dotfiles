@@ -59,7 +59,7 @@ _gbh_repo_data_dir() {
 # fire. This is the accessor layer: every consumer self-seeds through it.
 _gbh_ensure_init() {
     local dir="$1"
-    [[ -d "$dir" ]] || mkdir -p "$dir" 2>/dev/null || return 1
+    [[ -d "$dir" ]] || command mkdir -p "$dir" 2>/dev/null || return 1
     [[ -f "$dir/touches.jsonl" ]]   || : > "$dir/touches.jsonl"   2>/dev/null
     [[ -f "$dir/last_used.jsonl" ]] || : > "$dir/last_used.jsonl" 2>/dev/null
     return 0
@@ -159,8 +159,12 @@ _gbh_index_last_used() {
     if [[ -d "$lock" ]] && [[ -n "$(find "$lock" -maxdepth 0 -mmin +60 2>/dev/null)" ]]; then
         rmdir "$lock" 2>/dev/null
     fi
-    mkdir "$lock" 2>/dev/null || return 0                 # another indexer active
-    mkdir -p "$base/logs" 2>/dev/null
+    # `command`: the interactive mkdir wrapper (aliases.sh) turns a single-arg
+    # call into `mkdir -pv`, which prints the path to stdout and never fails on
+    # an existing dir — i.e. no output leak and no lock. The bare builtin is
+    # what makes this an atomic acquire.
+    command mkdir "$lock" 2>/dev/null || return 0         # another indexer active
+    command mkdir -p "$base/logs" 2>/dev/null
 
     {
         local tmperr summary rc
@@ -212,7 +216,9 @@ _gbh_precmd_hook() {
     # Background indexer, gated by the cheap cooldown check so the common path
     # never even spawns the background job.
     if _gbh_indexer_due "$dir/last_used.jsonl" "$now_ep"; then
-        _gbh_index_last_used "$root" "$dir" "$now_ep" "$now_iso" &!
+        # Detached from the terminal entirely: anything it (or a tool it calls)
+        # prints goes to the .log file or nowhere, never to the prompt.
+        _gbh_index_last_used "$root" "$dir" "$now_ep" "$now_iso" >/dev/null 2>&1 &!
     fi
 }
 

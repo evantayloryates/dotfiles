@@ -28,10 +28,10 @@ function print_agents ()
 function launch ()
 {
 	# Initialize dirs in case they don't exist
-	mkdir /Library/LaunchDaemons 2>/dev/null
-	mkdir ~/Library/LaunchDaemons 2>/dev/null
-	mkdir /Library/LaunchAgents 2>/dev/null
-	mkdir ~/Library/LaunchAgents 2>/dev/null
+	command mkdir -p /Library/LaunchDaemons 2>/dev/null
+	command mkdir -p ~/Library/LaunchDaemons 2>/dev/null
+	command mkdir -p /Library/LaunchAgents 2>/dev/null
+	command mkdir -p ~/Library/LaunchAgents 2>/dev/null
 
 	# System and User Daemons
 	if [ "$1" = "d" ]; then
