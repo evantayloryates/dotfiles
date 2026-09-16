@@ -30,7 +30,7 @@ GBH_SLUG_MAX_LEN=180
 # --- Path / location helpers ----------------------------------------------
 
 # Base directory for this data class.
-_gbh_base_dir() {
+__gbh_base_dir() {
     printf '%s/git_branch_history\n' "${DOTFILES_DATA_DIR:-$DOTFILES_DIR/data}"
 }
 
@@ -41,7 +41,7 @@ _gbh_base_dir() {
 # paths and respects filename-length limits. (See Desktop research transcripts:
 # mature tools canonicalize + hash + prefix a slug rather than trying to make
 # the name reversible — base64url is unsafe on case-insensitive APFS.)
-_gbh_encode_repo_path() {
+__gbh_encode_repo_path() {
     local abs="$1" slug hash
     hash=$(printf '%s' "$abs" | /usr/bin/shasum -a 256 | cut -c1-12)
     slug=$(printf '%s' "$abs" | tr '[:upper:]' '[:lower:]' \
@@ -51,13 +51,13 @@ _gbh_encode_repo_path() {
 }
 
 # Absolute path to a repo's data directory (does not create it).
-_gbh_repo_data_dir() {
-    printf '%s/%s\n' "$(_gbh_base_dir)" "$(_gbh_encode_repo_path "$1")"
+__gbh_repo_data_dir() {
+    printf '%s/%s\n' "$(__gbh_base_dir)" "$(__gbh_encode_repo_path "$1")"
 }
 
 # Lazy, idempotent init of a repo's data dir + JSONL files. Safe to call every
 # fire. This is the accessor layer: every consumer self-seeds through it.
-_gbh_ensure_init() {
+__gbh_ensure_init() {
     local dir="$1"
     [[ -d "$dir" ]] || command mkdir -p "$dir" 2>/dev/null || return 1
     [[ -f "$dir/touches.jsonl" ]]   || : > "$dir/touches.jsonl"   2>/dev/null
@@ -70,7 +70,7 @@ _gbh_ensure_init() {
 # branch stretch are capped at two: `start` (first touch) and `latest` (live
 # head, updated in place). On branch change the open `latest` is demoted to
 # `final`. Never one line per fire.
-_gbh_touch() {
+__gbh_touch() {
     emulate -L zsh
     local root="$1" branch="$2" head="$3" dir="$4" now_ep="$5" now_iso="$6"
     local file="$dir/touches.jsonl" tmp="$dir/touches.jsonl.tmp.$$"
@@ -133,7 +133,7 @@ _gbh_touch() {
 
 # Cheap cooldown gate (shell only, no python): is a background index run due?
 # Reads the newest index_run's finished_epoch straight from the file.
-_gbh_indexer_due() {
+__gbh_indexer_due() {
     local file="$1" now="$2" last ep
     last=$(grep '"type":"index_run"' "$file" 2>/dev/null | tail -1)
     [[ -z "$last" ]] && return 0                          # never run -> due
@@ -147,7 +147,7 @@ _gbh_indexer_due() {
 
 # Background indexer: backfills last_used for branches the hook has never (or not
 # recently) touched. Additive-only, usage-driven, logs to a real .log file.
-_gbh_index_last_used() {
+__gbh_index_last_used() {
     emulate -L zsh
     local root="$1" dir="$2" now_ep="$3" now_iso="$4"
     local base="${DOTFILES_DATA_DIR:-$DOTFILES_DIR/data}"
@@ -202,8 +202,8 @@ _gbh_precmd_hook() {
     head=${out##*$'\n'}
     [[ -z "$root" ]] && return 0
 
-    dir=$(_gbh_repo_data_dir "$root")
-    _gbh_ensure_init "$dir" || return 0
+    dir=$(__gbh_repo_data_dir "$root")
+    __gbh_ensure_init "$dir" || return 0
 
     now_ep=$(date +%s)
     now_iso=$(date -u +%Y-%m-%dT%H:%M:%SZ)
@@ -211,14 +211,14 @@ _gbh_precmd_hook() {
     # Touch logic: blocking, in-shell, fast. Skipped when detached (no branch),
     # but indexing still runs so its data is captured on the next checkout.
     branch=$(/usr/bin/git symbolic-ref --quiet --short HEAD 2>/dev/null)
-    [[ -n "$branch" ]] && _gbh_touch "$root" "$branch" "$head" "$dir" "$now_ep" "$now_iso"
+    [[ -n "$branch" ]] && __gbh_touch "$root" "$branch" "$head" "$dir" "$now_ep" "$now_iso"
 
     # Background indexer, gated by the cheap cooldown check so the common path
     # never even spawns the background job.
-    if _gbh_indexer_due "$dir/last_used.jsonl" "$now_ep"; then
+    if __gbh_indexer_due "$dir/last_used.jsonl" "$now_ep"; then
         # Detached from the terminal entirely: anything it (or a tool it calls)
         # prints goes to the .log file or nowhere, never to the prompt.
-        _gbh_index_last_used "$root" "$dir" "$now_ep" "$now_iso" >/dev/null 2>&1 &!
+        __gbh_index_last_used "$root" "$dir" "$now_ep" "$now_iso" >/dev/null 2>&1 &!
     fi
 }
 

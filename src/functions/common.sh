@@ -16,18 +16,18 @@ for f in "$SCRIPT_DIR"/*.sh; do
   [[ -f "$f" ]] && source "$f"
 done
 
-function _ssh_prod() {
+function __ssh_prod() {
   ssh-keygen -R ssh-app.spaceback.me
   ssh -i ~/.ssh/aws-eb -tt root@ssh-app.spaceback.me 'echo "echo \"RUN: cd ~ && source activate && cd /app && rails c\" && source /root/activate" | bash -s && bash -i'
 }
 
-function _ssh_stage() {
+function __ssh_stage() {
   ssh-keygen -R ssh-app-stage.spaceback.me
   ssh -i ~/.ssh/aws-eb -tt root@ssh-app-stage.spaceback.me 'echo "echo \"RUN: cd ~ && source activate && cd /app && rails c\" && source /root/activate" | bash -s && bash -i'
 }
 
-_red() { printf '\033[31m%s\033[0m' "$1"; }
-_magenta() { printf '\033[35m%s\033[0m' "$1"; }
+__red() { printf '\033[31m%s\033[0m' "$1"; }
+__magenta() { printf '\033[35m%s\033[0m' "$1"; }
 
 function __log() {
   local tty='/dev/tty'
@@ -38,12 +38,12 @@ function __log() {
   fi
 }
 
-function _select_container() {
+function __select_container() {
   local initial_input="$1"
   printf '%s\n' "${initial_input}" | python3 "${DOTFILES_DIR}/src/python/selector.py"
 }
 
-function _amplify_validate_services() {
+function __amplify_validate_services() {
   local caller="$1"
   shift
   local amplify_dir="${HOME}/src/github/amplify"
@@ -53,17 +53,17 @@ function _amplify_validate_services() {
   local s
   for s in "$@"; do
     if ! grep -qx "${s}" <<<"${available}"; then
-      __log "$(_red "${caller}: unknown service '${s}'")"
+      __log "$(__red "${caller}: unknown service '${s}'")"
       return 1
     fi
   done
 }
 
-function _amplify_exec() {
+function __amplify_exec() {
   local raw="$1"
   local amplify_dir="${HOME}/src/github/amplify"
 
-  raw="$(_select_container "${raw}")" || true
+  raw="$(__select_container "${raw}")" || true
   if [ -z "${raw}" ]; then
     return 0
   fi
@@ -71,9 +71,9 @@ function _amplify_exec() {
   # exec only targets a single container; take the first selected service
   local service="${raw%%$'\n'*}"
 
-  _amplify_validate_services "exec_amplify" "${service}" || return 1
+  __amplify_validate_services "exec_amplify" "${service}" || return 1
 
-  __log "↓ Opening shell in: $(_magenta "${service}")"
+  __log "↓ Opening shell in: $(__magenta "${service}")"
   __log ""
 
   # prefer bash if available; fall back to sh
@@ -84,11 +84,11 @@ function _amplify_exec() {
   fi
 }
 
-function _amplify_logs() {
+function __amplify_logs() {
   local raw="$1"
   local amplify_dir="${HOME}/src/github/amplify"
 
-  raw="$(_select_container "${raw}")" || true
+  raw="$(__select_container "${raw}")" || true
   if [ -z "${raw}" ]; then
     return 0
   fi
@@ -96,19 +96,19 @@ function _amplify_logs() {
   local -a services
   services=(${(f)raw})
 
-  _amplify_validate_services "_amplify_logs" "${services[@]}" || return 1
+  __amplify_validate_services "__amplify_logs" "${services[@]}" || return 1
 
-  __log "↓ Tailing logs for: $(_magenta "${services[*]}")"
+  __log "↓ Tailing logs for: $(__magenta "${services[*]}")"
   __log ""
 
   dc --project-directory "${amplify_dir}" logs --tail=200 --follow "${services[@]}"
 }
 
-function _amplify_restart() {
+function __amplify_restart() {
   local raw="$1"
   local amplify_dir="${HOME}/src/github/amplify"
 
-  raw="$(_select_container "${raw}")" || true
+  raw="$(__select_container "${raw}")" || true
   if [ -z "${raw}" ]; then
     return 0
   fi
@@ -116,25 +116,25 @@ function _amplify_restart() {
   local -a services
   services=(${(f)raw})
 
-  _amplify_validate_services "_amplify_restart" "${services[@]}" || return 1
+  __amplify_validate_services "__amplify_restart" "${services[@]}" || return 1
 
-  __log "↓ Restarting container: $(_magenta "${services[*]}")"
+  __log "↓ Restarting container: $(__magenta "${services[*]}")"
   __log ""
 
   dc --project-directory "${amplify_dir}" restart "${services[@]}"
 }
 
-function _amplify_update() {
+function __amplify_update() {
   local amplify_dir="${HOME}/src/github/amplify"
   local branch
   branch="$(git -C "${amplify_dir}" rev-parse --abbrev-ref HEAD 2>/dev/null)" || {
-    __log "$(_red "_amplify_update: cannot determine current branch")"
+    __log "$(__red "__amplify_update: cannot determine current branch")"
     return 1
   }
 
   case "$branch" in
     master | production)
-      __log "$(_red "_amplify_update: refused on branch '${branch}'")"
+      __log "$(__red "__amplify_update: refused on branch '${branch}'")"
       return 1
       ;;
   esac
@@ -370,7 +370,7 @@ cursor_path() {
   local target_item="${1:-.}"
 
   if [[ ! -e "$target_item" ]]; then
-    __log "$(_red "cursor_path: invalid target '${target_item}'")"
+    __log "$(__red "cursor_path: invalid target '${target_item}'")"
     return 1
   fi
 
@@ -378,7 +378,7 @@ cursor_path() {
   # opens the target in the agents window instead of a normal editor window.
   # Matches the `cur` alias, which has always passed it.
   if ! command cursor --classic "$target_item"; then
-    __log "$(_red "cursor_path: cursor failed for '${target_item}'")"
+    __log "$(__red "cursor_path: cursor failed for '${target_item}'")"
     return 1
   fi
 }

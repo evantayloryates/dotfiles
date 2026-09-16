@@ -1,4 +1,4 @@
-_quick() {
+__quick() {
   filepath="$1"
   if [[ -z "$filepath" || ! -f "$filepath" ]]; then
     echo "Invalid or missing filepath" >&2
@@ -24,7 +24,7 @@ quick() {
   tmpfile="$(mktemp "$TMPDIR/quick_prompt_XXXXXX.txt")"
   echo "$prompt" > "$tmpfile"
 
-  output_path=$(_quick "$tmpfile")
+  output_path=$(__quick "$tmpfile")
   rm -f "$tmpfile"
 
   if [[ -z "$output_path" || ! -f "$output_path" ]]; then
@@ -128,8 +128,8 @@ researchmd() {
   cat "$research_path" > "$tmp_amended"
   printf '\n\nPlease format this text block as markdown. Respond only with the markdown text result\n' >> "$tmp_amended"
 
-  # Step 4: Pass amended file to _quick
-  quick_path=$(_quick "$tmp_amended")
+  # Step 4: Pass amended file to __quick
+  quick_path=$(__quick "$tmp_amended")
 
   # Cleanup intermediate file
   rm -f "$tmp_amended"

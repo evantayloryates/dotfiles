@@ -42,7 +42,7 @@ function rm_branch {
   fi
 
   # very first: protect critical branches (trunk names live in src/functions/git/trunk.sh)
-  if _git_is_trunk "$target" || [[ "$target" == production ]]; then
+  if __git_is_trunk "$target" || [[ "$target" == production ]]; then
     printf '%s\n' "rm_branch: refusing to operate on protected branch: $target"
     return 1
   fi
@@ -76,7 +76,7 @@ function rm_branch {
   current="$(git symbolic-ref --quiet --short HEAD 2>/dev/null)"
   if [[ "$current" == "$target" ]]; then
     local trunk
-    trunk="$(_git_resolve_trunk --local)" || {
+    trunk="$(__git_resolve_trunk --local)" || {
       printf '%s\n' "rm_branch: no local trunk (${(j:/:)GIT_TRUNK_BRANCHES}) exists; cannot move off target branch"
       return 1
     }
@@ -113,7 +113,7 @@ function rm_branch {
 }
 
 # Print one pretty log line: colored hash, padded subject, optional decorations.
-_git_log_print_line() {
+__git_log_print_line() {
   local full_hash="$1" short_hash="$2" subject="$3" color="$4"
   local head_hash="$5" head_branch="$6" max_msg_len="$7" extra_pad="$8" reset_color="$9"
   local display_subject="$subject" decoration="" other_local_refs="" ref=""
@@ -163,7 +163,7 @@ function git_log_local_pretty {
 
   head_hash=$(/usr/bin/git rev-parse HEAD 2>/dev/null) || return 1
   head_branch=$(/usr/bin/git symbolic-ref --quiet --short HEAD 2>/dev/null || true)
-  trunk=$(_git_resolve_trunk) || {
+  trunk=$(__git_resolve_trunk) || {
     printf '%s\n' "git_log_local_pretty: no ${(j:/:)GIT_TRUNK_BRANCHES} trunk found"
     return 1
   }
@@ -235,7 +235,7 @@ function git_log_local_pretty {
     # Commits reachable from range_start but not end_hash (newest first).
     while IFS=$'\x1f' read -r full_hash short_hash subject; do
       [[ -z "$full_hash" ]] && continue
-      _git_log_print_line "$full_hash" "$short_hash" "$subject" "$color" \
+      __git_log_print_line "$full_hash" "$short_hash" "$subject" "$color" \
         "$head_hash" "$head_branch" "$max_msg_len" "$extra_pad" "$reset_color"
     done < <(/usr/bin/git --no-pager log --first-parent --format='%H%x1f%h%x1f%s' "${end_hash}..${range_start}")
     range_start="$end_hash"
@@ -246,7 +246,7 @@ function git_log_local_pretty {
   local trunk_ctx=0
   while IFS=$'\x1f' read -r full_hash short_hash subject; do
     [[ -z "$full_hash" ]] && continue
-    _git_log_print_line "$full_hash" "$short_hash" "$subject" "$trunk_color" \
+    __git_log_print_line "$full_hash" "$short_hash" "$subject" "$trunk_color" \
       "$head_hash" "$head_branch" "$max_msg_len" "$extra_pad" "$reset_color"
     (( trunk_ctx++ ))
     (( trunk_ctx >= 2 )) && break

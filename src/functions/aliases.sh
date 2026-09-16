@@ -3,7 +3,7 @@
 # This file must follow the pattern always. no divergences
 # A "Note" is anything that will provide context for the pattern.
 # : is offical syntax. 
-_kitsrc () { /Applications/kitty.app/Contents/MacOS/kitty @ load-config "$HOME/.config/kitty/kitty.conf"  ;} #
+__kitsrc() { /Applications/kitty.app/Contents/MacOS/kitty @ load-config "$HOME/.config/kitty/kitty.conf"  ;} #
 abs     () { realpath -- "$@"                                                                             ;} # Note: -- ends option parsing so paths that start with a dash (e.g. Claude project dirs named -Users-taylor-src-github-r1) are treated as paths, not flags
 convert () { magick "$@"                                                                                  ;} # 
 cur     () { if [ $# -eq 0 ]; then command cursor --classic "$(pwd -P 2>/dev/null || pwd)"; else command cursor --classic "$@"; fi ;} # Note: resolved from PATH, not hard-coded — the brew cask links /opt/homebrew/bin/cursor, Cursor's own "Install command" links /usr/local/bin/cursor
@@ -28,7 +28,7 @@ py3     () { python "$@"                                                        
 python  () { /Users/taylor/.venvs/dotfiles/bin/python -q "$@"                                             ;} # 
 python3 () { python "$@"                                                                                  ;} # 
 reload  () { echo "NO EFFECT\nPlease use "$'\033[35m'"\`src\`"$'\033[0m'" instead.\n"                     ;} #
-src     () { _kitsrc; clear; source "$HOME/dotfiles/src/index.sh"                                         ;} # 
+src     () { __kitsrc; clear; source "$HOME/dotfiles/src/index.sh"                                        ;} # 
 touch   () { if [ "$#" -eq 1 ] && [[ "$1" != -* ]]; then /bin/mkdir -p "${1:h}" && /usr/bin/touch "$1"; else /usr/bin/touch "$@"; fi ;} #
 
 

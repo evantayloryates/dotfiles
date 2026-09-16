@@ -38,8 +38,8 @@ gbs() {
     # data (the shell hook actually saw you on the branch) qualifies for Recent;
     # index data merely window-filters the Rest list.
     local dir
-    dir=$(_gbh_repo_data_dir "$root")
-    _gbh_ensure_init "$dir"
+    dir=$(__gbh_repo_data_dir "$root")
+    __gbh_ensure_init "$dir"
 
     typeset -A eff src
     local b e s
@@ -63,7 +63,7 @@ gbs() {
     local -a recent rest missing trunk_pinned
     local ev
     for b in $locals; do
-        if _git_is_trunk "$b"; then
+        if __git_is_trunk "$b"; then
             trunk_pinned+=("$b")                       # always shown, exempt from filters
             continue
         fi

@@ -6,7 +6,7 @@ _term_image() {
   /Applications/kitty.app/Contents/MacOS/kitten icat "$@"
 }
 
-_show() {
+__show() {
   if [[ -z "$1" ]]; then
     echo 'Usage: img <image_path_or_url>'
     return 1
@@ -55,5 +55,5 @@ imagine() {
     echo "Failed to generate image"
     return 1
   fi
-  _show "$url"
+  __show "$url"
 }

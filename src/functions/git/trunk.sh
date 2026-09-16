@@ -7,13 +7,13 @@
 typeset -ga GIT_TRUNK_BRANCHES=(master main develop)
 
 # True when $1 is a trunk branch name (exact match, short name).
-_git_is_trunk() {
+__git_is_trunk() {
   (( ${GIT_TRUNK_BRANCHES[(Ie)$1]} ))
 }
 
 # Print the repo's trunk ref: local branches in preference order, then their
 # origin/ counterparts. `--local` skips the remote fallback.
-_git_resolve_trunk() {
+__git_resolve_trunk() {
   local name
   for name in $GIT_TRUNK_BRANCHES; do
     if /usr/bin/git show-ref --verify --quiet "refs/heads/$name" 2>/dev/null; then
