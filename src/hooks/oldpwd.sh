@@ -13,7 +13,9 @@
 # no-op. `builtin cd` is untouched, so code that bypasses the wrapper gets
 # stock behavior.
 
-_oldpwd_keep() {
+# Double underscore on purpose: Claude Code's shell snapshot drops single-underscore
+# functions (treats them as completions), which left `cd` calling a missing helper.
+__oldpwd_keep() {
   local prev_oldpwd="$OLDPWD" builtin_name="$1"
   shift
   builtin "$builtin_name" "$@" || return $?
@@ -24,6 +26,6 @@ _oldpwd_keep() {
   return 0
 }
 
-cd()    { _oldpwd_keep cd    "$@"; }
-pushd() { _oldpwd_keep pushd "$@"; }
-popd()  { _oldpwd_keep popd  "$@"; }
+cd()    { __oldpwd_keep cd    "$@"; }
+pushd() { __oldpwd_keep pushd "$@"; }
+popd()  { __oldpwd_keep popd  "$@"; }
