@@ -61,11 +61,9 @@ gbs() {
     # current branch (the one sanctioned duplication: it then appears both as
     # the pinned trunk line and as item 0 at the bottom of Recent).
     local -a recent rest missing trunk_pinned
-    local ev is_trunk
+    local ev
     for b in $locals; do
-        is_trunk=0
-        [[ "$b" == "main" || "$b" == "master" ]] && is_trunk=1
-        if (( is_trunk )); then
+        if _git_is_trunk "$b"; then
             trunk_pinned+=("$b")                       # always shown, exempt from filters
             continue
         fi

@@ -41,13 +41,11 @@ function rm_branch {
     return 1
   fi
 
-  # very first: protect critical branches
-  case "$target" in
-    master|main|production)
-      printf '%s\n' "rm_branch: refusing to operate on protected branch: $target"
-      return 1
-      ;;
-  esac
+  # very first: protect critical branches (trunk names live in src/functions/git/trunk.sh)
+  if _git_is_trunk "$target" || [[ "$target" == production ]]; then
+    printf '%s\n' "rm_branch: refusing to operate on protected branch: $target"
+    return 1
+  fi
 
   # ensure we are in a git repo
   if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
@@ -74,17 +72,15 @@ function rm_branch {
     return 0
   fi
 
-  # step 2: if currently on target branch, checkout master (or main fallback)
+  # step 2: if currently on target branch, checkout the local trunk
   current="$(git symbolic-ref --quiet --short HEAD 2>/dev/null)"
   if [[ "$current" == "$target" ]]; then
-    if git show-ref --verify --quiet 'refs/heads/master'; then
-      git checkout master >/dev/null 2>&1 || return 1
-    elif git show-ref --verify --quiet 'refs/heads/main'; then
-      git checkout main >/dev/null 2>&1 || return 1
-    else
-      printf '%s\n' 'rm_branch: neither master nor main exists locally; cannot move off target branch'
+    local trunk
+    trunk="$(_git_resolve_trunk --local)" || {
+      printf '%s\n' "rm_branch: no local trunk (${(j:/:)GIT_TRUNK_BRANCHES}) exists; cannot move off target branch"
       return 1
-    fi
+    }
+    git checkout "$trunk" >/dev/null 2>&1 || return 1
   fi
 
   # step 3: create rehome copy, rename to __to-delete__mon-dd-yyyy__<lowercased original>
@@ -114,18 +110,6 @@ function rm_branch {
   fi
 
   return 0
-}
-
-# Resolve local/remote trunk: prefer master, then main, then develop.
-_git_log_resolve_trunk() {
-  local ref
-  for ref in master main develop origin/master origin/main origin/develop; do
-    if /usr/bin/git rev-parse --verify --quiet "$ref^{commit}" >/dev/null; then
-      print -r -- "$ref"
-      return 0
-    fi
-  done
-  return 1
 }
 
 # Print one pretty log line: colored hash, padded subject, optional decorations.
@@ -167,7 +151,7 @@ _git_log_print_line() {
 
 # Pretty local log for `gl`: walk HEAD → nearest stacked branch tips → trunk,
 # coloring each segment, then show the trunk merge-base plus one older trunk
-# commit for context. Works in any repo whose trunk is master, main, or develop.
+# commit for context. Trunk names come from GIT_TRUNK_BRANCHES (git/trunk.sh).
 function git_log_local_pretty {
   local max_msg_len="${GIT_LOG_MAX_MSG_LEN:-50}"
   local extra_padding="${GIT_LOG_EXTRA_PADDING:-2}"
@@ -179,8 +163,8 @@ function git_log_local_pretty {
 
   head_hash=$(/usr/bin/git rev-parse HEAD 2>/dev/null) || return 1
   head_branch=$(/usr/bin/git symbolic-ref --quiet --short HEAD 2>/dev/null || true)
-  trunk=$(_git_log_resolve_trunk) || {
-    printf '%s\n' 'git_log_local_pretty: no master/main/develop trunk found'
+  trunk=$(_git_resolve_trunk) || {
+    printf '%s\n' "git_log_local_pretty: no ${(j:/:)GIT_TRUNK_BRANCHES} trunk found"
     return 1
   }
   merge_base=$(/usr/bin/git merge-base "$trunk" HEAD 2>/dev/null) || {
