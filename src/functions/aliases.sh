@@ -17,6 +17,7 @@ gc      () { git commit "$@"                                                    
 git     () { if [[ $# -eq 2 && "$1" == "branch" && "$2" == "c" ]]; then gbc; else /usr/bin/git "$@"; fi ;} #
 gl      () { git_log_local_pretty                                                                         ;} # 
 gp      () { git push "$@"                                                                                ;} # 
+gs      () { git status "$@"                                                                              ;} # Note: this will overwrite /opt/homebrew/bin/gs (Ghostscript) interactively only; scripts/ImageMagick still resolve it from PATH, and `command gs` reaches it
 lsa     () { /bin/ls -AGhlo "$@"                                                                          ;} # 
 mkdir   () { [ "$#" -eq 1 ] && /bin/mkdir -pv "$1" || /bin/mkdir "$@"                                     ;} # interactive convenience: -pv prints the path. Scripts/hooks in src must call `command mkdir`.
 o       () { if [ $# -eq 0 ]; then open "$(pwd -P 2>/dev/null || pwd)"; else open "$@"; fi                ;} # 
