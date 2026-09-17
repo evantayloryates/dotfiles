@@ -49,6 +49,9 @@ Usage: zdr-harness <command>
   app              Build ZDR Harness.app if stale, install it to ~/Applications, open it
   app-build [--force]
                    Build and install the app without opening it
+  set-token <KEY>  Replace one secret in ~/.zdr-harness/.env, restart, re-check.
+                   Reads the value from a hidden prompt or stdin, never argv,
+                   and prints only a fingerprint.
   mcp <args>       Pass through to 'opencode mcp' (e.g. mcp auth amplitude)
   <anything else>  Pass through to opencode inside the isolated environment
 EOF
@@ -194,6 +197,47 @@ for s in old:
   ((failed == 0))
 }
 
+readonly SECRET_KEYS="KICKOFF_OPENAI_ZDR_API_KEY ZDR_HARNESS_PASSWORD KICKOFF_BUGSNAG_TOKEN KICKOFF_POSTHOG_TOKEN"
+
+# Rewrite one line of ~/.zdr-harness/.env. The value never reaches argv, where
+# `ps` would show it, and is never echoed; the only feedback is a length and a
+# SHA-256 prefix, which is enough to tell whether the edit landed. Hand-editing
+# the file is how a rolled token silently fails to reach the running server.
+set_token() {
+  local key="${1:-}"
+  case " ${SECRET_KEYS} " in
+    *" ${key} "*) ;;
+    *) die "usage: zdr-harness set-token <$(echo "$SECRET_KEYS" | tr ' ' '|')>" ;;
+  esac
+  [[ -f "${ZH}/.env" ]] || die "missing ${ZH}/.env (start from src/zdr-harness/.env.template)"
+
+  local value=""
+  if [[ -t 0 ]]; then
+    read -rsp "${key} (input hidden): " value
+    printf '\n'
+  else
+    IFS= read -r value || true
+  fi
+  [[ -n "$value" ]] || die "empty value; ${ZH}/.env unchanged"
+
+  SET_KEY="$key" SET_VALUE="$value" /usr/bin/python3 "${SCRIPT_DIR}/../set-env-value.py" "${ZH}/.env"
+  unset value
+
+  printf '\nRestarting so the running server picks it up.\n'
+  launchctl kickstart -k "gui/$(id -u)/${LABEL}"
+  local i
+  for i in $(seq 1 30); do
+    sleep 2
+    api_get /global/health 2>/dev/null | grep -q '"healthy":true' && break
+  done
+  load_secrets
+  printf '\nhealth: '
+  api_get /global/health
+  printf '\nmcp:    '
+  api_get /mcp
+  printf '\n\nNote: `connected` only means the server answered. Ask one real question\nper server to prove the credential itself works.\n'
+}
+
 case "${1:-}" in
   serve)
     shift
@@ -229,6 +273,10 @@ case "${1:-}" in
     shift
     /usr/bin/python3 "${SCRIPT_DIR}/../build_app.py" --install "$@"
     open "${HOME}/Applications/ZDR Harness.app"
+    ;;
+  set-token)
+    shift
+    set_token "$@"
     ;;
   "" | -h | --help | help)
     usage
