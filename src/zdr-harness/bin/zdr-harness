@@ -217,17 +217,22 @@ for s in old:
   ((failed == 0))
 }
 
-readonly SECRET_KEYS="KICKOFF_OPENAI_ZDR_API_KEY ZDR_HARNESS_PASSWORD KICKOFF_BUGSNAG_TOKEN KICKOFF_POSTHOG_TOKEN"
+# Settable keys come from the tracked template, so adding a key there is enough
+# and this list cannot drift behind it.
+secret_keys() {
+  grep -oE '^[A-Za-z_][A-Za-z0-9_]*=' "${PROJECT_DIR}/.env.template" 2>/dev/null | sed 's/=$//' | tr '\n' ' '
+}
 
 # Rewrite one line of ~/.zdr-harness/.env. The value never reaches argv, where
 # `ps` would show it, and is never echoed; the only feedback is a length and a
 # SHA-256 prefix, which is enough to tell whether the edit landed. Hand-editing
 # the file is how a rolled token silently fails to reach the running server.
 set_token() {
-  local key="${1:-}"
-  case " ${SECRET_KEYS} " in
+  local key="${1:-}" keys
+  keys="$(secret_keys)"
+  case " ${keys} " in
     *" ${key} "*) ;;
-    *) die "usage: zdr-harness set-token <$(echo "$SECRET_KEYS" | tr ' ' '|')>" ;;
+    *) die "usage: zdr-harness set-token <$(echo "$keys" | tr ' ' '|' | sed 's/|$//')>" ;;
   esac
   [[ -f "$SECRETS_FILE" ]] || die "no secrets file; start from ${PROJECT_DIR}/.env.template"
 
@@ -301,6 +306,26 @@ probe_credentials() {
   rm -f /tmp/.zdr-probe-posthog
   printf '  posthog token:  HTTP %s %s\n' "${code:-000}" "$([[ "$code" == 200 ]] && echo OK || echo FAILED)"
   printf '  amplitude:      OAuth, not a token; see /mcp status above\n'
+
+  # The logs credential is proven through the MCP server itself, so the probe
+  # exercises the same signing path the harness uses.
+  if [[ -n "${KICKOFF_ZDR_AWS_ACCESS_KEY_ID:-}" ]]; then
+    local out
+    out="$(printf '%s\n' \
+      '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"probe","version":"1"}}}' \
+      '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"list_groups","arguments":{"limit":1}}}' |
+      KICKOFF_ZDR_AWS_ACCESS_KEY_ID="$KICKOFF_ZDR_AWS_ACCESS_KEY_ID" \
+      KICKOFF_ZDR_AWS_SECRET_ACCESS_KEY="$KICKOFF_ZDR_AWS_SECRET_ACCESS_KEY" \
+      KICKOFF_ZDR_AWS_REGION="${KICKOFF_ZDR_AWS_REGION:-us-west-1}" \
+      timeout 40 "${PROJECT_DIR}/mcps/kickoff-logs-mcp" 2>/dev/null | tail -1)"
+    if [[ "$out" == *'"isError":false'* ]]; then
+      printf '  aws logs:       OK\n'
+    else
+      printf '  aws logs:       FAILED %s\n' "$(printf '%s' "$out" | tr -d '\n' | cut -c1-160)"
+    fi
+  else
+    printf '  aws logs:       no key set (KICKOFF_ZDR_AWS_ACCESS_KEY_ID empty)\n'
+  fi
 }
 
 # Reflow auth: OpenCode resolves {env:...} when the server starts, so applying a
