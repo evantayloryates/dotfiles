@@ -29,7 +29,7 @@ control key from another org stored normally.
 | `src/mcps/zdr-ask-mcp` + `src/mcps/zdr-ask/index.mjs` | Zero-dependency MCP bridge for Claude Code / Codex |
 | `src/zdr-harness/app/` + `build_app.py` | **ZDR Harness.app**: native viewer for the web UI (see [App](#app)) |
 | `data/zdr-harness/ZDR Harness.app` (not in git) | Build output; the installed copy is `~/Applications/ZDR Harness.app` |
-| `~/.zdr-harness/.env` (600, not in git) | Every harness secret: `KICKOFF_OPENAI_ZDR_API_KEY`, `ZDR_HARNESS_PASSWORD`, `KICKOFF_BUGSNAG_TOKEN`, `KICKOFF_POSTHOG_TOKEN` |
+| `src/zdr-harness/.env` (600, gitignored) | Every harness secret: `KICKOFF_OPENAI_ZDR_API_KEY`, `ZDR_HARNESS_PASSWORD`, `KICKOFF_BUGSNAG_TOKEN`, `KICKOFF_POSTHOG_TOKEN`. `~/.zdr-harness/.env` is a fallback if this is absent |
 | `src/zdr-harness/.env.template` | Same keys and comments with empty values; keep the two in sync |
 | `~/.zdr-harness/opt/` | Pinned OpenCode install (`opencode-ai@1.18.31`) |
 | `~/.zdr-harness/xdg/data/opencode/` | Sessions DB, MCP OAuth tokens, logs (**holds raw tool output**) |
@@ -96,7 +96,7 @@ ignores a configured `oauth.scope`, and Amplitude advertises
 `mcp:read mcp:write`, so that token can write; read-only is enforced by exposing
 only named read-only tools, plus the account's Amplitude role.
 
-BugSnag and PostHog use long-lived tokens from `~/.zdr-harness/.env` instead,
+BugSnag and PostHog use long-lived tokens from `src/zdr-harness/.env` instead,
 set as `headers` with `oauth: false`, so there is nothing to re-authorise in a
 browser:
 
@@ -113,11 +113,11 @@ The tokens are never copied into config or logs: `opencode.json` references
 `{env:KICKOFF_BUGSNAG_TOKEN}` and `{env:KICKOFF_POSTHOG_TOKEN}`, and the wrapper
 names each variable explicitly when building the isolated environment.
 
-They live in `~/.zdr-harness/.env` rather than `~/dotfiles/.env` on purpose:
-that file sits outside every repo an agent normally works in, so a
-workspace-scoped agent has to ask before reading it. The file says in its header
-that the tokens are for this harness only. That is a note, not an enforcement
-mechanism: any process running as you can read the file.
+They live in `src/zdr-harness/.env`, next to the config they belong to and
+gitignored, with `.env.template` as the tracked shape. The file header says the
+tokens are for this harness only. That is a note, not an enforcement mechanism:
+the file sits inside the dotfiles repo, so any agent working in this checkout
+can read it, and `chmod 600` only stops other users.
 
 Known gap: the permission rules constrain the model, not the HTTP API. Anyone
 with the Basic password can still reach OpenCode's shell/PTY endpoints. The
@@ -133,6 +133,7 @@ zdr-harness status     # health, MCP connection state, web UI URL
 zdr-harness attach     # TUI on the running server
 zdr-harness logs
 zdr-harness restart
+zdr-harness reload-auth          # apply edited secrets: restart + probe tokens
 zdr-harness set-token KICKOFF_POSTHOG_TOKEN   # hidden prompt, restart, re-check
 zdr-harness app                  # build if stale, install, open ZDR Harness.app
 zdr-harness prune --dry-run      # sessions not updated in 30 days
@@ -281,18 +282,33 @@ zdr-harness mcp auth amplitude && zdr-harness restart
 For BugSnag or PostHog, `connected` is not proof: a bad token surfaces as a
 `401` inside a tool result, so check with one real question per server.
 
-Roll a token with `zdr-harness set-token <KEY>` rather than an editor. It reads
-the value from a hidden prompt (or stdin), rewrites that one line of
-`~/.zdr-harness/.env`, restarts the service, re-checks, and prints a length and
-SHA-256 prefix so you can see the edit landed. Hand-editing has two silent
-failure modes: saving the wrong file, and forgetting that `{env:...}` is
-resolved when the server starts, so reloading the app's UI changes nothing. To
-compare what the running server actually holds:
+### Reflowing auth after an edit
+
+`{env:...}` is resolved once, when the server starts, so editing the secrets
+file changes nothing until that process restarts. Reloading the app's web UI
+does not do it. Either of these does:
+
+```sh
+zdr-harness reload-auth      # restart, fingerprints, and probe each token's API
+```
+
+In the app, **⇧⌘R** (View or Harness → Reload Auth) restarts the service and
+reloads once healthy. Plain **⌘R** does it too whenever the secrets file is
+newer than the running server, so a page reload cannot silently keep an old
+token; the title bar shows `secrets changed (⇧⌘R)` while that is true.
+
+`zdr-harness status` and `reload-auth` print the live secrets path and a
+length plus SHA-256 prefix per key. Those fingerprints are how you tell an edit
+landed in the file the server actually reads — comparing them against the
+running process is the check that catches a token edited in the wrong file:
 
 ```sh
 ps -Eww -p "$(pgrep -f 'opencode.exe serve')" | tr ' ' '\n' |
   grep '^KICKOFF_POSTHOG_TOKEN=' | cut -d= -f2- | shasum -a 256 | cut -c1-12
 ```
+
+`zdr-harness set-token <KEY>` is the alternative to an editor: hidden prompt,
+one line rewritten in place, restart and re-check, fingerprint printed.
 
 ## Upgrading OpenCode
 

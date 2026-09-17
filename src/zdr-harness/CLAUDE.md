@@ -11,7 +11,7 @@ truth**: design, lockdown, app, verification. Read it before changing anything.
 
 ## Hard rules
 
-- **Harness tokens stay in `~/.zdr-harness/.env`.** They are for this harness
+- **Harness tokens stay in `src/zdr-harness/.env`.** They are for this harness
   only; do not copy them into another MCP client, shell profile or repo `.env`.
   Update `.env.template` whenever that file's keys or comments change.
 - **Secrets never appear.** Not the OpenAI key, the harness password, OAuth
@@ -42,6 +42,7 @@ truth**: design, lockdown, app, verification. Read it before changing anything.
 Z=~/dotfiles/src/zdr-harness/bin/zdr-harness
 $Z status                      # health + MCP state
 $Z restart                     # launchctl kickstart -k
+$Z reload-auth                 # apply an edited secrets file + probe each token
 $Z set-token <KEY>             # roll a secret: hidden prompt, restart, re-check
 $Z logs                        # service stdout/stderr
 $Z attach                      # TUI on the running server
@@ -55,7 +56,7 @@ $Z app-build --force           # rebuild + install without opening
 
 | Path | What |
 |---|---|
-| `~/.zdr-harness/.env` (600) | All four secrets: ZDR key, harness password, `KICKOFF_BUGSNAG_TOKEN` (`token` scheme, not `Bearer`), `KICKOFF_POSTHOG_TOKEN` |
+| `src/zdr-harness/.env` (600, gitignored) | All four secrets: ZDR key, harness password, `KICKOFF_BUGSNAG_TOKEN` (`token` scheme, not `Bearer`), `KICKOFF_POSTHOG_TOKEN`. Edits need `zdr-harness reload-auth`: `{env:...}` resolves at server start |
 | `src/zdr-harness/.env.template` | Tracked copy of that file's keys and comments, values empty |
 | `~/.zdr-harness/xdg/data/opencode/` | Sessions DB (raw tool output), MCP OAuth tokens, logs |
 | `~/.zdr-harness/logs/` | Service logs and the app's `app.log` |

@@ -23,6 +23,13 @@ readonly LABEL="com.taylor.zdr-harness"
 
 ZH="${HOME}/.zdr-harness"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+PROJECT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd -P)"
+# Secrets live beside the config, gitignored, with .env.template as the tracked
+# shape. ~/.zdr-harness/.env is only a fallback for checkouts that never had one.
+SECRETS_FILE="${PROJECT_DIR}/.env"
+[[ -f "$SECRETS_FILE" ]] || SECRETS_FILE="${ZH}/.env"
+RUN_DIR="${ZH}/run"
+SERVE_MARKER="${RUN_DIR}/serve-started"
 CONFIG_FILE="$(cd "${SCRIPT_DIR}/../opencode" && pwd -P)/opencode.json"
 GLOBAL_CONFIG_DIR="${ZH}/xdg/config/opencode"
 DOTFILES_SRC="$(cd "${SCRIPT_DIR}/../.." && pwd -P)"
@@ -43,6 +50,8 @@ Usage: zdr-harness <command>
   attach           Open the TUI against the running server
   status           Health, MCP connection state and the web UI URL
   restart          Restart the launchd service
+  reload-auth      Re-read the secrets file into the server (restart), then
+                   report fingerprints and probe each token against its API
   logs             Tail the service logs
   prune [--days N] [--dry-run]
                    Delete sessions not updated in N days (default 30)
@@ -58,20 +67,21 @@ EOF
 }
 
 load_secrets() {
-  [[ -f "${ZH}/.env" ]] || die "missing ${ZH}/.env (see README)"
+  [[ -f "$SECRETS_FILE" ]] ||
+    die "no secrets file: expected ${PROJECT_DIR}/.env (copy .env.template) or ${ZH}/.env"
   local secrets
   # BugSnag and PostHog use long-lived read-scoped tokens instead of OAuth;
   # opencode.json references them as {env:...}. Keys are named one by one: a
   # blanket source would hand every secret in the file to OpenCode.
-  secrets="$(ENV_FILE="${ZH}/.env" env_export \
+  secrets="$(ENV_FILE="$SECRETS_FILE" env_export \
     KICKOFF_OPENAI_ZDR_API_KEY ZDR_HARNESS_PASSWORD KICKOFF_BUGSNAG_TOKEN KICKOFF_POSTHOG_TOKEN)" ||
-    die "${ZH}/.env is missing keys; see src/zdr-harness/.env.template"
+    die "${SECRETS_FILE} is missing keys; see ${PROJECT_DIR}/.env.template"
   eval "$secrets"
   unset secrets
-  : "${KICKOFF_OPENAI_ZDR_API_KEY:?KICKOFF_OPENAI_ZDR_API_KEY must be set in ${ZH}/.env}"
-  : "${ZDR_HARNESS_PASSWORD:?ZDR_HARNESS_PASSWORD must be set in ${ZH}/.env}"
-  : "${KICKOFF_BUGSNAG_TOKEN:?KICKOFF_BUGSNAG_TOKEN must be set in ${ZH}/.env}"
-  : "${KICKOFF_POSTHOG_TOKEN:?KICKOFF_POSTHOG_TOKEN must be set in ${ZH}/.env}"
+  : "${KICKOFF_OPENAI_ZDR_API_KEY:?KICKOFF_OPENAI_ZDR_API_KEY must be set in $SECRETS_FILE}"
+  : "${ZDR_HARNESS_PASSWORD:?ZDR_HARNESS_PASSWORD must be set in $SECRETS_FILE}"
+  : "${KICKOFF_BUGSNAG_TOKEN:?KICKOFF_BUGSNAG_TOKEN must be set in $SECRETS_FILE}"
+  : "${KICKOFF_POSTHOG_TOKEN:?KICKOFF_POSTHOG_TOKEN must be set in $SECRETS_FILE}"
 }
 
 preflight() {
@@ -209,7 +219,7 @@ set_token() {
     *" ${key} "*) ;;
     *) die "usage: zdr-harness set-token <$(echo "$SECRET_KEYS" | tr ' ' '|')>" ;;
   esac
-  [[ -f "${ZH}/.env" ]] || die "missing ${ZH}/.env (start from src/zdr-harness/.env.template)"
+  [[ -f "$SECRETS_FILE" ]] || die "no secrets file; start from ${PROJECT_DIR}/.env.template"
 
   local value=""
   if [[ -t 0 ]]; then
@@ -218,9 +228,9 @@ set_token() {
   else
     IFS= read -r value || true
   fi
-  [[ -n "$value" ]] || die "empty value; ${ZH}/.env unchanged"
+  [[ -n "$value" ]] || die "empty value; ${SECRETS_FILE} unchanged"
 
-  SET_KEY="$key" SET_VALUE="$value" /usr/bin/python3 "${SCRIPT_DIR}/../set-env-value.py" "${ZH}/.env"
+  SET_KEY="$key" SET_VALUE="$value" /usr/bin/python3 "${SCRIPT_DIR}/../set-env-value.py" "$SECRETS_FILE"
   unset value
 
   printf '\nRestarting so the running server picks it up.\n'
@@ -238,9 +248,76 @@ set_token() {
   printf '\n\nNote: `connected` only means the server answered. Ask one real question\nper server to prove the credential itself works.\n'
 }
 
+# Print which secrets file is live and a fingerprint per key, never a value.
+# Fingerprints are how you tell whether an edit actually reached the server.
+secrets_report() {
+  SECRETS_PATH="$SECRETS_FILE" MARKER="$SERVE_MARKER" /usr/bin/python3 - <<'PY'
+import hashlib, os
+from pathlib import Path
+
+path = Path(os.environ["SECRETS_PATH"])
+marker = Path(os.environ["MARKER"])
+print(f"secrets: {path}")
+for raw in path.read_text().splitlines():
+    line = raw.strip()
+    if not line or line.startswith("#") or "=" not in line:
+        continue
+    if line.startswith("export "):
+        line = line[len("export "):].strip()
+    key, value = line.split("=", 1)
+    value = value.strip().strip('"').strip("'")
+    digest = hashlib.sha256(value.encode()).hexdigest()[:12] if value else "EMPTY"
+    print(f"  {key.strip()}: len={len(value)} sha12={digest}")
+if marker.exists() and path.stat().st_mtime > marker.stat().st_mtime:
+    print("STALE: edited after the server started. Run: zdr-harness reload-auth")
+PY
+}
+
+# Prove a credential rather than trusting `connected`: both times a token broke,
+# /mcp stayed green and the failure only showed up inside a tool result.
+probe_credentials() {
+  local code
+  printf 'header = "Authorization: token %s"\n' "$KICKOFF_BUGSNAG_TOKEN" |
+    curl -sS -m 20 -K - -o /dev/null -w '%{http_code}' -H 'X-Version: 2' \
+      https://api.bugsnag.com/user/organizations >/tmp/.zdr-probe-bugsnag 2>/dev/null || true
+  code="$(cat /tmp/.zdr-probe-bugsnag 2>/dev/null)"
+  rm -f /tmp/.zdr-probe-bugsnag
+  printf '  bugsnag token:  HTTP %s %s\n' "${code:-000}" "$([[ "$code" == 200 ]] && echo OK || echo FAILED)"
+
+  printf 'header = "Authorization: Bearer %s"\n' "$KICKOFF_POSTHOG_TOKEN" |
+    curl -sS -m 20 -K - -o /dev/null -w '%{http_code}' \
+      https://us.posthog.com/api/users/@me/ >/tmp/.zdr-probe-posthog 2>/dev/null || true
+  code="$(cat /tmp/.zdr-probe-posthog 2>/dev/null)"
+  rm -f /tmp/.zdr-probe-posthog
+  printf '  posthog token:  HTTP %s %s\n' "${code:-000}" "$([[ "$code" == 200 ]] && echo OK || echo FAILED)"
+  printf '  amplitude:      OAuth, not a token; see /mcp status above\n'
+}
+
+# Reflow auth: OpenCode resolves {env:...} when the server starts, so applying a
+# rolled token means restarting that process. Nothing lighter exists.
+reload_auth() {
+  load_secrets
+  secrets_report
+  printf '\nrestarting the server so it re-reads them\n'
+  launchctl kickstart -k "gui/$(id -u)/${LABEL}"
+  local i
+  for i in $(seq 1 30); do
+    sleep 2
+    api_get /global/health 2>/dev/null | grep -q '"healthy":true' && break
+  done
+  printf '\nhealth: '
+  api_get /global/health
+  printf '\nmcp:    '
+  api_get /mcp
+  printf '\n\ncredential probes (the part /mcp cannot tell you):\n'
+  probe_credentials
+}
+
 case "${1:-}" in
   serve)
     shift
+    mkdir -p "$RUN_DIR"
+    : > "$SERVE_MARKER"
     run_opencode serve --hostname 127.0.0.1 --port "$PORT" "$@"
     ;;
   attach)
@@ -254,6 +331,8 @@ case "${1:-}" in
     printf '\nmcp:    '
     api_get /mcp
     printf '\nweb UI: %s (user: opencode, password: 1Password Employee/ZDR_HARNESS_PASSWORD)\n' "$URL"
+    printf '\n'
+    secrets_report
     ;;
   restart)
     launchctl kickstart -k "gui/$(id -u)/${LABEL}"
@@ -273,6 +352,9 @@ case "${1:-}" in
     shift
     /usr/bin/python3 "${SCRIPT_DIR}/../build_app.py" --install "$@"
     open "${HOME}/Applications/ZDR Harness.app"
+    ;;
+  reload-auth)
+    reload_auth
     ;;
   set-token)
     shift

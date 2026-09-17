@@ -310,18 +310,34 @@ final class MainController: NSObject, NSWindowDelegate, WKNavigationDelegate, WK
     }
 
     private func updateStatus() {
-        statusText.stringValue = health.summary
-        statusText.toolTip = health.summary
+        let stale = Harness.secretsAreStale
+        statusText.stringValue = health.summary + (stale ? " · secrets changed (⇧⌘R)" : "")
+        statusText.toolTip = stale
+            ? "\(Harness.secretsFile.path) was edited after the server started. ⇧⌘R restarts it."
+            : health.summary
         statusDot.textColor = health.allGood ? .systemGreen : (health.reachable && health.healthy ? .systemOrange : .systemRed)
     }
 
     // MARK: menu actions
 
+    /// Reload the page, or restart the server first when the secrets file has
+    /// been edited since it started: {env:...} is read only at server start, so
+    /// reloading the page alone would silently keep the old token.
     @objc func reload(_ sender: Any?) {
+        if Harness.secretsAreStale {
+            AppLog.write("secrets file is newer than the running server; reloading auth")
+            reloadAuth(sender)
+            return
+        }
         if webViewShown, let webView {
             webView.reload()
         }
         checkHealth(force: true)
+    }
+
+    @objc func reloadAuth(_ sender: Any?) {
+        AppLog.write("reload auth requested")
+        restartService(sender)
     }
 
     @objc func showStatus(_ sender: Any?) {

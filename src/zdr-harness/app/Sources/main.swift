@@ -136,6 +136,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         ])
         submenu("View", [
             item("Reload", #selector(MainController.reload(_:)), "r", target: c),
+            item("Reload Auth (Restart Service)", #selector(MainController.reloadAuth(_:)), "r", [.command, .shift], target: c),
             .separator(),
             item("Actual Size", #selector(MainController.actualSize(_:)), "0", target: c),
             item("Zoom In", #selector(MainController.zoomIn(_:)), "+", target: c),
@@ -144,6 +145,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         submenu("Harness", [
             item("Status…", #selector(MainController.showStatus(_:)), target: c),
             item("Reload", #selector(MainController.reload(_:)), target: c),
+            item("Reload Auth (Restart Service)", #selector(MainController.reloadAuth(_:)), "r", [.command, .shift], target: c),
             item("Restart Service", #selector(MainController.restartService(_:)), target: c),
             .separator(),
             item("Open Logs Folder", #selector(MainController.openLogs(_:)), target: c),

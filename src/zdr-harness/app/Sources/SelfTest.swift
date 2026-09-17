@@ -100,6 +100,10 @@ final class SelfTest: NSObject, MainControllerObserver, WKNavigationDelegate {
         guard let webView = controller.webView else { return finish() }
         let port = options.canaryPort ?? canary?.port ?? 0
         result["canary"] = options.canaryPort != nil ? "external" : "in-process"
+        // Informational: the same check ⌘R uses to decide between reloading the
+        // page and restarting the server.
+        result["secretsStale"] = Harness.secretsAreStale
+        result["secretsFile"] = Harness.secretsFile.path
         let space = { (host: String, port: Int, method: String) in
             URLProtectionSpace(host: host, port: port, protocol: "http", realm: "x", authenticationMethod: method)
         }

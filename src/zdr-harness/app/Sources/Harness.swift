@@ -36,6 +36,31 @@ enum Harness {
         return home.appendingPathComponent("dotfiles/src/zdr-harness/README.md")
     }
 
+    // The secrets file lives beside the wrapper in the checkout; ~/.zdr-harness
+    // is the fallback. OpenCode resolves {env:...} when the server starts, so a
+    // rolled token only reaches it through a restart.
+    static var secretsFile: URL {
+        if let path = Bundle.main.object(forInfoDictionaryKey: "ZDRHarnessWrapper") as? String {
+            let candidate = URL(fileURLWithPath: path)
+                .deletingLastPathComponent().deletingLastPathComponent()
+                .appendingPathComponent(".env")
+            if FileManager.default.fileExists(atPath: candidate.path) { return candidate }
+        }
+        return root.appendingPathComponent(".env")
+    }
+
+    // `zdr-harness serve` touches this immediately before exec'ing OpenCode.
+    static var serveMarker: URL { root.appendingPathComponent("run/serve-started") }
+
+    /// True when the secrets file was edited after the running server read it.
+    static var secretsAreStale: Bool {
+        let fm = FileManager.default
+        guard let secrets = (try? fm.attributesOfItem(atPath: secretsFile.path))?[.modificationDate] as? Date,
+              let started = (try? fm.attributesOfItem(atPath: serveMarker.path))?[.modificationDate] as? Date
+        else { return false }
+        return secrets > started
+    }
+
     static var wrapper: String {
         if let path = Bundle.main.object(forInfoDictionaryKey: "ZDRHarnessWrapper") as? String { return path }
         return "~/dotfiles/src/zdr-harness/bin/zdr-harness"
