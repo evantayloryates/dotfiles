@@ -1,24 +1,38 @@
 #!/bin/zsh
 
 
-# Generate the function file and source it. Silent on success; on failure print a
-# red banner, the fix-it command in white on its own line, then the generator's error.
+# Generate the function file and source it. Silent on success. On failure the error
+# detail goes to a log file (never the terminal) and the shell prints a short red
+# signal plus a gray, copy-pasteable agent prompt that points at the log.
 __pathfuncs_load_failed() {
-  local src="$DOTFILES_DIR/src/python/pathfuncs.py"
+  local stage="$1" detail="$2"
+  local src="$DOTFILES_DIR/src/python/pathfuncs.py" loader="$DOTFILES_DIR/src/functions/common.sh"
+  local log="${${TMPDIR:-/tmp}%/}/pathfuncs-error.log"
+  print -r -- "time:      $(date '+%Y-%m-%d %H:%M:%S %z')
+stage:     $stage
+generator: ${src:A}
+loader:    ${loader:A}
+
+$detail" >| "$log"
   {
-    print -P -- '%F{red}Pathfuncs failed to load. Please address issues in file:%f'
-    print -r -- $'\e[97m'"code ${src:A}"$'\e[0m'
-    [[ -n "$1" ]] && print -r -- $'\e[2m'"$1"$'\e[0m'
+    print -r -- $'\e[31m'"Pathfuncs failed to load."$'\e[0m'" Copy this prompt to resolve:"
+    print -r -- $'\e[90m'"My zsh pathfuncs failed to load. Diagnose and fix the root cause.
+- Error log: $log
+- Generator: ${src:A}
+- Loader:    ${loader:A}
+Read the error log first, then fix the generator config (or the loader if the log points there).
+Verify: \`zsh -ic true\` prints nothing, and \`zsh -ic paths\` lists the pathfuncs."$'\e[0m'
   } >&2
 }
 
 # stderr is captured too: on success the output is just the generated file's path,
-# on failure it is the error detail shown under the banner.
+# on failure it is the error detail that gets logged.
 PATHFUNCS_FILE="$(python3 "$DOTFILES_DIR/src/python/pathfuncs.py" 2>&1)"
 if [[ $? -ne 0 || ! -f "$PATHFUNCS_FILE" ]]; then
-  __pathfuncs_load_failed "$PATHFUNCS_FILE"
-elif ! source "$PATHFUNCS_FILE"; then
-  __pathfuncs_load_failed "could not source generated file: $PATHFUNCS_FILE"
+  __pathfuncs_load_failed 'generate (python3 pathfuncs.py)' "$PATHFUNCS_FILE"
+elif ! source "$PATHFUNCS_FILE" 2>/dev/null; then
+  # Re-parse only on failure to recover the error text that was kept off the terminal.
+  __pathfuncs_load_failed "source generated file ($PATHFUNCS_FILE)" "$(zsh -fn "$PATHFUNCS_FILE" 2>&1)"
 fi
 unfunction __pathfuncs_load_failed
 

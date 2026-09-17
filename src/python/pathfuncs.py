@@ -11,7 +11,7 @@ HOME = '/Users/taylor'
 # top-level function or aliases, so it never shadows a real command of the same name
 # (claude, codex, cc). The parent must list it in sub_funcs; inside the parent, sub
 # selectors win over the `<subcmd> <path>` fallthrough.
-def p(slug, path, default='cd', commands=None, aliases=None, alias_cmds=None,
+def pa(slug, path, default='cd', commands=None, aliases=None, alias_cmds=None,
       sub_funcs=None, parent_func=None):
   if path.startswith('~'):
     path = HOME + path[1:]
