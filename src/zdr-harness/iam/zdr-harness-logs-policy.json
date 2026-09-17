@@ -1,0 +1,24 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ReadProductionLambdaLogs",
+      "Effect": "Allow",
+      "Action": [
+        "logs:DescribeLogGroups",
+        "logs:DescribeLogStreams",
+        "logs:FilterLogEvents",
+        "logs:GetLogEvents",
+        "logs:StartQuery",
+        "logs:StopQuery",
+        "logs:GetQueryResults"
+      ],
+      "Resource": [
+        "arn:aws:logs:us-west-1:414993717154:log-group:/aws/lambda/kickoff-*-production-*",
+        "arn:aws:logs:us-west-1:414993717154:log-group:/aws/lambda/kickoff-*-production-*:*",
+        "arn:aws:logs:us-west-1:414993717154:log-group:/aws/lambda/kudos-*-production-*",
+        "arn:aws:logs:us-west-1:414993717154:log-group:/aws/lambda/kudos-*-production-*:*"
+      ]
+    }
+  ]
+}

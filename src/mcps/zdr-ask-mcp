@@ -10,10 +10,14 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 NODE="$(resolve_binary node)"
 
-harness_env="$(ENV_FILE="${HOME}/.zdr-harness/.env" env_export ZDR_HARNESS_PASSWORD)"
+# Secrets live beside the harness config; ~/.zdr-harness/.env is the fallback.
+SECRETS_FILE="${SCRIPT_DIR}/../zdr-harness/.env"
+[[ -f "$SECRETS_FILE" ]] || SECRETS_FILE="${HOME}/.zdr-harness/.env"
+
+harness_env="$(ENV_FILE="$SECRETS_FILE" env_export ZDR_HARNESS_PASSWORD)"
 eval "$harness_env"
 unset harness_env
-: "${ZDR_HARNESS_PASSWORD:?ZDR_HARNESS_PASSWORD must be set in ~/.zdr-harness/.env}"
+: "${ZDR_HARNESS_PASSWORD:?ZDR_HARNESS_PASSWORD must be set in ${SECRETS_FILE}}"
 export ZDR_HARNESS_PASSWORD
 
 exec "$NODE" "${SCRIPT_DIR}/zdr-ask/index.mjs"

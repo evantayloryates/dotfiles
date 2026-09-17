@@ -2,15 +2,19 @@
 
 A locked-down OpenCode 1.18.31 server on `http://127.0.0.1:4096` (LaunchAgent
 `com.taylor.zdr-harness`). It runs only on Kickoff's zero-data-retention OpenAI
-key and exposes only 30 named tools: read-only Amplitude and BugSnag ones,
+key and exposes only 34 named tools: read-only Amplitude and BugSnag ones,
 PostHog's single `exec` router (constrained by a read-scoped key, not by the
-allowlist), and `todowrite` for in-session planning. Claude Code and Codex reach it through the `zdr_ask` MCP tool
+allowlist), four read-only CloudWatch Logs tools, and `todowrite` for
+in-session planning. Claude Code and Codex reach it through the `zdr_ask` MCP tool
 (`src/mcps/zdr-ask`).
 `ZDR Harness.app` (`app/`) is the native viewer. **README.md is the source of
 truth**: design, lockdown, app, verification. Read it before changing anything.
 
 ## Hard rules
 
+- **`mcps/kickoff-logs` is harness-only.** Production Lambda logs carry request
+  payloads and client free text. Never register that server in Claude Code,
+  Codex or any other non-ZDR client, and never add a write API to it.
 - **Harness tokens stay in `src/zdr-harness/.env`.** They are for this harness
   only; do not copy them into another MCP client, shell profile or repo `.env`.
   Update `.env.template` whenever that file's keys or comments change.

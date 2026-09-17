@@ -31,6 +31,8 @@ control key from another org stored normally.
 | `data/zdr-harness/ZDR Harness.app` (not in git) | Build output; the installed copy is `~/Applications/ZDR Harness.app` |
 | `src/zdr-harness/.env` (600, gitignored) | Every harness secret: `KICKOFF_OPENAI_ZDR_API_KEY`, `ZDR_HARNESS_PASSWORD`, `KICKOFF_BUGSNAG_TOKEN`, `KICKOFF_POSTHOG_TOKEN`. `~/.zdr-harness/.env` is a fallback if this is absent |
 | `src/zdr-harness/.env.template` | Same keys and comments with empty values; keep the two in sync |
+| `src/zdr-harness/mcps/kickoff-logs/` + `kickoff-logs-mcp` | Harness-only MCP server for production Lambda logs (see [Lambda logs](#lambda-logs)) |
+| `src/zdr-harness/iam/` | The policy of record for the `zdr-harness-logs` AWS user |
 | `~/.zdr-harness/opt/` | Pinned OpenCode install (`opencode-ai@1.18.31`) |
 | `~/.zdr-harness/xdg/data/opencode/` | Sessions DB, MCP OAuth tokens, logs (**holds raw tool output**) |
 
@@ -48,9 +50,10 @@ key) and `ZDR_HARNESS_PASSWORD` (web UI / API Basic auth, username `opencode`).
   `provider.use` deny-all/allow-openai policy. Built-in `build`, `plan`, `general`
   and `explore` agents are disabled; `zdr` is the default.
 - **No built-in tools, named MCP tools only.** `permission` denies `*`, then
-  allows 30 named tools: 11 Amplitude, 17 BugSnag (all annotated read-only by
-  their servers), PostHog's single `exec`, and `todowrite`, which only keeps a
-  plan in the session and touches nothing outside it. Shell, file, edit, web, task and
+  allows 34 named tools: 11 Amplitude, 17 BugSnag (all annotated read-only by
+  their servers), PostHog's single `exec`, four CloudWatch Logs readers, and
+  `todowrite`, which only keeps a plan in the session and touches nothing
+  outside it. Shell, file, edit, web, task and
   skill tools, every BugSnag write tool (`update_error`,
   `set_network_endpoint_groupings`), Amplitude user lookup
   (`get_amp_user_data`), session replay, AI feedback and agent-analytics tools
@@ -222,6 +225,39 @@ With `--canary-port N` blocking is tested against your listener, whose access
 log must stay empty; with `--session <id>` it also puts Markdown-style images
 into the rendered answer.
 
+## Lambda logs
+
+`src/zdr-harness/mcps/kickoff-logs` gives the harness read-only access to
+Kickoff's production Lambda logs in CloudWatch: `list_groups`, `list_streams`,
+`search` (FilterLogEvents) and `query` (Logs Insights). Zero dependencies, node
+stdlib only, SigV4 signed in about 40 lines, launched over stdio inside the same
+isolated environment as everything else.
+
+**Harness-only.** These logs carry request payloads, headers and client free
+text, so this server must never be registered in Claude Code, Codex or any other
+non-ZDR client. The harness is the point: raw lines stay here and the answer rule
+governs what leaves.
+
+Three walls, not one:
+
+- **The code.** Only four read APIs are implemented, so no prompt can reach a
+  mutating call regardless of what the credential allows.
+- **The server's own filter.** Group names must match
+  `/aws/lambda/(kickoff|kudos)-*-production-*`; a staging or beta group is
+  refused before AWS sees it.
+- **IAM.** The `zdr-harness-logs` user is read-only on those same groups
+  (`iam/zdr-harness-logs-policy.json`), and is not the account's admin user.
+
+Windows and result counts are capped because Insights bills per GB scanned and
+`/aws/lambda/kudos-node-production-graphql` alone holds ~500 GB: 24 h maximum
+window (1 h default), 200 events per search, 1000 rows per query, 5 groups per
+query, 90 s query timeout with `StopQuery` on overrun. Every query reports the
+bytes it scanned.
+
+Credentials are optional. Without them the harness starts normally and the tools
+answer with the exact command to fix it. Setup is in
+[`iam/README.md`](iam/README.md).
+
 ## Setup from scratch
 
 ```sh
@@ -354,7 +390,9 @@ config or app.
    `lsof -nP -iTCP -a -p` for `ZDRHarness` and its `com.apple.WebKit.*`
    processes (the ones holding `com.taylor.zdr-harness.app` files) → only
    `127.0.0.1:4096` (plus the self-test's own loopback canary if one is running).
-10. **App failure states.** `launchctl bootout gui/$(id -u)/com.taylor.zdr-harness`,
+10. **Lambda logs.** `list_groups` returns only production groups, and a
+    staging group name is refused by the server rather than by AWS.
+11. **App failure states.** `launchctl bootout gui/$(id -u)/com.taylor.zdr-harness`,
     run `--self-test-recovery` → `allPass`, then `zdr-harness status` healthy.
 
 ## Data retention

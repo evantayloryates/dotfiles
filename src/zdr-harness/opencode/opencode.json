@@ -61,7 +61,11 @@
     "bugsnag_bugsnag_list_trace_fields": "allow",
     "bugsnag_bugsnag_get_network_endpoint_groupings": "allow",
     "posthog_exec": "allow",
-    "todowrite": "allow"
+    "todowrite": "allow",
+    "awslogs_list_groups": "allow",
+    "awslogs_list_streams": "allow",
+    "awslogs_search": "allow",
+    "awslogs_query": "allow"
   },
   "agent": {
     "zdr": {
@@ -104,6 +108,18 @@
         "Authorization": "Bearer {env:KICKOFF_POSTHOG_TOKEN}"
       },
       "oauth": false,
+      "timeout": 120000
+    },
+    "awslogs": {
+      "type": "local",
+      "command": [
+        "{env:ZDR_HARNESS_LOGS_MCP}"
+      ],
+      "environment": {
+        "KICKOFF_ZDR_AWS_ACCESS_KEY_ID": "{env:KICKOFF_ZDR_AWS_ACCESS_KEY_ID}",
+        "KICKOFF_ZDR_AWS_SECRET_ACCESS_KEY": "{env:KICKOFF_ZDR_AWS_SECRET_ACCESS_KEY}",
+        "KICKOFF_ZDR_AWS_REGION": "{env:KICKOFF_ZDR_AWS_REGION}"
+      },
       "timeout": 120000
     }
   }
