@@ -1,13 +1,26 @@
 #!/bin/zsh
 
 
-# Generate the function file and source it
-PATHFUNCS_FILE="$(python3 $DOTFILES_DIR/src/python/pathfuncs.py)"
-if [[ -f "$PATHFUNCS_FILE" ]]; then
-  source "$PATHFUNCS_FILE"
-else
-  echo "Failed to generate path functions"
+# Generate the function file and source it. Silent on success; on failure print a
+# red banner, the fix-it command in white on its own line, then the generator's error.
+__pathfuncs_load_failed() {
+  local src="$DOTFILES_DIR/src/python/pathfuncs.py"
+  {
+    print -P -- '%F{red}Pathfuncs failed to load. Please address issues in file:%f'
+    print -r -- $'\e[97m'"code ${src:A}"$'\e[0m'
+    [[ -n "$1" ]] && print -r -- $'\e[2m'"$1"$'\e[0m'
+  } >&2
+}
+
+# stderr is captured too: on success the output is just the generated file's path,
+# on failure it is the error detail shown under the banner.
+PATHFUNCS_FILE="$(python3 "$DOTFILES_DIR/src/python/pathfuncs.py" 2>&1)"
+if [[ $? -ne 0 || ! -f "$PATHFUNCS_FILE" ]]; then
+  __pathfuncs_load_failed "$PATHFUNCS_FILE"
+elif ! source "$PATHFUNCS_FILE"; then
+  __pathfuncs_load_failed "could not source generated file: $PATHFUNCS_FILE"
 fi
+unfunction __pathfuncs_load_failed
 
 # Source all sibling .sh files
 SCRIPT_DIR="$(dirname "$0")"
