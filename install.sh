@@ -122,6 +122,7 @@ if [[ "$(uname)" == "Darwin" ]]; then
     launchctl bootout "gui/$UID_NUM/$LA_LABEL" 2>/dev/null || true
     launchctl bootstrap "gui/$UID_NUM" "$LA_DEST" 2>/dev/null || true
     log "🔗 Linked + loaded $LA_LABEL LaunchAgent"
+    # The macOS app needs Xcode, so it is not built here: run `zdr-harness app`.
   fi
 fi
 

