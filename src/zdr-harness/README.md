@@ -75,9 +75,20 @@ key) and `ZDR_HARNESS_PASSWORD` (web UI / API Basic auth, username `opencode`).
 - **Local only.** Binds `127.0.0.1:4096` with HTTP Basic auth.
 - **Pinned.** The wrapper refuses any OpenCode version other than 1.18.31, and
   refuses if managed config exists at `/Library/Application Support/opencode`.
-- **Answer rule.** The agent prompt limits answers to aggregates, names of
-  events/properties/error classes, IDs and links. `zdr_ask` additionally scrubs
-  email addresses and phone numbers from what it returns.
+- **Answer rule.** The reply is the only thing that leaves the harness, and it
+  lands somewhere with neither zero data retention nor a BAA, so the agent
+  prompt holds it to HIPAA Safe Harbor (45 CFR 164.514(b)(2)): none of the 18
+  identifier types, nothing that singles out one person, and no grouping under
+  11 people (CMS's cell-size policy). Within that line it is deliberately
+  generous: aggregates, catalogue and schema names, object IDs and console
+  links (a BugSnag error ID names a record, not a person), device *model* names,
+  verbatim exception messages with identifiers placeholdered, and stack frames
+  down to file and line. Person-scoped codes stay out even when random
+  (`distinct_id`, device, session and replay IDs), because the agent asking can
+  open the same tools and translate them back. When something is withheld the
+  agent says which field and points at the session in the app, where the raw
+  result already is. `zdr_ask` additionally scrubs email addresses and phone
+  numbers from what it returns.
 
 **Auth per server (revised 2026-09-17).** Amplitude uses OAuth. OpenCode's MCP
 SDK (1.29, following SEP-835) requests every scope a server advertises and
