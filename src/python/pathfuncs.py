@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import shlex
 import tempfile
 
 HOME = '/Users/taylor'
@@ -27,6 +28,17 @@ def p(slug, path, default='cd', commands=None, aliases=None, alias_cmds=None,
   return entry
 
 
+# Global remaps: apply to every pathfunc (and sub pathfunc) when everything typed
+# after the trigger matches `trigger` exactly (`dot cd`, not `dot cd foo`). The
+# command runs inside the target dir like any other passthrough (see
+# __pathfuncs_in). A per-pathfunc `commands` entry of the same name wins.
+GLOBALS = [
+  {'trigger': 'cd',   'command': 'cd .'},
+  {'trigger': 'code', 'command': 'code .'},
+  {'trigger': 'open', 'command': 'open .'},
+  {'trigger': 'abs',  'command': 'abs .'},
+]
+
 KICKOFF_CONTAINER = 'code --folder-uri vscode-remote://ssh-remote+kickoff.devpod/workspaces'
 
 CONFIG = [
@@ -52,7 +64,7 @@ CONFIG = [
   p('movies',      '~/Movies',                          'cd', aliases=['mov', 'Movies']),
   p('music',       '~/Music',                           'cd', aliases=['Music']),
   p('notes',       '~/Desktop/notes'),
-  p('pathfuncs',   '~/dotfiles/src/python/pathfuncs.py','code', aliases=['pathfunc', 'pathfns', 'pathfn', 'pathfuns', 'pathfun', 'pthfuncs', 'pthfunc', 'pthfns', 'pthfn', 'pthfuns', 'pthfun', 'pfuncs', 'pfunc', 'pfns', 'pfn', 'pfuns', 'pfun' ]),
+  p('pathfuncs',   '~/dotfiles/src/python/pathfuncs.py','code', commands={'code': 'code <path>'}, aliases=['pathfunc', 'pathfns', 'pathfn', 'pathfuns', 'pathfun', 'pthfuncs', 'pthfunc', 'pthfns', 'pthfn', 'pthfuns', 'pthfun', 'pfuncs', 'pfunc', 'pfns', 'pfn', 'pfuns', 'pfun' ]),
   p('pictures',    '~/Pictures',                        'cd', aliases=['pics', 'pic', 'Pictures']),
   p('plans',       '~/src/docs/plans',                  'open', aliases=['pln', 'plan']),
   p('pod',         '~/src/github/podsauce',             'cd'),
@@ -176,10 +188,14 @@ def build_function(entry, subs=()):
     fn.append(f'      "$0" "{default}" "$@"')
   else:
     fn.append(f'      {default} "{path}"')
+  # Passthrough: run the command as typed from inside the target (a file target
+  # "goes to" its parent dir). __pathfuncs_in returns to the original dir unless
+  # the command itself changed directory.
+  target_dir = os.path.dirname(path) if os.path.isfile(path) else path
   fn.extend([
     '      ;;',
     '    * )',
-    f'      $subcmd "{path}" "$@"',
+    f'      __pathfuncs_in "{target_dir}" "$subcmd" "$@"',
     '      ;;',
     '  esac',
     '}'
@@ -197,6 +213,14 @@ def build_function(entry, subs=()):
 def subs_of(entry, config):
   by_slug = {e['slug']: e for e in config if e.get('parent_func') == entry['slug']}
   return [by_slug[s] for s in entry.get('sub_funcs', [])]
+
+
+def build_globals(globals_):
+  lines = ['typeset -gA __PATHFUNCS_GLOBALS=(']
+  for g in globals_:
+    lines.append(f"  {shlex.quote(g['trigger'])} {shlex.quote(g['command'])}")
+  lines.append(')')
+  return '\n'.join(lines)
 
 
 def build_paths_helper(config):
@@ -220,6 +244,8 @@ def main():
   with os.fdopen(fd, 'w') as f:
     f.write('# Generated shell functions\n\n')
     f.write('source "$DOTFILES_DIR/src/python/pathfuncs.sh"\n\n')
+    f.write(build_globals(GLOBALS))
+    f.write('\n\n')
     f.write(functions)
     f.write('\n\n')
     f.write(paths_helper)
