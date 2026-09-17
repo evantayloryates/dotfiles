@@ -5,7 +5,14 @@ import tempfile
 HOME = '/Users/taylor'
 
 # path macros
-def p(slug, path, default='cd', commands=None, aliases=None, alias_cmds=None):
+#
+# Sub pathfuncs: an entry with parent_func='<slug>' is a standalone pathfunc that is
+# only reachable through its parent (`skills claude`, `skills cc abs`). It gets no
+# top-level function or aliases, so it never shadows a real command of the same name
+# (claude, codex, cc). The parent must list it in sub_funcs; inside the parent, sub
+# selectors win over the `<subcmd> <path>` fallthrough.
+def p(slug, path, default='cd', commands=None, aliases=None, alias_cmds=None,
+      sub_funcs=None, parent_func=None):
   if path.startswith('~'):
     path = HOME + path[1:]
   entry = {'slug': slug, 'path': path, 'default': default, 'commands': commands or {}}
@@ -13,6 +20,10 @@ def p(slug, path, default='cd', commands=None, aliases=None, alias_cmds=None):
     entry['aliases'] = aliases
   if alias_cmds:
     entry['alias_cmds'] = alias_cmds
+  if sub_funcs:
+    entry['sub_funcs'] = sub_funcs
+  if parent_func:
+    entry['parent_func'] = parent_func
   return entry
 
 
@@ -50,7 +61,9 @@ CONFIG = [
   p('sca',         '~/src/github/r1/sca',               'cd'),
   p('screenshots', '~/Pictures/Screenshots',            'open', aliases=['ss', 'shots', 'screenshot']),
   p('skills',      '~/src/docs/skills',                 'select', aliases=['skl', 'skill'],
-    commands={'select': '__skills_select <path>'}),
+    commands={'select': '__skills_select <path>'}, sub_funcs=['claude', 'codex']),
+  p('claude',      '~/.claude/skills',                  'cd', parent_func='skills', aliases=['cc']),
+  p('codex',       '~/.codex/skills',                   'cd', parent_func='skills', aliases=['cdx', 'cod']),
   p('taxes',       '~/Documents/Taxes',                 'cd', aliases=['tax']),
   p('vsx',         '~/src/vscode-extensions'),
   p('amp',        '~/src/github/amplify', aliases=['amplify'], alias_cmds={'up': 'update'},
@@ -81,12 +94,52 @@ CONFIG = [
   ),
 ]
 
-def build_function(entry):
-  slug = entry['slug']
+def fn_name(entry):
+  if 'parent_func' in entry:
+    return f"__{entry['parent_func']}__{entry['slug']}"
+  return entry['slug']
+
+
+def selectors(entry):
+  return [entry['slug'], *entry.get('aliases', [])]
+
+
+def validate(config):
+  top = {e['slug']: e for e in config if 'parent_func' not in e}
+  for entry in config:
+    parent = entry.get('parent_func')
+    if parent is None:
+      continue
+    slug = entry['slug']
+    if parent not in top:
+      raise SystemExit(f"pathfuncs: sub func '{slug}': parent_func '{parent}' is not a top-level pathfunc")
+    if entry.get('sub_funcs'):
+      raise SystemExit(f"pathfuncs: sub func '{slug}': nested sub_funcs are not supported")
+    if slug not in top[parent].get('sub_funcs', []):
+      raise SystemExit(f"pathfuncs: '{parent}' must list '{slug}' in sub_funcs")
+
+  for parent in top.values():
+    taken = {name: 'command' for name in [*parent['commands'], *parent.get('alias_cmds', {})]}
+    for sub_slug in parent.get('sub_funcs', []):
+      subs = [e for e in config if e.get('parent_func') == parent['slug'] and e['slug'] == sub_slug]
+      if len(subs) != 1:
+        raise SystemExit(f"pathfuncs: '{parent['slug']}' sub_funcs: expected exactly one "
+                         f"p('{sub_slug}', ..., parent_func='{parent['slug']}'), found {len(subs)}")
+      for name in selectors(subs[0]):
+        if name in taken:
+          raise SystemExit(f"pathfuncs: '{parent['slug']} {name}' is ambiguous: "
+                           f"sub func '{sub_slug}' collides with {taken[name]}")
+        taken[name] = f"sub func '{sub_slug}'"
+
+
+def build_function(entry, subs=()):
+  slug = fn_name(entry)
   path = entry['path']
   default = entry.get('default', 'cd')
   commands = entry.get('commands', {})
-  aliases = entry.get('aliases', [])
+  is_sub = 'parent_func' in entry
+  # Sub funcs are reachable only through their parent: no top-level names.
+  aliases = [] if is_sub else entry.get('aliases', [])
   alias_cmds = entry.get('alias_cmds', {})
 
   fn = [
@@ -96,6 +149,13 @@ def build_function(entry):
     '  local args="$@"',
     '  case "$subcmd" in'
   ]
+
+  # Sub func selectors come first so they beat the `* )` fallthrough, which would
+  # otherwise run the same-named command (cc, claude, codex) against this path.
+  for sub in subs:
+    fn.append(f"    {'|'.join(selectors(sub))})")
+    fn.append(f'      {fn_name(sub)} "$@"')
+    fn.append('      ;;')
 
   for name, cmd in commands.items():
     cmd_str = (
@@ -126,15 +186,24 @@ def build_function(entry):
   ])
 
   alias_funcs = [f'{alias}() {{ {slug} "$@"; }}' for alias in aliases]
-  alias_funcs += [
-    f'{name}() {{ {slug} {subcmd} "$@"; }}' for name, subcmd in alias_cmds.items()
-  ]
+  if not is_sub:
+    alias_funcs += [
+      f'{name}() {{ {slug} {subcmd} "$@"; }}' for name, subcmd in alias_cmds.items()
+    ]
 
   return '\n'.join([*fn, '', *alias_funcs])
 
 
+def subs_of(entry, config):
+  by_slug = {e['slug']: e for e in config if e.get('parent_func') == entry['slug']}
+  return [by_slug[s] for s in entry.get('sub_funcs', [])]
+
+
 def build_paths_helper(config):
-  slugs = sorted(entry['slug'] for entry in config)
+  slugs = sorted(
+    f"{entry['parent_func']} {entry['slug']}" if 'parent_func' in entry else entry['slug']
+    for entry in config
+  )
   lines = ['paths() {']
   for slug in slugs:
     lines.append(f'  echo "{slug}"')
@@ -143,7 +212,8 @@ def build_paths_helper(config):
 
 
 def main():
-  functions = '\n\n'.join(build_function(entry) for entry in CONFIG)
+  validate(CONFIG)
+  functions = '\n\n'.join(build_function(entry, subs_of(entry, CONFIG)) for entry in CONFIG)
   paths_helper = build_paths_helper(CONFIG)
 
   fd, path = tempfile.mkstemp(prefix='pathfuncs_', suffix='.zsh')
