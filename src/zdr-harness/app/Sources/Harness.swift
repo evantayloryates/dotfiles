@@ -105,8 +105,17 @@ enum Harness {
         return .useCredential
     }
 
-    static func reauthCommand(for server: String) -> String {
-        "\(wrapper) mcp auth \(server) && \(wrapper) restart"
+    /// Only Amplitude uses OAuth. The others authenticate with a token from the
+    /// secrets file, where `mcp auth` answers "not an OAuth-capable remote server".
+    static let oauthServers: Set<String> = ["amplitude"]
+
+    static func recoveryAdvice(for server: String) -> (summary: String, command: String) {
+        if oauthServers.contains(server) {
+            return ("Sign in again from a terminal (it opens a browser). The app reloads once the service is healthy.",
+                    "\(wrapper) mcp auth \(server) && \(wrapper) restart")
+        }
+        return ("This server authenticates with a token, not OAuth. Check its entry in \(secretsFile.path), then re-read it into the server.",
+                "\(wrapper) reload-auth")
     }
 
     // MARK: password

@@ -185,10 +185,11 @@ final class MainController: NSObject, NSWindowDelegate, WKNavigationDelegate, WK
         guard !options.selfTest else { return }
         for (server, status) in snapshot.brokenServers where !alertedServers.contains("\(server)=\(status)") {
             alertedServers.insert("\(server)=\(status)")
-            let command = Harness.reauthCommand(for: server)
+            let advice = Harness.recoveryAdvice(for: server)
+            let command = advice.command
             let alert = NSAlert()
             alert.messageText = "\(server) MCP server is \(status)"
-            alert.informativeText = "Sign in again from a terminal (it opens a browser). The app reloads once the service is healthy.\n\n\(command)"
+            alert.informativeText = "\(advice.summary)\n\n\(command)"
             alert.addButton(withTitle: "Copy Command")
             alert.addButton(withTitle: "OK")
             if alert.runModal() == .alertFirstButtonReturn {

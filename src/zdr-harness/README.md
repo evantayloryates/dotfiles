@@ -183,7 +183,10 @@ What the app does:
   Harness menu has Restart Service (`launchctl kickstart -k`, or `bootstrap` if
   booted out), Open Logs Folder, Open README and Copy Web URL. If the service is
   down the window shows Restart Service / Retry and reloads once healthy. An MCP
-  server in `needs_auth`/`failed` gets an alert with the re-auth command.
+  server in `needs_auth`/`failed` gets an alert with the right fix for that
+  server: `mcp auth` for Amplitude, which uses OAuth, and `reload-auth` for the
+  token-based ones, where `mcp auth` only answers "not an OAuth-capable remote
+  server".
 - **No leftovers.** HTTP caches are cleared at launch and quit. localStorage
   keeps UI prefs, drafts and the project list under
   `~/Library/WebKit/com.taylor.zdr-harness.app`. The web inspector is off unless
