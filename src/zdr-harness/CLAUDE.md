@@ -2,7 +2,7 @@
 
 A locked-down OpenCode 1.18.31 server on `http://127.0.0.1:4096` (LaunchAgent
 `com.taylor.zdr-harness`). It runs only on Kickoff's zero-data-retention OpenAI
-key and exposes only 34 named tools: read-only Amplitude and BugSnag ones,
+key and exposes only 33 named tools: read-only Amplitude and BugSnag ones,
 PostHog's single `exec` router (constrained by a read-scoped key, not by the
 allowlist), four read-only CloudWatch Logs tools, and `todowrite` for
 in-session planning. Claude Code and Codex reach it through the `zdr_ask` MCP tool

@@ -50,7 +50,7 @@ key) and `ZDR_HARNESS_PASSWORD` (web UI / API Basic auth, username `opencode`).
   `provider.use` deny-all/allow-openai policy. Built-in `build`, `plan`, `general`
   and `explore` agents are disabled; `zdr` is the default.
 - **No built-in tools, named MCP tools only.** `permission` denies `*`, then
-  allows 34 named tools: 11 Amplitude, 17 BugSnag (all annotated read-only by
+  allows 33 named tools: 11 Amplitude, 16 BugSnag (all annotated read-only by
   their servers), PostHog's single `exec`, four CloudWatch Logs readers, and
   `todowrite`, which only keeps a plan in the session and touches nothing
   outside it. Shell, file, edit, web, task and

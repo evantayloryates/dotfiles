@@ -43,7 +43,6 @@
     "amplitude_get_tracking_plan_sources": "allow",
     "amplitude_get_group_types": "allow",
     "amplitude_use_amp_skill": "allow",
-    "bugsnag_bugsnag_get_current_project": "allow",
     "bugsnag_bugsnag_list_projects": "allow",
     "bugsnag_bugsnag_list_project_event_filters": "allow",
     "bugsnag_bugsnag_get_error": "allow",
