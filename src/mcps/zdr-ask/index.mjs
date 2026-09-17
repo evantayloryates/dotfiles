@@ -13,7 +13,8 @@ const BASE_URL = process.env.ZDR_HARNESS_URL || 'http://127.0.0.1:4096'
 const PASSWORD = process.env.ZDR_HARNESS_PASSWORD
 const WORK_DIR = process.env.ZDR_HARNESS_WORK_DIR || `${process.env.HOME}/.zdr-harness/work`
 const ASK_TIMEOUT_MS = Number(process.env.ZDR_ASK_TIMEOUT_MS || 10 * 60 * 1000)
-const MCP_SERVERS = ['amplitude', 'bugsnag']
+// Servers are read from the harness rather than listed here, so one added
+// there is covered without editing this bridge.
 const SUPPORTED_PROTOCOLS = ['2025-06-18', '2025-03-26', '2024-11-05']
 
 const log = (...args) => console.error('[zdr-ask]', ...args)
@@ -56,23 +57,37 @@ async function harness(method, path, { body, signal } = {}) {
   return text ? JSON.parse(text) : null
 }
 
+// Returns a note about degraded servers, or '' when everything is connected.
+// A single broken server does not block the question: an Amplitude answer
+// should not fail because CloudWatch is down. Only a harness with nothing
+// connected is a hard failure.
 async function ensureMcpConnected(signal) {
   let status = await harness('GET', '/mcp', { signal })
-  const broken = MCP_SERVERS.filter((name) => status?.[name]?.status !== 'connected')
+  const names = Object.keys(status || {})
+  if (!names.length) throw new HarnessError('ZDR harness reports no MCP servers at all.')
+
+  const isDown = (name) => status?.[name]?.status !== 'connected'
+  const broken = names.filter(isDown)
   for (const name of broken) {
     if (status?.[name]?.status === 'needs_auth') continue
     await harness('POST', `/mcp/${name}/connect`, { signal }).catch((err) => log(`reconnect ${name} failed:`, err.message))
   }
   if (broken.length) status = await harness('GET', '/mcp', { signal })
-  const down = MCP_SERVERS.filter((name) => status?.[name]?.status !== 'connected').map(
+
+  const down = names.filter(isDown).map(
     (name) => `${name}: ${status?.[name]?.status || 'missing'}${status?.[name]?.error ? ` (${status[name].error})` : ''}`
   )
-  if (down.length) {
+  if (down.length === names.length) {
     throw new HarnessError(
-      `ZDR harness MCP servers are not connected — ${down.join('; ')}. ` +
-        'Fix with: zdr-harness mcp auth <name> && zdr-harness restart'
+      `No ZDR harness MCP server is connected — ${down.join('; ')}. ` +
+        'Check with: zdr-harness reload-auth'
     )
   }
+  if (down.length) {
+    log(`degraded: ${down.join('; ')}`)
+    return `[zdr-ask] Degraded harness: ${down.join('; ')}. Answer used the remaining servers.\n\n`
+  }
+  return ''
 }
 
 // Second layer behind the harness agent's answer rule. Only obvious contact
@@ -84,7 +99,7 @@ function scrub(text) {
 }
 
 async function ask({ question, session_id }, signal) {
-  await ensureMcpConnected(signal)
+  const degraded = await ensureMcpConnected(signal)
   let sessionId = session_id
   if (!sessionId) {
     const session = await harness('POST', '/session', {
@@ -121,7 +136,7 @@ async function ask({ question, session_id }, signal) {
     .map((part) => part.text)
     .join('\n')
     .trim()
-  return `${scrub(answer || '(the harness returned no text)')}\n\nsession_id: ${sessionId}`
+  return `${degraded}${scrub(answer || '(the harness returned no text)')}\n\nsession_id: ${sessionId}`
 }
 
 async function listSessions(signal) {
@@ -140,9 +155,10 @@ const TOOLS = [
     name: 'zdr_ask',
     title: 'Ask the ZDR harness',
     description:
-      "Ask Kickoff's zero-data-retention harness a question about Amplitude analytics or BugSnag errors. " +
-      'The harness runs the tool calls on a ZDR OpenAI key and returns only an aggregate answer ' +
-      '(counts, rates, error classes, IDs, links; never user identifiers or raw payloads). ' +
+      "Ask Kickoff's zero-data-retention harness a question about Amplitude analytics, BugSnag errors, " +
+      'PostHog product data, or production Lambda logs in CloudWatch. ' +
+      'The harness runs the tool calls on a ZDR OpenAI key and returns only a de-identified answer ' +
+      '(counts, rates, error classes, object IDs, links; never user identifiers or raw payloads). ' +
       'Pass session_id from a previous answer to ask a follow-up in the same conversation. ' +
       'Answers can take a few minutes.',
     inputSchema: {
