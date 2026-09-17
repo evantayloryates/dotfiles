@@ -119,6 +119,22 @@ Edit `StartInterval` in the plist (seconds), then re-run the install steps (or
 `install.sh`) to reload. To pause it: `launchctl bootout
 gui/$(id -u)/com.taylor.docker-prune`.
 
+## `com.taylor.zdr-harness`
+
+Keeps the Kickoff zero-data-retention OpenCode harness (`zdr-harness serve`)
+running on `127.0.0.1:4096` (`RunAtLoad`, `KeepAlive`, `ThrottleInterval 60`).
+Logs go to `~/.zdr-harness/logs/`. The wrapper runs OpenCode under `env -i`, so
+the tokens `com.taylor.mcp-tokens` puts in the launchd session never reach it.
+
+`install.sh` only loads it when `~/.zdr-harness/.env` exists, since the service
+can't start without its secrets. Setup, verification and upgrades are in
+[`../zdr-harness/README.md`](../zdr-harness/README.md).
+
+```sh
+~/dotfiles/src/zdr-harness/bin/zdr-harness status
+launchctl print gui/$(id -u)/com.taylor.zdr-harness
+```
+
 ## `com.taylor.keyrepeat`
 
 Runs `key-repeat.sh` **at login** to push the persisted key-repeat preference

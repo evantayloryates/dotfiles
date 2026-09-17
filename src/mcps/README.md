@@ -60,6 +60,21 @@ claude mcp add amplify-prod-readonly-db -s user --env PGSSLMODE=no-verify \
   -- /bin/bash /Users/taylor/dotfiles/src/mcps/amplify-prod-postgres-mcp
 ```
 
+## zdr-ask
+
+`zdr-ask-mcp` launches the zero-dependency `zdr-ask/index.mjs` stdio server. It
+gives Claude Code and Codex two tools, `zdr_ask` and `zdr_sessions`, that talk to
+the local Kickoff ZDR harness on `127.0.0.1:4096`. The harness runs the Amplitude
+and BugSnag tool calls on a zero-data-retention OpenAI key and returns only its
+final answer, so raw data never enters the calling agent's context. It reads only
+`ZDR_HARNESS_PASSWORD`, from `~/.zdr-harness/.env` (not dotfiles `.env`, which is
+bridged to every GUI app). See [`../zdr-harness/README.md`](../zdr-harness/README.md).
+
+```sh
+claude mcp add zdr-ask -s user -- /Users/taylor/dotfiles/src/mcps/zdr-ask-mcp
+codex mcp add zdr-ask -- /Users/taylor/dotfiles/src/mcps/zdr-ask-mcp
+```
+
 ## Removed
 
 - **`holistics/`** — removed 2026-07-09. Was a zero-dependency wrapper over the

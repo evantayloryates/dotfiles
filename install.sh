@@ -111,6 +111,18 @@ if [[ "$(uname)" == "Darwin" ]]; then
     launchctl kickstart -k "gui/$UID_NUM/$LA_LABEL" 2>/dev/null || true
     log "🔗 Linked + loaded $LA_LABEL LaunchAgent"
   done
+
+  # com.taylor.zdr-harness: the Kickoff ZDR OpenCode harness. Only on machines
+  # that have been set up for it (src/zdr-harness/README.md); without its
+  # secrets file the service would just fail its preflight every minute.
+  if [[ -f "$HOME/.zdr-harness/.env" ]]; then
+    LA_LABEL=com.taylor.zdr-harness
+    LA_DEST="$HOME/Library/LaunchAgents/$LA_LABEL.plist"
+    ln -sf "$DOTFILES_DIR/src/launchd/$LA_LABEL.plist" "$LA_DEST"
+    launchctl bootout "gui/$UID_NUM/$LA_LABEL" 2>/dev/null || true
+    launchctl bootstrap "gui/$UID_NUM" "$LA_DEST" 2>/dev/null || true
+    log "🔗 Linked + loaded $LA_LABEL LaunchAgent"
+  fi
 fi
 
 # Capture start time from devcontainer onCreateCommand and calculate total setup time

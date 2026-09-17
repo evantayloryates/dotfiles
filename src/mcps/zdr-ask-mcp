@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# User-scoped zdr-ask MCP: lets Claude Code / Codex ask the local ZDR harness
+# questions. Only the harness password is read, from ~/.zdr-harness/.env; the
+# ZDR OpenAI key never reaches this process. See ../zdr-harness/README.md.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+. "${SCRIPT_DIR}/../lib/resolve-binary.sh"
+. "${SCRIPT_DIR}/../lib/read-env.sh"
+
+NODE="$(resolve_binary node)"
+
+harness_env="$(ENV_FILE="${HOME}/.zdr-harness/.env" env_export ZDR_HARNESS_PASSWORD)"
+eval "$harness_env"
+unset harness_env
+: "${ZDR_HARNESS_PASSWORD:?ZDR_HARNESS_PASSWORD must be set in ~/.zdr-harness/.env}"
+export ZDR_HARNESS_PASSWORD
+
+exec "$NODE" "${SCRIPT_DIR}/zdr-ask/index.mjs"

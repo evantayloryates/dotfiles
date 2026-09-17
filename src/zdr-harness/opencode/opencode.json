@@ -1,0 +1,95 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "share": "disabled",
+  "autoupdate": false,
+  "model": "openai/gpt-5.5",
+  "small_model": "openai/gpt-5.4-nano",
+  "enabled_providers": [
+    "openai"
+  ],
+  "default_agent": "zdr",
+  "server": {
+    "hostname": "127.0.0.1",
+    "port": 4096,
+    "mdns": false
+  },
+  "lsp": false,
+  "formatter": false,
+  "snapshot": false,
+  "experimental": {
+    "policies": [
+      {
+        "effect": "deny",
+        "action": "provider.use",
+        "resource": "*"
+      },
+      {
+        "effect": "allow",
+        "action": "provider.use",
+        "resource": "openai"
+      }
+    ]
+  },
+  "permission": {
+    "*": "deny",
+    "amplitude_get_amplitude_context": "allow",
+    "amplitude_get_amplitude_charts": "allow",
+    "amplitude_query_amplitude_data": "allow",
+    "amplitude_search_amp_entities": "allow",
+    "amplitude_search_amp_data_taxonomy": "allow",
+    "amplitude_get_amp_taxonomy": "allow",
+    "amplitude_get_from_url": "allow",
+    "amplitude_get_transformations": "allow",
+    "amplitude_get_tracking_plan_sources": "allow",
+    "amplitude_get_group_types": "allow",
+    "amplitude_use_amp_skill": "allow",
+    "bugsnag_bugsnag_get_current_project": "allow",
+    "bugsnag_bugsnag_list_projects": "allow",
+    "bugsnag_bugsnag_list_project_event_filters": "allow",
+    "bugsnag_bugsnag_get_error": "allow",
+    "bugsnag_bugsnag_list_project_errors": "allow",
+    "bugsnag_bugsnag_get_event": "allow",
+    "bugsnag_bugsnag_get_event_details_from_dashboard_url": "allow",
+    "bugsnag_bugsnag_get_events_on_an_error": "allow",
+    "bugsnag_bugsnag_list_releases": "allow",
+    "bugsnag_bugsnag_get_release": "allow",
+    "bugsnag_bugsnag_get_build": "allow",
+    "bugsnag_bugsnag_list_span_groups": "allow",
+    "bugsnag_bugsnag_get_span_group": "allow",
+    "bugsnag_bugsnag_list_spans": "allow",
+    "bugsnag_bugsnag_get_trace": "allow",
+    "bugsnag_bugsnag_list_trace_fields": "allow",
+    "bugsnag_bugsnag_get_network_endpoint_groupings": "allow"
+  },
+  "agent": {
+    "zdr": {
+      "mode": "primary",
+      "description": "ZDR analyst for Kickoff Amplitude and BugSnag data (read-only)",
+      "prompt": "{file:./prompts/zdr.md}"
+    },
+    "build": {
+      "disable": true
+    },
+    "plan": {
+      "disable": true
+    },
+    "general": {
+      "disable": true
+    },
+    "explore": {
+      "disable": true
+    }
+  },
+  "mcp": {
+    "amplitude": {
+      "type": "remote",
+      "url": "https://mcp.amplitude.com/mcp",
+      "timeout": 120000
+    },
+    "bugsnag": {
+      "type": "remote",
+      "url": "https://bugsnag.mcp.smartbear.com/mcp",
+      "timeout": 120000
+    }
+  }
+}

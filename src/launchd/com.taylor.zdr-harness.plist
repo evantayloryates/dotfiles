@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!--
+    Keeps the Kickoff zero-data-retention OpenCode harness running on
+    http://127.0.0.1:4096. See src/zdr-harness/README.md. Contains no secrets:
+    the wrapper reads them from ~/.zdr-harness/.env and runs OpenCode under
+    `env -i`, so nothing from the launchd session (including the personal
+    OPENAI_API_KEY bridged by com.taylor.mcp-tokens) reaches it.
+
+    NOTE: launchd does not expand ~ or $HOME, so paths are absolute.
+  -->
+  <key>Label</key>
+  <string>com.taylor.zdr-harness</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/taylor/src/github/dotfiles/src/zdr-harness/bin/zdr-harness</string>
+    <string>serve</string>
+  </array>
+  <key>WorkingDirectory</key>
+  <string>/Users/taylor/.zdr-harness/work</string>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <!-- A failed preflight exits non-zero; don't hammer it. -->
+  <key>ThrottleInterval</key>
+  <integer>60</integer>
+  <key>StandardOutPath</key>
+  <string>/Users/taylor/.zdr-harness/logs/stdout.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/taylor/.zdr-harness/logs/stderr.log</string>
+</dict>
+</plist>

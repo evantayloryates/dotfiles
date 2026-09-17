@@ -1,0 +1,166 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Dedicated zero-data-retention (ZDR) agent harness: a locked-down OpenCode
+# server that only ever runs on Kickoff's ZDR OpenAI key and only exposes the
+# Amplitude and BugSnag MCP servers. See ../README.md.
+#
+# Isolation is done with the environment, not just config: OpenCode reads
+# $HOME/.opencode, $XDG_CONFIG_HOME/opencode and ~/.claude, and the launchd
+# session carries a personal, non-ZDR OPENAI_API_KEY. So everything runs under
+# `env -i` with a private HOME and XDG dirs under ~/.zdr-harness.
+#
+# Config is passed as a single FILE (OPENCODE_CONFIG), never as a config dir.
+# OpenCode runs a background `npm install @opencode-ai/plugin` in every config
+# directory it can write to, and has no flag to turn that off. The only config
+# dir left in play is ~/.zdr-harness/xdg/config/opencode, which is kept
+# read-only (chmod 555) so that install is skipped.
+
+readonly OPENCODE_VERSION="1.18.31"
+readonly PORT=4096
+readonly URL="http://127.0.0.1:${PORT}"
+readonly LABEL="com.taylor.zdr-harness"
+
+ZH="${HOME}/.zdr-harness"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+CONFIG_FILE="$(cd "${SCRIPT_DIR}/../opencode" && pwd -P)/opencode.json"
+GLOBAL_CONFIG_DIR="${ZH}/xdg/config/opencode"
+DOTFILES_SRC="$(cd "${SCRIPT_DIR}/../.." && pwd -P)"
+OPENCODE_BIN="${ZH}/opt/node_modules/opencode-ai/bin/opencode.exe"
+
+. "${DOTFILES_SRC}/lib/read-env.sh"
+
+die() {
+  printf 'zdr-harness: %s\n' "$*" >&2
+  exit 1
+}
+
+usage() {
+  cat <<EOF
+Usage: zdr-harness <command>
+
+  serve            Run the server on ${URL} (launchd runs this)
+  attach           Open the TUI against the running server
+  status           Health, MCP connection state and the web UI URL
+  restart          Restart the launchd service
+  logs             Tail the service logs
+  mcp <args>       Pass through to 'opencode mcp' (e.g. mcp auth amplitude)
+  <anything else>  Pass through to opencode inside the isolated environment
+EOF
+}
+
+load_secrets() {
+  [[ -f "${ZH}/.env" ]] || die "missing ${ZH}/.env (see README)"
+  local secrets
+  secrets="$(ENV_FILE="${ZH}/.env" env_export KICKOFF_OPENAI_ZDR_API_KEY ZDR_HARNESS_PASSWORD)"
+  eval "$secrets"
+  unset secrets
+  : "${KICKOFF_OPENAI_ZDR_API_KEY:?KICKOFF_OPENAI_ZDR_API_KEY must be set in ${ZH}/.env}"
+  : "${ZDR_HARNESS_PASSWORD:?ZDR_HARNESS_PASSWORD must be set in ${ZH}/.env}"
+}
+
+preflight() {
+  [[ -x "$OPENCODE_BIN" ]] ||
+    die "OpenCode not installed; run: npm i --prefix ${ZH}/opt opencode-ai@${OPENCODE_VERSION}"
+  # Managed config overrides every other source, so its presence would silently
+  # replace this harness's lockdown.
+  [[ ! -e "/Library/Application Support/opencode" ]] ||
+    die "managed OpenCode config exists at /Library/Application Support/opencode; refusing"
+  # Stored provider auth outranks OPENAI_API_KEY from the environment.
+  [[ ! -e "${ZH}/xdg/data/opencode/auth.json" ]] ||
+    die "${ZH}/xdg/data/opencode/auth.json exists; stored auth would override the ZDR key; refusing"
+
+  # The personal key in dotfiles/.env is not ZDR. Never let it stand in.
+  local personal=""
+  personal="$(ENV_FILE="${DOTFILES_DIR:-$HOME/dotfiles}/.env" env_get OPENAI_API_KEY 2>/dev/null)" || true
+  [[ -z "$personal" || "$personal" != "$KICKOFF_OPENAI_ZDR_API_KEY" ]] ||
+    die "KICKOFF_OPENAI_ZDR_API_KEY equals the personal OPENAI_API_KEY; refusing"
+  unset personal
+
+  # A writable config dir triggers OpenCode's background npm install.
+  [[ ! -w "$GLOBAL_CONFIG_DIR" ]] ||
+    die "${GLOBAL_CONFIG_DIR} is writable; run: chmod 555 ${GLOBAL_CONFIG_DIR}"
+  [[ ! -e "${ZH}/home/.opencode" ]] ||
+    die "${ZH}/home/.opencode exists; it would be loaded as an extra config dir; refusing"
+
+  local version
+  version="$(isolated_env "$OPENCODE_BIN" --version 2>/dev/null)" || true
+  [[ "$version" == "$OPENCODE_VERSION" ]] ||
+    die "expected OpenCode ${OPENCODE_VERSION}, found '${version}'; upgrade deliberately (see README)"
+}
+
+# Run a command with nothing inherited except the variables named here.
+# ISOLATED_EXEC=exec replaces this shell, so launchd signals reach OpenCode.
+isolated_env() {
+  ${ISOLATED_EXEC:-} env -i \
+    HOME="${ZH}/home" \
+    PATH="${ZH}/opt/node_modules/.bin:/usr/bin:/bin:/usr/sbin:/sbin" \
+    TMPDIR="${ZH}/tmp" \
+    LANG=en_US.UTF-8 \
+    ${TERM:+TERM="$TERM"} \
+    ${COLORTERM:+COLORTERM="$COLORTERM"} \
+    XDG_CONFIG_HOME="${ZH}/xdg/config" \
+    XDG_DATA_HOME="${ZH}/xdg/data" \
+    XDG_CACHE_HOME="${ZH}/xdg/cache" \
+    XDG_STATE_HOME="${ZH}/xdg/state" \
+    OPENCODE_CONFIG="$CONFIG_FILE" \
+    OPENAI_API_KEY="$KICKOFF_OPENAI_ZDR_API_KEY" \
+    OPENCODE_SERVER_USERNAME=opencode \
+    OPENCODE_SERVER_PASSWORD="$ZDR_HARNESS_PASSWORD" \
+    OPENCODE_DISABLE_AUTOUPDATE=1 \
+    OPENCODE_DISABLE_SHARE=1 \
+    OPENCODE_DISABLE_CLAUDE_CODE=1 \
+    OPENCODE_DISABLE_PROJECT_CONFIG=1 \
+    OPENCODE_DISABLE_DEFAULT_PLUGINS=1 \
+    OPENCODE_DISABLE_EXTERNAL_SKILLS=1 \
+    OPENCODE_DISABLE_LSP_DOWNLOAD=1 \
+    OPENCODE_DISABLE_MODELS_FETCH=1 \
+    "$@"
+}
+
+run_opencode() {
+  load_secrets
+  preflight
+  cd "${ZH}/work"
+  ISOLATED_EXEC=exec isolated_env "$OPENCODE_BIN" "$@"
+}
+
+# Authenticated GET against the running server. The password goes to curl on
+# stdin, never on the command line where `ps` could see it.
+api_get() {
+  printf 'user = "opencode:%s"\n' "$ZDR_HARNESS_PASSWORD" |
+    curl -sS --fail-with-body -K - \
+      -H "x-opencode-directory: ${ZH}/work" \
+      "${URL}$1"
+}
+
+case "${1:-}" in
+  serve)
+    shift
+    run_opencode serve --hostname 127.0.0.1 --port "$PORT" "$@"
+    ;;
+  attach)
+    shift
+    run_opencode attach "$URL" --dir "${ZH}/work" "$@"
+    ;;
+  status)
+    load_secrets
+    printf 'health: '
+    api_get /global/health
+    printf '\nmcp:    '
+    api_get /mcp
+    printf '\nweb UI: %s (user: opencode, password: 1Password Employee/ZDR_HARNESS_PASSWORD)\n' "$URL"
+    ;;
+  restart)
+    launchctl kickstart -k "gui/$(id -u)/${LABEL}"
+    ;;
+  logs)
+    tail -n 50 -f "${ZH}/logs/stdout.log" "${ZH}/logs/stderr.log"
+    ;;
+  "" | -h | --help | help)
+    usage
+    ;;
+  *)
+    run_opencode "$@"
+    ;;
+esac
