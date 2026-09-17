@@ -2,8 +2,10 @@
 
 A locked-down OpenCode 1.18.31 server on `http://127.0.0.1:4096` (LaunchAgent
 `com.taylor.zdr-harness`). It runs only on Kickoff's zero-data-retention OpenAI
-key and exposes only 28 named read-only Amplitude and BugSnag MCP tools. Claude
-Code and Codex reach it through the `zdr_ask` MCP tool (`src/mcps/zdr-ask`).
+key and exposes only 29 named MCP tools: read-only Amplitude and BugSnag ones,
+plus PostHog's single `exec` router (constrained by a read-scoped key, not by
+the allowlist). Claude Code and Codex reach it through the `zdr_ask` MCP tool
+(`src/mcps/zdr-ask`).
 `ZDR Harness.app` (`app/`) is the native viewer. **README.md is the source of
 truth**: design, lockdown, app, verification. Read it before changing anything.
 
@@ -50,6 +52,7 @@ $Z app-build --force           # rebuild + install without opening
 | Path | What |
 |---|---|
 | `~/.zdr-harness/.env` (600) | `KICKOFF_OPENAI_ZDR_API_KEY`, `ZDR_HARNESS_PASSWORD` |
+| `~/dotfiles/.env` | `KICKOFF_BUGSNAG_TOKEN`, `KICKOFF_POSTHOG_TOKEN` (BugSnag needs the `token` scheme, not `Bearer`) |
 | `~/.zdr-harness/xdg/data/opencode/` | Sessions DB (raw tool output), MCP OAuth tokens, logs |
 | `~/.zdr-harness/logs/` | Service logs and the app's `app.log` |
 | `~/.zdr-harness/opt/` | Pinned OpenCode install |

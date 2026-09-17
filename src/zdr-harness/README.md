@@ -2,15 +2,16 @@
 
 A dedicated, locked-down [OpenCode](https://opencode.ai) server for questions
 that need sensitive Kickoff data. It runs only on Kickoff's **zero-data-retention
-(ZDR) OpenAI key** and only exposes the **Amplitude** and **BugSnag** MCP
-servers. Claude Code and Codex never see the raw data: they call the `zdr_ask`
+(ZDR) OpenAI key** and only exposes the **Amplitude**, **BugSnag** and
+**PostHog** MCP servers. Claude Code and Codex never see the raw data: they call the `zdr_ask`
 MCP tool, and only the harness's final answer comes back.
 
 ```
 Claude Code / Codex ──zdr_ask──▶ zdr-ask MCP (src/mcps/zdr-ask) ──HTTP──▶ opencode serve :4096
                                                                          ├─▶ api.openai.com (ZDR project)
-                                                                         ├─▶ mcp.amplitude.com (OAuth)       
-                                                                         └─▶ bugsnag.mcp.smartbear.com (OAuth)
+                                                                         ├─▶ mcp.amplitude.com (OAuth)
+                                                                         ├─▶ bugsnag.mcp.smartbear.com (token)
+                                                                         └─▶ mcp.posthog.com (token, read-only)
 ```
 
 ZDR status of the OpenAI project was proven on 2026-09-16: a Responses call with
@@ -29,6 +30,7 @@ control key from another org stored normally.
 | `src/zdr-harness/app/` + `build_app.py` | **ZDR Harness.app**: native viewer for the web UI (see [App](#app)) |
 | `data/zdr-harness/ZDR Harness.app` (not in git) | Build output; the installed copy is `~/Applications/ZDR Harness.app` |
 | `~/.zdr-harness/.env` (600, not in git) | `KICKOFF_OPENAI_ZDR_API_KEY`, `ZDR_HARNESS_PASSWORD` |
+| `~/dotfiles/.env` (not in git) | `KICKOFF_BUGSNAG_TOKEN`, `KICKOFF_POSTHOG_TOKEN`, referenced as `{env:...}` |
 | `~/.zdr-harness/opt/` | Pinned OpenCode install (`opencode-ai@1.18.31`) |
 | `~/.zdr-harness/xdg/data/opencode/` | Sessions DB, MCP OAuth tokens, logs (**holds raw tool output**) |
 
@@ -46,11 +48,21 @@ key) and `ZDR_HARNESS_PASSWORD` (web UI / API Basic auth, username `opencode`).
   `provider.use` deny-all/allow-openai policy. Built-in `build`, `plan`, `general`
   and `explore` agents are disabled; `zdr` is the default.
 - **No built-in tools, named MCP tools only.** `permission` denies `*`, then
-  allows 28 named tools: 11 Amplitude and 17 BugSnag, all annotated read-only
-  by their servers. Shell, file, edit, web, task and skill tools, every write
-  tool, Amplitude user lookup (`get_amp_user_data`), session replay, AI feedback
-  and agent-analytics tools are hidden from the model entirely. OpenCode names
-  MCP tools `<server>_<tool>`, so BugSnag's are `bugsnag_bugsnag_*`.
+  allows 29 named tools: 11 Amplitude, 17 BugSnag (all annotated read-only by
+  their servers) and PostHog's single `exec`. Shell, file, edit, web, task and
+  skill tools, every BugSnag write tool (`update_error`,
+  `set_network_endpoint_groupings`), Amplitude user lookup
+  (`get_amp_user_data`), session replay, AI feedback and agent-analytics tools
+  are hidden from the model entirely. OpenCode names MCP tools
+  `<server>_<tool>`, so BugSnag's are `bugsnag_bugsnag_*`.
+- **PostHog is the exception to the allowlist.** Its MCP exposes one router
+  tool, `exec`, which reaches ~347 API tools, so a per-tool allowlist cannot
+  constrain it. Three server-side controls do instead: the personal API key is
+  read-scoped (a `POST /dashboards/` probe returns "API key missing required
+  scope 'dashboard:write'"), the URL carries `readonly=true`, and it is pinned
+  to `project_id=433067` (Kickoff Production). Anything that key can read,
+  including person-level rows, is reachable inside the harness; the agent's
+  answer rule and `zdr_ask`'s scrubbing are what keep it from coming back out.
 - **No vendor egress.** Sharing, auto-update, Claude Code file loading, project
   config, default plugins, external skills, LSP downloads and the model-catalog
   fetch are all off. Config is passed as a single file (`OPENCODE_CONFIG`)
@@ -66,12 +78,27 @@ key) and `ZDR_HARNESS_PASSWORD` (web UI / API Basic auth, username `opencode`).
   events/properties/error classes, IDs and links. `zdr_ask` additionally scrubs
   email addresses and phone numbers from what it returns.
 
-**OAuth scopes (decided 2026-09-17).** OpenCode's MCP SDK (1.29, following
-SEP-835) requests every scope a server advertises and ignores a configured
-`oauth.scope`. Amplitude advertises `mcp:read mcp:write`, and BugSnag's only
-scope is full `api`, so both tokens can write. Read-only is enforced by the
-harness exposing only named read-only tools to the model, plus the Amplitude
-and BugSnag roles on the signed-in account.
+**Auth per server (revised 2026-09-17).** Amplitude uses OAuth. OpenCode's MCP
+SDK (1.29, following SEP-835) requests every scope a server advertises and
+ignores a configured `oauth.scope`, and Amplitude advertises
+`mcp:read mcp:write`, so that token can write; read-only is enforced by exposing
+only named read-only tools, plus the account's Amplitude role.
+
+BugSnag and PostHog use long-lived tokens from `~/dotfiles/.env` instead, set as
+`headers` with `oauth: false`, so there is nothing to re-authorise in a browser:
+
+- **BugSnag** needs `Authorization: token <KICKOFF_BUGSNAG_TOKEN>`. Its API
+  rejects `Bearer` with `401 Bad Credentials`, which is what the OAuth path hit
+  once its hour-long access token expired; OpenCode does not refresh a token the
+  MCP server reports as bad inside a tool result, so the harness looked
+  `connected` while every BugSnag call failed. The token itself is full-access,
+  so the two write tools stay out of the allowlist.
+- **PostHog** needs `Authorization: Bearer <KICKOFF_POSTHOG_TOKEN>` and a
+  read-scoped key (see above).
+
+The tokens are never copied into config or logs: `opencode.json` references
+`{env:KICKOFF_BUGSNAG_TOKEN}` and `{env:KICKOFF_POSTHOG_TOKEN}`, and the wrapper
+names those two variables explicitly when building the isolated environment.
 
 Known gap: the permission rules constrain the model, not the HTTP API. Anyone
 with the Basic password can still reach OpenCode's shell/PTY endpoints. The
@@ -192,9 +219,9 @@ mkdir -p $ZH/xdg/config/opencode
 printf 'node_modules\npackage.json\npackage-lock.json\nbun.lock\n.gitignore' > $ZH/xdg/config/opencode/.gitignore
 chmod 444 $ZH/xdg/config/opencode/.gitignore && chmod 555 $ZH/xdg/config/opencode
 
-# One-time OAuth (browser). See "OAuth scopes" above: these tokens can write.
+# BugSnag and PostHog read their tokens from ~/dotfiles/.env (KICKOFF_BUGSNAG_TOKEN,
+# KICKOFF_POSTHOG_TOKEN). Only Amplitude needs the one-time browser OAuth.
 ~/dotfiles/src/zdr-harness/bin/zdr-harness mcp auth amplitude
-~/dotfiles/src/zdr-harness/bin/zdr-harness mcp auth bugsnag
 
 # Service
 ln -sf ~/dotfiles/src/launchd/com.taylor.zdr-harness.plist ~/Library/LaunchAgents/
@@ -220,11 +247,16 @@ and read each tool's `readOnlyHint`. Add only tools marked read-only, then
 
 ## Re-auth
 
-If `zdr-harness status` shows `needs_auth` or `failed` for a server:
+Only Amplitude uses OAuth. If `zdr-harness status` shows `needs_auth` or
+`failed` for it:
 
 ```sh
-zdr-harness mcp auth <amplitude|bugsnag> && zdr-harness restart
+zdr-harness mcp auth amplitude && zdr-harness restart
 ```
+
+For BugSnag or PostHog, `connected` is not proof: a bad token surfaces as a
+`401` inside a tool result. Check with a real question, and fix by replacing the
+token in `~/dotfiles/.env`, then `zdr-harness restart`.
 
 ## Upgrading OpenCode
 
@@ -245,7 +277,9 @@ config or app.
    and its SHA-256 prefix matches the ZDR key in 1Password, not `launchctl getenv OPENAI_API_KEY`.
 2. **Effective state** (authenticated `curl` with `x-opencode-directory: ~/.zdr-harness/work`):
    `GET /config/providers` → only `openai`; `GET /agent` → `zdr` plus hidden
-   `compaction`/`summary`/`title`; `GET /mcp` → both `connected`; no auth → `401`.
+   `compaction`/`summary`/`title`; `GET /mcp` → all three `connected`; no auth →
+   `401`. Then ask one aggregate question per server: `connected` does not prove
+   the credential works.
 3. **Tool denial.** Ask it to read `/etc/hosts` and run `ls` → no tool parts in
    the reply, and it says it has no such tools.
 4. **Egress.** Sample `lsof -nP -iTCP -a -p <pid>` across a restart and a prompt

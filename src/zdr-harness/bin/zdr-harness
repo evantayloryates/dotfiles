@@ -62,6 +62,20 @@ load_secrets() {
   unset secrets
   : "${KICKOFF_OPENAI_ZDR_API_KEY:?KICKOFF_OPENAI_ZDR_API_KEY must be set in ${ZH}/.env}"
   : "${ZDR_HARNESS_PASSWORD:?ZDR_HARNESS_PASSWORD must be set in ${ZH}/.env}"
+  load_mcp_tokens
+}
+
+# BugSnag and PostHog authenticate with long-lived read-scoped tokens instead of
+# OAuth, so opencode.json references them as {env:...} and they are named here
+# one by one: a blanket source would hand every secret in .env to OpenCode.
+load_mcp_tokens() {
+  local token_file="${MCP_TOKEN_FILE:-${DOTFILES_DIR:-$HOME/dotfiles}/.env}"
+  [[ -f "$token_file" ]] || die "missing ${token_file} (holds KICKOFF_BUGSNAG_TOKEN, KICKOFF_POSTHOG_TOKEN)"
+  local tokens
+  tokens="$(ENV_FILE="$token_file" env_export KICKOFF_BUGSNAG_TOKEN KICKOFF_POSTHOG_TOKEN)" ||
+    die "KICKOFF_BUGSNAG_TOKEN and KICKOFF_POSTHOG_TOKEN must be set in ${token_file}"
+  eval "$tokens"
+  unset tokens
 }
 
 preflight() {
@@ -110,6 +124,8 @@ isolated_env() {
     XDG_STATE_HOME="${ZH}/xdg/state" \
     OPENCODE_CONFIG="$CONFIG_FILE" \
     OPENAI_API_KEY="$KICKOFF_OPENAI_ZDR_API_KEY" \
+    KICKOFF_BUGSNAG_TOKEN="$KICKOFF_BUGSNAG_TOKEN" \
+    KICKOFF_POSTHOG_TOKEN="$KICKOFF_POSTHOG_TOKEN" \
     OPENCODE_SERVER_USERNAME=opencode \
     OPENCODE_SERVER_PASSWORD="$ZDR_HARNESS_PASSWORD" \
     OPENCODE_DISABLE_AUTOUPDATE=1 \
