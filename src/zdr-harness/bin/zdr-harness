@@ -44,6 +44,11 @@ Usage: zdr-harness <command>
   status           Health, MCP connection state and the web UI URL
   restart          Restart the launchd service
   logs             Tail the service logs
+  prune [--days N] [--dry-run]
+                   Delete sessions not updated in N days (default 30)
+  app              Build ZDR Harness.app if stale, install it to ~/Applications, open it
+  app-build [--force]
+                   Build and install the app without opening it
   mcp <args>       Pass through to 'opencode mcp' (e.g. mcp auth amplitude)
   <anything else>  Pass through to opencode inside the isolated environment
 EOF
@@ -134,6 +139,52 @@ api_get() {
       "${URL}$1"
 }
 
+api_delete() {
+  printf 'user = "opencode:%s"\n' "$ZDR_HARNESS_PASSWORD" |
+    curl -sS --fail-with-body -o /dev/null -X DELETE -K - \
+      -H "x-opencode-directory: ${ZH}/work" \
+      "${URL}$1"
+}
+
+# Sessions hold raw Amplitude and BugSnag tool output, so old ones go.
+prune() {
+  local days=30 dry_run=0
+  while (($#)); do
+    case "$1" in
+      --days) days="${2:-}"; shift 2 ;;
+      --dry-run) dry_run=1; shift ;;
+      *) die "prune: unknown argument '$1'" ;;
+    esac
+  done
+  [[ "$days" =~ ^[0-9]+$ ]] || die "prune: --days needs a whole number"
+  load_secrets
+
+  # Root sessions only: deleting a parent removes its children.
+  local ids
+  ids="$(api_get /session | DAYS="$days" DRY_RUN="$dry_run" /usr/bin/python3 -c '
+import json, os, sys, time
+days = int(os.environ["DAYS"])
+cutoff = (time.time() - days * 86400) * 1000
+sessions = json.load(sys.stdin)
+old = [s for s in sessions if not s.get("parentID") and s["time"]["updated"] < cutoff]
+sys.stderr.write("%d sessions, %d root sessions not updated in %d days\n" % (len(sessions), len(old), days))
+for s in old:
+    if os.environ["DRY_RUN"] == "1":
+        when = time.strftime("%Y-%m-%d", time.localtime(s["time"]["updated"] / 1000))
+        sys.stderr.write("  would delete %s  %s  %s\n" % (s["id"], when, s.get("title", "")[:80]))
+    print(s["id"])
+')" || die "prune: could not list sessions"
+
+  ((dry_run)) && return 0
+  local id deleted=0 failed=0
+  for id in $ids; do
+    [[ "$id" =~ ^ses_[A-Za-z0-9]+$ ]] || { failed=$((failed + 1)); continue; }
+    if api_delete "/session/${id}"; then deleted=$((deleted + 1)); else failed=$((failed + 1)); fi
+  done
+  printf 'deleted %d, failed %d\n' "$deleted" "$failed"
+  ((failed == 0))
+}
+
 case "${1:-}" in
   serve)
     shift
@@ -156,6 +207,19 @@ case "${1:-}" in
     ;;
   logs)
     tail -n 50 -f "${ZH}/logs/stdout.log" "${ZH}/logs/stderr.log"
+    ;;
+  prune)
+    shift
+    prune "$@"
+    ;;
+  app-build)
+    shift
+    /usr/bin/python3 "${SCRIPT_DIR}/../build_app.py" --install "$@"
+    ;;
+  app)
+    shift
+    /usr/bin/python3 "${SCRIPT_DIR}/../build_app.py" --install "$@"
+    open "${HOME}/Applications/ZDR Harness.app"
     ;;
   "" | -h | --help | help)
     usage
