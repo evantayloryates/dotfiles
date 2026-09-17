@@ -116,6 +116,32 @@ else
   log "🟰 Window animation settings already correct"
 fi
 
+# --- AutoFill one-time codes ------------------------------------------------
+# Kill the "Fill code 123456 / From Messages" bubble that AppKit floats over
+# whatever text field happens to be focused. It is drawn by AppKit's
+# NSAutoFillHeuristicController, which guesses that a field wants a verification
+# code — and guesses wrong constantly in Electron/CLI-style apps, where it lands
+# on top of the prompt you are actually typing into.
+#
+# This key makes AppKit offer a code ONLY when the app explicitly declares a
+# one-time-code field, so real login forms still autofill and everything else
+# stops being interrupted. Preferred over the blunter NSAutoFillHeuristicsEnabled
+# / NSAutoFillPanelEnabled kill switches, which disable the panel wholesale.
+#
+# Undocumented: private AppKit key, present in the binary on macOS 26.5.1, not
+# exposed in System Settings (the pane's own switches live in a protected store
+# with no `defaults` equivalent). Revert with:
+#   defaults delete -g NSAutoFillRequiresTextContentTypeForOneTimeCodeOnMac
+#
+# Read once at app launch, like the window-animation keys above — a running app
+# keeps offering codes until it is fully quit (⌘Q) and relaunched.
+
+if defaults_set -g NSAutoFillRequiresTextContentTypeForOneTimeCodeOnMac -bool true; then
+  log "💤 AutoFill one-time-code suggestions restricted — relaunch apps to pick it up"
+else
+  log "🟰 AutoFill one-time-code setting already correct"
+fi
+
 # --- Trackpad ---------------------------------------------------------------
 # Three groups of settings, all sharing ONE activation at the end: tap-to-click,
 # three-finger drag, and tracking speed. activateSettings -u is what pushes any
