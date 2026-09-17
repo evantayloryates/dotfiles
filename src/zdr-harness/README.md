@@ -29,8 +29,8 @@ control key from another org stored normally.
 | `src/mcps/zdr-ask-mcp` + `src/mcps/zdr-ask/index.mjs` | Zero-dependency MCP bridge for Claude Code / Codex |
 | `src/zdr-harness/app/` + `build_app.py` | **ZDR Harness.app**: native viewer for the web UI (see [App](#app)) |
 | `data/zdr-harness/ZDR Harness.app` (not in git) | Build output; the installed copy is `~/Applications/ZDR Harness.app` |
-| `~/.zdr-harness/.env` (600, not in git) | `KICKOFF_OPENAI_ZDR_API_KEY`, `ZDR_HARNESS_PASSWORD` |
-| `~/dotfiles/.env` (not in git) | `KICKOFF_BUGSNAG_TOKEN`, `KICKOFF_POSTHOG_TOKEN`, referenced as `{env:...}` |
+| `~/.zdr-harness/.env` (600, not in git) | Every harness secret: `KICKOFF_OPENAI_ZDR_API_KEY`, `ZDR_HARNESS_PASSWORD`, `KICKOFF_BUGSNAG_TOKEN`, `KICKOFF_POSTHOG_TOKEN` |
+| `src/zdr-harness/.env.template` | Same keys and comments with empty values; keep the two in sync |
 | `~/.zdr-harness/opt/` | Pinned OpenCode install (`opencode-ai@1.18.31`) |
 | `~/.zdr-harness/xdg/data/opencode/` | Sessions DB, MCP OAuth tokens, logs (**holds raw tool output**) |
 
@@ -48,8 +48,9 @@ key) and `ZDR_HARNESS_PASSWORD` (web UI / API Basic auth, username `opencode`).
   `provider.use` deny-all/allow-openai policy. Built-in `build`, `plan`, `general`
   and `explore` agents are disabled; `zdr` is the default.
 - **No built-in tools, named MCP tools only.** `permission` denies `*`, then
-  allows 29 named tools: 11 Amplitude, 17 BugSnag (all annotated read-only by
-  their servers) and PostHog's single `exec`. Shell, file, edit, web, task and
+  allows 30 named tools: 11 Amplitude, 17 BugSnag (all annotated read-only by
+  their servers), PostHog's single `exec`, and `todowrite`, which only keeps a
+  plan in the session and touches nothing outside it. Shell, file, edit, web, task and
   skill tools, every BugSnag write tool (`update_error`,
   `set_network_endpoint_groupings`), Amplitude user lookup
   (`get_amp_user_data`), session replay, AI feedback and agent-analytics tools
@@ -84,8 +85,9 @@ ignores a configured `oauth.scope`, and Amplitude advertises
 `mcp:read mcp:write`, so that token can write; read-only is enforced by exposing
 only named read-only tools, plus the account's Amplitude role.
 
-BugSnag and PostHog use long-lived tokens from `~/dotfiles/.env` instead, set as
-`headers` with `oauth: false`, so there is nothing to re-authorise in a browser:
+BugSnag and PostHog use long-lived tokens from `~/.zdr-harness/.env` instead,
+set as `headers` with `oauth: false`, so there is nothing to re-authorise in a
+browser:
 
 - **BugSnag** needs `Authorization: token <KICKOFF_BUGSNAG_TOKEN>`. Its API
   rejects `Bearer` with `401 Bad Credentials`, which is what the OAuth path hit
@@ -98,7 +100,13 @@ BugSnag and PostHog use long-lived tokens from `~/dotfiles/.env` instead, set as
 
 The tokens are never copied into config or logs: `opencode.json` references
 `{env:KICKOFF_BUGSNAG_TOKEN}` and `{env:KICKOFF_POSTHOG_TOKEN}`, and the wrapper
-names those two variables explicitly when building the isolated environment.
+names each variable explicitly when building the isolated environment.
+
+They live in `~/.zdr-harness/.env` rather than `~/dotfiles/.env` on purpose:
+that file sits outside every repo an agent normally works in, so a
+workspace-scoped agent has to ask before reading it. The file says in its header
+that the tokens are for this harness only. That is a note, not an enforcement
+mechanism: any process running as you can read the file.
 
 Known gap: the permission rules constrain the model, not the HTTP API. Anyone
 with the Basic password can still reach OpenCode's shell/PTY endpoints. The
@@ -210,9 +218,13 @@ npm i --prefix $ZH/opt --no-fund --no-audit opencode-ai@1.18.31
 
 # Secrets (never echoed)
 umask 077
-{ printf 'KICKOFF_OPENAI_ZDR_API_KEY=%s\n' "$(op read -n 'op://Employee/KICKOFF_OPENAI_API_KEY/credential' --account kudos-fit.1password.com)"
-  printf 'ZDR_HARNESS_PASSWORD=%s\n' "$(op read -n 'op://Employee/ZDR_HARNESS_PASSWORD/password' --account kudos-fit.1password.com)"
-} > $ZH/.env
+# Copy src/zdr-harness/.env.template to $ZH/.env, then fill in the four values
+# (keep the template's keys and comments; only the values differ).
+cp ~/dotfiles/src/zdr-harness/.env.template $ZH/.env
+op read -n 'op://Employee/KICKOFF_OPENAI_API_KEY/credential' --account kudos-fit.1password.com   # KICKOFF_OPENAI_ZDR_API_KEY
+op read -n 'op://Employee/ZDR_HARNESS_PASSWORD/password' --account kudos-fit.1password.com       # ZDR_HARNESS_PASSWORD
+# KICKOFF_BUGSNAG_TOKEN: BugSnag personal auth token. KICKOFF_POSTHOG_TOKEN: read-scoped PostHog personal API key.
+chmod 600 $ZH/.env
 
 # Read-only global config dir (blocks OpenCode's background npm install)
 mkdir -p $ZH/xdg/config/opencode

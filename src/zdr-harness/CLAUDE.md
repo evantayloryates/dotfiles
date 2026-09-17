@@ -2,15 +2,18 @@
 
 A locked-down OpenCode 1.18.31 server on `http://127.0.0.1:4096` (LaunchAgent
 `com.taylor.zdr-harness`). It runs only on Kickoff's zero-data-retention OpenAI
-key and exposes only 29 named MCP tools: read-only Amplitude and BugSnag ones,
-plus PostHog's single `exec` router (constrained by a read-scoped key, not by
-the allowlist). Claude Code and Codex reach it through the `zdr_ask` MCP tool
+key and exposes only 30 named tools: read-only Amplitude and BugSnag ones,
+PostHog's single `exec` router (constrained by a read-scoped key, not by the
+allowlist), and `todowrite` for in-session planning. Claude Code and Codex reach it through the `zdr_ask` MCP tool
 (`src/mcps/zdr-ask`).
 `ZDR Harness.app` (`app/`) is the native viewer. **README.md is the source of
 truth**: design, lockdown, app, verification. Read it before changing anything.
 
 ## Hard rules
 
+- **Harness tokens stay in `~/.zdr-harness/.env`.** They are for this harness
+  only; do not copy them into another MCP client, shell profile or repo `.env`.
+  Update `.env.template` whenever that file's keys or comments change.
 - **Secrets never appear.** Not the OpenAI key, the harness password, OAuth
   tokens, or the `auth_token` (base64) form of the password. Not in output, logs,
   commits, the app bundle, `Info.plist` or URLs. Pipe the password to
@@ -51,8 +54,8 @@ $Z app-build --force           # rebuild + install without opening
 
 | Path | What |
 |---|---|
-| `~/.zdr-harness/.env` (600) | `KICKOFF_OPENAI_ZDR_API_KEY`, `ZDR_HARNESS_PASSWORD` |
-| `~/dotfiles/.env` | `KICKOFF_BUGSNAG_TOKEN`, `KICKOFF_POSTHOG_TOKEN` (BugSnag needs the `token` scheme, not `Bearer`) |
+| `~/.zdr-harness/.env` (600) | All four secrets: ZDR key, harness password, `KICKOFF_BUGSNAG_TOKEN` (`token` scheme, not `Bearer`), `KICKOFF_POSTHOG_TOKEN` |
+| `src/zdr-harness/.env.template` | Tracked copy of that file's keys and comments, values empty |
 | `~/.zdr-harness/xdg/data/opencode/` | Sessions DB (raw tool output), MCP OAuth tokens, logs |
 | `~/.zdr-harness/logs/` | Service logs and the app's `app.log` |
 | `~/.zdr-harness/opt/` | Pinned OpenCode install |

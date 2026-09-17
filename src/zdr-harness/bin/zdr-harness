@@ -57,25 +57,18 @@ EOF
 load_secrets() {
   [[ -f "${ZH}/.env" ]] || die "missing ${ZH}/.env (see README)"
   local secrets
-  secrets="$(ENV_FILE="${ZH}/.env" env_export KICKOFF_OPENAI_ZDR_API_KEY ZDR_HARNESS_PASSWORD)"
+  # BugSnag and PostHog use long-lived read-scoped tokens instead of OAuth;
+  # opencode.json references them as {env:...}. Keys are named one by one: a
+  # blanket source would hand every secret in the file to OpenCode.
+  secrets="$(ENV_FILE="${ZH}/.env" env_export \
+    KICKOFF_OPENAI_ZDR_API_KEY ZDR_HARNESS_PASSWORD KICKOFF_BUGSNAG_TOKEN KICKOFF_POSTHOG_TOKEN)" ||
+    die "${ZH}/.env is missing keys; see src/zdr-harness/.env.template"
   eval "$secrets"
   unset secrets
   : "${KICKOFF_OPENAI_ZDR_API_KEY:?KICKOFF_OPENAI_ZDR_API_KEY must be set in ${ZH}/.env}"
   : "${ZDR_HARNESS_PASSWORD:?ZDR_HARNESS_PASSWORD must be set in ${ZH}/.env}"
-  load_mcp_tokens
-}
-
-# BugSnag and PostHog authenticate with long-lived read-scoped tokens instead of
-# OAuth, so opencode.json references them as {env:...} and they are named here
-# one by one: a blanket source would hand every secret in .env to OpenCode.
-load_mcp_tokens() {
-  local token_file="${MCP_TOKEN_FILE:-${DOTFILES_DIR:-$HOME/dotfiles}/.env}"
-  [[ -f "$token_file" ]] || die "missing ${token_file} (holds KICKOFF_BUGSNAG_TOKEN, KICKOFF_POSTHOG_TOKEN)"
-  local tokens
-  tokens="$(ENV_FILE="$token_file" env_export KICKOFF_BUGSNAG_TOKEN KICKOFF_POSTHOG_TOKEN)" ||
-    die "KICKOFF_BUGSNAG_TOKEN and KICKOFF_POSTHOG_TOKEN must be set in ${token_file}"
-  eval "$tokens"
-  unset tokens
+  : "${KICKOFF_BUGSNAG_TOKEN:?KICKOFF_BUGSNAG_TOKEN must be set in ${ZH}/.env}"
+  : "${KICKOFF_POSTHOG_TOKEN:?KICKOFF_POSTHOG_TOKEN must be set in ${ZH}/.env}"
 }
 
 preflight() {

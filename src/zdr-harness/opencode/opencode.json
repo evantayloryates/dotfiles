@@ -60,7 +60,8 @@
     "bugsnag_bugsnag_get_trace": "allow",
     "bugsnag_bugsnag_list_trace_fields": "allow",
     "bugsnag_bugsnag_get_network_endpoint_groupings": "allow",
-    "posthog_exec": "allow"
+    "posthog_exec": "allow",
+    "todowrite": "allow"
   },
   "agent": {
     "zdr": {
