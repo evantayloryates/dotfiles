@@ -25,7 +25,8 @@ enum Harness {
     static let root = home.appendingPathComponent(".zdr-harness")
     static let workDir = root.appendingPathComponent("work").path
     static let logsDir = root.appendingPathComponent("logs")
-    static let defaultEnvFile = root.appendingPathComponent(".env")
+    /// Fallback only: the checkout's .env wins when it exists (see `secretsFile`).
+    static let fallbackEnvFile = root.appendingPathComponent(".env")
     static let launchAgentPlist = home.appendingPathComponent("Library/LaunchAgents/\(serviceLabel).plist")
 
     // build_app.py records the resolved checkout path; the ~/dotfiles symlink is the fallback.
@@ -46,7 +47,7 @@ enum Harness {
                 .appendingPathComponent(".env")
             if FileManager.default.fileExists(atPath: candidate.path) { return candidate }
         }
-        return root.appendingPathComponent(".env")
+        return fallbackEnvFile
     }
 
     // `zdr-harness serve` touches this immediately before exec'ing OpenCode.

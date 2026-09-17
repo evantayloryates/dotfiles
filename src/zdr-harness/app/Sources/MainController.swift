@@ -83,7 +83,7 @@ final class MainController: NSObject, NSWindowDelegate, WKNavigationDelegate, WK
 
     func start() {
         AppLog.write("launch version=\(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") ?? "?") selfTest=\(options.selfTest) debug=\(options.debug)")
-        let envFile = options.envFile ?? Harness.defaultEnvFile
+        let envFile = options.envFile ?? Harness.secretsFile
         let password: String
         do {
             password = try Harness.readPassword(from: envFile)
@@ -161,7 +161,7 @@ final class MainController: NSObject, NSWindowDelegate, WKNavigationDelegate, WK
         if snapshot.passwordRejected {
             AppLog.write("harness rejected the password (HTTP 401)")
             showFatal(.passwordRejected, title: "The harness rejected the password",
-                      message: "\(Harness.passwordKey) in \((options.envFile ?? Harness.defaultEnvFile).path) does not match the running service.")
+                      message: "\(Harness.passwordKey) in \((options.envFile ?? Harness.secretsFile).path) does not match the running service.")
             return
         }
         if snapshot.reachable && snapshot.healthy {
@@ -424,7 +424,7 @@ final class MainController: NSObject, NSWindowDelegate, WKNavigationDelegate, WK
             decisionHandler(.cancel)
             AppLog.write("harness rejected the password (HTTP 401)")
             showFatal(.passwordRejected, title: "The harness rejected the password",
-                      message: "\(Harness.passwordKey) in \((options.envFile ?? Harness.defaultEnvFile).path) does not match the running service.")
+                      message: "\(Harness.passwordKey) in \((options.envFile ?? Harness.secretsFile).path) does not match the running service.")
             return
         }
         decisionHandler(.allow)

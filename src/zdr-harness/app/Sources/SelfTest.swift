@@ -58,7 +58,7 @@ final class SelfTest: NSObject, MainControllerObserver, WKNavigationDelegate {
     func fatalShown(kind: MainController.Fatal, message: String) {
         result["fatal"] = "\(kind)"
         if mode == .envError && kind == .env {
-            let path = (options.envFile ?? Harness.defaultEnvFile).path
+            let path = (options.envFile ?? Harness.secretsFile).path
             result["envErrorShown"] = true
             result["envErrorNamesFile"] = message.contains(path)
             snapshotNative(name: "env-error.png") { self.finish() }
