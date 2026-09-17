@@ -36,6 +36,7 @@ CONFIG = [
   p('kickoff',     '~/src/github/kickoff',              'cd', aliases=['kick', 'kck'],
     commands={'code': KICKOFF_CONTAINER, 'container': KICKOFF_CONTAINER}),
   p('kit',         '~/.config/kitty/',                  aliases=['kitty'], commands={'reload': '/Applications/kitty.app/Contents/MacOS/kitty @ load-config /Users/taylor/.config/kitty/kitty.conf'}),
+  p('library',     '~/Library',                         'cd', aliases=['lib', 'Library']),
   p('mac',         '~/src/macos',                       'cd', aliases=['macos']),
   p('movies',      '~/Movies',                          'cd', aliases=['mov', 'Movies']),
   p('music',       '~/Music',                           'cd', aliases=['Music']),
