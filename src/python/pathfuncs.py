@@ -22,7 +22,7 @@ CONFIG = [
   p('app',         '/Applications',                     'open'), # TODO: link all app dirs /Applications, /System/Applications, /System/Applications/Utilities, /System/Library/CoreServices/Applications/
   p('d',           '~/Desktop',                         'cd',  aliases=['desk', 'desktop'],
     commands={'clean': '__desk_clean <args>'}),
-  p('docs',        '~/src/docs',                        'cd', aliases=['doc']),
+  p('documents',   '~/Documents',                       'cd', aliases=['docs', 'doc', 'Documents']),
   p('domputer',    '~/src/github/domputer',             'cd', aliases=['dom']),
   p('dot',         '~/dotfiles'),
   p('down',        '~/Downloads',                       'cd'),
@@ -39,7 +39,7 @@ CONFIG = [
   p('mac',         '~/src/macos',                       'cd', aliases=['macos']),
   p('notes',       '~/Desktop/notes'),
   p('pathfuncs',   '~/dotfiles/src/python/pathfuncs.py','code', aliases=['pathfunc', 'pathfns', 'pathfn', 'pathfuns', 'pathfun', 'pthfuncs', 'pthfunc', 'pthfns', 'pthfn', 'pthfuns', 'pthfun', 'pfuncs', 'pfunc', 'pfns', 'pfn', 'pfuns', 'pfun' ]),
-  p('pictures',    '~/Pictures',                        'cd', aliases=['pics', 'pic']),
+  p('pictures',    '~/Pictures',                        'cd', aliases=['pics', 'pic', 'Pictures']),
   p('plans',       '~/src/docs/plans',                  'open', aliases=['pln', 'plan']),
   p('pod',         '~/src/github/podsauce',             'cd'),
   p('r1',          '~/src/github/r1',                   'cd', aliases=['rone', 'rem']),
