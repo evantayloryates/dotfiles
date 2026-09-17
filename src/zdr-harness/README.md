@@ -133,6 +133,7 @@ zdr-harness status     # health, MCP connection state, web UI URL
 zdr-harness attach     # TUI on the running server
 zdr-harness logs
 zdr-harness restart
+zdr-harness set-token KICKOFF_POSTHOG_TOKEN   # hidden prompt, restart, re-check
 zdr-harness app                  # build if stale, install, open ZDR Harness.app
 zdr-harness prune --dry-run      # sessions not updated in 30 days
 zdr-harness prune --days 14      # delete sessions not updated in 14 days
@@ -278,8 +279,20 @@ zdr-harness mcp auth amplitude && zdr-harness restart
 ```
 
 For BugSnag or PostHog, `connected` is not proof: a bad token surfaces as a
-`401` inside a tool result. Check with a real question, and fix by replacing the
-token in `~/dotfiles/.env`, then `zdr-harness restart`.
+`401` inside a tool result, so check with one real question per server.
+
+Roll a token with `zdr-harness set-token <KEY>` rather than an editor. It reads
+the value from a hidden prompt (or stdin), rewrites that one line of
+`~/.zdr-harness/.env`, restarts the service, re-checks, and prints a length and
+SHA-256 prefix so you can see the edit landed. Hand-editing has two silent
+failure modes: saving the wrong file, and forgetting that `{env:...}` is
+resolved when the server starts, so reloading the app's UI changes nothing. To
+compare what the running server actually holds:
+
+```sh
+ps -Eww -p "$(pgrep -f 'opencode.exe serve')" | tr ' ' '\n' |
+  grep '^KICKOFF_POSTHOG_TOKEN=' | cut -d= -f2- | shasum -a 256 | cut -c1-12
+```
 
 ## Upgrading OpenCode
 

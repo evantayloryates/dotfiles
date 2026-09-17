@@ -42,6 +42,7 @@ truth**: design, lockdown, app, verification. Read it before changing anything.
 Z=~/dotfiles/src/zdr-harness/bin/zdr-harness
 $Z status                      # health + MCP state
 $Z restart                     # launchctl kickstart -k
+$Z set-token <KEY>             # roll a secret: hidden prompt, restart, re-check
 $Z logs                        # service stdout/stderr
 $Z attach                      # TUI on the running server
 $Z prune --dry-run             # sessions not updated in 30 days; --days N
