@@ -72,7 +72,6 @@ $Z app-build --force           # rebuild + install without opening
 | `~/.zdr-harness/xdg/data/opencode/` | Sessions DB (raw tool output), MCP OAuth tokens, logs |
 | `~/.zdr-harness/logs/` | Service logs and the app's `app.log` |
 | `~/.zdr-harness/opt/` | Pinned OpenCode install |
-| `data/zdr-harness/` (gitignored) | App build output |
 | `~/Applications/ZDR Harness.app` | Installed app |
 | `~/Library/WebKit/com.taylor.zdr-harness.app` | App localStorage (UI prefs, drafts, project list) |
 

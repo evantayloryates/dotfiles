@@ -1,8 +1,11 @@
 #!/usr/bin/python3
 """Build ZDR Harness.app reproducibly (Swift + AppKit + WebKit, no dependencies).
 
-The bundle is built under data/zdr-harness/ and, with --install, copied to
-~/Applications. --force rebuilds even when the source hash is unchanged.
+The bundle is assembled in a temporary directory and installed straight to
+~/Applications, which is the only copy that exists. An earlier version kept the
+build output under data/zdr-harness/ as well; macOS indexed and re-registered
+it, so "ZDR Harness.app" appeared twice in Spotlight and either copy could be
+launched. --force rebuilds even when the source hash is unchanged.
 """
 import argparse
 import hashlib
@@ -13,10 +16,8 @@ import subprocess
 import tempfile
 
 HERE = Path(__file__).resolve().parent
-ROOT = HERE.parents[1]
 APP_SRC = HERE / 'app'
-APP = ROOT / 'data/zdr-harness/ZDR Harness.app'
-INSTALLED = Path.home() / 'Applications' / APP.name
+INSTALLED = Path.home() / 'Applications' / 'ZDR Harness.app'
 STAMP_NAME = 'source.sha256'
 BUNDLE_ID = 'com.taylor.zdr-harness.app'
 LSREGISTER = '/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister'
@@ -39,14 +40,16 @@ def stamp(bundle):
     return path.read_text().strip() if path.exists() else None
 
 
-def build(force=False):
+def build_and_install(force=False):
     digest = source_hash()
-    if not force and APP.exists() and stamp(APP) == digest:
-        print(f'up to date: {APP}')
-        return APP
-    APP.parent.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix='.build-', dir=APP.parent) as staging:
-        bundle = Path(staging) / APP.name
+    if not force and INSTALLED.exists() and stamp(INSTALLED) == digest:
+        print(f'up to date: {INSTALLED}')
+        subprocess.run([LSREGISTER, '-f', str(INSTALLED)], check=True, capture_output=True)
+        return INSTALLED
+
+    INSTALLED.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix='.zdr-build-') as staging:
+        bundle = Path(staging) / INSTALLED.name
         macos = bundle / 'Contents/MacOS'
         resources = bundle / 'Contents/Resources'
         macos.mkdir(parents=True)
@@ -71,38 +74,26 @@ def build(force=False):
         subprocess.run(['/usr/bin/codesign', '--force', '--sign', '-', '--identifier', BUNDLE_ID, str(bundle)],
                        check=True, capture_output=True)
         subprocess.run(['/usr/bin/codesign', '--verify', '--deep', '--strict', str(bundle)], check=True, capture_output=True)
-        if APP.exists():
-            shutil.rmtree(APP)
-        shutil.move(str(bundle), APP)
-    print(f'built: {APP}')
-    return APP
 
-
-def install():
-    if INSTALLED.exists() and stamp(INSTALLED) == stamp(APP):
-        print(f'installed copy up to date: {INSTALLED}')
-    else:
-        INSTALLED.parent.mkdir(parents=True, exist_ok=True)
-        staging = INSTALLED.with_name('.' + INSTALLED.name + '.tmp')
-        if staging.exists():
-            shutil.rmtree(staging)
-        subprocess.run(['/usr/bin/ditto', str(APP), str(staging)], check=True)
-        subprocess.run(['/usr/bin/codesign', '--verify', '--deep', '--strict', str(staging)], check=True, capture_output=True)
+        # Swap it in through a sibling temp copy so a crash cannot leave a half bundle.
+        landing = INSTALLED.with_name('.' + INSTALLED.name + '.tmp')
+        if landing.exists():
+            shutil.rmtree(landing)
+        subprocess.run(['/usr/bin/ditto', str(bundle), str(landing)], check=True)
+        subprocess.run(['/usr/bin/codesign', '--verify', '--deep', '--strict', str(landing)], check=True, capture_output=True)
         if INSTALLED.exists():
             shutil.rmtree(INSTALLED)
-        staging.rename(INSTALLED)
-        print(f'installed: {INSTALLED}')
-    # Register only the installed copy, so `open -a "ZDR Harness"` never picks the build output.
-    subprocess.run([LSREGISTER, '-u', str(APP)], capture_output=True)
+        landing.rename(INSTALLED)
+
     subprocess.run([LSREGISTER, '-f', str(INSTALLED)], check=True, capture_output=True)
+    print(f'installed: {INSTALLED}')
     return INSTALLED
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--install', action='store_true', help='copy the bundle to ~/Applications')
+    # --install is accepted for compatibility; installing is now the only mode.
+    parser.add_argument('--install', action='store_true', help=argparse.SUPPRESS)
     parser.add_argument('--force', action='store_true', help='rebuild even if sources are unchanged')
     args = parser.parse_args()
-    build(force=args.force)
-    if args.install:
-        install()
+    build_and_install(force=args.force)
