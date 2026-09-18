@@ -43,7 +43,7 @@ KICKOFF_CONTAINER = 'code --folder-uri vscode-remote://ssh-remote+kickoff.devpod
 
 CONFIG = [
   p('app',         '/Applications',                     'open'), # TODO: link all app dirs /Applications, /System/Applications, /System/Applications/Utilities, /System/Library/CoreServices/Applications/
-  p('desktop',     '~/Desktop',                         'cd', aliases=['desk', 'Desktop'],
+  p('desktop',     '~/Desktop',                         'cd', aliases=['d', 'desk', 'Desktop'],
     commands={'clean': '__desk_clean <args>'}),
   p('documents',   '~/Documents',                       'cd', aliases=['docs', 'doc', 'Documents']),
   p('domputer',    '~/src/github/domputer',             'cd', aliases=['dom']),
@@ -223,6 +223,21 @@ def build_globals(globals_):
   return '\n'.join(lines)
 
 
+# Every function name the generated file defines. On `reload`, the names from the
+# previous generation are dropped first, so a pathfunc or alias removed from CONFIG
+# stops existing instead of lingering in open shells with its old behavior.
+def build_names_reset(config):
+  names = []
+  for entry in config:
+    names.append(fn_name(entry))
+    if 'parent_func' not in entry:
+      names += [*entry.get('aliases', []), *entry.get('alias_cmds', {})]
+  return '\n'.join([
+    '(( $+__PATHFUNCS_NAMES )) && unfunction -- $__PATHFUNCS_NAMES 2>/dev/null',
+    f"typeset -ga __PATHFUNCS_NAMES=({' '.join(shlex.quote(n) for n in names)})",
+  ])
+
+
 def build_paths_helper(config):
   slugs = sorted(
     f"{entry['parent_func']} {entry['slug']}" if 'parent_func' in entry else entry['slug']
@@ -244,6 +259,8 @@ def main():
   with os.fdopen(fd, 'w') as f:
     f.write('# Generated shell functions\n\n')
     f.write('source "$DOTFILES_DIR/src/python/pathfuncs.sh"\n\n')
+    f.write(build_names_reset(CONFIG))
+    f.write('\n\n')
     f.write(build_globals(GLOBALS))
     f.write('\n\n')
     f.write(functions)
