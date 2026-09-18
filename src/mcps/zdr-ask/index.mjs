@@ -7,6 +7,7 @@
 // Transport: MCP stdio (spec 2025-06-18) — newline-delimited JSON-RPC 2.0 on
 // stdin/stdout. Logs go to stderr only.
 
+import { execFile } from 'node:child_process'
 import { createInterface } from 'node:readline'
 
 const BASE_URL = process.env.ZDR_HARNESS_URL || 'http://127.0.0.1:4096'
@@ -16,6 +17,12 @@ const ASK_TIMEOUT_MS = Number(process.env.ZDR_ASK_TIMEOUT_MS || 10 * 60 * 1000)
 // Servers are read from the harness rather than listed here, so one added
 // there is covered without editing this bridge.
 const SUPPORTED_PROTOCOLS = ['2025-06-18', '2025-03-26', '2024-11-05']
+// The harness runs two agents. `zdr` de-identifies its answer to HIPAA Safe
+// Harbor because this bridge hands it to a context with no BAA; `analyst`
+// answers in full for the app UI. Only `zdr` output may cross this boundary.
+const ZDR_AGENT = 'zdr'
+const SESSION_ID = /^ses_[A-Za-z0-9]+$/
+const deepLink = (id) => `open -a "ZDR Harness" --args --session ${id}`
 
 const log = (...args) => console.error('[zdr-ask]', ...args)
 
@@ -98,9 +105,25 @@ function scrub(text) {
     .replace(/(?<![\w.])(?:\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}(?![\w.])/g, '[redacted-phone]')
 }
 
-async function ask({ question, session_id }, signal) {
+async function ask({ question, session_id, format }, signal) {
   const degraded = await ensureMcpConnected(signal)
   let sessionId = session_id
+
+  // A session started in the app answers without de-identification. Refuse to
+  // continue one here rather than relay its reply.
+  if (sessionId) {
+    if (!SESSION_ID.test(sessionId)) throw new HarnessError(`"${sessionId}" is not a session id`)
+    const existing = await harness('GET', `/session/${encodeURIComponent(sessionId)}`, { signal })
+    if (existing?.agent && existing.agent !== ZDR_AGENT) {
+      throw new HarnessError(
+        `Session ${sessionId} belongs to the "${existing.agent}" agent, which answers in full detail for the ` +
+          'app and may contain client data. It cannot be relayed here. Read it yourself with:\n  ' +
+          deepLink(sessionId) +
+          '\nAsk a fresh question instead and a new de-identified session will be created.'
+      )
+    }
+  }
+
   if (!sessionId) {
     const session = await harness('POST', '/session', {
       body: { title: `zdr-ask: ${question.slice(0, 60)}` },
@@ -113,8 +136,14 @@ async function ask({ question, session_id }, signal) {
   const combined = AbortSignal.any([signal, timeout])
   let reply
   try {
+    const text =
+      format === 'json'
+        ? `${question}\n\nReturn only a single JSON object, no prose around it, with keys: ` +
+          '"answer" (string), "figures" (object of named numbers), "filters" (object: project, date range, ' +
+          'any filters applied), "withheld" (array of field names you could not include under the answer rule).'
+        : question
     reply = await harness('POST', `/session/${encodeURIComponent(sessionId)}/message`, {
-      body: { agent: 'zdr', parts: [{ type: 'text', text: question }] },
+      body: { agent: ZDR_AGENT, parts: [{ type: 'text', text }] },
       signal: combined,
     })
   } catch (err) {
@@ -131,12 +160,34 @@ async function ask({ question, session_id }, signal) {
     const e = reply.info.error
     throw new HarnessError(`ZDR harness error (session ${sessionId}): ${e.data?.message || e.name || JSON.stringify(e)}`)
   }
+  // Belt and braces: the reply itself records which agent wrote it.
+  const wroteIt = reply?.info?.agent
+  if (wroteIt && wroteIt !== ZDR_AGENT) {
+    return (
+      `The harness answered with the "${wroteIt}" agent, whose replies are not de-identified, so the text is ` +
+      `not relayed. Read it in the app:\n  ${deepLink(sessionId)}\n\nsession_id: ${sessionId}`
+    )
+  }
+
   const answer = (reply?.parts || [])
     .filter((part) => part.type === 'text' && !part.synthetic && !part.ignored)
     .map((part) => part.text)
     .join('\n')
     .trim()
-  return `${degraded}${scrub(answer || '(the harness returned no text)')}\n\nsession_id: ${sessionId}`
+  return (
+    `${degraded}${scrub(answer || '(the harness returned no text)')}\n\n` +
+    `session_id: ${sessionId}\nfull detail (unredacted, for Taylor only): ${deepLink(sessionId)}`
+  )
+}
+
+function openInApp(sessionId) {
+  if (!SESSION_ID.test(sessionId)) throw new HarnessError(`"${sessionId}" is not a session id`)
+  return new Promise((resolve, reject) => {
+    execFile('/usr/bin/open', ['-a', 'ZDR Harness', '--args', '--session', sessionId], (err) => {
+      if (err) return reject(new HarnessError(`Could not open ZDR Harness.app: ${err.message}`))
+      resolve(`Opened ${sessionId} in ZDR Harness.app. The full, unredacted session is on Taylor's screen.`)
+    })
+  })
 }
 
 async function listSessions(signal) {
@@ -165,12 +216,27 @@ const TOOLS = [
       type: 'object',
       properties: {
         question: { type: 'string', description: 'The question. Include the project, date range and any filters.' },
-        session_id: { type: 'string', description: 'Optional session_id from a previous zdr_ask answer.' },
+        session_id: { type: 'string', description: 'Optional session_id from a previous zdr_ask answer. Sessions started in the app cannot be continued here.' },
+        format: { type: 'string', enum: ['text', 'json'], description: 'json returns {answer, figures, filters, withheld} for further computation.' },
       },
       required: ['question'],
       additionalProperties: false,
     },
     annotations: { readOnlyHint: true, openWorldHint: true },
+  },
+  {
+    name: 'zdr_open',
+    title: 'Open a harness session in the app',
+    description:
+      'Open a ZDR harness session in ZDR Harness.app on Taylor\'s screen, where it is shown in full including ' +
+      'anything the de-identified answer had to withhold. Use this when the answer says a field was withheld.',
+    inputSchema: {
+      type: 'object',
+      properties: { session_id: { type: 'string', description: 'The session_id to open.' } },
+      required: ['session_id'],
+      additionalProperties: false,
+    },
+    annotations: { readOnlyHint: true, openWorldHint: false },
   },
   {
     name: 'zdr_sessions',
@@ -203,7 +269,13 @@ async function callTool(id, params) {
       if (args.session_id !== undefined && typeof args.session_id !== 'string') {
         return fail(id, -32602, '"session_id" must be a string')
       }
+      if (args.format !== undefined && !['text', 'json'].includes(args.format)) {
+        return fail(id, -32602, '"format" must be "text" or "json"')
+      }
       text = await ask(args, controller.signal)
+    } else if (name === 'zdr_open') {
+      if (typeof args.session_id !== 'string') return fail(id, -32602, 'zdr_open requires "session_id"')
+      text = await openInApp(args.session_id)
     } else if (name === 'zdr_sessions') {
       text = await listSessions(controller.signal)
     } else {

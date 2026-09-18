@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!--
+    Deletes ZDR harness sessions that have not been updated in 14 days. Sessions
+    hold raw Amplitude, BugSnag, PostHog and CloudWatch output, so the shorter
+    the window the smaller the exposure. The memory store under
+    ~/.zdr-harness/memory is never pruned: it is the part meant to last.
+
+    See src/zdr-harness/README.md. NOTE: launchd does not expand ~ or $HOME.
+  -->
+  <key>Label</key>
+  <string>com.taylor.zdr-harness-prune</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/taylor/src/github/dotfiles/src/zdr-harness/bin/zdr-harness</string>
+    <string>prune</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>3</integer>
+    <key>Minute</key>
+    <integer>30</integer>
+  </dict>
+  <key>StandardOutPath</key>
+  <string>/Users/taylor/.zdr-harness/logs/prune.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/taylor/.zdr-harness/logs/prune.log</string>
+</dict>
+</plist>

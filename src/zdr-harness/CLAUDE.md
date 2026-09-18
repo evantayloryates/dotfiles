@@ -2,10 +2,12 @@
 
 A locked-down OpenCode 1.18.31 server on `http://127.0.0.1:4096` (LaunchAgent
 `com.taylor.zdr-harness`). It runs only on Kickoff's zero-data-retention OpenAI
-key and exposes only 33 named tools: read-only Amplitude and BugSnag ones,
-PostHog's single `exec` router (constrained by a read-scoped key, not by the
-allowlist), four read-only CloudWatch Logs tools, and `todowrite` for
-in-session planning. Claude Code and Codex reach it through the `zdr_ask` MCP tool
+key (BAA-covered, so PHI may reach it) and exposes 41 named tools: read-only
+Amplitude and BugSnag ones, PostHog's single `exec` router, four CloudWatch Logs
+readers, four memory tools, and `todowrite`. Two agents split by destination:
+`analyst` (default, full detail, read by Taylor in the app) and `zdr` (what the
+bridge always asks, de-identified to HIPAA Safe Harbor because Claude Code and
+Codex have no BAA). Claude Code and Codex reach it through the `zdr_ask` MCP tool
 (`src/mcps/zdr-ask`).
 `ZDR Harness.app` (`app/`) is the native viewer. **README.md is the source of
 truth**: design, lockdown, app, verification. Read it before changing anything.
@@ -23,6 +25,11 @@ truth**: design, lockdown, app, verification. Read it before changing anything.
   commits, the app bundle, `Info.plist` or URLs. Pipe the password to
   `curl -K -` and show only lengths or SHA-256 prefixes. Grep staged diffs for
   the password's first 16 and the key's first 24 characters before every commit.
+- **Never relay an `analyst` answer to another agent.** The bridge refuses a
+  non-`zdr` session and re-checks which agent wrote the reply; keep both checks.
+- **Memory holds patterns, not people.** `~/.zdr-harness/memory/` is never
+  pruned, so notes must stay free of client detail (the server scrubs, the
+  prompts instruct).
 - **Do not weaken the lockdown.** No edits to `permission`, `enabled_providers`,
   `experimental.policies` or `mcp` in `opencode/opencode.json`, or to the answer
   rule in `opencode/prompts/zdr.md`. No new variables in the wrapper's

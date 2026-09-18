@@ -29,10 +29,10 @@ const ALLOWED_GROUP = /^\/aws\/lambda\/(kickoff|kudos)-[a-z0-9-]*production(-|$)
 
 // Guardrails. Insights bills per GB scanned and kudos-node-production-graphql
 // alone holds ~500 GB, so an unbounded window is a real bill, not a typo.
-const MAX_RANGE_MINUTES = 24 * 60
+const MAX_RANGE_MINUTES = 7 * 24 * 60
 const DEFAULT_RANGE_MINUTES = 60
-const MAX_EVENTS = 200
-const DEFAULT_EVENTS = 50
+const MAX_EVENTS = 1000
+const DEFAULT_EVENTS = 100
 const MAX_QUERY_ROWS = 1000
 const MAX_MESSAGE_CHARS = 4000
 const QUERY_TIMEOUT_MS = 90 * 1000
@@ -114,7 +114,7 @@ function checkWindow(args) {
   const minutes = args.minutes === undefined ? DEFAULT_RANGE_MINUTES : Number(args.minutes)
   if (!Number.isFinite(minutes) || minutes <= 0) throw new ToolError('"minutes" must be a positive number')
   if (minutes > MAX_RANGE_MINUTES) {
-    throw new ToolError(`"minutes" is capped at ${MAX_RANGE_MINUTES} (24 h) to bound the bytes scanned`)
+    throw new ToolError(`"minutes" is capped at ${MAX_RANGE_MINUTES} (7 days) to bound the bytes scanned`)
   }
   const endsAgo = args.ends_minutes_ago === undefined ? 0 : Number(args.ends_minutes_ago)
   if (!Number.isFinite(endsAgo) || endsAgo < 0) throw new ToolError('"ends_minutes_ago" must be >= 0')

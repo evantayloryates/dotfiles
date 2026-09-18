@@ -7,7 +7,7 @@
   "enabled_providers": [
     "openai"
   ],
-  "default_agent": "zdr",
+  "default_agent": "analyst",
   "server": {
     "hostname": "127.0.0.1",
     "port": 4096,
@@ -64,13 +64,26 @@
     "awslogs_list_groups": "allow",
     "awslogs_list_streams": "allow",
     "awslogs_search": "allow",
-    "awslogs_query": "allow"
+    "awslogs_query": "allow",
+    "amplitude_get_amp_user_data": "allow",
+    "amplitude_get_amp_session_replay_info": "allow",
+    "amplitude_render_amplitude_chart": "allow",
+    "amplitude_render_amp_session_replay": "allow",
+    "harness_memory_write": "allow",
+    "harness_memory_search": "allow",
+    "harness_memory_list": "allow",
+    "harness_memory_read": "allow"
   },
   "agent": {
     "zdr": {
       "mode": "primary",
       "description": "ZDR analyst for Kickoff Amplitude and BugSnag data (read-only)",
       "prompt": "{file:./prompts/zdr.md}"
+    },
+    "analyst": {
+      "mode": "primary",
+      "description": "Full-detail analyst for the app UI (PHI allowed; never relayed to another agent)",
+      "prompt": "{file:./prompts/analyst.md}"
     },
     "build": {
       "disable": true
@@ -120,6 +133,13 @@
         "KICKOFF_ZDR_AWS_REGION": "{env:KICKOFF_ZDR_AWS_REGION}"
       },
       "timeout": 120000
+    },
+    "harness": {
+      "type": "local",
+      "command": [
+        "{env:ZDR_HARNESS_MEMORY_MCP}"
+      ],
+      "timeout": 30000
     }
   }
 }

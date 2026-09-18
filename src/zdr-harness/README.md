@@ -14,9 +14,16 @@ Claude Code / Codex ──zdr_ask──▶ zdr-ask MCP (src/mcps/zdr-ask) ──
                                                                          └─▶ mcp.posthog.com (token, read-only)
 ```
 
-ZDR status of the OpenAI project was proven on 2026-09-16: a Responses call with
-`store: true` came back `store: false` and retrieval returned 404, while a
-control key from another org stored normally.
+**BAA and ZDR.** Kickoff's OpenAI account is covered by a BAA (confirmed
+2026-09-18), so PHI may reach the model here. The key is a service-account key
+(`sk-svcacct-…`) in organisation `kickoff-1`, project
+`proj_gbiv5UipYAA0QwtChV5R5CX9` — read off the `openai-organization` and
+`openai-project` response headers. Zero retention was proven separately on
+2026-09-16: a Responses call with `store: true` came back `store: false` and
+retrieval returned 404, while a control key from another org stored normally.
+
+That is why the boundary is about **where an answer goes**, not what it
+contains: OpenAI and this Mac may hold PHI; Claude Code and Codex may not.
 
 ## Layout
 
@@ -50,10 +57,13 @@ key) and `ZDR_HARNESS_PASSWORD` (web UI / API Basic auth, username `opencode`).
   `provider.use` deny-all/allow-openai policy. Built-in `build`, `plan`, `general`
   and `explore` agents are disabled; `zdr` is the default.
 - **No built-in tools, named MCP tools only.** `permission` denies `*`, then
-  allows 33 named tools: 11 Amplitude, 16 BugSnag (all annotated read-only by
-  their servers), PostHog's single `exec`, four CloudWatch Logs readers, and
-  `todowrite`, which only keeps a plan in the session and touches nothing
-  outside it. Shell, file, edit, web, task and
+  allows 41 named tools: 15 Amplitude, 16 BugSnag (all annotated read-only by
+  their servers), PostHog's single `exec`, four CloudWatch Logs readers, four
+  memory tools, and `todowrite`, which only keeps a plan in the session and
+  touches nothing outside it. Tools that read PHI are allowed because the model
+  is covered by the BAA; every write tool, and the shell, file, edit, web, task
+  and skill built-ins, stay denied — those guard against a prompt-injected model
+  acting or exfiltrating, which a BAA says nothing about. Shell, file, edit, web, task and
   skill tools, every BugSnag write tool (`update_error`,
   `set_network_endpoint_groupings`), Amplitude user lookup
   (`get_amp_user_data`), session replay, AI feedback and agent-analytics tools
@@ -78,9 +88,16 @@ key) and `ZDR_HARNESS_PASSWORD` (web UI / API Basic auth, username `opencode`).
 - **Local only.** Binds `127.0.0.1:4096` with HTTP Basic auth.
 - **Pinned.** The wrapper refuses any OpenCode version other than 1.18.31, and
   refuses if managed config exists at `/Library/Application Support/opencode`.
-- **Answer rule.** The reply is the only thing that leaves the harness, and it
-  lands somewhere with neither zero data retention nor a BAA, so the agent
-  prompt holds it to HIPAA Safe Harbor (45 CFR 164.514(b)(2)): none of the 18
+- **Two answer contracts, chosen by destination.** `analyst` is the default
+  agent and answers in full: it is read by Taylor in the app, and the model is
+  BAA-covered, so de-identifying there would hide the thing being debugged.
+  `zdr` is the agent the MCP bridge always names, and its reply lands in Claude
+  Code or Codex, which are **not** covered — so that one is de-identified. The
+  bridge enforces it from both ends: it refuses to continue a session belonging
+  to another agent, and it checks which agent wrote the reply before relaying
+  it, returning a pointer to the app instead on a mismatch.
+- **The `zdr` answer rule.** The reply lands somewhere with neither zero data
+  retention nor a BAA, so the agent prompt holds it to HIPAA Safe Harbor (45 CFR 164.514(b)(2)): none of the 18
   identifier types, nothing that singles out one person, and no grouping under
   11 people (CMS's cell-size policy). Within that line it is deliberately
   generous: aggregates, catalogue and schema names, object IDs and console
@@ -398,10 +415,32 @@ config or app.
 11. **App failure states.** `launchctl bootout gui/$(id -u)/com.taylor.zdr-harness`,
     run `--self-test-recovery` → `allPass`, then `zdr-harness status` healthy.
 
+## Memory
+
+`~/.zdr-harness/memory/` is the part meant to last: one Markdown file per topic,
+written through `harness_memory_write` and read with `harness_memory_search`,
+`harness_memory_list` and `harness_memory_read`. Both agents share it, so a
+query shape worked out in the app is there for a relayed question later.
+
+Memory outlives the data it came from, so the server scrubs every note on the
+way in — emails, phone numbers, UUIDs and `user_id:`-style codes become
+placeholders — and both prompts say to record the pattern, not the person.
+Prune never touches it.
+
 ## Data retention
 
 `~/.zdr-harness/xdg/data/opencode/opencode.db` and `log/` keep full sessions,
-including raw Amplitude and BugSnag tool output, on this Mac. Delete old
-sessions with `zdr-harness prune [--days N]` (dry-run first with `--dry-run`),
-`DELETE /session/<id>`, or remove the DB while the service is stopped. There is
-no scheduled prune.
+including raw Amplitude, BugSnag, PostHog and CloudWatch output, on this Mac.
+
+- **Sessions prune at 14 days.** `com.taylor.zdr-harness-prune` runs
+  `zdr-harness prune` daily at 03:30 and logs to `~/.zdr-harness/logs/prune.log`.
+  Run it by hand with `zdr-harness prune [--days N]`, `--dry-run` first.
+- **The store is kept private.** `zdr-harness serve` chmods
+  `xdg/data/opencode` to 700 and `opencode.db*` to 600 on every start, because
+  OpenCode creates them 755/644. This stops other accounts, not another process
+  running as you — the harness, the app and every coding agent share one uid, so
+  there is no hard boundary here by design.
+- **Tell your other agents to stay out.** A `Read(~/.zdr-harness/**)` deny rule
+  in Claude Code and its Codex equivalent costs nothing and turns an accidental
+  read into a refusal. Those are your config files, so they are not set here.
+- Memory under `~/.zdr-harness/memory/` is deliberately exempt from all of this.

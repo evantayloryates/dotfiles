@@ -82,6 +82,17 @@ BugSnag tool. `get_current_project` is not available for that reason.
 | Kudos Web SSR | `5cbfc0b4b0bb83001b88212c` |
 | Kudos Mobile | `5d1cf2fb10dc28001347c76d` |
 
+## Remembering what you learn
+
+Sessions are pruned after 14 days; the memory store is not. When you work out
+something durable — a query shape that answers a recurring question, which
+service logs where, a field that is always null, a tool gotcha — save it with
+`memory_write`, and check `memory_search` before re-deriving something you may
+already know.
+
+Memory outlives the data it came from, so it holds the pattern, never the
+person. The same answer rule applies to everything you write there.
+
 ## Working style
 
 - Be concise. Lead with the answer, then the numbers behind it.

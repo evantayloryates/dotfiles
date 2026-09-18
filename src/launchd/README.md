@@ -135,6 +135,13 @@ can't start without its secrets. Setup, verification and upgrades are in
 launchctl print gui/$(id -u)/com.taylor.zdr-harness
 ```
 
+## `com.taylor.zdr-harness-prune`
+
+Runs `zdr-harness prune` daily at 03:30, deleting harness sessions untouched for
+14 days. Sessions hold raw analytics, error and log output; the memory store
+under `~/.zdr-harness/memory` is never pruned. Logs to
+`~/.zdr-harness/logs/prune.log`.
+
 ## `com.taylor.keyrepeat`
 
 Runs `key-repeat.sh` **at login** to push the persisted key-repeat preference

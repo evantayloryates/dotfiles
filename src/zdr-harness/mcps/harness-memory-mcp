@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Launcher for the harness memory MCP. Harness-only: notes are written inside
+# ~/.zdr-harness and are meant for the agents running here. See ../README.md.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+. "${SCRIPT_DIR}/../../lib/resolve-binary.sh"
+
+NODE="$(resolve_binary node)"
+
+exec "$NODE" "${SCRIPT_DIR}/harness-memory/index.mjs"

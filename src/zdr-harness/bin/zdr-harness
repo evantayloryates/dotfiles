@@ -54,7 +54,8 @@ Usage: zdr-harness <command>
                    report fingerprints and probe each token against its API
   logs             Tail the service logs
   prune [--days N] [--dry-run]
-                   Delete sessions not updated in N days (default 30)
+                   Delete sessions not updated in N days (default 14).
+                   The memory store is never pruned.
   app              Build ZDR Harness.app if stale, install it to ~/Applications, open it
   app-build [--force]
                    Build and install the app without opening it
@@ -120,6 +121,18 @@ preflight() {
     die "expected OpenCode ${OPENCODE_VERSION}, found '${version}'; upgrade deliberately (see README)"
 }
 
+# The sessions DB holds raw tool output, and OpenCode creates it 644 inside a
+# 755 directory. Tighten on every start rather than refusing, since OpenCode
+# recreates these files itself. Same-uid processes can still read them; this
+# stops other accounts and makes the intent explicit.
+protect_state() {
+  local data_dir="${ZH}/xdg/data/opencode"
+  [[ -d "$data_dir" ]] || return 0
+  chmod 700 "$data_dir" 2>/dev/null || true
+  chmod 600 "$data_dir"/opencode.db* 2>/dev/null || true
+  chmod -R go-rwx "${ZH}/xdg/data" 2>/dev/null || true
+}
+
 # Run a command with nothing inherited except the variables named here.
 # ISOLATED_EXEC=exec replaces this shell, so launchd signals reach OpenCode.
 isolated_env() {
@@ -139,6 +152,8 @@ isolated_env() {
     KICKOFF_BUGSNAG_TOKEN="$KICKOFF_BUGSNAG_TOKEN" \
     KICKOFF_POSTHOG_TOKEN="$KICKOFF_POSTHOG_TOKEN" \
     ZDR_HARNESS_LOGS_MCP="${PROJECT_DIR}/mcps/kickoff-logs-mcp" \
+    ZDR_HARNESS_MEMORY_MCP="${PROJECT_DIR}/mcps/harness-memory-mcp" \
+    ZDR_MEMORY_DIR="${ZH}/memory" \
     KICKOFF_ZDR_AWS_ACCESS_KEY_ID="${KICKOFF_ZDR_AWS_ACCESS_KEY_ID:-}" \
     KICKOFF_ZDR_AWS_SECRET_ACCESS_KEY="${KICKOFF_ZDR_AWS_SECRET_ACCESS_KEY:-}" \
     KICKOFF_ZDR_AWS_REGION="${KICKOFF_ZDR_AWS_REGION:-us-west-1}" \
@@ -180,7 +195,7 @@ api_delete() {
 
 # Sessions hold raw Amplitude and BugSnag tool output, so old ones go.
 prune() {
-  local days=30 dry_run=0
+  local days=14 dry_run=0
   while (($#)); do
     case "$1" in
       --days) days="${2:-}"; shift 2 ;;
@@ -353,6 +368,7 @@ case "${1:-}" in
     shift
     mkdir -p "$RUN_DIR"
     : > "$SERVE_MARKER"
+    protect_state
     run_opencode serve --hostname 127.0.0.1 --port "$PORT" "$@"
     ;;
   attach)
