@@ -2,8 +2,8 @@
 
 A dedicated, locked-down [OpenCode](https://opencode.ai) server for questions
 that need sensitive Kickoff data. It runs only on Kickoff's **zero-data-retention
-(ZDR) OpenAI key** and only exposes the **Amplitude**, **BugSnag** and
-**PostHog** MCP servers. Claude Code and Codex never see the raw data: they call the `zdr_ask`
+(ZDR) OpenAI key** and only exposes read-only MCP servers: **Amplitude**, **BugSnag**,
+**PostHog**, **Cloudinary**, production **Lambda logs** and its own **memory**. Claude Code and Codex never see the raw data: they call the `zdr_ask`
 MCP tool, and only the harness's final answer comes back.
 
 ```
@@ -11,7 +11,9 @@ Claude Code / Codex ──zdr_ask──▶ zdr-ask MCP (src/mcps/zdr-ask) ──
                                                                          ├─▶ api.openai.com (ZDR project)
                                                                          ├─▶ mcp.amplitude.com (OAuth)
                                                                          ├─▶ bugsnag.mcp.smartbear.com (token)
-                                                                         └─▶ mcp.posthog.com (token, read-only)
+                                                                         ├─▶ mcp.posthog.com (token, read-only)
+                                                                         ├─▶ api.cloudinary.com (key/secret, read-only)
+                                                                         └─▶ logs.<region>.amazonaws.com (SigV4, read-only)
 ```
 
 **BAA and ZDR.** Kickoff's OpenAI account is covered by a BAA (confirmed
@@ -35,9 +37,11 @@ contains: OpenAI and this Mac may hold PHI; Claude Code and Codex may not.
 | `src/launchd/com.taylor.zdr-harness.plist` | Keeps `zdr-harness serve` running |
 | `src/mcps/zdr-ask-mcp` + `src/mcps/zdr-ask/index.mjs` | Zero-dependency MCP bridge for Claude Code / Codex |
 | `src/zdr-harness/app/` + `build_app.py` | **ZDR Harness.app**: native viewer for the web UI (see [App](#app)) |
-| `src/zdr-harness/.env` (600, gitignored) | Every harness secret: `KICKOFF_OPENAI_ZDR_API_KEY`, `ZDR_HARNESS_PASSWORD`, `KICKOFF_BUGSNAG_TOKEN`, `KICKOFF_POSTHOG_TOKEN`. `~/.zdr-harness/.env` is a fallback if this is absent |
+| `src/zdr-harness/.env` (600, gitignored) | Every harness secret: `KICKOFF_OPENAI_ZDR_API_KEY`, `ZDR_HARNESS_PASSWORD`, `KICKOFF_BUGSNAG_TOKEN`, `KICKOFF_POSTHOG_TOKEN`, `KICKOFF_CLOUDINARY_*`,
+`KICKOFF_ZDR_AWS_*`. `~/.zdr-harness/.env` is a fallback if this is absent |
 | `src/zdr-harness/.env.template` | Same keys and comments with empty values; keep the two in sync |
 | `src/zdr-harness/mcps/kickoff-logs/` + `kickoff-logs-mcp` | Harness-only MCP server for production Lambda logs (see [Lambda logs](#lambda-logs)) |
+| `src/zdr-harness/mcps/cloudinary-mcp` | Launcher for Cloudinary's official read-only asset MCP (see [Cloudinary](#cloudinary)) |
 | `src/zdr-harness/iam/` | The policy of record for the `zdr-harness-logs` AWS user |
 | `~/.zdr-harness/opt/` | Pinned OpenCode install (`opencode-ai@1.18.31`) |
 | `~/.zdr-harness/xdg/data/opencode/` | Sessions DB, MCP OAuth tokens, logs (**holds raw tool output**) |
@@ -268,14 +272,45 @@ Three walls, not one:
   (`iam/zdr-harness-logs-policy.json`), and is not the account's admin user.
 
 Windows and result counts are capped because Insights bills per GB scanned and
-`/aws/lambda/kudos-node-production-graphql` alone holds ~500 GB: 24 h maximum
-window (1 h default), 200 events per search, 1000 rows per query, 5 groups per
-query, 90 s query timeout with `StopQuery` on overrun. Every query reports the
+`/aws/lambda/kudos-node-production-graphql` alone holds ~500 GB: 7 day maximum
+window (1 h default), 1000 events per search (100 default), 1000 rows per query,
+90 s query timeout with `StopQuery` on overrun. Every query reports the
 bytes it scanned.
 
 Credentials are optional. Without them the harness starts normally and the tools
 answer with the exact command to fix it. Setup is in
 [`iam/README.md`](iam/README.md).
+
+## Cloudinary
+
+`src/zdr-harness/mcps/cloudinary-mcp` launches Cloudinary's official
+`@cloudinary/asset-management-mcp`, pinned into `~/.zdr-harness/opt` like
+OpenCode itself so starting it never fetches code. Upgrade deliberately:
+
+```sh
+npm i --prefix ~/.zdr-harness/opt @cloudinary/asset-management-mcp@<version>
+```
+
+The package ships write tools (upload, rename, delete, folder moves, generative
+image tools). None of them are reachable: `opencode.json` denies `*` and then
+allows exactly nine read tools — `search-assets`, `get-asset-details`,
+`list-images`, `list-videos`, `list-files`, `list-tags`, `search-folders`,
+`visual-search-assets`, `get-tx-reference`. The credential is a scoped read key,
+so it is a second wall rather than the only one (it returns 403 on `usage`, and
+`search-folders` reports a folder count but no names).
+
+**Why it is harness-only.** Kickoff's Cloudinary account holds client progress
+photos and coach uploads. An asset's public ID, filename, folder path and
+delivery URL routinely name a person, and the URL is fetchable, so all of it is
+PHI-adjacent. The `zdr` answer rule therefore treats asset identifiers and URLs
+like any other identifier: counts, formats, sizes, tags and dates go out, the
+thing that points at a client does not. That is also why this server was removed
+from Claude Code and Codex — it belongs behind the answer rule, not in front of
+it.
+
+The launcher runs the server under an explicit `node` from `resolve-binary.sh`:
+the packaged bin is `#!/usr/bin/env node` and the harness PATH has no `node`, so
+the shebang alone cannot start it.
 
 ## Setup from scratch
 

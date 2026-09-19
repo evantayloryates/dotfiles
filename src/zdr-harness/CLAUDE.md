@@ -2,9 +2,10 @@
 
 A locked-down OpenCode 1.18.31 server on `http://127.0.0.1:4096` (LaunchAgent
 `com.taylor.zdr-harness`). It runs only on Kickoff's zero-data-retention OpenAI
-key (BAA-covered, so PHI may reach it) and exposes 41 named tools: read-only
+key (BAA-covered, so PHI may reach it) and exposes 50 named tools: read-only
 Amplitude and BugSnag ones, PostHog's single `exec` router, four CloudWatch Logs
-readers, four memory tools, and `todowrite`. Two agents split by destination:
+readers, nine read-only Cloudinary asset tools, four memory tools, and
+`todowrite`. Two agents split by destination:
 `analyst` (default, full detail, read by Taylor in the app) and `zdr` (what the
 bridge always asks, de-identified to HIPAA Safe Harbor because Claude Code and
 Codex have no BAA). Claude Code and Codex reach it through the `zdr_ask` MCP tool
@@ -17,6 +18,12 @@ truth**: design, lockdown, app, verification. Read it before changing anything.
 - **`mcps/kickoff-logs` is harness-only.** Production Lambda logs carry request
   payloads and client free text. Never register that server in Claude Code,
   Codex or any other non-ZDR client, and never add a write API to it.
+- **`mcps/cloudinary-mcp` is harness-only too.** Asset public IDs, filenames,
+  folder paths and delivery URLs routinely name a client, and the URL is
+  fetchable, so they are identifiers under the answer rule. Only the nine read
+  tools are allowed; never allow an upload, rename, delete or generative tool,
+  and never register this server in Claude Code or Codex (it was removed from
+  both on purpose).
 - **Harness tokens stay in `src/zdr-harness/.env`.** They are for this harness
   only; do not copy them into another MCP client, shell profile or repo `.env`.
   Update `.env.template` whenever that file's keys or comments change.

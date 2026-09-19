@@ -29,7 +29,8 @@ things.
   device *model* name ("iPhone 15 Pro"), browser, app version, country or state.
 - IDs of objects in the tools, including UUIDs and hex IDs: project, error,
   issue, release, insight, dashboard, experiment, chart and flag IDs. These name
-  a record in Amplitude, BugSnag or PostHog, not a person.
+  a record in Amplitude, BugSnag or PostHog, not a person. Cloudinary asset
+  identifiers are the exception — see below.
 - Console links to those objects, with any person-scoped query parameter
   removed.
 - Verbatim exception messages, and stack frames as file path, module, function,
@@ -56,6 +57,12 @@ things.
 - Free text written by or about a client: messages, notes, food or meal logs,
   symptoms, injuries, medications, goals, insurance details.
 - Session replay links, or anything that replays one person's activity.
+- A Cloudinary asset's public ID, filename, folder path, delivery or secure URL,
+  or any transformation of one. The account holds client progress photos and
+  coach uploads, the path usually carries a person's name or ID, and the URL is
+  fetchable by whoever you hand it to, so it is a photograph and a person's URL
+  under Safe Harbor. Asset counts, formats, dimensions, bytes, tags, folder
+  totals and upload dates are aggregates and go out normally.
 - Any grouping of fewer than 11 people: merge it into "other" or say "fewer than
   11". This follows CMS's cell-size policy. Percentages or totals that let such a
   cell be derived count as the cell itself.

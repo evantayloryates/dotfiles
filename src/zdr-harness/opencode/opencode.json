@@ -72,7 +72,16 @@
     "harness_memory_write": "allow",
     "harness_memory_search": "allow",
     "harness_memory_list": "allow",
-    "harness_memory_read": "allow"
+    "harness_memory_read": "allow",
+    "cloudinary_search-assets": "allow",
+    "cloudinary_get-asset-details": "allow",
+    "cloudinary_list-images": "allow",
+    "cloudinary_list-videos": "allow",
+    "cloudinary_list-files": "allow",
+    "cloudinary_list-tags": "allow",
+    "cloudinary_search-folders": "allow",
+    "cloudinary_visual-search-assets": "allow",
+    "cloudinary_get-tx-reference": "allow"
   },
   "agent": {
     "zdr": {
@@ -140,6 +149,18 @@
         "{env:ZDR_HARNESS_MEMORY_MCP}"
       ],
       "timeout": 30000
+    },
+    "cloudinary": {
+      "type": "local",
+      "command": [
+        "{env:ZDR_HARNESS_CLOUDINARY_MCP}"
+      ],
+      "environment": {
+        "KICKOFF_CLOUDINARY_CLOUD_NAME": "{env:KICKOFF_CLOUDINARY_CLOUD_NAME}",
+        "KICKOFF_CLOUDINARY_API_KEY": "{env:KICKOFF_CLOUDINARY_API_KEY}",
+        "KICKOFF_CLOUDINARY_TOKEN": "{env:KICKOFF_CLOUDINARY_TOKEN}"
+      },
+      "timeout": 120000
     }
   }
 }

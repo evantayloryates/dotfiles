@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Launcher for Cloudinary's official asset-management MCP inside the harness.
+#
+# The package is pinned into ~/.zdr-harness/opt (like OpenCode itself) and run
+# from there rather than through `npx --yes`, so starting the server never
+# fetches code from the network. Upgrade deliberately:
+#   npm i --prefix ~/.zdr-harness/opt @cloudinary/asset-management-mcp@<version>
+#
+# Credentials come from the harness env, which the wrapper fills from
+# src/zdr-harness/.env. See ../README.md.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+. "${SCRIPT_DIR}/../../lib/resolve-binary.sh"
+# The harness runs MCP servers with HOME="~/.zdr-harness/home", so the pinned
+# package sits beside that private home, not under it.
+ZH="${HOME%/home}"
+[[ "$ZH" == "$HOME" ]] && ZH="${HOME}/.zdr-harness"
+SERVER="${ZH}/opt/node_modules/@cloudinary/asset-management-mcp/bin/mcp-server.js"
+
+# The packaged bin is `#!/usr/bin/env node`, and the harness PATH has no node,
+# so invoke the interpreter explicitly rather than relying on the shebang.
+NODE="$(resolve_binary node)"
+
+[[ -f "$SERVER" ]] || {
+  echo "cloudinary-mcp: ${SERVER} is missing; run: npm i --prefix ${ZH}/opt @cloudinary/asset-management-mcp@0.11.0" >&2
+  exit 1
+}
+: "${KICKOFF_CLOUDINARY_CLOUD_NAME:?cloudinary cloud name is missing}"
+: "${KICKOFF_CLOUDINARY_API_KEY:?cloudinary api key is missing}"
+: "${KICKOFF_CLOUDINARY_TOKEN:?cloudinary api secret is missing}"
+
+export CLOUDINARY_CLOUD_NAME="$KICKOFF_CLOUDINARY_CLOUD_NAME"
+export CLOUDINARY_API_KEY="$KICKOFF_CLOUDINARY_API_KEY"
+export CLOUDINARY_API_SECRET="$KICKOFF_CLOUDINARY_TOKEN"
+unset KICKOFF_CLOUDINARY_CLOUD_NAME KICKOFF_CLOUDINARY_API_KEY KICKOFF_CLOUDINARY_TOKEN
+
+exec "$NODE" "$SERVER" start
