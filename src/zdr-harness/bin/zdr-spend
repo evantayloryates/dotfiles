@@ -1,0 +1,125 @@
+#!/usr/bin/python3
+"""Compare what the ZDR harness costs against everything else in the org.
+
+The harness has its own OpenAI service-account key in its own project, so no
+request tagging is needed: OpenAI's cost API can group by project, and that
+split is the answer. This reads it and does the arithmetic.
+
+    zdr-spend               ZDR spend for the last full day vs the non-ZDR daily average
+    zdr-spend --days 14     use a longer baseline window
+    zdr-spend --json        machine-readable
+
+Needs KICKOFF_OPENAI_ADMIN_KEY in src/zdr-harness/.env: an Admin key from
+Settings -> Organization -> Admin keys, with the api.usage.read scope. Ordinary
+project keys get 403 there, including the harness's own. That key is NOT passed
+into the harness environment and must never be: it can read every project's
+usage, which is exactly the blast radius the harness exists to avoid.
+"""
+import argparse
+import datetime as dt
+import json
+import os
+import sys
+import urllib.error
+import urllib.request
+
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SECRETS = os.path.join(HERE, '.env')
+ZDR_PROJECT = os.environ.get('KICKOFF_ZDR_OPENAI_PROJECT', 'proj_gbiv5UipYAA0QwtChV5R5CX9')
+COSTS = 'https://api.openai.com/v1/organization/costs'
+
+
+def admin_key():
+    key = os.environ.get('KICKOFF_OPENAI_ADMIN_KEY', '')
+    if not key and os.path.exists(SECRETS):
+        with open(SECRETS) as f:
+            for line in f:
+                name, _, value = line.partition('=')
+                if name.strip() == 'KICKOFF_OPENAI_ADMIN_KEY':
+                    key = value.strip().strip('"').strip("'")
+    if not key:
+        sys.exit(
+            'zdr-spend: KICKOFF_OPENAI_ADMIN_KEY is not set in %s.\n'
+            'Create one at https://platform.openai.com/settings/organization/admin-keys\n'
+            '(scope api.usage.read), then: zdr-harness set-token KICKOFF_OPENAI_ADMIN_KEY' % SECRETS
+        )
+    return key
+
+
+def buckets(key, start, days):
+    """Daily cost buckets grouped by project, following pagination."""
+    out, page = [], None
+    while True:
+        params = 'start_time=%d&bucket_width=1d&group_by=project_id&limit=%d' % (start, min(days + 1, 180))
+        if page:
+            params += '&page=%s' % page
+        req = urllib.request.Request('%s?%s' % (COSTS, params), headers={'Authorization': 'Bearer %s' % key})
+        try:
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                body = json.load(resp)
+        except urllib.error.HTTPError as err:
+            detail = err.read().decode('utf8', 'replace')[:300]
+            sys.exit('zdr-spend: costs API returned HTTP %s\n%s' % (err.code, detail))
+        out.extend(body.get('data', []))
+        page = body.get('next_page')
+        if not body.get('has_more') or not page:
+            return out
+
+
+def totals(bucket):
+    """(zdr, other) dollars in one daily bucket."""
+    zdr = other = 0.0
+    for result in bucket.get('results', []):
+        amount = (result.get('amount') or {}).get('value', 0.0)
+        if result.get('project_id') == ZDR_PROJECT:
+            zdr += amount
+        else:
+            other += amount
+    return zdr, other
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument('--days', type=int, default=7, help='baseline window in days (default 7)')
+    parser.add_argument('--json', action='store_true', help='print JSON instead of a table')
+    args = parser.parse_args()
+    if args.days < 1:
+        sys.exit('zdr-spend: --days must be at least 1')
+
+    midnight = dt.datetime.now(dt.timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+    start = int((midnight - dt.timedelta(days=args.days)).timestamp())
+    data = sorted(buckets(admin_key(), start, args.days), key=lambda b: b.get('start_time', 0))
+    if not data:
+        sys.exit('zdr-spend: the costs API returned no buckets for that window')
+
+    days = [(dt.datetime.fromtimestamp(b['start_time'], dt.timezone.utc).date().isoformat(), *totals(b)) for b in data]
+    latest_day, latest_zdr, latest_other = days[-1]
+    # The newest bucket is today so far and still filling; the baseline is the
+    # complete days behind it, which is also what "last 24h x 7 / 7" means.
+    complete = days[:-1][-args.days:] or days
+    zdr_avg = sum(d[1] for d in complete) / len(complete)
+    other_avg = sum(d[2] for d in complete) / len(complete)
+
+    if args.json:
+        print(json.dumps({
+            'zdr_project': ZDR_PROJECT,
+            'latest_bucket': {'date': latest_day, 'zdr': round(latest_zdr, 4), 'other': round(latest_other, 4)},
+            'baseline_days': len(complete),
+            'daily_average': {'zdr': round(zdr_avg, 4), 'other': round(other_avg, 4)},
+            'by_day': [{'date': d, 'zdr': round(z, 4), 'other': round(o, 4)} for d, z, o in days],
+        }, indent=2))
+        return
+
+    print('%-12s %12s %12s' % ('day (UTC)', 'ZDR', 'everything else'))
+    for day, zdr, other in days:
+        mark = '  <- still filling' if day == latest_day else ''
+        print('%-12s %12s %12s%s' % (day, '$%.2f' % zdr, '$%.2f' % other, mark))
+    print()
+    print('most recent full day: ZDR $%.2f' % complete[-1][1])
+    print('%d-day daily average: ZDR $%.2f, everything else $%.2f' % (len(complete), zdr_avg, other_avg))
+    if other_avg:
+        print('the harness is %.1f%% of non-ZDR daily spend' % (100 * zdr_avg / other_avg))
+
+
+if __name__ == '__main__':
+    main()
