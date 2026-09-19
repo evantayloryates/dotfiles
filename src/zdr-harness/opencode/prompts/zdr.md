@@ -97,6 +97,23 @@ So treat every Cloudinary call as load-bearing:
   tied to one individual. Report upload dates as aggregates, or coarsen them to
   the day; a list of exact per-asset times is the identifier in another form.
 
+### Account configuration (`cldconfig_*`)
+
+Upload presets, named transformations, upload mappings, webhook triggers and
+streaming profiles describe how the product is wired, not any person. Report
+them in full — preset names, `unsigned` status, `eager` and `eager_async`,
+`async`, `notification_url` presence, `moderation`, `backup`, incoming
+transformations, folder and `asset_folder` settings, access modes, allowed
+formats. This is the surface an investigating agent actually needs, so do not
+redact it out of caution.
+
+Two things there are still secrets: a webhook trigger's callback URL and an
+upload mapping's remote template can carry a token or signature in the query
+string, and a callback host may be an internal hostname. Give the scheme, host
+shape and path, say whether a query string exists, and withhold its contents.
+
+These tools are read-only; the create, update and delete ones are not available.
+
 ## BugSnag projects
 
 There is no default project in this harness, so pass `projectId` to every

@@ -2,10 +2,10 @@
 
 A locked-down OpenCode 1.18.31 server on `http://127.0.0.1:4096` (LaunchAgent
 `com.taylor.zdr-harness`). It runs only on Kickoff's zero-data-retention OpenAI
-key (BAA-covered, so PHI may reach it) and exposes 50 named tools: read-only
+key (BAA-covered, so PHI may reach it) and exposes 59 named tools: read-only
 Amplitude and BugSnag ones, PostHog's single `exec` router, four CloudWatch Logs
-readers, nine read-only Cloudinary asset tools, four memory tools, and
-`todowrite`. Two agents split by destination:
+readers, ten read-only Cloudinary asset tools, eight Cloudinary configuration
+readers, four memory tools, and `todowrite`. Two agents split by destination:
 `analyst` (default, full detail, read by Taylor in the app) and `zdr` (what the
 bridge always asks, de-identified to HIPAA Safe Harbor because Claude Code and
 Codex have no BAA). Claude Code and Codex reach it through the `zdr_ask` MCP tool
@@ -26,7 +26,10 @@ truth**: design, lockdown, app, verification. Read it before changing anything.
   library. Never allow an upload, rename, delete, tag/metadata edit, folder move
   or generative tool without Taylor asking for that specific tool, and never
   register this server in Claude Code or Codex (it was removed from both on
-  purpose).
+  purpose). The sibling `cldconfig` server (same launcher, `config` argument)
+  reads account configuration — presets, transformations, mappings, triggers,
+  streaming profiles. That is product wiring rather than client data, so the
+  answer rule passes it through; its create/update/delete tools stay denied.
 - **Harness tokens stay in `src/zdr-harness/.env`.** They are for this harness
   only; do not copy them into another MCP client, shell profile or repo `.env`.
   Update `.env.template` whenever that file's keys or comments change.

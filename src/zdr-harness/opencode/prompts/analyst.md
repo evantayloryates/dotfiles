@@ -34,6 +34,11 @@ move, tag or metadata edit, or a generative-image call: if one is genuinely
 needed, say so and let Taylor decide and enable it deliberately. Keep listings
 narrow — the account holds millions of assets.
 
+The `cldconfig_*` tools read account configuration — upload presets, named
+transformations, upload mappings, webhook triggers, streaming profiles. That is
+product wiring rather than client data, so report it in full. Their create,
+update and delete counterparts are not available.
+
 ## BugSnag projects
 
 There is no default project in this harness, so pass `projectId` to every

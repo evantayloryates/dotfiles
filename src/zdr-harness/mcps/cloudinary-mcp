@@ -1,29 +1,42 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Launcher for Cloudinary's official asset-management MCP inside the harness.
+# Launcher for Cloudinary's official MCP servers inside the harness.
 #
-# The package is pinned into ~/.zdr-harness/opt (like OpenCode itself) and run
-# from there rather than through `npx --yes`, so starting the server never
-# fetches code from the network. Upgrade deliberately:
+#   cloudinary-mcp assets   asset management: search and read assets (default)
+#   cloudinary-mcp config   environment config: upload presets, transformations,
+#                           upload mappings, webhook triggers, streaming profiles
+#
+# Two servers, one launcher, because the credential handling is the part worth
+# keeping in a single place. Both packages are pinned into ~/.zdr-harness/opt
+# (like OpenCode itself) and run from there rather than through `npx --yes`, so
+# starting a server never fetches code from the network. Upgrade deliberately:
 #   npm i --prefix ~/.zdr-harness/opt @cloudinary/asset-management-mcp@<version>
+#   npm i --prefix ~/.zdr-harness/opt @cloudinary/environment-config-mcp@<version>
 #
 # Credentials come from the harness env, which the wrapper fills from
 # src/zdr-harness/.env. See ../README.md.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 . "${SCRIPT_DIR}/../../lib/resolve-binary.sh"
+
 # The harness runs MCP servers with HOME="~/.zdr-harness/home", so the pinned
-# package sits beside that private home, not under it.
+# packages sit beside that private home, not under it.
 ZH="${HOME%/home}"
 [[ "$ZH" == "$HOME" ]] && ZH="${HOME}/.zdr-harness"
-SERVER="${ZH}/opt/node_modules/@cloudinary/asset-management-mcp/bin/mcp-server.js"
+
+case "${1:-assets}" in
+  assets) PACKAGE=asset-management-mcp ;;
+  config) PACKAGE=environment-config-mcp ;;
+  *) echo "cloudinary-mcp: unknown server '${1}'; use 'assets' or 'config'" >&2; exit 2 ;;
+esac
+SERVER="${ZH}/opt/node_modules/@cloudinary/${PACKAGE}/bin/mcp-server.js"
 
 # The packaged bin is `#!/usr/bin/env node`, and the harness PATH has no node,
 # so invoke the interpreter explicitly rather than relying on the shebang.
 NODE="$(resolve_binary node)"
 
 [[ -f "$SERVER" ]] || {
-  echo "cloudinary-mcp: ${SERVER} is missing; run: npm i --prefix ${ZH}/opt @cloudinary/asset-management-mcp@0.11.0" >&2
+  echo "cloudinary-mcp: ${SERVER} is missing; run: npm i --prefix ${ZH}/opt @cloudinary/${PACKAGE}@<version>" >&2
   exit 1
 }
 : "${KICKOFF_CLOUDINARY_CLOUD_NAME:?cloudinary cloud name is missing}"

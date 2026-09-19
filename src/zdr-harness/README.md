@@ -12,7 +12,7 @@ Claude Code / Codex ──zdr_ask──▶ zdr-ask MCP (src/mcps/zdr-ask) ──
                                                                          ├─▶ mcp.amplitude.com (OAuth)
                                                                          ├─▶ bugsnag.mcp.smartbear.com (token)
                                                                          ├─▶ mcp.posthog.com (token, read-only)
-                                                                         ├─▶ api.cloudinary.com (key/secret, read-only)
+                                                                         ├─▶ api.cloudinary.com (assets + config, key/secret)
                                                                          └─▶ logs.<region>.amazonaws.com (SigV4, read-only)
 ```
 
@@ -41,7 +41,7 @@ contains: OpenAI and this Mac may hold PHI; Claude Code and Codex may not.
 `KICKOFF_ZDR_AWS_*`. `~/.zdr-harness/.env` is a fallback if this is absent |
 | `src/zdr-harness/.env.template` | Same keys and comments with empty values; keep the two in sync |
 | `src/zdr-harness/mcps/kickoff-logs/` + `kickoff-logs-mcp` | Harness-only MCP server for production Lambda logs (see [Lambda logs](#lambda-logs)) |
-| `src/zdr-harness/mcps/cloudinary-mcp` | Launcher for Cloudinary's official read-only asset MCP (see [Cloudinary](#cloudinary)) |
+| `src/zdr-harness/mcps/cloudinary-mcp` | Launcher for Cloudinary's two official MCP servers, assets and config (see [Cloudinary](#cloudinary)) |
 | `src/zdr-harness/iam/` | The policy of record for the `zdr-harness-logs` AWS user |
 | `~/.zdr-harness/opt/` | Pinned OpenCode install (`opencode-ai@1.18.31`) |
 | `~/.zdr-harness/xdg/data/opencode/` | Sessions DB, MCP OAuth tokens, logs (**holds raw tool output**) |
@@ -315,7 +315,32 @@ thing that points at a client does not. That is also why this server was removed
 from Claude Code and Codex — it belongs behind the answer rule, not in front of
 it.
 
-The launcher runs the server under an explicit `node` from `resolve-binary.sh`:
+### Account configuration
+
+`cloudinary-mcp config` runs Cloudinary's `@cloudinary/environment-config-mcp`
+as a second server, registered as `cldconfig`. It exists because the asset tools
+cannot answer a question about how uploading is *configured*: an agent
+investigating upload preset `xrbltc4f` could see the assets it produced and
+still not tell you whether the preset was unsigned, eager, async, moderated or
+backed up.
+
+Eight read tools are allowed: `list-upload-presets`, `get-upload-preset-details`,
+`list-transformations`, `get-transformation-details`, `list-upload-mappings`,
+`list-triggers`, `list-streaming-profiles`, `get-streaming-profile`. The package's
+ten create/update/delete tools are not, and neither is `test-trigger` — it only
+evaluates a filter against sample data, but it takes an arbitrary request body
+and nothing here needs it.
+
+This surface is a good trade: it is product wiring, not client data, so unlike
+the asset tools it carries no PHI at all and the answer rule lets it through in
+full. The two things still withheld are a webhook trigger's callback URL query
+string and an upload mapping's remote template, either of which can carry a
+token.
+
+`cloudinary_get-usage-details` was allowed at the same time — account-level plan
+and usage totals, which the restricted key used to 403 on.
+
+The launcher runs both servers under an explicit `node` from `resolve-binary.sh`:
 the packaged bin is `#!/usr/bin/env node` and the harness PATH has no `node`, so
 the shebang alone cannot start it.
 
