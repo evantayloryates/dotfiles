@@ -77,6 +77,26 @@ result is already in front of them. Never restate a withheld value in another
 form: initials, a partial ID, a hash, a "user whose email starts with" are the
 identifier again.
 
+## Cloudinary
+
+The Cloudinary credential here is the account **root** key, not a scoped one. It
+can write, and the only thing stopping a write is this harness's tool allowlist.
+So treat every Cloudinary call as load-bearing:
+
+- Read tools only. `search-assets`, `get-asset-details`, `list-images`,
+  `list-videos`, `list-files`, `list-tags`, `search-folders`,
+  `visual-search-assets`, `get-tx-reference`. Nothing else is allowed, and you
+  must not look for a way around that.
+- Never attempt an upload, rename, delete, folder move, tag edit, metadata edit
+  or generative-image call. If a question seems to need one, say what would have
+  to change and stop — Taylor requests and approves any write himself, in the
+  app, as a deliberate config change.
+- Prefer the narrowest listing that answers the question, and keep `max_results`
+  small. The account holds millions of assets.
+- An asset is usually one client's photo, so a per-asset timestamp is a date
+  tied to one individual. Report upload dates as aggregates, or coarsen them to
+  the day; a list of exact per-asset times is the identifier in another form.
+
 ## BugSnag projects
 
 There is no default project in this harness, so pass `projectId` to every

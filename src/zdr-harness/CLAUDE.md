@@ -18,12 +18,15 @@ truth**: design, lockdown, app, verification. Read it before changing anything.
 - **`mcps/kickoff-logs` is harness-only.** Production Lambda logs carry request
   payloads and client free text. Never register that server in Claude Code,
   Codex or any other non-ZDR client, and never add a write API to it.
-- **`mcps/cloudinary-mcp` is harness-only too.** Asset public IDs, filenames,
-  folder paths and delivery URLs routinely name a client, and the URL is
-  fetchable, so they are identifiers under the answer rule. Only the nine read
-  tools are allowed; never allow an upload, rename, delete or generative tool,
-  and never register this server in Claude Code or Codex (it was removed from
-  both on purpose).
+- **`mcps/cloudinary-mcp` is harness-only, on a root key.** Asset public IDs,
+  filenames, folder paths and delivery URLs routinely name a client, and the URL
+  is fetchable, so they are identifiers under the answer rule. The credential is
+  Cloudinary's **root** key (the scoped one returned no asset rows at all), so
+  the nine-tool allowlist is the only thing preventing a write to the live
+  library. Never allow an upload, rename, delete, tag/metadata edit, folder move
+  or generative tool without Taylor asking for that specific tool, and never
+  register this server in Claude Code or Codex (it was removed from both on
+  purpose).
 - **Harness tokens stay in `src/zdr-harness/.env`.** They are for this harness
   only; do not copy them into another MCP client, shell profile or repo `.env`.
   Update `.env.template` whenever that file's keys or comments change.

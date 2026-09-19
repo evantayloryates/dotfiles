@@ -331,6 +331,30 @@ probe_credentials() {
   printf '  posthog token:  HTTP %s %s\n' "${code:-000}" "$([[ "$code" == 200 ]] && echo OK || echo FAILED)"
   printf '  amplitude:      OAuth, not a token; see /mcp status above\n'
 
+  # A read that a restricted key also passes proves nothing, so probe the one
+  # endpoint only the root key answers.
+  if [[ -n "${KICKOFF_CLOUDINARY_TOKEN:-}" ]]; then
+    printf 'url = "https://api.cloudinary.com/v1_1/%s/resources/image?max_results=1"\nuser = "%s:%s"\n' \
+      "$KICKOFF_CLOUDINARY_CLOUD_NAME" "$KICKOFF_CLOUDINARY_API_KEY" "$KICKOFF_CLOUDINARY_TOKEN" |
+      curl -sS -m 20 -K - -o /tmp/.zdr-probe-cloudinary-body -w '%{http_code}' \
+        >/tmp/.zdr-probe-cloudinary 2>/dev/null || true
+    code="$(cat /tmp/.zdr-probe-cloudinary 2>/dev/null)"
+    local rows
+    rows="$(/usr/bin/python3 -c 'import json,sys
+try: print(len(json.load(open("/tmp/.zdr-probe-cloudinary-body")).get("resources",[])))
+except Exception: print(0)' 2>/dev/null)"
+    rm -f /tmp/.zdr-probe-cloudinary /tmp/.zdr-probe-cloudinary-body
+    if [[ "$code" == 200 && "${rows:-0}" -gt 0 ]]; then
+      printf '  cloudinary:     HTTP 200 OK (asset rows readable)\n'
+    elif [[ "$code" == 200 ]]; then
+      printf '  cloudinary:     HTTP 200 but no asset rows — this is the restricted key, not the root one\n'
+    else
+      printf '  cloudinary:     HTTP %s FAILED\n' "${code:-000}"
+    fi
+  else
+    printf '  cloudinary:     no key set (KICKOFF_CLOUDINARY_TOKEN empty)\n'
+  fi
+
   # The logs credential is proven through the MCP server itself, so the probe
   # exercises the same signing path the harness uses.
   if [[ -n "${KICKOFF_ZDR_AWS_ACCESS_KEY_ID:-}" ]]; then

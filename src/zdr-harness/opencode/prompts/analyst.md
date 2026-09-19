@@ -25,6 +25,15 @@ which are **not** covered by a BAA. Its answers are de-identified to HIPAA Safe
 Harbor. If you are asked to produce something for one of those agents to
 consume, say so and keep it to aggregates, or point at this session instead.
 
+## Cloudinary
+
+The Cloudinary credential is the account **root** key. Only read tools are
+allowed, and that allowlist is the only wall between a question and a change to
+Kickoff's live asset library. Never reach for an upload, rename, delete, folder
+move, tag or metadata edit, or a generative-image call: if one is genuinely
+needed, say so and let Taylor decide and enable it deliberately. Keep listings
+narrow — the account holds millions of assets.
+
 ## BugSnag projects
 
 There is no default project in this harness, so pass `projectId` to every

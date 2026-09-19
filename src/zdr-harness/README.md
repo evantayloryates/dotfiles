@@ -295,9 +295,16 @@ The package ships write tools (upload, rename, delete, folder moves, generative
 image tools). None of them are reachable: `opencode.json` denies `*` and then
 allows exactly nine read tools — `search-assets`, `get-asset-details`,
 `list-images`, `list-videos`, `list-files`, `list-tags`, `search-folders`,
-`visual-search-assets`, `get-tx-reference`. The credential is a scoped read key,
-so it is a second wall rather than the only one (it returns 403 on `usage`, and
-`search-folders` reports a folder count but no names).
+`visual-search-assets`, `get-tx-reference`.
+
+**The credential is the account root key** (1Password, personal account, Kickoff
+vault, `KICKOFF_CLOUDINARY_TOKEN: Root`). A scoped read key was tried first and
+rejected: it returned counts and tags but never asset rows — `resources/*` came
+back `200` with an empty array and a cursor, on every delivery type — so the
+read tools were useless. The trade is that the allowlist is now the *only* wall
+between a question and a change to the live asset library, not the second one.
+Both agent prompts say so and forbid reaching for a write. Enabling one is a
+deliberate edit here plus a restart, which is what "Taylor approved it" means.
 
 **Why it is harness-only.** Kickoff's Cloudinary account holds client progress
 photos and coach uploads. An asset's public ID, filename, folder path and
