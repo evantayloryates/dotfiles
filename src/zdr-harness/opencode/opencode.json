@@ -4,6 +4,10 @@
   "autoupdate": false,
   "model": "openai/gpt-5.5",
   "small_model": "openai/gpt-5.4-nano",
+  "compaction": {
+    "auto": true,
+    "prune": true
+  },
   "enabled_providers": [
     "openai"
   ],
@@ -102,12 +106,16 @@
     "zdr": {
       "mode": "primary",
       "description": "ZDR analyst for Kickoff Amplitude and BugSnag data (read-only)",
-      "prompt": "{file:./prompts/zdr.md}"
+      "prompt": "{file:./prompts/zdr.md}",
+      "variant": "medium",
+      "steps": 60
     },
     "analyst": {
       "mode": "primary",
       "description": "Full-detail analyst for the app UI (PHI allowed; never relayed to another agent)",
-      "prompt": "{file:./prompts/analyst.md}"
+      "prompt": "{file:./prompts/analyst.md}",
+      "variant": "medium",
+      "steps": 60
     },
     "build": {
       "disable": true
@@ -120,6 +128,9 @@
     },
     "explore": {
       "disable": true
+    },
+    "compaction": {
+      "model": "openai/gpt-5.4-mini"
     }
   },
   "mcp": {

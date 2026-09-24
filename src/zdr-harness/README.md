@@ -571,6 +571,59 @@ config or app.
 11. **App failure states.** `launchctl bootout gui/$(id -u)/com.taylor.zdr-harness`,
     run `--self-test-recovery` → `allPass`, then `zdr-harness status` healthy.
 
+## Cost
+
+The harness pays API rates for every token, and its callers are agents that
+are themselves waiting, so it is tuned to spend where the answer changes and
+nowhere else — with quality winning any conflict. Measured over the first 51
+sessions (2026-09-17 → 24, all on `gpt-5.5`): 5.9M fresh input tokens, 61M
+cache-read tokens, 272k output, 232k reasoning — roughly $75, and **half of it
+was cache reads**: every turn re-sends the whole context, and the context was
+mostly old tool output the agent never looked at again. The largest outputs
+were Amplitude taxonomy dumps (17k chars mean, 50k max), BugSnag `get_error`
+(17k mean) and `list_project_errors` × 184 calls, and one `get-tx-reference`
+at 47k.
+
+What that bought, in `opencode.json` and the prompts:
+
+- `compaction.prune: true` drops old tool outputs from the context once they
+  are behind the conversation; `compaction.auto` stays on. Compaction
+  summaries are written by `gpt-5.4-mini` (`agent.compaction.model`), not the
+  main model.
+- `variant: medium` on both agents pins reasoning effort at the model
+  default rather than letting it drift; `low` is a one-word change if the
+  answers stay good, `high` if they do not. `steps: 60` caps tool iterations
+  per turn — one early session took 261 calls, which is a lost agent, not a
+  thorough one.
+- The prompts' "Working style" now says how to be cheap without being wrong:
+  memory first, small `perPage`/`limit`, aggregate in the query, one
+  well-formed query over three exploratory ones, stop when answered, tight
+  answers, and write the shape that worked to memory so the next session
+  skips the exploration.
+- Memory is reconciled, not just appended. The store was consolidated on
+  2026-09-24 from nine topics of dated fragments into six dense ones (one per
+  system) with the obsolete Cloudinary notes removed; the originals are in
+  `~/.zdr-harness/memory-archive/`. The prompts ask the agent to write
+  corrections into the same topic so a stale entry cannot be acted on.
+
+Measured the same day on two identical questions, before and after (gpt-5.5
+list prices; cache reads at a tenth of input):
+
+| Question | Before | After | Change |
+|---|---|---|---|
+| Calls/day vs generate-call-notes errors (DB + CloudWatch) | 24k in, 229k cache, 5 turns, 22k chars of tool output — ≈ $0.31 | 8k in, 282k cache, 6 turns, 6k chars — ≈ $0.25 | −65% fresh input |
+| 14-day call rate by coach caseload band (DB, 3 joins) | 36k in, 688k cache, 13 turns, 11 queries — ≈ $0.60 | 23k in, 369k cache, 8 turns, 4 queries — ≈ $0.35 | −41% |
+
+The second answer was identical and named the exact flag columns; the first
+was *more* correct after: the baseline had reported hundreds of errors a day
+that an Insights count over the same window could not reproduce (one line in
+seven days), and the harness memory now says so. Efficiency came from memory
+(the exact log group and the joins were already known) and from fewer, better
+formed queries, not from thinner reasoning.
+
+Sessions record tokens per assistant message; repeat the measure from
+`GET /session/{id}/message` (`info.tokens`, and tool parts' `state.output`).
+
 ## Memory
 
 `~/.zdr-harness/memory/` is the part meant to last: one Markdown file per topic,

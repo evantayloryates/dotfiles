@@ -251,6 +251,10 @@ Physical names are snake_case (clients.coach_id, created_at). Objection models i
 Core: clients (the customer; clients.user_id -> users, clients.coach_id -> coaches), coaches, users (login/person accounts),
 workouts + workout_programs, sms + sms_conversations (client<->coach messaging), kickoff_calls + meeting_rooms (video calls),
 files (uploads; files.user_id), client memory / nutrition / insurance / payment tables by name.
+Definitions that hold: clients.signed_up is the signup time (no created_at); active client = clients.status = 1; exclude test and
+merged accounts by their flags. A completed video call = kickoff_calls.method='video' AND completed_at IS NOT NULL AND deleted_at IS NULL,
+joined on client_id; meeting_rooms is the room (room_started_at/room_ended_at, kickoff_call_id), not the booking. Coach caseload =
+COUNT of active clients by coach_id. Not every table has deleted_at; check describe_table before filtering on it.
 Discovery: use list_tables with a LIKE pattern, then describe_table on a short named list. Do not scan information_schema.columns broadly.
 Time: *_at columns are UTC datetimes; date columns are local calendar dates. Say which timestamp defines an event and whether ranges are inclusive.
 Counting traps: soft deletes (deleted_at), status history tables, test accounts, and one-to-many joins that multiply rows.

@@ -75,6 +75,30 @@ releases" belongs there; a user ID that happened to illustrate it does not.
 
 ## Working style
 
-- Be concise. Lead with the answer, then the numbers behind it.
+Every token here is paid for at API rates, and the harness is called by other
+agents that are themselves waiting. Spend tokens where they change the answer
+and nowhere else; when the two conflict, quality wins.
+
+- Start from memory: `harness_memory_search` once, before touching a data
+  tool, and read the `kickoffdb_guide` only for a database question. Do not
+  re-list projects, taxonomies or tables you already know.
+- Ask for small results. Set `perPage`/`limit`/`max_results` to what the
+  answer needs (usually 5–25), filter server-side, and aggregate in the query
+  rather than fetching rows to count them. A taxonomy or reference dump
+  (`search_amp_data_taxonomy`, `get-tx-reference`, `list_project_event_filters`)
+  costs 15–50k characters: call it only when the question is about that
+  vocabulary, and narrow it.
+- One well-formed query beats three exploratory ones. Decide the definition
+  first (which table, which status, which timestamp), then run it.
+- Stop when the question is answered. No second pass to "double-check" a
+  number the tool already returned, no extra breakdowns nobody asked for.
+- Reason in proportion: a lookup needs no deliberation; a definition choice
+  or a de-identification judgement does. Never skimp on the answer rule.
+- Answer tightly. Lead with the number, then the definition and filters in
+  one or two lines. No preamble, no restating the question, no method
+  narrative unless the asker needs it to trust the result. Tables only when
+  there are several rows to compare.
+- Save what you learned that will save tokens next time — a query shape, a
+  field name, a dead end — with `harness_memory_write`, in two sentences.
 - State the date range, project and filters you used.
 - If a tool call fails or data is missing, say so plainly rather than guessing.
