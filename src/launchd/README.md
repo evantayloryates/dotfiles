@@ -220,3 +220,22 @@ new GUI apps discover its thin `op` client. The scoped `install_op_agent.sh`
 installs both without restarting an already running broker. See
 [`../onepassword/README.md`](../onepassword/README.md) for shell coverage,
 authorization behavior, runtime files, tests, and explicit restart instructions.
+
+## com.taylor.zdr-harness-tunnel
+
+Keeps the SSM port-forward to Kickoff's production read replica open on
+127.0.0.1:33306 for the ZDR harness. Runs `zdr-harness tunnel start
+--foreground` under the harness's own AWS key (no profile, no `~/.aws`); SSM
+ends idle sessions after ~20 minutes and KeepAlive reopens them. Details in
+`src/zdr-harness/README.md`, "Production database".
+
+```sh
+ln -sf "$HOME/dotfiles/src/launchd/com.taylor.zdr-harness-tunnel.plist" \
+  "$HOME/Library/LaunchAgents/com.taylor.zdr-harness-tunnel.plist"
+launchctl bootstrap gui/$(id -u) \
+  "$HOME/Library/LaunchAgents/com.taylor.zdr-harness-tunnel.plist"
+zdr-harness tunnel status
+```
+
+To pause it: `zdr-harness tunnel stop` (which is `launchctl bootout`); the
+bootstrap line above reloads it. Log: `~/.zdr-harness/logs/tunnel.log`.

@@ -37,6 +37,7 @@ contains: OpenAI and this Mac may hold PHI; Claude Code and Codex may not.
 | `src/zdr-harness/opencode/prompts/zdr.md` | The `zdr` agent prompt, including the **answer rule** |
 | `src/zdr-harness/bin/zdr-harness` | Wrapper: preflight checks + isolated environment |
 | `src/launchd/com.taylor.zdr-harness.plist` | Keeps `zdr-harness serve` running |
+| `src/launchd/com.taylor.zdr-harness-tunnel.plist` | Keeps the SSM tunnel to the production read replica open |
 | `src/mcps/zdr-ask-mcp` + `src/mcps/zdr-ask/index.mjs` | Zero-dependency MCP bridge for Claude Code / Codex |
 | `src/zdr-harness/app/` + `build_app.py` | **ZDR Harness.app**: native viewer for the web UI (see [App](#app)) |
 | `src/zdr-harness/.env` (600, gitignored) | Every harness secret: `KICKOFF_OPENAI_ZDR_API_KEY`, `ZDR_HARNESS_PASSWORD`, `KICKOFF_BUGSNAG_TOKEN`, `KICKOFF_POSTHOG_TOKEN`, `KICKOFF_CLOUDINARY_*`,
@@ -374,10 +375,17 @@ TABLE`, `UPDATE`, `INSERT` and `SELECT … INTO OUTFILE` all refused.
 `sg-066924a45bc65e918`). The **Kickoff Bastion** (`i-00b905df66752344d`) is the
 one SSM-managed host whose group that security group admits, so the harness
 reaches the replica through an SSM port-forward to it — no VPN, no public
-endpoint, no inbound rule. `zdr-harness tunnel start|stop|status` owns that
-session on `127.0.0.1:${KICKOFF_ZDR_DB_TUNNEL_PORT}` (33306). TLS is still
-verified against the RDS CA bundle and the replica's real hostname even though
-the socket says `127.0.0.1`.
+endpoint, no inbound rule. The LaunchAgent `com.taylor.zdr-harness-tunnel`
+keeps that session open on `127.0.0.1:${KICKOFF_ZDR_DB_TUNNEL_PORT}` (33306):
+it runs `zdr-harness tunnel start --foreground`, which `exec`s the `aws ssm
+start-session` process so launchd supervises it directly, and `KeepAlive`
+reopens it when SSM ends an idle session (about 20 minutes) or the laptop
+wakes. The MCP forgets a lost socket and reconnects on its next call, so a
+drop costs one retried query, not a restart. With the agent loaded,
+`zdr-harness tunnel start|stop|status` go through launchd (`stop` unloads it);
+without it they fall back to a `nohup` child. TLS is still verified against
+the RDS CA bundle and the replica's real hostname even though the socket says
+`127.0.0.1`.
 
 **Walls, in order:**
 

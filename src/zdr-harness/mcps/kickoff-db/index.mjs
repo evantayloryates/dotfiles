@@ -92,6 +92,19 @@ function parseUrl() {
   }
 }
 
+// The tunnel is a launchd-kept SSM session that is restarted when it drops,
+// so a lost socket is expected now and then: forget it and let the next call
+// open a fresh one rather than failing every call until restart.
+const LOST = new Set(['PROTOCOL_CONNECTION_LOST', 'ECONNRESET', 'EPIPE', 'ETIMEDOUT', 'ECONNREFUSED', 'PROTOCOL_ENQUEUE_AFTER_FATAL_ERROR'])
+function forgetIfLost(err) {
+  if (LOST.has(err?.code) || err?.fatal) {
+    conn?.destroy?.()
+    conn = null
+    return true
+  }
+  return false
+}
+
 async function connection() {
   if (conn) return conn
   target = parseUrl()
@@ -308,18 +321,33 @@ async function query({ sql, limit } = {}) {
   const statement = checkSql(sql)
   const rowLimit = checkLimit(limit, DEFAULT_ROWS, MAX_ROWS, 'limit')
   const started = Date.now()
-  await c.query('START TRANSACTION READ ONLY')
   let rows
   try {
-    ;[rows] = await c.query({ sql: statement, rowsAsArray: false })
+    ;[rows] = await runReadOnly(c, statement)
   } catch (err) {
+    if (forgetIfLost(err)) {
+      const again = await connection()
+      ;[rows] = await runReadOnly(again, statement).catch((e) => { forgetIfLost(e); throw new ToolError(`${e.code || 'query failed'}: ${e.sqlMessage || e.message}`) })
+      return finish(rows, rowLimit, started)
+    }
     if (err.code === 'ER_QUERY_TIMEOUT') {
       throw new ToolError(`Query exceeded the ${STATEMENT_TIMEOUT_MS / 1000}s limit. Narrow the range or aggregate in SQL.`)
     }
     throw new ToolError(`${err.code || 'query failed'}: ${err.sqlMessage || err.message}`)
+  }
+  return finish(rows, rowLimit, started)
+}
+
+async function runReadOnly(c, statement) {
+  await c.query('START TRANSACTION READ ONLY')
+  try {
+    return await c.query({ sql: statement, rowsAsArray: false })
   } finally {
     await c.query('ROLLBACK').catch(() => {})
   }
+}
+
+function finish(rows, rowLimit, started) {
   const elapsed = Date.now() - started
   if (!Array.isArray(rows)) return `OK (${elapsed} ms)`
   const shaped = shapeRows(rows, rowLimit)
@@ -597,7 +625,8 @@ rl.on('line', async (line) => {
       const text = await handler(args)
       reply(id, { content: [{ type: 'text', text }], isError: false })
     } catch (err) {
-      if (!(err instanceof ToolError)) log(err)
+      if (forgetIfLost(err)) log('database connection lost; will reconnect on the next call')
+      else if (!(err instanceof ToolError)) log(err)
       const message = err instanceof ToolError ? err.message : `kickoff-db internal error: ${err.message}`
       reply(id, { content: [{ type: 'text', text: message }], isError: true })
     } finally {

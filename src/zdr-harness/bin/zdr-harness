@@ -58,7 +58,9 @@ Usage: zdr-harness <command>
                    The memory store is never pruned.
   tunnel start|stop|status
                    SSM port-forward to the production read replica via the
-                   Kickoff Bastion, under the harness's own AWS key
+                   Kickoff Bastion, under the harness's own AWS key. With the
+                   com.taylor.zdr-harness-tunnel LaunchAgent loaded, start and
+                   stop go through launchd (start --foreground is its entry point)
   app              Build ZDR Harness.app if stale, install it to ~/Applications, open it
   app-build [--force]
                    Build and install the app without opening it
@@ -418,6 +420,45 @@ TUNNEL_TARGET_INSTANCE="i-00b905df66752344d"
 TUNNEL_REMOTE_HOST="kickoff-production-mysql-read.c65ds0rqtugh.us-west-1.rds.amazonaws.com"
 TUNNEL_PID_FILE="${ZH}/run/tunnel.pid"
 TUNNEL_LOG="${ZH}/logs/tunnel.log"
+TUNNEL_LABEL="com.taylor.zdr-harness-tunnel"
+
+# True when the tunnel LaunchAgent is bootstrapped for this user; then launchd
+# owns the session and start/stop go through it rather than a nohup child.
+tunnel_launchd_loaded() {
+  launchctl print "gui/$(id -u)/${TUNNEL_LABEL}" >/dev/null 2>&1
+}
+
+tunnel_env_check() {
+  [[ -n "${KICKOFF_ZDR_AWS_ACCESS_KEY_ID:-}" ]] || die "tunnel: KICKOFF_ZDR_AWS_ACCESS_KEY_ID is empty"
+  AWS_BIN="$(command -v aws || ls /opt/homebrew/bin/aws /usr/local/bin/aws 2>/dev/null | head -1)"
+  [[ -n "$AWS_BIN" ]] || die "tunnel: aws CLI not found"
+  command -v session-manager-plugin >/dev/null || [[ -x /opt/homebrew/bin/session-manager-plugin ]] || die "tunnel: session-manager-plugin not found"
+}
+
+# The session itself. In the foreground this replaces the shell, so launchd
+# supervises the aws process directly and sees it exit when SSM drops the
+# session. Only the harness key: no profile, no ~/.aws files, so a laptop
+# admin credential can never be picked up by accident.
+tunnel_session() {
+  local mode="$1"
+  tunnel_env_check
+  mkdir -p "$RUN_DIR" "${ZH}/logs"
+  local -a cmd=(
+    env -u AWS_PROFILE -u AWS_SESSION_TOKEN
+      AWS_ACCESS_KEY_ID="$KICKOFF_ZDR_AWS_ACCESS_KEY_ID" AWS_SECRET_ACCESS_KEY="$KICKOFF_ZDR_AWS_SECRET_ACCESS_KEY"
+      AWS_DEFAULT_REGION="${KICKOFF_ZDR_AWS_REGION:-us-west-1}" AWS_CONFIG_FILE=/dev/null AWS_SHARED_CREDENTIALS_FILE=/dev/null
+      PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+      "$AWS_BIN" ssm start-session --target "$TUNNEL_TARGET_INSTANCE"
+        --document-name AWS-StartPortForwardingSessionToRemoteHost
+        --parameters "{\"host\":[\"$TUNNEL_REMOTE_HOST\"],\"portNumber\":[\"3306\"],\"localPortNumber\":[\"$KICKOFF_ZDR_DB_TUNNEL_PORT\"]}"
+  )
+  if [[ "$mode" == foreground ]]; then
+    printf '%s tunnel: opening 127.0.0.1:%s via %s\n' "$(date '+%F %T')" "$KICKOFF_ZDR_DB_TUNNEL_PORT" "$TUNNEL_TARGET_INSTANCE"
+    exec "${cmd[@]}"
+  fi
+  nohup "${cmd[@]}" >>"$TUNNEL_LOG" 2>&1 &
+  printf '%s' "$!" > "$TUNNEL_PID_FILE"
+}
 
 tunnel_pid() {
   local pid
@@ -429,47 +470,90 @@ tunnel_port_open() {
   /usr/bin/nc -z 127.0.0.1 "$KICKOFF_ZDR_DB_TUNNEL_PORT" >/dev/null 2>&1
 }
 
+# The process listening on the port (session-manager-plugin, a child of aws).
+tunnel_listener() {
+  /usr/sbin/lsof -nP -iTCP:"$KICKOFF_ZDR_DB_TUNNEL_PORT" -sTCP:LISTEN -t 2>/dev/null | head -1
+}
+
+# launchd's pid for the tunnel job, when it is running.
+tunnel_launchd_pid() {
+  launchctl print "gui/$(id -u)/${TUNNEL_LABEL}" 2>/dev/null | sed -n 's/^[[:space:]]*pid = \([0-9]*\).*/\1/p' | head -1
+}
+
+# Who holds the port: "launchd", "pid N" for a nohup child, "orphan" for a
+# session-manager-plugin whose aws parent is gone, or "other".
+tunnel_owner() {
+  local lpid ppid lname
+  lpid="$(tunnel_listener)"; [[ -n "$lpid" ]] || { printf 'none'; return; }
+  ppid="$(ps -o ppid= -p "$lpid" 2>/dev/null | tr -d ' ')"
+  lname="$(ps -o comm= -p "$lpid" 2>/dev/null)"
+  if [[ -n "$ppid" && "$ppid" == "$(tunnel_launchd_pid)" ]]; then printf 'launchd'
+  elif [[ -n "$ppid" && "$ppid" == "$(tunnel_pid || true)" ]]; then printf 'pid %s' "$ppid"
+  elif [[ "$lname" == *session-manager-plugin* && "$ppid" == 1 ]]; then printf 'orphan'
+  else printf 'other (%s pid %s)' "$lname" "$lpid"; fi
+}
+
+# Killing aws alone leaves its session-manager-plugin child holding the port;
+# take the child too, then anything orphaned on the port from an earlier run.
+tunnel_kill_tree() {
+  local pid="$1"
+  pkill -TERM -P "$pid" 2>/dev/null || true
+  kill "$pid" 2>/dev/null || true
+  sleep 1
+  if [[ "$(tunnel_owner)" == orphan ]]; then kill "$(tunnel_listener)" 2>/dev/null || true; sleep 1; fi
+}
+
 tunnel() {
   load_secrets
   local cmd="${1:-status}"
   case "$cmd" in
     status)
       if tunnel_port_open; then
-        printf 'tunnel: 127.0.0.1:%s is open (pid %s)\n' "$KICKOFF_ZDR_DB_TUNNEL_PORT" "$(tunnel_pid || echo 'not ours')"
+        local owner; owner="$(tunnel_owner)"
+        [[ "$owner" == launchd ]] && owner="launchd (${TUNNEL_LABEL})"
+        printf 'tunnel: 127.0.0.1:%s is open, %s\n' "$KICKOFF_ZDR_DB_TUNNEL_PORT" "$owner"
+        [[ "$owner" == orphan ]] && printf 'tunnel: that is a leftover plugin process; run: zdr-harness tunnel start\n'
       else
-        printf 'tunnel: 127.0.0.1:%s is closed\n' "$KICKOFF_ZDR_DB_TUNNEL_PORT"; return 1
+        printf 'tunnel: 127.0.0.1:%s is closed (%s)\n' "$KICKOFF_ZDR_DB_TUNNEL_PORT" "$(tunnel_launchd_loaded && echo 'launchd will retry' || echo 'zdr-harness tunnel start')"
+        return 1
       fi
       ;;
     start)
-      if tunnel_port_open; then printf 'tunnel: already open on %s\n' "$KICKOFF_ZDR_DB_TUNNEL_PORT"; return 0; fi
-      [[ -n "${KICKOFF_ZDR_AWS_ACCESS_KEY_ID:-}" ]] || die "tunnel: KICKOFF_ZDR_AWS_ACCESS_KEY_ID is empty"
-      local aws_bin
-      aws_bin="$(command -v aws || ls /opt/homebrew/bin/aws /usr/local/bin/aws 2>/dev/null | head -1)"
-      [[ -n "$aws_bin" ]] || die "tunnel: aws CLI not found"
-      command -v session-manager-plugin >/dev/null || [[ -x /opt/homebrew/bin/session-manager-plugin ]] || die "tunnel: session-manager-plugin not found"
-      mkdir -p "$RUN_DIR" "${ZH}/logs"
-      # Only the harness key: no profile, no ~/.aws files, so a laptop admin
-      # credential can never be picked up by accident.
-      env -u AWS_PROFILE -u AWS_SESSION_TOKEN \
-        AWS_ACCESS_KEY_ID="$KICKOFF_ZDR_AWS_ACCESS_KEY_ID" AWS_SECRET_ACCESS_KEY="$KICKOFF_ZDR_AWS_SECRET_ACCESS_KEY" \
-        AWS_DEFAULT_REGION="${KICKOFF_ZDR_AWS_REGION:-us-west-1}" AWS_CONFIG_FILE=/dev/null AWS_SHARED_CREDENTIALS_FILE=/dev/null \
-        PATH="/opt/homebrew/bin:/usr/local/bin:$PATH" \
-        nohup "$aws_bin" ssm start-session --target "$TUNNEL_TARGET_INSTANCE" \
-          --document-name AWS-StartPortForwardingSessionToRemoteHost \
-          --parameters "{\"host\":[\"$TUNNEL_REMOTE_HOST\"],\"portNumber\":[\"3306\"],\"localPortNumber\":[\"$KICKOFF_ZDR_DB_TUNNEL_PORT\"]}" \
-          >>"$TUNNEL_LOG" 2>&1 &
-      printf '%s' "$!" > "$TUNNEL_PID_FILE"
+      if [[ "${2:-}" == --foreground ]]; then
+        # launchd's entry point. A leftover plugin from an earlier manual run
+        # is ours to clear; anything else holding the port means wait and let
+        # ThrottleInterval retry.
+        if [[ "$(tunnel_owner)" == orphan ]]; then
+          printf '%s tunnel: clearing an orphaned plugin on port %s\n' "$(date '+%F %T')" "$KICKOFF_ZDR_DB_TUNNEL_PORT"
+          kill "$(tunnel_listener)" 2>/dev/null || true; sleep 1
+        fi
+        if tunnel_port_open; then printf '%s tunnel: port %s held by %s; retrying later\n' "$(date '+%F %T')" "$KICKOFF_ZDR_DB_TUNNEL_PORT" "$(tunnel_owner)"; exit 0; fi
+        tunnel_session foreground
+      fi
+      if [[ "$(tunnel_owner)" == orphan ]]; then kill "$(tunnel_listener)" 2>/dev/null || true; sleep 1; fi
+      if tunnel_port_open; then printf 'tunnel: already open on %s (%s)\n' "$KICKOFF_ZDR_DB_TUNNEL_PORT" "$(tunnel_owner)"; return 0; fi
+      if tunnel_launchd_loaded; then
+        launchctl kickstart "gui/$(id -u)/${TUNNEL_LABEL}"
+      else
+        tunnel_session background
+      fi
       local i
       for i in $(seq 1 20); do tunnel_port_open && break; sleep 1; done
-      if tunnel_port_open; then printf 'tunnel: open on 127.0.0.1:%s (pid %s)\n' "$KICKOFF_ZDR_DB_TUNNEL_PORT" "$(cat "$TUNNEL_PID_FILE")"
+      if tunnel_port_open; then tunnel status
       else printf 'tunnel: failed to open; last log lines:\n' >&2; tail -n 5 "$TUNNEL_LOG" >&2; return 1; fi
       ;;
     stop)
+      if tunnel_launchd_loaded; then
+        launchctl bootout "gui/$(id -u)/${TUNNEL_LABEL}"
+        printf 'tunnel: %s unloaded (KeepAlive off). Reload with: launchctl bootstrap gui/%s ~/Library/LaunchAgents/%s.plist\n' "$TUNNEL_LABEL" "$(id -u)" "$TUNNEL_LABEL"
+        return 0
+      fi
       local pid; pid="$(tunnel_pid || true)"
-      if [[ -n "$pid" ]]; then kill "$pid" 2>/dev/null || true; rm -f "$TUNNEL_PID_FILE"; printf 'tunnel: stopped pid %s\n' "$pid"
+      if [[ -n "$pid" ]]; then tunnel_kill_tree "$pid"; rm -f "$TUNNEL_PID_FILE"; printf 'tunnel: stopped pid %s\n' "$pid"
       else rm -f "$TUNNEL_PID_FILE"; printf 'tunnel: not running under this wrapper\n'; fi
+      if [[ "$(tunnel_owner)" == orphan ]]; then kill "$(tunnel_listener)" 2>/dev/null || true; printf 'tunnel: cleared an orphaned plugin\n'; fi
       ;;
-    *) die "tunnel: use start, stop or status" ;;
+    *) die "tunnel: use start [--foreground], stop or status" ;;
   esac
 }
 
@@ -512,6 +596,7 @@ case "${1:-}" in
     printf '\nmcp:    '
     api_get /mcp
     printf '\nweb UI: %s (user: opencode, password: 1Password Employee/ZDR_HARNESS_PASSWORD)\n' "$URL"
+    tunnel status || true
     printf '\n'
     secrets_report
     ;;

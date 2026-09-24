@@ -19,6 +19,10 @@ truth**: design, lockdown, app, verification. Read it before changing anything.
 - **`mcps/kickoff-logs` is harness-only.** Production Lambda logs carry request
   payloads and client free text. Never register that server in Claude Code,
   Codex or any other non-ZDR client, and never add a write API to it.
+- **The database tunnel belongs to launchd.** `com.taylor.zdr-harness-tunnel`
+  keeps the SSM port-forward open; do not start a second one by hand, and
+  never start one with a laptop profile. `zdr-harness tunnel status` says who
+  owns the port.
 - **`mcps/kickoff-db` is the live production database. Raw PHI, harness-only.**
   It reads the production read replica as `kudos_ro` (SELECT only) through an
   SSM tunnel via the Kickoff Bastion, and archived call transcripts from S3.

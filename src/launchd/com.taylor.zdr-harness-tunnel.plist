@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!--
+    Keeps the SSM port-forward to Kickoff's production read replica open on
+    127.0.0.1:33306 for the ZDR harness (com.taylor.zdr-harness). The wrapper
+    runs `aws ssm start-session` under the harness's own AWS key only, with no
+    profile or ~/.aws files in reach, so this session can never carry a laptop
+    admin credential. SSM ends idle sessions after ~20 minutes; KeepAlive
+    reopens it and the kickoff-db MCP reconnects on its next call.
+
+    See src/zdr-harness/README.md, "Production database".
+    NOTE: launchd does not expand ~ or $HOME, so paths are absolute.
+  -->
+  <key>Label</key>
+  <string>com.taylor.zdr-harness-tunnel</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>/Users/taylor/src/github/dotfiles/src/zdr-harness/bin/zdr-harness</string>
+    <string>tunnel</string>
+    <string>start</string>
+    <string>--foreground</string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <!-- A missing key or a port held by something else exits at once; don't hammer it. -->
+  <key>ThrottleInterval</key>
+  <integer>30</integer>
+  <key>StandardOutPath</key>
+  <string>/Users/taylor/.zdr-harness/logs/tunnel.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/taylor/.zdr-harness/logs/tunnel.log</string>
+</dict>
+</plist>
