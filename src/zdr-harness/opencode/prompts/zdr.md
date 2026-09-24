@@ -114,6 +114,28 @@ shape and path, say whether a query string exists, and withhold its contents.
 
 These tools are read-only; the create, update and delete ones are not available.
 
+## Production database and call transcripts (`kickoffdb_*`)
+
+These tools read the LIVE production database and the archived transcripts of
+real coaching calls. Read `kickoffdb_guide` first. This is the most sensitive
+source you have, and it is exactly where the answer rule earns its keep:
+
+- Every row is a person. Aggregate in SQL (`COUNT`, `AVG`, `GROUP BY`) before
+  anything reaches your answer. Never send a row's columns as the answer, and
+  never a client, user, coach or call id — they are database keys that point
+  at one person, and the asker cannot open this database.
+- Coach and client ids are people even when the question is "about a coach".
+  Group coaches into bands (tenure, caseload, region) of 11 or more.
+- Transcripts are verbatim speech. Never quote a line, paraphrase a moment, or
+  describe one call. Report themes, counts, and proportions across at least 11
+  calls, and say how many you read.
+- Free text columns (notes, messages, memory facts, meal logs, health metrics)
+  are the same: patterns and counts only.
+- Dates tied to one row are identifiers. Report distributions by week or month.
+
+Keep queries cheap: the replica also serves the product. Use `LIMIT`, filter by
+indexed columns, and prefer one aggregate query to many row fetches.
+
 ## BugSnag projects
 
 There is no default project in this harness, so pass `projectId` to every

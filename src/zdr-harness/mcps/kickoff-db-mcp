@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Launcher for the harness-only kickoff-db MCP server: read-only access to the
+# LIVE production database (read replica) and archived call transcripts. The
+# harness runs this inside its isolated environment and passes the database
+# URL and AWS credential through opencode.json. Nothing else may ever be
+# pointed at this script: the rows are raw PHI. See ../README.md.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+. "${SCRIPT_DIR}/../../lib/resolve-binary.sh"
+
+# The harness runs MCP servers with HOME="~/.zdr-harness/home", so the pinned
+# packages (mysql2) sit beside that private home, not under it.
+ZH="${HOME%/home}"
+[[ "$ZH" == "$HOME" ]] && ZH="${HOME}/.zdr-harness"
+export ZDR_HARNESS_OPT="${ZH}/opt/node_modules"
+[[ -f "${ZDR_HARNESS_OPT}/mysql2/package.json" ]] || {
+  echo "kickoff-db-mcp: mysql2 is missing; run: npm i --prefix ${ZH}/opt mysql2@3.24.4" >&2
+  exit 1
+}
+export ZDR_HARNESS_RDS_CA="${ZDR_HARNESS_RDS_CA:-${SCRIPT_DIR}/../certs/rds-global-bundle.pem}"
+
+NODE="$(resolve_binary node)"
+exec "$NODE" "${SCRIPT_DIR}/kickoff-db/index.mjs"

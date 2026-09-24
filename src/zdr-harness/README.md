@@ -13,7 +13,9 @@ Claude Code / Codex ──zdr_ask──▶ zdr-ask MCP (src/mcps/zdr-ask) ──
                                                                          ├─▶ bugsnag.mcp.smartbear.com (token)
                                                                          ├─▶ mcp.posthog.com (token, read-only)
                                                                          ├─▶ api.cloudinary.com (assets + config, key/secret)
-                                                                         └─▶ logs.<region>.amazonaws.com (SigV4, read-only)
+                                                                         ├─▶ logs.<region>.amazonaws.com (SigV4, read-only)
+                                                                         ├─▶ 127.0.0.1:33306 ─SSM tunnel─▶ prod read replica (kudos_ro)
+                                                                         └─▶ kickoff-transcript-archive-production.s3 (SigV4 + KMS)
 ```
 
 **BAA and ZDR.** Kickoff's OpenAI account is covered by a BAA (confirmed
@@ -42,6 +44,8 @@ contains: OpenAI and this Mac may hold PHI; Claude Code and Codex may not.
 | `src/zdr-harness/.env.template` | Same keys and comments with empty values; keep the two in sync |
 | `src/zdr-harness/mcps/kickoff-logs/` + `kickoff-logs-mcp` | Harness-only MCP server for production Lambda logs (see [Lambda logs](#lambda-logs)) |
 | `src/zdr-harness/mcps/cloudinary-mcp` | Launcher for Cloudinary's two official MCP servers, assets and config (see [Cloudinary](#cloudinary)) |
+| `src/zdr-harness/mcps/kickoff-db/` + `kickoff-db-mcp` | Harness-only MCP server for the LIVE production database and archived call transcripts (see [Production database](#production-database)) |
+| `src/zdr-harness/certs/rds-global-bundle.pem` | Amazon RDS CA bundle the database connection is verified against |
 | `src/zdr-harness/iam/` | The policy of record for the `zdr-harness-logs` AWS user |
 | `~/.zdr-harness/opt/` | Pinned OpenCode install (`opencode-ai@1.18.31`) |
 | `~/.zdr-harness/xdg/data/opencode/` | Sessions DB, MCP OAuth tokens, logs (**holds raw tool output**) |
@@ -343,6 +347,64 @@ and usage totals, which the restricted key used to 403 on.
 The launcher runs both servers under an explicit `node` from `resolve-binary.sh`:
 the packaged bin is `#!/usr/bin/env node` and the harness PATH has no `node`, so
 the shebang alone cannot start it.
+
+## Production database
+
+`src/zdr-harness/mcps/kickoff-db` gives the harness read-only access to the
+**live** production database and to the archived call transcripts its rows
+point at. This is the one source in the harness that is raw PHI end to end, so
+it is also the one whose boundary is explained in the most detail.
+
+**Why it exists.** The sanitized copy (Kickoff Sanitized DB) is what every
+non-BAA agent uses, and it is deliberately a snapshot with free text removed.
+Questions about what is happening now, or about what clients and coaches
+actually say on calls, cannot be answered from it. The harness can answer them
+because its only model is BAA-covered and its answer rule de-identifies what
+leaves.
+
+**The credential is `kudos_ro`**, an existing user on the read replica
+`kickoff-production-mysql-read` (SSM parameter
+`mysql-url-production-read-encrypted`; 1Password personal account, Kickoff
+vault, `KICKOFF_ZDR_DB_URL`). Nothing was created: `SHOW GRANTS` is `USAGE` plus
+`SELECT, SHOW VIEW ON kudos_production.*`, and the replica itself is
+`read_only=1`. Verified 2026-09-24 through the tunnel: `CREATE TEMPORARY
+TABLE`, `UPDATE`, `INSERT` and `SELECT … INTO OUTFILE` all refused.
+
+**The network path.** The replica is private (VPC `vpc-38744b5f`, security group
+`sg-066924a45bc65e918`). The **Kickoff Bastion** (`i-00b905df66752344d`) is the
+one SSM-managed host whose group that security group admits, so the harness
+reaches the replica through an SSM port-forward to it — no VPN, no public
+endpoint, no inbound rule. `zdr-harness tunnel start|stop|status` owns that
+session on `127.0.0.1:${KICKOFF_ZDR_DB_TUNNEL_PORT}` (33306). TLS is still
+verified against the RDS CA bundle and the replica's real hostname even though
+the socket says `127.0.0.1`.
+
+**Walls, in order:**
+
+1. `kudos_ro`'s grants and the replica's `read_only`.
+2. The server: one statement per call, only `SELECT`/`WITH`/`SHOW`/`EXPLAIN`/
+   `DESCRIBE`, inside `START TRANSACTION READ ONLY` with
+   `MAX_EXECUTION_TIME=30000`; 1000 rows and 250 KB per result; 2000 chars
+   per cell; `INTO OUTFILE`, `FOR UPDATE`, `LOAD_FILE`, `SLEEP` and `BENCHMARK`
+   refused by name.
+3. Transcripts come only from `kickoff-transcript-archive-production`, only at
+   keys shaped `transcripts/v1/<id>/<generation>/assemblyai.json.gz`, only by
+   way of the `file_transcript_artifacts` row that names the object, and only
+   after the sha256 in that row matches the decompressed body.
+4. The answer rule. `zdr.md` names ids, rows, free text and transcript lines as
+   identifiers; the analyst sees them, the bridge never does.
+
+**Six tools:** `guide`, `list_tables`, `describe_table`, `query`,
+`transcript_list`, `transcript_get`. The archive holds ~175k canonical
+transcripts (~23 GB); `transcript_get` renders speaker turns and pages with
+`offset`.
+
+**Transcripts need the v2 IAM policy.** The archive is SSE-KMS under a
+customer key whose policy defers to IAM, so `zdr-harness-logs` needs
+`s3:GetObject(Version)` on the bucket prefix and `kms:Decrypt` on the key via
+S3. `iam/zdr-harness-policy.json` adds those and the `ssm:StartSession` the
+tunnel needs; until it is applied, `transcript_get` reports `AccessDenied` with
+the fix, and the tunnel must be started by a human with the prod profile.
 
 ## Setup from scratch
 

@@ -56,6 +56,9 @@ Usage: zdr-harness <command>
   prune [--days N] [--dry-run]
                    Delete sessions not updated in N days (default 14).
                    The memory store is never pruned.
+  tunnel start|stop|status
+                   SSM port-forward to the production read replica via the
+                   Kickoff Bastion, under the harness's own AWS key
   app              Build ZDR Harness.app if stale, install it to ~/Applications, open it
   app-build [--force]
                    Build and install the app without opening it
@@ -89,6 +92,12 @@ load_secrets() {
   KICKOFF_ZDR_AWS_ACCESS_KEY_ID="$(ENV_FILE="$SECRETS_FILE" env_get KICKOFF_ZDR_AWS_ACCESS_KEY_ID 2>/dev/null || true)"
   KICKOFF_ZDR_AWS_SECRET_ACCESS_KEY="$(ENV_FILE="$SECRETS_FILE" env_get KICKOFF_ZDR_AWS_SECRET_ACCESS_KEY 2>/dev/null || true)"
   KICKOFF_ZDR_AWS_REGION="$(ENV_FILE="$SECRETS_FILE" env_get KICKOFF_ZDR_AWS_REGION 2>/dev/null || true)"
+
+  # Production database (read replica through the SSM tunnel). Optional: without
+  # the URL that server reports the missing key.
+  KICKOFF_ZDR_DB_URL="$(ENV_FILE="$SECRETS_FILE" env_get KICKOFF_ZDR_DB_URL 2>/dev/null || true)"
+  KICKOFF_ZDR_DB_TUNNEL_PORT="$(ENV_FILE="$SECRETS_FILE" env_get KICKOFF_ZDR_DB_TUNNEL_PORT 2>/dev/null || true)"
+  KICKOFF_ZDR_DB_TUNNEL_PORT="${KICKOFF_ZDR_DB_TUNNEL_PORT:-33306}"
 
   # Cloudinary is optional too: without it that server reports the missing key.
   KICKOFF_CLOUDINARY_CLOUD_NAME="$(ENV_FILE="$SECRETS_FILE" env_get KICKOFF_CLOUDINARY_CLOUD_NAME 2>/dev/null || true)"
@@ -160,6 +169,9 @@ isolated_env() {
     ZDR_HARNESS_MEMORY_MCP="${PROJECT_DIR}/mcps/harness-memory-mcp" \
     ZDR_MEMORY_DIR="${ZH}/memory" \
     ZDR_HARNESS_CLOUDINARY_MCP="${PROJECT_DIR}/mcps/cloudinary-mcp" \
+    ZDR_HARNESS_DB_MCP="${PROJECT_DIR}/mcps/kickoff-db-mcp" \
+    KICKOFF_ZDR_DB_URL="${KICKOFF_ZDR_DB_URL:-}" \
+    KICKOFF_ZDR_DB_TUNNEL_PORT="${KICKOFF_ZDR_DB_TUNNEL_PORT:-33306}" \
     KICKOFF_CLOUDINARY_CLOUD_NAME="${KICKOFF_CLOUDINARY_CLOUD_NAME:-}" \
     KICKOFF_CLOUDINARY_API_KEY="${KICKOFF_CLOUDINARY_API_KEY:-}" \
     KICKOFF_CLOUDINARY_TOKEN="${KICKOFF_CLOUDINARY_TOKEN:-}" \
@@ -374,6 +386,87 @@ except Exception: print(0)' 2>/dev/null)"
   else
     printf '  aws logs:       no key set (KICKOFF_ZDR_AWS_ACCESS_KEY_ID empty)\n'
   fi
+
+  # The database is proven through its MCP server too, so the probe exercises
+  # the tunnel, TLS verification and the read-only session the harness uses.
+  if [[ -n "${KICKOFF_ZDR_DB_URL:-}" ]]; then
+    if ! tunnel_port_open; then
+      printf '  prod db:        tunnel closed on 127.0.0.1:%s (zdr-harness tunnel start)\n' "$KICKOFF_ZDR_DB_TUNNEL_PORT"
+    else
+      local dbout
+      dbout="$(printf '%s\n' \
+        '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"probe","version":"1"}}}' \
+        '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"query","arguments":{"sql":"SELECT CURRENT_USER() AS u, @@read_only AS ro, @@session.transaction_read_only AS tro"}}}' |
+        KICKOFF_ZDR_DB_URL="$KICKOFF_ZDR_DB_URL" KICKOFF_ZDR_DB_TUNNEL_PORT="$KICKOFF_ZDR_DB_TUNNEL_PORT" \
+        HOME="${ZH}/home" timeout 40 "${PROJECT_DIR}/mcps/kickoff-db-mcp" 2>/dev/null | tail -1)"
+      if [[ "$dbout" == *'"isError":false'* && "$dbout" == *'kudos_ro'* ]]; then
+        printf '  prod db:        OK (kudos_ro on the read replica, read_only=1)\n'
+      else
+        printf '  prod db:        FAILED %s\n' "$(printf '%s' "$dbout" | tr -d '\n' | cut -c1-200)"
+      fi
+    fi
+  else
+    printf '  prod db:        no URL set (KICKOFF_ZDR_DB_URL empty)\n'
+  fi
+}
+
+# The production read replica is private. The only way in is an SSM port-forward
+# through the Kickoff Bastion, which is the one host its security group admits.
+# This runs that session under the harness's own AWS key (never the admin
+# profile), so the tunnel has exactly the rights the IAM policy of record grants.
+TUNNEL_TARGET_INSTANCE="i-00b905df66752344d"
+TUNNEL_REMOTE_HOST="kickoff-production-mysql-read.c65ds0rqtugh.us-west-1.rds.amazonaws.com"
+TUNNEL_PID_FILE="${ZH}/run/tunnel.pid"
+TUNNEL_LOG="${ZH}/logs/tunnel.log"
+
+tunnel_pid() {
+  local pid
+  pid="$(cat "$TUNNEL_PID_FILE" 2>/dev/null || true)"
+  [[ "$pid" =~ ^[0-9]+$ ]] && kill -0 "$pid" 2>/dev/null && printf '%s' "$pid"
+}
+
+tunnel_port_open() {
+  /usr/bin/nc -z 127.0.0.1 "$KICKOFF_ZDR_DB_TUNNEL_PORT" >/dev/null 2>&1
+}
+
+tunnel() {
+  load_secrets
+  local cmd="${1:-status}"
+  case "$cmd" in
+    status)
+      if tunnel_port_open; then
+        printf 'tunnel: 127.0.0.1:%s is open (pid %s)\n' "$KICKOFF_ZDR_DB_TUNNEL_PORT" "$(tunnel_pid || echo 'not ours')"
+      else
+        printf 'tunnel: 127.0.0.1:%s is closed\n' "$KICKOFF_ZDR_DB_TUNNEL_PORT"; return 1
+      fi
+      ;;
+    start)
+      if tunnel_port_open; then printf 'tunnel: already open on %s\n' "$KICKOFF_ZDR_DB_TUNNEL_PORT"; return 0; fi
+      [[ -n "${KICKOFF_ZDR_AWS_ACCESS_KEY_ID:-}" ]] || die "tunnel: KICKOFF_ZDR_AWS_ACCESS_KEY_ID is empty"
+      local aws_bin
+      aws_bin="$(command -v aws || ls /opt/homebrew/bin/aws /usr/local/bin/aws 2>/dev/null | head -1)"
+      [[ -n "$aws_bin" ]] || die "tunnel: aws CLI not found"
+      command -v session-manager-plugin >/dev/null || [[ -x /opt/homebrew/bin/session-manager-plugin ]] || die "tunnel: session-manager-plugin not found"
+      mkdir -p "$RUN_DIR" "${ZH}/logs"
+      AWS_ACCESS_KEY_ID="$KICKOFF_ZDR_AWS_ACCESS_KEY_ID" AWS_SECRET_ACCESS_KEY="$KICKOFF_ZDR_AWS_SECRET_ACCESS_KEY" \
+      AWS_DEFAULT_REGION="${KICKOFF_ZDR_AWS_REGION:-us-west-1}" AWS_PROFILE= PATH="/opt/homebrew/bin:/usr/local/bin:$PATH" \
+        nohup "$aws_bin" ssm start-session --target "$TUNNEL_TARGET_INSTANCE" \
+          --document-name AWS-StartPortForwardingSessionToRemoteHost \
+          --parameters "{\"host\":[\"$TUNNEL_REMOTE_HOST\"],\"portNumber\":[\"3306\"],\"localPortNumber\":[\"$KICKOFF_ZDR_DB_TUNNEL_PORT\"]}" \
+          >>"$TUNNEL_LOG" 2>&1 &
+      printf '%s' "$!" > "$TUNNEL_PID_FILE"
+      local i
+      for i in $(seq 1 20); do tunnel_port_open && break; sleep 1; done
+      if tunnel_port_open; then printf 'tunnel: open on 127.0.0.1:%s (pid %s)\n' "$KICKOFF_ZDR_DB_TUNNEL_PORT" "$(cat "$TUNNEL_PID_FILE")"
+      else printf 'tunnel: failed to open; last log lines:\n' >&2; tail -n 5 "$TUNNEL_LOG" >&2; return 1; fi
+      ;;
+    stop)
+      local pid; pid="$(tunnel_pid || true)"
+      if [[ -n "$pid" ]]; then kill "$pid" 2>/dev/null || true; rm -f "$TUNNEL_PID_FILE"; printf 'tunnel: stopped pid %s\n' "$pid"
+      else rm -f "$TUNNEL_PID_FILE"; printf 'tunnel: not running under this wrapper\n'; fi
+      ;;
+    *) die "tunnel: use start, stop or status" ;;
+  esac
 }
 
 # Reflow auth: OpenCode resolves {env:...} when the server starts, so applying a
@@ -439,6 +532,10 @@ case "${1:-}" in
     ;;
   reload-auth)
     reload_auth
+    ;;
+  tunnel)
+    shift
+    tunnel "$@"
     ;;
   set-token)
     shift

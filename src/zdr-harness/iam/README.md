@@ -50,3 +50,30 @@ zdr-harness set-token KICKOFF_ZDR_AWS_SECRET_ACCESS_KEY
 The MCP server filters groups to the production namespaces regardless of what
 IAM allows, so `list_groups` shows only those even though `DescribeLogGroups`
 itself is account-wide.
+
+## v2: transcripts and the database tunnel (2026-09-24)
+
+`zdr-harness-policy.json` supersedes `zdr-harness-logs-policy.json`. It keeps
+the two log statements unchanged and adds four:
+
+| Sid | What | Why it is safe |
+|---|---|---|
+| `ReadArchivedCallTranscripts` | `s3:GetObject`, `s3:GetObjectVersion` on `kickoff-transcript-archive-production/transcripts/v1/*` | Read only, one bucket, one prefix; no `ListBucket`, so the credential cannot enumerate the archive, only fetch objects a database row names |
+| `DecryptArchivedCallTranscripts` | `kms:Decrypt` on the archive key, only `ViaService: s3.us-west-1.amazonaws.com` | The key policy defers to IAM; the condition means the key is unusable outside an S3 read |
+| `TunnelToProductionReadReplicaViaBastion` | `ssm:StartSession` on the Kickoff Bastion instance and the port-forward document only | Cannot open a shell (`AWS-StartInteractiveCommand`, `SSM-SessionManagerRunShell` are not granted), cannot reach any other instance |
+| `ManageOwnTunnelSessions` | `ssm:TerminateSession`, `ssm:ResumeSession` on sessions named `zdr-harness-logs-*` | Its own sessions only |
+
+The database credential itself is not in IAM: `kudos_ro` is a MySQL user, held
+in `src/zdr-harness/.env` as `KICKOFF_ZDR_DB_URL`.
+
+Apply, as the human with the prod profile (the policy name stays so nothing is
+left behind):
+
+```sh
+aws iam put-user-policy --user-name zdr-harness-logs \
+  --policy-name read-production-lambda-logs \
+  --policy-document file://"$HOME"/src/github/dotfiles/src/zdr-harness/iam/zdr-harness-policy.json \
+  --profile kickoff-prod
+```
+
+Then `zdr-harness tunnel start` runs under the harness key instead of a human's.

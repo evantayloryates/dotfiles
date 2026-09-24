@@ -90,7 +90,13 @@
     "cldconfig_list-upload-mappings": "allow",
     "cldconfig_list-triggers": "allow",
     "cldconfig_list-streaming-profiles": "allow",
-    "cldconfig_get-streaming-profile": "allow"
+    "cldconfig_get-streaming-profile": "allow",
+    "kickoffdb_guide": "allow",
+    "kickoffdb_list_tables": "allow",
+    "kickoffdb_describe_table": "allow",
+    "kickoffdb_query": "allow",
+    "kickoffdb_transcript_list": "allow",
+    "kickoffdb_transcript_get": "allow"
   },
   "agent": {
     "zdr": {
@@ -181,6 +187,20 @@
         "KICKOFF_CLOUDINARY_CLOUD_NAME": "{env:KICKOFF_CLOUDINARY_CLOUD_NAME}",
         "KICKOFF_CLOUDINARY_API_KEY": "{env:KICKOFF_CLOUDINARY_API_KEY}",
         "KICKOFF_CLOUDINARY_TOKEN": "{env:KICKOFF_CLOUDINARY_TOKEN}"
+      },
+      "timeout": 120000
+    },
+    "kickoffdb": {
+      "type": "local",
+      "command": [
+        "{env:ZDR_HARNESS_DB_MCP}"
+      ],
+      "environment": {
+        "KICKOFF_ZDR_AWS_ACCESS_KEY_ID": "{env:KICKOFF_ZDR_AWS_ACCESS_KEY_ID}",
+        "KICKOFF_ZDR_AWS_SECRET_ACCESS_KEY": "{env:KICKOFF_ZDR_AWS_SECRET_ACCESS_KEY}",
+        "KICKOFF_ZDR_AWS_REGION": "{env:KICKOFF_ZDR_AWS_REGION}",
+        "KICKOFF_ZDR_DB_URL": "{env:KICKOFF_ZDR_DB_URL}",
+        "KICKOFF_ZDR_DB_TUNNEL_PORT": "{env:KICKOFF_ZDR_DB_TUNNEL_PORT}"
       },
       "timeout": 120000
     }

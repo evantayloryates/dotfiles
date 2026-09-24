@@ -1,0 +1,58 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ReadProductionLambdaLogContent",
+      "Effect": "Allow",
+      "Action": [
+        "logs:DescribeLogStreams",
+        "logs:FilterLogEvents",
+        "logs:GetLogEvents",
+        "logs:StartQuery",
+        "logs:GetQueryResults"
+      ],
+      "Resource": [
+        "arn:aws:logs:us-west-1:414993717154:log-group:/aws/lambda/kickoff-*-production-*",
+        "arn:aws:logs:us-west-1:414993717154:log-group:/aws/lambda/kickoff-*-production-*:*",
+        "arn:aws:logs:us-west-1:414993717154:log-group:/aws/lambda/kudos-*-production-*",
+        "arn:aws:logs:us-west-1:414993717154:log-group:/aws/lambda/kudos-*-production-*:*"
+      ]
+    },
+    {
+      "Sid": "ListGroupsAndCancelOwnQueries",
+      "Effect": "Allow",
+      "Action": ["logs:DescribeLogGroups", "logs:StopQuery"],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ReadArchivedCallTranscripts",
+      "Effect": "Allow",
+      "Action": ["s3:GetObject", "s3:GetObjectVersion"],
+      "Resource": "arn:aws:s3:::kickoff-transcript-archive-production/transcripts/v1/*"
+    },
+    {
+      "Sid": "DecryptArchivedCallTranscripts",
+      "Effect": "Allow",
+      "Action": "kms:Decrypt",
+      "Resource": "arn:aws:kms:us-west-1:414993717154:key/68b9a741-2344-4704-aa0e-83658fae01f1",
+      "Condition": {
+        "StringEquals": { "kms:ViaService": "s3.us-west-1.amazonaws.com" }
+      }
+    },
+    {
+      "Sid": "TunnelToProductionReadReplicaViaBastion",
+      "Effect": "Allow",
+      "Action": "ssm:StartSession",
+      "Resource": [
+        "arn:aws:ec2:us-west-1:414993717154:instance/i-00b905df66752344d",
+        "arn:aws:ssm:us-west-1::document/AWS-StartPortForwardingSessionToRemoteHost"
+      ]
+    },
+    {
+      "Sid": "ManageOwnTunnelSessions",
+      "Effect": "Allow",
+      "Action": ["ssm:TerminateSession", "ssm:ResumeSession"],
+      "Resource": "arn:aws:ssm:*:*:session/${aws:username}-*"
+    }
+  ]
+}
