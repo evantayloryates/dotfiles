@@ -448,8 +448,12 @@ tunnel() {
       [[ -n "$aws_bin" ]] || die "tunnel: aws CLI not found"
       command -v session-manager-plugin >/dev/null || [[ -x /opt/homebrew/bin/session-manager-plugin ]] || die "tunnel: session-manager-plugin not found"
       mkdir -p "$RUN_DIR" "${ZH}/logs"
-      AWS_ACCESS_KEY_ID="$KICKOFF_ZDR_AWS_ACCESS_KEY_ID" AWS_SECRET_ACCESS_KEY="$KICKOFF_ZDR_AWS_SECRET_ACCESS_KEY" \
-      AWS_DEFAULT_REGION="${KICKOFF_ZDR_AWS_REGION:-us-west-1}" AWS_PROFILE= PATH="/opt/homebrew/bin:/usr/local/bin:$PATH" \
+      # Only the harness key: no profile, no ~/.aws files, so a laptop admin
+      # credential can never be picked up by accident.
+      env -u AWS_PROFILE -u AWS_SESSION_TOKEN \
+        AWS_ACCESS_KEY_ID="$KICKOFF_ZDR_AWS_ACCESS_KEY_ID" AWS_SECRET_ACCESS_KEY="$KICKOFF_ZDR_AWS_SECRET_ACCESS_KEY" \
+        AWS_DEFAULT_REGION="${KICKOFF_ZDR_AWS_REGION:-us-west-1}" AWS_CONFIG_FILE=/dev/null AWS_SHARED_CREDENTIALS_FILE=/dev/null \
+        PATH="/opt/homebrew/bin:/usr/local/bin:$PATH" \
         nohup "$aws_bin" ssm start-session --target "$TUNNEL_TARGET_INSTANCE" \
           --document-name AWS-StartPortForwardingSessionToRemoteHost \
           --parameters "{\"host\":[\"$TUNNEL_REMOTE_HOST\"],\"portNumber\":[\"3306\"],\"localPortNumber\":[\"$KICKOFF_ZDR_DB_TUNNEL_PORT\"]}" \

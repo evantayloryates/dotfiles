@@ -77,3 +77,18 @@ aws iam put-user-policy --user-name zdr-harness-logs \
 ```
 
 Then `zdr-harness tunnel start` runs under the harness key instead of a human's.
+
+Applied and verified 2026-09-24 with `simulate-principal-policy`, one
+action/resource pair per call (a multi-resource call reports a cross product
+and is not readable):
+
+| Action | Resource | Decision |
+|---|---|---|
+| `s3:GetObject`, `s3:GetObjectVersion` | archive bucket, `transcripts/v1/…` | allowed |
+| `ssm:StartSession` | Kickoff Bastion; `AWS-StartPortForwardingSessionToRemoteHost` | allowed |
+| `s3:ListBucket` | archive bucket | implicitDeny |
+| `s3:GetObject` | archive bucket, `ingest/v1/…`; `kickoff-call-audio-recordings` | implicitDeny |
+| `s3:PutObject` | archive bucket | implicitDeny |
+| `ssm:StartSession` | bot host; `SSM-SessionManagerRunShell` | implicitDeny |
+| `rds:DescribeDBInstances` | the read replica | implicitDeny |
+| `kms:Decrypt` | the archive key | implicitDeny in the simulator (no `kms:ViaService` context); proven by the real S3 read |

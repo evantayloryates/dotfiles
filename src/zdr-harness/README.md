@@ -399,12 +399,16 @@ the socket says `127.0.0.1`.
 transcripts (~23 GB); `transcript_get` renders speaker turns and pages with
 `offset`.
 
-**Transcripts need the v2 IAM policy.** The archive is SSE-KMS under a
-customer key whose policy defers to IAM, so `zdr-harness-logs` needs
-`s3:GetObject(Version)` on the bucket prefix and `kms:Decrypt` on the key via
-S3. `iam/zdr-harness-policy.json` adds those and the `ssm:StartSession` the
-tunnel needs; until it is applied, `transcript_get` reports `AccessDenied` with
-the fix, and the tunnel must be started by a human with the prod profile.
+**Transcripts and the tunnel run on the v2 IAM policy** (applied 2026-09-24).
+The archive is SSE-KMS under a customer key whose policy defers to IAM, so
+`zdr-harness-logs` has `s3:GetObject(Version)` on the one prefix and
+`kms:Decrypt` on the key only via S3, plus `ssm:StartSession` on the bastion
+and the port-forward document. Verified the same day: `transcript_get` fetched
+and sha256-verified a real archive object under that key, and `zdr-harness
+tunnel start` opened the session under it with no profile or `~/.aws` files in
+reach. One implementation note: the archive stores gzip with
+`Content-Encoding: gzip`, and Node's `fetch` decompresses that transparently,
+so the server inflates only a body that still starts with the gzip magic.
 
 ## Setup from scratch
 

@@ -444,8 +444,11 @@ async function transcriptGet({ file_transcript_id, max_chars, offset } = {}) {
   )
   const row = rows[0]
   if (!row) throw new ToolError(`No archived canonical transcript for file_transcript_id ${id}`)
-  const gz = await s3Get(row.storage_bucket, row.storage_key, row.storage_version_id)
-  const raw = gunzipSync(gz)
+  const body = await s3Get(row.storage_bucket, row.storage_key, row.storage_version_id)
+  // The archive stores gzip with Content-Encoding: gzip, and fetch() honours
+  // that header by decompressing for us; a body that still starts with the
+  // gzip magic bytes was not touched, so inflate it here.
+  const raw = body[0] === 0x1f && body[1] === 0x8b ? gunzipSync(body) : body
   const digest = sha256hex(raw)
   if (row.sha256 && digest !== row.sha256) throw new ToolError('Archived transcript checksum does not match the database row')
   const envelope = JSON.parse(raw.toString('utf8'))
