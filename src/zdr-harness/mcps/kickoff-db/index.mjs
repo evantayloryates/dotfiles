@@ -59,6 +59,14 @@ const MAX_CELL_CHARS = 2000
 const DEFAULT_TRANSCRIPT_CHARS = 20_000
 const MAX_TRANSCRIPT_CHARS = 80_000
 const MAX_TRANSCRIPT_LIST = 200
+// A full scan this large is flagged in the result so the agent narrows next
+// time; the 30s server timeout and the streaming row cap are what actually
+// bound it.
+const SCAN_NOTE_ROWS = 1_000_000
+// Transcripts are the densest PHI here. One server serves every session, so
+// the budget is per process and rolling: distinct transcripts per hour.
+const TRANSCRIPT_BUDGET = Number(process.env.KICKOFF_ZDR_TRANSCRIPT_BUDGET || 30) // env only so the probe can test the limit
+const TRANSCRIPT_WINDOW_MS = 60 * 60 * 1000
 
 const log = (...args) => console.error('[kickoff-db]', ...args)
 
@@ -254,7 +262,9 @@ transcript_get verifies the sha256 and renders speaker turns. ~175k archived tra
 client speech: quote nothing outside the harness, summarise themes with cell-size protection.
 
 Every query runs as kudos_ro (SELECT only) inside a READ ONLY transaction with a ${STATEMENT_TIMEOUT_MS / 1000}s server timeout,
-capped at ${MAX_ROWS} rows / ${Math.round(MAX_RESULT_BYTES / 1000)} KB. Prefer aggregates and LIMIT; the replica also serves the product.`
+capped at ${MAX_ROWS} rows / ${Math.round(MAX_RESULT_BYTES / 1000)} KB: a statement that returns more is cut off at the cap, not buffered.
+Results note a planned full scan over ${SCAN_NOTE_ROWS.toLocaleString()} rows. Transcript reads: ${TRANSCRIPT_BUDGET} distinct per hour.
+Prefer aggregates and LIMIT; the replica also serves the product.`
 
 async function guide() {
   return GUIDE
@@ -321,38 +331,112 @@ async function query({ sql, limit } = {}) {
   const statement = checkSql(sql)
   const rowLimit = checkLimit(limit, DEFAULT_ROWS, MAX_ROWS, 'limit')
   const started = Date.now()
-  let rows
+  const fp = fingerprint(statement)
+  const note = await scanNote(c, statement)
+  let result
   try {
-    ;[rows] = await runReadOnly(c, statement)
+    result = await runReadOnly(c, statement, rowLimit)
   } catch (err) {
     if (forgetIfLost(err)) {
       const again = await connection()
-      ;[rows] = await runReadOnly(again, statement).catch((e) => { forgetIfLost(e); throw new ToolError(`${e.code || 'query failed'}: ${e.sqlMessage || e.message}`) })
-      return finish(rows, rowLimit, started)
+      result = await runReadOnly(again, statement, rowLimit).catch((e) => { forgetIfLost(e); throw new ToolError(`${e.code || 'query failed'}: ${e.sqlMessage || e.message}`) })
+      return finish(result, rowLimit, started, fp, note)
     }
     if (err.code === 'ER_QUERY_TIMEOUT') {
+      log(`query ${fp.hash} timeout after ${Date.now() - started}ms: ${fp.shape}`)
       throw new ToolError(`Query exceeded the ${STATEMENT_TIMEOUT_MS / 1000}s limit. Narrow the range or aggregate in SQL.`)
     }
+    log(`query ${fp.hash} failed ${err.code || ''}: ${fp.shape}`)
     throw new ToolError(`${err.code || 'query failed'}: ${err.sqlMessage || err.message}`)
   }
-  return finish(rows, rowLimit, started)
+  return finish(result, rowLimit, started, fp, note)
 }
 
-async function runReadOnly(c, statement) {
-  await c.query('START TRANSACTION READ ONLY')
+// What gets logged about a statement: a short hash and its shape with
+// literals removed, never the literals themselves (they can be a person).
+function fingerprint(statement) {
+  const shape = statement
+    .replace(/'(?:[^'\\]|\\.)*'/g, '?')
+    .replace(/"(?:[^"\\]|\\.)*"/g, '?')
+    .replace(/\b\d+(\.\d+)?\b/g, '?')
+    .replace(/\s+/g, ' ')
+    .trim()
+  return { hash: sha256hex(statement).slice(0, 12), shape: shape.slice(0, 160) }
+}
+
+// EXPLAIN is cheap and tells us whether the optimizer plans a large full scan.
+// Only a note: the agent needs to know why a query was slow or capped, and
+// COUNT(*) over a big table is legitimate.
+async function scanNote(c, statement) {
+  if (!/^(SELECT|WITH)\b/i.test(statement)) return undefined
   try {
-    return await c.query({ sql: statement, rowsAsArray: false })
-  } finally {
-    await c.query('ROLLBACK').catch(() => {})
+    const [rows] = await c.query(`EXPLAIN FORMAT=JSON ${statement}`)
+    const plan = JSON.parse(rows[0]?.EXPLAIN || rows[0]?.[Object.keys(rows[0])[0]] || '{}')
+    let worst = 0
+    let table = ''
+    const walk = (node) => {
+      if (!node || typeof node !== 'object') return
+      if (Array.isArray(node)) return node.forEach(walk)
+      if (node.table && (node.table.access_type === 'ALL' || node.table.access_type === 'index')) {
+        const n = Number(node.table.rows_examined_per_scan || 0)
+        if (n > worst) { worst = n; table = node.table.table_name }
+      }
+      for (const v of Object.values(node)) walk(v)
+    }
+    walk(plan)
+    if (worst >= SCAN_NOTE_ROWS) return `full scan of ~${worst.toLocaleString()} rows on ${table}; add an indexed filter to make this cheaper`
+  } catch {
+    // EXPLAIN can fail where the query would not (temp tables, permissions); never block on it.
   }
+  return undefined
 }
 
-function finish(rows, rowLimit, started) {
+// Rows stream in and stop at the cap. A statement that would return more
+// than the cap is cut off at the socket rather than buffered: the server
+// side thread ends with the connection, and the next call reconnects. That
+// is what keeps `SELECT * FROM sms` from pulling a table into this process
+// while the 30s timer runs.
+function runReadOnly(c, statement, cap) {
+  return new Promise((resolve, reject) => {
+    const raw = c.connection
+    const rows = []
+    let overflowed = false
+    let settled = false
+    const done = (err) => {
+      if (settled) return
+      settled = true
+      if (err) return reject(err)
+      resolve({ rows, overflowed })
+    }
+    raw.query('START TRANSACTION READ ONLY', (err) => {
+      if (err) return done(err)
+      const q = raw.query({ sql: statement, rowsAsArray: false })
+      q.on('error', (err) => done(err))
+      q.on('result', (row) => {
+        if (overflowed) return
+        if (rows.length >= cap) {
+          overflowed = true
+          // Drop the connection: the only clean way to abandon a result set mid-stream.
+          forgetIfLost({ code: 'ECONNRESET' })
+          return done()
+        }
+        rows.push(row)
+      })
+      q.on('end', () => {
+        raw.query('ROLLBACK', () => done())
+      })
+    })
+  })
+}
+
+function finish({ rows, overflowed }, rowLimit, started, fp, scan) {
   const elapsed = Date.now() - started
-  if (!Array.isArray(rows)) return `OK (${elapsed} ms)`
+  log(`query ${fp.hash} ${elapsed}ms rows=${rows.length}${overflowed ? '+' : ''}: ${fp.shape}`)
   const shaped = shapeRows(rows, rowLimit)
   const notes = []
-  if (shaped.truncatedRows) notes.push(`showing ${shaped.rows.length} of ${rows.length >= rowLimit ? `${rows.length}+` : rows.length} rows`)
+  if (scan) notes.push(scan)
+  if (overflowed) notes.push(`stopped at ${rowLimit} rows; the statement returns more — aggregate in SQL or add LIMIT`)
+  else if (shaped.truncatedRows) notes.push(`showing ${shaped.rows.length} of ${rows.length} rows`)
   if (shaped.bytesCapped) notes.push(`result capped at ${Math.round(MAX_RESULT_BYTES / 1000)} KB`)
   if (shaped.truncatedCells) notes.push(`${shaped.truncatedCells} long cell(s) truncated`)
   return JSON.stringify(
@@ -460,9 +544,25 @@ function renderTranscript(t) {
   return { text: typeof t.text === 'string' ? t.text : '', turns: 0, speakers: 0 }
 }
 
+const transcriptReads = new Map() // file_transcript_id -> last read time
+function chargeTranscriptBudget(id) {
+  const now = Date.now()
+  for (const [k, t] of transcriptReads) if (now - t > TRANSCRIPT_WINDOW_MS) transcriptReads.delete(k)
+  if (!transcriptReads.has(id) && transcriptReads.size >= TRANSCRIPT_BUDGET) {
+    const oldest = Math.min(...transcriptReads.values())
+    const wait = Math.ceil((TRANSCRIPT_WINDOW_MS - (now - oldest)) / 60000)
+    throw new ToolError(
+      `Transcript budget reached: ${TRANSCRIPT_BUDGET} distinct transcripts per hour. Next slot in about ${wait} min. ` +
+        'Aggregate over the ones already read, or use transcript_list metadata (durations, counts) instead of reading more.'
+    )
+  }
+  transcriptReads.set(id, now)
+}
+
 async function transcriptGet({ file_transcript_id, max_chars, offset } = {}) {
   const c = await connection()
   const id = checkInt(file_transcript_id, 'file_transcript_id')
+  chargeTranscriptBudget(id)
   const cap = checkLimit(max_chars, DEFAULT_TRANSCRIPT_CHARS, MAX_TRANSCRIPT_CHARS, 'max_chars')
   const start = offset === undefined ? 0 : checkLimit(offset, 0, 10_000_000, 'offset')
   const [rows] = await c.query(
@@ -482,6 +582,7 @@ async function transcriptGet({ file_transcript_id, max_chars, offset } = {}) {
   const envelope = JSON.parse(raw.toString('utf8'))
   const transcript = envelope && typeof envelope === 'object' && envelope.transcript ? envelope.transcript : envelope
   const rendered = renderTranscript(transcript)
+  log(`transcript ${sha256hex(String(id)).slice(0, 8)} ${raw.length}B budget=${transcriptReads.size}/${TRANSCRIPT_BUDGET}`)
   const slice = rendered.text.slice(start, start + cap)
   const meta = {
     file_transcript_id: id,
@@ -563,7 +664,8 @@ const TOOLS = [
     title: 'Read one archived call transcript',
     description:
       'Fetch a transcript from the archive by file_transcript_id, verify its checksum, and return speaker turns as text. ' +
-      `Returns ${DEFAULT_TRANSCRIPT_CHARS} chars by default (max ${MAX_TRANSCRIPT_CHARS}); use offset to page. Verbatim client speech: never quote it outside the harness.`,
+      `Returns ${DEFAULT_TRANSCRIPT_CHARS} chars by default (max ${MAX_TRANSCRIPT_CHARS}); use offset to page (re-reading the same transcript is free). ` +
+      `Budget: ${TRANSCRIPT_BUDGET} distinct transcripts per hour. Verbatim client speech: never quote it outside the harness.`,
     inputSchema: {
       type: 'object',
       properties: { file_transcript_id: { type: 'number' }, max_chars: { type: 'number' }, offset: { type: 'number' } },

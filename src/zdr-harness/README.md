@@ -394,12 +394,22 @@ the RDS CA bundle and the replica's real hostname even though the socket says
    `DESCRIBE`, inside `START TRANSACTION READ ONLY` with
    `MAX_EXECUTION_TIME=30000`; 1000 rows and 250 KB per result; 2000 chars
    per cell; `INTO OUTFILE`, `FOR UPDATE`, `LOAD_FILE`, `SLEEP` and `BENCHMARK`
-   refused by name.
+   refused by name. Rows **stream** and stop at the cap: a statement that
+   returns more is cut off at the socket, not buffered, so `SELECT * FROM sms`
+   costs the replica a few rows rather than 30 seconds of streaming. An
+   `EXPLAIN` runs first and the result notes a planned full scan over 1M
+   rows. Every statement is logged to stderr as a 12-char hash plus its shape
+   with literals replaced by `?`, never the literals.
 3. Transcripts come only from `kickoff-transcript-archive-production`, only at
    keys shaped `transcripts/v1/<id>/<generation>/assemblyai.json.gz`, only by
    way of the `file_transcript_artifacts` row that names the object, and only
    after the sha256 in that row matches the decompressed body.
-4. The answer rule. `zdr.md` names ids, rows, free text and transcript lines as
+4. Transcript budget: 30 distinct transcripts per rolling hour per server
+   process (re-reading or paging one is free). One prompt cannot pull the
+   archive into a session.
+5. Retention: `zdr-harness prune` deletes sessions that used any `kickoffdb_*`
+   tool after 7 days (`--db-days`), others after 14.
+6. The answer rule. `zdr.md` names ids, rows, free text and transcript lines as
    identifiers; the analyst sees them, the bridge never does.
 
 **Six tools:** `guide`, `list_tables`, `describe_table`, `query`,
@@ -417,6 +427,12 @@ tunnel start` opened the session under it with no profile or `~/.aws` files in
 reach. One implementation note: the archive stores gzip with
 `Content-Encoding: gzip`, and Node's `fetch` decompresses that transparently,
 so the server inflates only a body that still starts with the gzip magic.
+
+**Rotating `kudos_ro`.** SSM is the source of truth and the harness holds a
+copy. Rotate the password in RDS (an operator task, not the harness's), update
+`mysql-url-production-read-encrypted`, then update the 1Password item and run
+`zdr-harness set-token KICKOFF_ZDR_DB_URL`; `reload-auth` proves the new one
+through the tunnel.
 
 ## Setup from scratch
 
@@ -583,4 +599,7 @@ including raw Amplitude, BugSnag, PostHog and CloudWatch output, on this Mac.
 - **Tell your other agents to stay out.** A `Read(~/.zdr-harness/**)` deny rule
   in Claude Code and its Codex equivalent costs nothing and turns an accidental
   read into a refusal. Those are your config files, so they are not set here.
+- Sessions that touched the production database go after 7 days instead of
+  14: `prune` fetches each candidate's messages and looks for a `kickoffdb_*`
+  tool part.
 - Memory under `~/.zdr-harness/memory/` is deliberately exempt from all of this.

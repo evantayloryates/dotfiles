@@ -53,9 +53,10 @@ Usage: zdr-harness <command>
   reload-auth      Re-read the secrets file into the server (restart), then
                    report fingerprints and probe each token against its API
   logs             Tail the service logs
-  prune [--days N] [--dry-run]
-                   Delete sessions not updated in N days (default 14).
-                   The memory store is never pruned.
+  prune [--days N] [--db-days M] [--dry-run]
+                   Delete sessions not updated in N days (default 14), and
+                   sessions that used the production database after M days
+                   (default 7). The memory store is never pruned.
   tunnel start|stop|status
                    SSM port-forward to the production read replica via the
                    Kickoff Bastion, under the harness's own AWS key. With the
@@ -216,34 +217,53 @@ api_delete() {
       "${URL}$1"
 }
 
-# Sessions hold raw Amplitude and BugSnag tool output, so old ones go.
+# Sessions hold raw Amplitude and BugSnag tool output, so old ones go. Ones
+# that touched the production database hold rows and transcript text, so they
+# go sooner (--db-days, default 7).
 prune() {
-  local days=14 dry_run=0
+  local days=14 db_days=7 dry_run=0
   while (($#)); do
     case "$1" in
       --days) days="${2:-}"; shift 2 ;;
+      --db-days) db_days="${2:-}"; shift 2 ;;
       --dry-run) dry_run=1; shift ;;
       *) die "prune: unknown argument '$1'" ;;
     esac
   done
-  [[ "$days" =~ ^[0-9]+$ ]] || die "prune: --days needs a whole number"
+  [[ "$days" =~ ^[0-9]+$ && "$db_days" =~ ^[0-9]+$ ]] || die "prune: --days and --db-days need whole numbers"
   load_secrets
 
-  # Root sessions only: deleting a parent removes its children.
-  local ids
-  ids="$(api_get /session | DAYS="$days" DRY_RUN="$dry_run" /usr/bin/python3 -c '
+  # Root sessions only: deleting a parent removes its children. Sessions in the
+  # db window but not the general one are checked for kickoffdb_* tool parts.
+  local candidates
+  candidates="$(api_get /session | DAYS="$days" DB_DAYS="$db_days" /usr/bin/python3 -c '
 import json, os, sys, time
-days = int(os.environ["DAYS"])
-cutoff = (time.time() - days * 86400) * 1000
-sessions = json.load(sys.stdin)
-old = [s for s in sessions if not s.get("parentID") and s["time"]["updated"] < cutoff]
-sys.stderr.write("%d sessions, %d root sessions not updated in %d days\n" % (len(sessions), len(old), days))
-for s in old:
-    if os.environ["DRY_RUN"] == "1":
-        when = time.strftime("%Y-%m-%d", time.localtime(s["time"]["updated"] / 1000))
-        sys.stderr.write("  would delete %s  %s  %s\n" % (s["id"], when, s.get("title", "")[:80]))
-    print(s["id"])
+days, db_days = int(os.environ["DAYS"]), int(os.environ["DB_DAYS"])
+now = time.time() * 1000
+sessions = [s for s in json.load(sys.stdin) if not s.get("parentID")]
+sys.stderr.write("%d root sessions\n" % len(sessions))
+for s in sessions:
+    age = (now - s["time"]["updated"]) / 86400000
+    if age >= days: print("old", s["id"], s["time"]["updated"], json.dumps(s.get("title", "")[:80]))
+    elif age >= db_days: print("check", s["id"], s["time"]["updated"], json.dumps(s.get("title", "")[:80]))
 ')" || die "prune: could not list sessions"
+
+  local ids="" kind id updated title
+  while read -r kind id updated title; do
+    [[ "$id" =~ ^ses_[A-Za-z0-9]+$ ]] || continue
+    if [[ "$kind" == check ]]; then
+      api_get "/session/${id}/message" | /usr/bin/python3 -c '
+import json, sys
+parts = (p for m in json.load(sys.stdin) for p in m.get("parts", []))
+sys.exit(0 if any(p.get("type") == "tool" and str(p.get("tool", "")).startswith("kickoffdb_") for p in parts) else 1)
+' 2>/dev/null || continue
+      kind="db"
+    fi
+    if ((dry_run)); then
+      printf '  would delete %s  %s  %-3s %s\n' "$id" "$(date -r $((updated / 1000)) '+%Y-%m-%d')" "$kind" "$title" >&2
+    fi
+    ids+="$id "
+  done <<<"$candidates"
 
   ((dry_run)) && return 0
   local id deleted=0 failed=0
