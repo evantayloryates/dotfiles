@@ -102,6 +102,9 @@ load_secrets() {
   KICKOFF_ZDR_DB_TUNNEL_PORT="$(ENV_FILE="$SECRETS_FILE" env_get KICKOFF_ZDR_DB_TUNNEL_PORT 2>/dev/null || true)"
   KICKOFF_ZDR_DB_TUNNEL_PORT="${KICKOFF_ZDR_DB_TUNNEL_PORT:-33306}"
 
+  # Slack (ZDR Coach Insights bot). Optional: without it that server reports the missing token.
+  KICKOFF_SLACK_ZDR_BOT_TOKEN="$(ENV_FILE="$SECRETS_FILE" env_get KICKOFF_SLACK_ZDR_BOT_TOKEN 2>/dev/null || true)"
+
   # Cloudinary is optional too: without it that server reports the missing key.
   KICKOFF_CLOUDINARY_CLOUD_NAME="$(ENV_FILE="$SECRETS_FILE" env_get KICKOFF_CLOUDINARY_CLOUD_NAME 2>/dev/null || true)"
   KICKOFF_CLOUDINARY_API_KEY="$(ENV_FILE="$SECRETS_FILE" env_get KICKOFF_CLOUDINARY_API_KEY 2>/dev/null || true)"
@@ -173,6 +176,8 @@ isolated_env() {
     ZDR_MEMORY_DIR="${ZH}/memory" \
     ZDR_HARNESS_CLOUDINARY_MCP="${PROJECT_DIR}/mcps/cloudinary-mcp" \
     ZDR_HARNESS_DB_MCP="${PROJECT_DIR}/mcps/kickoff-db-mcp" \
+    ZDR_HARNESS_SLACK_MCP="${PROJECT_DIR}/mcps/kickoff-slack-mcp" \
+    KICKOFF_SLACK_ZDR_BOT_TOKEN="${KICKOFF_SLACK_ZDR_BOT_TOKEN:-}" \
     KICKOFF_ZDR_DB_URL="${KICKOFF_ZDR_DB_URL:-}" \
     KICKOFF_ZDR_DB_TUNNEL_PORT="${KICKOFF_ZDR_DB_TUNNEL_PORT:-33306}" \
     KICKOFF_CLOUDINARY_CLOUD_NAME="${KICKOFF_CLOUDINARY_CLOUD_NAME:-}" \
@@ -387,6 +392,23 @@ except Exception: print(0)' 2>/dev/null)"
     fi
   else
     printf '  cloudinary:     no key set (KICKOFF_CLOUDINARY_TOKEN empty)\n'
+  fi
+
+  if [[ -n "${KICKOFF_SLACK_ZDR_BOT_TOKEN:-}" ]]; then
+    printf 'header = "Authorization: Bearer %s"\n' "$KICKOFF_SLACK_ZDR_BOT_TOKEN" |
+      curl -sS -m 20 -K - -D /tmp/.zdr-probe-slack-h -o /tmp/.zdr-probe-slack https://slack.com/api/auth.test 2>/dev/null || true
+    local slack_ok slack_scopes
+    slack_ok="$(/usr/bin/python3 -c 'import json;d=json.load(open("/tmp/.zdr-probe-slack"));print("ok" if d.get("ok") else d.get("error","?"))' 2>/dev/null || echo '?')"
+    slack_scopes="$(grep -i '^x-oauth-scopes:' /tmp/.zdr-probe-slack-h 2>/dev/null | cut -d' ' -f2- | tr -d '\r')"
+    rm -f /tmp/.zdr-probe-slack /tmp/.zdr-probe-slack-h
+    if [[ "$slack_ok" == ok ]]; then
+      case "$slack_scopes" in *write*|*post*|*admin*) printf '  slack bot:      OK but scopes include a write scope (%s) — the app must stay read-only\n' "$slack_scopes" ;;
+        *) printf '  slack bot:      OK (scopes: %s)\n' "$slack_scopes" ;; esac
+    else
+      printf '  slack bot:      FAILED %s\n' "$slack_ok"
+    fi
+  else
+    printf '  slack bot:      no token set (KICKOFF_SLACK_ZDR_BOT_TOKEN empty)\n'
   fi
 
   # The logs credential is proven through the MCP server itself, so the probe

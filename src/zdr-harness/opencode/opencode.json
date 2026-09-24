@@ -100,7 +100,11 @@
     "kickoffdb_describe_table": "allow",
     "kickoffdb_query": "allow",
     "kickoffdb_transcript_list": "allow",
-    "kickoffdb_transcript_get": "allow"
+    "kickoffdb_transcript_get": "allow",
+    "slack_channels": "allow",
+    "slack_history": "allow",
+    "slack_thread": "allow",
+    "slack_members": "allow"
   },
   "agent": {
     "zdr": {
@@ -212,6 +216,16 @@
         "KICKOFF_ZDR_AWS_REGION": "{env:KICKOFF_ZDR_AWS_REGION}",
         "KICKOFF_ZDR_DB_URL": "{env:KICKOFF_ZDR_DB_URL}",
         "KICKOFF_ZDR_DB_TUNNEL_PORT": "{env:KICKOFF_ZDR_DB_TUNNEL_PORT}"
+      },
+      "timeout": 120000
+    },
+    "slack": {
+      "type": "local",
+      "command": [
+        "{env:ZDR_HARNESS_SLACK_MCP}"
+      ],
+      "environment": {
+        "KICKOFF_SLACK_ZDR_BOT_TOKEN": "{env:KICKOFF_SLACK_ZDR_BOT_TOKEN}"
       },
       "timeout": 120000
     }

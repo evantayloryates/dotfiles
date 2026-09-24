@@ -2,11 +2,11 @@
 
 A locked-down OpenCode 1.18.31 server on `http://127.0.0.1:4096` (LaunchAgent
 `com.taylor.zdr-harness`). It runs only on Kickoff's zero-data-retention OpenAI
-key (BAA-covered, so PHI may reach it) and exposes 65 named tools: read-only
+key (BAA-covered, so PHI may reach it) and exposes 69 named tools: read-only
 Amplitude and BugSnag ones, PostHog's single `exec` router, four CloudWatch Logs
 readers, ten read-only Cloudinary asset tools, eight Cloudinary configuration
-readers, six live-production-database and transcript readers, four memory
-tools, and `todowrite`. Two agents split by destination:
+readers, six live-production-database and transcript readers, four Slack
+channel readers, four memory tools, and `todowrite`. Two agents split by destination:
 `analyst` (default, full detail, read by Taylor in the app) and `zdr` (what the
 bridge always asks, de-identified to HIPAA Safe Harbor because Claude Code and
 Codex have no BAA). Claude Code and Codex reach it through the `zdr_ask` MCP tool
@@ -19,6 +19,10 @@ truth**: design, lockdown, app, verification. Read it before changing anything.
 - **`mcps/kickoff-logs` is harness-only.** Production Lambda logs carry request
   payloads and client free text. Never register that server in Claude Code,
   Codex or any other non-ZDR client, and never add a write API to it.
+- **`mcps/kickoff-slack` is harness-only.** The ZDR Coach Insights bot token
+  reads per-client support channels whose names are client names. Never
+  register it elsewhere, never add a write scope to the app, and never quote a
+  message in a test question's answer.
 - **The database tunnel belongs to launchd.** `com.taylor.zdr-harness-tunnel`
   keeps the SSM port-forward open; do not start a second one by hand, and
   never start one with a laptop profile. `zdr-harness tunnel status` says who

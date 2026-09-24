@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Launcher for the harness-only kickoff-slack MCP server: read-only access to
+# the Slack channels the "ZDR Coach Insights" bot is in. The harness passes the
+# bot token through opencode.json; nothing else may be pointed at this script
+# because those channels hold client PHI. See ../README.md.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+. "${SCRIPT_DIR}/../../lib/resolve-binary.sh"
+
+NODE="$(resolve_binary node)"
+
+exec "$NODE" "${SCRIPT_DIR}/kickoff-slack/index.mjs"

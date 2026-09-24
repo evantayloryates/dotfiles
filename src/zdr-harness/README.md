@@ -15,7 +15,8 @@ Claude Code / Codex ──zdr_ask──▶ zdr-ask MCP (src/mcps/zdr-ask) ──
                                                                          ├─▶ api.cloudinary.com (assets + config, key/secret)
                                                                          ├─▶ logs.<region>.amazonaws.com (SigV4, read-only)
                                                                          ├─▶ 127.0.0.1:33306 ─SSM tunnel─▶ prod read replica (kudos_ro)
-                                                                         └─▶ kickoff-transcript-archive-production.s3 (SigV4 + KMS)
+                                                                         ├─▶ kickoff-transcript-archive-production.s3 (SigV4 + KMS)
+                                                                         └─▶ slack.com/api (bot token, read-only)
 ```
 
 **BAA and ZDR.** Kickoff's OpenAI account is covered by a BAA (confirmed
@@ -46,6 +47,7 @@ contains: OpenAI and this Mac may hold PHI; Claude Code and Codex may not.
 | `src/zdr-harness/mcps/kickoff-logs/` + `kickoff-logs-mcp` | Harness-only MCP server for production Lambda logs (see [Lambda logs](#lambda-logs)) |
 | `src/zdr-harness/mcps/cloudinary-mcp` | Launcher for Cloudinary's two official MCP servers, assets and config (see [Cloudinary](#cloudinary)) |
 | `src/zdr-harness/mcps/kickoff-db/` + `kickoff-db-mcp` | Harness-only MCP server for the LIVE production database and archived call transcripts (see [Production database](#production-database)) |
+| `src/zdr-harness/mcps/kickoff-slack/` + `kickoff-slack-mcp` | Harness-only MCP server for the Slack channels the ZDR Coach Insights bot is in (see [Slack](#slack)) |
 | `src/zdr-harness/certs/rds-global-bundle.pem` | Amazon RDS CA bundle the database connection is verified against |
 | `src/zdr-harness/iam/` | The policy of record for the `zdr-harness-logs` AWS user |
 | `~/.zdr-harness/opt/` | Pinned OpenCode install (`opencode-ai@1.18.31`) |
@@ -348,6 +350,35 @@ and usage totals, which the restricted key used to 403 on.
 The launcher runs both servers under an explicit `node` from `resolve-binary.sh`:
 the packaged bin is `#!/usr/bin/env node` and the harness PATH has no `node`, so
 the shebang alone cannot start it.
+
+## Slack
+
+`src/zdr-harness/mcps/kickoff-slack` reads the channels the **ZDR Coach
+Insights** Slack app has been invited to: the dietitian channel, the RD bugs
+channel, and the ~600 per-client `<first>-<last>-support-team` channels. Four
+read tools — `channels`, `history`, `thread`, `members` — over four Web API
+methods; the app's scopes (`channels:read`, `channels:history`, `groups:read`,
+`groups:history`, `users:read`) allow nothing that writes, and `reload-auth`
+warns if a write scope ever appears on the token.
+
+**Why it is harness-only.** A support channel's name is a client's name and
+its messages are staff discussing that client's health. The bot was created
+for this harness and its purpose is written into the app's Slack profile so an
+admin auditing installed apps sees who consumes it and why. The token lives in
+`src/zdr-harness/.env` as `KICKOFF_SLACK_ZDR_BOT_TOKEN` (1Password personal
+account, Kickoff vault, "ZDR Slack Bot").
+
+**Access is channel membership.** A bot cannot join a private channel by
+itself; someone in each channel runs `/invite @ZDR Coach Insights`. The plan
+for the 600 support channels (a one-time installer app with a member's user
+token, and inviting at channel creation going forward) is written up
+separately with the app manifest; for the pilot, a handful of manual invites.
+
+**Reads are live.** `conversations.history` is Tier 3 (~50 calls/min), every
+read is bounded (200 messages, 1500 chars per message) and paged with
+`since`/`until`. Bot tokens cannot call `search.messages`, so cross-channel
+questions over hundreds of channels need the local cache the plan describes;
+that is a separate, explicit decision and is not built.
 
 ## Production database
 

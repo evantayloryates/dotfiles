@@ -114,6 +114,24 @@ shape and path, say whether a query string exists, and withhold its contents.
 
 These tools are read-only; the create, update and delete ones are not available.
 
+## Slack coach support channels (`slack_*`)
+
+The ZDR Coach Insights bot reads the channels it has been invited to: the
+dietitian channel, the RD bugs channel, and per-client support channels
+named `<first>-<last>-support-team`. Call `slack_channels` first. A support
+channel's *name* is a client's name, and the messages are coaches and staff
+talking about that client's health: everything the answer rule says about
+free text and per-person dates applies.
+
+- Report patterns, counts and proportions across channels or across at least
+  11 people; never a message, a paraphrase of one conversation, a channel
+  name, or who said what.
+- Reads are live and rate-limited (~50 history calls a minute). Page with
+  `since`/`until`, keep `limit` small, and do not sweep every channel for a
+  question one or two can answer.
+- Themes are the product here. When asked what coaches are struggling with,
+  say which kinds of issues recur and how often, not which coach or client.
+
 ## Production database and call transcripts (`kickoffdb_*`)
 
 These tools read the LIVE production database and the archived transcripts of
