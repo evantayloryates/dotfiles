@@ -47,7 +47,7 @@ contains: OpenAI and this Mac may hold PHI; Claude Code and Codex may not.
 | `src/zdr-harness/mcps/kickoff-logs/` + `kickoff-logs-mcp` | Harness-only MCP server for production Lambda logs (see [Lambda logs](#lambda-logs)) |
 | `src/zdr-harness/mcps/cloudinary-mcp` | Launcher for Cloudinary's two official MCP servers, assets and config (see [Cloudinary](#cloudinary)) |
 | `src/zdr-harness/mcps/kickoff-db/` + `kickoff-db-mcp` | Harness-only MCP server for the LIVE production database and archived call transcripts (see [Production database](#production-database)) |
-| `src/zdr-harness/mcps/kickoff-slack/` + `kickoff-slack-mcp` | Harness-only MCP server for the Slack channels the ZDR Coach Insights bot is in (see [Slack](#slack)) |
+| `src/zdr-harness/mcps/kickoff-slack/` + `kickoff-slack-mcp` | Harness-only MCP server for the Slack channels the Field Notes bot is in (see [Slack](#slack)) |
 | `src/zdr-harness/certs/rds-global-bundle.pem` | Amazon RDS CA bundle the database connection is verified against |
 | `src/zdr-harness/iam/` | The policy of record for the `zdr-harness-logs` AWS user |
 | `~/.zdr-harness/opt/` | Pinned OpenCode install (`opencode-ai@1.18.31`) |
@@ -366,10 +366,10 @@ its messages are staff discussing that client's health. The bot was created
 for this harness and its purpose is written into the app's Slack profile so an
 admin auditing installed apps sees who consumes it and why. The token lives in
 `src/zdr-harness/.env` as `KICKOFF_SLACK_ZDR_BOT_TOKEN` (1Password personal
-account, Kickoff vault, "ZDR Slack Bot").
+account, Kickoff vault, "Field Notes Slack Bot").
 
 **Access is channel membership.** A bot cannot join a private channel by
-itself; someone in each channel runs `/invite @ZDR Coach Insights`. The plan
+itself; someone in each channel runs `/invite @Field Notes`. The plan
 for the 600 support channels (a one-time installer app with a member's user
 token, and inviting at channel creation going forward) is written up
 separately with the app manifest; for the pilot, a handful of manual invites.

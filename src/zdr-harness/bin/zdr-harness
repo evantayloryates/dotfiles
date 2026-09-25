@@ -102,7 +102,7 @@ load_secrets() {
   KICKOFF_ZDR_DB_TUNNEL_PORT="$(ENV_FILE="$SECRETS_FILE" env_get KICKOFF_ZDR_DB_TUNNEL_PORT 2>/dev/null || true)"
   KICKOFF_ZDR_DB_TUNNEL_PORT="${KICKOFF_ZDR_DB_TUNNEL_PORT:-33306}"
 
-  # Slack (ZDR Coach Insights bot). Optional: without it that server reports the missing token.
+  # Slack (Field Notes bot). Optional: without it that server reports the missing token.
   KICKOFF_SLACK_ZDR_BOT_TOKEN="$(ENV_FILE="$SECRETS_FILE" env_get KICKOFF_SLACK_ZDR_BOT_TOKEN 2>/dev/null || true)"
 
   # Cloudinary is optional too: without it that server reports the missing key.

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // kickoff-slack: a zero-dependency MCP stdio server giving the ZDR harness
-// read-only access to the Slack channels the "ZDR Coach Insights" bot has been
+// read-only access to the Slack channels the Field Notes bot has been
 // invited to — coach support conversations, which are client PHI.
 //
 // Harness-only. The bot token must never be registered in Claude Code, Codex
@@ -37,7 +37,7 @@ async function slack(method, params = {}) {
   if (!TOKEN) {
     throw new ToolError(
       'No Slack token: set KICKOFF_SLACK_ZDR_BOT_TOKEN in src/zdr-harness/.env (1Password: personal account, Kickoff vault, ' +
-        '"ZDR Slack Bot" → bot token), then run: zdr-harness reload-auth'
+        '"Field Notes Slack Bot" → bot token), then run: zdr-harness reload-auth'
     )
   }
   const body = new URLSearchParams()
@@ -62,7 +62,7 @@ async function slack(method, params = {}) {
     const data = await res.json().catch(() => ({}))
     if (!data.ok) {
       const hint =
-        data.error === 'not_in_channel' ? ' (the bot has not been invited to that channel: /invite @ZDR Coach Insights)' :
+        data.error === 'not_in_channel' ? ' (the bot has not been invited to that channel: /invite @Field Notes)' :
         data.error === 'channel_not_found' ? ' (no such channel, or the bot cannot see it)' :
         data.error === 'invalid_auth' || data.error === 'token_revoked' ? ' (the bot token is invalid; reinstall the app and set-token)' : ''
       throw new ToolError(`Slack ${method} failed: ${data.error || `HTTP ${res.status}`}${hint}`)
@@ -159,7 +159,7 @@ async function render(messages, channel) {
 
 async function channels() {
   const list = await paged('users.conversations', { types: 'public_channel,private_channel', exclude_archived: true }, 'channels', 1000)
-  if (!list.length) return 'The bot is not in any channel yet. Someone in each target channel must run: /invite @ZDR Coach Insights'
+  if (!list.length) return 'The bot is not in any channel yet. Someone in each target channel must run: /invite @Field Notes'
   const lines = list
     .sort((a, b) => a.name.localeCompare(b.name))
     .map((c) => `${c.id}  #${c.name}  ${c.is_private ? 'private' : 'public'}  members=${c.num_members ?? '?'}${c.purpose?.value ? `  purpose: ${c.purpose.value.slice(0, 80)}` : ''}`)
@@ -273,7 +273,7 @@ createInterface({ input: process.stdin }).on('line', async (line) => {
       capabilities: { tools: { listChanged: false } },
       serverInfo: { name: 'kickoff-slack', version: '1.0.0' },
       instructions:
-        'Read-only Slack channels the ZDR Coach Insights bot is in: coach support conversations. Call channels first. ' +
+        'Read-only Slack channels the Field Notes bot is in: coach support conversations. Call channels first. ' +
         'Messages are client free text: report patterns and counts, never a quote or a name outside the harness.',
     })
   } else if (method === 'tools/list') {

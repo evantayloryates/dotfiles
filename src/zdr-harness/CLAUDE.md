@@ -19,7 +19,7 @@ truth**: design, lockdown, app, verification. Read it before changing anything.
 - **`mcps/kickoff-logs` is harness-only.** Production Lambda logs carry request
   payloads and client free text. Never register that server in Claude Code,
   Codex or any other non-ZDR client, and never add a write API to it.
-- **`mcps/kickoff-slack` is harness-only.** The ZDR Coach Insights bot token
+- **`mcps/kickoff-slack` is harness-only.** The Field Notes bot token
   reads per-client support channels whose names are client names. Never
   register it elsewhere, never add a write scope to the app, and never quote a
   message in a test question's answer.

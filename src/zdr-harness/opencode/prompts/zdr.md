@@ -116,7 +116,7 @@ These tools are read-only; the create, update and delete ones are not available.
 
 ## Slack coach support channels (`slack_*`)
 
-The ZDR Coach Insights bot reads the channels it has been invited to: the
+The Field Notes bot reads the channels it has been invited to: the
 dietitian channel, the RD bugs channel, and per-client support channels
 named `<first>-<last>-support-team`. Call `slack_channels` first. A support
 channel's *name* is a client's name, and the messages are coaches and staff
