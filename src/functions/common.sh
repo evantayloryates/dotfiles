@@ -292,7 +292,7 @@ __clipsend_free_path() {
 clipsend() {
   # Typed in full rather than through `cs`? $funcstack[2] is the caller.
   if [[ "${funcstack[2]}" != cs ]]; then
-    printf '💡 Use `cs` instead of `clipsend`\n\n' >&2
+    printf 'Use \e[32mcs\e[0m instead of \e[31mclipsend\e[0m\n\n' >&2
   fi
 
   local desktop="$HOME/Desktop"
