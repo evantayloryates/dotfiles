@@ -7,12 +7,19 @@ Output-shaping flags (-p, --stat, --graph, --oneline, --format, …) hand the
 whole command back to native git, and so does any stdout that isn't a
 terminal. `command git log …` always skips this.
 
-    2ca00e3  8m ago  evantayloryates   subject up to 50 columns, cut at a word…   (HEAD -> master, origin/master)
-                                       ↳ the rest of that subject
-                                       body, reflowed, at most two lines, and if more is left we…
+    2ca00e3  8m ago  evantayloryates   subject that fits the column                (HEAD -> master, origin/master)
+                                       body, reflowed, at most BODY_LINES lines, then…
+    6518397  1h ago  evantayloryates   subject too long for the column, cut at a wo…
+                                       ↳ rd boundary when one is near the edge. Then the
+                                       body follows on the same line, up to BODY_LINES…
 
-Every … and ↳ drawn in ANNOTATIONS_COLOR was added here; any that come from
-the commit message itself keep the message's color.
+Widths come from the terminal: the subject column takes what is left after the
+fixed lead (hash, age, author) and room for the first row's refs, within
+SUBJECT_MIN..SUBJECT_MAX. The refs list always starts two columns past the
+subject column, so a cut subject fills the column to within EDGE_SLACK of the
+edge: at a word boundary when one lands there, mid-word otherwise. Every … and
+↳ drawn in ANNOTATIONS_COLOR was added here; any that come from the commit
+message itself keep the message's color. Continuation and body text are dim.
 
 Git config: none is required. Rows come from an explicit --format, so
 format.pretty, log.date and log.abbrevCommit don't change them. Honoured:
@@ -23,6 +30,7 @@ format.pretty, log.date and log.abbrevCommit don't change them. Honoured:
   color.decorate.*                 the ref colors in the trailing (…) list
 Environment:
   TERM_UNICODE (src/exports/terminal.sh)   0 swaps … and ↳ for ... and ->
+  COLUMNS                                  overrides the terminal's reported width
 
 GitHub usernames: a users.noreply.github.com email carries the login. Any other
 email is looked up with `gh api` in the background after the page is shown and
@@ -40,13 +48,15 @@ import sys
 import time
 import unicodedata
 
-ANNOTATIONS_COLOR = "33"  # yellow
+ANNOTATIONS_COLOR = "33"  # yellow: every … and ↳ this script adds
 HASH_COLOR = "90"         # gray, so the hash recedes
 AGE_COLOR = "32"
 AUTHOR_COLOR = "34"
-BODY_COLOR = "2"          # dim
-SUBJECT_WIDTH = 50
-BODY_LINES = 2
+BODY_COLOR = "2"          # dim: subject continuation and body preview
+SUBJECT_MIN, SUBJECT_MAX = 40, 100
+REFS_RESERVE = 30         # columns kept for the (refs) list when the first row's is narrower
+EDGE_SLACK = 2            # a cut subject may end this far short of the column edge to stop on a word
+BODY_LINES = 2            # lines under the subject: its continuation, then the body
 AGE_WIDTH = 7             # "12m ago", "51w ago"
 AUTHOR_WIDTH = 16
 
@@ -88,22 +98,22 @@ def cut(s, w):
     return "".join(out)
 
 
-def wrap(text, w):
+def wrap(text, w, first_w=None):
+    """Greedy word wrap to w columns; the first line may have its own width."""
     lines, line = [], ""
+    limit = w if first_w is None else first_w
     for word in text.split():
-        while width(word) > w:  # a single word wider than the column
-            if line:
-                lines.append(line)
-                line = ""
-            lines.append(cut(word, w))
-            word = word[len(lines[-1]):]
-        if not line:
-            line = word
-        elif width(line) + 1 + width(word) <= w:
+        if line and width(line) + 1 + width(word) <= limit:
             line += " " + word
-        else:
+            continue
+        if line:
             lines.append(line)
-            line = word
+            line, limit = "", w
+        while width(word) > limit:  # a single word wider than the column
+            piece = cut(word, limit)
+            lines.append(piece)
+            word, limit = word[len(piece):], w
+        line = word
     if line:
         lines.append(line)
     return lines
@@ -190,8 +200,9 @@ def records(stream):
 
 
 class Formatter:
-    def __init__(self, color):
-        self.color, self.now, self.hash_w = color, int(time.time()), None
+    def __init__(self, color, cols):
+        self.color, self.cols, self.now = color, cols, int(time.time())
+        self.hash_w = self.indent_w = self.subject_w = None
         self.logins = Logins()
 
     def c(self, code, s):
@@ -200,13 +211,37 @@ class Formatter:
     def more(self):
         return self.c(ANNOTATIONS_COLOR, ELLIPSIS)
 
-    def fit(self, s, w):
-        """s cut to w columns, with an annotation … when anything was dropped."""
-        return s if width(s) <= w else cut(s, w) + self.more()
+    def calibrate(self, short, deco_w):
+        """Column widths, from the first row: its hash length and refs width."""
+        self.hash_w = len(short)
+        self.indent_w = self.hash_w + 2 + AGE_WIDTH + 1 + AUTHOR_WIDTH + 2
+        free = self.cols - self.indent_w
+        reserve = min(max(REFS_RESERVE, deco_w), free // 2)  # a huge branch name can't take the whole row
+        self.subject_w = max(SUBJECT_MIN, min(SUBJECT_MAX, free - reserve))
+
+    def split_subject(self, subject):
+        """(head, head_w, rest): the part of the subject that fits the column, its
+        width including the … when cut, and what continues on the ↳ line."""
+        w = self.subject_w
+        if width(subject) <= w:
+            return subject, width(subject), ""
+        room = w - width(ELLIPSIS)
+        head = cut(subject, room)
+        space = head.rfind(" ")
+        if space > 0 and width(head[:space]) >= room - EDGE_SLACK:
+            head = head[:space]
+        rest = subject[len(head):].strip()
+        head = head.rstrip()
+        return head + self.more(), width(head) + width(ELLIPSIS), rest
 
     def row(self, rec):
         short, ts, email, sha, deco, subject, body = (rec.split("\x1f") + [""] * 7)[:7]
-        self.hash_w = self.hash_w or len(short)
+        deco = re.sub(r"^((?:\x1b\[[0-9;]*m)*) ", r"\1", deco)  # %d's own leading space, inside its colors
+        deco_w = width(SGR.sub("", deco))
+        if self.subject_w is None:
+            self.calibrate(short, deco_w)
+        w = self.subject_w
+
         login, known = self.logins.get(email, sha)
         shown = login if width(login) <= AUTHOR_WIDTH else cut(login, AUTHOR_WIDTH - width(ELLIPSIS))
         who = self.c(AUTHOR_COLOR if known else f"2;{AUTHOR_COLOR}", shown) + (self.more() if shown != login else "")
@@ -214,36 +249,34 @@ class Formatter:
         lead = (self.c(HASH_COLOR, short.ljust(self.hash_w)) + "  " +
                 self.c(AGE_COLOR, age(int(ts or 0), self.now).ljust(AGE_WIDTH)) + " " +
                 who + " " * (AUTHOR_WIDTH - who_w + 2))
-        indent = " " * (self.hash_w + 2 + AGE_WIDTH + 1 + AUTHOR_WIDTH + 2)
+        indent = " " * self.indent_w
 
-        # Subject: whole when it fits in SUBJECT_WIDTH; otherwise cut at a word
-        # boundary, marked with …, and the rest continues on a ↳ line.
-        rest = ""
-        if width(subject) <= SUBJECT_WIDTH:
-            head, head_w = subject, width(subject)
-        else:
-            head = cut(subject, SUBJECT_WIDTH)
-            space = head.rfind(" ")
-            head = head[:space] if space >= SUBJECT_WIDTH // 2 else head
-            rest = subject[len(head):].lstrip()
-            head_w = width(head) + width(ELLIPSIS)
-            head = head.rstrip() + self.more()
+        head, head_w, rest = self.split_subject(subject)
         first = lead + head
-        if SGR.sub("", deco).strip():  # deco carries color codes even when there are no refs
-            first += " " * (SUBJECT_WIDTH + width(ELLIPSIS) - head_w + 1) + deco.lstrip()
+        if deco_w:
+            first += " " * (w - head_w + 2) + deco  # refs always start two columns past the subject column
         out = [first]
-        if rest:
-            out.append(indent + self.c(ANNOTATIONS_COLOR, ARROW) + " " +
-                       self.fit(rest, SUBJECT_WIDTH - width(ARROW) - 1))
 
-        # Body preview, reflowed. A closing block of trailers (Co-authored-by:, …) isn't prose.
+        # Under the subject: its continuation, then the body reflowed after it. A
+        # closing block of trailers (Co-authored-by:, …) isn't prose and is dropped.
         paras = re.split(r"\n\s*\n", body.strip())
         if paras[-1] and all(TRAILER.match(l) for l in paras[-1].splitlines()):
             paras.pop()
-        lines = wrap(" ".join(paras), SUBJECT_WIDTH)
-        for i, line in enumerate(lines[:BODY_LINES]):
-            tail = self.more() if i == BODY_LINES - 1 and len(lines) > BODY_LINES else ""
-            out.append(indent + self.c(BODY_COLOR, line) + tail)
+        flat = " ".join(" ".join(paras).split())
+        arrow_w = width(ARROW) + 1
+        if rest:
+            text = rest if not flat else rest + ("" if rest[-1] in ".!?…" else ".") + " " + flat
+            lines = wrap(text, w, w - arrow_w)
+        else:
+            lines = wrap(flat, w)
+        shown_lines = lines[:BODY_LINES]
+        if len(lines) > BODY_LINES:  # mark the cut, keeping the last line inside the column
+            last_w = (w - arrow_w) if (rest and len(shown_lines) == 1) else w
+            shown_lines[-1] = cut(shown_lines[-1], last_w - width(ELLIPSIS)).rstrip()
+        for i, line in enumerate(shown_lines):
+            prefix = self.c(ANNOTATIONS_COLOR, ARROW) + " " if rest and i == 0 else ""
+            tail = self.more() if len(lines) > BODY_LINES and i == len(shown_lines) - 1 else ""
+            out.append(indent + prefix + self.c(BODY_COLOR, line) + tail)
         return "\n".join(out) + "\n"
 
 
@@ -275,9 +308,10 @@ def main(args):
     # git log colors by color.diff, falling back to color.ui; "true" = stdout is a terminal.
     color = subprocess.run(["git", "config", "--get-colorbool", "color.diff", "true"],
                            capture_output=True, text=True).stdout.strip() == "true"
+    cols = shutil.get_terminal_size((120, 40)).columns  # $COLUMNS, else the tty's own size
     git = subprocess.Popen(["git", "log", f"--format={FORMAT}", f"--color={'always' if color else 'never'}", *args],
                            stdout=subprocess.PIPE)
-    fmt = Formatter(color)
+    fmt = Formatter(color, cols)
     out, pager = pager_for(tty)
     try:
         for rec in records(git.stdout):
