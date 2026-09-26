@@ -8,7 +8,6 @@ setopt interactive_comments  # Allow inline # comments in interactive shell
 # Editor
 export EDITOR='vim'
 export VISUAL='vim'
-export GIT_PAGER=cat
 
 # History
 export HISTSIZE=10000
