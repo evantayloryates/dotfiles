@@ -63,6 +63,9 @@ grep -qF "$ZSHENV_LINE" "$ZSHENV" || printf '\n# Load exported dotfiles env (.en
 # actually missing. macOS only; never fatal.
 bash "$DOTFILES_DIR/install_brew.sh"
 
+# Global git settings, and what `git log` relies on (see the file's header).
+bash "$DOTFILES_DIR/install_git.sh"
+
 # Shell-independent op wrapper and its user LaunchAgents.
 bash "$DOTFILES_DIR/install_op_agent.sh"
 

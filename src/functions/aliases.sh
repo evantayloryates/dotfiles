@@ -6,6 +6,7 @@
 __kitsrc() { /Applications/kitty.app/Contents/MacOS/kitty @ load-config "$HOME/.config/kitty/kitty.conf"  ;} #
 abs     () { realpath -- "$@"                                                                             ;} # Note: -- ends option parsing so paths that start with a dash (e.g. Claude project dirs named -Users-taylor-src-github-r1) are treated as paths, not flags
 convert () { magick "$@"                                                                                  ;} # 
+cs      () { clipsend "$@"                                                                                ;} # Note: clipsend nags when typed in full; it spots this wrapper via $funcstack
 cur     () { if [ $# -eq 0 ]; then command cursor --classic "$(pwd -P 2>/dev/null || pwd)"; else command cursor --classic "$@"; fi ;} # Note: resolved from PATH, not hard-coded — the brew cask links /opt/homebrew/bin/cursor, Cursor's own "Install command" links /usr/local/bin/cursor
 dc      () { docker compose "$@"                                                                          ;} # 
 env     () { if [ $# -eq 0 ]; then clear; python3 "$DOTFILES_DIR/src/python/env.py"; else /usr/bin/env "$@"; fi ;} # Note: bare env pretty-prints (secrets masked; ENV_REVEAL=1 reveals); with args, real /usr/bin/env
@@ -14,7 +15,7 @@ ga      () { git add "$@"                                                       
 gb      () { gbs "$@"                                                                                     ;} #
 gbv     () { gbs --verbose "$@"                                                                           ;} #
 gc      () { git commit "$@"                                                                              ;} # 
-git     () { if [[ $# -eq 2 && "$1" == "branch" && "$2" == "c" ]]; then gbc; else /usr/bin/git "$@"; fi ;} #
+git     () { if [[ $# -eq 2 && "$1" == "branch" && "$2" == "c" ]]; then gbc; elif [[ "$1" == "log" && -t 1 ]]; then shift; git_log_pretty "$@"; else /usr/bin/git "$@"; fi ;} # Note: `git log` in a terminal → git_log_pretty (git/log_pretty.sh); piped/captured stays native, as does `command git log`
 gl      () { git_log_local_pretty                                                                         ;} # 
 gp      () { git push "$@"                                                                                ;} # 
 gs      () { git status "$@"                                                                              ;} # Note: this will overwrite /opt/homebrew/bin/gs (Ghostscript) interactively only; scripts/ImageMagick still resolve it from PATH, and `command gs` reaches it

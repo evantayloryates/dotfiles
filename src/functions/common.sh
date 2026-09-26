@@ -285,11 +285,16 @@ __clipsend_free_path() {
 }
 
 # Save the clipboard to ~/Desktop and put the saved path on the clipboard.
-#   clipsend [name]
+#   clipsend [name]    (or its alias: cs [name])
 # Text is written as-is. A copied Finder file (or several) is copied over with
 # its own name. Image data (screenshot, "Copy Image") is saved as PNG, or as
 # the format the name's extension asks for (.jpg, .tiff, .gif, .bmp).
 clipsend() {
+  # Typed in full rather than through `cs`? $funcstack[2] is the caller.
+  if [[ "${funcstack[2]}" != cs ]]; then
+    printf '💡 Use `cs` instead of `clipsend`\n\n' >&2
+  fi
+
   local desktop="$HOME/Desktop"
   local custom_name="${1##*/}"
   local helper="$DOTFILES_DIR/src/javascript/clipsend-pasteboard.js"
