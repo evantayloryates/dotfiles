@@ -1,43 +1,43 @@
 # Copy a command's output to the clipboard by appending a global alias:
 #   <command> cl    copies "<pwd> $ <command>" followed by the output
 #   <command> cll   copies the output only
-# Works at the end of pipelines (`foo | grep bar cl`). ANSI (CSI + OSC) is stripped.
+# Works at the end of pipelines (`foo | grep bar cl`). ANSI (CSI + OSC) and the
+# trailing newline are stripped.
+#
+# Known gaps:
+#  - stderr isn't captured (e.g. `dc logs --tail=200 --follow sidekiq cl` on error)
+#  - no closing `$` line to mark where the next prompt begins
 
 setopt extendedglob
-__CLIP_LASTLINE=''
-__CLIP_PWD=''
-preexec() {
-  __CLIP_LASTLINE="$2"
-  __CLIP_PWD="${PWD:A}"
-}
 
-__split () {
+__CL_LASTLINE=''
+__CL_PWD=''
+_cl_preexec() {
+  __CL_LASTLINE="$2"   # alias-expanded command line, so it ends in "| __cl <mode>"
+  __CL_PWD="${PWD:A}"
+}
+autoload -Uz add-zsh-hook 2>/dev/null
+add-zsh-hook preexec _cl_preexec 2>/dev/null
+
+__cl () {
   local mode="${1:-full}"
-  local cmd="$__CLIP_LASTLINE"
-  cmd="${cmd%%[[:space:]]##\|[[:space:]]##__split([[:space:]]##)(full|compact)([[:space:]]##)#}" # drop "| __split …"
-
   case "$mode" in
-    full)
-      {
-        printf '%s $ %s\n' "${__CLIP_PWD:-${PWD:A}}" "$cmd"
-        cat
-      } | strip_ansi | /usr/bin/pbcopy
-      ;;
-    compact)
-      cat | strip_ansi | /usr/bin/pbcopy
-      ;;
-    *)
-      printf '__split: unknown mode %q\n' "$mode" >&2
-      return 1
-      ;;
+    full|compact) ;;
+    *) printf '__cl: unknown mode %q\n' "$mode" >&2; return 1 ;;
   esac
+
+  {
+    if [[ "$mode" == full ]]; then
+      local cmd="${__CL_LASTLINE%%[[:space:]]##\|[[:space:]]##__cl([[:space:]]##)(full|compact)([[:space:]]##)#}"
+      printf '%s $ %s\n' "${__CL_PWD:-${PWD:A}}" "$cmd"
+    fi
+    cat
+  } | perl -pe '
+    s/(?:\e\[|\x9b)[0-9;?]*[a-zA-Z]//g;   # CSI
+    s/\e\][^\e]*?(?:\a|\e\\)//g;         # OSC
+    chomp if eof
+  ' | /usr/bin/pbcopy
 }
 
-# Cases that failed:
-#  - docker compose up -d --remove-orphans cl
-#  - dc logs --tail=200 --follow --ansi=always sidekiq cl
-#   - this command throws an error, so we may need to update the logic to capture stderr as well
-# improvements:
-#  - add final $ line to indicate where the new terminal prompt begins
-alias -g cl='| __split full'
-alias -g cll='| __split compact'
+alias -g cl='| __cl full'
+alias -g cll='| __cl compact'

@@ -226,16 +226,6 @@ note() {
   cat > "${1:-/dev/stdout}"
 }
 
-# strips ANSI (CSI + OSC); used by the `cl` / `cll` clipboard aliases
-strip_ansi() {
-  perl -pe '
-    # Strip ANSI escape sequences (CSI + OSC)
-    s/(?:\e\[|\x9b)[0-9;?]*[a-zA-Z]//g;
-    s/\e\][^\e]*?(?:\a|\e\\)//g;
-    chomp if eof
-  '
-}
-
 # safemv <src> <dest>
 # Silently move src to dest with strict two-arg semantics.
 # Success (0):
