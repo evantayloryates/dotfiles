@@ -1,0 +1,261 @@
+#!/usr/bin/python3
+"""Add Field Notes to a coach's support channel only after that coach agrees.
+
+    field-notes-consent whoami
+    field-notes-consent find NAME                 private channel id by exact name
+    field-notes-consent request CHANNEL COACH [--text FILE] [--dry-run]
+    field-notes-consent adopt CHANNEL COACH MESSAGE_TS   track a request posted by hand
+    field-notes-consent sync [--dry-run]
+    field-notes-consent status
+
+How consent works. The operator (the person who installed the Field Notes
+Setup app, and a member of every coach channel) posts one request in the
+channel. The coach answers with a reaction: ✅ means yes, ❌ means no. `sync`
+reads each request's reactions and makes membership match: coach's ✅ and no
+Field Notes -> invite; ✅ removed or ❌ and Field Notes present because of this
+tool -> remove. Nothing is inferred from anyone else's reaction.
+
+What it touches. It posts the request as the operator, reads reactions on
+that one message, and adds or removes one member. It never reads the
+conversation. The ledger keeps ids and timestamps only (channel names are
+people's names), under ~/.zdr-harness/field-notes/ at mode 600.
+
+The operator's user token is read from 1Password at run time and never
+written to disk. See ../README.md, "Slack".
+"""
+import argparse
+import datetime as dt
+import json
+import os
+import subprocess
+import sys
+import urllib.parse
+import urllib.request
+from pathlib import Path
+
+FIELD_NOTES_BOT_USER = os.environ.get('FIELD_NOTES_BOT_USER', 'U0C465AKPBP')
+TOKEN_REF = os.environ.get('FIELD_NOTES_OPERATOR_TOKEN_REF', 'op://Kickoff/eh3plzvy74x2cmkwdvp6crgkwi/oauth token')
+OP_ACCOUNT = os.environ.get('FIELD_NOTES_OP_ACCOUNT', 'my.1password.com')
+LEDGER_DIR = Path(os.environ.get('FIELD_NOTES_LEDGER_DIR', Path.home() / '.zdr-harness' / 'field-notes'))
+LEDGER = LEDGER_DIR / 'consent.jsonl'
+YES, NO = 'white_check_mark', 'x'
+
+# Say plainly that earlier messages become readable: an invite unlocks the
+# channel's whole history (proven 2026-09-26), so consent has to cover it.
+DEFAULT_REQUEST = (
+    "Hi {coach}! Quick ask: could we add *Field Notes* to this channel?\n\n"
+    "It helps Cameron and the product team spot patterns across coach support conversations, so we can "
+    "keep up with what coaches need. It would be able to read this channel, including earlier messages, "
+    "but it never posts here, and client details are scrubbed and anonymized before anything gets summarized.\n\n"
+    "React with :white_check_mark: if that's okay or :x: if you'd rather not. Either answer is completely fine. "
+    "You can change your mind any time by changing your reaction, and Field Notes will leave the channel."
+)
+
+_token = None
+
+
+def token():
+    global _token
+    if _token is None:
+        try:
+            _token = subprocess.run(['op', 'read', TOKEN_REF, '--account', OP_ACCOUNT],
+                                    check=True, capture_output=True, text=True, timeout=180).stdout.strip()
+        except Exception as err:
+            sys.exit(f'field-notes-consent: could not read the operator token from 1Password ({err.__class__.__name__})')
+        if not _token.startswith('xoxp-'):
+            sys.exit('field-notes-consent: the 1Password field does not hold a user token (xoxp-)')
+    return _token
+
+
+def slack(method, **params):
+    data = urllib.parse.urlencode({k: v for k, v in params.items() if v is not None}).encode()
+    req = urllib.request.Request(f'https://slack.com/api/{method}', data=data,
+                                 headers={'Authorization': f'Bearer {token()}'})
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        body = json.load(resp)
+        body['_scopes'] = resp.headers.get('x-oauth-scopes')
+    return body
+
+
+def must(method, **params):
+    body = slack(method, **params)
+    if not body.get('ok'):
+        sys.exit(f'field-notes-consent: {method} failed: {body.get("error")}')
+    return body
+
+
+def members(channel):
+    out, cursor = set(), None
+    while True:
+        body = must('conversations.members', channel=channel, limit=1000, cursor=cursor)
+        out.update(body.get('members', []))
+        cursor = body.get('response_metadata', {}).get('next_cursor')
+        if not cursor:
+            return out
+
+
+def now():
+    return dt.datetime.now(dt.timezone.utc).isoformat(timespec='seconds')
+
+
+def record(event):
+    LEDGER_DIR.mkdir(parents=True, exist_ok=True)
+    os.chmod(LEDGER_DIR, 0o700)
+    with open(LEDGER, 'a') as f:
+        f.write(json.dumps({'at': now(), **event}) + '\n')
+    os.chmod(LEDGER, 0o600)
+
+
+def events():
+    if not LEDGER.exists():
+        return []
+    return [json.loads(line) for line in LEDGER.read_text().splitlines() if line.strip()]
+
+
+def state():
+    """Latest request per channel, and what this tool last did there."""
+    channels = {}
+    for e in events():
+        c = channels.setdefault(e['channel'], {'channel': e['channel']})
+        if e['type'] == 'requested':
+            c.update(coach=e['coach'], ts=e['ts'], requested_at=e['at'], answer='pending', bot=c.get('bot', 'absent'))
+        elif e['type'] in ('invited', 'removed'):
+            c['bot'] = 'present' if e['type'] == 'invited' else 'absent'
+            c['changed_at'] = e['at']
+        elif e['type'] == 'answer':
+            c['answer'] = e['answer']
+    return channels
+
+
+def cmd_whoami(_):
+    b = must('auth.test')
+    print(f'operator @{b["user"]} ({b["user_id"]}) in {b["team"]}; scopes: {b["_scopes"]}')
+
+
+def cmd_find(a):
+    cursor = None
+    while True:
+        b = must('conversations.list', types='private_channel', exclude_archived='true', limit=1000, cursor=cursor)
+        for c in b.get('channels', []):
+            if c['name'] == a.name:
+                print(c['id'])
+                return
+        cursor = b.get('response_metadata', {}).get('next_cursor')
+        if not cursor:
+            sys.exit(f'field-notes-consent: no private channel named {a.name} that the operator is in')
+
+
+def cmd_request(a):
+    me = must('auth.test')['user_id']
+    in_channel = members(a.channel)
+    if me not in in_channel:
+        sys.exit('field-notes-consent: the operator is not a member of that channel')
+    if a.coach not in in_channel:
+        sys.exit('field-notes-consent: the coach is not a member of that channel; nothing posted')
+    if FIELD_NOTES_BOT_USER in in_channel:
+        sys.exit('field-notes-consent: Field Notes is already in that channel; nothing posted')
+    open_request = state().get(a.channel)
+    if open_request and open_request.get('answer') == 'pending' and not a.force:
+        sys.exit('field-notes-consent: that channel already has an unanswered request (use --force to post another)')
+    text = Path(a.text).read_text() if a.text else DEFAULT_REQUEST
+    text = text.replace('{coach}', f'<@{a.coach}>')
+    if a.dry_run:
+        print(f'dry run: would post a consent request in {a.channel} for coach {a.coach}')
+        return
+    b = must('chat.postMessage', channel=a.channel, text=text, unfurl_links='false')
+    record({'type': 'requested', 'channel': a.channel, 'coach': a.coach, 'ts': b['ts'], 'by': me})
+    print(f'requested: {a.channel} coach={a.coach} ts={b["ts"]}')
+
+
+def cmd_adopt(a):
+    """Track a consent request someone posted by hand, e.g. Cameron in her own words."""
+    in_channel = members(a.channel)
+    if a.coach not in in_channel:
+        sys.exit('field-notes-consent: the coach is not a member of that channel')
+    b = slack('reactions.get', channel=a.channel, timestamp=a.ts, full='true')
+    if not b.get('ok'):
+        sys.exit(f'field-notes-consent: cannot see that message ({b.get("error")}); pass its ts, e.g. 1790456339.198229')
+    me = must('auth.test')['user_id']
+    record({'type': 'requested', 'channel': a.channel, 'coach': a.coach, 'ts': a.ts, 'by': me, 'adopted': True})
+    print(f'adopted: {a.channel} coach={a.coach} ts={a.ts}')
+
+
+def answer_for(channel, ts, coach):
+    b = must('reactions.get', channel=channel, timestamp=ts, full='true')
+    reacted = {r['name']: set(r.get('users', [])) for r in b.get('message', {}).get('reactions', [])}
+    yes, no = coach in reacted.get(YES, set()), coach in reacted.get(NO, set())
+    if yes and not no:
+        return 'yes'
+    if no:
+        return 'no'
+    return 'pending'
+
+
+def cmd_sync(a):
+    changes = 0
+    for ch, s in state().items():
+        if 'ts' not in s:
+            continue
+        ans = answer_for(ch, s['ts'], s['coach'])
+        present = FIELD_NOTES_BOT_USER in members(ch)
+        if ans != s.get('answer'):
+            if not a.dry_run:
+                record({'type': 'answer', 'channel': ch, 'answer': ans})
+        action = None
+        if ans == 'yes' and not present:
+            action = 'invite'
+        elif ans != 'yes' and present and s.get('bot') == 'present':
+            action = 'remove'
+        elif ans != 'yes' and present:
+            print(f'{ch}: Field Notes is present without a recorded yes (added by hand?); left alone, check with the coach')
+        line = f'{ch}: coach={s["coach"]} answer={ans} field_notes={"present" if present else "absent"}'
+        if not action:
+            print(f'{line} -> no change')
+            continue
+        changes += 1
+        if a.dry_run:
+            print(f'{line} -> would {action}')
+            continue
+        if action == 'invite':
+            b = slack('conversations.invite', channel=ch, users=FIELD_NOTES_BOT_USER)
+            if not b.get('ok') and b.get('error') != 'already_in_channel':
+                print(f'{line} -> invite FAILED: {b.get("error")}')
+                continue
+            record({'type': 'invited', 'channel': ch})
+        else:
+            b = slack('conversations.kick', channel=ch, user=FIELD_NOTES_BOT_USER)
+            if not b.get('ok') and b.get('error') != 'not_in_channel':
+                print(f'{line} -> remove FAILED: {b.get("error")}')
+                continue
+            record({'type': 'removed', 'channel': ch})
+        print(f'{line} -> {action}d')
+    print(f'{changes} change(s){" (dry run)" if a.dry_run else ""}')
+
+
+def cmd_status(_):
+    rows = state()
+    if not rows:
+        print('no requests yet')
+    for ch, s in rows.items():
+        print(f'{ch}  coach={s.get("coach")}  answer={s.get("answer")}  field_notes={s.get("bot")}  '
+              f'requested={s.get("requested_at")}  changed={s.get("changed_at", "-")}')
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    sub = p.add_subparsers(dest='cmd', required=True)
+    sub.add_parser('whoami').set_defaults(fn=cmd_whoami)
+    f = sub.add_parser('find'); f.add_argument('name'); f.set_defaults(fn=cmd_find)
+    r = sub.add_parser('request'); r.add_argument('channel'); r.add_argument('coach')
+    r.add_argument('--text'); r.add_argument('--dry-run', action='store_true'); r.add_argument('--force', action='store_true')
+    r.set_defaults(fn=cmd_request)
+    ad = sub.add_parser('adopt'); ad.add_argument('channel'); ad.add_argument('coach'); ad.add_argument('ts')
+    ad.set_defaults(fn=cmd_adopt)
+    s = sub.add_parser('sync'); s.add_argument('--dry-run', action='store_true'); s.set_defaults(fn=cmd_sync)
+    sub.add_parser('status').set_defaults(fn=cmd_status)
+    a = p.parse_args()
+    a.fn(a)
+
+
+if __name__ == '__main__':
+    main()

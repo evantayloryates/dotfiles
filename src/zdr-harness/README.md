@@ -374,6 +374,18 @@ for the 600 support channels (a one-time installer app with a member's user
 token, and inviting at channel creation going forward) is written up
 separately with the app manifest; for the pilot, a handful of manual invites.
 
+**Consent before access.** Field Notes joins a coach's channel only after the
+coach agrees. `tools/field-notes-consent` runs as the operator (Cameron in
+production) through a second, user-token app, **Field Notes Setup**: it posts
+one request, reads the coach's reaction on that message (✅ yes, ❌ no), and
+`sync` adds or removes Field Notes to match. It never reads the conversation,
+never touches any member but the Field Notes bot, and keeps a ledger of IDs
+and timestamps in `~/.zdr-harness/field-notes/consent.jsonl`. The operator
+token is read from 1Password at run time. Verified 2026-09-26: invite on ✅,
+removal on ❌, idempotent reruns, and Field Notes reading messages posted
+before it joined, so one consented invite unlocks the channel's full history.
+Plan and findings: `~/src/docs/html/slack-zdr-app-integration-workflow/`.
+
 **Reads are live.** `conversations.history` is Tier 3 (~50 calls/min), every
 read is bounded (200 messages, 1500 chars per message) and paged with
 `since`/`until`. Bot tokens cannot call `search.messages`, so cross-channel
