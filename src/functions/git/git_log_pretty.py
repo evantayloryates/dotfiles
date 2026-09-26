@@ -25,9 +25,11 @@ Environment:
   TERM_UNICODE (src/exports/terminal.sh)   0 swaps … and ↳ for ... and ->
 
 GitHub usernames: a users.noreply.github.com email carries the login. Any other
-email is looked up once with `gh api` in the background after the page is shown
-and cached in ~/.cache/dotfiles/github-logins.tsv; until then the email's local
-part stands in, dimmed.
+email is looked up with `gh api` in the background after the page is shown and
+cached in ~/.cache/dotfiles/github-logins.tsv (email, login, time; add a line by
+hand to pin one). Until a login is known the email's local part stands in,
+dimmed. Emails GitHub has no account for, or repos gh can't read, are retried
+after a day.
 """
 import os
 import re
@@ -54,7 +56,7 @@ ARROW = "↳" if UNICODE else "->"
 
 CACHE = os.path.join(os.environ.get("XDG_CACHE_HOME") or os.path.expanduser("~/.cache"),
                      "dotfiles", "github-logins.tsv")
-RETRY_UNKNOWN_AFTER = 7 * 86400
+RETRY_UNKNOWN_AFTER = 86400
 MAX_LOOKUPS = 20
 NOREPLY = re.compile(r"^(?:\d+\+)?([^@]+)@users\.noreply\.github\.com$", re.I)
 
@@ -136,7 +138,7 @@ class Logins:
         if login:
             return login, True
         if ts is None or time.time() - ts > RETRY_UNKNOWN_AFTER:
-            self.pending.setdefault(email.lower(), sha)
+            self.pending[email.lower()] = sha  # the oldest one on the page: likeliest to be pushed
         return email.split("@")[0], False
 
     def resolve_later(self):
@@ -155,15 +157,27 @@ class Logins:
 def resolve_logins(repo, pairs):
     """Background: ask GitHub which account each commit's author email maps to."""
     os.makedirs(os.path.dirname(CACHE), exist_ok=True)
-    for email, sha in zip(pairs[::2], pairs[1::2]):
+    emails, shas = pairs[::2], pairs[1::2]
+    for i, (email, sha) in enumerate(zip(emails, shas)):
         try:
             r = subprocess.run(["gh", "api", f"repos/{repo}/commits/{sha}", "--jq", '.author.login // ""'],
                                capture_output=True, text=True, timeout=20)
         except (OSError, subprocess.TimeoutExpired):
-            continue
-        if r.returncode == 0:  # network/auth failures aren't cached; next run retries
-            with open(CACHE, "a", encoding="utf-8") as fh:
-                fh.write(f"{email}\t{r.stdout.strip()}\t{int(time.time())}\n")
+            return
+        if r.returncode == 0:
+            found = {email: r.stdout.strip()}
+        elif re.search(r"HTTP 40[34]", r.stderr):
+            # gh can't see this repo, so no lookup here will work: rest them all
+            # for RETRY_UNKNOWN_AFTER instead of retrying on every git log.
+            found = {e: "" for e in emails[i:]}
+        elif "HTTP 422" in r.stderr:
+            continue  # this commit was never pushed; a later git log samples another
+        else:
+            return  # offline or similar; the next git log retries
+        with open(CACHE, "a", encoding="utf-8") as fh:
+            fh.writelines(f"{e}\t{login}\t{int(time.time())}\n" for e, login in found.items())
+        if r.returncode != 0:
+            return
 
 
 def records(stream):
@@ -233,9 +247,9 @@ class Formatter:
         return "\n".join(out) + "\n"
 
 
-def pager_for(color_output):
+def pager_for(tty):
     """Where to write: git's pager when stdout is a terminal, else stdout."""
-    if not color_output:
+    if not tty:
         return sys.stdout, None
     cmd = subprocess.run(["git", "var", "GIT_PAGER"], capture_output=True, text=True).stdout.strip() or "less"
     if cmd == "cat":
