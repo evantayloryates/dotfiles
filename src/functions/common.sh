@@ -226,17 +226,7 @@ note() {
   cat > "${1:-/dev/stdout}"
 }
 
-pbcopy() {  
-  if [ -t 0 ]; then
-    clip "$@"
-  else
-    cblue() { echo -e "\033[34m$*\033[0m"; }
-    cblue "Tip: use 'clip <command>' to copy command output directly" >&2
-    /usr/bin/pbcopy "$@"
-  fi
-}
-
-# strips ANSI (CSI + OSC) then copies 
+# strips ANSI (CSI + OSC); used by the `cl` / `cll` clipboard aliases
 strip_ansi() {
   perl -pe '
     # Strip ANSI escape sequences (CSI + OSC)
