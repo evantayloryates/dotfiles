@@ -15,9 +15,11 @@ terminal. `command git log …` always skips this.
 
 Widths come from the terminal: the subject column takes what is left after the
 fixed lead (hash, age, author) and room for the first row's refs, within
-SUBJECT_MIN..SUBJECT_MAX. The refs list always starts two columns past the
-subject column, so a cut subject fills the column to within EDGE_SLACK of the
-edge: at a word boundary when one lands there, mid-word otherwise. Every … and
+SUBJECT_MIN..SUBJECT_MAX. That room is capped at half the free width, so one
+huge branch name wraps its own row instead of squeezing every subject. The
+refs list always starts two columns past the subject column, so a cut subject
+fills the column to within EDGE_SLACK of the edge: at a word boundary when one
+lands there, mid-word otherwise. Every … and
 ↳ drawn in ANNOTATIONS_COLOR was added here; any that come from the commit
 message itself keep the message's color. Continuation and body text are dim.
 
@@ -215,7 +217,7 @@ class Formatter:
         """Column widths, from the first row: its hash length and refs width."""
         self.hash_w = len(short)
         self.indent_w = self.hash_w + 2 + AGE_WIDTH + 1 + AUTHOR_WIDTH + 2
-        free = self.cols - self.indent_w
+        free = self.cols - self.indent_w - 2  # the two columns between subject and refs
         reserve = min(max(REFS_RESERVE, deco_w), free // 2)  # a huge branch name can't take the whole row
         self.subject_w = max(SUBJECT_MIN, min(SUBJECT_MAX, free - reserve))
 
