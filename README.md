@@ -277,6 +277,65 @@ reload_dotfiles  # or use the alias: dr
 
 ## 🎯 Customization
 
+### Save the clipboard with `cs`
+
+`cs [name]` (or `clipsend [name]`) saves clipboard content to `~/Desktop`,
+prints the saved path, and copies that path back to the clipboard.
+
+```zsh
+cs my-json-results  # Valid JSON -> ~/Desktop/my-json-results.json
+cs                  # Valid JSON -> ~/Desktop/clipsend-HHMMSS-N-lines.json
+cs notes.txt        # Explicit extension wins; content stays unchanged
+```
+
+Extension inference runs for both custom names without an extension and the
+generated default name. It preserves the original bytes, including whitespace,
+line endings, and BOMs. Existing names get `-1`, `-2`, etc. before the extension.
+A leading dot alone is not an extension (`.notes` can become `.notes.json`);
+a trailing dot is replaced by the inferred suffix (`notes.` becomes `notes.json`).
+
+The ordered detection strategy is:
+
+1. Recognizable binary signatures: PNG, JPEG, GIF, TIFF, WebP, PDF, ZIP, gzip,
+   and WAV. These identify the format/container; they do not validate the file.
+2. Fully parsed JSON (including scalar values), then JSONL with at least two
+   object/array records, one per line. Invalid JSON and nonstandard `NaN`/`Infinity`
+   do not qualify.
+3. Parsed XML/SVG and HTML documents or recognizable XML-compatible HTML fragments.
+   XML entity declarations are rejected. HTML document markers also identify HTML
+   that does not follow XML syntax.
+4. RTF, vCard, iCalendar markers; recognized shell, Python, Node, Ruby, Perl, or
+   Fish shebangs; parsed TOML when Python 3.11+ is available.
+5. Rectangular TSV/CSV with at least two rows and two columns. CSV additionally
+   requires a unique, simple header and avoids typical comma-separated prose.
+   Headerless CSV and ambiguous prose can intentionally fall back to text.
+6. Markdown with a closed fenced code block, or a heading plus another Markdown
+   construct. Everything else gets `.txt`, including ambiguous YAML and source
+   code without a shebang. Detection failure also falls back to `.txt`.
+
+Text inference examines complete content up to 16 MiB. Larger content uses only
+binary signatures or `.txt`; a partial JSON/XML prefix never counts as valid.
+Python's standard library is sufficient; there are no new package dependencies.
+
+Finder files keep their source extensions when renamed without one; extensionless
+files use inference, even without a custom name. Directories keep their names.
+Multiple Finder files ignore a custom name. Clipboard images retain the existing
+behavior: PNG by default, with explicit `.jpg`/`.jpeg`, `.tif`/`.tiff`, `.gif`,
+or `.bmp` selecting conversion. Unsupported image suffixes get `.png` appended.
+Finder files take precedence over text, and text over an accompanying image.
+
+The shell entry point is `src/functions/clipsend.sh`; content inference is in
+`src/python/clipsend.py`; macOS pasteboard access is in
+`src/javascript/clipsend-pasteboard.js`. Reload an existing terminal with
+`source ~/dotfiles/src/functions/clipsend.sh`, or open a new terminal.
+
+Run the inference and isolated shell regression tests (without changing the
+system clipboard or your Desktop):
+
+```bash
+python3 -B -m unittest discover -s src/python/tests -p 'test_clipsend.py' -v
+```
+
 ### Path functions
 
 Edit `src/python/pathfuncs.py` to add directory/file helpers and aliases. For
