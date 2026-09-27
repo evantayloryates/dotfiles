@@ -290,10 +290,7 @@ __clipsend_free_path() {
 # its own name. Image data (screenshot, "Copy Image") is saved as PNG, or as
 # the format the name's extension asks for (.jpg, .tiff, .gif, .bmp).
 clipsend() {
-  # Typed in full rather than through `cs`? $funcstack[2] is the caller.
-  if [[ "${funcstack[2]}" != cs ]]; then
-    printf 'Use \e[32mcs\e[0m instead of \e[31mclipsend\e[0m\n\n' >&2
-  fi
+  __alias_nudge cs
 
   local desktop="$HOME/Desktop"
   local custom_name="${1##*/}"

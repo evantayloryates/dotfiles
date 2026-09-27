@@ -6,7 +6,7 @@
 __kitsrc() { /Applications/kitty.app/Contents/MacOS/kitty @ load-config "$HOME/.config/kitty/kitty.conf"  ;} #
 abs     () { realpath -- "$@"                                                                             ;} # Note: -- ends option parsing so paths that start with a dash (e.g. Claude project dirs named -Users-taylor-src-github-r1) are treated as paths, not flags
 convert () { magick "$@"                                                                                  ;} # 
-cs      () { clipsend "$@"                                                                                ;} # Note: clipsend nags when typed in full; it spots this wrapper via $funcstack
+cs      () { clipsend "$@"                                                                                ;} # Note: clipsend nudges toward cs when typed in full (alias_nudge.sh)
 cur     () { if [ $# -eq 0 ]; then command cursor --classic "$(pwd -P 2>/dev/null || pwd)"; else command cursor --classic "$@"; fi ;} # Note: resolved from PATH, not hard-coded — the brew cask links /opt/homebrew/bin/cursor, Cursor's own "Install command" links /usr/local/bin/cursor
 dc      () { docker compose "$@"                                                                          ;} # 
 env     () { if [ $# -eq 0 ]; then clear; python3 "$DOTFILES_DIR/src/python/env.py"; else /usr/bin/env "$@"; fi ;} # Note: bare env pretty-prints (secrets masked; ENV_REVEAL=1 reveals); with args, real /usr/bin/env
@@ -28,7 +28,8 @@ py      () { python "$@"                                                        
 py3     () { python "$@"                                                                                  ;} # 
 python  () { /Users/taylor/.venvs/dotfiles/bin/python -q "$@"                                             ;} # 
 python3 () { python "$@"                                                                                  ;} # 
-reload  () { __kitsrc; clear; source "$HOME/dotfiles/src/index.sh"                                        ;} # Note: `src` is the ~/src pathfunc
+reload  () { __kitsrc; clear; __alias_nudge rl; source "$HOME/dotfiles/src/index.sh"                        ;} # Note: `src` is the ~/src pathfunc; nudges toward rl when typed in full (alias_nudge.sh)
+rl      () { reload "$@"                                                                                  ;} # 
 touch   () { if [ "$#" -eq 1 ] && [[ "$1" != -* ]]; then /bin/mkdir -p "${1:h}" && /usr/bin/touch "$1"; else /usr/bin/touch "$@"; fi ;} #
 
 
