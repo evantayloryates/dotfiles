@@ -3,8 +3,6 @@ import os
 import shlex
 import tempfile
 
-HOME = '/Users/taylor'
-
 # path macros
 #
 # Sub pathfuncs: an entry with parent_func='<slug>' is a standalone pathfunc that is
@@ -14,8 +12,6 @@ HOME = '/Users/taylor'
 # selectors win over the `<subcmd> <path>` fallthrough.
 def p(slug, path, default='cd', commands=None, aliases=None, alias_cmds=None,
       sub_funcs=None, parent_func=None):
-  if path.startswith('~'):
-    path = HOME + path[1:]
   entry = {'slug': slug, 'path': path, 'default': default, 'commands': commands or {}}
   if aliases:
     entry['aliases'] = aliases
@@ -47,9 +43,10 @@ CONFIG = [
     commands={'clean': '__desk_clean <args>'}),
   p('documents',   '~/Documents',                       'cd', aliases=['docs', 'doc', 'Documents']),
   p('domputer',    '~/src/github/domputer',             'cd', aliases=['dom']),
-  p('dotfiles',    '~/src/github/dotfiles',             'cd', aliases=['dot']),
+  p('dotfiles',    '$DOTFILES_DIR',                     'cd', aliases=['dot']),
   p('downloads',   '~/Downloads',                       'cd', aliases=['down', 'Downloads']),
   p('github',      '~/src/github',                      'cd', aliases=['ghb', 'gthb', 'ghub', 'gith']),
+  p('home',        '~',                                 'cd', aliases=['Home']),
   p('html',        '~/src/docs/html',                   'select', aliases=['htm'],
     commands={'select': '__html_select <path>'}),
   p('ideas',       '~/Desktop/ideas',                   'cd'),
@@ -58,13 +55,13 @@ CONFIG = [
   # Connect directly: `devpod up` reruns host-init and can remove the running DB.
   p('kickoff',     '~/src/github/kickoff',              'cd', aliases=['kick', 'kck'],
     commands={'code': KICKOFF_CONTAINER, 'container': KICKOFF_CONTAINER}),
-  p('kit',         '~/.config/kitty/',                  aliases=['kitty'], commands={'reload': '/Applications/kitty.app/Contents/MacOS/kitty @ load-config /Users/taylor/.config/kitty/kitty.conf'}),
+  p('kit',         '~/.config/kitty',                   aliases=['kitty'], commands={'reload': '/Applications/kitty.app/Contents/MacOS/kitty @ load-config <path>/kitty.conf'}),
   p('library',     '~/Library',                         'cd', aliases=['lib', 'Library']),
   p('mac',         '~/src/macos',                       'cd', aliases=['macos']),
   p('movies',      '~/Movies',                          'cd', aliases=['mov', 'Movies']),
   p('music',       '~/Music',                           'cd', aliases=['Music']),
   p('notes',       '~/Desktop/notes'),
-  p('pathfuncs',   '~/dotfiles/src/python/pathfuncs.py','code', commands={'code': 'code <path>'}, aliases=['pathfunc', 'pathfns', 'pathfn', 'pathfuns', 'pathfun', 'pthfuncs', 'pthfunc', 'pthfns', 'pthfn', 'pthfuns', 'pthfun', 'pfuncs', 'pfunc', 'pfns', 'pfn', 'pfuns', 'pfun' ]),
+  p('pathfuncs',   '$DOTFILES_DIR/src/python/pathfuncs.py','code', commands={'code': 'code <path>'}, aliases=['pathfunc', 'pathfns', 'pathfn', 'pathfuns', 'pathfun', 'pthfuncs', 'pthfunc', 'pthfns', 'pthfn', 'pthfuns', 'pthfun', 'pfuncs', 'pfunc', 'pfns', 'pfn', 'pfuns', 'pfun' ]),
   p('pictures',    '~/Pictures',                        'cd', aliases=['pics', 'pic', 'Pictures']),
   p('plans',       '~/src/docs/plans',                  'open', aliases=['pln', 'plan']),
   p('pod',         '~/src/github/podsauce',             'cd'),
@@ -82,10 +79,10 @@ CONFIG = [
     commands={
       'disable': 'safemv <path>/.git/hooks/pre-commit <path>/.git/hooks/pre-commit.disabled && echo "pre-commit disabled" || echo "failed to disable"',
       'enable': 'safemv <path>/.git/hooks/pre-commit.disabled <path>/.git/hooks/pre-commit && echo "pre-commit enabled" || echo "failed to enable"',
-      'exec': '__amplify_exec <args>',
-      'logs': '__amplify_logs <args>',
-      'log': '__amplify_logs <args>',
-      'restart': '__amplify_restart <args>',
+      'exec': '__amplify_exec <args_text>',
+      'logs': '__amplify_logs <args_text>',
+      'log': '__amplify_logs <args_text>',
+      'restart': '__amplify_restart <args_text>',
       'ssh': '__ssh_prod',
       'prod': '__ssh_prod',
       'stage': '__ssh_stage',
@@ -95,13 +92,13 @@ CONFIG = [
   ),
   p('nex',         '~/src/github/nexrender-scripts',    'dev',
     commands={
-      'dev'      : '/Users/taylor/src/github/nexrender-scripts/scripts/local/ssh',
-      'get'      : '/Users/taylor/src/github/nexrender-scripts/scripts/local/get <args>',
-      'ssh'      : 'make -C /Users/taylor/src/github/nexrender-api ssh',
-      'vnc'      : 'make -C /Users/taylor/src/github/nexrender-api vnc',
-      'pwd'      : 'make -C /Users/taylor/src/github/nexrender-api send-pwd',
-      'password' : 'make -C /Users/taylor/src/github/nexrender-api send-pwd',
-      'tmux'     : '/Users/taylor/src/github/nexrender-scripts/scripts/local/nex.sh',
+      'dev'      : '<path>/scripts/local/ssh',
+      'get'      : '<path>/scripts/local/get <args>',
+      'ssh'      : 'make -C <path>/../nexrender-api ssh',
+      'vnc'      : 'make -C <path>/../nexrender-api vnc',
+      'pwd'      : 'make -C <path>/../nexrender-api send-pwd',
+      'password' : 'make -C <path>/../nexrender-api send-pwd',
+      'tmux'     : '<path>/scripts/local/nex.sh',
     }
   ),
 ]
@@ -144,6 +141,21 @@ def validate(config):
         taken[name] = f"sub func '{sub_slug}'"
 
 
+def shell_path(path):
+  """Quote literal paths; resolve supported roots in the invoking shell.
+
+  Only a leading ~, $HOME or $DOTFILES_DIR (also ${...}) is dynamic.
+  The rest is literal, including spaces, quotes and shell metacharacters.
+  """
+  for root, variable in [('~', 'HOME'), ('$HOME', 'HOME'), ('${HOME}', 'HOME'),
+                         ('$DOTFILES_DIR', 'DOTFILES_DIR'),
+                         ('${DOTFILES_DIR}', 'DOTFILES_DIR')]:
+    if path == root or path.startswith(root + '/'):
+      return f'"${{{variable}}}"' + shlex.quote(path[len(root):])
+  # ~user means that user's home, never a suffix of the current user's home.
+  return shlex.quote(os.path.expanduser(path))
+
+
 def build_function(entry, subs=()):
   slug = fn_name(entry)
   path = entry['path']
@@ -156,9 +168,9 @@ def build_function(entry, subs=()):
 
   fn = [
     f'{slug}() {{',
+    f'  local __pf_target={shell_path(path)}',
     '  local subcmd="$1"',
     '  if [[ $# -gt 0 ]]; then shift; fi',
-    '  local args="$@"',
     '  case "$subcmd" in'
   ]
 
@@ -171,8 +183,9 @@ def build_function(entry, subs=()):
 
   for name, cmd in commands.items():
     cmd_str = (
-      cmd.replace('<path>', path)
-         .replace('<args>', '"$args"')
+      cmd.replace('<path>', '"$__pf_target"')
+         .replace('<args>', '"$@"')
+         .replace('<args_text>', '"$*"')
     )
     fn.append(f'    {name})')
     fn.append(f'      {cmd_str}')
@@ -185,17 +198,16 @@ def build_function(entry, subs=()):
 
   fn.append('    "" )')
   if default in commands:
-    fn.append(f'      "$0" "{default}" "$@"')
+    fn.append(f'      {slug} "{default}" "$@"')
   else:
-    fn.append(f'      {default} "{path}"')
+    fn.append(f'      {default} "$__pf_target"')
   # Passthrough: run the command as typed from inside the target (a file target
   # "goes to" its parent dir). __pathfuncs_in returns to the original dir unless
   # the command itself changed directory.
-  target_dir = os.path.dirname(path) if os.path.isfile(path) else path
   fn.extend([
     '      ;;',
     '    * )',
-    f'      __pathfuncs_in "{target_dir}" "$subcmd" "$@"',
+    '      __pathfuncs_in "$__pf_target" "$subcmd" "$@"',
     '      ;;',
     '  esac',
     '}'

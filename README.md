@@ -277,6 +277,35 @@ reload_dotfiles  # or use the alias: dr
 
 ## 🎯 Customization
 
+### Path functions
+
+Edit `src/python/pathfuncs.py` to add directory/file helpers and aliases. For
+example, `p('home', '~', aliases=['Home'])` makes both `home` and `Home` change to
+your home directory. Run `paths` to list helpers, then open a new shell or run
+`reload_dotfiles` after editing the configuration.
+
+- Paths beginning with `~`, `$HOME`, or `${HOME}` use the invoking shell's home
+  directory. `$DOTFILES_DIR` and `${DOTFILES_DIR}` use the active dotfiles checkout.
+  These roots resolve on each invocation, so generation does not bake in a username
+  or checkout location. Absolute paths remain absolute; `~user` uses Python's
+  normal named-user expansion when generating. Other environment variables are
+  treated literally.
+- Custom command templates use `<path>` for the safely quoted target and `<args>`
+  for separate arguments (including spaces and empty arguments). Use
+  `<args_text>` only for commands expecting all arguments joined into one string.
+  Do not add quotes around these placeholders; suffixes such as `<path>/scripts/run`
+  can be appended directly. Command templates themselves are trusted shell code.
+- Commands such as `home git status` run inside the target and restore the caller's
+  directory afterward. An explicit directory change, such as `home cd`, stays put.
+  For file targets, passthrough commands use the file's parent directory, checked
+  at invocation time. Missing targets report an error without running the command.
+
+Run the generated-shell regression checks with:
+
+```bash
+python3 -B -m unittest discover -s src/python/tests -p 'test_pathfuncs.py' -v
+```
+
 ### Add a new alias
 Create `src/aliases/myaliases.sh`:
 ```bash

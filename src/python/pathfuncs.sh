@@ -7,7 +7,7 @@ __pathfuncs_py() {
 
 # Passthrough transaction: `dot git status` runs `git status` as if typed inside
 # the pathfunc target, then returns to where the caller was.
-#   __pathfuncs_in <target dir> <command> [args...]
+#   __pathfuncs_in <target file or dir> <command> [args...]
 # Runs in the caller's shell (no subshell), so the command drives the outcome: if
 # it changes directory itself (`dot cd ~/.ssh`, or a global remap like `cd .`) the
 # new dir sticks; otherwise PWD, OLDPWD and the dir stack are restored. The move in
@@ -17,6 +17,8 @@ __pathfuncs_chpwd() { __pf_moved=1 }
 
 __pathfuncs_in() {
   local __pf_dir="${1:?target dir required}"; shift
+  # Check at invocation: files can appear after generation or HOME can change.
+  [[ -f "$__pf_dir" ]] && __pf_dir="${__pf_dir:h}"
   # Global remap only on an exact match of everything typed after the trigger.
   local __pf_key="$*"
   local __pf_cmd="${__PATHFUNCS_GLOBALS[$__pf_key]}"
@@ -88,7 +90,7 @@ __html_select() {
   __pathfuncs_run_select html "${1:?html root required}"
 }
 
-# Desktop arrangement — args arrive as one string from the generated case arm.
+# Desktop arrangement — preserve flags and paths as separate arguments.
 __desk_clean() {
-  python3 "$DOTFILES_DIR/src/python/desktop.py" clean ${=1}
+  python3 "$DOTFILES_DIR/src/python/desktop.py" clean "$@"
 }
