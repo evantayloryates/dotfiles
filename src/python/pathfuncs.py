@@ -46,6 +46,7 @@ CONFIG = [
   p('dotfiles',    '$DOTFILES_DIR',                     'cd', aliases=['dot']),
   p('downloads',   '~/Downloads',                       'cd', aliases=['down', 'Downloads']),
   p('github',      '~/src/github',                      'cd', aliases=['ghb', 'gthb', 'ghub', 'gith']),
+  p('health',      '~/Documents/Health',                'cd', aliases=['Health']),
   p('home',        '~',                                 'cd', aliases=['Home']),
   p('html',        '~/src/docs/html',                   'select', aliases=['htm'],
     commands={'select': '__html_select <path>'}),
