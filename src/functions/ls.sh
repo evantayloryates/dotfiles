@@ -252,7 +252,7 @@ ls() {
   done < <(_sort_hidden_first_ci "${dirs[@]}")
 }
 
-# lsg [dir] words...  →  ls [dir] | grep -e "words..."
+# lsg [dir] words...  →  ls [dir] | grep -i -e "words..."
 # With 2+ args, a first arg that has no leading hyphen and is a directory is
 # the ls target; otherwise it is part of the pattern and ls lists the current
 # dir. The remaining args join into one literal pattern, so `lsg -x cool`
@@ -268,5 +268,5 @@ lsg() {
     target=$1
     shift
   fi
-  ls "$target" | sed $'s/\e\\[[0-9;]*m//g' | grep --color=auto -e "$*"
+  ls "$target" | sed $'s/\e\\[[0-9;]*m//g' | grep -i --color=auto -e "$*"
 }
