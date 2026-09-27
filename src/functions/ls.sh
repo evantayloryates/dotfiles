@@ -21,7 +21,7 @@ ls() {
   local LYELLOW='%F{229}'
   local BLUE='%F{33}'
   local BOLD_BLUE='%B%F{33}'
-  local DBLUE='%F{18}'
+  local BOLD_DIM_BLUE='%B%F{32}'
   
   # semantic colors
   local ARROW_COLOR="${GRAY}"
@@ -32,6 +32,8 @@ ls() {
   local DIRECTORY="${BOLD_BLUE}"
   local DIR_LINK_SRC="${BOLD_BLUE}"
   local DIR_LINK_DST="${LYELLOW}"
+  local HIDDEN_DIRECTORY="${BOLD_DIM_BLUE}"
+  local HIDDEN_DIR_LINK_SRC="${BOLD_DIM_BLUE}"
 
   local COLUMN_PADDING=2
   local LEFT_PAD_ARROW_GAP=1
@@ -100,6 +102,13 @@ ls() {
 
     [[ $name == '.DS_Store' || $name == '.' || $name == '..' ]] && return 0
 
+    # Hidden directories get a slightly dimmer blue
+    local dir_color=$DIRECTORY link_src_color=$DIR_LINK_SRC
+    if [[ $name == .* ]]; then
+      dir_color=$HIDDEN_DIRECTORY
+      link_src_color=$HIDDEN_DIR_LINK_SRC
+    fi
+
     # Use cached target if provided, otherwise check file system
     if [[ -n $cached_target ]]; then
       local dst=$(_replace_home "$cached_target")
@@ -107,7 +116,7 @@ ls() {
       [[ -n $dst && $dst != */ ]] && dst="${dst}/"
       local display_width=$((${#name} + 1))
       local arrow=$(_make_arrow $display_width $width $LEFT_PAD_ARROW_GAP)
-      print -rP -- "${DIR_LINK_SRC}${src}${RESET}${GAP_STR}${arrow} ${DIR_LINK_DST}${dst}${RESET}"
+      print -rP -- "${link_src_color}${src}${RESET}${GAP_STR}${arrow} ${DIR_LINK_DST}${dst}${RESET}"
     elif [[ -L $p && -d $p ]]; then
       # Fallback: not cached, check file system
       local dst=$(_readlink "$p")
@@ -116,10 +125,10 @@ ls() {
       [[ -n $dst && $dst != */ ]] && dst="${dst}/"
       local display_width=$((${#name} + 1))
       local arrow=$(_make_arrow $display_width $width $LEFT_PAD_ARROW_GAP)
-      print -rP -- "${DIR_LINK_SRC}${src}${RESET}${GAP_STR}${arrow} ${DIR_LINK_DST}${dst}${RESET}"
+      print -rP -- "${link_src_color}${src}${RESET}${GAP_STR}${arrow} ${DIR_LINK_DST}${dst}${RESET}"
     else
       # directory name + trailing slash
-      print -rP -- "${DIRECTORY}${name}${RESET}${DIRECTORY}/${RESET}"
+      print -rP -- "${dir_color}${name}${RESET}${dir_color}/${RESET}"
     fi
   }
 
