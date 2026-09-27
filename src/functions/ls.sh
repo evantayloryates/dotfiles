@@ -251,3 +251,22 @@ ls() {
     fi
   done < <(_sort_hidden_first_ci "${dirs[@]}")
 }
+
+# lsg [dir] words...  →  ls [dir] | grep -e "words..."
+# With 2+ args, a first arg that has no leading hyphen and is a directory is
+# the ls target; otherwise it is part of the pattern and ls lists the current
+# dir. The remaining args join into one literal pattern, so `lsg -x cool`
+# searches for "-x cool" rather than passing -x to grep. ls's color codes are
+# stripped first so grep matches names, not escape sequences.
+lsg() {
+  if (( $# == 0 )); then
+    print -u2 "usage: lsg [dir] <pattern words...>"
+    return 2
+  fi
+  local target=.
+  if (( $# >= 2 )) && [[ $1 != -* && -d $1 ]]; then
+    target=$1
+    shift
+  fi
+  ls "$target" | sed $'s/\e\\[[0-9;]*m//g' | grep --color=auto -e "$*"
+}
