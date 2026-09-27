@@ -47,7 +47,7 @@ CONFIG = [
   p('downloads',   '~/Downloads',                       'cd', aliases=['down', 'Downloads']),
   p('github',      '~/src/github',                      'cd', aliases=['ghb', 'gthb', 'ghub', 'gith']),
   p('health',      '~/Documents/Health',                'cd', aliases=['Health']),
-  p('home',        '~',                                 'cd', aliases=['Home']),
+  p('home',        '~',                                 'cd', aliases=['Home', 'me']),
   p('html',        '~/src/docs/html',                   'select', aliases=['htm'],
     commands={'select': '__html_select <path>'}),
   p('ideas',       '~/Desktop/ideas',                   'cd'),
