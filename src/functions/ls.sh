@@ -21,7 +21,7 @@ ls() {
   local LYELLOW='%F{229}'
   local BLUE='%F{33}'
   local BOLD_BLUE='%B%F{33}'
-  local BOLD_DIM_BLUE='%B%F{31}'
+  local BOLD_DIM_BLUE='%B%F{25}'
   
   # semantic colors
   local ARROW_COLOR="${GRAY}"
