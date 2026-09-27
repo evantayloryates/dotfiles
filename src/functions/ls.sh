@@ -9,6 +9,10 @@ ls() {
 
   local target=${1:-.}
 
+  # Config: callers set `local __LS_DIRS_ONLY=1` before calling ls to list
+  # only directories and directory symlinks (see ld below).
+  local dirs_only=${__LS_DIRS_ONLY:-0}
+
   # Colors (zsh prompt sequences; use print -P)
   local RESET='%f%b'
   local RED='%F{red}'
@@ -210,6 +214,9 @@ ls() {
       is_dir=1
     fi
 
+    # Dirs-only mode: files don't print, so they don't count toward width
+    (( dirs_only && ! is_dir && ! is_dir_link )) && continue
+
     # Calculate display width immediately (avoid function call overhead)
     if (( is_dir_link )); then
       w=$((${#name} + 1))
@@ -269,4 +276,41 @@ lsg() {
     shift
   fi
   ls "$target" | sed $'s/\e\\[[0-9;]*m//g' | grep -i --color=auto -e "$*"
+}
+
+# ld [dir...]  →  ls, directories only (including directory symlinks)
+# Interactive-only: this file loads from .zshrc, so compilers, make and
+# scripts still reach /usr/bin/ld (the linker). Anything that looks like
+# linker input — a flag, an object/library file or an @response file — is
+# passed straight to the real linker, so pasted link commands still work.
+# `command ld ...` always reaches the linker.
+ld() {
+  local arg
+  for arg in "$@"; do
+    case $arg in
+      -*|@*|*.o|*.a|*.dylib|*.tbd|*.so)
+        command ld "$@"
+        return $?
+        ;;
+    esac
+  done
+
+  local __LS_DIRS_ONLY=1
+  (( $# == 0 )) && set -- .
+
+  local target rc=0 first=1
+  for target in "$@"; do
+    if [[ ! -d $target ]]; then
+      print -u2 "ld: not a directory: $target"
+      rc=2
+      continue
+    fi
+    if (( $# > 1 )); then
+      (( first )) || print
+      print -r -- "${target}:"
+    fi
+    first=0
+    ls "$target"
+  done
+  return $rc
 }
