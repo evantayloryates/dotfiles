@@ -22,6 +22,7 @@ ls() {
   local BLUE='%F{33}'
   local BOLD_BLUE='%B%F{33}'
   local BOLD_DIM_BLUE='%B%F{25}'
+  local DIM_WHITE='%F{248}'
   
   # semantic colors
   local ARROW_COLOR="${GRAY}"
@@ -29,6 +30,7 @@ ls() {
   local FILE_LINK_DST="${LYELLOW}"
   local FILE="${LYELLOW}"
   local EXECUTABLE_FILE="${RED}"
+  local HIDDEN_FILE="${DIM_WHITE}"
   local DIRECTORY="${BOLD_BLUE}"
   local DIR_LINK_SRC="${BOLD_BLUE}"
   local DIR_LINK_DST="${LYELLOW}"
@@ -156,6 +158,9 @@ ls() {
     else
       if [[ -x $p ]]; then
         print -rP -- "${EXECUTABLE_FILE}${name}${RESET}"
+      elif [[ $name == .* ]]; then
+        # Hidden plain files get a slightly dimmer white (%% keeps a % in the name literal)
+        print -rP -- "${HIDDEN_FILE}${name//\%/%%}${RESET}"
       else
         print -r -- "$name"
       fi
