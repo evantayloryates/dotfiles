@@ -9,9 +9,11 @@ ls() {
 
   local target=${1:-.}
 
-  # Config: callers set `local __LS_DIRS_ONLY=1` before calling ls to list
-  # only directories and directory symlinks (see ld below).
-  local dirs_only=${__LS_DIRS_ONLY:-0}
+  # Config: callers set `local __LS_ONLY=dirs` or `local __LS_ONLY=files`
+  # before calling ls to print one half of the listing (see ld and lf below).
+  # "dirs" is directories and directory symlinks; "files" is everything else.
+  # Unset prints both, so the two halves always add up to the full listing.
+  local only=${__LS_ONLY:-}
 
   # Colors (zsh prompt sequences; use print -P)
   local RESET='%f%b'
@@ -187,9 +189,9 @@ ls() {
   # If target is not a directory (or is a symlink), format just that entry
   if [[ ! -d $target || -L $target ]]; then
     if _is_dir_link "$target" || ([[ -d $target && ! -L $target ]]); then
-      _print_dir "$target"
+      [[ $only == files ]] || _print_dir "$target"
     else
-      _print_file "$target"
+      [[ $only == dirs ]] || _print_file "$target"
     fi
     return 0
   fi
@@ -228,8 +230,12 @@ ls() {
       is_dir=1
     fi
 
-    # Dirs-only mode: files don't print, so they don't count toward width
-    (( dirs_only && ! is_dir && ! is_dir_link )) && continue
+    # Half listings: skipped entries don't print, so they don't count toward width
+    if (( is_dir || is_dir_link )); then
+      [[ $only == files ]] && continue
+    else
+      [[ $only == dirs ]] && continue
+    fi
 
     # Calculate display width immediately (avoid function call overhead)
     if (( is_dir_link )); then
@@ -292,7 +298,26 @@ lsg() {
   ls "$target" | sed $'s/\e\\[[0-9;]*m//g' | grep -i --color=auto -e "$*"
 }
 
-# ld [dir...]  →  ls, directories only (including directory symlinks)
+# __ls_half <dirs|files> [path...]  →  shared body of ld and lf.
+# Each path goes through ls with __LS_ONLY set, so ld and lf keep all of ls's
+# formatting. With several paths, each gets a "path:" header like /bin/ls.
+__ls_half() {
+  local __LS_ONLY=$1
+  shift
+  (( $# == 0 )) && set -- .
+
+  local target first=1
+  for target in "$@"; do
+    if (( $# > 1 )); then
+      (( first )) || print
+      print -r -- "${target}:"
+    fi
+    first=0
+    ls "$target"
+  done
+}
+
+# ld [path...]  →  ls, directories only (including directory symlinks)
 # Interactive-only: this file loads from .zshrc, so compilers, make and
 # scripts still reach /usr/bin/ld (the linker). Anything that looks like
 # linker input — a flag, an object/library file or an @response file — is
@@ -308,23 +333,11 @@ ld() {
         ;;
     esac
   done
+  __ls_half dirs "$@"
+}
 
-  local __LS_DIRS_ONLY=1
-  (( $# == 0 )) && set -- .
-
-  local target rc=0 first=1
-  for target in "$@"; do
-    if [[ ! -d $target ]]; then
-      print -u2 "ld: not a directory: $target"
-      rc=2
-      continue
-    fi
-    if (( $# > 1 )); then
-      (( first )) || print
-      print -r -- "${target}:"
-    fi
-    first=0
-    ls "$target"
-  done
-  return $rc
+# lf [path...]  →  ls, everything except directories: files, file symlinks,
+# broken symlinks, sockets, pipes and devices. ld + lf = ls, always.
+lf() {
+  __ls_half files "$@"
 }
