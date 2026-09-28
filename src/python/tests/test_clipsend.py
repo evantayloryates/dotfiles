@@ -12,6 +12,17 @@ import clipsend
 
 REPO = Path(__file__).resolve().parents[3]
 
+NEW_TYPES = {
+    'yaml': 'name: demo\nreplicas: 2\n',
+    'ts': 'interface User { name: string; }\n',
+    'jsx': 'const App = () => <div>Hello</div>;\n',
+    'tsx': 'const App = (props: Props) => <div>{props.name}</div>;\n',
+    'sql': 'SELECT id, name FROM users WHERE active = true;\n',
+    'css': '.card { color: red; padding: 1rem; }\n',
+    'graphql': 'query Users { users { id name } }\n',
+    'diff': '--- a/file\n+++ b/file\n@@ -1 +1 @@\n-old\n+new\n',
+}
+
 
 class InferenceTests(unittest.TestCase):
     def test_supported_text(self):
@@ -187,6 +198,134 @@ class InferenceTests(unittest.TestCase):
         with mock.patch.object(clipsend, 'tomllib', None):
             self.assertEqual(infer_extension(b'[project]\nname = "demo"'), 'txt')
 
+    def assert_types(self, cases):
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(infer_extension(text.encode()), expected)
+
+    def test_yaml_structures_and_ambiguity(self):
+        self.assert_types({
+            NEW_TYPES['yaml']: 'yaml',
+            'services:\n  web:\n    image: nginx\n    ports: ["8080:80"]': 'yaml',
+            '- name: first\n  enabled: true\n- name: second': 'yaml',
+            'enabled: true': 'yaml',
+            '---\nname: demo\n---\nname: other\n': 'yaml',
+            'description: |\n  A multi-line\n  description.\n': 'yaml',
+            'script: |\n  echo "hello"\n  ls -la\n': 'yaml',
+            'script: |\n  const a = 1;\n  console.log(a);\n': 'yaml',
+            'script: |\n  puts "hello"\n': 'yaml',
+            'name: demo\ncommand: print("hello")': 'yaml',
+            'defaults: &defaults\n  retries: 3\nproduction:\n  <<: *defaults\n': 'yaml',
+            'root: &root\n  children: [*root]\n': 'yaml',
+            '{name: demo, enabled: true}': 'yaml',
+            '[red, green, blue]': 'yaml',
+            '%YAML 1.2\n---\n- first\n- second': 'yaml',
+            'name: first\nname: duplicate': 'txt',
+            'items: [one, two': 'txt',
+            'root:\n\tchild: value': 'txt',
+            'name: *undefined': 'txt',
+            'value: !!python/object/apply:os.system ["echo unsafe"]': 'txt',
+            'just ordinary prose': 'txt',
+            'Note: remember groceries': 'txt',
+            '- shopping\n- laundry': 'txt',
+            '---\njust prose': 'txt',
+            '{"broken":}': 'txt',
+            'import os\nif True:\n    print(os.getcwd())': 'py',
+        })
+
+    def test_typescript_and_react_syntax(self):
+        self.assert_types({
+            NEW_TYPES['ts']: 'ts', NEW_TYPES['jsx']: 'jsx', NEW_TYPES['tsx']: 'tsx',
+            'const count: number = 1;': 'ts',
+            'type Result<T> = { value: T };': 'ts',
+            'const identity = <T>(value: T): T => value;': 'ts',
+            'const value = <number>unknownValue;': 'ts',
+            'import type { User } from "./types";': 'ts',
+            'const value = response as User;': 'ts',
+            'const Component: React.FC<Props> = ({name}) => <span>{name}</span>;': 'tsx',
+            'export default function App() { return <><Button /></>; }': 'jsx',
+            '<Button onClick={() => alert("hello")} />': 'jsx',
+            '<div>{name}</div>': 'jsx',
+            '<><div>Hello</div></>': 'jsx',
+            '<div className="card">Hello</div>': 'jsx',
+            '<div>Hello</div>': 'html',
+            '<svg xmlns="http://www.w3.org/2000/svg"/>': 'svg',
+            '<root><item/></root>': 'xml',
+            'const comparison = a < b && c > d;': 'js',
+            'const text = "interface User { name: string }";': 'js',
+            '// interface User { name: string }': 'txt',
+            'const App = () => <div>unfinished': 'txt',
+            'interface User { name: }': 'txt',
+            'const value: number = ;': 'txt',
+            'enum Color { RED, BLUE }': 'txt',  # Valid TS and GraphQL.
+        })
+
+    def test_sql_css_graphql_and_diff(self):
+        self.assert_types({
+            NEW_TYPES['sql']: 'sql', NEW_TYPES['css']: 'css',
+            NEW_TYPES['graphql']: 'graphql', NEW_TYPES['diff']: 'diff',
+            'SELECT 1': 'sql',
+            'SELECT id,name\nFROM users,others;': 'sql',
+            '-- query\nSELECT "id"::text FROM "users";': 'sql',
+            'WITH active AS (SELECT * FROM users) SELECT * FROM active;': 'sql',
+            'INSERT INTO users (name) VALUES (\'Taylor\');': 'sql',
+            'CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT);': 'sql',
+            'select a book': 'txt',
+            'SELECT FROM;': 'txt',
+            'SELECT * FROM users; this is invalid': 'txt',
+            '@media (min-width: 600px) { .card:hover { color: blue; } }': 'css',
+            '@font-face { font-family: Demo; src: url("demo.woff2"); }': 'css',
+            ':root { --accent: #123456; }': 'css',
+            '#main { display: flex; }': 'css',
+            'p::before { content: "{ not a block }"; }': 'css',
+            '.card { color: red': 'txt',
+            '.card { color: ; }': 'txt',
+            '.card { color red; }': 'txt',
+            '/* .card { color: red; } */': 'txt',
+            'query User($id: ID!) { user(id: $id) { id name } }': 'graphql',
+            '{ users { id name } }': 'graphql',
+            '{ alias: field }': 'txt',
+            'type User { id: ID! name: String }': 'graphql',
+            'interface Node { id: ID! }': 'graphql',
+            'fragment UserFields on User { id name }': 'graphql',
+            'mutation { createUser(name: "Taylor") { id } }': 'graphql',
+            'query Missing { user(': 'txt',
+            'query this sentence': 'txt',
+            '--- a/f\n+++ b/f\n@@ -1,2 +1,2 @@\n-old\n+new\n context\n': 'diff',
+            'diff --git a/f b/f\nindex 111..222 100644\n--- a/f\n+++ b/f\n@@ -1 +1 @@\n-a\n+b\n': 'diff',
+            '--- a/f\n+++ b/f\n@@ -1,5 +1,5 @@\n-a\n+b\n': 'txt',
+            '--- a/f\n+++ b/f\nnot a patch': 'txt',
+            '@@ not a patch @@': 'txt',
+        })
+
+    def test_new_types_preserve_existing_format_precedence(self):
+        for extension, source in NEW_TYPES.items():
+            with self.subTest(extension=extension):
+                self.assertEqual(infer_extension(f'```{extension}\n{source}```'.encode()), 'md')
+        self.assert_types({
+            '{"name": "demo", "enabled": true}': 'json',
+            '#!/bin/sh\necho "query { users { id } }"': 'sh',
+            '[project]\nname = "demo"': 'toml' if clipsend.tomllib else 'txt',
+        })
+
+    def test_parser_failure_is_quiet_and_bounded(self):
+        for error in (FileNotFoundError(), subprocess.TimeoutExpired('node', 3),
+                      subprocess.CalledProcessError(1, 'node')):
+            with self.subTest(error=error), mock.patch.object(clipsend.subprocess, 'run', side_effect=error):
+                self.assertEqual(infer_extension(NEW_TYPES['yaml'].encode()), 'txt')
+        with mock.patch.object(clipsend.subprocess, 'run', return_value=mock.Mock(stdout='invalid')):
+            self.assertEqual(clipsend.infer_extended('name: demo'), {})
+
+    def test_new_parsers_do_not_execute_content(self):
+        with tempfile.TemporaryDirectory() as directory:
+            marker = Path(directory) / 'must-not-exist'
+            self.assert_types({
+                f'import fs from "fs"; const n: number = 1; fs.writeFileSync({str(marker)!r}, "");': 'ts',
+                f'const App = () => <div>{{require("fs").writeFileSync({str(marker)!r}, "")}}</div>;': 'jsx',
+                f'command: "touch {marker}"\nenabled: true': 'yaml',
+            })
+            self.assertFalse(marker.exists())
+
 
 class ShellTests(unittest.TestCase):
     """Exercise real zsh, inference, and writes without touching the clipboard."""
@@ -255,6 +394,18 @@ functions[/usr/bin/pbcopy]='[[ "$CLIP_FAILURE" == copy ]] && return 1; cat > "$H
         ):
             with self.subTest(extension=extension):
                 self.payload.write_text(source)
+                saved = self.assert_saved(self.run_cs('snippet'), f'snippet.{extension}')
+                self.assertEqual(saved.read_bytes(), self.payload.read_bytes())
+                result = self.run_cs()
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertTrue(Path(result.stdout.splitlines()[0]).name.endswith('.' + extension))
+                saved = self.assert_saved(self.run_cs(extension + '.txt'), extension + '.txt')
+                self.assertEqual(saved.read_bytes(), self.payload.read_bytes())
+
+    def test_new_extensions_named_unnamed_and_explicit(self):
+        for extension, source in NEW_TYPES.items():
+            with self.subTest(extension=extension):
+                self.payload.write_bytes(source.replace('\n', '\r\n').encode())
                 saved = self.assert_saved(self.run_cs('snippet'), f'snippet.{extension}')
                 self.assertEqual(saved.read_bytes(), self.payload.read_bytes())
                 result = self.run_cs()

@@ -306,29 +306,59 @@ The ordered detection strategy is:
    that does not follow XML syntax.
 4. RTF, vCard, iCalendar markers; recognized shell, Python, Node, Ruby, Perl, or
    Fish shebangs; parsed TOML when Python 3.11+ is available.
-5. Rectangular TSV/CSV with at least two rows and two columns. CSV additionally
+5. Markdown with a closed fenced code block, or a heading plus another Markdown
+   construct.
+6. Parser-backed formats: unified diffs (`.diff`, including matching hunk counts),
+   TypeScript (`.ts`), JSX (`.jsx`), and TypeScript with JSX (`.tsx`), GraphQL
+   operations/schema definitions (`.graphql`), common PostgreSQL/MySQL/SQLite/
+   T-SQL statements (`.sql`), and CSS stylesheets (`.css`). Complete syntax must
+   parse. These checks do not execute code, access databases, or check a GraphQL
+   schema. CSS needs declaration blocks; incomplete blocks are rejected. SQL
+   dialect extensions outside the parsers' support can fall back to text.
+7. Rectangular TSV/CSV with at least two rows and two columns. CSV additionally
    requires a unique, simple header and avoids typical comma-separated prose.
    Headerless CSV and ambiguous prose can intentionally fall back to text.
-6. Markdown with a closed fenced code block, or a heading plus another Markdown
-   construct.
-7. Source snippets without shebangs: Python (`.py`) must parse and include a
+8. YAML (`.yaml`) must parse with no errors, duplicate keys, unresolved aliases,
+   or unknown tags. It needs a collection plus structural evidence: multiple
+   mapping entries, nested collections, typed values, block scalars, flow syntax,
+   or an explicit document marker. A lone `Note: remember groceries` and plain
+   shopping lists remain `.txt`. Multi-document YAML is supported; aliases are
+   inspected without expansion. Malformed JSON is not reclassified as YAML.
+9. Source snippets without shebangs: Python (`.py`) must parse and include a
    recognizable construct such as an import, function/class, comprehension, or
    `print(...)`. JavaScript (`.js`) uses declarations, arrow functions, imports,
    exports, and `console` calls. Ruby (`.rb`) uses `puts`/`require` with strings,
    accessors, and `def`/class/iterator blocks. Shell (`.sh`) uses recognizable
    command forms, exports, functions, and `if`/loop blocks. Comments and quoted
-   content do not supply language signatures. Clipboard code is never executed;
-   JavaScript, Ruby, and shell detection is heuristic, not full syntax validation.
+   content do not supply language signatures. JavaScript is also syntax-checked
+   when the parser dependencies are available. Ruby and shell detection remains
+   heuristic. Valid Python statements can take precedence over a YAML match;
+   code embedded in YAML values stays YAML.
    Conflicting language signals and ambiguous snippets such as `hello(world)`
    fall back to `.txt`. Shebangs remain authoritative, and structured formats
-   and Markdown take precedence over source heuristics.
+   and Markdown take precedence over source heuristics. JSX-specific expressions,
+   components, fragments, or React attributes distinguish standalone JSX from
+   ordinary HTML/XML before XML parsing. Plain HTML and SVG keep their extensions.
+   Ambiguous TypeScript/GraphQL enums and YAML/GraphQL aliases fall back to `.txt`;
+   conventional built-in type/value spellings can disambiguate them.
 
-Everything else gets `.txt`, including ambiguous YAML. Detection failure also
-falls back to `.txt`.
+Everything else gets `.txt`. Detection failure also falls back to `.txt`.
 
 Text inference examines complete content up to 16 MiB. Larger content uses only
 binary signatures or `.txt`; a partial JSON/XML prefix never counts as valid.
-Python's standard library is sufficient; there are no new package dependencies.
+The original detectors use Python's standard library. The extended detectors use
+Node.js and pinned dependencies in `src/javascript/package-lock.json`: Babel's
+parser, `yaml`, `graphql`, `css-tree`, `node-sql-parser`, and `diff`. Install them
+once on a new checkout, or after dependency updates:
+
+```bash
+npm ci --prefix ~/dotfiles/src/javascript --ignore-scripts
+```
+
+No installation or network access occurs during `cs`. Parser calls have a
+three-second timeout and suppress diagnostics that might contain clipboard data.
+If Node or these dependencies are unavailable, the original detectors still work
+and content that cannot be recognized falls back to `.txt`.
 
 Finder files keep their source extensions when renamed without one; extensionless
 files use inference, even without a custom name. Directories keep their names.
@@ -338,7 +368,7 @@ or `.bmp` selecting conversion. Unsupported image suffixes get `.png` appended.
 Finder files take precedence over text, and text over an accompanying image.
 
 The shell entry point is `src/functions/clipsend.sh`; content inference is in
-`src/python/clipsend.py`; macOS pasteboard access is in
+`src/python/clipsend.py` and `src/javascript/clipsend-infer.js`; macOS pasteboard access is in
 `src/javascript/clipsend-pasteboard.js`. Reload an existing terminal with
 `source ~/dotfiles/src/functions/clipsend.sh`, or open a new terminal.
 

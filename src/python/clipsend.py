@@ -1,4 +1,4 @@
-"""Conservative, dependency-free content inference for clipsend.
+"""Conservative content inference for clipsend.
 
 Detection never modifies the payload. Explicit suffixes win; unknown or
 ambiguous content is text. Keep ordering from specific formats to heuristics.
@@ -11,6 +11,7 @@ import json
 from pathlib import Path
 import re
 import shlex
+import subprocess
 import sys
 import xml.etree.ElementTree as ET
 
@@ -20,6 +21,24 @@ except ImportError:  # macOS installations with Python < 3.11
     tomllib = None
 
 MAX_TEXT_BYTES = 16 * 1024 * 1024
+
+
+def infer_extended(text):
+    """Use local syntax parsers without executing code or exposing diagnostics."""
+    helper = Path(__file__).resolve().parents[1] / "javascript" / "clipsend-infer.js"
+    try:
+        result = subprocess.run(
+            ["node", str(helper)], input=text, text=True, encoding="utf-8",
+            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=3, check=True,
+        )
+        value = json.loads(result.stdout)
+        if isinstance(value, dict) and value.get("extension") in (
+            None, "yaml", "ts", "jsx", "tsx", "sql", "css", "graphql", "diff", "txt"
+        ):
+            return value
+    except (OSError, ValueError, subprocess.SubprocessError):
+        pass
+    return {}
 
 
 def strict_json(text):
@@ -154,6 +173,14 @@ def infer_extension(data, *, complete=True):
         except (ValueError, RecursionError):
             pass
 
+    extended = None
+    # JSX components/expressions can also be well-formed XML. Plain HTML and
+    # SVG still win unless the parser finds a JSX-specific construct.
+    if text.startswith("<"):
+        extended = infer_extended(original_text)
+        if extended.get("extension") in ("jsx", "tsx", "ts"):
+            return extended["extension"]
+
     # ElementTree does not fetch external entities. Reject entity declarations
     # altogether, including internal expansion, before parsing untrusted text.
     if text.startswith("<") and not re.search(r"<!ENTITY\b", text, re.I):
@@ -203,9 +230,23 @@ def infer_extension(data, *, complete=True):
         except (ValueError, RecursionError):
             pass
 
+    # Keep documentation containing code as Markdown.
+    fence = re.search(r"(?m)^(`{3,}|~{3,})[^\n]*\n", text)
+    if fence and re.search(r"(?m)^" + re.escape(fence[1]) + r"\s*$", text[fence.end():]):
+        return "md"
+    if re.search(r"(?m)^#{1,6} \S", text) and re.search(r"(?m)^(?:[-*+] |\d+\. |> )|\[[^\]\n]+\]\([^\)\n]+\)", text):
+        return "md"
+    if extended is None:
+        extended = infer_extended(original_text)
+    extension = extended.get("extension")
+    # Valid SQL/source can also look rectangular to a CSV reader. Let the more
+    # specific grammars win, while leaving permissive YAML behind tabular data.
+    if extension and extension != "yaml":
+        return extension
+
     # At least two nonempty, rectangular records with multiple fields. Comma
     # data additionally needs a simple unique header to avoid comma-rich prose.
-    for delimiter, extension in (("\t", "tsv"), (",", "csv")):
+    for delimiter, table_extension in (("\t", "tsv"), (",", "csv")):
         if delimiter not in text:
             continue
         try:
@@ -221,15 +262,21 @@ def infer_extension(data, *, complete=True):
             # Each field in a putative prose sentence often begins with a space.
             if all(cell.startswith(" ") for row in rows for cell in row[1:]):
                 continue
-        return extension
+        return table_extension
 
-    # A closed fenced block, or a heading plus another Markdown construct.
-    fence = re.search(r"(?m)^(`{3,}|~{3,})[^\n]*\n", text)
-    if fence and re.search(r"(?m)^" + re.escape(fence[1]) + r"\s*$", text[fence.end():]):
-        return "md"
-    if re.search(r"(?m)^#{1,6} \S", text) and re.search(r"(?m)^(?:[-*+] |\d+\. |> )|\[[^\]\n]+\]\([^\)\n]+\)", text):
-        return "md"
-    return infer_script(text) or "txt"
+    script = infer_script(text)
+    if extension == "yaml" and script == "py":
+        # Python blocks can be YAML mappings too, but calls nested inside YAML
+        # values (including Python-compatible annotations) are not programs.
+        statements = (ast.Import, ast.ImportFrom, ast.FunctionDef, ast.AsyncFunctionDef,
+                      ast.ClassDef, ast.If, ast.For, ast.While, ast.With, ast.Try)
+        if any(isinstance(node, statements) for node in ast.parse(text).body):
+            return "py"
+    if extension:
+        return extension
+    if script == "js" and extended.get("javascript") is False:
+        return "txt"
+    return script or "txt"
 
 
 def inferred_name(name, path):
