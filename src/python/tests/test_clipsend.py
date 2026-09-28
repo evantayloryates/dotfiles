@@ -57,13 +57,94 @@ class InferenceTests(unittest.TestCase):
             'a,b\n1,2,3', 'a,a\n1,2', 'name,value\na,"unfinished',
             'Hello, friend\nGoodbye, friend', 'just,a,single,row',
             '# A heading alone', '- shopping\n- laundry', '```\nunclosed',
-            'key: value', 'const answer = 42;', 'https://example.com/file.json',
+            'key: value', 'https://example.com/file.json',
             '{\\rtf1 unfinished', 'BEGIN:VCARD\nFN:Taylor', '#!/unknown\nanything',
             'key = ', 'abc\x00def',
         ):
             with self.subTest(text=text):
                 self.assertEqual(infer_extension(text.encode()), "txt")
         self.assertEqual(infer_extension(b'\xff\x80\x81'), "txt")
+
+    def test_scripts_without_shebangs(self):
+        cases = {
+            'import os\nprint(os.getcwd())': 'py',
+            'from pathlib import Path\nfiles = list(Path(".").glob("*"))': 'py',
+            'def greet(name):\n    return f"Hello {name}"\n': 'py',
+            'class Example:\n    pass': 'py',
+            'squares = [x * x for x in range(10)]': 'py',
+            'print("hello")': 'py',
+            'for item in items:\n    process(item)': 'py',
+            'if ready:\n    start()': 'py',
+            'const answer = 42;': 'js',
+            'let total = 0;\ntotal += 1;': 'js',
+            'const {name} = user;': 'js',
+            'const greet = (name) => `Hello ${name}`;': 'js',
+            'items.map(item => item.name)': 'js',
+            'async function fetchData() { return await fetch("/api"); }': 'js',
+            'console.log("hello");': 'js',
+            'document.querySelector("main").remove();': 'js',
+            'import fs from "node:fs";': 'js',
+            'import "./setup.js";': 'js',
+            'module.exports = { answer: 42 };': 'js',
+            'puts "hello"': 'rb',
+            'puts("hello")': 'rb',
+            'require "json"\nputs JSON.generate({ok: true})': 'rb',
+            'def greet(name)\n  "Hello #{name}"\nend': 'rb',
+            'class Example\n  attr_accessor :name\nend': 'rb',
+            'items.each do |item|\n  puts item\nend': 'rb',
+            'echo "hello"': 'sh',
+            'set -euo pipefail\nls -la': 'sh',
+            'export APP_ENV=production\ncurl -fsS https://example.com': 'sh',
+            'curl https://example.com': 'sh',
+            'if [ -f "$file" ]; then\n  cat "$file"\nfi': 'sh',
+            'for file in *.txt; do\n  wc -l "$file"\ndone': 'sh',
+            'while true\ndo\n  sleep 1\ndone': 'sh',
+            'greet() { echo hello; }': 'sh',
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(infer_extension(text.encode()), expected)
+
+    def test_script_ambiguity_comments_and_format_precedence(self):
+        cases = {
+            'hello(world)': 'txt',
+            'require("json")': 'txt',
+            'Please import os before running this.': 'txt',
+            'echo this sentiment': 'txt',
+            '# const answer = 42;': 'txt',
+            '// console.log("hello");': 'txt',
+            '/*\nconst answer = 42;\n*/': 'txt',
+            '/* unclosed comment\nconst answer = 42;': 'txt',
+            '"unterminated string\nconsole.log(42);': 'txt',
+            '\'\'\'\nconst answer = 42;\nputs "hello"\n\'\'\'': 'txt',
+            'def broken(:\n    pass': 'txt',
+            'const answer =': 'txt',
+            'import os\nconst answer = 42;\nputs "mixed"': 'txt',
+            'console.log("hello");\necho "shell"': 'txt',
+            '```python\nimport os\nprint(os.getcwd())\n```': 'md',
+            '# Instructions\n\n- Run this\n\nconsole.log("hello");': 'md',
+            '{"source":"console.log(42)"}': 'json',
+            'language,source\njs,"console.log(42)"': 'csv',
+            '[script]\nsource = "console.log(42)"': 'toml' if clipsend.tomllib else 'txt',
+            '#!/bin/sh\nnode -e \'console.log(42)\'': 'sh',
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(infer_extension(text.encode()), expected)
+
+    def test_script_detection_does_not_execute_code(self):
+        with tempfile.TemporaryDirectory() as directory:
+            marker = Path(directory) / 'must-not-exist'
+            samples = {
+                f'import pathlib\npathlib.Path({str(marker)!r}).touch()': 'py',
+                f'const fs = require("fs"); fs.writeFileSync({str(marker)!r}, "");': 'js',
+                f'require "fileutils"\nFileUtils.touch({str(marker)!r})': 'rb',
+                f'export OUTPUT={str(marker)!r}\ntouch "$OUTPUT"': 'sh',
+            }
+            for text, expected in samples.items():
+                with self.subTest(language=expected):
+                    self.assertEqual(infer_extension(text.encode()), expected)
+                    self.assertFalse(marker.exists())
 
     def test_boms_and_binary_signatures(self):
         for encoding in ('utf-8-sig', 'utf-16', 'utf-32'):
@@ -164,6 +245,23 @@ functions[/usr/bin/pbcopy]='[[ "$CLIP_FAILURE" == copy ]] && return 1; cat > "$H
         result = self.run_cs()
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertRegex(Path(result.stdout.splitlines()[0]).name, r'-0-lines\.txt$')
+
+    def test_script_extensions_named_unnamed_and_explicit(self):
+        for extension, source in (
+            ('py', 'import os\nprint(os.getcwd())\n'),
+            ('js', 'const answer = 42;\n'),
+            ('rb', 'puts "hello"\n'),
+            ('sh', 'echo "hello"\n'),
+        ):
+            with self.subTest(extension=extension):
+                self.payload.write_text(source)
+                saved = self.assert_saved(self.run_cs('snippet'), f'snippet.{extension}')
+                self.assertEqual(saved.read_bytes(), self.payload.read_bytes())
+                result = self.run_cs()
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertTrue(Path(result.stdout.splitlines()[0]).name.endswith('.' + extension))
+                saved = self.assert_saved(self.run_cs(extension + '.txt'), extension + '.txt')
+                self.assertEqual(saved.read_bytes(), self.payload.read_bytes())
 
     def test_collision_hidden_names_trailing_dot_and_path_stripping(self):
         (self.desktop / 'data.json').write_text('existing')

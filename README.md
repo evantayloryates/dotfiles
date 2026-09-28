@@ -310,8 +310,21 @@ The ordered detection strategy is:
    requires a unique, simple header and avoids typical comma-separated prose.
    Headerless CSV and ambiguous prose can intentionally fall back to text.
 6. Markdown with a closed fenced code block, or a heading plus another Markdown
-   construct. Everything else gets `.txt`, including ambiguous YAML and source
-   code without a shebang. Detection failure also falls back to `.txt`.
+   construct.
+7. Source snippets without shebangs: Python (`.py`) must parse and include a
+   recognizable construct such as an import, function/class, comprehension, or
+   `print(...)`. JavaScript (`.js`) uses declarations, arrow functions, imports,
+   exports, and `console` calls. Ruby (`.rb`) uses `puts`/`require` with strings,
+   accessors, and `def`/class/iterator blocks. Shell (`.sh`) uses recognizable
+   command forms, exports, functions, and `if`/loop blocks. Comments and quoted
+   content do not supply language signatures. Clipboard code is never executed;
+   JavaScript, Ruby, and shell detection is heuristic, not full syntax validation.
+   Conflicting language signals and ambiguous snippets such as `hello(world)`
+   fall back to `.txt`. Shebangs remain authoritative, and structured formats
+   and Markdown take precedence over source heuristics.
+
+Everything else gets `.txt`, including ambiguous YAML. Detection failure also
+falls back to `.txt`.
 
 Text inference examines complete content up to 16 MiB. Larger content uses only
 binary signatures or `.txt`; a partial JSON/XML prefix never counts as valid.

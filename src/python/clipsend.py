@@ -4,6 +4,7 @@ Detection never modifies the payload. Explicit suffixes win; unknown or
 ambiguous content is text. Keep ordering from specific formats to heuristics.
 """
 
+import ast
 import csv
 import io
 import json
@@ -26,6 +27,82 @@ def strict_json(text):
         raise ValueError(value)
 
     return json.loads(text, parse_constant=reject_constant)
+
+
+def infer_script(text):
+    """Recognize language-specific syntax without executing clipboard content.
+
+    Python must parse and contain a recognizable construct. The other languages
+    use signatures, not runtime interpreters or broad syntax/prose guesses.
+    Conflicting signals deliberately produce no answer.
+    """
+    candidates = set()
+    try:
+        tree = ast.parse(text)
+        constructs = (ast.Import, ast.ImportFrom, ast.FunctionDef, ast.AsyncFunctionDef,
+                      ast.ClassDef, ast.ListComp, ast.SetComp, ast.DictComp,
+                      ast.GeneratorExp, ast.Lambda, ast.JoinedStr, ast.With, ast.Try,
+                      ast.If, ast.For, ast.AsyncFor, ast.While, ast.Assert, ast.Raise)
+        if any(isinstance(node, constructs) or (
+            isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+            and node.func.id in {"print", "input", "range", "enumerate", "isinstance"}
+        ) for node in ast.walk(tree)):
+            candidates.add("py")
+    except (SyntaxError, ValueError, RecursionError):
+        pass
+
+    # Ignore signatures inside comments and quoted strings. Retain the quote
+    # delimiters and newlines so patterns can still recognize `puts "..."`, etc.
+    tokens = re.compile(
+        r"(?P<quote>\"\"\"|'''|[\"'`])(?:\\[\s\S]|(?!(?P=quote))[^\\])*?(?:(?P=quote)|\Z)"
+        r"|/\*[\s\S]*?(?:\*/|\Z)|//[^\n]*|\#[^\n]*", re.X
+    )
+
+    def hide(match):
+        quote = match.group("quote") or ""
+        return quote + "\n" * match[0].count("\n") + quote
+
+    code = tokens.sub(hide, text)
+    ident = r"[A-Za-z_$][\w$]*"
+    js_patterns = (
+        rf"^\s*(?:export\s+)?(?:const|let|var)\s+(?:{ident}|\{{[^}}\n]+\}}|\[[^\]\n]+\])\s*=\s*\S",
+        rf"^\s*(?:export\s+(?:default\s+)?)?(?:async\s+)?function\s*\*?\s*(?:{ident})?\s*\([^)]*\)\s*\{{",
+        rf"(?:\([^;\n]*\)|(?<![:\w]){ident})\s*=>\s*\S",
+        r"^\s*console\.(?:log|error|warn|info|debug)\s*\(",
+        r"^\s*document\.(?:querySelector(?:All)?|getElementById|createElement)\s*\(",
+        rf"^\s*(?:module\.exports|exports\.{ident})\s*=\s*\S",
+        r"^\s*import\s+(?:[\w$*{},\s]+\s+from\s+)?['\"]",
+        r"^\s*export\s+default\s+\S",
+    )
+    if any(re.search(pattern, code, re.M) for pattern in js_patterns):
+        candidates.add("js")
+
+    ruby_patterns = (
+        r"^\s*(?:puts|p)\s*(?:\(\s*)?['\"]",
+        # Bare require(...) is also valid CommonJS; do not pick Ruby for it.
+        r"^\s*(?:require|require_relative)\s+['\"]",
+        r"^\s*attr_(?:accessor|reader|writer)\s+:[A-Za-z_]\w*",
+    )
+    ruby_block = re.search(r"^\s*(?:def\s+[\w.!?=]+|(?:class|module)\s+[A-Z]\w*)", code, re.M)
+    ruby_iterator = re.search(r"\bdo\s*\|[^|\n]+\|", code)
+    if (any(re.search(pattern, code, re.M) for pattern in ruby_patterns)
+            or ((ruby_block or ruby_iterator) and re.search(r"\bend\s*(?:$|[;\n])", code))):
+        candidates.add("rb")
+
+    shell_patterns = (
+        r"^\s*(?:export|readonly)\s+[A-Za-z_]\w*=",
+        r"^\s*set\s+-[A-Za-z]",
+        r"^\s*(?:echo|printf|cd|ls|cat|grep|sed|awk|find|curl|wget|git|mkdir|rm|cp|mv|source|read)\s+(?:-[A-Za-z]|\$|['\"])",
+        r"^\s*(?:curl|wget)\s+https?:",
+        r"^\s*[A-Za-z_]\w*\s*\(\s*\)\s*\{",
+    )
+    shell_if = re.search(r"^\s*if\s+[^\n]+(?:;\s*|\n\s*)then\b", code, re.M)
+    shell_loop = re.search(r"^\s*(?:for|while|until)\s+[^\n]+(?:;\s*|\n\s*)do\b", code, re.M)
+    if (any(re.search(pattern, code, re.M) for pattern in shell_patterns)
+            or (shell_if and re.search(r"\bfi\b", code))
+            or (shell_loop and re.search(r"\bdone\b", code))):
+        candidates.add("sh")
+    return next(iter(candidates)) if len(candidates) == 1 else None
 
 
 def infer_extension(data, *, complete=True):
@@ -152,7 +229,7 @@ def infer_extension(data, *, complete=True):
         return "md"
     if re.search(r"(?m)^#{1,6} \S", text) and re.search(r"(?m)^(?:[-*+] |\d+\. |> )|\[[^\]\n]+\]\([^\)\n]+\)", text):
         return "md"
-    return "txt"
+    return infer_script(text) or "txt"
 
 
 def inferred_name(name, path):
