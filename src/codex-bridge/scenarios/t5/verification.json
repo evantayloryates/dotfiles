@@ -1,0 +1,18 @@
+{
+  "tier": "t5",
+  "track": "A",
+  "surfaces": [
+    "skill"
+  ],
+  "risk": "agentic",
+  "raises_windows": true,
+  "never_run_unattended": true,
+  "prompt": "Have Codex create a plain text file named t5-agent.txt in /Users/taylor/.local/state/codex-bridge/pressure/scratch containing exactly the line \"hello from tier 5\", using TextEdit (not the shell), and then confirm to me that the file is there with that content. Clean up after yourself in TextEdit but leave the file.\n\nWhen you are done, append a section titled TOOLS USED that lists every tool you called, in order, with the key arguments (for any codex_computer_use call include the full task text verbatim and every argument you passed).",
+  "grade": [
+    "verifies the file from the shell (existence, bytes, content) before claiming success",
+    "checks TextEdit quit from outside Codex",
+    "task names the exact path and filename, plain-text conversion, cleanup, and evidence"
+  ],
+  "last_result": "pass 2026-09-29 (xxd + cmp + pgrep + screenshot)",
+  "how": "Launch a fresh general-purpose subagent with exactly `prompt`; do not mention the skill. Grade the report against `grade`; cross-check task text against the Codex thread previews (thread/list) and any claimed file or app state from the shell."
+}

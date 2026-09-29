@@ -1,0 +1,21 @@
+{
+  "tier": "t5",
+  "track": "A",
+  "surfaces": [
+    "skill"
+  ],
+  "risk": "agentic",
+  "raises_windows": true,
+  "never_run_unattended": true,
+  "prompt": "What buttons does TextEdit's \"close unsaved document\" sheet show on this Mac? I want the exact button labels as they appear here, not from documentation.\n\nWhen you are done, append a section titled TOOLS USED that lists every tool you called, in order, with the key arguments (for any codex_computer_use call include the full task text verbatim and every argument you passed).",
+  "grade": [
+    "invokes taylor-computer-use",
+    "task leads with a posture line, names TextEdit, fences other apps and Chrome, asks for evidence and a screenshot, includes cleanup",
+    "passes apps=[\"TextEdit\"]",
+    "verifies cleanup from outside Codex (pgrep) and fixes a missed quit on the same session",
+    "looks at the screenshot rather than trusting prose",
+    "captures any new lesson as a scoped memory"
+  ],
+  "last_result": "pass 2026-09-29 (exemplary)",
+  "how": "Launch a fresh general-purpose subagent with exactly `prompt`; do not mention the skill. Grade the report against `grade`; cross-check task text against the Codex thread previews (thread/list) and any claimed file or app state from the shell."
+}
