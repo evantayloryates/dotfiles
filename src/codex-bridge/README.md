@@ -42,6 +42,24 @@ Check everything with:
 ~/dotfiles/src/codex-bridge/bin/codex-bridge preflight
 ```
 
+## The Codex app does not need to be open
+
+Verified 2026-09-29 with ChatGPT.app quit: a fresh bridge process ran a
+Computer Use turn end to end (17.4 s) and the app was not relaunched. What
+the bridge needs is the app's *files*, not the running app: the bundled
+CLI (resolved inside the bundle at each connect), the `cua_node` runtime
+and `cua-repl` inside `ChatGPT.app/Contents/Resources`, and
+`~/.codex/computer-use/Codex Computer Use.app` (`SkyComputerUseService`,
+started on demand). The managed daemon is its own copy of the CLI under
+`~/.codex/packages/app-server-daemon/` and keeps running when the app
+quits. Uninstalling ChatGPT.app breaks the bridge; quitting it does not.
+
+When the app updates itself, the next bridge connect sees a newer bundled
+CLI and restarts the daemon on it (observed: 0.158 → 0.159 on the same
+check). That restart drops any turn another session has running on the
+daemon; `preflight` after an app update confirms the runtime paths still
+resolve.
+
 ## Register with Claude Code
 
 ```sh
