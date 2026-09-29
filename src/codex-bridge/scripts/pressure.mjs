@@ -305,6 +305,7 @@ async function runScenario(mcp, sc, { attended, repeatIndex, effort, model, day,
     app_version: versions.app,
     model: model || sc.args.model || null,
     effort: effort || sc.args.effort || null,
+    roster: flags.roster || sc.args.mcp_roster || 'full',
     session: null,
     thread_id: null,
     turn_id: null,
@@ -343,6 +344,7 @@ async function runScenario(mcp, sc, { attended, repeatIndex, effort, model, day,
   } else args.session = policy
   if (effort) args.effort = effort
   if (model) args.model = model
+  if (flags.roster) args.mcp_roster = flags.roster
   args.cwd ||= SCRATCH_DIR
   row.session = args.session
 

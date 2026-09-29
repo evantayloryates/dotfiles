@@ -20,6 +20,7 @@ export const DEFAULT_POLICY = {
   commands: 'deny',
   fileChanges: 'deny',
   sandbox: 'read-only',
+  mcpRoster: 'trim', // 'trim' = Computer Use only on bridge threads; 'full' = whatever config.toml enables
   approvalPolicy: { granular: { mcp_elicitations: true, rules: false, sandbox_approval: false } },
 }
 

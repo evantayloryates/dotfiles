@@ -5,6 +5,7 @@ import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { AppServer } from './appserver.mjs'
+import { trimmedRoster } from './codex-config.mjs'
 import { CODEX_HOME, daemonStatus } from './codex-paths.mjs'
 import { loadPolicy } from './policy.mjs'
 import { STATE_DIR, loadState, updateState } from './state.mjs'
@@ -33,6 +34,7 @@ export class BridgeError extends Error {
 
 export class Bridge {
   #loaded = new Set()
+  #rosterByThread = new Map() // threadId -> disabledPluginIds for trimmed threads
   active = new Map() // session -> { threadId, turnId, task, startedAt }
 
   constructor({ log = () => {} } = {}) {
@@ -47,8 +49,11 @@ export class Bridge {
     return this.app
   }
 
-  #threadParams(cwd, session) {
-    return {
+  // roster: 'full' keeps whatever ~/.codex/config.toml enables; 'trim'
+  // disables every MCP server and plugin except Computer Use on this thread
+  // (experiment 11: smaller prompt, faster boot).
+  #threadParams(cwd, session, roster) {
+    const p = {
       cwd,
       approvalPolicy: this.policy.approvalPolicy,
       sandbox: this.policy.sandbox,
@@ -57,18 +62,27 @@ export class Bridge {
       dynamicTools: [REPORT_PROGRESS_TOOL],
       serviceName: `codex-bridge:${session}`,
     }
+    if (roster === 'trim') {
+      const t = trimmedRoster()
+      p.config = t.config
+      p.disabledPluginIds = t.disabledPluginIds
+      this.log(`trimmed roster: disabled ${t.disabledServers.length} MCP servers and ${t.disabledPluginIds.length} plugins`)
+    }
+    return p
   }
 
-  async ensureThread(session, { cwd, newThread = false } = {}) {
+  async ensureThread(session, { cwd, newThread = false, roster } = {}) {
     await this.connect()
     const state = loadState()
     const rec = state.sessions[session]
-    const params = this.#threadParams(cwd || rec?.cwd || process.cwd(), session)
+    roster ||= rec?.roster || this.policy.mcpRoster || 'full'
+    const params = this.#threadParams(cwd || rec?.cwd || process.cwd(), session, roster)
     if (rec?.threadId && !newThread) {
       if (this.#loaded.has(rec.threadId)) return rec.threadId
       try {
         await this.app.threadResume({ threadId: rec.threadId, ...params })
         this.#loaded.add(rec.threadId)
+        this.#rosterByThread.set(rec.threadId, roster === 'trim' ? params.disabledPluginIds : null)
         updateState((s) => {
           s.sessions[session] = { ...rec, lastUsedAt: new Date().toISOString() }
         })
@@ -80,8 +94,9 @@ export class Bridge {
     const resp = await this.app.threadStart(params)
     const threadId = resp.thread.id
     this.#loaded.add(threadId)
+    this.#rosterByThread.set(threadId, roster === 'trim' ? params.disabledPluginIds : null)
     updateState((s) => {
-      s.sessions[session] = { threadId, cwd: params.cwd, createdAt: new Date().toISOString(), lastUsedAt: new Date().toISOString(), model: resp.model }
+      s.sessions[session] = { threadId, cwd: params.cwd, createdAt: new Date().toISOString(), lastUsedAt: new Date().toISOString(), model: resp.model, roster }
     })
     return threadId
   }
@@ -93,7 +108,7 @@ export class Bridge {
       const a = this.active.get(session)
       throw new BridgeError(`session "${session}" already has a turn running (started ${a.startedAt}, task: ${a.task.slice(0, 80)}). Use codex_steer to redirect it, codex_interrupt to stop it, or another session name.`)
     }
-    const threadId = await this.ensureThread(session, { cwd: args.cwd, newThread: !!args.new_thread })
+    const threadId = await this.ensureThread(session, { cwd: args.cwd, newThread: !!args.new_thread, roster: args.mcp_roster })
     const threadReadyAt = Date.now()
     const state = loadState()
     const grants = { ...(state.grants || {}) }
@@ -113,7 +128,7 @@ export class Bridge {
         outputSchema: args.output_schema,
         policy: this.policy,
         grants,
-        overrides: { allowCommands: !!args.allow_commands, model: args.model, effort: args.effort, sandbox: args.sandbox },
+        overrides: { allowCommands: !!args.allow_commands, model: args.model, effort: args.effort, sandbox: args.sandbox, disabledPluginIds: this.#rosterByThread.get(threadId) || null },
         onProgress: (m) => {
           ctx.progress?.(m)
           entry.lastProgress = m
@@ -124,6 +139,7 @@ export class Bridge {
         receivedAt,
         threadReadyAt,
         session,
+        roster: args.mcp_roster,
       })
       entry.threadId = result.threadId
       entry.turnId = result.turnId
@@ -156,7 +172,7 @@ export class Bridge {
       if (!/thread not found|not loaded|unknown thread/i.test(err.message)) throw err
       this.log(`turn/start on ${threadId} failed (${err.message}); resuming or restarting the thread`)
       this.#loaded.delete(threadId)
-      const fresh = await this.ensureThread(session, {})
+      const fresh = await this.ensureThread(session, { roster: turnOpts.roster })
       return runTurn(this.app, { ...turnOpts, threadId: fresh })
     }
   }

@@ -283,6 +283,7 @@ export async function runTurn(app, opts) {
     if (overrides.model) turnParams.model = overrides.model
     if (overrides.effort) turnParams.effort = overrides.effort
     if (overrides.sandbox) turnParams.sandboxPolicy = sandboxPolicy(overrides.sandbox)
+    if (overrides.disabledPluginIds) turnParams.disabledPluginIds = overrides.disabledPluginIds
     mark('turn_start_sent', { inputChars: input.reduce((n, i) => n + (i.text?.length || 0), 0), images: input.filter((i) => i.type === 'localImage').length })
     const startResp = await app.turnStart(turnParams)
     result.turnId = startResp?.turn?.id || result.turnId

@@ -374,6 +374,28 @@ serve that gets cut.
 
 Dated, newest first. Each entry names the surface and what changed.
 
+- **2026-09-29, experiment 11: trim the MCP roster (Tier 0, 2 repeats
+  trim-servers-only, then 1 pass with plugins trimmed too).** Adopted as
+  the default (`policy.json` `mcpRoster: "trim"`; per-call `mcp_roster:
+  "full"` opts out for a new thread).
+  - A `config` override on `thread/start` with `mcp_servers.<name>.enabled
+    = false` removes config.toml servers; `disabledPluginIds` on
+    `turn/start` is recorded but leaves plugin servers running (playwright,
+    codex_app stayed connected). A `plugins."<id>".enabled = false` entry in
+    the same `config` override does remove them. Skills stay listed (54)
+    either way; no API found to hide them.
+  - Servers-only trim: boot 2.96 s → 1.20 s, uncached input tokens per
+    turn 22.3k → 14.7k, total input −5 percent, wall time unchanged
+    (14.4 s both) because model time absorbed the gain within its own
+    variance.
+  - Servers + plugins trim (n=1 per scenario): boot 0.9–1.4 s, uncached
+    tokens for a one-step read 6.8k (was 22k), `t0/finder-read` 10.7 s
+    (best so far), `t0/denied-app-holds` 6.6 s. Every scenario still
+    passes; Computer Use (`cua_repl`) and `codex_apps` are the only servers
+    connected on a bridge thread.
+  - Conclusion: the prompt-size lever is real for tokens and boot, small
+    for wall time. The next wall-time lever is the number of model calls
+    per task (experiments 1 and 12).
 - **2026-09-29, effort sweep on Tier 0 (experiment 3; 4 scenarios x 2
   repeats x low/medium/high/xhigh, 32 runs).** Effort is not a lever for
   desktop work of this size. Mean wall time: low 15.3 s, medium 13.5 s,

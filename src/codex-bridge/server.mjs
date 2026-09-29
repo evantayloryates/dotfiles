@@ -37,6 +37,7 @@ const TOOLS = [
         timeout_sec: { type: 'number', description: 'Interrupt the turn after this many seconds. Default 900.' },
         model: { type: 'string', description: 'Override the Codex model for this turn and later ones on the session.' },
         effort: { type: 'string', enum: ['low', 'medium', 'high', 'xhigh'], description: 'Reasoning effort override.' },
+        mcp_roster: { type: 'string', enum: ['full', 'trim'], description: 'For a new thread: "trim" disables every Codex MCP server and plugin except Computer Use (smaller prompt, faster boot); "full" keeps the config.toml roster. Default from policy (full).' },
       },
       required: ['task'],
       additionalProperties: false,

@@ -97,6 +97,16 @@ plus per-call grants, and reports every decision in the result:
 Computer Use itself is not sandboxed by `sandbox`; the app allowlist is the
 control. The default policy denies password managers and System Settings.
 
+## MCP roster on bridge threads
+
+By default (`mcpRoster: "trim"` in `policy.json`) a bridge thread starts
+with a `config` override that disables every MCP server and plugin in
+`~/.codex/config.toml` except Computer Use. Measured 2026-09-29: boot drops
+from about 3 s to about 1 s per new thread and uncached prompt tokens for a
+one-step read from 22k to 7k, with no capability lost for desktop work.
+Pass `mcp_roster: "full"` on the call that creates a session's thread when
+Codex should also have Slack, Gmail, Notion, Playwright and the rest.
+
 ## Ops
 
 ```sh
