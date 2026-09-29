@@ -374,6 +374,29 @@ serve that gets cut.
 
 Dated, newest first. Each entry names the surface and what changed.
 
+- **2026-09-29, first real run outside the harness (Runner session,
+  Slack post through Arc, reported to this session at Taylor's request).**
+  The blocking call hid Taylor's "stop" for 119 s and Codex re-focused Arc
+  twice while he was using it; Slack's composer in Arc gave invalid element
+  ids, a `paste()` clipboard timeout and `noWindowsAvailable` (15 calls,
+  nothing typed); the turn cost ~890k lifetime input; the 13-hour-old
+  session ran a server with no `bridge:` line, no `timing:` line and no
+  `codex_close_session`; the three-minute peer wait did not fit a present,
+  pushing Taylor; the Slack MCP's "Sent using @Claude" attribution made
+  both routes unusable for a post in Taylor's voice.
+  - *bridge:* human kill switch `codex-bridge stop` (daemon-side interrupt
+    of every in-progress turn plus a three-second STOP marker that current
+    servers poll; measured 0.4 s to stop a running turn from a terminal);
+    "The user changed '<App>.app'" now ends the turn as `user_took_over`;
+    default `timeout_sec` 900 → 300; `codex-bridge close SESSION` for
+    sessions whose server predates the tool.
+  - *skill:* hard rule 8 (short turns when Taylor is present, tell him the
+    kill switch, "stop" means `codex_interrupt` now); "go now" overrides the
+    peer wait and busy is not ownership; Slack-in-Taylor's-voice routing
+    gap; web-app cost caveat; Arc web-app memory.
+  - *open:* whether the `paste()` clipboard timeout is Arc-specific; an
+    async start-and-poll mode (experiment 6) so Claude can act on messages
+    mid-turn.
 - **2026-09-29, Tier 5 agentic runs (6 prompts to fresh subagents,
   `scenarios/t5`; 5 pass, 1 fail).** Prompts were phrased as Taylor would
   type them, with no hint to use the skill; graded from each report plus

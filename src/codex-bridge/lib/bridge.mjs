@@ -8,7 +8,8 @@ import { AppServer } from './appserver.mjs'
 import { trimmedRoster } from './codex-config.mjs'
 import { CODEX_HOME, daemonStatus } from './codex-paths.mjs'
 import { loadPolicy } from './policy.mjs'
-import { STATE_DIR, loadState, updateState } from './state.mjs'
+import { STATE_DIR, STOP_FILE, loadState, updateState } from './state.mjs'
+import { unlinkSync, writeFileSync } from 'node:fs'
 import { finalizeTimeline, formatResult, runTurn, summarize } from './turn-runner.mjs'
 
 const DEVELOPER_INSTRUCTIONS = `You are running a task delegated by a supervising Claude agent through codex-bridge; there is no human at the keyboard.
@@ -157,7 +158,7 @@ export class Bridge {
           ctx.progress?.(m)
           entry.lastProgress = m
         },
-        timeoutMs: Math.max(30, Number(args.timeout_sec) || 900) * 1000,
+        timeoutMs: Math.max(30, Number(args.timeout_sec) || 300) * 1000,
         log: this.log,
         signal: ctx.signal,
         receivedAt,
@@ -252,6 +253,47 @@ export class Bridge {
     if (!running) return `session "${session}" (thread ${rec.threadId}) has no active turn.`
     await this.app.turnInterrupt({ threadId: rec.threadId, turnId: running.id })
     return `interrupted thread ${rec.threadId} turn ${running.id} (it was running outside this bridge process).`
+  }
+
+  // The human kill switch. Interrupts every in-progress turn the daemon
+  // knows about on the sessions in state.json (any bridge process, any
+  // age), and raises STOP_FILE for a few seconds so turns on current
+  // servers stop themselves too.
+  async stopAll({ session = null } = {}) {
+    writeFileSync(STOP_FILE, new Date().toISOString())
+    const out = []
+    try {
+      await this.connect()
+      const sessions = Object.entries(loadState().sessions || {}).filter(([n]) => !session || n === session)
+      for (const [name, rec] of sessions) {
+        if (!rec?.threadId) continue
+        let turns
+        try {
+          turns = await this.app.request('thread/turns/list', { threadId: rec.threadId, limit: 3, itemsView: 'summary' })
+        } catch (err) {
+          out.push(`${name}: not loaded on the daemon (${err.message.slice(0, 60)})`)
+          continue
+        }
+        const running = (turns?.data || []).filter((t) => t.status === 'inProgress')
+        for (const t of running) {
+          try {
+            await this.app.turnInterrupt({ threadId: rec.threadId, turnId: t.id })
+            out.push(`${name}: interrupted turn ${t.id}`)
+          } catch (err) {
+            out.push(`${name}: interrupt failed (${err.message.slice(0, 80)})`)
+          }
+        }
+        if (!running.length) out.push(`${name}: no turn running`)
+      }
+    } finally {
+      // Leave the marker long enough for every current server to poll it
+      // (they check once a second), then remove it so the next turn can run.
+      await new Promise((r) => setTimeout(r, 3000))
+      try {
+        unlinkSync(STOP_FILE)
+      } catch {}
+    }
+    return out.length ? out.join('\n') : 'no sessions known'
   }
 
   approveApp(app, scope = 'session') {

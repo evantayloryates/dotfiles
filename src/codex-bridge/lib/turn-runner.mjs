@@ -17,7 +17,12 @@ import { writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { decideApp, decideCommand, decideFileChange } from './policy.mjs'
-import { ensureScreenshotDir, ensureTimelineDir } from './state.mjs'
+import { existsSync, unlinkSync } from 'node:fs'
+import { STOP_FILE, ensureScreenshotDir, ensureTimelineDir } from './state.mjs'
+
+// Codex reports this when a human moved, focused or typed into the app it
+// was driving. Two agents on one keyboard is a collision, not a retry.
+const USER_TOOK_OVER = /The user changed ['"]?[^'"]*\.app|user changed the (?:app|window)/i
 
 const now = () => Date.now()
 
@@ -100,7 +105,7 @@ export async function runTurn(app, opts) {
           const t = params.turn || {}
           // A timeout or cancel we initiated ends the turn as "interrupted"
           // on Codex's side; keep our own reason, it is the one Claude needs.
-          if (!['timeout', 'cancelled', 'needs_input'].includes(result.status)) result.status = t.status || 'completed'
+          if (!['timeout', 'cancelled', 'needs_input', 'user_took_over', 'stopped'].includes(result.status)) result.status = t.status || 'completed'
           if (t.error) result.error = t.error.message || JSON.stringify(t.error)
           mark('turn_completed', { status: result.status })
           resolveDone()
@@ -188,6 +193,13 @@ export async function runTurn(app, opts) {
         if (it.status === 'failed' || it.error) {
           const firstText = content.find((c) => c?.type === 'text')?.text || ''
           step.error = (it.error?.message || it.error || firstText || 'failed').toString().slice(0, 300)
+          if (USER_TOOK_OVER.test(step.error) && !['user_took_over', 'stopped', 'timeout', 'cancelled'].includes(result.status)) {
+            result.status = 'user_took_over'
+            result.error = `a human is using the app Codex was driving (${step.error.slice(0, 120)}); the turn was stopped`
+            mark('user_took_over', { error: step.error.slice(0, 160) })
+            onProgress('stopping: a human is using the app')
+            requestInterrupt?.('user_took_over')
+          }
         }
         for (const c of content) {
           if (c?.type === 'image' && c.data) {
@@ -306,6 +318,7 @@ export async function runTurn(app, opts) {
 
   const detach = app.attachThread(threadId, handler)
   let timer = null
+  let stopPoll = null
   let abortListener = null
   try {
     const turnParams = { threadId, input }
@@ -337,6 +350,19 @@ export async function runTurn(app, opts) {
       result.error = `turn exceeded ${Math.round(timeoutMs / 1000)}s; interrupted`
       interrupt('timeout').finally(resolveDone)
     }, timeoutMs)
+    // A human kill switch that needs no Claude turn: `codex-bridge stop`
+    // writes STOP_FILE; every running turn on a current server sees it
+    // within a second. (The CLI also interrupts through the daemon, which
+    // reaches turns on older server processes too.)
+    stopPoll = setInterval(() => {
+      if (!existsSync(STOP_FILE)) return
+      if (['stopped', 'timeout', 'cancelled'].includes(result.status)) return
+      result.status = 'stopped'
+      result.error = 'stopped by codex-bridge stop (human kill switch)'
+      mark('stop_file_seen')
+      onProgress('stopping: kill switch')
+      interrupt('stop-file').finally(resolveDone)
+    }, 1000)
     if (signal) {
       abortListener = () => {
         result.status = 'cancelled'
@@ -349,6 +375,7 @@ export async function runTurn(app, opts) {
     await done
   } finally {
     clearTimeout(timer)
+    clearInterval(stopPoll)
     if (signal && abortListener) signal.removeEventListener('abort', abortListener)
     detach()
     result.durationMs = now() - started

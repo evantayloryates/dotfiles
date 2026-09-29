@@ -9,6 +9,8 @@ export const STATE_DIR = process.env.CODEX_BRIDGE_STATE_DIR || join(homedir(), '
 export const SCREENSHOT_DIR = join(STATE_DIR, 'screenshots')
 export const TIMELINE_DIR = join(STATE_DIR, 'timelines')
 const STATE_FILE = join(STATE_DIR, 'state.json')
+// Written by `codex-bridge stop`; running turns poll it once a second.
+export const STOP_FILE = join(STATE_DIR, 'STOP')
 
 const EMPTY = { sessions: {}, grants: {} }
 

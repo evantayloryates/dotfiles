@@ -63,6 +63,30 @@ Long turns are fine: Claude Code's stdio tool timeout is ~28 h, it
 auto-backgrounds calls over 2 min, and the bridge sends MCP progress
 notifications for every step so the 30 min idle timeout never trips.
 
+## Stopping a run
+
+A `codex_computer_use` call blocks the Claude turn that made it, so Claude
+cannot react to "stop" until the call returns. Three stop paths that do not
+depend on that turn:
+
+- **Kill switch from any terminal:** `~/dotfiles/src/codex-bridge/bin/codex-bridge stop`
+  (or `stop --session NAME`). It interrupts every in-progress turn through
+  the daemon, which reaches turns started by any bridge process of any age,
+  and raises `~/.local/state/codex-bridge/STOP` for three seconds, which
+  turns on current servers poll once a second. The pending call returns
+  `status: stopped`; the session stays usable. Measured 2026-09-29: a
+  running turn stopped 0.4 s after the command.
+- **Touch the app.** Computer Use reports "The user changed '<App>.app'"
+  when a human focuses or types into the app Codex is driving; the bridge
+  treats that as terminal and interrupts, returning `status: user_took_over`
+  rather than letting Codex re-focus the app and fight for it.
+- **`codex_interrupt`** from Claude, when Claude is not the one blocked.
+
+The default `timeout_sec` is 300; callers with a human at the keyboard
+should set it lower and keep tasks short. `codex-bridge close SESSION`
+archives a session's thread from a terminal when the session's own bridge
+predates `codex_close_session`.
+
 ## Sessions and threads
 
 Each session name maps to one persistent Codex thread, recorded in
@@ -75,7 +99,10 @@ Threads are real Codex threads: they appear in the Codex app's history and in
 
 `completed` is the only success. `needs_input`: Codex asked a clarifying
 question; the bridge interrupted the turn and returned it (answer with the
-next call on the same session). `interrupted`: `codex_interrupt` stopped it. `cancelled`: the MCP client cancelled the call. `timeout`:
+next call on the same session). `interrupted`: `codex_interrupt` stopped it. `stopped`: the terminal kill
+switch (`codex-bridge stop`) stopped it. `user_took_over`: Computer Use
+reported a human using the app Codex was driving and the bridge stopped the
+turn. `cancelled`: the MCP client cancelled the call. `timeout`:
 `timeout_sec` expired and the bridge interrupted the turn. `failed`: Codex
 reported an error (in `error`). `disconnected`: the connection to the
 app-server dropped mid-turn; the daemon may finish the turn, but its result

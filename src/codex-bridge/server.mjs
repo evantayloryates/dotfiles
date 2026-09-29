@@ -18,7 +18,7 @@ const TOOLS = [
     description:
       'Hand a task to the local Codex agent, which can operate any macOS app through Computer Use (accessibility tree, screenshots, clicks, typing) on this Mac. ' +
       'Use it for things your own tools cannot reach: native apps, system dialogs, menus, apps with no API or browser surface. ' +
-      'The call blocks until Codex finishes and returns its final report plus a step log. Follow-ups on the same session keep Codex\'s context. ' +
+      'The call blocks until Codex finishes and returns its final report plus a step log; while it runs the caller cannot react, so keep turns short when a human is present and tell them the terminal kill switch `codex-bridge stop`. A human touching the app Codex is driving ends the turn (status user_took_over). Follow-ups on the same session keep Codex\'s context. ' +
       'Apps Codex may touch are gated: pass apps=[...] to grant access for the session, or the result will list what was denied. ' +
       'Describe the goal and the acceptance criteria, not the clicks.',
     inputSchema: {
@@ -34,7 +34,7 @@ const TOOLS = [
         allow_commands: { type: 'boolean', description: 'Let Codex run shell commands that escape the read-only sandbox and apply file changes. Default false.' },
         sandbox: { type: 'string', enum: ['read-only', 'workspace-write', 'danger-full-access'], description: 'Filesystem sandbox for shell commands this turn. Default read-only (Computer Use itself is not sandboxed).' },
         output_schema: { type: 'object', description: 'JSON Schema for the final message; Codex then answers with a JSON object matching it.' },
-        timeout_sec: { type: 'number', description: 'Interrupt the turn after this many seconds. Default 900.' },
+        timeout_sec: { type: 'number', description: 'Interrupt the turn after this many seconds. Default 300; keep it short when a human is at the keyboard. Taylor can stop any running turn from a terminal with `codex-bridge stop`.' },
         model: { type: 'string', description: 'Override the Codex model for this turn and later ones on the session.' },
         effort: { type: 'string', enum: ['low', 'medium', 'high', 'xhigh'], description: 'Reasoning effort override.' },
         developer_instructions: { type: 'string', description: 'Experimental: replace the bridge\'s standing instructions to Codex for a new thread (used by the pressure harness to A/B instruction variants).' },

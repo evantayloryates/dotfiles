@@ -7,6 +7,8 @@
 //   codex-bridge status [--session NAME]
 //   codex-bridge approve <app> [--always] | revoke <app>
 //   codex-bridge interrupt [--session NAME]
+//   codex-bridge stop [--session NAME]      # HUMAN KILL SWITCH: interrupt every running Computer Use turn
+//   codex-bridge close <session>            # archive a session's thread (frees its runtime on the daemon)
 //   codex-bridge daemon start|stop|restart|status
 
 import { existsSync } from 'node:fs'
@@ -87,7 +89,7 @@ async function main() {
   const cmd = pos[0]
   const session = flags.session || 'default'
   if (!cmd || cmd === 'help') {
-    console.log('codex-bridge preflight | run "task" [--session S --apps A,B --new --allow-commands --screenshots none|last|all --timeout SEC] | status | approve APP [--always] | revoke APP | interrupt [--session S] | daemon start|stop|restart|status')
+    console.log('codex-bridge stop [--session S]   (kill switch: interrupts every running turn)\ncodex-bridge close SESSION\ncodex-bridge preflight | run "task" [--session S --apps A,B --new --allow-commands --screenshots none|last|all --timeout SEC] | status | approve APP [--always] | revoke APP | interrupt [--session S] | daemon start|stop|restart|status')
     return 0
   }
   if (cmd === 'preflight') return preflight()
@@ -133,6 +135,15 @@ async function main() {
     }
     if (cmd === 'interrupt') {
       console.log(await bridge.interrupt(session))
+      return 0
+    }
+    if (cmd === 'stop') {
+      console.log(await bridge.stopAll({ session: flags.session || null }))
+      return 0
+    }
+    if (cmd === 'close') {
+      if (!pos[1]) throw new Error('close needs a session name')
+      console.log(await bridge.closeSession(pos[1]))
       return 0
     }
     throw new Error(`unknown command ${cmd}`)
