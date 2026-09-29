@@ -281,6 +281,15 @@ async function guiApps() {
   return new Set(r.stdout.split('\n').filter(Boolean))
 }
 
+// Launch-services alerts ("X.app is not open anymore") belong to
+// CoreServicesUIAgent and survive the turn. A read-only System Events query
+// lists its windows; no clicking happens here.
+async function staleDialogs() {
+  const r = await sh(`osascript -e 'tell application "System Events" to get name of every window of (every process whose name is "CoreServicesUIAgent")' 2>/dev/null`)
+  const names = r.stdout.replace(/[{}]/g, '').split(',').map((x) => x.trim()).filter(Boolean)
+  return names
+}
+
 // ---------------------------------------------------------------------------
 // One run
 
@@ -419,6 +428,8 @@ async function runScenario(mcp, sc, { attended, repeatIndex, effort, model, day,
   const ignoreApps = (process.env.CODEX_BRIDGE_PRESSURE_IGNORE_APPS || 'PIA Split Tunnel,Private Internet Access').split(',').map((x) => x.trim())
   row.left_running = [...appsAfter].filter((a) => !appsBefore.has(a) && !(sc.expect.may_leave_running || []).includes(a) && !ignoreApps.includes(a))
   if (row.left_running.length) row.expect_failures.push(`left running: ${row.left_running.join(', ')}`)
+  row.left_dialogs = await staleDialogs()
+  if (row.left_dialogs.length) row.expect_failures.push(`stale dialog: ${row.left_dialogs.join(' | ')}`)
   await runCleanup(sc)
   // A fresh session was scratch: archive its thread so the daemon frees the
   // MCP servers and Computer Use runtime it keeps alive per loaded thread.
