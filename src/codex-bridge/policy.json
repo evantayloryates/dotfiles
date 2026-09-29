@@ -1,0 +1,12 @@
+{
+  "$comment": "codex-bridge approval policy. apps.* entries are app display names or bundle ids. unknown: 'deny' (Claude must pass apps=[...]) or 'session'. commands/fileChanges: 'deny' or 'accept'. sandbox: read-only | workspace-write | danger-full-access.",
+  "apps": {
+    "always": [],
+    "session": ["Finder"],
+    "deny": ["1Password", "com.1password.1password", "Keychain Access", "System Settings", "com.apple.systempreferences"],
+    "unknown": "deny"
+  },
+  "commands": "deny",
+  "fileChanges": "deny",
+  "sandbox": "read-only"
+}

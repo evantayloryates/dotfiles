@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# MCP launcher for codex-bridge (stdio). Registered with Claude Code as:
+#   claude mcp add codex-bridge -s user -- /Users/taylor/dotfiles/src/codex-bridge/bin/codex-bridge-mcp
+# Resolves node explicitly: GUI-launched MCP servers inherit a minimal PATH.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+. "${SCRIPT_DIR}/../../lib/resolve-binary.sh"
+NODE="$(resolve_binary node)"
+exec "$NODE" "${SCRIPT_DIR}/../server.mjs" "$@"
