@@ -374,6 +374,43 @@ serve that gets cut.
 
 Dated, newest first. Each entry names the surface and what changed.
 
+- **2026-09-29, experiment 1: task granularity (Tier 6 `facts-*`, trimmed
+  roster, 2 repeats).** Five facts about Finder and the running apps, asked
+  three ways. Answers were identical in all three (the "frontmost app" fact
+  is not exposed by `cua.getState()`, reported consistently).
+  | Shape | Wall for 5 facts | Input tokens | Per fact |
+  |---|---|---|---|
+  | one batched task | 18.6 s | 104k | 3.7 s |
+  | five fresh single-fact calls | 49.9 s | 290k | 10.0 s |
+  | five follow-ups on one session | 32.1 s | 1.69M cumulative (thread grew 47k → 645k over 10 turns, ~65k per turn) | 6.4 s |
+  - Batching is the dominant lever: 2.7x faster and 2.8x cheaper than one
+    call per fact. A warm session makes each follow-up 4–7 s (no boot), but
+    the whole thread is re-sent every turn, so token cost grows linearly;
+    reuse a session for genuinely dependent follow-ups, not for unrelated
+    reads, and start a new thread after a handful of turns (experiment 2
+    will set the number).
+  - The batched scenario's first two runs show `X` in the ledger only
+    because the initial `contains` regexes were too literal; the answers
+    were correct and the expectations were loosened.
+- **2026-09-29, experiment 12: instruction tuning (Tier 0 plus
+  `facts-batched`, trimmed roster, 2 repeats per variant).** Three
+  variants against the default: `lean` (no preamble, no narration,
+  combine reads, fewest turns), `terse` (lean plus a 60-word plain final
+  message), `no-preamble` (default plus only "no message before the first
+  tool call, no narration, do every listed step").
+  - Every variant removed the preamble agent message (one model call per
+    task, 1–3 s). On reads: `facts-batched` 18.6 s → 11.4 s (lean) / 9.7 s
+    (terse) / 10.0 s (no-preamble), tokens 104k → 76k; `finder-read` and
+    `dock-unreadable` unchanged within noise.
+  - On the action task (`calculator-open-quit`) `lean` and `terse` broke
+    compliance: the requested screenshot was skipped in 4 of 4 runs, the
+    app was left running in 2 of 4, and one `terse` run ballooned to 11
+    model calls. "Fewest turns" pressure makes Codex drop listed steps.
+    `no-preamble` kept compliance (screenshot taken, app quit) at 21.7 s,
+    with one 42 s outlier where Codex looped on confirming the quit.
+  - Adopted `no-preamble` as the bridge's default instructions
+    (`DEVELOPER_INSTRUCTIONS`); `docs/instructions/` keeps all variants for
+    re-runs. Rule for future wording: cut round trips, never cut steps.
 - **2026-09-29, experiment 11: trim the MCP roster (Tier 0, 2 repeats
   trim-servers-only, then 1 pass with plugins trimmed too).** Adopted as
   the default (`policy.json` `mcpRoster: "trim"`; per-call `mcp_roster:

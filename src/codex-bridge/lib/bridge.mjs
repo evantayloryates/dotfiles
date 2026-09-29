@@ -14,7 +14,8 @@ import { finalizeTimeline, formatResult, runTurn, summarize } from './turn-runne
 const DEVELOPER_INSTRUCTIONS = `You are running a task delegated by a supervising Claude agent through codex-bridge; there is no human at the keyboard.
 - Use Computer Use (cua_repl) for anything that needs the macOS UI. Prefer purpose-built tools when they exist.
 - Open and target apps by name with cua.getApp(<name or bundle id>); it launches the app if needed. Never go through the Dock, Spotlight, Launchpad or Mission Control: the Dock is auto-hidden, moves between screen edges, and is not readable through accessibility.
-- Call the report_progress tool at meaningful milestones (one short sentence each) so the supervisor can follow along.
+- Do not send a message before your first tool call and do not narrate between calls; your words go in the final message. Do every step the task lists, in order, even when a result seems obvious.
+- Call the report_progress tool at meaningful milestones on tasks with more than three steps (one short sentence each) so the supervisor can follow along.
 - If an app is not approved, say which app in your final message and stop; the supervisor can grant it and re-run.
 - Never take irreversible actions (send, submit, purchase, delete) unless the task explicitly asks for that exact action.
 - Leave the desktop as you found it. Before your final message, re-read the state of every app you touched and close any dialog, alert, sheet, tab or window you caused; quit any app you launched unless the task says to leave it open. Never leave a modal for the user to puzzle over. If something cannot be cleaned up, say exactly what is left and where.
@@ -27,6 +28,8 @@ const REPORT_PROGRESS_TOOL = {
   description: 'Send a one-sentence progress note to the supervising agent. Use at milestones, not for every action.',
   inputSchema: { type: 'object', properties: { message: { type: 'string' } }, required: ['message'], additionalProperties: false },
 }
+
+export { DEVELOPER_INSTRUCTIONS }
 
 export class BridgeError extends Error {
   expected = true // a user-facing refusal, not a bug: logged without a stack
@@ -52,13 +55,13 @@ export class Bridge {
   // roster: 'full' keeps whatever ~/.codex/config.toml enables; 'trim'
   // disables every MCP server and plugin except Computer Use on this thread
   // (experiment 11: smaller prompt, faster boot).
-  #threadParams(cwd, session, roster) {
+  #threadParams(cwd, session, roster, instructions) {
     const p = {
       cwd,
       approvalPolicy: this.policy.approvalPolicy,
       sandbox: this.policy.sandbox,
       ephemeral: false,
-      developerInstructions: DEVELOPER_INSTRUCTIONS,
+      developerInstructions: instructions || DEVELOPER_INSTRUCTIONS,
       dynamicTools: [REPORT_PROGRESS_TOOL],
       serviceName: `codex-bridge:${session}`,
     }
@@ -71,12 +74,12 @@ export class Bridge {
     return p
   }
 
-  async ensureThread(session, { cwd, newThread = false, roster } = {}) {
+  async ensureThread(session, { cwd, newThread = false, roster, instructions } = {}) {
     await this.connect()
     const state = loadState()
     const rec = state.sessions[session]
     roster ||= rec?.roster || this.policy.mcpRoster || 'full'
-    const params = this.#threadParams(cwd || rec?.cwd || process.cwd(), session, roster)
+    const params = this.#threadParams(cwd || rec?.cwd || process.cwd(), session, roster, instructions)
     if (rec?.threadId && !newThread) {
       if (this.#loaded.has(rec.threadId)) return rec.threadId
       try {
@@ -108,7 +111,7 @@ export class Bridge {
       const a = this.active.get(session)
       throw new BridgeError(`session "${session}" already has a turn running (started ${a.startedAt}, task: ${a.task.slice(0, 80)}). Use codex_steer to redirect it, codex_interrupt to stop it, or another session name.`)
     }
-    const threadId = await this.ensureThread(session, { cwd: args.cwd, newThread: !!args.new_thread, roster: args.mcp_roster })
+    const threadId = await this.ensureThread(session, { cwd: args.cwd, newThread: !!args.new_thread, roster: args.mcp_roster, instructions: args.developer_instructions })
     const threadReadyAt = Date.now()
     const state = loadState()
     const grants = { ...(state.grants || {}) }
@@ -140,6 +143,7 @@ export class Bridge {
         threadReadyAt,
         session,
         roster: args.mcp_roster,
+        instructions: args.developer_instructions,
       })
       entry.threadId = result.threadId
       entry.turnId = result.turnId
@@ -172,7 +176,7 @@ export class Bridge {
       if (!/thread not found|not loaded|unknown thread/i.test(err.message)) throw err
       this.log(`turn/start on ${threadId} failed (${err.message}); resuming or restarting the thread`)
       this.#loaded.delete(threadId)
-      const fresh = await this.ensureThread(session, { roster: turnOpts.roster })
+      const fresh = await this.ensureThread(session, { roster: turnOpts.roster, instructions: turnOpts.instructions })
       return runTurn(this.app, { ...turnOpts, threadId: fresh })
     }
   }

@@ -1,0 +1,30 @@
+{
+  "tier": "t6",
+  "track": "M",
+  "surfaces": [
+    "codex",
+    "bridge"
+  ],
+  "risk": "read",
+  "raises_windows": false,
+  "args": {
+    "apps": [
+      "Finder"
+    ],
+    "screenshots": "none",
+    "timeout_sec": 120
+  },
+  "expect": {
+    "status": "completed",
+    "no_denials": true,
+    "contains": [
+      "\\bNo\\b|\\bYes\\b|Calculator"
+    ],
+    "steps": [
+      1,
+      3
+    ]
+  },
+  "session": "reuse:exp1-reuse",
+  "task": "Read-only: never click, type, scroll or change anything.\nApps: Finder only. Do not touch any other app or window, and never focus Google Chrome.\nGoal: report one fact: whether Calculator appears in the running-app list (yes or no).\nReport: one line. No screenshot."
+}

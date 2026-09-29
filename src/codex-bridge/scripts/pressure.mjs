@@ -305,7 +305,8 @@ async function runScenario(mcp, sc, { attended, repeatIndex, effort, model, day,
     app_version: versions.app,
     model: model || sc.args.model || null,
     effort: effort || sc.args.effort || null,
-    roster: flags.roster || sc.args.mcp_roster || 'full',
+    roster: flags.roster || sc.args.mcp_roster || 'trim',
+    instructions: flags.instructions ? basename(String(flags.instructions), '.md') : 'default',
     session: null,
     thread_id: null,
     turn_id: null,
@@ -345,6 +346,7 @@ async function runScenario(mcp, sc, { attended, repeatIndex, effort, model, day,
   if (effort) args.effort = effort
   if (model) args.model = model
   if (flags.roster) args.mcp_roster = flags.roster
+  if (flags.instructions) args.developer_instructions = readFileSync(resolve(flags.instructions), 'utf8')
   args.cwd ||= SCRATCH_DIR
   row.session = args.session
 
@@ -386,6 +388,13 @@ async function runScenario(mcp, sc, { attended, repeatIndex, effort, model, day,
   row.tool_calls = summary.metrics?.cua_calls ?? null
   row.failed_steps = (summary.steps || []).filter((s) => s.error).length
   row.first_step_ms = summary.metrics?.first_action_ms ?? null
+  try {
+    const tl = readFileSync(summary.timelinePath, 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l))
+    row.model_calls = tl.filter((e) => e.ev === 'item_started' && e.type !== 'userMessage' && e.type !== 'dynamicToolCall').length
+    row.preamble_messages = tl.filter((e) => e.ev === 'item_started' && e.type === 'agentMessage').length - 1
+  } catch {
+    row.model_calls = null
+  }
   row.boot_ms = summary.metrics?.boot_ms ?? null
   row.cua_ms = summary.metrics?.cua_ms ?? null
   row.model_ms = summary.metrics?.model_ms ?? null
@@ -407,7 +416,8 @@ async function runScenario(mcp, sc, { attended, repeatIndex, effort, model, day,
   // Anything Codex launched and did not quit is a cleanup failure, before
   // our own cleanup hides it.
   const appsAfter = await guiApps()
-  row.left_running = [...appsAfter].filter((a) => !appsBefore.has(a) && !(sc.expect.may_leave_running || []).includes(a))
+  const ignoreApps = (process.env.CODEX_BRIDGE_PRESSURE_IGNORE_APPS || 'PIA Split Tunnel,Private Internet Access').split(',').map((x) => x.trim())
+  row.left_running = [...appsAfter].filter((a) => !appsBefore.has(a) && !(sc.expect.may_leave_running || []).includes(a) && !ignoreApps.includes(a))
   if (row.left_running.length) row.expect_failures.push(`left running: ${row.left_running.join(', ')}`)
   await runCleanup(sc)
   // A fresh session was scratch: archive its thread so the daemon frees the
