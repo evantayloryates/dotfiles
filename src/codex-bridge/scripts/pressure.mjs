@@ -273,8 +273,11 @@ async function runCleanup(sc) {
 // Leftover detection: GUI apps running after the run that were not before.
 // Cheap and model-free; dialogs are not visible this way, only processes.
 
+// Only user-facing apps count: bundles under the Applications folders.
+// System agents (screencaptureui, ManagedClient, Codex's own
+// SkyComputerUseClient notifier) come and go on their own and are noise.
 async function guiApps() {
-  const r = await sh("ps -axo comm= | grep -E '\\.app/Contents/MacOS/' | sed -E 's#.*/([^/]+)\\.app/Contents/MacOS/.*#\\1#' | sort -u")
+  const r = await sh("ps -axo comm= | grep -E '^(/Applications|/System/Applications|" + homedir() + "/Applications)/[^/]+\\.app/Contents/MacOS/' | sed -E 's#.*/([^/]+)\\.app/Contents/MacOS/.*#\\1#' | sort -u")
   return new Set(r.stdout.split('\n').filter(Boolean))
 }
 

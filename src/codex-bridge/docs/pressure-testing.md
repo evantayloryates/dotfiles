@@ -374,6 +374,30 @@ serve that gets cut.
 
 Dated, newest first. Each entry names the surface and what changed.
 
+- **2026-09-29, effort sweep on Tier 0 (experiment 3; 4 scenarios x 2
+  repeats x low/medium/high/xhigh, 32 runs).** Effort is not a lever for
+  desktop work of this size. Mean wall time: low 15.3 s, medium 13.5 s,
+  high 14.4 s, xhigh 14.6 s; model time 8.4–10.7 s; output tokens 166–225
+  per turn at every level, so almost no reasoning is happening anyway.
+  Pass rate 31/32; the one miss was `medium` skipping the requested
+  screenshot once (n=1). Step counts were identical across efforts.
+  - *What the "model" time actually is:* with 80–320 output tokens per
+    turn, the 8–19 s is not thinking, it is per-call round-trip latency on
+    a 51k–170k-token prompt (95 percent cached) times three to five model
+    calls per turn (plan message, each tool call, final message). The
+    levers are therefore fewer model calls per task and a smaller prompt,
+    not effort: experiments 1 (batch reads), 11 (trim the MCP roster: a
+    one-step fresh thread already costs 51k input tokens, most of it tool
+    definitions from fifteen MCP servers plus the 25 KB Computer Use
+    documentation) and 12 (instruction tuning: "read state once, then
+    act, then one final message").
+  - *Default stays `high`* (the config default) until a scenario shows a
+    difference; the skill should not bother setting `effort` for reads.
+  - *runner:* the leftover detector first counted transient system agents
+    (Codex's own SkyComputerUseClient notifier, screencaptureui,
+    ManagedClient, ScriptMonitor); now only bundles under the Applications
+    folders count. The `low`/`medium` rows in the ledger carry that noise
+    in `expect_failures`; re-graded by hand above.
 - **2026-09-29, first Tier 0 batch (4 scenarios, 5 runs).** Runner and
   timelines live. Where the time goes on a two-step read: setup 0.1–0.3 s,
   boot 2.2–2.9 s, Computer Use 0.7–5.3 s, model 4.8–19.7 s. Model time
