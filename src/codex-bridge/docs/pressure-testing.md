@@ -374,6 +374,43 @@ serve that gets cut.
 
 Dated, newest first. Each entry names the surface and what changed.
 
+- **2026-09-29, Tier 4 bridge and protocol checks (`scripts/tier4.mjs`,
+  14 checks; all pass after five bridge fixes).** Long tasks used `sleep`
+  through Codex's shell so the desktop never moved.
+  - *Fixed:* a `timeout_sec` expiry came back as `interrupted` (Codex's
+    completion status overwrote the bridge's reason). Now `timeout`.
+  - *Fixed:* `codex_steer` and in-process `codex_interrupt` could not see a
+    running turn because the bridge recorded the turn id only after the
+    turn ended; steer now redirects a running turn in ~6 s (whole check
+    15 s, was a 55 s no-op).
+  - *Fixed:* Codex's clarifying questions arrive in an agent message's
+    `questions` field and the turn then waits for a human; the bridge sat
+    until the 90 s timeout. It now returns `status: needs_input` in ~6 s
+    and the answer is the next call (2.1 s round trip). The experimental
+    `item/tool/requestUserInput` request never fired here.
+  - *Fixed:* with `sandbox_approval: false` Codex never asked to escape the
+    read-only sandbox, so `allow_commands` was inert and denials invisible.
+    The policy now lets it ask; the denied run lists two denials, the
+    allowed run (`allow_commands`, `sandbox: workspace-write`) wrote the
+    file. `workspaceWrite` needs the `writableRoots` field present.
+  - *Fixed (design):* on a daemon version mismatch the bridge restarted the
+    shared daemon with whatever binary it had; a standalone CLI in
+    `CODEX_BRIDGE_CODEX_PATH` would have replaced the working daemon. It
+    now restarts only when the bundled CLI is newer, else refuses with a
+    clear status line (verified: daemon stayed on 0.158).
+  - *Observed, no change:* two bridges running Computer Use turns at once
+    both completed (8.5 s and 6.9 s); the same session name from two
+    processes queued the second turn behind the first rather than
+    erroring; killing the MCP server mid-turn left no orphan (daemon mode),
+    a second process saw the session, interrupted the turn cross-process
+    and continued it; a stopped daemon auto-started in ~0.2 s; a daemon
+    restart mid-turn (pid changed) let the old daemon finish the turn, and
+    once returned `disconnected` at completion with the result lost;
+    `screenshots: "all"` with six shots returns a 1.9 MB result (six inline
+    images, 1.4 KB of text), so `all` is for short tasks only;
+    `output_schema` with nested arrays returned valid JSON; an attached
+    image was described correctly; a truncated `state.json` did not break
+    `codex_status`.
 - **2026-09-29, experiment 2: session reuse versus fresh thread (Tier 6
   `reuse-growth`, 24 consecutive turns of the batched five-fact read on
   one session, trimmed roster, no-preamble instructions).**

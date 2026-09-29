@@ -16,6 +16,18 @@ import { connectDaemonTransport, installExitHooks, onExitCleanup, spawnStdioTran
 
 export const BRIDGE_VERSION = '0.1.0'
 
+// Semver-ish compare on the numeric prefix (0.158.0-alpha.2.1 > 0.149.0).
+export function newerThan(a, b) {
+  const pa = String(a).split(/[.-]/).map((x) => parseInt(x, 10)).filter((n) => !Number.isNaN(n))
+  const pb = String(b).split(/[.-]/).map((x) => parseInt(x, 10)).filter((n) => !Number.isNaN(n))
+  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+    const x = pa[i] ?? 0
+    const y = pb[i] ?? 0
+    if (x !== y) return x > y
+  }
+  return false
+}
+
 export class AppServer extends EventEmitter {
   #peer = null
   #threadHandlers = new Map()
@@ -83,8 +95,16 @@ export class AppServer extends EventEmitter {
       status = await daemonStart(this.bin)
     }
     if (status.appServerVersion && status.appServerVersion !== this.version) {
-      this.log(`daemon runs ${status.appServerVersion}, CLI is ${this.version}; restarting daemon`)
-      status = await daemonRestart(this.bin)
+      // Never replace a shared daemon with a different build from here: the
+      // configured binary may be the wrong one (a standalone CLI cannot
+      // drive Computer Use). Restart only when the daemon is older than the
+      // bundled CLI that is known to work; otherwise leave it and say so.
+      if (newerThan(this.version, status.appServerVersion) && this.bin.includes('.app/Contents/')) {
+        this.log(`daemon runs ${status.appServerVersion}, bundled CLI is ${this.version}; restarting daemon on the newer build`)
+        status = await daemonRestart(this.bin)
+      } else {
+        throw new Error(`daemon runs ${status.appServerVersion} but this bridge's codex binary is ${this.version} (${this.bin}); not touching the shared daemon`)
+      }
     }
     const sock = daemonSocketPath()
     if (!sock) throw new Error(`daemon reports ${status.status} but no control socket exists`)

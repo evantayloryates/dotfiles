@@ -21,7 +21,10 @@ export const DEFAULT_POLICY = {
   fileChanges: 'deny',
   sandbox: 'read-only',
   mcpRoster: 'trim', // 'trim' = Computer Use only on bridge threads; 'full' = whatever config.toml enables
-  approvalPolicy: { granular: { mcp_elicitations: true, rules: false, sandbox_approval: false } },
+  // sandbox_approval: true lets Codex ASK to escape the read-only sandbox; the
+  // bridge then decides from `commands` / allow_commands and the result shows
+  // the denial. With false, Codex silently gives up and nothing is recorded.
+  approvalPolicy: { granular: { mcp_elicitations: true, rules: false, sandbox_approval: true } },
 }
 
 export function loadPolicy(path = DEFAULT_POLICY_PATH) {

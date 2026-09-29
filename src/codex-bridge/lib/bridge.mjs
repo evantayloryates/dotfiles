@@ -144,6 +144,9 @@ export class Bridge {
         session,
         roster: args.mcp_roster,
         instructions: args.developer_instructions,
+        onTurnStarted: (turnId) => {
+          entry.turnId = turnId // lets codex_steer / codex_interrupt find the live turn
+        },
       })
       entry.threadId = result.threadId
       entry.turnId = result.turnId
@@ -177,6 +180,8 @@ export class Bridge {
       this.log(`turn/start on ${threadId} failed (${err.message}); resuming or restarting the thread`)
       this.#loaded.delete(threadId)
       const fresh = await this.ensureThread(session, { roster: turnOpts.roster, instructions: turnOpts.instructions })
+      const entry = this.active.get(session)
+      if (entry) entry.threadId = fresh
       return runTurn(this.app, { ...turnOpts, threadId: fresh })
     }
   }

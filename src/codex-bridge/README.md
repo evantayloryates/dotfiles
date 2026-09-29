@@ -89,9 +89,18 @@ plus per-call grants, and reports every decision in the result:
 - **Shell escapes and file changes** (`item/commandExecution/requestApproval`,
   `item/fileChange/requestApproval`). Denied unless `allow_commands: true` or
   the policy says `accept`. Read-only sandboxed commands never ask.
-- **User-input questions** (`item/tool/requestUserInput`). Nobody can answer
-  live, so Codex is told to proceed on best judgment and stop before anything
-  irreversible; the questions come back in the result for a follow-up call.
+- **Clarifying questions.** Codex asks through the `questions` field of an
+  agent message and then waits for a reply, which would hang the call until
+  the timeout. The bridge records the questions, interrupts the turn, and
+  returns `status: needs_input` at once (about 6 s); the answer is simply the
+  next call on the same session, and the thread keeps its context (2 s
+  round trip measured). The experimental `item/tool/requestUserInput`
+  server request is handled too, with a canned "proceed conservatively"
+  answer, but was never observed in this configuration.
+- **Sandbox escalation.** The policy lets Codex ask to escape the read-only
+  sandbox (`sandbox_approval: true`); the bridge answers from `commands` /
+  `allow_commands` and the result lists the denial. With `allow_commands`
+  and `sandbox: workspace-write` the thread cwd is writable without asking.
 - **Permission escalations** are always declined.
 
 Computer Use itself is not sandboxed by `sandbox`; the app allowlist is the

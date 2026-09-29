@@ -38,6 +38,7 @@ export async function runTurn(app, opts) {
     receivedAt = now(),
     threadReadyAt = null,
     session = null,
+    onTurnStarted = () => {},
   } = opts
 
   const started = now()
@@ -72,6 +73,7 @@ export async function runTurn(app, opts) {
 
   let stepCount = 0
   let resolveDone
+  let requestInterrupt = null
   const done = new Promise((r) => (resolveDone = r))
 
   const handler = {
@@ -96,7 +98,9 @@ export async function runTurn(app, opts) {
         }
         case 'turn/completed': {
           const t = params.turn || {}
-          result.status = t.status || 'completed'
+          // A timeout or cancel we initiated ends the turn as "interrupted"
+          // on Codex's side; keep our own reason, it is the one Claude needs.
+          if (!['timeout', 'cancelled', 'needs_input'].includes(result.status)) result.status = t.status || 'completed'
           if (t.error) result.error = t.error.message || JSON.stringify(t.error)
           mark('turn_completed', { status: result.status })
           resolveDone()
@@ -161,6 +165,15 @@ export async function runTurn(app, opts) {
     switch (it.type) {
       case 'agentMessage':
         if (it.text) result.finalText = it.text
+        if (Array.isArray(it.questions) && it.questions.length) {
+          // Codex asked the user and the turn now waits for a reply nobody
+          // here can give. Record the questions, end the turn, and hand them
+          // to Claude; the answer comes back as the next call on this session.
+          for (const q of it.questions) result.questions.push({ id: q.id || null, header: q.header || null, question: q.question || q.text || JSON.stringify(q).slice(0, 200), options: (q.options || []).map((o) => o.label || o) })
+          result.status = 'needs_input'
+          mark('needs_input', { questions: result.questions.length })
+          requestInterrupt?.('needs_input')
+        }
         return
       case 'mcpToolCall': {
         const step = {
@@ -301,10 +314,12 @@ export async function runTurn(app, opts) {
     if (overrides.effort) turnParams.effort = overrides.effort
     if (overrides.sandbox) turnParams.sandboxPolicy = sandboxPolicy(overrides.sandbox)
     if (overrides.disabledPluginIds) turnParams.disabledPluginIds = overrides.disabledPluginIds
+    if (overrides.allowCommands) turnParams.approvalPolicy = { granular: { mcp_elicitations: true, rules: false, sandbox_approval: true } }
     mark('turn_start_sent', { inputChars: input.reduce((n, i) => n + (i.text?.length || 0), 0), images: input.filter((i) => i.type === 'localImage').length })
     const startResp = await app.turnStart(turnParams)
     result.turnId = startResp?.turn?.id || result.turnId
     mark('turn_start_ack', { turnId: result.turnId })
+    onTurnStarted(result.turnId)
 
     const interrupt = async (why) => {
       mark('interrupt_sent', { why })
@@ -313,6 +328,9 @@ export async function runTurn(app, opts) {
       } catch (err) {
         log(`interrupt after ${why} failed: ${err.message}`)
       }
+    }
+    requestInterrupt = (why) => {
+      interrupt(why).catch(() => {})
     }
     timer = setTimeout(() => {
       result.status = 'timeout'
@@ -446,7 +464,7 @@ export function sandboxPolicy(mode) {
     case 'danger-full-access':
       return { type: 'dangerFullAccess' }
     case 'workspace-write':
-      return { type: 'workspaceWrite', networkAccess: false }
+      return { type: 'workspaceWrite', networkAccess: false, writableRoots: [] }
     default:
       return { type: 'readOnly', networkAccess: false }
   }
@@ -486,9 +504,9 @@ export function formatResult(r, { session } = {}) {
     }
   }
   if (r.questions.length) {
-    lines.push('', 'Codex asked questions nobody could answer live (it was told to proceed on best judgment):')
+    lines.push('', r.status === 'needs_input' ? 'Codex stopped to ask (answer in the next call on this session; the thread keeps its context):' : 'Codex asked questions nobody could answer live (it was told to proceed on best judgment):')
     for (const q of r.questions) lines.push(`  - ${q.question}${q.options.length ? ` [${q.options.join(' / ')}]` : ''}`)
-    lines.push('  Answer them in a follow-up call on the same session.')
+    if (r.status !== 'needs_input') lines.push('  Answer them in a follow-up call on the same session.')
   }
   if (r.screenshots.length) lines.push('', `screenshots (${r.screenshots.length}): ${r.screenshots.map((s) => s.path).join(', ')}`)
   const u = r.usage
