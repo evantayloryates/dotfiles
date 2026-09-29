@@ -60,7 +60,8 @@ export class BridgeError extends Error {
 export class Bridge {
   #loaded = new Set()
   #rosterByThread = new Map() // threadId -> disabledPluginIds for trimmed threads
-  active = new Map() // session -> { threadId, turnId, task, startedAt }
+  active = new Map()
+  jobs = new Map() // session -> { promise, startedAt, task, progress: [], done: null } for wait:false runs // session -> { threadId, turnId, task, startedAt }
 
   constructor({ log = () => {} } = {}) {
     this.log = log
@@ -227,6 +228,43 @@ export class Bridge {
       delete s.sessions[session]
     })
     return `session "${session}" closed: thread ${rec.threadId} ${archived}. A new call with this session name starts a fresh thread.`
+  }
+
+  // Experiment 6: start a turn and return at once, so the calling Claude
+  // turn is free to act on Taylor's messages (stop, steer) while Codex
+  // works. The result is collected with waitFor().
+  startAsync(args, ctx = {}) {
+    const session = String(args.session || 'default')
+    if (this.jobs.has(session) || this.active.has(session)) throw new BridgeError(`session "${session}" already has a turn running`)
+    const job = { startedAt: new Date().toISOString(), task: String(args.task), progress: [], done: null, error: null }
+    const progress = (m) => {
+      job.progress.push(`${new Date().toISOString().slice(11, 19)} ${m}`)
+      ctx.progress?.(m)
+    }
+    job.promise = this.run(args, { progress })
+      .then((r) => {
+        job.done = r
+      })
+      .catch((err) => {
+        job.error = err
+      })
+    this.jobs.set(session, job)
+    return `started on session "${session}" at ${job.startedAt}. Poll with codex_wait (blocks up to its timeout, returns the result when done or the progress so far); codex_steer and codex_interrupt work meanwhile.`
+  }
+
+  async waitFor(session, { timeoutSec = 60 } = {}) {
+    session = String(session)
+    const job = this.jobs.get(session)
+    if (!job) throw new BridgeError(`no async turn on session "${session}" in this bridge process`)
+    await Promise.race([job.promise, new Promise((r) => setTimeout(r, Math.max(1, Number(timeoutSec) || 60) * 1000))])
+    if (job.done || job.error) {
+      this.jobs.delete(session)
+      if (job.error) throw job.error
+      return { finished: true, ...job.done }
+    }
+    const a = this.active.get(session)
+    const tail = job.progress.slice(-8).map((p) => `  ${p}`).join('\n')
+    return { finished: false, text: `still running on "${session}" since ${job.startedAt}${a?.turnId ? ` (turn ${a.turnId})` : ''}; ${job.progress.length} progress lines so far:\n${tail || '  (none yet)'}\nCall codex_wait again, codex_steer to redirect, or codex_interrupt to stop.` }
   }
 
   async steer(session, message) {

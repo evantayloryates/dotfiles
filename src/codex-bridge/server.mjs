@@ -37,6 +37,7 @@ const TOOLS = [
         timeout_sec: { type: 'number', description: 'Interrupt the turn after this many seconds. Default 300; keep it short when a human is at the keyboard. Taylor can stop any running turn from a terminal with `codex-bridge stop`.' },
         model: { type: 'string', description: 'Override the Codex model for this turn and later ones on the session.' },
         effort: { type: 'string', enum: ['low', 'medium', 'high', 'xhigh'], description: 'Reasoning effort override.' },
+        wait: { type: 'boolean', description: 'Default true: block until Codex finishes. false: return at once with a job started; collect the result with codex_wait, and use codex_steer / codex_interrupt meanwhile. Use false whenever a human is at the keyboard so you can act on their messages mid-turn.' },
         developer_instructions: { type: 'string', description: 'Experimental: replace the bridge\'s standing instructions to Codex for a new thread (used by the pressure harness to A/B instruction variants).' },
         mcp_roster: { type: 'string', enum: ['full', 'trim'], description: 'For a new thread: "trim" disables every Codex MCP server and plugin except Computer Use (smaller prompt, faster boot); "full" keeps the config.toml roster. Default from policy (trim).' },
       },
@@ -44,6 +45,13 @@ const TOOLS = [
       additionalProperties: false,
     },
     annotations: { readOnlyHint: false, destructiveHint: true, openWorldHint: true },
+  },
+  {
+    name: 'codex_wait',
+    title: 'Wait for an async Codex turn',
+    description: 'For a turn started with wait:false. Blocks up to timeout_sec (default 60) and returns the full result when the turn is done, otherwise the progress so far. Call it again to keep waiting; between calls you can codex_steer or codex_interrupt.',
+    inputSchema: { type: 'object', properties: { session: SESSION, timeout_sec: { type: 'number' }, screenshots: { type: 'string', enum: ['none', 'last', 'all'] } }, additionalProperties: false },
+    annotations: { readOnlyHint: true, openWorldHint: false },
   },
   {
     name: 'codex_steer',
@@ -96,6 +104,7 @@ function handlerFor(name) {
     case 'codex_computer_use':
       return async (args, ctx) => {
         if (typeof args.task !== 'string' || !args.task.trim()) throw new BridgeError('task is required')
+        if (args.wait === false) return bridge.startAsync(args, ctx)
         const { result, text, summary } = await bridge.run(args, ctx)
         const content = [{ type: 'text', text }]
         const mode = args.screenshots || 'last'
@@ -104,6 +113,16 @@ function handlerFor(name) {
         // structuredContent is the machine-readable twin of the text, for
         // harnesses (scripts/pressure.mjs) and any client that prefers JSON.
         return { content, structuredContent: summary, isError: !['completed'].includes(result.status) }
+      }
+    case 'codex_wait':
+      return async (args) => {
+        const r = await bridge.waitFor(args.session || 'default', { timeoutSec: args.timeout_sec })
+        if (!r.finished) return r.text
+        const content = [{ type: 'text', text: r.text }]
+        const mode = args.screenshots || 'last'
+        const shots = mode === 'all' ? r.result.screenshots : mode === 'last' ? r.result.screenshots.slice(-1) : []
+        for (const s of shots) content.push({ type: 'image', data: s.data, mimeType: s.mimeType })
+        return { content, structuredContent: r.summary, isError: !['completed'].includes(r.result.status) }
       }
     case 'codex_steer':
       return (args) => bridge.steer(args.session || 'default', args.message)

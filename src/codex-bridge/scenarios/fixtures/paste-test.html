@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>paste-test: empty</title>
+<style>
+  body { font: 16px -apple-system, sans-serif; padding: 24px; }
+  textarea, div[contenteditable] { width: 480px; min-height: 60px; border: 2px solid #888; padding: 8px; margin: 8px 0 20px; }
+</style>
+</head>
+<body>
+<h1>codex-bridge paste test</h1>
+<p>Field A is a plain textarea. Field B is a contenteditable div. The window title mirrors both values.</p>
+<label for="a">Field A (textarea)</label>
+<textarea id="a" aria-label="Field A textarea"></textarea>
+<label for="b">Field B (contenteditable)</label>
+<div id="b" contenteditable="true" role="textbox" aria-label="Field B contenteditable"></div>
+<script>
+  function refresh() {
+    document.title = 'paste-test: A=' + (document.getElementById('a').value || '(empty)') + ' B=' + (document.getElementById('b').textContent || '(empty)');
+  }
+  document.getElementById('a').addEventListener('input', refresh);
+  document.getElementById('b').addEventListener('input', refresh);
+  refresh();
+</script>
+</body>
+</html>

@@ -53,6 +53,7 @@ claude mcp add codex-bridge -s user -- /Users/taylor/dotfiles/src/codex-bridge/b
 | Tool | What it does |
 |------|--------------|
 | `codex_computer_use` | Run a task. Blocks until Codex finishes; returns its report, a step log, approvals/denials, screenshot paths (last one attached as an image). `session` picks the Codex thread; `apps=[...]` grants app access for that session; `allow_commands`, `sandbox`, `output_schema`, `timeout_sec`, `model`, `effort`, `images`, `new_thread`. |
+| `codex_wait` | Wait (up to `timeout_sec`) for a turn started with `wait: false`; returns the result when done, else the progress so far. |
 | `codex_steer` | Inject a message into the running turn on a session. Codex changes course within seconds. |
 | `codex_interrupt` | Stop the running turn. The pending call returns `status: interrupted`. |
 | `codex_approve_app` | Grant an app ahead of time, scope `session` or `always` (`revoke: true` to drop it). |
@@ -77,15 +78,31 @@ depend on that turn:
   `status: stopped`; the session stays usable. Measured 2026-09-29: a
   running turn stopped 0.4 s after the command.
 - **Touch the app.** Computer Use reports "The user changed '<App>.app'"
-  when a human focuses or types into the app Codex is driving; the bridge
-  treats that as terminal and interrupts, returning `status: user_took_over`
-  rather than letting Codex re-focus the app and fight for it.
+  when the app's state changed under Codex: a human focusing or typing into
+  it, or a page that changes on its own (Chrome with a live Meet tab raised
+  it twice with nobody at the keyboard). On the second such error in one
+  turn the bridge interrupts and returns `status: user_took_over` rather
+  than letting Codex re-focus the app and fight for it; a single one is
+  left to Codex, which re-queries state and retries.
 - **`codex_interrupt`** from Claude, when Claude is not the one blocked.
 
 The default `timeout_sec` is 300; callers with a human at the keyboard
 should set it lower and keep tasks short. `codex-bridge close SESSION`
 archives a session's thread from a terminal when the session's own bridge
 predates `codex_close_session`.
+
+## Async mode: wait:false and codex_wait
+
+`codex_computer_use` with `wait: false` starts the turn and returns at
+once with the session name; `codex_wait` (`session`, `timeout_sec`, default
+60) blocks up to its timeout and returns the full result when the turn is
+done, otherwise the progress lines so far. Between waits the caller can
+`codex_steer`, `codex_interrupt`, or read Taylor's messages, which is the
+point: a blocking call hides "stop" until it returns. Measured
+2026-09-29: start 0 s, a 5 s wait reported live progress, a steer landed
+mid-turn, and the result came back through the next wait. Jobs live in the
+bridge process that started them; a second bridge process cannot wait on
+them (it can still `codex-bridge stop` or interrupt through the daemon).
 
 ## Sessions and threads
 

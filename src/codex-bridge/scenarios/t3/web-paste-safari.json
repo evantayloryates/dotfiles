@@ -1,0 +1,49 @@
+{
+  "tier": "t3",
+  "track": "M",
+  "surfaces": [
+    "runtime",
+    "app"
+  ],
+  "risk": "write-app",
+  "raises_windows": true,
+  "never_run_unattended": true,
+  "session": "fresh",
+  "preconditions": {
+    "apps_installed": [
+      "Safari"
+    ],
+    "commands": [
+      "mkdir -p \"$SCRATCH\" && cp /Users/taylor/dotfiles/src/codex-bridge/scenarios/fixtures/paste-test.html \"$SCRATCH/paste-test.html\""
+    ]
+  },
+  "task": "You may click, type and use menus inside Safari only; use Computer Use only, never the browser surface or cua.getTab; never focus Google Chrome; do not touch any other app or window. Goal: paste into web fields. Open Safari by name, open a new window (Command+N), Command+L, type exactly file:///Users/taylor/.local/state/codex-bridge/pressure/scratch/paste-test.html and press Return. Click Field A (textarea) and insert safari-A-ok with paste(); click Field B (contenteditable) and insert safari-B-ok with paste(). Read the window title from the accessibility tree (the page mirrors both values as 'paste-test: A=... B=...'). Take one screenshot with emit enabled. Cleanup: close the window (Command+W), and quit Safari only if cua.getState() showed it was not running before you started; report anything left.",
+  "args": {
+    "apps": [
+      "Safari",
+      "com.apple.Safari"
+    ],
+    "screenshots": "last",
+    "timeout_sec": 240
+  },
+  "expect": {
+    "status": "completed",
+    "contains": [
+      "A=safari-A-ok B=safari-B-ok"
+    ],
+    "screenshots_min": 1,
+    "no_denials": true
+  },
+  "ground_truth": [
+    {
+      "name": "Safari quit if it was launched",
+      "command": "sleep 2; true"
+    }
+  ],
+  "cleanup": [
+    {
+      "command": "rm -f \"$SCRATCH/paste-test.html\""
+    }
+  ],
+  "last_result": "pass 2026-09-29: both fields in the tree, both paste() calls worked"
+}

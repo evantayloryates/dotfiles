@@ -374,6 +374,24 @@ serve that gets cut.
 
 Dated, newest first. Each entry names the surface and what changed.
 
+- **2026-09-29, two open items closed (async mode; the Arc paste
+  question).** *Experiment 6, async mode:* `wait: false` plus `codex_wait`
+  implemented; on a shell-sleep turn the start returned in 0 s, a 5 s wait
+  reported live progress, `codex_status` showed the turn running, a steer
+  landed mid-turn, the result arrived through the next wait at 10.6 s, and
+  a wait on a finished job errors cleanly. *Arc paste:* with a local test
+  page (textarea plus contenteditable, title mirrors both values) Safari
+  exposed both fields and both `paste()` calls landed; Arc loaded the tab
+  title but exposed no fields, its page area was blank in the per-window
+  screenshot, and a click returned `-10005 noWindowsAvailable`. So the
+  Runner failure is Arc's web view being invisible to Computer Use, not
+  `paste()`. Chrome could not be tested: Command+N failed twice with "The
+  user changed '/Applications/Google Chrome.app'" with nobody at the
+  keyboard (a live Meet tab), which showed that error also fires for apps
+  that change on their own; the bridge now ends a turn on the second
+  occurrence, not the first. Scenarios `t3/web-paste-safari` and
+  `t3/web-content-arc` and the fixture `scenarios/fixtures/paste-test.html`
+  keep both checks.
 - **2026-09-29, first real run outside the harness (Runner session,
   Slack post through Arc, reported to this session at Taylor's request).**
   The blocking call hid Taylor's "stop" for 119 s and Codex re-focused Arc

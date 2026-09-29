@@ -193,12 +193,20 @@ export async function runTurn(app, opts) {
         if (it.status === 'failed' || it.error) {
           const firstText = content.find((c) => c?.type === 'text')?.text || ''
           step.error = (it.error?.message || it.error || firstText || 'failed').toString().slice(0, 300)
-          if (USER_TOOK_OVER.test(step.error) && !['user_took_over', 'stopped', 'timeout', 'cancelled'].includes(result.status)) {
-            result.status = 'user_took_over'
-            result.error = `a human is using the app Codex was driving (${step.error.slice(0, 120)}); the turn was stopped`
-            mark('user_took_over', { error: step.error.slice(0, 160) })
-            onProgress('stopping: a human is using the app')
-            requestInterrupt?.('user_took_over')
+          // Computer Use raises this when the app's state changed under Codex.
+          // Once can be a live page (Chrome with a Meet tab did it with nobody
+          // at the keyboard, 2026-09-29); twice in one turn means either a human
+          // is in the app or the app cannot be driven, and Codex must not keep
+          // re-focusing it.
+          if (USER_TOOK_OVER.test(step.error)) {
+            result.userChanged = (result.userChanged || 0) + 1
+            if (result.userChanged >= 2 && !['user_took_over', 'stopped', 'timeout', 'cancelled'].includes(result.status)) {
+              result.status = 'user_took_over'
+              result.error = `the app Codex was driving changed under it twice (${step.error.slice(0, 100)}): a human is using it or it cannot be driven; the turn was stopped`
+              mark('user_took_over', { error: step.error.slice(0, 160), count: result.userChanged })
+              onProgress('stopping: the app keeps changing under Codex')
+              requestInterrupt?.('user_took_over')
+            }
           }
         }
         for (const c of content) {
