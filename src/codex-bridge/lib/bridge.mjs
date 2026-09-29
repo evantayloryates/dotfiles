@@ -31,6 +31,27 @@ const REPORT_PROGRESS_TOOL = {
 
 export { DEVELOPER_INSTRUCTIONS }
 
+// The revision this server process loaded, captured once at startup, so
+// codex_status can tell a session its bridge is older than the checkout
+// (Claude Code never reloads an MCP server mid-session).
+import { execFileSync } from 'node:child_process'
+import { dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
+const BRIDGE_DIR = dirname(dirname(fileURLToPath(import.meta.url)))
+export const SERVER_STARTED_AT = new Date().toISOString()
+export const SERVER_REVISION = gitRev()
+export function gitRev() {
+  // Guarded so a Mac without developer tools never gets git's install
+  // dialog from an MCP server start (a leftover of the kind this bridge
+  // exists to avoid). `--dirty` marks a tree with uncommitted changes.
+  if (!existsSync(join(BRIDGE_DIR, '..', '..', '.git'))) return null
+  try {
+    return execFileSync('git', ['-C', BRIDGE_DIR, 'describe', '--always', '--dirty', '--abbrev=7'], { encoding: 'utf8', timeout: 5000 }).trim()
+  } catch {
+    return null
+  }
+}
+
 export class BridgeError extends Error {
   expected = true // a user-facing refusal, not a bug: logged without a stack
 }
@@ -258,7 +279,9 @@ export class Bridge {
     } catch (err) {
       lines.push(`app-server: NOT connected (${err.message})`)
     }
-    lines.push(`policy: ${this.policy.source || 'built-in defaults'}; sandbox ${this.policy.sandbox}; unknown apps → ${this.policy.apps.unknown}; commands ${this.policy.commands}`)
+    const head = gitRev()
+    lines.push(`bridge: server started ${SERVER_STARTED_AT} on revision ${SERVER_REVISION || '?'}${SERVER_REVISION && head && head !== SERVER_REVISION ? ` (checkout is now ${head}: this session runs an older bridge; a Claude Code restart picks up the current one)` : ''}`)
+    lines.push(`policy: ${this.policy.source || 'built-in defaults'}; sandbox ${this.policy.sandbox}; unknown apps → ${this.policy.apps.unknown}; commands ${this.policy.commands}; mcp roster ${this.policy.mcpRoster || 'full'}`)
     const state = loadState()
     const grants = Object.entries(state.grants || {})
     if (grants.length) lines.push(`grants: ${grants.map(([a, s]) => `${a}=${s}`).join(', ')}`)

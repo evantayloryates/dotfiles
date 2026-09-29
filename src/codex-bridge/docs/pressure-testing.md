@@ -404,7 +404,8 @@ Dated, newest first. Each entry names the surface and what changed.
     stale prompt left for Taylor. Hard rule 2 rewritten: such actions need
     Taylor's typed words by any path (Codex, shell, terminal, browser),
     and nothing may be left waiting for him. Memory
-    `a-pending-prompt-is-a-stale-artifact`.
+    `leave-nothing-behind` (case 2; consolidated at the first upskill
+    round).
   - *skill, observed:* the subagents' task texts were consistently better
     than the hand-written scenario tasks (explicit stop-conditions,
     cleanup contract, evidence list), which says the references are doing

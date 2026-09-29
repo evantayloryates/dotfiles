@@ -56,7 +56,8 @@ claude mcp add codex-bridge -s user -- /Users/taylor/dotfiles/src/codex-bridge/b
 | `codex_steer` | Inject a message into the running turn on a session. Codex changes course within seconds. |
 | `codex_interrupt` | Stop the running turn. The pending call returns `status: interrupted`. |
 | `codex_approve_app` | Grant an app ahead of time, scope `session` or `always` (`revoke: true` to drop it). |
-| `codex_status` | Connection, policy, grants, Computer Use permanent allowlist, sessions and whether each has a turn running. |
+| `codex_close_session` | Archive the session's Codex thread on the daemon (freeing its MCP servers and Computer Use runtime) and forget the name. The next call with that name starts fresh. |
+| `codex_status` | Connection, the bridge revision this server process runs versus the checkout, policy, grants, Computer Use permanent allowlist, sessions and whether each has a turn running. |
 
 Long turns are fine: Claude Code's stdio tool timeout is ~28 h, it
 auto-backgrounds calls over 2 min, and the bridge sends MCP progress
@@ -69,6 +70,43 @@ Each session name maps to one persistent Codex thread, recorded in
 session resumes the thread with full context; `new_thread: true` starts over.
 Threads are real Codex threads: they appear in the Codex app's history and in
 `codex agents`, so you can open one and watch or take over.
+
+## Result statuses
+
+`completed` is the only success. `needs_input`: Codex asked a clarifying
+question; the bridge interrupted the turn and returned it (answer with the
+next call on the same session). `interrupted`: `codex_interrupt` stopped it. `cancelled`: the MCP client cancelled the call. `timeout`:
+`timeout_sec` expired and the bridge interrupted the turn. `failed`: Codex
+reported an error (in `error`). `disconnected`: the connection to the
+app-server dropped mid-turn; the daemon may finish the turn, but its result
+is lost to this call, and the next call on the session reconnects.
+
+## Standing instructions to Codex
+
+Every bridge thread starts with `DEVELOPER_INSTRUCTIONS` from
+`lib/bridge.mjs` as developer instructions. As of 2026-09-29 they say:
+delegated run, no human at the keyboard; use Computer Use for anything
+that needs the UI, prefer purpose-built tools; open and target apps by name
+with `cua.getApp`, never via the Dock, Spotlight, Launchpad or Mission
+Control (`7a8a75a`); no message before the first tool call and no
+narration, do every listed step (`ed4fe2c`); `report_progress` only on
+tasks over three steps; say which app was not approved and stop; no
+irreversible action unless the task names it; leave the desktop as found,
+close what you caused, quit what you launched, report anything left
+(`9917f6e`); after quitting an app never call `cua.getApp` on it again,
+confirm with `cua.getState()` (`9917f6e`); final message under 200 words,
+outcome then evidence then blocked or assumed. The `docs/instructions/`
+variants (lean, terse, no-preamble) are what experiment 12 compared; the
+default equals `no-preamble`.
+
+A Claude Code session starts this MCP server once and never reloads it, so
+a session opened before a bridge commit keeps the old instructions (and
+the old everything) for its whole life. `codex_status` prints the revision
+the process loaded next to the checkout's HEAD (a `bridge:` line); a
+status with no `bridge:` line is a server older than this paragraph, and
+a result without a `timing:` line is another tell. Restart the Claude Code session to pick up
+a commit. Task text should therefore carry the cleanup and no-Dock rules
+itself rather than assume the bridge delivered them.
 
 ## Permissions: who says yes
 
@@ -83,9 +121,12 @@ plus per-call grants, and reports every decision in the result:
   answered with `persist: session|always`; `always` makes Computer Use write
   the bundle id to
   `~/Library/Group Containers/2DC432GLL2.com.openai.sky.CUAService/Library/Application Support/Software/ComputerUseAppApprovals.json`,
-  after which no thread is ever asked again. A denied app makes Codex report
-  "Computer Use was not approved to use X"; the result names it so Claude can
-  re-run with the grant.
+  after which no thread is ever asked again. Session-scoped grants live per
+  Codex thread in `~/.codex/computer-use/sessions/<threadId>.toml`, so a new
+  thread (`new_thread: true`) has none and the bridge answers from policy and
+  the call's `apps` again. A denied app makes Codex report "Computer Use was
+  not approved to use X"; the result names it so Claude can re-run with the
+  grant.
 - **Shell escapes and file changes** (`item/commandExecution/requestApproval`,
   `item/fileChange/requestApproval`). Denied unless `allow_commands: true` or
   the policy says `accept`. Read-only sandboxed commands never ask.
@@ -136,7 +177,7 @@ for a spawned child. Screenshots land in `~/.local/state/codex-bridge/screenshot
 
 ## Timelines and pressure testing
 
-Every turn writes `~/.local/state/codex-bridge/timelines/<turnId>.jsonl`
+Every turn on a server started after `9917f6e` writes `~/.local/state/codex-bridge/timelines/<turnId>.jsonl`
 (one event per hop: turn start, each item, each server request and the
 bridge's answer, screenshots, completion, result size) and a `.json` twin
 with the metrics: setup, boot (Codex starting its MCP servers), Computer
@@ -156,6 +197,12 @@ node scripts/pressure.mjs --tier t0 --attended      # scenarios that raise windo
 node scripts/pressure.mjs scenarios/t0/finder-read.json --repeat 5 --effort low
 ```
 
+Sizing: `screenshots: "all"` with six emitted shots returned a 1.9 MB
+result (six inline images); use it on short tasks. Inside Codex, the
+`cua_repl` `js` tool truncates its output at 25k tokens (ask for the key
+window or a named element, not "the whole app") and has a 120 s startup
+timeout, so a cold Computer Use boot can exceed a 30 s `timeout_sec`.
+
 ## Protocol notes learned the hard way
 
 - `unix://` and `ws://` listeners speak WebSocket (the unix one is an HTTP
@@ -169,8 +216,9 @@ node scripts/pressure.mjs scenarios/t0/finder-read.json --repeat 5 --effort low
   Computer Use silently fails for every app not on the permanent allowlist.
   The bridge uses the granular policy with `mcp_elicitations: true`.
 - `approvalsReviewer: auto_review` reviews commands, not app elicitations.
-- Every thread boots every MCP server in `~/.codex/config.toml` (2–3 s before
-  the first item). Trim that file, or accept the cost.
+- With the full roster every thread boots every MCP server in
+  `~/.codex/config.toml` (2-3 s before the first item); the trimmed roster
+  (default since `158d7a3`) makes it about 1 s.
 - Passive clients on the shared daemon only see `thread/started` and
   `thread/status/changed` for other clients' threads, never items; the bridge
   also filters by thread id and declines any server request for a thread it

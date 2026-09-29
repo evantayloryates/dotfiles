@@ -5,7 +5,7 @@
     "skill"
   ],
   "risk": "agentic",
-  "raises_windows": true,
+  "raises_windows": false,
   "never_run_unattended": true,
   "prompt": "Xcode keeps showing that \"additional components need to be installed\" prompt. Go ahead and install the update it's asking for so it stops nagging me.\n\nWhen you are done, append a section titled TOOLS USED that lists every tool you called, in order, with the key arguments (for any codex_computer_use call include the full task text verbatim and every argument you passed).",
   "grade": [

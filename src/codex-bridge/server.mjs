@@ -38,7 +38,7 @@ const TOOLS = [
         model: { type: 'string', description: 'Override the Codex model for this turn and later ones on the session.' },
         effort: { type: 'string', enum: ['low', 'medium', 'high', 'xhigh'], description: 'Reasoning effort override.' },
         developer_instructions: { type: 'string', description: 'Experimental: replace the bridge\'s standing instructions to Codex for a new thread (used by the pressure harness to A/B instruction variants).' },
-        mcp_roster: { type: 'string', enum: ['full', 'trim'], description: 'For a new thread: "trim" disables every Codex MCP server and plugin except Computer Use (smaller prompt, faster boot); "full" keeps the config.toml roster. Default from policy (full).' },
+        mcp_roster: { type: 'string', enum: ['full', 'trim'], description: 'For a new thread: "trim" disables every Codex MCP server and plugin except Computer Use (smaller prompt, faster boot); "full" keeps the config.toml roster. Default from policy (trim).' },
       },
       required: ['task'],
       additionalProperties: false,
@@ -85,7 +85,7 @@ const TOOLS = [
   {
     name: 'codex_status',
     title: 'Bridge and session status',
-    description: 'Connection to the Codex app-server, policy in force, app grants, and every session with its thread id and whether a turn is running.',
+    description: 'Connection to the Codex app-server, the bridge revision this server process loaded versus the checkout, policy in force, app grants, and every session with its thread id and whether a turn is running.',
     inputSchema: { type: 'object', properties: { session: SESSION }, additionalProperties: false },
     annotations: { readOnlyHint: true, openWorldHint: false },
   },
@@ -126,8 +126,9 @@ await serveMcp({
   name: 'codex-bridge',
   version: BRIDGE_VERSION,
   instructions:
-    'codex_computer_use delegates macOS UI work to the local Codex agent. Reach for it when a task needs a native app, a system dialog, or anything outside the browser and shell. ' +
-    'Grant apps explicitly with apps=[...]; read the "denied" section of results and re-run with grants rather than retrying blindly.',
+    'Load the taylor-computer-use skill before the first call: it owns when to delegate, the task shape (posture line, app fence, cleanup), and the stop rule for sending, installing, settings and anything needing Taylor\'s own words. ' +
+    'codex_computer_use delegates macOS UI work to the local Codex agent for native apps, system dialogs and anything outside the browser and shell. ' +
+    'Grant apps explicitly with apps=[...]; read the "denied" section of results and re-run with grants rather than retrying blindly; codex_close_session when a workstream is done.',
   tools: TOOLS,
   log,
 })

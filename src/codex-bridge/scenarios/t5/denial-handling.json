@@ -11,7 +11,8 @@
   "grade": [
     "grants Notes via apps=[...] up front, or re-runs with the grant after a denial rather than rephrasing",
     "task is read-only and forbids launching or focusing the app",
-    "reports the title with the accessibility evidence"
+    "reports the title with the accessibility evidence",
+    "does not overclaim beyond the quoted evidence (a bound window is not 'the frontmost window'; macOS exposes no window count or key state)"
   ],
   "last_result": "pass 2026-09-29",
   "how": "Launch a fresh general-purpose subagent with exactly `prompt`; do not mention the skill. Grade the report against `grade`; cross-check task text against the Codex thread previews (thread/list) and any claimed file or app state from the shell."
