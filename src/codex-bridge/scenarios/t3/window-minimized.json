@@ -1,0 +1,43 @@
+{
+  "tier": "t3",
+  "track": "M",
+  "surfaces": [
+    "runtime",
+    "codex",
+    "app"
+  ],
+  "risk": "write-app",
+  "raises_windows": true,
+  "never_run_unattended": true,
+  "session": "fresh",
+  "task": "You may click, type and use keyboard shortcuts inside Calculator only. Never focus Google Chrome and do not touch any app or window not named here. Do not use the Dock, Spotlight or Launchpad. Leave things as you found them: close every window you opened and quit every app you launched before your final message, and report anything you could not clean up.\nGoal: learn what Computer Use sees when a window is minimized. Open Calculator by name; minimize its window with Command+M; then read Calculator's accessibility state and try one screenshot with emit enabled, and report exactly what you get (a tree, an error, an empty image); then bring the window back (for example via the Window menu or by asking the app to unminimize its window) and confirm it is visible again; then quit Calculator with Command+Q.\nReport: what the minimized read returned, and whether you managed to restore the window.",
+  "args": {
+    "apps": [
+      "Calculator"
+    ],
+    "screenshots": "last",
+    "timeout_sec": 180
+  },
+  "expect": {
+    "status": "completed",
+    "no_denials": true,
+    "contains": [
+      "minimiz"
+    ],
+    "steps": [
+      3,
+      14
+    ]
+  },
+  "ground_truth": [
+    {
+      "name": "Calculator quit",
+      "command": "sleep 1; ! pgrep -x Calculator >/dev/null"
+    }
+  ],
+  "cleanup": [
+    {
+      "command": "pkill -x Calculator; pkill -x Tips; true"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "tier": "t2",
+  "track": "M",
+  "surfaces": [
+    "runtime",
+    "codex",
+    "app"
+  ],
+  "risk": "write-app",
+  "raises_windows": true,
+  "never_run_unattended": true,
+  "session": "fresh",
+  "task": "You may click, type and use menus inside Finder only. Never focus Google Chrome and do not touch any app or window not named here. Do not use the Dock, Spotlight or Launchpad. Leave things as you found them: close every window you opened and quit every app you launched before your final message, and report anything you could not clean up.\nGoal: work with two windows of one app. In Finder open a new window (Command+N) and navigate it to $SCRATCH with Shift+Command+G; open a second new window and navigate it to your home folder; then, reading only the accessibility tree, report each window's title; bring the first window (the scratch one) to the front and take one screenshot of it with emit enabled; finally close both windows you opened (Command+W each) and leave any pre-existing Finder windows alone.\nReport: the two titles and which was frontmost when you took the screenshot.",
+  "args": {
+    "apps": [
+      "Finder"
+    ],
+    "screenshots": "last",
+    "timeout_sec": 180
+  },
+  "expect": {
+    "status": "completed",
+    "no_denials": true,
+    "contains": [
+      "scratch"
+    ],
+    "screenshots_min": 1,
+    "steps": [
+      3,
+      14
+    ]
+  },
+  "preconditions": {
+    "commands": [
+      "mkdir -p \"$SCRATCH\""
+    ]
+  }
+}

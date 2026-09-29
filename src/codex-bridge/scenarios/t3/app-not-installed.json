@@ -1,0 +1,33 @@
+{
+  "tier": "t3",
+  "track": "M",
+  "surfaces": [
+    "runtime",
+    "codex",
+    "app"
+  ],
+  "risk": "read",
+  "raises_windows": false,
+  "never_run_unattended": false,
+  "session": "fresh",
+  "task": "Read-only: never click, type, scroll or change anything. Never focus Google Chrome and do not touch any app or window not named here. Do not use the Dock, Spotlight or Launchpad. Leave things as you found them: close every window you opened and quit every app you launched before your final message, and report anything you could not clean up.\nGoal: try once to get the state of an app named Xcode Beta (bundle id com.apple.dt.XcodeBeta), which may not exist on this Mac. If Computer Use cannot find or open it, report that in one line and stop; do not try any other app, do not search for it.\nReport: found or not found, quoting the exact error text.",
+  "args": {
+    "apps": [
+      "Xcode Beta",
+      "com.apple.dt.XcodeBeta"
+    ],
+    "screenshots": "none",
+    "timeout_sec": 90
+  },
+  "expect": {
+    "status": "completed",
+    "no_denials": true,
+    "contains": [
+      "not found|could not|cannot|no such|unable|not installed|failed"
+    ],
+    "steps": [
+      1,
+      3
+    ]
+  }
+}

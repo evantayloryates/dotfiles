@@ -1,0 +1,44 @@
+{
+  "tier": "t3",
+  "track": "M",
+  "surfaces": [
+    "runtime",
+    "codex",
+    "app"
+  ],
+  "risk": "write-app",
+  "raises_windows": true,
+  "never_run_unattended": true,
+  "session": "fresh",
+  "task": "You may click, type and use menus inside TextEdit only. Never focus Google Chrome and do not touch any app or window not named here. Do not use the Dock, Spotlight or Launchpad. Leave things as you found them: close every window you opened and quit every app you launched before your final message, and report anything you could not clean up.\nGoal: target the right window when two look alike. Open TextEdit by name and create two new documents (Command+N twice); in the first type FIRST and in the second type SECOND; then, using only the accessibility tree, report each window's title and its text, and say how you told them apart; then close both without saving (Command+W, Don't Save, for each) and quit TextEdit.\nReport: the two titles, which text was in which, and your method.",
+  "args": {
+    "apps": [
+      "TextEdit"
+    ],
+    "screenshots": "none",
+    "timeout_sec": 240
+  },
+  "expect": {
+    "status": "completed",
+    "no_denials": true,
+    "contains": [
+      "FIRST",
+      "SECOND"
+    ],
+    "steps": [
+      4,
+      20
+    ]
+  },
+  "ground_truth": [
+    {
+      "name": "TextEdit quit",
+      "command": "sleep 1; ! pgrep -x TextEdit >/dev/null"
+    }
+  ],
+  "cleanup": [
+    {
+      "command": "pkill -x TextEdit; true"
+    }
+  ]
+}

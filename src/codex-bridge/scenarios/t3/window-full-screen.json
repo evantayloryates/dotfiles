@@ -1,0 +1,43 @@
+{
+  "tier": "t3",
+  "track": "M",
+  "surfaces": [
+    "runtime",
+    "codex",
+    "app"
+  ],
+  "risk": "write-app",
+  "raises_windows": true,
+  "never_run_unattended": true,
+  "session": "fresh",
+  "task": "You may click, type and use keyboard shortcuts inside Calculator only. Never focus Google Chrome and do not touch any app or window not named here. Do not use the Dock, Spotlight or Launchpad. Leave things as you found them: close every window you opened and quit every app you launched before your final message, and report anything you could not clean up.\nGoal: learn what Computer Use sees in full screen. Open Calculator by name; enter full screen with Control+Command+F (or the green button's full-screen option); wait two seconds; read its accessibility state and take one screenshot with emit enabled; report what you see; then leave full screen the same way, confirm it is a normal window again, and quit Calculator with Command+Q. If full screen is not available for this app, say so and just quit.\nReport: what the full-screen read returned and whether you restored the window.",
+  "args": {
+    "apps": [
+      "Calculator"
+    ],
+    "screenshots": "last",
+    "timeout_sec": 180
+  },
+  "expect": {
+    "status": "completed",
+    "no_denials": true,
+    "contains": [
+      "full"
+    ],
+    "steps": [
+      3,
+      12
+    ]
+  },
+  "ground_truth": [
+    {
+      "name": "Calculator quit",
+      "command": "sleep 2; ! pgrep -x Calculator >/dev/null"
+    }
+  ],
+  "cleanup": [
+    {
+      "command": "pkill -x Calculator; true"
+    }
+  ]
+}

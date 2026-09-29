@@ -1,0 +1,43 @@
+{
+  "tier": "t3",
+  "track": "M",
+  "surfaces": [
+    "runtime",
+    "codex",
+    "app"
+  ],
+  "risk": "write-app",
+  "raises_windows": true,
+  "never_run_unattended": true,
+  "session": "fresh",
+  "task": "You may click, type and use keyboard shortcuts inside Calculator only. Never focus Google Chrome and do not touch any app or window not named here. Do not use the Dock, Spotlight or Launchpad. Leave things as you found them: close every window you opened and quit every app you launched before your final message, and report anything you could not clean up.\nGoal: learn what Computer Use sees when an app is hidden. Open Calculator by name; hide it with Command+H; then read Calculator's accessibility state and try one screenshot with emit enabled, and report exactly what you get; then unhide it (any means that stays inside Calculator, for example cua.getApp again or its own menu) and confirm it is visible; then quit Calculator with Command+Q.\nReport: what the hidden read returned, and whether you managed to unhide it.",
+  "args": {
+    "apps": [
+      "Calculator"
+    ],
+    "screenshots": "last",
+    "timeout_sec": 180
+  },
+  "expect": {
+    "status": "completed",
+    "no_denials": true,
+    "contains": [
+      "hid"
+    ],
+    "steps": [
+      3,
+      12
+    ]
+  },
+  "ground_truth": [
+    {
+      "name": "Calculator quit",
+      "command": "sleep 1; ! pgrep -x Calculator >/dev/null"
+    }
+  ],
+  "cleanup": [
+    {
+      "command": "pkill -x Calculator; true"
+    }
+  ]
+}

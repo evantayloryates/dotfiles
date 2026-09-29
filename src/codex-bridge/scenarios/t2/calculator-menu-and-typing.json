@@ -1,0 +1,49 @@
+{
+  "tier": "t2",
+  "track": "M",
+  "surfaces": [
+    "runtime",
+    "codex",
+    "app"
+  ],
+  "risk": "write-app",
+  "raises_windows": true,
+  "never_run_unattended": true,
+  "session": "fresh",
+  "task": "You may click, type and use menus inside Calculator only. Never focus Google Chrome and do not touch any app or window not named here. Do not use the Dock, Spotlight or Launchpad. Leave things as you found them: close every window you opened and quit every app you launched before your final message, and report anything you could not clean up.\nGoal: exercise a menu and keyboard input. Open Calculator by name; use the View menu to switch to Scientific, confirm from the accessibility tree that scientific keys (like sin or log) are present; switch back to Basic via the View menu; type 12*34= using the keyboard and read the displayed result; then quit Calculator with Command+Q.\nReport: whether scientific keys appeared, and the displayed result (expected 408). One screenshot of the result with emit enabled.",
+  "args": {
+    "apps": [
+      "Calculator"
+    ],
+    "screenshots": "last",
+    "timeout_sec": 180
+  },
+  "expect": {
+    "status": "completed",
+    "no_denials": true,
+    "contains": [
+      "408"
+    ],
+    "screenshots_min": 1,
+    "steps": [
+      3,
+      14
+    ]
+  },
+  "preconditions": {
+    "apps_installed": [
+      "Calculator"
+    ]
+  },
+  "ground_truth": [
+    {
+      "name": "Calculator quit",
+      "command": "sleep 1; ! pgrep -x Calculator >/dev/null"
+    }
+  ],
+  "cleanup": [
+    {
+      "command": "pkill -x Calculator; true"
+    }
+  ]
+}

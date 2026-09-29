@@ -374,6 +374,36 @@ serve that gets cut.
 
 Dated, newest first. Each entry names the surface and what changed.
 
+- **2026-09-29, Tiers 2 and 3, attended (6 cross-app scenarios, 9
+  adversarial).** Tier 2: 6/6 pass with ground truth (file written with
+  the three lines through TextEdit's Save sheet, note created and deleted
+  in Notes, image opened from Finder into Preview, menus and typing in
+  Calculator, two Finder windows told apart, a long list scrolled to a
+  named file). Tier 3: 6 pass, 3 partial on step-count guesses only
+  (every ground truth held). Cost profile: 20–105 s per scenario, 4–18
+  Computer Use calls, model round trips 60–80 percent of wall time
+  (2.5–4 s per call), 160k–655k input tokens per task.
+  - *runtime:* a **minimized** window is still readable and screenshots
+    still render; restoring it is the problem (Window-menu clicks timed
+    out, `Raise` did nothing) and Codex wandered into the Help menu and
+    launched **Tips**, the one leftover of the day. A **hidden** app
+    (Command+H) is readable, and its `Raise` secondary action unhides it.
+    Calculator has no full-screen mode (zoom button disabled).
+  - *apps:* TextEdit's "Don't Save" button is labelled **Delete** in this
+    macOS (accessibility id `DontSaveButton`); Codex handled it. Preview
+    shows its Open dialog when its last window closes, which must be
+    dismissed before quitting. Notes' Delete moves the note to Recently
+    Deleted (recoverable, reported by Codex). Xcode launched to its Welcome
+    window in ~3 s (warm).
+  - *runtime, good news:* `paste()` **preserved the clipboard**: the
+    sentinel put there before the run was intact afterwards.
+  - *codex:* window disambiguation worked through TextEdit's Window menu
+    titles (`Untitled.rtf` vs `Untitled 2.rtf`); a missing app was
+    reported in one step; the VS Code name/bundle-id question resolved on
+    the first try.
+  - *skill:* an explicit "leave things as you found them" fence in every
+    task produced zero leftovers except Tips; the standing cleanup
+    contract plus the fence is the working combination.
 - **2026-09-29, Tier 4 bridge and protocol checks (`scripts/tier4.mjs`,
   14 checks; all pass after five bridge fixes).** Long tasks used `sleep`
   through Codex's shell so the desktop never moved.

@@ -1,0 +1,52 @@
+{
+  "tier": "t2",
+  "track": "M",
+  "surfaces": [
+    "runtime",
+    "codex",
+    "app"
+  ],
+  "risk": "write-app",
+  "raises_windows": true,
+  "never_run_unattended": true,
+  "session": "fresh",
+  "task": "You may click, type and use menus inside Notes only. Never focus Google Chrome and do not touch any app or window not named here. Do not use the Dock, Spotlight or Launchpad. Leave things as you found them: close every window you opened and quit every app you launched before your final message, and report anything you could not clean up.\nGoal: create a note titled exactly CODEX-BRIDGE-SCRATCH-NOTE with three body lines one, two, three; read the note back from the accessibility tree and quote its three lines; then delete that same note (select it, press Delete or use Edit > Delete) so nothing is left behind; then quit Notes.\nStop and report if Notes asks to sign in or shows any dialog you did not cause.\nReport: the three lines you read back, and confirmation the note is deleted (it no longer appears in the notes list). One screenshot of the note before deletion with emit enabled.",
+  "args": {
+    "apps": [
+      "Notes"
+    ],
+    "screenshots": "last",
+    "timeout_sec": 240
+  },
+  "expect": {
+    "status": "completed",
+    "no_denials": true,
+    "contains": [
+      "one",
+      "two",
+      "three",
+      "delet"
+    ],
+    "screenshots_min": 1,
+    "steps": [
+      3,
+      16
+    ]
+  },
+  "preconditions": {
+    "apps_installed": [
+      "Notes"
+    ]
+  },
+  "ground_truth": [
+    {
+      "name": "Notes quit",
+      "command": "sleep 1; ! pgrep -x Notes >/dev/null"
+    }
+  ],
+  "cleanup": [
+    {
+      "command": "pkill -x Notes; true"
+    }
+  ]
+}

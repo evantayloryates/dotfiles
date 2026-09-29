@@ -1,0 +1,48 @@
+{
+  "tier": "t3",
+  "track": "M",
+  "surfaces": [
+    "runtime",
+    "codex",
+    "app"
+  ],
+  "risk": "write-app",
+  "raises_windows": true,
+  "never_run_unattended": true,
+  "session": "fresh",
+  "task": "You may click, type and use menus inside TextEdit only. Never focus Google Chrome and do not touch any app or window not named here. Do not use the Dock, Spotlight or Launchpad. Leave things as you found them: close every window you opened and quit every app you launched before your final message, and report anything you could not clean up.\nGoal: handle a modal sheet correctly. Open TextEdit by name; make a new document; type the line temporary; press Command+W so TextEdit shows its 'Do you want to save' sheet; read the sheet from the accessibility tree and quote its buttons; take one screenshot with emit enabled; then choose Don't Save (never Save); confirm the document window is gone; then quit TextEdit.\nReport: the sheet's button labels and which you chose. Nothing must be saved anywhere.",
+  "args": {
+    "apps": [
+      "TextEdit"
+    ],
+    "screenshots": "last",
+    "timeout_sec": 180
+  },
+  "expect": {
+    "status": "completed",
+    "no_denials": true,
+    "contains": [
+      "Don.t Save|Delete"
+    ],
+    "screenshots_min": 1,
+    "steps": [
+      3,
+      12
+    ]
+  },
+  "ground_truth": [
+    {
+      "name": "TextEdit quit",
+      "command": "sleep 1; ! pgrep -x TextEdit >/dev/null"
+    },
+    {
+      "name": "nothing saved to scratch",
+      "command": "! ls \"$SCRATCH\" | grep -qi temporary"
+    }
+  ],
+  "cleanup": [
+    {
+      "command": "pkill -x TextEdit; true"
+    }
+  ]
+}

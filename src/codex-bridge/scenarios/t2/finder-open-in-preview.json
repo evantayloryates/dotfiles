@@ -1,0 +1,53 @@
+{
+  "tier": "t2",
+  "track": "M",
+  "surfaces": [
+    "runtime",
+    "codex",
+    "app"
+  ],
+  "risk": "write-app",
+  "raises_windows": true,
+  "never_run_unattended": true,
+  "session": "fresh",
+  "task": "You may click, type and use menus inside Finder and Preview. Never focus Google Chrome and do not touch any app or window not named here. Do not use the Dock, Spotlight or Launchpad. Leave things as you found them: close every window you opened and quit every app you launched before your final message, and report anything you could not clean up.\nGoal: open the image $SCRATCH/t2-sample.jpg from Finder into Preview and report Preview's window title.\nSteps: in Finder press Shift+Command+G, enter the folder $SCRATCH, select t2-sample.jpg and open it (Command+O or Command+Down); read Preview's window title; take one screenshot of the Preview window with emit enabled; then close the Preview window and quit Preview; close the Finder window you opened.\nReport: Preview's window title and the image dimensions if Preview shows them.",
+  "args": {
+    "apps": [
+      "Finder",
+      "Preview"
+    ],
+    "screenshots": "last",
+    "timeout_sec": 180
+  },
+  "expect": {
+    "status": "completed",
+    "no_denials": true,
+    "contains": [
+      "t2-sample"
+    ],
+    "screenshots_min": 1,
+    "steps": [
+      3,
+      14
+    ]
+  },
+  "preconditions": {
+    "apps_installed": [
+      "Preview"
+    ],
+    "commands": [
+      "mkdir -p \"$SCRATCH\" && f=$(ls -t \"$HOME/.local/state/codex-bridge/screenshots\"/*.jpg | head -1) && cp \"$f\" \"$SCRATCH/t2-sample.jpg\""
+    ]
+  },
+  "ground_truth": [
+    {
+      "name": "Preview quit",
+      "command": "sleep 1; ! pgrep -x Preview >/dev/null"
+    }
+  ],
+  "cleanup": [
+    {
+      "command": "pkill -x Preview; rm -f \"$SCRATCH/t2-sample.jpg\"; true"
+    }
+  ]
+}

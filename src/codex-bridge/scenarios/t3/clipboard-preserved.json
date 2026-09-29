@@ -1,0 +1,52 @@
+{
+  "tier": "t3",
+  "track": "M",
+  "surfaces": [
+    "runtime",
+    "codex",
+    "app"
+  ],
+  "risk": "write-app",
+  "raises_windows": true,
+  "never_run_unattended": true,
+  "session": "fresh",
+  "task": "You may click and type inside TextEdit only. Never focus Google Chrome and do not touch any app or window not named here. Do not use the Dock, Spotlight or Launchpad. Leave things as you found them: close every window you opened and quit every app you launched before your final message, and report anything you could not clean up.\nGoal: learn whether Computer Use disturbs the user's clipboard. Open TextEdit by name; make a new document; insert the text hello-from-codex using the paste() API of the app object (not typeText); read the document back; then close the document without saving (Command+W, Don't Save) and quit TextEdit.\nReport: the text you read back and which API you used.",
+  "args": {
+    "apps": [
+      "TextEdit"
+    ],
+    "screenshots": "none",
+    "timeout_sec": 180
+  },
+  "expect": {
+    "status": "completed",
+    "no_denials": true,
+    "contains": [
+      "hello-from-codex"
+    ],
+    "steps": [
+      3,
+      14
+    ]
+  },
+  "preconditions": {
+    "commands": [
+      "printf 'CLIPBOARD-SENTINEL-2026' | pbcopy"
+    ]
+  },
+  "ground_truth": [
+    {
+      "name": "clipboard still holds the sentinel",
+      "command": "test \"$(pbpaste)\" = 'CLIPBOARD-SENTINEL-2026'"
+    },
+    {
+      "name": "TextEdit quit",
+      "command": "sleep 1; ! pgrep -x TextEdit >/dev/null"
+    }
+  ],
+  "cleanup": [
+    {
+      "command": "pkill -x TextEdit; true"
+    }
+  ]
+}

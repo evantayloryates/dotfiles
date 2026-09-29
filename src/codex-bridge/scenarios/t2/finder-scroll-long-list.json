@@ -1,0 +1,33 @@
+{
+  "tier": "t2",
+  "track": "M",
+  "surfaces": [
+    "runtime",
+    "codex",
+    "app"
+  ],
+  "risk": "write-app",
+  "raises_windows": true,
+  "never_run_unattended": true,
+  "session": "fresh",
+  "task": "You may click, type, scroll and use menus inside Finder only. Never focus Google Chrome and do not touch any app or window not named here. Do not use the Dock, Spotlight or Launchpad. Leave things as you found them: close every window you opened and quit every app you launched before your final message, and report anything you could not clean up.\nGoal: find an item deep in a long list by scrolling. In Finder open a new window, go to /System/Library/Fonts with Shift+Command+G, switch to list view (Command+2), then scroll until the file named Supplemental (a folder) or SFCompact.ttf is visible, select it with a single click, and report its name and the names of the two items directly above it in the list. Take one screenshot with emit enabled. Then close the window you opened.\nReport: the selected item's name, its two neighbours above, and how many scroll actions you needed.",
+  "args": {
+    "apps": [
+      "Finder"
+    ],
+    "screenshots": "last",
+    "timeout_sec": 240
+  },
+  "expect": {
+    "status": "completed",
+    "no_denials": true,
+    "contains": [
+      "Supplemental|SFCompact"
+    ],
+    "screenshots_min": 1,
+    "steps": [
+      3,
+      20
+    ]
+  }
+}

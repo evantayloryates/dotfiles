@@ -1,0 +1,49 @@
+{
+  "tier": "t3",
+  "track": "M",
+  "surfaces": [
+    "runtime",
+    "codex",
+    "app"
+  ],
+  "risk": "write-app",
+  "raises_windows": true,
+  "never_run_unattended": true,
+  "session": "fresh",
+  "task": "You may click and use keyboard shortcuts inside Xcode only. Never focus Google Chrome and do not touch any app or window not named here. Do not use the Dock, Spotlight or Launchpad. Leave things as you found them: close every window you opened and quit every app you launched before your final message, and report anything you could not clean up.\nGoal: a slow-launch probe. Open Xcode by name (it can take 10 to 40 seconds to start; wait and re-read state rather than giving up); once it shows a window (the Welcome window or a project), read its window title from the accessibility tree; take one screenshot with emit enabled; then quit Xcode with Command+Q, choosing not to save if asked. Do not open or create any project.\nReport: the window title, roughly how long the launch took, and confirmation Xcode quit.",
+  "args": {
+    "apps": [
+      "Xcode"
+    ],
+    "screenshots": "last",
+    "timeout_sec": 300
+  },
+  "expect": {
+    "status": "completed",
+    "no_denials": true,
+    "contains": [
+      "Xcode|Welcome"
+    ],
+    "screenshots_min": 1,
+    "steps": [
+      2,
+      12
+    ]
+  },
+  "preconditions": {
+    "apps_installed": [
+      "Xcode"
+    ]
+  },
+  "ground_truth": [
+    {
+      "name": "Xcode quit",
+      "command": "sleep 3; ! pgrep -x Xcode >/dev/null"
+    }
+  ],
+  "cleanup": [
+    {
+      "command": "pkill -x Xcode; true"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "tier": "t3",
+  "track": "M",
+  "surfaces": [
+    "runtime",
+    "codex",
+    "app"
+  ],
+  "risk": "read",
+  "raises_windows": false,
+  "never_run_unattended": false,
+  "session": "fresh",
+  "task": "Read-only: never click, type, scroll or change anything. Never focus Google Chrome and do not touch any app or window not named here. Do not use the Dock, Spotlight or Launchpad. Leave things as you found them: close every window you opened and quit every app you launched before your final message, and report anything you could not clean up.\nGoal: name resolution. Read the state of the app Taylor calls VS Code: its menu-bar name is Code, bundle id com.microsoft.VSCode. Report its key window title in one line. Do not open or read Xcode or any other app.\nReport: the window title, and which identifier (name or bundle id) worked.",
+  "args": {
+    "apps": [
+      "Code",
+      "Visual Studio Code",
+      "com.microsoft.VSCode"
+    ],
+    "screenshots": "none",
+    "timeout_sec": 90
+  },
+  "expect": {
+    "status": "completed",
+    "no_denials": true,
+    "contains": [
+      "Code|Visual Studio|\u2014"
+    ],
+    "steps": [
+      1,
+      4
+    ]
+  },
+  "preconditions": {
+    "commands": [
+      "pgrep -x 'Electron' >/dev/null || pgrep -f 'Visual Studio Code.app' >/dev/null"
+    ]
+  }
+}

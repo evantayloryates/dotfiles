@@ -1,0 +1,56 @@
+{
+  "tier": "t2",
+  "track": "M",
+  "surfaces": [
+    "runtime",
+    "codex",
+    "app"
+  ],
+  "risk": "write-app",
+  "raises_windows": true,
+  "never_run_unattended": true,
+  "session": "fresh",
+  "task": "You may click, type and use menus inside TextEdit only. Never focus Google Chrome and do not touch any app or window not named here. Do not use the Dock, Spotlight or Launchpad. Leave things as you found them: close every window you opened and quit every app you launched before your final message, and report anything you could not clean up.\nGoal: create a plain-text file at the path $SCRATCH/t2-note.txt containing exactly three lines: alpha, beta, gamma.\nSteps: open TextEdit by name; make a new document; switch it to plain text (Format menu, Make Plain Text, or Shift+Command+T); type the three lines; save with Command+S, using the Save sheet: press Shift+Command+G to open the path field, enter the folder $SCRATCH, set the name t2-note.txt, save; then close the document and quit TextEdit.\nReport: the exact path you saved to, and the window title before saving. Take one screenshot of the Save sheet with emit enabled.",
+  "args": {
+    "apps": [
+      "TextEdit"
+    ],
+    "screenshots": "last",
+    "timeout_sec": 180
+  },
+  "expect": {
+    "status": "completed",
+    "no_denials": true,
+    "contains": [
+      "t2-note"
+    ],
+    "screenshots_min": 1,
+    "steps": [
+      3,
+      14
+    ]
+  },
+  "preconditions": {
+    "apps_installed": [
+      "TextEdit"
+    ],
+    "commands": [
+      "mkdir -p \"$SCRATCH\""
+    ]
+  },
+  "ground_truth": [
+    {
+      "name": "file has the three lines",
+      "command": "test \"$(cat \"$SCRATCH/t2-note.txt\" | tr -d '\\r' | grep -c -E '^(alpha|beta|gamma)$')\" -eq 3"
+    },
+    {
+      "name": "TextEdit quit",
+      "command": "sleep 1; ! pgrep -x TextEdit >/dev/null"
+    }
+  ],
+  "cleanup": [
+    {
+      "command": "rm -f \"$SCRATCH/t2-note.txt\"; pkill -x TextEdit; true"
+    }
+  ]
+}
