@@ -274,10 +274,107 @@ For each failure or surprise:
    (openai/codex issues; the existing #19544, #20851, #45671 are the
    nearest neighbors).
 
-## 8. Order of work
+## 8. Understanding and evolving the protocol
 
-1. Build `scripts/pressure.mjs` and the scenario format; port the smoke
-   test as scenario `t0/finder-read`. Half a day.
+Breakpoints are half the goal. The other half is to understand the
+delegation channel we built (Claude's tool call → bridge → app-server turn
+→ Codex's plan → `cua_repl` calls → result → Claude's reading of it) well
+enough to make each computer-use action faster and cheaper over time. That
+needs the channel instrumented, a small set of speed metrics, and a queue
+of protocol experiments with a hypothesis each.
+
+### 8.1 Instrument every hop
+
+The bridge already sees every event. Make it write a timeline per turn to
+`~/.local/state/codex-bridge/timelines/<turn_id>.jsonl` (bridge change, a
+few dozen lines): tool call received; `turn/start` sent; `turn/started`;
+each `item/started` and `item/completed` with type, title, duration; each
+server request with the decision and how long the bridge took to answer;
+each `report_progress`; `turn/completed`; result formatted; bytes returned;
+images returned. From it, per turn:
+
+| Hop | Metric |
+| --- | --- |
+| Claude → bridge | task text length, arguments used |
+| bridge → Codex | thread start or resume time, MCP boot time (first item minus `turn/started`) |
+| Codex thinking | gap between consecutive items with no tool running |
+| Codex → runtime | per `cua_repl` call duration, calls per task, re-reads of unchanged state |
+| runtime → app | `-10005` timeouts, launches, elicitation round trips |
+| Codex → Claude | final message length, steps, screenshots, tokens in/out and the cached share |
+| Claude reading | (Track A only) how many tokens Claude spent on the result, whether it needed a second call |
+
+Two headline numbers per scenario, tracked over time: **seconds per
+verified action** (wall time divided by state changes or facts the ground
+truth confirmed) and **tokens per verified action**. A protocol change is
+worth keeping when it moves one without hurting the other.
+
+### 8.2 Experiments, each with a hypothesis
+
+Run each on Tier 1 scenarios with `--repeat 5` before and after.
+
+1. **Task granularity.** One delegation that asks for five facts versus
+   five delegations. Hypothesis: one task wins on both numbers because
+   boot and documentation are paid once; find the size where Codex starts
+   dropping requirements.
+2. **Session reuse versus fresh thread.** Context grew 116k → 263k → 414k
+   over three turns on one session. Hypothesis: reuse wins for two or
+   three follow-ups then loses; derive a `new_thread` rule for the skill
+   (turn count or token threshold the bridge can enforce itself).
+3. **Effort and model.** `low` and `medium` on Tier 1. Hypothesis: reads
+   need no `high`; the skill should default per task class.
+4. **Steer instead of re-run.** When Codex heads the wrong way, steer at
+   the first bad step versus interrupt and re-run with a better task.
+   Hypothesis: steering saves the boot and the context; measure recovery
+   time and whether the final result is as good.
+5. **Live answers to Codex's questions.** Today `requestUserInput` gets a
+   canned "proceed conservatively". Experiment: expose an `ask_supervisor`
+   dynamic tool that pauses the turn while the bridge asks Claude through
+   MCP sampling (`sampling/createMessage`) or, until Claude Code supports
+   that on this path, through a second tool call (`codex_answer`) from a
+   parallel Claude call. Hypothesis: fewer stopped-short turns on Tier 2.
+6. **Async mode.** A `wait: false` argument that returns a job id at once,
+   plus `codex_wait` that blocks with progress. Hypothesis: lets Claude do
+   its own work (browser, shell) while Codex drives the desktop, cutting
+   end-to-end time on mixed tasks; check it does not reintroduce polling.
+7. **Pre-warmed sessions.** Keep one idle thread per workstream with the
+   Computer Use documentation already loaded, and let `codex_status` warm
+   one on demand. Hypothesis: the 2–3 s boot and the 25 KB first-call load
+   disappear from the critical path.
+8. **Structured results by default.** `output_schema` on every task with a
+   fixed envelope (`outcome`, `facts`, `evidence`, `blocked`). Hypothesis:
+   Claude's reading cost drops and verification becomes mechanical.
+9. **Images inbound.** Give Codex a screenshot or mockup of the target
+   state. Hypothesis: fewer steps on UI-navigation tasks.
+10. **A direct lane for trivial reads.** Claude calling `cua_repl` itself
+    for a single `getAXState` (no Codex model in the loop). Hypothesis: an
+    order of magnitude faster for one-fact reads; find the complexity at
+    which Codex's planning starts to pay for itself. This is a second
+    tool, not a replacement.
+11. **Trim Codex's MCP roster for bridge threads.** Pass a `config`
+    override on `thread/start` that disables every non-Computer-Use MCP
+    server. Hypothesis: 0.5–1 s off every new thread with no capability
+    lost for desktop work.
+12. **Developer-instruction tuning.** Vary the standing instructions
+    (shorter final messages, mandatory `report_progress` cadence, "read
+    state once then act") and measure steps and tokens.
+
+Each experiment's result is a dated note in this document's changelog and,
+when it changes a default, a bridge commit or a skill edit.
+
+### 8.3 What "better communication" looks like at the end
+
+A task from Claude carries a posture, a goal, an app list and an evidence
+contract; the bridge answers every Codex question it can and routes the
+rest back to Claude live; Codex reports in a fixed envelope; the bridge
+returns a timeline Claude can read in one glance; and the numbers in
+section 8.1 fall month over month. Anything in the chain that does not
+serve that gets cut.
+
+## 9. Order of work
+
+1. Build `scripts/pressure.mjs` and the scenario format, and add the
+   per-turn timeline to the bridge (section 8.1); port the smoke test as
+   scenario `t0/finder-read`. Half a day.
 2. Tier 0 across every app, read-only, one pass. Cheap, wide, and it
    produces the per-app quirk list that Tiers 1–3 need.
 3. Tier 1 with ground truth, `--repeat 5`, at default effort. This is the
@@ -285,9 +382,12 @@ For each failure or surprise:
 4. Tier 4 bridge scenarios, since each one is either fine or a code fix,
    and code fixes are the fastest to land.
 5. Tier 6 context-growth and effort sweeps, because they decide the default
-   `effort` and the `new_thread` rule the skill should carry.
-6. Tier 2, then Tier 3, attended.
-7. Tier 5 agentic runs on the scenarios above, once their mechanical side
+   `effort` and the `new_thread` rule the skill should carry; these double
+   as protocol experiments 2 and 3.
+6. Protocol experiments 1, 7, 11 (cheap, bridge-only), then 4, 8, 12.
+7. Tier 2, then Tier 3, attended.
+8. Protocol experiments 5, 6, 9, 10 (each adds a tool or a lane).
+9. Tier 5 agentic runs on the scenarios above, once their mechanical side
    is stable, then a `taylor-upskill` round on `taylor-computer-use`.
 
 Known items already queued from the build day, to be confirmed by
