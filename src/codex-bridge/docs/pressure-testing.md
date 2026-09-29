@@ -374,6 +374,30 @@ serve that gets cut.
 
 Dated, newest first. Each entry names the surface and what changed.
 
+- **2026-09-29, experiment 2: session reuse versus fresh thread (Tier 6
+  `reuse-growth`, 24 consecutive turns of the batched five-fact read on
+  one session, trimmed roster, no-preamble instructions).**
+  | Turn | Wall | Per-call input | Uncached | Model calls |
+  |---|---|---|---|---|
+  | 1 (fresh) | 11.5 s | 76k over 4 calls | 15.2k | 4 |
+  | 3 | 4.6 s | 32k | 2.8k | 2 |
+  | 12 | 5.3 s | 55k | 2.9k | 2 |
+  | 24 | 5.8 s | 90k | 2.9k | 2 |
+  - Reuse does not lose. Wall time stayed 4.5–7 s per turn through turn
+    24 (two-step turns 9–11 s); the thread grew ~2.5k tokens per turn and
+    every added token was a cache hit: uncached input was flat at ~2.8k
+    per turn. No `thread/compacted` event; per-call input reached 90k,
+    well under the model's window. Experiment 1's "1.69M cumulative"
+    figure was the lifetime counter, mostly cache reads; corrected in the
+    skill memory.
+  - Side effect worth knowing: from turn 3 Codex answered all five facts
+    from one `cua.getState()` call instead of also reading Finder (allowed
+    by the task, still correct). Stale context shapes later turns, which
+    is the real reason to rotate threads: topic change, not size.
+  - Rule adopted: reuse the session within a workstream; new thread on a
+    topic change, on a reported compaction, or when a turn's input passes
+    ~150k. The result's token line now shows per-turn input, cached and
+    new, plus model calls, alongside the lifetime total.
 - **2026-09-29, experiment 1: task granularity (Tier 6 `facts-*`, trimmed
   roster, 2 repeats).** Five facts about Finder and the running apps, asked
   three ways. Answers were identical in all three (the "frontmost app" fact

@@ -1,0 +1,34 @@
+{
+  "tier": "t6",
+  "track": "M",
+  "surfaces": [
+    "codex",
+    "bridge"
+  ],
+  "risk": "read",
+  "raises_windows": false,
+  "args": {
+    "apps": [
+      "Finder"
+    ],
+    "screenshots": "none",
+    "timeout_sec": 120
+  },
+  "expect": {
+    "status": "completed",
+    "no_denials": true,
+    "contains": [
+      "running",
+      "frontmost",
+      "Desktop|title",
+      "window",
+      "Calculator|\\bNo\\b|\\bYes\\b"
+    ],
+    "steps": [
+      1,
+      4
+    ]
+  },
+  "session": "reuse:exp2-growth",
+  "task": "Read-only: never click, type, scroll or change anything.\nApps: Finder only. Do not touch any other app or window, and never focus Google Chrome.\nGoal: report five facts in one pass (fresh reads this turn, do not rely on earlier answers), using as few Computer Use calls as possible (cua.getState() plus one Finder read should be enough):\n1. how many apps cua.getState() lists as running\n2. the name of the frontmost app according to cua.getState()\n3. the title of Finder's key window\n4. how many windows Finder's accessibility tree exposes\n5. whether Calculator appears in the running-app list (yes or no)\nReport: five numbered lines, one fact each. No screenshot."
+}

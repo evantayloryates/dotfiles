@@ -105,6 +105,15 @@ export async function runTurn(app, opts) {
         case 'thread/tokenUsage/updated': {
           result.usage = params.tokenUsage?.total || params.total || result.usage
           const last = params.tokenUsage?.last || params.last
+          if (last) {
+            // `total` is the thread's lifetime count; `last` is this model call.
+            // Sum the calls of this turn so the result shows what the turn cost.
+            const t = (result.turnUsage ||= { inputTokens: 0, cachedInputTokens: 0, outputTokens: 0, calls: 0 })
+            t.inputTokens += last.inputTokens || 0
+            t.cachedInputTokens += last.cachedInputTokens || 0
+            t.outputTokens += last.outputTokens || 0
+            t.calls += 1
+          }
           mark('token_usage', { total: result.usage, last })
           return
         }
@@ -116,6 +125,14 @@ export async function runTurn(app, opts) {
         case 'error':
           result.error = params.message || JSON.stringify(params)
           mark('error', { message: result.error })
+          return
+        case 'thread/compacted':
+          result.compacted = (result.compacted || 0) + 1
+          mark('thread_compacted', { params: JSON.stringify(params).slice(0, 300) })
+          return
+        case 'model/rerouted':
+        case 'thread/status/changed':
+          mark(method.replace(/\//g, '_'), { detail: JSON.stringify(params).slice(0, 160) })
           return
         default:
           return
@@ -361,9 +378,13 @@ export function computeMetrics(r) {
     steps: r.steps.length,
     screenshots: r.screenshots.length,
     screenshot_bytes: r.screenshots.reduce((n, s) => n + (s.bytes || 0), 0),
-    tokens_in: usage.inputTokens ?? null,
+    tokens_in: usage.inputTokens ?? null, // thread lifetime
     tokens_cached: usage.cachedInputTokens ?? null,
     tokens_out: usage.outputTokens ?? null,
+    turn_tokens_in: r.turnUsage?.inputTokens ?? null,
+    turn_tokens_cached: r.turnUsage?.cachedInputTokens ?? null,
+    turn_tokens_out: r.turnUsage?.outputTokens ?? null,
+    model_calls: r.turnUsage?.calls ?? null,
     rate_limit_pct: r.rateLimit?.usedPercent ?? null,
     status: r.status,
   }
@@ -402,10 +423,12 @@ export function summarize(r, { session = null } = {}) {
     progressNotes: r.progressNotes,
     screenshots: r.screenshots.map((s) => ({ path: s.path, mimeType: s.mimeType, bytes: s.bytes, step: s.step })),
     usage: r.usage,
+    turnUsage: r.turnUsage || null,
     rateLimit: r.rateLimit,
     disconnected: r.disconnected,
     metrics: r.metrics,
     timelinePath: r.timelinePath,
+    compacted: r.compacted || 0,
   }
 }
 
@@ -469,9 +492,11 @@ export function formatResult(r, { session } = {}) {
   }
   if (r.screenshots.length) lines.push('', `screenshots (${r.screenshots.length}): ${r.screenshots.map((s) => s.path).join(', ')}`)
   const u = r.usage
+  const tu = r.turnUsage
   const m = r.metrics
   const tail = []
-  if (u) tail.push(`tokens: ${u.inputTokens ?? '?'} in (${u.cachedInputTokens ?? 0} cached) / ${u.outputTokens ?? '?'} out${r.rateLimit ? `; codex weekly limit ${r.rateLimit.usedPercent}% used` : ''}`)
+  if (tu) tail.push(`tokens this turn: ${tu.inputTokens} in (${tu.cachedInputTokens} cached, ${tu.inputTokens - tu.cachedInputTokens} new) / ${tu.outputTokens} out over ${tu.calls} model call${tu.calls === 1 ? '' : 's'}; thread lifetime ${u?.inputTokens ?? '?'} in${r.rateLimit ? `; codex weekly limit ${r.rateLimit.usedPercent}% used` : ''}`)
+  else if (u) tail.push(`tokens: ${u.inputTokens ?? '?'} in (${u.cachedInputTokens ?? 0} cached) / ${u.outputTokens ?? '?'} out${r.rateLimit ? `; codex weekly limit ${r.rateLimit.usedPercent}% used` : ''}`)
   if (m) tail.push(`timing: setup ${secs(m.setup_ms)} + boot ${secs(m.boot_ms)} + computer-use ${secs(m.cua_ms)} over ${m.cua_calls} call${m.cua_calls === 1 ? '' : 's'}${m.command_calls ? ` + shell ${secs(m.command_ms)}` : ''} + model ${secs(m.model_ms)}`)
   if (tail.length) lines.push('', ...tail)
   if (r.timelinePath) lines.push(`timeline: ${r.timelinePath}`)
