@@ -1,0 +1,22 @@
+{
+  "tier": "t0",
+  "track": "M",
+  "surfaces": ["runtime", "codex"],
+  "risk": "write-app",
+  "raises_windows": true,
+  "session": "fresh",
+  "task": "Goal: prove an app can be opened by name and quit.\nApps: Calculator only. Do not touch any other app or window, never focus Google Chrome, and do not use the Dock, Spotlight or Launchpad.\nYou may: call cua.getApp(\"Calculator\") (this may launch it), read its window title from the accessibility tree, take one screenshot with emit enabled, then quit Calculator with the Command+Q key press inside Calculator only. No other clicks or typing.\nReport: the window title you read and whether the quit was confirmed. A read after quitting that returns 'App quit' is the confirmation, not an error.",
+  "args": { "apps": ["Calculator"], "screenshots": "last", "timeout_sec": 120 },
+  "preconditions": { "apps_installed": ["Calculator"] },
+  "expect": {
+    "status": "completed",
+    "contains": ["Calculator"],
+    "steps": [1, 5],
+    "no_denials": true,
+    "screenshots_min": 1
+  },
+  "ground_truth": [
+    { "name": "Calculator is not running afterwards", "command": "sleep 2; ! pgrep -x Calculator >/dev/null" }
+  ],
+  "cleanup": [ { "command": "pkill -x Calculator 2>/dev/null; true" } ]
+}

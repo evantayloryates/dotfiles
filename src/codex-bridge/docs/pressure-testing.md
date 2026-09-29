@@ -370,7 +370,43 @@ returns a timeline Claude can read in one glance; and the numbers in
 section 8.1 fall month over month. Anything in the chain that does not
 serve that gets cut.
 
-## 9. Order of work
+## 9. Findings log
+
+Dated, newest first. Each entry names the surface and what changed.
+
+- **2026-09-29, first Tier 0 batch (4 scenarios, 5 runs).** Runner and
+  timelines live. Where the time goes on a two-step read: setup 0.1–0.3 s,
+  boot 2.2–2.9 s, Computer Use 0.7–5.3 s, model 4.8–19.7 s. Model time
+  dominates and varies 2x between identical runs (14.3 s vs 22.3 s for
+  `t0/finder-read`); effort sweeps (experiment 3) are the first lever.
+  - *runtime + codex + skill:* `t0/calculator-open-quit` quit the app, then
+    called `getApp` on it to confirm; macOS raised a "Calculator.app is not
+    open anymore" alert owned by CoreServicesUIAgent that stayed on
+    Taylor's desktop. Codex's final message did not mention it. Fixed at the
+    bridge (cleanup contract and "never `getApp` after a quit" in the
+    standing instructions), at the runner (GUI-app diff before and after a
+    run, fails on leftovers), and in a skill memory. The scenario stays
+    partial until the next run passes.
+  - *bridge:* after a thread was archived (or unloaded by the daemon) the
+    bridge's in-process loaded set still claimed it and `turn/start`
+    answered "thread not found". Fixed: resume or restart once and retry.
+  - *bridge + daemon:* every loaded thread keeps its full MCP roster alive
+    on the daemon (Slack, Gmail, Notion, Playwright, the Computer Use REPL
+    and a `codex app-server --listen stdio` child spawned by `node_repl`).
+    Five such children were found from earlier threads; the daemon unloads
+    idle threads eventually, and `thread/archive` frees them at once.
+    Added `codex_close_session`; the runner closes every fresh scratch
+    session after its run.
+  - *codex:* thread context is cumulative per session: 115k → 230k → 340k →
+    459k input tokens over four turns of `live-check` today, 90–95 percent
+    cached. Experiment 2 decides the `new_thread` rule.
+  - *runtime:* reads of CoreServicesUIAgent time out (`-10005`) right after
+    clicking its alert; Finder's key-window read does not see the alert at
+    all; `cua.getState()` does list it.
+  - *runner:* the first ledger showed `call_received` at the thread-ready
+    offset instead of 0; fixed.
+
+## 10. Order of work
 
 1. Build `scripts/pressure.mjs` and the scenario format, and add the
    per-turn timeline to the bridge (section 8.1); port the smoke test as

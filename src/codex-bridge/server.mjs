@@ -74,6 +74,13 @@ const TOOLS = [
     annotations: { readOnlyHint: false, openWorldHint: false },
   },
   {
+    name: 'codex_close_session',
+    title: 'Close a session and free its Codex thread',
+    description: 'Archive the Codex thread behind a session (freeing the MCP servers and Computer Use runtime it keeps alive on the daemon) and forget the session name. Use when a workstream is finished or a scratch session is no longer needed. The next call with the same name starts fresh.',
+    inputSchema: { type: 'object', properties: { session: SESSION }, required: ['session'], additionalProperties: false },
+    annotations: { readOnlyHint: false, openWorldHint: false },
+  },
+  {
     name: 'codex_status',
     title: 'Bridge and session status',
     description: 'Connection to the Codex app-server, policy in force, app grants, and every session with its thread id and whether a turn is running.',
@@ -87,12 +94,14 @@ function handlerFor(name) {
     case 'codex_computer_use':
       return async (args, ctx) => {
         if (typeof args.task !== 'string' || !args.task.trim()) throw new BridgeError('task is required')
-        const { result, text } = await bridge.run(args, ctx)
+        const { result, text, summary } = await bridge.run(args, ctx)
         const content = [{ type: 'text', text }]
         const mode = args.screenshots || 'last'
         const shots = mode === 'all' ? result.screenshots : mode === 'last' ? result.screenshots.slice(-1) : []
         for (const s of shots) content.push({ type: 'image', data: s.data, mimeType: s.mimeType })
-        return { content, isError: !['completed'].includes(result.status) }
+        // structuredContent is the machine-readable twin of the text, for
+        // harnesses (scripts/pressure.mjs) and any client that prefers JSON.
+        return { content, structuredContent: summary, isError: !['completed'].includes(result.status) }
       }
     case 'codex_steer':
       return (args) => bridge.steer(args.session || 'default', args.message)
@@ -100,6 +109,8 @@ function handlerFor(name) {
       return (args) => bridge.interrupt(args.session || 'default')
     case 'codex_approve_app':
       return (args) => (args.revoke ? bridge.revokeApp(args.app) : bridge.approveApp(args.app, args.scope || 'session'))
+    case 'codex_close_session':
+      return (args) => bridge.closeSession(args.session)
     case 'codex_status':
       return (args) => bridge.status(args)
     default:

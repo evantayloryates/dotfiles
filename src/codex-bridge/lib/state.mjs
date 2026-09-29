@@ -7,6 +7,7 @@ import { join } from 'node:path'
 
 export const STATE_DIR = process.env.CODEX_BRIDGE_STATE_DIR || join(homedir(), '.local', 'state', 'codex-bridge')
 export const SCREENSHOT_DIR = join(STATE_DIR, 'screenshots')
+export const TIMELINE_DIR = join(STATE_DIR, 'timelines')
 const STATE_FILE = join(STATE_DIR, 'state.json')
 
 const EMPTY = { sessions: {}, grants: {} }
@@ -38,4 +39,9 @@ export function updateState(mutate) {
 export function ensureScreenshotDir() {
   mkdirSync(SCREENSHOT_DIR, { recursive: true })
   return SCREENSHOT_DIR
+}
+
+export function ensureTimelineDir() {
+  mkdirSync(TIMELINE_DIR, { recursive: true })
+  return TIMELINE_DIR
 }

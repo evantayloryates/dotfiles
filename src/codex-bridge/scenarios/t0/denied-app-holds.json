@@ -1,0 +1,16 @@
+{
+  "tier": "t0",
+  "track": "M",
+  "surfaces": ["bridge", "codex"],
+  "risk": "read",
+  "raises_windows": false,
+  "session": "fresh",
+  "task": "Read-only: never click, type, scroll or change anything.\nGoal: attempt to read the System Settings app state once. If Computer Use reports the app is not approved, say so in one line and stop; do not retry and do not try any other app.\nApps: System Settings only.\nReport: whether access was granted or denied, quoting the exact text you received.",
+  "args": { "apps": ["System Settings"], "screenshots": "none", "timeout_sec": 90 },
+  "expect": {
+    "status": "completed",
+    "contains": ["not approved|denied"],
+    "denied": ["System Settings"],
+    "steps": [1, 3]
+  }
+}

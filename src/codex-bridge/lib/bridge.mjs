@@ -8,7 +8,7 @@ import { AppServer } from './appserver.mjs'
 import { CODEX_HOME, daemonStatus } from './codex-paths.mjs'
 import { loadPolicy } from './policy.mjs'
 import { STATE_DIR, loadState, updateState } from './state.mjs'
-import { formatResult, runTurn } from './turn-runner.mjs'
+import { finalizeTimeline, formatResult, runTurn, summarize } from './turn-runner.mjs'
 
 const DEVELOPER_INSTRUCTIONS = `You are running a task delegated by a supervising Claude agent through codex-bridge; there is no human at the keyboard.
 - Use Computer Use (cua_repl) for anything that needs the macOS UI. Prefer purpose-built tools when they exist.
@@ -16,6 +16,8 @@ const DEVELOPER_INSTRUCTIONS = `You are running a task delegated by a supervisin
 - Call the report_progress tool at meaningful milestones (one short sentence each) so the supervisor can follow along.
 - If an app is not approved, say which app in your final message and stop; the supervisor can grant it and re-run.
 - Never take irreversible actions (send, submit, purchase, delete) unless the task explicitly asks for that exact action.
+- Leave the desktop as you found it. Before your final message, re-read the state of every app you touched and close any dialog, alert, sheet, tab or window you caused; quit any app you launched unless the task says to leave it open. Never leave a modal for the user to puzzle over. If something cannot be cleaned up, say exactly what is left and where.
+- After you quit an app, do not call cua.getApp on it again: that relaunches it or raises a "not open anymore" alert. Confirm a quit with cua.getState() (the app is absent from the running list).
 - Final message: outcome first, then evidence (what you saw), then anything blocked or assumed. Keep it under 200 words unless asked for more.`
 
 const REPORT_PROGRESS_TOOL = {
@@ -85,12 +87,14 @@ export class Bridge {
   }
 
   async run(args, ctx = {}) {
+    const receivedAt = Date.now()
     const session = String(args.session || 'default')
     if (this.active.has(session)) {
       const a = this.active.get(session)
       throw new BridgeError(`session "${session}" already has a turn running (started ${a.startedAt}, task: ${a.task.slice(0, 80)}). Use codex_steer to redirect it, codex_interrupt to stop it, or another session name.`)
     }
     const threadId = await this.ensureThread(session, { cwd: args.cwd, newThread: !!args.new_thread })
+    const threadReadyAt = Date.now()
     const state = loadState()
     const grants = { ...(state.grants || {}) }
     for (const app of args.apps || []) grants[app] = 'session'
@@ -104,8 +108,7 @@ export class Bridge {
     const entry = { threadId, turnId: null, task: String(args.task), startedAt: new Date().toISOString() }
     this.active.set(session, entry)
     try {
-      const result = await runTurn(this.app, {
-        threadId,
+      const result = await this.#runTurnWithRecovery(session, threadId, {
         input,
         outputSchema: args.output_schema,
         policy: this.policy,
@@ -118,16 +121,65 @@ export class Bridge {
         timeoutMs: Math.max(30, Number(args.timeout_sec) || 900) * 1000,
         log: this.log,
         signal: ctx.signal,
+        receivedAt,
+        threadReadyAt,
+        session,
       })
+      entry.threadId = result.threadId
       entry.turnId = result.turnId
       updateState((s) => {
         const rec = s.sessions[session] || { threadId }
         s.sessions[session] = { ...rec, lastUsedAt: new Date().toISOString(), lastStatus: result.status, lastTurnId: result.turnId }
       })
-      return { result, text: formatResult(result, { session }) }
+      const mode = args.screenshots || 'last'
+      const imagesReturned = mode === 'all' ? result.screenshots.length : mode === 'last' ? Math.min(1, result.screenshots.length) : 0
+      // Format once to size the payload, finalize the timeline (adds the
+      // timeline path), then format again so the path is in the text.
+      const provisional = formatResult(result, { session })
+      const returnedShots = mode === 'all' ? result.screenshots : mode === 'last' ? result.screenshots.slice(-1) : []
+      const imageBytes = returnedShots.reduce((n, s) => n + (s.data?.length || 0), 0)
+      finalizeTimeline(result, { resultBytes: Buffer.byteLength(provisional) + imageBytes, imagesReturned, session })
+      const text = formatResult(result, { session })
+      return { result, text, summary: summarize(result, { session }) }
     } finally {
       this.active.delete(session)
     }
+  }
+
+  // The daemon unloads idle threads and archives close them; the in-process
+  // loaded set then lies and turn/start answers "thread not found". Resume
+  // (or start over) once and retry.
+  async #runTurnWithRecovery(session, threadId, turnOpts) {
+    try {
+      return await runTurn(this.app, { ...turnOpts, threadId })
+    } catch (err) {
+      if (!/thread not found|not loaded|unknown thread/i.test(err.message)) throw err
+      this.log(`turn/start on ${threadId} failed (${err.message}); resuming or restarting the thread`)
+      this.#loaded.delete(threadId)
+      const fresh = await this.ensureThread(session, {})
+      return runTurn(this.app, { ...turnOpts, threadId: fresh })
+    }
+  }
+
+  // Archive the session's thread on the daemon (which frees its MCP servers,
+  // Computer Use REPL and app-server child) and forget the mapping.
+  async closeSession(session) {
+    session = String(session)
+    if (this.active.has(session)) throw new BridgeError(`session "${session}" has a turn running; interrupt it first`)
+    const rec = loadState().sessions[session]
+    if (!rec?.threadId) throw new BridgeError(`unknown session "${session}"`)
+    await this.connect()
+    let archived = 'archived'
+    try {
+      await this.app.request('thread/archive', { threadId: rec.threadId })
+    } catch (err) {
+      archived = `archive failed (${err.message.slice(0, 120)}); mapping dropped anyway`
+    }
+    this.#loaded.delete(rec.threadId)
+    updateState((s) => {
+      delete s.sessions[session]
+    })
+    return `session "${session}" closed: thread ${rec.threadId} ${archived}. A new call with this session name starts a fresh thread.`
   }
 
   async steer(session, message) {

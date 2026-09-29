@@ -115,6 +115,28 @@ stdio://` child in its own process group and kills the group on exit. Logs:
 stderr of the MCP server, plus `~/.local/state/codex-bridge/app-server.stderr.log`
 for a spawned child. Screenshots land in `~/.local/state/codex-bridge/screenshots/`.
 
+## Timelines and pressure testing
+
+Every turn writes `~/.local/state/codex-bridge/timelines/<turnId>.jsonl`
+(one event per hop: turn start, each item, each server request and the
+bridge's answer, screenshots, completion, result size) and a `.json` twin
+with the metrics: setup, boot (Codex starting its MCP servers), Computer
+Use call time, model time, tokens, result bytes. The result text ends with
+a one-line `timing:` breakdown and the timeline path, and the MCP result
+carries the same data as `structuredContent`.
+
+`scripts/pressure.mjs` runs scenario files from `scenarios/` through the
+launcher exactly as Claude Code does and appends a ledger row per run
+(`~/.local/state/codex-bridge/pressure/<date>/ledger.jsonl`). The plan and
+the scenario tiers are in [docs/pressure-testing.md](docs/pressure-testing.md);
+the file format is in [scenarios/README.md](scenarios/README.md).
+
+```sh
+node scripts/pressure.mjs --list
+node scripts/pressure.mjs --tier t0 --attended      # scenarios that raise windows need --attended
+node scripts/pressure.mjs scenarios/t0/finder-read.json --repeat 5 --effort low
+```
+
 ## Protocol notes learned the hard way
 
 - `unix://` and `ws://` listeners speak WebSocket (the unix one is an HTTP

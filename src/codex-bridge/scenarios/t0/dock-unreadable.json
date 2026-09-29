@@ -1,0 +1,16 @@
+{
+  "tier": "t0",
+  "track": "M",
+  "surfaces": ["runtime", "codex"],
+  "risk": "read",
+  "raises_windows": false,
+  "session": "fresh",
+  "task": "Read-only: never click, type, scroll, move the mouse or change anything.\nGoal: record how the macOS Dock appears to Computer Use (it is expected to be unreadable).\nApps: Dock (bundle id com.apple.dock) only. Do not touch any other app or window, and never focus Google Chrome.\nTry cua.getApp(\"com.apple.dock\") at most twice. Report exactly what error or state you got, then stop. No screenshot.",
+  "args": { "apps": ["Dock", "com.apple.dock"], "screenshots": "none", "timeout_sec": 90 },
+  "expect": {
+    "status": "completed",
+    "contains": ["timeout|-10005|unavailable|could not"],
+    "steps": [1, 3],
+    "no_denials": true
+  }
+}

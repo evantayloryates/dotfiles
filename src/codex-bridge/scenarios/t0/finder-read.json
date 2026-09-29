@@ -1,0 +1,20 @@
+{
+  "tier": "t0",
+  "track": "M",
+  "surfaces": ["runtime", "bridge"],
+  "risk": "read",
+  "raises_windows": false,
+  "session": "fresh",
+  "task": "Read-only: never click, type, scroll or change anything.\nGoal: confirm Computer Use can read Finder.\nApps: Finder only. Do not touch any other app or window, and never focus Google Chrome.\nReport: the title of Finder's key window and the number of windows the accessibility tree exposes. Take one screenshot of the key window with emit enabled. Call report_progress once after reading the state.",
+  "args": { "apps": ["Finder"], "screenshots": "last", "timeout_sec": 120 },
+  "preconditions": { "apps_installed": ["Finder"] },
+  "expect": {
+    "status": "completed",
+    "contains": ["key window"],
+    "not_contains": ["not approved"],
+    "steps": [1, 4],
+    "no_denials": true,
+    "screenshots_min": 1,
+    "failed_steps_max": 0
+  }
+}
