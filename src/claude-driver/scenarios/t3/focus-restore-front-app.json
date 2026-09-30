@@ -1,0 +1,9 @@
+{
+  "tier": "t3",
+  "description": "Navigation: open with restore returns the main window; open with show leaves it",
+  "steps": [
+    { "tool": "window_state", "save": { "before": "mainWindow.sessionId" } },
+    { "tool": "open_session", "args": { "session": "claude-driver-broker", "focus": "restore" }, "expect": { "equals": { "nowShowing.sessionId": "${before}" } } },
+    { "name": "still the same session", "tool": "window_state", "expect": { "equals": { "mainWindow.sessionId": "${before}" } } }
+  ]
+}

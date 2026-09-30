@@ -1,0 +1,12 @@
+{
+  "tier": "t0",
+  "description": "Read-only: status, lists, window state, broker record",
+  "steps": [
+    { "tool": "driver_status", "expect": { "matches": { "versions.cli": "^\\d+\\.\\d+\\.\\d+$", "broker.configured": "true" } } },
+    { "tool": "list_sessions", "args": { "limit": 3 }, "expect": { "matches": { "0.sessionId": "^local_" } } },
+    { "tool": "window_state", "expect": { "matches": { "mainWindow.sessionId": "^local_" } } },
+    { "tool": "get_session", "args": { "session": "claude-driver-broker" }, "expect": { "equals": { "titleSource": "tool", "permissionMode": "bypassPermissions", "group": "claude-driver" } } },
+    { "tool": "get_session", "args": { "session": "no such title ${TS}" }, "expect": { "error": true, "matches": { "$text": "not_found" } } },
+    { "tool": "driver_guide", "expect": { "matches": { "$text": "Focus is Taylor's" } } }
+  ]
+}

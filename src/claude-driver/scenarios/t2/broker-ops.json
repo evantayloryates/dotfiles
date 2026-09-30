@@ -1,0 +1,19 @@
+{
+  "tier": "t2",
+  "description": "Tier B through the broker: rename, pin, unpin, effort, group, send, archive",
+  "steps": [
+    { "tool": "create_session", "args": { "folder": "${SCRATCH}", "title": "cd-smoke b ${TS}", "model": "claude-haiku-4-5-20251001" }, "save": { "sid": "sessionId" }, "expect": { "equals": { "verified": true } } },
+    { "tool": "rename_session", "args": { "session": "${sid}", "title": "cd-smoke b renamed ${TS}" }, "expect": { "equals": { "verified": true, "titleSource": "tool" } } },
+    { "tool": "pin_session", "args": { "session": "${sid}", "pinned": true }, "expect": { "equals": { "verified": true } } },
+    { "tool": "pin_session", "args": { "session": "${sid}", "pinned": false }, "expect": { "equals": { "verified": true } } },
+    { "tool": "set_session_config", "args": { "session": "${sid}", "effort": "low" }, "expect": { "equals": { "verified": true, "effort": "low" } } },
+    { "tool": "manage_groups", "args": { "action": "move", "sessions": ["${sid}"], "group": "claude-driver" }, "expect": { "equals": { "verified": true } } },
+    { "tool": "send_message", "args": { "session": "${sid}", "message": "claude-driver smoke: reply with exactly ok" }, "expect": { "matches": { "delivery": "delivered|queued" } } },
+    { "tool": "_sleep", "args": { "ms": 10000 } },
+    { "tool": "get_session", "args": { "session": "${sid}" }, "expect": { "equals": { "group": "claude-driver", "pinned": false, "title": "cd-smoke b renamed ${TS}" } } }
+  ],
+  "cleanup": [
+    { "tool": "archive_session", "args": { "session": "${sid}" } },
+    { "tool": "delete_sessions", "args": { "sessions": ["${sid}"], "queue": true, "reason": "smoke" } }
+  ]
+}

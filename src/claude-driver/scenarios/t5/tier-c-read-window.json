@@ -1,0 +1,10 @@
+{
+  "tier": "t5",
+  "never_run_unattended": true,
+  "description": "Tier C read-only: Codex reports the main window's session title; compared with disk",
+  "steps": [
+    { "tool": "window_state", "save": { "before": "mainWindow.sessionId" } },
+    { "tool": "window_manage", "args": { "task": "Read-only: never click, type or scroll. Report the exact title of the Code session shown in the Claude app's main window, as: TITLE=<title>.", "timeout_sec": 120 },
+      "expect": { "matches": { "status": "completed", "report": "TITLE=" } } }
+  ]
+}

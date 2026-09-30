@@ -1,0 +1,16 @@
+{
+  "tier": "t4",
+  "description": "Fork with history; archive; unarchive by deep link",
+  "steps": [
+    { "tool": "create_session", "args": { "folder": "${SCRATCH}", "title": "cd-smoke f ${TS}", "model": "claude-haiku-4-5-20251001", "bootstrap_prompt": "Remember the word pelican. Reply with exactly: ready" }, "save": { "sid": "sessionId" }, "expect": { "equals": { "verified": true } } },
+    { "tool": "fork_session", "args": { "session": "${sid}" }, "save": { "fid": "sessionId" }, "expect": { "equals": { "verified": true, "title": "cd-smoke f ${TS} (fork)", "forkedFrom": "${sid}" } } },
+    { "tool": "archive_session", "args": { "session": "${sid}" }, "expect": { "equals": { "archived": true, "verified": true } } },
+    { "tool": "unarchive_session", "args": { "session": "${sid}" }, "expect": { "equals": { "unarchived": true, "via": "deep link" } } },
+    { "tool": "get_session", "args": { "session": "${sid}" }, "expect": { "equals": { "isArchived": false } } }
+  ],
+  "cleanup": [
+    { "tool": "archive_session", "args": { "session": "${sid}" } },
+    { "tool": "archive_session", "args": { "session": "${fid}" } },
+    { "tool": "delete_sessions", "args": { "sessions": ["${sid}", "${fid}"], "queue": true, "reason": "smoke" } }
+  ]
+}

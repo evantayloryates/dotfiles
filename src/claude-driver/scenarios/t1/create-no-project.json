@@ -1,0 +1,12 @@
+{
+  "tier": "t1",
+  "description": "Create with no folder: cwd is a fresh app scratch workspace",
+  "steps": [
+    { "tool": "create_session", "args": { "no_project": true, "title": "cd-smoke nofolder ${TS}", "model": "claude-haiku-4-5-20251001" },
+      "save": { "sid": "sessionId" }, "expect": { "equals": { "verified": true }, "matches": { "cwd": "/scratch-workspaces/[^/]+/[^/]+/scratch-\\d{4}-\\d{2}-\\d{2}-[0-9a-f]{6}$" } } }
+  ],
+  "cleanup": [
+    { "tool": "archive_session", "args": { "session": "${sid}" } },
+    { "tool": "delete_sessions", "args": { "sessions": ["${sid}"], "queue": true, "reason": "smoke" } }
+  ]
+}

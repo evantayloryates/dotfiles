@@ -1,0 +1,11 @@
+{
+  "tier": "t6",
+  "never_run_unattended": true,
+  "description": "Destructive: gates refuse the broker and self; archive_project dry-run on the scratch folder; then ONE delete card for the whole queue (Taylor approves)",
+  "steps": [
+    { "tool": "delete_sessions", "args": { "sessions": ["claude-driver-broker"] }, "expect": { "matches": { "refused.0.why": "broker" } } },
+    { "tool": "archive_project", "args": { "folder": "${HOME}/src/github/dotfiles" }, "expect": { "equals": { "dryRun": true, "wouldProceed": false } } },
+    { "tool": "archive_project", "args": { "folder": "${SCRATCH}" }, "expect": { "equals": { "dryRun": true, "class": "driver", "wouldProceed": true } } },
+    { "tool": "delete_sessions", "args": { "from_queue": true, "reason": "claude-driver test sessions (smoke/probe)" }, "expect": { "matches": { "$text": "deleted" } } }
+  ]
+}

@@ -55,7 +55,9 @@ export function heartbeat() {
   const hb = readJson(join(BROKER_DIR, 'heartbeat.json'), null)
   if (!hb) return { resident: false }
   const age = Date.now() - hb.at
-  return { resident: age < 6000 && ['waiting', 'working', 'rearming'].includes(hb.state), state: hb.state, ageMs: age }
+  // "working" is written once at pickup, so it stays valid while the broker runs a long request.
+  const resident = (['waiting', 'rearming'].includes(hb.state) && age < 6000) || (hb.state === 'working' && age < 180_000)
+  return { resident, state: hb.state, ageMs: age }
 }
 
 export function brokerInfo() {

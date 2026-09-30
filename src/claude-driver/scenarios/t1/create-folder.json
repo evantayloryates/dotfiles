@@ -1,0 +1,15 @@
+{
+  "tier": "t1",
+  "description": "Create in a named folder: exact title, model, cwd; focus restored",
+  "steps": [
+    { "tool": "window_state", "save": { "before": "mainWindow.sessionId" } },
+    { "tool": "create_session", "args": { "folder": "${SCRATCH}", "title": "cd-smoke create ${TS}", "model": "claude-haiku-4-5-20251001" },
+      "save": { "sid": "sessionId" }, "expect": { "equals": { "verified": true, "cwd": "${SCRATCH}", "model": "claude-haiku-4-5-20251001" } } },
+    { "tool": "get_session", "args": { "session": "${sid}" }, "expect": { "equals": { "title": "cd-smoke create ${TS}", "cwd": "${SCRATCH}", "isArchived": false, "driverCreated": true } } },
+    { "name": "focus restored", "tool": "window_state", "expect": { "equals": { "mainWindow.sessionId": "${before}" } } }
+  ],
+  "cleanup": [
+    { "tool": "archive_session", "args": { "session": "${sid}" } },
+    { "tool": "delete_sessions", "args": { "sessions": ["${sid}"], "queue": true, "reason": "smoke" } }
+  ]
+}
