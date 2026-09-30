@@ -7,6 +7,23 @@ Versions: app = Claude desktop, cli = bundled Claude Code.
 
 ## 2026-09-30 (app 2.9939.4, cli 2.1.284)
 
+- **Imports can never be bypass; other modes survive.** App code
+  `resolveImportedPermissionMode` clamps `Bypass → AcceptEdits` whether the
+  mode comes from the transcript or the settings default. Probe P1: bootstrap
+  `--permission-mode bypassPermissions` → acceptEdits; `--permission-mode
+  default` → default. n=1 each (+4 earlier bypass-default imports). Raising
+  afterwards needs the app card's consent token in every mode. Full analysis
+  and options: [strategy-bypass-create.md](strategy-bypass-create.md).
+- **A scheduled-task run is the only UI-free native create, and it is
+  unattended.** `create_scheduled_task` + `run_scheduled_task` produced a
+  bypass session (`bypassChosenInApp: true`, cwd = the creating session's) in
+  ~5 s with no card. But `send_message` refuses it ("is unattended"), and
+  `change_directory` on itself raised a permission prompt despite bypass.
+  n=2 runs.
+- **`claude://code/new?folder=` does not set the composer's folder** (it kept
+  the last project, for a trusted and an untrusted folder); the composer's
+  mode label read "Bypass permissions". n=2 / n=3.
+
 - **Batched delete, desktop path.** `delete_sessions {from_queue}` from a
   desktop session handed back one `delete_session` call for 14 queued test
   sessions; one card, Taylor approved, all 14 records gone. The app left 68
