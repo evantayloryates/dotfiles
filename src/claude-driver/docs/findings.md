@@ -12,7 +12,13 @@ Versions: app = Claude desktop, cli = bundled Claude Code.
   mode comes from the transcript or the settings default. Probe P1: bootstrap
   `--permission-mode bypassPermissions` → acceptEdits; `--permission-mode
   default` → default. n=1 each (+4 earlier bypass-default imports). Raising
-  afterwards needs the app card's consent token in every mode. Full analysis
+  afterwards needs the app card's consent token in every mode, including
+  from a bypass caller: main.log shows `Emitted tool permission request … for
+  set_session_permission_mode` then a renderer `respondToToolPermission …
+  decision=once, hasUpdatedInput=true` (a human click) before every raise.
+  n=2 (broker 2026-09-29, 58 s to approve; local_980dfefa from a bypass
+  caller 2026-09-30, 9.5 min to approve — reported by that caller as "no
+  card", corrected from the log). Full analysis
   and options: [strategy-bypass-create.md](strategy-bypass-create.md).
 - **A scheduled-task run is the only UI-free native create, and it is
   unattended.** `create_scheduled_task` + `run_scheduled_task` produced a
