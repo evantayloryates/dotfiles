@@ -147,6 +147,14 @@ export async function brokerCmd(sub, flags = {}) {
     console.log(txt(brokerInfo()))
     return 0
   }
+  if (sub === 'stop') {
+    // Ends the resident loop's turn (the process then idles and may be evicted).
+    const { writeFileSync } = await import('node:fs')
+    const { BROKER_DIR } = await import('./state.mjs')
+    writeFileSync(join(BROKER_DIR, 'STOP'), new Date().toISOString())
+    console.log('STOP written; the broker ends its turn within ~1 s if resident. The next request clears it and wakes the broker.')
+    return 0
+  }
   if (sub === 'revive') {
     console.log(txt(await reviveBroker({ progress: log })))
     return 0
@@ -174,5 +182,5 @@ export async function brokerCmd(sub, flags = {}) {
     console.log(txt({ broker: brokerInfo(), bypass: w.ok }))
     return w.ok ? 0 : 2
   }
-  throw new Error(`unknown broker command ${sub} (init|status|revive)`)
+  throw new Error(`unknown broker command ${sub} (init|status|revive|stop)`)
 }

@@ -7,7 +7,8 @@
 // (bounded) → the caller verifies against disk ground truth.
 
 import { randomUUID } from 'node:crypto'
-import { copyFileSync, existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { homedir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -34,11 +35,27 @@ export function protocolVersion() {
   return readFileSync(TEMPLATE, 'utf8').match(/^Protocol version: (\d+)/m)?.[1] || '1'
 }
 
+// The template names absolute paths so the broker's Bash never depends on PATH.
+function renderTemplate() {
+  const stable = join(homedir(), 'dotfiles', 'src', 'claude-driver', 'scripts', 'broker-wait.mjs')
+  const wait = existsSync(stable) ? stable : join(HERE, '..', 'scripts', 'broker-wait.mjs')
+  const node = existsSync('/opt/homebrew/bin/node') ? '/opt/homebrew/bin/node' : process.execPath
+  return readFileSync(TEMPLATE, 'utf8').replaceAll('{{NODE}}', node).replaceAll('{{WAIT}}', wait)
+}
+
 export function prepareBrokerDir() {
   ensureDir(REQ_DIR)
   ensureDir(RES_DIR)
-  copyFileSync(TEMPLATE, join(BROKER_DIR, 'CLAUDE.md'))
+  writeFileSync(join(BROKER_DIR, 'CLAUDE.md'), renderTemplate())
   return BROKER_DIR
+}
+
+// Resident = the broker's wait loop wrote a heartbeat in the last few seconds.
+export function heartbeat() {
+  const hb = readJson(join(BROKER_DIR, 'heartbeat.json'), null)
+  if (!hb) return { resident: false }
+  const age = Date.now() - hb.at
+  return { resident: age < 6000 && ['waiting', 'working', 'rearming'].includes(hb.state), state: hb.state, ageMs: age }
 }
 
 export function brokerInfo() {
@@ -46,7 +63,7 @@ export function brokerInfo() {
   if (!info?.sessionId) return { configured: false }
   const rec = getRecord(info.sessionId)
   const live = liveByHost().get(info.sessionId)
-  const templateCurrent = existsSync(join(BROKER_DIR, 'CLAUDE.md')) && readFileSync(join(BROKER_DIR, 'CLAUDE.md'), 'utf8') === readFileSync(TEMPLATE, 'utf8')
+  const templateCurrent = existsSync(join(BROKER_DIR, 'CLAUDE.md')) && readFileSync(join(BROKER_DIR, 'CLAUDE.md'), 'utf8') === renderTemplate()
   return {
     configured: true,
     sessionId: info.sessionId,
@@ -57,6 +74,7 @@ export function brokerInfo() {
     model: rec?.model ?? null,
     permissionMode: rec?.permissionMode ?? null,
     live: live ? { pid: live.pid, status: live.status, socket: live.messagingSocketPath } : null,
+    resident: live ? heartbeat() : { resident: false },
     templateCurrent,
   }
 }
@@ -78,12 +96,17 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
     if (!info.templateCurrent) prepareBrokerDir()
     if (!info.live) throw new DriverError(`broker ${info.sessionId} has no live process (app restarted?); run \`claude-driver broker revive\``, { category: 'broker_dead' })
     const id = newRequestId()
+    rmSync(join(BROKER_DIR, 'STOP'), { force: true })
     const request = { id, ops, createdAt: new Date().toISOString() }
     writeJsonAtomic(join(REQ_DIR, `${id}.json`), request)
     progress(`broker request ${id}: ${ops.map((o) => o.op).join(', ')}`)
     const t0 = Date.now()
-    const via = await deliver(info, `claude-driver request ${id} v${protocolVersion()}\n${JSON.stringify({ id, ops })}`, { signal })
-    progress(`delivered via ${via.method} in ${Date.now() - t0} ms`)
+    let via = { method: 'resident' }
+    // A resident broker picks the file up itself; otherwise wake it into its loop.
+    if (!info.resident?.resident) {
+      via = await deliver(info, `claude-driver request ${id} v${protocolVersion()}`, { signal })
+      progress(`delivered via ${via.method} in ${Date.now() - t0} ms; broker enters its resident loop`)
+    }
     const resFile = join(RES_DIR, `${id}.json`)
     const deadline = Date.now() + timeoutMs
     while (Date.now() < deadline) {

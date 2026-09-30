@@ -7,11 +7,45 @@ Versions: app = Claude desktop, cli = bundled Claude Code.
 
 ## 2026-09-30 (app 2.9939.4, cli 2.1.284)
 
-- **The app reaps idle session processes after 30 min.** main.log:
-  `[WarmLifecycle:preview] Starting idle timeout for <id>: 1800s` when focus
-  leaves a session, then `Idle timeout reached, disconnecting <id>`. The broker
-  died 38 min after its last request. So the broker is usually asleep and
-  revival is on the critical path for the first op after idle. n=many (log).
+- **Resident broker: never idle, never evicted, no delivery hop.** The broker
+  stays mid-turn in a bounded Bash wait (`scripts/broker-wait.mjs`, 540 s,
+  re-armed) that returns when a request file appears. The governor only
+  evicts sessions idle ≥ 60 s, and a session mid-turn is not idle. Requests
+  are just files: 4.3 s and 7.0 s per op with Haiku, versus 8–19 s plus a
+  wake before. Heartbeat file tells the driver it is resident. n=3.
+- **A peer message's trigger line is inside an envelope.** The receiver sees
+  `Another Claude session sent a message:` then `<cross-session-message
+  from-name=… from-mode=…>` around the text; a protocol that says "first line
+  exactly" makes Haiku reply `ignored`. Protocol v4 names the envelope. n=1.
+- **A ccd `send_message` to a live idle session can go undelivered.**
+  `peer input … drew no acknowledgement from the CLI in 45001ms — settled as
+  undelivered`, right after the broker's previous turn; a direct peer frame
+  landed at once. n=1.
+- **Asar (2.9939.4): nothing outside the app can start a turn in an existing
+  session.** Every `claude://` route, universal link and Handoff only
+  navigates the main window; `code/new?q=` only fills a new-session composer;
+  scheduled tasks always make new sessions. Governor cap =
+  max(6, floor(RAM / 3 GiB)) = 8 here, fixed; it is soft for real sends and
+  only warm spawns yield; eviction happens when a warm spawn lands exactly at
+  the cap (LRU session idle ≥ 60 s). `[WarmLifecycle:preview]` 1800 s stops
+  preview dev servers, not the CLI. No native "archive project" action in the
+  main-process bundle (the sidebar is the remote web UI); no route opens a
+  pop-out window. n=1 (code reading).
+
+- **The CLI governor caps live session processes at 8 and evicts idle ones
+  under pressure.** `[CliGovernor] at cap=8; would evict <broker> (idle 53s)
+  for user spawn`, then `pressure evicting <broker> (idle 89s)` → `Pausing
+  session (governor_evict)`. On a busy day the broker is evicted within
+  minutes of each use, so most non-desktop Tier B calls pay a revival. A
+  real send ("user spawn") evicts someone else's idle process; a focus warm
+  spawn just yields. n=2 evictions.
+- **Tier C revival conflicts with Taylor using the app.** In the first probe,
+  Codex found the main window showing Taylor's session instead of the broker
+  (he was clicking) and correctly refused to type (3 of 4 revivals). n=4.
+
+- ~~The app reaps idle session processes after 30 min.~~ Retracted: that
+  1800 s timer stops preview servers; the broker's deaths were governor
+  evictions (below and above). n=code reading.
 - **Focusing a session warm-spawns its process — unless the CLI governor is
   at cap.** `Warming session <id>` on focus; with many live sessions:
   `[CliGovernor] at cap; yielding warm spawn` and no process appears. Warm
