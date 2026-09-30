@@ -496,12 +496,27 @@ export const OPS = [
         reason: { type: 'string' },
         queue: { type: 'boolean', description: 'Only add these to the delete-candidates queue.' },
         from_queue: { type: 'boolean', description: 'Delete everything in the queue (one card).' },
+        cleanup_only: { type: 'boolean', description: 'No delete: remove CLI leftovers for driver-created sessions whose records are already gone (run after making a handed-back delete call yourself).' },
         override: { type: 'boolean', description: 'Allow pinned / running / open-PR sessions.' },
         via_broker: VIA_BROKER,
       },
     },
     run: async (args, ctx) => {
       const reg = loadRegistry()
+      if (args.cleanup_only) {
+        const cleaned = {}
+        for (const id of Object.keys(reg.sessions)) {
+          if (getRecord(id)) continue
+          cleaned[id] = cleanupCliLeftovers(id.replace(/^local_/, '')).removed.length
+        }
+        updateRegistry((r) => {
+          for (const id of Object.keys(cleaned)) {
+            delete r.sessions[id]
+            if (r.deleteQueue) delete r.deleteQueue[id]
+          }
+        })
+        return { cleaned, filesRemoved: Object.values(cleaned).reduce((a, b) => a + b, 0) }
+      }
       if (args.queue) {
         const ids = (args.sessions || []).map((s) => resolveSession(s).sessionId)
         updateRegistry((r) => {
@@ -536,7 +551,7 @@ export const OPS = [
       if (!ok.length) return { deleted: [], refused }
       const result = { refused, cleanup: {} }
       const b = await tierB(ctx, [{ op: 'delete_session', args: { session_ids: ok.map((r) => r.sessionId), reason: args.reason || 'claude-driver delete_sessions' } }], 'records gone')
-      if (b.handback) return { ...b.handback, refused }
+      if (b.handback) return { ...b.handback, refused, afterwards: 'Once Taylor approves the card, call delete_sessions {cleanup_only: true} to remove the CLI files the app leaves behind.' }
       result.broker = b.results[0].result
       await sleep(1000)
       result.deleted = ok.filter((r) => !getRecord(r.sessionId)).map((r) => r.sessionId)

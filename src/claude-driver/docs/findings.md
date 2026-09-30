@@ -7,6 +7,15 @@ Versions: app = Claude desktop, cli = bundled Claude Code.
 
 ## 2026-09-30 (app 2.9939.4, cli 2.1.284)
 
+- **Batched delete, desktop path.** `delete_sessions {from_queue}` from a
+  desktop session handed back one `delete_session` call for 14 queued test
+  sessions; one card, Taylor approved, all 14 records gone. The app left 68
+  CLI files behind for them (transcripts, `<uuid>/` dirs, session-env,
+  security state, empty project dirs); `delete_sessions {cleanup_only}`
+  removed them. Gates: the broker and the caller were refused; archive_project
+  on the dotfiles repo refused (1387 commits, 8 sessions), on the probe
+  folder allowed. n=1.
+
 - **A resident broker survives an app quit and relaunch with no revival.**
   At quit the app logged `unhealthy cycle for <broker> (1211s, …,
   reason=app_quit)` and stopped it; on relaunch `[CCD] Relaunch auto-resume:

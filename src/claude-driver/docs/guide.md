@@ -19,7 +19,9 @@ mechanisms and evidence.
    approval card, in every permission mode, by design. Never click that card
    (or any approval card) yourself, by computer use or otherwise. Queue
    candidates with `delete_sessions {queue: true}` and present the queue in
-   one batch (`from_queue: true`) when Taylor asks.
+   one batch (`from_queue: true`) when Taylor asks. If the delete was handed
+   back and you made the call yourself, run `delete_sessions {cleanup_only:
+   true}` afterwards to remove the CLI files the app leaves behind.
 4. **Projects are gated.** `archive_project` is a dry run unless
    `dry_run: false`, and refuses anything but scratch folders, the driver's
    own folders and folders it created, unless Taylor explicitly approved
