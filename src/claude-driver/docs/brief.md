@@ -261,3 +261,25 @@ Everything else, including computer use, is pre-authorized for the build.
 5. Broker ops (pin, rename, archive) run from a non-Claude harness.
 6. The README, findings log and brief are committed and pushed.
 7. A short report goes back to Taylor with the capability matrix and anything left unproven.
+
+## 11. Addendum: delete/unpin results and Taylor's deletion rule
+
+(Sent by the research session after the brief, 2026-09-29.)
+
+- **Verified 2026-09-29: unpin.** `set_pinned(false)` removed the id from `starred-local-code-sessions`.
+- **Verified 2026-09-29: delete.** `delete_session` on 7 imported sessions went through one approval card. That removed:
+  - the app records (`local_<id>.json`)
+  - the app-created no-folder scratch dirs (`scratch-workspaces/.../scratch-*`); the app removes them itself
+- **Delete leaves CLI-side files behind for imported sessions.** It does NOT remove:
+  - `~/.claude/projects/<mangled-cwd>/<uuid>.jsonl`, plus a `<uuid>/` dir holding `custom-title.json`
+  - `~/.claude/session-env/<uuid>`
+  - `~/.claude/security/security_warnings_state_<uuid>.{json,lock}`
+  - for cwds used only by those sessions, an empty `~/.claude/projects/<mangled-cwd>/` holding an empty `memory/` dir
+
+  The driver must clean these up for sessions it created. Only touch files named by the deleted uuids, and only project dirs whose sole contents are those files and an empty `memory/`. Leftover transcripts can come back through the app's "Found N Claude Code sessions … that aren't in your session list" import prompt.
+- **A failed headless bootstrap still leaves files.** A run that died with a 401 wrote a transcript, session-env and security state. Clean these on bootstrap failure.
+- **Cwd project-dir names get hashed.** Long cwds get a truncated name with a hash suffix (e.g. `…-a4082579-gh29i5`). Locate a transcript by uuid with `find`; never reconstruct the mangled name.
+- **Taylor's deletion rule.** There is no setting that skips the delete card. The app requires a consent token that only its card issues, in every mode, and that is intentional. The driver must never click that card itself, whether by computer use or any other route. Instead:
+  1. Default to archive.
+  2. Keep a delete-candidates queue and present candidates to Taylor in one batched card.
+  3. After approval, do the full on-disk cleanup above for driver-created sessions.

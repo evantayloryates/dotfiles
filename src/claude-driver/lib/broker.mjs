@@ -1,0 +1,109 @@
+// Tier B: a desktop session the driver owns ("claude-driver-broker") runs the
+// app's own ccd_* tools on request. Only desktop-hosted sessions have those
+// tools, so every non-desktop harness goes through here.
+//
+// Request path: write requests/<id>.json → deliver "claude-driver request
+// <id>" into the broker's live process (peer protocol) → poll results/<id>.json
+// (bounded) → the caller verifies against disk ground truth.
+
+import { randomUUID } from 'node:crypto'
+import { copyFileSync, existsSync, readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+import { DriverError, sleep } from './paths.mjs'
+import { getRecord, liveByHost } from './sessions.mjs'
+import { BROKER_DIR, ensureDir, readJson, withLock, writeJsonAtomic } from './state.mjs'
+import { deliver } from './peer.mjs'
+
+const HERE = dirname(fileURLToPath(import.meta.url))
+const TEMPLATE = join(HERE, '..', 'broker-template', 'CLAUDE.md')
+export const BROKER_TITLE = 'claude-driver-broker'
+export const BROKER_MODEL = process.env.CLAUDE_DRIVER_BROKER_MODEL || 'claude-haiku-4-5-20251001'
+const BROKER_FILE = join(BROKER_DIR, 'broker.json')
+const REQ_DIR = join(BROKER_DIR, 'requests')
+const RES_DIR = join(BROKER_DIR, 'results')
+
+export const BROKER_OPS = [
+  'set_session_title', 'archive_session', 'unarchive_session', 'set_session_model', 'set_session_effort', 'set_session_permission_mode',
+  'send_message', 'stop_session', 'get_session', 'list_sessions', 'delete_session', 'export_transcript',
+  'set_pinned', 'list_groups', 'create_group', 'rename_group', 'move_sessions', 'set_unread', 'mark_completed', 'get_window_layout',
+]
+
+export function protocolVersion() {
+  return readFileSync(TEMPLATE, 'utf8').match(/^Protocol version: (\d+)/m)?.[1] || '1'
+}
+
+export function prepareBrokerDir() {
+  ensureDir(REQ_DIR)
+  ensureDir(RES_DIR)
+  copyFileSync(TEMPLATE, join(BROKER_DIR, 'CLAUDE.md'))
+  return BROKER_DIR
+}
+
+export function brokerInfo() {
+  const info = readJson(BROKER_FILE, null)
+  if (!info?.sessionId) return { configured: false }
+  const rec = getRecord(info.sessionId)
+  const live = liveByHost().get(info.sessionId)
+  const templateCurrent = existsSync(join(BROKER_DIR, 'CLAUDE.md')) && readFileSync(join(BROKER_DIR, 'CLAUDE.md'), 'utf8') === readFileSync(TEMPLATE, 'utf8')
+  return {
+    configured: true,
+    sessionId: info.sessionId,
+    exists: !!rec,
+    archived: rec?.isArchived ?? null,
+    title: rec?.title ?? null,
+    titleSource: rec?.titleSource ?? null,
+    model: rec?.model ?? null,
+    permissionMode: rec?.permissionMode ?? null,
+    live: live ? { pid: live.pid, status: live.status, socket: live.messagingSocketPath } : null,
+    templateCurrent,
+  }
+}
+
+export function saveBrokerInfo(info) {
+  writeJsonAtomic(BROKER_FILE, info)
+}
+
+export function newRequestId() {
+  return `r${Date.now().toString(36)}-${randomUUID().slice(0, 6)}`
+}
+
+// ops: [{ op, args }]. Returns the broker's results array.
+export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => {}, signal } = {}) {
+  for (const o of ops) if (!BROKER_OPS.includes(o.op)) throw new DriverError(`op ${o.op} is not on the broker allowlist`, { category: 'bad_args' })
+  return withLock('broker', async () => {
+    const info = brokerInfo()
+    if (!info.configured || !info.exists) throw new DriverError('no broker session; run `claude-driver broker init`', { category: 'broker_missing' })
+    if (!info.templateCurrent) prepareBrokerDir()
+    if (!info.live) throw new DriverError(`broker ${info.sessionId} has no live process (app restarted?); run \`claude-driver broker revive\``, { category: 'broker_dead' })
+    const id = newRequestId()
+    const request = { id, ops, createdAt: new Date().toISOString() }
+    writeJsonAtomic(join(REQ_DIR, `${id}.json`), request)
+    progress(`broker request ${id}: ${ops.map((o) => o.op).join(', ')}`)
+    const t0 = Date.now()
+    const via = await deliver(info, `claude-driver request ${id} v${protocolVersion()}\n${JSON.stringify({ id, ops })}`, { signal })
+    progress(`delivered via ${via.method} in ${Date.now() - t0} ms`)
+    const resFile = join(RES_DIR, `${id}.json`)
+    const deadline = Date.now() + timeoutMs
+    while (Date.now() < deadline) {
+      if (signal?.aborted) throw new DriverError('cancelled', { category: 'cancelled' })
+      if (existsSync(resFile)) {
+        await sleep(100) // let the Write finish
+        const res = readJson(resFile, null)
+        if (res?.results) return { id, results: res.results, deliveredVia: via.method, ms: Date.now() - t0 }
+      }
+      await sleep(300)
+    }
+    throw new DriverError(`broker did not answer request ${id} within ${timeoutMs / 1000} s (delivered via ${via.method})`, { category: 'broker_timeout' })
+  })
+}
+
+// One op, unwrapped: throws when the broker reports ok:false.
+export async function brokerOp(op, args, opts) {
+  const r = await brokerRequest([{ op, args }], opts)
+  const first = r.results?.[0]
+  if (!first) throw new DriverError(`broker returned no result for ${op}`, { category: 'broker_bad_result' })
+  if (!first.ok) throw new DriverError(`${op} failed in the broker: ${first.error}`, { category: 'tier_b_failed', detail: first })
+  return { result: first.result, deliveredVia: r.deliveredVia, ms: r.ms, requestId: r.id }
+}
