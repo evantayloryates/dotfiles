@@ -121,7 +121,10 @@ archive, unarchive, pin and group moves of other sessions ask Taylor).
   allowlisted ops verbatim and writes `results/<id>.json`. A session mid-turn
   is never idle, so the app's CLI governor (cap 8 here; evicts the LRU session
   idle ≥ 60 s when a warm spawn lands at the cap) never evicts it, and a
-  request needs no delivery at all: 4–8 s per op.
+  request needs no delivery at all: 4–8 s per op. And because the app
+  auto-resumes sessions that were mid-turn when it quit ("Relaunch
+  auto-resume"), the resident broker comes back by itself after an app
+  restart.
 - **Waking it.** If the process is alive but not resident, the driver sends
   `claude-driver request <id> vN` over **peerProtocol v1 directly**
   ([lib/peer-direct.mjs](lib/peer-direct.mjs), ~0.2 s: unix socket, the

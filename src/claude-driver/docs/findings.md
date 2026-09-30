@@ -7,6 +7,15 @@ Versions: app = Claude desktop, cli = bundled Claude Code.
 
 ## 2026-09-30 (app 2.9939.4, cli 2.1.284)
 
+- **A resident broker survives an app quit and relaunch with no revival.**
+  At quit the app logged `unhealthy cycle for <broker> (1211s, …,
+  reason=app_quit)` and stopped it; on relaunch `[CCD] Relaunch auto-resume:
+  ran — warmed 2 of 2 eligible (2 marked)` warmed it and sent it a message,
+  and it was resident again (heartbeat `waiting`) before any driver call.
+  Sessions mid-turn at quit are marked and auto-resumed; the resident loop
+  keeps the broker mid-turn by design. The same 1211 s cycle shows the
+  540 s wait re-arming across IDLE returns. n=1 (real quit by Taylor).
+
 - **Pressure tests.** (1) Faked app version (`CLAUDE_DRIVER_APP_VERSION`):
   preflight saw no matrix for the key and ran the full probe, all pass. (2)
   Three concurrent CLI harnesses (rename, pin, effort on one session): the
