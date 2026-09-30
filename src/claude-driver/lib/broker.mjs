@@ -107,3 +107,49 @@ export async function brokerOp(op, args, opts) {
   if (!first.ok) throw new DriverError(`${op} failed in the broker: ${first.error}`, { category: 'tier_b_failed', detail: first })
   return { result: first.result, deliveredVia: r.deliveredVia, ms: r.ms, requestId: r.id }
 }
+
+// Revive a dead broker. 1) Focus it by deep link: the app warm-spawns a
+// focused session's process unless its CLI governor is at cap. 2) Otherwise
+// Tier C types the wake line into its composer (a real send always spawns).
+// Focus is restored right after each navigation; liveness is polled after.
+export async function reviveBroker({ focus = 'restore', allowTierC = true, progress = () => {}, signal } = {}) {
+  const { snapshot, restoreFrom, logSince, sessionUrl } = await import('./focus.mjs')
+  const { openUrl } = await import('./paths.mjs')
+  let info = brokerInfo()
+  if (!info.configured || !info.exists) throw new DriverError('no broker session; run `claude-driver broker init`', { category: 'broker_missing' })
+  if (info.live) return { method: 'already_live', live: info.live }
+  const waitLive = async (ms, stopEarly = () => false) => {
+    const deadline = Date.now() + ms
+    while (Date.now() < deadline) {
+      if (brokerInfo().live) return true
+      if (stopEarly()) return false
+      await sleep(250)
+    }
+    return !!brokerInfo().live
+  }
+  const t0 = Date.now()
+  // One snapshot, one restore: the whole revival is a single navigating batch.
+  const before = focus === 'leave' ? null : await snapshot()
+  const finish = async () => (before && focus === 'restore' ? restoreFrom(before, info.sessionId) : focus)
+  progress('revive: focusing broker to trigger a warm spawn')
+  await openUrl(sessionUrl(info.sessionId))
+  const atCap = () => logSince(t0, /CliGovernor\] at cap; yielding warm spawn/).length > 0
+  if (await waitLive(12_000, atCap)) return { method: 'warm_spawn', ms: Date.now() - t0, focus: await finish() }
+  const capped = atCap()
+  if (!allowTierC) {
+    await finish()
+    throw new DriverError(`broker did not warm-spawn${capped ? ' (app CLI governor at cap)' : ''}; Tier C disabled`, { category: 'broker_dead' })
+  }
+  progress(`revive: warm spawn ${capped ? 'blocked (governor at cap)' : 'did not happen'}; typing wake line via Tier C`)
+  const { typeIntoComposer } = await import('./tierc.mjs')
+  let tc
+  let focusAction
+  try {
+    tc = await typeIntoComposer(BROKER_TITLE, `claude-driver wake v${protocolVersion()}`, { progress, signal, timeoutSec: 150 })
+    await waitLive(30_000)
+  } finally {
+    focusAction = await finish()
+  }
+  if (brokerInfo().live) return { method: 'tier_c_wake', ms: Date.now() - t0, tierC: tc.status, focus: focusAction }
+  throw new DriverError(`broker revival failed (warm spawn ${capped ? 'at cap' : 'none'}; Tier C status ${tc?.status}): ${tc?.text?.slice(0, 400)}`, { category: 'broker_dead' })
+}

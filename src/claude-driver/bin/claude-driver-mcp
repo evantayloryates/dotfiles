@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# MCP launcher for claude-driver (stdio). Registered by `claude-driver install`
+# in Claude Code, Codex, Cursor and OpenCode as:
+#   /Users/taylor/dotfiles/src/claude-driver/bin/claude-driver-mcp
+# Resolves node explicitly: GUI-launched MCP servers inherit a minimal PATH.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+. "${SCRIPT_DIR}/../../lib/resolve-binary.sh"
+NODE="$(resolve_binary node)"
+exec "$NODE" "${SCRIPT_DIR}/../server.mjs" "$@"

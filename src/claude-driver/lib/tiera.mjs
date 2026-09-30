@@ -9,6 +9,7 @@ import { DriverError, MAIN_LOG, makeScratchFolder, openUrl, runCli, sh } from '.
 import { getRecord, resolveSession, waitForRecord } from './sessions.mjs'
 import { sessionUrl } from './focus.mjs'
 import { updateRegistry } from './state.mjs'
+import { cleanupCliLeftovers } from './cleanup.mjs'
 
 export const DEFAULT_MODEL = process.env.CLAUDE_DRIVER_DEFAULT_MODEL || 'claude-opus-5-5'
 export const DEFAULT_BOOTSTRAP = 'This session was created by claude-driver. Reply with exactly: ready'
@@ -29,9 +30,13 @@ async function mainLogTail(uuid) {
   }
 }
 
-async function bootstrap(args, cwd, signal) {
+async function bootstrap(args, cwd, signal, uuid) {
   const r = await runCli(args, { cwd, signal })
   if (r.code !== 0) {
+    // A failed bootstrap still writes a transcript, session-env and security state.
+    try {
+      cleanupCliLeftovers(uuid, { force: true })
+    } catch {}
     const tail = `${r.stderr}\n${r.stdout}`.trim().slice(-800)
     const category = /401|auth|login/i.test(tail) ? 'cli_auth' : /model/i.test(tail) ? 'cli_model' : 'cli_failed'
     throw new DriverError(`bootstrap turn failed (exit ${r.code}): ${tail}`, { category })
@@ -59,7 +64,7 @@ export async function createSession({ folder, no_project, title, model, effort, 
   const args = ['-p', bootstrap_prompt || DEFAULT_BOOTSTRAP, '--session-id', uuid, '-n', title, '--model', m, '--strict-mcp-config']
   if (effort) args.push('--effort', effort)
   const t0 = Date.now()
-  await bootstrap(args, cwd, signal)
+  await bootstrap(args, cwd, signal, uuid)
   const bootMs = Date.now() - t0
   updateRegistry((reg) => {
     reg.sessions[localId] = { createdAt: Date.now(), cwd, title, kind: 'create' }
@@ -87,7 +92,7 @@ export async function forkSession({ session, title, bootstrap_prompt }, { signal
   const t = title || `${src.title || 'Untitled'} (fork)`
   const args = ['-p', bootstrap_prompt || 'This is a fork created by claude-driver. Reply with exactly: forked', '--resume', cli, '--fork-session', '--session-id', uuid, '-n', t, '--strict-mcp-config']
   if (src.model) args.push('--model', src.model)
-  await bootstrap(args, cwd, signal)
+  await bootstrap(args, cwd, signal, uuid)
   updateRegistry((reg) => {
     reg.sessions[localId] = { createdAt: Date.now(), cwd, title: t, kind: 'fork', from: src.sessionId }
   })

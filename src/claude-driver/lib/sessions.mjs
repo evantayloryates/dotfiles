@@ -214,3 +214,14 @@ export function mtime(file) {
     return 0
   }
 }
+
+// Sidebar groups for the active account/org, from the app's config.
+export function readGroups() {
+  const scopes = readDesktopConfig().preferences?.epitaxyPrefs?.['dframe-group-scopes'] || {}
+  const out = { groups: [], assignments: {} }
+  for (const scope of Object.values(scopes)) {
+    for (const g of scope.groups || []) out.groups.push(g)
+    for (const [k, v] of Object.entries(scope.assignments || {})) out.assignments[k.replace(/^code:/, '')] = v
+  }
+  return out
+}
