@@ -7,6 +7,22 @@ Versions: app = Claude desktop, cli = bundled Claude Code.
 
 ## 2026-09-30 (app 2.9939.4, cli 2.1.284)
 
+- **Pressure tests.** (1) Faked app version (`CLAUDE_DRIVER_APP_VERSION`):
+  preflight saw no matrix for the key and ran the full probe, all pass. (2)
+  Three concurrent CLI harnesses (rename, pin, effort on one session): the
+  broker lock serialized them, all three landed, 18 s total. (3) Broker
+  process killed (as an app restart would): the next plain-CLI request
+  revived it via Tier C (governor at cap) and returned the layout in 26 s,
+  main window and Arc (frontmost) restored. (4) Codex 0.159 (bundled CLI) in
+  a read-only sandbox with approval_policy never: create in a named folder
+  (focus restored: main window and front app), pin, rename, unpin, archive,
+  all verified, ~4–5 s each; the MCP server runs outside Codex's sandbox so
+  `open` and state writes work. Codex gates tools annotated
+  `destructiveHint` behind approval (archive was, wrongly; now only delete
+  and archive_project are). (5) cursor-agent: `mcp enable` approves per
+  workspace (`~/.cursor/projects/<ws>/mcp-approvals.json`); its client lists
+  all 22 tools; a model-driven call needs `cursor-agent login`. n=1 each.
+
 - **Resident broker: never idle, never evicted, no delivery hop.** The broker
   stays mid-turn in a bounded Bash wait (`scripts/broker-wait.mjs`, 540 s,
   re-armed) that returns when a request file appears. The governor only

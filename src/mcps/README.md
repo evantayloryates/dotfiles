@@ -15,6 +15,7 @@ Secrets are **not** stored here. Servers read tokens from the environment
 | `amplify-prod-postgres-mcp` | Read-only Postgres MCP over an SSH tunnel to the amplify prod primary. |
 | `sca-prod-postgres-mcp` | Read-only Postgres MCP over an SSH tunnel to the SCA prod Aurora **reader**. |
 | [`../codex-bridge`](../codex-bridge/README.md) | Delegates macOS Computer Use tasks to the local Codex agent over the Codex app-server protocol (launcher: `src/codex-bridge/bin/codex-bridge-mcp`). |
+| [`../claude-driver`](../claude-driver/README.md) | Drives the Claude desktop app from any harness: create/fork/rename/pin/archive/delete sessions, model/effort/mode, messages, focus-safe navigation (launcher: `src/claude-driver/bin/claude-driver-mcp`; registered in Claude Code, Codex, Cursor and OpenCode by `claude-driver install`). |
 
 Both are launchers, not servers: they open the tunnel, read the DB password from
 `.env` at launch, then `exec` the upstream

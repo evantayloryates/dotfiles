@@ -54,11 +54,22 @@ function jsonFile(file, mutate, dry) {
   return `registered in ${file}`
 }
 
-function cursor(dry) {
-  return jsonFile(join(HOME, '.cursor', 'mcp.json'), (d) => {
+async function cursor(dry) {
+  const out = jsonFile(join(HOME, '.cursor', 'mcp.json'), (d) => {
     d.mcpServers = d.mcpServers || {}
     if (d.mcpServers[NAME]?.command !== LAUNCHER) d.mcpServers[NAME] = { command: LAUNCHER, args: [] }
   }, dry)
+  // cursor-agent loads only approved servers; approve ours (and only ours).
+  const agent = join(HOME, '.local', 'bin', 'cursor-agent')
+  if (!existsSync(agent)) return `${out}; cursor-agent not installed`
+  if (dry) return `${out}; would run: cursor-agent mcp enable ${NAME}`
+  const { execFileSync } = await import('node:child_process')
+  try {
+    execFileSync(agent, ['mcp', 'enable', NAME], { cwd: HOME, timeout: 60_000, stdio: 'pipe' })
+    return `${out}; approved in cursor-agent`
+  } catch (err) {
+    return `${out}; cursor-agent mcp enable failed: ${String(err.stderr || err.message).slice(0, 200)}`
+  }
 }
 
 function opencode(dry) {

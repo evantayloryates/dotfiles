@@ -175,6 +175,10 @@ export async function reviveBroker({ focus = 'restore', allowTierC = true, progr
   } finally {
     focusAction = await finish()
   }
-  if (brokerInfo().live) return { method: 'tier_c_wake', ms: Date.now() - t0, tierC: tc.status, focus: focusAction }
+  if (brokerInfo().live) {
+    // The wake line starts the resident loop; give it a moment to heartbeat.
+    for (let i = 0; i < 60 && !heartbeat().resident; i++) await sleep(250)
+    return { method: 'tier_c_wake', ms: Date.now() - t0, tierC: tc.status, focus: focusAction, resident: heartbeat().resident }
+  }
   throw new DriverError(`broker revival failed (warm spawn ${capped ? 'at cap' : 'none'}; Tier C status ${tc?.status}): ${tc?.text?.slice(0, 400)}`, { category: 'broker_dead' })
 }
