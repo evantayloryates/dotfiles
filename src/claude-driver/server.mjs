@@ -16,7 +16,7 @@ const tools = OPS.map((op) => ({
   title: op.title,
   description: op.description,
   inputSchema: { type: 'object', properties: op.schema.properties || {}, required: op.schema.required || [], additionalProperties: false },
-  annotations: { readOnlyHint: !!op.readOnly, destructiveHint: ['delete_sessions', 'archive_project', 'archive_session'].includes(op.name), openWorldHint: false },
+  annotations: { readOnlyHint: !!op.readOnly, destructiveHint: ['delete_sessions', 'archive_project'].includes(op.name), openWorldHint: false },
   handler: async (args, ctx) => {
     const harness = ctx.client ? `${ctx.client.name}${ctx.client.version ? `@${ctx.client.version}` : ''}` : 'mcp'
     try {

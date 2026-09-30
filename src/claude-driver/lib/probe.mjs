@@ -39,7 +39,7 @@ export async function preflight(flags = {}) {
   const b = brokerInfo()
   if (!b.configured || !b.exists) bad('broker', 'not set up; run `claude-driver broker init`')
   else {
-    ;(b.permissionMode === 'bypassPermissions' ? ok : warn)('broker', `${b.sessionId} mode ${b.permissionMode} title "${b.title}" (${b.titleSource}) ${b.live ? `live pid ${b.live.pid} ${b.live.status}` : 'asleep (revived on demand)'}`)
+    ;(b.permissionMode === 'bypassPermissions' ? ok : warn)('broker', `${b.sessionId} mode ${b.permissionMode} title "${b.title}" (${b.titleSource}) ${b.live ? `live pid ${b.live.pid} ${b.live.status}${b.resident?.resident ? ' resident' : ' not resident'}` : 'asleep (revived on demand)'}`)
     if (!b.templateCurrent) warn('broker protocol', 'CLAUDE.md in the broker folder is older than the template; the next request refreshes it')
   }
   const { VERIFIED_CLI } = await import('./peer-direct.mjs')
