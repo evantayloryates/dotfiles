@@ -3,6 +3,9 @@
 Both harnesses use `/Users/taylor/dotfiles/bin/op`, backed by the same
 per-user 1Password CLI Broker. Read
 `/Users/taylor/dotfiles/src/onepassword/README.md` for mechanisms and repair.
+Claude's desktop 1Password connector is a separate integration. For credential
+work in either coding harness, use this wrapper even if another connector is
+advertised.
 
 - Use the absolute wrapper path for credential work. Do not call the Homebrew
   binary directly, create another terminal/tmux authorization session, change

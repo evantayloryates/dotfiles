@@ -11,7 +11,7 @@ DOTFILES = Path(__file__).resolve().parents[2]
 
 
 class CloudinaryLauncherTests(unittest.TestCase):
-    def run_launcher(self, fail_at='', empty_at='', cloud='kickoff-test'):
+    def run_launcher(self, fail_at='', empty_at='', cloud='kickoff-test', trace=False):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             for directory in ['src/mcps', 'src/lib', 'bin']:
@@ -41,7 +41,8 @@ keys = ['CLOUDINARY_CLOUD_NAME', 'CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET', 
             env = dict(os.environ, DOTFILES_DIR=tmp, FAIL_AT=fail_at, EMPTY_AT=empty_at,
                        KICKOFF_CLOUDINARY_TOKEN='obsolete', KICKOFF_CLOUDINARY_API_KEY='obsolete')
             env.pop('UNRELATED_SECRET', None)
-            result = subprocess.run(['bash', str(root / 'src/mcps/launcher')], env=env, capture_output=True, text=True)
+            command = ['bash'] + (['-xv'] if trace else []) + [str(root / 'src/mcps/launcher')]
+            result = subprocess.run(command, env=env, capture_output=True, text=True)
             calls = json.loads((root / 'calls').read_text()) if (root / 'calls').exists() else []
             started = json.loads((root / 'started').read_text()) if (root / 'started').exists() else None
             return result, calls, started
@@ -74,8 +75,9 @@ keys = ['CLOUDINARY_CLOUD_NAME', 'CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET', 
     def test_empty_credentials_block_start_without_disclosure(self):
         for position in ['1', '2']:
             with self.subTest(position=position):
-                result, _, started = self.run_launcher(empty_at=position)
+                result, calls, started = self.run_launcher(empty_at=position)
                 self.assertNotEqual(result.returncode, 0)
+                self.assertEqual(len(calls), int(position))
                 self.assertIsNone(started)
                 self.assertNotIn('synthetic-', result.stdout + result.stderr)
 
@@ -84,3 +86,9 @@ keys = ['CLOUDINARY_CLOUD_NAME', 'CLOUDINARY_API_KEY', 'CLOUDINARY_API_SECRET', 
         self.assertNotEqual(result.returncode, 0)
         self.assertEqual(calls, [])
         self.assertIsNone(started)
+
+    def test_inherited_shell_tracing_cannot_disclose_credentials(self):
+        result, _, started = self.run_launcher(trace=True)
+        self.assertEqual(result.returncode, 0)
+        self.assertIsNotNone(started)
+        self.assertNotIn('synthetic-', result.stdout + result.stderr)

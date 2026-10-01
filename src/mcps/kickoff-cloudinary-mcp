@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set +xv
 set -euo pipefail
 
 # Official Cloudinary MCP, using the restricted Kickoff pair from 1Password.
@@ -19,9 +20,9 @@ unset cloudinary_env
 export CLOUDINARY_CLOUD_NAME="$KICKOFF_CLOUDINARY_CLOUD_NAME"
 : "${CLOUDINARY_CLOUD_NAME:?Kickoff Cloudinary cloud name is empty}"
 CLOUDINARY_API_KEY="$("${SCRIPT_DIR}/../../bin/op" read 'op://rr6wstyda3xmgnxzs4sb4m2elm/4fwm6odqkqhdpwr2iksg6nz2wm/zktb7zuxyqvcy5fdupsrmqlpqu' --account my.1password.com --no-newline)"
+: "${CLOUDINARY_API_KEY:?Scoped Cloudinary API key lookup failed}"
 CLOUDINARY_API_SECRET="$("${SCRIPT_DIR}/../../bin/op" read 'op://rr6wstyda3xmgnxzs4sb4m2elm/4fwm6odqkqhdpwr2iksg6nz2wm/credential' --account my.1password.com --no-newline)"
 export CLOUDINARY_API_KEY CLOUDINARY_API_SECRET
-: "${CLOUDINARY_API_KEY:?Scoped Cloudinary API key lookup failed}"
 : "${CLOUDINARY_API_SECRET:?Scoped Cloudinary secret lookup failed}"
 unset KICKOFF_CLOUDINARY_TOKEN KICKOFF_CLOUDINARY_API_KEY KICKOFF_CLOUDINARY_CLOUD_NAME
 exec "$NPX" --yes @cloudinary/asset-management-mcp@0.11.0 start
