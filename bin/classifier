@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# The classifier CLI (see src/zdr-harness/mcps/classifier/README.md).
+exec "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../src/zdr-harness/mcps/classifier-mcp" cli "$@"

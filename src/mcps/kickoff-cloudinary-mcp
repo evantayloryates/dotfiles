@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Official Cloudinary MCP, using Taylor's Kickoff key pair from ignored .env.
+# Official Cloudinary MCP, using the restricted Kickoff pair from 1Password.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 . "${SCRIPT_DIR}/../lib/resolve-binary.sh"
 . "${SCRIPT_DIR}/../lib/read-env.sh"
@@ -9,14 +9,19 @@ NODE="$(resolve_binary node)"
 NPX="$(resolve_binary npx)"
 export PATH="$(dirname "$NODE"):$PATH"
 export ENV_FILE="${DOTFILES_DIR:-$HOME/dotfiles}/.env"
-cloudinary_env="$(env_export KICKOFF_CLOUDINARY_TOKEN KICKOFF_CLOUDINARY_API_KEY KICKOFF_CLOUDINARY_CLOUD_NAME)"
+# The old .env API key and removed token were not a matching credential pair.
+# Resolve the verified restricted pair through the shared 1Password broker.
+# Captured stdout stays in this process; never echo it or hold the broker queue
+# with an op run around this long-lived server.
+cloudinary_env="$(env_export KICKOFF_CLOUDINARY_CLOUD_NAME)"
 eval "$cloudinary_env"
 unset cloudinary_env
-: "${KICKOFF_CLOUDINARY_TOKEN:?Cloudinary API secret is missing}"
-: "${KICKOFF_CLOUDINARY_API_KEY:?Cloudinary API key is missing}"
-: "${KICKOFF_CLOUDINARY_CLOUD_NAME:?Cloudinary cloud name is missing}"
-export CLOUDINARY_API_SECRET="$KICKOFF_CLOUDINARY_TOKEN"
-export CLOUDINARY_API_KEY="$KICKOFF_CLOUDINARY_API_KEY"
 export CLOUDINARY_CLOUD_NAME="$KICKOFF_CLOUDINARY_CLOUD_NAME"
+: "${CLOUDINARY_CLOUD_NAME:?Kickoff Cloudinary cloud name is empty}"
+CLOUDINARY_API_KEY="$("${SCRIPT_DIR}/../../bin/op" read 'op://rr6wstyda3xmgnxzs4sb4m2elm/4fwm6odqkqhdpwr2iksg6nz2wm/zktb7zuxyqvcy5fdupsrmqlpqu' --account my.1password.com --no-newline)"
+CLOUDINARY_API_SECRET="$("${SCRIPT_DIR}/../../bin/op" read 'op://rr6wstyda3xmgnxzs4sb4m2elm/4fwm6odqkqhdpwr2iksg6nz2wm/credential' --account my.1password.com --no-newline)"
+export CLOUDINARY_API_KEY CLOUDINARY_API_SECRET
+: "${CLOUDINARY_API_KEY:?Scoped Cloudinary API key lookup failed}"
+: "${CLOUDINARY_API_SECRET:?Scoped Cloudinary secret lookup failed}"
 unset KICKOFF_CLOUDINARY_TOKEN KICKOFF_CLOUDINARY_API_KEY KICKOFF_CLOUDINARY_CLOUD_NAME
 exec "$NPX" --yes @cloudinary/asset-management-mcp@0.11.0 start

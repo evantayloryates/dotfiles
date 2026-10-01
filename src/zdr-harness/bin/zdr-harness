@@ -177,6 +177,7 @@ isolated_env() {
     ZDR_HARNESS_CLOUDINARY_MCP="${PROJECT_DIR}/mcps/cloudinary-mcp" \
     ZDR_HARNESS_DB_MCP="${PROJECT_DIR}/mcps/kickoff-db-mcp" \
     ZDR_HARNESS_SLACK_MCP="${PROJECT_DIR}/mcps/kickoff-slack-mcp" \
+    ZDR_HARNESS_CLASSIFIER_MCP="${PROJECT_DIR}/mcps/classifier-mcp" \
     KICKOFF_SLACK_ZDR_BOT_TOKEN="${KICKOFF_SLACK_ZDR_BOT_TOKEN:-}" \
     KICKOFF_ZDR_DB_URL="${KICKOFF_ZDR_DB_URL:-}" \
     KICKOFF_ZDR_DB_TUNNEL_PORT="${KICKOFF_ZDR_DB_TUNNEL_PORT:-33306}" \
@@ -269,6 +270,22 @@ sys.exit(0 if any(p.get("type") == "tool" and str(p.get("tool", "")).startswith(
     fi
     ids+="$id "
   done <<<"$candidates"
+
+  # Classifier jobs follow the same windows: the harness scope on --db-days
+  # (its jobs usually hold data from database or Slack sessions), the local
+  # scope (Claude Code, Codex, shell) on --days. Profiles are never pruned.
+  local cflag=""
+  ((dry_run)) && cflag="--dry-run"
+  HOME="${ZH}/home" "${PROJECT_DIR}/mcps/classifier-mcp" cli prune --days "$db_days" $cflag >&2 || true
+  # Transcript exports (kickoffdb_transcript_export) are raw PHI: database window.
+  if [[ -d "${ZH}/exports" ]]; then
+    if ((dry_run)); then
+      printf 'would remove %s transcript exports older than %s days\n' "$(find "${ZH}/exports" -type f -mtime "+${db_days}" | wc -l | tr -d ' ')" "$db_days" >&2
+    else
+      find "${ZH}/exports" -type f -mtime "+${db_days}" -delete
+    fi
+  fi
+  "${PROJECT_DIR}/mcps/classifier-mcp" cli prune --days "$days" $cflag >&2 || true
 
   ((dry_run)) && return 0
   local id deleted=0 failed=0

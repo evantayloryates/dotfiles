@@ -20,8 +20,8 @@
 // Transport: MCP stdio (spec 2025-06-18) — newline-delimited JSON-RPC 2.0.
 // The database driver is mysql2, pinned into ~/.zdr-harness/opt like OpenCode.
 
-import { createHash, createHmac } from 'node:crypto'
-import { readFileSync } from 'node:fs'
+import { createHash, createHmac, randomBytes } from 'node:crypto'
+import { closeSync, mkdirSync, openSync, readFileSync, renameSync, writeSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { join } from 'node:path'
 import { createInterface } from 'node:readline'
@@ -67,6 +67,13 @@ const SCAN_NOTE_ROWS = 1_000_000
 // the budget is per process and rolling: distinct transcripts per hour.
 const TRANSCRIPT_BUDGET = Number(process.env.KICKOFF_ZDR_TRANSCRIPT_BUDGET || 30) // env only so the probe can test the limit
 const TRANSCRIPT_WINDOW_MS = 60 * 60 * 1000
+// Bulk export: transcripts go straight from S3 to a file inside the harness
+// for the classifier; nothing reaches the agent's context, so the per-hour
+// reading budget above does not apply. One export is capped so its file stays
+// readable in one piece (about 10k transcripts is ~400 MB of text).
+const MAX_EXPORT = 10_000
+const EXPORT_CONCURRENCY = 48
+const EXPORT_DIR = process.env.ZDR_HARNESS_EXPORT_DIR || join((process.env.HOME || '').replace(/\/home$/, ''), 'exports')
 
 const log = (...args) => console.error('[kickoff-db]', ...args)
 
@@ -602,6 +609,159 @@ async function transcriptGet({ file_transcript_id, max_chars, offset } = {}) {
   return `${JSON.stringify(meta)}\n\n${slice}`
 }
 
+// ---------------------------------------------------------------------------
+// Bulk transcript export (for the classifier)
+
+const exportsById = new Map()
+
+function transcriptFilters({ kickoff_call_id, meeting_room_id, client_id, coach_id, since, until, file_transcript_ids }) {
+  const where = ["a.is_canonical=1", "a.status='completed'"]
+  const params = []
+  if (kickoff_call_id !== undefined) { where.push('mr.kickoff_call_id=?'); params.push(checkInt(kickoff_call_id, 'kickoff_call_id')) }
+  if (meeting_room_id !== undefined) { where.push('mr.id=?'); params.push(checkInt(meeting_room_id, 'meeting_room_id')) }
+  if (client_id !== undefined) { where.push('kc.client_id=?'); params.push(checkInt(client_id, 'client_id')) }
+  if (coach_id !== undefined) { where.push('kc.coach_id=?'); params.push(checkInt(coach_id, 'coach_id')) }
+  for (const [name, val, op] of [['since', since, '>='], ['until', until, '<']]) {
+    if (val === undefined) continue
+    if (typeof val !== 'string' || !/^\d{4}-\d{2}-\d{2}([ T]\d{2}:\d{2}(:\d{2})?)?$/.test(val)) throw new ToolError(`"${name}" must be YYYY-MM-DD or YYYY-MM-DD HH:MM`)
+    where.push(`mr.room_started_at ${op} ?`)
+    params.push(val)
+  }
+  if (file_transcript_ids !== undefined) {
+    if (!Array.isArray(file_transcript_ids) || !file_transcript_ids.length || file_transcript_ids.length > MAX_EXPORT) throw new ToolError(`file_transcript_ids must be a list of 1 to ${MAX_EXPORT} ids`)
+    where.push(`a.file_transcript_id IN (${file_transcript_ids.map(() => '?').join(',')})`)
+    params.push(...file_transcript_ids.map((v) => checkInt(v, 'file_transcript_ids[]')))
+  }
+  return { where, params }
+}
+
+// The driver turns a DATETIME into a Date read as local time; the stored value
+// is UTC, so print the local fields back unchanged ("2026-09-30 23:44:00").
+function dbStamp(d) {
+  if (!(d instanceof Date)) return String(d)
+  const p = (n) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`
+}
+
+async function transcriptExport(args = {}) {
+  const c = await connection()
+  if (args.limit === undefined && args.file_transcript_ids === undefined && args.since === undefined && args.coach_id === undefined && args.client_id === undefined && args.kickoff_call_id === undefined && args.meeting_room_id === undefined) {
+    throw new ToolError('Narrow the export: pass since/until, a coach_id or client_id, file_transcript_ids, or an explicit limit.')
+  }
+  const n = checkLimit(args.limit, MAX_EXPORT, MAX_EXPORT, 'limit')
+  const { where, params } = transcriptFilters(args)
+  const [rows] = await c.query(
+    `SELECT a.file_transcript_id, a.storage_bucket, a.storage_key, a.storage_version_id, a.sha256, a.bytes,
+            mr.kickoff_call_id, mr.room_started_at, kc.client_id, kc.coach_id
+       FROM file_transcript_artifacts a
+       JOIN meeting_room_file_transcripts mft ON mft.file_transcript_id = a.file_transcript_id
+       JOIN meeting_rooms mr ON mr.id = mft.meeting_room_id
+       LEFT JOIN kickoff_calls kc ON kc.id = mr.kickoff_call_id
+      WHERE ${where.join(' AND ')}
+      ORDER BY mr.room_started_at DESC
+      LIMIT ${n}`,
+    params
+  )
+  if (!rows.length) return 'No archived transcripts match.'
+  // How many match in total, so a capped export is never mistaken for the
+  // whole set ("all of September" once silently became its newest two days).
+  const [[{ matching }]] = await c.query(
+    `SELECT COUNT(*) AS matching
+       FROM file_transcript_artifacts a
+       JOIN meeting_room_file_transcripts mft ON mft.file_transcript_id = a.file_transcript_id
+       JOIN meeting_rooms mr ON mr.id = mft.meeting_room_id
+       LEFT JOIN kickoff_calls kc ON kc.id = mr.kickoff_call_id
+      WHERE ${where.join(' AND ')}`,
+    params
+  )
+  const id = `tx_${randomBytes(4).toString('hex')}`
+  mkdirSync(EXPORT_DIR, { recursive: true, mode: 0o700 })
+  const path = join(EXPORT_DIR, `${id}.jsonl`)
+  const ex = { id, path, matching: Number(matching), total: rows.length, done: 0, failed: {}, empty: 0, lengths: [], coaches: new Set(), clients: new Set(), first: null, last: null, started: Date.now(), state: 'running' }
+  exportsById.set(id, ex)
+  log(`export ${id}: ${rows.length} transcripts, filters ${Object.keys(args).sort().join(',')}`)
+  ex.promise = runExport(ex, rows).catch((err) => {
+    ex.state = 'failed'
+    ex.error = err instanceof ToolError ? err.message : `internal error (${err.code || err.name})`
+    log(`export ${id} failed: ${err.message}`)
+  })
+  return exportStatus({ export_id: id, wait_seconds: 90 })
+}
+
+async function runExport(ex, rows) {
+  const tmp = `${ex.path}.part`
+  const fd = openSync(tmp, 'w', 0o600)
+  try {
+    let next = 0
+    await Promise.all(
+      Array.from({ length: Math.min(EXPORT_CONCURRENCY, rows.length) }, async () => {
+        while (next < rows.length) {
+          const row = rows[next++]
+          try {
+            const body = await s3Get(row.storage_bucket, row.storage_key, row.storage_version_id)
+            const raw = body[0] === 0x1f && body[1] === 0x8b ? gunzipSync(body) : body
+            if (row.sha256 && sha256hex(raw) !== row.sha256) throw new ToolError('checksum mismatch')
+            const envelope = JSON.parse(raw.toString('utf8'))
+            const t = envelope && typeof envelope === 'object' && envelope.transcript ? envelope.transcript : envelope
+            const rendered = renderTranscript(t)
+            if (!rendered.text.trim()) ex.empty++
+            const started = row.room_started_at ? dbStamp(row.room_started_at) : null
+            writeSync(fd, `${JSON.stringify({
+              id: String(row.file_transcript_id),
+              text: rendered.text,
+              kickoff_call_id: row.kickoff_call_id,
+              coach_id: row.coach_id,
+              client_id: row.client_id,
+              room_started_at: started,
+              audio_duration_s: typeof t.audio_duration === 'number' ? t.audio_duration : null,
+              turns: rendered.turns,
+            })}\n`)
+            ex.lengths.push(rendered.text.length)
+            if (row.coach_id != null) ex.coaches.add(row.coach_id)
+            if (row.client_id != null) ex.clients.add(row.client_id)
+            if (started && (!ex.first || started < ex.first)) ex.first = started
+            if (started && (!ex.last || started > ex.last)) ex.last = started
+          } catch (err) {
+            const reason = err instanceof ToolError ? err.message.replace(/: .*/, '') : 'unreadable'
+            ex.failed[reason] = (ex.failed[reason] || 0) + 1
+          }
+          ex.done++
+        }
+      })
+    )
+  } finally {
+    closeSync(fd)
+  }
+  renameSync(tmp, ex.path)
+  ex.state = 'done'
+  ex.finished = Date.now()
+  log(`export ${ex.id} done: ${ex.lengths.length} written, ${ex.done - ex.lengths.length} failed`)
+}
+
+async function exportStatus({ export_id, wait_seconds } = {}) {
+  const ex = exportsById.get(export_id)
+  if (!ex) throw new ToolError(`No export "${export_id}" in this server session (exports do not survive a harness restart; run transcript_export again).`)
+  const wait = Math.max(0, Math.min(90, Number(wait_seconds ?? 45)))
+  const until = Date.now() + wait * 1000
+  while (ex.state === 'running' && Date.now() < until) await new Promise((r) => setTimeout(r, 250))
+  if (ex.state === 'running') return `Export ${ex.id} running: ${ex.done.toLocaleString()} of ${ex.total.toLocaleString()} transcripts.\nNext: transcript_export_status {"export_id": "${ex.id}"}`
+  if (ex.state === 'failed') return `Export ${ex.id} failed: ${ex.error}.`
+  const L = [...ex.lengths].sort((a, b) => a - b)
+  const q = (p) => (L.length ? L[Math.min(L.length - 1, Math.floor(p * L.length))] : 0)
+  const chars = L.reduce((s, x) => s + x, 0)
+  const failed = Object.entries(ex.failed)
+  return [
+    `Export ${ex.id} done in ${((ex.finished - ex.started) / 1000).toFixed(1)}s: ${L.length.toLocaleString()} of ${ex.total.toLocaleString()} transcripts written${failed.length ? `, ${failed.map(([r, k]) => `${k} ${r}`).join(', ')}` : ''}${ex.empty ? `, ${ex.empty} empty` : ''}.`,
+    `File: ${ex.path} (one JSON line per transcript: id, text, kickoff_call_id, coach_id, client_id, room_started_at (UTC), audio_duration_s, turns).`,
+    `Calls from ${ex.first?.slice(0, 10) ?? '?'} to ${ex.last?.slice(0, 10) ?? '?'}; ${ex.coaches.size} coaches, ${ex.clients.size} clients.`,
+    ex.matching > ex.total
+      ? `This is ${ex.total.toLocaleString()} of ${ex.matching.toLocaleString()} matching transcripts (the newest). For the whole set, export the rest with until "${ex.first?.slice(0, 16) ?? '?'}" (at most ${MAX_EXPORT.toLocaleString()} per export) and classify each file; say plainly if you analyse only part of it.`
+      : `That is every matching transcript (${ex.matching.toLocaleString()}).`,
+    `Length in characters: median ${q(0.5).toLocaleString()}, 90th percentile ${q(0.9).toLocaleString()}, longest ${q(1).toLocaleString()}; ${(chars / 1e6).toFixed(1)}M in total. Classifying all of it costs roughly $${((chars / 1000) * 0.0001).toFixed(2)}.`,
+    `Next: check a few with classifier_classify_sample {"input_file": "${ex.path}", "n": 10}, then classifier_classify_start {"input_file": "${ex.path}", "labels": [...]}. Do not read transcripts one by one.`,
+  ].join('\n')
+}
+
 const TOOLS = [
   {
     name: 'guide',
@@ -678,9 +838,40 @@ const TOOLS = [
     },
     annotations: { readOnlyHint: true, openWorldHint: true },
   },
+  {
+    name: 'transcript_export',
+    title: 'Export many transcripts to a file for the classifier',
+    description:
+      `Download archived call transcripts straight to a file inside the harness (up to ${MAX_EXPORT.toLocaleString()} per export, newest first), ` +
+      'verifying each checksum. Nothing is read into this conversation: it returns the file path and stats (count, dates, lengths, cost to classify). ' +
+      'Same filters as transcript_list, or file_transcript_ids. Use it to classify or analyse many transcripts; then classifier_classify_sample to check a few ' +
+      'and classifier_classify_start on the file. Exports are deleted with the 7-day database window.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        kickoff_call_id: { type: 'number' },
+        meeting_room_id: { type: 'number' },
+        client_id: { type: 'number' },
+        coach_id: { type: 'number' },
+        since: { type: 'string', description: 'YYYY-MM-DD or YYYY-MM-DD HH:MM (UTC)' },
+        until: { type: 'string' },
+        file_transcript_ids: { type: 'array', items: { type: 'number' } },
+        limit: { type: 'number', description: `at most this many (max ${MAX_EXPORT.toLocaleString()})` },
+      },
+      additionalProperties: false,
+    },
+    annotations: { readOnlyHint: true, openWorldHint: true },
+  },
+  {
+    name: 'transcript_export_status',
+    title: 'Wait for a transcript export',
+    description: 'Wait (up to 90 s) for an export from transcript_export to finish, then return its path and stats.',
+    inputSchema: { type: 'object', properties: { export_id: { type: 'string' }, wait_seconds: { type: 'number' } }, required: ['export_id'], additionalProperties: false },
+    annotations: { readOnlyHint: true, openWorldHint: false },
+  },
 ]
 
-const HANDLERS = { guide, list_tables: listTables, describe_table: describeTable, query, transcript_list: transcriptList, transcript_get: transcriptGet }
+const HANDLERS = { guide, list_tables: listTables, describe_table: describeTable, query, transcript_list: transcriptList, transcript_get: transcriptGet, transcript_export: transcriptExport, transcript_export_status: exportStatus }
 
 // ---------------------------------------------------------------------------
 // MCP stdio loop

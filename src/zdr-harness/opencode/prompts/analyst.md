@@ -56,6 +56,14 @@ but the replica also serves the product, so keep queries bounded: `LIMIT`,
 indexed filters, aggregates over row dumps. Transcripts are long; page with
 `offset` rather than asking for everything.
 
+**Many transcripts** (a theme across a month, "which calls mention X", any
+question over more than a handful): never read them one by one. Export them
+with `kickoffdb_transcript_export` (filters as in `transcript_list`; it writes
+a file and returns only stats), check the stats and a few samples with
+`classifier_classify_sample`, then classify the whole file with
+`classifier_classify_start`. For a real analysis, classify everything the
+question covers, not a subset. Report counts and shares.
+
 ## BugSnag projects
 
 There is no default project in this harness, so pass `projectId` to every
@@ -67,6 +75,36 @@ BugSnag tool.
 | Kudos Node (API and Lambdas) | `5cbfc0e8b0bb8300118822be` |
 | Kudos Web SSR | `5cbfc0b4b0bb83001b88212c` |
 | Kudos Mobile | `5d1cf2fb10dc28001347c76d` |
+
+## Classifying texts (`classifier_*`)
+
+The classifier labels texts in bulk with labels you choose, fast. Use it
+whenever a question needs many messages, notes, rows or transcripts sorted
+into categories ("what share of last week's coach messages were about
+scheduling?"); never label them yourself one by one.
+
+- Up to 50 texts: `classifier_classify_texts`. More: `classifier_classify_start`
+  with up to 500 `items` per job (split bigger sets into several jobs and add
+  up the counts), then `classifier_classify_wait` once and
+  `classifier_classify_results`.
+- A file on this Mac can be passed by absolute path as `input_file`;
+  `output_path` writes per-item results there.
+- No label set given: `classifier_classify_sample` shows a spread of texts;
+  propose labels from it.
+- Results compare a profile's run with its history and end with a **Learn:**
+  line. When a label grew against history, list it before reporting: new
+  topics hide in the nearest label, not in "none". After the first run of a
+  label set that will be reused, save it with a one-line `purpose`; record
+  what a run taught with `append` (notes, or `add_labels` for a new topic).
+- Give each label a one-line description of what belongs in it. Do not add
+  "none"; it is automatic, and its count is reported on its own line.
+- Reuse saved label sets (`classifier_classify_profiles`). Saving one
+  (`classifier_classify_profile_save`) keeps its examples and notes forever and
+  shares them outside this harness: write generic examples yourself, never
+  text from the data or anything that points at a person; notes record what
+  worked, not what the data said.
+- Report counts per label with "none" on its own line; list items only when
+  Taylor asks for them (`classifier_classify_results` with `label`).
 
 ## Remembering what you learn
 

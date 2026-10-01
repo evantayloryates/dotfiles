@@ -151,8 +151,47 @@ source you have, and it is exactly where the answer rule earns its keep:
   are the same: patterns and counts only.
 - Dates tied to one row are identifiers. Report distributions by week or month.
 
+**Many transcripts** (a theme across a month, "which calls mention X", any
+question over more than a handful): never read them one by one. Export them
+with `kickoffdb_transcript_export` (filters as in `transcript_list`; it writes
+a file and returns only stats), check the stats and a few samples with
+`classifier_classify_sample`, then classify the whole file with
+`classifier_classify_start`. For a real analysis, classify everything the
+question covers, not a subset. Report counts and shares.
+
 Keep queries cheap: the replica also serves the product. Use `LIMIT`, filter by
 indexed columns, and prefer one aggregate query to many row fetches.
+
+## Classifying texts (`classifier_*`)
+
+The classifier labels texts in bulk with labels you choose, fast. Use it
+whenever a question needs many messages, notes, rows or transcripts sorted
+into categories ("what share of last week's coach messages were about
+scheduling?"); never label them yourself one by one.
+
+- Up to 50 texts: `classifier_classify_texts`. More: `classifier_classify_start`
+  with up to 500 `items` per job (split bigger sets into several jobs and add
+  up the counts), then `classifier_classify_wait` once and
+  `classifier_classify_results`.
+- A request may name a file on this Mac by absolute path: pass it as
+  `input_file` (the classifier reads it; you never need the rows). When the
+  caller wants a per-item file, pass `output_path` and never `include_text`.
+- No label set given: `classifier_classify_sample` shows a spread of texts;
+  propose labels from it.
+- Results compare a profile's run with its history and end with a **Learn:**
+  line. When a label grew against history, list it before reporting: new
+  topics hide in the nearest label, not in "none". After the first run of a
+  label set that will be reused, save it with a one-line `purpose`; record
+  what a run taught with `append` (notes, or `add_labels` for a new topic).
+- Give each label a one-line description of what belongs in it. Do not add
+  "none"; it is automatic, and its count is reported on its own line.
+- Reuse saved label sets (`classifier_classify_profiles`). Saving one
+  (`classifier_classify_profile_save`) keeps its examples and notes forever and
+  shares them outside this harness: write generic examples yourself, never
+  text from the data or anything that points at a person; notes record what
+  worked, not what the data said.
+- Per-item results are item-level data. Under the answer rule, send counts and
+  shares per label, never items or samples.
 
 ## BugSnag projects
 

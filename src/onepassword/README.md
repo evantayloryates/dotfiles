@@ -73,6 +73,20 @@ sandbox. No Homebrew binary or symlink is modified.
 
 ## Process and data handling
 
+Claude and Codex share the same broker, not separate MCP credential connectors.
+Their user-level instructions use the contract in [agent-contract.md](agent-contract.md).
+After changing that contract, run `python3 src/onepassword/sync-agent-guidance.py`
+from the dotfiles checkout. It updates only the marked 1Password section in
+`~/.claude/CLAUDE.md` and `~/.codex/AGENTS.md`, preserving the other instructions.
+The updater is idempotent and refuses ambiguous section markers. Existing chats
+may retain old instructions; use a fresh chat to verify a changed contract.
+
+The Kickoff Cloudinary launcher resolves its verified restricted credential pair
+with short captured broker calls before starting the server. The cloud name alone
+comes from the ignored `.env`; an obsolete token or API key there is not used.
+Either credential lookup failing prevents the server from starting. Do not wrap
+the long-running MCP in `op run`, which would occupy the shared serial queue.
+
 - `com.taylor.op-agent` runs the native background app from
   `data/op-agent/1Password CLI Broker.app`. Its Python worker owns a PTY and
   serially executes requests without replacing that terminal session. The app

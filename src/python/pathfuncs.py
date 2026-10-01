@@ -39,6 +39,7 @@ KICKOFF_CONTAINER = 'code --folder-uri vscode-remote://ssh-remote+kickoff.devpod
 
 CONFIG = [
   p('app',         '/Applications',                     'open'), # TODO: link all app dirs /Applications, /System/Applications, /System/Applications/Utilities, /System/Library/CoreServices/Applications/
+  p('conversations', '~/Desktop/conversations',         'cd', aliases=['chats', 'convos', 'convo']),
   p('desktop',     '~/Desktop',                         'cd', aliases=['d', 'desk', 'Desktop'],
     commands={'clean': '__desk_clean <args>'}),
   p('documents',   '~/Documents',                       'cd', aliases=['docs', 'doc', 'Documents']),

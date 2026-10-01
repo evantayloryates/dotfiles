@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Launcher for the classifier (MCP server by default, `cli ...` for the CLI).
+# One launcher for every harness: the ZDR harness, Claude Code, Codex, Cursor
+# and the shell. It always uses the Kickoff ZDR OpenAI key, read from the
+# harness secrets file, and starts node with an empty environment so an
+# inherited OPENAI_API_KEY (a personal org) can never reach it. The scope
+# decides where jobs live: inside the harness (its HOME is ~/.zdr-harness/home)
+# jobs stay in ~/.zdr-harness; anywhere else they go to ~/.local/state.
+# See classifier/README.md.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+. "${SCRIPT_DIR}/../../lib/resolve-binary.sh"
+. "${SCRIPT_DIR}/../../lib/read-env.sh"
+
+if [[ "$HOME" == */.zdr-harness/home ]]; then
+  SCOPE=zdr
+  REAL_HOME="${HOME%/.zdr-harness/home}"
+else
+  SCOPE=local
+  REAL_HOME="$HOME"
+fi
+
+ENV_FILE="${SCRIPT_DIR}/../.env"
+[[ -f "$ENV_FILE" ]] || ENV_FILE="${REAL_HOME}/.zdr-harness/.env"
+KEY="$(ENV_FILE="$ENV_FILE" env_get KICKOFF_OPENAI_ZDR_API_KEY)" || {
+  echo "classifier: KICKOFF_OPENAI_ZDR_API_KEY is missing from the ZDR harness secrets file" >&2
+  exit 1
+}
+NODE="$(resolve_binary node)"
+
+ENTRY="${SCRIPT_DIR}/classifier/server.mjs"
+if [[ "${1:-}" == cli ]]; then
+  shift
+  ENTRY="${SCRIPT_DIR}/classifier/cli.mjs"
+fi
+
+exec env -i \
+  HOME="$HOME" \
+  PATH=/usr/bin:/bin \
+  TMPDIR="${TMPDIR:-/tmp}" \
+  LANG=en_US.UTF-8 \
+  CLASSIFIER_OPENAI_KEY="$KEY" \
+  CLASSIFIER_SCOPE="$SCOPE" \
+  CLASSIFIER_REAL_HOME="$REAL_HOME" \
+  ${CLASSIFIER_RETENTION_DAYS:+CLASSIFIER_RETENTION_DAYS="$CLASSIFIER_RETENTION_DAYS"} \
+  ${CLASSIFIER_JOBS_DIR:+CLASSIFIER_JOBS_DIR="$CLASSIFIER_JOBS_DIR"} \
+  ${CLASSIFIER_PROFILES_DIR:+CLASSIFIER_PROFILES_DIR="$CLASSIFIER_PROFILES_DIR"} \
+  ${CLASSIFIER_FAULTS:+CLASSIFIER_FAULTS="$CLASSIFIER_FAULTS"} \
+  ${CLASSIFIER_DEBUG:+CLASSIFIER_DEBUG="$CLASSIFIER_DEBUG"} \
+  ${CLASSIFIER_CANDIDATES:+CLASSIFIER_CANDIDATES="$CLASSIFIER_CANDIDATES"} \
+  ${CLASSIFIER_BATCH:+CLASSIFIER_BATCH="$CLASSIFIER_BATCH"} \
+  ${CLASSIFIER_WINDOW:+CLASSIFIER_WINDOW="$CLASSIFIER_WINDOW"} \
+  ${CLASSIFIER_WINDOW_ABOVE:+CLASSIFIER_WINDOW_ABOVE="$CLASSIFIER_WINDOW_ABOVE"} \
+  ${CLASSIFIER_TIER:+CLASSIFIER_TIER="$CLASSIFIER_TIER"} \
+  ${CLASSIFIER_HINTS:+CLASSIFIER_HINTS="$CLASSIFIER_HINTS"} \
+  ${CLASSIFIER_NO_CACHE:+CLASSIFIER_NO_CACHE="$CLASSIFIER_NO_CACHE"} \
+  "$NODE" --no-warnings "$ENTRY" "$@"

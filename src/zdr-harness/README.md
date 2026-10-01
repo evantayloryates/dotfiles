@@ -48,6 +48,7 @@ contains: OpenAI and this Mac may hold PHI; Claude Code and Codex may not.
 | `src/zdr-harness/mcps/cloudinary-mcp` | Launcher for Cloudinary's two official MCP servers, assets and config (see [Cloudinary](#cloudinary)) |
 | `src/zdr-harness/mcps/kickoff-db/` + `kickoff-db-mcp` | Harness-only MCP server for the LIVE production database and archived call transcripts (see [Production database](#production-database)) |
 | `src/zdr-harness/mcps/kickoff-slack/` + `kickoff-slack-mcp` | Harness-only MCP server for the Slack channels the Field Notes bot is in (see [Slack](#slack)) |
+| `src/zdr-harness/mcps/classifier/` + `classifier-mcp` | Bulk text classification on the ZDR key; also registered in Claude Code, Codex and Cursor, with a separate job store there (see [`mcps/classifier/README.md`](mcps/classifier/README.md)) |
 | `src/zdr-harness/certs/rds-global-bundle.pem` | Amazon RDS CA bundle the database connection is verified against |
 | `src/zdr-harness/iam/` | The policy of record for the `zdr-harness-logs` AWS user |
 | `~/.zdr-harness/opt/` | Pinned OpenCode install (`opencode-ai@1.18.31`) |
@@ -477,6 +478,17 @@ copy. Rotate the password in RDS (an operator task, not the harness's), update
 `zdr-harness set-token KICKOFF_ZDR_DB_URL`; `reload-auth` proves the new one
 through the tunnel.
 
+### Bulk transcripts for the classifier
+
+`kickoffdb_transcript_export` takes the same filters as `transcript_list` (or
+`file_transcript_ids`), downloads up to 10,000 transcripts straight to
+`~/.zdr-harness/exports/tx_<id>.jsonl` (700/600) and returns stats only,
+including how many matched in total. `kickoffdb_transcript_export_status`
+waits for a large one. The agent never reads the rows: it checks a few with
+`classifier_classify_sample` and classifies the whole file. The 30-per-hour
+transcript budget applies to `transcript_get` only, because only that puts
+transcript text into the conversation. Exports are pruned on `--db-days`.
+
 ## Setup from scratch
 
 ```sh
@@ -698,4 +710,10 @@ including raw Amplitude, BugSnag, PostHog and CloudWatch output, on this Mac.
 - Sessions that touched the production database go after 7 days instead of
   14: `prune` fetches each candidate's messages and looks for a `kickoffdb_*`
   tool part.
+- Transcript exports (`~/.zdr-harness/exports`, written by
+  `kickoffdb_transcript_export` for the classifier) go after 7 days
+  (`--db-days`).
+- Classifier jobs started here (`~/.zdr-harness/classifier/jobs`) go after 7
+  days (`--db-days`); the classifier's jobs from other harnesses go after 14
+  (`--days`). Its profiles are kept, like memory.
 - Memory under `~/.zdr-harness/memory/` is deliberately exempt from all of this.

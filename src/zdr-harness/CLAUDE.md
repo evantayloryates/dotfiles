@@ -2,11 +2,11 @@
 
 A locked-down OpenCode 1.18.31 server on `http://127.0.0.1:4096` (LaunchAgent
 `com.taylor.zdr-harness`). It runs only on Kickoff's zero-data-retention OpenAI
-key (BAA-covered, so PHI may reach it) and exposes 69 named tools: read-only
+key (BAA-covered, so PHI may reach it) and exposes 80 named tools: read-only
 Amplitude and BugSnag ones, PostHog's single `exec` router, four CloudWatch Logs
 readers, ten read-only Cloudinary asset tools, eight Cloudinary configuration
-readers, six live-production-database and transcript readers, four Slack
-channel readers, four memory tools, and `todowrite`. Two agents split by destination:
+readers, eight live-production-database and transcript readers (two of them bulk-export transcripts to a harness-private file for the classifier), four Slack
+channel readers, four memory tools, the nine `classifier_classify_*` tools, and `todowrite`. Two agents split by destination:
 `analyst` (default, full detail, read by Taylor in the app) and `zdr` (what the
 bridge always asks, de-identified to HIPAA Safe Harbor because Claude Code and
 Codex have no BAA). Claude Code and Codex reach it through the `zdr_ask` MCP tool
@@ -46,6 +46,12 @@ truth**: design, lockdown, app, verification. Read it before changing anything.
   reads account configuration — presets, transformations, mappings, triggers,
   streaming profiles. That is product wiring rather than client data, so the
   answer rule passes it through; its create/update/delete tools stay denied.
+- **`mcps/classifier` is the one server registered both here and outside.**
+  It only classifies what a caller hands it, on the ZDR key; the launcher
+  picks the job store from `HOME`, so harness jobs stay in `~/.zdr-harness`
+  and are pruned on `--db-days`. Never give it a tool that reads a data
+  source, and never return a storage path from it. `mcps/classifier/README.md`
+  is its source of truth.
 - **Harness tokens stay in `src/zdr-harness/.env`.** They are for this harness
   only; do not copy them into another MCP client, shell profile or repo `.env`.
   Update `.env.template` whenever that file's keys or comments change.
