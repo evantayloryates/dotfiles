@@ -9,10 +9,13 @@ import tempfile
 # only reachable through its parent (`skills claude`, `skills cc abs`). It gets no
 # top-level function or aliases, so it never shadows a real command of the same name
 # (claude, codex, cc). The parent must list it in sub_funcs; inside the parent, sub
-# selectors win over the `<subcmd> <path>` fallthrough.
-def p(slug, path, default='cd', commands=None, aliases=None, alias_cmds=None,
+# selectors win over the `<subcmd> <path>` fallthrough. Omitted child defaults
+# inherit the parent's default and its handler; an explicit default overrides it.
+def p(slug, path, default=None, commands=None, aliases=None, alias_cmds=None,
       sub_funcs=None, parent_func=None):
-  entry = {'slug': slug, 'path': path, 'default': default, 'commands': commands or {}}
+  entry = {'slug': slug, 'path': path, 'commands': commands or {}}
+  if default is not None or parent_func is None:
+    entry['default'] = default if default is not None else 'cd'
   if aliases:
     entry['aliases'] = aliases
   if alias_cmds:
@@ -39,7 +42,8 @@ KICKOFF_CONTAINER = 'code --folder-uri vscode-remote://ssh-remote+kickoff.devpod
 
 CONFIG = [
   p('app',         '/Applications',                     'open'), # TODO: link all app dirs /Applications, /System/Applications, /System/Applications/Utilities, /System/Library/CoreServices/Applications/
-  p('conversations', '~/Desktop/conversations',         'cd', aliases=['chats', 'convos', 'convo']),
+  p('conversations', '~/Desktop/conversations',         'select', aliases=['chats', 'convos', 'convo'],
+    commands={'select': '__conversations_select <path>'}),
   p('desktop',     '~/Desktop',                         'cd', aliases=['d', 'desk', 'Desktop'],
     commands={'clean': '__desk_clean <args>'}),
   p('documents',   '~/Documents',                       'cd', aliases=['docs', 'doc', 'Documents']),
@@ -74,8 +78,8 @@ CONFIG = [
   p('screenshots', '~/Pictures/Screenshots',            'open', aliases=['ss', 'shots', 'screenshot']),
   p('skills',      '~/src/docs/skills',                 'select', aliases=['skl', 'skill'],
     commands={'select': '__skills_select <path>'}, sub_funcs=['claude', 'codex']),
-  p('claude',      '~/.claude/skills',                  'cd', parent_func='skills', aliases=['cc']),
-  p('codex',       '~/.codex/skills',                   'cd', parent_func='skills', aliases=['cdx', 'cod']),
+  p('claude',      '~/.claude/skills',                  parent_func='skills', aliases=['cc']),
+  p('codex',       '~/.codex/skills',                   parent_func='skills', aliases=['cdx', 'cod']),
   p('taxes',       '~/Documents/Taxes',                 'cd', aliases=['tax']),
   p('vsx',         '~/src/vscode-extensions'),
   p('amp',        '~/src/github/amplify', aliases=['amplify'], alias_cmds={'up': 'update'},
@@ -157,6 +161,27 @@ def shell_path(path):
       return f'"${{{variable}}}"' + shlex.quote(path[len(root):])
   # ~user means that user's home, never a suffix of the current user's home.
   return shlex.quote(os.path.expanduser(path))
+
+
+def resolve_config(config):
+  """Apply compound defaults without mutating the source configuration.
+
+  Only the default's handler is inherited, using the child's own target path.
+  Explicit child defaults and handlers take precedence.
+  """
+  validate(config)
+  top = {e['slug']: e for e in config if 'parent_func' not in e}
+  resolved = []
+  for entry in config:
+    effective = {**entry, 'commands': dict(entry['commands'])}
+    if 'parent_func' in entry:
+      parent = top[entry['parent_func']]
+      default = entry.get('default', parent.get('default', 'cd'))
+      effective['default'] = default
+      if default in parent['commands']:
+        effective['commands'].setdefault(default, parent['commands'][default])
+    resolved.append(effective)
+  return resolved
 
 
 def build_function(entry, subs=()):
@@ -266,15 +291,15 @@ def build_paths_helper(config):
 
 
 def main():
-  validate(CONFIG)
-  functions = '\n\n'.join(build_function(entry, subs_of(entry, CONFIG)) for entry in CONFIG)
-  paths_helper = build_paths_helper(CONFIG)
+  config = resolve_config(CONFIG)
+  functions = '\n\n'.join(build_function(entry, subs_of(entry, config)) for entry in config)
+  paths_helper = build_paths_helper(config)
 
   fd, path = tempfile.mkstemp(prefix='pathfuncs_', suffix='.zsh')
   with os.fdopen(fd, 'w') as f:
     f.write('# Generated shell functions\n\n')
     f.write('source "$DOTFILES_DIR/src/python/pathfuncs.sh"\n\n')
-    f.write(build_names_reset(CONFIG))
+    f.write(build_names_reset(config))
     f.write('\n\n')
     f.write(build_globals(GLOBALS))
     f.write('\n\n')

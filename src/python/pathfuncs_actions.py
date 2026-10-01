@@ -2,6 +2,7 @@
 """Per-pathfunc resolve/actions built on dir_selector.
 
 skills: pick a skill dir → SKILL.md (dir fallback + warning)
+conversations: pick a conversation directory → absolute directory path
 html:   pick a report dir/file → index.html / .hint / single / mini-select
 """
 from __future__ import annotations
@@ -58,8 +59,8 @@ def run_skills(root: str) -> int:
         items,
         prompt='Select skill: ',
         noun='skill',
-        recent=0,
-        show_sections=False,
+        recent=5,
+        show_sections=True,
     )
     if sel is None:
         return 1
@@ -78,6 +79,23 @@ def run_skills(root: str) -> int:
         return 0
 
     emit_copied(target)
+    return 0
+
+
+def run_conversations(root: str) -> int:
+    sel = select_items(
+        scan_items(root, dirs_only=True),
+        prompt='Select conversation: ',
+        noun='conversation',
+        recent=5,
+        show_sections=True,
+    )
+    if sel is None:
+        return 1
+    if sel.action:
+        emit_run(sel.item.path, sel.action)
+    else:
+        emit_copied(sel.item.path)
     return 0
 
 
@@ -212,12 +230,14 @@ def run_html(root: str) -> int:
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
     p = argparse.ArgumentParser(description='pathfuncs select actions')
-    p.add_argument('kind', choices=('skills', 'html'))
+    p.add_argument('kind', choices=('skills', 'html', 'conversations'))
     p.add_argument('root')
     args = p.parse_args(argv)
 
     if args.kind == 'skills':
         return run_skills(args.root)
+    if args.kind == 'conversations':
+        return run_conversations(args.root)
     return run_html(args.root)
 
 

@@ -72,11 +72,12 @@ __pathfuncs_run_select() {
     local -a lines
     lines=("${(@f)out}")
     local action="${lines[2]}"
-    local path="${lines[3]}"
-    [[ -z "$action" || -z "$path" ]] && return 1
+    # `path` is tied to PATH in zsh; using it as a local breaks action lookup.
+    local selected_path="${lines[3]}"
+    [[ -z "$action" || -z "$selected_path" ]] && return 1
     local -a cmd
     cmd=(${(z)action})
-    "${cmd[@]}" "$path"
+    "${cmd[@]}" "$selected_path"
   else
     printf '%s\n' "$out"
   fi
@@ -88,6 +89,10 @@ __skills_select() {
 
 __html_select() {
   __pathfuncs_run_select html "${1:?html root required}"
+}
+
+__conversations_select() {
+  __pathfuncs_run_select conversations "${1:?conversations root required}"
 }
 
 # Desktop arrangement — preserve flags and paths as separate arguments.

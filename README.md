@@ -401,11 +401,23 @@ your home directory. Run `paths` to list helpers, then open a new shell or run
   directory afterward. An explicit directory change, such as `home cd`, stays put.
   For file targets, passthrough commands use the file's parent directory, checked
   at invocation time. Missing targets report an error without running the command.
+- Compound helpers inherit their parent's default and its custom handler when
+  no child default is specified. The handler uses the child's target path;
+  an explicit child default or handler takes precedence. For example, `skills`,
+  `skills cc` (Claude), and `skills codex` each show a picker in their own folder.
+  Use `skills cc cd` to change directory instead.
+- The `html`, `skills`, and `conversations` pickers show the full alphabetical
+  list above five recent entries, based on modification time. The newest recent
+  entry is number 1, closest to the prompt. Plain selections copy an absolute
+  path: the resolved HTML file, the skill's `SKILL.md` (directory fallback), or
+  the conversation directory. A command after a selection, such as `1 open`,
+  runs that command on the selected path. `convo`, `convos`, and `chats` are
+  aliases for `conversations`; `convo cd` changes to the conversations root.
 
 Run the generated-shell regression checks with:
 
 ```bash
-python3 -B -m unittest discover -s src/python/tests -p 'test_pathfuncs.py' -v
+python3 -B -m unittest discover -s src/python/tests -p 'test_pathfuncs*.py' -v
 ```
 
 ### Add a new alias

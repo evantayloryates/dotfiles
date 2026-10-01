@@ -80,6 +80,7 @@ def scan_items(
     allow_files: bool = True,
 ) -> List[Item]:
     """Single scandir pass. Skips hidden (dot-prefixed) names."""
+    root = os.path.abspath(os.path.expanduser(root))
     items: List[Item] = []
     try:
         with os.scandir(root) as it:

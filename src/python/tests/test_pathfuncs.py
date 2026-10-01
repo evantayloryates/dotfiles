@@ -164,6 +164,82 @@ class PathfuncsTests(unittest.TestCase):
             (( $+functions[obsolete_pathfunc] == 0 && $+functions[Home] == 1 ))
         '''), [str(self.home / '.claude/skills')])
 
+    def test_all_compound_defaults_and_aliases_use_their_own_roots(self):
+        config = pathfuncs.resolve_config(pathfuncs.CONFIG)
+        top = {e['slug']: e for e in config if 'parent_func' not in e}
+        calls, expected = [], []
+        for entry in config:
+            if 'parent_func' not in entry:
+                continue
+            parent = top[entry['parent_func']]
+            self.assertEqual(entry['default'], parent['default'])
+            self.assertEqual(entry['commands'][entry['default']],
+                             parent['commands'][parent['default']])
+            for root_alias in pathfuncs.selectors(parent):
+                for child_alias in pathfuncs.selectors(entry):
+                    calls.append(f'{root_alias} {child_alias}')
+                    expected.append(f'<{self.home}{entry["path"][1:]}>')
+        self.assertEqual(self.shell('__skills_select() { capture "$1"; }\n' + '\n'.join(calls)),
+                         expected)
+        self.assertEqual(self.shell('''
+            __skills_select() { capture "$1"; }
+            skills; skill; skl
+        '''), [f'<{self.home}/src/docs/skills>'] * 3)
+
+    def test_compound_inheritance_and_explicit_overrides(self):
+        original = [
+            pathfuncs.p('parent', '~/parent', 'pick',
+                        commands={'pick': 'capture parent <path> <args>', 'other': 'false'},
+                        sub_funcs=['child', 'override', 'handler']),
+            pathfuncs.p('child', '~/child', parent_func='parent'),
+            pathfuncs.p('override', '~/override', 'capture', parent_func='parent'),
+            pathfuncs.p('handler', '~/handler', parent_func='parent',
+                        commands={'pick': 'capture child <path> <args>'}),
+        ]
+        before = copy.deepcopy(original)
+        config = pathfuncs.resolve_config(original)
+        self.assertEqual(original, before)
+        self.assertNotIn('other', config[1]['commands'])
+        functions = '\n'.join(pathfuncs.build_function(e, pathfuncs.subs_of(e, config))
+                              for e in config)
+        self.assertEqual(self.shell(functions + '''
+            parent
+            parent child
+            parent override
+            parent handler pick "two words" ""
+        '''), ['<parent>', f'<{self.home}/parent>', '<parent>', f'<{self.home}/child>',
+               f'<{self.home}/override>', '<child>', f'<{self.home}/handler>', '<two words>', '<>'])
+        plain = [pathfuncs.p('plain', '~', sub_funcs=['child']),
+                 pathfuncs.p('child', '~/child', parent_func='plain')]
+        self.assertEqual(pathfuncs.resolve_config(plain)[1]['default'], 'cd')
+
+    def test_conversation_picker_aliases_and_explicit_cd(self):
+        target = self.home / 'Desktop/conversations'
+        target.mkdir(parents=True)
+        calls = []
+        for name in ['conversations', 'chats', 'convos', 'convo']:
+            calls.extend([name, f'{name} cd', 'print -r -- "$PWD"', 'cd /'])
+        self.assertEqual(self.shell('''
+            __conversations_select() { capture "$1"; }
+        ''' + '\n'.join(calls)), [value for _ in range(4)
+                                 for value in (f'<{target}>', str(target))])
+
+    def test_selector_shell_protocol_keeps_actions_in_caller(self):
+        target = self.home / 'picked dir'
+        target.mkdir()
+        self.assertEqual(self.shell('''
+            __pathfuncs_py() { print -rl -- __PATHFUNCS_RUN__ cd "$HOME/picked dir"; }
+            conversations
+            print -r -- "$PWD"
+            __pathfuncs_py() { print -rl -- __PATHFUNCS_RUN__ 'capture --flag' "$HOME/picked dir"; }
+            skills cc
+            __pathfuncs_py() { print -rl -- __PATHFUNCS_RUN__ 'basename --' "$HOME/picked dir"; }
+            convo
+            __pathfuncs_py() { return 7; }
+            convo
+            print -r -- "$?"
+        '''), [str(target), '<--flag>', f'<{target}>', 'picked dir', '7'])
+
 
 if __name__ == '__main__':
     unittest.main()
