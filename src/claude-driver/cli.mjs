@@ -4,6 +4,7 @@
 //   claude-driver <tool> [--arg value ...] [--json '{"arg": ...}']   any MCP tool, e.g.
 //     claude-driver create_session --folder /abs/path --title "X" --model claude-opus-5-5
 //     claude-driver pin_session --session "X" --pinned true
+//   Inside a desktop session's shell, Tier B ops hand the ccd_* calls back to you; --broker forces the broker.
 //   claude-driver tools                        list tools and their args
 //   claude-driver preflight                    environment checks (+ probe if the app version changed)
 //   claude-driver probe [--keep]               canary suite → capabilities.json
@@ -11,7 +12,7 @@
 //   claude-driver install [--dry-run]          register the MCP server in Claude Code, Codex, Cursor, OpenCode
 //   claude-driver cleanup-leftovers <uuid>     remove CLI files for a deleted driver-created session
 
-import { OPS, runOp, txt } from './lib/driver.mjs'
+import { OPS, isDesktopCaller, runOp, txt } from './lib/driver.mjs'
 import { DriverError } from './lib/paths.mjs'
 
 function parseArgs(argv) {
@@ -36,7 +37,7 @@ function argsFor(op, flags) {
   const props = op.schema.properties || {}
   const out = flags.json ? JSON.parse(flags.json) : {}
   for (const [k0, v] of Object.entries(flags)) {
-    if (k0 === 'json') continue
+    if (k0 === 'json' || k0 === 'handback' || k0 === 'broker') continue
     const k = k0.replace(/-/g, '_')
     const t = props[k]?.type
     const types = Array.isArray(t) ? t : [t]
@@ -74,7 +75,10 @@ async function main() {
   }
   const op = OPS.find((o) => o.name === cmd)
   if (!op) throw new DriverError(`unknown command ${cmd}; try \`claude-driver tools\``)
-  const out = await runOp(cmd, argsFor(op, flags), { harness: 'cli', progress: (m) => console.error(`[claude-driver] ${m}`) })
+  // Run from a shell inside a desktop session, Tier B ops hand the ccd_* calls back to that session
+  // (it has the tools; the broker may be asleep). --broker forces the broker; --handback forces handing back.
+  const handback = flags.handback || (isDesktopCaller() && !flags.broker)
+  const out = await runOp(cmd, argsFor(op, flags), { harness: handback ? 'cli-handback' : 'cli', progress: (m) => console.error(`[claude-driver] ${m}`) })
   console.log(txt(out))
   return 0
 }

@@ -12,12 +12,13 @@ import {
   allRecords, callerHostSession, getRecord, liveByHost, openPrs, readGroups, readPins, resolveSession, summarize, waitForPins, waitForRecord,
 } from './sessions.mjs'
 import { FOCUS_MODES, currentMain, frontApp, withFocus } from './focus.mjs'
-import { createSession, forkSession, openSession, unarchiveViaLink } from './tiera.mjs'
+import { DEFAULT_MODEL, createSession, forkSession, openSession, unarchiveViaLink } from './tiera.mjs'
 import { BROKER_OPS, brokerInfo, brokerRequest, reviveBroker } from './broker.mjs'
 import {
   BROKER_DIR, CAPABILITIES, LEDGER, PENDING_LEARNINGS, STATE_DIR, appendJsonl, loadRegistry, readJson, readJsonl, redactArgs, updateRegistry,
 } from './state.mjs'
 import { cleanupCliLeftovers } from './cleanup.mjs'
+import { BYPASS, RECYCLE_WAIT_MS, claim, defaultPermissionMode, poolGate, poolOf, poolTitle, reconcile, recycleMessage, setEntry } from './pool.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 export const ROOT = join(HERE, '..')
@@ -86,7 +87,7 @@ function checkResults(r) {
 }
 
 async function tierB(ctx, ops, verifyHint) {
-  // Only MCP callers get handed back; the CLI and probe always use the broker.
+  // Desktop callers get handed back (MCP, or the CLI run from a desktop session's shell); the probe and a plain CLI use the broker.
   if (isDesktopCaller() && !['cli', 'probe'].includes(ctx.harness) && !ctx.args.via_broker) return { handback: ownToolsResult(ops, verifyHint) }
   ctx.tier = ctx.tier || 'B'
   const r = await viaBroker(ops, ctx)
@@ -264,7 +265,9 @@ export const OPS = [
     title: 'Create a desktop session',
     description:
       'Create a Claude desktop Code session with an exact title and model, in an absolute folder or with no folder (no_project). Headless bootstrap turn + deep-link import, verified on disk (~4 s). ' +
-      'Optional follow-ups through Tier B: lock_title (so the auto-titler never renames it), first_message (runs visibly in the desktop), group. Import side effects: the app starts it in acceptEdits even if your default is bypass; the trivial bootstrap turn shows as the first exchange.',
+      'Optional follow-ups through Tier B: lock_title (so the auto-titler never renames it), first_message (runs visibly in the desktop), group. ' +
+      'permission_mode defaults to the folder\'s / Taylor\'s configured default. For bypassPermissions the driver claims a session parked in that folder from the bypass pool (pool_release fills it; no import, no approval card, title locked, model and effort set); ' +
+      'when the pool has none for that folder it falls back to an import, which the app always starts in acceptEdits, and says so (verified:false, permissionGap). Other modes are imported in that mode. An import shows the trivial bootstrap turn as the first exchange.',
     schema: {
       properties: {
         folder: { type: 'string', description: 'Absolute path of an existing folder.' },
@@ -272,6 +275,7 @@ export const OPS = [
         title: { type: 'string' },
         model: { type: 'string', description: 'Model id, default claude-opus-5-5.' },
         effort: { type: 'string', enum: ['low', 'medium', 'high', 'xhigh', 'max'] },
+        permission_mode: { type: 'string', enum: ['default', 'acceptEdits', 'plan', 'auto', 'bypassPermissions'], description: 'Default: permissions.defaultMode from the folder\'s .claude settings, else ~/.claude/settings.json.' },
         bootstrap_prompt: { type: 'string', description: 'The headless first turn. Keep it trivial; default asks for "ready".' },
         first_message: { type: 'string', description: 'Sent via Tier B send_message after import, so the real task runs visibly in the desktop.' },
         lock_title: { type: 'boolean', description: 'Tier B set_session_title so titleSource becomes "tool". Default false.' },
@@ -284,9 +288,19 @@ export const OPS = [
     navigates: true,
     run: async (args, ctx) => {
       const f = focusArg(args)
+      const want = args.permission_mode || defaultPermissionMode(args.folder)
+      if (want === BYPASS && args.folder && !args.no_project) {
+        const pooled = await createFromPool(args, ctx)
+        if (pooled) return pooled
+        ctx.notes.push('bypass pool is empty; fell back to an import')
+      }
       ctx.tier = 'A'
-      const { result, focus } = await withFocus(f, () => createSession(args, ctx))
-      const out = { ...result, focus: focus.action }
+      const { result, focus } = await withFocus(f, () => createSession({ ...args, permission_mode: want }, ctx))
+      const out = { ...result, focus: focus.action, intendedPermissionMode: want }
+      if (out.permissionMode !== want) {
+        out.verified = false
+        out.permissionGap = `started in ${out.permissionMode}, not ${want}: ${want === BYPASS ? 'the bypass pool had no session parked in this folder and an import can never be bypass. Fill the pool with pool_release on finished bypass sessions (pool_status {suggest:true} lists candidates), or raise this one with set_session_config (Taylor approves a card).' : 'the app did not keep the requested mode on import.'}`
+      }
       delete out.navigatedTo
       const follow = []
       if (args.lock_title) follow.push({ op: 'set_session_title', args: { session_id: result.sessionId, title: args.title } })
@@ -621,6 +635,78 @@ export const OPS = [
       return { ...plan, archived, notArchived: targets.map((r) => r.sessionId).filter((i) => !archived.includes(i)), folderDeleted }
     },
   },
+  // ---------------- bypass pool
+  {
+    name: 'pool_status',
+    title: 'Bypass pool status',
+    description:
+      'The bypass pool: finished sessions already in bypassPermissions, cleared and parked so create_session can hand one out with no import and no approval card. Reconciles the registry against disk, lists members and ready counts per folder. ' +
+      'suggest:true also lists archived bypass sessions whose PRs are all merged or closed (pool_release candidates).',
+    schema: { properties: { folder: { type: 'string', description: 'Only members / candidates in this folder.' }, suggest: { type: 'boolean' } } },
+    readOnly: true,
+    run: async (args) => {
+      const folder = args.folder ? resolve(args.folder) : null
+      const members = reconcile().filter((m) => !folder || !m.folder || resolve(m.folder) === folder)
+      const ready = {}
+      for (const m of members) if (m.status === 'ready') ready[m.folder] = (ready[m.folder] || 0) + 1
+      const out = { ready, members }
+      if (args.suggest) {
+        const pool = poolOf()
+        const pins = readPins()
+        out.candidates = allRecords()
+          .filter((r) => r.isArchived && r.permissionMode === BYPASS && !r.scheduledTaskId && !r.worktreePath && !pool[r.sessionId] && !pins.has(r.sessionId))
+          .filter((r) => Array.isArray(r.prs) && r.prs.length && !openPrs(r).length)
+          .filter((r) => !folder || resolve(r.cwd || '') === folder)
+          .sort((a, b) => (a.completedTurns || 0) - (b.completedTurns || 0))
+          .slice(0, 12)
+          .map((r) => ({ sessionId: r.sessionId, title: r.title, cwd: r.cwd, turns: r.completedTurns, lastActivity: r.lastActivityAt ? new Date(r.lastActivityAt).toISOString() : null }))
+      }
+      return out
+    },
+  },
+  {
+    name: 'pool_release',
+    title: 'Return a finished bypass session to the pool',
+    description:
+      'Recycle a finished session that is already in bypassPermissions into the bypass pool, instead of only archiving it: the session unbinds its PR and clears its own conversation (the old one stays on disk and under "Resume previous session"), then it is retitled "pool · <folder> · idle" and archived. ' +
+      'Two phases from a desktop caller: the first call hands back the recycle message to send; call again once that session is idle to park it. Refuses sessions that are not bypass (the pool never raises a mode), pinned, working, unattended, yours, the broker, or with an open PR (override:true allows that one gate).',
+    schema: { properties: { session: S, override: { type: 'boolean', description: 'Allow a session whose PR is still open.' }, via_broker: VIA_BROKER }, required: ['session'] },
+    run: async (args, ctx) => {
+      let rec = resolveSession(args.session)
+      const id = rec.sessionId
+      const why = poolGate(rec, { self: callerHostSession(), brokerId: brokerInfo().sessionId, live: liveByHost(), override: !!args.override })
+      if (why.length) throw new DriverError(`refused: ${rec.title || id} ${why.join('; ')}`, { category: 'gate_pool' })
+      const entry = poolOf()[id]
+      if (rec.cliSessionId) {
+        if (entry?.state === 'recycling' && entry.cliAtRequest === rec.cliSessionId && Date.now() - entry.requestedAt < RECYCLE_WAIT_MS) {
+          return { sessionId: id, pending: true, message: 'recycle was requested and the session has not cleared yet; call pool_release again when it is idle' }
+        }
+        const ops = []
+        if (rec.isArchived) ops.push({ op: 'unarchive_session', args: { session_id: id } })
+        ops.push({ op: 'send_message', args: { session_id: id, message: recycleMessage() } })
+        setEntry(id, { state: 'recycling', folder: rec.cwd, priorTitle: entry?.priorTitle || rec.title, cliAtRequest: rec.cliSessionId, requestedAt: Date.now() })
+        const b = await tierB(ctx, ops, 'the session replies "recycled: …" and goes idle').catch((err) => {
+          setEntry(id, entry || null) // the recycle message was never sent
+          throw err
+        })
+        if (b.handback) return { ...b.handback, sessionId: id, phase: 'recycle', next: 'When that session is idle, call pool_release again with the same session to park it.' }
+        const w = await waitForRecord(id, (r) => !r.cliSessionId, { timeoutMs: RECYCLE_WAIT_MS, intervalMs: 1000 })
+        if (!w.ok) throw new DriverError('the session did not clear itself within 180 s; read its transcript and call pool_release again', { category: 'verify_mismatch' })
+        rec = w.record
+      }
+      const title = poolTitle(rec.cwd)
+      const ops = []
+      if (rec.title !== title) ops.push({ op: 'set_session_title', args: { session_id: id, title } })
+      if (!rec.isArchived) ops.push({ op: 'archive_session', args: { session_id: id, reason: 'claude-driver pool_release: parked in the bypass pool' } })
+      setEntry(id, { state: 'parked', folder: rec.cwd, priorTitle: entry?.priorTitle || rec.title, parkedAt: Date.now(), cliAtRequest: undefined, requestedAt: undefined })
+      const out = { sessionId: id, parked: true, folder: rec.cwd, permissionMode: rec.permissionMode }
+      if (!ops.length) return { ...out, verified: true }
+      const b = await tierB(ctx, ops, `title "${title}", isArchived true`)
+      if (b.handback) return { ...b.handback, ...out, phase: 'park' }
+      const w = await waitForRecord(id, (r) => r.isArchived === true && r.title === title, { timeoutMs: 8000 })
+      return { ...out, verified: w.ok, ms: b.ms }
+    },
+  },
   // ---------------- Tier C
   {
     name: 'window_manage',
@@ -649,6 +735,35 @@ export const OPS = [
     },
   },
 ]
+
+// create_session for bypass: hand out a parked pool session instead of
+// importing. Returns null when the pool has none for this folder.
+async function createFromPool(args, ctx) {
+  if (!args.title || typeof args.title !== 'string') throw new DriverError('title is required', { category: 'bad_args' })
+  const folder = resolve(args.folder)
+  if (!existsSync(folder)) throw new DriverError(`folder does not exist: ${folder}`, { category: 'bad_args' })
+  const pick = await claim(folder, { title: args.title })
+  if (!pick) return null
+  const id = pick.sessionId
+  const model = args.model || DEFAULT_MODEL
+  const effort = args.effort || 'high'
+  const ops = []
+  if (pick.archived) ops.push({ op: 'unarchive_session', args: { session_id: id } })
+  ops.push({ op: 'set_session_title', args: { session_id: id, title: args.title } })
+  ops.push({ op: 'set_session_model', args: { session_id: id, model } })
+  ops.push({ op: 'set_session_effort', args: { session_id: id, effort } })
+  if (args.group) ops.push(...(await groupOps(args.group, [id])))
+  if (args.first_message) ops.push({ op: 'send_message', args: { session_id: id, message: args.first_message } })
+  const out = { sessionId: id, via: 'pool', cwd: folder, title: args.title, model, effort, permissionMode: BYPASS, intendedPermissionMode: BYPASS, pooledFrom: pick.priorTitle || null }
+  const b = await tierB(ctx, ops, `title "${args.title}" (titleSource "tool"), model ${model}, effort ${effort}, permissionMode bypassPermissions, isArchived false`).catch((err) => {
+    setEntry(id, { state: 'parked', claimedAt: undefined, claimedTitle: undefined }) // nothing ran; the member is still clean
+    throw err
+  })
+  if (b.handback) return { ...b.handback, ...out, calls: b.handback.calls }
+  ctx.tier = 'B'
+  const w = await waitForRecord(id, (r) => r.title === args.title && r.model === model && r.isArchived === false && r.permissionMode === BYPASS, { timeoutMs: 8000 })
+  return { ...out, verified: w.ok, followUps: b.results, ms: b.ms }
+}
 
 async function groupOps(group, sessionIds) {
   const g = readGroups().groups.find((x) => x.id === group || x.name === group)

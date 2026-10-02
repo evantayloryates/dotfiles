@@ -1,7 +1,11 @@
 # Strategy: new sessions in bypassPermissions without an approval card
 
-Status: research done 2026-09-30 (app 2.9939.4, CLI 2.1.284); approach
-awaiting Taylor's choice. Trigger: "AI Notes Fix: Plan" created
+Status: **decided and built 2026-10-02** (app 2.19675.0, CLI 2.1.286): option 3
+as a recycle pool. `pool_release` returns a finished bypass session to the
+pool, `create_session` claims one; see README "The bypass pool" and
+findings 2026-10-02. Options 1, 2, 4 and 5 below were not taken; option 1
+remains the fallback when the pool is empty. Original research (2026-09-30,
+app 2.9939.4, CLI 2.1.284) follows. Trigger: "AI Notes Fix: Plan" created
 local_ec4b0f45 with `create_session`; it landed in acceptEdits although
 Taylor's default is bypassPermissions (`~/.claude/settings.json`
 `permissions.defaultMode`), raised a tool card for `zdr_ask`, and a consult

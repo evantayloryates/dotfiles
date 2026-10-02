@@ -86,10 +86,36 @@ right title and cwd.
 **Import side effects** (every create and fork):
 - The main window jumps to the new session and Claude comes to the front; the
   focus policy undoes both.
-- It starts in acceptEdits even when the default is bypass.
+- It starts in acceptEdits even when the default is bypass. That is why a
+  bypass create does not import at all: see **The bypass pool** below.
 - `titleSource` is `auto` until `lock_title` / `rename_session` sets `tool`.
 - The bootstrap exchange is the first turn; send the real task with
   `first_message` so it runs visibly.
+
+**The bypass pool** ([lib/pool.mjs](lib/pool.mjs), registry key `pool`). The
+app clamps every import to acceptEdits and mints the consent for a raise only
+from Taylor's click on its card, so there is no programmatic way to *make* a
+bypass session. There is a supported way to *reuse* one: a session Taylor
+already put in bypass keeps that mode across `/clear`, archive and unarchive.
+- `pool_release`: gate (bypass already, not pinned / working / unattended /
+  self / broker, no open PR) → the session runs the recycle message
+  (`unbind_pr`, then `clear_session self`; the app drops `cliSessionId`
+  from the record, which is the on-disk proof of a clean context) → retitle
+  `pool · <folder> · idle`, archive. The old transcript stays in
+  `~/.claude/projects` and under "Resume previous session".
+- `create_session` with bypass intended: `claim()` picks a ready member
+  parked in that folder under a lock, then Tier B: unarchive, title, model,
+  effort, group, `first_message`. The pool is per folder: a move
+  (`change_directory`) only applies after the session's turn ends and an
+  untrusted folder raises a trust prompt for Taylor, so claims never move.
+  Every one of those is a call the app runs without asking for a bypass
+  caller. ~15 s end to end, no window navigation.
+- `pool_status` reconciles the registry against disk: an entry whose record
+  is gone, not bypass, or in use again is dropped; a claim never acted on
+  returns to the pool after 10 min.
+- When the app ships `start_session` to this account (behind a server gate
+  on 2026-10-02; its child "runs in this session's permission mode"), prefer
+  it and retire the pool.
 
 **Fork**: `--resume <cli id> --fork-session --session-id <new> -n <title>` in
 the source cwd, then the same import. **Unarchive**: re-opening the import

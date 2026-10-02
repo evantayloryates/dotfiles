@@ -1,0 +1,21 @@
+{
+  "default": "init-default",
+  "profiles": {
+    "init-default": {
+      "_note": "Skylar, en-US female. Cartesia's first pick for voice agents on Sonic 3.6.",
+      "model_id": "sonic-3.6",
+      "voice": { "mode": "id", "id": "db6b0ed5-d5d3-463d-ae85-518a07d3c2b4" },
+      "language": "en",
+      "output_format": { "container": "raw", "encoding": "pcm_s16le", "sample_rate": 24000 },
+      "generation_config": { "speed": 1.0, "volume": 1.0 }
+    },
+    "init-alt": {
+      "_note": "Daniel, en-US male. Also on Cartesia's voice-agent shortlist.",
+      "model_id": "sonic-3.6",
+      "voice": { "mode": "id", "id": "47c38ca4-5f35-497b-b1a3-415245fb35e1" },
+      "language": "en",
+      "output_format": { "container": "raw", "encoding": "pcm_s16le", "sample_rate": 24000 },
+      "generation_config": { "speed": 1.0, "volume": 1.0 }
+    }
+  }
+}

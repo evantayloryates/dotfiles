@@ -5,6 +5,39 @@ Dated, newest first. Each entry: what was observed, the evidence, and n
 (`<state>/pending-learnings.jsonl`) here only after re-verifying it.
 Versions: app = Claude desktop, cli = bundled Claude Code.
 
+## 2026-10-02 (app 2.19675.0, cli 2.1.286)
+
+- **A bypass session keeps bypass across clear, archive and unarchive, with
+  no card.** local_13cc48b7 (merged #6463, bypass): `unarchive_session` →
+  recycle message → it called `unbind_pr` and `clear_session self` → record
+  lost `cliSessionId` (old id moved to `priorCliSessionIds`), old transcript
+  still on disk → retitle, archive, unarchive → new brief ran Bash (curl,
+  python), Write outside the project and an MCP tool with
+  `permissionMode: bypassPermissions`, `prior_context=none`, and 0
+  `Emitted tool permission request` lines in main.log for the whole run.
+  n=2 claims, n=4 recycles.
+  main.log: `[permissionMode] spawn … requested=bypassPermissions
+  effective=bypassPermissions` on each respawn. Recycle turn 9–13 s.
+- **A pooled session cannot be moved to another folder reliably.**
+  local_980dfefa: `change_directory` to an untrusted folder logged
+  `pending cwd apply … needs_trust` (a workspace-trust prompt for Taylor,
+  which times out by itself), and the brief queued behind the move turn ran
+  before the move applied, in the old cwd. Bypass held (0 permission
+  requests). The pool is therefore per folder; claims never move. n=1.
+- **Import clamp and consent mint unchanged in 2.19675.0.**
+  `resolveImportedPermissionMode` still maps Bypass → AcceptEdits;
+  `redeemPermissionModeConsent` still requires the card's token.
+- **`start_session` exists but is server-gated off** (`ZW("2371478310")`;
+  when on it replaces `spawn_task`). Its description: "It runs in this
+  session's permission mode unless permission_mode names a lower one". That
+  is the native answer once the gate opens for this account.
+- **A session can decline a relayed recycle.** local_01041b19 (#6466) held:
+  it had an open question for Taylor. Correct; the recycle message now tells
+  a session to answer "recycle declined: <why>" in that case. n=1.
+- **`prs` in the record keeps a MERGED entry after `unbind_pr`**;
+  `ccd_pr get_status` reports `bound: false`. `openPrs()` ignores merged
+  entries, so gates are unaffected. n=1.
+
 ## 2026-09-30 (app 2.9939.4, cli 2.1.284)
 
 - **Imports can never be bypass; other modes survive.** App code

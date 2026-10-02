@@ -39,3 +39,6 @@ src/python/cerebras/**/*.jsonl
 /job-hunter/dashboard/assets/
 /job-hunter/.job-hunter.lock
 /job-hunter/.tmp/
+
+# speak: compiled binary (rebuilt on demand by bin/speak)
+src/speak/.build/

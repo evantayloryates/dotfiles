@@ -45,7 +45,7 @@ async function bootstrap(args, cwd, signal, uuid) {
 }
 
 // create_session({ folder | no_project, title, model?, effort?, bootstrap_prompt? })
-export async function createSession({ folder, no_project, title, model, effort, bootstrap_prompt }, { signal } = {}) {
+export async function createSession({ folder, no_project, title, model, effort, bootstrap_prompt, permission_mode }, { signal } = {}) {
   if (!title || typeof title !== 'string') throw new DriverError('title is required', { category: 'bad_args' })
   if (!folder && !no_project) throw new DriverError('pass folder (absolute path) or no_project: true', { category: 'bad_args' })
   let cwd
@@ -63,6 +63,8 @@ export async function createSession({ folder, no_project, title, model, effort, 
   const m = model || DEFAULT_MODEL
   const args = ['-p', bootstrap_prompt || DEFAULT_BOOTSTRAP, '--session-id', uuid, '-n', title, '--model', m, '--strict-mcp-config']
   if (effort) args.push('--effort', effort)
+  // The app clamps an imported bypass to acceptEdits; every other mode survives the import.
+  if (permission_mode && permission_mode !== 'bypassPermissions') args.push('--permission-mode', permission_mode)
   const t0 = Date.now()
   await bootstrap(args, cwd, signal, uuid)
   const bootMs = Date.now() - t0

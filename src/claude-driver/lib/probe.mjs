@@ -89,7 +89,7 @@ export async function probe(flags = {}) {
   let forkId = null
   const before = currentMain().sessionId
   await step('create', async () => {
-    const r = await op('create_session', { folder: dir, title, model: PROBE_MODEL })
+    const r = await op('create_session', { folder: dir, title, model: PROBE_MODEL, permission_mode: 'acceptEdits' })
     sid = r.sessionId
     if (!r.verified) throw new Error('not verified')
     return { focus: r.focus }
@@ -166,7 +166,7 @@ export async function brokerCmd(sub, flags = {}) {
       return 0
     }
     const folder = prepareBrokerDir()
-    const r = await runOp('create_session', { folder, title: BROKER_TITLE, model: BROKER_MODEL, bootstrap_prompt: `Read CLAUDE.md in this folder. Reply with exactly: broker ready v${protocolVersion()}` }, { harness: 'cli', progress: log })
+    const r = await runOp('create_session', { folder, title: BROKER_TITLE, model: BROKER_MODEL, permission_mode: 'acceptEdits', bootstrap_prompt: `Read CLAUDE.md in this folder. Reply with exactly: broker ready v${protocolVersion()}` }, { harness: 'cli', progress: log })
     saveBrokerInfo({ sessionId: r.sessionId, createdAt: new Date().toISOString() })
     log('created; waking it')
     await reviveBroker({ progress: log })

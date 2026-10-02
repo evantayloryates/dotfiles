@@ -30,6 +30,12 @@ mechanisms and evidence.
    session requires `confirm_self: true`.
 6. **Never write the app's files.** The app holds its state in memory and
    rewrites them; the driver only reads them.
+7. **Bypass comes from the pool, never from a workaround.** An import can
+   never be bypass and a raise always shows Taylor a card. `create_session`
+   therefore hands out a parked session from the bypass pool: one Taylor
+   already put in bypass, finished, cleared and archived. Never click the
+   card, edit a record, or drive the UI to get bypass another way. Putting a
+   session in Taylor's configured default mode this way is not a raise.
 
 ## 2. Tiers
 
@@ -52,9 +58,25 @@ wake line into it). First op after idle is therefore slower.
 
 ## 3. Choosing an op
 
-- New session with a task: `create_session {folder | no_project, title,
-  model, first_message, lock_title: true}`. The bootstrap turn is trivial; the
-  real task goes in `first_message` so it runs visibly in the desktop.
+- New session with a task: `create_session {folder, title, first_message}`.
+  With Taylor's default (bypass) it claims a pool session: title locked,
+  model (default Opus 5.5) and effort (default high) set, the task sent as
+  `first_message`, no bootstrap turn. `via: "pool"` in the result; verify
+  `permissionMode` with `get_session`. The pool is per folder: a claim only
+  takes a session parked in the folder asked for.
+- No pool session for that folder: the result says `permissionGap` and `verified: false`; the
+  session was imported in acceptEdits. Report it, raise it with
+  `set_session_config` (Taylor's card) and refill the pool.
+- Finished session (PRs merged or closed, nothing held for Taylor):
+  `pool_release {session}` instead of only archiving. First call sends the
+  recycle message (the session unbinds its PR and clears itself); call again
+  when it is idle to retitle and archive it. A session may answer
+  "recycle declined: …": leave it, archive it as before, tell Taylor why.
+- `pool_status` shows ready counts per folder; `{suggest: true}` lists
+  archived bypass sessions with only merged or closed PRs. Prefer sessions an
+  agent created for a PR over Taylor's own conversations.
+- Other modes or no folder: `create_session {permission_mode | no_project}`
+  imports (bootstrap turn + deep link); non-bypass modes survive the import.
 - Continue from an existing session's context: `fork_session`.
 - Tell a running session something: `send_message`.
 - Tidy up: `archive_session` (per session) or `archive_project` (folder,

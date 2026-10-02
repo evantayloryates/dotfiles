@@ -41,6 +41,11 @@ export function resolveClaudeBinary() {
   for (const v of versions) {
     const bin = join(root, v, 'claude.app', 'Contents', 'MacOS', 'claude')
     if (existsSync(bin)) return bin
+    // App 2.19675.0 nests the bundle one level deeper: <version>/<build hash>/claude.app
+    for (const build of readdirSync(join(root, v))) {
+      const nested = join(root, v, build, 'claude.app', 'Contents', 'MacOS', 'claude')
+      if (existsSync(nested)) return nested
+    }
   }
   throw new DriverError(`no bundled Claude Code CLI under ${root}; open the Claude app once so it installs one`, { category: 'no_cli' })
 }

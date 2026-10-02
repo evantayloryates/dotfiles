@@ -1,0 +1,10 @@
+#!/bin/sh
+# speak: stream text to speech through Cartesia (see src/speak/README.md).
+# No forks on the hot path: the binary is rebuilt only when its source is newer.
+dir="${DOTFILES_DIR:-$HOME/dotfiles}/src/speak"
+bin="$dir/.build/speak"
+if [ ! -x "$bin" ] || [ "$dir/speak.swift" -nt "$bin" ]; then
+    mkdir -p "$dir/.build" &&
+        xcrun swiftc -O -swift-version 5 "$dir/speak.swift" -o "$bin" >&2 || exit 1
+fi
+exec "$bin" "$@"
