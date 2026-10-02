@@ -36,12 +36,14 @@ func die(_ message: String, code: Int32 = 1) -> Never {
 /// before any audio exists, so it is already running when the first bytes land.
 final class Player {
     private var unit: AudioUnit!
+    private var pitchUnit: AudioUnit?
     private let lock = UnsafeMutablePointer<os_unfair_lock>.allocate(capacity: 1)
     private var fifo = [UInt8]()
     private var head = 0
     private var inputEnded = false
     private var drainSignalled = false
     private let frameBytes: Int
+    private let outFrameBytes: Int
     private let prebufferBytes: Int
     private var primed = false
 
@@ -51,9 +53,14 @@ final class Player {
     private(set) var underruns = 0
     private(set) var renderedBytes = 0
 
-    init(sampleRate: Double, float: Bool, prebufferMs: Double) {
+    /// `rate` other than 1 time-stretches playback (pitch kept) through a time-pitch unit.
+    init(sampleRate: Double, float: Bool, rate: Double, prebufferMs: Double) {
         lock.initialize(to: os_unfair_lock())
+        let stretch = abs(rate - 1) > 0.001
         frameBytes = float ? 4 : 2
+        // The time-pitch unit only takes float, so 16-bit audio is converted on the way in.
+        let unitFloat = float || stretch
+        outFrameBytes = unitFloat ? 4 : 2
         prebufferBytes = Int(sampleRate * prebufferMs / 1000) * frameBytes
 
         var description = AudioComponentDescription(
@@ -71,16 +78,17 @@ final class Player {
         var format = AudioStreamBasicDescription(
             mSampleRate: sampleRate,
             mFormatID: kAudioFormatLinearPCM,
-            mFormatFlags: (float ? kLinearPCMFormatFlagIsFloat : kLinearPCMFormatFlagIsSignedInteger)
+            mFormatFlags: (unitFloat ? kLinearPCMFormatFlagIsFloat : kLinearPCMFormatFlagIsSignedInteger)
                 | kLinearPCMFormatFlagIsPacked,
-            mBytesPerPacket: UInt32(frameBytes),
+            mBytesPerPacket: UInt32(outFrameBytes),
             mFramesPerPacket: 1,
-            mBytesPerFrame: UInt32(frameBytes),
+            mBytesPerFrame: UInt32(outFrameBytes),
             mChannelsPerFrame: 1,
-            mBitsPerChannel: UInt32(frameBytes * 8),
+            mBitsPerChannel: UInt32(outFrameBytes * 8),
             mReserved: 0)
+        let formatSize = UInt32(MemoryLayout<AudioStreamBasicDescription>.size)
         check(AudioUnitSetProperty(unit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0,
-                                   &format, UInt32(MemoryLayout<AudioStreamBasicDescription>.size)),
+                                   &format, formatSize),
               "set stream format")
 
         var callback = AURenderCallbackStruct(
@@ -91,9 +99,40 @@ final class Player {
                 return noErr
             },
             inputProcRefCon: Unmanaged.passUnretained(self).toOpaque())
-        check(AudioUnitSetProperty(unit, kAudioUnitProperty_SetRenderCallback, kAudioUnitScope_Input, 0,
-                                   &callback, UInt32(MemoryLayout<AURenderCallbackStruct>.size)),
-              "set render callback")
+        let callbackSize = UInt32(MemoryLayout<AURenderCallbackStruct>.size)
+        if stretch {
+            // queue -> time-pitch unit -> output unit
+            var pitchDescription = AudioComponentDescription(
+                componentType: kAudioUnitType_FormatConverter,
+                componentSubType: kAudioUnitSubType_NewTimePitch,
+                componentManufacturer: kAudioUnitManufacturer_Apple,
+                componentFlags: 0,
+                componentFlagsMask: 0)
+            guard let pitchComponent = AudioComponentFindNext(nil, &pitchDescription) else { die("no time-pitch unit") }
+            var pitchInstance: AudioUnit?
+            check(AudioComponentInstanceNew(pitchComponent, &pitchInstance), "open time-pitch unit")
+            let pitch = pitchInstance!
+            pitchUnit = pitch
+            check(AudioUnitSetProperty(pitch, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, 0,
+                                       &format, formatSize), "set time-pitch input format")
+            check(AudioUnitSetProperty(pitch, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Output, 0,
+                                       &format, formatSize), "set time-pitch output format")
+            var maxFrames = UInt32(4096)
+            check(AudioUnitSetProperty(pitch, kAudioUnitProperty_MaximumFramesPerSlice, kAudioUnitScope_Global, 0,
+                                       &maxFrames, UInt32(MemoryLayout<UInt32>.size)), "set time-pitch slice size")
+            check(AudioUnitSetProperty(pitch, kAudioUnitProperty_SetRenderCallback, kAudioUnitScope_Input, 0,
+                                       &callback, callbackSize), "set render callback")
+            check(AudioUnitSetParameter(pitch, kNewTimePitchParam_Rate, kAudioUnitScope_Global, 0,
+                                        AudioUnitParameterValue(rate), 0), "set playback rate")
+            var connection = AudioUnitConnection(sourceAudioUnit: pitch, sourceOutputNumber: 0, destInputNumber: 0)
+            check(AudioUnitSetProperty(unit, kAudioUnitProperty_MakeConnection, kAudioUnitScope_Input, 0,
+                                       &connection, UInt32(MemoryLayout<AudioUnitConnection>.size)),
+                  "connect time-pitch unit")
+            check(AudioUnitInitialize(pitch), "initialize time-pitch unit")
+        } else {
+            check(AudioUnitSetProperty(unit, kAudioUnitProperty_SetRenderCallback, kAudioUnitScope_Input, 0,
+                                       &callback, callbackSize), "set render callback")
+        }
         check(AudioUnitInitialize(unit), "initialize audio output")
         check(AudioOutputUnitStart(unit), "start audio output")
         readyAt = now()
@@ -122,17 +161,28 @@ final class Player {
 
     private func render(into destination: UnsafeMutableRawPointer, bytes: Int) {
         os_unfair_lock_lock(lock)
-        let available = (fifo.count - head) / frameBytes * frameBytes
-        if !primed, available >= prebufferBytes || inputEnded { primed = available > 0 }
-        let count = primed ? min(available, bytes) : 0
-        if count > 0 {
-            fifo.withUnsafeBytes { _ = memcpy(destination, $0.baseAddress! + head, count) }
-            head += count
-            renderedBytes += count
+        let wanted = bytes / outFrameBytes
+        let available = (fifo.count - head) / frameBytes
+        if !primed, available * frameBytes >= prebufferBytes || inputEnded { primed = available > 0 }
+        let frames = primed ? min(available, wanted) : 0
+        if frames > 0 {
+            fifo.withUnsafeBytes { queue in
+                let source = queue.baseAddress! + head
+                if outFrameBytes == frameBytes {
+                    memcpy(destination, source, frames * frameBytes)
+                } else {
+                    let samples = destination.assumingMemoryBound(to: Float32.self)
+                    for index in 0..<frames {
+                        samples[index] = Float32(source.loadUnaligned(fromByteOffset: index * 2, as: Int16.self)) / 32768
+                    }
+                }
+            }
+            head += frames * frameBytes
+            renderedBytes += frames * frameBytes
             if firstRenderAt == nil { firstRenderAt = now() }
         }
-        if count < bytes {
-            memset(destination + count, 0, bytes - count)
+        if frames < wanted {
+            memset(destination + frames * outFrameBytes, 0, (wanted - frames) * outFrameBytes)
             if primed, !inputEnded { underruns += 1 }
         }
         let finished = inputEnded && fifo.count - head < frameBytes && !drainSignalled
@@ -162,7 +212,15 @@ final class Player {
         _ = AudioObjectGetPropertyData(device, &rateAddress, 0, nil, &rateSize, &rate)
         let buffered = frames(kAudioDevicePropertyLatency) + frames(kAudioDevicePropertySafetyOffset)
             + 2 * frames(kAudioDevicePropertyBufferFrameSize)
-        return min(1.0, buffered / max(rate, 8000) + 0.05)
+        // The time-pitch unit holds a little audio of its own; silence pushes it through.
+        var pitchLatency = Float64(0)
+        if let pitchUnit {
+            var latencySize = UInt32(MemoryLayout<Float64>.size)
+            _ = AudioUnitGetProperty(pitchUnit, kAudioUnitProperty_Latency, kAudioUnitScope_Global, 0,
+                                     &pitchLatency, &latencySize)
+            pitchLatency += 0.1
+        }
+        return min(1.5, buffered / max(rate, 8000) + 0.05 + pitchLatency)
     }
 
     func stop() {
@@ -292,8 +350,10 @@ if arguments.isEmpty, isatty(STDIN_FILENO) == 0 {
 text = text.trimmingCharacters(in: .whitespacesAndNewlines)
 if text.isEmpty { die(usage, code: 2) }
 
-// The profile is the request body, minus `_` keys (notes), plus the transcript.
-var body = voices.profiles[profileID]!.filter { !$0.key.hasPrefix("_") }
+// The profile is the request body, minus `_` keys (local to speak), plus the transcript.
+let profile = voices.profiles[profileID]!
+let playbackRate = min(3, max(0.5, (profile["_playback_rate"] as? NSNumber)?.doubleValue ?? 1))
+var body = profile.filter { !$0.key.hasPrefix("_") }
 let format = body["output_format"] as? [String: Any]
     ?? ["container": "raw", "encoding": "pcm_s16le", "sample_rate": 24000]
 body["output_format"] = format
@@ -309,7 +369,7 @@ let stream = Stream()
 let playerReady = DispatchSemaphore(value: 0)
 var player: Player!
 Thread.detachNewThread {
-    player = Player(sampleRate: sampleRate, float: encoding == "pcm_f32le",
+    player = Player(sampleRate: sampleRate, float: encoding == "pcm_f32le", rate: playbackRate,
                     prebufferMs: Double(environment["SPEAK_PREBUFFER_MS"] ?? "") ?? 0)
     stream.attach(player)
     playerReady.signal()
@@ -366,7 +426,7 @@ if environment["SPEAK_TIMING"] != nil {
         server wait \(span(m?.requestEndDate, m?.responseStartDate)) \
         protocol \(m?.networkProtocolName ?? "-")
         audio: \(String(format: "%.2f", Double(stream.bytes) / frameBytes / sampleRate))s \
-        \(encoding)@\(Int(sampleRate)) underruns \(player.underruns)
+        \(encoding)@\(Int(sampleRate)) played at \(playbackRate)x underruns \(player.underruns)
 
         """
     FileHandle.standardError.write(Data(report.utf8))

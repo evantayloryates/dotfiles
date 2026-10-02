@@ -22,13 +22,21 @@ the `default` id is used.
 Each profile is sent to `POST /tts/bytes` as written, plus the `transcript`.
 Any Cartesia setting can go in it (`model_id`, `voice`, `language`,
 `generation_config.speed`, `.volume`, `.emotion`, `output_format`). Keys that
-start with `_` are notes and are not sent. Edits take effect on the next run;
-no rebuild.
+start with `_` are local to `speak` and are not sent. Edits take effect on the
+next run; no rebuild.
 
 | id | voice |
 | - | - |
-| `init-default` | Skylar, en-US female |
-| `init-alt` | Daniel, en-US male |
+| `init-default` | Skylar, en-US female, fast and flat (`distant`, about 1.4x) |
+| `init-alt` | Daniel, en-US male, Cartesia defaults |
+
+### Speed
+
+Cartesia's `generation_config.speed` (0.6 to 1.5) is guidance, not a
+multiplier: 1.5 measured only about 10% faster. For a real change, set
+`_playback_rate` in the profile. The player time-stretches by that factor with
+pitch kept, and it multiplies with whatever Cartesia did. `init-default` uses
+speed 1.5 and `_playback_rate` 1.25, about 1.4x overall.
 
 ## Setup
 
