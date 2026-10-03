@@ -153,22 +153,48 @@ def notify(title, body):
     subprocess.run(["/usr/bin/osascript", "-e", script], capture_output=True)
 
 
-def keepalive_call(account, notify_enabled):
-    """One metadata-only broker call. Returns (status, seconds, exit, detail)."""
+CHALLENGE = "System unlock proceeding"
+
+
+def challenges_since(stamp):
+    """UTC timestamps of 1Password Touch ID challenges at or after `stamp` (ISO, UTC)."""
+    found = []
+    for line in onepassword_tail(60_000):
+        if CHALLENGE in line:
+            parts = line.split()
+            if len(parts) > 1 and parts[1] >= stamp:
+                found.append(parts[1])
+    return found
+
+
+def utc_now():
+    return time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
+
+
+def keepalive_call(account, notify_enabled, log_readable=True):
+    """One metadata-only broker call. Returns (status, seconds, exit, detail).
+
+    A prompt is recognised from 1Password's own log (a challenge during the
+    call), so a call that merely waited behind a long agent command in the
+    broker queue is not mistaken for one. Without the log, duration decides.
+    """
     env = {"HOME": str(Path.home()), "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
            "LANG": "en_US.UTF-8", "OP_BROKER_CALLER": "keepalive"}
     args = [str(OP), "vault", "list", "--account", account["id"], "--format", "json"]
+    stamp = utc_now()
     started = time.monotonic()
     proc = subprocess.Popen(args, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
                             stderr=subprocess.PIPE, env=env, cwd=str(Path.home()))
-    notified = False
+    notified = prompted = False
     while True:
         try:
             _, err = proc.communicate(timeout=1)
             break
         except subprocess.TimeoutExpired:
             elapsed = time.monotonic() - started
-            if elapsed > PROMPT_SECONDS and not notified and notify_enabled:
+            if not prompted and elapsed > PROMPT_SECONDS:
+                prompted = bool(challenges_since(stamp)) if log_readable else True
+            if prompted and not notified and notify_enabled:
                 notify("1Password keepalive", "Touch ID keeps the CLI authorized for %s. "
                        "No agent is reading a secret." % account["label"])
                 notified = True
@@ -177,10 +203,12 @@ def keepalive_call(account, notify_enabled):
                 _, err = proc.communicate()
                 break
     seconds = round(time.monotonic() - started, 2)
+    if not prompted and seconds > PROMPT_SECONDS:
+        prompted = bool(challenges_since(stamp)) if log_readable else True
     detail = (err or b"").decode("utf-8", "replace").strip().splitlines()
     detail = detail[-1][:120] if detail else ""
     if proc.returncode == 0:
-        status = "ok_prompted" if seconds > PROMPT_SECONDS else "ok"
+        status = "ok_prompted" if prompted else ("ok_queued" if seconds > PROMPT_SECONDS else "ok")
     elif proc.returncode == 125:
         status = "broker_unavailable"
     elif "authorization timeout" in detail:
@@ -269,11 +297,11 @@ class Keepalive:
         for acct in self.accounts.values():
             if time.monotonic() < acct["next_due"]:
                 continue
-            status, seconds, code, detail = keepalive_call(acct, self.config["notify"])
+            status, seconds, code, detail = keepalive_call(acct, self.config["notify"], log_readable=not UNREADABLE)
             acct["last_status"] = status
             self.log.event("keepalive", account=acct["label"], status=status, seconds=seconds, exit=code,
                            detail=detail if status != "ok" else "")
-            if status in ("ok", "ok_prompted"):
+            if status in ("ok", "ok_queued", "ok_prompted"):
                 acct["last_ok"] = now()
                 acct["interval"] = self.config["interval"]
                 if status == "ok_prompted":

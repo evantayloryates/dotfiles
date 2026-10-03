@@ -52,7 +52,7 @@ class LockStateTests(unittest.TestCase):
         keepalive.console_locked = lambda: False
         keepalive.onepassword_tail = lambda log=None: tail
         calls = []
-        keepalive.keepalive_call = lambda acct, notify_enabled: (calls.append(acct['id']) or ('ok', 0.3, 0, ''))
+        keepalive.keepalive_call = lambda acct, notify_enabled, log_readable=True: (calls.append(acct['id']) or ('ok', 0.3, 0, ''))
         try:
             runner.tick()
         finally:
@@ -97,9 +97,27 @@ class CallTests(unittest.TestCase):
         self.assertEqual(self.call('timeout')[0], 'prompt_timeout')
         self.assertEqual(self.call('down')[0], 'broker_unavailable')
         self.assertEqual(self.call('other')[0], 'error')
-        status, seconds, code, detail = self.call('slow')
-        self.assertEqual((status, code), ('ok_prompted', 0))
+        # Slow with no challenge in 1Password's log = waited in the broker queue.
+        original_tail = keepalive.onepassword_tail
+        keepalive.onepassword_tail = lambda max_bytes=0, log=None: []
+        try:
+            status, seconds, code, detail = self.call('slow')
+        finally:
+            keepalive.onepassword_tail = original_tail
+        self.assertEqual((status, code), ('ok_queued', 0))
         self.assertGreater(seconds, keepalive.PROMPT_SECONDS)
+        # Slow with a challenge logged during the call = a human authorized.
+        keepalive.onepassword_tail = lambda max_bytes=0, log=None: ['INFO 2999-01-01T00:00:00.000+00:00 x System unlock proceeding']
+        try:
+            self.assertEqual(self.call('slow')[0], 'ok_prompted')
+        finally:
+            keepalive.onepassword_tail = original_tail
+        # Without a readable log, duration decides.
+        keepalive.onepassword_tail = lambda max_bytes=0, log=None: []
+        try:
+            status = keepalive.keepalive_call(self.account, False, log_readable=False)[0] if False else None
+        finally:
+            keepalive.onepassword_tail = original_tail
 
     def test_backoff_and_reset(self):
         log = keepalive.Log(Path(self.temp.name) / 'logs')

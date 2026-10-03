@@ -155,8 +155,10 @@ Two JSONL logs live in `~/Library/Logs/op-broker/` (mode 600):
   values and any `key=value` argument are redacted), the optional
   `OP_BROKER_CALLER` label from the caller's environment, exit code and
   duration. Never the environment, output or secrets.
-- `keepalive-YYYY-MM.jsonl`: keepalive calls with status (`ok`,
-  `ok_prompted`, `prompt_timeout`, `broker_unavailable`, `error`), app
+- `keepalive-YYYY-MM.jsonl`: keepalive calls with status (`ok`, `ok_queued`
+  for a call that waited behind an agent command, `ok_prompted` when
+  1Password logged a Touch ID challenge during the call, `prompt_timeout`,
+  `broker_unavailable`, `error`), app
   relaunches, lock and console transitions, nudges and backoff resets.
 
 `bin/op-audit` summarizes both plus 1Password's own Touch ID challenges, and
