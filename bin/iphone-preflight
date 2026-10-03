@@ -1,0 +1,208 @@
+#!/usr/bin/python3
+"""iphone-preflight: verify Taylor's iPhone is really ready for automation.
+
+Run this whenever Taylor says the phone is tethered and ready, before any
+phone-driving work. It checks the things that silently break a session later,
+and by default fixes the one it can fix:
+
+  tether     the phone is paired and visible to devicectl
+  devmode    Developer Mode is on
+  unlocked   the phone is unlocked (WebDriverAgent cannot start otherwise)
+  appium     an Appium server answers on $APPIUM (default 127.0.0.1:4723)
+  session    a WebDriverAgent session exists (reused from $IPHONE_SESSION or
+             the sid file, otherwise created; XCTest code 1000 gets Runner's
+             testmanagerd remedy once)
+  lowpower   Low Power Mode is OFF. Low Power Mode overrides Auto-Lock Never
+             with a 30 second lock, which kills WebDriverAgent mid-task.
+             If it is on, the script turns it off through Settings > Battery
+             (pass --no-fix to only report).
+
+The session it creates is left alive and its id is written to the sid file so
+the caller can keep using it. Nothing here touches personal apps or data.
+"""
+import argparse
+import base64
+import json
+import os
+import subprocess
+import sys
+import time
+import urllib.error
+import urllib.request
+from pathlib import Path
+
+UDID = "00008110-001451690A21801E"
+DEVICE_ID = "EFF7037C-94D3-5222-AB4A-770D3AB5BBC9"
+APPIUM = os.environ.get("APPIUM", "http://127.0.0.1:4723")
+SID_FILE = Path(os.environ.get("IPHONE_SID_FILE", Path.home() / ".local/state/iphone/session.id"))
+CAPS = {"capabilities": {"alwaysMatch": {
+    "platformName": "iOS", "appium:automationName": "XCUITest", "appium:udid": UDID,
+    "appium:xcodeOrgId": "888VQR2KSK", "appium:xcodeSigningId": "Apple Development",
+    "appium:updatedWDABundleId": "com.dev.kudos.fit.WebDriverAgentRunner",
+    "appium:allowProvisioningDeviceRegistration": True, "appium:noReset": True,
+    "appium:newCommandTimeout": 86400, "appium:wdaLaunchTimeout": 240000,
+    "appium:wdaConnectionTimeout": 240000}}}
+SETTINGS = "com.apple.Preferences"
+LPM = "type == 'XCUIElementTypeSwitch' AND label == 'Low Power Mode'"
+
+
+def http(method, url, body=None, timeout=300):
+    data = json.dumps(body).encode() if body is not None else None
+    req = urllib.request.Request(url, data=data, method=method,
+                                 headers={"content-type": "application/json"})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return json.loads(resp.read() or b"{}")
+    except urllib.error.HTTPError as exc:
+        try:
+            return json.loads(exc.read())
+        except ValueError:
+            return {"value": {"error": f"http {exc.code}"}}
+    except (urllib.error.URLError, TimeoutError, OSError) as exc:
+        return {"value": {"error": str(exc)}}
+
+
+def devicectl(*args):
+    proc = subprocess.run(["/usr/bin/xcrun", "devicectl", *args], capture_output=True, text=True)
+    return proc.stdout + proc.stderr
+
+
+def check_device():
+    usb = subprocess.run(["/opt/homebrew/bin/idevice_id", "-l"], capture_output=True, text=True).stdout
+    paired = UDID in usb
+    lock = devicectl("device", "info", "lockState", "--device", DEVICE_ID)
+    unlocked = "passcodeRequired: false" in lock
+    dev = subprocess.run([str(Path.home() / ".venvs/dotfiles/bin/pymobiledevice3"), "amfi",
+                          "developer-mode-status"], capture_output=True, text=True).stdout.strip()
+    return paired, unlocked, dev.endswith("true")
+
+
+class Session:
+    def __init__(self, sid):
+        self.sid = sid
+        self.base = f"{APPIUM}/session/{sid}"
+
+    def ok(self):
+        return "sessionId" in str(http("GET", f"{self.base}/status", timeout=15)) or \
+            http("GET", f"{self.base}/window/rect", timeout=15).get("value", {}).get("width")
+
+    def execute(self, script, args):
+        return http("POST", f"{self.base}/execute/sync", {"script": script, "args": [args]}, timeout=60)
+
+    def find(self, predicate):
+        v = http("POST", f"{self.base}/element",
+                 {"using": "-ios predicate string", "value": predicate}, timeout=30).get("value", {})
+        return v.get("ELEMENT") or v.get("element-6066-11e4-a52e-4f735466cecf")
+
+    def attr(self, el, name):
+        return http("GET", f"{self.base}/element/{el}/attribute/{name}", timeout=30).get("value")
+
+    def click(self, el):
+        return http("POST", f"{self.base}/element/{el}/click", {}, timeout=30)
+
+    def screenshot(self, path):
+        data = http("GET", f"{self.base}/screenshot", timeout=30).get("value")
+        if isinstance(data, str):
+            Path(path).write_bytes(base64.b64decode(data))
+            return path
+
+
+def kill_testmanagerd():
+    out = devicectl("device", "info", "processes", "--device", DEVICE_ID)
+    for line in out.splitlines():
+        if "testmanagerd" in line and "xpc" not in line:
+            pid = line.split()[0]
+            devicectl("device", "process", "terminate", "--device", DEVICE_ID, "--pid", pid, "--kill")
+            return pid
+    return None
+
+
+def create_session(log):
+    for attempt in (1, 2):
+        resp = http("POST", f"{APPIUM}/session", CAPS, timeout=330)
+        v = resp.get("value", {})
+        if v.get("sessionId"):
+            return Session(v["sessionId"])
+        msg = str(v.get("message", v.get("error", "")))
+        log.append(f"session create attempt {attempt} failed: {msg[:160]}")
+        if attempt == 1 and ("1000" in msg or "status response" in msg or "automation" in msg):
+            log.append(f"killed testmanagerd pid {kill_testmanagerd()} and retrying once")
+            time.sleep(3)
+            continue
+        break
+    return None
+
+
+def low_power(session, fix, log):
+    session.execute("mobile: terminateApp", {"bundleId": SETTINGS})
+    session.execute("mobile: activateApp", {"bundleId": SETTINGS})
+    time.sleep(2)
+    cell = session.find("label == 'Battery' AND visible == 1")
+    if not cell:
+        session.execute("mobile: scroll", {"predicateString": "label == 'Battery'", "toVisible": True})
+        cell = session.find("label == 'Battery' AND visible == 1")
+    if not cell:
+        log.append("could not find the Battery row in Settings")
+        return None
+    session.click(cell)
+    time.sleep(2)
+    sw = session.find(LPM)
+    if not sw:
+        log.append("could not find the Low Power Mode switch")
+        return None
+    state = session.attr(sw, "value") == "1"
+    if state and fix:
+        session.click(sw)
+        time.sleep(1.5)
+        state = session.attr(session.find(LPM), "value") == "1"
+        log.append("Low Power Mode was ON; turned it off" if not state else "failed to turn Low Power Mode off")
+    session.execute("mobile: pressButton", {"name": "home"})
+    return state
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--no-fix", action="store_true", help="report Low Power Mode, do not change it")
+    ap.add_argument("--sid", help="reuse this WebDriverAgent session id")
+    ap.add_argument("--json", action="store_true", help="machine-readable output only")
+    args = ap.parse_args()
+    log, report = [], {}
+    report["tether"], report["unlocked"], report["devmode"] = check_device()
+    appium_ok = http("GET", f"{APPIUM}/status", timeout=5).get("value", {}).get("ready") is True
+    report["appium"] = appium_ok
+    session = None
+    if appium_ok:
+        for sid in (args.sid, os.environ.get("IPHONE_SESSION"),
+                    SID_FILE.read_text().strip() if SID_FILE.exists() else None):
+            if sid and Session(sid).ok():
+                session = Session(sid)
+                log.append(f"reusing session {sid}")
+                break
+        if session is None:
+            if not report["unlocked"]:
+                log.append("phone is locked: WebDriverAgent cannot start; ask Taylor to unlock it")
+            else:
+                session = create_session(log)
+                if session:
+                    SID_FILE.parent.mkdir(parents=True, exist_ok=True)
+                    SID_FILE.write_text(session.sid + "\n")
+                    log.append(f"created session {session.sid} (saved to {SID_FILE})")
+    report["session"] = session.sid if session else None
+    report["low_power_mode"] = low_power(session, not args.no_fix, log) if session else None
+    report["notes"] = log
+    ready = all([report["tether"], report["unlocked"], report["devmode"], report["appium"],
+                 report["session"], report["low_power_mode"] is False])
+    report["ready"] = ready
+    if args.json:
+        print(json.dumps(report))
+    else:
+        for k in ("tether", "devmode", "unlocked", "appium", "session", "low_power_mode"):
+            print(f"{k:16} {report[k]}")
+        for n in log:
+            print(f"  - {n}")
+        print("READY" if ready else "NOT READY")
+    return 0 if ready else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
