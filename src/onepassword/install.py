@@ -84,7 +84,7 @@ def install_agents(home):
         if stale.is_symlink() or stale.exists():
             stale.unlink()
     endpoint = home / 'Library/Caches/com.taylor.op-agent/agent.sock'
-    for _ in range(50):
+    for _ in range(200):  # a restart can take several seconds to tear down and relaunch
         if endpoint.exists():
             break
         time.sleep(0.1)

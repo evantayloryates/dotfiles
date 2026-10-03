@@ -203,8 +203,9 @@ def keepalive_call(account, notify_enabled, log_readable=True):
                 _, err = proc.communicate()
                 break
     seconds = round(time.monotonic() - started, 2)
-    if not prompted and seconds > PROMPT_SECONDS:
-        prompted = bool(challenges_since(stamp)) if log_readable else True
+    if not prompted and seconds > 1.0:
+        # A fast approval can finish inside PROMPT_SECONDS; the log still knows.
+        prompted = bool(challenges_since(stamp)) if log_readable else seconds > PROMPT_SECONDS
     detail = (err or b"").decode("utf-8", "replace").strip().splitlines()
     detail = detail[-1][:120] if detail else ""
     if proc.returncode == 0:
