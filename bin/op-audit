@@ -1,0 +1,186 @@
+#!/usr/bin/python3
+"""op-audit: who used the shared 1Password CLI session, and what prompted.
+
+  op-audit                 summary of the last 24 hours
+  op-audit --since 7d      summary of the last 7 days (s, m, h, d suffixes)
+  op-audit status          broker, 1Password app, keepalive state right now
+  op-audit tail [N]        last N raw request records (default 20)
+  op-audit --json          machine-readable summary
+
+Sources: ~/Library/Logs/op-broker/requests-*.jsonl (every broker request:
+caller process chain, cwd, sanitized args, exit, duration),
+~/Library/Logs/op-broker/keepalive-*.jsonl (keepalive and app watchdog events)
+and 1Password's own log (each Touch ID challenge). A challenge is attributed to
+the request that started within three seconds before it.
+"""
+import collections
+import datetime as dt
+import json
+import os
+import re
+import sys
+from pathlib import Path
+
+LOGS = Path.home() / "Library/Logs/op-broker"
+STATE = Path.home() / "Library/Caches/com.taylor.op-keepalive/state.json"
+BROKER = Path.home() / "Library/Caches/com.taylor.op-agent/status.json"
+ONEPASSWORD_LOGS = Path.home() / ("Library/Group Containers/2BUA8C4S2C.com.1password/"
+                                  "Library/Application Support/1Password/Data/logs")
+AGENT_NAMES = ("claude", "codex", "node", "zsh", "bash", "python", "cursor")
+
+
+def parse_since(text):
+    match = re.fullmatch(r"(\d+)([smhd])", text)
+    if not match:
+        raise SystemExit("--since wants e.g. 90m, 24h, 7d")
+    value, unit = int(match.group(1)), match.group(2)
+    return dt.timedelta(**{{"s": "seconds", "m": "minutes", "h": "hours", "d": "days"}[unit]: value})
+
+
+def parse_ts(text):
+    for fmt in ("%Y-%m-%dT%H:%M:%S%z", "%Y-%m-%dT%H:%M:%S.%f%z"):
+        try:
+            return dt.datetime.strptime(text, fmt)
+        except ValueError:
+            continue
+    return None
+
+
+def jsonl(pattern, since):
+    rows = []
+    for path in sorted(LOGS.glob(pattern)):
+        for line in path.read_text(errors="replace").splitlines():
+            try:
+                row = json.loads(line)
+            except ValueError:
+                continue
+            ts = parse_ts(row.get("ts", ""))
+            if ts and ts >= since:
+                row["_ts"] = ts
+                rows.append(row)
+    return rows
+
+
+def challenges(since):
+    out = []
+    for path in sorted(ONEPASSWORD_LOGS.glob("*.log"), key=lambda p: p.stat().st_mtime)[-6:]:
+        for line in path.read_text(errors="replace").splitlines():
+            if "System unlock proceeding" not in line:
+                continue
+            match = re.match(r"\S+\s+(\S+)", line)
+            ts = parse_ts(match.group(1)) if match else None
+            if ts and ts >= since:
+                out.append(ts)
+    return sorted(out)
+
+
+def who(row):
+    if row.get("caller"):
+        return row["caller"]
+    for name in row.get("chain", [])[1:]:
+        low = name.lower()
+        if any(a in low for a in AGENT_NAMES):
+            return name
+    return row.get("chain", ["?"])[-1] if row.get("chain") else "?"
+
+
+def account_of(row):
+    args = row.get("args", [])
+    for i, arg in enumerate(args):
+        if arg == "--account" and i + 1 < len(args):
+            return args[i + 1]
+        if arg.startswith("--account="):
+            return arg.split("=", 1)[1]
+    return "(default)"
+
+
+def summary(since):
+    requests = jsonl("requests-*.jsonl", since)
+    keep = jsonl("keepalive-*.jsonl", since)
+    prompts = challenges(since)
+    by_caller = collections.Counter(who(r) for r in requests)
+    by_account = collections.Counter(account_of(r) for r in requests)
+    by_command = collections.Counter(" ".join(r.get("args", [])[:2]) for r in requests)
+    failures = [r for r in requests if r.get("exit") not in (0, None)]
+    attributed = []
+    for ts in prompts:
+        hit = None
+        for r in requests:
+            start = r["_ts"] - dt.timedelta(milliseconds=r.get("ms", 0))
+            if dt.timedelta(0) <= ts - start <= dt.timedelta(seconds=3):
+                hit = r
+                break
+        attributed.append({"at": ts.astimezone().strftime("%m-%d %H:%M:%S"),
+                           "caller": who(hit) if hit else "not a broker request (app unlock, settings, other)",
+                           "args": " ".join(hit.get("args", [])[:3]) if hit else ""})
+    kcalls = [k for k in keep if k.get("event") == "keepalive"]
+    kstat = collections.Counter(k.get("status") for k in kcalls)
+    events = collections.Counter(k.get("event") for k in keep if k.get("event") != "keepalive")
+    return {"since": since.astimezone().strftime("%Y-%m-%d %H:%M"), "requests": len(requests),
+            "by_caller": by_caller.most_common(), "by_account": by_account.most_common(),
+            "by_command": by_command.most_common(12), "failures": len(failures),
+            "touch_id_prompts": len(prompts), "prompts": attributed,
+            "keepalive_calls": kstat.most_common(), "keepalive_events": events.most_common()}
+
+
+def print_summary(s):
+    print(f"since {s['since']}: {s['requests']} broker requests, {s['failures']} non-zero exits, "
+          f"{s['touch_id_prompts']} Touch ID prompts")
+    print("by caller:   " + ", ".join(f"{k} {v}" for k, v in s["by_caller"]) or "none")
+    print("by account:  " + ", ".join(f"{k} {v}" for k, v in s["by_account"]))
+    print("commands:    " + ", ".join(f"{k or '(none)'} {v}" for k, v in s["by_command"]))
+    print("keepalive:   " + (", ".join(f"{k} {v}" for k, v in s["keepalive_calls"]) or "no calls") +
+          ("; events " + ", ".join(f"{k} {v}" for k, v in s["keepalive_events"]) if s["keepalive_events"] else ""))
+    if s["prompts"]:
+        print("prompts:")
+        for p in s["prompts"]:
+            print(f"  {p['at']}  {p['caller']}  {p['args']}")
+
+
+def status():
+    out = {}
+    try:
+        broker = json.loads(BROKER.read_text())
+        os.kill(broker["pid"], 0)
+        out["broker"] = f"alive pid {broker['pid']} on {broker['tty']}"
+    except (OSError, ValueError, KeyError):
+        out["broker"] = "NOT RUNNING"
+    try:
+        state = json.loads(STATE.read_text())
+        age = (dt.datetime.now(dt.timezone.utc) - parse_ts(state["updated"])).total_seconds()
+        out["keepalive"] = f"state {int(age)}s old; app_locked={state['app_locked']} console_locked={state['console_locked']}"
+        for a in state["accounts"]:
+            out[f"account {a['label']}"] = f"last_ok={a['last_ok']} last_prompt={a['last_prompt']} status={a['last_status']} interval={int(a['interval'] / 60)}m"
+    except (OSError, ValueError, KeyError, TypeError):
+        out["keepalive"] = "no state file (not running yet?)"
+    for k, v in out.items():
+        print(f"{k:18} {v}")
+
+
+def main(argv):
+    args = [a for a in argv[1:]]
+    since = dt.datetime.now(dt.timezone.utc) - dt.timedelta(hours=24)
+    as_json = False
+    if "--since" in args:
+        i = args.index("--since")
+        since = dt.datetime.now(dt.timezone.utc) - parse_since(args[i + 1])
+        del args[i:i + 2]
+    if "--json" in args:
+        as_json = True
+        args.remove("--json")
+    cmd = args[0] if args else "summary"
+    if cmd == "status":
+        return status()
+    if cmd == "tail":
+        n = int(args[1]) if len(args) > 1 else 20
+        rows = jsonl("requests-*.jsonl", dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=62))[-n:]
+        for r in rows:
+            print(f"{r['ts']} exit={r.get('exit')} {r.get('ms', 0):>6}ms {who(r):<10} {' '.join(r.get('args', []))}  [{'<'.join(r.get('chain', []))}]")
+        return 0
+    s = summary(since)
+    print(json.dumps(s, indent=1, default=str) if as_json else print_summary(s))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv) or 0)

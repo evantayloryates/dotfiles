@@ -17,7 +17,7 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 sys.dont_write_bytecode = True
 sys.path.insert(0, str(HERE))
-from op_agent import client
+from op_agent import client, sanitize_args
 from install import install_shells, LINE
 
 FAKE = '''#!/usr/bin/python3
@@ -52,7 +52,8 @@ class BrokerTests(unittest.TestCase):
         fake = self.root / 'fake-op'
         fake.write_text(FAKE)
         fake.chmod(0o700)
-        self.service = subprocess.Popen(['/usr/bin/python3', '-B', str(HERE / 'op_agent.py'), 'serve', '--runtime', str(self.runtime), '--executable', str(fake)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.logs = self.root / 'logs'
+        self.service = subprocess.Popen(['/usr/bin/python3', '-B', str(HERE / 'op_agent.py'), 'serve', '--runtime', str(self.runtime), '--executable', str(fake), '--logs', str(self.logs)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.clients = []
         self.wait_for(self.runtime / 'status.json')
 
@@ -99,6 +100,28 @@ class BrokerTests(unittest.TestCase):
         self.assertEqual(first['umask'], 0o027)
         self.assertEqual(self.runtime.stat().st_mode & 0o777, 0o700)
         self.assertEqual((self.runtime / 'agent.sock').stat().st_mode & 0o777, 0o600)
+
+    def test_audit_log_records_caller_without_secrets(self):
+        env = dict(os.environ, OP_BROKER_CALLER='unit-test', OP_SERVICE_ACCOUNT_TOKEN='ops_secret_value')
+        proc = self.start(['item', 'edit', 'My Item', 'password=hunter2', '--account', 'ACCT', '--session', 'tok', '--vault=Private'], env=env)
+        proc.communicate(timeout=5)
+        files = list(self.logs.glob('requests-*.jsonl'))
+        self.assertEqual(len(files), 1)
+        self.assertEqual(oct(files[0].stat().st_mode & 0o777), '0o600')
+        record = json.loads(files[0].read_text().splitlines()[-1])
+        self.assertEqual(record['args'], ['item', 'edit', 'My Item', 'password=<redacted>', '--account', 'ACCT', '--session', '<redacted>', '--vault=Private'])
+        self.assertEqual(record['caller'], 'unit-test')
+        self.assertEqual(record['cwd'], os.getcwd())
+        self.assertIn('Python', ''.join(record['chain']))
+        self.assertIn('exit', record)
+        self.assertNotIn('ops_secret_value', files[0].read_text())
+        self.assertNotIn('hunter2', files[0].read_text())
+        self.assertNotIn('env', record)
+
+    def test_sanitize_args_rules(self):
+        self.assertEqual(sanitize_args(['read', 'op://Private/Item/password']), ['read', 'op://Private/Item/password'])
+        self.assertEqual(sanitize_args(['--format=json', 'x=1', '--token', 'abc']), ['--format=json', 'x=<redacted>', '--token', '<redacted>'])
+        self.assertEqual(sanitize_args(['run', '--env-file=.env', '--', 'cmd', 'A=B']), ['run', '--env-file=.env', '--', 'cmd', 'A=<redacted>'])
 
     def test_binary_stdio_and_exit_code(self):
         proc = self.start(['streams'])

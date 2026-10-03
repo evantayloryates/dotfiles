@@ -13,7 +13,7 @@ from build_app import APP, build, needs_build
 LINE = '. "$HOME/dotfiles/src/path/overrides.sh"'
 MARKER = '# Dotfiles executable overrides (interactive, scripts and agent shells).'
 ROOT = Path(__file__).resolve().parents[2]
-LABELS = ('com.taylor.dotfiles-path', 'com.taylor.op-agent')
+LABELS = ('com.taylor.dotfiles-path', 'com.taylor.op-agent', 'com.taylor.op-keepalive')
 
 
 def add_hook(path):
@@ -77,6 +77,8 @@ def install_agents(home):
         if not loaded:
             subprocess.run(['/bin/launchctl', 'bootstrap', domain, str(target)], check=True, capture_output=True)
     subprocess.run(['/bin/sh', str(ROOT / 'src/launchd/export-dotfiles-path.sh')], check=True)
+    # The keepalive runs straight from the checkout; restart it so code changes apply.
+    subprocess.run(['/bin/launchctl', 'kickstart', '-k', domain + '/com.taylor.op-keepalive'], capture_output=True)
     endpoint = home / 'Library/Caches/com.taylor.op-agent/agent.sock'
     for _ in range(50):
         if endpoint.exists():

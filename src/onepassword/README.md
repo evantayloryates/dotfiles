@@ -19,8 +19,10 @@ https://developer.apple.com/documentation/security/accessing-files-from-the-maco
 
 1Password remains responsible for authorization: ten minutes of inactivity,
 a twelve-hour maximum, and revocation when the desktop app locks. There are no
-keepalive vault reads, stored session tokens, service accounts, or secret cache.
-See https://www.1password.dev/cli/app-integration-security.
+stored session tokens, service accounts, or secret cache. A metadata-only
+keepalive (below) stops the ten-minute window from expiring while the app is
+unlocked; it never reads an item. See
+https://www.1password.dev/cli/app-integration-security.
 
 ## Install
 
@@ -114,12 +116,63 @@ the long-running MCP in `op run`, which would occupy the shared serial queue.
 - If the broker is unavailable, the wrapper exits 125 and gives a repair hint.
   It never silently falls back to an independently authorized terminal session.
 
+## Keepalive, app watchdog and audit log
+
+`com.taylor.op-keepalive` runs `src/onepassword/keepalive.py` from login
+(`RunAtLoad`, `KeepAlive`). Every 20 seconds it relaunches the 1Password
+desktop app in the background if it is not running (the CLI integration needs
+it), reads the app lock state from 1Password's own log, and, when the app and
+the Mac console are unlocked, makes one `op vault list --account <id>` call
+per configured account whenever that account's last successful call is older
+than the interval (default 7 minutes). While 1Password's authorization is valid
+the call is silent and extends the ten-minute inactivity window. When it is not
+(login, app relaunch, app lock, the twelve-hour cap) the call raises the Touch
+ID prompt immediately and a notification says it is the keepalive's, so the
+prompt happens while Taylor is at the Mac rather than when an agent needs a
+secret. While the app or console is locked nothing is attempted; once per lock
+episode the app is brought forward so its unlock screen is visible. After an
+unanswered prompt (`authorization timeout`) the interval doubles up to 30
+minutes until the next unlock event resets it.
+
+Config lives outside the repo in `~/.config/op-keepalive.json`:
+
+```json
+{"accounts": [{"id": "<user id or email>", "label": "personal"}],
+ "interval_minutes": 7, "notify": true}
+```
+
+Use account user ids or emails, not `my.1password.com`: the URL matches every
+account on that server and `op` refuses an ambiguous `--account`.
+
+Tradeoff: an unlocked 1Password now keeps the CLI authorized for up to twelve
+hours instead of ten idle minutes. The audit log is the compensating control.
+Two JSONL logs live in `~/Library/Logs/op-broker/` (mode 600):
+
+- `requests-YYYY-MM.jsonl`: one line per broker request with timestamp, caller
+  pid and process chain, cwd, sanitized arguments (`--session`/`--token`
+  values and any `key=value` argument are redacted), the optional
+  `OP_BROKER_CALLER` label from the caller's environment, exit code and
+  duration. Never the environment, output or secrets.
+- `keepalive-YYYY-MM.jsonl`: keepalive calls with status (`ok`,
+  `ok_prompted`, `prompt_timeout`, `broker_unavailable`, `error`), app
+  relaunches, lock and console transitions, nudges and backoff resets.
+
+`bin/op-audit` summarizes both plus 1Password's own Touch ID challenges, and
+attributes each challenge to the request that triggered it:
+
+```sh
+op-audit                 # last 24 h: requests by caller/account/command, prompts
+op-audit --since 7d      # longer window; --json for machine output
+op-audit status          # broker, keepalive state, last ok/prompt per account
+op-audit tail 50         # raw recent request records
+```
+
 ## Runtime and maintenance
 
 Runtime files live in `~/Library/Caches/com.taylor.op-agent/`: a lock, socket,
 and non-secret status metadata (PID, session ID, TTY, executable path).
-LaunchAgent symlinks live in `~/Library/LaunchAgents/` and point at the two
-tracked plist files in `src/launchd/`. Native source and Info.plist are in
+LaunchAgent symlinks live in `~/Library/LaunchAgents/` and point at the three
+tracked plist files in `src/launchd/` (PATH export, broker, keepalive). Native source and Info.plist are in
 `src/onepassword/app/`; `build_app.py` builds and signs them into ignored
 `data/op-agent/`, with a sealed copy of the Python worker as an app resource.
 Runtime state and generated binaries are not source controlled.
@@ -158,8 +211,9 @@ Tests launch isolated brokers with a fake `op`, and use temporary HOME
 folders for shell startup checks. They never open vaults or request biometrics.
 They cover persistent terminal identity, request isolation, cwd/umask,
 binary streams, cancellation/disconnection, queue cancellation, nested calls,
-singleton locking, malformed requests, unavailable service, installer
-idempotence, and shell PATH precedence. Real Touch ID reuse must additionally
+singleton locking, malformed requests, unavailable service, the audit log's
+redaction, keepalive call classification and backoff, installer idempotence,
+and shell PATH precedence. Real Touch ID reuse must additionally
 be checked against the installed 1Password desktop app. Verify macOS App Data
 approval separately: subsequent calls in one app lifetime should not prompt,
 whereas the first call after an unchanged app restart does prompt by design.

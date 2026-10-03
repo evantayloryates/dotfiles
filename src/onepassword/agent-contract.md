@@ -13,11 +13,20 @@ advertised.
   credential-request connector or cached token when the broker refuses.
   Browser autofill is a separate route only when Taylor explicitly requests it;
   it is never an implicit fallback for a failed broker lookup.
-- Establish account and vault before item access. Pass `--account` explicitly;
-  pass `--vault` for item commands, or use a verified `op://<vault>/<item>/<field>`
-  reference. Accounts include `my.1password.com` and
-  `kudos-fit.1password.com`. A work-named vault may live in the personal account:
-  verify ownership rather than deriving the account from the item's name.
+- Establish account and vault before item access. Pass `--account` explicitly
+  as a user id or email, never a server URL: `my.1password.com` now matches
+  more than one account and `op` rejects it. Taylor's personal account is
+  `7VFHSPIKIVERNPF7AU5VCUIJII` (evantayloryates@gmail.com); the work account
+  is `YYCSREIJUREUJCH7KKCUZCGSZA` on `kudos-fit.1password.com`. Pass `--vault`
+  for item commands, or use a verified `op://<vault>/<item>/<field>` reference.
+  A work-named vault may live in the personal account: verify ownership rather
+  than deriving the account from the item's name.
+- A keepalive agent keeps the session authorized while 1Password is unlocked,
+  so a Touch ID prompt during agent work is unexpected. If one appears, do not
+  retry in a loop: run `op-audit status`, report it, and wait. Every broker
+  request is audit-logged (caller process chain, cwd, sanitized arguments).
+  Set `OP_BROKER_CALLER=<session or task name>` in the environment of your
+  `op` calls so the log names you.
 - Prefer short `op run` consumers and `op inject` with references. Capture
   `op read` privately only when a script must pass a value directly to its
   intended consumer. Do not print secrets, entire item JSON, environment dumps,
