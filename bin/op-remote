@@ -1,0 +1,273 @@
+#!/usr/bin/python3
+"""op-remote: unblock a 1Password-stuck agent from a phone over SSH (PoC).
+
+Subcommands
+  status            broker, 1Password app, Mac screen lock, pending prompt
+  watch [seconds]   print a line whenever 1Password starts a Touch ID challenge
+  inspect           dump the accessibility tree of every 1Password window
+  approve           satisfy a pending 1Password prompt with a password typed
+                    on this terminal (never stored, never echoed, never logged)
+
+Nothing here reads vault data. The password typed into `approve` goes from the
+SSH tty straight into the 1Password dialog through System Events and is then
+dropped. Any process running as this user could observe that hand-off; that is
+the broker's existing trust boundary.
+"""
+import getpass
+import json
+import os
+import re
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+LOG_DIR = Path.home() / ("Library/Group Containers/2BUA8C4S2C.com.1password/"
+                         "Library/Application Support/1Password/Data/logs")
+BROKER_STATUS = Path.home() / "Library/Caches/com.taylor.op-agent/status.json"
+CHALLENGE = "System unlock proceeding"
+RESOLVED = ("NoAccountsToUnlock", "Lock state changed: Unlocked",
+            "System unlock failed", "NoNewAccountsUnlocked")
+
+
+def osascript(script, env=None):
+    proc = subprocess.run(["/usr/bin/osascript", "-"], input=script, text=True,
+                          capture_output=True, env=env or os.environ)
+    if proc.returncode:
+        raise RuntimeError(proc.stderr.strip() or "osascript failed")
+    return proc.stdout.strip()
+
+
+def log_lines(max_bytes=400_000):
+    """Recent 1Password log lines, oldest first (timestamps are UTC)."""
+    files = sorted(LOG_DIR.glob("*.log"), key=lambda p: p.stat().st_mtime)[-2:]
+    out = []
+    for f in files:
+        data = f.read_bytes()[-max_bytes:].decode("utf-8", "replace")
+        out.extend(l for l in data.splitlines() if l[:4] in ("INFO", "WARN", "ERRO"))
+    return out
+
+
+def parse_ts(line):
+    m = re.match(r"\S+\s+(\S+)", line)
+    return m.group(1) if m else ""
+
+
+def app_state():
+    """Lock state and latest challenge, derived from the 1Password log."""
+    state = {"running": False, "locked": None, "last_challenge": None,
+             "challenge_pending": False, "last_lock_reason": None}
+    try:
+        state["running"] = bool(subprocess.run(["/usr/bin/pgrep", "-x", "1Password"],
+                                               capture_output=True).stdout.strip())
+    except OSError:
+        pass
+    pending = None
+    for line in log_lines():
+        if "Lock state changed: Locked" in line or "Client starting" in line:
+            state["locked"] = True
+        elif "Lock state changed: Unlocked" in line or "unlock succeeded" in line:
+            state["locked"] = False
+        if "Locked. Reason:" in line:
+            state["last_lock_reason"] = line.split("Reason:")[-1].strip(" .")
+        if CHALLENGE in line:
+            pending = parse_ts(line)
+            state["last_challenge"] = pending
+        elif pending and any(r in line for r in RESOLVED):
+            pending = None
+    state["challenge_pending"] = pending is not None
+    return state
+
+
+def screen_locked():
+    try:
+        out = subprocess.run(["/usr/sbin/ioreg", "-n", "Root", "-d1"], capture_output=True,
+                             text=True).stdout
+        m = re.search(r'"IOConsoleLocked" = (Yes|No)', out)
+        return None if not m else m.group(1) == "Yes"
+    except OSError:
+        return None
+
+
+AX_DUMP = '''
+tell application "System Events"
+  set out to ""
+  repeat with p in (processes whose name contains "1Password")
+    repeat with w in windows of p
+      set out to out & "WINDOW\t" & (name of p) & "\t" & (name of w as text) & linefeed
+      try
+        repeat with e in entire contents of w
+          try
+            set r to role of e
+            if r is in {"AXButton", "AXStaticText", "AXTextField", "AXSecureTextField", "AXLink", "AXCheckBox", "AXPopUpButton", "AXMenuButton"} then
+              set t to ""
+              try
+                set t to title of e as text
+              end try
+              set d to ""
+              try
+                set d to description of e as text
+              end try
+              set v to ""
+              try
+                if r is not "AXSecureTextField" then set v to value of e as text
+              end try
+              set out to out & r & "\t" & t & "\t" & d & "\t" & v & linefeed
+            end if
+          end try
+        end repeat
+      end try
+    end repeat
+  end repeat
+  return out
+end tell
+'''
+
+
+def ax_windows():
+    rows = []
+    for line in osascript(AX_DUMP).splitlines():
+        parts = line.split("\t")
+        if parts and parts[0]:
+            rows.append(parts)
+    return rows
+
+
+def pending_prompt(rows):
+    """Heuristic: a 1Password window that asks for authorization or unlock."""
+    windows, current = [], None
+    for r in rows:
+        if r[0] == "WINDOW":
+            current = {"process": r[1], "title": r[2], "elements": []}
+            windows.append(current)
+        elif current is not None:
+            current["elements"].append(r)
+    hits = []
+    for w in windows:
+        text = " ".join(" ".join(e[1:]) for e in w["elements"]).lower()
+        if any(k in text for k in ("access requested", "authorize", "unlock", "account password")):
+            hits.append(w)
+    return hits
+
+
+def cmd_status():
+    broker = None
+    try:
+        broker = json.loads(BROKER_STATUS.read_text())
+        os.kill(broker["pid"], 0)
+        broker["alive"] = True
+    except (OSError, ValueError, KeyError):
+        broker = {"alive": False}
+    state = app_state()
+    state["screen_locked"] = screen_locked()
+    try:
+        prompts = pending_prompt(ax_windows())
+        state["prompt_windows"] = [{"process": p["process"], "title": p["title"],
+                                    "buttons": [e[1] or e[2] for e in p["elements"] if e[0] == "AXButton"],
+                                    "secure_fields": sum(e[0] == "AXSecureTextField" for e in p["elements"])}
+                                   for p in prompts]
+    except RuntimeError as exc:
+        state["prompt_windows"] = f"accessibility unavailable: {exc}"
+    print(json.dumps({"broker": broker, "onepassword": state}, indent=2))
+    return 0
+
+
+def cmd_watch(seconds=600):
+    seen = set(parse_ts(l) for l in log_lines() if CHALLENGE in l)
+    deadline = time.monotonic() + seconds
+    print(f"watching 1Password for Touch ID challenges for {seconds}s; Ctrl-C to stop", flush=True)
+    while time.monotonic() < deadline:
+        for line in log_lines(60_000):
+            if CHALLENGE in line and parse_ts(line) not in seen:
+                seen.add(parse_ts(line))
+                print(f"\a{parse_ts(line)} PROMPT PENDING on the Mac; run: op-remote approve", flush=True)
+        time.sleep(2)
+    return 0
+
+
+def cmd_inspect():
+    for r in ax_windows():
+        print(" | ".join(r))
+    return 0
+
+
+FILL_SECURE = '''
+tell application "System Events"
+  repeat with p in (processes whose name contains "1Password")
+    repeat with w in windows of p
+      try
+        set f to first secure text field of (entire contents of w)
+      on error
+        try
+          set f to item 1 of (secure text fields of w)
+        on error
+          set f to missing value
+        end try
+      end try
+      if f is not missing value then
+        set frontmost of p to true
+        set focused of f to true
+        set value of f to (system attribute "OP_REMOTE_SECRET")
+        delay 0.2
+        key code 36
+        return "filled:" & (name of w as text)
+      end if
+    end repeat
+  end repeat
+  return "no-secure-field"
+end tell
+'''
+
+
+def cmd_approve():
+    if screen_locked():
+        print("The Mac screen is locked. 1Password dialogs cannot be driven until it is unlocked "
+              "(Screen Sharing, or keep the Mac awake while agents run).", file=sys.stderr)
+        return 3
+    prompts = pending_prompt(ax_windows())
+    if not prompts:
+        print("No pending 1Password prompt window found. Run `op-remote status`.", file=sys.stderr)
+        return 2
+    for p in prompts:
+        buttons = [e[1] or e[2] for e in p["elements"] if e[0] == "AXButton"]
+        secure = [e for e in p["elements"] if e[0] == "AXSecureTextField"]
+        print(f"prompt: {p['title']!r} buttons={buttons} secure_fields={len(secure)}")
+    if not any(e[0] == "AXSecureTextField" for p in prompts for e in p["elements"]):
+        print("The prompt currently offers no password field (Touch ID only). "
+              "Discovery needed: cancel Touch ID in the dialog and re-run, or report this "
+              "output so the fallback can be scripted.", file=sys.stderr)
+        return 4
+    if not sys.stdin.isatty():
+        print("approve needs an interactive terminal to read the password.", file=sys.stderr)
+        return 5
+    secret = getpass.getpass("1Password account password (not echoed): ")
+    if not secret:
+        return 1
+    env = dict(os.environ, OP_REMOTE_SECRET=secret)
+    try:
+        result = osascript(FILL_SECURE, env=env)
+    finally:
+        del env, secret
+    print(result)
+    return 0 if result.startswith("filled") else 6
+
+
+def main(argv):
+    cmd = argv[1] if len(argv) > 1 else "status"
+    if cmd == "status":
+        return cmd_status()
+    if cmd == "watch":
+        return cmd_watch(int(argv[2]) if len(argv) > 2 else 600)
+    if cmd == "inspect":
+        return cmd_inspect()
+    if cmd == "approve":
+        return cmd_approve()
+    print(__doc__, file=sys.stderr)
+    return 64
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main(sys.argv))
+    except KeyboardInterrupt:
+        sys.exit(130)
