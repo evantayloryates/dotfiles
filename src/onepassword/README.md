@@ -118,8 +118,10 @@ the long-running MCP in `op run`, which would occupy the shared serial queue.
 
 ## Keepalive, app watchdog and audit log
 
-`com.taylor.op-keepalive` runs `src/onepassword/keepalive.py` from login
-(`RunAtLoad`, `KeepAlive`). Every 20 seconds it relaunches the 1Password
+The broker app host runs `keepalive.py` (sealed into the bundle next to
+`op_agent.py`) as a child from login, restarting it if it dies. Running it
+inside the broker app matters: 1Password's log lives in its group container,
+which macOS only lets the approved broker app read. Every 20 seconds it relaunches the 1Password
 desktop app in the background if it is not running (the CLI integration needs
 it), reads the app lock state from 1Password's own log, and, when the app and
 the Mac console are unlocked, makes one `op vault list --account <id>` call
@@ -171,8 +173,9 @@ op-audit tail 50         # raw recent request records
 
 Runtime files live in `~/Library/Caches/com.taylor.op-agent/`: a lock, socket,
 and non-secret status metadata (PID, session ID, TTY, executable path).
-LaunchAgent symlinks live in `~/Library/LaunchAgents/` and point at the three
-tracked plist files in `src/launchd/` (PATH export, broker, keepalive). Native source and Info.plist are in
+LaunchAgent symlinks live in `~/Library/LaunchAgents/` and point at the two
+tracked plist files in `src/launchd/` (PATH export and broker; the keepalive
+is a child of the broker). Native source and Info.plist are in
 `src/onepassword/app/`; `build_app.py` builds and signs them into ignored
 `data/op-agent/`, with a sealed copy of the Python worker as an app resource.
 Runtime state and generated binaries are not source controlled.

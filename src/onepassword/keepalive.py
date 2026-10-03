@@ -1,7 +1,9 @@
 #!/usr/bin/python3
 """Keep the shared 1Password CLI authorization alive and the desktop app present.
 
-Runs as the LaunchAgent com.taylor.op-keepalive from login. Every tick it:
+Runs as a child of the broker app host (op_agent.py serve) from login, so it
+shares the broker's macOS app-data approval and can read 1Password's log.
+Every tick it:
 
   1. relaunches the 1Password desktop app if it is not running (the CLI's
      app integration cannot work without it), in the background;
@@ -115,7 +117,10 @@ def app_lock_state(lines):
     return state
 
 
-def onepassword_tail(max_bytes=300_000):
+UNREADABLE = []
+
+
+def onepassword_tail(max_bytes=300_000, log=None):
     try:
         files = sorted(ONEPASSWORD_LOGS.glob("*.log"), key=lambda p: p.stat().st_mtime)[-2:]
         text = ""
@@ -123,8 +128,16 @@ def onepassword_tail(max_bytes=300_000):
             with path.open("rb") as handle:
                 handle.seek(max(0, path.stat().st_size - max_bytes))
                 text += handle.read().decode("utf-8", "replace")
+        if not files:
+            raise OSError("no 1Password log files visible")
+        UNREADABLE.clear()
         return text.splitlines()
-    except OSError:
+    except OSError as exc:
+        if not UNREADABLE and log is not None:
+            # Usually macOS app-data permission: the lock state is then unknown
+            # and the keepalive falls back to console state plus backoff.
+            log.event("onepassword_log_unreadable", error=type(exc).__name__)
+        UNREADABLE.append(True)
         return []
 
 
@@ -215,7 +228,7 @@ class Keepalive:
             if console is False and self.console is True:
                 self.reset_backoff("console unlocked")
             self.console = console
-        locked = app_lock_state(onepassword_tail())
+        locked = app_lock_state(onepassword_tail(log=self.log))
         if locked != self.app_locked:
             self.log.event("app_lock", locked=locked)
             if locked is False:

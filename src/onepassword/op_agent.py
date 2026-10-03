@@ -294,7 +294,32 @@ def worker(directory, executable, audit=None):
         status.unlink(missing_ok=True)
 
 
-def serve(directory, executable, logs=None):
+def start_keepalive(logs):
+    """Run keepalive.py as our child so macOS attributes it to the broker app.
+
+    A separate LaunchAgent cannot read 1Password's group container (the lock
+    state source) without its own app-data approval; a child of this app host
+    shares the approval the broker already holds.
+    """
+    script = Path(__file__).resolve().parent / "keepalive.py"
+    if not script.exists():
+        return None
+    stderr = subprocess.DEVNULL
+    if logs is not None:
+        try:
+            logs.mkdir(mode=0o700, parents=True, exist_ok=True)
+            stderr = os.open(str(logs / "keepalive.stderr.log"), os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
+        except OSError:
+            stderr = subprocess.DEVNULL
+    try:
+        return subprocess.Popen([sys.executable, "-B", str(script)], stdin=subprocess.DEVNULL,
+                                stdout=subprocess.DEVNULL, stderr=stderr, close_fds=True)
+    finally:
+        if stderr is not subprocess.DEVNULL:
+            os.close(stderr)
+
+
+def serve(directory, executable, logs=None, keepalive=True):
     os.umask(0o077)
     private_directory(directory, create=True)
     audit = Audit(logs)
@@ -319,19 +344,34 @@ def serve(directory, executable, logs=None):
             pass
     for sig in (signal.SIGTERM, signal.SIGHUP, signal.SIGINT):
         signal.signal(sig, stop)
+    child = start_keepalive(logs) if keepalive else None
+    child_started = time.monotonic()
     try:
         while True:
             try:
-                if not os.read(master, 65536):
+                ready, _, _ = select.select([master], [], [], 30)
+                if ready and not os.read(master, 65536):
                     break
             except OSError as exc:
                 if exc.errno == errno.EIO:
                     break
                 raise
+            # Keep the keepalive alive, except after exit 78 (EX_CONFIG: no
+            # accounts configured), which only a broker restart retries.
+            if child is not None and child.poll() is not None and child.returncode != 78 \
+                    and time.monotonic() - child_started > 10:
+                child = start_keepalive(logs)
+                child_started = time.monotonic()
         _, status = os.waitpid(pid, 0)
         return os.waitstatus_to_exitcode(status)
     finally:
         stop(signal.SIGTERM, None)
+        if child is not None and child.poll() is None:
+            child.terminate()
+            try:
+                child.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                child.kill()
         os.close(master)
         os.close(lock)
 
@@ -407,6 +447,7 @@ def main():
     parser.add_argument("--runtime", type=Path, default=runtime_dir())
     parser.add_argument("--executable", help="Absolute official op path; test doubles are supported for tests")
     parser.add_argument("--logs", type=Path, default=log_dir(), help="Audit log directory (requests-YYYY-MM.jsonl)")
+    parser.add_argument("--no-keepalive", action="store_true", help="Do not run keepalive.py as a child (tests)")
     args = parser.parse_args()
     if args.action == "status":
         private_directory(args.runtime)
@@ -417,7 +458,7 @@ def main():
     executable = args.executable or real_op()
     if not os.path.isabs(executable) or not os.access(executable, os.X_OK):
         parser.error("--executable must be an absolute executable path")
-    return serve(args.runtime, executable, args.logs)
+    return serve(args.runtime, executable, args.logs, keepalive=not args.no_keepalive)
 
 
 if __name__ == "__main__":

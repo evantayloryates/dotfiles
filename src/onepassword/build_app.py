@@ -14,7 +14,7 @@ LSREGISTER = '/System/Library/Frameworks/CoreServices.framework/Frameworks/Launc
 
 def source_hash():
     digest = hashlib.sha256()
-    for path in (ROOT / 'src/onepassword/app/main.m', ROOT / 'src/onepassword/app/Info.plist', ROOT / 'src/onepassword/op_agent.py', Path(__file__)):
+    for path in (ROOT / 'src/onepassword/app/main.m', ROOT / 'src/onepassword/app/Info.plist', ROOT / 'src/onepassword/op_agent.py', ROOT / 'src/onepassword/keepalive.py', Path(__file__)):
         digest.update(path.read_bytes())
     return digest.hexdigest()
 
@@ -34,6 +34,7 @@ def build():
             resources.mkdir()
             shutil.copy2(ROOT / 'src/onepassword/app/Info.plist', bundle / 'Contents/Info.plist')
             shutil.copy2(ROOT / 'src/onepassword/op_agent.py', resources / 'op_agent.py')
+            shutil.copy2(ROOT / 'src/onepassword/keepalive.py', resources / 'keepalive.py')
             subprocess.run(['/usr/bin/xcrun', 'clang', '-fobjc-arc', '-O2', '-framework', 'AppKit', str(ROOT / 'src/onepassword/app/main.m'), '-o', str(macos / 'op-agent-host')], check=True)
             subprocess.run(['/usr/bin/codesign', '--force', '--sign', '-', '--identifier', 'com.taylor.op-agent', str(bundle)], check=True, capture_output=True)
             subprocess.run(['/usr/bin/codesign', '--verify', '--deep', '--strict', str(bundle)], check=True, capture_output=True)
