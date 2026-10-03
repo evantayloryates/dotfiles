@@ -289,6 +289,7 @@ export const OPS = [
     run: async (args, ctx) => {
       const f = focusArg(args)
       const want = args.permission_mode || defaultPermissionMode(args.folder)
+      if (args.group) await ensureGroupId(args.group, ctx) // before any claim or import
       if (want === BYPASS && args.folder && !args.no_project) {
         const pooled = await createFromPool(args, ctx)
         if (pooled) return pooled
@@ -304,7 +305,7 @@ export const OPS = [
       delete out.navigatedTo
       const follow = []
       if (args.lock_title) follow.push({ op: 'set_session_title', args: { session_id: result.sessionId, title: args.title } })
-      if (args.group) follow.push(...(await groupOps(args.group, [result.sessionId])))
+      if (args.group) follow.push(...(await groupOps(args.group, [result.sessionId], ctx)))
       if (args.first_message) follow.push({ op: 'send_message', args: { session_id: result.sessionId, message: args.first_message } })
       if (follow.length) {
         const b = await tierB(ctx, follow, 'titleSource "tool", group set, first turn started')
@@ -489,7 +490,7 @@ export const OPS = [
       }
       const ids = (args.sessions || []).map((s) => resolveSession(s).sessionId)
       if (!ids.length) throw new DriverError('sessions is required for move', { category: 'bad_args' })
-      const ops = args.group === null ? [{ op: 'move_sessions', args: { session_ids: ids, group_id: null } }] : await groupOps(args.group, ids)
+      const ops = args.group === null ? [{ op: 'move_sessions', args: { session_ids: ids, group_id: null } }] : await groupOps(args.group, ids, ctx)
       const b = await tierB(ctx, ops)
       if (b.handback) return b.handback
       const want = args.group === null ? null : readGroups().groups.find((g) => g.id === args.group || g.name === args.group)?.id
@@ -752,7 +753,7 @@ async function createFromPool(args, ctx) {
   ops.push({ op: 'set_session_title', args: { session_id: id, title: args.title } })
   ops.push({ op: 'set_session_model', args: { session_id: id, model } })
   ops.push({ op: 'set_session_effort', args: { session_id: id, effort } })
-  if (args.group) ops.push(...(await groupOps(args.group, [id])))
+  if (args.group) ops.push(...(await groupOps(args.group, [id], ctx)))
   if (args.first_message) ops.push({ op: 'send_message', args: { session_id: id, message: args.first_message } })
   const out = { sessionId: id, via: 'pool', cwd: folder, title: args.title, model, effort, permissionMode: BYPASS, intendedPermissionMode: BYPASS, pooledFrom: pick.priorTitle || null }
   const b = await tierB(ctx, ops, `title "${args.title}" (titleSource "tool"), model ${model}, effort ${effort}, permissionMode bypassPermissions, isArchived false`).catch((err) => {
@@ -765,13 +766,28 @@ async function createFromPool(args, ctx) {
   return { ...out, verified: w.ok, followUps: b.results, ms: b.ms }
 }
 
-async function groupOps(group, sessionIds) {
+// Resolve a group name/id to an id, creating it when missing. A desktop
+// caller cannot be handed a create_group whose id the next op needs, so it is
+// told to create the group itself first; this runs BEFORE any import so a
+// missing group never strands a half-made session (2026-10-03 finding).
+async function ensureGroupId(group, ctx) {
   const g = readGroups().groups.find((x) => x.id === group || x.name === group)
-  if (g) return [{ op: 'move_sessions', args: { session_ids: sessionIds, group_id: g.id } }]
+  if (g) return g.id
+  if (isDesktopCaller() && !['cli', 'probe'].includes(ctx?.harness) && !ctx?.args?.via_broker) {
+    throw new DriverError(
+      `group "${group}" does not exist. You are a desktop session: create it first with mcp__ccd_sidebar__create_group {name: "${group}"}, then call this op again (nothing was created or imported).`,
+      { category: 'bad_args' },
+    )
+  }
   // create_group returns the id; the broker cannot chain it, so create first.
   const r = await viaBroker([{ op: 'create_group', args: { name: group } }], { progress: () => {}, notes: [] })
   const id = checkResults(r)[0].result?.id
   if (!id) throw new DriverError(`could not create group ${group}`, { category: 'tier_b_failed' })
+  return id
+}
+
+async function groupOps(group, sessionIds, ctx) {
+  const id = await ensureGroupId(group, ctx)
   return [{ op: 'move_sessions', args: { session_ids: sessionIds, group_id: id } }]
 }
 
