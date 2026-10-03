@@ -25,10 +25,85 @@ import time
 MAX_REQUEST = 1024 * 1024
 SIGNALS = (signal.SIGINT, signal.SIGTERM, signal.SIGHUP, signal.SIGQUIT)
 LABEL = "com.taylor.op-agent"
+# Flags whose following value is a credential or session token: never logged.
+SECRET_FLAGS = {"--session", "--password", "--secret-key", "--token", "--service-account-token"}
+# Flags whose `--flag=value` form is safe to keep (identifiers, not secrets).
+PLAIN_FLAGS = ("--account", "--vault", "--format", "--fields", "--categories", "--tags", "--env-file")
+# Request env key a caller may set to label itself in the audit log.
+CALLER_TAG = "OP_BROKER_CALLER"
 
 
 def runtime_dir():
     return Path.home() / "Library/Caches/com.taylor.op-agent"
+
+
+def log_dir():
+    return Path.home() / "Library/Logs/op-broker"
+
+
+def sanitize_args(args):
+    """Keep command shape and identifiers; drop anything that could be a secret."""
+    out, hide = [], False
+    for arg in args:
+        if hide:
+            out.append("<redacted>")
+            hide = False
+        elif arg in SECRET_FLAGS:
+            out.append(arg)
+            hide = True
+        elif "=" in arg and not arg.startswith(PLAIN_FLAGS):
+            # `label=value` field assignments and unknown --flag=value forms.
+            out.append(arg.split("=", 1)[0] + "=<redacted>")
+        else:
+            out.append(arg if len(arg) <= 200 else arg[:200] + "...")
+    return out
+
+
+def peer_pid(conn):
+    try:  # SOL_LOCAL / LOCAL_PEERPID on macOS
+        return struct.unpack("i", conn.getsockopt(0, 0x002, 4))[0]
+    except (OSError, struct.error):
+        return None
+
+
+def process_chain(pid, depth=5):
+    """Command names from the caller up through its ancestors (for attribution)."""
+    chain = []
+    for _ in range(depth):
+        if not pid or pid <= 1:
+            break
+        try:
+            out = subprocess.run(["/bin/ps", "-o", "ppid=,comm=", "-p", str(pid)],
+                                 capture_output=True, text=True, timeout=2).stdout.split(None, 1)
+        except (OSError, subprocess.TimeoutExpired):
+            break
+        if len(out) < 2:
+            break
+        chain.append(os.path.basename(out[1].strip()))
+        try:
+            pid = int(out[0])
+        except ValueError:
+            break
+    return chain
+
+
+class Audit:
+    """Append-only JSONL request log. Never contains env, output or secrets."""
+
+    def __init__(self, directory):
+        self.directory = directory
+
+    def write(self, record):
+        if self.directory is None:
+            return
+        try:
+            self.directory.mkdir(mode=0o700, parents=True, exist_ok=True)
+            path = self.directory / ("requests-%s.jsonl" % time.strftime("%Y-%m"))
+            fd = os.open(str(path), os.O_WRONLY | os.O_CREAT | os.O_APPEND | os.O_NOFOLLOW, 0o600)
+            with os.fdopen(fd, "a") as handle:
+                handle.write(json.dumps(record, separators=(",", ":")) + "\n")
+        except (OSError, ValueError, TypeError):
+            pass
 
 
 def real_op():
@@ -152,7 +227,8 @@ def execute(conn, request, fds, executable):
         os.tcsetpgrp(0, os.getpgrp())
 
 
-def worker(directory, executable):
+def worker(directory, executable, audit=None):
+    audit = audit or Audit(None)
     signal.signal(signal.SIGTTOU, signal.SIG_IGN)
     signal.signal(signal.SIGTTIN, signal.SIG_IGN)
     def stop(_sig, _frame):
@@ -184,16 +260,26 @@ def worker(directory, executable):
                     # retains its stdout pipes even after the caller exits.
                     conn.sendall(b"R")
                     request, fds = receive_request(conn)
+                    pid = peer_pid(conn)
+                    record = {"ts": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "pid": pid,
+                              "chain": process_chain(pid), "cwd": request["cwd"],
+                              "args": sanitize_args(request["args"]),
+                              "caller": request["env"].get(CALLER_TAG, "")[:64]}
+                    started = time.monotonic()
                     # A queued caller may already have cancelled or exited.
                     ready, _, _ = select.select([conn], [], [], 0)
                     if ready:
                         conn.sendall(struct.pack("!i", 130))
+                        audit.write(dict(record, exit=130, ms=0, note="cancelled while queued"))
                         continue
                     code = execute(conn, request, fds, executable)
+                    audit.write(dict(record, exit=code, ms=int((time.monotonic() - started) * 1000)))
                     conn.sendall(struct.pack("!i", code))
                 except (OSError, ValueError, KeyError, TypeError, EOFError):
                     # Never include request contents, env, arguments, or exception
                     # reprs in diagnostics; any of these can contain secrets.
+                    audit.write({"ts": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "exit": 125,
+                                 "note": "request failed before or during execution"})
                     try:
                         conn.sendall(struct.pack("!i", 125))
                     except OSError:
@@ -208,9 +294,10 @@ def worker(directory, executable):
         status.unlink(missing_ok=True)
 
 
-def serve(directory, executable):
+def serve(directory, executable, logs=None):
     os.umask(0o077)
     private_directory(directory, create=True)
+    audit = Audit(logs)
     lock = os.open(str(directory / "agent.lock"), os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
     try:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -222,7 +309,7 @@ def serve(directory, executable):
     pid, master = pty.fork()
     if pid == 0:
         try:
-            worker(directory, executable)
+            worker(directory, executable, audit)
         finally:
             os._exit(0)
     def stop(sig, _frame):
@@ -319,6 +406,7 @@ def main():
     parser.add_argument("action", choices=("serve", "status"))
     parser.add_argument("--runtime", type=Path, default=runtime_dir())
     parser.add_argument("--executable", help="Absolute official op path; test doubles are supported for tests")
+    parser.add_argument("--logs", type=Path, default=log_dir(), help="Audit log directory (requests-YYYY-MM.jsonl)")
     args = parser.parse_args()
     if args.action == "status":
         private_directory(args.runtime)
@@ -329,7 +417,7 @@ def main():
     executable = args.executable or real_op()
     if not os.path.isabs(executable) or not os.access(executable, os.X_OK):
         parser.error("--executable must be an absolute executable path")
-    return serve(args.runtime, executable)
+    return serve(args.runtime, executable, args.logs)
 
 
 if __name__ == "__main__":
