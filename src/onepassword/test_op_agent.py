@@ -171,7 +171,7 @@ class BrokerTests(unittest.TestCase):
         self.assertEqual(json.loads(out)['sid'], self.inspect()['sid'])
 
     def test_second_daemon_cannot_replace_socket(self):
-        result = subprocess.run(['/usr/bin/python3', '-B', str(HERE / 'op_agent.py'), 'serve', '--runtime', str(self.runtime), '--executable', str(self.root / 'fake-op')], capture_output=True, timeout=5)
+        result = subprocess.run(['/usr/bin/python3', '-B', str(HERE / 'op_agent.py'), 'serve', '--runtime', str(self.runtime), '--logs', str(self.logs), '--executable', str(self.root / 'fake-op')], capture_output=True, timeout=5)
         self.assertNotEqual(result.returncode, 0)
         self.inspect()
 
