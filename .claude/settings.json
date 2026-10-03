@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "additionalDirectories": [
+      "/Users/taylor",
+      "/private/tmp",
+      "/opt/homebrew",
+      "/Library",
+      "/etc",
+      "/usr/local"
+    ]
+  }
+}
