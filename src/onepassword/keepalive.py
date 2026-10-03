@@ -108,13 +108,20 @@ def console_locked():
 
 def app_lock_state(lines):
     """True locked / False unlocked / None unknown, from 1Password log lines (oldest first)."""
-    state = None
+    return app_lock_info(lines)[0]
+
+
+def app_lock_info(lines):
+    """(state, timestamp of the latest lock event). A lock that came and went between
+    two ticks still revoked the CLI authorization, so the timestamp matters too."""
+    state, last_lock = None, None
     for line in lines:
         if "Lock state changed: Locked" in line or "Client starting" in line:
             state = True
+            last_lock = line.split()[1] if len(line.split()) > 1 else last_lock
         elif "Lock state changed: Unlocked" in line or "unlock succeeded" in line:
             state = False
-    return state
+    return state, last_lock
 
 
 UNREADABLE = []
@@ -195,6 +202,7 @@ class Keepalive:
         self.nudged = False
         self.started = now()
         self.last_relaunch = None
+        self.last_lock = None
 
     def save_state(self):
         try:
@@ -228,7 +236,15 @@ class Keepalive:
             if console is False and self.console is True:
                 self.reset_backoff("console unlocked")
             self.console = console
-        locked = app_lock_state(onepassword_tail(log=self.log))
+        locked, last_lock = app_lock_info(onepassword_tail(log=self.log))
+        if last_lock and last_lock != self.last_lock:
+            if self.last_lock is not None:
+                # A lock happened since the previous tick (even if already undone):
+                # authorization is gone, so re-authorize as soon as the app is open.
+                self.log.event("app_lock_event", at=last_lock)
+                self.reset_backoff("1Password locked since last tick")
+                self.nudged = False
+            self.last_lock = last_lock
         if locked != self.app_locked:
             self.log.event("app_lock", locked=locked)
             if locked is False:

@@ -34,6 +34,32 @@ class LockStateTests(unittest.TestCase):
         self.assertIs(keepalive.app_lock_state(lines), False)
         self.assertIsNone(keepalive.app_lock_state(['INFO unrelated']))
 
+    def test_lock_event_timestamp_survives_quick_unlock(self):
+        lines = ['INFO 2026-10-03T21:40:36.888+00:00 x [1P:lock.rs:237] Lock state changed: Locked',
+                 'INFO 2026-10-03T21:40:42.293+00:00 x [1P:unlock.rs:195] Lock state changed: Unlocked']
+        state, last_lock = keepalive.app_lock_info(lines)
+        self.assertEqual((state, last_lock), (False, '2026-10-03T21:40:36.888+00:00'))
+
+    def test_lock_event_between_ticks_resets_backoff(self):
+        log = keepalive.Log(Path(tempfile.mkdtemp(prefix='op-keepalive-test-', dir='/tmp')) / 'logs')
+        runner = keepalive.Keepalive({'accounts': [{'id': 'A', 'label': 'a'}], 'interval': 420, 'notify': False}, log)
+        runner.last_lock = '2026-10-03T20:00:00+00:00'
+        runner.accounts['A']['next_due'] = 10 ** 12
+        tail = ['INFO 2026-10-03T21:40:36.888+00:00 x Lock state changed: Locked',
+                'INFO 2026-10-03T21:40:42.293+00:00 x Lock state changed: Unlocked']
+        originals = (keepalive.app_running, keepalive.console_locked, keepalive.onepassword_tail, keepalive.keepalive_call)
+        keepalive.app_running = lambda: True
+        keepalive.console_locked = lambda: False
+        keepalive.onepassword_tail = lambda log=None: tail
+        calls = []
+        keepalive.keepalive_call = lambda acct, notify_enabled: (calls.append(acct['id']) or ('ok', 0.3, 0, ''))
+        try:
+            runner.tick()
+        finally:
+            keepalive.app_running, keepalive.console_locked, keepalive.onepassword_tail, keepalive.keepalive_call = originals
+        self.assertEqual(calls, ['A'])
+        self.assertEqual(runner.last_lock, '2026-10-03T21:40:36.888+00:00')
+
 
 class CallTests(unittest.TestCase):
     def setUp(self):

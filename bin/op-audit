@@ -105,9 +105,9 @@ def summary(since):
     attributed = []
     for ts in prompts:
         hit = None
-        for r in requests:
-            start = r["_ts"] - dt.timedelta(milliseconds=r.get("ms", 0))
-            if dt.timedelta(0) <= ts - start <= dt.timedelta(seconds=3):
+        for r in requests:  # request ts is its start; a prompt appears within its run
+            window = dt.timedelta(milliseconds=r.get("ms", 0)) + dt.timedelta(seconds=3)
+            if dt.timedelta(seconds=-1) <= ts - r["_ts"] <= window:
                 hit = r
                 break
         attributed.append({"at": ts.astimezone().strftime("%m-%d %H:%M:%S"),
@@ -178,7 +178,10 @@ def main(argv):
             print(f"{r['ts']} exit={r.get('exit')} {r.get('ms', 0):>6}ms {who(r):<10} {' '.join(r.get('args', []))}  [{'<'.join(r.get('chain', []))}]")
         return 0
     s = summary(since)
-    print(json.dumps(s, indent=1, default=str) if as_json else print_summary(s))
+    if as_json:
+        print(json.dumps(s, indent=1, default=str))
+    else:
+        print_summary(s)
     return 0
 
 
