@@ -154,7 +154,7 @@ export class Bridge {
         outputSchema: args.output_schema,
         policy: this.policy,
         grants,
-        overrides: { allowCommands: !!args.allow_commands, model: args.model, effort: args.effort, sandbox: args.sandbox, disabledPluginIds: this.#rosterByThread.get(threadId) || null },
+        overrides: { allowCommands: !!args.allow_commands, tolerateAppChanges: !!args.tolerate_app_changes, model: args.model, effort: args.effort, sandbox: args.sandbox, disabledPluginIds: this.#rosterByThread.get(threadId) || null },
         onProgress: (m) => {
           ctx.progress?.(m)
           entry.lastProgress = m

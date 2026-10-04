@@ -89,7 +89,7 @@ async function main() {
   const cmd = pos[0]
   const session = flags.session || 'default'
   if (!cmd || cmd === 'help') {
-    console.log('codex-bridge stop [--session S]   (kill switch: interrupts every running turn)\ncodex-bridge close SESSION\ncodex-bridge preflight | run "task" [--session S --apps A,B --new --allow-commands --screenshots none|last|all --timeout SEC] | status | approve APP [--always] | revoke APP | interrupt [--session S] | daemon start|stop|restart|status')
+    console.log('codex-bridge stop [--session S]   (kill switch: interrupts every running turn)\ncodex-bridge close SESSION\ncodex-bridge preflight | run "task" [--session S --apps A,B --new --allow-commands --tolerate-app-changes --model M --screenshots none|last|all --timeout SEC] | status | approve APP [--always] | revoke APP | interrupt [--session S] | daemon start|stop|restart|status')
     return 0
   }
   if (cmd === 'preflight') return preflight()
@@ -113,6 +113,8 @@ async function main() {
           apps: flags.apps ? String(flags.apps).split(',').map((s) => s.trim()).filter(Boolean) : [],
           new_thread: !!flags.new,
           allow_commands: !!flags['allow-commands'],
+          tolerate_app_changes: !!flags['tolerate-app-changes'],
+          model: flags.model || undefined,
           timeout_sec: flags.timeout ? Number(flags.timeout) : undefined,
           screenshots: flags.screenshots || 'last',
         },

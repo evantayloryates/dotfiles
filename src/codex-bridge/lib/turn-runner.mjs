@@ -200,7 +200,11 @@ export async function runTurn(app, opts) {
           // re-focusing it.
           if (USER_TOOK_OVER.test(step.error)) {
             result.userChanged = (result.userChanged || 0) + 1
-            if (result.userChanged >= 2 && !['user_took_over', 'stopped', 'timeout', 'cancelled'].includes(result.status)) {
+            // A remote-desktop window (Screen Sharing, VNC) repaints on its own; the caller may declare that
+            // with tolerate_app_changes so the turn keeps going and Codex just re-queries state.
+            if (overrides.tolerateAppChanges) {
+              mark('app_changed_tolerated', { error: step.error.slice(0, 160), count: result.userChanged })
+            } else if (result.userChanged >= 2 && !['user_took_over', 'stopped', 'timeout', 'cancelled'].includes(result.status)) {
               result.status = 'user_took_over'
               result.error = `the app Codex was driving changed under it twice (${step.error.slice(0, 100)}): a human is using it or it cannot be driven; the turn was stopped`
               mark('user_took_over', { error: step.error.slice(0, 160), count: result.userChanged })

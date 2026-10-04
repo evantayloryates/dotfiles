@@ -32,6 +32,7 @@ const TOOLS = [
         images: { type: 'array', items: { type: 'string' }, description: 'Absolute paths of images to attach to the task (e.g. a screenshot of what you want).' },
         screenshots: { type: 'string', enum: ['none', 'last', 'all'], description: 'Which of Codex\'s screenshots to attach to the result as images. Default "last". All are saved to disk regardless.' },
         allow_commands: { type: 'boolean', description: 'Let Codex run shell commands that escape the read-only sandbox and apply file changes. Default false.' },
+        tolerate_app_changes: { type: 'boolean', description: 'Do not treat "The user changed <App>" as a human taking over. For windows that repaint on their own (Screen Sharing / VNC to another Mac, live dashboards). Default false.' },
         sandbox: { type: 'string', enum: ['read-only', 'workspace-write', 'danger-full-access'], description: 'Filesystem sandbox for shell commands this turn. Default read-only (Computer Use itself is not sandboxed).' },
         output_schema: { type: 'object', description: 'JSON Schema for the final message; Codex then answers with a JSON object matching it.' },
         timeout_sec: { type: 'number', description: 'Interrupt the turn after this many seconds. Default 300; keep it short when a human is at the keyboard. Taylor can stop any running turn from a terminal with `codex-bridge stop`.' },
