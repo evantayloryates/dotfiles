@@ -23,7 +23,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from livekit import agents
-from livekit.agents import Agent, AgentSession, JobContext, WorkerOptions, cli
+from livekit import api
+from livekit.agents import Agent, AgentSession, JobContext, RunContext, WorkerOptions, cli, function_tool, get_job_context, metrics
 from livekit.plugins import cartesia, openai, silero
 from livekit.plugins.turn_detector.multilingual import MultilingualModel
 
@@ -58,8 +59,17 @@ def record(event: str, **fields) -> None:
 
 
 class Receptionist(Agent):
-    def __init__(self) -> None:
-        super().__init__(instructions=INSTRUCTIONS)
+    def __init__(self, caller_context: str) -> None:
+        super().__init__(instructions=INSTRUCTIONS + "\n\n" + caller_context)
+
+    @function_tool()
+    async def end_call(self, ctx: RunContext) -> str:
+        """Hang up the phone call. Use when the caller says goodbye, asks you to end or hang up the call, or the conversation is clearly over."""
+        await ctx.session.say("Okay, hanging up now. Bye.", allow_interruptions=False)
+        job = get_job_context()
+        record("hangup_by_agent", call=job.room.name)
+        await job.api.room.delete_room(api.DeleteRoomRequest(room=job.room.name))
+        return "call ended"
 
 
 async def entrypoint(ctx: JobContext) -> None:
@@ -85,7 +95,23 @@ async def entrypoint(ctx: JobContext) -> None:
         item = ev.item
         record("utterance", call=call_id, role=getattr(item, "role", "?"), text=getattr(item, "text_content", "") or "")
 
-    await session.start(room=ctx.room, agent=Receptionist())
+    @session.on("metrics_collected")
+    def _on_metrics(ev):  # noqa: ANN001
+        m = ev.metrics
+        try:
+            data = {k: v for k, v in vars(m).items() if isinstance(v, (int, float, str, bool)) and k != "label"}
+        except TypeError:
+            data = {"repr": repr(m)[:300]}
+        record("metrics", call=call_id, kind=type(m).__name__, **data)
+
+    known = caller in ALLOWED
+    caller_context = (
+        f"The caller is {OWNER} himself: his number matched the allowlist. Address him as {OWNER} and speak to him directly; "
+        f"never refer to {OWNER} as a third person or offer to 'tell {OWNER}'. When he says goodbye or asks you to hang up, call the end_call tool."
+        if known else
+        f"The caller's number is {caller or 'unknown'} and is not on the allowlist."
+    )
+    await session.start(room=ctx.room, agent=Receptionist(caller_context))
 
     if ALLOWED and caller not in ALLOWED:
         record("call_rejected", call=call_id, caller=caller)
