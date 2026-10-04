@@ -1,0 +1,22 @@
+#!/bin/bash
+# tcc-grant <service> <client-path>   grant a privacy (TCC) permission directly. Only works with SIP disabled (theo-air).
+#   services: accessibility | screen | fda | listen | postevent | mic | camera | automation:<target-bundle-id>
+# System services write the system DB; automation writes the per-user DB of the invoking user.
+set -euo pipefail
+svc=$1; client=$2; target=""
+case $svc in
+  accessibility) S=kTCCServiceAccessibility;; screen) S=kTCCServiceScreenCapture;; fda) S=kTCCServiceSystemPolicyAllFiles;;
+  listen) S=kTCCServiceListenEvent;; postevent) S=kTCCServicePostEvent;; mic) S=kTCCServiceMicrophone;; camera) S=kTCCServiceCamera;;
+  automation:*) S=kTCCServiceAppleEvents; target=${svc#automation:};;
+  *) echo "unknown service $svc" >&2; exit 2;;
+esac
+now=$(date +%s)
+if [[ $S == kTCCServiceAppleEvents ]]; then
+  DB="$HOME/Library/Application Support/com.apple.TCC/TCC.db"
+  [[ -f $DB ]] || { echo "user TCC db missing; trigger one Automation prompt first (osascript to the target) so macOS creates it" >&2; exit 3; }
+  sqlite3 "$DB" "INSERT OR REPLACE INTO access (service,client,client_type,auth_value,auth_reason,auth_version,csreq,policy_id,indirect_object_identifier_type,indirect_object_identifier,indirect_object_code_identity,flags,last_modified,pid,pid_version,boot_uuid,last_reminded) VALUES ('$S','$client',1,2,3,1,NULL,NULL,0,'$target',NULL,0,$now,NULL,NULL,'UNUSED',0);"
+else
+  sudo sqlite3 "/Library/Application Support/com.apple.TCC/TCC.db" "INSERT OR REPLACE INTO access (service,client,client_type,auth_value,auth_reason,auth_version,csreq,policy_id,indirect_object_identifier_type,indirect_object_identifier,indirect_object_code_identity,flags,last_modified,pid,pid_version,boot_uuid,last_reminded) VALUES ('$S','$client',1,2,3,1,NULL,NULL,0,'UNUSED',NULL,0,$now,NULL,NULL,'UNUSED',0);"
+fi
+sudo killall tccd 2>/dev/null || true
+echo "granted $S to $client${target:+ -> $target}"

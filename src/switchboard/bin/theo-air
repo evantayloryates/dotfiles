@@ -1,0 +1,31 @@
+#!/bin/zsh
+# theo-air: headless control of the MacBook Air over SSH, using the Air's own tools.
+#   theo-air shot [out.png]        full-res screenshot of the Air console (Retina px); also writes <out>-half.png in points
+#   theo-air click <x> <y>         click at POINT coords (as seen in the -half image)   | rclick / dclick likewise
+#   theo-air type "<text>"         type text            | theo-air key <combo>   e.g. cmd+space, return, esc, cmd+shift+g
+#   theo-air open <App>            launch/raise an app  | theo-air osa '<applescript>'  run AppleScript on the Air
+#   theo-air sh '<command>'        arbitrary shell on the Air (zsh)
+#   theo-air grant <svc> <path>    grant a privacy permission directly (SIP off): accessibility|screen|fda|listen|automation:<bundle>
+#   theo-air perms                 list non-Apple privacy grants on the Air
+set -euo pipefail
+H=theo-air; CL=/opt/homebrew/bin/cliclick; OUTDIR=$HOME/.local/state/switchboard/screens; mkdir -p $OUTDIR
+cmd=${1:-help}; shift || true
+case $cmd in
+  shot)  out=${1:-$OUTDIR/air-$(date +%H%M%S).png}
+         ssh -o BatchMode=yes $H 'screencapture -x /tmp/theo-shot.png && cat /tmp/theo-shot.png' > "$out"
+         sips -Z 1470 "$out" --out "${out%.png}-half.png" >/dev/null 2>&1; echo "$out (half: ${out%.png}-half.png)";;
+  click)  ssh -o BatchMode=yes $H "$CL c:$1,$2";;
+  rclick) ssh -o BatchMode=yes $H "$CL rc:$1,$2";;
+  dclick) ssh -o BatchMode=yes $H "$CL dc:$1,$2";;
+  move)   ssh -o BatchMode=yes $H "$CL m:$1,$2";;
+  type)   ssh -o BatchMode=yes $H "$CL t:$(printf %q "$1")";;
+  key)    k=$1; mods=""; main=$k
+          if [[ $k == *+* ]]; then mods=${k%+*}; main=${k##*+}; fi
+          if [[ -n $mods ]]; then ssh -o BatchMode=yes $H "$CL kd:$mods kp:$main ku:$mods"; else ssh -o BatchMode=yes $H "$CL kp:$main"; fi;;
+  open)   ssh -o BatchMode=yes $H "open -a $(printf %q "$1")";;
+  osa)    ssh -o BatchMode=yes $H "osascript -e $(printf %q "$1")";;
+  sh)     ssh -o BatchMode=yes $H "$1";;
+  grant)  ssh -o BatchMode=yes $H "/usr/local/bin/tcc-grant $1 $(printf %q "$2") ${3:-}";;   # theo-air grant accessibility /path | grant automation:com.apple.MobileSMS /usr/libexec/sshd-keygen-wrapper
+  perms)  ssh -o BatchMode=yes $H 'echo "== system"; sudo sqlite3 "/Library/Application Support/com.apple.TCC/TCC.db" "select service,client,auth_value from access where client not like \"com.apple.%\" order by client,service;"; echo "== user"; sqlite3 "$HOME/Library/Application Support/com.apple.TCC/TCC.db" "select service,client,indirect_object_identifier,auth_value from access;" 2>/dev/null';;
+  *)      sed -n 2,8p "$0";;
+esac
