@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>Label</key><string>me.taylor.switchboard.outbox</string>
+  <key>ProgramArguments</key><array><string>/Users/taylor/.local/bin/switchboard-outbox.sh</string></array>
+  <key>WatchPaths</key><array><string>/Users/taylor/.local/state/switchboard/outbox</string></array>
+  <key>RunAtLoad</key><true/>
+  <key>ThrottleInterval</key><integer>2</integer>
+  <key>StandardOutPath</key><string>/Users/taylor/.local/state/switchboard/outbox-launchd.log</string>
+  <key>StandardErrorPath</key><string>/Users/taylor/.local/state/switchboard/outbox-launchd.log</string>
+</dict></plist>

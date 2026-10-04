@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>Label</key><string>me.taylor.switchboard.agent</string>
+  <key>ProgramArguments</key><array>
+    <string>/opt/homebrew/bin/uv</string><string>run</string><string>--python</string><string>3.12</string><string>agent.py</string><string>start</string>
+  </array>
+  <key>WorkingDirectory</key><string>/Users/theo/src/github/dotfiles/src/switchboard/agent</string>
+  <key>EnvironmentVariables</key><dict>
+    <key>SWITCHBOARD_ENV</key><string>/Users/theo/.config/switchboard/.env</string>
+    <key>PATH</key><string>/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    <key>HOME</key><string>/Users/theo</string>
+  </dict>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>ThrottleInterval</key><integer>10</integer>
+  <key>StandardOutPath</key><string>/Users/theo/.local/state/switchboard/agent.log</string>
+  <key>StandardErrorPath</key><string>/Users/theo/.local/state/switchboard/agent.log</string>
+</dict></plist>

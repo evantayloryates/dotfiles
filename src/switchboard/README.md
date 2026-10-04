@@ -20,3 +20,16 @@ Env (from `dotfiles/.env`, or `SWITCHBOARD_ENV=/path/.env`): `LIVEKIT_URL`, `LIV
 `SWITCHBOARD_LLM_MODEL`, `SWITCHBOARD_VOICE_ID`, `SWITCHBOARD_PERSONA_NAME`, `SWITCHBOARD_OWNER_NAME`.
 
 Calls log to `~/.local/state/switchboard/calls.jsonl`.
+
+## Operating the Air (`theo-air`)
+
+- `ssh theo-air` (alias in ~/.ssh/config → theo-air.local, key ~/.ssh/theo-air). Passwordless sudo as `theo`.
+- GUI, two paths: (1) Screen Sharing app on Taylor's Mac (`open vnc://theo@theo-air.local`, account auth,
+  remembered in keychain) driven by Codex computer use (session `theo-air-gui`, app "Screen Sharing",
+  model override `gpt-6-sol` while the default `gpt-6.1-sol` is rejected); (2) headless `bin/theo-vnc`
+  (capture/click/type/key over VNC-password auth; password from 1Password vault Theo at run time).
+- Theo service on the Air: `launchd/me.taylor.switchboard.agent.plist` → `~/Library/LaunchAgents/`;
+  deploy = `git pull` + `launchctl kickstart -k gui/$(id -u)/me.taylor.switchboard.agent`.
+- Voicemail summaries: Air → `ssh taylor@<mac>` → `bin/switchboard-enqueue.sh` → outbox dir → `bin/switchboard-outbox.sh`
+  (launchd `me.taylor.switchboard.outbox` on Taylor's Mac, GUI session) → `~/.local/bin/switchboard-send.sh` (copy of
+  Desktop/send.sh outside the TCC-protected Desktop) → Messages self-chat. Temporary until a real SMS channel exists.
