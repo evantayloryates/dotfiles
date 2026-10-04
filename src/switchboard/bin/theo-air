@@ -7,6 +7,7 @@
 #   theo-air sh '<command>'        arbitrary shell on the Air (zsh)
 #   theo-air grant <svc> <path>    grant a privacy permission directly (SIP off): accessibility|screen|fda|listen|automation:<bundle>
 #   theo-air perms                 list non-Apple privacy grants on the Air
+#   theo-air status                one-screen health: power, console, services, worker, calls, disk, tailscale, grants
 set -euo pipefail
 H=theo-air; CL=/opt/homebrew/bin/cliclick; OUTDIR=$HOME/.local/state/switchboard/screens; mkdir -p $OUTDIR
 cmd=${1:-help}; shift || true
@@ -27,5 +28,14 @@ case $cmd in
   sh)     ssh -o BatchMode=yes $H "$1";;
   grant)  ssh -o BatchMode=yes $H "/usr/local/bin/tcc-grant $1 $(printf %q "$2") ${3:-}";;   # theo-air grant accessibility /path | grant automation:com.apple.MobileSMS /usr/libexec/sshd-keygen-wrapper
   perms)  ssh -o BatchMode=yes $H 'echo "== system"; sudo sqlite3 "/Library/Application Support/com.apple.TCC/TCC.db" "select service,client,auth_value from access where client not like \"com.apple.%\" order by client,service;"; echo "== user"; sqlite3 "$HOME/Library/Application Support/com.apple.TCC/TCC.db" "select service,client,indirect_object_identifier,auth_value from access;" 2>/dev/null';;
-  *)      sed -n 2,8p "$0";;
+  status) ssh -o BatchMode=yes $H 'eval "$(/opt/homebrew/bin/brew shellenv)" 2>/dev/null
+            echo "host: $(hostname) $(ipconfig getifaddr en0) macOS $(sw_vers -productVersion) up $(uptime | sed "s/.*up //; s/,.*//")"
+            echo "power: $(pmset -g batt | tail -1 | tr -s " " | cut -c1-60) | sleep=$(pmset -g | awk "/^ sleep/{print \$2}") disp=$(pmset -g | awk "/^ displaysleep/{print \$2}") SleepDisabled=$(pmset -g | awk "/SleepDisabled/{print \$2}")"
+            echo "console: $(who | awk "/console/{print \$1}") | autologin=$(defaults read /Library/Preferences/com.apple.loginwindow autoLoginUser 2>/dev/null) | SIP: $(csrutil status | grep -oE "enabled|disabled")"
+            for s in me.taylor.switchboard.agent me.taylor.switchboard.caffeinate; do st=$(launchctl print gui/$(id -u)/$s 2>/dev/null | awk "/state =/{print \$3}"); echo "launchd $s: ${st:-not loaded}"; done
+            echo "theo worker: $(grep -c "registered worker" ~/.local/state/switchboard/agent.log 2>/dev/null) registrations | last log: $(tail -1 ~/.local/state/switchboard/agent.log 2>/dev/null | cut -c1-90)"
+            echo "calls: $(grep -c call_start ~/.local/state/switchboard/calls.jsonl 2>/dev/null) total | last: $(grep call_start ~/.local/state/switchboard/calls.jsonl 2>/dev/null | tail -1 | cut -c1-100)"
+            echo "disk: $(df -h / | tail -1 | awk "{print \$4\" free\"}") | tailscale: $(/Applications/Tailscale.app/Contents/MacOS/Tailscale status 2>&1 | head -1 | cut -c1-60)"
+            echo "sshd privacy grants: $(sudo sqlite3 "/Library/Application Support/com.apple.TCC/TCC.db" "select service||\"=\"||auth_value from access where client like \"%sshd-keygen-wrapper%\";" | sed "s/kTCCService//g" | tr "\n" " ")"';;
+  *)      sed -n 2,10p "$0";;
 esac

@@ -12,9 +12,10 @@ case $svc in
 esac
 now=$(date +%s)
 if [[ $S == kTCCServiceAppleEvents ]]; then
-  DB="$HOME/Library/Application Support/com.apple.TCC/TCC.db"
-  [[ -f $DB ]] || { echo "user TCC db missing; trigger one Automation prompt first (osascript to the target) so macOS creates it" >&2; exit 3; }
-  sqlite3 "$DB" "INSERT OR REPLACE INTO access (service,client,client_type,auth_value,auth_reason,auth_version,csreq,policy_id,indirect_object_identifier_type,indirect_object_identifier,indirect_object_code_identity,flags,last_modified,pid,pid_version,boot_uuid,last_reminded) VALUES ('$S','$client',1,2,3,1,NULL,NULL,0,'$target',NULL,0,$now,NULL,NULL,'UNUSED',0);"
+  # macOS 27 keeps the per-user TCC db under a ProtectedSystem container (not ~/Library); created on the first prompt.
+  DB=$(sudo find /private/var/containers/Data/ProtectedSystem -name TCC.db 2>/dev/null | head -1)
+  [[ -n $DB ]] || { echo "user TCC db missing; trigger one Automation prompt first (osascript to any app) so macOS creates it" >&2; exit 3; }
+  sudo sqlite3 "$DB" "INSERT OR REPLACE INTO access (service,client,client_type,auth_value,auth_reason,auth_version,csreq,policy_id,indirect_object_identifier_type,indirect_object_identifier,indirect_object_code_identity,flags,last_modified,pid,pid_version,boot_uuid,last_reminded) VALUES ('$S','$client',1,2,3,1,NULL,NULL,0,'$target',NULL,0,$now,NULL,NULL,'UNUSED',0);"
 else
   sudo sqlite3 "/Library/Application Support/com.apple.TCC/TCC.db" "INSERT OR REPLACE INTO access (service,client,client_type,auth_value,auth_reason,auth_version,csreq,policy_id,indirect_object_identifier_type,indirect_object_identifier,indirect_object_code_identity,flags,last_modified,pid,pid_version,boot_uuid,last_reminded) VALUES ('$S','$client',1,2,3,1,NULL,NULL,0,'UNUSED',NULL,0,$now,NULL,NULL,'UNUSED',0);"
 fi
