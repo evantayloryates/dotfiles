@@ -30,6 +30,12 @@ Calls log to `~/.local/state/switchboard/calls.jsonl`.
   (capture/click/type/key over VNC-password auth; password from 1Password vault Theo at run time).
 - Theo service on the Air: `launchd/me.taylor.switchboard.agent.plist` → `~/Library/LaunchAgents/`;
   deploy = `git pull` + `launchctl kickstart -k gui/$(id -u)/me.taylor.switchboard.agent`.
-- Voicemail summaries: Air → `ssh taylor@<mac>` → `bin/switchboard-enqueue.sh` → outbox dir → `bin/switchboard-outbox.sh`
+- Voicemail summaries: Air `bin/switchboard-notify.sh` (ssh to `macbook-pro-3.taile8fdd0.ts.net` first, `MacBook-Pro-3.local` fallback; log `~/.local/state/switchboard/notify.log`) → `bin/switchboard-enqueue.sh` → outbox dir → `bin/switchboard-outbox.sh`
   (launchd `me.taylor.switchboard.outbox` on Taylor's Mac, GUI session) → `~/.local/bin/switchboard-send.sh` (copy of
   Desktop/send.sh outside the TCC-protected Desktop) → Messages self-chat. Temporary until a real SMS channel exists.
+
+## Tailnet
+Both machines are on Taylor's tailnet (MagicDNS suffix `taile8fdd0.ts.net`): `theo-air` 100.114.57.113 (Homebrew
+`tailscaled` daemon, auth key in 1Password Theo vault) and `macbook-pro-3` 100.89.79.39 (standalone Tailscale.app,
+start-on-login enabled; the Network Extension approval in System Settings was the one step Taylor had to click).
+`ssh theo-air` uses mDNS on the LAN, `ssh theo-air-ts` the tailnet from anywhere. Key expiry is disabled on both nodes.
