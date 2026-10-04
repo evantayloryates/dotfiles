@@ -8,6 +8,7 @@
 #   theo-air grant <svc> <path>    grant a privacy permission directly (SIP off): accessibility|screen|fda|listen|automation:<bundle>
 #   theo-air perms                 list non-Apple privacy grants on the Air
 #   theo-air status                one-screen health: power, console, services, worker, calls, disk, tailscale, grants
+#   theo-air tidy                  leave the Air inert: quit System Settings, close Finder windows, clear banners, then a verification shot
 set -euo pipefail
 H=theo-air; CL=/opt/homebrew/bin/cliclick; OUTDIR=$HOME/.local/state/switchboard/screens; mkdir -p $OUTDIR
 cmd=${1:-help}; shift || true
@@ -28,6 +29,8 @@ case $cmd in
   sh)     ssh -o BatchMode=yes $H "$1";;
   grant)  ssh -o BatchMode=yes $H "/usr/local/bin/tcc-grant $1 $(printf %q "$2") ${3:-}";;   # theo-air grant accessibility /path | grant automation:com.apple.MobileSMS /usr/libexec/sshd-keygen-wrapper
   perms)  ssh -o BatchMode=yes $H 'echo "== system"; sudo sqlite3 "/Library/Application Support/com.apple.TCC/TCC.db" "select service,client,auth_value from access where client not like \"com.apple.%\" order by client,service;"; echo "== user"; sqlite3 "$HOME/Library/Application Support/com.apple.TCC/TCC.db" "select service,client,indirect_object_identifier,auth_value from access;" 2>/dev/null';;
+  tidy)   ssh -o BatchMode=yes $H 'osascript -e "quit app \"System Settings\"" 2>/dev/null; osascript -e "tell application \"Finder\" to close every window" 2>/dev/null; killall NotificationCenter 2>/dev/null; sleep 2; echo "tidy: settings=$(pgrep -x "System Settings" >/dev/null && echo open || echo quit) banners cleared"'
+          "$0" shot "$OUTDIR/air-tidy-$(date +%H%M%S).png";;
   status) ssh -o BatchMode=yes $H 'eval "$(/opt/homebrew/bin/brew shellenv)" 2>/dev/null
             echo "host: $(hostname) $(ipconfig getifaddr en0) macOS $(sw_vers -productVersion) up $(uptime | sed "s/.*up //; s/,.*//")"
             echo "power: $(pmset -g batt | tail -1 | tr -s " " | cut -c1-60) | sleep=$(pmset -g | awk "/^ sleep/{print \$2}") disp=$(pmset -g | awk "/^ displaysleep/{print \$2}") SleepDisabled=$(pmset -g | awk "/SleepDisabled/{print \$2}")"
