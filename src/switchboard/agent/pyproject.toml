@@ -1,0 +1,9 @@
+[project]
+name = "switchboard-agent"
+version = "0.1.0"
+description = "Theo, the Switchboard receptionist: a LiveKit voice agent on the agent's phone line"
+requires-python = ">=3.11,<3.14"
+dependencies = [
+  "livekit-agents[openai,cartesia,silero,turn-detector]>=1.2,<2",
+  "python-dotenv>=1.0",
+]
