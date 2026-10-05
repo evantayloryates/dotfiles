@@ -16,6 +16,9 @@ import time
 import uuid
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import sglib  # noqa: E402
+
 HERE = Path(__file__).resolve().parent
 DOTFILES = HERE.parent.parent
 READ_ENV = DOTFILES / "src" / "lib" / "read-env.sh"
@@ -23,9 +26,6 @@ READ_ENV = DOTFILES / "src" / "lib" / "read-env.sh"
 # dotfiles/.env. Replays bill against the subscription, never the pay-per-use API.
 TOKEN_KEY = "KICKOFF_CLAUDE_CODE_LONG_LIVED_SUBSCRIPTION_OAUTH_TOKEN"
 REPLAY_ROOT = Path.home() / ".claude" / "security" / "replays"
-PLUGIN_GLOB = ".claude/plugins/cache/*/security-guidance/*/hooks/security_reminder_hook.py"
-# Printed by the inner `claude` the plugin starts; not part of the review.
-NOISE = re.compile(r"claude\.ai connectors are disabled|Unset it to load your organization")
 
 
 def fail(msg, code=1):
@@ -41,15 +41,8 @@ def git(repo, *args):
 
 
 def find_plugin(explicit):
-    if explicit:
-        p = Path(explicit).expanduser()
-        return p if p.is_file() else fail(f"no hook at {p}", 3)
-
-    def version(p):
-        return tuple(int(x) if x.isdigit() else 0 for x in p.parts[-3].split("."))
-
-    found = sorted(Path.home().glob(PLUGIN_GLOB), key=version)
-    return found[-1] if found else fail("security-guidance plugin not found under ~/.claude/plugins/cache", 3)
+    hook = sglib.find_plugin_hook(explicit)
+    return hook if hook else fail("security-guidance plugin not found under ~/.claude/plugins/cache", 3)
 
 
 def read_token():
@@ -91,32 +84,6 @@ def replay_env(token, run_dir, args):
     if args.quick:
         env["SG_AGENTIC_COMMIT_REVIEW"] = "0"  # single direct call, no helper
     return env
-
-
-def parse_stdout(text):
-    """The hook prints one JSON object (metrics, rewakeSummary, and for
-    PostToolUse the findings in hookSpecificOutput.additionalContext)."""
-    for line in text.splitlines():
-        line = line.strip()
-        if line.startswith("{"):
-            try:
-                return json.loads(line)
-            except json.JSONDecodeError:
-                continue
-    return {}
-
-
-def verdict(exit_code, out, findings, metrics):
-    if metrics.get("skipped"):
-        return "skipped", f"the plugin skipped the review (skip_reason {metrics.get('skip_reason')})"
-    if findings or exit_code == 2 or (metrics.get("vulns_found") or 0) > 0:
-        return "findings", out.get("rewakeSummary") or "the review reported findings"
-    if metrics.get("api_error") or (metrics.get("http_err_count") or 0) > 0:
-        return "failed", (f"the review could not complete: HTTP {metrics.get('http_err_last') or metrics.get('api_error')} "
-                          f"({metrics.get('http_err_count', 0)} errors). The plugin would have reported this as clean.")
-    if exit_code not in (0, 2):
-        return "failed", f"the hook exited {exit_code}"
-    return "clean", "the review ran and found nothing"
 
 
 def main():
@@ -161,11 +128,11 @@ def main():
         print("  the thorough review usually takes 1–4 minutes…", flush=True)
     t0 = time.time()
     try:
-        # Launch exactly as Claude Code does: the plugin's own interpreter picker.
-        launcher = hook.parent / "sg-python.sh"
-        cmd = ["bash", str(launcher), str(hook)] if launcher.exists() else [sys.executable, str(hook)]
-        r = subprocess.run(cmd, input=json.dumps(hook_input), capture_output=True, text=True,
-                           cwd=repo, env=replay_env(token, run_dir, args), timeout=args.timeout)
+        # Launch exactly as Claude Code does (the plugin's interpreter picker),
+        # and leave the plugin's own review ledger as it was.
+        with sglib.PreserveReviewedShas(repo):
+            r = subprocess.run(sglib.plugin_command(hook), input=json.dumps(hook_input), capture_output=True, text=True,
+                               cwd=repo, env=replay_env(token, run_dir, args), timeout=args.timeout)
         exit_code, stdout, stderr = r.returncode, r.stdout, r.stderr
     except subprocess.TimeoutExpired as e:
         exit_code, stdout, stderr = 124, e.stdout or "", (e.stderr or "") + f"\n[sg-replay] timed out after {args.timeout} s"
@@ -175,14 +142,11 @@ def main():
     (run_dir / "stdout.txt").write_text(stdout)
     (run_dir / "stderr.txt").write_text(stderr)
 
-    out = parse_stdout(stdout)
+    out = sglib.parse_stdout(stdout)
     metrics = out.get("metrics", {})
-    findings = ((out.get("hookSpecificOutput") or {}).get("additionalContext") or out.get("reason") or "").strip()
-    noise = [l for l in stderr.splitlines() if NOISE.search(l)]
-    other_stderr = "\n".join(l for l in stderr.splitlines() if l.strip() and not NOISE.search(l))
-    if not findings and exit_code == 2:
-        findings = other_stderr  # older plugin versions put findings on stderr
-    kind, why = verdict(exit_code, out, findings, metrics)
+    noise, other_stderr = sglib.split_stderr(stderr)
+    findings = sglib.findings_text(out, exit_code, other_stderr)
+    kind, why = sglib.classify(exit_code, out, findings)
     debug_lines = (run_dir / "debug.log").read_text().splitlines() if (run_dir / "debug.log").exists() else []
     problems = [l for l in debug_lines if re.search(r"error|fail|fallback|401|403|429|timed out|revoked", l, re.I)]
 
@@ -190,7 +154,7 @@ def main():
         "commit": sha, "repo": str(repo), "subject": subject, "files": files,
         "verdict": kind, "why": why, "seconds": seconds, "hook_exit": exit_code,
         "summary": out.get("rewakeSummary"), "findings": findings,
-        "usage": {k: metrics.get(k) for k in ("tok_in", "tok_out", "tok_cache_r", "tok_cache_w", "cost_usd", "api_calls")},
+        "usage": sglib.usage(metrics), "path": sglib.review_path(metrics),
         "review": {"helper_used": metrics.get("agentic"), "helper_fallback": metrics.get("agentic_fallback"),
                    "files_reviewed": metrics.get("files_reviewed"), "vulns_found": metrics.get("vulns_found"),
                    "http_errors": metrics.get("http_err_count"), "api_error": metrics.get("api_error")},
