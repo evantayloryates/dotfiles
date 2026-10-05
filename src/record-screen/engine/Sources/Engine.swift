@@ -293,9 +293,20 @@ final class Engine: @unchecked Sendable {
           FileManager.default.fileExists(atPath: (path as NSString).deletingLastPathComponent, isDirectory: &isDir), isDir.boolValue else {
       throw RPCError.badParams("path must be an absolute .jpg or .png path in an existing folder")
     }
-    if FileManager.default.fileExists(atPath: path), let h = FileHandle(forReadingAtPath: path) {
-      let head = [UInt8](h.readData(ofLength: 4)); try? h.close()
-      let isImage = head.starts(with: [0xFF, 0xD8, 0xFF]) || head.starts(with: [0x89, 0x50, 0x4E, 0x47])
+    // Look at the leaf without following it: anything already there must be
+    // a plain image file. A symlink would redirect the write elsewhere, and a
+    // FIFO or device would block the read below.
+    var st = stat()
+    if lstat(path, &st) == 0 {
+      guard (st.st_mode & S_IFMT) == S_IFREG else {
+        throw RPCError.badParams("path exists and is not a regular file (symlink, pipe or device); refusing to write there")
+      }
+      let fd = open(path, O_RDONLY | O_NOFOLLOW | O_NONBLOCK)
+      guard fd >= 0 else { throw RPCError.badParams("path exists but can't be read; refusing to overwrite it") }
+      var head = [UInt8](repeating: 0, count: 4)
+      let n = read(fd, &head, 4)
+      close(fd)
+      let isImage = n == 4 && (head.starts(with: [0xFF, 0xD8, 0xFF]) || head.starts(with: [0x89, 0x50, 0x4E, 0x47]))
       guard isImage else { throw RPCError.badParams("path exists and is not an image; refusing to overwrite it") }
     }
     return path

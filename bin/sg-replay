@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Re-run a security-guidance commit review with full visibility
+# (see src/security-review/README.md).
+exec python3 "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../src/security-review/replay.py" "$@"
