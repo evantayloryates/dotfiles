@@ -25,6 +25,7 @@ tell application "System Events" to tell process "$APP"
   set w to first window whose name is "theo-air"
   set size of w to {$W, $H}
   perform action "AXRaise" of w
+  return ""
 end tell
 EOF
 }
