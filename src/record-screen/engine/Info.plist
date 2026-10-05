@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleIdentifier</key>
+  <string>com.taylor.record-screen</string>
+  <key>CFBundleName</key>
+  <string>record-screend</string>
+  <key>CFBundleDisplayName</key>
+  <string>record-screen engine</string>
+  <key>CFBundleExecutable</key>
+  <string>record-screend</string>
+  <key>CFBundlePackageType</key>
+  <string>APPL</string>
+  <key>CFBundleShortVersionString</key>
+  <string>0.1.0</string>
+  <key>CFBundleVersion</key>
+  <string>1</string>
+  <key>LSMinimumSystemVersion</key>
+  <string>15.0</string>
+  <!-- No Dock icon, no menu bar. The engine also sets the "prohibited"
+       activation policy at launch so it can never take focus. -->
+  <key>LSUIElement</key>
+  <true/>
+  <!-- Recording timing must not be throttled by App Nap. -->
+  <key>LSAppNapIsDisabled</key>
+  <true/>
+  <!-- Replaced by build.py with the hash of the sources it was built from. -->
+  <key>RSBuildHash</key>
+  <string>dev</string>
+</dict>
+</plist>

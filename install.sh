@@ -127,6 +127,17 @@ if [[ "$(uname)" == "Darwin" ]]; then
     log "🔗 Linked + loaded $LA_LABEL LaunchAgent"
     # The macOS app needs Xcode, so it is not built here: run `zdr-harness app`.
   fi
+
+  # com.taylor.record-screen: the screen-recording engine agents drive through
+  # the record-screen MCP. Built with swiftc (Command Line Tools are enough);
+  # skipped when no Swift toolchain is installed. See src/record-screen/README.md.
+  if xcrun --find swiftc >/dev/null 2>&1; then
+    if bash "$DOTFILES_DIR/src/record-screen/install.sh" >/dev/null; then
+      log "🎥 Built + loaded com.taylor.record-screen LaunchAgent"
+    else
+      log "⚠️  record-screen install failed — run src/record-screen/install.sh to see why"
+    fi
+  fi
 fi
 
 # Capture start time from devcontainer onCreateCommand and calculate total setup time

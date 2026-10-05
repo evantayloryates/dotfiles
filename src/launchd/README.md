@@ -239,3 +239,11 @@ zdr-harness tunnel status
 
 To pause it: `zdr-harness tunnel stop` (which is `launchctl bootout`); the
 bootstrap line above reloads it. Log: `~/.zdr-harness/logs/tunnel.log`.
+
+## `com.taylor.record-screen`
+
+Keeps the record-screen capture engine (`record-screend.app`, built into
+`data/record-screen/`) running in the logged-in GUI session: starts at login,
+restarts after a crash. Loaded by `src/record-screen/install.sh`, which the
+top-level `install.sh` runs. Everything else, including the one-time Screen
+Recording grant, is in [`../record-screen/README.md`](../record-screen/README.md).

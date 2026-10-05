@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!--
+    record-screen capture engine (src/record-screen/README.md). Runs in the
+    logged-in GUI session only, starts at login, restarts if it crashes.
+    The bundle is built into data/ by src/record-screen/build.py and holds its
+    own Screen Recording grant.
+
+    NOTE: launchd does not expand ~ or $HOME, so paths are absolute.
+  -->
+  <key>Label</key>
+  <string>com.taylor.record-screen</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Users/taylor/src/github/dotfiles/data/record-screen/record-screend.app/Contents/MacOS/record-screend</string>
+  </array>
+  <key>AssociatedBundleIdentifiers</key>
+  <string>com.taylor.record-screen</string>
+  <key>LimitLoadToSessionType</key>
+  <string>Aqua</string>
+  <key>RunAtLoad</key>
+  <true/>
+  <!-- Restart on crash; a clean exit (e.g. a duplicate instance) stays down. -->
+  <key>KeepAlive</key>
+  <dict>
+    <key>SuccessfulExit</key>
+    <false/>
+  </dict>
+  <key>ThrottleInterval</key>
+  <integer>5</integer>
+  <!-- Interactive: no background throttling of capture timing. -->
+  <key>ProcessType</key>
+  <string>Interactive</string>
+  <key>StandardOutPath</key>
+  <string>/Users/taylor/.record-screen/logs/stdout.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/taylor/.record-screen/logs/stderr.log</string>
+</dict>
+</plist>
