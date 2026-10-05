@@ -9,7 +9,14 @@
 //   record-screen build             rebuild if sources changed, then restart
 //   record-screen wait [seconds]    wait until the engine answers
 //   record-screen logs [n]          last n engine log lines (default 20)
+//   record-screen windows [app] [title]        list windows (window ids for targets)
+//   record-screen verify <target> [max_width]  capture the target, print image path and checks
+//   record-screen outline <target> [label] [seconds]   draw the frame outline (0 s = until hidden)
+//   record-screen outline-off                  hide all outlines
 //   record-screen call <method> [json-params]
+//
+// <target> shorthand: display | display:<id> | rect:x,y,w,h | window:<id> |
+// app:<bundle id or name>[/<title words>] | a JSON object
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -17,6 +24,7 @@ import { fileURLToPath } from "node:url";
 import { call, enginePaths, EngineError, LABEL } from "./lib/client.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
+process.stdout.on("error", (e) => process.exit(e.code === "EPIPE" ? 0 : 1));
 const out = (v) => process.stdout.write(JSON.stringify(v, null, 2) + "\n");
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -37,6 +45,23 @@ async function waitUp(seconds = 10) {
 function restart() {
   const uid = process.getuid();
   execFileSync("/bin/launchctl", ["kickstart", "-k", `gui/${uid}/${LABEL}`], { stdio: "pipe" });
+}
+
+function parseTarget(t) {
+  if (!t) throw new EngineError("usage", "missing <target>; e.g. display, rect:0,0,800,600, window:1234, app:Chrome");
+  if (t.startsWith("{")) return JSON.parse(t);
+  const [kind, rest = ""] = t.split(/:(.*)/s);
+  if (kind === "display") return rest ? { type: "display", display_id: Number(rest) } : { type: "display" };
+  if (kind === "rect") {
+    const [x, y, w, h] = rest.split(",").map(Number);
+    return { type: "rect", x, y, w, h };
+  }
+  if (kind === "window") return { type: "window", window_id: Number(rest) };
+  if (kind === "app") {
+    const [app, title] = rest.split(/\/(.*)/s);
+    return { type: "window", app, ...(title ? { title } : {}) };
+  }
+  throw new EngineError("usage", `can't read target ${t}`);
 }
 
 const [cmd = "status", ...args] = process.argv.slice(2);
@@ -79,6 +104,18 @@ try {
       process.stdout.write(lines.join("\n") + "\n");
       break;
     }
+    case "windows":
+      out(await call("windows.list", { ...(args[0] ? { app: args[0] } : {}), ...(args[1] ? { title: args[1] } : {}) }));
+      break;
+    case "verify":
+      out(await call("frame.verify", { target: parseTarget(args[0]), ...(args[1] ? { max_width: Number(args[1]) } : {}) }));
+      break;
+    case "outline":
+      out(await call("overlay.show", { target: parseTarget(args[0]), ...(args[1] ? { label: args[1] } : {}), ...(args[2] ? { seconds: Number(args[2]) } : {}) }));
+      break;
+    case "outline-off":
+      out(await call("overlay.hide"));
+      break;
     case "call":
       out(await call(args[0], args[1] ? JSON.parse(args[1]) : {}));
       break;

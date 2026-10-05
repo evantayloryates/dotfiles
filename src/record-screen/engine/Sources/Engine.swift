@@ -10,6 +10,7 @@ final class Engine: @unchecked Sendable {
   private var signalSources: [DispatchSourceSignal] = []
   private let startedAt = Date()
   private let startedNs = uptimeNs()
+  private let viewfinder = Viewfinder()
 
   init(paths: Paths, lock: InstanceLock) {
     self.paths = paths
@@ -51,6 +52,21 @@ final class Engine: @unchecked Sendable {
       return await requestPermission()
     case "capture.probe":
       return try await probe()
+    case "windows.list":
+      return try await listWindows(params)
+    case "frame.resolve":
+      return try await resolveTarget(params["target"]).describe()
+    case "frame.verify":
+      return try await verify(params)
+    case "overlay.show":
+      return try await showOverlay(params)
+    case "overlay.hide":
+      let id = params.str("overlay_id")
+      await MainActor.run { Overlays.shared.hide(id: id) }
+      return ["hidden": id ?? "all"]
+    case "viewfinder.stop":
+      await viewfinder.stop()
+      return ["stopped": true]
     default:
       throw RPCError(code: "unknown_method", message: "unknown method \(method); try status")
     }
@@ -73,6 +89,8 @@ final class Engine: @unchecked Sendable {
       "clock": ["uptime_ns": uptimeNs(), "wall": iso8601.string(from: now), "started_ns": startedNs],
       "permission": ["screen_recording": CGPreflightScreenCaptureAccess() ? "granted" : "missing"],
       "displays": await displays(),
+      "viewfinder": await viewfinder.state,
+      "overlays": await MainActor.run { Overlays.shared.active },
       "paths": ["root": paths.root, "socket": paths.socket, "log": paths.log],
     ]
   }
@@ -115,6 +133,79 @@ final class Engine: @unchecked Sendable {
       "list_ms": Double(t1 - t0) / 1e6,
       "screenshot_ms": Double(t2 - t1) / 1e6,
     ]
+  }
+
+  /// Resolves against cached content first; a miss (new or moved window)
+  /// retries once against a fresh listing.
+  private func resolveTarget(_ raw: Any?) async throws -> ResolvedTarget {
+    let spec = try TargetSpec.parse(raw)
+    do {
+      return try Targets.resolve(spec, content: try await Targets.content())
+    } catch let e as RPCError where e.code == "target_not_found" {
+      return try Targets.resolve(spec, content: try await Targets.content(fresh: true))
+    }
+  }
+
+  private func listWindows(_ p: [String: Any]) async throws -> [String: Any] {
+    let content = try await Targets.content(fresh: true)
+    let all = Targets.listWindows(app: p.str("app"), title: p.str("title"), content: content,
+                                  includeOffscreen: !(p.bool("on_screen_only") ?? false))
+    let limit = Int(p.num("limit") ?? 50)
+    return ["windows": all.prefix(limit).map(windowDict), "total": all.count]
+  }
+
+  /// Captures the target as it looks right now and writes an image the agent
+  /// can look at. Uses the warm viewfinder stream when it can.
+  private func verify(_ p: [String: Any]) async throws -> [String: Any] {
+    let t0 = uptimeNs()
+    let target = try await resolveTarget(p["target"])
+    let t1 = uptimeNs()
+    let maxWidth = Int(p.num("max_width") ?? 1280)
+    let grab = try await viewfinder.grab(target, maxWidth: maxWidth > 0 ? maxWidth : nil)
+    let format = p.str("format") == "png" ? "png" : "jpeg"
+    let path = p.str("path") ?? "\(paths.frames)/verify-\(Int(Date().timeIntervalSince1970 * 1000)).\(format == "png" ? "png" : "jpg")"
+    let t2 = uptimeNs()
+    let bytes = try ImageOut.write(grab.image, to: path, format: format, quality: p.num("quality") ?? 0.8)
+    let t3 = uptimeNs()
+    var checks = ImageOut.stats(grab.image)
+    var warnings = target.warnings
+    if checks["looks_blank"] as? Bool == true {
+      warnings.append("image is nearly uniform; the target may be hidden, locked, minimized or not drawn yet")
+    }
+    checks["warnings"] = warnings
+    pruneFrames()
+    return [
+      "image": ["path": path, "w": grab.image.width, "h": grab.image.height, "bytes": bytes, "format": format],
+      "target": target.describe(),
+      "checks": checks,
+      "timing_ms": ["resolve": Double(t1 - t0) / 1e6, "capture": grab.ms, "write": Double(t3 - t2) / 1e6,
+                    "total": Double(t3 - t0) / 1e6, "source": grab.source],
+      "clock_ns": t2,
+    ]
+  }
+
+  private func showOverlay(_ p: [String: Any]) async throws -> [String: Any] {
+    let target = try await resolveTarget(p["target"])
+    let id = p.str("overlay_id") ?? "frame"
+    let seconds = p.num("seconds") ?? 8
+    let label = p.str("label")
+    let capturable = p.bool("capturable") ?? false
+    await MainActor.run { Overlays.shared.show(id: id, frame: target.frame, label: label, seconds: seconds, capturable: capturable) }
+    // The engine only shows up in ScreenCaptureKit's app list once it owns a
+    // window, so re-list now: later capture filters then exclude the outline.
+    await ContentCache.shared.invalidate()
+    return ["overlay_id": id, "frame": rectDict(target.frame), "seconds": seconds, "warnings": target.warnings]
+  }
+
+  private func pruneFrames() {
+    let fm = FileManager.default
+    let cutoff = Date().addingTimeInterval(-86400)
+    for name in (try? fm.contentsOfDirectory(atPath: paths.frames)) ?? [] {
+      let path = paths.frames + "/" + name
+      if let m = (try? fm.attributesOfItem(atPath: path))?[.modificationDate] as? Date, m < cutoff {
+        try? fm.removeItem(atPath: path)
+      }
+    }
   }
 
   private func displays() async -> [[String: Any]] {

@@ -10,16 +10,20 @@ Why it is built this way, with measurements:
 
 ## Status
 
-Step 1 of the build order is done: the engine skeleton. It runs at login,
-answers on its socket, reports status, requests the Screen Recording grant and
-proves ScreenCaptureKit works. Frames, recording, sessions and the MCP come
-next.
+Steps 1 and 2 of the build order are done.
+
+1. **Engine skeleton.** Runs at login, answers on its socket, reports status,
+   holds its own Screen Recording grant.
+2. **Frames.** Targets (display, rect, window), `frame.verify` through a warm
+   viewfinder, and a frame outline that never appears in captures.
+
+Recording, sessions and the MCP come next.
 
 ## Layout
 
 | Path | What it is |
 |------|------------|
-| `engine/Sources/*.swift` | The engine. `main.swift` boots it; `Engine.swift` holds the methods; `SocketServer.swift` is the protocol. |
+| `engine/Sources/*.swift` | The engine. `main.swift` boots it; `Engine.swift` holds the methods; `SocketServer.swift` is the protocol; `Targets.swift` resolves targets; `Viewfinder.swift` is the warm stream behind `frame.verify`; `Overlay.swift` draws outlines. |
 | `engine/Info.plist` | Bundle id `com.taylor.record-screen`, `LSUIElement`, App Nap off. |
 | `build.py` | Compiles with `swiftc`, bundles, signs, stamps the source hash. Output: `data/record-screen/record-screend.app` (gitignored). |
 | `install.sh` | Build, link `src/launchd/com.taylor.record-screen.plist`, load it, wait for the socket. Run by the top-level `install.sh`. |
@@ -28,7 +32,8 @@ next.
 
 Runtime state lives in `~/.record-screen/` (mode 700):
 `run/engine.sock`, `run/engine.lock`, `logs/engine.jsonl`, `logs/stdout.log`,
-`logs/stderr.log`. `RECORD_SCREEN_HOME` overrides the root.
+`logs/stderr.log`, and `frames/` (verify images not tied to a session, pruned
+after a day). `RECORD_SCREEN_HOME` overrides the root.
 
 ## Commands
 
@@ -40,8 +45,15 @@ record-screen probe      # list content + 64 px screenshot, with timings
 record-screen restart    # kickstart the LaunchAgent and wait for it
 record-screen build      # rebuild if sources changed, then restart
 record-screen logs 50    # tail the engine log
+record-screen windows [app] [title]            # find window ids
+record-screen verify <target> [max_width]      # capture now; prints image path, checks, timings
+record-screen outline <target> [label] [secs]  # draw the frame outline (0 s = until hidden)
+record-screen outline-off
 record-screen call <method> '<json params>'
 ```
+
+`<target>` shorthand: `display`, `display:4`, `rect:x,y,w,h`, `window:1234`,
+`app:Chrome`, `app:Chrome/PR 42` (app plus title words), or a JSON object.
 
 Everything prints JSON. Failures print `{"error": {"code", "message"}}` and
 exit 1. The message always says what to do next.
@@ -63,6 +75,55 @@ requests; replies may come back out of order, so match them by `id`.
 | `status` | engine (version, build hash, pid, signing, uptime), clock, permission, displays, paths |
 | `permission.request` | `{screen_recording: granted\|missing, next}` |
 | `capture.probe` | `{ok, displays, windows, list_ms, screenshot_ms}`, or `capture_unavailable` |
+| `windows.list` | `{app?, title?, on_screen_only?, limit?}` → windows front to back: id, title, app, bundle id, pid, frame, on_screen |
+| `frame.resolve` | `{target}` → kind, display, frame, scale, pixels, window, warnings |
+| `frame.verify` | `{target, max_width? (1280; 0 = native), format? jpeg\|png, quality?, path?}` → image path and size, target, checks (luma, looks_blank, warnings), timings and `source` |
+| `overlay.show` | `{target, label?, seconds? (8; 0 = until hidden), overlay_id?, capturable?}` |
+| `overlay.hide` | `{overlay_id?}` (all when omitted) |
+| `viewfinder.stop` | stops the warm stream early (it stops itself after 20 s idle) |
+
+### Targets
+
+Global points, origin at the top-left of the main display, y down: the same
+space as Hammerspoon's `hs.window:frame()`.
+
+```json
+{"type": "display", "display_id": 4}
+{"type": "rect", "x": 100, "y": 100, "w": 800, "h": 600}
+{"type": "window", "window_id": 1234}
+{"type": "window", "app": "com.google.Chrome", "title": "PR 42"}
+```
+
+A window target records the window itself, so it keeps working when the
+window is covered or on a Space you aren't viewing. It records nothing if the
+app is hidden or the window minimized; `warnings` says when that is likely.
+App/title matches pick the frontmost on-screen match.
+
+### How `frame.verify` stays fast
+
+One ScreenCaptureKit stream (the viewfinder) stays warm for 20 s after the last
+check. `timing_ms.source` says which path answered:
+
+| source | When | Measured |
+|--------|------|----------|
+| `live` | same target as last time: newest frame of the running stream | 4–15 ms |
+| `reaim` | same display, new area or size: the stream is reconfigured and the first frame covering the new area is used | 29–40 ms |
+| `screenshot` | new filter (other display or window, outline exclusion changed): one authoritative screenshot, then the stream re-aims for the next check | 78–180 ms |
+| `start` | first check after the stream stopped | 67–140 ms |
+
+A running stream applies a new content filter a frame or two late, and frames
+don't say which filter made them, so filter changes always answer with a
+screenshot. Area changes are safe to take from the stream because each frame
+reports the screen area it covers. The window/display listing is cached for 2 s
+and window geometry is read live, so resolving a target costs about 1 ms.
+
+### Frame outline
+
+`overlay.show` draws viewfinder-style corner brackets 6 pt outside the target,
+with an optional label. It never takes focus or clicks, sits on every Space,
+and is hidden from every screen capture: macOS's own `screencapture` doesn't
+see it, and the engine's capture filters exclude the engine's windows too.
+`capturable: true` lets other tools capture it, to check how it looks.
 
 `clock.uptime_ns` is `CLOCK_UPTIME_RAW`, the same clock as ScreenCaptureKit
 frame timestamps and Hammerspoon's `hs.timer.absoluteTime()`.
@@ -74,7 +135,10 @@ the engine checks the peer's uid.
 
 - **Never takes focus.** The engine runs with the `prohibited` activation
   policy and `LSUIElement`. Measured: the usual accessory policy activated a
-  helper once at launch; prohibited never did.
+  helper once at launch; prohibited never did. Outlines and verifies leave the
+  frontmost app unchanged.
+- **macOS shows its recording indicator** while the viewfinder stream runs
+  (up to 20 s after the last verify).
 - **One instance.** An flock on `run/engine.lock`; a second copy exits 0.
 - **Restarts on crash, not on clean exit.** `KeepAlive.SuccessfulExit = false`.
 - **Installs don't interrupt it.** `install.sh` restarts the engine only when

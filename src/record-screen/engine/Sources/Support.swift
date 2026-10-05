@@ -5,6 +5,15 @@ import Foundation
 /// markers on recordings without calibration.
 func uptimeNs() -> UInt64 { clock_gettime_nsec_np(CLOCK_UPTIME_RAW) }
 
+private let timebase: mach_timebase_info_data_t = {
+  var tb = mach_timebase_info_data_t()
+  mach_timebase_info(&tb)
+  return tb
+}()
+
+/// Mach absolute time (ScreenCaptureKit's displayTime) to uptimeNs() units.
+func machToNs(_ t: UInt64) -> UInt64 { t * UInt64(timebase.numer) / UInt64(timebase.denom) }
+
 let iso8601: ISO8601DateFormatter = {
   let f = ISO8601DateFormatter()
   f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
@@ -18,6 +27,8 @@ struct Paths {
   var socket: String { run + "/engine.sock" }
   var lock: String { run + "/engine.lock" }
   var log: String { logs + "/engine.jsonl" }
+  /// Loose verify images not tied to a session; pruned after a day.
+  var frames: String { root + "/frames" }
 
   /// RECORD_SCREEN_HOME overrides ~/.record-screen (used by tests).
   static func resolve() -> Paths {
@@ -26,7 +37,7 @@ struct Paths {
   }
 
   func ensure() throws {
-    for dir in [root, run, logs] {
+    for dir in [root, run, logs, frames] {
       try FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
     }
   }
@@ -69,6 +80,12 @@ enum Log {
       handle?.write(Data([0x0A]))
     }
   }
+}
+
+extension Dictionary where Key == String, Value == Any {
+  func num(_ k: String) -> Double? { (self[k] as? NSNumber)?.doubleValue }
+  func str(_ k: String) -> String? { self[k] as? String }
+  func bool(_ k: String) -> Bool? { (self[k] as? NSNumber)?.boolValue }
 }
 
 struct RPCError: Error {
