@@ -53,6 +53,8 @@ start-on-login enabled; the Network Extension approval in System Settings was th
   Sharing.app only), made 2026-10-04 from the 1Password Theo-vault login. No Standard/High Performance prompt: the Air's server
   has `/Library/Preferences/com.apple.ScreenSharingServer` `hostSettings = {preventHighPerformanceConnections = 1}`; the
   script still answers Standard if the prompt ever returns. `theo vnc --check` prints the Keychain item and both defaults;
-  `theo vnc --fit` re-fits the aspect at the current height after a manual resize.
+  `theo vnc --fit` re-fits the aspect at the current height after a manual resize. Run from Ghostty's quick terminal
+  (cmd+space), it hides the quick terminal first (Ghostty AppleScript `perform action "toggle_quick_terminal"`, only when
+  the panel, Ghostty's one AXFloatingWindow, is showing): once Screen Sharing has the keyboard, cmd+space goes to the Air.
 - `theo air <subcommand>` — the headless `theo-air` helper (shot, click, type, osa, sh, status, tidy, vnc, ...).
 

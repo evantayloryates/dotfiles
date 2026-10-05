@@ -20,6 +20,19 @@ RW=1470; RH=956; TOOLBAR=52   # the Air's desktop in points; Screen Sharing titl
 ss() { osascript -e "tell application \"System Events\" to tell process \"$APP\" to $1" 2>/dev/null; }
 nwin() { pgrep -qx "$APP" || { echo 0; return; }; ss 'count (windows whose name is "theo-air")'; }   # System Events stalls ~1.8 s on a process that is not running
 
+hide_quick_terminal() {
+  # Run from Ghostty's quick terminal (cmd+space), the panel would stay on top while Screen Sharing takes the keyboard,
+  # and cmd+space would then go to the Air instead of toggling the panel. Hide it first, but only if it is showing:
+  # toggle_quick_terminal is a toggle, and the visible panel is Ghostty's one AXFloatingWindow.
+  pgrep -qx ghostty || return 0
+  osascript >/dev/null 2>&1 <<EOF
+tell application "System Events" to tell process "Ghostty"
+  if (count (windows whose subrole is "AXFloatingWindow")) = 0 then return
+end tell
+tell application "Ghostty" to perform action "toggle_quick_terminal" on first terminal
+EOF
+}
+
 assert_defaults() {
   [[ "$(defaults read $DOM shouldScaleScreen 2>/dev/null)" == 1 ]] || defaults write $DOM shouldScaleScreen -bool true
   [[ "$(defaults read $DOM DontQuitWhenLastWindowCloses 2>/dev/null)" == 1 ]] || defaults write $DOM DontQuitWhenLastWindowCloses -bool true
@@ -62,6 +75,7 @@ case ${1:-} in
 esac
 
 assert_defaults
+hide_quick_terminal
 if [[ "$(nwin)" == <1-> ]]; then focus; echo "focused: $APP → $HOST"; exit 0; fi
 
 zmodload zsh/datetime; t0=$EPOCHREALTIME
