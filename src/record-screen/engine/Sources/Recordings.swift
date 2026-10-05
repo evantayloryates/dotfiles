@@ -3,7 +3,10 @@ import Foundation
 /// The queue of recordings: creates, persists, reloads after a restart, and
 /// answers queries. Each recording runs itself (see Recording).
 actor Recordings {
-  static let maxConcurrent = 4
+  /// Measured on this M5 Pro: 20 simultaneous hardware H.264 sessions ran
+  /// clean, 22 stalled the encoder. 16 leaves room for Zoom, FaceTime and
+  /// other apps that share the media engine.
+  static let maxConcurrent = 16
   static let maxDuration: TimeInterval = 3 * 3600
   static let maxLeadTime: TimeInterval = 7 * 86400
 
@@ -87,8 +90,11 @@ actor Recordings {
     guard end.timeIntervalSince(start) <= Self.maxDuration else { throw RPCError.badParams("recordings are capped at \(Int(Self.maxDuration / 3600)) h") }
     guard start.timeIntervalSince(now) <= Self.maxLeadTime else { throw RPCError.badParams("start_at is more than 7 days away") }
     let overlapping = jobs.values.filter { !$0.state.terminal && $0.startAt < end && $0.endAt > start }
-    guard overlapping.count < Self.maxConcurrent else {
-      throw RPCError(code: "too_many", message: "\(overlapping.count) recordings already overlap that window (max \(Self.maxConcurrent)): \(overlapping.map(\.id).joined(separator: ", "))")
+    // allow_over_cap exists for pressure tests of the hardware limit.
+    let cap = (p.bool("allow_over_cap") ?? false) ? 64 : Self.maxConcurrent
+    guard overlapping.count < cap else {
+      let holders = overlapping.map { "\($0.id) (\($0.sessionID ?? "-"), \($0.describe().str("label") ?? ""))" }
+      throw RPCError(code: "too_many", message: "\(overlapping.count) recordings already overlap that window; the hardware encoder allows \(cap) at once. Holding slots: \(holders.joined(separator: ", "))")
     }
     let ifLate = p.str("if_late") ?? "start"
     guard ["start", "skip"].contains(ifLate) else { throw RPCError.badParams("if_late must be start or skip") }
@@ -110,6 +116,11 @@ actor Recordings {
   func get(_ id: String) throws -> Recording {
     guard let r = jobs[id] else { throw RPCError(code: "not_found", message: "no recording \(id); use record.list") }
     return r
+  }
+
+  /// A running recording of exactly this area, if any.
+  func recording(covering areaKey: String) -> Recording? {
+    jobs.values.first { $0.state == .recording && $0.areaKey == areaKey }
   }
 
   /// Recordings currently capturing, optionally only those in one session.

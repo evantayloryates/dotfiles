@@ -77,12 +77,23 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   let idempotencyKey: String?
   let sessionID: String?
   let createdAt: Date
-  private(set) var startAt: Date
-  private(set) var endAt: Date
+  // Written only on `q` (under snapLock); read anywhere through the accessors.
+  private var _startAt: Date
+  private var _endAt: Date
+  var startAt: Date { snapLock.withLock { _startAt } }
+  var endAt: Date { snapLock.withLock { _endAt } }
   let ifLate: String  // start | skip
 
   let q: DispatchQueue
-  private(set) var state: RecState = .scheduled
+  /// API calls never wait on `q`: under load the hardware encoder can stall
+  /// it (seen at 24 simultaneous recordings), and a blocked `q` must not take
+  /// the whole engine down with it. They read these lock-protected copies.
+  private let snapLock = NSLock()
+  private var _state: RecState = .scheduled
+  private var snapshot: [String: Any] = [:]
+  private var tapBuffer: CVPixelBuffer?
+  private var startHostSnap: UInt64 = 0
+  var state: RecState { snapLock.withLock { _state } }
   private var events: [[String: Any]] = []
   private var marks: [[String: Any]] = []
   private var error: String?
@@ -112,8 +123,12 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   private var watchedWindow: (id: CGWindowID, frame: CGRect, pid: pid_t)?
   private var wasHidden = false
   private var wasOnScreen = true
+  /// What this recording covers (ResolvedTarget.areaKey), for verify taps.
+  private(set) var areaKey: String?
   private var windowGone = false
   var onChange: (@Sendable (Recording) -> Void)?
+  /// Called when the encoder stalls; the engine restarts itself to recover.
+  static var onEncoderStall: (@Sendable () -> Void)?
 
   var videoPath: String { dir + "/video.mp4" }
   var manifestPath: String { dir + "/recording.json" }
@@ -125,14 +140,16 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     self.targetRaw = target
     self.settings = settings
     self.label = label
-    self.startAt = startAt
-    self.endAt = endAt
+    self._startAt = startAt
+    self._endAt = endAt
     self.ifLate = ifLate
     self.idempotencyKey = idempotencyKey
     self.sessionID = sessionID
     self.createdAt = createdAt
-    self.state = state
+    self._state = state
     self.q = DispatchQueue(label: "record-screen.rec.\(id)", qos: .userInteractive)
+    super.init()
+    snapshot = describeLocked()
   }
 
   // MARK: - Scheduling
@@ -143,43 +160,57 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
       guard state == .scheduled else { return }
       armTimer?.cancel()
       let now = Date()
-      if endAt <= now {
+      if _endAt <= now {
         finish(.missed, reason: "end_at passed before the recording could start")
         return
       }
-      if startAt < now.addingTimeInterval(-2) && ifLate == "skip" {
+      if _startAt < now.addingTimeInterval(-2) && ifLate == "skip" {
         finish(.missed, reason: "start_at passed and if_late is skip")
         return
       }
-      let armAt = startAt.addingTimeInterval(-Self.prerollSeconds)
+      let armAt = _startAt.addingTimeInterval(-Self.prerollSeconds)
       armTimer = wallTimer(at: armAt) { [weak self] in self?.arm() }
     }
   }
 
   func reschedule(start: Date?, end: Date?) throws {
-    let stillScheduled: Bool = try q.sync {
-      switch state {
+    let stillScheduled: Bool = try onQueue {
+      switch self._state {
       case .scheduled:
-        let newStart = start ?? startAt, newEnd = end ?? endAt
+        let newStart = start ?? self._startAt, newEnd = end ?? self._endAt
         guard newEnd > newStart else { throw RPCError.badParams("end_at must be after start_at") }
-        startAt = newStart
-        endAt = newEnd
+        self.snapLock.withLock { self._startAt = newStart; self._endAt = newEnd }
       case .arming, .recording:
-        guard start == nil else { throw RPCError(code: "already_started", message: "recording \(id) already started; only end_at can change") }
+        guard start == nil else { throw RPCError(code: "already_started", message: "recording \(self.id) already started; only end_at can change") }
         guard let end else { return false }
         guard end > Date() else { throw RPCError.badParams("end_at must be in the future") }
-        endAt = end
-        endHostNs = hostNs(for: end)
-        endTimer?.cancel()
-        endTimer = wallTimer(at: end.addingTimeInterval(0.15)) { [weak self] in self?.finalize(reason: nil) }
-        note("end_moved", ["end_at": iso8601.string(from: end)])
+        self.snapLock.withLock { self._endAt = end }
+        self.endHostNs = self.hostNs(for: end)
+        self.endTimer?.cancel()
+        self.endTimer = self.wallTimer(at: end.addingTimeInterval(0.15)) { [weak self] in self?.finalize(reason: nil) }
+        self.note("end_moved", ["end_at": iso8601.string(from: end)])
       default:
-        throw RPCError(code: "finished", message: "recording \(id) is \(state.rawValue)")
+        throw RPCError(code: "finished", message: "recording \(self.id) is \(self._state.rawValue)")
       }
-      persist()
-      return state == .scheduled
+      self.persist()
+      return self._state == .scheduled
     }
     if stillScheduled { schedule() }
+  }
+
+  /// Runs `work` on `q` and waits at most `timeout`: a recording whose queue
+  /// is stuck (encoder stall) answers "busy" instead of hanging the caller.
+  private func onQueue<T>(timeout: Double = 2, _ work: @escaping () throws -> T) throws -> T {
+    let done = DispatchSemaphore(value: 0)
+    var result: Result<T, Error>?
+    q.async {
+      result = Result { try work() }
+      done.signal()
+    }
+    guard done.wait(timeout: .now() + timeout) == .success, let result else {
+      throw RPCError(code: "busy", message: "recording \(id) is not responding (its encoder may be stalled)")
+    }
+    return try result.get()
   }
 
   /// Restores what a saved manifest knows (after an engine restart). A
@@ -205,16 +236,24 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     }
   }
 
+  /// The newest captured frame while recording: lets a frame check of the
+  /// same area read the recording's own stream instead of opening another.
+  func tap() -> CVPixelBuffer? {
+    snapLock.withLock { _state == .recording ? tapBuffer : nil }
+  }
+
   /// Marks this moment in the video. Returns the offset in seconds, or nil
   /// when the recording isn't running.
   func addMark(_ label: String, kind: String) -> Double? {
-    q.sync {
-      guard state == .recording else { return nil }
-      let t = (Double(Int64(uptimeNs()) - Int64(startHostNs)) / 1e9 * 1000).rounded() / 1000
-      marks.append(["label": label, "kind": kind, "t_s": t, "at": iso8601.string(from: Date())])
+    let (st, startNs) = snapLock.withLock { (_state, startHostSnap) }
+    guard st == .recording else { return nil }
+    let t = (Double(Int64(uptimeNs()) - Int64(startNs)) / 1e9 * 1000).rounded() / 1000
+    let mark: [String: Any] = ["label": label, "kind": kind, "t_s": t, "at": iso8601.string(from: Date())]
+    q.async { [self] in
+      marks.append(mark)
       persist()
-      return t
     }
+    return t
   }
 
   /// Writes the manifest now (used right after creation).
@@ -254,15 +293,21 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   private func arm() {
     guard state == .scheduled else { return }
     let now = Date()
-    let lateBy = now.timeIntervalSince(startAt)
+    let lateBy = now.timeIntervalSince(_startAt)
     if lateBy > 2 {
       if ifLate == "skip" { finish(.missed, reason: "armed \(Int(lateBy)) s late and if_late is skip"); return }
       note("started_late", ["late_s": lateBy])
     }
     setState(.arming)
+    // If capture hasn't started 8 s after start_at, give up (a wedged encoder
+    // or ScreenCaptureKit never answering) rather than sit in arming forever.
+    let deadline = max(0, _startAt.timeIntervalSinceNow) + 8
+    DispatchQueue.global().asyncAfter(deadline: .now() + deadline) { [weak self] in
+      self?.abandon(if: .arming, as: .failed, reason: "capture did not start within 8 s of start_at", stall: true)
+    }
     // Map wall-clock times onto the host clock that frame timestamps use.
-    startHostNs = hostNs(for: max(startAt, now))
-    endHostNs = hostNs(for: endAt)
+    startHostNs = hostNs(for: max(_startAt, now))
+    endHostNs = hostNs(for: _endAt)
     holdPower()
     Task { await self.startCapture() }
   }
@@ -288,6 +333,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
       try s.addStreamOutput(self, type: .screen, sampleHandlerQueue: q)
       q.sync {
         resolved = target.describe()
+        areaKey = target.areaKey
         if let w = target.window {
           watchedWindow = (w.windowID, target.frame, w.owningApplication?.processID ?? 0)
           wasOnScreen = Targets.liveWindowState(w.windowID)?.onScreen ?? w.isOnScreen
@@ -301,7 +347,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
         guard state == .arming else { return }
         let toStart = Double(Int64(startHostNs) - Int64(uptimeNs())) / 1e9
         startTimer = delayTimer(max(0, toStart) + 0.005) { [weak self] in self?.beginAtStart() }
-        endTimer = wallTimer(at: endAt.addingTimeInterval(0.15)) { [weak self] in self?.finalize(reason: nil) }
+        endTimer = wallTimer(at: _endAt.addingTimeInterval(0.15)) { [weak self] in self?.finalize(reason: nil) }
         monitorTimer = repeatingTimer(1.0) { [weak self] in self?.monitor() }
         persist()
       }
@@ -351,6 +397,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     framesSeen += 1
     let pts = UInt64(max(0, sb.presentationTimeStamp.seconds) * 1e9)
     lastBuffer = pb
+    snapLock.withLock { tapBuffer = pb }
     if pts < startHostNs {
       prerollBuffer = pb  // the screen as it is just before start_at
       return
@@ -376,6 +423,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     guard !wroteFirst, state == .arming, let writer else { return }
     writer.startSession(atSourceTime: cmTime(startHostNs))
     wroteFirst = true
+    snapLock.withLock { startHostSnap = startHostNs }
     actualStart = Date().addingTimeInterval(-Double(Int64(uptimeNs()) - Int64(startHostNs)) / 1e9)
     setState(.recording)
     if let pre = prerollBuffer {
@@ -416,6 +464,10 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     if let last = lastBuffer, endHostNs > lastWrittenNs + frameNs {
       append(last, at: endHostNs - frameNs)
     }
+    // Watchdog: if the encoder stalls, endSession/finishWriting never return
+    // and this queue stays blocked. Mark the recording interrupted from
+    // outside the queue; the fragmented file plays up to its last fragment.
+    DispatchQueue.global().asyncAfter(deadline: .now() + 15) { [weak self] in self?.abandonIfStuck() }
     input.markAsFinished()
     writer.endSession(atSourceTime: cmTime(endHostNs))
     actualEnd = Date().addingTimeInterval(-Double(Int64(uptimeNs()) - Int64(endHostNs)) / 1e9)
@@ -436,7 +488,33 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     releasePower()
     prerollBuffer = nil
     lastBuffer = nil
+    snapLock.withLock { tapBuffer = nil }
     setState(s)
+  }
+
+  private func abandonIfStuck() {
+    abandon(if: .finalizing, as: .interrupted,
+            reason: "the encoder stalled while finishing; the file keeps what was written before the stall", stall: true)
+  }
+
+  /// Gives up on a recording whose queue may be blocked, without touching
+  /// the queue: state, snapshot and manifest are updated from outside it.
+  private func abandon(if expected: RecState, as final: RecState, reason: String, stall: Bool) {
+    let stuck: [String: Any]? = snapLock.withLock {
+      guard _state == expected else { return nil }
+      _state = final
+      var d = snapshot
+      d["state"] = final.rawValue
+      d["error"] = reason
+      snapshot = d
+      return d
+    }
+    guard let d = stuck else { return }
+    if let data = jsonData(d, options: [.prettyPrinted, .sortedKeys]) { FileManager.default.createFile(atPath: manifestPath, contents: data) }
+    releasePower()
+    Log.event("recording_abandoned", ["recording_id": id, "reason": reason])
+    onChange?(self)
+    if stall { Self.onEncoderStall?() }
   }
 
   private func teardownStream() {
@@ -455,7 +533,9 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
 
   /// Once a second: did the target window move, resize, hide or vanish?
   private func monitor() {
-    guard state == .recording, let w = watchedWindow else { return }
+    guard _state == .recording else { return }
+    snapLock.withLock { snapshot = describeLocked() }
+    guard let w = watchedWindow else { return }
     guard let live = Targets.liveWindowState(w.id) else {
       if !windowGone { note("window_gone", [:]); windowGone = true }
       return
@@ -481,7 +561,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   // MARK: - State and persistence
 
   private func setState(_ s: RecState) {
-    state = s
+    snapLock.withLock { _state = s }
     persist()
     Log.event("recording_state", ["recording_id": id, "state": s.rawValue])
     onChange?(self)
@@ -491,12 +571,12 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   func describeLocked() -> [String: Any] {
     var d: [String: Any] = [
       "recording_id": id,
-      "state": state.rawValue,
+      "state": _state.rawValue,
       "label": label,
       "target": targetRaw,
       "settings": settings.dict,
-      "start_at": iso8601.string(from: startAt),
-      "end_at": iso8601.string(from: endAt),
+      "start_at": iso8601.string(from: _startAt),
+      "end_at": iso8601.string(from: _endAt),
       "if_late": ifLate,
       "created_at": iso8601.string(from: createdAt),
       "dir": dir,
@@ -518,11 +598,19 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     return d
   }
 
-  func describe() -> [String: Any] { q.sync { describeLocked() } }
+  /// Last snapshot: refreshed on every change and once a second while
+  /// recording. Never waits on `q`.
+  func describe() -> [String: Any] {
+    var d = snapLock.withLock { snapshot }
+    d["state"] = state.rawValue
+    return d
+  }
 
   private func persist() {
+    let d = describeLocked()
+    snapLock.withLock { snapshot = d }
     try? FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
-    guard let data = try? JSONSerialization.data(withJSONObject: describeLocked(), options: [.prettyPrinted, .sortedKeys]) else { return }
+    guard let data = jsonData(d, options: [.prettyPrinted, .sortedKeys]) else { return }
     let tmp = manifestPath + ".tmp"
     FileManager.default.createFile(atPath: tmp, contents: data)
     _ = try? FileManager.default.replaceItemAt(URL(fileURLWithPath: manifestPath), withItemAt: URL(fileURLWithPath: tmp))

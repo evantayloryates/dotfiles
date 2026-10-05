@@ -184,7 +184,7 @@ actor Sessions {
     if s.searchText.count > 400 { s.searchText.removeFirst(s.searchText.count - 400) }
     let d = dir(id)
     try? FileManager.default.createDirectory(atPath: d, withIntermediateDirectories: true)
-    if let line = try? JSONSerialization.data(withJSONObject: e, options: [.sortedKeys]) {
+    if let line = jsonData(e) {
       let path = d + "/events.jsonl"
       if !FileManager.default.fileExists(atPath: path) { FileManager.default.createFile(atPath: path, contents: nil) }
       if let h = FileHandle(forWritingAtPath: path) {
@@ -276,7 +276,7 @@ actor Sessions {
   }
 
   private func persist(_ s: SessionRecord) {
-    guard let data = try? JSONSerialization.data(withJSONObject: s.dict, options: [.prettyPrinted, .sortedKeys]) else { return }
+    guard let data = jsonData(s.dict, options: [.prettyPrinted, .sortedKeys]) else { return }
     let path = dir(s.id) + "/session.json"
     let tmp = path + ".tmp"
     FileManager.default.createFile(atPath: tmp, contents: data)

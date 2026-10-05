@@ -164,12 +164,9 @@ private final class Connection: @unchecked Sendable {
 
   private func send(_ obj: [String: Any]) {
     guard !closed else { return }
-    var data: Data
-    do {
-      data = try JSONSerialization.data(withJSONObject: obj, options: [.sortedKeys])
-    } catch {
-      data = try! JSONSerialization.data(withJSONObject: ["id": obj["id"] ?? NSNull(), "error": ["code": "internal", "message": "result is not JSON-serializable"]])
-    }
+    var data = jsonData(obj)
+      ?? jsonData(["id": obj["id"] ?? NSNull(), "error": ["code": "internal", "message": "result is not JSON-serializable"]])
+      ?? Data("{}".utf8)
     data.append(0x0A)
     data.withUnsafeBytes { raw in
       var off = 0

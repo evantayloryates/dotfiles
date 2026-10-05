@@ -25,6 +25,17 @@ final class Engine: @unchecked Sendable {
     }
     try server.start()
     self.server = server
+    // A stalled hardware encoder stays wedged for the life of the process.
+    // Restart (launchd brings the engine back in ~5 s); scheduled recordings
+    // re-arm, running ones are kept as interrupted.
+    let restarting = NSLock()
+    nonisolated(unsafe) var restartQueued = false
+    Recording.onEncoderStall = {
+      let first: Bool = restarting.withLock { defer { restartQueued = true }; return !restartQueued }
+      guard first else { return }
+      Log.event("exit", ["reason": "encoder stalled; restarting to recover"])
+      DispatchQueue.global().asyncAfter(deadline: .now() + 1) { exit(75) }
+    }
     let recordings = self.recordings, sessions = self.sessions
     Task {
       await sessions.load()
@@ -79,9 +90,10 @@ final class Engine: @unchecked Sendable {
     case "overlay.show":
       return try await showOverlay(params)
     case "overlay.hide":
-      let id = params.str("overlay_id")
-      await MainActor.run { Overlays.shared.hide(id: id) }
-      return ["hidden": id ?? "all"]
+      // overlay_id: one outline; session_id: that session's outlines; neither: all.
+      let id = params.str("overlay_id"), sid = params.str("session_id")
+      await MainActor.run { Overlays.shared.hide(id: id, prefix: sid.map { "\($0):" }) }
+      return ["hidden": id ?? sid.map { "session \($0)" } ?? "all"]
     case "record.schedule":
       return try await scheduleRecording(params)
     case "record.mark":
@@ -282,7 +294,15 @@ final class Engine: @unchecked Sendable {
     let target = try await resolveTarget(p["target"])
     let t1 = uptimeNs()
     let maxWidth = Int(p.num("max_width") ?? 1280)
-    let grab = try await viewfinder.grab(target, maxWidth: maxWidth > 0 ? maxWidth : nil)
+    let width = maxWidth > 0 ? maxWidth : nil
+    let grab: Viewfinder.Grab
+    // Already recording this exact area? Read that stream: no second capture,
+    // and the check shows exactly what is being recorded.
+    if let rec = await recordings.recording(covering: target.areaKey), let pb = rec.tap() {
+      grab = Viewfinder.Grab(image: try cgImage(pb, maxWidth: width), source: "tap", ms: Double(uptimeNs() - t1) / 1e6)
+    } else {
+      grab = try await viewfinder.grab(target, maxWidth: width)
+    }
     let format = p.str("format") == "png" ? "png" : "jpeg"
     // Frame checks go into the caller's session when there is one.
     let sid = try await sessions.ensure(p, create: false, defaultTitle: "")
@@ -291,7 +311,9 @@ final class Engine: @unchecked Sendable {
       frameDir = await sessions.dir(sid) + "/frames"
       try? FileManager.default.createDirectory(atPath: frameDir, withIntermediateDirectories: true)
     }
-    let path = p.str("path") ?? "\(frameDir)/verify-\(Int(Date().timeIntervalSince1970 * 1000)).\(format == "png" ? "png" : "jpg")"
+    // Millisecond stamp plus a random suffix: concurrent checks never collide.
+    let stamp = "\(Int(Date().timeIntervalSince1970 * 1000))-\(String(UInt32.random(in: 0...UInt32.max), radix: 36))"
+    let path = p.str("path") ?? "\(frameDir)/verify-\(stamp).\(format == "png" ? "png" : "jpg")"
     let t2 = uptimeNs()
     let bytes = try ImageOut.write(grab.image, to: path, format: format, quality: p.num("quality") ?? 0.8)
     let t3 = uptimeNs()
@@ -316,7 +338,11 @@ final class Engine: @unchecked Sendable {
 
   private func showOverlay(_ p: [String: Any]) async throws -> [String: Any] {
     let target = try await resolveTarget(p["target"])
-    let id = p.str("overlay_id") ?? "frame"
+    // Outlines are namespaced by session so two agents never replace each
+    // other's; ids that already carry a namespace are kept as given.
+    let base = p.str("overlay_id") ?? "frame"
+    let sid = p.str("session_id")
+    let id = base.contains(":") ? base : "\(sid ?? "shared"):\(base)"
     let seconds = p.num("seconds") ?? 8
     let label = p.str("label")
     let capturable = p.bool("capturable") ?? false

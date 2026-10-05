@@ -63,6 +63,13 @@ struct ResolvedTarget {
     return "display:\(display.displayID):\(excludesSelf ? "x" : "")"
   }
 
+  /// What the target covers, independent of filter details: the same for a
+  /// verify and a recording of the same thing (used to tap recordings).
+  var areaKey: String {
+    if let w = window { return "window:\(w.windowID)" }
+    return "display:\(display.displayID):\(sourceRect.map { "\(Int($0.minX)),\(Int($0.minY)),\(Int($0.width)),\(Int($0.height))" } ?? "full")"
+  }
+
   var pixelSize: CGSize { CGSize(width: frame.width * scale, height: frame.height * scale) }
 
   func describe() -> [String: Any] {
@@ -96,8 +103,11 @@ struct ResolvedTarget {
   }
 }
 
+/// JSON-safe: a null or infinite rect would crash JSONSerialization, so it
+/// becomes an empty object.
 func rectDict(_ r: CGRect) -> [String: Any] {
-  ["x": r.origin.x, "y": r.origin.y, "w": r.width, "h": r.height]
+  guard !r.isNull, !r.isInfinite, r.origin.x.isFinite, r.origin.y.isFinite else { return [:] }
+  return ["x": r.origin.x, "y": r.origin.y, "w": r.width, "h": r.height]
 }
 
 func windowDict(_ w: SCWindow) -> [String: Any] {
@@ -123,13 +133,11 @@ enum Targets {
   /// Shareable content including off-screen windows (other Spaces), so window
   /// targets on a Space you aren't viewing still resolve.
   /// Cached for a moment: listing costs 35–60 ms and agents verify in bursts.
-  /// `fresh: true` bypasses the cache (used when a lookup misses).
+  /// Concurrent callers share one in-flight fetch. `fresh: true` bypasses the
+  /// cache (used when a lookup misses).
   static func content(fresh: Bool = false) async throws -> SCShareableContent {
-    if !fresh, let c = await ContentCache.shared.get() { return c }
     do {
-      let c = try await SCShareableContent.excludingDesktopWindows(true, onScreenWindowsOnly: false)
-      await ContentCache.shared.put(c)
-      return c
+      return try await ContentCache.shared.content(fresh: fresh)
     } catch {
       throw RPCError(code: "capture_unavailable", message: "ScreenCaptureKit refused: \(error.localizedDescription). Run `record-screen grant`.")
     }
@@ -250,12 +258,24 @@ enum Targets {
 
 actor ContentCache {
   static let shared = ContentCache()
-  private var content: SCShareableContent?
+  private var cached: SCShareableContent?
   private var at: UInt64 = 0
+  private var inflight: Task<SCShareableContent, Error>?
   private let ttlNs: UInt64 = 2_000_000_000
-  func get() -> SCShareableContent? { uptimeNs() - at < ttlNs ? content : nil }
-  func put(_ c: SCShareableContent) { content = c; at = uptimeNs() }
-  func invalidate() { content = nil }
+
+  func content(fresh: Bool) async throws -> SCShareableContent {
+    if !fresh, let c = cached, uptimeNs() - at < ttlNs { return c }
+    if let t = inflight { return try await t.value }
+    let t = Task { try await SCShareableContent.excludingDesktopWindows(true, onScreenWindowsOnly: false) }
+    inflight = t
+    defer { inflight = nil }
+    let c = try await t.value
+    cached = c
+    at = uptimeNs()
+    return c
+  }
+
+  func invalidate() { cached = nil }
 }
 
 extension CGRect {

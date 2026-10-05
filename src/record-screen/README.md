@@ -31,7 +31,7 @@ The MCP shim comes next.
 | Path | What it is |
 |------|------------|
 | `engine/Sources/Recording.swift`, `Recordings.swift` | One scheduled recording from arming to finished file; the queue that creates, persists and reloads them. |
-| `engine/Sources/*.swift` | The engine. `main.swift` boots it; `Engine.swift` holds the methods; `SocketServer.swift` is the protocol; `Targets.swift` resolves targets; `Viewfinder.swift` is the warm stream behind `frame.verify`; `Overlay.swift` draws outlines. |
+| `engine/Sources/*.swift` | The engine. `main.swift` boots it; `Engine.swift` holds the methods; `SocketServer.swift` is the protocol; `Targets.swift` resolves targets; `Viewfinder.swift` is the lane pool behind `frame.verify`; `Overlay.swift` draws outlines. |
 | `engine/Info.plist` | Bundle id `com.taylor.record-screen`, `LSUIElement`, App Nap off. |
 | `build.py` | Compiles with `swiftc`, bundles, signs, stamps the source hash. Output: `data/record-screen/record-screend.app` (gitignored). |
 | `install.sh` | Build, link `src/launchd/com.taylor.record-screen.plist`, load it, wait for the socket. Run by the top-level `install.sh`. |
@@ -112,9 +112,9 @@ requests; replies may come back out of order, so match them by `id`.
 | `windows.list` | `{app?, title?, on_screen_only?, limit?}` → windows front to back: id, title, app, bundle id, pid, frame, on_screen |
 | `frame.resolve` | `{target}` → kind, display, frame, scale, pixels, window, warnings |
 | `frame.verify` | `{target, max_width? (1280; 0 = native), format? jpeg\|png, quality?, path?}` → image path and size, target, checks (luma, looks_blank, warnings), timings and `source` |
-| `overlay.show` | `{target, label?, seconds? (8; 0 = until hidden), overlay_id?, capturable?}` |
-| `overlay.hide` | `{overlay_id?}` (all when omitted) |
-| `viewfinder.stop` | stops the warm stream early (it stops itself after 20 s idle) |
+| `overlay.show` | `{target, label?, seconds? (8; 0 = until hidden), overlay_id?, session_id?, capturable?}`; ids become `<session_id or shared>:<overlay_id>` |
+| `overlay.hide` | `{overlay_id?, session_id?}`: one outline, one session's, or all |
+| `viewfinder.stop` | stops every warm lane now (they stop themselves after 20 s idle) |
 | `record.schedule` | `{target, start_at, end_at, preset?, fps?, codec?, max_width?, show_cursor?, bitrate_mbps?, label?, if_late?, idempotency_key?, dir?}` → the recording, `state: scheduled`, `starts_in_s` |
 | `record.get` | `{recording_id}` → full manifest |
 | `record.list` | `{state?, active?, limit?}` → newest first |
@@ -154,150 +154,58 @@ window is covered or on a Space you aren't viewing. It records nothing if the
 app is hidden or the window minimized; `warnings` says when that is likely.
 App/title matches pick the frontmost on-screen match.
 
-### How `frame.verify` stays fast
+### How `frame.verify` stays fast, and correct under concurrency
 
-One ScreenCaptureKit stream (the viewfinder) stays warm for 20 s after the last
-check. `timing_ms.source` says which path answered:
+Each target gets its own warm ScreenCaptureKit stream (a "lane") whose filter
+and area never change. Every frame a lane returns is checked against the
+screen area and size it must cover. Concurrent checks of the same target share
+one lane and one start-up; different targets run in parallel on separate
+lanes. Lanes stop after 20 s idle; at most 24 are live (LRU). They use no
+hardware encoder session. `timing_ms.source` says which path answered:
 
 | source | When | Measured |
 |--------|------|----------|
-| `live` | same target as last time: newest frame of the running stream | 4–15 ms |
-| `reaim` | same display, new area or size: the stream is reconfigured and the first frame covering the new area is used | 29–40 ms |
-| `screenshot` | new filter (other display or window, outline exclusion changed): one authoritative screenshot, then the stream re-aims for the next check | 78–180 ms |
-| `start` | first check after the stream stopped | 67–140 ms |
+| `live` | the target's lane is warm | 2–12 ms |
+| `start` | first check of a target (opens its lane) | 60–200 ms |
+| `tap` | a recording of exactly this area is running: its newest frame, no extra capture, and it shows exactly what is being recorded | 8 ms median |
+| `screenshot` | fallback when a lane can't produce a frame | 50–180 ms |
 
-A running stream applies a new content filter a frame or two late, and frames
-don't say which filter made them, so filter changes always answer with a
-screenshot. Area changes are safe to take from the stream because each frame
-reports the screen area it covers. The window/display listing is cached for 2 s
-and window geometry is read live, so resolving a target costs about 1 ms.
+An earlier design re-aimed one shared stream. It was fast for one agent but
+returned the previous target's frame under concurrency (30 of 40 images wrong
+with 8 agents on one area), so it was replaced. The window/display listing is
+cached for 2 s and fetched once even when many requests arrive together
+(concurrent cold fetches left new streams silent). Window geometry is read
+live, so resolving a target costs about 1 ms.
+
+### Concurrency
+
+The engine handles requests in parallel. Measured on this M5 Pro:
+
+| Load | Result |
+|------|--------|
+| 16 agents, each checking its own area, 10 times | 1,807 checks/s, median 6.7 ms, p95 25 ms, 0 wrong images |
+| 8 agents checking the same area | 334 checks/s, median 6 ms, 0 wrong |
+| 12 agents checking areas that 12 running recordings cover | 1,118 checks/s via `tap`, median 8 ms, 0 wrong |
+| 500 simultaneous notes into one session | 2,584/s, all 500 in the log, counts exact |
+| 16 / 20 simultaneous recordings, full motion | 0 dropped frames, durations exact to the frame |
+| 22–30 simultaneous recordings | the hardware video encoder stalls |
+
+Correctness was checked by putting a differently coloured square on each test
+area and confirming every image showed its own colour.
+
+- **Recording cap: 16 at once**, set by the hardware encoder (20 ran clean, 22
+  stalled), with headroom for Zoom, FaceTime and other apps sharing it. The
+  17th gets `too_many`, naming the recordings and sessions holding slots.
+- **If the encoder stalls anyway**, recordings that can't finish within 15 s,
+  or can't start within 8 s of `start_at`, are marked `interrupted` or
+  `failed` from outside their queue. The engine then restarts itself (launchd
+  brings it back in about 5 s with a fresh encoder), and queued recordings
+  re-arm. API calls never wait on a recording's queue, so a stall can't hang
+  the engine.
+- **Outlines are namespaced** by `session_id` (`<session_id>:frame`), so two
+  agents' outlines never replace each other. `overlay.hide {session_id}`
+  hides only that session's.
+- Frame-check filenames carry a random suffix, so concurrent checks never
+  overwrite each other's images.
 
 ### Recording
-
-`start_at` and `end_at` are required and absolute: ISO 8601 (`2026-10-05T20:15:00Z`,
-any offset, fractional seconds allowed) or unix seconds. Both are always
-required, so a recording can be queued for any future window. Limits: end after
-start, at most 3 h long, at most 7 days ahead, at most 4 recordings overlapping
-in time, start no more than 5 s in the past.
-
-**Presets.** Override any field per recording.
-
-| preset | size | fps | for |
-|--------|------|-----|-----|
-| `evidence` (default) | 1 pixel per point | 30 | readable proof, small files (800×600 pt: 0.46 Mbit/s) |
-| `demo` | native Retina | 60 | polished demos |
-| `pr-clip` | 1280 wide | 30 | PR descriptions and chat |
-
-H.264 by default (`codec: "hevc"` for smaller files). The cursor is hidden
-unless `show_cursor: true`.
-
-**Timing.**
-- The engine arms 1 s before `start_at`: it resolves the target and starts the
-  stream early. The video's first frame is the screen exactly as it was at
-  `start_at`, and the file covers exactly `start_at` to `end_at`.
-- Frames are timestamped on the host clock. Measured: on-screen changes land in
-  the file 13–22 ms after they happen (about a frame at 60 fps), and durations
-  come out exact (3.000000 s for a 3 s window).
-- A screen that never changes still gives a full-length file: the last frame
-  is repeated just before `end_at` and the session ends at `end_at`.
-- The display is kept awake from arming until the file is written (an idle
-  sleep assertion). The engine can't wake a sleeping Mac for a future
-  recording, and closing the lid still sleeps it.
-- `if_late` (`start` by default) decides what happens if the engine arms more
-  than 2 s late (restart, sleep): start late and record the rest, or `skip`
-  and mark it `missed`.
-
-**States.** `scheduled` → `arming` → `recording` → `finalizing` → `done`, or
-`failed` (couldn't start, or no frames), `canceled`, `missed`, `interrupted`
-(the window closed or the engine stopped mid-recording; the file is kept and
-plays up to that point).
-
-**Crash safety.** Files are fragmented MP4 with a fragment every second. In a
-test, an engine killed with `kill -9` 4 s into a recording left a playable
-4.0 s file, the recording was marked `interrupted` on restart, and a recording
-queued for after the crash still ran on time.
-
-**Disturbances.** For window targets the engine checks once a second and adds
-events to the manifest with their offset into the video (`t_s`):
-`window_moved`, `window_resized`, `window_off_screen` / `window_on_screen`,
-`app_hidden` / `app_unhidden`, `window_gone`. Other events: `warning`,
-`started_late`, `stopped_early`, `end_moved`, `capture_stopped`.
-
-**Cost.** A 60 fps full-Retina display recording used 3.6% of one core in
-the engine (the encoder is hardware) and 45 MB of memory.
-
-### Sessions
-
-A session is the bundle for one piece of work. Agents rarely need to manage
-them:
-
-- **Auto-attach.** Requests carry `caller` (the CLI and MCP add it):
-  `{agent, agent_session_id, host_session_id, cwd, repo, repo_root, branch}`.
-  `agent_session_id` comes from `CLAUDE_CODE_SESSION_ID` (or Codex's thread
-  id). `record.schedule` without a `session_id` goes into the caller's most
-  recent open session, active in the last 12 h, or opens a new one titled
-  after the recording's label. `frame.verify` and `record.mark` attach to the
-  caller's open session if there is one; they never create one.
-- **Lost ids.** `session.current` answers "what am I working in?".
-  `session.search` with `mine: true` lists only this agent's sessions; `query`
-  matches every word against title, purpose, tags, notes, recording labels,
-  mark labels and the caller's directory, repo and branch, and says which
-  fields matched.
-- **Marks.** `record.mark` stamps "now" into running recordings with the
-  offset into each video (`t_s`), for chapters and trims later: one recording
-  by id, or every running recording in the session. With nothing running, the
-  mark still goes into the session log with its wall time.
-- **Notes.** `session.note` leaves breadcrumbs ("about to record the
-  checkout flow"), which search finds later.
-- **Closing** stops new work landing in the session; the agent's next
-  recording opens a fresh one. `session.reopen` undoes it.
-
-### Frame outline
-
-`overlay.show` draws viewfinder-style corner brackets 6 pt outside the target,
-with an optional label. It never takes focus or clicks, sits on every Space,
-and is hidden from every screen capture: macOS's own `screencapture` doesn't
-see it, and the engine's capture filters exclude the engine's windows too.
-`capturable: true` lets other tools capture it, to check how it looks.
-
-`clock.uptime_ns` is `CLOCK_UPTIME_RAW`, the same clock as ScreenCaptureKit
-frame timestamps and Hammerspoon's `hs.timer.absoluteTime()`.
-
-Only processes running as this user can connect: the socket is mode 600 and
-the engine checks the peer's uid.
-
-## Behaviour that matters
-
-- **Never takes focus.** The engine runs with the `prohibited` activation
-  policy and `LSUIElement`. Measured: the usual accessory policy activated a
-  helper once at launch; prohibited never did. Outlines and verifies leave the
-  frontmost app unchanged.
-- **macOS shows its recording indicator** while the viewfinder stream runs
-  (up to 20 s after the last verify).
-- **One instance.** An flock on `run/engine.lock`; a second copy exits 0.
-- **Restarts on crash, not on clean exit.** `KeepAlive.SuccessfulExit = false`.
-- **Installs don't interrupt it.** `install.sh` restarts the engine only when
-  the build hash changed or the plist link moved. After editing the plist
-  itself, reload by hand:
-  `launchctl bootout gui/$(id -u)/com.taylor.record-screen && launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.taylor.record-screen.plist`.
-
-## Screen Recording permission
-
-The bundle is signed with the first `Apple Development` identity in the
-keychain (override with `RECORD_SCREEN_SIGN_IDENTITY`). macOS ties the grant
-to that identity, so it survives rebuilds. An ad-hoc signature would change on
-every build and macOS would forget the grant each time. `record-screen status`
-shows `engine.signing.kind`; it should say `identity`.
-
-The current certificate (`Apple Development: evantayloryates@gmail.com`)
-expires 2027-05-30. Renewing it keeps the same name, so the grant should hold.
-
-First-time setup:
-
-1. `record-screen grant` shows macOS's prompt.
-2. Turn on **record-screend** in System Settings > Privacy & Security >
-   Screen & System Audio Recording.
-3. `record-screen restart`, then `record-screen probe` should return `ok: true`.
-
-macOS asks again every 30 days. The re-confirm date lives in
-`~/Library/Group Containers/group.com.apple.replayd/ScreenCaptureApprovals.plist`.

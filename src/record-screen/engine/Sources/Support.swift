@@ -74,7 +74,7 @@ enum Log {
     row["event"] = name
     row["ts"] = iso8601.string(from: Date())
     row["clock_ns"] = uptimeNs()
-    guard let data = try? JSONSerialization.data(withJSONObject: row, options: [.sortedKeys]) else { return }
+    guard let data = jsonData(row) else { return }
     q.async {
       handle?.write(data)
       handle?.write(Data([0x0A]))
@@ -86,6 +86,13 @@ extension Dictionary where Key == String, Value == Any {
   func num(_ k: String) -> Double? { (self[k] as? NSNumber)?.doubleValue }
   func str(_ k: String) -> String? { self[k] as? String }
   func bool(_ k: String) -> Bool? { (self[k] as? NSNumber)?.boolValue }
+}
+
+/// JSONSerialization raises an Objective-C exception (a crash, not a Swift
+/// error) on NaN or infinity, so every encode goes through this check.
+func jsonData(_ obj: Any, options: JSONSerialization.WritingOptions = [.sortedKeys]) -> Data? {
+  guard JSONSerialization.isValidJSONObject(obj) else { return nil }
+  return try? JSONSerialization.data(withJSONObject: obj, options: options)
 }
 
 struct RPCError: Error {

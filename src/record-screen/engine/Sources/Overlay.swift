@@ -38,8 +38,10 @@ final class Overlays {
     }
   }
 
-  func hide(id: String?) {
-    let ids = id.map { [$0] } ?? Array(panels.keys)
+  /// Hides one outline by id, every outline whose id starts with `prefix`
+  /// (a session's), or all of them.
+  func hide(id: String?, prefix: String? = nil) {
+    let ids = id.map { [$0] } ?? Array(panels.keys).filter { prefix == nil || $0.hasPrefix(prefix!) }
     for i in ids {
       timers.removeValue(forKey: i)?.invalidate()
       panels.removeValue(forKey: i)?.orderOut(nil)

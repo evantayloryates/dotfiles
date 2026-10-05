@@ -5,7 +5,7 @@ import UniformTypeIdentifiers
 import VideoToolbox
 
 /// Receives viewfinder frames and keeps only the newest one.
-private final class FrameSink: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Sendable {
+final class FrameSink: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Sendable {
   private let lock = NSLock()
   private var latest: CVPixelBuffer?
   private(set) var seq: UInt64 = 0
@@ -63,116 +63,176 @@ private final class FrameSink: NSObject, SCStreamOutput, SCStreamDelegate, @unch
   }
 }
 
-/// One warm stream, re-aimed at whatever the agent verifies next.
-/// Measured: re-aiming a running stream reached a frame in 37–44 ms, reading the
-/// newest frame of an unchanged target in 13–35 ms, a cold screenshot 130–270 ms.
-/// The stream stops after `idleSeconds` without use.
+/// One warm stream per target (a "lane"), never re-aimed.
+///
+/// A single re-aimed stream was fast for one agent but wrong under concurrency:
+/// with 8 agents checking the same area at once, 30 of 40 images showed the
+/// previous target, because the stream's bookkeeping moved before its frames
+/// did. Lanes fix that by construction: a lane's filter and area never change,
+/// every frame it returns is checked against the area and size it should
+/// cover, and concurrent checks of the same target share one lane (and one
+/// start-up). Different targets run in parallel on separate lanes.
+/// Measured cost of a lane: a few percent of a core while content changes,
+/// near zero while it is static, and no hardware encoder session. Lanes stop
+/// after 20 s idle; at most 24 live.
+final class Lane: @unchecked Sendable {
+  let key: String
+  let sink = FrameSink()
+  let width: Int, height: Int
+  /// Screen area every frame must cover (display and rect targets).
+  let expectedRect: CGRect?
+  var stream: SCStream?
+  var ready: Task<Void, Error>?
+  var restart: Task<Void, Error>?
+  var lastUsed = uptimeNs()
+  var served = 0
+
+  init(key: String, width: Int, height: Int, expectedRect: CGRect?) {
+    self.key = key
+    self.width = width
+    self.height = height
+    self.expectedRect = expectedRect
+  }
+
+  var healthy: Bool { sink.stoppedError == nil }
+
+  func start(filter: SCContentFilter, config: SCStreamConfiguration) async throws {
+    let s = SCStream(filter: filter, configuration: config, delegate: sink)
+    try s.addStreamOutput(sink, type: .screen, sampleHandlerQueue: DispatchQueue(label: "record-screen.lane"))
+    try await s.startCapture()
+    stream = s
+  }
+
+  func stop() async {
+    if let s = stream { try? await s.stopCapture() }
+    stream = nil
+  }
+}
+
 actor Viewfinder {
-  private var stream: SCStream?
-  private var sink: FrameSink?
-  private var key: String?
-  private var configKey: String?
-  private var lastUsed: UInt64 = 0
-  private var idleTask: Task<Void, Never>?
-  private let idleSeconds: Double = 20
+  static let maxLanes = 24
+  static let idleSeconds: Double = 20
+  private var lanes: [String: Lane] = [:]
+  private var sweeper: Task<Void, Never>?
 
   struct Grab {
     let image: CGImage
-    let source: String  // "live" (newest frame of an unchanged target), "reaim", "start", "screenshot"
+    /// live (warm lane), start (first frame of a new lane), tap (frame from a
+    /// running recording of the same area), screenshot (fallback)
+    let source: String
     let ms: Double
   }
 
   func grab(_ t: ResolvedTarget, maxWidth: Int?) async throws -> Grab {
     let t0 = uptimeNs()
-    lastUsed = t0
-    scheduleIdleStop()
     let cfg = t.configuration(maxWidth: maxWidth)
     cfg.minimumFrameInterval = CMTime(value: 1, timescale: 30)
     cfg.queueDepth = 4
-    let cfgKey = "\(cfg.width)x\(cfg.height)@\(t.sourceRect.map { "\($0)" } ?? "full")"
-    func done(_ pb: CVPixelBuffer, _ source: String) throws -> Grab {
-      Grab(image: try cgImage(pb), source: source, ms: Double(uptimeNs() - t0) / 1e6)
+    let key = "\(t.key)|\(t.areaKey)|\(cfg.width)x\(cfg.height)"
+    let expected: CGRect? = t.window == nil
+      ? (t.sourceRect.map { $0.offsetBy(dx: t.display.frame.minX, dy: t.display.frame.minY) } ?? t.display.frame) : nil
+
+    // Find or open the lane before any suspension point, so concurrent
+    // callers for the same target share it (actor reentrancy safe).
+    let lane: Lane
+    var created = false
+    if let l = lanes[key], l.healthy {
+      lane = l
+    } else {
+      created = true
+      lane = Lane(key: key, width: cfg.width, height: cfg.height, expectedRect: expected)
+      lanes[key] = lane
+      lane.ready = Task { try await lane.start(filter: t.filter, config: cfg) }
+      evictIfNeeded()
     }
-    func screenshot(_ source: String) async throws -> Grab {
+    lane.lastUsed = t0
+    ensureSweeper()
+
+    func screenshot() async throws -> Grab {
       let img = try await SCScreenshotManager.captureImage(contentFilter: t.filter, configuration: t.configuration(maxWidth: maxWidth))
-      return Grab(image: img, source: source, ms: Double(uptimeNs() - t0) / 1e6)
+      return Grab(image: img, source: "screenshot", ms: Double(uptimeNs() - t0) / 1e6)
     }
-
-    guard let stream, let sink, sink.stoppedError == nil else {
-      await stop()
-      let sink = FrameSink()
-      let s = SCStream(filter: t.filter, configuration: cfg, delegate: sink)
-      try s.addStreamOutput(sink, type: .screen, sampleHandlerQueue: DispatchQueue(label: "record-screen.viewfinder"))
-      try await s.startCapture()
-      self.stream = s; self.sink = sink; key = t.key; configKey = cfgKey
-      if let pb = await sink.waitForFrame(shownAfterNs: 0, width: cfg.width, height: cfg.height, timeoutMs: 1000) {
-        return try done(pb, "start")
-      }
-      return try await screenshot("screenshot")
-    }
-
-    if key == t.key && configKey == cfgKey, case let (pb?, _, _) = sink.snapshot() {
-      return try done(pb, "live")
-    }
-
-    if key != t.key {
-      // A new content filter (other window, other display, outline exclusion)
-      // lands a frame or two late on a running stream, and nothing in the frame
-      // says which filter made it. Answer with an authoritative screenshot and
-      // re-aim the stream for the checks that follow.
-      let grab = try await screenshot("screenshot")
-      do {
-        try await stream.updateContentFilter(t.filter)
-        try await stream.updateConfiguration(cfg)
-        key = t.key; configKey = cfgKey
-      } catch {
-        await stop()
-      }
-      return grab
-    }
-
-    // Same filter, new area or size: frames say which area they cover, so wait
-    // for one that matches.
     do {
-      try await stream.updateConfiguration(cfg)
-      let updated = uptimeNs()
-      configKey = cfgKey
-      let want = t.sourceRect.map { $0.offsetBy(dx: t.display.frame.minX, dy: t.display.frame.minY) } ?? t.display.frame
-      if let pb = await sink.waitForFrame(shownAfterNs: updated, width: cfg.width, height: cfg.height,
-                                          screenRect: want, timeoutMs: 250) {
-        return try done(pb, "reaim")
-      }
+      try await lane.ready?.value
     } catch {
-      await stop()
+      if lanes[key] === lane { lanes[key] = nil }
+      return try await screenshot()
     }
-    return try await screenshot("screenshot")
+    let fresh = lane.served == 0
+    func frame(_ timeoutMs: Double) async -> CVPixelBuffer? {
+      await lane.sink.waitForFrame(shownAfterNs: 0, width: lane.width, height: lane.height,
+                                   screenRect: lane.expectedRect, timeoutMs: timeoutMs)
+    }
+    var pb = await frame(fresh ? 500 : 250)
+    // A new stream occasionally starts silent (seen on a cold engine with
+    // many concurrent first checks). Restart it once rather than fall back.
+    if pb == nil, lane.sink.seq == 0, lanes[key] === lane {
+      if lane.restart == nil {
+        lane.restart = Task {
+          await lane.stop()
+          try await lane.start(filter: t.filter, config: cfg)
+        }
+        Log.event("lane_restart", ["key": key])
+      }
+      if (try? await lane.restart?.value) != nil { pb = await frame(700) }
+    }
+    if let pb {
+      lane.served += 1
+      return Grab(image: try cgImage(pb), source: created ? "start" : "live", ms: Double(uptimeNs() - t0) / 1e6)
+    }
+    return try await screenshot()
   }
 
-  var lastScreenRect: CGRect { sink?.screenRect ?? .null }
-
   func stop() async {
-    if let s = stream { try? await s.stopCapture() }
-    stream = nil; sink = nil; key = nil; configKey = nil
+    let all = lanes.values
+    lanes.removeAll()
+    for l in all { await l.stop() }
   }
 
   var state: [String: Any] {
-    ["running": stream != nil, "target": key ?? "", "idle_s": stream == nil ? 0 : Double(uptimeNs() - lastUsed) / 1e9]
+    ["lanes": lanes.values.map { ["key": $0.key, "idle_s": Double(uptimeNs() - $0.lastUsed) / 1e9, "served": $0.served,
+                                  "frames": Int($0.sink.seq), "frame_rect": rectDict($0.sink.screenRect), "expected": $0.expectedRect.map(rectDict) ?? [:]] },
+     "max_lanes": Self.maxLanes]
   }
 
-  private func scheduleIdleStop() {
-    idleTask?.cancel()
-    idleTask = Task { [idleSeconds] in
-      try? await Task.sleep(nanoseconds: UInt64(idleSeconds * 1e9))
-      if !Task.isCancelled { await self.stop() }
+  private func evictIfNeeded() {
+    while lanes.count > Self.maxLanes, let oldest = lanes.values.min(by: { $0.lastUsed < $1.lastUsed }) {
+      lanes[oldest.key] = nil
+      Task { await oldest.stop() }
     }
   }
 
-  private func cgImage(_ pb: CVPixelBuffer) throws -> CGImage {
-    var img: CGImage?
-    VTCreateCGImageFromCVPixelBuffer(pb, options: nil, imageOut: &img)
-    guard let img else { throw RPCError(code: "internal", message: "could not convert frame") }
-    return img
+  private func ensureSweeper() {
+    guard sweeper == nil else { return }
+    sweeper = Task {
+      while !Task.isCancelled {
+        try? await Task.sleep(nanoseconds: 5_000_000_000)
+        await self.sweep()
+      }
+    }
   }
+
+  private func sweep() async {
+    let cutoff = uptimeNs() - UInt64(Self.idleSeconds * 1e9)
+    for l in lanes.values where l.lastUsed < cutoff || !l.healthy {
+      lanes[l.key] = nil
+      await l.stop()
+    }
+    if lanes.isEmpty { sweeper?.cancel(); sweeper = nil }
+  }
+}
+
+func cgImage(_ pb: CVPixelBuffer, maxWidth: Int? = nil) throws -> CGImage {
+  var img: CGImage?
+  VTCreateCGImageFromCVPixelBuffer(pb, options: nil, imageOut: &img)
+  guard let img else { throw RPCError(code: "internal", message: "could not convert frame") }
+  guard let m = maxWidth, img.width > m else { return img }
+  let h = Int((Double(img.height) * Double(m) / Double(img.width)).rounded())
+  guard let ctx = CGContext(data: nil, width: m, height: h, bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpace(name: CGColorSpace.sRGB)!,
+                            bitmapInfo: CGImageAlphaInfo.premultipliedFirst.rawValue | CGBitmapInfo.byteOrder32Little.rawValue) else { return img }
+  ctx.interpolationQuality = .high
+  ctx.draw(img, in: CGRect(x: 0, y: 0, width: m, height: h))
+  return ctx.makeImage() ?? img
 }
 
 enum ImageOut {
