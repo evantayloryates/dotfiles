@@ -81,7 +81,8 @@ CONFIG = [
   p('claude',      '~/.claude/skills',                  parent_func='skills', aliases=['cc']),
   p('codex',       '~/.codex/skills',                   parent_func='skills', aliases=['cdx', 'cod']),
   p('taxes',       '~/Documents/Taxes',                 'cd', aliases=['tax']),
-  p('theo',        '$DOTFILES_DIR/src/switchboard',     'cd', aliases=['switchboard']),
+  p('theo',        '$DOTFILES_DIR/src/switchboard',     'cd', aliases=['switchboard'],
+    commands={'vnc': '<path>/bin/theo-vnc <args>', 'air': '<path>/bin/theo-air <args>'}),
   p('vsx',         '~/src/vscode-extensions'),
   p('amp',        '~/src/github/amplify', aliases=['amplify'], alias_cmds={'up': 'update'},
     commands={

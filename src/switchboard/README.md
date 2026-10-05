@@ -39,3 +39,12 @@ Both machines are on Taylor's tailnet (MagicDNS suffix `taile8fdd0.ts.net`): `th
 `tailscaled` daemon, auth key in 1Password Theo vault) and `penelope` (was macbook-pro-3) 100.89.79.39 (standalone Tailscale.app,
 start-on-login enabled; the Network Extension approval in System Settings was the one step Taylor had to click).
 `ssh theo-air` uses mDNS on the LAN, `ssh theo-air-ts` the tailnet from anywhere. Key expiry is disabled on both nodes.
+
+## `theo` shell command
+`theo` is a pathfunc (src/python/pathfuncs.py) rooted at this folder. Subcommands:
+- `theo vnc` — open, or focus if already open, a Screen Sharing window to the Air's console over the tailnet
+  (`theo-air.taile8fdd0.ts.net`), scaling on, sized 1470x1008 to the Air's desktop. Login is silent: Taylor's Keychain holds a
+  "Network Password" item for theo@that host (protocol vnc, ACL: Screen Sharing.app only), provisioned 2026-10-04 from the
+  1Password Theo-vault login item. `theo vnc --check` says whether the item is present; `theo vnc --fit` re-fits the window.
+- `theo air <subcommand>` — the headless `theo-air` helper (shot, click, type, osa, sh, status, tidy, vnc, ...).
+
