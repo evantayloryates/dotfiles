@@ -115,7 +115,21 @@
     "classifier_classify_guide": "allow",
     "classifier_classify_sample": "allow",
     "kickoffdb_transcript_export": "allow",
-    "kickoffdb_transcript_export_status": "allow"
+    "kickoffdb_transcript_export_status": "allow",
+    "slackuser_slack_search_public": "allow",
+    "slackuser_slack_search_public_and_private": "allow",
+    "slackuser_slack_search_channels": "allow",
+    "slackuser_slack_search_users": "allow",
+    "slackuser_slack_read_channel": "allow",
+    "slackuser_slack_read_thread": "allow",
+    "slackuser_slack_read_canvas": "allow",
+    "slackuser_slack_read_user_profile": "allow",
+    "slackuser_slack_list_channel_members": "allow",
+    "slackuser_slack_read_file": "allow",
+    "slackuser_slack_read_list": "allow",
+    "slackuser_slack_list_user_channels": "allow",
+    "slackuser_slack_search_emojis": "allow",
+    "slackuser_slack_get_reactions": "allow"
   },
   "agent": {
     "zdr": {

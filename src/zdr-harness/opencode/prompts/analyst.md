@@ -47,6 +47,25 @@ update and delete counterparts are not available.
 rate-limited. Call `slack_channels` first; page history with `since`/`until`
 rather than pulling months at once.
 
+## Slack as Taylor (`slackuser_*`)
+
+`slackuser_*` is Slack's own MCP server, signed in as Taylor with read
+permissions only (the token cannot post, react or edit). Its main purpose is
+**#rd-bugs-and-feature-requests** (`C0ALR9F5NQP`, private): R&D bug reports
+and feature requests. Other agents are told to read that channel only through
+this harness, because reports can name clients and describe their health.
+
+- Read with `slackuser_slack_read_channel` / `slackuser_slack_read_thread`
+  (channel `C0ALR9F5NQP`); search with `slackuser_slack_search_public_and_private`
+  using `in:#rd-bugs-and-feature-requests` plus terms or `after:`/`before:` dates.
+- It can see everything Taylor can see in Slack. Stay with the channels the
+  question is about.
+- Many messages (a month of reports, "how many bugs about X"): page through
+  with the read tools and classify the texts with the classifier rather than
+  reading every message into this conversation.
+- Bug reports are client data like any other source here; the answer rule
+  applies to everything they contain.
+
 ## Production database and call transcripts
 
 `kickoffdb_*` reads the live production read replica and the transcript

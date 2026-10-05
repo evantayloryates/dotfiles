@@ -1,8 +1,8 @@
 # record-screen
 
-An always-on screen-recording engine that agents drive through a
+An always-on screen-recording engine that agents drive through the
 `record-screen` MCP. This folder holds the engine (`record-screend`, Swift on
-ScreenCaptureKit), its command line, and later the MCP shim.
+ScreenCaptureKit), the MCP server, and a command line.
 
 Why it is built this way, with measurements:
 `~/src/docs/html/record-screen-strategies/index.html`. Bench harness:
@@ -10,7 +10,7 @@ Why it is built this way, with measurements:
 
 ## Status
 
-Steps 1–4 of the build order are done.
+Steps 1–5 of the build order are done.
 
 1. **Engine skeleton.** Runs at login, answers on its socket, reports status,
    holds its own Screen Recording grant.
@@ -20,11 +20,11 @@ Steps 1–4 of the build order are done.
    the take starts exactly on time, crash-safe files, stop, cancel, move the
    end, wait, and survival across engine restarts.
 
-4. **Sessions.** Every recording, frame check, note and mark is bundled into
-   a session folder, tagged with the agent session, directory, repo and branch
-   that made it, and searchable when the agent loses the id.
+4. **Sessions.** Recordings, frame checks, notes and marks bundle into
+   explicit session folders, searchable by clues when an agent loses the id.
+5. **MCP.** 15 tools over the engine, registered in Claude Code and Codex.
 
-The MCP shim comes next.
+Agent outputs (poster frames, contact sheets, keyframes, exports) come next.
 
 ## Layout
 
@@ -36,8 +36,10 @@ The MCP shim comes next.
 | `build.py` | Compiles with `swiftc`, bundles, signs, stamps the source hash. Output: `data/record-screen/record-screend.app` (gitignored). |
 | `install.sh` | Build, link `src/launchd/com.taylor.record-screen.plist`, load it, wait for the socket. Run by the top-level `install.sh`. |
 | `engine/Sources/Sessions.swift` | Session folders, the event log, auto-attach by caller, search. |
+| `server.mjs`, `bin/record-screen-mcp` | The MCP server (stdio, zero dependencies; shares `src/lib/node/mcp-stdio.mjs` with claude-driver and codex-bridge). |
+| `lib/install.mjs` | Registers the MCP in Claude Code (user scope) and Codex; run by `record-screen install` and `install.sh`. |
 | `cli.mjs`, `bin/record-screen` | Command line (also on PATH as `~/dotfiles/bin/record-screen`). |
-| `lib/caller.mjs` | Builds the `caller` object (agent session id, cwd, repo, branch) sent with session-aware requests. |
+| `lib/caller.mjs` | Builds the `caller` clues (claimed agent session id, cwd, repo, branch) stored on new sessions. |
 | `lib/client.mjs` | Socket client shared by the CLI and the future MCP. |
 
 Runtime state lives in `~/.record-screen/` (mode 700):
@@ -53,6 +55,41 @@ frames/verify-<ms>.jpg       frame checks made in this session
 recordings/<recording_id>/   video.mp4 + recording.json (with marks and events)
 ``` `RECORD_SCREEN_HOME` overrides the root.
 
+## MCP tools
+
+Server `record-screen`. Every reply carries `clock.wall` (engine time) for
+computing absolute times. Errors come back as `<tool> failed [code]: message`,
+and the message says what to do next, in tool names.
+
+| Tool | Does |
+|------|------|
+| `status` | engine health, permission, displays, clock, warm lanes, outlines |
+| `windows` | windows front to back, for window targets |
+| `frame_check` | captures the target now and **returns the image** (1024 px default) plus resolved frame, checks and timing |
+| `frame_outline` | shows (or with `hide`, removes) the frame outline for the human |
+| `session_open` | opens a session; keep its id |
+| `session_find` | finds sessions by query words and filters; returns clues; `mine` filters on this agent's claimed id |
+| `session_show` | one session with its recordings and recent events |
+| `session_note` | a breadcrumb in the session log |
+| `session_update` | title, purpose, tags, open/closed |
+| `record_schedule` | absolute `start_at` + `end_at`, `session_id` or `session {title}`, preset and overrides, `idempotency_key` |
+| `record_wait` | blocks until `recording` or `done` (waits in 15 s slices with progress notifications) |
+| `record_stop` | stop now and keep the file, or `discard: true` to cancel and delete it |
+| `record_reschedule` | move start/end before start, or end while recording |
+| `recordings` | one manifest by id, or a filtered list |
+| `mark` | marks now in one recording or every running one in a session |
+
+Typical flow: `session_open` → `windows` / `frame_check` to aim (and
+`frame_outline` to show the human) → `record_schedule` → `mark` while it runs →
+`record_wait` → the video path is in the manifest.
+
+Registration: `record-screen install` (also run by `install.sh`) adds
+`/Users/taylor/dotfiles/src/record-screen/bin/record-screen-mcp` to Claude Code
+(user scope) and `~/.codex/config.toml` (`tool_timeout_sec = 3700`, because
+`record_wait` can block for up to an hour). New agent sessions pick it up.
+`~/src/docs/plans/record-screen/bench/mcp/smoke.mjs` drives every tool over
+stdio.
+
 ## Commands
 
 ```bash
@@ -67,18 +104,18 @@ record-screen windows [app] [title]            # find window ids
 record-screen verify <target> [max_width]      # capture now; prints image path, checks, timings
 record-screen outline <target> [label] [secs]  # draw the frame outline (0 s = until hidden)
 record-screen outline-off
-record-screen record <target> <start> <end> [preset] [label]   # e.g. record display +3s +33s demo
+record-screen record <target> <start> <end> [preset] [label] --new "<title>"   # or --session <id>
 record-screen recordings [state]
 record-screen recording <id>
 record-screen record-wait <id> [recording|done] [timeout_s]
 record-screen stop <id>       # stop now, keep the file
 record-screen cancel <id>     # stop or unschedule, delete the file
-record-screen current         # this agent's open session
 record-screen sessions [query] [--mine]
 record-screen session <id>    # manifest, recordings, recent events
 record-screen session-new <title> [purpose]
-record-screen note <text> [session_id]
-record-screen mark <label> [recording_id]
+record-screen note <session_id> <text>
+record-screen mark <label> <recording_id | session_id>
+record-screen install [--dry-run]
 record-screen close <session_id>
 record-screen call <method> '<json params>'
 ```
@@ -123,16 +160,16 @@ requests; replies may come back out of order, so match them by `id`.
 | `record.cancel` | `{recording_id}` → unschedules, or stops and deletes the file |
 | `record.reschedule` | `{recording_id, start_at?, end_at?}`: before start, either; while recording, only `end_at` |
 
-| `record.mark` | `{label, kind?, recording_id? \| session_id? \| caller}` → `marked: [{recording_id, t_s}]` |
+| `record.mark` | `{label, kind?, recording_id \| session_id}` → `marked: [{recording_id, t_s}]` |
 | `session.create` | `{title, purpose?, tags?, caller?}` |
-| `session.current` | `{caller}` → the caller's open session with its recordings, or `session: null` |
 | `session.get` | `{session_id, events? (30)}` → manifest, recordings, recent events, dir |
-| `session.search` | `{query?, mine?, agent_session_id?, cwd?, repo?, tag?, state?, since?, limit? (10)}` |
-| `session.note` | `{text, session_id? \| caller}` |
+| `session.search` | `{query?, agent_session_id?, cwd?, repo?, branch?, tag?, state?, since?, limit? (10)}` → hits with clues |
+| `session.note` | `{session_id, text}` |
 | `session.update` | `{session_id, title?, purpose?, tags?}` |
 | `session.close` / `session.reopen` | `{session_id}` |
 
-`record.schedule` and `frame.verify` also take `session_id` or `caller`.
+`record.schedule` requires `session_id` or `session: {title, ...}`;
+`frame.verify` and `overlay.show` take an optional `session_id`.
 
 Every object reply also carries `clock: {wall, uptime_ns}`, the engine's time,
 so an agent can compute absolute times without a separate call.
@@ -209,3 +246,133 @@ area and confirming every image showed its own colour.
   overwrite each other's images.
 
 ### Recording
+
+`start_at` and `end_at` are required and absolute: ISO 8601 (`2026-10-05T20:15:00Z`,
+any offset, fractional seconds allowed) or unix seconds. Both are always
+required, so a recording can be queued for any future window. Limits: end after
+start, at most 3 h long, at most 7 days ahead, at most 16 recordings
+overlapping in time (see Concurrency), start no more than 5 s in the past.
+
+**Presets.** Override any field per recording.
+
+| preset | size | fps | for |
+|--------|------|-----|-----|
+| `evidence` (default) | 1 pixel per point | 30 | readable proof, small files (800×600 pt: 0.46 Mbit/s) |
+| `demo` | native Retina | 60 | polished demos |
+| `pr-clip` | 1280 wide | 30 | PR descriptions and chat |
+
+H.264 by default (`codec: "hevc"` for smaller files). The cursor is hidden
+unless `show_cursor: true`.
+
+**Timing.**
+- The engine arms 1 s before `start_at`: it resolves the target and starts the
+  stream early. The video's first frame is the screen exactly as it was at
+  `start_at`, and the file covers exactly `start_at` to `end_at`.
+- Frames are timestamped on the host clock. Measured: on-screen changes land in
+  the file 13–22 ms after they happen (about a frame at 60 fps), and durations
+  come out exact (3.000000 s for a 3 s window).
+- A screen that never changes still gives a full-length file: the last frame
+  is repeated just before `end_at` and the session ends at `end_at`.
+- The display is kept awake from arming until the file is written (an idle
+  sleep assertion). The engine can't wake a sleeping Mac for a future
+  recording, and closing the lid still sleeps it.
+- `if_late` (`start` by default) decides what happens if the engine arms more
+  than 2 s late (restart, sleep): start late and record the rest, or `skip`
+  and mark it `missed`.
+
+**States.** `scheduled` → `arming` → `recording` → `finalizing` → `done`, or
+`failed` (couldn't start, or no frames), `canceled`, `missed`, `interrupted`
+(the window closed or the engine stopped mid-recording; the file is kept and
+plays up to that point).
+
+**Crash safety.** Files are fragmented MP4 with a fragment every second. In a
+test, an engine killed with `kill -9` 4 s into a recording left a playable
+4.0 s file, the recording was marked `interrupted` on restart, and a recording
+queued for after the crash still ran on time.
+
+**Disturbances.** For window targets the engine checks once a second and adds
+events to the manifest with their offset into the video (`t_s`):
+`window_moved`, `window_resized`, `window_off_screen` / `window_on_screen`,
+`app_hidden` / `app_unhidden`, `window_gone`. Other events: `warning`,
+`started_late`, `stopped_early`, `end_moved`, `capture_stopped`.
+
+**Cost.** A 60 fps full-Retina display recording used 3.6% of one core in
+the engine (the encoder is hardware) and 45 MB of memory.
+
+### Sessions
+
+A session is the bundle for one piece of work. Sessions are **explicit**: the
+engine never decides which session a request belongs to.
+
+- `record.schedule` needs `session_id` or `session: {title, purpose?, tags?}`,
+  which opens one in the same call. The reply always names the session.
+  `frame.verify` keeps its image in a session only when `session_id` is given;
+  `record.mark` takes `recording_id` or `session_id`.
+- **No identity.** There is no authorisation and no ownership: every agent can
+  read and act on every session, by design. Who opened a session is stored as
+  `made_by` (`caller`: claimed agent session id, client, cwd, repo, branch).
+  It is a clue, never used to route work: a client can't prove who it is
+  (subagents share their parent's id, Codex may send none, resumed sessions
+  get new ids).
+- **Finding a lost id.** `session.search` matches every query word against
+  title, purpose, tags, notes, recording labels, marks and the made-by
+  directory, repo and branch, and filters by `agent_session_id`, `cwd`
+  (prefix), `repo`, `branch`, `tag`, `state` and `since`. Each hit carries
+  clues: `matched` fields, `last_note`, `recent_marks`, `recording_now`,
+  `last_image`, counts, `made_by`. The agent decides which one is its own.
+- **Marks.** `record.mark` stamps "now" into one recording, or every running
+  recording in a session, with the offset into each video (`t_s`). With
+  nothing running, the mark still goes into the session log.
+- **Notes.** `session.note` leaves breadcrumbs that search finds later.
+- **Closing** stops new recordings landing in the session; `session.reopen`
+  undoes it.
+
+### Frame outline
+
+`overlay.show` draws viewfinder-style corner brackets 6 pt outside the target,
+with an optional label. It never takes focus or clicks, sits on every Space,
+and is hidden from every screen capture: macOS's own `screencapture` doesn't
+see it, and the engine's capture filters exclude the engine's windows too.
+`capturable: true` lets other tools capture it, to check how it looks.
+
+`clock.uptime_ns` is `CLOCK_UPTIME_RAW`, the same clock as ScreenCaptureKit
+frame timestamps and Hammerspoon's `hs.timer.absoluteTime()`.
+
+Only processes running as this user can connect: the socket is mode 600 and
+the engine checks the peer's uid.
+
+## Behaviour that matters
+
+- **Never takes focus.** The engine runs with the `prohibited` activation
+  policy and `LSUIElement`. Measured: the usual accessory policy activated a
+  helper once at launch; prohibited never did. Outlines and verifies leave the
+  frontmost app unchanged.
+- **macOS shows its recording indicator** while the viewfinder stream runs
+  (up to 20 s after the last verify).
+- **One instance.** An flock on `run/engine.lock`; a second copy exits 0.
+- **Restarts on crash, not on clean exit.** `KeepAlive.SuccessfulExit = false`.
+- **Installs don't interrupt it.** `install.sh` restarts the engine only when
+  the build hash changed or the plist link moved. After editing the plist
+  itself, reload by hand:
+  `launchctl bootout gui/$(id -u)/com.taylor.record-screen && launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.taylor.record-screen.plist`.
+
+## Screen Recording permission
+
+The bundle is signed with the first `Apple Development` identity in the
+keychain (override with `RECORD_SCREEN_SIGN_IDENTITY`). macOS ties the grant
+to that identity, so it survives rebuilds. An ad-hoc signature would change on
+every build and macOS would forget the grant each time. `record-screen status`
+shows `engine.signing.kind`; it should say `identity`.
+
+The current certificate (`Apple Development: evantayloryates@gmail.com`)
+expires 2027-05-30. Renewing it keeps the same name, so the grant should hold.
+
+First-time setup:
+
+1. `record-screen grant` shows macOS's prompt.
+2. Turn on **record-screend** in System Settings > Privacy & Security >
+   Screen & System Audio Recording.
+3. `record-screen restart`, then `record-screen probe` should return `ok: true`.
+
+macOS asks again every 30 days. The re-confirm date lives in
+`~/Library/Group Containers/group.com.apple.replayd/ScreenCaptureApprovals.plist`.
