@@ -246,6 +246,16 @@
         "{env:ZDR_HARNESS_CLASSIFIER_MCP}"
       ],
       "timeout": 120000
+    },
+    "slackuser": {
+      "type": "remote",
+      "url": "https://mcp.slack.com/mcp",
+      "oauth": {
+        "clientId": "320059171748.12239161105348",
+        "clientSecret": "{env:KICKOFF_SLACK_MCP_CLIENT_SECRET}",
+        "scope": "canvases:read channels:history channels:read emoji:read files:read groups:history groups:read lists:read reactions:read search:read.files search:read.private search:read.public search:read.users users:read users:read.email"
+      },
+      "timeout": 120000
     }
   }
 }

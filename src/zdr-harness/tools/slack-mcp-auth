@@ -1,0 +1,154 @@
+#!/usr/bin/env python3
+"""Sign the ZDR harness in to Slack's MCP server with READ permissions only.
+
+    tools/slack-mcp-auth            # opens Slack's consent page in your browser
+
+Use this instead of `zdr-harness mcp auth slackuser`: OpenCode ignores the
+configured `oauth.scope` and asks Slack for every scope the MCP server
+supports, writes included (verified 2026-10-05: the token could post, react,
+and edit canvases and lists). This runs the same OAuth flow with the "ZDR
+Harness" Slack app (A0C714R33A8), asks only for the read scopes below,
+refuses a token that carries any write scope, stores it where OpenCode reads
+it (xdg/data/opencode/mcp-auth.json, key `slackuser`), and revokes the token
+it replaces. It never prints a token: only lengths and scope names.
+"""
+
+import base64
+import hashlib
+import http.server
+import json
+import os
+import secrets
+import subprocess
+import sys
+import threading
+import urllib.parse
+import urllib.request
+
+CLIENT_ID = '320059171748.12239161105348'
+REDIRECT = 'http://127.0.0.1:19876/mcp/oauth/callback'
+SCOPES = [
+    'canvases:read', 'channels:history', 'channels:read', 'emoji:read', 'files:read',
+    'groups:history', 'groups:read', 'lists:read', 'reactions:read',
+    'search:read.files', 'search:read.private', 'search:read.public', 'search:read.users',
+    'users:read', 'users:read.email',
+]
+WRITE = ('write',)  # any scope containing this word is refused
+
+HERE = os.path.dirname(os.path.realpath(__file__))
+ZH = os.path.expanduser('~/.zdr-harness')
+AUTH_FILE = os.path.join(ZH, 'xdg', 'data', 'opencode', 'mcp-auth.json')
+
+
+def die(msg):
+    sys.stderr.write(f'slack-mcp-auth: {msg}\n')
+    sys.exit(1)
+
+
+def client_secret():
+    for path in (os.path.join(HERE, '..', '.env'), os.path.join(ZH, '.env')):
+        try:
+            for line in open(path):
+                if line.startswith('KICKOFF_SLACK_MCP_CLIENT_SECRET='):
+                    v = line.split('=', 1)[1].strip().strip('"').strip("'")
+                    if v:
+                        return v
+        except FileNotFoundError:
+            continue
+    die('KICKOFF_SLACK_MCP_CLIENT_SECRET is not set in the harness .env')
+
+
+def slack(method, data=None, token=None):
+    req = urllib.request.Request(f'https://slack.com/api/{method}', data=urllib.parse.urlencode(data or {}).encode())
+    if token:
+        req.add_header('Authorization', f'Bearer {token}')
+    with urllib.request.urlopen(req, timeout=30) as r:
+        return json.load(r), r.headers.get('x-oauth-scopes')
+
+
+def main():
+    secret = client_secret()
+    verifier = base64.urlsafe_b64encode(secrets.token_bytes(48)).rstrip(b'=').decode()
+    challenge = base64.urlsafe_b64encode(hashlib.sha256(verifier.encode()).digest()).rstrip(b'=').decode()
+    state = secrets.token_hex(16)
+    url = 'https://slack.com/oauth/v2_user/authorize?' + urllib.parse.urlencode({
+        'response_type': 'code', 'client_id': CLIENT_ID, 'redirect_uri': REDIRECT, 'state': state,
+        'code_challenge': challenge, 'code_challenge_method': 'S256',
+        'scope': ' '.join(SCOPES), 'resource': 'https://mcp.slack.com/',
+    })
+
+    got = {}
+    done = threading.Event()
+
+    class Handler(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+            q = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
+            if urllib.parse.urlparse(self.path).path != '/mcp/oauth/callback':
+                self.send_response(404)
+                self.end_headers()
+                return
+            got.update({k: v[0] for k, v in q.items()})
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/plain; charset=utf-8')
+            self.end_headers()
+            self.wfile.write(b'ZDR harness: Slack sign-in received. You can close this tab.')
+            done.set()
+
+        def log_message(self, *a):
+            pass
+
+    try:
+        srv = http.server.HTTPServer(('127.0.0.1', 19876), Handler)
+    except OSError:
+        die('port 19876 is busy (another sign-in running?)')
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    print('Opening Slack. Check the page says "ZDR Harness" and lists read permissions only, then Allow.')
+    subprocess.run(['open', url], check=False)
+    if not done.wait(600):
+        die('no answer from Slack within 10 minutes')
+    srv.shutdown()
+
+    if got.get('state') != state:
+        die('state mismatch; nothing stored')
+    if 'error' in got:
+        die(f"Slack said: {got['error']}")
+    resp, _ = slack('oauth.v2.user.access', {
+        'client_id': CLIENT_ID, 'client_secret': secret, 'code': got.get('code', ''),
+        'redirect_uri': REDIRECT, 'code_verifier': verifier, 'grant_type': 'authorization_code',
+    })
+    if not resp.get('ok'):
+        die(f"token exchange failed: {resp.get('error')}")
+    token = resp.get('access_token') or (resp.get('authed_user') or {}).get('access_token')
+    if not token:
+        die('no access token in the response')
+
+    test, header_scopes = slack('auth.test', token=token)
+    granted = [s.strip() for s in (header_scopes or resp.get('scope') or '').split(',') if s.strip()]
+    bad = [s for s in granted if any(w in s for w in WRITE)]
+    if not test.get('ok') or bad:
+        slack('auth.revoke', token=token)
+        die(f"refused and revoked the new token: {'write scopes ' + ', '.join(bad) if bad else test.get('error')}")
+
+    data = {}
+    try:
+        data = json.load(open(AUTH_FILE))
+    except FileNotFoundError:
+        pass
+    old = (data.get('slackuser') or {}).get('tokens', {}).get('accessToken')
+    data['slackuser'] = {'serverUrl': 'https://mcp.slack.com/mcp', 'tokens': {'accessToken': token, 'scope': ','.join(granted)}}
+    tmp = AUTH_FILE + '.tmp'
+    fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, 'w') as f:
+        json.dump(data, f, indent=2)
+    os.replace(tmp, AUTH_FILE)
+
+    if old and old != token:
+        revoked, _ = slack('auth.revoke', token=old)
+        print(f"Old token revoked: {revoked.get('revoked', False)}")
+    print(f"Signed in as {test.get('user')} ({test.get('user_id')}); token length {len(token)}.")
+    print('Granted scopes:', ', '.join(granted))
+    print('Restart the harness to use it: zdr-harness restart')
+
+
+if __name__ == '__main__':
+    main()

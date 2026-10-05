@@ -104,6 +104,7 @@ load_secrets() {
 
   # Slack (Field Notes bot). Optional: without it that server reports the missing token.
   KICKOFF_SLACK_ZDR_BOT_TOKEN="$(ENV_FILE="$SECRETS_FILE" env_get KICKOFF_SLACK_ZDR_BOT_TOKEN 2>/dev/null || true)"
+  KICKOFF_SLACK_MCP_CLIENT_SECRET="$(ENV_FILE="$SECRETS_FILE" env_get KICKOFF_SLACK_MCP_CLIENT_SECRET 2>/dev/null || true)"
 
   # Cloudinary is optional too: without it that server reports the missing key.
   KICKOFF_CLOUDINARY_CLOUD_NAME="$(ENV_FILE="$SECRETS_FILE" env_get KICKOFF_CLOUDINARY_CLOUD_NAME 2>/dev/null || true)"
@@ -179,6 +180,7 @@ isolated_env() {
     ZDR_HARNESS_SLACK_MCP="${PROJECT_DIR}/mcps/kickoff-slack-mcp" \
     ZDR_HARNESS_CLASSIFIER_MCP="${PROJECT_DIR}/mcps/classifier-mcp" \
     KICKOFF_SLACK_ZDR_BOT_TOKEN="${KICKOFF_SLACK_ZDR_BOT_TOKEN:-}" \
+    KICKOFF_SLACK_MCP_CLIENT_SECRET="${KICKOFF_SLACK_MCP_CLIENT_SECRET:-}" \
     KICKOFF_ZDR_DB_URL="${KICKOFF_ZDR_DB_URL:-}" \
     KICKOFF_ZDR_DB_TUNNEL_PORT="${KICKOFF_ZDR_DB_TUNNEL_PORT:-33306}" \
     KICKOFF_CLOUDINARY_CLOUD_NAME="${KICKOFF_CLOUDINARY_CLOUD_NAME:-}" \

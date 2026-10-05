@@ -106,17 +106,20 @@ final class Engine: @unchecked Sendable {
       d["recordings"] = await recordings.briefs(await sessions.recordingIDs(id))
       return d
     case "session.search":
-      return await sessions.search(params)
-    case "session.current":
-      guard let id = try await sessions.ensure(params, create: false, defaultTitle: "") else {
-        return ["session": NSNull(), "hint": "no open session for this caller; record.schedule creates one, or call session.create"]
+      var d = await sessions.search(params)
+      // Add what is running right now in each hit.
+      if var hits = d["sessions"] as? [[String: Any]] {
+        for i in hits.indices {
+          let ids = await recordings.active(session: hits[i].str("session_id")).map(\.id)
+          if !ids.isEmpty { hits[i]["recording_now"] = ids }
+        }
+        d["sessions"] = hits
       }
-      var d = try await sessions.get(id, eventLimit: 10)
-      d["recordings"] = await recordings.briefs(await sessions.recordingIDs(id))
-      return ["session": d]
+      return d
     case "session.note":
-      let sid = try await sessions.ensure(params, create: false, defaultTitle: "")
-      guard let id = sid, let text = params.str("text") else { throw RPCError.badParams("text is required, plus session_id (or a caller with an open session)") }
+      guard let id = params.str("session_id"), let text = params.str("text") else {
+        throw RPCError.badParams("session_id and text are required")
+      }
       return try await sessions.note(id, text)
     case "session.update":
       return try await sessions.update(params)
@@ -223,10 +226,14 @@ final class Engine: @unchecked Sendable {
     ]
   }
 
-  /// Every recording belongs to a session: the one named, the caller's open
-  /// one, or a new one titled after the recording's label.
+  /// Every recording belongs to a session the request names explicitly.
   private func scheduleRecording(_ p: [String: Any]) async throws -> [String: Any] {
-    guard let sid = try await sessions.ensure(p, create: true, defaultTitle: p.str("label") ?? "untitled") else {
+    if let key = p.str("idempotency_key"), let existing = await recordings.byIdempotencyKey(key) {
+      var d = existing.describe()
+      d["reused"] = true
+      return d
+    }
+    guard let sid = try await sessions.resolve(p, required: true, for: "record.schedule") else {
       throw RPCError(code: "internal", message: "could not open a session")
     }
     var d = try await recordings.schedule(p, sessionID: sid, sessionDir: await sessions.dir(sid))
@@ -250,8 +257,9 @@ final class Engine: @unchecked Sendable {
       targets = [r]
       sid = r.sessionID
     } else {
-      sid = try await sessions.ensure(p, create: false, defaultTitle: "")
-      guard sid != nil else { throw RPCError.badParams("give recording_id or session_id (or call from an agent with an open session)") }
+      guard let id = p.str("session_id") else { throw RPCError.badParams("give recording_id, or session_id to mark every running recording in it") }
+      guard await sessions.exists(id) else { throw RPCError(code: "not_found", message: "no session \(id)") }
+      sid = id
       targets = await recordings.active(session: sid)
     }
     var applied: [[String: Any]] = []
@@ -304,8 +312,8 @@ final class Engine: @unchecked Sendable {
       grab = try await viewfinder.grab(target, maxWidth: width)
     }
     let format = p.str("format") == "png" ? "png" : "jpeg"
-    // Frame checks go into the caller's session when there is one.
-    let sid = try await sessions.ensure(p, create: false, defaultTitle: "")
+    // Frame checks go into a session only when one is named.
+    let sid = try await sessions.resolve(p, required: false, for: "frame.verify")
     var frameDir = paths.frames
     if let sid {
       frameDir = await sessions.dir(sid) + "/frames"

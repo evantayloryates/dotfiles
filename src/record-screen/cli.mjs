@@ -13,7 +13,7 @@
 //   record-screen verify <target> [max_width]  capture the target, print image path and checks
 //   record-screen outline <target> [label] [seconds]   draw the frame outline (0 s = until hidden)
 //   record-screen outline-off                  hide all outlines
-//   record-screen record <target> <start> <end> [preset] [label]
+//   record-screen record <target> <start> <end> [preset] [label] (--session <id> | --new <title>)
 //                                              schedule a recording; times are ISO 8601,
 //                                              unix seconds, or +N[s|m|h] from now (CLI only)
 //   record-screen recordings [state]           list recordings, newest first
@@ -21,13 +21,14 @@
 //   record-screen record-wait <id> [recording|done] [timeout_s]
 //   record-screen stop <id>                    stop now, keep the file
 //   record-screen cancel <id>                  stop or unschedule, delete the file
-//   record-screen current                      this agent's open session (or none)
-//   record-screen sessions [query] [--mine]    search sessions (newest activity first)
+//   record-screen sessions [query] [--mine]    search sessions (newest activity first);
+//                                              --mine filters on this agent's claimed id
 //   record-screen session <id>                 manifest, recordings and recent events
 //   record-screen session-new <title> [purpose]
-//   record-screen note <text> [session_id]     breadcrumb in the session log
-//   record-screen mark <label> [recording_id]  mark now in running recordings
+//   record-screen note <session_id> <text>     breadcrumb in the session log
+//   record-screen mark <label> <rec_… | ses_…> mark now in one recording, or all running in a session
 //   record-screen close <session_id>
+//   record-screen install [--dry-run]           register the MCP server in Claude Code and Codex
 //   record-screen call <method> [json-params]
 //
 // <target> shorthand: display | display:<id> | rect:x,y,w,h | window:<id> |
@@ -37,11 +38,12 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { callerContext } from "./lib/caller.mjs";
+import { install } from "./lib/install.mjs";
 import { call as rawCall, enginePaths, EngineError, LABEL } from "./lib/client.mjs";
 
 // Session-aware methods get the caller attached, so work bundles per agent
 // session without passing ids around.
-const WITH_CALLER = /^(record\.(schedule|mark)|frame\.verify|session\.)/;
+const WITH_CALLER = /^(record\.schedule|session\.create)$/;
 const call = (method, params = {}, opts) =>
   rawCall(method, WITH_CALLER.test(method) && !params.caller ? { ...params, caller: callerContext() } : params, opts);
 
@@ -94,7 +96,18 @@ function absTime(t) {
   return new Date(Date.now() + Number(m[1]) * mult).toISOString();
 }
 
-const [cmd = "status", ...args] = process.argv.slice(2);
+const argv = process.argv.slice(2);
+// --session <id> / --new <title> pick the session for `record`.
+function takeFlag(name) {
+  const i = argv.indexOf(name);
+  if (i < 0) return undefined;
+  const v = argv[i + 1];
+  argv.splice(i, 2);
+  return v;
+}
+const sessionFlag = takeFlag("--session");
+const newFlag = takeFlag("--new");
+const [cmd = "status", ...args] = argv;
 try {
   switch (cmd) {
     case "status":
@@ -150,6 +163,7 @@ try {
       out(await call("record.schedule", {
         target: parseTarget(args[0]), start_at: absTime(args[1]), end_at: absTime(args[2]),
         ...(args[3] ? { preset: args[3] } : {}), ...(args[4] ? { label: args[4] } : {}),
+        ...(sessionFlag ? { session_id: sessionFlag } : {}), ...(newFlag ? { session: { title: newFlag } } : {}),
       }));
       break;
     case "recordings":
@@ -169,13 +183,11 @@ try {
     case "cancel":
       out(await call("record.cancel", { recording_id: args[0] }));
       break;
-    case "current":
-      out(await call("session.current"));
-      break;
     case "sessions": {
       const mine = args.includes("--mine");
       const query = args.filter((a) => a !== "--mine").join(" ");
-      out(await call("session.search", { ...(query ? { query } : {}), mine }));
+      const agent = callerContext().agent_session_id;
+      out(await call("session.search", { ...(query ? { query } : {}), ...(mine && agent ? { agent_session_id: agent } : {}) }));
       break;
     }
     case "session":
@@ -185,14 +197,20 @@ try {
       out(await call("session.create", { title: args[0], ...(args[1] ? { purpose: args[1] } : {}) }));
       break;
     case "note":
-      out(await call("session.note", { text: args[0], ...(args[1] ? { session_id: args[1] } : {}) }));
+      out(await call("session.note", { session_id: args[0], text: args.slice(1).join(" ") }));
       break;
     case "mark":
-      out(await call("record.mark", { label: args[0], ...(args[1] ? { recording_id: args[1] } : {}) }));
+      out(await call("record.mark", { label: args[0], ...(args[1]?.startsWith("ses_") ? { session_id: args[1] } : { recording_id: args[1] }) }));
       break;
     case "close":
       out(await call("session.close", { session_id: args[0] }));
       break;
+    case "install": {
+      const r = install({ dry: args.includes("--dry-run") });
+      out(r);
+      if (Object.values(r).some((v) => v.startsWith("FAILED"))) process.exit(1);
+      break;
+    }
     case "call":
       out(await call(args[0], args[1] ? JSON.parse(args[1]) : {}));
       break;

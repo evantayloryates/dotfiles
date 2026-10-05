@@ -118,6 +118,10 @@ actor Recordings {
     return r
   }
 
+  func byIdempotencyKey(_ key: String) -> Recording? {
+    jobs.values.first { $0.idempotencyKey == key }
+  }
+
   /// A running recording of exactly this area, if any.
   func recording(covering areaKey: String) -> Recording? {
     jobs.values.first { $0.state == .recording && $0.areaKey == areaKey }

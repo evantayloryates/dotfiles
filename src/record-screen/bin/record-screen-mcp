@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# MCP launcher for record-screen (stdio). Registered by `record-screen install`
+# in Claude Code and Codex as:
+#   /Users/taylor/dotfiles/src/record-screen/bin/record-screen-mcp
+# Resolves node explicitly: GUI-launched MCP servers inherit a minimal PATH.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+. "${SCRIPT_DIR}/../../lib/resolve-binary.sh"
+NODE="$(resolve_binary node)"
+exec "$NODE" "${SCRIPT_DIR}/../server.mjs" "$@"

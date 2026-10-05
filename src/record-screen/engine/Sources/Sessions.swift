@@ -102,27 +102,26 @@ actor Sessions {
     return s.dict
   }
 
-  /// The session a request belongs to: the one named, else the caller's most
-  /// recent open session, else a new one (when `create` is true).
-  func ensure(_ p: [String: Any], create: Bool, defaultTitle: String) throws -> String? {
+  /// The session a request names. Sessions are always explicit: either
+  /// `session_id` (must exist and be open) or `session: {title, purpose?,
+  /// tags?}` to open one in the same call. The engine never infers a session
+  /// from who is calling; `caller` is stored as unverified metadata only.
+  func resolve(_ p: [String: Any], required: Bool, for what: String) throws -> String? {
     if let id = p.str("session_id") {
-      guard let s = sessions[id] else { throw RPCError(code: "not_found", message: "no session \(id); use session.search") }
-      guard s.closedAt == nil else { throw RPCError(code: "session_closed", message: "session \(id) is closed; reopen it with session.reopen or start a new one") }
+      guard let s = sessions[id] else { throw RPCError(code: "not_found", message: "no session \(id); find it with session.search") }
+      guard s.closedAt == nil else { throw RPCError(code: "session_closed", message: "session \(id) is closed; reopen it (session.reopen) or open a new one") }
       return id
     }
-    let caller = p["caller"] as? [String: Any] ?? [:]
-    if let agent = caller.str("agent_session_id"), !agent.isEmpty {
-      let cutoff = Date().addingTimeInterval(-Self.reuseWindow)
-      if let s = sessions.values
-        .filter({ $0.closedAt == nil && $0.caller.str("agent_session_id") == agent && $0.updatedAt > cutoff })
-        .max(by: { $0.updatedAt < $1.updatedAt }) {
-        return s.id
-      }
+    if let spec = p["session"] as? [String: Any] {
+      var cp = spec
+      cp["caller"] = p["caller"]
+      if cp.str("title") == nil { cp["title"] = p.str("label") ?? "untitled" }
+      return try create(cp)["session_id"] as? String
     }
-    guard create else { return nil }
-    var cp = p
-    cp["title"] = p.str("session_title") ?? defaultTitle
-    return try self.create(cp)["session_id"] as? String
+    if required {
+      throw RPCError.badParams("\(what) needs session_id, or session: {title, purpose?} to open one. Find existing sessions with session.search")
+    }
+    return nil
   }
 
   func close(_ id: String, reopen: Bool = false) throws -> [String: Any] {
@@ -220,9 +219,8 @@ actor Sessions {
   /// caller's directory, repo or branch. Newest activity first.
   func search(_ p: [String: Any]) -> [String: Any] {
     let terms = (p.str("query") ?? "").lowercased().split(whereSeparator: { $0.isWhitespace }).map(String.init)
-    let caller = p["caller"] as? [String: Any] ?? [:]
-    let mine = p.bool("mine") ?? false
-    let agent = p.str("agent_session_id") ?? (mine ? caller.str("agent_session_id") : nil)
+    let agent = p.str("agent_session_id")
+    let branch = p.str("branch")
     let cwd = p.str("cwd")
     let repo = p.str("repo")?.lowercased()
     let tag = p.str("tag")?.lowercased()
@@ -235,6 +233,7 @@ actor Sessions {
       if let agent, s.caller.str("agent_session_id") != agent { continue }
       if let cwd, !(s.caller.str("cwd") ?? "").hasPrefix(cwd) { continue }
       if let repo, !(s.caller.str("repo") ?? "").lowercased().contains(repo) { continue }
+      if let branch, s.caller.str("branch") != branch { continue }
       if let tag, !s.tags.map({ $0.lowercased() }).contains(tag) { continue }
       if let state, s.state != state { continue }
       if let since, s.updatedAt < since { continue }
@@ -253,19 +252,30 @@ actor Sessions {
     }
     hits.sort { $0.0.updatedAt > $1.0.updatedAt }
     return [
-      "sessions": hits.prefix(limit).map { s, matched -> [String: Any] in
-        var d: [String: Any] = [
-          "session_id": s.id, "title": s.title, "state": s.state, "updated_at": iso8601.string(from: s.updatedAt),
-          "created_at": iso8601.string(from: s.createdAt), "counts": s.counts, "tags": s.tags,
-          "cwd": s.caller.str("cwd") ?? "", "repo": s.caller.str("repo") ?? "", "branch": s.caller.str("branch") ?? "",
-        ]
-        if !s.purpose.isEmpty { d["purpose"] = s.purpose }
-        if !matched.isEmpty { d["matched"] = matched }
-        if let last = s.searchText.last { d["last_note_or_label"] = last }
-        return d
-      },
+      "sessions": hits.prefix(limit).map { s, matched -> [String: Any] in clues(s, matched: matched) },
       "total": hits.count,
     ]
+  }
+
+  /// What an agent needs to recognise its own work: titles, where it was
+  /// made, what was last said and seen, and what is running.
+  private func clues(_ s: SessionRecord, matched: [String]) -> [String: Any] {
+    var d: [String: Any] = [
+      "session_id": s.id, "title": s.title, "state": s.state,
+      "created_at": iso8601.string(from: s.createdAt), "updated_at": iso8601.string(from: s.updatedAt),
+      "counts": s.counts, "recording_ids": Array(s.recordingIDs.suffix(5)),
+      // Claimed by the client that opened the session; not verified.
+      "made_by": s.caller,
+    ]
+    if !s.purpose.isEmpty { d["purpose"] = s.purpose }
+    if !s.tags.isEmpty { d["tags"] = s.tags }
+    if !matched.isEmpty { d["matched"] = matched }
+    if let i = s.lastImage { d["last_image"] = i }
+    let recent = recentEvents(s.id, limit: 40)
+    if let n = recent.last(where: { $0.str("kind") == "note" })?.str("text") { d["last_note"] = n }
+    let marks = recent.filter { $0.str("kind") == "mark" }.compactMap { $0.str("label") }.suffix(3)
+    if !marks.isEmpty { d["recent_marks"] = Array(marks) }
+    return d
   }
 
   // MARK: - Helpers

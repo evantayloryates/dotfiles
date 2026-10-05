@@ -34,4 +34,8 @@ elif [[ "$build_state" == "rebuilt" ]]; then
 fi
 
 "$DIR/bin/record-screen" wait 15 >/dev/null
+
+# Register the MCP server in Claude Code and Codex (idempotent).
+"$DIR/bin/record-screen" install >/dev/null || echo "record-screen: MCP registration failed; run \`record-screen install\`" >&2
+
 "$DIR/bin/record-screen" status
