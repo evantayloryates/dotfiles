@@ -45,6 +45,9 @@ start-on-login enabled; the Network Extension approval in System Settings was th
 - `theo vnc` — open, or focus if already open, a Screen Sharing window to the Air's console over the tailnet
   (`theo-air.taile8fdd0.ts.net`), scaling on, sized 1470x1008 to the Air's desktop. Login is silent: Taylor's Keychain holds a
   "Network Password" item for theo@that host (protocol vnc, ACL: Screen Sharing.app only), provisioned 2026-10-04 from the
-  1Password Theo-vault login item. `theo vnc --check` says whether the item is present; `theo vnc --fit` re-fits the window.
+  1Password Theo-vault login item. `theo vnc --check` says whether the item is present; `theo vnc --fit` re-fits the window. The macOS 15+ "Select Screen Sharing
+  Type" (Standard / High Performance) prompt is gone because the Air's server no longer advertises High Performance:
+  `/Library/Preferences/com.apple.ScreenSharingServer` `hostSettings = {preventHighPerformanceConnections = 1}` (set 2026-10-04,
+  screensharingd restarted); the script also answers the prompt with Standard if it ever reappears.
 - `theo air <subcommand>` — the headless `theo-air` helper (shot, click, type, osa, sh, status, tidy, vnc, ...).
 

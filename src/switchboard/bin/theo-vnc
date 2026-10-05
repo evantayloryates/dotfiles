@@ -15,7 +15,7 @@ have_window() {
 }
 
 fit() {
-  osascript <<EOF 2>/dev/null
+  osascript <<EOF >/dev/null 2>&1
 tell application "System Events" to tell process "$APP"
   set frontmost to true
   try
@@ -46,14 +46,32 @@ if [[ "$(have_window)" == <1-> ]]; then
   exit 0
 fi
 
+dismiss_type_prompt() {
+  # macOS 15+: "Select Screen Sharing Type" (Standard / High Performance). Standard is preselected; press Continue.
+  osascript <<EOF 2>/dev/null
+tell application "System Events" to tell process "$APP"
+  repeat with w in windows
+    if exists (static text 1 of w whose value contains "Screen Sharing Type") then
+      click button "Continue" of w
+      return "dismissed"
+    end if
+  end repeat
+  return ""
+end tell
+EOF
+}
+
 open "vnc://$USER_@$HOST"
-for i in {1..40}; do
+for i in {1..60}; do
   sleep 0.5
+  [[ "$(dismiss_type_prompt)" == dismissed ]] && echo "type prompt: chose Standard"
   [[ "$(have_window)" == <1-> ]] && break
 done
 if [[ "$(have_window)" != <1-> ]]; then
   echo "no Screen Sharing window appeared in 20 s (login prompt still up, or host unreachable: $HOST)" >&2; exit 1
 fi
-sleep 1
-fit
-echo "opened: $APP → $HOST (${W}x${H}, scaling on)"
+# Screen Sharing restores its saved window frame a moment after connecting, so fit twice. If the display is too small
+# for ${W}x${H} the app keeps the Air's aspect ratio at the largest size that fits (e.g. 1377x948 on the built-in screen).
+sleep 1.5; fit; sleep 1.5; fit
+sz=$(osascript -e "tell application \"System Events\" to tell process \"$APP\" to get size of first window whose name is \"theo-air\"" 2>/dev/null | tr -d ' ')
+echo "opened: $APP → $HOST (${sz:-?}, scaling on)"
