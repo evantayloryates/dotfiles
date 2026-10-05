@@ -42,12 +42,17 @@ start-on-login enabled; the Network Extension approval in System Settings was th
 
 ## `theo` shell command
 `theo` is a pathfunc (src/python/pathfuncs.py) rooted at this folder. Subcommands:
-- `theo vnc` — open, or focus if already open, a Screen Sharing window to the Air's console over the tailnet
-  (`theo-air.taile8fdd0.ts.net`), scaling on, sized 1470x1008 to the Air's desktop. Login is silent: Taylor's Keychain holds a
-  "Network Password" item for theo@that host (protocol vnc, ACL: Screen Sharing.app only), provisioned 2026-10-04 from the
-  1Password Theo-vault login item. `theo vnc --check` says whether the item is present; `theo vnc --fit` re-fits the window. The macOS 15+ "Select Screen Sharing
-  Type" (Standard / High Performance) prompt is gone because the Air's server no longer advertises High Performance:
-  `/Library/Preferences/com.apple.ScreenSharingServer` `hostSettings = {preventHighPerformanceConnections = 1}` (set 2026-10-04,
-  screensharingd restarted); the script also answers the prompt with Standard if it ever reappears.
+- `theo vnc` — focus the Screen Sharing window to the Air if it is open, else connect over the tailnet
+  (`theo-air.taile8fdd0.ts.net`). Cold start about 1.8 s to a fitted, focused window; focus about 0.6 s. Nothing is resized
+  after connecting: two Screen Sharing defaults do the fitting, and the script re-asserts them on every run because the app
+  rewrites the first one when you toggle scaling by hand:
+  `shouldScaleScreen = 1` (new sessions open scaled at the Air's aspect, clamped to the screen: 1470x1008 on the ultrawide,
+  1378x948 on the built-in display) and `DontQuitWhenLastWindowCloses = 1` (the app stays resident, so a later connect skips
+  the launch). Saved window frames in the app's connectionsStore and `.vncloc` files are ignored for new sessions, so they are
+  not a lever. Silent login: Taylor's Keychain holds a "Network Password" item for theo@that host (protocol vnc, ACL Screen
+  Sharing.app only), made 2026-10-04 from the 1Password Theo-vault login. No Standard/High Performance prompt: the Air's server
+  has `/Library/Preferences/com.apple.ScreenSharingServer` `hostSettings = {preventHighPerformanceConnections = 1}`; the
+  script still answers Standard if the prompt ever returns. `theo vnc --check` prints the Keychain item and both defaults;
+  `theo vnc --fit` re-fits the aspect at the current height after a manual resize.
 - `theo air <subcommand>` — the headless `theo-air` helper (shot, click, type, osa, sh, status, tidy, vnc, ...).
 

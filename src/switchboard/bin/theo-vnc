@@ -1,77 +1,99 @@
 #!/bin/zsh
-# theo-vnc: open (or focus) a Screen Sharing window to the Air's console over the tailnet, fitted to the Air's display.
-#   theo vnc            open or focus; scaling on; window sized to the Air's 1470x956 desktop (+ toolbar)
-#   theo vnc --fit      only re-fit the existing window
-# Login is silent once the Keychain holds a "Network Password" for the host (account theo, protocol vnc),
-# readable by Screen Sharing.app. `theo vnc --check` reports whether that item exists.
+# theo-vnc: open (or focus) a Screen Sharing window to the Air's console over the tailnet, already fitted.
+#   theo vnc            focus the window if it exists, else connect; returns as soon as the window is up (~1 s)
+#   theo vnc --fit      re-fit the window to the Air's aspect at its current height (after a manual resize)
+#   theo vnc --check    report the silent-login Keychain item and the two Screen Sharing defaults
+#
+# Why it is fast: no resize after connecting. Two app defaults do the fitting up front:
+#   shouldScaleScreen = 1            new sessions open scaled, sized to the remote's aspect and clamped to the screen
+#                                    (1378x948 on the built-in display, 1470x1008 on the ultrawide); the app flips this
+#                                    back to 0 if you choose View > Turn Scaling Off, so it is re-asserted on every run
+#   DontQuitWhenLastWindowCloses = 1 closing the window leaves the app resident, so the next connect skips app launch
+# Silent login: a Keychain "Network Password" item for theo@HOST (protocol vnc, ACL Screen Sharing.app).
+# No type prompt: the Air's server has hostSettings.preventHighPerformanceConnections = 1 (see README).
 set -u
 HOST=${THEO_VNC_HOST:-theo-air.taile8fdd0.ts.net}
 USER_=${THEO_VNC_USER:-theo}
-W=${THEO_VNC_W:-1470}; H=${THEO_VNC_H:-1008}   # Air desktop 1470x956 points + Screen Sharing toolbar
-APP="Screen Sharing"
+APP="Screen Sharing"; DOM=com.apple.ScreenSharing
+RW=1470; RH=956; TOOLBAR=52   # the Air's desktop in points; Screen Sharing title + toolbar height
 
-have_window() {
-  osascript -e "tell application \"System Events\" to tell process \"$APP\" to count (windows whose name is \"theo-air\")" 2>/dev/null
+ss() { osascript -e "tell application \"System Events\" to tell process \"$APP\" to $1" 2>/dev/null; }
+nwin() { pgrep -qx "$APP" || { echo 0; return; }; ss 'count (windows whose name is "theo-air")'; }   # System Events stalls ~1.8 s on a process that is not running
+
+assert_defaults() {
+  [[ "$(defaults read $DOM shouldScaleScreen 2>/dev/null)" == 1 ]] || defaults write $DOM shouldScaleScreen -bool true
+  [[ "$(defaults read $DOM DontQuitWhenLastWindowCloses 2>/dev/null)" == 1 ]] || defaults write $DOM DontQuitWhenLastWindowCloses -bool true
+}
+
+focus() {
+  osascript >/dev/null 2>&1 <<EOF
+tell application "$APP" to activate
+tell application "System Events" to tell process "$APP"
+  set w to first window whose name is "theo-air"
+  try
+    set value of attribute "AXMinimized" of w to false
+  end try
+  perform action "AXRaise" of w
+end tell
+EOF
 }
 
 fit() {
-  osascript <<EOF >/dev/null 2>&1
+  osascript >/dev/null 2>&1 <<EOF
 tell application "System Events" to tell process "$APP"
-  set frontmost to true
   try
     if exists menu item "Turn Scaling On" of menu "View" of menu bar 1 then click menu item "Turn Scaling On" of menu "View" of menu bar 1
   end try
-  delay 0.3
   set w to first window whose name is "theo-air"
-  set size of w to {$W, $H}
-  perform action "AXRaise" of w
-  return ""
+  set {ww, wh} to size of w
+  set ch to wh - $TOOLBAR
+  set size of w to {(round (ch * $RW / $RH)), wh}
 end tell
 EOF
 }
 
 case ${1:-} in
   --check)
-    if security find-internet-password -s "$HOST" -a "$USER_" >/dev/null 2>&1; then
-      echo "keychain: Network Password for $USER_@$HOST present (silent login)"
-    else
-      echo "keychain: no item for $USER_@$HOST; Screen Sharing will prompt (tick 'Remember this password in my keychain')"; exit 1
-    fi; exit 0 ;;
-  --fit) fit; exit $? ;;
+    security find-internet-password -s "$HOST" -a "$USER_" >/dev/null 2>&1 \
+      && echo "keychain: login for $USER_@$HOST present (silent)" || echo "keychain: no login for $USER_@$HOST (Screen Sharing will prompt)"
+    echo "defaults: shouldScaleScreen=$(defaults read $DOM shouldScaleScreen 2>/dev/null) DontQuitWhenLastWindowCloses=$(defaults read $DOM DontQuitWhenLastWindowCloses 2>/dev/null)"
+    exit 0 ;;
+  --fit) fit; ss 'get size of (first window whose name is "theo-air")'; exit 0 ;;
 esac
 
-if [[ "$(have_window)" == <1-> ]]; then
-  fit
-  echo "focused: $APP → $HOST"
-  exit 0
-fi
+assert_defaults
+if [[ "$(nwin)" == <1-> ]]; then focus; echo "focused: $APP → $HOST"; exit 0; fi
 
-dismiss_type_prompt() {
-  # macOS 15+: "Select Screen Sharing Type" (Standard / High Performance). Standard is preselected; press Continue.
-  osascript <<EOF 2>/dev/null
-tell application "System Events" to tell process "$APP"
-  repeat with w in windows
-    if exists (static text 1 of w whose value contains "Screen Sharing Type") then
-      click button "Continue" of w
-      return "dismissed"
-    end if
-  end repeat
-  return ""
-end tell
-EOF
-}
-
+zmodload zsh/datetime; t0=$EPOCHREALTIME
 open "vnc://$USER_@$HOST"
-for i in {1..60}; do
-  sleep 0.5
-  [[ "$(dismiss_type_prompt)" == dismissed ]] && echo "type prompt: chose Standard"
-  [[ "$(have_window)" == <1-> ]] && break
-done
-if [[ "$(have_window)" != <1-> ]]; then
-  echo "no Screen Sharing window appeared in 20 s (login prompt still up, or host unreachable: $HOST)" >&2; exit 1
+# One AppleScript waits for the window (checking the process exists first), answers the type prompt if it ever shows,
+# raises the window and returns its size: no per-poll process spawns.
+res=$(osascript 2>/dev/null <<EOF
+tell application "System Events"
+  repeat 400 times
+    if exists process "$APP" then
+      tell process "$APP"
+        if (count (windows whose name is "theo-air")) > 0 then
+          set w to first window whose name is "theo-air"
+          set frontmost to true
+          perform action "AXRaise" of w
+          set {a, b} to size of w
+          return (a as text) & "x" & (b as text)
+        end if
+        repeat with x in windows
+          try
+            if exists (static text 1 of x whose value contains "Screen Sharing Type") then click button "Continue" of x
+          end try
+        end repeat
+      end tell
+    end if
+    delay 0.05
+  end repeat
+end tell
+return "timeout"
+EOF
+)
+if [[ "$res" != *x* ]]; then
+  echo "no Screen Sharing window after 20 s (login prompt up, or $HOST unreachable over the tailnet)" >&2; exit 1
 fi
-# Screen Sharing restores its saved window frame a moment after connecting, so fit twice. If the display is too small
-# for ${W}x${H} the app keeps the Air's aspect ratio at the largest size that fits (e.g. 1377x948 on the built-in screen).
-sleep 1.5; fit; sleep 1.5; fit
-sz=$(osascript -e "tell application \"System Events\" to tell process \"$APP\" to get size of first window whose name is \"theo-air\"" 2>/dev/null | tr -d ' ')
-echo "opened: $APP → $HOST (${sz:-?}, scaling on)"
+printf "opened: %s → %s in %.1fs (%s)\n" "$APP" "$HOST" $(( EPOCHREALTIME - t0 )) "$res"
