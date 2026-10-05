@@ -20,6 +20,7 @@ State and observability, under ~/.local/state/switchboard/:
   calls.jsonl            one JSON line per event: call_start, utterance, metrics, summary, call_end
   recordings/<call>.wav  caller audio (16 kHz mono) for untrusted calls (SWITCHBOARD_RECORD=all|untrusted|none)
   voicemail/<call>.json  transcript + summary for untrusted calls
+Diagnostics (SWITCHBOARD_DIAG, default on): see diag.py; per call, <recordings>/<call>-theo.wav is Theo's outgoing audio.
 Delivery of the summary to Taylor: SWITCHBOARD_NOTIFY_CMD (a command that takes the text as $1);
 defaults to /Users/taylor/Desktop/send.sh --text when present (the self-chat iMessage path), else log only.
 """
@@ -50,6 +51,8 @@ from livekit.agents import (
 from livekit.plugins import cartesia, openai, silero
 from livekit.plugins.turn_detector.multilingual import MultilingualModel
 
+from diag import TtsTap, loop_lag_monitor, sys_sampler
+
 HERE = Path(__file__).resolve()
 ENV_FILE = Path(os.getenv("SWITCHBOARD_ENV", HERE.parents[3] / ".env"))  # dotfiles/.env by default
 load_dotenv(ENV_FILE)
@@ -69,6 +72,7 @@ LLM_MODEL = os.getenv("SWITCHBOARD_LLM_MODEL", "gpt-4.1-mini")
 VOICE_ID = os.getenv("SWITCHBOARD_VOICE_ID", "47c38ca4-5f35-497b-b1a3-415245fb35e1")  # speak profile "init-alt" (Daniel)
 ALLOWED = {n.strip() for n in os.getenv("SWITCHBOARD_ALLOWED_NUMBERS", "").split(",") if n.strip()}
 RECORD = os.getenv("SWITCHBOARD_RECORD", "untrusted")  # all | untrusted | none
+DIAG = os.getenv("SWITCHBOARD_DIAG", "1") != "0"  # tap Theo's outgoing audio + loop/CPU probes into calls.jsonl
 _default_notify = "/Users/taylor/Desktop/send.sh --text" if Path("/Users/taylor/Desktop/send.sh").exists() else ""
 NOTIFY_CMD = os.getenv("SWITCHBOARD_NOTIFY_CMD", _default_notify)
 
@@ -109,8 +113,13 @@ async def hangup(reason: str) -> None:
 
 
 class Receptionist(Agent):
-    def __init__(self) -> None:
+    def __init__(self, tap: TtsTap | None = None) -> None:
         super().__init__(instructions=TRUSTED_INSTRUCTIONS)
+        self._tap = tap
+
+    def tts_node(self, text, model_settings):  # noqa: ANN001
+        frames = Agent.default.tts_node(self, text, model_settings)
+        return self._tap.wrap(frames) if self._tap else frames
 
     @function_tool()
     async def end_call(self, ctx: RunContext) -> str:
@@ -121,8 +130,13 @@ class Receptionist(Agent):
 
 
 class Screener(Agent):
-    def __init__(self, caller: str) -> None:
+    def __init__(self, caller: str, tap: TtsTap | None = None) -> None:
         super().__init__(instructions=SCREENER_INSTRUCTIONS + f"\nThe caller's number is {caller or 'unknown'}.")
+        self._tap = tap
+
+    def tts_node(self, text, model_settings):  # noqa: ANN001
+        frames = Agent.default.tts_node(self, text, model_settings)
+        return self._tap.wrap(frames) if self._tap else frames
 
     @function_tool()
     async def end_call(self, ctx: RunContext) -> str:
@@ -207,6 +221,11 @@ async def entrypoint(ctx: JobContext) -> None:
     if RECORD == "all" or (RECORD == "untrusted" and not trusted):
         rec_task = asyncio.create_task(record_audio(participant, ctx.room, rec_path))
 
+    tap = TtsTap(REC_DIR / f"{call_id}-theo.wav", record, call_id) if DIAG else None
+    diag_tasks = []
+    if DIAG:
+        diag_tasks = [asyncio.create_task(loop_lag_monitor(record, call_id)), asyncio.create_task(sys_sampler(record, call_id))]
+
     session = AgentSession(
         stt="deepgram/nova-3",  # LiveKit Inference; no Deepgram account needed
         llm=openai.LLM(model=LLM_MODEL),
@@ -233,6 +252,10 @@ async def entrypoint(ctx: JobContext) -> None:
 
     async def _on_shutdown():
         record("call_end", call=call_id, caller=caller, trusted=trusted, turns=len(transcript))
+        for t in diag_tasks:
+            t.cancel()
+        if tap:
+            tap.close()
         if rec_task:
             rec_task.cancel()
         if not trusted:
@@ -251,12 +274,12 @@ async def entrypoint(ctx: JobContext) -> None:
     ctx.add_shutdown_callback(_on_shutdown)
 
     if trusted:
-        await session.start(room=ctx.room, agent=Receptionist())
+        await session.start(room=ctx.room, agent=Receptionist(tap))
         await session.generate_reply(
             instructions=f"Greet {OWNER} in one short sentence as {PERSONA} and ask what you can do for him."
         )
     else:
-        await session.start(room=ctx.room, agent=Screener(caller))
+        await session.start(room=ctx.room, agent=Screener(caller, tap))
         await session.generate_reply(
             instructions=f"Say you are {PERSONA}, {OWNER}'s receptionist, that {OWNER} isn't available on this line, and ask who is calling. One or two short sentences."
         )
