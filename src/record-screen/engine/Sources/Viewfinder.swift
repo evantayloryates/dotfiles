@@ -34,6 +34,11 @@ private final class FrameSink: NSObject, SCStreamOutput, SCStreamDelegate, @unch
 
   func stream(_ s: SCStream, didStopWithError error: Error) { stoppedError = error }
 
+  private func current() -> (CVPixelBuffer?, UInt64, CGRect) {
+    lock.lock(); defer { lock.unlock() }
+    return (latest, latestDisplayNs, latestScreenRect)
+  }
+
   var screenRect: CGRect { lock.lock(); defer { lock.unlock() }; return latestScreenRect }
 
   func snapshot() -> (CVPixelBuffer?, UInt64, UInt64) {
@@ -48,9 +53,7 @@ private final class FrameSink: NSObject, SCStreamOutput, SCStreamDelegate, @unch
   func waitForFrame(shownAfterNs: UInt64, width: Int, height: Int, screenRect: CGRect? = nil, timeoutMs: Double) async -> CVPixelBuffer? {
     let deadline = uptimeNs() + UInt64(timeoutMs * 1e6)
     while uptimeNs() < deadline {
-      lock.lock()
-      let pb = latest, shown = latestDisplayNs, rect = latestScreenRect
-      lock.unlock()
+      let (pb, shown, rect) = current()
       let rectOK = screenRect.map { want in rect.isNull || (abs(rect.minX - want.minX) < 1 && abs(rect.minY - want.minY) < 1
         && abs(rect.width - want.width) < 1 && abs(rect.height - want.height) < 1) } ?? true
       if let pb, shown >= shownAfterNs, rectOK, CVPixelBufferGetWidth(pb) == width, CVPixelBufferGetHeight(pb) == height { return pb }

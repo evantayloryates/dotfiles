@@ -11,6 +11,7 @@ final class Engine: @unchecked Sendable {
   private let startedAt = Date()
   private let startedNs = uptimeNs()
   private let viewfinder = Viewfinder()
+  private lazy var recordings = Recordings(root: paths.root + "/recordings")
 
   init(paths: Paths, lock: InstanceLock) {
     self.paths = paths
@@ -23,6 +24,8 @@ final class Engine: @unchecked Sendable {
     }
     try server.start()
     self.server = server
+    let recordings = self.recordings
+    Task { await recordings.load() }
     for sig in [SIGTERM, SIGINT] {
       signal(sig, SIG_IGN)
       let s = DispatchSource.makeSignalSource(signal: sig, queue: .main)
@@ -43,6 +46,17 @@ final class Engine: @unchecked Sendable {
   // MARK: - Methods
 
   private func handle(_ method: String, _ params: [String: Any]) async throws -> Any {
+    let result = try await dispatch(method, params)
+    // Every object reply carries the engine clock, so agents can compute
+    // absolute start_at/end_at times without asking separately.
+    if var d = result as? [String: Any], d["clock"] == nil {
+      d["clock"] = ["wall": iso8601.string(from: Date()), "uptime_ns": uptimeNs()]
+      return d
+    }
+    return result
+  }
+
+  private func dispatch(_ method: String, _ params: [String: Any]) async throws -> Any {
     switch method {
     case "ping":
       return ["pong": true, "clock_ns": uptimeNs()]
@@ -64,6 +78,37 @@ final class Engine: @unchecked Sendable {
       let id = params.str("overlay_id")
       await MainActor.run { Overlays.shared.hide(id: id) }
       return ["hidden": id ?? "all"]
+    case "record.schedule":
+      return try await recordings.schedule(params)
+    case "record.get":
+      return try await recordings.get(try recID(params)).describe()
+    case "record.list":
+      return await recordings.list(params)
+    case "record.stop":
+      let r = try await recordings.get(try recID(params))
+      r.stop()
+      return try await recordings.wait(r.id, until: "done", timeout: params.num("timeout_s") ?? 10)
+    case "record.cancel":
+      let r = try await recordings.get(try recID(params))
+      r.cancel()
+      return try await recordings.wait(r.id, until: "done", timeout: 5)
+    case "record.reschedule":
+      let r = try await recordings.get(try recID(params))
+      let start = try params["start_at"].map { v -> Date in
+        guard let d = parseTime(v) else { throw RPCError.badParams("start_at must be ISO 8601 or unix seconds") }
+        return d
+      }
+      let end = try params["end_at"].map { v -> Date in
+        guard let d = parseTime(v) else { throw RPCError.badParams("end_at must be ISO 8601 or unix seconds") }
+        return d
+      }
+      guard start != nil || end != nil else { throw RPCError.badParams("give start_at and/or end_at") }
+      try r.reschedule(start: start, end: end)
+      return r.describe()
+    case "record.wait":
+      let until = params.str("until") ?? "done"
+      guard ["recording", "done"].contains(until) else { throw RPCError.badParams("until must be recording or done") }
+      return try await recordings.wait(try recID(params), until: until, timeout: min(params.num("timeout_s") ?? 30, 3600))
     case "viewfinder.stop":
       await viewfinder.stop()
       return ["stopped": true]
@@ -133,6 +178,11 @@ final class Engine: @unchecked Sendable {
       "list_ms": Double(t1 - t0) / 1e6,
       "screenshot_ms": Double(t2 - t1) / 1e6,
     ]
+  }
+
+  private func recID(_ p: [String: Any]) throws -> String {
+    guard let id = p.str("recording_id") else { throw RPCError.badParams("recording_id is required") }
+    return id
   }
 
   /// Resolves against cached content first; a miss (new or moved window)

@@ -10,19 +10,23 @@ Why it is built this way, with measurements:
 
 ## Status
 
-Steps 1 and 2 of the build order are done.
+Steps 1–3 of the build order are done.
 
 1. **Engine skeleton.** Runs at login, answers on its socket, reports status,
    holds its own Screen Recording grant.
 2. **Frames.** Targets (display, rect, window), `frame.verify` through a warm
    viewfinder, and a frame outline that never appears in captures.
+3. **Recording.** Scheduled with absolute start and end times, pre-rolled so
+   the take starts exactly on time, crash-safe files, stop, cancel, move the
+   end, wait, and survival across engine restarts.
 
-Recording, sessions and the MCP come next.
+Sessions (bundling, markers, search) and the MCP come next.
 
 ## Layout
 
 | Path | What it is |
 |------|------------|
+| `engine/Sources/Recording.swift`, `Recordings.swift` | One scheduled recording from arming to finished file; the queue that creates, persists and reloads them. |
 | `engine/Sources/*.swift` | The engine. `main.swift` boots it; `Engine.swift` holds the methods; `SocketServer.swift` is the protocol; `Targets.swift` resolves targets; `Viewfinder.swift` is the warm stream behind `frame.verify`; `Overlay.swift` draws outlines. |
 | `engine/Info.plist` | Bundle id `com.taylor.record-screen`, `LSUIElement`, App Nap off. |
 | `build.py` | Compiles with `swiftc`, bundles, signs, stamps the source hash. Output: `data/record-screen/record-screend.app` (gitignored). |
@@ -32,8 +36,9 @@ Recording, sessions and the MCP come next.
 
 Runtime state lives in `~/.record-screen/` (mode 700):
 `run/engine.sock`, `run/engine.lock`, `logs/engine.jsonl`, `logs/stdout.log`,
-`logs/stderr.log`, and `frames/` (verify images not tied to a session, pruned
-after a day). `RECORD_SCREEN_HOME` overrides the root.
+`logs/stderr.log`, `frames/` (verify images not tied to a session, pruned
+after a day), and `recordings/<recording_id>/` (`video.mp4` plus
+`recording.json`, the manifest). `RECORD_SCREEN_HOME` overrides the root.
 
 ## Commands
 
@@ -49,8 +54,17 @@ record-screen windows [app] [title]            # find window ids
 record-screen verify <target> [max_width]      # capture now; prints image path, checks, timings
 record-screen outline <target> [label] [secs]  # draw the frame outline (0 s = until hidden)
 record-screen outline-off
+record-screen record <target> <start> <end> [preset] [label]   # e.g. record display +3s +33s demo
+record-screen recordings [state]
+record-screen recording <id>
+record-screen record-wait <id> [recording|done] [timeout_s]
+record-screen stop <id>       # stop now, keep the file
+record-screen cancel <id>     # stop or unschedule, delete the file
 record-screen call <method> '<json params>'
 ```
+
+The engine only accepts absolute times. `+3s`, `+2m` and `+1h` are a CLI
+convenience that it turns into absolute times before sending.
 
 `<target>` shorthand: `display`, `display:4`, `rect:x,y,w,h`, `window:1234`,
 `app:Chrome`, `app:Chrome/PR 42` (app plus title words), or a JSON object.
@@ -81,6 +95,16 @@ requests; replies may come back out of order, so match them by `id`.
 | `overlay.show` | `{target, label?, seconds? (8; 0 = until hidden), overlay_id?, capturable?}` |
 | `overlay.hide` | `{overlay_id?}` (all when omitted) |
 | `viewfinder.stop` | stops the warm stream early (it stops itself after 20 s idle) |
+| `record.schedule` | `{target, start_at, end_at, preset?, fps?, codec?, max_width?, show_cursor?, bitrate_mbps?, label?, if_late?, idempotency_key?, dir?}` → the recording, `state: scheduled`, `starts_in_s` |
+| `record.get` | `{recording_id}` → full manifest |
+| `record.list` | `{state?, active?, limit?}` → newest first |
+| `record.wait` | `{recording_id, until? recording\|done, timeout_s? (30, max 3600)}` → manifest plus `timed_out` |
+| `record.stop` | `{recording_id}` → stops now, keeps the file, waits until it is written |
+| `record.cancel` | `{recording_id}` → unschedules, or stops and deletes the file |
+| `record.reschedule` | `{recording_id, start_at?, end_at?}`: before start, either; while recording, only `end_at` |
+
+Every object reply also carries `clock: {wall, uptime_ns}`, the engine's time,
+so an agent can compute absolute times without a separate call.
 
 ### Targets
 
@@ -116,6 +140,60 @@ don't say which filter made them, so filter changes always answer with a
 screenshot. Area changes are safe to take from the stream because each frame
 reports the screen area it covers. The window/display listing is cached for 2 s
 and window geometry is read live, so resolving a target costs about 1 ms.
+
+### Recording
+
+`start_at` and `end_at` are required and absolute: ISO 8601 (`2026-10-05T20:15:00Z`,
+any offset, fractional seconds allowed) or unix seconds. Both are always
+required, so a recording can be queued for any future window. Limits: end after
+start, at most 3 h long, at most 7 days ahead, at most 4 recordings overlapping
+in time, start no more than 5 s in the past.
+
+**Presets.** Override any field per recording.
+
+| preset | size | fps | for |
+|--------|------|-----|-----|
+| `evidence` (default) | 1 pixel per point | 30 | readable proof, small files (800×600 pt: 0.46 Mbit/s) |
+| `demo` | native Retina | 60 | polished demos |
+| `pr-clip` | 1280 wide | 30 | PR descriptions and chat |
+
+H.264 by default (`codec: "hevc"` for smaller files). The cursor is hidden
+unless `show_cursor: true`.
+
+**Timing.**
+- The engine arms 1 s before `start_at`: it resolves the target and starts the
+  stream early. The video's first frame is the screen exactly as it was at
+  `start_at`, and the file covers exactly `start_at` to `end_at`.
+- Frames are timestamped on the host clock. Measured: on-screen changes land in
+  the file 13–22 ms after they happen (about a frame at 60 fps), and durations
+  come out exact (3.000000 s for a 3 s window).
+- A screen that never changes still gives a full-length file: the last frame
+  is repeated just before `end_at` and the session ends at `end_at`.
+- The display is kept awake from arming until the file is written (an idle
+  sleep assertion). The engine can't wake a sleeping Mac for a future
+  recording, and closing the lid still sleeps it.
+- `if_late` (`start` by default) decides what happens if the engine arms more
+  than 2 s late (restart, sleep): start late and record the rest, or `skip`
+  and mark it `missed`.
+
+**States.** `scheduled` → `arming` → `recording` → `finalizing` → `done`, or
+`failed` (couldn't start, or no frames), `canceled`, `missed`, `interrupted`
+(the window closed or the engine stopped mid-recording; the file is kept and
+plays up to that point).
+
+**Crash safety.** Files are fragmented MP4 with a fragment every second. In a
+test, an engine killed with `kill -9` 4 s into a recording left a playable
+4.0 s file, the recording was marked `interrupted` on restart, and a recording
+queued for after the crash still ran on time.
+
+**Disturbances.** For window targets the engine checks once a second and adds
+events to the manifest with their offset into the video (`t_s`):
+`window_moved`, `window_resized`, `window_off_screen` / `window_on_screen`,
+`app_hidden` / `app_unhidden`, `window_gone`. Other events: `warning`,
+`started_late`, `stopped_early`, `end_moved`, `capture_stopped`.
+
+**Cost.** A 60 fps full-Retina display recording used 3.6% of one core in
+the engine (the encoder is hardware) and 45 MB of memory.
 
 ### Frame outline
 

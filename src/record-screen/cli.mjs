@@ -13,6 +13,14 @@
 //   record-screen verify <target> [max_width]  capture the target, print image path and checks
 //   record-screen outline <target> [label] [seconds]   draw the frame outline (0 s = until hidden)
 //   record-screen outline-off                  hide all outlines
+//   record-screen record <target> <start> <end> [preset] [label]
+//                                              schedule a recording; times are ISO 8601,
+//                                              unix seconds, or +N[s|m|h] from now (CLI only)
+//   record-screen recordings [state]           list recordings, newest first
+//   record-screen recording <id>               full manifest of one recording
+//   record-screen record-wait <id> [recording|done] [timeout_s]
+//   record-screen stop <id>                    stop now, keep the file
+//   record-screen cancel <id>                  stop or unschedule, delete the file
 //   record-screen call <method> [json-params]
 //
 // <target> shorthand: display | display:<id> | rect:x,y,w,h | window:<id> |
@@ -62,6 +70,14 @@ function parseTarget(t) {
     return { type: "window", app, ...(title ? { title } : {}) };
   }
   throw new EngineError("usage", `can't read target ${t}`);
+}
+
+// The engine only takes absolute times; "+90s" style offsets are a CLI nicety.
+function absTime(t) {
+  const m = /^\+(\d+(?:\.\d+)?)(ms|s|m|h)?$/.exec(t ?? "");
+  if (!m) return /^\d+(\.\d+)?$/.test(t ?? "") ? Number(t) : t;
+  const mult = { ms: 1, s: 1000, m: 60000, h: 3600000 }[m[2] ?? "s"];
+  return new Date(Date.now() + Number(m[1]) * mult).toISOString();
 }
 
 const [cmd = "status", ...args] = process.argv.slice(2);
@@ -115,6 +131,29 @@ try {
       break;
     case "outline-off":
       out(await call("overlay.hide"));
+      break;
+    case "record":
+      out(await call("record.schedule", {
+        target: parseTarget(args[0]), start_at: absTime(args[1]), end_at: absTime(args[2]),
+        ...(args[3] ? { preset: args[3] } : {}), ...(args[4] ? { label: args[4] } : {}),
+      }));
+      break;
+    case "recordings":
+      out(await call("record.list", args[0] ? { state: args[0] } : {}));
+      break;
+    case "recording":
+      out(await call("record.get", { recording_id: args[0] }));
+      break;
+    case "record-wait": {
+      const timeout_s = Number(args[2] ?? 60);
+      out(await call("record.wait", { recording_id: args[0], until: args[1] ?? "done", timeout_s }, { timeoutMs: (timeout_s + 5) * 1000 }));
+      break;
+    }
+    case "stop":
+      out(await call("record.stop", { recording_id: args[0] }));
+      break;
+    case "cancel":
+      out(await call("record.cancel", { recording_id: args[0] }));
       break;
     case "call":
       out(await call(args[0], args[1] ? JSON.parse(args[1]) : {}));

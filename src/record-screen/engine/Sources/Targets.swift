@@ -230,8 +230,10 @@ enum Targets {
 
   /// About a millisecond, versus 35–60 ms for a full ScreenCaptureKit listing.
   static func liveWindowState(_ id: CGWindowID) -> (frame: CGRect, onScreen: Bool)? {
-    guard let list = CGWindowListCreateDescriptionFromArray([NSNumber(value: id)] as CFArray) as? [[String: Any]],
-          let info = list.first, let b = info[kCGWindowBounds as String] as? NSDictionary,
+    // .optionIncludingWindow also finds windows on Spaces you aren't viewing.
+    guard let list = CGWindowListCopyWindowInfo([.optionIncludingWindow], id) as? [[String: Any]],
+          let info = list.first(where: { ($0[kCGWindowNumber as String] as? NSNumber)?.uint32Value == id }),
+          let b = info[kCGWindowBounds as String] as? NSDictionary,
           let r = CGRect(dictionaryRepresentation: b) else { return nil }
     return (r, (info[kCGWindowIsOnscreen as String] as? Bool) ?? false)
   }
