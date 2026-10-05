@@ -63,15 +63,22 @@ const MAX_TRANSCRIPT_LIST = 200
 // time; the 30s server timeout and the streaming row cap are what actually
 // bound it.
 const SCAN_NOTE_ROWS = 1_000_000
-// Transcripts are the densest PHI here. One server serves every session, so
-// the budget is per process and rolling: distinct transcripts per hour.
-const TRANSCRIPT_BUDGET = Number(process.env.KICKOFF_ZDR_TRANSCRIPT_BUDGET || 30) // env only so the probe can test the limit
-const TRANSCRIPT_WINDOW_MS = 60 * 60 * 1000
-// Bulk export: transcripts go straight from S3 to a file inside the harness
-// for the classifier; nothing reaches the agent's context, so the per-hour
-// reading budget above does not apply. One export is capped so its file stays
-// readable in one piece (about 10k transcripts is ~400 MB of text).
+// Transcripts have no per-hour read limit (removed 2026-10-05): agents choose
+// how many to read for the question at hand, guided by the sampling practice
+// in TRANSCRIPT_PRACTICE. Bulk export goes straight from S3 to a file inside
+// the harness for the classifier, never through the agent's context. One
+// export is capped so its file stays readable in one piece (about 10k
+// transcripts is ~400 MB of text).
 const MAX_EXPORT = 10_000
+const TRANSCRIPT_PRACTICE = `Choosing how many transcripts to read (quality per token):
+- Counts, durations, who and when: SQL or transcript_list metadata; no text needed.
+- "What share of calls ...", "which calls ...": transcript_export the whole relevant set and classify the file
+  (about $0.002 a call); never read transcripts to count them.
+- Themes and nuance: read a small spread sample (5-20) across coaches and weeks, not just the newest; page with
+  max_chars/offset and stop once the point is clear.
+- Checking a classification: read 3-5 per label of interest, low and medium confidence first.
+- One full transcript costs this conversation roughly 6-12k tokens; classifying one costs a fraction of that.
+  Say how many you read and how you chose them.`
 const EXPORT_CONCURRENCY = 48
 const EXPORT_DIR = process.env.ZDR_HARNESS_EXPORT_DIR || join((process.env.HOME || '').replace(/\/home$/, ''), 'exports')
 
@@ -274,8 +281,10 @@ client speech: quote nothing outside the harness, summarise themes with cell-siz
 
 Every query runs as kudos_ro (SELECT only) inside a READ ONLY transaction with a ${STATEMENT_TIMEOUT_MS / 1000}s server timeout,
 capped at ${MAX_ROWS} rows / ${Math.round(MAX_RESULT_BYTES / 1000)} KB: a statement that returns more is cut off at the cap, not buffered.
-Results note a planned full scan over ${SCAN_NOTE_ROWS.toLocaleString()} rows. Transcript reads: ${TRANSCRIPT_BUDGET} distinct per hour.
-Prefer aggregates and LIMIT; the replica also serves the product.`
+Results note a planned full scan over ${SCAN_NOTE_ROWS.toLocaleString()} rows.
+Prefer aggregates and LIMIT; the replica also serves the product.
+
+${TRANSCRIPT_PRACTICE}`
 
 async function guide() {
   return GUIDE
@@ -555,25 +564,9 @@ function renderTranscript(t) {
   return { text: typeof t.text === 'string' ? t.text : '', turns: 0, speakers: 0 }
 }
 
-const transcriptReads = new Map() // file_transcript_id -> last read time
-function chargeTranscriptBudget(id) {
-  const now = Date.now()
-  for (const [k, t] of transcriptReads) if (now - t > TRANSCRIPT_WINDOW_MS) transcriptReads.delete(k)
-  if (!transcriptReads.has(id) && transcriptReads.size >= TRANSCRIPT_BUDGET) {
-    const oldest = Math.min(...transcriptReads.values())
-    const wait = Math.ceil((TRANSCRIPT_WINDOW_MS - (now - oldest)) / 60000)
-    throw new ToolError(
-      `Transcript budget reached: ${TRANSCRIPT_BUDGET} distinct transcripts per hour. Next slot in about ${wait} min. ` +
-        'Aggregate over the ones already read, or use transcript_list metadata (durations, counts) instead of reading more.'
-    )
-  }
-  transcriptReads.set(id, now)
-}
-
 async function transcriptGet({ file_transcript_id, max_chars, offset } = {}) {
   const c = await connection()
   const id = checkInt(file_transcript_id, 'file_transcript_id')
-  chargeTranscriptBudget(id)
   const cap = checkLimit(max_chars, DEFAULT_TRANSCRIPT_CHARS, MAX_TRANSCRIPT_CHARS, 'max_chars')
   const start = offset === undefined ? 0 : checkLimit(offset, 0, 10_000_000, 'offset')
   const [rows] = await c.query(
@@ -593,7 +586,7 @@ async function transcriptGet({ file_transcript_id, max_chars, offset } = {}) {
   const envelope = JSON.parse(raw.toString('utf8'))
   const transcript = envelope && typeof envelope === 'object' && envelope.transcript ? envelope.transcript : envelope
   const rendered = renderTranscript(transcript)
-  log(`transcript ${sha256hex(String(id)).slice(0, 8)} ${raw.length}B budget=${transcriptReads.size}/${TRANSCRIPT_BUDGET}`)
+  log(`transcript ${sha256hex(String(id)).slice(0, 8)} ${raw.length}B`)
   const slice = rendered.text.slice(start, start + cap)
   const meta = {
     file_transcript_id: id,
@@ -829,7 +822,8 @@ const TOOLS = [
     description:
       'Fetch a transcript from the archive by file_transcript_id, verify its checksum, and return speaker turns as text. ' +
       `Returns ${DEFAULT_TRANSCRIPT_CHARS} chars by default (max ${MAX_TRANSCRIPT_CHARS}); use offset to page (re-reading the same transcript is free). ` +
-      `Budget: ${TRANSCRIPT_BUDGET} distinct transcripts per hour. Verbatim client speech: never quote it outside the harness.`,
+      'No read limit: read as many as the question needs. To count or find calls, export and classify instead of reading; ' +
+      'for themes, a spread sample of 5-20 usually suffices (see guide). Verbatim client speech: never quote it outside the harness.',
     inputSchema: {
       type: 'object',
       properties: { file_transcript_id: { type: 'number' }, max_chars: { type: 'number' }, offset: { type: 'number' } },

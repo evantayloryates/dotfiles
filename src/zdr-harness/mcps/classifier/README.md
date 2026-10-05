@@ -164,8 +164,7 @@ them must be free of real data:
 transcripts straight from S3 to `~/.zdr-harness/exports/tx_*.jsonl` (48 at a
 time, checksums verified, up to 10,000 per export) and returns only stats: how
 many matched in total and whether the export covers them, dates, lengths, and
-the cost to classify. Nothing reaches the agent's context; the per-hour
-budget on reading single transcripts does not apply. The classifier in the
+the cost to classify. Nothing reaches the agent's context. The classifier in the
 harness scope may read that one folder (its other hidden-folder rules stay).
 Exports are deleted on the database window (`--db-days`).
 

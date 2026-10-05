@@ -448,9 +448,11 @@ the RDS CA bundle and the replica's real hostname even though the socket says
    keys shaped `transcripts/v1/<id>/<generation>/assemblyai.json.gz`, only by
    way of the `file_transcript_artifacts` row that names the object, and only
    after the sha256 in that row matches the decompressed body.
-4. Transcript budget: 30 distinct transcripts per rolling hour per server
-   process (re-reading or paging one is free). One prompt cannot pull the
-   archive into a session.
+4. No transcript read limit (the 30-per-hour budget was removed on
+   2026-10-05). Agents choose how many to read; the guide and tool texts
+   teach the practice: metadata for counts, export + classifier for "what
+   share" and "which ones", a spread sample of 5-20 for themes, 3-5 per label
+   to check a classification.
 5. Retention: `zdr-harness prune` deletes sessions that used any `kickoffdb_*`
    tool after 7 days (`--db-days`), others after 14.
 6. The answer rule. `zdr.md` names ids, rows, free text and transcript lines as
@@ -485,9 +487,8 @@ through the tunnel.
 `~/.zdr-harness/exports/tx_<id>.jsonl` (700/600) and returns stats only,
 including how many matched in total. `kickoffdb_transcript_export_status`
 waits for a large one. The agent never reads the rows: it checks a few with
-`classifier_classify_sample` and classifies the whole file. The 30-per-hour
-transcript budget applies to `transcript_get` only, because only that puts
-transcript text into the conversation. Exports are pruned on `--db-days`.
+`classifier_classify_sample` and classifies the whole file. Exports are
+pruned on `--db-days`.
 
 ## Setup from scratch
 

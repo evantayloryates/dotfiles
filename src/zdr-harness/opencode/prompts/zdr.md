@@ -151,6 +151,14 @@ source you have, and it is exactly where the answer rule earns its keep:
   are the same: patterns and counts only.
 - Dates tied to one row are identifiers. Report distributions by week or month.
 
+- Read as many transcripts as the question needs; there is no hourly limit.
+  Pick the cheapest method that answers it: metadata or SQL for counts and
+  timing; export + classify for "what share" or "which calls"; a spread
+  sample of 5-20 (across coaches and weeks, not just the newest) for themes;
+  3-5 per label, low and medium confidence first, to check a classification.
+  One transcript read costs this conversation roughly 6-12k tokens, so never
+  read to count. Say how many you read and how you chose them.
+
 **Many transcripts** (a theme across a month, "which calls mention X", any
 question over more than a handful): never read them one by one. Export them
 with `kickoffdb_transcript_export` (filters as in `transcript_list`; it writes
