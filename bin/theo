@@ -1,0 +1,11 @@
+#!/bin/zsh
+# theo: non-interactive twin of the `theo` pathfunc (src/python/pathfuncs.py). Interactive zsh uses the function, which
+# also handles bare `theo` (cd to src/switchboard); this executable makes the subcommands work from scripts, cron and
+# non-interactive shells such as Claude Code's `!` prompt.
+D=${DOTFILES_DIR:-$HOME/dotfiles}/src/switchboard/bin
+case ${1:-} in
+  vnc) shift; exec "$D/theo-vnc" "$@" ;;
+  air) shift; exec "$D/theo-air" "$@" ;;
+  *)   echo "usage: theo vnc [--fit|--check] | theo air <shot|click|type|key|open|osa|sh|status|tidy|...>" >&2
+       echo "       (bare 'theo' changes directory, which only the interactive shell function can do)" >&2; exit 2 ;;
+esac
