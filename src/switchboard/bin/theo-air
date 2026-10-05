@@ -40,7 +40,7 @@ case $cmd in
             for s in me.taylor.switchboard.agent me.taylor.switchboard.caffeinate; do st=$(launchctl print gui/$(id -u)/$s 2>/dev/null | grep -m1 -E "^[[:space:]]*state = " | sed -E "s/.*state = //"); echo "launchd $s: ${st:-not loaded}"; done
             echo "theo worker: $(grep -c "registered worker" ~/.local/state/switchboard/agent.log 2>/dev/null) registrations | last log: $(tail -1 ~/.local/state/switchboard/agent.log 2>/dev/null | cut -c1-90)"
             echo "calls: $(grep -c call_start ~/.local/state/switchboard/calls.jsonl 2>/dev/null) total | last: $(grep call_start ~/.local/state/switchboard/calls.jsonl 2>/dev/null | tail -1 | cut -c1-100)"
-            echo "disk: $(df -h / | tail -1 | awk "{print \$4\" free\"}") | tailscale: $(pgrep -x Tailscale >/dev/null && echo app-running || echo app-not-running)$(ls /var/run/tailscaled.socket 2>/dev/null | grep -q . && echo ,daemon || echo ,no-daemon)"
+            echo "disk: $(df -h / | tail -1 | awk "{print \$4\" free\"}") | tailscale: $(pgrep -qx tailscaled && echo "daemon up (no menu-bar app by design)" || echo "DAEMON DOWN")"
             echo "sshd privacy grants: $(sudo sqlite3 "/Library/Application Support/com.apple.TCC/TCC.db" "select service||\"=\"||auth_value from access where client like \"%sshd-keygen-wrapper%\";" | sed "s/kTCCService//g" | tr "\n" " ")"';;
   *)      sed -n 2,10p "$0";;
 esac
