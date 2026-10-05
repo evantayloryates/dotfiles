@@ -151,6 +151,18 @@ final class Engine: @unchecked Sendable {
       guard start != nil || end != nil else { throw RPCError.badParams("give start_at and/or end_at") }
       try r.reschedule(start: start, end: end)
       return r.describe()
+    case "record.review":
+      return try await recordings.get(try recID(params)).reviewNow()
+    case "record.frames":
+      let r = try await recordings.get(try recID(params))
+      guard let times = (params["at_s"] as? [Any])?.compactMap({ ($0 as? NSNumber)?.doubleValue }), !times.isEmpty, times.count <= 24 else {
+        throw RPCError.badParams("at_s must be a list of 1–24 offsets in seconds")
+      }
+      guard FileManager.default.fileExists(atPath: r.videoPath) else { throw RPCError(code: "no_video", message: "recording \(r.id) has no video yet") }
+      let mw = params.num("max_width").map { Int($0) } ?? 1024
+      return ["recording_id": r.id, "frames": try await Review.frames(video: r.videoPath, at: times, outDir: r.dir + "/frames", maxWidth: mw > 0 ? mw : nil)]
+    case "record.export":
+      return try await export(params)
     case "record.wait":
       let until = params.str("until") ?? "done"
       guard ["recording", "done"].contains(until) else { throw RPCError.badParams("until must be recording or done") }
@@ -269,6 +281,33 @@ final class Engine: @unchecked Sendable {
     if let sid { await sessions.log(sid, "mark", ["label": label, "kind": kind, "recordings": applied]) }
     return ["label": label, "session_id": sid ?? NSNull(), "marked": applied,
             "note": applied.isEmpty ? "no recording was running; the mark is in the session log only" : ""]
+  }
+
+  /// Trim (mp4) or GIF a finished recording, by seconds or by mark labels.
+  private func export(_ p: [String: Any]) async throws -> [String: Any] {
+    let r = try await recordings.get(try recID(p))
+    let d = r.describe()
+    guard FileManager.default.fileExists(atPath: r.videoPath), r.state.terminal else {
+      throw RPCError(code: "not_finished", message: "recording \(r.id) is \(r.state.rawValue); export works on finished recordings")
+    }
+    let format = p.str("format") ?? "mp4"
+    guard ["mp4", "gif"].contains(format) else { throw RPCError.badParams("format must be mp4 or gif") }
+    let marks = d["marks"] as? [[String: Any]] ?? []
+    func markT(_ label: String) throws -> Double {
+      guard let m = marks.first(where: { $0.str("label") == label }), let t = m.num("t_s") else {
+        throw RPCError.badParams("no mark \"\(label)\"; marks: \(marks.compactMap { $0.str("label") })")
+      }
+      return t
+    }
+    let duration = ((d["review"] as? [String: Any])?.num("duration_s"))
+      ?? (parseTime(d["end_at"] ?? "").flatMap { e in parseTime(d["start_at"] ?? "").map { e.timeIntervalSince($0) } } ?? 0)
+    let from = try p.str("from_mark").map(markT) ?? p.num("from_s") ?? 0
+    let to = try p.str("to_mark").map(markT) ?? p.num("to_s") ?? duration
+    guard to > from else { throw RPCError.badParams("the end of the export must be after its start (from \(from) s, to \(to) s)") }
+    if format == "gif" && to - from > 60 { throw RPCError.badParams("GIFs are capped at 60 s; export mp4 for longer clips") }
+    let name = p.str("name") ?? String(format: "%@-%.1f-%.1f.%@", format == "gif" ? "clip" : "trim", from, to, format)
+    return try await Export.run(video: r.videoPath, out: r.dir + "/exports/" + name, format: format, from: from, to: to,
+                                maxWidth: p.num("max_width").map { Int($0) }, fps: p.num("fps").map { Int($0) })
   }
 
   private func recID(_ p: [String: Any]) throws -> String {

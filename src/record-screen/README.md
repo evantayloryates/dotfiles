@@ -10,7 +10,7 @@ Why it is built this way, with measurements:
 
 ## Status
 
-Steps 1–5 of the build order are done.
+All six steps of the build order are done.
 
 1. **Engine skeleton.** Runs at login, answers on its socket, reports status,
    holds its own Screen Recording grant.
@@ -22,9 +22,10 @@ Steps 1–5 of the build order are done.
 
 4. **Sessions.** Recordings, frame checks, notes and marks bundle into
    explicit session folders, searchable by clues when an agent loses the id.
-5. **MCP.** 15 tools over the engine, registered in Claude Code and Codex.
-
-Agent outputs (poster frames, contact sheets, keyframes, exports) come next.
+5. **MCP.** 18 tools over the engine, registered in Claude Code and Codex.
+6. **Agent outputs.** Every finished recording gets keyframes (start, marks,
+   scene changes, end), a labelled contact sheet, a poster and a per-second
+   activity timeline; frames at any offset; frame-exact mp4 trims and GIFs.
 
 ## Layout
 
@@ -35,6 +36,7 @@ Agent outputs (poster frames, contact sheets, keyframes, exports) come next.
 | `engine/Info.plist` | Bundle id `com.taylor.record-screen`, `LSUIElement`, App Nap off. |
 | `build.py` | Compiles with `swiftc`, bundles, signs, stamps the source hash. Output: `data/record-screen/record-screend.app` (gitignored). |
 | `install.sh` | Build, link `src/launchd/com.taylor.record-screen.plist`, load it, wait for the socket. Run by the top-level `install.sh`. |
+| `engine/Sources/Review.swift` | Activity tracking during recording, keyframes, contact sheet, frames at offsets, ffmpeg exports. |
 | `engine/Sources/Sessions.swift` | Session folders, the event log, auto-attach by caller, search. |
 | `server.mjs`, `bin/record-screen-mcp` | The MCP server (stdio, zero dependencies; shares `src/lib/node/mcp-stdio.mjs` with claude-driver and codex-bridge). |
 | `lib/install.mjs` | Registers the MCP in Claude Code (user scope) and Codex; run by `record-screen install` and `install.sh`. |
@@ -52,7 +54,10 @@ session.json                 title, purpose, tags, caller, counts, recording ids
 events.jsonl                 append-only: created, note, verify, recording_scheduled,
                              recording_state, mark, closed, ...
 frames/verify-<ms>.jpg       frame checks made in this session
-recordings/<recording_id>/   video.mp4 + recording.json (with marks and events)
+recordings/<recording_id>/   video.mp4 + recording.json (marks, events, review, activity)
+  review/                    keyframe-<t>.jpg, contact.jpg, poster.jpg
+  frames/                    at-<t>.jpg from record.frames
+  exports/                   trim-<from>-<to>.mp4, clip-<from>-<to>.gif
 ``` `RECORD_SCREEN_HOME` overrides the root.
 
 ## MCP tools
@@ -78,10 +83,14 @@ and the message says what to do next, in tool names.
 | `record_reschedule` | move start/end before start, or end while recording |
 | `recordings` | one manifest by id, or a filtered list |
 | `mark` | marks now in one recording or every running one in a session |
+| `recording_review` | **contact sheet image** + keyframes, activity per second, marks; `keyframe_images: N` adds keyframe images |
+| `recording_frames` | **images** at exact offsets |
+| `record_export` | frame-exact mp4 trim or GIF, by seconds or mark labels |
 
 Typical flow: `session_open` → `windows` / `frame_check` to aim (and
 `frame_outline` to show the human) → `record_schedule` → `mark` while it runs →
-`record_wait` → the video path is in the manifest.
+`record_wait` → `recording_review` → `recording_frames` for exact moments →
+`record_export` for a clip.
 
 Registration: `record-screen install` (also run by `install.sh`) adds
 `/Users/taylor/dotfiles/src/record-screen/bin/record-screen-mcp` to Claude Code
@@ -158,6 +167,9 @@ requests; replies may come back out of order, so match them by `id`.
 | `record.wait` | `{recording_id, until? recording\|done, timeout_s? (30, max 3600)}` → manifest plus `timed_out` |
 | `record.stop` | `{recording_id}` → stops now, keeps the file, waits until it is written |
 | `record.cancel` | `{recording_id}` → unschedules, or stops and deletes the file |
+| `record.review` | `{recording_id}` → keyframes, contact sheet, poster, duration (built on demand for recordings that finished without one) |
+| `record.frames` | `{recording_id, at_s: [1–24 offsets], max_width? (1024)}` → image paths, with `frame_t_s` (when the frame shown began) |
+| `record.export` | `{recording_id, format? mp4\|gif, from_s?\|from_mark?, to_s?\|to_mark?, max_width?, fps?, name?}` → path, bytes, ms |
 | `record.reschedule` | `{recording_id, start_at?, end_at?}`: before start, either; while recording, only `end_at` |
 
 | `record.mark` | `{label, kind?, recording_id \| session_id}` → `marked: [{recording_id, t_s}]` |
@@ -298,6 +310,35 @@ events to the manifest with their offset into the video (`t_s`):
 
 **Cost.** A 60 fps full-Retina display recording used 3.6% of one core in
 the engine (the encoder is hardware) and 45 MB of memory.
+
+### Review and exports
+
+Built for agents that can't watch video.
+
+- **Activity tracking.** While recording, every written frame is sampled on a
+  24×24 brightness grid plus a 12×12 colour grid, read straight from the
+  frame (about 900 reads, no conversion). A change of 3 or more (0–255 scale)
+  from the last keyframe, at least 0.75 s after it, becomes a scene-change
+  keyframe (up to 60). The manifest's `activity_per_s` gives the strongest
+  frame-to-frame change in each second (0 = nothing moved). Small changes, such
+  as one new glyph, can fall between samples.
+- **On finish,** before the state turns `done` (196 ms measured, including
+  closing the file): `review/keyframe-<t>.jpg` for start, every mark, every
+  scene change and the end (marks win over changes within 0.3 s);
+  `review/contact.jpg` with up to 12 labelled tiles (start, end and marks
+  always included); `review/poster.jpg` (the end state). A static recording
+  gets a few evenly spaced frames instead of changes.
+- **Frames at offsets** (`record.frames`) come out exact. Recordings are
+  variable frame rate, so `frame_t_s` says when the frame shown began.
+- **Exports** (`record.export`, ffmpeg from Homebrew): the engine decodes from
+  the start with the hardware decoder, converts to a constant rate
+  (`fps=`), and cuts with `trim`, so a cut point inside a stretch where nothing
+  changed still shows the right frame and durations come out exact (measured
+  2.20 s for a 2.186 s mark-to-mark cut at 30 fps; 7.000 s for the full 7 s
+  recording). mp4 re-encodes with VideoToolbox at 30 fps; GIF uses 12 fps, a
+  diff palette, at most 960 px wide and 60 s long. A 4 s GIF took 152–174 ms.
+- Recordings interrupted by a crash get their review on demand from
+  `record.review`.
 
 ### Sessions
 

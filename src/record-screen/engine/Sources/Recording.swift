@@ -93,9 +93,15 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   private var snapshot: [String: Any] = [:]
   private var tapBuffer: CVPixelBuffer?
   private var startHostSnap: UInt64 = 0
+  /// Set once the encoder has finished the file: the stall watchdog stands
+  /// down (building the review afterwards can take a few seconds).
+  private var writerDone = false
   var state: RecState { snapLock.withLock { _state } }
   private var events: [[String: Any]] = []
   private var marks: [[String: Any]] = []
+  private let activity = ActivityTracker()
+  private var review: [String: Any]?
+  private var activityTimeline: [Double]?
   private var error: String?
   private var resolved: [String: Any]?
 
@@ -219,6 +225,8 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     q.async { [self] in
       events = m["events"] as? [[String: Any]] ?? []
       marks = m["marks"] as? [[String: Any]] ?? []
+      review = m["review"] as? [String: Any]
+      activityTimeline = m["activity_per_s"] as? [Double]
       resolved = m["resolved"] as? [String: Any]
       error = m.str("error")
       actualStart = m.str("actual_start").flatMap(parseISO)
@@ -232,6 +240,9 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
       if interrupted {
         error = "the engine stopped during this recording; the file keeps everything up to its last full second"
         persist()
+      } else {
+        let d = describeLocked()
+        snapLock.withLock { snapshot = d }
       }
     }
   }
@@ -240,6 +251,28 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   /// same area read the recording's own stream instead of opening another.
   func tap() -> CVPixelBuffer? {
     snapLock.withLock { _state == .recording ? tapBuffer : nil }
+  }
+
+  /// Keyframe candidates: marks plus the scene changes seen while recording.
+  private func reviewKeys() -> [Review.Key] {
+    let m = marks.compactMap { d -> Review.Key? in d.num("t_s").map { Review.Key(t: $0, reason: "mark", label: d.str("label")) } }
+    return m + activity.keys.map { Review.Key(t: $0.t, reason: "change", label: nil) }
+  }
+
+  /// Review for a recording that finished without one (interrupted, or from
+  /// before reviews existed): marks plus evenly spaced frames.
+  func reviewNow() async throws -> [String: Any] {
+    if let r = snapLock.withLock({ snapshot["review"] as? [String: Any] }), r["error"] == nil { return r }
+    guard FileManager.default.fileExists(atPath: videoPath) else { throw RPCError(code: "no_video", message: "recording \(id) has no video") }
+    let keys: [Review.Key] = (snapLock.withLock { snapshot["marks"] as? [[String: Any]] } ?? []).compactMap { d in
+      d.num("t_s").map { Review.Key(t: $0, reason: "mark", label: d.str("label")) }
+    }
+    let r = try await Review.make(video: videoPath, dir: dir, keys: keys)
+    q.async { [self] in
+      review = r
+      persist()
+    }
+    return r
   }
 
   /// Marks this moment in the video. Returns the offset in seconds, or nil
@@ -439,6 +472,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
       if framesWritten == 0 { firstFrameDelayMs = Double(Int64(uptimeNs()) - Int64(startHostNs)) / 1e6 }
       framesWritten += 1
       lastWrittenNs = ns
+      activity.observe(pb, t: Double(ns - startHostNs) / 1e9)
     } else {
       framesDropped += 1
     }
@@ -471,12 +505,25 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     input.markAsFinished()
     writer.endSession(atSourceTime: cmTime(endHostNs))
     actualEnd = Date().addingTimeInterval(-Double(Int64(uptimeNs()) - Int64(endHostNs)) / 1e9)
+    let duration = Double(endHostNs - startHostNs) / 1e9
+    activityTimeline = activity.timeline(duration: duration)
+    let keys = reviewKeys()
     writer.finishWriting { [self] in
+      snapLock.withLock { writerDone = true }
       q.async { [self] in
-        if writer.status == .completed {
-          finish(reason == nil ? .done : .interrupted, reason: reason)
-        } else {
+        guard writer.status == .completed else {
           finish(.failed, reason: "writer failed: \(writer.error?.localizedDescription ?? "unknown")")
+          return
+        }
+        // Review artifacts before reporting done, so the agent's first look
+        // at a finished recording already has keyframes and a contact sheet.
+        Task {
+          let r: [String: Any]
+          do { r = try await Review.make(video: self.videoPath, dir: self.dir, keys: keys) } catch { r = ["error": "\(error)"] }
+          self.q.async { [self] in
+            review = r
+            finish(reason == nil ? .done : .interrupted, reason: reason)
+          }
         }
       }
     }
@@ -493,6 +540,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   }
 
   private func abandonIfStuck() {
+    guard !snapLock.withLock({ writerDone }) else { return }
     abandon(if: .finalizing, as: .interrupted,
             reason: "the encoder stalled while finishing; the file keeps what was written before the stall", stall: true)
   }
@@ -582,6 +630,8 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
       "dir": dir,
       "events": events,
       "marks": marks,
+      "review": review ?? NSNull(),
+      "activity_per_s": activityTimeline ?? NSNull(),
       "frames": ["written": framesWritten, "dropped": framesDropped, "seen": framesSeen],
     ]
     if let k = idempotencyKey { d["idempotency_key"] = k }

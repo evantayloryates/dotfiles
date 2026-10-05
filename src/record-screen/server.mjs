@@ -8,7 +8,7 @@ import { callerContext } from "./lib/caller.mjs";
 import { EngineClient, EngineError } from "./lib/client.mjs";
 
 const log = (...args) => console.error("[record-screen]", ...args);
-const VERSION = "0.5.0";
+const VERSION = "0.6.0";
 
 // ---------------------------------------------------------------- engine link
 
@@ -259,6 +259,58 @@ const tools = [
     run: async ({ recording_id, ...a }) => ok(await engine(recording_id ? "record.get" : "record.list", recording_id ? { recording_id } : a)),
   },
   {
+    name: "recording_review",
+    description:
+      "Review a finished recording without watching it: returns the contact sheet image (start, marks, scene changes, end; each tile labelled with its time) plus the keyframe list, " +
+      "activity per second (0 = nothing changed) and duration. keyframe_images: N also returns the first N keyframes as images. Tiny changes (a single small glyph) can fall between samples; use recording_frames to look at exact times.",
+    inputSchema: {
+      type: "object", additionalProperties: false,
+      properties: { recording_id: { type: "string" }, keyframe_images: { type: "number", description: "also return up to this many keyframes as images (default 0, max 12)" } },
+      required: ["recording_id"],
+    },
+    annotations: { readOnlyHint: true },
+    run: async ({ recording_id, keyframe_images = 0 }) => {
+      const review = await engine("record.review", { recording_id }, 60000);
+      const manifest = await engine("record.get", { recording_id });
+      const content = [];
+      try { content.push(imageContent(review.contact_sheet)); } catch {}
+      for (const k of (review.keyframes ?? []).slice(0, Math.min(12, keyframe_images))) content.push(imageContent(k.path));
+      content.push({ type: "text", text: text({ recording_id, ...review, activity_per_s: manifest.activity_per_s, marks: manifest.marks, video: manifest.video }) });
+      return { content, isError: false };
+    },
+  },
+  {
+    name: "recording_frames",
+    description: "Frames of a finished recording at exact offsets (seconds from its start), returned as images. frame_t_s says when the frame shown actually began (recordings only add frames when the screen changes).",
+    inputSchema: {
+      type: "object", additionalProperties: false,
+      properties: { recording_id: { type: "string" }, at_s: { type: "array", items: { type: "number" }, description: "1–12 offsets in seconds" }, max_width: { type: "number", description: "default 1024" } },
+      required: ["recording_id", "at_s"],
+    },
+    annotations: { readOnlyHint: true },
+    run: async ({ recording_id, at_s, max_width = 1024 }) => {
+      if (!Array.isArray(at_s) || !at_s.length || at_s.length > 12) throw new EngineError("bad_params", "at_s must list 1–12 offsets");
+      const r = await engine("record.frames", { recording_id, at_s, max_width }, 60000);
+      return { content: [...r.frames.map((f) => imageContent(f.path)), { type: "text", text: text(r) }], isError: false };
+    },
+  },
+  {
+    name: "record_export",
+    description:
+      "Cut a finished recording into an mp4 (hardware-encoded, 30 fps) or a GIF (12 fps, palette-optimised, max 60 s), by seconds (from_s/to_s) or by mark labels (from_mark/to_mark). " +
+      "Cuts are frame-exact, including over stretches where the screen didn't change. Returns the file path and size; files land in the recording's exports/ folder.",
+    inputSchema: {
+      type: "object", additionalProperties: false,
+      properties: {
+        recording_id: { type: "string" }, format: { type: "string", enum: ["mp4", "gif"] },
+        from_s: { type: "number" }, to_s: { type: "number" }, from_mark: { type: "string" }, to_mark: { type: "string" },
+        max_width: { type: "number" }, fps: { type: "number" }, name: { type: "string", description: "file name (default trim-<from>-<to>.mp4 / clip-<from>-<to>.gif)" },
+      },
+      required: ["recording_id"],
+    },
+    run: async (a) => ok(await engine("record.export", a, 600000)),
+  },
+  {
     name: "mark",
     description: "Mark this moment in running recordings (one by recording_id, or every running one in session_id) for chapters and trims; returns each video offset t_s. Without a running recording the mark still lands in the session log.",
     inputSchema: {
@@ -270,6 +322,10 @@ const tools = [
   },
 ];
 
+function imageContent(path) {
+  return { type: "image", data: readFileSync(path).toString("base64"), mimeType: path.endsWith(".png") ? "image/png" : "image/jpeg" };
+}
+
 /** Who is calling: stored on new sessions as unverified clues for later search. */
 function caller(ctx) {
   const c = { ...callerContext(process.cwd()) };
@@ -280,7 +336,8 @@ function caller(ctx) {
 const instructions =
   "record-screen records this Mac's screen through an always-on engine. Typical flow: session_open (or session_find to recover a lost session_id) → " +
   "windows / frame_check to aim (frame_check returns the image; frame_outline shows the frame to the human) → record_schedule with absolute start_at and end_at " +
-  "(compute from clock.wall, which every reply carries) → record_wait → the video path is in the manifest; mark during recording for chapters. " +
+  "(compute from clock.wall, which every reply carries) → mark during recording for chapters → record_wait → recording_review (contact sheet image + keyframes) " +
+  "→ recording_frames for exact moments → record_export for a trimmed mp4 or GIF. " +
   "Sessions are always explicit: the engine never guesses which session is yours. Many agents may use it at once; the engine never takes focus.";
 
 await serveMcp({
