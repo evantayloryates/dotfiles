@@ -1,0 +1,13 @@
+#!/bin/zsh
+# rename-this-mac <name> — set ComputerName, LocalHostName and HostName in one go (asks for sudo once).
+set -eu
+name=${1:?usage: rename-this-mac <name>}
+echo "before: $(scutil --get ComputerName) / $(scutil --get LocalHostName)"
+sudo -v
+sudo scutil --set ComputerName "$name"
+sudo scutil --set LocalHostName "$name"
+sudo scutil --set HostName "$name"
+dscacheutil -flushcache
+sleep 1
+echo "after:  $(scutil --get ComputerName) / $(scutil --get LocalHostName) / $(scutil --get HostName)"
+echo "renamed OK"
