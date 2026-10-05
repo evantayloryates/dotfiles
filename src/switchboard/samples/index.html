@@ -52,7 +52,7 @@
   <p class="line">"Hi Taylor, this is Theo. Thanks for checking in. No questions from me right now. Anything you want me to note or handle?"</p>
 
   <div class="controls">
-    <button class="primary" id="play-all">Play all four in order</button>
+    <button class="primary" id="play-all">Play all five in order</button>
     <button id="stop-all">Stop</button>
   </div>
 
@@ -80,10 +80,16 @@
     </section>
   </div>
 
+  <section class="card" style="margin-top:6px">
+    <header><h2>What left the Air on the 20:49 call</h2><span class="tag">agent-side tap</span></header>
+    <audio controls preload="metadata" id="a5" src="theo-call3-agent-side.wav"></audio>
+    <div class="meta">16.3 s · 24 kHz · Theo's four replies, captured before Opus, SIP and the carrier · peak −1.0 dBFS · 0 loop-lag events · worst inter-frame gap 165 ms while synthesis ran 4 to 5× faster than real time</div>
+  </section>
+
   <p class="note">What to listen for: if the raw column already sounds clunky, the fix is the voice or model. If only the phone column matches what you heard, the fix is in how the agent streams speech onto the narrowband leg. If neither sounds like the call, the problem is transport, not synthesis.</p>
 </main>
 <script>
-  const players = ["a1","a2","a3","a4"].map(id => document.getElementById(id));
+  const players = ["a1","a2","a3","a4","a5"].map(id => document.getElementById(id));
   const stopAll = () => players.forEach(p => { p.pause(); p.currentTime = 0; });
   players.forEach(p => p.addEventListener("play", () => players.forEach(o => { if (o !== p) o.pause(); })));
   document.getElementById("play-all").addEventListener("click", async () => {
