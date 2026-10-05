@@ -21,6 +21,13 @@
 //   record-screen record-wait <id> [recording|done] [timeout_s]
 //   record-screen stop <id>                    stop now, keep the file
 //   record-screen cancel <id>                  stop or unschedule, delete the file
+//   record-screen current                      this agent's open session (or none)
+//   record-screen sessions [query] [--mine]    search sessions (newest activity first)
+//   record-screen session <id>                 manifest, recordings and recent events
+//   record-screen session-new <title> [purpose]
+//   record-screen note <text> [session_id]     breadcrumb in the session log
+//   record-screen mark <label> [recording_id]  mark now in running recordings
+//   record-screen close <session_id>
 //   record-screen call <method> [json-params]
 //
 // <target> shorthand: display | display:<id> | rect:x,y,w,h | window:<id> |
@@ -29,7 +36,14 @@ import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { call, enginePaths, EngineError, LABEL } from "./lib/client.mjs";
+import { callerContext } from "./lib/caller.mjs";
+import { call as rawCall, enginePaths, EngineError, LABEL } from "./lib/client.mjs";
+
+// Session-aware methods get the caller attached, so work bundles per agent
+// session without passing ids around.
+const WITH_CALLER = /^(record\.(schedule|mark)|frame\.verify|session\.)/;
+const call = (method, params = {}, opts) =>
+  rawCall(method, WITH_CALLER.test(method) && !params.caller ? { ...params, caller: callerContext() } : params, opts);
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 process.stdout.on("error", (e) => process.exit(e.code === "EPIPE" ? 0 : 1));
@@ -154,6 +168,30 @@ try {
       break;
     case "cancel":
       out(await call("record.cancel", { recording_id: args[0] }));
+      break;
+    case "current":
+      out(await call("session.current"));
+      break;
+    case "sessions": {
+      const mine = args.includes("--mine");
+      const query = args.filter((a) => a !== "--mine").join(" ");
+      out(await call("session.search", { ...(query ? { query } : {}), mine }));
+      break;
+    }
+    case "session":
+      out(await call("session.get", { session_id: args[0] }));
+      break;
+    case "session-new":
+      out(await call("session.create", { title: args[0], ...(args[1] ? { purpose: args[1] } : {}) }));
+      break;
+    case "note":
+      out(await call("session.note", { text: args[0], ...(args[1] ? { session_id: args[1] } : {}) }));
+      break;
+    case "mark":
+      out(await call("record.mark", { label: args[0], ...(args[1] ? { recording_id: args[1] } : {}) }));
+      break;
+    case "close":
+      out(await call("session.close", { session_id: args[0] }));
       break;
     case "call":
       out(await call(args[0], args[1] ? JSON.parse(args[1]) : {}));

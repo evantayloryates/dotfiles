@@ -75,6 +75,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   let settings: RecordSettings
   let label: String
   let idempotencyKey: String?
+  let sessionID: String?
   let createdAt: Date
   private(set) var startAt: Date
   private(set) var endAt: Date
@@ -83,6 +84,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   let q: DispatchQueue
   private(set) var state: RecState = .scheduled
   private var events: [[String: Any]] = []
+  private var marks: [[String: Any]] = []
   private var error: String?
   private var resolved: [String: Any]?
 
@@ -117,7 +119,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   var manifestPath: String { dir + "/recording.json" }
 
   init(id: String, dir: String, target: [String: Any], settings: RecordSettings, label: String, startAt: Date, endAt: Date,
-       ifLate: String, idempotencyKey: String?, createdAt: Date = Date(), state: RecState = .scheduled) {
+       ifLate: String, idempotencyKey: String?, sessionID: String?, createdAt: Date = Date(), state: RecState = .scheduled) {
     self.id = id
     self.dir = dir
     self.targetRaw = target
@@ -127,6 +129,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     self.endAt = endAt
     self.ifLate = ifLate
     self.idempotencyKey = idempotencyKey
+    self.sessionID = sessionID
     self.createdAt = createdAt
     self.state = state
     self.q = DispatchQueue(label: "record-screen.rec.\(id)", qos: .userInteractive)
@@ -184,6 +187,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   func restore(from m: [String: Any], interrupted: Bool) {
     q.async { [self] in
       events = m["events"] as? [[String: Any]] ?? []
+      marks = m["marks"] as? [[String: Any]] ?? []
       resolved = m["resolved"] as? [String: Any]
       error = m.str("error")
       actualStart = m.str("actual_start").flatMap(parseISO)
@@ -198,6 +202,18 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
         error = "the engine stopped during this recording; the file keeps everything up to its last full second"
         persist()
       }
+    }
+  }
+
+  /// Marks this moment in the video. Returns the offset in seconds, or nil
+  /// when the recording isn't running.
+  func addMark(_ label: String, kind: String) -> Double? {
+    q.sync {
+      guard state == .recording else { return nil }
+      let t = (Double(Int64(uptimeNs()) - Int64(startHostNs)) / 1e9 * 1000).rounded() / 1000
+      marks.append(["label": label, "kind": kind, "t_s": t, "at": iso8601.string(from: Date())])
+      persist()
+      return t
     }
   }
 
@@ -485,9 +501,11 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
       "created_at": iso8601.string(from: createdAt),
       "dir": dir,
       "events": events,
+      "marks": marks,
       "frames": ["written": framesWritten, "dropped": framesDropped, "seen": framesSeen],
     ]
     if let k = idempotencyKey { d["idempotency_key"] = k }
+    if let sid = sessionID { d["session_id"] = sid }
     if let r = resolved { d["resolved"] = r }
     if let e = error { d["error"] = e }
     if let a = actualStart { d["actual_start"] = iso8601.string(from: a) }

@@ -11,7 +11,8 @@ final class Engine: @unchecked Sendable {
   private let startedAt = Date()
   private let startedNs = uptimeNs()
   private let viewfinder = Viewfinder()
-  private lazy var recordings = Recordings(root: paths.root + "/recordings")
+  private lazy var sessions = Sessions(root: paths.root + "/sessions")
+  private lazy var recordings = Recordings(legacyRoot: paths.root + "/recordings", sessions: sessions)
 
   init(paths: Paths, lock: InstanceLock) {
     self.paths = paths
@@ -24,8 +25,11 @@ final class Engine: @unchecked Sendable {
     }
     try server.start()
     self.server = server
-    let recordings = self.recordings
-    Task { await recordings.load() }
+    let recordings = self.recordings, sessions = self.sessions
+    Task {
+      await sessions.load()
+      await recordings.load()
+    }
     for sig in [SIGTERM, SIGINT] {
       signal(sig, SIG_IGN)
       let s = DispatchSource.makeSignalSource(signal: sig, queue: .main)
@@ -79,7 +83,34 @@ final class Engine: @unchecked Sendable {
       await MainActor.run { Overlays.shared.hide(id: id) }
       return ["hidden": id ?? "all"]
     case "record.schedule":
-      return try await recordings.schedule(params)
+      return try await scheduleRecording(params)
+    case "record.mark":
+      return try await mark(params)
+    case "session.create":
+      return try await sessions.create(params)
+    case "session.get":
+      guard let id = params.str("session_id") else { throw RPCError.badParams("session_id is required") }
+      var d = try await sessions.get(id, eventLimit: Int(params.num("events") ?? 30))
+      d["recordings"] = await recordings.briefs(await sessions.recordingIDs(id))
+      return d
+    case "session.search":
+      return await sessions.search(params)
+    case "session.current":
+      guard let id = try await sessions.ensure(params, create: false, defaultTitle: "") else {
+        return ["session": NSNull(), "hint": "no open session for this caller; record.schedule creates one, or call session.create"]
+      }
+      var d = try await sessions.get(id, eventLimit: 10)
+      d["recordings"] = await recordings.briefs(await sessions.recordingIDs(id))
+      return ["session": d]
+    case "session.note":
+      let sid = try await sessions.ensure(params, create: false, defaultTitle: "")
+      guard let id = sid, let text = params.str("text") else { throw RPCError.badParams("text is required, plus session_id (or a caller with an open session)") }
+      return try await sessions.note(id, text)
+    case "session.update":
+      return try await sessions.update(params)
+    case "session.close", "session.reopen":
+      guard let id = params.str("session_id") else { throw RPCError.badParams("session_id is required") }
+      return try await sessions.close(id, reopen: method == "session.reopen")
     case "record.get":
       return try await recordings.get(try recID(params)).describe()
     case "record.list":
@@ -180,6 +211,46 @@ final class Engine: @unchecked Sendable {
     ]
   }
 
+  /// Every recording belongs to a session: the one named, the caller's open
+  /// one, or a new one titled after the recording's label.
+  private func scheduleRecording(_ p: [String: Any]) async throws -> [String: Any] {
+    guard let sid = try await sessions.ensure(p, create: true, defaultTitle: p.str("label") ?? "untitled") else {
+      throw RPCError(code: "internal", message: "could not open a session")
+    }
+    var d = try await recordings.schedule(p, sessionID: sid, sessionDir: await sessions.dir(sid))
+    if let rid = d.str("recording_id"), d["reused"] == nil {
+      await sessions.recordingAdded(sid, recordingID: rid, label: p.str("label") ?? "")
+    }
+    d["session_id"] = sid
+    return d
+  }
+
+  /// Marks "now" in running recordings: one by id, or every running recording
+  /// in the session. Without a running recording the mark still lands in the
+  /// session log with its wall time.
+  private func mark(_ p: [String: Any]) async throws -> [String: Any] {
+    guard let label = p.str("label"), !label.isEmpty else { throw RPCError.badParams("label is required") }
+    let kind = p.str("kind") ?? "mark"
+    var targets: [Recording] = []
+    var sid: String?
+    if let rid = p.str("recording_id") {
+      let r = try await recordings.get(rid)
+      targets = [r]
+      sid = r.sessionID
+    } else {
+      sid = try await sessions.ensure(p, create: false, defaultTitle: "")
+      guard sid != nil else { throw RPCError.badParams("give recording_id or session_id (or call from an agent with an open session)") }
+      targets = await recordings.active(session: sid)
+    }
+    var applied: [[String: Any]] = []
+    for r in targets {
+      if let t = r.addMark(label, kind: kind) { applied.append(["recording_id": r.id, "t_s": t]) }
+    }
+    if let sid { await sessions.log(sid, "mark", ["label": label, "kind": kind, "recordings": applied]) }
+    return ["label": label, "session_id": sid ?? NSNull(), "marked": applied,
+            "note": applied.isEmpty ? "no recording was running; the mark is in the session log only" : ""]
+  }
+
   private func recID(_ p: [String: Any]) throws -> String {
     guard let id = p.str("recording_id") else { throw RPCError.badParams("recording_id is required") }
     return id
@@ -213,7 +284,14 @@ final class Engine: @unchecked Sendable {
     let maxWidth = Int(p.num("max_width") ?? 1280)
     let grab = try await viewfinder.grab(target, maxWidth: maxWidth > 0 ? maxWidth : nil)
     let format = p.str("format") == "png" ? "png" : "jpeg"
-    let path = p.str("path") ?? "\(paths.frames)/verify-\(Int(Date().timeIntervalSince1970 * 1000)).\(format == "png" ? "png" : "jpg")"
+    // Frame checks go into the caller's session when there is one.
+    let sid = try await sessions.ensure(p, create: false, defaultTitle: "")
+    var frameDir = paths.frames
+    if let sid {
+      frameDir = await sessions.dir(sid) + "/frames"
+      try? FileManager.default.createDirectory(atPath: frameDir, withIntermediateDirectories: true)
+    }
+    let path = p.str("path") ?? "\(frameDir)/verify-\(Int(Date().timeIntervalSince1970 * 1000)).\(format == "png" ? "png" : "jpg")"
     let t2 = uptimeNs()
     let bytes = try ImageOut.write(grab.image, to: path, format: format, quality: p.num("quality") ?? 0.8)
     let t3 = uptimeNs()
@@ -224,7 +302,9 @@ final class Engine: @unchecked Sendable {
     }
     checks["warnings"] = warnings
     pruneFrames()
+    if let sid { await sessions.verified(sid, image: path, target: target.describe()) }
     return [
+      "session_id": sid ?? NSNull(),
       "image": ["path": path, "w": grab.image.width, "h": grab.image.height, "bytes": bytes, "format": format],
       "target": target.describe(),
       "checks": checks,

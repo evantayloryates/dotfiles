@@ -7,11 +7,13 @@ actor Recordings {
   static let maxDuration: TimeInterval = 3 * 3600
   static let maxLeadTime: TimeInterval = 7 * 86400
 
-  private let root: String
+  private let legacyRoot: String
+  private let sessions: Sessions
   private var jobs: [String: Recording] = [:]
 
-  init(root: String) {
-    self.root = root
+  init(legacyRoot: String, sessions: Sessions) {
+    self.legacyRoot = legacyRoot
+    self.sessions = sessions
   }
 
   // MARK: - Lifecycle
@@ -19,11 +21,15 @@ actor Recordings {
   /// Picks up manifests from before a restart: scheduled ones are re-armed,
   /// ones that were mid-recording are marked interrupted (their fragmented
   /// files stay playable up to the last second written).
-  func load() {
+  func load() async {
     let fm = FileManager.default
-    try? fm.createDirectory(atPath: root, withIntermediateDirectories: true)
-    for name in (try? fm.contentsOfDirectory(atPath: root)) ?? [] {
-      let dir = root + "/" + name
+    var dirs: [String] = ((try? fm.contentsOfDirectory(atPath: legacyRoot)) ?? []).map { legacyRoot + "/" + $0 }
+    let sessionsRoot = sessions.root
+    for sid in (try? fm.contentsOfDirectory(atPath: sessionsRoot)) ?? [] {
+      let base = "\(sessionsRoot)/\(sid)/recordings"
+      dirs += ((try? fm.contentsOfDirectory(atPath: base)) ?? []).map { base + "/" + $0 }
+    }
+    for dir in dirs {
       guard let data = fm.contents(atPath: dir + "/recording.json"),
             let m = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any],
             let id = m.str("recording_id"), let start = m.str("start_at").flatMap(parseISO), let end = m.str("end_at").flatMap(parseISO),
@@ -32,8 +38,9 @@ actor Recordings {
       let rec = Recording(id: id, dir: dir, target: m["target"] as? [String: Any] ?? [:],
                           settings: RecordSettings.fromSaved(m["settings"] as? [String: Any] ?? [:]),
                           label: m.str("label") ?? "", startAt: start, endAt: end, ifLate: m.str("if_late") ?? "start",
-                          idempotencyKey: m.str("idempotency_key"), createdAt: m.str("created_at").flatMap(parseISO) ?? Date(),
-                          state: state)
+                          idempotencyKey: m.str("idempotency_key"), sessionID: m.str("session_id"),
+                          createdAt: m.str("created_at").flatMap(parseISO) ?? Date(), state: state)
+      watch(rec)
       jobs[id] = rec
       if state == .scheduled {
         rec.schedule()
@@ -46,7 +53,17 @@ actor Recordings {
 
   // MARK: - API
 
-  func schedule(_ p: [String: Any]) throws -> [String: Any] {
+  /// Session events for every state change.
+  private func watch(_ rec: Recording) {
+    guard let sid = rec.sessionID else { return }
+    let sessions = self.sessions
+    rec.onChange = { r in
+      let fields: [String: Any] = ["recording_id": r.id, "state": r.state.rawValue]
+      Task { await sessions.log(sid, "recording_state", fields) }
+    }
+  }
+
+  func schedule(_ p: [String: Any], sessionID: String, sessionDir: String) throws -> [String: Any] {
     if let key = p.str("idempotency_key"), let existing = jobs.values.first(where: { $0.idempotencyKey == key }) {
       var d = existing.describe()
       d["reused"] = true
@@ -77,9 +94,10 @@ actor Recordings {
     guard ["start", "skip"].contains(ifLate) else { throw RPCError.badParams("if_late must be start or skip") }
 
     let id = Self.newID()
-    let dir = p.str("dir") ?? "\(root)/\(id)"
+    let dir = "\(sessionDir)/recordings/\(id)"
     let rec = Recording(id: id, dir: dir, target: target, settings: settings, label: p.str("label") ?? "",
-                        startAt: start, endAt: end, ifLate: ifLate, idempotencyKey: p.str("idempotency_key"))
+                        startAt: start, endAt: end, ifLate: ifLate, idempotencyKey: p.str("idempotency_key"), sessionID: sessionID)
+    watch(rec)
     jobs[id] = rec
     rec.save()
     rec.schedule()
@@ -94,13 +112,24 @@ actor Recordings {
     return r
   }
 
+  /// Recordings currently capturing, optionally only those in one session.
+  func active(session: String?) -> [Recording] {
+    jobs.values.filter { $0.state == .recording && (session == nil || $0.sessionID == session) }
+  }
+
+  func briefs(_ ids: [String]) -> [[String: Any]] {
+    ids.compactMap { jobs[$0] }.map { brief($0.describe()) }
+  }
+
   func list(_ p: [String: Any]) -> [String: Any] {
     let wanted = p.str("state")
+    let session = p.str("session_id")
     let active = p.bool("active") ?? false
     let limit = Int(p.num("limit") ?? 20)
     let all = jobs.values
       .filter { wanted == nil || $0.state.rawValue == wanted }
       .filter { !active || !$0.state.terminal }
+      .filter { session == nil || $0.sessionID == session }
       .sorted { $0.startAt > $1.startAt }
     return ["recordings": all.prefix(limit).map { brief($0.describe()) }, "total": all.count]
   }
@@ -126,8 +155,9 @@ actor Recordings {
 
   private func brief(_ d: [String: Any]) -> [String: Any] {
     var b: [String: Any] = [:]
-    for k in ["recording_id", "state", "label", "start_at", "end_at", "error", "video"] { if let v = d[k] { b[k] = v } }
+    for k in ["recording_id", "session_id", "state", "label", "start_at", "end_at", "error", "video"] { if let v = d[k] { b[k] = v } }
     b["events"] = (d["events"] as? [Any])?.count ?? 0
+    b["marks"] = (d["marks"] as? [Any])?.count ?? 0
     return b
   }
 

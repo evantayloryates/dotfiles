@@ -10,7 +10,7 @@ Why it is built this way, with measurements:
 
 ## Status
 
-Steps 1–3 of the build order are done.
+Steps 1–4 of the build order are done.
 
 1. **Engine skeleton.** Runs at login, answers on its socket, reports status,
    holds its own Screen Recording grant.
@@ -20,7 +20,11 @@ Steps 1–3 of the build order are done.
    the take starts exactly on time, crash-safe files, stop, cancel, move the
    end, wait, and survival across engine restarts.
 
-Sessions (bundling, markers, search) and the MCP come next.
+4. **Sessions.** Every recording, frame check, note and mark is bundled into
+   a session folder, tagged with the agent session, directory, repo and branch
+   that made it, and searchable when the agent loses the id.
+
+The MCP shim comes next.
 
 ## Layout
 
@@ -31,14 +35,23 @@ Sessions (bundling, markers, search) and the MCP come next.
 | `engine/Info.plist` | Bundle id `com.taylor.record-screen`, `LSUIElement`, App Nap off. |
 | `build.py` | Compiles with `swiftc`, bundles, signs, stamps the source hash. Output: `data/record-screen/record-screend.app` (gitignored). |
 | `install.sh` | Build, link `src/launchd/com.taylor.record-screen.plist`, load it, wait for the socket. Run by the top-level `install.sh`. |
+| `engine/Sources/Sessions.swift` | Session folders, the event log, auto-attach by caller, search. |
 | `cli.mjs`, `bin/record-screen` | Command line (also on PATH as `~/dotfiles/bin/record-screen`). |
+| `lib/caller.mjs` | Builds the `caller` object (agent session id, cwd, repo, branch) sent with session-aware requests. |
 | `lib/client.mjs` | Socket client shared by the CLI and the future MCP. |
 
 Runtime state lives in `~/.record-screen/` (mode 700):
 `run/engine.sock`, `run/engine.lock`, `logs/engine.jsonl`, `logs/stdout.log`,
 `logs/stderr.log`, `frames/` (verify images not tied to a session, pruned
-after a day), and `recordings/<recording_id>/` (`video.mp4` plus
-`recording.json`, the manifest). `RECORD_SCREEN_HOME` overrides the root.
+after a day), and `sessions/<session_id>/`:
+
+```
+session.json                 title, purpose, tags, caller, counts, recording ids
+events.jsonl                 append-only: created, note, verify, recording_scheduled,
+                             recording_state, mark, closed, ...
+frames/verify-<ms>.jpg       frame checks made in this session
+recordings/<recording_id>/   video.mp4 + recording.json (with marks and events)
+``` `RECORD_SCREEN_HOME` overrides the root.
 
 ## Commands
 
@@ -60,6 +73,13 @@ record-screen recording <id>
 record-screen record-wait <id> [recording|done] [timeout_s]
 record-screen stop <id>       # stop now, keep the file
 record-screen cancel <id>     # stop or unschedule, delete the file
+record-screen current         # this agent's open session
+record-screen sessions [query] [--mine]
+record-screen session <id>    # manifest, recordings, recent events
+record-screen session-new <title> [purpose]
+record-screen note <text> [session_id]
+record-screen mark <label> [recording_id]
+record-screen close <session_id>
 record-screen call <method> '<json params>'
 ```
 
@@ -102,6 +122,17 @@ requests; replies may come back out of order, so match them by `id`.
 | `record.stop` | `{recording_id}` → stops now, keeps the file, waits until it is written |
 | `record.cancel` | `{recording_id}` → unschedules, or stops and deletes the file |
 | `record.reschedule` | `{recording_id, start_at?, end_at?}`: before start, either; while recording, only `end_at` |
+
+| `record.mark` | `{label, kind?, recording_id? \| session_id? \| caller}` → `marked: [{recording_id, t_s}]` |
+| `session.create` | `{title, purpose?, tags?, caller?}` |
+| `session.current` | `{caller}` → the caller's open session with its recordings, or `session: null` |
+| `session.get` | `{session_id, events? (30)}` → manifest, recordings, recent events, dir |
+| `session.search` | `{query?, mine?, agent_session_id?, cwd?, repo?, tag?, state?, since?, limit? (10)}` |
+| `session.note` | `{text, session_id? \| caller}` |
+| `session.update` | `{session_id, title?, purpose?, tags?}` |
+| `session.close` / `session.reopen` | `{session_id}` |
+
+`record.schedule` and `frame.verify` also take `session_id` or `caller`.
 
 Every object reply also carries `clock: {wall, uptime_ns}`, the engine's time,
 so an agent can compute absolute times without a separate call.
@@ -194,6 +225,32 @@ events to the manifest with their offset into the video (`t_s`):
 
 **Cost.** A 60 fps full-Retina display recording used 3.6% of one core in
 the engine (the encoder is hardware) and 45 MB of memory.
+
+### Sessions
+
+A session is the bundle for one piece of work. Agents rarely need to manage
+them:
+
+- **Auto-attach.** Requests carry `caller` (the CLI and MCP add it):
+  `{agent, agent_session_id, host_session_id, cwd, repo, repo_root, branch}`.
+  `agent_session_id` comes from `CLAUDE_CODE_SESSION_ID` (or Codex's thread
+  id). `record.schedule` without a `session_id` goes into the caller's most
+  recent open session, active in the last 12 h, or opens a new one titled
+  after the recording's label. `frame.verify` and `record.mark` attach to the
+  caller's open session if there is one; they never create one.
+- **Lost ids.** `session.current` answers "what am I working in?".
+  `session.search` with `mine: true` lists only this agent's sessions; `query`
+  matches every word against title, purpose, tags, notes, recording labels,
+  mark labels and the caller's directory, repo and branch, and says which
+  fields matched.
+- **Marks.** `record.mark` stamps "now" into running recordings with the
+  offset into each video (`t_s`), for chapters and trims later: one recording
+  by id, or every running recording in the session. With nothing running, the
+  mark still goes into the session log with its wall time.
+- **Notes.** `session.note` leaves breadcrumbs ("about to record the
+  checkout flow"), which search finds later.
+- **Closing** stops new work landing in the session; the agent's next
+  recording opens a fresh one. `session.reopen` undoes it.
 
 ### Frame outline
 
