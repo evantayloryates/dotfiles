@@ -683,6 +683,16 @@ case "${1:-}" in
   reload-auth)
     reload_auth
     ;;
+  mcp)
+    # OpenCode's own sign-in asks Slack for every MCP scope, writes included,
+    # whatever oauth.scope says; the dedicated tool asks for read scopes only
+    # and refuses a token that can write.
+    if [[ "${2:-}" == auth && "${3:-}" == slackuser ]]; then
+      exec "${SCRIPT_DIR}/../tools/slack-mcp-auth"
+    fi
+    shift
+    run_opencode mcp "$@"
+    ;;
   tunnel)
     shift
     tunnel "$@"

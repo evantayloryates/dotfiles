@@ -2,11 +2,11 @@
 
 A locked-down OpenCode 1.18.31 server on `http://127.0.0.1:4096` (LaunchAgent
 `com.taylor.zdr-harness`). It runs only on Kickoff's zero-data-retention OpenAI
-key (BAA-covered, so PHI may reach it) and exposes 80 named tools: read-only
+key (BAA-covered, so PHI may reach it) and exposes 94 named tools: read-only
 Amplitude and BugSnag ones, PostHog's single `exec` router, four CloudWatch Logs
 readers, ten read-only Cloudinary asset tools, eight Cloudinary configuration
 readers, eight live-production-database and transcript readers (two of them bulk-export transcripts to a harness-private file for the classifier), four Slack
-channel readers, four memory tools, the nine `classifier_classify_*` tools, and `todowrite`. Two agents split by destination:
+channel readers, 14 read-only tools of Slack's own MCP server signed in as Taylor (`slackuser_*`), four memory tools, the nine `classifier_classify_*` tools, and `todowrite`. Two agents split by destination:
 `analyst` (default, full detail, read by Taylor in the app) and `zdr` (what the
 bridge always asks, de-identified to HIPAA Safe Harbor because Claude Code and
 Codex have no BAA). Claude Code and Codex reach it through the `zdr_ask` MCP tool
@@ -46,6 +46,10 @@ truth**: design, lockdown, app, verification. Read it before changing anything.
   reads account configuration — presets, transformations, mappings, triggers,
   streaming profiles. That is product wiring rather than client data, so the
   answer rule passes it through; its create/update/delete tools stay denied.
+- **`slackuser` is signed in as Taylor, read-only at the token.** Re-auth only
+  with `zdr-harness mcp auth slackuser` (it runs `tools/slack-mcp-auth`); never
+  run OpenCode's own sign-in for it, which grants Slack's write scopes. Never
+  allow a `slackuser_*` tool that Slack does not mark read-only.
 - **`mcps/classifier` is the one server registered both here and outside.**
   It only classifies what a caller hands it, on the ZDR key; the launcher
   picks the job store from `HOME`, so harness jobs stay in `~/.zdr-harness`

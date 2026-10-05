@@ -393,6 +393,31 @@ read is bounded (200 messages, 1500 chars per message) and paged with
 questions over hundreds of channels need the local cache the plan describes;
 that is a separate, explicit decision and is not built.
 
+### Slack as Taylor (`slackuser_*`)
+
+Slack's own MCP server (`https://mcp.slack.com/mcp`), signed in as Taylor
+through the sign-in-only Slack app **ZDR Harness** (`A0C714R33A8`; no bot,
+nothing installed into channels; 1Password personal → Kickoff "ZDR Harness
+Slack app"; secret in `.env` as `KICKOFF_SLACK_MCP_CLIENT_SECRET`). Its first
+job is the private channel #rd-bugs-and-feature-requests (`C0ALR9F5NQP`);
+Claude Code, Codex and Cursor are told to read that channel only through
+`zdr_ask`.
+
+- **Read-only at the token, not just the allowlist.** OpenCode's own sign-in
+  ignores `oauth.scope` and asks for every MCP scope, writes included, and
+  Slack grants them because the app has MCP enabled. So
+  `zdr-harness mcp auth slackuser` runs `tools/slack-mcp-auth` instead: it
+  asks for read scopes only, refuses (and revokes) any token that can write,
+  stores it in `mcp-auth.json`, and revokes the token it replaces. Scopes
+  accumulate per user and app, so dropping a write scope needs the old token
+  revoked first; the tool does that when it refuses.
+- Granted (verified 2026-10-05): channel and private-channel read, search
+  (public, private, files, users), files, canvases, lists, reactions, users.
+  No write scope and no DMs. `chat.postMessage` and `reactions.add` with the
+  stored token return `missing_scope`.
+- Allowlist: the 14 tools Slack marks read-only (`slackuser_slack_read_*`,
+  `search_*`, `list_*`, `get_reactions`); its 12 write tools stay denied.
+
 ## Production database
 
 `src/zdr-harness/mcps/kickoff-db` gives the harness read-only access to the
@@ -540,8 +565,9 @@ and read each tool's `readOnlyHint`. Add only tools marked read-only, then
 
 ## Re-auth
 
-Only Amplitude uses OAuth. If `zdr-harness status` shows `needs_auth` or
-`failed` for it:
+Amplitude and Slack (`slackuser`) use OAuth. For Slack always use
+`zdr-harness mcp auth slackuser` (it runs the read-only `tools/slack-mcp-auth`).
+If `zdr-harness status` shows `needs_auth` or `failed` for Amplitude:
 
 ```sh
 zdr-harness mcp auth amplitude && zdr-harness restart
@@ -604,7 +630,7 @@ config or app.
    the reply, and it says it has no such tools.
 4. **Egress.** Sample `lsof -nP -iTCP -a -p <pid>` across a restart and a prompt
    that uses both MCP servers. Allowed: `api.openai.com`, `mcp.amplitude.com`,
-   `bugsnag.mcp.smartbear.com`, `oauth.bugsnag.com`. Anything else (npm
+   `bugsnag.mcp.smartbear.com`, `oauth.bugsnag.com`, `mcp.slack.com`. Anything else (npm
    `104.16.x.34`, `*.opencode.ai`, GitHub, PostHog, Sentry) is a failure.
 5. **ZDR probe.** A Responses call with `store: true` using the harness key must
    return `store: false`, and fetching the response ID must return 404.

@@ -207,7 +207,8 @@ const TOOLS = [
     title: 'Ask the ZDR harness',
     description:
       "Ask Kickoff's zero-data-retention harness a question about Amplitude analytics, BugSnag errors, " +
-      'PostHog product data, or production Lambda logs in CloudWatch. ' +
+      'PostHog product data, production Lambda logs in CloudWatch, the live production database and call transcripts, ' +
+      'or Slack (including #rd-bugs-and-feature-requests, which is read only through this tool, never the Slack connector). ' +
       'The harness runs the tool calls on a ZDR OpenAI key and returns only a de-identified answer ' +
       '(counts, rates, error classes, object IDs, links; never user identifiers or raw payloads). ' +
       'Pass session_id from a previous answer to ask a follow-up in the same conversation. ' +
