@@ -1,0 +1,97 @@
+<meta charset="utf-8">
+<title>Theo Voice Samples</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* Layout: a short brief, then a 2×2 grid, one row per model, raw on the left and the phone leg on the right. */
+  :root {
+    --bg: #f6f4ef; --panel: #ffffff; --fg: #1d1f1b; --muted: #6a6e66; --line: #dcd9d0;
+    --accent: #1f6f5f; --accent-soft: #e2efe9; --warn: #a8562a;
+    --sans: "IBM Plex Sans", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --bg: #15171a; --panel: #1e2125; --fg: #e8e6e1; --muted: #9aa09a; --line: #2f343a;
+    --accent: #5fbfa6; --accent-soft: #1f322d; --warn: #e0905f; color-scheme: dark; } }
+  :root[data-theme="dark"] {
+    --bg: #15171a; --panel: #1e2125; --fg: #e8e6e1; --muted: #9aa09a; --line: #2f343a;
+    --accent: #5fbfa6; --accent-soft: #1f322d; --warn: #e0905f; color-scheme: dark; }
+
+  body { background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 15px; line-height: 1.5;
+         margin: 0; padding-inline: 16px; padding-block: 28px 48px; }
+  main { max-width: 880px; margin: 0 auto; display: grid; gap: 20px; }
+  h1 { font-size: 1.5rem; font-weight: 600; margin: 0; text-wrap: balance; }
+  p { margin: 0; max-width: 62ch; }
+  .lead { color: var(--muted); }
+  .line { font-family: var(--mono); font-size: 0.9rem; background: var(--panel); border: 1px solid var(--line);
+          border-radius: 6px; padding: 10px 14px; color: var(--fg); max-width: none; }
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px;
+          display: grid; gap: 10px; min-width: 0; }
+  .card header { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .card h2 { font-size: 1rem; font-weight: 600; margin: 0; }
+  .tag { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase;
+         padding: 2px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
+  .tag.phone { background: transparent; border: 1px solid var(--line); color: var(--muted); }
+  .meta { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  audio { width: 100%; display: block; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; }
+  button { font: 500 0.85rem var(--sans); color: var(--fg); background: var(--panel); border: 1px solid var(--line);
+           border-radius: 6px; padding: 7px 12px; cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .note { border-left: 3px solid var(--warn); padding-left: 12px; color: var(--muted); font-size: 0.9rem; }
+  .cards-head { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  .cards-head div { font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+  @media (max-width: 640px) { .cards-head { display: none; } }
+</style>
+<main>
+  <h1>Theo voice samples</h1>
+  <p class="lead">Same voice (Cartesia "Daniel"), same line Theo spoke on the 20:20 call. Left column is the audio Cartesia hands the agent at 24 kHz. Right column is that audio after an 8 kHz mu-law round trip, the narrowband leg a PSTN call goes through.</p>
+  <p class="line">"Hi Taylor, this is Theo. Thanks for checking in. No questions from me right now. Anything you want me to note or handle?"</p>
+
+  <div class="controls">
+    <button class="primary" id="play-all">Play all four in order</button>
+    <button id="stop-all">Stop</button>
+  </div>
+
+  <div class="cards-head"><div>Raw, 24 kHz</div><div>Phone leg, 8 kHz mu-law</div></div>
+  <div class="grid">
+    <section class="card">
+      <header><h2>sonic-3</h2><span class="tag">in production</span></header>
+      <audio controls preload="metadata" id="a1" src="theo-sonic-3-raw.wav"></audio>
+      <div class="meta">5.1 s · 16-bit PCM · peak −0.01 dBFS, no clipping</div>
+    </section>
+    <section class="card">
+      <header><h2>sonic-3</h2><span class="tag phone">phone leg</span></header>
+      <audio controls preload="metadata" id="a2" src="theo-sonic-3-phone.wav"></audio>
+      <div class="meta">5.1 s · simulated G.711 μ-law</div>
+    </section>
+    <section class="card">
+      <header><h2>sonic-2</h2><span class="tag">candidate</span></header>
+      <audio controls preload="metadata" id="a3" src="theo-sonic-2-raw.wav"></audio>
+      <div class="meta">6.4 s · 16-bit PCM · peak −0.26 dBFS, no clipping</div>
+    </section>
+    <section class="card">
+      <header><h2>sonic-2</h2><span class="tag phone">phone leg</span></header>
+      <audio controls preload="metadata" id="a4" src="theo-sonic-2-phone.wav"></audio>
+      <div class="meta">6.4 s · simulated G.711 μ-law</div>
+    </section>
+  </div>
+
+  <p class="note">What to listen for: if the raw column already sounds clunky, the fix is the voice or model. If only the phone column matches what you heard, the fix is in how the agent streams speech onto the narrowband leg. If neither sounds like the call, the problem is transport, not synthesis.</p>
+</main>
+<script>
+  const players = ["a1","a2","a3","a4"].map(id => document.getElementById(id));
+  const stopAll = () => players.forEach(p => { p.pause(); p.currentTime = 0; });
+  players.forEach(p => p.addEventListener("play", () => players.forEach(o => { if (o !== p) o.pause(); })));
+  document.getElementById("play-all").addEventListener("click", async () => {
+    stopAll();
+    for (const p of players) {
+      await new Promise(res => { p.onended = res; p.play().catch(res); });
+      if (p.paused && p.currentTime < p.duration - 0.05) break;
+    }
+  });
+  document.getElementById("stop-all").addEventListener("click", stopAll);
+</script>
