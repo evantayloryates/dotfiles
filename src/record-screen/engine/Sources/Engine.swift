@@ -283,6 +283,24 @@ final class Engine: @unchecked Sendable {
             "note": applied.isEmpty ? "no recording was running; the mark is in the session log only" : ""]
   }
 
+  /// A caller-chosen image path: absolute, an image extension, an existing
+  /// folder, and never overwriting a file that isn't an image.
+  static func safeImagePath(_ raw: String) throws -> String {
+    let path = URL(fileURLWithPath: raw).standardizedFileURL.path
+    let ext = (path as NSString).pathExtension.lowercased()
+    var isDir: ObjCBool = false
+    guard raw.hasPrefix("/"), ["jpg", "jpeg", "png"].contains(ext),
+          FileManager.default.fileExists(atPath: (path as NSString).deletingLastPathComponent, isDirectory: &isDir), isDir.boolValue else {
+      throw RPCError.badParams("path must be an absolute .jpg or .png path in an existing folder")
+    }
+    if FileManager.default.fileExists(atPath: path), let h = FileHandle(forReadingAtPath: path) {
+      let head = [UInt8](h.readData(ofLength: 4)); try? h.close()
+      let isImage = head.starts(with: [0xFF, 0xD8, 0xFF]) || head.starts(with: [0x89, 0x50, 0x4E, 0x47])
+      guard isImage else { throw RPCError.badParams("path exists and is not an image; refusing to overwrite it") }
+    }
+    return path
+  }
+
   /// Trim (mp4) or GIF a finished recording, by seconds or by mark labels.
   private func export(_ p: [String: Any]) async throws -> [String: Any] {
     let r = try await recordings.get(try recID(p))
@@ -306,7 +324,15 @@ final class Engine: @unchecked Sendable {
     guard to > from else { throw RPCError.badParams("the end of the export must be after its start (from \(from) s, to \(to) s)") }
     if format == "gif" && to - from > 60 { throw RPCError.badParams("GIFs are capped at 60 s; export mp4 for longer clips") }
     let name = p.str("name") ?? String(format: "%@-%.1f-%.1f.%@", format == "gif" ? "clip" : "trim", from, to, format)
-    return try await Export.run(video: r.videoPath, out: r.dir + "/exports/" + name, format: format, from: from, to: to,
+    // A plain file name only: exports never leave the recording's folder.
+    guard name.range(of: "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$", options: .regularExpression) != nil,
+          (name as NSString).pathExtension.lowercased() == format else {
+      throw RPCError.badParams("name must be a plain file name (letters, digits, . _ -) ending in .\(format)")
+    }
+    let exportsDir = URL(fileURLWithPath: r.dir + "/exports").standardizedFileURL.path
+    let out = URL(fileURLWithPath: exportsDir + "/" + name).standardizedFileURL.path
+    guard out.hasPrefix(exportsDir + "/") else { throw RPCError.badParams("name escapes the exports folder") }
+    return try await Export.run(video: r.videoPath, out: out, format: format, from: from, to: to,
                                 maxWidth: p.num("max_width").map { Int($0) }, fps: p.num("fps").map { Int($0) })
   }
 
@@ -360,7 +386,7 @@ final class Engine: @unchecked Sendable {
     }
     // Millisecond stamp plus a random suffix: concurrent checks never collide.
     let stamp = "\(Int(Date().timeIntervalSince1970 * 1000))-\(String(UInt32.random(in: 0...UInt32.max), radix: 36))"
-    let path = p.str("path") ?? "\(frameDir)/verify-\(stamp).\(format == "png" ? "png" : "jpg")"
+    let path = try p.str("path").map(Self.safeImagePath) ?? "\(frameDir)/verify-\(stamp).\(format == "png" ? "png" : "jpg")"
     let t2 = uptimeNs()
     let bytes = try ImageOut.write(grab.image, to: path, format: format, quality: p.num("quality") ?? 0.8)
     let t3 = uptimeNs()
