@@ -29,13 +29,17 @@ export function renderRows(names, rows, { maxCell, maxChars }) {
   let chars = lines[0].length
   let shown = 0
   let cutCells = 0
+  // One very wide row must not blow the answer cap on its own: shrink its
+  // cells to fit an even share of the budget.
+  const fitCap = Math.max(20, Math.floor(maxChars / Math.max(1, names.length) / 1.2))
   for (const row of rows) {
-    const out = row.map((v) => {
-      const c = cell(v, maxCell)
-      if (typeof c === 'string' && c.includes('…<+')) cutCells++
-      return c
-    })
-    const line = JSON.stringify(out)
+    let out = row.map((v) => cell(v, maxCell))
+    let line = JSON.stringify(out)
+    if (line.length > maxChars) {
+      out = row.map((v) => cell(v, Math.min(maxCell || fitCap, fitCap)))
+      line = JSON.stringify(out)
+    }
+    for (const c of out) if (typeof c === 'string' && c.includes('…<+')) cutCells++
     if (chars + line.length + 1 > maxChars && shown > 0) break
     lines.push(line)
     chars += line.length + 1

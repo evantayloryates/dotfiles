@@ -6,6 +6,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 HERE = Path(__file__).resolve().parent
 sys.dont_write_bytecode = True
@@ -24,6 +25,14 @@ esac
 
 
 class LockStateTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        for name in ('STATE', 'RECOVERY'):
+            p = patch.object(keepalive, name, Path(self.tmp.name) / name)
+            p.start()
+            self.addCleanup(p.stop)
+
     def test_lock_state_follows_latest_event(self):
         lines = ['INFO 2026-10-03T19:49:04 [client:typescript] Client starting.',
                  'INFO 2026-10-03T19:59:48 [1P:...unlock.rs:195] Lock state changed: Unlocked']
@@ -70,8 +79,11 @@ class CallTests(unittest.TestCase):
         self.original = keepalive.OP
         keepalive.OP = fake
         self.account = {'id': 'ACCT', 'label': 'test'}
+        self.tail_patch = patch.object(keepalive, 'onepassword_tail', return_value=[])
+        self.tail_patch.start()
 
     def tearDown(self):
+        self.tail_patch.stop()
         keepalive.OP = self.original
         self.temp.cleanup()
 

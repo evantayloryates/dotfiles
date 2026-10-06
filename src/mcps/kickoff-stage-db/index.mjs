@@ -20,16 +20,17 @@
 //
 // See README.md beside this file.
 
-import { closeSync, existsSync, fsyncSync, mkdirSync, openSync, readFileSync, renameSync, statSync, unlinkSync, writeSync } from 'node:fs'
+import { closeSync, existsSync, fsyncSync, mkdirSync, openSync, readFileSync, realpathSync, renameSync, statSync, unlinkSync, writeSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { createRequire } from 'node:module'
 import { dirname, isAbsolute, join, resolve } from 'node:path'
 import { createInterface } from 'node:readline'
+import { AsyncLocalStorage } from 'node:async_hooks'
 import { execFileSync } from 'node:child_process'
 import { checkServerIdentity } from 'node:tls'
 import { checkSql, IDENT, scan, shape, ToolError } from './lib/sql.mjs'
 import { fileFormat, renderRows, uniqueNames } from './lib/format.mjs'
-import { ensureVpn, reachable, vpnState } from './lib/vpn.mjs'
+import { ensureVpn, reachable, VPN_DOWN_STATES, vpnState } from './lib/vpn.mjs'
 
 const VERSION = '1.0.0'
 const OPT = process.env.KICKOFF_STAGE_DB_OPT
@@ -45,13 +46,16 @@ const MAX_EXPORT_TIMEOUT_S = 300
 const DEFAULT_ROWS = 100
 const MAX_ROWS = 1000
 const DEFAULT_CELL = 500
-const MAX_CELL = 5000
+const MAX_CELL = 20_000
 const MAX_CHARS = 100_000
-const MAX_EXPORT_ROWS = 1_000_000
+const MAX_EXPORT_ROWS = 5_000_000
 const MAX_EXPORT_BYTES = 1_000_000_000
 const SLOW_MS = 5000
 
-const log = (...a) => console.error('[kickoff-stage-db]', ...a)
+// Server mode logs to stderr (the client's MCP log); the CLI stays quiet
+// unless KICKOFF_STAGE_DB_DEBUG=1, so a shell caller reads only the answer.
+const CLI = process.argv.length > 2
+const log = (...a) => { if (!CLI || process.env.KICKOFF_STAGE_DB_DEBUG === '1') console.error('[kickoff-stage-db]', ...a) }
 const sha12 = (s) => createHash('sha256').update(s).digest('hex').slice(0, 12)
 
 let mysql
@@ -135,7 +139,7 @@ function getPool() {
   return pool
 }
 
-const NET_CODES = new Set(['ETIMEDOUT', 'EHOSTUNREACH', 'ENETUNREACH', 'ECONNREFUSED', 'ECONNRESET', 'EPIPE', 'PROTOCOL_CONNECTION_LOST', 'PROTOCOL_SEQUENCE_TIMEOUT', 'STALLED', 'HANDSHAKE_NO_SSL_SUPPORT', 'EADDRNOTAVAIL'])
+const NET_CODES = new Set(['ETIMEDOUT', 'EHOSTUNREACH', 'ENETUNREACH', 'ECONNREFUSED', 'ECONNRESET', 'EPIPE', 'PROTOCOL_CONNECTION_LOST', 'PROTOCOL_SEQUENCE_TIMEOUT', 'STALLED', 'VPN_DOWN', 'HANDSHAKE_NO_SSL_SUPPORT', 'EADDRNOTAVAIL'])
 const isNetError = (e) => NET_CODES.has(e?.code) || /ETIMEDOUT|ECONNRESET|read ECONN|socket hang up|Connection lost/i.test(e?.message || '')
 
 function getConnection() {
@@ -146,6 +150,7 @@ function getConnection() {
 // a dropped VPN is reconnected, a stale socket is replaced, and anything
 // else becomes one clear sentence.
 async function acquire() {
+  await precheckVpn()
   try {
     return await getConnection()
   } catch (err) {
@@ -160,10 +165,26 @@ async function acquire() {
   }
 }
 
-let lastRecovery = null
-async function recoverNetwork(err) {
+let lastOk = 0 // last time a statement completed
+let vpnSeenUp = false // staging has been reached with the VPN up: watch it during long calls
+
+// After 30 quiet seconds, look at the VPN before connecting (~0.1 s): with the
+// tunnel down a connect only fails after its 8 s timeout, and a laptop that
+// slept, rebooted or changed networks is exactly that case.
+async function precheckVpn() {
+  if (!VPN_AUTOCONNECT || Date.now() - lastOk < 30_000) return
+  const { state } = await vpnState(VPN)
+  if (state === 'CONNECTED') { vpnSeenUp = true; return }
+  if (!VPN_DOWN_STATES.has(state)) return // unknown or not ours to fix: let the connect report it
   const t = parseUrl()
-  const probe = await reachable(t.host, t.port, 3000)
+  if ((await reachable(t.host, t.port, 1500)).ok) return // another route works
+  await recoverNetwork({ code: `VPN ${state}` }, { skipProbe: true })
+}
+
+let lastRecovery = null
+async function recoverNetwork(err, { skipProbe = false } = {}) {
+  const t = parseUrl()
+  const probe = skipProbe ? { ok: false, code: err.code } : await reachable(t.host, t.port, 3000)
   if (probe.ok) return // transient: the socket died, the route is fine
   if (probe.code === 'ENOTFOUND' || probe.code === 'EAI_AGAIN') throw explainConnect({ code: probe.code })
   if (!VPN_AUTOCONNECT) {
@@ -173,6 +194,7 @@ async function recoverNetwork(err) {
   lastRecovery = { at: new Date().toISOString(), ...r }
   if (!r.ok) throw new ToolError(`Staging is unreachable (${probe.code || err.code}). ${r.message}`)
   log(`VPN: ${r.action} in ${r.ms} ms`)
+  vpnSeenUp = true
   // Routes can lag the CONNECTED state by a moment.
   for (let i = 0; i < 8; i++) {
     if ((await reachable(t.host, t.port, 2000)).ok) return
@@ -209,13 +231,39 @@ async function setTimeoutFor(c, ms) {
 // Run one statement and stream its rows. onRow returns false to stop: the
 // connection is then destroyed, the only clean way to abandon a result set
 // mid-stream, and the pool opens a fresh one next time.
+// Request id -> the threads running its statements, so a client's
+// notifications/cancelled (Esc in Claude, interrupt in Codex) stops the work
+// on the server instead of letting it run to the time limit.
+const requestCtx = new AsyncLocalStorage()
+const running = new Map()
+
 function stream(c, statement, values, { onFields, onRow, stallMs }) {
+  const req = requestCtx.getStore()
+  if (req !== undefined) {
+    if (!running.has(req)) running.set(req, new Set())
+    running.get(req).add(c.threadId)
+  }
   return new Promise((resolveP, rejectP) => {
     let settled = false
     let stopped = false
     let rows = 0
+    let lastData = Date.now()
     let stall
+    // While a statement is silent, glance at the VPN every 3 s: a closed
+    // tunnel means the socket is dead, so give up now rather than at the
+    // stall timer, and let the caller reconnect and rerun.
+    const watch = vpnSeenUp && VPN_AUTOCONNECT
+      ? setInterval(async () => {
+          if (settled || Date.now() - lastData < 4000) return
+          const { state } = await vpnState(VPN)
+          if (settled || !VPN_DOWN_STATES.has(state)) return
+          stopped = true
+          c.destroy()
+          done(Object.assign(new Error(`the VPN closed (${state}) during the query`), { code: 'VPN_DOWN' }))
+        }, 3000)
+      : null
     const arm = () => {
+      lastData = Date.now()
       clearTimeout(stall)
       stall = setTimeout(() => {
         stopped = true
@@ -228,6 +276,8 @@ function stream(c, statement, values, { onFields, onRow, stallMs }) {
       if (settled) return
       settled = true
       clearTimeout(stall)
+      if (watch) clearInterval(watch)
+      if (req !== undefined) running.get(req)?.delete(c.threadId)
       if (err) rejectP(err)
       else resolveP({ rows, stopped })
     }
@@ -264,26 +314,53 @@ async function killQuery(threadId) {
   }
 }
 
-// Runs a checked statement with the retry rules: a lost or stalled
-// connection is replaced (and the VPN checked) once, since reads are safe
-// to repeat. Returns what run() returns.
+const lastUsed = new WeakMap() // connection -> when it was last released
+
+function pingWithin(c, ms) {
+  return new Promise((res) => {
+    const t = setTimeout(() => res(false), ms)
+    c.ping((e) => { clearTimeout(t); res(!e) })
+  })
+}
+
+// Runs a checked statement with the retry rules: a pooled connection idle
+// for a while is pinged first (a socket from before a sleep or a VPN drop
+// is dead and would hang), and a connection lost mid-call is replaced (VPN
+// checked) and the statement run once more, since reads are safe to repeat.
+// run() must start from scratch each time it is called.
 async function withConnection(timeoutS, run) {
-  for (let attempt = 0; ; attempt++) {
+  let stale = 0
+  for (let attempt = 0; ; ) {
     const c = await acquire()
     let released = false
-    const release = () => { if (!released) { released = true; try { c.release() } catch {} } }
+    const release = () => {
+      if (released) return
+      released = true
+      lastUsed.set(c, Date.now())
+      try { c.release() } catch {}
+    }
     try {
+      const idle = lastUsed.has(c) ? Date.now() - lastUsed.get(c) : 0
+      if (idle > 15_000 && !(await pingWithin(c, 2500))) {
+        released = true
+        try { c.destroy() } catch {}
+        log(`dropped a pooled connection that was dead after ${Math.round(idle / 1000)} s idle`)
+        if (++stale > 5) throw Object.assign(new Error('pooled connections keep failing'), { code: 'PROTOCOL_CONNECTION_LOST' })
+        if (stale === 1) await recoverNetwork({ code: 'STALE_SOCKET' })
+        continue
+      }
       await setTimeoutFor(c, timeoutS * 1000)
       const out = await run(c)
+      lastOk = Date.now()
       if (out?.destroyed) released = true
       return out
     } catch (err) {
       if (err?.code === 'STALLED' || isNetError(err)) {
         released = true
         try { c.destroy() } catch {}
-        // Silence with a healthy route is a slow statement (EXPLAIN ANALYZE,
-        // SHOW, which MAX_EXECUTION_TIME does not cover), not a dead socket:
-        // stop it on the server and say so, never run it a second time.
+        // Silence with a healthy route is a slow statement (one that
+        // MAX_EXECUTION_TIME does not cover), not a dead socket: stop it on
+        // the server and say so, never run it a second time.
         if (err.code === 'STALLED') {
           const t = parseUrl()
           if ((await reachable(t.host, t.port, 3000)).ok) {
@@ -291,12 +368,12 @@ async function withConnection(timeoutS, run) {
             throw new ToolError(`No answer within ${timeoutS + 15} s, so the statement was stopped on the server. Narrow it, aggregate, or raise timeout_seconds.`)
           }
         }
-        if (attempt === 0 && !err.partial) {
+        if (attempt++ === 0) {
           log(`connection lost mid-call (${err.code || err.message}); reconnecting once`)
           await recoverNetwork(err)
           continue
         }
-        throw new ToolError(`Lost the staging connection during the query (${err.code || err.message}); run stage_status, then retry.`)
+        throw new ToolError(`Lost the staging connection again after reconnecting (${err.code || err.message}); run stage_status, then retry.`)
       }
       throw err
     } finally {
@@ -330,7 +407,7 @@ Definitions that hold: clients.signed_up is the sign-up time (no created_at); ac
 video call = kickoff_calls.method='video' AND completed_at IS NOT NULL AND deleted_at IS NULL. Not every table has
 deleted_at or created_at: describe before filtering. Time: *_at columns are UTC; date columns are calendar dates.
 Counting traps: soft deletes, test and merged accounts, status-history tables, one-to-many joins that multiply rows.
-Size: clients ~1.07M rows, sms tens of millions. sms has no index on created_at (MAX(created_at) takes ~9 s): range by id.
+Size: production-sized core tables (clients ~1M rows, sms tens of millions). sms.created_at is unindexed (MAX takes ~9 s): use sent_at (indexed) or id.
 Check stage_describe indexes before filtering a big table.
 
 Calls: stage_tables (LIKE pattern; column_like finds tables with a column), stage_describe (up to 10 tables per call),
@@ -390,8 +467,12 @@ async function tables({ like, column_like, limit } = {}) {
   return lines.join('\n')
 }
 
-async function describe({ table, tables: list } = {}) {
+const likeRegex = (pattern) =>
+  new RegExp(`^${pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/%/g, '.*').replace(/_/g, '.')}$`, 'i')
+
+async function describe({ table, tables: list, column_like } = {}) {
   const names = list ?? (table !== undefined ? [table] : [])
+  const colRe = column_like === undefined ? null : likeRegex(checkLike(column_like, 'column_like'))
   if (!Array.isArray(names) || !names.length) throw new ToolError('Pass "table" or "tables" (up to 10 names)')
   if (names.length > 10) throw new ToolError('Up to 10 tables per call')
   for (const n of names) if (typeof n !== 'string' || !IDENT.test(n)) throw new ToolError(`"${n}" is not a plain table name`)
@@ -412,14 +493,16 @@ async function describe({ table, tables: list } = {}) {
     if (!cs.length) { missing.push(name); continue }
     const real = cs[0].table_name
     const rows = sizes.find((r) => r.table_name === real)?.table_rows
-    out.push(`${real}  ~${Number(rows || 0).toLocaleString()} rows`)
-    for (const col of cs) {
+    const shown = colRe ? cs.filter((col) => colRe.test(col.column_name)) : cs
+    out.push(`${real}  ~${Number(rows || 0).toLocaleString()} rows${colRe ? `  (${shown.length} of ${cs.length} columns match ${column_like})` : ''}`)
+    const keep = (cols) => !colRe || cols.split(',').some((x) => colRe.test(x))
+    for (const col of shown) {
       const def = col.column_default === null || col.column_default === undefined ? '' : ` default ${String(col.column_default).slice(0, 40)}`
       out.push(`  ${col.column_name} ${col.column_type}${col.is_nullable === 'NO' ? ' NOT NULL' : ''}${col.column_key ? ` [${col.column_key}]` : ''}${def}${col.extra ? ` ${col.extra}` : ''}`)
     }
-    const ix = idx.filter((r) => r.table_name === real)
+    const ix = idx.filter((r) => r.table_name === real && keep(r.cols))
     if (ix.length) out.push(`  indexes: ${ix.map((i) => `${i.index_name}${i.non_unique ? '' : '(unique)'}(${i.cols})`).join('; ')}`)
-    const fk = fks.filter((r) => r.table_name === real)
+    const fk = fks.filter((r) => r.table_name === real && keep(r.column_name))
     if (fk.length) out.push(`  foreign keys: ${fk.map((f) => `${f.column_name}->${f.referenced_table_name}.${f.referenced_column_name}`).join('; ')}`)
   }
   if (missing.length) out.push(`No table named ${missing.join(', ')}. Try stage_tables with like.`)
@@ -479,6 +562,7 @@ function checkOutput(path, overwrite) {
   }
   let dir = dirname(p)
   while (!existsSync(dir) && dir !== dirname(dir)) dir = dirname(dir)
+  try { dir = realpathSync(dir) } catch {} // a symlinked folder is judged where it really lives
   let top = ''
   try {
     top = execFileSync('git', ['-C', dir, 'rev-parse', '--show-toplevel'], { stdio: ['ignore', 'pipe', 'ignore'], timeout: 5000 }).toString().trim()
@@ -516,8 +600,11 @@ async function query({ sql, params, limit, timeout_seconds, max_cell_chars, outp
   const rows = []
   let more = false
   try {
-    await withConnection(timeoutS, (c) =>
-      stream(c, statement, values, {
+    await withConnection(timeoutS, (c) => {
+      fields = []
+      rows.length = 0
+      more = false
+      return stream(c, statement, values, {
         stallMs: (timeoutS + 15) * 1000,
         onFields: (f) => { fields = f },
         onRow: (row) => {
@@ -525,7 +612,7 @@ async function query({ sql, params, limit, timeout_seconds, max_cell_chars, outp
           rows.push(row)
         },
       }).then((r) => (r.stopped ? { destroyed: true } : r))
-    )
+    })
   } catch (err) {
     throw await queryError(err, statement, values, fp, timeoutS, started)
   }
@@ -546,16 +633,23 @@ async function query({ sql, params, limit, timeout_seconds, max_cell_chars, outp
   return `${r.text}\n(${summary})${notes.length ? `\nnote: ${notes.join('; ')}` : ''}`
 }
 
-async function queryError(err, statement, values, fp, timeoutS, started) {
+async function queryError(err, statement, values, fp, timeoutS, started, { exporting = false } = {}) {
   if (err instanceof ToolError) return err
   const ms = Date.now() - started
   log(`query ${fp.hash} failed ${err.code || ''} after ${ms}ms: ${fp.shape}`)
   if (err.code === 'ER_QUERY_TIMEOUT' || err.errno === 3024) {
+    if (exporting) {
+      return new ToolError(
+        `The export stopped at the ${timeoutS} s limit and no file was kept. Exports are bound by volume: select only the columns you need ` +
+          `(never SELECT * on a wide table), split by id range into several files${timeoutS < MAX_EXPORT_TIMEOUT_S ? `, or raise timeout_seconds (up to ${MAX_EXPORT_TIMEOUT_S})` : ''}.`
+      )
+    }
     const plan = await planNote(statement, values)
     return new ToolError(
       `Stopped at the ${timeoutS} s limit.${plan ? ` ${plan}.` : ''} Narrow the range, aggregate, or raise timeout_seconds (up to ${MAX_TIMEOUT_S}).`
     )
   }
+  if (err.code === 'ER_QUERY_INTERRUPTED') return new ToolError('Stopped: the call was cancelled, and the statement was stopped on the server.')
   if (/DENIED/.test(err.code || '')) return new ToolError(`${err.code}: ${err.sqlMessage}. kickoff_stage_ro can only read kudos_staging (no writes, no system tables).`)
   if (err.code === 'ER_CANT_EXECUTE_IN_READ_ONLY_TRANSACTION') return new ToolError('Refused: this is a read-only staging connection.')
   if (err.sqlMessage) return new ToolError(`${err.code}: ${err.sqlMessage}`)
@@ -565,10 +659,14 @@ async function queryError(err, statement, values, fp, timeoutS, started) {
 
 async function exportRows(statement, values, { output_path, overwrite, timeout_seconds }) {
   const { path, fmt } = checkOutput(output_path, overwrite === true)
-  const timeoutS = checkInt(timeout_seconds, 'timeout_seconds', 1, MAX_EXPORT_TIMEOUT_S, 120)
+  const timeoutS = checkInt(timeout_seconds, 'timeout_seconds', 1, MAX_EXPORT_TIMEOUT_S, MAX_EXPORT_TIMEOUT_S)
   const fp = { hash: sha12(statement), shape: shape(statement) }
-  mkdirSync(dirname(path), { recursive: true })
-  const tmp = `${path}.part-${process.pid}`
+  try {
+    mkdirSync(dirname(path), { recursive: true })
+  } catch (e) {
+    throw new ToolError(`Cannot create ${dirname(path)}: ${e.code || e.message}`)
+  }
+  const tmp = `${path}.part-${process.pid}-${Math.random().toString(36).slice(2, 8)}`
   const started = Date.now()
   let fd = null
   let names = []
@@ -585,7 +683,11 @@ async function exportRows(statement, values, { output_path, overwrite, timeout_s
     await withConnection(timeoutS, async (c) => {
       // A retry after a dropped connection starts the file again.
       if (fd !== null) closeSync(fd)
-      fd = openSync(tmp, 'w', 0o600)
+      try {
+        fd = openSync(tmp, 'w', 0o600)
+      } catch (e) {
+        throw new ToolError(`Cannot write ${path}: ${e.code || e.message}`)
+      }
       rows = 0
       bytes = 0
       sample.length = 0
@@ -602,9 +704,6 @@ async function exportRows(statement, values, { output_path, overwrite, timeout_s
           if (sample.length < 3) sample.push(row)
           rows++
         },
-      }).catch((e) => {
-        if (rows > 0) e.partial = true
-        throw e
       })
       return r.stopped ? { destroyed: true } : r
     })
@@ -615,7 +714,8 @@ async function exportRows(statement, values, { output_path, overwrite, timeout_s
   } catch (err) {
     if (fd !== null) try { closeSync(fd) } catch {}
     try { unlinkSync(tmp) } catch {}
-    throw await queryError(err, statement, values, fp, timeoutS, started)
+    if (['ENOSPC', 'EDQUOT', 'EIO', 'EACCES', 'EPERM', 'EROFS'].includes(err?.code)) throw new ToolError(`Writing ${path} failed (${err.code}); nothing was kept`)
+    throw await queryError(err, statement, values, fp, timeoutS, started, { exporting: true })
   }
   const ms = Date.now() - started
   log(`export ${fp.hash} ${ms}ms rows=${rows} bytes=${bytes}: ${fp.shape}`)
@@ -687,10 +787,14 @@ const TOOLS = [
   {
     name: 'stage_describe',
     title: 'Describe staging tables',
-    description: `${STAGING} Columns, types, indexes and foreign keys for one table or up to 10 in one call (tables: [...]).`,
+    description: `${STAGING} Columns, types, indexes and foreign keys for one table or up to 10 in one call (tables: [...]). Wide tables (clients has ~150 columns): pass column_like to see only the columns you need.`,
     inputSchema: {
       type: 'object',
-      properties: { table: { type: 'string' }, tables: { type: 'array', items: { type: 'string' }, maxItems: 10 } },
+      properties: {
+        table: { type: 'string' },
+        tables: { type: 'array', items: { type: 'string' }, maxItems: 10 },
+        column_like: { type: 'string', description: 'only columns (and their indexes and keys) like this, e.g. %coach% or insurance' },
+      },
       additionalProperties: false,
     },
     annotations: { readOnlyHint: true, openWorldHint: false },
@@ -701,7 +805,7 @@ const TOOLS = [
     description:
       `${STAGING} Run one read statement (SELECT, WITH, SHOW, EXPLAIN, DESCRIBE). Prefer aggregates. Use ? placeholders with params for values. ` +
       `Shows ${DEFAULT_ROWS} rows by default (limit up to ${MAX_ROWS}) as a column list plus one JSON array per row. ` +
-      `For more rows than you need to read, pass output_path (.csv/.tsv/.jsonl, absolute, git-ignored if inside a repo) to stream up to ${MAX_EXPORT_ROWS.toLocaleString()} rows to a file; the answer is counts and a sample.`,
+      `For more rows than you need to read, pass output_path (.csv/.tsv/.jsonl, absolute, git-ignored if inside a repo; name only the columns you need) to stream up to ${MAX_EXPORT_ROWS.toLocaleString()} rows to a file; the answer is counts and a sample.`,
     inputSchema: {
       type: 'object',
       properties: {
@@ -759,7 +863,7 @@ const USAGE = `usage: kickoff-stage-db <command>   (STAGING kudos_staging, read 
 
   query "SQL" [--param v ...] [--limit n] [--timeout s] [--max-cell n] [--out FILE.csv|.tsv|.jsonl] [--overwrite]
   tables [--like p] [--column-like p] [--limit n]
-  describe TABLE [TABLE ...]
+  describe TABLE [TABLE ...] [--column-like p]
   status
   guide
 
@@ -793,7 +897,7 @@ async function cli(argv) {
     case 'tables':
       return callTool('stage_tables', { ...(o.like ? { like: o.like } : {}), ...(o['column-like'] ? { column_like: o['column-like'] } : {}), ...(o.limit ? { limit: Number(o.limit) } : {}) })
     case 'describe':
-      return callTool('stage_describe', { tables: pos })
+      return callTool('stage_describe', { tables: pos, ...(o['column-like'] ? { column_like: o['column-like'] } : {}) })
     case 'status':
       return callTool('stage_status')
     case 'guide':
@@ -840,7 +944,7 @@ function server() {
     } else if (method === 'tools/call') {
       inflight++
       try {
-        const text = await callTool(params?.name, params?.arguments ?? {})
+        const text = await requestCtx.run(id, () => callTool(params?.name, params?.arguments ?? {}))
         reply(id, { content: [{ type: 'text', text }], isError: false })
       } catch (err) {
         if (!(err instanceof ToolError)) log(err?.stack || err)
@@ -848,7 +952,14 @@ function server() {
         reply(id, { content: [{ type: 'text', text: message }], isError: true })
       } finally {
         inflight--
+        running.delete(id)
         maybeExit()
+      }
+    } else if (method === 'notifications/cancelled') {
+      const threads = running.get(params?.requestId)
+      if (threads?.size) {
+        log(`request ${params.requestId} cancelled by the client; stopping ${threads.size} statement(s)`)
+        for (const t of threads) killQuery(t)
       }
     } else if (method === 'ping') {
       reply(id, {})

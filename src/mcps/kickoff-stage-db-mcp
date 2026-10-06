@@ -47,5 +47,5 @@ NODE="$(resolve_binary node)"
 # the fix instead of a server that failed to start.
 exec env -i HOME="$HOME" PATH="/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin" LANG="${LANG:-en_US.UTF-8}" \
   KICKOFF_STAGE_DB_URL="$URL" KICKOFF_STAGE_DB_VPN="$VPN" KICKOFF_STAGE_DB_VPN_AUTOCONNECT="$AUTO" \
-  KICKOFF_STAGE_DB_OPT="$OPT" KICKOFF_STAGE_DB_CA="$CA" \
+  KICKOFF_STAGE_DB_OPT="$OPT" KICKOFF_STAGE_DB_CA="$CA" KICKOFF_STAGE_DB_DEBUG="${KICKOFF_STAGE_DB_DEBUG:-}" \
   "$NODE" "${SCRIPT_DIR}/kickoff-stage-db/index.mjs" "$@"

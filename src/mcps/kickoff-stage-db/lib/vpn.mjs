@@ -33,17 +33,21 @@ const osa = (script) => run('/usr/bin/osascript', ['-e', script])
 // GET_CONFIG, ... or NOT_RUNNING / NO_CONFIG / NOT_INSTALLED / NOT_AUTHORIZED.
 export async function vpnState(name) {
   if (process.platform !== 'darwin') return { state: 'NOT_MACOS' }
-  const running = await osa('application id "net.tunnelblick.tunnelblick" is running')
-  if (!running.ok) return running.err.includes('-1728') || running.err.includes("Can't get application")
-    ? { state: 'NOT_INSTALLED' }
-    : { state: 'UNKNOWN', detail: running.err.slice(0, 200) }
-  if (running.out !== 'true') return { state: 'NOT_RUNNING' }
-  const r = await osa(`tell application id "net.tunnelblick.tunnelblick" to get state of first configuration where name = "${name}"`)
+  // One AppleScript round trip (~0.1 s); "is running" never launches the app.
+  const r = await osa(
+    `if application id "net.tunnelblick.tunnelblick" is running then\n` +
+      `tell application id "net.tunnelblick.tunnelblick" to return state of first configuration where name = "${name.replace(/["\\]/g, '')}"\n` +
+      `else\nreturn "NOT_RUNNING"\nend if`
+  )
   if (r.ok) return { state: r.out || 'UNKNOWN' }
   if (/-1743|not authori[sz]ed/i.test(r.err)) return { state: 'NOT_AUTHORIZED', detail: r.err.slice(0, 200) }
-  if (/-1719|-1728|Can.t get/i.test(r.err)) return { state: 'NO_CONFIG' }
+  if (/-1728/.test(r.err)) return { state: 'NOT_INSTALLED' }
+  if (/-1719/.test(r.err)) return { state: 'NO_CONFIG' }
   return { state: 'UNKNOWN', detail: r.err.slice(0, 200) }
 }
+
+// Tunnelblick reports a closed tunnel as EXITING.
+export const VPN_DOWN_STATES = new Set(['EXITING', 'NOT_RUNNING'])
 
 let inflight = null
 

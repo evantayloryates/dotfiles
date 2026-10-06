@@ -223,3 +223,72 @@ be checked against the installed 1Password desktop app. Verify macOS App Data
 approval separately: subsequent calls in one app lifetime should not prompt,
 whereas the first call after an unchanged app restart does prompt by design.
 Touch ID reuse alone does not establish macOS privacy permission behavior.
+
+## Notification recovery (2026-10-06)
+
+Keepalive notifications now use the installed `notify-macos` helper and
+terminal-notifier with a fixed, explicit `recovery.py` click command. AppleScript
+notifications had no recovery action and could activate the wrong application.
+A click starts two independent operations: an auth wake and sanitized repair
+chat dispatch. A dispatch failure cannot prevent the wake. The wake persists a
+short-lived request for the approved keepalive child and opens 1Password; the
+child resets its backoff and waits for the console/app unlock before metadata
+calls. It never approves authentication or restarts the broker.
+
+`recovery-result.json` distinguishes a persisted retry request from an accepted
+app-open request. Neither proves that a prompt appeared or was approved.
+`state.json` records the consumed recovery ID, executing child PID, source hash,
+and a fault-episode ID that clears after successful metadata calls.
+
+Dispatch uses the existing Codex bridge's JSON-RPC/daemon transport without
+starting, upgrading or restarting that daemon. It resolves an advertised desktop
+model supporting high effort, reuses the bound repair chat, queues diagnostics
+with a stable message ID, verifies the queue receipt, and opens the exact chat.
+New chats and confirmed unowned idle chats start their queued submission. A
+separate read-only desktop ownership check prevents treating the daemon's
+`notLoaded` status as permission to run a desktop-owned chat concurrently.
+Desktop-owned chats retain the queued submission; **queue acceptance is not
+proof of desktop turn execution**, and the desktop-owned idle wake path remains
+unqualified. The current repair chat is already pinned with Astra/high. Pinning
+uses the actual Pinned section UUID, not the literal string `pinned`.
+
+Only booleans, bounded status categories, validated timestamps, fault IDs and
+account slot numbers leave the keepalive. No account/vault names, command
+arguments, environments, raw stderr or raw application logs enter repair
+prompts. A same-episode click cannot replay an accepted dispatch; a later
+confirmed episode can queue fresh diagnostics in the same chat. Uncertain
+mutations are retained for reconciliation instead of replay or Claude fallback.
+Private receipts live in `~/Library/Caches/com.taylor.op-keepalive/`.
+
+If Codex is unavailable before any mutation, fallback uses the existing Claude
+driver with its strongest configured default model, high effort, explicit pin,
+and send. The driver's UI quarantine is honored before any fallback action;
+Claude fallback has isolated coverage only and is **not live-qualified** during
+that incident. Authentication and macOS consent still belong to Taylor.
+
+Lock state now follows timestamped lock/unlock events across bounded log tails,
+not file mtime/concatenation order. `Client starting` is not evidence of a lock:
+a stale startup entry contributed to the false locked state on October 6.
+Disappearing older log tails cannot roll back an already known newer event.
+Unknown console lock state suppresses unattended authorization attempts.
+
+For keepalive-only changes, run:
+
+```sh
+/usr/bin/python3 -B ~/dotfiles/src/onepassword/activate_keepalive.py
+```
+
+This checks source provenance and idle process identities, stages/signs/verifies
+an app bundle containing only the changed keepalive resource, atomically swaps
+it, and gracefully replaces only the child. It preserves the native app, broker
+worker and PTY, keeps a signed backup under ignored `data/op-agent/`, and verifies
+the running child's source hash. Changed host/worker/builder sources are refused
+and require the normal installer at a safe restart. No active broker command is
+cancelled. The October 6 deployment retained broker PID 1231, `/dev/ttys000`, and
+successful metadata authorization for both configured accounts.
+
+Additional isolated dispatch tests:
+
+```sh
+node --test src/onepassword/test_recovery_dispatch.mjs
+```

@@ -227,6 +227,35 @@ await check('export-guards', async () => {
   expect(failed.isError && !existsSync(join(dir, 'bad.csv')), 'failed export left a file')
 })
 
+await check('client-cancel-kills-query', async () => {
+  // Send a slow call, then notifications/cancelled for its id, as Claude does on Esc.
+  const t = Date.now()
+  const pending = new Promise((res) => {
+    const handler = (d) => {
+      for (const line of String(d).split('\n')) {
+        if (!line.trim()) continue
+        const m = JSON.parse(line)
+        if (m.id === 'slow-1') { s.p.stdout.off('data', handler); res(m) }
+      }
+    }
+    s.p.stdout.on('data', handler)
+  })
+  s.raw(`${JSON.stringify({ jsonrpc: '2.0', id: 'slow-1', method: 'tools/call', params: { name: 'stage_query', arguments: { sql: "SELECT COUNT(*) FROM sms WHERE body LIKE '%qqzzxx%'", timeout_seconds: 60 } } })}\n`)
+  await new Promise((r) => setTimeout(r, 1500))
+  s.raw(`${JSON.stringify({ jsonrpc: '2.0', method: 'notifications/cancelled', params: { requestId: 'slow-1', reason: 'test' } })}\n`)
+  const m = await pending
+  const text = m.result?.content?.[0]?.text || ''
+  expect(Date.now() - t < 10_000, `cancel took ${Date.now() - t} ms`)
+  expect(/cancelled/i.test(text), text.slice(0, 200))
+  return `stopped after ${Date.now() - t} ms: ${text.slice(0, 80)}`
+})
+
+await check('wide-row-capped', async () => {
+  const r = await s.call('stage_query', { sql: "SELECT REPEAT('x', 300000) a, REPEAT('y', 300000) b, REPEAT('z', 300000) c", max_cell_chars: 20000 })
+  expect(!r.isError && r.text.length < 110_000, `answer ${r.text.length} chars`)
+  return `${r.text.length} chars`
+})
+
 await check('bad-sql-message', async () => {
   const r = await s.call('stage_query', { sql: 'SELECT nope FROM clients' })
   expect(r.isError && /ER_BAD_FIELD_ERROR/.test(r.text), r.text)

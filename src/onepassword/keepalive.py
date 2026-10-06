@@ -27,18 +27,22 @@ Config: ~/.config/op-keepalive.json
    "interval_minutes": 7, "notify": true}
 """
 import json
+import hashlib
+import datetime
 import os
 import re
 import signal
 import subprocess
 import sys
 import time
+import uuid
 from pathlib import Path
 
 OP = Path.home() / "dotfiles/bin/op"
 CONFIG = Path.home() / ".config/op-keepalive.json"
 LOG_DIR = Path.home() / "Library/Logs/op-broker"
 STATE = Path.home() / "Library/Caches/com.taylor.op-keepalive/state.json"
+RECOVERY = STATE.parent / "recovery-request.json"
 ONEPASSWORD_LOGS = Path.home() / ("Library/Group Containers/2BUA8C4S2C.com.1password/"
                                   "Library/Application Support/1Password/Data/logs")
 BUNDLE = "com.1password.1password"
@@ -46,6 +50,8 @@ TICK = 20
 PROMPT_SECONDS = 2.5      # a call slower than this met a human at the prompt
 OP_TIMEOUT = 90           # op itself gives up after 60 s of unanswered prompt
 MAX_BACKOFF_MINUTES = 30
+SOURCE_SHA256 = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+LOG_SUMMARIZED = []
 
 
 def now():
@@ -111,12 +117,22 @@ def app_lock_state(lines):
     return app_lock_info(lines)[0]
 
 
+def event_time(line):
+    try:
+        value = datetime.datetime.fromisoformat(line.split()[1].replace("Z", "+00:00"))
+        return value.replace(tzinfo=datetime.timezone.utc) if value.tzinfo is None else value
+    except (ValueError, IndexError):
+        return None
+
+
 def app_lock_info(lines):
     """(state, timestamp of the latest lock event). A lock that came and went between
     two ticks still revoked the CLI authorization, so the timestamp matters too."""
     state, last_lock = None, None
-    for line in lines:
-        if "Lock state changed: Locked" in line or "Client starting" in line:
+    # Rotation mtime and interleaved client logs are not event chronology.
+    events = [(event_time(line), line) for line in lines]
+    for _, line in sorted((t, line) for t, line in events if t is not None):
+        if "Lock state changed: Locked" in line:
             state = True
             last_lock = line.split()[1] if len(line.split()) > 1 else last_lock
         elif "Lock state changed: Unlocked" in line or "unlock succeeded" in line:
@@ -124,20 +140,43 @@ def app_lock_info(lines):
     return state, last_lock
 
 
+def latest_event_time(lines):
+    return max((event_time(line) for line in lines if event_time(line) is not None and
+                any(s in line for s in ("Lock state changed:", "unlock succeeded"))), default=None)
+
+
 UNREADABLE = []
 
 
 def onepassword_tail(max_bytes=300_000, log=None):
     try:
-        files = sorted(ONEPASSWORD_LOGS.glob("*.log"), key=lambda p: p.stat().st_mtime)[-2:]
+        files = sorted(ONEPASSWORD_LOGS.glob("*.log"), key=lambda p: p.stat().st_mtime)[-12:]
         text = ""
+        tails = []
         for path in files:
             with path.open("rb") as handle:
                 handle.seek(max(0, path.stat().st_size - max_bytes))
-                text += handle.read().decode("utf-8", "replace")
+                tail = handle.read().decode("utf-8", "replace")
+                text += "\n" + tail
+                tails.append(tail)
         if not files:
             raise OSError("no 1Password log files visible")
         UNREADABLE.clear()
+        if log is not None and not LOG_SUMMARIZED:
+            legacy = None
+            legacy_lock = None
+            for line in "\n".join(tails[-2:]).splitlines():
+                if "Lock state changed: Locked" in line or "Client starting" in line:
+                    legacy = True
+                    stamp = event_time(line)
+                    legacy_lock = stamp.isoformat() if stamp else None
+                elif "Lock state changed: Unlocked" in line or "unlock succeeded" in line:
+                    legacy = False
+            current, last_lock = app_lock_info(text.splitlines())
+            log.event("lock_parser_snapshot", files=len(files), legacy_locked=legacy,
+                      chronological_locked=current, legacy_last_lock=legacy_lock,
+                      chronological_last_lock=last_lock)
+            LOG_SUMMARIZED.append(True)
         return text.splitlines()
     except OSError as exc:
         if not UNREADABLE and log is not None:
@@ -149,8 +188,19 @@ def onepassword_tail(max_bytes=300_000, log=None):
 
 
 def notify(title, body):
-    script = 'display notification "%s" with title "%s"' % (body.replace('"', "'"), title.replace('"', "'"))
-    subprocess.run(["/usr/bin/osascript", "-e", script], capture_output=True)
+    # One fixed user-authorized command, never derived from log/error text.
+    helper = Path.home() / ".codex/skills/notify-macos/scripts/notify.py"
+    import shlex
+    action = shlex.join(["/usr/bin/python3", "-B", str(Path.home() / "dotfiles/src/onepassword/recovery.py")])
+    try:
+        result = subprocess.run(["/usr/bin/python3", str(helper), "--backend", "terminal-notifier",
+            "--title", title, "--message", body + " Click to request repair and retry authorization.",
+            "--group", "op-broker-recovery", "--execute", action],
+            env={"HOME": str(Path.home()), "PATH": "/opt/homebrew/bin:/usr/bin:/bin"},
+            capture_output=True, timeout=25)
+        return result.returncode == 0
+    except (OSError, subprocess.TimeoutExpired):
+        return False
 
 
 CHALLENGE = "System unlock proceeding"
@@ -207,7 +257,7 @@ def keepalive_call(account, notify_enabled, log_readable=True):
         # A fast approval can finish inside PROMPT_SECONDS; the log still knows.
         prompted = bool(challenges_since(stamp)) if log_readable else seconds > PROMPT_SECONDS
     detail = (err or b"").decode("utf-8", "replace").strip().splitlines()
-    detail = detail[-1][:120] if detail else ""
+    detail = "authorization timeout" if any("authorization timeout" in s for s in detail) else ""
     if proc.returncode == 0:
         status = "ok_prompted" if prompted else ("ok_queued" if seconds > PROMPT_SECONDS else "ok")
     elif proc.returncode == 125:
@@ -216,7 +266,7 @@ def keepalive_call(account, notify_enabled, log_readable=True):
         status = "prompt_timeout"
     else:
         status = "error"
-    return status, seconds, proc.returncode, detail
+    return status, seconds, proc.returncode, detail or ("" if proc.returncode == 0 else status)
 
 
 class Keepalive:
@@ -232,15 +282,33 @@ class Keepalive:
         self.started = now()
         self.last_relaunch = None
         self.last_lock = None
+        self.recovery_id = None
+        self.last_event = None
+        self.fault_episode = None
+        try:
+            self.fault_episode = str(uuid.UUID(json.loads(STATE.read_text()).get('fault_episode')))
+        except (OSError, ValueError, TypeError, AttributeError):
+            pass
+
+    def fault(self):
+        if self.fault_episode is None:
+            self.fault_episode = str(uuid.uuid4())
+            self.log.event('fault_started', episode=self.fault_episode)
 
     def save_state(self):
         try:
             STATE.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
-            STATE.write_text(json.dumps({
-                "updated": now(), "started": self.started, "app_locked": self.app_locked,
+            temporary = STATE.with_name(STATE.name + '.tmp')
+            temporary.write_text(json.dumps({
+                "updated": now(), "started": self.started, "pid": os.getpid(),
+                "source_sha256": SOURCE_SHA256,
+                "recovery_id": self.recovery_id, "last_lock": self.last_lock, "app_locked": self.app_locked,
+                "fault_episode": self.fault_episode,
                 "console_locked": self.console, "last_relaunch": self.last_relaunch,
                 "accounts": [{k: v for k, v in a.items() if k != "next_due"} for a in self.accounts.values()]},
                 indent=1))
+            os.chmod(temporary, 0o600)
+            os.replace(temporary, STATE)
         except OSError:
             pass
 
@@ -251,6 +319,15 @@ class Keepalive:
         self.log.event("backoff_reset", reason=reason)
 
     def tick(self):
+        try:
+            request = json.loads(RECOVERY.read_text())
+            if request.get("id") != self.recovery_id and time.time() - request["at"] < 300:
+                self.recovery_id = request["id"]
+                self.reset_backoff("notification click")
+                self.nudged = False
+                self.log.event("recovery_kick", request_id=self.recovery_id)
+        except (OSError, ValueError, KeyError, TypeError):
+            pass
         if not app_running():
             relaunch_app()
             self.last_relaunch = now()
@@ -265,8 +342,15 @@ class Keepalive:
             if console is False and self.console is True:
                 self.reset_backoff("console unlocked")
             self.console = console
-        locked, last_lock = app_lock_info(onepassword_tail(log=self.log))
-        if last_lock and last_lock != self.last_lock:
+        lines = onepassword_tail(log=self.log)
+        locked, last_lock = app_lock_info(lines)
+        latest = latest_event_time(lines)
+        if self.last_event and (latest is None or latest < self.last_event):
+            # Losing a rotated file cannot roll the known state backwards.
+            locked, last_lock = self.app_locked, self.last_lock
+        elif latest:
+            self.last_event = latest
+        if last_lock and (self.last_lock is None or event_time("INFO " + last_lock) > event_time("INFO " + self.last_lock)):
             if self.last_lock is not None:
                 # A lock happened since the previous tick (even if already undone):
                 # authorization is gone, so re-authorize as soon as the app is open.
@@ -281,10 +365,12 @@ class Keepalive:
             if locked is True:
                 self.nudged = False
             self.app_locked = locked
-        if console:
+        if console is not False:
             self.save_state()
             return
         if locked:
+            self.fault()
+            self.save_state()
             if not self.nudged:
                 # One nudge per lock episode: show the unlock screen now rather
                 # than letting the next agent call be the first to ask.
@@ -309,7 +395,14 @@ class Keepalive:
                     acct["last_prompt"] = now()
             elif status == "prompt_timeout":
                 acct["interval"] = min(acct["interval"] * 2, MAX_BACKOFF_MINUTES * 60)
+            if status not in ("ok", "ok_queued", "ok_prompted") and self.config["notify"]:
+                self.fault()
+                self.save_state()
+                notify("1Password keepalive", "Authorization needs attention (%s)." % status)
             acct["next_due"] = time.monotonic() + acct["interval"]
+        if self.fault_episode and all(a['last_status'] in ('ok', 'ok_queued', 'ok_prompted') for a in self.accounts.values()):
+            self.log.event('fault_resolved', episode=self.fault_episode)
+            self.fault_episode = None
         self.save_state()
 
 
