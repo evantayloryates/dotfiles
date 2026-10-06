@@ -122,11 +122,30 @@ export function makeScratchFolder() {
   return dir
 }
 
-// A desktop-spawned process inherits a CLAUDE_CODE_OAUTH_TOKEN the app
-// refreshes out of band; the CLI then 401s. A clean env makes it use its own
-// keychain credentials.
+// Claude auth for the CLI calls this driver makes: the long-lived
+// subscription token (`claude setup-token`) from dotfiles .env, never the
+// macOS Keychain login and never a token inherited from the desktop app (it
+// goes stale and 401s). Without the token, calls fail closed with the fix.
+export const CLAUDE_TOKEN_KEY = 'KICKOFF_CLAUDE_CODE_LONG_LIVED_SUBSCRIPTION_OAUTH_TOKEN'
+export function claudeToken() {
+  const file = join(process.env.DOTFILES_DIR || join(HOME, 'dotfiles'), '.env')
+  let text = ''
+  try {
+    text = readFileSync(file, 'utf8')
+  } catch {}
+  for (const raw of text.split('\n')) {
+    const line = raw.trim().replace(/^export\s+/, '')
+    if (!line.startsWith(`${CLAUDE_TOKEN_KEY}=`)) continue
+    const v = line.slice(CLAUDE_TOKEN_KEY.length + 1).trim().replace(/^(['"])(.*)\1$/, '$2')
+    if (v) return v
+  }
+  throw new DriverError(
+    `${CLAUDE_TOKEN_KEY} is not set in ${file}. Make one with \`claude setup-token\` and store it there (and in 1Password).`
+  )
+}
+
 export function cleanEnv(extra = {}) {
-  return { HOME, USER: process.env.USER || 'taylor', PATH: '/usr/bin:/bin', TERM: 'dumb', ...extra }
+  return { HOME, USER: process.env.USER || 'taylor', PATH: '/usr/bin:/bin', TERM: 'dumb', CLAUDE_CODE_OAUTH_TOKEN: claudeToken(), ...extra }
 }
 
 export function runCli(args, { cwd, timeoutMs = 180_000, signal } = {}) {

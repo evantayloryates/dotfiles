@@ -53,7 +53,7 @@ open "claude://resume?session=<uuid>"
 - A valid uuid with no transcript logs `Failed to import CLI session … category: 'transcript_missing'` to `~/Library/Logs/Claude/main.log`.
 
 Gotchas that each cost a failed run:
-- **Use `env -i`.** A desktop-spawned process inherits a stale `CLAUDE_CODE_OAUTH_TOKEN` (the app refreshes it out of band), and the CLI then fails with a 401. With a clean env the CLI uses its own keychain credentials.
+- **Use `env -i` plus the .env token.** A desktop-spawned process inherits a stale `CLAUDE_CODE_OAUTH_TOKEN`, and the CLI then fails with a 401. `cleanEnv()` starts clean and passes the long-lived `setup-token` token from dotfiles .env (`KICKOFF_CLAUDE_CODE_LONG_LIVED_SUBSCRIPTION_OAUTH_TOKEN`; 1Password: Kickoff vault, "Anthropic: Kickoff", expires about 2027-10-05). It never uses the macOS Keychain login, and it fails closed without the token (2026-10-06).
 - **Use the bundled CLI, not Homebrew's.** Homebrew's `claude` is 2.1.170, and that version rejects `claude-opus-5-5` ("2.1.280 or newer is required").
 - **Pick the account from the newest record.** Three account/org stores exist under `claude-code-sessions/`. The active account is the one with the newest `local_*.json`. When verifying, look in every store.
 - **"No folder"** means a cwd matching `scratch-workspaces/<acct>/<org>/scratch-YYYY-MM-DD-<6 hex>` under `~/Library/Application Support/Claude/`. That is the app's own regex. Create the directory first.

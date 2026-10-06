@@ -121,8 +121,8 @@ run the app's bundled CLI for one trivial turn, then import it:
 --session-id <uuid> -n <title> --model <id> --strict-mcp-config`, then
 `open claude://resume?session=<uuid>`; poll for `local_<uuid>.json` with the
 right title and cwd.
-- Clean env: a desktop-spawned process inherits a stale
-  `CLAUDE_CODE_OAUTH_TOKEN` and 401s.
+- Clean env plus the dotfiles .env `setup-token` token (never the Keychain):
+  a desktop-spawned process inherits a stale `CLAUDE_CODE_OAUTH_TOKEN` and 401s.
 - Bundled CLI only (`~/Library/Application Support/Claude/claude-code/<newest>/`):
   Homebrew's lags and rejects current model ids.
 - "No folder" = a new `scratch-workspaces/<acct>/<org>/scratch-YYYY-MM-DD-<6hex>`

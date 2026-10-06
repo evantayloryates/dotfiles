@@ -3,23 +3,35 @@ set -euo pipefail
 # Headless Claude Code (`claude -p`) that authenticates the same way every
 # time, whatever environment it was started from.
 #
-# Desktop-spawned shells can inherit a stale CLAUDE_CODE_OAUTH_TOKEN, which
-# outranks the keychain login and fails with "OAuth access token has been
-# revoked". This drops inherited auth and uses the long-lived subscription
-# token from dotfiles .env (KICKOFF_CLAUDE_CODE_LONG_LIVED_SUBSCRIPTION_OAUTH_TOKEN,
-# made with `claude setup-token`, valid about a year). Without it, the
-# CLI falls back to its keychain login. It runs the standalone CLI in
-# ~/.local/bin (`claude update` keeps it current); Homebrew's copy lags and
-# rejects current model ids.
+# Desktop-spawned shells can inherit a stale CLAUDE_CODE_OAUTH_TOKEN, and the
+# CLI's own login lives in the macOS Keychain, which does not travel to other
+# machines. This uses only the long-lived subscription token from dotfiles .env
+# (KICKOFF_CLAUDE_CODE_LONG_LIVED_SUBSCRIPTION_OAUTH_TOKEN, made with
+# `claude setup-token`, valid about a year; source of truth: 1Password, Kickoff
+# vault, "Anthropic: Kickoff") and fails closed without it: never
+# the Keychain, never an inherited token. It runs the standalone CLI in
+# ~/.local/bin, which `claude update` keeps current.
 #
 # Usage: claude-headless -p "..." [any claude flags]
 # Test runs still need --tools, --permission-mode dontAsk and --setting-sources.
-DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
-. "${DIR}/../src/lib/read-env.sh"
-TOKEN="$(env_get KICKOFF_CLAUDE_CODE_LONG_LIVED_SUBSCRIPTION_OAUTH_TOKEN 2>/dev/null || true)"
+# Read straight from the file (not the environment, and not read-env.sh's
+# env_get, which ends the script under `set -u` when the key is missing).
+ENV_FILE="${DOTFILES_DIR:-$HOME/dotfiles}/.env"
+TOKEN="$(ENV_FILE="$ENV_FILE" /usr/bin/python3 -c '
+import os
+try:
+    for line in open(os.environ["ENV_FILE"]):
+        k, sep, v = line.strip().removeprefix("export ").partition("=")
+        if sep and k.strip() == "KICKOFF_CLAUDE_CODE_LONG_LIVED_SUBSCRIPTION_OAUTH_TOKEN":
+            print(v.strip().strip("\"\x27"), end="")
+except OSError:
+    pass
+')"
 CLI="${CLAUDE_HEADLESS_CLI:-$HOME/.local/bin/claude}"
 [[ -x "$CLI" ]] || { echo "claude-headless: $CLI not found (install: curl -fsSL https://claude.ai/install.sh | bash)" >&2; exit 1; }
-if [[ -n "$TOKEN" ]]; then
-  exec env -u ANTHROPIC_API_KEY -u ANTHROPIC_AUTH_TOKEN CLAUDE_CODE_OAUTH_TOKEN="$TOKEN" "$CLI" "$@"
-fi
-exec env -u CLAUDE_CODE_OAUTH_TOKEN -u ANTHROPIC_API_KEY -u ANTHROPIC_AUTH_TOKEN "$CLI" "$@"
+[[ -n "$TOKEN" ]] || {
+  echo "claude-headless: KICKOFF_CLAUDE_CODE_LONG_LIVED_SUBSCRIPTION_OAUTH_TOKEN is not set in $ENV_FILE." >&2
+  echo "  Make one with: claude setup-token   then store it with src/zdr-harness/set-env-value.py (and 1Password)." >&2
+  exit 1
+}
+exec env -u ANTHROPIC_API_KEY -u ANTHROPIC_AUTH_TOKEN CLAUDE_CODE_OAUTH_TOKEN="$TOKEN" "$CLI" "$@"
