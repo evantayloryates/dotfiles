@@ -44,6 +44,24 @@ test('UI quarantine blocks before loading the input bridge and rereads incident 
  rmSync(policy.UI_QUARANTINE)
 })
 
+test('quarantined CLI probe and broker bootstrap exit without making fixtures',()=> {
+ const isolated=join(root,'quarantined-cli')
+ state.writeJsonAtomic(join(isolated,'ui-quarantine.json'),{blocked:true,reason:'synthetic incident'})
+ for(const args of [['probe'],['broker','init'],['broker','init','--force'],['broker','revive']]){
+  const c=spawnSync(process.execPath,['src/claude-driver/cli.mjs',...args],{encoding:'utf8',env:{...process.env,CLAUDE_DRIVER_STATE_DIR:isolated}})
+  assert.equal(c.status,1);assert.match(c.stderr,/\[ui_quarantined\]/)
+  assert.equal(c.stdout,'')
+ }
+ const preflight=spawnSync(process.execPath,['src/claude-driver/cli.mjs','preflight'],{
+  encoding:'utf8',env:{...process.env,CLAUDE_DRIVER_STATE_DIR:isolated,CLAUDE_DRIVER_APP_VERSION:'0.0.0-quarantine-fixture'}})
+ assert.equal(preflight.status,1)
+ assert.match(preflight.stdout,/live probe blocked by UI quarantine/)
+ assert.equal(preflight.stdout.includes('running probe'),false)
+ assert.equal(readFileSync(join(isolated,'ui-quarantine.json'),'utf8').includes('synthetic incident'),true)
+ for(const path of ['probe','registry.json','broker/CLAUDE.md','broker/recovery.json'])
+  assert.throws(()=>statSync(join(isolated,path)),{code:'ENOENT'})
+})
+
 test('expired requests cannot be picked up', async()=> {
   const r=request(Date.now()-1); assert.equal(await req.pickupPending(), null)
   assert.equal(req.validatedResult(r).state,'expired'); assert.equal(req.control(r.id).dispatched.length,0)

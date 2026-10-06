@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Launcher for kickoff-stage-db: read-only access to Kickoff's STAGING
+# database (kudos_staging), for Claude Code, Codex and the shell. Not
+# production. With no arguments it is an MCP stdio server; with a command
+# (query, tables, describe, status, guide) it is a CLI. See
+# kickoff-stage-db/README.md.
+#
+# Reads only KICKOFF_STAGE_DB_URL (and the optional KICKOFF_STAGE_DB_VPN /
+# KICKOFF_STAGE_DB_VPN_AUTOCONNECT) from dotfiles .env and runs node with a
+# clean environment, so the server never inherits unrelated secrets.
+SOURCE="${BASH_SOURCE[0]}"
+while [[ -L "$SOURCE" ]]; do
+  DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"; SOURCE="$(readlink "$SOURCE")"; [[ "$SOURCE" != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+SCRIPT_DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+. "${SCRIPT_DIR}/../lib/resolve-binary.sh"
+
+# One read for all three keys; any of them may be absent (read-env.sh's
+# env_get ends the whole script on a missing key, and a missing URL should
+# reach the agent as a tool error, not as a server that never starts).
+ENV_FILE="${DOTFILES_DIR:-$HOME/dotfiles}/.env"
+URL="" VPN="" AUTO=""
+if [[ -r "$ENV_FILE" ]]; then
+  eval "$(ENV_FILE="$ENV_FILE" /usr/bin/python3 -c '
+import os, shlex
+want = {"KICKOFF_STAGE_DB_URL": "URL", "KICKOFF_STAGE_DB_VPN": "VPN", "KICKOFF_STAGE_DB_VPN_AUTOCONNECT": "AUTO"}
+for line in open(os.environ["ENV_FILE"]):
+    line = line.strip()
+    if line.startswith("export "):
+        line = line[7:]
+    k, sep, v = line.partition("=")
+    if sep and k.strip() in want:
+        v = v.strip()
+        if len(v) >= 2 and v[0] == v[-1] and v[0] in "\"\x27":
+            v = v[1:-1]
+        print(want[k.strip()] + "=" + shlex.quote(v))
+')"
+fi
+
+OPT="${KICKOFF_STAGE_DB_OPT:-$HOME/.local/share/kickoff-stage-db/node_modules}"
+CA="${SCRIPT_DIR}/../zdr-harness/certs/rds-global-bundle.pem"
+NODE="$(resolve_binary node)"
+
+# A missing URL is reported by the server as a tool error, so the agent sees
+# the fix instead of a server that failed to start.
+exec env -i HOME="$HOME" PATH="/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin" LANG="${LANG:-en_US.UTF-8}" \
+  KICKOFF_STAGE_DB_URL="$URL" KICKOFF_STAGE_DB_VPN="$VPN" KICKOFF_STAGE_DB_VPN_AUTOCONNECT="$AUTO" \
+  KICKOFF_STAGE_DB_OPT="$OPT" KICKOFF_STAGE_DB_CA="$CA" \
+  "$NODE" "${SCRIPT_DIR}/kickoff-stage-db/index.mjs" "$@"

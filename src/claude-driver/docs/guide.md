@@ -48,7 +48,11 @@ with bounded memory; technical lessons and their evidence have length caps.
 Physical keyboard duplication was reported during live qualification on
 2026-10-06. Live tests are stopped while that incident is investigated.
 The service's private `ui-quarantine.json` currently blocks Tier C before
-loading Computer Use, and blocks `live-v2.mjs` even with `--live`.
+loading Computer Use, dead-broker recovery before navigation, new/forced
+broker initialization, probes and `live-v2.mjs` even with `--live`.
+Preflight reports an unqualified capability matrix instead of automatically
+probing a new app/CLI version while quarantined. Disk reads and an already
+live broker remain available.
 `driver_status.uiAutomation` reports the current policy. The file is read on
 each UI entry; malformed or incomplete quarantine records fail closed.
 Release requires an explicit `{ "blocked": false }` record after physical

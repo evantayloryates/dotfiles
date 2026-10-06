@@ -16,7 +16,7 @@ confirmed. Live app testing remains stopped. The v2 goal is unfinished.
 | Incremental observation | Unicode, partial lines, malformed records, truncation and live status transitions; bounded bytes, no thinking/tool content | Native transcript rotation and continuation after restart |
 | Service memory | Metadata-only automatic records, candidate labels, private modes, bounded reverse reads and runtime fingerprints | Ongoing usage; reconcile candidates into curated findings only with evidence |
 | Human app usability | UI reload completed; synthetic a/b/c read back as abc; test text removed; CUA reset; shared quarantine prevents UI fallback and live-script app work | Taylor's physical keyboard check and a proven duplication root cause |
-| Recovery and version drift | Existing recovery serializes, restores focus and cools down failures; unsupported Codex Tier C remains a known limitation | Controlled broker death/restart, version drift and recovery tests; Codex bridge fixes stay parked |
+| Recovery and version drift | Recovery serializes/restores focus/cools down failures; quarantine blocks recovery before navigation, bootstrap and probes; preflight cannot auto-probe new versions during the incident | Controlled native broker death/restart, version drift and recovery tests; Codex bridge fixes stay parked |
 
 `test/v2.test.mjs` tests lifecycle/state boundaries in private stores.
 `test/mcp-v2.test.mjs` runs the actual MCP launcher with independent clients,
@@ -37,9 +37,9 @@ service-level evidence. Reports include source and suite fingerprints; a
 source change during a run prevents qualification. The live script requires
 all six named checks and records interrupted runs as incomplete.
 
-Latest offline evidence: 40 checks in each of five fresh runs (200 total),
+Latest offline evidence: 42 checks in each of five fresh runs (210 total),
 all passed with unchanged source/suite fingerprints. Report:
-`<state>/pressure/v2-2026-10-06T20-19-15-423Z.json`.
+`<state>/pressure/v2-2026-10-06T20-21-42-521Z.json`.
 
 Resume live testing in this order: confirm physical typing, qualify the busy
 fixture and steering, test cancellation/duplicate boundaries, then run the

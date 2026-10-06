@@ -20,6 +20,7 @@ const broker=await import('../lib/broker.mjs')
 const {runOp}=await import('../lib/driver.mjs')
 const pool=await import('../lib/pool.mjs')
 const {withSessionControl}=await import('../lib/controls.mjs')
+const {UI_QUARANTINE}=await import('../lib/ui-policy.mjs')
 const sid='local_00000000-0000-4000-8000-000000000002'
 const bid='local_00000000-0000-4000-8000-000000000003'
 const store=join(root,'app','claude-code-sessions','account','org')
@@ -107,6 +108,24 @@ test('headless fixture filter refuses native controls and alternate recipients b
  assert.equal((await c.call('get_session',null)).isError,true)
  assert.equal((await c.call('get_session',{session:sid})).isError,false)
  assert.equal(actions.length,0);await c.close()
+})
+test('quarantined dead-broker recovery refuses before navigation and keeps reads available',async()=>{
+ const liveFile=join(process.env.CLAUDE_DRIVER_PEER_SESSIONS_DIR,`${process.pid}.json`)
+ const prior=readFileSync(liveFile)
+ const c=client('quarantine-recovery');await c.ready;actions.length=0
+ state.writeJsonAtomic(UI_QUARANTINE,{blocked:true,reason:'synthetic physical-input incident'})
+ rmSync(liveFile);paused=true
+ try {
+  const out=await c.call('pin_session',{session:sid,pinned:true})
+  assert.equal(out.isError,true);assert.equal(out.structuredContent.error.category,'ui_quarantined')
+  assert.equal(actions.length,0)
+  assert.equal((await c.call('get_session',{session:sid})).isError,false)
+  assert.equal(readFileSync(join(state.LEDGER),'utf8').includes('ui_quarantined'),true)
+  await assert.rejects(broker.reviveBroker({forceRecovery:true}),e=>e.category==='ui_quarantined')
+  assert.equal(state.readJson(join(state.BROKER_DIR,'recovery.json'),null),null)
+  writeFileSync(liveFile,prior)
+  assert.equal((await broker.reviveBroker()).method,'already_live')
+ } finally {writeFileSync(liveFile,prior);rmSync(UI_QUARANTINE);paused=false;await c.close()}
 })
 test('concurrent MCP clients cannot interleave stop and replacement for one recipient',async()=>{
  const a=client('harness-a'),b=client('harness-b');await Promise.all([a.ready,b.ready]);actions.length=0

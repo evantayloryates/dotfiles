@@ -34,7 +34,7 @@ export function scan(sql) {
       text += lit
       // Identifiers stay visible to the checks (a table can be named `sms`);
       // string contents never are.
-      masked += ch === '`' ? lit : `${ch}${' '.repeat(Math.max(0, lit.length - 2))}${ch}`
+      masked += ch === '`' ? lit.replace(/;/g, ' ') : `${ch}${' '.repeat(Math.max(0, lit.length - 2))}${ch}`
       i = j + 1
       continue
     }

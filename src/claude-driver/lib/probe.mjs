@@ -12,6 +12,7 @@ import { BROKER_MODEL, BROKER_TITLE, brokerInfo, brokerRequest, prepareBrokerDir
 import { CAPABILITIES, PROBE_DIR, STATE_DIR, readJson, updateRegistry, writeJsonAtomic } from './state.mjs'
 import { currentMain, frontApp } from './focus.mjs'
 import { getRecord, readGroups, waitForRecord } from './sessions.mjs'
+import { assertUiAvailable, uiPolicy } from './ui-policy.mjs'
 
 const PROBE_MODEL = 'claude-haiku-4-5-20251001'
 
@@ -44,6 +45,8 @@ export async function preflight(flags = {}) {
   }
   const { VERIFIED_CLI } = await import('./peer-direct.mjs')
   const v = versions()
+  const ui = uiPolicy()
+  if (ui.blocked) warn('UI automation', `quarantined: ${ui.reason}`)
   ;(VERIFIED_CLI.includes(v.cli) ? ok : warn)('peer-direct', VERIFIED_CLI.includes(v.cli) ? `verified for CLI ${v.cli}` : `CLI ${v.cli} not in verified list (${VERIFIED_CLI.join(', ')}); falls back to the LLM sender until re-verified`)
   existsSync(join(STATE_DIR, '..', 'codex-bridge')) || existsSync(new URL('../../codex-bridge/lib/bridge.mjs', import.meta.url)) ? ok('codex-bridge (Tier C)', 'present') : warn('codex-bridge', 'missing; Tier C unavailable')
   const caps = readJson(CAPABILITIES, {})
@@ -52,6 +55,7 @@ export async function preflight(flags = {}) {
     const broken = Object.entries(caps[key].mechanisms).filter(([, m]) => !m.ok).map(([n]) => n)
     ;(broken.length ? warn : ok)('capability matrix', `${key} probed ${caps[key].probedAt}${broken.length ? `; broken: ${broken.join(', ')}` : '; all mechanisms ok'}`)
   } else if (flags['no-probe']) warn('capability matrix', `not probed for ${key}`)
+  else if (ui.blocked) bad('capability matrix', `not probed for ${key}; live probe blocked by UI quarantine`)
   else {
     lines.push(`INFO capability matrix — not probed for ${key} (app or CLI changed); running probe`)
     console.log(lines.join('\n'))
@@ -63,6 +67,7 @@ export async function preflight(flags = {}) {
 }
 
 export async function probe(flags = {}) {
+  assertUiAvailable()
   const v = versions()
   const key = `${v.app}|${v.cli}`
   const stamp = new Date().toISOString().replace(/[:.]/g, '-')
@@ -165,6 +170,7 @@ export async function brokerCmd(sub, flags = {}) {
       console.log(txt({ already: cur }))
       return 0
     }
+    assertUiAvailable()
     const folder = prepareBrokerDir()
     const r = await runOp('create_session', { folder, title: BROKER_TITLE, model: BROKER_MODEL, permission_mode: 'acceptEdits', bootstrap_prompt: `Read CLAUDE.md in this folder. Reply with exactly: broker ready v${protocolVersion()}` }, { harness: 'cli', progress: log })
     saveBrokerInfo({ sessionId: r.sessionId, createdAt: new Date().toISOString() })

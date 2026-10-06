@@ -17,6 +17,7 @@ import { getRecord, liveByHost } from './sessions.mjs'
 import { BROKER_DIR, ensureDir, readJson, withLock, writeJsonAtomic } from './state.mjs'
 import { deliver } from './peer.mjs'
 import { cancelRequest, control, enqueue, validatedResult } from './requests.mjs'
+import { assertUiAvailable } from './ui-policy.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const TEMPLATE = join(HERE, '..', 'broker-template', 'CLAUDE.md')
@@ -170,6 +171,9 @@ export async function reviveBroker(opts = {}) {
   return withLock('broker-revive', async () => {
     const info = brokerInfo()
     if (info.live) return { method: 'already_live', live: info.live }
+    // Recovery itself navigates the app before Tier C. Stand down before
+    // any snapshot/deep link and don't turn quarantine into a cooldown.
+    assertUiAvailable()
     const file = join(BROKER_DIR, 'recovery.json')
     const last = readJson(file, null)
     if (!opts.forceRecovery && last?.retryAfter > Date.now()) throw new DriverError('broker recovery is cooling down after failure; inspect driver_status or run broker revive explicitly', { category: 'recovery_cooldown', detail: { retryAfter: last.retryAfter } })

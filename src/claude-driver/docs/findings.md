@@ -7,6 +7,17 @@ Versions: app = Claude desktop, cli = bundled Claude Code.
 
 ## 2026-10-06 (app 2.19675.0, cli 2.1.286)
 
+- **Quarantine must cover entry paths, not just typing.** Dead-broker recovery
+  previously navigated before the Tier C gate, and preflight could launch a
+  live probe after version drift. Recovery now refuses before taking a focus
+  snapshot or opening a deep link, without writing a cooldown. New/forced
+  broker bootstrap and explicit probes also refuse before making fixtures.
+  Preflight reports the blocked unknown matrix instead of running a probe.
+  Real MCP and CLI fixture tests exercise these paths, including forced
+  recovery/init, while disk reads and an already-live broker remain available.
+  Current report `<state>/pressure/v2-2026-10-06T20-21-42-521Z.json`: 42
+  checks in each of five fresh runs (210 passed), runtime/suite unchanged.
+
 - **Current isolated suite: 40 checks in five fresh runs (200 passed).**
   Report `<state>/pressure/v2-2026-10-06T20-19-15-423Z.json` has unchanged
   runtime/suite fingerprints. Includes UI quarantine before input bridge
