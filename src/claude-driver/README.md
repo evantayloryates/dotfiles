@@ -4,8 +4,10 @@ Lets any harness (Claude Code desktop or CLI, Codex, Cursor, OpenCode, a
 script) drive the Claude desktop app: create sessions with an exact title,
 model and folder; fork, open, rename, pin, group, archive, unarchive and
 delete them; change model, effort and permission mode; send messages; read
-what the main window shows. Zero npm dependencies: Node only, like
+what the main window shows. Zero npm dependencies, like
 [`../codex-bridge`](../codex-bridge/README.md), whose conventions it copies.
+Native UI leases additionally use macOS Swift/CoreGraphics for a read-only
+input-filter audit; an unavailable audit prevents UI automation.
 
 ```
 harness ──MCP stdio──▶ bin/claude-driver-mcp (server.mjs) ─┐   bin/claude-driver (cli.mjs) ─┐
@@ -27,10 +29,16 @@ The v2 control interface adds durable jobs, explicit stop/queue/interrupt,
 incremental transcript observation and shared service memory. Isolated
 lifecycle and native broker controls have dedicated qualification evidence.
 Fresh MCP processes and the CLI use v2; this chat's older MCP binding still
-needs refresh. Taylor confirmed normal physical typing on 2026-10-06 and the
-shared UI quarantine was released. Composer exact-readback safeguards remain. Native-only
-qualification uses an existing live broker and owned fixtures, with no
-automated input or app restart. See [qualification](docs/v2-qualification.md).
+needs refresh. Physical typing initially recovered, then duplicated characters
+and pastes recurred on 2026-10-06. The UI quarantine is active again. Two active
+Computer Use keyboard filters targeting Claude survived JS reset; retiring
+that helper removed both filters. Physical recovery confirmation and complete
+native-helper teardown qualification remain pending. Each UI lease now audits
+helper-owned Claude keyboard filters before and after execution, including
+failed/cancelled leases. Surviving filters or an unavailable audit quarantine
+further UI work; this never kills another caller's helper. Native broker controls
+and isolated tests remain usable without UI automation. See
+[qualification](docs/v2-qualification.md).
 
 ## Setup
 
@@ -212,7 +220,10 @@ Claude through native Computer Use; shell, recursive bridge calls and
 approval cards are excluded. Wake input uses paste, an empty composer and
 exact readback before one Return. Structured send claims still require
 verified broker liveness. Each lease records transport/version, metrics and
-private evidence; owned backend processes are torn down on exit/cancellation.
+private evidence; the worker explicitly archives its temporary backend thread before closing
+the process connection. Backend exit or JS reset alone did not prove removal
+of the shared native helper's keyboard filters. UI fallback remains quarantined
+until that lifecycle is qualified.
 
 ## Focus policy
 

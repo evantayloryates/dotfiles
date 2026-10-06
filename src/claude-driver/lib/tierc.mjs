@@ -9,6 +9,7 @@ import {join} from 'node:path'
 import {fileURLToPath} from 'node:url'
 import {DriverError} from './paths.mjs'
 import {assertUiAvailable} from './ui-policy.mjs'
+import {assertInputHealthy} from './input-health.mjs'
 import {STATE_DIR,ensureDir,withLock,writeJsonAtomic} from './state.mjs'
 const WORKER=fileURLToPath(new URL('../scripts/tierc-worker.mjs',import.meta.url))
 
@@ -25,6 +26,9 @@ export async function computerUse(task, {timeoutSec=180, session='claude-driver'
     const dir=ensureDir(join(STATE_DIR,'tierc',randomUUID()))
     const payload=JSON.stringify({task:`${POSTURE}\n\nTask: ${task}`,timeoutSec,outputSchema})
     if(Buffer.byteLength(payload)>64*1024)throw new DriverError('UI task exceeds worker bound',{category:'bad_args'})
+    await assertInputHealthy({phase:'before-lease',evidence:join(dir,'input-taps-before.json')})
+    assertUiAvailable()
+    if(signal?.aborted)throw new DriverError('UI lease cancelled before startup',{category:'cancelled'})
     const child=spawn(process.execPath,[WORKER],{env:{...process.env,CODEX_BRIDGE_TRANSPORT:'stdio',CODEX_BRIDGE_STATE_DIR:dir},stdio:['pipe','pipe','pipe'],detached:true})
     let output='',stderr='',stopped=false,timedOut=false,overflow=false,spawnError
     const stop=()=>{stopped=true;try{process.kill(-child.pid,'SIGTERM')}catch{}}
@@ -46,6 +50,9 @@ export async function computerUse(task, {timeoutSec=180, session='claude-driver'
     try{result=JSON.parse(output)}catch{}
     const evidence=join(dir,'result.json')
     writeJsonAtomic(evidence,{session,code,timedOut,stopped,overflow,spawnError,result,stderr})
+    // Backend exit is insufficient: the macOS helper can outlive its client.
+    // Audit even failed/cancelled leases; quarantine before another can start.
+    await assertInputHealthy({phase:'after-lease',evidence:join(dir,'input-taps-after.json')})
     if(signal?.aborted)throw new DriverError('UI lease cancelled; inspect state before another send',{category:'cancelled',detail:{evidence}})
     if(code!==0||result?.error||!result?.result||overflow||timedOut)throw new DriverError(`Tier C private worker failed: ${result?.error?.message||spawnError||(timedOut?'timeout':'invalid result')}`,{category:'tier_c_failed',detail:{evidence}})
     if(result.execution?.transport!=='stdio'||result.execution?.privateStateDir!==dir)throw new DriverError('Tier C worker isolation could not be verified',{category:'tier_c_failed',detail:{evidence}})

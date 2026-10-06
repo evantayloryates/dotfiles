@@ -59,8 +59,14 @@ Records identify the runtime source fingerprint. Queries scan backwards
 with bounded memory; technical lessons and their evidence have length caps.
 
 Physical keyboard duplication was reported during live qualification on
-2026-10-06. Taylor subsequently confirmed normal physical typing, and the
-shared UI quarantine was explicitly released. Root cause remains unproven.
+2026-10-06. Taylor initially confirmed normal physical typing, but duplicate characters
+and pastes recurred around 17:56 Eastern. The shared UI quarantine is active
+again. Two active Computer Use keyboard filters targeted Claude and survived
+JS reset; retiring the helper removed them. Physical recovery and explicit
+thread-close/native-helper teardown qualification remain pending. The service
+audits helper-owned Claude keyboard filters before and after each UI lease,
+including cancellation/failure. Surviving filters or an unavailable audit
+quarantine further UI work; the driver does not kill shared helper processes.
 When enabled, the service's private `ui-quarantine.json` blocks Tier C before
 loading Computer Use, dead-broker recovery before navigation, new/forced
 broker initialization, probes and full `live-v2.mjs --live` runs.
@@ -70,7 +76,8 @@ live broker remain available.
 `driver_status.uiAutomation` reports the current policy. The file is read on
 each UI entry; malformed or incomplete quarantine records fail closed.
 Release requires an explicit `{ "blocked": false }` record after physical
-recovery is confirmed. Refresh old MCP connections before relying on this
+recovery and native-helper teardown are qualified. Physical recovery alone
+did not prevent recurrence. Refresh old MCP connections before relying on this
 guard. This limits this driver, not other chats using Computer Use.
 Tier C runs in a private stdio worker, serialized across callers, without
 restarting the shared Codex daemon. It returns private evidence and execution

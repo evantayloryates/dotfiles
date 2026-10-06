@@ -7,7 +7,37 @@ Versions: app = Claude desktop, cli = bundled Claude Code.
 
 ## 2026-10-06 (app 2.19675.0, cli 2.1.286)
 
-- **Final v2 source qualified across native controls, recovery and harnesses.**
+- **Typing and paste duplication recurred; UI qualification is suspended.**
+  Taylor noticed duplicate characters around 17:56 Eastern and confirmed
+  `hello` pasted as `hellohello` at 18:07. Native read-only CGGetEventTapList
+  found two enabled active keyboard filters (mask 7168, options 0) owned by
+  SkyComputerUseService PID 39019 targeting Claude PID 1891. The filters
+  persisted after js_reset. SIGTERM retired the helper; no keyboard filters
+  targeting Claude remained on subsequent audits. Claude's supported renderer
+  reload completed; its agent processes and Codex were not restarted. Physical
+  confirmation remains pending, and UI quarantine was reactivated. Backend
+  process exit, final js_reset and passing short UI tests were insufficient.
+  The existing core closeSession explicitly archives a thread and frees its
+  MCP resources; the Claude UI worker now invokes it before transport close
+  and fails closed on archive refusal. Synthetic backend tests cover success
+  and refusal, not physical input. Evidence: private
+  `pressure/input-incident-2026-10-06/summary.json` and event-tap audits. Similar
+  [upstream Claude-specific report](https://github.com/openai/codex/issues/49948)
+  and [paste duplication report](https://github.com/openai/codex/issues/36868)
+  support the helper hypothesis, without proving our complete causal chain.
+  n=1 recurrence, native before/reset/helper-retirement audits, two synthetic
+  thread-close cases. Prior UI reports remain historical, not readiness proof.
+  The service now audits native filter ownership before/after each UI lease,
+  including failure/cancellation, and quarantines further UI work if filters
+  survive or the audit is unavailable. It never terminates shared helpers.
+  Four additional tests cover filter identity, preserved human quarantine,
+  clean evidence and unavailable audits. The current 68-case suite passed
+  five fresh runs (340 cases), report `v2-2026-10-06T22-20-58-626Z.json`.
+  The same source passed all eight native-only checks with quarantine active,
+  report `live-v2-2026-10-06T22-20-43-966Z.json`; its owned scratch was archived.
+  Fresh filtered Claude and Codex harnesses each passed ten contract checks.
+
+- **Pre-recurrence v2 source passed bounded controls, recovery and harness tests.**
   `v2-2026-10-06T22-03-45-263Z.json`: 62 isolated tests x five processes, all
   310 passed with unchanged runtime/suite hashes. Actual Claude and Codex
   filtered model runs each passed ten contract checks; reports timestamped

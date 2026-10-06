@@ -1,10 +1,18 @@
 # Claude-driver v2 qualification
 
 V2 is available through the CLI and fresh MCP processes on Claude desktop
-2.19675.0 / bundled CLI 2.1.286. Taylor confirmed normal physical typing on
-2026-10-06; the shared UI quarantine was explicitly released. Duplication's
-root cause remains unproven. Empty-composer protection and exact paste readback
-remain mandatory.
+2.19675.0 / bundled CLI 2.1.286. Physical typing initially recovered on 2026-10-06, then duplicate characters
+and pastes recurred around 17:56 Eastern. The UI quarantine is active again;
+UI fallback is not ready for unattended use. Native broker controls remain
+independent. A read-only native audit found two active keyboard filters from
+SkyComputerUseService targeting Claude; both survived JS reset. Retiring that
+helper removed the filters. Human recovery confirmation and a qualified
+native-helper teardown are still required. Temporary backend threads now
+explicitly close through the existing core, with successful/refused cleanup
+covered by synthetic RPC tests. That alone is not physical usability proof.
+The service now audits helper-owned active Claude keyboard filters before
+and after UI leases, even failed/cancelled ones. Surviving filters or audit
+failure quarantine further UI work. No shared helper is killed automatically.
 
 This chat's connected MCP still serves legacy `706a338`; use the current CLI
 or a fresh connection and verify `apiVersion:2`, `runtimeBuild` and current
@@ -13,7 +21,7 @@ qualification. Source updates do not reload an existing MCP process.
 | Requirement | Verified evidence | Practical limit |
 |---|---|---|
 | Common CLI/MCP interface | Actual Claude Haiku and Codex gpt-6.1-sol harnesses each passed ten filtered API checks | Cursor CLI needs human login; native desktop callers' handback not separately qualified |
-| Durable ownership | Detached workers survive client disconnection; idempotent reattach creates one worker and one recipient reply; current native submit returned in 6 ms | Submission latency differs from recipient response latency |
+| Durable ownership | Detached workers survive client disconnection; idempotent reattach creates one worker and one recipient reply; current native submit returned in 9 ms | Submission latency differs from recipient response latency |
 | Cancellation | Native cancellation behind recipient lock dispatched nothing; expiry/checkpoint/cancellation races tested offline | A crash during native effects remains uncertain until reconciled |
 | Native receipts | Exact checkpoint, canonical arguments and native tool/result IDs; batched checkpoints and late read-only reconciliation | Native journal rotation/version drift fail closed; never replay uncertainty |
 | Steering | Queue preserved busy generation; stop verified, replacement observed, old completion absent; separate real Bash/Node tool interruption proof | Native stop preserves queued work; stopping does not undo past tool effects |
@@ -21,16 +29,28 @@ qualification. Source updates do not reload an existing MCP process.
 | Identity and observation | Recipient binding survives rename; bounded UTF-8/partial-record cursors; first reply from pending creation cursor | Live transcript rotation and arbitrary native caller handback remain unqualified |
 | Creation and pool | Full native import/create/focus; approved pool-only claim through folder alias, fresh context, restored settings and parked cleanup | Permission raises/deletes still require their own explicit user action |
 | Groups | Current manual sections merged with native legacy assignments; opaque create receipt resolved to one verified ID | Unknown schema or ambiguous names refuse/retain uncertainty |
-| Recovery | Deliberate owned idle-broker termination, verified cold UI wake, restored focus, private stdio/state, zero shell calls and exited backend; quarantine/cooldown guards | Human edits/drafts/cards stop the worker; unknown sends require reconciliation |
+| Recovery | Pre-recurrence owned idle-broker termination and verified wake; new explicit thread close, input-filter audit and quarantine guards tested in isolation | Native teardown remains unqualified; UI recovery is disabled; unknown sends require reconciliation |
 | Service memory | Bounded metadata-only automatic records; candidate lessons distinguished from verified test evidence; source/version fingerprints | Continued usage supplies future evidence; no prompts or raw journal contents in automatic memory |
-| Human usability | Taylor's physical typing confirmation and supported renderer recovery | Root cause of original duplicate input remains unproven |
+| Human usability | Recurrence captured; stale helper filters removed and renderer reload completed | Fresh physical confirmation pending; earlier normal typing was temporary |
 
-Final deterministic report: `<state>/pressure/v2-2026-10-06T22-03-45-263Z.json`:
-62 tests in each of five fresh processes, 310 passed, unchanged runtime/suite
+Current deterministic report: `<state>/pressure/v2-2026-10-06T22-20-58-626Z.json`:
+68 tests in each of five fresh processes, 340 passed, unchanged runtime/suite
 fingerprints. These exercise actual launchers, separate MCP clients, detached
-workers and synthetic stores without desktop actions.
+workers and synthetic stores without desktop actions. New cases cover thread
+archive success/refusal, precise filter ownership, preserved human quarantine
+and an unavailable audit. A separate read-only live audit found zero surviving
+helper keyboard filters at 22:20 UTC; it did not start Computer Use.
 
-Final full live report:
+Current scoped native report:
+`<state>/pressure/live-v2-2026-10-06T22-20-43-966Z.json`: all eight checks
+passed with active UI quarantine and unchanged runtime source. It exercised
+delivery/reply, cancellation, three concurrent controls, busy queue,
+interruption/replacement, duplicate-reply checks and archived cleanup of an
+existing owned fixture. Submit was 9 ms; delivery/reply 12.000 s, concurrent
+controls plus unpin 36.253 s, interruption/replacement 19.756 s. It did not
+import, navigate, automate input or prove native UI teardown.
+
+Pre-recurrence full live report:
 `<state>/pressure/live-v2-2026-10-06T22-03-26-276Z.json`: all eight required
 checks passed on unchanged source, including create/focus, durable delivery
 and reply, cancellation, concurrent controls, busy queue, interruption,
@@ -40,8 +60,8 @@ single replies and archived cleanup. Submit was 6 ms; delivery/reply took
 nonterminal bounded-wait returns and cleanup cancels outstanding owned jobs.
 
 Actual model-driven filtered reports:
-`harness-v2-claude-2026-10-06T22-03-31-307Z.json` (26.314 s) and
-`harness-v2-codex-2026-10-06T22-03-31-307Z.json` (22.710 s), both under
+`harness-v2-claude-2026-10-06T22-20-36-999Z.json` (26.140 s) and
+`harness-v2-codex-2026-10-06T22-20-36-999Z.json` (17.760 s), both under
 `<state>/pressure/`. All ten checks passed: required MCP replies, identical
 submissions yielding one completed worker, matching recipient, cursor,
 shared candidate memory, unchanged source and global configs. The filter
@@ -61,7 +81,7 @@ Additional native reports under `<state>/pressure/`:
   governor-cap refusal with Tier C disabled and focus restoration. This is
   a fail-closed test, not proof of successful warm-spawn.
 
-Final controlled cold-recovery report:
+Pre-recurrence controlled cold-recovery report:
 `<state>/pressure/cold-recovery-v2-2026-10-06T22-05-59-471Z.json` passed all
 three checks on the same final source. Under the broker lock, only the exact
 owned idle broker process was terminated. Warm-spawn did not happen; the
@@ -97,6 +117,8 @@ node src/claude-driver/scripts/live-v2.mjs --live --broker-only \
 ```
 
 It requires active UI quarantine and refuses bootstrap/navigation/input.
-For normal readiness use the full `--live` run and inspect `driver_status`.
+Do not run full UI qualification while quarantined. Inspect `driver_status`
+and the newest scoped native results; earlier passing UI runs did not
+establish durable physical usability.
 Avoid restarting the app while unrelated Claude work is active. Reconcile
 uncertain effects before replay.
