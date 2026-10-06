@@ -32,8 +32,13 @@ those notices (October 2026, plugin 2.0.8) turned up three blind spots:
    "no vulnerabilities found" and stays silent. The failure only shows up in
    its metrics (`api_error`, `http_err_count`), which nobody sees.
 
-The fixes for 1 and 3 belong in the plugin itself and have been worth
-reporting upstream. Until then, `sg-replay` gives full visibility on demand.
+The fixes for 1 and 3 belong in the plugin itself and are reported upstream:
+[anthropics/claude-code#99839](https://github.com/anthropics/claude-code/issues/99839)
+(findings replaced by the warning) and
+[anthropics/claude-code#99840](https://github.com/anthropics/claude-code/issues/99840)
+(failed reviews reported as clean and marked reviewed). When those are fixed,
+re-check whether the tap's stderr rewrite and failure notice are still needed.
+Until then, `sg-replay` and the tap fill the gap.
 
 ## Status
 
