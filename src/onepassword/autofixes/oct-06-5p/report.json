@@ -1,0 +1,25 @@
+{
+  "outcome": "no_change",
+  "headline": "Healthy broker verified; no repair needed",
+  "summary": "This was a controlled lifecycle qualification, not an observed broker crash. The broker is healthy and metadata calls succeeded for both configured accounts. No broker restart, authentication wake, or credential read was needed.",
+  "cause": "The supplied snapshot explicitly identifies a healthy qualification. recovery.py uses authorization_or_unknown as a catch-all when the broker is alive, the watchdog is fresh and the app is not locked; this category alone is not proof of an auth failure. Fresh state shows both accounts ok and no live fault episode. The deployed chronological parser matches source and passes startup, rotation, malformed timestamp and lock/unlock tests.",
+  "resolution": "No incident-specific runtime code change is warranted. Retained the running signed service and documented how agents should distinguish a healthy qualification from an actual parser, watchdog or authorization fault. Concurrent maintenance edits were not authored by this incident.",
+  "verification": "45 isolated Python tests and 30 Node tests passed (artifacts/python-tests.json and node-tests.tap). One wrapper version check and one vault-metadata call per verified configured account returned exit 0 with stdout/stderr discarded (metadata-smoke.json). Source/deployed hashes, running keepalive hash, build stamp and codesign verified (baseline.json). Final readback preserves host 1097, broker/session 1231, keepalive 52278 and /dev/ttys000; no active child commands or fault episode remain (final-status.json). Title, Pinned section, dotfiles project, gpt-6-astra and high effort verified (chat-metadata.json).",
+  "activation": "The existing deployed service remains running. There is no staged runtime fix and no next-load action. Broker PID/PTY and successful account access were preserved.",
+  "limitations": "This establishes current service health, not future lock or 12-hour authorization behavior. Physical banner clicking, Touch ID/macOS consent and live Claude UI were not exercised. Native set_thread_archived is not exposed in this session, so archival cannot be performed or claimed; the settled reports remain available and the chat remains pinned.",
+  "docs": "Reviewed src/onepassword/README.md, agent-contract.md and autofixes/AGENTS.md. Updated README.md and autofixes/AGENTS.md to clarify healthy qualification evidence and no-change settlement. The shared agent contract remains accurate and unchanged, so no guidance sync was required.",
+  "docsReviewed": true,
+  "verified": true,
+  "readyForNextLoad": false,
+  "artifacts": [
+    "artifacts/archive-capability.json",
+    "artifacts/baseline.json",
+    "artifacts/chat-metadata.json",
+    "artifacts/diagnostic-21be3cb5-cc74-44d8-a79e-8e142ad806c2.json",
+    "artifacts/final-status.json",
+    "artifacts/metadata-smoke.json",
+    "artifacts/node-tests.tap",
+    "artifacts/python-tests.json",
+    "artifacts/source-hashes.json"
+  ]
+}

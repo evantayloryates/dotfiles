@@ -1,0 +1,11 @@
+{
+  "requested_operation": "set_thread_archived",
+  "requested_arguments": {
+    "archived": true
+  },
+  "scope": "this generated incident chat",
+  "capability_available": false,
+  "operation_attempted": false,
+  "archived_verified": false,
+  "reason": "No native set_thread_archived tool is exposed in this session. No alternate archive method or unrelated chat mutation was used."
+}

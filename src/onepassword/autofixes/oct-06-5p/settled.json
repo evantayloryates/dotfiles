@@ -1,0 +1,43 @@
+{
+  "outcome": "no_change",
+  "settledAt": "2026-10-06T21:35:48.892Z",
+  "artifacts": [
+    {
+      "name": "artifacts/archive-capability.json",
+      "sha256": "dde1c310ab19c8cad30197925a94515482bd9b8f10d0b0e29f3a8725843799cf"
+    },
+    {
+      "name": "artifacts/baseline.json",
+      "sha256": "48f63ed95fb61d378297e8271401f38e7383b105c7144d330eb39796bce2ccdf"
+    },
+    {
+      "name": "artifacts/chat-metadata.json",
+      "sha256": "bcb53ad1f41fa0b3daacf63aaade8884c80b4613c0ba26dce4b61eeac407ecaa"
+    },
+    {
+      "name": "artifacts/diagnostic-21be3cb5-cc74-44d8-a79e-8e142ad806c2.json",
+      "sha256": "68c5baeecb9c0f40ac632fe4b401ea0c7e27819d84a39a845ece3355468ec9ee"
+    },
+    {
+      "name": "artifacts/final-status.json",
+      "sha256": "2a64653ab8865355637192066cde4bd82cfe78b803aa04edd3f473f3db5d9792"
+    },
+    {
+      "name": "artifacts/metadata-smoke.json",
+      "sha256": "eb852cacae4d73fecb8b276c02d2f84cf3e1469e9d712d73b113a64fd352e337"
+    },
+    {
+      "name": "artifacts/node-tests.tap",
+      "sha256": "f4077185cadb121c780dd4da6a9a43a4f69f8e4def281d95bedd742242f34804"
+    },
+    {
+      "name": "artifacts/python-tests.json",
+      "sha256": "bf7aba18e13d7312278590721f6b1268620d8eb5abe8f63fa6de0f84458eabfc"
+    },
+    {
+      "name": "artifacts/source-hashes.json",
+      "sha256": "86ec9d56affe4e6cf775471e2b02edee2f8939ae8e6d8bc05da04aa4abdaa94c"
+    }
+  ],
+  "reportSha256": "d5fbd838c57d49fc00fb6209bafe81cfabe03f8665dc27c5bfebbcc2a88ce8a5"
+}
