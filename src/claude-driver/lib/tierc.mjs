@@ -1,36 +1,51 @@
-// Tier C: computer use through codex-bridge (in-process, same engine as its
-// MCP server). Used for what neither disk, deep links nor ccd_* tools reach:
+// Tier C: computer use through the existing codex-bridge engine in an
+// isolated private worker, without modifying or restarting the shared daemon. Used for what neither disk, deep links nor ccd_* tools reach:
 // broker revival when the app will not warm-spawn, window management, and
 // UI-only affordances. Results are claims; callers verify through Tier A.
 
-import { DriverError } from './paths.mjs'
-import { assertUiAvailable } from './ui-policy.mjs'
-
-let bridgeMod = null
-async function bridge() {
-  if (!bridgeMod) bridgeMod = await import('../../codex-bridge/lib/bridge.mjs')
-  return new bridgeMod.Bridge({ log: (...a) => console.error('[claude-driver:tier-c]', ...a) })
-}
+import {spawn} from 'node:child_process'
+import {randomUUID} from 'node:crypto'
+import {join} from 'node:path'
+import {fileURLToPath} from 'node:url'
+import {DriverError} from './paths.mjs'
+import {assertUiAvailable} from './ui-policy.mjs'
+import {STATE_DIR,ensureDir,withLock,writeJsonAtomic} from './state.mjs'
+const WORKER=fileURLToPath(new URL('../scripts/tierc-worker.mjs',import.meta.url))
 
 const POSTURE =
   'You are operating the Claude desktop app (bundle com.anthropic.claudefordesktop) on behalf of claude-driver, an automation tool Taylor owns. ' +
   'Touch only the Claude app. Never click any approval card, permission prompt, delete confirmation or "Allow" button; if one appears, stop and report it. ' +
   'Do not type anything except the exact text given. Report precisely what you saw and did.'
 
-export async function computerUse(task, { timeoutSec = 180, session = 'claude-driver', progress = () => {}, signal } = {}) {
+export async function computerUse(task, {timeoutSec=180, session='claude-driver', progress=()=>{}, signal}={}) {
   assertUiAvailable()
-  const b = await bridge()
-  try {
-    const { result, text } = await b.run(
-      { task: `${POSTURE}\n\nTask: ${task}`, session, apps: ['Claude', 'com.anthropic.claudefordesktop'], timeout_sec: timeoutSec, screenshots: 'none' },
-      { progress, signal }
-    )
-    return { status: result.status, text }
-  } catch (err) {
-    throw new DriverError(`Tier C (codex-bridge) failed: ${err.message}`, { category: 'tier_c_failed' })
-  } finally {
-    b.close()
-  }
+  return withLock('ui-automation',async()=>{
+    assertUiAvailable()
+    if(signal?.aborted)throw new DriverError('UI lease cancelled before startup',{category:'cancelled'})
+    const dir=ensureDir(join(STATE_DIR,'tierc',randomUUID()))
+    const payload=JSON.stringify({task:`${POSTURE}\n\nTask: ${task}`,timeoutSec})
+    if(Buffer.byteLength(payload)>64*1024)throw new DriverError('UI task exceeds worker bound',{category:'bad_args'})
+    const child=spawn(process.execPath,[WORKER],{env:{...process.env,CODEX_BRIDGE_TRANSPORT:'stdio',CODEX_BRIDGE_STATE_DIR:dir},stdio:['pipe','pipe','pipe'],detached:true})
+    let output='',stderr='',stopped=false,timedOut=false,overflow=false,spawnError
+    const stop=()=>{stopped=true;try{process.kill(-child.pid,'SIGTERM')}catch{}}
+    const timer=setTimeout(()=>{timedOut=true;stop()},(Math.max(30,timeoutSec)+10)*1000)
+    const hard=setTimeout(()=>{try{process.kill(-child.pid,'SIGKILL')}catch{}},(Math.max(30,timeoutSec)+15)*1000)
+    const abort=()=>stop()
+    signal?.addEventListener('abort',abort,{once:true})
+    child.stdout.on('data',x=>{output+=x;if(Buffer.byteLength(output)>1024*1024){overflow=true;stop()}})
+    child.stderr.on('data',x=>{stderr=(stderr+x).slice(-64*1024);for(const line of x.toString().split('\n')){try{const r=JSON.parse(line);if(typeof r.progress==='string')progress(r.progress)}catch{}}})
+    child.stdin.on('error',()=>{})
+    child.stdin.end(payload)
+    const code=await new Promise(resolve=>{child.once('exit',resolve);child.once('error',e=>{spawnError=e.message;resolve(-1)})})
+    clearTimeout(timer);clearTimeout(hard);signal?.removeEventListener('abort',abort)
+    let result
+    try{result=JSON.parse(output)}catch{}
+    const evidence=join(dir,'result.json')
+    writeJsonAtomic(evidence,{session,code,timedOut,stopped,overflow,spawnError,result,stderr})
+    if(signal?.aborted)throw new DriverError('UI lease cancelled; inspect state before another send',{category:'cancelled',detail:{evidence}})
+    if(code!==0||result?.error||!result?.result||overflow||timedOut)throw new DriverError(`Tier C private worker failed: ${result?.error?.message||spawnError||(timedOut?'timeout':'invalid result')}`,{category:'tier_c_failed',detail:{evidence}})
+    return {status:result.result.status,text:result.text,evidence,metrics:result.result.metrics}
+  },{signal})
 }
 
 // Type a line into the composer of the session currently shown in the main

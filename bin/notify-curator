@@ -1,0 +1,19 @@
+#!/bin/bash
+# notify-curator — see src/notify-curator/README.md.
+# `ensure` is called from Claude Code hooks on every session start and turn
+# end, so it has a fast path: a live daemon running current code means exit.
+SRC=/Users/taylor/src/github/dotfiles/src/notify-curator/notify_curator.py
+STATE="${NOTIFY_CURATOR_STATE:-$HOME/.local/state/notify-curator}"
+
+if [ "$1" = ensure ]; then
+  exec </dev/null >/dev/null 2>&1   # hooks: never print, never wait on stdin
+  pid=$(/usr/bin/sed -n 's/.*"pid": *\([0-9]*\).*/\1/p' "$STATE/daemon.pid" 2>/dev/null)
+  if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null \
+     && [ "$STATE/daemon.pid" -nt "$SRC" ] \
+     && /bin/ps -p "$pid" -o command= | /usr/bin/grep -Eq '^[^ ]*[Pp]ython[^ ]* [^ ]*/notify_curator\.py daemon$'; then
+    exit 0
+  fi
+  /usr/bin/python3 "$SRC" ensure
+  exit 0
+fi
+exec /usr/bin/python3 "$SRC" "$@"

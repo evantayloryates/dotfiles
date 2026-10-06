@@ -105,6 +105,20 @@ test('new groups use persisted IDs from opaque receipts and ambiguous names disp
  assert.equal(actions.length,before)
 })
 
+test('current manual section IDs merge with still-live native assignment maps',async()=>{
+ const {readGroups}=await import('../lib/sessions.mjs')
+ const config=join(root,'app','claude_desktop_config.json'),before=state.readJson(config,{})
+ try{
+  const cfg=structuredClone(before),prefs=cfg.preferences.epitaxyPrefs
+  prefs['dframe-group-scopes'].fixture.groups=[{id:'cg-fixture-created',name:'legacy name'}]
+  prefs['dframe-code-sections']={fixture:{sections:[{id:'pinned',kind:'builtin',name:'Pinned'},{id:'cg-fixture-created',kind:'manual',name:'current name',members:['code:'+sid]}]}}
+  state.writeJsonAtomic(config,cfg)
+  assert.deepEqual(readGroups(),{groups:[{id:'cg-fixture-created',name:'current name'}],assignments:{[sid]:'cg-fixture-created'}})
+  prefs['dframe-code-sections'].fixture.sections[1].members=[]
+  state.writeJsonAtomic(config,cfg);assert.deepEqual(readGroups().assignments,{[sid]:'cg-fixture-created'})
+ }finally{state.writeJsonAtomic(config,before)}
+})
+
 test('MCP protocol versions expose the same v2 contract and structured errors',async()=>{
  for(const protocol of ['2024-11-05','2025-03-26','2025-06-18']){
   const c=client('protocol-contract',protocol);assert.equal((await c.ready).protocolVersion,protocol)

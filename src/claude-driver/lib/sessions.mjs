@@ -217,10 +217,23 @@ export function mtime(file) {
 
 // Sidebar groups for the active account/org, from the app's config.
 export function readGroups() {
-  const scopes = readDesktopConfig().preferences?.epitaxyPrefs?.['dframe-group-scopes'] || {}
+  const prefs=readDesktopConfig().preferences?.epitaxyPrefs || {}
+  const scopes = prefs['dframe-group-scopes'] || {}
+  const sections=prefs['dframe-code-sections'] || {}
   const out = { groups: [], assignments: {} }
-  for (const scope of Object.values(scopes)) {
-    for (const g of scope.groups || []) out.groups.push(g)
+  for (const key of new Set([...Object.keys(scopes),...Object.keys(sections)])) {
+    const scope=scopes[key] || {}
+    const groups=new Map((scope.groups||[]).map(g=>[g.id,g]))
+    // Creation publishes sections before the native move tool updates the
+    // legacy assignment map. Both are still live sources on current desktop.
+    if(Array.isArray(sections[key]?.sections)){
+      for(const section of sections[key].sections){
+        if(section?.kind!=='manual'||typeof section.id!=='string')continue
+        groups.set(section.id,{id:section.id,name:section.name})
+        for(const member of section.members||[])if(typeof member==='string')out.assignments[member.replace(/^code:/,'')]=section.id
+      }
+    }
+    out.groups.push(...groups.values())
     for (const [k, v] of Object.entries(scope.assignments || {})) out.assignments[k.replace(/^code:/, '')] = v
   }
   return out
