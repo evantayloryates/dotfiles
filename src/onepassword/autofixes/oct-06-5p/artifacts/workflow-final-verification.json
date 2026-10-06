@@ -1,0 +1,15 @@
+{
+  "broker_pid": 1231,
+  "tty": "/dev/ttys000",
+  "keepalive_pid": 66049,
+  "source_sealed_running_match": true,
+  "signature_valid": true,
+  "build_current": true,
+  "account_statuses": [
+    "ok",
+    "ok"
+  ],
+  "app_locked": false,
+  "console_locked": false,
+  "fault_episode": null
+}

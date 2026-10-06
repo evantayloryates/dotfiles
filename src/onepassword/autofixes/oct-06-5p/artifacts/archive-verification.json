@@ -1,0 +1,10 @@
+{
+  "status": "archived",
+  "threadId": "01a11322-d0bd-7301-a167-a33008f5a60e",
+  "at": "2026-10-06T21:41:25.489Z",
+  "independent_native_archived_list_verified": true,
+  "title": "\u2699\ufe0f fix-1p-broker/oct-06-5p",
+  "physical_notification_click_tested": false,
+  "hourly_reminder_boundary": "synthetic clock tests",
+  "release_gate": "synthetic first-click, stale-click and duplicate tests"
+}

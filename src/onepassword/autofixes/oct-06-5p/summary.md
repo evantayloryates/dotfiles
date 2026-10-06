@@ -18,7 +18,7 @@ No incident-specific runtime code change is warranted. Retained the running sign
 
 ## Verification
 
-45 isolated Python tests and 30 Node tests passed (artifacts/python-tests.json and node-tests.tap). One wrapper version check and one vault-metadata call per verified configured account returned exit 0 with stdout/stderr discarded (metadata-smoke.json). Source/deployed hashes, running keepalive hash, build stamp and codesign verified (baseline.json). Final readback preserves host 1097, broker/session 1231, keepalive 52278 and /dev/ttys000; no active child commands or fault episode remain (final-status.json). Title, Pinned section, dotfiles project, gpt-6-astra and high effort verified (chat-metadata.json).
+45 isolated Python tests and 30 Node tests passed (artifacts/python-tests.json and node-tests.tap). One wrapper version check and one vault-metadata call per verified configured account returned exit 0 with stdout/stderr discarded (metadata-smoke.json). Source/deployed hashes, running keepalive hash, build stamp and codesign verified (baseline.json). Final readback preserves host 1097, broker/session 1231, keepalive 52278 and /dev/ttys000; no active child commands or fault episode remain (final-status.json). Title, Pinned section, dotfiles project, gpt-6-astra and high effort verified (chat-metadata.json). Follow-up workflow verification confirmed native API archival, independently read back in the desktop archived-chat list. The final keepalive deployment still preserves broker 1231 and its PTY; see workflow-final-verification.json. First-click release and hourly reminder boundaries were tested synthetically, without an extra real auth wake.
 
 ## Service state and next load
 
@@ -26,11 +26,11 @@ The existing deployed service remains running. There is no staged runtime fix an
 
 ## Limits and remaining action
 
-This establishes current service health, not future lock or 12-hour authorization behavior. Physical banner clicking, Touch ID/macOS consent and live Claude UI were not exercised. Native set_thread_archived is not exposed in this session, so archival cannot be performed or claimed; the settled reports remain available and the chat remains pinned.
+This establishes current service health and the qualified incident lifecycle, not future lock or twelve-hour authorization behavior. Physical notification clicking, Touch ID/macOS consent, and live Claude UI remain untested. The generated daemon chat lacked the desktop archive tool; the scoped deferred native-API helper subsequently archived it, with independent native readback.
 
 ## Agent documentation
 
-Reviewed src/onepassword/README.md, agent-contract.md and autofixes/AGENTS.md. Updated README.md and autofixes/AGENTS.md to clarify healthy qualification evidence and no-change settlement. The shared agent contract remains accurate and unchanged, so no guidance sync was required.
+Reviewed and updated src/onepassword/README.md, agent-contract.md and autofixes/AGENTS.md for automatic diagnosis, first-click release, hourly reminders, reports and deferred native archival. Synced the shared contract into both agent harnesses. The no-change result belongs to this healthy qualification; the maintenance chat separately implemented the workflow improvements.
 
 ## Evidence
 
@@ -43,3 +43,5 @@ Reviewed src/onepassword/README.md, agent-contract.md and autofixes/AGENTS.md. U
 - artifacts/node-tests.tap (SHA-256 f4077185cadb121c780dd4da6a9a43a4f69f8e4def281d95bedd742242f34804)
 - artifacts/python-tests.json (SHA-256 bf7aba18e13d7312278590721f6b1268620d8eb5abe8f63fa6de0f84458eabfc)
 - artifacts/source-hashes.json (SHA-256 86ec9d56affe4e6cf775471e2b02edee2f8939ae8e6d8bc05da04aa4abdaa94c)
+- artifacts/archive-verification.json (SHA-256 6116ad2ddfe247a0afa3027f77be5fcbc935399448e6252dde7e583a1c96e42c)
+- artifacts/workflow-final-verification.json (SHA-256 09ce4978280212efd1347041e41517e84bd6993e0479f875ac50f8ec3a8e3d90)

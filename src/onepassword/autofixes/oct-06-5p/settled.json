@@ -1,6 +1,6 @@
 {
   "outcome": "no_change",
-  "settledAt": "2026-10-06T21:35:48.892Z",
+  "settledAt": "2026-10-06T21:42:42.667Z",
   "artifacts": [
     {
       "name": "artifacts/archive-capability.json",
@@ -37,7 +37,15 @@
     {
       "name": "artifacts/source-hashes.json",
       "sha256": "86ec9d56affe4e6cf775471e2b02edee2f8939ae8e6d8bc05da04aa4abdaa94c"
+    },
+    {
+      "name": "artifacts/archive-verification.json",
+      "sha256": "6116ad2ddfe247a0afa3027f77be5fcbc935399448e6252dde7e583a1c96e42c"
+    },
+    {
+      "name": "artifacts/workflow-final-verification.json",
+      "sha256": "09ce4978280212efd1347041e41517e84bd6993e0479f875ac50f8ec3a8e3d90"
     }
   ],
-  "reportSha256": "d5fbd838c57d49fc00fb6209bafe81cfabe03f8665dc27c5bfebbcc2a88ce8a5"
+  "reportSha256": "1f28972918120f81bfc9d6d0268ddb8fb1a302ade1f43521b5444ce474091ffe"
 }

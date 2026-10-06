@@ -180,3 +180,14 @@ class NotificationGateTests(unittest.TestCase):
         recovery.save(self.root/'notification.json', {'episode':self.episode,'evidence':self.evidence,'last_attempt':0})
         with patch.object(recovery.subprocess, 'run') as run:
             self.assertFalse(recovery.notify_if_due({}, reminder=True));run.assert_not_called()
+
+class KeepaliveReminderTests(unittest.TestCase):
+    def test_tick_reminder_is_hourly_and_stops_after_click_or_no_change(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            with patch.object(keepalive, 'STATE', root/'state.json'), patch.object(keepalive.time, 'time', return_value=5000), patch.object(keepalive, 'recovery_worker') as worker:
+                for row,expected in [({'last_attempt':1401},0),({'last_attempt':1400},1),({'last_attempt':0,'clicked_at':2000},0),({'last_attempt':0,'completed_without_change':True},0)]:
+                    recovery.save(root/'notification.json',row)
+                    worker.reset_mock();keepalive.remind_pending_fix()
+                    self.assertEqual(worker.call_count,expected)
+                    if expected:self.assertEqual(worker.call_args.args,('--remind',))
