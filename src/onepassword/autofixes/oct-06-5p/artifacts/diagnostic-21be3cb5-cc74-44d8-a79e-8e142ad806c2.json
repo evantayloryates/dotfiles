@@ -1,0 +1,23 @@
+{
+  "broker_alive": true,
+  "keepalive_age_seconds": 5,
+  "app_locked": false,
+  "episode": "c391bc08-5fbf-4d09-9020-e4544eff3bab",
+  "console_locked": false,
+  "kind": "authorization_or_unknown",
+  "accounts": [
+    {
+      "slot": 0,
+      "status": "ok",
+      "last_ok": 1791322384,
+      "last_prompt": null
+    },
+    {
+      "slot": 1,
+      "status": "ok",
+      "last_ok": 1791322385,
+      "last_prompt": null
+    }
+  ],
+  "qualification": "Controlled lifecycle qualification with a currently healthy broker; no authentication wake requested."
+}

@@ -49,6 +49,11 @@ Unresolved diagnosis, failed verification, or incomplete preparation is not
 settled. Do not archive in those cases. Human authentication can remain required
 without turning an ordinary app lock into a software fault; say so explicitly.
 
+For a controlled healthy qualification, `authorization_or_unknown` alone is not
+failure evidence. Reconcile it with fresh account statuses, deployed hashes and
+bounded metadata-only checks; use `no_change` when those establish a healthy
+service. Do not manufacture a fault, restart or auth wake to complete the record.
+
 Write `report.json` in the incident directory with these fields (all strings
 must be substantive and evidence-backed):
 

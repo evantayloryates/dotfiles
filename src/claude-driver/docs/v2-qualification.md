@@ -1,48 +1,76 @@
 # Claude-driver v2 qualification
 
-The input incident takes priority: physical typing recovery is not yet
-confirmed. Live app testing remains stopped. The v2 goal is unfinished.
+V2 is available through the CLI and fresh MCP processes. Native broker controls
+passed scoped live qualification on Claude desktop 2.19675.0 / CLI 2.1.286.
+Comprehensive qualification remains unfinished: physical typing recovery is
+unconfirmed, so automated input, UI recovery and full probes stay quarantined.
+This chat's connected MCP still serves legacy `706a338`; use the current CLI
+or a fresh connection and verify `apiVersion:2` and `runtimeBuild`.
 
-| Requirement / failure boundary | Current evidence | Remaining verification |
+| Requirement / boundary | Verified evidence | Remaining verification |
 |---|---|---|
-| Reuse existing core and cross-harness API | CLI/MCP share the operation layer; actual Claude Haiku and Codex gpt-6.1-sol headless models passed private fixture workflows | Native app control qualification; Cursor CLI requires human login |
-| Runtime activation | Fresh MCP launcher exposes v2; current Codex connection still reports legacy driver 706a338 | Refresh the connection and verify apiVersion/runtimeBuild; source presence alone is insufficient |
-| Fast submission, durable ownership | Earlier live submit returned in 9 ms; isolated MCP disconnect/reattach/cancel uses real launcher and detached worker | Repeat native timing on final implementation; measure full recipient latency separately |
-| Exactly one dispatch, expiry and cancellation | Parallel pickup, duplicate checkpoint, malformed/missing checkpoint, expiry and pre-dispatch cancellation tests | Native recipient duplicate-send, lost-receipt and permission-gate cases |
-| Controllable steering | Two independent MCP clients cannot interleave stop/replacement; cancellation after stop reports known partial effect | Busy native fixture, queue versus interrupt, replacement response and cancellation under load |
-| Stable recipient and caller identity | Mutable titles bind once, including controls waiting on a lock; idempotent reattach survives rename; worker refuses stopping its original caller | Native desktop-caller handback and cross-harness reattachment |
-| Concurrent state ownership | Twelve independent processes retain all registry updates; live locks cannot be stolen on age | Higher-load native controls and interrupted import cleanup |
-| Pool partial failures | Member unavailable during parking; eight concurrent claims yield one owner; partial unarchive cannot return a member as ready | Native pool regression on an owned, previously approved member |
-| Incremental observation | Unicode, partial lines, malformed records, truncation and live status transitions; bounded bytes, no thinking/tool content | Native transcript rotation and continuation after restart |
-| Service memory | Metadata-only automatic records, candidate labels, private modes, bounded reverse reads and runtime fingerprints | Ongoing usage; reconcile candidates into curated findings only with evidence |
-| Human app usability | UI reload completed; synthetic a/b/c read back as abc; test text removed; CUA reset; shared quarantine prevents UI fallback and live-script app work | Taylor's physical keyboard check and a proven duplication root cause |
-| Recovery and version drift | Recovery serializes/restores focus/cools down failures; quarantine blocks recovery before navigation, bootstrap and probes; preflight cannot auto-probe new versions during the incident | Controlled native broker death/restart, version drift and recovery tests; Codex bridge fixes stay parked |
+| Shared CLI/MCP API | Same operation layer; actual Claude Haiku and Codex gpt-6.1-sol headless models each passed all ten filtered fixture checks | Cursor CLI needs human login; actual native desktop callers' handback |
+| Fast durable ownership | Latest native submission returned in 3 ms; idempotent reattach produced one job and one recipient reply; real launcher disconnect/reattach/cancel tests | Long-lived production usage; submission latency is separate from recipient latency |
+| Cancellation and dispatch | Native cancellation while recipient control lock held dispatched nothing; offline expiry, duplicate pickup/checkpoint and cancellation races | Live app crash/worker loss during native effects |
+| Receipts and reconciliation | Exact checkpoint/arguments/tool-result correlation; late receipts reconcile read-only without resend; batched checks regression | Version drift and native journal rotation/restart |
+| Steering | Busy tool-free streaming recipient stayed busy after queued delivery; stop verified, replacement reply observed, old completion absent | Active tool-work interruption; native stop preserves existing queued work |
+| Concurrent ownership | Three native controls verified; offline independent clients serialize stop/replacement; 12 registry writers and 8 pool claimants retain ownership | Longer sustained native load |
+| Recipient identity | Titles/self bind once; read-only late receipt and idempotent reattachment survive rename; original caller self-protection retained | Native cross-harness caller handback |
+| Incremental observation | UTF-8/partial records, bounded reads, malformed cursors, transcript identity and pending first-transcript tests | Live rotation/restart; see pool evidence below for fresh-context first reply |
+| Pool creation and recycling | Canonical folder aliases, pool-only refusal before fallback, uncertain claims stay reserved; approved-member live lifecycle separately reported | Arbitrary-folder/import creation and permission cards remain outside current scope |
+| Service memory | Metadata-only automatic records, private storage, candidates distinguished from evidence, bounded reverse reads, runtime fingerprints | Continued usage and evidence-based promotion |
+| Human usability | Prior supported renderer reload and synthetic abc readback; current turn used inventory/reset only | Physical keyboard recovery and duplication root cause |
+| Recovery and focus | Quarantine gates before navigation/bootstrap/probes; offline recovery ownership/cooldown/focus tests | Controlled native broker death/restart, focus restoration, import and version drift |
 
-`test/v2.test.mjs` tests lifecycle/state boundaries in private stores.
-`test/mcp-v2.test.mjs` runs the actual MCP launcher with independent clients,
-detached workers and a synthetic broker. Its fixture actions never execute
-Claude tools or UI actions. Passing those tests does not qualify the live
-native controls or the real external harnesses.
+Final deterministic report: `<state>/pressure/v2-2026-10-06T21-31-42-006Z.json`:
+59 tests in each of five fresh processes, 295 passed, unchanged runtime/suite
+fingerprints. It includes the actual launcher, separate MCP clients, detached
+workers and synthetic stores; no desktop operations occur in this tier.
 
-Separate model-driven fixture reports verify successful tool replies, two
-idempotent submissions producing one completed job, matching recipient,
-events cursor and service memory. Global harness configuration hashes stayed
-unchanged. Claude: `harness-v2-claude-2026-10-06T20-13-32-515Z.json` (25.456 s).
-Codex: `harness-v2-codex-2026-10-06T20-14-27-285Z.json` (27.451 s).
-Both are under `<state>/pressure/`. Cursor's run and catalogue attempt stopped
-at authentication before any tools, so Cursor remains unqualified.
+Final native report:
+`<state>/pressure/live-v2-2026-10-06T21-31-36-385Z.json`, eight required checks
+passed with unchanged source fingerprint, archived scratch fixture cleanup.
+Native submission was 3 ms; recipient delivery/reply took 12.548 s. Three
+serialized concurrent controls plus unpin took 51.112 s; interrupt/replacement
+under concurrent pool load took 41.623 s. These observations show current model
+relay latency, not a guaranteed response time. The weak permission-waiting
+fixture's earlier six-check pass is explicitly superseded in findings.
 
-`scripts/pressure-v2.mjs` repeats both suites in fresh processes and writes
-service-level evidence. Reports include source and suite fingerprints; a
-source change during a run prevents qualification. The live script requires
-all six named checks and records interrupted runs as incomplete.
+Final actual model-driven filtered API reports:
+`harness-v2-claude-2026-10-06T21-31-49-397Z.json` (26.902 s) and
+`harness-v2-codex-2026-10-06T21-31-50-579Z.json` (24.716 s), both under
+`<state>/pressure/`. All ten checks passed: successful required MCP replies,
+two identical submissions creating one completed worker, matching recipient,
+events cursor and shared candidate memory, unchanged source/global configs.
+These are separate from native controls: the filter refuses desktop actions.
 
-Latest offline evidence: 42 checks in each of five fresh runs (210 total),
-all passed with unchanged source/suite fingerprints. Report:
-`<state>/pressure/v2-2026-10-06T20-21-42-521Z.json`.
+Final approved-pool report:
+`<state>/pressure/native-pool-v2-2026-10-06T21-32-38-401Z.json`: all three
+checks passed on the same source. It claimed an already-approved, cleared
+dotfiles member via the symlink folder, observed `POOL_NATIVE_OK` from the
+pre-message pending cursor after create returned, restored its original model
+and effort, then verified self-clear and archived/parked availability. No
+permission raise or task-file/git operation was performed by that fixture.
+The earlier receipt-mismatch failure remains retained and reconciled.
 
-Resume live testing in this order: confirm physical typing, qualify the busy
-fixture and steering, test cancellation/duplicate boundaries, then run the
-real external harnesses and controlled recovery cases. Avoid app restart
-while unrelated Claude work is active. Preserve every failed result and
-reconcile uncertain effects before submitting replacements.
+`driver_status.nativeQualification` checks the latest native result against
+the current source fingerprint and app/CLI versions; source presence or old
+reports do not establish current activation. Shared reports and memory live
+in `~/.local/state/claude-driver/`; prompts/raw journal data remain private.
+Interrupted, preflight-failed and superseded evidence is retained in
+`pressure/native-boundary-audit-2026-10-06.json` and is never counted as passing.
+
+Native scoped reproduction uses the existing owned scratch fixture only:
+
+```sh
+node src/claude-driver/scripts/live-v2.mjs --live --broker-only \
+  --restore-fixture --session local_43202206-acf4-4d89-93e2-8822dc96ca49
+```
+
+This refuses a dead/outdated broker, wrong fixture or unblocked UI incident
+guard, and never creates/imports/opens sessions, automates input, restarts the
+app, or raises permissions. General Codex bridge fixes remain parked.
+
+After physical recovery is confirmed, resume full probe/import/focus and
+controlled broker recovery qualification. Avoid restarting the app while
+unrelated Claude work is active. Reconcile uncertain effects before replay.

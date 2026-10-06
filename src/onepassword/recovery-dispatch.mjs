@@ -91,20 +91,34 @@ export async function dispatchCodex(peer,state,path,evidence,{base=BASE,date=new
   const input=[{type:'text',text:prompt(evidence,incident)}]
   const queued=await call('thread/queue/add',{threadId:id,input,clientUserMessageId:state.requestId})
   state.queueId=queued.queuedSubmission.id;state.phase='queued';save(path,state)
-  const readback=await call('thread/queue/list',{threadId:id})
-  state.queueVerified=readback.data.some(q=>q.id===state.queueId&&q.clientUserMessageId===state.requestId);save(path,state)
-  const current=await call('thread/read',{threadId:id,includeTurns:false})
-  const desktopOwned=created?false:await owner(id)
-  if(created||desktopOwned===false&&['idle','notLoaded'].includes(current.thread.status?.type)){
-    if(!created&&current.thread.status.type==='notLoaded')await call('thread/resume',{threadId:id})
-    await call('thread/settings/update',{threadId:id,model,effort:'high',approvalPolicy:'never'})
-    await call('thread/queue/start',{threadId:id,queuedSubmissionId:state.queueId})
-    state.phase='started';save(path,state)
+  const delivered=async()=>{
+    const current=await call('thread/read',{threadId:id,includeTurns:true})
+    const turn=current.thread.turns?.find(t=>t.items?.some(i=>i.type==='userMessage'&&i.clientId===state.requestId))
+    if(turn){state.phase='started';state.deliveryVerified=true;state.turnId=turn.id;save(path,state)}
+    return {current,turn}
   }
-  // Opening the exact chat lets the desktop load its durable queue. Do not
-  // turn notLoaded into permission to resume: another desktop owns it.
-  try{openChat(id);state.desktopOpenAccepted=true}catch{state.desktopOpenAccepted=false}
-  save(path,state)
+  try{
+    const readback=await call('thread/queue/list',{threadId:id})
+    state.queueVerified=readback.data.some(q=>q.id===state.queueId&&q.clientUserMessageId===state.requestId);save(path,state)
+    const {current,turn}=await delivered()
+    const desktopOwned=created?false:await owner(id)
+    if(!turn&&state.queueVerified&&desktopOwned===false&&['idle','notLoaded'].includes(current.thread.status?.type)){
+      if(!created&&current.thread.status.type==='notLoaded')await call('thread/resume',{threadId:id})
+      await call('thread/settings/update',{threadId:id,model,effort:'high',approvalPolicy:'never'})
+      try{
+        await call('thread/queue/start',{threadId:id,queuedSubmissionId:state.queueId})
+        state.phase='started';save(path,state)
+      }catch(error){
+        // The owner may consume the durable queue between readback and start.
+        // Confirm the exact client message, never resend it or start a new turn.
+        if(!(await delivered()).turn)throw error
+      }
+    }
+  }finally{
+    // Even if readback races consumption, expose the accepted chat to desktop.
+    try{openChat(id);state.desktopOpenAccepted=true}catch{state.desktopOpenAccepted=false}
+    save(path,state)
+  }
   return {status:state.phase,threadId:id,queueVerified:state.queueVerified}
 
 }

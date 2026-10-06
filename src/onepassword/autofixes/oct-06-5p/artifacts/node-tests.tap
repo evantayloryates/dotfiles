@@ -1,0 +1,38 @@
+✔ Eastern time, floor first, half-hour cutoff, actual month and padded minutes (1.953208ms)
+✔ rounding across midnight, noon, DST gap and repeated fall hour (0.24925ms)
+✔ atomic reservation follows floor/round/minute and refuses overwrite (2.345459ms)
+✔ existing chat title reserves a name even without a folder (0.661917ms)
+✔ settlement renders both reports and hashes evidence with escaped HTML (2.735916ms)
+✔ no settlement for unverified (1.301833ms)
+✔ no settlement for docs skipped (1.281084ms)
+✔ no settlement for not ready (1.436458ms)
+✔ no settlement for unresolved (1.682917ms)
+✔ no settlement for empty evidence (1.270333ms)
+✔ no settlement for missing evidence (1.490959ms)
+✔ fully staged fix can settle; symlink evidence cannot escape (3.300583ms)
+✔ editing settled evidence invalidates settlement (2.050958ms)
+✔ supported desktop models only (0.743416ms)
+✔ reuse active incident and read queue back without competing turn (3.042375ms)
+✔ uncertain mutation never replays: thread/name/set (2.002292ms)
+✔ uncertain mutation never replays: thread/section/move (1.762584ms)
+✔ uncertain mutation never replays: thread/settings/update (1.634375ms)
+✔ uncertain mutation never replays: thread/queue/add (1.891167ms)
+✔ failed readback retains accepted queue (2.801833ms)
+✔ later episodes reuse unsettled incidents; settled incidents get a fresh chat (6.377792ms)
+✔ unowned idle chat starts the exact queued submission (1.844792ms)
+✔ legacy maintenance chat is not renamed or archived; new incident has project/model/pin/no approval (2.162833ms)
+✔ policy rejection stops before queue or inference (1.269459ms)
+✔ repair prompt includes standing authorization, reports and native self archive (0.053667ms)
+✔ symlink entry executes, stdin and missing importing host do not dispatch (216.853375ms)
+✔ Claude quarantine refuses before all writes (0.880084ms)
+✔ Claude fallback configures, pins, reuses an unsettled dated incident (2.514ms)
+✔ queue already consumed is proved by exact client ID, never started twice (2.320416ms)
+✔ consumption between readback and start is reconciled without replay (2.88225ms)
+ℹ tests 30
+ℹ suites 0
+ℹ pass 30
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 342.564375

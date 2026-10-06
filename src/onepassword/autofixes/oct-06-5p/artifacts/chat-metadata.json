@@ -1,0 +1,21 @@
+{
+  "threadId": "01a11322-d0bd-7301-a167-a33008f5a60e",
+  "title": "⚙️ fix-1p-broker/oct-06-5p",
+  "titleMatches": true,
+  "cwd": "/Users/taylor/src/github/dotfiles",
+  "section": {
+    "id": "01984de2-8f74-7c91-a3b2-5c5e937cf318",
+    "name": "Pinned",
+    "appearance": null
+  },
+  "pinnedSectionId": "01984de2-8f74-7c91-a3b2-5c5e937cf318",
+  "projectId": "01a049b6-e498-7a50-a2ef-0b3c91d8f7d2",
+  "projectRoots": [
+    {
+      "path": "/Users/taylor/dotfiles"
+    }
+  ],
+  "model": "gpt-6-astra",
+  "reasoningEffort": "high",
+  "strongestAdvertisedHighModel": "gpt-6-astra"
+}

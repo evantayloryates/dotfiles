@@ -98,3 +98,20 @@ test('Claude fallback configures, pins, reuses an unsettled dated incident',asyn
  assert.deepEqual(calls.map(c=>c.op),['create_session','pin_session','send_message']);assert.equal(calls[0].args.model,'fixture-opus');assert.equal(calls[0].args.effort,'high');assert.match(calls[0].args.title,/^⚙️ fix-1p-broker\//)
  await fallbackClaude(f.path,{episode:'second'},deps);assert.equal(calls.filter(c=>c.op==='create_session').length,1)
 }finally{f.cleanup()}})
+test('queue already consumed is proved by exact client ID, never started twice',async()=>{const f=fixture();const original=f.peer.request;f.peer.request=async(m,a)=>{
+ if(m==='thread/queue/list')return {data:[]}
+ if(m==='thread/read')return {thread:{status:{type:'active'},turns:[{id:'live-turn',items:[{type:'userMessage',clientId:load(f.path).requestId}]}]}}
+ return original(m,a)
+};try{
+ assert.equal((await dispatchCodex(f.peer,{},f.path,{episode:'race'},f.deps)).status,'started')
+ assert.equal(load(f.path).deliveryVerified,true);assert.equal(load(f.path).turnId,'live-turn')
+ assert.ok(!f.calls.some(c=>c.method==='thread/queue/start'));assert.equal(load(f.path).desktopOpenAccepted,true)
+}finally{f.cleanup()}})
+test('consumption between readback and start is reconciled without replay',async()=>{const f=fixture();let consumed=false;const original=f.peer.request;f.peer.request=async(m,a)=>{
+ if(m==='thread/queue/start'){consumed=true;throw Error('Already consumed')}
+ if(m==='thread/read'&&consumed)return {thread:{status:{type:'active'},turns:[{id:'raced-turn',items:[{type:'userMessage',clientId:load(f.path).requestId}]}]}}
+ return original(m,a)
+};try{
+ assert.equal((await dispatchCodex(f.peer,{},f.path,{episode:'race'},f.deps)).status,'started')
+ assert.equal(load(f.path).deliveryVerified,true);assert.equal(f.calls.filter(c=>c.method==='thread/queue/add').length,1)
+}finally{f.cleanup()}})

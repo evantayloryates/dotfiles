@@ -1,0 +1,50 @@
+{
+  "at_epoch": 1791322488,
+  "calls": [
+    {
+      "slot": null,
+      "command": "--version",
+      "exit_code": 0,
+      "seconds": 0.26,
+      "output": "discarded"
+    },
+    {
+      "slot": 0,
+      "command": "vault list --account <verified-config-slot> --format json",
+      "exit_code": 0,
+      "seconds": 0.69,
+      "output": "discarded"
+    },
+    {
+      "slot": 1,
+      "command": "vault list --account <verified-config-slot> --format json",
+      "exit_code": 0,
+      "seconds": 1.02,
+      "output": "discarded"
+    }
+  ],
+  "no_item_access": true,
+  "no_retry": true,
+  "after": {
+    "broker_alive": true,
+    "keepalive_age_seconds": 2,
+    "app_locked": false,
+    "episode": "6b42fcec5e8d849993b4378b7c81bc8a2bb0c14100ec7ca9325d8e7bb15ed943",
+    "console_locked": false,
+    "kind": "authorization_or_unknown",
+    "accounts": [
+      {
+        "slot": 0,
+        "status": "ok",
+        "last_ok": 1791322384,
+        "last_prompt": null
+      },
+      {
+        "slot": 1,
+        "status": "ok",
+        "last_ok": 1791322385,
+        "last_prompt": null
+      }
+    ]
+  }
+}

@@ -283,6 +283,13 @@ acceptance alone is never proof of execution. Physical banner clicking remains
 unverified. Claude fallback honors UI quarantine and is only synthetically tested.
 No live Claude driving or Computer Use is required by this workflow.
 
+A controlled lifecycle qualification can carry `kind: authorization_or_unknown`
+while the broker and both accounts are healthy. That category alone does not
+establish an authorization failure. Check fresh keepalive state, deployed source
+hashes and bounded metadata-only calls before deciding whether a repair is needed.
+Record a verified healthy qualification as `no_change`; do not restart the
+broker or request an authentication wake just to exercise recovery.
+
 The false-lock fix uses timestamped lock/unlock events across bounded log tails;
 `Client starting` is not evidence of a lock. Stale/rotated files cannot regress a
 known newer state. For a tested keepalive-only change, safely activate with:

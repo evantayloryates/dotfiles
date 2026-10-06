@@ -7,6 +7,70 @@ Versions: app = Claude desktop, cli = bundled Claude Code.
 
 ## 2026-10-06 (app 2.19675.0, cli 2.1.286)
 
+- **Final current-source native qualification passed.**
+  `live-v2-2026-10-06T21-31-36-385Z.json` passed all eight required checks,
+  including actual reply, pre-dispatch cancellation, three concurrent controls,
+  busy queue versus interruption, one reply per marker and archive cleanup.
+  `native-pool-v2-2026-10-06T21-32-38-401Z.json` passed three lifecycle checks:
+  alias-based pool-only creation, first reply observed from the returned cursor,
+  original model/effort restored, context self-cleared, archived and parked.
+  Fresh CLI health returned apiVersion 2 and matching nativeQualification.
+  This qualifies the existing-live-broker route; physical typing, import,
+  focus and UI recovery remain excluded. Pool and scratch fixtures were left
+  archived; the approved pool member is available again. n=1 final run each.
+
+- **Native receipts must tolerate batched dispatch checks.** A five-operation
+  approved-pool create applied every operation but timed out: the broker ran
+  all checkpoints in one Bash call, returning five JSON lines. The collector
+  expected one checkpoint, so no receipt could correlate. It now correlates
+  each independently authorized exact operation, ignores denied checkpoints,
+  and matches the native tool-use/result IDs. A regression covers both allowed
+  and denied batch entries. Read-only `driver_request` reconciled request
+  `rmux6xqqw-1b138c` without resending its first message (n=1 live failure).
+  The failed report remains `native-pool-v2-2026-10-06T21-28-35-986Z.json`.
+  The borrowed approved member was restored, self-cleared and parked on disk.
+- **The relay can paraphrase and rewrite its own receipt.** One native send
+  produced an early relay result `Delivered`, followed by a rewritten result
+  about 2.5 seconds later. Native journal collection now independently matches
+  the successful checkpoint, exact recipient/arguments and native result.
+  Relay text cannot settle requests with journal provenance. Actual native
+  pending-tool delivery text is `queued`; unrecognized successful text remains
+  `outcome_unknown`, with a request ID and no automatic replay.
+- **Uncertainty survives later cancellation sweeps.** A native configuration
+  completed after the request deadline; a waiter sweep had incorrectly changed
+  its dispatched uncertain control to cancelled. Sweeps now preserve that
+  uncertainty. Read-only late-receipt reconciliation reports completed while
+  retaining the historical control state. A native receipt proves the tool
+  outcome, not a recipient's application of a new instruction.
+- **Native stop preserves queued work.** A streaming, tool-free recipient stayed
+  busy after a queued message; native stop ended its running turn and its queued
+  follow-up then ran before the replacement. The API reports `queueDisposition`
+  explicitly. Stop does not establish queue deletion or transaction rollback.
+  The early six-check report `live-v2-2026-10-06T21-13-32-389Z.json` used a
+  permission-waiting Bash fixture and does not prove interruption of active
+  tool work. Later streaming tests qualify active text generation only.
+- **Creation must return an observation cursor captured before the task.**
+  Reading from a new cursor after create returns skips an already-finished
+  first reply. Imported/pooled creation now returns `observationCursor`; a
+  cleared session's pending cursor watches the first new transcript from its
+  timestamp rather than pouring old history into the caller. Missing/rotated
+  existing transcripts and malformed cursor objects fail explicitly.
+- **Pool-only creation resolves folder aliases and refuses fallback.**
+  `require_pool:true` fails before import/navigation if no approved member is
+  available. Canonical folder matching supports `/Users/taylor/dotfiles` and
+  its real checkout path. Claims remain reserved after uncertain partial
+  effects; availability is published only after cleared/archived disk proof.
+  Existing permission grants are preserved, never recreated or raised.
+- **Latest deterministic suite: 59 checks in five fresh processes (295 passed).**
+  `v2-2026-10-06T21-31-42-006Z.json` retained unchanged source/suite fingerprints.
+  Actual headless fixture workflows also passed on that source: Claude
+  `harness-v2-claude-2026-10-06T21-31-49-397Z.json`, Codex
+  `harness-v2-codex-2026-10-06T21-31-50-579Z.json`. Each verifies all ten contract
+  checks and unchanged global configs. They qualify real model use of the
+  filtered synthetic API, separately from native desktop control evidence.
+  Interrupted/preflight/superseded runs are retained in
+  `native-boundary-audit-2026-10-06.json`, never counted as passes.
+
 - **Quarantine must cover entry paths, not just typing.** Dead-broker recovery
   previously navigated before the Tier C gate, and preflight could launch a
   live probe after version drift. Recovery now refuses before taking a focus

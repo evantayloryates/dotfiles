@@ -1,0 +1,49 @@
+{
+  "at_epoch": 1791322465,
+  "diagnostics": {
+    "broker_alive": true,
+    "keepalive_age_seconds": 20,
+    "app_locked": false,
+    "episode": "6b42fcec5e8d849993b4378b7c81bc8a2bb0c14100ec7ca9325d8e7bb15ed943",
+    "console_locked": false,
+    "kind": "authorization_or_unknown",
+    "accounts": [
+      {
+        "slot": 0,
+        "status": "ok",
+        "last_ok": 1791322384,
+        "last_prompt": null
+      },
+      {
+        "slot": 1,
+        "status": "ok",
+        "last_ok": 1791322385,
+        "last_prompt": null
+      }
+    ]
+  },
+  "broker": {
+    "pid": 1231,
+    "session": 1231,
+    "tty": "/dev/ttys000"
+  },
+  "host_pid": 1097,
+  "keepalive_pid": 52278,
+  "keepalive_process_alive": true,
+  "active_child_count": 1,
+  "code": {
+    "op_agent.py": {
+      "source_sha256": "32a7f5f175335224bde6d4bface53242fde5cac87dbcc2315ec94660b1eef8a2",
+      "deployed_sha256": "32a7f5f175335224bde6d4bface53242fde5cac87dbcc2315ec94660b1eef8a2"
+    },
+    "keepalive.py": {
+      "source_sha256": "bd6e47544073fbb164c637973cca3157b1c82ab105c706f47df26b2602bdb99d",
+      "deployed_sha256": "bd6e47544073fbb164c637973cca3157b1c82ab105c706f47df26b2602bdb99d"
+    }
+  },
+  "running_keepalive_sha256": "bd6e47544073fbb164c637973cca3157b1c82ab105c706f47df26b2602bdb99d",
+  "build_stamp_matches_source": true,
+  "codesign_valid": true,
+  "live_fault_episode": null,
+  "wrapper_resolves": "/Users/taylor/src/github/dotfiles/bin/op"
+}
