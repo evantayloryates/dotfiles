@@ -404,6 +404,7 @@ export const OPS = [
       ctx.tier = 'A'
       const { result, focus } = await withFocus(f, () => createSession({ ...args, permission_mode: want }, ctx))
       const out = { ...result, focus: focus.action, intendedPermissionMode: want }
+      out.observationCursor=sessionEvents({session:result.sessionId}).cursor
       if (out.permissionMode !== want) {
         out.verified = false
         out.permissionGap = `started in ${out.permissionMode}, not ${want}: ${want === BYPASS ? 'the bypass pool had no session parked in this folder and an import can never be bypass. Fill the pool with pool_release on finished bypass sessions (pool_status {suggest:true} lists candidates), or raise this one with set_session_config (Taylor approves a card).' : 'the app did not keep the requested mode on import.'}`
@@ -854,6 +855,7 @@ async function createFromPool(args, ctx) {
   const pick = await claim(folder, { title: args.title })
   if (!pick) return null
   const id = pick.sessionId
+  const observationCursor=sessionEvents({session:id}).cursor
   const model = args.model || DEFAULT_MODEL
   const effort = args.effort || 'high'
   const ops = []
@@ -863,7 +865,7 @@ async function createFromPool(args, ctx) {
   ops.push({ op: 'set_session_effort', args: { session_id: id, effort } })
   if (args.group) ops.push(...(await groupOps(args.group, [id], ctx)))
   if (args.first_message) ops.push({ op: 'send_message', args: { session_id: id, message: args.first_message } })
-  const out = { sessionId: id, via: 'pool', cwd: folder, title: args.title, model, effort, permissionMode: BYPASS, intendedPermissionMode: BYPASS, pooledFrom: pick.priorTitle || null }
+  const out = { sessionId: id, via: 'pool', cwd: folder, title: args.title, model, effort, permissionMode: BYPASS, intendedPermissionMode: BYPASS, pooledFrom: pick.priorTitle || null, observationCursor }
   const b = await tierB(ctx, ops, `title "${args.title}" (titleSource "tool"), model ${model}, effort ${effort}, permissionMode bypassPermissions, isArchived false`).catch(async (err) => {
     // A multi-op request may have partially landed. Keep an uncertain claim
     // reserved; only proven pre-dispatch failure can return it to the pool.

@@ -274,6 +274,23 @@ test('initial observation excludes history; subsequent cursor gives bounded unic
   assert.equal(events.sessionEvents({session:sid,cursor:next.cursor}).events.length,0)
   assert.throws(()=>events.sessionEvents({session:sid,cursor:Buffer.from(JSON.stringify({session:'another',identity:'x',offset:0})).toString('base64url')}),e=>e.category==='cursor_reset')
 })
+test('pending cursor captures the first reply of a fresh pooled context without importing history',async()=>{
+ const id='local_00000000-0000-4000-8000-000000000099',newCli='00000000-0000-4000-8000-000000000098'
+ const recordFile=join(root,'app','claude-code-sessions','a','o',id+'.json')
+ state.writeJsonAtomic(recordFile,{sessionId:id,cwd,title:'fresh pool context'})
+ const pending=events.sessionEvents({session:id});assert.ok(pending.cursor);assert.equal(pending.status,'no_transcript')
+ const target=join(root,'projects',cwd.replace(/[^A-Za-z0-9]/g,'-'),newCli+'.jsonl')
+ const event=(text,time)=>JSON.stringify({type:'assistant',timestamp:new Date(time).toISOString(),message:{content:text}})+'\n'
+ const at=JSON.parse(Buffer.from(pending.cursor,'base64url').toString()).since
+ setTimeout(()=>{state.writeJsonAtomic(recordFile,{sessionId:id,cwd,cliSessionId:newCli});writeFileSync(target,event('OLD_HISTORY',at-1000)+event('FIRST_POOL_REPLY',at+1))},30)
+ const out=await events.waitSession({session:id,cursor:pending.cursor,include_text:true,timeout_sec:2})
+ assert.deepEqual(out.events.map(x=>x.text),['FIRST_POOL_REPLY'])
+ appendFileSync(target,event('NEXT_REPLY',at+2))
+ assert.equal(events.sessionEvents({session:id,cursor:out.cursor,include_text:true}).events[0].text,'NEXT_REPLY')
+})
+test('non-object cursor payloads fail before a pending transcript wait',()=>{
+ for(const v of [null,[],42])assert.throws(()=>events.sessionEvents({session:sid,cursor:Buffer.from(JSON.stringify(v)).toString('base64url')}),e=>e.category==='bad_args')
+})
 test('partial transcript lines are retried without advancing cursor', ()=> {
   const first=events.sessionEvents({session:sid});const line=JSON.stringify({type:'assistant',message:{content:'partial'}})
   appendFileSync(transcript,line.slice(0,10));const partial=events.sessionEvents({session:sid,cursor:first.cursor})
