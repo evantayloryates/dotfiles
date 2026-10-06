@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!--
+    Always-on layer 2 of 4 (mirrors theo-air's me.taylor.switchboard.caffeinate): `caffeinate -ims` holds idle-sleep (-i),
+    disk-idle (-m) and system-sleep-on-AC (-s) assertions while the user is logged in. Layer 1 is pmset
+    (src/launchd/always-on.sh, needs sudo), layer 3 Amphetamine, layer 4 none: to sleep the Mac, shut it down.
+    Symlinked into ~/Library/LaunchAgents/.
+  -->
+  <key>Label</key>
+  <string>com.taylor.caffeinate</string>
+  <key>ProgramArguments</key>
+  <array><string>/usr/bin/caffeinate</string><string>-ims</string></array>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+</dict>
+</plist>
