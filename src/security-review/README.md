@@ -173,8 +173,10 @@ path (`helper` or `quick`), seconds, usage, credential source, the credential
 variable names the hook saw (never values), and the findings text.
 
 The report also lists commits made in each recorded repo (from the reflog)
-with no review record in either the plugin's ledger
-(`.git/sg-reviewed-shas`) or the tap's.
+with no review record in the plugin's ledger (`.git/sg-reviewed-shas`), the
+tap's ledger, or a saved `sg-replay` result (`~/.claude/security/replays/*/result.json`;
+clean, findings, and skips such as reason 30, "no reviewable source files",
+all count).
 
 ## Files
 

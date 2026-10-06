@@ -164,11 +164,13 @@ def report(days):
     skipped = Counter(r.get("why") for r in rows if r["verdict"] == "skipped")
     tokens = sum((r.get("usage") or {}).get("tok_out") or 0 for r in rows)
     repos = sorted({r["repo"] for r in rows if r.get("repo")})
+    replayed = replay_records()
     gaps = {}
     for repo in repos:
         plugin_ledger = Path(sglib.git(repo, "rev-parse", "--absolute-git-dir")) / "sg-reviewed-shas"
         reviewed = {l.split("\t")[0] for l in plugin_ledger.read_text().splitlines()} if plugin_ledger.exists() else set()
         reviewed |= {s for r in rows if r.get("repo") == repo for s in r.get("shas", [])}
+        reviewed |= replayed.get(repo, set())
         g = unreviewed_commits(repo, since, reviewed)
         if g:
             gaps[repo] = g
@@ -181,6 +183,20 @@ def report(days):
         "output_tokens": tokens,
         "unreviewed_commits": gaps,
     }
+
+
+def replay_records():
+    """Commits that sg-replay reviewed (or found nothing reviewable in):
+    {repo: {sha}}. A failed replay doesn't count."""
+    out = {}
+    for f in (sglib.STATE / "replays").glob("*/result.json"):
+        try:
+            r = json.loads(f.read_text())
+        except Exception:
+            continue
+        if r.get("verdict") in ("clean", "findings", "skipped") and r.get("repo") and r.get("commit"):
+            out.setdefault(r["repo"], set()).add(r["commit"])
+    return out
 
 
 def _ts(s):
@@ -216,7 +232,7 @@ def print_report(rep):
             for r in rep[key]:
                 print(f"    {r['at'][:16]}  {Path(r['repo'] or '?').name} {','.join(r['shas'] or ['?'])}  {r['summary'] or r['why']}")
     if rep["unreviewed_commits"]:
-        print("\n  Commits with no review record (re-run with `sg-replay <sha> --repo <repo>`):")
+        print("\n  Commits with no review record, from the hooks or sg-replay (re-run with `sg-replay <sha> --repo <repo>`):")
         for repo, gs in rep["unreviewed_commits"].items():
             for g in gs[:15]:
                 print(f"    {Path(repo).name} {g['sha']}  {g['when']}  {g['subject']}")
