@@ -140,6 +140,12 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
     throw new DriverError(`broker did not answer request ${id} within ${timeoutMs / 1000} s (delivered via ${via.method})`, { category: 'broker_timeout' })
     } catch (err) {
       const state = await cancelRequest(id, err.category === 'broker_timeout' ? 'expired' : 'cancelled')
+      // Completion can race cancellation between the polling check and the
+      // durable cancellation lock. The correlated completed result wins.
+      if (state.resultAvailable) {
+        const res = validatedResult(request)
+        if (res) return { id, results: res.results, deliveredVia: via.method, ms: Date.now() - t0 }
+      }
       err.detail = { requestId: id, state: state.state, dispatched: state.dispatched, retrySafe: !state.dispatched && !state.resultAvailable }
       if (state.dispatched) err.category = 'outcome_unknown'
       throw err

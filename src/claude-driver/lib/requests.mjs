@@ -33,8 +33,10 @@ export async function cancelRequest(id, reason = 'cancelled') {
     const r = readJson(requestFile(id), null)
     if (!r) return { id, state: 'not_found', dispatched: false }
     const c = control(id)
-    const result = readJson(resultFile(id), null)
-    if (result?.id === id && Array.isArray(result.results)) return { id, state: result.state || 'completed', dispatched: !!c.dispatched?.length, resultAvailable: true }
+    let result
+    // A partial/malformed broker write cannot settle an uncertain effect.
+    try { result = validatedResult(r) } catch {}
+    if (result) return { id, state: result.state || 'completed', dispatched: !!c.dispatched?.length, resultAvailable: true }
     const state = c.dispatched?.length ? 'outcome_unknown' : reason
     rejectPending(r, { ...c, cancelRequested: true, reason }, state)
     return { id, state, dispatched: !!c.dispatched?.length }
@@ -79,8 +81,14 @@ export function validatedResult(request) {
   const res = readJson(resultFile(request.id), null)
   if (!res) return null
   if (res.id !== request.id || !Array.isArray(res.results) || res.results.length !== request.ops.length ||
-      res.results.some((x, i) => x.op !== request.ops[i].op || typeof x.ok !== 'boolean')) {
+      res.results.some((x, i) => !x || x.op !== request.ops[i].op || typeof x.ok !== 'boolean')) {
     throw new DriverError(`invalid broker result for ${request.id}; reconcile before retrying`, { category: 'broker_bad_result', detail: { requestId: request.id } })
+  }
+  if (request.protocol >= 5) {
+    const dispatched = control(request.id).dispatched || []
+    if (res.results.some((x, i) => x.ok && !dispatched.includes(i))) {
+      throw new DriverError(`broker reported success without dispatch checkpoint for ${request.id}`, { category: 'broker_bad_result', detail: { requestId: request.id } })
+    }
   }
   return res
 }

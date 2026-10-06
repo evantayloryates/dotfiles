@@ -68,7 +68,7 @@ export async function probe(flags = {}) {
   const stamp = new Date().toISOString().replace(/[:.]/g, '-')
   const dir = join(PROBE_DIR, stamp)
   mkdirSync(dir, { recursive: true })
-  updateRegistry((r) => (r.folders[dir] = { createdAt: Date.now(), kind: 'probe' }))
+  await updateRegistry((r) => (r.folders[dir] = { createdAt: Date.now(), kind: 'probe' }))
   const mech = {}
   const log = (m) => console.error(`[probe] ${m}`)
   const step = async (name, fn) => {

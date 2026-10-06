@@ -68,7 +68,7 @@ export async function createSession({ folder, no_project, title, model, effort, 
   const t0 = Date.now()
   await bootstrap(args, cwd, signal, uuid)
   const bootMs = Date.now() - t0
-  updateRegistry((reg) => {
+  await updateRegistry((reg) => {
     reg.sessions[localId] = { createdAt: Date.now(), cwd, title, kind: 'create' }
     if (createdFolder) reg.folders[cwd] = { createdAt: Date.now(), kind: 'scratch', session: localId }
   })
@@ -95,7 +95,7 @@ export async function forkSession({ session, title, bootstrap_prompt }, { signal
   const args = ['-p', bootstrap_prompt || 'This is a fork created by claude-driver. Reply with exactly: forked', '--resume', cli, '--fork-session', '--session-id', uuid, '-n', t, '--strict-mcp-config']
   if (src.model) args.push('--model', src.model)
   await bootstrap(args, cwd, signal, uuid)
-  updateRegistry((reg) => {
+  await updateRegistry((reg) => {
     reg.sessions[localId] = { createdAt: Date.now(), cwd, title: t, kind: 'fork', from: src.sessionId }
   })
   await importLink(uuid)

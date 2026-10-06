@@ -4,6 +4,9 @@
 import { spawn } from 'node:child_process'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { readFileSync, readdirSync } from 'node:fs'
+import { createHash } from 'node:crypto'
+import { RUNTIME_BUILD, runtimeFingerprint } from '../lib/build.mjs'
 import { recordMemory } from '../lib/memory.mjs'
 import { STATE_DIR, writeJsonAtomic } from '../lib/state.mjs'
 const i = process.argv.indexOf('--repeat')
@@ -11,9 +14,12 @@ const repeat = i >= 0 ? Number(process.argv[i + 1]) : 5
 if (!Number.isInteger(repeat) || repeat < 1 || repeat > 100) throw new Error('--repeat must be 1–100')
 const root = fileURLToPath(new URL('../../..', import.meta.url))
 const results = []
+const suites = readdirSync(join(root, 'src/claude-driver/test')).filter(f=>f.endsWith('.test.mjs')).sort().map(f=>`src/claude-driver/test/${f}`)
+const suiteHashes = () => Object.fromEntries(suites.map(file=>[file,createHash('sha256').update(readFileSync(join(root,file))).digest('hex')]))
+const initialSuiteHashes = suiteHashes()
 for (let run = 0; run < repeat; run++) {
   const started = Date.now()
-  const child = spawn(process.execPath, ['--test', 'src/claude-driver/test/v2.test.mjs'], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] })
+  const child = spawn(process.execPath, ['--test', ...suites], { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] })
   let output = ''
   child.stdout.on('data', x=>output+=x); child.stderr.on('data', x=>output+=x)
   const code = await new Promise(resolve=>child.on('exit',resolve))
@@ -22,7 +28,9 @@ for (let run = 0; run < repeat; run++) {
   if (code) break
 }
 const report = join(STATE_DIR, 'pressure', `v2-${new Date().toISOString().replace(/[:.]/g, '-')}.json`)
-writeJsonAtomic(report, { suite: 'v2 deterministic race/failure suite', results })
-recordMemory({kind:'test_result',topic:'v2-pressure',source:'pressure-v2',status:results.every(r=>r.ok)?'passed':'failed',evidence:report,lesson:`${results.filter(r=>r.ok).length}/${repeat} isolated pressure rounds passed`})
-console.log(JSON.stringify({report,passed:results.filter(r=>r.ok).length,total:repeat}))
-process.exitCode = results.length === repeat && results.every(r=>r.ok) ? 0 : 1
+const sourceChanged = runtimeFingerprint() !== RUNTIME_BUILD || JSON.stringify(suiteHashes()) !== JSON.stringify(initialSuiteHashes)
+const ok = results.length === repeat && results.every(r=>r.ok) && !sourceChanged
+writeJsonAtomic(report, { suite: 'v2 isolated lifecycle and MCP contract suites', suites, suiteHashes: initialSuiteHashes, runtimeBuild: RUNTIME_BUILD, sourceChanged, results, ok })
+recordMemory({kind:'test_result',topic:'v2-pressure',source:'pressure-v2',status:ok?'passed':'failed',evidence:report,lesson:`${results.filter(r=>r.ok).length}/${repeat} isolated pressure rounds passed; sourceChanged=${sourceChanged}`})
+console.log(JSON.stringify({report,passed:results.filter(r=>r.ok).length,total:repeat,sourceChanged,ok}))
+process.exitCode = ok ? 0 : 1

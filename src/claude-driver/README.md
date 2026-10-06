@@ -53,6 +53,18 @@ V2 also stores private `jobs/`, `memory.jsonl` and qualification reports in
 `pressure/`. Automatic memory records contain operation metadata rather
 than prompts or transcript content.
 
+Isolated qualification (no Claude UI actions or desktop turns):
+
+```sh
+node src/claude-driver/scripts/pressure-v2.mjs --repeat 5
+```
+
+Live qualification uses a synthetic owned chat. It currently requires
+`node src/claude-driver/scripts/live-v2.mjs --live`, after physical typing
+recovery is confirmed. Interrupting that script cancels its owned jobs,
+records unfinished cleanup and stops further app controls. Qualification
+requires every named check; partial runs cannot pass.
+
 ## Tools
 
 The CLI mirrors every MCP tool: `claude-driver <tool> --arg value …` (or
@@ -248,5 +260,11 @@ the version to `CLAUDE_DRIVER_PEER_VERIFIED` / `VERIFIED_CLI`.
   [scenarios/README.md](scenarios/README.md)).
 - `probe` is the canary.
 
-Verified against Claude desktop 2.9939.4, bundled Claude Code CLI 2.1.284 and
+Original mechanism qualification verified against Claude desktop 2.9939.4, bundled Claude Code CLI 2.1.284 and
 Codex CLI 0.159.0 on 2026-09-30.
+
+V2 offline qualification on 2026-10-06: 38 lifecycle/MCP checks passed in
+five fresh runs. Current native environment is Claude desktop 2.19675.0 /
+bundled CLI 2.1.286; comprehensive live qualification remains unfinished.
+See [v2 qualification](docs/v2-qualification.md) for evidence and outstanding
+checks, including refreshing this chat's still-legacy MCP connection.

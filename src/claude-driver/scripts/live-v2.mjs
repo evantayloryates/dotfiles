@@ -4,16 +4,26 @@
 import assert from 'node:assert/strict'
 import { mkdirSync } from 'node:fs'
 import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { runOp } from '../lib/driver.mjs'
 import { recordMemory } from '../lib/memory.mjs'
 import { STATE_DIR, writeJsonAtomic } from '../lib/state.mjs'
-import { sleep } from '../lib/paths.mjs'
+import { cancelJob } from '../lib/jobs.mjs'
+if (!process.argv.includes('--live')) throw new Error('Live qualification is stopped pending physical typing verification. Run with --live only after that incident is resolved.')
 const rows = []
+const controller = new AbortController()
+const ownedJobs = new Set()
+process.once('SIGTERM', () => controller.abort())
+process.once('SIGINT', () => controller.abort())
 const stamp = new Date().toISOString().replace(/[:.]/g, '-')
 const folder = join(STATE_DIR, 'probe', `v2-${stamp}`)
 mkdirSync(folder, {recursive: true})
 let session, cursor
-const op = (name,args={})=>runOp(name,args,{harness:'v2-live-pressure',progress:message=>console.log(JSON.stringify({progress:message}))})
+const op = async (name,args={})=>{
+  const result=await runOp(name,args,{harness:'v2-live-pressure',signal:controller.signal,progress:message=>console.log(JSON.stringify({progress:message}))})
+  if(name==='driver_submit'&&result.jobId){ownedJobs.add(result.jobId);if(controller.signal.aborted)await cancelJob(result.jobId)}
+  return result
+}
 async function step(name, fn) {
   const at = Date.now()
   try { const evidence = await fn(); const r={name,ok:true,ms:Date.now()-at,evidence};rows.push(r);console.log(JSON.stringify(r));return evidence }
@@ -48,20 +58,26 @@ try {
     const s=await op('get_session',{session});assert.ok(['busy','working'].includes(s.live?.status));return {delivery:r.delivery,recipientStillBusy:true}
   })
   await step('interrupt-then-replacement-is-applied',async()=>{
-    const r=await op('steer_session',{session,mode:'interrupt',message:'Replacement synthetic plan. Discard the old sleep plan. Reply exactly NEW_PLAN_APPLIED. Do not use tools, edit files or message anyone.'});assert.equal(r.stopped,true)
+    const r=await op('steer_session',{session,mode:'interrupt',message:'Replacement synthetic plan. Discard the old fixture plan. Reply exactly NEW_PLAN_APPLIED. Do not use tools, edit files or message anyone.'});assert.equal(r.stopped,true)
     const seen=await observeUntil(e=>e.some(x=>x.type==='assistant'&&x.text==='NEW_PLAN_APPLIED'),30)
     assert.equal(seen.some(x=>x.text==='OLD_PLAN_FINISHED'),false)
     return {stopVerified:true,replacementReplyVerified:true,oldPlanFinished:false,delivery:r.delivery}
   })
 } catch(e) { process.exitCode=1 }
 finally {
-  if(session) await step('cleanup-archive',async()=>{
-    const deadline=Date.now()+15000
-    while(Date.now()<deadline){const s=await op('get_session',{session});if(!['busy','working'].includes(s.live?.status))break;await sleep(250)}
+  if(controller.signal.aborted){
+    await Promise.all([...ownedJobs].map(id=>cancelJob(id)))
+    rows.push({name:'interrupted',ok:false,session,remainingCleanup:!!session})
+  }
+  if(session&&!controller.signal.aborted) await step('cleanup-archive',async()=>{
+    const s=await op('get_session',{session})
+    if(['busy','working'].includes(s.live?.status))await op('stop_session',{session})
     const r=await op('archive_session',{session});assert.equal(r.verified,true);return {session,archived:true}
   }).catch(()=>{process.exitCode=1})
   const report=join(STATE_DIR,'pressure',`live-v2-${stamp}.json`)
-  writeJsonAtomic(report,{session,rows,ok:rows.every(r=>r.ok)})
-  recordMemory({kind:'test_result',topic:'v2-live-pressure',source:'live-v2',status:rows.every(r=>r.ok)?'passed':'failed',evidence:report,lesson:`${rows.filter(r=>r.ok).length}/${rows.length} live qualification checks passed`})
-  console.log(JSON.stringify({report,ok:rows.every(r=>r.ok)}))
+  const required=['create-and-restore-focus','durable-submit-and-recipient-reply','three-concurrent-native-controls','queue-is-not-interrupt','interrupt-then-replacement-is-applied','cleanup-archive']
+  const ok=rows.every(r=>r.ok)&&required.every(name=>rows.some(r=>r.name===name&&r.ok))
+  writeJsonAtomic(report,{session,rows,required,ok})
+  recordMemory({kind:'test_result',topic:'v2-live-pressure',source:'live-v2',status:ok?'passed':'failed',evidence:report,lesson:`${rows.filter(r=>r.ok).length}/${required.length} required live qualification checks passed; interrupted=${controller.signal.aborted}`})
+  console.log(JSON.stringify({report,ok}))
 }

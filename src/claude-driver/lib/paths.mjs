@@ -17,7 +17,7 @@ export const SESSIONS_ROOT = join(APP_SUPPORT, 'claude-code-sessions')
 export const DESKTOP_CONFIG = join(APP_SUPPORT, 'claude_desktop_config.json')
 export const MAIN_LOG = join(HOME, 'Library', 'Logs', 'Claude', 'main.log')
 export const APP_BUNDLE = '/Applications/Claude.app'
-export const PEER_SESSIONS_DIR = join(HOME, '.claude', 'sessions')
+export const PEER_SESSIONS_DIR = process.env.CLAUDE_DRIVER_PEER_SESSIONS_DIR || join(HOME, '.claude', 'sessions')
 export const CLAUDE_BUNDLE_ID = 'com.anthropic.claudefordesktop'
 
 export class DriverError extends Error {

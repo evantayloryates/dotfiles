@@ -22,6 +22,8 @@ import { BYPASS, RECYCLE_WAIT_MS, claim, defaultPermissionMode, poolGate, poolOf
 import { submitJob, inspectJob, waitJob, cancelJob } from './jobs.mjs'
 import { operationMemory, queryMemory, recordMemory } from './memory.mjs'
 import { sessionEvents, waitSession } from './events.mjs'
+import { withSessionControl } from './controls.mjs'
+import { RUNTIME_BUILD } from './build.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 export const ROOT = join(HERE, '..')
@@ -166,7 +168,7 @@ export const OPS = [
   {
     name: 'driver_memory_record', title: 'Record a shared technical lesson',
     description: 'Record a candidate service-level lesson with evidence. Supply sanitized technical observations only; never prompts, credentials or client data. The service labels harness assertions as candidates; test evidence is recorded separately.',
-    schema: { properties: { topic: { type: 'string' }, lesson: { type: 'string' }, evidence: { type: 'string' } }, required: ['topic', 'lesson', 'evidence'] },
+    schema: { properties: { topic: { type: 'string', minLength: 1, maxLength: 100 }, lesson: { type: 'string', minLength: 1, maxLength: 4000 }, evidence: { type: 'string', minLength: 1, maxLength: 2000 } }, required: ['topic', 'lesson', 'evidence'] },
     run: (args, ctx) => recordMemory({ ...args, source: ctx.harness, status: 'candidate' }),
   },
   {
@@ -176,7 +178,7 @@ export const OPS = [
   },
   {
     name: 'session_wait', title: 'Wait for new Claude session events', readOnly: true,
-    description: 'Wait up to 60 s for new events using a session_events cursor. Returns on new events; continue until end_turn or required user action. A timed-out wait leaves Claude running.',
+    description: 'Wait up to 60 s for new events or live status changes using a session_events cursor. Status changes do not prove task success; observe the reply. A timed-out wait leaves Claude running.',
     schema: { properties: { session: S, cursor: { type: 'string' }, include_text: { type: 'boolean' }, limit: { type: 'number', minimum: 1, maximum: 100 }, timeout_sec: { type: 'number', minimum: 0, maximum: 60 } }, required: ['session'] }, run: waitSession,
   },
   {
@@ -189,6 +191,9 @@ export const OPS = [
       let stopped
       if (args.mode === 'interrupt') stopped = await runOp('stop_session', { session: rec.sessionId, ...(args.via_broker !== undefined ? { via_broker: args.via_broker } : {}) }, ctx)
       if (stopped?.handedBack) return { ...stopped, message: `${stopped.message} Then call send_message with the replacement instruction; do not send it before the stop is verified.` }
+      if (stopped?.verified && ctx.signal?.aborted) throw new DriverError('recipient stopped; replacement was cancelled before sending', {
+        category: 'partial_effect', detail: { sessionId: rec.sessionId, stopped: true, replacementSent: false },
+      })
       const sent = await runOp('send_message', { session: rec.sessionId, message: args.message, ...(args.via_broker !== undefined ? { via_broker: args.via_broker } : {}) }, ctx)
       return { ...sent, steeringMode: args.mode, stopped: stopped?.verified === true, applied: false, verification: 'delivery is confirmed; observe the recipient response before claiming the new instruction was applied' }
     },
@@ -232,6 +237,7 @@ export const OPS = [
       return {
         driver: DRIVER_VERSION,
         apiVersion: 2,
+        runtimeBuild: RUNTIME_BUILD,
         versions: m.versions,
         stateDir: STATE_DIR,
         desktopCaller: callerHostSession(),
@@ -252,7 +258,8 @@ export const OPS = [
     schema: { properties: { pending_only: { type: 'boolean' } } },
     readOnly: true,
     run: async (args) => {
-      const pending = readJsonl(PENDING_LEARNINGS)
+      const shared = queryMemory({ kind: 'lesson', limit: 100 }).map(r => ({ id: r.id, ts: r.at, harness: r.source, learning: r.lesson, evidence: r.evidence, status: r.status }))
+      const pending = [...readJsonl(PENDING_LEARNINGS), ...shared]
       if (args.pending_only) return { pending }
       return `${readFileSync(join(ROOT, 'docs', 'findings.md'), 'utf8')}\n\n## Pending (unverified)\n\n${pending.map((p) => `- ${p.ts} [${p.harness || '?'}] ${p.learning} — evidence: ${p.evidence}`).join('\n') || '(none)'}`
     },
@@ -261,9 +268,9 @@ export const OPS = [
     name: 'driver_record_learning',
     title: 'Record a candidate learning',
     description: 'Append a candidate finding about how the app or driver behaves, with evidence (versions, ids, log lines). It stays pending until someone re-verifies it and promotes it into docs/findings.md.',
-    schema: { properties: { learning: { type: 'string' }, evidence: { type: 'string' } }, required: ['learning', 'evidence'] },
+    schema: { properties: { learning: { type: 'string', minLength: 1, maxLength: 4000 }, evidence: { type: 'string', minLength: 1, maxLength: 2000 } }, required: ['learning', 'evidence'] },
     run: async (args, ctx) => {
-      appendJsonl(PENDING_LEARNINGS, { ts: new Date().toISOString(), harness: ctx.harness, versions: versions(), learning: args.learning, evidence: args.evidence })
+      recordMemory({ topic: 'legacy-learning', lesson: args.learning, evidence: args.evidence, source: ctx.harness, status: 'candidate' })
       return 'recorded as pending'
     },
   },
@@ -606,7 +613,7 @@ export const OPS = [
           if (getRecord(id)) continue
           cleaned[id] = cleanupCliLeftovers(id.replace(/^local_/, '')).removed.length
         }
-        updateRegistry((r) => {
+        await updateRegistry((r) => {
           for (const id of Object.keys(cleaned)) {
             delete r.sessions[id]
             if (r.deleteQueue) delete r.deleteQueue[id]
@@ -616,7 +623,7 @@ export const OPS = [
       }
       if (args.queue) {
         const ids = (args.sessions || []).map((s) => resolveSession(s).sessionId)
-        updateRegistry((r) => {
+        await updateRegistry((r) => {
           r.deleteQueue = { ...(r.deleteQueue || {}) }
           for (const id of ids) r.deleteQueue[id] = { reason: args.reason || '', at: new Date().toISOString() }
         })
@@ -656,7 +663,7 @@ export const OPS = [
       for (const id of result.deleted) {
         if (reg.sessions[id]) result.cleanup[id] = cleanupCliLeftovers(id.replace(/^local_/, '')).removed.length
       }
-      updateRegistry((r) => {
+      await updateRegistry((r) => {
         for (const id of result.deleted) {
           delete r.sessions[id]
           if (r.deleteQueue) delete r.deleteQueue[id]
@@ -712,7 +719,7 @@ export const OPS = [
         if (!(reg.folders[folder]?.kind === 'temp' || reg.folders[folder]?.kind === 'probe')) throw new DriverError('delete_folder only applies to driver-created temporary folders', { category: 'gate_project' })
         const { rmSync } = await import('node:fs')
         rmSync(folder, { recursive: true, force: true })
-        updateRegistry((r) => delete r.folders[folder])
+        await updateRegistry((r) => delete r.folders[folder])
         folderDeleted = true
       }
       return { ...plan, archived, notArchived: targets.map((r) => r.sessionId).filter((i) => !archived.includes(i)), folderDeleted }
@@ -729,7 +736,7 @@ export const OPS = [
     readOnly: true,
     run: async (args) => {
       const folder = args.folder ? resolve(args.folder) : null
-      const members = reconcile().filter((m) => !folder || !m.folder || resolve(m.folder) === folder)
+      const members = (await reconcile()).filter((m) => !folder || !m.folder || resolve(m.folder) === folder)
       const ready = {}
       for (const m of members) if (m.status === 'ready') ready[m.folder] = (ready[m.folder] || 0) + 1
       const out = { ready, members }
@@ -767,9 +774,9 @@ export const OPS = [
         const ops = []
         if (rec.isArchived) ops.push({ op: 'unarchive_session', args: { session_id: id } })
         ops.push({ op: 'send_message', args: { session_id: id, message: recycleMessage() } })
-        setEntry(id, { state: 'recycling', folder: rec.cwd, priorTitle: entry?.priorTitle || rec.title, cliAtRequest: rec.cliSessionId, requestedAt: Date.now() })
-        const b = await tierB(ctx, ops, 'the session replies "recycled: …" and goes idle').catch((err) => {
-          setEntry(id, entry || null) // the recycle message was never sent
+        await setEntry(id, { state: 'recycling', folder: rec.cwd, priorTitle: entry?.priorTitle || rec.title, cliAtRequest: rec.cliSessionId, requestedAt: Date.now() })
+        const b = await tierB(ctx, ops, 'the session replies "recycled: …" and goes idle').catch(async (err) => {
+          if (err.detail?.retrySafe) await setEntry(id, entry || null)
           throw err
         })
         if (b.handback) return { ...b.handback, sessionId: id, phase: 'recycle', next: 'When that session is idle, call pool_release again with the same session to park it.' }
@@ -781,12 +788,14 @@ export const OPS = [
       const ops = []
       if (rec.title !== title) ops.push({ op: 'set_session_title', args: { session_id: id, title } })
       if (!rec.isArchived) ops.push({ op: 'archive_session', args: { session_id: id, reason: 'claude-driver pool_release: parked in the bypass pool' } })
-      setEntry(id, { state: 'parked', folder: rec.cwd, priorTitle: entry?.priorTitle || rec.title, parkedAt: Date.now(), cliAtRequest: undefined, requestedAt: undefined })
+      const parkedEntry = { state: 'parked', folder: rec.cwd, priorTitle: entry?.priorTitle || rec.title, parkedAt: Date.now(), cliAtRequest: undefined, requestedAt: undefined }
+      await setEntry(id, { ...parkedEntry, state: 'parking' })
       const out = { sessionId: id, parked: true, folder: rec.cwd, permissionMode: rec.permissionMode }
-      if (!ops.length) return { ...out, verified: true }
+      if (!ops.length) { await setEntry(id, parkedEntry); return { ...out, verified: true } }
       const b = await tierB(ctx, ops, `title "${title}", isArchived true`)
-      if (b.handback) return { ...b.handback, ...out, phase: 'park' }
+      if (b.handback) return { ...b.handback, ...out, parked: false, phase: 'park', next: 'After making the native calls, call pool_release again to verify and publish availability.' }
       const w = await waitForRecord(id, (r) => r.isArchived === true && r.title === title, { timeoutMs: 8000 })
+      if (w.ok) await setEntry(id, parkedEntry)
       return { ...out, verified: w.ok, ms: b.ms }
     },
   },
@@ -838,8 +847,10 @@ async function createFromPool(args, ctx) {
   if (args.group) ops.push(...(await groupOps(args.group, [id], ctx)))
   if (args.first_message) ops.push({ op: 'send_message', args: { session_id: id, message: args.first_message } })
   const out = { sessionId: id, via: 'pool', cwd: folder, title: args.title, model, effort, permissionMode: BYPASS, intendedPermissionMode: BYPASS, pooledFrom: pick.priorTitle || null }
-  const b = await tierB(ctx, ops, `title "${args.title}" (titleSource "tool"), model ${model}, effort ${effort}, permissionMode bypassPermissions, isArchived false`).catch((err) => {
-    setEntry(id, { state: 'parked', claimedAt: undefined, claimedTitle: undefined }) // nothing ran; the member is still clean
+  const b = await tierB(ctx, ops, `title "${args.title}" (titleSource "tool"), model ${model}, effort ${effort}, permissionMode bypassPermissions, isArchived false`).catch(async (err) => {
+    // A multi-op request may have partially landed. Keep an uncertain claim
+    // reserved; only proven pre-dispatch failure can return it to the pool.
+    if (err.detail?.retrySafe) await setEntry(id, { state: 'parked', claimedAt: undefined, claimedTitle: undefined })
     throw err
   })
   if (b.handback) return { ...b.handback, ...out, calls: b.handback.calls }
@@ -888,6 +899,7 @@ export function validateOp(name, args) {
     const type = value === null ? 'null' : Array.isArray(value) ? 'array' : typeof value
     if (!types.includes(type) || (type === 'number' && !Number.isFinite(value))) throw new DriverError(`invalid type for ${key}`, { category: 'bad_args' })
     if (rule.enum && !rule.enum.includes(value)) throw new DriverError(`invalid value for ${key}`, { category: 'bad_args' })
+    if (type === 'string' && ((rule.minLength !== undefined && value.length < rule.minLength) || (rule.maxLength !== undefined && value.length > rule.maxLength))) throw new DriverError(`invalid length for ${key}`, { category: 'bad_args' })
     if (type === 'number' && ((rule.minimum !== undefined && value < rule.minimum) || (rule.maximum !== undefined && value > rule.maximum))) throw new DriverError(`out of range: ${key}`, { category: 'bad_args' })
     if (type === 'array' && rule.items?.type && value.some(x=>typeof x !== rule.items.type)) throw new DriverError(`invalid array entries for ${key}`, { category: 'bad_args' })
   }
@@ -901,7 +913,15 @@ export async function runOp(name, args = {}, { harness = 'cli', progress = () =>
   const t0 = Date.now()
   const row = { ts: new Date().toISOString(), harness, op: name, args: redactArgs(args), versions: versions(), driver: DRIVER_VERSION }
   try {
-    const out = await op.run(args, ctx)
+    const controlled = ['steer_session', 'stop_session', 'send_message', 'set_session_config', 'rename_session', 'pin_session', 'archive_session', 'unarchive_session', 'pool_release'].includes(name)
+    let out
+    if (controlled) {
+      const session = resolveSession(args.session).sessionId
+      const boundArgs = { ...args, session }
+      ctx.args = boundArgs
+      row.targetSession = session
+      out = await withSessionControl(session, () => op.run(boundArgs, ctx), { signal })
+    } else out = await op.run(args, ctx)
     const handedBack = out && typeof out === 'object' && out.handedBack
     if (!op.readOnly) {
       const event = { ...row, tier: ctx.tier || (handedBack ? 'B-own' : 'A'), ms: Date.now() - t0, outcome: handedBack ? 'handed_back' : out?.verified === false ? 'unverified' : 'ok', verified: out?.verified ?? null, notes: ctx.notes }

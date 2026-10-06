@@ -8,6 +8,7 @@ import { join } from 'node:path'
 import { serveMcp } from '../lib/node/mcp-stdio.mjs'
 import { DRIVER_VERSION, OPS, ROOT, guideText, runOp, txt } from './lib/driver.mjs'
 import { callerHostSession } from './lib/sessions.mjs'
+import { queryMemory } from './lib/memory.mjs'
 
 const log = (...args) => console.error('[claude-driver]', ...args)
 
@@ -39,12 +40,14 @@ const instructions =
   (desktop
     ? `You are running inside Claude desktop session ${desktop}: for Tier B ops (rename, pin, archive, model, send) the driver hands you back the exact ccd_* tool calls to make yourself, skipping the broker.`
     : 'Tier B ops go through the driver\'s broker session; if it is asleep the driver revives it (can take ~20 s and briefly shows it on screen).') +
-  ' Record surprises with driver_record_learning.'
+  ' Use driver_submit for durable jobs across client disconnects; wait at most 60 seconds per driver_wait. Reconcile outcome_unknown before submitting again. ' +
+  ' Query driver_memory_query before workarounds and record shared technical lessons with driver_memory_record. Delivery does not prove instruction application; observe session_events/session_wait.'
 
 const resources = [
   { uri: 'claude-driver://guide', name: 'guide', description: 'How to use claude-driver', mimeType: 'text/markdown', read: guideText },
   { uri: 'claude-driver://findings', name: 'findings', description: 'Curated, dated findings log', mimeType: 'text/markdown', read: () => readFileSync(join(ROOT, 'docs', 'findings.md'), 'utf8') },
   { uri: 'claude-driver://readme', name: 'readme', description: 'claude-driver README', mimeType: 'text/markdown', read: () => readFileSync(join(ROOT, 'README.md'), 'utf8') },
+  { uri: 'claude-driver://memory', name: 'memory', description: 'Recent shared technical evidence; candidates are unverified', mimeType: 'application/json', read: () => txt(queryMemory({ limit: 20 })) },
 ]
 
 await serveMcp({ name: 'claude-driver', version: DRIVER_VERSION, instructions, tools, resources, log })

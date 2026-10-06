@@ -9,30 +9,41 @@ mechanisms and evidence.
 Use `driver_submit {operation, arguments, idempotency_key, timeout_sec}`
 for work that must survive client disconnection. It immediately returns a
 job ID. Reuse the same key and arguments to reattach; changing the arguments
-with the same key is an error. `driver_job` inspects the job and
+with the same key is an error. Titles and `self` bind to a session ID at
+submission; later renames cannot change the recipient. Detached workers
+retain the desktop caller identity and its self-protection gates.
+`driver_job` inspects the job and
 `driver_wait {job_id, timeout_sec}` waits at most 60 seconds. A wait timeout
 does not cancel work. `driver_cancel` cancels the driver operation, not the
 recipient Claude turn. A dispatched request or lost worker can produce
 `outcome_unknown`: reconcile the app state before submitting another job.
+If interruption completed but cancellation prevented the replacement, the
+job reports a `partial_effect` error with `stopped:true` and
+`replacementSent:false`; the stop already happened.
 Delete and project archive remain on their explicit gated entry points.
 
 Capture `session_events {session}` before sending: the initial cursor starts
 at the transcript's current end. Continue with `session_wait {session,
 cursor, include_text:true}` to observe subsequent replies. Text is opt-in
 and assistant-only; thinking and tool inputs/results are excluded. Cursors
-reset when the underlying transcript changes. Delivery does not prove that
-an instruction was applied.
+reset when the underlying transcript changes. Waits also return live status
+changes, such as busy → idle, even without new text. A status change or
+delivery receipt does not prove that an instruction was applied.
 
 `steer_session {session, mode:"queue", message}` adds a follow-up.
 `mode:"interrupt"` requests native stop, verifies idle, then sends the new
 instruction. Both require recipient response observation before claiming
 application. `stop_session` interrupts without sending a replacement.
+Controls for one recipient serialize across processes; an interrupt's stop
+and replacement cannot interleave with another control for that recipient.
 
 Use `driver_memory_query {topic, kind, limit}` for shared technical lessons.
 `driver_memory_record {topic, lesson, evidence}` appends a candidate lesson;
 it is not a verified conclusion. The service automatically records bounded
 operation metadata without prompts or raw replies. Keep harness-specific
 quirks in the harness skill, and shared behavior in this service's evidence.
+Records identify the runtime source fingerprint. Queries scan backwards
+with bounded memory; technical lessons and their evidence have length caps.
 
 Physical keyboard duplication was reported during live qualification on
 2026-10-06. Live tests are stopped while that incident is investigated.
@@ -127,6 +138,8 @@ wake line into it). First op after idle is therefore slower.
 
 ## 5. When something surprises you
 
-Check `driver_learnings` first. If it is new, `driver_record_learning` with
-evidence (versions, session ids, `main.log` lines, the result you got). It
-stays pending until re-verified and promoted into `docs/findings.md`.
+Check `driver_memory_query` and curated `driver_learnings` first. Record a
+new technical lesson with `driver_memory_record` and sanitized evidence.
+It stays a candidate until re-verified and promoted into `docs/findings.md`.
+The legacy `driver_record_learning` writes that same shared memory;
+`driver_learnings` includes historical pending entries for compatibility.

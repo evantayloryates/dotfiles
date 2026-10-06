@@ -6,7 +6,7 @@
 //   broker/                  the broker session's folder (requests/, results/)
 //   locks/                   serialize broker ops across processes
 
-import { appendFileSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs'
+import { appendFileSync, closeSync, existsSync, fstatSync, mkdirSync, openSync, readFileSync, readSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { randomUUID } from 'node:crypto'
 import { join } from 'node:path'
@@ -44,12 +44,17 @@ export function writeJsonAtomic(file, data) {
 
 export function appendJsonl(file, row) {
   ensureDir(join(file, '..'))
-  ensureDir(join(file, '..'))
   appendFileSync(file, `${JSON.stringify(row)}\n`, { mode: 0o600 })
 }
 
 export function readJsonl(file, { tail = Infinity } = {}) {
   if (!existsSync(file)) return []
+  if (Number.isFinite(tail)) {
+    const rows = []
+    if (tail <= 0) return rows
+    for (const row of reverseJsonl(file)) { rows.push(row); if (rows.length >= tail) break }
+    return rows.reverse()
+  }
   const lines = readFileSync(file, 'utf8').split('\n').filter(Boolean)
   return lines.slice(-tail).flatMap((l) => {
     try {
@@ -60,16 +65,47 @@ export function readJsonl(file, { tail = Infinity } = {}) {
   })
 }
 
+// Scan shared evidence backwards with bounded memory, so a frequent status
+// or memory query does not load months of operation history into RAM.
+export function* reverseJsonl(file, { maxRecordBytes = 1024 * 1024 } = {}) {
+  if (!existsSync(file)) return
+  const fd = openSync(file, 'r')
+  let position = fstatSync(fd).size, carry = Buffer.alloc(0), skipping = false
+  try {
+    while (position > 0) {
+      const size = Math.min(position, 64 * 1024), chunk = Buffer.alloc(size)
+      position -= size
+      const count = readSync(fd, chunk, 0, size, position)
+      const data = Buffer.concat([chunk.subarray(0, count), carry])
+      let end = data.length
+      for (let i = data.lastIndexOf(10, end - 1); i >= 0; i = data.lastIndexOf(10, end - 1)) {
+        const line = data.subarray(i + 1, end)
+        if (skipping) skipping = false
+        else if (line.length && line.length <= maxRecordBytes) {
+          try { yield JSON.parse(line.toString('utf8')) } catch {}
+        }
+        end = i
+        if (!end) break
+      }
+      carry = Buffer.from(data.subarray(0, end))
+      if (carry.length > maxRecordBytes) { carry = Buffer.alloc(0); skipping = true }
+    }
+    if (!skipping && carry.length) { try { yield JSON.parse(carry.toString('utf8')) } catch {} }
+  } finally { closeSync(fd) }
+}
+
 // Registry: what the driver made, so safety gates can tell "mine" from Taylor's.
 const EMPTY_REGISTRY = { sessions: {}, folders: {} }
 export function loadRegistry() {
   return { ...structuredClone(EMPTY_REGISTRY), ...readJson(REGISTRY, EMPTY_REGISTRY) }
 }
-export function updateRegistry(mutate) {
-  const reg = loadRegistry()
-  mutate(reg)
-  writeJsonAtomic(REGISTRY, reg)
-  return reg
+export async function updateRegistry(mutate) {
+  return withLock('registry', () => {
+    const reg = loadRegistry()
+    mutate(reg)
+    writeJsonAtomic(REGISTRY, reg)
+    return reg
+  })
 }
 
 // Args worth keeping in the ledger, with message bodies shortened.

@@ -5,7 +5,7 @@
 // keeps the mode he gave it, so claiming one raises nothing.
 //
 // Registry shape (registry.json → pool):
-//   { [local id]: { state: 'recycling' | 'parked' | 'claimed', folder,
+//   { [local id]: { state: 'recycling' | 'parking' | 'parked' | 'claimed', folder,
 //                   priorTitle, cliAtRequest, requestedAt, parkedAt,
 //                   claimedAt, claimedTitle } }
 // "Clean" is read from disk, never from the registry: the app drops a
@@ -73,7 +73,7 @@ export function poolGate(rec, { self, brokerId, live, override = false } = {}) {
   if (rec.permissionMode !== BYPASS) why.push(`is in ${rec.permissionMode}, not bypassPermissions (the pool only holds sessions Taylor already put in bypass; it never raises one)`)
   if (rec.worktreePath) why.push('owns an app-managed worktree')
   if (readPins().has(rec.sessionId)) why.push('pinned')
-  if (live?.get(rec.sessionId)?.status === 'busy') why.push('still working')
+  if (['busy', 'working'].includes(live?.get(rec.sessionId)?.status)) why.push('still working')
   if (!override && openPrs(rec).length) why.push(`open PR ${openPrs(rec).join(', ')}`)
   return why
 }
@@ -83,31 +83,35 @@ export function health(id, entry) {
   const rec = getRecord(id)
   if (!rec) return { status: 'gone' }
   if (rec.permissionMode !== BYPASS) return { status: 'not_bypass', rec }
-  if (entry.state === 'parked') return { status: rec.cliSessionId ? 'dirty' : 'ready', rec }
+  if (entry.state === 'parked') return { status: rec.cliSessionId || !rec.isArchived ? 'dirty' : 'ready', rec }
   if (entry.state === 'claimed') {
     if (rec.cliSessionId) return { status: 'in_use', rec }
-    return { status: Date.now() - (entry.claimedAt || 0) > CLAIM_STALE_MS ? 'claim_stale' : 'claimed', rec }
+    return { status: rec.isArchived && Date.now() - (entry.claimedAt || 0) > CLAIM_STALE_MS ? 'claim_stale' : 'claimed', rec }
   }
   return { status: rec.cliSessionId ? 'recycling' : 'cleared', rec }
 }
 
 // Drop entries that left the pool by themselves; return stale claims to it.
-export function reconcile() {
+async function reconcileUnlocked() {
   const rows = []
   for (const [id, entry] of Object.entries(poolOf())) {
     const h = health(id, entry)
     if (['gone', 'not_bypass', 'in_use', 'dirty'].includes(h.status)) {
-      setEntry(id, null)
+      await setEntry(id, null)
       rows.push({ sessionId: id, status: h.status, dropped: true, title: h.rec?.title })
       continue
     }
     if (h.status === 'claim_stale') {
-      setEntry(id, { state: 'parked', claimedAt: undefined, claimedTitle: undefined })
+      await setEntry(id, { state: 'parked', claimedAt: undefined, claimedTitle: undefined })
       h.status = 'ready'
     }
     rows.push({ sessionId: id, status: h.status, folder: h.rec.cwd, title: h.rec.title, archived: !!h.rec.isArchived, priorTitle: entry.priorTitle })
   }
   return rows
+}
+
+export function reconcile() {
+  return withLock('pool', reconcileUnlocked)
 }
 
 // Atomically pick a ready member parked in this folder (oldest first) and
@@ -118,13 +122,13 @@ export function reconcile() {
 export async function claim(folder, { title } = {}) {
   const want = resolve(folder)
   return withLock('pool', async () => {
-    const ready = reconcile()
+    const ready = (await reconcileUnlocked())
       .filter((m) => m.status === 'ready')
       .map((m) => ({ ...m, entry: poolOf()[m.sessionId] }))
       .sort((a, b) => (a.entry.parkedAt || 0) - (b.entry.parkedAt || 0))
     const pick = ready.find((m) => resolve(m.folder) === want)
     if (!pick) return null
-    setEntry(pick.sessionId, { state: 'claimed', claimedAt: Date.now(), claimedTitle: title })
+    await setEntry(pick.sessionId, { state: 'claimed', claimedAt: Date.now(), claimedTitle: title })
     return { sessionId: pick.sessionId, folder: pick.folder, archived: pick.archived, priorTitle: pick.priorTitle }
   })
 }

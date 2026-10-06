@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { jobFile, lockedJob, TERMINAL } from '../lib/jobs.mjs'
 import { readJson, writeJsonAtomic } from '../lib/state.mjs'
-import { runOp } from '../lib/driver.mjs'
+import { OPS, runOp } from '../lib/driver.mjs'
 const id = process.argv[2]
 const controller = new AbortController()
 let timer
@@ -28,7 +28,12 @@ if (initial) {
     await update(j => ({ ...j, state: result?.handedBack ? 'handed_back' : result?.verified === false ? 'unverified' : 'completed', result, finishedAt: Date.now() }))
   } catch (err) {
     await progressWrites.catch(() => {})
-    await update(j => ({ ...j, state: err.category === 'outcome_unknown' ? 'outcome_unknown' : controller.signal.aborted || err.category === 'cancelled' ? 'cancelled' : 'failed',
+    const readOnly = OPS.find(o => o.name === initial.operation)?.readOnly
+    const outcome = err.category === 'outcome_unknown' ? 'outcome_unknown'
+      : err.category === 'partial_effect' ? 'failed'
+      : err.category === 'cancelled' ? 'cancelled'
+      : controller.signal.aborted ? readOnly ? 'cancelled' : 'outcome_unknown' : 'failed'
+    await update(j => ({ ...j, state: outcome,
       error: { category: err.category || 'internal', message: String(err.message).slice(0, 500), detail: err.detail }, finishedAt: Date.now() }))
   } finally { clearInterval(timer) }
 }

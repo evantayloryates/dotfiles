@@ -7,6 +7,38 @@ Versions: app = Claude desktop, cli = bundled Claude Code.
 
 ## 2026-10-06 (app 2.19675.0, cli 2.1.286)
 
+- **Offline v2 iteration: 38 checks passed in five fresh runs (190 checks).**
+  Report: `<state>/pressure/v2-2026-10-06T20-06-05-870Z.json`; runtime source
+  and suite fingerprints were unchanged throughout. The actual MCP launcher
+  was tested with independent clients, a synthetic broker and detached
+  workers. This qualifies lifecycle/protocol behavior, not native tools or
+  actual Codex/Cursor/Claude headless harness runs. Live qualification stays
+  stopped pending physical typing recovery. Scope and remaining evidence:
+  `docs/v2-qualification.md`.
+- **Stop/replacement must serialize per recipient.** Two independent MCP
+  clients produced stop/send/stop/send, never stop/stop/send/send. Direct
+  controls and jobs bind title references before waiting, preventing a
+  different chat taking the old title from becoming the recipient. Worker
+  identity retains the original caller's self-protection gate. Cancellation
+  between verified stop and replacement reports `partial_effect` with the
+  known stopped state and no replacement sent.
+- **Pool publication and registry updates require ownership.** Twelve
+  independent processes retained all registry updates. Parking members cannot
+  be claimed before native state verifies; eight concurrent claimants got
+  one owner. A partial unarchive/configuration failure keeps its claim
+  reserved, even after the former stale-claim age. An unarchived member cannot
+  be silently returned as ready.
+- **Shared evidence needs bounded reads and source identity.** Memory and
+  recent-ledger reads now scan backwards with bounded memory. Unicode,
+  multi-chunk and oversized records were exercised. Both learning entry
+  points write one canonical candidate store; legacy pending entries remain
+  readable. Memory records include the actual runtime source fingerprint.
+- **A configured MCP process can still serve old code.** A read through this
+  Codex chat's connected MCP returned driver `706a338`, without `apiVersion`
+  or a runtime fingerprint, after source iteration. Fresh launcher tests
+  expose v2. This chat's connection needs refresh and subsequent readback;
+  source/commit presence alone is not evidence of runtime activation.
+
 - **Physical typing duplication incident remains under investigation.** Taylor
   reported that one physical key produced two characters, only in Claude
   Desktop, severely affecting use. Live qualification was stopped and its

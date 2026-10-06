@@ -20,6 +20,7 @@ export const lockedJob = (id, fn) => withLock(`job-${id}`, fn, { timeoutMs: 5000
 function alive(pid) { try { process.kill(pid, 0); return true } catch (e) { return e.code !== 'ESRCH' } }
 export async function submitJob({ operation, arguments: args = {}, idempotency_key, timeout_sec = 180 }, ctx = {}) {
   const { OPS, validateOp } = await import('./driver.mjs')
+  const { callerHostSession, resolveSession } = await import('./sessions.mjs')
   const op = OPS.find(o => o.name === operation)
   if (!op || EXCLUDED.has(operation)) throw new DriverError('operation is not submit-capable', { category: 'bad_args' })
   validateOp(operation, args)
@@ -34,11 +35,17 @@ export async function submitJob({ operation, arguments: args = {}, idempotency_k
       return { ...(await inspectJob(old.jobId)), reused: true }
     }
     const id = `j${randomUUID().replaceAll('-', '')}`
-    const job = { id, operation, args, fingerprint, harness: ctx.harness || 'cli', state: 'queued', createdAt: Date.now(), expiresAt: Date.now() + timeout_sec * 1000 }
+    // Resolve mutable titles and "self" once at submission. An idempotent
+    // reattach uses the original fingerprint and does not re-resolve aliases.
+    const boundArgs = { ...args }
+    if (typeof boundArgs.session === 'string') boundArgs.session = resolveSession(boundArgs.session).sessionId
+    if (Array.isArray(boundArgs.sessions)) boundArgs.sessions = boundArgs.sessions.map(s => resolveSession(s).sessionId)
+    const callerSession = callerHostSession()
+    const job = { id, operation, args: boundArgs, callerSession, fingerprint, harness: ctx.harness || 'cli', state: 'queued', createdAt: Date.now(), expiresAt: Date.now() + timeout_sec * 1000 }
     writeJsonAtomic(jobFile(id), job)
     writeJsonAtomic(index, { jobId: id, fingerprint })
     const child = spawn(process.execPath, [fileURLToPath(new URL('../scripts/job-worker.mjs', import.meta.url)), id], {
-      detached: true, stdio: 'ignore', env: { ...process.env, CLAUDE_DRIVER_CALLER_SESSION: '', CLAUDE_CODE_ENTRYPOINT: '', CLAUDE_DRIVER_STATE_DIR: STATE_DIR },
+      detached: true, stdio: 'ignore', env: { ...process.env, CLAUDE_DRIVER_CALLER_SESSION: callerSession || '', CLAUDE_CODE_ENTRYPOINT: '', CLAUDE_DRIVER_STATE_DIR: STATE_DIR },
     })
     await new Promise((resolve, reject) => { child.once('spawn', resolve); child.once('error', reject) }).catch(err => {
       writeJsonAtomic(jobFile(id), { ...job, state: 'failed', error: { category: 'worker_start_failed', message: err.message }, finishedAt: Date.now() })
