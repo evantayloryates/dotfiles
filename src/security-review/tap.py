@@ -38,6 +38,7 @@ def run_plugin_directly(hook, payload):
     """Fallback: behave exactly like the plugin's own hook would."""
     import subprocess
     env = dict(os.environ, ENABLE_COMMIT_REVIEW="1")
+    sglib.ensure_credentials(env)
     r = subprocess.run(sglib.plugin_command(hook), input=payload, capture_output=True, text=True, env=env)
     sys.stdout.write(r.stdout)
     sys.stderr.write(r.stderr)
@@ -67,6 +68,7 @@ def main():
         # sg-health install turns the plugin's own commit/push review off with
         # ENABLE_COMMIT_REVIEW=0 so it doesn't run twice; turn it back on here.
         env = dict(os.environ, ENABLE_COMMIT_REVIEW="1")
+        credential = sglib.ensure_credentials(env)
         t0 = time.time()
         r = subprocess.run(sglib.plugin_command(hook), input=json.dumps(mine), capture_output=True, text=True, env=env)
         seconds = round(time.time() - t0, 1)
@@ -86,6 +88,8 @@ def main():
         cwd = data.get("cwd") or ""
         repo = sglib.git(cwd, "rev-parse", "--show-toplevel") if cwd else ""
         shas = sglib.COMMIT_SHA.findall(f"{tool_response.get('stdout') or ''}\n{tool_response.get('stderr') or ''}")
+        if not shas and repo and (out.get("metrics") or {}).get("sha_via_reflog"):
+            shas = [sglib.git(repo, "rev-parse", "--short", "HEAD")]  # `git commit -q` hides the [branch sha] line
         sglib.append_ledger({
             "at": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "session_id": data.get("session_id"),
             "command": (tool_input.get("command") or "")[:300], "cwd": cwd, "repo": repo, "shas": shas,
@@ -98,9 +102,15 @@ def main():
             # never values): explains skip_reason 22 ("no API credentials").
             "auth_env": sorted(k for k in os.environ if re.search(r"ANTHROPIC|OAUTH|AUTH_TOKEN|API_KEY|CLAUDE_CODE_.*(TOKEN|AUTH|DESCRIPTOR)", k)),
             "entrypoint": os.environ.get("CLAUDE_CODE_ENTRYPOINT"),
+            "credential": credential,
         })
 
         stdout, stderr, code = r.stdout, other_stderr, r.returncode
+        if verdict == "findings" and findings:
+            # Claude Code shows a rewake hook's stderr if it has any, otherwise
+            # its raw stdout (the JSON), and doesn't read the structured
+            # findings field. Put the readable findings on stderr.
+            stderr = findings + (("\n\n" + other_stderr) if other_stderr and other_stderr not in findings else "")
         if verdict == "failed" and repo:
             # The plugin would stay silent here. Wake the agent instead.
             target = shas[0] if shas else "HEAD"

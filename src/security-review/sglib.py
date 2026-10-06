@@ -8,6 +8,11 @@ import subprocess
 from pathlib import Path
 
 HOME = Path.home()
+DOTFILES = Path(__file__).resolve().parent.parent.parent
+READ_ENV = DOTFILES / "src" / "lib" / "read-env.sh"
+# A long-lived Claude Code subscription token (`claude setup-token`), kept in
+# dotfiles/.env. Reviews run on it bill the subscription, never the API.
+TOKEN_KEY = "KICKOFF_CLAUDE_CODE_LONG_LIVED_SUBSCRIPTION_OAUTH_TOKEN"
 STATE = HOME / ".claude" / "security"
 HEALTH_DIR = STATE / "health"
 # Overridable for tests.
@@ -156,3 +161,30 @@ class PreserveReviewedShas:
         else:
             self.path.write_bytes(self.before)
         return False
+
+
+def long_lived_token():
+    """From the environment (the launchd .env bridge puts it in GUI apps and
+    their hooks), else dotfiles/.env via read-env.sh, reading only this key."""
+    if os.environ.get(TOKEN_KEY):
+        return os.environ[TOKEN_KEY]
+    r = subprocess.run(["sh", "-c", f'. "{READ_ENV}" && env_get {TOKEN_KEY}'], capture_output=True, text=True)
+    return r.stdout.strip() if r.returncode == 0 else ""
+
+
+def ensure_credentials(env):
+    """Give the plugin a credential when its process has none.
+
+    Hooks declared in user settings don't receive the credential Claude Code
+    hands the plugin's own hooks (measured: no ANTHROPIC_AUTH_TOKEN or
+    CLAUDE_CODE_OAUTH_TOKEN), so the plugin skipped every review with
+    skip_reason 22. Fill in the long-lived subscription token instead.
+    Returns where the credential came from."""
+    if env.get("ANTHROPIC_API_KEY") or env.get("ANTHROPIC_AUTH_TOKEN"):
+        return "session"
+    tok = long_lived_token()
+    if not tok:
+        return "none"
+    env["ANTHROPIC_AUTH_TOKEN"] = tok
+    env.setdefault("CLAUDE_CODE_OAUTH_TOKEN", tok)
+    return "long-lived token"

@@ -20,11 +20,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import sglib  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
-DOTFILES = HERE.parent.parent
-READ_ENV = DOTFILES / "src" / "lib" / "read-env.sh"
-# A long-lived Claude Code subscription token (`claude setup-token`), kept in
-# dotfiles/.env. Replays bill against the subscription, never the pay-per-use API.
-TOKEN_KEY = "KICKOFF_CLAUDE_CODE_LONG_LIVED_SUBSCRIPTION_OAUTH_TOKEN"
 REPLAY_ROOT = Path.home() / ".claude" / "security" / "replays"
 
 
@@ -46,14 +41,11 @@ def find_plugin(explicit):
 
 
 def read_token():
-    """From the environment, else dotfiles/.env via read-env.sh (named key only)."""
-    if os.environ.get(TOKEN_KEY):
-        return os.environ[TOKEN_KEY]
-    r = subprocess.run(["sh", "-c", f'. "{READ_ENV}" && env_get {TOKEN_KEY}'], capture_output=True, text=True)
-    if r.returncode != 0 or not r.stdout.strip():
-        fail(f"{TOKEN_KEY} not found in the environment or {DOTFILES}/.env "
+    tok = sglib.long_lived_token()
+    if not tok:
+        fail(f"{sglib.TOKEN_KEY} not found in the environment or {sglib.DOTFILES}/.env "
              f"(create one with `claude setup-token`)")
-    return r.stdout.strip()
+    return tok
 
 
 def replay_env(token, run_dir, args):

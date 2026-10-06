@@ -35,33 +35,44 @@ those notices (October 2026, plugin 2.0.8) turned up three blind spots:
 The fixes for 1 and 3 belong in the plugin itself and have been worth
 reporting upstream. Until then, `sg-replay` gives full visibility on demand.
 
-## Status (paused 2026-10-05, resume here)
+## Status
 
-- `sg-replay`: done and working.
-- `sg-health` + `tap.py`: built and tested with fake and real plugin runs, but
-  **NOT installed** (`sg-health status` → `tap_installed: false`). The plugin
-  runs its own commit/push reviews, as before.
-- Why it's uninstalled: the tap's real-session runs were skipped with
-  `skip_reason 22` ("no API credentials"). Hooks declared in user settings
-  don't receive the credential the plugin's own hooks get: the tap's process
-  had no `ANTHROPIC_AUTH_TOKEN` / `CLAUDE_CODE_OAUTH_TOKEN` (recorded in the
-  ledger's `auth_env` field). While installed it would have left commits
-  unreviewed in every session, so it was removed.
-- **Next step:** have `tap.py` pass
-  `KICKOFF_CLAUDE_CODE_LONG_LIVED_SUBSCRIPTION_OAUTH_TOKEN` (present in hook
-  environments through the launchd `.env` bridge, and in `~/dotfiles/.env`) to
-  the plugin as `ANTHROPIC_AUTH_TOKEN` + `CLAUDE_CODE_OAUTH_TOKEN` when neither
-  is set. Then re-test end to end: a desktop-session commit and a `claude -p`
-  commit in the scratch repo must each produce a `findings` or `clean` ledger
-  row (not `skipped 22`). Only then run `sg-health install`.
-- Lessons already built in: Claude Code ignores `if` on user-settings hooks
-  (so there's one tap entry, and the tap filters commands with
-  `sglib.REVIEW_TRIGGER`); the plugin's switched-off hooks still claim each
-  Bash call (so the tap uses its own `tool_use_id`); Claude Code hot-reloads
-  settings hooks and env into running sessions; the tap logs its own errors to
-  `~/.claude/security/health/tap-errors.log`.
-- The ledger (`~/.claude/security/health/reviews.jsonl`) holds test rows from
-  October 5; ignore them or delete the file before relying on reports.
+Both tools are working and the tap is **installed** (October 5 2026):
+`sg-health status` → `tap_installed: true`. Undo with `sg-health uninstall`.
+
+End-to-end verification, with a fresh `claude -p` session and a running
+desktop session each committing planted vulnerabilities in a scratch repo:
+every commit was reviewed through the tap (thorough review, 30–51 s), every
+vulnerability was flagged (template injection, unsafe pickle and YAML loading,
+command injection), the fixes came back clean, and the notices arrived as
+readable findings.
+
+Problems found while building it, all handled in the code:
+
+- **Settings hooks get no credentials.** Hooks declared in user settings don't
+  receive the credential Claude Code gives the plugin's own hooks, so the
+  plugin skipped every review (`skip_reason 22`). The tap supplies the
+  long-lived subscription token when its process has none
+  (`sglib.ensure_credentials`); the ledger's `credential` field says which
+  was used.
+- **`if` is ignored on settings hooks.** Mirroring the plugin's seven entries
+  ran the tap seven times on every Bash call, so there's one entry and the tap
+  filters commands itself (`sglib.REVIEW_TRIGGER`).
+- **Switched-off plugin hooks still claim each Bash call**
+  (`.git/sg-hook-once-<tool_use_id>`), so the tap runs the plugin under its own
+  `tool_use_id`.
+- **The notice is raw text.** Claude Code delivers a rewake hook's stderr if
+  any, else its raw stdout, and doesn't read the structured findings field. The
+  tap writes the readable findings to stderr (and strips the login-warning
+  noise that used to take their place).
+- **`git commit -q` hides the commit hash,** so the tap records HEAD when the
+  plugin found the commit through the reflog.
+- **Settings are hot-reloaded into running sessions** (hooks and env), so
+  install and uninstall take effect everywhere at once.
+
+The tap logs its own errors to `~/.claude/security/health/tap-errors.log`.
+Test rows from the build were archived to
+`~/.claude/security/health/reviews.test-20261005.jsonl`.
 
 ## `sg-replay`
 
@@ -139,7 +150,7 @@ What this means in practice:
 - Background commit reviews race the two paths (the quick one after 180 s), so
   which one answered a given notice isn't visible. Replays make it explicit.
 
-## `sg-health` (built, not installed: see Status)
+## `sg-health`
 
 ```bash
 sg-health              # outcomes, failures, findings, commits with no review record (last 7 days)
@@ -151,9 +162,19 @@ sg-health uninstall    # restore the plugin's own reviews exactly
 `install` adds one `PostToolUse` Bash hook running `tap.py` and sets the
 plugin's kill switch `ENABLE_COMMIT_REVIEW=0` so reviews don't run twice. The
 tap runs the plugin's review itself, records every outcome in
-`~/.claude/security/health/reviews.jsonl`, removes the login-warning noise from
-stderr so findings display, and wakes the agent when a review couldn't run (a
-crash, or an explicit sign-in/API error), which the plugin would report as clean.
+`~/.claude/security/health/reviews.jsonl`, puts readable findings on stderr so
+the notice shows them, supplies a credential when the hook has none, and wakes
+the agent when a review couldn't run (a crash, or an explicit sign-in/API
+error), which the plugin would report as clean.
+
+Each ledger row: time, session, command, repo, commit hashes, verdict
+(`clean`, `findings`, `failed`, `skipped`, `no_report`), why, summary, review
+path (`helper` or `quick`), seconds, usage, credential source, the credential
+variable names the hook saw (never values), and the findings text.
+
+The report also lists commits made in each recorded repo (from the reflog)
+with no review record in either the plugin's ledger
+(`.git/sg-reviewed-shas`) or the tap's.
 
 ## Files
 
