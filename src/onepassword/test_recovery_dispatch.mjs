@@ -29,3 +29,16 @@ test('first-created chat: project, name, pin, high effort, verified queue, start
 test('absolute symlink invocation executes the entry point',async()=>{const {symlinkSync}=await import('node:fs');const {execFileSync}=await import('node:child_process');const {fileURLToPath}=await import('node:url');const dir=mkdtempSync(join(tmpdir(),'op-entry-'));try{const link=join(dir,'dispatch.mjs');symlinkSync(fileURLToPath(new URL('./recovery-dispatch.mjs',import.meta.url)),link);assert.deepEqual(JSON.parse(execFileSync(process.execPath,[link,'--check-entry'],{encoding:'utf8'})),{entry:true})}finally{rmSync(dir,{recursive:true,force:true})}})
 test('Claude quarantine refuses before all writes',async()=>{const {fallbackClaude}=await import('./recovery-dispatch.mjs');const f=fixture();try{const r=await fallbackClaude(f.path,{}, {uiPolicy:()=>({blocked:true}),runOp:()=>{throw Error('must not run')}});assert.equal(r.status,'unavailable');assert.deepEqual(load(f.path),{})}finally{f.cleanup()}})
 test('Claude fallback explicitly configures model, pins before sending, reuses later',async()=>{const {fallbackClaude}=await import('./recovery-dispatch.mjs');const f=fixture(),calls=[];const deps={uiPolicy:()=>({blocked:false}),guideText:()=>{},DEFAULT_MODEL:'fixture-opus',runOp:async(op,args)=>{calls.push({op,args});return op==='create_session'?{sessionId:'local_fixture'}:op==='pin_session'?{verified:true}:{delivery:'queued'}}};try{assert.equal((await fallbackClaude(f.path,{episode:'first'},deps)).status,'claude_submitted');assert.deepEqual(calls.map(c=>c.op),['create_session','pin_session','send_message']);assert.equal(calls[0].args.model,'fixture-opus');assert.equal(calls[0].args.effort,'high');await fallbackClaude(f.path,{episode:'second'},deps);assert.equal(calls.filter(c=>c.op==='create_session').length,1)}finally{f.cleanup()}})
+test('stdin and missing host entry paths can import without dispatch',async()=>{
+ const {spawnSync}=await import('node:child_process')
+ const dir=mkdtempSync(join(tmpdir(),'op-import-'))
+ const moduleUrl=new URL('./recovery-dispatch.mjs',import.meta.url).href
+ try{
+  for(const entry of [undefined,join(dir,'missing.mjs')]){
+   const input=`${entry?`process.argv[1]=${JSON.stringify(entry)};`:''}const m=await import(${JSON.stringify(moduleUrl)}); console.log(typeof m.dispatchCodex)`
+   const result=spawnSync(process.execPath,['--input-type=module','-'],{input,encoding:'utf8',timeout:5000})
+   assert.equal(result.status,0,result.stderr)
+   assert.equal(result.stdout.trim(),'function')
+  }
+ }finally{rmSync(dir,{recursive:true,force:true})}
+})

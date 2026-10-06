@@ -203,6 +203,14 @@ async function precheckVpn() {
 }
 
 let lastRecovery = null
+// This server's recent problems, newest last, for stage_status: an agent
+// asking "why does it keep failing" gets the answer in one call.
+const recent = []
+const stats = { calls: 0, errors: 0 }
+function remember(kind, detail) {
+  recent.push({ at: new Date().toISOString().slice(11, 19), kind, detail: String(detail).slice(0, 140) })
+  if (recent.length > 8) recent.shift()
+}
 async function recoverNetwork(err, { skipProbe = false } = {}) {
   const t = parseUrl()
   const probe = skipProbe ? { ok: false, code: err.code } : await reachable(t.host, t.port, 3000)
@@ -655,6 +663,7 @@ async function query({ sql, params, limit, timeout_seconds, max_cell_chars, outp
 }
 
 async function queryError(err, statement, values, fp, timeoutS, started, { exporting = false } = {}) {
+  remember(err.code || (err instanceof ToolError ? 'refused' : 'error'), `${fp.hash} after ${Date.now() - started} ms: ${err instanceof ToolError ? err.message : fp.shape}`)
   if (err instanceof ToolError) return err
   const ms = Date.now() - started
   log(`query ${fp.hash} failed ${err.code || ''} after ${ms}ms: ${fp.shape}`)
@@ -776,9 +785,20 @@ async function status() {
     lines.push(`latency: first call ${ms} ms, round trip ${Date.now() - t1} ms`)
     lines.push(`newest migration: ${r.mig}`)
     lines.push('data: production copy of about 2025-02-26 plus staging activity since')
+    // Users see their own threads in the processlist without PROCESS.
+    const [conn] = await simpleQuery(
+      "SELECT COUNT(*) AS n, SUM(command = 'Query') AS busy, MAX(IF(command = 'Query', time, 0)) AS longest FROM information_schema.processlist WHERE user = SUBSTRING_INDEX(CURRENT_USER(), '@', 1)"
+    )
+    lines.push(`connections: ${conn.n} of 12 allowed for this user across all sessions (${Number(conn.busy || 0)} running a statement${conn.longest ? `, longest ${conn.longest} s` : ''}); this server holds at most 3`)
   } catch (e) {
     lines.push(`db: ${e.message}`)
   }
+  lines.push(`this server: ${stats.calls} calls, ${stats.errors} errors since it started`)
+  if (recent.length) {
+    lines.push('recent problems (newest last):')
+    for (const x of recent) lines.push(`  ${x.at} ${x.kind}: ${x.detail}`)
+  }
+  lines.push('timeouts: the error names the full scan behind it; filter on an indexed column (stage_describe) or EXPLAIN the statement.')
   return lines.join('\n')
 }
 
@@ -867,7 +887,14 @@ async function callTool(name, args = {}) {
   const handler = HANDLERS[name]
   if (!handler) throw new ToolError(`Unknown tool: ${name}`)
   checkArgs(name, args)
-  return handler(args)
+  stats.calls++
+  try {
+    return await handler(args)
+  } catch (e) {
+    stats.errors++
+    if (name !== 'stage_query') remember(e.code || 'error', `${name}: ${e.message}`)
+    throw e
+  }
 }
 
 function shutdown(code = 0) {

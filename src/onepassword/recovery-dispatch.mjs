@@ -118,7 +118,11 @@ export async function main(path,evidence){
     return fallbackClaude(path,evidence)
   }finally{peer.close()}
 }
-if(process.argv[1]&&realpathSync(process.argv[1])===fileURLToPath(import.meta.url)){
+function isEntryPoint(){
+  try{return Boolean(process.argv[1])&&realpathSync(process.argv[1])===fileURLToPath(import.meta.url)}
+  catch{return false} // stdin, nonexistent paths and other importing hosts
+}
+if(isEntryPoint()){
   const timer=setTimeout(()=>process.exit(2),65000)
   try{
     if(process.argv[2]==='--check-entry')console.log(JSON.stringify({entry:true}))

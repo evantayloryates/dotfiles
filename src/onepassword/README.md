@@ -250,8 +250,11 @@ separate read-only desktop ownership check prevents treating the daemon's
 Desktop-owned chats retain the queued submission; **queue acceptance is not
 proof of desktop turn execution**. On October 6, the callback queued during an
 active turn automatically started the next turn in this pinned Astra/high repair
-chat, verifying delivery across turn completion. A click arriving while the
-desktop-owned chat is already idle remains unqualified. Pinning
+chat, verifying delivery across turn completion. A separate controlled dispatch
+confirmed the desktop-owned chat was already idle, queued a fresh diagnostic
+episode, and automatically started its repair turn without a manual send or
+another auth wake. Both desktop execution boundaries are qualified; physical
+notification-banner clicking remains unverified. Pinning
 uses the actual Pinned section UUID, not the literal string `pinned`.
 
 Only booleans, bounded status categories, validated timestamps, fault IDs and
