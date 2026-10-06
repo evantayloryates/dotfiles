@@ -9,7 +9,9 @@ import { runOp } from '../lib/driver.mjs'
 import { recordMemory } from '../lib/memory.mjs'
 import { STATE_DIR, writeJsonAtomic } from '../lib/state.mjs'
 import { cancelJob } from '../lib/jobs.mjs'
+import { assertUiAvailable } from '../lib/ui-policy.mjs'
 if (!process.argv.includes('--live')) throw new Error('Live qualification is stopped pending physical typing verification. Run with --live only after that incident is resolved.')
+assertUiAvailable()
 const rows = []
 const controller = new AbortController()
 const ownedJobs = new Set()

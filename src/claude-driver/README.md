@@ -28,6 +28,8 @@ incremental transcript observation and shared service memory. Isolated
 lifecycle tests passed; comprehensive live qualification is unfinished.
 Live testing was stopped on 2026-10-06 to prioritize Taylor's report of
 duplicated physical keyboard input in Claude Desktop. See the findings log.
+Tier C is quarantined in private service state while that incident remains
+unresolved; live qualification also checks the quarantine before any app work.
 
 ## Setup
 
@@ -64,6 +66,14 @@ Live qualification uses a synthetic owned chat. It currently requires
 recovery is confirmed. Interrupting that script cancels its owned jobs,
 records unfinished cleanup and stops further app controls. Qualification
 requires every named check; partial runs cannot pass.
+
+Headless harness qualification uses `scripts/harness-v2.mjs --harness claude`
+or `--harness codex --codex-model gpt-6.1-sol`. The filtered MCP relay only
+allows the script's private synthetic session and read-only durable jobs;
+it cannot send or drive the desktop. Actual Claude and Codex model runs
+passed the guide/read/idempotency/wait/events/memory workflow. Cursor's
+attempt stopped at CLI authentication. These results qualify fixture API
+use, not native app controls. Reports live in private `pressure/` state.
 
 ## Tools
 

@@ -47,6 +47,13 @@ with bounded memory; technical lessons and their evidence have length caps.
 
 Physical keyboard duplication was reported during live qualification on
 2026-10-06. Live tests are stopped while that incident is investigated.
+The service's private `ui-quarantine.json` currently blocks Tier C before
+loading Computer Use, and blocks `live-v2.mjs` even with `--live`.
+`driver_status.uiAutomation` reports the current policy. The file is read on
+each UI entry; malformed or incomplete quarantine records fail closed.
+Release requires an explicit `{ "blocked": false }` record after physical
+recovery is confirmed. Refresh old MCP connections before relying on this
+guard. This limits this driver, not other chats using Computer Use.
 UI wake recovery now requires an empty composer, paste/setValue and exact
 readback before sending. Never overwrite a user's draft or retry a send
 whose outcome is unknown.

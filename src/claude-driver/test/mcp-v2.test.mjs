@@ -104,6 +104,7 @@ test('headless fixture filter refuses native controls and alternate recipients b
  assert.equal((await c.call('stop_session',{session:sid})).isError,true)
  assert.equal((await c.call('driver_submit',{operation:'send_message',arguments:{session:sid,message:'must not send'}})).isError,true)
  assert.equal((await c.call('get_session',{session:bid})).isError,true)
+ assert.equal((await c.call('get_session',null)).isError,true)
  assert.equal((await c.call('get_session',{session:sid})).isError,false)
  assert.equal(actions.length,0);await c.close()
 })

@@ -31,6 +31,19 @@ const transcript = join(root, 'projects', cwd.replace(/[^A-Za-z0-9]/g, '-'), `${
 mkdirSync(join(transcript, '..'), {recursive:true}); writeFileSync(transcript, '')
 after(()=>rmSync(root,{recursive:true,force:true}))
 
+test('UI quarantine blocks before loading the input bridge and rereads incident state', async()=> {
+ const policy=await import('../lib/ui-policy.mjs')
+ const {computerUse}=await import('../lib/tierc.mjs')
+ assert.equal(policy.uiPolicy().blocked,false)
+ state.writeJsonAtomic(policy.UI_QUARANTINE,{blocked:true,reason:'physical keyboard incident'})
+ await assert.rejects(computerUse('MUST NOT DRIVE UI'),e=>e.category==='ui_quarantined')
+ writeFileSync(policy.UI_QUARANTINE,'malformed')
+ assert.equal(policy.uiPolicy().blocked,true)
+ state.writeJsonAtomic(policy.UI_QUARANTINE,{blocked:false})
+ assert.equal(policy.uiPolicy().blocked,false)
+ rmSync(policy.UI_QUARANTINE)
+})
+
 test('expired requests cannot be picked up', async()=> {
   const r=request(Date.now()-1); assert.equal(await req.pickupPending(), null)
   assert.equal(req.validatedResult(r).state,'expired'); assert.equal(req.control(r.id).dispatched.length,0)

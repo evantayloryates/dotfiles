@@ -24,6 +24,7 @@ import { operationMemory, queryMemory, recordMemory } from './memory.mjs'
 import { sessionEvents, waitSession } from './events.mjs'
 import { withSessionControl } from './controls.mjs'
 import { RUNTIME_BUILD } from './build.mjs'
+import { uiPolicy } from './ui-policy.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 export const ROOT = join(HERE, '..')
@@ -238,6 +239,7 @@ export const OPS = [
         driver: DRIVER_VERSION,
         apiVersion: 2,
         runtimeBuild: RUNTIME_BUILD,
+        uiAutomation: uiPolicy(),
         versions: m.versions,
         stateDir: STATE_DIR,
         desktopCaller: callerHostSession(),

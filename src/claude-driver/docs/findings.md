@@ -7,6 +7,31 @@ Versions: app = Claude desktop, cli = bundled Claude Code.
 
 ## 2026-10-06 (app 2.19675.0, cli 2.1.286)
 
+- **Current isolated suite: 40 checks in five fresh runs (200 passed).**
+  Report `<state>/pressure/v2-2026-10-06T20-19-15-423Z.json` has unchanged
+  runtime/suite fingerprints. Includes UI quarantine before input bridge
+  loading and fixture relay rejection of null arguments without crashing.
+  The real `live-v2.mjs --live` entry was separately verified to stop at
+  quarantine with no stdout and before its fixture creation or app work.
+
+- **UI incident quarantine is service-level.** Private `ui-quarantine.json`
+  blocks Tier C before its input bridge loads; live qualification also checks
+  it before app operations. Policy is reread on every entry and malformed
+  state blocks. This does not stop other chats' Computer Use. After another
+  CUA reset, CGGetEventTapList showed no keyboard filter owned by the still
+  running SkyComputerUseService. Physical typing remains unconfirmed. The
+  [upstream Computer Use duplication report](https://github.com/openai/codex/issues/36868)
+  is a plausible hypothesis, not proof of this Claude-only incident's cause.
+  Codex UI inspection was refused by the computer-use tool; no bypass used.
+- **Actual headless Claude and Codex fixture workflows passed.** Strong
+  reports `harness-v2-claude-2026-10-06T20-13-32-515Z.json` and
+  `harness-v2-codex-2026-10-06T20-14-27-285Z.json` under `<state>/pressure/`
+  verify every required MCP reply, idempotent one-worker completion, matching
+  recipient, incremental events and shared memory, with global configuration
+  unchanged. These use private synthetic stores with a filter refusing native
+  controls and alternate recipients. Cursor's model run and catalogue request
+  stopped at authentication before tool use; compatibility remains unverified.
+
 - **Offline v2 iteration: 38 checks passed in five fresh runs (190 checks).**
   Report: `<state>/pressure/v2-2026-10-06T20-06-05-870Z.json`; runtime source
   and suite fingerprints were unchanged throughout. The actual MCP launcher

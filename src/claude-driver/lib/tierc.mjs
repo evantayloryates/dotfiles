@@ -4,6 +4,7 @@
 // UI-only affordances. Results are claims; callers verify through Tier A.
 
 import { DriverError } from './paths.mjs'
+import { assertUiAvailable } from './ui-policy.mjs'
 
 let bridgeMod = null
 async function bridge() {
@@ -17,6 +18,7 @@ const POSTURE =
   'Do not type anything except the exact text given. Report precisely what you saw and did.'
 
 export async function computerUse(task, { timeoutSec = 180, session = 'claude-driver', progress = () => {}, signal } = {}) {
+  assertUiAvailable()
   const b = await bridge()
   try {
     const { result, text } = await b.run(
