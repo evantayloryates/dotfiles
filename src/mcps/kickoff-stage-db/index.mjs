@@ -115,7 +115,7 @@ function getPool() {
     connectionLimit: 4,
     maxIdle: 2,
     idleTimeout: 120_000,
-    queueLimit: 32,
+    queueLimit: 100,
     waitForConnections: true,
     enableKeepAlive: true,
     connectTimeout: 8000,
@@ -218,8 +218,9 @@ function stream(c, statement, values, { onFields, onRow, stallMs }) {
       clearTimeout(stall)
       stall = setTimeout(() => {
         stopped = true
+        const threadId = c.threadId
         c.destroy()
-        done(Object.assign(new Error('no data from staging; the connection stalled'), { code: 'STALLED' }))
+        done(Object.assign(new Error('no data from staging within the time limit'), { code: 'STALLED', threadId, partial: rows > 0 }))
       }, stallMs)
     }
     const done = (err) => {
@@ -249,6 +250,19 @@ function stream(c, statement, values, { onFields, onRow, stallMs }) {
   })
 }
 
+// Best effort: stop our own runaway statement (a user may KILL its own threads).
+async function killQuery(threadId) {
+  if (!threadId) return
+  try {
+    const k = await getConnection()
+    await new Promise((res) => k.query('KILL QUERY ?', [threadId], () => res()))
+    k.release()
+    log(`killed query on thread ${threadId}`)
+  } catch (e) {
+    log(`could not kill thread ${threadId}: ${e.code || e.message}`)
+  }
+}
+
 // Runs a checked statement with the retry rules: a lost or stalled
 // connection is replaced (and the VPN checked) once, since reads are safe
 // to repeat. Returns what run() returns.
@@ -266,6 +280,16 @@ async function withConnection(timeoutS, run) {
       if (err?.code === 'STALLED' || isNetError(err)) {
         released = true
         try { c.destroy() } catch {}
+        // Silence with a healthy route is a slow statement (EXPLAIN ANALYZE,
+        // SHOW, which MAX_EXECUTION_TIME does not cover), not a dead socket:
+        // stop it on the server and say so, never run it a second time.
+        if (err.code === 'STALLED') {
+          const t = parseUrl()
+          if ((await reachable(t.host, t.port, 3000)).ok) {
+            await killQuery(err.threadId)
+            throw new ToolError(`No answer within ${timeoutS + 15} s, so the statement was stopped on the server. Narrow it, aggregate, or raise timeout_seconds.`)
+          }
+        }
         if (attempt === 0 && !err.partial) {
           log(`connection lost mid-call (${err.code || err.message}); reconnecting once`)
           await recoverNetwork(err)
