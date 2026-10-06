@@ -115,3 +115,12 @@ test('consumption between readback and start is reconciled without replay',async
  assert.equal((await dispatchCodex(f.peer,{},f.path,{episode:'race'},f.deps)).status,'started')
  assert.equal(load(f.path).deliveryVerified,true);assert.equal(f.calls.filter(c=>c.method==='thread/queue/add').length,1)
 }finally{f.cleanup()}})
+test('first click releases the same prepared incident once; later clicks do not replay',async()=>{const f=fixture();try{
+ await dispatchCodex(f.peer,f.initial,f.path,{episode:'first',releaseAuthorized:false},f.deps)
+ await dispatchCodex(f.peer,load(f.path),f.path,{episode:'first',releaseAuthorized:true},f.deps)
+ await dispatchCodex(f.peer,load(f.path),f.path,{episode:'first',releaseAuthorized:true},f.deps)
+ assert.equal(f.calls.filter(c=>c.method==='thread/queue/add').length,2)
+ assert.equal(f.calls.filter(c=>c.method==='thread/start').length,0)
+ assert.equal(load(f.path).releaseAuthorized,true)
+ assert.equal(load(f.path).incidentDir,f.incident.dir)
+}finally{f.cleanup()}})

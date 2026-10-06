@@ -27,9 +27,9 @@ The v2 control interface adds durable jobs, explicit stop/queue/interrupt,
 incremental transcript observation and shared service memory. Isolated
 lifecycle and native broker controls have dedicated qualification evidence.
 Fresh MCP processes and the CLI use v2; this chat's older MCP binding still
-needs refresh. Comprehensive qualification remains unfinished: duplicated
-physical keyboard input in Claude Desktop is not yet confirmed resolved.
-Tier C, broker UI recovery and full probes stay quarantined. Native-only
+needs refresh. Taylor confirmed normal physical typing on 2026-10-06 and the
+shared UI quarantine was released; comprehensive recovery qualification
+continues. Composer exact-readback safeguards remain. Native-only
 qualification uses an existing live broker and owned fixtures, with no
 automated input or app restart. See [qualification](docs/v2-qualification.md).
 

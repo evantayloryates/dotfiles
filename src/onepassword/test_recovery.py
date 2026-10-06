@@ -17,12 +17,14 @@ class RecoveryPressureTests(unittest.TestCase):
                                      (keepalive, 'RECOVERY', self.root/'recovery-request.json'),
                                      (recovery, 'CACHE', self.root)]:
             p = patch.object(module, name, value); p.start(); self.addCleanup(p.stop)
+        notifier = patch.object(recovery, 'notify_if_due'); notifier.start(); self.addCleanup(notifier.stop)
+        recovery.save(self.root/'notification.json', {'episode': '11111111-1111-1111-1111-111111111111', 'last_attempt': 0})
 
     def runner(self):
         return keepalive.Keepalive({'accounts': [{'id': 'A', 'label': 'test'}], 'interval': 420, 'notify': True}, keepalive.Log(self.root/'logs'))
 
     def tick(self, runner, lines, console=False):
-        with patch.object(keepalive, 'app_running', return_value=True), \
+        with patch.object(keepalive, 'remind_pending_fix'), patch.object(keepalive, 'app_running', return_value=True), \
              patch.object(keepalive, 'console_locked', return_value=console), \
              patch.object(keepalive, 'onepassword_tail', return_value=lines), \
              patch.object(keepalive, 'keepalive_call', return_value=('ok', 0.1, 0, '')) as call, \
@@ -95,23 +97,19 @@ class RecoveryPressureTests(unittest.TestCase):
             fcntl.flock(lock, fcntl.LOCK_EX|fcntl.LOCK_NB)
             with patch.object(recovery.subprocess, 'Popen', return_value=worker) as spawn, patch.object(recovery, 'dispatch') as dispatch:
                 for _ in range(2):
-                    out = recovery.recover()
-                    self.assertEqual(out['dispatch'], 'click_in_progress')
-                    self.assertTrue(out['kick']['retry_requested'])
+                    out = recovery.request_wake()
+                    self.assertTrue(out['retry_requested'])
                 self.assertEqual(spawn.call_count, 1)
                 dispatch.assert_not_called()
 
-    def test_notifier_has_fixed_explicit_action_and_no_osascript(self):
-        with patch.object(keepalive.subprocess, 'Popen') as spawn, patch.object(keepalive.subprocess, 'run', return_value=Mock(returncode=0)) as run:
+    def test_notifier_starts_automatic_worker_without_waiting_for_a_click(self):
+        with patch.object(keepalive.subprocess, 'Popen') as spawn:
             self.assertTrue(keepalive.notify('title', 'body'))
         self.assertIn('--automatic', spawn.call_args.args[0])
-        args=run.call_args.args[0]
-        self.assertIn('--execute', args)
-        self.assertIn('recovery.py', args[-1])
-        self.assertNotIn('osascript', ' '.join(args))
+        self.assertIn('recovery.py', ' '.join(spawn.call_args.args[0]))
 
     def test_notifier_failure_cannot_crash_auth_path(self):
-        with patch.object(keepalive.subprocess, 'Popen'), patch.object(keepalive.subprocess, 'run', side_effect=OSError):
+        with patch.object(keepalive.subprocess, 'Popen', side_effect=OSError):
             self.assertFalse(keepalive.notify('title', 'body'))
 
 if __name__ == '__main__': unittest.main()
@@ -127,7 +125,7 @@ class AdditionalBoundaries(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp, patch.object(recovery, 'CACHE', Path(tmp)):
             with (Path(tmp)/'recovery.lock').open('w') as lock:
                 fcntl.flock(lock, fcntl.LOCK_EX|fcntl.LOCK_NB)
-                with patch.object(recovery, 'dispatch') as dispatch, patch.object(recovery.subprocess, 'Popen') as spawn:
+                with patch.object(recovery, 'notify_if_due'), patch.object(recovery, 'dispatch') as dispatch, patch.object(recovery.subprocess, 'Popen') as spawn:
                     self.assertEqual(recovery.recover(automatic=True)['dispatch'], 'click_in_progress')
                     dispatch.assert_not_called(); spawn.assert_not_called()
 
@@ -139,3 +137,46 @@ class AdditionalBoundaries(unittest.TestCase):
     def test_timestamp_input_is_bounded(self):
         for value in ('SECRET', '2999-01-01T00:00:00+00:00', None, [], -3):
             self.assertIsNone(recovery.safe_epoch(value))
+
+class NotificationGateTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        patcher = patch.object(recovery, 'CACHE', self.root)
+        patcher.start(); self.addCleanup(patcher.stop)
+        self.episode = '11111111-1111-1111-1111-111111111111'
+        self.evidence = {'episode': self.episode}
+
+    def test_reminds_after_one_hour_not_before_and_click_stops_reminders(self):
+        with patch.object(recovery.subprocess, 'run', return_value=Mock(returncode=0)) as run, patch.object(recovery.time, 'time', return_value=10000):
+            self.assertTrue(recovery.notify_if_due(self.evidence))
+            self.assertFalse(recovery.notify_if_due(self.evidence))
+            args = run.call_args.args[0]
+            self.assertIn('--execute', args)
+            self.assertIn('--click '+self.episode, args[-1])
+        with patch.object(recovery.subprocess, 'run', return_value=Mock(returncode=0)), patch.object(recovery.time, 'time', return_value=13599):
+            self.assertFalse(recovery.notify_if_due({}, reminder=True))
+        with patch.object(recovery.subprocess, 'run', return_value=Mock(returncode=0)), patch.object(recovery.time, 'time', return_value=13600):
+            self.assertTrue(recovery.notify_if_due({}, reminder=True))
+        with patch.object(recovery, 'dispatch', return_value='queued') as dispatch, patch.object(recovery, 'request_wake', return_value='fixture'):
+            self.assertEqual(recovery.recover(click_episode=self.episode)['dispatch'], 'queued')
+            self.assertTrue(dispatch.call_args.args[0]['releaseAuthorized'])
+        self.assertTrue(recovery.release_authorized(self.episode))
+        with patch.object(recovery.subprocess, 'run') as run, patch.object(recovery.time, 'time', return_value=20000):
+            self.assertFalse(recovery.notify_if_due({}, reminder=True)); run.assert_not_called()
+
+    def test_stale_click_cannot_release_new_incident(self):
+        recovery.save(self.root/'notification.json', {'episode': self.episode})
+        with patch.object(recovery, 'dispatch') as dispatch, patch.object(recovery, 'request_wake') as wake:
+            self.assertEqual(recovery.recover(click_episode='22222222-2222-2222-2222-222222222222')['dispatch'], 'stale_notification')
+            dispatch.assert_not_called(); wake.assert_not_called()
+        self.assertFalse(recovery.release_authorized(self.episode))
+
+    def test_no_change_settlement_stops_hourly_reminder(self):
+        incident=self.root/'incident';incident.mkdir()
+        recovery.save(incident/'settled.json', {'outcome':'no_change'})
+        recovery.save(self.root/'repair-incident.json', {'episode':self.episode,'incidentDir':str(incident)})
+        recovery.save(self.root/'notification.json', {'episode':self.episode,'evidence':self.evidence,'last_attempt':0})
+        with patch.object(recovery.subprocess, 'run') as run:
+            self.assertFalse(recovery.notify_if_due({}, reminder=True));run.assert_not_called()

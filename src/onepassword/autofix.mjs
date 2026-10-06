@@ -43,13 +43,17 @@ export function settled(dir){
 }
 function text(value,name){if(typeof value!=='string'||!value.trim())throw Error('Missing '+name);return value}
 const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
-export function settle(dir,{base=BASE}={}){
+export function deliveryReleased(episode){
+ try{const row=read(join(homedir(),'Library/Caches/com.taylor.op-keepalive/notification.json'));return row.episode===episode&&Number(row.clicked_at)>0}catch{return false}
+}
+export function settle(dir,{base=BASE,released=deliveryReleased}={}){
  dir=realpathSync(dir);base=realpathSync(base)
  if(resolve(base,relative(base,dir))!==dir||relative(base,dir).split(sep).length!==1||relative(base,dir).startsWith('..'))throw Error('Incident must be directly inside autofixes')
  const incident=incidentAt(dir),r=read(join(dir,'report.json'))
  if(!['no_change','applied','staged'].includes(r.outcome))throw Error('Outcome must be no_change, applied or staged')
  for(const key of ['headline','summary','cause','resolution','verification','activation','limitations','docs'])text(r[key],key)
  if(r.docsReviewed!==true||r.verified!==true)throw Error('Verification and agent documentation review required')
+ if(r.outcome!=='no_change'&&(r.releaseAuthorized!==true||!released(incident.episode)))throw Error('Fix delivery requires the first notification click')
  if(r.outcome==='staged'&&r.readyForNextLoad!==true)throw Error('Staged fix must be ready for its next service load')
  if(!Array.isArray(r.artifacts)||!r.artifacts.length)throw Error('Supporting evidence required')
  const evidence=r.artifacts.map(name=>{

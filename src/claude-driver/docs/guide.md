@@ -59,9 +59,9 @@ Records identify the runtime source fingerprint. Queries scan backwards
 with bounded memory; technical lessons and their evidence have length caps.
 
 Physical keyboard duplication was reported during live qualification on
-2026-10-06. UI/import/recovery qualification remains stopped while that
-incident is investigated; native-only testing uses the already-live broker.
-The service's private `ui-quarantine.json` currently blocks Tier C before
+2026-10-06. Taylor subsequently confirmed normal physical typing, and the
+shared UI quarantine was explicitly released. Root cause remains unproven.
+When enabled, the service's private `ui-quarantine.json` blocks Tier C before
 loading Computer Use, dead-broker recovery before navigation, new/forced
 broker initialization, probes and full `live-v2.mjs --live` runs.
 Preflight reports an unqualified capability matrix instead of automatically

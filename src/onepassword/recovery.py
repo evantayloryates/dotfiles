@@ -13,6 +13,8 @@ from pathlib import Path
 import subprocess
 import time
 import uuid
+import shlex
+import re
 
 ROOT = Path.home() / 'dotfiles'
 CACHE = Path.home() / 'Library/Caches/com.taylor.op-keepalive'
@@ -139,11 +141,91 @@ def request_wake():
         return result
 
 
-def recover(automatic=False):
+def episode_id(value):
+    return isinstance(value, str) and (valid_uuid(value) is not None or re.fullmatch(r'[0-9a-f]{64}', value) is not None)
+
+
+def release_authorized(episode):
+    row = read_json(CACHE / 'notification.json')
+    return episode_id(episode) and row.get('episode') == episode and bool(row.get('clicked_at'))
+
+
+def notify_if_due(evidence, reminder=False):
+    """One alert per episode, repeated hourly until the first release click."""
     CACHE.mkdir(mode=0o700, parents=True, exist_ok=True)
-    # A user's click must still wake auth while an automatic dispatch holds its
-    # own lock. Automatic diagnosis never adds a competing authorization retry.
+    fd = os.open(CACHE / 'notification.lock', os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
+    with os.fdopen(fd, 'w') as lock:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            return False
+        row = read_json(CACHE / 'notification.json')
+        if reminder:
+            if not row or row.get('clicked_at'):
+                return False
+            receipt = read_json(CACHE / 'repair-incident.json')
+            if receipt.get('episode') == row.get('episode') and receipt.get('incidentDir'):
+                report = read_json(Path(receipt['incidentDir']) / 'settled.json')
+                if report.get('outcome') == 'no_change':
+                    row['completed_without_change'] = True
+                    row['clicked_at'] = None
+                    row['last_attempt'] = time.time()
+                    save(CACHE / 'notification.json', row)
+                    return False
+            evidence = row.get('evidence', {})
+        episode = evidence.get('episode')
+        if not episode_id(episode):
+            return False
+        if row.get('episode') == episode:
+            if row.get('clicked_at') or row.get('completed_without_change') or time.time() - row.get('last_attempt', 0) < 3600:
+                return False
+        else:
+            row = {'episode': episode, 'evidence': evidence, 'clicked_at': None, 'created_at': time.time()}
+        row['last_attempt'] = time.time()
+        save(CACHE / 'notification.json', row) # Failure is bounded to one attempt/hour.
+        helper = Path.home() / '.codex/skills/notify-macos/scripts/notify.py'
+        action = shlex.join(['/usr/bin/python3', '-B', str(ROOT / 'src/onepassword/recovery.py'), '--click', episode])
+        try:
+            result = subprocess.run(['/usr/bin/python3', str(helper), '--backend', 'terminal-notifier',
+                '--title', '1Password repair' if not reminder else '1Password repair — reminder',
+                '--message', 'Diagnosis starts automatically. Click once to release a verified fix and open 1Password. No second fix approval.',
+                '--group', 'op-broker-recovery', '--execute', action],
+                env={'HOME': str(Path.home()), 'PATH': '/opt/homebrew/bin:/usr/bin:/bin'},
+                capture_output=True, timeout=25)
+            if result.returncode == 0:
+                row['notified_at'] = time.time()
+                save(CACHE / 'notification.json', row)
+                return True
+        except (OSError, subprocess.TimeoutExpired):
+            pass
+        return False
+
+
+def recover(automatic=False, click_episode=None):
+    CACHE.mkdir(mode=0o700, parents=True, exist_ok=True)
     evidence = diagnostics()
+    if automatic:
+        receipt = read_json(CACHE / 'repair-incident.json')
+        if receipt.get('incidentDir') and episode_id(receipt.get('episode')):
+            # New auth observations belong to the same pending repair until it
+            # settles; they must not invalidate its original release click.
+            if not (Path(receipt['incidentDir']) / 'settled.json').exists():
+                evidence['observedEpisode'] = evidence['episode']
+                evidence['episode'] = receipt['episode']
+        notify_if_due(evidence)
+    else:
+        # A stale banner cannot release a different incident's fix.
+        fd = os.open(CACHE / 'notification.lock', os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
+        with os.fdopen(fd, 'w') as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX)
+            pending = read_json(CACHE / 'notification.json')
+            target = click_episode or pending.get('episode') # migration of old fixed click commands
+            if not episode_id(target) or pending.get('episode') != target:
+                return {'dispatch': 'stale_notification', 'kick': 'not_requested'}
+            pending['clicked_at'] = pending.get('clicked_at') or time.time()
+            save(CACHE / 'notification.json', pending)
+            evidence['episode'] = target
+    evidence['releaseAuthorized'] = release_authorized(evidence['episode'])
     try:
         wake = 'not_requested' if automatic else request_wake()
     except OSError:
@@ -151,7 +233,9 @@ def recover(automatic=False):
     fd = os.open(CACHE / 'recovery.lock', os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
     with os.fdopen(fd, 'w') as lock:
         try:
-            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            # A release click waits for bounded automatic preparation dispatch;
+            # otherwise that click would be lost without a follow-up turn.
+            fcntl.flock(lock, fcntl.LOCK_EX | (fcntl.LOCK_NB if automatic else 0))
         except BlockingIOError:
             return {'dispatch': 'click_in_progress', 'kick': wake}
         result = {'at': int(time.time()), 'request_id': str(uuid.uuid4()), 'kick': wake}
@@ -168,5 +252,11 @@ if __name__ == '__main__':
     os.umask(0o077)
     if len(sys.argv) == 3 and sys.argv[1] == '--kick':
         print(json.dumps(kick(str(uuid.UUID(sys.argv[2])))))
+    elif sys.argv[1:] == ['--remind']:
+        print(json.dumps({'notified': notify_if_due({}, reminder=True)}))
+    elif len(sys.argv) == 3 and sys.argv[1] == '--gate':
+        print(json.dumps({'releaseAuthorized': release_authorized(sys.argv[2])}))
+    elif len(sys.argv) == 3 and sys.argv[1] == '--click':
+        print(json.dumps(recover(click_episode=sys.argv[2])))
     else:
         print(json.dumps(recover(automatic=sys.argv[1:] == ['--automatic'])))

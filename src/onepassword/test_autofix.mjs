@@ -49,7 +49,7 @@ for(const [label,change] of [['unverified',{verified:false}],['docs skipped',{do
  write(join(f.dir,'report.json'),{...f.report,...change});assert.throws(()=>settle(f.dir,{base:f.base}));assert.ok(!existsSync(join(f.dir,'settled.json')))
 }finally{f.cleanup()}})
 test('fully staged fix can settle; symlink evidence cannot escape',()=>{const f=fixture();try{
- write(join(f.dir,'report.json'),{...f.report,outcome:'staged',readyForNextLoad:true});assert.equal(settle(f.dir,{base:f.base}).outcome,'staged')
+ write(join(f.dir,'report.json'),{...f.report,outcome:'staged',readyForNextLoad:true,releaseAuthorized:true});assert.equal(settle(f.dir,{base:f.base,released:()=>true}).outcome,'staged')
  symlinkSync(join(f.dir,'report.json'),join(f.dir,'artifacts/escape.json'))
  write(join(f.dir,'report.json'),{...f.report,artifacts:['artifacts/escape.json']});assert.throws(()=>settle(f.dir,{base:f.base}),/escapes/)
 }finally{f.cleanup()}})
@@ -57,4 +57,9 @@ test('fully staged fix can settle; symlink evidence cannot escape',()=>{const f=
 test('editing settled evidence invalidates settlement',()=>{const f=fixture();try{
  settle(f.dir,{base:f.base});assert.equal(settled(f.dir),true)
  writeFileSync(join(f.dir,'artifacts/evidence.json'),'changed');assert.equal(settled(f.dir),false)
+}finally{f.cleanup()}})
+
+test('declaring release without a real gate cannot settle a fix',()=>{const f=fixture();try{
+ write(join(f.dir,'report.json'),{...f.report,outcome:'applied',releaseAuthorized:true})
+ assert.throws(()=>settle(f.dir,{base:f.base,released:()=>false}),/first notification click/)
 }finally{f.cleanup()}})

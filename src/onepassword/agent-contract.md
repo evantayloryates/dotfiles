@@ -46,13 +46,19 @@ advertised.
   broker process. Do not reveal a credential just to prove access. Item writes,
   copies, deletes, exports and credential changes need their own authorization.
 
-- Automatic recovery alerts have Taylor's standing authorization to diagnose,
-  pressure-test, document and safely apply a verified broker fix, or fully stage
-  it for the next safe service load. Do not ask for a second fix-approval click
-  or notification. Preserve active commands and broker PID/PTY/auth; human
+- Automatic broker alerts start diagnosis and isolated candidate preparation
+  immediately. Warranted changes must wait for the FIRST notification click:
+  check `recovery.py --gate <episode>` for `releaseAuthorized:true` immediately
+  before delivery. Before release, do not modify live-loaded source or install.
+  After release, safely apply the verified fix or fully stage it for the next
+  safe load without a second approval. Keepalive repeats the original alert
+  hourly until clicked. Preserve active commands and broker PID/PTY/auth; human
   Touch ID/macOS consent remains required when the platform requests it.
 - Generated `⚙️ fix-1p-broker/<date-time>` incidents must follow
   `/Users/taylor/dotfiles/src/onepassword/autofixes/AGENTS.md`: Eastern/DST naming,
   matching incident folder, sanitized artifacts, human/technical summary.html,
   compact summary.md, agent-doc updates, verified settlement, commit/push and
-  native self-archive. Do not archive unresolved work or the maintenance chat.
+  native self-archive (or the scoped deferred native-API helper when desktop
+  tools are absent). No-change conclusions may settle without a click; a fix
+  awaiting its first release click is prepared, not settled. Do not archive
+  unresolved work or the maintenance chat.

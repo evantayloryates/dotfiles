@@ -883,19 +883,29 @@ async function createFromPool(args, ctx) {
 // told to create the group itself first; this runs BEFORE any import so a
 // missing group never strands a half-made session (2026-10-03 finding).
 async function ensureGroupId(group, ctx) {
-  const g = readGroups().groups.find((x) => x.id === group || x.name === group)
-  if (g) return g.id
+  const find = () => {
+    const groups=readGroups().groups
+    const exact=groups.find(x=>x.id===group)
+    if(exact)return exact.id
+    const matches=groups.filter(x=>x.name===group)
+    if(matches.length>1)throw new DriverError(`group name "${group}" is ambiguous; use its id`,{category:'bad_args'})
+    return matches[0]?.id
+  }
+  const existing=find()
+  if(existing)return existing
   if (isDesktopCaller() && !['cli', 'probe'].includes(ctx?.harness) && !ctx?.args?.via_broker) {
     throw new DriverError(
       `group "${group}" does not exist. You are a desktop session: create it first with mcp__ccd_sidebar__create_group {name: "${group}"}, then call this op again (nothing was created or imported).`,
       { category: 'bad_args' },
     )
   }
-  // create_group returns the id; the broker cannot chain it, so create first.
+  // Native receipts preserve tool text. Read the persisted ID rather than
+  // expecting the model relay to manufacture a parsed result object.
   const r = await viaBroker([{ op: 'create_group', args: { name: group } }], { progress: () => {}, notes: [] })
-  const id = checkResults(r)[0].result?.id
-  if (!id) throw new DriverError(`could not create group ${group}`, { category: 'tier_b_failed' })
-  return id
+  checkResults(r)
+  const deadline=Date.now()+8000
+  while(Date.now()<deadline){const id=find();if(id)return id;await sleep(150)}
+  throw new DriverError(`group creation returned but its persisted id was not verified: ${group}`,{category:'outcome_unknown',detail:{requestId:r.id,dispatched:true,retrySafe:false}})
 }
 
 async function groupOps(group, sessionIds, ctx) {

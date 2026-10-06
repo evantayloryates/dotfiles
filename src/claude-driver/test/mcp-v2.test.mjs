@@ -59,6 +59,14 @@ const pump=setInterval(async()=>{
    if(c.op==='set_session_title')writeFileSync(file,JSON.stringify({...rec,title:c.args.title,titleSource:'tool'}))
    if(c.op==='stop_session')peer('idle')
    if(c.op==='send_message')peer('busy')
+   if(['create_group','move_sessions'].includes(c.op)){
+    const config=join(root,'app','claude_desktop_config.json')
+    const cfg=state.readJson(config,{preferences:{epitaxyPrefs:{'dframe-group-scopes':{fixture:{groups:[],assignments:{}}}}}})
+    const scope=cfg.preferences.epitaxyPrefs['dframe-group-scopes'].fixture
+    if(c.op==='create_group')scope.groups.push({id:'cg-fixture-created',name:c.args.name})
+    else for(const id of c.args.session_ids)scope.assignments['code:'+id]=c.args.group_id
+    state.writeJsonAtomic(config,cfg)
+   }
    results.push({op:c.op,ok:true,result:c.op==='send_message'?sendOutput:'stopped'})
   }
   state.writeJsonAtomic(req.resultFile(r.id),{id:r.id,results})
@@ -86,6 +94,16 @@ function client(name,protocol='2025-06-18',fixture=false){
 }
 async function until(fn,ms=5000){const end=Date.now()+ms;while(Date.now()<end){const x=await fn();if(x)return x;await new Promise(r=>setTimeout(r,20))}throw new Error('fixture evidence timeout')}
 after(async()=>{clearInterval(pump);clearInterval(beat);for(const c of clients)await c.close();recipient.kill('SIGTERM');await new Promise(resolve=>recipient.once('exit',resolve));rmSync(root,{recursive:true,force:true})})
+
+test('new groups use persisted IDs from opaque receipts and ambiguous names dispatch nothing',async()=>{
+ const result=await runOp('manage_groups',{action:'move',sessions:[sid],group:'synthetic new group'},{harness:'cli'})
+ assert.equal(result.verified,true);assert.equal(result.group,'cg-fixture-created')
+ const config=join(root,'app','claude_desktop_config.json'),cfg=state.readJson(config,{})
+ cfg.preferences.epitaxyPrefs['dframe-group-scopes'].fixture.groups.push({id:'cg-other',name:'synthetic new group'})
+ state.writeJsonAtomic(config,cfg);const before=actions.length
+ await assert.rejects(runOp('manage_groups',{action:'move',sessions:[sid],group:'synthetic new group'},{harness:'cli'}),e=>e.category==='bad_args')
+ assert.equal(actions.length,before)
+})
 
 test('MCP protocol versions expose the same v2 contract and structured errors',async()=>{
  for(const protocol of ['2024-11-05','2025-03-26','2025-06-18']){

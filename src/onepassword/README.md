@@ -226,12 +226,21 @@ Touch ID reuse alone does not establish macOS privacy permission behavior.
 
 ## Automatic recovery and incident records (2026-10-06)
 
-Every keepalive notification immediately launches `recovery.py --automatic` as
-an independent, bounded worker. Diagnosis no longer waits for a notification
+Every keepalive alert immediately launches `recovery.py --automatic` as
+an independent, bounded worker, which sends the notification and starts diagnosis. Diagnosis no longer waits for a notification
 click. This path does **not** request another authorization attempt. The banner
-has one fixed `recovery.py` click action that independently opens 1Password and
-requests a keepalive wake. No second notification or approval is required to
-implement and safely activate a verified repair. Touch ID and macOS consent
+has a fixed `recovery.py --click <episode>` action. That FIRST click releases the
+prepared fix, independently opens 1Password, and requests a keepalive wake.
+Diagnosis/tests start immediately, but candidate code stays isolated until
+`recovery.py --gate <episode>` confirms release. The click queues one follow-up
+in the same incident; repeated clicks cannot replay it. A stale banner cannot
+release a different incident. No second fix approval is requested.
+
+Keepalive checks the pending notification every 20 seconds and repeats it after
+one hour without a click, then hourly until release. Failed notification attempts
+also back off for an hour. A verified no-change settlement stops reminders.
+A prepared fix awaiting the first click stays unarchived; the agent ends its turn
+and resumes on the queued release message, rather than polling. Touch ID and macOS consent
 still belong to Taylor; software repair authorization cannot replace them.
 
 Recovery sends only sanitized diagnostic categories and slot numbers. It uses
@@ -263,8 +272,13 @@ It checks structure; agents must substantiate the claims. `applied` means verifi
 in service; `staged` means tested and fully ready for the explicitly documented
 next safe load; `no_change` means a verified conclusion warranted no code change.
 Unresolved diagnosis is not settled. After committing all changes and verifying
-the push, the agent uses native `set_thread_archived` on itself. A failed archive
-must be reported, not inferred from the settlement marker. The maintenance chat
+the push, the agent uses native `set_thread_archived` on itself. Daemon-created
+chats without that desktop tool use `autofix-archive.mjs schedule <incident-dir>`
+as their final command. The helper waits for turn completion, checks identity,
+evidence and clean/pushed master, invokes the documented native `thread/archive`
+API and reads back membership. It never cancels a turn; it times out after five
+minutes and records a private receipt. Scheduling is not archive completion.
+A failed archive must be reported, not inferred from the settlement marker. The maintenance chat
 is not automatically archived.
 
 Read [autofixes/AGENTS.md](autofixes/AGENTS.md) for the exact report contract and
@@ -308,5 +322,7 @@ retained broker PID 1231 and `/dev/ttys000`, with both accounts authorized.
 Additional isolated tests:
 
 ```sh
-node --test src/onepassword/test_autofix.mjs src/onepassword/test_recovery_dispatch.mjs
+node --test src/onepassword/test_autofix*.mjs src/onepassword/test_recovery_dispatch.mjs
 ```
+
+Protocol reference: [official Codex App Server documentation](https://learn.chatgpt.com/docs/app-server).

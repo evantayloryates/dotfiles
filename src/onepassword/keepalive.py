@@ -187,28 +187,29 @@ def onepassword_tail(max_bytes=300_000, log=None):
         return []
 
 
-def notify(title, body):
-    # One fixed user-authorized command, never derived from log/error text.
-    helper = Path.home() / ".codex/skills/notify-macos/scripts/notify.py"
-    import shlex
-    action = shlex.join(["/usr/bin/python3", "-B", str(Path.home() / "dotfiles/src/onepassword/recovery.py")])
-    # Standing authorization: diagnose immediately, without a click or another
-    # auth wake. The independent worker is bounded and duplicate-safe.
+def recovery_worker(mode):
     try:
-        subprocess.Popen(["/usr/bin/python3", "-B", str(Path.home() / "dotfiles/src/onepassword/recovery.py"), "--automatic"],
+        subprocess.Popen(["/usr/bin/python3", "-B", str(Path.home() / "dotfiles/src/onepassword/recovery.py"), mode],
             stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
             env={"HOME": str(Path.home()), "PATH": "/opt/homebrew/bin:/usr/bin:/bin"}, start_new_session=True)
+        return True
     except OSError:
-        pass # The click remains an independent recovery entry point.
-    try:
-        result = subprocess.run(["/usr/bin/python3", str(helper), "--backend", "terminal-notifier",
-            "--title", title, "--message", body + " Repair runs automatically. Click to open 1Password and retry authorization.",
-            "--group", "op-broker-recovery", "--execute", action],
-            env={"HOME": str(Path.home()), "PATH": "/opt/homebrew/bin:/usr/bin:/bin"},
-            capture_output=True, timeout=25)
-        return result.returncode == 0
-    except (OSError, subprocess.TimeoutExpired):
         return False
+
+
+def notify(title, body):
+    # The worker owns the fixed notification and automatic diagnosis. No raw
+    # account labels or arbitrary log text enter the notification click command.
+    return recovery_worker('--automatic')
+
+
+def remind_pending_fix():
+    try:
+        pending = json.loads((STATE.parent / 'notification.json').read_text())
+        if not pending.get('clicked_at') and not pending.get('completed_without_change') and time.time() - pending['last_attempt'] >= 3600:
+            recovery_worker('--remind')
+    except (OSError, ValueError, KeyError, TypeError):
+        pass
 
 
 CHALLENGE = "System unlock proceeding"
@@ -327,6 +328,7 @@ class Keepalive:
         self.log.event("backoff_reset", reason=reason)
 
     def tick(self):
+        remind_pending_fix()
         try:
             request = json.loads(RECOVERY.read_text())
             if request.get("id") != self.recovery_id and time.time() - request["at"] < 300:

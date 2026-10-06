@@ -2,8 +2,10 @@
 
 V2 is available through the CLI and fresh MCP processes. Native broker controls
 passed scoped live qualification on Claude desktop 2.19675.0 / CLI 2.1.286.
-Comprehensive qualification remains unfinished: physical typing recovery is
-unconfirmed, so automated input, UI recovery and full probes stay quarantined.
+Taylor confirmed normal physical typing on 2026-10-06; the shared UI
+quarantine was explicitly released. Comprehensive qualification continues with
+full import/focus and controlled recovery tests. Duplication root cause remains
+unproven; composer exact-readback safeguards stay in place.
 This chat's connected MCP still serves legacy `706a338`; use the current CLI
 or a fresh connection and verify `apiVersion:2` and `runtimeBuild`.
 
@@ -19,7 +21,7 @@ or a fresh connection and verify `apiVersion:2` and `runtimeBuild`.
 | Incremental observation | UTF-8/partial records, bounded reads, malformed cursors, transcript identity and pending first-transcript tests | Live rotation/restart; see pool evidence below for fresh-context first reply |
 | Pool creation and recycling | Canonical folder aliases, pool-only refusal before fallback, uncertain claims stay reserved; approved-member live lifecycle separately reported | Arbitrary-folder/import creation and permission cards remain outside current scope |
 | Service memory | Metadata-only automatic records, private storage, candidates distinguished from evidence, bounded reverse reads, runtime fingerprints | Continued usage and evidence-based promotion |
-| Human usability | Prior supported renderer reload and synthetic abc readback; current turn used inventory/reset only | Physical keyboard recovery and duplication root cause |
+| Human usability | Supported renderer reload, synthetic abc readback and Taylor's physical-typing confirmation | Duplication root cause |
 | Recovery and focus | Quarantine gates before navigation/bootstrap/probes; offline recovery ownership/cooldown/focus tests | Controlled native broker death/restart, focus restoration, import and version drift |
 
 Final deterministic report: `<state>/pressure/v2-2026-10-06T21-31-42-006Z.json`:
@@ -71,6 +73,6 @@ This refuses a dead/outdated broker, wrong fixture or unblocked UI incident
 guard, and never creates/imports/opens sessions, automates input, restarts the
 app, or raises permissions. General Codex bridge fixes remain parked.
 
-After physical recovery is confirmed, resume full probe/import/focus and
+Physical recovery is confirmed. Continue full probe/import/focus and
 controlled broker recovery qualification. Avoid restarting the app while
 unrelated Claude work is active. Reconcile uncertain effects before replay.

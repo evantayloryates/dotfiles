@@ -1,9 +1,20 @@
 # Automatic broker repairs
 
-Taylor authorizes automatic diagnosis, implementation, synthetic pressure tests,
-metadata-only smoke tests, safe activation or ready-to-load staging, relevant
-agent-documentation updates, git commit/push, and self-archiving after settlement.
-Do not ask for another click or send an approval notification for a verified fix.
+Taylor authorizes immediate diagnosis, isolated candidate preparation and tests.
+The FIRST notification click releases any warranted changes. Before that click,
+keep candidate patches/code under artifacts/ or an isolated worktree; do not
+change live-loaded source or install it. Immediately before delivery, check
+`/usr/bin/python3 -B /Users/taylor/dotfiles/src/onepassword/recovery.py --gate <episode>`
+for `releaseAuthorized:true`. Then safely apply or fully stage for the next safe
+load without another approval. Never manufacture the gate record. A direct later
+user instruction can change this policy, but inferred approval cannot.
+
+If a verified fix is ready before the click, save its candidate paths, test
+evidence and next steps in prepared.json, leave the chat unarchived and end the
+turn. The first click queues the release follow-up. Do not poll or send your own
+approval reminder: keepalive repeats the original notification after each hour
+while awaiting that click. No-change conclusions may settle and archive at once.
+Do not ask for a second click or send a second fix-approval notification.
 This does not authorize approving Touch ID/macOS consent, weakening 1Password
 permissions, interrupting active commands, or bypassing a quarantined UI.
 
@@ -71,11 +82,14 @@ must be substantive and evidence-backed):
   "docsReviewed": true,
   "verified": true,
   "readyForNextLoad": false,
+  "releaseAuthorized": false,
   "artifacts": ["artifacts/verification.json"]
 }
 ```
 
-Use `readyForNextLoad:true` for `staged`. Run:
+Use `readyForNextLoad:true` for `staged`; warranted fixes also require
+`releaseAuthorized:true` backed by the gate check. Awaiting the first click is
+prepared, not settled. Run:
 
 ```sh
 node /Users/taylor/dotfiles/src/onepassword/autofix.mjs settle /Users/taylor/dotfiles/src/onepassword/autofixes/<name>
@@ -93,3 +107,17 @@ remote/clean status, then self-archive this generated Codex incident with native
 ask for approval. Use Claude's authorized archive operation only for a Claude
 fallback session and only outside quarantine. Report an archive failure accurately
 and preserve evidence; never claim success from a settlement marker alone.
+
+Daemon-created chats may lack desktop native tools. In that case, after the same
+settlement/commit/push checks, run this as the final command and end the turn:
+
+```sh
+node /Users/taylor/dotfiles/src/onepassword/autofix-archive.mjs schedule /Users/taylor/dotfiles/src/onepassword/autofixes/<name>
+```
+
+This broker-scoped fallback waits up to five minutes for the turn to end, checks
+identity, evidence hashes and clean/pushed master, calls the native documented
+`thread/archive` API, and reads back archive membership. It never interrupts an
+active turn. Its private receipt is under
+`~/Library/Caches/com.taylor.op-keepalive/archives/<thread-id>.json`. Scheduling
+is not completion; report only scheduled until the receipt says `archived`.

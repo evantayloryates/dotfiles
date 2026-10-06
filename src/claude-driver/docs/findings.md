@@ -7,6 +7,13 @@ Versions: app = Claude desktop, cli = bundled Claude Code.
 
 ## 2026-10-06 (app 2.19675.0, cli 2.1.286)
 
+- **Physical typing recovery confirmed by Taylor.** Direct reply to the
+  physical keystroke check: "Typing is normal now". The private UI quarantine
+  was released with dated human evidence, and shared service memory records
+  recovery separately from root cause, which remains unproven. Composer
+  exact-readback, draft protection and unknown-send safeguards remain. n=1
+  human confirmation; earlier synthetic-key observations alone were insufficient.
+
 - **Final current-source native qualification passed.**
   `live-v2-2026-10-06T21-31-36-385Z.json` passed all eight required checks,
   including actual reply, pre-dispatch cancellation, three concurrent controls,
