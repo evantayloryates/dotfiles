@@ -31,7 +31,7 @@ use it.
 | `stage_tables` | Tables with approximate rows; `like` on the name, `column_like` finds tables having a column |
 | `stage_describe` | Columns, indexes and foreign keys for up to 10 tables; `column_like` trims wide tables |
 | `stage_query` | One read statement with `?` placeholders (`params`); `output_path` streams the full result to a file |
-| `stage_status` | VPN state, user, read-only check, latency, newest migration |
+| `stage_status` | VPN state, user, read-only check, latency, newest migration, connections in use across all sessions (of 12), and the last 10 problems from every session's server (shared log `~/.local/state/kickoff-stage-db/events.jsonl`: hashes and statement shapes, no literals) |
 
 Answers are compact: a column list, then one JSON array per row. Defaults are
 100 rows (`limit` up to 1000), 500 characters per cell (`max_cell_chars` up to
@@ -104,6 +104,20 @@ auto-connect off, or set `KICKOFF_STAGE_DB_VPN` to use another configuration
 name. If macOS has not let the calling app control Tunnelblick, the error
 names the Automation setting.
 
+## Sharing one login across sessions
+
+Every Claude and Codex session starts its own server, and they all share
+`kickoff_stage_ro`'s cap of 12 connections. Each server:
+
+- opens at most 3 connections;
+- closes idle ones after 30 s, so a quiet session holds none;
+- when the cap is full, waits up to about 30 s for a free slot instead of
+  failing.
+
+A client cancel (Esc in Claude, an interrupt in Codex) kills the running
+statement on the server. A session that was already running when the server
+code changed keeps the old code until its MCP reconnects.
+
 ## Setup
 
 Most of this is already done on Taylor's Mac.
@@ -155,6 +169,6 @@ error says the password was rejected.
 
 ```sh
 node --test src/mcps/kickoff-stage-db/test/unit.test.mjs   # statement checks, formats (offline)
-node src/mcps/kickoff-stage-db/test/online.mjs             # live: 19 cases through the launcher over MCP stdio
+node src/mcps/kickoff-stage-db/test/online.mjs             # live: 22 cases through the launcher over MCP stdio
 node src/mcps/kickoff-stage-db/test/online.mjs --vpn       # + disconnects the VPN and quits Tunnelblick to prove recovery
 ```

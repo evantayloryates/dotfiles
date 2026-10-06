@@ -20,7 +20,7 @@
 //
 // See README.md beside this file.
 
-import { closeSync, existsSync, fsyncSync, mkdirSync, openSync, readFileSync, realpathSync, renameSync, statSync, unlinkSync, writeSync } from 'node:fs'
+import { appendFileSync, closeSync, existsSync, fsyncSync, mkdirSync, openSync, readFileSync, realpathSync, renameSync, statSync, unlinkSync, writeFileSync, writeSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { createRequire } from 'node:module'
 import { dirname, isAbsolute, join, resolve } from 'node:path'
@@ -51,6 +51,9 @@ const MAX_CHARS = 100_000
 const MAX_EXPORT_ROWS = 5_000_000
 const MAX_EXPORT_BYTES = 1_000_000_000
 const SLOW_MS = 5000
+// Measured 2026-10-06: a filtered full scan on staging reads ~0.5M rows/s
+// (sms body LIKE). Used only to estimate, in error notes.
+const SCAN_ROWS_PER_S = 500_000
 
 // Server mode logs to stderr (the client's MCP log); the CLI stays quiet
 // unless KICKOFF_STAGE_DB_DEBUG=1, so a shell caller reads only the answer.
@@ -180,7 +183,10 @@ async function getConnectionPatiently() {
       return await getConnection()
     } catch (err) {
       if (!LIMIT_CODES.has(err?.code) || i >= waits.length) throw err
-      if (i === 0) log(`staging connection cap reached (${err.code}); waiting for a free connection`)
+      if (i === 0) {
+        log(`staging connection cap reached (${err.code}); waiting for a free connection`)
+        remember(err.code, 'connection cap (12) full; waiting for a free connection')
+      }
       await new Promise((r) => setTimeout(r, waits[i]))
     }
   }
@@ -207,9 +213,29 @@ let lastRecovery = null
 // asking "why does it keep failing" gets the answer in one call.
 const recent = []
 const stats = { calls: 0, errors: 0 }
+// Every server (one per Claude or Codex session) appends its problems to one
+// shared file, so stage_status in any session sees all of them. Entries hold
+// a statement hash and shape (literals removed), never row data.
+const EVENTS = join(process.env.HOME || '', '.local/state/kickoff-stage-db/events.jsonl')
 function remember(kind, detail) {
-  recent.push({ at: new Date().toISOString().slice(11, 19), kind, detail: String(detail).slice(0, 140) })
+  const e = { at: new Date().toISOString().replace('T', ' ').slice(0, 19), pid: process.pid, kind, detail: String(detail).slice(0, 160) }
+  recent.push(e)
   if (recent.length > 8) recent.shift()
+  try {
+    mkdirSync(dirname(EVENTS), { recursive: true })
+    appendFileSync(EVENTS, `${JSON.stringify(e)}\n`, { mode: 0o600 })
+    if (statSync(EVENTS).size > 200_000) {
+      const keep = readFileSync(EVENTS, 'utf8').trim().split('\n').slice(-200)
+      writeFileSync(EVENTS, `${keep.join('\n')}\n`, { mode: 0o600 })
+    }
+  } catch {}
+}
+function sharedEvents(n) {
+  try {
+    return readFileSync(EVENTS, 'utf8').trim().split('\n').slice(-n).map((l) => JSON.parse(l))
+  } catch {
+    return []
+  }
 }
 async function recoverNetwork(err, { skipProbe = false } = {}) {
   const t = parseUrl()
@@ -221,6 +247,7 @@ async function recoverNetwork(err, { skipProbe = false } = {}) {
   }
   const r = await ensureVpn(VPN)
   lastRecovery = { at: new Date().toISOString(), ...r }
+  remember(r.ok ? 'vpn_recovered' : 'vpn_failed', r.ok ? `${r.action} in ${r.ms} ms` : r.message)
   if (!r.ok) throw new ToolError(`Staging is unreachable (${probe.code || err.code}). ${r.message}`)
   log(`VPN: ${r.action} in ${r.ms} ms`)
   vpnSeenUp = true
@@ -394,7 +421,8 @@ async function withConnection(timeoutS, run) {
           const t = parseUrl()
           if ((await reachable(t.host, t.port, 3000)).ok) {
             await killQuery(err.threadId)
-            throw new ToolError(`No answer within ${timeoutS + 15} s, so the statement was stopped on the server. Narrow it, aggregate, or raise timeout_seconds.`)
+            // Report it as the timeout it is, so the caller adds the plan.
+            throw Object.assign(new Error(`no answer within ${timeoutS + 15} s; stopped on the server`), { code: 'ER_QUERY_TIMEOUT', killed: true })
           }
         }
         if (attempt++ === 0) {
@@ -557,7 +585,12 @@ async function planNote(statement, values) {
       for (const v of Object.values(node)) walk(v)
     }
     walk(plan)
-    if (worst.n >= 100_000) return `plan: ${worst.type === 'ALL' ? 'full scan' : 'full index scan'} of ~${worst.n.toLocaleString()} rows on ${worst.table}; filter on an indexed column (stage_describe shows them)`
+    if (worst.n >= 100_000) {
+      return {
+        rows: worst.n,
+        text: `plan: ${worst.type === 'ALL' ? 'full scan' : 'full index scan'} of ~${worst.n.toLocaleString()} rows on ${worst.table} (about ${Math.max(1, Math.round(worst.n / SCAN_ROWS_PER_S))} s here)`,
+      }
+    }
   } catch {
     // EXPLAIN can fail where the statement would not; never block on it.
   }
@@ -656,7 +689,7 @@ async function query({ sql, params, limit, timeout_seconds, max_cell_chars, outp
   if (r.cutCells) notes.push(`${r.cutCells} cell(s) cut at ${maxCell} chars (max_cell_chars raises it)`)
   if (ms > SLOW_MS) {
     const plan = await planNote(statement, values)
-    if (plan) notes.push(plan)
+    if (plan) notes.push(`${plan.text}; filter on an indexed column (stage_describe shows them)`)
   }
   const summary = `${r.shown} row${r.shown === 1 ? '' : 's'}${more ? '+' : ''} · ${ms} ms`
   return `${r.text}\n(${summary})${notes.length ? `\nnote: ${notes.join('; ')}` : ''}`
@@ -675,9 +708,16 @@ async function queryError(err, statement, values, fp, timeoutS, started, { expor
       )
     }
     const plan = await planNote(statement, values)
-    return new ToolError(
-      `Stopped at the ${timeoutS} s limit.${plan ? ` ${plan}.` : ''} Narrow the range, aggregate, or raise timeout_seconds (up to ${MAX_TIMEOUT_S}).`
-    )
+    const need = plan ? Math.ceil((plan.rows / SCAN_ROWS_PER_S) * 1.5) : null
+    let advice
+    if (need && need > timeoutS && need <= MAX_TIMEOUT_S) {
+      advice = `To run it once as it is, pass timeout_seconds: ${Math.min(MAX_TIMEOUT_S, Math.max(need, timeoutS * 2))}; do not split it into many range queries. Better still, filter on an indexed column.`
+    } else if (need && need > MAX_TIMEOUT_S) {
+      advice = `It is too big for one call (${MAX_TIMEOUT_S} s max): filter on an indexed column (an id or date range that cuts it well below ${(MAX_TIMEOUT_S * SCAN_ROWS_PER_S / 1e6).toFixed(0)}M rows), or ask whether the question belongs on production (zdr_ask) instead.`
+    } else {
+      advice = `Narrow the range, aggregate, or raise timeout_seconds (up to ${MAX_TIMEOUT_S}).`
+    }
+    return new ToolError(`Stopped at the ${timeoutS} s limit${err.killed ? ' (stopped on the server)' : ''}.${plan ? ` ${plan.text}.` : ''} ${advice}`)
   }
   if (err.code === 'ER_QUERY_INTERRUPTED') return new ToolError('Stopped: the call was cancelled, and the statement was stopped on the server.')
   if (/DENIED/.test(err.code || '')) return new ToolError(`${err.code}: ${err.sqlMessage}. kickoff_stage_ro can only read kudos_staging (no writes, no system tables).`)
@@ -790,13 +830,22 @@ async function status() {
       "SELECT COUNT(*) AS n, SUM(command = 'Query') AS busy, MAX(IF(command = 'Query', time, 0)) AS longest FROM information_schema.processlist WHERE user = SUBSTRING_INDEX(CURRENT_USER(), '@', 1)"
     )
     lines.push(`connections: ${conn.n} of 12 allowed for this user across all sessions (${Number(conn.busy || 0)} running a statement${conn.longest ? `, longest ${conn.longest} s` : ''}); this server holds at most 3`)
+    // What other sessions are running right now: a long full scan elsewhere
+    // slows everyone. Shown as shapes, literals masked, never the raw text.
+    const running = await simpleQuery(
+      "SELECT time AS t, info FROM information_schema.processlist WHERE user = SUBSTRING_INDEX(CURRENT_USER(), '@', 1) AND command = 'Query' AND id <> CONNECTION_ID() AND info IS NOT NULL ORDER BY time DESC LIMIT 5"
+    )
+    for (const q of running) lines.push(`  running ${q.t} s: ${shape(String(q.info))}`)
   } catch (e) {
     lines.push(`db: ${e.message}`)
   }
   lines.push(`this server: ${stats.calls} calls, ${stats.errors} errors since it started`)
-  if (recent.length) {
-    lines.push('recent problems (newest last):')
-    for (const x of recent) lines.push(`  ${x.at} ${x.kind}: ${x.detail}`)
+  const ev = sharedEvents(10)
+  if (ev.length) {
+    lines.push('recent problems across all sessions (UTC, newest last; "this" = this server):')
+    for (const x of ev) lines.push(`  ${x.at} ${x.pid === process.pid ? 'this' : `pid ${x.pid}`} ${x.kind}: ${x.detail}`)
+  } else {
+    lines.push('recent problems across all sessions: none recorded')
   }
   lines.push('timeouts: the error names the full scan behind it; filter on an indexed column (stage_describe) or EXPLAIN the statement.')
   return lines.join('\n')
