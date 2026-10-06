@@ -64,8 +64,8 @@ const pump=setInterval(async()=>{
  } finally {busy=false}
 },10)
 const clients=[]
-function client(name,protocol='2025-06-18'){
- const child=spawn('src/claude-driver/bin/claude-driver-mcp',[],{env:process.env,stdio:['pipe','pipe','pipe']})
+function client(name,protocol='2025-06-18',fixture=false){
+ const child=spawn(fixture?process.execPath:'src/claude-driver/bin/claude-driver-mcp',fixture?['src/claude-driver/scripts/fixture-mcp.mjs']:[],{env:{...process.env,CLAUDE_DRIVER_FIXTURE_SESSION:sid},stdio:['pipe','pipe','pipe']})
  const rl=createInterface({input:child.stdout}),pending=new Map();let next=1,stderr=''
  child.stderr.on('data',x=>stderr+=x)
  const send=x=>child.stdin.write(JSON.stringify(x)+'\n')
@@ -96,6 +96,16 @@ test('MCP protocol versions expose the same v2 contract and structured errors',a
   assert.match(guide.contents[0].text,/V2 control interface/)
   await c.close()
  }
+})
+test('headless fixture filter refuses native controls and alternate recipients before forwarding',async()=>{
+ const c=client('fixture-filter','2025-06-18',true);await c.ready;actions.length=0
+ const list=await c.request('tools/list',{})
+ assert.equal(list.tools.some(x=>x.name==='send_message'),false)
+ assert.equal((await c.call('stop_session',{session:sid})).isError,true)
+ assert.equal((await c.call('driver_submit',{operation:'send_message',arguments:{session:sid,message:'must not send'}})).isError,true)
+ assert.equal((await c.call('get_session',{session:bid})).isError,true)
+ assert.equal((await c.call('get_session',{session:sid})).isError,false)
+ assert.equal(actions.length,0);await c.close()
 })
 test('concurrent MCP clients cannot interleave stop and replacement for one recipient',async()=>{
  const a=client('harness-a'),b=client('harness-b');await Promise.all([a.ready,b.ready]);actions.length=0
