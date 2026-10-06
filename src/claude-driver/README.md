@@ -23,6 +23,12 @@ Usage contract for agents: [docs/guide.md](docs/guide.md) (also served by the
 [docs/findings.md](docs/findings.md). Original research and decisions:
 [docs/brief.md](docs/brief.md).
 
+The v2 control interface adds durable jobs, explicit stop/queue/interrupt,
+incremental transcript observation and shared service memory. Isolated
+lifecycle tests passed; comprehensive live qualification is unfinished.
+Live testing was stopped on 2026-10-06 to prioritize Taylor's report of
+duplicated physical keyboard input in Claude Desktop. See the findings log.
+
 ## Setup
 
 ```sh
@@ -43,6 +49,9 @@ State lives in `~/.local/state/claude-driver/` (`CLAUDE_DRIVER_STATE_DIR`):
 versions, ms, outcome, verified), `registry.json` (sessions and folders the
 driver created, the delete queue), `capabilities.json` (probe results per
 app|CLI version), `pending-learnings.jsonl`, `broker/`, `probe/`, `locks/`.
+V2 also stores private `jobs/`, `memory.jsonl` and qualification reports in
+`pressure/`. Automatic memory records contain operation metadata rather
+than prompts or transcript content.
 
 ## Tools
 
@@ -60,6 +69,10 @@ The CLI mirrors every MCP tool: `claude-driver <tool> --arg value …` (or
 | `archive_project` | B | dry run by default, gated to scratch/driver folders |
 | `window_manage` | C | free-form window work in the Claude app via Codex |
 | `broker_status` | A/C | broker state; `revive` |
+| `driver_submit`, `driver_job`, `driver_wait`, `driver_cancel` | — | durable jobs, idempotency and bounded waits across harness restarts |
+| `session_events`, `session_wait` | A | bounded transcript cursors; assistant text requires opt-in |
+| `stop_session`, `steer_session` | B | verified stop, queued follow-up or stop followed by replacement |
+| `driver_memory_record`, `driver_memory_query` | — | shared technical observations with evidence and confidence status |
 
 Maintenance: `preflight`, `probe [--keep]`, `broker init|status|revive|stop`,
 `install [--dry-run]`, `cleanup-leftovers <uuid>`.

@@ -16,6 +16,7 @@ import { DriverError, sleep } from './paths.mjs'
 import { getRecord, liveByHost } from './sessions.mjs'
 import { BROKER_DIR, ensureDir, readJson, withLock, writeJsonAtomic } from './state.mjs'
 import { deliver } from './peer.mjs'
+import { cancelRequest, control, enqueue, validatedResult } from './requests.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const TEMPLATE = join(HERE, '..', 'broker-template', 'CLAUDE.md')
@@ -40,7 +41,8 @@ function renderTemplate() {
   const stable = join(homedir(), 'dotfiles', 'src', 'claude-driver', 'scripts', 'broker-wait.mjs')
   const wait = existsSync(stable) ? stable : join(HERE, '..', 'scripts', 'broker-wait.mjs')
   const node = existsSync('/opt/homebrew/bin/node') ? '/opt/homebrew/bin/node' : process.execPath
-  return readFileSync(TEMPLATE, 'utf8').replaceAll('{{NODE}}', node).replaceAll('{{WAIT}}', wait)
+  const check = join(dirname(wait), 'broker-check.mjs')
+  return readFileSync(TEMPLATE, 'utf8').replaceAll('{{NODE}}', node).replaceAll('{{WAIT}}', wait).replaceAll('{{CHECK}}', check).replaceAll('{{DIR}}', BROKER_DIR)
 }
 
 export function prepareBrokerDir() {
@@ -76,7 +78,7 @@ export function brokerInfo() {
     model: rec?.model ?? null,
     permissionMode: rec?.permissionMode ?? null,
     live: live ? { pid: live.pid, status: live.status, socket: live.messagingSocketPath } : null,
-    resident: live ? heartbeat() : { resident: false },
+    resident: live ? { ...heartbeat(), resident: ['busy', 'working'].includes(live.status) && heartbeat().resident } : { resident: false },
     templateCurrent,
   }
 }
@@ -91,6 +93,7 @@ export function newRequestId() {
 
 // ops: [{ op, args }]. Returns the broker's results array.
 export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => {}, signal } = {}) {
+  const deadline = Date.now() + timeoutMs
   for (const o of ops) if (!BROKER_OPS.includes(o.op)) throw new DriverError(`op ${o.op} is not on the broker allowlist`, { category: 'bad_args' })
   return withLock('broker', async () => {
     const info = brokerInfo()
@@ -99,29 +102,49 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
     if (!info.live) throw new DriverError(`broker ${info.sessionId} has no live process (app restarted?); run \`claude-driver broker revive\``, { category: 'broker_dead' })
     const id = newRequestId()
     rmSync(join(BROKER_DIR, 'STOP'), { force: true })
-    const request = { id, ops, createdAt: new Date().toISOString() }
-    writeJsonAtomic(join(REQ_DIR, `${id}.json`), request)
+    if (signal?.aborted || Date.now() >= deadline) throw new DriverError('cancelled or expired before enqueue', { category: signal?.aborted ? 'cancelled' : 'broker_timeout' })
+    const request = { id, ops, createdAt: new Date().toISOString(), expiresAt: deadline, protocol: Number(protocolVersion()) }
+    enqueue(request)
     progress(`broker request ${id}: ${ops.map((o) => o.op).join(', ')}`)
     const t0 = Date.now()
     let via = { method: 'resident' }
+    let lastWake = 0
+    let wakeAttempts = 0
     // A resident broker picks the file up itself; otherwise wake it into its loop.
+    try {
     if (!info.resident?.resident) {
       via = await deliver(info, `claude-driver request ${id} v${protocolVersion()}`, { signal })
+      lastWake = Date.now()
+      wakeAttempts++
       progress(`delivered via ${via.method} in ${Date.now() - t0} ms; broker enters its resident loop`)
     }
-    const resFile = join(RES_DIR, `${id}.json`)
-    const deadline = Date.now() + timeoutMs
     while (Date.now() < deadline) {
       if (signal?.aborted) throw new DriverError('cancelled', { category: 'cancelled' })
-      if (existsSync(resFile)) {
-        await sleep(100) // let the Write finish
-        const res = readJson(resFile, null)
-        if (res?.results) return { id, results: res.results, deliveredVia: via.method, ms: Date.now() - t0 }
+      const res = validatedResult(request)
+      if (res) return { id, results: res.results, deliveredVia: via.method, ms: Date.now() - t0 }
+      // A broker can end its turn between our heartbeat check and enqueue.
+      // Wake the SAME durable request, bounded, only while still unclaimed.
+      // The pickup/checkpoint guards make duplicate triggers harmless.
+      if (control(id).state === 'pending' && Date.now() - lastWake > 2000 && wakeAttempts < 3) {
+        const now = brokerInfo()
+        if (!now.live) throw new DriverError('broker process disappeared while request was pending', { category: 'broker_dead' })
+        if (!['busy', 'working'].includes(now.live.status)) {
+          via = await deliver(now, `claude-driver request ${id} v${protocolVersion()}`, { signal })
+          lastWake = Date.now()
+          wakeAttempts++
+          progress(`re-woke idle broker for ${id} via ${via.method} (attempt ${wakeAttempts})`)
+        }
       }
       await sleep(300)
     }
     throw new DriverError(`broker did not answer request ${id} within ${timeoutMs / 1000} s (delivered via ${via.method})`, { category: 'broker_timeout' })
-  })
+    } catch (err) {
+      const state = await cancelRequest(id, err.category === 'broker_timeout' ? 'expired' : 'cancelled')
+      err.detail = { requestId: id, state: state.state, dispatched: state.dispatched, retrySafe: !state.dispatched && !state.resultAvailable }
+      if (state.dispatched) err.category = 'outcome_unknown'
+      throw err
+    }
+  }, { signal, timeoutMs: Math.max(1, deadline - Date.now()) })
 }
 
 // One op, unwrapped: throws when the broker reports ok:false.
@@ -137,48 +160,63 @@ export async function brokerOp(op, args, opts) {
 // focused session's process unless its CLI governor is at cap. 2) Otherwise
 // Tier C types the wake line into its composer (a real send always spawns).
 // Focus is restored right after each navigation; liveness is polled after.
-export async function reviveBroker({ focus = 'restore', allowTierC = true, progress = () => {}, signal } = {}) {
+export async function reviveBroker(opts = {}) {
+  return withLock('broker-revive', async () => {
+    const info = brokerInfo()
+    if (info.live) return { method: 'already_live', live: info.live }
+    const file = join(BROKER_DIR, 'recovery.json')
+    const last = readJson(file, null)
+    if (!opts.forceRecovery && last?.retryAfter > Date.now()) throw new DriverError('broker recovery is cooling down after failure; inspect driver_status or run broker revive explicitly', { category: 'recovery_cooldown', detail: { retryAfter: last.retryAfter } })
+    try {
+      const result = await reviveBrokerUnlocked(opts)
+      writeJsonAtomic(file, { at: Date.now(), outcome: 'ok', method: result.method })
+      return result
+    } catch (err) {
+      if (err.category !== 'cancelled') writeJsonAtomic(file, { at: Date.now(), outcome: 'failed', category: err.category, retryAfter: Date.now() + 30_000 })
+      throw err
+    }
+  }, { signal: opts.signal })
+}
+
+async function reviveBrokerUnlocked({ focus = 'restore', allowTierC = true, progress = () => {}, signal } = {}) {
   const { snapshot, restoreFrom, logSince, sessionUrl } = await import('./focus.mjs')
   const { openUrl } = await import('./paths.mjs')
-  let info = brokerInfo()
+  const info = brokerInfo()
   if (!info.configured || !info.exists) throw new DriverError('no broker session; run `claude-driver broker init`', { category: 'broker_missing' })
-  if (info.live) return { method: 'already_live', live: info.live }
+  const checkCancel = () => { if (signal?.aborted) throw new DriverError('recovery cancelled', { category: 'cancelled' }) }
   const waitLive = async (ms, stopEarly = () => false) => {
     const deadline = Date.now() + ms
     while (Date.now() < deadline) {
+      checkCancel()
       if (brokerInfo().live) return true
       if (stopEarly()) return false
       await sleep(250)
     }
     return !!brokerInfo().live
   }
+  checkCancel()
   const t0 = Date.now()
-  // One snapshot, one restore: the whole revival is a single navigating batch.
   const before = focus === 'leave' ? null : await snapshot()
-  const finish = async () => (before && focus === 'restore' ? restoreFrom(before, info.sessionId) : focus)
-  progress('revive: focusing broker to trigger a warm spawn')
-  await openUrl(sessionUrl(info.sessionId))
-  const atCap = () => logSince(t0, /CliGovernor\] at cap; yielding warm spawn/).length > 0
-  if (await waitLive(12_000, atCap)) return { method: 'warm_spawn', ms: Date.now() - t0, focus: await finish() }
-  const capped = atCap()
-  if (!allowTierC) {
-    await finish()
-    throw new DriverError(`broker did not warm-spawn${capped ? ' (app CLI governor at cap)' : ''}; Tier C disabled`, { category: 'broker_dead' })
-  }
-  progress(`revive: warm spawn ${capped ? 'blocked (governor at cap)' : 'did not happen'}; typing wake line via Tier C`)
-  const { typeIntoComposer } = await import('./tierc.mjs')
-  let tc
-  let focusAction
+  let result
   try {
-    tc = await typeIntoComposer(BROKER_TITLE, `claude-driver wake v${protocolVersion()}`, { progress, signal, timeoutSec: 150 })
-    await waitLive(30_000)
+    progress('revive: focusing broker to trigger a warm spawn')
+    await openUrl(sessionUrl(info.sessionId))
+    const atCap = () => logSince(t0, /CliGovernor\] at cap; yielding warm spawn/).length > 0
+    if (await waitLive(12_000, atCap)) result = { method: 'warm_spawn', ms: Date.now() - t0 }
+    else {
+      const capped = atCap()
+      if (!allowTierC) throw new DriverError(`broker did not warm-spawn${capped ? ' (app CLI governor at cap)' : ''}; Tier C disabled`, { category: 'broker_dead' })
+      progress(`revive: warm spawn ${capped ? 'blocked (governor at cap)' : 'did not happen'}; typing wake line via Tier C`)
+      const { typeIntoComposer } = await import('./tierc.mjs')
+      const tc = await typeIntoComposer(BROKER_TITLE, `claude-driver wake v${protocolVersion()}`, { progress, signal, timeoutSec: 150 })
+      checkCancel()
+      if (tc.status !== 'completed') throw new DriverError(`broker wake did not complete: ${tc.status}; inspect the UI before retrying`, { category: 'broker_dead', detail: { tierCStatus: tc.status } })
+      if (!await waitLive(30_000)) throw new DriverError('broker wake completed but no live process was verified', { category: 'broker_dead' })
+      result = { method: 'tier_c_wake', ms: Date.now() - t0, tierC: tc.status }
+    }
   } finally {
-    focusAction = await finish()
+    const action = before && focus === 'restore' ? await restoreFrom(before, info.sessionId) : focus
+    if (result) result.focus = action
   }
-  if (brokerInfo().live) {
-    // The wake line starts the resident loop; give it a moment to heartbeat.
-    for (let i = 0; i < 60 && !heartbeat().resident; i++) await sleep(250)
-    return { method: 'tier_c_wake', ms: Date.now() - t0, tierC: tc.status, focus: focusAction, resident: heartbeat().resident }
-  }
-  throw new DriverError(`broker revival failed (warm spawn ${capped ? 'at cap' : 'none'}; Tier C status ${tc?.status}): ${tc?.text?.slice(0, 400)}`, { category: 'broker_dead' })
+  return result
 }

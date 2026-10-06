@@ -156,7 +156,7 @@ export async function brokerCmd(sub, flags = {}) {
     return 0
   }
   if (sub === 'revive') {
-    console.log(txt(await reviveBroker({ progress: log })))
+    console.log(txt(await reviveBroker({ progress: log, forceRecovery: true })))
     return 0
   }
   if (sub === 'init') {

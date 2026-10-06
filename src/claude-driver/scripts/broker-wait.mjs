@@ -11,9 +11,9 @@
 // While waiting it writes <broker>/heartbeat.json every 2 s, which is how the
 // driver knows the broker is resident and needs no wake message.
 
-import { existsSync, readFileSync, readdirSync, renameSync, statSync, writeFileSync } from 'node:fs'
+import { existsSync, renameSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+// Set before importing state: test runners can use an isolated broker folder.
 
 const args = process.argv.slice(2)
 const flag = (n, d) => {
@@ -22,24 +22,9 @@ const flag = (n, d) => {
 }
 const dir = flag('dir', process.env.CLAUDE_DRIVER_BROKER_DIR || join(process.env.HOME, '.local', 'state', 'claude-driver', 'broker'))
 const maxSec = Number(flag('max-sec', 540))
-const REQ = join(dir, 'requests')
-const RES = join(dir, 'results')
+process.env.CLAUDE_DRIVER_STATE_DIR = dirname(dir)
+const { pickupPending } = await import('../lib/requests.mjs')
 const HB = join(dir, 'heartbeat.json')
-
-function pending() {
-  if (!existsSync(REQ)) return null
-  const files = readdirSync(REQ)
-    .filter((f) => f.endsWith('.json') && !existsSync(join(RES, f)))
-    .map((f) => ({ f, m: statSync(join(REQ, f)).mtimeMs }))
-    .sort((a, b) => a.m - b.m)
-  for (const { f } of files) {
-    try {
-      const j = JSON.parse(readFileSync(join(REQ, f), 'utf8'))
-      if (j?.id && Array.isArray(j.ops)) return j
-    } catch {}
-  }
-  return null
-}
 
 function heartbeat(state) {
   const tmp = `${HB}.${process.pid}.tmp`
@@ -55,7 +40,7 @@ for (;;) {
     console.log('STOP')
     break
   }
-  const r = pending()
+  const r = await pickupPending()
   if (r) {
     heartbeat('working')
     console.log(`REQUEST ${JSON.stringify({ id: r.id, ops: r.ops })}`)

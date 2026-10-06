@@ -19,6 +19,9 @@ import {
 } from './state.mjs'
 import { cleanupCliLeftovers } from './cleanup.mjs'
 import { BYPASS, RECYCLE_WAIT_MS, claim, defaultPermissionMode, poolGate, poolOf, poolTitle, reconcile, recycleMessage, setEntry } from './pool.mjs'
+import { submitJob, inspectJob, waitJob, cancelJob } from './jobs.mjs'
+import { operationMemory, queryMemory, recordMemory } from './memory.mjs'
+import { sessionEvents, waitSession } from './events.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 export const ROOT = join(HERE, '..')
@@ -48,6 +51,7 @@ const OWN_TOOL = {
   set_session_effort: 'mcp__ccd_session_mgmt__set_session_effort',
   set_session_permission_mode: 'mcp__ccd_session_mgmt__set_session_permission_mode',
   send_message: 'mcp__ccd_session_mgmt__send_message',
+  stop_session: 'mcp__ccd_session_mgmt__stop_session',
   delete_session: 'mcp__ccd_session_mgmt__delete_session',
   set_pinned: 'mcp__ccd_sidebar__set_pinned',
   create_group: 'mcp__ccd_sidebar__create_group',
@@ -131,6 +135,82 @@ const FOCUS = { type: 'string', enum: FOCUS_MODES, description: 'restore (defaul
 const VIA_BROKER = { type: 'boolean', description: 'Desktop callers only: go through the broker instead of being handed back your own ccd_* calls.' }
 
 export const OPS = [
+  {
+    name: 'driver_submit', title: 'Submit a durable operation',
+    description: 'Start an operation and return a durable jobId immediately. Survives client disconnects; any harness can inspect/wait/cancel. Reuse an idempotency_key to reconcile an uncertain submission without replaying it. Existing operation safety gates still apply.',
+    schema: { properties: { operation: { type: 'string' }, arguments: { type: 'object' }, idempotency_key: { type: 'string' }, timeout_sec: { type: 'number', minimum: 1, maximum: 600 } }, required: ['operation'] },
+    run: submitJob,
+  },
+  {
+    name: 'driver_job', title: 'Inspect a durable operation', readOnly: true,
+    description: 'Read a durable operation from any harness. A lost worker reports outcome_unknown; never resubmit blindly. Raw result is opt-in.',
+    schema: { properties: { job_id: { type: 'string' }, include_result: { type: 'boolean' } }, required: ['job_id'] },
+    run: args => inspectJob(args.job_id, { includeResult: !!args.include_result }),
+  },
+  {
+    name: 'driver_wait', title: 'Wait for a durable operation', readOnly: true,
+    description: 'Bounded wait (0–60 s) on a jobId from any harness. Expiring/cancelling this wait does not cancel the job. Returns progress and the result when terminal.',
+    schema: { properties: { job_id: { type: 'string' }, timeout_sec: { type: 'number', minimum: 0, maximum: 60 }, include_result: { type: 'boolean' } }, required: ['job_id'] },
+    run: (args, ctx) => waitJob(args.job_id, { timeoutSec: args.timeout_sec ?? 30, includeResult: args.include_result !== false, signal: ctx.signal }),
+  },
+  {
+    name: 'driver_cancel', title: 'Cancel a durable operation',
+    description: 'Cancel a queued operation definitively, or request cancellation of a running one. A dispatched side effect may have happened: inspect its final state and reconcile. This does not stop the target Claude session; use stop_session for that.',
+    schema: { properties: { job_id: { type: 'string' } }, required: ['job_id'] }, run: args => cancelJob(args.job_id),
+  },
+  {
+    name: 'driver_memory_query', title: 'Read shared service memory', readOnly: true,
+    description: 'Read technical lessons and sanitized operation/test outcomes shared by all harnesses. Exact topic/kind filters; newest first. Candidate lessons are not verified facts.',
+    schema: { properties: { topic: { type: 'string' }, kind: { type: 'string', enum: ['lesson', 'observation', 'test_result'] }, limit: { type: 'number', minimum: 1, maximum: 100 } } }, run: queryMemory,
+  },
+  {
+    name: 'driver_memory_record', title: 'Record a shared technical lesson',
+    description: 'Record a candidate service-level lesson with evidence. Supply sanitized technical observations only; never prompts, credentials or client data. The service labels harness assertions as candidates; test evidence is recorded separately.',
+    schema: { properties: { topic: { type: 'string' }, lesson: { type: 'string' }, evidence: { type: 'string' } }, required: ['topic', 'lesson', 'evidence'] },
+    run: (args, ctx) => recordMemory({ ...args, source: ctx.harness, status: 'candidate' }),
+  },
+  {
+    name: 'session_events', title: 'Observe a Claude session incrementally', readOnly: true,
+    description: 'Capture a cursor before sending work, then read new user/assistant events. No historical messages on first call. Byte-bounded; excludes thinking and tool inputs/results; text opt-in. end_turn is evidence of a turn end, not proof of task success.',
+    schema: { properties: { session: S, cursor: { type: 'string' }, include_text: { type: 'boolean' }, limit: { type: 'number', minimum: 1, maximum: 100 } }, required: ['session'] }, run: sessionEvents,
+  },
+  {
+    name: 'session_wait', title: 'Wait for new Claude session events', readOnly: true,
+    description: 'Wait up to 60 s for new events using a session_events cursor. Returns on new events; continue until end_turn or required user action. A timed-out wait leaves Claude running.',
+    schema: { properties: { session: S, cursor: { type: 'string' }, include_text: { type: 'boolean' }, limit: { type: 'number', minimum: 1, maximum: 100 }, timeout_sec: { type: 'number', minimum: 0, maximum: 60 } }, required: ['session'] }, run: waitSession,
+  },
+  {
+    name: 'steer_session', title: 'Steer a Claude session explicitly',
+    description: 'Queue a follow-up (mode:queue), or stop the active turn, verify idle, then send the replacement instruction (mode:interrupt). Queuing is not immediate steering. Capture a session_events cursor beforehand and read back the response. Refuses the broker and caller.',
+    schema: { properties: { session: S, message: { type: 'string' }, mode: { type: 'string', enum: ['queue', 'interrupt'] }, via_broker: VIA_BROKER }, required: ['session', 'message', 'mode'] },
+    run: async (args, ctx) => {
+      const rec = resolveSession(args.session)
+      if ([brokerInfo().sessionId, callerHostSession()].includes(rec.sessionId)) throw new DriverError('refusing to steer the broker or caller', { category: 'gate' })
+      let stopped
+      if (args.mode === 'interrupt') stopped = await runOp('stop_session', { session: rec.sessionId, ...(args.via_broker !== undefined ? { via_broker: args.via_broker } : {}) }, ctx)
+      if (stopped?.handedBack) return { ...stopped, message: `${stopped.message} Then call send_message with the replacement instruction; do not send it before the stop is verified.` }
+      const sent = await runOp('send_message', { session: rec.sessionId, message: args.message, ...(args.via_broker !== undefined ? { via_broker: args.via_broker } : {}) }, ctx)
+      return { ...sent, steeringMode: args.mode, stopped: stopped?.verified === true, applied: false, verification: 'delivery is confirmed; observe the recipient response before claiming the new instruction was applied' }
+    },
+  },
+  {
+    name: 'stop_session', title: 'Interrupt a Claude session turn',
+    description: 'Use the app native stop_session control and verify the live process becomes non-busy. Refuses the broker and the caller. Stopping is separate from cancelling a driver job.',
+    schema: { properties: { session: S, via_broker: VIA_BROKER }, required: ['session'] },
+    run: async (args, ctx) => {
+      const rec = resolveSession(args.session)
+      if ([brokerInfo().sessionId, callerHostSession()].includes(rec.sessionId)) throw new DriverError('refusing to stop the broker or caller', { category: 'gate' })
+      const b = await tierB(ctx, [{ op: 'stop_session', args: { session_id: rec.sessionId } }])
+      if (b.handback) return b.handback
+      const deadline = Date.now() + 8000
+      while (Date.now() < deadline) {
+        const live = liveByHost().get(rec.sessionId)
+        if (!live || !['busy', 'working'].includes(live.status)) return { sessionId: rec.sessionId, stopped: true, verified: true, status: live?.status || 'offline' }
+        await sleep(200)
+      }
+      throw new DriverError('stop was requested but idle state was not verified', { category: 'verify_mismatch' })
+    },
+  },
   // ---------------- guidance and learning
   {
     name: 'driver_guide',
@@ -151,6 +231,7 @@ export const OPS = [
       const recent = readJsonl(LEDGER, { tail: 200 })
       return {
         driver: DRIVER_VERSION,
+        apiVersion: 2,
         versions: m.versions,
         stateDir: STATE_DIR,
         desktopCaller: callerHostSession(),
@@ -158,7 +239,8 @@ export const OPS = [
         capabilities: m.current ? { probedAt: m.current.probedAt, mechanisms: m.current.mechanisms } : `not probed for ${m.key}; run \`claude-driver probe\``,
         mainWindow: currentMain(),
         frontApp: await frontApp(),
-        recentFailures: recent.filter((r) => r.outcome !== 'ok').slice(-8),
+        recentFailures: recent.filter((r) => ['error', 'unverified'].includes(r.outcome)).slice(-8).map(r => ({ ts: r.ts, harness: r.harness, op: r.op, args: redactArgs(r.args), tier: r.tier, ms: r.ms, outcome: r.outcome, category: r.errorCategory, verified: r.verified })),
+        sharedMemory: { file: join(STATE_DIR, 'memory.jsonl'), queryTool: 'driver_memory_query', recent: queryMemory({ limit: 5 }) },
         ops24h: recent.filter((r) => Date.parse(r.ts) > Date.now() - 86400_000).length,
       }
     },
@@ -467,7 +549,7 @@ export const OPS = [
       const res = txt(b.results[0].result)
       const delivery = res.match(/delivery: (\w+)/)?.[1] || 'unknown'
       if (!['delivered', 'queued'].includes(delivery)) throw new DriverError(`not delivered: ${res.slice(0, 300)}`, { category: 'not_delivered' })
-      return { sessionId: rec.sessionId, delivery, detail: res, ms: b.ms }
+      return { sessionId: rec.sessionId, delivery, messageId: res.match(/message_id: ([0-9a-f-]+)/)?.[1], detail: res, ms: b.ms }
     },
   },
   {
@@ -793,20 +875,44 @@ async function groupOps(group, sessionIds, ctx) {
 
 // ---------------------------------------------------------------- dispatch
 
-export async function runOp(name, args = {}, { harness = 'cli', progress = () => {}, signal } = {}) {
-  const op = OPS.find((o) => o.name === name)
+export function validateOp(name, args) {
+  const op = OPS.find(o => o.name === name)
   if (!op) throw new DriverError(`unknown op ${name}`, { category: 'bad_args' })
+  if (!args || typeof args !== 'object' || Array.isArray(args)) throw new DriverError('arguments must be an object', { category: 'bad_args' })
+  for (const key of op.schema.required || []) if (args[key] === undefined) throw new DriverError(`missing required argument: ${key}`, { category: 'bad_args' })
+  const props = op.schema.properties || {}
+  for (const [key, value] of Object.entries(args)) {
+    const rule = props[key]
+    if (!rule) throw new DriverError(`unknown argument: ${key}`, { category: 'bad_args' })
+    const types = Array.isArray(rule.type) ? rule.type : [rule.type]
+    const type = value === null ? 'null' : Array.isArray(value) ? 'array' : typeof value
+    if (!types.includes(type) || (type === 'number' && !Number.isFinite(value))) throw new DriverError(`invalid type for ${key}`, { category: 'bad_args' })
+    if (rule.enum && !rule.enum.includes(value)) throw new DriverError(`invalid value for ${key}`, { category: 'bad_args' })
+    if (type === 'number' && ((rule.minimum !== undefined && value < rule.minimum) || (rule.maximum !== undefined && value > rule.maximum))) throw new DriverError(`out of range: ${key}`, { category: 'bad_args' })
+    if (type === 'array' && rule.items?.type && value.some(x=>typeof x !== rule.items.type)) throw new DriverError(`invalid array entries for ${key}`, { category: 'bad_args' })
+  }
+  return op
+}
+
+export async function runOp(name, args = {}, { harness = 'cli', progress = () => {}, signal } = {}) {
+  const op = validateOp(name, args)
+  if (signal?.aborted) throw new DriverError('cancelled before operation', { category: 'cancelled' })
   const ctx = { args, harness, progress, signal, notes: [], tier: null }
   const t0 = Date.now()
   const row = { ts: new Date().toISOString(), harness, op: name, args: redactArgs(args), versions: versions(), driver: DRIVER_VERSION }
   try {
     const out = await op.run(args, ctx)
     const handedBack = out && typeof out === 'object' && out.handedBack
-    if (!op.readOnly) appendJsonl(LEDGER, { ...row, tier: ctx.tier || (handedBack ? 'B-own' : 'A'), ms: Date.now() - t0, outcome: handedBack ? 'handed_back' : 'ok', verified: out?.verified ?? null, notes: ctx.notes })
+    if (!op.readOnly) {
+      const event = { ...row, tier: ctx.tier || (handedBack ? 'B-own' : 'A'), ms: Date.now() - t0, outcome: handedBack ? 'handed_back' : out?.verified === false ? 'unverified' : 'ok', verified: out?.verified ?? null, notes: ctx.notes }
+      appendJsonl(LEDGER, event)
+      operationMemory(event)
+    }
     if (ctx.notes.length && out && typeof out === 'object' && !Array.isArray(out)) out.notes = ctx.notes
     return out
   } catch (err) {
     appendJsonl(LEDGER, { ...row, tier: ctx.tier, ms: Date.now() - t0, outcome: 'error', error: String(err.message).slice(0, 500), errorCategory: err.category || 'internal', notes: ctx.notes })
+    operationMemory({ ...row, outcome: 'error', errorCategory: err.category || 'internal', ms: Date.now() - t0 })
     throw err
   }
 }

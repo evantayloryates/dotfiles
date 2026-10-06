@@ -24,7 +24,7 @@ const TAG = 'cross-session-message'
 const LINE_CAP = 1048576
 // CLI versions whose wire format this was verified against. Others fall back
 // to the LLM sender unless CLAUDE_DRIVER_PEER=direct.
-export const VERIFIED_CLI = (process.env.CLAUDE_DRIVER_PEER_VERIFIED || '2.1.284').split(',')
+export const VERIFIED_CLI = (process.env.CLAUDE_DRIVER_PEER_VERIFIED || '2.1.284,2.1.286').split(',')
 
 function procStartOf(pid) {
   try {

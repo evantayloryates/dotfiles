@@ -5,6 +5,38 @@ Dated, newest first. Each entry: what was observed, the evidence, and n
 (`<state>/pending-learnings.jsonl`) here only after re-verifying it.
 Versions: app = Claude desktop, cli = bundled Claude Code.
 
+## 2026-10-06 (app 2.19675.0, cli 2.1.286)
+
+- **Physical typing duplication incident remains under investigation.** Taylor
+  reported that one physical key produced two characters, only in Claude
+  Desktop, severely affecting use. Live qualification was stopped and its
+  outstanding request cancelled; no durable bridge jobs remained running.
+  Resetting the current CUA session was followed by a single `q` key producing
+  `q`. A supported View → Reload reset the renderer; separate `a`, `b`, `c`
+  presses then produced `abc`, and three Backspace presses cleared it. No test
+  text was sent. Those are synthetic-key observations, not physical-keyboard
+  verification or a proven root cause. Physical readback is still required.
+  Inspected Hammerspoon/Karabiner configs showed no Claude-specific key replay.
+- **Broker heartbeat alone does not prove a running wait loop.** The broker
+  ended its turn after a result, leaving a recent `working` heartbeat while
+  its live status was idle. Requests then waited without being picked up.
+  Residency now also requires busy/working live status; pending unclaimed
+  requests receive bounded direct re-wakes. A CLI 2.1.286 peer wake produced
+  a correlated native request/result, qualifying that version for broker
+  delivery. Native controls still require the broker model and are serialized.
+- **V2 lifecycle isolation passed; full live qualification did not.** The
+  21-check suite passed in five independent processes (105 checks), covering
+  cancellation, duplicate claims/dispatch, expiry, malformed results, dead
+  workers, idempotency, locks, transcript cursors and private memory records.
+  Report: `<state>/pressure/v2-2026-10-06T19-44-48-937Z.json`.
+  Live session creation, idempotent send/reply and rename/pin/config readback
+  passed. The queue fixture failed because Claude refused a bare Bash sleep;
+  its report retains the failure rather than qualifying interruption/queue.
+  A bounded Node fixture replaced it, but that rerun was stopped for the
+  keyboard incident. Cross-harness live pressure coverage remains unfinished.
+  Automatic shared memory stores operation metadata, not prompts or replies.
+
+
 ## 2026-10-02 (app 2.19675.0, cli 2.1.286)
 
 - **A bypass session keeps bypass across clear, archive and unarchive, with

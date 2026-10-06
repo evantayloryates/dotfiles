@@ -26,7 +26,7 @@ const tools = OPS.map((op) => ({
     } catch (err) {
       const text = `${op.name} failed [${err.category || 'internal'}]: ${err.message}${err.detail ? `\n${txt(err.detail).slice(0, 1500)}` : ''}`
       if (!err.expected) log(err.stack)
-      return { content: [{ type: 'text', text }], isError: true }
+      return { content: [{ type: 'text', text }], structuredContent: { error: { category: err.category || 'internal', message: err.message, ...(err.detail ? { detail: err.detail } : {}) } }, isError: true }
     }
   },
 }))

@@ -36,7 +36,10 @@ export async function computerUse(task, { timeoutSec = 180, session = 'claude-dr
 export async function typeIntoComposer(expectedTitle, line, opts) {
   return computerUse(
     `The Claude app's main window should be showing the Code session titled "${expectedTitle}". Confirm the session title shown matches exactly; if it does not, stop and report what is shown. ` +
-      `Click its message composer (the text box at the bottom), type exactly: ${line}\nthen press Return once to send it. Then report "sent" or what went wrong.`,
+      `Click its message composer (the text box at the bottom). If it already contains text, stop without changing it. ` +
+      `Use paste or setValue to enter exactly: ${line}\n` +
+      `Read back the composer's actual value and confirm it equals that line byte-for-byte before sending; duplicated characters have been observed. ` +
+      `If it differs, stop without pressing Return and report the mismatch. If exact, press Return once. Then report "sent" or what went wrong.`,
     opts
   )
 }
