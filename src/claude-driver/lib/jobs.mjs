@@ -10,7 +10,7 @@ import { STATE_DIR, ensureDir, readJson, redactArgs, withLock, writeJsonAtomic }
 
 export const JOB_DIR = join(STATE_DIR, 'jobs')
 export const TERMINAL = new Set(['completed', 'failed', 'cancelled', 'outcome_unknown', 'handed_back', 'unverified'])
-const EXCLUDED = new Set(['driver_submit', 'driver_job', 'driver_wait', 'driver_cancel', 'driver_memory_record', 'driver_memory_query', 'delete_sessions', 'archive_project'])
+const EXCLUDED = new Set(['driver_submit', 'driver_job', 'driver_wait', 'driver_cancel', 'driver_request', 'driver_memory_record', 'driver_memory_query', 'delete_sessions', 'archive_project'])
 export const jobFile = id => {
   if (!/^j[a-f0-9]{32}$/.test(id || '')) throw new DriverError('invalid job id', { category: 'bad_args' })
   return join(JOB_DIR, `${id}.json`)

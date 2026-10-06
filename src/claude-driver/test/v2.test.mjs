@@ -82,6 +82,28 @@ test('cancelling after pickup but before dispatch still prevents effect', async(
   const r=request(); assert.equal((await req.pickupPending()).id,r.id)
   await req.cancelRequest(r.id); assert.equal((await req.authorizeDispatch(r.id,0)).dispatch,false)
 })
+test('waiter sweeps preserve uncertainty and late receipts reconcile without replay', async()=> {
+  const r=request();r.protocol=5;state.writeJsonAtomic(req.requestFile(r.id),r)
+  await req.pickupPending();await req.authorizeDispatch(r.id,0)
+  await req.cancelRequest(r.id,'expired');await req.pickupPending()
+  assert.equal(req.control(r.id).state,'outcome_unknown')
+  const uncertain=await runOp('driver_request',{request_id:r.id})
+  assert.equal(uncertain.state,'outcome_unknown');assert.equal(uncertain.retrySafe,false)
+  state.writeJsonAtomic(req.resultFile(r.id),{id:r.id,results:[{op:'get_session',ok:true,result:{sessionId:sid}}]})
+  const settled=await runOp('driver_request',{request_id:r.id,include_result:true})
+  assert.equal(settled.state,'completed');assert.equal(settled.receiptVerified,true)
+  assert.equal(settled.result.results[0].result.sessionId,sid)
+  assert.equal((await req.authorizeDispatch(r.id,0)).dispatch,false)
+  assert.equal(req.control(r.id).dispatched.length,1)
+})
+test('request reconciliation rejects malformed receipts and redacts operation messages', async()=> {
+  const r={id:`test-${next++}`,protocol:5,expiresAt:Date.now()+60000,ops:[{op:'send_message',args:{message:'PRIVATE_PROMPT'}}]};req.enqueue(r)
+  await req.pickupPending();await req.authorizeDispatch(r.id,0);await req.cancelRequest(r.id)
+  assert.equal(JSON.stringify(req.inspectRequest(r.id)).includes('PRIVATE_PROMPT'),false)
+  state.writeJsonAtomic(req.resultFile(r.id),{id:r.id,results:[{op:'other',ok:true}]})
+  assert.throws(()=>req.inspectRequest(r.id),e=>e.category==='broker_bad_result')
+  assert.throws(()=>req.inspectRequest('../escape'),e=>e.category==='bad_args')
+})
 test('expiry is checked again at dispatch, after pickup', async()=> {
   const r=request(Date.now()+50); await req.pickupPending(); await new Promise(r=>setTimeout(r,60))
   assert.equal((await req.authorizeDispatch(r.id,0)).reason,'expired')
@@ -104,6 +126,15 @@ test('protocol 5 refuses an invented success without its dispatch checkpoint', a
   state.writeJsonAtomic(req.resultFile(r.id),{id:r.id,results:[{op:'get_session',ok:true}]})
   assert.throws(()=>req.validatedResult(r),e=>e.category==='broker_bad_result')
   assert.equal((await req.cancelRequest(r.id)).state,'cancelled')
+})
+test('native-journal requests cannot settle from a relay paraphrase',async()=>{
+ const r=request();r.protocol=5;r.nativeObservation={};state.writeJsonAtomic(req.requestFile(r.id),r)
+ await req.pickupPending();await req.authorizeDispatch(r.id,0)
+ state.writeJsonAtomic(req.resultFile(r.id),{id:r.id,results:[{op:'get_session',ok:true,result:'Delivered'}]})
+ assert.equal(req.validatedResult(r),null)
+ state.writeJsonAtomic(req.nativeResultFile(r.id),{id:r.id,source:'native-tool-result',results:[{op:'get_session',ok:true,result:'raw native output'}]})
+ assert.equal(req.validatedResult(r).source,'native-tool-result')
+ assert.equal(await req.pickupPending(),null)
 })
 test('recipient controls serialize stop and replacement, including nested controls', async()=> {
   const seen=[]
@@ -146,6 +177,13 @@ test('independent processes retain every concurrent registry update', async()=> 
 })
 test('schema validation rejects unknown, missing, wrong typed, enum and unbounded arguments', ()=> {
   for (const [op,args] of [['send_message',{session:sid}],['driver_wait',{job_id:'x',timeout_sec:61}],['driver_wait',{job_id:'x',timeout_sec:-1}],['driver_wait',{job_id:'x',timeout_sec:NaN}],['get_session',{session:3}],['get_session',{session:sid,extra:true}],['set_session_config',{session:sid,effort:'bad'}]]) assert.throws(()=>validateOp(op,args),e=>e.category==='bad_args')
+})
+test('pool-only creation fails without importing or raising permissions when unavailable',async()=>{
+ await assert.rejects(runOp('create_session',{folder:root,title:'must not import',permission_mode:'bypassPermissions',require_pool:true}),e=>e.category==='pool_empty'&&e.detail.dispatched===false)
+ await assert.rejects(runOp('create_session',{folder:root,title:'must not import',group:'must not create group',permission_mode:'bypassPermissions',require_pool:true}),e=>e.category==='pool_empty'&&e.detail.dispatched===false)
+ await assert.rejects(runOp('create_session',{no_project:true,title:'must not import',permission_mode:'bypassPermissions',require_pool:true}),e=>e.category==='bad_args')
+ await assert.rejects(runOp('create_session',{folder:root,title:'must not import',permission_mode:'acceptEdits',require_pool:true}),e=>e.category==='bad_args')
+ assert.equal(Object.values(state.loadRegistry().sessions).some(x=>x.title==='must not import'),false)
 })
 test('ids cannot traverse state directories', async()=> {
   assert.throws(()=>req.requestFile('../escape'));assert.throws(()=>jobs.jobFile('../escape'))

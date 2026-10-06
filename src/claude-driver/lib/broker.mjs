@@ -16,7 +16,8 @@ import { DriverError, sleep } from './paths.mjs'
 import { getRecord, liveByHost } from './sessions.mjs'
 import { BROKER_DIR, ensureDir, readJson, withLock, writeJsonAtomic } from './state.mjs'
 import { deliver } from './peer.mjs'
-import { cancelRequest, control, enqueue, validatedResult } from './requests.mjs'
+import { cancelRequest, control, enqueue, validatedResult, nativeResultFile } from './requests.mjs'
+import { observeNativeReceipts } from './native-receipts.mjs'
 import { assertUiAvailable } from './ui-policy.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
@@ -78,7 +79,7 @@ export function brokerInfo() {
     titleSource: rec?.titleSource ?? null,
     model: rec?.model ?? null,
     permissionMode: rec?.permissionMode ?? null,
-    live: live ? { pid: live.pid, status: live.status, socket: live.messagingSocketPath } : null,
+    live: live ? { pid: live.pid, status: live.status, socket: live.messagingSocketPath, entrypoint:live.entrypoint } : null,
     resident: live ? { ...heartbeat(), resident: ['busy', 'working'].includes(live.status) && heartbeat().resident } : { resident: false },
     templateCurrent,
   }
@@ -105,6 +106,9 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
     rmSync(join(BROKER_DIR, 'STOP'), { force: true })
     if (signal?.aborted || Date.now() >= deadline) throw new DriverError('cancelled or expired before enqueue', { category: signal?.aborted ? 'cancelled' : 'broker_timeout' })
     const request = { id, ops, createdAt: new Date().toISOString(), expiresAt: deadline, protocol: Number(protocolVersion()) }
+    const observe = info.live.entrypoint==='claude-desktop' ? observeNativeReceipts(info.sessionId,request) : null
+    if(info.live.entrypoint==='claude-desktop'&&!observe)throw new DriverError('native broker receipt journal unavailable; no request dispatched',{category:'broker_receipt_unavailable',detail:{retrySafe:true,dispatched:false}})
+    if(observe) request.nativeObservation=observe.start
     enqueue(request)
     progress(`broker request ${id}: ${ops.map((o) => o.op).join(', ')}`)
     const t0 = Date.now()
@@ -121,8 +125,13 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
     }
     while (Date.now() < deadline) {
       if (signal?.aborted) throw new DriverError('cancelled', { category: 'cancelled' })
-      const res = validatedResult(request)
-      if (res) return { id, results: res.results, deliveredVia: via.method, ms: Date.now() - t0 }
+      const actual = observe?.()
+      if(actual) writeJsonAtomic(nativeResultFile(id),actual)
+      // When the native journal is available, never settle from a relay's
+      // shortened/revised Write result. Synthetic/older brokers retain the
+      // explicitly weaker relay receipt path.
+      const res = observe ? actual && validatedResult(request) : validatedResult(request)
+      if (res) return { id, results: res.results, receiptSource:res.source||'broker-relay', deliveredVia: via.method, ms: Date.now() - t0 }
       // A broker can end its turn between our heartbeat check and enqueue.
       // Wake the SAME durable request, bounded, only while still unclaimed.
       // The pickup/checkpoint guards make duplicate triggers harmless.
@@ -145,7 +154,7 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
       // durable cancellation lock. The correlated completed result wins.
       if (state.resultAvailable) {
         const res = validatedResult(request)
-        if (res) return { id, results: res.results, deliveredVia: via.method, ms: Date.now() - t0 }
+        if (res) return { id, results: res.results, receiptSource:res.source||'broker-relay', deliveredVia: via.method, ms: Date.now() - t0 }
       }
       err.detail = { requestId: id, state: state.state, dispatched: state.dispatched, retrySafe: !state.dispatched && !state.resultAvailable }
       if (state.dispatched) err.category = 'outcome_unknown'

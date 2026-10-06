@@ -17,6 +17,11 @@ retain the desktop caller identity and its self-protection gates.
 does not cancel work. `driver_cancel` cancels the driver operation, not the
 recipient Claude turn. A dispatched request or lost worker can produce
 `outcome_unknown`: reconcile the app state before submitting another job.
+Use `driver_request {request_id}` from the error details to inspect a correlated
+late native receipt without replaying the action; raw results are opt-in.
+Native desktop broker receipts come from its actual tool-use journal, matched
+to the dispatch checkpoint and exact arguments. A relay paraphrase cannot
+settle those requests. A receipt still requires app-state/response verification.
 If interruption completed but cancellation prevented the replacement, the
 job reports a `partial_effect` error with `stopped:true` and
 `replacementSent:false`; the stop already happened.
@@ -36,6 +41,9 @@ instruction. Both require recipient response observation before claiming
 application. `stop_session` interrupts without sending a replacement.
 Controls for one recipient serialize across processes; an interrupt's stop
 and replacement cannot interleave with another control for that recipient.
+Native stop preserves existing queued messages; they can run before the new
+replacement. `queueDisposition` makes this explicit. Interruption does not
+silently discard another caller's queued work.
 
 Use `driver_memory_query {topic, kind, limit}` for shared technical lessons.
 `driver_memory_record {topic, lesson, evidence}` appends a candidate lesson;
@@ -61,6 +69,15 @@ guard. This limits this driver, not other chats using Computer Use.
 UI wake recovery now requires an empty composer, paste/setValue and exact
 readback before sending. Never overwrite a user's draft or retry a send
 whose outcome is unknown.
+
+During the incident, a separate native-only qualification scope can use a
+current live broker and an existing registry-proven scratch fixture:
+`node scripts/live-v2.mjs --live --broker-only --session local_<fixture>`.
+`--restore-fixture` permits native unarchive of that same owned fixture.
+This scope cannot create/import/open sessions, use input automation or raise
+permissions. It checks durable delivery, native controls, tool-free generation
+queue/interrupt behavior and archive cleanup. It does not qualify UI recovery,
+focus restoration, physical typing or all desktop operations.
 
 ## 1. Rules
 
@@ -117,6 +134,10 @@ wake line into it). First op after idle is therefore slower.
 ## 3. Choosing an op
 
 - New session with a task: `create_session {folder, title, first_message}`.
+  Add `require_pool:true` with `permission_mode:"bypassPermissions"` when the
+  harness needs a previously approved member and cannot accept an import
+  fallback. An empty pool fails before navigation or optional group creation.
+  Pool folder selection treats a symlink and its canonical path as one folder.
   With Taylor's default (bypass) it claims a pool session: title locked,
   model (default Opus 5.5) and effort (default high) set, the task sent as
   `first_message`, no bootstrap turn. `via: "pool"` in the result; verify

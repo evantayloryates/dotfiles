@@ -11,7 +11,7 @@
 // "Clean" is read from disk, never from the registry: the app drops a
 // record's cliSessionId on /clear and writes a new one on the next turn.
 
-import { existsSync } from 'node:fs'
+import { existsSync, realpathSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { basename, join, resolve } from 'node:path'
 
@@ -120,13 +120,14 @@ export function reconcile() {
 // its turn ends, a queued brief runs before it, and an untrusted folder
 // raises a workspace-trust prompt for Taylor (findings 2026-10-02).
 export async function claim(folder, { title } = {}) {
-  const want = resolve(folder)
+  const canonical=p=>existsSync(p)?realpathSync(p):resolve(p)
+  const want = canonical(folder)
   return withLock('pool', async () => {
     const ready = (await reconcileUnlocked())
       .filter((m) => m.status === 'ready')
       .map((m) => ({ ...m, entry: poolOf()[m.sessionId] }))
       .sort((a, b) => (a.entry.parkedAt || 0) - (b.entry.parkedAt || 0))
-    const pick = ready.find((m) => resolve(m.folder) === want)
+    const pick = ready.find((m) => canonical(m.folder) === want)
     if (!pick) return null
     await setEntry(pick.sessionId, { state: 'claimed', claimedAt: Date.now(), claimedTitle: title })
     return { sessionId: pick.sessionId, folder: pick.folder, archived: pick.archived, priorTitle: pick.priorTitle }

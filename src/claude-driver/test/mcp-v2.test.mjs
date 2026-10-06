@@ -4,7 +4,7 @@ import { test, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
 import { createInterface } from 'node:readline'
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, rmSync } from 'node:fs'
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, rmSync, symlinkSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 const root=mkdtempSync(join(tmpdir(),'claude-mcp-v2-'))
@@ -38,6 +38,7 @@ peer('busy')
 writeFileSync(join(process.env.CLAUDE_DRIVER_PEER_SESSIONS_DIR,`${process.pid}.json`),JSON.stringify({pid:process.pid,hostSessionId:bid,status:'busy'}))
 broker.prepareBrokerDir();broker.saveBrokerInfo({sessionId:bid})
 let paused=false,busy=false,onStop,failAfterFirst=false
+let sendOutput='delivery: delivered\nmessage_id: 00000000-0000-4000-8000-000000000004'
 const actions=[]
 const beat=setInterval(()=>state.writeJsonAtomic(join(state.BROKER_DIR,'heartbeat.json'),{at:Date.now(),state:'waiting'}),500)
 state.writeJsonAtomic(join(state.BROKER_DIR,'heartbeat.json'),{at:Date.now(),state:'waiting'})
@@ -58,7 +59,7 @@ const pump=setInterval(async()=>{
    if(c.op==='set_session_title')writeFileSync(file,JSON.stringify({...rec,title:c.args.title,titleSource:'tool'}))
    if(c.op==='stop_session')peer('idle')
    if(c.op==='send_message')peer('busy')
-   results.push({op:c.op,ok:true,result:c.op==='send_message'?'delivery: delivered\nmessage_id: 00000000-0000-4000-8000-000000000004':'stopped'})
+   results.push({op:c.op,ok:true,result:c.op==='send_message'?sendOutput:'stopped'})
   }
   state.writeJsonAtomic(req.resultFile(r.id),{id:r.id,results})
   if(results.some(x=>x.op==='stop_session'))onStop?.()
@@ -90,7 +91,7 @@ test('MCP protocol versions expose the same v2 contract and structured errors',a
  for(const protocol of ['2024-11-05','2025-03-26','2025-06-18']){
   const c=client('protocol-contract',protocol);assert.equal((await c.ready).protocolVersion,protocol)
   const list=await c.request('tools/list',{})
-  for(const name of ['driver_submit','driver_wait','driver_cancel','session_events','steer_session','driver_memory_query'])assert.ok(list.tools.some(x=>x.name===name))
+  for(const name of ['driver_submit','driver_wait','driver_cancel','driver_request','session_events','steer_session','driver_memory_query'])assert.ok(list.tools.some(x=>x.name===name))
   const err=await c.call('driver_wait',{job_id:'bad',timeout_sec:61})
   assert.equal(err.isError,true);assert.equal(err.structuredContent.error.category,'bad_args')
   const guide=await c.request('resources/read',{uri:'claude-driver://guide'})
@@ -108,6 +109,31 @@ test('headless fixture filter refuses native controls and alternate recipients b
  assert.equal((await c.call('get_session',null)).isError,true)
  assert.equal((await c.call('get_session',{session:sid})).isError,false)
  assert.equal(actions.length,0);await c.close()
+})
+test('native pending sends stay queued and unknown successful receipts forbid replay',async()=>{
+ const c=client('native-send-receipts');await c.ready
+ const old=sendOutput
+ try {
+  sendOutput='Message will be delivered pending tool execution'
+  const queued=await c.call('send_message',{session:sid,message:'synthetic pending receipt'})
+  assert.equal(queued.isError,false);assert.equal(queued.structuredContent.delivery,'queued')
+  sendOutput='new native output not qualified'
+  const unknown=await c.call('send_message',{session:sid,message:'synthetic uncertain receipt'})
+  assert.equal(unknown.isError,true);assert.equal(unknown.structuredContent.error.category,'outcome_unknown')
+  assert.equal(unknown.structuredContent.error.detail.retrySafe,false)
+  const r=await c.call('driver_request',{request_id:unknown.structuredContent.error.detail.requestId})
+  assert.equal(r.structuredContent.receiptVerified,true);assert.equal(r.structuredContent.retrySafe,false)
+ } finally {sendOutput=old;await c.close()}
+})
+test('pool claims treat canonical and symlink folder paths as one location',async()=>{
+ const file=join(store,`${sid}.json`),prior=readFileSync(file),alias=join(root,'folder-alias')
+ symlinkSync(root,alias,'dir')
+ try {
+  writeFileSync(file,JSON.stringify({...record,isArchived:true,permissionMode:'bypassPermissions',cliSessionId:null}))
+  await pool.setEntry(sid,{state:'parked',folder:root,parkedAt:Date.now()})
+  assert.equal((await pool.claim(alias,{title:'alias fixture'})).sessionId,sid)
+  assert.equal(await pool.claim(root,{title:'must not double claim'}),null)
+ }finally{await pool.setEntry(sid,null);writeFileSync(file,prior);rmSync(alias)}
 })
 test('quarantined dead-broker recovery refuses before navigation and keeps reads available',async()=>{
  const liveFile=join(process.env.CLAUDE_DRIVER_PEER_SESSIONS_DIR,`${process.pid}.json`)

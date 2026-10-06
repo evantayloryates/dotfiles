@@ -25,6 +25,9 @@ import { sessionEvents, waitSession } from './events.mjs'
 import { withSessionControl } from './controls.mjs'
 import { RUNTIME_BUILD } from './build.mjs'
 import { uiPolicy } from './ui-policy.mjs'
+import { inspectRequest } from './requests.mjs'
+import { deliveryReceipt } from './delivery.mjs'
+import { nativeQualification } from './qualification.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 export const ROOT = join(HERE, '..')
@@ -98,7 +101,7 @@ async function tierB(ctx, ops, verifyHint) {
   if (isDesktopCaller() && !['cli', 'probe'].includes(ctx.harness) && !ctx.args.via_broker) return { handback: ownToolsResult(ops, verifyHint) }
   ctx.tier = ctx.tier || 'B'
   const r = await viaBroker(ops, ctx)
-  return { results: checkResults(r), deliveredVia: r.deliveredVia, ms: r.ms }
+  return { results: checkResults(r), requestId:r.id, receiptSource:r.receiptSource, deliveredVia: r.deliveredVia, ms: r.ms }
 }
 
 function focusArg(args, dflt = 'restore') {
@@ -138,6 +141,12 @@ const FOCUS = { type: 'string', enum: FOCUS_MODES, description: 'restore (defaul
 const VIA_BROKER = { type: 'boolean', description: 'Desktop callers only: go through the broker instead of being handed back your own ccd_* calls.' }
 
 export const OPS = [
+  {
+    name: 'driver_request', title: 'Reconcile a broker request', readOnly: true,
+    description: 'Inspect a broker request ID from an outcome_unknown error. Accepts a correlated late receipt without replaying any action. Results opt-in; verify app state or recipient response separately.',
+    schema: { properties: { request_id: { type: 'string' }, include_result: { type: 'boolean' } }, required: ['request_id'] },
+    run: args=>inspectRequest(args.request_id,{includeResult:!!args.include_result}),
+  },
   {
     name: 'driver_submit', title: 'Submit a durable operation',
     description: 'Start an operation and return a durable jobId immediately. Survives client disconnects; any harness can inspect/wait/cancel. Reuse an idempotency_key to reconcile an uncertain submission without replaying it. Existing operation safety gates still apply.',
@@ -196,7 +205,9 @@ export const OPS = [
         category: 'partial_effect', detail: { sessionId: rec.sessionId, stopped: true, replacementSent: false },
       })
       const sent = await runOp('send_message', { session: rec.sessionId, message: args.message, ...(args.via_broker !== undefined ? { via_broker: args.via_broker } : {}) }, ctx)
-      return { ...sent, steeringMode: args.mode, stopped: stopped?.verified === true, applied: false, verification: 'delivery is confirmed; observe the recipient response before claiming the new instruction was applied' }
+      return { ...sent, steeringMode: args.mode, stopped: stopped?.verified === true, applied: false,
+        ...(args.mode==='interrupt'?{queueDisposition:'existing queued messages are preserved by native stop'}:{}),
+        verification: 'delivery is confirmed; observe the recipient response before claiming the new instruction was applied' }
     },
   },
   {
@@ -239,6 +250,7 @@ export const OPS = [
         driver: DRIVER_VERSION,
         apiVersion: 2,
         runtimeBuild: RUNTIME_BUILD,
+        nativeQualification:nativeQualification(queryMemory({topic:'v2-native-broker-pressure',kind:'test_result',limit:1})[0],RUNTIME_BUILD,m.versions),
         uiAutomation: uiPolicy(),
         versions: m.versions,
         stateDir: STATE_DIR,
@@ -370,6 +382,7 @@ export const OPS = [
         bootstrap_prompt: { type: 'string', description: 'The headless first turn. Keep it trivial; default asks for "ready".' },
         first_message: { type: 'string', description: 'Sent via Tier B send_message after import, so the real task runs visibly in the desktop.' },
         lock_title: { type: 'boolean', description: 'Tier B set_session_title so titleSource becomes "tool". Default false.' },
+        require_pool: { type: 'boolean', description: 'Require a previously approved pool member; fail before import/navigation if unavailable. Requires folder and bypassPermissions.' },
         group: { type: 'string', description: 'Sidebar group name or id to file it under (created if missing).' },
         focus: FOCUS,
         via_broker: VIA_BROKER,
@@ -380,10 +393,12 @@ export const OPS = [
     run: async (args, ctx) => {
       const f = focusArg(args)
       const want = args.permission_mode || defaultPermissionMode(args.folder)
-      if (args.group) await ensureGroupId(args.group, ctx) // before any claim or import
+      if(args.require_pool&&(want!==BYPASS||!args.folder||args.no_project))throw new DriverError('require_pool needs a folder and bypassPermissions',{category:'bad_args'})
+      if (args.group && !args.require_pool) await ensureGroupId(args.group, ctx) // pool-only work claims before any optional group mutation
       if (want === BYPASS && args.folder && !args.no_project) {
         const pooled = await createFromPool(args, ctx)
         if (pooled) return pooled
+        if(args.require_pool)throw new DriverError('no approved pool session in this folder; no import or navigation attempted',{category:'pool_empty',detail:{retrySafe:true,dispatched:false}})
         ctx.notes.push('bypass pool is empty; fell back to an import')
       }
       ctx.tier = 'A'
@@ -556,9 +571,9 @@ export const OPS = [
       const b = await tierB(ctx, [{ op: 'send_message', args: { session_id: rec.sessionId, message: args.message } }])
       if (b.handback) return b.handback
       const res = txt(b.results[0].result)
-      const delivery = res.match(/delivery: (\w+)/)?.[1] || 'unknown'
-      if (!['delivered', 'queued'].includes(delivery)) throw new DriverError(`not delivered: ${res.slice(0, 300)}`, { category: 'not_delivered' })
-      return { sessionId: rec.sessionId, delivery, messageId: res.match(/message_id: ([0-9a-f-]+)/)?.[1], detail: res, ms: b.ms }
+      const receipt = deliveryReceipt(b.results[0].result)
+      if (receipt.delivery === 'unknown') throw new DriverError('native send returned an unrecognized receipt; reconcile before retrying', { category: 'outcome_unknown', detail:{requestId:b.requestId,dispatched:true,retrySafe:false} })
+      return { sessionId: rec.sessionId, ...receipt, requestId:b.requestId, receiptSource:b.receiptSource, detail: res, ms: b.ms }
     },
   },
   {
@@ -834,8 +849,8 @@ export const OPS = [
 // importing. Returns null when the pool has none for this folder.
 async function createFromPool(args, ctx) {
   if (!args.title || typeof args.title !== 'string') throw new DriverError('title is required', { category: 'bad_args' })
-  const folder = resolve(args.folder)
-  if (!existsSync(folder)) throw new DriverError(`folder does not exist: ${folder}`, { category: 'bad_args' })
+  if (!existsSync(args.folder)) throw new DriverError(`folder does not exist: ${args.folder}`, { category: 'bad_args' })
+  const folder = realpathSync(args.folder)
   const pick = await claim(folder, { title: args.title })
   if (!pick) return null
   const id = pick.sessionId
@@ -858,7 +873,7 @@ async function createFromPool(args, ctx) {
   if (b.handback) return { ...b.handback, ...out, calls: b.handback.calls }
   ctx.tier = 'B'
   const w = await waitForRecord(id, (r) => r.title === args.title && r.model === model && r.isArchived === false && r.permissionMode === BYPASS, { timeoutMs: 8000 })
-  return { ...out, verified: w.ok, followUps: b.results, ms: b.ms }
+  return { ...out, cwd:w.record?.cwd||out.cwd, requestedFolder:args.folder, verified: w.ok, followUps: b.results, ms: b.ms }
 }
 
 // Resolve a group name/id to an id, creating it when missing. A desktop

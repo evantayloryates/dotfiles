@@ -2,11 +2,13 @@
 // cancellation after the dispatch checkpoint is explicitly an unknown outcome.
 import { existsSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
-import { BROKER_DIR, ensureDir, readJson, withLock, writeJsonAtomic } from './state.mjs'
+import { BROKER_DIR, ensureDir, readJson, redactArgs, withLock, writeJsonAtomic } from './state.mjs'
 import { DriverError } from './paths.mjs'
+import { observeNativeReceipts } from './native-receipts.mjs'
 
 export const requestFile = id => join(BROKER_DIR, 'requests', `${validId(id)}.json`)
 export const resultFile = id => join(BROKER_DIR, 'results', `${validId(id)}.json`)
+export const nativeResultFile = id => join(BROKER_DIR, 'results', `${validId(id)}.native.json`)
 const controlFile = id => join(BROKER_DIR, 'controls', `${validId(id)}.json`)
 export function validId(id) {
   if (typeof id !== 'string' || !/^[A-Za-z0-9_-]{1,100}$/.test(id)) throw new DriverError('invalid request id', { category: 'bad_args' })
@@ -23,6 +25,9 @@ export function enqueue(request) {
 const expiry = r => Number(r.expiresAt) || (Date.parse(r.createdAt) + 90_000)
 const expired = r => !Number.isFinite(expiry(r)) || Date.now() >= expiry(r)
 function rejectPending(r, c, state) {
+  // A later waiter sweep must never turn an uncertain dispatched effect into
+  // a definitive cancellation merely because its deadline passed.
+  if (c.dispatched?.length) state = 'outcome_unknown'
   writeJsonAtomic(controlFile(r.id), { ...c, state, at: Date.now() })
   if (!(c.dispatched || []).length && !existsSync(resultFile(r.id))) {
     writeJsonAtomic(resultFile(r.id), { id: r.id, state, results: r.ops.map(o => ({ op: o.op, ok: false, error: `${state} before dispatch` })) })
@@ -48,12 +53,12 @@ export async function pickupPending() {
     .map(f => ({ f, at: statSync(join(dir, f)).mtimeMs })).sort((a, b) => a.at - b.at)
   for (const { f } of files) {
     const id = f.slice(0, -5)
-    if (existsSync(resultFile(id))) continue
+    if (existsSync(resultFile(id)) || existsSync(nativeResultFile(id))) continue
     const r = readJson(requestFile(id), null)
     if (!r || r.id !== id || !Array.isArray(r.ops) || !r.ops.length) continue
     const picked = await locked(id, () => {
       const c = control(id)
-      if (existsSync(resultFile(id))) return null
+      if (existsSync(resultFile(id)) || existsSync(nativeResultFile(id))) return null
       if (c.cancelRequested || expired(r)) { rejectPending(r, c, c.cancelRequested ? 'cancelled' : 'expired'); return null }
       // Never replay something a broker already picked up. A crash after
       // pickup needs reconciliation, not an automatic second execution.
@@ -78,7 +83,8 @@ export async function authorizeDispatch(id, index) {
   })
 }
 export function validatedResult(request) {
-  const res = readJson(resultFile(request.id), null)
+  const native = readJson(nativeResultFile(request.id), null)
+  const res = native || (!request.nativeObservation ? readJson(resultFile(request.id), null) : null)
   if (!res) return null
   if (res.id !== request.id || !Array.isArray(res.results) || res.results.length !== request.ops.length ||
       res.results.some((x, i) => !x || x.op !== request.ops[i].op || typeof x.ok !== 'boolean')) {
@@ -91,4 +97,25 @@ export function validatedResult(request) {
     }
   }
   return res
+}
+
+// Explicit, read-only reconciliation. Late receipts settle the delivery
+// protocol without replaying a native call or claiming the task was applied.
+export function inspectRequest(id, { includeResult = false } = {}) {
+  const r = readJson(requestFile(id), null)
+  if (!r) throw new DriverError('request not found', { category: 'not_found' })
+  const c = control(id)
+  if(r.nativeObservation&&!existsSync(nativeResultFile(id))){
+    const observe=observeNativeReceipts(r.nativeObservation.brokerSessionId,r,r.nativeObservation)
+    // Bounded late-result reconciliation, also after the submitting worker
+    // disconnected. Read at most 1 MiB, never replay the native invocation.
+    for(let i=0;observe&&i<4;i++){const actual=observe();if(actual){writeJsonAtomic(nativeResultFile(id),actual);break}}
+  }
+  const receipt = validatedResult(r)
+  return { requestId: id, state: receipt ? receipt.results.every(x=>x.ok) ? 'completed' : 'failed' : c.state || 'unknown',
+    controlState: c.state, dispatched: (c.dispatched || []).length > 0,
+    receiptVerified: !!receipt, retrySafe: !receipt && !c.dispatched?.length && ['cancelled','expired'].includes(c.state),
+    operations: r.ops.map(x=>({op:x.op,args:redactArgs(x.args)})),
+    ...(includeResult && receipt ? {result:receipt} : {}),
+    verification: 'A correlated receipt confirms native tool outcome; verify app state or recipient response before claiming application.' }
 }
