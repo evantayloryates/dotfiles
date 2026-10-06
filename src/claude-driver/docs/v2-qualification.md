@@ -1,5 +1,15 @@
 # Claude-driver v2 qualification
 
+Latest status check, 2026-10-06 around 19:31 Eastern: the broker exists but
+has no live process or resident loop. UI quarantine remains active; a fresh
+read-only input audit found zero surviving helper keyboard filters. Subsequent
+CLI authentication changes changed the runtime fingerprint, so native
+qualification correctly reports `matchingRuntime:false`. The current source
+passed all 68 isolated tests in five fresh processes (340 cases), report
+`<state>/pressure/v2-2026-10-06T23-31-48-560Z.json`, with unchanged fingerprints.
+Native write availability and unattended readiness are not established for
+this build. Earlier native/harness evidence below remains dated evidence.
+
 V2 is available through the CLI and fresh MCP processes on Claude desktop
 2.19675.0 / bundled CLI 2.1.286. Physical typing initially recovered on 2026-10-06, then duplicate characters
 and pastes recurred around 17:56 Eastern. The UI quarantine is active again;
@@ -33,7 +43,7 @@ qualification. Source updates do not reload an existing MCP process.
 | Service memory | Bounded metadata-only automatic records; candidate lessons distinguished from verified test evidence; source/version fingerprints | Continued usage supplies future evidence; no prompts or raw journal contents in automatic memory |
 | Human usability | Recurrence captured; stale helper filters removed and renderer reload completed | Fresh physical confirmation pending; earlier normal typing was temporary |
 
-Current deterministic report: `<state>/pressure/v2-2026-10-06T22-20-58-626Z.json`:
+Pre-authentication-change deterministic report: `<state>/pressure/v2-2026-10-06T22-20-58-626Z.json`:
 68 tests in each of five fresh processes, 340 passed, unchanged runtime/suite
 fingerprints. These exercise actual launchers, separate MCP clients, detached
 workers and synthetic stores without desktop actions. New cases cover thread
@@ -41,7 +51,7 @@ archive success/refusal, precise filter ownership, preserved human quarantine
 and an unavailable audit. A separate read-only live audit found zero surviving
 helper keyboard filters at 22:20 UTC; it did not start Computer Use.
 
-Current scoped native report:
+Latest native report, preceding the authentication change:
 `<state>/pressure/live-v2-2026-10-06T22-20-43-966Z.json`: all eight checks
 passed with active UI quarantine and unchanged runtime source. It exercised
 delivery/reply, cancellation, three concurrent controls, busy queue,
