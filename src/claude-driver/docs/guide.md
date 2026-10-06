@@ -72,8 +72,13 @@ each UI entry; malformed or incomplete quarantine records fail closed.
 Release requires an explicit `{ "blocked": false }` record after physical
 recovery is confirmed. Refresh old MCP connections before relying on this
 guard. This limits this driver, not other chats using Computer Use.
-UI wake recovery now requires an empty composer, paste/setValue and exact
-readback before sending. Never overwrite a user's draft or retry a send
+Tier C runs in a private stdio worker, serialized across callers, without
+restarting the shared Codex daemon. It returns private evidence and execution
+metrics. Its bounded worker instructions forbid shell, memory reads and
+recursive bridge/CLI calls; the cold-recovery test observed zero shell calls.
+UI wake recovery requires an empty composer, native text paste (never
+setValue or per-character input), exact readback before one Return, and
+independent broker liveness after the structured send outcome. Never overwrite a user's draft or retry a send
 whose outcome is unknown.
 
 During the incident, a separate native-only qualification scope can use a

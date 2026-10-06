@@ -7,6 +7,63 @@ Versions: app = Claude desktop, cli = bundled Claude Code.
 
 ## 2026-10-06 (app 2.19675.0, cli 2.1.286)
 
+- **Final v2 source qualified across native controls, recovery and harnesses.**
+  `v2-2026-10-06T22-03-45-263Z.json`: 62 isolated tests x five processes, all
+  310 passed with unchanged runtime/suite hashes. Actual Claude and Codex
+  filtered model runs each passed ten contract checks; reports timestamped
+  `22-03-31-307Z`. Full native `live-v2-2026-10-06T22-03-26-276Z.json` passed
+  eight required checks and archived cleanup. Controlled cold recovery
+  `cold-recovery-v2-2026-10-06T22-05-59-471Z.json` terminated only the owned
+  idle broker, then verified one cold UI wake, new broker liveness, restored
+  chat/front app and exited private stdio backend. The worker used zero shell
+  calls and reset its own UI kernel; configs/source were unchanged. Native
+  preflight passed all ten checks. The earlier cold fixture refused before
+  termination on a stale working heartbeat despite native idle status; that
+  precondition failure is retained separately. n=1 final live/harness/cold run
+  each, five isolated rounds. These are bounded tests, not a latency guarantee.
+
+- **UI recovery must isolate the backend and distinguish sent from completed.**
+  The shared managed Codex daemon remained on 0.158.0-alpha.2.1 while the
+  installed private backend was 0.160.0. Automatic transport restarted the
+  older daemon without fixing its unsupported model. Claude's adapter now
+  forces a private stdio worker/state directory and serial UI lease, leaving
+  general Codex bridge changes parked. An earlier worker read skill/memory
+  files before native actions; the bounded worker now uses a private cwd and
+  native controls only. `setValue` appeared empty on immediate readback but
+  left a delayed wake draft; the next lease refused to overwrite it. Native
+  reconciliation sent that exact draft once, verified liveness and restored
+  focus. Wake now uses paste plus exact readback, a structured send outcome,
+  then independent liveness proof. Not-sent outcomes fail immediately with
+  an evidence path. Failed `live-v2-2026-10-06T21-58-35-639Z.json` is retained,
+  not counted as passing. n=1 failure for each described backend/input path.
+
+- **Current groups combine two native schemas.** Native create_group returned
+  opaque text, while its ID appeared in manual `dframe-code-sections`; native
+  move_sessions still wrote `dframe-group-scopes` assignments. Creation now
+  polls disk for one exact ID, refuses ambiguous names before dispatch and
+  preserves uncertainty when no ID verifies. Group reads merge both schemas.
+  `native-group-v2-2026-10-06T21-44-52-136Z.json` verified creation, movement,
+  merged disk readback and archived fixture cleanup. The preceding failed
+  creation-readback report remains retained. n=1 native sequence plus isolated
+  schema/ambiguity regressions.
+
+- **Active tool interruption is independently verified.**
+  `native-tool-v2-2026-10-06T21-41-27-854Z.json` observed an exact foreground
+  bounded Node command through the native Bash event and recipient process
+  ancestry. Stop terminated that process; the replacement reply appeared and
+  the old completion did not. The approved member's model/effort were restored,
+  then context cleared and archived/parked. Four checks passed. A preceding
+  fixture's extra trailing period broke the strict command match; it is a
+  failed test, retained separately. n=1 actual tool interruption.
+
+- **Native probe covered twelve existing mechanisms.**
+  `probe-v2-2026-10-06T21-46-29-350Z.json` passed create, focus restoration,
+  broker delivery, rename, pin/unpin, group, send, fork, archive, unarchive
+  and cleanup with test fixtures archived. An isolated broker-state recovery
+  fixture also verified governor-cap refusal with Tier C disabled and focus
+  restoration (`native-recovery-v2-2026-10-06T21-47-44-320Z.json`); that report
+  proves the fail-closed boundary, not successful warm-spawn. n=1 run each.
+
 - **Physical typing recovery confirmed by Taylor.** Direct reply to the
   physical keystroke check: "Typing is normal now". The private UI quarantine
   was released with dated human evidence, and shared service memory records
@@ -14,7 +71,7 @@ Versions: app = Claude desktop, cli = bundled Claude Code.
   exact-readback, draft protection and unknown-send safeguards remain. n=1
   human confirmation; earlier synthetic-key observations alone were insufficient.
 
-- **Final current-source native qualification passed.**
+- **Earlier native-only qualification passed (superseded below).**
   `live-v2-2026-10-06T21-31-36-385Z.json` passed all eight required checks,
   including actual reply, pre-dispatch cancellation, three concurrent controls,
   busy queue versus interruption, one reply per marker and archive cleanup.
@@ -68,7 +125,7 @@ Versions: app = Claude desktop, cli = bundled Claude Code.
   its real checkout path. Claims remain reserved after uncertain partial
   effects; availability is published only after cleared/archived disk proof.
   Existing permission grants are preserved, never recreated or raised.
-- **Latest deterministic suite: 59 checks in five fresh processes (295 passed).**
+- **Earlier deterministic suite: 59 checks in five fresh processes (295 passed).**
   `v2-2026-10-06T21-31-42-006Z.json` retained unchanged source/suite fingerprints.
   Actual headless fixture workflows also passed on that source: Claude
   `harness-v2-claude-2026-10-06T21-31-49-397Z.json`, Codex

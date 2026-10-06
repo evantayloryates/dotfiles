@@ -28,8 +28,7 @@ incremental transcript observation and shared service memory. Isolated
 lifecycle and native broker controls have dedicated qualification evidence.
 Fresh MCP processes and the CLI use v2; this chat's older MCP binding still
 needs refresh. Taylor confirmed normal physical typing on 2026-10-06 and the
-shared UI quarantine was released; comprehensive recovery qualification
-continues. Composer exact-readback safeguards remain. Native-only
+shared UI quarantine was released. Composer exact-readback safeguards remain. Native-only
 qualification uses an existing live broker and owned fixtures, with no
 automated input or app restart. See [qualification](docs/v2-qualification.md).
 
@@ -206,9 +205,14 @@ archive, unarchive, pin and group moves of other sessions ask Taylor).
   process is a desktop session (found via `~/.claude/sessions/<ppid>.json`),
   Tier B tools return the exact `ccd_*` calls for the caller to make itself.
 
-**Tier C** runs codex-bridge's engine in-process, granted only the Claude
-app, told never to click approval or delete cards; results are claims that
-the driver re-verifies on disk.
+**Tier C** reuses codex-bridge's engine in a private worker with forced stdio
+transport, its own state directory and a serialized UI lease. It neither
+connects to nor restarts the shared Codex daemon. The worker targets only
+Claude through native Computer Use; shell, recursive bridge calls and
+approval cards are excluded. Wake input uses paste, an empty composer and
+exact readback before one Return. Structured send claims still require
+verified broker liveness. Each lease records transport/version, metrics and
+private evidence; owned backend processes are torn down on exit/cancellation.
 
 ## Focus policy
 
