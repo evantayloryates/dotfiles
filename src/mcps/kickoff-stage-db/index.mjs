@@ -27,7 +27,7 @@ import { dirname, isAbsolute, join, resolve } from 'node:path'
 import { createInterface } from 'node:readline'
 import { execFileSync } from 'node:child_process'
 import { checkServerIdentity } from 'node:tls'
-import { checkSql, IDENT, shape, ToolError } from './lib/sql.mjs'
+import { checkSql, IDENT, scan, shape, ToolError } from './lib/sql.mjs'
 import { fileFormat, renderRows, uniqueNames } from './lib/format.mjs'
 import { ensureVpn, reachable, vpnState } from './lib/vpn.mjs'
 
@@ -121,8 +121,9 @@ function getPool() {
     connectTimeout: 8000,
     dateStrings: true,
     decimalNumbers: true,
+    // Numbers stay numbers; only values past 2^53 come back as strings.
     supportBigNumbers: true,
-    bigNumberStrings: true,
+    bigNumberStrings: false,
     multipleStatements: false,
   })
   // Runs before the connection is handed out: commands queue in order.
@@ -398,10 +399,10 @@ async function describe({ table, tables: list } = {}) {
   const [cols, idx, fks, sizes] = await withConnection(DEFAULT_TIMEOUT_S, (c) => {
     const q = (sql) => new Promise((res, rej) => c.query({ sql, values: [t.database, names] }, (e, r) => (e ? rej(e) : res(r))))
     return Promise.all([
-      q('SELECT table_name, column_name, column_type, is_nullable, column_key, column_default, extra FROM information_schema.columns WHERE table_schema=? AND table_name IN (?) ORDER BY table_name, ordinal_position'),
-      q('SELECT table_name, index_name, non_unique, GROUP_CONCAT(column_name ORDER BY seq_in_index) AS cols FROM information_schema.statistics WHERE table_schema=? AND table_name IN (?) GROUP BY table_name, index_name, non_unique ORDER BY table_name, index_name'),
-      q('SELECT table_name, column_name, referenced_table_name, referenced_column_name FROM information_schema.key_column_usage WHERE table_schema=? AND table_name IN (?) AND referenced_table_name IS NOT NULL ORDER BY table_name, column_name'),
-      q('SELECT table_name, table_rows FROM information_schema.tables WHERE table_schema=? AND table_name IN (?)'),
+      q('SELECT table_name AS table_name, column_name AS column_name, column_type AS column_type, is_nullable AS is_nullable, column_key AS column_key, column_default AS column_default, extra AS extra FROM information_schema.columns WHERE table_schema=? AND table_name IN (?) ORDER BY table_name, ordinal_position'),
+      q('SELECT table_name AS table_name, index_name AS index_name, non_unique AS non_unique, GROUP_CONCAT(column_name ORDER BY seq_in_index) AS cols FROM information_schema.statistics WHERE table_schema=? AND table_name IN (?) GROUP BY table_name, index_name, non_unique ORDER BY table_name, index_name'),
+      q('SELECT table_name AS table_name, column_name AS column_name, referenced_table_name AS referenced_table_name, referenced_column_name AS referenced_column_name FROM information_schema.key_column_usage WHERE table_schema=? AND table_name IN (?) AND referenced_table_name IS NOT NULL ORDER BY table_name, column_name'),
+      q('SELECT table_name AS table_name, table_rows AS table_rows FROM information_schema.tables WHERE table_schema=? AND table_name IN (?)'),
     ])
   })
   const out = []
@@ -501,6 +502,10 @@ function checkOutput(path, overwrite) {
 async function query({ sql, params, limit, timeout_seconds, max_cell_chars, output_path, overwrite } = {}) {
   const statement = checkSql(sql)
   const values = checkParams(params)
+  const holes = (scan(statement).masked.match(/\?/g) || []).length
+  if (holes !== (values?.length ?? 0)) {
+    throw new ToolError(`sql has ${holes} ? placeholder${holes === 1 ? '' : 's'} but params has ${values?.length ?? 0} value${values?.length === 1 ? '' : 's'}`)
+  }
   if (output_path !== undefined) return exportRows(statement, values, { output_path, overwrite, timeout_seconds })
   const rowLimit = checkInt(limit, 'limit', 1, MAX_ROWS, DEFAULT_ROWS)
   const timeoutS = checkInt(timeout_seconds, 'timeout_seconds', 1, MAX_TIMEOUT_S, DEFAULT_TIMEOUT_S)
