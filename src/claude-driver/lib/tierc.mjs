@@ -32,12 +32,16 @@ export async function computerUse(task, {timeoutSec=180, session='claude-driver'
     const hard=setTimeout(()=>{try{process.kill(-child.pid,'SIGKILL')}catch{}},(Math.max(30,timeoutSec)+15)*1000)
     const abort=()=>stop()
     signal?.addEventListener('abort',abort,{once:true})
+    if(signal?.aborted)abort()
     child.stdout.on('data',x=>{output+=x;if(Buffer.byteLength(output)>1024*1024){overflow=true;stop()}})
     child.stderr.on('data',x=>{stderr=(stderr+x).slice(-64*1024);for(const line of x.toString().split('\n')){try{const r=JSON.parse(line);if(typeof r.progress==='string')progress(r.progress)}catch{}}})
     child.stdin.on('error',()=>{})
     child.stdin.end(payload)
     const code=await new Promise(resolve=>{child.once('exit',resolve);child.once('error',e=>{spawnError=e.message;resolve(-1)})})
     clearTimeout(timer);clearTimeout(hard);signal?.removeEventListener('abort',abort)
+    // A terminated worker may leave backend/MCP descendants. Its detached
+    // process group contains only this lease, never the shared daemon/app.
+    if(child.pid){try{process.kill(-child.pid,'SIGTERM')}catch{}}
     let result
     try{result=JSON.parse(output)}catch{}
     const evidence=join(dir,'result.json')

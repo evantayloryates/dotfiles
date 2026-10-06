@@ -44,6 +44,16 @@ test('UI quarantine blocks before loading the input bridge and rereads incident 
  rmSync(policy.UI_QUARANTINE)
 })
 
+test('isolated UI workers enforce quarantine before parsing or starting a backend',()=>{
+ const isolated=join(root,'quarantined-ui-worker')
+ state.writeJsonAtomic(join(isolated,'ui-quarantine.json'),{blocked:true,reason:'synthetic incident'})
+ const result=spawnSync(process.execPath,['src/claude-driver/scripts/tierc-worker.mjs'],{
+  input:'invalid input',encoding:'utf8',env:{...process.env,CLAUDE_DRIVER_STATE_DIR:isolated,CODEX_BRIDGE_STATE_DIR:join(isolated,'backend')}})
+ assert.equal(result.status,1)
+ assert.equal(JSON.parse(result.stdout).error.category,'ui_quarantined')
+ assert.throws(()=>statSync(join(isolated,'backend')),{code:'ENOENT'})
+})
+
 test('quarantined CLI probe and broker bootstrap exit without making fixtures',()=> {
  const isolated=join(root,'quarantined-cli')
  state.writeJsonAtomic(join(isolated,'ui-quarantine.json'),{blocked:true,reason:'synthetic incident'})

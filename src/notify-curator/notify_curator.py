@@ -584,7 +584,12 @@ def acquire_lock():
 
 
 def cmd_daemon(_args):
-    fd = acquire_lock()
+    fd = None
+    for _ in range(20):  # status/ensure probe the lock for an instant; ride that out
+        fd = acquire_lock()
+        if fd is not None:
+            break
+        time.sleep(0.05)
     if fd is None:
         return 0  # another instance owns it
     with open(PIDFILE, 'w') as f:
