@@ -14,4 +14,8 @@ test('native qualification is scoped to passing evidence on identical source and
  assert.equal(nativeQualification(r,'build',v).qualified,true)
  for(const x of [null,{...r,status:'failed'},{...r,kind:'lesson'},{...r,runtimeBuild:'old'},{...r,versions:{...v,cli:'3'}}])assert.equal(nativeQualification(x,'build',v).qualified,false)
  assert.ok(nativeQualification(r,'build',v).excluded.includes('UI-recovery'))
+ const full=nativeQualification({...r,topic:'v2-live-pressure'},'build',v)
+ assert.equal(full.scope,'full-live');assert.equal(full.qualified,true)
+ assert.equal(full.excluded.includes('session-import'),false)
+ assert.ok(full.excluded.includes('UI-recovery'))
 })

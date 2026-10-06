@@ -229,9 +229,10 @@ async function reviveBrokerUnlocked({ focus = 'restore', allowTierC = true, prog
       const { typeIntoComposer } = await import('./tierc.mjs')
       const tc = await typeIntoComposer(BROKER_TITLE, `claude-driver wake v${protocolVersion()}`, { progress, signal, timeoutSec: 150 })
       checkCancel()
-      if (tc.status !== 'completed') throw new DriverError(`broker wake did not complete: ${tc.status}; inspect the UI before retrying`, { category: 'broker_dead', detail: { tierCStatus: tc.status } })
-      if (!await waitLive(30_000)) throw new DriverError('broker wake completed but no live process was verified', { category: 'broker_dead' })
-      result = { method: 'tier_c_wake', ms: Date.now() - t0, tierC: tc.status }
+      if (tc.status !== 'completed') throw new DriverError(`broker wake did not complete: ${tc.status}; inspect the UI before retrying`, { category: 'broker_dead', detail: { tierCStatus: tc.status, evidence:tc.evidence } })
+      if (tc.structured?.sent !== true) throw new DriverError(`broker wake was not sent: ${tc.structured?.reason||'no verified UI send'}; reconcile the composer before retrying`, { category:'broker_dead',detail:{evidence:tc.evidence,sent:false} })
+      if (!await waitLive(30_000)) throw new DriverError('broker wake completed but no live process was verified', { category: 'broker_dead', detail:{evidence:tc.evidence} })
+      result = { method: 'tier_c_wake', ms: Date.now() - t0, tierC: tc.status, evidence:tc.evidence, execution:tc.execution, metrics:tc.metrics }
     }
   } finally {
     const action = before && focus === 'restore' ? await restoreFrom(before, info.sessionId) : focus

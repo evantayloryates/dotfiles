@@ -62,6 +62,12 @@ async function observeUntil(predicate, seconds=30) {
   while(Date.now()<end){ const r=await op('session_wait',{session,cursor,include_text:true,timeout_sec:Math.min(5,Math.max(0,(end-Date.now())/1000))});cursor=r.cursor;seen.push(...r.events);observed.push(...r.events);if(predicate(seen,r))return seen }
   throw new Error('expected session evidence did not arrive')
 }
+async function waitJob(jobId,seconds=180){
+  const end=Date.now()+seconds*1000
+  let job
+  do{job=await op('driver_wait',{job_id:jobId,timeout_sec:Math.min(30,Math.max(0,(end-Date.now())/1000))});if(!['queued','running'].includes(job.state))return job}while(Date.now()<end)
+  throw new Error(`owned job ${jobId} remains ${job.state}; reconcile before replay`)
+}
 try {
   if (brokerOnly) await step('adopt-owned-fixture',async()=>({session,navigation:false,inputAutomation:false,uiQuarantine:uiPolicy().blocked}))
   else await step('create-and-restore-focus',async()=>{ const r=await op('create_session',{folder,title:`claude-driver v2 pressure ${stamp}`,model:'claude-haiku-4-5-20251001',permission_mode:'acceptEdits'});session=r.sessionId;assert.equal(r.verified,true);return {session,focus:r.focus,ms:r.bootMs} })
@@ -70,7 +76,7 @@ try {
     const args={operation:'send_message',arguments:{session,message:'Synthetic bridge fixture. Reply exactly V2_INITIAL_OK. Do not use tools, change files or message others.'},idempotency_key:`live-${stamp}-initial`}
     const at=Date.now(), j=await op('driver_submit',args);const submitMs=Date.now()-at
     const again=await op('driver_submit',args);assert.equal(again.jobId,j.jobId);assert.equal(again.reused,true)
-    const done=await op('driver_wait',{job_id:j.jobId,timeout_sec:30});assert.equal(done.state,'completed',JSON.stringify(done.error));assert.ok(['delivered','queued'].includes(done.result.delivery))
+    const done=await waitJob(j.jobId);assert.equal(done.state,'completed',JSON.stringify(done.error||{jobId:j.jobId,state:done.state}));assert.ok(['delivered','queued'].includes(done.result.delivery))
     assert.equal(done.result.receiptSource,'native-tool-result')
     const seen=await observeUntil(e=>e.some(x=>x.type==='assistant'&&x.text==='V2_INITIAL_OK'))
     return {jobId:j.jobId,submitMs,receipt:done.result.messageId,replyVerified:true,events:seen.length}
@@ -116,6 +122,9 @@ try {
   })
 } catch(e) { process.exitCode=1 }
 finally {
+  // A nonterminal owned job can still dispatch after a failed assertion.
+  // Cancel it before fixture cleanup; uncertain native effects stay recorded.
+  await Promise.all([...ownedJobs].map(id=>cancelJob(id)))
   if(controller.signal.aborted){
     await Promise.all([...ownedJobs].map(id=>cancelJob(id)))
     rows.push({name:'interrupted',ok:false,session,remainingCleanup:!!session})

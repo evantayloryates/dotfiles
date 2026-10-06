@@ -16,7 +16,8 @@ export function validateBrokerFixture({ session, record, registry, stateDir, bro
 
 export function nativeQualification(row,build,versions){
   const matches=!!row&&row.runtimeBuild===build&&row.versions?.app===versions.app&&row.versions?.cli===versions.cli
-  return {scope:'native-broker-only',qualified:matches&&row.kind==='test_result'&&row.status==='passed',
+  const full=row?.topic==='v2-live-pressure'
+  return {scope:full?'full-live':'native-broker-only',qualified:matches&&row.kind==='test_result'&&row.status==='passed',
     matchingRuntime:matches,...(row?{status:row.status,at:row.at,evidence:row.evidence}:{status:'unqualified'}),
-    excluded:['physical-typing','UI-recovery','focus-restoration','session-import']}
+    excluded:full?['physical-typing','UI-recovery']:['physical-typing','UI-recovery','focus-restoration','session-import']}
 }
