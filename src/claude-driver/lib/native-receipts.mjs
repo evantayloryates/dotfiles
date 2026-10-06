@@ -19,8 +19,12 @@ export class NativeReceipts {
       if(b?.type==='tool_use'&&typeof b.id==='string'){
         if(b.name==='Bash'){
           const command=b.input?.command
-          if(typeof command==='string')for(let i=0;i<this.request.ops.length;i++)
-            if(command.includes(`broker-check.mjs ${this.request.id} ${i} --dir`))this.checks.set(b.id,i)
+          if(typeof command==='string'){
+            const indices=[]
+            for(let i=0;i<this.request.ops.length;i++)
+              if(command.includes(`broker-check.mjs ${this.request.id} ${i} --dir`))indices.push(i)
+            if(indices.length)this.checks.set(b.id,indices)
+          }
         }else for(const i of this.ready){
           const o=this.request.ops[i]
           if(b.name===tools[o.op]&&canonical(b.input)===canonical(o.args)){
@@ -29,9 +33,16 @@ export class NativeReceipts {
         }
       }else if(b?.type==='tool_result'){
         if(this.checks.has(b.tool_use_id)){
-          const i=this.checks.get(b.tool_use_id),o=this.request.ops[i]
+          const indices=this.checks.get(b.tool_use_id)
           this.checks.delete(b.tool_use_id)
-          try{const c=JSON.parse(text(b.content));if(!b.is_error&&c.dispatch===true&&c.op===o.op&&canonical(c.args)===canonical(o.args))this.ready.add(i)}catch{}
+          if(!b.is_error){
+            const output=text(b.content)
+            let checkpoints
+            try{checkpoints=[JSON.parse(output)]}catch{checkpoints=output.split('\n').flatMap(line=>{try{return[JSON.parse(line)]}catch{return[]}})}
+            for(const i of indices){const o=this.request.ops[i]
+              if(checkpoints.some(c=>c?.dispatch===true&&c.op===o.op&&canonical(c.args)===canonical(o.args)))this.ready.add(i)
+            }
+          }
         }else if(this.calls.has(b.tool_use_id)){
           const i=this.calls.get(b.tool_use_id);this.calls.delete(b.tool_use_id)
           this.results.set(i,{op:this.request.ops[i].op,ok:!b.is_error,...(b.is_error?{error:text(b.content)}:{result:text(b.content)}),nativeToolUseId:b.tool_use_id})

@@ -80,16 +80,38 @@ class RecoveryPressureTests(unittest.TestCase):
         self.assertEqual(out['kick'], {'retry_requested': True, 'app_open_accepted': False})
         self.assertEqual(spawn.call_count, 1)
 
+    def test_automatic_dispatch_never_starts_an_auth_wake(self):
+        with patch.object(recovery.subprocess, 'Popen') as spawn, patch.object(recovery, 'dispatch', return_value='queued') as dispatch:
+            out = recovery.recover(automatic=True)
+        spawn.assert_not_called()
+        dispatch.assert_called_once()
+        self.assertEqual(out['kick'], 'not_requested')
+
+    def test_click_during_automatic_dispatch_wakes_once(self):
+        import fcntl
+        worker = Mock(returncode=0)
+        worker.communicate.return_value = (b'{"retry_requested":true,"app_open_accepted":true}', None)
+        with (self.root/'recovery.lock').open('w') as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX|fcntl.LOCK_NB)
+            with patch.object(recovery.subprocess, 'Popen', return_value=worker) as spawn, patch.object(recovery, 'dispatch') as dispatch:
+                for _ in range(2):
+                    out = recovery.recover()
+                    self.assertEqual(out['dispatch'], 'click_in_progress')
+                    self.assertTrue(out['kick']['retry_requested'])
+                self.assertEqual(spawn.call_count, 1)
+                dispatch.assert_not_called()
+
     def test_notifier_has_fixed_explicit_action_and_no_osascript(self):
-        with patch.object(keepalive.subprocess, 'run', return_value=Mock(returncode=0)) as run:
+        with patch.object(keepalive.subprocess, 'Popen') as spawn, patch.object(keepalive.subprocess, 'run', return_value=Mock(returncode=0)) as run:
             self.assertTrue(keepalive.notify('title', 'body'))
+        self.assertIn('--automatic', spawn.call_args.args[0])
         args=run.call_args.args[0]
         self.assertIn('--execute', args)
         self.assertIn('recovery.py', args[-1])
         self.assertNotIn('osascript', ' '.join(args))
 
     def test_notifier_failure_cannot_crash_auth_path(self):
-        with patch.object(keepalive.subprocess, 'run', side_effect=OSError):
+        with patch.object(keepalive.subprocess, 'Popen'), patch.object(keepalive.subprocess, 'run', side_effect=OSError):
             self.assertFalse(keepalive.notify('title', 'body'))
 
 if __name__ == '__main__': unittest.main()
@@ -106,8 +128,13 @@ class AdditionalBoundaries(unittest.TestCase):
             with (Path(tmp)/'recovery.lock').open('w') as lock:
                 fcntl.flock(lock, fcntl.LOCK_EX|fcntl.LOCK_NB)
                 with patch.object(recovery, 'dispatch') as dispatch, patch.object(recovery.subprocess, 'Popen') as spawn:
-                    self.assertEqual(recovery.recover()['dispatch'], 'click_in_progress')
+                    self.assertEqual(recovery.recover(automatic=True)['dispatch'], 'click_in_progress')
                     dispatch.assert_not_called(); spawn.assert_not_called()
+
+    def test_native_keepalive_offset_is_preserved(self):
+        self.assertEqual(recovery.safe_epoch('2026-01-01T10:00:00-0500'), recovery.safe_epoch('2026-01-01T15:00:00+00:00'))
+        self.assertIsNotNone(recovery.safe_epoch('2026-01-01T10:00:00-0500'))
+        self.assertIsNone(recovery.safe_epoch('2026-01-01T10:00:00'))
 
     def test_timestamp_input_is_bounded(self):
         for value in ('SECRET', '2999-01-01T00:00:00+00:00', None, [], -3):

@@ -47,7 +47,14 @@ def valid_uuid(value):
 
 def safe_epoch(value):
     try:
-        stamp = datetime.datetime.fromisoformat(value).timestamp()
+        try:
+            parsed = datetime.datetime.fromisoformat(value)
+        except ValueError:
+            # The hosted system Python rejects compact offsets emitted by now().
+            parsed = datetime.datetime.strptime(value, '%Y-%m-%dT%H:%M:%S%z')
+        if parsed.tzinfo is None:
+            return None
+        stamp = parsed.timestamp()
         return int(stamp) if 0 <= stamp <= time.time() + 60 else None
     except (ValueError, TypeError, OverflowError):
         return None
@@ -105,33 +112,53 @@ def dispatch(evidence, incident):
         'queued', 'started', 'already_dispatched', 'uncertain', 'unavailable', 'claude_submitted'} else 'uncertain'
 
 
-def recover():
-    CACHE.mkdir(mode=0o700, parents=True, exist_ok=True)
-    fd = os.open(CACHE / 'recovery.lock', os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
+def request_wake():
+    """One independent wake per click burst, even during automatic dispatch."""
+    fd = os.open(CACHE / 'wake.lock', os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
     with os.fdopen(fd, 'w') as lock:
         try:
             fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError:
-            return {'dispatch': 'click_in_progress', 'kick': 'owned_by_first_click'}
+            return 'wake_in_progress'
+        previous = read_json(CACHE / 'wake-result.json')
+        if 0 <= time.time() - previous.get('at', 0) < 30:
+            return previous.get('kick', 'unconfirmed')
         request_id = str(uuid.uuid4())
-        result = {'at': int(time.time()), 'request_id': request_id}
-        # Start the independent wake worker first; it cannot be held hostage by
-        # a hung harness. Dispatch is initiated immediately in this process.
-        # No inherited stdio keeps terminal-notifier waiting for auth.
+        save(CACHE / 'wake-result.json', {'at': time.time(), 'kick': 'unconfirmed'})
         worker = subprocess.Popen(['/usr/bin/python3', '-B', str(Path(__file__).resolve()),
                                    '--kick', request_id], stdin=subprocess.DEVNULL,
                                   stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
                                   start_new_session=True)
         try:
-            result['dispatch'] = dispatch(diagnostics(), CACHE / 'repair-incident.json')
-        except Exception:
-            result['dispatch'] = 'unavailable_or_uncertain'
-        try:
             output, _ = worker.communicate(timeout=12)
             wake = json.loads(output)
-            result['kick'] = {k: wake.get(k) is True for k in ('retry_requested', 'app_open_accepted')}
+            result = {k: wake.get(k) is True for k in ('retry_requested', 'app_open_accepted')}
         except (subprocess.TimeoutExpired, ValueError, TypeError):
-            result['kick'] = 'unconfirmed'
+            result = 'unconfirmed'
+        save(CACHE / 'wake-result.json', {'at': time.time(), 'kick': result})
+        return result
+
+
+def recover(automatic=False):
+    CACHE.mkdir(mode=0o700, parents=True, exist_ok=True)
+    # A user's click must still wake auth while an automatic dispatch holds its
+    # own lock. Automatic diagnosis never adds a competing authorization retry.
+    evidence = diagnostics()
+    try:
+        wake = 'not_requested' if automatic else request_wake()
+    except OSError:
+        wake = 'unconfirmed'
+    fd = os.open(CACHE / 'recovery.lock', os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
+    with os.fdopen(fd, 'w') as lock:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            return {'dispatch': 'click_in_progress', 'kick': wake}
+        result = {'at': int(time.time()), 'request_id': str(uuid.uuid4()), 'kick': wake}
+        try:
+            result['dispatch'] = dispatch(evidence, CACHE / 'repair-incident.json')
+        except Exception:
+            result['dispatch'] = 'unavailable_or_uncertain'
         save(CACHE / 'recovery-result.json', result)
         return result
 
@@ -142,4 +169,4 @@ if __name__ == '__main__':
     if len(sys.argv) == 3 and sys.argv[1] == '--kick':
         print(json.dumps(kick(str(uuid.UUID(sys.argv[2])))))
     else:
-        print(json.dumps(recover()))
+        print(json.dumps(recover(automatic=sys.argv[1:] == ['--automatic'])))

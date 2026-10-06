@@ -19,6 +19,17 @@ test('raw native output is correlated to checkpoint and identical arguments',()=
  assert.equal(c.receipt().source,'native-tool-result');assert.equal(c.receipt().results[0].result,'delivery: queued')
  assert.equal(c.receipt().results[0].nativeToolUseId,'native')
 })
+test('batched checkpoint output correlates each exact operation without accepting denied entries',()=>{
+ const req={id:request.id,ops:[request.ops[0],{op:'set_session_effort',args:{session_id:'local_owned',effort:'low'}}]}
+ const batched=row('assistant',{type:'tool_use',id:'batch',name:'Bash',input:{command:req.ops.map((_,i)=>`node broker-check.mjs ${req.id} ${i} --dir /state`).join(' && ')}})
+ for(const allowed of [true,false]){
+  const c=new NativeReceipts(req);c.feed(batched)
+  c.feed(row('user',{type:'tool_result',tool_use_id:'batch',content:req.ops.map((o,i)=>JSON.stringify({dispatch:i===0||allowed,...o})).join('\n')}))
+  for(const r of [native,result,row('assistant',{type:'tool_use',id:'effort',name:'mcp__ccd_session_mgmt__set_session_effort',input:req.ops[1].args}),row('user',{type:'tool_result',tool_use_id:'effort',content:'effort: low'})])c.feed(r)
+  assert.equal(!!c.receipt(),allowed)
+  assert.equal(c.results.has(0),true)
+ }
+})
 test('wrong recipient, denied checkpoint, unrelated result and relay paraphrases cannot settle',()=>{
  for(const mutation of [s=>s[1].message.content[0].content=JSON.stringify({dispatch:false,...request.ops[0]}),s=>s[2].message.content[0].input.session_id='local_other',s=>s[3].message.content[0].tool_use_id='other',s=>s[0].message.content[0].input.command='/node broker-check.mjs other-request 0 --dir /state']){
   const s=structuredClone(sequence);mutation(s);const c=new NativeReceipts(request);for(const r of s)c.feed(r)

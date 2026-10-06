@@ -25,11 +25,13 @@ Usage contract for agents: [docs/guide.md](docs/guide.md) (also served by the
 
 The v2 control interface adds durable jobs, explicit stop/queue/interrupt,
 incremental transcript observation and shared service memory. Isolated
-lifecycle tests passed; comprehensive live qualification is unfinished.
-Live testing was stopped on 2026-10-06 to prioritize Taylor's report of
-duplicated physical keyboard input in Claude Desktop. See the findings log.
-Tier C is quarantined in private service state while that incident remains
-unresolved; live qualification also checks the quarantine before any app work.
+lifecycle and native broker controls have dedicated qualification evidence.
+Fresh MCP processes and the CLI use v2; this chat's older MCP binding still
+needs refresh. Comprehensive qualification remains unfinished: duplicated
+physical keyboard input in Claude Desktop is not yet confirmed resolved.
+Tier C, broker UI recovery and full probes stay quarantined. Native-only
+qualification uses an existing live broker and owned fixtures, with no
+automated input or app restart. See [qualification](docs/v2-qualification.md).
 
 ## Setup
 
@@ -61,9 +63,12 @@ Isolated qualification (no Claude UI actions or desktop turns):
 node src/claude-driver/scripts/pressure-v2.mjs --repeat 5
 ```
 
-Live qualification uses a synthetic owned chat. It currently requires
-`node src/claude-driver/scripts/live-v2.mjs --live`, after physical typing
-recovery is confirmed. Interrupting that script cancels its owned jobs,
+Full live qualification uses `node src/claude-driver/scripts/live-v2.mjs
+--live`, after physical typing recovery is confirmed. A separate scoped run
+uses `--live --broker-only --session local_<owned-fixture>` while quarantined;
+`--restore-fixture` permits native unarchive of that same scratch fixture.
+It checks delivery, cancellation, concurrent controls, queue/interrupt and
+cleanup, without creating/importing sessions or automating input. Interrupting that script cancels its owned jobs,
 records unfinished cleanup and stops further app controls. Qualification
 requires every named check; partial runs cannot pass.
 
@@ -84,14 +89,14 @@ The CLI mirrors every MCP tool: `claude-driver <tool> --arg value …` (or
 |------|------|--------------|
 | `driver_guide`, `driver_status`, `driver_learnings`, `driver_record_learning` | — | guidance, health (versions, broker, capability matrix, recent failures), findings, candidate learnings |
 | `list_sessions`, `get_session`, `live_sessions`, `window_state` | A | disk ground truth; `window_state {precise}` adds the broker's `get_window_layout` |
-| `create_session` | A (+B) | exact title/model/folder or `no_project`; optional `lock_title`, `group`, `first_message` |
+| `create_session` | A (+B) | exact title/model/folder or `no_project`; optional `lock_title`, `group`, `first_message`, `require_pool`; returns a pre-message observation cursor |
 | `fork_session`, `open_session`, `unarchive_session` | A (B fallback) | deep links; unarchive falls back to the broker for native sessions |
 | `rename_session`, `pin_session`, `archive_session`, `set_session_config`, `send_message`, `manage_groups` | B | the app's own tools, verified on disk |
 | `delete_sessions` | B | gated, queueable, always Taylor's card; cleans CLI leftovers of driver-created sessions |
 | `archive_project` | B | dry run by default, gated to scratch/driver folders |
 | `window_manage` | C | free-form window work in the Claude app via Codex |
 | `broker_status` | A/C | broker state; `revive` |
-| `driver_submit`, `driver_job`, `driver_wait`, `driver_cancel` | — | durable jobs, idempotency and bounded waits across harness restarts |
+| `driver_submit`, `driver_job`, `driver_wait`, `driver_cancel`, `driver_request` | — | durable jobs, idempotency, bounded waits and read-only late receipt reconciliation |
 | `session_events`, `session_wait` | A | bounded transcript cursors; assistant text requires opt-in |
 | `stop_session`, `steer_session` | B | verified stop, queued follow-up or stop followed by replacement |
 | `driver_memory_record`, `driver_memory_query` | — | shared technical observations with evidence and confidence status |
@@ -273,8 +278,8 @@ the version to `CLAUDE_DRIVER_PEER_VERIFIED` / `VERIFIED_CLI`.
 Original mechanism qualification verified against Claude desktop 2.9939.4, bundled Claude Code CLI 2.1.284 and
 Codex CLI 0.159.0 on 2026-09-30.
 
-V2 offline qualification on 2026-10-06: 38 lifecycle/MCP checks passed in
-five fresh runs. Current native environment is Claude desktop 2.19675.0 /
-bundled CLI 2.1.286; comprehensive live qualification remains unfinished.
+V2 qualification on 2026-10-06 uses source fingerprints and retained private
+reports. Current native environment is Claude desktop 2.19675.0 / bundled CLI
+2.1.286; comprehensive live qualification remains unfinished.
 See [v2 qualification](docs/v2-qualification.md) for evidence and outstanding
 checks, including refreshing this chat's still-legacy MCP connection.

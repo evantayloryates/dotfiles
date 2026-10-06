@@ -192,9 +192,17 @@ def notify(title, body):
     helper = Path.home() / ".codex/skills/notify-macos/scripts/notify.py"
     import shlex
     action = shlex.join(["/usr/bin/python3", "-B", str(Path.home() / "dotfiles/src/onepassword/recovery.py")])
+    # Standing authorization: diagnose immediately, without a click or another
+    # auth wake. The independent worker is bounded and duplicate-safe.
+    try:
+        subprocess.Popen(["/usr/bin/python3", "-B", str(Path.home() / "dotfiles/src/onepassword/recovery.py"), "--automatic"],
+            stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            env={"HOME": str(Path.home()), "PATH": "/opt/homebrew/bin:/usr/bin:/bin"}, start_new_session=True)
+    except OSError:
+        pass # The click remains an independent recovery entry point.
     try:
         result = subprocess.run(["/usr/bin/python3", str(helper), "--backend", "terminal-notifier",
-            "--title", title, "--message", body + " Click to request repair and retry authorization.",
+            "--title", title, "--message", body + " Repair runs automatically. Click to open 1Password and retry authorization.",
             "--group", "op-broker-recovery", "--execute", action],
             env={"HOME": str(Path.home()), "PATH": "/opt/homebrew/bin:/usr/bin:/bin"},
             capture_output=True, timeout=25)

@@ -224,76 +224,82 @@ approval separately: subsequent calls in one app lifetime should not prompt,
 whereas the first call after an unchanged app restart does prompt by design.
 Touch ID reuse alone does not establish macOS privacy permission behavior.
 
-## Notification recovery (2026-10-06)
+## Automatic recovery and incident records (2026-10-06)
 
-Keepalive notifications now use the installed `notify-macos` helper and
-terminal-notifier with a fixed, explicit `recovery.py` click command. AppleScript
-notifications had no recovery action and could activate the wrong application.
-A click starts two independent operations: an auth wake and sanitized repair
-chat dispatch. A dispatch failure cannot prevent the wake. The wake persists a
-short-lived request for the approved keepalive child and opens 1Password; the
-child resets its backoff and waits for the console/app unlock before metadata
-calls. It never approves authentication or restarts the broker.
+Every keepalive notification immediately launches `recovery.py --automatic` as
+an independent, bounded worker. Diagnosis no longer waits for a notification
+click. This path does **not** request another authorization attempt. The banner
+has one fixed `recovery.py` click action that independently opens 1Password and
+requests a keepalive wake. No second notification or approval is required to
+implement and safely activate a verified repair. Touch ID and macOS consent
+still belong to Taylor; software repair authorization cannot replace them.
 
-`recovery-result.json` distinguishes a persisted retry request from an accepted
-app-open request. Neither proves that a prompt appeared or was approved.
-`state.json` records the consumed recovery ID, executing child PID, source hash,
-and a fault-episode ID that clears after successful metadata calls.
+Recovery sends only sanitized diagnostic categories and slot numbers. It uses
+the existing Codex daemon without starting, upgrading or restarting it. New
+incident chats use an advertised strongest desktop model with high effort,
+`approvalPolicy: never`, the dotfiles project and the actual Pinned section UUID.
+The sandbox and 1Password permissions are not loosened. Refused platform access
+remains a failure to report, not something the dispatcher approves itself.
 
-Dispatch uses the existing Codex bridge's JSON-RPC/daemon transport without
-starting, upgrading or restarting that daemon. It resolves an advertised desktop
-model supporting high effort, reuses the bound repair chat, queues diagnostics
-with a stable message ID, verifies the queue receipt, and opens the exact chat.
-New chats and confirmed unowned idle chats start their queued submission. A
-separate read-only desktop ownership check prevents treating the daemon's
-`notLoaded` status as permission to run a desktop-owned chat concurrently.
-Desktop-owned chats retain the queued submission; **queue acceptance is not
-proof of desktop turn execution**. On October 6, the callback queued during an
-active turn automatically started the next turn in this pinned Astra/high repair
-chat, verifying delivery across turn completion. A separate controlled dispatch
-confirmed the desktop-owned chat was already idle, queued a fresh diagnostic
-episode, and automatically started its repair turn without a manual send or
-another auth wake. Both desktop execution boundaries are qualified; physical
-notification-banner clicking remains unverified. Pinning
-uses the actual Pinned section UUID, not the literal string `pinned`.
+Generated chats are named `⚙️ fix-1p-broker/<Eastern-date-time>`; each gets a
+matching directory under [autofixes](autofixes/AGENTS.md). Names use the actual
+month (`sept` in September), two-digit day and hour: `sept-25-5p`. Try the floor
+first, then the next actual hour only when strictly past half past, then the
+original minute (`sept-25-5.17p`). `America/New_York` handles DST and midnight.
+Atomic folder creation and existing chat names prevent overwrite. Exhausting the
+minute name fails closed; a later event can try again. UTC creation time and
+year remain in `incident.json`.
 
-Only booleans, bounded status categories, validated timestamps, fault IDs and
-account slot numbers leave the keepalive. No account/vault names, command
-arguments, environments, raw stderr or raw application logs enter repair
-prompts. A same-episode click cannot replay an accepted dispatch; a later
-confirmed episode can queue fresh diagnostics in the same chat. Uncertain
-mutations are retained for reconciliation instead of replay or Claude fallback.
-Private receipts live in `~/Library/Caches/com.taylor.op-keepalive/`.
+An unsettled incident is reused. After settlement a new episode creates a new
+chat; duplicate events do not resurrect archived incidents. Legacy undated chats
+remain maintenance chats. An uncertain mutation is retained for reconciliation,
+never blindly replayed or redirected to a competing fallback chat.
 
-If Codex is unavailable before any mutation, fallback uses the existing Claude
-driver with its strongest configured default model, high effort, explicit pin,
-and send. The driver's UI quarantine is honored before any fallback action;
-Claude fallback has isolated coverage only and is **not live-qualified** during
-that incident. Authentication and macOS consent still belong to Taylor.
+Before a generated chat self-archives, it must verify its conclusion, update
+relevant agent docs, store sanitized supporting evidence under `artifacts/`, and
+write `report.json`. The [settlement helper](autofix.mjs) validates the required
+fields/evidence and generates `summary.html`, `summary.md` and `settled.json`.
+It checks structure; agents must substantiate the claims. `applied` means verified
+in service; `staged` means tested and fully ready for the explicitly documented
+next safe load; `no_change` means a verified conclusion warranted no code change.
+Unresolved diagnosis is not settled. After committing all changes and verifying
+the push, the agent uses native `set_thread_archived` on itself. A failed archive
+must be reported, not inferred from the settlement marker. The maintenance chat
+is not automatically archived.
 
-Lock state now follows timestamped lock/unlock events across bounded log tails,
-not file mtime/concatenation order. `Client starting` is not evidence of a lock:
-a stale startup entry contributed to the false locked state on October 6.
-Disappearing older log tails cannot roll back an already known newer event.
-Unknown console lock state suppresses unattended authorization attempts.
+Read [autofixes/AGENTS.md](autofixes/AGENTS.md) for the exact report contract and
+settlement procedure. Private dispatch receipts remain in
+`~/Library/Caches/com.taylor.op-keepalive/`; artifacts in this repository must
+never include secrets, raw application logs, environment dumps or vault output.
 
-For keepalive-only changes, run:
+`recovery-result.json` distinguishes a persisted auth request from app-open
+acceptance. Neither proves a prompt appeared or was approved. The automatic path
+records `kick: not_requested`. The keepalive consumes a click's short-lived wake
+once, respecting app/console locks. Unknown console state suppresses calls.
+
+Codex execution was qualified on October 6 for both callbacks queued during an
+active turn and callbacks arriving at an already-idle desktop-owned chat. Queue
+acceptance alone is never proof of execution. Physical banner clicking remains
+unverified. Claude fallback honors UI quarantine and is only synthetically tested.
+No live Claude driving or Computer Use is required by this workflow.
+
+The false-lock fix uses timestamped lock/unlock events across bounded log tails;
+`Client starting` is not evidence of a lock. Stale/rotated files cannot regress a
+known newer state. For a tested keepalive-only change, safely activate with:
 
 ```sh
-/usr/bin/python3 -B ~/dotfiles/src/onepassword/activate_keepalive.py
+/usr/bin/python3 -B /Users/taylor/dotfiles/src/onepassword/activate_keepalive.py
 ```
 
-This checks source provenance and idle process identities, stages/signs/verifies
-an app bundle containing only the changed keepalive resource, atomically swaps
-it, and gracefully replaces only the child. It preserves the native app, broker
-worker and PTY, keeps a signed backup under ignored `data/op-agent/`, and verifies
-the running child's source hash. Changed host/worker/builder sources are refused
-and require the normal installer at a safe restart. No active broker command is
-cancelled. The October 6 deployment retained broker PID 1231, `/dev/ttys000`, and
-successful metadata authorization for both configured accounts.
+The helper verifies provenance, idle process identities, signing and the running
+child's source hash. It swaps the signed resource and replaces only the keepalive
+child, preserving the native host, broker worker, PTY and auth. Changed host,
+worker, plist or builder code requires the normal installer at a safe restart.
+Do not cancel active work to force an update. The October 6 parser deployment
+retained broker PID 1231 and `/dev/ttys000`, with both accounts authorized.
 
-Additional isolated dispatch tests:
+Additional isolated tests:
 
 ```sh
-node --test src/onepassword/test_recovery_dispatch.mjs
+node --test src/onepassword/test_autofix.mjs src/onepassword/test_recovery_dispatch.mjs
 ```

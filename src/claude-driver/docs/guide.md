@@ -4,7 +4,7 @@ claude-driver drives Taylor's Claude desktop app from Claude Code, Codex,
 Cursor, OpenCode or a script. This is the usage contract; the README has the
 mechanisms and evidence.
 
-## V2 control interface (live qualification in progress)
+## V2 control interface
 
 Use `driver_submit {operation, arguments, idempotency_key, timeout_sec}`
 for work that must survive client disconnection. It immediately returns a
@@ -31,7 +31,12 @@ Capture `session_events {session}` before sending: the initial cursor starts
 at the transcript's current end. Continue with `session_wait {session,
 cursor, include_text:true}` to observe subsequent replies. Text is opt-in
 and assistant-only; thinking and tool inputs/results are excluded. Cursors
-reset when the underlying transcript changes. Waits also return live status
+reset when the underlying transcript changes. A cleared/new session gets a
+pending cursor that captures its first transcript when it appears.
+`create_session.observationCursor` is captured before `first_message`; use
+that cursor even when the reply finishes before creation returns. A new
+cursor after creation would intentionally skip the already-written reply.
+Waits also return live status
 changes, such as busy → idle, even without new text. A status change or
 delivery receipt does not prove that an instruction was applied.
 
@@ -54,10 +59,11 @@ Records identify the runtime source fingerprint. Queries scan backwards
 with bounded memory; technical lessons and their evidence have length caps.
 
 Physical keyboard duplication was reported during live qualification on
-2026-10-06. Live tests are stopped while that incident is investigated.
+2026-10-06. UI/import/recovery qualification remains stopped while that
+incident is investigated; native-only testing uses the already-live broker.
 The service's private `ui-quarantine.json` currently blocks Tier C before
 loading Computer Use, dead-broker recovery before navigation, new/forced
-broker initialization, probes and `live-v2.mjs` even with `--live`.
+broker initialization, probes and full `live-v2.mjs --live` runs.
 Preflight reports an unqualified capability matrix instead of automatically
 probing a new app/CLI version while quarantined. Disk reads and an already
 live broker remain available.

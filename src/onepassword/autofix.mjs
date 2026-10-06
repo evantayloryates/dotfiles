@@ -34,7 +34,13 @@ export function reserve({base=BASE,date=new Date(),episode=null,taken=[]}={}){
  throw Error('Incident names occupied through the current minute; no report overwritten')
 }
 export function incidentAt(dir){return {...read(join(dir,'incident.json')),dir}}
-export function settled(dir){return existsSync(join(dir,'settled.json'))}
+export function settled(dir){
+ try{
+  const marker=read(join(dir,'settled.json'))
+  return marker.reportSha256===createHash('sha256').update(readFileSync(join(dir,'report.json'))).digest('hex')&&
+    marker.artifacts.length>0&&marker.artifacts.every(a=>a.sha256===createHash('sha256').update(readFileSync(join(dir,a.name))).digest('hex'))
+ }catch{return false}
+}
 function text(value,name){if(typeof value!=='string'||!value.trim())throw Error('Missing '+name);return value}
 const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
 export function settle(dir,{base=BASE}={}){
@@ -60,7 +66,8 @@ export function settle(dir,{base=BASE}={}){
  write(join(dir,'settled.json'),{outcome:r.outcome,settledAt:new Date().toISOString(),artifacts:evidence,reportSha256:createHash('sha256').update(readFileSync(join(dir,'report.json'))).digest('hex')})
  return {settled:true,dir,outcome:r.outcome}
 }
-try{if(process.argv[1]&&realpathSync(process.argv[1])===fileURLToPath(import.meta.url)){
+function isEntry(){try{return process.argv[1]&&realpathSync(process.argv[1])===fileURLToPath(import.meta.url)}catch{return false}}
+try{if(isEntry()){
  if(process.argv[2]!=='settle')throw Error('Usage: node autofix.mjs settle <incident-directory>')
  console.log(JSON.stringify(settle(process.argv[3])))
 }}catch(e){console.error(e.message);process.exitCode=1}
