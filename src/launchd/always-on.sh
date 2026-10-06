@@ -7,7 +7,7 @@
 # session at launch, closed-display mode). To sleep the Mac on purpose: shut it down.
 set -eu
 show() {
-  pmset -g | grep -E "^ (SleepDisabled|sleep|displaysleep|disksleep|powernap|womp|tcpkeepalive|lowpowermode) " | sed 's/^ */  /'
+  pmset -g | grep -E "^ (SleepDisabled|sleep|displaysleep|disksleep|powernap|womp|tcpkeepalive|lowpowermode)[[:space:]]" | sed 's/^ */  /'
   pmset -g sched | grep -iE "wake|power" | head -2 | sed 's/^ */  sched: /'
 }
 case ${1:-} in
