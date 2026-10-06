@@ -248,8 +248,10 @@ New chats and confirmed unowned idle chats start their queued submission. A
 separate read-only desktop ownership check prevents treating the daemon's
 `notLoaded` status as permission to run a desktop-owned chat concurrently.
 Desktop-owned chats retain the queued submission; **queue acceptance is not
-proof of desktop turn execution**, and the desktop-owned idle wake path remains
-unqualified. The current repair chat is already pinned with Astra/high. Pinning
+proof of desktop turn execution**. On October 6, the callback queued during an
+active turn automatically started the next turn in this pinned Astra/high repair
+chat, verifying delivery across turn completion. A click arriving while the
+desktop-owned chat is already idle remains unqualified. Pinning
 uses the actual Pinned section UUID, not the literal string `pinned`.
 
 Only booleans, bounded status categories, validated timestamps, fault IDs and

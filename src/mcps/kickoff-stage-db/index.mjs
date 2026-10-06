@@ -116,9 +116,12 @@ function getPool() {
     password: t.password,
     database: t.database,
     ssl: { ca, rejectUnauthorized: true, checkServerIdentity: (_h, cert) => checkServerIdentity(t.host, cert) },
-    connectionLimit: 4,
-    maxIdle: 2,
-    idleTimeout: 120_000,
+    // kickoff_stage_ro allows 12 connections in total, shared by every
+    // Claude and Codex session's server: keep each server small, and close
+    // idle connections after 30 s so a quiet session holds none.
+    connectionLimit: 3,
+    maxIdle: 0,
+    idleTimeout: 30_000,
     queueLimit: 100,
     waitForConnections: true,
     enableKeepAlive: true,
@@ -149,18 +152,36 @@ function getConnection() {
 // A pooled connection, with the network problems of a laptop handled here:
 // a dropped VPN is reconnected, a stale socket is replaced, and anything
 // else becomes one clear sentence.
+const LIMIT_CODES = new Set(['ER_USER_LIMIT_REACHED', 'ER_TOO_MANY_USER_CONNECTIONS', 'ER_CON_COUNT_ERROR'])
+
 async function acquire() {
   await precheckVpn()
   try {
-    return await getConnection()
+    return await getConnectionPatiently()
   } catch (err) {
     if (!isNetError(err)) throw explainConnect(err)
     log(`connect failed (${err.code || err.message}); checking the network`)
     await recoverNetwork(err)
     try {
-      return await getConnection()
+      return await getConnectionPatiently()
     } catch (e2) {
       throw explainConnect(e2)
+    }
+  }
+}
+
+// The per-user connection cap is shared with other sessions: when it is
+// full, wait for one of theirs to close (idle ones close within 30 s)
+// rather than failing the call.
+async function getConnectionPatiently() {
+  const waits = [500, 1000, 2000, 4000, 8000, 15000]
+  for (let i = 0; ; i++) {
+    try {
+      return await getConnection()
+    } catch (err) {
+      if (!LIMIT_CODES.has(err?.code) || i >= waits.length) throw err
+      if (i === 0) log(`staging connection cap reached (${err.code}); waiting for a free connection`)
+      await new Promise((r) => setTimeout(r, waits[i]))
     }
   }
 }
@@ -215,7 +236,7 @@ function explainConnect(err) {
   if (c === 'ENOTFOUND' || c === 'EAI_AGAIN') {
     return new ToolError('Cannot resolve the staging database host: this Mac is offline, DNS is failing, or staging was rebuilt under a new name (compare SSM mysql-url-staging-encrypted).')
   }
-  if (c === 'ER_TOO_MANY_USER_CONNECTIONS' || c === 'ER_CON_COUNT_ERROR') return new ToolError('Staging is at its connection limit for this user; retry in a few seconds.')
+  if (LIMIT_CODES.has(c)) return new ToolError('Staging stayed at its 12-connection limit for kickoff_stage_ro for 30 s (other sessions are using it). Retry in a minute; stage_status shows the state.')
   if (c === 'ER_BAD_DB_ERROR') return new ToolError('The kudos_staging schema is gone: staging may be mid-rebuild.')
   if (/Queue limit reached/i.test(err?.message || '')) return new ToolError('Too many staging queries at once; wait for the running ones, then retry.')
   if (isNetError(err)) return new ToolError(`Cannot reach staging (${c || err.message}). Run stage_status for the VPN and network state.`)

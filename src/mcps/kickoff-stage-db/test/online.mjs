@@ -256,6 +256,28 @@ await check('wide-row-capped', async () => {
   return `${r.text.length} chars`
 })
 
+await check('connection-cap-waits', async () => {
+  // Other sessions hold every one of the user's 12 connections; ours must wait, not fail.
+  const { createRequire } = await import('node:module')
+  const mysql = createRequire(join(process.env.HOME, '.local/share/kickoff-stage-db/node_modules/noop.js'))('mysql2/promise')
+  const u = new URL(readFileSync(join(process.env.HOME, 'dotfiles/.env'), 'utf8').match(/^KICKOFF_STAGE_DB_URL=(.*)$/m)[1])
+  const ca = readFileSync(new URL('../../../zdr-harness/certs/rds-global-bundle.pem', import.meta.url), 'utf8')
+  const hogs = []
+  for (let i = 0; i < 14; i++) {
+    try {
+      hogs.push(await mysql.createConnection({ host: u.hostname, user: u.username, password: decodeURIComponent(u.password), database: 'kudos_staging', ssl: { ca } }))
+    } catch { break }
+  }
+  const fresh = startServer()
+  await fresh.rpc('initialize', { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 't', version: '1' } })
+  setTimeout(() => { hogs.splice(0, 2).forEach((h) => h.end().catch(() => {})) }, 2500)
+  const r = await fresh.call('stage_query', { sql: 'SELECT 1 AS ok' })
+  fresh.stop()
+  await Promise.all(hogs.map((h) => h.end().catch(() => {})))
+  expect(!r.isError, r.text)
+  return `held ${hogs.length + 2} connections; call waited ${r.ms} ms then succeeded`
+})
+
 await check('bad-sql-message', async () => {
   const r = await s.call('stage_query', { sql: 'SELECT nope FROM clients' })
   expect(r.isError && /ER_BAD_FIELD_ERROR/.test(r.text), r.text)
