@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+set -euo pipefail
+# Headless Claude Code (`claude -p`) that authenticates the same way every
+# time, whatever environment it was started from.
+#
+# Desktop-spawned shells can inherit a stale CLAUDE_CODE_OAUTH_TOKEN, which
+# outranks the keychain login and fails with "OAuth access token has been
+# revoked". This drops inherited auth and uses the long-lived subscription
+# token from dotfiles .env (KICKOFF_CLAUDE_CODE_LONG_LIVED_SUBSCRIPTION_OAUTH_TOKEN,
+# made with `claude setup-token`, valid about a year). Without it, the
+# CLI falls back to its keychain login. It runs the standalone CLI in
+# ~/.local/bin (`claude update` keeps it current); Homebrew's copy lags and
+# rejects current model ids.
+#
+# Usage: claude-headless -p "..." [any claude flags]
+# Test runs still need --tools, --permission-mode dontAsk and --setting-sources.
+DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
+. "${DIR}/../src/lib/read-env.sh"
+TOKEN="$(env_get KICKOFF_CLAUDE_CODE_LONG_LIVED_SUBSCRIPTION_OAUTH_TOKEN 2>/dev/null || true)"
+CLI="${CLAUDE_HEADLESS_CLI:-$HOME/.local/bin/claude}"
+[[ -x "$CLI" ]] || { echo "claude-headless: $CLI not found (install: curl -fsSL https://claude.ai/install.sh | bash)" >&2; exit 1; }
+if [[ -n "$TOKEN" ]]; then
+  exec env -u ANTHROPIC_API_KEY -u ANTHROPIC_AUTH_TOKEN CLAUDE_CODE_OAUTH_TOKEN="$TOKEN" "$CLI" "$@"
+fi
+exec env -u CLAUDE_CODE_OAUTH_TOKEN -u ANTHROPIC_API_KEY -u ANTHROPIC_AUTH_TOKEN "$CLI" "$@"

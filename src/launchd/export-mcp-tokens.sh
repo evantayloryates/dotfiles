@@ -29,6 +29,11 @@ source "$DOTFILES_DIR/src/exports/dotenv.sh"
 # values come from the environment sourced above, so quoting/escaping is handled
 # by the shell exactly as the interactive path sees them.
 for var in ${(f)"$(grep -oE '^[[:space:]]*(export[[:space:]]+)?[A-Za-z_][A-Za-z0-9_]*=' "$DOTFILES_DIR/.env" | sed -E 's/^[[:space:]]*(export[[:space:]]+)?//; s/=$//')"}; do
+  # Never bridge Claude/Anthropic auth: an inherited CLAUDE_CODE_OAUTH_TOKEN
+  # outranks the CLI's own keychain login, so one stale value broke every
+  # desktop-spawned `claude -p` with "OAuth access token has been revoked"
+  # (2026-10-06). Headless runs use bin/claude-headless instead.
+  case "$var" in CLAUDE_CODE_OAUTH_TOKEN|ANTHROPIC_API_KEY|ANTHROPIC_AUTH_TOKEN|*CLAUDE_CODE*OAUTH_TOKEN) continue ;; esac
   val="${(P)var}"            # zsh indirect expansion: value of the named var
   if [[ -n "$val" ]]; then
     launchctl setenv "$var" "$val"
