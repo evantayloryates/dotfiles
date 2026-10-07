@@ -12,7 +12,13 @@ export function buildNativePeerPackage(config){
  if(!Number.isSafeInteger(config.notBefore)||!Number.isSafeInteger(config.deadline)||config.deadline<=config.notBefore||config.deadline-config.notBefore>300000)throw Error('invalid bounded window')
  const parts=['receive.js','probe.js','enroll.js'].map(name=>readFileSync(new URL('../candidates/native-peer-trigger/'+name,import.meta.url),'utf8').replace(/^import .*\n/gm,'').replace(/^export function /gm,'function '))
  const diagnostic=readFileSync(new URL('../candidates/native-mod-probe/diagnostic-failure.js',import.meta.url),'utf8').replace(/^export function /gm,'function ')
- const module=diagnostic+'\n'+parts.join('\n')+'\nconst CONFIG=Object.freeze('+JSON.stringify(config)+');\nexport function register(on){enrollPeerReadProbe(on,CONFIG)}\n'
+ // Native mod validator requires $ callees to be top-level declarations.
+ // Flatten the probe factory in emitted bytes; retain factories for host tests.
+ const probe=parts[1],body=probe.slice(probe.indexOf('return async $=>{')+'return async $=>{'.length,probe.lastIndexOf('\n }\n}'))
+ const receive=parts[0].replace(',run})', '})').replace("||typeof run!=='function'",'').replace('await run($)','await runReadProbe($)')
+ const enroll=parts[2].replace(' const run=createDurableReadProbe(config)\n','').replace('{...config,run}','config')
+ const fixed='const CONFIG=Object.freeze('+JSON.stringify(config)+');\nconst {id,intent,report,brokerSession,targetSession,notBefore,deadline}=CONFIG;\nlet attempted=false;\nasync function runReadProbe($){'+body+'\n}\n'
+ const module=diagnostic+'\n'+fixed+receive+'\n'+enroll+'\nexport function register(on){enrollPeerReadProbe(on,CONFIG)}\n'
  const files={'.claude-plugin/plugin.json':JSON.stringify({name:'desktop-bridge-native-peer-read',version:'0.5.0',description:'One fixed peer read probe; passive enrollment'})+'\n','hooks/hooks.json':'{"modules":["./register.js"]}\n','hooks/register.js':module}
  return {files,hashes:Object.fromEntries(Object.entries(files).map(([path,text])=>[path,createHash('sha256').update(text).digest('hex')]))}
 }
