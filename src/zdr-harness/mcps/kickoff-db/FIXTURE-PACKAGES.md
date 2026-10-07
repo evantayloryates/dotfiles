@@ -139,3 +139,20 @@ tools remain available. Reference-dependent offline tests skip on machines
 without the private snapshots; package/source-page tests remain standalone.
 These reference files contain source definitions, not client exports; database
 export pruning does not delete them.
+
+## One-item supplements
+
+`create {references,baseline_package_id}` creates a separate package requiring
+exactly one customer. The baseline must be a primary ten-customer package.
+Primary contracts, sealed bundles, reports and manifests remain immutable.
+Supplement finalization requires the finalized baseline and binds its package
+ID and manifest SHA-256 into the supplement manifest. Bundle IDs cannot collide.
+Use copied reviewed shared catalogs or bundle-local references: loading order is
+released primary first, then released supplement; never merge manifests by hand.
+
+The supplement still requires all six reports and its own independent clearance.
+Its approval receipt additionally requires `baselineManifestSha256` matching the
+bound baseline and `jointPackageContextCleared:true`, based on actual qualified
+review of the added customer and combined context. Release requires the baseline
+already released at the fixed destination with the matching manifest hash.
+One-item support does not relax the ten-customer primary rule or privacy gate.

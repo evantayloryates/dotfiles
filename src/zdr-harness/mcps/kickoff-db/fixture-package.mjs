@@ -56,7 +56,16 @@ export function releaseFixture(dir, approvalPath, destination = '/Users/taylor/D
   const manifestBytes = readFileSync(join(dir, 'manifest.json'))
   const manifest = protectedRead(join(dir, 'manifest.json'))
   requireThat(approval.manifestSha256 === hash(manifestBytes) && approval.destination === destination && approval.method === 'qualified-independent-review' && approval.transferAuthorized === true && approval.allPackageBytesCleared === true && typeof approval.clearanceReference === 'string' && approval.clearanceReference.length > 0, 'fixture_release_approval_required')
-  requireThat(manifest.formatVersion === 1 && manifest.bundles.length === 10, 'fixture_manifest_invalid')
+  const expectedBundles = manifest.packageKind === 'supplement' ? 1 : 10
+  requireThat(manifest.formatVersion === 1 && manifest.bundles.length === expectedBundles, 'fixture_manifest_invalid')
+  if (manifest.packageKind === 'supplement') {
+    requireThat(packageId.test(manifest.baseline?.packageId) && /^[a-f0-9]{64}$/.test(manifest.baseline?.manifestSha256), 'fixture_baseline_invalid')
+    requireThat(approval.baselineManifestSha256 === manifest.baseline.manifestSha256 && approval.jointPackageContextCleared === true, 'fixture_release_approval_required')
+    const prior = join(destination, manifest.baseline.packageId)
+    requireThat(lstatSync(prior).isDirectory() && !lstatSync(prior).isSymbolicLink(), 'fixture_baseline_release_required')
+    protectedDirectory(prior)
+    requireThat(hash(readFileSync(join(prior, 'manifest.json'))) === manifest.baseline.manifestSha256 && protectedRead(join(prior, 'release.json')).released === true, 'fixture_baseline_release_required')
+  }
   const snapshot = new Map([['manifest.json', manifestBytes]])
   let catalog = null
   if (manifest.catalog) {
@@ -75,7 +84,7 @@ export function releaseFixture(dir, approvalPath, destination = '/Users/taylor/D
     requireThat(hash(bytes) === bundle.sha256 && data.bundleId === bundle.bundleId && JSON.stringify(validateBundle(data, manifest.references, catalog)) === JSON.stringify(bundle.rowCounts), 'fixture_release_hash_mismatch')
     snapshot.set(bundle.path, bytes)
   }
-  requireThat(snapshot.size === (manifest.catalog ? 12 : 11), 'fixture_bundle_invalid')
+  requireThat(snapshot.size === expectedBundles + (manifest.catalog ? 2 : 1), 'fixture_bundle_invalid')
   requireThat(['schema', 'transformation', 'loss', 'categories', 'parity', 'privacy'].every(x => Object.hasOwn(manifest.reports, x + '.json')), 'fixture_incomplete')
   for (const [name, sha256] of Object.entries(manifest.reports)) {
     requireThat(/^(schema|transformation|loss|categories|parity|privacy)\.json$/.test(name), 'fixture_report_invalid')
@@ -98,7 +107,7 @@ export function releaseFixture(dir, approvalPath, destination = '/Users/taylor/D
   for (const [name, bytes] of snapshot) requireThat(hash(readFileSync(join(tmp, name))) === hash(bytes), 'fixture_release_readback_failed')
   protectedWrite(join(tmp, 'release.json'), { manifestSha256: hash(manifestBytes), clearanceReference: approval.clearanceReference, released: true })
   renameSync(tmp, final)
-  return { state: 'released', released: true, outputPath: final, manifestSha256: hash(manifestBytes), bundles: 10 }
+  return { state: 'released', released: true, outputPath: final, manifestSha256: hash(manifestBytes), bundles: expectedBundles }
 }
 
 export function validateBundle(bundle, refs, catalog = null) {
@@ -130,12 +139,12 @@ export function validateBundle(bundle, refs, catalog = null) {
 export const fixtureTool = {
   name: 'fixture_package',
   title: 'Stage a Call Guidance fixture package inside ZDR',
-  description: 'Restricted protected-file writer for Data Loader. create; put_bundle (one complete transformed customer at a time); put_report (schema, transformation, loss, categories, parity or privacy); finalize; status. list/resume/checkpoint provide durable recovery; read_bundle/read_report page sensitive staged content only inside ZDR. add_rows stages idempotent table chunks, seal_bundle validates/assembles a customer. put_catalog saves shared catalog tables; references targetScope:catalog resolves their keys. Exactly ten bundles. Validates declared primary/foreign keys including nested dot paths and array *. Does NOT deidentify or certify source parity. release requires an operator-written approval receipt bound to all package bytes and transfers only to the fixed Taylor-requested Desktop/zdr-dump destination. No caller-selected paths; summaries only. Package contents and reports remain sensitive inside ZDR.',
+  description: 'Restricted protected-file writer for Data Loader. create; put_bundle (one complete transformed customer at a time); put_report (schema, transformation, loss, categories, parity or privacy); finalize; status. list/resume/checkpoint provide durable recovery; read_bundle/read_report page sensitive staged content only inside ZDR. add_rows stages idempotent table chunks, seal_bundle validates/assembles a customer. put_catalog saves shared catalog tables; references targetScope:catalog resolves their keys. Primary packages require exactly ten bundles. create with baseline_package_id makes a separate exactly-one-bundle supplement; primary stays immutable. Supplement finalize binds the finalized primary manifest hash; release requires baseline release plus independent approval of joint package context. Validates declared primary/foreign keys including nested dot paths and array *. Does NOT deidentify or certify source parity. release requires an operator-written approval receipt bound to all package bytes and transfers only to the fixed Taylor-requested Desktop/zdr-dump destination. No caller-selected paths; summaries only. Package contents and reports remain sensitive inside ZDR.',
   inputSchema: {
     type: 'object', additionalProperties: false, required: ['action'],
     properties: {
       action: { type: 'string', enum: ['create', 'put_bundle', 'put_report', 'finalize', 'status', 'release', 'list', 'checkpoint', 'resume', 'read_bundle', 'read_report', 'add_rows', 'seal_bundle', 'put_catalog', 'read_catalog', 'read_chunk'] },
-      package_id: { type: 'string' },
+      package_id: { type: 'string' }, baseline_package_id: { type: 'string' },
       references: { type: 'array', items: { type: 'object', required: ['table', 'field', 'targetTable'], additionalProperties: false, properties: { table: { type: 'string' }, field: { type: 'string' }, targetTable: { type: 'string' }, nullable: { type: 'boolean' }, targetScope: { type: 'string', enum: ['bundle', 'catalog'] } } } },
       bundle: { type: 'object', required: ['bundleId', 'tables'], properties: { bundleId: { type: 'string' }, tables: { type: 'object' } }, additionalProperties: false },
       report: { type: 'string', enum: ['schema', 'transformation', 'loss', 'categories', 'parity', 'privacy'] },
@@ -156,11 +165,21 @@ export function fixturePackage(args, root) {
       requireThat(Array.isArray(args.references), 'fixture_references_required')
       // Validate reference declarations even before a bundle exists.
       validateBundle({ bundleId: 'validation', tables: {} }, args.references)
+      let baseline = null
+      if (args.baseline_package_id != null) {
+        requireThat(packageId.test(args.baseline_package_id), 'fixture_baseline_invalid')
+        const baselinePath = join(base, args.baseline_package_id)
+        requireThat(lstatSync(baselinePath).isDirectory() && !lstatSync(baselinePath).isSymbolicLink(), 'fixture_baseline_invalid')
+        const baselineDir = protectedDirectory(baselinePath)
+        const baselineContract = protectedRead(join(baselineDir, 'contract.json'))
+        requireThat(baselineContract.expectedBundles === 10 && !baselineContract.baselinePackageId, 'fixture_baseline_invalid')
+        baseline = args.baseline_package_id
+      }
       const id = 'fp_' + randomBytes(12).toString('hex')
       const dir = protectedDirectory(join(base, id))
       protectedDirectory(join(dir, 'customers'))
       protectedDirectory(join(dir, 'reports'))
-      protectedWrite(join(dir, 'contract.json'), { formatVersion: 1, references: args.references, expectedBundles: 10 })
+      protectedWrite(join(dir, 'contract.json'), { formatVersion: 1, references: args.references, expectedBundles: baseline ? 1 : 10, ...(baseline ? { baselinePackageId: baseline } : {}) })
       return encode({ package_id: id, state: 'staging', released: false })
     }
     requireThat(packageId.test(args.package_id), 'fixture_package_id_invalid')
@@ -168,6 +187,8 @@ export function fixturePackage(args, root) {
     requireThat(lstatSync(dir).isDirectory() && !lstatSync(dir).isSymbolicLink(), 'fixture_package_not_found')
     protectedDirectory(dir)
     const contract = protectedRead(join(dir, 'contract.json'))
+    const expectedBundles = contract.baselinePackageId ? 1 : 10
+    requireThat(contract.expectedBundles === expectedBundles, 'fixture_contract_invalid')
     const finalized = readdirSync(dir).includes('manifest.json')
     if (args.action === 'release') {
       requireThat(finalized, 'fixture_incomplete')
@@ -212,7 +233,7 @@ export function fixturePackage(args, root) {
       requireThat(!readdirSync(protectedDirectory(join(dir, 'customers'))).includes(args.bundle_id + '.json'), 'fixture_bundle_sealed')
       const chunkRoot = protectedDirectory(join(dir, 'chunks'))
       const names = readdirSync(chunkRoot)
-      requireThat(names.includes(args.bundle_id) || names.length < 10, 'fixture_bundle_limit')
+      requireThat(names.includes(args.bundle_id) || names.length < expectedBundles, 'fixture_bundle_limit')
       const chunkDir = protectedDirectory(join(chunkRoot, args.bundle_id, args.table))
       requireThat(readdirSync(chunkDir).length < 1000 || readdirSync(chunkDir).includes(args.chunk_id + '.json'), 'fixture_chunk_limit')
       return encode({ stored: true, sha256: protectedWrite(join(chunkDir, args.chunk_id + '.json'), args.rows), released: false })
@@ -242,7 +263,7 @@ export function fixturePackage(args, root) {
       requireThat(Buffer.byteLength(encode(args.bundle)) <= 8_000_000, 'fixture_bundle_too_large')
       const files = readdirSync(join(dir, 'customers'))
       const name = args.bundle.bundleId + '.json'
-      requireThat(files.includes(name) || files.length < 10, 'fixture_bundle_limit')
+      requireThat(files.includes(name) || files.length < expectedBundles, 'fixture_bundle_limit')
       const sha256 = protectedWrite(join(protectedDirectory(join(dir, 'customers')), name), args.bundle)
       return encode({ package_id: args.package_id, stored: true, sha256, rowCounts, released: false })
     }
@@ -256,7 +277,7 @@ export function fixturePackage(args, root) {
     const files = readdirSync(protectedDirectory(join(dir, 'customers'))).sort()
     const reports = readdirSync(protectedDirectory(join(dir, 'reports'))).sort()
     if (args.action === 'finalize') {
-      requireThat(files.length === 10 && ['schema', 'transformation', 'loss', 'categories', 'parity', 'privacy'].every(x => reports.includes(x + '.json')), 'fixture_incomplete')
+      requireThat(files.length === expectedBundles && ['schema', 'transformation', 'loss', 'categories', 'parity', 'privacy'].every(x => reports.includes(x + '.json')), 'fixture_incomplete')
       const bundles = files.map(name => {
         requireThat(/^[a-z][a-z0-9_-]{0,63}\.json$/i.test(name), 'fixture_filename_invalid')
         const path = join(dir, 'customers', name)
@@ -270,8 +291,16 @@ export function fixturePackage(args, root) {
         requireThat(plain(protectedRead(path)), 'fixture_report_invalid')
         return [name, hash(readFileSync(path))]
       }))
-      const digest = protectedWrite(join(dir, 'manifest.json'), { formatVersion: 1, bundles, references: contract.references, reports: reportHashes, ...(catalog ? { catalog: { path: 'catalog.json', sha256: hash(readFileSync(join(dir, 'catalog.json'))), rowCounts: validateBundle(catalog, []) } } : {}), privacyStatus: 'requires-independent-review', released: false })
-      return encode({ package_id: args.package_id, state: 'staged-for-review', bundles: 10, manifestSha256: digest, protectedPath: dir, released: false, privacyCertified: false })
+      let baseline = null
+      if (contract.baselinePackageId) {
+        const prior = protectedDirectory(join(base, contract.baselinePackageId))
+        const priorManifest = protectedRead(join(prior, 'manifest.json'))
+        requireThat(priorManifest.bundles?.length === 10 && !priorManifest.baseline, 'fixture_baseline_invalid')
+        requireThat(!bundles.some(b => priorManifest.bundles.some(p => p.bundleId === b.bundleId)), 'fixture_baseline_bundle_collision')
+        baseline = { packageId: contract.baselinePackageId, manifestSha256: hash(readFileSync(join(prior, 'manifest.json'))) }
+      }
+      const digest = protectedWrite(join(dir, 'manifest.json'), { formatVersion: 1, ...(baseline ? { packageKind: 'supplement', baseline } : {}), bundles, references: contract.references, reports: reportHashes, ...(catalog ? { catalog: { path: 'catalog.json', sha256: hash(readFileSync(join(dir, 'catalog.json'))), rowCounts: validateBundle(catalog, []) } } : {}), privacyStatus: 'requires-independent-review', released: false })
+      return encode({ package_id: args.package_id, state: 'staged-for-review', bundles: expectedBundles, manifestSha256: digest, protectedPath: dir, released: false, privacyCertified: false })
     }
     return encode({ package_id: args.package_id, state: finalized ? 'staged-for-review' : 'staging', bundleCount: files.length, reportCount: reports.length, released: false })
   } catch (e) {
