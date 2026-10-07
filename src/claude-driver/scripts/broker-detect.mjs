@@ -7,12 +7,12 @@ import {PEER_SESSIONS_DIR,sleep} from '../lib/paths.mjs'
 import {RUNTIME_BUILD} from '../lib/build.mjs'
 const stateFile=join(STATE_DIR,'detector-v1.json'),reportDir='/Users/taylor/Desktop/temp_reports'
 await withLock('broker-detector',async()=>{
- const prior=readJson(stateFile,null),session=readJson(join(BROKER_DIR,'broker.json'),null)?.sessionId
- const options={brokerDir:BROKER_DIR,recordFile:session&&findRecordFile(session),peerDir:PEER_SESSIONS_DIR}
- let sample=sampleBroker(options),event=detectorTransition(prior?.sample,sample)
+ const prior=readJson(stateFile,null)
+ const observe=()=>{const session=readJson(join(BROKER_DIR,'broker.json'),null)?.sessionId;return sampleBroker({brokerDir:BROKER_DIR,recordFile:session&&findRecordFile(session),peerDir:PEER_SESSIONS_DIR})}
+ let sample=observe(),event=detectorTransition(prior?.sample,sample)
  if(event?.kind==='fault-observation'){
   await sleep(2000) // confirm a transition across atomic metadata writes
-  const confirmed=sampleBroker(options)
+  const confirmed=observe()
   event=detectorTransition(prior?.sample,confirmed);sample=confirmed
  }
  let published

@@ -1,11 +1,92 @@
-## Latest frontier — October 7, 00:42 Eastern
+## Latest frontier — October 7,01:00 Eastern
+
+Progress this turn: source-qualified deterministic peer transport, an installed
+zero-inference 30-second detector, and a native-verified guard that prevents
+repeated inference wakes after the broker ends without tools. The goal is active
+and incomplete, not blocked/no-progress. The user wants fast signaling without
+hourly detection delays; active work never waits for the observer's hourly job.
+
+Host build: `5dfbbdc62eb55f95bd60c62c13f9ae5560b6b41ff740ac67027a944a571d2b73`.
+Active broker build remains `3bfc51e7b06c4aec8ac81b5f7ec28eb77f2e1507cf03379e7f468eee22afa98b`,
+bootstrap `7e62795266806cbd4435f68cc83f424e5299fe2ddd6e3f524babd1c7c39f5af4`,
+generation 3; same PID 71262/start `Wed Oct  7 03:24:51 2026`. No STOP remains.
+The 30s detector runs its separate sealed 5dfbbdc6 package; this did not activate
+a new broker dependency package. Workspace entry shim remains mutable. Completed
+entry records/native receipt proved delegation, but exact current-process entry
+provenance and rollback across distinct builds remain unqualified.
+
+Transport 2.1.289 is now reviewed in VERIFIED_CLI. Seven installed receiver VM
+checks passed in peer-contract-2026-10-07T04-43-32-185Z.json; initial extractor
+failure is retained. Exact native peer msg_ids independently accepted in 155–159 ms;
+no sender Claude inference turn. Version environment override removed; unknown
+explicit-direct versions, invalid/private-mode/symlink keys, ambiguous or changed
+PID epochs and malformed envelopes fail closed. Partial/uncertain writes never
+fall through to another sender. Peer record reads use owned no-follow FDs.
+
+Serving is still FAILED. Native reread(v8) was ignored; generic v7, named request v7,
+then exact compatible v6 all ended without tools. Original 25/30 s expiries and
+full-suite failure remain recorded, not counted as passes. A current ordinary
+compatible direct client produced one correlated native end_turn with zero
+calls; the guard cancelled pending work with broker_not_serving in 3353 ms, one
+receiver turn, zero sender turns. Evidence: native-wake-end-turn-guard-2026-10-07.json.
+Exact msg_id and UUID ancestry are used, never model prose. Other user branches,
+sidechains and actual tool activity do not prove refusal; a checkpointed native
+result wins. Three full final isolated rounds passed unchanged source in
+v2-2026-10-07T05-00-48-265Z.json. Actual filtered harness passes are older than
+these host changes and must not qualify the current fingerprint.
+
+Fixture local_fc1e5eab-9d24-4e4c-a09c-9a386a6ffe14 remains unarchived. All cleanup
+requests are independently cancelled/expired before dispatch and retrySafe:
+rmuxmikjs-994346, rmuxmjx67-3a93fa, rmuxmyift-8e9115, rmuxn2qt8-bd1e31.
+Do not create another fixture or repeat full native suites until a justified
+model/serving strategy changes. Sender-free wakes now work; further repeated
+wakes alone have no supported improvement hypothesis.
+
+Detector installed as com.taylor.claude-driver-detector,30s StartInterval,
+sealed target in src/launchd/com.taylor.claude-driver-detector.plist. Reads only
+owned broker/session/peer/control/request metadata; no keys or transcripts.
+STOP suppresses events, idle alone is normal, fault transitions confirm after 2 s,
+unchanged episodes deduplicate, reused PID epochs are events. Ten live read-only
+samples mean 4.961 ms/max 8.556 ms; nine private cases passed including the atomic
+report→hash scan→exact ack flow. It emitted the real pending unserved request
+rmuxmyift-8e9115 at 04:57:28Z, then liveness-only at 04:57:58Z after expiry.
+Those events do not establish crash cause or recovered serving. Review record:
+detector-inbox-review-2026-10-07.json. Acknowledge exact filenames/hashes only
+after commit/push checkpoint.
+
+Observer schedule independently verified in native receipts: deleted owned
+337cb675 at 04:42:03.979Z; created/listed exact hourly23 * * * * job ae838cf8 at
+04:42:04.523/05.427Z, prompt claude-driver observer tick v1. Native cron expires
+in 7 days/session closure. Fast detector reports feed the existing30s Codex inbox;
+these scheduled Codex runs still invoke inference. No event-triggered Claude
+observer send is connected; its hourly job is fallback recovery. Do not claim
+hourly checks are the detection cadence or that native recovery is now event-only.
+Last broker maintenance list04:37:33Z/job d7319422 is stale after 12 min; this is not
+proof of job absence, protection, crash or governor eviction.
+
+Next: mechanically bind pinned-entry proof to the exact current native epoch;
+compare a justified native model or bounded one-request relay strategy against
+retained Haiku no-tool end_turns before another full suite. Any observer native
+control change/message needs human authorization for that chat; prepare a
+compact one-time plan rather than reintroducing frequent inference polling.
+Do not clear context, spoof native APIs, create replacement chats, start CUA,
+lift input quarantine, restart apps, kill session processes or change auth.
+Observer owns offline restarts; Codex-driver and 1Password work remain separate.
+
+A broad launchctl print exposed inherited secrets in tool output. Subsequent
+checks capture output privately and extract only state/runs/exit/interval fields.
+Do not repeat environment dumps, copy values into reports, or read credentials.
+Credential rotation remains necessary, outside this bridge change; no auth
+mutation or rotation was performed.
+
+## Previous frontier — October 7, 00:42 Eastern
 
 A sealed broker dependency pin is active: build
 `3bfc51e7b06c4aec8ac81b5f7ec28eb77f2e1507cf03379e7f468eee22afa98b`,
 bootstrap `7e62795266806cbd4435f68cc83f424e5299fe2ddd6e3f524babd1c7c39f5af4`,
-generation3; fresh host source
+generation 3; fresh host source
 `04d6d6b381cf8610485cfc1ee1688f72f94cc6dcf6a42a9e5998c0545a7f099e`.
-Controlled STOP/handoffs preserved broker PID71262 and existing authorization.
+Controlled STOP/handoffs preserved broker PID 71262 and existing authorization.
 First direct-path handoff FAILED: a native Read of updated CLAUDE.md was followed
 by workspace Bash commands. Preserve release-native-paths-2026-10-07.json.
 The corrected cached-command shim validates a separately sealed built-ins-only
@@ -46,7 +127,7 @@ or assume it was applied. Latest broker live/idle, no owned STOP remains.
 ## October 7 continuation — helper and waiter pressure iteration
 
 Current runtime `3bfc51e7b06c4aec8ac81b5f7ec28eb77f2e1507cf03379e7f468eee22afa98b`;
-app 2.26454.0 / CLI 2.1.289, same approved broker PID71262. The preceding
+app 2.26454.0 / CLI 2.1.289, same approved broker PID 71262. The preceding
 turn was progress, not a blocked/no-progress turn. The goal remains active.
 
 Private tests reproduced seven failures in the original eight-case helper/socket
@@ -76,7 +157,7 @@ and holds a single kernel lock across the whole wait and pickup. Controls record
 the picking PID for future diagnosis. The first pipe-only guard was too strict
 for real native Bash output; that failed45s warm test and native refusals remain
 recorded. Corrected regular capture warm activation received a native-tool receipt
-in37.780s while preserving PID71262 (three compatible wakes, one request/checkpoint).
+in37.780s while preserving PID 71262 (three compatible wakes, one request/checkpoint).
 This corrects the observed discard/duplicate-waiter cases; it does not prove that
 arbitrary background captures reach the model or qualify direct wire on2.1.289.
 
@@ -103,7 +184,7 @@ Reports under /Users/taylor/.local/state/claude-driver/pressure/:
 - waiter-guard-capture-corrected-2026-10-07.json: corrected warm native receipt.
 - live-v2-2026-10-07T04-18-49-103Z.json: eleven current native checks passed.
 - waiter-native-maintenance-2026-10-07.json: IDLE04:21:15.157Z then
-  CronList04:21:16.619Z on current source, reusing922e4a9e and PID71262.
+  CronList04:21:16.619Z on current source, reusing922e4a9e and PID 71262.
 - governor-contract-2026-10-07T04-22-16-667Z.json: four isolated installed cases.
 - v2-2026-10-07T04-19-29-815Z.json: five current isolated rounds.
 - harness-v2-{claude,codex}-2026-10-07T04-18-49-090Z.json: current real filtered checks.
@@ -335,7 +416,7 @@ Current reports under `/Users/taylor/.local/state/claude-driver/pressure/`:
   paused-reaper exclusion experiment in a private source clone.
 - `kernel-submit-latency-2026-10-07.json`: ten synthetic submits, all jobs completed.
 - `live-v2-2026-10-07T02-27-50-669Z.json`: eleven native checks passed on earlier source.
-- `residency-v2-2026-10-07T02-27-33-201Z.json`: eight-minute same-PID survival,
+- `residency-v2-2026-10-07T02-27-33-201Z.json`: eight-minute same PID survival,
   no natural pressure; not a passing pressure qualification.
 - `live-v2-2026-10-07T02-36-44-905Z.json`: cancelled protocol-upgrade probe;
   owned scratch fixture subsequently verified archived.

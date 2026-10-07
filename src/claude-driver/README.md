@@ -50,22 +50,30 @@ and isolated tests remain usable without UI automation. See
 [qualification](docs/v2-qualification.md).
 
 The [continuity checkpoint](docs/resume.md) records current qualification.
-Current-source native input-free checks passed all eleven operations; five isolated
-rounds passed 124 cases each and both actual filtered harnesses passed ten checks.
-Protocol v7 retains compatible v6 wake/drain identities, explicitly reconciles
-maintenance after IDLE and bounds waits by the last native list across requests.
-The current CLI and fresh MCP support qualified native Code controls while input
-automation remains quarantined. This chat's older MCP still needs refresh.
-The independent Claude observer is running with a five-minute native job; the
-Codex report watcher scans every thirty seconds. A ten-minute current-source observation retained fresh evidence and the same
-PID across automatic IDLE/list/rewait with no duplicate job. It saw no natural
-governor pressure. Actual pressure survival, stale-query recovery without
-app relaunch and unattended recovery across restarts remain unqualified.
-External process termination is unsuitable for routine recovery. The next
-priority is isolating the live broker from mutable working-tree scripts: a tested
-candidate edit briefly broke native output capture before correction. Current
-helper cancellation and single-waiter guards passed native/synthetic checks;
-repeated LLM wakes and occasional loop violations remain efficiency frontiers.
+The active broker dependencies are sealed and pinned independently of host edits.
+A native receipt proved cached workspace commands delegate through the validated
+sealed bootstrap; the workspace entry shim remains the startup boundary. The
+latest full native run failed after its initial reply/cancel checks: Haiku ended
+turns with “Broker running” without serving queued work. Earlier eleven-check
+passes are historical, not current readiness. See the checkpoint for exact builds.
+
+Current CLI 2.1.289 direct peer delivery is verified against installed receiver
+functions and correlated native msg_ids (155–159 ms), removing the sender's
+inference turn. Delivery does not prove service execution. An exact correlated
+native wake that ends without tools while the same process is idle now cancels
+unclaimed work with `broker_not_serving`, without repeated wakes. The native
+failure guard passed in 3.35 s; the existing owned test fixture remains unarchived.
+
+A sealed local LaunchAgent senses the exact broker every 30 seconds without
+inference, input, recovery or private transcript/key reads. Changed metadata
+publishes sanitized atomic reports into `/Users/taylor/Desktop/temp_reports`;
+unchanged ticks are silent. It detected the actual unserved cleanup request.
+The Codex inbox watcher checks every 30 seconds; its scheduled runs still use
+Codex inference. The Claude observer's verified hourly job is fallback recovery,
+not the fast detection path. Event-triggered Claude recovery is not connected.
+Natural governor pressure, unattended cold recovery, different-build rollback
+and native-helper teardown remain unqualified; keyboard automation stays
+quarantined. Codex-driver fixes and 1Password work remain separate.
 
 ## Setup
 
@@ -234,27 +242,24 @@ the driver owns one: `claude-driver-broker`, Haiku 4.5, cwd
 [broker-template/CLAUDE.md](broker-template/CLAUDE.md)) is the standing
 protocol, in the `claude-driver` sidebar group, in bypassPermissions (otherwise
 archive, unarchive, pin and group moves of other sessions ask Taylor).
-- **Resident loop.** The broker stays mid-turn running
-  [scripts/broker-wait.mjs](scripts/broker-wait.mjs) (bounded 540 s wait,
-  re-armed) that returns when `requests/<id>.json` appears; it runs the
-  allowlisted ops verbatim and writes `results/<id>.json`. A session mid-turn
-  is never idle, so the app's CLI governor (cap 8 here; evicts the LRU session
-  idle ≥ 60 s when a warm spawn lands at the cap) never evicts it, and a
-  request needs no delivery at all: 4–8 s per op. And because the app
-  auto-resumes sessions that were mid-turn when it quit ("Relaunch
-  auto-resume"), the resident broker comes back by itself after an app
-  restart.
-- **Waking it.** If the process is alive but not resident, the driver sends
-  `claude-driver request <id> vN` over **peerProtocol v1 directly**
-  ([lib/peer-direct.mjs](lib/peer-direct.mjs), ~0.2 s: unix socket, the
-  receiver's own peerToken, one frame, from-mode matching the receiver's
-  class), falling back to a headless Haiku `SendMessage` turn on unverified
-  CLI versions. If the process is gone (app restart, eviction before it went
-  resident), revival: focus it by deep link so the app warm-spawns it, and if
-  the governor is at cap, Codex Computer Use types the wake line into its
-  composer (a real send always spawns). Nothing outside the app can start a
-  turn in an existing session (checked in the app bundle), so this is the
-  only UI-free-when-possible path.
+- **Resident loop.** The intended relay waits in the foreground, obtains each
+  operation from a durable request/checkpoint and calls the app's own tools.
+  Native cron maintenance is reconciled after IDLE, with current-process
+  freshness requirements. Prompted residency has failed in real tests; a busy
+  Bash wait alone did not prevent governor eviction. Neither model assurances
+  nor a matching instruction file establish residency, protection or readiness.
+- **Waking it.** Ordinary clients send the exact compatible
+  `claude-driver wake v6` over qualified **peerProtocol v1 directly**
+  ([lib/peer-direct.mjs](lib/peer-direct.mjs)), without an inference sender.
+  Unqualified versions use the explicit legacy inference-sender path in auto
+  mode; requested direct mode fails closed. Owned authentication keys, unique
+  live PID/start epoch and matching CLI session are required. Partial writes,
+  invalid keys and refused identities do not fall through to another send.
+  A correlated end-turn without tools while the exact process is idle returns
+  `broker_not_serving` for still-unclaimed work. Reconcile dispatched/unknown
+  outcomes before replay. Offline recovery belongs to the independent observer;
+  input fallback remains quarantined. App restart and natural-pressure recovery
+  are not currently qualified.
 - **Desktop callers skip it.** When the MCP server's parent Claude Code
   process is a desktop session (found via `~/.claude/sessions/<ppid>.json`),
   Tier B tools return the exact `ccd_*` calls for the caller to make itself.
@@ -326,7 +331,9 @@ main-process code is `.vite/build/index.chunk-*.js`; start with
 `claudeURLHandler`, `importCliSession`, `CliGovernor`, `titleSource`. For
 peer-direct, re-verify the envelope against the new CLI with
 `scripts/peer-send.mjs --verify-transcript` on a self-started target, then add
-the version to `CLAUDE_DRIVER_PEER_VERIFIED` / `VERIFIED_CLI`.
+the version to the reviewed `VERIFIED_CLI` source allowlist only after
+installed-receiver checks and an independently correlated native msg_id. There
+is no environment override. Transport acceptance does not qualify model serving.
 
 ## Tests
 

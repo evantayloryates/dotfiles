@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.taylor.claude-driver-detector</string>
+	<key>ProcessType</key>
+	<string>Background</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/opt/homebrew/bin/node</string>
+		<string>/Users/taylor/.local/state/claude-driver/releases/5dfbbdc62eb55f95bd60c62c13f9ae5560b6b41ff740ac67027a944a571d2b73/scripts/broker-detect.mjs</string>
+	</array>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>StandardErrorPath</key>
+	<string>/Users/taylor/.local/state/claude-driver/detector.stderr.log</string>
+	<key>StandardOutPath</key>
+	<string>/Users/taylor/.local/state/claude-driver/detector.stdout.log</string>
+	<key>StartInterval</key>
+	<integer>30</integer>
+</dict>
+</plist>

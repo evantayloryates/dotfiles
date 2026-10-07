@@ -94,7 +94,7 @@ export function brokerInfo() {
     titleSource: rec?.titleSource ?? null,
     model: rec?.model ?? null,
     permissionMode: rec?.permissionMode ?? null,
-    live: live ? { pid: live.pid, status: live.status, socket: live.messagingSocketPath, entrypoint:live.entrypoint } : null,
+    live: live ? { pid: live.pid, status: live.status, socket: live.messagingSocketPath, entrypoint:live.entrypoint,procStart:live.procStart } : null,
     resident: live ? { ...heartbeat(), resident: ['busy', 'working'].includes(live.status) && heartbeat().resident } : { resident: false },
     templateCurrent,
     runtime,
@@ -162,6 +162,7 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
     let via = { method: 'resident' }
     let lastWake = 0
     let wakeAttempts = 0
+    let terminalWakeAt = null
     // Persist abort intent while the delivery helper is still shutting down.
     // Waiting for helper exit first leaves an avoidable dispatch window.
     let abortCancellation
@@ -172,9 +173,10 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
     try {
     if (!info.resident?.resident) {
       via = await deliver(info, BROKER_WAKE, { signal,timeoutMs:Math.max(1,deadline-Date.now()) })
+      if(via.msgId)observe?.watchWake(via.msgId)
       lastWake = Date.now()
       wakeAttempts++
-      progress(`delivered via ${via.method} in ${Date.now() - t0} ms; broker enters its resident loop`)
+      progress(`delivered via ${via.method} in ${Date.now() - t0} ms; awaiting native serving evidence`)
     }
     while (Date.now() < deadline) {
       if (signal?.aborted) throw new DriverError('cancelled', { category: 'cancelled' })
@@ -186,6 +188,16 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
       const res = observe ? actual && validatedResult(request) : validatedResult(request)
       if(res&&['cancelled','expired'].includes(res.state))throw new DriverError(`${res.state} before dispatch`,{category:res.state==='expired'?'broker_timeout':'cancelled'})
       if (res) return { id, results: res.results, receiptSource:res.source||'broker-relay', deliveredVia: via.method, ms: Date.now() - t0 }
+      const wake=via.msgId&&observe?.wakeStatus(via.msgId)
+      if(wake?.terminalWithoutTools&&control(id).state==='pending'){
+        terminalWakeAt??=Date.now()
+        const now=brokerInfo()
+        if(now.live?.status==='idle'&&now.live.pid===via.pid&&now.live.procStart===via.procStart&&Date.now()-terminalWakeAt>=750)
+          throw new DriverError('native broker ended the correlated wake without tool calls; request remains unclaimed, no additional wake sent',{category:'broker_not_serving',detail:{wake:{msgId:via.msgId,pid:via.pid,procStart:via.procStart,...wake}}})
+        await sleep(100)
+        continue // settle the native end-turn race before considering another wake
+      }
+      terminalWakeAt=null
       // A broker can end its turn between our heartbeat check and enqueue.
       // Wake the SAME durable request, bounded, only while still unclaimed.
       // The pickup/checkpoint guards make duplicate triggers harmless.
@@ -194,6 +206,7 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
         if (!now.live) throw new DriverError('broker process disappeared while request was pending', { category: 'broker_dead' })
         if (!['busy', 'working'].includes(now.live.status)) {
           via = await deliver(now, BROKER_WAKE, { signal,timeoutMs:Math.max(1,deadline-Date.now()) })
+          if(via.msgId)observe?.watchWake(via.msgId)
           lastWake = Date.now()
           wakeAttempts++
           progress(`re-woke idle broker for ${id} via ${via.method} (attempt ${wakeAttempts})`)
@@ -212,7 +225,7 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
         const res = validatedResult(request)
         if (res&&!['cancelled','expired'].includes(res.state)) return { id, results: res.results, receiptSource:res.source||'broker-relay', deliveredVia: via.method, ms: Date.now() - t0 }
       }
-      err.detail = { requestId: id, state: state.state, dispatched: state.dispatched, retrySafe: !state.dispatched && (!state.resultAvailable||['cancelled','expired'].includes(state.state)) }
+      err.detail = { ...err.detail, requestId: id, state: state.state, dispatched: state.dispatched, retrySafe: !state.dispatched && (!state.resultAvailable||['cancelled','expired'].includes(state.state)) }
       if (state.dispatched) err.category = 'outcome_unknown'
       throw err
     } finally {

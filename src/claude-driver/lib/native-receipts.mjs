@@ -12,8 +12,28 @@ const ordered=x=>Array.isArray(x)?x.map(ordered):x&&typeof x==='object'?Object.f
 const canonical=x=>JSON.stringify(ordered(x))
 const text=x=>typeof x==='string'?x:Array.isArray(x)?x.filter(b=>b?.type==='text'&&typeof b.text==='string').map(b=>b.text).join('\n'):''
 export class NativeReceipts {
-  constructor(request){this.request=request;this.checks=new Map();this.calls=new Map();this.ready=new Set();this.results=new Map()}
+  constructor(request){this.request=request;this.checks=new Map();this.calls=new Map();this.ready=new Set();this.results=new Map();this.wakes=new Map()}
+  watchWake(msgId){if(typeof msgId==='string'&&this.wakes.size<3)this.wakes.set(msgId,{landed:false,chain:new Set(),toolCalls:0,terminalWithoutTools:false})}
+  wakeStatus(msgId){const w=this.wakes.get(msgId);return w?{landed:w.landed,toolCalls:w.toolCalls,terminalWithoutTools:w.terminalWithoutTools,nativeUserUuid:w.nativeUserUuid,nativeTerminalUuid:w.nativeTerminalUuid}:null}
+  observeWake(row){
+    if(row?.isSidechain||typeof row?.uuid!=='string')return
+    const peerId=row.type==='user'&&row.origin?.kind==='peer'?row.origin.msg_id:null
+    for(const [id,w] of this.wakes){
+      if(peerId===id){w.landed=true;w.nativeUserUuid=row.uuid;w.chain.add(row.uuid);continue}
+      if(!w.landed||!w.chain.has(row.parentUuid))continue
+      // Another user turn is a new causal branch; tool results remain in ours.
+      if(row.type==='user'&&(!Array.isArray(row.message?.content)||row.message.content.some(b=>b?.type!=='tool_result')))continue
+      if(w.chain.size>=1024){w.terminalWithoutTools=false;continue}
+      w.chain.add(row.uuid)
+      if(row.type==='assistant'){
+        w.toolCalls+=(Array.isArray(row.message?.content)?row.message.content:[]).filter(b=>b?.type==='tool_use').length
+        if(row.message?.stop_reason==='end_turn'){w.nativeTerminalUuid=row.uuid;w.terminalWithoutTools=w.toolCalls===0}
+        if(w.toolCalls)w.terminalWithoutTools=false
+      }
+    }
+  }
   feed(row){
+    this.observeWake(row)
     if(!['assistant','user'].includes(row?.type)||!Array.isArray(row.message?.content))return
     for(const b of row.message.content){
       if(b?.type==='tool_use'&&typeof b.id==='string'){
@@ -72,6 +92,8 @@ export function observeNativeReceipts(brokerId,request,start=null){
     if(end>=0){for(const line of buf.subarray(0,end).toString('utf8').split('\n')){try{collector.feed(JSON.parse(line))}catch(e){if(e instanceof DriverError)throw e}}offset+=end+1}
     return collector.receipt()
   }
+  observe.watchWake=id=>collector.watchWake(id)
+  observe.wakeStatus=id=>collector.wakeStatus(id)
   observe.start={brokerSessionId:brokerId,cliSessionId:cli,dev:initial.dev,ino:initial.ino,offset}
   return observe
 }

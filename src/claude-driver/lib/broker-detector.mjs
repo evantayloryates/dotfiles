@@ -2,7 +2,7 @@
 // transcript/key read, permission change or native process termination.
 import {constants,openSync,closeSync,fstatSync,readFileSync,readdirSync,existsSync} from 'node:fs'
 import {execFileSync} from 'node:child_process'
-import {createHash} from 'node:crypto'
+import {createHash,randomUUID} from 'node:crypto'
 import {join,resolve} from 'node:path'
 import {writeJsonAtomic} from './state.mjs'
 
@@ -44,8 +44,10 @@ export function sampleBroker({brokerDir,recordFile,peerDir,now=Date.now(),isAliv
   const pending=[]
   for(const name of requests){
    if(!/^[A-Za-z0-9_-]+\.json$/.test(name))continue
-   const id=name.slice(0,-5),request=json(join(brokerDir,'requests',name)),control=json(join(brokerDir,'controls',name))
-   if(request?.id!==id||control?.state!=='pending'||control.cancelRequested||control.dispatched?.length||!Number.isFinite(request.expiresAt)||request.expiresAt<=now||!Number.isFinite(Date.parse(request.createdAt))||now-Date.parse(request.createdAt)<15000)continue
+   const id=name.slice(0,-5),control=json(join(brokerDir,'controls',name))
+   if(control?.state!=='pending'||control.cancelRequested||control.dispatched?.length)continue
+   const request=json(join(brokerDir,'requests',name))
+   if(request?.id!==id||!Number.isFinite(request.expiresAt)||request.expiresAt<=now||!Number.isFinite(Date.parse(request.createdAt))||now-Date.parse(request.createdAt)<15000)continue
    pending.push(id)
   }
   if(pending.length)return {...result,state:'unserved-work',reason:'idle-with-current-unclaimed-work',requestIds:pending.sort().slice(0,16)}
@@ -59,7 +61,7 @@ export function detectorTransition(previous,sample) {
  if(sample.state==='intentional-stop')return null
  if(fault&&eventKey(previous||{})!==eventKey(sample))return {kind:'fault-observation',key:eventKey(sample)}
  if(sample.state==='live'&&priorFault)return {kind:'liveness-returned',key:eventKey(sample)}
- if(sample.state==='live'&&previous?.state==='live'&&previous.pid!==sample.pid)return {kind:'native-process-changed',key:eventKey(sample)}
+ if(sample.state==='live'&&previous?.state==='live'&&(previous.pid!==sample.pid||previous.procStart!==sample.procStart))return {kind:'native-process-changed',key:eventKey(sample)}
  return null
 }
 export function easternStamp(now) {
@@ -68,7 +70,7 @@ export function easternStamp(now) {
 }
 export function publishDetectorEvent({sample,event,reportDir,runtimeBuild}) {
  const digest=createHash('sha256').update(event.key).digest('hex').slice(0,12)
- const name=`claude-detector-${easternStamp(sample.at)}-${digest}.report.json`,file=join(reportDir,name)
+ const name=`claude-detector-${easternStamp(sample.at)}-${digest}-${randomUUID().slice(0,8)}.report.json`,file=join(reportDir,name)
  writeJsonAtomic(file,{schemaVersion:1,generatedAt:new Date(sample.at).toISOString(),episodeId:digest,source:'claude-driver-local-detector',brokerSessionId:sample.sessionId,runtimeBuild,
   reason:event.kind,observedFacts:{...sample,verification:'Process availability and queued metadata only; neither crash cause nor bridge readiness is established'},
   recovery:{attempted:false,method:null,outcome:'observer-owned'},inferenceCalls:0,

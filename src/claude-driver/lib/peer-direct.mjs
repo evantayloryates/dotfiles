@@ -14,7 +14,7 @@
 
 import { createHash, randomUUID } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
-import { existsSync, lstatSync, readdirSync, readFileSync, statSync } from 'node:fs'
+import { closeSync, constants, fstatSync, lstatSync, openSync, readdirSync, readFileSync } from 'node:fs'
 import { createConnection } from 'node:net'
 import { join, resolve } from 'node:path'
 
@@ -23,8 +23,11 @@ import { DriverError, PEER_SESSIONS_DIR } from './paths.mjs'
 const TAG = 'cross-session-message'
 const LINE_CAP = 1048576
 // CLI versions whose wire format this was verified against. Others fall back
-// to the LLM sender unless CLAUDE_DRIVER_PEER=direct.
-export const VERIFIED_CLI = (process.env.CLAUDE_DRIVER_PEER_VERIFIED || '2.1.284,2.1.286').split(',')
+// to the LLM sender in auto mode; explicit direct mode fails closed.
+// 2.1.289: installed receiver functions exercised in isolation and exact
+// owned native frame independently correlated by msg_id (155–156 ms).
+// This qualifies transport acceptance, not model compliance/native controls.
+export const VERIFIED_CLI = Object.freeze(['2.1.284','2.1.286','2.1.289'])
 
 function procStartOf(pid) {
   try {
@@ -34,31 +37,42 @@ function procStartOf(pid) {
   }
 }
 
-export function peerRecord(hostSessionId) {
-  for (const f of readdirSync(PEER_SESSIONS_DIR)) {
+export function peerRecord(hostSessionId,expectedPid) {
+  const matches=[]
+  let files;try{files=readdirSync(PEER_SESSIONS_DIR)}catch{return null}
+  for (const f of files) {
     if (!/^\d+\.json$/.test(f)) continue
     let rec
     try {
-      rec = JSON.parse(readFileSync(join(PEER_SESSIONS_DIR, f), 'utf8'))
+      const file=join(PEER_SESSIONS_DIR,f)
+      let fd
+      try {
+        fd=openSync(file,constants.O_RDONLY|constants.O_NOFOLLOW|constants.O_NONBLOCK)
+        const stat=fstatSync(fd)
+        if(!stat.isFile()||stat.uid!==process.getuid()||stat.size>65536)continue
+        const bytes=readFileSync(fd);if(bytes.length>65536)continue
+        rec=JSON.parse(bytes.toString('utf8'))
+      }finally{if(fd!==undefined)closeSync(fd)}
     } catch {
       continue
     }
-    if (rec.hostSessionId !== hostSessionId || rec.pid !== Number(f.slice(0, -5))) continue
+    if (rec.hostSessionId !== hostSessionId || rec.pid !== Number(f.slice(0, -5))||rec.spare||rec.parkedJobId||typeof rec.procStart!=='string'||!rec.procStart) continue
     try {
       process.kill(rec.pid, 0)
     } catch {
       continue
     }
-    if (rec.procStart !== undefined && procStartOf(rec.pid) !== rec.procStart) continue
-    return rec
+    if (procStartOf(rec.pid) !== rec.procStart) continue
+    matches.push(rec)
   }
-  return null
+  // Do not choose a filesystem-order winner or silently route to a new PID.
+  return matches.length===1&&(expectedPid===undefined||matches[0].pid===expectedPid)?matches[0]:null
 }
 
 export function canDeliver(target) {
-  const rec = target?.sessionId && peerRecord(target.sessionId)
+  const rec = target?.sessionId && peerRecord(target.sessionId,target.live?.pid)
   if (!rec || rec.peerProtocol !== 1) return false
-  return process.env.CLAUDE_DRIVER_PEER === 'direct' || VERIFIED_CLI.includes(rec.version)
+  return VERIFIED_CLI.includes(rec.version)
 }
 
 export function modeClass(permissionMode) {
@@ -68,10 +82,16 @@ export function modeClass(permissionMode) {
 function readToken(rec) {
   const hash = createHash('sha256').update(resolve(rec.messagingSocketPath)).digest('hex')
   const file = join(PEER_SESSIONS_DIR, `${rec.pid}.${hash}.key`)
-  if (!existsSync(file)) return undefined
-  if (statSync(file).uid !== process.getuid()) throw new DriverError('peer key file is not owned by this user', { category: 'peer_refused' })
-  const t = JSON.parse(readFileSync(file, 'utf8')).peerToken
-  return typeof t === 'string' && /^[0-9a-f]{32}$/.test(t) ? t : undefined
+  let fd
+  try {
+    fd=openSync(file,constants.O_RDONLY|constants.O_NOFOLLOW|constants.O_NONBLOCK)
+    const stat=fstatSync(fd)
+    if(!stat.isFile()||stat.uid!==process.getuid()||stat.mode&0o077||stat.size>4096)throw Error('invalid key metadata')
+    const key=JSON.parse(readFileSync(fd,'utf8')),t=key.peerToken
+    if(typeof t!=='string'||!/^[0-9a-f]{32}$/.test(t)||key.procStart!==undefined&&key.procStart!==rec.procStart)throw Error('invalid key identity')
+    return t
+  }catch{throw new DriverError('owned peer authentication key is unavailable or invalid; no frame sent',{category:'peer_refused',detail:{dispatched:false,retrySafe:true}})}
+  finally{if(fd!==undefined)closeSync(fd)}
 }
 
 function escapeBody(body) {
@@ -113,8 +133,13 @@ export function transcriptPath(rec) {
 // target: { sessionId: local_…, permissionMode }. Returns { msgId, pid }.
 export async function deliver(target, text, { fromName = 'claude-driver',timeoutMs=5000,signal } = {}) {
   if(signal?.aborted)throw new DriverError('peer delivery cancelled',{category:'cancelled'})
-  const rec = peerRecord(target.sessionId)
+  if(typeof text!=='string'||typeof fromName!=='string'||/["<>\p{Cc}\p{Cf}]/u.test(fromName)||[...fromName].length>64||!Number.isFinite(timeoutMs)||timeoutMs<=0)
+    throw new DriverError('invalid direct peer message or deadline',{category:'bad_args',detail:{dispatched:false,retrySafe:true}})
+  const rec = peerRecord(target.sessionId,target.live?.pid)
   if (!rec) throw new DriverError(`no live process for ${target.sessionId}`, { category: 'broker_dead' })
+  if(rec.peerProtocol!==1||!VERIFIED_CLI.includes(rec.version))throw new DriverError('direct transport is not qualified for this peer version',{category:'peer_unqualified',detail:{dispatched:false,retrySafe:true}})
+  if(target.live?.procStart&&target.live.procStart!==rec.procStart)throw new DriverError('peer native process epoch changed',{category:'peer_refused',detail:{dispatched:false,retrySafe:true}})
+  if(rec.sessionId!==target.sessionId.replace(/^local_/,''))throw new DriverError('peer CLI session identity mismatch',{category:'peer_refused'})
   const sock = rec.messagingSocketPath
   const lst = typeof sock === 'string' ? lstatSync(sock, { throwIfNoEntry: false }) : null
   if (!lst || lst.isSymbolicLink() || !lst.isSocket() || lst.uid !== process.getuid()) throw new DriverError(`bad peer socket ${sock}`, { category: 'peer_refused' })
@@ -123,10 +148,10 @@ export async function deliver(target, text, { fromName = 'claude-driver',timeout
   const msgId = randomUUID()
   const frame = JSON.stringify({ msgV: 1, msg_id: msgId, type: 'user', message: { role: 'user', content }, priority: 'next', session_id: rec.sessionId })
   const token = readToken(rec)
-  const payload = `${token ? `${JSON.stringify({ type: 'auth', token })}\n` : ''}${frame}\n`
+  const payload = `${JSON.stringify({ type: 'auth', token })}\n${frame}\n`
   if (payload.length > LINE_CAP) throw new DriverError('message too large for one peer frame', { category: 'bad_args' })
   await sendLines(sock, payload,{timeoutMs,signal})
-  return { msgId, pid: rec.pid, transcript: transcriptPath(rec) }
+  return { msgId, pid: rec.pid, procStart:rec.procStart, transcript: transcriptPath(rec) }
 }
 
 // Did the message land as a user turn? (Held/dropped messages never do.)

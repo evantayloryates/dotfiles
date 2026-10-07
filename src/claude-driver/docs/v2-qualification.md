@@ -1,46 +1,37 @@
 # Claude-driver v2 qualification
 
-Work resumed October 6, 2026. Current runtime:
-`3bfc51e7b06c4aec8ac81b5f7ec28eb77f2e1507cf03379e7f468eee22afa98b`; app 2.26454.0 / CLI 2.1.289.
-Exact reports and retained failures: [resume.md](resume.md).
+Latest audit: October 7,01:00 Eastern; app 2.26454.0 / CLI 2.1.289.
+Host build `5dfbbdc62eb55f95bd60c62c13f9ae5560b6b41ff740ac67027a944a571d2b73`.
+Active broker package `3bfc51e7b06c4aec8ac81b5f7ec28eb77f2e1507cf03379e7f468eee22afa98b`,
+bootstrap `7e62795266806cbd4435f68cc83f424e5299fe2ddd6e3f524babd1c7c39f5af4`,
+generation 3. Host edits do not advance this pin. Exact reports: [resume.md](resume.md).
 
 ## Current readiness audit
 
 | Requirement | Current evidence | Practical limit |
 |---|---|---|
-| Shared durable/steerable API | Five124-case rounds (620 passes), ten filtered checks per actual Claude/Codex harness | Synthetic failures are retained; native caller handback is not generally qualified |
-| Native Code controls | Eleven current-source input-free checks; create/focus, reply, cancel, concurrent/batch controls, queue/interrupt, single replies and archived cleanup | Current CLI/fresh MCP only; UI fallback disabled |
-| Efficiency | Native submit179ms; initial reply7.321s; concurrent52.379s, batch38.011s, interruption28.026s; corrected warm37.780s | Different measurements; no cold-start or latency SLA |
-| Service evidence/memory | Metadata-only automatic records, bounded queries, candidate/observed distinctions, source fingerprints and preserved reproductions | Do not treat candidate recommendations as verified mechanism |
-| Maintenance reconciliation | Current source IDLE04:21:15 → list04:21:16 reused922e4a9e/PID71262; previous-source ten-minute observation retained fresh evidence | Observed reconciliation passed; no current actual natural pressure proof |
-| Deployment isolation | Live Bash still executes working-tree paths; one guard edit broke native capture until corrected; retained observer/native evidence | Incomplete: stage immutable qualified releases and safe pin/handoff before further live-source experimentation |
-| Recovery | Existing observer and own five-minute cron verified; controlled warm handoffs retained PID 71262; normal client wake received native receipt | Stale exited query without relaunch, app restart/closure and cron expiry remain unqualified |
-| Input usability | Zero filters before/after current native suite; quarantine active | Physical typing recovery historical; helper teardown not qualified |
-| Scope | Existing driver reused; Codex fixes and 1Password work parked | No app restart, permission/auth changes or keyboard injection |
+| Shared durable/steerable API | Three final isolated rounds passed unchanged source; additional positive/negative native-wake receipt cases | Actual filtered harness passes predate current host changes; no full current native controls pass |
+| Native Code controls | Latest full run failed after initial reply/cancel; generic v7, named v7 and compatible v6 wakes all ended without tools | Existing owned fixture remains unarchived; do not rerun full suite without a justified serving improvement |
+| Deterministic transport | Seven installed receiver VM cases and exact native msg_id acceptance; 155–159 ms; ordinary current-source client used direct | Socket completion alone is not acceptance; acceptance is not native operation execution |
+| Failure containment | Correlated peer/UUID ancestry, end_turn without tools, same process idle and pending work yielded `broker_not_serving` in 3.35 s | Cancels only undispatched work; uncertain/dispatched results still require reconciliation; no model-compliance fix claimed |
+| Service evidence/memory | Preserved native/isolated failures, host/broker fingerprints, metadata-only memory and reviewed detector reports | Candidate strategies are not promoted without actual qualification |
+| Fast low-inference detection | Sealed detector LaunchAgent every 30s, zero inference; actual unserved-work event and liveness-only event; nine private boundary cases | Codex inbox scheduler still invokes inference every 30s; native Claude observer is hourly fallback, not event-driven recovery |
+| Maintenance reconciliation | Last verified native list04:37:33Z reused job d7319422 and app recognition on PID 71262 | Evidence freshness ages out after 12 min; stale list is neither current protection proof nor evidence of job absence |
+| Deployment isolation | Same-PID handoff; completed sealed entry records and native tool receipt; nine release boundary cases | Cached workspace shim remains mutable startup boundary; exact current-process entry provenance and different-build rollback need further work |
+| Recovery | Observer hourly job ae838cf8 independently verified; intentional STOP suppressed by detector | Stale exited query, app closure/restart, cron expiry and actual natural governor pressure remain unqualified |
+| Input usability/scope | Quarantine remains active; no input, app restart, auth change or native session termination; Codex/1Password fixes parked | Safe native-helper teardown remains unqualified |
 
-Protocol v7 keeps compatible v6 wake/drain phrases because a real v7 wake read
-the file then returned `ignored`. Pending operations retain protocol v7 and
-actual checkpoint/native-receipt correlation. Controlled STOP deleted only the
-exact owned maintenance job and preserved the PID before each verified handoff.
-The nine-minute deadline is tied to native evidence, not each request; expired
-maintenance returns IDLE before claiming work. The twelve-minute freshness guard
-was not weakened. Four actual waiter regressions and two actual client-wake
-regressions preserve baseline failures and corrected behavior.
+Keep exact compatible `claude-driver wake v6` / `drain v6` while queued requests
+retain protocol 7. Do not infer serving from “Broker running”, cron protection,
+an unchanged PID, a matching file or a send return. Current full reliability
+is incomplete. The independent observer owns offline recovery; avoid duplicate
+wakes or unapproved cross-chat messages.
 
-Actual automatic compaction occurred before both resumed native suites. Final
-controls passed afterward; arbitrary future compaction fidelity remains a usage
-frontier. Four installed-source governor scenarios passed in isolation; they
-produce no OS pressure, app IPC or native eviction proof. More synthetic passes
-cannot substitute for missing real pressure or unattended recovery.
-
-This chat's connected MCP is legacy driver `1a83e53`, API 2, build
-`32a4b1193203c235dd0ed63876c4231d7783d6e3999e11b1792da32b213b8780`,
-without sourceBuild/restartRequired. It is outside current qualification; refresh
-it or use current CLI. New MCP source guards do not retrofit an older loaded
-server. The thirty-second report watcher is scanner-first and quiet when empty;
-its delivery depends on the local scheduler. Observer offline restart attempts
-must not compete with client/manual wakes. The full reliability goal remains
-incomplete until the remaining native limits are resolved.
+This chat's connected MCP is legacy driver 1a83e53/build 32a4b119 and lacks freshness
+fields. Use current CLI/fresh MCP; source changes do not update that connection.
+The 30-second inbox watcher scans first and is quiet without pending evidence.
+Actual natural-pressure survival and unattended recovery remain separate from
+synthetic governor tests and read-only idle survival.
 
 ## Historical and broader mechanism evidence
 

@@ -58,3 +58,23 @@ test('journal truncation refuses reconciliation rather than mixing a new transcr
  assert.throws(()=>observe(),e=>e.category==='outcome_unknown')
 })
 after(()=>rmSync(root,{recursive:true,force:true}))
+
+test('wake refusal uses exact peer msg_id and causal UUID ancestry; body lookalikes are insufficient',()=>{
+ const c=new NativeReceipts(request);c.watchWake('fixture-peer-id')
+ const user={type:'user',uuid:'u',message:{content:'synthetic wake'},origin:{kind:'peer',msg_id:'fixture-peer-id'}}
+ c.feed({...user,origin:{kind:'peer',msg_id:'other',body:'fixture-peer-id'}})
+ c.feed({type:'assistant',uuid:'a',parentUuid:'u',message:{stop_reason:'end_turn',content:[{type:'text',text:'Running'}]}})
+ assert.equal(c.wakeStatus('fixture-peer-id').landed,false)
+ c.feed(user);c.feed({type:'attachment',uuid:'attachment',parentUuid:'u'})
+ c.feed({type:'assistant',uuid:'a',parentUuid:'attachment',message:{stop_reason:'end_turn',content:[{type:'thinking',thinking:'PRIVATE'}]}})
+ assert.equal(c.wakeStatus('fixture-peer-id').terminalWithoutTools,true)
+ assert.equal(JSON.stringify(c.wakeStatus('fixture-peer-id')).includes('PRIVATE'),false)
+})
+test('unrelated user branches, sidechains, and nonterminal tool work do not prove wake refusal',()=>{
+ for(const variation of ['other-user','sidechain','tools']){
+  const c=new NativeReceipts(request);c.watchWake('wake');c.feed({type:'user',uuid:'u',origin:{kind:'peer',msg_id:'wake'},message:{content:'wake'}})
+  if(variation==='other-user')c.feed({type:'user',uuid:'other',parentUuid:'u',message:{content:[{type:'text',text:'user instructions'}]}})
+  c.feed({type:'assistant',uuid:'a',parentUuid:variation==='other-user'?'other':'u',isSidechain:variation==='sidechain',message:{stop_reason:'end_turn',content:variation==='tools'?[{type:'tool_use',id:'t',name:'Bash',input:{command:'synthetic'}}]:[{type:'text',text:'Running'}]}})
+  assert.equal(c.wakeStatus('wake').terminalWithoutTools,false)
+ }
+})

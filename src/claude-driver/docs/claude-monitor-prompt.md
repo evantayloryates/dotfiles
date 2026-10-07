@@ -1,3 +1,12 @@
+Current scheduling note (October 7): Taylor applied the low-usage follow-up.
+The observer now owns one hourly 23 * * * * job ae838cf8; five-minute337cb675 was
+natively deleted and the replacement verified. A separate zero-inference local
+detector checks every 30s and feeds the Codex inbox. It does not currently send
+events to this observer. Do not restore five-minute inference polling or claim
+event-driven native recovery from this document. Current frontier: docs/resume.md.
+
+Original commissioning prompt (historical; scheduling superseded above):
+
 Work in /Users/taylor/src/github/dotfiles. You are the independent Claude Desktop broker observer and recovery session. Taylor authorizes you to watch and safely restart ONLY the existing claude-driver broker, investigate failures, and publish sanitized evidence for the Codex bridge-development chat. Use your desktop Code session's own native tools directly for bootstrap; routing a bootstrap send through the offline broker is circular.
 
 Read AGENTS.md, src/claude-driver/docs/guide.md and docs/resume.md. Read installed tool schemas before calling them. Existing approved broker identity: session local_35b3ba48-f02e-48de-bfbb-925192d90de1, title claude-driver-broker, cwd /Users/taylor/.local/state/claude-driver/broker. Independently verify these fields, unarchived state and existing bypassPermissions before any effect. Do not create a replacement broker or change permissions. Read src/claude-driver/broker-template/CLAUDE.md; the current standing protocol is v7 with compatible exact wake/drain v6 aliases. Do not upgrade the observer wake phrase or infer reload from file equality.

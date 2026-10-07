@@ -5,6 +5,53 @@ Dated, newest first. Each entry: what was observed, the evidence, and n
 (`<state>/pending-learnings.jsonl`) here only after re-verifying it.
 Versions: app = Claude desktop, cli = bundled Claude Code.
 
+## 2026-10-07 01:00 Eastern — deterministic transport and event detection
+
+- **Installed receiver contract is mechanically testable without inference.**
+  Seven VM cases exercised the installed2.1.289 socket auth, framing, session
+  guard, deadline, line cap and exact ASCII envelope parser. Native acceptance
+  independently correlated exact peer msg_ids in four focused wakes,155–159 ms.
+  Only transport is qualified: v8 was ignored; generic/named v7 and compatible
+  v6 ended with “Broker running” and no tools. Receiver-source extraction's
+  initial failure and every native failure remain in pressure artifacts.
+
+- **A completed native wake can prove failure to enter the relay.** Exact peer
+  msg_id and descendant UUIDs correlated an end_turn with zero tools; the
+  request stayed pending and the same PID/start epoch became idle. The new
+  guard cancelled that undispatched request with `broker_not_serving` in 3.35 s,
+  using one recipient turn and zero sender turns. Positive/negative private
+  cases cover unrelated user branches, sidechains, tool work and a checkpointed
+  native result that wins. This is verified failure containment, not serving
+  recovery or a claim about why the model stops. Native evidence:
+  native-wake-end-turn-guard-2026-10-07.json. Three final isolated rounds passed
+  with unchanged source: v2-2026-10-07T05-00-48-265Z.json.
+
+- **Sensing cadence need not equal inference cadence.** A sealed local detector
+  runs every 30s, with exact owned broker metadata, PID/start epoch and aged
+  unclaimed-work checks; no keys/transcripts, sends or recovery. Ten native
+  read-only samples averaged 4.961 ms (max 8.556 ms). Unchanged observations and
+  intentional STOPs are quiet. Nine boundary cases cover approval identity,
+  ambiguous processes, inaccessible evidence, stale/cancelled work, dedup,
+  reused PID epochs and atomic hash-scanned reports. It independently emitted
+  one real unserved-work event and a subsequent liveness-only event; the latter
+  followed request expiry, not a recovered service. The Codex inbox still has
+  inference-bearing30s ticks; Claude's hourly observer is recovery fallback.
+  Neither is described as event-only Claude automatic recovery.
+
+- **Direct transport fails closed before an uncertain fallback.**2.1.289 is now
+  reviewed in the source allowlist; no environment version override. Owned
+  metadata/key reads reject symlinks and invalid identity, private key modes
+  are enforced, and stale/ambiguous PID selection cannot route to a replacement.
+  Actual synthetic socket tests verify key refusal, envelope validation,
+  timeouts/abort and one authenticated frame without a sender inference call.
+
+- **Status extraction must exclude launchd environments.** A broad launchctl
+  status command exposed inherited secrets in tool output during this run.
+  Subsequent checks capture output privately and emit only explicit service
+  state/run-count/exit-code/interval fields. No secret values are copied to
+  service evidence or documentation. Credential rotation is outside this
+  bridge change and remains necessary after the exposure.
+
 ## 2026-10-07 — helper cancellation and hidden waiter pressure
 
 - **A timeout must include its wake helper and cleanup.** Seven original private
@@ -42,7 +89,7 @@ Versions: app = Claude desktop, cli = bundled Claude Code.
   waiter regressions pass; no twelve-minute freshness relaxation. An intermediate
   native IDLE/list/rewait at 03:52 reused the exact job despite intervening traffic.
   Final-source IDLE at 04:03:06.882Z → CronList at 04:03:09.251Z → rewait
-  at 04:03:10.919Z reused job922e4a9e with no creation and preserved PID71262.
+  at 04:03:10.919Z reused job922e4a9e with no creation and preserved PID 71262.
   Ten-minute survival passed with fresh evidence and zero filters, but no natural
   pressure (overall residency report false). See wait-budget-reproduction,
   native-idle-v7-final and residency-v2-2026-10-07T03-54-52-060Z reports.

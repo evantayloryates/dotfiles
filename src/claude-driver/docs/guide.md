@@ -4,8 +4,9 @@ claude-driver drives Taylor's Claude desktop app from Claude Code, Codex,
 Cursor, OpenCode or a script. This is the usage contract; the README has the
 mechanisms and evidence.
 
-Current-source native input-free qualification passed eleven checks on app
-2.26454.0 / CLI 2.1.289. See [resume.md](resume.md) for exact runtime/reports.
+The latest full native input-free qualification FAILED on app 2.26454.0 /
+CLI 2.1.289: the broker ended turns without serving queued work. Earlier
+passes are historical. See [resume.md](resume.md) for exact runtime/reports.
 Protocol v7 retains exact compatible `claude-driver wake v6` / `drain v6`
 identities. Wake enters the loop; operation arguments come only from the durable
 request and dispatch checkpoint. Native envelope sender fields are routing
@@ -40,10 +41,31 @@ helper; cleanup grace may add250ms plus lock/scheduling time. A partial socket
 write never starts a fallback sender. These guarantees concern transport/helper
 ownership, not reversal of dispatched native effects. A discarded-output waiter
 cannot claim work; one kernel-owned waiter captures output in a pipe/socket or
-owned regular file. Live wait/check paths still load mutable working-tree code;
-release staging/pinning is the next deployment requirement. Do not treat a
-passing current native run as isolation from subsequent source edits. Unexpected
+owned regular file. Active wait/check dependencies now load an immutable pinned package through a
+validated sealed bootstrap; cached workspace command shims remain the startup
+boundary. Host/source and active broker fingerprints are distinct. Do not
+advance the pin through ordinary source edits or treat staged candidates as
+native handoffs. Different-build rollback remains unqualified. Unexpected
 native model behavior still requires reconciliation.
+
+Qualified CLI 2.1.289 direct delivery removes the sender inference turn. Exact
+PID/start epoch, CLI session, private owned key and reviewed version are required;
+explicit direct mode fails closed and has no version environment override.
+A wake's exact native peer msg_id, causal UUID ancestry, end_turn without tools
+and same process idle state can establish `broker_not_serving`. The client then
+cancels still-unclaimed work without another wake. A tool result/checkpoint wins
+a completion race; dispatched effects remain `outcome_unknown` when unresolved.
+Missing/cross-branch journal evidence is not refusal proof. Model prose is never
+used to decide this guard.
+
+The metadata-only local detector runs every 30 seconds and publishes only changed
+observations into Taylor's report inbox. STOP suppresses recovery alerts; idle
+alone is healthy; unserved work requires a current aged unclaimed request.
+Liveness-returned does not establish serving readiness. The detector uses zero
+inference and never wakes another chat. Codex's 30-second report watcher still
+has inference-bearing scheduler ticks. The native Claude observer is hourly
+fallback; event-triggered native recovery remains a separate integration.
+
 A recipient can refuse a peer replacement after interpreting stop as human
 intervention. `stopped:true` and a send receipt do not prove the replacement was
 accepted. Use observations; never override a real human stop or blindly replay.
