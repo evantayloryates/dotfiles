@@ -72,11 +72,12 @@ class InferenceTests(unittest.TestCase):
             '# A heading alone', '- shopping\n- laundry', '```\nunclosed',
             'key: value', 'https://example.com/file.json',
             '{\\rtf1 unfinished', 'BEGIN:VCARD\nFN:Taylor', '#!/unknown\nanything',
-            'key = ', 'abc\x00def',
+            'key = ',
         ):
             with self.subTest(text=text):
                 self.assertEqual(infer_extension(text.encode()), "txt")
-        self.assertEqual(infer_extension(b'\xff\x80\x81'), "txt")
+        self.assertEqual(infer_extension(b'\xff\x80\x81'), "bin")
+        self.assertEqual(infer_extension(b'abc\x00def'), "bin")
 
     def test_scripts_without_shebangs(self):
         cases = {
@@ -340,7 +341,7 @@ class ShellTests(unittest.TestCase):
         self.payload = self.root / 'payload'
         self.payload.write_bytes(b'{"ok":true}\r\n')
 
-    def run_cs(self, name=None, kind='text', sources=(), failure='', before='', extension='bin', bridge=''):
+    def run_cs(self, name=None, kind='text', sources=(), failure='', before='', extension='bin', bridge='', arguments=None):
         env = dict(os.environ, HOME=self.temp, DOTFILES_DIR=str(REPO),
                    CLIP_PAYLOAD=str(self.payload), CLIP_KIND=kind,
                    CLIP_SOURCES='\n'.join(map(str, sources)), CLIP_FAILURE=failure, CLIP_EXTENSION=extension, CLIP_BRIDGE=str(bridge))
@@ -365,7 +366,7 @@ __clipsend_pasteboard() {
 pbpaste() { print -u2 'unexpected lossy clipboard read'; return 1; }
 functions[/usr/bin/pbcopy]='[[ "$CLIP_FAILURE" == copy ]] && return 1; cat > "$HOME/copied-path"'
 ''' + before + '\ncs "$@"\n'
-        return subprocess.run(['zsh', '-f', '-c', script, 'test', *([] if name is None else [name])],
+        return subprocess.run(['zsh', '-f', '-c', script, 'test', *(arguments if arguments is not None else ([] if name is None else [name]))],
                               env=env, text=True, capture_output=True)
 
     def assert_saved(self, result, expected_name):
@@ -474,6 +475,34 @@ functions[/usr/bin/pbcopy]='[[ "$CLIP_FAILURE" == copy ]] && return 1; cat > "$H
         result = self.run_cs(kind='data')
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertRegex(Path(result.stdout.splitlines()[0]).name, r'-data\.bin$')
+
+    def test_from_source_bypasses_clipboard_and_preserves_any_file(self):
+        source = self.root / 'photo with spaces.heic'
+        source.write_bytes(b'\0opaque binary\xff\x80')
+        saved = self.assert_saved(self.run_cs(arguments=['renamed', '--from', str(source)], failure='inspect'), 'renamed.heic')
+        self.assertEqual(saved.read_bytes(), source.read_bytes())
+        self.assertFalse((self.root / 'bridge-calls').exists())
+        self.assert_saved(self.run_cs(arguments=['--from', str(source)]), source.name)
+        self.assert_saved(self.run_cs(arguments=['explicit.dat', '--from', str(source)]), 'explicit.dat')
+        extensionless = self.root / 'binary-source'
+        extensionless.write_bytes(source.read_bytes())
+        self.assert_saved(self.run_cs(arguments=['--from', str(extensionless)]), 'binary-source.bin')
+        directory = self.root / 'original-folder'
+        directory.mkdir()
+        (directory / 'child').write_bytes(source.read_bytes())
+        saved = self.assert_saved(self.run_cs(arguments=['folder', '--from', str(directory)]), 'folder')
+        self.assertEqual((saved / 'child').read_bytes(), source.read_bytes())
+
+    def test_from_invalid_arguments_do_not_publish_or_capture(self):
+        for args in [['--from'], ['--from', ''], ['name', '--from', ''],
+                     ['--from', str(self.root / 'missing')], ['name', 'unexpected'],
+                     ['name', '--from', 'source', 'unexpected']]:
+            with self.subTest(args=args):
+                result = self.run_cs(arguments=args)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertFalse((self.root / 'bridge-calls').exists())
+                self.assertFalse((self.root / 'copied-path').exists())
+                self.assertEqual(list(self.desktop.iterdir()), [])
 
     @unittest.skipUnless(sys.platform == 'darwin', 'requires macOS AppKit')
     def test_native_capture_through_cs(self):

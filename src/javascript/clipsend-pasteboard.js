@@ -72,7 +72,8 @@ function capture(pb, path, fmt) {
     return save(sourceFormat === fmt ? data : convertImage(data, fmt), 'image');
   }
   function accompanyingImage() {
-    const common = [RAW_TYPES[fmt], ...Object.values(RAW_TYPES)].find((t) => types.includes(t));
+    const common = types.includes(RAW_TYPES[fmt]) ? RAW_TYPES[fmt]
+      : types.find((t) => Object.values(RAW_TYPES).includes(t));
     if (common) return read(common);
     // Ask AppKit about less common formats only when no usual raster type is
     // offered. Ordinary text and PNG/JPEG do not pay for that discovery.
@@ -113,7 +114,7 @@ function capture(pb, path, fmt) {
       // Replacement characters near a damaged image marker are irreversible.
       // Do not reject ordinary prose merely for containing U+FFFD.
       if (prefix.includes('\ufffd') && /JFIF\x00|Exif\x00|PNG\r\n\x1a\n/.test(prefix)) {
-        throw new Error('clipboard image bytes were already converted to text; copy the image or file again');
+        throw new Error('clipboard image bytes were already converted to text; use Finder Copy or Preview Copy, or cs <name> --from <original-file>');
       }
       return save(data, 'data\nbin');
     }

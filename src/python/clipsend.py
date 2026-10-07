@@ -1,7 +1,8 @@
 """Conservative content inference for clipsend.
 
 Detection never modifies the payload. Explicit suffixes win; unknown or
-ambiguous content is text. Keep ordering from specific formats to heuristics.
+ambiguous text is .txt, unrecognized binary is .bin. Keep ordering from specific
+formats to heuristics.
 """
 
 import ast
@@ -154,8 +155,10 @@ def infer_extension(data, *, complete=True):
         original_text = data.decode(encoding)
         text = original_text.strip()
     except UnicodeError:
-        return "txt"
-    if not text or "\x00" in text:
+        return "bin"
+    if "\x00" in text:
+        return "bin"
+    if not text:
         return "txt"
 
     try:

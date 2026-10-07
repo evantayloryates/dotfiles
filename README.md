@@ -286,7 +286,15 @@ prints the saved path, and copies that path back to the clipboard.
 cs my-json-results  # Valid JSON -> ~/Desktop/my-json-results.json
 cs                  # Valid JSON -> ~/Desktop/clipsend-HHMMSS-N-lines.json
 cs notes.txt        # Explicit extension wins; content stays unchanged
+cs photo --from '/path/to/photo.jpg' # Copy the source bytes -> ~/Desktop/photo.jpg
+cs --from '/path/to/archive.7z'      # Preserve any original file format
 ```
+
+`--from` accepts a local file or directory and bypasses clipboard reading. It
+uses the same copying/naming rules as Finder files, retaining the source suffix
+unless you specify one, and publishes the saved path normally. This is the
+lossless route for files of any format when an application's “Copy File
+Contents” action treats binary content as text. Finder Copy is also supported.
 
 Extension inference runs for both custom names without an extension and the
 generated default name. It preserves the original bytes, including whitespace,
@@ -386,6 +394,9 @@ to Unicode replacement characters produces an error asking you to copy the
 image/file again; those missing bytes cannot be reconstructed. Captured PDF,
 ZIP, gzip, and WAV data receive their corresponding suffixes; unrecognized
 binary payloads receive `.bin`. Explicit suffixes for these data payloads win.
+Extensionless local files whose complete contents cannot decode as text, or
+contain NUL characters after decoding, also receive `.bin` (within the existing
+16 MiB inference limit).
 No clipboard payload is printed by the bridge, and failed captures do not
 publish a saved path.
 
@@ -415,21 +426,31 @@ warmup (timings vary with system load):
 
 | Fixture / output | Previous bridge | Capture bridge |
 | --- | ---: | ---: |
-| UI PNG → PNG, 32 KiB | 103 ms | 52 ms |
-| UI JPEG → PNG, 182 KiB | 178 ms | 120 ms |
-| UI JPEG → JPEG, 182 KiB | 109 ms | 57 ms |
-| Noise PNG → PNG, 5.9 MiB | 111 ms | 58 ms |
-| Noise JPEG → PNG, 2.3 MiB | 388 ms | 304 ms |
-| Noise JPEG → JPEG, 2.3 MiB | 125 ms | 66 ms |
+| UI PNG → PNG, 32 KiB | 96 ms | 48 ms |
+| UI JPEG → PNG, 182 KiB | 159 ms | 108 ms |
+| UI JPEG → JPEG, 182 KiB | 95 ms | 47 ms |
+| Noise PNG → PNG, 5.9 MiB | 101 ms | 51 ms |
+| Noise JPEG → PNG, 2.3 MiB | 258 ms | 206 ms |
+| Noise JPEG → JPEG, 2.3 MiB | 95 ms | 48 ms |
 
 The benchmark also checks small and 5 MiB text: capture plus writing took about
-3 ms more than the old inspection alone, which excludes its subsequent
+4–5 ms more than the old inspection alone, which excludes its subsequent
 `pbpaste` read/write. Existing syntax inference is unchanged. Tests cover native
 capture and the shell command together, raw images advertised as text, direct
 byte preservation, conversions/orientation, text and Finder precedence, BOMs,
 multiple text items, damaged-image recovery/errors, clipboard changes,
 unavailable data, and save/publish failures. Tests and benchmarks leave the
 system clipboard and Desktop alone.
+
+The live Photo Booth reproduction on 2026-10-07 established an upstream loss:
+the Codex link's “Copy File Contents” action yielded only UTF-8 text, exactly
+matching the original JPEG decoded with replacement characters. An original
+JPEG cannot be recovered from that clipboard alone. Verification used the
+preserved failing clipboard, then the exact original Photo Booth JPEG copied as
+native image data: `cs test` produced a decodable PNG and its path was read back
+from the real clipboard. `--from` was separately verified against the original
+JPEG byte-for-byte. Personal image fixtures and clipboard snapshots are not
+stored in this repository.
 
 ### Path functions
 

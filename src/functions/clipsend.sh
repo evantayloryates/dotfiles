@@ -45,6 +45,7 @@ __clipsend_name() {
 
 # Save the clipboard to ~/Desktop and put the saved path on the clipboard.
 #   clipsend [name]    (or its alias: cs [name])
+#   clipsend [name] --from <file-or-directory>  bypass clipboard conversion
 # Infer suffixes for unnamed text and extensionless names; preserve bytes.
 # Finder files retain existing suffixes and directories retain their names.
 # Images are PNG by default, or converted to an explicitly supported format.
@@ -52,7 +53,8 @@ clipsend() {
   __alias_nudge cs
 
   local desktop="$HOME/Desktop"
-  local custom_name="${1##*/}"
+  local custom_name=""
+  local source_path=""
   local ts
   local info
   local kind
@@ -64,6 +66,28 @@ clipsend() {
   local out
   local -a sources
   local -a outs
+
+  if [[ "$1" == --from && $# -eq 2 ]]; then
+    source_path="$2"
+  elif [[ "$2" == --from && $# -eq 3 ]]; then
+    custom_name="${1##*/}"
+    source_path="$3"
+  elif (( $# <= 1 )) && [[ "$1" != --from ]]; then
+    custom_name="${1##*/}"
+  else
+    echo 'Usage: cs [name] [--from <file-or-directory>]' >&2
+    return 1
+  fi
+  if [[ -n "$source_path" ]]; then
+    source_path="${source_path:A}"
+    if [[ ! -f "$source_path" && ! -d "$source_path" ]]; then
+      echo "❌ Source is not a file or directory: $source_path" >&2
+      return 1
+    fi
+  elif [[ "$1" == --from || "$2" == --from ]]; then
+    echo '❌ --from requires a nonempty file or directory path' >&2
+    return 1
+  fi
 
   ts="$(date '+%H%M%S')"
   mkdir -p "$desktop" || return 1
@@ -79,18 +103,26 @@ clipsend() {
     bmp) fmt=bmp ;;
     *) fmt=png; name="${name%.}.png" ;;
   esac
-  tmp="$(mktemp)" || return 1
-  if ! info="$(__clipsend_pasteboard capture "$tmp" "$fmt" 2>&1)"; then
-    rm -f "$tmp"
-    echo "❌ Could not read the clipboard: $info" >&2
-    return 1
+  if [[ -n "$source_path" ]]; then
+    info=files
+  else
+    tmp="$(mktemp)" || return 1
+    if ! info="$(__clipsend_pasteboard capture "$tmp" "$fmt" 2>&1)"; then
+      rm -f "$tmp"
+      echo "❌ Could not read the clipboard: $info" >&2
+      return 1
+    fi
   fi
   kind="${info%%$'\n'*}"
 
   case "$kind" in
     files)
       rm -f "$tmp"
-      sources=("${(@f)${info#*$'\n'}}")
+      if [[ -n "$source_path" ]]; then
+        sources=("$source_path")
+      else
+        sources=("${(@f)${info#*$'\n'}}")
+      fi
       if [[ -n "$custom_name" && ${#sources} -gt 1 ]]; then
         echo "⚠️  ${#sources} files on the clipboard; ignoring name '$custom_name'" >&2
         custom_name=""
