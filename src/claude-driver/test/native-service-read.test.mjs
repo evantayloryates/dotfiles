@@ -38,3 +38,14 @@ test('cancellation before publication consumes no durable budget; partial public
   assert.deepEqual(partial.events,['cancel'])
  }finally{fs.rmSync(dir,{recursive:true,force:true})}
 })
+
+test('expiry during claim or revalidation prevents delivery and preserves published identity',async()=>{
+ for(const stage of ['claim','revalidate']){
+  const s=fixture(),original=s.d[stage];let now=0
+  s.d.now=()=>now
+  s.d[stage]=async(...args)=>{const result=await original(...args);now=100;return result}
+  await assert.rejects(runNativeServiceReadTransaction({requestId:'rfixture'},s.d),e=>e.phase==='send'&&e.requestId==='rfixture'&&e.retrySafe===false)
+  assert.equal(s.events.includes('send'),false);assert.equal(s.events.includes('reconcile'),false)
+  assert.equal(s.events.filter(x=>x==='cancel').length,1)
+ }
+})

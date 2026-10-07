@@ -31,6 +31,7 @@ export async function runNativeServiceReadTransaction({requestId,signal},d){
   if((await d.claim(requestId))?.id!==requestId)throw Error('claim refused')
   phase='revalidate';abort();await d.revalidate();abort()
   phase='send'
+  if(d.now()>=prepared.request.expiresAt)throw Error('request expired before delivery')
   await d.send(); // exactly one invocation; never retry an uncertain transport
   phase='wait'
   while(d.now()<prepared.request.expiresAt){

@@ -595,3 +595,7 @@ Quota restoration enables inference-dependent harness checks only; it does not
 close these other gates. No human action is requested now. If no specific safe
 experiment or source defect is identified, stop active probing rather than churn;
 the report watcher continues its pending-evidence-only contract.
+
+Host native-service reads recheck the original published request deadline just
+before delivery. Expiry during claim/revalidation prevents send, preserves the
+request identity and capacity, and attempts cancellation cleanup.

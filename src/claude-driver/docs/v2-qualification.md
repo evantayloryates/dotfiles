@@ -1,3 +1,14 @@
+## Host expiry before native delivery — October 7
+
+Source audit found request expiry can pass while claim/revalidation awaits. Added
+original published request deadline check immediately before the single send.
+Expired requests retain identity/capacity and receive cancellation cleanup, with
+no delivery or replay. Boundary tests expire during both claim and revalidation;
+all six transaction tests pass. Full pressure v2-2026-10-07T17-35-07-996Z passed
+1/1 in9044ms/sourceChanged:false. No native operation or inference requested.
+This closes host pre-send expiry only; expiry after delivery remains uncertain
+and requires receipt reconciliation. Full release gates remain open.
+
 ## Usage-exhausted operating boundary — October 7
 
 Taylor reports Claude inference quota exhausted. No free/local inference provider
