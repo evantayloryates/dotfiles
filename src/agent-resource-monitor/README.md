@@ -159,7 +159,10 @@ diagnostic subprocesses are terminated on timeout/output overflow.
   safe executable/service names, launch-owner IDs, footprint/RSS, per-process
   CPU/page-ins/disk I/O and shared GPU counters. Context records Docker stats
   and two container process trees, disk I/O, thermal/platform state, Codex config
-  change markers and bounded structural MCP event counts. No app log bodies,
+  change markers and bounded structural MCP/config/thread event timestamps,
+  counts and numeric app-window origins. Configuration write/read metadata
+  helps distinguish reconfiguration/client startup waves from timer hypotheses.
+  No app log bodies,
   raw argv/env, credentials, chat contents, tool inputs/outputs or screens are
   persisted. There are no root-only Instruments/powermetrics traces, stack
   samples or heap dumps: deeper instrumentation is a separate targeted step.
@@ -188,6 +191,14 @@ prove that one chat caused a shared service's allocation. Compare same-time
 process snapshots and actual counter deltas, not a sum of per-process peaks.
 Observer collection timings are in status/captures; measure overhead on the
 actual Mac before increasing cadence.
+
+Save deeper incident investigations inside the corresponding session's
+`analysis/` folder. An `analysis/index.html` is linked from regenerated overviews;
+keep `findings.json`, a frozen-input cutoff and a reproducible analysis script
+beside it. This preserves evidence and uncertainty for the next investigation
+without putting private telemetry in Git. These files follow bundle retention.
+An already-running observer retains its loaded code until its next safe restart;
+do not interrupt an active capture merely to pick up report-template changes.
 
 ## Further instrumentation
 
