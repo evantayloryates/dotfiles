@@ -550,3 +550,8 @@ current exact broker epoch, owned retired files and fresh PID absence. A qualifi
 result covers only the exact stream child after retirement; general hook/environment
 unload and release authorization remain separate and false. Actual fresh stdio MCP
 and CLI are verified; the installed connector has not been restarted or qualified.
+
+Read cancellation before publication reserves no durable capacity. Reservation
+and enqueue occur synchronously after the final cancellation check. Once that
+publication boundary is crossed, partial writes remain uncertain: capacity stays
+reserved, cleanup is attempted, and callers must inspect rather than retry.

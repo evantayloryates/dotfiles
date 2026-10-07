@@ -13,6 +13,12 @@ import {deliver} from './peer-direct.mjs'
 import {reconcileNativeServiceResult} from './native-peer-service-result.mjs'
 const root='/Users/taylor/.local/state/claude-driver/pressure/'
 const json=(p,n=16384)=>JSON.parse(readProbeBytes(p,n).bytes.toString('utf8'))
+export function publishNativeServiceReadRequest({dir,serviceId,maxRequests,request},publish=enqueue){
+ // No await between durable reservation and publication. The caller has already
+ // crossed its uncertainty boundary; a partial enqueue never releases capacity.
+ reserveNativeServiceBudget(dir,serviceId,request.id,maxRequests)
+ return publish(request)
+}
 // Exported transaction seam permits real cancellation/race tests without native
 // effects. Production dependencies below retain all ownership/admission checks.
 export async function runNativeServiceReadTransaction({requestId,signal},d){
@@ -58,8 +64,8 @@ export async function nativeServiceRead(serviceId,targetSession,{timeoutMs=20000
    prepare:()=>{
     preflight();const policy=json(BROKER_DIR+'/stop-rescue-policy.json');if(readProbeBytes(policy.script,65536).sha256!==policy.sha256)throw Error('policy drift')
     const request={id:requestId,protocol:7,createdAt:new Date().toISOString(),expiresAt:admitted.expiresAt,ops:[{op:admitted.op,args:admitted.args}],nativeEffectAdmissionPolicy:{version:1,handlerSha256:policy.sha256,settingsHash:policy.settingsHash}},observe=observeNativeReceipts(enrollment.config.brokerSession,request)
-    if(!observe)throw Error('journal absent');request.nativeObservation=observe.start;reserveNativeServiceBudget(root.slice(0,-1),serviceId,requestId,enrollment.config.maxRequests);return {request}
-   },enqueue,claim:id=>pickupPending({requestId:id}),revalidate:preflight,
+    if(!observe)throw Error('journal absent');request.nativeObservation=observe.start;return {request}
+   },enqueue:request=>publishNativeServiceReadRequest({dir:root.slice(0,-1),serviceId,maxRequests:enrollment.config.maxRequests,request}),claim:id=>pickupPending({requestId:id}),revalidate:preflight,
    send:()=>deliver(broker,enrollment.config.token+' '+requestId,{priority:'now',signal,timeoutMs:Math.min(timeoutMs,5000),onPrepared:meta=>writeFileSync(root+'native-service-send-'+requestId+'.json',JSON.stringify({serviceId,requestId,...meta,at:new Date().toISOString(),retrySafe:false})+'\n',{flag:'wx',mode:0o600})}),
    now:Date.now,responsePresent:()=>probePathPresence(BROKER_DIR+'/.native-service-'+requestId+'.result.json')===true,wait:()=>sleep(100),
    reconcile:async()=>{const result=await reconcileNativeServiceResult(serviceId,requestId),state=inspectRequest(requestId);return {...result,lifecycleState:state.state,retrySafe:false}},cancel:cancelRequest

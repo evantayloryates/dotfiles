@@ -1,6 +1,9 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {runNativeServiceReadTransaction} from '../lib/native-service-read.mjs'
+import {runNativeServiceReadTransaction,publishNativeServiceReadRequest} from '../lib/native-service-read.mjs'
+import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
 function fixture(){const events=[];let now=0,response=true;const d={prepare:async()=>{events.push('prepare');return {request:{id:'rfixture',expiresAt:100}}},enqueue:()=>events.push('enqueue'),claim:async id=>{events.push('claim');return {id}},revalidate:async()=>events.push('revalidate'),send:async()=>events.push('send'),now:()=>now,responsePresent:()=>response,wait:async()=>{now=101},reconcile:async()=>{events.push('reconcile');return {receiptVerified:true}},cancel:async()=>events.push('cancel')};return {d,events,noResponse:()=>response=false}}
 test('native service transaction claims only named request, sends once and reconciles before cleanup',async()=>{const s=fixture();assert.equal((await runNativeServiceReadTransaction({requestId:'rfixture'},s.d)).receiptVerified,true);assert.deepEqual(s.events,['prepare','enqueue','claim','revalidate','send','reconcile','cancel'])})
 test('abort and uncertain transport never retry; every published request gets cancellation',async()=>{
@@ -19,4 +22,19 @@ test('partial publication failure is conservative and attempts cleanup without d
  const s=fixture();s.d.enqueue=()=>{s.events.push('enqueue');throw Error('partial publication')}
  await assert.rejects(runNativeServiceReadTransaction({requestId:'rfixture'},s.d),e=>e.phase==='enqueue'&&e.requestId==='rfixture'&&e.retrySafe===false)
  assert.deepEqual(s.events,['prepare','enqueue','cancel'])
+})
+test('cancellation before publication consumes no durable budget; partial publication retains it',async()=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'native-cancel-budget-')),id='rpeer'+'a'.repeat(32),serviceId='b'.repeat(32)
+ try{
+  const controller=new AbortController(),s=fixture();s.d.prepare=async()=>{controller.abort();return {request:{id,expiresAt:100}}}
+  s.d.enqueue=request=>publishNativeServiceReadRequest({dir,serviceId,maxRequests:1,request},()=>{throw Error('must not publish')})
+  await assert.rejects(runNativeServiceReadTransaction({requestId:id,signal:controller.signal},s.d),e=>e.retrySafe===true&&e.requestId===null)
+  assert.deepEqual(fs.readdirSync(dir),[])
+  const partial=fixture();partial.d.prepare=async()=>({request:{id,expiresAt:100}})
+  partial.d.enqueue=request=>publishNativeServiceReadRequest({dir,serviceId,maxRequests:1,request},()=>{throw Error('partial disk write')})
+  await assert.rejects(runNativeServiceReadTransaction({requestId:id},partial.d),e=>e.retrySafe===false&&e.requestId===id)
+  const names=fs.readdirSync(dir);assert.equal(names.length,1)
+  assert.equal(JSON.parse(fs.readFileSync(path.join(dir,names[0]))).requestId,id)
+  assert.deepEqual(partial.events,['cancel'])
+ }finally{fs.rmSync(dir,{recursive:true,force:true})}
 })

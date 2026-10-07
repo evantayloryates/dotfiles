@@ -1,3 +1,20 @@
+## Cancellation capacity gap fixed — October 7, 13:18 Eastern
+
+Read preparation previously reserved durable capacity before post-prepare abort
+check, so cancellation there could strand an unpublished reservation. Reservation
+now belongs to synchronous publishNativeServiceReadRequest immediately before
+enqueue, after final abort check; no await between reserve/publication. Partial
+publication remains uncertain, retained budget, retrySafe:false and cleanup;
+never releases capacity or resends. New actual temporary-filesystem regression
+proves prepublication abort writes no capacity files and reports no request;
+partial publication retains exactly one reservation and cancels without send.
+Shared service memory checkpointed. Full pressure
+v2-2026-10-07T17-18-01-278Z passed1/1 in8779ms/sourceChanged:false.
+No live state or historical reservations changed. This fixes host transaction
+cancellation; native post-send cancellation/steering remain open. Next inspect
+MCP cancellation propagation and exercise shared interface without native replay.
+No human action required.
+
 ## Installed retirement dispatch guard verified — October 7, 13:16 Eastern
 
 Native SDK exposes no public hook inventory/unload event. Bounded installed
