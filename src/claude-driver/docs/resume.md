@@ -1,3 +1,16 @@
+## Budget publication race closed — October 7, 12:33 Eastern
+
+Host capacity slots now publish by atomic hard link from complete private temp
+files rather than exposing partially written destination files. EEXIST races
+validate the winning record before moving to another slot; corruption/symlink or
+same-request collision cannot be skipped. Temp files removed on all publication
+outcomes. Existing slot ownership/schema/capacity bounds unchanged. Contention
+fixture increased to16 independent processes for8 slots, exactly8 admissions and
+8 durable files (no temp residue); focused tests passed. Full pressure before final
+fixture expansion v2-2026-10-07T16-32-15-715Z passed1/1 in8619ms,
+sourceChanged:false. No native sends or module/runtime changes. This strengthens
+host multiworker serving ownership; production enrollment and unload still open.
+
 ## Durable host receiver budget — October 7, 12:31 Eastern
 
 Shared nativeServiceRead now reserves one durable service-specific capacity slot

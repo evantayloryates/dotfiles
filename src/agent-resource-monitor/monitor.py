@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Local macOS resource windows with bounded, content-free agent provenance."""
 import argparse
-import collections
 import ctypes
 import datetime as dt
 import json
