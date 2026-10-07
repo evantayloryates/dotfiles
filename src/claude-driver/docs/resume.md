@@ -1,3 +1,20 @@
+## Host native service admission candidate — October 7, 12:22 Eastern
+
+admitNativeServiceRead pure preflight verifies exact owned readiness, idle native
+epoch, sealed pinned integrity/build, installed versions, fixed baseline/module
+hash sets and absent STOP/arms before returning one get_session target and bounded
+expiry. Timeout1..60s clipped to service deadline; less than1s remaining refuses.
+No evidence mutation, queue claim, delivery or release authority. Prepublication
+refusal is retrySafe only because no request was enqueued; do not apply that flag
+to later uncertain sends. Caller must hold broker lock and freshly revalidate at
+publication/delivery boundaries. Tests cover success/expiry clipping, busy/reused
+PID/start, corrupt bytes/baseline, controls, wrong version/target and deadline.
+Full pressure v2-2026-10-07T16-21-28-122Z passed1/1 in11332ms,
+sourceChanged:false. Not yet wired to public request submission or installed.
+Next connect preflight to enrollment reader, serialized lifecycle enqueue/claim,
+one durable prepared delivery, bounded response wait and cancellation/reconciliation.
+No human action required; Codex bridge/1Password remain separate.
+
 ## Receiver STOP and diagnostic interlock — October 7, 12:21 Eastern
 
 Reusable receiver source checks STOP, stop-rescue-arm.json and mechanical-probe.json
