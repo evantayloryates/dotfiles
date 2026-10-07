@@ -13,3 +13,15 @@ export function screenNativePeerEvidence({config,ready,intent,report,now=Date.no
  if(Object.hasOwn(report,'completedAt')&&(!iso(report.completedAt)||Date.parse(report.completedAt)<Date.parse(report.startedAt)||Date.parse(report.completedAt)>now))return refused
  return {consistent:true,eligibleForIndependentNativeReview:true,nativeCallReturned:report.nativeCallReturned,failureCategory:report.failureCategory,nativeGateQualified:false,releaseAuthorized:false}
 }
+export function screenNativePeerState({evidence,config,epoch,broker,baseline,currentBaseline,hashes,installedHashes,versions,expectedVersions,stopped,armed,diagnostic}){
+ const checks={
+  reportConsistent:evidence?.consistent===true,
+  sameEpoch:broker?.sessionId===config?.brokerSession&&broker?.live?.pid===epoch?.pid&&broker?.live?.procStart===epoch?.procStart&&broker?.live?.entrypoint==='claude-desktop',
+  sealedRuntime:broker?.runtime?.pinned===true&&broker.runtime.integrity===true&&broker.runtime.build===epoch?.build,
+  sameVersions:typeof expectedVersions?.app==='string'&&typeof expectedVersions?.cli==='string'&&versions?.app===expectedVersions.app&&versions?.cli===expectedVersions.cli,
+  sameBaseline:exact(baseline,['.claude/settings.json','stop-rescue-policy.json'])&&Object.entries(baseline).every(([p,h])=>typeof h==='string'&&/^[a-f0-9]{64}$/.test(h)&&currentBaseline?.[p]===h),
+  sameCopiedBytes:exact(hashes,['.claude-plugin/plugin.json','hooks/hooks.json','hooks/register.js'])&&Object.entries(hashes).every(([p,h])=>typeof h==='string'&&/^[a-f0-9]{64}$/.test(h)&&installedHashes?.[p]===h),
+  controlsAbsent:stopped===false&&armed===false&&diagnostic===false
+ }
+ return {checks,eligibleForIndependentNativeReview:Object.values(checks).every(Boolean),nativeGateQualified:false,releaseAuthorized:false}
+}
