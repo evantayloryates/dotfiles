@@ -845,6 +845,21 @@ export const OPS = [
   },
   // ---------------- broker
   {
+    name:'broker_service_status',title:'Inspect owned native receiver metadata',readOnly:true,
+    description:'Experimental bounded enrollment, filesystem and existing settlement metadata inspection. Does not send, reconcile, install or infer native unload from missing files.',
+    schema:{required:['service_id'],properties:{service_id:{type:'string',pattern:'^[a-f0-9]{32}$'}}},
+    run:async args=>(await import('./native-service-ownership.mjs')).nativeServiceStatus(args.service_id),
+  },
+  {
+    name:'broker_service_retire',title:'Retire an expired owned native receiver',readOnly:false,
+    description:'Experimental exact-owner atomic filesystem retirement after service expiry and settlement of all recorded attempts. Preserves bytes and evidence outside watched folder. Refuses epoch, baseline, controls, added files or unresolved requests. Filesystem retirement never proves native unload; no send, restart or permission change.',
+    schema:{required:['service_id','experimental'],properties:{service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},experimental:{type:'boolean',enum:[true]}}},
+    run:async(args,ctx)=>{
+      if(args.experimental!==true)throw new DriverError('native service retirement requires explicit experimental opt-in',{category:'bad_args'})
+      return (await import('./native-service-ownership.mjs')).retireNativeService(args.service_id,{signal:ctx.signal})
+    },
+  },
+  {
     name:'broker_service_enroll',title:'Enroll a bounded owned native receiver',readOnly:false,
     description:'Experimental enrollment in the exact previously consented owned native session. Validates candidate and epoch, publishes exclusively, and observes readiness. Never dispatches reads, wakes, restarts, replaces modules or changes permissions. Uncertain installation requires inspection; readiness does not qualify serving.',
     schema:{required:['experimental'],properties:{experimental:{type:'boolean',enum:[true]},lifetime_sec:{type:'integer',minimum:60,maximum:3600},max_requests:{type:'integer',minimum:1,maximum:128}}},

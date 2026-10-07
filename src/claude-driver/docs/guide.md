@@ -501,3 +501,11 @@ It validates native package/epoch/baselines and waits up to 30 seconds for readi
 An existing module refuses enrollment; uncertain publication must be inspected,
 not retried. Readiness alone does not prove serving. This remains experimental;
 no live shared-enrollment qualification yet.
+
+`broker_service_status {service_id}` reads bounded ownership, readiness and existing
+request settlement metadata without late-result reconciliation writes.
+`broker_service_retire {service_id, experimental:true}` requires expiry, exact idle
+native epoch, unchanged approved baselines/controls and no unresolved attempts.
+It preserves the exact module outside the watched folder using exclusive rename;
+filesystem retirement does not establish native unload. Changed/foreign bytes,
+linked directories, extra files or uncertain request results refuse retirement.
