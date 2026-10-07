@@ -274,3 +274,36 @@ and nowhere else; when the two conflict, quality wins.
   field name, a dead end — with `harness_memory_write`, in two sentences.
 - State the date range, project and filters you used.
 - If a tool call fails or data is missing, say so plainly rather than guessing.
+
+## Call Guidance fixture staging
+
+`kickoffdb_fixture_package` is the sole restricted file writer for a requested
+Data Loader package. Its staging writes only inside the harness's protected
+`exports/fixture-packages/`; staging cannot write to Desktop or arbitrary paths,
+execute code, fetch URLs or mutate production. Use `create` with all declared
+references, then `put_bundle` for each complete transformed customer and
+`put_report` for schema, transformation, loss, categories, parity and privacy.
+Finish with `finalize`; `status` resumes by package_id after restart. Exactly
+ten bundles are required. All writes are immutable; exact retries succeed,
+changed retries require a new package. Nested reference paths use dots and
+`*` for arrays (for example `payload.people.*.clientId`).
+
+The tool checks declared PK/FK integrity, not source parity, completeness,
+clinical equivalence, call ordinals or privacy. Transform and review every
+free-text/JSON field inside ZDR; never assume ID changes or date shifts are
+de-identification. Query byte/cell limits still apply: page results and inspect
+truncation rather than claiming full-source coverage from clipped responses.
+Do not echo package contents or reports through the bridge. Tool status and
+hashes are safe operational metadata; package files remain sensitive.
+
+Finalization means staged for independent review, never cleared or released.
+A qualified privacy determination and explicit transfer authorization are
+required before any package files leave protected storage. The package is
+subject to the database export retention policy; no permanent storage promise.
+
+After actual qualified independent clearance, the operator may place a
+manifest-hash-bound approval receipt outside the tool write scope. Only then
+use `release {package_id}` to transfer the reviewed manifest, bundles and
+reports to the fixed `/Users/taylor/Desktop/zdr-dump/<package_id>/` destination.
+Never claim that your privacy report creates the required approval receipt.
+Missing receipt means remain staged; do not seek another writing route.

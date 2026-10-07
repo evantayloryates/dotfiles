@@ -744,3 +744,11 @@ including raw Amplitude, BugSnag, PostHog and CloudWatch output, on this Mac.
   days (`--db-days`); the classifier's jobs from other harnesses go after 14
   (`--days`). Its profiles are kept, like memory.
 - Memory under `~/.zdr-harness/memory/` is deliberately exempt from all of this.
+
+## Call Guidance fixture package tool
+
+`kickoffdb_fixture_package` supplies Data Loader's missing protected writer.
+It is explicitly allowed for both ZDR agents; built-in shell and arbitrary
+file/edit tools remain denied. See [tool workflow](mcps/kickoff-db/FIXTURE-PACKAGES.md).
+The production database remains read-only. Package creation is a local,
+protected staging write and does not authorize exporting clinical data.

@@ -114,6 +114,7 @@
     "classifier_classify_profile_save": "allow",
     "classifier_classify_guide": "allow",
     "classifier_classify_sample": "allow",
+    "kickoffdb_fixture_package": "allow",
     "kickoffdb_transcript_export": "allow",
     "kickoffdb_transcript_export_status": "allow",
     "slackuser_slack_search_public": "allow",

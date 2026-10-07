@@ -27,6 +27,7 @@ import { join } from 'node:path'
 import { createInterface } from 'node:readline'
 import { checkServerIdentity } from 'node:tls'
 import { gunzipSync } from 'node:zlib'
+import { fixtureTool, fixturePackage } from './fixture-package.mjs'
 
 const OPT = process.env.ZDR_HARNESS_OPT
 if (!OPT) {
@@ -287,7 +288,7 @@ Prefer aggregates and LIMIT; the replica also serves the product.
 ${TRANSCRIPT_PRACTICE}`
 
 async function guide() {
-  return GUIDE
+  return GUIDE + '\n\nCall Guidance fixtures: fixture_package stages ten transformed customer bundles and reports inside protected ZDR exports. It validates declared joins and hashes; it does not deidentify or certify source parity. Release requires a separately operator-written manifest-hash-bound qualified review receipt, and writes only to /Users/taylor/Desktop/zdr-dump. Never return package contents through the bridge.'
 }
 
 async function listTables({ like, limit } = {}) {
@@ -756,6 +757,7 @@ async function exportStatus({ export_id, wait_seconds } = {}) {
 }
 
 const TOOLS = [
+  fixtureTool,
   {
     name: 'guide',
     title: 'How to use the production database',
@@ -865,7 +867,10 @@ const TOOLS = [
   },
 ]
 
-const HANDLERS = { guide, list_tables: listTables, describe_table: describeTable, query, transcript_list: transcriptList, transcript_get: transcriptGet, transcript_export: transcriptExport, transcript_export_status: exportStatus }
+const HANDLERS = { fixture_package: (args) => {
+  try { return fixturePackage(args, join(EXPORT_DIR, 'fixture-packages')) }
+  catch (err) { throw new ToolError(err.message) }
+}, guide, list_tables: listTables, describe_table: describeTable, query, transcript_list: transcriptList, transcript_get: transcriptGet, transcript_export: transcriptExport, transcript_export_status: exportStatus }
 
 // ---------------------------------------------------------------------------
 // MCP stdio loop
