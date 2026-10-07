@@ -318,6 +318,25 @@ were restored exactly and the owned fixture remains archived/unpinned/not live.
 
 ## Next native proof
 
+### Scoped probe retirement evidence
+
+Installed CLI 2.1.289 dev-mod loader watches unlink/unlinkDir as well as add/change,
+with followSymlinks:false. Its result formatter distinguishes a removed mod as
+"unloaded (gone from this session's mods folder)". This establishes a candidate
+cleanup trigger, not proof that a particular command has been removed. Closing
+the watcher itself is a separate operation and must not be used to retire one
+probe or disable the observer.
+
+After the corrected probe outcome is preserved and independently reviewed,
+retire only its exact owned folder from the broker's dev-mod directory, preserving
+its bytes and intent/report outside the watched directory. Before moving anything,
+recheck all three copied hashes and the original broker epoch. Require an observed
+native unload result and absence of the exact registered command in that same
+session before claiming cleanup; a successful filesystem move alone is insufficient.
+Recheck settings/policy hashes and broker epoch afterward. Preserve the other
+probes and observer until their own evidence/retirement is explicitly reconciled.
+No retirement has been performed; corrected execution is still pending.
+
 Select trigger and genuine result channel together before enrollment. The next
 event-only activation probe must be read-only and target only the exact existing
 owned broker or fixture. It must have a nonce, a finite deadline, exact PID/start
