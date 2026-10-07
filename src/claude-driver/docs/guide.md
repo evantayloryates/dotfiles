@@ -116,7 +116,9 @@ remains separate. Cleanup is independent from an unknown execution outcome.
 lifecycle receipt from one existing admitted native callback enrollment. The ID
 is the enrollment UUID, not the request ID. This operation verifies the captured
 response, exact admission, original epoch and active module bytes, then returns
-settlement metadata without exposing response content. It never sends or replays.
+settlement metadata without exposing response content. Successful metadata must
+describe the exact admitted session, with valid archive/running flags; transport
+success alone does not settle a read. It never sends or replays.
 It writes a local receipt, so it is not marked read-only. Missing or retired module
 bytes refuse; historical control outcomes remain unchanged. This experimental
 operation does not install a module or qualify persistent native serving.

@@ -15,6 +15,12 @@ export function screenNativePeerResult({config,requestId,report,receipt,admissio
  const at=Date.parse(receipt.receivedAt),end=Date.parse(report.completedAt)
  if(typeof receipt.receivedAt!=='string'||!Number.isFinite(at)||new Date(at).toISOString()!==receipt.receivedAt||at<Date.parse(report.startedAt)||at>end||at>config.deadline||!Array.isArray(receipt.content)||receipt.content.length>64||receipt.content.some(b=>!b||Object.keys(b).sort().join(',')!=='text,type'||b.type!=='text'||typeof b.text!=='string'))return null
  const text=receipt.content.map(b=>b.text).join('\n');if(Buffer.byteLength(text)>65536)return null
+ // Transport success is insufficient: the returned metadata must describe
+ // the exact admitted target, matching the existing native batch contract.
+ if(!receipt.isError){
+  let metadata;try{metadata=JSON.parse(text)}catch{return null}
+  if(!metadata||typeof metadata!=='object'||Array.isArray(metadata)||metadata.sessionId!==config.targetSession||typeof metadata.isArchived!=='boolean'||typeof metadata.isRunning!=='boolean'||Object.hasOwn(metadata,'pinned')&&typeof metadata.pinned!=='boolean')return null
+ }
  return {ok:!receipt.isError,...(receipt.isError?{error:text}:{result:text})}
 }
 // Explicit, read-only evidence review plus one locked receipt publication. No

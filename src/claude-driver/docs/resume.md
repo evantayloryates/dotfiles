@@ -1,3 +1,18 @@
+## Callback metadata identity checked — October 7, 12:07 Eastern
+
+Result screening now requires successful get_session content to parse as an
+object describing the exact admitted target sessionId, with boolean isArchived
+and isRunning and boolean pinned when present. This matches existing native batch
+metadata semantics; transport success or an envelope target label alone cannot
+settle a foreign response. Native error content still settles as failed rather
+than being misclassified as successful metadata. Tests cover foreign/malformed
+payloads and text blocks split at a JSON whitespace boundary.
+Historical captured89c94ec9 payload privately passes this stricter contract;
+no fresh admission assessed, no replay or retired module reload. Full pressure
+v2-2026-10-07T16-06-50-655Z passed1/1 in8444ms, sourceChanged:false. This closes a
+result validation gap; persistent service integration and native unload proof
+remain open and are not implied by this check.
+
 ## Shared callback settlement interface — October 7, 12:05 Eastern
 
 Shared OPS now exposes broker_peer_result_reconcile {id, experimental:true} to
