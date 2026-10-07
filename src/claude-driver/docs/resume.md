@@ -1,3 +1,29 @@
+## Two native reads through one receiver load — October 7, 12:14 Eastern
+
+Actual service enrollmentf71b9ffa70726f19ccadbc64c68673e5 passed installed native
+validator, loaded once and produced owned readiness. Original PID71262/start,
+sealed4af08654 runtime, app2.26454.0/CLI2.1.289, settings/policy hashes and controls
+validated before install and each send. Existing lifecycle enqueue+exact pickup
+under broker lock admitted two sequential get_session reads of existing fixture.
+Requests rpeer5beb480e85bc4eab966c858ef9bdfb48 and
+rpeer0c36aca1b8f94b31946a75839da739cd each captured private native content, passed
+exact request/checkpoint/admission/metadata review and published standard lifecycle
+receipt. Both inspectRequest state:completed/receiptVerified:true/retrySafe:false.
+Each second reconciliation published:false. Each predecessor reviewed/snapshotted
+before next helper overwrote shared entry. No repeated uncertain send or model call.
+Private native-service-trial/review/send/enrollment artifacts preserve evidence.
+
+At16:13:58.218Z guarded exact module retirement moved the service directory outside
+watch folder, all3 hashes preserved, same epoch/idle/baselines and absent controls.
+Retirement journal window has0 rows/0 model rows; this alone is not unload proof.
+nativeUnloadObserved:false/hookAbsenceQualified:false. Other modules unchanged.
+No permissions/auth/runtime/maintenance jobs changed. Do not reload or replay this
+trial to manufacture current proof; active-byte reconciliation now refuses retirement.
+This verifies two narrow admitted reads in one load, not production persistent
+serving, full cross-harness integration, quiescence, guarded mutations or native
+unload. Next address shared helper evidence retention for late reconciliation and
+production service admission/enrollment/control integration. No human action required.
+
 ## Host reusable result reconciliation — October 7, 12:13 Eastern
 
 reconcileNativeServiceResult(serviceId, requestId) reads bounded no-follow enrollment
