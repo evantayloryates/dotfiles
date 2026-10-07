@@ -1,5 +1,14 @@
 ## Autonomous trigger route — October 7, 11:09 Eastern
 
+Read-only native-peer-probe-review.mjs <exact UUID> now combines bounded
+no-follow evidence reads, fixed path/configuration validation, regenerated staged
+module hashes, readiness/intent/report chronology and native epoch/settings/
+inventory/controls checks. Missing report returns pending:false before state
+inspection. Strict screen tests pass; reports remain unacknowledged and all
+qualification flags false pending independent native review. Expired enrollment
+is reconciled privately with no send/intent/report, same epoch; broker remains
+busy. Do not start a fresh enrollment until idle admission is available.
+
 Native enrollment ea986488-1b62-4f3d-9b45-7b165d8506a5 was copied passively.
 Initial native validator rejected $ passed to factory-returned run; failed bytes
 are preserved privately. Flattened top-level runReadProbe passes actual installed
