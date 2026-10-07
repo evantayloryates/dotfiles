@@ -183,7 +183,7 @@ def contextual_metadata():
     log_root=Path.home()/'Library/Logs/com.openai.codex'
     today=dt.datetime.now(dt.timezone.utc).strftime('%Y/%m/%d')
     files=sorted((log_root/today).glob('*t0*.log'),key=lambda p:p.stat().st_mtime,reverse=True)[:1]
-    events=Counter(); thread_ids=set(); durations=[]; first=last=None
+    events=Counter(); thread_ids=set(); durations=[]; first=last=None; records=deque(maxlen=2000)
     for path in files:
         with path.open('rb') as f:
             f.seek(max(0,path.stat().st_size-MIB)); raw=f.read(MIB).decode(errors='replace')
@@ -191,19 +191,26 @@ def contextual_metadata():
             timestamp=re.match(r'\d{4}-\d\d-\d\dT[\d:.]+Z',line)
             if not timestamp: continue
             first=first or timestamp[0]; last=timestamp[0]
+            record={'timestamp':timestamp[0]};kinds=[]
             for event in ('mcp_extension_tool_discovery_failed','mcp_server_startup_status_updated'):
-                if event in line: events[event]+=1
+                if event in line: events[event]+=1;kinds.append(event)
             for method in ('mcpServerStatus/list','thread/resume','thread/start'):
-                if 'method='+method in line:
+                if re.search(r'\bmethod='+re.escape(method)+r'(?:\s|$)',line):
                     events[method]+=1
+                    kinds.append(method)
                     duration=re.search(r'\bdurationMs=(\d+)',line)
-                    if duration: durations.append(int(duration[1]))
+                    if duration: durations.append(int(duration[1]));record['duration_ms']=int(duration[1])
             tid=re.search(r'\bconversationId=([0-9a-f-]{36})\b',line)
-            if tid and monitor.ID.fullmatch(tid[1]):thread_ids.add(tid[1])
+            if tid and monitor.ID.fullmatch(tid[1]):
+                thread_ids.add(tid[1]);record['thread_id']=tid[1]
+            server=re.search(r'\b(?:serverName|server_name|server)=([a-zA-Z0-9_.-]{1,80})(?:\s|$)',line)
+            if server:record['server']=server[1]
+            if kinds:record['events']=kinds;records.append(record)
             # No error strings, URL values, tool payloads or free text retained.
     result['codex_event_counts']={'bounded_tail_bytes':MIB,'first':first,'last':last,
                                   'events':dict(events),'thread_ids':sorted(thread_ids),
-                                  'max_response_ms':max(durations) if durations else None}
+                                  'max_response_ms':max(durations) if durations else None,
+                                  'records':list(records)}
     return result
 
 
