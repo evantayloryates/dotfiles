@@ -131,7 +131,7 @@ export function transcriptPath(rec) {
 }
 
 // target: { sessionId: local_…, permissionMode }. Returns { msgId, pid }.
-export async function deliver(target, text, { fromName = 'claude-driver',timeoutMs=5000,signal } = {}) {
+export async function deliver(target, text, { fromName = 'claude-driver',timeoutMs=5000,signal,onPrepared } = {}) {
   if(signal?.aborted)throw new DriverError('peer delivery cancelled',{category:'cancelled'})
   if(typeof text!=='string'||typeof fromName!=='string'||/["<>\p{Cc}\p{Cf}]/u.test(fromName)||[...fromName].length>64||!Number.isFinite(timeoutMs)||timeoutMs<=0)
     throw new DriverError('invalid direct peer message or deadline',{category:'bad_args',detail:{dispatched:false,retrySafe:true}})
@@ -150,6 +150,9 @@ export async function deliver(target, text, { fromName = 'claude-driver',timeout
   const token = readToken(rec)
   const payload = `${JSON.stringify({ type: 'auth', token })}\n${frame}\n`
   if (payload.length > LINE_CAP) throw new DriverError('message too large for one peer frame', { category: 'bad_args' })
+  // Internal service callback sees metadata only, before a byte is sent.
+  // A refused arm cannot fall through to another sender or race a fast Stop.
+  if(onPrepared!==undefined){if(typeof onPrepared!=='function')throw new DriverError('invalid peer preparation callback',{category:'bad_args',detail:{dispatched:false,retrySafe:true}});await onPrepared({msgId,pid:rec.pid,procStart:rec.procStart})}
   await sendLines(sock, payload,{timeoutMs,signal})
   return { msgId, pid: rec.pid, procStart:rec.procStart, transcript: transcriptPath(rec) }
 }

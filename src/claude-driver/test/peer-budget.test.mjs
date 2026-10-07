@@ -65,6 +65,15 @@ test('current qualified version delivers exactly one authenticated frame without
   assert.equal(frames[1].session_id,rec.sessionId);assert.equal(existsSync(fallback),false)
  }finally{await close()}
 })
+test('prepared metadata is bound before any socket byte and refusal cannot fall back',async()=>{
+ let bytes=0,prepared;await start((s,d)=>{assert.ok(prepared);bytes+=d.length;s.end()})
+ try{
+  const result=await deliver(target,'one prepared request',{timeoutMs:2000,onPrepared:w=>{assert.equal(bytes,0);assert.deepEqual(Object.keys(w).sort(),['msgId','pid','procStart']);prepared=w}})
+  assert.equal(result.msgId,prepared.msgId);assert.ok(bytes>0)
+  const before=bytes;await assert.rejects(deliver(target,'refused',{timeoutMs:2000,onPrepared:()=>{throw Object.assign(Error('synthetic policy refusal'),{category:'broker_stop_rescue_refused',detail:{dispatched:false,retrySafe:true}})}}),e=>e.category==='broker_stop_rescue_refused')
+  assert.equal(bytes,before);assert.equal(existsSync(fallback),false)
+ }finally{await close()}
+})
 test('missing, malformed, nonprivate, mismatched or symlinked keys send nothing and cannot fall back',async()=>{
  let bytes=0;await start((s,d)=>{bytes+=d.length;s.end()})
  try{

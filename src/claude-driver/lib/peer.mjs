@@ -17,7 +17,7 @@ try {
   direct = await import('./peer-direct.mjs')
 } catch {}
 
-export async function deliver(target, text, { signal, timeoutMs=60000, method = process.env.CLAUDE_DRIVER_PEER || 'auto' } = {}) {
+export async function deliver(target, text, { signal, timeoutMs=60000,onPrepared, method = process.env.CLAUDE_DRIVER_PEER || 'auto' } = {}) {
   if(!target||typeof target.sessionId!=='string'||!/^local_[a-f0-9-]{36}$/.test(target.sessionId)||typeof text!=='string'||!Number.isFinite(timeoutMs)||timeoutMs<=0||!['auto','direct','llm'].includes(method))
     throw new DriverError('invalid peer target, text, method or deadline',{category:'bad_args',detail:{dispatched:false,retrySafe:true}})
   const deadline=Date.now()+timeoutMs
@@ -25,12 +25,13 @@ export async function deliver(target, text, { signal, timeoutMs=60000, method = 
   if(method==='direct'&&!direct?.canDeliver?.(target))throw new DriverError('direct transport is not qualified for this live peer; no fallback sender started',{category:'peer_unqualified',detail:{dispatched:false,retrySafe:true}})
   if (method !== 'llm' && direct?.canDeliver?.(target)) {
     try {
-      const r = await direct.deliver(target, text,{signal,timeoutMs:Math.min(5000,Math.max(1,deadline-Date.now()))})
+      const r = await direct.deliver(target, text,{signal,onPrepared,timeoutMs:Math.min(5000,Math.max(1,deadline-Date.now()))})
       return { method: 'peer-direct', ...r }
     } catch (err) {
-      if (method === 'direct'||signal?.aborted||['cancelled','peer_refused','peer_unqualified','broker_dead','bad_args'].includes(err.category)||err.detail?.dispatched) throw err
+      if (method === 'direct'||onPrepared||signal?.aborted||['cancelled','peer_refused','peer_unqualified','broker_dead','bad_args'].includes(err.category)||err.detail?.dispatched) throw err
     }
   }
+  if(onPrepared)throw new DriverError('prepared peer wake requires qualified direct transport; no inference sender started',{category:'peer_unqualified',detail:{dispatched:false,retrySafe:true}})
   if(Date.now()>=deadline)throw new DriverError('peer delivery deadline exceeded',{category:'cli_timeout'})
   return deliverViaLlm(target, text, { signal,timeoutMs:Math.min(60000,deadline-Date.now()) })
 }

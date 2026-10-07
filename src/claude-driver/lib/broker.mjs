@@ -22,7 +22,8 @@ import { assertUiAvailable } from './ui-policy.mjs'
 import { assertInputHealthy } from './input-health.mjs'
 import { validateWarmBroker, warmOnlyRecovery, nativeWarmFailure } from './warm-recovery.mjs'
 import {brokerResidencyProtection} from './broker-residency.mjs'
-import {activeRelease,commitRelease,HANDOFF_OWNER,releaseStatus} from './releases.mjs'
+import {activeRelease,commitRelease,HANDOFF_OWNER,releaseStatus,entryEpochEvidence,loadEntryEvidence} from './releases.mjs'
+import {stopRescuePolicy,armStopRescue,disarmStopRescue} from './stop-rescue.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const TEMPLATE = join(HERE, '..', 'broker-template', 'CLAUDE.md')
@@ -81,8 +82,9 @@ export function brokerInfo() {
   const runtime=releaseStatus()
   if(runtime.pinned&&runtime.integrity){
     const pointer=activeRelease().pointer
-    const entries=['broker-wait','broker-check'].map(kind=>readJson(join(BROKER_DIR,kind+'-entry.json'),null))
-    runtime.dependencyPathsObserved=entries.every((entry,i)=>entry?.build===runtime.build&&entry.bootstrapHash===runtime.bootstrapHash&&entry.generation===runtime.generation&&entry.phase==='completed'&&entry.at>=Date.parse(pointer.activatedAt)&&entry.script===join(BROKER_DIR,'..','releases',runtime.build,'scripts',i===0?'broker-wait.mjs':'broker-check.mjs'))
+    const entries=['broker-wait','broker-check'].map(kind=>loadEntryEvidence(join(BROKER_DIR,kind+'-entry.json')))
+    runtime.dependencyEvidence=entryEpochEvidence({pointer,runtime,live,entries,sessionId:info.sessionId,brokerDir:BROKER_DIR})
+    runtime.dependencyPathsObserved=runtime.dependencyEvidence.verified
   }
   const templateCurrent = runtime.integrity && existsSync(join(BROKER_DIR, 'CLAUDE.md')) && readFileSync(join(BROKER_DIR, 'CLAUDE.md'), 'utf8') === renderTemplate()
   return {
@@ -105,7 +107,7 @@ export function brokerInfo() {
 
 export function validateReleaseAdmission({info,record,stop,nonce,pid,unresolved}) {
   validateWarmBroker(info,record,BROKER_DIR)
-  if(!info.live||info.live.pid!==pid||info.live.entrypoint!=='claude-desktop'||info.live.status!=='idle'||
+  if(!info.live||info.live.pid!==pid||typeof info.live.procStart!=='string'||!info.live.procStart||info.live.entrypoint!=='claude-desktop'||info.live.status!=='idle'||
      stop?.owner!==HANDOFF_OWNER||!nonce||stop.nonce!==nonce||unresolved.length||
      info.residencyProtection.uncertain||info.residencyProtection.pendingCalls||info.residencyProtection.jobs.length)
     throw new DriverError('release handoff requires the exact stopped, idle broker with settled requests and maintenance cleanup',{category:'broker_handoff_refused'})
@@ -118,12 +120,12 @@ function releaseAdmission(nonce,pid) {
  return info
 }
 export async function activateBrokerRelease(build,{nonce,pid}={}) {
- return withLock('broker',()=>{const info=releaseAdmission(nonce,pid);return commitRelease(build,{sessionId:info.sessionId,pid,nonce},renderTemplate)})
+ return withLock('broker',()=>{const info=releaseAdmission(nonce,pid);return commitRelease(build,{sessionId:info.sessionId,pid,procStart:info.live.procStart,nonce},renderTemplate)})
 }
 export async function resumeBrokerRelease({nonce,pid}={}) {
  return withLock('broker',()=>{
   const info=releaseAdmission(nonce,pid),active=activeRelease()
-  if(!active||active.pointer.sessionId!==info.sessionId||active.pointer.pid!==pid||active.pointer.handoffNonce!==nonce||!info.templateCurrent)
+  if(!active||active.pointer.sessionId!==info.sessionId||active.pointer.pid!==pid||active.pointer.procStart!==info.live.procStart||active.pointer.handoffNonce!==nonce||!info.templateCurrent)
    throw new DriverError('release pointer does not match this settled handoff',{category:'broker_handoff_refused'})
   rmSync(join(BROKER_DIR,'STOP'))
   return {build:active.build,pid,stopped:false,nativePathsVerified:false,wakeRequired:true}
@@ -144,8 +146,10 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
   for (const o of ops) if (!BROKER_OPS.includes(o.op)) throw new DriverError(`op ${o.op} is not on the broker allowlist`, { category: 'bad_args' })
   return withLock('broker', async () => {
     const info = brokerInfo()
+    const rescuePolicy=stopRescuePolicy()
     if(info.handoffStopped)throw new DriverError('broker deployment handoff is stopped; requests cannot clear its STOP',{category:'broker_handoff_refused',detail:{dispatched:false,retrySafe:true}})
     if(info.runtime?.integrity===false)throw new DriverError('broker runtime integrity failed; no request admitted',{category:'broker_runtime_invalid',detail:{dispatched:false,retrySafe:true}})
+    if(info.runtime?.dependencyEvidence?.reason==='native-process-epoch-mismatch')throw new DriverError('active release belongs to a different native process; a settled handoff is required before requests',{category:'broker_runtime_epoch_mismatch',detail:{dispatched:false,retrySafe:true}})
     if (!info.configured || !info.exists) throw new DriverError('no broker session; run `claude-driver broker init`', { category: 'broker_missing' })
     if (!info.templateCurrent) prepareBrokerDir()
     if (!info.live) throw new DriverError(`broker ${info.sessionId} has no live process (app restarted?); run \`claude-driver broker revive\``, { category: 'broker_dead' })
@@ -157,6 +161,7 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
     if(info.live.entrypoint==='claude-desktop'&&!observe)throw new DriverError('native broker receipt journal unavailable; no request dispatched',{category:'broker_receipt_unavailable',detail:{retrySafe:true,dispatched:false}})
     if(observe) request.nativeObservation=observe.start
     enqueue(request)
+    const wakeOptions={signal,...(rescuePolicy?{method:'direct',onPrepared:w=>armStopRescue(rescuePolicy,request,w)}:{})}
     progress(`broker request ${id}: ${ops.map((o) => o.op).join(', ')}`)
     const t0 = Date.now()
     let via = { method: 'resident' }
@@ -172,7 +177,7 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
     // A resident broker picks the file up itself; otherwise wake it into its loop.
     try {
     if (!info.resident?.resident) {
-      via = await deliver(info, BROKER_WAKE, { signal,timeoutMs:Math.max(1,deadline-Date.now()) })
+      via = await deliver(info, BROKER_WAKE, { ...wakeOptions,timeoutMs:Math.max(1,deadline-Date.now()) })
       if(via.msgId)observe?.watchWake(via.msgId)
       lastWake = Date.now()
       wakeAttempts++
@@ -201,11 +206,11 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
       // A broker can end its turn between our heartbeat check and enqueue.
       // Wake the SAME durable request, bounded, only while still unclaimed.
       // The pickup/checkpoint guards make duplicate triggers harmless.
-      if (control(id).state === 'pending' && Date.now() - lastWake > 2000 && wakeAttempts < 3) {
+      if (control(id).state === 'pending' && Date.now() - lastWake > 2000 && wakeAttempts < (rescuePolicy?1:3)) {
         const now = brokerInfo()
         if (!now.live) throw new DriverError('broker process disappeared while request was pending', { category: 'broker_dead' })
         if (!['busy', 'working'].includes(now.live.status)) {
-          via = await deliver(now, BROKER_WAKE, { signal,timeoutMs:Math.max(1,deadline-Date.now()) })
+          via = await deliver(now, BROKER_WAKE, { ...wakeOptions,timeoutMs:Math.max(1,deadline-Date.now()) })
           if(via.msgId)observe?.watchWake(via.msgId)
           lastWake = Date.now()
           wakeAttempts++
@@ -230,6 +235,7 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
       throw err
     } finally {
       signal?.removeEventListener('abort',cancelOnAbort)
+      if(rescuePolicy)disarmStopRescue(id)
       if(abortCancellation)await abortCancellation
     }
   }, { signal, timeoutMs: Math.max(1, deadline - Date.now()) })
