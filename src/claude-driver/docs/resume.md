@@ -1,5 +1,16 @@
 ## Autonomous trigger route — October 7, 11:09 Eastern
 
+Native enrollment ea986488-1b62-4f3d-9b45-7b165d8506a5 was copied passively.
+Initial native validator rejected $ passed to factory-returned run; failed bytes
+are preserved privately. Flattened top-level runReadProbe passes actual installed
+validator and generated-byte tests; same epoch/settings hashes checked before
+replacement. Exact native readiness arrived at15:19:10.389Z, zero native/model
+calls. Attempted delivery preflight then found original broker PID71262 busy and
+refused BEFORE any send preparation or bytes. Private admission-refusal evidence
+records absent intent/report/send, fixed deadline1791386548847. No trigger was
+sent, no native read occurred, no permission gate qualified. Do not extend or
+replay this enrollment; reconcile expiry before preparing a distinct attempt.
+
 Follow-on staged enrollment composes receive.js and probe.js. Owned session.start
 writes a fixed readiness receipt only once and requests zero native/model calls.
 Durable probe records intent before exact positional get_session, refuses prior
