@@ -31,6 +31,7 @@ import { fixtureTool, fixturePackage } from './fixture-package.mjs'
 import { fixtureContextTool, fixtureContext } from './fixture-context.mjs'
 import { fixtureOrdinalTool, ordinalFromRows } from './fixture-ordinal.mjs'
 import { fixtureSourceTool, storeSourcePage, readSourcePage } from './fixture-source-page.mjs'
+import { importSourcePages } from './fixture-import.mjs'
 import { fixtureFactsTool, fixtureFacts } from './fixture-facts.mjs'
 
 const OPT = process.env.ZDR_HARNESS_OPT
@@ -764,6 +765,7 @@ async function fixtureSourcePage(args) {
   try {
     const root = join(EXPORT_DIR, 'fixture-source-pages')
     if (args.action === 'read') return readSourcePage(args, root)
+    if (args.action === 'import') return importSourcePages(args, root, join(EXPORT_DIR, 'fixture-packages'))
     if (args.action !== 'capture') throw new Error('fixture_source_arguments_invalid')
     const statement = checkSql(args.sql)
     if (!/^SELECT\b/i.test(statement)) throw new Error('fixture_source_select_required')
