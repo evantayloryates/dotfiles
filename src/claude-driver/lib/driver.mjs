@@ -845,6 +845,15 @@ export const OPS = [
   },
   // ---------------- broker
   {
+    name:'broker_service_result_reconcile',title:'Settle a reusable native receiver result',readOnly:false,
+    description:'Experimental local receipt publication for one captured reusable receiver read. Requires exact enrollment, loaded bytes, original epoch, baseline and native admission. Never sends or replays. Settle before the next shared helper checkpoint; returns metadata only and preserves control history.',
+    schema:{required:['service_id','request_id','experimental'],properties:{service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},request_id:{type:'string',pattern:'^rpeer[a-f0-9]{32}$'},experimental:{type:'boolean',enum:[true]}}},
+    run:async args=>{
+      if(args.experimental!==true)throw new DriverError('native service reconciliation requires explicit experimental opt-in',{category:'bad_args'})
+      return (await import('./native-peer-service-result.mjs')).reconcileNativeServiceResult(args.service_id,args.request_id)
+    },
+  },
+  {
     name:'broker_peer_result_reconcile',title:'Settle an admitted native callback result',readOnly:false,
     description:'Experimental local receipt publication for one existing native peer result enrollment. Verifies exact owned runtime, module bytes, admission and captured response; never sends, executes, replays or changes permissions. Returns settlement metadata only. Retired or changed modules are refused.',
     schema:{required:['id','experimental'],properties:{id:{type:'string',pattern:'^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$'},experimental:{type:'boolean',enum:[true]}}},

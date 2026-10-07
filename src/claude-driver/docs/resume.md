@@ -1,3 +1,22 @@
+## Host reusable result reconciliation — October 7, 12:13 Eastern
+
+reconcileNativeServiceResult(serviceId, requestId) reads bounded no-follow enrollment
+and native evidence, regenerates loaded module bytes, verifies original broker
+PID/start/build/version and both baseline hashes, then reviews per-request evidence
+under the request lock. Publishes one native-peer-service-result lifecycle receipt;
+identical receipts are idempotent, conflicting receipts refuse. Destination must
+be the exact owned broker results path, including when host state env is overridden.
+Control history remains unchanged; missing/changed/retired module refuses. Errors
+are sanitized so JSON parser detail cannot leak private content. No sends/replays.
+Shared broker_service_result_reconcile operation requires explicit experimental
+opt-in and returns metadata only. Contract tests cover invalid IDs/missing enrollment
+and sanitize failures. Full pressure v2-2026-10-07T16-12-30-619Z passed1/1
+in10123ms, sourceChanged:false; final destination guard focused tests pass.
+No native install this turn. Actual two successive admitted reads through one
+loaded receiver and idempotent publication are next; settle each before another
+request replaces shared helper entry. Native unload and broad v2 controls remain
+unqualified. No human action required.
+
 ## Reusable receiver per-request evidence review — October 7, 12:12 Eastern
 
 screenNativeServiceResult now correlates exact service readiness/intent/result

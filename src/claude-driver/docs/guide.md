@@ -112,6 +112,13 @@ It requires unchanged settings and does not wake, replay or complete the origina
 job. Recovery has actual owned Node worker-loss proof; general native broker recovery
 remains separate. Cleanup is independent from an unknown execution outcome.
 
+`broker_service_result_reconcile {service_id, request_id, experimental:true}`
+settles one captured read from the reusable receiver. Requires unchanged loaded
+module, broker epoch and baseline plus exact per-request native admission. It
+publishes a local standard receipt, returns settlement metadata and never replays.
+Settle each request before another read replaces the shared helper checkpoint.
+The receiver is still a candidate until actual native serving is verified.
+
 `broker_peer_result_reconcile {id, experimental:true}` publishes a standard
 lifecycle receipt from one existing admitted native callback enrollment. The ID
 is the enrollment UUID, not the request ID. This operation verifies the captured

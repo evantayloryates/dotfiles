@@ -24,3 +24,13 @@ test('foreign, ambiguous, late or unadmitted results remain unresolved',()=>{
  for(const change of [x=>x.ready.serviceId='foreign',x=>x.intent.extra=true,x=>x.intent.requestId='foreign',x=>x.receipt.targetSession=owner,x=>x.receipt.startedAt=iso(999),x=>x.receipt.receivedAt=iso(2001),x=>x.request.expiresAt=3001,x=>x.request.ops.push(x.request.ops[0]),x=>x.entry.requestId='foreign',x=>x.admission.generation=7,x=>x.control.dispatched=[],x=>x.receipt.content[0].text='{}',x=>x.now=1099]){const x=fixture();change(x);assert.equal(screenNativeServiceResult(x).receiptVerified,false)}
  assert.equal(screenNativeServiceResult().receiptVerified,false)
 })
+
+test('shared host reconciliation refuses missing enrollment and malformed identity without leaking parse details',async()=>{
+ const {reconcileNativeServiceResult}=await import('../lib/native-peer-service-result.mjs')
+ const {OPS}=await import('../lib/driver.mjs'),op=OPS.find(x=>x.name==='broker_service_result_reconcile')
+ assert.equal(op.readOnly,false)
+ await assert.rejects(op.run({service_id:'invalid',request_id:'invalid'}),/experimental opt-in/)
+ for(const [service,request] of [['invalid',rid],['f'.repeat(32),'invalid'],['f'.repeat(32),rid]]){
+  await assert.rejects(reconcileNativeServiceResult(service,request),error=>error.category==='native_service_result_refused'&&error.message==='native service result evidence refused; no replay')
+ }
+})
