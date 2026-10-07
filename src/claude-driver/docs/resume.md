@@ -1,3 +1,23 @@
+## Distinct adapter diagnostic installed — October 7
+
+Previous turn was progress (fixed private diagnostics and adapter checks).
+Separate desktop-bridge-native-diagnostic v0.3.0 is now copied exclusively into
+the already-consented owned broker dev-mod folder. It registers only
+claude-driver-native-read-diagnostic; no automatic MCP/model/timer activity.
+Probe ID94701894-fc71-4dfa-943e-f5a1cc3fc8b8 has distinct intent/report paths.
+Original v0.2.0 bytes and intent were untouched; no original attempt replay.
+Three focused tests pass: fixed private categories, passive registration with
+concurrent one-attempt bound, and foreign/prior/write-failure refusal. Installed
+CLI plugin validate passes with author-attribution warning only.
+Copied hashes: manifest3c7204482709c2db48151475e82f44d0dd8af2c53061acc5554b0fce2e6c3ea7,
+hooks448e29b17c4ce3ee767d3caf0ff9e35b5501b1cfb3b59952e7b7625744bbf070,
+module409fe3a6a4207e7a7ec9a2f29d4440425c7b1ce1e650896b2b9dd3908873959e.
+Copy is not load proof. Taylor should invoke once ONLY if it appears as a native
+slash command in the same claude-driver-broker chat. Categories retain false
+gateQualified/releaseAuthorized and require independent denial ancestry.
+Next review distinct bounded report with exact schema/hash, owned command
+journal, settings/runtime/fixture checks; preserve original unresolved report.
+
 ## Diagnostic preparation — October 7, 10:39 Eastern
 
 Previous goal turn was progress: native local command evidence changed the
