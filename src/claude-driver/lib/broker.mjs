@@ -2,8 +2,8 @@
 // app's own ccd_* tools on request. Only desktop-hosted sessions have those
 // tools, so every non-desktop harness goes through here.
 //
-// Request path: write requests/<id>.json → deliver "claude-driver request
-// <id>" into the broker's live process (peer protocol) → poll results/<id>.json
+// Request path: write requests/<id>.json → send a compatible loop wake if
+// needed → poll results/<id>.json
 // (bounded) → the caller verifies against disk ground truth.
 
 import { randomUUID } from 'node:crypto'
@@ -27,6 +27,9 @@ const HERE = dirname(fileURLToPath(import.meta.url))
 const TEMPLATE = join(HERE, '..', 'broker-template', 'CLAUDE.md')
 export const BROKER_TITLE = 'claude-driver-broker'
 export const BROKER_MODEL = process.env.CLAUDE_DRIVER_BROKER_MODEL || 'claude-haiku-4-5-20251001'
+// A long-lived context can ignore a version bump even after reading the file.
+// The v6 wake alias is supported by v7; queued requests keep the current protocol.
+const BROKER_WAKE = 'claude-driver wake v6'
 const BROKER_FILE = join(BROKER_DIR, 'broker.json')
 const REQ_DIR = join(BROKER_DIR, 'requests')
 const RES_DIR = join(BROKER_DIR, 'results')
@@ -122,7 +125,7 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
     // A resident broker picks the file up itself; otherwise wake it into its loop.
     try {
     if (!info.resident?.resident) {
-      via = await deliver(info, `claude-driver request ${id} v${protocolVersion()}`, { signal })
+      via = await deliver(info, BROKER_WAKE, { signal })
       lastWake = Date.now()
       wakeAttempts++
       progress(`delivered via ${via.method} in ${Date.now() - t0} ms; broker enters its resident loop`)
@@ -143,7 +146,7 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
         const now = brokerInfo()
         if (!now.live) throw new DriverError('broker process disappeared while request was pending', { category: 'broker_dead' })
         if (!['busy', 'working'].includes(now.live.status)) {
-          via = await deliver(now, `claude-driver request ${id} v${protocolVersion()}`, { signal })
+          via = await deliver(now, BROKER_WAKE, { signal })
           lastWake = Date.now()
           wakeAttempts++
           progress(`re-woke idle broker for ${id} via ${via.method} (attempt ${wakeAttempts})`)
