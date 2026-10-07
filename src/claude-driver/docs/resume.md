@@ -1,3 +1,19 @@
+## Live cancellation-control positive path verified — October 7, 13:24 Eastern
+
+Guarded v0.4.0 controlCheck:true service8984d66a74dedff779e521e3d87d34b0
+loaded with native readiness. Real control-file read and validation admitted one
+get_session metadata operation rpeer52abe5bffccb46cc8fdd4c02d7e1c6df.
+Independent correlated native receipt verified/completed, source native-peer-service-
+result, checkpoint legacy-shared, cleanupPending:false. After60second expiry,
+exact-owner retirement succeeded; fresh status installed:false/retired:true,
+one settled/zero unresolved. Private metadata report
+native-control-positive-1791393804137.json and shared service memory preserved.
+No inference, restart, permission change or duplicate control. This qualifies
+live positive native fs.read/control-schema path, not cancellation race, broad
+serving or general unload. Next negative cancel-before-call evidence review and
+settlement contract; avoid causing an unresolved native intent just to manufacture
+a negative test. No human action needed.
+
 ## Control-check enrollment and checkpoint race verified — October 7, 13:22 Eastern
 
 Guarded enrollment and public CLI/MCP schema expose explicit boolean

@@ -561,4 +561,5 @@ with a cancellation-control snapshot after checkpoint admission and before nativ
 MCP dispatch. Invalid or cancelled controls refuse the call. A cancellation marker
 is evidence to review, not a settled receipt. Cancellation arriving after the final
 snapshot can still race the call; callers must preserve uncertainty. This opt-in
-has passed native validation and fixture races but awaits live qualification.
+has passed native validation, fixture races and a live positive read/retirement
+trial. Live cancellation race and negative settlement remain unqualified.
