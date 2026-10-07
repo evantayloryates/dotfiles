@@ -40,7 +40,10 @@ helper; cleanup grace may add250ms plus lock/scheduling time. A partial socket
 write never starts a fallback sender. These guarantees concern transport/helper
 ownership, not reversal of dispatched native effects. A discarded-output waiter
 cannot claim work; one kernel-owned waiter captures output in a pipe/socket or
-owned regular file. Unexpected native model behavior still requires reconciliation.
+owned regular file. Live wait/check paths still load mutable working-tree code;
+release staging/pinning is the next deployment requirement. Do not treat a
+passing current native run as isolation from subsequent source edits. Unexpected
+native model behavior still requires reconciliation.
 A recipient can refuse a peer replacement after interpreting stop as human
 intervention. `stopped:true` and a send receipt do not prove the replacement was
 accepted. Use observations; never override a real human stop or blindly replay.

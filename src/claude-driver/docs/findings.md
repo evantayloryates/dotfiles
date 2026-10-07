@@ -29,8 +29,9 @@ Versions: app = Claude desktop, cli = bundled Claude Code.
   recipient refused a replacement after automated stop, interpreting it as
   human intervention. The new fresh fixture explicitly grants the planned test
   sequence prospectively and respects actual human instructions. The failed
-  chat was archived; no attempt was made to bypass its refusal. Native/current
-  follow-up remains pending; see resume.md for final evidence.
+  chat was archived; no attempt was made to bypass its refusal. The fresh current-source fixture passed all eleven native checks afterward,
+  including one replacement reply and archived cleanup. This is one observed
+  planned-stop success, not a guarantee of future model acceptance. See resume.md.
 
 ## 2026-10-06 23:56 Eastern — v7 controls and maintenance (app 2.26454.0, cli 2.1.289)
 

@@ -51,7 +51,7 @@ and isolated tests remain usable without UI automation. See
 
 The [continuity checkpoint](docs/resume.md) records current qualification.
 Current-source native input-free checks passed all eleven operations; five isolated
-rounds passed 111 cases each and both actual filtered harnesses passed ten checks.
+rounds passed 124 cases each and both actual filtered harnesses passed ten checks.
 Protocol v7 retains compatible v6 wake/drain identities, explicitly reconciles
 maintenance after IDLE and bounds waits by the last native list across requests.
 The current CLI and fresh MCP support qualified native Code controls while input
@@ -61,7 +61,11 @@ Codex report watcher scans every thirty seconds. A ten-minute current-source obs
 PID across automatic IDLE/list/rewait with no duplicate job. It saw no natural
 governor pressure. Actual pressure survival, stale-query recovery without
 app relaunch and unattended recovery across restarts remain unqualified.
-External process termination is unsuitable for routine recovery.
+External process termination is unsuitable for routine recovery. The next
+priority is isolating the live broker from mutable working-tree scripts: a tested
+candidate edit briefly broke native output capture before correction. Current
+helper cancellation and single-waiter guards passed native/synthetic checks;
+repeated LLM wakes and occasional loop violations remain efficiency frontiers.
 
 ## Setup
 

@@ -1,18 +1,19 @@
 # Claude-driver v2 qualification
 
 Work resumed October 6, 2026. Current runtime:
-`d1cce7ed831d4298c0988a9e2728ff24347d3960db245cce857c8da18a3c8988`; app 2.26454.0 / CLI 2.1.289.
+`3bfc51e7b06c4aec8ac81b5f7ec28eb77f2e1507cf03379e7f468eee22afa98b`; app 2.26454.0 / CLI 2.1.289.
 Exact reports and retained failures: [resume.md](resume.md).
 
 ## Current readiness audit
 
 | Requirement | Current evidence | Practical limit |
 |---|---|---|
-| Shared durable/steerable API | Five 111-case rounds (555 passes), ten filtered checks per actual Claude/Codex harness | Synthetic failures are retained; native caller handback is not generally qualified |
+| Shared durable/steerable API | Five124-case rounds (620 passes), ten filtered checks per actual Claude/Codex harness | Synthetic failures are retained; native caller handback is not generally qualified |
 | Native Code controls | Eleven current-source input-free checks; create/focus, reply, cancel, concurrent/batch controls, queue/interrupt, single replies and archived cleanup | Current CLI/fresh MCP only; UI fallback disabled |
-| Efficiency | Native submit 169 ms; normal-client warm activation and native receipt 20.489 s | Different measurements; no cold-start or latency SLA |
+| Efficiency | Native submit179ms; initial reply7.321s; concurrent52.379s, batch38.011s, interruption28.026s; corrected warm37.780s | Different measurements; no cold-start or latency SLA |
 | Service evidence/memory | Metadata-only automatic records, bounded queries, candidate/observed distinctions, source fingerprints and preserved reproductions | Do not treat candidate recommendations as verified mechanism |
-| Maintenance reconciliation | Final-source ten-minute observation kept PID71262 and fresh evidence; exact IDLE → CronList → rewait reused job922e4a9e without creation | Passed for observed cycle; no natural pressure, overall pressure qualification false |
+| Maintenance reconciliation | Current source IDLE04:21:15 → list04:21:16 reused922e4a9e/PID71262; previous-source ten-minute observation retained fresh evidence | Observed reconciliation passed; no current actual natural pressure proof |
+| Deployment isolation | Live Bash still executes working-tree paths; one guard edit broke native capture until corrected; retained observer/native evidence | Incomplete: stage immutable qualified releases and safe pin/handoff before further live-source experimentation |
 | Recovery | Existing observer and own five-minute cron verified; controlled warm handoffs retained PID 71262; normal client wake received native receipt | Stale exited query without relaunch, app restart/closure and cron expiry remain unqualified |
 | Input usability | Zero filters before/after current native suite; quarantine active | Physical typing recovery historical; helper teardown not qualified |
 | Scope | Existing driver reused; Codex fixes and 1Password work parked | No app restart, permission/auth changes or keyboard injection |

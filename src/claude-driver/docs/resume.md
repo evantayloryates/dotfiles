@@ -41,9 +41,15 @@ The new disposable fixture bootstrap states the specific planned automated stop
 and replacement up front. Actual human instructions still override it; unrelated
 peer work remains unauthorized. The previously refused chat was archived and was
 not sent replacement attempts. This is prospective scope clarification, not an
-instruction to ignore a human stop. Native qualification on this current source
-is running and must be recorded before claiming readiness. Five isolated rounds
-passed124 cases each (620 total); both actual filtered harnesses passed ten.
+instruction to ignore a human stop. Current-source native input-free qualification passed all eleven checks with
+zero input filters, exact replacement reply after the planned stop, one reply
+per send and archived cleanup. Five isolated rounds passed124 cases each
+(620 total); both actual filtered harnesses passed ten; four current installed
+code governor scenarios passed in isolation. Native initial delivery/reply7.321s,
+submit179ms, concurrent controls52.379s, batch38.011s and interruption28.026s
+are measurements, not guarantees. Frequent peer-LLM re-wakes increased latency.
+The broker often ends its turn despite the standing residency instructions;
+transport/model fidelity remains a real reliability/efficiency frontier.
 
 Reports under /Users/taylor/.local/state/claude-driver/pressure/:
 
@@ -52,15 +58,45 @@ Reports under /Users/taylor/.local/state/claude-driver/pressure/:
 - live-v2-2026-10-07T04-09-18-109Z.json: failed native run, retained.
 - waiter-guard-warm-2026-10-07.json: over-strict capture guard failure, retained.
 - waiter-guard-capture-corrected-2026-10-07.json: corrected warm native receipt.
+- live-v2-2026-10-07T04-18-49-103Z.json: eleven current native checks passed.
+- waiter-native-maintenance-2026-10-07.json: IDLE04:21:15.157Z then
+  CronList04:21:16.619Z on current source, reusing922e4a9e and PID71262.
+- governor-contract-2026-10-07T04-22-16-667Z.json: four isolated installed cases.
 - v2-2026-10-07T04-19-29-815Z.json: five current isolated rounds.
 - harness-v2-{claude,codex}-2026-10-07T04-18-49-090Z.json: current real filtered checks.
 
-Next reliability frontier: native/full planned-stop result; current maintenance
-proof after waiter locking; installed-version qualification of deterministic peer
-wake transport to reduce LLM-hop latency; real natural pressure and unattended
-cold recovery remain distinct, unproven requirements. Do not manufacture OS
-pressure or kill user/desktop session processes. Observer owns offline recovery;
-input quarantine stays active, and this chat's old MCP still needs refresh.
+Two new observer reports (001827 and001927) independently corroborated the
+capture-guard outage and recovery. Their build strings are explanatory text, not
+fingerprints; source/native records were checked independently. Exact hashes and
+review are in observer-guard-review-2026-10-07.json. Acknowledgment follows the
+commit/push checkpoint. The observer is currently live/idle PID68416 and sent
+no competing wake. The current source still directs native Bash into mutable
+working-tree files. **Next priority: immutable qualified runtime staging and
+pinned live wait/check paths before further source experiments.** Validate
+snapshot hashes, current-versus-active build, controlled native handoff and
+rollback without an app restart, auth changes or session termination. Do not
+blindly apply the report's suggested context-clear or trigger changes.
+
+A qualified snapshot is now staged (not active) at
+`/Users/taylor/.local/state/claude-driver/releases/3bfc51e7b06c4aec8ac81b5f7ec28eb77f2e1507cf03379e7f468eee22afa98b/`.
+`release.json` records hashes for57 source/doc files, native/filter/isolated
+qualification references and two isolated smoke checks. Its build fingerprint
+matches the workspace exactly; files/directories are sealed read-only. Live
+instructions still reference workspace scripts. Do not treat this snapshot as
+an installed host MCP launcher or a verified native handoff. Before further
+runtime edits, settle the exact owned broker via its graceful STOP protocol,
+reconcile pending dispatches and preserve PID/auth/job provenance; stage/test
+activation logic privately, then qualify pinned paths and rollback without
+external process termination. The existing observer must not compete with a
+live warm handoff. Preserve all intermediate failures and exact source hashes.
+
+After deployment isolation, qualify current-version deterministic peer wake
+transport and/or compare broker model fidelity to reduce wake overhead and loop
+violations. Real natural pressure and unattended cold recovery remain distinct,
+unproven requirements. Do not manufacture OS pressure or kill desktop/user
+session processes. Observer owns offline recovery; input quarantine stays active,
+and this chat's old MCP still needs refresh. Both new scratch fixtures in
+this continuation are archived; previous-turn fixtures remain parked.
 
 ## Previous settled frontier — historical
 
