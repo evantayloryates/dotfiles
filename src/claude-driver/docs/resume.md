@@ -1,3 +1,38 @@
+## Admitted native read returned — October 7, 11:54 Eastern
+
+Actual enrollment5dfe5ee5-ead7-47d9-90bd-29316a9d803a used a distinct admitted
+module, passed installed validator and produced owned readiness. Host lifecycle
+API enqueue + pickupPending({requestId}) claimed only rpeer5dfe5ee5ead747d990bd29316a9d803a
+under broker lock. Native mod called public $.tool.call({tool:"Bash",command,...})
+with exact sealed broker-check helper, then positional native MCP get_session.
+No runtime, settings, policy or permissions changed; no general waiter needed.
+Helper completed with nativeBinding ancestorVerified:true, original PID71262/start,
+build4af08654 and generation6. Actual native-admission-rpeer...-0.json records
+one plugin toolUseId at15:49:31.170Z; report started15:49:30.908Z, completed
+15:49:31.181Z, nativeCallReturned:true, resultWasError:false, modelCallsRequested:0.
+Exact report SHAd5d0ceb501b2731204a507ab8ee7c198c751386ba85825ceac4741298ee91d59.
+Native journal has no new model-turn rows for this callback; do not invent native
+journal receipts. Standard lifecycle control is outcome_unknown/dispatched[0]
+after cleanup cancellation; do not rewrite it as completed from report alone.
+
+Read-only review supports exact admitted module/config/source bytes and correlates
+request, completed helper, native admission, report and current runtime pointer
+(generation/bootstrap/activation/epoch). Legacy sealed helper lacks index; unique
+single read matches existing gate semantics, while ambiguous batches still refuse.
+It yields singleReadAdmissionObserved:true but standardLifecycleSettled:false,
+nativeGateQualified:false, releaseAuthorized:false. Independent private review
+and shared service recordMemory preserve narrow observed success.
+
+Installed public tool wrapper executed with synthetic input proves object API;
+generated admitted-package tests refuse denied/malformed/wrong-target/extra-key
+checkpoint output before read and consume retries. Full pressure
+v2-2026-10-07T15-48-51-105Z passed1/1 in8570ms before native trial;
+v2-2026-10-07T15-53-10-841Z passed1/1 in8326ms after review integration,
+sourceChanged:false. Final pointer-correlation refinement passed focused tests
+and actual review. Native scoped unload/absence proof remains next, alongside
+safe result channel integration; modules are passive one-use, not retired yet.
+Do not replay the prior token/request or weaken the existing dispatch gate.
+
 ## Exact service pickup candidate — October 7, 11:46 Eastern
 
 Previous turn was progress: autonomous native read reached verified dispatch

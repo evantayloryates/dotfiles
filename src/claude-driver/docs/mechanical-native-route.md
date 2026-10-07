@@ -1,3 +1,16 @@
+## Admitted callback evidence — October 7, 11:54 Eastern
+
+One autonomous callback used lifecycle exact pickup, native Bash sealed check,
+and native MCP read. Report5dfe5ee5-ead7-47d9-90bd-29316a9d803a returned without
+error; independently matched helper/native gate consumption and original epoch.
+Public $.tool.call takes `{tool, ...args}`, unlike positional $.mcp.call.
+No policy/runtime deployment was needed: host lifecycle performs exact claim,
+native broker-check establishes the original sealed ancestry-bound checkpoint.
+This proves one allowed read after the earlier negative checkpoint refusal.
+The ordinary model-journal collector does not settle callback results; control
+remains outcome_unknown. No generic serving/release/cleanup qualification follows.
+Scoped unload and a durable result channel remain required.
+
 ## Autonomous admission composition candidate — October 7, 11:46 Eastern
 
 The exact peer trigger now reaches the ordinary native MCP pipeline and reports
