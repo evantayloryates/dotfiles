@@ -1,3 +1,17 @@
+## Detector overlap reconciled — October 7, 11:30 Eastern
+
+New detector report claude-detector-20261007T112812-0400-627e54fa0a32-5a4a3176
+SHA30ef7eb73a1f516406c79deaf99edb495151e3d3d3379f62c98480a3b2e50d76
+records idle unclaimed request rmuy9hkls-33c367 in original PID71262/start epoch.
+Current detector source requires pending/unexpired/unclaimed control older than
+15s for this observation. Exact request created15:27:46.579Z, expiry1791386954381;
+control and result now expired, control dispatched:[]; original broker still
+live and idle. This is a serving failure observation, not crash/readiness proof.
+Recovery not attempted by detector; no duplicate observer wake performed.
+New peer preparation saw a transient armed control and stopped before replacement
+or send; only a private validated staging package was produced. Preserve that
+refusal rather than treating disappearing control as evidence it never existed.
+
 ## Current filtered harness evidence — October 7, 11:28 Eastern
 
 Claude synthetic filtered run15:26:38 completed all nine workflow/config checks
