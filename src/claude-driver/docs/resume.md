@@ -1,3 +1,18 @@
+## Diagnostic preparation — October 7, 10:39 Eastern
+
+Previous goal turn was progress: native local command evidence changed the
+frontier from activation to adapter failure. Current installed adapter contract
+passed all eight checks at14:39:28 on hostc235c5cf/app2.26454.0/CLI2.1.289.
+The pipeline has multiple exception paths before/after permission evaluation.
+Prepared candidates/native-mod-probe/diagnostic-failure.js maps exact adapter
+protocol error fragments to fixed sanitized categories; synthetic privacy and
+hostile-getter checks pass. It is not imported by the live probe and changes
+neither existing bytes nor repeat protection. Original report remains pending.
+Next integrate a distinct bounded diagnostic identity and strict report schema,
+qualify it synthetically, then establish exact supported invocation without
+replaying the original probe. A category alone remains weaker than original
+native denial ancestry and must never automatically qualify release.
+
 ## Latest frontier — native slash command executed October 7, 10:37 Eastern
 
 Taylor approved hot reload and invoked the registered command once. Owned native
