@@ -58,8 +58,8 @@ Missing freshness fields in an older server do not establish safe write behavior
 The observer is live with its own five-minute job 337cb675; the Codex inbox
 watcher is configured every thirty seconds and scans metadata first. Offline
 recovery belongs to that observer; do not send competing cold wakes. Reports
-234015 and 234531 were independently reviewed; acknowledgment follows the verified
-commit/push checkpoint. A stale exited app query without relaunch, unattended recovery after
+234015 and 234531 were independently reviewed and acknowledged by exact scanned
+hash after commit/push checkpoint e865a5a; the inbox is empty. A stale exited app query without relaunch, unattended recovery after
 app closure/restart or cron expiry, actual natural pressure and safe keyboard
 helper teardown remain unqualified. UI fallback stays disabled. The goal is now active (verified through get_goal), including automatic
 continuations; do not mark it complete while the remaining reliability gaps persist.
