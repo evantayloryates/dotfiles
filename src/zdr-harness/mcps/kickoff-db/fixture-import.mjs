@@ -25,11 +25,12 @@ export function importSourcePages(args, sourceRoot, packageRoot) {
     const route=routes.get(String(row[args.route_field]));if(!route)fail()
     const out={}
     for(const [dest,spec] of Object.entries(args.fields)){
-     if(!spec||typeof spec!=='object'||Array.isArray(spec)||!['number','boolean','enum','id','datetime','constant','text'].includes(spec.kind))fail()
+     if(!spec||typeof spec!=='object'||Array.isArray(spec)||!['number','decimal','boolean','enum','id','datetime','constant','text'].includes(spec.kind))fail()
      let v=spec.kind==='constant'?spec.value:row[spec.source]
      if(spec.kind!=='constant'&&(!token(spec.source)||!Object.hasOwn(row,spec.source)))fail()
      if(v===null){if(spec.nullable!==true)fail();out[dest]=null;continue}
      if(spec.kind==='number'){if(typeof v!=='number'||!Number.isFinite(v))fail()}
+     if(spec.kind==='decimal'){if(typeof v!=='string'||!/^[-]?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$/.test(v))fail()}
      if(spec.kind==='boolean'){if(v!==true&&v!==false&&v!==0&&v!==1)fail();v=Boolean(v)}
      if(spec.kind==='enum'){if(!Array.isArray(spec.values)||!spec.values.includes(v))fail()}
      if(spec.kind==='id'){if(!token(spec.namespace)||(typeof v!=='string'&&!Number.isSafeInteger(v)))fail();v=spec.namespace+'_'+createHash('sha256').update(JSON.stringify([args.package_id,spec.namespace,v])).digest('hex').slice(0,24)}
