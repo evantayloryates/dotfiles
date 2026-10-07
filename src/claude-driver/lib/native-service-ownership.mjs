@@ -9,6 +9,8 @@ import {publishNativeServiceDirectory} from './native-service-enroll.mjs'
 import {brokerInfo} from './broker.mjs'
 import {versions} from './paths.mjs'
 import {withLock} from './state.mjs'
+import {observeNativeResourceProcess} from './native-resource-process.mjs'
+import {reviewNativeResourceDisposition} from './native-resource-disposition.mjs'
 const root='/Users/taylor/.local/state/claude-driver/pressure'
 const json=(p,n=16384)=>JSON.parse(readProbeBytes(p,n).bytes.toString('utf8'))
 const exact=(x,keys)=>x&&typeof x==='object'&&!Array.isArray(x)&&Object.keys(x).sort().join(',')===keys.sort().join(',')
@@ -139,4 +141,21 @@ export function nativeServiceMarkerReview(serviceId){
   }
   return {serviceId,observedAt:marker.observedAt,ownMarkerPresent:true,previousServiceId:marker.previousServiceId,previousMarkerPresent:marker.previousMarkerPresent,previousMarkerRemovalObserved,scopedUnloadQualified:false,receiverAbsenceQualified:false,modelCallsRequested:0,releaseAuthorized:false}
  }catch{throw Object.assign(Error('native service marker evidence refused'),{category:'native_service_marker_refused'})}
+}
+export function nativeServiceResourceReview(serviceId,reportName){
+ try{
+  if(!/^native-resource-trial-[0-9]{13}\.json$/.test(reportName))refuse()
+  const e=enrollment(serviceId);liveGuard(e)
+  const status=nativeServiceStatus(serviceId)
+  if(e.config.resourceProbe!==true||!status.filesRetired||status.filesInstalled||status.unresolvedRequests.length)refuse()
+  const report=json(root+'/'+reportName,65536)
+  if(report.serviceId!==serviceId||report.scope!=='bounded-owned-native-resource-trial'||!Array.isArray(report.rows)||report.rows.some(r=>r.phase==='failure'))refuse()
+  const pick=phase=>{const rows=report.rows.filter(r=>r.phase===phase);if(rows.length!==1)refuse();return rows[0]}
+  const stem=e.config.brokerCwd+'/.native-service-resource-'+serviceId,intent=json(stem+'.intent.json',4096),ready=json(stem+'.ready.json',4096),exit=json(stem+'.exit.json',4096),retirement=json(root+'/native-service-retirement-'+serviceId+'.json',4096)
+  const retired=pick('retired');if(retired.at!==retirement.at||retired.serviceId!==serviceId)refuse()
+  const absent=observeNativeResourceProcess({config:e.config,ready,epoch:e.epoch});liveGuard(e)
+  const result=reviewNativeResourceDisposition({config:e.config,epoch:e.epoch,intent,ready,exit,retirement,observations:[pick('ownership'),pick('ownership-before-retirement')],absent,now:Date.now()})
+  if(!result.resourceDisposalQualified)refuse()
+  return {...result,observedAbsentAt:absent.observedAt,brokerEpochVerified:true}
+ }catch{throw Object.assign(Error('native resource disposition refused'),{category:'native_resource_disposition_refused'})}
 }

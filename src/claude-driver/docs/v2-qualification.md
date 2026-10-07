@@ -331,3 +331,9 @@ and the newest scoped native results; earlier passing UI runs did not
 establish durable physical usability.
 Avoid restarting the app while unrelated Claude work is active. Reconcile
 uncertain effects before replay.
+
+Exact owned stream-child disposition is now independently reviewed for
+service d19dab280cc657366bd4dacbdf8d56ff: unchanged native epoch, exact command
+and ancestor observations before retirement, SIGTERM143 exit542ms afterward
+before child deadline, and fresh PID absence. This qualifies only that resource
+disposition; general hook/environment unload, serving and release remain open.
