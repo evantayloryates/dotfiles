@@ -5,11 +5,11 @@ import {buildNativePeerServicePackage} from '../lib/native-peer-service-package.
 import {screenNativeServiceReady} from '../lib/native-peer-service-evidence.mjs'
 const config={id:'a'.repeat(32),token:'claude-driver service-read '+'b'.repeat(32),brokerSession:'local_11111111-1111-4111-8111-111111111111',brokerCwd:'/Users/taylor/.local/state/claude-driver/broker',build:'c'.repeat(64),notBefore:1000,deadline:2000,maxRequests:2}
 const target='local_22222222-2222-4222-8222-222222222222',r1='rpeer'+'1'.repeat(32),r2='rpeer'+'2'.repeat(32),r3='rpeer'+'3'.repeat(32)
-function setup({files=new Map(),checkpoint={dispatch:true,op:'get_session',args:{session_id:target}},now=1000}={}){
- const pkg=buildNativePeerServicePackage(config),hooks=new Map();let checks=0,reads=0,queued=0
+function setup({files=new Map(),checkpoint={dispatch:true,op:'get_session',args:{session_id:target}},now=1000,controlCheck=false}={}){
+ const pkg=buildNativePeerServicePackage({...config,...controlCheck?{controlCheck:true}:{}}),hooks=new Map();let checks=0,reads=0,queued=0
  const register=runInNewContext(pkg.files['hooks/register.js'].replace('export function register','function register')+';register',{Set,Object,JSON,Date,Number,Array})
  register((event,fn)=>hooks.set(event,fn))
- const $={session:{id:async()=>config.brokerSession,cwd:async()=>config.brokerCwd},clock:{now:async()=>now},fs:{exists:async p=>files.has(p),write:async(p,text)=>files.set(p,JSON.parse(text))},tool:{call:async input=>{checks++;assert.match(input.command,/broker-check.mjs/);return {text:JSON.stringify(checkpoint)}}},mcp:{call:async(server,op,args)=>{reads++;assert.equal(server,'ccd_session_mgmt');assert.equal(op,'get_session');assert.equal(args.session_id,target);return {isError:false,content:[{type:'text',text:'PRIVATE'}]}}}}
+ const $={session:{id:async()=>config.brokerSession,cwd:async()=>config.brokerCwd},clock:{now:async()=>now},fs:{exists:async p=>files.has(p),read:async p=>JSON.stringify(files.get(p)),write:async(p,text)=>files.set(p,JSON.parse(text))},tool:{call:async input=>{checks++;assert.match(input.command,/broker-check.mjs/);return {text:JSON.stringify(checkpoint)}}},mcp:{call:async(server,op,args)=>{reads++;assert.equal(server,'ccd_session_mgmt');assert.equal(op,'get_session');assert.equal(args.session_id,target);return {isError:false,content:[{type:'text',text:'PRIVATE'}]}}}}
  return {files,$,start:()=>hooks.get('session.start')($,{},()=> 'next'),send:(id,kind='peer')=>hooks.get('session.receive')($,{origin:{kind},text:config.token+' '+id},()=>{queued++;return 'queued'}),counts:()=>({checks,reads,queued})}
 }
 test('owned readiness records zero calls once, and expired or foreign start refuses',async()=>{
@@ -72,5 +72,21 @@ test('STOP and diagnostic arms refuse before checkpoint and after in-flight chec
   late.$.tool.call=async input=>{const result=await original(input);late.files.set(path,{owner:'synthetic'});return result}
   assert.equal((await late.send(r1)).consumed,'service-read-stopped');assert.deepEqual(late.counts(),{checks:1,reads:0,queued:0});assert.equal(late.files.has(path),true)
   assert.equal((await late.send(r1)).consumed,'service-read-already-attempted')
+ }
+})
+
+test('opt-in receiver observes cancellation after checkpoint and does not call native MCP or model',async()=>{
+ const s=setup({controlCheck:true})
+ s.files.set(config.brokerCwd+'/controls/'+r1+'.json',{id:r1,state:'outcome_unknown',dispatched:[0],at:1000,cancelRequested:true})
+ const result=await s.send(r1)
+ assert.equal(result.consumed,'service-read-cancelled-before-call')
+ assert.deepEqual(s.counts(),{checks:1,reads:0,queued:0})
+ const receipt=s.files.get(config.brokerCwd+'/.native-service-'+r1+'.cancel.json')
+ assert.equal(receipt.nativeMcpCallsRequested,0);assert.equal(receipt.modelCallsRequested,0)
+})
+test('opt-in control check refuses malformed/foreign controls but permits valid dispatch',async()=>{
+ for(const control of [{id:r1,state:'dispatched',dispatched:[0],at:1000},{id:r2,state:'dispatched',dispatched:[0],at:1000},{id:r1,state:'dispatched',dispatched:[],at:1000}]){
+  const s=setup({controlCheck:true});s.files.set(config.brokerCwd+'/controls/'+r1+'.json',control);await s.send(r1)
+  assert.equal(s.counts().reads,control.id===r1&&control.dispatched.length===1?1:0)
  }
 })

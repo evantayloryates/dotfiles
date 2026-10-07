@@ -1,3 +1,20 @@
+## Native cancellation control check prepared — October 7, 13:21 Eastern
+
+Found native receiver gap after checkpoint: stop markers checked but cancellation
+control not reread before MCP. Added pure optional controlCheck:true v0.4.0 variant,
+previous variant bytes unchanged for historical verification. Reads bounded exact
+request control, validates id/single dispatched slot/time/state; rereads clock,
+refuses malformed/foreign/expired controls. cancelRequested:true records scoped
+cancel-before-call metadata with zero native MCP/model calls and consumes peer.
+No receipt settlement inferred yet. Native installed validator accepts variant;
+isolated callback tests prove cancellation calls checkpoint once/MCPzero/modelzero,
+valid controls execute and foreign controls refuse. Full pressure
+v2-2026-10-07T17-21-27-576Z passed1/1 in8833ms/sourceChanged:false;
+shared memory saved. Not enrolled live; next expose guarded opt-in enrollment,
+then bounded pre-cancelled native trial/reconciliation. This closes observed
+pre-call window only; cancellation after MCP starts remains uncertain. No human
+change or action needed.
+
 ## Actual stdio cancellation propagation verified — October 7, 13:19 Eastern
 
 New isolated client/server test uses actual shared MCP transport and production

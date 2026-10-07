@@ -8,7 +8,7 @@ import {buildNativePeerServicePackage} from '../lib/native-peer-service-package.
 import {resolveClaudeBinary} from '../lib/paths.mjs'
 test('installed native validator accepts all three service registration graphs without load or inference',()=>{
  const config={id:'a'.repeat(32),token:'claude-driver service-read '+'b'.repeat(32),brokerSession:'local_11111111-1111-4111-8111-111111111111',brokerCwd:'/Users/taylor/.local/state/claude-driver/broker',build:'c'.repeat(64),notBefore:1000,deadline:2000,maxRequests:2}
- for(const extra of [{},{marker:true,observeRetiredServiceId:null},{marker:true,observeRetiredServiceId:null,resourceProbe:true}]){
+ for(const extra of [{},{marker:true,observeRetiredServiceId:null},{marker:true,observeRetiredServiceId:null,resourceProbe:true},{controlCheck:true}]){
   const root=fs.mkdtempSync(path.join(os.tmpdir(),'native-package-'))
   try{
    const pkg=buildNativePeerServicePackage({...config,...extra})
