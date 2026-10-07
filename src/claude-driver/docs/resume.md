@@ -1,3 +1,19 @@
+## Bounded resource child prepared — October 7, 13:04 Eastern
+
+native-resource-program.mjs generates an owned metadata-only child program;
+it does not enroll, load, send or qualify native disposal. Fixed broker evidence
+root, random 32hex identity, exclusive mode600 readiness/exit records, runtime
+150-second maximum and independent deadline prevent an indefinite leaked child.
+SIGTERM/SIGINT record distinct intentional exits143/130; deadline records exit0.
+Real child test proves self-deadline exit and identity, plus expired refusal before
+readiness. Metadata retained under owned .native-service-resource-* files.
+Full fresh pressure v2-2026-10-07T17-04-41-930Z passed1/1 in8658ms;
+sourceChanged:false. No native session or app killed/restarted, no inference.
+Next integrate as optional native lifecycle variant, independently observe child
+identity/aliveness before retirement and absence/exit before its hard deadline.
+Command removal alone still does not qualify scoped unload. No human action needed.
+Previously pending b00de20 successfully pushed to origin/master this turn.
+
 ## Native command removal verified — October 7, 12:58 Eastern
 
 Marked v0.2.0 servicebb9648563cbf178fe2aedaae8d1a9722 observed its own native command
