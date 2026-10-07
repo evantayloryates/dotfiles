@@ -73,7 +73,9 @@ review are in observer-guard-review-2026-10-07.json. Reports001827/001927 were a
 broker stays live/cron-protected, making repeated client wakes necessary. Its
 unique end_turn samples/template hash were independently verified in
 observer-loop-drift-review-2026-10-07.json; counts/causal context-poisoning claims
-are not promoted. This report awaits the following durable checkpoint. The observer is currently live/idle PID68416 and sent
+are not promoted. Report002308 was acknowledged by its exact scanned hash after checkpoint
+fa47c17; eight unique streamed assistant messages with terminal end_turn were
+verified, without adopting causal context-poisoning claims. The observer is currently live/idle PID68416 and sent
 no competing wake. The current source still directs native Bash into mutable
 working-tree files. **Next priority: immutable qualified runtime staging and
 pinned live wait/check paths before further source experiments.** Validate
