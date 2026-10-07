@@ -17,3 +17,16 @@ test('staged peer trigger is exact, passive, one-use, owner-bound and deadline-b
   assert.equal(calls,scenario==='valid'?1:0)
  }
 })
+test('recognized trigger failures remain consumed and never retry or leak exceptions',async()=>{
+ for(const failure of ['id','cwd','clock','run']){
+  let handler,calls=0
+  const token='claude-driver native-check '+'b'.repeat(32),fail=()=>{throw Error('private synthetic detail')}
+  registerPeerTrigger((_event,fn)=>handler=fn,{token,brokerSession:'local_owned',brokerCwd:'/synthetic',deadline:100,run:async()=>{calls++;if(failure==='run')fail()}})
+  const $={session:{id:async()=>failure==='id'?fail():'local_owned',cwd:async()=>failure==='cwd'?fail():'/synthetic'},clock:{now:async()=>failure==='clock'?fail():100}}
+  const next=()=>assert.fail('recognized trigger reached model queue')
+  const first=await handler($,{origin:{kind:'peer'},text:token},next)
+  const second=await handler($,{origin:{kind:'peer'},text:token},next)
+  assert.equal(first.consumed,'native-check-failed');assert.equal(second.consumed,'native-check-already-consumed')
+  assert.equal(calls,failure==='run'?1:0);assert.ok(!JSON.stringify([first,second]).includes('private'))
+ }
+})
