@@ -1,3 +1,21 @@
+## Durable host receiver budget — October 7, 12:31 Eastern
+
+Shared nativeServiceRead now reserves one durable service-specific capacity slot
+before enqueue, after journal/policy admission. Slots use exclusive creation,
+fixed bounded names/schema and no-follow reads. Slots never released after failure;
+uncertain delivery cannot regain capacity. Duplicate request reservation refuses,
+changed configured budget/corrupt/linked existing slots cannot be skipped. Tests
+prove persistent capacity across fresh invocations, duplicate and corruption refusal,
+and three independent host processes racing for two slots admit exactly two.
+Full pressure v2-2026-10-07T16-30-50-325Z passed1/1 in11308ms,
+sourceChanged:false; final independent-process test focusedpass. This is HOST path
+budget, not native module-global persistent state: raw direct triggers remain subject
+to native attempt set/checkpoint gate and are not the public submission interface.
+No native install/send this turn. Old manual trial enrollment lacks host budget
+history and must remain retired; production enrollment must use shared path only.
+Next automated enrollment/ownership status and bounded serving evidence, while
+native unload and broad v2 gates remain open. No human action needed.
+
 ## Installed removal observer boundary — October 7, 12:30 Eastern
 
 Bounded installed CLI source inspection located actual collection refresh RUt

@@ -1,3 +1,4 @@
+import {reserveNativeServiceBudget} from './native-service-budget.mjs'
 import {randomUUID} from 'node:crypto'
 import {writeFileSync} from 'node:fs'
 import {readProbeBytes,probePathPresence} from './native-mod-probe-evidence.mjs'
@@ -57,7 +58,7 @@ export async function nativeServiceRead(serviceId,targetSession,{timeoutMs=20000
    prepare:()=>{
     preflight();const policy=json(BROKER_DIR+'/stop-rescue-policy.json');if(readProbeBytes(policy.script,65536).sha256!==policy.sha256)throw Error('policy drift')
     const request={id:requestId,protocol:7,createdAt:new Date().toISOString(),expiresAt:admitted.expiresAt,ops:[{op:admitted.op,args:admitted.args}],nativeEffectAdmissionPolicy:{version:1,handlerSha256:policy.sha256,settingsHash:policy.settingsHash}},observe=observeNativeReceipts(enrollment.config.brokerSession,request)
-    if(!observe)throw Error('journal absent');request.nativeObservation=observe.start;return {request}
+    if(!observe)throw Error('journal absent');request.nativeObservation=observe.start;reserveNativeServiceBudget(root.slice(0,-1),serviceId,requestId,enrollment.config.maxRequests);return {request}
    },enqueue,claim:id=>pickupPending({requestId:id}),revalidate:preflight,
    send:()=>deliver(broker,enrollment.config.token+' '+requestId,{priority:'now',signal,timeoutMs:Math.min(timeoutMs,5000),onPrepared:meta=>writeFileSync(root+'native-service-send-'+requestId+'.json',JSON.stringify({serviceId,requestId,...meta,at:new Date().toISOString(),retrySafe:false})+'\n',{flag:'wx',mode:0o600})}),
    now:Date.now,responsePresent:()=>probePathPresence(BROKER_DIR+'/.native-service-'+requestId+'.result.json')===true,wait:()=>sleep(100),
