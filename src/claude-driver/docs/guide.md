@@ -9,6 +9,14 @@ serving and concurrency. Full current native steering remains unqualified.
 The installed PreToolUse adapter redirects exact cached wait/check commands,
 and a separate gate checks the actual native operation. See [resume.md](resume.md) for
 exact source/package distinctions, preserved failures and readiness gates.
+Ordinary requests send exactly `claude-driver request <id> v7`, bound to the
+durable request and hook arm. Native admission waits before enqueue for a real
+current-epoch foreground waiter or stable idle boundary. Working/rearming
+heartbeats alone cannot establish readiness. Non-native legacy heartbeat
+evidence remains explicitly weaker. Receipt collection tracks only exact owned
+Stop feedback with per-ID/peer/epoch consumption and causal ancestry; initial
+end_turn alone does not preempt that bounded continuation.
+
 Protocol v7 retains exact compatible `claude-driver wake v6` / `drain v6`
 identities. Wake enters the loop; operation arguments come only from the durable
 request, dispatch checkpoint and native admission. Native envelope sender fields are routing

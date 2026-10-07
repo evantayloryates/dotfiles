@@ -1,4 +1,86 @@
-## Latest frontier — October 7, 02:57 Eastern
+## Latest frontier — October 7, 03:22 Eastern
+
+Goal ACTIVE: working core interface, reliability hardening, NOT general-use
+ready. Preserve keyboard/paste quarantine, native PID, permissions/model and
+observer ownership. No competing recovery, replay, new chats or app restart.
+Codex/1Password work stay separate. No user input needed for this checkpoint.
+
+Current read-only broker check: local_35b3ba48-f02e-48de-bfbb-925192d90de1,
+PID71262/start Wed Oct7 03:24:51 2026 UTC, idle, integrity true, no handoff STOP.
+There is no verified current foreground waiter and quiet enrollment is OFF.
+Dependency4af08654/bootstrapeb5cb750/generation6 remains active. Installed hook
+404a085e0c7a6ecc8f7829a22f0ad1e415099f1b40d50eb9e1f059b7457e6290,
+handlerabbf3c152a4397b5609a6f7bfb7a9d0a602b1f3daa87959a477ea47f37982993,
+settings27b3730a20fb790a6eccc9f7b45b85cf388337e4bc9e4173bf6564de8d6ee1ad.
+Current host candidate 8a6c7b6f640709d0bcde3d912209275642a847ada2560a93e50cf46e8c969db0 has later continuation-collector and
+malformed-pointer fixes; it has isolated/replay proof, not a new native turn.
+CLI2.1.289/app2.26454.0 remain the inspected versions.
+
+New improvements:
+- Native working/rearming heartbeats no longer prove a pickup channel. Verify
+  selected sealed waiter entry, current epoch/build/generation, real helper
+  PID/start/PPID ancestry, fresh waiting heartbeat and no completion marker.
+  Legacy process timestamps have one-second precision; this is scoped liveness
+  evidence, not protection against a hostile owner. Quiet proof stays separate.
+- Before enqueue, wait for that actual channel or a stable idle boundary. Busy
+  turn expiry/cancellation/epoch drift refuse before a durable request or send.
+  Synthetic/non-native heartbeat compatibility is explicitly weaker and retained.
+- Each ordinary pulse names its durable request: claude-driver request <id> v7.
+  Generic wake/drain v6 aliases remain for recovery. Exact arm ID and actual
+  queued protocol are required; no new chats, model change or operation payload.
+- Receipt collection follows only the exact fixed native isMeta Stop feedback,
+  backed by per-request/peer/current-epoch consumption and causal UUID ancestry.
+  Initial end_turn waits for the owned hook decision or bounded continuation.
+  Metadata alone never creates a receipt; foreign/human/late/forged feedback
+  cannot join the chain. One wake/rescue budget and uncertainty guards remain.
+
+Native evidence remains FAILED overall:
+- native-turn-boundary-read-sequence-2026-10-07T07-08-22-187Z.json:
+  first read11.998s passed, second expired30s. Its generic wake had NO native
+  records since cursor; socket return was not intake proof. Preserve forensics.
+- native-request-pulse-read-sequence-2026-10-07T07-14-50-012Z.json:
+  first read13.772s passed with real receipt; second rmuxrw3em-e78c3a was
+  unclaimed and cancelled/broker_not_serving. Exact request pulse DID land and
+  one Stop continuation DID persist, but both turns ended with zero tools.
+  Cancellation was AFTER the continued end_turn; premature cancellation was not
+  this failure's cause. No dedup root-cause claim is justified by this trial.
+- native-owned-continuation-collector-replay-2026-10-07.json: new host collector
+  replayed the bounded original journal with unchanged inode/cursor and correctly
+  bound the continued terminal, zero tool calls/no receipt. No inference/UI write.
+
+Initial native-only residency change broke nine synthetic MCP cases; failures
+v2-2026-10-07T07-06-00-550Z.json and 07-06-24-212Z.json are preserved. Compatibility
+was fixed, full isolated suite passed07-08-11-325Z and final v7 pulse07-14-04-985Z.
+Current continuation candidate passed07-21-11-631Z; final malformed-pointer check
+passed the full unchanged-source suite in v2-2026-10-07T07-21-37-014Z.json.
+All artifacts are under <state>/pressure.
+
+Read-only installed receiver inspection and isolated VM probes show that the
+inspected peer inbox handles user/known control actions; SDK turn_handoff RPC
+is unhandled on this transport. peer-contract-2026-10-07T07-06-18-488Z.json passed
+nine scoped checks with no native sends. SDK schema existence does not establish
+an external direct-dispatch API. No attaching/spoofing stdio or app mutation.
+
+Fifteen legacy enqueued mutations remain outcome_unknown/retrySafe:false.
+native-historical-effect-current-state-audit-2026-10-07.json confirms their three
+owned target fixtures are archived/unpinned/not live; exact old send text is
+absent from its bounded recipient journal. That does NOT prove no queued/late
+send or settle original causality. Keep release handoff refused; do not fabricate
+receipts or replay. A future mechanically validated STOP-barrier operational
+retirement strategy must preserve causal uncertainty and be reviewed/tested
+before changing admission. It is a candidate, not implemented or qualified.
+
+Report scan still lists only unchanged legacy021323/021456/023210; reuse their
+durable blocker notes, no ack/repeated analysis. Local detector remains30s with
+zero inference; hourly Claude observer is recovery fallback, not test pacing.
+Codex report inbox ticks remain inference-bearing. General native steering,
+sustained sequential execution, distinct-build rollback, natural governor
+pressure, unattended cold recovery and event-triggered inference remain open.
+Next: dependable execution dispatch and justified historical-effect settlement,
+then current-source full native qualification. More identical prompts/polling
+alone do not solve observed no-tools execution. Preserve failed outcomes.
+
+## Previous frontier — October 7, 02:57 Eastern
 
 Goal ACTIVE. Working native prototype, reliability hardening, NOT general-use
 ready. Keep input quarantine, current native PID/permissions/model and observer

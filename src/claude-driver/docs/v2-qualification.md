@@ -1,12 +1,12 @@
 # Claude-driver v2 qualification
 
-Latest audit: October7,02:57 Eastern. The bridge is a working native control
+Latest audit: October7,03:22 Eastern. The bridge is a working native control
 prototype in reliability hardening, not general-use ready. See [resume.md](resume.md).
 
 | Requirement | Current evidence | Remaining gate |
 |---|---|---|
 | Common interface and lifecycle | CLI/MCP, durable jobs, idempotency, steering, receipt and shared-memory contracts; actual filtered harness checks passed previously | Current-source native serving/steering under sustained use |
-| Native controls | Batch read/archive passed15.635s with independent archived readback | Sequential calls still fail; current full suite remains failed |
+| Native controls | Batch read/archive passed15.635s with independent archived readback | Latest request-specific sequence: first read13.772s passed, second ended without tools; full suite remains failed |
 | Native effect guard | Actual positive receipts and cancellation-after-checkpoint denial; unknown effects fail closed | Platform timeout/fault paths and final-package native cancellation |
 | Uncertainty containment | Enqueued mutations without receipt are outcome_unknown/retrySafe:false | Fifteen historical effects remain causally unresolved; do not replay |
 | Deployment | Same PID/current dependency4af/generation6 with intact sealed inventory | Distinct-build rollback and unresolved handoff blockers |
@@ -16,9 +16,9 @@ prototype in reliability hardening, not general-use ready. See [resume.md](resum
 | Evidence and memory | Shared service artifacts, fingerprints, failures and candidate/verified distinctions | Promote only after independent native receipts |
 | Human input scope | Quarantine preserved; no keyboard/paste or app/auth/process intervention | Broader native teardown and future physical-input qualification |
 
-Installed hook35e9c233 has quiet enrollment disabled after the failed native
-experiment. The host has a later strict policy-shape amendment, isolated-tested
-separately. Active dependencies remain4af08654, generation6. These identities are
+Installed hook404a085e has quiet enrollment disabled. The host has later
+continuation-collector and malformed-pointer fixes, isolated-tested and replayed
+against the original failed native journal separately. Active dependencies remain4af08654, generation6. These identities are
 separate; an installed candidate or successful send is not full readiness.
 The fixture is now archived, superseding earlier failed cleanup's current-state
 claim; preserve the original failed/uncertain outcomes. No new fixture or model

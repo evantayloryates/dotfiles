@@ -63,6 +63,16 @@ try{
  route(frame);await Promise.resolve();assert.equal(seen.length,0)
  route({...frame,priority:'now'});await Promise.resolve();assert.deepEqual(seen,[frame.msg_id])
  rows.push({name:'immediate user routing bypasses a blocked prior processing chain; next does not',ok:true})
+ // SDK control schemas do not grant this peer transport an SDK control route.
+ // Evaluate the actual installed receiver, without a socket or authenticated
+ // live process: both attempted RPC shapes must be unhandled, with no effects.
+ const dispatch=cut(inbox,'async function be(e,n,i,r,d){','function Qe('),logs=[],effects=[]
+ const receive=runInNewContext(`(()=>{${dispatch};return be})()`,{le:e=>e&&typeof e.type==='string',Ie:e=>e.session_id===sid,t:message=>logs.push(message),Rm:String,u:()=>({onRename:()=>effects.push('rename')})},{timeout:1000})
+ await receive({type:'control_request',session_id:sid,request:{subtype:'turn_handoff',messages:[],tool_use_ids:[]}})
+ await receive({type:'control',session_id:sid,action:'turn_handoff'})
+ assert.deepEqual(effects,[]);assert.ok(logs.some(x=>x.includes('unhandled message type: control_request')));assert.ok(logs.some(x=>x.includes('Unhandled control action: turn_handoff')))
+ rows.push({name:'SDK turn_handoff control requests are not routed by this installed peer inbox',ok:true})
+
  const api=runInNewContext(`(()=>{${format}${formatter}${parser};return {parse:_,format:cet}})()`,{r6:'cross-session-message',h:{source:'^[a-f0-9]{32}$'},C:{source:'^[a-f0-9]{32}(?:,[a-f0-9]{32}){0,7}$'},f:'A-Za-z0-9%:_/.\\\\-',x:['bypass','prompting'],Oh:s=>s,UWe:(tag,body)=>body},{timeout:1000,contextCodeGeneration:{strings:false,wasm:false}})
  check('existing direct envelope matches installed parser and preserves routing metadata',()=>{const body='claude-driver wake v6',text='<cross-session-message from-name="claude-driver" from-mode="bypass">\n'+body+'\n</cross-session-message>';const parsed=api.parse(text);assert.equal(parsed.body,body);assert.equal(parsed.fromName,'claude-driver');assert.equal(parsed.fromMode,'bypass');assert.equal(api.parse(text+' appended'),undefined)})
  const evidence=Object.fromEntries(Object.entries(sources).map(([name,x])=>[name,{offset:x.offset,sha256:createHash('sha256').update(x.text).digest('hex')}]))

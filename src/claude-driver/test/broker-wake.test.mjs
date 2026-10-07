@@ -18,7 +18,7 @@ writeFileSync(fake,`#!${process.execPath}
 import {readFileSync,writeFileSync} from 'node:fs';
 if(process.argv.includes('--version')){console.log('synthetic');process.exit(0)}
 const prompt=process.argv[process.argv.indexOf('-p')+1]||'';
-if(!prompt.includes('\\nclaude-driver wake v6\\n')){console.log('FAILED: unsupported wake');process.exit(1)}
+if(!/\\nclaude-driver request r[A-Za-z0-9_-]+ v7\\n/.test(prompt)){console.log('FAILED: unsupported wake');process.exit(1)}
 const count=${JSON.stringify(count)},threshold=${JSON.stringify(threshold)};
 let n=0;try{n=Number(readFileSync(count))}catch{};writeFileSync(count,String(++n));
 if(n>=Number(readFileSync(threshold))){
@@ -34,7 +34,7 @@ console.log('SENT');
 const {brokerRequest,prepareBrokerDir,saveBrokerInfo}=await import('../lib/broker.mjs')
 saveBrokerInfo({sessionId:sid});prepareBrokerDir()
 after(()=>rmSync(root,{recursive:true,force:true}))
-test('compatible wake enters the loop without downgrading the queued request protocol',async()=>{
+test('request-specific current-protocol pulse enters the loop without downgrading the queued protocol',async()=>{
  writeFileSync(count,'0');writeFileSync(threshold,'1')
  const r=await brokerRequest([{op:'get_session',args:{session_id:sid}}],{timeoutMs:5000})
  assert.equal(r.results[0].result.synthetic,true);assert.equal(Number(readFileSync(count)),1)

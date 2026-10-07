@@ -7,6 +7,7 @@ const root=mkdtempSync(join(tmpdir(),'native-receipt-'))
 process.env.CLAUDE_DRIVER_APP_SUPPORT=join(root,'app')
 process.env.CLAUDE_DRIVER_PROJECTS_DIR=join(root,'projects')
 const {NativeReceipts,observeNativeReceipts}=await import('../lib/native-receipts.mjs')
+const {requestRescueReason}=await import('../scripts/broker-stop-rescue.mjs')
 const request={id:'fixture-request',ops:[{op:'send_message',args:{session_id:'local_owned',message:'synthetic 🐈'}}]}
 const row=(type,b)=>({type,message:{content:[b]}})
 const check=row('assistant',{type:'tool_use',id:'check',name:'Bash',input:{command:'/node /driver/scripts/broker-check.mjs fixture-request 0 --dir "/state/broker"'}})
@@ -76,5 +77,50 @@ test('unrelated user branches, sidechains, and nonterminal tool work do not prov
   if(variation==='other-user')c.feed({type:'user',uuid:'other',parentUuid:'u',message:{content:[{type:'text',text:'user instructions'}]}})
   c.feed({type:'assistant',uuid:'a',parentUuid:variation==='other-user'?'other':'u',isSidechain:variation==='sidechain',message:{stop_reason:'end_turn',content:variation==='tools'?[{type:'tool_use',id:'t',name:'Bash',input:{command:'synthetic'}}]:[{type:'text',text:'Running'}]}})
   assert.equal(c.wakeStatus('wake').terminalWithoutTools,false)
+ }
+})
+
+const rescueFixture=()=>{
+ const at=Date.now()-1000,req={...request,id:'rfixture-rescue',createdAt:new Date(at-1000).toISOString(),expiresAt:at+10000}
+ const epoch={pid:12345,procStart:'synthetic epoch'},marker={schemaVersion:1,requestId:req.id,msgId:'rescue-peer',pid:epoch.pid,procStart:epoch.procStart,at,attempts:1}
+ const c=new NativeReceipts(req);c.watchWake(marker.msgId)
+ c.feed({type:'user',uuid:'wake-user',origin:{kind:'peer',msg_id:marker.msgId},message:{content:'wake'}})
+ c.feed({type:'assistant',uuid:'initial-end',parentUuid:'wake-user',message:{stop_reason:'end_turn',content:[]}})
+ const feedback={type:'user',uuid:'feedback',parentUuid:'initial-end',isMeta:true,timestamp:new Date(at+1).toISOString(),message:{content:'Stop hook feedback:\n'+requestRescueReason(req.id)}}
+ return {c,req,epoch,marker,feedback}
+}
+test('owned rescue consumption suspends initial refusal; exact native feedback tracks the continued terminal',()=>{
+ const {c,epoch,marker,feedback}=rescueFixture()
+ assert.equal(c.wakeStatus(marker.msgId).terminalWithoutTools,true)
+ c.watchRescue(marker,epoch)
+ assert.equal(c.wakeStatus(marker.msgId).terminalWithoutTools,false)
+ assert.equal(c.receipt(),null,'metadata cannot settle a request')
+ c.feed(feedback)
+ c.feed({type:'assistant',uuid:'continued-end',parentUuid:feedback.uuid,message:{stop_reason:'end_turn',content:[]}})
+ const status=c.wakeStatus(marker.msgId)
+ assert.equal(status.rescueLanded,true);assert.equal(status.terminalPhase,'rescue');assert.equal(status.nativeTerminalUuid,'continued-end');assert.equal(status.terminalWithoutTools,true)
+ c.watchRescue(marker,epoch);assert.equal(c.wakeStatus(marker.msgId).terminalWithoutTools,true,'repeated metadata must not erase the continued terminal')
+ assert.equal(c.receipt(),null)
+})
+test('rescue tools join the wake chain but still require checkpoints and exact native output',()=>{
+ const {c,req,epoch,marker,feedback}=rescueFixture();c.watchRescue(marker,epoch);c.feed(feedback)
+ const s=structuredClone(sequence);s[0].message.content[0].input.command=`node broker-check.mjs ${req.id} 0 --dir /state`
+ let parent=feedback.uuid
+ for(let i=0;i<s.length;i++){const r={...s[i],uuid:'continued-'+i,parentUuid:parent};c.feed(r);parent=r.uuid}
+ c.feed({type:'assistant',uuid:'continued-end',parentUuid:parent,message:{stop_reason:'end_turn',content:[]}})
+ assert.equal(c.wakeStatus(marker.msgId).toolCalls,2);assert.equal(c.wakeStatus(marker.msgId).terminalWithoutTools,false)
+ assert.equal(c.receipt().source,'native-tool-result');assert.equal(c.receipt().results[0].nativeToolUseId,'native')
+})
+test('wrong, malformed, future, expired and foreign-epoch consumption cannot admit feedback',()=>{
+ const mutations=[x=>x.marker.requestId='rforeign',x=>x.marker.msgId='foreign',x=>x.marker.pid++,x=>x.marker.procStart='foreign',x=>x.marker.attempts=2,x=>x.marker.schemaVersion=2,x=>x.marker.at=Date.now()+1000,x=>x.marker.at=Date.parse(x.req.createdAt)-1,x=>x.marker.at=x.req.expiresAt,x=>delete x.epoch.pid,x=>delete x.epoch.procStart,x=>x.epoch.procStart='',x=>delete x.req.createdAt,x=>delete x.req.expiresAt,x=>x.req.id='invalid']
+ for(const mutate of mutations){const x=rescueFixture();mutate(x);x.c.watchRescue(x.marker,x.epoch);x.c.feed(x.feedback)
+  assert.equal(x.c.wakeStatus('rescue-peer').rescueConsumed,false);assert.equal(x.c.wakeStatus('rescue-peer').rescueLanded,false);assert.equal(x.c.receipt(),null)
+ }
+})
+test('lookalike feedback, peer/human turns and unrelated ancestry cannot enter the owned continuation',()=>{
+ const mutations=[r=>r.isMeta=false,r=>r.origin={kind:'peer',msg_id:'other'},r=>r.parentUuid='other',r=>r.message.content+=' extra',r=>r.message.content=[{type:'text',text:r.message.content}],r=>r.timestamp='invalid',r=>r.timestamp=new Date(0).toISOString(),r=>r.timestamp=new Date(Date.now()+10000).toISOString(),r=>r.isSidechain=true]
+ for(const mutate of mutations){const {c,epoch,marker,feedback}=rescueFixture();c.watchRescue(marker,epoch);mutate(feedback);c.feed(feedback)
+  c.feed({type:'assistant',uuid:'foreign-end',parentUuid:feedback.uuid,message:{stop_reason:'end_turn',content:[]}})
+  assert.equal(c.wakeStatus(marker.msgId).rescueLanded,false);assert.equal(c.wakeStatus(marker.msgId).terminalWithoutTools,false);assert.equal(c.receipt(),null)
  }
 })

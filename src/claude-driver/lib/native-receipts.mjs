@@ -6,6 +6,7 @@ import {homedir} from 'node:os'
 import {join} from 'node:path'
 import {getRecord} from './sessions.mjs'
 import {DriverError} from './paths.mjs'
+import {requestRescueReason} from '../scripts/broker-stop-rescue.mjs'
 const table=readFileSync(new URL('../broker-template/CLAUDE.md',import.meta.url),'utf8')
 const tools=Object.fromEntries([...table.matchAll(/^\| (\w+) \| (mcp__\w+) \|$/gm)].map(x=>[x[1],x[2]]))
 const ordered=x=>Array.isArray(x)?x.map(ordered):x&&typeof x==='object'?Object.fromEntries(Object.keys(x).sort().map(k=>[k,ordered(x[k])])):x
@@ -14,7 +15,13 @@ const text=x=>typeof x==='string'?x:Array.isArray(x)?x.filter(b=>b?.type==='text
 export class NativeReceipts {
   constructor(request){this.request=request;this.checks=new Map();this.calls=new Map();this.ready=new Set();this.results=new Map();this.wakes=new Map()}
   watchWake(msgId){if(typeof msgId==='string'&&this.wakes.size<3)this.wakes.set(msgId,{landed:false,chain:new Set(),toolCalls:0,terminalWithoutTools:false})}
-  wakeStatus(msgId){const w=this.wakes.get(msgId);return w?{landed:w.landed,toolCalls:w.toolCalls,terminalWithoutTools:w.terminalWithoutTools,nativeUserUuid:w.nativeUserUuid,nativeTerminalUuid:w.nativeTerminalUuid}:null}
+  watchRescue(marker,epoch){
+    const w=marker?.msgId&&this.wakes.get(marker.msgId)
+    const createdAt=Date.parse(this.request.createdAt),expiresAt=this.request.expiresAt
+    if(!w||!/^r[A-Za-z0-9_-]{1,99}$/.test(this.request.id)||!Number.isInteger(epoch?.pid)||epoch.pid<=0||typeof epoch.procStart!=='string'||!epoch.procStart.trim()||!Number.isFinite(createdAt)||!Number.isFinite(expiresAt)||expiresAt<=createdAt||marker.schemaVersion!==1||marker.requestId!==this.request.id||marker.attempts!==1||marker.pid!==epoch.pid||marker.procStart!==epoch.procStart||!Number.isFinite(marker.at)||marker.at<createdAt||marker.at>=expiresAt||marker.at>Date.now()||w.rescueConsumed)return
+    w.rescueConsumed=true;w.rescueAt=marker.at;w.terminalWithoutTools=false
+  }
+  wakeStatus(msgId){const w=this.wakes.get(msgId);return w?{landed:w.landed,toolCalls:w.toolCalls,terminalWithoutTools:w.terminalWithoutTools,nativeUserUuid:w.nativeUserUuid,nativeTerminalUuid:w.nativeTerminalUuid,rescueConsumed:!!w.rescueConsumed,rescueLanded:!!w.rescueLanded,terminalPhase:w.terminalPhase}:null}
   observeWake(row){
     if(row?.isSidechain||typeof row?.uuid!=='string')return
     const peerId=row.type==='user'&&row.origin?.kind==='peer'?row.origin.msg_id:null
@@ -22,12 +29,18 @@ export class NativeReceipts {
       if(peerId===id){w.landed=true;w.nativeUserUuid=row.uuid;w.chain.add(row.uuid);continue}
       if(!w.landed||!w.chain.has(row.parentUuid))continue
       // Another user turn is a new causal branch; tool results remain in ours.
-      if(row.type==='user'&&(!Array.isArray(row.message?.content)||row.message.content.some(b=>b?.type!=='tool_result')))continue
+      if(row.type==='user'&&(!Array.isArray(row.message?.content)||row.message.content.some(b=>b?.type!=='tool_result'))){
+        // Native Stop feedback is a new user record, but only this exact fixed
+        // service continuation, backed by exclusive per-ID/peer/epoch metadata,
+        // belongs to our original causal branch. Human/other peer turns do not.
+        if(!w.rescueConsumed||w.rescueLanded||row.isMeta!==true||row.origin?.kind==='peer'||typeof row.message?.content!=='string'||row.message.content!=='Stop hook feedback:\n'+requestRescueReason(this.request.id)||!Number.isFinite(Date.parse(row.timestamp))||Date.parse(row.timestamp)<w.rescueAt||Date.parse(row.timestamp)>Date.now())continue
+        w.rescueLanded=true;w.terminalWithoutTools=false
+      }
       if(w.chain.size>=1024){w.terminalWithoutTools=false;continue}
       w.chain.add(row.uuid)
       if(row.type==='assistant'){
         w.toolCalls+=(Array.isArray(row.message?.content)?row.message.content:[]).filter(b=>b?.type==='tool_use').length
-        if(row.message?.stop_reason==='end_turn'){w.nativeTerminalUuid=row.uuid;w.terminalWithoutTools=w.toolCalls===0}
+        if(row.message?.stop_reason==='end_turn'){w.nativeTerminalUuid=row.uuid;w.terminalPhase=w.rescueLanded?'rescue':'wake';w.terminalWithoutTools=w.toolCalls===0&&(!w.rescueConsumed||w.rescueLanded)}
         if(w.toolCalls)w.terminalWithoutTools=false
       }
     }
@@ -93,6 +106,7 @@ export function observeNativeReceipts(brokerId,request,start=null){
     return collector.receipt()
   }
   observe.watchWake=id=>collector.watchWake(id)
+  observe.watchRescue=(marker,epoch)=>collector.watchRescue(marker,epoch)
   observe.wakeStatus=id=>collector.wakeStatus(id)
   observe.start={brokerSessionId:brokerId,cliSessionId:cli,dev:initial.dev,ino:initial.ino,offset}
   return observe

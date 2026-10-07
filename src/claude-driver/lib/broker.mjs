@@ -25,6 +25,8 @@ import {brokerResidencyProtection} from './broker-residency.mjs'
 import {activeRelease,commitRelease,HANDOFF_OWNER,releaseStatus,entryEpochEvidence,loadEntryEvidence} from './releases.mjs'
 import {stopRescuePolicy,armStopRescue,disarmStopRescue} from './stop-rescue.mjs'
 import {quietHookStatus} from './quiet-hook.mjs'
+import {verifyWaiterReadiness,waitForNativeAvailability} from './waiter-readiness.mjs'
+import {requestTrigger} from '../scripts/broker-stop-rescue.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const TEMPLATE = join(HERE, '..', 'broker-template', 'CLAUDE.md')
@@ -66,12 +68,13 @@ export function prepareBrokerDir() {
 }
 
 // Resident = the broker's wait loop wrote a heartbeat in the last few seconds.
-export function heartbeat() {
+export function heartbeat({native=true}={}) {
   const hb = readJson(join(BROKER_DIR, 'heartbeat.json'), null)
   if (!hb) return { resident: false }
   const age = Date.now() - hb.at
-  // "working" is written once at pickup, so it stays valid while the broker runs a long request.
-  const resident = (['waiting', 'rearming'].includes(hb.state) && age < 6000) || (hb.state === 'working' && age < 180_000)
+  // Pickup ends the wait. Neither finishing old work nor a rearm hint is a
+  // live pickup channel; never suppress a fresh request wake on those states.
+  const resident = Number.isFinite(age) && age >= 0 && (hb.state === 'waiting' && age < 6000 || !native && (hb.state==='rearming'&&age<6000||hb.state==='working'&&age<180000))
   return { resident, state: hb.state, ageMs: age }
 }
 
@@ -88,7 +91,9 @@ export function brokerInfo() {
     runtime.dependencyPathsObserved=runtime.dependencyEvidence.verified
   }
   const templateCurrent = runtime.integrity && existsSync(join(BROKER_DIR, 'CLAUDE.md')) && readFileSync(join(BROKER_DIR, 'CLAUDE.md'), 'utf8') === renderTemplate()
+  const native=live?.entrypoint==='claude-desktop',hb=heartbeat({native})
   const quiet=quietHookStatus({sessionId:info.sessionId,live})
+  const waiter=verifyWaiterReadiness({sessionId:info.sessionId,live,runtime,pointer:loadEntryEvidence(join(BROKER_DIR,'runtime.json')),selected:loadEntryEvidence(join(BROKER_DIR,'broker-wait-entry-selected.json')),completed:loadEntryEvidence(join(BROKER_DIR,'broker-wait-entry.json')),heartbeat:loadEntryEvidence(join(BROKER_DIR,'heartbeat.json')),brokerDir:BROKER_DIR})
   return {
     configured: true,
     sessionId: info.sessionId,
@@ -99,7 +104,8 @@ export function brokerInfo() {
     model: rec?.model ?? null,
     permissionMode: rec?.permissionMode ?? null,
     live: live ? { pid: live.pid, status: live.status, socket: live.messagingSocketPath, entrypoint:live.entrypoint,procStart:live.procStart } : null,
-    resident: live ? { ...heartbeat(), resident: quiet.verified||['busy', 'working'].includes(live.status) && heartbeat().resident } : { resident: false },
+    resident: live ? { ...hb, resident: native?quiet.verified||waiter.verified:['busy','working'].includes(live.status)&&hb.resident, evidenceSource:native?'native-pickup-channel':'legacy-non-native-heartbeat' } : { resident: false },
+    waiterReadiness:waiter,
     quietHook:quiet,
     templateCurrent,
     runtime,
@@ -148,7 +154,8 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
   const deadline = Date.now() + timeoutMs
   for (const o of ops) if (!BROKER_OPS.includes(o.op)) throw new DriverError(`op ${o.op} is not on the broker allowlist`, { category: 'bad_args' })
   return withLock('broker', async () => {
-    const info = brokerInfo()
+    let info = brokerInfo()
+    info=await waitForNativeAvailability(info,{observe:brokerInfo,deadline,signal,sleep,progress})
     const rescuePolicy=stopRescuePolicy()
     if(typeof idleWake!=='boolean')throw new DriverError('invalid idle wake policy',{category:'bad_args',detail:{dispatched:false,retrySafe:true}})
     if(info.handoffStopped)throw new DriverError('broker deployment handoff is stopped; requests cannot clear its STOP',{category:'broker_handoff_refused',detail:{dispatched:false,retrySafe:true}})
@@ -158,7 +165,7 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
     if (!info.templateCurrent) prepareBrokerDir()
     if (!info.live) throw new DriverError(`broker ${info.sessionId} has no live process (app restarted?); run \`claude-driver broker revive\``, { category: 'broker_dead' })
     if(info.live.entrypoint==='claude-desktop'&&ops.some(o=>!['get_session','list_sessions','list_groups','get_window_layout'].includes(o.op))&&rescuePolicy?.nativeEffectAdmissionVersion!==1)throw new DriverError('native effect admission policy is missing or legacy; no effect enqueued',{category:'broker_native_admission_required',detail:{dispatched:false,retrySafe:true}})
-    const id = newRequestId()
+    const id = newRequestId(),pulse=requestTrigger(id,Number(protocolVersion()))
     rmSync(join(BROKER_DIR, 'STOP'), { force: true })
     if (signal?.aborted || Date.now() >= deadline) throw new DriverError('cancelled or expired before enqueue', { category: signal?.aborted ? 'cancelled' : 'broker_timeout' })
     const request = { id, ops, createdAt: new Date().toISOString(), expiresAt: deadline, protocol: Number(protocolVersion()) }
@@ -171,8 +178,8 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
     const wakeOptions=target=>{const priority=idleWake&&target.live?.status==='idle'?'now':'next';return {signal,...(rescuePolicy?{method:'direct',priority,onPrepared:w=>{
       // Metadata survives arm disarming, so an unaccepted socket write remains
       // independently correlatable after a timeout. No keys or prompt bodies.
-      writeJsonAtomic(join(BROKER_DIR,'wake-'+id+'.json'),{requestId:id,...w,priority,preparedAt:Date.now(),acceptance:'unverified'})
-      if(rescuePolicy?.quietWait?.version===1)writeJsonAtomic(join(BROKER_DIR,'quiet-last-wake.json'),{requestId:id,...w})
+      writeJsonAtomic(join(BROKER_DIR,'wake-'+id+'.json'),{requestId:id,protocol:request.protocol,...w,priority,preparedAt:Date.now(),acceptance:'unverified'})
+      if(rescuePolicy?.quietWait?.version===1)writeJsonAtomic(join(BROKER_DIR,'quiet-last-wake.json'),{requestId:id,protocol:request.protocol,...w})
       armStopRescue(rescuePolicy,request,w)
     }}:{})}}
     progress(`broker request ${id}: ${ops.map((o) => o.op).join(', ')}`)
@@ -190,7 +197,7 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
     // A resident broker picks the file up itself; otherwise wake it into its loop.
     try {
     if (!info.resident?.resident) {
-      via = await deliver(info, BROKER_WAKE, { ...wakeOptions(info),timeoutMs:Math.max(1,deadline-Date.now()) })
+      via = await deliver(info, pulse, { ...wakeOptions(info),timeoutMs:Math.max(1,deadline-Date.now()) })
       if(via.msgId)observe?.watchWake(via.msgId)
       lastWake = Date.now()
       wakeAttempts++
@@ -198,6 +205,7 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
     }
     while (Date.now() < deadline) {
       if (signal?.aborted) throw new DriverError('cancelled', { category: 'cancelled' })
+      if(rescuePolicy&&via.msgId)observe?.watchRescue(loadEntryEvidence(join(BROKER_DIR,'stop-rescue-'+id+'.json')),{pid:info.live.pid,procStart:info.live.procStart})
       const actual = observe?.()
       if(actual) writeJsonAtomic(nativeResultFile(id),actual)
       // When the native journal is available, never settle from a relay's
@@ -208,6 +216,12 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
       if (res) return { id, results: res.results, receiptSource:res.source||'broker-relay', deliveredVia: via.method, ms: Date.now() - t0 }
       const wake=via.msgId&&observe?.wakeStatus(via.msgId)
       if(wake?.terminalWithoutTools&&control(id).state==='pending'){
+        const hook=rescuePolicy&&loadEntryEvidence(join(BROKER_DIR,'stop-rescue-hook-invocation-'+id+'.json'))
+        const declined=hook?.requestId===id&&hook.msgId===via.msgId&&hook.ancestor===true&&hook.stop===true&&hook.continued===false&&hook.eligible===false&&Number.isFinite(hook.at)&&hook.at>=Date.parse(request.createdAt)&&hook.at<=Date.now()
+        // An initial end_turn precedes native Stop hooks. Until this request's
+        // own hook declines or its owned continuation actually ends, waiting
+        // for the bounded outcome is not permission for another wake/retry.
+        if(rescuePolicy&&!wake.rescueLanded&&!declined){await sleep(100);continue}
         terminalWakeAt??=Date.now()
         const now=brokerInfo()
         if(now.live?.status==='idle'&&now.live.pid===via.pid&&now.live.procStart===via.procStart&&Date.now()-terminalWakeAt>=750)
@@ -223,7 +237,7 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
         const now = brokerInfo()
         if (!now.live) throw new DriverError('broker process disappeared while request was pending', { category: 'broker_dead' })
         if (!['busy', 'working'].includes(now.live.status)) {
-          via = await deliver(now, BROKER_WAKE, { ...wakeOptions(now),timeoutMs:Math.max(1,deadline-Date.now()) })
+          via = await deliver(now, pulse, { ...wakeOptions(now),timeoutMs:Math.max(1,deadline-Date.now()) })
           if(via.msgId)observe?.watchWake(via.msgId)
           lastWake = Date.now()
           wakeAttempts++

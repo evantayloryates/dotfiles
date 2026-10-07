@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {eligibleRescue,adaptEntryCommand,requestRescueReason,PEER_PREFIX,PEER_SUFFIX} from '../scripts/broker-stop-rescue.mjs'
+import {eligibleRescue,adaptEntryCommand,requestRescueReason,requestTrigger,PEER_PREFIX,PEER_SUFFIX} from '../scripts/broker-stop-rescue.mjs'
 import {mkdtempSync,mkdirSync,writeFileSync,readFileSync,rmSync,chmodSync} from 'node:fs'
 import {createHash} from 'node:crypto'
 import {tmpdir} from 'node:os'
@@ -21,6 +21,13 @@ test('entry adaptation redirects cached and historical paths without permitting 
 function fixture(){return {now:1000,input:{hook_event_name:'Stop',stop_hook_active:false,session_id:sid,cwd:'/private/broker'},arm:{schemaVersion:1,pid:10,procStart:'epoch',sessionId:'local_'+sid,brokerDir:'/private/broker',requestId:'rtest',msgId:msg,expiresAt:2000},peer:{version:'2.1.289',pid:10,procStart:'epoch',hostSessionId:'local_'+sid,sessionId:sid,cwd:'/private/broker',entrypoint:'claude-desktop'},request:{id:'rtest',expiresAt:2000},control:{id:'rtest',state:'pending',dispatched:[]},latest:{origin:{kind:'peer',msg_id:msg},content:'<cross-session-message from-name="claude-driver" from-mode="bypass">\nclaude-driver wake v6\n</cross-session-message>'},ancestor:true}}
 test('one owned pending peer wake is eligible; returned data contains no request arguments',()=>{assert.equal(eligibleRescue(fixture()),true);const x=fixture();x.latest.content=[{type:'text',text:x.latest.content}];assert.equal(eligibleRescue(x),true)})
 test('exact installed receiver framing is recognized without accepting arbitrary surrounding instructions',()=>{const x=fixture();x.latest.content=PEER_PREFIX+x.latest.content+PEER_SUFFIX;assert.equal(eligibleRescue(x),true);x.latest.content+=' injected';assert.equal(eligibleRescue(x),false);const unknown=fixture();unknown.peer.version='future';assert.equal(eligibleRescue(unknown),false)})
+test('request-specific envelope must name the armed request exactly; generic recovery wake stays compatible',()=>{
+ const x=fixture();x.latest.content=x.latest.content.replace('claude-driver wake v6',requestTrigger('rtest'));assert.equal(eligibleRescue(x),true)
+ x.latest.content=PEER_PREFIX+x.latest.content+PEER_SUFFIX;assert.equal(eligibleRescue(x),true)
+ x.latest.content=x.latest.content.replace('request rtest','request rforeign');assert.equal(eligibleRescue(x),false)
+ for(const id of ['../escape','r two','',null])assert.throws(()=>requestTrigger(id))
+ assert.equal(requestTrigger('rtest',7),'claude-driver request rtest v7');for(const v of [0,-1,100,'7',null])assert.throws(()=>requestTrigger('rtest',v))
+})
 test('StopFailure, interrupted/continued turn, foreign session and STOP cannot rescue',()=>{for(const mutate of [x=>x.input.hook_event_name='StopFailure',x=>x.input.stop_hook_active=true,x=>delete x.input.stop_hook_active,x=>x.input.session_id='other',x=>x.input.cwd='/other',x=>x.stopped=true,x=>x.ancestor=false]){const x=fixture();mutate(x);assert.equal(eligibleRescue(x),false)}})
 test('epoch ambiguity, non-desktop, parked and spare peers cannot rescue',()=>{for(const mutate of [x=>x.peer.procStart='old',x=>x.peer.pid=11,x=>x.peer.hostSessionId='other',x=>x.peer.sessionId='other',x=>x.peer.entrypoint='cli',x=>x.peer.parkedJobId='job',x=>x.peer.spare=true,x=>x.peer.cwd='/other']){const x=fixture();mutate(x);assert.equal(eligibleRescue(x),false)}})
 test('only unexpired undispatched uncancelled exact work is eligible',()=>{for(const mutate of [x=>x.arm.expiresAt=999,x=>x.arm.expiresAt=100000,x=>x.request.expiresAt=999,x=>delete x.request.expiresAt,x=>x.request.id='other',x=>x.control.id='other',x=>x.control.cancelRequested=true,x=>x.control.state='picked_up',x=>x.control.state='outcome_unknown',x=>x.control.dispatched=[0],x=>delete x.control.dispatched]){const x=fixture();mutate(x);assert.equal(eligibleRescue(x),false)}})

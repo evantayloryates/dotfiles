@@ -1,5 +1,29 @@
 # claude-driver findings
 
+## 2026-10-07 03:22 Eastern — native admission improves; execution still fails
+
+Real waiter/epoch proof now replaces native working/rearming heartbeat readiness.
+Busy turns apply backpressure before enqueue. Ordinary signals use the exact
+durable request ID and current v7 protocol. One native read passed13.772s; the
+next signal and owned continuation reached the native journal but ended without
+tools. The full sequence remains FAILED. This is not a proven dedup root cause.
+
+The collector now binds exact owned continuation feedback and its terminal UUID,
+with malformed/foreign/human feedback refusal and no metadata-only receipts.
+A bounded replay of the original journal verified that distinction without a
+new Claude turn. Original cancellation followed the continued terminal; this
+collector improvement is not claimed as the failed trial's root-cause fix.
+
+Initial synthetic compatibility failures were preserved and corrected. New
+isolated tests cover actual helper ancestry/death, pre-enqueue backpressure,
+request-specific framing and continuation branches. Active dependency, installed
+hook and later host candidate remain separately identified in resume.md.
+
+Installed peer receiver/VM inspection rules out sending SDK turn_handoff RPC on
+that inspected transport; it does not rule out every possible supported API.
+All15 historical mutation outcomes stay uncertain despite archived fixture
+readback. Handoff cannot proceed by treating desired state as causal settlement.
+
 ## 2026-10-07 02:57 Eastern — native signal reaches context, execution still skipped
 
 One batched read/archive completed15.635s and independent readback confirms the

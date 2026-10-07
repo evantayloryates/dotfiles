@@ -53,3 +53,15 @@ test('a checkpointed native tool result wins; a subsequent end-turn does not bec
  assert.equal(result.receiptSource,'native-tool-result');assert.equal(result.results[0].result,'synthetic native session');assert.equal(messages,before+1)
  assert.equal(inspectRequest(result.id).receiptVerified,true)
 })
+
+test('a recent working heartbeat cannot enqueue new work into a finishing native turn',async()=>{
+ const peerFile=join(root,'peers',process.pid+'.json'),peer=JSON.parse(readFileSync(peerFile)),before=readdirSync(join(dir,'requests')).length,beforeMessages=messages
+ writeFileSync(peerFile,JSON.stringify({...peer,status:'busy'}))
+ writeFileSync(join(dir,'heartbeat.json'),JSON.stringify({pid:process.pid,ppid:process.ppid,state:'working',at:Date.now()}))
+ const pending=brokerRequest([{op:'get_session',args:{session_id:sid}}],{timeoutMs:5000})
+ await new Promise(r=>setTimeout(r,300))
+ assert.equal(readdirSync(join(dir,'requests')).length,before,'must apply backpressure before creating a durable request')
+ assert.equal(messages,beforeMessages,'must not send into the finishing turn')
+ writeFileSync(peerFile,JSON.stringify(peer))
+ const result=await pending;assert.equal(result.receiptSource,'native-tool-result');assert.equal(messages,beforeMessages+1)
+})
