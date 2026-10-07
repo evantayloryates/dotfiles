@@ -1,4 +1,40 @@
-## Latest frontier — October 7, 05:51 Eastern
+## Latest frontier — October 7, 06:03 Eastern
+
+Goal ACTIVE; general-use bridge remains experimental. Actual cancellation report
+native-read-service-2026-10-07T09-56-12-334Z.json passed on e1b79a7d:
+prepublication and queued cancellation settled in307ms/312ms, postpublication
+cancellation in3502ms including bounded cleanup. All three same-key reattachments
+returned original cancelled jobs without replay. Exactly one native diagnostic
+turn occurred; original settings/policy restored, same broker PID71262/start
+03:24:51 UTC, both actual MCP clients exited0/stderr0. Cancelled reads may finish;
+this proves no mutation reversal or general serving readiness.
+
+Current sourceee8c9f67862edad15807e6d07f678c65b0232e8d21d27482ab9754e2738eb34e adds bounded broker_read_status, phase progress,
+overall admission/setup timeout and explicit broker_read_recover. Recovery is
+zero-inference: exact expired owned metadata transaction, original intact idle
+epoch and unchanged settings only; no wake/replay and original batch/job outcome
+retained. Owner death requires kernel ESRCH; unavailable ps remains unknown.
+Isolated tests cover expiry, changed epoch, busy/integrity/STOP refusal, foreign
+target ownership, exact byte restoration and original published outcome retained.
+An initial synthetic fixture omitted required PreToolUse hooks; failure preserved
+in native-read-recovery-fixture-failure-2026-10-07.json, corrected before full run.
+
+Full current-source isolated suite passed unchanged in
+v2-2026-10-07T10-03-29-410Z.json (8401ms). This later source has NOT passed a new
+native recovery/worker-loss test. Cancellation native proof belongs to e1b79a7d.
+Next deliberately lose only a freshly launched exact owned Node job worker,
+verify unknown durable outcome/no idempotent replay and pending ownership, wait
+finite expiry, then qualify explicit cleanup without another model turn. Never
+kill native app/session processes or infer receipt/completion from cleanup.
+
+Fresh read-only status06:03: broker71262 idle/intact, original settingsd66115ff
+and policy7a8ce57a, no diagnostic/STOP/arm. Input quarantine remains ON. General
+sustained serving, guarded mutations/steering under load, indexed handoff,
+rollback, natural governor pressure and cold recovery remain open. All17historic
+uncertain effects stay unknown/nonretryable. Local30s detection and hourly Claude
+fallback do not pace testing; no user action needed. Codex-driver/1Password separate.
+
+## Previous frontier — October 7, 05:51 Eastern
 
 Goal ACTIVE; previous turn made observation progress, this turn proves a real
 shared deterministic metadata execution path. General bridge readiness remains

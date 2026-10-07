@@ -7,15 +7,19 @@ import {createInterface} from 'node:readline'
 import {fileURLToPath} from 'node:url'
 import {randomUUID} from 'node:crypto'
 import {join} from 'node:path'
+import {existsSync} from 'node:fs'
+import {sessionEvents} from '../lib/events.mjs'
+import {sleep} from '../lib/paths.mjs'
 import {brokerInfo} from '../lib/broker.mjs'
 import {getRecord,readPins} from '../lib/sessions.mjs'
 import {STATE_DIR,BROKER_DIR,writeJsonAtomic} from '../lib/state.mjs'
 import {RUNTIME_BUILD,runtimeFingerprint} from '../lib/build.mjs'
 import {recordMemory} from '../lib/memory.mjs'
 import {ownedBytes,bytesHash} from '../lib/temporary-hooks.mjs'
-if(process.argv.length!==3||process.argv[2]!=='--run-owned-native-read-service')throw Error('explicit owned native read service flag required')
+const cancelPressure=process.argv[2]==='--run-owned-native-read-cancel'
+if(process.argv.length!==3||!['--run-owned-native-read-service','--run-owned-native-read-cancel'].includes(process.argv[2]))throw Error('explicit owned native read service flag required')
 const sid='local_35b3ba48-f02e-48de-bfbb-925192d90de1',fixture='local_fc1e5eab-9d24-4e4c-a09c-9a386a6ffe14',epoch={sessionId:sid,pid:71262,procStart:'Wed Oct  7 03:24:51 2026'},clients=[]
-const report=join(STATE_DIR,'pressure','native-read-service-'+new Date().toISOString().replace(/[:.]/g,'-')+'.json'),out={scope:'owned-cross-harness-deterministic-metadata-read',runtimeBuild:RUNTIME_BUILD,epoch,ok:false,releaseAuthorized:false}
+const report=join(STATE_DIR,'pressure','native-read-service-'+new Date().toISOString().replace(/[:.]/g,'-')+'.json'),out={scope:'owned-cross-harness-deterministic-metadata-read',runtimeBuild:RUNTIME_BUILD,epoch,cancelPressure,ok:false,releaseAuthorized:false}
 function client(name){
  const child=spawn(process.execPath,[fileURLToPath(new URL('../server.mjs',import.meta.url))],{stdio:['pipe','pipe','pipe']}),rl=createInterface({input:child.stdout}),pending=new Map();let id=0,stderrBytes=0
  child.stderr.on('data',x=>stderrBytes+=x.length);rl.on('line',line=>{let r;try{r=JSON.parse(line)}catch{return};const p=pending.get(r.id);if(p){pending.delete(r.id);clearTimeout(p.timer);r.error?p.reject(Error('owned MCP protocol failure')):p.resolve(r.result)}})
@@ -27,6 +31,26 @@ try{
  assert.ok(same());assert.equal(brokerInfo().live.status,'idle');const f=getRecord(fixture);assert.equal(f.cwd,join(STATE_DIR,'probe','v2-2026-10-07T04-37-49-840Z'));assert.equal(f.isArchived,true);assert.equal(readPins().has(fixture),false)
  const settings=bytesHash(ownedBytes(join(BROKER_DIR,'.claude','settings.json'))),policy=bytesHash(ownedBytes(join(BROKER_DIR,'stop-rescue-policy.json')))
  const a=client('claude-driver-native-read-a'),b=client('claude-driver-native-read-b');await Promise.all([a.ready,b.ready])
+ if(cancelPressure){
+  const cursor=sessionEvents({session:sid}).cursor,rows=[];out.rows=rows
+  const submit=async c=>{const args={operation:'broker_read_batch',arguments:{sessions:[fixture,sid,fixture],experimental:true,timeout_sec:20},idempotency_key:'owned-native-cancel-'+randomUUID(),timeout_sec:40};const j=await c.call('driver_submit',args);return {args,jobId:j.jobId}}
+  const phase=async(c,j,wanted)=>{
+   const until=Date.now()+8000
+   while(Date.now()<until){const job=await c.call('driver_job',{job_id:j.jobId});const progress=job.progress?.map(x=>x.message).filter(x=>/^native-read:[a-f0-9-]{36}:/.test(x)).at(-1)
+    if(progress){const id=progress.split(':')[1],status=await c.call('broker_read_status',{id});if(wanted.includes(status.phase))return {id,status}}
+    if(['completed','cancelled','failed','outcome_unknown'].includes(job.state))throw Error('owned job became terminal before intended cancellation boundary')
+    await sleep(25)
+   }throw Error('owned cancellation boundary observation expired; inspect existing job')
+  }
+  const cancel=async(c,j,boundary)=>{const started=Date.now();await c.call('driver_cancel',{job_id:j.jobId});const terminal=await c.call('driver_wait',{job_id:j.jobId,timeout_sec:12,include_result:true});const status=await c.call('broker_read_status',{id:boundary.id});const row={jobId:j.jobId,id:boundary.id,before:boundary.status.phase,state:terminal.state,cancelMs:Date.now()-started,status};rows.push(row);assert.equal(terminal.state,'cancelled');assert.equal(status.cleanupPending,false);const old=await c.call('driver_submit',j.args);assert.equal(old.jobId,j.jobId);assert.equal(old.reused,true);assert.equal(old.state,'cancelled');return row}
+  const pre=await submit(a),preBoundary=await phase(a,pre,['enrolled']);assert.equal(preBoundary.status.publicationAttempted,false);const preResult=await cancel(a,pre,preBoundary);assert.equal(preResult.status.restorationRecorded,true)
+  assert.equal(existsSync(join(BROKER_DIR,'mechanical-probe.json')),false);assert.ok(same());assert.equal(brokerInfo().live.status,'idle')
+  const post=await submit(a),postBoundary=await phase(a,post,['published']);assert.equal(postBoundary.status.publicationAttempted,true)
+  const contender=await submit(b),contenderBoundary=await phase(b,contender,['preparing']);const contenderResult=await cancel(b,contender,contenderBoundary);assert.equal(contenderResult.status.publicationAttempted,false)
+  const postResult=await cancel(a,post,postBoundary);assert.equal(postResult.status.restorationRecorded,true)
+  out.settingsRestored=bytesHash(ownedBytes(join(BROKER_DIR,'.claude','settings.json')))===settings&&bytesHash(ownedBytes(join(BROKER_DIR,'stop-rescue-policy.json')))===policy;assert.equal(out.settingsRestored,true);assert.equal(existsSync(join(BROKER_DIR,'mechanical-probe.json')),false);assert.ok(same())
+  const plan=JSON.parse(ownedBytes(postResult.status.evidence)),events=sessionEvents({session:sid,cursor,include_causality:true,limit:100}),users=events.events.filter(e=>e.type==='user');assert.equal(users.length,1);assert.equal(users[0].peerMessageId,plan.peer.msgId);out.nativeUserTurns=users.map(e=>({id:e.id,peerMessageId:e.peerMessageId}));out.ok=true
+ }else{
  const args={operation:'broker_read_batch',arguments:{sessions:[fixture,sid,fixture],experimental:true,timeout_sec:20},idempotency_key:'owned-native-read-'+randomUUID(),timeout_sec:40}
  const started=Date.now(),submitted=await Promise.all([a.call('driver_submit',args),b.call('driver_submit',args)]);assert.equal(submitted[0].jobId,submitted[1].jobId);out.jobId=submitted[0].jobId
  out.publisher=await a.close();assert.equal(out.publisher.exitCode,0)
@@ -40,4 +64,5 @@ try{
  const reattached=await b.call('driver_submit',args);assert.equal(reattached.jobId,out.jobId);assert.equal(reattached.reused,true);assert.equal(reattached.state,'completed')
  out.settingsRestored=bytesHash(ownedBytes(join(BROKER_DIR,'.claude','settings.json')))===settings&&bytesHash(ownedBytes(join(BROKER_DIR,'stop-rescue-policy.json')))===policy;assert.equal(out.settingsRestored,true)
  assert.ok(same());out.ok=true
+ }
 }catch(e){out.failure=String(e.message).slice(0,300)}finally{out.launchers=await Promise.all(clients.map(c=>c.close()));out.sourceChanged=runtimeFingerprint()!==RUNTIME_BUILD;out.ok=out.ok&&!out.sourceChanged;writeJsonAtomic(report,out);recordMemory({kind:'test_result',topic:'native-read-batch',source:'owned-cross-harness-native-probe',status:out.ok?'passed':'failed',evidence:report,lesson:'Two MCP harnesses share one durable experimental native metadata batch; publisher disconnect does not restart work. Duplicate targets coalesce, distinct native hook attachment receipts bind targets, exact settings restore and idempotent reattach prevent replay. Mutation routing remains unqualified.'});console.log(JSON.stringify({report,...out}));process.exitCode=out.ok?0:1}

@@ -1,3 +1,14 @@
+## October 7, 06:03 Eastern checkpoint
+
+Actual three-case native cancellation pressure passed on e1b79a7d: cancellation
+before publication, while queued and after publication; exact settings restored,
+one diagnostic turn and no replay on reattachment. Current source adds bounded
+batch phase/status and explicit zero-inference expired cleanup preserving the
+original outcome. Full isolated suite passed unchanged in8401ms; live worker-loss
+and cleanup qualification is next, not yet passed. General serving/mutations,
+steering, handoff, rollback and cold recovery remain open. Exact evidence/source
+boundaries are in resume.md.
+
 ## October 7, 05:51 Eastern checkpoint
 
 Opt-in `broker_read_batch` now has actual current-source cross-harness native

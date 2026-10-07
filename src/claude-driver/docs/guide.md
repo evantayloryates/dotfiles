@@ -102,6 +102,16 @@ The experimental route is scoped to reviewed app2.26454.0/CLI2.1.289 and require
 the intact idle unarmed broker. Settings restoration, native ancestry, exact
 per-target attachment receipts and a fresh host finish are completion gates.
 
+`broker_read_status {id}` returns bounded durable phase, owner state and cleanup
+bookkeeping without inference. Durable jobs publish `native-read:<id>:<phase>`
+progress. The timeout includes queue admission and setup; cancellation during
+setup can restore settings without publishing a diagnostic turn.
+`broker_read_recover {id, experimental:true}` explicitly restores one exact
+expired owned metadata transaction in its original intact idle broker epoch.
+It requires unchanged settings and does not wake, replay or complete the original
+job. Recovery currently has isolated proof; deliberate live worker-loss pressure
+remains pending. Cleanup is independent from an unknown execution outcome.
+
 Cancellation ends caller waiting; already-published metadata reads may still
 finish. Cleanup uses one bounded native idle observation without another wake.
 If the epoch stays busy/changes, the owned descriptor remains pending and

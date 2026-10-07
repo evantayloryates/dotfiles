@@ -845,13 +845,25 @@ export const OPS = [
   },
   // ---------------- broker
   {
+    name:'broker_read_recover',title:'Restore an expired native metadata transaction',readOnly:false,
+    description:'Explicit zero-inference cleanup for one expired service-owned metadata batch in its original intact idle broker epoch. Restores exact owned settings only; never wakes, restarts or replays native reads and never completes the original job.',
+    schema:{required:['id','experimental'],properties:{id:{type:'string'},experimental:{type:'boolean',enum:[true]}}},
+    run:async args=>(await import('./native-read-batch.mjs')).recoverNativeReadBatch(args.id),
+  },
+  {
+    name:'broker_read_status',title:'Inspect a native metadata batch',readOnly:true,
+    description:'Inspect bounded durable batch phase and cleanup bookkeeping without inference or replay. Publication is not a native effect receipt; recorded restoration is historical evidence, not current serving readiness.',
+    schema:{required:['id'],properties:{id:{type:'string'}}},
+    run:async args=>(await import('./native-read-batch.mjs')).nativeReadStatus(args.id),
+  },
+  {
     name: 'broker_read_batch', title: 'Experimental deterministic native metadata batch', readOnly: false,
     description: 'Opt-in metadata-only native hook execution, using one short broker diagnostic turn per batch. Does not rely on model tool selection. Exact IDs only; duplicate targets share one read receipt. Preserves core hooks and restores exact settings. Mutations, recovery and full serving qualification are excluded.',
     schema: {required:['sessions','experimental'],properties:{sessions:{type:'array',items:{type:'string'},minItems:1,maxItems:8},experimental:{type:'boolean',enum:[true]},timeout_sec:{type:'number',minimum:5,maximum:60}}},
     run: async(args,ctx)=>{
       if(args.experimental!==true)throw new DriverError('native metadata batch requires explicit experimental opt-in',{category:'bad_args'})
       const {nativeReadBatch}=await import('./native-read-batch.mjs')
-      return nativeReadBatch(args.sessions,{timeoutSec:args.timeout_sec??20,signal:ctx.signal})
+      return nativeReadBatch(args.sessions,{timeoutSec:args.timeout_sec??20,signal:ctx.signal,progress:ctx.progress})
     },
   },
   {

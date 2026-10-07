@@ -39,8 +39,9 @@ const instructions =
   'Navigating ops restore Taylor\'s window and front app by default (focus:"restore"). Default to archive over delete; deletes always go through Taylor\'s approval card, which you must never click. ' +
   (desktop
     ? `You are running inside Claude desktop session ${desktop}: for Tier B ops (rename, pin, archive, model, send) the driver hands you back the exact ccd_* tool calls to make yourself, skipping the broker.`
-    : 'Tier B ops go through the driver\'s broker session; if it is asleep the driver revives it (can take ~20 s and briefly shows it on screen).') +
+    : 'Tier B effects use the guarded broker request path. An offline or unserved broker fails closed; inspect broker_status and the guide. UI recovery remains quarantined and is not automatic.') +
   ' Use driver_submit for durable jobs across client disconnects; wait at most 60 seconds per driver_wait. Reconcile outcome_unknown before submitting again. ' +
+  ' broker_idle provides native host-state observation without inference, not serving readiness. broker_read_batch is an explicit experimental metadata-only route using one short owned trigger turn per batch; broker_read_status and job progress expose its durable phases without replay. ' +
   ' Query driver_memory_query before workarounds and record shared technical lessons with driver_memory_record. Delivery does not prove instruction application; observe session_events/session_wait.'
 
 const resources = [

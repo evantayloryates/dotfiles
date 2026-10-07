@@ -1,10 +1,11 @@
 import test,{after} from 'node:test'
 import assert from 'node:assert/strict'
-import {mkdtempSync,rmSync} from 'node:fs'
+import {mkdtempSync,rmSync,mkdirSync,writeFileSync,symlinkSync,readFileSync,existsSync} from 'node:fs'
 import {join} from 'node:path'
 import {tmpdir} from 'node:os'
 const state=mkdtempSync(join(tmpdir(),'native-read-test-'));process.env.CLAUDE_DRIVER_STATE_DIR=state
-const {normalizeReadTargets,matchMetadataReceipt,nativeReadBatch}=await import('../lib/native-read-batch.mjs')
+const {normalizeReadTargets,matchMetadataReceipt,nativeReadBatch,nativeReadStatus,recoverNativeReadBatch}=await import('../lib/native-read-batch.mjs')
+const {installTemporaryHookProbe,bytesHash}=await import('../lib/temporary-hooks.mjs')
 const {validateOp,runOp}=await import('../lib/driver.mjs')
 after(()=>rmSync(state,{recursive:true,force:true}))
 const a='local_00000000-0000-4000-8000-000000000001',b='local_00000000-0000-4000-8000-000000000002'
@@ -24,4 +25,28 @@ test('native metadata receipts map by target, retain distinct attachment IDs and
 test('batch preflight and cancellation fail without enrolling settings in an unavailable broker',async()=>{
  const c=new AbortController();c.abort();await assert.rejects(nativeReadBatch([a],{signal:c.signal}),e=>e.category==='cancelled')
  await assert.rejects(runOp('broker_read_batch',{sessions:[a],experimental:true,timeout_sec:5}),e=>e.category==='native_read_refused')
+})
+test('status exposes bounded phases without private fields, linked files or invented live readiness',()=>{
+ const id=a.slice(6),dir=join(state,'native-reads'),path=join(dir,id+'.json');mkdirSync(dir,{recursive:true})
+ const p={schemaVersion:1,id,runtimeBuild:'a'.repeat(64),phase:'published',createdAt:1000,expiresAt:5000,peer:{private:'PRIVATE_CONTENT'},settingsBefore:'PRIVATE_SETTINGS',restoration:{restored:true},restorePending:false}
+ writeFileSync(path,JSON.stringify(p));const r=nativeReadStatus(id);assert.equal(r.publicationAttempted,true);assert.equal(r.restorationRecorded,true);assert.equal(r.releaseAuthorized,false);assert.equal(JSON.stringify(r).includes('PRIVATE'),false)
+ assert.throws(()=>nativeReadStatus('../escape'),e=>e.category==='bad_args')
+ writeFileSync(path,JSON.stringify({...p,phase:'PRIVATE_PHASE'}));assert.throws(()=>nativeReadStatus(id),e=>e.category==='native_read_status_invalid')
+ rmSync(path);symlinkSync(join(dir,'other'),path);assert.throws(()=>nativeReadStatus(id),e=>e.category==='native_read_status_unavailable')
+})
+test('expired metadata cleanup preserves unknown original outcome and requires exact idle ownership',async()=>{
+ const id=b.slice(6),dir=join(state,'broker'),path=join(state,'native-reads',id+'.json'),epoch={sessionId:a,pid:1234,procStart:'synthetic start'}
+ mkdirSync(join(dir,'.claude'),{recursive:true});const settings=Buffer.from('{"hooks":{"Stop":[],"PreToolUse":[]}}\n'),policy=Buffer.from(JSON.stringify({schemaVersion:1,...epoch,settingsHash:bytesHash(settings),nativeEffectAdmissionVersion:1}))
+ writeFileSync(join(dir,'.claude/settings.json'),settings);writeFileSync(join(dir,'stop-rescue-policy.json'),policy);writeFileSync(join(dir,'observer.mjs'),'synthetic')
+ const expiresAt=Date.now()+5000,p={schemaVersion:1,id,runtimeBuild:'a'.repeat(64),phase:'published',createdAt:Date.now(),expiresAt,targets:[a],epoch,peer:{msgId:'unknown-publication'}}
+ writeFileSync(path,JSON.stringify(p));installTemporaryHookProbe(dir,{token:'a'.repeat(32),epoch,operation:'get_session',readTargets:[a],observerScript:join(dir,'observer.mjs'),receiptPath:join(state,'native-reads',id+'.stop.json'),expiresAt})
+ const info={sessionId:a,live:{pid:1234,procStart:epoch.procStart,entrypoint:'claude-desktop',status:'idle'},runtime:{integrity:true}}
+ assert.equal(nativeReadStatus(id).cleanupPending,true)
+ await assert.rejects(recoverNativeReadBatch(id,{info:()=>info,now:expiresAt-1}),e=>e.category==='native_read_cleanup_pending')
+ for(const bad of [{...info,live:{...info.live,status:'busy'}},{...info,live:{...info.live,procStart:'other'}},{...info,runtime:{integrity:false}}])await assert.rejects(recoverNativeReadBatch(id,{info:()=>bad,now:expiresAt+1}),e=>e.category==='native_read_cleanup_pending')
+ writeFileSync(join(dir,'STOP'),'synthetic');await assert.rejects(recoverNativeReadBatch(id,{info:()=>info,now:expiresAt+1}),e=>e.category==='native_read_cleanup_pending');rmSync(join(dir,'STOP'))
+ writeFileSync(path,JSON.stringify({...p,targets:[b]}));await assert.rejects(recoverNativeReadBatch(id,{info:()=>info,now:expiresAt+1}),e=>e.category==='native_read_cleanup_pending');writeFileSync(path,JSON.stringify(p))
+ const r=await recoverNativeReadBatch(id,{info:()=>info,now:expiresAt+1});assert.equal(r.originalOutcomeUnchanged,true);assert.equal(r.phase,'published');assert.equal(r.restorationRecorded,true);assert.equal(r.cleanupPending,false);assert.equal(r.releaseAuthorized,false)
+ assert.deepEqual(readFileSync(join(dir,'.claude/settings.json')),settings);assert.deepEqual(readFileSync(join(dir,'stop-rescue-policy.json')),policy);assert.equal(existsSync(join(dir,'mechanical-probe.json')),false)
+ assert.equal(JSON.parse(readFileSync(path)).phase,'published');assert.equal((await recoverNativeReadBatch(id)).alreadySettled,true)
 })

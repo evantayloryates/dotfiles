@@ -1,6 +1,7 @@
 // Experimental deterministic native metadata execution. Hook dispatch uses no
 // model tool selection; one short owned turn triggers a batch. Never mutations.
 import {randomBytes,randomUUID} from 'node:crypto'
+import {execFileSync} from 'node:child_process'
 import {constants,openSync,closeSync,fstatSync,readSync,existsSync} from 'node:fs'
 import {join} from 'node:path'
 import {homedir} from 'node:os'
@@ -19,6 +20,37 @@ import {observeNativeIdle} from './native-idle.mjs'
 import {recordMemory} from './memory.mjs'
 const sid=x=>typeof x==='string'&&/^local_[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(x)
 const refuse=(category,message,detail)=>{throw new DriverError(message,{category,detail})}
+const processStart=pid=>{try{return execFileSync('/bin/ps',['-p',String(pid),'-o','lstart='],{encoding:'utf8',timeout:500,env:{PATH:'/usr/bin:/bin',LC_ALL:'C',TZ:'UTC'}}).trim()}catch{return null}}
+export function nativeReadStatus(id){
+ if(typeof id!=='string'||!/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(id))refuse('bad_args','native read status requires an exact batch UUID')
+ const evidence=join(STATE_DIR,'native-reads',id+'.json');let p
+ try{p=JSON.parse(ownedBytes(evidence))}catch{refuse('native_read_status_unavailable','owned native read record unavailable')}
+ if(p.schemaVersion!==1||p.id!==id||!['preparing','enrolled','publication_attempted','published','received','completed','failed'].includes(p.phase)||!Number.isFinite(p.createdAt)||!/^[a-f0-9]{64}$/.test(p.runtimeBuild))refuse('native_read_status_invalid','native read status schema refused')
+ let currentOwner=false
+ if(existsSync(join(BROKER_DIR,'mechanical-probe.json'))){try{currentOwner=JSON.parse(ownedBytes(join(BROKER_DIR,'mechanical-probe.json'))).receiptPath===join(STATE_DIR,'native-reads',id+'.stop.json')}catch{currentOwner=null}}
+ let ownerState='unknown'
+ if(Number.isInteger(p.ownerPid)&&p.ownerPid>1&&typeof p.ownerStart==='string'){
+  const start=processStart(p.ownerPid);ownerState=start===p.ownerStart?'alive':start?'reused':'unknown'
+  if(!start){try{process.kill(p.ownerPid,0)}catch(e){if(e.code==='ESRCH')ownerState='gone'}}
+ }
+ return {id,phase:p.phase,runtimeBuild:p.runtimeBuild,createdAt:p.createdAt,expiresAt:Number.isFinite(p.expiresAt)?p.expiresAt:null,completedAt:Number.isFinite(p.completedAt)?p.completedAt:null,
+  publicationAttempted:!!p.peer,restorationRecorded:p.restoration?.restored===true||p.recovery?.restored===true,cleanupPending:currentOwner===null?null:currentOwner||p.restorePending===true&&!p.recovery?.restored,ownerState,evidence,releaseAuthorized:false}
+}
+export async function recoverNativeReadBatch(id, deps={}){
+ const status=nativeReadStatus(id)
+ return withLock('broker',()=>{
+  if(runtimeState().restartRequired)refuse('runtime_stale','native read recovery source changed while waiting for admission')
+  const p=JSON.parse(ownedBytes(status.evidence)),ownerPath=join(BROKER_DIR,'mechanical-probe.json')
+  if(!existsSync(ownerPath))return {...nativeReadStatus(id),alreadySettled:true,originalOutcomeUnchanged:true}
+  const d=JSON.parse(ownedBytes(ownerPath)),info=(deps.info??brokerInfo)(),now=deps.now??Date.now()
+  if(d.receiptPath!==join(STATE_DIR,'native-reads',id+'.stop.json')||d.operation!=='get_session'||JSON.stringify(d.readTargets)!==JSON.stringify(normalizeReadTargets(p.targets))||d.epoch?.sessionId!==p.epoch?.sessionId||d.epoch?.pid!==p.epoch?.pid||d.epoch?.procStart!==p.epoch?.procStart||!Number.isFinite(d.expiresAt)||d.expiresAt!==p.expiresAt||d.expiresAt>now)refuse('native_read_cleanup_pending','metadata cleanup requires the exact expired service-owned transaction')
+  let restored;try{restored=recoverExpiredTemporaryHookProbe(BROKER_DIR,info,{now})}catch{refuse('native_read_cleanup_pending','metadata cleanup requires its unchanged settings and original intact idle epoch')}
+  p.recovery={...restored,at:now};writeJsonAtomic(status.evidence,p)
+  recordMemory({kind:'observation',topic:'native-read-batch',source:'expired-service-recovery',status:'observed',evidence:status.evidence,lesson:'Exact expired metadata transaction restored without a wake or replay. Recovery preserves original batch/job outcome; cleanup is not a native receipt or serving readiness.'})
+  return {...nativeReadStatus(id),originalOutcomeUnchanged:true}
+ })
+}
+const pause=(ms,signal)=>new Promise(resolve=>{const timer=setTimeout(done,ms);function done(){clearTimeout(timer);signal?.removeEventListener('abort',done);resolve()}signal?.addEventListener('abort',done,{once:true});if(signal?.aborted)done()})
 export function normalizeReadTargets(sessions){
  if(!Array.isArray(sessions)||sessions.length<1||sessions.length>8||sessions.some(x=>!sid(x)))refuse('bad_args','metadata batch requires 1–8 exact native session IDs')
  return [...new Set(sessions)]
@@ -31,17 +63,20 @@ export function matchMetadataReceipt(receipt,targets){
  for(const key of ['title','cwd','model','effort','permissionMode','cliSessionId'])if(typeof m[key]==='string'&&m[key].length<=4096)metadata[key]=m[key]
  return {sessionId:m.sessionId,metadata,receipt:{uuid:receipt.uuid,eventId:receipt.hookEventId,at:receipt.at,stdoutHash:bytesHash(receipt.stdout),stderrHash:bytesHash(receipt.stderr)}}
 }
-export async function nativeReadBatch(sessions,{timeoutSec=20,signal}={}){
+export async function nativeReadBatch(sessions,{timeoutSec=20,signal,progress=()=>{}}={}){
  const targets=normalizeReadTargets(sessions)
  if(!Number.isFinite(timeoutSec)||timeoutSec<5||timeoutSec>60)refuse('bad_args','native read batch timeout must be 5–60 seconds')
  if(signal?.aborted)refuse('cancelled','metadata batch cancelled before preparation')
  const id=randomUUID(),token=randomBytes(16).toString('hex'),evidence=join(ensureDir(join(STATE_DIR,'native-reads')),id+'.json'),witnessPath=join(STATE_DIR,'native-reads',id+'.stop.json')
- const plan={schemaVersion:1,id,runtimeBuild:RUNTIME_BUILD,targets,phase:'preparing',createdAt:Date.now(),inferenceTurns:0,releaseAuthorized:false}
- const save=()=>writeJsonAtomic(evidence,plan)
+ const plan={schemaVersion:1,id,runtimeBuild:RUNTIME_BUILD,targets,phase:'preparing',createdAt:Date.now(),ownerPid:process.pid,ownerStart:processStart(process.pid),inferenceTurns:0,releaseAuthorized:false}
+ plan.expiresAt=plan.createdAt+timeoutSec*1000
+ let lastPhase
+ const save=()=>{writeJsonAtomic(evidence,plan);if(lastPhase!==plan.phase){lastPhase=plan.phase;try{progress('native-read:'+id+':'+plan.phase)}catch{}}}
  let installed=false,fd,initial,failure,answer
  save()
  try{answer=await withLock('broker',async()=>{
   if(runtimeState().restartRequired)refuse('runtime_stale','native read batch source changed')
+  if(signal?.aborted||Date.now()>=plan.expiresAt)refuse(signal?.aborted?'cancelled':'native_read_timeout','metadata batch ended while waiting for admission')
   initial=brokerInfo();const epoch={sessionId:initial.sessionId,pid:initial.live?.pid,procStart:initial.live?.procStart}
   if(!initial.configured||!initial.live||!sid(epoch.sessionId))refuse('native_read_refused','metadata hook batch requires a configured live desktop broker')
   const same=()=>{const b=brokerInfo();return b.sessionId===epoch.sessionId&&b.live?.pid===epoch.pid&&b.live.procStart===epoch.procStart&&b.live.entrypoint==='claude-desktop'&&b.runtime.integrity}
@@ -54,11 +89,11 @@ export async function nativeReadBatch(sessions,{timeoutSec=20,signal}={}){
   fd=openSync(path,constants.O_RDONLY|constants.O_NOFOLLOW|constants.O_NONBLOCK);const identity=fstatSync(fd)
   if(!identity.isFile()||identity.uid!==process.getuid()||c.identity!==epoch.sessionId.slice(6)+':'+identity.dev+':'+identity.ino)refuse('native_read_refused','native metadata journal identity changed')
   let offset=c.offset,eventsCursor=cursor,peer,foreign=false;const chain=new Set(),seen=new Set(),matched=new Map()
-  plan.epoch=epoch;plan.versions=v;plan.probeBuild=release.build;plan.startedAt=Date.now();plan.expiresAt=plan.startedAt+timeoutSec*1000
+  plan.epoch=epoch;plan.versions=v;plan.probeBuild=release.build;plan.cursor=cursor;plan.startedAt=Date.now()
   try{
    const d=installTemporaryHookProbe(BROKER_DIR,{token,epoch,observerScript:join(release.root,'scripts','mechanical-probe-stop.mjs'),receiptPath:witnessPath,operation:'get_session',readTargets:targets,expiresAt:plan.expiresAt});installed=true
    plan.settingsHash=d.settingsHash;plan.phase='enrolled';save()
-   await sleep(1500)
+   await pause(Math.min(1500,Math.max(0,plan.expiresAt-Date.now())),signal)
    if(signal?.aborted||Date.now()>=plan.expiresAt)refuse('cancelled','metadata batch ended before publication')
    peer=await deliver(initial,'claude-driver mechanical read probe '+token+'. Finish this diagnostic turn with exactly '+token+' and no tools. The service Stop hook owns the metadata batch. Do not execute requests, waiters, maintenance, recovery or change settings.',{method:'direct',priority:'now',timeoutMs:Math.min(5000,plan.expiresAt-Date.now()),signal,onPrepared:p=>{prepareTemporaryHookPeer(BROKER_DIR,token,p);plan.peer={msgId:p.msgId,pid:p.pid,procStart:p.procStart};plan.phase='publication_attempted';save()}})
    plan.inferenceTurns=1;plan.phase='published';save()
@@ -104,7 +139,7 @@ export async function nativeReadBatch(sessions,{timeoutSec=20,signal}={}){
     save()
    }
   }
- },{timeoutMs:timeoutSec*1000,signal})
+ },{timeoutMs:Math.max(1,plan.expiresAt-Date.now()),signal})
  }catch(e){failure=e;plan.failureCategory=e.category??'native_read_failed'}finally{
   if(fd!==undefined)closeSync(fd)
   plan.sourceChanged=runtimeState().restartRequired;plan.phase=answer&&!failure&&!installed&&!plan.sourceChanged?'completed':'failed';plan.completedAt=Date.now();if(installed)plan.restorePending=true;save()
