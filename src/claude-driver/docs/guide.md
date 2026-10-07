@@ -116,7 +116,9 @@ remains separate. Cleanup is independent from an unknown execution outcome.
 settles one captured read from the reusable receiver. Requires unchanged loaded
 module, broker epoch and baseline plus exact per-request native admission. It
 publishes a local standard receipt, returns settlement metadata and never replays.
-Settle each request before another read replaces the shared helper checkpoint.
+New qualified runtimes retain request-scoped helper checkpoints for late review;
+reconciliation reports `checkpointSource`. The currently running legacy runtime
+still requires settlement before another read replaces its shared checkpoint.
 The receiver is still a candidate until actual native serving is verified.
 
 `broker_peer_result_reconcile {id, experimental:true}` publishes a standard

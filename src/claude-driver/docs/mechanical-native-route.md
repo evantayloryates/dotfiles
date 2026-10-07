@@ -1,3 +1,20 @@
+## Late checkpoint reader verified — October 7, 12:18 Eastern
+
+readNativeCompletedCheck selects exact request/index0/generation retained evidence
+and reports request-scoped vs legacy-shared source. Shared fallback only when
+scoped record is absent; linked/unavailable, malformed, oversized, wrong request,
+wrong generation or noncompleted evidence refuses. Reusable reconciliation uses
+this reader and reports checkpointSource in metadata. Existing admission review
+still independently checks pointer/build/bootstrap/ancestry/slot and result target.
+Synthetic filesystem test publishes first retained checkpoint, overwrites shared
+entry with second request, then verifies first remains usable. Exact legacy path
+and corrupt-presence refusal proved. Full pressure
+v2-2026-10-07T16-17-29-784Z passed1/1 in19919ms, sourceChanged:false.
+Source only; no live release/permissions/module change or native send. Safe handoff
+still constrained by unresolved historical effects and maintenance proof; do not
+force release to deploy retention. Next service ownership/admission/control integration
+can continue independently of that handoff and native unload investigation.
+
 ## Per-request completed checkpoint retention candidate — October 7, 12:17 Eastern
 
 Source sealed bootstrap now retains broker-check-<request>-<index>-g<generation>
