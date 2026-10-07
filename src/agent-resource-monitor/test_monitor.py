@@ -11,7 +11,7 @@ import unittest
 
 spec = importlib.util.spec_from_file_location('monitor',Path(__file__).with_name('monitor.py'))
 m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
-THREAD = '01a116ef-a3ad-74c3-ad32-6869c9c14e03'
+THREAD = '00000000-0000-4000-8000-000000000001'
 
 
 class Provenance(unittest.TestCase):
@@ -28,6 +28,17 @@ class Provenance(unittest.TestCase):
     def test_cli_resume_alias_is_not_a_session(self):
         self.assertIsNone(m.identity('/claude-code/bin/claude',['claude','--resume','latest'],{})['owner'])
         self.assertEqual(m.identity('/claude-code/bin/claude',['claude','--session-id',THREAD],{})['owner'],THREAD)
+
+    def test_younger_reused_parent_does_not_supply_an_owner(self):
+        parent = {'pid':1,'ppid':0,'start_ticks':200,'owner':THREAD,'owner_evidence':'explicit-tag'}
+        child = {'pid':2,'ppid':1,'start_ticks':100,'owner':None,'owner_evidence':None}
+        m.resolve_ancestry([parent,child]); self.assertIsNone(child['owner'])
+        parent['start_ticks']=50
+        m.resolve_ancestry([parent,child]); self.assertEqual(child['owner'],THREAD)
+
+    def test_ancestry_cycle_does_not_hang(self):
+        processes = [{'pid':1,'ppid':2,'start_ticks':1,'owner':None}, {'pid':2,'ppid':1,'start_ticks':1,'owner':None}]
+        m.resolve_ancestry(processes); self.assertTrue(all(p['owner'] is None for p in processes))
 
     def test_rollout_content_never_reaches_event(self):
         record = {'timestamp':'2026-10-07T16:00:00Z','type':'response_item','payload':{'type':'custom_tool_call','name':'exec','call_id':'a','input':'SECRET'}}

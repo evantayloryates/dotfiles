@@ -94,12 +94,31 @@ class Usage(ctypes.Structure):
          'child_interrupt', 'child_pageins', 'child_elapsed', 'read_bytes', 'write_bytes')]
 
 
+def resolve_ancestry(processes):
+    by_pid = {p['pid']:p for p in processes}
+    for p in processes:
+        if p['owner'] or p['start_ticks'] is None:
+            continue
+        ancestor, visited = p, {p['pid']}
+        while ancestor['ppid'] in by_pid and ancestor['ppid'] not in visited:
+            parent = by_pid[ancestor['ppid']]
+            visited.add(parent['pid'])
+            if parent['start_ticks'] is None or parent['start_ticks'] > ancestor['start_ticks']:
+                break
+            if parent['owner']:
+                p.update(owner=parent['owner'], owner_evidence='ancestor:' + str(parent['pid']))
+                break
+            ancestor = parent
+
+
 class Mac:
     def __init__(self):
         self.lib = ctypes.CDLL('/usr/lib/libSystem.B.dylib', use_errno=True)
         self.proc = ctypes.CDLL('/usr/lib/libproc.dylib', use_errno=True)
         self.proc.proc_pid_rusage.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_void_p]
         self.proc.proc_pid_rusage.restype = ctypes.c_int
+        self.proc.proc_pidpath.argtypes = [ctypes.c_int,ctypes.c_void_p,ctypes.c_uint32]
+        self.proc.proc_pidpath.restype = ctypes.c_int
         class Timebase(ctypes.Structure):
             _fields_ = [('numer', ctypes.c_uint32), ('denom', ctypes.c_uint32)]
         t = Timebase()
@@ -129,20 +148,23 @@ class Mac:
             if len(parts) != 5:
                 continue
             pid, ppid, rss, ps_cpu = int(parts[0]), int(parts[1]), int(parts[2]) * 1024, float(parts[3])
+            path = ctypes.create_string_buffer(4096)
+            # Process titles (ps comm) can be rewritten to contain argv; don't store them.
+            exe = path.value.decode(errors='replace') if self.proc.proc_pidpath(pid,path,len(path)) > 0 else 'unknown'
             usage = Usage()
             accessible = self.proc.proc_pid_rusage(pid, 2, ctypes.byref(usage)) == 0
             # Inaccessible processes retain RSS, but cannot receive a cached owner.
-            key = (pid, usage.start, parts[4]) if accessible else None
+            key = (pid, usage.start, exe) if accessible else None
             if key is not None:
                 live.add(key)
                 if key not in self.cache:
                     argv, env = self.procargs(pid)
-                    self.cache[key] = identity(parts[4], argv, env)
+                    self.cache[key] = identity(exe, argv, env)
                 meta = self.cache[key].copy()
             else:
-                meta = identity(parts[4], [], {})
+                meta = identity(exe, [], {})
             p = {'pid': pid, 'ppid': ppid, 'start_ticks': usage.start if accessible else None,
-                 'exe': os.path.basename(parts[4]), 'rss_bytes': rss, 'ps_cpu_percent': ps_cpu, **meta}
+                 'exe': os.path.basename(exe), 'rss_bytes': rss, 'ps_cpu_percent': ps_cpu, **meta}
             if accessible:
                 cpu_ns = (usage.user + usage.system) * self.timebase
                 p.update(footprint_bytes=usage.footprint, cpu_ns=cpu_ns, pageins=usage.pageins,
@@ -154,20 +176,7 @@ class Mac:
                     p['footprint_delta_bytes'] = usage.footprint-prev[2]
                 self.previous[key] = (started, cpu_ns, usage.footprint)
             processes.append(p)
-        by_pid = {p['pid']: p for p in processes}
-        for p in processes:
-            if p['owner'] or p['start_ticks'] is None:
-                continue
-            ancestor, visited = p, {p['pid']}
-            while ancestor['ppid'] in by_pid and ancestor['ppid'] not in visited:
-                parent = by_pid[ancestor['ppid']]
-                visited.add(parent['pid'])
-                if parent['start_ticks'] is None or parent['start_ticks'] > ancestor['start_ticks']:
-                    break
-                if parent['owner']:
-                    p.update(owner=parent['owner'], owner_evidence='ancestor:' + str(parent['pid']))
-                    break
-                ancestor = parent
+        resolve_ancestry(processes)
         self.cache = {k:v for k,v in self.cache.items() if k in live}
         self.previous = {k:v for k,v in self.previous.items() if k in live}
         vm = command(['/usr/bin/vm_stat'])

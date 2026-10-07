@@ -1,3 +1,21 @@
+## Installed removal observer boundary — October 7, 12:30 Eastern
+
+Bounded installed CLI source inspection located actual collection refresh RUt
+and qHr inventory diff. RUt stores loaded before map, awaits reloadPlugins(), then
+uses updated loaded inventory and emits tell lines. The separate dev-mod catch-up
+formatter Do can label unloaded state, but its helper initializes before:new Map;
+formatter existence alone never proves a removed plugin's observed disappearance.
+Source windows preserved privately as native-dev-mod-unload-source-window.json and
+native-dev-mod-refresh-source-window.json. Ambiguous short markers/refusal preserved
+in tool evidence; no native private data inspected. Test executes exact installed
+RUt function with isolated watcher/reload adapters: removal observer fires only
+after reload resolves and updated empty inventory. This is source algorithm proof,
+NOT live unload/receiver absence. Full pressure v2-2026-10-07T16-29-37-847Z
+passed1/1 in9592ms, sourceChanged:false. No load/send/restart or CUA used.
+Next native proof needs observer at tell/inventory boundary or independent native
+hook absence; filesystem retirement/journal absence still insufficient. Continue
+service ownership/enrollment in parallel scope without forcing platform interaction.
+
 ## Shared native API and CLI trial completed — October 7, 12:26 Eastern
 
 Fresh enrollment33d74fbfaaf5db2b9100bb3743100d49 native-validated updated receiver
