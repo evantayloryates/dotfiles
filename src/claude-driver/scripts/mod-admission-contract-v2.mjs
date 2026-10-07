@@ -89,15 +89,40 @@ try{
  // The staged package itself is tested for ownership and redaction, not loaded.
  const path=new URL('../candidates/native-mod-probe/hooks/register.js',import.meta.url),code=readFileSync(path,'utf8'),registered=[]
  sources.candidate={sha256:createHash('sha256').update(code).digest('hex'),bytes:Buffer.byteLength(code)}
- const register=runInNewContext(`(()=>{${code.replace('export function register','function register')};return register})()`,{JSON},{timeout:1000,contextCodeGeneration:{strings:false,wasm:false}});register((...args)=>registered.push(args))
- const start=registered.find(x=>x[0]==='session.start').at(-1),command=registered.find(x=>x[0]==='command.run').at(-1)
- function candidate({id='local_35b3ba48-f02e-48de-bfbb-925192d90de1',cwd='/Users/taylor/.local/state/claude-driver/broker',error=false}={}){const calls=[],commands=[];return {calls,commands,$:{session:{id:async()=>id,cwd:async()=>cwd},command:{register:async x=>commands.push(x)},mcp:{call:async x=>{calls.push(x);if(error)throw Error('synthetic private error');return {isError:false,content:[{type:'text',text:'synthetic private metadata'}]}}}}}}
+ function module(){
+  const handlers=[]
+  const register=runInNewContext(`(()=>{${code.replace('export function register','function register')};return register})()`,{JSON},{timeout:1000,contextCodeGeneration:{strings:false,wasm:false}})
+  register((...args)=>handlers.push(args))
+  return {start:handlers.find(x=>x[0]==='session.start').at(-1),command:handlers.find(x=>x[0]==='command.run').at(-1)}
+ }
+ function candidate({id='local_35b3ba48-f02e-48de-bfbb-925192d90de1',cwd='/Users/taylor/.local/state/claude-driver/broker',error=false,exists=()=>false,writeFailure=()=>false,clock=()=>1791369101000}={}){
+  const calls=[],commands=[],writes=[],checks=[]
+  return {calls,commands,writes,checks,$:{session:{id:async()=>id,cwd:async()=>cwd},command:{register:async x=>commands.push(x)},fs:{exists:async path=>{checks.push(path);return exists(path)},write:async(path,text)=>{writes.push({path,text});if(writeFailure(path))throw Error('synthetic private filesystem error')}},clock:{now:async()=>clock()},mcp:{call:async x=>{calls.push(x);if(error)throw Error('synthetic private error');return {isError:false,content:[{type:'text',text:'synthetic private metadata'}]}}}}}
+ }
  await check('staged probe rejects foreign session or directory before registration and read',async()=>{
-  for(const options of [{id:'other'},{cwd:'/synthetic/other'}]){const c=candidate(options);await start(c.$,{},async x=>x);await command(c.$);assert.equal(c.commands.length,0);assert.equal(c.calls.length,0)}
+  for(const options of [{id:'other'},{cwd:'/synthetic/other'}]){const c=candidate(options),m=module();await m.start(c.$,{},async x=>x);await m.command(c.$);assert.equal(c.commands.length,0);assert.equal(c.calls.length,0);assert.equal(c.writes.length,0);assert.equal(c.checks.length,0)}
  })
- await check('staged owned registration performs no read or automatic effect',async()=>{const c=candidate();await start(c.$,{},async x=>x);assert.equal(c.commands.length,1);assert.equal(c.calls.length,0)})
+ await check('staged owned registration performs no read or automatic effect',async()=>{const c=candidate();await module().start(c.$,{},async x=>x);assert.equal(c.commands.length,1);assert.equal(c.calls.length,0);assert.equal(c.writes.length,0);assert.equal(c.checks.length,0)})
  await check('staged explicit read returns fixed metadata without raw result or error',async()=>{
-  for(const error of [false,true]){const c=candidate({error}),r=await command(c.$);assert.equal(c.calls.length,1);assert.equal(c.calls[0].tool,'get_session');assert.equal(c.calls[0].args.session_id,'local_fc1e5eab-9d24-4e4c-a09c-9a386a6ffe14');assert.ok(!JSON.stringify(r).includes('private'));const data=JSON.parse(r.text);assert.equal(data.gateQualified,false);assert.equal(data.releaseAuthorized,false);assert.equal(data.nativeCallReturned,!error)}
+  for(const error of [false,true]){const c=candidate({error}),r=await module().command(c.$);assert.equal(c.calls.length,1);assert.equal(c.calls[0].tool,'get_session');assert.equal(c.calls[0].args.session_id,'local_fc1e5eab-9d24-4e4c-a09c-9a386a6ffe14');assert.ok(!JSON.stringify({r,writes:c.writes}).includes('private'));const data=JSON.parse(r.text);assert.equal(data.gateQualified,false);assert.equal(data.releaseAuthorized,false);assert.equal(data.nativeCallReturned,!error);assert.equal(data.reportWritten,true);assert.equal(data.nativeModelTurnsQualified,false);assert.equal(c.writes.length,2);assert.equal(JSON.parse(c.writes[0].text).complete,false);assert.equal(JSON.parse(c.writes[1].text).complete,true);assert.match(c.writes[1].path,/^\/Users\/taylor\/Desktop\/temp_reports\/native-mod-probe-[a-f0-9-]+\.report\.json$/)}
+ })
+ await check('staged probe refuses arbitrary arguments without consuming the valid attempt',async()=>{
+  const c=candidate(),m=module();await m.command(c.$,{args:'../other'});assert.equal(c.calls.length,0);assert.equal(c.writes.length,0);await m.command(c.$,{args:''});assert.equal(c.calls.length,1)
+ })
+ await check('staged concurrent command attempts issue exactly one metadata read',async()=>{
+  const c=candidate(),m=module();await Promise.all([m.command(c.$),m.command(c.$),m.command(c.$)]);assert.equal(c.calls.length,1);assert.equal(c.writes.length,2)
+ })
+ await check('staged reload refuses prior intent or completed report without overwriting',async()=>{
+  for(const suffix of ['.started.json','.report.json']){const c=candidate({exists:path=>path.endsWith(suffix)});await module().command(c.$);assert.equal(c.calls.length,0);assert.equal(c.writes.length,0)}
+ })
+ await check('staged intent or clock failure refuses before native execution and never retries',async()=>{
+  for(const options of [{writeFailure:path=>path.endsWith('.started.json')},{clock:()=>NaN},{clock:()=>{throw Error('synthetic private clock error')}}]){const c=candidate(options),m=module(),r=await m.command(c.$);await m.command(c.$);assert.equal(c.calls.length,0);assert.ok(!r.text.includes('private'))}
+ })
+ await check('staged report write failure preserves intent and does not replay the native call',async()=>{
+  const c=candidate({writeFailure:path=>path.endsWith('.report.json')}),m=module(),r=await m.command(c.$);await m.command(c.$);const data=JSON.parse(r.text);assert.equal(c.calls.length,1);assert.equal(data.reportWritten,false);assert.equal(data.gateQualified,false);assert.equal(c.writes.length,2);assert.ok(!JSON.stringify({r,writes:c.writes}).includes('private'))
+ })
+ await check('staged completion clock failure still reports the single outcome without invented time',async()=>{
+  let n=0;const c=candidate({clock:()=>{if(n++)throw Error('synthetic private clock error');return 1791369101000}}),r=await module().command(c.$),data=JSON.parse(r.text);assert.equal(c.calls.length,1);assert.equal(data.reportWritten,true);assert.equal(data.completedAt,undefined)
  })
 }catch(e){failure={stage,message:String(e.message).slice(0,500)}}
 const evidence={scope:'installed admission adapters and staged package; synthetic upstream hooks/session/tools only',runtimeBuild:RUNTIME_BUILD,versions:versions(),sources:Object.fromEntries(Object.entries(sources).map(([k,v])=>[k,{sha256:v.sha256,bytes:v.bytes,...v.offset!==undefined&&{offset:v.offset}}])),rows,findings,ok:!failure,...failure&&{failure},nativeGateExecuted:false,nativePluginLoaded:false,inferenceTurns:0,releaseAuthorized:false}

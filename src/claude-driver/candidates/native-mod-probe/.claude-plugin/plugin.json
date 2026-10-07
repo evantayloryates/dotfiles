@@ -1,6 +1,6 @@
 {
   "name": "desktop-bridge-native-probe",
-  "version": "0.1.0",
-  "description": "Staged, scoped, read-only probe of native tool admission through the mods API",
+  "version": "0.2.0",
+  "description": "Staged scoped native metadata probe with sanitized local attempt evidence",
   "author": { "name": "Taylor" }
 }

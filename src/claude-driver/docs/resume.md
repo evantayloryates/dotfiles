@@ -1,4 +1,48 @@
-## Latest frontier — October 7, 06:24 Eastern
+## Latest frontier — October 7, 06:37 Eastern
+
+Goal ACTIVE. Previous status-only turn was no progress; this turn prepares the
+actual bounded native activation and new evidence lifecycle. General bridge is
+still unqualified. Native-mod-probe v0.2.0 is STAGED ONLY, not copied/enabled/loaded.
+The exact manual [bootstrap prompt](native-mod-bootstrap-prompt.md) is prepared
+for Taylor's existing claude-driver-broker chat, not Broker Recovery Probe.
+An async request for this human step is pending; elapsed time is no answer.
+The installed loader requires personOnly:true; no keyboard, consent impersonation,
+global installation, permission change, context reset or competing wake.
+
+One explicit no-argument command records fixed sanitized intent before reading
+only the existing archived fixture, then publishes a bounded .report.json in
+the requested temp_reports inbox. Keep gateQualified/releaseAuthorized false.
+Intent survives completed or failed reporting; module concurrency and reload
+refusal prevent accidental repeated reads in the tested scope. fs.write is NOT
+exclusive/atomic: this is no general cross-process admission/idempotency proof.
+No automatic model call, timer, message, read or evidence write on registration.
+
+Bundled static validation10:34:00 passed. Manifest da9d8573, hooks ac225d37,
+register3a7b1e8c; exact full hashes in bootstrap prompt and validation report.
+Twenty installed admission/candidate lifecycle checks passed10:33:40 on
+2006bc0e9634d77795de675b831c806f10728f6ca502a7f65eed12e059c59446;
+eight adapter checks passed10:35:33 SAME source. Full isolated suite passed
+unchanged8365ms10:35:41. No live mod, native gate or zero-model command proof.
+
+Read-only preactivation review10:36:33 verifies sessionId/local and native CLI
+UUID35b3ba48-f02e-48de-bfbb-925192d90de1, same broker71262/start03:24:51 UTC,
+idle/intact4af/gen6, original settingsd66115ff/policy7a8ce57a. No STOP/arm/
+diagnostic, destination/intent/report absent, actual inbox directory not a link.
+Initial review import used nonexistent brokerStatus and failed before execution;
+corrected to the current public runOp read path. Preserve that setup failure.
+
+Next independently verify native copied/loaded hashes and exact process/command
+ancestry, actual negative PreToolUse denial, native model-turn count and original
+settings/fixture before acknowledging any new report. Output/exception alone is
+not gate proof. Establish scoped unload before enrollment, then positive native
+admission and deterministic event-driven execution. Do not rerun the same probe
+by deleting intent, repeat model-selected serving failures or infer safe release.
+All17historic uncertain effects remain unknown/nonretryable. Input quarantine ON;
+local30s detector/hourly observer do not pace active testing. Codex-driver and
+1Password remain separate. If the human action stays pending, record a real
+blocker and follow the three-consecutive-no-progress audit, not synthetic busywork.
+
+## Previous frontier — October 7, 06:24 Eastern
 
 Goal ACTIVE. Previous turn progress; this turn yields additional admission and
 activation evidence, without native effects. General bridge remains unqualified.

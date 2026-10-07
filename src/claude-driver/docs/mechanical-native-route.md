@@ -3,6 +3,31 @@
 October 7, 2026, 04:57 Eastern. Native diagnostic read proof, not a public transport.
 The broker remains on its existing sealed dependencies and admission hooks.
 
+## Bounded native activation and evidence — 06:37 Eastern
+
+The [manual bootstrap prompt](native-mod-bootstrap-prompt.md) targets only the
+existing broker's verified native CLI UUID. Taylor must supply the real native
+hot-reload consent; no message was sent by Codex. Installation/loading/invocation
+remain pending. Version0.2.0 adds sanitized local attempt/report bookkeeping to
+the existing one-command read probe, not generic tool dispatch. Registration
+performs no automatic work. The completed report uses the requested inbox;
+gateQualified/releaseAuthorized remain false until independent native review.
+
+New tests cover foreign scope/arguments, registration with no effects, concurrent
+command invocations, prior intent/report after reload, intent/clock failure before
+read, report failure after one read, redaction and unavailable completion time.
+The durable intent is kept on success and failure. fs.write lacks atomic/exclusive
+semantics; tested single-module/refusal behavior must not be promoted into a
+general cross-process exactly-once guarantee. Read outcome remains separate from
+successful report persistence and native gate coverage.
+
+Bundled static validation10:34:00 passed; candidate register hash3a7b1e8c.
+Twenty admission/lifecycle checks10:33:40 and eight MCP-adapter checks10:35:33
+passed on2006bc0e, followed by full unchanged isolated suite8365ms10:35:41.
+Preactivation review10:36:33 verifies exact71262 epoch, original settings/policy,
+no diagnostic/arm/STOP and absent destination/intent/report. Native activation,
+ordinary gate denial, zero-model invocation and scoped unload are still unproven.
+
 ## Installed admission and activation boundaries — 06:24 Eastern
 
 mod-admission-contract-v2.mjs executes exact installed kVn, AVn/gyo/sae,

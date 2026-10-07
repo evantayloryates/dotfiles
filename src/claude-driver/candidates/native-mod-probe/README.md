@@ -5,7 +5,8 @@ broker and archived fixture. It registers one explicit command and performs no
 automatic work, model calls, session messages, timers or permission changes.
 
 The command calls one harmless `ccd_session_mgmt/get_session` through the mods
-API without a dispatch checkpoint. Existing native admission should refuse it.
+API without a dispatch checkpoint and writes sanitized local attempt/report
+evidence. Existing native admission should refuse it.
 Neither an exception nor command output proves the gate ran: a live experiment
 must independently verify the exact broker epoch, command ancestry, actual
 PreToolUse denial, zero new model turns and unchanged fixture/settings.
@@ -33,3 +34,11 @@ not support SDK reload or custom-command controls. Do not write consent metadata
 or impersonate human input. The function-hook reducer and downstream adapter have
 different denial-order behavior in isolated tests; bind the actual loaded native
 chain before claiming denial dominance. See docs/mechanical-native-route.md.
+
+Version0.2.0 records an intent before the read and a bounded completed report in
+Taylor's existing `/Users/taylor/Desktop/temp_reports`. It refuses prior evidence,
+concurrent calls within one module, and retries after storage failure. Native
+fs.write is not exclusive/atomic, so this is no cross-process admission proof.
+Reports keep gateQualified/releaseAuthorized false and exclude raw result/error.
+See [the exact manual activation prompt](../../docs/native-mod-bootstrap-prompt.md)
+for file hashes, native consent, command, evidence and remaining unload gates.
