@@ -13,7 +13,7 @@
 // While waiting it writes <broker>/heartbeat.json every 2 s, which is how the
 // driver knows the broker is resident and needs no wake message.
 
-import { existsSync, renameSync, writeFileSync } from 'node:fs'
+import { existsSync, renameSync, writeFileSync,fstatSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 // Set before importing state: test runners can use an isolated broker folder.
 
@@ -24,9 +24,20 @@ const flag = (n, d) => {
 }
 const dir = flag('dir', process.env.CLAUDE_DRIVER_BROKER_DIR || join(process.env.HOME, '.local', 'state', 'claude-driver', 'broker'))
 const maxSec = Number(flag('max-sec', 540))
+// A native failure used `wait > /dev/null &` and silently stole a request.
+// Enforce a caller-readable transport before any request/control access.
+const output=fstatSync(1)
+if(!output.isFIFO()&&!output.isSocket()&&!(output.isFile()&&output.uid===process.getuid())){
+ console.error('waiter requires captured stdout (pipe, socket or owned regular file); no request claimed')
+ process.exit(2)
+}
+if(!Number.isFinite(maxSec)||maxSec<0||maxSec>540){
+ console.error('wait budget must be finite and between 0 and 540 seconds')
+ process.exit(2)
+}
 process.env.CLAUDE_DRIVER_STATE_DIR = dirname(dir)
 const { pickupPending } = await import('../lib/requests.mjs')
-const { readJson } = await import('../lib/state.mjs')
+const { readJson,withLock } = await import('../lib/state.mjs')
 const { getRecord, liveByHost } = await import('../lib/sessions.mjs')
 const { brokerResidencyProtection } = await import('../lib/broker-residency.mjs')
 const { waitDeadline } = await import('../lib/wait-budget.mjs')
@@ -49,6 +60,9 @@ const nativeOwned = record?.cwd && resolve(record.cwd) === resolve(dir) &&
 const listedAt = nativeOwned ? brokerResidencyProtection(brokerId, live).listedAt : undefined
 const deadline = waitDeadline({now:Date.now(), maxMs:maxSec * 1000, listedAt})
 let lastHb = 0
+// A second captured waiter must not compete with the foreground tool either.
+// Kernel ownership spans the whole wait and the final request publication.
+await withLock('broker-waiter',async()=>{
 for (;;) {
   if (existsSync(join(dir, 'STOP'))) {
     heartbeat('stopped')
@@ -74,3 +88,4 @@ for (;;) {
   }
   await new Promise((res) => setTimeout(res, 200))
 }
+},{timeoutMs:500})

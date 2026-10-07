@@ -17,19 +17,22 @@ try {
   direct = await import('./peer-direct.mjs')
 } catch {}
 
-export async function deliver(target, text, { signal, method = process.env.CLAUDE_DRIVER_PEER || 'auto' } = {}) {
+export async function deliver(target, text, { signal, timeoutMs=60000, method = process.env.CLAUDE_DRIVER_PEER || 'auto' } = {}) {
+  const deadline=Date.now()+timeoutMs
+  if(signal?.aborted)throw new DriverError('peer delivery cancelled',{category:'cancelled'})
   if (method !== 'llm' && direct?.canDeliver?.(target)) {
     try {
-      const r = await direct.deliver(target, text)
+      const r = await direct.deliver(target, text,{signal,timeoutMs:Math.min(5000,Math.max(1,deadline-Date.now()))})
       return { method: 'peer-direct', ...r }
     } catch (err) {
-      if (method === 'direct') throw err
+      if (method === 'direct'||signal?.aborted||err.category==='cancelled'||err.detail?.dispatched) throw err
     }
   }
-  return deliverViaLlm(target, text, { signal })
+  if(Date.now()>=deadline)throw new DriverError('peer delivery deadline exceeded',{category:'cli_timeout'})
+  return deliverViaLlm(target, text, { signal,timeoutMs:Math.min(60000,deadline-Date.now()) })
 }
 
-async function deliverViaLlm(target, text, { signal }) {
+async function deliverViaLlm(target, text, { signal,timeoutMs }) {
   const mode = target.permissionMode === 'bypassPermissions' ? 'bypassPermissions' : 'acceptEdits'
   const cli = target.sessionId.replace(/^local_/, '')
   const prompt =
@@ -39,7 +42,7 @@ async function deliverViaLlm(target, text, { signal }) {
     `After SendMessage returns, reply with exactly SENT, or FAILED: <reason> if you could not deliver it.`
   const r = await runCli(
     ['-p', prompt, '--model', 'claude-haiku-4-5-20251001', '--permission-mode', mode, '--allowedTools', 'ListAgents,SendMessage', '--strict-mcp-config'],
-    { cwd: BROKER_DIR, timeoutMs: 60_000, signal }
+    { cwd: BROKER_DIR, timeoutMs, signal }
   )
   const out = `${r.stdout}`.trim()
   if (r.code !== 0 || !/\bSENT\b/.test(out)) {

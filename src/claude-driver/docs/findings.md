@@ -5,6 +5,33 @@ Dated, newest first. Each entry: what was observed, the evidence, and n
 (`<state>/pending-learnings.jsonl`) here only after re-verifying it.
 Versions: app = Claude desktop, cli = bundled Claude Code.
 
+## 2026-10-07 — helper cancellation and hidden waiter pressure
+
+- **A timeout must include its wake helper and cleanup.** Seven original private
+  helper/socket expectations failed. Shared remaining budget, supervised child
+  termination, inherited-reader closure and no partial-frame fallback now pass.
+  A follow-up cancellation fixture proved an actual synthetic effect during the
+ 250ms cleanup window; concurrent durable cancellation now prevents it. Scope:
+  only freshly launched helper children, no desktop session processes. Evidence:
+  cli-budget-reproduction-2026-10-07.json and retained baseline logs.
+
+- **Prompt-only foreground discipline failed natively.** The broker actually
+  combined checkpoint with `broker-wait ... > /dev/null &`. A background waiter
+  consumed a later cleanup request; visible wait returned IDLE. The request
+  expired without dispatch and the fixture was subsequently verified archived.
+  Mechanical stdout admission, one kernel-owned waiter and pickup PID metadata
+  address this observed case. The first pipe-only guard failed because native
+  Bash uses captured regular output; this failure was retained and corrected,
+  with a subsequent normal client receipt on the same broker PID. Arbitrary
+  background captures are not generally qualified.
+
+- **Native receipt is distinct from recipient acceptance.** One synthetic
+  recipient refused a replacement after automated stop, interpreting it as
+  human intervention. The new fresh fixture explicitly grants the planned test
+  sequence prospectively and respects actual human instructions. The failed
+  chat was archived; no attempt was made to bypass its refusal. Native/current
+  follow-up remains pending; see resume.md for final evidence.
+
 ## 2026-10-06 23:56 Eastern — v7 controls and maintenance (app 2.26454.0, cli 2.1.289)
 
 - **Request traffic must not postpone maintenance indefinitely.** The actual old

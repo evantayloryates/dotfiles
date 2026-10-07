@@ -122,10 +122,16 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
     let via = { method: 'resident' }
     let lastWake = 0
     let wakeAttempts = 0
+    // Persist abort intent while the delivery helper is still shutting down.
+    // Waiting for helper exit first leaves an avoidable dispatch window.
+    let abortCancellation
+    const cancelOnAbort=()=>{abortCancellation??=cancelRequest(id,'cancelled').catch(()=>null)}
+    signal?.addEventListener('abort',cancelOnAbort,{once:true})
+    if(signal?.aborted)cancelOnAbort()
     // A resident broker picks the file up itself; otherwise wake it into its loop.
     try {
     if (!info.resident?.resident) {
-      via = await deliver(info, BROKER_WAKE, { signal })
+      via = await deliver(info, BROKER_WAKE, { signal,timeoutMs:Math.max(1,deadline-Date.now()) })
       lastWake = Date.now()
       wakeAttempts++
       progress(`delivered via ${via.method} in ${Date.now() - t0} ms; broker enters its resident loop`)
@@ -138,6 +144,7 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
       // shortened/revised Write result. Synthetic/older brokers retain the
       // explicitly weaker relay receipt path.
       const res = observe ? actual && validatedResult(request) : validatedResult(request)
+      if(res&&['cancelled','expired'].includes(res.state))throw new DriverError(`${res.state} before dispatch`,{category:res.state==='expired'?'broker_timeout':'cancelled'})
       if (res) return { id, results: res.results, receiptSource:res.source||'broker-relay', deliveredVia: via.method, ms: Date.now() - t0 }
       // A broker can end its turn between our heartbeat check and enqueue.
       // Wake the SAME durable request, bounded, only while still unclaimed.
@@ -146,7 +153,7 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
         const now = brokerInfo()
         if (!now.live) throw new DriverError('broker process disappeared while request was pending', { category: 'broker_dead' })
         if (!['busy', 'working'].includes(now.live.status)) {
-          via = await deliver(now, BROKER_WAKE, { signal })
+          via = await deliver(now, BROKER_WAKE, { signal,timeoutMs:Math.max(1,deadline-Date.now()) })
           lastWake = Date.now()
           wakeAttempts++
           progress(`re-woke idle broker for ${id} via ${via.method} (attempt ${wakeAttempts})`)
@@ -156,16 +163,21 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
     }
     throw new DriverError(`broker did not answer request ${id} within ${timeoutMs / 1000} s (delivered via ${via.method})`, { category: 'broker_timeout' })
     } catch (err) {
+      if(abortCancellation)await abortCancellation
+      if(!signal?.aborted&&err.category==='cli_timeout'&&Date.now()>=deadline)err.category='broker_timeout'
       const state = await cancelRequest(id, err.category === 'broker_timeout' ? 'expired' : 'cancelled')
       // Completion can race cancellation between the polling check and the
       // durable cancellation lock. The correlated completed result wins.
       if (state.resultAvailable) {
         const res = validatedResult(request)
-        if (res) return { id, results: res.results, receiptSource:res.source||'broker-relay', deliveredVia: via.method, ms: Date.now() - t0 }
+        if (res&&!['cancelled','expired'].includes(res.state)) return { id, results: res.results, receiptSource:res.source||'broker-relay', deliveredVia: via.method, ms: Date.now() - t0 }
       }
-      err.detail = { requestId: id, state: state.state, dispatched: state.dispatched, retrySafe: !state.dispatched && !state.resultAvailable }
+      err.detail = { requestId: id, state: state.state, dispatched: state.dispatched, retrySafe: !state.dispatched && (!state.resultAvailable||['cancelled','expired'].includes(state.state)) }
       if (state.dispatched) err.category = 'outcome_unknown'
       throw err
+    } finally {
+      signal?.removeEventListener('abort',cancelOnAbort)
+      if(abortCancellation)await abortCancellation
     }
   }, { signal, timeoutMs: Math.max(1, deadline - Date.now()) })
 }

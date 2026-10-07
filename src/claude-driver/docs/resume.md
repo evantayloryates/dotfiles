@@ -1,5 +1,69 @@
 # Claude-driver continuity — 2026-10-06
 
+## October 7 continuation — helper and waiter pressure iteration
+
+Current runtime `3bfc51e7b06c4aec8ac81b5f7ec28eb77f2e1507cf03379e7f468eee22afa98b`;
+app 2.26454.0 / CLI 2.1.289, same approved broker PID71262. The preceding
+turn was progress, not a blocked/no-progress turn. The goal remains active.
+
+Private tests reproduced seven failures in the original eight-case helper/socket
+suite: a request's wake outlived its deadline, abort left a SIGTERM-resistant
+helper alive, exited-helper output pipes extended the budget, and partial direct
+frames/abort could fall through to another LLM send. The driver now shares the
+remaining request budget with delivery, supervises only its own freshly launched
+CLI child (TERM then KILL after250ms), settles cancellation after direct child
+exit, and closes inherited readers without signalling descendants. A follow-up
+fixture reproduced a synthetic late dispatch during cleanup; abort intent now
+cancels the durable request concurrently with cleanup. Cancelled/expired synthetic
+receipts remain cancellation errors with correct undispatched retry safety.
+Actual native receipts still win a completed race; dispatch uncertainty is retained.
+
+The intermediate native run failed. Its recipient interpreted automated stop as
+human intervention and refused the peer replacement. Separately the broker ran
+`broker-check ... && broker-wait ... > /dev/null &`, violating the standing
+foreground rule. That hidden waiter claimed cleanup request rmuxlc7uv-e3ba0c;
+the model's visible wait instead returned IDLE. The request expired without any
+dispatch. A subsequent independently reconciled cleanup verified the fixture
+local_a2e766c5-7566-42b3-8e50-3995cc200729 archived. Preserve this failure, never
+claim the old native pass proves this branch reliable.
+
+Mechanical waiter admission now rejects discarded/device stdout before a claim,
+validates0–540s budgets, accepts native captured stdout in an owned regular file,
+and holds a single kernel lock across the whole wait and pickup. Controls record
+the picking PID for future diagnosis. The first pipe-only guard was too strict
+for real native Bash output; that failed45s warm test and native refusals remain
+recorded. Corrected regular capture warm activation received a native-tool receipt
+in37.780s while preserving PID71262 (three compatible wakes, one request/checkpoint).
+This corrects the observed discard/duplicate-waiter cases; it does not prove that
+arbitrary background captures reach the model or qualify direct wire on2.1.289.
+
+The new disposable fixture bootstrap states the specific planned automated stop
+and replacement up front. Actual human instructions still override it; unrelated
+peer work remains unauthorized. The previously refused chat was archived and was
+not sent replacement attempts. This is prospective scope clarification, not an
+instruction to ignore a human stop. Native qualification on this current source
+is running and must be recorded before claiming readiness. Five isolated rounds
+passed124 cases each (620 total); both actual filtered harnesses passed ten.
+
+Reports under /Users/taylor/.local/state/claude-driver/pressure/:
+
+- cli-budget-reproduction-2026-10-07.json and three retained baseline logs.
+- native-hidden-waiter-2026-10-07.json: exact native violating command and refusal.
+- live-v2-2026-10-07T04-09-18-109Z.json: failed native run, retained.
+- waiter-guard-warm-2026-10-07.json: over-strict capture guard failure, retained.
+- waiter-guard-capture-corrected-2026-10-07.json: corrected warm native receipt.
+- v2-2026-10-07T04-19-29-815Z.json: five current isolated rounds.
+- harness-v2-{claude,codex}-2026-10-07T04-18-49-090Z.json: current real filtered checks.
+
+Next reliability frontier: native/full planned-stop result; current maintenance
+proof after waiter locking; installed-version qualification of deterministic peer
+wake transport to reduce LLM-hop latency; real natural pressure and unattended
+cold recovery remain distinct, unproven requirements. Do not manufacture OS
+pressure or kill user/desktop session processes. Observer owns offline recovery;
+input quarantine stays active, and this chat's old MCP still needs refresh.
+
+## Previous settled frontier — historical
+
 ## Resumed work — latest frontier
 
 Taylor resumed the goal on October 6 at 23:38 Eastern. Current runtime:

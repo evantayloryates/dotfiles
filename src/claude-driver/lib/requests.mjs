@@ -63,7 +63,7 @@ export async function pickupPending() {
       // Never replay something a broker already picked up. A crash after
       // pickup needs reconciliation, not an automatic second execution.
       if (c.state && c.state !== 'pending') return null
-      writeJsonAtomic(controlFile(id), { ...c, state: 'picked_up', at: Date.now() })
+      writeJsonAtomic(controlFile(id), { ...c, state: 'picked_up', pickedUpBy:process.pid, at: Date.now() })
       return r
     })
     if (picked) return picked

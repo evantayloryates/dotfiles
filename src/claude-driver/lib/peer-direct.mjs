@@ -81,24 +81,28 @@ function escapeBody(body) {
   return body.replace(/<(?!\\)(?=\s*\/\s*cross[-_\s]*session[-_\s]*message)/giu, '<\\')
 }
 
-function sendLines(sock, lines, timeoutMs = 5000) {
+function sendLines(sock, lines, {timeoutMs=5000,signal}={}) {
   return new Promise((ok, fail) => {
+    if(signal?.aborted){fail(new DriverError('peer delivery cancelled',{category:'cancelled'}));return}
     const s = createConnection({ path: sock })
-    let failed = false
-    s.setTimeout(timeoutMs, () => {
-      failed = true
-      s.destroy()
-      fail(new Error(`timed out sending to ${sock}`))
-    })
-    s.on('error', (e) => {
-      failed = true
-      fail(e)
-    })
+    let failed = false,written=false,halfClose
+    const refuse=err=>{
+      if(failed)return;failed=true
+      err.detail={...err.detail,dispatched:written,retrySafe:!written}
+      s.destroy();fail(err)
+    }
+    const abort=()=>refuse(new DriverError('peer delivery cancelled',{category:'cancelled'}))
+    const timer=setTimeout(()=>refuse(new DriverError('peer delivery deadline exceeded',{category:'cli_timeout'})),timeoutMs)
+    signal?.addEventListener('abort',abort,{once:true})
+    if(signal?.aborted)abort()
+    s.on('error', refuse)
     s.on('connect', () => {
+      if(failed)return
+      written=true
       s.write(lines)
-      setTimeout(() => !s.destroyed && s.end(), 150)
+      halfClose=setTimeout(() => !s.destroyed && s.end(), 150)
     })
-    s.on('close', () => !failed && ok())
+    s.on('close', () => {clearTimeout(timer);clearTimeout(halfClose);signal?.removeEventListener('abort',abort);if(!failed)ok()})
   })
 }
 
@@ -107,7 +111,8 @@ export function transcriptPath(rec) {
 }
 
 // target: { sessionId: local_…, permissionMode }. Returns { msgId, pid }.
-export async function deliver(target, text, { fromName = 'claude-driver' } = {}) {
+export async function deliver(target, text, { fromName = 'claude-driver',timeoutMs=5000,signal } = {}) {
+  if(signal?.aborted)throw new DriverError('peer delivery cancelled',{category:'cancelled'})
   const rec = peerRecord(target.sessionId)
   if (!rec) throw new DriverError(`no live process for ${target.sessionId}`, { category: 'broker_dead' })
   const sock = rec.messagingSocketPath
@@ -120,7 +125,7 @@ export async function deliver(target, text, { fromName = 'claude-driver' } = {})
   const token = readToken(rec)
   const payload = `${token ? `${JSON.stringify({ type: 'auth', token })}\n` : ''}${frame}\n`
   if (payload.length > LINE_CAP) throw new DriverError('message too large for one peer frame', { category: 'bad_args' })
-  await sendLines(sock, payload)
+  await sendLines(sock, payload,{timeoutMs,signal})
   return { msgId, pid: rec.pid, transcript: transcriptPath(rec) }
 }
 

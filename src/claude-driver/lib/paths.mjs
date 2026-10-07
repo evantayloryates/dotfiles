@@ -149,22 +149,40 @@ export function cleanEnv(extra = {}) {
 }
 
 export function runCli(args, { cwd, timeoutMs = 180_000, signal } = {}) {
+  if(signal?.aborted)return Promise.reject(new DriverError('CLI cancelled before launch',{category:'cancelled'}))
+  if(!Number.isFinite(timeoutMs)||timeoutMs<=0)return Promise.reject(new DriverError('CLI timeout must be positive and finite',{category:'bad_args'}))
   const bin = resolveClaudeBinary()
   return new Promise((resolve, reject) => {
-    const child = spawn(bin, args, { cwd, env: cleanEnv(), stdio: ['ignore', 'pipe', 'pipe'], signal })
+    // Own only this freshly launched helper, never a desktop session process.
+    // Spawn's signal option rejects before child exit and can leave a helper
+    // alive when it ignores SIGTERM. Settle cancellation only after exit.
+    const child = spawn(bin, args, { cwd, env: cleanEnv(), stdio: ['ignore', 'pipe', 'pipe'] })
     let stdout = ''
     let stderr = ''
+    let stopped, escalation, settled=false,exited=false
+    const cleanup=()=>{clearTimeout(timer);clearTimeout(escalation);signal?.removeEventListener('abort',abort)}
+    const finish=(err,result)=>{if(settled)return;settled=true;cleanup();err?reject(err):resolve(result)}
+    const stop=category=>{
+      if(stopped||settled)return
+      stopped=new DriverError(category==='cancelled'?'CLI cancelled':'CLI deadline exceeded',{category})
+      // An already-exited CLI can leave inherited pipes open in a descendant.
+      // Close our readers and settle; do not signal that descendant.
+      if(exited){child.stdout.destroy();child.stderr.destroy();finish(stopped);return}
+      child.kill('SIGTERM')
+      escalation=setTimeout(()=>child.kill('SIGKILL'),250)
+    }
+    const abort=()=>stop('cancelled')
     child.stdout.on('data', (d) => (stdout += d))
     child.stderr.on('data', (d) => (stderr += d))
-    const timer = setTimeout(() => child.kill('SIGTERM'), timeoutMs)
-    child.on('error', (err) => {
-      clearTimeout(timer)
-      reject(err)
+    const timer = setTimeout(() => stop('cli_timeout'), timeoutMs)
+    child.once('error', err=>finish(stopped||err))
+    child.once('exit',()=>{
+      exited=true
+      if(stopped){child.stdout.destroy();child.stderr.destroy();finish(stopped)}
     })
-    child.on('close', (code, sig) => {
-      clearTimeout(timer)
-      resolve({ code, signal: sig, stdout, stderr })
-    })
+    child.once('close', (code, sig) => finish(stopped,{ code, signal: sig, stdout, stderr }))
+    signal?.addEventListener('abort',abort,{once:true})
+    if(signal?.aborted)abort()
   })
 }
 

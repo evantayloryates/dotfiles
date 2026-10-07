@@ -34,6 +34,17 @@ Serialized recipient controls recheck after acquiring their lock, so a source
 change while waiting cannot slip past the entry check. Qualification still
 depends on both runtime fingerprint and installed app/CLI version. See [resume.md](resume.md) for current reports and observer handoff.
 
+Wake delivery shares the remaining broker deadline. CLI helper cancellation
+persists queued-request cancellation while shutting down that exact launched
+helper; cleanup grace may add250ms plus lock/scheduling time. A partial socket
+write never starts a fallback sender. These guarantees concern transport/helper
+ownership, not reversal of dispatched native effects. A discarded-output waiter
+cannot claim work; one kernel-owned waiter captures output in a pipe/socket or
+owned regular file. Unexpected native model behavior still requires reconciliation.
+A recipient can refuse a peer replacement after interpreting stop as human
+intervention. `stopped:true` and a send receipt do not prove the replacement was
+accepted. Use observations; never override a real human stop or blindly replay.
+
 Use `driver_submit {operation, arguments, idempotency_key, timeout_sec}`
 for work that must survive client disconnection. It immediately returns a
 job ID. Reuse the same key and arguments to reattach; changing the arguments
