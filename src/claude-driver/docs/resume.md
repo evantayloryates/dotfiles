@@ -1,3 +1,22 @@
+## Reusable receiver per-request evidence review — October 7, 12:12 Eastern
+
+screenNativeServiceResult now correlates exact service readiness/intent/result
+schemas with one protocol7 get_session request, sealed native helper ancestry,
+pointer generation/bootstrap, consumed native admission and dispatched slot.
+Reuses screenNativePeerAdmission and exact metadata payload screening through
+in-memory structural adapters; no report artifact or control history is fabricated.
+ReceiptVerified means correlated evidence only, standardLifecycleSettlementAssessed
+remainsfalse until host publication. Native error payload returns a failed result.
+Late historical review after service expiry is permitted if the response arrived
+inside both request/service deadlines; this does not authorize new dispatch.
+Tests prove evidence unchanged, successful/error outcomes, foreign/ambiguous/late
+responses, overwritten helper identity, admission generation drift and missing slot
+refusal. Full pressure v2-2026-10-07T16-11-15-037Z passed1/1 in9303ms,
+sourceChanged:false. SOURCE ONLY, no module install/native sends this turn.
+Next host enrollment/owned byte+epoch checks and locked standard receipt publication,
+then actual successive reads through one receiver load. Before each next read,
+settle/snapshot its predecessor because sealed broker-check entry is shared.
+
 ## Native service readiness and validator — October 7, 12:10 Eastern
 
 Reusable candidate records owned session.start readiness once, with fixed build,
