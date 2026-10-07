@@ -144,7 +144,19 @@ test('native-journal requests cannot settle from a relay paraphrase',async()=>{
  assert.equal(req.validatedResult(r),null)
  state.writeJsonAtomic(req.nativeResultFile(r.id),{id:r.id,source:'native-tool-result',results:[{op:'get_session',ok:true,result:'raw native output'}]})
  assert.equal(req.validatedResult(r).source,'native-tool-result')
- assert.equal(await req.pickupPending(),null)
+  assert.equal(await req.pickupPending(),null)
+})
+test('an absent helper checkpoint never makes an enqueued native effect retry-safe, even with a gate policy',async()=>{
+ for(const gate of [undefined,{version:1,handlerSha256:'a'.repeat(64),settingsHash:'b'.repeat(64)}]){
+  const r={id:`test-${next++}`,protocol:7,expiresAt:Date.now()+60000,ops:[{op:'archive_session',args:{session_id:sid}}],nativeObservation:{},...(gate?{nativeEffectAdmissionPolicy:gate}:{})};req.enqueue(r)
+  await req.cancelRequest(r.id)
+  const inspected=req.inspectRequest(r.id)
+  assert.equal(inspected.dispatched,false);assert.equal(inspected.receiptVerified,false);assert.equal(inspected.retrySafe,false);assert.equal(inspected.state,'outcome_unknown');assert.equal(inspected.controlState,'cancelled')
+ }
+ const read=request();read.nativeObservation={};state.writeJsonAtomic(req.requestFile(read.id),read);await req.cancelRequest(read.id)
+ assert.equal(req.inspectRequest(read.id).retrySafe,true)
+ const synthetic={id:`test-${next++}`,expiresAt:Date.now()+60000,ops:[{op:'archive_session',args:{session_id:sid}}]};req.enqueue(synthetic);await req.cancelRequest(synthetic.id)
+ assert.equal(req.safeUndispatchedRetry(synthetic),true);assert.equal(req.inspectRequest(synthetic.id).receiptVerified,true)
 })
 test('recipient controls serialize stop and replacement, including nested controls', async()=> {
   const seen=[]

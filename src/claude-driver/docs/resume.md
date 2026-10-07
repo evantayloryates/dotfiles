@@ -1,4 +1,92 @@
-## Latest frontier — October 7, 01:56 Eastern
+## Latest frontier — October 7, 02:35 Eastern
+
+Goal ACTIVE. Working native prototype, not general-use readiness. The latest
+full native suite FAILED; isolated/API passes are not native reliability proof.
+Use current CLI/fresh MCP. Input automation remains quarantined; no app restart,
+session process kill, context reset, model/auth/permission change or observer send.
+
+Critical failure: rmuxpt37w-d5e587's helper returned dispatch:false/cancelled
+at06:17:40.736Z, but Claude invoked the exact archive at06:17:41.324Z and the
+owned fixture became archived. The old retrySafe:true claim was false. Preserve
+`native-late-cleanup-forensics-2026-10-07.json`. Current inspection/errors report
+outcome_unknown/retrySafe:false for every enqueued native mutation lacking a
+correlated receipt, even with a recorded gate policy. Pure reads/pre-enqueue
+refusals retain narrower safe retry semantics. Jobs propagate uncertainty.
+
+The service-owned PreToolUse hook now gates actual mcp__ccd_* calls using native
+SID/PID/start/cwd/version/ancestry, immutable current template, completed epoch
+checkpoint, live request/index/canonical arguments, deadline/cancel/STOP and
+recorded installed handler/settings hashes. Exclusive per-slot consumption binds
+the native tool_use_id. No permission allow or inference hook. Malformed and
+oversized PreToolUse input explicitly denies; bad Stop input stays quiet.
+Platform hook timeout/runner failure remains a limit; policy presence alone is
+not absence-of-effect proof. See [native-effect-admission.md](native-effect-admission.md).
+
+Host/installed hook package e8b16514fc567713cc27b3f70d59337198b45ca4214a13d67e2bbaedb0d24895;
+handler SHA2561ff90b8a72c68fbf45f7fccbd822b82404a727ee7b0966ab33f35fcd7c827644;
+settings hash aa4e16a164c1a3dc8f0f5faea5ae59de6f59c2d123211606720c5d480a93b9fc.
+Dependency package remains4af08654459f514c1e0d76f0071b54ddb6e22e1805bbb7db101a632d0a387912,
+bootstrap eb5cb750e09080502b44a970dc3b18ef083ecb4beb9fdc0d3e4bb1c1acfa3492,
+generation6; same broker PID71262/start Wed Oct7 03:24:51 2026 UTC,
+CLI2.1.289/app2.26454.0/Haiku. Completed current dependency entry paths verified.
+The new entry-index field is staged, not active; old entries admit unique slots only.
+
+Evidence under <state>/pressure:
+- Three unchanged-source isolated rounds on f824ce6c:
+  `v2-2026-10-07T06-30-13-847Z.json`; final bounded-input e8b16514 passed one
+  whole isolated round in `v2-2026-10-07T06-33-46-072Z.json`.
+- Actual filtered Codex and Claude each passed10 API checks on f824ce6c:
+  `harness-v2-codex-2026-10-07T06-30-28-082Z.json` and matching claude report.
+  These predate the final input amendment; they perform no desktop effects.
+- Native positive f824 gate: rmuxqala7-546ad7 completed12.430s, admission ID
+  matched actual native receipt, same PID/gen6:
+  `native-effect-gate-final-positive-2026-10-07T06-30-40-618Z.json`.
+- Cancellation AFTER helper checkpoint produced a real native PreToolUse denial:
+  rmuxq2or2-a1bd76, `native-effect-gate-negative-independent-2026-10-07.json`.
+  This proves the earlier installed gate, not final provenance/input amendments.
+- Final e8 bounded-input gate native read rmuxqg51n-4654bf passed13.174s, exact
+  admission ID/native receipt matched. Its following desired-state archive
+  rmuxqgf9k-b8cd4c expired45s and remains outcome_unknown/retrySafe:false:
+  `native-bounded-gate-final-check-2026-10-07T06-35-45-388Z.json`. The whole
+  cleanup report is FAILED despite the successful read; no replay.
+- Earlier9-check native pass05:58 preserved. Later4af full run FAILED concurrency:
+  `live-v2-2026-10-07T06-12-06-435Z.json`. Final f824 full run FAILED initial
+  serving and cleanup: `live-v2-2026-10-07T06-31-26-193Z.json`.
+  rmuxqbu92-490ff0 consumed one rescue, then continued Stop ended without tools;
+  rmuxqc2c7-c5ba43 expired. Both now outcome_unknown/retrySafe:false. Forensics:
+  `native-gated-wake-terminal-forensics-2026-10-07.json` and
+  `native-gated-full-failure-review-2026-10-07.json`. No repeated wake/replay.
+- Same PID survived180s, but pressureEvents=0, so natural-pressure gate FAILED:
+  `residency-v2-2026-10-07T06-12-32-846Z.json`.
+
+Idle-only immediate routing bypasses a blocked installed receiver chain in VM
+and completed stable native reads; peer UUIDs now persist before bytes. Repeated
+handoffs/concurrency still failed. This is not a proven native root cause or full
+serving strategy. Preserve release-cycle06:00, idle-cue06:02 and immediate06:08
+failures. Do not mutate old sealed snapshots or infer readiness from activation.
+Quiet Stop-hook waiting is documented, not implemented or native-qualified.
+
+Detector stays sealed5dfbbdc6/zero-inference/30s; hourly Claude observer is fallback,
+not sensing cadence. Codex inbox30s ticks still use inference. Ten report reviews
+are in `native-effect-detector-review-2026-10-07.json`. Reports021323/021456/023210 stay
+pending: legacy set_pinned/archive effects lack native settlement. Reuse that
+durable review instead of repeating unchanged analysis; no replay or competing
+observer wake. Seven read/liveness reports may be acked by exact scanned hash after
+repository checkpoint. Native liveness return is not serving/crash-cause proof.
+
+Next: reconcile owned fixture cleanup and prior uncertain native effects before
+another full run/handoff. Strengthen deterministic wake-to-serving: one-shot
+rescue can still be ignored. Current-source steering, distinct-build rollback,
+sustained latency, natural governor pressure and unattended cold recovery remain
+open. Keep Codex/1Password work separate.
+
+At02:36 Eastern the fixture local_fc1e5eab-9d24-4e4c-a09c-9a386a6ffe14 is
+unarchived with an idle native process23791/start Wed Oct7 06:32:29 2026 UTC.
+The broker remains71262 with no STOP/arm and verified current dependency entries.
+Do not kill either process or call cleanup settled. Use the retained failed
+cleanup evidence before any new deliberate desired-state action; no message replay.
+
+## Previous frontier — October 7, 01:56 Eastern
 
 The goal remains active: usable native control prototype, reliability hardening
 in progress, not general-use readiness. Fast detection is the zero-inference

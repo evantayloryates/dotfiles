@@ -16,7 +16,7 @@ import { DriverError, sleep } from './paths.mjs'
 import { getRecord, liveByHost } from './sessions.mjs'
 import { BROKER_DIR, ensureDir, readJson, withLock, writeJsonAtomic } from './state.mjs'
 import { deliver } from './peer.mjs'
-import { cancelRequest, control, enqueue, validatedResult, nativeResultFile, inspectRequest } from './requests.mjs'
+import { cancelRequest, control, enqueue, validatedResult, nativeResultFile, inspectRequest, safeUndispatchedRetry } from './requests.mjs'
 import { observeNativeReceipts } from './native-receipts.mjs'
 import { assertUiAvailable } from './ui-policy.mjs'
 import { assertInputHealthy } from './input-health.mjs'
@@ -141,18 +141,20 @@ export function newRequestId() {
 }
 
 // ops: [{ op, args }]. Returns the broker's results array.
-export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => {}, signal } = {}) {
+export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => {}, signal, idleWake=true } = {}) {
   const deadline = Date.now() + timeoutMs
   for (const o of ops) if (!BROKER_OPS.includes(o.op)) throw new DriverError(`op ${o.op} is not on the broker allowlist`, { category: 'bad_args' })
   return withLock('broker', async () => {
     const info = brokerInfo()
     const rescuePolicy=stopRescuePolicy()
+    if(typeof idleWake!=='boolean')throw new DriverError('invalid idle wake policy',{category:'bad_args',detail:{dispatched:false,retrySafe:true}})
     if(info.handoffStopped)throw new DriverError('broker deployment handoff is stopped; requests cannot clear its STOP',{category:'broker_handoff_refused',detail:{dispatched:false,retrySafe:true}})
     if(info.runtime?.integrity===false)throw new DriverError('broker runtime integrity failed; no request admitted',{category:'broker_runtime_invalid',detail:{dispatched:false,retrySafe:true}})
     if(info.runtime?.dependencyEvidence?.reason==='native-process-epoch-mismatch')throw new DriverError('active release belongs to a different native process; a settled handoff is required before requests',{category:'broker_runtime_epoch_mismatch',detail:{dispatched:false,retrySafe:true}})
     if (!info.configured || !info.exists) throw new DriverError('no broker session; run `claude-driver broker init`', { category: 'broker_missing' })
     if (!info.templateCurrent) prepareBrokerDir()
     if (!info.live) throw new DriverError(`broker ${info.sessionId} has no live process (app restarted?); run \`claude-driver broker revive\``, { category: 'broker_dead' })
+    if(info.live.entrypoint==='claude-desktop'&&ops.some(o=>!['get_session','list_sessions','list_groups','get_window_layout'].includes(o.op))&&rescuePolicy?.nativeEffectAdmissionVersion!==1)throw new DriverError('native effect admission policy is missing or legacy; no effect enqueued',{category:'broker_native_admission_required',detail:{dispatched:false,retrySafe:true}})
     const id = newRequestId()
     rmSync(join(BROKER_DIR, 'STOP'), { force: true })
     if (signal?.aborted || Date.now() >= deadline) throw new DriverError('cancelled or expired before enqueue', { category: signal?.aborted ? 'cancelled' : 'broker_timeout' })
@@ -160,8 +162,14 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
     const observe = info.live.entrypoint==='claude-desktop' ? observeNativeReceipts(info.sessionId,request) : null
     if(info.live.entrypoint==='claude-desktop'&&!observe)throw new DriverError('native broker receipt journal unavailable; no request dispatched',{category:'broker_receipt_unavailable',detail:{retrySafe:true,dispatched:false}})
     if(observe) request.nativeObservation=observe.start
+    if(observe&&rescuePolicy?.nativeEffectAdmissionVersion===1)request.nativeEffectAdmissionPolicy={version:1,handlerSha256:rescuePolicy.sha256,settingsHash:rescuePolicy.settingsHash}
     enqueue(request)
-    const wakeOptions={signal,...(rescuePolicy?{method:'direct',onPrepared:w=>armStopRescue(rescuePolicy,request,w)}:{})}
+    const wakeOptions=target=>{const priority=idleWake&&target.live?.status==='idle'?'now':'next';return {signal,...(rescuePolicy?{method:'direct',priority,onPrepared:w=>{
+      // Metadata survives arm disarming, so an unaccepted socket write remains
+      // independently correlatable after a timeout. No keys or prompt bodies.
+      writeJsonAtomic(join(BROKER_DIR,'wake-'+id+'.json'),{requestId:id,...w,priority,preparedAt:Date.now(),acceptance:'unverified'})
+      armStopRescue(rescuePolicy,request,w)
+    }}:{})}}
     progress(`broker request ${id}: ${ops.map((o) => o.op).join(', ')}`)
     const t0 = Date.now()
     let via = { method: 'resident' }
@@ -177,7 +185,7 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
     // A resident broker picks the file up itself; otherwise wake it into its loop.
     try {
     if (!info.resident?.resident) {
-      via = await deliver(info, BROKER_WAKE, { ...wakeOptions,timeoutMs:Math.max(1,deadline-Date.now()) })
+      via = await deliver(info, BROKER_WAKE, { ...wakeOptions(info),timeoutMs:Math.max(1,deadline-Date.now()) })
       if(via.msgId)observe?.watchWake(via.msgId)
       lastWake = Date.now()
       wakeAttempts++
@@ -210,7 +218,7 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
         const now = brokerInfo()
         if (!now.live) throw new DriverError('broker process disappeared while request was pending', { category: 'broker_dead' })
         if (!['busy', 'working'].includes(now.live.status)) {
-          via = await deliver(now, BROKER_WAKE, { ...wakeOptions,timeoutMs:Math.max(1,deadline-Date.now()) })
+          via = await deliver(now, BROKER_WAKE, { ...wakeOptions(now),timeoutMs:Math.max(1,deadline-Date.now()) })
           if(via.msgId)observe?.watchWake(via.msgId)
           lastWake = Date.now()
           wakeAttempts++
@@ -230,8 +238,8 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
         const res = validatedResult(request)
         if (res&&!['cancelled','expired'].includes(res.state)) return { id, results: res.results, receiptSource:res.source||'broker-relay', deliveredVia: via.method, ms: Date.now() - t0 }
       }
-      err.detail = { ...err.detail, requestId: id, state: state.state, dispatched: state.dispatched, retrySafe: !state.dispatched && (!state.resultAvailable||['cancelled','expired'].includes(state.state)) }
-      if (state.dispatched) err.category = 'outcome_unknown'
+      err.detail = { ...err.detail, requestId: id, ...(via.msgId?{wake:{method:via.method,msgId:via.msgId,pid:via.pid,procStart:via.procStart}}:{}), state: state.state, dispatched: state.dispatched, retrySafe: !state.dispatched && (!state.resultAvailable||['cancelled','expired'].includes(state.state))&&safeUndispatchedRetry(request) }
+      if (state.dispatched||!safeUndispatchedRetry(request)) err.category = 'outcome_unknown'
       throw err
     } finally {
       signal?.removeEventListener('abort',cancelOnAbort)

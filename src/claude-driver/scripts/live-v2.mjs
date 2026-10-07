@@ -105,7 +105,11 @@ try {
     return {jobId:j.jobId,cancelled:true,nativeDispatch:false}
   }))
   await step('three-concurrent-native-controls',async()=>{
-    const out=await Promise.all([op('rename_session',{session,title:`claude-driver v2 pressure ${stamp} locked`}),op('pin_session',{session,pinned:true}),op('set_session_config',{session,effort:'low'})]);assert.ok(out.every(x=>x.verified));
+    // A first refusal must not let fixture cleanup overtake another admitted
+    // control. Wait for every owned attempt, retaining its independent outcome.
+    const settled=await Promise.allSettled([op('rename_session',{session,title:`claude-driver v2 pressure ${stamp} locked`}),op('pin_session',{session,pinned:true}),op('set_session_config',{session,effort:'low'})]);
+    const refused=settled.find(x=>x.status==='rejected');if(refused)throw refused.reason
+    const out=settled.map(x=>x.value);assert.ok(out.every(x=>x.verified));
     await op('pin_session',{session,pinned:false});return {operations:3,allVerified:true}
   })
   await step('batched-native-controls',async()=>{

@@ -4,14 +4,14 @@ claude-driver drives Taylor's Claude desktop app from Claude Code, Codex,
 Cursor, OpenCode or a script. This is the usage contract; the README has the
 mechanisms and evidence.
 
-Native batch and concurrent control probes now pass, with independently
-verified cleanup. Full current native steering remains unqualified. Generation4
-activation exposed stale sealed entry calls; the tested PreToolUse adapter is a
-candidate, not an installed native guarantee. See [resume.md](resume.md) for
+Native batch and concurrent controls have passed, but later full runs failed
+serving and concurrency. Full current native steering remains unqualified.
+The installed PreToolUse adapter redirects exact cached wait/check commands,
+and a separate gate checks the actual native operation. See [resume.md](resume.md) for
 exact source/package distinctions, preserved failures and readiness gates.
 Protocol v7 retains exact compatible `claude-driver wake v6` / `drain v6`
 identities. Wake enters the loop; operation arguments come only from the durable
-request and dispatch checkpoint. Native envelope sender fields are routing
+request, dispatch checkpoint and native admission. Native envelope sender fields are routing
 metadata, not an identity gate. A matched file or send return alone never proves
 that the live model loaded instructions or applied an operation.
 
@@ -34,6 +34,17 @@ Changed settings/handler policy refuses effects. Cancellation or missing native
 receipts still requires reconciliation. A one-request native proof does not
 qualify sustained residency or full controls. Use a fresh current CLI/MCP;
 legacy connected servers do not acquire this behavior from source edits.
+
+Never interpret `dispatched:false` as proof that no native effect occurred: that
+field describes the helper checkpoint. A real legacy mutation happened after
+dispatch:false/cancelled. Current clients require the installed native gate
+policy before enqueueing mutations, and bind each request to its handler and
+settings hashes. The gate checks expiry/cancel/STOP again at the actual native
+tool and consumes one exact slot. Enqueued native mutations without a correlated
+receipt remain outcome_unknown/retrySafe:false, even with that policy, because
+platform hook runner failures are not yet exhaustively qualified. Reconcile
+before new work; neither cancellation nor a stop reverses an earlier effect.
+See [native-effect-admission.md](native-effect-admission.md).
 
 ## V2 control interface
 

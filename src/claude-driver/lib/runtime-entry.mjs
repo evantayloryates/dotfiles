@@ -63,7 +63,7 @@ export function admitPinnedEntry({dir,kind,script:loadedScript}={}) {
  process.env.CLAUDE_DRIVER_STATE_DIR=state
  // Native receipt + completed entry, bound to generation and PID, is evidence
  // of execution. Selection alone is explicitly not a completion/readiness claim.
- function observe(phase){const binding=nativeBinding(pointer,dir);const file=join(dir,kind+(phase==='selected'?'-entry-selected.json':'-entry.json')),tmp=file+'.'+process.pid+'.tmp';writeFileSync(tmp,JSON.stringify({build:pointer.build,bootstrapHash:pointer.bootstrapHash,generation:pointer.generation,pid:process.pid,nativeBinding:binding,at:Date.now(),script,phase,...(kind==='broker-check'?{requestId:process.argv[2]}:{})}),{mode:0o600});renameSync(tmp,file)}
+ function observe(phase){const binding=nativeBinding(pointer,dir);const file=join(dir,kind+(phase==='selected'?'-entry-selected.json':'-entry.json')),tmp=file+'.'+process.pid+'.tmp';writeFileSync(tmp,JSON.stringify({build:pointer.build,bootstrapHash:pointer.bootstrapHash,generation:pointer.generation,pid:process.pid,nativeBinding:binding,at:Date.now(),script,phase,...(kind==='broker-check'?{requestId:process.argv[2],index:Number(process.argv[3])}:{})}),{mode:0o600});renameSync(tmp,file)}
  observe('selected')
  return {script,complete:()=>observe('completed')}
 }

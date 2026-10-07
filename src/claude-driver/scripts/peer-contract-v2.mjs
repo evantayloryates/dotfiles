@@ -56,6 +56,13 @@ try{
  check('child token is classified distinctly from peer token',()=>{const f=make(true);send(f,[{type:'auth',token:'b'.repeat(32)},frame]);assert.equal(f.seen[0].authKind,'child')})
  check('line cap and first-line deadline close without routing',()=>{const f=make(true);f.socket.emit('data','x'.repeat(lineCap+1));assert.equal(f.socket.destroyed,true);assert.equal(f.seen.length,0);const idle=make(true);idle.timers[0].fn();assert.equal(idle.socket.destroyed,true)})
  check('an authenticated final fragment is accepted on half-close',()=>{const f=make(true);send(f,[{type:'auth',token}]);f.socket.emit('data',JSON.stringify(frame));f.socket.emit('end');assert.equal(f.seen.length,1);assert.equal(f.socket.ended,true)})
+ // The desktop may leave a previous inbound handler pending after STOP.
+ // This tests actual installed routing, not an inferred queue policy.
+ const routing=cut(inbox,'function Qe(e,n,i,r,d){','var Je='),seen=[],state={processingChain:new Promise(()=>{})}
+ const route=runInNewContext(`(()=>{${routing};return Qe})()`,{le:e=>e&&typeof e.type==='string',u:()=>state,be:async e=>{seen.push(e.msg_id)},t:()=>{}},{timeout:1000})
+ route(frame);await Promise.resolve();assert.equal(seen.length,0)
+ route({...frame,priority:'now'});await Promise.resolve();assert.deepEqual(seen,[frame.msg_id])
+ rows.push({name:'immediate user routing bypasses a blocked prior processing chain; next does not',ok:true})
  const api=runInNewContext(`(()=>{${format}${formatter}${parser};return {parse:_,format:cet}})()`,{r6:'cross-session-message',h:{source:'^[a-f0-9]{32}$'},C:{source:'^[a-f0-9]{32}(?:,[a-f0-9]{32}){0,7}$'},f:'A-Za-z0-9%:_/.\\\\-',x:['bypass','prompting'],Oh:s=>s,UWe:(tag,body)=>body},{timeout:1000,contextCodeGeneration:{strings:false,wasm:false}})
  check('existing direct envelope matches installed parser and preserves routing metadata',()=>{const body='claude-driver wake v6',text='<cross-session-message from-name="claude-driver" from-mode="bypass">\n'+body+'\n</cross-session-message>';const parsed=api.parse(text);assert.equal(parsed.body,body);assert.equal(parsed.fromName,'claude-driver');assert.equal(parsed.fromMode,'bypass');assert.equal(api.parse(text+' appended'),undefined)})
  const evidence=Object.fromEntries(Object.entries(sources).map(([name,x])=>[name,{offset:x.offset,sha256:createHash('sha256').update(x.text).digest('hex')}]))

@@ -1,5 +1,5 @@
-// Durable broker lifecycle. Cancellation before dispatch is definitive;
-// cancellation after the dispatch checkpoint is explicitly an unknown outcome.
+// Durable broker lifecycle. A helper checkpoint describes helper admission;
+// actual native effects require independent native boundary evidence.
 import { existsSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { BROKER_DIR, ensureDir, readJson, redactArgs, withLock, writeJsonAtomic } from './state.mjs'
@@ -16,6 +16,15 @@ export function validId(id) {
 }
 const locked = (id, fn) => withLock(`request-${validId(id)}`, fn, { timeoutMs: 5000 })
 export const control = id => readJson(controlFile(id), {})
+export function safeUndispatchedRetry(request){
+ // Legacy native relays demonstrably executed an effect after dispatch:false.
+ // Their missing helper checkpoint is not proof of no effect. A recorded gate
+ // policy is also not proof that a platform hook ran (timeouts/errors may skip
+ // hooks). Conservatively require reconciliation for every enqueued native
+ // effect, including new gated requests. Pure reads and synthetic relays retain
+ // their narrower retry contract; pre-enqueue refusals are separately safe.
+ return !request.nativeObservation||request.ops.every(o=>['get_session','list_sessions','list_groups','get_window_layout'].includes(o.op))
+}
 export function enqueue(request) {
   if (existsSync(requestFile(request.id))) throw new DriverError('request already exists', { category: 'request_conflict' })
   // Publish the request last: a waiter must never see a half-initialized request.
@@ -70,7 +79,7 @@ export async function pickupPending() {
   }
   return null
 }
-// Called immediately before each ccd tool. This is the irreversible boundary.
+// The helper checkpoint precedes the native PreToolUse admission boundary.
 export async function authorizeDispatch(id, index) {
   return locked(id, () => {
     const r = readJson(requestFile(id), null)
@@ -112,9 +121,10 @@ export function inspectRequest(id, { includeResult = false } = {}) {
     for(let i=0;observe&&i<4;i++){const actual=observe();if(actual){writeJsonAtomic(nativeResultFile(id),actual);break}}
   }
   const receipt = validatedResult(r)
-  return { requestId: id, state: receipt ? receipt.results.every(x=>x.ok) ? 'completed' : 'failed' : c.state || 'unknown',
+  const uncertainEffect=!receipt&&!safeUndispatchedRetry(r)&&['cancelled','expired'].includes(c.state)
+  return { requestId: id, state: receipt ? receipt.results.every(x=>x.ok) ? 'completed' : 'failed' : uncertainEffect?'outcome_unknown':c.state || 'unknown',
     controlState: c.state, dispatched: (c.dispatched || []).length > 0,
-    receiptVerified: !!receipt, retrySafe: !receipt && !c.dispatched?.length && ['cancelled','expired'].includes(c.state),
+    receiptVerified: !!receipt, retrySafe: !receipt && !c.dispatched?.length && ['cancelled','expired'].includes(c.state)&&safeUndispatchedRetry(r),
     operations: r.ops.map(x=>({op:x.op,args:redactArgs(x.args)})),
     ...(includeResult && receipt ? {result:receipt} : {}),
     verification: 'A correlated receipt confirms native tool outcome; verify app state or recipient response before claiming application.' }

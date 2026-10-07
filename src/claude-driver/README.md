@@ -53,21 +53,28 @@ The [continuity checkpoint](docs/resume.md) records current qualification.
 The active broker dependencies are sealed and pinned independently of host edits.
 A native receipt proved cached workspace commands delegate through the validated
 sealed bootstrap; the workspace entry shim remains the startup boundary. The
-latest full native run failed after its initial reply/cancel checks: Haiku ended
-turns with “Broker running” without serving queued work. Earlier eleven-check
-passes are historical, not current readiness. See the checkpoint for exact builds.
+latest full native run failed initial serving and cleanup after an earlier full
+pass and later concurrency failure. A bounded Stop continuation can still end
+without tools. Earlier passes are historical, not current readiness. See the
+checkpoint for exact builds.
 
 An installed broker-scoped command Stop hook now supplies one continuation for
 an exact pending owned peer wake. The ordinary client proved a native operation
 through this path in44.716s; one archived fixture's later persisted metadata was
 also independently verified. The hook uses no inference itself. Every request
-gets at most one wake and one continuation; cancellation, expiry, STOP and
-native checkpoints remain binding. This improves per-request serving; broader
+gets at most one wake and one continuation. An actual native PreToolUse gate
+now enforces live request, exact arguments/slot, native process/deployment,
+deadline/cancel/STOP, installed policy hashes and exclusive native admission.
+One native effect occurred after a cancelled helper returned dispatch:false;
+instructions alone were insufficient. Unsettled enqueued mutations now remain
+outcome_unknown/retrySafe:false even with a gate policy. See
+[native effect admission](docs/native-effect-admission.md). Per-request serving,
+broader
 controls, latency and sustained residency remain unqualified.
 
 Current host entry verification binds sealed wait/check observations to the real
-native PID/start ancestry. The legacy active pin lacks that epoch binding and is
-truthfully reported as unqualified until a settled handoff. Public CLI and helper
+native PID/start ancestry. The active generation6 pin has completed native entry
+evidence; different-build rollback remains unqualified. Public CLI and helper
 output now drain naturally instead of truncating large captured JSON on exit.
 
 Current CLI 2.1.289 direct peer delivery is verified against installed receiver

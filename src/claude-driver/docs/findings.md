@@ -1,5 +1,33 @@
 # claude-driver findings
 
+## 2026-10-07 02:35 Eastern — native boundary enforcement and preserved serving failures
+
+- One exact native archive occurred0.588s after the helper returned cancelled/
+  dispatch:false. Independent fixture metadata proved the effect; the old safe
+  retry claim was wrong. `native-late-cleanup-forensics-2026-10-07.json` (n=1).
+- A service-local native PreToolUse gate admitted one real read and correlated
+  its tool ID to the native receipt. A cancellation after checkpoint produced
+  an actual native hook denial (n=1 each), independently verified in
+  `native-effect-gate-negative-independent-2026-10-07.json`.
+- Actual admission checks request/arguments/index/deadline/cancel/STOP, native
+  process/deployment identity, immutable template and recorded hook/settings
+  provenance; exclusive slot consumption blocks repeated calls. Malformed and
+  oversized input now explicitly refuses rather than silently skipping admission.
+- Enqueued native effects without receipts now remain outcome_unknown and
+  retrySafe:false, even with a gate policy. Platform hook faults remain open;
+  policy presence or absent helper/marker cannot establish no effect.
+- Full native pass05:58 did not persist: later concurrency failed, and the
+  final f824 run failed initial serving and cleanup. One Stop rescue was consumed
+  but its continued turn ended without tools. Keep failures, avoid inference
+  loops and do not claim a missing hook, crash cause or general readiness.
+- Three f824 isolated rounds and both10-check filtered harnesses passed; final
+  bounded-input e8b16514 has one whole isolated pass. Their exact fingerprints
+  remain distinct from active4af dependencies and historical native proofs.
+- Final e8 native read passed13.174s with matching admission/receipt ID, but
+  subsequent desired-state cleanup expired45s. Preserve the failed whole report
+  `native-bounded-gate-final-check-2026-10-07T06-35-45-388Z.json`; fixture remains
+  unarchived/idle and the unknown archive must not be blindly replayed.
+
 ## 2026-10-07 01:56 Eastern — native controls and stale sealed entry paths
 
 - Native batching cut three settings to one request9.787s; concurrent controls

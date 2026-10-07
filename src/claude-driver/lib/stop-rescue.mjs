@@ -18,9 +18,9 @@ export async function installStopRescue({sessionId,pid,procStart,upgrade=false}=
  const prior=stopRescuePolicy();if(prior){if(prior.sessionId!==sessionId||prior.pid!==pid||prior.procStart!==procStart)refused();if(!upgrade)return {...prior,reused:true}}
  if(!prior&&existsSync(settings)||existsSync(armFile))refused()
  const release=await stageRelease(),script=join(release.root,'scripts','broker-stop-rescue.mjs')
- const commandHook={type:'command',command:process.execPath,args:[script,BROKER_DIR],timeout:5}
- const body=JSON.stringify({hooks:{Stop:[{hooks:[commandHook]}],PreToolUse:[{matcher:'Bash',hooks:[commandHook]}]}},null,2)
- const policy={schemaVersion:1,sessionId,pid,procStart,build:release.build,script,sha256:hash(readFileSync(script)),settingsHash:hash(body),maximumRescuesPerRequest:1,installedAt:Date.now()}
+ const commandHook=event=>({type:'command',command:process.execPath,args:[script,BROKER_DIR,event],timeout:5})
+ const body=JSON.stringify({hooks:{Stop:[{hooks:[commandHook('Stop')]}],PreToolUse:[{matcher:'Bash|mcp__ccd_.*',hooks:[commandHook('PreToolUse')]}]}},null,2)
+ const policy={schemaVersion:1,nativeEffectAdmissionVersion:1,sessionId,pid,procStart,build:release.build,script,sha256:hash(readFileSync(script)),settingsHash:hash(body),maximumRescuesPerRequest:1,installedAt:Date.now()}
  ensureDir(join(BROKER_DIR,'.claude'))
  if(prior){if(hash(readFileSync(settings))!==prior.settingsHash)refused();writeJsonAtomic(settings,JSON.parse(body))}else writeFileSync(settings,body,{mode:0o600,flag:'wx'})
  writeJsonAtomic(policyFile,policy)

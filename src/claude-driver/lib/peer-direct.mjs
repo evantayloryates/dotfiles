@@ -131,28 +131,35 @@ export function transcriptPath(rec) {
 }
 
 // target: { sessionId: local_…, permissionMode }. Returns { msgId, pid }.
-export async function deliver(target, text, { fromName = 'claude-driver',timeoutMs=5000,signal,onPrepared } = {}) {
+export async function deliver(target, text, { fromName = 'claude-driver',timeoutMs=5000,signal,onPrepared,priority='next' } = {}) {
   if(signal?.aborted)throw new DriverError('peer delivery cancelled',{category:'cancelled'})
-  if(typeof text!=='string'||typeof fromName!=='string'||/["<>\p{Cc}\p{Cf}]/u.test(fromName)||[...fromName].length>64||!Number.isFinite(timeoutMs)||timeoutMs<=0)
+  if(typeof text!=='string'||typeof fromName!=='string'||/["<>\p{Cc}\p{Cf}]/u.test(fromName)||[...fromName].length>64||!Number.isFinite(timeoutMs)||timeoutMs<=0||!['next','now'].includes(priority))
     throw new DriverError('invalid direct peer message or deadline',{category:'bad_args',detail:{dispatched:false,retrySafe:true}})
   const rec = peerRecord(target.sessionId,target.live?.pid)
   if (!rec) throw new DriverError(`no live process for ${target.sessionId}`, { category: 'broker_dead' })
   if(rec.peerProtocol!==1||!VERIFIED_CLI.includes(rec.version))throw new DriverError('direct transport is not qualified for this peer version',{category:'peer_unqualified',detail:{dispatched:false,retrySafe:true}})
   if(target.live?.procStart&&target.live.procStart!==rec.procStart)throw new DriverError('peer native process epoch changed',{category:'peer_refused',detail:{dispatched:false,retrySafe:true}})
   if(rec.sessionId!==target.sessionId.replace(/^local_/,''))throw new DriverError('peer CLI session identity mismatch',{category:'peer_refused'})
+  // Immediate routing is an experimental idle-only service wake, never a
+  // generic interruption primitive. A fresh record must agree with the target.
+  if(priority==='now'&&(rec.version!=='2.1.289'||target.live?.status!=='idle'||rec.status!=='idle'))throw new DriverError('immediate peer routing requires the same reviewed idle native peer',{category:'peer_refused',detail:{dispatched:false,retrySafe:true}})
   const sock = rec.messagingSocketPath
   const lst = typeof sock === 'string' ? lstatSync(sock, { throwIfNoEntry: false }) : null
   if (!lst || lst.isSymbolicLink() || !lst.isSocket() || lst.uid !== process.getuid()) throw new DriverError(`bad peer socket ${sock}`, { category: 'peer_refused' })
   const fromMode = modeClass(target.permissionMode)
   const content = `<${TAG} from-name="${fromName}" from-mode="${fromMode}">\n${escapeBody(text)}\n</${TAG}>`
   const msgId = randomUUID()
-  const frame = JSON.stringify({ msgV: 1, msg_id: msgId, type: 'user', message: { role: 'user', content }, priority: 'next', session_id: rec.sessionId })
+  const frame = JSON.stringify({ msgV: 1, msg_id: msgId, type: 'user', message: { role: 'user', content }, priority, session_id: rec.sessionId })
   const token = readToken(rec)
   const payload = `${JSON.stringify({ type: 'auth', token })}\n${frame}\n`
   if (payload.length > LINE_CAP) throw new DriverError('message too large for one peer frame', { category: 'bad_args' })
   // Internal service callback sees metadata only, before a byte is sent.
   // A refused arm cannot fall through to another sender or race a fast Stop.
   if(onPrepared!==undefined){if(typeof onPrepared!=='function')throw new DriverError('invalid peer preparation callback',{category:'bad_args',detail:{dispatched:false,retrySafe:true}});await onPrepared({msgId,pid:rec.pid,procStart:rec.procStart})}
+  if(priority==='now'){
+    const fresh=peerRecord(target.sessionId,rec.pid)
+    if(!fresh||fresh.procStart!==rec.procStart||fresh.status!=='idle')throw new DriverError('peer became active before immediate routing; no frame sent',{category:'peer_refused',detail:{dispatched:false,retrySafe:true}})
+  }
   await sendLines(sock, payload,{timeoutMs,signal})
   return { msgId, pid: rec.pid, procStart:rec.procStart, transcript: transcriptPath(rec) }
 }

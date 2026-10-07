@@ -74,6 +74,21 @@ test('prepared metadata is bound before any socket byte and refusal cannot fall 
   assert.equal(bytes,before);assert.equal(existsSync(fallback),false)
  }finally{await close()}
 })
+test('experimental immediate routing refuses active or changed peers before sending and never falls back',async()=>{
+ let input='';await start((s,d)=>{input+=d.toString();s.end()})
+ const idleTarget={...target,live:{pid:process.pid,procStart,status:'idle'}}
+ try{
+  writeFileSync(recFile,JSON.stringify({...rec,status:'busy'}))
+  await assert.rejects(deliver(idleTarget,'fixture',{method:'direct',priority:'now'}),e=>e.category==='peer_refused'&&e.detail.dispatched===false)
+  assert.equal(input,'')
+  writeFileSync(recFile,JSON.stringify({...rec,status:'idle'}))
+  await assert.rejects(deliver({...idleTarget,live:{...idleTarget.live,status:'busy'}},'fixture',{method:'direct',priority:'now'}),e=>e.category==='peer_refused')
+  await assert.rejects(deliver(idleTarget,'fixture',{priority:'now'}),e=>e.category==='bad_args')
+  await assert.rejects(deliver(idleTarget,'fixture',{method:'direct',priority:'now',onPrepared:()=>writeFileSync(recFile,JSON.stringify({...rec,status:'busy'}))}),e=>e.category==='peer_refused'&&e.detail.dispatched===false)
+  assert.equal(input,'');writeFileSync(recFile,JSON.stringify({...rec,status:'idle'}))
+  await deliver(idleTarget,'fixture',{method:'direct',priority:'now'});const frame=JSON.parse(input.trim().split('\n')[1]);assert.equal(frame.priority,'now');assert.equal(frame.session_id,rec.sessionId);assert.equal(existsSync(fallback),false)
+ }finally{reset();await close()}
+})
 test('missing, malformed, nonprivate, mismatched or symlinked keys send nothing and cannot fall back',async()=>{
  let bytes=0;await start((s,d)=>{bytes+=d.length;s.end()})
  try{
