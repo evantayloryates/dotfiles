@@ -1,3 +1,20 @@
+## Actual stdio cancellation propagation verified — October 7, 13:19 Eastern
+
+New isolated client/server test uses actual shared MCP transport and production
+runNativeServiceReadTransaction/publication helper with private temporary capacity
+store. Native send/claim are synthetic counters only. Cancellation notification
+while preparation held propagates signal, consumes zero slots, publishes nothing.
+Cancellation after exactly one simulated send retains one durable slot, reports
+request uncertainty/retrySafe:false, attempts one cleanup, never retries. Cancelled
+RPC response suppressed; subsequent audit RPC observes settled handler state.
+Fresh test servers close via stdin; no configured/native processes restarted or
+terminated, shared transport source and Codex bridge unchanged. Shared service
+memory recorded. Full pressure v2-2026-10-07T17-19-28-039Z passed1/1
+in9037ms/sourceChanged:false. This qualifies transport-to-host transaction boundary,
+not cancellation of an executing native MCP effect. Next examine durable controls
+and current native receiver handling for a bounded no-effect native cancel trial.
+No human action required.
+
 ## Cancellation capacity gap fixed — October 7, 13:18 Eastern
 
 Read preparation previously reserved durable capacity before post-prepare abort

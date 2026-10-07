@@ -337,3 +337,8 @@ service d19dab280cc657366bd4dacbdf8d56ff: unchanged native epoch, exact command
 and ancestor observations before retirement, SIGTERM143 exit542ms afterward
 before child deadline, and fresh PID absence. This qualifies only that resource
 disposition; general hook/environment unload, serving and release remain open.
+
+Cancellation propagation through actual shared stdio MCP and the production read
+transaction is verified with private fixture stores: before-publication cancellation
+consumes no capacity; after one simulated send it preserves uncertainty/capacity,
+cleans up once and never retries. Native effect cancellation remains unqualified.
