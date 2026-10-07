@@ -8,7 +8,8 @@ import {nativeResultFile} from './requests.mjs'
 const root='/Users/taylor/.local/state/claude-driver/pressure/'
 const json=(p,limit=16384)=>JSON.parse(readProbeBytes(p,limit).bytes.toString('utf8'))
 const refuse=()=>{throw Object.assign(Error('native callback result evidence refused; no result published'),{category:'native_callback_result_refused'})}
-export function screenNativePeerResult({config,requestId,report,receipt,admission}){
+export function screenNativePeerResult({config,requestId,report,receipt,admission}={}){
+ if(!config||!report||!admission||typeof requestId!=='string'||!Number.isFinite(config.deadline)||!Number.isFinite(Date.parse(report.startedAt))||!Number.isFinite(Date.parse(report.completedAt)))return null
  const keys=['schemaVersion','scope','probeId','requestId','brokerSession','targetSession','startedAt','receivedAt','isError','content']
  if(!receipt||typeof receipt!=='object'||Array.isArray(receipt)||Object.keys(receipt).sort().join(',')!==keys.sort().join(',')||receipt.schemaVersion!==1||receipt.scope!=='owned-native-peer-result'||receipt.probeId!==config.id||receipt.requestId!==requestId||receipt.brokerSession!==config.brokerSession||receipt.targetSession!==config.targetSession||receipt.startedAt!==report.startedAt||!admission.singleReadAdmissionObserved||typeof receipt.isError!=='boolean'||receipt.isError!==report.resultWasError)return null
  const at=Date.parse(receipt.receivedAt),end=Date.parse(report.completedAt)

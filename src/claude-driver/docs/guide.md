@@ -112,6 +112,15 @@ It requires unchanged settings and does not wake, replay or complete the origina
 job. Recovery has actual owned Node worker-loss proof; general native broker recovery
 remains separate. Cleanup is independent from an unknown execution outcome.
 
+`broker_peer_result_reconcile {id, experimental:true}` publishes a standard
+lifecycle receipt from one existing admitted native callback enrollment. The ID
+is the enrollment UUID, not the request ID. This operation verifies the captured
+response, exact admission, original epoch and active module bytes, then returns
+settlement metadata without exposing response content. It never sends or replays.
+It writes a local receipt, so it is not marked read-only. Missing or retired module
+bytes refuse; historical control outcomes remain unchanged. This experimental
+operation does not install a module or qualify persistent native serving.
+
 `broker_read_reconcile {id, experimental:true}` recovers original metadata
 results after exact restoration, using bounded native receipts and an independent
 host-finish observation. It produces no model turn or read replay and leaves the

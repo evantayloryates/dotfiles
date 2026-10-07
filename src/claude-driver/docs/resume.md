@@ -1,3 +1,16 @@
+## Shared callback settlement interface — October 7, 12:05 Eastern
+
+Shared OPS now exposes broker_peer_result_reconcile {id, experimental:true} to
+CLI/MCP callers. It publishes only a verified existing captured native result;
+no send, execution, replay, module installation or permission change. Marked
+readOnly:false because it publishes a local lifecycle receipt. Retired modules
+remain refused; do not reload the retired successful enrollment to retest.
+Pure result screening now rejects missing inputs and invalid time bounds cleanly.
+Contract tests prove opt-in and invalid enrollment refusal before evidence access.
+Full pressure v2-2026-10-07T16-05-24-105Z passed1/1 in8560ms, sourceChanged:false.
+Guide updated. Persistent reusable serving and native unload proof remain open;
+this interface alone does not qualify either or complete the broad v2 goal.
+
 ## Native callback lifecycle receipt settled — October 7, 12:01 Eastern
 
 Result-channel enrollment89c94ec9-32c9-466d-8313-5c4ddfe9439f passed native validator

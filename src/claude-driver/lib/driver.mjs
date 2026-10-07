@@ -845,6 +845,15 @@ export const OPS = [
   },
   // ---------------- broker
   {
+    name:'broker_peer_result_reconcile',title:'Settle an admitted native callback result',readOnly:false,
+    description:'Experimental local receipt publication for one existing native peer result enrollment. Verifies exact owned runtime, module bytes, admission and captured response; never sends, executes, replays or changes permissions. Returns settlement metadata only. Retired or changed modules are refused.',
+    schema:{required:['id','experimental'],properties:{id:{type:'string',pattern:'^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$'},experimental:{type:'boolean',enum:[true]}}},
+    run:async args=>{
+      if(args.experimental!==true)throw new DriverError('native peer reconciliation requires explicit experimental opt-in',{category:'bad_args'})
+      return (await import('./native-peer-result.mjs')).reconcileNativePeerResult(args.id)
+    },
+  },
+  {
     name:'broker_read_reconcile',title:'Recover original native metadata receipts',readOnly:true,
     description:'Reconcile bounded original metadata receipts after exact settings restoration, without replay or inference. Requires original intact idle native epoch and host finish. Returns historical metadata and preserves the original job outcome; never release authority.',
     schema:{required:['id','experimental'],properties:{id:{type:'string'},experimental:{type:'boolean',enum:[true]}}},
