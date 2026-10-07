@@ -1,6 +1,10 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {nativeHookResult,nativeHookEventError} from '../lib/native-hook-receipts.mjs'
+import {nativeHookResult,nativeHookEventError,nativeExportReturnName} from '../lib/native-hook-receipts.mjs'
+test('export filename observation does not require an echoed SID; ambiguous returns refuse',()=>{
+ assert.equal(nativeExportReturnName('Export saved: session-export-1791363709372.zip'),'session-export-1791363709372.zip')
+ for(const value of [null,'session-export-1Xzip','session-export-1.zip session-export-2.zip','x'.repeat(65537)])assert.equal(nativeExportReturnName(value),null)
+})
 const opts={command:'ccd_session_mgmt/get_session',cliSessionId:'synthetic',cwd:'/synthetic',chain:new Set(['terminal']),notBefore:1000,notAfter:2000}
 const row={type:'attachment',uuid:'hook-result',parentUuid:'terminal',timestamp:new Date(1500).toISOString(),sessionId:'synthetic',cwd:'/synthetic',version:'2.1.289',attachment:{type:'hook_success',command:opts.command,hookEvent:'Stop',hookName:'Stop',toolUseID:'hook-run',stdout:'synthetic metadata',stderr:''}}
 test('actual hook attachment distinguishes its private result and run identity from an assistant receipt',()=>{

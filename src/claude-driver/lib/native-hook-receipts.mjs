@@ -3,6 +3,13 @@
 // supplies the exact causal chain. Never log stdout automatically.
 const allowed=new Set(['ccd_session_mgmt/get_session','ccd_session_mgmt/export_transcript'])
 const id=x=>typeof x==='string'&&/^[A-Za-z0-9_-]{1,200}$/.test(x)
+// A self-export return need not contain a session ID. This is only a candidate
+// name; callers must also bind the owned hook, export log and ZIP identities.
+export function nativeExportReturnName(stdout){
+ if(typeof stdout!=='string'||Buffer.byteLength(stdout)>65536)return null
+ const names=[...stdout.matchAll(/\bsession-export-[0-9]+\.zip\b/g)].map(m=>m[0])
+ return names.length===1?names[0]:null
+}
 export function nativeHookResult(row,{command,event='Stop',cliSessionId,cwd,chain,notBefore,notAfter}){
  const a=row?.attachment,at=Date.parse(row?.timestamp)
  if(!allowed.has(command)||event!=='Stop'||!id(cliSessionId)||!Number.isFinite(notBefore)||!Number.isFinite(notAfter)||notAfter<notBefore||!(chain instanceof Set)||row?.type!=='attachment'||row.isSidechain||!id(row.uuid)||!chain.has(row.parentUuid)||row.sessionId!==cliSessionId||row.cwd!==cwd||row.version!=='2.1.289'||!Number.isFinite(at)||at<notBefore||at>notAfter||a?.command!==command||a.hookEvent!==event||a.hookName!==event||!['hook_success','hook_non_blocking_error'].includes(a.type)||typeof a.stdout!=='string'||Buffer.byteLength(a.stdout)>65536||typeof a.stderr!=='string'||Buffer.byteLength(a.stderr)>65536||!id(a.toolUseID))return null

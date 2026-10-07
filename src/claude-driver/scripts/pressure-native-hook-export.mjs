@@ -18,13 +18,14 @@ import {installTemporaryHookProbe,prepareTemporaryHookPeer,restoreTemporaryHookP
 import {RUNTIME_BUILD,runtimeFingerprint} from '../lib/build.mjs'
 import {recordMemory} from '../lib/memory.mjs'
 import {MAIN_LOG,DESKTOP_CONFIG,versions,sleep} from '../lib/paths.mjs'
-import {nativeHookResult,nativeHookEventError} from '../lib/native-hook-receipts.mjs'
-if(process.argv.length!==3||!['--run-owned-stop-export-probe','--run-owned-stop-read-probe','--run-owned-stop-batch-read-probe','--run-owned-stop-read-edges-probe'].includes(process.argv[2]))throw Error('explicit owned Stop diagnostic read probe flag required')
-const operation=process.argv[2]==='--run-owned-stop-export-probe'?'export_transcript':'get_session',includeBrokerRead=process.argv[2]==='--run-owned-stop-batch-read-probe',readEdges=process.argv[2]==='--run-owned-stop-read-edges-probe'
+import {nativeHookResult,nativeHookEventError,nativeExportReturnName} from '../lib/native-hook-receipts.mjs'
+import {summarizeNativeSnapshot} from '../lib/native-export-snapshot.mjs'
+if(process.argv.length!==3||!['--run-owned-stop-export-probe','--run-owned-stop-read-probe','--run-owned-stop-batch-read-probe','--run-owned-stop-read-edges-probe','--run-owned-stop-broker-snapshot-probe'].includes(process.argv[2]))throw Error('explicit owned Stop diagnostic read probe flag required')
+const exportBroker=process.argv[2]==='--run-owned-stop-broker-snapshot-probe',operation=exportBroker||process.argv[2]==='--run-owned-stop-export-probe'?'export_transcript':'get_session',includeBrokerRead=process.argv[2]==='--run-owned-stop-batch-read-probe',readEdges=process.argv[2]==='--run-owned-stop-read-edges-probe'
 const sid='local_35b3ba48-f02e-48de-bfbb-925192d90de1',fixtureId='local_fc1e5eab-9d24-4e4c-a09c-9a386a6ffe14',fixtureCwd=join(STATE_DIR,'probe','v2-2026-10-07T04-37-49-840Z')
 const epoch={sessionId:sid,pid:71262,procStart:'Wed Oct  7 03:24:51 2026'},token=randomBytes(16).toString('hex'),prefix=join(STATE_DIR,'pressure','native-hook-export-'+new Date().toISOString().replace(/[:.]/g,'-')),report=prefix+'.json',receiptPath=prefix+'.stop.json'
-const targetIds=includeBrokerRead?[fixtureId,sid]:[fixtureId]
-const out={scope:'owned-native-stop-hook-read',operation,targetIds,readEdges,...(readEdges?{configuredDuplicateReads:2,expectedDistinctReadReceipts:1}:{}),token,versions:versions(),runtimeBuild:RUNTIME_BUILD,epoch,fixtureId,rows:[],ok:false,limitations:['Owned metadata reads are native hook dispatch evidence, not a general request transport or mutation admission/result contract','Hook-result attachments are genuine native hook receipts, not assistant tool-use receipts','The triggering no-tools turn uses one native model turn; hook execution and observation use no inference','Commandless errors belong only to their native event; they cannot identify which tool failed or establish a native invocation']}
+const targetId=exportBroker?sid:fixtureId,targetIds=includeBrokerRead?[fixtureId,sid]:[targetId]
+const out={scope:exportBroker?'owned-native-broker-export-snapshot':'owned-native-stop-hook-read',operation,targetIds,readEdges,...(readEdges?{configuredDuplicateReads:2,expectedDistinctReadReceipts:1}:{}),token,versions:versions(),runtimeBuild:RUNTIME_BUILD,epoch,fixtureId,rows:[],ok:false,limitations:['Owned metadata reads are native hook dispatch evidence, not a general request transport or mutation admission/result contract','Hook-result attachments are genuine native hook receipts, not assistant tool-use receipts','The triggering no-tools turn uses one native model turn; hook execution and observation use no inference','Commandless errors belong only to their native event; they cannot identify which tool failed or establish a native invocation','A native snapshot captured during Stop is an observation, not post-turn quiescence or release authorization']}
 let installed=false,logFd,logStart,logOffset,peer,foreignTurn=false,observedStop=false
 const chain=new Set()
 let journalFd,journalIdentity,journalOffset
@@ -50,7 +51,7 @@ function exportsSince(cli){
  logOffset+=end+1
  const paths=[]
  for(const line of b.subarray(0,end).toString().split('\n')){
-  if(line.includes('[shareSession] Starting export for session '+fixtureId))out.nativeExportStarted=true
+  if(line.includes('[shareSession] Starting export for session '+targetId))out.nativeExportStarted=true
   const marker='[transcriptExport] Session '+cli+' exported to ',at=line.indexOf(marker)
   if(at<0)continue
   const match=line.slice(at+marker.length).match(/^(\/[^\r\n]+\/session-export-[0-9]+\.zip) \(([0-9]+) bytes, ([0-9]+) files\)/)
@@ -58,21 +59,39 @@ function exportsSince(cli){
  }
  return paths
 }
-function validateExport(entry,fixture){
+function validateExport(entry,target){
  const s=lstatSync(entry.path);if(s.isSymbolicLink()||!s.isFile()||s.uid!==process.getuid()||s.size!==entry.bytes||s.size>16*1024*1024||s.mtimeMs<out.startedAt)throw Error('native export file identity refused')
+ const bytes=ownedBytes(entry.path,16*1024*1024)
  // Python stdlib reads only the two bounded metadata members; it never renders
  // a conversation. Duplicate entries, unrelated CLI IDs and logs refuse.
- const code=`import json,sys,zipfile\np,host,cli=sys.argv[1:]\nwith zipfile.ZipFile(p) as z:\n infos=z.infolist(); names=[x.filename for x in infos]\n assert len(infos)<256 and len(names)==len(set(names))\n assert 'metadata.json' in names and 'local-session-state.json' in names and cli+'.jsonl' in names\n assert not any(x.startswith('logs/') or x.startswith('/') or '..' in x.split('/') for x in names)\n for n in ['metadata.json','local-session-state.json']: assert z.getinfo(n).file_size<65536\n meta=json.loads(z.read('metadata.json')); state=json.loads(z.read('local-session-state.json'))\n assert meta['sessionId']==host and meta['cliSessionId']==cli and state['sessionId']==host and state['cliSessionId']==cli\n assert meta['isArchived'] is True\n print(json.dumps({'metadataVerified':True,'entries':len(names),'cliSessionId':cli,'sessionId':host,'archived':True,'capturedAt':state['capturedAt'],'isRunning':state.get('isRunning'),'cliProvablyIdle':state.get('cliProvablyIdle'),'hasPendingCycle':state.get('hasPendingCycle'),'toolMayBeRunning':state.get('toolMayBeRunning')}))` 
- const result=JSON.parse(execFileSync('/usr/bin/python3',['-c',code,entry.path,fixtureId,fixture.cliSessionId],{encoding:'utf8',timeout:3000,maxBuffer:65536}))
- const destination=prefix+'.zip',bytes=ownedBytes(entry.path,16*1024*1024)
+ const code=`import json,sys,zipfile
+p,host,cli,archived=sys.argv[1:]
+with zipfile.ZipFile(p) as z:
+ infos=z.infolist(); names=[x.filename for x in infos]
+ assert len(infos)<256 and len(names)==len(set(names))
+ assert 'metadata.json' in names and 'local-session-state.json' in names and cli+'.jsonl' in names
+ assert not any(x.startswith('logs/') or x.startswith('/') or '..' in x.split('/') for x in names)
+ for n in ['metadata.json','local-session-state.json']: assert z.getinfo(n).file_size<65536
+ meta=json.loads(z.read('metadata.json')); state=json.loads(z.read('local-session-state.json'))
+ assert meta['sessionId']==host and meta['cliSessionId']==cli and state['sessionId']==host and state['cliSessionId']==cli
+ assert meta['isArchived'] is (archived=='true')
+ keys=['capturedAt','sessionId','cliSessionId','isRunning','hasPendingPermission','hasLiveWorkflows','hasBackgroundWork','hasBackgroundActivity','activeBackgroundTasks','pendingEchoUuids','awaitingTurnResult','cliLastTurnMessageWasResult','cliAtTurnBoundaryHint','interruptResultPendingSince','interruptResultPendingCycleArmed','cliProvablyIdle','inputStreamHasPending','nextCycleUuid','hasPendingCycle','pendingCycleUserMessageUuid','deferredSendUuids','heldSteersUuids','toolMayBeRunning']
+ private={k:state[k] for k in keys if k in state}
+ print(json.dumps({'metadataVerified':True,'entries':len(names),'cliSessionId':cli,'sessionId':host,'archived':archived=='true','rawSnapshot':private}))`
+ const result=JSON.parse(execFileSync('/usr/bin/python3',['-c',code,entry.path,targetId,target.cliSessionId,exportBroker?'false':'true'],{encoding:'utf8',timeout:3000,maxBuffer:65536}))
+ const snapshot=summarizeNativeSnapshot(result.rawSnapshot,{sessionId:targetId,cliSessionId:target.cliSessionId,notBefore:out.startedAt,notAfter:out.startedAt+60000});delete result.rawSnapshot
+ if(bytesHash(ownedBytes(entry.path,16*1024*1024))!==bytesHash(bytes))throw Error('native export changed during metadata read')
+ const destination=prefix+'.zip'
  renameSync(entry.path,destination)
  if(bytesHash(ownedBytes(destination,16*1024*1024))!==bytesHash(bytes)||existsSync(entry.path))throw Error('native export transfer readback failed')
- return {...result,path:destination,nativeDownloadName:basename(entry.path),sha256:bytesHash(bytes),bytes:bytes.length,downloadsCopyRemoved:true}
+ return {...result,snapshot,path:destination,nativeDownloadName:basename(entry.path),sha256:bytesHash(bytes),bytes:bytes.length,downloadsCopyRemoved:true}
 }
 try{
  await withLock('broker',async()=>{
   const before=brokerInfo(),policy=stopRescuePolicy(),fixture=getRecord(fixtureId),owned=loadRegistry().sessions[fixtureId]
   if(!same(before)||before.live.status!=='idle'||before.resident?.resident||!policy||policy.quietWait||existsSync(join(BROKER_DIR,'stop-rescue-arm.json'))||existsSync(join(BROKER_DIR,'quiet-hook-owner.json'))||existsSync(join(BROKER_DIR,'STOP'))||fixture?.cwd!==fixtureCwd||owned?.kind!=='create'||owned.cwd!==fixtureCwd||!fixture.cliSessionId||fixture.isArchived!==true||readPins().has(fixtureId)||liveByHost().has(fixtureId))throw Error('exact idle broker/archived fixture admission refused')
+  const target=exportBroker?getRecord(sid):fixture
+  if(exportBroker&&(target?.cwd!==BROKER_DIR||target.cliSessionId!==sid.slice(6)||target.isArchived!==false))throw Error('exact owned broker export identity refused')
   if(readEdges){
    const reserved='claude_driver_probe_unconnected',files=[join(homedir(),'.claude.json'),DESKTOP_CONFIG,join(BROKER_DIR,'.mcp.json'),join(BROKER_DIR,'.claude/settings.json')]
    for(const file of files){if(!existsSync(file))continue;const config=JSON.parse(ownedBytes(file,1024*1024)),project=config.projects?.[BROKER_DIR];if([config.mcpServers,config.mcp?.servers,project?.mcpServers,project?.mcp?.servers].some(x=>x&&Object.hasOwn(x,reserved)))throw Error('reserved diagnostic server name is configured')}
@@ -86,10 +105,10 @@ try{
   logFd=openSync(MAIN_LOG,'r');logStart=fstatSync(logFd);logOffset=logStart.size;out.startedAt=Date.now()
   const deadline=out.startedAt+60000
   try{
-   installTemporaryHookProbe(BROKER_DIR,{token,epoch,observerScript:join(release.root,'scripts','mechanical-probe-stop.mjs'),receiptPath,fixtureId,expiresAt:deadline,operation,includeBrokerRead,readEdges});installed=true
+   installTemporaryHookProbe(BROKER_DIR,{token,epoch,observerScript:join(release.root,'scripts','mechanical-probe-stop.mjs'),receiptPath,fixtureId,expiresAt:deadline,operation,includeBrokerRead,readEdges,exportBroker});installed=true
    out.settingsHash=stopRescuePolicy({allowTemporaryProbe:true}).settingsHash
    await sleep(1500)
-   peer=await deliver({...before,permissionMode:before.permissionMode},'claude-driver mechanical read probe '+token+'. Finish this diagnostic turn with exactly '+token+' and no tools. The service Stop hook owns the synthetic-fixture diagnostic read. Do not execute requests, waiters, maintenance, recovery or change settings.',{method:'direct',priority:'now',timeoutMs:5000,onPrepared:p=>prepareTemporaryHookPeer(BROKER_DIR,token,p)})
+   peer=await deliver({...before,permissionMode:before.permissionMode},'claude-driver mechanical read probe '+token+'. Finish this diagnostic turn with exactly '+token+' and no tools. The service Stop hook owns the exact broker/fixture diagnostic read. Do not execute requests, waiters, maintenance, recovery or change settings.',{method:'direct',priority:'now',timeoutMs:5000,onPrepared:p=>prepareTemporaryHookPeer(BROKER_DIR,token,p)})
    out.peer={msgId:peer.msgId,pid:peer.pid,procStart:peer.procStart}
    while(Date.now()<deadline){
     if(!same(brokerInfo()))throw Error('native epoch changed during hook probe')
@@ -112,12 +131,12 @@ try{
        out.metadata??=[];out.metadata.push({sessionId:m.sessionId,archived:m.isArchived,pinned:m.pinned,isRunning:m.isRunning,verified:true})
       }
      }
-     if(r.ok&&operation==='export_transcript'&&r.stdout.includes(fixtureId)){
-      const name=r.stdout.match(/session-export-[0-9]+\.zip/)?.[0];if(name)out.nativeReturnExportName=name
+     if(r.ok&&operation==='export_transcript'){
+      const name=nativeExportReturnName(r.stdout);if(name)out.nativeReturnExportName=name
      }
     }
-    const exports=exportsSince(fixture.cliSessionId)
-    for(const entry of exports){out.exports??=[];out.exports.push(validateExport(entry,fixture))}
+    const exports=exportsSince(target.cliSessionId)
+    for(const entry of exports){out.exports??=[];out.exports.push(validateExport(entry,target))}
     if(observedStop&&out.nativeResults?.length===targetIds.length&&(!readEdges||out.eventErrors?.length===1)&&(operation==='get_session'?out.metadata?.length===targetIds.length:out.exports?.length)&&brokerInfo().live.status==='idle')break
     if(observedStop&&brokerInfo().live.status==='idle'&&Date.now()-out.startedAt>12000)break
     await sleep(250)
@@ -139,6 +158,6 @@ finally{
  if(journalFd!==undefined)closeSync(journalFd)
  out.sourceChanged=runtimeFingerprint()!==RUNTIME_BUILD;out.ok=!!out.ok&&!out.sourceChanged&&out.restoration?.restored===true
  const i=brokerInfo(),f=getRecord(fixtureId);out.after={pid:i.live?.pid,status:i.live?.status,integrity:i.runtime?.integrity,fixtureArchived:f?.isArchived,fixturePinned:readPins().has(fixtureId),fixtureLive:liveByHost().has(fixtureId)}
- writeJsonAtomic(report,out);recordMemory({kind:'test_result',topic:'native-direct-hook-read',source:'owned-native-probe',status:out.ok?'passed':'failed',evidence:report,lesson:'Bounded Stop-hook read checks native ancestry/peer witness, exact hook-result attachment and independent fixture metadata. Preserve failures and exact settings restoration. No generic mutation admission or FileChanged activation qualification.'})
+ writeJsonAtomic(report,out);recordMemory({kind:'test_result',topic:exportBroker?'native-broker-snapshot':'native-direct-hook-read',source:'owned-native-probe',status:out.ok?'passed':'failed',evidence:report,lesson:'Bounded Stop-hook read binds exact native ancestry, hook receipt and owned export metadata, with private transcript/queue contents excluded. A Stop-time queue snapshot does not authorize release or settle historical unknowns. Preserve failures and exact settings restoration.'})
  console.log(JSON.stringify({report,...out}));process.exitCode=out.ok?0:1
 }

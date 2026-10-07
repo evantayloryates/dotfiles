@@ -176,3 +176,19 @@ describes direct MCP hooks and connection availability. Its
 [FileChanged section](https://code.claude.com/docs/en/hooks#filechanged) describes
 watch seeding, literal paths and output limits. Installed source/actual native
 evidence must decide what this desktop build supports.
+# Native broker snapshot checkpoint — October 7, 05:06 Eastern
+
+The owned broker export at09:01 UTC has genuine Stop-hook result and exact
+broker/CLI archive metadata proof. Preserve original FAILED observer report
+native-hook-export-2026-10-07T09-01-45-570Z.json; its SID-in-return assumption was
+wrong. Independent fixed-range journal/hash and archive reconciliation lives in
+native-broker-snapshot-reconciliation-2026-10-07.json under service pressure.
+Self-export returns the filename without SID; a filename alone is not target
+proof. Corrected parser retains separate owned hook, log and ZIP identity gates.
+
+Snapshot isRunning:false occurred with cliProvablyIdle:false and both turn-result
+and boundary flags false. Stop-time observation cannot authorize release.
+Sanitizer exposes only flags/counts/marker presence, no queued content, and
+releaseAuthorized is always false. Missing/null fields remain unknown pending
+installed-version semantic qualification. Snapshot/native proof source49c1811d;
+later parser correction has isolated checks only. No mutation/handoff deployed.

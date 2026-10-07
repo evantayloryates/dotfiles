@@ -1,4 +1,40 @@
-## Latest frontier — October 7, 04:57 Eastern
+## Latest frontier — October 7, 05:06 Eastern
+
+Goal ACTIVE. Diagnostic native broker export now has independent receipt/archive
+proof. General-use bridge readiness remains unqualified: exact broker PID71262
+is idle/intact but has no verified request waiter. Original settings restored;
+quarantine ON, no owned handoff STOP. No user action is required for this checkpoint.
+
+native-hook-export-2026-10-07T09-01-45-570Z.json remains FAILED on source49c1811d.
+The native export succeeded; observer required a SID in the return, but actual
+self-export returns only a filename. Independent bounded journal identity/hash,
+real attachment ancestry, stdout hash, exact filename and archive hash reconcile
+in native-broker-snapshot-reconciliation-2026-10-07.json. Exact broker/CLI ZIP
+metadata and Stop witness were verified by the original probe. The archive is
+private service evidence, never committed or printed. Corrected filename parser
+requires one candidate; exact hook/log/ZIP identity checks remain mandatory.
+Corrected code has isolated proof, not a fresh native run. No repeat inference
+was used solely to fix the observer; original failure is preserved.
+
+The Stop-time snapshot reported isRunning:false while cliProvablyIdle:false,
+cliLastTurnMessageWasResult:false and cliAtTurnBoundaryHint:false. Visible idle
+is insufficient for a safe handoff. New sanitizer returns only bounded flags,
+counts and marker presence, treats missing/null queue fields conservatively,
+and always denies release authorization. Installed source encodes some absent
+internal fields as null; version-specific interpretation remains to qualify.
+No release gate or historical outcome was changed. All17 unknown mutations stay
+unknown/nonretryable. No generic mutation hook or persistent FileChanged enrolled.
+
+Full current-source isolated suite passed unchanged in
+v2-2026-10-07T09-06-33-704Z.json. Native snapshot proof belongs to49c1811d,
+not this later corrected observer source. Shared service evidence/memory updated.
+One short no-tools native turn was used for export; reconciliation/tests use no
+inference. Local30s detector/hourly observer fallback unchanged; Codex inbox is
+still inference-bearing. Next qualify trigger AND result channel together,
+post-turn quiescence and safe indexed handoff, then current controls/steering,
+sustained serving, rollback and cold recovery. Codex/1Password remain separate.
+
+## Previous frontier — October 7, 04:57 Eastern
 
 Goal ACTIVE; previous turn made progress, this turn adds actual native edge
 observations and changes the event-only strategy. Current host
