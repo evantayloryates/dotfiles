@@ -176,6 +176,11 @@ fallback. The legacy directory guard remains for older clients; reconnect stale
 clients for current guarantees. Do not remove or age-reclaim `locks/*.mutex`:
 unlinking creates a different inode and would split a live lock. No service
 credential, native app process, keyboard helper or event tap is involved.
+Broker lock timeout/abort before publication reports `dispatched:false`,
+`retrySafe:true` and no request ID. A progress/notice failure after publication
+returns the exact request ID and cancels/disarms its owned work. Enqueued native
+mutations still require reconciliation with `outcome_unknown/retrySafe:false`;
+a known receipt is inspected rather than replayed.
 
 For several settings on one recipient, use one `set_session_config
 {session, title, pinned, model, effort, permission_mode}` with only the desired
@@ -184,6 +189,11 @@ native controls and verifies every requested field. The batch is not atomic:
 a failed later control can leave earlier changes applied. Error details include
 `requestId`, native `results`, `partial` and `retrySafe:false`. Reconcile the
 receipt and disk state before sending only the remaining changes.
+Repeated identical native operation slots are refused before enqueue unless
+`broker_status.batchAdmission.verified` proves an indexed checkpoint from the
+actual completed current-epoch helper. Staged/newer host index support alone
+cannot enable duplicates. Distinct operation slots remain usable with the
+legacy helper. The service does not split or replay a refused batch automatically.
 
 Use `driver_memory_query {topic, kind, limit}` for shared technical lessons.
 `driver_memory_record {topic, lesson, evidence}` appends a candidate lesson;

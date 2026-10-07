@@ -27,6 +27,7 @@ import {stopRescuePolicy,armStopRescue,disarmStopRescue} from './stop-rescue.mjs
 import {quietHookStatus} from './quiet-hook.mjs'
 import {verifyWaiterReadiness,waitForNativeAvailability} from './waiter-readiness.mjs'
 import {requestTrigger} from '../scripts/broker-stop-rescue.mjs'
+import {indexedCheckpointEvidence,validateBatchAdmission} from './batch-admission.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const TEMPLATE = join(HERE, '..', 'broker-template', 'CLAUDE.md')
@@ -94,6 +95,7 @@ export function brokerInfo() {
   const native=live?.entrypoint==='claude-desktop',hb=heartbeat({native})
   const quiet=quietHookStatus({sessionId:info.sessionId,live})
   const waiter=verifyWaiterReadiness({sessionId:info.sessionId,live,runtime,pointer:loadEntryEvidence(join(BROKER_DIR,'runtime.json')),selected:loadEntryEvidence(join(BROKER_DIR,'broker-wait-entry-selected.json')),completed:loadEntryEvidence(join(BROKER_DIR,'broker-wait-entry.json')),heartbeat:loadEntryEvidence(join(BROKER_DIR,'heartbeat.json')),brokerDir:BROKER_DIR})
+  const batch=indexedCheckpointEvidence({sessionId:info.sessionId,live,runtime,entry:loadEntryEvidence(join(BROKER_DIR,'broker-check-entry.json'))})
   return {
     configured: true,
     sessionId: info.sessionId,
@@ -106,6 +108,7 @@ export function brokerInfo() {
     live: live ? { pid: live.pid, status: live.status, socket: live.messagingSocketPath, entrypoint:live.entrypoint,procStart:live.procStart } : null,
     resident: live ? { ...hb, resident: native?quiet.verified||waiter.verified:['busy','working'].includes(live.status)&&hb.resident, evidenceSource:native?'native-pickup-channel':'legacy-non-native-heartbeat' } : { resident: false },
     waiterReadiness:waiter,
+    batchAdmission:batch,
     quietHook:quiet,
     templateCurrent,
     runtime,
@@ -152,8 +155,11 @@ export function newRequestId() {
 // ops: [{ op, args }]. Returns the broker's results array.
 export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => {}, signal, idleWake=true } = {}) {
   const deadline = Date.now() + timeoutMs
+  let publishedRequest=null
+  try{
+  if(!Array.isArray(ops)||!ops.length)throw new DriverError('broker request requires operations',{category:'bad_args'})
   for (const o of ops) if (!BROKER_OPS.includes(o.op)) throw new DriverError(`op ${o.op} is not on the broker allowlist`, { category: 'bad_args' })
-  return withLock('broker', async () => {
+  return await withLock('broker', async () => {
     let info = brokerInfo()
     info=await waitForNativeAvailability(info,{observe:brokerInfo,deadline,signal,sleep,progress})
     const rescuePolicy=stopRescuePolicy()
@@ -164,6 +170,7 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
     if (!info.configured || !info.exists) throw new DriverError('no broker session; run `claude-driver broker init`', { category: 'broker_missing' })
     if (!info.templateCurrent) prepareBrokerDir()
     if (!info.live) throw new DriverError(`broker ${info.sessionId} has no live process (app restarted?); run \`claude-driver broker revive\``, { category: 'broker_dead' })
+    validateBatchAdmission(ops,{native:info.live.entrypoint==='claude-desktop',indexed:info.batchAdmission?.verified===true})
     if(info.live.entrypoint==='claude-desktop'&&ops.some(o=>!['get_session','list_sessions','list_groups','get_window_layout'].includes(o.op))&&rescuePolicy?.nativeEffectAdmissionVersion!==1)throw new DriverError('native effect admission policy is missing or legacy; no effect enqueued',{category:'broker_native_admission_required',detail:{dispatched:false,retrySafe:true}})
     const id = newRequestId(),pulse=requestTrigger(id,Number(protocolVersion()))
     rmSync(join(BROKER_DIR, 'STOP'), { force: true })
@@ -174,6 +181,7 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
     if(observe) request.nativeObservation=observe.start
     if(observe&&rescuePolicy?.nativeEffectAdmissionVersion===1)request.nativeEffectAdmissionPolicy={version:1,handlerSha256:rescuePolicy.sha256,settingsHash:rescuePolicy.settingsHash}
     enqueue(request)
+    publishedRequest=request
     if(rescuePolicy?.quietWait?.version===1)writeJsonAtomic(join(BROKER_DIR,'quiet-request.json'),{requestId:id})
     const wakeOptions=target=>{const priority=idleWake&&target.live?.status==='idle'?'now':'next';return {signal,...(rescuePolicy?{method:'direct',priority,onPrepared:w=>{
       // Metadata survives arm disarming, so an unaccepted socket write remains
@@ -266,6 +274,28 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
       if(abortCancellation)await abortCancellation
     }
   }, { signal, timeoutMs: Math.max(1, deadline - Date.now()) })
+  }catch(error){
+    // Lock contention, abort and validation can fail before any durable work
+    // exists. Preserve that stronger evidence without changing the retry
+    // contract for any request already published to the native broker.
+    if(error&&typeof error==='object'&&!error.detail?.requestId){
+      error.category??='broker_client_failure'
+      if(!publishedRequest)error.detail={...error.detail,dispatched:false,retrySafe:true}
+      else{
+        // Publication precedes progress/notice setup. A callback or local I/O
+        // failure there still leaves durable work which a native waiter could
+        // claim; settle it and preserve the request identity before handback.
+        let state
+        try{state=await cancelRequest(publishedRequest.id,'cancelled')}catch{}
+        disarmStopRescue(publishedRequest.id)
+        const receiptAvailable=!!state?.resultAvailable&&!['cancelled','expired'].includes(state.state)
+        error.detail={...error.detail,requestId:publishedRequest.id,state:state?.state??'outcome_unknown',dispatched:state?.dispatched??false,receiptAvailable,retrySafe:!!state&&!receiptAvailable&&!state.dispatched&&['cancelled','expired'].includes(state.state)&&safeUndispatchedRetry(publishedRequest)}
+        if(receiptAvailable)error.category='broker_client_failure'
+        else if(!state||state.dispatched||!safeUndispatchedRetry(publishedRequest))error.category='outcome_unknown'
+      }
+    }
+    throw error
+  }
 }
 
 // One op, unwrapped: throws when the broker reports ok:false.

@@ -1,12 +1,12 @@
 # Claude-driver v2 qualification
 
-Latest audit: October7,03:33 Eastern. The bridge is a working native control
+Latest audit: October7,03:49 Eastern. The bridge is a working native control
 prototype in reliability hardening, not general-use ready. See [resume.md](resume.md).
 
 | Requirement | Current evidence | Remaining gate |
 |---|---|---|
 | Common interface and lifecycle | CLI/MCP, durable jobs, idempotency, steering, receipt and shared-memory contracts; actual filtered harness checks passed previously | Current-source native serving/steering under sustained use |
-| Native controls | Batch read/archive passed15.635s with independent archived readback | Compact candidate passed three consecutive reads after compaction; controlled mutations/concurrency and full suite remain unqualified |
+| Native controls | Batch read/archive passed15.635s with independent archived readback | Three concurrent read clients and a distinct-target read batch passed; controlled mutations/steering and full suite remain unqualified |
 | Native effect guard | Actual positive receipts and cancellation-after-checkpoint denial; unknown effects fail closed | Platform timeout/fault paths and final-package native cancellation |
 | Uncertainty containment | Enqueued mutations without receipt are outcome_unknown/retrySafe:false | Fifteen historical effects remain causally unresolved; do not replay |
 | Deployment | Same PID/current dependency4af/generation6 with intact sealed inventory | Distinct-build rollback and unresolved handoff blockers |
@@ -16,10 +16,11 @@ prototype in reliability hardening, not general-use ready. See [resume.md](resum
 | Evidence and memory | Shared service artifacts, fingerprints, failures and candidate/verified distinctions | Promote only after independent native receipts |
 | Human input scope | Quarantine preserved; no keyboard/paste or app/auth/process intervention | Broader native teardown and future physical-input qualification |
 
-Installed hook/current host954ccca6 has compact feedbackVersion2 explicitly
-enrolled; quiet is disabled. The full isolated suite and three post-compaction
-native reads passed on unchanged code. A30s expiry under native compaction
-failed serving and independently proved a late native gate denial. Active dependencies remain4af08654, generation6. These identities are
+Installed hook7e388b8f keeps compact feedbackVersion2 enrolled and quiet disabled.
+Current hostc969 has later publication-failure handling, fully isolated-tested
+and one actual5.458s foreground native read. Batched/concurrent native reads
+passed on their recorded candidates. A30s expiry under native compaction remains
+a failed serving case with independently verified late native gate denial. Active dependencies remain4af08654, generation6. These identities are
 separate; an installed candidate or successful send is not full readiness.
 The fixture is now archived, superseding earlier failed cleanup's current-state
 claim; preserve the original failed/uncertain outcomes. No new fixture or model

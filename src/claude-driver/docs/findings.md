@@ -1,5 +1,25 @@
 # claude-driver findings
 
+## 2026-10-07 03:49 Eastern — batched/concurrent reads and one real foreground pickup
+
+Two distinct read operations passed in one request12.472s on the final batch
+guard candidate. Three concurrent clients passed earlier with end-to-end
+10.896s/27.040s/44.696s; actual kernel serialization and turn-boundary admission
+produce queue cost. Independent native receipt/gate IDs were unique and matched.
+
+A real owned foreground waiter was independently verified. Current host read
+completed5.458s through that waiter without an explicit peer wake/continuation.
+Readiness was correctly revoked afterward; later idle without a waiter means
+this is one warm pickup, not sustained loop/residency proof.
+
+Identical native batch slots now refuse before enqueue when the deployed helper
+lacks index proof. Current native negative test produced no request/wake.
+Actual held-kernel-lock timeout/abort tests also produce no publication.
+Progress failure after publication now preserves request identity/cancellation,
+while enqueued mutations remain unknown/retrySafe:false. Full final isolated
+suite passed; resume.md distinguishes native candidates from later failure-path
+amendments. Legacy unknowns were not settled by these new successful reads.
+
 ## 2026-10-07 03:33 Eastern — compact continuation executes; native compaction exercises expiry
 
 An explicitly enrolled fixed feedbackVersion2 makes the next tool action concrete

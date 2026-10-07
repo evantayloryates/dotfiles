@@ -1,4 +1,89 @@
-## Latest frontier — October 7, 03:33 Eastern
+## Latest frontier — October 7, 03:49 Eastern
+
+Goal ACTIVE: native batched reads, three concurrent read clients and one real
+foreground pickup passed. Still NOT general-use ready. Preserve keyboard/CUA
+quarantine, native PID/model/permissions and observer ownership. No new chats,
+app restart, blind replay or competing recovery; Codex/1Password remain separate.
+
+Current host c969500cfb9ec4ff5ec71dc3ea79bc883ad650b0511bafdaff8857bc58f5186e.
+Installed hook7e388b8f08aac1a2b0fcc35f1a7ea6ea176663b628730e35089bc60517d4980a,
+handler6d10c509e82c44a36eef0d54988e112263664e89a5021b5097f9fb98c03decb2,
+settingsd66115ffaba3cc0c723795ad4ffcee692e464e6afc8e921c3d50dafc4bc78b74.
+Compact feedbackVersion2 remains explicitly enrolled; quiet remains OFF.
+Dependencies4af08654/bootstrapeb5cb750/generation6 remain unchanged on exact
+broker local_35b3ba48-f02e-48de-bfbb-925192d90de1/PID71262/start
+Wed Oct7 03:24:51 2026 UTC. Host has later failure-path amendments than this
+installed package; those have isolated proof and one actual foreground read.
+
+New pressure evidence under <state>/pressure:
+- native-compact-read-sequence-2026-10-07T07-35-24-753Z.json: distinct-target
+  two-operation batch passed13.672s on unchangede48a3790. Existing owned fixture
+  stayed archived/unpinned/not live; no unrelated chats, permissions or model.
+- native-compact-read-sequence-2026-10-07T07-36-24-118Z.json: three concurrent
+  clients passed on unchangede48a3790. End-to-end10.896s/27.040s/44.696s; each
+  broker service time about10.5s. Kernel serialization/finishing-turn admission
+  add real queue cost. These measurements do not establish fairness guarantees
+  or high sustained throughput. Each unique request/receipt/gate ID matched.
+- native-compact-read-sequence-2026-10-07T07-41-28-274Z.json: final batch guard
+  candidate7e388b8f passed two distinct reads12.472s. Native admission IDs and
+  independent fixture state verified in native-batch-contention-independent-
+ 2026-10-07.json. All five audited tool IDs across concurrency/final batch unique.
+- native-duplicate-batch-pre-enqueue-2026-10-07.json: current native metadata
+  confirms active helper has no operation index. Identical operation slots were
+  refused locally with broker_ambiguous_batch/retrySafe:true and unchanged
+  request directory: no wake/model call or native effect. Distinct slots remain
+  allowed. Indexed capability requires actual completed current-epoch helper
+  evidence; newer host code/staged index support alone cannot enable it.
+- Native foreground helper3777/start07:44:09 was independently live in the
+  broker ancestry, selected sealed4af/gen6 and writing fresh waiting heartbeats.
+  native-current-host-resident-pickup-2026-10-07.json: currentc969 host read
+  rmuxt0eh1-a9a047 completed5.458s via resident with real native receipt/matching
+  admission and no wake metadata/progress delivery. No explicit peer wake or
+  Stop continuation was required. After serving, readiness was revoked on
+  working/completion; later broker was idle without a waiter. This is one real
+  warm pickup, NOT proof that the model consistently stays in its loop or of
+  sustained residency/governor protection. Do not infer readiness from busy.
+
+New safety/efficiency fixes:
+- Reject repeated identical native operation slots before enqueue when deployed
+  indexed checkpoints are not independently proved. Do not split/replay a batch
+  automatically; batches remain non-atomic. Synthetic compatibility retained.
+- Lock timeout/abort and other failures before publication explicitly report
+  dispatched:false/retrySafe:true without a request ID. Actual held-kernel-lock
+  tests prove no request/socket message for contention deadline and abort.
+- Publication precedes notice/progress setup. A callback/local I/O failure there
+  now cancels the exact durable request, disarms only its arm, returns its ID and
+  preserves native mutation outcome_unknown/retrySafe:false. Pure undispatched
+  cancelled reads retain narrower retry semantics. A known receipt is available
+  for inspection, not permission to replay; client failures get a named category.
+  Actual client subprocess/socket tests cover progress failure after publication
+  for both reads and gated native mutations. No historical control was rewritten.
+
+Final full isolated suite passed unchangedc969 in
+v2-2026-10-07T07-44-58-309Z.json. Native batching/concurrency on earlier candidates
+and actual currentc969 foreground serving are separate evidence; none proves
+all controls, steering, cold recovery or rollback. Read-only probe now supports
+explicit sequence/concurrent/batch modes and bounded1..5 requests. It records
+end-to-end wall time, actual90s deadline, operation success and distinct source/
+hook/dependency fingerprints without raw tool output.
+
+All15 historical mutations and legacy reports021323/021456/023210 remain pending
+with existing durable blockers; no replay/ack/gate bypass. Complete fixed-range
+historical audit is still causalOutcome:unknown/retrySafe:false, despite absence
+of unmatched calls in that range. Local detector30s/zero-inference and hourly
+observer fallback remain; scheduled Codex inbox ticks still infer.
+
+Next: qualify reversible controls and unique-nonce recipient steering on the
+existing owned fixture, restoring its archived/unpinned baseline. Follow public
+archived-session guards; do not bypass them with raw calls. Old reply tokens
+cannot qualify a new run; use fresh request/recipient causal evidence. Inspect
+platform hook fault behavior and establish actual owned STOP-barrier quiescence
+before changing deployment admission for historical unknowns. Safe indexed
+handoff/rollback, sustained loop/residency, natural governor pressure, unattended
+cold recovery, compact/quiet combination and event-triggered inference remain
+open. No user input is required for this checkpoint.
+
+## Previous frontier — October 7, 03:33 Eastern
 
 Goal ACTIVE: compact native continuation now has repeatable read evidence, but
 NOT general-use ready. Preserve input quarantine, current native process/model/
