@@ -1,3 +1,17 @@
+## Receiver STOP and diagnostic interlock — October 7, 12:21 Eastern
+
+Reusable receiver source checks STOP, stop-rescue-arm.json and mechanical-probe.json
+before writing intent/checkpoint and again after checkpoint before MCP read. Owned
+triggers are consumed as service-read-stopped; controls are never cleared, retries
+remain one-use refused and no model input is queued. This supplements rather than
+replaces the authoritative native admission gate; races after the check remain
+subject to gate validation. Tests cover each control already present and appearing
+while checkpoint runs, proving0 MCP calls and unchanged control ownership.
+Full pressure v2-2026-10-07T16-20-23-692Z passed1/1 in8600ms,
+sourceChanged:false. Source only, not installed/native-validated this revision.
+Historical native serving trial remains separate. Host production queue/enrollment,
+release handoff, native unload/absence and broader steering still require work.
+
 ## Native receiver concurrency and expiry boundary — October 7, 12:19 Eastern
 
 Receiver now reserves a single active callback before awaits. A different concurrent

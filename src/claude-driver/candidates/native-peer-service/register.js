@@ -32,6 +32,7 @@ async function receiveServiceRead($,event,next){
  try{
   const session=await $.session.id(),cwd=await $.session.cwd(),now=await $.clock.now()
   if((session!==CONFIG.brokerSession&&session!==CONFIG.brokerSession.slice(6))||cwd!==CONFIG.brokerCwd||!Number.isFinite(now)||now<CONFIG.notBefore||now>CONFIG.deadline)return {consumed:'service-read-refused'}
+  if(await $.fs.exists(CONFIG.brokerCwd+'/STOP')||await $.fs.exists(CONFIG.brokerCwd+'/stop-rescue-arm.json')||await $.fs.exists(CONFIG.brokerCwd+'/mechanical-probe.json'))return {consumed:'service-read-stopped'}
   const intent=CONFIG.brokerCwd+'/.native-service-'+requestId+'.intent.json',response=CONFIG.brokerCwd+'/.native-service-'+requestId+'.result.json'
   if(await $.fs.exists(intent)||await $.fs.exists(response))return {consumed:'service-read-prior-evidence'}
   await $.fs.write(intent,JSON.stringify({schemaVersion:1,scope:'owned-native-service-intent',serviceId:CONFIG.id,requestId,brokerSession:CONFIG.brokerSession,startedAt:new Date(now).toISOString()})+'\n')
@@ -42,6 +43,7 @@ async function receiveServiceRead($,event,next){
   if(checked?.dispatch!==true||checked.op!=='get_session'||Object.keys(checked).sort().join(',')!=='args,dispatch,op'||!checked.args||Object.keys(checked.args).join(',')!=='session_id'||!/^local_[a-f0-9-]{36}$/.test(checked.args.session_id)||checked.args.session_id===CONFIG.brokerSession)return {consumed:'service-read-checkpoint-refused'}
   const dispatchAt=await $.clock.now()
   if(!Number.isFinite(dispatchAt)||dispatchAt<now||dispatchAt>CONFIG.deadline)return {consumed:'service-read-expired'}
+  if(await $.fs.exists(CONFIG.brokerCwd+'/STOP')||await $.fs.exists(CONFIG.brokerCwd+'/stop-rescue-arm.json')||await $.fs.exists(CONFIG.brokerCwd+'/mechanical-probe.json'))return {consumed:'service-read-stopped'}
   // Target comes only from the sealed lifecycle checkpoint, never peer text.
   const result=await $.mcp.call('ccd_session_mgmt','get_session',{session_id:checked.args.session_id})
   const receivedAt=await $.clock.now()

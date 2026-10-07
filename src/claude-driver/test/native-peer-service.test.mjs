@@ -63,3 +63,14 @@ test('expiry while checkpoint is in flight consumes the trigger without calling 
  assert.deepEqual(s.counts(),{checks:1,reads:0,queued:0})
  assert.equal((await s.send(r1)).consumed,'service-read-already-attempted')
 })
+
+test('STOP and diagnostic arms refuse before checkpoint and after in-flight checkpoint without clearing controls',async()=>{
+ for(const name of ['STOP','stop-rescue-arm.json','mechanical-probe.json']){
+  const path=config.brokerCwd+'/'+name,files=new Map([[path,{owner:'synthetic'}]]),s=setup({files})
+  assert.equal((await s.send(r1)).consumed,'service-read-stopped');assert.deepEqual(s.counts(),{checks:0,reads:0,queued:0});assert.deepEqual(files.get(path),{owner:'synthetic'})
+  const late=setup(),original=late.$.tool.call
+  late.$.tool.call=async input=>{const result=await original(input);late.files.set(path,{owner:'synthetic'});return result}
+  assert.equal((await late.send(r1)).consumed,'service-read-stopped');assert.deepEqual(late.counts(),{checks:1,reads:0,queued:0});assert.equal(late.files.has(path),true)
+  assert.equal((await late.send(r1)).consumed,'service-read-already-attempted')
+ }
+})
