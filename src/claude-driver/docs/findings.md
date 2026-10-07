@@ -24,7 +24,9 @@ Versions: app = Claude desktop, cli = bundled Claude Code.
   native result that wins. This is verified failure containment, not serving
   recovery or a claim about why the model stops. Native evidence:
   native-wake-end-turn-guard-2026-10-07.json. Three final isolated rounds passed
-  with unchanged source: v2-2026-10-07T05-00-48-265Z.json.
+  with unchanged source: v2-2026-10-07T05-00-48-265Z.json. A final progress-only
+  copy correction passed one full round on 16a95ad1 in
+  v2-2026-10-07T05-05-01-304Z.json; native guard evidence remains bound to 5dfbbdc6.
 
 - **Sensing cadence need not equal inference cadence.** A sealed local detector
   runs every 30s, with exact owned broker metadata, PID/start epoch and aged

@@ -6,7 +6,7 @@ repeated inference wakes after the broker ends without tools. The goal is active
 and incomplete, not blocked/no-progress. The user wants fast signaling without
 hourly detection delays; active work never waits for the observer's hourly job.
 
-Host build: `5dfbbdc62eb55f95bd60c62c13f9ae5560b6b41ff740ac67027a944a571d2b73`.
+Host build: `16a95ad1b4468111154b985c7a759a9082d414c5c31632d44238dfe77a0eac93`.
 Active broker build remains `3bfc51e7b06c4aec8ac81b5f7ec28eb77f2e1507cf03379e7f468eee22afa98b`,
 bootstrap `7e62795266806cbd4435f68cc83f424e5299fe2ddd6e3f524babd1c7c39f5af4`,
 generation 3; same PID 71262/start `Wed Oct  7 03:24:51 2026`. No STOP remains.
@@ -31,8 +31,12 @@ calls; the guard cancelled pending work with broker_not_serving in 3353 ms, one
 receiver turn, zero sender turns. Evidence: native-wake-end-turn-guard-2026-10-07.json.
 Exact msg_id and UUID ancestry are used, never model prose. Other user branches,
 sidechains and actual tool activity do not prove refusal; a checkpointed native
-result wins. Three full final isolated rounds passed unchanged source in
-v2-2026-10-07T05-00-48-265Z.json. Actual filtered harness passes are older than
+result wins. Three isolated rounds passed on 5dfbbdc6 in
+v2-2026-10-07T05-00-48-265Z.json. A final progress-message-only correction
+now says awaiting native serving evidence instead of asserting loop entry. One
+full round passed unchanged 16a95ad1 source in
+v2-2026-10-07T05-05-01-304Z.json. The native guard proof is on 5dfbbdc6; this
+minor host change does not promote a full current native control pass. Actual filtered harness passes are older than
 these host changes and must not qualify the current fingerprint.
 
 Fixture local_fc1e5eab-9d24-4e4c-a09c-9a386a6ffe14 remains unarchived. All cleanup
