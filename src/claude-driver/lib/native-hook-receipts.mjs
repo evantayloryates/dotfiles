@@ -10,3 +10,10 @@ export function nativeHookResult(row,{command,event='Stop',cliSessionId,cwd,chai
  // The attachment UUID identifies this result; do not use eventId as a slot.
  return {source:'native-hook-result',uuid:row.uuid,parentUuid:row.parentUuid,at:row.timestamp,command,event,hookEventId:a.toolUseID,ok:a.type==='hook_success',stdout:a.stdout,stderr:a.stderr}
 }
+// Native non-blocking errors may omit command entirely. Preserve their real
+// event identity without assigning them to a tool, target or operation slot.
+export function nativeHookEventError(row,{event='Stop',cliSessionId,cwd,chain,notBefore,notAfter}){
+ const a=row?.attachment,at=Date.parse(row?.timestamp)
+ if(event!=='Stop'||!id(cliSessionId)||!Number.isFinite(notBefore)||!Number.isFinite(notAfter)||notAfter<notBefore||!(chain instanceof Set)||row?.type!=='attachment'||row.isSidechain||!id(row.uuid)||!id(row.parentUuid)||!chain.has(row.parentUuid)||row.sessionId!==cliSessionId||row.cwd!==cwd||row.version!=='2.1.289'||!Number.isFinite(at)||at<notBefore||at>notAfter||a?.type!=='hook_non_blocking_error'||Object.hasOwn(a,'command')||a.hookEvent!==event||a.hookName!==event||a.stdout!==''||typeof a.stderr!=='string'||!a.stderr||Buffer.byteLength(a.stderr)>65536||!id(a.toolUseID))return null
+ return {source:'native-hook-event-error',uuid:row.uuid,parentUuid:row.parentUuid,at:row.timestamp,event,hookEventId:a.toolUseID,commandBound:false,stderr:a.stderr}
+}

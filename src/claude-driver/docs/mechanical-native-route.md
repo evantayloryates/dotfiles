@@ -1,6 +1,6 @@
 # Deterministic native execution candidate
 
-October 7, 2026, 04:44 Eastern. Native diagnostic read proof, not a public transport.
+October 7, 2026, 04:57 Eastern. Native diagnostic read proof, not a public transport.
 The broker remains on its existing sealed dependencies and admission hooks.
 
 ## What the installed engine actually does
@@ -32,7 +32,9 @@ Four constraints change the deployment strategy:
    pending MCP server returns an error without invoking or waiting. A configured
    hook is not evidence that CCD's internal session server is connected in this
    event context.
-3. **No durable duplicate suppression.** Two identical runner invocations make
+3. **No durable duplicate suppression.** The actual matcher collapses identical
+   MCP configurations within one event. Its key ignores timeout and distinguishes
+   JSON input key order. This does not deduplicate durable requests. Two identical runner invocations make
    two tool calls, and two watcher notifications produce two event invocations.
    A file change is not an exactly-once request transport. Hook order cannot
    substitute for an admission gate.
@@ -99,9 +101,46 @@ Final5be50395 passed the full isolated suite in
 `v2-2026-10-07T08-44-38-415Z.json`; later host guards do not relabel older native
 passes as current-source native proof. No temporary probe remains installed.
 
+## Native edge pressure and result-channel limits
+
+`native-hook-export-2026-10-07T08-50-42-263Z.json` on a2cd9974 configured two
+identical fixture reads plus an unavailable MCP context. It remains FAILED:
+expecting two read receipts and a command-bound error was wrong. The exact
+installed matcher explains one definition surviving; actual journal evidence
+contains one real read and one error attachment in the same Stop event. See
+`native-hook-read-edges-independent-2026-10-07.json` and its separate
+`native-hook-read-edges-reconciliation-2026-10-07.json`. No replay was needed.
+
+Commandless errors cannot become tool/operation receipts. The private collector
+records `native-hook-event-error`, event ID and result UUID with
+`commandBound:false`; stderr stays private and only its hash enters reports.
+Proved receipts extend private batch ancestry when they arrive after a public
+scan. Identical definitions within an event are distinct from repeated events:
+the latter still invoke again. Never treat native configuration matching as
+canonical durable single-consumption admission.
+
+`hook-contract-2026-10-07T08-57-11-072Z.json` passed26 exact installed-function
+cases, including matching, output parsing, actual SessionStart consumer and
+startup workspace guard. Dependencies remain synthetic, not live activation.
+SessionStart paths can seed an initialized warm watcher; Stop cannot, and
+SessionStart cannot initialize a cold watcher. Cancellation prevents seeding.
+Remote workspace startup skips initialization; a local filesystem cwd alone
+does not prove the native surface capability or watcher state.
+
+Crucially, the installed FileChanged callback discards successful tool output;
+it forwards only failures and system messages. A live watcher would therefore
+need a separately verified result channel. No FileChanged candidate was enrolled.
+An owned export could yield an independent artifact, but its rate/size limits
+and internal queue snapshot semantics would need separate qualification.
+Current bdb7a0d3 passed the full isolated suite in
+`v2-2026-10-07T08-57-20-303Z.json`. Later collector changes do not convert the
+original failed native run into a current-source native pass. Broker settings
+were restored exactly and the owned fixture remains archived/unpinned/not live.
+
 ## Next native proof
 
-The next event-only activation probe must be read-only and target only the exact existing
+Select trigger and genuine result channel together before enrollment. The next
+event-only activation probe must be read-only and target only the exact existing
 owned broker or fixture. It must have a nonce, a finite deadline, exact PID/start
 and CLI-version binding, and durable sanitized evidence. Preserve Stop and
 PreToolUse settings and policy hashes. Restore any temporary service settings

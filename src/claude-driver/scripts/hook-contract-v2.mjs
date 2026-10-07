@@ -20,6 +20,13 @@ try{
  sources.script=installedWindowContaining(binary,'function q1r(e,n){throw Error("script hooks',{after:256})
  sources.watcher=installedWindowContaining(binary,'function i8n(){let e=null,n,r=[]',{after:6000})
  sources.emission=installedWindowContaining(binary,'function kee(e){if(ZWn.includes(e))',{after:3000})
+ sources.output=installedWindowContaining(binary,'function i4({json:e,command:n,hookName:r',{after:6500})
+ sources.sessionStart=installedWindowContaining(binary,'async function C9(e,n,',{after:3400})
+ sources.workspace=installedWindowContaining(binary,'function jn(){return n().surfaceCapabilities.caps().workspace===',{after:150})
+ sources.startup=installedWindowContaining(binary,'if(Er("setup_hooks_snapshot_ms",performance.now()-R,R),te(',{after:600})
+ sources.matching=installedWindowContaining(binary,'async function EVt(e,n,r,s,g,h)',{after:5500})
+ sources.dedupKey=installedWindowContaining(binary,'function bR(e){switch(e.type){case"command":return`command',{after:700})
+ sources.dedupScope=installedWindowContaining(binary,'function eL(e,n){return`${e.pluginRoot??e.skillRoot??',{after:200})
  const runner=cutInstalledFunction(sources.runner.text,'async function GFe(e,n,r,s,g,h=vl,b)','var XKt=')
  const interpolation=cutInstalledFunction(sources.runner.text,'function jzo(e,n){','async function GFe(')
  const events=sources.events.text.match(/^z\$t=new Set\((\[[^\]]+\])\)/)?.[1]
@@ -51,6 +58,24 @@ try{
  await check('same connected hook invoked twice makes two calls; runner has no durable deduplication',async()=>{
   const c=make({clients:[connected]});await c.invoke(hook,'FileChanged',{});await c.invoke(hook,'FileChanged',{})
   assert.equal(c.calls.length,2);assert.equal(c.cleaned(),2)
+ })
+ const matching=cutInstalledFunction(sources.matching.text,'async function EVt(e,n,r,s,g,h)','function ept(')
+ const dedupKey=cutInstalledFunction(sources.dedupKey.text,'function bR(e){','function lKo('),dedupScope=cutInstalledFunction(sources.dedupScope.text,'function eL(e,n){','function _ce(')
+ function matched(hooks){
+  const resolve=runInNewContext(`(()=>{${dedupKey}${dedupScope}${matching};return EVt})()`,{
+   lH:()=>[{hooks}],d0e:()=>undefined,tKo:()=>{},t:()=>{},Jve:()=>undefined,TVt:()=>undefined,TKo:()=>true,F1r:()=>false,S:JSON.stringify,N2:()=>'/bin/sh',G:(xs,p)=>xs.filter(p).length,S0e:()=>false,
+  },{timeout:1000,contextCodeGeneration:{strings:false,wasm:false}})
+  return resolve(undefined,'synthetic','Stop',{hook_event_name:'Stop'})
+ }
+ await check('actual hook matcher collapses identical MCP configurations within one event',async()=>{
+  const resolved=await matched([hook,{...hook}]);assert.equal(resolved.length,1)
+  const c=make({clients:[connected]});for(const r of resolved)await c.invoke(r.hook,'Stop',{});assert.equal(c.calls.length,1)
+  for(const r of await matched([hook,{...hook}]))await c.invoke(r.hook,'Stop',{});assert.equal(c.calls.length,2)
+ })
+ await check('MCP configuration dedup ignores timeout but distinguishes argument order and targets',async()=>{
+  const resolved=await matched([hook,{...hook,timeout:1}]);assert.equal(resolved.length,1);assert.equal(resolved[0].hook.timeout,1)
+  assert.equal((await matched([hook,{...hook,input:{session_id:'other'}}])).length,2)
+  assert.equal((await matched([{...hook,input:{a:1,b:2}},{...hook,input:{b:2,a:1}}])).length,2)
  })
  await check('actual installed input interpolation recurses through strings, objects and arrays',async()=>{
   const c=make({clients:[connected]})
@@ -111,14 +136,14 @@ try{
  // temporarily installing a file trigger that cannot be registered in a warm
  // native session merely by adding a hook to settings.
  const watcher=cutInstalledFunction(sources.watcher.text,'function i8n(){let e=null,n,r=[]','var ZK=')
- function watching(initial={}){
+ function watching(initial={},eventOutput={results:[],watchPaths:[],systemMessages:[]}){
   let settings=initial,subscription,disposed=0;const watches=[],events=[]
   const api=runInNewContext(`(()=>{${watcher};return i8n()})()`,{
    $8:()=>settings,sy:()=>true,Qve:()=>undefined,_t:fn=>{subscription=fn;return()=>disposed++},
    r8n:s=>s.startsWith('/'),s8n:(a,b)=>a+'/'+b,L:a=>[...new Set(a)],qI:()=>false,
    t:()=>{},l:e=>e.message,m:()=>{},y:()=>{},q:()=> 'synthetic-session',Ee:()=>'/synthetic',dr:()=>'/synthetic',
    Plt:async()=>{},nDr:async()=>({results:[],watchPaths:[],systemMessages:[]}),
-   rDr:async(session,path,event)=>{events.push({sessionId:session.id,path,event});return{results:[],watchPaths:[],systemMessages:[]}},
+   rDr:async(session,path,event)=>{events.push({sessionId:session.id,path,event});return eventOutput},
    bb:{watch:(paths,options)=>{const w=new EventEmitter();w.paths=Array.from(paths);w.options=options;w.closed=false;w.close=()=>w.closed=true;watches.push(w);return w}}
   },{timeout:1000,contextCodeGeneration:{strings:false,wasm:false}})
   return {api,watches,events,set:s=>settings=s,settingsChanged:()=>subscription?.(),subscribed:()=>!!subscription,disposed:()=>disposed}
@@ -147,6 +172,53 @@ try{
   assert.equal(c.events.length,2);assert.equal(c.events[0].event,'change');assert.equal(c.events[0].sessionId,'synthetic-session')
   c.api.dispose();assert.equal(c.watches[0].closed,true)
  })
+ await check('FileChanged callback forwards failures/system messages but drops successful tool output',async()=>{
+  const c=watching({FileChanged:[{matcher:'/synthetic/trigger'}]},{results:[{succeeded:true,output:'synthetic private read result'},{succeeded:false,output:'synthetic error'}],watchPaths:[],systemMessages:['synthetic notice']}),notified=[]
+  c.api.initialize('/synthetic');c.api.setEnvHookNotifier((text,error)=>notified.push({text,error}));c.watches[0].emit('change','/synthetic/trigger');await Promise.resolve()
+  assert.deepEqual(notified,[{text:'synthetic notice',error:false},{text:'synthetic error',error:true}]);assert.equal(JSON.stringify(notified).includes('private read result'),false)
+  c.api.dispose()
+ })
+ const output=cutInstalledFunction(sources.output.text,'function i4({json:e,command:n,hookName:r','async function qqo(')
+ const parseOutput=runInNewContext(`(()=>{${output};return i4})()`,{ln:x=>x,S:JSON.stringify,t:()=>{}},{timeout:1000,contextCodeGeneration:{strings:false,wasm:false}})
+ await check('only SessionStart output seeds watch paths; Stop cannot activate a watcher',()=>{
+  for(const event of ['Stop','UserPromptSubmit','PostToolUse','SessionStart']){
+   const r=parseOutput({json:{hookSpecificOutput:{hookEventName:event,watchPaths:['/synthetic/trigger']}},hookEvent:event,expectedHookEvent:event})
+   assert.equal(r.watchPaths!==undefined,event==='SessionStart')
+  }
+  assert.throws(()=>parseOutput({json:{hookSpecificOutput:{hookEventName:'SessionStart',watchPaths:['/synthetic/trigger']}},expectedHookEvent:'Stop'}),/incorrect event name/)
+ })
+ const startHook=cutInstalledFunction(sources.sessionStart.text,'async function C9(e,n,','async function oMo(')
+ function starting(watcher,{signal,newPluginsOnly}={}){
+  const state={pluginsCovered:new Set(),hooksDispatched:0},paths=[],adds=[]
+  const invoke=runInNewContext(`(()=>{${startHook};return C9})()`,{
+   Vr:()=>false,yle:()=>state,kC:()=> 'synthetic',oDr:async function*(){yield{watchPaths:['/synthetic/dynamic']}},sy:()=>true,Sr:()=>true,t:()=>{},
+   Hl:class extends Error{},Nkt:x=>{paths.push(x);watcher.api.updateWatchPaths(x)},Fkt:x=>{adds.push(x);watcher.api.addWatchPaths(x)},xE:()=>{},
+  },{timeout:1000,contextCodeGeneration:{strings:false,wasm:false}})
+  return {run:()=>invoke({id:'synthetic-session'},'compact',{signal,newPluginsOnly}),paths,adds}
+ }
+ await check('actual compact SessionStart consumer can seed an initialized warm watcher after empty startup',async()=>{
+  const c=watching();c.api.initialize('/synthetic');c.set({FileChanged:[{matcher:'/synthetic/trigger'}]})
+  const s=starting(c);await s.run();assert.equal(s.paths.length,1);assert.equal(c.watches.length,1)
+  assert.deepEqual(c.watches[0].paths,['/synthetic/trigger','/synthetic/dynamic'])
+ })
+ await check('SessionStart path output cannot activate an uninitialized watcher and cancellation does not seed',async()=>{
+  const cold=watching({FileChanged:[{matcher:'/synthetic/trigger'}]});await starting(cold).run();assert.equal(cold.watches.length,0)
+  const c=watching();c.api.initialize('/synthetic');c.set({FileChanged:[{matcher:'/synthetic/trigger'}]})
+  const controller=new AbortController();controller.abort();const s=starting(c,{signal:controller.signal});await s.run();assert.equal(s.paths.length,0);assert.equal(c.watches.length,0)
+ })
+ await check('late plugin SessionStart adds paths instead of replacing the initialized watch set',async()=>{
+  const c=watching({FileChanged:[{matcher:'/synthetic/trigger'}]});c.api.initialize('/synthetic');c.api.updateWatchPaths(['/synthetic/existing'])
+  const s=starting(c,{newPluginsOnly:{names:new Set(['synthetic'])}});await s.run();assert.equal(s.paths.length,0);assert.equal(s.adds.length,1)
+  assert.ok(c.watches.at(-1).paths.includes('/synthetic/existing'));assert.ok(c.watches.at(-1).paths.includes('/synthetic/dynamic'))
+ })
+ await check('installed startup initializes the watcher for local workspace and skips remote workspace',()=>{
+  const workspace=cutInstalledFunction(sources.workspace.text,'function jn(){','function X4(')
+  const guard=cutInstalledFunction(sources.startup.text,'if(Er("setup_hooks_snapshot_ms",performance.now()-R,R),te(','let N=performance.now()')
+  for(const kind of ['local','remote']){let initialized=0
+   runInNewContext(`${workspace}${guard}`,{n:()=>({surfaceCapabilities:{caps:()=>({workspace:kind})}}),o:'/synthetic',v:{},R:0,performance:{now:()=>1},tOo:()=>initialized++,Er:()=>{},te:()=>{}},{timeout:1000})
+   assert.equal(initialized,kind==='local'?1:0)
+  }
+ })
  await check('SDK hook-response emission is disabled for FileChanged and Stop by default; startup remains emitted',()=>{
   const filter=cutInstalledFunction(sources.emission.text,'function kee(e){','function See(')
   const response=cutInstalledFunction(sources.emission.text,'function qc(e){','function jIo(')
@@ -158,11 +230,12 @@ try{
   state.allHookEventsEnabled=true;invoke(result('FileChanged'));assert.equal(emitted.length,2);assert.equal(emitted[1].stdout,'synthetic receipt')
  })
  const evidence=Object.fromEntries(Object.entries(sources).map(([name,x])=>[name,{offset:x.offset,sha256:x.sha256,bytes:x.bytes}]))
- const limitations=['MCP connection classification, native clients, cancellation helper, memory policy, cgroup release and filesystem watcher are synthetic dependencies','Exact installed runner, interpolation and watcher lifecycle execute; no live MCP context, FileChanged registration/reload or native receipt is proved','FileChanged added after an empty initialize requires an explicit watch-path update or later reinitialization; a settings file write alone is not activation evidence','Direct hook call has no PreToolUse admission call inside this extracted runner; upstream or host enforcement is unqualified','A connected hook calls once per event, not once per durable request; event duplication and mutation delivery are unqualified']
+ const limitations=['MCP connection classification, native clients, cancellation helper, memory policy, cgroup release and filesystem watcher are synthetic dependencies','Exact installed runner, matcher, output parsing, SessionStart consumer and watcher lifecycle execute; this isolated report proves no live FileChanged registration or native receipt','FileChanged added after an empty initialize requires an explicit watch-path update or later reinitialization; a settings file write alone is not activation evidence','The installed FileChanged callback drops successful hook tool output and forwards only failures/system messages; a separate actual result channel is required','Direct hook call has no PreToolUse admission call inside this extracted runner; upstream or host enforcement is unqualified','The matcher collapses identical configurations within one event; it ignores timeout and distinguishes JSON input key order. Repeated events still invoke again; no durable request deduplication or mutation delivery qualification']
  writeJsonAtomic(report,{scope:'installed-mcp-hook-runner-isolated',versions:versions(),binary,sources:evidence,runnerHash:hash(runner),interpolationHash:hash(interpolation),rows,ok:true,limitations})
- recordMemory({kind:'test_result',topic:'deterministic-hook-contract',source:'installed-source-isolated',status:'passed',evidence:report,lesson:'Installed MCP runner, input interpolation, watcher lifecycle and SDK emission executed with synthetic dependencies. FileChanged needs explicit activation, does not wait for pending connection, permits repeated calls and lacks default SDK result emission. Live context/receipts and mutation safety remain unqualified; do not install a generic native mutation hook.'})
+ recordMemory({kind:'test_result',topic:'deterministic-hook-contract',source:'installed-source-isolated',status:'passed',evidence:report,lesson:'Installed MCP runner/matcher, input/output parsing, SessionStart consumer, watcher lifecycle and SDK emission execute with synthetic dependencies. SessionStart paths seed only an initialized watcher; Stop cannot. Identical definitions collapse within one event, not repeated events. Live FileChanged context/results and mutation safety remain unqualified.'})
  console.log(JSON.stringify({report,ok:true,checks:rows.length,claudeTurns:0,nativeWrites:false}))
 }catch(error){
  writeJsonAtomic(report,{scope:'installed-mcp-hook-runner-isolated',versions:versions(),ok:false,error:{name:error.name,message:error.message.slice(0,400)},rows})
+ recordMemory({kind:'test_result',topic:'deterministic-hook-contract',source:'installed-source-isolated',status:'failed',evidence:report,lesson:'Installed-source contract failed; preserve its report and determine whether extraction or an actual contract changed before native enrollment.'})
  console.log(JSON.stringify({report,ok:false,error:error.message.slice(0,400)}));process.exitCode=1
 }

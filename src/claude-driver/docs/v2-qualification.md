@@ -1,3 +1,14 @@
+## October 7, 04:57 Eastern checkpoint
+
+Native duplicate/failure pressure exposed incorrect diagnostic expectations:
+identical hook definitions collapse within an event, while error attachments
+can omit command. Original failed run remains failed with independent metadata
+reconciliation. Event-only errors cannot prove a particular tool ran. Installed
+26-case checks establish SessionStart/watch lifecycle and FileChanged's discarded
+success output; activation alone cannot deliver a generic result transport.
+Finalbdb7a0d3 passed the unchanged full isolated suite. The native edge probe ran
+on a2cd9974, not the later collector. Generic mutation hooks remain unqualified.
+
 ## October 7, 04:44 Eastern checkpoint
 
 Actual native direct Stop-hook get_session and a two-target metadata batch passed
@@ -41,7 +52,7 @@ input, context reset, model/auth change or competing recovery occurred.
 
 # Claude-driver v2 qualification
 
-Latest audit: October7,04:44 Eastern. The bridge is a working native control
+Latest audit: October7,04:57 Eastern. The bridge is a working native control
 prototype in reliability hardening, not general-use ready. See [resume.md](resume.md).
 
 | Requirement | Current evidence | Remaining gate |
@@ -60,7 +71,7 @@ prototype in reliability hardening, not general-use ready. See [resume.md](resum
 
 Installed hook7e388b8f keeps compact feedbackVersion2 enrolled and quiet disabled.
 Historical hostc969 had later publication-failure handling, fully isolated-tested
-and one actual5.458s foreground native read. Current5be50395 has a passing full
+and one actual5.458s foreground native read. Currentbdb7a0d3 has a passing full
 isolated suite; narrow native direct-hook reads passed on earlier recorded
 c743/bbb candidates. Generic mutation dispatch remains unqualified. Batched/concurrent native reads
 passed on their recorded candidates. A30s expiry under native compaction remains

@@ -1,4 +1,61 @@
-## Latest frontier — October 7, 04:44 Eastern
+## Latest frontier — October 7, 04:57 Eastern
+
+Goal ACTIVE; previous turn made progress, this turn adds actual native edge
+observations and changes the event-only strategy. Current host
+bdb7a0d330271d93e18df14d84ccff003cbafad580e4741268d3a9138d8ee23f passed
+its full isolated suite unchanged in v2-2026-10-07T08-57-20-303Z.json. Later
+collector changes have isolated proof, not a new current-source native pass.
+
+One short native no-tools turn on a2cd9974 configured two identical fixture
+reads plus an unavailable MCP context. Original native-hook-export-
+2026-10-07T08-50-42-263Z.json remains FAILED: the expected two read receipts and
+command-bound error were wrong assumptions. Actual bounded/hash-validated journal
+contains one real get_session receipt and one commandless error, both in the
+same Stop event. native-hook-read-edges-independent-2026-10-07.json preserves
+metadata; native-hook-read-edges-reconciliation-2026-10-07.json records the
+corrected interpretation without rewriting the original report or replaying.
+Fixture archived/unpinned/not live; settings and policy restored exactly.
+
+Important installed/native distinctions:
+- hook-contract-2026-10-07T08-57-11-072Z.json passes26 exact installed-function
+  cases with synthetic dependencies and zero native writes/inference. The
+  original08:48:56 extraction failure is preserved; the corrected extractor
+  executes the full comma-expression startup guard rather than an invented if.
+- Actual matcher deduplicates identical MCP definitions within ONE event. Its
+  key ignores timeout and distinguishes JSON input key order. Repeated events
+  still invoke again; this is not canonical durable request deduplication.
+- Commandless hook errors retain only native event identity. Collector now
+  records native-hook-event-error/commandBound:false, with bounded private
+  stderr hash, never a fabricated operation/tool receipt. Proved attachments
+  extend private batch ancestry to avoid a race with the preceding public scan.
+- SessionStart output can seed an already initialized watcher; Stop output
+  cannot. Cancellation prevents seeding. Startup skips REMOTE workspace; local
+  setup calls initialize. Local cwd alone is not live initialization proof.
+- Actual FileChanged callback DROPS successful tool output, forwarding only
+  failures/system messages. Thus activating a file watcher alone would not
+  deliver a useful generic result channel. Native FileChanged activation and
+  independent result persistence remain unqualified. No watcher was installed.
+
+Settled live epoch remains PID71262/start03:24:51 UTC, idle/intact, active4af/gen6,
+installed7e388b8f, original settingsd66115ff/policy7a8ce57a, quiet OFF, quarantine
+ON, no diagnostic owner or owned handoff STOP. No keyboard/UI, apps/processes,
+models/auth/permissions or other chats were touched. One native inference turn
+was used for the edge probe; all added engine checks and reconciliation were
+zero-inference. All17 unknown mutations and legacy report blockers remain intact.
+
+Next: select/qualify trigger AND result channel together, rather than enrolling
+an inert FileChanged candidate. Investigate whether an owned native export's
+internal queue/idle metadata can support a real STOP-barrier quiescence proof
+and safe indexed handoff, without assigning causal outcomes to old unknowns.
+Direct Stop-hook reads remain a verified diagnostic/fallback candidate, using
+one short trigger turn per batch. Generic hook mutations still require actual
+ownership/expiry/cancel/duplicate admission at invocation; parallel hooks cannot
+be treated as ordered guards. Full current controls/steering, sustained serving,
+rollback and cold recovery remain required. Observer owns offline recovery;
+local30s detector/hourly fallback unchanged, Codex inbox still inference-bearing.
+No user action is required. Codex-driver fixes and 1Password remain separate.
+
+## Previous frontier — October 7, 04:44 Eastern
 
 Goal ACTIVE. Direct native Stop-hook reads now have actual desktop result proof;
 general-use readiness remains unqualified. Current host

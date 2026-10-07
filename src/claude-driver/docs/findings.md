@@ -1,3 +1,28 @@
+## 2026-10-07 04:57 Eastern — native duplicate definitions and commandless errors
+
+One native edge probe configured two identical fixture reads and an unavailable
+MCP context. It failed its incorrect expected result count; preserve that report.
+Independent fixed-range/hash review proves one read and one error in the same
+Stop event. The error omits command and cannot be assigned to a tool or operation.
+Collector now retains event-only errors without fabricated receipts, and extends
+private causal ancestry when multiple attachments land after a public scan.
+
+The installed matcher collapses identical definitions inside one event, but its
+key ignores timeout and distinguishes JSON input key order. Repeated events
+still invoke again, so native configuration deduplication cannot replace service
+canonical IDs or durable single-consumption admission. SessionStart paths can
+seed an initialized watcher; Stop cannot. Remote workspace setup skips watcher
+initialization. Finally, the installed FileChanged callback discards successful
+tool output. This changes the next strategy: prove trigger and result channel
+together before enrollment. No live FileChanged candidate was installed.
+
+26 installed-function cases and the final full isolated suite passed, with no
+inference/native writes. Native evidence belongs to a2cd9974; finalbdb7a0d3 has
+later collector amendments with isolated proof. Original failed native/extractor
+reports and independent reconciliations remain separate. Settings restored,
+broker idle/intact, fixture archived/unpinned, quarantine ON. No user action.
+See resume.md and mechanical-native-route.md for exact artifacts and limits.
+
 ## 2026-10-07 04:44 Eastern — native direct-hook read proof
 
 Actual desktop Stop hooks performed a fixture export, one metadata read and a

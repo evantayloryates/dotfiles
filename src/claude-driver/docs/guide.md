@@ -71,6 +71,10 @@ hook-result attachments. Each event still used one short model turn as trigger.
 Temporary settings were restored; this is not a persistent public transport.
 Opt-in causal observation includes only attachment IDs/parents. Result UUIDs
 identify receipts; native toolUseID/hookEventId is shared by the Stop event.
+Native commandless errors bind only to the event, never a tool/operation. The
+installed matcher collapses identical definitions within one event, but repeated
+events still run again; it is not durable request deduplication. FileChanged's
+callback drops successful tool output, so activation alone is not a result path.
 Ordinary request admission refuses pending diagnostics before publication; exact
 idle-epoch expired cleanup has isolated proof. Settings alone do not activate a
 warm FileChanged watcher, and the existing mutation admission contract must not

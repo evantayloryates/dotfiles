@@ -38,6 +38,15 @@ test('only metadata probes can batch the two distinct owned read targets',()=>{
   assert.deepEqual(hooks.map(h=>h.tool),['get_session','get_session']);assert.deepEqual(hooks.map(h=>h.input.session_id),[f.args.fixtureId,epoch.sessionId]);restoreTemporaryHookProbe(f.dir,token)
  }finally{rmSync(f.dir,{recursive:true,force:true})}
 })
+test('read edge probe fixes duplicate reads and one unavailable context without enabling a mutation',()=>{
+ const f=fixture();try{
+  assert.throws(()=>installTemporaryHookProbe(f.dir,{...f.args,readEdges:true}),/fixed fixture metadata/)
+  assert.throws(()=>installTemporaryHookProbe(f.dir,{...f.args,operation:'get_session',includeBrokerRead:true,readEdges:true}),/fixed fixture metadata/)
+  installTemporaryHookProbe(f.dir,{...f.args,operation:'get_session',readEdges:true})
+  const hooks=JSON.parse(readFileSync(join(f.dir,'.claude','settings.json'))).hooks.Stop[1].hooks.filter(h=>h.type==='mcp_tool')
+  assert.deepEqual(hooks.map(h=>h.server),['ccd_session_mgmt','ccd_session_mgmt','claude_driver_probe_unconnected']);assert.ok(hooks.every(h=>h.tool==='get_session'&&h.input.session_id===f.args.fixtureId));restoreTemporaryHookProbe(f.dir,token)
+ }finally{rmSync(f.dir,{recursive:true,force:true})}
+})
 test('abandoned probe recovery requires expiry, exact idle native epoch and unchanged settings',()=>{
  const f=fixture(),info={sessionId:epoch.sessionId,live:{pid:epoch.pid,procStart:epoch.procStart,entrypoint:'claude-desktop',status:'idle'},runtime:{integrity:true}}
  try{
