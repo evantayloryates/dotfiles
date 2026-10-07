@@ -83,7 +83,8 @@ const checks={processSucceeded:code===0&&!timedOut,finalMarker:typeof finalText=
 const report=join(STATE_DIR,'pressure',`harness-v2-${harness}-${stamp}.json`)
 const version=spawnSync(command,['--version'],{env,encoding:'utf8',timeout:10000}).stdout?.trim()
 const ok=Object.values(checks).every(Boolean)
-const failureCategory=ok?null:spawnError?'harness_unavailable':/authentication required|not logged in/i.test(stderr)?'harness_auth_required':timedOut?'harness_timeout':'harness_contract_failed'
+const rateLimited=events.some(x=>x.type==='rate_limit_event'&&x.rate_limit_info?.status==='rejected')
+const failureCategory=ok?null:spawnError?'harness_unavailable':rateLimited?'harness_rate_limited':/authentication required|not logged in/i.test(stderr)?'harness_auth_required':timedOut?'harness_timeout':'harness_contract_failed'
 writeJsonAtomic(report,{harness,version,model:harness==='codex'?codexModel:harness==='claude'?'claude-haiku-4-5-20251001':'configured-default',runtimeBuild:RUNTIME_BUILD,root,raw,errors,traceFile,checks,code,timedOut,failureCategory,ms:Date.now()-at,ok})
 recordMemory({kind:'test_result',topic:'v2-harness-contract',source:`${harness}-headless`,status:ok?'passed':'failed',evidence:report,lesson:`Actual headless harness on synthetic stores: ${JSON.stringify(checks)}`})
 console.log(JSON.stringify({harness,report,ok,failureCategory,checks,ms:Date.now()-at}))

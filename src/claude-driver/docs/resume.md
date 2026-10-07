@@ -1,3 +1,16 @@
+## Current filtered harness evidence — October 7, 11:28 Eastern
+
+Claude synthetic filtered run15:26:38 completed all nine workflow/config checks
+but FAILED unchanged-source: review command was edited during execution. Preserve
+harness-v2-claude-2026-10-07T15-26-38-816Z.json as failed, not a current-source pass.
+After checkpointing, unchanged-source rerun15:27:48 was rejected before fixture
+calls by native rate_limit_event, seven_day utilization1 and status rejected.
+Reset1791709200 is October11,05:00 Eastern. Preserve its failed report. No further
+Claude inference retry while rejected. Runner now distinguishes harness_rate_limited
+from generic contract failure using the native event, not guessed stderr text.
+Busy original broker epoch still prevents an immediate native trigger; zero-
+inference source/evidence work remains available. Codex bridge fixes stay parked.
+
 ## Autonomous trigger route — October 7, 11:09 Eastern
 
 Read-only native-peer-probe-review.mjs <exact UUID> now combines bounded
