@@ -1,3 +1,27 @@
+## Autonomous native execution observed — October 7, 11:42 Eastern
+
+Corrected enrollment12c9eac8-1ed4-4d6c-a155-085ded4fe78f produced readiness,
+one prepared direct delivery, durable intent and completed report. Exact report
+SHA28aef26fa05e6870a95592b8519eec5a1f33114c58ce2e280ec0808d03866e57.
+Read-only review passes exact epoch, sealed runtime, versions, baseline/copied
+hashes and absent controls. Report nativeCallReturned:false and fixed category
+broker-dispatch-gate-refusal. Independently read exact live policy script:
+its SHA matches policy and its PreToolUse denial contains the exact categorized
+checkpoint-refusal text. This is evidence of native pipeline refusal without
+an authorized dispatch checkpoint, not positive execution or overall gate
+qualification; all report qualification flags stay false. Do not weaken gate.
+Next: integrate the peer probe with existing legitimate service dispatch admission
+rather than fabricate checkpoint files; prove allowed read and scoped cleanup.
+No human slash invocation was required for this native probe run.
+
+Prior2b4f992a expired with absent intent/report and exact token journal queued;
+private expiry record preserves model-attempt uncertainty and prohibits replay.
+Detector113429 SHA351cf62d8bd2fef1832ade06f571405cb6070547d0800b557551c96832dbce49
+references rmuy9ph4h-68adc1: control now expired, dispatched[]; result cancelled.
+Detector113531 SHAb450a493c1318bf3561ba694519e8e510e9c1659e9ac4ab2f27d12d52ffbbda0
+same PID/start live: historical liveness-returned means cleared work, no restart.
+Existing source fix already distinguishes that transition. No recovery wake.
+
 ## Peer envelope mismatch corrected — October 7, 11:40 Eastern
 
 Fresh enrollment2b4f992a-3c57-4e7e-b9d8-4b2653780311 passed installed validator,
