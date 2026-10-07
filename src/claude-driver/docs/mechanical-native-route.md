@@ -3,6 +3,42 @@
 October 7, 2026, 04:57 Eastern. Native diagnostic read proof, not a public transport.
 The broker remains on its existing sealed dependencies and admission hooks.
 
+## Installed admission and activation boundaries — 06:24 Eastern
+
+mod-admission-contract-v2.mjs executes exact installed kVn, AVn/gyo/sae,
+Uat and warm-loader J/go functions with synthetic dependencies. Fourteen checks
+passed on host2f4be7f3 in mod-admission-contract-2026-10-07T10-23-59-067Z.json:
+explicit/blocking denial, dispatch exception stopping, denial retained after an
+exception, aborted event stopping, required ordinary callback, hook ordering,
+all six deny/ask/allow permutations in the installed function-hook reducer,
+peer SDK/custom-control refusal, bound/person-only warm consent, wrong-session/
+cwd refusal, effect-free registration and fixed result/error redaction.
+The existing eight MCP-adapter checks passed on the SAME current source10:24:06.
+All dependencies are synthetic. This is no live admission or serving proof.
+
+One material boundary must survive future pressure tests: standalone kVn with a
+synthetic local deny-then-allow stream ends with allow, whereas its served-call
+branch preserves deny. Uat's actual function-hook reducer preserves deny across
+all tested orderings and blocking-error-then-allow. Do not infer a native bypass
+from the standalone adapter, nor infer universal denial dominance before binding
+the actual loaded native chain/ordering/fallback to the request receipt.
+
+Activation review10:24:42 independently rechecked owned broker71262/start
+03:24:51 UTC, idle/intact4af, original settingsd66115ff/policy7a8ce57a and no STOP/
+arm. lsof found only the existing peer inbox as a named Unix socket for this
+process; unnamed descriptors remain, so this is NOT proof all control channels
+are absent. Exact peer receiver tests show SDK reload_plugins and run_command
+are unhandled. A reload_plugins SDK schema in another context is not a peer API.
+Warm dev-mods J explicitly requests personOnly:true; go refuses unbound sessions.
+No warm load, permission answer, global installation, chat message or model turn
+was attempted. Native activation remains unqualified; do not repeat ineffective
+control wakes or assume configuration on disk means loaded. A scoped native
+load/invoke/unload path with genuine human consent where required is the frontier.
+
+Full current-source isolated suite passed unchanged in8435ms, v2-10:24:15 report.
+The staged package hash remains7ba17849; native serving/mutations/steering,
+residency/cold recovery and release/historical settlement gates remain open.
+
 ## Native mods ordinary tool pipeline candidate — 06:18 Eastern
 
 The exact installed CLI2.1.289 ZOt MCP adapter calls eU, which invokes W1 with

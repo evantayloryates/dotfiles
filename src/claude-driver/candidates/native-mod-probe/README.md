@@ -21,3 +21,15 @@ Validation without loading:
 # Use resolveClaudeBinary() from the service to select the exact bundled CLI.
 <bundled-cli> plugin validate /Users/taylor/src/github/dotfiles/src/claude-driver/candidates/native-mod-probe
 ```
+
+Installed-admission pressure (synthetic dependencies only):
+
+```sh
+node /Users/taylor/src/github/dotfiles/src/claude-driver/scripts/mod-admission-contract-v2.mjs
+```
+
+The native warm loader asks a person for consent. The existing peer inbox does
+not support SDK reload or custom-command controls. Do not write consent metadata
+or impersonate human input. The function-hook reducer and downstream adapter have
+different denial-order behavior in isolated tests; bind the actual loaded native
+chain before claiming denial dominance. See docs/mechanical-native-route.md.

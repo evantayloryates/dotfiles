@@ -1,4 +1,35 @@
-## Latest frontier — October 7, 06:18 Eastern
+## Latest frontier — October 7, 06:24 Eastern
+
+Goal ACTIVE. Previous turn progress; this turn yields additional admission and
+activation evidence, without native effects. General bridge remains unqualified.
+New mod-admission-contract-v2.mjs passed14 checks on2f4be7f3, report10:23:59:
+exact installed denial/error/cancellation/ordinary callback/reducer functions,
+peer controls, person-only warm consent and staged scope/redaction. Existing
+8adapter checks passed on SAME source10:24:06; full isolated suite unchanged
+passed8435ms10:24:15. Candidate remains staged; no plugin loaded/model turn.
+
+Important ordering boundary: raw local kVn deny-then-allow ends allow; served
+branch retains deny. Actual Uat function-hook reducer retains deny in all six
+orders and after blocking error. This is synthetic upstream evidence, NOT a
+native bypass or proof live mod chain traverses the reducer. Native qualification
+must bind loaded effective hooks/ordering/fallback and original request receipts.
+
+Exact owned native activation review10:24:42:71262/start03:24:51 UTC idle/intact
+4af, original settingsd66115ff/policy7a8ce57a, no STOP/arm. Only named Unix socket
+observed is peer inbox; this does not exclude all unnamed/other control channels.
+Installed peer does NOT route reload_plugins SDK requests or run_command controls.
+Warm loader asks personOnly:true and refuses unbound context; no consent answer
+or load attempted. Do not try SDK frames on the peer socket, spoof user text,
+write consent metadata or globally install/reset/restart as a workaround.
+
+Next establish genuine supported scoped mod activation/invocation/unload (human
+consent where platform requires), or improve an existing serving mechanism with
+evidence that changes its failure behavior. Avoid unchanged model-probe repeats.
+Candidate is exact broker/archived-fixture/read-only; all17historic effects remain
+unknown/nonretryable. No lifting quarantine or Codex-driver/1Password work.
+See mechanical-native-route.md for evidence and the still-open native gates.
+
+## Previous frontier — October 7, 06:18 Eastern
 
 Goal ACTIVE. General bridge serving/mutations/steering remain unqualified.
 Latest route discovery: exact installed mods MCP adapter ZOt -> eU -> ordinary
