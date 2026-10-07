@@ -1,3 +1,17 @@
+## Regression and admission checks — October 7, 10:54 Eastern
+
+Full pressure-v2 round passed in 8346ms with sourceChanged:false; evidence is
+v2-2026-10-07T14-53-54-252Z.json under the private pressure directory.
+Installed admission contract passed all 20 checks on runtime19ff7f54. These
+exercise installed adapters with synthetic hook/session dependencies, not live
+gate execution. Its original staged-candidate checks cover lifecycle behavior;
+they do not validate the corrected public MCP signature. The separate v0.4.0
+installed-wrapper test provides that synthetic coverage. Native hook ordering,
+actual admission and scoped unload remain unqualified. Corrected report screen
+still returns pending:false; this is pre-invocation absence, not a failed attempt
+or a live execution wait. Neither of the first two attempts counts toward the
+corrected API probe's validation.
+
 ## Concrete public API bug corrected — October 7, 10:50 Eastern
 
 Installed public wrapper gk takes call(server, tool, args), not the single object
