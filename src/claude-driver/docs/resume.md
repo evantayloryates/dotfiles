@@ -1,3 +1,22 @@
+## Actual stdio MCP lifecycle verified — October 7, 12:45 Eastern
+
+A fresh isolated MCP client/server negotiated2025-06-18 and listed/called the real
+public tools. Enrollment79e4123ffcf33a477ade016e021a06f6 observed native readiness.
+Early retirement refused before publication. Two sequential get_session requests
+rpeer7aae99ecbcb348a5bfca361c691a07ec and rpeer5c6d4e0802d04358ac52d5c9d43e452d
+completed with correlated native receipts/legacy-shared checkpoints. Status showed
+two settled/no unresolved attempts. The confirmed live test process waited for the
+60-second window, then retired at16:45:11Z; fresh MCP status installed:false,
+retired:true. Structured metadata-only report native-service-mcp-lifecycle-79e4123ffcf33a477ade016e021a06f6.json
+passed, preserved negative result and service memory. Test-owned server exited by
+closing stdin; no native session, configured MCP server or app restarted/killed.
+This qualifies actual stdio transport for this exact lifecycle, not the existing
+installed connector, full v2 serving or scoped native unload. No human action needed.
+Native SDK command.list exposes current registered command inventory; next scoped
+unload proof can use a unique owned command marker registered by a new candidate
+and a separate native inventory observation, avoiding old-token sends/model queue.
+Guarded mutation/steering/residency/handoff/historical uncertainty gates remain open.
+
 ## Shared CLI lifecycle verified — October 7, 12:43 Eastern
 
 Public CLI enrolled d9f220fed9afea1d6f22f71a0f064b52, observed native readiness,

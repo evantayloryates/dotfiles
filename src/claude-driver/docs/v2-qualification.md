@@ -1,3 +1,12 @@
+## October 7 actual shared MCP lifecycle
+
+Actual stdio MCP2025-06-18 enrollment/read/status/expiry/retirement trial passed for
+service79e4123ffcf33a477ade016e021a06f6. Two native metadata receipts settled; early
+retirement refused. Evidence is private pressure/native-service-mcp-lifecycle-79e4123ffcf33a477ade016e021a06f6.json.
+Filesystem retirement verified independently through MCP status. Scoped native unload,
+installed connector transport, guarded mutation, sustained residency and the full v2
+qualification matrix remain unproven. This narrow transport pass does not close them.
+
 ## Shared native API and CLI trial completed — October 7, 12:26 Eastern
 
 Fresh enrollment33d74fbfaaf5db2b9100bb3743100d49 native-validated updated receiver

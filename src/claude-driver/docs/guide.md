@@ -515,3 +515,8 @@ only at six exact paths with reviewed SHA256 hashes. They are preserved with the
 module; changed declarations or additional executable files refuse retirement.
 CLI enrollment/read/expiry/retirement was verified October 7; native unload remains
 unqualified, and MCP transport qualification is separate.
+
+Actual stdio MCP2025-06-18 enrollment/two reads/status/expiry/retirement passed in
+an isolated client/server against the owned native session on October7. Early
+retirement refused; both results settled. This does not qualify the already running
+installed connector or native unload, and no configured server was restarted.
