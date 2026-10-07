@@ -1,3 +1,20 @@
+## Installed retirement dispatch guard verified — October 7, 13:16 Eastern
+
+Native SDK exposes no public hook inventory/unload event. Bounded installed
+source shows ae/fe/f4n dispatcher status filter excludes retiring/unloaded/dead
+handlers before matcher, enter or dispatch; passes downstream directly. Added
+source-derived isolated VM test of actual installed functions with all states,
+including positive live dispatch. No retired control/token sent or native event
+injected. Private source artifact native-retired-dispatch-source-1791393381579.json,
+SHA52cedd595427e280ddcc8d77e7ee8ac0e7a23062549eecd07c836685161d83e9;
+shared service memory preserved. This is conditional installed-source proof, not
+live receiver inventory; general unload/receiver absence remains unqualified.
+Full pressure v2-2026-10-07T17-16-28-949Z passed1/1 in8712ms,
+sourceChanged:false. Resource cleanup and command removal independently qualified
+at their narrow scopes. Next prioritize native cancellation/steering and serving
+coverage using current shared interfaces; avoid fabricating hook absence or spending
+another live trial on already-proven child disposal. No human action required.
+
 ## Shared CLI/MCP resource review verified — October 7, 13:14 Eastern
 
 Public read-only broker_service_resource_review requires service_id and
