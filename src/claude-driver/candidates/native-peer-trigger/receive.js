@@ -4,7 +4,7 @@ export function registerPeerTrigger(on,{token,brokerSession,brokerCwd,deadline,r
  if(typeof token!=='string'||!/^claude-driver native-check [a-f0-9]{32}$/.test(token)||typeof brokerSession!=='string'||!brokerSession.startsWith('local_')||typeof brokerCwd!=='string'||!brokerCwd.startsWith('/')||typeof run!=='function'||!Number.isFinite(deadline))throw Error('invalid fixed trigger configuration')
  let consumed=false
  on('session.receive',async($,event,next)=>{
-  if(event?.origin?.kind!=='peer'||event.text!==token)return next(event)
+  if(event?.origin?.kind!=='peer'||event.text!==token&&event.text!==`<cross-session-message from-name="claude-driver" from-mode="bypass">\n${token}\n</cross-session-message>`)return next(event)
   // Matching delivery is always consumed, including refusal: never becomes
   // model instructions or queues an unintended model turn.
   if(consumed)return {consumed:'native-check-already-consumed'}

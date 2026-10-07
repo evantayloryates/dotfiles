@@ -57,16 +57,17 @@ test('native expiry admits a new subscription, but corrupt or symlinked leases f
 })
 test('service mailbox survives caller cancellation or deadline and is adopted without republishing',async()=>{
  for(const cancel of [true,false]){
-  const deps=scope();let calls=0,mailbox,id,timer
+  const deps=scope();let calls=0,mailbox,id,timer,abort
+  const controller=new AbortController()
   deps.exchange=async(_,{onPublishing})=>{calls++;const m=meta();id=m.msgId;mailbox=onPublishing({...m,helperPid:process.pid}).mailbox
-   timer=setTimeout(()=>writeFileSync(mailbox,JSON.stringify({...notice('idle'),ok:true,msgId:id,listenerRemoved:true,writeAttempted:true,subscriptionSent:true})),350)
+   if(cancel)abort=setTimeout(()=>controller.abort(),50)
+   timer=setTimeout(()=>writeFileSync(mailbox,JSON.stringify({...notice('idle'),ok:true,msgId:id,listenerRemoved:true,writeAttempted:true,subscriptionSent:true})),1500)
    return {serviceOwned:true,publicationConfirmed:true}
   }
-  const controller=new AbortController(),abort=cancel?setTimeout(()=>controller.abort(),50):null
   try{
-   const first=await observeNativeIdle(target,{signal:controller.signal,timeoutSec:0.1},deps)
+   const first=await observeNativeIdle(target,{signal:controller.signal,timeoutSec:1},deps)
    assert.equal(first.callerWait,cancel?'cancelled':'timed_out');assert.equal(first.pendingRemoteSubscription,true)
-   const adopted=await observeNativeIdle(target,{timeoutSec:1},deps)
+   const adopted=await observeNativeIdle(target,{timeoutSec:2},deps)
    assert.equal(adopted.verified,true);assert.equal(adopted.callerWait,'completed');assert.equal(adopted.observationId,first.observationId);assert.equal(adopted.joined,true);assert.equal(calls,1)
   }finally{clearTimeout(timer);clearTimeout(abort);rmSync(deps.dir,{recursive:true,force:true})}
  }

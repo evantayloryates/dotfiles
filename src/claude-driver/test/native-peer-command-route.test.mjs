@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {runInNewContext} from 'node:vm'
-import {installedModuleContaining,cutInstalledFunction} from '../lib/installed-source.mjs'
+import {installedModuleContaining,cutInstalledFunction,installedWindowContaining} from '../lib/installed-source.mjs'
 import {resolveClaudeBinary} from '../lib/paths.mjs'
 test('installed peer receiver consumes mod-handled delivery before queueing and skips slash parsing otherwise',async()=>{
  const source=installedModuleContaining(resolveClaudeBinary(),'function en(e){e.setEncoding("utf8")').text
@@ -14,4 +14,11 @@ test('installed peer receiver consumes mod-handled delivery before queueing and 
   assert.equal(queued.length,consumed?0:1)
   if(!consumed)assert.equal(queued[0].skipSlashCommands,true)
  }
+})
+test('installed peer envelope adapter retains a direct envelope without a hop chain',()=>{
+ const source=installedWindowContaining(resolveClaudeBinary(),'function xkn(',{after:1600}).text
+ const code=source.slice(0,source.indexOf('function p7r('))
+ const transform=runInNewContext(`(()=>{${code};return xkn})()`,{_:()=>({fromName:'claude-driver',body:'synthetic',fromMode:'bypass'}),cet:()=>assert.fail('unexpected envelope rebuild')})
+ const wire='<cross-session-message from-name="claude-driver" from-mode="bypass">\nsynthetic\n</cross-session-message>'
+ assert.equal(transform(wire),wire)
 })

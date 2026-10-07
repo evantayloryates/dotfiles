@@ -30,3 +30,12 @@ test('recognized trigger failures remain consumed and never retry or leak except
   assert.equal(calls,failure==='run'?1:0);assert.ok(!JSON.stringify([first,second]).includes('private'))
  }
 })
+test('exact direct transport envelope is consumed; changed sender and surrounding text pass through',async()=>{
+ const token='claude-driver native-check '+'c'.repeat(32),wire=`<cross-session-message from-name="claude-driver" from-mode="bypass">\n${token}\n</cross-session-message>`
+ let handler,calls=0,passed=0
+ registerPeerTrigger((_event,fn)=>handler=fn,{token,brokerSession:'local_owned',brokerCwd:'/synthetic',deadline:100,run:async()=>calls++})
+ const $={session:{id:async()=> 'local_owned',cwd:async()=>'/synthetic'},clock:{now:async()=>100}},next=async()=>{passed++;return {text:'passed'}}
+ for(const text of [wire.replace('from-name="claude-driver"','from-name="other"'),wire+' extra',wire.replace('bypass','prompting')])await handler($,{origin:{kind:'peer'},text},next)
+ assert.equal(passed,3);assert.equal(calls,0)
+ assert.equal((await handler($,{origin:{kind:'peer'},text:wire},next)).consumed,'native-check-completed');assert.equal(calls,1)
+})
