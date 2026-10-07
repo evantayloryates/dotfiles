@@ -77,17 +77,30 @@ function requests(e){
 export function nativeServiceRetirementEligible(status){
  return status?.filesInstalled===true&&status.filesRetired===false&&status.expired===true&&Array.isArray(status.unresolvedRequests)&&status.unresolvedRequests.length===0
 }
+export function nativeServiceFilesystemState({destinationPresent,retiredPresent,ownDestination=false,successorVerified=false}){
+ if(typeof destinationPresent!=='boolean'||typeof retiredPresent!=='boolean'||destinationPresent&&!ownDestination&&!successorVerified||destinationPresent&&ownDestination&&retiredPresent||ownDestination&&successorVerified)refuse()
+ return {filesInstalled:destinationPresent&&ownDestination,filesRetired:retiredPresent,destinationOccupiedByAnotherService:destinationPresent&&successorVerified}
+}
 export function nativeServiceStatus(serviceId){
  try{
   const e=enrollment(serviceId),c=e.config,retiredDir=root+'/native-service-retired-'+serviceId,presence=probePathPresence(e.dest),retiredPresence=probePathPresence(retiredDir)
-  if(presence===null||retiredPresence===null||presence&&retiredPresence)refuse()
-  if(presence)verifyNativeServiceDirectory(e.dest,e.hashes,{allowTooling:true})
+  if(presence===null||retiredPresence===null)refuse()
+  let ownDestination=false,successorVerified=false
+  if(presence&&retiredPresence){
+   const line=readProbeBytes(e.dest+'/hooks/register.js').bytes.toString('utf8').split('\n')[0],prefix='const CONFIG=Object.freeze('
+   if(!line.startsWith(prefix)||!line.endsWith(');'))refuse()
+   const loaded=JSON.parse(line.slice(prefix.length,-2));if(loaded.id===serviceId)refuse()
+   const successor=enrollment(loaded.id)
+   if(JSON.stringify(successor.config)!==JSON.stringify(loaded)||successor.dest!==e.dest)refuse()
+   verifyNativeServiceDirectory(e.dest,successor.hashes,{allowTooling:true});successorVerified=true
+  }else if(presence){verifyNativeServiceDirectory(e.dest,e.hashes,{allowTooling:true});ownDestination=true}
   if(retiredPresence)verifyNativeServiceDirectory(retiredDir,e.hashes,{allowTooling:true})
+  const filesystem=nativeServiceFilesystemState({destinationPresent:presence,retiredPresent:retiredPresence,ownDestination,successorVerified})
   const readyFile=c.brokerCwd+'/.native-service-'+serviceId+'.ready.json',readyPresence=probePathPresence(readyFile)
   if(readyPresence===null)refuse()
   const readinessObserved=readyPresence&&screenNativeServiceReady({config:c,ready:json(readyFile,4096),now:Math.min(Date.now(),c.deadline)})
   const r=requests(e)
-  return {serviceId,filesInstalled:presence,filesRetired:retiredPresence,readinessObserved:!!readinessObserved,expired:Date.now()>c.deadline,deadline:c.deadline,maxRequests:c.maxRequests,settledRequests:r.settled.length,unresolvedRequests:r.unresolved,scopedUnloadQualified:false,servingQualified:false,releaseAuthorized:false}
+  return {serviceId,...filesystem,readinessObserved:!!readinessObserved,expired:Date.now()>c.deadline,deadline:c.deadline,maxRequests:c.maxRequests,settledRequests:r.settled.length,unresolvedRequests:r.unresolved,scopedUnloadQualified:false,servingQualified:false,releaseAuthorized:false}
  }catch{throw Object.assign(Error('native service status refused; inspect ownership evidence'),{category:'native_service_status_refused'})}
 }
 export async function retireNativeService(serviceId,{signal}={}){

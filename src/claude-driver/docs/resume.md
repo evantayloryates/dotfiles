@@ -1,3 +1,36 @@
+## Native command removal verified — October 7, 12:58 Eastern
+
+Marked v0.2.0 servicebb9648563cbf178fe2aedaae8d1a9722 observed its own native command
+at16:54:36.273Z, retired at16:55:35.008Z. Successorbb827ec4c9c1c5b388ec5bd54a4627eb
+observed own marker present with exact name/source/runtime-owner/root/registration
+checks and prior marker absent at16:55:35.823Z. Corrected public CLI/MCP review
+qualifies previousMarkerRemovalObserved:true without another native observation,
+command execution, old-token delivery, MCP read or model call. Successor retired
+at16:57:39.863Z with no requests; fresh status/retained historical review pass.
+Evidence native-service-mcp-marker-corrected-review-bb827ec4c9c1c5b388ec5bd54a4627eb.json
+and shared service memory preserved. Original trial failures remain unchanged.
+
+Failures drove fixes: duplicate session.start rejected before install; combined
+handler plus installed native plugin validation test covers registration graph.
+Immediate inventory false in2f88702003c3aa49776c9cf84e7d5295; exact failure bytes retired
+at16:51:42.060Z with zero requests before source correction. Native registry requests
+host refresh; one clock.after250ms observation after startup now succeeds. Shared
+module path successor initially caused historical ownership ambiguity. Status now
+verifies successor config/enrollment/full bytes independently and reports old owner
+installed:false/retired:true/destinationOccupiedByAnotherService:true, never moves
+successor or unknown bytes. Unit fixtures refuse ambiguous/foreign ownership.
+Full pressure v2-2026-10-07T16-57-32-161Z passed1/1 in8807ms, sourceChanged:false.
+
+Scoped environment/hook unload remains FALSE. Installed retirement source removes
+commands/tools first, marks retiring, and unloads only at outstanding dispatch count0;
+source-derived fixture proves command removal can precede environment disposal.
+Private native-environment-retirement-source-window.json retained. Native SDK
+process.spawn owns a stream child through module lifetime and says unload terminates
+it; next consider a strictly bounded owned resource fixture plus native disposition
+observation, never killing/restarting a session or sending retired controls. Broad
+mutation/steering/residency/rollback/handoff/17-unknown-effect gates still open.
+No human action needed; all native marker trial modules are retired.
+
 ## Scoped command marker candidate prepared — October 7, 12:49 Eastern
 
 Optional marker:true enrollment generates v0.2.0 variant; unmarked v0.1.0 bytes

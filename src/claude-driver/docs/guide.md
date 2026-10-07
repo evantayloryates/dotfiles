@@ -527,3 +527,11 @@ own/prior marker presence from native command inventory. Observing a prior ID
 requires that exact marked service already be expired and retired with all attempts
 settled. `broker_service_marker_review {service_id}` reviews this evidence without
 sending or executing commands. Marker removal alone does not qualify hook unload.
+
+Marked startup uses a single session.start handler and observes native inventory
+once after a250ms clock callback, allowing host command refresh. Marker review
+checks name/source/runtime owner/root/registration separately. Native command
+removal passed via CLI/MCP on October7. Installed source removes command registrations
+before waiting for outstanding dispatches, so environment/hook unload remains a
+separate gate. Historical status can recognize an independently verified successor
+in the shared path without confusing its ownership with retired module bytes.

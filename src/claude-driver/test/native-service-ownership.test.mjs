@@ -4,7 +4,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import {createHash} from 'node:crypto'
-import {verifyNativeServiceDirectory,nativeServiceStatus,nativeServiceRetirementEligible} from '../lib/native-service-ownership.mjs'
+import {verifyNativeServiceDirectory,nativeServiceStatus,nativeServiceRetirementEligible,nativeServiceFilesystemState} from '../lib/native-service-ownership.mjs'
 const hash=x=>createHash('sha256').update(x).digest('hex')
 test('owned tree verification refuses additional files, symlink directories and changed bytes',()=>{
  const root=fs.mkdtempSync(path.join(os.tmpdir(),'native-owner-')),hashes={'.claude-plugin/plugin.json':hash('manifest'),'hooks/hooks.json':hash('hooks'),'hooks/register.js':hash('source')}
@@ -38,4 +38,10 @@ test('native tooling exception accepts only pinned bytes and refuses executable 
   fs.writeFileSync(root+'/tsconfig.json','{}');assert.throws(()=>verifyNativeServiceDirectory(root,hashes,{allowTooling:true}))
   fs.unlinkSync(root+'/tsconfig.json');fs.writeFileSync(root+'/hooks/foreign.js','keep');assert.throws(()=>verifyNativeServiceDirectory(root,hashes,{allowTooling:true}));assert.equal(fs.readFileSync(root+'/hooks/foreign.js','utf8'),'keep')
  }finally{fs.rmSync(root,{recursive:true,force:true})}
+})
+
+test('retired owner distinguishes a verified successor without allowing ambiguous or foreign ownership',()=>{
+ assert.deepEqual(nativeServiceFilesystemState({destinationPresent:true,retiredPresent:true,successorVerified:true}),{filesInstalled:false,filesRetired:true,destinationOccupiedByAnotherService:true})
+ assert.deepEqual(nativeServiceFilesystemState({destinationPresent:true,retiredPresent:false,ownDestination:true}),{filesInstalled:true,filesRetired:false,destinationOccupiedByAnotherService:false})
+ for(const change of [{destinationPresent:true,retiredPresent:true},{destinationPresent:true,retiredPresent:true,ownDestination:true},{destinationPresent:true,retiredPresent:true,ownDestination:true,successorVerified:true},{destinationPresent:null,retiredPresent:false}])assert.throws(()=>nativeServiceFilesystemState(change))
 })

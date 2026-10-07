@@ -1,3 +1,14 @@
+## October7 native command retirement observation
+
+Own marker positive inbb9648563cbf178fe2aedaae8d1a9722; after its retirement, successor
+bb827ec4c9c1c5b388ec5bd54a4627eb native inventory recorded previous marker absent and
+own marker present with name/source/owner/root/registration checks. Corrected
+CLI/MCP metadata-only review passed and successor retired without reads or sends.
+Source-derived test shows command removal precedes deferred environment unload.
+Therefore native command removal is verified, but receiver/environment absence
+and scoped unload remain unqualified. Failures (duplicate registration, premature
+inventory and historical successor ownership ambiguity) preserved and corrected.
+
 ## October 7 actual shared MCP lifecycle
 
 Actual stdio MCP2025-06-18 enrollment/read/status/expiry/retirement trial passed for
