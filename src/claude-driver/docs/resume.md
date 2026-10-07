@@ -1,3 +1,46 @@
+## Latest frontier — October 7, 00:42 Eastern
+
+A sealed broker dependency pin is active: build
+`3bfc51e7b06c4aec8ac81b5f7ec28eb77f2e1507cf03379e7f468eee22afa98b`,
+bootstrap `7e62795266806cbd4435f68cc83f424e5299fe2ddd6e3f524babd1c7c39f5af4`,
+generation3; fresh host source
+`04d6d6b381cf8610485cfc1ee1688f72f94cc6dcf6a42a9e5998c0545a7f099e`.
+Controlled STOP/handoffs preserved broker PID71262 and existing authorization.
+First direct-path handoff FAILED: a native Read of updated CLAUDE.md was followed
+by workspace Bash commands. Preserve release-native-paths-2026-10-07.json.
+The corrected cached-command shim validates a separately sealed built-ins-only
+bootstrap, which validates/imports the immutable wait/check dependency snapshot.
+Completed entry records plus correlated native read receipt prove this path;
+release-sealed-dependencies-2026-10-07.json passed in17.323s, original PID,
+exact native maintenance job d7319422 and app recognition. Workspace entry shims
+remain the minimal startup boundary; do not describe a matching instruction file
+or selected entry as completed native execution. Subsequent workspace edits do
+not automatically advance the active release. Invalid pointer, hashes, writable
+files, symlinks and an owned deployment STOP fail closed in fresh clients.
+
+Nine release cases plus the new build-binding qualification case passed;
+five complete isolated rounds and both real filtered harnesses passed on host
+04d6d6b3. Native full input-free report
+live-v2-2026-10-07T04-37-49-840Z.json FAILED: initial reply/cancel passed, then
+Haiku ended turns with 'Broker running' without serving the next request.
+Repeated compatible wakes did not correct this. The owned test runner was
+cancelled (not the native broker process) to stop further repetitive usage.
+Input resource audit stayed zero and quarantine remains active. Fixture
+local_fc1e5eab-9d24-4e4c-a09c-9a386a6ffe14 remains unarchived after cancelled
+cleanup; reconcile native dispatches and archive it safely before another full
+suite. Do not repeat costly full suites until loop fidelity/wake delivery has
+changed. Read-only native smoke does not qualify current full controls.
+
+Next: finish that owned fixture cleanup with bounded recovery, mechanically
+fence deployment/provenance to the exact native process, and compare a justified
+transport/model improvement against the retained Haiku end-turn failures. A
+new candidate snapshot has not been activated; rollback across different builds
+and natural governor pressure/cold recovery remain unqualified. Do not clear
+context, create replacement chats, lift input quarantine, terminate native
+sessions, change auth or compete with the commissioned observer. The user has
+requested a low-usage observer follow-up prompt; do not send it to another chat
+or assume it was applied. Latest broker live/idle, no owned STOP remains.
+
 # Claude-driver continuity — 2026-10-06
 
 ## October 7 continuation — helper and waiter pressure iteration
