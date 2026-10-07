@@ -1,3 +1,16 @@
+## October 7, 12:01 Eastern: native callback milestone
+
+Autonomous negative gate refusal and one admitted native read are observed in the
+original broker epoch. A follow-on private response channel settled its standard
+request receipt and verified target identity without a model turn being requested.
+Idempotent reconciliation preserves control history. The completed result module
+is archived; native unload/absence remains unverified. These are narrow proofs,
+not overall v2 completion. Current source pressure1/1 passed16:00Z; full cross-harness
+qualification, generic serving/steering, safe mutations, residency/cold recovery,
+distinct rollback and historical unknown effects remain open. Claude inference
+checks are rejected by the weekly limit; Codex bridge changes remain parked.
+See resume.md for exact evidence IDs/hashes and failed-reader-bound preservation.
+
 ## October 7, 10:54 Eastern checkpoint
 
 Native mod activation is now observed: Taylor enabled session hot reloading and

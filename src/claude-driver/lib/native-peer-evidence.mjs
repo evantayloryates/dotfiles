@@ -32,11 +32,11 @@ export function screenNativePeerAdmission({config,epoch,pointer,request,entry,ad
  const start=Date.parse(report?.startedAt),end=Date.parse(report?.completedAt),created=Date.parse(request?.createdAt)
  const checks={
   activePointer:pointer?.build===epoch?.build&&pointer.pid===epoch?.pid&&pointer.procStart===epoch?.procStart&&pointer.sessionId===config?.brokerSession&&pointer.generation===entry?.generation&&pointer.bootstrapHash===entry?.bootstrapHash&&Number.isFinite(Date.parse(pointer.activatedAt))&&Date.parse(pointer.activatedAt)<=start,
-  returnedRead:report?.probeId===config?.id&&report.nativeCallReturned===true&&report.resultWasError===false&&report.failureCategory===null&&Number.isFinite(start)&&Number.isFinite(end)&&end>=start,
+  returnedRead:report?.probeId===config?.id&&report.nativeCallReturned===true&&typeof report.resultWasError==='boolean'&&report.failureCategory===null&&Number.isFinite(start)&&Number.isFinite(end)&&end>=start,
   exactRequest:request?.id===requestId&&request.protocol===7&&Array.isArray(request.ops)&&request.ops.length===1&&request.ops[0].op==='get_session'&&exact(request.ops[0].args,['session_id'])&&request.ops[0].args.session_id===config?.targetSession&&Number.isFinite(created)&&created<=start&&request.expiresAt===config?.deadline,
   completedHelper:entry?.phase==='completed'&&entry.requestId===requestId&&(entry.index===0||!Object.hasOwn(entry,'index')&&request?.ops?.length===1)&&entry.build===epoch?.build&&entry.nativeBinding?.ancestorVerified===true&&entry.nativeBinding.brokerPid===epoch?.pid&&entry.nativeBinding.brokerProcStart===epoch?.procStart&&entry.nativeBinding.brokerSessionId===config?.brokerSession&&Number.isFinite(entry.at)&&entry.at>=start&&entry.at<=end,
   consumedNativeAdmission:admission?.requestId===requestId&&admission.index===0&&admission.pid===epoch?.pid&&admission.procStart===epoch?.procStart&&admission.build===epoch?.build&&admission.generation===entry?.generation&&typeof admission.toolUseId==='string'&&/^toolu_plugin_[a-f0-9]{30,40}$/.test(admission.toolUseId)&&Number.isFinite(admission.at)&&admission.at>=entry?.at&&admission.at<=end&&admission.at<request?.expiresAt,
   dispatchedSlot:control?.id===requestId&&Array.isArray(control.dispatched)&&control.dispatched.length===1&&control.dispatched[0]===0
  }
- return {checks,singleReadAdmissionObserved:Object.values(checks).every(Boolean),standardLifecycleSettled:false,nativeGateQualified:false,releaseAuthorized:false}
+ return {checks,singleReadAdmissionObserved:Object.values(checks).every(Boolean),nativeReadSucceeded:Object.values(checks).every(Boolean)&&report.resultWasError===false,standardLifecycleSettlementAssessed:false,nativeGateQualified:false,releaseAuthorized:false}
 }

@@ -1,3 +1,15 @@
+## Callback result channel evidence — October 7, 12:01 Eastern
+
+Native v0.7 read callback stores the bounded MCP response privately, while its
+public report contains status only. Verified request/helper/gate/pointer/source
+correlation permits explicit locked publication of a standard native receipt.
+Actual89c94ec9-32c9-466d-8313-5c4ddfe9439f settled as completed; response identity
+matches target. Reconciliation repeated without publication or tool replay.
+Original cancellation/control history is preserved. The completed module was
+archived outside hot-load directory with exact hashes/epoch/baseline unchanged;
+no native unload/receiver-absence evidence was observed yet. Other modules remain.
+This proves one response channel, not generic service or broad release qualification.
+
 ## Admitted callback evidence — October 7, 11:54 Eastern
 
 One autonomous callback used lifecycle exact pickup, native Bash sealed check,
