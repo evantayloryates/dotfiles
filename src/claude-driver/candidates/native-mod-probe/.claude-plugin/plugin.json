@@ -1,0 +1,6 @@
+{
+  "name": "desktop-bridge-native-probe",
+  "version": "0.1.0",
+  "description": "Staged, scoped, read-only probe of native tool admission through the mods API",
+  "author": { "name": "Taylor" }
+}

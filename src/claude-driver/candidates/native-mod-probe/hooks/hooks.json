@@ -1,0 +1,4 @@
+{
+  "description": "Explicit command probe; no timers, model calls, permission decisions or automatic effects",
+  "modules": ["./register.js"]
+}

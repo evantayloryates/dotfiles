@@ -3,6 +3,42 @@
 October 7, 2026, 04:57 Eastern. Native diagnostic read proof, not a public transport.
 The broker remains on its existing sealed dependencies and admission hooks.
 
+## Native mods ordinary tool pipeline candidate — 06:18 Eastern
+
+The exact installed CLI2.1.289 ZOt MCP adapter calls eU, which invokes W1 with
+its bound session's ordinary canUseTool callback. W1 forwards that callback to
+the normal native dispatch path; the downstream source includes PreToolUse and
+permissionDecision handling. This is a stronger candidate than direct MCP hooks,
+but source linkage does not prove the live core admission gate executes.
+
+`mod-tool-contract-v2.mjs` executes those two installed adapters with synthetic
+session/pipeline dependencies. Eight checks passed in mod-tool-contract-
+2026-10-07T10-14-49-894Z.json on host ebef4abc: original plugin origin and args,
+ordinary permission callback preservation, denial without invocation, missing/
+unbound/hidden tool refusal, error propagation and absent-result refusal.
+Native IPC, gate execution, plugin loading and inference are all absent.
+The initial failed assertion expected yield*; installed W1 uses for-await.
+Original failed10:14:43 artifact remains preserved.
+
+The read-only package candidates/native-mod-probe is STAGED, not installed or
+loaded. It scopes registration and command execution to the exact owned broker
+SID/cwd and only reads the existing archived fixture. No timers/model calls or
+permission overrides. Its command deliberately lacks a dispatch checkpoint:
+independent native PreToolUse denial and causal receipts must be verified before
+claiming gate coverage. Output alone or an exception cannot prove admission.
+Exact bundled static validator passed10:18:27 without loading or execution.
+Original10:16:15 validation failure is retained; its manifest used the reserved
+claude- prefix. Renamed desktop-bridge-native-probe and supplied author metadata.
+Candidate file hashes are separately bound in the validation report because
+runtimeFingerprint does not include staged plugin files.
+
+Agent hooks are less attractive: exact installed source creates fresh messages
+but inherits tools, allows50 turns, disables tool refresh and uses dontAsk mode.
+No live agent hook or subagent was launched. The mods candidate still needs a
+scoped native loading/command/unload path, positive and negative admission proof,
+zero-inference receipt correlation, then guarded lifecycle pressure. Do not
+install globally, reset context, inject keys or bypass permission/release gates.
+
 ## Experimental shared metadata execution — 05:51 Eastern
 
 `broker_read_batch` turns the diagnostic get_session mechanism into a bounded

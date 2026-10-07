@@ -1,4 +1,35 @@
-## Latest frontier — October 7, 06:10 Eastern
+## Latest frontier — October 7, 06:18 Eastern
+
+Goal ACTIVE. General bridge serving/mutations/steering remain unqualified.
+Latest route discovery: exact installed mods MCP adapter ZOt -> eU -> ordinary
+W1 tool pipeline with bound session canUseTool callback. Eight isolated adapter
+checks passed on host ebef4abc, report mod-tool-contract-10:14:49. Native gate
+execution, plugin loading and model turns are absent; source linkage is not
+native admission proof. Agent hooks inherit tools/50turn budget/dontAsk, so no
+live agent hook or subagent was launched.
+
+New candidates/native-mod-probe package is STAGED ONLY: exact broker SID/cwd,
+one explicit read-only archived-fixture command, no timer/model/permission
+changes. Static bundled CLI2.1.289 validation PASSED10:18:27. Initial failed
+10:16:15 reserved claude- manifest name retained; renamed desktop-bridge-native-
+probe with author. Separate candidate file hashes in validation report.
+Next establish supported scoped loading/command/unload WITHOUT keyboard/global
+installation/context reset, then actual negative and positive native admission,
+zero-inference causal receipts and serving lifecycle pressure. Do not count the
+staged package or synthetic adapter checks as live serving qualification.
+
+Fresh broker status06:18: same PID71262/start03:24:51 UTC, idle/intact4af/gen6.
+No current waiter, indexed batch admission or quiet hook; residency protection
+list stale. Metadata lifecycle/reconciliation proofs below remain valid for their
+recorded source. General release still blocked by17historic uncertain effects;
+never replay/settle them speculatively. Input quarantine remains ON. Local30s
+zero-inference detection and hourly Claude fallback do not pace active testing.
+Full current-source isolated suite passed unchanged in8367ms,
+v2-2026-10-07T10-18-38-778Z.json (ebef4abc). No native plugin was loaded.
+No user action needed. Codex-driver fixes and1Password stay separate.
+See mechanical-native-route.md for precise candidate bounds and evidence.
+
+## Previous frontier — October 7, 06:10 Eastern
 
 Goal ACTIVE, this turn makes verified crash-lifecycle progress. General-use
 bridge serving/mutations/steering and recovery remain experimental/unqualified.
