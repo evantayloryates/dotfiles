@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 import subprocess
+import struct
+import zlib
 import sys
 import tempfile
 import unittest
@@ -338,25 +340,29 @@ class ShellTests(unittest.TestCase):
         self.payload = self.root / 'payload'
         self.payload.write_bytes(b'{"ok":true}\r\n')
 
-    def run_cs(self, name=None, kind='text', sources=(), failure='', before=''):
+    def run_cs(self, name=None, kind='text', sources=(), failure='', before='', extension='bin', bridge=''):
         env = dict(os.environ, HOME=self.temp, DOTFILES_DIR=str(REPO),
                    CLIP_PAYLOAD=str(self.payload), CLIP_KIND=kind,
-                   CLIP_SOURCES='\n'.join(map(str, sources)), CLIP_FAILURE=failure)
+                   CLIP_SOURCES='\n'.join(map(str, sources)), CLIP_FAILURE=failure, CLIP_EXTENSION=extension, CLIP_BRIDGE=str(bridge))
         script = '''
 source "$DOTFILES_DIR/src/functions/clipsend.sh"
 source "$DOTFILES_DIR/src/functions/aliases.sh"
 __alias_nudge() { :; }
 __clipsend_pasteboard() {
-  [[ "$CLIP_FAILURE" == inspect ]] && return 1
-  if [[ "$1" == inspect ]]; then
-    print -r -- "$CLIP_KIND"
-    [[ -n "$CLIP_SOURCES" ]] && print -r -- "$CLIP_SOURCES"
-    return 0
+  [[ "$1" == capture ]] || { print -u2 'unexpected second clipboard read'; return 1; }
+  print -r -- "$1" >> "$HOME/bridge-calls"
+  [[ "$CLIP_FAILURE" == inspect || "$CLIP_FAILURE" == image || "$CLIP_FAILURE" == paste ]] && return 1
+  if [[ "$CLIP_KIND" == image ]]; then
+    printf '%s' "$3" > "$2"
+  elif [[ "$CLIP_KIND" == text || "$CLIP_KIND" == data ]]; then
+    cat "$CLIP_PAYLOAD" > "$2"
   fi
-  [[ "$CLIP_FAILURE" == image ]] && return 1
-  printf '%s' "$3" > "$2"
+  print -r -- "$CLIP_KIND"
+  [[ "$CLIP_KIND" == data ]] && print -r -- "$CLIP_EXTENSION"
+  [[ -n "$CLIP_SOURCES" ]] && print -r -- "$CLIP_SOURCES"
+  return 0
 }
-pbpaste() { [[ "$CLIP_FAILURE" == paste ]] && return 1; cat "$CLIP_PAYLOAD"; }
+pbpaste() { print -u2 'unexpected lossy clipboard read'; return 1; }
 functions[/usr/bin/pbcopy]='[[ "$CLIP_FAILURE" == copy ]] && return 1; cat > "$HOME/copied-path"'
 ''' + before + '\ncs "$@"\n'
         return subprocess.run(['zsh', '-f', '-c', script, 'test', *([] if name is None else [name])],
@@ -449,6 +455,7 @@ functions[/usr/bin/pbcopy]='[[ "$CLIP_FAILURE" == copy ]] && return 1; cat > "$H
             ('picture.JPEG', 'picture.JPEG', 'jpeg'), ('picture.tif', 'picture.tif', 'tiff'),
             ('picture.gif', 'picture.gif', 'gif'), ('picture.bmp', 'picture.bmp', 'bmp'),
             ('picture.txt', 'picture.txt.png', 'png'),
+            ('trailing.', 'trailing.png', 'png'),
         ):
             with self.subTest(name=name):
                 saved = self.assert_saved(self.run_cs(name, 'image'), expected)
@@ -456,6 +463,71 @@ functions[/usr/bin/pbcopy]='[[ "$CLIP_FAILURE" == copy ]] && return 1; cat > "$H
         result = self.run_cs(kind='image')
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertRegex(result.stdout.splitlines()[0], r'-image\.png$')
+
+    def test_binary_capture_preserves_bytes_and_uses_one_bridge_call(self):
+        self.payload.write_bytes(b'\xff\0binary\x80')
+        saved = self.assert_saved(self.run_cs('payload', 'data'), 'payload.bin')
+        self.assertEqual(saved.read_bytes(), self.payload.read_bytes())
+        self.assertEqual((self.root / 'bridge-calls').read_text(), 'capture\n')
+        self.assert_saved(self.run_cs('document', 'data', extension='pdf'), 'document.pdf')
+        self.assert_saved(self.run_cs('explicit.dat', 'data'), 'explicit.dat')
+        result = self.run_cs(kind='data')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertRegex(Path(result.stdout.splitlines()[0]).name, r'-data\.bin$')
+
+    @unittest.skipUnless(sys.platform == 'darwin', 'requires macOS AppKit')
+    def test_native_capture_through_cs(self):
+        def chunk(kind, data):
+            return struct.pack('>I', len(data)) + kind + data + struct.pack('>I', zlib.crc32(kind + data))
+        png = b'\x89PNG\r\n\x1a\n'
+        png += chunk(b'IHDR', struct.pack('>IIBBBBB', 2, 2, 8, 2, 0, 0, 0))
+        png += chunk(b'IDAT', zlib.compress((b'\0' + b'\xff\0\0' * 2) * 2)) + chunk(b'IEND', b'')
+        self.payload.write_bytes(png)
+        source = (REPO / 'src/javascript/clipsend-pasteboard.js').read_text().replace('function run(argv)', 'function originalRun(argv)')
+        helper = self.root / 'native.js'
+        helper.write_text(source + r'''
+function run(argv) {
+  if (argv[0] === 'make-jpeg') {
+    const png = $.NSData.dataWithContentsOfFile(argv[1]);
+    convertImage(png, 'jpeg').writeToFileAtomically(argv[2], true);
+    return 'ok';
+  }
+  const pb = $.NSPasteboard.pasteboardWithUniqueName;
+  try {
+    pb.setDataForType($.NSData.dataWithContentsOfFile(argv[3]), argv[4]);
+    const result = capture(pb, argv[1], argv[2]);
+    pb.clearContents; // a subsequent clipboard change must not affect the saved snapshot
+    return result;
+  } finally { pb.releaseGlobally; }
+}
+''')
+        jpg = self.root / 'source.jpg'
+        subprocess.run(['/usr/bin/osascript', '-l', 'JavaScript', str(helper), 'make-jpeg',
+                        str(self.payload), str(jpg)], capture_output=True, check=True)
+        before = r'''
+__clipsend_pasteboard() {
+  print -r -- "$1" >> "$HOME/bridge-calls"
+  /usr/bin/osascript -l JavaScript "$CLIP_BRIDGE" "$@" "$CLIP_PAYLOAD" "$CLIP_SOURCES"
+}
+'''
+        for name, payload, clip_type, expected, prefix in (
+            ('screenshot', png, 'public.png', 'screenshot.png', b'\x89PNG'),
+            ('raw-png', png, 'public.utf8-plain-text', 'raw-png.png', b'\x89PNG'),
+            ('photo', jpg.read_bytes(), 'public.jpeg', 'photo.png', b'\x89PNG'),
+            ('photo.jpg', jpg.read_bytes(), 'public.jpeg', 'photo.jpg', b'\xff\xd8\xff'),
+            ('raw.jpg', jpg.read_bytes(), 'public.utf8-plain-text', 'raw.jpg', b'\xff\xd8\xff'),
+            ('raw-default', jpg.read_bytes(), 'public.utf8-plain-text', 'raw-default.png', b'\x89PNG'),
+            ('records', b'{"ok":true}\r\n', 'public.utf8-plain-text', 'records.json', b'{'),
+            ('binary', b'\xff\0\x80', 'public.utf8-plain-text', 'binary.bin', b'\xff\0\x80'),
+        ):
+            with self.subTest(name=name):
+                self.payload.write_bytes(payload)
+                (self.root / 'bridge-calls').unlink(missing_ok=True)
+                saved = self.assert_saved(self.run_cs(name, sources=[clip_type], before=before, bridge=helper), expected)
+                self.assertTrue(saved.read_bytes().startswith(prefix))
+                if expected.endswith(('.jpg', '.json', '.bin')) or payload == png:
+                    self.assertEqual(saved.read_bytes(), payload)
+                self.assertEqual((self.root / 'bridge-calls').read_text(), 'capture\n')
 
     def test_failures_do_not_publish_paths(self):
         for kind, failure in (('empty', ''), ('unexpected', ''), ('text', 'inspect'),
@@ -478,9 +550,9 @@ functions[/usr/bin/pbcopy]='[[ "$CLIP_FAILURE" == copy ]] && return 1; cat > "$H
 
 @unittest.skipUnless(sys.platform == 'darwin', 'requires macOS AppKit')
 class PasteboardTests(unittest.TestCase):
-    def test_native_bridge_on_private_pasteboard(self):
-        # A private pasteboard exercises AppKit without reading or replacing the
-        # user's system clipboard. Keep the production bridge unmodified.
+    """Real AppKit capture on a private pasteboard; no system clipboard writes."""
+
+    def run_native(self, checks):
         bridge = (REPO / 'src/javascript/clipsend-pasteboard.js').read_text()
         bridge = bridge.replace('function run(argv)', 'function originalRun(argv)')
         with tempfile.TemporaryDirectory() as directory:
@@ -488,28 +560,23 @@ class PasteboardTests(unittest.TestCase):
             script.write_text(bridge + r'''
 function run(argv) {
   const pb = $.NSPasteboard.pasteboardWithUniqueName;
+  const path = argv[0] + '/snapshot';
   function check(condition, message) { if (!condition) throw new Error(message); }
+  function equal(data) { return $.NSData.dataWithContentsOfFile(path).isEqualToData(data); }
+  function fails(operation, message) {
+    let error = '';
+    try { operation(); } catch (e) { error = String(e); }
+    check(error.includes(message), 'expected ' + message + ', got ' + error);
+  }
+  const bitmap = $.NSBitmapImageRep.alloc.initWithBitmapDataPlanesPixelsWidePixelsHighBitsPerSampleSamplesPerPixelHasAlphaIsPlanarColorSpaceNameBytesPerRowBitsPerPixel(
+    null, 2, 3, 8, 4, true, false, $.NSDeviceRGBColorSpace, 0, 0);
+  bitmap.colorSpace = $.NSColorSpace.deviceRGBColorSpace;
+  for (let x = 0; x < 2; x++) for (let y = 0; y < 3; y++) bitmap.setColorAtXY($.NSColor.redColor, x, y);
+  const png = bitmap.representationUsingTypeProperties(4, $({}));
+  const jpg = bitmap.representationUsingTypeProperties(3, $({}));
+  const damaged = '\ufffd'.repeat(4) + '\0\x10JFIF\0\1\1';
   try {
-    pb.clearContents;
-    check(inspect(pb) === 'empty', 'empty clipboard');
-    const bitmap = $.NSBitmapImageRep.alloc.initWithBitmapDataPlanesPixelsWidePixelsHighBitsPerSampleSamplesPerPixelHasAlphaIsPlanarColorSpaceNameBytesPerRowBitsPerPixel(
-      null, 2, 2, 8, 4, true, false, $.NSDeviceRGBColorSpace, 0, 0);
-    for (let x = 0; x < 2; x++) for (let y = 0; y < 2; y++) bitmap.setColorAtXY($.NSColor.redColor, x, y);
-    const png = bitmap.representationUsingTypeProperties(4, $({}));
-    pb.setDataForType(png, 'public.png');
-    check(inspect(pb) === 'image', 'PNG detection');
-    for (const fmt of ['png', 'jpeg', 'tiff', 'gif', 'bmp']) {
-      const path = argv[0] + '/image.' + fmt;
-      writeImage(pb, path, fmt);
-      check(!$.NSImage.alloc.initWithContentsOfFile(path).isNil(), 'decode ' + fmt);
-      if (fmt === 'png') check($.NSData.dataWithContentsOfFile(path).isEqualToData(png), 'original PNG bytes');
-    }
-    pb.setStringForType('{"ok":true}', $.NSPasteboardTypeString);
-    check(inspect(pb) === 'text', 'text takes precedence over accompanying image');
-    pb.clearContents;
-    pb.writeObjects($([$.NSURL.fileURLWithPath(argv[0] + '/image.png')]));
-    pb.setStringForType('image.png', $.NSPasteboardTypeString);
-    check(inspect(pb) === 'files\n' + argv[0] + '/image.png', 'file takes precedence over text');
+''' + checks + r'''
     return 'ok';
   } finally {
     pb.releaseGlobally;
@@ -520,6 +587,124 @@ function run(argv) {
                                     text=True, capture_output=True, timeout=30)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(result.stdout.strip(), 'ok')
+
+    def test_images_conversions_and_mislabeled_raw_bytes(self):
+        self.run_native(r'''
+    pb.clearContents;
+    check(capture(pb, path, 'png') === 'empty', 'empty clipboard');
+    pb.setDataForType(png, 'public.png');
+    for (const fmt of ['png', 'jpeg', 'tiff', 'gif', 'bmp']) {
+      check(capture(pb, path, fmt) === 'image', 'image capture ' + fmt);
+      check(!$.NSImage.alloc.initWithContentsOfFile(path).isNil(), 'decode ' + fmt);
+      if (fmt === 'png') check(equal(png), 'original PNG bytes');
+    }
+    for (const fmt of ['png', 'jpeg', 'tiff', 'gif', 'bmp']) {
+      const data = bitmap.representationUsingTypeProperties(FILE_TYPES[fmt], $({}));
+      pb.clearContents; pb.setDataForType(data, RAW_TYPES[fmt]);
+      check(capture(pb, path, fmt) === 'image' && equal(data), 'preserve original ' + fmt);
+      check(capture(pb, path, 'png') === 'image', 'convert ' + fmt + ' to PNG');
+      check(!$.NSImage.alloc.initWithContentsOfFile(path).isNil(), 'decode PNG from ' + fmt);
+    }
+    pb.clearContents; pb.setDataForType(jpg, 'public.jpeg');
+    check(capture(pb, path, 'jpeg') === 'image' && equal(jpg), 'original JPEG bytes');
+    check(capture(pb, path, 'png') === 'image', 'default JPEG conversion');
+    check(imageFormat(header($.NSData.dataWithContentsOfFile(path))) === 'png', 'default PNG encoding');
+    for (const type of ['public.utf8-plain-text', 'NSStringPboardType', 'public.data']) {
+      for (const [data, fmt] of [[png, 'png'], [jpg, 'jpeg']]) {
+        pb.clearContents; pb.setDataForType(data, type);
+        check(capture(pb, path, fmt) === 'image' && equal(data), 'binary image mislabeled as ' + type);
+      }
+    }
+    // The common matching-format paths must never enter the full decoder.
+    convertImage = function() { throw new Error('unexpected full decoding'); };
+    check(capture(pb, path, 'jpeg') === 'image' && equal(jpg), 'JPEG fast path');
+    pb.clearContents; pb.setDataForType(png, 'public.png');
+    check(capture(pb, path, 'png') === 'image' && equal(png), 'PNG fast path');
+    pb.setDataForType(jpg, 'public.jpeg');
+    check(capture(pb, path, 'png') === 'image' && equal(png), 'prefer already offered PNG over JPEG conversion');
+''')
+
+    def test_jpeg_orientation_preserved_on_conversion(self):
+        self.run_native(r'''
+    // APP1 Exif with one little-endian TIFF entry: orientation = 6 (90 degrees).
+    const exif = $('\xff\xe1\0\x22Exif\0\0II*\0\x08\0\0\0\x01\0\x12\x01\x03\0\x01\0\0\0\x06\0\0\0\0\0\0\0')
+      .dataUsingEncoding($.NSISOLatin1StringEncoding);
+    const oriented = $.NSMutableData.alloc.init;
+    oriented.appendData(jpg.subdataWithRange($.NSMakeRange(0, 2)));
+    oriented.appendData(exif);
+    oriented.appendData(jpg.subdataWithRange($.NSMakeRange(2, Number(jpg.length) - 2)));
+    pb.setDataForType(oriented, 'public.jpeg');
+    check(capture(pb, path, 'jpeg') === 'image' && equal(oriented), 'preserve JPEG Exif bytes');
+    check(capture(pb, path, 'png') === 'image', 'convert oriented JPEG');
+    const result = $.NSBitmapImageRep.imageRepWithData($.NSData.dataWithContentsOfFile(path));
+    check(Number(result.pixelsWide) === 3 && Number(result.pixelsHigh) === 2, 'apply JPEG orientation');
+''')
+
+    def test_text_bytes_unicode_boms_and_precedence(self):
+        self.run_native(r'''
+    for (const value of ['{"ok":true}\r\n', 'Résumé 😀\n', '\ufeff{"ok":true}', 'ordinary \ufffd prose', 'BMW is a car brand']) {
+      pb.clearContents; pb.setStringForType(value, $.NSPasteboardTypeString);
+      const original = pb.dataForType($.NSPasteboardTypeString);
+      pb.setDataForType(png, 'public.png');
+      check(capture(pb, path, 'png') === 'text' && equal(original), 'text bytes and precedence');
+    }
+    for (const encoding of [$.NSUTF16StringEncoding, $.NSUTF32StringEncoding]) {
+      const bomText = $('{\"ok\":true}').dataUsingEncoding(encoding);
+      pb.clearContents; pb.setDataForType(bomText, $.NSPasteboardTypeString);
+      check(capture(pb, path, 'png') === 'text' && equal(bomText), 'BOM in generic text flavor');
+    }
+    const utf16 = $('Résumé 😀\r\n').dataUsingEncoding($.NSUTF16StringEncoding);
+    pb.clearContents; pb.setDataForType(utf16, 'public.utf16-external-plain-text');
+    check(capture(pb, path, 'png') === 'text' && equal(utf16), 'UTF-16 bytes');
+    pb.clearContents; pb.setStringForType('legacy text', 'NSStringPboardType');
+    check(capture(pb, path, 'png') === 'text', 'legacy string');
+    pb.clearContents; pb.writeObjects($([$.NSURL.fileURLWithPath(path)]));
+    pb.setStringForType('snapshot', $.NSPasteboardTypeString); pb.setDataForType(png, 'public.png');
+    check(capture(pb, path, 'png') === 'files\n' + path, 'Finder beats text and image');
+    pb.clearContents; pb.setStringForType('first', $.NSPasteboardTypeString);
+    const first = $.NSPasteboardItem.alloc.init;
+    const second = $.NSPasteboardItem.alloc.init;
+    first.setStringForType('one', $.NSPasteboardTypeString);
+    second.setStringForType('two', $.NSPasteboardTypeString);
+    pb.clearContents; pb.writeObjects($([first, second]));
+    check(capture(pb, path, 'png') === 'text', 'multi-item text');
+    check($.NSString.alloc.initWithContentsOfFileEncodingError(path, $.NSUTF8StringEncoding, null).js === 'one\ntwo', 'text concatenation');
+''')
+
+    def test_binary_and_corrupt_text_recovery(self):
+        self.run_native(r'''
+    for (const [value, ext] of [['%PDF-1.7\n', 'pdf'], ['PK\3\4rest', 'zip'], ['RIFF1234WAVErest', 'wav'], ['\0unknown binary', 'bin']]) {
+      pb.clearContents; pb.setStringForType(value, $.NSPasteboardTypeString);
+      const original = pb.dataForType($.NSPasteboardTypeString);
+      check(capture(pb, path, 'png') === 'data\n' + ext && equal(original), 'binary bytes ' + ext);
+    }
+    const invalid = $.NSData.alloc.initWithBase64EncodedStringOptions('/4CB', 0);
+    pb.clearContents; pb.setDataForType(invalid, $.NSPasteboardTypeString);
+    check(capture(pb, path, 'png') === 'data\nbin' && equal(invalid), 'invalid UTF-8 preserved');
+    pb.clearContents; pb.setStringForType(damaged, $.NSPasteboardTypeString);
+    fails(() => capture(pb, path, 'png'), 'already converted to text');
+    pb.setDataForType(png, 'public.png');
+    check(capture(pb, path, 'png') === 'image' && equal(png), 'recover intact alternate image');
+    pb.clearContents; pb.setDataForType($('not an image').dataUsingEncoding($.NSUTF8StringEncoding), 'public.png');
+    fails(() => capture(pb, path, 'png'), 'could not decode');
+''')
+
+    def test_changed_clipboard_unavailable_data_and_write_failure(self):
+        self.run_native(r'''
+    pb.clearContents; pb.setStringForType('hello', $.NSPasteboardTypeString);
+    const changing = {
+      get changeCount() { return pb.changeCount; },
+      get types() { return pb.types; },
+      readObjectsForClassesOptions: (classes, options) => pb.readObjectsForClassesOptions(classes, options),
+      dataForType: (type) => { const data = pb.dataForType(type); pb.clearContents; return data; }
+    };
+    fails(() => capture(changing, path, 'png'), 'clipboard changed');
+    pb.setStringForType('hello', $.NSPasteboardTypeString);
+    changing.dataForType = () => $();
+    fails(() => capture(changing, path, 'png'), 'data unavailable');
+    fails(() => capture(pb, argv[0] + '/missing/out', 'png'), 'could not write');
+    fails(() => capture(pb, path, 'unsupported'), 'unsupported format');
+''')
 
 
 if __name__ == '__main__':

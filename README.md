@@ -342,7 +342,8 @@ The ordered detection strategy is:
    Ambiguous TypeScript/GraphQL enums and YAML/GraphQL aliases fall back to `.txt`;
    conventional built-in type/value spellings can disambiguate them.
 
-Everything else gets `.txt`. Detection failure also falls back to `.txt`.
+For text inference, everything else gets `.txt`. Text-detection failure also
+falls back to `.txt`. Binary clipboard extraction is handled separately below.
 
 Text inference examines complete content up to 16 MiB. Larger content uses only
 binary signatures or `.txt`; a partial JSON/XML prefix never counts as valid.
@@ -365,7 +366,28 @@ files use inference, even without a custom name. Directories keep their names.
 Multiple Finder files ignore a custom name. Clipboard images retain the existing
 behavior: PNG by default, with explicit `.jpg`/`.jpeg`, `.tif`/`.tiff`, `.gif`,
 or `.bmp` selecting conversion. Unsupported image suffixes get `.png` appended.
-Finder files take precedence over text, and text over an accompanying image.
+Finder files take precedence over text. Valid text takes precedence over an
+accompanying image (for example, spreadsheet cells and their rendered preview).
+
+Clipboard extraction uses one AppKit process to capture the payload into a
+temporary file before naming it. It reads raw data rather than passing image
+bytes through `pbpaste`, and checks the clipboard generation during capture.
+Image bytes stored under a text or generic-data type are recognized from their
+headers. Matching PNG/JPEG/TIFF/GIF/BMP output uses the original bytes without a
+full image decode; conversion uses AppKit's bitmap decoder, including JPEG Exif
+orientation. The header checks are bounded to 256 bytes and intentionally do
+not validate every matching-format image. Text encoding validation stays in
+native code; only a short prefix is bridged into JavaScript. UTF-8/16/32 BOMs,
+line endings, and the selected text representation's bytes survive capture.
+
+If a text representation is binary or damaged and an image representation is
+available, the image is saved instead. Recognizable image data already converted
+to Unicode replacement characters produces an error asking you to copy the
+image/file again; those missing bytes cannot be reconstructed. Captured PDF,
+ZIP, gzip, and WAV data receive their corresponding suffixes; unrecognized
+binary payloads receive `.bin`. Explicit suffixes for these data payloads win.
+No clipboard payload is printed by the bridge, and failed captures do not
+publish a saved path.
 
 The shell entry point is `src/functions/clipsend.sh`; content inference is in
 `src/python/clipsend.py` and `src/javascript/clipsend-infer.js`; macOS pasteboard access is in
@@ -378,6 +400,36 @@ system clipboard or your Desktop):
 ```bash
 python3 -B -m unittest discover -s src/python/tests -p 'test_clipsend.py' -v
 ```
+
+An opt-in benchmark compares the previous two-process image bridge with capture
+using private pasteboards and synthetic 1920×1080 fixtures. It includes process
+startup, clipboard reads, conversion, and temporary-file writes; shell naming
+and copying the final path are excluded. No third-party packages are required:
+
+```bash
+python3 -B ~/dotfiles/src/python/tests/bench_clipsend.py --rounds 11
+```
+
+Measured on Taylor's Mac on 2026-10-07, medians of 11 interleaved samples after
+warmup (timings vary with system load):
+
+| Fixture / output | Previous bridge | Capture bridge |
+| --- | ---: | ---: |
+| UI PNG → PNG, 32 KiB | 103 ms | 52 ms |
+| UI JPEG → PNG, 182 KiB | 178 ms | 120 ms |
+| UI JPEG → JPEG, 182 KiB | 109 ms | 57 ms |
+| Noise PNG → PNG, 5.9 MiB | 111 ms | 58 ms |
+| Noise JPEG → PNG, 2.3 MiB | 388 ms | 304 ms |
+| Noise JPEG → JPEG, 2.3 MiB | 125 ms | 66 ms |
+
+The benchmark also checks small and 5 MiB text: capture plus writing took about
+3 ms more than the old inspection alone, which excludes its subsequent
+`pbpaste` read/write. Existing syntax inference is unchanged. Tests cover native
+capture and the shell command together, raw images advertised as text, direct
+byte preservation, conversions/orientation, text and Finder precedence, BOMs,
+multiple text items, damaged-image recovery/errors, clipboard changes,
+unavailable data, and save/publish failures. Tests and benchmarks leave the
+system clipboard and Desktop alone.
 
 ### Path functions
 

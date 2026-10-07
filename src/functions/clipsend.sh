@@ -68,7 +68,20 @@ clipsend() {
   ts="$(date '+%H%M%S')"
   mkdir -p "$desktop" || return 1
 
-  if ! info="$(__clipsend_pasteboard inspect 2>&1)"; then
+  # Select the image encoding before capture so one AppKit process can read,
+  # optionally convert, and save. No later clipboard read or pbpaste decoding.
+  name="${custom_name:-clipsend-$ts-image.png}"
+  case "${name:e:l}" in
+    png) fmt=png ;;
+    jpg|jpeg) fmt=jpeg ;;
+    tif|tiff) fmt=tiff ;;
+    gif) fmt=gif ;;
+    bmp) fmt=bmp ;;
+    *) fmt=png; name="${name%.}.png" ;;
+  esac
+  tmp="$(mktemp)" || return 1
+  if ! info="$(__clipsend_pasteboard capture "$tmp" "$fmt" 2>&1)"; then
+    rm -f "$tmp"
     echo "❌ Could not read the clipboard: $info" >&2
     return 1
   fi
@@ -76,6 +89,7 @@ clipsend() {
 
   case "$kind" in
     files)
+      rm -f "$tmp"
       sources=("${(@f)${info#*$'\n'}}")
       if [[ -n "$custom_name" && ${#sources} -gt 1 ]]; then
         echo "⚠️  ${#sources} files on the clipboard; ignoring name '$custom_name'" >&2
@@ -104,33 +118,20 @@ clipsend() {
       done
       ;;
     image)
-      name="${custom_name:-clipsend-$ts-image.png}"
-      case "${name:e:l}" in
-        png) fmt=png ;;
-        jpg|jpeg) fmt=jpeg ;;
-        tif|tiff) fmt=tiff ;;
-        gif) fmt=gif ;;
-        bmp) fmt=bmp ;;
-        *) fmt=png; name="$name.png" ;;
-      esac
       out="$(__clipsend_free_path "$desktop" "$name")"
-      if ! info="$(__clipsend_pasteboard write-image "$out" "$fmt" 2>&1)"; then
-        echo "❌ Could not save clipboard image: $info" >&2
+      if ! mv "$tmp" "$out"; then
+        rm -f "$tmp"
+        echo '❌ Could not save clipboard image' >&2
         return 1
       fi
       outs+=("$out")
       ;;
     empty)
+      rm -f "$tmp"
       echo '❌ Nothing on the clipboard that clipsend can save' >&2
       return 1
       ;;
     text)
-      tmp="$(mktemp)" || return 1
-      if ! pbpaste > "$tmp"; then
-        rm -f "$tmp"
-        echo '❌ Could not read clipboard text' >&2
-        return 1
-      fi
       lines="$(wc -l < "$tmp" | tr -d '[:space:]')"
       name="$(__clipsend_name "${custom_name:-clipsend-$ts-$lines-lines}" "$tmp")"
       out="$(__clipsend_free_path "$desktop" "$name")"
@@ -141,7 +142,23 @@ clipsend() {
       fi
       outs+=("$out")
       ;;
+    data)
+      # The bridge has already identified binary bytes. Avoid text parsers and
+      # retain unknown binary as .bin, even for payloads larger than 16 MiB.
+      name="${custom_name:-clipsend-$ts-data}"
+      if [[ "${name#.}" != ?*.* || "$name" == *. ]]; then
+        name="${name%.}.${info#*$'\n'}"
+      fi
+      out="$(__clipsend_free_path "$desktop" "$name")"
+      if ! mv "$tmp" "$out"; then
+        rm -f "$tmp"
+        echo '❌ Could not save clipboard data' >&2
+        return 1
+      fi
+      outs+=("$out")
+      ;;
     *)
+      rm -f "$tmp"
       echo "❌ Unknown clipboard type: $kind" >&2
       return 1
       ;;
