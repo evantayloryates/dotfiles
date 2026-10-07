@@ -4,9 +4,11 @@ claude-driver drives Taylor's Claude desktop app from Claude Code, Codex,
 Cursor, OpenCode or a script. This is the usage contract; the README has the
 mechanisms and evidence.
 
-The latest full native input-free qualification FAILED on app 2.26454.0 /
-CLI 2.1.289: the broker ended turns without serving queued work. Earlier
-passes are historical. See [resume.md](resume.md) for exact runtime/reports.
+Native batch and concurrent control probes now pass, with independently
+verified cleanup. Full current native steering remains unqualified. Generation4
+activation exposed stale sealed entry calls; the tested PreToolUse adapter is a
+candidate, not an installed native guarantee. See [resume.md](resume.md) for
+exact source/package distinctions, preserved failures and readiness gates.
 Protocol v7 retains exact compatible `claude-driver wake v6` / `drain v6`
 identities. Wake enters the loop; operation arguments come only from the durable
 request and dispatch checkpoint. Native envelope sender fields are routing

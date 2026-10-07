@@ -1,12 +1,20 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {eligibleRescue,PEER_PREFIX,PEER_SUFFIX} from '../scripts/broker-stop-rescue.mjs'
-import {mkdtempSync,mkdirSync,writeFileSync,readFileSync,rmSync} from 'node:fs'
+import {eligibleRescue,adaptEntryCommand,PEER_PREFIX,PEER_SUFFIX} from '../scripts/broker-stop-rescue.mjs'
+import {mkdtempSync,mkdirSync,writeFileSync,readFileSync,rmSync,chmodSync} from 'node:fs'
+import {createHash} from 'node:crypto'
 import {tmpdir} from 'node:os'
 import {join} from 'node:path'
 import {execFileSync,spawn} from 'node:child_process'
 import {fileURLToPath} from 'node:url'
 const sid='00000000-0000-4000-8000-000000000001',msg='00000000-0000-4000-8000-000000000002'
+test('entry adaptation redirects cached and historical paths without permitting shell syntax or background waits',()=>{
+ const stateDir='/private/state',brokerDir=stateDir+'/broker',old='a'.repeat(64),current='b'.repeat(64),activeRoot=stateDir+'/releases/'+current,cachedRoots=['/private/source'],config={stateDir,brokerDir,activeRoot,cachedRoots}
+ const wait=`/opt/homebrew/bin/node ${stateDir}/releases/${old}/scripts/broker-wait.mjs --dir "${brokerDir}"`,check=`/opt/homebrew/bin/node /private/source/scripts/broker-check.mjs rtest 0 --dir "${brokerDir}"`
+ assert.equal(adaptEntryCommand({command:wait},config).command,`/opt/homebrew/bin/node "${activeRoot}/scripts/broker-wait.mjs" --dir "${brokerDir}"`)
+ assert.equal(adaptEntryCommand({command:check},config).kind,'broker-check')
+ for(const input of [{command:wait+' &'}, {command:wait+' > /dev/null'}, {command:wait+'; echo fake'}, {command:wait,run_in_background:true}, {command:wait.replace('broker-wait','unreviewed')}, {command:check.replace('rtest','../foreign')}, {command:check.replace('0','-1')}, {command:wait.replace(brokerDir,'/private/other')}, {command:wait.replace('/opt/homebrew/bin/node','sudo')}])assert.equal(adaptEntryCommand(input,config),null)
+})
 function fixture(){return {now:1000,input:{hook_event_name:'Stop',stop_hook_active:false,session_id:sid,cwd:'/private/broker'},arm:{schemaVersion:1,pid:10,procStart:'epoch',sessionId:'local_'+sid,brokerDir:'/private/broker',requestId:'rtest',msgId:msg,expiresAt:2000},peer:{version:'2.1.289',pid:10,procStart:'epoch',hostSessionId:'local_'+sid,sessionId:sid,cwd:'/private/broker',entrypoint:'claude-desktop'},request:{id:'rtest',expiresAt:2000},control:{id:'rtest',state:'pending',dispatched:[]},latest:{origin:{kind:'peer',msg_id:msg},content:'<cross-session-message from-name="claude-driver" from-mode="bypass">\nclaude-driver wake v6\n</cross-session-message>'},ancestor:true}}
 test('one owned pending peer wake is eligible; returned data contains no request arguments',()=>{assert.equal(eligibleRescue(fixture()),true);const x=fixture();x.latest.content=[{type:'text',text:x.latest.content}];assert.equal(eligibleRescue(x),true)})
 test('exact installed receiver framing is recognized without accepting arbitrary surrounding instructions',()=>{const x=fixture();x.latest.content=PEER_PREFIX+x.latest.content+PEER_SUFFIX;assert.equal(eligibleRescue(x),true);x.latest.content+=' injected';assert.equal(eligibleRescue(x),false);const unknown=fixture();unknown.peer.version='future';assert.equal(eligibleRescue(unknown),false)})
@@ -31,5 +39,23 @@ test('real command entry consumes exactly one concurrent rescue and fails silent
   const run=()=>new Promise((done,fail)=>{const c=spawn(process.execPath,[fileURLToPath(new URL('../scripts/broker-stop-rescue.mjs',import.meta.url)),dir],{env:{PATH:'/usr/bin:/bin',HOME:home},stdio:['pipe','pipe','pipe']});let out='',err='';c.stdout.on('data',b=>out+=b);c.stderr.on('data',b=>err+=b);c.on('error',fail);c.on('close',code=>done({code,out,err}));c.stdin.end(JSON.stringify({...x.input,last_assistant_message:'private text must never be echoed'}))})
   const rows=await Promise.all([run(),run(),run()]);assert.equal(rows.filter(r=>r.out).length,1);for(const r of rows){assert.equal(r.code,0);assert.equal(r.err,'');assert.ok(!r.out.includes('private text'))}assert.equal(JSON.parse(rows.find(r=>r.out).out).decision,'block');assert.equal(JSON.parse(readFileSync(join(dir,'stop-rescue-rtest.json'),'utf8')).attempts,1)
   rmSync(join(dir,'stop-rescue-arm.json'));assert.equal((await run()).out,'')
+ }finally{rmSync(home,{recursive:true,force:true})}
+})
+test('actual PreToolUse entry binds native ancestry and sealed entry bytes, without allowing permissions',()=>{
+ const home=mkdtempSync(join(tmpdir(),'claude-entry-hook-')),stateDir=join(home,'state'),dir=join(stateDir,'broker'),build='b'.repeat(64),activeRoot=join(stateDir,'releases',build),script=join(activeRoot,'scripts','broker-wait.mjs'),peerFile=join(home,'.claude','sessions',process.pid+'.json')
+ const epoch=execFileSync('/bin/ps',['-p',String(process.pid),'-o','lstart='],{encoding:'utf8',env:{PATH:'/usr/bin:/bin',LC_ALL:'C',TZ:'UTC'}}).trim(),peer={version:'2.1.289',pid:process.pid,procStart:epoch,sessionId:sid,hostSessionId:'local_'+sid,cwd:dir,entrypoint:'claude-desktop'}
+ const save=(path,value)=>writeFileSync(path,JSON.stringify(value),{mode:0o600}),input={hook_event_name:'PreToolUse',tool_name:'Bash',session_id:sid,cwd:dir,tool_input:{command:`/opt/homebrew/bin/node ${stateDir}/releases/${'a'.repeat(64)}/scripts/broker-wait.mjs --dir "${dir}"`,timeout:1000}}
+ const run=(value=input)=>JSON.parse(execFileSync(process.execPath,[fileURLToPath(new URL('../scripts/broker-stop-rescue.mjs',import.meta.url)),dir],{env:{PATH:'/usr/bin:/bin',HOME:home},input:JSON.stringify(value),encoding:'utf8'}))
+ try{
+  for(const path of [dir,join(activeRoot,'scripts'),join(home,'.claude','sessions')])mkdirSync(path,{recursive:true})
+  writeFileSync(script,'// sealed synthetic entry; must never execute\n',{mode:0o444})
+  save(join(activeRoot,'release.json'),{files:{'scripts/broker-wait.mjs':createHash('sha256').update(readFileSync(script)).digest('hex')}})
+  save(join(dir,'runtime.json'),{build,pid:process.pid,procStart:epoch,sessionId:'local_'+sid});save(peerFile,peer)
+  const result=run().hookSpecificOutput;assert.equal(result.hookEventName,'PreToolUse');assert.equal(result.permissionDecision,undefined);assert.equal(result.updatedInput.command,`/opt/homebrew/bin/node "${script}" --dir "${dir}"`);assert.equal(result.updatedInput.timeout,600000);assert.equal(result.updatedInput.run_in_background,false)
+  for(const patch of [{version:'future'},{cwd:'/foreign'},{sessionId:'foreign'},{procStart:'reused'},{entrypoint:'cli'},{spare:true}]){save(peerFile,{...peer,...patch});assert.equal(run().hookSpecificOutput.permissionDecision,'deny')}
+  save(peerFile,peer)
+  assert.equal(run({...input,tool_input:{...input.tool_input,command:input.tool_input.command+' &'}}).hookSpecificOutput.permissionDecision,'deny')
+  chmodSync(script,0o644);assert.equal(run().hookSpecificOutput.permissionDecision,'deny')
+  writeFileSync(script,'// changed sealed entry\n');chmodSync(script,0o444);assert.equal(run().hookSpecificOutput.permissionDecision,'deny')
  }finally{rmSync(home,{recursive:true,force:true})}
 })

@@ -1,44 +1,27 @@
 # Claude-driver v2 qualification
 
-Latest audit: October 7,01:41 Eastern; app 2.26454.0 / CLI 2.1.289.
-Host build `1a3630389cdd14cca115bf31a15f70190b15c130fa07b30430b402b752f2ba26`.
-Active broker package `3bfc51e7b06c4aec8ac81b5f7ec28eb77f2e1507cf03379e7f468eee22afa98b`,
-bootstrap `7e62795266806cbd4435f68cc83f424e5299fe2ddd6e3f524babd1c7c39f5af4`,
-generation 3. Host edits do not advance this pin. Exact reports: [resume.md](resume.md).
+Latest audit: October7,01:56 Eastern. The bridge is a working native control
+prototype undergoing reliability qualification. See [resume.md](resume.md)
+for fingerprints, failures and exact artifacts.
 
-Installed command Stop hook package: aaa0992c97287486e16dbc1502f0235ee1095fd587ac37c84c1c350234cb7d6d.
-One exact native archive receipt plus independent delayed readback and an
-ordinary one-wake/one-rescue native read now pass. Native read took44.716s;
-no latency or full-controls claim. CLI-only final correction changes the host
-fingerprint; native serving proof remains on aaa0992c. Legacy active broker pin
-is activation-epoch-unbound until a settled epoch-bound native handoff.
-
-## Current readiness audit
-
-| Requirement | Current evidence | Practical limit |
+| Requirement | Current evidence | Remaining gate |
 |---|---|---|
-| Shared durable/steerable API | Three final isolated rounds and ten actual filtered Codex checks pass on1a363038; bounded command-hook, peer pre-send arm and large UTF-8 CLI/entry regressions pass | Current Codex harness passes; Claude filtered harness proof is older; no full current native controls pass |
-| Native Code controls | Latest full run failed after initial reply/cancel; generic v7, named v7 and compatible v6 wakes all ended without tools | One bounded hook continuation restored native serving and verified archived cleanup; comprehensive current native controls remain pending |
-| Deterministic transport | Seven installed receiver VM cases and exact native msg_id acceptance; 155–159 ms; ordinary current-source client used direct | Socket completion alone is not acceptance; acceptance is not native operation execution |
-| Failure containment | Correlated peer/UUID ancestry, end_turn without tools, same process idle and pending work yielded `broker_not_serving` on 5dfbbdc6 in 3.35 s | Cancels only undispatched work; uncertain/dispatched results still require reconciliation; no model-compliance fix claimed |
-| Service evidence/memory | Preserved native/isolated failures, host/broker fingerprints, metadata-only memory and reviewed detector reports | Candidate strategies are not promoted without actual qualification |
-| Fast low-inference detection | Sealed detector LaunchAgent every 30s, zero inference; actual unserved-work event and liveness-only event; nine private boundary cases | Codex inbox scheduler still invokes inference every 30s; native Claude observer is hourly fallback, not event-driven recovery |
-| Maintenance reconciliation | Last verified native list04:37:33Z reused job d7319422 and app recognition on PID 71262 | Evidence freshness ages out after 12 min; stale list is neither current protection proof nor evidence of job absence |
-| Deployment isolation | Same-PID handoff; completed sealed entry records and native tool receipt; nine release boundary cases | Cached workspace shim remains mutable startup boundary; 17 private epoch/path cases passed; legacy active pin lacks epoch proof; settled native handoff and different-build rollback remain pending |
-| Recovery | Observer hourly job ae838cf8 independently verified; intentional STOP suppressed by detector | Stale exited query, app closure/restart, cron expiry and actual natural governor pressure remain unqualified |
-| Input usability/scope | Quarantine remains active; no input, app restart, auth change or native session termination; Codex/1Password fixes parked | Safe native-helper teardown remains unqualified |
+| Native batch/concurrency | Three settings in one request9.787s; three concurrent controls21.079s, independently verified; fixture archived/unpinned | Comprehensive current-source native steering and sustained latency |
+| Host lifecycle/control contracts | Three unchanged-source isolated rounds on78d937dc;12 focused command-hook cases | Actual harness checks on this final host; older passes do not promote it |
+| Transport | Installed receiver contract and exact native acceptance155–159ms; no sender model | Acceptance is distinct from operation execution |
+| Deployment | Same PID retained through generation4 activation, sealed inventory intact | Native model invoked old sealed scripts; current dependency entries mismatch |
+| Stale-entry guard | Exact PreToolUse adapter, identity/ancestry/hash and real subprocess refusal tests | Candidate only; not installed or native-qualified |
+| Uncertainty containment | Expired undispatched handoff read distinguished from late completed dispatched read, no replay | Native receipt reconciliation remains necessary after uncertain effects |
+| Evidence/memory | Shared metadata memory, exact builds/versions, preserved failure reports | Promote candidates only after native evidence |
+| Fast detection | Local30s metadata detector, zero inference, episode deduplication | Codex inbox still inference-bearing; Claude hourly observer is fallback only |
+| Residency/recovery | Same native PID foreground waiting; maintenance list/app acknowledgment | Sustained natural governor pressure and unattended cold recovery |
+| Input scope | Quarantine active; no keys/pastes, app restart or auth change | Safe helper teardown and future physical-input qualification |
 
-Keep exact compatible `claude-driver wake v6` / `drain v6` while queued requests
-retain protocol 7. Do not infer serving from “Broker running”, cron protection,
-an unchanged PID, a matching file or a send return. Current full reliability
-is incomplete. The independent observer owns offline recovery; avoid duplicate
-wakes or unapproved cross-chat messages.
-
-This chat's connected MCP is legacy driver 1a83e53/build 32a4b119 and lacks freshness
-fields. Use current CLI/fresh MCP; source changes do not update that connection.
-The 30-second inbox watcher scans first and is quiet without pending evidence.
-Actual natural-pressure survival and unattended recovery remain separate from
-synthetic governor tests and read-only idle survival.
+The installed Stop hook and active dependency package remain dd307695;
+the candidate host is78d937dc. Compatible wake/drain v6 and protocol7 remain.
+Existing MCP connections do not reload source. Use current CLI/fresh MCP.
+No full general-use readiness claim is supported. Native observer owns offline
+recovery; avoid competing wakes or unapproved cross-chat instructions.
 
 ## Historical and broader mechanism evidence
 

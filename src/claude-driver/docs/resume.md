@@ -1,4 +1,74 @@
-## Latest frontier — October 7, 01:41 Eastern
+## Latest frontier — October 7, 01:56 Eastern
+
+The goal remains active: usable native control prototype, reliability hardening
+in progress, not general-use readiness. Fast detection is the zero-inference
+30-second local detector; the hourly Claude observer is fallback recovery.
+The Codex inbox still makes inference calls on scheduled ticks. Active testing
+does not wait for either observer schedule.
+
+Native controls on the existing owned fixture passed after unarchiving it:
+three settings in one request took 9.787s; three concurrent controls took21.079s;
+independent readback and archived/unpinned cleanup passed. Evidence:
+`native-valid-controls-2026-10-07T05-44-09-200Z.json`. The preceding archived
+attempt produced a partial title effect before native pin/effort refusal; retain
+`native-batched-controls-2026-10-07T05-42-01-109Z.json`. The host now rejects
+known archived pin/effort prerequisites before dispatching any batch operation.
+
+Deployment exposed a real stale-entry boundary: generation4 activation to
+`dd307695157f992db0e01659bcaf6d9421f5dfb88203b948333cbc8c36944bd1`
+with bootstrap `eb5cb750e09080502b44a970dc3b18ef083ecb4beb9fdc0d3e4bb1c1acfa3492`
+kept PID71262/start Wed Oct7 03:24:51 2026 UTC and cleared the owned STOP.
+Native maintenance cleanup succeeded. Claude subsequently invoked OLD sealed
+3bfc scripts from context, bypassing the new entry admission. Integrity is true,
+but native dependency qualification remains entry-evidence-mismatch. Do not
+alter old sealed snapshots or count pointer activation as native deployment.
+Evidence: `native-epoch-handoff-2026-10-07T05-47-40-871Z.json` and
+`native-entry-paths-post-handoff-2026-10-07.json`.
+
+A candidate broker-scoped PreToolUse command adapter redirects only exact
+known wait/check invocations to the current sealed release. It validates the
+native SID/PID/start/cwd/version/ancestry and immutable script hash, refuses
+shell composition/background/unknown commands, and supplies updatedInput
+without a permission allow decision. Actual subprocess tests cover foreign
+identity, modified/writable script bytes and shell syntax; 12 focused cases
+pass. This adapter is NOT installed or native-qualified. Installed Stop-only
+hook remains dd307695; host candidate is
+`78d937dcc327985999e8099241127037fd772d10a04d7e458954e432a77d2434`.
+Three unchanged-source isolated rounds passed in
+`v2-2026-10-07T05-56-01-765Z.json`. The latest actual Codex filtered10-check
+pass is dd307695 in `harness-v2-codex-2026-10-07T05-48-56-472Z.json`;
+Claude filtered proofs are older. Do not promote them to the new host build.
+
+The first post-handoff request rmuxorta2-e8d52a expired without dispatch;
+no native acceptance was established. A later stable-window read rmuxov0j8-55bb8f
+hit its15s deadline after dispatch, then independently reconciled to a completed
+native receipt. Keep its outcome_unknown/retrySafe:false control state and do
+not replay. Evidence: `native-late-epoch-reconciliation-2026-10-07.json`.
+Detector014828/014858 report hashes respectively
+`0c085d50453936ab4e943be528212398d7cceb2d5cb764a4afcf3032ec5176d8` and
+`6d5378b09b4a31a7bcbcee86057f9350c36088c62ed74c7722cfa1c0af999d7b`
+match that earlier expired episode. Their liveness-returned event establishes
+queued metadata becoming absent, not a crash cause or recovered serving.
+Current narrow broker status again shows foreground waiting, unchanged PID,
+no STOP, and app-acknowledged native maintenance job2a2c851b/list05:50:26Z.
+This is a point-in-time observation, not sustained pressure qualification.
+
+Earlier44.7s native latency included a40.773s auto-compaction boundary near
+191457 preTokens; see `native-client-latency-breakdown-2026-10-07.json`.
+No context reset was performed. Batching and receiver-direct signaling reduce
+avoidable turns, but sustained latency is not qualified.
+
+Next: upgrade the service-owned hook after admission, qualify two native read-only
+requests with completed current-generation wait/check observations, then rerun
+the full broker-only suite on existing fixture
+local_fc1e5eab-9d24-4e4c-a09c-9a386a6ffe14 with restoration/cleanup. Full steering,
+different-build rollback, sustained latency/natural governor pressure and
+unattended cold recovery remain open. No input/quarantine/auth changes, app
+restart, session process kill or competing observer wake is authorized. Codex
+and 1Password fixes remain separate. Checkpoint review before acknowledging the
+two exact report hashes; preserve every failed and uncertain native result.
+
+## Previous frontier — October 7, 01:41 Eastern
 
 The goal remains active. Fast sensing is the installed zero-inference 30-second
 local detector; the Claude observer's hourly job is fallback recovery, not the

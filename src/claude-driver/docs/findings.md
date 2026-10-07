@@ -1,5 +1,21 @@
 # claude-driver findings
 
+## 2026-10-07 01:56 Eastern — native controls and stale sealed entry paths
+
+- Native batching cut three settings to one request9.787s; concurrent controls
+  passed21.079s with independent readback and archived/unpinned cleanup.
+- Archived prerequisites must reject before any batch dispatch: native title
+  succeeded before pin/effort refused in the retained failed archived probe.
+- Updating the active pointer cannot retroactively add admission to older
+  sealed scripts. Native calls to3bfc continued after generation4/dd activation.
+  Completed epoch-bound entry observations are the deployment gate.
+- The candidate service-scoped PreToolUse adapter redirects exact cached entry
+  commands without a permission allow. Real subprocess tests and three full
+  isolated rounds pass; installation/native proof remain pending.
+- Late completed native receipts must reconcile a timed-out dispatch without
+  replay; detector liveness return does not establish serving or crash cause.
+
+
 Dated, newest first. Each entry: what was observed, the evidence, and n
 (independent observations). Promote a pending learning
 (`<state>/pending-learnings.jsonl`) here only after re-verifying it.
