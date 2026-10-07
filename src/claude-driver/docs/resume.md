@@ -1,4 +1,27 @@
-## Latest frontier — October 7, 06:43 Eastern
+## Latest frontier — October 7, 06:45 Eastern — native activation blocker
+
+Three consecutive goal turns have now revalidated the SAME genuine blocker:
+Taylor's required person-only scoped native mod activation remains pending.
+Exact destination, intent and completed report are absent; review helper returns
+pending:false. No active probe handle exists. These turns are NO PROGRESS, not
+verified waits; private pressure/native-mod-activation-blocker-audit.json records
+the three checks. Mark the goal blocked after this checkpoint is committed/pushed.
+No further bridge work can qualify the native route without that human action.
+
+The async request and [prepared prompt](native-mod-bootstrap-prompt.md) already
+cover the needed action in the existing claude-driver-broker chat. Do not repeat
+the ask, impersonate consent, send another wake or invent static work to avoid
+the blocked state. Source checkpoint6958c8c and final hostc235c5cf remain validated;
+this checkpoint changes documentation only. Nothing is complete or released.
+
+On actual user completion/new exact evidence, revalidate the native epoch/app/
+settings/candidate copies, run the bounded screening helper and independently
+verify loaded plugin, native gate/model/command/fixture/unload. Preserve all
+uncertain effects. Watcher/observer recovery ownership and input quarantine remain
+unchanged; this is a blocker, not a user-requested pause. Codex-driver/1Password
+stay separate. A later explicit resume starts a fresh blocked audit.
+
+## Previous frontier — October 7, 06:43 Eastern
 
 Goal ACTIVE. Previous turn and this turn made progress. Human native activation
 is still pending; no exact probe report has arrived. Existing legacy detector
