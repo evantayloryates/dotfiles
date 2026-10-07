@@ -1,3 +1,35 @@
+## Usage-exhausted operating boundary — October 7
+
+Taylor reports Claude inference quota exhausted. No free/local inference provider
+has been configured and independently verified for this bridge. Native mod
+callbacks are deterministic execution, not alternative model inference. Preserve
+this distinction in status and handback: broker process alive, mod loaded, native
+read receipt verified and inference available are separate claims.
+
+Existing original-epoch native reads, actual fresh stdio lifecycle, positive
+control-file checks and exact streamed-child disposition already provide narrow
+zero-model evidence. Do not repeat those trials solely because inference is
+unavailable. Preserve failed original probes; they do not qualify the corrected
+call path. All live evidence remains bound to its recorded build and epoch.
+
+Continue bounded source review, meaningful synthetic fixes and historical receipt
+review when a specific unresolved question exists. Do not send model prompts,
+retry quota failures, switch providers/models, wake/restart the broker or change
+permissions to seek capacity. Revalidate exact owned epoch before any subsequent
+native operation. A new native negative cancellation trial needs independent
+outcome/settlement evidence first; a cancellation marker or missing result alone
+cannot safely retire an unresolved request.
+
+Remaining release gates: general receiver/environment unload; persistent serving
+and queue ownership; installed connector/current filtered harness integration;
+guarded mutation and executing-effect cancellation; sustained residency/governor
+and cold recovery; distinct-build rollback; reconciliation of 17 historical
+uncertain effects; safe runtime handoff and deployment of retained checkpoints.
+Quota restoration enables inference-dependent harness checks only; it does not
+close these other gates. No human action is requested now. If no specific safe
+experiment or source defect is identified, stop active probing rather than churn;
+the report watcher continues its pending-evidence-only contract.
+
 ## Cancellation after consumed admission preserves uncertainty — October 7, 13:28 Eastern
 
 Rechecked actual native command gate path: existing tests already independently
