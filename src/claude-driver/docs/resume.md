@@ -1,3 +1,23 @@
+## Peer envelope mismatch corrected — October 7, 11:40 Eastern
+
+Fresh enrollment2b4f992a-3c57-4e7e-b9d8-4b2653780311 passed installed validator,
+produced native readiness and had one prepared direct delivery. Owned journal
+correlates exact private token to queue-operation15:35:38.621Z and user15:35:38.633Z.
+No durable native intent or report appeared. This delivery passed to the queue;
+transport return did not qualify native execution. Preserve send evidence and
+never resend this token. Do not claim zero model attempts from configured zero.
+Installed xkn retains envelopes without hopChain; receive adapter previously
+compared bare token only. Candidate now accepts only its exact direct transport
+wrapper in addition to bare token, and refuses changed sender/mode/suffix.
+Focused adapter/package/installed-envelope tests pass. Installed old module has
+not been replaced by corrected bytes yet; reconcile expiry before new identity.
+
+Pressure v2-2026-10-07T15-38-55-755Z failed4/5, unchanged source: native-idle
+post-publication cancellation fixture sometimes cancelled during lock acquisition.
+Fixture now starts cancellation after publication and gives deadline/mailbox
+adequate separation. All8 focused idle tests pass. Full unchanged-source rerun
+v2-2026-10-07T15-39-39-141Z passed1/1. Preserve failed run as evidence.
+
 ## Detector overlap reconciled — October 7, 11:30 Eastern
 
 Follow-up report112944 SHAa3a407fd74f8a18830187a3f0244e529bfbdf8065fb50379ab1499a97564db77
