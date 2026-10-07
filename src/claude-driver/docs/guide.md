@@ -535,3 +535,10 @@ removal passed via CLI/MCP on October7. Installed source removes command registr
 before waiting for outstanding dispatches, so environment/hook unload remains a
 separate gate. Historical status can recognize an independently verified successor
 in the shared path without confusing its ownership with retired module bytes.
+
+Experimental resource disposal fixture: `broker_service_enroll` accepts
+`resource_probe:true` only with `marker:true` and `lifetime_sec` from60 through120.
+The child independently expires30seconds after service expiry. Enrollment readiness
+does not prove child launch, disposal or full serving. Strict metadata screening
+distinguishes intentional signal exits from self-deadline; independent kernel and
+retirement evidence remains required. This variant is not yet live-qualified.

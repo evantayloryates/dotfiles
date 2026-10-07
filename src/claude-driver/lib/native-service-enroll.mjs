@@ -20,9 +20,10 @@ if fn(os.fsencode(sys.argv[1]),os.fsencode(sys.argv[2]),4)!=0: sys.exit(1)`,stag
 const root='/Users/taylor/.local/state/claude-driver/pressure/'
 // Explicit bounded enrollment in the previously consented exact owned session.
 // No wake, new chat, permission change, read dispatch or replacement of a module.
-export async function enrollNativeService({lifetimeSec=300,maxRequests=8,marker=false,observeRetiredServiceId=null,signal}={}){
+export async function enrollNativeService({lifetimeSec=300,maxRequests=8,marker=false,observeRetiredServiceId=null,resourceProbe=false,signal}={}){
  if(!Number.isInteger(lifetimeSec)||lifetimeSec<60||lifetimeSec>3600||!Number.isInteger(maxRequests)||maxRequests<1||maxRequests>128)throw Error('invalid native service enrollment bounds')
  if(typeof marker!=='boolean'||observeRetiredServiceId!==null&&(!marker||! /^[a-f0-9]{32}$/.test(observeRetiredServiceId)))throw Error('invalid native marker enrollment')
+ if(typeof resourceProbe!=='boolean'||resourceProbe&&(!marker||lifetimeSec>120))throw Error('invalid native resource enrollment bounds')
  return withLock('broker',async()=>{
   let phase='guard',serviceId=null,installed=false,publicationAttempted=false
   try{
@@ -36,7 +37,7 @@ export async function enrollNativeService({lifetimeSec=300,maxRequests=8,marker=
    }
    if(observeRetiredServiceId!==null){phase='previous-marker';const status=(await import('./native-service-ownership.mjs')).nativeServiceStatus(observeRetiredServiceId),prior=JSON.parse(readProbeBytes(root+'native-service-enrollment-'+observeRetiredServiceId+'.json').bytes);if(!status.filesRetired||status.filesInstalled||!status.expired||status.unresolvedRequests.length||prior.config.marker!==true)throw Error('previous marker not retired')}
    const b=guard(),now=Date.now();serviceId=randomBytes(16).toString('hex')
-   const config={id:serviceId,token:'claude-driver service-read '+randomBytes(16).toString('hex'),brokerSession:b.sessionId,brokerCwd:MOD_PROBE.brokerCwd,build:b.runtime.build,notBefore:now,deadline:now+lifetimeSec*1000,maxRequests,...marker?{marker:true,observeRetiredServiceId}:{}},pkg=buildNativePeerServicePackage(config),stage=root+'native-service-stage-'+serviceId,dest='/Users/taylor/.claude/dev-mods/'+config.brokerSession.slice(6)+'/desktop-bridge-native-peer-service'
+   const config={id:serviceId,token:'claude-driver service-read '+randomBytes(16).toString('hex'),brokerSession:b.sessionId,brokerCwd:MOD_PROBE.brokerCwd,build:b.runtime.build,notBefore:now,deadline:now+lifetimeSec*1000,maxRequests,...marker?{marker:true,observeRetiredServiceId}:{},...resourceProbe?{resourceProbe:true}:{}},pkg=buildNativePeerServicePackage(config),stage=root+'native-service-stage-'+serviceId,dest='/Users/taylor/.claude/dev-mods/'+config.brokerSession.slice(6)+'/desktop-bridge-native-peer-service'
    if(probePathPresence(dest)!==false)throw Error('existing module requires reconciliation')
    phase='stage';for(const[p,bytes]of Object.entries(pkg.files)){mkdirSync(stage+'/'+p.slice(0,p.lastIndexOf('/')),{recursive:true});writeFileSync(stage+'/'+p,bytes,{flag:'wx',mode:0o600})}
    phase='validate';execFileSync(resolveClaudeBinary(),['plugin','validate',stage],{stdio:'pipe',timeout:20000});guard()

@@ -27,3 +27,10 @@ test('public enrollment schema and CLI agree on integer bounds before effects',a
  const child=spawnSync(process.execPath,[new URL('../cli.mjs',import.meta.url).pathname,'broker_service_enroll','--experimental','true','--lifetime_sec','59'],{encoding:'utf8'})
  assert.equal(child.status,1);assert.match(child.stderr,/out of range: lifetime_sec/);assert.equal(child.stdout,'')
 })
+
+test('resource enrollment refuses unsafe combinations before broker access',async()=>{
+ for(const options of [{resourceProbe:true},{resourceProbe:true,marker:true,lifetimeSec:121},{resourceProbe:'true',marker:true,lifetimeSec:60}])await assert.rejects(enrollNativeService(options),/resource enrollment bounds/)
+ const {validateOp}=await import('../lib/driver.mjs')
+ assert.equal(validateOp('broker_service_enroll',{experimental:true,resource_probe:true,marker:true,lifetime_sec:60}).name,'broker_service_enroll')
+ assert.throws(()=>validateOp('broker_service_enroll',{experimental:true,resource_probe:'true'}))
+})

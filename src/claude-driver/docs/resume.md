@@ -1,3 +1,18 @@
+## Guarded resource enrollment and screening — October 7, 13:07 Eastern
+
+Public broker_service_enroll resource_probe:true maps to guarded enrollment;
+requires marker:true and lifetime_sec60..120, boolean-only, rejected before broker
+access otherwise. Existing exact epoch/baseline/control/publication guards apply.
+Readiness still qualifies only registration, not child launch or resource disposal.
+Pure native-resource-evidence screening binds strict intent/ready/exit schemas,
+identity and chronology; distinguishes deadline0 from intentional SIGTERM143 or
+SIGINT130. Changed PID/identity, foreign fields, impossible chronology and unknown
+exit reasons refuse. Every result keeps resourceDisposalQualified:false: independent
+kernel identity/aliveness and retirement observations are still required.
+Full pressure v2-2026-10-07T17-07-29-615Z passed1/1 in8703ms,
+sourceChanged:false. No live resource enrollment yet. Next independently bounded
+kernel observations and exact-owner retirement trial; no human action required.
+
 ## Native resource variant validates — October 7, 13:06 Eastern
 
 Pure package generator now supports optional resourceProbe:true with marker:true,
