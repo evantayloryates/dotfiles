@@ -11,8 +11,8 @@ mutation dispatcher. Actual current-source77441d1d native09:51:15 passed one
 job shared by two MCP harnesses after publisher exit, two native reads for three
 requested targets, correlated host finish, exact settings restoration and
 idempotent completed reattachment. Total5130ms with one short trigger turn;
-the native hooks perform tools without model selection. Cancellation/fault/expiry
-pressure remains required before broader use; broker servicing/guarded mutations
+the native hooks perform tools without model selection. Subsequent owned Node
+worker-loss and cancellation/expiry pressure passed; broker servicing/guarded mutations
 and deployment gates remain distinct. SDK source87405bcd's createProxyServers
 calls the actual handler directly; direct hooks do not inherit our assistant
 PreToolUse checkpoint gate.
@@ -137,7 +137,10 @@ establish that a tool ran.
 Ordinary requests refuse a pending diagnostic before publication. Abandoned
 expired probe settings can restore only under the broker lock in their exact
 idle intact epoch, without STOP/arm/quiet owner and with matching current bytes.
-These recovery boundaries have isolated tests, not live crash/kill injection.
+These recovery boundaries have isolated tests and later live owned Node worker
+loss/expiry proof; no native Claude process was killed. The public reconciliation
+API recovers original genuine metadata receipts without inference or read replay,
+preserving the unknown worker outcome and labeling metadata historical.
 Final5be50395 passed the full isolated suite in
 `v2-2026-10-07T08-44-38-415Z.json`; later host guards do not relabel older native
 passes as current-source native proof. No temporary probe remains installed.

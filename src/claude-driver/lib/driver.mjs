@@ -845,6 +845,12 @@ export const OPS = [
   },
   // ---------------- broker
   {
+    name:'broker_read_reconcile',title:'Recover original native metadata receipts',readOnly:true,
+    description:'Reconcile bounded original metadata receipts after exact settings restoration, without replay or inference. Requires original intact idle native epoch and host finish. Returns historical metadata and preserves the original job outcome; never release authority.',
+    schema:{required:['id','experimental'],properties:{id:{type:'string'},experimental:{type:'boolean',enum:[true]}}},
+    run:async(args,ctx)=>(await import('./native-read-batch.mjs')).reconcileNativeReadBatch(args.id,{signal:ctx.signal}),
+  },
+  {
     name:'broker_read_recover',title:'Restore an expired native metadata transaction',readOnly:false,
     description:'Explicit zero-inference cleanup for one expired service-owned metadata batch in its original intact idle broker epoch. Restores exact owned settings only; never wakes, restarts or replays native reads and never completes the original job.',
     schema:{required:['id','experimental'],properties:{id:{type:'string'},experimental:{type:'boolean',enum:[true]}}},

@@ -4,7 +4,8 @@ import {mkdtempSync,rmSync,mkdirSync,writeFileSync,symlinkSync,readFileSync,exis
 import {join} from 'node:path'
 import {tmpdir} from 'node:os'
 const state=mkdtempSync(join(tmpdir(),'native-read-test-'));process.env.CLAUDE_DRIVER_STATE_DIR=state
-const {normalizeReadTargets,matchMetadataReceipt,nativeReadBatch,nativeReadStatus,recoverNativeReadBatch}=await import('../lib/native-read-batch.mjs')
+const {normalizeReadTargets,matchMetadataReceipt,nativeReadBatch,nativeReadStatus,recoverNativeReadBatch,reconcileMetadataRows,canRefreshConsumedIdle}=await import('../lib/native-read-batch.mjs')
+const {BROKER_DIR}=await import('../lib/state.mjs')
 const {installTemporaryHookProbe,bytesHash}=await import('../lib/temporary-hooks.mjs')
 const {validateOp,runOp}=await import('../lib/driver.mjs')
 after(()=>rmSync(state,{recursive:true,force:true}))
@@ -49,4 +50,18 @@ test('expired metadata cleanup preserves unknown original outcome and requires e
  const r=await recoverNativeReadBatch(id,{info:()=>info,now:expiresAt+1});assert.equal(r.originalOutcomeUnchanged,true);assert.equal(r.phase,'published');assert.equal(r.restorationRecorded,true);assert.equal(r.cleanupPending,false);assert.equal(r.releaseAuthorized,false)
  assert.deepEqual(readFileSync(join(dir,'.claude/settings.json')),settings);assert.deepEqual(readFileSync(join(dir,'stop-rescue-policy.json')),policy);assert.equal(existsSync(join(dir,'mechanical-probe.json')),false)
  assert.equal(JSON.parse(readFileSync(path)).phase,'published');assert.equal((await recoverNativeReadBatch(id)).alreadySettled,true)
+})
+test('receipt reconciliation requires complete causal native evidence and preserves privacy',()=>{
+ const epoch={sessionId:a,pid:1234,procStart:'synthetic start'},p={epoch,targets:[a,b],peer:{msgId:'peer'},startedAt:1000,expiresAt:5000,versions:{cli:'2.1.289'},settingsHash:'b'.repeat(64)}
+ const root={type:'user',uuid:'root',sessionId:a.slice(6),cwd:BROKER_DIR,version:'2.1.289',origin:{kind:'peer',msg_id:'peer'},timestamp:new Date(1100).toISOString()},assistant={type:'assistant',uuid:'reply',parentUuid:'root',timestamp:new Date(1200).toISOString(),message:{content:[{type:'text',text:'PRIVATE'}]}}
+ const receipt=(target,uuid)=>({type:'attachment',uuid,parentUuid:'reply',sessionId:a.slice(6),cwd:BROKER_DIR,version:'2.1.289',timestamp:new Date(1400).toISOString(),attachment:{type:'hook_success',hookEvent:'Stop',hookName:'Stop',toolUseID:'event',command:'ccd_session_mgmt/get_session',stdout:JSON.stringify({sessionId:target,isArchived:true,isRunning:false,private:'PRIVATE'}),stderr:''}})
+ const w={scope:'native-stop-hook-witness',token:'a'.repeat(32),observerHash:'c'.repeat(64),msgId:'peer',userUuid:'root',settingsHash:p.settingsHash,epoch,at:1300},rows=[root,assistant,receipt(a,'r1'),receipt(b,'r2')]
+ const result=reconcileMetadataRows(p,w,rows);assert.equal(result.length,2);assert.ok(result.every(x=>x.verified&&x.metadataCurrent===false));assert.equal(JSON.stringify(result).includes('PRIVATE'),false)
+ for(const invalid of [rows.slice(0,-1),[...rows,receipt(a,'r3')],[...rows,{...root,uuid:'foreign',origin:{kind:'peer',msg_id:'other'}}],[root,{...assistant,message:{content:[{type:'tool_use',name:'mutation'}]}},...rows.slice(2)],[{...root,cwd:'/foreign'},...rows.slice(1)],[root,{...assistant,isSidechain:true},...rows.slice(2)],[...rows,{type:'system',subtype:'compact_boundary',timestamp:new Date(1500).toISOString()}]])assert.throws(()=>reconcileMetadataRows(p,w,invalid),e=>e.category==='native_read_reconciliation_refused')
+ assert.throws(()=>reconcileMetadataRows(p,{...w,userUuid:'other'},rows),e=>e.category==='native_read_reconciliation_refused')
+})
+test('only a consumed older-source idle notice admits one fresh observation',()=>{
+ const epoch={sessionId:a,pid:1234,procStart:'synthetic'},idle={verified:false,state:'idle',pendingRemoteSubscription:false,runtimeBuild:'older',epoch}
+ assert.equal(canRefreshConsumedIdle(idle,epoch),true)
+ for(const bad of [{...idle,pendingRemoteSubscription:true},{...idle,state:'pending'},{...idle,state:'exited'},{...idle,epoch:{...epoch,procStart:'other'}},{...idle,verified:true}])assert.equal(canRefreshConsumedIdle(bad,epoch),false)
 })

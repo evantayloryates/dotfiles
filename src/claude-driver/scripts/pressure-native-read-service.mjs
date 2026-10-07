@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 // One owned diagnostic turn exercises one durable metadata batch shared by two
-// MCP harnesses. No mutations, recovery, keyboard input or new desktop chats.
+// MCP harnesses. Optional fault mode kills only this test's exact owned Node
+// job worker, then recovers expired service settings. Never native processes.
 import assert from 'node:assert/strict'
-import {spawn} from 'node:child_process'
+import {spawn,execFileSync} from 'node:child_process'
 import {createInterface} from 'node:readline'
 import {fileURLToPath} from 'node:url'
 import {randomUUID} from 'node:crypto'
@@ -16,10 +17,13 @@ import {STATE_DIR,BROKER_DIR,writeJsonAtomic} from '../lib/state.mjs'
 import {RUNTIME_BUILD,runtimeFingerprint} from '../lib/build.mjs'
 import {recordMemory} from '../lib/memory.mjs'
 import {ownedBytes,bytesHash} from '../lib/temporary-hooks.mjs'
+import {jobFile} from '../lib/jobs.mjs'
 const cancelPressure=process.argv[2]==='--run-owned-native-read-cancel'
-if(process.argv.length!==3||!['--run-owned-native-read-service','--run-owned-native-read-cancel'].includes(process.argv[2]))throw Error('explicit owned native read service flag required')
+const workerLoss=process.argv[2]==='--run-owned-native-read-worker-loss'
+const reconciliationOnly=process.argv[2]==='--reconcile-owned-native-read'
+if(reconciliationOnly?process.argv.length!==5||!/^[a-f0-9-]{36}$/.test(process.argv[3])||!/^j[a-f0-9]{32}$/.test(process.argv[4]):process.argv.length!==3||!['--run-owned-native-read-service','--run-owned-native-read-cancel','--run-owned-native-read-worker-loss'].includes(process.argv[2]))throw Error('explicit owned native read service flag required')
 const sid='local_35b3ba48-f02e-48de-bfbb-925192d90de1',fixture='local_fc1e5eab-9d24-4e4c-a09c-9a386a6ffe14',epoch={sessionId:sid,pid:71262,procStart:'Wed Oct  7 03:24:51 2026'},clients=[]
-const report=join(STATE_DIR,'pressure','native-read-service-'+new Date().toISOString().replace(/[:.]/g,'-')+'.json'),out={scope:'owned-cross-harness-deterministic-metadata-read',runtimeBuild:RUNTIME_BUILD,epoch,cancelPressure,ok:false,releaseAuthorized:false}
+const report=join(STATE_DIR,'pressure','native-read-service-'+new Date().toISOString().replace(/[:.]/g,'-')+'.json'),out={scope:'owned-cross-harness-deterministic-metadata-read',runtimeBuild:RUNTIME_BUILD,epoch,cancelPressure,workerLoss,reconciliationOnly,ok:false,releaseAuthorized:false}
 function client(name){
  const child=spawn(process.execPath,[fileURLToPath(new URL('../server.mjs',import.meta.url))],{stdio:['pipe','pipe','pipe']}),rl=createInterface({input:child.stdout}),pending=new Map();let id=0,stderrBytes=0
  child.stderr.on('data',x=>stderrBytes+=x.length);rl.on('line',line=>{let r;try{r=JSON.parse(line)}catch{return};const p=pending.get(r.id);if(p){pending.delete(r.id);clearTimeout(p.timer);r.error?p.reject(Error('owned MCP protocol failure')):p.resolve(r.result)}})
@@ -31,7 +35,42 @@ try{
  assert.ok(same());assert.equal(brokerInfo().live.status,'idle');const f=getRecord(fixture);assert.equal(f.cwd,join(STATE_DIR,'probe','v2-2026-10-07T04-37-49-840Z'));assert.equal(f.isArchived,true);assert.equal(readPins().has(fixture),false)
  const settings=bytesHash(ownedBytes(join(BROKER_DIR,'.claude','settings.json'))),policy=bytesHash(ownedBytes(join(BROKER_DIR,'stop-rescue-policy.json')))
  const a=client('claude-driver-native-read-a'),b=client('claude-driver-native-read-b');await Promise.all([a.ready,b.ready])
- if(cancelPressure){
+ if(reconciliationOnly){
+  const id=process.argv[3],jobId=process.argv[4],cursor=sessionEvents({session:sid}).cursor,plan=JSON.parse(ownedBytes(join(STATE_DIR,'native-reads',id+'.json'))),job=JSON.parse(ownedBytes(jobFile(jobId)))
+  assert.deepEqual(plan.epoch,epoch);assert.equal(job.operation,'broker_read_batch');assert.equal(job.state,'outcome_unknown');assert.equal(job.workerPid,plan.ownerPid);assert.deepEqual(plan.targets,[fixture,sid]);assert.ok(job.progress.some(x=>x.message==='native-read:'+id+':published'))
+  out.jobId=jobId;out.reconciliation=await b.call('broker_read_reconcile',{id,experimental:true});const r=out.reconciliation
+  assert.equal(r.originalOutcomeUnchanged,true);assert.equal(r.originalRuntimeBuild,plan.runtimeBuild);assert.equal(r.reviewRuntimeBuild,RUNTIME_BUILD);assert.equal(r.originalPhase,'published');assert.equal(r.uniqueNativeReads,2);assert.equal(r.inferenceTurns,0);assert.equal(r.replay,false);assert.equal(r.metadataCurrent,false);assert.ok(r.results.every(x=>x.verified&&x.metadataCurrent===false))
+  assert.equal((await a.call('driver_job',{job_id:jobId})).state,'outcome_unknown');assert.equal(sessionEvents({session:sid,cursor,include_causality:true,limit:100}).events.filter(x=>x.type==='user').length,0)
+  assert.equal(bytesHash(ownedBytes(join(BROKER_DIR,'.claude','settings.json'))),settings);assert.equal(bytesHash(ownedBytes(join(BROKER_DIR,'stop-rescue-policy.json'))),policy);assert.equal(existsSync(join(BROKER_DIR,'mechanical-probe.json')),false);assert.ok(same());out.ok=true
+ }else if(workerLoss){
+  const cursor=sessionEvents({session:sid}).cursor,args={operation:'broker_read_batch',arguments:{sessions:[fixture,sid],experimental:true,timeout_sec:20},idempotency_key:'owned-native-worker-loss-'+randomUUID(),timeout_sec:40}
+  const job=await a.call('driver_submit',args);out.jobId=job.jobId
+  let status,plan;const until=Date.now()+8000
+  while(Date.now()<until){
+   const j=await a.call('driver_job',{job_id:job.jobId}),progress=j.progress?.map(x=>x.message).filter(x=>/^native-read:[a-f0-9-]{36}:/.test(x)).at(-1)
+   if(progress){status=await a.call('broker_read_status',{id:progress.split(':')[1]});if(status.phase==='published'){plan=JSON.parse(ownedBytes(status.evidence));break}}
+   assert.ok(!['completed','failed','cancelled','outcome_unknown'].includes(j.state),'owned job became terminal before fault boundary');await sleep(25)
+  }
+  assert.ok(plan,'owned worker publication boundary not observed; inspect existing job')
+  const privateJob=JSON.parse(ownedBytes(jobFile(job.jobId))),pid=plan.ownerPid
+  assert.equal(privateJob.workerPid,pid);assert.equal(privateJob.operation,'broker_read_batch');assert.equal(privateJob.state,'running');assert.ok(Number.isInteger(pid)&&pid>1&&pid!==epoch.pid&&pid!==process.pid)
+  const ps=field=>execFileSync('/bin/ps',['-p',String(pid),'-o',field+'='],{encoding:'utf8',timeout:1000,env:{PATH:'/usr/bin:/bin',LC_ALL:'C',TZ:'UTC'}}).trim()
+  assert.equal(ps('lstart'),plan.ownerStart);assert.equal(ps('command'),process.execPath+' '+fileURLToPath(new URL('./job-worker.mjs',import.meta.url))+' '+job.jobId)
+  assert.ok(same());assert.equal(status.cleanupPending,true)
+  out.fault={batchId:status.id,workerPid:pid,workerStart:plan.ownerStart,phase:status.phase,publicationAttempted:status.publicationAttempted};writeJsonAtomic(report,out)
+  process.kill(pid,'SIGKILL')
+  let gone=false;for(let i=0;i<100;i++){try{process.kill(pid,0)}catch(e){if(e.code==='ESRCH'){gone=true;break}throw e}await sleep(25)}assert.equal(gone,true,'owned worker death not established; do not retry kill')
+  const lost=await b.call('driver_job',{job_id:job.jobId});assert.equal(lost.state,'outcome_unknown');assert.equal(lost.error.category,'worker_lost');out.lostState=lost.state
+  const reattach=await b.call('driver_submit',args);assert.equal(reattach.jobId,job.jobId);assert.equal(reattach.reused,true);assert.equal(reattach.state,'outcome_unknown')
+  const pending=await b.call('broker_read_status',{id:status.id});assert.equal(pending.ownerState,'gone');assert.equal(pending.cleanupPending,true);out.pending=pending
+  while(Date.now()<=plan.expiresAt)await sleep(Math.min(250,plan.expiresAt-Date.now()+1))
+  assert.ok(same());assert.equal(brokerInfo().live.status,'idle')
+  out.recovery=await b.call('broker_read_recover',{id:status.id,experimental:true});assert.equal(out.recovery.originalOutcomeUnchanged,true);assert.equal(out.recovery.restorationRecorded,true);assert.equal(out.recovery.cleanupPending,false);assert.equal(out.recovery.phase,'published')
+  const settled=await b.call('driver_job',{job_id:job.jobId});assert.equal(settled.state,'outcome_unknown');out.finalJobState=settled.state
+  const old=await b.call('driver_submit',args);assert.equal(old.jobId,job.jobId);assert.equal(old.state,'outcome_unknown');assert.equal(old.reused,true)
+  out.settingsRestored=bytesHash(ownedBytes(join(BROKER_DIR,'.claude','settings.json')))===settings&&bytesHash(ownedBytes(join(BROKER_DIR,'stop-rescue-policy.json')))===policy;assert.equal(out.settingsRestored,true);assert.equal(existsSync(join(BROKER_DIR,'mechanical-probe.json')),false);assert.ok(same())
+  const users=sessionEvents({session:sid,cursor,include_causality:true,limit:100}).events.filter(e=>e.type==='user');assert.equal(users.length,1);assert.equal(users[0].peerMessageId,plan.peer.msgId);out.nativeUserTurns=users.map(e=>({id:e.id,peerMessageId:e.peerMessageId}));out.ok=true
+ }else if(cancelPressure){
   const cursor=sessionEvents({session:sid}).cursor,rows=[];out.rows=rows
   const submit=async c=>{const args={operation:'broker_read_batch',arguments:{sessions:[fixture,sid,fixture],experimental:true,timeout_sec:20},idempotency_key:'owned-native-cancel-'+randomUUID(),timeout_sec:40};const j=await c.call('driver_submit',args);return {args,jobId:j.jobId}}
   const phase=async(c,j,wanted)=>{

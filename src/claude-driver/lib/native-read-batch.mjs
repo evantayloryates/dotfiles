@@ -63,6 +63,56 @@ export function matchMetadataReceipt(receipt,targets){
  for(const key of ['title','cwd','model','effort','permissionMode','cliSessionId'])if(typeof m[key]==='string'&&m[key].length<=4096)metadata[key]=m[key]
  return {sessionId:m.sessionId,metadata,receipt:{uuid:receipt.uuid,eventId:receipt.hookEventId,at:receipt.at,stdoutHash:bytesHash(receipt.stdout),stderrHash:bytesHash(receipt.stderr)}}
 }
+// Re-read only the original bounded journal window. Restoring settings or losing
+// a worker never proves that its native reads finished; genuine receipts do.
+export function reconcileMetadataRows(p,w,rows){
+ const targets=normalizeReadTargets(p.targets),chain=new Set(),matched=new Map();let userUuid,foreign=false
+ if(!sid(p.epoch?.sessionId)||!p.peer?.msgId||!Number.isFinite(p.startedAt)||!Number.isFinite(p.expiresAt)||p.expiresAt<p.startedAt||p.versions?.cli!=='2.1.289')refuse('native_read_reconciliation_refused','original native metadata provenance unavailable')
+ for(const row of rows){
+  const at=Date.parse(row.timestamp);if(!Number.isFinite(at)||at<p.startedAt||at>p.expiresAt||row.isSidechain)continue
+  if(row.type==='user'){
+   if(row.origin?.kind==='peer'&&row.origin.msg_id===p.peer.msgId){if(userUuid||row.sessionId!==p.epoch.sessionId.slice(6)||row.cwd!==BROKER_DIR||row.version!==p.versions.cli||typeof row.uuid!=='string'||!/^[A-Za-z0-9_-]{1,200}$/.test(row.uuid))refuse('native_read_reconciliation_refused','duplicate or invalid native batch root');userUuid=row.uuid;chain.add(row.uuid)}else foreign=true
+   continue
+  }
+  if(row.type==='system'&&row.subtype==='compact_boundary')refuse('native_read_reconciliation_refused','native metadata window crosses compaction')
+  if(chain.has(row.parentUuid)&&row.uuid){chain.add(row.uuid);if(row.type==='assistant'&&Array.isArray(row.message?.content)&&row.message.content.some(x=>x.type==='tool_use'))refuse('native_read_reconciliation_refused','native diagnostic used assistant tools')}
+  const opts={cliSessionId:p.epoch.sessionId.slice(6),cwd:BROKER_DIR,chain,notBefore:p.startedAt,notAfter:p.expiresAt}
+  if(nativeHookEventError(row,opts))refuse('native_read_reconciliation_refused','native metadata window contains an event error')
+  const receipt=nativeHookResult(row,{...opts,command:'ccd_session_mgmt/get_session'})
+  if(receipt){const m=matchMetadataReceipt(receipt,targets);if(!m||matched.has(m.sessionId))refuse('native_read_reconciliation_refused','native metadata receipt is invalid or duplicated');matched.set(m.sessionId,m)}
+ }
+ if(foreign||!userUuid||matched.size!==targets.length||w?.scope!=='native-stop-hook-witness'||!/^[a-f0-9]{32}$/.test(w.token||'')||!/^[a-f0-9]{64}$/.test(w.observerHash||'')||w.msgId!==p.peer.msgId||w.userUuid!==userUuid||w.settingsHash!==p.settingsHash||w.epoch?.sessionId!==p.epoch.sessionId||w.epoch.pid!==p.epoch.pid||w.epoch.procStart!==p.epoch.procStart||!Number.isFinite(w.at)||w.at<p.startedAt||w.at>p.expiresAt)refuse('native_read_reconciliation_refused','complete native receipts and exact original Stop witness required')
+ return targets.map(x=>({...matched.get(x),verified:true,metadataCurrent:false}))
+}
+export function canRefreshConsumedIdle(idle,epoch){
+ return !!(idle?.verified===false&&idle.state==='idle'&&idle.pendingRemoteSubscription===false&&idle.runtimeBuild!==RUNTIME_BUILD&&idle.epoch?.sessionId===epoch.sessionId&&idle.epoch.pid===epoch.pid&&idle.epoch.procStart===epoch.procStart)
+}
+export async function reconcileNativeReadBatch(id,{signal}={}){
+ const status=nativeReadStatus(id)
+ return withLock('broker',async()=>{
+  if(runtimeState().restartRequired)refuse('runtime_stale','native metadata reconciliation source changed')
+  const s=nativeReadStatus(id),p=JSON.parse(ownedBytes(s.evidence)),restoration=p.recovery?.restored?p.recovery:p.restoration,info=brokerInfo()
+  if(s.cleanupPending!==false||!restoration?.restored||!p.cursor||!p.epoch||info.sessionId!==p.epoch.sessionId||info.live?.pid!==p.epoch.pid||info.live.procStart!==p.epoch.procStart||info.live.status!=='idle'||!info.runtime?.integrity||bytesHash(ownedBytes(join(BROKER_DIR,'.claude/settings.json')))!==restoration.settingsHash||bytesHash(ownedBytes(join(BROKER_DIR,'stop-rescue-policy.json')))!==restoration.policyHash)refuse('native_read_reconciliation_refused','metadata reconciliation requires restored settings and original intact idle epoch')
+  const c=JSON.parse(Buffer.from(p.cursor,'base64url').toString()),path=join(homedir(),'.claude','projects',BROKER_DIR.replace(/[^A-Za-z0-9]/g,'-'),p.epoch.sessionId.slice(6)+'.jsonl');let fd
+  let rows
+  try{
+   fd=openSync(path,constants.O_RDONLY|constants.O_NOFOLLOW|constants.O_NONBLOCK);const st=fstatSync(fd)
+   if(!st.isFile()||st.uid!==process.getuid()||c.session!==p.epoch.sessionId||c.identity!==p.epoch.sessionId.slice(6)+':'+st.dev+':'+st.ino||!Number.isSafeInteger(c.offset)||c.offset<0||st.size<c.offset||st.size-c.offset>256*1024)refuse('native_read_reconciliation_refused','original journal identity or bound changed')
+   const b=Buffer.alloc(st.size-c.offset);readSync(fd,b,0,b.length,c.offset);rows=b.toString().split('\n').slice(0,-1).map(x=>{try{return JSON.parse(x)}catch{return {}}})
+  }finally{if(fd!==undefined)closeSync(fd)}
+  const results=reconcileMetadataRows(p,JSON.parse(ownedBytes(join(STATE_DIR,'native-reads',id+'.stop.json'))),rows)
+  let idle=await observeNativeIdle(info,{timeoutSec:3,notBefore:p.startedAt,cacheMs:0,signal});const latest=Math.max(...results.map(x=>Date.parse(x.receipt.at)))
+  if(canRefreshConsumedIdle(idle,p.epoch)){
+   const fresh=brokerInfo();if(fresh.sessionId!==p.epoch.sessionId||fresh.live?.pid!==p.epoch.pid||fresh.live.procStart!==p.epoch.procStart||fresh.live.status!=='idle'||!fresh.runtime?.integrity)refuse('native_read_reconciliation_refused','native epoch changed after consuming an older idle receipt')
+   // A received notice settles the older subscription. This single refresh
+   // never retries unresolved publication and never replays metadata reads.
+   idle=await observeNativeIdle(fresh,{timeoutSec:3,notBefore:p.startedAt,cacheMs:0,signal})
+  }
+  if(!idle.verified||!idle.observedIdle||!idle.freshTurnCompletion||idle.finishedAt<latest||runtimeState().restartRequired)refuse('native_read_reconciliation_refused','original metadata receipts require a verified subsequent native host finish')
+  const evidence=join(STATE_DIR,'native-reads',id+'.reconciliation.json'),answer={id,originalPhase:p.phase,originalOutcomeUnchanged:true,originalRuntimeBuild:p.runtimeBuild,reviewRuntimeBuild:RUNTIME_BUILD,results,receiptSource:'native-hook-result',idleObservation:idle.observationId,uniqueNativeReads:results.length,replay:false,inferenceTurns:0,metadataCurrent:false,releaseAuthorized:false,quiescenceVerified:false,evidence}
+  writeJsonAtomic(evidence,answer);recordMemory({kind:'observation',topic:'native-read-batch',source:'receipt-reconciliation',status:'observed',evidence,lesson:'Original native metadata receipts recovered without replay or inference. Results are historical at receipt time; original worker/job outcome remains unchanged.'});return answer
+ },{timeoutMs:5000,signal})
+}
 export async function nativeReadBatch(sessions,{timeoutSec=20,signal,progress=()=>{}}={}){
  const targets=normalizeReadTargets(sessions)
  if(!Number.isFinite(timeoutSec)||timeoutSec<5||timeoutSec>60)refuse('bad_args','native read batch timeout must be 5–60 seconds')

@@ -1,3 +1,16 @@
+## October 7, 06:10 Eastern checkpoint
+
+Actual owned Node worker-loss pressure passed on1bad0d6d: durable unknown outcome,
+no idempotent replay, correct pending ownership and exact expiry cleanup with no
+additional model turn/native process kill. Current4e1a391b MCP receipt
+reconciliation recovered both original metadata results with zero inference and
+no read replay, retaining the original unknown job and historical metadata label.
+Final unchanged full suite passed in8418ms. Original stale-source idle-adoption
+failure retained and independently reviewed; one safe refresh allowed only after
+consumed older-source notice, never unresolved subscription debt. General
+serving/guarded mutations/steering/handoff/rollback/cold recovery remain open.
+See resume.md for exact artifacts, source boundaries and next frontier.
+
 ## October 7, 06:03 Eastern checkpoint
 
 Actual three-case native cancellation pressure passed on e1b79a7d: cancellation

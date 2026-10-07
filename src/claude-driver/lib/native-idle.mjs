@@ -89,7 +89,7 @@ export async function observeNativeIdle(target,{timeoutSec=12,notBefore,signal,c
  const epoch={sessionId:target?.sessionId,pid:target?.live?.pid,procStart:target?.live?.procStart},key=idleLeaseKey(epoch),startedAt=Date.now(),dir=ensureDir(deps.dir??join(STATE_DIR,'native-idle')),path=join(dir,key+'.json')
  const ds=lstatSync(dir);if(ds.isSymbolicLink()||!ds.isDirectory()||ds.uid!==process.getuid())fail('idle_observer_invalid','idle lease directory refused')
  const current=()=>{const row=readLease(path);validateLease(row,epoch,path);return row}
- const reuse=row=>row&&(row.phase==='publishing'||row.phase==='pending_remote')&&row.remoteExpiresAt>Date.now()||row?.phase==='received'&&row.completedAt>=startedAt-cacheMs
+ const reuse=row=>row&&(row.phase==='publishing'||row.phase==='pending_remote')&&row.remoteExpiresAt>Date.now()||cacheMs>0&&row?.phase==='received'&&row.completedAt>=startedAt-cacheMs
  const initial=current()
  // Preserve legacy uncertain publications without waiting on their owner's
  // lock. They have no mailbox to adopt; their native debt still cannot retry.

@@ -1,4 +1,59 @@
-## Latest frontier — October 7, 06:03 Eastern
+## Latest frontier — October 7, 06:10 Eastern
+
+Goal ACTIVE, this turn makes verified crash-lifecycle progress. General-use
+bridge serving/mutations/steering and recovery remain experimental/unqualified.
+
+Actual native-read-service-2026-10-07T10-04-41-602Z.json PASSED on1bad0d6d:
+verified new exact owned Node job worker65607/start10:04:41 UTC/command/job,
+then SIGKILL only that worker after publication. Never touched native broker.
+Jobj6b4e5064c2ef4bb78f23a3de3c9efff1 remained outcome_unknown/worker_lost;
+same-key reattachment twice returned SAME unknown job without replay. Batch
+cf279394-0225-43cd-898a-3b36039398e0 reported owner gone and cleanup pending.
+After original20s expiry, public broker_read_recover restored exact original
+settings/policy with no wake/model turn. Original phase published and job outcome
+were preserved. Exactly one native user turn; both MCP clients exited0/stderr0.
+Full unchanged1bad preflight passed in8407ms, v2-10:04:37 report.
+
+New public read-only broker_read_reconcile recovers historical metadata only:
+bounded256KiB original own journal inode/cursor, exact original peer root,
+complete distinct native attachments, Stop witness, restored settings, original
+intact idle native epoch and subsequent kernel-verified host finish. It never
+replays metadata reads, overwrites original outcome or claims current metadata,
+full queue quiescence or release. Separate sanitized reconciliation artifact.
+Pure tests reject missing/duplicate/unrelated receipts, foreign turns, wrong
+root/witness, assistant tools, sidechains and compaction; private fields excluded.
+
+First native MCP reconciliation on a4a12a4d FAILED (10:07:21 report): adopted
+f9f68a7a older-source idle receipt, sourceChangedtrue and finish before new reads.
+Original failure retained. Independent review
+native-read-reconciliation-idle-failure-review-2026-10-07.json binds its SHA256,
+owned idle observation and service error ledger. Direct diagnostic reviews then
+succeeded with fresh zero-inference controls, without replay/model calls.
+Final code allows ONE fresh idle observation only after consumed older-source
+idle notice in unchanged epoch; unresolved publication remains blocked. Fixed
+cache_ms:0 same-millisecond reuse; focused frozen-clock regression proves no reuse.
+
+Actual native-read-service-2026-10-07T10-09-25-960Z.json PASSED on current
+4e1a391b4123baf2cf5d8b8eae01e627d711d057a328af32d1a158181a35912f: actual MCP recovered both original native reads from1bad
+without new user/model turns; matching receipts d5e989e9 and11121e67, event
+1337d4c0, fresh host observationd611c96f. MetadataCurrentfalse, replayfalse,
+inferenceTurns0, original jobstillunknown. Both clients exited0/stderr0; original
+settings unchanged/no descriptor; same broker71262/start03:24:51 UTC.
+Final full unchanged suite passed in8418ms, v2-2026-10-07T10-09-10-470Z.json.
+Earlier worker-loss native proof and current reconciliation proof are distinct.
+The new one-refresh branch has focused eligibility/idle-cache tests; no native
+recreation of an older-source pending mailbox was required for the final proof.
+
+Next resume the full goal: operational fence/indexed handoff and sustained
+serving, then guarded mutations/steering under load, rollback, natural governor
+pressure and cold recovery. Metadata-only recovery does not settle17historic
+unknown effects, qualify generic direct mutation hooks or authorize handoff.
+The lost metadata worker's original unknown job is also preserved; receipts are
+available in its separate batch reconciliation, not an automatic job rewrite.
+No user action needed. Quarantine ON; local30s detector/hourly fallback remain.
+Codex-driver fixes and1Password stay separate.
+
+## Previous frontier — October 7, 06:03 Eastern
 
 Goal ACTIVE; general-use bridge remains experimental. Actual cancellation report
 native-read-service-2026-10-07T09-56-12-334Z.json passed on e1b79a7d:

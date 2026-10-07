@@ -23,6 +23,11 @@ test('concurrent harnesses share publication; timestamp freshness never becomes 
   const reused=await observeNativeIdle(target,{notBefore:1},deps);assert.equal(reused.observationId,r.observationId);assert.equal(reused.freshTurnCompletion,true);assert.equal(calls,1)
  }finally{release?.();rmSync(deps.dir,{recursive:true,force:true})}
 })
+test('zero cache never reuses a received observation even in the same clock millisecond',async()=>{
+ const deps=scope(),clock=Date.now,now=clock();let calls=0
+ deps.exchange=async(_,{onPublishing})=>{calls++;onPublishing(meta());return {notice:notice('idle'),listenerRemoved:true}}
+ try{Date.now=()=>now;const first=await observeNativeIdle(target,{cacheMs:0},deps),second=await observeNativeIdle(target,{cacheMs:0},deps);assert.notEqual(second.observationId,first.observationId);assert.equal(calls,2)}finally{Date.now=clock;rmSync(deps.dir,{recursive:true,force:true})}
+})
 test('cancelled, dead or timed-out listeners retain native debt; later harness does not republish',async()=>{
  for(const failureCategory of ['cancelled','idle_observer_timeout','idle_observer_unconfirmed']){
   const deps=scope();let calls=0;deps.exchange=async(_,{onPublishing})=>{calls++;onPublishing(meta());return {failureCategory,listenerRemoved:true}}

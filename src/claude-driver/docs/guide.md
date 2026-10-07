@@ -109,8 +109,20 @@ setup can restore settings without publishing a diagnostic turn.
 `broker_read_recover {id, experimental:true}` explicitly restores one exact
 expired owned metadata transaction in its original intact idle broker epoch.
 It requires unchanged settings and does not wake, replay or complete the original
-job. Recovery currently has isolated proof; deliberate live worker-loss pressure
-remains pending. Cleanup is independent from an unknown execution outcome.
+job. Recovery has actual owned Node worker-loss proof; general native broker recovery
+remains separate. Cleanup is independent from an unknown execution outcome.
+
+`broker_read_reconcile {id, experimental:true}` recovers original metadata
+results after exact restoration, using bounded native receipts and an independent
+host-finish observation. It produces no model turn or read replay and leaves the
+original job outcome unchanged. Results are historical at receipt time
+(`metadataCurrent:false`), not a current-state query. Missing/duplicated receipts,
+foreign turns, wrong ancestry/witness, changed native epoch or settings refuse.
+An older-source idle receipt may be consumed without qualifying completion; one
+fresh control observation is allowed once that subscription is fully settled.
+Unresolved publication never retries. `cache_ms:0` disables received-notice cache.
+Actual owned worker-loss and cross-harness receipt reconciliation have passed;
+full sustained serving, guarded mutation and broker recovery remain separate.
 
 Cancellation ends caller waiting; already-published metadata reads may still
 finish. Cleanup uses one bounded native idle observation without another wake.
