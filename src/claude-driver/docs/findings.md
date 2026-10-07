@@ -7,6 +7,20 @@ Versions: app = Claude desktop, cli = bundled Claude Code.
 
 ## 2026-10-06 (app 2.26454.0, cli 2.1.289)
 
+- **Age-based reaper cleanup can break mutual exclusion across a paused live
+  process.** A private clone of the prior directory strategy reproduced two
+  overlapping callbacks: one synthetic process paused after its dead-owner check,
+  another reclaimed the aged reaper and entered, and the resumed first removed
+  the second's directory using its stale snapshot. No desktop process was used.
+  The new outer kernel flock guards that recovery path for current clients.
+  Node retains the inherited descriptor after a short isolated Python helper
+  exits; persistent mutex files retain one inode and must not be unlinked.
+  Four regressions verify paused reaper exclusion, actual holder death, queued
+  abort, and helper failure without fallback. The old directory guard remains
+  for compatibility; legacy clients still need refresh. Reproduction evidence:
+  `<state>/pressure/kernel-lock-reproduction-2026-10-07.json`. Current-source
+  repeated/harness and measured latency evidence are recorded in [resume.md](resume.md).
+
 - **Exactly one queued worker and a pinned revision are necessary beyond
   idempotent submission.** A second actual worker launch entered a running
   synthetic session_wait; a queued operation on a changed source clone executed

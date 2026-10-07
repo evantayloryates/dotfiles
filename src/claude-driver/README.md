@@ -7,7 +7,15 @@ delete them; change model, effort and permission mode; send messages; read
 what the main window shows. Zero npm dependencies, like
 [`../codex-bridge`](../codex-bridge/README.md), whose conventions it copies.
 Native UI leases additionally use macOS Swift/CoreGraphics for a read-only
-input-filter audit; an unavailable audit prevents UI automation.
+input-filter audit; an unavailable audit prevents UI automation. Current lock
+serialization also requires `/usr/bin/python3` with stdlib `fcntl`, invoked in
+isolated mode. Node retains the kernel-owned descriptor after that short helper
+exits, so paused or killed clients cannot lose ownership based on lock age.
+Persistent `locks/*.mutex` files must never be unlinked while clients may hold
+them. The directory guard remains for compatibility; full qualification requires
+fresh runtimes. Helper failure refuses the operation without a directory-only
+fallback. This reuses the kernel-lock pattern already used by the 1Password
+service, without changing that service.
 
 ```
 harness ──MCP stdio──▶ bin/claude-driver-mcp (server.mjs) ─┐   bin/claude-driver (cli.mjs) ─┐

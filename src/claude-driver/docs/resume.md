@@ -12,8 +12,8 @@ failure is **not** a confirmed governor-cap refusal: native logs show query exit
 code 143. Do not use external PID termination as routine broker recovery.
 
 Current runtime fingerprint:
-`f2fc3746a9a1ca476f9d5a57128fc122209de1ca58f9a7e59795aa3acf6f0646`.
-On this source, five fresh isolated rounds passed (101 cases each), actual Claude
+`e959aec1f4983f78c833ff4e6370e016d5a3bb561fc7002082d147cb81d0817a`.
+On this source, five fresh isolated rounds passed (105 cases each), actual Claude
 Haiku and Codex gpt-6.1-sol each passed ten filtered API checks, and four isolated
 scenarios exercised the installed app's actual governor/victim-selection code.
 Those governor scenarios emit no real OS pressure or app IPC. During this run
@@ -39,6 +39,21 @@ on current source. Synthetic reproduction evidence is retained in
 `worker-boundaries-reproduction-2026-10-07.json`; the original failures are not
 counted as passes. Current-source native qualification remains pending.
 
+A further crash/pause experiment reproduced overlapping callbacks in the old
+age-reclaimed directory reaper. The current outer kernel flock now holds through
+that recovery path. Node retains its inherited descriptor after an isolated
+`/usr/bin/python3` stdlib helper exits; all current clients serialize through it.
+Four regressions cover paused live reaper exclusion, actual holder SIGKILL,
+queued cancellation and helper failure without directory-only fallback. The
+initial crash fixture exited on an unfulfilled top-level await before it could
+be killed; that fixture failure was corrected with a live event-loop handle,
+then the actual holder death was verified. The old directory guard is retained
+for compatibility; old MCP clients remain outside current qualification until
+refreshed. Never unlink/age-reclaim persistent `locks/*.mutex` files: replacing
+the inode can split a live lock. No 1Password source, credential, app process or
+input helper changed. Ten synthetic durable submits during concurrent checks
+measured p50 56.30 ms / p95 63.66 ms; this is not native response latency or an SLA.
+
 The initial native input-free run after resume passed all eleven checks,
 including import/focus, durable reply, cancellation, settings, queue/interrupt,
 single replies and archived cleanup. Its source predates the evidence-reader
@@ -56,11 +71,14 @@ verify actual native behavior before future protocol upgrades.
 
 Current reports under `/Users/taylor/.local/state/claude-driver/pressure/`:
 
-- `v2-2026-10-07T03-07-25-141Z.json`: five isolated rounds passed, unchanged source.
-- `harness-v2-{claude,codex}-2026-10-07T03-06-47-532Z.json`: ten checks per harness.
-- `governor-contract-2026-10-07T03-06-47-601Z.json`: four installed-code scenarios.
+- `v2-2026-10-07T03-16-48-625Z.json`: five isolated rounds passed, unchanged source.
+- `harness-v2-{claude,codex}-2026-10-07T03-16-07-134Z.json`: ten checks per harness.
+- `governor-contract-2026-10-07T03-16-07-133Z.json`: four installed-code scenarios.
 - `governor-extraction-failure-reconciled-2026-10-07.json`: failed old extractor,
   reconstructed failure evidence explicitly marked; not a native pressure pass.
+- `kernel-lock-reproduction-2026-10-07.json`: original strategy failed the
+  paused-reaper exclusion experiment in a private source clone.
+- `kernel-submit-latency-2026-10-07.json`: ten synthetic submits, all jobs completed.
 - `live-v2-2026-10-07T02-27-50-669Z.json`: eleven native checks passed on earlier source.
 - `residency-v2-2026-10-07T02-27-33-201Z.json`: eight-minute same-PID survival,
   no natural pressure; not a passing pressure qualification.

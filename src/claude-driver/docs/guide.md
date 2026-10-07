@@ -81,6 +81,16 @@ Native stop preserves existing queued messages; they can run before the new
 replacement. `queueDisposition` makes this explicit. Interruption does not
 silently discard another caller's queued work.
 
+Current cross-process locks have an outer kernel `flock` held by Node's file
+descriptor throughout the operation, acquired through isolated `/usr/bin/python3`
+stdlib `fcntl`. The helper exits before the callback; Node retains ownership.
+Cancellation/deadline while queued refuses the callback, holder death releases
+kernel ownership, and helper failure reports `lock_unavailable` without unsafe
+fallback. The legacy directory guard remains for older clients; reconnect stale
+clients for current guarantees. Do not remove or age-reclaim `locks/*.mutex`:
+unlinking creates a different inode and would split a live lock. No service
+credential, native app process, keyboard helper or event tap is involved.
+
 For several settings on one recipient, use one `set_session_config
 {session, title, pinned, model, effort, permission_mode}` with only the desired
 fields. `pinned:false` is an explicit unpin. One broker request executes ordered

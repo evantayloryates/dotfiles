@@ -1,10 +1,10 @@
 # Claude-driver v2 qualification
 
 Work resumed on 2026-10-06; the current frontier is in [resume.md](resume.md).
-Current source passed five isolated rounds (101 tests each), ten filtered checks
+Current source passed five isolated rounds (105 tests each), ten filtered checks
 per actual Claude/Codex harness and four isolated scenarios using the installed
 native governor code. Current fingerprint:
-`f2fc3746a9a1ca476f9d5a57128fc122209de1ca58f9a7e59795aa3acf6f0646`.
+`e959aec1f4983f78c833ff4e6370e016d5a3bb561fc7002082d147cb81d0817a`.
 
 The resumed native input-free suite passed all eleven checks on earlier source,
 with zero keyboard filters and archived cleanup. An eight-minute same-PID
@@ -20,6 +20,11 @@ two more verify hash-aware report intake and incomplete/symlink rejection.
 Three additional regressions reproduce duplicate worker claim, queued source
 change and source change during recipient-lock wait. The final worker/control
 guards reject those before another effect; these remain synthetic boundaries.
+Four more tests verify kernel lock exclusion across a paused reaper, actual
+holder death, queued abort and helper failure. The previous directory strategy
+failed the reproduced overlap scenario. Current-source synthetic durable submit
+latency (ten samples during concurrent tests) was p50 56.30 ms / p95 63.66 ms.
+Native reply latency/current app survival still require live qualification.
 
 A live protocol upgrade was ignored rather than reloaded, so compatible v6 was
 restored and its interrupted fixture independently archived. Graceful STOP
@@ -39,10 +44,37 @@ This chat's connected MCP still serves legacy `706a338`; use the current CLI
 or a fresh connection and verify `apiVersion:2`, `runtimeBuild` and current
 qualification. Source updates do not reload an existing MCP process.
 
+## Current readiness audit
+
+The full goal remains incomplete. Current-source independent checks are complete;
+remaining native requirements depend on recovering the exact approved broker.
+At the latest check its process was absent, no observer state file existed and
+`/Users/taylor/Desktop/temp_reports` contained only the saved prompt. This is an
+external-state dependency, not a verified wait on a live observer handle.
+
+| Goal requirement | Authoritative current evidence | Assessment |
+|---|---|---|
+| Shared controllable/steerable API and durable ownership | Current schemas/source; five 105-case runs; real Claude/Codex filtered harness traces; worker/source/kernel regressions | API workflows and synthetic boundaries proven; native steering still needs current live run |
+| Efficient control | Ten synthetic durable submits, p50 56.30 ms / p95 63.66 ms, all completed | Submit measured; current native reply/queue latency unproven |
+| Service-level evidence and memory | Current metadata-only memory code, redaction/bounded query tests, both real harness candidate records, retained failure/reproduction reports | Implemented and qualified within tested scope |
+| Current native app session controls | Older eleven-check report predates current source and app update; current driver_status qualification is false | Incomplete; rerun input-free live suite after recovery |
+| Reliable bootstrap/recovery | Exact broker offline after intentional exit143; observer prompt prepared, report heartbeat configured, no recovery report | Incomplete; observer must prove native wake/process/receipt outcome |
+| Residency under native pressure | Installed governor code passes four isolated scenarios; eight-minute earlier idle observation had no natural pressure | Incomplete; current-process native job/list/app evidence and pressure-survival observation required |
+| Human app usability and safe input-resource handling | Read-only audit currently has zero Claude helper filters; quarantine remains active; earlier human confirmation retained | Recovery observed historically; sustained current physical input/helper teardown unqualified; no UI fallback permitted |
+| Reuse implementation and leave Codex fixes parked | Work is confined to claude-driver; kernel-lock pattern reused from existing 1Password code without changing it | Satisfied for this iteration |
+
+Do not substitute more synthetic passes for the missing native proof. The next
+steps remain the commissioned observer's verified recovery, source-matched
+input-free live suite and read-only residency observation. The five-minute
+report heartbeat stays configured to receive that external evidence. Do not
+send competing wakes, kill processes or lift quarantine to unblock the audit.
+
+## Historical and broader mechanism evidence
+
 | Requirement | Verified evidence | Practical limit |
 |---|---|---|
 | Common CLI/MCP interface | Actual Claude Haiku and Codex gpt-6.1-sol harnesses each passed ten filtered API checks | Cursor CLI needs human login; native desktop callers' handback not separately qualified |
-| Durable ownership | Detached workers survive client disconnection; idempotent reattach creates one worker and one recipient reply; current native submit returned in 9 ms | Submission latency differs from recipient response latency |
+| Durable ownership | Detached workers survive client disconnection; idempotent reattach creates one worker and one recipient reply; historical native submit returned in 9 ms | Submission latency differs from recipient response latency |
 | Cancellation | Native cancellation behind recipient lock dispatched nothing; expiry/checkpoint/cancellation races tested offline | A crash during native effects remains uncertain until reconciled |
 | Native receipts | Exact checkpoint, canonical arguments and native tool/result IDs; batched checkpoints and late read-only reconciliation | Native journal rotation/version drift fail closed; never replay uncertainty |
 | Steering | Queue preserved busy generation; stop verified, replacement observed, old completion absent; separate real Bash/Node tool interruption proof | Native stop preserves queued work; stopping does not undo past tool effects |

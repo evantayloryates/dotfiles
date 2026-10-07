@@ -12,6 +12,7 @@ import { randomUUID } from 'node:crypto'
 import { join } from 'node:path'
 
 import { sleep } from './paths.mjs'
+import {acquireKernelLock} from './kernel-lock.mjs'
 
 export const STATE_DIR = process.env.CLAUDE_DRIVER_STATE_DIR || join(homedir(), '.local', 'state', 'claude-driver')
 export const LEDGER = join(STATE_DIR, 'ledger.jsonl')
@@ -119,8 +120,19 @@ export function redactArgs(args = {}) {
   return out
 }
 
-// Cross-process lock: mkdir is atomic. Stale after staleMs (a crashed holder).
+// Current clients serialize through the kernel, including reaper recovery.
+// Keep the directory guard for old clients; require fresh runtimes for full
+// qualification. Persistent .mutex files are never removed or age-reclaimed.
 export async function withLock(name, fn, { timeoutMs = 120_000, signal } = {}) {
+  if (!/^[a-zA-Z0-9_-]+$/.test(name)) throw new Error('invalid lock name')
+  ensureDir(LOCK_DIR)
+  const started=Date.now()
+  const release=await acquireKernelLock(join(LOCK_DIR,`${name}.mutex`),{timeoutMs,signal})
+  try {return await withDirectoryLock(name,fn,{timeoutMs:Math.max(0,timeoutMs-(Date.now()-started)),signal})}
+  finally {release()}
+}
+
+async function withDirectoryLock(name, fn, { timeoutMs, signal }) {
   if (!/^[a-zA-Z0-9_-]+$/.test(name)) throw new Error('invalid lock name')
   ensureDir(LOCK_DIR)
   const dir = join(LOCK_DIR, `${name}.lock`)
