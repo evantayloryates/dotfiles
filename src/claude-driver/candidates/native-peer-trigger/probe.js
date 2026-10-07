@@ -1,3 +1,4 @@
+import {diagnosticFailure} from '../native-mod-probe/diagnostic-failure.js'
 // Staged one-attempt read. Configuration must be fixed before native enrollment.
 // fs.write is not exclusive: durable evidence is NOT a cross-process lock.
 export function createDurableReadProbe({id,intent,report,brokerSession,targetSession,notBefore,deadline}){
@@ -20,7 +21,7 @@ export function createDurableReadProbe({id,intent,report,brokerSession,targetSes
     outcome.nativeCallReturned=true
     outcome.resultWasError=typeof result?.isError==='boolean'?result.isError:null
    }
-  }catch{outcome.failureCategory='native-call-exception'}
+  }catch(error){outcome.failureCategory=diagnosticFailure(error)}
   try{const end=await $.clock.now();if(Number.isFinite(end)&&end>=now)outcome.completedAt=new Date(end).toISOString()}catch{}
   try{await $.fs.write(report,JSON.stringify(outcome)+'\n');return {status:'report-written'}}catch{return {status:'report-write-failed'}}
  }
