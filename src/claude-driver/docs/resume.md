@@ -2,6 +2,88 @@
 
 ## Resumed work — latest frontier
 
+Taylor resumed the goal on October 6 at 23:38 Eastern. Current runtime:
+`d1cce7ed831d4298c0988a9e2728ff24347d3960db245cce857c8da18a3c8988`; app 2.26454.0 / CLI 2.1.289.
+The approved broker remains PID 71262, session
+`local_35b3ba48-f02e-48de-bfbb-925192d90de1`. Controlled graceful STOP and
+warm handoffs preserved that process; no app restart or keyboard automation
+was used. Current protocol is v7, with exact compatible `claude-driver wake v6`
+and `claude-driver drain v6` aliases. Native sender names are routing metadata,
+not authentication. Operations still come only from durable requests/checkpoints.
+
+Two retained failures drove this iteration. First, the original IDLE branch
+omitted CronList. V7 explicitly lists/reuses the exact job before its next wait.
+The waiter also bounds its deadline by the last native list plus nine minutes,
+including across intervening requests, and returns IDLE before claiming pending
+work when that budget is due. The twelve-minute evidence freshness guard remains.
+Second, a real v7 wake read the standing file then returned `ignored`. The accepted
+v6 alias entered the updated loop on the same PID; ordinary clients now use that
+compatible activation while queued requests keep protocol v7. No ambiguous send
+was blindly replayed. Original failures and intermediate-source results remain
+under `<state>/pressure/`.
+
+The final-source native input-free suite passed all eleven checks: creation/import
+and independently verified focus restoration, durable reply, cancellation,
+concurrent and batched controls, busy queue, interruption/replacement, exactly
+one reply per send and archived cleanup. Both input audits found zero filters;
+quarantine remains active. Five isolated rounds passed 111 tests each (555 total),
+and actual Claude Haiku/Codex gpt-6.1-sol each passed ten filtered synthetic checks.
+Four isolated scenarios exercised the installed governor code without native OS
+pressure. Normal-client warm activation had a correlated native receipt after
+20.489 seconds; native submit measured 169 ms in the final suite. These are
+observations, not latency guarantees or cold-recovery proof.
+
+One intermediate-source native IDLE at 03:52:17.280Z was followed by CronList
+at 03:52:18.832Z and rewait at 03:52:20.377Z, reusing job e969f887 despite
+intervening controls. The final source then recreated/listed job 922e4a9e at
+03:54:05.471Z / 03:54:06.819Z. Final-source IDLE at 04:03:06.882Z was followed by CronList at
+04:03:09.251Z and the next wait at 04:03:10.919Z, reusing 922e4a9e
+without another CronCreate. The ten-minute read-only observation retained
+PID 71262 and fresh protection throughout, unchanged source and zero input
+filters before/after. No natural governor pressure occurred; its overall
+`ok:false` explicitly preserves that missing requirement, while idle survival
+and native maintenance reconciliation passed.
+
+Actual automatic compaction at 03:43:47.157Z reduced 188436 to 13857 tokens.
+The native controls above passed after that compaction; this does not guarantee
+standing-protocol retention through arbitrary future compactions. Do not clear
+broker context or kill its process as routine recovery.
+
+This chat's connected MCP reports driver `1a83e53`, API 2, runtime
+`32a4b1193203c235dd0ed63876c4231d7783d6e3999e11b1792da32b213b8780`,
+and lacks sourceBuild/restartRequired. It is outside qualification; use the
+current CLI or a freshly connected MCP and verify current fingerprints.
+Missing freshness fields in an older server do not establish safe write behavior.
+
+The observer is live with its own five-minute job 337cb675; the Codex inbox
+watcher is configured every thirty seconds and scans metadata first. Offline
+recovery belongs to that observer; do not send competing cold wakes. Reports
+234015 and 234531 were independently reviewed; acknowledgment follows the verified
+commit/push checkpoint. A stale exited app query without relaunch, unattended recovery after
+app closure/restart or cron expiry, actual natural pressure and safe keyboard
+helper teardown remain unqualified. UI fallback stays disabled. The goal is now active (verified through get_goal), including automatic
+continuations; do not mark it complete while the remaining reliability gaps persist.
+
+Final-source reports under `/Users/taylor/.local/state/claude-driver/pressure/`:
+
+- `v2-2026-10-07T03-54-01-092Z.json`: 555 isolated passes, unchanged source.
+- `harness-v2-{claude,codex}-2026-10-07T03-53-19-256Z.json`: ten each.
+- `governor-contract-2026-10-07T03-54-52-058Z.json`: four isolated scenarios.
+- `live-v2-2026-10-07T03-54-52-074Z.json`: eleven current native passes.
+- `residency-v2-2026-10-07T03-54-52-060Z.json`: ten-minute idle survival and
+  fresh evidence passed; natural pressure absent, overall qualification false.
+- `native-idle-v7-final-2026-10-07.json`: exact final IDLE/list/rewait receipts,
+  same job/PID and no duplicate creation.
+- `client-warm-handoff-2026-10-07.json`: ordinary client activation/receipt.
+- `warm-wake-reproduction-2026-10-07.json`: real ignored v7 wake and failed
+  synthetic baseline; corrected compatible client wake.
+- `wait-budget-reproduction-2026-10-07.json`: actual waiter baseline claimed
+  queued work before an expired deadline; corrected IDLE/STOP ordering.
+- `v7-handoff-2026-10-07.json`: intermediate-source native IDLE/list/rewait.
+- `observer-followup-review-2026-10-07.json`: report hashes and factual review.
+
+## Earlier October 6 checkpoint — historical
+
 Taylor resumed this work on 2026-10-06. Input automation remains quarantined.
 The independent observer's first report was reviewed on October 6 at 23:27
 Eastern: `claude-broker-20261006T232546-0400.report.json`, SHA256

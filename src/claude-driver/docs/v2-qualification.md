@@ -1,80 +1,45 @@
 # Claude-driver v2 qualification
 
-Work resumed on 2026-10-06; the current frontier is in [resume.md](resume.md).
-Current source passed five isolated rounds (105 tests each), ten filtered checks
-per actual Claude/Codex harness and four isolated scenarios using the installed
-native governor code. Current fingerprint:
-`e959aec1f4983f78c833ff4e6370e016d5a3bb561fc7002082d147cb81d0817a`.
-
-The resumed native input-free suite passed all eleven checks on earlier source,
-with zero keyboard filters and archived cleanup. An eight-minute same-PID
-observation saw no natural governor pressure, so its pressure requirement is
-incomplete. Evidence-reader hardening now requires a current-process fresh list
-after creation and rejects unconfirmed mutations and malformed/future timestamps.
-Current-source native qualification still needs another run. Claude updated
-during this run to app 2.26454.0 / CLI 2.1.289; the installed-code probe was
-adapted and passed on that module, while earlier native checks predate the
-update. Unknown extraction schemas now retain a failed report, not a pass.
-Two new tests verify stale MCP effect refusal and preserved observation/cancel;
-two more verify hash-aware report intake and incomplete/symlink rejection.
-Three additional regressions reproduce duplicate worker claim, queued source
-change and source change during recipient-lock wait. The final worker/control
-guards reject those before another effect; these remain synthetic boundaries.
-Four more tests verify kernel lock exclusion across a paused reaper, actual
-holder death, queued abort and helper failure. The previous directory strategy
-failed the reproduced overlap scenario. Current-source synthetic durable submit
-latency (ten samples during concurrent tests) was p50 56.30 ms / p95 63.66 ms.
-Native reply latency/current app survival still require live qualification.
-
-A live protocol upgrade was ignored rather than reloaded, so compatible v6 was
-restored and its interrupted fixture independently archived. Graceful STOP
-verified native deletion of the exact owned job. The subsequent isolated idle
-process termination left an app-owned query reporting exit code 143; warm-only
-navigation could not recreate it. This is distinct from older governor-cap
-refusals. The independent observer subsequently recovered the broker after
-Claude's automatic update/relaunch: PID 71262, exact maintenance job `3651b2a5`
-with current-process create/list receipts and app acknowledgment. Its own
-five-minute job `337cb675` is independently verified. Recovery from a stale
-exited app query without a relaunch remains unproven. The observer's native
-sender envelope also differs from the v6 written example; the live model's
-acceptance is not a deterministic identity gate. Input automation remains
-quarantined. Do not use external termination as routine recovery.
-
-Older reports below identify their own fingerprints and scopes. Human input
-recovery was observed; safe native-helper teardown and unattended recovery
-remain unqualified. The approved pool remains parked/cleared.
-
-This chat's connected MCP still serves legacy `706a338`; use the current CLI
-or a fresh connection and verify `apiVersion:2`, `runtimeBuild` and current
-qualification. Source updates do not reload an existing MCP process.
+Work resumed October 6, 2026. Current runtime:
+`d1cce7ed831d4298c0988a9e2728ff24347d3960db245cce857c8da18a3c8988`; app 2.26454.0 / CLI 2.1.289.
+Exact reports and retained failures: [resume.md](resume.md).
 
 ## Current readiness audit
 
-The full goal remains incomplete. Current-source independent checks are complete.
-The first completed observer report and its exact hash were independently
-reviewed against owned process/session metadata, native journals and logs. The
-broker and observer are now live, with current native maintenance receipts.
-This resolves the offline prerequisite, but does not qualify current native
-steering, natural-pressure survival or unattended recovery across app restarts.
-
-| Goal requirement | Authoritative current evidence | Assessment |
+| Requirement | Current evidence | Practical limit |
 |---|---|---|
-| Shared controllable/steerable API and durable ownership | Current schemas/source; five 105-case runs; real Claude/Codex filtered harness traces; worker/source/kernel regressions | API workflows and synthetic boundaries proven; native steering still needs current live run |
-| Efficient control | Ten synthetic durable submits, p50 56.30 ms / p95 63.66 ms, all completed | Submit measured; current native reply/queue latency unproven |
-| Service-level evidence and memory | Current metadata-only memory code, redaction/bounded query tests, both real harness candidate records, retained failure/reproduction reports | Implemented and qualified within tested scope |
-| Current native app session controls | Older eleven-check report predates current source and app update; current driver_status qualification is false | Incomplete; rerun input-free live suite after recovery |
-| Reliable bootstrap/recovery | Observer's one native wake after automatic update/relaunch; independently verified PID 71262, create/list/app evidence; own observer cron verified | Post-relaunch recovery observed; stale-query recovery without relaunch and recovery after future app restart remain unqualified |
-| Residency under native pressure | Current-source eight-minute same-PID observation and zero input filters; no natural pressure. First IDLE omitted the required CronList before rearming | Incomplete; refresh failure preserved, isolated protocol candidate prepared; native loading and pressure survival remain required |
-| Human app usability and safe input-resource handling | Read-only audit currently has zero Claude helper filters; quarantine remains active; earlier human confirmation retained | Recovery observed historically; sustained current physical input/helper teardown unqualified; no UI fallback permitted |
-| Reuse implementation and leave Codex fixes parked | Work is confined to claude-driver; kernel-lock pattern reused from existing 1Password code without changing it | Satisfied for this iteration |
+| Shared durable/steerable API | Five 111-case rounds (555 passes), ten filtered checks per actual Claude/Codex harness | Synthetic failures are retained; native caller handback is not generally qualified |
+| Native Code controls | Eleven current-source input-free checks; create/focus, reply, cancel, concurrent/batch controls, queue/interrupt, single replies and archived cleanup | Current CLI/fresh MCP only; UI fallback disabled |
+| Efficiency | Native submit 169 ms; normal-client warm activation and native receipt 20.489 s | Different measurements; no cold-start or latency SLA |
+| Service evidence/memory | Metadata-only automatic records, bounded queries, candidate/observed distinctions, source fingerprints and preserved reproductions | Do not treat candidate recommendations as verified mechanism |
+| Maintenance reconciliation | Final-source ten-minute observation kept PID71262 and fresh evidence; exact IDLE → CronList → rewait reused job922e4a9e without creation | Passed for observed cycle; no natural pressure, overall pressure qualification false |
+| Recovery | Existing observer and own five-minute cron verified; controlled warm handoffs retained PID 71262; normal client wake received native receipt | Stale exited query without relaunch, app restart/closure and cron expiry remain unqualified |
+| Input usability | Zero filters before/after current native suite; quarantine active | Physical typing recovery historical; helper teardown not qualified |
+| Scope | Existing driver reused; Codex fixes and 1Password work parked | No app restart, permission/auth changes or keyboard injection |
 
-Do not substitute more synthetic passes for the missing native proof. The next
-steps remain the source-matched input-free live suite and read-only residency
-observation. The report heartbeat is configured every 30 seconds, scanning only
-metadata before loading review context. Scheduled delivery depends on the local
-app scheduler. This heartbeat forbids messaging other chats or creating a new
-qualification chat; retain that scope while reviewing reports. Do not
-send competing wakes, kill processes or lift quarantine to unblock the audit.
+Protocol v7 keeps compatible v6 wake/drain phrases because a real v7 wake read
+the file then returned `ignored`. Pending operations retain protocol v7 and
+actual checkpoint/native-receipt correlation. Controlled STOP deleted only the
+exact owned maintenance job and preserved the PID before each verified handoff.
+The nine-minute deadline is tied to native evidence, not each request; expired
+maintenance returns IDLE before claiming work. The twelve-minute freshness guard
+was not weakened. Four actual waiter regressions and two actual client-wake
+regressions preserve baseline failures and corrected behavior.
+
+Actual automatic compaction occurred before both resumed native suites. Final
+controls passed afterward; arbitrary future compaction fidelity remains a usage
+frontier. Four installed-source governor scenarios passed in isolation; they
+produce no OS pressure, app IPC or native eviction proof. More synthetic passes
+cannot substitute for missing real pressure or unattended recovery.
+
+This chat's connected MCP is legacy driver `1a83e53`, API 2, build
+`32a4b1193203c235dd0ed63876c4231d7783d6e3999e11b1792da32b213b8780`,
+without sourceBuild/restartRequired. It is outside current qualification; refresh
+it or use current CLI. New MCP source guards do not retrofit an older loaded
+server. The thirty-second report watcher is scanner-first and quiet when empty;
+its delivery depends on the local scheduler. Observer offline restart attempts
+must not compete with client/manual wakes. The full reliability goal remains
+incomplete until the remaining native limits are resolved.
 
 ## Historical and broader mechanism evidence
 

@@ -49,16 +49,19 @@ further UI work; this never kills another caller's helper. Native broker control
 and isolated tests remain usable without UI automation. See
 [qualification](docs/v2-qualification.md).
 
-The [continuity checkpoint](docs/resume.md) records the resumed work and exact
-qualification frontier. Eleven native input-free checks passed on earlier source;
-current isolated and actual-harness checks passed after evidence hardening.
-Native governor selection was tested in isolation without OS pressure. Live
-pressure survival and current-source native qualification remain pending.
-An isolated cold restart exposed an app-owned exited-query failure; the broker
-is offline. A separate Claude observer/recovery [prompt](docs/claude-monitor-prompt.md)
-is ready, with a five-minute Codex watcher for `/Users/taylor/Desktop/temp_reports`;
-actual observer startup and recovery remain unverified. External PID termination is unsuitable
-for routine recovery. Computer Use remains quarantined.
+The [continuity checkpoint](docs/resume.md) records current qualification.
+Current-source native input-free checks passed all eleven operations; five isolated
+rounds passed 111 cases each and both actual filtered harnesses passed ten checks.
+Protocol v7 retains compatible v6 wake/drain identities, explicitly reconciles
+maintenance after IDLE and bounds waits by the last native list across requests.
+The current CLI and fresh MCP support qualified native Code controls while input
+automation remains quarantined. This chat's older MCP still needs refresh.
+The independent Claude observer is running with a five-minute native job; the
+Codex report watcher scans every thirty seconds. A ten-minute current-source observation retained fresh evidence and the same
+PID across automatic IDLE/list/rewait with no duplicate job. It saw no natural
+governor pressure. Actual pressure survival, stale-query recovery without
+app relaunch and unattended recovery across restarts remain unqualified.
+External process termination is unsuitable for routine recovery.
 
 ## Setup
 

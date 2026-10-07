@@ -5,6 +5,36 @@ Dated, newest first. Each entry: what was observed, the evidence, and n
 (`<state>/pending-learnings.jsonl`) here only after re-verifying it.
 Versions: app = Claude desktop, cli = bundled Claude Code.
 
+## 2026-10-06 23:56 Eastern — v7 controls and maintenance (app 2.26454.0, cli 2.1.289)
+
+- **Request traffic must not postpone maintenance indefinitely.** The actual old
+  waiter claimed pending work even when its local deadline was already expired.
+  The corrected waiter returns IDLE before pickup and ties its budget to the last
+  native list plus nine minutes across requests. STOP remains first. Four actual
+  waiter regressions pass; no twelve-minute freshness relaxation. An intermediate
+  native IDLE/list/rewait at 03:52 reused the exact job despite intervening traffic.
+  Final-source IDLE at 04:03:06.882Z → CronList at 04:03:09.251Z → rewait
+  at 04:03:10.919Z reused job922e4a9e with no creation and preserved PID71262.
+  Ten-minute survival passed with fresh evidence and zero filters, but no natural
+  pressure (overall residency report false). See wait-budget-reproduction,
+  native-idle-v7-final and residency-v2-2026-10-07T03-54-52-060Z reports.
+
+- **A compatible activation phrase differs from queued request protocol.** One
+  real `wake v7` read the new standing file then answered `ignored`; one resolved
+  subsequent `wake v6` entered the v7 loop on the same PID. Ordinary brokerRequest
+  now uses that alias while retaining v7 checkpoints. Two actual-client synthetic
+  regressions first failed on the old phrase, then passed. The current native
+  client received a correlated receipt in 20.489 s. This proves one warm idle
+  activation, not cold or uncertain-send replay safety.
+
+- **Current native controls passed after real automatic compaction.** The owned
+  journal records auto compaction from 188436 to 13857 tokens. Eleven native
+  checks passed on the final source afterward, with zero input filters and
+  archived cleanup. Five rounds passed 111 synthetic tests each, both actual
+  filtered harnesses passed ten and installed governor code passed four isolated
+  scenarios. This does not prove arbitrary compaction retention or real pressure.
+  Exact fingerprints, receipts and failures are in resume.md.
+
 ## 2026-10-06 (app 2.26454.0, cli 2.1.289)
 
 - **Current native IDLE rearm skipped maintenance reconciliation.** PID 71262's
@@ -13,9 +43,9 @@ Versions: app = Claude desktop, cli = bundled Claude Code.
   03:24:59.974Z. V6 requires reconciliation after IDLE in one section but
   instructs immediate return to waiting in another; that conflict is a
   supported cause hypothesis. The existing evidence freshness guard is
-  retained. An explicit reconciliation branch is prepared in
-  [broker-idle-rearm-candidate.md](broker-idle-rearm-candidate.md), not loaded
-  into the running broker. Failure: `<state>/pressure/native-idle-rearm-2026-10-07.json`.
+  retained. At that checkpoint an explicit branch was prepared in
+  [broker-idle-rearm-candidate.md](broker-idle-rearm-candidate.md); it was later
+  implemented and warm-qualified as described above. Failure: `<state>/pressure/native-idle-rearm-2026-10-07.json`.
   A separate current-source eight-minute observation kept the same PID and
   zero input filters, but saw no natural pressure and therefore has `ok:false`:
   `<state>/pressure/residency-v2-2026-10-07T03-28-00-424Z.json`. n=1 rearm.

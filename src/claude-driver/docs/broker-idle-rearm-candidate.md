@@ -1,7 +1,15 @@
-# Broker IDLE reconciliation candidate
+# Broker IDLE reconciliation — implementation and retained candidate
 
-Prepared October 6, 2026 at 23:35 Eastern. This is an isolated protocol
-candidate, not the running standing file or a qualified fix.
+Prepared October 6 at 23:35 Eastern; implemented during Taylor's resumed
+qualification turn. V7 explicitly reconciles after IDLE; the waiter additionally
+keeps a nine-minute deadline from the last native list across requests, returning
+IDLE before claiming work. The twelve-minute freshness guard remains unchanged.
+Intermediate-source native IDLE/list/rewait reused one job at
+03:52:17.280Z / 03:52:18.832Z / 03:52:20.377Z. Final-source IDLE/list/rewait at 04:03:06.882Z / 04:03:09.251Z /
+04:03:10.919Z reused job922e4a9e, preserved PID71262 and created no duplicate.
+Ten-minute observation retained fresh evidence, unchanged source and zero input
+filters; no natural governor pressure, so the full pressure check remains false.
+See resume.md for report paths. Historical candidate follows.
 
 The owned broker's current-process journal records its first wait returning
 `IDLE` at 03:34:06.557Z and the next wait starting at 03:34:08.879Z, without
@@ -28,12 +36,11 @@ Keep the existing maintenance prompt, cron, allowlist, permission mode and
 request/checkpoint format. Do not loosen the evidence freshness limit to hide
 the missing list, recreate an existing job, or spoof sender identity.
 
-Before applying, reconcile broker activity and any unresolved dispatch. The
+For future handoffs, reconcile broker activity and any unresolved dispatch. The
 previous hot protocol upgrade was ignored, so changing a file or sending a
 new version alone does not establish that the live model loaded this fix.
-This report-review heartbeat forbids cross-chat sends and competing wakes;
-do not load or restart the broker here. A later authorized qualification run
-must verify the actual loaded behavior, same PID, one owned job, CronList
+A report-review heartbeat still forbids cross-chat sends and competing wakes.
+The explicitly resumed user turn authorized controlled warm qualification. Verify the actual loaded behavior, same PID, one owned job, CronList
 between IDLE and the next wait, and fresh evidence beyond twelve minutes.
 Retain the failure if those checks do not pass. Natural governor pressure
 survival remains a separate requirement.

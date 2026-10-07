@@ -4,32 +4,29 @@ claude-driver drives Taylor's Claude desktop app from Claude Code, Codex,
 Cursor, OpenCode or a script. This is the usage contract; the README has the
 mechanisms and evidence.
 
-Development resumed after the [pause checkpoint](resume.md). Native input-free
-qualification passed eleven checks on an earlier runtime. The independent
-observer has now recovered the exact broker after Claude's automatic update and
-relaunch, with verified current-process maintenance receipts. Current-source
-native controls and natural-pressure survival remain unqualified. Recovery from
-the earlier stale exited query without an app restart is also unproven.
-Protocol v6's residency
-candidate must have current native receipt/list/app evidence before
-`broker_status.residencyProtection.verified` is true; even that evidence does not
-replace a pressure-survival test or qualify cold recovery. The list must follow
-creation, belong to the current process, remain fresh, and have no unresolved
-native mutations. Evidence is bounded to 2 MiB of the broker journal; missing or
-rotated evidence fails closed. File equality does not prove the running model
-loaded a changed standing protocol. Keep UI quarantine.
+Current-source native input-free qualification passed eleven checks on app
+2.26454.0 / CLI 2.1.289. See [resume.md](resume.md) for exact runtime/reports.
+Protocol v7 retains exact compatible `claude-driver wake v6` / `drain v6`
+identities. Wake enters the loop; operation arguments come only from the durable
+request and dispatch checkpoint. Native envelope sender fields are routing
+metadata, not an identity gate. A matched file or send return alone never proves
+that the live model loaded instructions or applied an operation.
 
-The first observer wake's native envelope used `from=` and `name=`, whereas
-the v6 standing example names `from-name="claude-driver"`. The live model
-accepted that wake. Treat this as a protocol mismatch requiring further isolated
-qualification, not sender authentication or permission to spoof identity. Keep
-the live protocol stable while observing it; checkpoints and exact native
-receipts remain necessary before reporting any operation outcome.
+After IDLE the broker must list maintenance before waiting again. The waiter
+limits waiting to nine minutes from the last native list, including across
+requests. `broker_status.residencyProtection.verified` still requires a fresh
+current-process list after creation and no unresolved native mutation. Its
+12-minute limit is unchanged. Evidence reads are bounded to 2 MiB of the owned
+journal; missing/rotated evidence fails closed. Maintenance proof does not
+replace actual natural-pressure survival or qualify cold recovery. The observer
+owns offline restart attempts; avoid competing wakes. UI quarantine stays active.
 
 ## V2 control interface
 
 Check `driver_status.runtimeBuild`, `sourceBuild` and `restartRequired` when
-connecting a long-lived MCP process. Updated files do not reload it. A stale
+connecting a long-lived MCP process. Missing sourceBuild/restartRequired in an
+older server requires a fresh connection or current CLI before writes. Updated
+files do not reload it. A stale
 runtime rejects effects with `runtime_stale`, `dispatched:false` and
 `retrySafe:true` before recipient resolution; read-only observations and
 `driver_cancel` remain available. Reconnect or use a fresh current CLI process.
