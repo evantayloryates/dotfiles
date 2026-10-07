@@ -28,7 +28,7 @@
     },
     "inputMethod": "in-process UIEvent",
     "textMethod": "UIKeyInput",
-    "imageScope": "app-owned-windows",
+    "imageScope": "app-owned-main-window",
     "nativeInputRuntime": true
   },
   "tapCount": 1,
@@ -48,7 +48,7 @@
   "occlusionRejection": {
     "error": "hit_target_changed_or_occluded"
   },
-  "scrollOffsetY": 242,
+  "scrollOffsetY": 241.33333333333334,
   "textDelivery": {
     "commitVerified": false,
     "delivered": true,

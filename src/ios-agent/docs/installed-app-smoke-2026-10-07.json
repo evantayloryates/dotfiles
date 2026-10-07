@@ -1,0 +1,35 @@
+{
+  "scope": "installed Debug app on physical iPhone via private Tailscale HTTPS",
+  "iOS": "26.7.1",
+  "bundle": "com.dev.kudos.fit",
+  "nativeSDKBinaryVerified": true,
+  "sourceChangedDuringBuild": false,
+  "enrollmentReadbackMatches": true,
+  "xctestStarted": false,
+  "USBRelayStopped": true,
+  "reactComponentsInitially": 1034,
+  "nativeNodes": 330,
+  "nativeMaxDepth": 49,
+  "nativeTreeTruncated": false,
+  "nativeNavigation": {
+    "NutritionOpened": true,
+    "HomeRestored": true,
+    "independentOracle": "iPhone Mirroring"
+  },
+  "nativeScroll": {
+    "earlierRowsRevealed": true,
+    "independentOracle": "iPhone Mirroring"
+  },
+  "componentInspection": {
+    "name": "ClientNutritionTabs",
+    "propsAvailable": true,
+    "hookCount": 8
+  },
+  "profileCommitCount": 10,
+  "imageScope": "app-owned-main-window",
+  "imageGlowExcludedVisually": true,
+  "glowSeenIndependently": true,
+  "debugBarsHiddenVisually": true,
+  "cellularWithoutUSB": "pending human test setup",
+  "nativeLongPressAndText": "simulator qualified; physical SDK verification pending"
+}

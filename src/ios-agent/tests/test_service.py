@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 spec = importlib.util.spec_from_file_location("service", Path(__file__).parents[1] / "service.py")
 service = importlib.util.module_from_spec(spec)
@@ -48,6 +49,17 @@ class BrokerTests(unittest.TestCase):
         with self.assertRaisesRegex(service.Rejected, "stale_result"):
             self.result(cid)
 
+    def test_sent_timeout_without_client_poll_still_revokes(self):
+        cid = self.action()
+        self.next()
+        self.now += 16
+        self.b.tick()
+        self.assertIsNone(self.b.lease)
+        self.assertEqual(self.b.commands[cid]["status"], "unknown")
+        self.assertEqual(self.call(op="result", id=cid)["status"], "unknown")
+        with self.assertRaisesRegex(service.Rejected, "lease_required"):
+            self.b.control({"op": "result", "lease": "different-owner", "id": cid})
+
     def test_queued_cancel_and_sent_unknown_on_release(self):
         cid = self.action()
         self.call(op="release")
@@ -83,6 +95,10 @@ class BrokerTests(unittest.TestCase):
         self.assertIsNone(response["lease"])
         self.assertEqual(self.b.last_release["reason"], "device_foreground_lost")
 
+    def test_native_boolean_feedback_normalized_without_coercing_strings(self):
+        self.b.device_request({**self.device, "feedback": {"foreground": True, "indicator": 0, "leased": "false"}})
+        self.assertEqual(self.b.control({"op": "status"})["deviceFeedback"], {"foreground": True, "indicator": False})
+
     def test_owner_timeout_without_device_poll_renewal(self):
         self.now += 1201
         self.b.device_request(self.device)
@@ -106,6 +122,35 @@ class BrokerTests(unittest.TestCase):
         with tempfile.NamedTemporaryFile() as f:
             with self.assertRaisesRegex(service.Rejected, "owner_rollout_required"):
                 self.b.control({"op": "acquire", "rollout": f.name})
+
+    def test_frontend_spawn_failure_does_not_orphan_lease(self):
+        with tempfile.TemporaryDirectory() as temp:
+            home = Path(temp)
+            path = home / ".codex/sessions/test.jsonl"
+            path.parent.mkdir(parents=True)
+            path.write_text(json.dumps({"type": "session_meta", "payload": {"id": "thread"}}) + "\n" + json.dumps({"type": "event_msg", "payload": {"type": "task_started", "turn_id": "turn"}}) + "\n")
+            self.b.revoke("test")
+            self.b.state = home / "state"
+            self.b.config["node"] = "/missing-node"
+            with patch.object(service.Path, "home", return_value=home), patch.object(service.subprocess, "Popen", side_effect=OSError("synthetic startup failure")):
+                with self.assertRaisesRegex(service.Rejected, "frontend_start_failed"):
+                    self.b.control({"op": "acquire", "rollout": str(path), "thread": "thread", "turn": "turn"})
+            self.assertIsNone(self.b.lease)
+            self.assertIsNone(self.b.frontend)
+
+    def test_owner_partial_completion_is_not_prematurely_consumed(self):
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "rollout.jsonl"
+            event = json.dumps({"type": "event_msg", "payload": {"type": "task_complete", "turn_id": "turn"}})
+            path.write_text(event[:20])
+            self.b.lease.update(rollout=str(path), offset=0)
+            self.b.observe_owner()
+            self.assertIsNotNone(self.b.lease)
+            self.assertEqual(self.b.lease["offset"], 0)
+            with path.open("a") as f:
+                f.write(event[20:] + "\n")
+            self.b.observe_owner()
+            self.assertIsNone(self.b.lease)
 
     def test_owner_events_partial_lines_and_completion(self):
         with tempfile.TemporaryDirectory() as d:

@@ -1,0 +1,18 @@
+{
+  "exit": 0,
+  "seconds": 295.6,
+  "agentBinaryVerified": true,
+  "sourceEdited": false,
+  "xctestStarted": false,
+  "sourceChangedDuringBuild": false,
+  "sources": {
+    "/Users/taylor/src/github/dotfiles/src/ios-agent/native/bridge.js": "a4dbbe1d15172fd276256a9787f563f3405d2f364f4b4feb15f82a7eba181c1f",
+    "/Users/taylor/src/github/dotfiles/src/ios-agent/native/TouchHID.inc": "d44e2371ff3d6e3f5bf160eaaef19e62367aaef6e8e33718ed58e3c78106c9a3",
+    "/Users/taylor/src/github/dotfiles/src/ios-agent/native/KIF-LICENSE": "78a064c0e16e5830e7e8f9b8ad1ec2b2f7b5a347c96f9f028c61be31d5280f30",
+    "/Users/taylor/src/github/dotfiles/src/ios-agent/native/transformer.cjs": "57929385eb600436da7cfd17489b48de2ad3ad580149bfedfb3b62a58a39905e",
+    "/Users/taylor/src/github/dotfiles/src/ios-agent/native/metro.cjs": "252c73a7e43df5f45439977910c69787ba31e1a7917c045a8f0d438448459409",
+    "/Users/taylor/src/github/dotfiles/src/ios-agent/native/IOSAgent.inc": "18dc3f56f76bc399272bb1a6a94e9786aaeadacdbbe3b4df06ab26b839cd2eee",
+    "/Users/taylor/src/github/kickoff/mobile/ios/kudos/AppDelegate.mm": "596585b2ceffd16373dce70973f6499024bde99500eef194be81871160fec9d3"
+  },
+  "scope": "explicit Debug SDK build; installed on physical iPhone"
+}

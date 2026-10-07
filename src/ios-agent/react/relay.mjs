@@ -5,7 +5,7 @@ import net from 'node:net';
 import {spawn} from 'node:child_process';
 import {createRequire} from 'node:module';
 import {pathToFileURL} from 'node:url';
-import {randomBytes} from 'node:crypto';
+import {randomBytes, createHash} from 'node:crypto';
 import WebSocket from 'ws';
 const require = createRequire(import.meta.url);
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -17,9 +17,12 @@ for await (const part of process.stdin) {
   input += part.toString();
   if (input.length > 1024) throw new Error('invalid_lease_input');
 }
-const {lease} = JSON.parse(input);
-if (typeof lease !== 'string') throw new Error('lease_required');
-const frontendState = path.join(state, 'react');
+const {lease, port} = JSON.parse(input);
+if (typeof lease !== 'string' || !/^[a-f0-9]{32}$/.test(lease)) throw new Error('lease_required');
+if (!Number.isSafeInteger(port) || port < 1024 || port > 65535) throw new Error('frontend_port_required');
+// Per-lease directories prevent an orphan from an old host boot unlinking a
+// replacement frontend's IPC socket during its own delayed shutdown.
+const frontendState = path.join(state, 'react', createHash('sha256').update(lease).digest('hex').slice(0, 16));
 fs.mkdirSync(frontendState, {recursive: true, mode: 0o700});
 fs.chmodSync(frontendState, 0o700);
 const daemon = path.join(path.dirname(require.resolve('agent-react-devtools')), 'daemon.js');
@@ -35,7 +38,7 @@ source = source.replace('from "ws"', `from ${JSON.stringify(wsModule)}`);
 const protectedDaemon = path.join(frontendState, 'daemon-protected.mjs');
 fs.writeFileSync(protectedDaemon, 'let iosAgentSecretInput = ""; for await (const chunk of process.stdin) { iosAgentSecretInput += chunk; if (iosAgentSecretInput.length > 1024) throw new Error("invalid_input"); } const iosAgentFrontendToken = JSON.parse(iosAgentSecretInput).token; iosAgentSecretInput = "";\n' + source, {mode: 0o600});
 const frontendToken = randomBytes(32).toString('hex');
-const child = spawn(process.execPath, [protectedDaemon, '--port=19497', '--state-dir=' + frontendState], {stdio: ['pipe', 'ignore', 'ignore']});
+const child = spawn(process.execPath, [protectedDaemon, '--port=' + port, '--state-dir=' + frontendState], {stdio: ['pipe', 'ignore', 'ignore']});
 child.stdin.end(JSON.stringify({token: frontendToken}));
 let socket, closed = false;
 const messages = [];
@@ -89,7 +92,7 @@ try {
   while (!fs.existsSync(path.join(frontendState, 'daemon.sock')) && Date.now() < end && !closed) await sleep(25);
   if (closed) throw new Error('frontend_failed');
   fs.chmodSync(path.join(frontendState, 'daemon.sock'), 0o600);
-  socket = new WebSocket('ws://127.0.0.1:19497', {headers: {Authorization: 'Bearer ' + frontendToken}});
+  socket = new WebSocket('ws://127.0.0.1:' + port, {headers: {Authorization: 'Bearer ' + frontendToken}});
   socket.on('message', raw => {
     if (messages.length >= 128 || raw.length > 1048576) { finish(); return; }
     messages.push(raw.toString());
@@ -114,4 +117,5 @@ try {
   finish();
   await Promise.race([new Promise(resolve => child.once('exit', resolve)), sleep(1000)]);
   if (child.exitCode === null) child.kill('SIGKILL');
+  fs.rmSync(frontendState, {recursive: true, force: true});
 }

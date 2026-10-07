@@ -52,6 +52,7 @@ static BOOL IANumber(id n) { return [n isKindOfClass:NSNumber.class] && isfinite
 @property NSMapTable<NSString*,UIView*> *nodes;
 @property NSString *snapshot;
 @property NSTimeInterval snapshotAt;
+@property BOOL treeTruncated;
 @property NSMutableDictionary<NSString*,NSValue*> *nodeRects;
 @property NSMutableArray<NSString*> *seen;
 @property UITouch *touch;
@@ -61,6 +62,7 @@ static BOOL IANumber(id n) { return [n isKindOfClass:NSNumber.class] && isfinite
 @property NSDictionary *appState;
 @property BOOL running;
 @property BOOL helloNeeded;
+@property NSUInteger connectionGeneration;
 - (void)poll;
 - (BOOL)leased;
 - (void)startWatchdog;
@@ -143,7 +145,7 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
  if([UIApplication.sharedApplication respondsToSelector:@selector(_touchesEvent)]) event=[UIApplication.sharedApplication _touchesEvent];
  for(NSString *s in @[@"_clearTouches",@"_setHIDEvent:",@"_addTouch:forDelayedDelivery:"]) input&=[event respondsToSelector:NSSelectorFromString(s)];
  return @{@"nativeInputRuntime":@(input),@"selectors":selectors,@"applicationState":@(UIApplication.sharedApplication.applicationState),
-          @"imageScope":@"app-owned-windows",@"inputMethod":@"in-process UIEvent",@"textMethod":@"UIKeyInput",@"xctest":@NO};
+          @"imageScope":@"app-owned-main-window",@"inputMethod":@"in-process UIEvent",@"textMethod":@"UIKeyInput",@"xctest":@NO};
 }
 - (void)showGlow {
  if(!self.glow) {
@@ -176,6 +178,7 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
  }
 }
 - (void)background:(NSNotification*)n {
+ self.connectionGeneration++;
  NSString *lease=[self.lease copy], *epoch=[self.epoch copy]; [self stopLease];
  if(lease && epoch) [self exchange:@{@"op":@"cancel",@"lease":lease,@"epoch":epoch} completion:^(NSDictionary *reply){}];
 }
@@ -195,7 +198,7 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
  if([self leased]) [self showGlow]; else [self stopLease];
 }
 - (void)walk:(UIView*)view depth:(NSUInteger)depth output:(NSMutableArray*)out {
- if(out.count>=2500 || depth>60) return;
+ if(out.count>=2500 || depth>60) { self.treeTruncated=YES; return; }
  NSString *node=[NSString stringWithFormat:@"%lu",(unsigned long)out.count]; [self.nodes setObject:view forKey:node];
  CGRect r=[view convertRect:view.bounds toView:nil];
  self.nodeRects[node]=[NSValue valueWithCGRect:r];
@@ -237,9 +240,9 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
 #endif
   }
   if([action isEqual:@"tree"]) {
-   self.nodes=[NSMapTable strongToWeakObjectsMapTable]; self.nodeRects=[NSMutableDictionary new]; self.snapshot=NSUUID.UUID.UUIDString; self.snapshotAt=IANow();
+   self.nodes=[NSMapTable strongToWeakObjectsMapTable]; self.nodeRects=[NSMutableDictionary new]; self.snapshot=NSUUID.UUID.UUIDString; self.snapshotAt=IANow(); self.treeTruncated=NO;
    NSMutableArray *tree=[NSMutableArray new]; [self walk:[self mainWindow] depth:0 output:tree];
-   done(@{@"snapshot":self.snapshot,@"nodes":tree,@"applicationState":@(UIApplication.sharedApplication.applicationState),@"scope":@"app-owned-main-window",@"truncated":@(tree.count>=2500)}); return;
+   done(@{@"snapshot":self.snapshot,@"nodes":tree,@"applicationState":@(UIApplication.sharedApplication.applicationState),@"scope":@"app-owned-main-window",@"truncated":@(self.treeTruncated)}); return;
   }
   if([action isEqual:@"image"]) {
    UIWindow *main=[self mainWindow]; UIGraphicsImageRenderer *renderer=[[UIGraphicsImageRenderer alloc] initWithSize:main.bounds.size];
@@ -292,6 +295,7 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
  } @catch(NSException *e) { [self stopLease]; done(IAError(@"private_api_exception")); }
 }
 - (void)exchange:(NSDictionary*)extra completion:(void(^)(NSDictionary*))done {
+ NSUInteger generation=self.connectionGeneration;
  NSMutableDictionary *body=[@{@"device":self.config[@"device"],@"bundle":NSBundle.mainBundle.bundleIdentifier,@"boot":self.boot,
                              @"build":[NSBundle.mainBundle objectForInfoDictionaryKey:@"CFBundleVersion"]?:@"unknown",
                              @"feedback":@{@"foreground":@([self active]),@"indicator":@(self.glow&&!self.glow.hidden),@"leased":@([self leased])}} mutableCopy]; [body addEntriesFromDictionary:extra];
@@ -305,7 +309,7 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
   if(!error && [(NSHTTPURLResponse*)response statusCode]==200 && data.length<=8388608) {
    id parsed=[NSJSONSerialization JSONObjectWithData:data options:0 error:nil]; if([parsed isKindOfClass:NSDictionary.class]) reply=parsed;
   }
-  dispatch_async(dispatch_get_main_queue(),^{done(reply);});
+  dispatch_async(dispatch_get_main_queue(),^{done(generation==self.connectionGeneration?reply:nil);});
  }] resume];
 }
 - (void)poll {

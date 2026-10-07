@@ -41,6 +41,7 @@ class Broker:
         self.last_release = None
         self.state = state
         self.frontend = None
+        self.frontend_port = None
         self.stopping_frontends = []
 
     def revoke(self, reason):
@@ -55,6 +56,7 @@ class Broker:
                     pass
                 self.stopping_frontends.append((self.frontend, self.clock() + 2))
             self.frontend = None
+            self.frontend_port = None
             for cmd in self.commands.values():
                 if cmd["status"] in ("queued", "sent"):
                     cmd.update(status="cancelled" if cmd["status"] == "queued" else "unknown", reason=reason)
@@ -73,6 +75,10 @@ class Broker:
                             pass
                     remaining.append((process, deadline))
             self.stopping_frontends = remaining
+            if self.frontend and self.frontend.poll() is not None:
+                self.revoke("react_frontend_stopped")
+            if self.lease and any(c["status"] in ("queued", "sent") and self.clock() > c["deadline"] for c in self.commands.values()):
+                self.revoke("command_timeout")
             if self.lease and self.clock() >= self.lease["expires"]:
                 self.revoke("owner_expired")
             if self.device and self.clock() - self.device["seen"] > DEVICE_TIMEOUT:
@@ -93,6 +99,7 @@ class Broker:
             if op == "status":
                 return {"version": VERSION, "sourceHash": SOURCE_HASH, "epoch": self.epoch,
                         "reactFrontendRunning": bool(self.frontend and self.frontend.poll() is None),
+                        "reactFrontendPort": self.frontend_port,
                         "device": None if not self.device else {k: self.device[k] for k in ("build", "bundle", "boot")},
                         "deviceFeedback": None if not self.device else self.device.get("feedback"),
                         "lease": None if not self.lease else {k: self.lease[k] for k in ("id", "thread", "turn")},
@@ -108,6 +115,8 @@ class Broker:
                     raise Rejected("owner_not_current_active_turn")
                 if self.lease:
                     raise Rejected("device_already_leased")
+                if self.stopping_frontends:
+                    raise Rejected("frontend_cleanup_in_progress")
                 if not self.device:
                     raise Rejected("device_not_connected")
                 self.lease = {"id": secrets.token_hex(16), "thread": thread, "turn": turn,
@@ -116,8 +125,11 @@ class Broker:
                 if self.state and self.config.get("node"):
                     relay = Path(__file__).parent / "react/relay.mjs"
                     try:
+                        with socket.socket() as available:
+                            available.bind(("127.0.0.1", 0))
+                            self.frontend_port = available.getsockname()[1]
                         self.frontend = subprocess.Popen([self.config["node"], str(relay), str(self.state)], stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True, umask=0o077)
-                        self.frontend.stdin.write(encode({"lease": self.lease["id"]}))
+                        self.frontend.stdin.write(encode({"lease": self.lease["id"], "port": self.frontend_port}))
                         self.frontend.stdin.close()
                     except OSError:
                         if self.frontend and self.frontend.stdin:
@@ -129,6 +141,12 @@ class Broker:
                         raise Rejected("frontend_start_failed")
                 self.cv.notify_all()
                 return self.lease_wire()
+            if op == "result":
+                cmd = self.commands.get(request.get("id"))
+                if cmd and cmd["lease"] == request.get("lease") and cmd["status"] not in ("queued", "sent"):
+                    # The original capability can recover its terminal outcome after
+                    # revocation, but cannot read another owner's result or send input.
+                    return {k: cmd[k] for k in ("id", "status", "result", "reason") if k in cmd}
             if not self.lease or request.get("lease") != self.lease["id"]:
                 raise Rejected("lease_required")
             if op == "release":
@@ -182,7 +200,9 @@ class Broker:
                 self.device["seen"] = self.clock()
             feedback = request.get("feedback")
             if isinstance(feedback, dict):
-                self.device["feedback"] = {k: feedback[k] for k in ("foreground", "indicator", "leased") if isinstance(feedback.get(k), bool)}
+                # Objective-C boolean expressions may serialize as NSNumber 0/1.
+                # Normalize only those exact primitive values; metadata is not auth.
+                self.device["feedback"] = {k: bool(feedback[k]) for k in ("foreground", "indicator", "leased") if type(feedback.get(k)) in (bool, int) and feedback[k] in (0, 1)}
             if op == "cancel":
                 if self.lease and request.get("lease") == self.lease["id"] and request.get("epoch") == self.epoch:
                     self.revoke("device_foreground_lost")

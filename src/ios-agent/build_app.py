@@ -39,16 +39,24 @@ def main():
     before = source_hashes(mobile)
     with os.fdopen(fd, "w") as log:
         run = subprocess.run(["xcodebuild", "-workspace", str(mobile / "ios/kudos.xcworkspace"), "-scheme", "kudos development", "-configuration", "Debug", "-destination", "id=" + a.udid, "-derivedDataPath", str(a.derived_data.resolve()),
-                              "OTHER_CPLUSPLUSFLAGS=" + flags, "HEADER_SEARCH_PATHS=$(inherited) " + str(ROOT / "native"), "OTHER_LDFLAGS=$(inherited) -framework IOKit", "build"], env=env, stdout=log, stderr=subprocess.STDOUT)
+                              "OTHER_CFLAGS=" + flags, "OTHER_CPLUSPLUSFLAGS=" + flags, "HEADER_SEARCH_PATHS=$(inherited) " + str(ROOT / "native"), "OTHER_LDFLAGS=$(inherited) -framework IOKit", "build"], env=env, stdout=log, stderr=subprocess.STDOUT)
     after = source_hashes(mobile)
     changed = before != after
     products = a.derived_data.resolve() / "Build/Products/Debug-iphoneos"
     matches = [app for app in products.glob("*.app") if (app / "Info.plist").exists() and plistlib.loads((app / "Info.plist").read_bytes()).get("CFBundleIdentifier") == "com.dev.kudos.fit"]
     product = str(matches[0]) if len(matches) == 1 else None
-    evidence = {"exit": run.returncode, "seconds": round(time.monotonic() - start, 1), "product": product, "sourceEdited": False, "xctestStarted": False, "sourceChangedDuringBuild": changed, "sources": after}
+    sdk_present = False
+    if product and run.returncode == 0:
+        app = matches[0]
+        executable = plistlib.loads((app / "Info.plist").read_bytes())["CFBundleExecutable"]
+        binaries = [app / executable, *app.glob("*.debug.dylib")]
+        for binary in binaries:
+            symbols = subprocess.run(["nm", str(binary)], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True).stdout
+            sdk_present |= "OBJC_CLASS_$_IOSAgent" in symbols and "OBJC_CLASS_$_IOSAgentBridge" in symbols
+    evidence = {"exit": run.returncode, "seconds": round(time.monotonic() - start, 1), "product": product, "agentBinaryVerified": sdk_present, "sourceEdited": False, "xctestStarted": False, "sourceChangedDuringBuild": changed, "sources": after}
     (a.derived_data / "ios-agent-build.json").write_text(json.dumps(evidence, indent=2) + "\n")
     print(json.dumps({k: v for k, v in evidence.items() if k != "sources"}))
-    raise SystemExit(run.returncode or int(changed or not product))
+    raise SystemExit(run.returncode or int(changed or not product or not sdk_present))
 
 
 if __name__ == "__main__":

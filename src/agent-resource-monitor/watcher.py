@@ -143,6 +143,34 @@ class Gate:
                     recovered=self.quiet_since is not None and row['monotonic']-self.quiet_since>=c['recovery_seconds'])
 
 
+def codex_log_metadata(raw):
+    """Extract an explicit structural allowlist; discard log bodies and values."""
+    events=Counter(); thread_ids=set(); durations=[]; first=last=None; records=deque(maxlen=2000)
+    for line in raw.splitlines():
+        timestamp=re.match(r'\d{4}-\d\d-\d\dT[\d:.]+Z',line)
+        if not timestamp: continue
+        first=first or timestamp[0]; last=timestamp[0]
+        record={'timestamp':timestamp[0]};kinds=[]
+        for event in ('mcp_extension_tool_discovery_failed','mcp_server_startup_status_updated'):
+            if event in line: events[event]+=1;kinds.append(event)
+        for method in ('mcpServerStatus/list','thread/resume','thread/start','config/batchWrite','config/read'):
+            if re.search(r'\bmethod='+re.escape(method)+r'(?:\s|$)',line):
+                events[method]+=1;kinds.append(method)
+                duration=re.search(r'\bdurationMs=(\d+)',line)
+                if duration: durations.append(int(duration[1]));record['duration_ms']=int(duration[1])
+                origin=re.search(r'\boriginWebcontentsId=(\d+)(?:\s|$)',line)
+                if origin:record['origin_webcontents_id']=int(origin[1])
+        tid=re.search(r'\bconversationId=([0-9a-f-]{36})\b',line)
+        if tid and monitor.ID.fullmatch(tid[1]):
+            thread_ids.add(tid[1]);record['thread_id']=tid[1]
+        server=re.search(r'\b(?:serverName|server_name|server)=([a-zA-Z0-9_.-]{1,80})(?:\s|$)',line)
+        if server:record['server']=server[1]
+        if kinds:record['events']=kinds;records.append(record)
+    return {'bounded_tail_bytes':MIB,'first':first,'last':last,
+            'events':dict(events),'thread_ids':sorted(thread_ids),
+            'max_response_ms':max(durations) if durations else None,'records':list(records)}
+
+
 def contextual_metadata():
     """Known numeric/platform metadata only; no arbitrary config/log contents."""
     result = {'timestamp':monitor.now()}
@@ -183,34 +211,11 @@ def contextual_metadata():
     log_root=Path.home()/'Library/Logs/com.openai.codex'
     today=dt.datetime.now(dt.timezone.utc).strftime('%Y/%m/%d')
     files=sorted((log_root/today).glob('*t0*.log'),key=lambda p:p.stat().st_mtime,reverse=True)[:1]
-    events=Counter(); thread_ids=set(); durations=[]; first=last=None; records=deque(maxlen=2000)
+    raw=''
     for path in files:
         with path.open('rb') as f:
             f.seek(max(0,path.stat().st_size-MIB)); raw=f.read(MIB).decode(errors='replace')
-        for line in raw.splitlines():
-            timestamp=re.match(r'\d{4}-\d\d-\d\dT[\d:.]+Z',line)
-            if not timestamp: continue
-            first=first or timestamp[0]; last=timestamp[0]
-            record={'timestamp':timestamp[0]};kinds=[]
-            for event in ('mcp_extension_tool_discovery_failed','mcp_server_startup_status_updated'):
-                if event in line: events[event]+=1;kinds.append(event)
-            for method in ('mcpServerStatus/list','thread/resume','thread/start'):
-                if re.search(r'\bmethod='+re.escape(method)+r'(?:\s|$)',line):
-                    events[method]+=1
-                    kinds.append(method)
-                    duration=re.search(r'\bdurationMs=(\d+)',line)
-                    if duration: durations.append(int(duration[1]));record['duration_ms']=int(duration[1])
-            tid=re.search(r'\bconversationId=([0-9a-f-]{36})\b',line)
-            if tid and monitor.ID.fullmatch(tid[1]):
-                thread_ids.add(tid[1]);record['thread_id']=tid[1]
-            server=re.search(r'\b(?:serverName|server_name|server)=([a-zA-Z0-9_.-]{1,80})(?:\s|$)',line)
-            if server:record['server']=server[1]
-            if kinds:record['events']=kinds;records.append(record)
-            # No error strings, URL values, tool payloads or free text retained.
-    result['codex_event_counts']={'bounded_tail_bytes':MIB,'first':first,'last':last,
-                                  'events':dict(events),'thread_ids':sorted(thread_ids),
-                                  'max_response_ms':max(durations) if durations else None,
-                                  'records':list(records)}
+    result['codex_event_counts']=codex_log_metadata(raw)
     return result
 
 
@@ -293,10 +298,13 @@ class Episode:
         rows=''.join('<tr>'+''.join('<td>'+html.escape(str(x))+'</td>' for x in
             (p['pid'],p['role'],round(p.get('footprint_bytes',p['rss_bytes'])/MIB,1),
              p.get('owner') or 'unknown/shared',p.get('owner_evidence') or 'unavailable'))+'</tr>' for p in tops)
+        analysis=('<p><a href="analysis/index.html"><strong>Read the saved root-cause investigation</strong></a>'
+                  ' — evidence, timelines, limitations and next-session checks.</p>'
+                  if (self.path/'analysis/index.html').is_file() else '')
         (self.path/'report.html').write_text('<!doctype html><meta charset="utf-8"><title>Mac pressure incident</title>'
             '<style>body{font:16px system-ui;max-width:1100px;margin:40px auto;padding:20px;color:#17202a}'
             'td,th{padding:8px;text-align:left;border-bottom:1px solid #ddd}table{width:100%}code{overflow-wrap:anywhere}</style>'
-            '<h1>Mac pressure incident</h1><p>'+html.escape(state)+' · '+html.escape(self.metadata['started'])+'</p>'
+            '<h1>Mac pressure incident</h1>'+analysis+'<p>'+html.escape(state)+' · '+html.escape(self.metadata['started'])+'</p>'
             '<p>Peak paging: %.1f MiB/s · Peak compressor churn: %.1f MiB/s (uncompressed page equivalents) · '
             'Peak swap occupied: %.1f GiB · %d light samples · %d detailed samples.</p>'
             %(self.peak_paging,self.peak_compressor,self.peak_swap/1024**3,self.rows,self.detail_count+self.pre_detail_count)+

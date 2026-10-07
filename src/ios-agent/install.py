@@ -96,7 +96,18 @@ def main():
             raise SystemExit("old_worker_did_not_finish_shutdown")
         active = False
     if not active:
-        subprocess.run(["launchctl", "bootstrap", domain, str(target)], check=True)
+        # launchd may still be retiring a booted-out job after its socket is gone.
+        # Retry only this scoped registration; never restart unrelated jobs or use root.
+        deadline = time.monotonic() + 5
+        while True:
+            registered = subprocess.run(["launchctl", "bootstrap", domain, str(target)], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+            if registered.returncode == 0:
+                break
+            if registered.returncode != 5 or time.monotonic() >= deadline:
+                raise RuntimeError("launch_registration_failed")
+            if subprocess.run(["launchctl", "print", f"{domain}/{LABEL}"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0:
+                break
+            time.sleep(0.2)
     print(json.dumps({"installed": True, "restarted": a.restart, "provisioned": bool(a.provision_device), "tailnetAccount": user["LoginName"], "source": str(ROOT)}))
 
 

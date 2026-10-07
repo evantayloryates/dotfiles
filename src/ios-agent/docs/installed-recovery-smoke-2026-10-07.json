@@ -1,0 +1,12 @@
+{
+  "installedServiceRestarted": true,
+  "seconds": 1.33,
+  "leaseReconstructed": false,
+  "deviceReconnected": true,
+  "feedback": {
+    "foreground": true,
+    "indicator": false,
+    "leased": false
+  },
+  "sourceMatches": true
+}

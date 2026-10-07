@@ -1,0 +1,6 @@
+{
+  "scope": "native SDK compiled with DEBUG=0 and opt-in macro=1",
+  "agentSymbolsAbsent": true,
+  "compiled": true,
+  "wholeCustomerReleaseBuilt": false
+}

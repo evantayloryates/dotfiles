@@ -1,0 +1,10 @@
+{
+  "leaseRevoked": true,
+  "frontendStopped": true,
+  "lastRelease": "device_foreground_lost",
+  "feedback": {
+    "foreground": true,
+    "indicator": false,
+    "leased": false
+  }
+}

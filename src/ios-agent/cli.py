@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Local control client. Lease files stay private; output excludes credentials."""
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -21,15 +22,28 @@ def inspect(message, state):
     command = message["args"]
     if not isinstance(command, dict) or command.get("type") not in INSPECTION or len(json.dumps(command)) > 4096:
         raise RuntimeError("unsupported_inspection")
-    with socket.socket(socket.AF_UNIX) as s:
-        s.settimeout(15)
-        s.connect(str(state / "react/daemon.sock"))
-        s.sendall(json.dumps(command).encode() + b"\n")
-        with s.makefile("rb") as f:
-            body = f.readline(8 * 1024 * 1024 + 1)
-        if len(body) > 8 * 1024 * 1024:
-            raise RuntimeError("inspection_response_limit")
-        result = json.loads(body)
+    ready_deadline = time.monotonic() + 5
+    while True:
+        with socket.socket(socket.AF_UNIX) as s:
+            s.settimeout(15)
+            fingerprint = hashlib.sha256(message["lease"].encode()).hexdigest()[:16]
+            try:
+                s.connect(str(state / "react" / fingerprint / "daemon.sock"))
+            except (FileNotFoundError, ConnectionRefusedError):
+                if time.monotonic() >= ready_deadline:
+                    raise RuntimeError("react_frontend_not_ready")
+                status = request({"op": "status"}, state)
+                if (status.get("lease") or {}).get("id") != message["lease"]:
+                    raise RuntimeError("inspection_lease_ended")
+                time.sleep(0.05)
+                continue  # No command sent; only frontend readiness is retried.
+            s.sendall(json.dumps(command).encode() + b"\n")
+            with s.makefile("rb") as f:
+                body = f.readline(8 * 1024 * 1024 + 1)
+            if len(body) > 8 * 1024 * 1024:
+                raise RuntimeError("inspection_response_limit")
+            result = json.loads(body)
+            break
     # Revocation during inspection invalidates the result, including model reads.
     status = request({"op": "status"}, state)
     if (status.get("lease") or {}).get("id") != message["lease"]:
@@ -99,6 +113,8 @@ def main():
             if a.output and a.output.exists():
                 raise RuntimeError("output_already_exists; action_not_sent")
             message.update(args=json.loads(a.args))
+            if not isinstance(message["args"], dict):
+                raise RuntimeError("arguments_must_be_an_object")
             if a.op == "action":
                 message["action"] = a.action
             elif message["args"].get("type") not in ("ping", "status", "profile-start") and not a.output:
@@ -132,6 +148,8 @@ def main():
             result = {"status": "completed", "output": str(a.output.resolve())}
         if a.op == "release":
             a.lease_file.unlink()
+    if a.op == "status" and result.get("lease"):
+        result["lease"] = {k: result["lease"][k] for k in ("thread", "turn")}
     print(json.dumps(result))
 
 

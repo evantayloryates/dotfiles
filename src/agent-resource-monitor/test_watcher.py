@@ -105,6 +105,26 @@ class Watcher(unittest.TestCase):
         result=w.run([sys.executable,'-c','import sys;print("SECRET",file=sys.stderr);sys.exit(1)'])
         self.assertNotIn('SECRET',json.dumps(result))
 
+    def test_config_change_metadata_drops_payloads_and_invalid_identifiers(self):
+        raw=('2026-10-07T20:52:48.895Z response method=config/batchWrite '
+             'durationMs=61 originWebcontentsId=1 payload=SECRET url=https://SECRET\n'
+             '2026-10-07T20:52:51.000Z mcp_server_startup_status_updated '
+             'serverName=gmail_work_primary conversationId=SECRET error=SECRET\n')
+        metadata=w.codex_log_metadata(raw)
+        self.assertEqual(metadata['events']['config/batchWrite'],1)
+        self.assertEqual(metadata['records'][0]['origin_webcontents_id'],1)
+        self.assertEqual(metadata['records'][1]['server'],'gmail_work_primary')
+        self.assertNotIn('SECRET',json.dumps(metadata))
+        self.assertEqual(metadata['thread_ids'],[])
+
+    def test_report_preserves_adjacent_analysis_link_on_regeneration(self):
+        with tempfile.TemporaryDirectory() as d:
+            episode=w.Episode(Path(d),w.DEFAULTS,[reading(0)],[],reading(0))
+            (episode.path/'analysis').mkdir()
+            (episode.path/'analysis/index.html').write_text('saved investigation')
+            episode.report('active');episode.finish('recovered')
+            self.assertIn('href="analysis/index.html"',(episode.path/'report.html').read_text())
+
     def test_full_watch_lifecycle_freezes_prelude_and_closes_on_recovery(self):
         clock=[0.]
         def sample(previous):
