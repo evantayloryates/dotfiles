@@ -1,3 +1,23 @@
+## Shared native API and CLI trial completed — October 7, 12:26 Eastern
+
+Fresh enrollment33d74fbfaaf5db2b9100bb3743100d49 native-validated updated receiver
+and observed readiness. First public CLI attempt refused before enqueue: policy
+script27279 bytes exceeded default16384 evidence reader. Preserved failure trial;
+corrected policy hash reader bound65536. Transaction errors now include fixed phase,
+published request ID and prepublication retrySafe metadata; no private error text.
+Then actual nativeServiceRead API request rpeer7040e814315a45b79b2d9213ebc522cd
+and separate public CLI request rpeer2d661cd9f215408eb4e67977756f62f3 completed
+through one loaded receiver. Both standard receipts verified, lifecycleState:completed,
+retrySafe:false, checkpointSource:legacy-shared, releaseAuthorized:false. No uncertain
+send replay. Safe retirement16:25:41.389Z preserved module bytes, original epoch,
+baselines and absent controls. nativeUnloadObserved:false/hookAbsenceQualified:false.
+Private native-service-public-trial failure and public-settlement record retained.
+Full pressure v2-2026-10-07T16-25-50-529Z passed1/1 in9074ms,
+sourceChanged:false. Actual MCP transport and production enrollment automation are
+not qualified by API/CLI success. Broad goal stays active: native unload, queue/service
+ownership, guarded mutations/steering/residency/rollback and unknown-effects audit.
+No human action required; retired enrollment must not be reloaded/replayed.
+
 ## Shared native service read transaction — October 7, 12:24 Eastern
 
 broker_service_read {service_id, session_id, experimental:true, timeout_sec?}

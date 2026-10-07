@@ -15,22 +15,25 @@ const json=(p,n=16384)=>JSON.parse(readProbeBytes(p,n).bytes.toString('utf8'))
 // Exported transaction seam permits real cancellation/race tests without native
 // effects. Production dependencies below retain all ownership/admission checks.
 export async function runNativeServiceReadTransaction({requestId,signal},d){
- let published=false
+ let published=false,phase='prepare'
  const abort=()=>{if(signal?.aborted)throw Error('cancelled')}
  try{
   abort();const prepared=await d.prepare();abort()
-  d.enqueue(prepared.request);published=true
+  phase='enqueue';d.enqueue(prepared.request);published=true
+  phase='claim'
   if((await d.claim(requestId))?.id!==requestId)throw Error('claim refused')
-  abort();await d.revalidate();abort()
+  phase='revalidate';abort();await d.revalidate();abort()
+  phase='send'
   await d.send(); // exactly one invocation; never retry an uncertain transport
+  phase='wait'
   while(d.now()<prepared.request.expiresAt){
    abort()
-   if(d.responsePresent())return await d.reconcile()
+   if(d.responsePresent()){phase='reconcile';return await d.reconcile()}
    await d.wait()
   }
   throw Error('result deadline')
  }catch{
-  throw Object.assign(Error('native service read unresolved; inspect request before any further action'),{category:'native_service_read_unresolved',requestId:published?requestId:null,retrySafe:!published})
+  throw Object.assign(Error('native service read unresolved at '+phase+(published?'; inspect '+requestId:'; no request published')),{category:'native_service_read_unresolved',phase,requestId:published?requestId:null,retrySafe:!published,detail:{phase,requestId:published?requestId:null,retrySafe:!published}})
  }finally{if(published)await d.cancel(requestId,'native-service-read-finished')}
 }
 export async function nativeServiceRead(serviceId,targetSession,{timeoutMs=20000,signal}={}){
@@ -50,7 +53,7 @@ export async function nativeServiceRead(serviceId,targetSession,{timeoutMs=20000
   }
   return runNativeServiceReadTransaction({requestId,signal},{
    prepare:()=>{
-    preflight();const policy=json(BROKER_DIR+'/stop-rescue-policy.json');if(readProbeBytes(policy.script).sha256!==policy.sha256)throw Error('policy drift')
+    preflight();const policy=json(BROKER_DIR+'/stop-rescue-policy.json');if(readProbeBytes(policy.script,65536).sha256!==policy.sha256)throw Error('policy drift')
     const request={id:requestId,protocol:7,createdAt:new Date().toISOString(),expiresAt:admitted.expiresAt,ops:[{op:admitted.op,args:admitted.args}],nativeEffectAdmissionPolicy:{version:1,handlerSha256:policy.sha256,settingsHash:policy.settingsHash}},observe=observeNativeReceipts(enrollment.config.brokerSession,request)
     if(!observe)throw Error('journal absent');request.nativeObservation=observe.start;return {request}
    },enqueue,claim:id=>pickupPending({requestId:id}),revalidate:preflight,

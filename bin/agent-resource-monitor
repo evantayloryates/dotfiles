@@ -1,0 +1,2 @@
+#!/bin/sh
+exec python3 "$(dirname "$0")/../src/agent-resource-monitor/monitor.py" "$@"
