@@ -2,6 +2,7 @@ import argparse
 import contextlib
 import importlib.util
 import json
+import sqlite3
 from pathlib import Path
 import sys
 import tempfile
@@ -124,6 +125,25 @@ class Watcher(unittest.TestCase):
             (episode.path/'analysis/index.html').write_text('saved investigation')
             episode.report('active');episode.finish('recovered')
             self.assertIn('href="analysis/index.html"',(episode.path/'report.html').read_text())
+
+    def test_heartbeat_timing_excludes_prompts_payloads_and_old_turns(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d)/'.codex';folder=root/'automations/test';folder.mkdir(parents=True)
+            tid='01a112b1-fbf6-7cb0-8228-ce3e6cb6112d'
+            (folder/'automation.toml').write_text('status = "ACTIVE"\n'
+                'target_thread_id = "'+tid+'"\nrrule = "FREQ=SECONDLY;INTERVAL=30"\n'
+                'prompt = """SECRET\nstatus = "PAUSED"\n'
+                'rrule = "FREQ=SECONDLY;INTERVAL=1"\n"""\n')
+            db=sqlite3.connect(root/'thread_history_1.sqlite')
+            db.execute('CREATE TABLE thread_turns (thread_id,turn_id,status,started_at,completed_at,duration_ms,error_json)')
+            db.executemany('INSERT INTO thread_turns VALUES (?,?,?,?,?,?,?)',[
+                (tid,'recent','completed',900,920,20000,'SECRET'),
+                (tid,'old','completed',100,120,20000,'SECRET')]);db.commit();db.close()
+            metadata=w.heartbeat_metadata(d,1000)
+            self.assertEqual(metadata['status'],'ok')
+            self.assertEqual(metadata['automations'][0]['rrule'],'FREQ=SECONDLY;INTERVAL=30')
+            self.assertEqual(len(metadata['automations'][0]['recent_turns']),1)
+            self.assertNotIn('SECRET',json.dumps(metadata))
 
     def test_full_watch_lifecycle_freezes_prelude_and_closes_on_recovery(self):
         clock=[0.]

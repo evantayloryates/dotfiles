@@ -13,6 +13,7 @@ import re
 import selectors
 import shutil
 import signal
+import sqlite3
 import subprocess
 import sys
 import time
@@ -171,6 +172,45 @@ def codex_log_metadata(raw):
             'max_response_ms':max(durations) if durations else None,'records':list(records)}
 
 
+def heartbeat_metadata(home=None, wall_time=None):
+    """Bounded scheduler/turn timing only; never return prompts or queued payloads."""
+    home=Path(home) if home is not None else Path.home()
+    wall_time=time.time() if wall_time is None else wall_time
+    root=home/'.codex';rows=[]
+    for path in sorted((root/'automations').glob('*/automation.toml'))[:100]:
+        if not re.fullmatch(r'[a-zA-Z0-9_-]{1,100}',path.parent.name):continue
+        try:
+            with path.open() as f:raw=f.read(65536)
+        except OSError:continue
+        # Multiline TOML strings can contain illustrative metadata assignments.
+        # Remove them before matching top-level schedule fields.
+        raw=re.sub(r'(?s)("""|\'\'\').*?\1','""',raw)
+        # Parse only exact metadata lines; a TOML prompt is never returned.
+        status=re.search(r'^status\s*=\s*"(ACTIVE|PAUSED)"\s*$',raw,re.M)
+        target=re.search(r'^target_thread_id\s*=\s*"([0-9a-f-]{36})"\s*$',raw,re.M)
+        if not status or status[1]!='ACTIVE' or not target or not monitor.ID.fullmatch(target[1]):continue
+        row={'automation_id':path.parent.name,'target_thread_id':target[1]}
+        rule=re.search(r'^rrule\s*=\s*"((?:RRULE:)?[A-Z0-9=;,T+\-]{1,300})"\s*$',raw,re.M)
+        if rule:row['rrule']=rule[1]
+        rows.append(row)
+    history=root/'thread_history_1.sqlite'
+    if not rows or not history.is_file():return {'status':'unavailable' if rows else 'ok','automations':rows}
+    try:
+        connection=sqlite3.connect(history.as_uri()+'?mode=ro',uri=True,timeout=.1)
+        try:
+            deadline=time.monotonic()+.5
+            connection.set_progress_handler(lambda:time.monotonic()>deadline,1000)
+            for row in rows:
+                turns=connection.execute('SELECT turn_id,status,started_at,completed_at,duration_ms FROM thread_turns '
+                    'WHERE thread_id=? AND started_at>=? ORDER BY started_at DESC LIMIT 20',
+                    (row['target_thread_id'],int(wall_time-600))).fetchall()
+                row['recent_turns']=[dict(zip(('turn_id','status','started_at','completed_at','duration_ms'),r)) for r in turns]
+        finally:connection.close()
+        return {'status':'ok','window_seconds':600,'automations':rows}
+    except sqlite3.Error:
+        return {'status':'unavailable','automations':rows}
+
+
 def contextual_metadata():
     """Known numeric/platform metadata only; no arbitrary config/log contents."""
     result = {'timestamp':monitor.now()}
@@ -216,6 +256,7 @@ def contextual_metadata():
         with path.open('rb') as f:
             f.seek(max(0,path.stat().st_size-MIB)); raw=f.read(MIB).decode(errors='replace')
     result['codex_event_counts']=codex_log_metadata(raw)
+    result['heartbeat_metadata']=heartbeat_metadata()
     return result
 
 

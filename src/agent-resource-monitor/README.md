@@ -162,6 +162,10 @@ diagnostic subprocesses are terminated on timeout/output overflow.
   change markers and bounded structural MCP/config/thread event timestamps,
   counts and numeric app-window origins. Configuration write/read metadata
   helps distinguish reconfiguration/client startup waves from timer hypotheses.
+  Active Codex heartbeat schedules and the preceding ten minutes of turn
+  start/completion/duration metadata are also recorded through a bounded,
+  read-only local history query; prompts, conversation items and queued payloads
+  are excluded. This does not distinguish scheduled from human-started turns.
   No app log bodies,
   raw argv/env, credentials, chat contents, tool inputs/outputs or screens are
   persisted. There are no root-only Instruments/powermetrics traces, stack
