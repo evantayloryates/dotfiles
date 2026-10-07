@@ -16,13 +16,20 @@ const WAKE_ENVELOPE='<cross-session-message from-name="claude-driver" from-mode=
 function boundedJson(path,limit=65536){let fd;try{fd=openSync(path,constants.O_RDONLY|constants.O_NOFOLLOW|constants.O_NONBLOCK);const st=fstatSync(fd);if(!st.isFile()||st.uid!==process.getuid()||st.size>limit)return null;const b=readFileSync(fd);return b.length<=limit?JSON.parse(b.toString('utf8')):null}catch{return null}finally{if(fd!==undefined)closeSync(fd)}}
 function nativeAncestor(arm){let pid=process.ppid;for(let hop=0;hop<24&&pid>1;hop++){let line;try{line=execFileSync('/bin/ps',['-p',String(pid),'-o','ppid=','-o','lstart='],{encoding:'utf8',timeout:500,env:{PATH:'/usr/bin:/bin',LC_ALL:'C',TZ:'UTC'}}).trim()}catch{return false}const m=line.match(/^(\d+)\s+(.+)$/);if(!m)return false;if(pid===arm.pid)return m[2]===arm.procStart;const parent=Number(m[1]);if(parent===pid)return false;pid=parent}return false}
 function latestUser(path){let fd;try{fd=openSync(path,constants.O_RDONLY|constants.O_NOFOLLOW|constants.O_NONBLOCK);const st=fstatSync(fd);if(!st.isFile()||st.uid!==process.getuid())return null;const bytes=Math.min(st.size,2*1024*1024),b=Buffer.alloc(bytes);readSync(fd,b,0,bytes,st.size-bytes);const text=b.toString('utf8'),lines=text.split('\n');if(st.size>bytes)lines.shift();for(let i=lines.length-1;i>=0;i--){let r;try{r=JSON.parse(lines[i])}catch{continue}if(r.isSidechain||r.type!=='user')continue;const c=r.message?.content;if(Array.isArray(c)&&c.length&&c.every(x=>x?.type==='tool_result'))continue;return {origin:r.origin,content:c}}return null}catch{return null}finally{if(fd!==undefined)closeSync(fd)}}
-export function eligibleRescue({input,arm,request,control,peer,latest,stopped=false,ancestor=false,now=Date.now()}){
- if(!input||input.hook_event_name!=='Stop'||input.stop_hook_active!==false||stopped||!ancestor)return false
+export function eligibleRescue({input,arm,request,control,peer,latest,stopped=false,stop,ancestor=false,now=Date.now()}){
+ if(!input||input.hook_event_name!=='Stop'||input.stop_hook_active!==false||!ancestor)return false
  if(!arm||arm.schemaVersion!==1||!Number.isInteger(arm.pid)||arm.pid<=0||typeof arm.procStart!=='string'||!arm.procStart||!/^local_[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(arm.sessionId)||!/^r[A-Za-z0-9_-]{1,99}$/.test(arm.requestId)||!(/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/).test(arm.msgId)||typeof arm.brokerDir!=='string'||!arm.brokerDir.startsWith('/')||!Number.isFinite(arm.expiresAt)||arm.expiresAt<=now||arm.expiresAt>now+90000)return false
  const sid=arm.sessionId.slice(6)
  if(input.session_id!==sid||resolve(input.cwd||'/')!==resolve(arm.brokerDir||'/'))return false
  if(peer?.version!=='2.1.289'||peer.pid!==arm.pid||peer.procStart!==arm.procStart||peer.hostSessionId!==arm.sessionId||peer.sessionId!==sid||peer.entrypoint!=='claude-desktop'||peer.spare||peer.parkedJobId||resolve(peer.cwd||'/')!==resolve(arm.brokerDir))return false
- if(request?.id!==arm.requestId||!Number.isFinite(request.expiresAt)||request.expiresAt<=now||control?.id!==arm.requestId||control.state!=='pending'||control.cancelRequested||!Array.isArray(control.dispatched)||control.dispatched.length)return false
+ if(arm.mode==='settle-handoff'){
+  // A STOP rescue settles only this explicitly owned handoff. It cannot
+  // revive serving, clear the marker, claim work or delete unrelated jobs.
+  if(!stopped||stop?.owner!=='claude-driver-qualified-runtime-handoff'||typeof arm.nonce!=='string'||!(/^[A-Za-z0-9_-]{1,64}$/).test(arm.nonce)||arm.requestId!=='rhandoff-'+arm.nonce||stop.nonce!==arm.nonce||stop.pid!==arm.pid||stop.procStart!==arm.procStart||stop.sessionId!==arm.sessionId)return false
+ }else{
+  if(arm.mode!==undefined&&arm.mode!=='request'||stopped)return false
+  if(request?.id!==arm.requestId||!Number.isFinite(request.expiresAt)||request.expiresAt<=now||control?.id!==arm.requestId||control.state!=='pending'||control.cancelRequested||!Array.isArray(control.dispatched)||control.dispatched.length)return false
+ }
  if(latest?.origin?.kind!=='peer'||latest.origin.msg_id!==arm.msgId)return false
  const c=latest.content,text=typeof c==='string'?c:Array.isArray(c)&&c.length===1&&c[0]?.type==='text'?c[0].text:null
  return text===WAKE_ENVELOPE||text===PEER_PREFIX+WAKE_ENVELOPE+PEER_SUFFIX
@@ -36,7 +43,7 @@ async function main(){
  const peers=join(homedir(),'.claude','sessions'),peer=boundedJson(join(peers,String(arm.pid)+'.json'))
  const transcript=join(homedir(),'.claude','projects',resolve(dir).replace(/[^A-Za-z0-9]/g,'-'),arm.sessionId?.replace(/^local_/,'')+'.jsonl')
  const request=boundedJson(join(dir,'requests',arm.requestId+'.json')),control=boundedJson(join(dir,'controls',arm.requestId+'.json'))
- const ancestor=nativeAncestor(arm),eligible=eligibleRescue({input,arm,request,control,peer,latest:latestUser(transcript),stopped:existsSync(join(dir,'STOP')),ancestor})
+ const ancestor=nativeAncestor(arm),eligible=eligibleRescue({input,arm,request,control,peer,latest:latestUser(transcript),stopped:existsSync(join(dir,'STOP')),stop:boundedJson(join(dir,'STOP')),ancestor})
  // Bounded invocation telemetry distinguishes loaded-but-refused from missing
  // evidence. Never echo the hook payload, transcript or model's final text.
  if(input.session_id===arm.sessionId.slice(6)&&arm.expiresAt>Date.now()){
@@ -47,6 +54,9 @@ async function main(){
  // Failure/missing output consumes the attempt rather than risking a loop.
  let fd;try{fd=openSync(join(dir,'stop-rescue-'+arm.requestId+'.json'),constants.O_WRONLY|constants.O_CREAT|constants.O_EXCL|constants.O_NOFOLLOW,0o600);writeFileSync(fd,JSON.stringify({schemaVersion:1,requestId:arm.requestId,msgId:arm.msgId,pid:arm.pid,procStart:arm.procStart,at:Date.now(),attempts:1}));}catch{return}finally{if(fd!==undefined)closeSync(fd)}
  // Fixed service directive; no command or operation is copied from input.
- console.log(JSON.stringify({decision:'block',reason:'The owned claude-driver wake has one still-pending request. Perform this one bounded service continuation now: Read ./CLAUDE.md, use CronList to reconcile only the exact existing maintenance job, load the allowlisted native tools, then run its documented foreground waiter. Execute only the waiter request and its dispatch checkpoints. Do not reply that the broker is running without those tools. STOP, cancellation, expiry and all existing service guards remain binding. This hook permits no second rescue for this request.'}))
+ const reason=arm.mode==='settle-handoff'
+  ?'This is the explicitly owned claude-driver runtime handoff STOP. Perform only its bounded settlement: Read ./CLAUDE.md, use CronList, delete ONLY jobs in THIS broker session whose cron is exactly 17 * * * * and prompt exactly claude-driver drain v6, then CronList again to verify those matching jobs are absent. Preserve every unrelated job. Do not clear STOP, run a waiter, claim requests, restart anything or change settings/auth. Reply stopped and end the turn after the native cleanup result. A refusal is an unresolved cleanup, not success. No second continuation is authorized.'
+  :'The owned claude-driver wake has one still-pending request. Perform this one bounded service continuation now: Read ./CLAUDE.md, use CronList to reconcile only the exact existing maintenance job, load the allowlisted native tools, then run its documented foreground waiter. Execute only the waiter request and its dispatch checkpoints. Do not reply that the broker is running without those tools. STOP, cancellation, expiry and all existing service guards remain binding. This hook permits no second rescue for this request.'
+ console.log(JSON.stringify({decision:'block',reason}))
 }
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url))await main().catch(()=>{})

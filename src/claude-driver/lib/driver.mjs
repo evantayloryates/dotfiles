@@ -502,6 +502,7 @@ export const OPS = [
     schema: { properties: { session: S, pinned: { type: 'boolean' }, via_broker: VIA_BROKER }, required: ['session', 'pinned'] },
     run: async (args, ctx) => {
       const rec = resolveSession(args.session)
+      if(rec.isArchived)throw new DriverError('unarchive this session before changing its pin state',{category:'session_archived',detail:{dispatched:false,retrySafe:true}})
       const b = await tierB(ctx, [{ op: 'set_pinned', args: { session_id: rec.sessionId, pinned: !!args.pinned } }], `pinned ${!!args.pinned}`)
       if (b.handback) return b.handback
       const ok = await waitForPins((p) => p.has(rec.sessionId) === !!args.pinned)
@@ -547,6 +548,9 @@ export const OPS = [
     },
     run: async (args, ctx) => {
       const rec = resolveSession(args.session)
+      // Native pin/effort reject archived sessions. Reject the entire batch
+      // before a valid title change can create a known avoidable partial effect.
+      if(rec.isArchived&&(args.pinned!==undefined||args.effort))throw new DriverError('unarchive this session before a pin/effort configuration batch',{category:'session_archived',detail:{dispatched:false,retrySafe:true}})
       const ops = []
       if(args.title!==undefined){
         if(!args.title.trim())throw new DriverError('title must not be empty',{category:'bad_args'})
