@@ -3,6 +3,24 @@
 October 7, 2026, 04:57 Eastern. Native diagnostic read proof, not a public transport.
 The broker remains on its existing sealed dependencies and admission hooks.
 
+## Service-owned native idle observation — 05:34 Eastern
+
+Public `broker_idle` now exposes the reviewed native control subscription with
+private authenticated IPC, kernel PID/UID verification and durable per-epoch
+ownership. Two independent MCP harnesses shared one observation in the actual
+already-idle probe09:31:04 (1073ms, no model events). The fresh probe09:32:14
+passed in4538ms with one short tool-free diagnostic turn, correlated native
+peer/reply ancestry, matching finish timestamp and one shared observation.
+Reports are `native-idle-service-2026-10-07T09-31-04-547Z.json` (6e49b9ac) and
+`native-idle-service-2026-10-07T09-32-14-381Z.json` (cbef2bce). Observation has
+zero inference; fresh diagnostic triggering uses one model turn.
+
+Cancellation/unknown publication retains native subscription debt until
+delivery or reviewed12h expiry; closing the owned listener cannot cancel the
+native subscription. Stale finish timestamps remain distinct from fresh host
+completion. This does not qualify general request execution, queue quiescence,
+historical effect settlement or release handoff. Those remain separate gates.
+
 ## What the installed engine actually does
 
 `node src/claude-driver/scripts/hook-contract-v2.mjs` extracts bounded source

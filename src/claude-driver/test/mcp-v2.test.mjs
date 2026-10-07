@@ -103,6 +103,14 @@ function client(name,protocol='2025-06-18',fixture=false){
  clients.push(c);return c
 }
 async function until(fn,ms=5000){const end=Date.now()+ms;while(Date.now()<end){const x=await fn();if(x)return x;await new Promise(r=>setTimeout(r,20))}throw new Error('fixture evidence timeout')}
+test('broker idle MCP surface is bounded and cannot target arbitrary sessions or revive a broker',async()=>{
+ const c=client('idle-surface');await c.ready
+ try{
+  const list=await c.request('tools/list',{}),tool=list.tools.find(t=>t.name==='broker_idle');assert.equal(tool.annotations.readOnlyHint,true);assert.equal(tool.inputSchema.properties.session,undefined);assert.equal(tool.inputSchema.properties.revive,undefined)
+  for(const args of [{timeout_sec:31},{session:sid},{revive:true}]){const r=await c.call('broker_idle',args);assert.equal(r.isError,true);assert.equal(r.structuredContent.error.category,'bad_args')}
+  const r=await c.call('broker_idle',{});assert.equal(r.isError,true);assert.equal(r.structuredContent.error.category,'peer_unqualified')
+ }finally{await c.close()}
+})
 after(async()=>{clearInterval(pump);clearInterval(beat);for(const c of clients)await c.close();recipient.kill('SIGTERM');await new Promise(resolve=>recipient.once('exit',resolve));rmSync(root,{recursive:true,force:true})})
 
 test('configuration batch uses one request and verifies title, unpin, model and effort',async()=>{

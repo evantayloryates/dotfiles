@@ -84,6 +84,23 @@ unqualified.
 
 ## V2 control interface
 
+`broker_idle {timeout_sec, not_before, cache_ms}` observes only the configured
+live desktop broker through its reviewed native host idle protocol. It uses no
+model inference, keyboard input or recovery. Concurrent harnesses share one
+durable epoch-bound observation; pending subscriptions are joined rather than
+republished. `timeout_sec` is 0.1–30 seconds; `cache_ms` is 0–3000 milliseconds
+(default1000). `not_before` is an optional Unix millisecond timestamp used to
+distinguish an old finish timestamp from a newer host completion.
+
+`verified` binds the notice to native PID/UID, nonce, process epoch and source;
+`freshTurnCompletion` alone does not causally identify an arbitrary request.
+Use native request/reply ancestry to prove its actual result. Host idle does not
+prove full queue quiescence, sustained serving or effect settlement, and this
+operation always returns `quiescenceVerified:false` and `releaseAuthorized:false`.
+Cancellation removes the owned listener but cannot cancel the native one-shot
+subscription. Its durable pending record prevents blind repeats until delivery
+or the reviewed native12-hour expiry. No public force-clear is provided.
+
 Check `driver_status.runtimeBuild`, `sourceBuild` and `restartRequired` when
 connecting a long-lived MCP process. Missing sourceBuild/restartRequired in an
 older server requires a fresh connection or current CLI before writes. Updated

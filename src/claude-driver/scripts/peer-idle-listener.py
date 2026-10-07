@@ -3,6 +3,9 @@
 import ctypes, json, os, signal, socket, struct, sys, time
 
 path, expected_pid, expected_uid = sys.argv[1], int(sys.argv[2]), int(sys.argv[3])
+wait_seconds = float(sys.argv[4]) if len(sys.argv) > 4 else 12
+if not 0.1 <= wait_seconds <= 30:
+    raise RuntimeError('listener_wait_bound_refused')
 libc = ctypes.CDLL(None, use_errno=True)
 def identity(s):
     pid = struct.unpack('i', s.getsockopt(0, 2, 4))[0]  # SOL_LOCAL/LOCAL_PEERPID
@@ -31,11 +34,12 @@ try:
         sender.settimeout(2)
         sender.connect(config['socket'])
         identity(sender)
+        result['writeAttempted'] = True
         sender.sendall(config['lines'].encode())
         time.sleep(0.15)
         sender.shutdown(socket.SHUT_WR)
     result['subscriptionSent'] = True
-    deadline = time.monotonic() + 12
+    deadline = time.monotonic() + wait_seconds
     while time.monotonic() < deadline:
         server.settimeout(max(0.01, deadline-time.monotonic()))
         with server.accept()[0] as connection:

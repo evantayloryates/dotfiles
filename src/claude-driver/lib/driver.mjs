@@ -845,6 +845,17 @@ export const OPS = [
   },
   // ---------------- broker
   {
+    name: 'broker_idle', title: 'Observe native broker host idle', readOnly: true,
+    description: 'Observe the configured broker through a native idle control subscription without model input or recovery. Shared durable ownership prevents duplicate subscriptions. Reports host state and historical finish time; never task success, full queue quiescence or release authority. Cancellation ends the local wait, not the native subscription.',
+    schema: { properties: { timeout_sec: {type:'number',minimum:0.1,maximum:30}, not_before: {type:'number',description:'Optional Unix milliseconds boundary; an older finishedAt cannot be fresh completion.'}, cache_ms: {type:'number',minimum:0,maximum:3000} } },
+    run: async (args, ctx) => {
+      const i=brokerInfo(),record=i.sessionId?getRecord(i.sessionId):null
+      if(!i.live||i.live.entrypoint!=='claude-desktop'||!i.runtime?.integrity||record?.cwd!==BROKER_DIR||record.isArchived)throw new DriverError('native idle observation requires the intact configured desktop broker',{category:'peer_unqualified'})
+      const {observeNativeIdle}=await import('./native-idle.mjs')
+      return observeNativeIdle(i,{timeoutSec:args.timeout_sec??12,notBefore:args.not_before,cacheMs:args.cache_ms??1000,signal:ctx.signal})
+    },
+  },
+  {
     name: 'broker_status',
     title: 'Broker status / revive',
     description: 'Show the broker session\'s state; revive:true brings its process back (focus warm-spawn, then Tier C typing a wake line) when the app reaped it (30 min idle, app restart, mode change).',

@@ -1,4 +1,48 @@
-## Latest frontier — October 7, 05:21 Eastern
+## Latest frontier — October 7, 05:34 Eastern
+
+Goal ACTIVE; concrete observation progress, general serving/handoff unqualified.
+Public CLI/MCP `broker_idle` now provides a durable service-owned native host
+observer. Concurrent harnesses share one epoch-bound publication and cached
+receipt. Unknown publication/cancellation persists subscription debt rather
+than retrying; proved no-write may retry, and reviewed native12h expiry permits
+a new observation. Private helper cleanup never kills the native broker.
+
+Actual current MCP harnesses passed both modes: native-idle-service-
+2026-10-07T09-31-04-547Z.json on source6e49b9ac verifies one shared already-idle
+observation in1073ms with zero user/assistant events and stale completion=false.
+native-idle-service-2026-10-07T09-32-14-381Z.json on sourcecbef2bce verifies a
+fresh completion in4538ms: one short tool-free diagnostic model turn, actual
+peer/reply ancestry, matching kernel PID/UID/nonce and one shared observation
+cebb5ebd-409a-4dc9-84ad-85a170549f6a. Both clients report fresh completion=true;
+all owned MCP launchers exit0/stderr0, subscriptions consumed/listeners removed.
+Observation itself uses zero inference; the fresh diagnostic uses one turn.
+
+Current source88495da2 passed the full isolated suite unchanged in
+v2-2026-10-07T09-34-28-074Z.json. The only executable-source change after the
+fresh native proof is its script comment explaining the two modes. Keep these
+source-qualified reports distinct. Cancellation, pending joins, expiry, corrupt
+and linked lease refusal, stale/fresh boundaries and public schema bounds have
+isolated proof. Service memory records bounded metadata, never private IPC keys.
+An initial test accidentally recorded12 synthetic observations in live service
+memory. Original rows were preserved and explicitly corrected as synthetic in
+native-idle-synthetic-memory-correction-2026-10-07.json; tests now isolate state.
+Those rows are not native evidence.
+
+Host idle remains weaker than internal queue quiescence, causal tool success,
+historical effect settlement or release authority. API always denies quiescence
+and release claims. All17 historic unknown effects remain unknown/nonretryable.
+No operational fence or indexed handoff was authorized by this signal. Native
+broker PID71262/start03:24:51 UTC remains idle/intact on active4af/gen6 with
+dependency integritytrue, but nativePathsVerified:false and no verified waiter.
+
+Next qualify a safe operational fence/indexed handoff, then sustained serving,
+current controls/steering/cancellation, rollback and cold recovery. Do not repeat
+idle publication after uncertain delivery or race the observer's recovery.
+Local30s detector/hourly Claude fallback remains; hourly fallback does not pace
+tests. Codex inbox ticks remain inference-bearing. No user action required;
+input quarantine stays ON, Codex-driver fixes and1Password remain separate.
+
+## Previous frontier — October 7, 05:21 Eastern
 
 Goal ACTIVE. Previous turn was progress; this turn establishes a genuine native
 zero-inference post-turn HOST signal. General serving/handoff remains unqualified.
