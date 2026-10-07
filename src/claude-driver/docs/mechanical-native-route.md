@@ -1,3 +1,13 @@
+## Public API correction — October 7, 10:50 Eastern
+
+The probes called the public MCP API incorrectly. Exact installed gk wrapper
+requires `$.mcp.call(server, tool, args)`; internal ZOt accepts an object but is
+not the API exposed to mods. Source and reproduction demonstrate the mismatch.
+Tests now include the public wrapper and corrected candidate end-to-end, keeping
+input identity and denial redaction. Distinct v0.4.0 is copied to the consented
+broker session; no automatic read/model work occurs on registration. Actual
+corrected execution and native admission remain pending; failed intents survive.
+
 ## Current native command evidence — October 7, 10:48 Eastern
 
 Taylor enabled session-local hot reload; native menu registration and owned

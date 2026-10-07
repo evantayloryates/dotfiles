@@ -13,6 +13,7 @@ const report=join(STATE_DIR,'pressure','mod-tool-contract-'+new Date().toISOStri
 let stage='extract',failure
 try{
  const binary=resolveClaudeBinary()
+ sources.publicApi=installedWindowContaining(binary,'var gk=(e,t,o)=>Ny({call:',{after:220})
  sources.binding=installedWindowContaining(binary,'function Hu(e,n){let r=px()', {after:700})
  sources.mcp=installedWindowContaining(binary,'async function ZOt({server:e,tool:n,args:r},s)',{before:150,after:2200})
  sources.tool=installedWindowContaining(binary,'async function eU(e,n)',{after:3600})
@@ -38,6 +39,15 @@ try{
   const invoke=runInNewContext(`(()=>{${tool};${mcp};return ZOt})()`,ctx,{timeout:1000,contextCodeGeneration:{strings:false,wasm:false}})
   return {invoke,calls,checks,permissions,context:{plugin:'synthetic-owned-service',signal:controller.signal}}
  }
+ await check('public MCP wrapper requires positional arguments and preserves fixture input',async()=>{
+  const wrapper=cutInstalledFunction(sources.publicApi.text,'var gk=','var Bp=')
+  const api=runInNewContext(`(()=>{${wrapper};return gk})()`,{Ny:x=>x})
+  const calls=[],mcp=api('synthetic',x=>calls.push(x),()=>{})
+  mcp.call('ccd_session_mgmt','get_session',{session_id:'synthetic'})
+  assert.deepEqual(JSON.parse(JSON.stringify(calls[0])),{server:'ccd_session_mgmt',tool:'get_session',args:{session_id:'synthetic'}})
+  mcp.call({server:'ccd_session_mgmt',tool:'get_session',args:{session_id:'synthetic'}})
+  assert.equal(typeof calls[1].server,'object');assert.equal(calls[1].tool,undefined)
+ })
  await check('installed binding guard reports unavailable session before any tool dispatch',async()=>{
   const guard=cutInstalledFunction(sources.binding.text,'function Hu(e,n){let r=px()','function woo(')
   const invoke=runInNewContext(`(()=>{${guard};return Hu})()`,{px:()=>undefined,Ie:Error})

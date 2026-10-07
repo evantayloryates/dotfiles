@@ -1,3 +1,23 @@
+## Concrete public API bug corrected — October 7, 10:50 Eastern
+
+Installed public wrapper gk takes call(server, tool, args), not the single object
+accepted by internal ZOt. Both v0.2.0/v0.3.0 candidates used the wrong public
+signature. Exact wrapper reproduction shows their object becomes server and tool
+becomes undefined. Earlier synthetic tests skipped this wrapper; failure retained.
+No native gate denial is proved by either attempt. Runtime transport preserves
+error.message in a fixed object, so error wrapping is not established as cause.
+
+Separate desktop-bridge-native-api-probe v0.4.0 now uses positional API with ID
+7a8c9749-49fc-4894-9756-5f321bcc7c77 and command claude-driver-native-read-check.
+Installed in already-consented broker mod folder exclusively; original candidates
+and durable intents untouched. Registration has no automatic effects. New exact
+installed-wrapper/candidate concurrency test passes; ten adapter checks pass on
+4880f4d3 at14:50:33. CLI validator passes (author metadata warning only). Its strict
+native-mod-api-probe-review.mjs returns pending:false until new evidence arrives.
+Native menu/load proof and corrected command execution remain pending. No claim
+of gate enforcement, release or completion. Taylor invokes once only if the new
+command appears in native slash menu, same claude-driver-broker chat.
+
 ## Installed binding contract — October 7, 10:48 Eastern
 
 Previous turn was progress (new diagnostic receipt and missing refusal branch).
