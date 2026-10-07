@@ -9,13 +9,14 @@ export function ownedBytes(path,max=65536){
  try{const s=fstatSync(fd);if(!s.isFile()||s.uid!==process.getuid()||s.size>max)throw Error('probe file identity refused');const b=readFileSync(fd);if(b.length>max)throw Error('probe file bound exceeded');return b}finally{closeSync(fd)}
 }
 const atomic=(path,bytes)=>{const tmp=path+'.'+randomUUID()+'.tmp';writeFileSync(tmp,bytes,{mode:0o600,flag:'wx'});try{renameSync(tmp,path)}catch(e){unlinkSync(tmp);throw e}}
-export function installTemporaryHookProbe(dir,{token,epoch,observerScript,receiptPath,fixtureId,expiresAt}){
+export function installTemporaryHookProbe(dir,{token,epoch,observerScript,receiptPath,fixtureId,expiresAt,operation='export_transcript'}){
+ if(!['get_session','export_transcript'].includes(operation))throw Error('probe operation is not a diagnostic read')
  if(!/^[a-f0-9]{32}$/.test(token)||!/^local_[a-f0-9-]{36}$/.test(epoch?.sessionId)||!Number.isInteger(epoch?.pid)||epoch.pid<2||typeof epoch.procStart!=='string'||!/^local_[a-f0-9-]{36}$/.test(fixtureId)||fixtureId===epoch.sessionId||typeof observerScript!=='string'||!observerScript.startsWith('/')||typeof receiptPath!=='string'||!receiptPath.startsWith('/')||!Number.isFinite(expiresAt)||expiresAt<=Date.now()||expiresAt>Date.now()+90000)throw Error('probe descriptor refused')
  const ds=lstatSync(join(dir,'.claude'));if(ds.isSymbolicLink()||!ds.isDirectory()||ds.uid!==process.getuid())throw Error('probe settings directory refused')
  const settingsPath=join(dir,'.claude','settings.json'),policyPath=join(dir,'stop-rescue-policy.json'),ownerPath=join(dir,'mechanical-probe.json')
  const settingsBefore=ownedBytes(settingsPath),policyBefore=ownedBytes(policyPath),settings=JSON.parse(settingsBefore),policy=JSON.parse(policyBefore)
  if(policy.schemaVersion!==1||policy.sessionId!==epoch.sessionId||policy.pid!==epoch.pid||policy.procStart!==epoch.procStart||policy.settingsHash!==bytesHash(settingsBefore)||!settings.hooks?.Stop||!settings.hooks?.PreToolUse||policy.quietWait)throw Error('probe core policy refused')
- const hook={type:'mcp_tool',server:'ccd_session_mgmt',tool:'export_transcript',input:{session_id:fixtureId},timeout:5}
+ const hook={type:'mcp_tool',server:'ccd_session_mgmt',tool:operation,input:{session_id:fixtureId},timeout:5}
  const body=Buffer.from(JSON.stringify({...settings,hooks:{...settings.hooks,Stop:[...settings.hooks.Stop,{hooks:[{type:'command',command:process.execPath,args:[observerScript,ownerPath],timeout:5},hook]}]}},null,2))
  const policyAfter=Buffer.from(JSON.stringify({...policy,settingsHash:bytesHash(body)},null,2))
  const descriptor={schemaVersion:1,token,epoch,fixtureId,expiresAt,observerScript,observerHash:bytesHash(ownedBytes(observerScript)),receiptPath,settingsHash:bytesHash(body),policyHash:bytesHash(policyAfter),settingsBefore:settingsBefore.toString('base64'),policyBefore:policyBefore.toString('base64')}

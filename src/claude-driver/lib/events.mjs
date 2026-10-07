@@ -55,18 +55,22 @@ export function sessionEvents({ session, cursor, include_text = false, include_c
     if(c?.since!==undefined&&(!Number.isSafeInteger(c.since)||!Number.isFinite(Date.parse(x.timestamp))||Date.parse(x.timestamp)<c.since)){consumed+=n;continue}
     const content = x.message?.content
     const blocks = Array.isArray(content) ? content : typeof content === 'string' ? [{ type: 'text', text: content }] : []
+    const boundedId=v=>typeof v==='string'&&/^[A-Za-z0-9_-]{1,200}$/.test(v)?v:undefined
+    const at=typeof x.timestamp==='string'&&x.timestamp.length<=100&&Number.isFinite(Date.parse(x.timestamp))?x.timestamp:undefined
+    // Native reminders and hook-result attachments can sit between the user
+    // and assistant. Keep only their lineage, never attachment contents/types,
+    // commands or stdout. Do not bridge system compaction/reset boundaries.
+    if(include_causality&&x.type==='attachment'&&boundedId(x.uuid))events.push({id:boundedId(x.uuid),at,type:'metadata',sourceType:'attachment',parentId:boundedId(x.parentUuid)??null,sidechain:x.isSidechain===true})
     if (x.type === 'user' || x.type === 'assistant') {
       const text = blocks.filter(b=>b?.type === 'text' && typeof b.text === 'string').map(b=>b.text).join('\n')
       const tools = blocks.filter(b=>b?.type === 'tool_use' && typeof b.name === 'string').map(b=>b.name)
       // Never return thinking or tool inputs/results, even with include_text.
-      const boundedId=v=>typeof v==='string'&&/^[A-Za-z0-9_-]{1,200}$/.test(v)?v:undefined
       const causal=include_causality&&boundedId(x.uuid)?{
         parentId:boundedId(x.parentUuid)??null,sidechain:x.isSidechain===true,
         ...(x.origin?.kind==='peer'&&boundedId(x.origin.msg_id)?{peerMessageId:x.origin.msg_id}:{})
       }:{}
       // Causal observation includes metadata-only ancestors (e.g. thinking
       // blocks). Their contents, user text and peer sender fields stay private.
-      const at=typeof x.timestamp==='string'&&x.timestamp.length<=100&&Number.isFinite(Date.parse(x.timestamp))?x.timestamp:undefined
       const stopReason=['end_turn','max_tokens','tool_use','pause_turn','refusal','stop_sequence','model_context_window_exceeded'].includes(x.message?.stop_reason)?x.message.stop_reason:undefined
       if (text || tools.length || include_causality&&boundedId(x.uuid)) events.push({ id: boundedId(x.uuid), at, type: x.type, stopReason, tools,...causal,
         ...(include_text && text && x.type === 'assistant' ? { text: text.slice(0, 4000),textTruncated:text.length>4000,textChars:text.length,...(text.length>4000?{textTail:text.slice(-256)}:{}) } : {}) })

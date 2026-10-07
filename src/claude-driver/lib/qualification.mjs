@@ -41,6 +41,7 @@ export function recipientReplyEvidence(events,{messageId,marker}){
     if(!e||e.sidechain||typeof e.id!=='string'||!Object.hasOwn(e,'parentId'))continue
     if(e.type==='user'&&e.peerMessageId===messageId){roots.add(e.id);chain.add(e.id);continue}
     if(!chain.has(e.parentId))continue
+    if(e.type==='metadata'&&e.sourceType==='attachment'){chain.add(e.id);continue}
     // A distinct user/peer instruction cuts this branch. Tool-free fixture
     // replies never need to follow a user tool-result row or compaction reset.
     if(e.type!=='assistant')continue

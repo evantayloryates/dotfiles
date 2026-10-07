@@ -9,6 +9,9 @@ test('new qualification tokens and exact peer ancestry exclude stale or unrelate
  const check=events=>recipientReplyEvidence(events,{messageId:'receipt',marker:a.initial}).verified
  assert.equal(check([root,thinking,reply]),true)
  assert.equal(check([root,thinking,reply,reply]),true,'duplicate journal envelopes of one UUID are one logical reply')
+ const attachment={id:'reminder',parentId:'peer',type:'metadata',sourceType:'attachment'}
+ assert.equal(check([root,attachment,{...reply,parentId:'reminder'}]),true)
+ for(const node of [{...attachment,sourceType:'system'},{...attachment,sidechain:true},{...attachment,type:'user'}])assert.equal(check([root,node,{...reply,parentId:'reminder'}]),false)
  for(const events of [[reply],[root,reply],[{...root,peerMessageId:'other'},thinking,reply],[root,thinking,{...reply,text:b.initial}],[root,thinking,{...reply,sidechain:true}],[root,thinking,{...reply,tools:['Bash']}],[root,thinking,{...reply,stopReason:null}],[root,thinking,{...reply,textTruncated:true}],[root,thinking,reply,{...reply,id:'duplicate'}],[root,{id:'human',type:'user',parentId:'peer'}, {...reply,parentId:'human'}],[root,{...thinking,parentId:null},reply]])assert.equal(check(events),false)
  assert.equal(recipientReplyEvidence([root,thinking,reply],{marker:a.initial}).verified,false)
  assert.equal(recipientReplyEvidence(null,{messageId:'receipt',marker:a.initial}).verified,false)
