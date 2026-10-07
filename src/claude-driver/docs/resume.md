@@ -1,3 +1,20 @@
+## Shared native service read transaction — October 7, 12:24 Eastern
+
+broker_service_read {service_id, session_id, experimental:true, timeout_sec?}
+now uses caller-held broker lock, bounded enrollment/ready/bytes/baseline/epoch
+preflight, existing lifecycle enqueue and exact pickup, fresh presend validation,
+one durable peer preparation and one delivery invocation. Bounded polling reviews
+captured result and publishes standard receipt, returning settlement metadata only.
+Finally cancellation preserves dispatched uncertainty; failures expose request ID
+when published and never retry. No module installation, wake, restart or permission
+change. Existing receiver must already be loaded and owned; retired trial refuses.
+Tests cover successful ordering, abort before publication/after claim/presend,
+uncertain send and missing-response deadline, each published request cancelled and
+at most one send. Full pressure v2-2026-10-07T16-23-00-440Z passed1/1
+in8575ms, sourceChanged:false. Source path not yet actual-native verified; next
+fresh guarded enrollment and public shared operation trial, preserving old trial.
+Broad v2 goal and native unload proof remain open; no human action required.
+
 ## Host native service admission candidate — October 7, 12:22 Eastern
 
 admitNativeServiceRead pure preflight verifies exact owned readiness, idle native

@@ -845,6 +845,15 @@ export const OPS = [
   },
   // ---------------- broker
   {
+    name:'broker_service_read',title:'Read metadata through an enrolled native receiver',readOnly:false,
+    description:'Experimental serialized get_session read through an already loaded owned receiver. Checks exact epoch/bytes/readiness and controls, enqueues one request, records one peer delivery and reconciles native result. Never installs, wakes, restarts or retries. Returns settlement metadata only; cancelled or uncertain work requires request inspection.',
+    schema:{required:['service_id','session_id','experimental'],properties:{service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},session_id:{type:'string'},experimental:{type:'boolean',enum:[true]},timeout_sec:{type:'number',minimum:1,maximum:60}}},
+    run:async(args,ctx)=>{
+      if(args.experimental!==true)throw new DriverError('native service read requires explicit experimental opt-in',{category:'bad_args'})
+      return (await import('./native-service-read.mjs')).nativeServiceRead(args.service_id,args.session_id,{timeoutMs:(args.timeout_sec??20)*1000,signal:ctx.signal})
+    },
+  },
+  {
     name:'broker_service_result_reconcile',title:'Settle a reusable native receiver result',readOnly:false,
     description:'Experimental local receipt publication for one captured reusable receiver read. Requires exact enrollment, loaded bytes, original epoch, baseline and native admission. Never sends or replays. Settle before the next shared helper checkpoint; returns metadata only and preserves control history.',
     schema:{required:['service_id','request_id','experimental'],properties:{service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},request_id:{type:'string',pattern:'^rpeer[a-f0-9]{32}$'},experimental:{type:'boolean',enum:[true]}}},

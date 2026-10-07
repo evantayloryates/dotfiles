@@ -112,6 +112,13 @@ It requires unchanged settings and does not wake, replay or complete the origina
 job. Recovery has actual owned Node worker-loss proof; general native broker recovery
 remains separate. Cleanup is independent from an unknown execution outcome.
 
+`broker_service_read {service_id, session_id, experimental:true, timeout_sec?}`
+performs one metadata read through an already loaded verified native receiver.
+Uses the shared lifecycle and serial broker lock; default20s, maximum60s, clipped
+to the service window. Returns settlement metadata only. Never installs, wakes,
+restarts or retries. On uncertain failure inspect the returned request ID before
+further action. Cancellation preserves dispatched uncertainty.
+
 `broker_service_result_reconcile {service_id, request_id, experimental:true}`
 settles one captured read from the reusable receiver. Requires unchanged loaded
 module, broker epoch and baseline plus exact per-request native admission. It
