@@ -1,3 +1,18 @@
+## Scoped command marker candidate prepared — October 7, 12:49 Eastern
+
+Optional marker:true enrollment generates v0.2.0 variant; unmarked v0.1.0 bytes
+remain unchanged. Native session.start registers unique own command marker and
+reads command.list; only own/prior presence booleans and bound metadata persist.
+No command execution, MCP read, inference or retired-token send. Prior observation
+requires marked enrollment already expired/retired with no unresolved requests.
+New broker_service_marker_review binds exact bytes/epoch, both positive own-marker
+observations and prior retirement chronology. Command removal remains narrower
+than hook/environment unload (scopedUnloadQualified:false). Fixtures prove scoped
+metadata filtering, foreign/expired refusal, negative prior presence preservation,
+invalid configuration/time/count rejection. Full pressure
+v2-2026-10-07T16-48-41-921Z passed1/1 in8633ms, sourceChanged:false.
+Next actual MCP two-enrollment marker/retirement observation trial. No human action.
+
 ## Actual stdio MCP lifecycle verified — October 7, 12:45 Eastern
 
 A fresh isolated MCP client/server negotiated2025-06-18 and listed/called the real

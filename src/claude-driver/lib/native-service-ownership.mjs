@@ -3,6 +3,7 @@ import {createHash} from 'node:crypto'
 import {NATIVE_SERVICE_TOOLING_HASHES} from './native-service-tooling.mjs'
 import {readProbeBytes,probePathPresence,MOD_PROBE} from './native-mod-probe-evidence.mjs'
 import {buildNativePeerServicePackage} from './native-peer-service-package.mjs'
+import {screenNativeServiceMarker} from './native-service-marker.mjs'
 import {screenNativeServiceReady} from './native-peer-service-evidence.mjs'
 import {publishNativeServiceDirectory} from './native-service-enroll.mjs'
 import {brokerInfo} from './broker.mjs'
@@ -109,4 +110,20 @@ export async function retireNativeService(serviceId,{signal}={}){
    return receipt
   }catch{throw Object.assign(Error('native service retirement refused; inspect exact ownership before retry'),{category:'native_service_retirement_refused',detail:{serviceId,publicationAttempted,retrySafe:false}})}
  },{timeoutMs:5000,signal})
+}
+
+export function nativeServiceMarkerReview(serviceId){
+ try{
+  const e=enrollment(serviceId);if(e.config.marker!==true)refuse();liveGuard(e)
+  const status=nativeServiceStatus(serviceId);if(!status.filesInstalled&&!status.filesRetired)refuse()
+  const marker=json(e.config.brokerCwd+'/.native-service-'+serviceId+'.marker.json',4096)
+  if(!screenNativeServiceMarker({config:e.config,marker}))refuse()
+  let previousMarkerRemovalObserved=false
+  if(e.config.observeRetiredServiceId!==null){
+   const prior=enrollment(e.config.observeRetiredServiceId),oldStatus=nativeServiceStatus(prior.config.id),oldMarker=json(prior.config.brokerCwd+'/.native-service-'+prior.config.id+'.marker.json',4096),retired=json(root+'/native-service-retirement-'+prior.config.id+'.json',4096)
+   if(!oldStatus.filesRetired||oldStatus.filesInstalled||oldStatus.unresolvedRequests.length||!screenNativeServiceMarker({config:prior.config,marker:oldMarker})||retired.serviceId!==prior.config.id||retired.filesRetired!==true||!Number.isFinite(Date.parse(retired.at))||Date.parse(retired.at)>e.config.notBefore)refuse()
+   previousMarkerRemovalObserved=marker.previousMarkerPresent===false
+  }
+  return {serviceId,observedAt:marker.observedAt,ownMarkerPresent:true,previousServiceId:marker.previousServiceId,previousMarkerPresent:marker.previousMarkerPresent,previousMarkerRemovalObserved,scopedUnloadQualified:false,receiverAbsenceQualified:false,modelCallsRequested:0,releaseAuthorized:false}
+ }catch{throw Object.assign(Error('native service marker evidence refused'),{category:'native_service_marker_refused'})}
 }

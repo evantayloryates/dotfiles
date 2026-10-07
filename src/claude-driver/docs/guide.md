@@ -520,3 +520,10 @@ Actual stdio MCP2025-06-18 enrollment/two reads/status/expiry/retirement passed 
 an isolated client/server against the owned native session on October7. Early
 retirement refused; both results settled. This does not qualify the already running
 installed connector or native unload, and no configured server was restarted.
+
+Enrollment optionally accepts `marker:true` and `observe_retired_service_id`.
+The native variant registers its own unique lifecycle command and records only
+own/prior marker presence from native command inventory. Observing a prior ID
+requires that exact marked service already be expired and retired with all attempts
+settled. `broker_service_marker_review {service_id}` reviews this evidence without
+sending or executing commands. Marker removal alone does not qualify hook unload.

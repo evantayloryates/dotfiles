@@ -6,6 +6,7 @@ import {brokerInfo} from './broker.mjs'
 import {versions,resolveClaudeBinary,sleep} from './paths.mjs'
 import {MOD_PROBE,readProbeBytes,probePathPresence} from './native-mod-probe-evidence.mjs'
 import {buildNativePeerServicePackage} from './native-peer-service-package.mjs'
+import {screenNativeServiceMarker} from './native-service-marker.mjs'
 import {screenNativeServiceReady} from './native-peer-service-evidence.mjs'
 export function publishNativeServiceDirectory(stage,dest){
  if(process.platform!=='darwin')throw Error('exclusive native publication requires macOS')
@@ -19,8 +20,9 @@ if fn(os.fsencode(sys.argv[1]),os.fsencode(sys.argv[2]),4)!=0: sys.exit(1)`,stag
 const root='/Users/taylor/.local/state/claude-driver/pressure/'
 // Explicit bounded enrollment in the previously consented exact owned session.
 // No wake, new chat, permission change, read dispatch or replacement of a module.
-export async function enrollNativeService({lifetimeSec=300,maxRequests=8,signal}={}){
+export async function enrollNativeService({lifetimeSec=300,maxRequests=8,marker=false,observeRetiredServiceId=null,signal}={}){
  if(!Number.isInteger(lifetimeSec)||lifetimeSec<60||lifetimeSec>3600||!Number.isInteger(maxRequests)||maxRequests<1||maxRequests>128)throw Error('invalid native service enrollment bounds')
+ if(typeof marker!=='boolean'||observeRetiredServiceId!==null&&(!marker||! /^[a-f0-9]{32}$/.test(observeRetiredServiceId)))throw Error('invalid native marker enrollment')
  return withLock('broker',async()=>{
   let phase='guard',serviceId=null,installed=false,publicationAttempted=false
   try{
@@ -32,8 +34,9 @@ export async function enrollNativeService({lifetimeSec=300,maxRequests=8,signal}
     if(['STOP','stop-rescue-arm.json','mechanical-probe.json'].some(p=>probePathPresence(MOD_PROBE.brokerCwd+'/'+p)!==false))throw Error('control refused')
     return b
    }
+   if(observeRetiredServiceId!==null){phase='previous-marker';const status=(await import('./native-service-ownership.mjs')).nativeServiceStatus(observeRetiredServiceId),prior=JSON.parse(readProbeBytes(root+'native-service-enrollment-'+observeRetiredServiceId+'.json').bytes);if(!status.filesRetired||status.filesInstalled||!status.expired||status.unresolvedRequests.length||prior.config.marker!==true)throw Error('previous marker not retired')}
    const b=guard(),now=Date.now();serviceId=randomBytes(16).toString('hex')
-   const config={id:serviceId,token:'claude-driver service-read '+randomBytes(16).toString('hex'),brokerSession:b.sessionId,brokerCwd:MOD_PROBE.brokerCwd,build:b.runtime.build,notBefore:now,deadline:now+lifetimeSec*1000,maxRequests},pkg=buildNativePeerServicePackage(config),stage=root+'native-service-stage-'+serviceId,dest='/Users/taylor/.claude/dev-mods/'+config.brokerSession.slice(6)+'/desktop-bridge-native-peer-service'
+   const config={id:serviceId,token:'claude-driver service-read '+randomBytes(16).toString('hex'),brokerSession:b.sessionId,brokerCwd:MOD_PROBE.brokerCwd,build:b.runtime.build,notBefore:now,deadline:now+lifetimeSec*1000,maxRequests,...marker?{marker:true,observeRetiredServiceId}:{}},pkg=buildNativePeerServicePackage(config),stage=root+'native-service-stage-'+serviceId,dest='/Users/taylor/.claude/dev-mods/'+config.brokerSession.slice(6)+'/desktop-bridge-native-peer-service'
    if(probePathPresence(dest)!==false)throw Error('existing module requires reconciliation')
    phase='stage';for(const[p,bytes]of Object.entries(pkg.files)){mkdirSync(stage+'/'+p.slice(0,p.lastIndexOf('/')),{recursive:true});writeFileSync(stage+'/'+p,bytes,{flag:'wx',mode:0o600})}
    phase='validate';execFileSync(resolveClaudeBinary(),['plugin','validate',stage],{stdio:'pipe',timeout:20000});guard()
@@ -43,7 +46,7 @@ export async function enrollNativeService({lifetimeSec=300,maxRequests=8,signal}
    phase='readiness';const readyFile=config.brokerCwd+'/.native-service-'+serviceId+'.ready.json',until=Math.min(config.deadline,Date.now()+30000)
    while(Date.now()<until){
     if(signal?.aborted)throw Error('cancelled')
-    if(probePathPresence(readyFile)===true){const ready=JSON.parse(readProbeBytes(readyFile,4096).bytes.toString('utf8'));guard();if(!screenNativeServiceReady({config,ready,now:Date.now()}))throw Error('readiness refused');return {serviceId,installed:true,readinessObserved:true,deadline:config.deadline,maxRequests,servingQualified:false,releaseAuthorized:false}}
+    if(probePathPresence(readyFile)===true){const ready=JSON.parse(readProbeBytes(readyFile,4096).bytes.toString('utf8'));guard();if(!screenNativeServiceReady({config,ready,now:Date.now()}))throw Error('readiness refused');if(marker){const markerFile=config.brokerCwd+'/.native-service-'+serviceId+'.marker.json';if(probePathPresence(markerFile)!==true){await sleep(200);continue}if(!screenNativeServiceMarker({config,marker:JSON.parse(readProbeBytes(markerFile,4096).bytes),now:Date.now()}))throw Error('marker inventory refused')}return {serviceId,installed:true,readinessObserved:true,deadline:config.deadline,maxRequests,servingQualified:false,releaseAuthorized:false}}
     await sleep(200)
    }
    return {serviceId,installed:true,readinessObserved:false,deadline:config.deadline,maxRequests,servingQualified:false,releaseAuthorized:false}
