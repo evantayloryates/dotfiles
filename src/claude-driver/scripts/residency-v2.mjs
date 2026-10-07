@@ -23,7 +23,7 @@ for(const signal of ['SIGTERM','SIGINT'])process.once(signal,()=>{aborted=true})
 const check=()=>{if(aborted)throw Error('observer cancelled');assert.equal(runtimeFingerprint(),sourceBefore,'source changed');assert.equal(uiPolicy().blocked,true,'input quarantine must remain active')}
 async function step(name,fn){const at=Date.now();try{const evidence=await fn();rows.push({name,ok:true,ms:Date.now()-at,evidence});console.log(JSON.stringify(rows.at(-1)));return evidence}catch(e){rows.push({name,ok:false,ms:Date.now()-at,error:e.message,category:e.category});throw e}}
 try{
- check();const b=brokerInfo();validateWarmBroker(b,getRecord(b.sessionId),BROKER_DIR);assert.equal(protocolVersion(),'6')
+ check();const b=brokerInfo();validateWarmBroker(b,getRecord(b.sessionId),BROKER_DIR);assert.equal(protocolVersion(),'7')
  await step('input-audit-before',async()=>{const r=await assertInputHealthy({phase:'before-native-residency',evidence:join(STATE_DIR,'pressure',`residency-${stamp}-before.json`)});return {filters:r.filters.length,inputAutomation:false}})
  const initial=await step('native-maintenance-job-acknowledged',async()=>{
   const end=Date.now()+wait*1000

@@ -14,7 +14,7 @@
 // driver knows the broker is resident and needs no wake message.
 
 import { existsSync, renameSync, writeFileSync } from 'node:fs'
-import { dirname, join } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
 // Set before importing state: test runners can use an isolated broker folder.
 
 const args = process.argv.slice(2)
@@ -26,6 +26,10 @@ const dir = flag('dir', process.env.CLAUDE_DRIVER_BROKER_DIR || join(process.env
 const maxSec = Number(flag('max-sec', 540))
 process.env.CLAUDE_DRIVER_STATE_DIR = dirname(dir)
 const { pickupPending } = await import('../lib/requests.mjs')
+const { readJson } = await import('../lib/state.mjs')
+const { getRecord, liveByHost } = await import('../lib/sessions.mjs')
+const { brokerResidencyProtection } = await import('../lib/broker-residency.mjs')
+const { waitDeadline } = await import('../lib/wait-budget.mjs')
 const HB = join(dir, 'heartbeat.json')
 
 function heartbeat(state) {
@@ -34,7 +38,16 @@ function heartbeat(state) {
   renameSync(tmp, HB)
 }
 
-const deadline = Date.now() + maxSec * 1000
+// Observe the owned native journal once at entry, never every poll. A stream
+// of requests can otherwise postpone IDLE forever and age out CronList proof.
+const brokerId = readJson(join(dir, 'broker.json'), {}).sessionId
+const record = brokerId && getRecord(brokerId)
+const live = brokerId && liveByHost().get(brokerId)
+const nativeOwned = record?.cwd && resolve(record.cwd) === resolve(dir) &&
+ record.title === 'claude-driver-broker' && !record.isArchived &&
+ record.permissionMode === 'bypassPermissions' && live?.entrypoint === 'claude-desktop'
+const listedAt = nativeOwned ? brokerResidencyProtection(brokerId, live).listedAt : undefined
+const deadline = waitDeadline({now:Date.now(), maxMs:maxSec * 1000, listedAt})
 let lastHb = 0
 for (;;) {
   if (existsSync(join(dir, 'STOP'))) {
@@ -42,15 +55,17 @@ for (;;) {
     console.log('STOP')
     break
   }
+  // Maintenance wins over a still-pending request at its deadline. The request
+  // remains unclaimed and can be served after the broker's native CronList.
+  if (Date.now() >= deadline) {
+    heartbeat('rearming')
+    console.log('IDLE')
+    break
+  }
   const r = await pickupPending()
   if (r) {
     heartbeat('working')
     console.log(`REQUEST ${JSON.stringify({ id: r.id, ops: r.ops })}`)
-    break
-  }
-  if (Date.now() > deadline) {
-    heartbeat('rearming')
-    console.log('IDLE')
     break
   }
   if (Date.now() - lastHb > 2000) {
