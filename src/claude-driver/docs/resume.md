@@ -1,3 +1,18 @@
+## Cancellation observation contract prepared — October 7, 13:26 Eastern
+
+Added pure native-service-cancel-evidence screening. Exact marker/intent schemas,
+owned service/request/session, native readiness, protocol7 one get_session,
+creation/start/cancel/observation/expiry chronology and dispatched slot0 correlate.
+Foreign, malformed, late, non-read or uncorrelated cancellation evidence refuses.
+Valid result qualifies cancellationObserved only: noEffectQualified:false,
+standardLifecycleSettlementAssessed:false, releaseAuthorized:false. Does not
+publish settlement or edit durable controls; marker zero-call declaration alone
+cannot settle helper-admitted uncertainty. Full pressure
+v2-2026-10-07T17-26-33-148Z passed1/1 in9539ms/sourceChanged:false;
+shared technical memory saved. Next independent negative boundary evidence and
+owned native cancel trial; do not manufacture admission, relax retirement gates,
+replay a control, or claim no-effect from missing result. No human action needed.
+
 ## Live cancellation-control positive path verified — October 7, 13:24 Eastern
 
 Guarded v0.4.0 controlCheck:true service8984d66a74dedff779e521e3d87d34b0
