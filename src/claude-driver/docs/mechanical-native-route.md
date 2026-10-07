@@ -192,3 +192,31 @@ Sanitizer exposes only flags/counts/marker presence, no queued content, and
 releaseAuthorized is always false. Missing/null fields remain unknown pending
 installed-version semantic qualification. Snapshot/native proof source49c1811d;
 later parser correction has isolated checks only. No mutation/handoff deployed.
+# Native idle and export semantics — October 7, 05:10 Eastern
+
+`native-idle-contract-v2.mjs` executes the exact installed HC/BC/LC/RC/PC/wC/FC
+functions and the exact shareSession snapshot expression with synthetic state.
+Six checks pass in native-idle-contract-2026-10-07T09-09-13-745Z.json. This is
+not a live observer or native dispatch test. The reviewed app source SHA is
+b7c512ce6a9993a94b6b30e78f17cc088f0d148ec45475c6b3ae864162293327.
+
+HC can be true with echoes older than120000ms still present, an expired
+interrupt marker, or a feature-gated fresh interruption. It does not itself
+inspect visible isRunning, nextCycleUuid, deferred sends, awaiting result,
+tool activity or background tasks. A result boundary plus HC alone cannot
+authorize operational retirement, handoff or replay of historical unknowns.
+No live feature gate was inspected or changed.
+
+Actual projection exports task maps, not integers, and null for absent queues
+and false awaitingTurnResult. Source-pinned normalization now handles this
+format without returning task keys/values or queued UUIDs. Missing fields and
+unknown projection sources remain unknown/refused. A bounded ASAR reader pins
+the exact source for native probe parsing; malformed/link/unpacked/truncated
+entry cases refuse. Snapshot releaseAuthorized is always false.
+
+Reprojection of the existing09:01 broker archive has queueStateComplete:true
+and idleCandidate:false. Evidence native-broker-snapshot-projection-2026-10-07.json
+records original report/archive hashes and both native/projection builds.
+No fresh native turn was used or historical failure rewritten. Actual current
+post-turn observation and safe handoff remain to qualify; do not substitute
+this historical snapshot for them.

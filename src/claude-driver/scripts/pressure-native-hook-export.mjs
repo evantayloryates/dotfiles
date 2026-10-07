@@ -20,6 +20,7 @@ import {recordMemory} from '../lib/memory.mjs'
 import {MAIN_LOG,DESKTOP_CONFIG,versions,sleep} from '../lib/paths.mjs'
 import {nativeHookResult,nativeHookEventError,nativeExportReturnName} from '../lib/native-hook-receipts.mjs'
 import {summarizeNativeSnapshot} from '../lib/native-export-snapshot.mjs'
+import {installedDesktopChunk,SNAPSHOT_SOURCE_SHA} from '../lib/installed-desktop-source.mjs'
 if(process.argv.length!==3||!['--run-owned-stop-export-probe','--run-owned-stop-read-probe','--run-owned-stop-batch-read-probe','--run-owned-stop-read-edges-probe','--run-owned-stop-broker-snapshot-probe'].includes(process.argv[2]))throw Error('explicit owned Stop diagnostic read probe flag required')
 const exportBroker=process.argv[2]==='--run-owned-stop-broker-snapshot-probe',operation=exportBroker||process.argv[2]==='--run-owned-stop-export-probe'?'export_transcript':'get_session',includeBrokerRead=process.argv[2]==='--run-owned-stop-batch-read-probe',readEdges=process.argv[2]==='--run-owned-stop-read-edges-probe'
 const sid='local_35b3ba48-f02e-48de-bfbb-925192d90de1',fixtureId='local_fc1e5eab-9d24-4e4c-a09c-9a386a6ffe14',fixtureCwd=join(STATE_DIR,'probe','v2-2026-10-07T04-37-49-840Z')
@@ -79,7 +80,9 @@ with zipfile.ZipFile(p) as z:
  private={k:state[k] for k in keys if k in state}
  print(json.dumps({'metadataVerified':True,'entries':len(names),'cliSessionId':cli,'sessionId':host,'archived':archived=='true','rawSnapshot':private}))`
  const result=JSON.parse(execFileSync('/usr/bin/python3',['-c',code,entry.path,targetId,target.cliSessionId,exportBroker?'false':'true'],{encoding:'utf8',timeout:3000,maxBuffer:65536}))
- const snapshot=summarizeNativeSnapshot(result.rawSnapshot,{sessionId:targetId,cliSessionId:target.cliSessionId,notBefore:out.startedAt,notAfter:out.startedAt+60000});delete result.rawSnapshot
+ const source=installedDesktopChunk('/Applications/Claude.app/Contents/Resources/app.asar')
+ if(source.sha256!==SNAPSHOT_SOURCE_SHA)throw Error('native snapshot exporter source changed')
+ const snapshot=summarizeNativeSnapshot(result.rawSnapshot,{sessionId:targetId,cliSessionId:target.cliSessionId,notBefore:out.startedAt,notAfter:out.startedAt+60000,projectionSourceSha:source.sha256});delete result.rawSnapshot
  if(bytesHash(ownedBytes(entry.path,16*1024*1024))!==bytesHash(bytes))throw Error('native export changed during metadata read')
  const destination=prefix+'.zip'
  renameSync(entry.path,destination)

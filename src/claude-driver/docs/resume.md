@@ -1,4 +1,47 @@
-## Latest frontier — October 7, 05:06 Eastern
+## Latest frontier — October 7, 05:10 Eastern
+
+Goal ACTIVE. This turn makes concrete observation/strategy progress; no native
+turns, settings changes, recovery or IPC were used. General-use readiness remains
+unqualified. The previous native broker snapshot checkpoint was progress too.
+
+native-idle-contract-2026-10-07T09-09-13-745Z.json passes6 executable checks
+against exact installed app2.26454.0 sourceb7c512ce/CLI2.1.289 with synthetic
+state/dependencies. The app's HC idle predicate is not complete quiescence:
+- pending echoes at age120000ms block; at120001ms they remain queued but are
+  ignored. Expired interrupt markers can be ignored; a feature flag can also
+  ignore fresh interruption. No feature flags were inspected or changed live.
+- HC does not itself gate isRunning, nextCycleUuid, deferredSends,
+  awaitingTurnResultSince, tool activity or activeBackgroundTasks.
+- Explicit last-result boundary, pendingCycle, fresh echo, held steer, input
+  and non-expired interrupt cases behave as the exact source predicate defines.
+  This is installed-function execution, not a live post-turn observation.
+
+The exact export projection was executed too: absent maps/queues encode null,
+awaitingTurnResult uses true-or-null, background tasks export as a map. The
+sanitizer now counts map keys without returning keys/values and uses null-as-
+absent semantics only with the reviewed full source SHA. Missing fields and
+unknown builds remain refused/unknown; undefined boundaries remain unknown.
+Both source reader and privacy/identity/schema edge tests pass. Native export
+probe verifies the installed source hash before choosing this interpretation.
+
+native-broker-snapshot-projection-2026-10-07.json independently reprojects the
+existing09:01 export, verifying its archive hash and exact metadata, without
+another native inference turn or altering original failed reports. Corrected
+queueStateComplete:true, but idleCandidate:false: actual result/boundary/idle
+flags are false. releaseAuthorized remains false. This is historical Stop-time
+evidence, not current post-turn quiescence. All17 unknown effects stay intact.
+
+Full current-source isolated suite passed unchanged in
+v2-2026-10-07T09-10-02-473Z.json. Shared service memory records source contract
+and reprojection evidence. Broker PID71262/start03:24:51 UTC idle/intact, no
+verified waiter, original settings restored, quiet OFF/quarantine ON, no
+diagnostic owner or handoff STOP. Local30s detector/hourly fallback unchanged;
+Codex inbox still inference-bearing. Next qualify an actual post-turn observer
+and trigger/result path together; HC or visible idle alone cannot fence old
+work or authorize indexed handoff. Sustained controls/steering and recovery
+remain required. No user action needed; Codex-driver/1Password stay separate.
+
+## Previous frontier — October 7, 05:06 Eastern
 
 Goal ACTIVE. Diagnostic native broker export now has independent receipt/archive
 proof. General-use bridge readiness remains unqualified: exact broker PID71262

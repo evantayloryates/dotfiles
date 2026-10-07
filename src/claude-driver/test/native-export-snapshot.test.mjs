@@ -1,8 +1,19 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {summarizeNativeSnapshot} from '../lib/native-export-snapshot.mjs'
+import {SNAPSHOT_SOURCE_SHA} from '../lib/installed-desktop-source.mjs'
 const opts={sessionId:'owned',cliSessionId:'owned-cli',notBefore:1000,notAfter:2000}
 const idle={capturedAt:new Date(1500).toISOString(),sessionId:'owned',cliSessionId:'owned-cli',isRunning:false,hasPendingPermission:false,hasLiveWorkflows:false,hasBackgroundWork:false,hasBackgroundActivity:false,activeBackgroundTasks:0,pendingEchoUuids:[],awaitingTurnResult:false,cliLastTurnMessageWasResult:true,cliAtTurnBoundaryHint:true,interruptResultPendingSince:null,interruptResultPendingCycleArmed:false,cliProvablyIdle:true,inputStreamHasPending:false,nextCycleUuid:null,hasPendingCycle:false,pendingCycleUserMessageUuid:null,deferredSendUuids:[],heldSteersUuids:[],toolMayBeRunning:false}
+test('exact exporter projection handles absent queues and background-task maps without exposing content',()=>{
+ const raw={...idle,activeBackgroundTasks:null,pendingEchoUuids:null,deferredSendUuids:null,heldSteersUuids:null,awaitingTurnResult:null,inputStreamHasPending:null,interruptResultPendingCycleArmed:null},projection={...opts,projectionSourceSha:SNAPSHOT_SOURCE_SHA}
+ const r=summarizeNativeSnapshot(raw,projection);assert.equal(r.queueStateComplete,true);assert.equal(r.idleCandidate,true);assert.equal(r.releaseAuthorized,false)
+ assert.equal(summarizeNativeSnapshot({...raw,cliLastTurnMessageWasResult:null},projection).idleCandidate,false)
+ assert.equal(summarizeNativeSnapshot({...raw,activeBackgroundTasks:0},projection).queueStateComplete,false)
+ const missing={...raw};delete missing.heldSteersUuids;assert.equal(summarizeNativeSnapshot(missing,projection).queueStateComplete,false)
+ assert.throws(()=>summarizeNativeSnapshot(raw,{...opts,projectionSourceSha:'foreign'}),/source refused/)
+ const active=summarizeNativeSnapshot({...raw,activeBackgroundTasks:{PRIVATE_ID:{prompt:'PRIVATE_CONTENT'}}},projection)
+ assert.equal(active.activeBackgroundTasks,1);assert.equal(active.idleCandidate,false);assert.equal(JSON.stringify(active).includes('PRIVATE'),false)
+})
 test('complete native queue metadata can be an idle candidate, never release authorization',()=>{
  const r=summarizeNativeSnapshot(idle,opts);assert.equal(r.queueStateComplete,true);assert.equal(r.idleCandidate,true);assert.equal(r.releaseAuthorized,false)
  for(const change of [{isRunning:true},{awaitingTurnResult:true},{cliProvablyIdle:false},{inputStreamHasPending:true},{toolMayBeRunning:true},{heldSteersUuids:['private-uuid']},{nextCycleUuid:'private-uuid'}])assert.equal(summarizeNativeSnapshot({...idle,...change},opts).idleCandidate,false)
