@@ -21,6 +21,20 @@ it does not prove native-send recovery from the earlier stale-query state
 without an app restart. Do not use external PID termination as routine recovery.
 Current-source native controls and natural-pressure survival remain pending.
 
+Current-source read-only report `residency-v2-2026-10-07T03-28-00-424Z.json`
+observed the same PID for eight minutes, with zero input filters before/after,
+unchanged source and no native writes. No natural governor pressure occurred;
+overall `ok:false` preserves that missing requirement. The native trace also
+exposed an omitted CronList after the first IDLE at 03:34:06.557Z, before the
+next wait at 03:34:08.879Z. The last list remained 03:24:59.974Z, so its
+evidence becomes stale at twelve minutes unless refreshed. This is not proof
+of job deletion or eviction. Preserve `native-idle-rearm-2026-10-07.json` and
+the [isolated protocol candidate](broker-idle-rearm-candidate.md). Do not load
+it into the current broker during this restricted heartbeat. Current native
+controls/import, loading that candidate and actual pressure survival remain
+separate qualification work. The first observer report's factual review is
+complete; these remaining goal requirements are durably checkpointed here.
+
 Current runtime fingerprint:
 `e959aec1f4983f78c833ff4e6370e016d5a3bb561fc7002082d147cb81d0817a`.
 On this source, five fresh isolated rounds passed (105 cases each), actual Claude

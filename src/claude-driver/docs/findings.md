@@ -7,6 +7,19 @@ Versions: app = Claude desktop, cli = bundled Claude Code.
 
 ## 2026-10-06 (app 2.26454.0, cli 2.1.289)
 
+- **Current native IDLE rearm skipped maintenance reconciliation.** PID 71262's
+  wait returned IDLE at 03:34:06.557Z and its next wait started at
+  03:34:08.879Z, without CronList between them. The last list remained
+  03:24:59.974Z. V6 requires reconciliation after IDLE in one section but
+  instructs immediate return to waiting in another; that conflict is a
+  supported cause hypothesis. The existing evidence freshness guard is
+  retained. An explicit reconciliation branch is prepared in
+  [broker-idle-rearm-candidate.md](broker-idle-rearm-candidate.md), not loaded
+  into the running broker. Failure: `<state>/pressure/native-idle-rearm-2026-10-07.json`.
+  A separate current-source eight-minute observation kept the same PID and
+  zero input filters, but saw no natural pressure and therefore has `ok:false`:
+  `<state>/pressure/residency-v2-2026-10-07T03-28-00-424Z.json`. n=1 rearm.
+
 - **The independent native observer recovered the broker after the app's
   automatic update and relaunch.** One exact native wake had a delivered receipt;
   broker PID 71262 started at 23:24:51 Eastern. Current-process CronCreate and
