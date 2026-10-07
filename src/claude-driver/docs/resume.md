@@ -1,4 +1,65 @@
-## Latest frontier — October 7, 04:23 Eastern
+## Latest frontier — October 7, 04:44 Eastern
+
+Goal ACTIVE. Direct native Stop-hook reads now have actual desktop result proof;
+general-use readiness remains unqualified. Current host
+5be50395f084c1dc4da142ecad6098cb8bb62a57f51a4a0b2f28d9573f2325a1 passed
+its full isolated suite unchanged in v2-2026-10-07T08-44-38-415Z.json.
+Later diagnostic cleanup/admission amendments have isolated proof; native probes
+ran on their separately recorded source candidates, not this final source.
+
+Native breakthrough under <state>/pressure:
+- native-hook-export-2026-10-07T08-30-00-721Z.json remains FAILED. Its observer
+  omitted metadata attachment ancestry. Independent fixed-range journal/hash
+  review now proves the actual direct export succeeded without assistant tool
+  selection. native-hook-export-reconciliation-2026-10-07.json links the original
+  peer, terminal chain, real hook-success attachment, native export filename and
+  captured archive SHAe0d896d7. The earlier guessed-filename comparison was invalid;
+  preserve that artifact and the original failed report, rather than rewriting.
+- native-hook-export-2026-10-07T08-35-35-106Z.json PASSED on c74317f0: direct
+  get_session on the exact archived fixture, real Stop hook-result attachment,
+  no assistant tools, nonce-bound peer/witness and exact settings restoration.
+- native-hook-export-2026-10-07T08-37-41-302Z.json PASSED on bbb33c19: two fixed
+  get_session reads (fixture and broker) in one Stop event, about3.6s from probe
+  start including1.5s settings wait. Both result attachments and distinct target
+  metadata verified. Each probe used one short no-tools model turn as trigger;
+  hook tool execution and observation used no inference. This is not a completely
+  inference-free trigger transport or a general throughput guarantee.
+- Both batch results share native toolUseID. It identifies the Stop event,
+  not an operation slot. Collector now names it hookEventId and identifies each
+  result by its attachment UUID. Historical reports' hookRunId label is retained
+  as historical data, not a unique-operation identity.
+
+CLI journal hook-success attachments are a real result channel, despite the
+separate default SDK hook_response filter. Opt-in session_events causality now
+includes attachment IDs/parents without attachment contents. Direct hooks are
+not assistant tool-use receipts; native error attachments can represent failure
+before invocation and cannot alone prove that a tool was called.
+
+Temporary probes preserve the core Stop/PreToolUse hooks and original settings/
+policy bytes. Ordinary request admission refuses a pending diagnostic before
+publication. Expired abandoned settings can restore only under the broker lock,
+in the exact idle intact native epoch, with no STOP/arm/quiet owner and matching
+bytes. Synthetic recovery tests pass; no live crash/kill injection was performed.
+No generic native mutation hook or persistent FileChanged hook is deployed.
+
+Settled live state: exact broker PID71262/start03:24:51 UTC idle, integrity true;
+active4af08654/gen6, installed7e388b8f/handler6d10c509 unchanged. Original settings
+SHA d66115ff and policy SHA7a8ce57a restored; no mechanical-probe owner remains.
+Fixture local_fc1e5eab remains archived/unpinned/not live. Quiet OFF, quarantine
+ON, no verified waiter/owned handoff STOP. No apps restarted, inputs injected,
+models/permissions/auth changed, new chats or competing recovery attempted.
+
+Next: qualify an actual event-only FileChanged activation/result path in this
+native epoch, then duplicate/deadline/cancellation behavior and safe mutation
+admission. A natural SessionStart/watch-path update is a candidate, not native
+proof; do not force compaction/reset/restart. Retain safe STOP-barrier/indexed
+handoff and rollback as separate gates. Full current steering, sustained serving
+and cold recovery remain open. All17 historical mutations stay unknown and
+nonretryable; legacy reports remain pending with durable blockers. Local30s
+zero-inference detection/hourly observer fallback are unchanged; Codex inbox
+still consumes inference. No user action is required. Codex/1Password separate.
+
+## Previous frontier — October 7, 04:23 Eastern
 
 Goal ACTIVE. Installed-engine research and executable contracts changed the
 next native probe strategy; this turn made NO desktop/native settings changes,

@@ -9,7 +9,8 @@ import {DriverError} from './paths.mjs'
 const policyFile=join(BROKER_DIR,'stop-rescue-policy.json'),armFile=join(BROKER_DIR,'stop-rescue-arm.json'),settings=join(BROKER_DIR,'.claude','settings.json')
 const hash=b=>createHash('sha256').update(b).digest('hex')
 const refused=()=>{throw new DriverError('Stop rescue policy changed or failed admission; no wake sent',{category:'broker_stop_rescue_refused',detail:{dispatched:false,retrySafe:true}})}
-export function stopRescuePolicy(){
+export function stopRescuePolicy({allowTemporaryProbe=false}={}){
+ if(existsSync(join(BROKER_DIR,'mechanical-probe.json'))&&!allowTemporaryProbe)refused()
  if(!existsSync(policyFile))return null
  try{const p=loadEntryEvidence(policyFile),release=validateRelease(p?.build),script=join(release.root,'scripts','broker-stop-rescue.mjs');if(![1,2].includes(p?.feedbackVersion??1)||p.feedbackVersion===2&&p.quietWait||p.quietWait&&(!Number.isInteger(p.quietWait.maxMs)||p.quietWait.version!==1||p.quietWait.maxMs<1000||p.quietWait.maxMs>60000)||p.schemaVersion!==1||p.script!==script||hash(readFileSync(script))!==p.sha256||hash(readFileSync(settings))!==p.settingsHash)refused();return p}catch{refused()}
 }

@@ -1,6 +1,6 @@
 # Deterministic native execution candidate
 
-October 7, 2026, 04:21 Eastern. Candidate research, not a deployed transport.
+October 7, 2026, 04:44 Eastern. Native diagnostic read proof, not a public transport.
 The broker remains on its existing sealed dependencies and admission hooks.
 
 ## What the installed engine actually does
@@ -36,10 +36,13 @@ Four constraints change the deployment strategy:
    two tool calls, and two watcher notifications produce two event invocations.
    A file change is not an exactly-once request transport. Hook order cannot
    substitute for an admission gate.
-4. **The usual journal is not a hook receipt channel.** The installed SDK emission
+4. **SDK emission and journal persistence differ.** The installed SDK emission
    filter sends SessionStart/Setup hook responses by default; Stop/FileChanged
    need the separate all-events mode. Whether this exact native process enables
-   that mode has not been verified. Existing assistant tool-use/checkpoint
+   that mode has not been verified. Actual native Stop probes subsequently proved
+   that CLI journal `attachment` records preserve genuine hook-success results
+   independently of this SDK filter. FileChanged journal persistence is still
+   unqualified. Existing assistant tool-use/checkpoint
    correlation does not collect direct hook calls. A command observer marker
    proves that command ran, not that an adjacent MCP hook succeeded.
 
@@ -58,9 +61,47 @@ establishes that every possible app API has been exhaustively ruled out.
 inspected chunk hashes; `peer-contract-2026-10-07T08-22-12-959Z.json` preserves
 the installed peer dispatch tests.
 
+## Actual native read proof
+
+Three bounded temporary Stop probes targeted only the exact existing owned
+fixture/broker in the same PID/start epoch. One short no-tools broker turn
+triggered each event; fixed hooks selected the MCP tools directly. Core hooks
+were preserved and settings/policy restored byte-for-byte. Native versions,
+peer nonce, command witness, causal terminal chain and real hook-result
+attachments were independently bound. No generic mutation hooks were installed.
+
+- The initial export report `native-hook-export-2026-10-07T08-30-00-721Z.json`
+  remains failed because observation omitted metadata attachment ancestry.
+  Independent reconciliation `native-hook-export-reconciliation-2026-10-07.json`
+  proves the actual native export succeeded and records the captured archive
+  hash, with no raw transcript text. The earlier guessed-filename comparison
+  was invalid; preserve both original artifacts. Source a66eaecf.
+- `native-hook-export-2026-10-07T08-35-35-106Z.json` passed one direct
+  get_session read on c74317f0, with actual archived/unpinned fixture metadata.
+- `native-hook-export-2026-10-07T08-37-41-302Z.json` passed two distinct
+  get_session reads on bbb33c19. About3.6s from probe start included1.5s settings
+  wait. Both native results and distinct target identities were verified. One
+  model turn triggered the batch; tool execution and collection had no inference.
+
+Both batch attachments share native `toolUseID`: this is the Stop event ID,
+now named `hookEventId`, not a unique operation slot. Receipt identity uses each
+attachment UUID. Historical reports' `hookRunId` label remains historical data.
+The private collector accepts only fixed diagnostic read tools; public causal
+observation emits only attachment IDs/parents, never command/stdout/content.
+Native hook-error attachments can occur before invocation and do not alone
+establish that a tool ran.
+
+Ordinary requests refuse a pending diagnostic before publication. Abandoned
+expired probe settings can restore only under the broker lock in their exact
+idle intact epoch, without STOP/arm/quiet owner and with matching current bytes.
+These recovery boundaries have isolated tests, not live crash/kill injection.
+Final5be50395 passed the full isolated suite in
+`v2-2026-10-07T08-44-38-415Z.json`; later host guards do not relabel older native
+passes as current-source native proof. No temporary probe remains installed.
+
 ## Next native proof
 
-The first native probe must be read-only and target only the exact existing
+The next event-only activation probe must be read-only and target only the exact existing
 owned broker or fixture. It must have a nonce, a finite deadline, exact PID/start
 and CLI-version binding, and durable sanitized evidence. Preserve Stop and
 PreToolUse settings and policy hashes. Restore any temporary service settings

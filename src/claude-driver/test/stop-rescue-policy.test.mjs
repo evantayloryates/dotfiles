@@ -10,6 +10,7 @@ test.after(()=>{function unseal(path){const s=lstatSync(path);if(s.isDirectory()
 test('opt-in immutable hook policy arms only exact UUID/request epoch and preserves settings',async()=>{
  assert.equal(stopRescuePolicy(),null);const policy=await installStopRescue(identity);assert.equal(policy.maximumRescuesPerRequest,1);assert.equal(policy.nativeEffectAdmissionVersion,1);assert.equal((await installStopRescue(identity)).reused,true)
  const config=join(dir,'.claude','settings.json'),original=readFileSync(config,'utf8');assert.deepEqual(Object.keys(JSON.parse(original)),['hooks'])
+ writeFileSync(join(dir,'mechanical-probe.json'),'{}');assert.throws(()=>stopRescuePolicy(),e=>e.category==='broker_stop_rescue_refused');assert.equal(stopRescuePolicy({allowTemporaryProbe:true}).pid,identity.pid);assert.throws(()=>armStopRescue(policy,request,wake),e=>e.detail.dispatched===false);rmSync(join(dir,'mechanical-probe.json'))
  assert.throws(()=>armStopRescue(policy,request,{...wake,procStart:'replacement'}),e=>e.category==='broker_stop_rescue_refused')
   armStopRescue(policy,request,wake);const arm=JSON.parse(readFileSync(join(dir,'stop-rescue-arm.json'),'utf8'));assert.equal(arm.msgId,wake.msgId);disarmStopRescue('other');assert.equal(JSON.parse(readFileSync(join(dir,'stop-rescue-arm.json'),'utf8')).requestId,'rpolicy');disarmStopRescue('rpolicy')
   assert.throws(()=>armStopHandoff(policy,{nonce:'owned',expiresAt:Date.now()+30000},wake),e=>e.detail.dispatched===false)

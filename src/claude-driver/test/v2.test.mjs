@@ -315,7 +315,12 @@ test('opt-in causality retains hidden ancestors and peer IDs without private pay
  const causal=events.sessionEvents({session:sid,cursor,include_text:true,include_causality:true})
  assert.equal(causal.events.length,3);assert.equal(causal.events[0].peerMessageId,'receipt');assert.equal(causal.events[1].parentId,'peer');assert.equal(causal.events[1].text,undefined);assert.equal(causal.events[2].parentId,'think')
  assert.equal(JSON.stringify(causal).includes('PRIVATE_'),false)
- const next=causal.cursor
+ const attachmentCursor=causal.cursor
+ appendFileSync(transcript,JSON.stringify({type:'attachment',uuid:'attachment',parentUuid:'reply',attachment:{type:'PRIVATE_ATTACHMENT_KIND',command:'PRIVATE_COMMAND',stdout:'PRIVATE_STDOUT',content:'PRIVATE_CONTENT'}})+'\n')
+ assert.equal(events.sessionEvents({session:sid,cursor:attachmentCursor,include_text:true}).events.length,0)
+ const lineage=events.sessionEvents({session:sid,cursor:attachmentCursor,include_text:true,include_causality:true})
+ assert.equal(lineage.events[0].type,'metadata');assert.equal(lineage.events[0].sourceType,'attachment');assert.equal(lineage.events[0].parentId,'reply');assert.equal(JSON.stringify(lineage).includes('PRIVATE_'),false)
+ const next=lineage.cursor
  appendFileSync(transcript,JSON.stringify({type:'assistant',uuid:{private:'PRIVATE_UUID'},parentUuid:{private:'PRIVATE_PARENT'},timestamp:{private:'PRIVATE_TIME'},origin:{kind:'peer',msg_id:{private:'PRIVATE_PEER'}},message:{content:'valid text',stop_reason:{private:'PRIVATE_REASON'}}})+'\n')
  const malformed=events.sessionEvents({session:sid,cursor:next,include_causality:true})
  assert.equal(JSON.stringify(malformed).includes('PRIVATE_'),false);assert.equal(malformed.events[0].id,undefined)

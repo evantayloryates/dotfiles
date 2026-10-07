@@ -65,12 +65,18 @@ prove serving, completion, sustained residency or general-use readiness. Existin
 fast local detection remains30s; the hourly observer is fallback, not test pacing.
 See [broker-quiet-stop-candidate.md](broker-quiet-stop-candidate.md).
 
-A direct MCP-hook execution candidate now has installed-engine isolated proof,
-including watcher activation, duplicate calls and default SDK response limits.
-It is not deployed: settings alone do not activate a warm file watcher, and the
-existing native receipt/admission contract does not cover direct hook calls.
-See [mechanical-native-route.md](mechanical-native-route.md). Keep using the
-current request lifecycle; no generic mutation hook is qualified.
+A direct MCP-hook candidate now has actual native Stop-event read proof: one
+metadata read and two distinct reads in one event returned genuine CLI journal
+hook-result attachments. Each event still used one short model turn as trigger.
+Temporary settings were restored; this is not a persistent public transport.
+Opt-in causal observation includes only attachment IDs/parents. Result UUIDs
+identify receipts; native toolUseID/hookEventId is shared by the Stop event.
+Ordinary request admission refuses pending diagnostics before publication; exact
+idle-epoch expired cleanup has isolated proof. Settings alone do not activate a
+warm FileChanged watcher, and the existing mutation admission contract must not
+be assumed to cover direct hooks. See [mechanical-native-route.md](mechanical-native-route.md).
+Keep using the current request lifecycle; generic native mutation hooks remain
+unqualified.
 
 ## V2 control interface
 

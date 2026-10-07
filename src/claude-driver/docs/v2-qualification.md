@@ -1,3 +1,13 @@
+## October 7, 04:44 Eastern checkpoint
+
+Actual native direct Stop-hook get_session and a two-target metadata batch passed
+with genuine CLI hook-result attachments, no assistant tool selection and exact
+settings restoration. One short model turn triggered each event; no persistent
+FileChanged or generic mutation route is qualified. Original export-observer
+failure remains failed with independent native-success reconciliation. Later
+cleanup/admission amendments passed the full isolated suite on5be50395, not a
+new native pass. See resume.md for source-specific evidence and remaining gates.
+
 ## October 7, 04:21 Eastern checkpoint
 
 The installed2.1.289 MCP hook runner, interpolation, file-watcher lifecycle and
@@ -31,7 +41,7 @@ input, context reset, model/auth change or competing recovery occurred.
 
 # Claude-driver v2 qualification
 
-Latest audit: October7,04:23 Eastern. The bridge is a working native control
+Latest audit: October7,04:44 Eastern. The bridge is a working native control
 prototype in reliability hardening, not general-use ready. See [resume.md](resume.md).
 
 | Requirement | Current evidence | Remaining gate |
@@ -42,7 +52,7 @@ prototype in reliability hardening, not general-use ready. See [resume.md](resum
 | Uncertainty containment | Enqueued mutations without receipt are outcome_unknown/retrySafe:false | Seventeen effects remain causally unresolved; do not replay |
 | Deployment | Same PID/current dependency4af/generation6 with intact sealed inventory | Distinct-build rollback and unresolved handoff blockers |
 | Mechanical quiet signal | Isolated subprocess boundaries pass; exact native per-ID continuation persisted; helper ancestry/expiry proved | Model ended without tools; signal receipt is not execution reliability |
-| Deterministic MCP hook candidate | Exact installed runner, interpolation, watcher lifecycle and SDK emission exercised with synthetic dependencies | Native activation/context, duplicate admission, permission path and correlated results remain unqualified; not deployed |
+| Deterministic MCP hook candidate | Actual native Stop-hook reads and two-target batch with genuine result attachments; temporary settings restored | Event-only FileChanged activation, duplicate/cancel admission and safe mutations remain unqualified; no persistent public transport |
 | Residency/recovery | Bounded quiet helper expired cleanly; native broker stayed alive | Natural governor pressure and unattended cold recovery |
 | Fast detection | Zero-inference local30s detector; hourly Claude observer fallback | Codex inbox remains inference-bearing; full event-triggered inference not implemented |
 | Evidence and memory | Shared service artifacts, fingerprints, failures and candidate/verified distinctions | Promote only after independent native receipts |
@@ -50,8 +60,9 @@ prototype in reliability hardening, not general-use ready. See [resume.md](resum
 
 Installed hook7e388b8f keeps compact feedbackVersion2 enrolled and quiet disabled.
 Historical hostc969 had later publication-failure handling, fully isolated-tested
-and one actual5.458s foreground native read. Current560fc144 has a passing full
-isolated suite; native hook dispatch is unqualified. Batched/concurrent native reads
+and one actual5.458s foreground native read. Current5be50395 has a passing full
+isolated suite; narrow native direct-hook reads passed on earlier recorded
+c743/bbb candidates. Generic mutation dispatch remains unqualified. Batched/concurrent native reads
 passed on their recorded candidates. A30s expiry under native compaction remains
 a failed serving case with independently verified late native gate denial. Active dependencies remain4af08654, generation6. These identities are
 separate; an installed candidate or successful send is not full readiness.

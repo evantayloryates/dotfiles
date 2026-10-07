@@ -28,6 +28,7 @@ import {quietHookStatus} from './quiet-hook.mjs'
 import {verifyWaiterReadiness,waitForNativeAvailability} from './waiter-readiness.mjs'
 import {requestTrigger} from '../scripts/broker-stop-rescue.mjs'
 import {indexedCheckpointEvidence,validateBatchAdmission} from './batch-admission.mjs'
+import {recoverExpiredTemporaryHookProbe} from './temporary-hooks.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const TEMPLATE = join(HERE, '..', 'broker-template', 'CLAUDE.md')
@@ -162,6 +163,9 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
   return await withLock('broker', async () => {
     let info = brokerInfo()
     info=await waitForNativeAvailability(info,{observe:brokerInfo,deadline,signal,sleep,progress})
+    if(existsSync(join(BROKER_DIR,'mechanical-probe.json'))){
+      try{recoverExpiredTemporaryHookProbe(BROKER_DIR,info)}catch{throw new DriverError('an owned diagnostic hook still needs safe restoration; no request enqueued',{category:'broker_diagnostic_pending',detail:{dispatched:false,retrySafe:true}})}
+    }
     const rescuePolicy=stopRescuePolicy()
     if(typeof idleWake!=='boolean')throw new DriverError('invalid idle wake policy',{category:'bad_args',detail:{dispatched:false,retrySafe:true}})
     if(info.handoffStopped)throw new DriverError('broker deployment handoff is stopped; requests cannot clear its STOP',{category:'broker_handoff_refused',detail:{dispatched:false,retrySafe:true}})

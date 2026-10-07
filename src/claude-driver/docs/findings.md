@@ -1,3 +1,28 @@
+## 2026-10-07 04:44 Eastern — native direct-hook read proof
+
+Actual desktop Stop hooks performed a fixture export, one metadata read and a
+successful two-target read batch. The batch completed in about3.6s including1.5s
+configuration wait, using one short model turn to trigger two direct native tools.
+The tools were selected by fixed hook configuration, not the model. Actual CLI
+journal hook-success attachments provide results even when default SDK response
+emission excludes Stop. This is a narrow native read proof, not mutation safety,
+a fully inference-free transport, sustained serving or general-use readiness.
+
+The original export probe failed observation because attachment ancestry was
+hidden. Its failed report is preserved; independent fixed-range/hash validation
+links its actual native result and captured archive in native-hook-export-
+reconciliation-2026-10-07.json. Opt-in causality exposes only attachment IDs and
+parents. Batch toolUseID is shared by the Stop event; distinct result UUIDs,
+not that event ID, identify receipts. Errors may precede tool invocation.
+
+Diagnostic settings restore byte-for-byte; ordinary requests cannot inherit a
+pending diagnostic hook. Exact idle-epoch expiry recovery has isolated tests,
+without live crash injection. Current5be50395 passed the complete isolated suite;
+actual native passes belong to earlier recorded c743/bbb source candidates.
+Broker remains idle/intact on the same PID and sealed dependencies, fixture
+archived/unpinned, quarantine ON, temporary hooks removed. See resume.md and
+mechanical-native-route.md for artifacts, remaining gates and uncertainty.
+
 ## 2026-10-07 04:23 Eastern — installed direct-hook runner and activation constraints
 
 The installed2.1.289 MCP runner, recursive input interpolation, watcher lifecycle

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import {mkdtempSync,mkdirSync,writeFileSync,readFileSync,rmSync,symlinkSync} from 'node:fs'
 import {join} from 'node:path'
 import {tmpdir} from 'node:os'
-import {installTemporaryHookProbe,prepareTemporaryHookPeer,restoreTemporaryHookProbe,bytesHash} from '../lib/temporary-hooks.mjs'
+import {installTemporaryHookProbe,prepareTemporaryHookPeer,restoreTemporaryHookProbe,recoverExpiredTemporaryHookProbe,bytesHash} from '../lib/temporary-hooks.mjs'
 import {eligibleProbeStop} from '../scripts/mechanical-probe-stop.mjs'
 const epoch={sessionId:'local_00000000-0000-4000-8000-000000000001',pid:1234,procStart:'synthetic start'},token='a'.repeat(32)
 function fixture(){
@@ -23,10 +23,29 @@ test('temporary diagnostic preserves core hooks and restores exact bytes after p
 })
 test('foreign edits, owner tokens and symlinks refuse without overwriting another writer',()=>{
  const f=fixture();try{
+  assert.throws(()=>installTemporaryHookProbe(f.dir,{...f.args,operation:'archive_session'}),/diagnostic read/)
   installTemporaryHookProbe(f.dir,f.args);assert.throws(()=>restoreTemporaryHookProbe(f.dir,'b'.repeat(32)),/owner/)
   const other=Buffer.from('{"foreign":true}');writeFileSync(join(f.dir,'.claude','settings.json'),other)
   assert.throws(()=>restoreTemporaryHookProbe(f.dir,token),/another/);assert.deepEqual(readFileSync(join(f.dir,'.claude','settings.json')),other)
   rmSync(join(f.dir,'.claude','settings.json'));symlinkSync(join(f.dir,'observer.mjs'),join(f.dir,'.claude','settings.json'));assert.throws(()=>restoreTemporaryHookProbe(f.dir,token))
+ }finally{rmSync(f.dir,{recursive:true,force:true})}
+})
+test('only metadata probes can batch the two distinct owned read targets',()=>{
+ const f=fixture();try{
+  assert.throws(()=>installTemporaryHookProbe(f.dir,{...f.args,includeBrokerRead:true}),/metadata reads/)
+  installTemporaryHookProbe(f.dir,{...f.args,operation:'get_session',includeBrokerRead:true})
+  const s=JSON.parse(readFileSync(join(f.dir,'.claude','settings.json'))),hooks=s.hooks.Stop[1].hooks.filter(h=>h.type==='mcp_tool')
+  assert.deepEqual(hooks.map(h=>h.tool),['get_session','get_session']);assert.deepEqual(hooks.map(h=>h.input.session_id),[f.args.fixtureId,epoch.sessionId]);restoreTemporaryHookProbe(f.dir,token)
+ }finally{rmSync(f.dir,{recursive:true,force:true})}
+})
+test('abandoned probe recovery requires expiry, exact idle native epoch and unchanged settings',()=>{
+ const f=fixture(),info={sessionId:epoch.sessionId,live:{pid:epoch.pid,procStart:epoch.procStart,entrypoint:'claude-desktop',status:'idle'},runtime:{integrity:true}}
+ try{
+  installTemporaryHookProbe(f.dir,{...f.args,operation:'get_session'});assert.throws(()=>recoverExpiredTemporaryHookProbe(f.dir,info),/expire/)
+  const now=f.args.expiresAt+1
+  for(const bad of [{...info,live:{...info.live,status:'busy'}},{...info,live:{...info.live,procStart:'other'}},{...info,runtime:{integrity:false}}])assert.throws(()=>recoverExpiredTemporaryHookProbe(f.dir,bad,{now}),/expire/)
+  writeFileSync(join(f.dir,'STOP'),'synthetic');assert.throws(()=>recoverExpiredTemporaryHookProbe(f.dir,info,{now}),/expire/);rmSync(join(f.dir,'STOP'))
+  assert.equal(recoverExpiredTemporaryHookProbe(f.dir,info,{now}).restored,true);assert.deepEqual(readFileSync(join(f.dir,'.claude','settings.json')),f.settings);assert.equal(recoverExpiredTemporaryHookProbe(f.dir,info),null)
  }finally{rmSync(f.dir,{recursive:true,force:true})}
 })
 test('probe Stop witness requires exact current peer turn, native identity, ancestry and expiry',()=>{
