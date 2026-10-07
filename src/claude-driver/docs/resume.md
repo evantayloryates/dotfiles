@@ -1,3 +1,19 @@
+## Latest frontier — copied probe, registration investigation
+
+Taylor completed installation in the owned broker. Three installed probe files
+match the prepared candidate hashes, but the slash command is absent. The owned
+installation journal shows no loader consent/reload result. Earlier absent-file
+blocker entries below are historical and superseded.
+
+Installed CLI 2.1.289 expansion of `${CLAUDE_DEV_MODS_DIR}` calls Fo(), activating
+the warm watcher. The hard-coded bootstrap omitted plugin-authoring skill
+loading. This is a supported activation hypothesis; live refusal cause remains
+unproven. Corrected scoped recovery prompt is in native-mod-bootstrap-prompt.md.
+No live files, permissions, consent state, apps or session processes changed.
+Next: supported skill activation plus identical-byte native save, human-only
+consent if offered; independently verify load and slash registration before
+probe invocation. Preserve failures; no model fallback or repeated probe.
+
 ## Latest frontier — October 7, 06:45 Eastern — native activation blocker
 
 Three consecutive goal turns have now revalidated the SAME genuine blocker:

@@ -1,3 +1,27 @@
+## Recovery of the copied but unregistered probe — October 7
+
+The three destination files were independently verified byte-identical after
+Taylor's installation turn. The owned journal contains no native loader consent
+or reload result. Do not submit the probe as ordinary text.
+
+Installed CLI 2.1.289 loader source establishes that expansion of
+`${CLAUDE_DEV_MODS_DIR}` outside preload calls Fo(), which requests the warm
+watcher. The previous hard-coded copy prompt omitted built-in plugin-authoring
+skill loading. This is a source-supported activation hypothesis, not proof of
+the live refusal cause. No permission settings or consent metadata were changed.
+
+Send the following to the existing **claude-driver-broker** chat only:
+
+```text
+Load the built-in plugin-authoring skill first to activate its supported session-local dev-mod loader. Do not create a new mod or change the supplied code. In this same claude-driver-broker session (35b3ba48-f02e-48de-bfbb-925192d90de1, cwd /Users/taylor/.local/state/claude-driver/broker), use native Read to compare the existing desktop-bridge-native-probe/hooks/register.js in your skill-provided dev-mod directory against /Users/taylor/src/github/dotfiles/src/claude-driver/candidates/native-mod-probe/hooks/register.js. If identical and the directory matches /Users/taylor/.claude/dev-mods/35b3ba48-f02e-48de-bfbb-925192d90de1, use native Write once to save the identical bytes back to that existing register.js, so the activated watcher observes the save. Stop at any human consent dialog. Do not run /claude-driver-native-read-probe, use Bash, alter settings, restart, or wake anything. Report the actual native loader result or exact refusal; do not infer loading from saving.
+```
+
+Taylor alone answers **Enable for this session** if Claude presents it. Preserve
+any refusal. Verify actual registration before invoking the probe. A successful
+skill load or write is not native load evidence.
+
+---
+
 # One bounded native-mod activation
 
 Prepared October 7, 2026, 06:35 Eastern. STAGED ONLY. This is for Taylor to
