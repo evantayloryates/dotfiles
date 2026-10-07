@@ -1,9 +1,10 @@
-// Harness-only staging. Never registers outside ZDR; never writes to Desktop.
+// Harness-only staging and independently approved release. Never registers outside ZDR.
 import { createHash, randomBytes } from 'node:crypto'
 import { mkdirSync, lstatSync, realpathSync, readFileSync, writeFileSync, readdirSync, renameSync } from 'node:fs'
 import { join, resolve, parse, dirname } from 'node:path'
 
 const token = /^[a-z][a-z0-9_-]{0,63}$/i
+const validToken = value => typeof value === 'string' && token.test(value)
 const packageId = /^fp_[a-f0-9]{24}$/
 const plain = x => x !== null && typeof x === 'object' && !Array.isArray(x)
 const hash = x => createHash('sha256').update(x).digest('hex')
@@ -11,7 +12,7 @@ const encode = x => JSON.stringify(x, null, 2) + '\n'
 const requireThat = (x, code) => { if (!x) throw new Error(code) }
 
 // Walk every ancestor: a symlink must never turn protected staging into egress.
-function directory(path) {
+export function protectedDirectory(path) {
   const absolute = resolve(path)
   let current = parse(absolute).root
   for (const segment of absolute.slice(current.length).split('/').filter(Boolean)) {
@@ -23,11 +24,11 @@ function directory(path) {
   requireThat(realpathSync(absolute) === absolute, 'fixture_path_refused')
   return absolute
 }
-function read(path) {
+export function protectedRead(path) {
   requireThat(lstatSync(path).isFile() && !lstatSync(path).isSymbolicLink(), 'fixture_file_refused')
   return JSON.parse(readFileSync(path, 'utf8'))
 }
-function write(path, value) {
+export function protectedWrite(path, value) {
   // Immutable writes: retries compare exact content instead of replacing files.
   const bytes = encode(value)
   try { writeFileSync(path, bytes, { flag: 'wx', mode: 0o600 }) }
@@ -51,31 +52,40 @@ function valuesAt(value, parts) {
 // this tool. The model's report writer cannot reach this sibling directory.
 export function releaseFixture(dir, approvalPath, destination = '/Users/taylor/Desktop/zdr-dump') {
   let approval
-  try { approval = read(approvalPath) } catch { throw new Error('fixture_release_approval_required') }
+  try { approval = protectedRead(approvalPath) } catch { throw new Error('fixture_release_approval_required') }
   const manifestBytes = readFileSync(join(dir, 'manifest.json'))
-  const manifest = read(join(dir, 'manifest.json'))
+  const manifest = protectedRead(join(dir, 'manifest.json'))
   requireThat(approval.manifestSha256 === hash(manifestBytes) && approval.destination === destination && approval.method === 'qualified-independent-review' && approval.transferAuthorized === true && approval.allPackageBytesCleared === true && typeof approval.clearanceReference === 'string' && approval.clearanceReference.length > 0, 'fixture_release_approval_required')
   requireThat(manifest.formatVersion === 1 && manifest.bundles.length === 10, 'fixture_manifest_invalid')
   const snapshot = new Map([['manifest.json', manifestBytes]])
+  let catalog = null
+  if (manifest.catalog) {
+    requireThat(manifest.catalog.path === 'catalog.json', 'fixture_filename_invalid')
+    catalog = protectedRead(join(dir, 'catalog.json'))
+    const bytes = readFileSync(join(dir, 'catalog.json'))
+    requireThat(hash(bytes) === manifest.catalog.sha256, 'fixture_release_hash_mismatch')
+    validateBundle(catalog, [])
+    snapshot.set('catalog.json', bytes)
+  }
   for (const bundle of manifest.bundles) {
     requireThat(/^customers\/[a-z][a-z0-9_-]{0,63}\.json$/i.test(bundle.path), 'fixture_filename_invalid')
     const path = join(dir, bundle.path)
-    const data = read(path)
+    const data = protectedRead(path)
     const bytes = readFileSync(path)
-    requireThat(hash(bytes) === bundle.sha256 && data.bundleId === bundle.bundleId && JSON.stringify(validateBundle(data, manifest.references)) === JSON.stringify(bundle.rowCounts), 'fixture_release_hash_mismatch')
+    requireThat(hash(bytes) === bundle.sha256 && data.bundleId === bundle.bundleId && JSON.stringify(validateBundle(data, manifest.references, catalog)) === JSON.stringify(bundle.rowCounts), 'fixture_release_hash_mismatch')
     snapshot.set(bundle.path, bytes)
   }
-  requireThat(snapshot.size === 11, 'fixture_bundle_invalid')
+  requireThat(snapshot.size === (manifest.catalog ? 12 : 11), 'fixture_bundle_invalid')
   requireThat(['schema', 'transformation', 'loss', 'categories', 'parity', 'privacy'].every(x => Object.hasOwn(manifest.reports, x + '.json')), 'fixture_incomplete')
   for (const [name, sha256] of Object.entries(manifest.reports)) {
     requireThat(/^(schema|transformation|loss|categories|parity|privacy)\.json$/.test(name), 'fixture_report_invalid')
     const path = join(dir, 'reports', name)
-    read(path)
+    protectedRead(path)
     const bytes = readFileSync(path)
     requireThat(hash(bytes) === sha256, 'fixture_release_hash_mismatch')
     snapshot.set('reports/' + name, bytes)
   }
-  const dest = directory(destination)
+  const dest = protectedDirectory(destination)
   const id = dir.split('/').at(-1)
   requireThat(packageId.test(id), 'fixture_package_id_invalid')
   const final = join(dest, id)
@@ -83,19 +93,19 @@ export function releaseFixture(dir, approvalPath, destination = '/Users/taylor/D
   // cannot be mistaken for a finalized release or overwritten on retry.
   requireThat(!readdirSync(dest).includes(id), 'fixture_release_already_exists')
   const tmp = join(dest, '.' + id + '-' + randomBytes(8).toString('hex'))
-  directory(tmp); directory(join(tmp, 'customers')); directory(join(tmp, 'reports'))
+  protectedDirectory(tmp); protectedDirectory(join(tmp, 'customers')); protectedDirectory(join(tmp, 'reports'))
   for (const [name, bytes] of snapshot) writeFileSync(join(tmp, name), bytes, { flag: 'wx', mode: 0o600 })
   for (const [name, bytes] of snapshot) requireThat(hash(readFileSync(join(tmp, name))) === hash(bytes), 'fixture_release_readback_failed')
-  write(join(tmp, 'release.json'), { manifestSha256: hash(manifestBytes), clearanceReference: approval.clearanceReference, released: true })
+  protectedWrite(join(tmp, 'release.json'), { manifestSha256: hash(manifestBytes), clearanceReference: approval.clearanceReference, released: true })
   renameSync(tmp, final)
   return { state: 'released', released: true, outputPath: final, manifestSha256: hash(manifestBytes), bundles: 10 }
 }
 
-export function validateBundle(bundle, refs) {
-  requireThat(plain(bundle) && token.test(bundle.bundleId) && plain(bundle.tables), 'fixture_bundle_invalid')
+export function validateBundle(bundle, refs, catalog = null) {
+  requireThat(plain(bundle) && validToken(bundle.bundleId) && plain(bundle.tables), 'fixture_bundle_invalid')
   const ids = new Map()
   for (const [table, rows] of Object.entries(bundle.tables)) {
-    requireThat(token.test(table) && Array.isArray(rows), 'fixture_table_invalid')
+    requireThat(validToken(table) && Array.isArray(rows), 'fixture_table_invalid')
     const keys = new Set()
     for (const row of rows) {
       requireThat(plain(row) && (typeof row.id === 'string' || Number.isSafeInteger(row.id)), 'fixture_primary_key_invalid')
@@ -105,11 +115,12 @@ export function validateBundle(bundle, refs) {
     }
     ids.set(table, keys)
   }
+  const catalogIds = new Map(Object.entries(catalog?.tables || {}).map(([table, rows]) => [table, new Set(rows.map(row => String(row.id)))]))
   for (const ref of refs) {
-    requireThat(plain(ref) && token.test(ref.table) && token.test(ref.targetTable) && typeof ref.field === 'string' && /^[a-zA-Z0-9_]+(?:\.(?:[a-zA-Z0-9_]+|\*))*$/.test(ref.field), 'fixture_reference_invalid')
+    requireThat(plain(ref) && validToken(ref.table) && validToken(ref.targetTable) && (ref.targetScope == null || ['bundle', 'catalog'].includes(ref.targetScope)) && typeof ref.field === 'string' && /^[a-zA-Z0-9_]+(?:\.(?:[a-zA-Z0-9_]+|\*))*$/.test(ref.field), 'fixture_reference_invalid')
     for (const row of bundle.tables[ref.table] || []) {
       for (const value of valuesAt(row, ref.field.split('.'))) {
-        requireThat(value === null ? ref.nullable === true : ids.get(ref.targetTable)?.has(String(value)), 'fixture_reference_unresolved')
+        requireThat(value === null ? ref.nullable === true : (ref.targetScope === 'catalog' ? catalogIds : ids).get(ref.targetTable)?.has(String(value)), 'fixture_reference_unresolved')
       }
     }
   }
@@ -119,16 +130,18 @@ export function validateBundle(bundle, refs) {
 export const fixtureTool = {
   name: 'fixture_package',
   title: 'Stage a Call Guidance fixture package inside ZDR',
-  description: 'Restricted protected-file writer for Data Loader. create; put_bundle (one complete transformed customer at a time); put_report (schema, transformation, loss, categories, parity or privacy); finalize; status. Exactly ten bundles. Validates declared primary/foreign keys including nested dot paths and array *. Does NOT deidentify or certify source parity. release requires an operator-written approval receipt bound to all package bytes and transfers only to the fixed Taylor-requested Desktop/zdr-dump destination. No caller-selected paths; summaries only. Package contents and reports remain sensitive inside ZDR.',
+  description: 'Restricted protected-file writer for Data Loader. create; put_bundle (one complete transformed customer at a time); put_report (schema, transformation, loss, categories, parity or privacy); finalize; status. list/resume/checkpoint provide durable recovery; read_bundle/read_report page sensitive staged content only inside ZDR. add_rows stages idempotent table chunks, seal_bundle validates/assembles a customer. put_catalog saves shared catalog tables; references targetScope:catalog resolves their keys. Exactly ten bundles. Validates declared primary/foreign keys including nested dot paths and array *. Does NOT deidentify or certify source parity. release requires an operator-written approval receipt bound to all package bytes and transfers only to the fixed Taylor-requested Desktop/zdr-dump destination. No caller-selected paths; summaries only. Package contents and reports remain sensitive inside ZDR.',
   inputSchema: {
     type: 'object', additionalProperties: false, required: ['action'],
     properties: {
-      action: { type: 'string', enum: ['create', 'put_bundle', 'put_report', 'finalize', 'status', 'release'] },
+      action: { type: 'string', enum: ['create', 'put_bundle', 'put_report', 'finalize', 'status', 'release', 'list', 'checkpoint', 'resume', 'read_bundle', 'read_report', 'add_rows', 'seal_bundle', 'put_catalog', 'read_catalog', 'read_chunk'] },
       package_id: { type: 'string' },
-      references: { type: 'array', items: { type: 'object', required: ['table', 'field', 'targetTable'], additionalProperties: false, properties: { table: { type: 'string' }, field: { type: 'string' }, targetTable: { type: 'string' }, nullable: { type: 'boolean' } } } },
+      references: { type: 'array', items: { type: 'object', required: ['table', 'field', 'targetTable'], additionalProperties: false, properties: { table: { type: 'string' }, field: { type: 'string' }, targetTable: { type: 'string' }, nullable: { type: 'boolean' }, targetScope: { type: 'string', enum: ['bundle', 'catalog'] } } } },
       bundle: { type: 'object', required: ['bundleId', 'tables'], properties: { bundleId: { type: 'string' }, tables: { type: 'object' } }, additionalProperties: false },
       report: { type: 'string', enum: ['schema', 'transformation', 'loss', 'categories', 'parity', 'privacy'] },
       content: { type: 'object' },
+      bundle_id: { type: 'string' }, table: { type: 'string' }, chunk_id: { type: 'string' }, rows: { type: 'array', items: { type: 'object' }, maxItems: 1000 },
+      offset: { type: 'integer', minimum: 0 }, max_chars: { type: 'integer', minimum: 1, maximum: 16000 },
     },
   },
   annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
@@ -136,64 +149,128 @@ export const fixtureTool = {
 export function fixturePackage(args, root) {
   try {
     requireThat(plain(args) && typeof root === 'string' && root.startsWith('/'), 'fixture_arguments_invalid')
-    const base = directory(root)
+    const base = protectedDirectory(root)
     requireThat((lstatSync(base).mode & 0o077) === 0, 'fixture_directory_permissions')
+    if (args.action === 'list') return encode({ packages: readdirSync(base).filter(x => packageId.test(x)).sort().slice(-100), released: false })
     if (args.action === 'create') {
       requireThat(Array.isArray(args.references), 'fixture_references_required')
       // Validate reference declarations even before a bundle exists.
       validateBundle({ bundleId: 'validation', tables: {} }, args.references)
       const id = 'fp_' + randomBytes(12).toString('hex')
-      const dir = directory(join(base, id))
-      directory(join(dir, 'customers'))
-      directory(join(dir, 'reports'))
-      write(join(dir, 'contract.json'), { formatVersion: 1, references: args.references, expectedBundles: 10 })
+      const dir = protectedDirectory(join(base, id))
+      protectedDirectory(join(dir, 'customers'))
+      protectedDirectory(join(dir, 'reports'))
+      protectedWrite(join(dir, 'contract.json'), { formatVersion: 1, references: args.references, expectedBundles: 10 })
       return encode({ package_id: id, state: 'staging', released: false })
     }
     requireThat(packageId.test(args.package_id), 'fixture_package_id_invalid')
     const dir = join(base, args.package_id)
     requireThat(lstatSync(dir).isDirectory() && !lstatSync(dir).isSymbolicLink(), 'fixture_package_not_found')
-    directory(dir)
-    const contract = read(join(dir, 'contract.json'))
+    protectedDirectory(dir)
+    const contract = protectedRead(join(dir, 'contract.json'))
     const finalized = readdirSync(dir).includes('manifest.json')
     if (args.action === 'release') {
       requireThat(finalized, 'fixture_incomplete')
       return encode(releaseFixture(dir, join(dirname(base), 'fixture-approvals', args.package_id + '.json')))
     }
+    const catalog = readdirSync(dir).includes('catalog.json') ? protectedRead(join(dir, 'catalog.json')) : null
+    if (args.action === 'checkpoint') {
+      requireThat(!finalized && plain(args.content) && Buffer.byteLength(encode(args.content)) <= 2_000_000, 'fixture_checkpoint_invalid')
+      const cp = protectedDirectory(join(dir, 'checkpoints'))
+      const names = readdirSync(cp).sort()
+      const timestamp = Math.max(Date.now(), names.length ? Number(names.at(-1).slice(0, 13)) + 1 : 0)
+      const name = timestamp.toString().padStart(13, '0') + '-' + randomBytes(8).toString('hex') + '.json'
+      protectedWrite(join(cp, name), args.content)
+      return encode({ package_id: args.package_id, checkpointSaved: true, released: false })
+    }
+    if (args.action === 'resume') {
+      const names = readdirSync(dir).includes('checkpoints') ? readdirSync(protectedDirectory(join(dir, 'checkpoints'))).sort() : []
+      requireThat(names.every(x => /^\d{13}-[a-f0-9]{16}\.json$/.test(x)), 'fixture_checkpoint_invalid')
+      return encode({ package_id: args.package_id, checkpoint: names.length ? protectedRead(join(dir, 'checkpoints', names.at(-1))) : null, bundles: readdirSync(protectedDirectory(join(dir, 'customers'))).map(x => x.replace(/\.json$/, '')), reports: readdirSync(protectedDirectory(join(dir, 'reports'))), released: false })
+    }
+    if (['read_bundle', 'read_report', 'read_catalog', 'read_chunk'].includes(args.action)) {
+      const isBundle = args.action === 'read_bundle'
+      const isCatalog = args.action === 'read_catalog'
+      const isChunk = args.action === 'read_chunk'
+      requireThat(isCatalog || isChunk || (isBundle ? validToken(args.bundle_id) : ['schema', 'transformation', 'loss', 'categories', 'parity', 'privacy'].includes(args.report)), 'fixture_read_invalid')
+      if (isChunk) requireThat(validToken(args.bundle_id) && validToken(args.table) && validToken(args.chunk_id), 'fixture_read_invalid')
+      const path = isCatalog ? join(dir, 'catalog.json') : isChunk ? join(protectedDirectory(join(dir, 'chunks', args.bundle_id, args.table)), args.chunk_id + '.json') : join(protectedDirectory(join(dir, isBundle ? 'customers' : 'reports')), (isBundle ? args.bundle_id : args.report) + '.json')
+      const text = encode(protectedRead(path))
+      const offset = args.offset ?? 0, size = args.max_chars ?? 12000
+      requireThat(Number.isInteger(offset) && offset >= 0 && Number.isInteger(size) && size > 0 && size <= 16000, 'fixture_read_invalid')
+      return encode({ package_id: args.package_id, offset, totalChars: text.length, nextOffset: offset + size < text.length ? offset + size : null, content: text.slice(offset, offset + size), sensitive: true })
+    }
+    if (args.action === 'put_catalog') {
+      requireThat(!finalized, 'fixture_package_finalized')
+      validateBundle(args.bundle, [])
+      requireThat(Buffer.byteLength(encode(args.bundle)) <= 8_000_000, 'fixture_bundle_too_large')
+      return encode({ stored: true, sha256: protectedWrite(join(dir, 'catalog.json'), args.bundle), released: false })
+    }
+    if (args.action === 'add_rows') {
+      requireThat(!finalized && validToken(args.bundle_id) && validToken(args.table) && validToken(args.chunk_id) && Array.isArray(args.rows) && args.rows.length <= 1000 && Buffer.byteLength(encode(args.rows)) <= 2_000_000, 'fixture_chunk_invalid')
+      validateBundle({ bundleId: args.bundle_id, tables: { [args.table]: args.rows } }, [])
+      requireThat(!readdirSync(protectedDirectory(join(dir, 'customers'))).includes(args.bundle_id + '.json'), 'fixture_bundle_sealed')
+      const chunkRoot = protectedDirectory(join(dir, 'chunks'))
+      const names = readdirSync(chunkRoot)
+      requireThat(names.includes(args.bundle_id) || names.length < 10, 'fixture_bundle_limit')
+      const chunkDir = protectedDirectory(join(chunkRoot, args.bundle_id, args.table))
+      requireThat(readdirSync(chunkDir).length < 1000 || readdirSync(chunkDir).includes(args.chunk_id + '.json'), 'fixture_chunk_limit')
+      return encode({ stored: true, sha256: protectedWrite(join(chunkDir, args.chunk_id + '.json'), args.rows), released: false })
+    }
+    if (args.action === 'seal_bundle') {
+      requireThat(!finalized && validToken(args.bundle_id), 'fixture_chunk_invalid')
+      const chunkDir = protectedDirectory(join(dir, 'chunks', args.bundle_id))
+      const tables = {}
+      requireThat(readdirSync(chunkDir).length > 0, 'fixture_chunk_missing')
+      for (const table of readdirSync(chunkDir).sort()) {
+        requireThat(validToken(table), 'fixture_chunk_invalid')
+        const tableDir = protectedDirectory(join(chunkDir, table))
+        tables[table] = []
+        for (const name of readdirSync(tableDir).sort()) {
+          requireThat(/^[a-z][a-z0-9_-]{0,63}\.json$/i.test(name), 'fixture_chunk_invalid')
+          const rows = protectedRead(join(tableDir, name))
+          requireThat(Array.isArray(rows), 'fixture_chunk_invalid')
+          tables[table].push(...rows)
+          requireThat(Buffer.byteLength(encode(tables)) <= 8_000_000, 'fixture_bundle_too_large')
+        }
+      }
+      return fixturePackage({ action: 'put_bundle', package_id: args.package_id, bundle: { bundleId: args.bundle_id, tables } }, root)
+    }
     if (args.action === 'put_bundle') {
       requireThat(!finalized, 'fixture_package_finalized')
-      const rowCounts = validateBundle(args.bundle, contract.references)
+      const rowCounts = validateBundle(args.bundle, contract.references, catalog)
       requireThat(Buffer.byteLength(encode(args.bundle)) <= 8_000_000, 'fixture_bundle_too_large')
       const files = readdirSync(join(dir, 'customers'))
       const name = args.bundle.bundleId + '.json'
       requireThat(files.includes(name) || files.length < 10, 'fixture_bundle_limit')
-      const sha256 = write(join(directory(join(dir, 'customers')), name), args.bundle)
+      const sha256 = protectedWrite(join(protectedDirectory(join(dir, 'customers')), name), args.bundle)
       return encode({ package_id: args.package_id, stored: true, sha256, rowCounts, released: false })
     }
     if (args.action === 'put_report') {
       requireThat(!finalized && ['schema', 'transformation', 'loss', 'categories', 'parity', 'privacy'].includes(args.report) && plain(args.content), 'fixture_report_invalid')
       requireThat(Buffer.byteLength(encode(args.content)) <= 2_000_000, 'fixture_report_too_large')
-      const sha256 = write(join(directory(join(dir, 'reports')), args.report + '.json'), args.content)
+      const sha256 = protectedWrite(join(protectedDirectory(join(dir, 'reports')), args.report + '.json'), args.content)
       return encode({ stored: true, sha256, released: false })
     }
     requireThat(['status', 'finalize'].includes(args.action), 'fixture_action_invalid')
-    const files = readdirSync(directory(join(dir, 'customers'))).sort()
-    const reports = readdirSync(directory(join(dir, 'reports'))).sort()
+    const files = readdirSync(protectedDirectory(join(dir, 'customers'))).sort()
+    const reports = readdirSync(protectedDirectory(join(dir, 'reports'))).sort()
     if (args.action === 'finalize') {
       requireThat(files.length === 10 && ['schema', 'transformation', 'loss', 'categories', 'parity', 'privacy'].every(x => reports.includes(x + '.json')), 'fixture_incomplete')
       const bundles = files.map(name => {
         requireThat(/^[a-z][a-z0-9_-]{0,63}\.json$/i.test(name), 'fixture_filename_invalid')
         const path = join(dir, 'customers', name)
-        const bundle = read(path)
+        const bundle = protectedRead(path)
         requireThat(name === bundle.bundleId + '.json', 'fixture_bundle_filename_mismatch')
-        return { bundleId: bundle.bundleId, path: 'customers/' + name, sha256: hash(readFileSync(path)), rowCounts: validateBundle(bundle, contract.references) }
+        return { bundleId: bundle.bundleId, path: 'customers/' + name, sha256: hash(readFileSync(path)), rowCounts: validateBundle(bundle, contract.references, catalog) }
       })
       const reportHashes = Object.fromEntries(reports.map(name => {
         requireThat(/^(schema|transformation|loss|categories|parity|privacy)\.json$/.test(name), 'fixture_report_invalid')
         const path = join(dir, 'reports', name)
-        requireThat(plain(read(path)), 'fixture_report_invalid')
+        requireThat(plain(protectedRead(path)), 'fixture_report_invalid')
         return [name, hash(readFileSync(path))]
       }))
-      const digest = write(join(dir, 'manifest.json'), { formatVersion: 1, bundles, references: contract.references, reports: reportHashes, privacyStatus: 'requires-independent-review', released: false })
+      const digest = protectedWrite(join(dir, 'manifest.json'), { formatVersion: 1, bundles, references: contract.references, reports: reportHashes, ...(catalog ? { catalog: { path: 'catalog.json', sha256: hash(readFileSync(join(dir, 'catalog.json'))), rowCounts: validateBundle(catalog, []) } } : {}), privacyStatus: 'requires-independent-review', released: false })
       return encode({ package_id: args.package_id, state: 'staged-for-review', bundles: 10, manifestSha256: digest, protectedPath: dir, released: false, privacyCertified: false })
     }
     return encode({ package_id: args.package_id, state: finalized ? 'staged-for-review' : 'staging', bundleCount: files.length, reportCount: reports.length, released: false })

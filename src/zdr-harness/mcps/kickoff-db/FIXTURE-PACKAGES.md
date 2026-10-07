@@ -77,3 +77,65 @@ reads back hashes, then atomically renames the directory into place. Existing
 releases are never overwritten. No raw contract, source files or mappings are
 copied. A missing receipt fails closed. This capability does not itself grant
 permission to release any customer data.
+
+## Full preparation workflow
+
+- `fixture_context`: fixed pinned contract, source-shape JSON, GraphQL schema,
+  call ordinal/loader source, briefing facts and meal helpers. Page at 16000
+  characters maximum. Source hashes identify the snapshot; these are not live
+  production schemas. Regenerate with `node build-fixture-context.mjs` from
+  the canonical local source paths after reviewed source changes. Generated
+  helper modules strip TypeScript only; narrow date-fns/Ramda shims reproduce
+  the operations used by the selected pure helpers without dependency on the
+  app runtime. No caller-supplied code or file paths are executed/read.
+- `fixture_call_number`: exact pinned session grouping and target rules. The
+  production mode uses the original loader's filters and parameterized client
+  scope, verifies target ownership and fails above 10000 history rows. It
+  handles UTC MySQL date strings explicitly. Explicit at is mandatory;
+  coach_id is mandatory without a target booking. `rows` plus optional `call`
+  computes transformed-history ordinals without database access. Positive
+  safe-integer IDs are required to preserve the original helper's type model.
+- `fixture_facts`: pure client-local whole-day windows (IANA DST or offset
+  hours), Terra start-time local day/reference-date fallback, and original
+  manual/auto macro merge. It preserves null and zero behavior from source.
+- `fixture_source_page`: read-only SELECT guarded by existing SQL restrictions,
+  saved only in protected exports/fixture-source-pages. At most 50 returned
+  rows and 2 MB; binary fields and oversized pages fail closed. Cells are not
+  clipped. Capture returns count, opaque page_id, hasMore and sensitive:true;
+  read pages full JSON text. Use narrow source scopes, deterministic ORDER BY
+  and keyset pagination. hasMore reflects the submitted SELECT, so an inner
+  LIMIT can still hide additional source records: record source totals and
+  use cursors correctly. No model-side regex classification or raw bridge output.
+
+Package operations added for long tasks:
+
+- `list`, `checkpoint {content}`, `resume`: private durable working state;
+  checkpoint can retain source IDs and mappings **only inside ZDR**. Release
+  never copies checkpoints, chunks, contracts or source pages.
+- `add_rows {bundle_id,table,chunk_id,rows}` saves an immutable, exact-retry-safe
+  table chunk (1000 rows/2 MB maximum). `seal_bundle {bundle_id}` assembles in
+  table/chunk lexical order, validates declared joins and enforces the 8 MB
+  final customer limit. Seal only after all tables/references are present.
+  Additional chunks for a sealed customer fail. Use fixed-width chunk IDs.
+- `put_catalog {bundle}` saves shared catalog tables. References use
+  targetScope:"catalog"; other references resolve within each customer.
+  Catalog is hashed in the final manifest, reviewed and copied during release.
+- `read_bundle`, `read_report`, `read_catalog`, `read_chunk`: sensitive paged
+  staged content, available only to the ZDR agents. Never echo through bridge.
+
+The direct analyst now has 240 steps (bridge agent retains 60), with automatic
+compaction. More steps are not a guarantee that a rich ten-customer extraction
+fits one run; checkpoint every batch and resume the same package as needed.
+Privacy/source-parity assertions remain review tasks, not automatic certification.
+
+Pinned reference snapshots and generated helper code live at
+`~/.zdr-harness/fixture-context/` (700 directory, 600 files), **outside Git**.
+The dotfiles repository is public. Do not publish company source or private
+contracts there. `build-fixture-context.mjs` reads only the enumerated local
+reference paths and generates hash-bound helpers in that private directory.
+After rebuilding references, restart the idle harness to load the helper pins.
+Missing references fail these new computations closed; existing database
+tools remain available. Reference-dependent offline tests skip on machines
+without the private snapshots; package/source-page tests remain standalone.
+These reference files contain source definitions, not client exports; database
+export pruning does not delete them.

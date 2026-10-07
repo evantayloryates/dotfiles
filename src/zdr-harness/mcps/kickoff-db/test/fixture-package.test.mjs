@@ -86,3 +86,27 @@ test('release requires an independent receipt and exact unchanged package hashes
   assert.deepEqual(readFileSync(join(result.outputPath, 'customers', 'fictional_0.json')), bytes)
   assert.throws(() => releaseFixture(join(root, id), receipt, destination), /fixture_release_already_exists/)
 })
+
+test('chunked customer, checkpoints and shared catalog survive resumptions and guarded release', t => {
+  const { temp, root, call } = setup(t)
+  const id = call({ action: 'create', references: [{ table: 'clients', field: 'planId', targetTable: 'plans', targetScope: 'catalog' }] }).package_id
+  call({ action: 'put_catalog', package_id: id, bundle: { bundleId: 'common', tables: { plans: [{ id: 'fictional_plan' }] } } })
+  assert.match(call({ action: 'read_catalog', package_id: id }).content, /fictional_plan/)
+  for (let n = 0; n < 10; n++) {
+    const chunk = { action: 'add_rows', package_id: id, bundle_id: 'client_' + n, table: 'clients', chunk_id: 'part_01', rows: [{ id: 'fictional_' + n, planId: 'fictional_plan' }] }
+    assert.deepEqual(call(chunk), call(chunk))
+    assert.match(call({ action: 'read_chunk', package_id: id, bundle_id: 'client_' + n, table: 'clients', chunk_id: 'part_01' }).content, /fictional_plan/)
+    call({ action: 'seal_bundle', package_id: id, bundle_id: 'client_' + n })
+    assert.throws(() => call(chunk), /fixture_bundle_sealed/)
+    call({ action: 'checkpoint', package_id: id, content: { lastComplete: n, next: n + 1 } })
+    assert.equal(call({ action: 'resume', package_id: id }).checkpoint.lastComplete, n)
+  }
+  assert.ok(call({ action: 'list' }).packages.includes(id))
+  for (const report of ['schema', 'transformation', 'loss', 'categories', 'parity', 'privacy']) call({ action: 'put_report', package_id: id, report, content: { syntheticTest: true } })
+  const result = call({ action: 'finalize', package_id: id })
+  const receipt = join(temp, 'catalog-approval.json'), destination = join(temp, 'catalog-release')
+  writeFileSync(receipt, JSON.stringify({ manifestSha256: result.manifestSha256, destination, method: 'qualified-independent-review', clearanceReference: 'INVENTED-TEST-ONLY', transferAuthorized: true, allPackageBytesCleared: true }))
+  const released = releaseFixture(join(root, id), receipt, destination)
+  assert.equal(JSON.parse(readFileSync(join(released.outputPath, 'catalog.json'))).tables.plans.length, 1)
+  assert.throws(() => call({ action: 'read_chunk', package_id: id, bundle_id: '../../leak', table: 'clients', chunk_id: 'part_01' }), /fixture_read_invalid/)
+})

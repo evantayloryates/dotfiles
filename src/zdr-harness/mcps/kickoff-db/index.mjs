@@ -28,6 +28,10 @@ import { createInterface } from 'node:readline'
 import { checkServerIdentity } from 'node:tls'
 import { gunzipSync } from 'node:zlib'
 import { fixtureTool, fixturePackage } from './fixture-package.mjs'
+import { fixtureContextTool, fixtureContext } from './fixture-context.mjs'
+import { fixtureOrdinalTool, ordinalFromRows } from './fixture-ordinal.mjs'
+import { fixtureSourceTool, storeSourcePage, readSourcePage } from './fixture-source-page.mjs'
+import { fixtureFactsTool, fixtureFacts } from './fixture-facts.mjs'
 
 const OPT = process.env.ZDR_HARNESS_OPT
 if (!OPT) {
@@ -302,7 +306,7 @@ async function listTables({ like, limit } = {}) {
     params.push(like)
   }
   const [rows] = await c.query(
-    `SELECT table_name, table_rows AS approx_rows, ROUND(data_length/1048576) AS data_mb FROM information_schema.tables ` +
+    `SELECT table_name AS table_name, table_rows AS approx_rows, ROUND(data_length/1048576) AS data_mb FROM information_schema.tables ` +
       `WHERE table_schema=?${where} ORDER BY table_name LIMIT ${n}`,
     params
   )
@@ -314,18 +318,18 @@ async function describeTable({ table }) {
   const c = await connection()
   const t = checkIdent(table, 'table')
   const [cols] = await c.query(
-    'SELECT column_name, column_type, is_nullable, column_key, column_default, extra FROM information_schema.columns ' +
+    'SELECT column_name AS column_name, column_type AS column_type, is_nullable AS is_nullable, column_key AS column_key, column_default AS column_default, extra AS extra FROM information_schema.columns ' +
       'WHERE table_schema=? AND table_name=? ORDER BY ordinal_position',
     [target.database, t]
   )
   if (!cols.length) throw new ToolError(`No table named ${t}. Try list_tables with a LIKE pattern.`)
   const [idx] = await c.query(
-    'SELECT index_name, non_unique, GROUP_CONCAT(column_name ORDER BY seq_in_index) AS cols FROM information_schema.statistics ' +
+    'SELECT index_name AS index_name, non_unique AS non_unique, GROUP_CONCAT(column_name ORDER BY seq_in_index) AS cols FROM information_schema.statistics ' +
       'WHERE table_schema=? AND table_name=? GROUP BY index_name, non_unique ORDER BY index_name',
     [target.database, t]
   )
   const [fks] = await c.query(
-    'SELECT column_name, referenced_table_name, referenced_column_name FROM information_schema.key_column_usage ' +
+    'SELECT column_name AS column_name, referenced_table_name AS referenced_table_name, referenced_column_name AS referenced_column_name FROM information_schema.key_column_usage ' +
       'WHERE table_schema=? AND table_name=? AND referenced_table_name IS NOT NULL ORDER BY column_name',
     [target.database, t]
   )
@@ -756,8 +760,51 @@ async function exportStatus({ export_id, wait_seconds } = {}) {
   ].join('\n')
 }
 
+async function fixtureSourcePage(args) {
+  try {
+    const root = join(EXPORT_DIR, 'fixture-source-pages')
+    if (args.action === 'read') return readSourcePage(args, root)
+    if (args.action !== 'capture') throw new Error('fixture_source_arguments_invalid')
+    const statement = checkSql(args.sql)
+    if (!/^SELECT\b/i.test(statement)) throw new Error('fixture_source_select_required')
+    const limit = args.limit ?? 25
+    if (!Number.isInteger(limit) || limit < 1 || limit > 50) throw new Error('fixture_source_arguments_invalid')
+    const c = await connection()
+    const [rows] = await c.query(`SELECT * FROM (${statement}) AS fixture_source_rows LIMIT ${limit + 1}`)
+    return storeSourcePage(rows, limit, root)
+  } catch (err) {
+    if (forgetIfLost(err)) log('fixture source connection lost')
+    throw new ToolError(/^fixture_[a-z_]+$/.test(err.message) ? err.message : 'fixture_source_unavailable')
+  }
+}
+
+async function fixtureCallNumber(args) {
+  try {
+    if (args.rows !== undefined) return JSON.stringify(ordinalFromRows(args.rows, args.call || null, args))
+    for (const value of [args.client_id, ...(args.coach_id == null ? [] : [args.coach_id]), ...(args.kickoff_call_id == null ? [] : [args.kickoff_call_id])]) {
+      if (!Number.isSafeInteger(value) || value <= 0) throw new Error('fixture_ordinal_id_invalid')
+    }
+    if (args.kickoff_call_id == null && args.coach_id == null) throw new Error('fixture_ordinal_target_required')
+    // Validate anchor before opening a production connection.
+    ordinalFromRows([], null, { coach_id: args.coach_id || 1, at: args.at })
+    const c = await connection()
+    const [rows] = await c.query('SELECT id, coach_id AS coachId, service_id AS serviceId, started_at AS startedAt, scheduled_at AS scheduledAt, completed_at AS completedAt, duration_minutes AS durationMinutes FROM kickoff_calls WHERE client_id=? AND completed_at IS NOT NULL AND deleted_at IS NULL AND rescheduled_at IS NULL AND missed_by IS NULL LIMIT 10001', [args.client_id])
+    if (rows.length > 10000) throw new Error('fixture_ordinal_history_limit')
+    let call = null
+    if (args.kickoff_call_id != null) {
+      const [targets] = await c.query('SELECT id, coach_id AS coachId, service_id AS serviceId, started_at AS startedAt, scheduled_at AS scheduledAt, scheduled_end_at AS scheduledEndAt FROM kickoff_calls WHERE id=? AND client_id=? LIMIT 1', [args.kickoff_call_id, args.client_id])
+      if (targets.length !== 1) throw new Error('fixture_ordinal_target_not_found')
+      call = targets[0]
+    }
+    return JSON.stringify(ordinalFromRows(rows, call, args))
+  } catch (err) {
+    if (forgetIfLost(err)) log('fixture ordinal connection lost')
+    throw new ToolError(/^fixture_[a-z_]+$/.test(err.message) ? err.message : 'fixture_ordinal_unavailable')
+  }
+}
+
 const TOOLS = [
-  fixtureTool,
+  fixtureTool, fixtureContextTool, fixtureOrdinalTool, fixtureSourceTool, fixtureFactsTool,
   {
     name: 'guide',
     title: 'How to use the production database',
@@ -867,7 +914,7 @@ const TOOLS = [
   },
 ]
 
-const HANDLERS = { fixture_package: (args) => {
+const HANDLERS = { fixture_facts: args => { try { return fixtureFacts(args) } catch { throw new ToolError('fixture_facts_arguments_invalid') } }, fixture_source_page: fixtureSourcePage, fixture_context: args => { try { return fixtureContext(args) } catch { throw new ToolError('fixture_context_unavailable') } }, fixture_call_number: fixtureCallNumber, fixture_package: (args) => {
   try { return fixturePackage(args, join(EXPORT_DIR, 'fixture-packages')) }
   catch (err) { throw new ToolError(err.message) }
 }, guide, list_tables: listTables, describe_table: describeTable, query, transcript_list: transcriptList, transcript_get: transcriptGet, transcript_export: transcriptExport, transcript_export_status: exportStatus }

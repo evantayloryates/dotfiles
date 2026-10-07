@@ -307,3 +307,15 @@ use `release {package_id}` to transfer the reviewed manifest, bundles and
 reports to the fixed `/Users/taylor/Desktop/zdr-dump/<package_id>/` destination.
 Never claim that your privacy report creates the required approval receipt.
 Missing receipt means remain staged; do not seek another writing route.
+
+Fixture preparation tools now include fixture_context (fixed pinned contract/
+source pages), fixture_call_number (exact source ordinals or pure transformed
+rows/call mode), fixture_facts (local-day/DST, Terra dates, nutrition merge),
+and fixture_source_page (bounded full-cell SELECT capture/read inside ZDR).
+Use these instead of asking for arbitrary filesystem/code execution. Verify
+current physical schema; snapshots do not prove live schema or availability.
+Package checkpoint/resume, immutable add_rows/seal_bundle, shared put_catalog
+and paged readers support long jobs. Checkpoint source cursors and key maps
+privately after each small batch. Release excludes that working state.
+Readbacks can contain PHI: never echo them through the bridge. Do not abandon
+preparation just because independent release review is still pending.

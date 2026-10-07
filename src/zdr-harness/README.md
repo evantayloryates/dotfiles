@@ -752,3 +752,8 @@ It is explicitly allowed for both ZDR agents; built-in shell and arbitrary
 file/edit tools remain denied. See [tool workflow](mcps/kickoff-db/FIXTURE-PACKAGES.md).
 The production database remains read-only. Package creation is a local,
 protected staging write and does not authorize exporting clinical data.
+
+Data Loader also has fixed pinned contract/source access, exact call ordinals,
+local-day/nutrition helpers, bounded full-cell source capture, shared catalogs
+and durable chunk/checkpoint recovery. The direct analyst has 240 steps; the
+bridge agent retains 60. See the workflow above for limits and review gates.

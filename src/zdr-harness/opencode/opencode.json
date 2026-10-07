@@ -114,6 +114,10 @@
     "classifier_classify_profile_save": "allow",
     "classifier_classify_guide": "allow",
     "classifier_classify_sample": "allow",
+    "kickoffdb_fixture_source_page": "allow",
+    "kickoffdb_fixture_facts": "allow",
+    "kickoffdb_fixture_context": "allow",
+    "kickoffdb_fixture_call_number": "allow",
     "kickoffdb_fixture_package": "allow",
     "kickoffdb_transcript_export": "allow",
     "kickoffdb_transcript_export_status": "allow",
@@ -145,7 +149,7 @@
       "description": "Full-detail analyst for the app UI (PHI allowed; never relayed to another agent)",
       "prompt": "{file:./prompts/analyst.md}",
       "variant": "medium",
-      "steps": 60
+      "steps": 240
     },
     "build": {
       "disable": true
