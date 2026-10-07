@@ -1,3 +1,27 @@
+## October 7, 10:54 Eastern checkpoint
+
+Native mod activation is now observed: Taylor enabled session hot reloading and
+the original probe command appeared and ran. Both original native attempts
+failed before a returned MCP result and do not establish permission enforcement.
+Their public MCP call signature was wrong; preserved failures do not count as
+validation attempts for the corrected candidate.
+
+Separate v0.4.0 uses the installed public call(server, tool, args) wrapper.
+Corrected-wrapper tests cover exact native arguments, concurrent one-attempt
+dispatch, foreign ownership and prior intent/report refusal. Full isolated
+regression passed unchanged, and all 20 installed admission checks passed with
+synthetic inputs. None proves corrected native execution, positive/negative
+admission, sustained serving or unload. Exact corrected report remains absent.
+Its next native step is the registered claude-driver-native-read-check command
+in the existing claude-driver-broker session, once only. No live invocation
+handle is known, so report absence is not a verified wait or failed attempt.
+
+Full release remains unqualified: current-source serving and guarded mutations,
+steering/handoff, distinct-build rollback, residency/cold recovery and settlement
+of the 17 historical uncertain effects remain separate gates. Source-specific
+historical passes below must not be promoted to present release evidence.
+Scoped probe retirement requirements are in mechanical-native-route.md.
+
 ## October 7, 06:10 Eastern checkpoint
 
 Actual owned Node worker-loss pressure passed on1bad0d6d: durable unknown outcome,
@@ -93,7 +117,7 @@ input, context reset, model/auth change or competing recovery occurred.
 
 # Claude-driver v2 qualification
 
-Latest audit: October7,04:57 Eastern. The bridge is a working native control
+Latest audit: October7,10:54 Eastern. The bridge is a working native control
 prototype in reliability hardening, not general-use ready. See [resume.md](resume.md).
 
 | Requirement | Current evidence | Remaining gate |
