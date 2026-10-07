@@ -1,4 +1,88 @@
-## Latest frontier — October 7, 02:35 Eastern
+## Latest frontier — October 7, 02:57 Eastern
+
+Goal ACTIVE. Working native prototype, reliability hardening, NOT general-use
+ready. Keep input quarantine, current native PID/permissions/model and observer
+ownership. No keyboard/CUA, app restart, session process kill, context reset,
+new chats, blind replay or competing recovery. Codex/1Password work stay separate.
+
+Current broker remains local_35b3ba48-f02e-48de-bfbb-925192d90de1,
+PID71262/start Wed Oct7 03:24:51 2026 UTC, dependency4af08654/generation6,
+CLI2.1.289/app2.26454.0. Integrity/current-epoch entries verified. Hook package
+35e9c23325a37cdad4b4b57e60f72114a4837f08ba38ed9efe2ad4b5e08ce677 is installed
+with quiet waiting DISABLED after clean experimental expiry. Handler hash
+ ee8c649e59324d64704e265d95095649d8384d45406340cb524985053e48dd33;
+settings hash d8c8edfc0207bcb2cdbc5132a4bf6b091c32153f642464b9f97dae5dcadee9ff.
+Host candidate has a later strict quiet-policy shape amendment; distinguish its
+isolated proof from this installed/native-tested package. No release handoff.
+
+Verified progress:
+- Fixed continuation wording scopes the one-rescue budget to EACH request ID.
+  Historical assistant statements about an exhausted lifecycle do not authorize
+  STOP or terminate the service. This is a cue, not a guarantee of execution.
+- One native batch read/archive completed15.635s with both admission IDs/native
+  receipts; independent metadata confirms the existing owned fixture archived.
+  `native-request-budget-batched-cleanup-2026-10-07T06-43-44-349Z.json` passed.
+  Earlier uncertain archive attempts remain uncertain; desired state does not
+  prove which old request caused an effect.
+- Sequential ordinary reads still failed on the second request:
+  `native-request-budget-sequential-2026-10-07T06-45-03-456Z.json`.
+  Detector024454/024525 match rmuxqsph8-d35958, expired read, retrySafe:true,
+  no receipt. Later liveness is queued-metadata clearance, NOT crash diagnosis
+  or recovered serving. Review: `native-request-budget-detector-review-2026-10-07.json`.
+
+Opt-in bounded mechanical Stop-hook POC is now implemented. Service-local policy
+allows1000–60000ms; default off, PreToolUse timeout remains5s. It verifies native
+identity/ancestry/version, current dependency pointer, actual policy/handler/
+settings bytes, exact owned peer wake or consumed fixed isMeta feedback. An
+exclusive helper owns bounded readiness metadata; actual helper PID/start/
+ancestry, pointer and TTL are independently checked by clients. It polls only
+one durable request notice with no idle model calls, copies no operation data
+into feedback, and shares the same one-rescue-per-ID consumption file. Different
+request IDs may continue a continued hook; the same ID cannot. STOP, policy drift
+and expiry terminate waiting; handoff settlement retains its separate path.
+A dead helper can leave an exclusive owner marker: readiness then fails, but
+automatic stale-marker reaping is intentionally not implemented. Reconcile that
+owned marker before re-enrollment; never infer readiness from a file alone.
+
+Native experiment FAILED execution reliability:
+- `native-quiet-read-burst-2026-10-07T06-55-03-695Z.json`: first get_session
+  passed12.226s with a real receipt; second rmuxr6hdm-4d4631 expired30s.
+- Mechanical continuation consumed at06:55:22.497Z and EXACT feedback persisted
+  at06:55:22.500Z. Claude ended with no tool calls, then stated it was processing
+  the request. Native helper48445 really waited afterward, but that proves only
+  signaling/liveness. It does NOT prove the model executed the directive.
+  See `native-quiet-continuation-forensics-2026-10-07.json` and matching
+  `native-quiet-second-read-forensics-2026-10-07.json`.
+- Quiet helper exited on its60s bound; owner absent/nativeidle independently
+  checked before disabling quiet enrollment at06:56:40Z. No replay or kill.
+  `native-quiet-experiment-settlement-2026-10-07.json`.
+
+Isolated safety/contract tests passed on the native-trial candidate in
+`v2-2026-10-07T06-54-39-457Z.json`. New actual subprocess tests cover no idle
+feedback, exclusive ownership, distinct continued requests, cancellation,
+expiry, STOP, policy drift, foreign human messages, helper death/epoch/TTL and
+handoff settlement. Final strict-shape amendment passed the complete isolated suite on unchanged
+source in `v2-2026-10-07T06-58-16-840Z.json`; these tests do not establish native
+general-use readiness.
+
+Next: focus on dependable execution dispatch. A purely mechanical signal can
+reach the native context while the model still ends without tools. More polling
+or identical wakes do not resolve this. Bound future experiments, preserve the
+failed requests and independently verify actual dispatch/tool receipts. A
+read-only app/CLI source inspection found in-process SDK MCP routing but no
+external tools/call route in the inspected peer inbox; that is a scoped negative
+observation, not proof no supported direct route exists. Do not attach to/spoof
+parent stdio or alter the app. General steering, sustained latency, distinct-build
+rollback, natural governor pressure and unattended cold recovery stay open.
+
+Fast sensing remains the local zero-inference30s detector. Hourly Claude observer
+is fallback only; active testing does not wait for it. Codex report inbox30s still
+uses inference. Old reports021323/021456/023210 and15 historical mutations remain
+pending with durable blockers; no blind replays. Archive cleanup is settled for
+the fixture, not for those original causal outcomes. The old frontier below is
+historical; in particular its unarchived fixture statement is superseded.
+
+## Previous frontier — October 7, 02:35 Eastern
 
 Goal ACTIVE. Working native prototype, not general-use readiness. The latest
 full native suite FAILED; isolated/API passes are not native reliability proof.

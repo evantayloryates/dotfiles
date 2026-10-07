@@ -1,5 +1,31 @@
 # claude-driver findings
 
+## 2026-10-07 02:57 Eastern — native signal reaches context, execution still skipped
+
+One batched read/archive completed15.635s and independent readback confirms the
+owned fixture archived. A following sequential-read test failed on its second
+call. Per-request budget clarification therefore does not solve availability.
+
+An opt-in command Stop hook now waits mechanically for durable work, with real
+helper-ancestry/epoch/TTL proof and exclusive per-request continuation consumption.
+It has no idle model evaluation; new request IDs get independent single budgets.
+Isolated subprocess tests prove silent waiting, concurrent ownership, cancellation,
+expiry, STOP, helper death, drift, continued flags and separate handoff settlement.
+It remains default-off and a bounded experiment, not residency qualification.
+
+Native trial first read passed12.226s; the second timed out30s. The exact fixed
+continuation reached the native journal at06:55:22.500Z, but the model ended with
+no tools and only said it was processing the request. Thus mechanical signal
+admission is independently verified while execution reliability still fails.
+No prose or live helper marker may be promoted to completed work. Quiet waiting
+was disabled only after its bounded helper exited and the same native broker
+was idle. Preserve `native-quiet-read-burst-2026-10-07T06-55-03-695Z.json`,
+`native-quiet-continuation-forensics-2026-10-07.json` and settlement evidence.
+
+Focus next on execution dispatch, not more polling or repeated wake prompts.
+Previous uncertain effects remain pending even though fixture cleanup succeeded.
+See [resume.md](resume.md) for exact versions/build distinctions and open gates.
+
 ## 2026-10-07 02:35 Eastern — native boundary enforcement and preserved serving failures
 
 - One exact native archive occurred0.588s after the helper returned cancelled/

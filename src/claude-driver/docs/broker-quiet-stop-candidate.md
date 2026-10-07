@@ -1,6 +1,17 @@
 # Candidate: wait for service work inside the native command Stop hook
 
-Prepared October7,02:16 Eastern. NOT implemented or native-qualified.
+Updated October7,02:57 Eastern. Implemented opt-in POC; isolated boundaries pass.
+Native signal delivery was proved, but native EXECUTION RELIABILITY FAILED.
+Enrollment was disabled after verified bounded helper expiry. See resume.md.
+
+The second read's exact continuation reached the native journal, then Claude
+ended with zero tool calls and said it was processing the request. This rules out
+missing signaling for that episode; it does not establish a root cause or reliable
+serving. Repeated wake prompts/polling must not substitute for execution proof.
+Default is off; explicit policy accepts1000–60000ms. Quiet helper readiness means
+live mechanical signal availability only. A dead helper's exclusive marker may
+remain; fail closed and reconcile exact owned state, never blindly reap it.
+The boundaries below remain qualification requirements, not completion claims.
 
 Update02:35 Eastern: native effects after dispatch:false/cancellation require
 mechanical actual-tool admission first. The installed native gate now has scoped

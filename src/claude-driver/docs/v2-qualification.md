@@ -1,34 +1,28 @@
 # Claude-driver v2 qualification
 
-Latest audit: October7,02:35 Eastern. The bridge is a working native control
-prototype undergoing reliability qualification. See [resume.md](resume.md)
-for fingerprints, failures and exact artifacts.
+Latest audit: October7,02:57 Eastern. The bridge is a working native control
+prototype in reliability hardening, not general-use ready. See [resume.md](resume.md).
 
 | Requirement | Current evidence | Remaining gate |
 |---|---|---|
-| Native batch/concurrency | Earlier9-check full native pass; later4af concurrency failed and f824 initial serving/cleanup failed | Current-source native steering, consistent serving and sustained latency |
-| Host lifecycle/control contracts | Three unchanged-source isolated rounds and both10-check actual filtered harnesses on f824; final e8 bounded-input candidate passed one whole isolated round | Final hook amendment native qualification; API tests are not native reliability |
-| Transport | Installed receiver contract and exact native acceptance155–159ms; no sender model | Acceptance is distinct from operation execution |
-| Deployment | Same PID through generation6; current4af dependency entries verified, sealed inventory intact | Distinct-build rollback and prior uncertain effect reconciliation |
-| Stale-entry guard | Installed adapter redirected old scripts into current sealed entries, with actual native proof | New entry index is staged; legacy identical slots refuse |
-| Native effect guard | Final e8 bounded-input native read13.174s matched admission ID/receipt; earlier cancellation after checkpoint produced actual native denial | Platform timeout/fault paths and final-package native cancellation |
-| Uncertainty containment | Native effect observed after helper dispatch:false; enqueued effects now outcome_unknown/retrySafe:false without receipt | Prior native mutations remain pending; no blind retries |
-| Evidence/memory | Shared metadata memory, exact builds/versions, preserved failure reports | Promote candidates only after native evidence |
-| Fast detection | Local30s metadata detector, zero inference, episode deduplication | Codex inbox still inference-bearing; Claude hourly observer is fallback only |
-| Residency/recovery | Same native PID foreground waiting; maintenance list/app acknowledgment | Sustained natural governor pressure and unattended cold recovery |
-| Input scope | Quarantine active; no keys/pastes, app restart or auth change | Safe helper teardown and future physical-input qualification |
+| Common interface and lifecycle | CLI/MCP, durable jobs, idempotency, steering, receipt and shared-memory contracts; actual filtered harness checks passed previously | Current-source native serving/steering under sustained use |
+| Native controls | Batch read/archive passed15.635s with independent archived readback | Sequential calls still fail; current full suite remains failed |
+| Native effect guard | Actual positive receipts and cancellation-after-checkpoint denial; unknown effects fail closed | Platform timeout/fault paths and final-package native cancellation |
+| Uncertainty containment | Enqueued mutations without receipt are outcome_unknown/retrySafe:false | Fifteen historical effects remain causally unresolved; do not replay |
+| Deployment | Same PID/current dependency4af/generation6 with intact sealed inventory | Distinct-build rollback and unresolved handoff blockers |
+| Mechanical quiet signal | Isolated subprocess boundaries pass; exact native per-ID continuation persisted; helper ancestry/expiry proved | Model ended without tools; signal receipt is not execution reliability |
+| Residency/recovery | Bounded quiet helper expired cleanly; native broker stayed alive | Natural governor pressure and unattended cold recovery |
+| Fast detection | Zero-inference local30s detector; hourly Claude observer fallback | Codex inbox remains inference-bearing; full event-triggered inference not implemented |
+| Evidence and memory | Shared service artifacts, fingerprints, failures and candidate/verified distinctions | Promote only after independent native receipts |
+| Human input scope | Quarantine preserved; no keyboard/paste or app/auth/process intervention | Broader native teardown and future physical-input qualification |
 
-The installed hook/host is e8b16514; active dependency package remains4af08654,
-generation6. Host, hook and active dependencies are separate evidence identities.
-Compatible wake/drain v6 and protocol7 remain.
-Existing MCP connections do not reload source. Use current CLI/fresh MCP.
-No full general-use readiness claim is supported. Native observer owns offline
-recovery; avoid competing wakes or unapproved cross-chat instructions.
-
-Final e8 native read passed, but its following desired-state cleanup FAILED after
-45s. The owned fixture remains unarchived/idle and the attempted archive remains
-unknown. `native-bounded-gate-final-check-2026-10-07T06-35-45-388Z.json` is a
-failed cleanup report, not a full qualification pass. Reconcile before another run.
+Installed hook35e9c233 has quiet enrollment disabled after the failed native
+experiment. The host has a later strict policy-shape amendment, isolated-tested
+separately. Active dependencies remain4af08654, generation6. These identities are
+separate; an installed candidate or successful send is not full readiness.
+The fixture is now archived, superseding earlier failed cleanup's current-state
+claim; preserve the original failed/uncertain outcomes. No new fixture or model
+change was used. Native trial read-only artifacts are listed in resume.md.
 
 ## Historical and broader mechanism evidence
 

@@ -24,6 +24,7 @@ import { validateWarmBroker, warmOnlyRecovery, nativeWarmFailure } from './warm-
 import {brokerResidencyProtection} from './broker-residency.mjs'
 import {activeRelease,commitRelease,HANDOFF_OWNER,releaseStatus,entryEpochEvidence,loadEntryEvidence} from './releases.mjs'
 import {stopRescuePolicy,armStopRescue,disarmStopRescue} from './stop-rescue.mjs'
+import {quietHookStatus} from './quiet-hook.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const TEMPLATE = join(HERE, '..', 'broker-template', 'CLAUDE.md')
@@ -87,6 +88,7 @@ export function brokerInfo() {
     runtime.dependencyPathsObserved=runtime.dependencyEvidence.verified
   }
   const templateCurrent = runtime.integrity && existsSync(join(BROKER_DIR, 'CLAUDE.md')) && readFileSync(join(BROKER_DIR, 'CLAUDE.md'), 'utf8') === renderTemplate()
+  const quiet=quietHookStatus({sessionId:info.sessionId,live})
   return {
     configured: true,
     sessionId: info.sessionId,
@@ -97,7 +99,8 @@ export function brokerInfo() {
     model: rec?.model ?? null,
     permissionMode: rec?.permissionMode ?? null,
     live: live ? { pid: live.pid, status: live.status, socket: live.messagingSocketPath, entrypoint:live.entrypoint,procStart:live.procStart } : null,
-    resident: live ? { ...heartbeat(), resident: ['busy', 'working'].includes(live.status) && heartbeat().resident } : { resident: false },
+    resident: live ? { ...heartbeat(), resident: quiet.verified||['busy', 'working'].includes(live.status) && heartbeat().resident } : { resident: false },
+    quietHook:quiet,
     templateCurrent,
     runtime,
     handoffStopped:readJson(join(BROKER_DIR,'STOP'),null)?.owner===HANDOFF_OWNER,
@@ -164,17 +167,19 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
     if(observe) request.nativeObservation=observe.start
     if(observe&&rescuePolicy?.nativeEffectAdmissionVersion===1)request.nativeEffectAdmissionPolicy={version:1,handlerSha256:rescuePolicy.sha256,settingsHash:rescuePolicy.settingsHash}
     enqueue(request)
+    if(rescuePolicy?.quietWait?.version===1)writeJsonAtomic(join(BROKER_DIR,'quiet-request.json'),{requestId:id})
     const wakeOptions=target=>{const priority=idleWake&&target.live?.status==='idle'?'now':'next';return {signal,...(rescuePolicy?{method:'direct',priority,onPrepared:w=>{
       // Metadata survives arm disarming, so an unaccepted socket write remains
       // independently correlatable after a timeout. No keys or prompt bodies.
       writeJsonAtomic(join(BROKER_DIR,'wake-'+id+'.json'),{requestId:id,...w,priority,preparedAt:Date.now(),acceptance:'unverified'})
+      if(rescuePolicy?.quietWait?.version===1)writeJsonAtomic(join(BROKER_DIR,'quiet-last-wake.json'),{requestId:id,...w})
       armStopRescue(rescuePolicy,request,w)
     }}:{})}}
     progress(`broker request ${id}: ${ops.map((o) => o.op).join(', ')}`)
     const t0 = Date.now()
-    let via = { method: 'resident' }
+    let via = { method: info.quietHook?.verified?'native-quiet-hook':'resident' }
     let lastWake = 0
-    let wakeAttempts = 0
+    let wakeAttempts = info.quietHook?.verified?1:0 // one native hook continuation, no additional peer wake
     let terminalWakeAt = null
     // Persist abort intent while the delivery helper is still shutting down.
     // Waiting for helper exit first leaves an avoidable dispatch window.

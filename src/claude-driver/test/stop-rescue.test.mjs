@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {eligibleRescue,adaptEntryCommand,PEER_PREFIX,PEER_SUFFIX} from '../scripts/broker-stop-rescue.mjs'
+import {eligibleRescue,adaptEntryCommand,requestRescueReason,PEER_PREFIX,PEER_SUFFIX} from '../scripts/broker-stop-rescue.mjs'
 import {mkdtempSync,mkdirSync,writeFileSync,readFileSync,rmSync,chmodSync} from 'node:fs'
 import {createHash} from 'node:crypto'
 import {tmpdir} from 'node:os'
@@ -8,6 +8,9 @@ import {join} from 'node:path'
 import {execFileSync,spawn} from 'node:child_process'
 import {fileURLToPath} from 'node:url'
 const sid='00000000-0000-4000-8000-000000000001',msg='00000000-0000-4000-8000-000000000002'
+test('rescue identity and budget are scoped to one request without copying operation data',()=>{
+ const a=requestRescueReason('rone'),b=requestRescueReason('rtwo');assert.notEqual(a,b);assert.ok(a.includes('PER REQUEST ID'));assert.ok(a.includes('No second rescue is permitted for request rone'));assert.ok(a.includes('Later independently admitted request IDs'));for(const id of ['../escape','r injection\n','other','',null])assert.throws(()=>requestRescueReason(id))
+})
 test('entry adaptation redirects cached and historical paths without permitting shell syntax or background waits',()=>{
  const stateDir='/private/state',brokerDir=stateDir+'/broker',old='a'.repeat(64),current='b'.repeat(64),activeRoot=stateDir+'/releases/'+current,cachedRoots=['/private/source'],config={stateDir,brokerDir,activeRoot,cachedRoots}
  const wait=`/opt/homebrew/bin/node ${stateDir}/releases/${old}/scripts/broker-wait.mjs --dir "${brokerDir}"`,check=`/opt/homebrew/bin/node /private/source/scripts/broker-check.mjs rtest 0 --dir "${brokerDir}"`

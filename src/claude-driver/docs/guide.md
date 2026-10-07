@@ -46,6 +46,14 @@ platform hook runner failures are not yet exhaustively qualified. Reconcile
 before new work; neither cancellation nor a stop reverses an earlier effect.
 See [native-effect-admission.md](native-effect-admission.md).
 
+The optional quiet command-hook experiment polls durable metadata without idle
+model calls and supplies one fixed continuation per request ID. It is disabled:
+the real native continuation arrived, but Claude ended without tool calls. A
+verified quiet helper proves mechanical signaling availability only. It does not
+prove serving, completion, sustained residency or general-use readiness. Existing
+fast local detection remains30s; the hourly observer is fallback, not test pacing.
+See [broker-quiet-stop-candidate.md](broker-quiet-stop-candidate.md).
+
 ## V2 control interface
 
 Check `driver_status.runtimeBuild`, `sourceBuild` and `restartRequired` when
