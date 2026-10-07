@@ -1,3 +1,13 @@
+## Route-specific health checks — October 7
+
+Added shared advisory action_health with four dependency sets: local, desktop,
+native-sidecar, inference. Actual read-only checks: local/desktop eligible; native
+serving unverified and inference unknown refuse. Zero model calls. Synthetic app
+shutdown/quota tests preserve local availability and model-free sidecar independence.
+Full pressure18-40-47 passed1/1 in9690ms/sourceChanged:false. Per-action branch
+mapping/enforcement and bound provider availability evidence remain open. Taylor
+authorized app quit; not exercised yet because observer recovery can confound it.
+
 ## Collocated staging checkpoint — October 7
 
 See staging-status.md for exact storage migration, debug retirement, built-in

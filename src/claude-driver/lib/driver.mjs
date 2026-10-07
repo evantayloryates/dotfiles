@@ -947,6 +947,22 @@ export const OPS = [
     },
   },
   {
+    name:'action_health',title:'Check selected action route',readOnly:true,
+    description:'Dependency-specific eligibility for local, desktop, native-sidecar or inference routes. Does not execute, invoke inference or grant authorization. Unknown required dependencies refuse eligibility.',
+    schema:{properties:{type:{type:'string',enum:['local','desktop','native-sidecar','inference']}},required:['type']},
+    run:async args=>{
+      const {assessActionHealth}=await import('./action-health.mjs')
+      if(args.type==='local')return assessActionHealth('local')
+      const {execFileSync}=await import('node:child_process')
+      let appRunning
+      try{appRunning=execFileSync('/bin/ps',['-axo','comm='],{encoding:'utf8',timeout:2000,maxBuffer:1048576}).split('\n').some(x=>x.trim()==='/Applications/Claude.app/Contents/MacOS/Claude')}catch{}
+      if(args.type==='desktop')return assessActionHealth(args.type,{appRunning})
+      if(args.type==='inference')return assessActionHealth(args.type,{appRunning,inference:'unknown'})
+      const {serviceHealth}=await import('./service-health.mjs')
+      return assessActionHealth(args.type,{appRunning,...serviceHealth(brokerInfo())})
+    },
+  },
+  {
     name:'service_health', title:'Service health diagnostics', readOnly:true,
     description:'Observe broker liveness, runtime integrity and serving evidence without inference; persist bounded metadata-only diagnostic history. Never authorizes dispatch.',
     schema:{properties:{}},

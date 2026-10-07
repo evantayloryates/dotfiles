@@ -599,3 +599,21 @@ the report watcher continues its pending-evidence-only contract.
 Host native-service reads recheck the original published request deadline just
 before delivery. Expiry during claim/revalidation prevents send, preserves the
 request identity and capacity, and attempts cancellation cleanup.
+
+## Action-specific health eligibility
+
+Shared action_health(type) supports local, desktop, native-sidecar and inference.
+Local requires no app/broker/model. Desktop observes exact app executable; it
+does not require broker residency or quota. Native-sidecar requires app, owned
+broker liveness, pinned integrity and serving evidence, but not inference.
+Inference currently requires app and verified inference availability; the checker
+never makes a model call, so availability remains unknown absent a future
+independently bound provider observation. Unknown required facts refuse eligibility.
+
+This is advisory preflight, not authorization or an execution receipt; existing
+native effect gates remain authoritative. Route selection must reflect the actual
+implementation: a direct backend action and its model-bearing broker fallback may
+need different checks. Mapping all actions and enforcing those branch-specific
+checks remains unfinished. No generic read/write-label policy is safe. App absence
+is tested synthetically; an actual quit trial remains pending because the existing
+observer may wake the broker and confound the controlled outage.
