@@ -1,10 +1,10 @@
 # Claude-driver v2 qualification
 
 Work resumed on 2026-10-06; the current frontier is in [resume.md](resume.md).
-Current source passed five isolated rounds (98 tests each), ten filtered checks
+Current source passed five isolated rounds (101 tests each), ten filtered checks
 per actual Claude/Codex harness and four isolated scenarios using the installed
 native governor code. Current fingerprint:
-`73e5794f31db463ee439d85399531f17c856c0375dddc6d0e4a6d8ea6e2fe504`.
+`f2fc3746a9a1ca476f9d5a57128fc122209de1ca58f9a7e59795aa3acf6f0646`.
 
 The resumed native input-free suite passed all eleven checks on earlier source,
 with zero keyboard filters and archived cleanup. An eight-minute same-PID
@@ -17,6 +17,9 @@ adapted and passed on that module, while earlier native checks predate the
 update. Unknown extraction schemas now retain a failed report, not a pass.
 Two new tests verify stale MCP effect refusal and preserved observation/cancel;
 two more verify hash-aware report intake and incomplete/symlink rejection.
+Three additional regressions reproduce duplicate worker claim, queued source
+change and source change during recipient-lock wait. The final worker/control
+guards reject those before another effect; these remain synthetic boundaries.
 
 A live protocol upgrade was ignored rather than reloaded, so compatible v6 was
 restored and its interrupted fixture independently archived. Graceful STOP

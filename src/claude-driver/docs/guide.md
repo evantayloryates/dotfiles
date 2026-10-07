@@ -23,15 +23,22 @@ connecting a long-lived MCP process. Updated files do not reload it. A stale
 runtime rejects effects with `runtime_stale`, `dispatched:false` and
 `retrySafe:true` before recipient resolution; read-only observations and
 `driver_cancel` remain available. Reconnect or use a fresh current CLI process.
-Qualification still depends on both runtime fingerprint and installed app/CLI
-version. See [resume.md](resume.md) for current reports and observer handoff.
+Serialized recipient controls recheck after acquiring their lock, so a source
+change while waiting cannot slip past the entry check. Qualification still
+depends on both runtime fingerprint and installed app/CLI version. See [resume.md](resume.md) for current reports and observer handoff.
 
 Use `driver_submit {operation, arguments, idempotency_key, timeout_sec}`
 for work that must survive client disconnection. It immediately returns a
 job ID. Reuse the same key and arguments to reattach; changing the arguments
 with the same key is an error. Titles and `self` bind to a session ID at
 submission; later renames cannot change the recipient. Detached workers
-retain the desktop caller identity and its self-protection gates.
+retain the desktop caller identity and its self-protection gates. They also
+retain the submitting runtime fingerprint, exposed by `driver_job.runtimeBuild`.
+A worker starts only from queued state; another launch cannot reclaim a running
+job or replace its claimant PID. Mismatched or missing source provenance fails
+with `runtime_stale`, `dispatched:false`, `retrySafe:true` before the operation.
+Reattaching an old idempotency key returns that existing failure, never a replay;
+only submit new work after inspecting the failure and current source.
 `driver_job` inspects the job and
 `driver_wait {job_id, timeout_sec}` waits at most 60 seconds. A wait timeout
 does not cancel work. `driver_cancel` cancels the driver operation, not the

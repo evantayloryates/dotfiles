@@ -12,8 +12,8 @@ failure is **not** a confirmed governor-cap refusal: native logs show query exit
 code 143. Do not use external PID termination as routine broker recovery.
 
 Current runtime fingerprint:
-`73e5794f31db463ee439d85399531f17c856c0375dddc6d0e4a6d8ea6e2fe504`.
-On this source, five fresh isolated rounds passed (98 cases each), actual Claude
+`f2fc3746a9a1ca476f9d5a57128fc122209de1ca58f9a7e59795aa3acf6f0646`.
+On this source, five fresh isolated rounds passed (101 cases each), actual Claude
 Haiku and Codex gpt-6.1-sol each passed ten filtered API checks, and four isolated
 scenarios exercised the installed app's actual governor/victim-selection code.
 Those governor scenarios emit no real OS pressure or app IPC. During this run
@@ -26,6 +26,18 @@ Long-lived MCP runtimes expose sourceBuild/restartRequired and refuse new effect
 when loaded code differs from files on disk. Read-only observation and job
 cancellation remain available. Two actual stale-source tests verify rejection
 before recipient resolution; reconnect rather than silently mixing revisions.
+
+Three further pressure boundaries were reproduced and fixed without native
+writes: a second worker could reclaim a running job; a queued job could execute
+on changed source; and a control could pass its entry check then cross a source
+change while waiting for its recipient lock. Workers now claim only queued
+unstarted jobs, retain the claimant PID, and bind startup to the submitting
+runtime fingerprint. Unknown/mismatched provenance fails before dispatch.
+Controls recheck after lock acquisition. Reattaching an old key never launches
+another worker; a known-undispatched stale job needs deliberate new submission
+on current source. Synthetic reproduction evidence is retained in
+`worker-boundaries-reproduction-2026-10-07.json`; the original failures are not
+counted as passes. Current-source native qualification remains pending.
 
 The initial native input-free run after resume passed all eleven checks,
 including import/focus, durable reply, cancellation, settings, queue/interrupt,
@@ -44,9 +56,9 @@ verify actual native behavior before future protocol upgrades.
 
 Current reports under `/Users/taylor/.local/state/claude-driver/pressure/`:
 
-- `v2-2026-10-07T03-02-07-451Z.json`: five isolated rounds passed, unchanged source.
-- `harness-v2-{claude,codex}-2026-10-07T03-01-30-009Z.json`: ten checks per harness.
-- `governor-contract-2026-10-07T03-02-53-593Z.json`: four installed-code scenarios.
+- `v2-2026-10-07T03-07-25-141Z.json`: five isolated rounds passed, unchanged source.
+- `harness-v2-{claude,codex}-2026-10-07T03-06-47-532Z.json`: ten checks per harness.
+- `governor-contract-2026-10-07T03-06-47-601Z.json`: four installed-code scenarios.
 - `governor-extraction-failure-reconciled-2026-10-07.json`: failed old extractor,
   reconstructed failure evidence explicitly marked; not a native pressure pass.
 - `live-v2-2026-10-07T02-27-50-669Z.json`: eleven native checks passed on earlier source.

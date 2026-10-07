@@ -7,6 +7,19 @@ Versions: app = Claude desktop, cli = bundled Claude Code.
 
 ## 2026-10-06 (app 2.26454.0, cli 2.1.289)
 
+- **Exactly one queued worker and a pinned revision are necessary beyond
+  idempotent submission.** A second actual worker launch entered a running
+  synthetic session_wait; a queued operation on a changed source clone executed
+  a memory write; a control waiting on its recipient lock crossed a source change
+  and reached the stub native boundary. All three expectations first failed.
+  Workers now claim only queued unstarted jobs, preserve the existing claimant
+  PID and refuse missing/mismatched submitting revisions before dispatch.
+  Controls recheck source after acquiring the recipient lock. Three new
+  regressions pass; five final fresh rounds passed 101 cases each. These tests
+  use synthetic stores and no native actions. Reports/source-matched harness
+  results are listed in [resume.md](resume.md). Native availability still awaits
+  independently verified observer recovery; no report has arrived yet.
+
 - **App/source drift is a distinct qualification boundary.** Claude updated
   during testing; renamed governor bindings broke the previously passing
   installed-source extractor. The version-scoped adapter now exercises the new
@@ -14,7 +27,7 @@ Versions: app = Claude desktop, cli = bundled Claude Code.
   evidence. This proves synthetic victim selection only, not real native pressure.
   Loaded MCP source is separately guarded: a stale service refuses effects before
   recipient resolution, while status and cancellation remain available. Two
-  regressions cover changed and missing source. On final source, five fresh
+  regressions cover changed and missing source. On that intermediate source, five fresh
   rounds passed 98 cases each, and actual filtered Claude/Codex harnesses each
   passed ten checks. Current-version native controls/recovery remain unqualified.
 

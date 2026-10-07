@@ -948,12 +948,15 @@ export async function runOp(name, args = {}, { harness = 'cli', progress = () =>
   const ctx = { args, harness, progress, signal, notes: [], tier: null }
   const t0 = Date.now()
   const row = { ts: new Date().toISOString(), harness, op: name, args: redactArgs(args), versions: versions(), driver: DRIVER_VERSION }
-  try {
+  const checkRuntime=()=>{
     const safeObservation=op.readOnly&&!(name==='window_state'&&args.precise)||name==='broker_status'&&!args.revive
     if(!safeObservation&&name!=='driver_cancel'){
       const runtime=runtimeState()
       if(runtime.restartRequired)throw new DriverError('Driver source changed after this process started; reconnect MCP or use the current CLI before another operation',{category:'runtime_stale',detail:{...runtime,retrySafe:true,dispatched:false}})
     }
+  }
+  try {
+    checkRuntime()
     const controlled = ['steer_session', 'stop_session', 'send_message', 'set_session_config', 'rename_session', 'pin_session', 'archive_session', 'unarchive_session', 'pool_release'].includes(name)
     let out
     if (controlled) {
@@ -961,7 +964,7 @@ export async function runOp(name, args = {}, { harness = 'cli', progress = () =>
       const boundArgs = { ...args, session }
       ctx.args = boundArgs
       row.targetSession = session
-      out = await withSessionControl(session, () => op.run(boundArgs, ctx), { signal })
+      out = await withSessionControl(session, () => {checkRuntime();return op.run(boundArgs, ctx)}, { signal })
     } else out = await op.run(args, ctx)
     const handedBack = out && typeof out === 'object' && out.handedBack
     if (!op.readOnly) {
