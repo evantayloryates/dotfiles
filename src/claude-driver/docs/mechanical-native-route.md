@@ -3,6 +3,20 @@
 October 7, 2026, 04:57 Eastern. Native diagnostic read proof, not a public transport.
 The broker remains on its existing sealed dependencies and admission hooks.
 
+## Experimental shared metadata execution — 05:51 Eastern
+
+`broker_read_batch` turns the diagnostic get_session mechanism into a bounded
+opt-in CLI/MCP API integrated with existing durable jobs. It is not a generic
+mutation dispatcher. Actual current-source77441d1d native09:51:15 passed one
+job shared by two MCP harnesses after publisher exit, two native reads for three
+requested targets, correlated host finish, exact settings restoration and
+idempotent completed reattachment. Total5130ms with one short trigger turn;
+the native hooks perform tools without model selection. Cancellation/fault/expiry
+pressure remains required before broader use; broker servicing/guarded mutations
+and deployment gates remain distinct. SDK source87405bcd's createProxyServers
+calls the actual handler directly; direct hooks do not inherit our assistant
+PreToolUse checkpoint gate.
+
 ## Service-owned native idle observation — 05:41 Eastern
 
 The observer now detaches its private listener after durable publication and

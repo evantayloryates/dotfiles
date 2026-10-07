@@ -845,6 +845,16 @@ export const OPS = [
   },
   // ---------------- broker
   {
+    name: 'broker_read_batch', title: 'Experimental deterministic native metadata batch', readOnly: false,
+    description: 'Opt-in metadata-only native hook execution, using one short broker diagnostic turn per batch. Does not rely on model tool selection. Exact IDs only; duplicate targets share one read receipt. Preserves core hooks and restores exact settings. Mutations, recovery and full serving qualification are excluded.',
+    schema: {required:['sessions','experimental'],properties:{sessions:{type:'array',items:{type:'string'},minItems:1,maxItems:8},experimental:{type:'boolean',enum:[true]},timeout_sec:{type:'number',minimum:5,maximum:60}}},
+    run: async(args,ctx)=>{
+      if(args.experimental!==true)throw new DriverError('native metadata batch requires explicit experimental opt-in',{category:'bad_args'})
+      const {nativeReadBatch}=await import('./native-read-batch.mjs')
+      return nativeReadBatch(args.sessions,{timeoutSec:args.timeout_sec??20,signal:ctx.signal})
+    },
+  },
+  {
     name: 'broker_idle', title: 'Observe native broker host idle', readOnly: true,
     description: 'Observe the configured broker through a native idle control subscription without model input or recovery. Shared durable ownership prevents duplicate subscriptions. Reports host state and historical finish time; never task success, full queue quiescence or release authority. Cancellation ends the local wait, not the native subscription.',
     schema: { properties: { timeout_sec: {type:'number',minimum:0.1,maximum:30}, not_before: {type:'number',description:'Optional Unix milliseconds boundary; an older finishedAt cannot be fresh completion.'}, cache_ms: {type:'number',minimum:0,maximum:3000} } },

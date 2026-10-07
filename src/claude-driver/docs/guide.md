@@ -84,6 +84,33 @@ unqualified.
 
 ## V2 control interface
 
+`broker_read_batch {sessions, experimental:true, timeout_sec}` is an opt-in
+deterministic native metadata route. It accepts1–8 exact `local_<uuid>` IDs and
+executes only `ccd_session_mgmt/get_session`; duplicate IDs share one native
+read and attachment receipt. Results retain the caller's input order. Missing
+native `pinned` is returned as null (unknown), never inferred false. Unexpected
+fields, session conversations and arbitrary tool arguments are excluded.
+
+Each batch uses one short tool-free broker model turn to trigger a finite native
+Stop-hook configuration. The hooks call metadata tools without model selection.
+This operation is therefore not advertised as a read-only MCP action: it writes
+an owned broker diagnostic turn and temporarily changes service-local settings,
+then restores their exact bytes. It does not alter target session metadata.
+Use `driver_submit` with an idempotency key for durable ownership across harness
+disconnects; `driver_wait`/`driver_job` inspect the same job without replay.
+The experimental route is scoped to reviewed app2.26454.0/CLI2.1.289 and requires
+the intact idle unarmed broker. Settings restoration, native ancestry, exact
+per-target attachment receipts and a fresh host finish are completion gates.
+
+Cancellation ends caller waiting; already-published metadata reads may still
+finish. Cleanup uses one bounded native idle observation without another wake.
+If the epoch stays busy/changes, the owned descriptor remains pending and
+ordinary request admission refuses it until safe expiry restoration. Do not
+interpret a failed batch as missing native execution or blindly clear ownership.
+This does not change mutation admission, historical outcomes, deployment gates
+or sustained serving qualification. Direct hooks do not inherit the existing
+native effect gate; no mutation tool can be selected through this API.
+
 `broker_idle {timeout_sec, not_before, cache_ms}` observes only the configured
 live desktop broker through its reviewed native host idle protocol. It uses no
 model inference, keyboard input or recovery. Concurrent harnesses share one

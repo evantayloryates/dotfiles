@@ -1,4 +1,61 @@
-## Latest frontier — October 7, 05:41 Eastern
+## Latest frontier — October 7, 05:51 Eastern
+
+Goal ACTIVE; previous turn made observation progress, this turn proves a real
+shared deterministic metadata execution path. General bridge readiness remains
+unqualified. Opt-in CLI/MCP `broker_read_batch` accepts1–8 exact session IDs,
+coalesces duplicates, installs only finite get_session hooks, requires genuine
+native attachments/ancestry/host finish and restores exact settings. No target
+mutations, keyboard/UI, new chats, model/auth/permission changes or recovery.
+Existing durable driver_submit/jobs provide cross-harness ownership; metadata
+results exclude unexpected/private fields. The operation is not marked readOnly:
+it uses one owned diagnostic turn and temporary service-local settings.
+
+Actual native-read-service-2026-10-07T09-51-15-467Z.json PASSED on current host
+77441d1d: two MCP harnesses concurrently submitted one idempotency key for three
+reads (fixture/broker/fixture), obtaining jobja5533bc537204c17b2b3ecfa59077116.
+Publisher exited0 before completion. Remaining harness received completed job
+in5130ms, two distinct native attachments for two targets, same receipt reused
+for duplicate fixture and verified archived/pinned readback where present.
+One short Haiku turn triggered the batch; native tools/collection used no model
+selection/inference. Native host finish and exact settings restoration verified.
+Idempotent late reattach returned SAME completed job, no replay; both launchers
+exited0/stderr0. Batch evidence native-reads/dcfcc96a-7e49-4d0a-b8b5-05bc0855fb9e.json.
+
+Original native-read-service-2026-10-07T09-48-45-674Z.json and failed job
+j9f4947abf4f94b98bad9fde5936eead6 remain FAILED on bf1fc3e5. Native calls succeeded;
+validator wrongly required pinned, which the exact SDK exporter serializes from
+optional isStarred. Corrected parser preserves omitted pinned as unknown/null.
+native-read-service-reconciliation-2026-10-07.json independently binds both
+actual attachments, peer root, fresh host finish and original restored hashes,
+without native read/model replay. Review source77441d1d, native sourcebf1fc3e5.
+The later NEW batch above exercises completion/reattachment gates never reached
+in the failed run; it is not a replay of its failed idempotency key.
+
+Full current-source isolated suite passed unchanged in
+v2-2026-10-07T09-51-04-672Z.json (8496ms). Tests cover exact/bounded IDs, duplicate
+coalescing, non-metadata refusal, missing broker/cancellation, per-target receipt
+mapping/privacy, omitted-field semantics and exact temporary-hook restoration.
+Initial isolated preflight category failure was corrected before native testing.
+Cancellation after publication and lost-worker cleanup still need strategic
+native pressure; busy/changed epochs leave durable diagnostic ownership for
+existing safe expiry recovery instead of unsafe restoration or repeated wakes.
+
+Source inspection confirms direct SDK hook calls bypass our assistant PreToolUse
+effect gate; generic mutation routing is deliberately NOT enabled. Native idle
+and metadata reads do not settle all17 historic unknown effects or authorize
+release/handoff. Active dependencies4af/gen6, installed core7e388b8f retained;
+original settingsd66115ff/policy7a8ce57a restored. Broker epochPID71262/start
+03:24:51 UTC remains intact; no foreground waiter or quiet serving proof.
+Quarantine ON, no STOP or pending diagnostic after successful batch.
+
+Next pressure the new execution lifecycle's cancellation/concurrency/expiry and
+failure cleanup, then resolve guarded mutation serving, steering under load,
+safe indexed handoff, rollback and cold recovery. This metadata path is an
+additional execution strategy, not a replacement for the full original goal.
+Local30s detector/hourly Claude fallback unchanged; no user action required.
+Codex-driver and1Password remain separate.
+
+## Previous frontier — October 7, 05:41 Eastern
 
 Goal ACTIVE; previous turn and this turn made concrete observation progress.
 General serving/handoff remains unqualified. Fixed a real lifecycle gap: the

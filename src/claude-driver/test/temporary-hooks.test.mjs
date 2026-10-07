@@ -38,6 +38,16 @@ test('only metadata probes can batch the two distinct owned read targets',()=>{
   assert.deepEqual(hooks.map(h=>h.tool),['get_session','get_session']);assert.deepEqual(hooks.map(h=>h.input.session_id),[f.args.fixtureId,epoch.sessionId]);restoreTemporaryHookProbe(f.dir,token)
  }finally{rmSync(f.dir,{recursive:true,force:true})}
 })
+test('service read targets admit only bounded distinct metadata calls and preserve exact restoration',()=>{
+ const f=fixture();try{
+  const args={...f.args,operation:'get_session',fixtureId:undefined,readTargets:[epoch.sessionId,f.args.fixtureId]}
+  for(const change of [{readTargets:[]},{readTargets:Array(9).fill(epoch.sessionId)},{readTargets:[epoch.sessionId,epoch.sessionId]},{operation:'archive_session'},{readEdges:true},{includeBrokerRead:true}])assert.throws(()=>installTemporaryHookProbe(f.dir,{...args,...change}),/metadata|diagnostic/)
+  installTemporaryHookProbe(f.dir,args)
+  const hooks=JSON.parse(readFileSync(join(f.dir,'.claude','settings.json'))).hooks.Stop[1].hooks.filter(h=>h.type==='mcp_tool')
+  assert.deepEqual(hooks.map(h=>h.input.session_id),args.readTargets);assert.ok(hooks.every(h=>h.server==='ccd_session_mgmt'&&h.tool==='get_session'))
+  restoreTemporaryHookProbe(f.dir,token);assert.deepEqual(readFileSync(join(f.dir,'.claude','settings.json')),f.settings)
+ }finally{rmSync(f.dir,{recursive:true,force:true})}
+})
 test('read edge probe fixes duplicate reads and one unavailable context without enabling a mutation',()=>{
  const f=fixture();try{
   assert.throws(()=>installTemporaryHookProbe(f.dir,{...f.args,readEdges:true}),/fixed fixture metadata/)

@@ -1,3 +1,20 @@
+## October 7, 05:51 Eastern checkpoint
+
+Opt-in `broker_read_batch` now has actual current-source cross-harness native
+proof: one durable idempotent job survives publisher exit, three requested
+metadata reads coalesce into two native calls, exact attachment receipts and
+fresh host finish gate completion, settings restore and late reattachment
+returns the same completed job without replay. Native5130ms, one short trigger
+turn, no model tool selection. Host77441d1d also passed its unchanged full
+isolated suite. Original pinned-field validator failure remains failed with
+independent native-success reconciliation. Missing native pinned stays unknown.
+Cancellation/fault/expiry pressure and generic guarded mutation execution remain
+open. Public metadata strategy does not narrow the full original goal.
+Service-owned native idle observation survives harness exit with zero inference;
+actual two-harness adoption passed earlier on2b8697ed. General-use serving,
+steering, handoff and recovery are still unqualified. See resume.md for exact
+artifact and source distinctions.
+
 ## October 7, 04:57 Eastern checkpoint
 
 Native duplicate/failure pressure exposed incorrect diagnostic expectations:
