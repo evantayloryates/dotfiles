@@ -1,6 +1,20 @@
 import {test} from 'node:test'
 import assert from 'node:assert/strict'
-import {validateBrokerFixture,validateInputFreeOperation,nativeQualification,LIVE_BOOTSTRAP,hasCompletionMarker} from '../lib/qualification.mjs'
+import {validateBrokerFixture,validateInputFreeOperation,nativeQualification,LIVE_BOOTSTRAP,hasCompletionMarker,qualificationMarkers,recipientReplyEvidence} from '../lib/qualification.mjs'
+test('new qualification tokens and exact peer ancestry exclude stale or unrelated replies',()=>{
+ const a=qualificationMarkers('a'.repeat(32)),b=qualificationMarkers('b'.repeat(32))
+ assert.notEqual(a.initial,b.initial)
+ for(const bad of ['',null,'nonce','g'.repeat(32)])assert.throws(()=>qualificationMarkers(bad),e=>e.category==='qualification_gate')
+ const root={id:'peer',parentId:'old',type:'user',peerMessageId:'receipt'},thinking={id:'think',parentId:'peer',type:'assistant',tools:[]},reply={id:'reply',parentId:'think',type:'assistant',text:a.initial,tools:[],stopReason:'end_turn'}
+ const check=events=>recipientReplyEvidence(events,{messageId:'receipt',marker:a.initial}).verified
+ assert.equal(check([root,thinking,reply]),true)
+ assert.equal(check([root,thinking,reply,reply]),true,'duplicate journal envelopes of one UUID are one logical reply')
+ for(const events of [[reply],[root,reply],[{...root,peerMessageId:'other'},thinking,reply],[root,thinking,{...reply,text:b.initial}],[root,thinking,{...reply,sidechain:true}],[root,thinking,{...reply,tools:['Bash']}],[root,thinking,{...reply,stopReason:null}],[root,thinking,{...reply,textTruncated:true}],[root,thinking,reply,{...reply,id:'duplicate'}],[root,{id:'human',type:'user',parentId:'peer'}, {...reply,parentId:'human'}],[root,{...thinking,parentId:null},reply]])assert.equal(check(events),false)
+ assert.equal(recipientReplyEvidence([root,thinking,reply],{marker:a.initial}).verified,false)
+ assert.equal(recipientReplyEvidence(null,{messageId:'receipt',marker:a.initial}).verified,false)
+ assert.equal(check([null,root,thinking,reply]),true)
+ assert.equal(JSON.stringify(recipientReplyEvidence([root,thinking,reply],{messageId:'receipt',marker:a.initial})).includes(a.initial),false)
+})
 const good=()=>({session:'local_fixture',record:{sessionId:'local_fixture',title:'claude-driver v2 pressure fixture',cwd:'/private/state/probe/fixture'},registry:{kind:'create',cwd:'/private/state/probe/fixture'},stateDir:'/private/state',broker:{live:{pid:1},resident:{resident:true},templateCurrent:true},policy:{blocked:true},currentSession:'local_user'})
 test('completion evidence uses a final assistant line, including the bounded tail, never a quoted marker',()=>{
  assert.equal(hasCompletionMarker([{type:'assistant',text:'The request says `OLD_PLAN_FINISHED`. Is this authorized?'}],'OLD_PLAN_FINISHED'),false)

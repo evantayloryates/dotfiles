@@ -1,4 +1,91 @@
-## Latest frontier — October 7, 03:49 Eastern
+## Latest frontier — October 7, 04:04 Eastern
+
+Goal ACTIVE. This turn made qualification/observation improvements and exposed
+real native serving failures; it did NOT qualify controls or general-use readiness.
+Keep input quarantine, broker epoch/model/permissions and observer ownership.
+No new chats, app restart, context reset, blind replay or competing recovery.
+
+Current host46f0962972854e07f514a5425fd3162e5535de9c64254e8949092294fed6bacc.
+Full isolated suite passed unchanged in v2-2026-10-07T08-03-15-746Z.json.
+Installed hook7e388b8f and active dependencies4af08654/bootstrapeb5cb750/gen6
+remain unchanged; compact feedback2 enrolled, quiet OFF. Native tests below ran
+on earlier host candidates; final46f has isolated proof, not a new native pass.
+
+Qualification changes:
+- session_events/session_wait accept opt-in include_causality. They expose only
+  bounded parentId/peerMessageId/sidechain metadata and metadata-only ancestors.
+  User text, thinking, tool inputs/results and peer sender fields stay private.
+  Malformed ID/time/stop-reason objects cannot leak through those metadata fields.
+- Every live run generates fresh128-bit nonce markers. Tool-free reply checks
+  require exactly one native peer turn matching the send's messageId, an actual
+  descendant terminal reply, exact current-run marker, no tools/truncation or
+  sidechain. A foreign user branch or missing/reset ancestry cannot pass. Repeated
+  envelopes of one UUID count as one logical reply. This is correlation, not a
+  security/identity boundary or arbitrary task-success oracle.
+- Restore now runs inside the reporting/finally boundary, using brokerRequest's
+  actual native receipt contract and waiting for on-disk active state. Cleanup
+  records observed baseline separately from unresolved native request outcomes.
+  Title/effort/model/permission/pin readback is verified. Attempt metadata keeps
+  independent concurrent successes/failures and IDs without prompts/tool output.
+- --controls-only with --control-mode batch|concurrent|both reduces native test
+  cost and excludes recipient generation. Its separate memory topic cannot
+  establish full native qualification.
+
+Preserved native outcomes under <state>/pressure:
+- live-v2-2026-10-07T07-54-32-317Z.json (f55e4735) FAILED on a newly introduced
+  incorrect brokerOp receiptSource assertion. Actual unarchive receipt succeeded.
+  Early cleanup saw the old archived value before native persistence and falsely
+  reported a restored baseline. Preserve that failure; correction in
+  native-fixture-restore-reconciliation-2026-10-07.json records a NEW explicit
+  desired-state archive, native verification and later archived/unpinned readback.
+  The incorrect wrapper assertion is fixed; never treat its early snapshot as
+  settlement or overwrite the original report.
+- live-v2-2026-10-07T07-56-15-969Z.json (74a753ea) FAILED. Unarchive, concurrent
+  title and pin had actual native success receipts. Effort request
+  rmuxtdyht-8a0575 consumed compact continuation2, which actually landed, but
+  its causal branch ended with zero tools. It remains outcome_unknown,
+  retrySafe:false/controlState:cancelled. Cleanup title+effort, unpin and archive
+  were new desired-state operations with actual native receipts. Original failed
+  run remains failed. native-controls-failure-independent-2026-10-07.json retains
+  every scoped request/receipt/native tool ID and exact causal refusal evidence.
+- live-v2-2026-10-07T07-59-08-337Z.json (6d8c9bc4) FAILED before batch controls.
+  Restore rmuxtgmmz-30510d also consumed/received compact2 and ended with zero
+  tools; outcome_unknown/retrySafe:false/cancelled. No controls batch ran.
+  native-batch-restore-failure-independent-2026-10-07.json preserves evidence.
+  The fixture is currently archived/unpinned/not live, with original locked title,
+  low effort, Haiku model and acceptEdits. This desired-state readback does not
+  settle an uncertain restore. No replay or extra wake was attempted.
+
+Context evidence is scoped, not inferred from model prose. Both failed terminals
+claimed compression/resumption, but no actual native compact_boundary occurred
+in their bounded journal ranges. native-controls-context-evidence-2026-10-07.json
+verifies API input totals172540 and182328 for the exact terminal UUIDs. This is
+large context evidence, not proof of a hard context failure, disabled compaction,
+a queued resumption or crash. Selected compaction-related keys were absent in
+~/.claude.json, global settings and broker settings; native process env was not
+read. No manual compaction/reset/configuration change occurred.
+
+Official current Claude hook documentation confirms command-hook timeout/launch
+failure may continue through normal permission flow. This independently supports
+the conservative retry contract, but is NOT native fault-injection qualification
+of bundledCLI2.1.289. See native-effect-admission.md for the primary source link.
+
+Original15 unknown mutations plus these2 unreceipted mutations remain unresolved;
+current-state cleanup does not retire them. Legacy inbox reports021323/021456/
+023210 remain pending, unchanged, with durable blockers. Broker PID71262 is live,
+idle, integrity true, no owned handoff STOP and no verified waiter at checkpoint.
+
+Next: investigate context-pressure serving and a deterministic native execution
+route using bounded read-only installed-engine/primary documentation evidence.
+Do not retry effects or call /clear,/compact, kill/restart or change model/auth.
+Use fresh causal tokens before any recipient steering run; keep workload and
+number of native attempts bounded because Claude usage is low. Establish owned
+STOP-barrier quiescence and safe indexed handoff/rollback without rewriting
+historical unknowns. Sustained residency, steering, cold recovery and event-only
+inference remain open. Local detector30s is zero-inference; hourly observer is
+fallback; Codex inbox ticks still infer. No user action is required at this checkpoint.
+
+## Previous frontier — October 7, 03:49 Eastern
 
 Goal ACTIVE: native batched reads, three concurrent read clients and one real
 foreground pickup passed. Still NOT general-use ready. Preserve keyboard/CUA

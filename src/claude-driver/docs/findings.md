@@ -1,3 +1,34 @@
+## 2026-10-07 04:04 Eastern — fresh causal qualification and context-pressure refusal
+
+Opt-in causal observation now exposes bounded native parent/peer IDs, including
+metadata-only ancestors, without user text, thinking, sender fields or tool
+inputs/results. Qualification uses fresh128-bit run tokens and exact peer-to-
+terminal ancestry; same-UUID repeated envelopes are one logical reply. Missing,
+foreign, sidechain, tool-using or truncated reply evidence cannot pass.
+
+The native runner now restores its owned archived fixture inside its reporting/
+cleanup boundary and preserves per-attempt outcomes. Controls-only modes bound
+Claude usage. A newly introduced wrong wrapper assertion exposed delayed native
+record persistence: an early archived snapshot preceded the successful unarchive
+write. The failed original report and explicit later cleanup correction are both
+preserved; an observed baseline is separate from causal settlement.
+
+Actual controls pressure on74a753ea passed unarchive/title/pin but FAILED effort
+rmuxtdyht-8a0575. Follow-on6d8c9bc4 batch probe FAILED restore rmuxtgmmz-30510d,
+so no controls batch ran. Both exact native compact2 continuations landed; both
+ended without tool calls. They remain unknown/non-retryable, despite original
+fixture state being observed again. Independent scoped receipts and causal
+forensics live in native-controls-failure-independent-2026-10-07.json and
+native-batch-restore-failure-independent-2026-10-07.json.
+
+Exact terminal API input totals172540/182328 are verified in
+native-controls-context-evidence-2026-10-07.json. Neither bounded range has a
+native compact_boundary. Model claims of compression/resumption are not engine
+proof. No context reset, permission/model change, app restart or replay occurred.
+Final host46f09629 passed all isolated suites in
+v2-2026-10-07T08-03-15-746Z.json; this is not a native46f controls pass. Installed
+hook7e388b8f and active4af08654/gen6 are distinct. General use remains unqualified.
+
 # claude-driver findings
 
 ## 2026-10-07 03:49 Eastern — batched/concurrent reads and one real foreground pickup

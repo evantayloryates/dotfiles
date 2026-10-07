@@ -1,3 +1,22 @@
+## October 7, 04:04 Eastern checkpoint
+
+Final host46f09629 has a passing unchanged full isolated report
+v2-2026-10-07T08-03-15-746Z.json. New native controls tests on earlier candidates
+FAILED:74a753ea's concurrent effort and6d8c9bc4's restore both received compact2
+but ended without tool calls. The follow-on batch was never reached. Earlier
+read passes do not override these failures. Source/hook/dependency fingerprints
+remain distinct; see resume.md for exact IDs/artifacts and pending dispositions.
+
+Every live run now uses fresh128-bit reply tokens and exact native peer/terminal
+ancestry, not old reply strings. Opt-in metadata includes hidden ancestors but
+no hidden content. Controls-only modes record a separate narrow topic; they
+cannot qualify full steering. Restore failures enter reporting/cleanup, and each
+concurrent attempt retains its own request/status metadata. Cleanup distinguishes
+an observed desired state from unresolved request outcomes. The first newly
+introduced wrapper assertion failure and its misleading transient cleanup are
+preserved alongside explicit later reconciliation. No native retry, keyboard
+input, context reset, model/auth change or competing recovery occurred.
+
 # Claude-driver v2 qualification
 
 Latest audit: October7,03:49 Eastern. The bridge is a working native control

@@ -153,6 +153,18 @@ pending cursor that captures its first transcript when it appears.
 `create_session.observationCursor` is captured before `first_message`; use
 that cursor even when the reply finishes before creation returns. A new
 cursor after creation would intentionally skip the already-written reply.
+Use `include_causality:true` on observations when correlating replies. It adds
+bounded `parentId`, `peerMessageId` and `sidechain` fields and metadata-only
+ancestors. Match the send receipt's `messageId` to a user peer event, then follow
+actual parent IDs to the assistant reply. Missing/reset ancestry is inconclusive;
+a new human/peer instruction belongs to a different branch. Deduplicate repeated
+journal envelopes by event UUID. Text remains separately opt-in; user text,
+thinking, tool inputs/results and peer sender fields remain excluded. For a
+synthetic exact-reply protocol, use a fresh token for each run and require an
+exact terminal reply on that branch. This proves response correlation, not sender
+authority or arbitrary task completion. An observed desired app state does not
+settle a different uncertain request that might still have an effect.
+
 Waits also return live status
 changes, such as busy → idle, even without new text. A status change or
 delivery receipt does not prove that an instruction was applied.

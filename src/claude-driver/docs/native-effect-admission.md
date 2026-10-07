@@ -50,3 +50,14 @@ The host, hook package and active broker dependency package have separate
 fingerprints. [resume.md](resume.md) records current exact versions and reports.
 Fresh CLI/MCP clients are required; old connected clients do not reload these
 guards merely because workspace source changed.
+
+## Platform hook fault contract — verified documentation October7
+
+The [official Claude hook reference](https://code.claude.com/docs/en/hooks#timeouts)
+states that a timed-out command PreToolUse hook does not block the tool; normal
+permission flow continues. Its exit-code section also documents non-blocking
+launch errors and invalid output outside a blocking exit2 decision. Consequently
+an installed policy, request cancellation or missing admission marker alone is
+not proof that the platform prevented an effect. Preserve unknown/non-retryable
+outcomes. This is primary documentation evidence, not a fault-injection test of
+our exact bundledCLI2.1.289; that native qualification remains open.

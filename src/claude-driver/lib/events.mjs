@@ -6,7 +6,7 @@ import { homedir } from 'node:os'
 import { resolveSession, liveByHost } from './sessions.mjs'
 import { DriverError, sleep } from './paths.mjs'
 
-export function sessionEvents({ session, cursor, include_text = false, limit = 30 }) {
+export function sessionEvents({ session, cursor, include_text = false, include_causality = false, limit = 30 }) {
   const r = resolveSession(session)
   let c
   if(cursor){try{c=JSON.parse(Buffer.from(cursor,'base64url').toString())}catch{throw new DriverError('invalid cursor',{category:'bad_args'})}}
@@ -59,7 +59,16 @@ export function sessionEvents({ session, cursor, include_text = false, limit = 3
       const text = blocks.filter(b=>b?.type === 'text' && typeof b.text === 'string').map(b=>b.text).join('\n')
       const tools = blocks.filter(b=>b?.type === 'tool_use' && typeof b.name === 'string').map(b=>b.name)
       // Never return thinking or tool inputs/results, even with include_text.
-      if (text || tools.length) events.push({ id: x.uuid, at: x.timestamp, type: x.type, stopReason: x.message?.stop_reason, tools,
+      const boundedId=v=>typeof v==='string'&&/^[A-Za-z0-9_-]{1,200}$/.test(v)?v:undefined
+      const causal=include_causality&&boundedId(x.uuid)?{
+        parentId:boundedId(x.parentUuid)??null,sidechain:x.isSidechain===true,
+        ...(x.origin?.kind==='peer'&&boundedId(x.origin.msg_id)?{peerMessageId:x.origin.msg_id}:{})
+      }:{}
+      // Causal observation includes metadata-only ancestors (e.g. thinking
+      // blocks). Their contents, user text and peer sender fields stay private.
+      const at=typeof x.timestamp==='string'&&x.timestamp.length<=100&&Number.isFinite(Date.parse(x.timestamp))?x.timestamp:undefined
+      const stopReason=['end_turn','max_tokens','tool_use','pause_turn','refusal','stop_sequence','model_context_window_exceeded'].includes(x.message?.stop_reason)?x.message.stop_reason:undefined
+      if (text || tools.length || include_causality&&boundedId(x.uuid)) events.push({ id: boundedId(x.uuid), at, type: x.type, stopReason, tools,...causal,
         ...(include_text && text && x.type === 'assistant' ? { text: text.slice(0, 4000),textTruncated:text.length>4000,textChars:text.length,...(text.length>4000?{textTail:text.slice(-256)}:{}) } : {}) })
     }
     consumed += n

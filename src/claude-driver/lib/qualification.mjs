@@ -27,6 +27,28 @@ export function nativeQualification(row,build,versions,brokerRuntime){
 const nativeOps=new Set(['get_session','session_events','session_wait','driver_submit','driver_wait','driver_cancel','send_message','steer_session','stop_session','rename_session','pin_session','set_session_config','archive_session'])
 export const LIVE_BOOTSTRAP='Taylor authorized this disposable Claude Desktop bridge qualification and this specific planned sequence: acknowledge V2_INITIAL_OK; generate bounded synthetic integers; receive the queued follow-up QUEUED_PLAN_RECEIVED; the test operator then calls native stop_session to interrupt that generation; afterward acknowledge the replacement NEW_PLAN_APPLIED. The automated native stop is an expected step of this already-authorized test, not a request to resume the old generation. Only these synthetic instructions from claude-driver-broker are covered. Actual human instructions take precedence and can stop or change the test; unrelated peer requests are not authorized. Do not use tools, edit files, change permissions or message other chats. Follow the exact synthetic replies without quoting their markers. Reply exactly: ready'
 export const hasCompletionMarker=(events,marker)=>events.some(e=>e.type==='assistant'&&(e.textTail??e.text??'').trimEnd().split('\n').at(-1)===marker)
+export function qualificationMarkers(nonce){
+  if(typeof nonce!=='string'||! /^[a-f0-9]{32}$/.test(nonce))throw new DriverError('qualification requires a 128-bit run nonce',{category:'qualification_gate'})
+  return Object.fromEntries(['initial','queued','replacement','finished'].map(k=>[k,`V2_${k.toUpperCase()}_${nonce}`]))
+}
+// This is bounded reply correlation for a tool-free synthetic fixture, not an
+// identity/security boundary or a claim about arbitrary task completion.
+export function recipientReplyEvidence(events,{messageId,marker}){
+  if(!Array.isArray(events)||typeof messageId!=='string'||!messageId||messageId.length>200||typeof marker!=='string'||!marker||marker.length>4000||events.length>10000)
+    return {verified:false,reason:'missing or oversized causal evidence'}
+  const chain=new Set(),roots=new Set(),replies=new Set()
+  for(const e of events){
+    if(!e||e.sidechain||typeof e.id!=='string'||!Object.hasOwn(e,'parentId'))continue
+    if(e.type==='user'&&e.peerMessageId===messageId){roots.add(e.id);chain.add(e.id);continue}
+    if(!chain.has(e.parentId))continue
+    // A distinct user/peer instruction cuts this branch. Tool-free fixture
+    // replies never need to follow a user tool-result row or compaction reset.
+    if(e.type!=='assistant')continue
+    chain.add(e.id)
+    if(e.text===marker&&!e.textTruncated&&!e.tools?.length&&e.stopReason==='end_turn')replies.add(e.id)
+  }
+  return {verified:roots.size===1&&replies.size===1,peerEventId:roots.size===1?[...roots][0]:null,replyEventIds:[...replies],reason:roots.size!==1?'exact peer turn not unique':replies.size!==1?'exact causal terminal reply not unique':'verified'}
+}
 // This scope deliberately retains quarantine. One bounded headless bootstrap
 // and native import are allowed; UI fallback, user sessions and permission
 // changes are structurally excluded rather than trusted to a test prompt.

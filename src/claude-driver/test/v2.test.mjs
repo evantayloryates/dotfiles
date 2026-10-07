@@ -306,6 +306,20 @@ test('long assistant observation reports truncation and a bounded tail without e
  assert.equal(JSON.stringify(out).includes('PRIVATE_'),false)
  assert.equal(events.sessionEvents({session:sid,cursor}).events[0].textTail,undefined)
 })
+test('opt-in causality retains hidden ancestors and peer IDs without private payloads',()=>{
+ const cursor=events.sessionEvents({session:sid}).cursor
+ const rows=[{type:'user',uuid:'peer',parentUuid:'old',origin:{kind:'peer',msg_id:'receipt',sender:'PRIVATE_SENDER'},message:{content:'PRIVATE_USER'}},{type:'assistant',uuid:'think',parentUuid:'peer',message:{content:[{type:'thinking',thinking:'PRIVATE_THINKING'}]}},{type:'assistant',uuid:'reply',parentUuid:'think',message:{stop_reason:'end_turn',content:'reply'}}]
+ appendFileSync(transcript,rows.map(x=>JSON.stringify(x)).join('\n')+'\n')
+ const ordinary=events.sessionEvents({session:sid,cursor,include_text:true})
+ assert.equal(ordinary.events.length,2);assert.equal(ordinary.events[0].peerMessageId,undefined)
+ const causal=events.sessionEvents({session:sid,cursor,include_text:true,include_causality:true})
+ assert.equal(causal.events.length,3);assert.equal(causal.events[0].peerMessageId,'receipt');assert.equal(causal.events[1].parentId,'peer');assert.equal(causal.events[1].text,undefined);assert.equal(causal.events[2].parentId,'think')
+ assert.equal(JSON.stringify(causal).includes('PRIVATE_'),false)
+ const next=causal.cursor
+ appendFileSync(transcript,JSON.stringify({type:'assistant',uuid:{private:'PRIVATE_UUID'},parentUuid:{private:'PRIVATE_PARENT'},timestamp:{private:'PRIVATE_TIME'},origin:{kind:'peer',msg_id:{private:'PRIVATE_PEER'}},message:{content:'valid text',stop_reason:{private:'PRIVATE_REASON'}}})+'\n')
+ const malformed=events.sessionEvents({session:sid,cursor:next,include_causality:true})
+ assert.equal(JSON.stringify(malformed).includes('PRIVATE_'),false);assert.equal(malformed.events[0].id,undefined)
+})
 test('pending cursor captures the first reply of a fresh pooled context without importing history',async()=>{
  const id='local_00000000-0000-4000-8000-000000000099',newCli='00000000-0000-4000-8000-000000000098'
  const recordFile=join(root,'app','claude-code-sessions','a','o',id+'.json')

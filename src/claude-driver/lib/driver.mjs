@@ -184,12 +184,12 @@ export const OPS = [
   {
     name: 'session_events', title: 'Observe a Claude session incrementally', readOnly: true,
     description: 'Capture a cursor before sending work, then read new user/assistant events. No historical messages on first call. Byte-bounded; excludes thinking and tool inputs/results; text opt-in. end_turn is evidence of a turn end, not proof of task success.',
-    schema: { properties: { session: S, cursor: { type: 'string' }, include_text: { type: 'boolean' }, limit: { type: 'number', minimum: 1, maximum: 100 } }, required: ['session'] }, run: sessionEvents,
+    schema: { properties: { session: S, cursor: { type: 'string' }, include_text: { type: 'boolean' }, include_causality: { type: 'boolean', description: 'Include bounded parent/peer message IDs and metadata-only ancestors for reply correlation. No user text or thinking.' }, limit: { type: 'number', minimum: 1, maximum: 100 } }, required: ['session'] }, run: sessionEvents,
   },
   {
     name: 'session_wait', title: 'Wait for new Claude session events', readOnly: true,
     description: 'Wait up to 60 s for new events or live status changes using a session_events cursor. Status changes do not prove task success; observe the reply. A timed-out wait leaves Claude running.',
-    schema: { properties: { session: S, cursor: { type: 'string' }, include_text: { type: 'boolean' }, limit: { type: 'number', minimum: 1, maximum: 100 }, timeout_sec: { type: 'number', minimum: 0, maximum: 60 } }, required: ['session'] }, run: waitSession,
+    schema: { properties: { session: S, cursor: { type: 'string' }, include_text: { type: 'boolean' }, include_causality: { type: 'boolean', description: 'Include bounded parent/peer message IDs and metadata-only ancestors for reply correlation.' }, limit: { type: 'number', minimum: 1, maximum: 100 }, timeout_sec: { type: 'number', minimum: 0, maximum: 60 } }, required: ['session'] }, run: waitSession,
   },
   {
     name: 'steer_session', title: 'Steer a Claude session explicitly',
