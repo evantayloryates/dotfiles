@@ -1,3 +1,20 @@
+## Autonomous trigger route — October 7, 11:09 Eastern
+
+The manual slash-command step is not established as requiring a person.
+Installed peer receiver ze explicitly sets skipSlashCommands:true, so sending
+the slash text cannot invoke the registered command. Before queueing it calls
+session.receive; a consumed mod delivery returns before the prompt queue.
+Exact installed receiver test covers both branches with synthetic dependencies.
+Initial test omitted Rm in its harness and failed; corrected harness passes.
+
+Staged candidates/native-peer-trigger/receive.js supplies an exact 128-bit token,
+peer-only origin, owner/directory/deadline checks and one-use consumption.
+Two focused tests pass, including concurrent delivery and unrelated message
+pass-through. No installation, native delivery or model turn occurred. This
+route is a candidate for autonomous execution, not native qualification; next
+integrate durable intent/report and exact loaded-state evidence before delivery.
+Earlier blocked status depended on a chosen manual path, not proved human need.
+
 ## Regression and admission checks — October 7, 10:54 Eastern
 
 Full pressure-v2 round passed in 8346ms with sourceChanged:false; evidence is
