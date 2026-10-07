@@ -13,8 +13,10 @@
 // While waiting it writes <broker>/heartbeat.json every 2 s, which is how the
 // driver knows the broker is resident and needs no wake message.
 
-import { existsSync, renameSync, writeFileSync,fstatSync } from 'node:fs'
+import { existsSync, renameSync, writeFileSync,fstatSync,lstatSync,readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
+import {createHash} from 'node:crypto'
+import {fileURLToPath,pathToFileURL} from 'node:url'
 // Set before importing state: test runners can use an isolated broker folder.
 
 const args = process.argv.slice(2)
@@ -34,6 +36,22 @@ if(!output.isFIFO()&&!output.isSocket()&&!(output.isFile()&&output.uid===process
 if(!Number.isFinite(maxSec)||maxSec<0||maxSec>540){
  console.error('wait budget must be finite and between 0 and 540 seconds')
  process.exit(2)
+}
+// The small cached-command shim admits a sealed bootstrap before importing
+// any service dependency. Future source edits cannot change the selected loop.
+const runtimePointer=join(dir, 'runtime.json')
+let pinned=false
+try { lstatSync(runtimePointer); pinned=true } catch(e) { if(e.code!=='ENOENT')throw e }
+if(pinned && !/\/releases\/[a-f0-9]{64}\/scripts\//.test(fileURLToPath(import.meta.url))) {
+ const stat=lstatSync(runtimePointer)
+ if(stat.isSymbolicLink()||!stat.isFile()||stat.uid!==process.getuid()||stat.size>1024*1024)throw Error('invalid runtime pointer')
+ const pointer=JSON.parse(readFileSync(runtimePointer,'utf8')),hash=pointer.bootstrapHash
+ if(!/^[a-f0-9]{64}$/.test(hash))throw Error('sealed runtime bootstrap missing; preserve handoff')
+ const entry=join(dirname(resolve(dir)),'entry',hash+'.mjs'),entryStat=lstatSync(entry)
+ if(entryStat.isSymbolicLink()||!entryStat.isFile()||entryStat.uid!==process.getuid()||entryStat.mode&0o222||entryStat.size>65536||createHash('sha256').update(readFileSync(entry)).digest('hex')!==hash)throw Error('sealed runtime bootstrap invalid')
+ const {runPinnedEntry}=await import(pathToFileURL(entry).href)
+ await runPinnedEntry({dir,kind:'broker-wait'})
+ process.exit(0)
 }
 process.env.CLAUDE_DRIVER_STATE_DIR = dirname(dir)
 const { pickupPending } = await import('../lib/requests.mjs')

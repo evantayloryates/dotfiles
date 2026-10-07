@@ -244,18 +244,18 @@ export const OPS = [
     schema: { properties: {} },
     readOnly: true,
     run: async () => {
-      const m = matrix(),runtime=runtimeState()
+      const m = matrix(),runtime=runtimeState(),broker=brokerInfo()
       const recent = readJsonl(LEDGER, { tail: 200 })
       return {
         driver: DRIVER_VERSION,
         apiVersion: 2,
         ...runtime,
-        nativeQualification:{...nativeQualification(['v2-native-broker-pressure','v2-live-pressure','v2-input-free-pressure'].map(topic=>queryMemory({topic,kind:'test_result',limit:1})[0]).filter(Boolean).sort((a,b)=>b.at.localeCompare(a.at))[0],RUNTIME_BUILD,m.versions),...(runtime.restartRequired?{qualified:false,reason:'runtime_stale'}:{})},
+        nativeQualification:{...nativeQualification(['v2-native-broker-pressure','v2-live-pressure','v2-input-free-pressure'].map(topic=>queryMemory({topic,kind:'test_result',limit:1})[0]).filter(Boolean).sort((a,b)=>b.at.localeCompare(a.at))[0],RUNTIME_BUILD,m.versions,broker.runtime),...(runtime.restartRequired?{qualified:false,reason:'runtime_stale'}:{})},
         uiAutomation: uiPolicy(),
         versions: m.versions,
         stateDir: STATE_DIR,
         desktopCaller: callerHostSession(),
-        broker: brokerInfo(),
+        broker,
         capabilities: m.current ? { probedAt: m.current.probedAt, mechanisms: m.current.mechanisms } : `not probed for ${m.key}; run \`claude-driver probe\``,
         mainWindow: currentMain(),
         frontApp: await frontApp(),

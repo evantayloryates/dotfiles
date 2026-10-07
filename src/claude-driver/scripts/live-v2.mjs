@@ -31,6 +31,7 @@ if (brokerOnly) {
   if (['busy','working'].includes(liveByHost().get(session)?.status)) throw new Error('owned fixture is busy; reconcile it before qualification')
 } else if(!inputFree) assertUiAvailable()
 const sourceBefore = runtimeFingerprint()
+const brokerRuntimeBefore=brokerInfo().runtime
 const rows = []
 const observed=[]
 const controller = new AbortController()
@@ -162,8 +163,11 @@ finally {
   const required=[brokerOnly?'adopt-owned-fixture':'create-and-restore-focus','durable-submit-and-recipient-reply','cancellation-before-native-dispatch','three-concurrent-native-controls','batched-native-controls','queue-is-not-interrupt','interrupt-then-replacement-is-applied','single-native-recipient-replies','cleanup-archive']
   if(inputFree)required.push('input-resource-audit-before','input-resource-audit-after')
   const sourceAfter = runtimeFingerprint()
-  const ok=sourceBefore===sourceAfter&&rows.every(r=>r.ok)&&required.every(name=>rows.some(r=>r.name===name&&r.ok))
-  writeJsonAtomic(report,{scope:inputFree?'input-free-live':brokerOnly?'native-broker-only':'full-live',session,rows,required,ok,sourceBefore,sourceAfter})
-  recordMemory({kind:'test_result',topic:inputFree?'v2-input-free-pressure':brokerOnly?'v2-native-broker-pressure':'v2-live-pressure',source:'live-v2',status:ok?'passed':'failed',evidence:report,lesson:`${inputFree?'Input-free live':brokerOnly?'Native broker only':'Full live'}: ${rows.filter(r=>r.ok).length}/${required.length} required checks passed; interrupted=${controller.signal.aborted}; sourceUnchanged=${sourceBefore===sourceAfter}`})
+  const brokerRuntimeAfter=brokerInfo().runtime
+  const brokerUnchanged=brokerRuntimeBefore?.build===brokerRuntimeAfter?.build&&brokerRuntimeBefore?.bootstrapHash===brokerRuntimeAfter?.bootstrapHash&&brokerRuntimeBefore?.generation===brokerRuntimeAfter?.generation
+  const pinnedObserved=!brokerRuntimeAfter?.pinned||brokerRuntimeAfter.integrity&&brokerRuntimeAfter.dependencyPathsObserved
+  const ok=sourceBefore===sourceAfter&&brokerUnchanged&&pinnedObserved&&rows.every(r=>r.ok)&&required.every(name=>rows.some(r=>r.name===name&&r.ok))
+  writeJsonAtomic(report,{scope:inputFree?'input-free-live':brokerOnly?'native-broker-only':'full-live',session,rows,required,ok,sourceBefore,sourceAfter,brokerRuntimeBefore,brokerRuntimeAfter})
+  recordMemory({kind:'test_result',topic:inputFree?'v2-input-free-pressure':brokerOnly?'v2-native-broker-pressure':'v2-live-pressure',source:'live-v2',status:ok?'passed':'failed',brokerBuild:brokerRuntimeAfter?.build??null,bootstrapHash:brokerRuntimeAfter?.bootstrapHash??null,evidence:report,lesson:`${inputFree?'Input-free live':brokerOnly?'Native broker only':'Full live'}: ${rows.filter(r=>r.ok).length}/${required.length} required checks passed; interrupted=${controller.signal.aborted}; sourceUnchanged=${sourceBefore===sourceAfter}; brokerUnchanged=${brokerUnchanged}; pinnedDependenciesObserved=${pinnedObserved}`})
   console.log(JSON.stringify({report,ok}))
 }

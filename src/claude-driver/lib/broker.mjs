@@ -7,7 +7,7 @@
 // (bounded) → the caller verifies against disk ground truth.
 
 import { randomUUID } from 'node:crypto'
-import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -16,12 +16,13 @@ import { DriverError, sleep } from './paths.mjs'
 import { getRecord, liveByHost } from './sessions.mjs'
 import { BROKER_DIR, ensureDir, readJson, withLock, writeJsonAtomic } from './state.mjs'
 import { deliver } from './peer.mjs'
-import { cancelRequest, control, enqueue, validatedResult, nativeResultFile } from './requests.mjs'
+import { cancelRequest, control, enqueue, validatedResult, nativeResultFile, inspectRequest } from './requests.mjs'
 import { observeNativeReceipts } from './native-receipts.mjs'
 import { assertUiAvailable } from './ui-policy.mjs'
 import { assertInputHealthy } from './input-health.mjs'
 import { validateWarmBroker, warmOnlyRecovery, nativeWarmFailure } from './warm-recovery.mjs'
 import {brokerResidencyProtection} from './broker-residency.mjs'
+import {activeRelease,commitRelease,HANDOFF_OWNER,releaseStatus} from './releases.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const TEMPLATE = join(HERE, '..', 'broker-template', 'CLAUDE.md')
@@ -41,16 +42,18 @@ export const BROKER_OPS = [
 ]
 
 export function protocolVersion() {
-  return readFileSync(TEMPLATE, 'utf8').match(/^Protocol version: (\d+)/m)?.[1] || '1'
+  const active=activeRelease()
+  return active ? String(active.protocol) : readFileSync(TEMPLATE, 'utf8').match(/^Protocol version: (\d+)/m)?.[1] || '1'
 }
 
 // The template names absolute paths so the broker's Bash never depends on PATH.
 function renderTemplate() {
+  const active=activeRelease()
   const stable = join(homedir(), 'dotfiles', 'src', 'claude-driver', 'scripts', 'broker-wait.mjs')
-  const wait = existsSync(stable) ? stable : join(HERE, '..', 'scripts', 'broker-wait.mjs')
+  const wait = active ? join(active.root,'scripts','broker-wait.mjs') : existsSync(stable) ? stable : join(HERE, '..', 'scripts', 'broker-wait.mjs')
   const node = existsSync('/opt/homebrew/bin/node') ? '/opt/homebrew/bin/node' : process.execPath
   const check = join(dirname(wait), 'broker-check.mjs')
-  return readFileSync(TEMPLATE, 'utf8').replaceAll('{{NODE}}', node).replaceAll('{{WAIT}}', wait).replaceAll('{{CHECK}}', check).replaceAll('{{DIR}}', BROKER_DIR)
+  return readFileSync(active ? join(active.root,'broker-template','CLAUDE.md') : TEMPLATE, 'utf8').replaceAll('{{NODE}}', node).replaceAll('{{WAIT}}', wait).replaceAll('{{CHECK}}', check).replaceAll('{{DIR}}', BROKER_DIR)
 }
 
 export function prepareBrokerDir() {
@@ -75,7 +78,13 @@ export function brokerInfo() {
   if (!info?.sessionId) return { configured: false }
   const rec = getRecord(info.sessionId)
   const live = liveByHost().get(info.sessionId)
-  const templateCurrent = existsSync(join(BROKER_DIR, 'CLAUDE.md')) && readFileSync(join(BROKER_DIR, 'CLAUDE.md'), 'utf8') === renderTemplate()
+  const runtime=releaseStatus()
+  if(runtime.pinned&&runtime.integrity){
+    const pointer=activeRelease().pointer
+    const entries=['broker-wait','broker-check'].map(kind=>readJson(join(BROKER_DIR,kind+'-entry.json'),null))
+    runtime.dependencyPathsObserved=entries.every((entry,i)=>entry?.build===runtime.build&&entry.bootstrapHash===runtime.bootstrapHash&&entry.generation===runtime.generation&&entry.phase==='completed'&&entry.at>=Date.parse(pointer.activatedAt)&&entry.script===join(BROKER_DIR,'..','releases',runtime.build,'scripts',i===0?'broker-wait.mjs':'broker-check.mjs'))
+  }
+  const templateCurrent = runtime.integrity && existsSync(join(BROKER_DIR, 'CLAUDE.md')) && readFileSync(join(BROKER_DIR, 'CLAUDE.md'), 'utf8') === renderTemplate()
   return {
     configured: true,
     sessionId: info.sessionId,
@@ -88,8 +97,37 @@ export function brokerInfo() {
     live: live ? { pid: live.pid, status: live.status, socket: live.messagingSocketPath, entrypoint:live.entrypoint } : null,
     resident: live ? { ...heartbeat(), resident: ['busy', 'working'].includes(live.status) && heartbeat().resident } : { resident: false },
     templateCurrent,
+    runtime,
+    handoffStopped:readJson(join(BROKER_DIR,'STOP'),null)?.owner===HANDOFF_OWNER,
     residencyProtection:brokerResidencyProtection(info.sessionId,live),
   }
+}
+
+export function validateReleaseAdmission({info,record,stop,nonce,pid,unresolved}) {
+  validateWarmBroker(info,record,BROKER_DIR)
+  if(!info.live||info.live.pid!==pid||info.live.entrypoint!=='claude-desktop'||info.live.status!=='idle'||
+     stop?.owner!==HANDOFF_OWNER||!nonce||stop.nonce!==nonce||unresolved.length||
+     info.residencyProtection.uncertain||info.residencyProtection.pendingCalls||info.residencyProtection.jobs.length)
+    throw new DriverError('release handoff requires the exact stopped, idle broker with settled requests and maintenance cleanup',{category:'broker_handoff_refused'})
+}
+function releaseAdmission(nonce,pid) {
+ const info=brokerInfo(),stop=readJson(join(BROKER_DIR,'STOP'),null)
+ const unresolved=readdirSync(ensureDir(REQ_DIR)).filter(f=>/^[A-Za-z0-9_-]+\.json$/.test(f)).map(f=>inspectRequest(f.slice(0,-5)))
+   .filter(r=>!r.receiptVerified&&!r.retrySafe)
+ validateReleaseAdmission({info,record:getRecord(info.sessionId),stop,nonce,pid,unresolved})
+ return info
+}
+export async function activateBrokerRelease(build,{nonce,pid}={}) {
+ return withLock('broker',()=>{const info=releaseAdmission(nonce,pid);return commitRelease(build,{sessionId:info.sessionId,pid,nonce},renderTemplate)})
+}
+export async function resumeBrokerRelease({nonce,pid}={}) {
+ return withLock('broker',()=>{
+  const info=releaseAdmission(nonce,pid),active=activeRelease()
+  if(!active||active.pointer.sessionId!==info.sessionId||active.pointer.pid!==pid||active.pointer.handoffNonce!==nonce||!info.templateCurrent)
+   throw new DriverError('release pointer does not match this settled handoff',{category:'broker_handoff_refused'})
+  rmSync(join(BROKER_DIR,'STOP'))
+  return {build:active.build,pid,stopped:false,nativePathsVerified:false,wakeRequired:true}
+ })
 }
 
 export function saveBrokerInfo(info) {
@@ -106,6 +144,8 @@ export async function brokerRequest(ops, { timeoutMs = 90_000, progress = () => 
   for (const o of ops) if (!BROKER_OPS.includes(o.op)) throw new DriverError(`op ${o.op} is not on the broker allowlist`, { category: 'bad_args' })
   return withLock('broker', async () => {
     const info = brokerInfo()
+    if(info.handoffStopped)throw new DriverError('broker deployment handoff is stopped; requests cannot clear its STOP',{category:'broker_handoff_refused',detail:{dispatched:false,retrySafe:true}})
+    if(info.runtime?.integrity===false)throw new DriverError('broker runtime integrity failed; no request admitted',{category:'broker_runtime_invalid',detail:{dispatched:false,retrySafe:true}})
     if (!info.configured || !info.exists) throw new DriverError('no broker session; run `claude-driver broker init`', { category: 'broker_missing' })
     if (!info.templateCurrent) prepareBrokerDir()
     if (!info.live) throw new DriverError(`broker ${info.sessionId} has no live process (app restarted?); run \`claude-driver broker revive\``, { category: 'broker_dead' })
@@ -198,6 +238,8 @@ export async function brokerOp(op, args, opts) {
 export async function reviveBroker(opts = {}) {
   return withLock('broker-revive', async () => {
     const info = brokerInfo()
+    if(info.handoffStopped)throw new DriverError('broker release handoff owns STOP; recovery must stand down',{category:'broker_handoff_refused'})
+    if(info.runtime?.integrity===false)throw new DriverError('broker runtime integrity failed; recovery refused',{category:'broker_runtime_invalid'})
     if (info.live) return { method: 'already_live', live: info.live }
     // Recovery itself navigates the app before Tier C. Stand down before
     // any snapshot/deep link and don't turn quarantine into a cooldown.

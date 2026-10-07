@@ -8,7 +8,7 @@ import { join } from 'node:path'
 
 import { APP_SUPPORT, DESKTOP_CONFIG, MAIN_LOG, activeStore, appVersion, resolveClaudeBinary, cliVersionFromPath, versions } from './paths.mjs'
 import { runOp, txt } from './driver.mjs'
-import { BROKER_MODEL, BROKER_TITLE, brokerInfo, brokerRequest, prepareBrokerDir, protocolVersion, reviveBroker, saveBrokerInfo } from './broker.mjs'
+import { BROKER_MODEL, BROKER_TITLE, brokerInfo, brokerRequest, prepareBrokerDir, protocolVersion, reviveBroker, saveBrokerInfo, activateBrokerRelease, resumeBrokerRelease } from './broker.mjs'
 import { CAPABILITIES, PROBE_DIR, STATE_DIR, readJson, updateRegistry, writeJsonAtomic } from './state.mjs'
 import { currentMain, frontApp } from './focus.mjs'
 import { getRecord, readGroups, waitForRecord } from './sessions.mjs'
@@ -148,11 +148,22 @@ export async function probe(flags = {}) {
 
 export async function brokerCmd(sub, flags = {}) {
   const log = (m) => console.error(`[broker] ${m}`)
+  if(sub==='release-stage'){
+    const {stageRelease}=await import('./releases.mjs')
+    console.log(txt(await stageRelease({evidence:flags.evidence?String(flags.evidence).split(','):[]})));return 0
+  }
+  if(sub==='release-activate'){
+    console.log(txt(await activateBrokerRelease(flags.build,{nonce:flags.nonce,pid:Number(flags.pid)})));return 0
+  }
+  if(sub==='release-resume'){
+    console.log(txt(await resumeBrokerRelease({nonce:flags.nonce,pid:Number(flags.pid)})));return 0
+  }
   if (sub === 'status') {
     console.log(txt(brokerInfo()))
     return 0
   }
   if (sub === 'stop') {
+    if(brokerInfo().handoffStopped)throw new Error('qualified runtime handoff already owns STOP; preserve its nonce')
     // Ends the resident loop's turn (the process then idles and may be evicted).
     const { writeFileSync } = await import('node:fs')
     const { BROKER_DIR } = await import('./state.mjs')
@@ -188,5 +199,5 @@ export async function brokerCmd(sub, flags = {}) {
     console.log(txt({ broker: brokerInfo(), bypass: w.ok }))
     return w.ok ? 0 : 2
   }
-  throw new Error(`unknown broker command ${sub} (init|status|revive|stop)`)
+  throw new Error(`unknown broker command ${sub} (init|status|revive|stop|release-stage|release-activate|release-resume)`)
 }

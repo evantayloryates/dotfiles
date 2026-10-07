@@ -14,12 +14,13 @@ export function validateBrokerFixture({ session, record, registry, stateDir, bro
   return session
 }
 
-export function nativeQualification(row,build,versions){
+export function nativeQualification(row,build,versions,brokerRuntime){
   const matches=!!row&&row.runtimeBuild===build&&row.versions?.app===versions.app&&row.versions?.cli===versions.cli
+  const brokerMatches=!brokerRuntime?.pinned||brokerRuntime.integrity&&brokerRuntime.dependencyPathsObserved&&row?.brokerBuild===brokerRuntime.build&&row?.bootstrapHash===brokerRuntime.bootstrapHash
   const inputFree=row?.topic==='v2-input-free-pressure'
   const full=row?.topic==='v2-live-pressure'||inputFree
-  return {scope:inputFree?'input-free-live':full?'full-live':'native-broker-only',qualified:matches&&row.kind==='test_result'&&row.status==='passed',
-    matchingRuntime:matches,...(row?{status:row.status,at:row.at,evidence:row.evidence}:{status:'unqualified'}),
+  return {scope:inputFree?'input-free-live':full?'full-live':'native-broker-only',qualified:!!(matches&&brokerMatches&&row.kind==='test_result'&&row.status==='passed'),
+    matchingRuntime:matches,matchingBrokerRuntime:!!brokerMatches,...(row?{status:row.status,at:row.at,evidence:row.evidence}:{status:'unqualified'}),
     excluded:full?['physical-typing','UI-recovery']:['physical-typing','UI-recovery','focus-restoration','session-import']}
 }
 

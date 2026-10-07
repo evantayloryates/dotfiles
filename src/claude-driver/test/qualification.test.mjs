@@ -28,6 +28,14 @@ test('native qualification is scoped to passing evidence on identical source and
  assert.equal(inputFree.scope,'input-free-live');assert.equal(inputFree.qualified,true)
  assert.deepEqual(inputFree.excluded,['physical-typing','UI-recovery'])
 })
+test('pinned broker qualification also binds the executed dependency and bootstrap builds',()=>{
+ const versions={app:'1',cli:'2'},runtime={pinned:true,integrity:true,dependencyPathsObserved:true,build:'broker-build',bootstrapHash:'bootstrap-build'}
+ const row={kind:'test_result',status:'passed',runtimeBuild:'host-build',versions,brokerBuild:runtime.build,bootstrapHash:runtime.bootstrapHash}
+ assert.equal(nativeQualification(row,'host-build',versions,runtime).qualified,true)
+ for(const altered of [{...runtime,build:'other'},{...runtime,bootstrapHash:'other'},{...runtime,integrity:false},{...runtime,dependencyPathsObserved:false}])
+  assert.equal(nativeQualification(row,'host-build',versions,altered).qualified,false)
+ assert.equal(nativeQualification({...row,brokerBuild:undefined},'host-build',versions,runtime).qualified,false)
+})
 const inputFree=()=>({name:'create_session',args:{folder:'/private/state/probe/fixture',title:'claude-driver v2 pressure fixture',model:'claude-haiku-4-5-20251001',permission_mode:'acceptEdits',bootstrap_prompt:LIVE_BOOTSTRAP},folder:'/private/state/probe/fixture',title:'claude-driver v2 pressure fixture',stateDir:'/private/state',broker:{live:{pid:1},templateCurrent:true},policy:{blocked:true},ownedJobs:new Set(['owned'])})
 test('input-free creation retains quarantine and refuses every escape before import',()=>{
  assert.doesNotThrow(()=>validateInputFreeOperation(inputFree()))
