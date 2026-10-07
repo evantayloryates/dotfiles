@@ -7,6 +7,72 @@ Versions: app = Claude desktop, cli = bundled Claude Code.
 
 ## 2026-10-06 (app 2.19675.0, cli 2.1.286)
 
+- **Foreground waiting does not protect the broker from native eviction.**
+  The app evicted v5 after 133 idle seconds (`governor_evict`). Local native
+  source excludes live native cron jobs from idle victim selection. V6 stages
+  one exact service maintenance job, reconciles it without duplicates and deletes
+  only that job on STOP. Evidence requires native current-process tool receipts,
+  fresh CronList and matching app acknowledgment. The headless synthetic cron
+  job's creation/list/deletion were verified; desktop governor protection remains
+  unqualified. The read-only residency observer was cancelled for user pause,
+  with zero keyboard filters before/after and no native writes. Current source
+  passed 435 isolated cases and ten checks per actual filtered harness. Broker
+  is offline; the pending v6 wake is withdrawn. See [resume.md](resume.md).
+
+
+- **A quoted marker is not task completion; synthetic recipients need explicit
+  delegation.** Fresh imported Haiku asked whether the indirect long-generation
+  request was authorized and quoted `OLD_PLAN_FINISHED`. The test's substring
+  assertion mistook that for completed work; native replacement itself did
+  appear. Failed `live-v2-2026-10-07T00-22-13-935Z.json` remains retained, with
+  archived cleanup and zero input filters before/after. The fixed synthetic
+  bootstrap explicitly authorizes only this chat's bounded broker test
+  sequence. The guard accepts that exact bootstrap, never arbitrary prompts.
+  Completion assertions require a final assistant line rather than a mention.
+  Assistant observations now report truncation/length and a bounded 256-character
+  tail, so a long response's terminal marker is not silently hidden by the
+  preview limit. Two new regressions verify quoted/user markers versus actual
+  completion and hidden-content exclusion in truncated observation. This
+  authorization is fixture-only; delivery never authorizes arbitrary recipient
+  work or proves that a recipient applied it.
+
+
+- **Native controls can qualify without reopening Computer Use.** Taylor
+  confirmed recovered input and one manual `claude-driver wake v5`, supported
+  by paste/send screenshots. Subsequent read-only audits found zero active
+  helper keyboard filters targeting Claude. Quarantine remains active because
+  earlier temporary recovery did not prove native teardown. The input-free
+  live scope structurally allows one private CLI bootstrap/import plus native
+  controls, binds its recipient and jobs, verifies focus independently and
+  audits input resources before/after. It excludes broker recovery, arbitrary
+  bootstrap prompts, permission changes and user-session navigation. Shared
+  service memory records the human observation separately from test results.
+  Evidence: incident summary and current qualification reports below.
+
+- **Batch settings reduce broker round trips and expose partial outcomes.**
+  `set_session_config` now combines title, pin state, model, effort and
+  permission mode in one ordered native request and recipient lock. Native
+  disk verification checks each field. Synthetic MCP tests verify explicit
+  unpin, one request for four controls and a later failure with earlier
+  effects retained; error details carry the receipt and prohibit wholesale
+  retry. A live three-control request verified all fields with one request
+  (15.245 s), against 35.411 s for three separate controls plus unpin. Both
+  timings exclude/handle cleanup differently; they are observations, not a
+  speed guarantee. Evidence: native report `00-19-17-259Z` and final reports
+  in v2-qualification.md. n=2 new synthetic boundary cases, native batch n=1
+  at this checkpoint.
+
+- **Explicit warm-only recovery never loads input automation.** The existing
+  approved broker is validated before a native deep link, with conditional
+  focus restoration and input audits even on error/cancellation. Seven pure
+  tests cover identity, success, governor cap, navigation failure, preaudit,
+  cancellation and failed postaudit. One live attempt hit the native process
+  governor cap and returned `broker_wake_required` with no keyboard fallback;
+  Taylor's manual wake then started the resident loop. This proves refusal
+  at cap, not unattended cold recovery. Evidence: broker request
+  `rmuxcrs3y-254616` before/after warm audits and service recovery record.
+
+
 - **Typing and paste duplication recurred; UI qualification is suspended.**
   Taylor noticed duplicate characters around 17:56 Eastern and confirmed
   `hello` pasted as `hellohello` at 18:07. Native read-only CGGetEventTapList
@@ -15,7 +81,7 @@ Versions: app = Claude desktop, cli = bundled Claude Code.
   persisted after js_reset. SIGTERM retired the helper; no keyboard filters
   targeting Claude remained on subsequent audits. Claude's supported renderer
   reload completed; its agent processes and Codex were not restarted. Physical
-  confirmation remains pending, and UI quarantine was reactivated. Backend
+  recovery was subsequently confirmed; UI quarantine remains active. Backend
   process exit, final js_reset and passing short UI tests were insufficient.
   The existing core closeSession explicitly archives a thread and frees its
   MCP resources; the Claude UI worker now invokes it before transport close

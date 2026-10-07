@@ -284,6 +284,16 @@ test('initial observation excludes history; subsequent cursor gives bounded unic
   assert.equal(events.sessionEvents({session:sid,cursor:next.cursor}).events.length,0)
   assert.throws(()=>events.sessionEvents({session:sid,cursor:Buffer.from(JSON.stringify({session:'another',identity:'x',offset:0})).toString('base64url')}),e=>e.category==='cursor_reset')
 })
+test('long assistant observation reports truncation and a bounded tail without exposing hidden content',()=>{
+ const cursor=events.sessionEvents({session:sid}).cursor
+ const text='x'.repeat(5000)+'\nOLD_PLAN_FINISHED'
+ appendFileSync(transcript,JSON.stringify({type:'assistant',message:{content:[{type:'thinking',thinking:'PRIVATE_THINKING'},{type:'tool_use',name:'Bash',input:{command:'PRIVATE_COMMAND'}},{type:'text',text}]}})+'\n')
+ const out=events.sessionEvents({session:sid,cursor,include_text:true}),e=out.events[0]
+ assert.equal(e.text.length,4000);assert.equal(e.textTruncated,true);assert.equal(e.textChars,text.length)
+ assert.equal(e.textTail.length,256);assert.ok(e.textTail.endsWith('\nOLD_PLAN_FINISHED'))
+ assert.equal(JSON.stringify(out).includes('PRIVATE_'),false)
+ assert.equal(events.sessionEvents({session:sid,cursor}).events[0].textTail,undefined)
+})
 test('pending cursor captures the first reply of a fresh pooled context without importing history',async()=>{
  const id='local_00000000-0000-4000-8000-000000000099',newCli='00000000-0000-4000-8000-000000000098'
  const recordFile=join(root,'app','claude-code-sessions','a','o',id+'.json')

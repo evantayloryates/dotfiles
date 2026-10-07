@@ -250,7 +250,7 @@ export const OPS = [
         driver: DRIVER_VERSION,
         apiVersion: 2,
         runtimeBuild: RUNTIME_BUILD,
-        nativeQualification:nativeQualification([queryMemory({topic:'v2-native-broker-pressure',kind:'test_result',limit:1})[0],queryMemory({topic:'v2-live-pressure',kind:'test_result',limit:1})[0]].filter(Boolean).sort((a,b)=>b.at.localeCompare(a.at))[0],RUNTIME_BUILD,m.versions),
+        nativeQualification:nativeQualification(['v2-native-broker-pressure','v2-live-pressure','v2-input-free-pressure'].map(topic=>queryMemory({topic,kind:'test_result',limit:1})[0]).filter(Boolean).sort((a,b)=>b.at.localeCompare(a.at))[0],RUNTIME_BUILD,m.versions),
         uiAutomation: uiPolicy(),
         versions: m.versions,
         stateDir: STATE_DIR,

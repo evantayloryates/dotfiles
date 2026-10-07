@@ -4,6 +4,12 @@ claude-driver drives Taylor's Claude desktop app from Claude Code, Codex,
 Cursor, OpenCode or a script. This is the usage contract; the README has the
 mechanisms and evidence.
 
+Current development is paused; see [resume checkpoint](resume.md). An offline
+broker means native write availability is unestablished. Protocol v6's residency
+candidate must have current native receipt/list/app evidence before
+`broker_status.residencyProtection.verified` is true; even that evidence does not
+replace a pressure-survival test or qualify cold recovery. Keep UI quarantine.
+
 ## V2 control interface
 
 Use `driver_submit {operation, arguments, idempotency_key, timeout_sec}`
@@ -30,7 +36,11 @@ Delete and project archive remain on their explicit gated entry points.
 Capture `session_events {session}` before sending: the initial cursor starts
 at the transcript's current end. Continue with `session_wait {session,
 cursor, include_text:true}` to observe subsequent replies. Text is opt-in
-and assistant-only; thinking and tool inputs/results are excluded. Cursors
+and assistant-only; thinking and tool inputs/results are excluded. Long assistant text includes `textTruncated` and `textChars`; when truncated,
+`textTail` contains at most the final 256 characters alongside the 4000-character
+prefix. Inspect the tail for an exact terminal protocol marker, rather than
+mistaking a quoted marker for completion. Text, length and tail remain opt-in;
+thinking and tool inputs/results remain excluded. Cursors
 reset when the underlying transcript changes. A cleared/new session gets a
 pending cursor that captures its first transcript when it appears.
 `create_session.observationCursor` is captured before `first_message`; use
@@ -50,6 +60,14 @@ Native stop preserves existing queued messages; they can run before the new
 replacement. `queueDisposition` makes this explicit. Interruption does not
 silently discard another caller's queued work.
 
+For several settings on one recipient, use one `set_session_config
+{session, title, pinned, model, effort, permission_mode}` with only the desired
+fields. `pinned:false` is an explicit unpin. One broker request executes ordered
+native controls and verifies every requested field. The batch is not atomic:
+a failed later control can leave earlier changes applied. Error details include
+`requestId`, native `results`, `partial` and `retrySafe:false`. Reconcile the
+receipt and disk state before sending only the remaining changes.
+
 Use `driver_memory_query {topic, kind, limit}` for shared technical lessons.
 `driver_memory_record {topic, lesson, evidence}` appends a candidate lesson;
 it is not a verified conclusion. The service automatically records bounded
@@ -62,14 +80,22 @@ Physical keyboard duplication was reported during live qualification on
 2026-10-06. Taylor initially confirmed normal physical typing, but duplicate characters
 and pastes recurred around 17:56 Eastern. The shared UI quarantine is active
 again. Two active Computer Use keyboard filters targeted Claude and survived
-JS reset; retiring the helper removed them. Physical recovery and explicit
-thread-close/native-helper teardown qualification remain pending. The service
+JS reset; retiring the helper removed them. Taylor subsequently confirmed recovered input and one manual wake with
+paste/send screenshots. Explicit thread-close/native-helper teardown
+qualification remains pending; quarantine remains active. The service
 audits helper-owned Claude keyboard filters before and after each UI lease,
 including cancellation/failure. Surviving filters or an unavailable audit
 quarantine further UI work; the driver does not kill shared helper processes.
 When enabled, the service's private `ui-quarantine.json` blocks Tier C before
 loading Computer Use, dead-broker recovery before navigation, new/forced
 broker initialization, probes and full `live-v2.mjs --live` runs.
+The explicit `broker_status {revive:true, warm_only:true}` is an exception
+for audited native navigation only: it validates the approved broker, snapshots
+focus, opens its native deep link, waits for a live process and conditionally
+restores focus. It never starts Computer Use or types/pastes. Input filters are
+audited before and after, including errors/cancellation. A governor cap returns
+`broker_wake_required` without keyboard fallback. Ordinary recovery remains
+blocked by quarantine; unattended cold recovery is not qualified.
 Preflight reports an unqualified capability matrix instead of automatically
 probing a new app/CLI version while quarantined. Disk reads and an already
 live broker remain available.
@@ -96,6 +122,18 @@ This scope cannot create/import/open sessions, use input automation or raise
 permissions. It checks durable delivery, native controls, tool-free generation
 queue/interrupt behavior and archive cleanup. It does not qualify UI recovery,
 focus restoration, physical typing or all desktop operations.
+
+An input-free live scope can additionally qualify one new synthetic CLI
+bootstrap/import and independently verify restored focus:
+`node scripts/live-v2.mjs --live --input-free`. It retains quarantine and
+requires a current live broker before every operation. Its structural allowlist
+binds the exact private scratch folder and fixed bootstrap authorization
+for subsequent synthetic broker messages, bounded bootstrap configuration,
+recipient and owned jobs; no arbitrary bootstrap prompt, permission changes,
+user-session navigation, broker recovery or Computer Use is permitted. Native
+filter audits run before and after, including failure, and all eleven named
+checks must pass on unchanged source. This qualifies import/native controls;
+it does not qualify input automation or unattended cold recovery.
 
 ## 1. Rules
 

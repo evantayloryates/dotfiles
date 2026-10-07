@@ -11,12 +11,15 @@ import { cancelJob } from '../lib/jobs.mjs'
 import { assertUiAvailable, uiPolicy } from '../lib/ui-policy.mjs'
 import { brokerInfo, brokerOp } from '../lib/broker.mjs'
 import { getRecord, liveByHost, waitForRecord } from '../lib/sessions.mjs'
-import { currentMain } from '../lib/focus.mjs'
-import { validateBrokerFixture } from '../lib/qualification.mjs'
+import { currentMain,snapshot } from '../lib/focus.mjs'
+import { validateBrokerFixture,validateInputFreeOperation,LIVE_BOOTSTRAP,hasCompletionMarker } from '../lib/qualification.mjs'
+import { assertInputHealthy } from '../lib/input-health.mjs'
 import { runtimeFingerprint } from '../lib/build.mjs'
 import { withSessionControl } from '../lib/controls.mjs'
 if (!process.argv.includes('--live')) throw new Error('Live qualification is stopped pending physical typing verification. Run with --live only after that incident is resolved.')
 const brokerOnly = process.argv.includes('--broker-only')
+const inputFree = process.argv.includes('--input-free')
+if(brokerOnly&&inputFree)throw new Error('choose one qualification scope')
 let session = brokerOnly ? process.argv[process.argv.indexOf('--session') + 1] : undefined
 if (brokerOnly) {
   if (!process.argv.includes('--session')) throw new Error('--broker-only requires --session <owned fixture id>')
@@ -26,7 +29,7 @@ if (brokerOnly) {
     assert.equal((await waitForRecord(session,r=>r.isArchived===false,{timeoutMs:8000})).ok,true)
   }
   if (['busy','working'].includes(liveByHost().get(session)?.status)) throw new Error('owned fixture is busy; reconcile it before qualification')
-} else assertUiAvailable()
+} else if(!inputFree) assertUiAvailable()
 const sourceBefore = runtimeFingerprint()
 const rows = []
 const observed=[]
@@ -36,10 +39,12 @@ process.once('SIGTERM', () => controller.abort())
 process.once('SIGINT', () => controller.abort())
 const stamp = new Date().toISOString().replace(/[:.]/g, '-')
 const folder = join(STATE_DIR, 'probe', `v2-${stamp}`)
+const fixtureTitle = `claude-driver v2 pressure ${stamp}`
 if (!brokerOnly) mkdirSync(folder, {recursive: true})
 let cursor
 const nativeOps = new Set(['get_session','session_events','session_wait','driver_submit','driver_wait','driver_cancel','send_message','steer_session','stop_session','rename_session','pin_session','set_session_config','archive_session'])
 const op = async (name,args={})=>{
+  if(inputFree)validateInputFreeOperation({name,args,session,folder,title:fixtureTitle,stateDir:STATE_DIR,broker:brokerInfo(),policy:uiPolicy(),ownedJobs})
   if (brokerOnly) {
     if (!uiPolicy().blocked || !nativeOps.has(name) || args.session && args.session !== session ||
         args.permission_mode || args.operation && (args.operation !== 'send_message' || args.arguments?.session !== session))
@@ -69,8 +74,18 @@ async function waitJob(jobId,seconds=180){
   throw new Error(`owned job ${jobId} remains ${job.state}; reconcile before replay`)
 }
 try {
+  if(inputFree)await step('input-resource-audit-before',async()=>{const r=await assertInputHealthy({phase:'before-input-free-qualification',evidence:join(STATE_DIR,'pressure',`input-free-${stamp}-before.json`)});return {filters:r.filters.length,inputAutomation:false}})
   if (brokerOnly) await step('adopt-owned-fixture',async()=>({session,navigation:false,inputAutomation:false,uiQuarantine:uiPolicy().blocked}))
-  else await step('create-and-restore-focus',async()=>{ const r=await op('create_session',{folder,title:`claude-driver v2 pressure ${stamp}`,model:'claude-haiku-4-5-20251001',permission_mode:'acceptEdits'});session=r.sessionId;assert.equal(r.verified,true);return {session,focus:r.focus,ms:r.bootMs} })
+  else await step('create-and-restore-focus',async()=>{
+    const before=await snapshot()
+    const r=await op('create_session',{folder,title:fixtureTitle,model:'claude-haiku-4-5-20251001',permission_mode:'acceptEdits',bootstrap_prompt:LIVE_BOOTSTRAP})
+    session=r.sessionId;assert.equal(r.verified,true)
+    const after=await snapshot()
+    assert.equal(r.focus.includes('(not confirmed)'),false,'focus restoration must be confirmed')
+    if(r.focus.startsWith('main window →'))assert.equal(after.mainSession,before.mainSession,'independent focus readback')
+    if(r.focus.includes('front app →'))assert.equal(after.frontApp,before.frontApp,'independent front-app readback')
+    return {session,focus:r.focus,before,after,ms:r.bootMs,inputAutomation:false}
+  })
   cursor=(await op('session_events',{session})).cursor
   await step('durable-submit-and-recipient-reply',async()=>{
     const args={operation:'send_message',arguments:{session,message:'Synthetic bridge fixture. Reply exactly V2_INITIAL_OK. Do not use tools, change files or message others.'},idempotency_key:`live-${stamp}-initial`}
@@ -117,7 +132,7 @@ try {
     assert.ok(['busy','working'].includes((await op('get_session',{session})).live?.status),'recipient must be busy immediately before interruption')
     const r=await op('steer_session',{session,mode:'interrupt',message:'Replacement synthetic plan. Discard the old fixture plan. Reply exactly NEW_PLAN_APPLIED. Do not use tools, edit files or message anyone.'});assert.equal(r.stopped,true)
     const seen=await observeUntil(e=>e.some(x=>x.type==='assistant'&&x.text==='NEW_PLAN_APPLIED'),30)
-    assert.equal(seen.some(x=>x.text?.includes('OLD_PLAN_FINISHED')),false)
+    assert.equal(hasCompletionMarker(seen,'OLD_PLAN_FINISHED'),false,'old completion marker must be a final line, never a quotation')
     assert.equal(seen.some(x=>x.tools?.length),false,'tool-free fixture must not wait on permission')
     assert.equal(r.queueDisposition,'existing queued messages are preserved by native stop')
     return {stopVerified:true,replacementReplyVerified:true,oldPlanFinished:false,delivery:r.delivery}
@@ -142,11 +157,13 @@ finally {
     if(s.pinned) await op('pin_session',{session,pinned:false})
     const r=await op('archive_session',{session});assert.equal(r.verified,true);return {session,archived:true}
   }).catch(()=>{process.exitCode=1})
+  if(inputFree)await step('input-resource-audit-after',async()=>{const r=await assertInputHealthy({phase:'after-input-free-qualification',evidence:join(STATE_DIR,'pressure',`input-free-${stamp}-after.json`)});return {filters:r.filters.length,inputAutomation:false,uiQuarantine:uiPolicy().blocked}}).catch(()=>{process.exitCode=1})
   const report=join(STATE_DIR,'pressure',`live-v2-${stamp}.json`)
   const required=[brokerOnly?'adopt-owned-fixture':'create-and-restore-focus','durable-submit-and-recipient-reply','cancellation-before-native-dispatch','three-concurrent-native-controls','batched-native-controls','queue-is-not-interrupt','interrupt-then-replacement-is-applied','single-native-recipient-replies','cleanup-archive']
+  if(inputFree)required.push('input-resource-audit-before','input-resource-audit-after')
   const sourceAfter = runtimeFingerprint()
   const ok=sourceBefore===sourceAfter&&rows.every(r=>r.ok)&&required.every(name=>rows.some(r=>r.name===name&&r.ok))
-  writeJsonAtomic(report,{scope:brokerOnly?'native-broker-only':'full-live',session,rows,required,ok,sourceBefore,sourceAfter})
-  recordMemory({kind:'test_result',topic:brokerOnly?'v2-native-broker-pressure':'v2-live-pressure',source:'live-v2',status:ok?'passed':'failed',evidence:report,lesson:`${brokerOnly?'Native broker only':'Full live'}: ${rows.filter(r=>r.ok).length}/${required.length} required checks passed; interrupted=${controller.signal.aborted}; sourceUnchanged=${sourceBefore===sourceAfter}`})
+  writeJsonAtomic(report,{scope:inputFree?'input-free-live':brokerOnly?'native-broker-only':'full-live',session,rows,required,ok,sourceBefore,sourceAfter})
+  recordMemory({kind:'test_result',topic:inputFree?'v2-input-free-pressure':brokerOnly?'v2-native-broker-pressure':'v2-live-pressure',source:'live-v2',status:ok?'passed':'failed',evidence:report,lesson:`${inputFree?'Input-free live':brokerOnly?'Native broker only':'Full live'}: ${rows.filter(r=>r.ok).length}/${required.length} required checks passed; interrupted=${controller.signal.aborted}; sourceUnchanged=${sourceBefore===sourceAfter}`})
   console.log(JSON.stringify({report,ok}))
 }

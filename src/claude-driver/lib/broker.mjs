@@ -21,6 +21,7 @@ import { observeNativeReceipts } from './native-receipts.mjs'
 import { assertUiAvailable } from './ui-policy.mjs'
 import { assertInputHealthy } from './input-health.mjs'
 import { validateWarmBroker, warmOnlyRecovery } from './warm-recovery.mjs'
+import {brokerResidencyProtection} from './broker-residency.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const TEMPLATE = join(HERE, '..', 'broker-template', 'CLAUDE.md')
@@ -84,6 +85,7 @@ export function brokerInfo() {
     live: live ? { pid: live.pid, status: live.status, socket: live.messagingSocketPath, entrypoint:live.entrypoint } : null,
     resident: live ? { ...heartbeat(), resident: ['busy', 'working'].includes(live.status) && heartbeat().resident } : { resident: false },
     templateCurrent,
+    residencyProtection:brokerResidencyProtection(info.sessionId,live),
   }
 }
 

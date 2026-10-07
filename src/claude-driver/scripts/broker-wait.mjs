@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 // Resident-broker wait: the broker session runs this in its Bash tool and
-// stays mid-turn while it blocks, so the app's CLI governor never counts it
-// as idle and never evicts it. Bounded: exits after --max-sec (default 540,
+// stays mid-turn while it blocks. This does NOT itself prevent native app
+// governor eviction: the app evicted a waiting broker after 133 s idle.
+// Native session-cron protection is a separately qualified protocol concern.
+// Bounded: exits after --max-sec (default 540,
 // under the Bash tool's 10 min cap) and the broker simply runs it again.
 //
 // Prints exactly one line and exits 0:

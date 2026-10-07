@@ -32,13 +32,20 @@ Fresh MCP processes and the CLI use v2; this chat's older MCP binding still
 needs refresh. Physical typing initially recovered, then duplicated characters
 and pastes recurred on 2026-10-06. The UI quarantine is active again. Two active
 Computer Use keyboard filters targeting Claude survived JS reset; retiring
-that helper removed both filters. Physical recovery confirmation and complete
-native-helper teardown qualification remain pending. Each UI lease now audits
+that helper removed both filters. Taylor subsequently confirmed input and a single manual broker wake working
+again, with matching paste/send screenshots. Complete native-helper teardown
+qualification remains pending; the quarantine stays active. Each UI lease now audits
 helper-owned Claude keyboard filters before and after execution, including
 failed/cancelled leases. Surviving filters or an unavailable audit quarantine
 further UI work; this never kills another caller's helper. Native broker controls
 and isolated tests remain usable without UI automation. See
 [qualification](docs/v2-qualification.md).
+
+Work is paused in a [resume checkpoint](docs/resume.md). Protocol v6 stages a
+native maintenance-job candidate after v5 governor eviction; the current isolated
+and filtered harness checks passed, but desktop residency and the complete revised
+input-free suite still need native qualification. The broker is offline and no
+wake request remains pending during this pause.
 
 ## Setup
 
@@ -74,8 +81,13 @@ Full live qualification uses `node src/claude-driver/scripts/live-v2.mjs
 --live`, after physical typing recovery is confirmed. A separate scoped run
 uses `--live --broker-only --session local_<owned-fixture>` while quarantined;
 `--restore-fixture` permits native unarchive of that same scratch fixture.
-It checks delivery, cancellation, concurrent controls, queue/interrupt and
-cleanup, without creating/importing sessions or automating input. Interrupting that script cancels its owned jobs,
+It checks delivery, cancellation, concurrent and batched controls, queue/interrupt
+and cleanup, without creating/importing sessions or automating input.
+`--live --input-free` instead qualifies one new synthetic CLI bootstrap/import
+and independently reads back focus restoration, with input-filter audits before
+and after. It requires a current live broker and active quarantine; its operation
+allowlist binds one private scratch recipient and owned jobs. Navigation into
+user chats, permission changes, broker recovery and Computer Use are excluded. Interrupting that script cancels its owned jobs,
 records unfinished cleanup and stops further app controls. Qualification
 requires every named check; partial runs cannot pass.
 
@@ -102,11 +114,25 @@ The CLI mirrors every MCP tool: `claude-driver <tool> --arg value …` (or
 | `delete_sessions` | B | gated, queueable, always Taylor's card; cleans CLI leftovers of driver-created sessions |
 | `archive_project` | B | dry run by default, gated to scratch/driver folders |
 | `window_manage` | C | free-form window work in the Claude app via Codex |
-| `broker_status` | A/C | broker state; `revive` |
+| `broker_status` | A/C | broker state; `revive`; explicit `warm_only` uses audited native navigation without Computer Use |
 | `driver_submit`, `driver_job`, `driver_wait`, `driver_cancel`, `driver_request` | — | durable jobs, idempotency, bounded waits and read-only late receipt reconciliation |
 | `session_events`, `session_wait` | A | bounded transcript cursors; assistant text requires opt-in |
 | `stop_session`, `steer_session` | B | verified stop, queued follow-up or stop followed by replacement |
 | `driver_memory_record`, `driver_memory_query` | — | shared technical observations with evidence and confidence status |
+
+`set_session_config` accepts `title`, `pinned`, `model`, `effort` and
+`permission_mode` together. It sends one native request and verifies each
+requested field. This reduces broker round trips; it is not transactional.
+A partial failure returns the request ID, completed native results and
+`retrySafe:false`. Inspect `driver_request` and recipient state before
+applying only the remaining changes; do not replay the entire batch.
+
+For a cold broker, `broker_status {revive:true, warm_only:true}` attempts
+only a native deep link, with focus restoration and before/after input
+filter audits. It works under UI quarantine without loading Computer Use.
+At Claude's process governor cap it returns `broker_wake_required` promptly;
+a human wake is still needed. This explicit option does not enable automatic
+UI fallback or promise unattended cold recovery.
 
 Maintenance: `preflight`, `probe [--keep]`, `broker init|status|revive|stop`,
 `install [--dry-run]`, `cleanup-leftovers <uuid>`.

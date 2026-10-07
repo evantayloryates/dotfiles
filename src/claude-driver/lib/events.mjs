@@ -60,7 +60,7 @@ export function sessionEvents({ session, cursor, include_text = false, limit = 3
       const tools = blocks.filter(b=>b?.type === 'tool_use' && typeof b.name === 'string').map(b=>b.name)
       // Never return thinking or tool inputs/results, even with include_text.
       if (text || tools.length) events.push({ id: x.uuid, at: x.timestamp, type: x.type, stopReason: x.message?.stop_reason, tools,
-        ...(include_text && text && x.type === 'assistant' ? { text: text.slice(0, 4000) } : {}) })
+        ...(include_text && text && x.type === 'assistant' ? { text: text.slice(0, 4000),textTruncated:text.length>4000,textChars:text.length,...(text.length>4000?{textTail:text.slice(-256)}:{}) } : {}) })
     }
     consumed += n
     if (events.length >= limit) break

@@ -1,28 +1,31 @@
 # Claude-driver v2 qualification
 
-Latest status check, 2026-10-06 around 19:31 Eastern: the broker exists but
-has no live process or resident loop. UI quarantine remains active; a fresh
-read-only input audit found zero surviving helper keyboard filters. Subsequent
-CLI authentication changes changed the runtime fingerprint, so native
-qualification correctly reports `matchingRuntime:false`. The current source
-passed all 68 isolated tests in five fresh processes (340 cases), report
-`<state>/pressure/v2-2026-10-06T23-31-48-560Z.json`, with unchanged fingerprints.
-Native write availability and unattended readiness are not established for
-this build. Earlier native/harness evidence below remains dated evidence.
+Paused at Taylor's request on 2026-10-06. The definitive resume order and
+current evidence are in [resume.md](resume.md). All owned probes are stopped;
+the pending v6 manual wake request is withdrawn. Broker is offline, Computer
+Use is quarantined, and native v6 residency protection remains unqualified.
 
-V2 is available through the CLI and fresh MCP processes on Claude desktop
-2.19675.0 / bundled CLI 2.1.286. Physical typing initially recovered on 2026-10-06, then duplicate characters
-and pastes recurred around 17:56 Eastern. The UI quarantine is active again;
-UI fallback is not ready for unattended use. Native broker controls remain
-independent. A read-only native audit found two active keyboard filters from
-SkyComputerUseService targeting Claude; both survived JS reset. Retiring that
-helper removed the filters. Human recovery confirmation and a qualified
-native-helper teardown are still required. Temporary backend threads now
-explicitly close through the existing core, with successful/refused cleanup
-covered by synthetic RPC tests. That alone is not physical usability proof.
-The service now audits helper-owned active Claude keyboard filters before
-and after UI leases, even failed/cancelled ones. Surviving filters or audit
-failure quarantine further UI work. No shared helper is killed automatically.
+Current source passed 87 isolated tests in five fresh processes (435 cases),
+report `<state>/pressure/v2-2026-10-07T00-39-50-052Z.json`, unchanged fingerprint
+`32a4b1193203c235dd0ed63876c4231d7783d6e3999e11b1792da32b213b8780`.
+Actual Claude and Codex filtered harness reports `00-39-12-094Z` each passed ten
+checks on that source. The residency observer `00-39-12-093Z` was explicitly
+aborted for pause; both input audits passed with zero filters. It did not prove
+native maintenance acknowledgment or governor survival.
+
+Taylor confirmed normal input and a single manual v5 wake, with paste/send
+screenshots. Quarantine remains because native-helper teardown has not been
+qualified and earlier recovery was temporary. V5 subsequently suffered native
+governor eviction after 133 idle seconds. V6 stages a native session-only cron
+candidate; headless native tool receipts were reconciled and the synthetic job
+deleted, but desktop protection still needs live proof. No keyboard fallback
+was used for the subsequent warm-only cap refusal. Scratch chats are archived
+and the approved dotfiles pool is parked with its CLI context cleared.
+
+Earlier reports below are historical evidence with their own fingerprints.
+The new input-free run passed import/focus and several native controls but failed
+a quoted-marker interruption assertion; the fixed fixture authorization and
+final-line assertion have not yet passed the complete eleven-check native suite.
 
 This chat's connected MCP still serves legacy `706a338`; use the current CLI
 or a fresh connection and verify `apiVersion:2`, `runtimeBuild` and current
@@ -41,7 +44,7 @@ qualification. Source updates do not reload an existing MCP process.
 | Groups | Current manual sections merged with native legacy assignments; opaque create receipt resolved to one verified ID | Unknown schema or ambiguous names refuse/retain uncertainty |
 | Recovery | Pre-recurrence owned idle-broker termination and verified wake; new explicit thread close, input-filter audit and quarantine guards tested in isolation | Native teardown remains unqualified; UI recovery is disabled; unknown sends require reconciliation |
 | Service memory | Bounded metadata-only automatic records; candidate lessons distinguished from verified test evidence; source/version fingerprints | Continued usage supplies future evidence; no prompts or raw journal contents in automatic memory |
-| Human usability | Recurrence captured; stale helper filters removed and renderer reload completed | Fresh physical confirmation pending; earlier normal typing was temporary |
+| Human usability | Recurrence captured; stale helper filters removed and renderer reload completed | Human input recovery observed; safe native-helper teardown remains unqualified |
 
 Pre-authentication-change deterministic report: `<state>/pressure/v2-2026-10-06T22-20-58-626Z.json`:
 68 tests in each of five fresh processes, 340 passed, unchanged runtime/suite
@@ -51,7 +54,7 @@ archive success/refusal, precise filter ownership, preserved human quarantine
 and an unavailable audit. A separate read-only live audit found zero surviving
 helper keyboard filters at 22:20 UTC; it did not start Computer Use.
 
-Latest native report, preceding the authentication change:
+Historical native report, preceding the authentication change:
 `<state>/pressure/live-v2-2026-10-06T22-20-43-966Z.json`: all eight checks
 passed with active UI quarantine and unchanged runtime source. It exercised
 delivery/reply, cancellation, three concurrent controls, busy queue,
