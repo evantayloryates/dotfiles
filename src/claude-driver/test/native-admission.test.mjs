@@ -43,5 +43,13 @@ test('actual hook denies dispatch:false and consumes native admission once even 
   }
   save(controlFile,x.control);const outputs=await Promise.all([run(),run(),run()]);assert.equal(outputs.filter(x=>x.permissionDecision===undefined).length,1);assert.equal(outputs.filter(x=>x.permissionDecision==='deny').length,2)
   const receipt=JSON.parse(readFileSync(join(dir,'native-admission-rnative-0.json')));assert.equal(receipt.toolUseId,x.input.tool_use_id);assert.equal(receipt.pid,process.pid)
+  const admissionFile=join(dir,'native-admission-rnative-0.json'),originalAdmission=readFileSync(admissionFile)
+  // Cancelling later denies another attempted boundary entry, but must never
+  // erase the consumed admission or pretend the earlier call was interrupted.
+  save(controlFile,{...x.control,cancelRequested:true,state:'outcome_unknown'})
+  x.input.tool_use_id='toolu_native_cancelled_later'
+  assert.equal((await run()).permissionDecision,'deny')
+  assert.deepEqual(readFileSync(admissionFile),originalAdmission)
+  assert.equal(JSON.parse(readFileSync(controlFile)).state,'outcome_unknown')
  }finally{rmSync(home,{recursive:true,force:true})}
 })

@@ -61,3 +61,8 @@ an installed policy, request cancellation or missing admission marker alone is
 not proof that the platform prevented an effect. Preserve unknown/non-retryable
 outcomes. This is primary documentation evidence, not a fault-injection test of
 our exact bundledCLI2.1.289; that native qualification remains open.
+
+A real command-hook subprocess regression now verifies cancellation after a slot
+was already consumed: a later tool-use attempt is denied, the original admission
+record remains byte-identical, and `outcome_unknown` bookkeeping is preserved.
+This does not prove interruption or reversal of the previously admitted effect.

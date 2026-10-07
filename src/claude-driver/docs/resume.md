@@ -1,3 +1,20 @@
+## Cancellation after consumed admission preserves uncertainty — October 7, 13:28 Eastern
+
+Rechecked actual native command gate path: existing tests already independently
+exercise cancellation denial before native admission. Extended real command-hook
+subprocess/private store test after one admission consumed: cancel sets
+outcome_unknown, a different native tool-use attempt receives explicit deny,
+original admission bytes remain byte-identical, uncertain control unchanged.
+No effect executed in fixture, no live native dispatch/model/replay or source gate
+change. This proves later attempts refuse without erasing earlier admission; does
+not prove an already admitted effect was interrupted. Full pressure
+v2-2026-10-07T17-28-42-429Z passed1/1 in8823ms/sourceChanged:false,
+shared technical memory saved. Native hook fault/timeouts remain platform limits;
+no cancellation/no-effect settlement fabricated. Next scope a live negative trial
+around an unadmitted read or prioritize serving/steering evidence where full outcome
+can be verified independently, keeping existing historical uncertainty intact.
+No human action required.
+
 ## Cancellation observation contract prepared — October 7, 13:26 Eastern
 
 Added pure native-service-cancel-evidence screening. Exact marker/intent schemas,
