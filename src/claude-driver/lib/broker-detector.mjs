@@ -60,7 +60,7 @@ export function detectorTransition(previous,sample) {
  const priorFault=previous&&!['live','intentional-stop'].includes(previous.state)
  if(sample.state==='intentional-stop')return null
  if(fault&&eventKey(previous||{})!==eventKey(sample))return {kind:'fault-observation',key:eventKey(sample)}
- if(sample.state==='live'&&priorFault)return {kind:'liveness-returned',key:eventKey(sample)}
+ if(sample.state==='live'&&priorFault)return {kind:previous.state==='offline'?'liveness-returned':previous.state==='unserved-work'?'unserved-work-cleared':'observation-restored',key:eventKey(sample)}
  if(sample.state==='live'&&previous?.state==='live'&&(previous.pid!==sample.pid||previous.procStart!==sample.procStart))return {kind:'native-process-changed',key:eventKey(sample)}
  return null
 }

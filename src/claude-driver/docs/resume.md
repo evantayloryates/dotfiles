@@ -1,5 +1,13 @@
 ## Detector overlap reconciled — October 7, 11:30 Eastern
 
+Follow-up report112944 SHAa3a407fd74f8a18830187a3f0244e529bfbdf8065fb50379ab1499a97564db77
+labels live state liveness-returned, but same PID/start and expired unclaimed work
+prove no process recovery in this episode. Candidate detectorTransition now uses
+unserved-work-cleared for this transition and observation-restored for other
+non-offline faults; only prior offline earns liveness-returned. Focused detector
+tests pass. This source change is not activation proof for the running detector;
+historical reports retain their original reason and are independently interpreted.
+
 New detector report claude-detector-20261007T112812-0400-627e54fa0a32-5a4a3176
 SHA30ef7eb73a1f516406c79deaf99edb495151e3d3d3379f62c98480a3b2e50d76
 records idle unclaimed request rmuy9hkls-33c367 in original PID71262/start epoch.

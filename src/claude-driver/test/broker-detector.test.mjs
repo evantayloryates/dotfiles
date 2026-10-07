@@ -77,3 +77,9 @@ test('a changed event flows into the hash-scanned inbox once; review acknowledgm
   const changed=reportInbox(reportDir,stateFile);assert.equal(changed.pending.length,1);assert.notEqual(changed.pending[0].sha256,scan.pending[0].sha256)
  }finally{f.close()}
 })
+test('cleared serving alerts and restored observation do not claim liveness recovery',()=>{
+ const live={state:'live',pid:42,procStart:'same-epoch',status:'idle'}
+ assert.equal(detectorTransition({...live,state:'unserved-work',requestIds:['expired']},live).kind,'unserved-work-cleared')
+ assert.equal(detectorTransition({state:'observation-unavailable'},live).kind,'observation-restored')
+ assert.equal(detectorTransition({state:'offline'},live).kind,'liveness-returned')
+})
