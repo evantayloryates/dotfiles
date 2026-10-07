@@ -26,6 +26,10 @@ const flag = (n, d) => {
 }
 const dir = flag('dir', process.env.CLAUDE_DRIVER_BROKER_DIR || join(process.env.HOME, '.local', 'state', 'claude-driver', 'broker'))
 const maxSec = Number(flag('max-sec', 540))
+const requestId = flag('request-id', undefined)
+if(requestId !== undefined && !/^r[A-Za-z0-9_-]{1,99}$/.test(requestId)){
+ console.error('exact request ID is invalid; no request claimed');process.exit(2)
+}
 // A native failure used `wait > /dev/null &` and silently stole a request.
 // Enforce a caller-readable transport before any request/control access.
 const output=fstatSync(1)
@@ -99,7 +103,7 @@ for (;;) {
     console.log('IDLE')
     break
   }
-  const r = await pickupPending()
+  const r = await pickupPending({requestId})
   if (r) {
     heartbeat('working')
     console.log(`REQUEST ${JSON.stringify({ id: r.id, ops: r.ops })}`)

@@ -39,18 +39,19 @@ export function nativeAdmissionIndex({input,pointer,entry,request,control,tools,
 
 export function adaptEntryCommand(input,{brokerDir,activeRoot,stateDir,cachedRoots=[],node='/opt/homebrew/bin/node'}={}){
  if(typeof input?.command!=='string'||input.run_in_background===true)return null
- const word='(?:"[^"\\r\\n]+"|[^\\s";|&<>`$]+)',m=input.command.match(new RegExp('^('+word+') ('+word+')(?: ([A-Za-z0-9_-]{1,100}) ([0-9]+))? --dir ('+word+')$'))
+ const word='(?:"[^"\\r\\n]+"|[^\\s";|&<>`$]+)',m=input.command.match(new RegExp('^('+word+') ('+word+')(?: ([A-Za-z0-9_-]{1,100}) ([0-9]+))? --dir ('+word+')(?: --request-id (r[A-Za-z0-9_-]{1,99}) --max-sec ([1-9]|[1-5][0-9]|60))?$'))
  if(!m)return null
  const unquote=s=>s.startsWith('"')?s.slice(1,-1):s
  if(unquote(m[1])!==node||unquote(m[5])!==brokerDir)return null
  const script=unquote(m[2]),kind=script.match(/\/scripts\/(broker-wait|broker-check)\.mjs$/)?.[1]
  if(!kind||kind==='broker-wait'&&m[3]!==undefined||kind==='broker-check'&&m[3]===undefined)return null
+ if(kind==='broker-check'&&m[6]!==undefined)return null
  if(kind==='broker-check'&&(!/^r[A-Za-z0-9_-]{1,99}$/.test(m[3])||!Number.isSafeInteger(Number(m[4]))))return null
  const historical=script.slice((join(stateDir,'releases')+'/').length).match(/^([a-f0-9]{64})\/scripts\/broker-(wait|check)\.mjs$/)
  const allowed=script===join(activeRoot,'scripts',kind+'.mjs')||cachedRoots.some(root=>script===join(root,'scripts',kind+'.mjs'))||historical&&script===join(stateDir,'releases',historical[1],'scripts',kind+'.mjs')
  if(!allowed)return null
- const quote=s=>'"'+s+'"',command=node+' '+quote(join(activeRoot,'scripts',kind+'.mjs'))+(kind==='broker-check'?' '+m[3]+' '+m[4]:'')+' --dir '+quote(brokerDir)
- return {kind,command,timeout:kind==='broker-wait'?600000:input.timeout,rewritten:command!==input.command}
+ const quote=s=>'"'+s+'"',command=node+' '+quote(join(activeRoot,'scripts',kind+'.mjs'))+(kind==='broker-check'?' '+m[3]+' '+m[4]:'')+' --dir '+quote(brokerDir)+(m[6]!==undefined?' --request-id '+m[6]+' --max-sec '+m[7]:'')
+ return {kind,command,timeout:kind==='broker-wait'?(m[7]!==undefined?(Number(m[7])+5)*1000:600000):input.timeout,rewritten:command!==input.command}
 }
 
 function boundedJson(path,limit=65536){let fd;try{fd=openSync(path,constants.O_RDONLY|constants.O_NOFOLLOW|constants.O_NONBLOCK);const st=fstatSync(fd);if(!st.isFile()||st.uid!==process.getuid()||st.size>limit)return null;const b=readFileSync(fd);return b.length<=limit?JSON.parse(b.toString('utf8')):null}catch{return null}finally{if(fd!==undefined)closeSync(fd)}}

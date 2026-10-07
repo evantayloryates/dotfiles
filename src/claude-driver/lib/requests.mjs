@@ -56,9 +56,10 @@ export async function cancelRequest(id, reason = 'cancelled') {
     return { id, state, dispatched: !!c.dispatched?.length }
   })
 }
-export async function pickupPending() {
+export async function pickupPending({requestId} = {}) {
+  if(requestId !== undefined)validId(requestId)
   const dir = ensureDir(join(BROKER_DIR, 'requests'))
-  const files = readdirSync(dir).filter(f => /^[A-Za-z0-9_-]+\.json$/.test(f))
+  const files = readdirSync(dir).filter(f => /^[A-Za-z0-9_-]+\.json$/.test(f) && (requestId === undefined || f === requestId+'.json'))
     .map(f => ({ f, at: statSync(join(dir, f)).mtimeMs })).sort((a, b) => a.at - b.at)
   for (const { f } of files) {
     const id = f.slice(0, -5)

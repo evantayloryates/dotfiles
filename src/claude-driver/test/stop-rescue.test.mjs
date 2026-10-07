@@ -78,3 +78,11 @@ test('actual PreToolUse entry binds native ancestry and sealed entry bytes, with
   writeFileSync(script,'// changed sealed entry\n');chmodSync(script,0o444);assert.equal(run().hookSpecificOutput.permissionDecision,'deny')
  }finally{rmSync(home,{recursive:true,force:true})}
 })
+test('exact scoped waiter adaptation preserves request identity and finite bound only',()=>{
+ const brokerDir='/service/broker',activeRoot='/service/releases/'+'a'.repeat(64),config={brokerDir,activeRoot,stateDir:'/service',cachedRoots:[]}
+ const base=`/opt/homebrew/bin/node "${activeRoot}/scripts/broker-wait.mjs" --dir "${brokerDir}"`
+ const exact=base+' --request-id rowned --max-sec 5',r=adaptEntryCommand({command:exact},config)
+ assert.equal(r.command,exact);assert.equal(r.timeout,10000)
+ for(const suffix of [' --request-id ../foreign --max-sec 5',' --request-id rowned --max-sec 0',' --request-id rowned --max-sec 61',' --request-id rowned',' --request-id rowned --max-sec 5 &',' --max-sec 5 --request-id rowned'])assert.equal(adaptEntryCommand({command:base+suffix},config),null)
+ assert.equal(adaptEntryCommand({command:base.replace('broker-wait.mjs','broker-check.mjs rowned 0')+' --request-id rowned --max-sec 5'},config),null)
+})

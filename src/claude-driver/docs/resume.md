@@ -1,3 +1,25 @@
+## Exact service pickup candidate — October 7, 11:46 Eastern
+
+Previous turn was progress: autonomous native read reached verified dispatch
+refusal. Existing admission requires completed sealed broker-check helper,
+ancestor-bound native process, one exact operation/args and atomic native use.
+Do not fabricate entry/control files or loosen gate to qualify positive read.
+
+Candidate pickupPending({requestId}) now filters before metadata/read/claim,
+retaining existing lock/cancellation/expiry handling. broker-wait accepts exact
+--request-id plus bounded --max-sec. Stop hook command adaptation admits only
+fixed-order exact request selector and1..60s budget, preserves them when redirecting
+to sealed source and forbids them for broker-check. Focused concurrency and actual
+waiter-process tests prove foreign pending/expired work untouched and malformed
+identity rejected before pickup. Existing adapter/gate tests pass. Full pressure
+v2-2026-10-07T15-45-51-623Z passed1/1 in8581ms, sourceChanged:false.
+This is SOURCE ONLY, not active runtime deployment. Native Bash API wrapper must
+be independently verified before composing mod waiter/check/read. A safe sealed
+handoff is needed for the new waiter selector; do not mutate pinned bytes or live
+policy in place. Broad v2 serving, steering, residency/rollback and cleanup still
+need their independent evidence. Claude inference remains rate-limited; native
+non-inference work can continue without Taylor.
+
 ## Autonomous native execution observed — October 7, 11:42 Eastern
 
 Corrected enrollment12c9eac8-1ed4-4d6c-a155-085ded4fe78f produced readiness,

@@ -1,3 +1,15 @@
+## Autonomous admission composition candidate — October 7, 11:46 Eastern
+
+The exact peer trigger now reaches the ordinary native MCP pipeline and reports
+broker dispatch-gate refusal. Positive execution must reuse legitimate sealed
+wait/check entries. Source supports scoped waiter invocation:
+`broker-wait.mjs --dir <owned broker> --request-id <exact rID> --max-sec <1..60>`.
+The Stop adapter preserves that fixed selector/budget and existing ancestry
+checks; no permission allow decision is added. Exact pickup does not touch other
+callers' requests. This candidate requires a safe new sealed release before use;
+current pinned waiter has no selector. Native public Bash wrapper and cleanup
+remain unqualified. Do not invoke a general waiter to approximate exact pickup.
+
 ## Public API correction — October 7, 10:50 Eastern
 
 The probes called the public MCP API incorrectly. Exact installed gk wrapper
