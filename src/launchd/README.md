@@ -247,3 +247,22 @@ Keeps the record-screen capture engine (`record-screend.app`, built into
 restarts after a crash. Loaded by `src/record-screen/install.sh`, which the
 top-level `install.sh` runs. Everything else, including the one-time Screen
 Recording grant, is in [`../record-screen/README.md`](../record-screen/README.md).
+
+## `com.taylor.agent-resource-monitor`
+
+Passive Mac pressure flight recorder. Polls VM pressure/paging every 15 seconds;
+keeps sparse attributed process snapshots every minute. Sustained paging or
+warning/critical memory pressure starts a self-contained incident capture. Stops
+that capture after two minutes of quiet, then returns to watching. Runs with low
+CPU/I/O priority and a singleton lock. It never signals workload processes or
+changes agent/app settings.
+
+Install only this service with `agent-resource-monitor install`; the main
+`install.sh` also installs it. Its scoped installer leaves a loaded service up.
+To load changed watcher code, send **SIGTERM to this watcher only**, then bootstrap
+it again (use `bootout`/`bootstrap`; do not use `kickstart -k` mid-capture).
+The signal closes the incident as `observer_stopped`, not `recovered`.
+
+Private incident folders live in `$DOTFILES_DATA_DIR/agent_resource_monitor/sessions/`.
+See [the monitor guide](../agent-resource-monitor/README.md) for thresholds,
+bounded storage, evidence, status and pause instructions.

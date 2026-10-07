@@ -1,0 +1,10 @@
+{
+  "name": "personal-ios-agent-react",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "agent-react-devtools": "0.5.0",
+    "ws": "8.18.3"
+  }
+}

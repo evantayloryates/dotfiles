@@ -64,11 +64,19 @@ def identity(exe, argv, env):
     elif '/Docker.app/' in exe:
         role = 'Docker VM' if base == 'com.docker.sailor' else 'Docker'
     elif base == 'node':
-        if any('appium' in a for a in argv): role = 'Appium'
+        services = ('gmail-mcp-multiauth', '@notionhq/notion-mcp-server',
+                    '@cloudinary/asset-management-mcp', '@playwright/mcp',
+                    'claude-driver', 'classifier-mcp', 'zdr-ask-mcp',
+                    'kickoff-stage-db-mcp', 'record-screen-mcp')
+        service = next((s for s in services if any(s in a for a in argv)), None)
+        if service: role = 'MCP: ' + service
+        elif any('appium' in a for a in argv): role = 'Appium'
         elif 'metro' in joined or 'react-native start' in joined: role = 'Metro'
         elif 'agent-react-devtools' in joined: role = 'React DevTools'
     elif '/claude-code/' in exe or '/Claude.app/' in exe:
         role = 'Claude CLI' if '/claude-code/' in exe else 'Claude app'
+    if base in ('node', 'node_repl') and ('npm-cli.js' in joined or 'npx-cli.js' in joined):
+        role += ' launcher'
     owner, source = None, None
     for key in OWNER_KEYS:
         if key in env:

@@ -49,7 +49,7 @@ def main():
             result = json.loads(evidence.read_text())
             result.update(scope="synthetic UIKit simulator", simulator=device["name"])
             a.output.write_text(json.dumps(result, indent=2) + "\n")
-            passed = result.get("tapCount") == 1 and result.get("holdCount") == 1 and result.get("scrollOffsetY", 0) > 50 and result.get("textMatches") and result.get("cleanup") and result.get("occlusionRejection", {}).get("error") == "hit_target_changed_or_occluded"
+            passed = result.get("tapCount") == 1 and result.get("holdCount") == 1 and result.get("scrollOffsetY", 0) > 50 and result.get("textMatches") and result.get("cleanup") and result.get("oldCallbackPreservesNewOwner") and result.get("independentNativeExpiry") and result.get("occlusionRejection", {}).get("error") == "hit_target_changed_or_occluded" and result.get("staleSnapshotRejection", {}).get("error") == "fresh_snapshot_and_point_required"
             print(json.dumps({"passed": bool(passed), "output": str(a.output.resolve()), "evidence": result}))
             if not passed:
                 raise SystemExit(1)

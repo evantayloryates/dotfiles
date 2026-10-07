@@ -115,6 +115,9 @@ if [[ "$(uname)" == "Darwin" ]]; then
     log "🔗 Linked + loaded $LA_LABEL LaunchAgent"
   done
 
+  # Passive pressure recorder. Scoped installer leaves a running capture intact.
+  bash "$DOTFILES_DIR/src/agent-resource-monitor/install.sh"
+
   # com.taylor.zdr-harness: the Kickoff ZDR OpenCode harness. Only on machines
   # that have been set up for it (src/zdr-harness/README.md); without its
   # secrets file the service would just fail its preflight every minute.

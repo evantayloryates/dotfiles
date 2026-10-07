@@ -43,6 +43,7 @@
 }
 - (void)qualify {
  IAInstance=[IOSAgent new]; IAInstance.lease=@"fixture-lease"; IAInstance.epoch=@"fixture-epoch"; IAInstance.expiry=IANow()+60; IAInstance.seen=[NSMutableArray new]; IAInstance.reactFrames=[NSMutableArray new];
+ [IAInstance startWatchdog];
  [self run:@"capabilities" args:@{} done:^(NSDictionary *r){self.evidence[@"capabilities"]=r;}];
  [IAInstance showGlow]; CGRect before=self.button.frame; BOOL keyBefore=self.window.isKeyWindow;
  NSDictionary *point=[self pointArgs:self.button];
@@ -51,6 +52,8 @@
   self.evidence[@"glowPreservesLayoutAndKey"]=@(CGRectEqualToRect(before,self.button.frame)&&keyBefore&&self.window.isKeyWindow&&[IAInstance.glow hitTest:CGPointMake(20,20) withEvent:nil]==nil);
   UIView *cover=[[UIView alloc] initWithFrame:[self.button convertRect:self.button.bounds toView:self.window.rootViewController.view]]; cover.backgroundColor=UIColor.blackColor; [self.window.rootViewController.view addSubview:cover];
   [self run:@"tap" args:point done:^(NSDictionary *blocked){self.evidence[@"occlusionRejection"]=blocked;}]; [cover removeFromSuperview];
+  IAInstance.snapshotAt-=6;
+  [self run:@"tap" args:point done:^(NSDictionary *stale){self.evidence[@"staleSnapshotRejection"]=stale;}];
   IAInstance.lease=@"fixture-lease"; IAInstance.expiry=IANow()+60;
   NSMutableDictionary *hold=[[self pointArgs:self.hold] mutableCopy]; hold[@"endX"]=hold[@"x"]; hold[@"endY"]=hold[@"y"]; hold[@"durationMs"]=@750;
   [self run:@"gesture" args:hold done:^(NSDictionary *held){
@@ -63,9 +66,21 @@
      self.evidence[@"scrollOffsetY"]=@(self.scroll.contentOffset.y);
      IAInstance.lease=@"fixture-lease"; IAInstance.expiry=IANow()+60;
      [self.field becomeFirstResponder]; [self run:@"text" args:@{@"text":@"Synthetic QA"} done:^(NSDictionary *typed){self.evidence[@"textDelivery"]=typed;self.evidence[@"textMatches"]=@([self.field.text isEqual:@"Synthetic QA"]);}];
-     [self.field resignFirstResponder]; [IAInstance stopLease];
-     self.evidence[@"cleanup"]=@(!IAInstance.lease&&IAInstance.glow.hidden&&!IAInstance.touch);
-     self.evidence[@"xctestStarted"]=@NO; [self write];
+     [self.field resignFirstResponder];
+     NSMutableDictionary *pending=[[self pointArgs:self.hold] mutableCopy]; pending[@"endX"]=pending[@"x"]; pending[@"endY"]=pending[@"y"]; pending[@"durationMs"]=@1200;
+     [self run:@"gesture" args:pending done:^(NSDictionary *oldResult){self.evidence[@"cancelledOldGesture"]=oldResult;}];
+     dispatch_after(dispatch_time(DISPATCH_TIME_NOW,100*NSEC_PER_MSEC),dispatch_get_main_queue(),^{
+      [IAInstance stopLease]; IAInstance.lease=@"new-owner"; IAInstance.expiry=IANow()+60; [IAInstance showGlow];
+     });
+     dispatch_after(dispatch_time(DISPATCH_TIME_NOW,1500*NSEC_PER_MSEC),dispatch_get_main_queue(),^{
+      self.evidence[@"oldCallbackPreservesNewOwner"]=@([IAInstance.lease isEqual:@"new-owner"]&&!IAInstance.glow.hidden);
+      IAInstance.expiry=IANow()+0.1;
+      dispatch_after(dispatch_time(DISPATCH_TIME_NOW,400*NSEC_PER_MSEC),dispatch_get_main_queue(),^{
+       self.evidence[@"independentNativeExpiry"]=@(!IAInstance.lease&&IAInstance.glow.hidden);
+       self.evidence[@"cleanup"]=@(!IAInstance.lease&&IAInstance.glow.hidden&&!IAInstance.touch);
+       self.evidence[@"xctestStarted"]=@NO; [self write];
+      });
+     });
     });
    }];
   }];

@@ -6,8 +6,10 @@ import os
 from pathlib import Path
 import plistlib
 import secrets
+import shutil
 import subprocess
 import sys
+import time
 from urllib.parse import urlparse
 from service import STATE
 
@@ -56,6 +58,14 @@ def main():
     else:
         config = {"bundle": "com.dev.kudos.fit", "device": secrets.token_hex(16), "token": secrets.token_urlsafe(48), "endpoint": a.endpoint, "port": 19403}
         write_private(config_path, config)
+    node = shutil.which("node")
+    if not node or not (ROOT / "react/node_modules/agent-react-devtools").exists():
+        raise SystemExit("Node_and_pinned_React_provider_required; run_npm_ci_in_src/ios-agent/react")
+    if config.get("node") != node:
+        config["node"] = node
+        temporary = STATE / "config.next.json"
+        write_private(temporary, config)
+        temporary.replace(config_path)
     device_path = STATE / "ios-agent.json"
     if not device_path.exists():
         write_private(device_path, {k: config[k] for k in ("device", "token", "endpoint")})
@@ -78,6 +88,12 @@ def main():
     active = subprocess.run(["launchctl", "print", f"{domain}/{LABEL}"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
     if active and a.restart:
         subprocess.run(["launchctl", "bootout", f"{domain}/{LABEL}"], check=True)
+        # bootout can return before the old worker has removed its socket.
+        end = time.monotonic() + 5
+        while (STATE / "control.sock").exists() and time.monotonic() < end:
+            time.sleep(0.05)
+        if (STATE / "control.sock").exists():
+            raise SystemExit("old_worker_did_not_finish_shutdown")
         active = False
     if not active:
         subprocess.run(["launchctl", "bootstrap", domain, str(target)], check=True)

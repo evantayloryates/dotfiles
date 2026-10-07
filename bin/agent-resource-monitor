@@ -1,2 +1,6 @@
 #!/bin/sh
+case "${1:-}" in
+  watch|status) exec /usr/bin/python3 "$(dirname "$0")/../src/agent-resource-monitor/watcher.py" "$@" ;;
+  install) exec /bin/bash "$(dirname "$0")/../src/agent-resource-monitor/install.sh" ;;
+esac
 exec python3 "$(dirname "$0")/../src/agent-resource-monitor/monitor.py" "$@"

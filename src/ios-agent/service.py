@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Personal dev-app broker. No system UI control; no credential/body logging."""
 import argparse
+import hashlib
 import hmac
 import json
 import os
 from pathlib import Path
 import secrets
 import signal
+import subprocess
 import socket
 import socketserver
 import threading
@@ -20,6 +22,7 @@ OWNER_TIMEOUT = 20 * 60
 DEVICE_TIMEOUT = 30
 OPERATIONS = {"capabilities", "tree", "image", "tap", "gesture", "text", "react", "state"}
 STATE = Path.home() / "Library/Application Support/ios-agent"
+SOURCE_HASH = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
 
 
 class Rejected(Exception):
@@ -27,7 +30,7 @@ class Rejected(Exception):
 
 
 class Broker:
-    def __init__(self, config, clock=time.monotonic):
+    def __init__(self, config, clock=time.monotonic, state=None):
         self.config, self.clock = config, clock
         self.cv = threading.Condition(threading.RLock())
         self.epoch = uuid.uuid4().hex
@@ -36,10 +39,20 @@ class Broker:
         self.commands = {}
         self.queue = []
         self.stopped = False
+        self.last_release = None
+        self.state = state
+        self.frontend = None
+        self.stopping_frontends = []
 
     def revoke(self, reason):
         with self.cv:
+            if self.lease:
+                self.last_release = {"reason": reason, "thread": self.lease["thread"], "turn": self.lease["turn"]}
             self.lease = None
+            if self.frontend and self.frontend.poll() is None:
+                os.killpg(self.frontend.pid, signal.SIGTERM)
+                self.stopping_frontends.append(self.frontend)
+            self.frontend = None
             for cmd in self.commands.values():
                 if cmd["status"] in ("queued", "sent"):
                     cmd.update(status="cancelled" if cmd["status"] == "queued" else "unknown", reason=reason)
@@ -48,6 +61,7 @@ class Broker:
 
     def tick(self):
         with self.cv:
+            self.stopping_frontends = [p for p in self.stopping_frontends if p.poll() is None]
             if self.lease and self.clock() >= self.lease["expires"]:
                 self.revoke("owner_expired")
             if self.device and self.clock() - self.device["seen"] > DEVICE_TIMEOUT:
@@ -66,9 +80,12 @@ class Broker:
             self.tick()
             op = request.get("op")
             if op == "status":
-                return {"version": VERSION, "epoch": self.epoch,
+                return {"version": VERSION, "sourceHash": SOURCE_HASH, "epoch": self.epoch,
+                        "reactFrontendRunning": bool(self.frontend and self.frontend.poll() is None),
                         "device": None if not self.device else {k: self.device[k] for k in ("build", "bundle", "boot")},
+                        "deviceFeedback": None if not self.device else self.device.get("feedback"),
                         "lease": None if not self.lease else {k: self.lease[k] for k in ("id", "thread", "turn")},
+                        "lastRelease": self.last_release,
                         "commands": {k: v["status"] for k, v in self.commands.items()}}
             if op == "acquire":
                 path = Path(request["rollout"]).resolve()
@@ -85,6 +102,11 @@ class Broker:
                 self.lease = {"id": secrets.token_hex(16), "thread": thread, "turn": turn,
                               "rollout": str(path), "offset": path.stat().st_size,
                               "expires": self.clock() + OWNER_TIMEOUT}
+                if self.state and self.config.get("node"):
+                    relay = Path(__file__).parent / "react/relay.mjs"
+                    self.frontend = subprocess.Popen([self.config["node"], str(relay), str(self.state)], stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True, umask=0o077)
+                    self.frontend.stdin.write(encode({"lease": self.lease["id"]}))
+                    self.frontend.stdin.close()
                 self.cv.notify_all()
                 return self.lease_wire()
             if not self.lease or request.get("lease") != self.lease["id"]:
@@ -138,7 +160,15 @@ class Broker:
                 raise Rejected("hello_required")
             else:
                 self.device["seen"] = self.clock()
-            if op == "result":
+            feedback = request.get("feedback")
+            if isinstance(feedback, dict):
+                self.device["feedback"] = {k: feedback[k] for k in ("foreground", "indicator", "leased") if isinstance(feedback.get(k), bool)}
+            if op == "cancel":
+                if self.lease and request.get("lease") == self.lease["id"] and request.get("epoch") == self.epoch:
+                    self.revoke("device_foreground_lost")
+                elif self.lease:
+                    raise Rejected("stale_cancel")
+            elif op == "result":
                 cmd = self.commands.get(request.get("id"))
                 if not self.lease or not cmd or cmd["status"] != "sent" or cmd["lease"] != self.lease["id"] or request.get("epoch") != self.epoch or self.clock() > cmd["deadline"]:
                     raise Rejected("stale_result")
@@ -149,6 +179,8 @@ class Broker:
                 if not self.queue:
                     self.cv.wait(2)
                 self.tick()
+                if not self.device or self.device["boot"] != boot:
+                    raise Rejected("device_replaced_during_poll")
             elif op != "hello":
                 raise Rejected("unsupported_device_operation")
             response = {"version": VERSION, "epoch": self.epoch, "lease": self.lease_wire()}
@@ -226,7 +258,8 @@ def encode(value):
 
 
 def run_server(config, state=STATE):
-    broker = Broker(config)
+    os.umask(0o077)
+    broker = Broker(config, state=state)
 
     class HTTP(BaseHTTPRequestHandler):
         def log_message(self, *_):

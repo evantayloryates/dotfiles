@@ -56,14 +56,20 @@ static BOOL IANumber(id n) { return [n isKindOfClass:NSNumber.class] && isfinite
 @property NSMutableArray<NSString*> *seen;
 @property UITouch *touch;
 @property NSMutableArray *reactFrames;
+@property NSUInteger reactBytes;
+@property NSUInteger droppedReactFrames;
 @property NSDictionary *appState;
 @property BOOL running;
 @property BOOL helloNeeded;
 - (void)poll;
+- (BOOL)leased;
+- (void)startWatchdog;
 - (void)stopLease;
 - (void)execute:(NSDictionary*)command completion:(void(^)(NSDictionary*))done;
+- (void)exchange:(NSDictionary*)extra completion:(void(^)(NSDictionary*))done;
 @end
 static IOSAgent *IAInstance;
+static NSDictionary *IAPendingState;
 
 #if IOS_AGENT_REACT
 @interface IOSAgentBridge : RCTEventEmitter<RCTBridgeModule>
@@ -75,21 +81,29 @@ RCT_EXPORT_MODULE(IOSAgentBridge)
 + (BOOL)requiresMainQueueSetup { return YES; }
 - (instancetype)init { if((self=[super init])) IABridge=self; return self; }
 - (NSArray*)supportedEvents { return @[@"IOSAgentCommand"]; }
-- (void)startObserving { self.observing=YES; }
+- (void)startObserving { self.observing=YES; if([IAInstance leased]) [self sendEventWithName:@"IOSAgentCommand" body:@{@"command":@"session-start"}]; }
 - (void)stopObserving { self.observing=NO; }
 - (dispatch_queue_t)methodQueue { return dispatch_get_main_queue(); }
 RCT_EXPORT_METHOD(publish:(NSString*)json) {
  if(json.length>1048576) return;
  id value=[NSJSONSerialization JSONObjectWithData:[json dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil];
- if([value isKindOfClass:NSDictionary.class]) IAInstance.appState=value;
+ if([value isKindOfClass:NSDictionary.class]) { IAPendingState=value; IAInstance.appState=value; }
 }
 RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
- if(json.length<=1048576 && IAInstance.reactFrames.count<512) [IAInstance.reactFrames addObject:json];
+ if(![IAInstance leased]) return;
+ NSUInteger bytes=[json lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+ if(bytes<=1048576 && IAInstance.reactFrames.count<128 && IAInstance.reactBytes+bytes<=4194304) {
+  [IAInstance.reactFrames addObject:json]; IAInstance.reactBytes+=bytes;
+ } else IAInstance.droppedReactFrames++;
 }
 @end
 #endif
 
 @implementation IOSAgent
+- (void)startWatchdog {
+ self.watchdog=[NSTimer timerWithTimeInterval:0.1 repeats:YES block:^(NSTimer *timer){ if(self.lease && ![self leased]) [self stopLease]; }];
+ [NSRunLoop.mainRunLoop addTimer:self.watchdog forMode:NSRunLoopCommonModes];
+}
 - (void)URLSession:(NSURLSession*)session task:(NSURLSessionTask*)task willPerformHTTPRedirection:(NSHTTPURLResponse*)response newRequest:(NSURLRequest*)request completionHandler:(void(^)(NSURLRequest*))completion {
  completion(nil); // Never forward the enrollment credential to a redirect destination.
 }
@@ -150,13 +164,21 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
  self.glow.hidden=NO;
 }
 - (void)stopLease {
+ BOOL wasLeased=self.lease!=nil;
  self.lease=nil; self.expiry=0; self.glow.hidden=YES; self.snapshot=nil;
+ [self.reactFrames removeAllObjects]; self.reactBytes=0; self.droppedReactFrames=0;
+#if IOS_AGENT_REACT
+ if(wasLeased && IABridge.observing) [IABridge sendEventWithName:@"IOSAgentCommand" body:@{@"command":@"session-end"}];
+#endif
  if(self.touch) {
   @try { [self.touch setPhase:UITouchPhaseCancelled]; [self.touch setTimestamp:IANow()]; [self sendTouch]; } @catch(NSException *e) {}
   self.touch=nil;
  }
 }
-- (void)background:(NSNotification*)n { [self stopLease]; }
+- (void)background:(NSNotification*)n {
+ NSString *lease=[self.lease copy], *epoch=[self.epoch copy]; [self stopLease];
+ if(lease && epoch) [self exchange:@{@"op":@"cancel",@"lease":lease,@"epoch":epoch} completion:^(NSDictionary *reply){}];
+}
 - (void)apply:(NSDictionary*)reply {
  NSString *epoch=reply[@"epoch"];
  if(![epoch isKindOfClass:NSString.class]) { [self stopLease]; return; }
@@ -165,7 +187,11 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
  NSDictionary *lease=reply[@"lease"];
  if(![lease isKindOfClass:NSDictionary.class] || ![lease[@"id"] isKindOfClass:NSString.class] || !IANumber(lease[@"remainingMs"]) || ![self active]) { [self stopLease]; return; }
  if(self.lease && ![self.lease isEqual:lease[@"id"]]) [self stopLease];
+ BOOL starting=self.lease==nil;
  self.lease=lease[@"id"]; self.expiry=IANow()+MAX(0,MIN(30000,[lease[@"remainingMs"] doubleValue]))/1000;
+#if IOS_AGENT_REACT
+ if(starting && IABridge.observing) [IABridge sendEventWithName:@"IOSAgentCommand" body:@{@"command":@"session-start"}];
+#endif
  if([self leased]) [self showGlow]; else [self stopLease];
 }
 - (void)walk:(UIView*)view depth:(NSUInteger)depth output:(NSMutableArray*)out {
@@ -203,7 +229,9 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
     if(![message isKindOfClass:NSString.class] || message.length>1048576 || !IABridge.observing) { done(IAError(@"react_not_ready")); return; }
     [IABridge sendEventWithName:@"IOSAgentCommand" body:@{@"command":@"react",@"message":message}];
    }
-   NSArray *frames=[self.reactFrames copy]; [self.reactFrames removeAllObjects]; done(@{@"frames":frames,@"delivery":@"queued-to-js"}); return;
+   NSArray *frames=[self.reactFrames copy]; [self.reactFrames removeAllObjects]; self.reactBytes=0;
+   NSUInteger dropped=self.droppedReactFrames; self.droppedReactFrames=0;
+   done(@{@"frames":frames,@"droppedFrames":@(dropped),@"delivery":@"queued-to-js"}); return;
 #else
    done(IAError(@"react_not_compiled")); return;
 #endif
@@ -216,7 +244,9 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
   if([action isEqual:@"image"]) {
    UIWindow *main=[self mainWindow]; UIGraphicsImageRenderer *renderer=[[UIGraphicsImageRenderer alloc] initWithSize:main.bounds.size];
    UIImage *image=[renderer imageWithActions:^(UIGraphicsImageRendererContext *context){[main drawViewHierarchyInRect:main.bounds afterScreenUpdates:NO];}];
-   done(@{@"scope":@"app-owned-main-window",@"systemOcclusionKnown":@NO,@"glowIncluded":@NO,@"pngBase64":[UIImagePNGRepresentation(image) base64EncodedStringWithOptions:0]}); return;
+   NSData *png=UIImagePNGRepresentation(image);
+   if(png.length>5242880) { done(IAError(@"image_exceeds_limit")); return; }
+   done(@{@"scope":@"app-owned-main-window",@"systemOcclusionKnown":@NO,@"glowIncluded":@NO,@"pngBase64":[png base64EncodedStringWithOptions:0]}); return;
   }
   if([action isEqual:@"text"]) {
    UIView *first=[self responder:[self mainWindow]]; NSString *text=args[@"text"];
@@ -263,7 +293,8 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
 }
 - (void)exchange:(NSDictionary*)extra completion:(void(^)(NSDictionary*))done {
  NSMutableDictionary *body=[@{@"device":self.config[@"device"],@"bundle":NSBundle.mainBundle.bundleIdentifier,@"boot":self.boot,
-                             @"build":[NSBundle.mainBundle objectForInfoDictionaryKey:@"CFBundleVersion"]?:@"unknown"} mutableCopy]; [body addEntriesFromDictionary:extra];
+                             @"build":[NSBundle.mainBundle objectForInfoDictionaryKey:@"CFBundleVersion"]?:@"unknown",
+                             @"feedback":@{@"foreground":@([self active]),@"indicator":@(self.glow&&!self.glow.hidden),@"leased":@([self leased])}} mutableCopy]; [body addEntriesFromDictionary:extra];
  NSMutableURLRequest *request=[NSMutableURLRequest requestWithURL:[NSURL URLWithString:self.config[@"endpoint"]]];
  request.HTTPMethod=@"POST"; request.timeoutInterval=8;
  [request setValue:[@"Bearer " stringByAppendingString:self.config[@"token"]] forHTTPHeaderField:@"Authorization"];
@@ -299,15 +330,17 @@ static void IOSAgentStart(void) {
  NSURL *documents=[NSFileManager.defaultManager URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask].firstObject;
  NSURL *path=[documents URLByAppendingPathComponent:@"ios-agent.json"];
  NSData *data=[NSData dataWithContentsOfURL:path]; if(!data || data.length>8192) return;
+ [path setResourceValue:@YES forKey:NSURLIsExcludedFromBackupKey error:nil];
  id parsed=[NSJSONSerialization JSONObjectWithData:data options:0 error:nil]; if(![parsed isKindOfClass:NSDictionary.class]) return;
  NSDictionary *config=parsed; NSURL *endpoint=[NSURL URLWithString:config[@"endpoint"]];
  if(![endpoint.scheme isEqual:@"https"] || ![endpoint.host hasSuffix:@".ts.net"] || ![endpoint.path isEqual:@"/v1/device"] || ![config[@"token"] isKindOfClass:NSString.class] || [config[@"token"] length]<32 || ![config[@"device"] isKindOfClass:NSString.class]) return;
  IAInstance=[IOSAgent new]; IAInstance.config=config; IAInstance.boot=NSUUID.UUID.UUIDString;
+ IAInstance.appState=IAPendingState;
  IAInstance.seen=[NSMutableArray new]; IAInstance.reactFrames=[NSMutableArray new]; IAInstance.helloNeeded=YES; IAInstance.running=YES;
  NSURLSessionConfiguration *network=[NSURLSessionConfiguration ephemeralSessionConfiguration]; network.HTTPCookieStorage=nil; network.URLCache=nil;
  IAInstance.session=[NSURLSession sessionWithConfiguration:network delegate:IAInstance delegateQueue:nil];
  [[NSNotificationCenter defaultCenter] addObserver:IAInstance selector:@selector(background:) name:UIApplicationWillResignActiveNotification object:nil];
- IAInstance.watchdog=[NSTimer scheduledTimerWithTimeInterval:0.1 repeats:YES block:^(NSTimer *timer){ if(IAInstance.lease && ![IAInstance leased]) [IAInstance stopLease]; }];
+ [IAInstance startWatchdog];
  [IAInstance poll];
 }
 #endif

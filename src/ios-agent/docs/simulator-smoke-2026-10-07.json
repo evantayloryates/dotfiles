@@ -32,22 +32,30 @@
     "nativeInputRuntime": true
   },
   "tapCount": 1,
+  "cancelledOldGesture": {
+    "error": "input_cancelled_or_expired"
+  },
   "tapDelivery": {
     "delivered": true,
     "method": "in-process UIEvent",
     "hitClass": "UIButton",
     "commitVerified": false
   },
-  "cleanup": 1,
+  "independentNativeExpiry": 1,
+  "staleSnapshotRejection": {
+    "error": "fresh_snapshot_and_point_required"
+  },
   "occlusionRejection": {
     "error": "hit_target_changed_or_occluded"
   },
-  "scrollOffsetY": 239.66666666666666,
+  "scrollOffsetY": 242,
   "textDelivery": {
     "commitVerified": false,
     "delivered": true,
     "method": "UIKeyInput"
   },
+  "oldCallbackPreservesNewOwner": 1,
+  "cleanup": 1,
   "holdCount": 1,
   "scope": "synthetic UIKit simulator",
   "simulator": "iPhone 17 Pro"

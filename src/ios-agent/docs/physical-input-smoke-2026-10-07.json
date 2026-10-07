@@ -1,0 +1,23 @@
+{
+  "device": "iPhone 13 Pro",
+  "iOS": "26.7.1",
+  "scope": "temporary loopback input prototype; production wireless broker not yet qualified",
+  "xctestStarted": false,
+  "nativeApplicationState": 0,
+  "setGestureViewAvailable": false,
+  "optionalSetterSkipped": true,
+  "tap": {
+    "input": "UIApplication.sendEvent UIEvent, no handler invocation",
+    "target": "Nutrition tab",
+    "delivered": true,
+    "hitClass": "RNSVGSvgView",
+    "independentOracle": "iPhone Mirroring visibly changed from Home to Nutrition"
+  },
+  "cleanup": "Native tap returned to Home; returning phone to Tailscale onboarding",
+  "remaining": [
+    "SDK snapshot/hit fencing on physical app",
+    "physical gesture/text tests",
+    "Tailscale VPN authorization and correct iPhone account membership",
+    "wireless installed-service gates"
+  ]
+}

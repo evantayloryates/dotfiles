@@ -44,10 +44,18 @@ def main():
         if not active:
             raise RuntimeError("owner_not_active")
         message.update(rollout=str(a.rollout.resolve()), thread=thread, turn=turn)
-        result = request(message, a.state)
+        # Reserve the destination before acquiring: a file error must not orphan control.
         fd = os.open(a.lease_file, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
-        with os.fdopen(fd, "w") as f:
-            json.dump({"lease": result["id"]}, f)
+        result = None
+        try:
+            with os.fdopen(fd, "w") as f:
+                result = request(message, a.state)
+                json.dump({"lease": result["id"]}, f)
+        except Exception:
+            if result:
+                request({"op": "release", "lease": result["id"]}, a.state)
+            a.lease_file.unlink(missing_ok=True)
+            raise
         result = {"acquired": True, "thread": thread, "turn": turn}
     else:
         if a.op != "status":
@@ -55,6 +63,8 @@ def main():
                 raise RuntimeError("lease_file_not_private")
             message.update(json.loads(a.lease_file.read_text()))
         if a.op == "action":
+            if a.output and a.output.exists():
+                raise RuntimeError("output_already_exists; action_not_sent")
             message.update(action=a.action, args=json.loads(a.args))
         result = request(message, a.state)
         if a.op == "action":

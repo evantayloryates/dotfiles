@@ -117,18 +117,79 @@ during the required diagnostic window, and clean up only task-owned resources.
 Do not lower snapshot depth or discard evidence without checking that verification
 still catches the same failures.
 
-## Next increments
+## Persistent pressure flight recorder
 
-This version is on-demand; it installs no daemon, hooks, notifications, automatic
-termination or ongoing chat surveillance. Bounded capture is the default so the
-monitor does not become another unowned service.
+```sh
+/Users/taylor/dotfiles/bin/agent-resource-monitor install
+/Users/taylor/dotfiles/bin/agent-resource-monitor status
+# Optional foreground run; singleton lock refuses a second observer.
+/Users/taylor/dotfiles/bin/agent-resource-monitor watch
+# Pause only the recorder (active capture closes without claiming recovery):
+launchctl bootout gui/$(id -u)/com.taylor.agent-resource-monitor
+# Resume:
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.taylor.agent-resource-monitor.plist
+```
 
-For longer-term monitoring, add a bounded on-disk ring (for example 10 minutes at
-5-second cadence), freeze pre/post evidence on threshold crossings, and impose
-retention/disk limits. Benchmark the observer alone before enabling it globally.
-The initial 2-second attributed capture averaged about 93 ms of collection wall
-time per sample on this Mac; that is not the same as CPU usage, and provenance
-discovery is more expensive on the first sample.
+`watcher.py` is a standard-library, unprivileged launchd service, with `Nice=10`
+and low-priority I/O. Main dotfiles installation includes its scoped installer;
+reinstalling leaves a loaded watcher/capture intact. It does not install agent
+hooks, send messages/notifications, or perform remediation. Only its own bounded
+diagnostic subprocesses are terminated on timeout/output overflow.
+
+- **Cadence:** VM counters/pressure every 15 seconds; attributed process/GPU
+  snapshots every 60 seconds, including a five-minute rolling prelude. The
+  lightweight interval is configurable with `watch --interval`; detailed cadence
+  with `--detail-interval`. Sparse prelude snapshots can miss short processes.
+- **Start:** two consecutive samples at >=64 MiB/s combined swap-in/out, or
+  macOS warning pressure. Critical pressure starts immediately. A compressor
+  occupying >=30% of RAM plus >=16 MiB/s paging also starts after two samples.
+  At that occupancy, >=256 MiB/s compressor churn (compressions + decompressions,
+  measured in uncompressed page equivalents) is another sustained trigger.
+  These are investigation thresholds, not a claim of a leak. Polling can miss
+  bursts shorter than 15 seconds. Persistently high CPU alone is recorded in
+  process snapshots but is not a memory-thrash trigger.
+- **Finish:** normal macOS pressure, <8 MiB/s paging and <64 MiB/s compressor
+  churn for 120 seconds. Missing
+  metrics and sampling gaps never count as recovery. Gaps over four intervals
+  reset the gate and are recorded in an open capture. Swap occupancy alone
+  never triggers: old swapped pages can remain after recovery.
+- **Bundle:** each incident has `report.html`, `summary.json`, `metadata.json`,
+  `README.txt`, `light_samples.jsonl`, `process_samples.jsonl`, `context.jsonl`
+  and `events.jsonl`. Detailed snapshots track PID + start ticks, ancestry,
+  safe executable/service names, launch-owner IDs, footprint/RSS, per-process
+  CPU/page-ins/disk I/O and shared GPU counters. Context records Docker stats
+  and two container process trees, disk I/O, thermal/platform state, Codex config
+  change markers and bounded structural MCP event counts. No app log bodies,
+  raw argv/env, credentials, chat contents, tool inputs/outputs or screens are
+  persisted. There are no root-only Instruments/powermetrics traces, stack
+  samples or heap dumps: deeper instrumentation is a separate targeted step.
+- **Bounds:** sessions rotate at two hours or 128 MiB and point back to the
+  preceding bundle. Completed sessions expire after 14 days or a 2 GiB budget,
+  checked hourly; an active session and prelude are additional bounded storage.
+  Active/unknown directories are never pruned. A 5 GiB free-disk reserve stops
+  recording and shows degraded status. SIGTERM closes as `observer_stopped`;
+  a crash/relaunch marks unfinished bundles `observer_interrupted`. Neither
+  claims recovery. Atomic state writes and a singleton lock prevent overlap.
+- **Location:** `$DOTFILES_DATA_DIR/agent_resource_monitor/` (fallback:
+  this checkout's `data/agent_resource_monitor/`). New telemetry is private
+  (umask 077), ignored by Git and stays on this Mac. `status.json` is the heartbeat;
+  `prelude.json` and `detail_ring/` hold the bounded preceding window. Preserve
+  wanted completed bundles elsewhere before retention expires them.
+
+To customize a launchd instance, edit its version-controlled ProgramArguments,
+then gracefully bootout/bootstrap **this service only**. `--paging-mib-s`,
+`--exit-paging-mib-s`, `--compressor-mib-s`, `--exit-compressor-mib-s`,
+and `--recovery-seconds` tune the gate. Defaults are in
+`watcher.py`; lowering thresholds increases diagnostic capture volume. On a
+second Mac, adjust the absolute plist paths before installation.
+
+The monitor observes launch provenance and overlapping activity; it cannot
+prove that one chat caused a shared service's allocation. Compare same-time
+process snapshots and actual counter deltas, not a sum of per-process peaks.
+Observer collection timings are in status/captures; measure overhead on the
+actual Mac before increasing cadence.
+
+## Further instrumentation
 
 Optional native PreToolUse/PostToolUse hooks can supply stable session/turn/tool
 metadata to a telemetry receipt endpoint, improving transient-process correlation.

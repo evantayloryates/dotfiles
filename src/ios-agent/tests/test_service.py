@@ -75,6 +75,14 @@ class BrokerTests(unittest.TestCase):
         self.assertIsNone(self.b.lease)
         self.assertIsNone(self.b.device)
 
+    def test_background_cancel_is_fenced(self):
+        with self.assertRaisesRegex(service.Rejected, "stale_cancel"):
+            self.b.device_request({**self.device, "op": "cancel", "lease": "old", "epoch": self.b.epoch})
+        self.assertIsNotNone(self.b.lease)
+        response = self.b.device_request({**self.device, "op": "cancel", "lease": "lease", "epoch": self.b.epoch})
+        self.assertIsNone(response["lease"])
+        self.assertEqual(self.b.last_release["reason"], "device_foreground_lost")
+
     def test_owner_timeout_without_device_poll_renewal(self):
         self.now += 1201
         self.b.device_request(self.device)

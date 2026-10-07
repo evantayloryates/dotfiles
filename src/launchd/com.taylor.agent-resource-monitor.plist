@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>Label</key><string>com.taylor.agent-resource-monitor</string>
+  <key>ProgramArguments</key><array>
+    <string>/usr/bin/python3</string>
+    <string>/Users/taylor/src/github/dotfiles/src/agent-resource-monitor/watcher.py</string>
+    <string>watch</string>
+  </array>
+  <key>EnvironmentVariables</key><dict>
+    <key>DOTFILES_DATA_DIR</key><string>/Users/taylor/src/github/dotfiles/data</string>
+  </dict>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><dict><key>SuccessfulExit</key><false/></dict>
+  <key>ThrottleInterval</key><integer>30</integer>
+  <key>ProcessType</key><string>Background</string>
+  <key>Nice</key><integer>10</integer>
+  <key>LowPriorityIO</key><true/>
+  <key>StandardOutPath</key><string>/Users/taylor/src/github/dotfiles/data/agent_resource_monitor/watcher_stdout.log</string>
+  <key>StandardErrorPath</key><string>/Users/taylor/src/github/dotfiles/data/agent_resource_monitor/watcher_stderr.log</string>
+</dict></plist>
