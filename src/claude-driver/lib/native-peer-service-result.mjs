@@ -8,8 +8,8 @@ import {nativeResultFile} from './requests.mjs'
 const root='/Users/taylor/.local/state/claude-driver/pressure/'
 const json=(path,limit=16384)=>JSON.parse(readProbeBytes(path,limit).bytes.toString('utf8'))
 const refuse=()=>{throw Error('service result evidence refused')}
-// Never sends or replays. Caller must settle before another helper overwrites
-// the shared checkpoint entry. All errors are sanitized, including JSON errors.
+// Never sends or replays. New runtimes retain a scoped completed checkpoint;
+// legacy runtimes still require settlement before the shared entry is replaced. All errors are sanitized, including JSON errors.
 export async function reconcileNativeServiceResult(serviceId,requestId){
  try{return await reconcile(serviceId,requestId)}catch{throw Object.assign(Error('native service result evidence refused; no replay'),{category:'native_service_result_refused'})}
 }
@@ -24,7 +24,11 @@ async function reconcile(serviceId,requestId){
   if(broker.sessionId!==config.brokerSession||broker.live?.pid!==epoch.pid||broker.live.procStart!==epoch.procStart||broker.live.entrypoint!=='claude-desktop'||broker.runtime?.build!==epoch.build||!broker.runtime.pinned||!broker.runtime.integrity||expectedVersions?.app!=='2.26454.0'||expectedVersions?.cli!=='2.1.289'||v.app!==expectedVersions.app||v.cli!==expectedVersions.cli)refuse()
   if(!baseline||Object.keys(baseline).sort().join(',')!=='.claude/settings.json,stop-rescue-policy.json')refuse()
   for(const[p,h]of Object.entries(baseline))if(typeof h!=='string'||! /^[a-f0-9]{64}$/.test(h)||readProbeBytes(config.brokerCwd+'/'+p).sha256!==h)refuse()
-  const cwd=config.brokerCwd,ready=json(cwd+'/.native-service-'+serviceId+'.ready.json',4096),intent=json(cwd+'/.native-service-'+requestId+'.intent.json',4096),receipt=json(cwd+'/.native-service-'+requestId+'.result.json',65536),request=json(cwd+'/requests/'+requestId+'.json'),pointer=json(cwd+'/runtime.json'),entry=json(cwd+'/broker-check-entry.json'),admission=json(cwd+'/native-admission-'+requestId+'-0.json'),control=json(cwd+'/controls/'+requestId+'.json')
+  const cwd=config.brokerCwd,ready=json(cwd+'/.native-service-'+serviceId+'.ready.json',4096),intent=json(cwd+'/.native-service-'+requestId+'.intent.json',4096),receipt=json(cwd+'/.native-service-'+requestId+'.result.json',65536),request=json(cwd+'/requests/'+requestId+'.json'),pointer=json(cwd+'/runtime.json'),admission=json(cwd+'/native-admission-'+requestId+'-0.json'),control=json(cwd+'/controls/'+requestId+'.json')
+  if(!Number.isInteger(pointer.generation)||pointer.generation<1)refuse()
+  const scoped=cwd+'/broker-check-'+requestId+'-0-g'+pointer.generation+'.completed.json',scopedPresence=probePathPresence(scoped)
+  if(scopedPresence===null)refuse()
+  const entry=json(scopedPresence===false?cwd+'/broker-check-entry.json':scoped)
   const reviewed=screenNativeServiceResult({config,ready,intent,receipt,request,epoch,pointer,entry,admission,control})
   if(!reviewed.receiptVerified)refuse()
   const native={id:requestId,source:'native-peer-service-result',results:[{op:'get_session',...reviewed.result,nativeToolUseId:reviewed.nativeToolUseId}]},file=nativeResultFile(requestId),presence=probePathPresence(file)

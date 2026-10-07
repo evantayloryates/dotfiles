@@ -1,3 +1,22 @@
+## Per-request completed checkpoint retention candidate — October 7, 12:17 Eastern
+
+Source sealed bootstrap now retains broker-check-<request>-<index>-g<generation>
+.completed.json in addition to shared entry. Atomic hard-link publication refuses
+unsafe IDs/index/generation, symlinks and conflicting records. Legitimate nested
+cached/direct bootstrap completion preserves the earliest identical observation
+(ignore only a later at timestamp), retaining all other identity/ancestry fields.
+Selection is never retained as completion; retention never creates dispatch or
+native admission. Reusable host reconciliation prefers exact generation-scoped
+record, refuses corrupt presence and falls back only on absence for legacy runtime.
+
+Initial full pressure16:15:22 failed on duplicate nested completion; preserved.
+Focused release retry also failed before correction. Corrected retention full
+pressure v2-2026-10-07T16-16-17-716Z passed1/1 in9107ms, sourceChanged:false;
+final host reader integration focused tests passed. Live sealed runtime unchanged;
+this retention requires a separately qualified safe deployment, not in-place edits.
+Legacy running runtime still needs immediate settlement/snapshot before next helper.
+Native unload and production service integration remain open. No human action needed.
+
 ## Two native reads through one receiver load — October 7, 12:14 Eastern
 
 Actual service enrollmentf71b9ffa70726f19ccadbc64c68673e5 passed installed native

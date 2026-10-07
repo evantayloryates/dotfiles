@@ -3,12 +3,25 @@
 import {execFileSync} from 'node:child_process'
 import {homedir} from 'node:os'
 import {createHash} from 'node:crypto'
-import {constants,openSync,closeSync,fstatSync,lstatSync,readFileSync,readdirSync,realpathSync,writeFileSync,renameSync} from 'node:fs'
+import {constants,openSync,closeSync,fstatSync,lstatSync,readFileSync,readdirSync,realpathSync,writeFileSync,renameSync,linkSync,unlinkSync} from 'node:fs'
 import {dirname,join,resolve} from 'node:path'
 import {pathToFileURL} from 'node:url'
 const hex=/^[a-f0-9]{64}$/
 const hash=x=>createHash('sha256').update(x).digest('hex')
 const refuse=()=>{throw new Error('pinned broker runtime failed integrity admission; no work claimed')}
+// Per-request completed observations survive later shared helper entries. This
+// is evidence retention only: it never creates dispatch or native admission.
+export function retainCompletedCheck(dir,record){
+ if(record?.phase!=='completed'||! /^[A-Za-z0-9_-]{1,200}$/.test(record.requestId)||!Number.isInteger(record.index)||record.index<0||record.index>255||!Number.isInteger(record.generation)||record.generation<1)refuse()
+ const file=join(dir,'broker-check-'+record.requestId+'-'+record.index+'-g'+record.generation+'.completed.json'),tmp=file+'.'+process.pid+'.tmp',bytes=JSON.stringify(record)
+ writeFileSync(tmp,bytes,{mode:0o600,flag:'wx'})
+ try{linkSync(tmp,file)}catch(error){
+  if(error.code!=='EEXIST')throw error
+  const fd=openSync(file,constants.O_RDONLY|constants.O_NOFOLLOW|constants.O_NONBLOCK)
+  try{const stat=fstatSync(fd);if(!stat.isFile()||stat.uid!==process.getuid()||stat.size>16384)refuse();const old=JSON.parse(readFileSync(fd,'utf8'));if(!Number.isFinite(old.at)||old.at>record.at||JSON.stringify({...record,at:old.at})!==JSON.stringify(old))refuse()}finally{closeSync(fd)}
+ }finally{unlinkSync(tmp)}
+ return file
+}
 function owned(path,dir=false){const s=lstatSync(path);if(s.isSymbolicLink()||s.uid!==process.getuid()||(dir?!s.isDirectory():!s.isFile())||s.mode&0o222)refuse();return s}
 function nativeBinding(pointer,dir) {
  // Legacy releases are preserved for controlled handoff. They must not produce
@@ -63,7 +76,7 @@ export function admitPinnedEntry({dir,kind,script:loadedScript}={}) {
  process.env.CLAUDE_DRIVER_STATE_DIR=state
  // Native receipt + completed entry, bound to generation and PID, is evidence
  // of execution. Selection alone is explicitly not a completion/readiness claim.
- function observe(phase){const binding=nativeBinding(pointer,dir);const file=join(dir,kind+(phase==='selected'?'-entry-selected.json':'-entry.json')),tmp=file+'.'+process.pid+'.tmp';writeFileSync(tmp,JSON.stringify({build:pointer.build,bootstrapHash:pointer.bootstrapHash,generation:pointer.generation,pid:process.pid,nativeBinding:binding,at:Date.now(),script,phase,...(kind==='broker-check'?{requestId:process.argv[2],index:Number(process.argv[3])}:{})}),{mode:0o600});renameSync(tmp,file)}
+ function observe(phase){const binding=nativeBinding(pointer,dir);const record={build:pointer.build,bootstrapHash:pointer.bootstrapHash,generation:pointer.generation,pid:process.pid,nativeBinding:binding,at:Date.now(),script,phase,...(kind==='broker-check'?{requestId:process.argv[2],index:Number(process.argv[3])}:{})};if(kind==='broker-check'&&phase==='completed')retainCompletedCheck(dir,record);const file=join(dir,kind+(phase==='selected'?'-entry-selected.json':'-entry.json')),tmp=file+'.'+process.pid+'.tmp';writeFileSync(tmp,JSON.stringify(record),{mode:0o600});renameSync(tmp,file)}
  observe('selected')
  return {script,complete:()=>observe('completed')}
 }
