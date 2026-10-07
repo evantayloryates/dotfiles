@@ -92,6 +92,13 @@ try {
     const out=await Promise.all([op('rename_session',{session,title:`claude-driver v2 pressure ${stamp} locked`}),op('pin_session',{session,pinned:true}),op('set_session_config',{session,effort:'low'})]);assert.ok(out.every(x=>x.verified));
     await op('pin_session',{session,pinned:false});return {operations:3,allVerified:true}
   })
+  await step('batched-native-controls',async()=>{
+    const r=await op('set_session_config',{session,title:`claude-driver v2 pressure ${stamp} batched`,pinned:true,effort:'low'})
+    assert.equal(r.verified,true);assert.equal(r.titleSource,'tool');assert.equal(r.pinned,true)
+    assert.equal(r.receiptSource,'native-tool-result');assert.equal(r.broker.length,3);assert.ok(r.requestId)
+    await op('pin_session',{session,pinned:false})
+    return {operations:3,requests:1,allVerified:true,requestId:r.requestId,brokerMs:r.ms}
+  })
   await step('queue-is-not-interrupt',async()=>{
     await op('send_message',{session,message:'Synthetic streaming controllability fixture. Generate the integers 1 through 6000, in order, one per line, as plain assistant text. Start immediately at 1, without explanation. After the last integer write OLD_PLAN_FINISHED. Do not use any tools, edit files, ask for approval, or message others. This bounded generation is the workload the bridge will interrupt.'})
     // Confirm a tool-free running turn. Native send receipts plus a live busy
@@ -136,7 +143,7 @@ finally {
     const r=await op('archive_session',{session});assert.equal(r.verified,true);return {session,archived:true}
   }).catch(()=>{process.exitCode=1})
   const report=join(STATE_DIR,'pressure',`live-v2-${stamp}.json`)
-  const required=[brokerOnly?'adopt-owned-fixture':'create-and-restore-focus','durable-submit-and-recipient-reply','cancellation-before-native-dispatch','three-concurrent-native-controls','queue-is-not-interrupt','interrupt-then-replacement-is-applied','single-native-recipient-replies','cleanup-archive']
+  const required=[brokerOnly?'adopt-owned-fixture':'create-and-restore-focus','durable-submit-and-recipient-reply','cancellation-before-native-dispatch','three-concurrent-native-controls','batched-native-controls','queue-is-not-interrupt','interrupt-then-replacement-is-applied','single-native-recipient-replies','cleanup-archive']
   const sourceAfter = runtimeFingerprint()
   const ok=sourceBefore===sourceAfter&&rows.every(r=>r.ok)&&required.every(name=>rows.some(r=>r.name===name&&r.ok))
   writeJsonAtomic(report,{scope:brokerOnly?'native-broker-only':'full-live',session,rows,required,ok,sourceBefore,sourceAfter})

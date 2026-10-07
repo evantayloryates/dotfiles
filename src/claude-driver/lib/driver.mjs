@@ -92,7 +92,7 @@ async function viaBroker(ops, ctx) {
 
 function checkResults(r) {
   const bad = r.results.filter((x) => !x.ok)
-  if (bad.length) throw new DriverError(`broker op failed: ${bad.map((b) => `${b.op}: ${b.error}`).join('; ')}`, { category: 'tier_b_failed', detail: r.results })
+  if (bad.length) throw new DriverError(`broker op failed: ${bad.map((b) => `${b.op}: ${b.error}`).join('; ')}`, { category: 'tier_b_failed', detail: { requestId:r.id, receiptSource:r.receiptSource, results:r.results, partial:r.results.some(x=>x.ok), dispatched:true, retrySafe:false } })
   return r.results
 }
 
@@ -530,12 +530,14 @@ export const OPS = [
   },
   {
     name: 'set_session_config',
-    title: 'Set model, effort or permission mode',
+    title: 'Configure a session in one verified batch',
     description:
-      'Change another session\'s model, effort and/or permission mode (from its next turn). Raising permissions (toward bypassPermissions) shows Taylor an approval card every time, by design. Changing permission mode ends the session\'s idle process. Verified on disk.',
+      'Batch title, pin state, model, effort and/or permission mode through one broker request and recipient lock. Model/effort apply from the next turn. Title is locked against auto-renaming. Raising permissions shows Taylor an approval card; changing permission mode ends the idle process. Fields are independently verified on disk; partial failures include receipts and must not be replayed wholesale.',
     schema: {
       properties: {
         session: S,
+        title: { type: 'string' },
+        pinned: { type: 'boolean' },
         model: { type: 'string' },
         effort: { type: 'string', enum: ['low', 'medium', 'high', 'xhigh', 'max'] },
         permission_mode: { type: 'string', enum: ['default', 'acceptEdits', 'plan', 'auto', 'bypassPermissions'] },
@@ -546,18 +548,23 @@ export const OPS = [
     run: async (args, ctx) => {
       const rec = resolveSession(args.session)
       const ops = []
+      if(args.title!==undefined){
+        if(!args.title.trim())throw new DriverError('title must not be empty',{category:'bad_args'})
+        ops.push({op:'set_session_title',args:{session_id:rec.sessionId,title:args.title}})
+      }
+      if(args.pinned!==undefined)ops.push({op:'set_pinned',args:{session_id:rec.sessionId,pinned:args.pinned}})
       if (args.model) ops.push({ op: 'set_session_model', args: { session_id: rec.sessionId, model: args.model } })
       if (args.effort) ops.push({ op: 'set_session_effort', args: { session_id: rec.sessionId, effort: args.effort } })
       if (args.permission_mode) ops.push({ op: 'set_session_permission_mode', args: { session_id: rec.sessionId, mode: args.permission_mode } })
-      if (!ops.length) throw new DriverError('pass model, effort and/or permission_mode', { category: 'bad_args' })
+      if (!ops.length) throw new DriverError('pass title, pinned, model, effort and/or permission_mode', { category: 'bad_args' })
       const b = await tierB(ctx, ops)
       if (b.handback) return b.handback
-      const w = await waitForRecord(
+      const [w,pinsOk] = await Promise.all([waitForRecord(
         rec.sessionId,
-        (r) => (!args.model || r.model === args.model) && (!args.effort || r.effort === args.effort) && (!args.permission_mode || r.permissionMode === args.permission_mode),
+        (r) => (args.title===undefined||r.title===args.title&&r.titleSource==='tool') && (!args.model || r.model === args.model) && (!args.effort || r.effort === args.effort) && (!args.permission_mode || r.permissionMode === args.permission_mode),
         { timeoutMs: 8000 }
-      )
-      return { sessionId: rec.sessionId, model: w.record?.model, effort: w.record?.effort, permissionMode: w.record?.permissionMode, verified: w.ok, broker: b.results.map((r) => r.result) }
+      ),args.pinned===undefined?true:waitForPins(p=>p.has(rec.sessionId)===args.pinned,{timeoutMs:8000})])
+      return { sessionId: rec.sessionId, title:w.record?.title, titleSource:w.record?.titleSource, ...(args.pinned!==undefined?{pinned:readPins().has(rec.sessionId)}:{}), model: w.record?.model, effort: w.record?.effort, permissionMode: w.record?.permissionMode, verified: w.ok&&pinsOk, requestId:b.requestId,receiptSource:b.receiptSource,ms:b.ms, broker: b.results.map((r) => r.result) }
     },
   },
   {
@@ -837,11 +844,11 @@ export const OPS = [
     name: 'broker_status',
     title: 'Broker status / revive',
     description: 'Show the broker session\'s state; revive:true brings its process back (focus warm-spawn, then Tier C typing a wake line) when the app reaped it (30 min idle, app restart, mode change).',
-    schema: { properties: { revive: { type: 'boolean' } } },
+    schema: { properties: { revive: { type: 'boolean' }, warm_only: { type: 'boolean', description: 'Recover only through a native deep link with focus restoration and input-filter audits; never load Computer Use. May run while input automation is quarantined.' } } },
     run: async (args, ctx) => {
       if (!args.revive) return brokerInfo()
       ctx.tier = 'A/C'
-      return { ...(await reviveBroker({ progress: ctx.progress, signal: ctx.signal })), broker: brokerInfo() }
+      return { ...(await reviveBroker({ warmOnly:args.warm_only===true, progress: ctx.progress, signal: ctx.signal })), broker: brokerInfo() }
     },
   },
 ]

@@ -19,6 +19,8 @@ import { deliver } from './peer.mjs'
 import { cancelRequest, control, enqueue, validatedResult, nativeResultFile } from './requests.mjs'
 import { observeNativeReceipts } from './native-receipts.mjs'
 import { assertUiAvailable } from './ui-policy.mjs'
+import { assertInputHealthy } from './input-health.mjs'
+import { validateWarmBroker, warmOnlyRecovery } from './warm-recovery.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const TEMPLATE = join(HERE, '..', 'broker-template', 'CLAUDE.md')
@@ -182,12 +184,12 @@ export async function reviveBroker(opts = {}) {
     if (info.live) return { method: 'already_live', live: info.live }
     // Recovery itself navigates the app before Tier C. Stand down before
     // any snapshot/deep link and don't turn quarantine into a cooldown.
-    assertUiAvailable()
+    if(!opts.warmOnly)assertUiAvailable()
     const file = join(BROKER_DIR, 'recovery.json')
     const last = readJson(file, null)
     if (!opts.forceRecovery && last?.retryAfter > Date.now()) throw new DriverError('broker recovery is cooling down after failure; inspect driver_status or run broker revive explicitly', { category: 'recovery_cooldown', detail: { retryAfter: last.retryAfter } })
     try {
-      const result = await reviveBrokerUnlocked(opts)
+      const result = opts.warmOnly ? await reviveBrokerWarmOnly(opts) : await reviveBrokerUnlocked(opts)
       writeJsonAtomic(file, { at: Date.now(), outcome: 'ok', method: result.method })
       return result
     } catch (err) {
@@ -195,6 +197,23 @@ export async function reviveBroker(opts = {}) {
       throw err
     }
   }, { signal: opts.signal })
+}
+
+async function reviveBrokerWarmOnly({progress=()=>{},signal}={}) {
+ const info=brokerInfo()
+ validateWarmBroker(info,getRecord(info.sessionId),BROKER_DIR)
+ if(!info.templateCurrent)prepareBrokerDir()
+ const {snapshot,restoreFrom,logSince,sessionUrl}=await import('./focus.mjs')
+ const {openUrl}=await import('./paths.mjs')
+ const id=newRequestId(),started=Date.now()
+ progress('revive: native warm recovery only; Computer Use is excluded')
+ return warmOnlyRecovery({sessionId:info.sessionId,signal},{
+  audit:phase=>assertInputHealthy({phase,evidence:join(BROKER_DIR,`${id}-${phase}.json`)}),
+  snapshot,restore:restoreFrom,
+  open:session=>openUrl(sessionUrl(session)),
+  live:()=>brokerInfo().live,
+  capped:()=>logSince(started,/CliGovernor\] at cap; yielding warm spawn/).length>0
+ })
 }
 
 async function reviveBrokerUnlocked({ focus = 'restore', allowTierC = true, progress = () => {}, signal } = {}) {

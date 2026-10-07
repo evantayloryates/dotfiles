@@ -52,17 +52,27 @@ const pump=setInterval(async()=>{
    const c=await req.authorizeDispatch(r.id,i)
    if(!c.dispatch){results.push({op:r.ops[i].op,ok:false,error:c.reason});continue}
    if(failAfterFirst&&i>0){results.push({op:c.op,ok:false,error:'synthetic partial batch failure'});continue}
-   actions.push({op:c.op,args:c.args})
+   actions.push({op:c.op,args:c.args,requestId:r.id})
    const file=join(store,`${sid}.json`),rec=JSON.parse(readFileSync(file))
    if(c.op==='unarchive_session')writeFileSync(file,JSON.stringify({...rec,isArchived:false}))
    if(c.op==='archive_session')writeFileSync(file,JSON.stringify({...rec,isArchived:true}))
    if(c.op==='set_session_title')writeFileSync(file,JSON.stringify({...rec,title:c.args.title,titleSource:'tool'}))
+   if(c.op==='set_session_model')writeFileSync(file,JSON.stringify({...rec,model:c.args.model}))
+   if(c.op==='set_session_effort')writeFileSync(file,JSON.stringify({...rec,effort:c.args.effort}))
+   if(c.op==='set_pinned'){
+    const config=join(root,'app','claude_desktop_config.json'),cfg=state.readJson(config,{preferences:{epitaxyPrefs:{}}})
+    const prefs=cfg.preferences.epitaxyPrefs,pins=new Set(prefs['starred-local-code-sessions']||[])
+    c.args.pinned?pins.add(c.args.session_id):pins.delete(c.args.session_id)
+    prefs['starred-local-code-sessions']=[...pins];state.writeJsonAtomic(config,cfg)
+   }
    if(c.op==='stop_session')peer('idle')
    if(c.op==='send_message')peer('busy')
    if(['create_group','move_sessions'].includes(c.op)){
     const config=join(root,'app','claude_desktop_config.json')
     const cfg=state.readJson(config,{preferences:{epitaxyPrefs:{'dframe-group-scopes':{fixture:{groups:[],assignments:{}}}}}})
-    const scope=cfg.preferences.epitaxyPrefs['dframe-group-scopes'].fixture
+    const prefs=cfg.preferences.epitaxyPrefs
+    prefs['dframe-group-scopes']??={}
+    const scope=prefs['dframe-group-scopes'].fixture??={groups:[],assignments:{}}
     if(c.op==='create_group')scope.groups.push({id:'cg-fixture-created',name:c.args.name})
     else for(const id of c.args.session_ids)scope.assignments['code:'+id]=c.args.group_id
     state.writeJsonAtomic(config,cfg)
@@ -95,6 +105,30 @@ function client(name,protocol='2025-06-18',fixture=false){
 async function until(fn,ms=5000){const end=Date.now()+ms;while(Date.now()<end){const x=await fn();if(x)return x;await new Promise(r=>setTimeout(r,20))}throw new Error('fixture evidence timeout')}
 after(async()=>{clearInterval(pump);clearInterval(beat);for(const c of clients)await c.close();recipient.kill('SIGTERM');await new Promise(resolve=>recipient.once('exit',resolve));rmSync(root,{recursive:true,force:true})})
 
+test('configuration batch uses one request and verifies title, unpin, model and effort',async()=>{
+ const c=client('batch-controls');await c.ready;actions.length=0
+ try{
+  const r=await c.call('set_session_config',{session:sid,title:'batch locked',pinned:false,model:'synthetic-model',effort:'high'})
+  assert.equal(r.isError,false);assert.equal(r.structuredContent.verified,true)
+  assert.equal(r.structuredContent.titleSource,'tool');assert.equal(r.structuredContent.pinned,false)
+  assert.equal(r.structuredContent.model,'synthetic-model');assert.equal(r.structuredContent.effort,'high')
+  assert.deepEqual(actions.map(x=>x.op),['set_session_title','set_pinned','set_session_model','set_session_effort'])
+  assert.equal(new Set(actions.map(x=>x.requestId)).size,1)
+  assert.equal(r.structuredContent.requestId,actions[0].requestId)
+ }finally{writeFileSync(join(store,`${sid}.json`),JSON.stringify(record));await c.close()}
+})
+test('partial configuration failure exposes its receipt and forbids wholesale retry',async()=>{
+ const c=client('partial-config');await c.ready;actions.length=0;failAfterFirst=true
+ try{
+  const r=await c.call('set_session_config',{session:sid,title:'applied before failure',effort:'high'})
+  assert.equal(r.isError,true);assert.equal(r.structuredContent.error.category,'tier_b_failed')
+  const d=r.structuredContent.error.detail
+  assert.equal(d.partial,true);assert.equal(d.retrySafe,false);assert.equal(d.dispatched,true)
+  assert.ok(d.requestId);assert.equal(d.results.length,2)
+  assert.equal(JSON.parse(readFileSync(join(store,`${sid}.json`))).title,'applied before failure')
+  assert.equal(actions.length,1)
+ }finally{failAfterFirst=false;writeFileSync(join(store,`${sid}.json`),JSON.stringify(record));await c.close()}
+})
 test('new groups use persisted IDs from opaque receipts and ambiguous names dispatch nothing',async()=>{
  const result=await runOp('manage_groups',{action:'move',sessions:[sid],group:'synthetic new group'},{harness:'cli'})
  assert.equal(result.verified,true);assert.equal(result.group,'cg-fixture-created')
