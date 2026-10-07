@@ -1,3 +1,21 @@
+## 2026-10-07 04:23 Eastern — installed direct-hook runner and activation constraints
+
+The installed2.1.289 MCP runner, recursive input interpolation, watcher lifecycle
+and SDK hook-response filter passed18 executable isolated cases with synthetic
+dependencies and no inference/native settings changes. A connected hook calls
+tools directly without model selection, but a warm settings write alone does
+not create a watcher; repeat events repeat calls; and default SDK filtering
+does not emit Stop/FileChanged tool results. A script-hook dispatcher is
+unavailable in this engine. Existing peer contract still passes9 cases after
+sharing bounded source extraction. See mechanical-native-route.md for exact
+artifacts and the read-only native activation/admission/result gates.
+
+This evidence prevents deploying an inert or duplicate-prone native mutation
+hook as an apparent reliability fix. It is not native dispatch qualification.
+Current host560fc144 passed the full isolated suite unchanged. Existing hook7e,
+active4af/gen6 and native PID71262 remain unchanged/idle without a verified waiter.
+No settings, model/auth, input quarantine, recovery or historical outcomes changed.
+
 ## 2026-10-07 04:04 Eastern — fresh causal qualification and context-pressure refusal
 
 Opt-in causal observation now exposes bounded native parent/peer IDs, including

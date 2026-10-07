@@ -65,6 +65,13 @@ prove serving, completion, sustained residency or general-use readiness. Existin
 fast local detection remains30s; the hourly observer is fallback, not test pacing.
 See [broker-quiet-stop-candidate.md](broker-quiet-stop-candidate.md).
 
+A direct MCP-hook execution candidate now has installed-engine isolated proof,
+including watcher activation, duplicate calls and default SDK response limits.
+It is not deployed: settings alone do not activate a warm file watcher, and the
+existing native receipt/admission contract does not cover direct hook calls.
+See [mechanical-native-route.md](mechanical-native-route.md). Keep using the
+current request lifecycle; no generic mutation hook is qualified.
+
 ## V2 control interface
 
 Check `driver_status.runtimeBuild`, `sourceBuild` and `restartRequired` when

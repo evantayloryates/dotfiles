@@ -1,3 +1,15 @@
+## October 7, 04:21 Eastern checkpoint
+
+The installed2.1.289 MCP hook runner, interpolation, file-watcher lifecycle and
+SDK response filter passed18 isolated cases with synthetic dependencies, zero
+inference and no native settings changes. A direct connected hook calls tools
+without model selection, but settings alone do not activate a warm watcher,
+duplicate events repeat calls, and default SDK result emission is limited.
+No native hook dispatch/admission/result path is qualified or deployed. See
+[mechanical-native-route.md](mechanical-native-route.md) for the actual proof and
+native probe requirements. The existing peer contract still passes after sharing
+the bounded extractor; current full isolated source suite also passes unchanged.
+
 ## October 7, 04:04 Eastern checkpoint
 
 Final host46f09629 has a passing unchanged full isolated report
@@ -19,7 +31,7 @@ input, context reset, model/auth change or competing recovery occurred.
 
 # Claude-driver v2 qualification
 
-Latest audit: October7,03:49 Eastern. The bridge is a working native control
+Latest audit: October7,04:23 Eastern. The bridge is a working native control
 prototype in reliability hardening, not general-use ready. See [resume.md](resume.md).
 
 | Requirement | Current evidence | Remaining gate |
@@ -27,17 +39,19 @@ prototype in reliability hardening, not general-use ready. See [resume.md](resum
 | Common interface and lifecycle | CLI/MCP, durable jobs, idempotency, steering, receipt and shared-memory contracts; actual filtered harness checks passed previously | Current-source native serving/steering under sustained use |
 | Native controls | Batch read/archive passed15.635s with independent archived readback | Three concurrent read clients and a distinct-target read batch passed; controlled mutations/steering and full suite remain unqualified |
 | Native effect guard | Actual positive receipts and cancellation-after-checkpoint denial; unknown effects fail closed | Platform timeout/fault paths and final-package native cancellation |
-| Uncertainty containment | Enqueued mutations without receipt are outcome_unknown/retrySafe:false | Fifteen historical effects remain causally unresolved; do not replay |
+| Uncertainty containment | Enqueued mutations without receipt are outcome_unknown/retrySafe:false | Seventeen effects remain causally unresolved; do not replay |
 | Deployment | Same PID/current dependency4af/generation6 with intact sealed inventory | Distinct-build rollback and unresolved handoff blockers |
 | Mechanical quiet signal | Isolated subprocess boundaries pass; exact native per-ID continuation persisted; helper ancestry/expiry proved | Model ended without tools; signal receipt is not execution reliability |
+| Deterministic MCP hook candidate | Exact installed runner, interpolation, watcher lifecycle and SDK emission exercised with synthetic dependencies | Native activation/context, duplicate admission, permission path and correlated results remain unqualified; not deployed |
 | Residency/recovery | Bounded quiet helper expired cleanly; native broker stayed alive | Natural governor pressure and unattended cold recovery |
 | Fast detection | Zero-inference local30s detector; hourly Claude observer fallback | Codex inbox remains inference-bearing; full event-triggered inference not implemented |
 | Evidence and memory | Shared service artifacts, fingerprints, failures and candidate/verified distinctions | Promote only after independent native receipts |
 | Human input scope | Quarantine preserved; no keyboard/paste or app/auth/process intervention | Broader native teardown and future physical-input qualification |
 
 Installed hook7e388b8f keeps compact feedbackVersion2 enrolled and quiet disabled.
-Current hostc969 has later publication-failure handling, fully isolated-tested
-and one actual5.458s foreground native read. Batched/concurrent native reads
+Historical hostc969 had later publication-failure handling, fully isolated-tested
+and one actual5.458s foreground native read. Current560fc144 has a passing full
+isolated suite; native hook dispatch is unqualified. Batched/concurrent native reads
 passed on their recorded candidates. A30s expiry under native compaction remains
 a failed serving case with independently verified late native gate denial. Active dependencies remain4af08654, generation6. These identities are
 separate; an installed candidate or successful send is not full readiness.

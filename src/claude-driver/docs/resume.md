@@ -1,4 +1,49 @@
-## Latest frontier — October 7, 04:04 Eastern
+## Latest frontier — October 7, 04:23 Eastern
+
+Goal ACTIVE. Installed-engine research and executable contracts changed the
+next native probe strategy; this turn made NO desktop/native settings changes,
+model turns or recovery attempts. General-use readiness remains unqualified.
+Current host560fc1440aeb5fd07badfecfcb0f4ab19fe97e9c02734b56fdfcd8583417a9a9
+passed the full isolated suite unchanged in v2-2026-10-07T08-22-22-179Z.json.
+Installed hook7e388b8f, dependency4af08654/gen6, compact2 and quiet OFF remain
+unchanged. Exact broker PID71262/start03:24:51 UTC remains idle, integrity true,
+no verified foreground waiter and no owned handoff STOP. Settings contain only
+Stop/PreToolUse; no direct MCP hook candidate was installed.
+
+New source contracts under <state>/pressure:
+- hook-contract-2026-10-07T08-22-12-618Z.json:18 checks execute exact installed
+  2.1.289 MCP runner, interpolation, file-watcher lifecycle and SDK result
+  emission functions with synthetic dependencies. Connected hooks directly
+  call tools without model selection. Missing/pending connections, budget,
+  withholding and errors are exercised. FileChanged does not wait for pending
+  connection. Script hooks explicitly throw unavailable in this installed build.
+- Actual watcher lifecycle requires initialization or explicit watch-path update;
+  settings addition after empty startup does not create a watcher. Registered
+  settings changes dispose it. Repeated events invoke twice; no durable duplicate
+  suppression. Default SDK response filtering does not emit Stop/FileChanged
+  results; live all-events enrollment was NOT inspected/changed. These are
+  installed functions with fake clients/watchers, NOT live activation/dispatch.
+- peer-contract-2026-10-07T08-22-12-959Z.json:9 existing receiver/auth/envelope/
+  dispatch cases still pass after sharing bounded installed-source extraction.
+  Unsupported SDK control frames remain unhandled in the actual receiver.
+- desktop-native-route-source-2026-10-07.json fingerprints the inspected app
+  CCD SDK proxy and session wiring chunks; no general external native caller
+  API or permission/result path is established by that source inspection.
+
+See mechanical-native-route.md for evidence, limitations and the next read-only
+probe requirements. Do not install a generic mutation hook: current runner
+has no service PreToolUse call inside its extracted function; upstream host
+enforcement remains unqualified. A command event marker is not a native tool
+result, and the old assistant-tool receipt collector cannot fabricate one.
+Next establish genuine native activation, connected context and correlated
+results without restarting/resetting/injecting input or widening logging/auth.
+Natural lifecycle events may help, but writing settings alone cannot qualify
+them. Safe owned STOP-barrier operational disposition/indexed handoff remains
+a separate frontier; all17 unknown mutations stay unknown/nonretryable. Preserve
+legacy inbox blockers and observer offline-recovery ownership. No user action
+is required. Codex-driver fixes and 1Password stay separate.
+
+## Previous frontier — October 7, 04:04 Eastern
 
 Goal ACTIVE. This turn made qualification/observation improvements and exposed
 real native serving failures; it did NOT qualify controls or general-use readiness.

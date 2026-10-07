@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 // Execute the installed receiver's framing/auth/session/envelope functions on
 // synthetic data. No Claude turns, app IPC, real socket, key or peer record.
-import {openSync,readSync,closeSync} from 'node:fs'
 import {createHash} from 'node:crypto'
 import {runInNewContext} from 'node:vm'
 import {EventEmitter} from 'node:events'
@@ -10,17 +9,10 @@ import {join} from 'node:path'
 import {resolveClaudeBinary,versions} from '../lib/paths.mjs'
 import {STATE_DIR,writeJsonAtomic} from '../lib/state.mjs'
 import {recordMemory} from '../lib/memory.mjs'
+import {installedModuleContaining,cutInstalledFunction as cut} from '../lib/installed-source.mjs'
 const report=join(STATE_DIR,'pressure','peer-contract-'+new Date().toISOString().replace(/[:.]/g,'-')+'.json')
 const binary=resolveClaudeBinary(),sources={}
-function moduleContaining(needle){
- const fd=openSync(binary,'r');let offset=0,carry=Buffer.alloc(0)
- try{for(;;){const chunk=Buffer.alloc(2*1024*1024),count=readSync(fd,chunk,0,chunk.length,offset);if(!count)break
-  const data=Buffer.concat([carry,chunk.subarray(0,count)]),at=data.indexOf(needle)
-  if(at>=0){const start=data.lastIndexOf(0,at)+1,end=data.indexOf(0,at);assert.ok(end>start&&end-start<512*1024,'installed module boundary changed');return {offset:offset-carry.length+start,text:data.subarray(start,end).toString('utf8')}}
-  offset+=count;carry=data.subarray(Math.max(0,data.length-512*1024))
- }}finally{closeSync(fd)}throw Error('installed source marker missing')
-}
-const cut=(source,start,end)=>{const i=source.indexOf(start),j=source.indexOf(end,i+start.length);assert.ok(i>=0&&j>i,'installed function schema changed');return source.slice(i,j)}
+const moduleContaining=needle=>installedModuleContaining(binary,needle)
 const rows=[]
 try{
  sources.inbox=moduleContaining('function en(e){e.setEncoding("utf8")')
