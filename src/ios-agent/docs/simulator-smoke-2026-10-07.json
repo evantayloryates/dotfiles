@@ -1,0 +1,54 @@
+{
+  "xctestStarted": false,
+  "textMatches": true,
+  "scrollDelivery": {
+    "delivered": true,
+    "method": "in-process UIEvent",
+    "hitClass": "UIScrollView",
+    "commitVerified": false
+  },
+  "holdDelivery": {
+    "delivered": true,
+    "method": "in-process UIEvent",
+    "hitClass": "UIView",
+    "commitVerified": false
+  },
+  "glowPreservesLayoutAndKey": 1,
+  "capabilities": {
+    "xctest": false,
+    "applicationState": 0,
+    "selectors": {
+      "setTapCount:": true,
+      "setView:": true,
+      "setTimestamp:": true,
+      "_setHidEvent:": true,
+      "setPhase:": true,
+      "setWindow:": true,
+      "_setLocationInWindow:resetPrevious:": true
+    },
+    "inputMethod": "in-process UIEvent",
+    "textMethod": "UIKeyInput",
+    "imageScope": "app-owned-windows",
+    "nativeInputRuntime": true
+  },
+  "tapCount": 1,
+  "tapDelivery": {
+    "delivered": true,
+    "method": "in-process UIEvent",
+    "hitClass": "UIButton",
+    "commitVerified": false
+  },
+  "cleanup": 1,
+  "occlusionRejection": {
+    "error": "hit_target_changed_or_occluded"
+  },
+  "scrollOffsetY": 239.66666666666666,
+  "textDelivery": {
+    "commitVerified": false,
+    "delivered": true,
+    "method": "UIKeyInput"
+  },
+  "holdCount": 1,
+  "scope": "synthetic UIKit simulator",
+  "simulator": "iPhone 17 Pro"
+}

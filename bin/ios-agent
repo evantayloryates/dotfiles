@@ -1,0 +1,2 @@
+#!/bin/sh
+exec /usr/bin/python3 -B /Users/taylor/dotfiles/src/ios-agent/cli.py "$@"
