@@ -1,4 +1,92 @@
-## Latest frontier — October 7,01:00 Eastern
+## Latest frontier — October 7, 01:41 Eastern
+
+The goal remains active. Fast sensing is the installed zero-inference 30-second
+local detector; the Claude observer's hourly job is fallback recovery, not the
+detection cadence. Codex's report inbox still uses inference on 30-second ticks.
+There is no event-triggered observer message or automatic cold recovery wired.
+
+Native serving improved this turn: a service-scoped command Stop hook supplied
+one bounded continuation after an exact owned peer wake ended without tools.
+The receiver's installed 2.1.289 source and exact native receipt proved it adds
+fixed prefix/suffix text around the envelope. The initial hook's bare-envelope
+check therefore could not accept the actual stored wake; do not infer from that
+failure alone that settings were unloaded. The corrected hook recognizes only
+the exact installed framing, native peer msg_id, broker session/cwd/PID/start,
+real process ancestry, short-lived pending undispatched request, and no STOP.
+It ignores human messages, continued hooks, cancellation/expiry and unknown
+versions. Atomic exclusive consumption permits one rescue per request, even
+under concurrent invocations. No prompt/agent hook, model change or input used.
+
+The ordinary client arms its exact peer UUID BEFORE socket bytes, sends one
+wake with no inference sender/fallback, then disarms on settlement. Installed
+policy and settings hashes plus sealed handler package must match. A changed
+policy fails closed. The command hook remains installed only in the approved
+broker's own .claude/settings.json; no global settings, permissions or auth
+changed. It is a bounded per-request serving strategy, not proven residency.
+
+Current host source: 1a3630389cdd14cca115bf31a15f70190b15c130fa07b30430b402b752f2ba26.
+Installed hook package: aaa0992c97287486e16dbc1502f0235ee1095fd587ac37c84c1c350234cb7d6d;
+handler SHA256 5f7ba49b85b5610410c48ad3acd172091437991f98c172d6a853d93860b028f5.
+Active broker dependency build remains 3bfc51e7b06c4aec8ac81b5f7ec28eb77f2e1507cf03379e7f468eee22afa98b,
+bootstrap 7e62795266806cbd4435f68cc83f424e5299fe2ddd6e3f524babd1c7c39f5af4,
+generation 3, same PID71262/start Wed Oct 7 03:24:51 2026 UTC. No handoff STOP.
+Do not conflate host, hook package and broker dependency pin.
+
+Evidence in <state>/pressure:
+- native-stop-rescue-2026-10-07T05-30-36-723Z.json: initial FAILED hook trial,
+  accepted wake/no tools, request rmuxo5m6t-cae19c expired undispatched.
+- native-stop-rescue-2026-10-07T05-33-27-200Z.json: corrected hook invoked,
+  one rescue, native dispatch/checkpoint/archive receipt. Original ok:false
+  immediate metadata readback is preserved; do not replay the operation.
+- stop-rescue-independent-readback-2026-10-07.json: independent later
+  isArchived=true and exact cwd verified for local_fc1e5eab-9d24-4e4c-a09c-9a386a6ffe14.
+  The old fixture is now cleaned up. Original request rmuxo99pm-a3dc30 completed.
+- native-stop-rescue-client-2026-10-07T05-36-01-033Z.json: ordinary aaa0992c
+  client passed a native get_session operation in44.716s, one peer wake/rescue,
+  native-tool-result receipt and unchanged PID/auth. This is not a low-latency
+  or full native-controls qualification. After settlement the model again idled.
+- v2-2026-10-07T05-36-28-189Z.json: three unchanged-source aaa0992c isolated rounds.
+- harness-v2-codex-2026-10-07T05-37-15-771Z.json: ten actual filtered Codex checks
+  passed on aaa0992c, private synthetic stores/global configuration unchanged.
+
+Current source also fixes pinned-entry provenance: activation records procStart,
+wait/check validate the real native ancestry and emit epoch-bound observations;
+foreign/current-candidate paths cannot claim an active release's work. Explicit
+malformed epochs refuse. Legacy absent epochs preserve integrity but show
+activation-epoch-unbound and dependencyPathsObserved:false. The active old pin
+is legacy/unbound, so a future settled handoff is required for current-epoch
+native release qualification. Seventeen release cases passed. No handoff occurred.
+
+Forced exit truncated captured output: baseline256KiB helper lost three quarters;
+actual public CLI baseline emitted65536 bytes of a270343-byte UTF-8 JSON result,
+then exited0. Helpers and CLI now complete naturally, preserving full parseable
+output. Reports entry-stdout-exit-reproduction-2026-10-07.json and
+cli-stdout-exit-reproduction-2026-10-07.json preserve these comparisons.
+A private test cleanup initially failed on sealed directories; corrected cleanup
+unseals only its own temporary candidate before removal. No native failure erased.
+
+Two detector inbox reports013111/013142 were independently reviewed: the first
+observed the deliberately pending first trial, the second followed its expiry;
+neither establishes a crash or serving recovery. Their exact hash review is in
+stop-rescue-independent-readback-2026-10-07.json. Acknowledge only after checkpoint.
+
+Final current-host checks after the CLI correction passed: three unchanged-source
+rounds in v2-2026-10-07T05-39-19-699Z.json and ten actual filtered Codex checks
+in harness-v2-codex-2026-10-07T05-38-56-434Z.json. Claude filtered harness checks
+remain older; no additional Claude harness inference consumed this turn.
+
+Next: qualify batched/concurrent native controls on owned fixtures. Before claiming
+full current pin readiness, settle maintenance cleanup under an owned STOP,
+activate an epoch-bound candidate without replacing PID/auth, and independently
+verify completed native wait/check observations. Distinct-build rollback, natural
+governor pressure, sustained latency and unattended cold recovery remain open.
+Do not repeat unbounded wakes, create competing recovery observers, initialize
+CUA/keys/pastes, lift quarantine, restart apps or change auth. Codex-driver and
+1Password work remain separate. A prepared observer-model comparison is awaiting
+human authorization; do not forward it or change that chat/model unapproved,
+and reconcile the restored serving state before considering it necessary.
+
+## Previous frontier — October 7,01:00 Eastern
 
 Progress this turn: source-qualified deterministic peer transport, an installed
 zero-inference 30-second detector, and a native-verified guard that prevents

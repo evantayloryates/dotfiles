@@ -11,7 +11,11 @@ YOUR desktop session's native tools directly. Do not relay through the broker.
 Taylor authorizes this one-time experiment and cleanup of the exact driver-owned
 fixture below. Keep your existing hourly observer job; do not add polling jobs.
 
-Read AGENTS.md and src/claude-driver/docs/resume.md for current evidence. Verify:
+Read AGENTS.md and src/claude-driver/docs/resume.md for current evidence. The
+command-hook strategy has since restored a native one-request path and archived
+the old fixture. Reconcile that progress first; do not perform a model change
+concurrently with Codex qualification, or repeat cleanup already verified. Only
+run the approved comparison if the current frontier still calls for it. Verify:
 - Broker local_35b3ba48-f02e-48de-bfbb-925192d90de1, title claude-driver-broker,
   cwd /Users/taylor/.local/state/claude-driver/broker, unarchived, existing
   bypassPermissions. Expected current PID 71262/start Wed Oct 7 03:24:51 2026 UTC.

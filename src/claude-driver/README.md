@@ -57,12 +57,25 @@ latest full native run failed after its initial reply/cancel checks: Haiku ended
 turns with “Broker running” without serving queued work. Earlier eleven-check
 passes are historical, not current readiness. See the checkpoint for exact builds.
 
+An installed broker-scoped command Stop hook now supplies one continuation for
+an exact pending owned peer wake. The ordinary client proved a native operation
+through this path in44.716s; one archived fixture's later persisted metadata was
+also independently verified. The hook uses no inference itself. Every request
+gets at most one wake and one continuation; cancellation, expiry, STOP and
+native checkpoints remain binding. This improves per-request serving; broader
+controls, latency and sustained residency remain unqualified.
+
+Current host entry verification binds sealed wait/check observations to the real
+native PID/start ancestry. The legacy active pin lacks that epoch binding and is
+truthfully reported as unqualified until a settled handoff. Public CLI and helper
+output now drain naturally instead of truncating large captured JSON on exit.
+
 Current CLI 2.1.289 direct peer delivery is verified against installed receiver
 functions and correlated native msg_ids (155–159 ms), removing the sender's
 inference turn. Delivery does not prove service execution. An exact correlated
 native wake that ends without tools while the same process is idle now cancels
 unclaimed work with `broker_not_serving`, without repeated wakes. The native
-failure guard passed in 3.35 s; the existing owned test fixture remains unarchived.
+failure guard passed in 3.35 s; the previously outstanding owned fixture is now independently archived.
 
 A sealed local LaunchAgent senses the exact broker every 30 seconds without
 inference, input, recovery or private transcript/key reads. Changed metadata

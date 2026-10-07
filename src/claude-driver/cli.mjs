@@ -84,8 +84,8 @@ async function main() {
 }
 
 main()
-  .then((code) => process.exit(code))
+  .then((code) => { process.exitCode = code ?? 0 })
   .catch((err) => {
     console.error(`claude-driver: ${err.category ? `[${err.category}] ` : ''}${err.message}`)
-    process.exit(1)
+    process.exitCode = 1
   })

@@ -22,6 +22,17 @@ journal; missing/rotated evidence fails closed. Maintenance proof does not
 replace actual natural-pressure survival or qualify cold recovery. The observer
 owns offline restart attempts; avoid competing wakes. UI quarantine stays active.
 
+The broker-scoped command Stop rescue is installed separately from its active
+dependency pin. Ordinary requests arm only their own exact prepared native peer
+UUID before socket bytes, with at most one wake and one continuation. The hook
+runs only for the exact reviewed receiver framing, same native ancestry/epoch,
+unexpired pending undispatched work and no STOP; it consumes its attempt before
+feedback. It never copies request arguments or model text into instructions.
+Changed settings/handler policy refuses effects. Cancellation or missing native
+receipts still requires reconciliation. A one-request native proof does not
+qualify sustained residency or full controls. Use a fresh current CLI/MCP;
+legacy connected servers do not acquire this behavior from source edits.
+
 ## V2 control interface
 
 Check `driver_status.runtimeBuild`, `sourceBuild` and `restartRequired` when
@@ -43,7 +54,7 @@ ownership, not reversal of dispatched native effects. A discarded-output waiter
 cannot claim work; one kernel-owned waiter captures output in a pipe/socket or
 owned regular file. Active wait/check dependencies now load an immutable pinned package through a
 validated sealed bootstrap; cached workspace command shims remain the startup
-boundary. Host/source and active broker fingerprints are distinct. Do not
+boundary. Completed entries now require the exact native PID/start ancestry; a legacy unbound activation is not current-process proof. Host/source and active broker fingerprints are distinct. Do not
 advance the pin through ordinary source edits or treat staged candidates as
 native handoffs. Different-build rollback remains unqualified. Unexpected
 native model behavior still requires reconciliation.

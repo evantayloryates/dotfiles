@@ -5,6 +5,37 @@ Dated, newest first. Each entry: what was observed, the evidence, and n
 (`<state>/pending-learnings.jsonl`) here only after re-verifying it.
 Versions: app = Claude desktop, cli = bundled Claude Code.
 
+## 2026-10-07 01:41 Eastern — one bounded continuation restores serving
+
+- **Exact receiver framing matters.** Installed2.1.289 adds fixed prefix/suffix
+  text around a peer envelope; the exact controlled native receipt confirms it.
+  Initial Stop trial accepted a wake but did not rescue it. The candidate's bare
+  equality check could not accept this stored message; no unsupported conclusion
+  about configuration reload or model refusal cause is drawn. Corrected equality
+  accepts only known framing and exact owned origin/msg_id, never arbitrary text.
+- **One command-hook continuation can serve a request.** Corrected native trial
+  produced an epoch/ancestry-bound invocation, one exclusively consumed rescue,
+  dispatch checkpoint and native archive receipt. Immediate metadata was stale;
+  a later independent readback verified archived=true, preserving the original
+  failed assertion. An ordinary current-source client then completed a native
+  read in44.716s with one wake, one rescue and no sender model turn. The broker
+  later idled again, so this is per-request serving evidence, not residency.
+- **Native entry qualification must bind process epochs.** New activation
+  pointers and selected/completed entry observations require exact PID/start,
+  session, generation and actual caller ancestry. Old matching files, sibling
+  callers and inactive direct candidate paths cannot qualify or claim work.
+  Legacy absent epochs retain integrity but remain activation-epoch-unbound;
+  present malformed epochs fail closed. Seventeen private release cases pass.
+- **Exit0 can still lose output.** A forced-exit public CLI baseline returned
+  only65536 of270343 UTF-8 JSON bytes. Natural completion returned the entire
+  parseable observation. Independent helper reproduction lost three quarters
+  of256KiB. CLI/helper regressions use actual captured pipes and full readback.
+- **Evidence scope remains explicit.** Isolated/Codex harness passes do not
+  imply native full controls, cold recovery, natural governor survival or an
+  epoch-bound active pin. The hook package, host source and old dependency pin
+  have separate fingerprints. No model/auth changes, input automation, app
+  restart or native process replacement occurred.
+
 ## 2026-10-07 01:00 Eastern — deterministic transport and event detection
 
 - **Installed receiver contract is mechanically testable without inference.**

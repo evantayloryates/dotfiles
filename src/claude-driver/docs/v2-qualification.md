@@ -1,23 +1,30 @@
 # Claude-driver v2 qualification
 
-Latest audit: October 7,01:00 Eastern; app 2.26454.0 / CLI 2.1.289.
-Host build `16a95ad1b4468111154b985c7a759a9082d414c5c31632d44238dfe77a0eac93`.
+Latest audit: October 7,01:41 Eastern; app 2.26454.0 / CLI 2.1.289.
+Host build `1a3630389cdd14cca115bf31a15f70190b15c130fa07b30430b402b752f2ba26`.
 Active broker package `3bfc51e7b06c4aec8ac81b5f7ec28eb77f2e1507cf03379e7f468eee22afa98b`,
 bootstrap `7e62795266806cbd4435f68cc83f424e5299fe2ddd6e3f524babd1c7c39f5af4`,
 generation 3. Host edits do not advance this pin. Exact reports: [resume.md](resume.md).
+
+Installed command Stop hook package: aaa0992c97287486e16dbc1502f0235ee1095fd587ac37c84c1c350234cb7d6d.
+One exact native archive receipt plus independent delayed readback and an
+ordinary one-wake/one-rescue native read now pass. Native read took44.716s;
+no latency or full-controls claim. CLI-only final correction changes the host
+fingerprint; native serving proof remains on aaa0992c. Legacy active broker pin
+is activation-epoch-unbound until a settled epoch-bound native handoff.
 
 ## Current readiness audit
 
 | Requirement | Current evidence | Practical limit |
 |---|---|---|
-| Shared durable/steerable API | Three rounds passed on 5dfbbdc6; final progress-only correction passed one full 16a95ad1 round; positive/negative native-wake receipt cases | Actual filtered harness passes predate current host changes; no full current native controls pass |
-| Native Code controls | Latest full run failed after initial reply/cancel; generic v7, named v7 and compatible v6 wakes all ended without tools | Existing owned fixture remains unarchived; do not rerun full suite without a justified serving improvement |
+| Shared durable/steerable API | Three final isolated rounds and ten actual filtered Codex checks pass on1a363038; bounded command-hook, peer pre-send arm and large UTF-8 CLI/entry regressions pass | Current Codex harness passes; Claude filtered harness proof is older; no full current native controls pass |
+| Native Code controls | Latest full run failed after initial reply/cancel; generic v7, named v7 and compatible v6 wakes all ended without tools | One bounded hook continuation restored native serving and verified archived cleanup; comprehensive current native controls remain pending |
 | Deterministic transport | Seven installed receiver VM cases and exact native msg_id acceptance; 155–159 ms; ordinary current-source client used direct | Socket completion alone is not acceptance; acceptance is not native operation execution |
 | Failure containment | Correlated peer/UUID ancestry, end_turn without tools, same process idle and pending work yielded `broker_not_serving` on 5dfbbdc6 in 3.35 s | Cancels only undispatched work; uncertain/dispatched results still require reconciliation; no model-compliance fix claimed |
 | Service evidence/memory | Preserved native/isolated failures, host/broker fingerprints, metadata-only memory and reviewed detector reports | Candidate strategies are not promoted without actual qualification |
 | Fast low-inference detection | Sealed detector LaunchAgent every 30s, zero inference; actual unserved-work event and liveness-only event; nine private boundary cases | Codex inbox scheduler still invokes inference every 30s; native Claude observer is hourly fallback, not event-driven recovery |
 | Maintenance reconciliation | Last verified native list04:37:33Z reused job d7319422 and app recognition on PID 71262 | Evidence freshness ages out after 12 min; stale list is neither current protection proof nor evidence of job absence |
-| Deployment isolation | Same-PID handoff; completed sealed entry records and native tool receipt; nine release boundary cases | Cached workspace shim remains mutable startup boundary; exact current-process entry provenance and different-build rollback need further work |
+| Deployment isolation | Same-PID handoff; completed sealed entry records and native tool receipt; nine release boundary cases | Cached workspace shim remains mutable startup boundary; 17 private epoch/path cases passed; legacy active pin lacks epoch proof; settled native handoff and different-build rollback remain pending |
 | Recovery | Observer hourly job ae838cf8 independently verified; intentional STOP suppressed by detector | Stale exited query, app closure/restart, cron expiry and actual natural governor pressure remain unqualified |
 | Input usability/scope | Quarantine remains active; no input, app restart, auth change or native session termination; Codex/1Password fixes parked | Safe native-helper teardown remains unqualified |
 
