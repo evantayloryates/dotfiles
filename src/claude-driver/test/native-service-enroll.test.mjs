@@ -18,3 +18,12 @@ test('atomic native publication refuses existing directory and preserves both ow
   assert.equal(fs.existsSync(stage),false);assert.equal(fs.readFileSync(path.join(dest,'candidate'),'utf8'),'prepared')
  }finally{fs.rmSync(root,{recursive:true,force:true})}
 })
+
+test('public enrollment schema and CLI agree on integer bounds before effects',async()=>{
+ const {validateOp}=await import('../lib/driver.mjs'),{spawnSync}=await import('node:child_process')
+ assert.equal(validateOp('broker_service_enroll',{experimental:true,lifetime_sec:60,max_requests:4}).name,'broker_service_enroll')
+ for(const value of [60.5,'60',Infinity])assert.throws(()=>validateOp('broker_service_enroll',{experimental:true,lifetime_sec:value}))
+ for(const value of [59,3601])assert.throws(()=>validateOp('broker_service_enroll',{experimental:true,lifetime_sec:value}),/out of range/)
+ const child=spawnSync(process.execPath,[new URL('../cli.mjs',import.meta.url).pathname,'broker_service_enroll','--experimental','true','--lifetime_sec','59'],{encoding:'utf8'})
+ assert.equal(child.status,1);assert.match(child.stderr,/out of range: lifetime_sec/);assert.equal(child.stdout,'')
+})

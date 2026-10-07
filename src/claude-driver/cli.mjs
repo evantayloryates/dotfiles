@@ -43,7 +43,7 @@ function argsFor(op, flags) {
     const types = Array.isArray(t) ? t : [t]
     if (v === 'null' && types.includes('null')) out[k] = null
     else if (types.includes('boolean')) out[k] = v === true || v === 'true'
-    else if (types.includes('number')) out[k] = Number(v)
+    else if (types.includes('number') || types.includes('integer')) out[k] = Number(v)
     else if (types.includes('array')) out[k] = String(v).split(',').map((s) => s.trim()).filter(Boolean)
     else out[k] = v
   }

@@ -1,3 +1,22 @@
+## Shared CLI lifecycle verified — October 7, 12:43 Eastern
+
+Public CLI enrolled d9f220fed9afea1d6f22f71a0f064b52, observed native readiness,
+completed rpeera9f86e0e5b7f4d758a48b1d308f4a67d with independently reviewed native
+receipt/checkpoint (legacy-shared), then retired after expiry at16:43:05Z. Fresh
+status confirms installed:false, retired:true, one settled/no unresolved attempt;
+scopedUnloadQualified remains false. Existing exact epoch/baselines/control guards
+passed retirement. No model invocation, wake, permission change or replay.
+Initial integer-schema CLI refusal occurred before installation; retained in
+native-service-enrollment-cli-schema-failure.json and service memory, fixed CLI
+coercion/shared integer validation with public contract tests. Initial status refused
+native-generated tooling additions, preserved without removing files. Independent
+installed hle/vHt/iNe source writes those paths; six hashes match current plus two
+historical same-epoch retired loads. Only exact pinned tooling hashes accepted now,
+with bounded no-follow hashing up to1MiB for declarations; executable additions or
+changed tooling still refuse. Full pressure v2-2026-10-07T16-43-05-232Z passed1/1
+in8494ms, sourceChanged:false. Next actual stdio MCP lifecycle trial; connector
+transport and native scoped unload not inferred from CLI success.
+
 ## Exact-owner status and retirement prepared — October 7, 12:39 Eastern
 
 Added experimental broker_service_status (metadata-only; no reconciliation writes)

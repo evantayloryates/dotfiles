@@ -509,3 +509,9 @@ native epoch, unchanged approved baselines/controls and no unresolved attempts.
 It preserves the exact module outside the watched folder using exclusive rename;
 filesystem retirement does not establish native unload. Changed/foreign bytes,
 linked directories, extra files or uncertain request results refuse retirement.
+
+For the pinned 2.1.289 epoch, Claude-generated type/config artifacts are accepted
+only at six exact paths with reviewed SHA256 hashes. They are preserved with the
+module; changed declarations or additional executable files refuse retirement.
+CLI enrollment/read/expiry/retirement was verified October 7; native unload remains
+unqualified, and MCP transport qualification is separate.

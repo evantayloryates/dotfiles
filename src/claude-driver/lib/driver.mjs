@@ -1027,7 +1027,7 @@ export function validateOp(name, args) {
     if (!rule) throw new DriverError(`unknown argument: ${key}`, { category: 'bad_args' })
     const types = Array.isArray(rule.type) ? rule.type : [rule.type]
     const type = value === null ? 'null' : Array.isArray(value) ? 'array' : typeof value
-    if (!types.includes(type) || (type === 'number' && !Number.isFinite(value))) throw new DriverError(`invalid type for ${key}`, { category: 'bad_args' })
+    if (!(types.includes(type) || (type === 'number' && types.includes('integer') && Number.isInteger(value))) || (type === 'number' && !Number.isFinite(value))) throw new DriverError(`invalid type for ${key}`, { category: 'bad_args' })
     if (rule.enum && !rule.enum.includes(value)) throw new DriverError(`invalid value for ${key}`, { category: 'bad_args' })
     if (type === 'string' && ((rule.minLength !== undefined && value.length < rule.minLength) || (rule.maxLength !== undefined && value.length > rule.maxLength))) throw new DriverError(`invalid length for ${key}`, { category: 'bad_args' })
     if (type === 'number' && ((rule.minimum !== undefined && value < rule.minimum) || (rule.maximum !== undefined && value > rule.maximum))) throw new DriverError(`out of range: ${key}`, { category: 'bad_args' })

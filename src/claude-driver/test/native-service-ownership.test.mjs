@@ -27,3 +27,15 @@ test('retirement requires expiry, exclusive installed ownership and no unresolve
  for(const change of [{expired:false},{filesInstalled:false},{filesRetired:true},{unresolvedRequests:['rpeer'+'a'.repeat(32)]},{unresolvedRequests:null}])assert.equal(nativeServiceRetirementEligible({...status,...change}),false)
  assert.equal(nativeServiceRetirementEligible(undefined),false)
 })
+
+test('native tooling exception accepts only pinned bytes and refuses executable additions',()=>{
+ const root=fs.mkdtempSync(path.join(os.tmpdir(),'native-tooling-')),hashes={'hooks/register.js':hash('source')}
+ try{
+  fs.mkdirSync(root+'/hooks');fs.writeFileSync(root+'/hooks/register.js','source')
+  fs.writeFileSync(root+'/tsconfig.json','{\n  "extends": "./.claude-plugin/types/tsconfig.json"\n}\n')
+  assert.throws(()=>verifyNativeServiceDirectory(root,hashes))
+  assert.equal(verifyNativeServiceDirectory(root,hashes,{allowTooling:true}),true)
+  fs.writeFileSync(root+'/tsconfig.json','{}');assert.throws(()=>verifyNativeServiceDirectory(root,hashes,{allowTooling:true}))
+  fs.unlinkSync(root+'/tsconfig.json');fs.writeFileSync(root+'/hooks/foreign.js','keep');assert.throws(()=>verifyNativeServiceDirectory(root,hashes,{allowTooling:true}));assert.equal(fs.readFileSync(root+'/hooks/foreign.js','utf8'),'keep')
+ }finally{fs.rmSync(root,{recursive:true,force:true})}
+})
