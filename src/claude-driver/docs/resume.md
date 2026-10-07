@@ -1,3 +1,20 @@
+## Native resource variant validates — October 7, 13:06 Eastern
+
+Pure package generator now supports optional resourceProbe:true with marker:true,
+service lifetime at most120seconds, variant0.3.0. Base0.1.0 and marked0.2.0
+remain unchanged. Combined native startup persists resource intent before a single
+250ms delayed process.spawn callback; rechecks owner/cwd/window before launch and
+drains fixed child output. Durable intent prevents retry after uncertainty. Child
+self-deadline is service deadline+30seconds. Installed plugin validator accepts
+all three registration graphs without loading or inference. Fixture verifies
+foreign/expired startup refusal, owner change before launch, durable launch intent
+and configuration bounds. Initial test incorrectly counted a pending marker timer
+as resource replay (3 vs2); corrected by observing marker first, no implementation
+weakening. Full pressure v2-2026-10-07T17-06-15-486Z passed1/1 in8994ms,
+sourceChanged:false. No live resource variant enrolled yet. Next extend guarded
+enrollment and independently review kernel child identity/disposition before trial.
+Native resource/hook unload remains unqualified. No human action needed.
+
 ## Bounded resource child prepared — October 7, 13:04 Eastern
 
 native-resource-program.mjs generates an owned metadata-only child program;
