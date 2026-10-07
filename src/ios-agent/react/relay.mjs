@@ -25,8 +25,9 @@ fs.chmodSync(frontendState, 0o700);
 const daemon = path.join(path.dirname(require.resolve('agent-react-devtools')), 'daemon.js');
 // The pinned provider supports isolated state but has no WebSocket authentication.
 // Generate a private adapter without modifying the installed provider package.
-const marker = 'new WebSocketServer({ port: this.port, host: "127.0.0.1" },';
+const marker = 'new WebSocketServer({ port: this.port },';
 let source = fs.readFileSync(daemon, 'utf8');
+source = source.replace(/^#![^\n]*\n/, '');
 if (source.split(marker).length !== 2) throw new Error('provider_adapter_version_mismatch');
 source = source.replace(marker, 'new WebSocketServer({ port: this.port, host: "127.0.0.1", verifyClient: info => info.req.headers.authorization === "Bearer " + iosAgentFrontendToken },');
 const wsModule = pathToFileURL(path.join(path.dirname(require.resolve('ws')), 'wrapper.mjs')).href;

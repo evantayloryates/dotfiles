@@ -38,7 +38,6 @@ class Broker:
         self.device = None
         self.commands = {}
         self.queue = []
-        self.stopped = False
         self.last_release = None
         self.state = state
         self.frontend = None
@@ -50,8 +49,11 @@ class Broker:
                 self.last_release = {"reason": reason, "thread": self.lease["thread"], "turn": self.lease["turn"]}
             self.lease = None
             if self.frontend and self.frontend.poll() is None:
-                os.killpg(self.frontend.pid, signal.SIGTERM)
-                self.stopping_frontends.append(self.frontend)
+                try:
+                    os.killpg(self.frontend.pid, signal.SIGTERM)
+                except ProcessLookupError:
+                    pass
+                self.stopping_frontends.append((self.frontend, self.clock() + 2))
             self.frontend = None
             for cmd in self.commands.values():
                 if cmd["status"] in ("queued", "sent"):
@@ -61,7 +63,16 @@ class Broker:
 
     def tick(self):
         with self.cv:
-            self.stopping_frontends = [p for p in self.stopping_frontends if p.poll() is None]
+            remaining = []
+            for process, deadline in self.stopping_frontends:
+                if process.poll() is None:
+                    if self.clock() >= deadline:
+                        try:
+                            os.killpg(process.pid, signal.SIGKILL)
+                        except ProcessLookupError:
+                            pass
+                    remaining.append((process, deadline))
+            self.stopping_frontends = remaining
             if self.lease and self.clock() >= self.lease["expires"]:
                 self.revoke("owner_expired")
             if self.device and self.clock() - self.device["seen"] > DEVICE_TIMEOUT:
@@ -104,9 +115,18 @@ class Broker:
                               "expires": self.clock() + OWNER_TIMEOUT}
                 if self.state and self.config.get("node"):
                     relay = Path(__file__).parent / "react/relay.mjs"
-                    self.frontend = subprocess.Popen([self.config["node"], str(relay), str(self.state)], stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True, umask=0o077)
-                    self.frontend.stdin.write(encode({"lease": self.lease["id"]}))
-                    self.frontend.stdin.close()
+                    try:
+                        self.frontend = subprocess.Popen([self.config["node"], str(relay), str(self.state)], stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True, umask=0o077)
+                        self.frontend.stdin.write(encode({"lease": self.lease["id"]}))
+                        self.frontend.stdin.close()
+                    except OSError:
+                        if self.frontend and self.frontend.stdin:
+                            try:
+                                self.frontend.stdin.close()
+                            except OSError:
+                                pass
+                        self.revoke("frontend_start_failed")
+                        raise Rejected("frontend_start_failed")
                 self.cv.notify_all()
                 return self.lease_wire()
             if not self.lease or request.get("lease") != self.lease["id"]:
@@ -343,6 +363,10 @@ def run_server(config, state=STATE):
         http.server_close()
         unix.server_close()
         path.unlink(missing_ok=True)
+        deadline = time.monotonic() + 3
+        while broker.stopping_frontends and time.monotonic() < deadline:
+            broker.tick()
+            time.sleep(0.05)
 
 
 def main():
