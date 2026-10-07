@@ -1,4 +1,56 @@
-## Latest frontier — October 7, 05:10 Eastern
+## Latest frontier — October 7, 05:21 Eastern
+
+Goal ACTIVE. Previous turn was progress; this turn establishes a genuine native
+zero-inference post-turn HOST signal. General serving/handoff remains unqualified.
+
+Installed peer protocol supports control:notify_when_idle with correlated
+peer_idle_notice. Headless code mounts the publisher on real sessionState
+idle/running transitions; registration logs but does not enqueue a model prompt.
+peer-idle-contract-2026-10-07T09-16-38-124Z.json passes6 exact installed mechanics
+checks with synthetic dependencies: debounce750ms, queue/approval holdback,
+same-PID/address refresh,12h expiry, one-shot consume and exit classification.
+Original09:16:18 harness failure (missing extracted F announcer) is preserved.
+
+Actual owned native subscriptions passed at09:18:31,09:20:20 and09:21:51 UTC.
+Latest native-peer-idle-2026-10-07T09-21-51-906Z.json runs on source11f4c411,
+listener hashf78deebc, exact broker PID71262/start03:24:51 UTC and app/CLI versions.
+Each receives a matching nonce/from-address notice from kernel-verified native
+PID/UID in about0.9s, with zero observed user/assistant events. No model turn,
+auth/permission changes, session registration, key publication or app/UI action.
+Existing receiver peer key is consumed privately; reply credentials come from
+macOS SOL_LOCAL/LOCAL_PEERPID and getpeereid, not a claimed frame PID.
+
+All replies have finishedAt1791363709797,4ms after the actual09:01 export receipt.
+This is the broker's LAST finished host turn, not a newly completed request.
+Already-idle notices can carry an old completion timestamp or none. The signal
+is not a full internal queue snapshot, causal tool receipt, effect settlement
+or release authority. All17 unknown effects and handoff gates remain unchanged.
+
+New one-shot listener/payload preparation are reusable service internals; the
+pressure command remains bound to this exact broker epoch, not a public generic
+tool. IPC tests cover PID/nonce/address/state/time refusal, detail redaction and
+SIGTERM cleanup. Listener cancellation explicitly does not cancel the native
+subscription; timeout can leave one until notice or native12h expiry. No blind
+repeat after timeout. All actual notices above consumed their subscriptions;
+all listeners removed and no native processes killed.
+
+Python helpers now participate in host and sealed-bootstrap fingerprints.
+Full suite first caught inconsistent bootstrap enumeration; original failed
+v2-2026-10-07T09-20-30-134Z.json remains. Corrected current source passed the full
+isolated suite unchanged in v2-2026-10-07T09-21-48-232Z.json and then the actual
+native control test above. Active dependency release remains4af/gen6/integritytrue.
+
+Next make this a durable, bounded cross-harness observer with pending-subscription
+ownership, cancellation/expiry and stale-timestamp semantics. Qualify actual
+fresh busy-to-idle notification once on an owned diagnostic turn, bind it to
+native ancestry, then combine with safe operational fence/indexed handoff.
+Do not substitute a host idle notification for queue quiescence or clear old
+unknowns. Full controls/steering, sustained serving and recovery remain open.
+Broker idle/intact but no verified waiter, quiet OFF/quarantine ON, original
+settings/policy intact; local30s detector/hourly fallback unchanged. No user
+action required; Codex-driver and 1Password remain separate.
+
+## Previous frontier — October 7, 05:10 Eastern
 
 Goal ACTIVE. This turn makes concrete observation/strategy progress; no native
 turns, settings changes, recovery or IPC were used. General-use readiness remains

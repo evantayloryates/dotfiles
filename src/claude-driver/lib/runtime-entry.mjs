@@ -55,7 +55,7 @@ export function admitPinnedEntry({dir,kind,script:loadedScript}={}) {
  visit(root)
  if(manifest.schemaVersion!==1||manifest.build!==pointer.build||JSON.stringify(Object.entries(files).sort())!==JSON.stringify(Object.entries(manifest.files||{}).sort()))refuse()
  const runtimeFiles=['server.mjs','cli.mjs','broker-template/CLAUDE.md']
- for(const folder of ['lib','scripts'])for(const name of readdirSync(join(root,folder)))if(name.endsWith('.mjs')||name.endsWith('.swift'))runtimeFiles.push(folder+'/'+name)
+ for(const folder of ['lib','scripts'])for(const name of readdirSync(join(root,folder)))if(name.endsWith('.mjs')||name.endsWith('.swift')||name.endsWith('.py'))runtimeFiles.push(folder+'/'+name)
  const fingerprint=createHash('sha256');for(const file of runtimeFiles.sort())fingerprint.update(file).update('\0').update(readFileSync(join(root,file))).update('\0')
  if(fingerprint.digest('hex')!==pointer.build)refuse()
  const script=join(root,'scripts',kind+'.mjs')

@@ -16,7 +16,7 @@ import { createHash, randomUUID } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import { closeSync, constants, fstatSync, lstatSync, openSync, readdirSync, readFileSync } from 'node:fs'
 import { createConnection } from 'node:net'
-import { join, resolve } from 'node:path'
+import { join, resolve, dirname } from 'node:path'
 
 import { DriverError, PEER_SESSIONS_DIR } from './paths.mjs'
 
@@ -128,6 +128,18 @@ function sendLines(sock, lines, {timeoutMs=5000,signal}={}) {
 
 export function transcriptPath(rec) {
   return join(process.env.HOME, '.claude', 'projects', rec.cwd.replace(/[^A-Za-z0-9]/g, '-'), `${rec.sessionId}.jsonl`)
+}
+
+// Internal diagnostic subscription only. Caller sends these private lines from
+// the process that owns replySocket, and proves native completion separately.
+// No arbitrary action, user message, permission change or model wake is allowed.
+export function prepareIdleSubscription(target,replySocket){
+ const rec=peerRecord(target?.sessionId,target?.live?.pid)
+ if(!rec||rec.peerProtocol!==1||rec.version!=='2.1.289'||rec.sessionId!==target.sessionId?.replace(/^local_/, '')||rec.procStart!==target.live?.procStart)throw new DriverError('idle subscription requires the exact reviewed native peer',{category:'peer_unqualified'})
+ const receiver=lstatSync(rec.messagingSocketPath,{throwIfNoEntry:false}),reply=typeof replySocket==='string'?lstatSync(replySocket,{throwIfNoEntry:false}):null
+ if(!receiver?.isSocket()||receiver.isSymbolicLink()||receiver.uid!==process.getuid()||!reply?.isSocket()||reply.isSymbolicLink()||reply.uid!==process.getuid()||dirname(resolve(replySocket))!==dirname(resolve(rec.messagingSocketPath))||resolve(replySocket)===resolve(rec.messagingSocketPath)||!/^\d+-[0-9a-f]{8}\.sock$/.test(replySocket.split('/').at(-1)))throw new DriverError('idle reply socket identity refused',{category:'peer_refused'})
+ const msgId=randomUUID(),frame={msgV:1,msg_id:msgId,type:'control',action:'notify_when_idle',session_id:rec.sessionId,from:'uds:'+resolve(replySocket),from_mode:modeClass(target.permissionMode)}
+ return {msgId,pid:rec.pid,procStart:rec.procStart,socket:rec.messagingSocketPath,lines:JSON.stringify({type:'auth',token:readToken(rec)})+'\n'+JSON.stringify(frame)+'\n'}
 }
 
 // target: { sessionId: local_…, permissionMode }. Returns { msgId, pid }.

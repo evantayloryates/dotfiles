@@ -9,7 +9,7 @@ export function runtimeFingerprint(base = root) {
   const hash = createHash('sha256')
   const files = ['server.mjs', 'cli.mjs', 'broker-template/CLAUDE.md']
   for (const dir of ['lib', 'scripts']) for (const name of readdirSync(join(base, dir))) {
-    if (name.endsWith('.mjs') || name.endsWith('.swift')) files.push(`${dir}/${name}`)
+    if (name.endsWith('.mjs') || name.endsWith('.swift') || name.endsWith('.py')) files.push(`${dir}/${name}`)
   }
   for (const file of files.sort()) hash.update(file).update('\0').update(readFileSync(join(base, file))).update('\0')
   return hash.digest('hex')

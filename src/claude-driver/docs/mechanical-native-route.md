@@ -220,3 +220,42 @@ records original report/archive hashes and both native/projection builds.
 No fresh native turn was used or historical failure rewritten. Actual current
 post-turn observation and safe handoff remain to qualify; do not substitute
 this historical snapshot for them.
+# Native peer idle control signal — October 7, 05:21 Eastern
+
+The installed protocol has `control:notify_when_idle` and `peer_idle_notice`.
+Unlike unsupported generic SDK controls, this route is actually implemented.
+Headless startup subscribes its publisher to real sessionState transitions;
+registration's mounted handler logs without enqueueing model input.
+Six exact installed subscription tests pass in peer-idle-contract-
+2026-10-07T09-16-38-124Z.json (synthetic dependencies). Debounce is750ms; queued
+work or parked approvals hold back delivery. Same verified PID/reply address
+refreshes; subscriptions expire after12h and delivery consumes them once.
+
+`pressure-peer-idle.mjs --run-owned-idle-subscription` performs one native
+diagnostic subscription on the exact approved PID/start, never model text.
+It uses the existing private receiver key and an ephemeral reply socket in the
+same owned namespace, without fake sessions or key publication. Its Python
+listener checks sender PID using macOS LOCAL_PEERPID and UID using getpeereid,
+then exact nonce/from/state/time. Private detail is reduced to presence only.
+Cleanup verifies owned socket inode; cancellation does not claim native cancel.
+
+Native passes09:18:31/09:20:20/09:21:51 each received the correlated reply in
+about0.9s, with no user/assistant events. Latest source11f4c411 and helperf78deebc
+are fingerprinted; pressure/native-peer-idle-2026-10-07T09-21-51-906Z.json records
+actual kernel identity, native versions, reply and cleanup. The last host turn
+finishedAt1791363709797 is4ms after the earlier real export result. An already
+idle subscription reports that historical finish, not a new operation outcome.
+
+This is actual zero-inference host signaling, not full queue quiescence,
+invocation admission or correlated tool execution. Never retire/replay old
+unknown effects or activate a release from this signal alone. No public generic
+observer has shipped yet: durable pending ownership and a fresh busy-to-idle
+native run remain to qualify. Listener timeout can leave a native subscription
+until notice/12h expiry; do not repeat blindly. All actual probes above received
+their one-shot notices and removed listeners. Isolated refusal/redaction/cancel
+tests pass; active broker/settings/quarantine remain intact.
+
+Python is now included in host and sealed bootstrap fingerprints. Preserve the
+original09:20:30 failed suite exposing mismatched enumeration. Corrected full
+suite09:21:48 passed before current-source native signal proof. No inference,
+app restart, keyboard input, auth/permission changes or other-chat messaging.
