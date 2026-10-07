@@ -1,3 +1,21 @@
+## Current native command evidence — October 7, 10:48 Eastern
+
+Taylor enabled session-local hot reload; native menu registration and owned
+local command journal results demonstrate v0.2.0 and distinct v0.3.0 execution.
+Both MCP reads threw before any native receipt. The second report's fixed category
+is unidentified-exception; the broker assistant's gate-denial assertion is not
+evidence. The exact report/intent/copy/runtime/settings screen passes, with all
+qualification gates false. Original intents and reports remain preserved.
+
+Installed Hu binding guard is now extracted and executed in the adapter contract:
+unbound session refuses before dispatch; bound session is returned unchanged.
+Nine checks passed14:48:31 on ac1dd7aa, original CLI2.1.289 module hashes. This is
+synthetic binding evidence, not proof the broker was unbound during either call.
+No live code reload, new probe invocation, permission change or release occurred.
+The pre-invocation absence checks do not count against Taylor's completed attempt.
+Native error transport, actual negative/positive admission, scoped unload and
+full serving/mutation/steering/recovery pressure remain open.
+
 # Deterministic native execution candidate
 
 October 7, 2026, 04:57 Eastern. Native diagnostic read proof, not a public transport.

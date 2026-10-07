@@ -1,3 +1,13 @@
+## Installed binding contract — October 7, 10:48 Eastern
+
+Previous turn was progress (new diagnostic receipt and missing refusal branch).
+Exact installed Hu guard now runs in synthetic contract: unbound throws before
+native dispatch and bound identity is retained. All nine adapter checks passed
+14:48:31, hostac1dd7aa. No native error cause is inferred from that reproduction.
+Both completed native attempts remain non-retryable; no active wait handle or
+pending user command is invented. Continue source/error-transport investigation;
+do not count pre-invocation absence checks as post-attempt blockers.
+
 ## New diagnostic evidence — October 7, 10:44 Eastern
 
 Taylor invoked the v0.3.0 registered native command. Report SHA256

@@ -13,6 +13,7 @@ const report=join(STATE_DIR,'pressure','mod-tool-contract-'+new Date().toISOStri
 let stage='extract',failure
 try{
  const binary=resolveClaudeBinary()
+ sources.binding=installedWindowContaining(binary,'function Hu(e,n){let r=px()', {after:700})
  sources.mcp=installedWindowContaining(binary,'async function ZOt({server:e,tool:n,args:r},s)',{before:150,after:2200})
  sources.tool=installedWindowContaining(binary,'async function eU(e,n)',{after:3600})
  sources.pipeline=installedWindowContaining(binary,'async function*W1(e,n,r,s,g,h=cMt)',{after:6000})
@@ -37,6 +38,12 @@ try{
   const invoke=runInNewContext(`(()=>{${tool};${mcp};return ZOt})()`,ctx,{timeout:1000,contextCodeGeneration:{strings:false,wasm:false}})
   return {invoke,calls,checks,permissions,context:{plugin:'synthetic-owned-service',signal:controller.signal}}
  }
+ await check('installed binding guard reports unavailable session before any tool dispatch',async()=>{
+  const guard=cutInstalledFunction(sources.binding.text,'function Hu(e,n){let r=px()','function woo(')
+  const invoke=runInNewContext(`(()=>{${guard};return Hu})()`,{px:()=>undefined,Ie:Error})
+  assert.throws(()=>invoke('synthetic-owned-service','$.mcp.call'),/no session is bound in this process/)
+  const bound={tools:()=>[]};const allow=runInNewContext(`(()=>{${guard};return Hu})()`,{px:()=>bound,Ie:Error});assert.equal(allow('synthetic-owned-service','$.mcp.call'),bound)
+ })
  await check('installed MCP adapter reaches ordinary tool pipeline without model selection',async()=>{
   const c=make(),r=await c.invoke({server:'ccd_session_mgmt',tool:'get_session',args:{session_id:'synthetic'}},c.context)
   assert.equal(c.calls.length,1);assert.equal(c.permissions.length,1);assert.equal(c.calls[0].input.session_id,'synthetic');assert.equal(c.checks[0].plugin,'synthetic-owned-service');assert.deepEqual(Array.from(c.checks[0].origin),['synthetic-owned-service']);assert.equal(r.isError,false)
