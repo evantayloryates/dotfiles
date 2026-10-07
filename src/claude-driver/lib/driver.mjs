@@ -845,6 +845,12 @@ export const OPS = [
   },
   // ---------------- broker
   {
+    name:'broker_service_resource_review',title:'Review owned native resource disposition',readOnly:true,
+    description:'Experimental metadata-only review of an exact owned stream child after native service retirement. Binds saved process ownership, exit chronology and fresh PID absence to unchanged broker epoch and enrolled bytes. Does not load, send, retry, terminate or qualify general hook/environment unload.',
+    schema:{required:['service_id','evidence_report'],properties:{service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},evidence_report:{type:'string',pattern:'^native-resource-trial-[0-9]{13}\\.json$'}}},
+    run:async args=>(await import('./native-service-ownership.mjs')).nativeServiceResourceReview(args.service_id,args.evidence_report),
+  },
+  {
     name:'broker_service_marker_review',title:'Review native service command inventory',readOnly:true,
     description:'Experimental local review of native own/prior marker observations, exact enrolled bytes and retirement chronology. No commands executed or tokens sent. Native command removal is narrower than hook/environment unload; returns metadata only.',
     schema:{required:['service_id'],properties:{service_id:{type:'string',pattern:'^[a-f0-9]{32}$'}}},

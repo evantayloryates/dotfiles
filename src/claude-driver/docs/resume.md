@@ -1,3 +1,20 @@
+## Shared CLI/MCP resource review verified — October 7, 13:14 Eastern
+
+Public read-only broker_service_resource_review requires service_id and
+bounded evidence_report filename. Shared CLI and fresh actual stdio MCP2025-06-18
+both reviewed retained d19dab280cc657366bd4dacbdf8d56ff disposition successfully:
+resourceDisposalQualified:true, exitDelayMs542, brokerEpochVerified:true;
+scopedUnloadQualified/releaseAuthorized:false. MCP negative ../outside.json refused.
+No mod load, enrollment, token send, process termination or inference; isolated
+MCP test server closed by stdin, configured connector unchanged. Private report
+native-service-mcp-resource-review-d19dab280cc657366bd4dacbdf8d56ff.json and shared
+service memory saved. Public contract tests bound required fields/read-only flag
+and forbidden paths. Full pressure v2-2026-10-07T17-14-50-099Z passed1/1
+in8632ms/sourceChanged:false. Remaining: general native hook receiver absence,
+production serving/steering/residency/rollback and safe handoff/uncertain-effect
+gates. Next inspect strongest available native hook inventory/retirement evidence;
+no human action required.
+
 ## Narrow resource disposition qualified — October 7, 13:13 Eastern
 
 Added reusable nativeServiceResourceReview(serviceId,reportName), bounded fixed

@@ -542,3 +542,11 @@ The child independently expires30seconds after service expiry. Enrollment readin
 does not prove child launch, disposal or full serving. Strict metadata screening
 distinguishes intentional signal exits from self-deadline; independent kernel and
 retirement evidence remains required. This variant is not yet live-qualified.
+
+`broker_service_resource_review` is a read-only shared CLI/MCP operation with
+`service_id` and `evidence_report` (fixed `native-resource-trial-<13 digits>.json`
+filename under the service pressure directory). It binds retained process evidence,
+current exact broker epoch, owned retired files and fresh PID absence. A qualified
+result covers only the exact stream child after retirement; general hook/environment
+unload and release authorization remain separate and false. Actual fresh stdio MCP
+and CLI are verified; the installed connector has not been restarted or qualified.
