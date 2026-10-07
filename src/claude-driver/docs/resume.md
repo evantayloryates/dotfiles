@@ -1,3 +1,24 @@
+## Exact native resource process ownership observed — October 7, 13:12 Eastern
+
+Added PID-scoped native-resource-process observer: exact generated argv comparison,
+child PPID/start-time binding, bounded ancestor walk to original broker PID/start,
+and unchanged child identity after inspection. No raw argv enters report/context.
+Foreign command, changed parent, stale broker epoch, missing ancestry refuse;
+real test-process metadata read and full pressure pass. macOS ps encodes argv
+newlines as literal octal\012: first d19dab280cc657366bd4dacbdf8d56ff trial
+refused command before qualification, failure preserved in
+native-resource-trial-1791393061671.json. Independent full-byte comparison verified
+only that encoding; observer accepts exact raw or exact octal-newline form.
+Same installed fixture inspected again without enrollment/replay: exact command
+and broker ancestry observed alive, repeated before retirement. Retired at
+17:12:01.867Z; SIGTERM143 exit17:12:02.409Z before selfdeadline17:12:31.741Z;
+independent PID absent, installed:false/retired:true, zero unresolved. Corrected
+report native-resource-trial-1791393093450.json preserves owned observations;
+original failure unchanged. Shared memory recorded both. Full pressure
+v2-2026-10-07T17-11-49-109Z passed1/1 in8624ms/sourceChanged:false.
+Next automated chronology/epoch review of retained evidence before narrow resource
+qualification; general hook/environment unload still false. No human action needed.
+
 ## Live resource retirement observed — October 7, 13:09 Eastern
 
 Guarded resource variant e6fdb34229f9c5524d83df2d77e6720a enrolled in the
