@@ -47,3 +47,9 @@ test('screen binds exact hash, identity, intent and fixed failure category witho
  assert.equal(check(report,{sha256:'0'.repeat(64)}).reportConsistent,false)
  assert.equal(check(report,{intent:{...intent,startedAt:'wrong'}}).reportConsistent,false)
 })
+
+test('installed unbound-session error and primitive rejection stay private',()=>{
+ assert.equal(diagnosticFailure(Error('plugin: $.mcp.call is not available in this mode: no session is bound in this process (the REPL has not mounted and no headless session is built); catch it and carry on')),'session-unbound')
+ assert.equal(diagnosticFailure('private: $.mcp.call: no connected MCP tool private on a server named private'),'mcp-tool-unavailable')
+ assert.equal(diagnosticFailure(Error('$.mcp.call is not a function')),'mcp-api-unavailable')
+})

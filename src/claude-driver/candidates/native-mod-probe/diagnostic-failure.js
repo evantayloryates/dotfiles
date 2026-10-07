@@ -2,7 +2,9 @@
 // This helper is staged only and is not imported by the installed probe.
 export function diagnosticFailure(error) {
  let text=''
- try { if(typeof error?.message==='string')text=error.message } catch {}
+ try { if(typeof error==='string')text=error;else if(typeof error?.message==='string')text=error.message } catch {}
+ if(text.includes('no session is bound in this process'))return 'session-unbound'
+ if(text.includes('$.mcp.call is not a function'))return 'mcp-api-unavailable'
  if(text.includes('$.mcp.call: no connected MCP tool'))return 'mcp-tool-unavailable'
  if(text.includes('$.tool.call: no tool named'))return 'tool-hidden-or-unavailable'
  if(text.includes('produced no result'))return 'tool-pipeline-no-result'

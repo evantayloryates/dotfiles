@@ -1,3 +1,23 @@
+## New diagnostic evidence — October 7, 10:44 Eastern
+
+Taylor invoked the v0.3.0 registered native command. Report SHA256
+76adade8908b64c379fdacab36a820b0e9bab5be64b578da81cf438b9246dbbf passes
+strict report/intent/copy/metadata/runtime/settings checks. Started14:44:45.573Z,
+ended14:44:45.574Z, MCP did not return; failureCategory unidentified-exception.
+No assistant record occurs in the exact command execution interval. Screenshot
+and report do NOT prove gate denial; the broker assistant's claim is unsupported.
+The prior pre-invocation absence checks do not count against this attempt, as
+Taylor explicitly corrected. This is progress, not a blocked turn.
+
+Installed bound-session guard Hu has another known exception path: no session
+bound in process, absent from the v0.3.0 category matcher. Prepared helper now
+handles this exact message plus primitive string rejections and unavailable
+MCP API. Focused tests cover these forms. Live v0.3.0 is untouched, preserving
+its hashes and exhausted intent. This source finding is not proof of the native
+cause. Both reports remain pending until original denial/error evidence can be
+bound; no repeated invocation, permission change or release. Next investigate
+native error transport before designing any further explicit attempt.
+
 ## Blocked audit — distinct diagnostic outcome absent
 
 Three consecutive goal continuations checked the exact v0.3.0 report through
