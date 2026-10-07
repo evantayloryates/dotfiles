@@ -68,8 +68,12 @@ Reports under /Users/taylor/.local/state/claude-driver/pressure/:
 Two new observer reports (001827 and001927) independently corroborated the
 capture-guard outage and recovery. Their build strings are explanatory text, not
 fingerprints; source/native records were checked independently. Exact hashes and
-review are in observer-guard-review-2026-10-07.json. Acknowledgment follows the
-commit/push checkpoint. The observer is currently live/idle PID68416 and sent
+review are in observer-guard-review-2026-10-07.json. Reports001827/001927 were acknowledged by exact scanned hashes after checkpoint
+20004b9. A further002308 report corroborated unsolicited end_turns while the
+broker stays live/cron-protected, making repeated client wakes necessary. Its
+unique end_turn samples/template hash were independently verified in
+observer-loop-drift-review-2026-10-07.json; counts/causal context-poisoning claims
+are not promoted. This report awaits the following durable checkpoint. The observer is currently live/idle PID68416 and sent
 no competing wake. The current source still directs native Bash into mutable
 working-tree files. **Next priority: immutable qualified runtime staging and
 pinned live wait/check paths before further source experiments.** Validate
