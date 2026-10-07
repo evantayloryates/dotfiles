@@ -5,9 +5,12 @@ Cursor, OpenCode or a script. This is the usage contract; the README has the
 mechanisms and evidence.
 
 Development resumed after the [pause checkpoint](resume.md). Native input-free
-qualification passed eleven checks on an earlier runtime; the current native
-frontier is pending independent observer recovery after an exited app query. An offline
-broker means native write availability is unestablished. Protocol v6's residency
+qualification passed eleven checks on an earlier runtime. The independent
+observer has now recovered the exact broker after Claude's automatic update and
+relaunch, with verified current-process maintenance receipts. Current-source
+native controls and natural-pressure survival remain unqualified. Recovery from
+the earlier stale exited query without an app restart is also unproven.
+Protocol v6's residency
 candidate must have current native receipt/list/app evidence before
 `broker_status.residencyProtection.verified` is true; even that evidence does not
 replace a pressure-survival test or qualify cold recovery. The list must follow
@@ -15,6 +18,13 @@ creation, belong to the current process, remain fresh, and have no unresolved
 native mutations. Evidence is bounded to 2 MiB of the broker journal; missing or
 rotated evidence fails closed. File equality does not prove the running model
 loaded a changed standing protocol. Keep UI quarantine.
+
+The first observer wake's native envelope used `from=` and `name=`, whereas
+the v6 standing example names `from-name="claude-driver"`. The live model
+accepted that wake. Treat this as a protocol mismatch requiring further isolated
+qualification, not sender authentication or permission to spoof identity. Keep
+the live protocol stable while observing it; checkpoints and exact native
+receipts remain necessary before reporting any operation outcome.
 
 ## V2 control interface
 

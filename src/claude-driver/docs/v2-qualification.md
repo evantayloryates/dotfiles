@@ -31,10 +31,14 @@ restored and its interrupted fixture independently archived. Graceful STOP
 verified native deletion of the exact owned job. The subsequent isolated idle
 process termination left an app-owned query reporting exit code 143; warm-only
 navigation could not recreate it. This is distinct from older governor-cap
-refusals. Broker is offline; Taylor requested a separate Claude observer/recovery session
-and an active Codex report-inbox watcher in this chat. The observer prompt is
-ready but its recovery remains unverified. Input automation
-remains quarantined. Do not use external termination as routine recovery.
+refusals. The independent observer subsequently recovered the broker after
+Claude's automatic update/relaunch: PID 71262, exact maintenance job `3651b2a5`
+with current-process create/list receipts and app acknowledgment. Its own
+five-minute job `337cb675` is independently verified. Recovery from a stale
+exited app query without a relaunch remains unproven. The observer's native
+sender envelope also differs from the v6 written example; the live model's
+acceptance is not a deterministic identity gate. Input automation remains
+quarantined. Do not use external termination as routine recovery.
 
 Older reports below identify their own fingerprints and scopes. Human input
 recovery was observed; safe native-helper teardown and unattended recovery
@@ -46,11 +50,12 @@ qualification. Source updates do not reload an existing MCP process.
 
 ## Current readiness audit
 
-The full goal remains incomplete. Current-source independent checks are complete;
-remaining native requirements depend on recovering the exact approved broker.
-At the latest check its process was absent, no observer state file existed and
-`/Users/taylor/Desktop/temp_reports` contained only the saved prompt. This is an
-external-state dependency, not a verified wait on a live observer handle.
+The full goal remains incomplete. Current-source independent checks are complete.
+The first completed observer report and its exact hash were independently
+reviewed against owned process/session metadata, native journals and logs. The
+broker and observer are now live, with current native maintenance receipts.
+This resolves the offline prerequisite, but does not qualify current native
+steering, natural-pressure survival or unattended recovery across app restarts.
 
 | Goal requirement | Authoritative current evidence | Assessment |
 |---|---|---|
@@ -58,15 +63,17 @@ external-state dependency, not a verified wait on a live observer handle.
 | Efficient control | Ten synthetic durable submits, p50 56.30 ms / p95 63.66 ms, all completed | Submit measured; current native reply/queue latency unproven |
 | Service-level evidence and memory | Current metadata-only memory code, redaction/bounded query tests, both real harness candidate records, retained failure/reproduction reports | Implemented and qualified within tested scope |
 | Current native app session controls | Older eleven-check report predates current source and app update; current driver_status qualification is false | Incomplete; rerun input-free live suite after recovery |
-| Reliable bootstrap/recovery | Exact broker offline after intentional exit143; observer prompt prepared, report heartbeat configured, no recovery report | Incomplete; observer must prove native wake/process/receipt outcome |
+| Reliable bootstrap/recovery | Observer's one native wake after automatic update/relaunch; independently verified PID 71262, create/list/app evidence; own observer cron verified | Post-relaunch recovery observed; stale-query recovery without relaunch and recovery after future app restart remain unqualified |
 | Residency under native pressure | Installed governor code passes four isolated scenarios; eight-minute earlier idle observation had no natural pressure | Incomplete; current-process native job/list/app evidence and pressure-survival observation required |
 | Human app usability and safe input-resource handling | Read-only audit currently has zero Claude helper filters; quarantine remains active; earlier human confirmation retained | Recovery observed historically; sustained current physical input/helper teardown unqualified; no UI fallback permitted |
 | Reuse implementation and leave Codex fixes parked | Work is confined to claude-driver; kernel-lock pattern reused from existing 1Password code without changing it | Satisfied for this iteration |
 
 Do not substitute more synthetic passes for the missing native proof. The next
-steps remain the commissioned observer's verified recovery, source-matched
-input-free live suite and read-only residency observation. The five-minute
-report heartbeat stays configured to receive that external evidence. Do not
+steps remain the source-matched input-free live suite and read-only residency
+observation. The report heartbeat is configured every 30 seconds, scanning only
+metadata before loading review context. Scheduled delivery depends on the local
+app scheduler. This heartbeat forbids messaging other chats or creating a new
+qualification chat; retain that scope while reviewing reports. Do not
 send competing wakes, kill processes or lift quarantine to unblock the audit.
 
 ## Historical and broader mechanism evidence

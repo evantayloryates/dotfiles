@@ -7,6 +7,28 @@ Versions: app = Claude desktop, cli = bundled Claude Code.
 
 ## 2026-10-06 (app 2.26454.0, cli 2.1.289)
 
+- **The independent native observer recovered the broker after the app's
+  automatic update and relaunch.** One exact native wake had a delivered receipt;
+  broker PID 71262 started at 23:24:51 Eastern. Current-process CronCreate and
+  subsequent CronList confirm job `3651b2a5`, with matching app acknowledgment.
+  Observer PID 68416 and its own created/listed/app-acknowledged five-minute
+  job `337cb675` were separately verified. This is one post-relaunch recovery,
+  not proof that native send bypasses a stale exited app query. The old log's
+  hash matches the report; the active log has appended since capture. The
+  intentional exit143 and quit-for-update remain distinct events. Evidence:
+  `/Users/taylor/Desktop/temp_reports/claude-broker-20261006T232546-0400.report.json`
+  and the scoped native journals/logs identified in its review. n=1.
+
+- **The native wake envelope differs from the v6 sender example.** The
+  current broker journal records `<cross-session-message from="<observer id>"
+  name="Broker Recovery Probe">`, with the exact `claude-driver wake v6` line,
+  and no `from-name="claude-driver"`. The broker entered its maintenance loop.
+  This independently confirms a written-versus-observed protocol mismatch;
+  it does not establish a deterministic sender gate. Keep the running protocol
+  stable, avoid spoofing, and require dispatch checkpoints/native receipts.
+  A future candidate must qualify actual native envelopes and refusal behavior
+  before rollout. Same first observer report and owned broker journal. n=1.
+
 - **Age-based reaper cleanup can break mutual exclusion across a paused live
   process.** A private clone of the prior directory strategy reproduced two
   overlapping callbacks: one synthetic process paused after its dead-owner check,
@@ -31,8 +53,8 @@ Versions: app = Claude desktop, cli = bundled Claude Code.
   Controls recheck source after acquiring the recipient lock. Three new
   regressions pass; five final fresh rounds passed 101 cases each. These tests
   use synthetic stores and no native actions. Reports/source-matched harness
-  results are listed in [resume.md](resume.md). Native availability still awaits
-  independently verified observer recovery; no report has arrived yet.
+  results are listed in [resume.md](resume.md). At that checkpoint native
+  availability awaited observer recovery; the verified first report is above.
 
 - **App/source drift is a distinct qualification boundary.** Claude updated
   during testing; renamed governor bindings broke the previously passing
@@ -52,7 +74,9 @@ Versions: app = Claude desktop, cli = bundled Claude Code.
   proof. A five-minute Codex heartbeat watches the exact requested report inbox;
   metadata-only scanning ignores incomplete/oversized/symlink files, detects new
   hashes and acknowledges only after reviewed work. Two regressions verify this.
-  Watcher configuration is verified; the Claude observer itself awaits execution.
+  At commissioning, watcher configuration was verified and observer execution
+  remained pending. Taylor later changed the inbox schedule to 30 seconds with
+  scanner-first intake; the first verified observer outcome is above.
   This separates bootstrap from the offline broker relay and avoids circular
   recovery. Do not infer successful scheduling/recovery from commissioning.
 
