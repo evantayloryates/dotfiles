@@ -28,6 +28,7 @@ function validateLease(row,epoch,path){
  if(!row)return
  if(row.schemaVersion!==1||idleLeaseKey(row.epoch)!==idleLeaseKey(epoch)||!['publishing','pending_remote','received','undispatched'].includes(row.phase)||!Number.isFinite(row.createdAt)||!Number.isFinite(row.remoteExpiresAt)||row.remoteExpiresAt!==row.createdAt+remoteTtl+10000||typeof row.id!=='string'||!/^[a-f0-9-]{36}$/.test(row.id)||typeof row.msgId!=='string'||!/^[a-f0-9-]{36}$/.test(row.msgId))fail('idle_observer_invalid','idle lease schema refused')
  if(typeof row.runtimeBuild!=='string'||!/^[a-f0-9]{64}$/.test(row.runtimeBuild)||row.phase==='received'&&(!safeNotice({...row.notice,ok:true,msgId:row.msgId,listenerRemoved:true},{msgId:row.msgId,pid:epoch.pid})||typeof row.afterSameEpoch!=='boolean'||typeof row.sourceChanged!=='boolean'||!Number.isFinite(row.completedAt)))fail('idle_observer_invalid','idle lease receipt refused')
+ if(row.mailbox!==undefined&&(row.mailbox!==join(dirname(path),'notices',row.id+'.json')||!Number.isInteger(row.helperPid)||row.helperPid<2))fail('idle_observer_invalid','idle lease mailbox refused')
  if(path&&row.evidence!==join(dirname(path),'observations',row.id+'.json')||row.failureCategory!==undefined&&!['cancelled','idle_observer_timeout','peer_refused','peer_unqualified','idle_observer_invalid','idle_observer_unconfirmed'].includes(row.failureCategory))fail('idle_observer_invalid','idle lease evidence refused')
 }
 export function summarizeIdleLease(row,{now=Date.now(),notBefore,joined=false}={}){
@@ -42,7 +43,7 @@ function safeNotice(raw,prepared){
  if(raw?.ok!==true||raw.msgId!==prepared.msgId||raw.kernelPeerPid!==prepared.pid||raw.kernelPeerUid!==process.getuid()||!['idle','exited','unavailable'].includes(raw.state)||raw.listenerRemoved!==true||!Number.isFinite(raw.receivedAt)||raw.receivedAt>Date.now()+1000||raw.finishedAt!==null&&(!Number.isFinite(raw.finishedAt)||raw.finishedAt<0||raw.finishedAt>raw.receivedAt+1000))return null
  return {state:raw.state,finishedAt:raw.finishedAt,receivedAt:raw.receivedAt,kernelPeerPid:raw.kernelPeerPid,kernelPeerUid:raw.kernelPeerUid,detailPresent:raw.detailPresent===true}
 }
-export async function exchangeNativeIdle(target,{signal,timeoutSec,onPublishing}){
+export async function exchangeNativeIdle(target,{signal,onPublishing}){
  if(process.platform!=='darwin')fail('peer_unqualified','native idle observer requires the reviewed macOS transport')
  const binary=resolveClaudeBinary(),source=installedModuleContaining(binary,'function m_r('),host=installedWindowContaining(binary,'notePeerIdleStatus:be,enqueueIdleNoticesForModel:Te}',{before:180,after:2000})
  if(source.sha256!==moduleSha||host.sha256!==hostSha)fail('peer_unqualified','native idle subscription source changed')
@@ -50,30 +51,34 @@ export async function exchangeNativeIdle(target,{signal,timeoutSec,onPublishing}
  if(!rec||rec.procStart!==target.live.procStart||rec.version!=='2.1.289')fail('peer_unqualified','native idle epoch unavailable')
  const reply=join(dirname(rec.messagingSocketPath),process.pid+'-'+randomBytes(4).toString('hex')+'.sock'),parent=lstatSync(dirname(reply))
  if(parent.isSymbolicLink()||!parent.isDirectory()||parent.uid!==process.getuid()||existsSync(reply))fail('peer_refused','native idle reply namespace refused')
- const listener=fileURLToPath(new URL('../scripts/peer-idle-listener.py',import.meta.url)),listenerSourceHash=hash(readFileSync(listener)),child=spawn('/usr/bin/python3',[listener,reply,String(rec.pid),String(process.getuid()),String(timeoutSec)],{stdio:['pipe','pipe','pipe']})
- let buffer='',prepared,complete,failureCategory,stderrBytes=0
- const abort=()=>{failureCategory='cancelled';child.kill('SIGTERM')}
+ const listener=fileURLToPath(new URL('../scripts/peer-idle-listener.py',import.meta.url)),listenerSourceHash=hash(readFileSync(listener)),child=spawn('/usr/bin/python3',[listener,reply,String(rec.pid),String(process.getuid()),'43200','--service'],{detached:true,stdio:['pipe','pipe','ignore']})
+ let buffer='',prepared,published=false
+ // Cancellation belongs to the caller until durable publication. Thereafter
+ // this exact helper belongs to the service and must survive the harness.
+ const abort=()=>{if(!prepared)child.kill('SIGTERM')}
  signal?.addEventListener('abort',abort,{once:true});if(signal?.aborted)abort()
- const code=await new Promise((resolve,reject)=>{
-  const timer=setTimeout(()=>{failureCategory='idle_observer_timeout';child.kill('SIGTERM')},(timeoutSec+4)*1000)
-  child.stderr.on('data',x=>stderrBytes+=x.length)
-  child.stdout.on('data',chunk=>{buffer+=chunk.toString();if(Buffer.byteLength(buffer)>8192){failureCategory='idle_observer_invalid';child.kill('SIGTERM');return}
-   for(;;){const at=buffer.indexOf('\n');if(at<0)break;const line=buffer.slice(0,at);buffer=buffer.slice(at+1);let row;try{row=JSON.parse(line)}catch{failureCategory='idle_observer_invalid';child.kill('SIGTERM');continue}
+ try{return await new Promise((resolve,reject)=>{
+  let settled=false
+  const finish=(error)=>{if(settled)return;settled=true;clearTimeout(timer);signal?.removeEventListener('abort',abort)
+   child.stdout.destroy();child.stdin.destroy();child.unref()
+   error?reject(error):resolve({serviceOwned:true,helperPid:child.pid,publicationConfirmed:published})
+  }
+  const timer=setTimeout(()=>{child.kill('SIGTERM');finish(prepared?undefined:new DriverError('owned idle helper preparation timed out',{category:'idle_observer_timeout'}))},4000)
+  child.stdin.on('error',()=>{child.kill('SIGTERM');finish(prepared?undefined:new DriverError('owned idle helper configuration failed',{category:'idle_observer_unavailable'}))})
+  child.stdout.on('data',chunk=>{buffer+=chunk.toString();if(Buffer.byteLength(buffer)>8192){child.kill('SIGTERM');finish(new DriverError('owned idle helper output refused',{category:'idle_observer_invalid'}));return}
+   for(;;){const at=buffer.indexOf('\n');if(at<0)break;const line=buffer.slice(0,at);buffer=buffer.slice(at+1);let row;try{row=JSON.parse(line)}catch{child.kill('SIGTERM');finish(new DriverError('owned idle helper framing refused',{category:'idle_observer_invalid'}));return}
     if(row?.ready){try{
      if(prepared||signal?.aborted)fail('cancelled','native idle preparation refused')
      const stat=lstatSync(reply);if(stat.dev!==row.dev||stat.ino!==row.ino)fail('peer_refused','idle listener readiness changed')
      prepared=prepareIdleSubscription(target,reply)
-     onPublishing({msgId:prepared.msgId,listenerSourceHash,hostSourceHash:host.sha256,moduleSourceHash:source.sha256})
-     child.stdin.end(JSON.stringify({socket:prepared.socket,lines:prepared.lines,msgId:prepared.msgId})+'\n')
-    }catch(e){failureCategory=e.category??'idle_observer_invalid';child.stdin.end();child.kill('SIGTERM')}}else complete=row
+     const metadata=onPublishing({msgId:prepared.msgId,listenerSourceHash,hostSourceHash:host.sha256,moduleSourceHash:source.sha256,helperPid:child.pid})
+     child.stdin.end(JSON.stringify({socket:prepared.socket,lines:prepared.lines,msgId:prepared.msgId,receiptPath:metadata.mailbox})+'\n')
+    }catch(e){child.kill('SIGTERM');finish(e)}}else if(row?.published===true){published=true;finish()}
    }
   })
-  child.on('error',()=>{clearTimeout(timer);reject(new DriverError('owned idle helper unavailable',{category:'idle_observer_unavailable'}))})
-  // close waits for complete pipe drainage; exit alone does not.
-  child.on('close',code=>{clearTimeout(timer);resolve(code)})
- }).finally(()=>signal?.removeEventListener('abort',abort))
- return {notice:prepared?safeNotice(complete,prepared):null,failureCategory:failureCategory??(complete?.ok?'idle_observer_invalid':'idle_observer_unconfirmed'),listenerRemoved:!existsSync(reply),listenerExit:code,stderrBytes,
-  definitelyUndispatched:complete?.writeAttempted!==true&&complete?.subscriptionSent!==true&&complete?.listenerRemoved===true&&code===0}
+  child.on('error',()=>finish(new DriverError('owned idle helper unavailable',{category:'idle_observer_unavailable'})))
+  child.on('close',()=>finish(prepared?undefined:new DriverError('owned idle helper closed before preparation',{category:signal?.aborted?'cancelled':'idle_observer_unavailable'})))
+ })}finally{signal?.removeEventListener('abort',abort)}
 }
 // deps is internal test injection, never caller/tool input. All production
 // publishers use the private, kernel-verified exchange above.
@@ -85,26 +90,50 @@ export async function observeNativeIdle(target,{timeoutSec=12,notBefore,signal,c
  const ds=lstatSync(dir);if(ds.isSymbolicLink()||!ds.isDirectory()||ds.uid!==process.getuid())fail('idle_observer_invalid','idle lease directory refused')
  const current=()=>{const row=readLease(path);validateLease(row,epoch,path);return row}
  const reuse=row=>row&&(row.phase==='publishing'||row.phase==='pending_remote')&&row.remoteExpiresAt>Date.now()||row?.phase==='received'&&row.completedAt>=startedAt-cacheMs
- const initial=current();if(reuse(initial))return summarizeIdleLease(initial,{notBefore,joined:true})
- return withLock('native-idle-'+key,async()=>{
-  const previous=current();if(reuse(previous))return summarizeIdleLease(previous,{notBefore,joined:true})
-  let lease
-  const save=()=>{const observations=ensureDir(join(dir,'observations')),s=lstatSync(observations);if(s.isSymbolicLink()||!s.isDirectory()||s.uid!==process.getuid())fail('idle_observer_invalid','idle observation directory refused');writeJsonAtomic(path,lease);writeJsonAtomic(lease.evidence,lease)}
-  const exchange=deps.exchange??exchangeNativeIdle
-  let result
-  try{result=await exchange(target,{timeoutSec,signal,onPublishing:metadata=>{
-   const now=Date.now(),id=randomUUID();lease={schemaVersion:1,id,epoch,phase:'publishing',createdAt:now,remoteExpiresAt:now+remoteTtl+10000,runtimeBuild:RUNTIME_BUILD,...metadata,evidence:join(dir,'observations',id+'.json')};validateLease(lease,epoch,path);save()
-  }})}catch(e){if(!lease)throw e;result={failureCategory:'idle_observer_unconfirmed'}}
-  if(!lease)fail('idle_observer_unavailable','idle subscription was not prepared')
+ const initial=current()
+ // Preserve legacy uncertain publications without waiting on their owner's
+ // lock. They have no mailbox to adopt; their native debt still cannot retry.
+ if(reuse(initial)&&!initial.mailbox)return summarizeIdleLease(initial,{notBefore,joined:true})
+ const fresh=deps.sameEpoch??(()=>{const rec=peerRecord(epoch.sessionId,epoch.pid);return rec?.procStart===epoch.procStart})
+ const save=lease=>{const observations=ensureDir(join(dir,'observations')),s=lstatSync(observations);if(s.isSymbolicLink()||!s.isDirectory()||s.uid!==process.getuid())fail('idle_observer_invalid','idle observation directory refused');writeJsonAtomic(path,lease);writeJsonAtomic(lease.evidence,lease)}
+ const finalize=(lease,result)=>{
   const n=result?.notice
-  // Tests also pass through the same receipt identity/freshness conjunction.
   const notice=safeNotice(n?{...n,ok:true,msgId:lease.msgId,listenerRemoved:result.listenerRemoved}:null,{msgId:lease.msgId,pid:epoch.pid})
   if(notice&&notice.receivedAt<lease.createdAt)fail('idle_observer_invalid','idle notice predates publication')
-  const fresh=deps.sameEpoch??(()=>{const rec=peerRecord(epoch.sessionId,epoch.pid);return rec?.procStart===epoch.procStart})
-  lease.afterSameEpoch=fresh()===true;lease.sourceChanged=runtimeState().restartRequired;lease.completedAt=Date.now();lease.listenerRemoved=result?.listenerRemoved===true
+  lease.afterSameEpoch=fresh()===true;lease.sourceChanged=runtimeState().restartRequired||lease.runtimeBuild!==RUNTIME_BUILD;lease.completedAt=Date.now();lease.listenerRemoved=result?.listenerRemoved===true
   if(notice){lease.phase='received';lease.notice=notice}
   else {lease.phase=result?.definitelyUndispatched===true?'undispatched':'pending_remote';lease.failureCategory=['cancelled','idle_observer_timeout','peer_refused','peer_unqualified','idle_observer_invalid'].includes(result?.failureCategory)?result.failureCategory:'idle_observer_unconfirmed'}
-  save();recordMemory({kind:'observation',topic:'native-idle-observer',source:deps.exchange?'isolated-test':'service',status:deps.exchange?'candidate':notice?'observed':'candidate',evidence:lease.evidence,lesson:'Owned native host idle signal recorded without model input. Publication, native subscription debt and caller wait are distinct; notice is not task success, full queue quiescence or release authority.'})
-  return summarizeIdleLease(lease,{notBefore})
+  save(lease);recordMemory({kind:'observation',topic:'native-idle-observer',source:deps.exchange?'isolated-test':'service',status:deps.exchange?'candidate':notice?'observed':'candidate',evidence:lease.evidence,lesson:'Service-owned native idle observation survives caller cancellation/disconnection; publication, subscription debt and caller wait remain distinct. Host signal is not task success, full queue quiescence or release authority.'})
+  return lease
+ }
+ const reconcile=lease=>{
+  if(!lease?.mailbox||lease.phase==='received'||lease.mailboxConsumed)return lease
+  const raw=readLease(lease.mailbox);if(!raw)return lease
+  // A private mailbox is still evidence, never authority. Match the nonce
+  // before constructing a receipt; malformed results cannot be retry proof.
+  const notice=safeNotice(raw,{msgId:lease.msgId,pid:epoch.pid})
+  lease.mailboxConsumed=true
+  return finalize(lease,{notice,listenerRemoved:raw.listenerRemoved===true,definitelyUndispatched:raw.ok===false&&raw.writeAttempted!==true&&raw.subscriptionSent!==true&&raw.listenerRemoved===true})
+ }
+ let joined=false
+ let lease=await withLock('native-idle-'+key,async()=>{
+  const previous=reconcile(current());if(reuse(previous)){joined=true;return previous}
+  const notices=ensureDir(join(dir,'notices')),ns=lstatSync(notices);if(ns.isSymbolicLink()||!ns.isDirectory()||ns.uid!==process.getuid()||(ns.mode&0o077))fail('idle_observer_invalid','idle mailbox directory refused')
+  let prepared,result
+  try{result=await (deps.exchange??exchangeNativeIdle)(target,{timeoutSec,signal,onPublishing:metadata=>{
+   const now=Date.now(),id=randomUUID();prepared={schemaVersion:1,id,epoch,phase:'publishing',createdAt:now,remoteExpiresAt:now+remoteTtl+10000,runtimeBuild:RUNTIME_BUILD,...metadata,evidence:join(dir,'observations',id+'.json'),...(metadata.helperPid?{mailbox:join(notices,id+'.json')}: {})};validateLease(prepared,epoch,path);save(prepared);return {mailbox:prepared.mailbox}
+  }})}catch(e){if(!prepared)throw e;result={failureCategory:'idle_observer_unconfirmed'}}
+  if(!prepared)fail('idle_observer_unavailable','idle subscription was not prepared')
+  if(result?.serviceOwned){prepared.phase='pending_remote';prepared.publicationConfirmed=result.publicationConfirmed===true;save(prepared);return reconcile(prepared)}
+  return finalize(prepared,result)
  },{timeoutMs:(timeoutSec+4)*1000,signal})
+ // Never hold the epoch lock across caller waiting. Independent harnesses can
+ // adopt the same eventual mailbox even if the publisher process disappears.
+ const deadline=startedAt+timeoutSec*1000
+ while(lease.mailbox&&lease.phase!=='received'&&!lease.mailboxConsumed&&Date.now()<deadline&&!signal?.aborted){
+  await new Promise(resolve=>{const timer=setTimeout(done,Math.min(50,Math.max(1,deadline-Date.now())));function done(){clearTimeout(timer);signal?.removeEventListener('abort',done);resolve()}signal?.addEventListener('abort',done,{once:true})})
+  if(!existsSync(lease.mailbox))continue
+  lease=await withLock('native-idle-'+key,()=>{const row=current();if(row?.id!==lease.id)fail('idle_observer_invalid','idle observation ownership changed');return reconcile(row)},{timeoutMs:1000})
+ }
+ return {...summarizeIdleLease(lease,{notBefore,joined}),callerWait:lease.phase==='received'?'completed':signal?.aborted?'cancelled':'timed_out'}
 }

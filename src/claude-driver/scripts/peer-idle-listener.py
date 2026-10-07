@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Private one-shot macOS idle notice receiver; never outputs frame bodies."""
-import ctypes, json, os, signal, socket, struct, sys, time
+import ctypes, json, os, signal, socket, stat, struct, sys, time, uuid
 
 path, expected_pid, expected_uid = sys.argv[1], int(sys.argv[2]), int(sys.argv[3])
 wait_seconds = float(sys.argv[4]) if len(sys.argv) > 4 else 12
-if not 0.1 <= wait_seconds <= 30:
+service = len(sys.argv) == 6 and sys.argv[5] == '--service'
+if not 0.1 <= wait_seconds <= (43200 if service else 30):
     raise RuntimeError('listener_wait_bound_refused')
 libc = ctypes.CDLL(None, use_errno=True)
 def identity(s):
@@ -15,7 +16,7 @@ def identity(s):
     if pid != expected_pid or uid.value != expected_uid:
         raise RuntimeError('peer_identity_refused')
 
-server, owned, result = socket.socket(socket.AF_UNIX), None, {'ok': False, 'nativeSubscriptionCancelled': False, 'releaseAuthorized': False}
+server, owned, receipt_path, result = socket.socket(socket.AF_UNIX), None, None, {'ok': False, 'nativeSubscriptionCancelled': False, 'releaseAuthorized': False}
 def cancelled(*_):
     raise RuntimeError('listener_cancelled')
 signal.signal(signal.SIGTERM, cancelled)
@@ -30,6 +31,14 @@ try:
     config = json.loads(sys.stdin.readline(16384))
     if not isinstance(config, dict) or not isinstance(config.get('lines'), str) or len(config['lines']) > 8192:
         raise RuntimeError('private_control_input_refused')
+    if service:
+        candidate = config.get('receiptPath')
+        if not isinstance(candidate, str) or not os.path.isabs(candidate) or os.path.lexists(candidate):
+            raise RuntimeError('receipt_path_refused')
+        parent = os.lstat(os.path.dirname(candidate))
+        if not stat.S_ISDIR(parent.st_mode) or parent.st_uid != os.getuid() or parent.st_mode & 0o077:
+            raise RuntimeError('receipt_directory_refused')
+        receipt_path = candidate
     with socket.socket(socket.AF_UNIX) as sender:
         sender.settimeout(2)
         sender.connect(config['socket'])
@@ -39,6 +48,15 @@ try:
         time.sleep(0.15)
         sender.shutdown(socket.SHUT_WR)
     result['subscriptionSent'] = True
+    if service:
+        # Parent can disconnect now. Only the private mailbox receives the
+        # eventual result; no terminal output depends on the caller's pipes.
+        try:
+            print(json.dumps({'published': True}), flush=True)
+        except BrokenPipeError:
+            # Harness death after sending private configuration must not
+            # terminate its already-published service subscription.
+            sys.stdout = open(os.devnull, 'w')
     deadline = time.monotonic() + wait_seconds
     while time.monotonic() < deadline:
         server.settimeout(max(0.01, deadline-time.monotonic()))
@@ -89,4 +107,16 @@ finally:
         except FileNotFoundError:
             pass
     result['listenerRemoved'] = not os.path.lexists(path)
-    print(json.dumps(result), flush=True)
+    if service and receipt_path:
+        tmp = receipt_path + '.' + str(uuid.uuid4()) + '.tmp'
+        with open(tmp, 'x') as f:
+            json.dump(result, f)
+            f.flush()
+            os.fsync(f.fileno())
+        # Refuse to replace an existing receipt, even after a late retry.
+        try:
+            os.link(tmp, receipt_path)
+        finally:
+            os.unlink(tmp)
+    elif not service:
+        print(json.dumps(result), flush=True)

@@ -1,4 +1,46 @@
-## Latest frontier — October 7, 05:34 Eastern
+## Latest frontier — October 7, 05:41 Eastern
+
+Goal ACTIVE; previous turn and this turn made concrete observation progress.
+General serving/handoff remains unqualified. Fixed a real lifecycle gap: the
+native idle listener now belongs to the service after durable publication,
+surviving cancellation, wait timeout and publisher process exit. A bounded
+private mailbox preserves the eventual kernel-verified notice for another
+harness. Only one helper/subscription belongs to an epoch at a time; callers
+wait outside its lock, with inexpensive file checks before reconciliation.
+Private authenticated frames remain pipe-only; no key is recorded or printed.
+
+Actual native-idle-service-2026-10-07T09-40-03-014Z.json passed two independent
+MCP clients on sourceb050504c in1166ms. Stronger native-idle-service-
+2026-10-07T09-40-47-165Z.json passed on current source2b8697ed in1170ms:
+CLI publisher returned pending/timed_out and exited0 before receipt; two MCP
+harnesses adopted that SAME observation c1ca72aa-799f-4c82-b4da-d7ae9903f92d,
+verified the native reply and consumed one private mailbox. No model events,
+app/UI action, recovery, settings/auth/permission changes or new chats. Both
+MCP launchers exited0/stderr0. Listener removed, mailbox consumed, helper37750.
+Already-idle timestamp correctly remains stale; fresh completion proof still
+belongs to the earlier09:32:14 sourcecbef2bce, not this changed transport.
+
+Full current-source isolated suite passed unchanged in
+v2-2026-10-07T09-41-00-098Z.json (8336ms). New tests prove cancellation/deadline
+adoption, nonce/linked-mailbox refusal, publisher pipe closure before ACK and
+actual isolated publisher process death before reply. An initial isolated lock
+regression is preserved in native-idle-detached-development-failure-2026-10-07.json
+(original source fingerprint not recorded), then corrected; no native effects.
+Helpers exit after notice or bounded12h wait; unknown publication/dead-helper
+debt still cannot blindly retry. Service helper survival is NOT native broker
+residency, full queue quiescence, request success or release authorization.
+
+Exact broker PID71262/start03:24:51 UTC remains idle/intact on active4af/gen6.
+No current foreground waiter or quiet enrollment; quarantine ON, no STOP.
+All17 historical effects remain unknown/nonretryable and handoff gates unchanged.
+Next work is sustained serving and safe operational fence/indexed handoff, not
+more repetition of already-idle signaling. Native hook diagnostic reads are a
+proven deterministic execution candidate, but generic guarded mutation routing,
+current steering/cancellation under load, rollback and cold recovery are open.
+Fast local30s detection/hourly Claude fallback remain unchanged; no user action
+needed. Keep Codex-driver and1Password work separate.
+
+## Previous frontier — October 7, 05:34 Eastern
 
 Goal ACTIVE; concrete observation progress, general serving/handoff unqualified.
 Public CLI/MCP `broker_idle` now provides a durable service-owned native host

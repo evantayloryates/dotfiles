@@ -3,7 +3,16 @@
 October 7, 2026, 04:57 Eastern. Native diagnostic read proof, not a public transport.
 The broker remains on its existing sealed dependencies and admission hooks.
 
-## Service-owned native idle observation — 05:34 Eastern
+## Service-owned native idle observation — 05:41 Eastern
+
+The observer now detaches its private listener after durable publication and
+records the eventual notice in a private mailbox. Caller cancellation/deadline
+ends only that wait; a different harness can adopt the receipt after the first
+publisher exits. Actual native09:40:47 passed that three-harness lifecycle with
+one observation in1170ms on source2b8697ed, with zero model events. Isolated
+tests also cover pipe closure before ACK and actual publisher process death.
+Native subscription debt remains conservative if the service helper itself
+fails. This does not keep the broker resident or qualify general serving.
 
 Public `broker_idle` now exposes the reviewed native control subscription with
 private authenticated IPC, kernel PID/UID verification and durable per-epoch

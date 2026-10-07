@@ -97,9 +97,14 @@ distinguish an old finish timestamp from a newer host completion.
 Use native request/reply ancestry to prove its actual result. Host idle does not
 prove full queue quiescence, sustained serving or effect settlement, and this
 operation always returns `quiescenceVerified:false` and `releaseAuthorized:false`.
-Cancellation removes the owned listener but cannot cancel the native one-shot
-subscription. Its durable pending record prevents blind repeats until delivery
-or the reviewed native12-hour expiry. No public force-clear is provided.
+After durable publication, the private detached listener belongs to the service
+and survives caller cancellation, timeout or process exit. `callerWait` reports
+`completed`, `cancelled` or `timed_out`; ending a wait does not cancel the native
+subscription. Another harness joins its pending record and adopts the eventual
+private mailbox receipt. The listener exits after delivery or its bounded12-hour
+wait and removes its owned socket. A dead/malformed listener still retains
+uncertain native debt until reviewed expiry; no public force-clear is provided.
+This helper does not keep the native broker resident or recover it.
 
 Check `driver_status.runtimeBuild`, `sourceBuild` and `restartRequired` when
 connecting a long-lived MCP process. Missing sourceBuild/restartRequired in an

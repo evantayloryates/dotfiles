@@ -50,3 +50,29 @@ test('native expiry admits a new subscription, but corrupt or symlinked leases f
   rmSync(file);symlinkSync(join(deps.dir,'missing'),file);await assert.rejects(observeNativeIdle(target,{},deps),e=>e.category==='idle_observer_invalid');assert.equal(calls,2)
  }finally{rmSync(deps.dir,{recursive:true,force:true})}
 })
+test('service mailbox survives caller cancellation or deadline and is adopted without republishing',async()=>{
+ for(const cancel of [true,false]){
+  const deps=scope();let calls=0,mailbox,id,timer
+  deps.exchange=async(_,{onPublishing})=>{calls++;const m=meta();id=m.msgId;mailbox=onPublishing({...m,helperPid:process.pid}).mailbox
+   timer=setTimeout(()=>writeFileSync(mailbox,JSON.stringify({...notice('idle'),ok:true,msgId:id,listenerRemoved:true,writeAttempted:true,subscriptionSent:true})),350)
+   return {serviceOwned:true,publicationConfirmed:true}
+  }
+  const controller=new AbortController(),abort=cancel?setTimeout(()=>controller.abort(),50):null
+  try{
+   const first=await observeNativeIdle(target,{signal:controller.signal,timeoutSec:0.1},deps)
+   assert.equal(first.callerWait,cancel?'cancelled':'timed_out');assert.equal(first.pendingRemoteSubscription,true)
+   const adopted=await observeNativeIdle(target,{timeoutSec:1},deps)
+   assert.equal(adopted.verified,true);assert.equal(adopted.callerWait,'completed');assert.equal(adopted.observationId,first.observationId);assert.equal(adopted.joined,true);assert.equal(calls,1)
+  }finally{clearTimeout(timer);clearTimeout(abort);rmSync(deps.dir,{recursive:true,force:true})}
+ }
+})
+test('durable mailbox receipt requires its nonce and refuses linked evidence',async()=>{
+ const deps=scope();let mailbox,calls=0
+ deps.exchange=async(_,{onPublishing})=>{calls++;mailbox=onPublishing({...meta(),helperPid:process.pid}).mailbox;writeFileSync(mailbox,JSON.stringify({...notice('idle'),ok:true,msgId:randomUUID(),listenerRemoved:true}));return {serviceOwned:true}}
+ try{
+  const result=await observeNativeIdle(target,{timeoutSec:0.1},deps);assert.equal(result.verified,false);assert.equal(result.pendingRemoteSubscription,true)
+  await observeNativeIdle(target,{timeoutSec:0.1},deps);assert.equal(calls,1)
+ }finally{rmSync(deps.dir,{recursive:true,force:true})}
+ const other=scope();other.exchange=async(_,{onPublishing})=>{const path=onPublishing({...meta(),helperPid:process.pid}).mailbox;symlinkSync(join(other.dir,'private'),path);return {serviceOwned:true}}
+ try{await assert.rejects(observeNativeIdle(target,{timeoutSec:0.1},other),e=>e.category==='idle_observer_invalid')}finally{rmSync(other.dir,{recursive:true,force:true})}
+})

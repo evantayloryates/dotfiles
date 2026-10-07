@@ -15,10 +15,11 @@ import {recordMemory} from '../lib/memory.mjs'
 import {deliver} from '../lib/peer.mjs'
 import {randomBytes} from 'node:crypto'
 import {recipientReplyEvidence} from '../lib/qualification.mjs'
-if(process.argv.length!==3||!['--run-owned-native-idle-service','--run-owned-native-turn-idle-service'].includes(process.argv[2]))throw Error('explicit owned native idle service flag required')
+if(process.argv.length!==3||!['--run-owned-native-idle-service','--run-owned-native-turn-idle-service','--run-owned-native-idle-adoption'].includes(process.argv[2]))throw Error('explicit owned native idle service flag required')
 const freshTurn=process.argv[2]==='--run-owned-native-turn-idle-service'
+const adoption=process.argv[2]==='--run-owned-native-idle-adoption'
 const sid='local_35b3ba48-f02e-48de-bfbb-925192d90de1',epoch={sessionId:sid,pid:71262,procStart:'Wed Oct  7 03:24:51 2026'},clients=[]
-const report=join(STATE_DIR,'pressure','native-idle-service-'+new Date().toISOString().replace(/[:.]/g,'-')+'.json'),out={scope:'owned-native-idle-cross-harness-service',freshTurn,epoch,runtimeBuild:RUNTIME_BUILD,ok:false,releaseAuthorized:false}
+const report=join(STATE_DIR,'pressure','native-idle-service-'+new Date().toISOString().replace(/[:.]/g,'-')+'.json'),out={scope:'owned-native-idle-cross-harness-service',freshTurn,adoption,epoch,runtimeBuild:RUNTIME_BUILD,ok:false,releaseAuthorized:false}
 const same=()=>{const i=brokerInfo();return i.sessionId===sid&&i.live?.pid===epoch.pid&&i.live.procStart===epoch.procStart&&i.runtime?.integrity}
 function client(name){
  const child=spawn(process.execPath,[fileURLToPath(new URL('../server.mjs',import.meta.url))],{stdio:['pipe','pipe','pipe']}),rl=createInterface({input:child.stdout}),pending=new Map();let id=0,stderrBytes=0
@@ -35,6 +36,14 @@ try{
  const a=client('claude-driver-native-idle-a'),b=client('claude-driver-native-idle-b');await Promise.all([a.ready,b.ready])
  const schema=(await a.request('tools/list',{})).tools.find(t=>t.name==='broker_idle');assert.equal(schema.annotations.readOnlyHint,true);assert.equal(schema.inputSchema.properties.session,undefined)
  out.startedAt=Date.now();let pulse,marker
+ if(adoption){
+  const publisher=spawn(process.execPath,[fileURLToPath(new URL('../cli.mjs',import.meta.url)),'broker_idle','--timeout_sec','0.1','--cache_ms','0','--not_before',String(out.startedAt)],{stdio:['ignore','pipe','pipe']})
+  let stdout='',stderrBytes=0;publisher.stdout.on('data',x=>{stdout+=x;if(stdout.length>16384)publisher.kill('SIGTERM')});publisher.stderr.on('data',x=>stderrBytes+=x.length)
+  const exitCode=await new Promise(resolve=>{const timer=setTimeout(()=>publisher.kill('SIGTERM'),5000);publisher.once('close',code=>{clearTimeout(timer);resolve(code)})})
+  assert.equal(exitCode,0);assert.equal(stderrBytes,0);out.departedPublisher=JSON.parse(stdout)
+  assert.equal(out.departedPublisher.callerWait,'timed_out');assert.equal(out.departedPublisher.pendingRemoteSubscription,true)
+  out.publisherExitVerified=true
+ }
  if(freshTurn){
   const i=brokerInfo();assert.equal(i.live.status,'idle');marker=randomBytes(16).toString('hex')
   pulse=await deliver(i,'claude-driver owned idle-signal qualification '+marker+'. Complete this diagnostic turn with exactly '+marker+'. No tools, requests, waiter, maintenance, recovery or settings changes.',{method:'direct',priority:'now',timeoutMs:5000})
@@ -42,6 +51,7 @@ try{
  }
  const replies=await Promise.all([a.call({not_before:out.startedAt,cache_ms:0,timeout_sec:freshTurn?5:3}),b.call({not_before:out.startedAt,cache_ms:0,timeout_sec:freshTurn?5:3})]);assert.ok(replies.every(r=>!r.isError))
  out.initial=replies.map(r=>r.structuredContent);assert.equal(out.initial[0].observationId,out.initial[1].observationId)
+ if(adoption)assert.ok(out.initial.every(r=>r.observationId===out.departedPublisher.observationId&&r.joined))
  const final=await Promise.all([a.call({not_before:out.startedAt,cache_ms:3000}),b.call({not_before:out.startedAt,cache_ms:3000})]);assert.ok(final.every(r=>!r.isError));out.final=final.map(r=>r.structuredContent)
  assert.ok(out.final.every(r=>r.verified&&r.observedIdle&&r.observationId===out.initial[0].observationId&&r.joined&&r.freshTurnCompletion===freshTurn&&r.releaseAuthorized===false&&r.quiescenceVerified===false))
  out.elapsedMs=Date.now()-out.startedAt;out.afterSameEpoch=same();assert.ok(out.afterSameEpoch)
