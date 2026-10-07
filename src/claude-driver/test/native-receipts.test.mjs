@@ -102,6 +102,16 @@ test('owned rescue consumption suspends initial refusal; exact native feedback t
  c.watchRescue(marker,epoch);assert.equal(c.wakeStatus(marker.msgId).terminalWithoutTools,true,'repeated metadata must not erase the continued terminal')
  assert.equal(c.receipt(),null)
 })
+test('compact feedback binds only its consumed version; legacy feedback remains independently readable',()=>{
+ for(const version of [1,2]){
+  const {c,epoch,marker,feedback,req}=rescueFixture();marker.feedbackVersion=version;c.watchRescue(marker,epoch)
+  c.feed({...feedback,uuid:'wrong-version',message:{content:'Stop hook feedback:\n'+requestRescueReason(req.id,version===1?2:1)}})
+  assert.equal(c.wakeStatus(marker.msgId).rescueLanded,false)
+  feedback.message.content='Stop hook feedback:\n'+requestRescueReason(req.id,version);c.feed(feedback)
+  assert.equal(c.wakeStatus(marker.msgId).rescueLanded,true);assert.equal(c.receipt(),null)
+ }
+ const {c,epoch,marker}=rescueFixture();marker.feedbackVersion=3;c.watchRescue(marker,epoch);assert.equal(c.wakeStatus(marker.msgId).rescueConsumed,false)
+})
 test('rescue tools join the wake chain but still require checkpoints and exact native output',()=>{
  const {c,req,epoch,marker,feedback}=rescueFixture();c.watchRescue(marker,epoch);c.feed(feedback)
  const s=structuredClone(sequence);s[0].message.content[0].input.command=`node broker-check.mjs ${req.id} 0 --dir /state`

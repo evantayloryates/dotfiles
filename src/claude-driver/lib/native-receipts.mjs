@@ -19,7 +19,8 @@ export class NativeReceipts {
     const w=marker?.msgId&&this.wakes.get(marker.msgId)
     const createdAt=Date.parse(this.request.createdAt),expiresAt=this.request.expiresAt
     if(!w||!/^r[A-Za-z0-9_-]{1,99}$/.test(this.request.id)||!Number.isInteger(epoch?.pid)||epoch.pid<=0||typeof epoch.procStart!=='string'||!epoch.procStart.trim()||!Number.isFinite(createdAt)||!Number.isFinite(expiresAt)||expiresAt<=createdAt||marker.schemaVersion!==1||marker.requestId!==this.request.id||marker.attempts!==1||marker.pid!==epoch.pid||marker.procStart!==epoch.procStart||!Number.isFinite(marker.at)||marker.at<createdAt||marker.at>=expiresAt||marker.at>Date.now()||w.rescueConsumed)return
-    w.rescueConsumed=true;w.rescueAt=marker.at;w.terminalWithoutTools=false
+    if(![1,2].includes(marker.feedbackVersion??1))return
+    w.rescueConsumed=true;w.rescueAt=marker.at;w.feedbackVersion=marker.feedbackVersion??1;w.terminalWithoutTools=false
   }
   wakeStatus(msgId){const w=this.wakes.get(msgId);return w?{landed:w.landed,toolCalls:w.toolCalls,terminalWithoutTools:w.terminalWithoutTools,nativeUserUuid:w.nativeUserUuid,nativeTerminalUuid:w.nativeTerminalUuid,rescueConsumed:!!w.rescueConsumed,rescueLanded:!!w.rescueLanded,terminalPhase:w.terminalPhase}:null}
   observeWake(row){
@@ -33,7 +34,7 @@ export class NativeReceipts {
         // Native Stop feedback is a new user record, but only this exact fixed
         // service continuation, backed by exclusive per-ID/peer/epoch metadata,
         // belongs to our original causal branch. Human/other peer turns do not.
-        if(!w.rescueConsumed||w.rescueLanded||row.isMeta!==true||row.origin?.kind==='peer'||typeof row.message?.content!=='string'||row.message.content!=='Stop hook feedback:\n'+requestRescueReason(this.request.id)||!Number.isFinite(Date.parse(row.timestamp))||Date.parse(row.timestamp)<w.rescueAt||Date.parse(row.timestamp)>Date.now())continue
+        if(!w.rescueConsumed||w.rescueLanded||row.isMeta!==true||row.origin?.kind==='peer'||typeof row.message?.content!=='string'||row.message.content!=='Stop hook feedback:\n'+requestRescueReason(this.request.id,w.feedbackVersion)||!Number.isFinite(Date.parse(row.timestamp))||Date.parse(row.timestamp)<w.rescueAt||Date.parse(row.timestamp)>Date.now())continue
         w.rescueLanded=true;w.terminalWithoutTools=false
       }
       if(w.chain.size>=1024){w.terminalWithoutTools=false;continue}

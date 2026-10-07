@@ -1,4 +1,79 @@
-## Latest frontier — October 7, 03:22 Eastern
+## Latest frontier — October 7, 03:33 Eastern
+
+Goal ACTIVE: compact native continuation now has repeatable read evidence, but
+NOT general-use ready. Preserve input quarantine, current native process/model/
+permissions, observer ownership and historical uncertainty. No new chats,
+keyboard/CUA, app restart, blind replay or competing offline recovery.
+
+Same broker local_35b3ba48-f02e-48de-bfbb-925192d90de1/PID71262/start
+Wed Oct7 03:24:51 2026 UTC is independently idle with integrity true and no
+handoff STOP after testing. Active dependencies4af08654/bootstrapeb5cb750/gen6
+remain unchanged; quiet waiting remains OFF and no actual waiting helper is
+claimed. Current host and installed hook package:
+954ccca6042f8afff01da2587080a0cceb6d3c8f5bc85901e3ef183c527541ac.
+Handler6d10c509e82c44a36eef0d54988e112263664e89a5021b5097f9fb98c03decb2;
+settingsf1f133b3e74d0a843bb22aeeb9f1460e5b6a956a5a04e3d13a22ae364555ac1c.
+Installed feedbackVersion2 is an explicit service-local candidate. Version1 is
+still the default for new installs; no global mode/model/auth change occurred.
+
+New execution experiment:
+- Fixed compact feedback names the pending ID, asks for Read ./CLAUDE.md as
+  its next action, then the documented maintenance/tool/wait/check sequence.
+  It is under half the previous directive's length and carries no operation
+  arguments. Exact per-ID/peer/epoch consumption records bind feedbackVersion;
+  collectors accept only the fixed text of that consumed version. Unknown
+  versions refuse. Compact and optional quiet waiting cannot be combined yet.
+- native-compact-read-sequence-2026-10-07T07-26-04-397Z.json: two reads passed
+ 12.879s/11.057s on loaded/installed52702ce0. Independent journal replay proved
+  BOTH compact continuations landed and then used tools. Later independent
+  receipt/admission inspection verified success, exact gate tool IDs and gen6.
+  Host audit code was added later; do not conflate that later source with527.
+- Native follow-on07-28-11-461Z FAILED: first read12.905s passed; second
+  rmuxsd9rd-e01269 exceeded its30s deadline. Unlike earlier no-tools failures,
+  compact continuation DID execute CronList/ToolSearch/wait. Native automatic
+  context compaction crossed the deadline, resetting parent UUID ancestry.
+  Checkpoint returned dispatch:false/cancelled at07:29:19.812Z; a later native
+  get_session attempt was denied by actual PreToolUse at07:29:20.046Z. No
+  admission marker or correlated success receipt exists for that request.
+  Preserve native-compact-follow-on-failure-forensics-2026-10-07.json and
+  native-compact-expiry-gate-proof-2026-10-07.json. Do not call it recovered
+  serving or weaken expiry because the model continued. Compaction was native,
+  not an agent-requested context reset. Broker returned idle without intervention.
+- Post-compaction standard90s-budget sequence07-31-22-114Z PASSED three reads
+ 12.377s/10.753s/10.852s on unchanged954ccca6. This is stronger sequential read
+  evidence, not a latency guarantee. Every op.ok, native receipt and exact gate
+  ID/gen6 independently verified in native-compact-post-compaction-independent-
+ 2026-10-07.json. The probe now requires operation success, not just transport
+  receipt existence, and records its actual deadline. Original short-deadline
+  failure remains failed. No second wakes, new chats, model changes or recovery.
+
+Final full isolated suite passed on unchanged954ccca6 in
+v2-2026-10-07T07-31-03-240Z.json. Tests cover actual concurrent command-hook
+single consumption, compact/legacy version binding, arbitrary-version refusal,
+policy enrollment/quiet incompatibility and historical evidence bounds.
+
+New read-only historical audit scans a COMPLETE fixed range of the exact owned
+journal, not a tail sample:5992307bytes/4334records for15 uncertain requests in
+native-historical-effect-complete-range-2026-10-07.json. It hashes the range,
+checks inode/owner/cursor/line/total bounds and emits tool IDs/results metadata
+only. All matching tool calls in that range have results; zero exact matching
+send invocations. Identical archive/pin calls can belong to another request.
+Neither matching results nor absence proves original causality or absence of
+queued future effects. All15 requests remain outcome_unknown/retrySafe:false;
+release handoff is still refused. The auditor does not write receipts/control.
+
+Next: expand compact candidate beyond reads to current-source controlled
+mutation/cancellation, native concurrency and sustained steering qualification.
+Resolve dependency-upgrade quiescence with an actual owned STOP barrier and
+mechanically validated historical disposition that preserves causal unknowns;
+never bypass the existing gate on desired-state readback alone. Quiet/compact
+combination, distinct-build rollback, natural governor pressure, unattended cold
+recovery and fully event-triggered inference remain open. Keep detector30s/
+zero-inference and hourly observer fallback; Codex inbox ticks still infer.
+Report scanner still only lists unchanged legacy021323/021456/023210; preserve
+pending blockers. No user input is needed at this checkpoint.
+
+## Previous frontier — October 7, 03:22 Eastern
 
 Goal ACTIVE: working core interface, reliability hardening, NOT general-use
 ready. Preserve keyboard/paste quarantine, native PID, permissions/model and

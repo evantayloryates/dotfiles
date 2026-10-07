@@ -1,5 +1,31 @@
 # claude-driver findings
 
+## 2026-10-07 03:33 Eastern — compact continuation executes; native compaction exercises expiry
+
+An explicitly enrolled fixed feedbackVersion2 makes the next tool action concrete
+and is under half the old directive length. Exact consumption/version/peer/epoch
+metadata binds its fixed native feedback. New installs still default toversion1;
+compact plus quiet waiting is refused pending separate qualification.
+
+Two consecutive native reads passed12.879s/11.057s; independent journal replay
+confirmed both compact continuations then executed tools. A follow-on first
+read passed12.905s, but the next request crossed its30s deadline during native
+automatic compaction. Its helper returned dispatch:false/cancelled; actual native
+PreToolUse denied the model's later get_session attempt. This failed pressure
+case is preserved, not reported as no-tools behavior or successful serving.
+
+After compaction, three consecutive reads passed12.377s/10.753s/10.852s on
+unchanged current source with the normal90s service budget. Each successful
+operation, native receipt and exact gate tool ID was independently verified.
+This qualifies a small native read sequence, not general controls or residency.
+See resume.md for exact reports and distinct host/hook/dependency identities.
+
+A complete fixed journal-range audit covers15 historical unknown effects,
+hashes the range and reports matching native tool IDs without raw content.
+No matched calls lack results in that range, but repeated identical operations
+remain ambiguous and zero send matches does not rule out queued future effects.
+No old receipts/control state or handoff gates were changed.
+
 ## 2026-10-07 03:22 Eastern — native admission improves; execution still fails
 
 Real waiter/epoch proof now replaces native working/rearming heartbeat readiness.

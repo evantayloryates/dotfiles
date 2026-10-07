@@ -39,8 +39,11 @@ runs only for the exact reviewed receiver framing, same native ancestry/epoch,
 unexpired pending undispatched work and no STOP; it consumes its attempt before
 feedback. It never copies request arguments or model text into instructions.
 Changed settings/handler policy refuses effects. Cancellation or missing native
-receipts still requires reconciliation. A one-request native proof does not
-qualify sustained residency or full controls. Use a fresh current CLI/MCP;
+receipts still requires reconciliation. An explicitly enrolled compact feedbackVersion2 uses shorter, fixed tool-first
+instructions. Its exact consumed version must match native feedback; unknown
+versions refuse. New installs default toversion1, and compact plus quiet
+waiting is currently refused. Three post-compaction reads passed, but this does
+not qualify sustained residency or full controls. Use a fresh current CLI/MCP;
 legacy connected servers do not acquire this behavior from source edits.
 
 Never interpret `dispatched:false` as proof that no native effect occurred: that

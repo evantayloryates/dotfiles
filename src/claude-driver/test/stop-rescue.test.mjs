@@ -11,6 +11,15 @@ const sid='00000000-0000-4000-8000-000000000001',msg='00000000-0000-4000-8000-00
 test('rescue identity and budget are scoped to one request without copying operation data',()=>{
  const a=requestRescueReason('rone'),b=requestRescueReason('rtwo');assert.notEqual(a,b);assert.ok(a.includes('PER REQUEST ID'));assert.ok(a.includes('No second rescue is permitted for request rone'));assert.ok(a.includes('Later independently admitted request IDs'));for(const id of ['../escape','r injection\n','other','',null])assert.throws(()=>requestRescueReason(id))
 })
+test('compact continuation has a fixed tool-first action and cannot admit arbitrary versions',()=>{
+ const compact=requestRescueReason('rone',2)
+ assert.ok(compact.includes('Your next action is Read ./CLAUDE.md.'))
+ assert.ok(compact.length<requestRescueReason('rone').length/2)
+ assert.ok(compact.includes('No second continuation for rone.'))
+ for(const version of [0,3,'2',null])assert.throws(()=>requestRescueReason('rone',version))
+ const x=fixture();x.arm.feedbackVersion=2;assert.equal(eligibleRescue(x),true)
+ for(const version of [0,3,'2',null]){x.arm.feedbackVersion=version;assert.equal(eligibleRescue(x),version===null)}
+})
 test('entry adaptation redirects cached and historical paths without permitting shell syntax or background waits',()=>{
  const stateDir='/private/state',brokerDir=stateDir+'/broker',old='a'.repeat(64),current='b'.repeat(64),activeRoot=stateDir+'/releases/'+current,cachedRoots=['/private/source'],config={stateDir,brokerDir,activeRoot,cachedRoots}
  const wait=`/opt/homebrew/bin/node ${stateDir}/releases/${old}/scripts/broker-wait.mjs --dir "${brokerDir}"`,check=`/opt/homebrew/bin/node /private/source/scripts/broker-check.mjs rtest 0 --dir "${brokerDir}"`
@@ -41,13 +50,13 @@ test('malformed arm identity and path fields refuse',()=>{for(const mutate of [x
 test('real command entry consumes exactly one concurrent rescue and fails silent when disarmed',async()=>{
  const home=mkdtempSync(join(tmpdir(),'claude-hook-private-')),dir=join(home,'broker'),x=fixture(),epoch=execFileSync('/bin/ps',['-p',String(process.pid),'-o','lstart='],{encoding:'utf8',env:{PATH:'/usr/bin:/bin',LC_ALL:'C',TZ:'UTC'}}).trim()
  try{
-  x.arm={...x.arm,pid:process.pid,procStart:epoch,brokerDir:dir,expiresAt:Date.now()+30000};x.input.cwd=dir;x.request.expiresAt=x.arm.expiresAt;x.peer={...x.peer,pid:process.pid,procStart:epoch,cwd:dir}
+  x.arm={...x.arm,feedbackVersion:2,pid:process.pid,procStart:epoch,brokerDir:dir,expiresAt:Date.now()+30000};x.input.cwd=dir;x.request.expiresAt=x.arm.expiresAt;x.peer={...x.peer,pid:process.pid,procStart:epoch,cwd:dir}
   for(const d of [dir,join(dir,'requests'),join(dir,'controls'),join(home,'.claude','sessions'),join(home,'.claude','projects',dir.replace(/[^A-Za-z0-9]/g,'-'))])mkdirSync(d,{recursive:true})
   const save=(p,v)=>writeFileSync(p,JSON.stringify(v),{mode:0o600})
   save(join(dir,'stop-rescue-arm.json'),x.arm);save(join(dir,'requests','rtest.json'),x.request);save(join(dir,'controls','rtest.json'),x.control);save(join(home,'.claude','sessions',process.pid+'.json'),x.peer)
   writeFileSync(join(home,'.claude','projects',dir.replace(/[^A-Za-z0-9]/g,'-'),sid+'.jsonl'),JSON.stringify({type:'user',origin:x.latest.origin,message:{content:x.latest.content}})+'\n')
   const run=()=>new Promise((done,fail)=>{const c=spawn(process.execPath,[fileURLToPath(new URL('../scripts/broker-stop-rescue.mjs',import.meta.url)),dir],{env:{PATH:'/usr/bin:/bin',HOME:home},stdio:['pipe','pipe','pipe']});let out='',err='';c.stdout.on('data',b=>out+=b);c.stderr.on('data',b=>err+=b);c.on('error',fail);c.on('close',code=>done({code,out,err}));c.stdin.end(JSON.stringify({...x.input,last_assistant_message:'private text must never be echoed'}))})
-  const rows=await Promise.all([run(),run(),run()]);assert.equal(rows.filter(r=>r.out).length,1);for(const r of rows){assert.equal(r.code,0);assert.equal(r.err,'');assert.ok(!r.out.includes('private text'))}assert.equal(JSON.parse(rows.find(r=>r.out).out).decision,'block');assert.equal(JSON.parse(readFileSync(join(dir,'stop-rescue-rtest.json'),'utf8')).attempts,1)
+  const rows=await Promise.all([run(),run(),run()]);assert.equal(rows.filter(r=>r.out).length,1);for(const r of rows){assert.equal(r.code,0);assert.equal(r.err,'');assert.ok(!r.out.includes('private text'))}assert.equal(JSON.parse(rows.find(r=>r.out).out).decision,'block');assert.equal(JSON.parse(rows.find(r=>r.out).out).reason,requestRescueReason('rtest',2));const consumed=JSON.parse(readFileSync(join(dir,'stop-rescue-rtest.json'),'utf8'));assert.equal(consumed.attempts,1);assert.equal(consumed.feedbackVersion,2)
   rmSync(join(dir,'stop-rescue-arm.json'));assert.equal((await run()).out,'')
  }finally{rmSync(home,{recursive:true,force:true})}
 })

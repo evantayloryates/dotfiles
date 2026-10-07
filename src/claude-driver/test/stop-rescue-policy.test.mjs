@@ -20,5 +20,10 @@ test('opt-in immutable hook policy arms only exact UUID/request epoch and preser
  const enrolled=JSON.parse(readFileSync(config,'utf8'));assert.equal(enrolled.hooks.Stop[0].hooks[0].timeout,65);assert.equal(enrolled.hooks.PreToolUse[0].hooks[0].timeout,5)
  assert.equal((await installStopRescue({...identity,upgrade:true})).quietWait.maxMs,60000)
  const disabled=await installStopRescue({...identity,upgrade:true,quietWaitMs:0});assert.equal(disabled.quietWait,undefined);assert.equal(JSON.parse(readFileSync(config,'utf8')).hooks.Stop[0].hooks[0].timeout,5)
+ for(const feedbackVersion of [0,3,'2',null]){if(feedbackVersion===null)continue;await assert.rejects(()=>installStopRescue({...identity,upgrade:true,feedbackVersion}),e=>e.category==='broker_stop_rescue_refused')}
+ const compact=await installStopRescue({...identity,upgrade:true,feedbackVersion:2});assert.equal(compact.feedbackVersion,2)
+ armStopRescue(compact,request,wake);assert.equal(JSON.parse(readFileSync(join(dir,'stop-rescue-arm.json'))).feedbackVersion,2);disarmStopRescue(request.id)
+ await assert.rejects(()=>installStopRescue({...identity,upgrade:true,quietWaitMs:1000}),e=>e.category==='broker_stop_rescue_refused')
+ const reverted=await installStopRescue({...identity,upgrade:true,feedbackVersion:1});assert.equal(reverted.feedbackVersion,1)
  writeFileSync(config,original+' ');assert.throws(()=>stopRescuePolicy(),e=>e.category==='broker_stop_rescue_refused');assert.throws(()=>armStopRescue(policy,request,wake),e=>e.detail.dispatched===false&&e.detail.retrySafe===true);assert.equal(readFileSync(config,'utf8'),original+' ')
 })
