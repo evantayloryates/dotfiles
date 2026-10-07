@@ -1,3 +1,14 @@
+## Blocked audit — distinct diagnostic outcome absent
+
+Three consecutive goal continuations checked the exact v0.3.0 report through
+native-mod-diagnostic-review.mjs; all returned pending:false. These turns are
+NO PROGRESS, not verified waits: no active diagnostic execution handle is known.
+The pending human slash-command request in claude-driver-broker remains the
+next native step. No original probe replay, duplicate wake or new command send
+was attempted. Mark goal blocked until actual invocation/registration failure
+or a new exact report arrives. All preparation/tests are checkpointed; bridge
+release, actual permission gate and scoped unload remain unqualified.
+
 ## Diagnostic report screen ready — October 7
 
 Previous turn was progress (distinct candidate installed). Current turn adds
