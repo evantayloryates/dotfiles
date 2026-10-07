@@ -1,3 +1,24 @@
+## Latest frontier — native slash command executed October 7, 10:37 Eastern
+
+Taylor approved hot reload and invoked the registered command once. Owned native
+journal records session-local dev-mod consent, human command ancestry and a
+local_command result at 14:37:06.863Z, CLI 2.1.289, expected broker cwd/UUID.
+No assistant record exists in that execution interval. Screening binds report
+SHA256 790b4c221d0c82e196d58978160c58083fbf201a09286d4c36470acb877194ca;
+report/intent consistency, copied hashes, original runtime/settings/source and
+same metadata epoch pass. Kernel PID 71262 remains the original October 6
+23:24:51 Eastern process. Native command registration/execution is demonstrated.
+
+MCP call threw in 2ms; nativeCallReturned:false. Its exception is deliberately
+suppressed, and there is no original gate-denial witness in the command journal.
+Do NOT infer PreToolUse coverage: adapter source also rejects missing/unbound
+MCP tools before permission evaluation. Permission-gate qualification and scoped
+unload remain open. Report stays pending with this durable blocker; preserve
+intent and never repeat this probe ID. No live code/settings/process changes.
+Next autonomous work: locate bounded original adapter/denial evidence, or prepare
+a distinct diagnostic with fixed sanitized failure categories before a new
+explicit attempt. Taylor need not send anything again while this is investigated.
+
 ## Latest frontier — copied probe, registration investigation
 
 Taylor completed installation in the owned broker. Three installed probe files
