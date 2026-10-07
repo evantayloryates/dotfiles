@@ -86,7 +86,7 @@ failure guard passed in 3.35 s; the previously outstanding owned fixture is now 
 
 A sealed local LaunchAgent senses the exact broker every 30 seconds without
 inference, input, recovery or private transcript/key reads. Changed metadata
-publishes sanitized atomic reports into `/Users/taylor/Desktop/temp_reports`;
+publishes sanitized atomic reports into `/Users/taylor/src/github/dotfiles/src/claude-driver/.runtime/reports`;
 unchanged ticks are silent. It detected the actual unserved cleanup request.
 The Codex inbox watcher checks every 30 seconds; its scheduled runs still use
 Codex inference. The Claude observer's verified hourly job is fallback recovery,
@@ -110,7 +110,7 @@ quarantined. Codex-driver fixes and 1Password work remain separate.
 `~/.config/opencode/opencode.json`, backing up each file it changes to
 `<file>.bak-claude-driver`.
 
-State lives in `~/.local/state/claude-driver/` (`CLAUDE_DRIVER_STATE_DIR`):
+State lives in `src/claude-driver/.runtime/state/` (`CLAUDE_DRIVER_STATE_DIR` override); the existing native epoch retains a legacy compatibility symlink:
 `ledger.jsonl` (one row per write op: harness from MCP `clientInfo`, tier,
 versions, ms, outcome, verified), `registry.json` (sessions and folders the
 driver created, the delete queue), `capabilities.json` (probe results per
@@ -371,3 +371,5 @@ reports. Current native environment is Claude desktop 2.19675.0 / bundled CLI
 2.1.286; comprehensive live qualification remains unfinished.
 See [v2 qualification](docs/v2-qualification.md) for evidence and outstanding
 checks, including refreshing this chat's still-legacy MCP connection.
+
+Current staging status and outstanding implementation: [docs/staging-status.md](docs/staging-status.md).

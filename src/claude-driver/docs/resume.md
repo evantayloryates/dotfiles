@@ -1,3 +1,15 @@
+## Collocated staging checkpoint — October 7
+
+See staging-status.md for exact storage migration, debug retirement, built-in
+health diagnostics and outstanding implementation/release gates. All driver-owned
+data physically moved under src/claude-driver/.runtime; legacy state symlink
+preserves sealed native identity. Desktop reports moved/hash verified, launchd
+debug detector retired, five fixed debug module directories archived/hash verified.
+General unload not claimed. Shared service_health and failure diagnostics retain
+32 metadata-only snapshots. Broker PID71262 alive/integrity true, serving unverified;
+quota operator-reported exhausted. Watcher destination updated. Full pressure
+17-47-23 passes1/1; no inference/restart/permission change. Staged, not released.
+
 ## Host expiry before native delivery — October 7
 
 Source audit found request expiry can pass while claim/revalidation awaits. Added

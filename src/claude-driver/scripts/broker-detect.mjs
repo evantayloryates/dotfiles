@@ -5,7 +5,7 @@ import {BROKER_DIR,STATE_DIR,readJson,withLock,writeJsonAtomic} from '../lib/sta
 import {findRecordFile} from '../lib/sessions.mjs'
 import {PEER_SESSIONS_DIR,sleep} from '../lib/paths.mjs'
 import {RUNTIME_BUILD} from '../lib/build.mjs'
-const stateFile=join(STATE_DIR,'detector-v1.json'),reportDir='/Users/taylor/Desktop/temp_reports'
+const stateFile=join(STATE_DIR,'detector-v1.json'),reportDir='/Users/taylor/src/github/dotfiles/src/claude-driver/.runtime/reports'
 await withLock('broker-detector',async()=>{
  const prior=readJson(stateFile,null)
  const observe=()=>{const session=readJson(join(BROKER_DIR,'broker.json'),null)?.sessionId;return sampleBroker({brokerDir:BROKER_DIR,recordFile:session&&findRecordFile(session),peerDir:PEER_SESSIONS_DIR})}

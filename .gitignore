@@ -42,3 +42,6 @@ src/python/cerebras/**/*.jsonl
 
 # speak: compiled binary (rebuilt on demand by bin/speak)
 src/speak/.build/
+
+# Claude-driver private runtime, logs and diagnostic evidence
+/src/claude-driver/.runtime/

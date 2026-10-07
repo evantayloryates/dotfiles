@@ -947,6 +947,12 @@ export const OPS = [
     },
   },
   {
+    name:'service_health', title:'Service health diagnostics', readOnly:true,
+    description:'Observe broker liveness, runtime integrity and serving evidence without inference; persist bounded metadata-only diagnostic history. Never authorizes dispatch.',
+    schema:{properties:{}},
+    run:async()=>{const {captureServiceDiagnostics}=await import('./service-diagnostics.mjs');return captureServiceDiagnostics()},
+  },
+  {
     name: 'broker_status',
     title: 'Broker status / revive',
     description: 'Show the broker session\'s state; revive:true brings its process back (focus warm-spawn, then Tier C typing a wake line) when the app reaped it (30 min idle, app restart, mode change).',
@@ -1081,6 +1087,7 @@ export async function runOp(name, args = {}, { harness = 'cli', progress = () =>
     if (ctx.notes.length && out && typeof out === 'object' && !Array.isArray(out)) out.notes = ctx.notes
     return out
   } catch (err) {
+    try{const {captureServiceDiagnostics}=await import('./service-diagnostics.mjs');captureServiceDiagnostics({trigger:'operation-failure'})}catch{} // Never replace the original operation failure.
     appendJsonl(LEDGER, { ...row, tier: ctx.tier, ms: Date.now() - t0, outcome: 'error', error: String(err.message).slice(0, 500), errorCategory: err.category || 'internal', notes: ctx.notes })
     operationMemory({ ...row, outcome: 'error', errorCategory: err.category || 'internal', ms: Date.now() - t0 })
     throw err

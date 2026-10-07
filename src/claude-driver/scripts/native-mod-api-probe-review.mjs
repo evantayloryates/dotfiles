@@ -6,7 +6,7 @@ import {resolve} from 'node:path'
 import {scanReports} from '../lib/report-inbox.mjs'
 import {MOD_PROBE,readProbeBytes,probePathPresence,screenProbeReport,screenProbeState} from '../lib/native-mod-api-probe-evidence.mjs'
 import {STATE_DIR,readJson} from '../lib/state.mjs'
-const directory='/Users/taylor/Desktop/temp_reports'
+const directory='/Users/taylor/src/github/dotfiles/src/claude-driver/.runtime/reports'
 // Locate this exact experiment even when older unresolved reports fill the
 // generic inbox's first32 window. Preserve all of their pending/ack state.
 const scanned=scanReports(directory).find(x=>x.name===MOD_PROBE.reportName)

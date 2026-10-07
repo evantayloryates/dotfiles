@@ -14,12 +14,13 @@ import { join } from 'node:path'
 import { sleep } from './paths.mjs'
 import {acquireKernelLock} from './kernel-lock.mjs'
 
-export const STATE_DIR = process.env.CLAUDE_DRIVER_STATE_DIR || join(homedir(), '.local', 'state', 'claude-driver')
+export const STATE_DIR = process.env.CLAUDE_DRIVER_STATE_DIR || '/Users/taylor/src/github/dotfiles/src/claude-driver/.runtime/state'
 export const LEDGER = join(STATE_DIR, 'ledger.jsonl')
 export const REGISTRY = join(STATE_DIR, 'registry.json')
 export const CAPABILITIES = join(STATE_DIR, 'capabilities.json')
 export const PENDING_LEARNINGS = join(STATE_DIR, 'pending-learnings.jsonl')
-export const BROKER_DIR = join(STATE_DIR, 'broker')
+// Preserve the consented native epoch's logical cwd through the migration link.
+export const BROKER_DIR = process.env.CLAUDE_DRIVER_STATE_DIR ? join(STATE_DIR, 'broker') : join(homedir(), '.local', 'state', 'claude-driver', 'broker')
 export const PROBE_DIR = join(STATE_DIR, 'probe')
 export const LOCK_DIR = join(STATE_DIR, 'locks')
 
