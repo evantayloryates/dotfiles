@@ -1,3 +1,20 @@
+## Live resource retirement observed — October 7, 13:09 Eastern
+
+Guarded resource variant e6fdb34229f9c5524d83df2d77e6720a enrolled in the
+unchanged exact owned epoch, native readiness and own command marker observed.
+Independent /bin/ps recorded child PID80283, PPID and start timestamp alive;
+identity remained equal immediately before retirement. Native exact-owner guarded
+retirement at17:09:30.681Z moved files; child recorded SIGTERM143 exit at
+17:09:31.477Z, before self-deadline17:10:00.510Z. Independent PID observation then
+absent; final status retired:true, installed:false, zero unresolved requests.
+No external termination, restart, inference, read/control replay or human action.
+Private metadata report native-resource-trial-1791392910421.json plus shared
+service memory retain observations. Full resourceDisposalQualified remains false:
+trial has PID/PPID/start observation but lacks independent exact argv/native ancestry
+binding and automated final chronology qualification. General hook/environment
+unload also remains false. Next strengthen reusable process observer/reviewer,
+then review retained evidence where sufficient rather than blindly rerunning.
+
 ## Guarded resource enrollment and screening — October 7, 13:07 Eastern
 
 Public broker_service_enroll resource_probe:true maps to guarded enrollment;
