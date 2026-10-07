@@ -1,6 +1,7 @@
 // Candidate only. Public native calls remain top-level for the native validator.
 // CONFIG is supplied as immutable generated source, never by peer input.
 const attempted=new Set()
+let active=false
 export function register(on){on('session.receive',receiveServiceRead);on('session.start',recordServiceReady)}
 async function recordServiceReady($,event,next){
  try{
@@ -24,6 +25,10 @@ async function receiveServiceRead($,event,next){
  if(attempted.has(requestId))return {consumed:'service-read-already-attempted'}
  if(attempted.size>=CONFIG.maxRequests)return {consumed:'service-read-capacity'}
  attempted.add(requestId) // reserve before any await, including failed ownership
+ // The sealed runtime has a shared dispatch checkpoint. Distinct concurrent
+ // callbacks must not replace it while another native read is in flight.
+ if(active)return {consumed:'service-read-busy'}
+ active=true
  try{
   const session=await $.session.id(),cwd=await $.session.cwd(),now=await $.clock.now()
   if((session!==CONFIG.brokerSession&&session!==CONFIG.brokerSession.slice(6))||cwd!==CONFIG.brokerCwd||!Number.isFinite(now)||now<CONFIG.notBefore||now>CONFIG.deadline)return {consumed:'service-read-refused'}
@@ -45,5 +50,5 @@ async function receiveServiceRead($,event,next){
   if(receipt.length>65536||await $.fs.exists(response))return {consumed:'service-read-result-unresolved'}
   await $.fs.write(response,receipt)
   return {consumed:'service-read-result-captured'}
- }catch{return {consumed:'service-read-unresolved'}}
+ }catch{return {consumed:'service-read-unresolved'}}finally{active=false}
 }

@@ -44,3 +44,22 @@ test('cancelled, expired, wrong operation or malformed checkpoint never requests
 test('service generation refuses unbounded life, capacity or injected configuration',()=>{
  for(const change of [{maxRequests:129},{deadline:3601001},{brokerCwd:'/tmp/other'},{extra:true},{build:'$(unsafe)'}])assert.throws(()=>buildNativePeerServicePackage({...config,...change}))
 })
+
+test('different concurrent requests cannot overwrite an in-flight shared checkpoint',async()=>{
+ const s=setup();let release,entered
+ const started=new Promise(resolve=>entered=resolve),gate=new Promise(resolve=>release=resolve),original=s.$.tool.call
+ s.$.tool.call=async input=>{entered();await gate;return original(input)}
+ const first=s.send(r1);await started
+ assert.equal((await s.send(r2)).consumed,'service-read-busy')
+ release();await first
+ assert.deepEqual(s.counts(),{checks:1,reads:1,queued:0})
+ assert.equal((await s.send(r2)).consumed,'service-read-already-attempted')
+})
+test('expiry while checkpoint is in flight consumes the trigger without calling MCP',async()=>{
+ const s=setup();let now=1000
+ s.$.clock.now=async()=>now
+ const original=s.$.tool.call;s.$.tool.call=async input=>{const result=await original(input);now=2001;return result}
+ assert.equal((await s.send(r1)).consumed,'service-read-expired')
+ assert.deepEqual(s.counts(),{checks:1,reads:0,queued:0})
+ assert.equal((await s.send(r1)).consumed,'service-read-already-attempted')
+})
