@@ -7,7 +7,7 @@ import {buildNativePeerPackage} from '../lib/native-peer-package.mjs'
 const id=process.argv[2]
 if(process.argv.length!==3||! /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/.test(id||''))throw Error('one exact probe UUID required')
 const root='/Users/taylor/.local/state/claude-driver/pressure',reportPath='/Users/taylor/Desktop/temp_reports/native-peer-read-'+id+'.report.json'
-if(!probePathPresence(reportPath)){console.log(JSON.stringify({pending:false,id}));process.exit(0)}
+if(probePathPresence(reportPath)===false){console.log(JSON.stringify({pending:false,id}));process.exit(0)}
 try{
  const json=p=>JSON.parse(readProbeBytes(p,16384).bytes.toString('utf8'))
  const enrollment=json(resolve(root,'native-peer-enrollment-'+id+'.json')),replacement=json(resolve(root,'native-peer-flat-replacement-'+id+'.json'))
