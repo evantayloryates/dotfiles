@@ -5,6 +5,7 @@ import {brokerInfo} from './broker.mjs'
 import {versions} from './paths.mjs'
 import {withLock,writeJsonAtomic} from './state.mjs'
 import {nativeResultFile} from './requests.mjs'
+import {readNativeCompletedCheck} from './native-check-evidence.mjs'
 const root='/Users/taylor/.local/state/claude-driver/pressure/'
 const json=(path,limit=16384)=>JSON.parse(readProbeBytes(path,limit).bytes.toString('utf8'))
 const refuse=()=>{throw Error('service result evidence refused')}
@@ -25,16 +26,13 @@ async function reconcile(serviceId,requestId){
   if(!baseline||Object.keys(baseline).sort().join(',')!=='.claude/settings.json,stop-rescue-policy.json')refuse()
   for(const[p,h]of Object.entries(baseline))if(typeof h!=='string'||! /^[a-f0-9]{64}$/.test(h)||readProbeBytes(config.brokerCwd+'/'+p).sha256!==h)refuse()
   const cwd=config.brokerCwd,ready=json(cwd+'/.native-service-'+serviceId+'.ready.json',4096),intent=json(cwd+'/.native-service-'+requestId+'.intent.json',4096),receipt=json(cwd+'/.native-service-'+requestId+'.result.json',65536),request=json(cwd+'/requests/'+requestId+'.json'),pointer=json(cwd+'/runtime.json'),admission=json(cwd+'/native-admission-'+requestId+'-0.json'),control=json(cwd+'/controls/'+requestId+'.json')
-  if(!Number.isInteger(pointer.generation)||pointer.generation<1)refuse()
-  const scoped=cwd+'/broker-check-'+requestId+'-0-g'+pointer.generation+'.completed.json',scopedPresence=probePathPresence(scoped)
-  if(scopedPresence===null)refuse()
-  const entry=json(scopedPresence===false?cwd+'/broker-check-entry.json':scoped)
+  const {entry,source:checkpointSource}=readNativeCompletedCheck(cwd,requestId,pointer.generation)
   const reviewed=screenNativeServiceResult({config,ready,intent,receipt,request,epoch,pointer,entry,admission,control})
   if(!reviewed.receiptVerified)refuse()
   const native={id:requestId,source:'native-peer-service-result',results:[{op:'get_session',...reviewed.result,nativeToolUseId:reviewed.nativeToolUseId}]},file=nativeResultFile(requestId),presence=probePathPresence(file)
   if(file!==cwd+'/results/'+requestId+'.native.json')refuse()
   if(presence!==false){if(presence===null||JSON.stringify(json(file,65536))!==JSON.stringify(native))refuse()}
   else writeJsonAtomic(file,native)
-  return {serviceId,requestId,receiptVerified:true,state:reviewed.result.ok?'completed':'failed',source:native.source,published:presence===false,controlHistoryPreserved:true,releaseAuthorized:false}
+  return {serviceId,requestId,receiptVerified:true,state:reviewed.result.ok?'completed':'failed',source:native.source,checkpointSource,published:presence===false,controlHistoryPreserved:true,releaseAuthorized:false}
  },{timeoutMs:5000})
 }
