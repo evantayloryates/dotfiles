@@ -1,3 +1,21 @@
+## Reusable native receiver candidate — October 7, 12:09 Eastern
+
+buildNativePeerServicePackage now emits one bounded receiver for multiple exact
+rpeer request IDs, reusing the sealed broker-check checkpoint and public native
+MCP call. Fixed owned broker/build/token, maximum128 attempts and one-hour lifetime;
+peer input can supply only request identity. Target/op come from sealed checkpoint.
+Every owned-prefix peer trigger is consumed even malformed/refused, and attempt
+reservation precedes awaits. Durable intent prevents reload replay after missing
+result. Native result remains private; no standard receipt publication yet.
+Synthetic tests prove two distinct reads through one receiver, concurrent duplicate
+suppression, capacity refusal, human-input pass-through, durable reload protection,
+cancelled/expired/wrong-operation/malformed checkpoint refusal and generation bounds.
+Full pressure v2-2026-10-07T16-08-30-238Z passed1/1 in8460ms, sourceChanged:false.
+SOURCE CANDIDATE ONLY: not native-validated, installed or loaded. Still needs owned
+readiness/epoch evidence, request enrollment and result reconciliation integration,
+actual successive reads, native expiry/unload proof and complete service controls.
+Do not count candidate tests as native persistent-serving qualification.
+
 ## Callback metadata identity checked — October 7, 12:07 Eastern
 
 Result screening now requires successful get_session content to parse as an

@@ -1,0 +1,33 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import {runInNewContext} from 'node:vm'
+import {buildNativePeerServicePackage} from '../lib/native-peer-service-package.mjs'
+const config={id:'a'.repeat(32),token:'claude-driver service-read '+'b'.repeat(32),brokerSession:'local_11111111-1111-4111-8111-111111111111',brokerCwd:'/Users/taylor/.local/state/claude-driver/broker',build:'c'.repeat(64),notBefore:1000,deadline:2000,maxRequests:2}
+const target='local_22222222-2222-4222-8222-222222222222',r1='rpeer'+'1'.repeat(32),r2='rpeer'+'2'.repeat(32),r3='rpeer'+'3'.repeat(32)
+function setup({files=new Map(),checkpoint={dispatch:true,op:'get_session',args:{session_id:target}},now=1000}={}){
+ const pkg=buildNativePeerServicePackage(config),hooks=new Map();let checks=0,reads=0,queued=0
+ const register=runInNewContext(pkg.files['hooks/register.js'].replace('export function register','function register')+';register',{Set,Object,JSON,Date,Number,Array})
+ register((event,fn)=>hooks.set(event,fn))
+ const $={session:{id:async()=>config.brokerSession,cwd:async()=>config.brokerCwd},clock:{now:async()=>now},fs:{exists:async p=>files.has(p),write:async(p,text)=>files.set(p,JSON.parse(text))},tool:{call:async input=>{checks++;assert.match(input.command,/broker-check.mjs/);return {text:JSON.stringify(checkpoint)}}},mcp:{call:async(server,op,args)=>{reads++;assert.equal(server,'ccd_session_mgmt');assert.equal(op,'get_session');assert.equal(args.session_id,target);return {isError:false,content:[{type:'text',text:'PRIVATE'}]}}}}
+ return {files,$,send:(id,kind='peer')=>hooks.get('session.receive')($,{origin:{kind},text:config.token+' '+id},()=>{queued++;return 'queued'}),counts:()=>({checks,reads,queued})}
+}
+test('one loaded receiver serves distinct requests, consumes concurrent duplicates and bounds capacity',async()=>{
+ const s=setup();await Promise.all([s.send(r1),s.send(r1)]);await s.send(r2);await s.send(r3)
+ assert.deepEqual(s.counts(),{checks:2,reads:2,queued:0})
+ assert.equal(s.files.get(config.brokerCwd+'/.native-service-'+r2+'.result.json').targetSession,target)
+ assert.equal(await s.send(r3,'human'),'queued')
+})
+test('durable intent prevents replay after module reload even if result was lost',async()=>{
+ const s=setup();await s.send(r1);s.files.delete(config.brokerCwd+'/.native-service-'+r1+'.result.json')
+ const reloaded=setup({files:s.files});await reloaded.send(r1)
+ assert.deepEqual(reloaded.counts(),{checks:0,reads:0,queued:0})
+})
+test('cancelled, expired, wrong operation or malformed checkpoint never requests native read',async()=>{
+ for(const checkpoint of [{dispatch:false,reason:'cancelled'},{dispatch:false,reason:'expired'},{dispatch:true,op:'archive',args:{session_id:target}},{dispatch:true,op:'get_session',args:{session_id:target,extra:true}},null]){
+  const s=setup({checkpoint});await s.send(r1);await s.send(r1);assert.deepEqual(s.counts(),{checks:1,reads:0,queued:0})
+ }
+ const expired=setup({now:2001});await expired.send(r1);assert.deepEqual(expired.counts(),{checks:0,reads:0,queued:0})
+})
+test('service generation refuses unbounded life, capacity or injected configuration',()=>{
+ for(const change of [{maxRequests:129},{deadline:3601001},{brokerCwd:'/tmp/other'},{extra:true},{build:'$(unsafe)'}])assert.throws(()=>buildNativePeerServicePackage({...config,...change}))
+})
