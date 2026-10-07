@@ -20,7 +20,7 @@ import { cancelRequest, control, enqueue, validatedResult, nativeResultFile } fr
 import { observeNativeReceipts } from './native-receipts.mjs'
 import { assertUiAvailable } from './ui-policy.mjs'
 import { assertInputHealthy } from './input-health.mjs'
-import { validateWarmBroker, warmOnlyRecovery } from './warm-recovery.mjs'
+import { validateWarmBroker, warmOnlyRecovery, nativeWarmFailure } from './warm-recovery.mjs'
 import {brokerResidencyProtection} from './broker-residency.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
@@ -214,7 +214,8 @@ async function reviveBrokerWarmOnly({progress=()=>{},signal}={}) {
   snapshot,restore:restoreFrom,
   open:session=>openUrl(sessionUrl(session)),
   live:()=>brokerInfo().live,
-  capped:()=>logSince(started,/CliGovernor\] at cap; yielding warm spawn/).length>0
+  capped:()=>logSince(started,/CliGovernor\] at cap; yielding warm spawn/).length>0,
+  failure:()=>nativeWarmFailure(logSince(started),info.sessionId,{capped:logSince(started,/CliGovernor\] at cap; yielding warm spawn/).length>0})
  })
 }
 

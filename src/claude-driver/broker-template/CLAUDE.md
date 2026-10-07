@@ -30,6 +30,8 @@ cron `17 * * * *` and prompt exactly `claude-driver drain v6`:
 - If absent, call `CronCreate` with `cron:"17 * * * *"`,
   `prompt:"claude-driver drain v6"`, `recurring:true`. Do not claim protection
   if the tool is unavailable or refuses. Continue serving requests normally.
+  After a successful creation, immediately use `CronList` again to verify the
+  exact owned job exists once; a list taken before creation is not proof.
 - Leave every other job alone. Never create cloud/desktop schedules, use
   `/loop`, or run a shell scheduler. This session-local job has the platform's
   expiry; after `IDLE`, check again and recreate it only when absent.

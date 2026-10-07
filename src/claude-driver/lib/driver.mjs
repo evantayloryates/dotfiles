@@ -23,7 +23,7 @@ import { submitJob, inspectJob, waitJob, cancelJob } from './jobs.mjs'
 import { operationMemory, queryMemory, recordMemory } from './memory.mjs'
 import { sessionEvents, waitSession } from './events.mjs'
 import { withSessionControl } from './controls.mjs'
-import { RUNTIME_BUILD } from './build.mjs'
+import { RUNTIME_BUILD,runtimeState } from './build.mjs'
 import { uiPolicy } from './ui-policy.mjs'
 import { inspectRequest } from './requests.mjs'
 import { deliveryReceipt } from './delivery.mjs'
@@ -33,7 +33,7 @@ const HERE = dirname(fileURLToPath(import.meta.url))
 export const ROOT = join(HERE, '..')
 export const DRIVER_VERSION = (() => {
   try {
-    return execFileSync('/usr/bin/git', ['-C', ROOT, 'log', '-1', '--format=%h', '--', '.'], { encoding: 'utf8' }).trim() || 'dev'
+    return execFileSync('/usr/bin/git', ['-C', ROOT, 'log', '-1', '--format=%h', '--', '.'], { encoding: 'utf8',stdio:['ignore','pipe','ignore'] }).trim() || 'dev'
   } catch {
     return 'dev'
   }
@@ -244,13 +244,13 @@ export const OPS = [
     schema: { properties: {} },
     readOnly: true,
     run: async () => {
-      const m = matrix()
+      const m = matrix(),runtime=runtimeState()
       const recent = readJsonl(LEDGER, { tail: 200 })
       return {
         driver: DRIVER_VERSION,
         apiVersion: 2,
-        runtimeBuild: RUNTIME_BUILD,
-        nativeQualification:nativeQualification(['v2-native-broker-pressure','v2-live-pressure','v2-input-free-pressure'].map(topic=>queryMemory({topic,kind:'test_result',limit:1})[0]).filter(Boolean).sort((a,b)=>b.at.localeCompare(a.at))[0],RUNTIME_BUILD,m.versions),
+        ...runtime,
+        nativeQualification:{...nativeQualification(['v2-native-broker-pressure','v2-live-pressure','v2-input-free-pressure'].map(topic=>queryMemory({topic,kind:'test_result',limit:1})[0]).filter(Boolean).sort((a,b)=>b.at.localeCompare(a.at))[0],RUNTIME_BUILD,m.versions),...(runtime.restartRequired?{qualified:false,reason:'runtime_stale'}:{})},
         uiAutomation: uiPolicy(),
         versions: m.versions,
         stateDir: STATE_DIR,
@@ -949,6 +949,11 @@ export async function runOp(name, args = {}, { harness = 'cli', progress = () =>
   const t0 = Date.now()
   const row = { ts: new Date().toISOString(), harness, op: name, args: redactArgs(args), versions: versions(), driver: DRIVER_VERSION }
   try {
+    const safeObservation=op.readOnly&&!(name==='window_state'&&args.precise)||name==='broker_status'&&!args.revive
+    if(!safeObservation&&name!=='driver_cancel'){
+      const runtime=runtimeState()
+      if(runtime.restartRequired)throw new DriverError('Driver source changed after this process started; reconnect MCP or use the current CLI before another operation',{category:'runtime_stale',detail:{...runtime,retrySafe:true,dispatched:false}})
+    }
     const controlled = ['steer_session', 'stop_session', 'send_message', 'set_session_config', 'rename_session', 'pin_session', 'archive_session', 'unarchive_session', 'pool_release'].includes(name)
     let out
     if (controlled) {

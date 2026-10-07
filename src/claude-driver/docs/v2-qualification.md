@@ -1,31 +1,36 @@
 # Claude-driver v2 qualification
 
-Paused at Taylor's request on 2026-10-06. The definitive resume order and
-current evidence are in [resume.md](resume.md). All owned probes are stopped;
-the pending v6 manual wake request is withdrawn. Broker is offline, Computer
-Use is quarantined, and native v6 residency protection remains unqualified.
+Work resumed on 2026-10-06; the current frontier is in [resume.md](resume.md).
+Current source passed five isolated rounds (98 tests each), ten filtered checks
+per actual Claude/Codex harness and four isolated scenarios using the installed
+native governor code. Current fingerprint:
+`73e5794f31db463ee439d85399531f17c856c0375dddc6d0e4a6d8ea6e2fe504`.
 
-Current source passed 87 isolated tests in five fresh processes (435 cases),
-report `<state>/pressure/v2-2026-10-07T00-39-50-052Z.json`, unchanged fingerprint
-`32a4b1193203c235dd0ed63876c4231d7783d6e3999e11b1792da32b213b8780`.
-Actual Claude and Codex filtered harness reports `00-39-12-094Z` each passed ten
-checks on that source. The residency observer `00-39-12-093Z` was explicitly
-aborted for pause; both input audits passed with zero filters. It did not prove
-native maintenance acknowledgment or governor survival.
+The resumed native input-free suite passed all eleven checks on earlier source,
+with zero keyboard filters and archived cleanup. An eight-minute same-PID
+observation saw no natural governor pressure, so its pressure requirement is
+incomplete. Evidence-reader hardening now requires a current-process fresh list
+after creation and rejects unconfirmed mutations and malformed/future timestamps.
+Current-source native qualification still needs another run. Claude updated
+during this run to app 2.26454.0 / CLI 2.1.289; the installed-code probe was
+adapted and passed on that module, while earlier native checks predate the
+update. Unknown extraction schemas now retain a failed report, not a pass.
+Two new tests verify stale MCP effect refusal and preserved observation/cancel;
+two more verify hash-aware report intake and incomplete/symlink rejection.
 
-Taylor confirmed normal input and a single manual v5 wake, with paste/send
-screenshots. Quarantine remains because native-helper teardown has not been
-qualified and earlier recovery was temporary. V5 subsequently suffered native
-governor eviction after 133 idle seconds. V6 stages a native session-only cron
-candidate; headless native tool receipts were reconciled and the synthetic job
-deleted, but desktop protection still needs live proof. No keyboard fallback
-was used for the subsequent warm-only cap refusal. Scratch chats are archived
-and the approved dotfiles pool is parked with its CLI context cleared.
+A live protocol upgrade was ignored rather than reloaded, so compatible v6 was
+restored and its interrupted fixture independently archived. Graceful STOP
+verified native deletion of the exact owned job. The subsequent isolated idle
+process termination left an app-owned query reporting exit code 143; warm-only
+navigation could not recreate it. This is distinct from older governor-cap
+refusals. Broker is offline; Taylor requested a separate Claude observer/recovery session
+and an active Codex report-inbox watcher in this chat. The observer prompt is
+ready but its recovery remains unverified. Input automation
+remains quarantined. Do not use external termination as routine recovery.
 
-Earlier reports below are historical evidence with their own fingerprints.
-The new input-free run passed import/focus and several native controls but failed
-a quoted-marker interruption assertion; the fixed fixture authorization and
-final-line assertion have not yet passed the complete eleven-check native suite.
+Older reports below identify their own fingerprints and scopes. Human input
+recovery was observed; safe native-helper teardown and unattended recovery
+remain unqualified. The approved pool remains parked/cleared.
 
 This chat's connected MCP still serves legacy `706a338`; use the current CLI
 or a fresh connection and verify `apiVersion:2`, `runtimeBuild` and current

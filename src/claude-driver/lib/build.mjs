@@ -15,3 +15,10 @@ export function runtimeFingerprint() {
   return hash.digest('hex')
 }
 export const RUNTIME_BUILD = runtimeFingerprint()
+
+// Long-lived MCP processes must distinguish loaded code from files on disk.
+// Missing/partially updated files also require restart; no path/error escapes.
+export function runtimeState() {
+ try {const sourceBuild=runtimeFingerprint();return {runtimeBuild:RUNTIME_BUILD,sourceBuild,restartRequired:sourceBuild!==RUNTIME_BUILD}}
+ catch {return {runtimeBuild:RUNTIME_BUILD,sourceBuild:null,restartRequired:true}}
+}

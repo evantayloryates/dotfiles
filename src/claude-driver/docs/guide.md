@@ -4,13 +4,27 @@ claude-driver drives Taylor's Claude desktop app from Claude Code, Codex,
 Cursor, OpenCode or a script. This is the usage contract; the README has the
 mechanisms and evidence.
 
-Current development is paused; see [resume checkpoint](resume.md). An offline
+Development resumed after the [pause checkpoint](resume.md). Native input-free
+qualification passed eleven checks on an earlier runtime; the current native
+frontier is pending independent observer recovery after an exited app query. An offline
 broker means native write availability is unestablished. Protocol v6's residency
 candidate must have current native receipt/list/app evidence before
 `broker_status.residencyProtection.verified` is true; even that evidence does not
-replace a pressure-survival test or qualify cold recovery. Keep UI quarantine.
+replace a pressure-survival test or qualify cold recovery. The list must follow
+creation, belong to the current process, remain fresh, and have no unresolved
+native mutations. Evidence is bounded to 2 MiB of the broker journal; missing or
+rotated evidence fails closed. File equality does not prove the running model
+loaded a changed standing protocol. Keep UI quarantine.
 
 ## V2 control interface
+
+Check `driver_status.runtimeBuild`, `sourceBuild` and `restartRequired` when
+connecting a long-lived MCP process. Updated files do not reload it. A stale
+runtime rejects effects with `runtime_stale`, `dispatched:false` and
+`retrySafe:true` before recipient resolution; read-only observations and
+`driver_cancel` remain available. Reconnect or use a fresh current CLI process.
+Qualification still depends on both runtime fingerprint and installed app/CLI
+version. See [resume.md](resume.md) for current reports and observer handoff.
 
 Use `driver_submit {operation, arguments, idempotency_key, timeout_sec}`
 for work that must survive client disconnection. It immediately returns a
@@ -93,8 +107,12 @@ The explicit `broker_status {revive:true, warm_only:true}` is an exception
 for audited native navigation only: it validates the approved broker, snapshots
 focus, opens its native deep link, waits for a live process and conditionally
 restores focus. It never starts Computer Use or types/pastes. Input filters are
-audited before and after, including errors/cancellation. A governor cap returns
-`broker_wake_required` without keyboard fallback. Ordinary recovery remains
+audited before and after, including errors/cancellation. A failure returns
+`broker_wake_required` without keyboard fallback. Error details distinguish
+`reason:governor_cap`, `reason:app_query_exited` (with numeric `exitCode`) and
+`reason:native_warm_spawn_unobserved`; do not infer a cap from the category alone.
+External termination left a stale exited app query in a live pressure experiment,
+so it is unsuitable for routine recovery. Ordinary recovery remains
 blocked by quarantine; unattended cold recovery is not qualified.
 Preflight reports an unqualified capability matrix instead of automatically
 probing a new app/CLI version while quarantined. Disk reads and an already
@@ -181,11 +199,13 @@ ops return `handedBack: true` with the exact `ccd_*` calls to make yourself;
 make them, then verify with `get_session`. Pass `via_broker: true` to force
 the broker instead.
 
-**The broker** is a Haiku session titled `claude-driver-broker` in the
-`claude-driver` sidebar group, running in bypassPermissions. The app reaps its
-process after 30 min idle; the driver revives it automatically (focus it so
-the app warm-spawns it; if the app's CLI governor is at cap, Codex types a
-wake line into it). First op after idle is therefore slower.
+**The broker** is the already-approved Haiku session `claude-driver-broker`.
+Native pressure can evict an unprotected idle process much sooner than the
+ordinary idle timeout. V6's native maintenance job is intended to protect it;
+consult fresh `broker_status` evidence. UI recovery remains quarantined. Explicit
+warm-only recovery can succeed when the governor has headroom and otherwise
+refuses without keyboard fallback. A dead broker therefore needs recovery
+before native controls are available.
 
 ## 3. Choosing an op
 

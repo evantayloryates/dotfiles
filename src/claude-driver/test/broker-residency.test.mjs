@@ -32,3 +32,40 @@ test('owned deletion and empty native lists clear protection; unknown lists fail
 test('duplicate owned jobs are exposed, never silently collapsed into one',()=>{
  const c=new CronProtection();c.feed(call('CronList'));c.feed(result(list+'\n'+list.replace('abcdef12','12345678')));assert.equal(c.snapshot().jobs.length,2)
 })
+
+test('a list taken before creation cannot attest to the created job',()=>{
+ const c=new CronProtection();c.feed(call('CronList'));c.feed(result('No scheduled jobs.'))
+ c.feed(call('CronCreate',input));c.feed(result(create))
+ assert.equal(c.snapshot().listedAt,null,'require a list after the changed job set')
+ c.feed(call('CronList'));c.feed(result(list));assert.ok(c.snapshot().listedAt)
+})
+test('a create after an earlier nonempty list invalidates that list',()=>{
+ const c=new CronProtection();c.feed(call('CronList'));c.feed(result(list))
+ c.feed(call('CronCreate',input));c.feed(result(create.replace('abcdef12','12345678')))
+ assert.equal(c.snapshot().listedAt,null);assert.equal(c.snapshot().jobs.length,2)
+})
+
+test('uncorrelated timestamps, stale or future lists and missing app acknowledgment fail closed',async()=>{
+ const {verifyCronProtection}=await import('../lib/broker-residency.mjs')
+ const now=Date.parse('2026-10-07T00:10:00Z'),since=now-600000
+ const good={jobs:[{id:'abcdef12'}],listedAt:'2026-10-07T00:09:00Z',uncertain:false,pendingCalls:0}
+ assert.equal(verifyCronProtection(good,{since,now,appAcknowledged:true}).verified,true)
+ for(const state of [{...good,listedAt:undefined},{...good,listedAt:'bad-date'},{...good,listedAt:'2026-10-06T23:59:00Z'},{...good,listedAt:'2026-10-07T00:11:00Z'},{...good,pendingCalls:1},{...good,uncertain:true}])assert.equal(verifyCronProtection(state,{since,now,appAcknowledged:true}).verified,false)
+ assert.equal(verifyCronProtection(good,{since,now,appAcknowledged:false}).verified,false)
+ assert.equal(verifyCronProtection(good,{now,appAcknowledged:true}).verified,false)
+})
+test('an issued but unconfirmed owned deletion invalidates protection',()=>{
+ const c=new CronProtection();c.feed(call('CronList'));c.feed(result(list));c.feed(call('CronDelete',{id:'abcdef12'}))
+ assert.equal(c.snapshot().pendingCalls,1)
+ assert.equal(c.snapshot().listedAt,null)
+})
+
+test('current-process correlation rejects historical calls and malformed relevant timestamps',()=>{
+ const since=Date.parse('2026-10-07T00:00:00Z'),now=since+60000
+ const c=new CronProtection({since,now});const historical=call('CronCreate',input);historical.timestamp='2026-10-06T23:59:00Z'
+ c.feed(historical);c.feed(result(create));assert.equal(c.snapshot().jobs.length,0)
+ c.feed(call('CronList'));c.feed(result(list))
+ const unknownDelete=call('CronDelete',{id:'abcdef12'});delete unknownDelete.timestamp;c.feed(unknownDelete)
+ assert.equal(c.snapshot().uncertain,true)
+ const f=new CronProtection({since,now});const future=call('CronCreate',input);future.timestamp='2026-10-07T00:02:00Z';f.feed(future);assert.equal(f.snapshot().jobs.length,0);assert.equal(f.snapshot().uncertain,true)
+})

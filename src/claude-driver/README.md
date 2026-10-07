@@ -41,11 +41,16 @@ further UI work; this never kills another caller's helper. Native broker control
 and isolated tests remain usable without UI automation. See
 [qualification](docs/v2-qualification.md).
 
-Work is paused in a [resume checkpoint](docs/resume.md). Protocol v6 stages a
-native maintenance-job candidate after v5 governor eviction; the current isolated
-and filtered harness checks passed, but desktop residency and the complete revised
-input-free suite still need native qualification. The broker is offline and no
-wake request remains pending during this pause.
+The [continuity checkpoint](docs/resume.md) records the resumed work and exact
+qualification frontier. Eleven native input-free checks passed on earlier source;
+current isolated and actual-harness checks passed after evidence hardening.
+Native governor selection was tested in isolation without OS pressure. Live
+pressure survival and current-source native qualification remain pending.
+An isolated cold restart exposed an app-owned exited-query failure; the broker
+is offline. A separate Claude observer/recovery [prompt](docs/claude-monitor-prompt.md)
+is ready, with a five-minute Codex watcher for `/Users/taylor/Desktop/temp_reports`;
+actual observer startup and recovery remain unverified. External PID termination is unsuitable
+for routine recovery. Computer Use remains quarantined.
 
 ## Setup
 

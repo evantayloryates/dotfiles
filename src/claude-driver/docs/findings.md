@@ -5,7 +5,54 @@ Dated, newest first. Each entry: what was observed, the evidence, and n
 (`<state>/pending-learnings.jsonl`) here only after re-verifying it.
 Versions: app = Claude desktop, cli = bundled Claude Code.
 
+## 2026-10-06 (app 2.26454.0, cli 2.1.289)
+
+- **App/source drift is a distinct qualification boundary.** Claude updated
+  during testing; renamed governor bindings broke the previously passing
+  installed-source extractor. The version-scoped adapter now exercises the new
+  functions in four isolated scenarios, retaining schema failures with app/hash
+  evidence. This proves synthetic victim selection only, not real native pressure.
+  Loaded MCP source is separately guarded: a stale service refuses effects before
+  recipient resolution, while status and cancellation remain available. Two
+  regressions cover changed and missing source. On final source, five fresh
+  rounds passed 98 cases each, and actual filtered Claude/Codex harnesses each
+  passed ten checks. Current-version native controls/recovery remain unqualified.
+
+- **Independent recovery is now commissioned through evidence reports.** Taylor
+  requested a prompt for a separate native Claude observer rather than another
+  manual broker wake. The saved prompt scopes native restart to one verified
+  broker, persists episodes, limits retries and requires actual process/receipt
+  proof. A five-minute Codex heartbeat watches the exact requested report inbox;
+  metadata-only scanning ignores incomplete/oversized/symlink files, detects new
+  hashes and acknowledges only after reviewed work. Two regressions verify this.
+  Watcher configuration is verified; the Claude observer itself awaits execution.
+  This separates bootstrap from the offline broker relay and avoids circular
+  recovery. Do not infer successful scheduling/recovery from commissioning.
+
 ## 2026-10-06 (app 2.19675.0, cli 2.1.286)
+
+- **Resumed pressure testing exposed evidence and recovery edges.** The initial
+  eleven-check input-free native run passed; both scratch chats were later
+  verified archived, with zero filters in input audits. The same broker PID
+  survived eight minutes, but there was no natural pressure event. Four isolated
+  scenarios execute the installed native governor functions with synthetic held
+  sessions, proving cron exclusion, unprotected eviction, busy exclusion and
+  debounce without app IPC/OS pressure; they are not end-to-end pressure proof.
+  A list taken before CronCreate could falsely appear fresh. Five new boundary
+  tests reproduced that problem and cover stale/future/invalid epoch evidence,
+  pending deletion and missing app acknowledgment; the hardened reader rejects
+  all of them. Its larger 2 MiB bound retains ordinary control bursts, still
+  failing closed on missing evidence. A protocol upgrade was answered `ignored`,
+  leaving the pending operation undispatched; compatible v6 was restored and
+  its interrupted fixture reconciled. Graceful STOP's native CronDelete removed
+  only the owned job. External termination of the independently idle broker then
+  left an app query with exit code 143 that warm navigation could not recreate.
+  This is distinct from governor cap. Two regressions now preserve exact owned
+  numeric failure evidence without stack content and keep input fallback absent.
+  That intermediate source passed five 94-case rounds and ten checks per actual
+  filtered harness; see the newer frontier above for source/version drift. Exact
+  reports and resume order: [resume.md](resume.md).
+
 
 - **Foreground waiting does not protect the broker from native eviction.**
   The app evicted v5 after 133 idle seconds (`governor_evict`). Local native

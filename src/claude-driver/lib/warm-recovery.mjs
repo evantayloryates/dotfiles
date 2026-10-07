@@ -9,6 +9,17 @@ export function validateWarmBroker(info,record,brokerDir) {
   throw new DriverError('warm recovery requires the existing approved broker in its service folder',{category:'broker_recovery_refused'})
 }
 
+// Only the exact owned query's numeric exit code leaves the native log reader.
+export function nativeWarmFailure(lines,sessionId,{capped=false}={}) {
+ const escaped=sessionId.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')
+ const pattern=new RegExp(`Session ${escaped} query error: Claude Code process exited with code (\\d+)\\b`)
+ for(const line of [...lines].reverse()) {
+  const match=line.match(pattern),code=match&&Number(match[1])
+  if(Number.isInteger(code)&&code>=0&&code<=255)return {reason:'app_query_exited',exitCode:code}
+ }
+ return {reason:capped?'governor_cap':'native_warm_spawn_unobserved'}
+}
+
 // Dependencies keep the boundary testable without app navigation. Production
 // supplies only observation, a native link, and conditional focus restoration.
 export async function warmOnlyRecovery({sessionId,timeoutMs=12000,signal},deps) {
@@ -29,7 +40,10 @@ export async function warmOnlyRecovery({sessionId,timeoutMs=12000,signal},deps) 
   if(!result){
    check();const live=deps.live()
    if(live)result={method:'native_warm_spawn',live,ms:Date.now()-start,inputAutomation:false}
-   else throw new DriverError('Native broker navigation did not start a process; no keyboard fallback was attempted',{category:'broker_wake_required',detail:{inputAutomation:false,retrySafe:true,governorCapped:deps.capped()}})
+   else {
+    const capped=deps.capped(),native=deps.failure?.()||{}
+    throw new DriverError('Native broker navigation did not start a process; no keyboard fallback was attempted',{category:'broker_wake_required',detail:{inputAutomation:false,retrySafe:true,governorCapped:capped,reason:native.reason||(capped?'governor_cap':'native_warm_spawn_unobserved'),...(Number.isInteger(native.exitCode)?{exitCode:native.exitCode}:{})}})
+   }
   }
  }catch(e){failure=e}
  finally {
