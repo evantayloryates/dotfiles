@@ -845,6 +845,15 @@ export const OPS = [
   },
   // ---------------- broker
   {
+    name:'broker_service_enroll',title:'Enroll a bounded owned native receiver',readOnly:false,
+    description:'Experimental enrollment in the exact previously consented owned native session. Validates candidate and epoch, publishes exclusively, and observes readiness. Never dispatches reads, wakes, restarts, replaces modules or changes permissions. Uncertain installation requires inspection; readiness does not qualify serving.',
+    schema:{required:['experimental'],properties:{experimental:{type:'boolean',enum:[true]},lifetime_sec:{type:'integer',minimum:60,maximum:3600},max_requests:{type:'integer',minimum:1,maximum:128}}},
+    run:async(args,ctx)=>{
+      if(args.experimental!==true)throw new DriverError('native service enrollment requires explicit experimental opt-in',{category:'bad_args'})
+      return (await import('./native-service-enroll.mjs')).enrollNativeService({lifetimeSec:args.lifetime_sec??300,maxRequests:args.max_requests??8,signal:ctx.signal})
+    },
+  },
+  {
     name:'broker_service_read',title:'Read metadata through an enrolled native receiver',readOnly:false,
     description:'Experimental serialized get_session read through an already loaded owned receiver. Checks exact epoch/bytes/readiness and controls, enqueues one request, records one peer delivery and reconciles native result. Never installs, wakes, restarts or retries. Returns settlement metadata only; cancelled or uncertain work requires request inspection.',
     schema:{required:['service_id','session_id','experimental'],properties:{service_id:{type:'string',pattern:'^[a-f0-9]{32}$'},session_id:{type:'string'},experimental:{type:'boolean',enum:[true]},timeout_sec:{type:'number',minimum:1,maximum:60}}},

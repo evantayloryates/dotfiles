@@ -493,3 +493,11 @@ new technical lesson with `driver_memory_record` and sanitized evidence.
 It stays a candidate until re-verified and promoted into `docs/findings.md`.
 The legacy `driver_record_learning` writes that same shared memory;
 `driver_learnings` includes historical pending entries for compatibility.
+
+`broker_service_enroll {experimental:true, lifetime_sec?, max_requests?}` prepares
+and publishes a receiver only into the previously consented exact native session.
+Lifetime is 60–3600 seconds, capacity 1–128 requests (defaults 300 and 8).
+It validates native package/epoch/baselines and waits up to 30 seconds for readiness.
+An existing module refuses enrollment; uncertain publication must be inspected,
+not retried. Readiness alone does not prove serving. This remains experimental;
+no live shared-enrollment qualification yet.

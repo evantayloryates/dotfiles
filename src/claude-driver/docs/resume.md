@@ -1,3 +1,17 @@
+## Shared enrollment prepared — October 7, 12:36 Eastern
+
+Added experimental broker_service_enroll: exact previously consented native epoch,
+settings/policy/control guards, generated package validation, durable enrollment,
+exclusive atomic macOS rename, and bounded readiness observation. Existing module
+is never replaced, including an empty directory; publication uncertainty reports
+retrySafe:false. No read/wake/restart/permission changes. Focused tests prove bounds
+refuse before broker access and exclusive publication preserves both owners.
+Full pressure v2-2026-10-07T16-36-18-462Z passed1/1 in8589ms,
+sourceChanged:false. No live enrollment attempted yet. Next implement exact-owner
+retirement/status before live shared enrollment trial; native unload remains a
+separate unproven boundary. Five legacy pending inbox hashes unchanged, blockers
+already preserved; no acknowledgment or repeated review. No human action needed.
+
 ## Budget publication race closed — October 7, 12:33 Eastern
 
 Host capacity slots now publish by atomic hard link from complete private temp

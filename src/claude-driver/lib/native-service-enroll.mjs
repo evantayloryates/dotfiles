@@ -1,5 +1,5 @@
 import {randomBytes} from 'node:crypto'
-import {mkdirSync,writeFileSync,renameSync} from 'node:fs'
+import {mkdirSync,writeFileSync} from 'node:fs'
 import {execFileSync} from 'node:child_process'
 import {withLock} from './state.mjs'
 import {brokerInfo} from './broker.mjs'
@@ -7,13 +7,22 @@ import {versions,resolveClaudeBinary,sleep} from './paths.mjs'
 import {MOD_PROBE,readProbeBytes,probePathPresence} from './native-mod-probe-evidence.mjs'
 import {buildNativePeerServicePackage} from './native-peer-service-package.mjs'
 import {screenNativeServiceReady} from './native-peer-service-evidence.mjs'
+export function publishNativeServiceDirectory(stage,dest){
+ if(process.platform!=='darwin')throw Error('exclusive native publication requires macOS')
+ execFileSync('/opt/homebrew/bin/python3',['-c',`import ctypes,os,sys
+lib=ctypes.CDLL(None,use_errno=True)
+fn=lib.renamex_np
+fn.argtypes=[ctypes.c_char_p,ctypes.c_char_p,ctypes.c_uint]
+fn.restype=ctypes.c_int
+if fn(os.fsencode(sys.argv[1]),os.fsencode(sys.argv[2]),4)!=0: sys.exit(1)`,stage,dest],{stdio:'ignore',timeout:5000})
+}
 const root='/Users/taylor/.local/state/claude-driver/pressure/'
 // Explicit bounded enrollment in the previously consented exact owned session.
 // No wake, new chat, permission change, read dispatch or replacement of a module.
 export async function enrollNativeService({lifetimeSec=300,maxRequests=8,signal}={}){
  if(!Number.isInteger(lifetimeSec)||lifetimeSec<60||lifetimeSec>3600||!Number.isInteger(maxRequests)||maxRequests<1||maxRequests>128)throw Error('invalid native service enrollment bounds')
  return withLock('broker',async()=>{
-  let phase='guard',serviceId=null,installed=false
+  let phase='guard',serviceId=null,installed=false,publicationAttempted=false
   try{
    const guard=()=>{
     if(signal?.aborted)throw Error('cancelled')
@@ -30,7 +39,7 @@ export async function enrollNativeService({lifetimeSec=300,maxRequests=8,signal}
    phase='validate';execFileSync(resolveClaudeBinary(),['plugin','validate',stage],{stdio:'pipe',timeout:20000});guard()
    if(probePathPresence(dest)!==false)throw Error('module destination changed')
    const enrollment={kind:'service',config,epoch:{pid:b.live.pid,procStart:b.live.procStart,build:b.runtime.build},baseline:{'.claude/settings.json':MOD_PROBE.settingsHash,'stop-rescue-policy.json':MOD_PROBE.policyHash},expectedVersions:versions(),dest,hashes:pkg.hashes}
-   phase='publish';writeFileSync(root+'native-service-enrollment-'+serviceId+'.json',JSON.stringify(enrollment)+'\n',{flag:'wx',mode:0o600});renameSync(stage,dest);installed=true
+   phase='publish';writeFileSync(root+'native-service-enrollment-'+serviceId+'.json',JSON.stringify(enrollment)+'\n',{flag:'wx',mode:0o600});publicationAttempted=true;publishNativeServiceDirectory(stage,dest);installed=true
    phase='readiness';const readyFile=config.brokerCwd+'/.native-service-'+serviceId+'.ready.json',until=Math.min(config.deadline,Date.now()+30000)
    while(Date.now()<until){
     if(signal?.aborted)throw Error('cancelled')
@@ -38,6 +47,6 @@ export async function enrollNativeService({lifetimeSec=300,maxRequests=8,signal}
     await sleep(200)
    }
    return {serviceId,installed:true,readinessObserved:false,deadline:config.deadline,maxRequests,servingQualified:false,releaseAuthorized:false}
-  }catch{throw Object.assign(Error('native service enrollment refused at '+phase+(serviceId?'; inspect '+serviceId:'')),{category:'native_service_enrollment_refused',detail:{serviceId,phase,installed,retrySafe:!installed}})}
+  }catch{throw Object.assign(Error('native service enrollment refused at '+phase+(serviceId?'; inspect '+serviceId:'')),{category:'native_service_enrollment_refused',detail:{serviceId,phase,installed,retrySafe:!publicationAttempted}})}
  },{timeoutMs:5000,signal})
 }
