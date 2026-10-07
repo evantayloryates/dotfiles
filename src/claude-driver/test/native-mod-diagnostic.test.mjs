@@ -35,3 +35,15 @@ test('registration does no work; concurrent diagnostics preserve intent and emit
 test('foreign session, durable prior attempt and failed preflight never call MCP',async()=>{
  for(const options of [{id:'foreign'},{prior:true},{writeFails:true}]){const h=harness(options);await h.run(h.$,{});assert.equal(h.calls.length,0)}
 })
+
+import {createHash} from 'node:crypto'
+import {screenProbeReport} from '../lib/native-mod-diagnostic-evidence.mjs'
+test('screen binds exact hash, identity, intent and fixed failure category without qualifying gate',async()=>{
+ const h=harness();await h.run(h.$,{})
+ const intent=h.writes[0].data,report=h.writes[1].data
+ const check=(value,extra={})=>{const bytes=Buffer.from(JSON.stringify(value));return screenProbeReport(bytes,{sha256:createHash('sha256').update(bytes).digest('hex'),intent,now:1791385000000,...extra})}
+ const valid=check(report);assert.equal(valid.reportConsistent,true);assert.equal(valid.gateQualified,false);assert.equal(valid.reported.failureCategory,'broker-dispatch-gate-refusal')
+ for(const x of [{...report,failureCategory:'secret'},{...report,extra:'secret'},{...report,probeId:'old'},{...report,releaseAuthorized:true},{...report,nativeCallReturned:true},{...report,failureCategory:null}])assert.equal(check(x).reportConsistent,false)
+ assert.equal(check(report,{sha256:'0'.repeat(64)}).reportConsistent,false)
+ assert.equal(check(report,{intent:{...intent,startedAt:'wrong'}}).reportConsistent,false)
+})

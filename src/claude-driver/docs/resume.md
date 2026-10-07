@@ -1,3 +1,15 @@
+## Diagnostic report screen ready — October 7
+
+Previous turn was progress (distinct candidate installed). Current turn adds
+native-mod-diagnostic-review.mjs, reusing bounded no-follow reader and exact
+schema/state screen with a fixed v0.3.0 experiment. No report is present yet;
+review returns pending:false without native inspection or writes. Eleven focused
+checks pass, covering old schema compatibility and new category/hash/identity/
+intent/extra-field refusals. No native load, gate, model or unload qualification
+is inferred. Existing report stays unresolved and original intent preserved.
+Use this exact screen upon new diagnostic report before independent native
+review. Do not repeat the pending human command request or invoke it as text.
+
 ## Distinct adapter diagnostic installed — October 7
 
 Previous turn was progress (fixed private diagnostics and adapter checks).

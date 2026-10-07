@@ -49,21 +49,22 @@ export function probePathPresence(file){
  try{lstatSync(file);return true}catch(e){return e.code==='ENOENT'?false:null}
 }
 
-export function screenProbeReport(bytes,{sha256,intent,now=Date.now()}={}){
+export function screenProbeReport(bytes,{sha256,intent,now=Date.now(),experiment=MOD_PROBE}={}){
  const refuse=()=>({reportConsistent:false,reason:'probe-report-inconsistent',gateQualified:false,releaseAuthorized:false})
  try{
-  if(!Buffer.isBuffer(bytes)||bytes.length>4096||!Number.isFinite(now)||!Number.isFinite(MOD_PROBE.notBefore)||!(/^[a-f0-9]{64}$/.test(sha256||''))||createHash('sha256').update(bytes).digest('hex')!==sha256)return refuse()
-  const x=JSON.parse(bytes.toString('utf8')),p=MOD_PROBE
-  if(!exactKeys(x,keys,['completedAt'])||x.schemaVersion!==1||x.scope!=='owned-native-mod-read-probe'||x.probeId!==p.id||x.pluginVersion!==p.version||x.brokerSession!==p.brokerSession||x.brokerCwd!==p.brokerCwd||x.targetSession!==p.targetSession||x.complete!==true||typeof x.nativeCallReturned!=='boolean'||!(x.resultWasError===null||typeof x.resultWasError==='boolean')||!x.nativeCallReturned&&x.resultWasError!==null||x.gateQualified!==false||x.releaseAuthorized!==false||x.modelCallsRequested!==0||x.nativeModelTurnsQualified!==false||!iso(x.startedAt)||Date.parse(x.startedAt)<p.notBefore||Date.parse(x.startedAt)>now)return refuse()
+  if(!Buffer.isBuffer(bytes)||bytes.length>4096||!Number.isFinite(now)||!Number.isFinite(experiment.notBefore)||!(/^[a-f0-9]{64}$/.test(sha256||''))||createHash('sha256').update(bytes).digest('hex')!==sha256)return refuse()
+  const x=JSON.parse(bytes.toString('utf8')),p=experiment
+  if(!exactKeys(x,p.diagnostic?[...keys,'failureCategory']:keys,['completedAt'])||x.schemaVersion!==1||x.scope!==(p.scope||'owned-native-mod-read-probe')||x.probeId!==p.id||x.pluginVersion!==p.version||x.brokerSession!==p.brokerSession||x.brokerCwd!==p.brokerCwd||x.targetSession!==p.targetSession||x.complete!==true||typeof x.nativeCallReturned!=='boolean'||!(x.resultWasError===null||typeof x.resultWasError==='boolean')||!x.nativeCallReturned&&x.resultWasError!==null||x.gateQualified!==false||x.releaseAuthorized!==false||x.modelCallsRequested!==0||x.nativeModelTurnsQualified!==false||!iso(x.startedAt)||Date.parse(x.startedAt)<p.notBefore||Date.parse(x.startedAt)>now)return refuse()
+  if(p.diagnostic&&((x.nativeCallReturned&&x.failureCategory!==null)||(!x.nativeCallReturned&&!['mcp-tool-unavailable','tool-hidden-or-unavailable','tool-pipeline-no-result','broker-dispatch-gate-refusal','tool-permission-refusal','unidentified-exception'].includes(x.failureCategory))))return refuse()
   if(Object.hasOwn(x,'completedAt')&&(!iso(x.completedAt)||Date.parse(x.completedAt)<Date.parse(x.startedAt)||Date.parse(x.completedAt)>now))return refuse()
-  if(!exactKeys(intent,intentKeys)||intent.schemaVersion!==1||intent.scope!=='owned-native-mod-read-probe-intent'||intent.probeId!==p.id||intent.pluginVersion!==p.version||intent.brokerSession!==p.brokerSession||intent.targetSession!==p.targetSession||intent.startedAt!==x.startedAt||intent.complete!==false||intent.gateQualified!==false||intent.releaseAuthorized!==false)return refuse()
+  if(!exactKeys(intent,intentKeys)||intent.schemaVersion!==1||intent.scope!==((p.scope||'owned-native-mod-read-probe')+'-intent')||intent.probeId!==p.id||intent.pluginVersion!==p.version||intent.brokerSession!==p.brokerSession||intent.targetSession!==p.targetSession||intent.startedAt!==x.startedAt||intent.complete!==false||intent.gateQualified!==false||intent.releaseAuthorized!==false)return refuse()
   // Only a fixed allowlist leaves this function. Report assertions stay labelled.
-  return {reportConsistent:true,probeId:p.id,reported:{startedAt:x.startedAt,completedAt:x.completedAt??null,nativeCallReturned:x.nativeCallReturned,resultWasError:x.resultWasError,modelCallsRequested:0},gateQualified:false,releaseAuthorized:false}
+  return {reportConsistent:true,probeId:p.id,reported:{startedAt:x.startedAt,completedAt:x.completedAt??null,nativeCallReturned:x.nativeCallReturned,resultWasError:x.resultWasError,modelCallsRequested:0,...p.diagnostic&&{failureCategory:x.failureCategory}},gateQualified:false,releaseAuthorized:false}
  }catch{return refuse()}
 }
 
-export function screenProbeState({report,versions,broker,settingsHash,policyHash,sourceFiles,installedFiles,stopped,armed,diagnostic}){
- const p=MOD_PROBE
+export function screenProbeState({report,versions,broker,settingsHash,policyHash,sourceFiles,installedFiles,stopped,armed,diagnostic,experiment=MOD_PROBE}){
+ const p=experiment
  const checks={
   reportConsistent:report?.reportConsistent===true,
   reviewedVersions:versions?.app==='2.26454.0'&&versions?.cli==='2.1.289',
