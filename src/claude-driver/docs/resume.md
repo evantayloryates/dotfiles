@@ -1,3 +1,19 @@
+## Native service readiness and validator — October 7, 12:10 Eastern
+
+Reusable candidate records owned session.start readiness once, with fixed build,
+service identity, window/capacity and zero native/model calls. Host screen rejects
+foreign identity/build, extra keys, malformed chronology, future or expired proof
+and call-count drift. Readiness remains distinct from live epoch verification,
+serving, admission, result receipt and quiescence.
+Installed Claude plugin validator accepted generated receiver bytes (app2.26454.0,
+CLI2.1.289). Private staged package and validation record preserved at
+pressure/native-service-stage-8dd77b889f8bd2f84e6c4eb1c7a523ff; not installed or
+loaded, no sends. Five focused service tests pass; full pressure
+v2-2026-10-07T16-09-42-489Z passed1/1 in8489ms, sourceChanged:false.
+Next integrate per-request evidence and lifecycle result publication, then guarded
+actual successive reads in one native load. No human action required. Expired
+validation enrollment must not be used for dispatch; generate fresh owned window.
+
 ## Reusable native receiver candidate — October 7, 12:09 Eastern
 
 buildNativePeerServicePackage now emits one bounded receiver for multiple exact

@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {runInNewContext} from 'node:vm'
 import {buildNativePeerServicePackage} from '../lib/native-peer-service-package.mjs'
+import {screenNativeServiceReady} from '../lib/native-peer-service-evidence.mjs'
 const config={id:'a'.repeat(32),token:'claude-driver service-read '+'b'.repeat(32),brokerSession:'local_11111111-1111-4111-8111-111111111111',brokerCwd:'/Users/taylor/.local/state/claude-driver/broker',build:'c'.repeat(64),notBefore:1000,deadline:2000,maxRequests:2}
 const target='local_22222222-2222-4222-8222-222222222222',r1='rpeer'+'1'.repeat(32),r2='rpeer'+'2'.repeat(32),r3='rpeer'+'3'.repeat(32)
 function setup({files=new Map(),checkpoint={dispatch:true,op:'get_session',args:{session_id:target}},now=1000}={}){
@@ -9,8 +10,20 @@ function setup({files=new Map(),checkpoint={dispatch:true,op:'get_session',args:
  const register=runInNewContext(pkg.files['hooks/register.js'].replace('export function register','function register')+';register',{Set,Object,JSON,Date,Number,Array})
  register((event,fn)=>hooks.set(event,fn))
  const $={session:{id:async()=>config.brokerSession,cwd:async()=>config.brokerCwd},clock:{now:async()=>now},fs:{exists:async p=>files.has(p),write:async(p,text)=>files.set(p,JSON.parse(text))},tool:{call:async input=>{checks++;assert.match(input.command,/broker-check.mjs/);return {text:JSON.stringify(checkpoint)}}},mcp:{call:async(server,op,args)=>{reads++;assert.equal(server,'ccd_session_mgmt');assert.equal(op,'get_session');assert.equal(args.session_id,target);return {isError:false,content:[{type:'text',text:'PRIVATE'}]}}}}
- return {files,$,send:(id,kind='peer')=>hooks.get('session.receive')($,{origin:{kind},text:config.token+' '+id},()=>{queued++;return 'queued'}),counts:()=>({checks,reads,queued})}
+ return {files,$,start:()=>hooks.get('session.start')($,{},()=> 'next'),send:(id,kind='peer')=>hooks.get('session.receive')($,{origin:{kind},text:config.token+' '+id},()=>{queued++;return 'queued'}),counts:()=>({checks,reads,queued})}
 }
+test('owned readiness records zero calls once, and expired or foreign start refuses',async()=>{
+ const s=setup();assert.equal(await s.start(),'next');await s.start()
+ const ready=s.files.get(config.brokerCwd+'/.native-service-'+config.id+'.ready.json')
+ assert.equal(ready.build,config.build);assert.equal(ready.nativeCallsRequested,0);assert.equal(ready.modelCallsRequested,0)
+ assert.equal(screenNativeServiceReady({config,ready,now:1000}),true)
+ for(const change of [{serviceId:'foreign'},{build:'foreign'},{brokerSession:target},{nativeCallsRequested:1},{registeredAt:'invalid'},{extra:true}])assert.equal(screenNativeServiceReady({config,ready:{...ready,...change},now:1000}),false)
+ assert.equal(screenNativeServiceReady({config,ready,now:2001}),false)
+ assert.equal(screenNativeServiceReady({config,ready,now:999}),false)
+ assert.deepEqual(s.counts(),{checks:0,reads:0,queued:0})
+ const expired=setup({now:2001});await expired.start();assert.equal(expired.files.size,0)
+ const foreign=setup();foreign.$.session.id=async()=>target;await foreign.start();assert.equal(foreign.files.size,0)
+})
 test('one loaded receiver serves distinct requests, consumes concurrent duplicates and bounds capacity',async()=>{
  const s=setup();await Promise.all([s.send(r1),s.send(r1)]);await s.send(r2);await s.send(r3)
  assert.deepEqual(s.counts(),{checks:2,reads:2,queued:0})

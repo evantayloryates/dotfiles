@@ -1,7 +1,17 @@
 // Candidate only. Public native calls remain top-level for the native validator.
 // CONFIG is supplied as immutable generated source, never by peer input.
 const attempted=new Set()
-export function register(on){on('session.receive',receiveServiceRead)}
+export function register(on){on('session.receive',receiveServiceRead);on('session.start',recordServiceReady)}
+async function recordServiceReady($,event,next){
+ try{
+  const session=await $.session.id(),cwd=await $.session.cwd(),now=await $.clock.now()
+  if((session===CONFIG.brokerSession||session===CONFIG.brokerSession.slice(6))&&cwd===CONFIG.brokerCwd&&Number.isFinite(now)&&now>=CONFIG.notBefore&&now<=CONFIG.deadline){
+   const file=CONFIG.brokerCwd+'/.native-service-'+CONFIG.id+'.ready.json'
+   if(!await $.fs.exists(file))await $.fs.write(file,JSON.stringify({schemaVersion:1,scope:'owned-native-service-ready',serviceId:CONFIG.id,brokerSession:CONFIG.brokerSession,brokerCwd:CONFIG.brokerCwd,build:CONFIG.build,registeredAt:new Date(now).toISOString(),deadline:CONFIG.deadline,maxRequests:CONFIG.maxRequests,nativeCallsRequested:0,modelCallsRequested:0})+'\n')
+  }
+ }catch{} // Absence is not readiness; native loader errors remain independent.
+ return next(event)
+}
 async function receiveServiceRead($,event,next){
  if(event?.origin?.kind!=='peer'||typeof event.text!=='string')return next(event)
  let text=event.text
