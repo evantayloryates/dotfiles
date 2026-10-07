@@ -1,5 +1,17 @@
 ## Autonomous trigger route — October 7, 11:09 Eastern
 
+Follow-on staged enrollment composes receive.js and probe.js. Owned session.start
+writes a fixed readiness receipt only once and requests zero native/model calls.
+Durable probe records intent before exact positional get_session, refuses prior
+intent/report, rechecks deadline after intent write, preserves uncertain outcomes
+and emits no private tool/error content. Recognized identity/clock/run failures
+remain consumed. Six focused checks pass; full pressure round passed in8435ms,
+sourceChanged:false, v2-2026-10-07T15-15-19-694Z.json. Readiness is not permission
+or execution qualification. Nothing has been installed or sent. Native bundling,
+exact epoch/load evidence and independent result screening remain next.
+GitHub repeatedly rejects master pushes with Internal Server Error; candidate
+commits remain local until push succeeds. This does not require Taylor to act.
+
 The manual slash-command step is not established as requiring a person.
 Installed peer receiver ze explicitly sets skipSlashCommands:true, so sending
 the slash text cannot invoke the registered command. Before queueing it calls
