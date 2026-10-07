@@ -1,3 +1,18 @@
+## Control-check enrollment and checkpoint race verified — October 7, 13:22 Eastern
+
+Guarded enrollment and public CLI/MCP schema expose explicit boolean
+control_check:true; false/default preserves existing package bytes. Invalid types
+refuse before broker access. Existing exact epoch/baseline/control/publication guards
+unchanged. New receiver race test injects cancelRequested:true as admitted helper
+checkpoint returns: one checkpoint, zero native MCP/model calls, scoped cancellation
+record, duplicate consumed without another attempt. Full pressure
+v2-2026-10-07T17-22-22-698Z passed1/1 in9058ms/sourceChanged:false.
+Shared memory checkpointed. Still no live v0.4 enrollment or cancellation settlement.
+Next live bounded v0.4 positive read verifies real control-file schema and native
+fs.read, then a separate no-effect cancellation case; do not fabricate checkpoint
+admission or settle uncertainty from cancellation alone. Cancellation after final
+control snapshot can race native dispatch and remains uncertain. No human action.
+
 ## Native cancellation control check prepared — October 7, 13:21 Eastern
 
 Found native receiver gap after checkpoint: stop markers checked but cancellation

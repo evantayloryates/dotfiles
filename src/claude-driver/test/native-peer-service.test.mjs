@@ -90,3 +90,13 @@ test('opt-in control check refuses malformed/foreign controls but permits valid 
   assert.equal(s.counts().reads,control.id===r1&&control.dispatched.length===1?1:0)
  }
 })
+
+test('cancellation arriving during admitted checkpoint is observed before native call and cannot replay',async()=>{
+ const s=setup({controlCheck:true}),file=config.brokerCwd+'/controls/'+r1+'.json'
+ s.files.set(file,{id:r1,state:'dispatched',dispatched:[0],at:1000})
+ const original=s.$.tool.call
+ s.$.tool.call=async input=>{const checkpoint=await original(input);s.files.set(file,{id:r1,state:'outcome_unknown',dispatched:[0],at:1000,cancelRequested:true});return checkpoint}
+ assert.equal((await s.send(r1)).consumed,'service-read-cancelled-before-call')
+ assert.equal((await s.send(r1)).consumed,'service-read-already-attempted')
+ assert.deepEqual(s.counts(),{checks:1,reads:0,queued:0})
+})

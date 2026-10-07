@@ -874,10 +874,10 @@ export const OPS = [
   {
     name:'broker_service_enroll',title:'Enroll a bounded owned native receiver',readOnly:false,
     description:'Experimental enrollment in the exact previously consented owned native session. Validates candidate and epoch, publishes exclusively, and observes readiness. Never dispatches reads, wakes, restarts, replaces modules or changes permissions. Uncertain installation requires inspection; readiness does not qualify serving.',
-    schema:{required:['experimental'],properties:{experimental:{type:'boolean',enum:[true]},lifetime_sec:{type:'integer',minimum:60,maximum:3600},max_requests:{type:'integer',minimum:1,maximum:128},marker:{type:'boolean'},resource_probe:{type:'boolean'},observe_retired_service_id:{type:'string',pattern:'^[a-f0-9]{32}$'}}},
+    schema:{required:['experimental'],properties:{experimental:{type:'boolean',enum:[true]},lifetime_sec:{type:'integer',minimum:60,maximum:3600},max_requests:{type:'integer',minimum:1,maximum:128},marker:{type:'boolean'},resource_probe:{type:'boolean'},control_check:{type:'boolean'},observe_retired_service_id:{type:'string',pattern:'^[a-f0-9]{32}$'}}},
     run:async(args,ctx)=>{
       if(args.experimental!==true)throw new DriverError('native service enrollment requires explicit experimental opt-in',{category:'bad_args'})
-      return (await import('./native-service-enroll.mjs')).enrollNativeService({lifetimeSec:args.lifetime_sec??300,maxRequests:args.max_requests??8,marker:args.marker??false,resourceProbe:args.resource_probe??false,observeRetiredServiceId:args.observe_retired_service_id??null,signal:ctx.signal})
+      return (await import('./native-service-enroll.mjs')).enrollNativeService({lifetimeSec:args.lifetime_sec??300,maxRequests:args.max_requests??8,marker:args.marker??false,resourceProbe:args.resource_probe??false,controlCheck:args.control_check??false,observeRetiredServiceId:args.observe_retired_service_id??null,signal:ctx.signal})
     },
   },
   {

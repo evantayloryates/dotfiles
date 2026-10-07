@@ -555,3 +555,10 @@ Read cancellation before publication reserves no durable capacity. Reservation
 and enqueue occur synchronously after the final cancellation check. Once that
 publication boundary is crossed, partial writes remain uncertain: capacity stays
 reserved, cleanup is attempted, and callers must inspect rather than retry.
+
+Experimental `broker_service_enroll` option `control_check:true` loads v0.4.0
+with a cancellation-control snapshot after checkpoint admission and before native
+MCP dispatch. Invalid or cancelled controls refuse the call. A cancellation marker
+is evidence to review, not a settled receipt. Cancellation arriving after the final
+snapshot can still race the call; callers must preserve uncertainty. This opt-in
+has passed native validation and fixture races but awaits live qualification.

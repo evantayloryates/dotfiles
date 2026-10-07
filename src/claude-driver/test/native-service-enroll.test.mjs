@@ -34,3 +34,10 @@ test('resource enrollment refuses unsafe combinations before broker access',asyn
  assert.equal(validateOp('broker_service_enroll',{experimental:true,resource_probe:true,marker:true,lifetime_sec:60}).name,'broker_service_enroll')
  assert.throws(()=>validateOp('broker_service_enroll',{experimental:true,resource_probe:'true'}))
 })
+
+test('control-check opt-in is boolean and shares the guarded enrollment surface',async()=>{
+ await assert.rejects(enrollNativeService({controlCheck:'true'}),/control check enrollment/)
+ const {validateOp}=await import('../lib/driver.mjs')
+ assert.equal(validateOp('broker_service_enroll',{experimental:true,control_check:true,lifetime_sec:60}).name,'broker_service_enroll')
+ assert.throws(()=>validateOp('broker_service_enroll',{experimental:true,control_check:'true'}))
+})
