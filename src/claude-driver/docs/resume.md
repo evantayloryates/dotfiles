@@ -1,4 +1,43 @@
-## Latest frontier — October 7, 06:37 Eastern
+## Latest frontier — October 7, 06:43 Eastern
+
+Goal ACTIVE. Previous turn and this turn made progress. Human native activation
+is still pending; no exact probe report has arrived. Existing legacy detector
+reports remain pending with their prior blockers, without repeated content review.
+No plugin copy/load/wake/model call, native session effect or report acknowledgment.
+
+New scripts/native-mod-probe-review.mjs performs zero-inference bounded screening
+for ONLY the fixed staged probe's new/changed report. If absent/already acknowledged,
+it returns pending:false without source/native inspection or writes. It can locate
+that report beyond the generic first32 window without consuming older reports.
+If pending, it binds the scanned SHA256, strict allowlisted report/intent schema,
+fixed IDs/paths/times, candidate/copied hashes, reviewed versions, original native
+metadata epoch/runtime/settings/policy and control-marker state. Unknown marker
+access never means absent. No raw report/error/result/instructions leave the helper.
+
+Screening eligibility is NOT qualification: actual loaded bytes, kernel epoch,
+command ancestry/native gate/model events/fixture readback/scoped unload remain
+explicitly unproven. The helper never acknowledges a report, treats its content
+as authority, dispatches tools or releases anything. New bounded reader refuses
+symlinks, directories, invalid bounds, oversized/changed content and unknown IO.
+
+Seven new screening/host-boundary tests passed in the full unchanged suite
+v2-2026-10-07T10-42-38-642Z.json,8305ms. Final host fingerprint
+c235c5cfc1db5f4f2465515e1955217cdac95e9de1e56152c97bafee7fb34210.
+Twenty admission/candidate and eight installed adapter checks passed SAME source
+10:42:51. Staged package v0.2.0/register3a7b1e8c unchanged; prior static validation
+remains bound to its identical three hashes. All tests are isolated, no native load.
+
+Next human step is already requested in [bootstrap prompt](native-mod-bootstrap-prompt.md).
+Do not ask again, reinterpret elapsed time as consent, repeat ineffective model
+serving tests or manufacture static work to avoid a genuine blocked audit. On its
+exact pending report, run the new screening helper BEFORE bounded native review;
+do not acknowledge until evidence/review is checkpointed. Native positive gate,
+event-driven transport, serving/steering/mutations/rollback/residency/cold recovery
+and17historic uncertain effects remain open. No input quarantine change; Codex-
+driver and1Password separate. Follow three consecutive no-progress blocker turns
+if nothing else can advance without native activation.
+
+## Previous frontier — October 7, 06:37 Eastern
 
 Goal ACTIVE. Previous status-only turn was no progress; this turn prepares the
 actual bounded native activation and new evidence lifecycle. General bridge is

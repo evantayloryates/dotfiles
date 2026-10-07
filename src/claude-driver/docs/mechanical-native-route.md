@@ -5,6 +5,16 @@ The broker remains on its existing sealed dependencies and admission hooks.
 
 ## Bounded native activation and evidence — 06:37 Eastern
 
+06:43 follow-up: native-mod-probe-review.mjs screens the fixed experiment without
+inference, raw report output, execution or acknowledgment. It validates exact
+scanned hash, allowlisted fields/intent/time bounds and current file/native metadata
+state only on new evidence. No report means no native/source inspection or writes.
+Seven tests reject hostile extra fields, malformed/partial/oversized JSON, old/
+future times, mismatched intent/hash/epoch/version/copies, unreadable markers and
+unsafe file reads. Loading/kernel/gate/model/unload qualifications stay false even
+when all screening checks pass. Full isolated suite passed8305ms on c235c5cf;
+20admission/8adapter checks passed same source10:42:51. Activation remains pending.
+
 The [manual bootstrap prompt](native-mod-bootstrap-prompt.md) targets only the
 existing broker's verified native CLI UUID. Taylor must supply the real native
 hot-reload consent; no message was sent by Codex. Installation/loading/invocation

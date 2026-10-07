@@ -71,6 +71,18 @@ PID/start, command ancestry, original PreToolUse denial and absence of new model
 turns. Independently verify the fixture, original settings/policy and receipts.
 Do not acknowledge the report until review is checkpointed.
 
+For a new/changed exact probe report, run this zero-inference screening command
+first. With no report it does not inspect native/source state or write anything:
+
+```sh
+node /Users/taylor/src/github/dotfiles/src/claude-driver/scripts/native-mod-probe-review.mjs
+```
+
+It binds scanned hash, strict report/intent schema and observed host/copy state,
+rejecting extra fields and changed identities. Its eligibility means only ready
+for independent native review; it never qualifies loading/gate/model events,
+acknowledges a report or releases the bridge. Original report content stays private.
+
 The probe performs no automatic activity. The documented `/plugin` Installed
 view offers disabling, but its actual effect and persistence in this desktop
 session must be observed. Do not change global settings to force unload. Before
