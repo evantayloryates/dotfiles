@@ -15,11 +15,11 @@ const json=(p,n=16384)=>JSON.parse(readProbeBytes(p,n).bytes.toString('utf8'))
 // Exported transaction seam permits real cancellation/race tests without native
 // effects. Production dependencies below retain all ownership/admission checks.
 export async function runNativeServiceReadTransaction({requestId,signal},d){
- let published=false,phase='prepare'
+ let published=false,phase='prepare',outcome,failure,cleanupPending=false
  const abort=()=>{if(signal?.aborted)throw Error('cancelled')}
  try{
   abort();const prepared=await d.prepare();abort()
-  phase='enqueue';d.enqueue(prepared.request);published=true
+  phase='enqueue';published=true;d.enqueue(prepared.request)
   phase='claim'
   if((await d.claim(requestId))?.id!==requestId)throw Error('claim refused')
   phase='revalidate';abort();await d.revalidate();abort()
@@ -28,13 +28,15 @@ export async function runNativeServiceReadTransaction({requestId,signal},d){
   phase='wait'
   while(d.now()<prepared.request.expiresAt){
    abort()
-   if(d.responsePresent()){phase='reconcile';return await d.reconcile()}
+   if(d.responsePresent()){phase='reconcile';outcome=await d.reconcile();break}
    await d.wait()
   }
-  throw Error('result deadline')
+  if(!outcome)throw Error('result deadline')
  }catch{
-  throw Object.assign(Error('native service read unresolved at '+phase+(published?'; inspect '+requestId:'; no request published')),{category:'native_service_read_unresolved',phase,requestId:published?requestId:null,retrySafe:!published,detail:{phase,requestId:published?requestId:null,retrySafe:!published}})
- }finally{if(published)await d.cancel(requestId,'native-service-read-finished')}
+  failure=Object.assign(Error('native service read unresolved at '+phase+(published?'; inspect '+requestId:'; no request published')),{category:'native_service_read_unresolved',phase,requestId:published?requestId:null,retrySafe:!published,detail:{phase,requestId:published?requestId:null,retrySafe:!published}})
+ }finally{if(published){try{await d.cancel(requestId,'native-service-read-finished')}catch{cleanupPending=true}}}
+ if(failure){failure.cleanupPending=cleanupPending;failure.detail.cleanupPending=cleanupPending;throw failure}
+ return {...outcome,cleanupPending}
 }
 export async function nativeServiceRead(serviceId,targetSession,{timeoutMs=20000,signal}={}){
  if(!/^[a-f0-9]{32}$/.test(serviceId)||!/^local_[a-f0-9-]{36}$/.test(targetSession)||!Number.isInteger(timeoutMs)||timeoutMs<1000||timeoutMs>60000)throw Object.assign(Error('invalid native service read arguments'),{category:'bad_args'})

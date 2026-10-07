@@ -1,3 +1,19 @@
+## Service transaction cleanup failure preserved — October 7, 12:27 Eastern
+
+runNativeServiceReadTransaction now preserves verified reconciliation outcome when
+cancellation bookkeeping throws, returning cleanupPending:true. Original unresolved
+phase/request/retrySafe metadata survives simultaneous transport+cleanup failure;
+private cleanup exceptions are never exposed. Entering enqueue is conservatively
+published before call so partial publication failure cannot claim retrySafe:true;
+cleanup attempts exact request, no delivery/retry. Tests prove verified result
+survives cleanup failure, uncertain send preserves phase with cleanupPending, and
+partial enqueue is conservative and never sends. Full pressure
+v2-2026-10-07T16-26-50-529Z passed1/1 in8487ms, sourceChanged:false.
+No native send or install this turn; prior API/CLI native proof remains historical
+for its exact bytes. Production enrollment/service ownership and native unload
+still open. cleanupPending is bookkeeping, not failed native effect; inspect exact
+request before any recovery and never replay a settled or uncertain read.
+
 ## Shared native API and CLI trial completed — October 7, 12:26 Eastern
 
 Fresh enrollment33d74fbfaaf5db2b9100bb3743100d49 native-validated updated receiver
