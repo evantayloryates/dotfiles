@@ -21,6 +21,17 @@ class BrokerTests(unittest.TestCase):
     def call(self, **kw):
         return self.b.control({"lease": "lease", **kw})
 
+    def test_status_reports_process_cleanup_until_exit_observed(self):
+        class Process:
+            exited = False
+            def poll(self):
+                return 0 if self.exited else None
+        process = Process()
+        self.b.stopping_frontends = [(process, self.now + 5)]
+        self.assertTrue(self.call(op="status")["reactFrontendCleanupPending"])
+        process.exited = True
+        self.assertFalse(self.call(op="status")["reactFrontendCleanupPending"])
+
     def next(self):
         return self.b.device_request({**self.device, "op": "next"})
 

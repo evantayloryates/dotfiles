@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-08",
+  "installedAdapterActive": true,
+  "realNativeToJsProtocolProbeRecorded": true,
+  "historyClearedOnFreshLease": true,
+  "reactInspectionPassed": true,
+  "consoleFetchAndHandlerForwarding": "seven host/integration tests; no claim of a physical HTTP/console/error-handler matrix",
+  "bundleSHA256": "01cc714e95aa4cba1ac0c312c826f5cec5fbe0d3f110bdbedf19a849caf310ed",
+  "lease": false,
+  "glow": false,
+  "reactFrontendRunning": false,
+  "xctestStarted": false,
+  "USB": "build/install only; runtime transport Tailscale HTTPS",
+  "cleanupReadinessGap": "status did not yet expose stopping frontend; immediate reacquire safely rejected until old process stopped"
+}

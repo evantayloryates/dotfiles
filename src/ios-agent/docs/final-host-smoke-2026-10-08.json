@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-08",
+  "sourceHash": "10956383b4a6cebd7a832f45270700a403b8741fc79b3c258e9d593139a50a8a",
+  "sourceMatchesInstalledHost": true,
+  "reactReadyAfterHostUpdate": true,
+  "cleanupPendingObservedDuringExit": true,
+  "cleanupPendingAtFinal": false,
+  "leaseAtFinal": false,
+  "indicatorAtFinal": false,
+  "reactFrontendRunningAtFinal": false,
+  "deviceForegroundAtFinal": true,
+  "localGraphQLHTTP200AndQueryTypename": true,
+  "localWebSignInHTTP200": true
+}

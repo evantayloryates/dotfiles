@@ -99,6 +99,7 @@ class Broker:
             if op == "status":
                 return {"version": VERSION, "sourceHash": SOURCE_HASH, "epoch": self.epoch,
                         "reactFrontendRunning": bool(self.frontend and self.frontend.poll() is None),
+                        "reactFrontendCleanupPending": bool(self.stopping_frontends),
                         "reactFrontendPort": self.frontend_port,
                         "device": None if not self.device else {k: self.device[k] for k in ("build", "bundle", "boot")},
                         "deviceFeedback": None if not self.device else self.device.get("feedback"),

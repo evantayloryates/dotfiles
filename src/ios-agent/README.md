@@ -43,15 +43,18 @@ operations must never be relabeled as native taps.
 The pinned React frontend runs only for the owning lease, with private state,
 a mode-0600 IPC socket, a loopback WebSocket listener and an ephemeral handshake
 credential passed through stdin. A generated adapter adds authentication without
-editing the provider package. Provider failure revokes the lease. Inspection and
+editing the provider package. Provider failure revokes the lease. Status exposes
+`reactFrontendCleanupPending`; wait until it is false before reacquiring after
+release, even if `reactFrontendRunning` is already false. Inspection and
 profiling contents require private output files; routine status prints metadata.
 The console adapter hides LogBox UI while forwarding original calls. The next
 bundle adapter records bounded console levels/positions, runtime error severity
 and global-fetch method/status/duration only during the owning lease. It never
 exports message arguments, raw errors/stacks, URLs, headers or bodies. Fetch
 observation chains its promise while preserving response/rejection identity; it
-does not retry or consume payloads. This adapter is host-tested and awaiting
-installed-bundle qualification; build 775 still exports warning/error counts.
+does not retry or consume payloads. The adapter bundled, installed and passed native-to-JavaScript session/protocol
+and history-reset checks on the phone. Console/fetch forwarding has host
+integration coverage; a physical HTTP/console/error-handler matrix remains open.
 A typed domain command catalog remains a separate integration.
 
 ## Installation and use
@@ -106,8 +109,10 @@ lease, device, stale result, unknown outcome and owner-event failure cases.
 With `npm ci --ignore-scripts` in `src/ios-agent/react`, it also runs the real pinned
 frontend against a synthetic backend, verifies component state, authentication,
 provider-crash cleanup, recovery and turn-end cleanup. The suite currently has
-19 tests. Run `node --test src/ios-agent/tests/test_telemetry.cjs` for the six
-metadata-adapter tests. The UIKit simulator fixture and physical prototype evidence are
+20 tests. Run `node --test src/ios-agent/tests/test_telemetry.cjs` for the six
+metadata-adapter tests. Set `IOS_AGENT_MOBILE_ROOT` to the app checkout and run
+`node --test src/ios-agent/tests/test_bridge.cjs` for real prelude/event wiring.
+The UIKit simulator fixture and physical prototype evidence are
 separate artifacts; neither substitutes for the final installed SDK smoke.
 See [strategy gates](docs/STRATEGIES.md) for the remaining physical-device and
 installed-service checks. KIF-derived HID construction retains its Apache 2.0

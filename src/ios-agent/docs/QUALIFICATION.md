@@ -106,5 +106,18 @@ getter avoidance, lease generation fencing and handler cleanup. Console/network
 records are cleared at session end and publishing is coalesced to five updates
 per second. Coverage is global fetch only; call sites expose numeric positions,
 not raw stacks. Runtime error metadata preserves the original global handler.
-The installed build 775 predates this adapter; do not report it live until a new
-bundle is installed and tested. The nineteen host/transport tests also passed.
+The new bundle compiled through the real Metro wrapper and passed the native
+binary gate without source changes. It was installed on the physical phone
+preserving enrollment. Native-to-JavaScript protocol fault injection recorded a
+metadata-only error; a fresh lease cleared that record and restored standard
+React inspection. The welcome screen remained unchanged and cleanup removed
+control, glow and the frontend. See `installed-metadata-smoke-2026-10-08.json`
+and `installed-metadata-build-2026-10-08.json`. This qualifies session wiring,
+not a full physical HTTP/console/global-handler matrix. A seventh host test
+executes the actual Babel-transformed bridge against synthetic native events.
+
+Immediate reacquisition exposed a status clarity gap: a stopped active frontend
+was reported false while its process was still retiring. Acquisition correctly
+refused to race cleanup. Status now exposes `reactFrontendCleanupPending`, and
+a regression test verifies it remains true until process exit is observed.
+Twenty host/transport tests pass; the updated host is restarted only at idle.
