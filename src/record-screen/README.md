@@ -8,6 +8,29 @@ Why it is built this way, with measurements:
 `~/src/docs/html/record-screen-strategies/index.html`. Bench harness:
 `~/src/docs/plans/record-screen/bench/`.
 
+## Candidate capture controls (October 8 qualification)
+
+The source candidate accepts `include_child_windows` and `exclude_apps` in
+JSON targets. Omission preserves existing behavior. Exclusions use at most
+eight exact bundle identifiers on display/rect targets; missing apps and
+isolated-window exclusions fail explicitly. Resolved PIDs and child settings
+participate in recording-tap and viewfinder identities, preventing previews
+from reusing footage with different settings.
+
+`status.capabilities.target_capture_options: 1` identifies support. The MCP
+checks it on the same engine connection before forwarding optional controls;
+an older installed engine returns `unsupported_capture_options` before
+capture. Default callers avoid the additional capability check. Raw socket
+callers must also negotiate support. Reports include requested/effective
+child settings and resolved exclusion identities.
+
+The October 8 installed engine is still unchanged. Source build, 25 offline
+parse/identity assertions and isolated MCP socket tests passed; production
+filter/preview routing still needs a bounded live qualification before
+installation. Prior helper stream results are evidence for the approach,
+not qualification of the installed engine. See
+[qualification/GATES.md](qualification/GATES.md).
+
 ## Status
 
 All six steps of the build order are done.

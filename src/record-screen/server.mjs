@@ -6,6 +6,7 @@ import { readFileSync } from "node:fs";
 import { serveMcp } from "../lib/node/mcp-stdio.mjs";
 import { callerContext } from "./lib/caller.mjs";
 import { EngineClient, EngineError } from "./lib/client.mjs";
+import { hasCaptureOptions, requireCaptureOptions } from "./lib/capture-options.mjs";
 
 const log = (...args) => console.error("[record-screen]", ...args);
 const VERSION = "0.6.0";
@@ -20,6 +21,9 @@ async function engine(method, params = {}, timeoutMs = 20000) {
   const deadline = Date.now() + 12000;
   for (;;) {
     try {
+      if (hasCaptureOptions(params.target)) {
+        requireCaptureOptions(await client.call("status", {}, { timeoutMs }));
+      }
       return await client.call(method, params, { timeoutMs });
     } catch (err) {
       if (err.code !== "engine_down" || Date.now() > deadline) throw err;
@@ -42,6 +46,8 @@ const TARGET = {
     type: { type: "string", enum: ["display", "rect", "window"] },
     display_id: { type: "number" }, x: { type: "number" }, y: { type: "number" }, w: { type: "number" }, h: { type: "number" },
     window_id: { type: "number" }, app: { type: "string" }, title: { type: "string" },
+    include_child_windows: { type: "boolean", description: "Explicit child-window inclusion. Omit to retain the SDK default. Qualify menu pixels for the app/mode before relying on it." },
+    exclude_apps: { type: "array", maxItems: 8, items: { type: "string", pattern: "^[A-Za-z0-9][A-Za-z0-9.-]*$", maxLength: 256 }, description: "Exact bundle identifiers to exclude from display/rect capture. Missing apps fail explicitly; unsupported on isolated window targets. No implicit helper exclusion." },
   },
   required: ["type"],
 };

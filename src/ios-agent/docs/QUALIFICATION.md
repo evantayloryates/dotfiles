@@ -125,5 +125,50 @@ The final live smoke matched the running source hash, reconstructed the real
 React app, observed pending cleanup during release, then verified no pending
 cleanup, no lease, no glow and no frontend. Local GraphQL and the web sign-in
 page independently returned HTTP 200. See `final-host-smoke-2026-10-08.json`.
-Remote Metro delivery, typed domain adapters and authenticated coach/client
-business workflows remain subsequent integrations.
+Remote Metro delivery and read-only domain status now have installed gates below.
+Complete authenticated coach/client business workflows remain separate.
+
+## Private remote runtime qualification, 8 October
+
+The managed Metro LaunchAgent binds only 127.0.0.1:19404 with two workers and
+discarded stdout/stderr. Installation verifies the existing personal tailnet,
+every matching guarded local backend worker, GraphQL/web HTTP readiness and the
+actual device bundle's configured URLs. Serve ports 10444/10445/10446 provide
+Metro, local GraphQL and local web; port 10443 remains the agent channel. Funnel
+is off and other routes are preserved. `mobile/local-env.js` stayed unchanged.
+
+Twenty-four Python and ten JavaScript checks pass, including private config
+validation, no-clobber Serve ownership, static route literals/constants, domain
+payload exclusion, lease fencing, real Babel bridge events and the actual Metro
+transformer. The real bundle exposed a relative-filename mismatch; a regression
+now covers it. The installed phone exposed an upstream React Native overload
+that discards HTTPS. The full overload preserves the scheme without patching
+dependencies. Release and ordinary Debug native compile exclusions passed again.
+Targeted app lint has no added findings; existing formatting/unused-import
+findings remain.
+
+The installed phone loaded its existing local client session through HTTPS and
+reported `ClientDashboard`, seventeen active Apollo queries, and 1,010 React
+components. A fixed read-only GraphQL readiness query returned HTTP 200; its
+warning and request yielded metadata only. A native tab tap committed
+`ClientSchedule`, independently asserted through the registered navigation ref.
+Home was restored. A temporary JavaScript marker changed live without native
+rebuild or process relaunch, and was restored. This is a narrow live-update gate,
+not a complete React Fast Refresh state-preservation matrix.
+
+With Metro stopped, the fixed semantic reload selected the embedded bundle and
+reconstructed the client dashboard and 1,010 React components in 3.9 seconds.
+After Metro returned, another Tailscale reload selected `tailnet-Metro` and
+restored inspection without CoreDevice, XCTest or Mirroring. State now exports
+only the bundle-source enum; reload clears its cached ready flag. Explicit
+release ended each lease and inspection process. The offline check covers Metro
+absence at selection time; an interrupted download after a successful health
+check is not yet an automatic-fallback guarantee. The upstream health check can
+wait up to ten seconds when a server is unreachable.
+
+See `remote-runtime-host-smoke-2026-10-08.json`,
+`remote-runtime-build-2026-10-08.json` and
+`remote-runtime-installed-smoke-2026-10-08.json`. USB remained attached for the
+one-time builds. This exact build's additional cellular gate is pending; the
+earlier installed-driver cellular gate remains separately qualified. Full
+global-error forwarding and business-workflow matrices remain open.

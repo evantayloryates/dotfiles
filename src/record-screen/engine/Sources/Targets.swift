@@ -9,31 +9,39 @@ import ScreenCaptureKit
 ///   {"type": "rect", "x": 0, "y": 0, "w": 800, "h": 600}
 ///   {"type": "window", "window_id": 1234}
 ///   {"type": "window", "app": "com.google.Chrome", "title": "PR #42"}   app = bundle id or name
-enum TargetSpec {
-  case display(CGDirectDisplayID?)
-  case rect(CGRect)
-  case window(id: CGWindowID?, app: String?, title: String?)
+struct TargetSpec {
+  enum Surface {
+    case display(CGDirectDisplayID?)
+    case rect(CGRect)
+    case window(id: CGWindowID?, app: String?, title: String?)
+  }
+  let surface: Surface
+  let options: CaptureOptions
 
   static func parse(_ any: Any?) throws -> TargetSpec {
     guard let p = any as? [String: Any], let type = p["type"] as? String else {
       throw RPCError.badParams("target must be an object with a type: display, rect or window")
     }
     func num(_ k: String) -> Double? { (p[k] as? NSNumber)?.doubleValue }
+    let options = try CaptureOptions.parse(p)
     switch type {
     case "display":
-      return .display(num("display_id").map { CGDirectDisplayID($0) })
+      return TargetSpec(surface: .display(num("display_id").map { CGDirectDisplayID($0) }), options: options)
     case "rect":
       guard let x = num("x"), let y = num("y"), let w = num("w"), let h = num("h"), w >= 2, h >= 2 else {
         throw RPCError.badParams("rect target needs x, y, w, h in points (w and h at least 2)")
       }
-      return .rect(CGRect(x: x, y: y, width: w, height: h))
+      return TargetSpec(surface: .rect(CGRect(x: x, y: y, width: w, height: h)), options: options)
     case "window":
       let id = num("window_id").map { CGWindowID($0) }
       let app = p["app"] as? String, title = p["title"] as? String
       guard id != nil || app != nil || title != nil else {
         throw RPCError.badParams("window target needs window_id, or app and/or title")
       }
-      return .window(id: id, app: app, title: title)
+      guard options.excludeApps.isEmpty else {
+        throw RPCError.badParams("exclude_apps is supported only on display and rect targets; isolated window content cannot exclude applications")
+      }
+      return TargetSpec(surface: .window(id: id, app: app, title: title), options: options)
     default:
       throw RPCError.badParams("unknown target type \(type); use display, rect or window")
     }
@@ -55,19 +63,21 @@ struct ResolvedTarget {
   /// Whether the filter already excludes the engine's own windows; part of the
   /// key so a stream built before the first outline existed gets rebuilt.
   var excludesSelf = false
+  var captureOptions = CaptureOptions()
+  var excludedApplications: [SCRunningApplication] = []
 
   /// Identity of the content filter. Same key: the viewfinder only needs a new
   /// area or size (sourceRect lives in the stream configuration).
   var key: String {
-    if let w = window { return "window:\(w.windowID)" }
-    return "display:\(display.displayID):\(excludesSelf ? "x" : "")"
+    let base = window.map { "window:\($0.windowID)" } ?? "display:\(display.displayID):\(excludesSelf ? "x" : "")"
+    return captureOptions.sourceKey(base, excludedPIDs: excludedApplications.map { $0.processID })
   }
 
-  /// What the target covers, independent of filter details: the same for a
-  /// verify and a recording of the same thing (used to tap recordings).
+  /// Source coverage AND optional filter/configuration identity, used to tap
+  /// recordings. Unconfigured callers retain their old keys exactly.
   var areaKey: String {
-    if let w = window { return "window:\(w.windowID)" }
-    return "display:\(display.displayID):\(sourceRect.map { "\(Int($0.minX)),\(Int($0.minY)),\(Int($0.width)),\(Int($0.height))" } ?? "full")"
+    let base = window.map { "window:\($0.windowID)" } ?? "display:\(display.displayID):\(sourceRect.map { "\(Int($0.minX)),\(Int($0.minY)),\(Int($0.width)),\(Int($0.height))" } ?? "full")"
+    return captureOptions.sourceKey(base, excludedPIDs: excludedApplications.map { $0.processID })
   }
 
   var pixelSize: CGSize { CGSize(width: frame.width * scale, height: frame.height * scale) }
@@ -81,6 +91,12 @@ struct ResolvedTarget {
       "pixels": ["w": Int(pixelSize.width), "h": Int(pixelSize.height)],
       "warnings": warnings,
       "excludes_engine_windows": excludesSelf,
+      "capture_options": [
+        "include_child_windows_requested": captureOptions.includeChildWindows.map { $0 as Any } ?? NSNull(),
+        "include_child_windows_effective": configuration(maxWidth: nil).includeChildWindows,
+        "exclude_apps": captureOptions.excludeApps,
+        "resolved_exclusions": excludedApplications.map { ["bundle_id": $0.bundleIdentifier, "pid": Int($0.processID)] as [String: Any] },
+      ],
     ]
     if let w = window { d["window"] = windowDict(w) }
     return d
@@ -99,6 +115,7 @@ struct ResolvedTarget {
     c.showsCursor = showsCursor
     c.colorSpaceName = CGColorSpace.sRGB
     c.ignoreShadowsSingleWindow = true
+    if let children = captureOptions.includeChildWindows { c.includeChildWindows = children }
     return c
   }
 }
@@ -149,15 +166,24 @@ enum Targets {
   }
 
   static func resolve(_ spec: TargetSpec, content: SCShareableContent) throws -> ResolvedTarget {
-    switch spec {
+    var exclusions = ownApps(content)
+    for bundle in spec.options.excludeApps {
+      let applications = content.applications.filter { $0.bundleIdentifier == bundle }
+      guard !applications.isEmpty else {
+        throw RPCError(code: "target_not_found", message: "excluded app \(bundle) is not available to ScreenCaptureKit; resolve its current identity before capture")
+      }
+      for application in applications where !exclusions.contains(where: { $0.processID == application.processID }) { exclusions.append(application) }
+    }
+    switch spec.surface {
     case .display(let id):
       let want = id ?? CGMainDisplayID()
       guard let d = content.displays.first(where: { $0.displayID == want }) else {
         throw RPCError(code: "target_not_found", message: "no display \(want); displays: \(content.displays.map { $0.displayID })")
       }
-      let filter = SCContentFilter(display: d, excludingApplications: ownApps(content), exceptingWindows: [])
+      let filter = SCContentFilter(display: d, excludingApplications: exclusions, exceptingWindows: [])
       return ResolvedTarget(kind: "display", filter: filter, display: d, frame: d.frame, sourceRect: nil,
-                            scale: displayScale(d.displayID), window: nil, warnings: [], excludesSelf: !ownApps(content).isEmpty)
+                            scale: displayScale(d.displayID), window: nil, warnings: [], excludesSelf: !ownApps(content).isEmpty,
+                            captureOptions: spec.options, excludedApplications: exclusions)
 
     case .rect(let r):
       let center = CGPoint(x: r.midX, y: r.midY)
@@ -172,9 +198,10 @@ enum Targets {
         warnings.append("rect extends past display \(d.displayID); captured only the part on it: \(rectDict(clipped))")
       }
       let local = clipped.offsetBy(dx: -d.frame.minX, dy: -d.frame.minY)
-      let filter = SCContentFilter(display: d, excludingApplications: ownApps(content), exceptingWindows: [])
+      let filter = SCContentFilter(display: d, excludingApplications: exclusions, exceptingWindows: [])
       return ResolvedTarget(kind: "rect", filter: filter, display: d, frame: clipped, sourceRect: local,
-                            scale: displayScale(d.displayID), window: nil, warnings: warnings, excludesSelf: !ownApps(content).isEmpty)
+                            scale: displayScale(d.displayID), window: nil, warnings: warnings, excludesSelf: !ownApps(content).isEmpty,
+                            captureOptions: spec.options, excludedApplications: exclusions)
 
     case .window(let id, let app, let title):
       let w = try findWindow(id: id, app: app, title: title, content: content)
@@ -192,7 +219,8 @@ enum Targets {
         warnings.append("window is not on screen (another Space, or minimized); another Space records fine, a minimized window does not")
       }
       return ResolvedTarget(kind: "window", filter: SCContentFilter(desktopIndependentWindow: w), display: d,
-                            frame: frame, sourceRect: nil, scale: displayScale(d.displayID), window: w, warnings: warnings)
+                            frame: frame, sourceRect: nil, scale: displayScale(d.displayID), window: w, warnings: warnings,
+                            captureOptions: spec.options)
     }
   }
 

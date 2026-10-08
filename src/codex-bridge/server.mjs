@@ -5,6 +5,7 @@
 import { Bridge, BridgeError } from './lib/bridge.mjs'
 import { serveMcp } from './lib/mcp-stdio.mjs'
 import { BRIDGE_VERSION } from './lib/appserver.mjs'
+import { EVIDENCE_TOOLS, evidenceHandler } from './lib/evidence-tools.mjs'
 
 const log = (...args) => console.error('[codex-bridge]', ...args)
 const bridge = new Bridge({ log })
@@ -12,6 +13,7 @@ const bridge = new Bridge({ log })
 const SESSION = { type: 'string', description: 'Session name. Each session is one persistent Codex thread; reuse a name to continue a conversation with context. Default "default".' }
 
 const TOOLS = [
+  ...EVIDENCE_TOOLS,
   {
     name: 'codex_computer_use',
     title: 'Delegate a macOS task to Codex Computer Use',
@@ -101,6 +103,12 @@ const TOOLS = [
 ]
 
 function handlerFor(name) {
+  const evidence = evidenceHandler(name)
+  if (evidence) return async args => {
+    const value = await evidence(args)
+    const structuredContent = Array.isArray(value) ? { entries: value } : { entry: value }
+    return { content: [{ type: 'text', text: JSON.stringify(structuredContent) }], structuredContent, isError: false }
+  }
   switch (name) {
     case 'codex_computer_use':
       return async (args, ctx) => {
@@ -146,6 +154,7 @@ await serveMcp({
   name: 'codex-bridge',
   version: BRIDGE_VERSION,
   instructions:
+    'computer_use_observe/facts/receipt/receipts are local evidence tools: no model, UI, app grants or app-server connection. Native Codex consumers may use these directly without self-delegation. ' +
     'Load the taylor-computer-use skill before the first call: it owns when to delegate, the task shape (posture line, app fence, cleanup), and the stop rule for sending, installing, settings and anything needing Taylor\'s own words. ' +
     'codex_computer_use delegates macOS UI work to the local Codex agent for native apps, system dialogs and anything outside the browser and shell. ' +
     'Grant apps explicitly with apps=[...]; read the "denied" section of results and re-run with grants rather than retrying blindly; codex_close_session when a workstream is done.',

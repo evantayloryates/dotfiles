@@ -14,6 +14,13 @@ Claude ──MCP stdio──▶ bin/codex-bridge-mcp (server.mjs)
                  (app-bundled CLI)
 ```
 
+## Shared local evidence
+
+The service also exposes four local capability/receipt tools to native and
+bridge consumers. They do not connect to the app-server or consume a model
+turn. See [CAPABILITY-EVIDENCE.md](CAPABILITY-EVIDENCE.md) for exact version
+scoping, expiry, provenance and the standalone CLI.
+
 ## Why the app-server, not `codex exec`
 
 `codex exec` works for one-shot runs but is fire-and-poll: no progress, no

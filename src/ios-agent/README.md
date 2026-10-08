@@ -2,8 +2,10 @@
 
 The installed foreground app driver passed its cellular gate with USB unplugged
 and Wi-Fi disconnected on 8 October 2026. Native input, React inspection and
-lease/glow cleanup passed. Rich diagnostics, remote Metro/backend delivery and
-complete coach/client workflows remain separate qualification gates.
+lease/glow cleanup passed. The latest installed runtime also passed remote Metro
+delivery, live JavaScript marker updates, read-only navigation/Apollo status and
+embedded-bundle recovery. This build's additional cellular check and complete
+coach/client workflows remain separate qualification gates.
 
 The host lives in dotfiles; the app integration stays on `ety/local-dev-foundation`.
 Only the explicit `IOS_AGENT_ENABLED=1` Debug build for `com.dev.kudos.fit` starts
@@ -59,7 +61,8 @@ A read-only domain registry now samples the registered navigation route and
 Apollo's last emitted query statuses during a lease. Route names come from a
 static code allowlist; query data, variables, error contents and cache contents
 are not exported. The cache metric counts records only. No refetch or navigation
-command is invoked. This adapter's installed-device gate is still pending.
+command is invoked. The installed phone independently reported its committed
+route and query status; see `docs/QUALIFICATION.md` for the bounded scope.
 
 ## Installation and use
 
@@ -89,7 +92,9 @@ the config for the build and never changes `mobile/local-env.js`.
 `python3 src/ios-agent/install_runtime.py --mobile <Kickoff-mobile>` starts the
 scoped `com.taylor.ios-agent.metro` LaunchAgent on loopback port 19404, with two
 workers. It verifies the existing personal tailnet, the guarded local backend
-processes, and local GraphQL/web readiness. It adds private Serve ports 10444
+processes, and local GraphQL/web readiness. It compiles and validates the actual
+device bundle before reporting ready; a cold cache can take about a minute.
+It adds private Serve ports 10444
 (Metro), 10445 (local GraphQL) and 10446 (local web), preserving other routes and
 refusing port conflicts or Funnel. It does not start, seed or replace the backend.
 The current backend-container default is `default-ki-e3ee9-dev-1`; use
@@ -99,6 +104,14 @@ to avoid retaining app console contents. Tailnet membership controls endpoint
 access; these endpoints have no public exposure. The native adapter checks Metro
 at launch; its upstream health check can wait up to ten seconds before selecting
 the embedded bundle. Runtime inspection has no USB relay.
+
+After a Metro restart, its old Fast Refresh graph no longer exists. Use the
+fixed `reload` action to request React Native's standard JavaScript reload,
+then explicitly release and acquire a new lease after readiness returns.
+It is a semantic development operation, not a native tap, and accepts no code,
+URL or navigation parameters. Verify the new state and React tree before input.
+Reload clears the cached ready flag. State reports a `bundleSource` enum
+(`tailnet-Metro`, `embedded`, or `standard-Metro`) without exporting a URL.
 
 Agent workflow:
 
@@ -128,7 +141,7 @@ lease, device, stale result, unknown outcome and owner-event failure cases.
 With `npm ci --ignore-scripts` in `src/ios-agent/react`, it also runs the real pinned
 frontend against a synthetic backend, verifies component state, authentication,
 provider-crash cleanup, recovery and turn-end cleanup. The suite currently has
-22 tests. Run `node --test src/ios-agent/tests/test_telemetry.cjs src/ios-agent/tests/test_domain.cjs` for the eight
+24 tests. Run `node --test src/ios-agent/tests/test_telemetry.cjs src/ios-agent/tests/test_domain.cjs` for the eight
 metadata-adapter tests. Set `IOS_AGENT_MOBILE_ROOT` to the app checkout and run
 `node --test src/ios-agent/tests/test_bridge.cjs src/ios-agent/tests/test_transformer.cjs`
 for real prelude/event wiring and development-only runtime replacement, including

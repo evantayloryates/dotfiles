@@ -20,6 +20,27 @@ LABEL = "com.taylor.ios-agent.metro"
 TAILSCALE = "/Applications/Tailscale.app/Contents/MacOS/Tailscale"
 
 
+def warm_bundle(config):
+    # Compile the real device graph before reporting startup ready. Metro's
+    # /status alone is true even while a cold bundle takes a minute to compile.
+    query = "index.bundle?platform=ios&dev=true&lazy=true&minify=false&inlineSourceMap=false&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server&app=com.dev.kudos.fit"
+    needles = {key: config[key].encode() for key in ("metroURL", "graphqlURL", "webURL")}
+    found = set(); previous = b""; size = 0; deadline = time.monotonic() + 120
+    with urllib.request.urlopen(f"http://127.0.0.1:{METRO_PORT}/" + query, timeout=90) as response:
+        if response.status != 200 or response.headers.get_content_type() != "application/javascript":
+            raise ValueError("Metro_device_bundle_not_ready")
+        while chunk := response.read(1024 * 1024):
+            size += len(chunk)
+            if size > 128 * 1024 * 1024 or time.monotonic() > deadline:
+                raise ValueError("Metro_device_bundle_limit")
+            window = previous + chunk
+            found.update(key for key, value in needles.items() if value in window)
+            previous = window[-512:]
+    if size < 1000 or found != set(needles):
+        raise ValueError("Metro_runtime_adapter_missing")
+    return size
+
+
 def probe(url, graphql=False):
     body = json.dumps({"query": "query IOSAgentReadiness { __typename }"}).encode() if graphql else None
     request = urllib.request.Request(url, data=body, headers={"Content-Type": "application/json"} if graphql else {})
@@ -49,9 +70,17 @@ def route_names(mobile):
     names = set()
     # Static code enums only. Never infer route names from params or app records.
     pattern = re.compile(r'<\w+\.Screen\s[^>]*?\bname\s*=\s*[\'\"]([A-Za-z_][A-Za-z0-9_]{0,63})[\'\"]', re.S)
+    identifier_pattern = re.compile(r'<\w+\.Screen\s[^>]*?\bname\s*=\s*\{([A-Za-z_][A-Za-z0-9_]*)\}', re.S)
     for file in (mobile / "src/navigators").rglob("*"):
         if file.suffix in {".js", ".jsx", ".ts", ".tsx"} and "__tests__" not in file.parts:
-            names.update(pattern.findall(file.read_text()))
+            source = file.read_text()
+            names.update(pattern.findall(source))
+            for identifier in identifier_pattern.findall(source):
+                # Only a same-file literal declaration used by Screen.name.
+                # Computed names and imported/dynamic values remain unknown.
+                declaration = re.search(r'\bconst\s+' + re.escape(identifier) + r'\s*=\s*[\'\"]([A-Za-z_][A-Za-z0-9_]{0,63})[\'\"]', source)
+                if declaration:
+                    names.add(declaration.group(1))
     return sorted(names)
 
 
@@ -149,6 +178,7 @@ def main():
         if time.monotonic() >= deadline:
             raise ValueError("Metro_readiness_failed_job_retained_for_diagnosis")
         time.sleep(.2)
+    bundle_bytes = warm_bundle(config)
     for port, target_port in targets.items():
         subprocess.run([TAILSCALE, "serve", "--bg", f"--https={port}", f"http://127.0.0.1:{target_port}"],
             env={**os.environ, "TAILSCALE_BE_CLI": "1"}, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=20)
@@ -156,7 +186,7 @@ def main():
     serve_compatible(config, verified)
     if not all(f"{host}:{port}" in verified.get("Web", {}) for port in targets):
         raise ValueError("Serve_configuration_not_persisted")
-    print(json.dumps({"installed": True, "metroReady": True, "privateServeVerified": True, "Funnel": False, "config": str(config_path)}))
+    print(json.dumps({"installed": True, "metroReady": True, "deviceBundleReady": True, "bundleBytes": bundle_bytes, "privateServeVerified": True, "Funnel": False, "config": str(config_path)}))
 
 
 if __name__ == "__main__":

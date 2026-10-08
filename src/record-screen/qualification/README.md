@@ -28,6 +28,10 @@ No helper requests a new grant.
 | `serve-fixture.py` | Loopback-only fixture plus explicitly supplied cursor file; no directory exposure |
 | `overlay-inventory.swift` | Window metadata for one supplied process only |
 | `usage-inventory.py` | Native CUA tool namespace inventory across a supplied transcript directory; metadata only |
+| `probe-supervisor.py` | Serial admission, wall deadline, owned-process cleanup and private partial evidence for qualification helpers; not engine recovery |
+| `supervisor-test.py` | Synthetic stall, interruption, concurrency and recovery checks with no screen capture |
+| `options-test.swift` | Offline target parsing and filter/child/PID source identity checks; compile with engine sources except main.swift |
+| `options-mcp.test.mjs` | Isolated engine socket: reject unsupported controls before forwarding; no real capture |
 | `bridge-probe.mjs` | MCP initialize/tools-list only, no app-server/model turn |
 
 `capture-probe WINDOW_ID MODE OUTPUT.png [CURSOR] [CHILDREN] [MARGIN] [EXCLUDE_PID]`
@@ -109,3 +113,27 @@ recordings or fixture process, and preserve evidence privately outside Git.
 - CSS/system pointer suppression and browser native menus are not fully
   qualified. Chrome on another Space retained an automation pointer-like
   residual and produced errors in some capture modes.
+
+## Third-pass background checks
+
+The supervisor wraps only task-owned qualification helpers. Use one admission
+folder for the whole series, and a new output folder for each run:
+
+```sh
+python3 src/record-screen/qualification/probe-supervisor.py --output /absolute/new-run --admission /absolute/series-admission --timeout 30 -- /absolute/stream-probe WINDOW_ID 8 /absolute/result.json
+```
+
+It returns busy instead of starting a second helper, preserves stdout/stderr
+and mechanical outcomes privately, and reaps its owned child/group after a
+deadline or handled interruption. A retry is a separate explicit run. This
+is not a root-cause fix for SCK startup stalls and does not change the engine's
+unbounded startup path. Forced supervisor termination/power loss remain open.
+
+```sh
+python3 src/record-screen/qualification/supervisor-test.py
+node --test src/record-screen/qualification/options-mcp.test.mjs
+```
+
+Shared app facts and action blocks live at the computer-use capability layer;
+see `src/codex-bridge/CAPABILITY-EVIDENCE.md`. Source packets remain a private
+prototype. Their consumer delivery and automatic receipts still need work.

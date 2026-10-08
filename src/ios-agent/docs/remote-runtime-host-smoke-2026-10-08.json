@@ -1,7 +1,7 @@
 {
   "date": "2026-10-08",
   "scope": "host checks and actual remote Metro bundle; not installed-device qualification",
-  "pythonTests": 22,
+  "pythonTests": 24,
   "javascriptTests": 10,
   "guardedLocalBackendVerified": true,
   "privateServePorts": [
@@ -13,12 +13,17 @@
   "Funnel": false,
   "remoteGraphQLHTTPReady": true,
   "remoteWebHTTPReady": true,
-  "remoteBundleHash": "a58fee138fc942d5f2ca9340f79aee49deb0134ffb9280196b0bcc8db331b56f",
-  "bundleBytes": 34973503,
-  "runtimeRoutesCount": 60,
   "normalLocalEnvUnchanged": true,
   "releaseAndOrdinaryDebugCompileExclusion": true,
   "relativeFilenameRegressionCovered": true,
   "buildAttemptOne": "cancelled before install after bundle validation caught override omission",
-  "installedDeviceGate": "pending"
+  "installedDeviceGate": "passed except exact-build cellular gate",
+  "HTTPSOverloadRegression": "upstream shorter overload drops scheme; full overload used",
+  "remoteMetroRestartRecovery": "explicit semantic reload",
+  "initialBundleRouteEnumCount": 60,
+  "currentRuntimeRouteEnumCount": 68,
+  "deviceBundleWarmVerified": true,
+  "warmedDeviceBundleBytes": 34973882,
+  "initialRemoteBundleHash": "a58fee138fc942d5f2ca9340f79aee49deb0134ffb9280196b0bcc8db331b56f",
+  "initialRemoteBundleBytes": 34973503
 }

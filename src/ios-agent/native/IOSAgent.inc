@@ -8,6 +8,7 @@
 #import <React/RCTEventEmitter.h>
 #import <React/RCTBridgeModule.h>
 #import <React/RCTBundleURLProvider.h>
+#import <React/RCTReloadCommand.h>
 #if __has_include("IOSAgentRuntimeConfig.h")
 #import "IOSAgentRuntimeConfig.h"
 #endif
@@ -15,6 +16,7 @@
 #import "TouchHID.inc"
 
 #if IOS_AGENT_REACT
+static NSString *IABundleSource=@"unknown";
 static NSURL *IOSAgentDevelopmentBundleURL(void) {
  NSURL *fallback=[[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
 #ifdef IOS_AGENT_METRO_ENDPOINT
@@ -22,13 +24,20 @@ static NSURL *IOSAgentDevelopmentBundleURL(void) {
  BOOL valid=[url.scheme isEqual:@"https"] && [url.host hasSuffix:@".ts.net"] && !url.user && !url.password && !url.query && !url.fragment && [url.path isEqual:@"/"] && url.port.intValue==10444;
  if(valid) {
   NSString *host=[NSString stringWithFormat:@"%@:%@",url.host,url.port];
-  if([RCTBundleURLProvider isPackagerRunning:host scheme:@"https"])
-   return [RCTBundleURLProvider jsBundleURLForBundleRoot:@"index" packagerHost:host packagerScheme:@"https" enableDev:YES enableMinification:NO inlineSourceMap:NO modulesOnly:NO runModule:YES];
+  if([RCTBundleURLProvider isPackagerRunning:host scheme:@"https"]) {
+   IABundleSource=@"tailnet-Metro";
+   // RN 0.79's shorter overload discards the scheme. The full overload
+   // preserves HTTPS; never patch the dependency or allow plaintext instead.
+   return [RCTBundleURLProvider jsBundleURLForBundleRoot:@"index" packagerHost:host packagerScheme:@"https" enableDev:YES enableMinification:NO inlineSourceMap:NO modulesOnly:NO runModule:YES additionalOptions:nil];
+  }
  }
+ IABundleSource=@"embedded";
  return fallback;
 #elif defined(IOS_AGENT_EMBEDDED_BUNDLE) && IOS_AGENT_EMBEDDED_BUNDLE
+ IABundleSource=@"embedded";
  return fallback;
 #else
+ IABundleSource=@"standard-Metro";
  return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index"];
 #endif
 }
@@ -248,7 +257,22 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
  [self.seen addObject:cid]; if(self.seen.count>256) [self.seen removeObjectAtIndex:0];
  @try {
   if([action isEqual:@"capabilities"]) { done([self capabilities]); return; }
-  if([action isEqual:@"state"]) { done(self.appState?:@{@"ready":@NO}); return; }
+  if([action isEqual:@"state"]) {
+   NSMutableDictionary *state=[(self.appState?:@{@"ready":@NO}) mutableCopy];
+#if IOS_AGENT_REACT
+   state[@"bundleSource"]=IABundleSource;
+#endif
+   done(state); return;
+  }
+  if([action isEqual:@"reload"]) {
+#if IOS_AGENT_REACT
+   self.appState=@{@"ready":@NO};
+   done(@{@"delivery":@"scheduled-JS-reload",@"scope":@"semantic-dev-runtime"});
+   dispatch_after(dispatch_time(DISPATCH_TIME_NOW,100*NSEC_PER_MSEC),dispatch_get_main_queue(),^{ RCTTriggerReloadCommandListeners(@"ios-agent explicit development reload"); }); return;
+#else
+   done(IAError(@"react_not_compiled")); return;
+#endif
+  }
   if([action isEqual:@"diagnostics-probe"]) {
 #if IOS_AGENT_REACT
    if(!IABridge.observing) { done(IAError(@"react_not_ready")); return; }

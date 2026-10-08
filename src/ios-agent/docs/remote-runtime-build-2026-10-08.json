@@ -1,0 +1,26 @@
+{
+  "exit": 0,
+  "seconds": 40.5,
+  "agentBinaryVerified": true,
+  "sourceEdited": false,
+  "xctestStarted": false,
+  "sourceChangedDuringBuild": false,
+  "runtimeConfigHash": "af123cc410cef419896fd73f4dc28d00b9359d20023991947f20eea27e2ce642",
+  "embeddedFallback": true,
+  "sources": {
+    "/Users/taylor/src/github/dotfiles/src/ios-agent/native/telemetry.js": "f55f3404c268d59c837bc81cc506cf830e83e4b659657d0e8c581eecef6e38a6",
+    "/Users/taylor/src/github/dotfiles/src/ios-agent/native/bridge.js": "1a8e911e839765abf22b836cb9b859bc5dea2a20c2ea49d8c93deb1ac2f3b5a2",
+    "/Users/taylor/src/github/dotfiles/src/ios-agent/native/runtime-config.cjs": "4ef3f40fffa6e421760f178fcab35f78775ff8a77dbab507b800f0872dd31d4a",
+    "/Users/taylor/src/github/dotfiles/src/ios-agent/native/TouchHID.inc": "d44e2371ff3d6e3f5bf160eaaef19e62367aaef6e8e33718ed58e3c78106c9a3",
+    "/Users/taylor/src/github/dotfiles/src/ios-agent/native/runtime-config.js": "18c43419f9b24144f6255e426fb0129d7c94ea004e674fb35c36990abe563a91",
+    "/Users/taylor/src/github/dotfiles/src/ios-agent/native/domain.js": "7fe96816d6a9038a7122b521666b7143c90519c7f06bd16d4b9feea7d02a6824",
+    "/Users/taylor/src/github/dotfiles/src/ios-agent/native/KIF-LICENSE": "78a064c0e16e5830e7e8f9b8ad1ec2b2f7b5a347c96f9f028c61be31d5280f30",
+    "/Users/taylor/src/github/dotfiles/src/ios-agent/native/runtime-marker.js": "58615fc9baaffd072c68c85dff2b60ca763236773e03a5f02bb1c25fd9a04542",
+    "/Users/taylor/src/github/dotfiles/src/ios-agent/native/local-env.js": "83578e3a469aaa2c233f2216d738e70a30f820cccf92268d6c9a3c5614b76c54",
+    "/Users/taylor/src/github/dotfiles/src/ios-agent/native/transformer.cjs": "ce8d9db32a090ebe891730f8d7adf729518f77fb30ac8734ae108576402babd5",
+    "/Users/taylor/src/github/dotfiles/src/ios-agent/native/metro.cjs": "9a93e7d152d7b4641b8567b59af1b9ee9b6c01c96996acda11becf01ef0722e0",
+    "/Users/taylor/src/github/dotfiles/src/ios-agent/native/IOSAgent.inc": "4c86fe55e3c206fb2cde1b35cf8aadee781c44fb9d3aa21db52d83ad167feb39",
+    "/Users/taylor/src/github/kickoff/mobile/ios/kudos/AppDelegate.mm": "53b10e91800146ad6e7cfcd58511a92870331b2ead4d1483a00bf49b63347e6e"
+  },
+  "scope": "physical Debug build, installed and qualified over Tailscale; exact-build cellular gate pending"
+}

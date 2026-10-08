@@ -191,6 +191,7 @@ final class Engine: @unchecked Sendable {
       ],
       "clock": ["uptime_ns": uptimeNs(), "wall": iso8601.string(from: now), "started_ns": startedNs],
       "permission": ["screen_recording": CGPreflightScreenCaptureAccess() ? "granted" : "missing"],
+      "capabilities": ["target_capture_options": CaptureOptions.contractVersion],
       "displays": await displays(),
       "viewfinder": await viewfinder.state,
       "overlays": await MainActor.run { Overlays.shared.active },

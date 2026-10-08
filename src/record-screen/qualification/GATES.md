@@ -1,5 +1,35 @@
 # Qualification update — October 8, 2026
 
+## Third pass: background implementation and fault qualification
+
+No focus actions, recording, new grants, Claude inference or delegated model
+turns. The installed engine was neither replaced nor restarted. Candidate
+code is committed independently of live delivery.
+
+| Gate | Qualified result | Remaining limit |
+| --- | --- | --- |
+| Capture option source contract | Explicit child-window setting and exact bundle exclusions on display/rect targets; missing apps and unsupported combinations fail. Full Swift candidate build and 25 parse/identity checks passed. | Real SDK filtering, exclusion PID churn and preview tap selection through the production engine still need a live pass. |
+| Filter-aware source identity | Recording taps and viewfinder lanes include child configuration, exact bundles and resolved exclusion PIDs. Legacy keys remain unchanged. | A restarted excluded app requires fresh resolution; no universal cursor-cleaning recipe is enabled. |
+| Engine capability negotiation | Candidate status advertises target options v1. Two tests, including an isolated socket engine, show the MCP rejects old-engine options before capture, passes explicit false and preserves legacy calls. | Raw socket callers must negotiate support too. Installed old engine does not advertise support. |
+| Shared app facts and declared receipts | Four local MCP tools plus standalone CLI. Seven tests cover concurrent writers, atomic publication failure, exact version/expiry/conflicts, private files, exact nanoseconds, session scoping, readback and invalid requests. MCP tests forbid model/transport paths. | Reported observations and caller-claimed ownership; automatic interception and concurrent-user attribution remain open. |
+| Persisted baseline learning | Two prior app observations and one prior action block saved in the shared computer-use evidence store and independently read back. Exact app/OS/provider/display keys; seven-day expiry. | Observation times use evidence mtime; versions reconciled after the same-day runs. No automatic model training, success audit or unconditional app guarantee. |
+| Qualification startup recovery | Four synthetic tests cover stalled helpers ignoring SIGTERM, partial evidence, concurrent admission, handled supervisor interruption and subsequent successful starts. Private stdout/stderr/outcomes; only owned groups stopped. | Wrapper qualifies helper control only. Engine startup deadlines, root cause, forced supervisor termination, resource budgets and actual stalled-SDK recovery are still open. |
+
+The shared store is `/Users/taylor/.local/state/codex-bridge/capability-evidence/`;
+its contract is in `src/codex-bridge/CAPABILITY-EVIDENCE.md`. Native consumers
+use it directly without self-delegation. Existing MCP processes may require
+reconnection to discover new tools. Private test logs, source candidate binary,
+option checks and persistence readback live in `gates-v3/` under the same
+qualification bundle. No visual composition code was added.
+
+Next delivery gate: bounded live engine qualification of the option/filter/tap
+contract, automatic receipts and a dense source journal; then cross-display,
+menu readiness/overflow, concurrent user input and realistic redundancy load.
+Only focus-taking work needs another agreed production interval. Background
+source preparation does not reserve a display or block Taylor's input.
+
+## Second pass: live evidence
+
 Second pass, within an approved 15-minute production interval. These are
 qualification helpers and source contracts; the installed recorder has not
 been changed or restarted. Visual composition remains deferred.
@@ -49,11 +79,11 @@ do not promise universal cursor removal based on the native helper result.
 
 ## Next gates still open
 
-1. Install shared versioned app/provider facts and automatic supported action
-   receipts, then qualify simultaneous agent and unrelated user activity.
-2. Integrate qualified options into the recorder, including filter-aware tap
-   identities and backward compatibility. The current area-only tap key must
-   not reuse a stream with different exclusions or child settings.
+1. Shared versioned facts and declared action blocks now have a tested store.
+   Automatic supported action receipts and simultaneous agent/user attribution
+   still need qualification.
+2. The source candidate now has options, filter-aware tap identities and old-
+   engine refusal. Live SDK/preview routing and installation remain pending.
 3. Cross-display/scale and sleep/wake synchronization; injected pointer
    coordinate semantics; menu overflow beyond the frame; source handover.
 4. Repeat the delayed AppKit menu case and qualify stable daily-app depth
