@@ -29,8 +29,8 @@ application's behavior or a production P80 duration.
 | --- | --- | --- |
 | Bounded capture startup and recovery | Shared SDK deadlines; uncooperative-producer, cancellation, late-callback tests; admission includes unfinished work; healthy peers survive an isolated failure. | 50 deadline assertions and 12 actual recording state/race assertions passed. Signed isolated live captures/recovery passed; uncooperative SDK producer tested synthetically only. |
 | Live capture controls and routing | Signed isolated candidate; child/menu pixels and helper exclusion; default compatibility; tap vs lane identity; current excluded PID checks; source cleanup. | Signed isolated engine passed native child inclusion/exclusion, filter-aware tap selection, unavailable-target isolation, scheduled cancellation, partial-file interruption and recovery. Exclusion PID churn and daily apps still open. |
-| Recorder-owned source journal | Frame clock/encoded-time mapping, geometry segments, affine transform validity and unknowns, held/dropped frames, source identity and gaps. Consumer receives normalized data without writing synchronization logic. | Bounded recorder-owned journal/consumer candidate passed: 1,337 H.264/Retina HEVC muxed samples match exact times; three HEVC geometry segments within 0.884 px. Initial movie-offset failure fixed. Final interrupted-journal checkpoint labeling, real MCP readback and fresh recovery passed too (139 exact samples). Cross-display/sleep and derivative timeline mapping remain open. |
-| Input and action provenance | Broad keys/modifiers/scroll/drag, destination/child scope, bounded uncertain actions, no unrelated text retention; service-stamped semantic action blocks; explicit source/ownership uncertainty and access gaps. | Signed native candidates passed 36/36 and 8/8 delivered keys, 40 unrelated keys excluded, service-stamped scopes/AX pixels, restart uncertainty and callback wrapper readback. 138 policy/lifecycle and nine admission assertions passed. Listener-loop enumeration cost, event-clock/coordinate, secure-input/tap faults and other providers remain open. |
+| Recorder-owned source journal | Frame clock/encoded-time mapping, geometry segments, affine transform validity and unknowns, held/dropped frames, source identity and gaps. Consumer receives normalized data without writing synchronization logic. | Bounded recorder-owned journal/consumer candidate passed: 1,337 H.264/Retina HEVC muxed samples match exact times; three HEVC geometry segments within 0.884 px. Initial movie-offset failure fixed. Final interrupted-journal checkpoint labeling, real MCP readback and fresh recovery passed too (139 exact samples). Native Retina/external/return geometry passed; sleep and derivative timeline mapping remain open. |
+| Input and action provenance | Broad keys/modifiers/scroll/drag, destination/child scope, bounded uncertain actions, no unrelated text retention; service-stamped semantic action blocks; explicit source/ownership uncertainty and access gaps. | Signed native candidates passed 36/36 and 8/8 delivered keys, 40 unrelated keys excluded, service-stamped scopes/AX pixels, restart uncertainty and callback wrapper readback. 138 policy/lifecycle and nine admission assertions passed. Enumeration offload and explicit protected-input omission/recovery passed. Browser virtual-input coverage, raw coordinates, tap faults and sleep remain open. |
 | Daily app depth and transient surfaces | Native, Chrome and a supported Electron app; genuine context menus, nested/overflow surfaces, app updates, unreachable/occluded targets; useful bounded fallback. | Native and Chrome helper passes with documented limitations; depth requalification pending. |
 | Collisions and synchronization | Window movement/resize/display scale and negative origins; concurrent unrelated input; idle/sleep/display changes; source loss and interruption evidence with trim/reshoot/source alternatives. | Basic marker/geometry evidence passed; broader transitions pending. |
 | Realistic resource budget | Motion, two-source insurance, actual encoding, CPU/RSS/storage/frame loss and representative previews; conservative admission/fidelity recommendations. | Static insurance evidence only; load pass pending. |
@@ -90,3 +90,32 @@ is 99752c4615cf. Resume with the offload canary and failure/lifecycle checks bef
 cross-display, Chrome/Electron depth, resources and production delivery.
 
 Resume: explicit go-ahead received. The earlier clean pause remains historical; production-window permission is still valid. Start with window-context sampler lifecycle and live canary.
+
+## Sixth-pass checkpoint — October 8, 20:34 UTC
+
+Signed isolated build 47ba5460519f is live in private gates-v6. Source changes
+remain a candidate; installed production is still cd78c24b652e, now PID 955
+after actual desktop-session recovery. 113 window-query, 139 input/action and
+125 journal assertions passed, plus 14 Node regressions. Cross-display transforms
+matched four actual encoded marker images exactly. All 14,411 samples across
+the cross-display, secure-field, explicit protected-input and recovered Chrome
+takes matched journal times; zero row loss. These totals exclude the failed take.
+
+A real WindowServer exit at 20:16:53 UTC interrupted the Chrome take. Cause is
+unknown; system logs and private source/video proofs are preserved. The failed
+video decoded 1,197 frames/42.02 seconds versus 1,210 accepted writer submissions.
+The next candidate exposes video_outcome separately from journal completeness.
+Surviving old SDK discovery timed out/quarantined, fast-refused the next call,
+then a fresh idle isolated process recovered. No production or peer take stopped.
+
+Chrome 154.0.8037.98 on macOS 26.5.1/25F80 captured HTML and genuine native menus
+with child inclusion. Virtual browser typing had no app-addressed OS keyboard
+evidence; bounded action candidates addressed Codex remain uncertain. Three
+version/surface-scoped observations were saved/read back in the shared service
+evidence store. Keep compact operation scopes rather than one long test-series
+block. Current report reflects the resume and preserved failures.
+
+Next: Electron depth and remaining transient surfaces; exclusion/app lifetime
+recovery; pointer-coordinate and sleep limits; motion/insurance resource budget;
+derivative source mapping and preview effort tiers; structural workflow outcome
+audit; then production installation/rollback/readback and final runbooks.

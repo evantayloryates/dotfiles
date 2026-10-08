@@ -59,7 +59,13 @@ The asynchronous writer retains at most 64 queued rows and writes at most
 64 MiB per take. Serialization/file failures, queue overflow and the byte cap
 increase loss diagnostics rather than blocking video capture. Journal sequence
 gaps identify omitted accepted-source observations; the descriptor/footer
-reports total offered/written/lost rows. Frame spacing never substitutes for a
+reports total offered/written/lost rows. New journal descriptors and footers also
+carry `video_outcome`: recording state, writer status, successful finalization,
+accepted submission count and explicit unverified muxed coverage. Legacy or
+unfinished output can have a null outcome. `record.source` surfaces this separately.
+The real WindowServer-loss take closed its ledger but persisted 13 fewer packets
+than its accepted encoder submissions; recovered footage must be probed before
+using it. Frame spacing never substitutes for a
 source-drop count. Encoder backpressure is separately recorded.
 
 `state=writing` or `draining` is not final telemetry. `complete=true` requires
@@ -137,3 +143,22 @@ bracketing. Optional shared evidence publication preserves rich context and exac
 stamps as `recorder_reply_imported`, with ownership/result unverified; it does
 not manufacture a verified native-provider receipt. Source action_scope rows
 reference recorder-stamped blocks alongside video metadata and semantic marks.
+
+## Sixth-pass platform qualification
+
+The native fixture crossed built-in Retina (2×), external DELL (1×, negative
+desktop origin), then returned. Four actual encoded marker frames matched
+their own geometry matrices exactly. All 8,315 muxed timestamps and 24 delivered
+key/modifier timestamps corresponded. This does not qualify raw provider pointer
+coordinates, physical latency or sleep transitions.
+
+Carbon protected-input canary produced enabled/ended gaps, omitted 24 delivered
+protected key/modifier events and recovered six normal events. A secure field
+alone stayed globally unprotected for the injected native provider; agents must
+not infer protection from appearance or healthy listener status.
+
+Chrome tab-provider actions changed DOM text without app-addressed OS keyboard
+evidence. During the declared block, retained modifier/shortcut candidates were
+addressed to Codex and remain uncertain. Rich service-stamped action receipts
+provide operation context when a provider does not produce the OS event stream.
+They cannot fabricate the missing delivered-key trajectory or prove ownership.

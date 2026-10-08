@@ -2,7 +2,7 @@
 
 function createDomainRegistry({routeNames = [], now = Date.now, schedule = setInterval, cancel = clearInterval, onChange = () => {}} = {}) {
   const names = new Set(routeNames);
-  let apollo, navigation, timer, active = false, generation = 0, observedAt = null, values = {}, probe = null;
+  let apollo, navigation, timer, active = false, generation = 0, observedAt = null, values = {}, probe = null, probeAt = null;
   const emit = () => { try { onChange(); } catch {} };
   const sample = () => {
     if (!active) return;
@@ -33,17 +33,17 @@ function createDomainRegistry({routeNames = [], now = Date.now, schedule = setIn
   return {
     registerApollo(client) { apollo = client; sample(); return () => { if (apollo === client) { apollo = undefined; sample(); } }; },
     registerNavigation(readRoute) { navigation = readRoute; sample(); return () => { if (navigation === readRoute) { navigation = undefined; sample(); } }; },
-    start() { if (timer !== undefined) cancel(timer); generation++; active = true; probe = null; sample(); timer = schedule(sample, 1000); },
-    stop() { if (timer !== undefined) cancel(timer); timer = undefined; generation++; active = false; values = {}; observedAt = null; probe = null; emit(); },
+    start() { if (timer !== undefined) cancel(timer); generation++; active = true; probe = null; probeAt = null; sample(); timer = schedule(sample, 1000); },
+    stop() { if (timer !== undefined) cancel(timer); timer = undefined; generation++; active = false; values = {}; observedAt = null; probe = null; probeAt = null; emit(); },
     token() { return generation; },
     recordProbe(token, record) {
       if (!active || token !== generation) return;
       probe = {httpStatus: Number.isInteger(record.httpStatus) && record.httpStatus >= 0 && record.httpStatus <= 599 ? record.httpStatus : null,
         graphqlReady: record.graphqlReady === true, outcome: ['ready', 'network', 'shape'].includes(record.outcome) ? record.outcome : 'shape'};
-      emit();
+      probeAt = now(); emit();
     },
     snapshot() { return {active, observedAt, ageMs: observedAt === null ? null : Math.max(0, now() - observedAt),
-      ...JSON.parse(JSON.stringify(values)), probe: probe && {...probe},
+      ...JSON.parse(JSON.stringify(values)), probe: probe && {...probe, ageMs: Math.max(0, now() - probeAt)},
       coverage: 'registered-navigation-and-Apollo-last-results', payloadsExported: false}; },
   };
 }

@@ -18,14 +18,26 @@ function createTelemetry({now = Date.now, schedule = setTimeout, cancel = clearT
   const emit = () => { try { onChange(); } catch {} };
   const changed = () => {
     if (timer !== null) return;
-    timer = schedule(() => { timer = null; emit(); }, 200);
+    const current = generation;
+    try {
+      timer = schedule(() => {
+        // Cancellation may race an already queued callback. It must not publish
+        // an idle snapshot or clear the next owner's pending notification.
+        if (!active || generation !== current) return;
+        timer = null; emit();
+      }, 200);
+    } catch { timer = null; }
   };
-  const clearTimer = () => { if (timer !== null) cancel(timer); timer = null; };
+  const clearTimer = () => { try { if (timer !== null) cancel(timer); } catch {} timer = null; };
   const append = (list, kind, event) => {
     if (list.length === LIMIT) { list.shift(); dropped[kind] += 1; }
     list.push({sequence: ++sequence, ...event}); changed();
   };
-  const elapsed = start => Math.max(0, Math.min(86400000, Math.round(now() - start)));
+  const readTime = () => { try { const value = now(); return Number.isFinite(value) ? value : null; } catch { return null; } };
+  const elapsed = start => {
+    const end = readTime();
+    return start === null || end === null ? null : Math.max(0, Math.min(86400000, Math.round(end - start)));
+  };
   const api = {
     isActive() { return active; },
     start() { clearTimer(); generation += 1; active = true; reset(); emit(); },
@@ -44,7 +56,7 @@ function createTelemetry({now = Date.now, schedule = setTimeout, cancel = clearT
     },
     fetch(original, receiver, args) {
       if (!active) return original.apply(receiver, args);
-      const current = generation, started = now(), observed = active;
+      const current = generation, started = readTime();
       let method = 'GET';
       // Read data descriptors only, so instrumentation does not invoke getters twice.
       try {
@@ -52,9 +64,9 @@ function createTelemetry({now = Date.now, schedule = setTimeout, cancel = clearT
         if (descriptor) method = typeof descriptor.value === 'string' && METHODS.has(descriptor.value.toUpperCase()) ? descriptor.value.toUpperCase() : 'OTHER';
         else if (typeof args[0] !== 'string') method = 'OTHER';
       } catch { method = 'OTHER'; }
-      if (observed) { inFlight += 1; changed(); }
+      inFlight += 1; changed();
       const complete = (response, failed) => {
-        if (!observed || !active || generation !== current) return;
+        if (!active || generation !== current) return;
         inFlight -= 1;
         let status = null;
         try { const value = failed ? null : response?.status; if (Number.isInteger(value) && value >= 0 && value <= 599) status = value; } catch {}
@@ -63,7 +75,6 @@ function createTelemetry({now = Date.now, schedule = setTimeout, cancel = clearT
       let result;
       try { result = original.apply(receiver, args); }
       catch (error) { try { complete(null, true); } catch {} throw error; }
-      if (!observed) return result;
       // Chain rather than mark the caller's promise handled with a detached observer.
       // The returned promise preserves response/error identity, including unhandled rejection behavior.
       return result.then(response => {

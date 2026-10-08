@@ -57,6 +57,18 @@ final class BlockedSink: @unchecked Sendable {
     healthy.offer(["kind":"encoded_frame", "relative_ns":healthy.relative(123)])
     healthy.finish(); await closed(healthy)
     check(healthy.describe()["complete"] as? Bool == true, "healthy ledger complete")
+    let failedVideo = try SourceJournal(path:root.appendingPathComponent("failed-video.jsonl").path,
+      epoch:100,recordingID:"failed-video",target:[:])
+    failedVideo.finish(outcome:["recording_state":"failed","successful_finalization":false,"encoded_submissions":1210])
+    failedVideo.finish(outcome:["recording_state":"done","successful_finalization":true])
+    await closed(failedVideo)
+    check(failedVideo.describe()["complete"] as? Bool == true,"journal can close completely despite video failure")
+    let outcome = failedVideo.describe()["video_outcome"] as? [String:Any]
+    check(outcome?["successful_finalization"] as? Bool == false,"repeat closure never upgrades failed finalization")
+    let savedRows = try String(contentsOfFile:failedVideo.path,encoding:.utf8).split(separator:"\n").map {
+      try JSONSerialization.jsonObject(with:Data($0.utf8)) as! [String:Any]
+    }
+    check((savedRows.last?["video_outcome"] as? [String:Any])?["encoded_submissions"] as? Int == 1210,"footer persists failure independently of row completeness")
     let mode = try FileManager.default.attributesOfItem(atPath:file)[.posixPermissions] as! NSNumber
     check(mode.intValue == 0o600, "private source file")
     let headerBytes = try Data(contentsOf: URL(fileURLWithPath:file)).split(separator:10).first!.count + 1

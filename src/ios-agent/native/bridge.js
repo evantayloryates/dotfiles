@@ -11,6 +11,9 @@ if (bridge && !global.__IOS_AGENT_BRIDGE_STARTED__) {
   let telemetry;
   let domain;
   let probeRequest;
+  let fixtureRequest;
+  let fixtureReport;
+  const cancelFixture = () => { fixtureRequest?.abort(); fixtureRequest = undefined; fixtureReport = undefined; };
   const cancelProbe = () => {
     if (!probeRequest) return;
     clearTimeout(probeRequest.timer);
@@ -22,6 +25,7 @@ if (bridge && !global.__IOS_AGENT_BRIDGE_STARTED__) {
     protocol: 1,
     hermes: Boolean(global.HermesInternal),
     diagnostics: telemetry?.snapshot() || {active: false},
+    telemetryFixture: fixtureReport,
     domain: domain?.snapshot() || {active: false},
     bundleMarker: require('./runtime-marker'),
     remoteRuntimeConfigured: Boolean(runtime.metroURL),
@@ -34,6 +38,7 @@ if (bridge && !global.__IOS_AGENT_BRIDGE_STARTED__) {
   LogBox.ignoreAllLogs(true);
   new NativeEventEmitter(bridge).addListener('IOSAgentCommand', ({command, message}) => {
     if (command === 'session-start') {
+      cancelFixture();
       cancelProbe();
       disconnect?.();
       listeners.clear();
@@ -45,6 +50,7 @@ if (bridge && !global.__IOS_AGENT_BRIDGE_STARTED__) {
         onMessage: (event, payload) => bridge.sendReact(JSON.stringify({event, payload, sequence: ++sequence})),
       });
     } else if (command === 'session-end') {
+      cancelFixture();
       cancelProbe();
       disconnect?.();
       disconnect = undefined;
@@ -66,6 +72,21 @@ if (bridge && !global.__IOS_AGENT_BRIDGE_STARTED__) {
           domain.recordProbe(token, {httpStatus: response.status, graphqlReady: ready, outcome: ready ? 'ready' : 'shape'});
         }).catch(() => domain.recordProbe(token, {graphqlReady: false, outcome: 'network'}))
         .finally(() => { clearTimeout(request.timer); if (probeRequest === request) probeRequest = undefined; });
+    } else if (command === 'diagnostics-matrix' && telemetry.isActive() && runtime.metroURL) {
+      if (fixtureRequest) return;
+      const controller = new AbortController(); fixtureRequest = controller;
+      const token = domain.token();
+      const timer = setTimeout(() => controller.abort(), 10000);
+      require('./telemetry-fixture').runTelemetryFixture(global, runtime.metroURL, controller.signal)
+        .then(report => {
+          if (fixtureRequest === controller && !controller.signal.aborted && telemetry.isActive() && token === domain.token()) {
+            fixtureReport = report; publish();
+          }
+        }).catch(() => {
+          if (fixtureRequest === controller && !controller.signal.aborted && telemetry.isActive() && token === domain.token()) {
+            fixtureReport = {passed: false, scope: 'isolated-adapter-with-device-global-fetch', failure: 'fixture_transport_or_runtime'}; publish();
+          }
+        }).finally(() => { clearTimeout(timer); if (fixtureRequest === controller) fixtureRequest = undefined; });
     } else if (command === 'react') {
       try {
         const frame = JSON.parse(message);

@@ -24,7 +24,8 @@ test('inspection is lease-scoped, read-only, bounded and excludes payloads', () 
 });
 
 test('replacement registration and late probe completion are fenced', () => {
-  const registry = createDomainRegistry({routeNames: ['Welcome'], schedule: () => 1, cancel() {}});
+  let clock = 10;
+  const registry = createDomainRegistry({routeNames: ['Welcome'], now: () => clock, schedule: () => 1, cancel() {}});
   const removeOld = registry.registerNavigation(() => 'private-route');
   registry.registerNavigation(() => 'Welcome'); removeOld();
   registry.start(); assert.equal(registry.snapshot().navigation.route, 'Welcome');
@@ -32,5 +33,6 @@ test('replacement registration and late probe completion are fenced', () => {
   registry.recordProbe(old, {httpStatus: 200, graphqlReady: true, outcome: 'ready'});
   assert.equal(registry.snapshot().probe, null);
   registry.recordProbe(registry.token(), {httpStatus: 200, graphqlReady: true, outcome: 'ready', data: 'secret'});
-  assert.deepEqual(registry.snapshot().probe, {httpStatus:200,graphqlReady:true,outcome:'ready'});
+  assert.deepEqual(registry.snapshot().probe, {httpStatus:200,graphqlReady:true,outcome:'ready',ageMs:0});
+  clock += 4000; assert.equal(registry.snapshot().probe.ageMs,4000);
 });

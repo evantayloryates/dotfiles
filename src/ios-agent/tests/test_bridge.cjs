@@ -15,7 +15,7 @@ test('real bridge binds diagnostics to native session events and preserves runti
       plugins: [requireMobile.resolve('@babel/plugin-transform-modules-commonjs')],
     }).code;
     let receive, published = [], timers = new Map(), nextTimer = 0, forwarded = [], hidden = false;
-    let deferred, finishRequest, requestSignal;
+    let deferred, finishRequest, requestSignal, finishFixture, fixtureSignal;
     const bridge = {publish: json => published.push(JSON.parse(json)), sendReact() {}};
     const fakeRequire = name => {
       if (name === 'react-native') return {
@@ -26,6 +26,10 @@ test('real bridge binds diagnostics to native session events and preserves runti
       if (name === './domain') return {createDomainRegistry: options => require('../native/domain').createDomainRegistry({...options, schedule: () => 0, cancel() {}})};
       if (name === './runtime-config') return {metroURL: 'https://synthetic.ts.net:10444/', graphqlURL: 'https://synthetic.ts.net:10445/development/graphql', routeNames: ['Welcome']};
       if (name === './runtime-marker') return 'test-runtime';
+      if (name === './telemetry-fixture') return {runTelemetryFixture: (target, url, signal) => {
+        fixtureSignal = signal;
+        return new Promise(resolve => {finishFixture = resolve;});
+      }};
       if (name === 'react-devtools-core') return {connectWithCustomMessagingProtocol: () => () => {}};
       throw new Error('unexpected_dependency');
     };
@@ -75,4 +79,13 @@ test('real bridge binds diagnostics to native session events and preserves runti
     assert.equal(published.at(-1).diagnostics.active, false);
     assert.equal(published.at(-1).diagnostics.console.length, 0);
     assert.equal(published.at(-1).diagnostics.network.length, 0);
+    receive({command: 'session-start'});
+    receive({command: 'diagnostics-matrix'});
+    receive({command: 'session-end'});
+    assert.equal(fixtureSignal.aborted, true);
+    receive({command: 'session-start'});
+    finishFixture({passed:true,scope:'isolated-adapter-with-device-global-fetch'});
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(published.at(-1).telemetryFixture, undefined);
+    receive({command:'session-end'});
   });

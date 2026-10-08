@@ -20,6 +20,7 @@ final class SourceJournal: @unchecked Sendable {
   private var bytes = 0
   private var failure: String?
   private var phase = "writing"
+  private var videoOutcome: [String: Any]?
 
   init(path: String, epoch: UInt64, recordingID: String, target: [String: Any],
        capacity: Int = 64, byteLimit: Int = 64 * 1024 * 1024,
@@ -81,9 +82,10 @@ final class SourceJournal: @unchecked Sendable {
 
   /// Queues closure behind accepted rows. Never waits on the capture queue.
   /// A blocked file writer retains at most capacity rows; status says draining.
-  func finish(_ completion: (@Sendable () -> Void)? = nil) {
+  func finish(outcome: [String: Any]? = nil, _ completion: (@Sendable () -> Void)? = nil) {
     lock.withLock {
       guard phase == "writing" else { return }
+      videoOutcome = outcome
       phase = "draining"
       io.async { [self] in close(completion) }
     }
@@ -112,6 +114,8 @@ final class SourceJournal: @unchecked Sendable {
        "state": phase, "rows_offered": offered, "rows_written": written,
        "rows_lost": lost, "pending_rows": pending, "bytes": bytes,
        "complete": phase == "closed" && lost == 0 && failure == nil,
+       "complete_qualification": "accepted journal rows closed; not video finalization or muxed coverage",
+       "video_outcome": videoOutcome as Any? ?? NSNull(),
        "error": failure as Any? ?? NSNull(), "max_pending_rows": capacity, "max_bytes": byteLimit]
     }
   }

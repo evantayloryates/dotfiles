@@ -678,13 +678,18 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     prerollBuffer = nil
     lastBuffer = nil
     snapLock.withLock { tapBuffer = nil }
-    stopInputJournal()
+    stopInputJournal(outcome: ["recording_state":s.rawValue,
+      "writer_status":writer.map { $0.status.rawValue } as Any? ?? NSNull(),
+      "successful_finalization":writer?.status == .completed,
+      "encoded_submissions":framesWritten,
+      "muxed_coverage":"unverified; accepted writer submissions can exceed persisted packets on failure",
+      "error":reason as Any? ?? NSNull()])
     setState(s)
   }
 
-  private func stopInputJournal() {
+  private func stopInputJournal(outcome: [String:Any]? = nil) {
     guard let journal=sourceJournal else { return }
-    let close: @Sendable () -> Void = { [self] in journal.finish { [self] in q.async { [self] in persist() } } }
+    let close: @Sendable () -> Void = { [self] in journal.finish(outcome:outcome) { [self] in q.async { [self] in persist() } } }
     if inputSettings.enabled { InputTimeline.shared.unsubscribe(id:id,completion:close) }
     else { close() }
   }

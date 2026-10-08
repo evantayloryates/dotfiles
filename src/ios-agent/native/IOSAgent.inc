@@ -276,11 +276,12 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
    done(IAError(@"react_not_compiled")); return;
 #endif
   }
-  if([action isEqual:@"diagnostics-probe"]) {
+  if([action isEqual:@"diagnostics-probe"] || [action isEqual:@"diagnostics-matrix"]) {
 #if IOS_AGENT_REACT
+   if(args.count) { done(IAError(@"diagnostic_arguments_not_allowed")); return; }
    if(!IABridge.observing) { done(IAError(@"react_not_ready")); return; }
-   [IABridge sendEventWithName:@"IOSAgentCommand" body:@{@"command":@"diagnostics-probe"}];
-   done(@{@"delivery":@"queued-to-js",@"scope":@"synthetic-read-only-GraphQL-probe"}); return;
+   [IABridge sendEventWithName:@"IOSAgentCommand" body:@{@"command":action}];
+   done(@{@"delivery":@"queued-to-js",@"scope":[action isEqual:@"diagnostics-matrix"]?@"fixed-synthetic-telemetry-matrix":@"synthetic-read-only-GraphQL-probe"}); return;
 #else
    done(IAError(@"react_not_compiled")); return;
 #endif

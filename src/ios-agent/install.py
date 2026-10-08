@@ -38,8 +38,11 @@ def wait_ready(state, expected_hash, timeout=8):
     """Registration alone is not readiness; verify the actual responding worker."""
     deadline = time.monotonic() + timeout
     while True:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise RuntimeError("registered_worker_not_ready")
         try:
-            status = request({"op": "status"}, state)
+            status = request({"op": "status"}, state, timeout=min(2, remaining))
         except (OSError, ValueError, RuntimeError):
             if time.monotonic() >= deadline:
                 raise RuntimeError("registered_worker_not_ready")
@@ -48,6 +51,21 @@ def wait_ready(state, expected_hash, timeout=8):
         if status.get("sourceHash") != expected_hash:
             raise RuntimeError("running_worker_source_differs; use_--restart_at_idle")
         return
+
+
+def wait_retired(state, domain, timeout=5):
+    """Both the socket and launchd registration must retire before bootstrap."""
+    deadline = time.monotonic() + timeout
+    while True:
+        registered = subprocess.run(
+            ["launchctl", "print", f"{domain}/{LABEL}"],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=2,
+        ).returncode == 0
+        if not registered and not (state / "control.sock").exists():
+            return
+        if time.monotonic() >= deadline:
+            raise RuntimeError("old_worker_did_not_finish_shutdown")
+        time.sleep(0.05)
 
 
 def main():
@@ -106,12 +124,9 @@ def main():
     active = subprocess.run(["launchctl", "print", f"{domain}/{LABEL}"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
     if active and a.restart:
         subprocess.run(["launchctl", "bootout", f"{domain}/{LABEL}"], check=True)
-        # bootout can return before the old worker has removed its socket.
-        end = time.monotonic() + 5
-        while (STATE / "control.sock").exists() and time.monotonic() < end:
-            time.sleep(0.05)
-        if (STATE / "control.sock").exists():
-            raise SystemExit("old_worker_did_not_finish_shutdown")
+        # Socket removal precedes launchd's registration retirement. Do not
+        # confuse the still-retiring old job with a newly bootstrapped worker.
+        wait_retired(STATE, domain)
         active = False
     if not active:
         # launchd may still be retiring a booted-out job after its socket is gone.
@@ -123,8 +138,6 @@ def main():
                 break
             if registered.returncode != 5 or time.monotonic() >= deadline:
                 raise RuntimeError("launch_registration_failed")
-            if subprocess.run(["launchctl", "print", f"{domain}/{LABEL}"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0:
-                break
             time.sleep(0.2)
     wait_ready(STATE, hashlib.sha256((ROOT / "service.py").read_bytes()).hexdigest())
     print(json.dumps({"installed": True, "workerReady": True, "sourceVerified": True, "restarted": a.restart, "provisioned": bool(a.provision_device), "tailnetAccount": user["LoginName"], "source": str(ROOT)}))

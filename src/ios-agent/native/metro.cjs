@@ -20,4 +20,7 @@ config.resolver.resolveRequest = (context, name, platform) => {
   return previous ? previous(origin, name, platform) : context.resolveRequest(origin, name, platform);
 };
 config.transformer.babelTransformerPath = path.join(__dirname, 'transformer.cjs');
+const enhance = config.server?.enhanceMiddleware;
+config.server = {...config.server, enhanceMiddleware: (middleware, server) =>
+  require('./fixture-middleware.cjs').fixtureMiddleware(enhance ? enhance(middleware, server) : middleware)};
 module.exports = config;

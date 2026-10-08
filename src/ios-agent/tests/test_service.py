@@ -41,6 +41,13 @@ class BrokerTests(unittest.TestCase):
     def action(self):
         return self.call(op="action", action="tap", args={"x": 10, "y": 10})["id"]
 
+    def test_diagnostic_matrix_accepts_no_caller_code_or_url(self):
+        for action in ("diagnostics-probe", "diagnostics-matrix"):
+            with self.assertRaisesRegex(service.Rejected, "diagnostic_arguments_not_allowed"):
+                self.call(op="action", action=action, args={"url": "https://example.com"})
+        cid = self.call(op="action", action="diagnostics-matrix", args={})["id"]
+        self.assertEqual(self.next()["command"]["id"], cid)
+
     def test_wifi_accepts_only_fixed_states_without_url_escape_hatches(self):
         for args in ({}, {"state": "toggle"}, {"state": "on", "url": "https://example.com"}, {"state": []}, {"state": True}):
             with self.assertRaisesRegex(service.Rejected, "wifi_state_on_or_off_required"):

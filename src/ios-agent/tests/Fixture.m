@@ -3,18 +3,108 @@
 #define IOS_AGENT_ENABLED 1
 #import "../native/IOSAgent.inc"
 
+@interface TouchProbe : UIView
+@property NSInteger cancelled;
+@property NSInteger ended;
+@end
+@implementation TouchProbe
+- (void)touchesCancelled:(NSSet<UITouch*>*)touches withEvent:(UIEvent*)event { self.cancelled++; [super touchesCancelled:touches withEvent:event]; }
+- (void)touchesEnded:(NSSet<UITouch*>*)touches withEvent:(UIEvent*)event { self.ended++; [super touchesEnded:touches withEvent:event]; }
+@end
+
 @interface Fixture : UIResponder<UIApplicationDelegate>
 @property UIWindow *window;
 @property UIButton *button;
 @property UITextField *field;
 @property UIScrollView *scroll;
-@property UIView *hold;
+@property TouchProbe *hold;
+@property NSInteger childTaps;
+@property NSInteger parentTaps;
+@property NSInteger pans;
+@property NSInteger competingHolds;
 @property NSInteger taps;
 @property NSInteger holds;
 @property NSMutableDictionary *evidence;
 @end
 @implementation Fixture
 - (void)tapped { self.taps++; }
+- (void)childTapped:(UITapGestureRecognizer*)r { if(r.state==UIGestureRecognizerStateRecognized)self.childTaps++; }
+- (void)parentTapped:(UITapGestureRecognizer*)r { if(r.state==UIGestureRecognizerStateRecognized)self.parentTaps++; }
+- (void)panned:(UIPanGestureRecognizer*)r { if(r.state==UIGestureRecognizerStateBegan)self.pans++; }
+- (void)competingHeld:(UILongPressGestureRecognizer*)r { if(r.state==UIGestureRecognizerStateBegan)self.competingHolds++; }
+- (void)after:(double)seconds done:(void(^)(void))done { dispatch_after(dispatch_time(DISPATCH_TIME_NOW,(int64_t)(seconds*NSEC_PER_SEC)),dispatch_get_main_queue(),done); }
+- (void)freshLease { IAInstance.lease=@"fixture-lease"; IAInstance.expiry=IANow()+60; }
+- (void)extended:(void(^)(void))done {
+ [self freshLease];
+ NSDictionary *point=[self pointArgs:self.hold]; CGRect frame=self.hold.frame;
+ self.hold.frame=CGRectOffset(frame,10,0);
+ [self run:@"tap" args:point done:^(NSDictionary *r){self.evidence[@"geometryRejection"]=r;}]; self.hold.frame=frame;
+ point=[self pointArgs:self.button]; [self run:@"tree" args:@{} done:^(NSDictionary *r){}];
+ [self run:@"tap" args:point done:^(NSDictionary *r){self.evidence[@"supersededSnapshotRejection"]=r;}];
+ point=[self pointArgs:self.hold]; [self.hold removeFromSuperview];
+ [self run:@"tap" args:point done:^(NSDictionary *r){self.evidence[@"removedTargetRejection"]=r;}]; [self.window.rootViewController.view addSubview:self.hold];
+ NSMutableDictionary *outside=[[self pointArgs:self.button] mutableCopy]; outside[@"x"]=@(-1);
+ [self run:@"tap" args:outside done:^(NSDictionary *r){self.evidence[@"outsideAppRejection"]=r;}];
+ NSDictionary *duplicate=@{@"id":@"fixture-duplicate",@"action":@"tree",@"args":@{},@"lease":IAInstance.lease,@"epoch":IAInstance.epoch,@"remainingMs":@10000};
+ [IAInstance execute:duplicate completion:^(NSDictionary *r){}];
+ [IAInstance execute:duplicate completion:^(NSDictionary *r){self.evidence[@"duplicateRejection"]=r;}];
+ [IAInstance execute:@{@"id":@"wrong-epoch",@"action":@"tree",@"args":@{},@"lease":IAInstance.lease,@"epoch":@"retired-epoch",@"remainingMs":@10000} completion:^(NSDictionary *r){self.evidence[@"epochRejection"]=r;}];
+ [self run:@"text" args:@{@"text":@"Should not insert"} done:^(NSDictionary *r){self.evidence[@"unfocusedTextRejection"]=r;}];
+ // A different app-owned window is an occlusion even in a legacy AppDelegate app.
+ NSDictionary *windowPoint=[self pointArgs:self.hold]; NSInteger endedBefore=self.hold.ended;
+ UIWindow *cover=[[UIWindow alloc] initWithFrame:self.window.bounds]; cover.windowLevel=UIWindowLevelNormal+20;
+ UIViewController *coverRoot=[UIViewController new]; coverRoot.view.backgroundColor=UIColor.systemRedColor; cover.rootViewController=coverRoot; cover.hidden=NO;
+ [self run:@"tap" args:windowPoint done:^(NSDictionary *r){
+  self.evidence[@"secondaryWindowRejection"]=r;
+  self.evidence[@"secondaryWindowNoUnderlyingTouch"]=@(self.hold.ended==endedBefore);
+  cover.hidden=YES;
+  [self modalMatrix:done];
+ }];
+}
+- (void)modalMatrix:(void(^)(void))done {
+ // An actual UIKit modal must block an otherwise fresh main-window target.
+ NSDictionary *modalPoint=[self pointArgs:self.hold];
+ UIViewController *modal=[UIViewController new]; modal.view.backgroundColor=UIColor.systemYellowColor; modal.modalPresentationStyle=UIModalPresentationOverFullScreen;
+ [self.window.rootViewController presentViewController:modal animated:NO completion:^{
+  [self run:@"tap" args:modalPoint done:^(NSDictionary *r){self.evidence[@"modalRejection"]=r;}];
+  [modal dismissViewControllerAnimated:NO completion:^{[self recognizerMatrix:done];}];
+ }];
+}
+- (void)recognizerMatrix:(void(^)(void))done {
+ [self freshLease];
+ UIView *panel=[[UIView alloc] initWithFrame:CGRectMake(0,80,350,550)]; panel.backgroundColor=UIColor.whiteColor; [self.window.rootViewController.view addSubview:panel];
+ UIView *parent=[[UIView alloc] initWithFrame:CGRectMake(20,20,300,130)]; parent.accessibilityIdentifier=@"fixture-parent-gesture"; [panel addSubview:parent];
+ UIView *child=[[UIView alloc] initWithFrame:CGRectMake(30,20,220,90)]; child.accessibilityIdentifier=@"fixture-child-gesture"; [parent addSubview:child];
+ UITapGestureRecognizer *childTap=[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(childTapped:)]; [child addGestureRecognizer:childTap];
+ UITapGestureRecognizer *parentTap=[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(parentTapped:)]; [parentTap requireGestureRecognizerToFail:childTap]; [parent addGestureRecognizer:parentTap];
+ UIView *competition=[[UIView alloc] initWithFrame:CGRectMake(20,170,300,120)]; competition.accessibilityIdentifier=@"fixture-competing-gesture"; [panel addSubview:competition];
+ UIPanGestureRecognizer *pan=[[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panned:)]; [competition addGestureRecognizer:pan];
+ UILongPressGestureRecognizer *hold=[[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(competingHeld:)]; hold.minimumPressDuration=0.5; [competition addGestureRecognizer:hold];
+ UITextField *first=[[UITextField alloc] initWithFrame:CGRectMake(20,320,300,45)]; first.accessibilityIdentifier=@"fixture-focus-one"; first.borderStyle=UITextBorderStyleRoundedRect; [panel addSubview:first];
+ UITextField *second=[[UITextField alloc] initWithFrame:CGRectMake(20,375,300,45)]; second.accessibilityIdentifier=@"fixture-focus-two"; second.borderStyle=UITextBorderStyleRoundedRect; [panel addSubview:second];
+ [self run:@"tap" args:[self pointArgs:child] done:^(NSDictionary *r){
+  self.evidence[@"nestedTapDelivery"]=r;
+  [self after:0.15 done:^{
+   self.evidence[@"nestedRecognizerPrecedence"]=@(self.childTaps==1&&self.parentTaps==0);
+   NSMutableDictionary *drag=[[self pointArgs:competition] mutableCopy]; drag[@"endX"]=@50; drag[@"endY"]=drag[@"y"]; drag[@"durationMs"]=@350;
+   [self run:@"gesture" args:drag done:^(NSDictionary *r){
+    self.evidence[@"competingPanDelivery"]=r;
+    self.evidence[@"panDefeatsLongPress"]=@(self.pans==1&&self.competingHolds==0);
+    [self run:@"tap" args:[self pointArgs:first] done:^(NSDictionary *r){
+     self.evidence[@"nativeTapFocus"]=@(first.isFirstResponder);
+     [self run:@"text" args:@{@"text":@"A🐾"} done:^(NSDictionary *typed){}];
+     // Focus selection is native tap; UIKeyInput only edits the actual responder.
+     [self run:@"tap" args:[self pointArgs:second] done:^(NSDictionary *r){
+      [self run:@"text" args:@{@"text":@"Bé"} done:^(NSDictionary *typed){}];
+      self.evidence[@"focusSwitchAndUnicode"]=@(second.isFirstResponder&&[first.text isEqual:@"A🐾"]&&[second.text isEqual:@"Bé"]);
+      [second resignFirstResponder]; [panel removeFromSuperview];
+      [self after:0.35 done:done];
+     }];
+    }];
+   }];
+  }];
+ }];
+}
 - (void)held:(UILongPressGestureRecognizer*)r { if(r.state==UIGestureRecognizerStateBegan)self.holds++; }
 - (void)write {
  NSString *docs=NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask,YES).firstObject;
@@ -35,7 +125,7 @@
  UIViewController *root=[UIViewController new]; root.view.backgroundColor=UIColor.whiteColor; self.window.rootViewController=root;
  self.scroll=[[UIScrollView alloc] initWithFrame:CGRectMake(20,100,300,350)]; self.scroll.contentSize=CGSizeMake(300,1400); self.scroll.accessibilityIdentifier=@"fixture-scroll"; [root.view addSubview:self.scroll];
  self.button=[UIButton buttonWithType:UIButtonTypeSystem]; self.button.frame=CGRectMake(30,20,180,80); self.button.accessibilityIdentifier=@"fixture-button"; [self.button setTitle:@"Native touch counter" forState:UIControlStateNormal]; [self.button addTarget:self action:@selector(tapped) forControlEvents:UIControlEventTouchUpInside]; [self.scroll addSubview:self.button];
- self.hold=[[UIView alloc] initWithFrame:CGRectMake(20,500,300,90)]; self.hold.backgroundColor=UIColor.systemBlueColor; self.hold.accessibilityIdentifier=@"fixture-hold"; [root.view addSubview:self.hold];
+ self.hold=[[TouchProbe alloc] initWithFrame:CGRectMake(20,500,300,90)]; self.hold.backgroundColor=UIColor.systemBlueColor; self.hold.accessibilityIdentifier=@"fixture-hold"; [root.view addSubview:self.hold];
  [self.hold addGestureRecognizer:[[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(held:)]];
  self.field=[[UITextField alloc] initWithFrame:CGRectMake(20,650,300,50)]; self.field.borderStyle=UITextBorderStyleRoundedRect; self.field.accessibilityIdentifier=@"fixture-text"; [root.view addSubview:self.field];
  [self.window makeKeyAndVisible];
@@ -87,12 +177,16 @@
      IAInstance.lease=@"fixture-lease"; IAInstance.expiry=IANow()+60;
      [self.field becomeFirstResponder]; [self run:@"text" args:@{@"text":@"Synthetic QA"} done:^(NSDictionary *typed){self.evidence[@"textDelivery"]=typed;self.evidence[@"textMatches"]=@([self.field.text isEqual:@"Synthetic QA"]);}];
      [self.field resignFirstResponder];
+     [self extended:^{
      NSMutableDictionary *pending=[[self pointArgs:self.hold] mutableCopy]; pending[@"endX"]=pending[@"x"]; pending[@"endY"]=pending[@"y"]; pending[@"durationMs"]=@1200;
+     NSInteger endedBefore=self.hold.ended;
      [self run:@"gesture" args:pending done:^(NSDictionary *oldResult){self.evidence[@"cancelledOldGesture"]=oldResult;}];
+     [self run:@"tap" args:pending done:^(NSDictionary *r){self.evidence[@"inFlightRejection"]=r;}];
      dispatch_after(dispatch_time(DISPATCH_TIME_NOW,100*NSEC_PER_MSEC),dispatch_get_main_queue(),^{
       [IAInstance stopLease]; IAInstance.lease=@"new-owner"; IAInstance.expiry=IANow()+60; [IAInstance showGlow];
      });
      dispatch_after(dispatch_time(DISPATCH_TIME_NOW,1500*NSEC_PER_MSEC),dispatch_get_main_queue(),^{
+      self.evidence[@"cancelledTouchObserved"]=@(self.hold.cancelled>=1&&self.hold.ended==endedBefore&&self.holds==1);
       self.evidence[@"oldCallbackPreservesNewOwner"]=@([IAInstance.lease isEqual:@"new-owner"]&&!IAInstance.glow.hidden);
       IAInstance.expiry=IANow()+0.1;
       dispatch_after(dispatch_time(DISPATCH_TIME_NOW,400*NSEC_PER_MSEC),dispatch_get_main_queue(),^{
@@ -101,6 +195,7 @@
        self.evidence[@"xctestStarted"]=@NO; [self write];
       });
      });
+     }];
     });
    }];
   }];

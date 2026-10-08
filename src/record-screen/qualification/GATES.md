@@ -1,10 +1,10 @@
 # Qualification update — October 8, 2026
 
-## Pause checkpoint — October 8, 18:55 UTC
+## Historical pause checkpoint — October 8, 18:55 UTC
 
 Taylor requested a clean pause before the 3 p.m. call. Owned native fixtures,
 input listener and isolated engines are stopped; no active recordings or action
-scopes remained. Goal is paused until Taylor resumes. Production is unchanged.
+scopes remained. The goal was paused, then resumed at 20:01 UTC. Production remained unchanged.
 
 After the measured listener-loop cost, source candidate 3a066b8a1c64 compiled with
 window enumeration on a utility queue, one-query admission, stopped-generation
@@ -30,6 +30,24 @@ Private gates-v6 contains frozen sources, compile/test output, both take manifes
 exact packet proofs, key correspondence, source PNGs and sampled status. The
 pixel verifier now selects frames from their actual geometry segment and skips
 absent transforms; it no longer borrows a later segment to validate an earlier one.
+
+## Sixth-pass follow-up: protected input and real desktop loss
+
+| Gate | Actual result | Limit |
+| --- | --- | --- |
+| Protected input and recovery | Signed build 93b7f82505a9: the owned fixture requested Carbon protected input for 9.756 seconds. Recorder observed enabled/ended gaps. All 24 fixture-delivered events during that protected interval were omitted; all six post-protection events matched exactly. 139 input/action/numeric assertions passed. | NSSecureTextField alone did not enable this global flag for the tested injected provider. Protected input is not inferred from a field's appearance. Extra concurrent input reached the foreground fixture; actor ownership remains unknown. |
+| Actual desktop discontinuity | At 20:16:53 UTC, loginwindow logged direct logout reason WindowServerExited; WindowServer PID changed 401→98864 and GUI processes recovered. The cause of the exit is unknown. Chrome take failed after target loss. | This was observed, not induced. No user workflow or global desktop service was restarted by this qualification. |
+| Partial video vs journal | Failed Chrome take decoded 1,197 frames over 42.022671 seconds. Journal had 1,210 accepted writer submissions and no row loss; the 13 missing muxed packets made the proof fail. | Closed source metadata is not a successfully finalized video or measured muxed coverage. Failed proof remains saved. |
+| SDK quarantine after desktop loss | Surviving isolated engine's fresh discovery exceeded its three-second deadline, then retained its unfinished slot. Next call refused in 0.448 ms; status and action recovery still worked. Old action expired with declared-scope end, not successful UI completion. | Actual SDK discovery remained unfinished. Only the idle task-owned process was replaced; no peer take or production engine was stopped. |
+| Fresh-process recovery | Signed new source build 47ba5460519f discovered the recovered desktop and completed a fresh Chrome take. 125 journal assertions preserve video failure independently of journal completeness. Real record.source/footer returned writer_status=2 and successful_finalization=true. | Legacy/unfinished journals return no finalization outcome. Muxed coverage still needs video evidence. |
+| Chrome transient pixels | Actual encoded frames show authored HTML sentinel and genuine native context menu with explicit child inclusion, even while target on_screen=false. All 1,732 muxed sample times matched the journal, zero telemetry loss. | Chrome 154.0.8037.98 / build 8037.98, macOS 26.5.1 / 25F80, tested provider/surface only. Automation pointer-like residual remains in footage. Native select/nested overflow/Electron depth remain open. |
+| Browser keyboard path | CUA tab operations changed owned DOM text and generated 28 fixture events. No retained keyboard event was addressed to Chrome; 21 extra declared-action candidates were addressed to Codex. | Passive OS telemetry does not prove browser-provider virtual-input coverage. Those action candidates are explicitly uncertain, not the browser's delivered keys. Bracket compact individual operations; an extended qualification series exceeded its 60-second declared block. |
+
+The WindowServer loss also coincided with a 2.092-second main context refresh.
+Offloaded window enumeration does not establish a bound on other framework/TCC
+reads during a desktop failure. Production latency/resource recommendations must
+preserve this limitation. Private gates-v6 retains all failed and recovered
+proofs; the root cause of the desktop exit remains unknown.
 
 ## Fifth pass: input scope and contextual action blocks
 

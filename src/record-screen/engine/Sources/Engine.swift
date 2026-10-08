@@ -148,7 +148,9 @@ final class Engine: @unchecked Sendable {
       return ["recording_id": d["recording_id"]!, "state": d["state"]!,
               "source_packet": d["source_packet"] ?? NSNull(), "video": d["video"] ?? NSNull(),
               "frames": d["frames"] ?? NSNull(), "frames_provenance": d["frames_provenance"] ?? "saved_manifest",
+              "video_outcome": (d["source_packet"] as? [String:Any])?["video_outcome"] ?? NSNull(),
               "limits": ["Journal gaps and draining status are explicit; footage can succeed without complete telemetry",
+                         "A complete journal does not prove video finalization; failed/interrupted videos require decoded coverage before recovery",
                          "Interrupted manifest counters are checkpoints; decode partial footage to establish actual coverage",
                          "Transforms remain candidates outside qualified app and display geometry"]]
     case "record.list":

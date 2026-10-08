@@ -53,9 +53,9 @@ def inspect(message, state):
     return result
 
 
-def request(message, state):
+def request(message, state, timeout=15):
     with socket.socket(socket.AF_UNIX) as s:
-        s.settimeout(15)
+        s.settimeout(timeout)
         s.connect(str(state / "control.sock"))
         s.sendall(json.dumps(message).encode() + b"\n")
         with s.makefile("rb") as f:
