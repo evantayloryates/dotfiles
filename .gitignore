@@ -45,3 +45,7 @@ src/speak/.build/
 
 # Claude-driver private runtime, logs and diagnostic evidence
 /src/claude-driver/.runtime/
+
+# Python runtime bytecode is regenerated locally.
+__pycache__/
+*.py[cod]

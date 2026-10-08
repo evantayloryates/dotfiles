@@ -66,6 +66,7 @@ static NSURL *IOSAgentDevelopmentBundleURL(void) {
 static NSTimeInterval IANow(void) { return NSProcessInfo.processInfo.systemUptime; }
 static NSDictionary *IAError(NSString *reason) { return @{@"error":reason}; }
 static BOOL IANumber(id n) { return [n isKindOfClass:NSNumber.class] && isfinite([n doubleValue]); }
+#import "WiFiShortcut.inc"
 
 @interface IAGlowWindow : UIWindow
 @end
@@ -178,7 +179,7 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
  if([UIApplication.sharedApplication respondsToSelector:@selector(_touchesEvent)]) event=[UIApplication.sharedApplication _touchesEvent];
  for(NSString *s in @[@"_clearTouches",@"_setHIDEvent:",@"_addTouch:forDelayedDelivery:"]) input&=[event respondsToSelector:NSSelectorFromString(s)];
  return @{@"nativeInputRuntime":@(input),@"selectors":selectors,@"applicationState":@(UIApplication.sharedApplication.applicationState),
-          @"imageScope":@"app-owned-main-window",@"inputMethod":@"in-process UIEvent",@"textMethod":@"UIKeyInput",@"xctest":@NO};
+          @"imageScope":@"app-owned-main-window",@"inputMethod":@"in-process UIEvent",@"textMethod":@"UIKeyInput",@"xctest":@NO,@"wifiControl":@"fixed-Apple-Shortcuts-handoff"};
 }
 - (void)showGlow {
  if(!self.glow) {
@@ -262,8 +263,10 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
 #if IOS_AGENT_REACT
    state[@"bundleSource"]=IABundleSource;
 #endif
+   state[@"wifiHandoff"]=IOSAgentWiFiState();
    done(state); return;
   }
+  if([action isEqual:@"wifi"]) { done(IOSAgentWiFiPrepare(args,cid)); return; }
   if([action isEqual:@"reload"]) {
 #if IOS_AGENT_REACT
    self.appState=@{@"ready":@NO};
@@ -379,7 +382,11 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
   if(![command isKindOfClass:NSDictionary.class]) { [self poll]; return; }
   [self execute:command completion:^(NSDictionary *result){
    [self exchange:@{@"op":@"result",@"id":command[@"id"],@"epoch":command[@"epoch"],@"result":result} completion:^(NSDictionary *ack){
-    if(ack) [self apply:ack]; else self.helloNeeded=YES; [self poll];
+    if(ack) [self apply:ack]; else self.helloNeeded=YES;
+    // Launch only after the host has recorded the result and renewed this lease.
+    // Foreground loss then revokes normal control; the callback grants no lease.
+    if(ack && [self leased] && [command[@"lease"] isEqual:self.lease] && [command[@"action"] isEqual:@"wifi"] && !result[@"error"]) IOSAgentWiFiLaunch(command[@"id"]);
+    [self poll];
    }];
   }];
  }];

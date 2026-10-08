@@ -1,0 +1,67 @@
+# Agent-owned iPhone Wi-Fi changes
+
+The dev adapter supports `wifi` with exactly `{"state":"on"}` or
+`{"state":"off"}`. It opens one of two fixed Apple shortcuts:
+**Runner Wi-Fi On** and **Runner Wi-Fi Off**. Each contains one `Set Wi-Fi`
+action with an explicit value. They were created in Mac Shortcuts and their
+iCloud sync to this phone was verified. Never run these shortcuts on the Mac:
+the action changes the device on which it executes.
+
+The initial USB experiment changed association from connected → disconnected →
+connected without XCTest or a manual Wi-Fi change. This is a separate gate
+from the app-owned Tailscale command and an unplugged cellular test; those must
+have their own installed-build evidence before being called qualified.
+
+## Normal workflow
+
+1. Require the intended dev app foreground and unlocked, a fresh lease, and
+   a real app state/React response. Record initial network state. Do not change
+   Wi-Fi while the human is using the phone.
+2. Request `ios-agent action wifi --args '{"state":"off"}' --lease-file <private>`.
+   This is a semantic OS-settings handoff, not simulated touch input.
+3. The host first records **prepared-shortcut-handoff**. Only after the native
+   adapter receives its acknowledgment with the same active lease does it
+   open Shortcuts. This acknowledgment does not prove execution or radio state.
+4. Shortcuts runs the fixed action and returns to Kickoff using Apple's
+   x-callback-url. The one-time nonce expires in 60 seconds. Error contents and
+   result text are not exported. Backgrounding clears the glow, ends normal
+   control and stops React inspection. A callback grants no control.
+5. Wait for return, no pending React cleanup, and a fresh foreground connection.
+   Acquire a new lease. Inspect `state.wifiHandoff`: **returned**, **failed**,
+   **cancelled**, **expired**, or **opened** are distinct. Check actual app
+   readiness and connection observations, not just receipt of the prepared result.
+6. Restore the original state with a separately requested `wifi` action and
+   verify it. End with explicit lease release and no glow/frontend/cleanup.
+
+`wifiInterface` exposes only readability, presence, up/running flags and IPv4
+address presence for `en0`, using `getifaddrs`. No address, SSID or BSSID is
+exported. These observations help validate association changes but do not
+represent the Settings radio switch, so `radioVerified` remains false.
+Independent qualification uses the actual Settings switch or USB diagnostic
+association metadata. A Tailscale response alone is not a cellular-path proof.
+
+## Recovery and constraints
+
+- An unknown accepted outcome is never automatically replayed. Read the handoff
+  state and independent evidence first. Explicit On recovery is a separate
+  idempotent recovery action, not a hidden command retry.
+- A bounded USB recovery can launch the fixed On shortcut via CoreDevice's
+  `--payload-url`. The phone must be unlocked. A launch result is not execution
+  evidence; check the device again. Routine app-owned commands use Tailscale.
+- If Kickoff fails to return after Off, the bridge is unavailable until the app
+  is foreground. Keep this failure explicit; do not silently start XCTest.
+- Mirroring requires Wi-Fi on, proximity and a locked phone. Turning the radio
+  off disconnects it. An initial Off → Wait 20s → On shortcut did not recover
+  while the phone was locked after Mirroring ended; the cause was not established.
+  That experiment was changed to an On-only recovery retry. Do not use timed
+  background execution as the safety mechanism for an Off operation.
+- QuickTime USB preview is observation only. It standardizes the captured status
+  bar and can introduce an audio-device prompt; its Wi-Fi icon is not evidence.
+- These fixed settings handoffs do not enable arbitrary system UI control,
+  authentication, generic URL launching, or remote shortcut authoring.
+
+Apple's protocol documentation:
+https://support.apple.com/guide/shortcuts/use-x-callback-url-apdcd7f20a6f/ios
+
+Mirroring requirements:
+https://support.apple.com/en-us/120421

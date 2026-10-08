@@ -41,6 +41,19 @@ class BrokerTests(unittest.TestCase):
     def action(self):
         return self.call(op="action", action="tap", args={"x": 10, "y": 10})["id"]
 
+    def test_wifi_accepts_only_fixed_states_without_url_escape_hatches(self):
+        for args in ({}, {"state": "toggle"}, {"state": "on", "url": "https://example.com"}, {"state": []}, {"state": True}):
+            with self.assertRaisesRegex(service.Rejected, "wifi_state_on_or_off_required"):
+                self.call(op="action", action="wifi", args=args)
+        cid = self.call(op="action", action="wifi", args={"state": "off"})["id"]
+        self.assertEqual(self.next()["command"]["id"], cid)
+        self.result(cid, result={"delivery": "prepared-shortcut-handoff", "radioVerified": False})
+        self.b.device_request({**self.device, "op": "cancel", "lease": "lease", "epoch": self.b.epoch})
+        self.assertIsNone(self.b.lease)
+        self.assertEqual(self.call(op="result", id=cid)["result"]["radioVerified"], False)
+        with self.assertRaisesRegex(service.Rejected, "lease_required"):
+            self.call(op="action", action="wifi", args={"state": "on"})
+
     def test_single_flight_no_replay_and_result_fencing(self):
         cid = self.action()
         with self.assertRaisesRegex(service.Rejected, "in_flight"):

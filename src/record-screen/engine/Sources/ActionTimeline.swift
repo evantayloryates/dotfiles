@@ -10,12 +10,13 @@ final class ActionTimeline: @unchecked Sendable {
   let instanceID = UUID().uuidString.lowercased()
   private var actions: [String: [String: Any]] = [:]
   private var completedOrder: [String] = []
+  private var persistenceFailures=0
   var onChange: (@Sendable ([String: Any]) -> Void)?
   private let clock: @Sendable () -> UInt64
   init(root: String? = nil, clock: @escaping @Sendable () -> UInt64 = { uptimeNs() }) { self.root=root; self.clock=clock }
   func configure(root: String) { lock.withLock { self.root=root } }
   var status: [String: Any] { lock.withLock { ["active":actions.values.filter { $0.str("state")=="active" }.count,
-    "max_active":64,"max_retained_completed":512,"engine_instance":instanceID,"clock_domain":"CLOCK_UPTIME_RAW"] } }
+    "persistence_failures":persistenceFailures,"max_active":64,"max_retained_completed":512,"engine_instance":instanceID,"clock_domain":"CLOCK_UPTIME_RAW"] } }
 
   static func text(_ d: [String: Any], _ key: String, max: Int = 256) throws -> String {
     guard let s=d.str(key), !s.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty, s.utf8.count<=max else {
@@ -79,7 +80,7 @@ final class ActionTimeline: @unchecked Sendable {
       row["state"]="interrupted"; row["result"]="interrupted"; row["end_ns"]=NSNull(); row["end_kind"]="unknown_after_engine_restart"
       try persist(row); onChange?(row); return row
     }
-    if row.str("state") != "active" { return row }
+    if row.str("state") != "active" { try persist(row); return row }
     let now=clock(), deadline=UInt64(row.str("deadline_ns") ?? "") ?? now
     row["state"]=now<=deadline ? "closed" : "expired"
     row["end_ns"]=String(min(now,deadline)); row["end_kind"]=now<=deadline ? "service_observed_end_request" : "declared_scope_deadline"
@@ -152,7 +153,11 @@ final class ActionTimeline: @unchecked Sendable {
           let root=lock.withLock({root}) else { throw RPCError(code:"action_not_found",message:"unknown action token or unconfigured action store") }
     return root+"/"+token+".json"
   }
-  private func persist(_ row: [String: Any]) throws {
+  private func persist(_ row: [String:Any]) throws {
+    do { try persistValue(row) }
+    catch { lock.withLock { persistenceFailures+=1 }; throw error }
+  }
+  private func persistValue(_ row: [String: Any]) throws {
     let file=try filename(row.str("action_token") ?? "")
     try FileManager.default.createDirectory(atPath:(file as NSString).deletingLastPathComponent,withIntermediateDirectories:true,attributes:[.posixPermissions:0o700])
     try fileLock.withLock {

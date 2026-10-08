@@ -64,6 +64,28 @@ final class TestClock: @unchecked Sendable {
     check(try InputSettings.parse(nil).enabled,"new captures default input enabled")
     check(!InputSettings.saved(nil).enabled,"legacy manifests do not enable new observation")
 
+    for key in ["display_id","window_id"] {
+      for value:Any in [true,-1,0,1.5,Double(UInt32.max)+1,Double.infinity,"123"] {
+        rejected("malformed identifier rejected before conversion") { _=try TargetSpec.parse(["type":key=="display_id" ? "display" : "window",key:value]) }
+      }
+    }
+    for value:Any in [true,Double.infinity,1e100,"800",-1] {
+      rejected("malformed dimension") { _=try TargetSpec.parse(["type":"rect","x":0,"y":0,"w":value,"h":100]) }
+    }
+    for key in ["fps","max_width","bitrate_mbps"] {
+      for value:Any in [true,-1,1e100,Double.infinity,"30"] {
+        rejected("malformed encoder settings") { _=try RecordSettings.from([key:value]) }
+      }
+    }
+    for key in ["fps","max_width","limit","events","keyframe_images","seconds","timeout_s","from_s","to_s"] {
+      for value:Any in [true,-1,1e100,"123"] {
+        rejected("numeric request boundary") { try RPCNumber.validate("qualification",[key:value]) }
+      }
+    }
+    rejected("frame list never silently discards malformed entry") { try RPCNumber.validate("record.frames",["at_s":[0,"1",2]]) }
+    check(parseTime(1e100)==nil && parseTime(true)==nil,"invalid epoch time withheld")
+    check(parseTime(1791486000) != nil,"normal numeric epoch accepted")
+
     let root=FileManager.default.temporaryDirectory.appendingPathComponent("input-test-\(UUID().uuidString)")
     defer { try? FileManager.default.removeItem(at:root) }
     let clock=TestClock(), ledger=ActionTimeline(root:root.path,clock:{clock.now()})
@@ -116,6 +138,25 @@ final class TestClock: @unchecked Sendable {
     let expired=try foreign.end(["session_id":"session","caller":"agent","action_token":expiryToken,"result":"verified"])
     check(expired.str("state")=="expired" && expired.str("end_ns")==expiring.str("deadline_ns"),"scope deadline bounded independently of UI")
     check(expired.str("result")=="interrupted","late result cannot claim uninterrupted action")
+    let raceLedger=ActionTimeline(root:root.appendingPathComponent("race").path,clock:{clock.now()})
+    let race=try raceLedger.begin(params("concurrent"),target:target), raceToken=race.str("action_token")!
+    let raceRows=try await withThrowingTaskGroup(of:String.self,returning:[String].self) { group in
+      for _ in 0..<32 { group.addTask { try raceLedger.end(["session_id":"session","caller":"agent","action_token":raceToken,"result":"delivered"]).str("end_ns")! } }
+      var values:[String]=[]; for try await value in group { values.append(value) }; return values
+    }
+    check(Set(raceRows).count==1,"concurrent close settles one immutable interval")
+    let persistedRace=try JSONSerialization.jsonObject(with:Data(contentsOf:root.appendingPathComponent("race/"+raceToken+".json"))) as! [String:Any]
+    check(persistedRace.str("state")=="closed","concurrent terminal publication persists")
+    let failureRoot=root.appendingPathComponent("failure"), failureLedger=ActionTimeline(root:failureRoot.path,clock:{clock.now()})
+    let failed=try failureLedger.begin(params("persist-retry"),target:target), failedToken=failed.str("action_token")!
+    try FileManager.default.removeItem(at:failureRoot); try Data().write(to:failureRoot)
+    let failedEnd:[String:Any]=["session_id":"session","caller":"agent","action_token":failedToken,"result":"delivered"]
+    rejected("failed persistence remains explicit") { _=try failureLedger.end(failedEnd) }
+    check((failureLedger.status["persistence_failures"] as? Int)==1,"persistence failure count observable")
+    try FileManager.default.removeItem(at:failureRoot)
+    let repaired=try failureLedger.end(failedEnd)
+    check(repaired.str("state")=="closed" && FileManager.default.fileExists(atPath:failureRoot.appendingPathComponent(failedToken+".json").path),"idempotent retry repairs missing terminal publication without UI replay")
+
     let capacity=ActionTimeline(root:root.appendingPathComponent("capacity").path,clock:{clock.now()})
     for i in 0..<64 { _=try capacity.begin(params("cap-\(i)"),target:target) }
     rejected("active admission bound") { _=try capacity.begin(params("cap-65"),target:target) }

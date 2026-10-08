@@ -76,6 +76,7 @@ final class Engine: @unchecked Sendable {
   }
 
   private func dispatch(_ method: String, _ params: [String: Any]) async throws -> Any {
+    try RPCNumber.validate(method,params)
     switch method {
     case "ping":
       return ["pong": true, "clock_ns": uptimeNs()]
@@ -171,8 +172,7 @@ final class Engine: @unchecked Sendable {
         return d
       }
       guard start != nil || end != nil else { throw RPCError.badParams("give start_at and/or end_at") }
-      try r.reschedule(start: start, end: end)
-      return r.describe()
+      return try await recordings.reschedule(r.id,start:start,end:end)
     case "record.review":
       return try await recordings.get(try recID(params)).reviewNow()
     case "record.frames":
@@ -198,7 +198,7 @@ final class Engine: @unchecked Sendable {
   }
 
   private func status() async -> [String: Any] {
-    let now = Date()
+    let now = Date(), clockNS=uptimeNs()
     return [
       "engine": [
         "version": Build.version,
@@ -211,7 +211,7 @@ final class Engine: @unchecked Sendable {
         "uptime_s": now.timeIntervalSince(startedAt),
         "launched_by_launchd": getppid() == 1,
       ],
-      "clock": ["uptime_ns": uptimeNs(), "uptime_ns_exact":String(uptimeNs()), "domain":"CLOCK_UPTIME_RAW", "wall": iso8601.string(from: now), "started_ns": startedNs,"started_ns_exact":String(startedNs)],
+      "clock": ["uptime_ns": clockNS, "uptime_ns_exact":String(clockNS), "domain":"CLOCK_UPTIME_RAW", "wall": iso8601.string(from: now), "started_ns": startedNs,"started_ns_exact":String(startedNs)],
       "permission": ["screen_recording": CGPreflightScreenCaptureAccess() ? "granted" : "missing"],
       "capabilities": ["target_capture_options": CaptureOptions.contractVersion, "source_journal": 1,
                        "input_timeline":1,"action_scopes":1],

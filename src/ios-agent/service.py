@@ -20,7 +20,7 @@ VERSION = 1
 MAX_BODY = 8 * 1024 * 1024
 OWNER_TIMEOUT = 20 * 60
 DEVICE_TIMEOUT = 30
-OPERATIONS = {"capabilities", "tree", "image", "tap", "gesture", "text", "react", "state", "diagnostics-probe", "reload"}
+OPERATIONS = {"capabilities", "tree", "image", "tap", "gesture", "text", "react", "state", "diagnostics-probe", "reload", "wifi"}
 STATE = Path.home() / "Library/Application Support/ios-agent"
 SOURCE_HASH = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
 
@@ -160,6 +160,8 @@ class Broker:
                 args = request.get("args", {})
                 if not isinstance(args, dict) or len(json.dumps(args)) > 65536:
                     raise Rejected("invalid_arguments")
+                if action == "wifi" and (set(args) != {"state"} or args["state"] not in ("on", "off")):
+                    raise Rejected("wifi_state_on_or_off_required")
                 # Single flight: a timeout is an unknown mutation outcome, never a replay.
                 if any(c["status"] in ("queued", "sent") for c in self.commands.values()):
                     raise Rejected("command_in_flight")

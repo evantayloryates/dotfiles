@@ -141,6 +141,20 @@ actor Recordings {
             "max_concurrent": Self.maxConcurrent]
   }
 
+  /// Extensions must pass the same overlap budget as new takes. The actor
+  /// serializes schedule/reschedule admission; a terminal transition can still
+  /// occur before the recording queue applies the change and then fails closed.
+  func reschedule(_ id:String,start:Date?,end:Date?) throws -> [String:Any] {
+    let rec=try get(id), a=start ?? rec.startAt, b=end ?? rec.endAt
+    guard b>a,b.timeIntervalSince(a)<=Self.maxDuration else { throw RPCError.badParams("end must follow start and duration is capped at 3 h") }
+    guard a.timeIntervalSinceNow<=Self.maxLeadTime,b>Date() else { throw RPCError.badParams("new interval must end in the future and start within 7 days") }
+    if rec.state == .scheduled, a<Date().addingTimeInterval(-5) { throw RPCError.badParams("scheduled start is too far in the past") }
+    let peers=jobs.values.filter { $0.id != id && ($0.captureQuarantined || (!$0.state.terminal && $0.startAt<b && $0.endAt>a)) }
+    guard peers.count<Self.maxConcurrent else { throw RPCError(code:"too_many",message:"reschedule would overlap \(peers.count) other reserved or quarantined captures; capacity is \(Self.maxConcurrent)") }
+    try rec.reschedule(start:start,end:end)
+    return rec.describe()
+  }
+
   func annotateAction(_ value: [String:Any]) {
     guard let session=value.str("session_id") else { return }
     for recording in jobs.values where recording.sessionID==session { recording.annotateAction(value) }
@@ -206,7 +220,7 @@ func parseISO(_ s: String) -> Date? { iso8601.date(from: s) ?? isoPlain.date(fro
 
 /// ISO 8601 (with or without fractional seconds and offset) or unix seconds.
 func parseTime(_ v: Any) -> Date? {
-  if let n = v as? NSNumber, !(v is Bool) { return Date(timeIntervalSince1970: n.doubleValue) }
+  if let n=v as? NSNumber,CFGetTypeID(n) != CFBooleanGetTypeID(),n.doubleValue.isFinite,n.doubleValue>=0,n.doubleValue<=253402300799 { return Date(timeIntervalSince1970:n.doubleValue) }
   if let s = v as? String { return parseISO(s) }
   return nil
 }

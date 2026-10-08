@@ -22,18 +22,23 @@ struct TargetSpec {
     guard let p = any as? [String: Any], let type = p["type"] as? String else {
       throw RPCError.badParams("target must be an object with a type: display, rect or window")
     }
-    func num(_ k: String) -> Double? { (p[k] as? NSNumber)?.doubleValue }
+    func num(_ k: String,min:Double = -10_000_000,max:Double = 10_000_000) throws -> Double? {
+      try RPCNumber.optional(p,k,min:min,max:max)
+    }
+    func identifier(_ key:String) throws -> UInt32? {
+      try RPCNumber.optional(p,key,min:1,max:Double(UInt32.max),integer:true).map { UInt32($0) }
+    }
     let options = try CaptureOptions.parse(p)
     switch type {
     case "display":
-      return TargetSpec(surface: .display(num("display_id").map { CGDirectDisplayID($0) }), options: options)
+      return TargetSpec(surface: .display(try identifier("display_id")), options: options)
     case "rect":
-      guard let x = num("x"), let y = num("y"), let w = num("w"), let h = num("h"), w >= 2, h >= 2 else {
+      guard let x = try num("x"), let y = try num("y"), let w = try num("w",min:2,max:131072), let h = try num("h",min:2,max:131072) else {
         throw RPCError.badParams("rect target needs x, y, w, h in points (w and h at least 2)")
       }
       return TargetSpec(surface: .rect(CGRect(x: x, y: y, width: w, height: h)), options: options)
     case "window":
-      let id = num("window_id").map { CGWindowID($0) }
+      let id = try identifier("window_id")
       let app = p["app"] as? String, title = p["title"] as? String
       guard id != nil || app != nil || title != nil else {
         throw RPCError.badParams("window target needs window_id, or app and/or title")

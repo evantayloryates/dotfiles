@@ -43,6 +43,26 @@
 }
 - (void)qualify {
  IAInstance=[IOSAgent new]; IAInstance.lease=@"fixture-lease"; IAInstance.epoch=@"fixture-epoch"; IAInstance.expiry=IANow()+60; IAInstance.seen=[NSMutableArray new]; IAInstance.reactFrames=[NSMutableArray new];
+ NSDictionary *prepared=IOSAgentWiFiPrepare(@{@"state":@"off"},@"wifi-fixture");
+ NSURLComponents *handoff=[NSURLComponents componentsWithURL:IAWiFiURL resolvingAgainstBaseURL:NO];
+ NSString *callback=nil, *shortcut=nil;
+ for(NSURLQueryItem *item in handoff.queryItems) {
+  if([item.name isEqual:@"x-success"]) callback=item.value;
+  if([item.name isEqual:@"name"]) shortcut=item.value;
+ }
+ BOOL fence=[prepared[@"delivery"] isEqual:@"prepared-shortcut-handoff"] && [shortcut isEqual:@"Runner Wi-Fi Off"];
+ NSString *nonce=IAWiFiNonce;
+ fence&=IOSAgentWiFiPrepare(@{@"state":@"on"},@"overlap")[@"error"]!=nil;
+ fence&=!IOSAgentHandleURL([NSURL URLWithString:@"kudos://ordinary-business-route"]);
+ fence&=IOSAgentHandleURL([NSURL URLWithString:@"kudos://ios-agent-return?nonce=wrong&outcome=success"]) && [IAWiFiNonce isEqual:nonce];
+ fence&=IOSAgentHandleURL([NSURL URLWithString:[callback stringByAppendingString:@"&nonce=duplicate"]]) && [IAWiFiNonce isEqual:nonce];
+ fence&=IOSAgentHandleURL([NSURL URLWithString:callback]) && !IAWiFiNonce && [IOSAgentWiFiState()[@"status"] isEqual:@"returned"];
+ fence&=[IAInstance.lease isEqual:@"fixture-lease"] && ![IOSAgentWiFiState()[@"radioVerified"] boolValue];
+ fence&=IOSAgentWiFiPrepare(@{@"state":@"on",@"url":@"https://example.com"},@"invalid")[@"error"]!=nil;
+ IOSAgentWiFiPrepare(@{@"state":@"on"},@"expire"); IAWiFiExpires=IANow()-1;
+ fence&=[IOSAgentWiFiState()[@"status"] isEqual:@"expired"] && !IAWiFiNonce && !IAWiFiURL;
+ self.evidence[@"wifiCallbackFencing"]=@(fence);
+ IAWiFi=nil;
  [IAInstance startWatchdog];
  [self run:@"capabilities" args:@{} done:^(NSDictionary *r){self.evidence[@"capabilities"]=r;}];
  [IAInstance showGlow]; CGRect before=self.button.frame; BOOL keyBefore=self.window.isKeyWindow;

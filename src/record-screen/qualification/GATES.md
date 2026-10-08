@@ -1,5 +1,56 @@
 # Qualification update — October 8, 2026
 
+## Pause checkpoint — October 8, 18:55 UTC
+
+Taylor requested a clean pause before the 3 p.m. call. Owned native fixtures,
+input listener and isolated engines are stopped; no active recordings or action
+scopes remained. Goal is paused until Taylor resumes. Production is unchanged.
+
+After the measured listener-loop cost, source candidate 3a066b8a1c64 compiled with
+window enumeration on a utility queue, one-query admission, stopped-generation
+snapshot rejection and explicit age/stall/cost diagnostics. It has not been
+launched/live-tested. Last live-qualified candidate remains 99752c4615cf. Resume
+with its offload/lifecycle canary. Private pause/runtime evidence is in gates-v5.
+
+## Fifth pass: input scope and contextual action blocks
+
+Production remains the original signed engine (PID 840, build cd78c24b652e);
+no installed binary, permission or input-lock state changed. This pass used
+owned fixtures and isolated signed candidates db6985a8f52a and 99752c4615cf.
+Taylor's 24-hour visible-test authorization remains in effect through October
+9 at approximately 17:51 UTC. All raw evidence is private in gates-v5.
+
+| Gate | Actual result | Limit |
+| --- | --- | --- |
+| Scoped native keys | 36/36 AppKit-delivered key/modifier events matched recorder rows by order, type, key code and exact original event timestamp. Every match occurred without fixture foreground. | Current native fixture/CUA provider only; app-level delivery does not identify its input window or prove human/agent ownership. |
+| Unrelated app typing | Separately owned app received 40 key events; zero keys addressed to that PID entered the recorded source after the declared action block ended. Outside-scope events contributed counts only (2,047 in the main take). | During a declared block, outside-app modifiers/shortcuts remain explicit candidates; all mode deliberately retains broader ambiguous keys. No guarantee of zero collisions. |
+| Pointer/gesture signals | Main source retained movement, click/release, scroll, drag and right-click event types with source/destination/window clues. Queue overflow and journal loss both zero in this bounded run. | Pointer coordinates remain raw/unqualified. The context-menu click did not prove a visible menu in this pass. High-rate overload, other providers and physical input still need qualification. |
+| Contextual action and pixels | Recorder stamped typing and an AX marker block. Fixture marker handling fell within its service interval; encoded before/after frames show red to green while another owned app occluded the target. AX changes need no fabricated mouse event. | Sparse visual evidence establishes this effect, not a universal presentation latency bound. Caller result remains unverified until corroborated. |
+| Action recovery | Real isolated-engine restart recovered the open token as interrupted with null end time. Wrong caller was rejected; correct caller settled it without inventing an end timestamp. Callback wrapper ran once, stamped a mark, saved/read back a shared imported receipt. | Explicit native-CUA bracketing; no automatic global interception. List inspects newest 4,096 disk files, returns at most 100 and reports truncation/errors; explicit token lookup remains possible. |
+| Offline policy and lifecycle | 138 assertions: scope rules, shortcuts, other windows, drag expiry, strict numbers/settings, exact service clocks, caller/session boundaries, expiry, concurrent close, private persistence and retry after failed publication. Nine schedule/extension assertions: 16 overlaps, rejected 17th, extension admission, lead/duration bounds and cancellation. | No input synthesis or SDK capture in these tests. Service stamps are observation times, not exclusive ownership. |
+| Public and shared contracts | 14 Node tests passed: capability refusal before dispatch, explicit input settings, scoped action forwarding, wrapper no-replay behavior, imported provenance, restart uncertainty and existing shared-store regression. | Existing clients may need reconnect for new tools; current production engine deliberately rejects unsupported options. |
+| Final signed native canary | Candidate 99752c4615cf received 8/8 delivered keys, zero reported input gaps, clean journal closure; five malformed RPCs failed with bad_params while the engine remained healthy. Listener returned inactive with zero subscribers after stop. | Secure-input, revoked grants, forced tap timeout and overload are not live-qualified; failures have explicit gap/status paths. |
+| Source timing regression | Main take: 2,671 actual muxed samples; final canary: 573. All 3,244 match journal video times exactly, with zero lost rows. | Original event clocks are retained; normalized input v1 uses recorder reception time. Cross-clock/physical-input and sleep qualification remain open. |
+| Context cost observation | Final candidate measured 115 context refreshes, mean 11.66 ms and max 41.50 ms. Raw event timestamp to recorder reception ranged 8.89–37.30 ms in its 8-key canary. | This is a component wall-cost/queue observation, not CPU or latency attribution. Move window enumeration off the listener run loop and benchmark before production recommendations. |
+
+The first delivery comparison assumed a 10 ms handler window and matched only
+11 events. That failed proof is retained. Exact original event timestamps and
+ordered type/code matching established 36/36; handler lag ranged 0.480–32.982
+ms. Do not erase this correction or convert it into a latency guarantee.
+
+Two regression compiles initially failed because the shared checkout changed
+while swiftc read it. Final source was frozen to private files; all four affected
+suites and the full engine then compiled/passed. Total verified Swift assertions
+including the unchanged 50-case deadline suite: 356. The reschedule admission
+hole was fixed and tested: extending a take cannot quietly reserve a seventeenth
+overlapping slot or bypass the three-hour/seven-day bounds.
+
+Next: remove listener-loop context enumeration, qualify actual event clock and
+coordinates across displays, broaden Chrome/Electron app lanes, audit historical
+computer-use outcomes structurally, measure motion/insurance costs, then deliver
+at a verified idle boundary with rollback and loaded-capability readback. Visual
+effect strategies and final composition remain deferred.
+
 ## Fourth pass: signed candidate and recovery
 
 The production engine remains unchanged. This pass used an isolated signed

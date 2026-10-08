@@ -45,6 +45,7 @@ final class InputTimeline: @unchecked Sendable {
   }
   private let q = DispatchQueue(label:"record-screen.input-scope",qos:.userInteractive)
   private let lock = NSLock()
+  private let windowQ=DispatchQueue(label:"record-screen.window-context",qos:.utility)
   private var subscribers: [String: Subscriber] = [:] // q only
   private var foreground: Int32 = 0
   private var snapshotNS: UInt64 = 0
@@ -58,6 +59,14 @@ final class InputTimeline: @unchecked Sendable {
   private var contextRefreshCount = 0
   private var contextRefreshTotalNS: UInt64 = 0
   private var contextRefreshMaxNS: UInt64 = 0
+  private var windowGeneration: UInt64 = 0
+  private var windowPending=false
+  private var windowPendingStartNS: UInt64 = 0
+  private var windowStallReported=false
+  private var windowSnapshotNS: UInt64 = 0
+  private var windowRefreshCount=0
+  private var windowRefreshTotalNS: UInt64=0
+  private var windowRefreshMaxNS: UInt64=0
   private var phase = "inactive"
   private var subscriptionCount = 0
   private var reportedOverflow = 0 // q only
@@ -77,6 +86,10 @@ final class InputTimeline: @unchecked Sendable {
       "tap_enabled_last_observed":enabledSnapshot,
       "context_refresh_count":contextRefreshCount,"context_refresh_max_ns":String(contextRefreshMaxNS),
       "context_refresh_average_ns":contextRefreshCount>0 ? String(contextRefreshTotalNS/UInt64(contextRefreshCount)) : "0",
+      "window_context_refresh_in_flight":windowPending,"window_context_snapshot_host_ns":String(windowSnapshotNS),
+      "window_refresh_count":windowRefreshCount,"window_refresh_max_ns":String(windowRefreshMaxNS),
+      "window_refresh_average_ns":windowRefreshCount>0 ? String(windowRefreshTotalNS/UInt64(windowRefreshCount)) : "0",
+      "window_context_work":"one utility-queue query at a time; no event-listener run-loop enumeration",
       "queued":pending,"queue_overflow":overflow,"max_queued_events":Self.capacity,
       "secure_input":secure,"context_snapshot_host_ns":String(snapshotNS),
       "keyboard_coverage":"requires delivered-event canary; listen status alone is not proof",
@@ -135,7 +148,7 @@ final class InputTimeline: @unchecked Sendable {
     CFRunLoopAddSource(CFRunLoopGetMain(),source,.commonModes)
     CGEvent.tapEnable(tap:tap,enable:true)
     timeoutRetries=0
-    lock.withLock { phase="listening"; enabledSnapshot=CGEvent.tapIsEnabled(tap:tap) }
+    lock.withLock { phase="listening"; enabledSnapshot=CGEvent.tapIsEnabled(tap:tap); windowGeneration+=1; windowSnapshotNS=0; transientSnapshot=[:] }
     refreshContext()
     timer=Timer.scheduledTimer(withTimeInterval:0.2,repeats:true) { [weak self] _ in self?.refreshContext() }
     broadcast(["kind":"input_listener","state":"listening","host_ns":String(uptimeNs()),
@@ -146,7 +159,7 @@ final class InputTimeline: @unchecked Sendable {
     if let tap { CGEvent.tapEnable(tap:tap,enable:false); CFMachPortInvalidate(tap) }
     if let source { CFRunLoopRemoveSource(CFRunLoopGetMain(),source,.commonModes) }
     tap=nil; source=nil
-    lock.withLock { phase="inactive"; enabledSnapshot=false }
+    lock.withLock { phase="inactive"; enabledSnapshot=false; windowGeneration+=1; windowSnapshotNS=0; transientSnapshot=[:] }
   }
   private func refreshContext() {
     let refreshStart=uptimeNs()
@@ -159,19 +172,52 @@ final class InputTimeline: @unchecked Sendable {
     if newlyDisabled { broadcast(["kind":"input_gap","reason":"tap_not_enabled_at_context_check","host_ns":String(refreshStart)]) }
     let pid=NSWorkspace.shared.frontmostApplication?.processIdentifier ?? 0
     let secureNow=IsSecureEventInputEnabled()
-    var transient:[Int32:Set<UInt32>]=[:]
-    if let windows=CGWindowListCopyWindowInfo(.optionOnScreenOnly,kCGNullWindowID) as? [[String:Any]] {
-      for window in windows.prefix(2048) {
-        guard let layer=(window[kCGWindowLayer as String] as? NSNumber)?.intValue,layer>0,
-              let owner=(window[kCGWindowOwnerPID as String] as? NSNumber)?.int32Value,
-              let id=(window[kCGWindowNumber as String] as? NSNumber)?.uint32Value else { continue }
-        transient[owner,default:[]].insert(id)
-      }
-    }
-    let changed=lock.withLock { let c=secure != secureNow; foreground=pid; secure=secureNow; transientSnapshot=transient; snapshotNS=uptimeNs(); return c }
+    let changed=lock.withLock { let c=secure != secureNow; foreground=pid; secure=secureNow; snapshotNS=uptimeNs(); return c }
+    refreshWindows()
     let cost=uptimeNs()-refreshStart
     lock.withLock { contextRefreshCount+=1; contextRefreshTotalNS+=cost; contextRefreshMaxNS=max(contextRefreshMaxNS,cost) }
     if changed { broadcast(["kind":"input_gap","reason":secureNow ? "secure_input_enabled" : "secure_input_ended","host_ns":String(uptimeNs())]) }
+  }
+  /// Quartz window enumeration can be slow. Keep it off the event listener's
+  /// run loop and never stack queries when one is unfinished. Late snapshots
+  /// from a stopped listener cannot overwrite a newly subscribed generation.
+  private func refreshWindows() {
+    let now=uptimeNs()
+    var stalled=false
+    let generation:UInt64?=lock.withLock {
+      if windowPending {
+        if !windowStallReported,now>=windowPendingStartNS,now-windowPendingStartNS>2_000_000_000 {
+          windowStallReported=true; stalled=true
+        }
+        return nil
+      }
+      windowPending=true; windowPendingStartNS=now; windowStallReported=false
+      return windowGeneration
+    }
+    if stalled { broadcast(["kind":"input_gap","reason":"window_context_query_stalled","host_ns":String(now)]) }
+    guard let generation else { return }
+    windowQ.async { [self] in
+      let start=uptimeNs()
+      var transient:[Int32:Set<UInt32>]=[:]
+      let rows=CGWindowListCopyWindowInfo(.optionOnScreenOnly,kCGNullWindowID) as? [[String:Any]]
+      if let rows {
+        for window in rows.prefix(2048) {
+          guard let layer=(window[kCGWindowLayer as String] as? NSNumber)?.intValue,layer>0,
+                let owner=(window[kCGWindowOwnerPID as String] as? NSNumber)?.int32Value,
+                let id=(window[kCGWindowNumber as String] as? NSNumber)?.uint32Value else { continue }
+          transient[owner,default:[]].insert(id)
+        }
+      }
+      let finish=uptimeNs(), cost=finish-start
+      let accepted=lock.withLock {
+        windowPending=false; windowRefreshCount+=1; windowRefreshTotalNS+=cost; windowRefreshMaxNS=max(windowRefreshMaxNS,cost)
+        guard windowGeneration==generation,subscriptionCount>0 else { return false }
+        transientSnapshot=transient; windowSnapshotNS=finish; return true
+      }
+      if accepted, rows==nil || (rows?.count ?? 0)>2048 {
+        broadcast(["kind":"input_gap","reason":rows==nil ? "window_context_unavailable" : "window_context_truncated","host_ns":String(finish)])
+      }
+    }
   }
   private func receive(_ type: CGEventType, _ event: CGEvent) {
     let received=uptimeNs()
@@ -207,7 +253,7 @@ final class InputTimeline: @unchecked Sendable {
     q.async { [self] in process(copied); lock.withLock { pending-=1 } }
   }
   private func process(_ event: InteractionSample) {
-    let snapshot=lock.withLock { (overflow,transientSnapshot) }
+    let snapshot=lock.withLock { (overflow,transientSnapshot,windowSnapshotNS) }
     if snapshot.0>reportedOverflow {
       let gap:[String:Any]=["kind":"input_gap","reason":"queue_overflow","events_skipped":snapshot.0-reportedOverflow,"host_ns":String(uptimeNs())]
       for s in subscribers.values { s.callback(gap) }; reportedOverflow=snapshot.0
@@ -225,6 +271,9 @@ final class InputTimeline: @unchecked Sendable {
         "window_under_pointer":event.windowUnderPointer,"flags":String(event.flags),"relevance_reasons":decision.reasons,
         "scope_certainty":decision.certainty,"action_ids":decision.actionIDs,"ownership":"unknown",
         "context_snapshot_host_ns":String(event.contextNS),"foreground_pid":event.foregroundPID,
+        "window_context_snapshot_host_ns":String(snapshot.2),
+        "window_context_qualification":"asynchronous PID/layer candidate; parent/window ownership not proven",
+        "window_context_stale":snapshot.2==0 || (event.receivedNS>=snapshot.2 && event.receivedNS-snapshot.2>2_000_000_000),
         "secure_input_snapshot":event.secureInput,"input_queue_overflow_total":snapshot.0]
       if event.keyboard { row["key_code"]=event.keyCode; row["autorepeat"]=event.repeated }
       else {

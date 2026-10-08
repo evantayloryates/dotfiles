@@ -64,8 +64,9 @@ Expiry is seven days. This is explicit evidence accumulation, not automatic
 success grading or model training. Capture strategy selection and canaries
 must continue to qualify changed versions and uncertain surfaces.
 
-Automatic supported-call receipts, concurrent-user attribution, outcome
-observation and historical workflow success auditing remain open. This
+Recorder-stamped action blocks and a supported callback wrapper now have bounded
+native smoke evidence. Other-provider attribution, outcome observation and
+historical workflow success auditing remain open. This
 module does not intercept native CUA or infer ownership from bridge logs.
 
 ## Qualification
@@ -80,3 +81,22 @@ failed publication, corruption detection, four concurrent writers, MCP
 readback/error shapes and target schema discovery. Protocol tests forbid all
 child spawning and network connections inside server processes. They do not
 invoke bridge status/preflight or delegated computer use.
+
+## Recorder reply import and shared native policy
+
+The recorder exposes action_begin/end/scopes with exact service times and rich
+context, gated by action_scopes v1. Supported callbacks use
+`src/record-screen/lib/recorded-action.mjs:withRecordedAction`; native CUA remains
+explicitly bracketed. Receipt failure never triggers UI replay. `EvidenceStore`
+can `putRecordedAction(reply)` after terminal settlement, preserving null ends
+for engine-restart interruption. Imported provenance is recorder_reply_imported:
+the clock claim is preserved, not authenticated, and caller/result ownership
+remains unverified. Manual receipt tools keep their original strict v1 shape.
+
+Mechanical scope rules live in native/InteractionScope.swift and are compiled
+into the recorder. They retain broad app-delivered keys, bounded shortcut/action
+candidates, drag continuity and differentiated window clues without text. The
+store does not start this listener, read raw source packets or classify human
+text. Current proof: 36/36 native keys despite non-foreground delivery; 40 separate-
+app keys excluded after block closure; eight final keys matched; scope restart
+kept end time unknown. See record-screen/qualification/GATES.md for limits.

@@ -12,7 +12,9 @@ files must not silently reuse its origin; derivative timeline mapping remains
 a delivery gate.
 
 Each new take writes a private `source.jsonl` alongside its video. It retains
-metadata, not pixels, typed text or unrelated input. A header identifies the
+metadata, not pixels or literal typed text. Outside-scope input contributes
+counts only; ambiguous key/shortcut candidates during declared blocks remain
+explicitly differentiated rather than treated as exclusively agent-owned. A header identifies the
 take, raw target and host epoch. The capture row identifies resolved options,
 current exclusions and settings. Every delivered screen callback with metadata
 has a source-frame sequence, status, original rational PTS, normalized time,
@@ -72,9 +74,66 @@ partial video to establish playable coverage; a fragmented MP4's `nb_frames`
 metadata can undercount its decoded samples. No last-full-second promise is
 made. Record marks have exact host/relative timestamps and caller-declared
 ownership. Disturbance events carry observation clocks; the current window
-monitor still polls once a second. Input attribution and automatic supported
-action receipts are separate qualification stages.
+monitor still polls once a second. Input/action rows are described below; other providers, overload and clock
+transitions remain qualification gates.
 
 The shared computer-use evidence service stores versioned observations and
 declared receipts; it does not turn these metadata rows into automatic learning
 or guaranteed ownership. Keep source files local and out of Git.
+
+## Input and semantic blocks
+
+Negotiate `input_timeline == 1`. New takes on capable engines enable passive
+scoped input by default; legacy saved jobs keep input disabled. `record_schedule`
+accepts `input: {enabled, ambiguous_keys, pointer_in_frame}`. No grant is requested
+automatically; disabled/missing/revoked access and tap/secure-input interruptions
+produce explicit status/gaps while video can continue. The shared listener uses
+at most 2,048 queued scalar events, and stops after its last recording unsubscribes.
+Raw characters, Unicode text and clipboard contents are never read.
+
+`input_event` retains type, key code/autorepeat or raw pointer/scroll/drag data,
+source/destination PID, source tag, pointer window, modifier flags, contextual
+snapshot time, relevance reasons, certainty and applicable action tokens. App-
+delivered keys survive lack of foreground or focused text fields. Drag candidates
+follow their starting scope with expiry; source PID cannot identify an agent when
+providers multiplex callers. Child surfaces are candidates derived from app PID
+and window layer, not proven parentage. The policy is shared native source in
+`src/codex-bridge/native/InteractionScope.swift`.
+
+Normalized input offsets use exact recorder reception time in CLOCK_UPTIME_RAW.
+Original CG event timestamps remain separate and explicitly unqualified against
+that clock. They matched AppKit event timestamps in the native canaries, but
+this does not prove cross-provider or sleep-safe equivalence. Event reception
+can lag generation; consumers must not infer a physical-input latency guarantee.
+`position_for_composition` remains null until the provider coordinate convention
+is qualified. Context refresh cost and last observed tap-enabled state are visible
+in status. Listener-loop window enumeration is a required improvement before
+production latency/load recommendations.
+
+The default `ambiguous_keys=shortcuts` retains extra shortcut/modifier candidates
+only during declared action blocks. `none` disables that extra temporal lane;
+`all` retains every key code during the bounded block and can include human
+activity. App delivery/focus evidence still applies in all modes. Agents use
+intent and delivery/pixel evidence to refine these candidates; no zero-collision
+promise is made. A complete journal does not prove complete keyboard coverage.
+
+Negotiate `action_scopes == 1`, then bracket native work with `action_begin` and
+`action_end` (socket action.begin/end). Begin validates the current exact bundle,
+PID and optional window; it records verbose intent plus purpose/before-state/
+expected-change/verification-plan context. Service stamps are exact decimal
+nanoseconds; deadline is 1–120 seconds, 30 by default. Expiry ends attribution,
+not the UI operation. Caller-reported result is not app-success evidence.
+Recently closed intervals remain joinable to delayed queued events.
+
+`action_scopes` recovers tokens by session/caller, including disk history after
+restart (newest 4,096 files inspected; at most 100 returned; truncation/errors
+explicit). A restarted active scope has interrupted state and null end time.
+Closing requires the same declared caller/session, and repeats cannot enlarge
+a settled interval. This is namespace checking, not authenticated agent identity.
+
+Supported callbacks can use `lib/recorded-action.mjs:withRecordedAction`. It never
+retries the UI callback after a receipt failure. Native CUA still needs explicit
+bracketing. Optional shared evidence publication preserves rich context and exact
+stamps as `recorder_reply_imported`, with ownership/result unverified; it does
+not manufacture a verified native-provider receipt. Source action_scope rows
+reference recorder-stamped blocks alongside video metadata and semantic marks.

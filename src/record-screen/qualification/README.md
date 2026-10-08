@@ -34,6 +34,9 @@ No helper requests a new grant.
 | `options-mcp.test.mjs` | Isolated engine socket: reject unsupported controls before forwarding; no real capture |
 | `deadline-test.swift` | Shared producer deadlines, waiter cancellation, ignored late completions; no SDK capture |
 | `startup-test.swift` | Actual recording state/watchdog races with a controlled preflight; no SDK discovery |
+| `input-test.swift` | Mechanical event scoping, contextual service stamps, namespace/restart uncertainty, strict numeric boundaries and persistence faults; no UI |
+| `admission-test.swift` | Future schedule and extension overlap/duration/lead admission, cancellation; no capture |
+| `recorded-action.test.mjs` | Supported wrapper never replays UI after missing receipt; shared imported provenance |
 | `journal-test.swift` | Bounded asynchronous writes, queue/byte/footer failures, exact timestamps and private files |
 | `verify-journal.py` | Compare journal decisions against actual muxed samples; optional authored-fixture pixels via ffmpeg/Pillow |
 | `bridge-probe.mjs` | MCP initialize/tools-list only, no app-server/model turn |

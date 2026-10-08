@@ -125,6 +125,15 @@ ios-agent inspect --lease-file <private-lease.json> --args '{"type":"get-tree","
 ios-agent release --lease-file <private-lease.json>
 ```
 
+The fixed `wifi` action hands off to the phone's **Runner Wi-Fi On/Off** Apple
+shortcuts, then returns to the dev app. It accepts only `{"state":"on"}` or
+`{"state":"off"}`; no arbitrary shortcut name or URL is accepted. Foreground
+loss ends the lease, so reacquire after return and verify independent state.
+The USB shortcut actuator passed a connected → disconnected → connected test;
+the new app-owned command requires its own installed qualification. See
+[Wi-Fi workflow and recovery](docs/WIFI.md). A prepared acknowledgment or
+successful callback does not prove radio state.
+
 Explicitly release before finishing a turn. A separately running observer also
 releases at turn completion, including agents that forget. Do not keep a lease
 file or try to reuse it in another turn. Do not acquire while the human is using

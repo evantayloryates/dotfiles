@@ -26,14 +26,14 @@ struct RecordSettings {
     case "pr-clip": s = RecordSettings(preset: preset, fps: 30, codec: "h264", maxWidth: 1280, showCursor: false, bitsPerPixel: 0.08)
     default: throw RPCError.badParams("unknown preset \(preset); use evidence, demo or pr-clip")
     }
-    if let v = p.num("fps") { s.fps = max(1, min(120, Int(v))) }
+    if let v = try RPCNumber.optional(p,"fps",min:1,max:120,integer:true) { s.fps=Int(v) }
     if let v = p.str("codec") {
       guard ["h264", "hevc"].contains(v) else { throw RPCError.badParams("codec must be h264 or hevc") }
       s.codec = v
     }
-    if let v = p.num("max_width") { s.maxWidth = v <= 0 ? nil : Int(v) }
-    if let v = p.bool("show_cursor") { s.showCursor = v }
-    if let v = p.num("bitrate_mbps") { s.bitrateMbps = v }
+    if let v = try RPCNumber.optional(p,"max_width",min:0,max:16384,integer:true) { s.maxWidth = v == 0 ? nil : Int(v) }
+    if let v = try RPCNumber.boolean(p,"show_cursor") { s.showCursor = v }
+    if let v = try RPCNumber.optional(p,"bitrate_mbps",min:0.1,max:1000) { s.bitrateMbps = v }
     return s
   }
 
@@ -45,7 +45,7 @@ struct RecordSettings {
     switch d.str("max_width") {
     case "points": s.maxWidth = -1
     case "native": s.maxWidth = nil
-    case let v?: s.maxWidth = Int(v)
+    case let v?: if let n=Int(v),n>=2,n<=16384 { s.maxWidth=n }
     case nil: break
     }
     return s
@@ -208,12 +208,13 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
       switch self.state {
       case .scheduled:
         let newStart = start ?? self._startAt, newEnd = end ?? self._endAt
-        guard newEnd > newStart else { throw RPCError.badParams("end_at must be after start_at") }
+        guard newEnd > newStart,newEnd.timeIntervalSince(newStart)<=Recordings.maxDuration,
+              newStart.timeIntervalSinceNow<=Recordings.maxLeadTime else { throw RPCError.badParams("invalid reschedule interval: 3 h duration and 7 day lead limits apply") }
         self.snapLock.withLock { self._startAt = newStart; self._endAt = newEnd }
       case .arming, .recording:
         guard start == nil else { throw RPCError(code: "already_started", message: "recording \(self.id) already started; only end_at can change") }
         guard let end else { return false }
-        guard end > Date() else { throw RPCError.badParams("end_at must be in the future") }
+        guard end > Date(),end.timeIntervalSince(self._startAt)<=Recordings.maxDuration else { throw RPCError.badParams("end_at must be in the future and within 3 h of start") }
         self.snapLock.withLock { self._endAt = end }
         self.endHostNs = self.hostNs(for: end)
         self.snapLock.withLock { self.inputEndHostSnap=self.endHostNs }
