@@ -7,29 +7,22 @@ if (bridge && !global.__IOS_AGENT_BRIDGE_STARTED__) {
   const listeners = new Set();
   let disconnect;
   let sequence = 0;
-  const counts = {warn: 0, error: 0};
+  let telemetry;
   const publish = () => bridge.publish(JSON.stringify({
     ready: true,
     protocol: 1,
     hermes: Boolean(global.HermesInternal),
-    diagnostics: {...counts},
+    diagnostics: telemetry?.snapshot() || {active: false},
     logBoxHidden: true,
     consoleContentExported: false,
   }));
-  // Retain original console behavior; surface metadata without exporting message bodies.
-  for (const level of ['warn', 'error']) {
-    const original = console[level];
-    console[level] = function (...args) {
-      counts[level] += 1;
-      publish();
-      return original.apply(this, args);
-    };
-  }
+  telemetry = require('./telemetry').installTelemetry(global, {onChange: publish});
   LogBox.ignoreAllLogs(true);
   new NativeEventEmitter(bridge).addListener('IOSAgentCommand', ({command, message}) => {
     if (command === 'session-start') {
       disconnect?.();
       listeners.clear();
+      telemetry.start();
       disconnect = require('react-devtools-core').connectWithCustomMessagingProtocol({
         onSubscribe: listener => listeners.add(listener),
         onUnsubscribe: listener => listeners.delete(listener),
@@ -39,13 +32,13 @@ if (bridge && !global.__IOS_AGENT_BRIDGE_STARTED__) {
       disconnect?.();
       disconnect = undefined;
       listeners.clear();
+      telemetry.stop();
     } else if (command === 'react') {
       try {
         const frame = JSON.parse(message);
         for (const listener of listeners) listener(frame);
       } catch {
-        counts.error += 1;
-        publish();
+        telemetry.error(false, 'protocol');
       }
     }
   });

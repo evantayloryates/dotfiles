@@ -1,0 +1,12 @@
+{
+  "date": "2026-10-08",
+  "platform": "ios",
+  "development": true,
+  "bundleCompiled": true,
+  "adapterModulesInSourceMap": [
+    "native/bridge.js",
+    "native/telemetry.js"
+  ],
+  "bundleSHA256": "9af36f4825c2cb504e20ea16c0a0e7ce6c10c25da6a850823f9a94177fba5307",
+  "installedPhoneQualification": false
+}

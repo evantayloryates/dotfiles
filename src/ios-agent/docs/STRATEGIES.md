@@ -1,6 +1,6 @@
 # iOS agent strategy tournament
 
-7 October 2026. Personal dev service; Kickoff app integration stays on ety/local-dev-foundation. Production-ready means the installed personal service, not enabling instrumentation in a customer production app.
+7–8 October 2026. Personal dev service; Kickoff app integration stays on ety/local-dev-foundation. Production-ready means the installed personal service, not enabling instrumentation in a customer production app.
 
 ## Evaluation gates
 
@@ -16,7 +16,7 @@ Gate 1: real-device compatibility and no XCTest dependency. Gate 2: actual nativ
 | agent-device + React/domain adapters | Agent-oriented selectors, snapshots, replay and provider abstraction | Backend-dependent; not evidence of a no-XCTest real-iPhone path | Official docs inspected; not runtime qualified |
 | Maestro / Detox simulator lane | Deterministic broad native UI regression testing | Official iOS configurations are simulator-oriented | Source/documentation gate; existing Maestro CLI available |
 | maestro-runner physical-device lane | Provider orchestration with existing flow formats and reports | Uses WDA/XCUITest on iOS; does not remove system constraints | Official repository inspected |
-| KIF-inspired in-process event adapter | Touch delivery inside the app, no out-of-process UI automation runner; control over indicator | Private Apple APIs require runtime qualification; ordinary SDK APIs do not expose touch constructors | Installed SDK delivered taps and scrolling; simulator also verified hold/text |
+| KIF-inspired in-process event adapter | Touch delivery inside the app, no out-of-process UI automation runner; control over indicator | Private Apple APIs require runtime qualification; ordinary SDK APIs do not expose touch constructors | Installed SDK delivered taps, scrolling and UIKeyInput; physical timed hold tested, full recognizer matrix pending |
 | EarlGrey-inspired synchronisation | Observe real idleness instead of timing sleeps | EarlGrey versions differ; avoid assuming its runner model removes XCTest UI automation | Source candidate |
 | Native accessibility/view introspection + React DevTools | Correlate native bounds/hits with React components and committed state | App background/occlusion can invalidate apparent UI; flattened Fabric views require care | Installed SDK native tree + React props/hooks + profiling qualified |
 | FLEX / Reveal as optional adapters | Deep UIKit/runtime/layout diagnostics | Human tooling is not automatically an agent API; raw network payload capture unsuitable as a default | Official repositories/docs inspected |
@@ -28,7 +28,7 @@ Gate 1: real-device compatibility and no XCTest dependency. Gate 2: actual nativ
 
 ## Three champions retained during implementation
 
-1. **App-owned native input and inspection service + standard React DevTools**, with native lease/glow and outbound authenticated network transport. Strongest fit for personal phone in hand and remote local-app development. Native event/hit, authenticated Tailscale and installed crash/recovery gates have passed; final cellular qualification is recorded separately.
+1. **App-owned native input and inspection service + standard React DevTools**, with native lease/glow and outbound authenticated network transport. Strongest fit for personal phone in hand and remote local-app development. Native event/hit, authenticated Tailscale and installed crash/recovery gates have passed; cellular native/React/input/cleanup qualification passed on 8 October and is recorded separately.
 2. **iPhone Mirroring + the same app bridge**, with an isolated simulator regression lane. Avoids XCTest for broad nearby-phone control; keep as a recovery/control adapter. Its proximity/locked-phone requirements make it unsuitable as the remote app's primary control path.
 3. **Bounded WDA provider + the same rich bridge**, optionally using agent-device/maestro-runner orchestration. Most established native/system input fallback. Accept Apple's indicator and human authorization when used; actual runner ownership/stop is mandatory.
 

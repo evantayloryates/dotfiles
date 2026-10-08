@@ -1,4 +1,4 @@
-# Qualification record — 7 October 2026
+# Qualification record — 7–8 October 2026
 
 The service is personal development tooling. Customer production instrumentation
 is excluded. Claims below distinguish a prototype, a synthetic integration test,
@@ -72,10 +72,19 @@ and prevents delayed old-host cleanup from unlinking replacement sockets.
 The CLI waits for socket readiness only before sending a command; it never
 replays accepted input or inspection requests.
 
-The remaining readiness gate is the physical cellular test with USB disconnected.
-The evaluation iproxy was stopped before installed-SDK testing. Native long-press
-and UIKeyInput are simulator-qualified; do not claim a physical-device keyboard
-or long-press matrix has been completed.
+The installed cellular gate passed on 8 October with the user confirming USB
+unplugged and Wi-Fi disconnected. Native and React inspection, login navigation,
+UIKeyInput entry of a reserved synthetic phone number, clear and screen restoration
+all passed through Tailscale. Continue was never submitted. A 1,100 ms hold
+delivered native events and moved the caret; this is not a complete physical
+long-press recognizer or keyboard matrix. Explicit release left no lease, no glow
+and no React frontend. See `cellular-smoke-2026-10-08.json`.
+
+The Mac VPN was initially stopped. Reconnecting the existing Tailscale account
+restored the app channel. A separate foreground interruption revoked control
+and required a fresh lease; its cause was not established. The evaluation iproxy
+was stopped before installed-SDK testing. No XCTest or Mirroring was used for
+this cellular test.
 
 ## Boundaries
 
@@ -88,3 +97,14 @@ Console metadata is available while original console behavior is preserved;
 full console bodies, typed domain operations and remote Metro/build delivery
 are separate integrations. A foreground app connection is not evidence that
 coach web, Android, live-call recording or every app workflow is ready.
+
+## Next adapter qualification
+
+Six metadata-adapter tests passed on 8 October: bounded/private snapshots,
+console argument/receiver preservation, fetch response/rejection preservation,
+getter avoidance, lease generation fencing and handler cleanup. Console/network
+records are cleared at session end and publishing is coalesced to five updates
+per second. Coverage is global fetch only; call sites expose numeric positions,
+not raw stacks. Runtime error metadata preserves the original global handler.
+The installed build 775 predates this adapter; do not report it live until a new
+bundle is installed and tested. The nineteen host/transport tests also passed.

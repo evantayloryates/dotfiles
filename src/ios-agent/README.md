@@ -1,8 +1,9 @@
 # Personal iOS app agent
 
-Under qualification. Simulator native-input tests, a physical-device input
-prototype, and the combined broker/React transport have passed. The installed
-SDK and off-LAN wireless gates must pass before routine-use readiness is claimed.
+The installed foreground app driver passed its cellular gate with USB unplugged
+and Wi-Fi disconnected on 8 October 2026. Native input, React inspection and
+lease/glow cleanup passed. Rich diagnostics, remote Metro/backend delivery and
+complete coach/client workflows remain separate qualification gates.
 
 The host lives in dotfiles; the app integration stays on `ety/local-dev-foundation`.
 Only the explicit `IOS_AGENT_ENABLED=1` Debug build for `com.dev.kudos.fit` starts
@@ -44,9 +45,14 @@ a mode-0600 IPC socket, a loopback WebSocket listener and an ephemeral handshake
 credential passed through stdin. A generated adapter adds authentication without
 editing the provider package. Provider failure revokes the lease. Inspection and
 profiling contents require private output files; routine status prints metadata.
-The console adapter preserves console behavior, hides LogBox UI and exports
-warning/error counts. Full console bodies and a domain command catalog are
-separate future integrations.
+The console adapter hides LogBox UI while forwarding original calls. The next
+bundle adapter records bounded console levels/positions, runtime error severity
+and global-fetch method/status/duration only during the owning lease. It never
+exports message arguments, raw errors/stacks, URLs, headers or bodies. Fetch
+observation chains its promise while preserving response/rejection identity; it
+does not retry or consume payloads. This adapter is host-tested and awaiting
+installed-bundle qualification; build 775 still exports warning/error counts.
+A typed domain command catalog remains a separate integration.
 
 ## Installation and use
 
@@ -100,7 +106,8 @@ lease, device, stale result, unknown outcome and owner-event failure cases.
 With `npm ci --ignore-scripts` in `src/ios-agent/react`, it also runs the real pinned
 frontend against a synthetic backend, verifies component state, authentication,
 provider-crash cleanup, recovery and turn-end cleanup. The suite currently has
-19 tests. The UIKit simulator fixture and physical prototype evidence are
+19 tests. Run `node --test src/ios-agent/tests/test_telemetry.cjs` for the six
+metadata-adapter tests. The UIKit simulator fixture and physical prototype evidence are
 separate artifacts; neither substitutes for the final installed SDK smoke.
 See [strategy gates](docs/STRATEGIES.md) for the remaining physical-device and
 installed-service checks. KIF-derived HID construction retains its Apache 2.0

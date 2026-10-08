@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-08",
+  "scope": "installed personal dev service, physical iPhone, foreground app only",
+  "build": "775",
+  "transport": "private Tailscale HTTPS, cellular",
+  "networkStateEvidence": "human confirmed USB unplugged and Wi-Fi disconnected; previous physical reference shows 5G and VPN",
+  "xctestStarted": false,
+  "mirroringUsedForInput": false,
+  "nativeTree": {
+    "views": 361,
+    "truncated": false
+  },
+  "react": {
+    "initialComponents": 1391,
+    "finalComponents": 1507,
+    "inspectedComponent": "SignIn",
+    "hooks": 9
+  },
+  "input": {
+    "tap": "welcome to login verified by app-window image",
+    "text": "reserved synthetic phone committed/formatted in native field; Continue not submitted",
+    "hold": {
+      "durationMs": 1100,
+      "nativeDelivery": true,
+      "visualObservation": "caret moved",
+      "fullPhysicalRecognizerMatrix": false
+    },
+    "clear": "later app-window image confirms empty field and disabled Continue",
+    "restoration": "welcome screen restored"
+  },
+  "cleanup": {
+    "activeLease": false,
+    "indicator": false,
+    "reactFrontendRunning": false,
+    "reason": "owner_released"
+  },
+  "recovery": {
+    "macTailscaleInitiallyStopped": true,
+    "existingTailnetReconnected": true,
+    "foregroundLossRevokedLease": true
+  },
+  "limits": [
+    "app-window capture excludes system occlusion",
+    "UIKeyInput is not physical keyboard simulation",
+    "embedded bundle; remote Metro/backend not yet qualified",
+    "logged-out navigation is not a complete client/coach workflow"
+  ]
+}

@@ -9,7 +9,9 @@ const prelude = path.join(__dirname, 'bridge.js');
 module.exports = {
   ...upstream,
   getCacheKey() {
-    return String(upstream.getCacheKey?.() || '') + crypto.createHash('sha256').update(fs.readFileSync(prelude)).digest('hex');
+    const hash = crypto.createHash('sha256');
+    for (const file of [prelude, path.join(__dirname, 'telemetry.js')]) hash.update(fs.readFileSync(file));
+    return String(upstream.getCacheKey?.() || '') + hash.digest('hex');
   },
   transform(args) {
     if (args.options?.dev && (args.filename === 'index.js' || args.filename === path.join(mobile, 'index.js'))) {
