@@ -154,3 +154,25 @@ passive recorder entered an active memory-pressure episode at 20:58:45 UTC.
 At 21:13:49 UTC it reported pressure level 2, paging 45.74 MiB/s and compressor
 churn 666.77 MiB/s. Its existing watcher was confirmed alive; no peer workload
 was stopped or restarted. This later episode does not prove the watchdog cause.
+
+## Clean pause — October 8, 21:28 UTC
+
+Taylor requested another pause and will explicitly resume later. No owned
+capture engine, fixture or visible test is running; production remains on the
+original build. Do not resume automatically under the earlier display grant.
+The resource watcher and unrelated workflows remain untouched.
+
+The next source-to-preview gate identified two existing export gaps: no
+derivative timeline/geometry manifest, and unbounded ffmpeg termination with
+stderr read only after exit. A new standalone `ManagedCommand` runner has
+88 passing actual-child checks for pipe drains, bounded buffers, concurrent
+admission, caller deadlines, retained quarantine and recovery after exit.
+It is compiled/tested separately and **not yet wired into `Export.run`**;
+installed behavior has not changed. Private results are in gates-v8.
+
+Resume with a passive host-health refresh, then finish export integration,
+effort controls and a recorder-owned derivative map. Verify against authored
+VFR/held-frame footage, including non-grid trim boundaries and GIF timestamp
+quantization. Avoid promoting nominal preview sample times to actual source
+presentation times. Then return to the remaining live canary, helper PID churn,
+transient-surface, resource/insurance and production delivery gates above.

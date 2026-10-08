@@ -1,5 +1,15 @@
 # Qualification update — October 8, 2026
 
+## Current clean pause — October 8, 21:28 UTC
+
+Taylor requested a pause until an explicit resume. Owned capture/fixture load
+is stopped; installed production remains unchanged. Eighth-pass offline work
+added a standalone owned-subprocess runner with 88 passing real-child checks.
+It is not yet integrated into exports, and derivative timing/geometry mapping
+and preview effort tiers remain open. The preceding watchdog and failed
+insurance gate are preserved below; no production-readiness claim is made.
+Resume details are in [PRODUCTION-GOAL.md](PRODUCTION-GOAL.md).
+
 ## Historical pause checkpoint — October 8, 18:55 UTC
 
 Taylor requested a clean pause before the 3 p.m. call. Owned native fixtures,

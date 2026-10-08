@@ -101,6 +101,12 @@ final class ManagedCommand: @unchecked Sendable {
   }
 
   private func finish(status: Int32 = -1, error: Error? = nil) {
+    // Break the Process -> termination handler -> job cycle after actual exit
+    // (or launch failure); otherwise every finished export retains its buffers.
+    process.terminationHandler = nil
+    for pipe in [stdoutPipe, stderrPipe] {
+      try? pipe.fileHandleForReading.close(); try? pipe.fileHandleForWriting.close()
+    }
     let result: (CheckedContinuation<Output, Error>?, Error?, Output) = lock.withLock {
       let k = settled ? nil : waiter
       settled = true; waiter = nil
