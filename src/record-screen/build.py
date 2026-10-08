@@ -26,7 +26,8 @@ LSREGISTER = '/System/Library/Frameworks/CoreServices.framework/Frameworks/Launc
 
 
 def sources():
-    return sorted((SRC / 'Sources').glob('*.swift'))
+    return sorted([*(SRC / 'Sources').glob('*.swift'),
+                   *(ROOT / 'src/codex-bridge/native').glob('*.swift')])
 
 
 def source_hash():

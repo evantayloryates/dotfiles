@@ -73,6 +73,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   let dir: String
   let targetRaw: [String: Any]
   let settings: RecordSettings
+  let inputSettings: InputSettings
   let label: String
   let idempotencyKey: String?
   let sessionID: String?
@@ -136,6 +137,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   private var prerollSource: Int?
   private var lastSource: Int?
   private var framesProvenance = "live_counters"
+  private var inputEndHostSnap: UInt64 = 0
   private var armTimer: DispatchSourceTimer?
   private var startTimer: DispatchSourceTimer?
   private var endTimer: DispatchSourceTimer?
@@ -157,11 +159,13 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
 
   init(id: String, dir: String, target: [String: Any], settings: RecordSettings, label: String, startAt: Date, endAt: Date,
        ifLate: String, idempotencyKey: String?, sessionID: String?, createdAt: Date = Date(), state: RecState = .scheduled,
-       startupPreflight: (@Sendable () async throws -> Void)? = nil, startupBudgetSeconds: Double = 8) {
+       startupPreflight: (@Sendable () async throws -> Void)? = nil, startupBudgetSeconds: Double = 8,
+       inputSettings: InputSettings = .disabled) {
     self.id = id
     self.dir = dir
     self.targetRaw = target
     self.settings = settings
+    self.inputSettings = inputSettings
     self.label = label
     self._startAt = startAt
     self._endAt = endAt
@@ -212,6 +216,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
         guard end > Date() else { throw RPCError.badParams("end_at must be in the future") }
         self.snapLock.withLock { self._endAt = end }
         self.endHostNs = self.hostNs(for: end)
+        self.snapLock.withLock { self.inputEndHostSnap=self.endHostNs }
         self.endTimer?.cancel()
         self.endTimer = self.wallTimer(at: end.addingTimeInterval(0.15)) { [weak self] in self?.finalize(reason: nil) }
         self.note("end_moved", ["end_at": iso8601.string(from: end)])
@@ -372,13 +377,14 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
         self.stopTimers(keepArm: false)
         self.teardownStream()
         self.writer?.cancelWriting()
-        self.sourceJournal?.finish()
+        self.stopInputJournal()
         if !self.wroteFirst { try? FileManager.default.removeItem(atPath: self.videoPath) }
       }
     }
     // Map wall-clock times onto the host clock that frame timestamps use.
     startHostNs = hostNs(for: max(_startAt, now))
     endHostNs = hostNs(for: _endAt)
+    snapLock.withLock { inputEndHostSnap=endHostNs }
     do {
       let journal = try SourceJournal(path: dir + "/source.jsonl", epoch: startHostNs,
                                       recordingID: id, target: targetRaw)
@@ -431,6 +437,21 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
         }
         resolved = target.describe()
         sourceJournal?.offer(["kind": "capture", "resolved": target.describe(), "settings": settings.dict])
+        if inputSettings.enabled, let journal=sourceJournal {
+          let context=InteractionScopeContext(pid:target.window?.owningApplication?.processID,
+            windowID:target.window?.windowID,frame:target.frame,ambiguousKeys:inputSettings.ambiguousKeys,
+            retainPointerInFrame:inputSettings.pointerInFrame)
+          InputTimeline.shared.subscribe(id:id,sessionID:sessionID,context:context) { [weak self] value in
+            guard let self else { return }
+            var row=value
+            let raw=(row["received_host_ns"] ?? row["host_ns"]) as? String
+            if let ns=raw.flatMap(UInt64.init) {
+              if row.str("kind")=="input_event" && ns>self.snapLock.withLock({self.inputEndHostSnap}) { return }
+              row["relative_ns"]=journal.relative(ns)
+            }
+            journal.offer(row)
+          }
+        }
         areaKey = target.areaKey
         if let w = target.window {
           watchedWindow = (w.windowID, target.frame, w.owningApplication?.processID ?? 0)
@@ -517,6 +538,9 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     let identity = jsonData(geometry, options: [.sortedKeys])
     if identity != previousGeometry {
       geometrySequence += 1; previousGeometry = identity
+      if watchedWindow != nil, let screen=geometry["screen_points"] as? [String:Any],let x=screen.num("x"),let y=screen.num("y"),let w=screen.num("w"),let h=screen.num("h") {
+        InputTimeline.shared.updateFrame(id:id,frame:CGRect(x:x,y:y,width:w,height:h))
+      }
       sourceJournal?.offer(["kind": "geometry", "segment": geometrySequence,
                             "first_source_frame": sourceID, "relative_ns": pts.map { sourceJournal?.relative($0) as Any? ?? NSNull() } as Any? ?? NSNull(),
                             "geometry": geometry])
@@ -599,6 +623,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   private func finalize(reason: String?) {
     guard state == .recording || state == .arming else { return }
     let wasRecording = wroteFirst
+    snapLock.withLock { inputEndHostSnap=endHostNs }
     setState(.finalizing)
     stopTimers(keepArm: false)
     teardownStream()
@@ -652,8 +677,23 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     prerollBuffer = nil
     lastBuffer = nil
     snapLock.withLock { tapBuffer = nil }
-    sourceJournal?.finish { [self] in q.async { [self] in persist() } }
+    stopInputJournal()
     setState(s)
+  }
+
+  private func stopInputJournal() {
+    guard let journal=sourceJournal else { return }
+    let close: @Sendable () -> Void = { [self] in journal.finish { [self] in q.async { [self] in persist() } } }
+    if inputSettings.enabled { InputTimeline.shared.unsubscribe(id:id,completion:close) }
+    else { close() }
+  }
+
+  func annotateAction(_ value: [String:Any]) {
+    guard state == .arming || state == .recording, let journal=snapLock.withLock({sourceJournal}) else { return }
+    var row: [String:Any]=["kind":"action_scope","action":value]
+    let raw=value.str("end_ns") ?? value.str("start_ns")
+    if let ns=raw.flatMap(UInt64.init) { row["relative_ns"]=journal.relative(ns) }
+    journal.offer(row)
   }
 
   private func abandonIfStuck() {
@@ -750,6 +790,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
       "label": label,
       "target": targetRaw,
       "settings": settings.dict,
+      "input_settings": inputSettings.dict,
       "start_at": iso8601.string(from: _startAt),
       "end_at": iso8601.string(from: _endAt),
       "if_late": ifLate,

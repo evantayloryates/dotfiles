@@ -68,7 +68,7 @@ export function validateFact(input) {
     evidence_refs: refs(input.evidence_refs), limits: string(input.limits, 'limits', 1000), provenance: 'reported_observation' }
 }
 
-export function validateReceipt(input) {
+export function validateReceipt(input, { intentMax = 1000 } = {}) {
   fields(input, ['session_id', 'caller', 'action_id', 'provider', 'target', 'clock_domain', 'start_ns', 'end_ns', 'intent', 'result', 'evidence_refs'],
     ['session_id', 'caller', 'action_id', 'provider', 'target', 'clock_domain', 'start_ns', 'end_ns', 'intent', 'result', 'evidence_refs'])
   fields(input.target, ['bundle_id', 'pid', 'window_id'], ['bundle_id'])
@@ -81,14 +81,45 @@ export function validateReceipt(input) {
   return { ...input, target, start_ns: start, end_ns: end,
     session_id: string(input.session_id, 'session_id'), caller: string(input.caller, 'caller'),
     action_id: string(input.action_id, 'action_id'), provider: string(input.provider, 'provider'),
-    intent: string(input.intent, 'intent', 1000), evidence_refs: refs(input.evidence_refs),
+    intent: string(input.intent, 'intent', intentMax), evidence_refs: refs(input.evidence_refs),
     provenance: 'caller_claimed', ownership: 'Not verified agent identity; joins require delivery and source evidence' }
+}
+
+// A recorder reply is imported evidence, not authenticated agent ownership.
+// Keep the exact engine stamps and restart uncertainty instead of promoting a
+// caller-supplied receipt to an independently verified native-provider claim.
+export function validateRecordedAction(input) {
+  const allowed=['schema','action_token','action_id','session_id','caller','provider','intent','context','target',
+    'clock_domain','start_ns','deadline_ns','end_ns','state','result','engine_instance','engine_build','engine_pid',
+    'clock_provenance','ownership','limits','evidence_refs','end_kind','target_lifetime_at_end','clock']
+  fields(input,allowed,['schema','action_token','action_id','session_id','caller','provider','intent','context','target',
+    'clock_domain','start_ns','deadline_ns','end_ns','state','result','engine_instance','engine_build','engine_pid','clock_provenance'])
+  if(input.schema!=='record-screen-action/v1' || input.clock_provenance!=='recorder_service_stamped') fail('invalid recorder action contract')
+  if(!/^act_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(input.action_token)) fail('invalid recorder token')
+  if(!['closed','expired','interrupted'].includes(input.state)) fail('only terminal recorder actions can be imported')
+  const unknown=input.end_ns===null
+  if(unknown && (input.state!=='interrupted' || input.result!=='interrupted' || input.end_kind!=='unknown_after_engine_restart')) fail('unknown end requires restart interruption')
+  const base=validateReceipt(Object.fromEntries(['session_id','caller','action_id','provider','target','clock_domain','start_ns','end_ns','intent','result','evidence_refs']
+    .map(key=>[key,key==='end_ns' && unknown ? input.start_ns : key==='evidence_refs' ? (input[key] ?? []) : input[key]])),{intentMax:3000})
+  const deadline=ns(input.deadline_ns)
+  if(BigInt(deadline)<BigInt(base.start_ns) || (!unknown && BigInt(base.end_ns)>BigInt(deadline))) fail('recorder scope bounds invalid')
+  fields(input.context,['purpose','before_state','expected_change','verification_plan'],[])
+  const context=Object.fromEntries(Object.entries(input.context).map(([key,value])=>[key,string(value,key,1500)]))
+  return {...base,context,end_ns:unknown ? null : base.end_ns,deadline_ns:deadline,state:input.state,
+    recorder_action_token:input.action_token,engine_instance:string(input.engine_instance,'engine instance'),
+    engine_build:string(input.engine_build,'engine build'),engine_pid:integer(input.engine_pid,'engine pid',1,2147483647),
+    end_kind:string(input.end_kind,'end kind'),provenance:'recorder_reply_imported',
+    clock_provenance:'recorder_service_stamped_claim_in_reply',ownership:'Caller and result unverified; corroborate against source and delivery evidence'}
 }
 
 export class EvidenceStore {
   constructor(root = EVIDENCE_DIR) { this.root = root }
   put(kind, input) {
     const value = kind === 'facts' ? validateFact(input) : kind === 'receipts' ? validateReceipt(input) : fail('invalid kind')
+    return this.putValidated(kind,value)
+  }
+  putRecordedAction(reply) { return this.putValidated('receipts',validateRecordedAction(reply)) }
+  putValidated(kind,value) {
     const bucket = digest(kind === 'facts' ? value.entity : value.session_id)
     const id = digest(value), directory = join(this.root, kind, bucket), file = join(directory, `${id}.json`)
     mkdirSync(directory, { recursive: true, mode: 0o700 })

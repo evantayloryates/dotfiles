@@ -18,6 +18,10 @@
 //                                              unix seconds, or +N[s|m|h] from now (CLI only)
 //   record-screen recordings [state]           list recordings, newest first
 //   record-screen recording <id>               full manifest of one recording
+//   record-screen record-source <id>           local source journal and gap descriptor
+//   record-screen action-begin <json>          recorder-stamped contextual block, no UI action
+//   record-screen action-end <json>            close token, caller-reported result
+//   record-screen action-scopes <session> [caller]  scoped token recovery
 //   record-screen record-wait <id> [recording|done] [timeout_s]
 //   record-screen stop <id>                    stop now, keep the file
 //   record-screen cancel <id>                  stop or unschedule, delete the file
@@ -171,6 +175,15 @@ try {
       break;
     case "recording":
       out(await call("record.get", { recording_id: args[0] }));
+      break;
+    case "action-begin":
+      out(await call("action.begin",JSON.parse(args[0] ?? "{}")));
+      break;
+    case "action-end":
+      out(await call("action.end",JSON.parse(args[0] ?? "{}")));
+      break;
+    case "action-scopes":
+      out(await call("action.list",{session_id:args[0],...(args[1] ? {caller:args[1]} : {})}));
       break;
     case "record-source":
       out(await call("record.source", { recording_id: args[0] }));

@@ -9,7 +9,7 @@ import { EngineClient, EngineError } from "./lib/client.mjs";
 import { hasCaptureOptions, requireCaptureOptions } from "./lib/capture-options.mjs";
 
 const log = (...args) => console.error("[record-screen]", ...args);
-const VERSION = "0.6.0";
+const VERSION = "0.7.0";
 
 // ---------------------------------------------------------------- engine link
 
@@ -27,9 +27,15 @@ async function engine(method, params = {}, timeoutMs = 20000) {
       if (method === "record.source" && (await client.call("status", {}, { timeoutMs })).capabilities?.source_journal !== 1) {
         throw new EngineError("unsupported_source_journal", "The loaded engine does not advertise source_journal v1. Legacy footage has no recorder-owned source packet.");
       }
+      if (method.startsWith("action.") && (await client.call("status", {}, { timeoutMs })).capabilities?.action_scopes !== 1) {
+        throw new EngineError("unsupported_action_scopes", "The loaded engine does not advertise action_scopes v1. No action was dispatched.");
+      }
+      if (params.input !== undefined && (await client.call("status", {}, { timeoutMs })).capabilities?.input_timeline !== 1) {
+        throw new EngineError("unsupported_input_timeline", "The loaded engine does not advertise input_timeline v1. Explicit input settings cannot be silently ignored.");
+      }
       return await client.call(method, params, { timeoutMs });
     } catch (err) {
-      if (err.code !== "engine_down" || Date.now() > deadline) throw err;
+      if (method.startsWith("action.") || err.code !== "engine_down" || Date.now() > deadline) throw err;
       client = new EngineClient();
       await new Promise((r) => setTimeout(r, 500));
     }
@@ -80,6 +86,31 @@ const toolish = (m) => TOOL_NAMES.reduce((s, [re, to]) => s.replace(re, to), m);
 const ok = (v) => ({ content: [{ type: "text", text: text(v) }], isError: false });
 
 const tools = [
+  {
+    name:"action_begin",
+    description:"Declare a bounded contextual action block before a native or browser operation. Recorder stamps exact CLOCK_UPTIME_RAW time and resolves current bundle/PID/window identity. Does not drive the UI, lock input, or prove exclusive agent ownership. Keep returned token; native CUA needs explicit bracketing. On uncertain response recover with action_scopes before retrying.",
+    inputSchema:{type:"object",additionalProperties:false,properties:{session_id:SESSION_ID,
+      caller:{type:"string",description:"Stable caller identifier; required again at action_end."},provider:{type:"string"},action_id:{type:"string"},intent:{type:"string",maxLength:3000},
+      target:{type:"object",additionalProperties:false,properties:{bundle_id:{type:"string"},pid:{type:"integer",minimum:1,maximum:2147483647},window_id:{type:"integer",minimum:1,maximum:4294967295}},required:["bundle_id"]},
+      context:{type:"object",additionalProperties:false,properties:Object.fromEntries(["purpose","before_state","expected_change","verification_plan"].map(key=>[key,{type:"string",maxLength:1500}]))},
+      timeout_s:{type:"number",minimum:1,maximum:120,description:"Default 30. Expiry ends attribution only; it cannot cancel the UI operation."}
+    },required:["session_id","caller","provider","action_id","intent","target"]},
+    run:async a=>ok(await engine("action.begin",a)),
+  },
+  {
+    name:"action_end",
+    description:"Close a declared token with recorder time and caller-reported result. Idempotent after settlement. Unknown end time after engine restart is preserved. Never use a claimed verified result alone as proof that an app action succeeded.",
+    inputSchema:{type:"object",additionalProperties:false,properties:{session_id:SESSION_ID,caller:{type:"string"},action_token:{type:"string"},
+      result:{type:"string",enum:["dispatched","delivered","verified","failed","interrupted","unknown"]},evidence_refs:{type:"array",maxItems:16,items:{type:"string",description:"Absolute local evidence paths; no pixels or bulk event rows."}}
+    },required:["session_id","caller","action_token","result"]},
+    run:async a=>ok(await engine("action.end",a)),
+  },
+  {
+    name:"action_scopes",
+    description:"Recover declared action tokens within an existing recording session, optionally filtered by caller. Up to 100 contextual records; newest 4096 disk files inspected after restart. Reports truncation/read errors. A restarted active block has unknown end time, not a made-up timestamp.",
+    inputSchema:{type:"object",additionalProperties:false,properties:{session_id:SESSION_ID,caller:{type:"string"}},required:["session_id"]},annotations:{readOnlyHint:true},
+    run:async a=>ok(await engine("action.list",a)),
+  },
   {
     name: "status",
     description: "Engine health, Screen Recording permission, displays (ids, frames, scale), engine clock, warm lanes and outlines. Start here if anything fails.",
@@ -214,6 +245,11 @@ const tools = [
         max_width: { type: "number", description: "0 = native pixels" }, show_cursor: { type: "boolean" }, bitrate_mbps: { type: "number" },
         if_late: { type: "string", enum: ["start", "skip"], description: "if the engine arms >2 s late: record the rest (default) or skip" },
         idempotency_key: { type: "string" },
+        input: { type:"object", additionalProperties:false, properties: {
+          enabled:{type:"boolean",description:"Passive scoped telemetry. New capable-engine captures default true; no permission is requested automatically."},
+          ambiguous_keys:{type:"string",enum:["none","shortcuts","all"],description:"Extra keyboard candidates during declared action blocks. Default shortcuts; app-delivered keys retained in every mode. All may include human typing in the interval."},
+          pointer_in_frame:{type:"boolean",description:"Default true. Retain location candidates when window ownership is unresolved."}
+        } },
       },
       required: ["target", "start_at", "end_at"],
     },

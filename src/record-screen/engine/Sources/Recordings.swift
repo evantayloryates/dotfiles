@@ -42,7 +42,8 @@ actor Recordings {
                           settings: RecordSettings.fromSaved(m["settings"] as? [String: Any] ?? [:]),
                           label: m.str("label") ?? "", startAt: start, endAt: end, ifLate: m.str("if_late") ?? "start",
                           idempotencyKey: m.str("idempotency_key"), sessionID: m.str("session_id"),
-                          createdAt: m.str("created_at").flatMap(parseISO) ?? Date(), state: state)
+                          createdAt: m.str("created_at").flatMap(parseISO) ?? Date(), state: state,
+                          inputSettings:InputSettings.saved(m["input_settings"]))
       watch(rec)
       jobs[id] = rec
       if state == .scheduled {
@@ -75,6 +76,7 @@ actor Recordings {
     guard let target = p["target"] as? [String: Any] else { throw RPCError.badParams("target is required") }
     _ = try TargetSpec.parse(target)
     let settings = try RecordSettings.from(p)
+    let inputSettings = try InputSettings.parse(p["input"])
     guard let startRaw = p["start_at"], let start = parseTime(startRaw) else {
       throw RPCError.badParams("start_at is required: an absolute ISO 8601 time (e.g. 2026-10-05T20:15:00Z) or unix seconds")
     }
@@ -102,7 +104,8 @@ actor Recordings {
     let id = Self.newID()
     let dir = "\(sessionDir)/recordings/\(id)"
     let rec = Recording(id: id, dir: dir, target: target, settings: settings, label: p.str("label") ?? "",
-                        startAt: start, endAt: end, ifLate: ifLate, idempotencyKey: p.str("idempotency_key"), sessionID: sessionID)
+                        startAt: start, endAt: end, ifLate: ifLate, idempotencyKey: p.str("idempotency_key"), sessionID: sessionID,
+                        inputSettings:inputSettings)
     watch(rec)
     jobs[id] = rec
     rec.save()
@@ -136,6 +139,11 @@ actor Recordings {
     let quarantined = jobs.values.filter { $0.captureQuarantined }
     return ["quarantined": quarantined.count, "quarantined_recordings": quarantined.map { $0.id },
             "max_concurrent": Self.maxConcurrent]
+  }
+
+  func annotateAction(_ value: [String:Any]) {
+    guard let session=value.str("session_id") else { return }
+    for recording in jobs.values where recording.sessionID==session { recording.annotateAction(value) }
   }
 
   func briefs(_ ids: [String]) -> [[String: Any]] {

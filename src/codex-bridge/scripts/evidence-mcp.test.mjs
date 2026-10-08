@@ -74,7 +74,7 @@ test('evidence MCP mutation and readback work with transport/model paths forbidd
 
 test('recorder target options are discoverable without engine capture or transport', () => server('../../record-screen/server.mjs', async request => {
   const roster = await request('tools/list')
-  const aimed = roster.tools.filter(t => t.inputSchema?.properties?.target)
+  const aimed = roster.tools.filter(t => t.inputSchema?.properties?.target?.properties?.type)
   assert.equal(aimed.length, 3)
   for (const tool of aimed) {
     assert.equal(tool.inputSchema.properties.target.properties.include_child_windows.type, 'boolean')

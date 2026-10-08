@@ -28,7 +28,7 @@ test('MCP refuses an old engine before capture, forwards explicit false to capab
     createInterface({ input: socket }).on('line', line => {
       const row = JSON.parse(line); methods.push(row.method)
       let result
-      if (row.method === 'status') result = capable ? { capabilities: { target_capture_options: 1, source_journal: 1 } } : { engine: { build: 'legacy-fixture' } }
+      if (row.method === 'status') result = capable ? { capabilities: { target_capture_options: 1, source_journal: 1, action_scopes:1, input_timeline:1 } } : { engine: { build: 'legacy-fixture' } }
       else { forwarded = row.params; result = { overlay_id: 'synthetic-no-ui' } }
       socket.write(JSON.stringify({ id: row.id, result }) + '\n')
     })
@@ -75,6 +75,20 @@ test('MCP refuses an old engine before capture, forwards explicit false to capab
     assert.equal(acceptedSource.isError,false)
     assert.deepEqual(methods.slice(-2),['status','record.source'])
     assert.deepEqual(forwarded,{recording_id:'synthetic'})
+    capable=false
+    const actionArgs={session_id:'fixture-session',caller:'agent',provider:'native-cua',action_id:'one',intent:'synthetic',target:{bundle_id:'com.test.Fixture'}}
+    const deniedAction=await request('tools/call',{name:'action_begin',arguments:actionArgs})
+    assert.equal(deniedAction.isError,true);assert.match(deniedAction.content[0].text,/unsupported_action_scopes/)
+    assert.equal(methods.at(-1),'status')
+    const recordingArgs={session_id:'fixture-session',target:{type:'display'},start_at:'2026-10-08T20:00:00Z',end_at:'2026-10-08T20:00:01Z',input:{enabled:false,ambiguous_keys:'none'}}
+    const deniedInput=await request('tools/call',{name:'record_schedule',arguments:recordingArgs})
+    assert.equal(deniedInput.isError,true);assert.match(deniedInput.content[0].text,/unsupported_input_timeline/)
+    assert.equal(methods.at(-1),'status')
+    capable=true
+    const acceptedAction=await request('tools/call',{name:'action_begin',arguments:actionArgs})
+    assert.equal(acceptedAction.isError,false);assert.equal(methods.at(-1),'action.begin');assert.deepEqual(forwarded,actionArgs)
+    const acceptedInput=await request('tools/call',{name:'record_schedule',arguments:recordingArgs})
+    assert.equal(acceptedInput.isError,false);assert.equal(methods.at(-1),'record.schedule');assert.deepEqual(forwarded.input,recordingArgs.input)
   } finally {
     rejectAll(new Error('cleanup')); child.stdin.end(); child.kill('SIGTERM'); lines.close()
     await new Promise(resolve => { if (child.exitCode !== null || child.signalCode) resolve(); else { child.once('exit', resolve); setTimeout(() => { child.kill('SIGKILL'); resolve() }, 1000).unref() } })

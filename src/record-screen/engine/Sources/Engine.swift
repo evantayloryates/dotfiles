@@ -20,6 +20,9 @@ final class Engine: @unchecked Sendable {
   }
 
   func start() throws {
+    ActionTimeline.shared.configure(root:paths.root+"/actions")
+    let actionRecordings=self.recordings
+    ActionTimeline.shared.onChange = { value in Task { await actionRecordings.annotateAction(value) } }
     let server = SocketServer(path: paths.socket) { [unowned self] method, params in
       try await self.handle(method, params)
     }
@@ -65,7 +68,8 @@ final class Engine: @unchecked Sendable {
     // Every object reply carries the engine clock, so agents can compute
     // absolute start_at/end_at times without asking separately.
     if var d = result as? [String: Any], d["clock"] == nil {
-      d["clock"] = ["wall": iso8601.string(from: Date()), "uptime_ns": uptimeNs()]
+      let ns=uptimeNs()
+      d["clock"] = ["wall": iso8601.string(from: Date()), "uptime_ns": ns,"uptime_ns_exact":String(ns),"domain":"CLOCK_UPTIME_RAW"]
       return d
     }
     return result
@@ -98,6 +102,16 @@ final class Engine: @unchecked Sendable {
       return try await scheduleRecording(params)
     case "record.mark":
       return try await mark(params)
+    case "action.begin":
+      guard let sid=params.str("session_id"), await sessions.exists(sid) else { throw RPCError.badParams("an existing session_id is required") }
+      let target=try validateActionTarget(params["target"])
+      return try ActionTimeline.shared.begin(params,target:target)
+    case "action.end":
+      guard let sid=params.str("session_id"),await sessions.exists(sid) else { throw RPCError.badParams("an existing session_id is required") }
+      return try ActionTimeline.shared.end(params)
+    case "action.list":
+      guard let sid=params.str("session_id"),await sessions.exists(sid) else { throw RPCError.badParams("an existing session_id is required") }
+      return ActionTimeline.shared.list(sessionID:sid,caller:params.str("caller"))
     case "session.create":
       return try await sessions.create(params)
     case "session.get":
@@ -197,9 +211,12 @@ final class Engine: @unchecked Sendable {
         "uptime_s": now.timeIntervalSince(startedAt),
         "launched_by_launchd": getppid() == 1,
       ],
-      "clock": ["uptime_ns": uptimeNs(), "wall": iso8601.string(from: now), "started_ns": startedNs],
+      "clock": ["uptime_ns": uptimeNs(), "uptime_ns_exact":String(uptimeNs()), "domain":"CLOCK_UPTIME_RAW", "wall": iso8601.string(from: now), "started_ns": startedNs,"started_ns_exact":String(startedNs)],
       "permission": ["screen_recording": CGPreflightScreenCaptureAccess() ? "granted" : "missing"],
-      "capabilities": ["target_capture_options": CaptureOptions.contractVersion, "source_journal": 1],
+      "capabilities": ["target_capture_options": CaptureOptions.contractVersion, "source_journal": 1,
+                       "input_timeline":1,"action_scopes":1],
+      "input_timeline":InputTimeline.shared.status,
+      "action_timeline":ActionTimeline.shared.status,
       "displays": await displays(),
       "viewfinder": await viewfinder.state,
       "capture_health": ["discovery": await ContentCache.shared.diagnostics,
@@ -265,6 +282,27 @@ final class Engine: @unchecked Sendable {
     }
     d["session_id"] = sid
     return d
+  }
+
+  private func validateActionTarget(_ raw: Any?) throws -> [String:Any] {
+    guard let target=raw as? [String:Any],Set(target.keys).isSubset(of:["bundle_id","pid","window_id"]),
+          let bundle=target.str("bundle_id"),!bundle.isEmpty,bundle.utf8.count<=256 else { throw RPCError.badParams("target needs an exact bundle_id with optional pid/window_id") }
+    func identifier(_ key:String,_ maximum:Double) throws -> UInt32? {
+      guard let raw=target[key] else { return nil }
+      guard let n=raw as? NSNumber,CFGetTypeID(n) != CFBooleanGetTypeID(),n.doubleValue.isFinite,
+            n.doubleValue>=1,n.doubleValue<=maximum,n.doubleValue.rounded(.towardZero)==n.doubleValue else { throw RPCError.badParams("invalid target.\(key)") }
+      return UInt32(n.doubleValue)
+    }
+    let requested=try identifier("pid",Double(Int32.max)), window=try identifier("window_id",Double(UInt32.max))
+    let matches=NSWorkspace.shared.runningApplications.filter{$0.bundleIdentifier==bundle && !$0.isTerminated && (requested==nil || UInt32($0.processIdentifier)==requested)}
+    guard matches.count==1,let app=matches.first else { throw RPCError(code:"action_target_unavailable",message:"target bundle/PID is unavailable or ambiguous; specify its current PID") }
+    var resolved:[String:Any]=["bundle_id":bundle,"pid":app.processIdentifier]
+    if let window {
+      guard let rows=CGWindowListCopyWindowInfo([.optionIncludingWindow],window) as? [[String:Any]],
+            let row=rows.first(where: { ($0[kCGWindowNumber as String] as? NSNumber)?.uint32Value==window }), (row[kCGWindowOwnerPID as String] as? NSNumber)?.int32Value==app.processIdentifier else { throw RPCError(code:"action_target_mismatch",message:"window is unavailable or no longer belongs to the requested app/PID") }
+      resolved["window_id"]=window
+    }
+    return resolved
   }
 
   /// Marks "now" in running recordings: one by id, or every running recording
