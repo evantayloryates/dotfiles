@@ -1,11 +1,13 @@
 # Personal iOS app agent
 
-The installed foreground app driver passed its cellular gate with USB unplugged
+An earlier installed foreground app driver passed its cellular gate with USB unplugged
 and Wi-Fi disconnected on 8 October 2026. Native input, React inspection and
-lease/glow cleanup passed. The latest installed runtime also passed remote Metro
+lease/glow cleanup passed. A later remote-runtime build passed remote Metro
 delivery, live JavaScript marker updates, read-only navigation/Apollo status and
-embedded-bundle recovery. This build's additional cellular check and complete
-coach/client workflows remain separate qualification gates.
+embedded-bundle recovery. The newest telemetry/input qualification build is
+installed, but its phone bridge is currently offline. Its physical readiness,
+cellular check and complete coach/client workflow are still open. Host readiness
+and historical cellular results do not establish those gates.
 
 The host lives in dotfiles; the app integration stays on `ety/local-dev-foundation`.
 Only the explicit `IOS_AGENT_ENABLED=1` Debug build for `com.dev.kudos.fit` starts
@@ -116,6 +118,7 @@ Reload clears the cached ready flag. State reports a `bundleSource` enum
 Agent workflow:
 
 ```sh
+ios-agent doctor
 ios-agent status
 ios-agent acquire --rollout <this-chat-rollout.jsonl> --lease-file <private-lease.json>
 ios-agent action capabilities --lease-file <private-lease.json>
@@ -124,6 +127,27 @@ ios-agent inspect --lease-file <private-lease.json> --args '{"type":"status"}'
 ios-agent inspect --lease-file <private-lease.json> --args '{"type":"get-tree","depth":8}' --output <private-react-tree.json>
 ios-agent release --lease-file <private-lease.json>
 ```
+
+`ios-agent doctor` performs read-only source, private routing, guarded local
+backend and HTTP checks. It never acquires the phone or repairs services. Its
+`hostPrerequisitesReady` result is separate from foreground application readiness.
+Use `ios-agent verify ready --lease-file <private-lease.json> --timeout 30
+--output <new-private-receipt.json>` after acquiring a fresh lease. The fixed
+verifier also supports native/React trees, route, bundle source, network and
+cleanup; see [workflow gates](docs/WORKFLOWS.md). Every receipt requires a new
+private file; a read-only gate is not a replacement for the real product flow.
+
+If the local backend needs recovery at an idle point, explicitly run
+`ios-agent stack-ensure --timeout 90`. It serializes recovery, requires the
+existing local Docker Desktop socket, configured foundation checkout mount,
+local database identity marker and guarded processes. It rechecks device
+ownership after Docker startup, refuses unknown port owners and admits each
+missing canonical launcher once. It never resets data, replaces containers,
+switches contexts or stops workers. No automatic accepted-command replay occurs.
+After a timeout or unknown outcome, inspect `doctor` and current processes before
+another attempt. Warm reuse passed live; controlled cold recovery is still an
+acceptance gate. The lock serializes this tool, not every independent agent or
+process on the laptop, so an ownership check cannot guarantee zero collisions.
 
 The fixed `wifi` action hands off to the phone's **Runner Wi-Fi On/Off** Apple
 shortcuts, then returns to the dev app. It accepts only `{"state":"on"}` or
@@ -149,9 +173,10 @@ volume-button exit gesture or control the system's automation state.
 lease, device, stale result, unknown outcome and owner-event failure cases.
 With `npm ci --ignore-scripts` in `src/ios-agent/react`, it also runs the real pinned
 frontend against a synthetic backend, verifies component state, authentication,
-provider-crash cleanup, recovery and turn-end cleanup. The suite currently has
-24 tests. Run `node --test src/ios-agent/tests/test_telemetry.cjs src/ios-agent/tests/test_domain.cjs` for the eight
-metadata-adapter tests. Set `IOS_AGENT_MOBILE_ROOT` to the app checkout and run
+provider-crash cleanup, recovery and turn-end cleanup. At the current checkpoint
+65 Python checks pass, including fixed verifier, health, recovery and absolute
+IPC deadline tests. Run `node --test src/ios-agent/tests/test_telemetry.cjs src/ios-agent/tests/test_domain.cjs`
+for metadata/failure-path checks. Set `IOS_AGENT_MOBILE_ROOT` to the app checkout and run
 `node --test src/ios-agent/tests/test_bridge.cjs src/ios-agent/tests/test_transformer.cjs`
 for real prelude/event wiring and development-only runtime replacement, including
 Metro's relative filenames. The `diagnostics-probe` action sends a fixed,
@@ -161,6 +186,11 @@ no caller-supplied URL or query. A queued acknowledgment requires a later state
 assertion of the result.
 The UIKit simulator fixture and physical prototype evidence are
 separate artifacts; neither substitutes for the final installed SDK smoke.
+The combined JavaScript suite passed 18 checks; the extended UIKit simulator
+matrix passed 31 gates. The paired local-auth helper passed 45 focused
+Kickoff checks and live mint/readback/retirement, but signed-in browser/phone
+workflow acceptance remains open.
+Keep the [progress report](docs/PROGRESS.md) current after each verification stage.
 See [strategy gates](docs/STRATEGIES.md) for the remaining physical-device and
 installed-service checks. KIF-derived HID construction retains its Apache 2.0
 license under `native/KIF-LICENSE`.

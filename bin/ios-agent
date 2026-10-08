@@ -1,2 +1,16 @@
 #!/bin/sh
+case "$1" in
+  stack-ensure)
+    shift
+    exec /usr/bin/python3 -B /Users/taylor/dotfiles/src/ios-agent/local_stack.py "$@"
+    ;;
+  doctor)
+    shift
+    exec /usr/bin/python3 -B /Users/taylor/dotfiles/src/ios-agent/health.py "$@"
+    ;;
+  verify)
+    shift
+    exec /usr/bin/python3 -B /Users/taylor/dotfiles/src/ios-agent/verify.py "$@"
+    ;;
+esac
 exec /usr/bin/python3 -B /Users/taylor/dotfiles/src/ios-agent/cli.py "$@"

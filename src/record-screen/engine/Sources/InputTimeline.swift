@@ -46,6 +46,11 @@ final class InputTimeline: @unchecked Sendable {
   private let q = DispatchQueue(label:"record-screen.input-scope",qos:.userInteractive)
   private let lock = NSLock()
   private let windows:WindowContextSampler
+  private var listenerContext:ListenerContextSampler!
+  private var contextTap:CFMachPort? // lock; worker retains its own reference
+  private var listenAccessSnapshot:Bool? = nil
+  private var listenAccessObservedNS:UInt64=0
+  private var appliedContextHostNS:UInt64=0 // main only
   private var subscribers: [String: Subscriber] = [:] // q only
   private var foreground: Int32 = 0
   private var snapshotNS: UInt64 = 0
@@ -85,11 +90,19 @@ final class InputTimeline: @unchecked Sendable {
       return WindowContextResult(transientWindows:transient,gap:rows.count>2048 ? "window_context_truncated" : nil)
     })
     windows.onGap={ [weak self] reason,host in self?.broadcast(["kind":"input_gap","reason":reason,"host_ns":String(host)]) }
+    listenerContext=ListenerContextSampler(query:{[weak self] in
+      let heldTap:CFMachPort?=self?.lock.withLock{self?.contextTap}
+      return ListenerContextResult(listenAccess:CGPreflightListenEventAccess(),
+        foregroundPID:NSWorkspace.shared.frontmostApplication?.processIdentifier ?? 0,
+        secureInput:IsSecureEventInputEnabled(),tapEnabled:heldTap.map{CGEvent.tapIsEnabled(tap:$0)} ?? false)
+    })
   }
 
   var status: [String: Any] {
-    let grant = CGPreflightListenEventAccess()
-    var result:[String:Any]=lock.withLock { ["state":phase,"listen_access":grant,"subscribers":subscriptionCount,
+    var result:[String:Any]=lock.withLock { ["state":phase,"listen_access":listenAccessSnapshot.map{$0 as Any} ?? NSNull(),
+      "listen_access_qualification":"last observed; unknown before first startup; background sample uses conservative query-begin time",
+      "listen_access_observed_host_ns":String(listenAccessObservedNS),
+      "subscribers":subscriptionCount,
       "callbacks":callbacks,"observed_type_counts":Dictionary(uniqueKeysWithValues:observedTypes.map { (String($0.key),$0.value) }),
       "tap_enabled_last_observed":enabledSnapshot,
       "context_refresh_count":contextRefreshCount,"context_refresh_max_ns":String(contextRefreshMaxNS),
@@ -99,6 +112,7 @@ final class InputTimeline: @unchecked Sendable {
       "keyboard_coverage":"requires delivered-event canary; listen status alone is not proof",
       "ownership":"unverified; source PID, focus and action interval are clues only"] }
     result.merge(windows.status) { _,new in new }
+    result.merge(listenerContext.status) { _,new in new }
     return result
   }
 
@@ -129,7 +143,9 @@ final class InputTimeline: @unchecked Sendable {
   private func broadcast(_ row: [String: Any]) { q.async { [self] in for s in subscribers.values { s.callback(row) } } }
   private func startIfNeeded() {
     guard tap == nil, lock.withLock({subscriptionCount>0}) else { return }
-    guard CGPreflightListenEventAccess() else {
+    let access=CGPreflightListenEventAccess()
+    lock.withLock{listenAccessSnapshot=access;listenAccessObservedNS=uptimeNs()}
+    guard access else {
       lock.withLock { phase="access_unavailable" }
       broadcast(["kind":"input_gap","reason":"listen_access_unavailable","host_ns":String(uptimeNs())]); return
     }
@@ -151,11 +167,14 @@ final class InputTimeline: @unchecked Sendable {
       lock.withLock { phase="tap_source_unavailable" }
       broadcast(["kind":"input_gap","reason":"tap_runloop_source_failed","host_ns":String(uptimeNs())]); return
     }
+    lock.withLock{contextTap=tap}
     CFRunLoopAddSource(CFRunLoopGetMain(),source,.commonModes)
     CGEvent.tapEnable(tap:tap,enable:true)
     timeoutRetries=0
     lock.withLock { phase="listening"; enabledSnapshot=CGEvent.tapIsEnabled(tap:tap) }
     windows.activate()
+    listenerContext.onGap={ [weak self] reason,host in self?.broadcast(["kind":"input_gap","reason":reason,"host_ns":String(host)]) }
+    listenerContext.activate()
     refreshContext()
     timer=Timer.scheduledTimer(withTimeInterval:0.2,repeats:true) { [weak self] _ in self?.refreshContext() }
     broadcast(["kind":"input_listener","state":"listening","host_ns":String(uptimeNs()),
@@ -167,23 +186,31 @@ final class InputTimeline: @unchecked Sendable {
     if let source { CFRunLoopRemoveSource(CFRunLoopGetMain(),source,.commonModes) }
     tap=nil; source=nil
     windows.deactivate()
-    lock.withLock { phase="inactive"; enabledSnapshot=false }
+    listenerContext.deactivate()
+    appliedContextHostNS=0
+    lock.withLock { phase="inactive"; enabledSnapshot=false;contextTap=nil;foreground=0;snapshotNS=0;secure=false }
   }
   private func refreshContext() {
     let refreshStart=uptimeNs()
-    if !CGPreflightListenEventAccess() {
-      stop(); lock.withLock { phase="access_revoked" }
+    defer {
+      let cost=uptimeNs()-refreshStart
+      lock.withLock { contextRefreshCount+=1; contextRefreshTotalNS+=cost; contextRefreshMaxNS=max(contextRefreshMaxNS,cost) }
+    }
+    let context=listenerContext.snapshot
+    _=listenerContext.refresh()
+    windows.refresh()
+    guard let value=context.value,context.hostNS != appliedContextHostNS else { return }
+    appliedContextHostNS=context.hostNS
+    let conservativeHost=context.startedHostNS>0 ? context.startedHostNS : context.hostNS
+    if !value.listenAccess {
+      stop(); lock.withLock { phase="access_revoked";listenAccessSnapshot=false;listenAccessObservedNS=conservativeHost }
       broadcast(["kind":"input_gap","reason":"listen_access_revoked","host_ns":String(refreshStart)]); return
     }
-    let enabled=tap.map { CGEvent.tapIsEnabled(tap:$0) } ?? false
+    let enabled=value.tapEnabled
     let newlyDisabled=lock.withLock { let changed=enabledSnapshot && !enabled; enabledSnapshot=enabled; return changed }
     if newlyDisabled { broadcast(["kind":"input_gap","reason":"tap_not_enabled_at_context_check","host_ns":String(refreshStart)]) }
-    let pid=NSWorkspace.shared.frontmostApplication?.processIdentifier ?? 0
-    let secureNow=IsSecureEventInputEnabled()
-    let changed=lock.withLock { let c=secure != secureNow; foreground=pid; secure=secureNow; snapshotNS=uptimeNs(); return c }
-    windows.refresh()
-    let cost=uptimeNs()-refreshStart
-    lock.withLock { contextRefreshCount+=1; contextRefreshTotalNS+=cost; contextRefreshMaxNS=max(contextRefreshMaxNS,cost) }
+    let secureNow=value.secureInput
+    let changed=lock.withLock { let c=secure != secureNow; foreground=value.foregroundPID; secure=secureNow; snapshotNS=conservativeHost;listenAccessSnapshot=value.listenAccess;listenAccessObservedNS=conservativeHost; return c }
     if changed { broadcast(["kind":"input_gap","reason":secureNow ? "secure_input_enabled" : "secure_input_ended","host_ns":String(uptimeNs())]) }
   }
   private func receive(_ type: CGEventType, _ event: CGEvent) {

@@ -12,6 +12,35 @@ snapshot rejection and explicit age/stall/cost diagnostics. It has not been
 launched/live-tested. Last live-qualified candidate remains 99752c4615cf. Resume
 with its offload/lifecycle canary. Private pause/runtime evidence is in gates-v5.
 
+## Seventh pass: Electron depth, motion and WindowServer watchdog
+
+Private gates-v7 preserves nine take directories and the user-supplied watchdog
+report. Production remains cd78c24b652e, automatically relaunched as PID 71911
+after desktop recovery; its existing screen grant was read back as granted.
+No production install, security grant, user input lock or crash-report send.
+
+| Gate | Actual result | Limit |
+| --- | --- | --- |
+| Electron native/nested menus | Owned VS Code window: native context menu in encoded footage; three nested levels present with child inclusion and absent without it. All 5,002 muxed timestamps across five Electron takes matched journals exactly. 98 retained key/modifier events addressed Code; operation scope closed as delivered. | App delivery does not prove actor ownership. Padded display also included unrelated desktop pixels; this pair did not establish additional menu rows beyond the isolated canvas. |
+| Single-window motion | Two 25-second takes: 721 point-resolution/30-fps samples and 1,384 Retina/60-fps samples matched journal timestamps, zero lost rows and reported encoder drops. Decoded binary app counter changed 719 and 1,337 times respectively. | Timer/capture/encoding differences are not isolated source drops or physical latency. Source was off Space during recording. |
+| Preliminary resource cost | Recorder median CPU was 2.02% and 5.94% of one core; sampled RSS peaked at 89.23 and 149.28 MiB. Video sizes were 4.16 and 18.80 MB. Baseline motion-only and WindowServer samples are saved. | Includes setup/finalization samples, excludes attributable GPU/driver cost. Concurrent workloads remain. Not a capacity, P80 or insurance qualification. |
+| Failed paired take | Window source failed: 715 accepted submissions, 713 actual decoded/muxed packets, timing proof failed, binary counter unchanged. Display crop finalized with 379 exact samples. | Motion had already stopped changing at the end of the prior Retina take. The window was off Space; matching scene coverage of the crop was not established. A finalized backup is not proof that it can restore the shot. |
+| WindowServer watchdog | User report captured at 20:51:55 UTC: 40-second missed check-in, unresponsive ws_main_thread, nominal thermal state, display OFF. Main kernel image UUIDs matched IOGPUFamily 130.13 and AGXG17X 351.2. WindowServer PID changed 98864→70678. | Graphics wait is evidence, not attribution to the recorder, fixture, other workload or a specific driver defect. Report resident-memory fields conflict with sampled RSS and are not used for memory attribution. |
+| Failure visibility | Source journals recorded window-query stall, tap disabled and unavailable-context gaps. Main context refresh reached 63.095 seconds, background window query 67.914 seconds. Scheduled window take finalization was delayed until 20:51:59. | Existing Quartz monitor ran on the recording queue, and other periodic OS reads remained on the listener main loop. Offloading only transient enumeration was insufficient. |
+| Next context candidate | 113 listener-context, 106 shared recording-monitor and 113 window-context assertions passed. Full source cfbf7de741a7 compiled and signed in a private bundle. Periodic TCC/workspace/tap reads and shared disturbance enumeration now use retained single-worker slots, late-generation rejection and explicit stale/unknown snapshots. | Not launched or installed. Initial tap creation, per-event protected-input check and encoder/SDK work still involve OS APIs; no universal bound on all OS failure paths. Live canary remains required after passive health reconciliation. |
+| Structural historical audit | 31 prior chats since September 17: 2,655 CUA calls had matching results; 1,441/1,510 scripts with action references had an observation reference in the same or next call. This qualification chat is counted separately. | Static code references and opaque outputs do not prove skill invocation or task success. No semantic classification performed. Future quality evaluation needs structured delivery, verification and cleanup receipts. |
+
+Owned candidate PID 27957 was stopped only after terminal recordings, zero input
+subscribers, actions and preview lanes. Reopened owned motion/protected fixtures
+were closed; process readback showed neither running. Raw footage, input and the
+5.15 MB crash report remain private. No further live load in this checkpoint.
+
+Live qualification remains deferred at the current host-health boundary: the
+passive recorder entered an active memory-pressure episode at 20:58:45 UTC.
+At 21:13:49 UTC it reported pressure level 2, paging 45.74 MiB/s and compressor
+churn 666.77 MiB/s. Its existing watcher was confirmed alive; no peer workload
+was stopped or restarted. This later episode does not prove the watchdog cause.
+
 ## Sixth pass: background context and cross-display evidence
 
 Resumed October 8 at 20:01 UTC under the existing production interval. Installed

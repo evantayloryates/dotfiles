@@ -1,12 +1,23 @@
 import Foundation
 
+struct WindowMonitorState: Sendable {
+  let frame:CGRect
+  let onScreen:Bool
+  let pid:Int32
+  let hidden:Bool
+}
 struct WindowContextResult: Sendable {
   var transientWindows: [Int32:Set<UInt32>] = [:]
   var gap: String? = nil
+  var requestedWindows:Set<UInt32> = []
+  var windowStates:[UInt32:WindowMonitorState] = [:]
 }
 struct WindowContextSnapshot: Sendable {
   let hostNS: UInt64
   let transientWindows: [Int32:Set<UInt32>]
+  var requestedWindows:Set<UInt32> = []
+  var windowStates:[UInt32:WindowMonitorState] = [:]
+  var gap:String? = nil
 }
 
 /// One utility-queue query shared by the listener, with unfinished work retaining
@@ -17,6 +28,8 @@ final class WindowContextSampler: @unchecked Sendable {
   private let q=DispatchQueue(label:"record-screen.window-context",qos:.utility)
   private let query: @Sendable () -> WindowContextResult
   private let clock: @Sendable () -> UInt64
+  private let prefix:String
+  private let intervalNS:UInt64
   var onGap: (@Sendable (String,UInt64) -> Void)?
   private var active=false
   private var generation:UInt64=0
@@ -27,17 +40,17 @@ final class WindowContextSampler: @unchecked Sendable {
   private var count=0, ignoredLate=0
   private var totalNS:UInt64=0, maxNS:UInt64=0
 
-  init(query:@escaping @Sendable () -> WindowContextResult, clock:@escaping @Sendable () -> UInt64 = {uptimeNs()}) {
-    self.query=query;self.clock=clock
+  init(prefix:String="window",intervalNS:UInt64=0,query:@escaping @Sendable () -> WindowContextResult, clock:@escaping @Sendable () -> UInt64 = {uptimeNs()}) {
+    self.query=query;self.clock=clock;self.prefix=prefix;self.intervalNS=intervalNS
   }
   func activate() { lock.withLock { active=true;generation &+= 1;current=WindowContextSnapshot(hostNS:0,transientWindows:[:]) } }
   func deactivate() { lock.withLock { active=false;generation &+= 1;current=WindowContextSnapshot(hostNS:0,transientWindows:[:]) } }
   var snapshot:WindowContextSnapshot { lock.withLock { current } }
   var status:[String:Any] { lock.withLock {
-    ["window_context_refresh_in_flight":pending,"window_context_snapshot_host_ns":String(current.hostNS),
-     "window_refresh_count":count,"window_refresh_max_ns":String(maxNS),"window_refresh_average_ns":count>0 ? String(totalNS/UInt64(count)) : "0",
-     "window_context_ignored_late_results":ignoredLate,"window_context_active":active,
-     "window_context_work":"one utility-queue query at a time; no event-listener run-loop enumeration"]
+    ["\(prefix)_context_refresh_in_flight":pending,"\(prefix)_context_snapshot_host_ns":String(current.hostNS),
+     "\(prefix)_refresh_count":count,"\(prefix)_refresh_max_ns":String(maxNS),"\(prefix)_refresh_average_ns":count>0 ? String(totalNS/UInt64(count)) : "0",
+     "\(prefix)_context_ignored_late_results":ignoredLate,"\(prefix)_context_active":active,"\(prefix)_context_stalled":pending && stalled,
+     "\(prefix)_context_work":"one utility-queue query at a time; no capture/listener queue enumeration"]
   } }
   /// Returns admission, useful for both lifecycle callers and qualification.
   @discardableResult func refresh() -> Bool {
@@ -49,10 +62,11 @@ final class WindowContextSampler: @unchecked Sendable {
         if !stalled,now>=pendingStart,now-pendingStart>2_000_000_000 { stalled=true;reportStall=true }
         return nil
       }
+      if intervalNS>0,pendingStart>0,now>=pendingStart,now-pendingStart<intervalNS { return nil }
       pending=true;pendingStart=now;stalled=false
       return generation
     }
-    if reportStall { onGap?("window_context_query_stalled",now) }
+    if reportStall { onGap?("\(prefix)_context_query_stalled",now) }
     guard let ticket else { return false }
     q.async { [self] in
       let start=clock(),result=query(),finish=clock()
@@ -60,7 +74,8 @@ final class WindowContextSampler: @unchecked Sendable {
       let accepted=lock.withLock {
         pending=false;count+=1;totalNS &+= elapsed;maxNS=max(maxNS,elapsed)
         guard active,generation==ticket else { ignoredLate+=1;return false }
-        current=WindowContextSnapshot(hostNS:finish,transientWindows:result.transientWindows)
+        current=WindowContextSnapshot(hostNS:finish,transientWindows:result.transientWindows,
+          requestedWindows:result.requestedWindows,windowStates:result.windowStates,gap:result.gap)
         return true
       }
       if accepted,let reason=result.gap { onGap?(reason,finish) }

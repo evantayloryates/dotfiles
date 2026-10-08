@@ -145,6 +145,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   private var powerAssertion: IOPMAssertionID = 0
   private let powerLock = NSLock()
   private var watchedWindow: (id: CGWindowID, frame: CGRect, pid: pid_t)?
+  private var windowMonitorGapReported=false
   private var wasHidden = false
   private var wasOnScreen = true
   /// What this recording covers (ResolvedTarget.areaKey), for verify taps.
@@ -456,8 +457,8 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
         areaKey = target.areaKey
         if let w = target.window {
           watchedWindow = (w.windowID, target.frame, w.owningApplication?.processID ?? 0)
-          wasOnScreen = Targets.liveWindowState(w.windowID)?.onScreen ?? w.isOnScreen
-          wasHidden = NSRunningApplication(processIdentifier: w.owningApplication?.processID ?? 0)?.isHidden ?? false
+          wasOnScreen = w.isOnScreen
+          RecordingWindowContext.shared.subscribe(id,window:w.windowID,pid:w.owningApplication?.processID ?? 0)
         }
         for warning in target.warnings { note("warning", ["message": warning]) }
         stream = s
@@ -578,7 +579,8 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     let streamID = ObjectIdentifier(s)
     q.async { [self] in
       guard let current = stream, ObjectIdentifier(current) == streamID, state == .arming || state == .recording else { return }
-      let gone = watchedWindow.map { Targets.liveWindowState($0.id) == nil } ?? false
+      let monitor=RecordingWindowContext.shared.refresh()
+      let gone = watchedWindow.map { w in monitor.requestedWindows.contains(w.id) && monitor.windowStates[w.id] == nil } ?? false
       if !(gone && windowGone) { note(gone ? "window_gone" : "capture_stopped", ["error": error.localizedDescription]) }
       endHostNs = min(endHostNs, uptimeNs())
       finalize(reason: gone ? "the target window closed; the file ends there" : "capture stopped: \(error.localizedDescription)")
@@ -740,6 +742,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     startTimer?.cancel(); startTimer = nil
     endTimer?.cancel(); endTimer = nil
     monitorTimer?.cancel(); monitorTimer = nil
+    RecordingWindowContext.shared.unsubscribe(id)
   }
 
   // MARK: - Watching for disturbances
@@ -750,14 +753,20 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     let current = describeLocked()
     snapLock.withLock { snapshot = current }
     guard let w = watchedWindow else { return }
-    guard let live = Targets.liveWindowState(w.id) else {
+    let sample=RecordingWindowContext.shared.refresh()
+    let gap=sample.gap ?? (RecordingWindowContext.shared.status["recording_window_context_stalled"] as? Bool==true ? "recording_window_context_query_stalled" : nil)
+    if let gap {
+      if !windowMonitorGapReported {note("window_monitor_gap",["reason":gap,"context_snapshot_host_ns":String(sample.hostNS),"qualification":"disturbance context unavailable; frame metadata remains separate"]);windowMonitorGapReported=true}
+    } else {windowMonitorGapReported=false}
+    guard gap==nil,sample.requestedWindows.contains(w.id) else {return}
+    guard let live=sample.windowStates[w.id],live.pid==w.pid else {
       if !windowGone { note("window_gone", [:]); windowGone = true }
       return
     }
     if live.frame.size != w.frame.size { note("window_resized", ["frame": rectDict(live.frame)]) }
     else if live.frame.origin != w.frame.origin { note("window_moved", ["frame": rectDict(live.frame)]) }
     watchedWindow?.frame = live.frame
-    let hidden = NSRunningApplication(processIdentifier: w.pid)?.isHidden ?? false
+    let hidden = live.hidden
     if hidden != wasHidden { note(hidden ? "app_hidden" : "app_unhidden", [:]); wasHidden = hidden }
     if live.onScreen != wasOnScreen { note(live.onScreen ? "window_on_screen" : "window_off_screen", [:]); wasOnScreen = live.onScreen }
   }

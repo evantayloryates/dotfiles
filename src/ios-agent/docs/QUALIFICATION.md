@@ -172,3 +172,46 @@ See `remote-runtime-host-smoke-2026-10-08.json`,
 one-time builds. This exact build's additional cellular gate is pending; the
 earlier installed-driver cellular gate remains separately qualified. Full
 global-error forwarding and business-workflow matrices remain open.
+
+## Current staged qualification checkpoint, 8 October 2026
+
+The extended suite passed 65 Python checks, 18 JavaScript checks and 31 UIKit
+simulator gates. The simulator used independent callbacks and state assertions;
+its app registration was verified absent before shutdown. Physical React Native
+gestures, software keyboard, secure fields and system occlusion are still open.
+
+The newest telemetry/input native build passed build/source-stability/adapter
+gates and installed. Native executable SHA-256:
+`f3fbe29db82dab3ed5ca4da6d10e3362535d2aa0627d5850e214aa0dcb0e0780`.
+Embedded JavaScript SHA-256:
+`12b16ad2b45da4c373282d95a683db3ae9e49167b488a068cf8577093b6f374e`.
+Its fixed diagnostics matrix uses device-global fetch with isolated telemetry
+and a synthetic ErrorUtils receiver, preserving the real handler identity; it
+does not intentionally invoke the app’s crash reporter. Installed physical
+matrix acceptance remains pending.
+
+Read-only `doctor` currently passes host-source, private Serve/Funnel, guarded
+local backend and HTTP checks, while separately reporting no registered phone.
+Explicit `stack-ensure` passed live warm reuse without spawning or stopping
+workers or resetting data. It checks the actual local Docker socket and preserves
+new/uncertain device ownership after Docker startup. Cold recovery has unit
+coverage but not a controlled live CLI outage/recovery result. Real prior Docker
+outages were recovered with the canonical launchers; their cause is unknown.
+
+The local paired-login helper compiled and passed 45 focused identity,
+transaction/file-lifecycle and existing local-access checks. A successful live
+mint verified hashed token storage, single use and expiry; both tokens were
+retired immediately and private credentials removed. Signed-in browser/phone
+behavior and reversible nutrition-target equality/restoration remain unqualified.
+
+The phone’s app did not open when tapped, and developer foreground requests
+timed out, including with Metro temporarily stopped and subsequently restored.
+A restart was requested; the developer channel disconnected, but restart
+completion and the cause are unverified. One physical unlock confirmation is
+pending. No XCTest was started. Host-idle verification passed; native cleanup
+cannot be freshly confirmed while the app bridge is offline.
+
+The current 16-step report is at
+`/Users/taylor/src/docs/html/iphone-link-status-update/index.html`.
+Refresh it as specified in [PROGRESS.md](PROGRESS.md), keeping this checkpoint
+separate from older installed/cellular results.

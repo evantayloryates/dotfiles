@@ -94,6 +94,21 @@ scoped input by default; legacy saved jobs keep input disabled. `record_schedule
 accepts `input: {enabled, ambiguous_keys, pointer_in_frame}`. No grant is requested
 automatically; disabled/missing/revoked access and tap/secure-input interruptions
 produce explicit status/gaps while video can continue. The shared listener uses
+bounded background periodic context producers. Listener TCC/workspace/tap reads
+and recording disturbance enumeration have separate pending/stale/cost status;
+unfinished work retains its slot across listener/take closures. Unknown context
+cannot inherit a previous generation's focus or secure-input snapshot.
+`input_timeline.listen_access` is the last observed value, null before the first
+listener startup; it is not a fresh authorization query in every status call.
+Its observed-time field uses the conservative query-begin timestamp; context
+diagnostics expose begin/end times so a stalled producer cannot make old focus
+or permission reads appear newly observed when it eventually returns.
+Per-event protected-input checks remain separate. Initial OS tap creation and
+encoder/SDK operations can still stall; background context alone is not an
+all-API timeout guarantee. This context revision is source-qualified and awaits
+a fresh isolated live canary before production delivery.
+
+The shared listener uses
 at most 2,048 queued scalar events, and stops after its last recording unsubscribes.
 Raw characters, Unicode text and clipboard contents are never read.
 

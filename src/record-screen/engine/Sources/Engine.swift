@@ -222,7 +222,8 @@ final class Engine: @unchecked Sendable {
       "displays": await displays(),
       "viewfinder": await viewfinder.state,
       "capture_health": ["discovery": await ContentCache.shared.diagnostics,
-                         "recordings": await recordings.captureHealth],
+                         "recordings": await recordings.captureHealth,
+                         "window_monitor":RecordingWindowContext.shared.status],
       "overlays": await MainActor.run { Overlays.shared.active },
       "paths": ["root": paths.root, "socket": paths.socket, "log": paths.log],
     ]

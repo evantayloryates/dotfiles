@@ -7,7 +7,8 @@ runtime identity and live evidence before marking it qualified.
 
 ## Fixed assertion/wait CLI
 
-Run `verify.py` directly until a service launcher exposes it. It does not
+The service launcher now exposes these gates as `ios-agent verify <gate>`;
+the direct `verify.py` commands below remain equivalent. The verifier does not
 acquire, release, run JavaScript, refetch queries, deliver input, run a diagnostic
 probe, or change data. The `state` and native `tree` observations use the existing
 single-flight broker; `tree` refreshes the driver's target snapshot but delivers
@@ -142,9 +143,12 @@ transaction. It uses normal `createAuthToken` credentials: single use, 15-minute
 expiry. It never seeds, resets or reassigns fixtures. Credentials and the baseline
 go only to a new 0600 file in an ordinary 0700 directory; a write/fsync failure
 rolls minting back. `DISABLE_LOGS=true` is required. Fifteen adversarial identity
-checks and 24 existing local-access checks pass. The helper compiled, and a live
-invalid-client invocation refused access and left no credential file. Successful
-paired sign-in and the product round trip still need their live acceptance gate.
+checks, six receipt/transaction lifecycle checks and 24 existing local-access
+checks pass (45 total). The helper compiled; a live invalid-client invocation
+refused access and left no credential file. A successful live mint independently
+verified hashed storage, single use and expiry. Both issued tokens were retired
+immediately and the private credential file was removed. This qualifies the
+helper, not successful paired browser/phone sign-in or the product round trip.
 
 Build with `yarn build:scripts` inside the guarded local node runtime. Invoke
 `.webpack/scripts/dev-paired-login.js --client-id <verified-tagged-client-id>
@@ -228,9 +232,10 @@ latest installed build gate.
 
 ## Remaining physical gates and limitations
 
-This pass did not operate the phone, browser, database, service, or simulator.
-The root operator still owns latest-build live readiness, actual typed input,
+The source-derived workflow plan above is not a completed browser/phone test.
+The operator has verified local identity and credential mint/readback/retirement;
+latest-build live readiness, actual typed input,
 Wi-Fi Shortcuts handoff and recovery, USB-unplugged cellular proof, paired auth,
-business equality, and final native/glow cleanup. Human steps should be limited
+business equality, and final native/glow cleanup remain open. Human steps should be limited
 to USB/lock-state and actual Apple authentication/consent gates. Unit/IPC tests
 prove the verifier's refusal and wait behavior, not a completed customer flow.

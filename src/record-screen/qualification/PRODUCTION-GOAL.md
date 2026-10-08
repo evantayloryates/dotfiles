@@ -119,3 +119,38 @@ Next: Electron depth and remaining transient surfaces; exclusion/app lifetime
 recovery; pointer-coordinate and sleep limits; motion/insurance resource budget;
 derivative source mapping and preview effort tiers; structural workflow outcome
 audit; then production installation/rollback/readback and final runbooks.
+
+## Seventh-pass checkpoint — WindowServer watchdog
+
+Electron menu depth passed paired child inclusion/exclusion; five takes supplied
+5,002 exact muxed timestamps. Two single-window motion takes supplied another
+2,105 exact timestamps and decoded counter changes. Preliminary CPU/RSS/storage
+numbers are measured, with concurrent-workload and GPU attribution limits.
+
+The paired motion take failed during a second desktop discontinuity. User's
+WindowServer report shows a 40-second watchdog miss and main-thread kernel frames
+in IOGPUFamily/AGXG17X. Cause remains unproven. The window source had 713 decoded
+packets vs 715 submissions and no changing counter; the display source finalized
+but same-scene backup coverage was not established while the window was off Space.
+This remains a failed resource/insurance gate, not production-ready redundancy.
+
+63-second listener context and 68-second Quartz query costs exposed more blocking
+paths. Private candidate cfbf7de741a7 moves periodic listener context and recording
+disturbance checks away from main/frame queues, with shared bounded worker slots
+retained across closures and late-result rejection. 113/106/113 lifecycle checks
+passed; full source compiled and signed. It has not been launched or installed.
+Initial tap/SDK/encoder OS calls remain separately unbounded possibilities.
+
+The idle owned engine and reopened qualification fixtures were stopped/closed.
+Installed production automatically recovered on its original cd78c24b652e build
+with the existing screen grant; no release occurred. A structural audit of 31
+historical chats has matched call/results and observation references, but opaque
+outputs do not establish task outcomes. Goal remains active; continue passive
+incident/health reconciliation, offline regression and source/consumer work, then
+a small low-load canary before more resource tests or production delivery.
+
+Live qualification remains deferred at the current host-health boundary: the
+passive recorder entered an active memory-pressure episode at 20:58:45 UTC.
+At 21:13:49 UTC it reported pressure level 2, paging 45.74 MiB/s and compressor
+churn 666.77 MiB/s. Its existing watcher was confirmed alive; no peer workload
+was stopped or restarted. This later episode does not prove the watchdog cause.

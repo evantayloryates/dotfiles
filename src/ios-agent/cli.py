@@ -54,12 +54,25 @@ def inspect(message, state):
 
 
 def request(message, state, timeout=15):
+    deadline = time.monotonic() + timeout
     with socket.socket(socket.AF_UNIX) as s:
         s.settimeout(timeout)
         s.connect(str(state / "control.sock"))
         s.sendall(json.dumps(message).encode() + b"\n")
-        with s.makefile("rb") as f:
-            response = json.loads(f.readline(9 * 1024 * 1024))
+        body = bytearray()
+        limit = 9 * 1024 * 1024
+        while b'\n' not in body:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise TimeoutError('control_response_deadline_exceeded')
+            s.settimeout(remaining)
+            if len(body) >= limit:
+                raise RuntimeError('control_response_limit')
+            part = s.recv(min(65536, limit - len(body)))
+            if not part:
+                raise RuntimeError('control_response_incomplete')
+            body.extend(part)
+        response = json.loads(body.split(b'\n', 1)[0])
     if "error" in response:
         raise RuntimeError(response["error"])
     return response
