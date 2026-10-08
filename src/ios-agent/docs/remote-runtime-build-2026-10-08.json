@@ -22,5 +22,9 @@
     "/Users/taylor/src/github/dotfiles/src/ios-agent/native/IOSAgent.inc": "4c86fe55e3c206fb2cde1b35cf8aadee781c44fb9d3aa21db52d83ad167feb39",
     "/Users/taylor/src/github/kickoff/mobile/ios/kudos/AppDelegate.mm": "53b10e91800146ad6e7cfcd58511a92870331b2ead4d1483a00bf49b63347e6e"
   },
-  "scope": "physical Debug build, installed and qualified over Tailscale; exact-build cellular gate pending"
+  "scope": "physical Debug build, installed and qualified over Tailscale; exact-build cellular gate pending",
+  "embeddedBundleBytes": 24498628,
+  "embeddedBundleSHA256": "887fec052f925284c652ad56913145eec497690ee75c40dfc687e6df326ea60a",
+  "temporaryMarkerExcluded": true,
+  "provisioningExpiry": "2027-09-18T17:07:20"
 }
