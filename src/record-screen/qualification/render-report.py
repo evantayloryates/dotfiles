@@ -3,6 +3,7 @@
 import argparse
 import base64
 import html
+import mimetypes
 from pathlib import Path
 
 parser = argparse.ArgumentParser()
@@ -11,7 +12,8 @@ parser.add_argument('--output', type=Path, required=True)
 args = parser.parse_args()
 
 def image(name):
-    return 'data:image/png;base64,' + base64.b64encode((args.evidence / name).read_bytes()).decode()
+    mime = mimetypes.guess_type(name)[0] or 'image/png'
+    return 'data:' + mime + ';base64,' + base64.b64encode((args.evidence / name).read_bytes()).decode()
 
 def figure(name, caption):
     return f'<figure><img src="{image(name)}" alt="{html.escape(caption)}"><figcaption>{html.escape(caption)}</figcaption></figure>'
@@ -25,6 +27,10 @@ page = '''<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewp
 <section id="evidence"><h2>Pointer hiding has several layers</h2><p>Both captures below requested pointer hiding. The left still contains computer use’s separate “Software Cursor” window. Excluding that helper app removed it from the display screenshot on the right, while preserving the desktop experience. Streaming exclusion remains a delivery gate.</p><div class="pair">'''
 page += figure('software-cursor-rect.png', 'Capture-level hiding: helper pointer remains below the text field.')
 page += figure('software-cursor-rect-excluding-pid.png', 'Helper app excluded: pointer is gone; app-painted arrow remains.')
+page += '</div><details><summary>Inspect the surviving caret and browser automation pointer in actual video</summary><div class="pair">'
+page += figure('native-video-caret.jpg', 'Native video: blue text caret and magenta app-painted arrow survive pointer hiding.')
+page += figure('chrome-video-pointer.jpg', 'Chrome video: pointer-like residual beside Open HTML menu survives pointer hiding.')
+page += '</div></details><div>'
 page += '''</div><p>Native recorded footage also retained a blinking text caret. Chrome isolated video retained a pointer-like automation residual near the HTML-menu button; its cause is still open. Capture configuration cannot be treated as a universal clean-footage guarantee.</p><h2>Child surfaces change the menu result</h2><p>The same native menu disappeared when child inclusion was disabled and appeared when enabled. Its nested submenu was captured too. This is one app/OS combination, not a cross-app guarantee.</p><div class="switch"><button data-image="without" aria-pressed="true">Child inclusion disabled</button><button data-image="with" aria-pressed="false">Child inclusion enabled</button></div>'''
 page += f'<figure><img id="menu-image" src="{image("edge-menu-included-window-false.png")}" alt="Native menu omitted with child inclusion disabled"><figcaption id="menu-caption">Menu omitted from the display-bound window capture.</figcaption></figure>'
 page += '''<h2>Input delivery beats global focus</h2><p>The destination-aware retest retained <strong>46 key/modifier events</strong> addressed to the fixture. The fixture was foreground for <strong>none of them</strong>. Another 646 events contributed counts only. A focus-only rule would discard legitimate agent input; those outside-scope counts are not a contamination rate.</p><p>All retained events named the current computer-use helper as source, but its zero-valued tags did not identify a durable agent session. Action receipts and uncertainty are still necessary. AX actions can change windows without a pointer event.</p>
