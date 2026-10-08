@@ -1,0 +1,22 @@
+<!doctype html><meta charset="utf-8"><title>Recorder qualification fixture</title>
+<style>
+body{font:20px system-ui;margin:30px;background:#fff;color:#111}section{border:1px solid #777;padding:18px;margin:14px 0;position:relative}textarea{font:24px system-ui;width:90%;height:75px}.system{cursor:crosshair}.svg{cursor:url('/cursor.svg') 4 5,auto}.drawn{cursor:none}#painted{position:absolute;pointer-events:none;left:160px;top:35px;color:#c80090;font-size:40px}button,select{font:20px system-ui}#menu{display:none;position:absolute;z-index:3;background:#e0f3ff;border:2px solid #004568;padding:20px;left:320px;top:18px}#counter{font:16px monospace}.blink{display:inline-block;width:4px;height:26px;background:#111;animation:blink 1s steps(1) infinite}@keyframes blink{50%{opacity:0}}
+</style>
+<h1>Recorder qualification — browser</h1>
+<textarea aria-label="Caret probe">Caret probe: click here, then type.</textarea>
+<section class="system">System crosshair pointer — capture should suppress it.</section>
+<section class="svg">CSS cursor using cursor.svg — capture should suppress it.</section>
+<section class="drawn">App-drawn pointer and caret remain part of pixels.<span id="painted">➤</span><span class="blink"></span></section>
+<section><button id="open">Open HTML menu</button><div id="menu">HTML menu sentinel<br><button id="close">Close HTML menu</button></div></section>
+<section id="native">Right-click here for Chrome's native context menu.</section>
+<select aria-label="Native select"><option>Native select sentinel</option><option>Second choice</option></select>
+<p id="counter">Fixture event count: 0</p>
+<script>
+// Own fixture instrumentation, not injected browser automation. No text/credentials recorded.
+window.fixtureEvents=[];
+for(const type of ['pointermove','pointerdown','pointerup','keydown','keyup','wheel','focusin','contextmenu'])document.addEventListener(type,e=>{
+const v={type,t_ms:performance.now(),x:e.clientX??null,y:e.clientY??null,target:e.target.id||e.target.getAttribute('aria-label')||e.target.tagName,modifiers:{ctrl:e.ctrlKey,shift:e.shiftKey,alt:e.altKey,meta:e.metaKey}};
+window.fixtureEvents.push(v);if(window.fixtureEvents.length>10000)window.fixtureEvents.shift();document.querySelector('#counter').textContent='Fixture event count: '+window.fixtureEvents.length;});
+document.querySelector('#open').onclick=()=>document.querySelector('#menu').style.display='block';
+document.querySelector('#close').onclick=()=>document.querySelector('#menu').style.display='none';
+</script>
