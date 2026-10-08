@@ -8,13 +8,20 @@ import VideoToolbox
 final class FrameSink: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Sendable {
   private let lock = NSLock()
   private var latest: CVPixelBuffer?
-  private(set) var seq: UInt64 = 0
+  private var sequence: UInt64 = 0
   private var latestAt: UInt64 = 0
   /// When the newest frame was on the display (host clock, ns).
   private var latestDisplayNs: UInt64 = 0
   /// What ScreenCaptureKit says the newest frame covers (screen points).
   private var latestScreenRect: CGRect = .null
-  var stoppedError: Error?
+  private var stopError: Error?
+  private var retired = false
+  var stoppedError: Error? {
+    get { lock.withLock { stopError } }
+    set { lock.withLock { stopError = newValue } }
+  }
+  var seq: UInt64 { lock.withLock { sequence } }
+  func invalidate() { lock.withLock { retired = true; latest = nil } }
 
   func stream(_ s: SCStream, didOutputSampleBuffer sb: CMSampleBuffer, of type: SCStreamOutputType) {
     guard type == .screen,
@@ -24,8 +31,9 @@ final class FrameSink: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     let shown = (info[.displayTime] as? UInt64).map(machToNs) ?? uptimeNs()
     let rect = (info[.screenRect] as? NSDictionary).flatMap { CGRect(dictionaryRepresentation: $0) } ?? .null
     lock.lock()
+    guard !retired else { lock.unlock(); return }
     latest = pb
-    seq &+= 1
+    sequence &+= 1
     latestAt = uptimeNs()
     latestDisplayNs = shown
     latestScreenRect = rect
@@ -43,7 +51,7 @@ final class FrameSink: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
 
   func snapshot() -> (CVPixelBuffer?, UInt64, UInt64) {
     lock.lock(); defer { lock.unlock() }
-    return (latest, seq, latestAt)
+    return (latest, sequence, latestAt)
   }
 
   /// Waits for a frame of the expected size that was on screen after
@@ -81,9 +89,13 @@ final class Lane: @unchecked Sendable {
   let width: Int, height: Int
   /// Screen area every frame must cover (display and rect targets).
   let expectedRect: CGRect?
-  var stream: SCStream?
-  var ready: Task<Void, Error>?
-  var restart: Task<Void, Error>?
+  private let lock = NSLock()
+  private var stream: SCStream?
+  private var retired = false
+  var ready: CaptureDeadline<Void>?
+  var restart: CaptureDeadline<Void>?
+  var screenshot: CaptureDeadline<CGImage>?
+  var stopping: CaptureDeadline<Void>?
   var lastUsed = uptimeNs()
   var served = 0
 
@@ -94,18 +106,60 @@ final class Lane: @unchecked Sendable {
     self.expectedRect = expectedRect
   }
 
-  var healthy: Bool { sink.stoppedError == nil }
+  var healthy: Bool { sink.stoppedError == nil && ready?.timedOut != true && restart?.timedOut != true }
+  var startupQuarantined: Bool {
+    (ready?.timedOut == true && ready?.producerFinished == false) ||
+      (restart?.timedOut == true && restart?.producerFinished == false)
+  }
+  var quarantined: Bool {
+    (ready?.timedOut == true && ready?.producerFinished == false) ||
+      (restart?.timedOut == true && restart?.producerFinished == false) ||
+      (screenshot?.timedOut == true && screenshot?.producerFinished == false) ||
+      (stopping?.timedOut == true && stopping?.producerFinished == false)
+  }
+  var settled: Bool {
+    [ready?.producerFinished, restart?.producerFinished, screenshot?.producerFinished, stopping?.producerFinished]
+      .allSatisfy { $0 != false }
+  }
 
   func start(filter: SCContentFilter, config: SCStreamConfiguration) async throws {
     let s = SCStream(filter: filter, configuration: config, delegate: sink)
     try s.addStreamOutput(sink, type: .screen, sampleHandlerQueue: DispatchQueue(label: "record-screen.lane"))
-    try await s.startCapture()
-    stream = s
+    let admitted = lock.withLock { if retired { return false }; stream = s; return true }
+    guard admitted else { throw CancellationError() }
+    do {
+      try await s.startCapture()
+      guard !Task.isCancelled, !lock.withLock({ retired }) else {
+        throw CancellationError()
+      }
+    } catch {
+      let needsStop = lock.withLock {
+        guard stream === s else { return false }
+        stream = nil
+        return true
+      }
+      if needsStop { try? await s.stopCapture() }
+      throw error
+    }
   }
 
-  func stop() async {
-    if let s = stream { try? await s.stopCapture() }
-    stream = nil
+  func retire() {
+    sink.invalidate()
+    let s: SCStream? = lock.withLock {
+      retired = true
+      let current = stream; stream = nil
+      return current
+    }
+    if let s {
+      stopping = CaptureDeadline(seconds: 2, label: "preview stream stop") { try await s.stopCapture() }
+    }
+  }
+
+  func restartStream(filter: SCContentFilter, config: SCStreamConfiguration) async throws {
+    let s: SCStream? = lock.withLock { let current = stream; stream = nil; return current }
+    if let s { try await s.stopCapture() }
+    try Task.checkCancellation()
+    try await start(filter: filter, config: config)
   }
 }
 
@@ -113,6 +167,8 @@ actor Viewfinder {
   static let maxLanes = 24
   static let idleSeconds: Double = 20
   private var lanes: [String: Lane] = [:]
+  /// Retired work retains an admission slot until SDK start/stop really ends.
+  private var retiring: [Lane] = []
   private var sweeper: Task<Void, Never>?
 
   struct Grab {
@@ -136,26 +192,51 @@ actor Viewfinder {
     // callers for the same target share it (actor reentrancy safe).
     let lane: Lane
     var created = false
-    if let l = lanes[key], l.healthy {
-      lane = l
+    reapRetired()
+    if let l = lanes[key] {
+      guard !l.startupQuarantined else {
+        throw RPCError(code: "capture_busy", message: "this preview has unfinished SDK work after a deadline; use another qualified source or wait for recovery")
+      }
+      if l.healthy { lane = l }
+      else {
+        retire(l)
+        lanes[key] = nil
+        try admit()
+        lane = Lane(key: key, width: cfg.width, height: cfg.height, expectedRect: expected)
+        created = true
+        lanes[key] = lane
+        lane.ready = CaptureDeadline(seconds: 3, label: "preview stream start") { try await lane.start(filter: t.filter, config: cfg) }
+      }
     } else {
+      try admit()
       created = true
       lane = Lane(key: key, width: cfg.width, height: cfg.height, expectedRect: expected)
       lanes[key] = lane
-      lane.ready = Task { try await lane.start(filter: t.filter, config: cfg) }
-      evictIfNeeded()
+      lane.ready = CaptureDeadline(seconds: 3, label: "preview stream start") { try await lane.start(filter: t.filter, config: cfg) }
     }
     lane.lastUsed = t0
     ensureSweeper()
 
     func screenshot() async throws -> Grab {
-      let img = try await SCScreenshotManager.captureImage(contentFilter: t.filter, configuration: t.configuration(maxWidth: maxWidth))
+      try Task.checkCancellation()
+      guard lanes[key] === lane else { throw RPCError(code: "capture_interrupted", message: "preview was retired while the request was in flight") }
+      let shot: CaptureDeadline<CGImage>
+      if let pending = lane.screenshot, !pending.producerFinished { shot = pending }
+      else {
+        shot = CaptureDeadline(seconds: 3, label: "preview screenshot fallback") {
+          try await SCScreenshotManager.captureImage(contentFilter: t.filter, configuration: t.configuration(maxWidth: maxWidth))
+        }
+        lane.screenshot = shot
+      }
+      let img = try await shot.value()
+      try Task.checkCancellation()
+      guard lanes[key] === lane else { throw RPCError(code: "capture_interrupted", message: "preview was retired before screenshot delivery") }
       return Grab(image: img, source: "screenshot", ms: Double(uptimeNs() - t0) / 1e6)
     }
     do {
-      try await lane.ready?.value
+      try await lane.ready?.value()
     } catch {
-      if lanes[key] === lane { lanes[key] = nil }
+      if lane.quarantined || error is CancellationError { throw error }
       return try await screenshot()
     }
     let fresh = lane.served == 0
@@ -164,18 +245,20 @@ actor Viewfinder {
                                    screenRect: lane.expectedRect, timeoutMs: timeoutMs)
     }
     var pb = await frame(fresh ? 500 : 250)
+    try Task.checkCancellation()
+    guard lanes[key] === lane else { throw RPCError(code: "capture_interrupted", message: "preview was retired before frame delivery") }
     // A new stream occasionally starts silent (seen on a cold engine with
     // many concurrent first checks). Restart it once rather than fall back.
     if pb == nil, lane.sink.seq == 0, lanes[key] === lane {
       if lane.restart == nil {
-        lane.restart = Task {
-          await lane.stop()
-          try await lane.start(filter: t.filter, config: cfg)
-        }
+        lane.restart = CaptureDeadline(seconds: 3, label: "silent preview stream restart") { try await lane.restartStream(filter: t.filter, config: cfg) }
         Log.event("lane_restart", ["key": key])
       }
-      if (try? await lane.restart?.value) != nil { pb = await frame(700) }
+      do { try await lane.restart?.value(); pb = await frame(700) }
+      catch { if lane.quarantined || error is CancellationError { throw error } }
     }
+    try Task.checkCancellation()
+    guard lanes[key] === lane else { throw RPCError(code: "capture_interrupted", message: "preview was retired during recovery") }
     if let pb {
       lane.served += 1
       return Grab(image: try cgImage(pb), source: created ? "start" : "live", ms: Double(uptimeNs() - t0) / 1e6)
@@ -184,23 +267,39 @@ actor Viewfinder {
   }
 
   func stop() async {
-    let all = lanes.values
+    let all = Array(lanes.values)
     lanes.removeAll()
-    for l in all { await l.stop() }
+    for l in all { retire(l) }
+    reapRetired()
   }
 
   var state: [String: Any] {
     ["lanes": lanes.values.map { ["key": $0.key, "idle_s": Double(uptimeNs() - $0.lastUsed) / 1e9, "served": $0.served,
                                   "frames": Int($0.sink.seq), "frame_rect": rectDict($0.sink.screenRect), "expected": $0.expectedRect.map(rectDict) ?? [:]] },
-     "max_lanes": Self.maxLanes]
+     "max_lanes": Self.maxLanes, "retiring": retiring.count,
+     "quarantined": lanes.values.filter { $0.quarantined }.count + retiring.filter { $0.quarantined }.count,
+     "startup_deadline_s": 3, "screenshot_deadline_s": 3]
   }
 
-  private func evictIfNeeded() {
-    while lanes.count > Self.maxLanes, let oldest = lanes.values.min(by: { $0.lastUsed < $1.lastUsed }) {
+  private func admit() throws {
+    reapRetired()
+    if lanes.count + retiring.count >= Self.maxLanes,
+       let oldest = lanes.values.filter({ $0.settled && !$0.quarantined && uptimeNs() - $0.lastUsed > 5_000_000_000 }).min(by: { $0.lastUsed < $1.lastUsed }) {
       lanes[oldest.key] = nil
-      Task { await oldest.stop() }
+      retire(oldest)
+      reapRetired()
+    }
+    guard lanes.count + retiring.count < Self.maxLanes else {
+      throw RPCError(code: "capture_busy", message: "preview admission is full while SDK operations finish; existing sources remain available")
     }
   }
+
+  private func retire(_ lane: Lane) {
+    lane.retire()
+    if !retiring.contains(where: { $0 === lane }) { retiring.append(lane) }
+  }
+
+  private func reapRetired() { retiring.removeAll { $0.settled } }
 
   private func ensureSweeper() {
     guard sweeper == nil else { return }
@@ -215,10 +314,12 @@ actor Viewfinder {
   private func sweep() async {
     let cutoff = uptimeNs() - UInt64(Self.idleSeconds * 1e9)
     for l in lanes.values where l.lastUsed < cutoff || !l.healthy {
+      if l.quarantined { continue }
       lanes[l.key] = nil
-      await l.stop()
+      retire(l)
     }
-    if lanes.isEmpty { sweeper?.cancel(); sweeper = nil }
+    reapRetired()
+    if lanes.isEmpty && retiring.isEmpty { sweeper?.cancel(); sweeper = nil }
   }
 }
 

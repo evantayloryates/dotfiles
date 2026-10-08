@@ -77,6 +77,10 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   let idempotencyKey: String?
   let sessionID: String?
   let createdAt: Date
+  /// Optional embedding preflight and deadline injection for deterministic
+  /// qualification. Neither is exposed over RPC; production uses nil / 8 s.
+  private let startupPreflight: (@Sendable () async throws -> Void)?
+  private let startupBudgetSeconds: Double
   // Written only on `q` (under snapLock); read anywhere through the accessors.
   private var _startAt: Date
   private var _endAt: Date
@@ -96,7 +100,10 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   /// Set once the encoder has finished the file: the stall watchdog stands
   /// down (building the review afterwards can take a few seconds).
   private var writerDone = false
+  private var startupPending = false
+  private var terminalReason: String?
   var state: RecState { snapLock.withLock { _state } }
+  var captureQuarantined: Bool { snapLock.withLock { _state.terminal && startupPending } }
   private var events: [[String: Any]] = []
   private var marks: [[String: Any]] = []
   private let activity = ActivityTracker()
@@ -140,7 +147,8 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   var manifestPath: String { dir + "/recording.json" }
 
   init(id: String, dir: String, target: [String: Any], settings: RecordSettings, label: String, startAt: Date, endAt: Date,
-       ifLate: String, idempotencyKey: String?, sessionID: String?, createdAt: Date = Date(), state: RecState = .scheduled) {
+       ifLate: String, idempotencyKey: String?, sessionID: String?, createdAt: Date = Date(), state: RecState = .scheduled,
+       startupPreflight: (@Sendable () async throws -> Void)? = nil, startupBudgetSeconds: Double = 8) {
     self.id = id
     self.dir = dir
     self.targetRaw = target
@@ -152,6 +160,9 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     self.idempotencyKey = idempotencyKey
     self.sessionID = sessionID
     self.createdAt = createdAt
+    precondition(startupBudgetSeconds > 0 && startupBudgetSeconds.isFinite)
+    self.startupPreflight = startupPreflight
+    self.startupBudgetSeconds = startupBudgetSeconds
     self._state = state
     self.q = DispatchQueue(label: "record-screen.rec.\(id)", qos: .userInteractive)
     super.init()
@@ -334,26 +345,45 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     setState(.arming)
     // If capture hasn't started 8 s after start_at, give up (a wedged encoder
     // or ScreenCaptureKit never answering) rather than sit in arming forever.
-    let deadline = max(0, _startAt.timeIntervalSinceNow) + 8
+    let deadline = max(0, _startAt.timeIntervalSinceNow) + startupBudgetSeconds
     DispatchQueue.global().asyncAfter(deadline: .now() + deadline) { [weak self] in
-      self?.abandon(if: .arming, as: .failed, reason: "capture did not start within 8 s of start_at", stall: true)
+      guard let self else { return }
+      self.abandon(if: .arming, as: .failed, reason: "capture did not start within \(self.startupBudgetSeconds) s of start_at; unfinished startup retains its admission slot", stall: false)
+      self.q.async {
+        guard self.state == .failed else { return }
+        self.stopTimers(keepArm: false)
+        self.teardownStream()
+        self.writer?.cancelWriting()
+        if !self.wroteFirst { try? FileManager.default.removeItem(atPath: self.videoPath) }
+      }
     }
     // Map wall-clock times onto the host clock that frame timestamps use.
     startHostNs = hostNs(for: max(_startAt, now))
     endHostNs = hostNs(for: _endAt)
     holdPower()
-    Task { await self.startCapture() }
+    snapLock.withLock { startupPending = true }
+    Task {
+      await self.startCapture()
+      self.q.async {
+        self.snapLock.withLock { self.startupPending = false }
+        self.persist()
+      }
+    }
   }
 
   private func startCapture() async {
     do {
+      try await startupPreflight?()
+      guard state == .arming else { return }
       let spec = try TargetSpec.parse(targetRaw)
       var content = try await Targets.content(fresh: true)
+      guard state == .arming else { return }
       let target: ResolvedTarget
       do {
         target = try Targets.resolve(spec, content: content)
       } catch {
         content = try await Targets.content(fresh: true)
+        guard state == .arming else { return }
         target = try Targets.resolve(spec, content: content)
       }
       let width = settings.maxWidth == -1 ? Int(target.frame.width) : settings.maxWidth
@@ -361,10 +391,17 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
                                      showsCursor: settings.showCursor)
       cfg.minimumFrameInterval = CMTime(value: 1, timescale: CMTimeScale(settings.fps))
       cfg.queueDepth = 8
-      try q.sync { try makeWriter(width: cfg.width, height: cfg.height) }
+      try q.sync {
+        guard state == .arming else { throw CancellationError() }
+        try makeWriter(width: cfg.width, height: cfg.height)
+      }
       let s = SCStream(filter: target.filter, configuration: cfg, delegate: self)
       try s.addStreamOutput(self, type: .screen, sampleHandlerQueue: q)
-      q.sync {
+      try q.sync {
+        guard state == .arming else {
+          writer?.cancelWriting()
+          throw CancellationError()
+        }
         resolved = target.describe()
         areaKey = target.areaKey
         if let w = target.window {
@@ -374,22 +411,36 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
         }
         for warning in target.warnings { note("warning", ["message": warning]) }
         stream = s
+        // End the requested interval even if SDK start never acknowledges but
+        // begins delivering frames. Do not turn an empty writer into recording.
+        endTimer = wallTimer(at: _endAt.addingTimeInterval(0.15)) { [weak self] in self?.finalize(reason: nil) }
+        monitorTimer = repeatingTimer(1.0) { [weak self] in self?.monitor() }
       }
       try await s.startCapture()
+      let streamID = ObjectIdentifier(s)
       q.async { [self] in
+        guard state == .arming || state == .recording else {
+          if let current = stream, ObjectIdentifier(current) == streamID { teardownStream() }
+          writer?.cancelWriting()
+          if !wroteFirst { try? FileManager.default.removeItem(atPath: videoPath) }
+          return
+        }
         guard state == .arming else { return }
         let toStart = Double(Int64(startHostNs) - Int64(uptimeNs())) / 1e9
         startTimer = delayTimer(max(0, toStart) + 0.005) { [weak self] in self?.beginAtStart() }
-        endTimer = wallTimer(at: _endAt.addingTimeInterval(0.15)) { [weak self] in self?.finalize(reason: nil) }
-        monitorTimer = repeatingTimer(1.0) { [weak self] in self?.monitor() }
         persist()
       }
     } catch {
       q.async { [self] in
+        guard state == .arming || state == .recording else { return }
+        let msg = (error as? RPCError)?.message ?? "\(error)"
+        if state == .recording {
+          finalize(reason: "capture startup acknowledgement failed: \(msg)")
+          return
+        }
         teardownStream()
         writer?.cancelWriting()
         try? FileManager.default.removeItem(atPath: videoPath)
-        let msg = (error as? RPCError)?.message ?? "\(error)"
         finish(.failed, reason: "could not start: \(msg)")
       }
     }
@@ -423,7 +474,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   }
 
   func stream(_ s: SCStream, didOutputSampleBuffer sb: CMSampleBuffer, of type: SCStreamOutputType) {
-    guard type == .screen, state == .arming || state == .recording,
+    guard stream === s, type == .screen, state == .arming || state == .recording,
           let info = (CMSampleBufferGetSampleAttachmentsArray(sb, createIfNecessary: false) as? [[SCStreamFrameInfo: Any]])?.first,
           let raw = info[.status] as? Int, SCFrameStatus(rawValue: raw) == .complete,
           let pb = CMSampleBufferGetImageBuffer(sb) else { return }
@@ -441,8 +492,9 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   }
 
   func stream(_ s: SCStream, didStopWithError error: Error) {
+    let streamID = ObjectIdentifier(s)
     q.async { [self] in
-      guard state == .arming || state == .recording else { return }
+      guard let current = stream, ObjectIdentifier(current) == streamID, state == .arming || state == .recording else { return }
       let gone = watchedWindow.map { Targets.liveWindowState($0.id) == nil } ?? false
       if !(gone && windowGone) { note(gone ? "window_gone" : "capture_stopped", ["error": error.localizedDescription]) }
       endHostNs = min(endHostNs, uptimeNs())
@@ -551,8 +603,10 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     let stuck: [String: Any]? = snapLock.withLock {
       guard _state == expected else { return nil }
       _state = final
+      terminalReason = reason
       var d = snapshot
       d["state"] = final.rawValue
+      d["capture_quarantined"] = startupPending
       d["error"] = reason
       snapshot = d
       return d
@@ -581,8 +635,9 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
 
   /// Once a second: did the target window move, resize, hide or vanish?
   private func monitor() {
-    guard _state == .recording else { return }
-    snapLock.withLock { snapshot = describeLocked() }
+    guard state == .recording else { return }
+    let current = describeLocked()
+    snapLock.withLock { snapshot = current }
     guard let w = watchedWindow else { return }
     guard let live = Targets.liveWindowState(w.id) else {
       if !windowGone { note("window_gone", [:]); windowGone = true }
@@ -609,7 +664,12 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   // MARK: - State and persistence
 
   private func setState(_ s: RecState) {
-    snapLock.withLock { _state = s }
+    let changed = snapLock.withLock {
+      guard !_state.terminal || _state == s else { return false }
+      _state = s
+      return true
+    }
+    guard changed else { return }
     persist()
     Log.event("recording_state", ["recording_id": id, "state": s.rawValue])
     onChange?(self)
@@ -619,7 +679,8 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   func describeLocked() -> [String: Any] {
     var d: [String: Any] = [
       "recording_id": id,
-      "state": _state.rawValue,
+      "state": state.rawValue,
+      "capture_quarantined": captureQuarantined,
       "label": label,
       "target": targetRaw,
       "settings": settings.dict,
@@ -637,7 +698,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     if let k = idempotencyKey { d["idempotency_key"] = k }
     if let sid = sessionID { d["session_id"] = sid }
     if let r = resolved { d["resolved"] = r }
-    if let e = error { d["error"] = e }
+    if let e = snapLock.withLock({ terminalReason ?? error }) { d["error"] = e }
     if let a = actualStart { d["actual_start"] = iso8601.string(from: a) }
     if let a = actualEnd { d["actual_end"] = iso8601.string(from: a) }
     if let f = firstFrameDelayMs { d["first_frame_delay_ms"] = (f * 10).rounded() / 10 }
@@ -653,6 +714,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   func describe() -> [String: Any] {
     var d = snapLock.withLock { snapshot }
     d["state"] = state.rawValue
+    d["capture_quarantined"] = captureQuarantined
     return d
   }
 

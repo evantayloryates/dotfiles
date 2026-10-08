@@ -89,7 +89,7 @@ actor Recordings {
     }
     guard end.timeIntervalSince(start) <= Self.maxDuration else { throw RPCError.badParams("recordings are capped at \(Int(Self.maxDuration / 3600)) h") }
     guard start.timeIntervalSince(now) <= Self.maxLeadTime else { throw RPCError.badParams("start_at is more than 7 days away") }
-    let overlapping = jobs.values.filter { !$0.state.terminal && $0.startAt < end && $0.endAt > start }
+    let overlapping = jobs.values.filter { $0.captureQuarantined || (!$0.state.terminal && $0.startAt < end && $0.endAt > start) }
     // allow_over_cap exists for pressure tests of the hardware limit.
     let cap = (p.bool("allow_over_cap") ?? false) ? 64 : Self.maxConcurrent
     guard overlapping.count < cap else {
@@ -132,6 +132,12 @@ actor Recordings {
     jobs.values.filter { $0.state == .recording && (session == nil || $0.sessionID == session) }
   }
 
+  var captureHealth: [String: Any] {
+    let quarantined = jobs.values.filter { $0.captureQuarantined }
+    return ["quarantined": quarantined.count, "quarantined_recordings": quarantined.map { $0.id },
+            "max_concurrent": Self.maxConcurrent]
+  }
+
   func briefs(_ ids: [String]) -> [[String: Any]] {
     ids.compactMap { jobs[$0] }.map { brief($0.describe()) }
   }
@@ -170,7 +176,7 @@ actor Recordings {
 
   private func brief(_ d: [String: Any]) -> [String: Any] {
     var b: [String: Any] = [:]
-    for k in ["recording_id", "session_id", "state", "label", "start_at", "end_at", "error", "video"] { if let v = d[k] { b[k] = v } }
+    for k in ["recording_id", "session_id", "state", "capture_quarantined", "label", "start_at", "end_at", "error", "video"] { if let v = d[k] { b[k] = v } }
     b["events"] = (d["events"] as? [Any])?.count ?? 0
     b["marks"] = (d["marks"] as? [Any])?.count ?? 0
     return b

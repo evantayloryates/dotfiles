@@ -155,8 +155,10 @@ enum Targets {
   static func content(fresh: Bool = false) async throws -> SCShareableContent {
     do {
       return try await ContentCache.shared.content(fresh: fresh)
+    } catch let error as RPCError {
+      throw error
     } catch {
-      throw RPCError(code: "capture_unavailable", message: "ScreenCaptureKit refused: \(error.localizedDescription). Run `record-screen grant`.")
+      throw RPCError(code: "capture_unavailable", message: "ScreenCaptureKit refused: \(error.localizedDescription). Check engine status, permission and target visibility before retrying.")
     }
   }
 
@@ -168,7 +170,10 @@ enum Targets {
   static func resolve(_ spec: TargetSpec, content: SCShareableContent) throws -> ResolvedTarget {
     var exclusions = ownApps(content)
     for bundle in spec.options.excludeApps {
-      let applications = content.applications.filter { $0.bundleIdentifier == bundle }
+      let applications = content.applications.filter {
+        guard $0.bundleIdentifier == bundle, let running = NSRunningApplication(processIdentifier: $0.processID) else { return false }
+        return !running.isTerminated && running.bundleIdentifier == bundle
+      }
       guard !applications.isEmpty else {
         throw RPCError(code: "target_not_found", message: "excluded app \(bundle) is not available to ScreenCaptureKit; resolve its current identity before capture")
       }
@@ -288,22 +293,38 @@ actor ContentCache {
   static let shared = ContentCache()
   private var cached: SCShareableContent?
   private var at: UInt64 = 0
-  private var inflight: Task<SCShareableContent, Error>?
+  private var inflight: CaptureDeadline<SCShareableContent>?
   private let ttlNs: UInt64 = 2_000_000_000
 
   func content(fresh: Bool) async throws -> SCShareableContent {
     if !fresh, let c = cached, uptimeNs() - at < ttlNs { return c }
-    if let t = inflight { return try await t.value }
-    let t = Task { try await SCShareableContent.excludingDesktopWindows(true, onScreenWindowsOnly: false) }
-    inflight = t
-    defer { inflight = nil }
-    let c = try await t.value
-    cached = c
-    at = uptimeNs()
+    // Do not start another SDK request while a timed-out producer is still
+    // running. Repeated callers fail fast on the same quarantined operation.
+    let operation: CaptureDeadline<SCShareableContent>
+    if let pending = inflight, !pending.producerFinished {
+      operation = pending
+    } else {
+      operation = CaptureDeadline(seconds: 3, label: "shareable content discovery") {
+        try await SCShareableContent.excludingDesktopWindows(true, onScreenWindowsOnly: false)
+      }
+      inflight = operation
+    }
+    let c = try await operation.value()
+    if inflight === operation {
+      cached = c
+      at = uptimeNs()
+      inflight = nil
+    }
     return c
   }
 
   func invalidate() { cached = nil }
+
+  var diagnostics: [String: Any] {
+    ["inflight": inflight != nil && !inflight!.producerFinished,
+     "quarantined": inflight?.timedOut == true && inflight?.producerFinished == false,
+     "waiting": inflight?.waiterCount ?? 0, "deadline_s": 3]
+  }
 }
 
 extension CGRect {

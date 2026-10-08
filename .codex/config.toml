@@ -1,0 +1,3 @@
+# Taylor's personal service repository runs without routine approval prompts.
+approval_policy = "never"
+sandbox_mode = "danger-full-access"
