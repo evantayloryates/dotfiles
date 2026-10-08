@@ -21,7 +21,7 @@ test('optional controls require the exact contract; legacy callers bypass it', (
 
 test('MCP refuses an old engine before capture, forwards explicit false to capable engine', async () => {
   const root = mkdtempSync(join(tmpdir(), 'capture-options-mcp-')); mkdirSync(join(root, 'run'))
-  const methods = []; let capable = false, forwarded, disconnectExport = false
+  const methods = []; let capable = false, forwarded, disconnectExport = false, exclusionCap = false
   const manifestPath = join(root, 'synthetic.source.json')
   writeFileSync(manifestPath, JSON.stringify({ schema:'record-screen-derivative/v1', parent:{recording_id:'synthetic'},
     sampling:{fps:10,first_parent_tick:'5',end_parent_tick_exclusive:'6'},time_base:['1','10'],parent_time_base:['1','10'],
@@ -33,7 +33,7 @@ test('MCP refuses an old engine before capture, forwards explicit false to capab
       const row = JSON.parse(line); methods.push(row.method)
       let result
       if (row.method === 'record.export' && disconnectExport) { socket.destroy(); return }
-      if (row.method === 'status') result = capable ? { capabilities: { target_capture_options: 1, source_journal: 1, action_scopes:1, input_timeline:1, derivative_source:1 } } : { engine: { build: 'legacy-fixture' } }
+      if (row.method === 'status') result = capable ? { capabilities: { target_capture_options: 1, source_journal: 1, action_scopes:1, input_timeline:1, derivative_source:1, ...(exclusionCap?{exclusion_identity:1}:{}) } } : { engine: { build: 'legacy-fixture' } }
       else if (row.method === 'record.export_info') result = {path:manifestPath}
       else { forwarded = row.params; result = { overlay_id: 'synthetic-no-ui' } }
       socket.write(JSON.stringify({ id: row.id, result }) + '\n')
@@ -95,6 +95,14 @@ test('MCP refuses an old engine before capture, forwards explicit false to capab
     assert.equal(acceptedAction.isError,false);assert.equal(methods.at(-1),'action.begin');assert.deepEqual(forwarded,actionArgs)
     const acceptedInput=await request('tools/call',{name:'record_schedule',arguments:recordingArgs})
     assert.equal(acceptedInput.isError,false);assert.equal(methods.at(-1),'record.schedule');assert.deepEqual(forwarded.input,recordingArgs.input)
+    const exclusionArgs={...recordingArgs,target:{type:'display',exclude_apps:['com.test.Helper']}}
+    const deniedExclusion=await request('tools/call',{name:'record_schedule',arguments:exclusionArgs})
+    assert.equal(deniedExclusion.isError,true);assert.match(deniedExclusion.content[0].text,/unsupported_exclusion_identity/)
+    assert.equal(methods.at(-1),'status','legacy exclusion filter does not start a take')
+    exclusionCap=true
+    const acceptedExclusion=await request('tools/call',{name:'record_schedule',arguments:exclusionArgs})
+    assert.equal(acceptedExclusion.isError,false);assert.equal(methods.at(-1),'record.schedule')
+    assert.deepEqual(forwarded.target,exclusionArgs.target)
     capable=false
     const exportArgs={recording_id:'synthetic',format:'mp4',effort:'draft',backend:'software',max_width:640,fps:12,name:'draft.mp4'}
     const deniedExport=await request('tools/call',{name:'record_export',arguments:exportArgs})

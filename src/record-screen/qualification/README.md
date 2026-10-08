@@ -30,6 +30,7 @@ No helper requests a new grant.
 | `usage-inventory.py` | Native CUA tool namespace inventory across a supplied transcript directory; metadata only |
 | `probe-supervisor.py` | Serial admission, wall deadline, owned-process cleanup and private partial evidence for qualification helpers; not engine recovery |
 | `supervisor-test.py` | Synthetic stall, interruption, concurrency and recovery checks with no screen capture |
+| `exclusion-test.swift` | Mechanical helper identity, stale SDK filter, PID reuse, capacity, fanout and callback reentrancy; no real apps or capture |
 | `options-test.swift` | Offline target parsing and filter/child/PID source identity checks; compile with engine sources except main.swift |
 | `options-mcp.test.mjs` | Isolated engine socket: reject unsupported controls before forwarding; no real capture |
 | `deadline-test.swift` | Shared producer deadlines, waiter cancellation, ignored late completions; no SDK capture |

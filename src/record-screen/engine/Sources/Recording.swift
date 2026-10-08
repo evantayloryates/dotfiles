@@ -112,6 +112,8 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   private var activityTimeline: [Double]?
   private var error: String?
   private var resolved: [String: Any]?
+  private var exclusionLease:ExclusionIdentityLease?
+  private var exclusionQuality:[String:Any]?
 
   private var stream: SCStream?
   private var writer: AVAssetWriter?
@@ -255,6 +257,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
       review = m["review"] as? [String: Any]
       activityTimeline = m["activity_per_s"] as? [Double]
       resolved = m["resolved"] as? [String: Any]
+      exclusionQuality = m["exclusion_quality"] as? [String:Any]
       error = m.str("error")
       actualStart = m.str("actual_start").flatMap(parseISO)
       actualEnd = m.str("actual_end").flatMap(parseISO)
@@ -411,6 +414,20 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
       try await startupPreflight?()
       guard state == .arming else { return }
       let spec = try TargetSpec.parse(targetRaw)
+      if !spec.options.excludeApps.isEmpty {
+        let lease=try ExclusionApps.shared.tracker.subscribe(spec.options.excludeApps) {[weak self] change in
+          self?.q.async {[weak self] in self?.exclusionChanged(change)}
+        }
+        do {
+          try q.sync {
+            guard state == .arming else{throw CancellationError()}
+            exclusionLease=lease
+            exclusionQuality=["state":"observing","policy":"interrupt take on observed process identity change",
+                              "first_affected_frame":"unknown on change; observation can lag"]
+            try lease.validate()
+          }
+        } catch {ExclusionApps.shared.tracker.unsubscribe(lease);throw error}
+      }
       var content = try await Targets.content(fresh: true)
       guard state == .arming else { return }
       let target: ResolvedTarget
@@ -428,6 +445,9 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
       cfg.queueDepth = 8
       try q.sync {
         guard state == .arming else { throw CancellationError() }
+        var excluded:[String:Set<Int32>]=[:]
+        for app in target.excludedApplications {excluded[app.bundleIdentifier,default:[]].insert(app.processID)}
+        try exclusionLease?.validateResolved(excluded)
         try makeWriter(width: cfg.width, height: cfg.height)
       }
       let s = SCStream(filter: target.filter, configuration: cfg, delegate: self)
@@ -437,6 +457,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
           writer?.cancelWriting()
           throw CancellationError()
         }
+        try exclusionLease?.validate()
         resolved = target.describe()
         sourceJournal?.offer(["kind": "capture", "resolved": target.describe(), "settings": settings.dict])
         if inputSettings.enabled, let journal=sourceJournal {
@@ -685,6 +706,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
       "successful_finalization":writer?.status == .completed,
       "encoded_submissions":framesWritten,
       "muxed_coverage":"unverified; accepted writer submissions can exceed persisted packets on failure",
+      "exclusion_quality":exclusionQuality as Any? ?? NSNull(),
       "error":reason as Any? ?? NSNull()])
     setState(s)
   }
@@ -743,9 +765,25 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     endTimer?.cancel(); endTimer = nil
     monitorTimer?.cancel(); monitorTimer = nil
     RecordingWindowContext.shared.unsubscribe(id)
+    if let lease=exclusionLease {ExclusionApps.shared.tracker.unsubscribe(lease);exclusionLease=nil}
   }
 
   // MARK: - Watching for disturbances
+
+  private func exclusionChanged(_ change:ExclusionIdentityChange) {
+    guard state == .arming || state == .recording else{return}
+    exclusionQuality=["state":"uncertain","change":change.dict,
+                      "clean_coverage":"not established; inspect partial media or reshoot"]
+    note("exclusion_identity_changed",change.dict)
+    if state == .recording {
+      endHostNs=min(endHostNs,uptimeNs())
+      finalize(reason:"excluded helper identity changed; partial footage may contain the replacement; resolve again before a new take")
+    } else {
+      teardownStream();writer?.cancelWriting()
+      try? FileManager.default.removeItem(atPath:videoPath)
+      finish(.failed,reason:"excluded helper identity changed while arming; capture setup was abandoned")
+    }
+  }
 
   /// Once a second: did the target window move, resize, hide or vanish?
   private func monitor() {
@@ -822,6 +860,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     if let k = idempotencyKey { d["idempotency_key"] = k }
     if let sid = sessionID { d["session_id"] = sid }
     if let r = resolved { d["resolved"] = r }
+    if let quality=exclusionQuality {d["exclusion_quality"]=quality}
     if let e = snapLock.withLock({ terminalReason ?? error }) { d["error"] = e }
     if let a = actualStart { d["actual_start"] = iso8601.string(from: a) }
     if let a = actualEnd { d["actual_end"] = iso8601.string(from: a) }

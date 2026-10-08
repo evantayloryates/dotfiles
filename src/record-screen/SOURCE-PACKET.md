@@ -231,3 +231,18 @@ Eighth-pass export qualification also covered decimal cut boundaries: 0.07–0.1
 at 100 fps produced exactly seven packets on the latest signed isolated engine.
 Six authored final-repeat exports matched 139 decoded parent-content frames;
 these checks do not establish arbitrary codec/color or viewer scheduling fidelity.
+
+## Excluded helper lifetime (candidate)
+
+Explicit display/rect app exclusions carry a recording lease against observed
+bundle/PID/launch identity. A detected identity change interrupts the take and
+preserves partial media; startup identity disagreement fails explicitly. The
+manifest and `recording_source.exclusion_quality` report uncertainty, also retained
+in the journal video outcome and derivative parent outcome. The observed host
+stamp is not the first contaminated pixel. Successful finalization does not
+establish clean footage. Resolve again before a new take; persistent preview
+lanes and main-run-loop observation stalls still need qualification. MCP requires
+`exclusion_identity: 1` for a recording with nonempty exclusions.
+
+An `exclusion_quality.state` of `observing` means no identity change was observed
+by that lease. It is not a general clean-footage proof; missing quality is unknown.

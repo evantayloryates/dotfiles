@@ -213,3 +213,29 @@ preset used 9a06e1656195; the live capture itself used fa3912d0a529. These froze
 source/build snapshots remain separate. All owned engines/fixture are verified
 exited, zero capture/input/preview/export/quarantine work remained, and sessions
 plus logs were copied to gates-v8/runtime-evidence before ending this stage.
+
+## Ninth-pass resumed checkpoint
+
+Process-lifetime exclusions now have a bounded, shared identity lease. An indexed
+KVO change initially dropped other running apps from the candidate snapshot;
+that live failure is retained and the adapter now always reads the full list.
+The corrected signed live build 281b374ad0b2 preserved an interrupted take on
+background helper termination, ignored an unrelated app's launch/close, and
+completed a fresh take after the helper changed PID 89252 → 8579. All 661 muxed
+samples across three takes matched their journals exactly. The authored helper
+was present in the baseline and absent in sampled excluded/recovered footage.
+
+Manifest/source/journal/derivative outcomes preserve uncertainty and unknown
+contamination onset. 35 mechanical checks and ten Node regressions passed.
+The final capability-only source addition advertises exclusion_identity v1;
+MCP refuses a legacy filter-only engine before scheduling an excluded recording.
+Frozen build/readback details are in gates-v9/qualification-summary.json.
+
+All owned fixtures and engines exited, no capture/input/preview/export/lease work
+remained, and private runtime evidence was copied out of temporary storage.
+Production is still cd78c24b652e/PID 71911. Host pressure recurred; no cause or
+relation to the canaries was established. Resume remaining work with passive
+health checks, then preview-lane lifetime, raw coordinates/tap/sleep gaps, Chrome
+select/nested overflow, realistic insurance/admission and capture-color fidelity.
+Finish idle-boundary install/rollback, actual consumer smoke and final runbooks.
+The full production objective remains unfinished; visual effects remain deferred.

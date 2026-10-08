@@ -20,6 +20,7 @@ final class Engine: @unchecked Sendable {
   }
 
   func start() throws {
+    _ = ExclusionApps.shared // install workspace observation on the main thread
     ActionTimeline.shared.configure(root:paths.root+"/actions")
     let actionRecordings=self.recordings
     ActionTimeline.shared.onChange = { value in Task { await actionRecordings.annotateAction(value) } }
@@ -161,6 +162,7 @@ final class Engine: @unchecked Sendable {
       return ["recording_id": d["recording_id"]!, "state": d["state"]!,
               "source_packet": d["source_packet"] ?? NSNull(), "video": d["video"] ?? NSNull(),
               "frames": d["frames"] ?? NSNull(), "frames_provenance": d["frames_provenance"] ?? "saved_manifest",
+              "exclusion_quality":d["exclusion_quality"] ?? NSNull(),
               "video_outcome": (d["source_packet"] as? [String:Any])?["video_outcome"] ?? NSNull(),
               "limits": ["Journal gaps and draining status are explicit; footage can succeed without complete telemetry",
                          "A complete journal does not prove video finalization; failed/interrupted videos require decoded coverage before recovery",
@@ -229,14 +231,15 @@ final class Engine: @unchecked Sendable {
       "clock": ["uptime_ns": clockNS, "uptime_ns_exact":String(clockNS), "domain":"CLOCK_UPTIME_RAW", "wall": iso8601.string(from: now), "started_ns": startedNs,"started_ns_exact":String(startedNs)],
       "permission": ["screen_recording": CGPreflightScreenCaptureAccess() ? "granted" : "missing"],
       "capabilities": ["target_capture_options": CaptureOptions.contractVersion, "source_journal": 1,
-                       "input_timeline":1,"action_scopes":1,"derivative_source":1],
+                       "input_timeline":1,"action_scopes":1,"derivative_source":1,"exclusion_identity":1],
       "input_timeline":InputTimeline.shared.status,
       "action_timeline":ActionTimeline.shared.status,
       "displays": await displays(),
       "viewfinder": await viewfinder.state,
       "capture_health": ["discovery": await ContentCache.shared.diagnostics,
                          "recordings": await recordings.captureHealth,
-                         "window_monitor":RecordingWindowContext.shared.status,"export_child":ManagedCommand.status()],
+                         "window_monitor":RecordingWindowContext.shared.status,"export_child":ManagedCommand.status(),
+                         "exclusion_identity":ExclusionApps.shared.tracker.status],
       "overlays": await MainActor.run { Overlays.shared.active },
       "paths": ["root": paths.root, "socket": paths.socket, "log": paths.log],
     ]

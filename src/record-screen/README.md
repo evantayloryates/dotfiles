@@ -24,12 +24,18 @@ capture. Default callers avoid the additional capability check. Raw socket
 callers must also negotiate support. Reports include requested/effective
 child settings and resolved exclusion identities.
 
-The October 8 installed engine is still unchanged. Source build, 25 offline
-parse/identity assertions and isolated MCP socket tests passed; production
-filter/preview routing still needs a bounded live qualification before
-installation. Prior helper stream results are evidence for the approach,
-not qualification of the installed engine. See
-[qualification/GATES.md](qualification/GATES.md).
+Recordings with nonempty `exclude_apps` additionally require
+`status.capabilities.exclusion_identity: 1`. The candidate observes application
+identity before resolving the filter and interrupts a take on an observed change,
+keeping partial media. `exclusion_quality` stays uncertain on interruption;
+observation timing does not locate the first affected frame. Start a fresh take
+with freshly resolved identities. Persistent preview lanes do not yet have this
+lifetime guard. Default callers retain their previous behavior.
+
+Signed isolated candidates passed recording/preview routing and an owned
+background-helper termination/relaunch canary. Installed production remains
+unchanged. See [qualification/GATES.md](qualification/GATES.md) for actual source
+pixels, timestamp proofs, failure evidence and remaining delivery gates.
 
 ## Status
 

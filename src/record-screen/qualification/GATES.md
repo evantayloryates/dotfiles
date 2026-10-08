@@ -1,5 +1,36 @@
 # Qualification update — October 8, 2026
 
+## Ninth pass: excluded-helper lifetime and recovery
+
+The resumed workflow continued into a process-lifetime canary. Workspace launch/
+termination notifications omit background/LSUIElement apps; the candidate uses
+KVO of the full running-app list. The first implementation incorrectly treated
+an indexed KVO change as a complete list and refused to start the excluded take.
+That failed candidate (0d9751d46d4c) remains private evidence; full-list reads
+corrected it. Apple documents main-run-loop timing, so detection is observational
+and cannot establish the first leaked pixel or promise zero collisions.
+
+| Gate | Verified evidence | Limits |
+| --- | --- | --- |
+| Mechanical lifecycle | 35 checks: missing baseline, replacement, same-PID/different-launch identity, multiple helper processes, stale SDK filter disagreement, recovery, 16-lease admission, fanout and reentrant callback. | Synthetic identity transitions; actual adapter tested separately below. |
+| LSUIElement live interruption | Signed isolated 281b374ad0b2 recorded with explicit helper exclusion. An unrelated fixture launch and close kept it running. Closing the excluded background helper interrupted the take, finalized its partial MP4, and released the lease. | Detected termination; no universal launch latency, first affected frame or in-place filter repair guarantee. |
+| Fresh-process recovery | Relaunched helper changed PID 89252 → 8579. A fresh excluded take resolved the new PID and completed with zero dropped frames. | Task-owned accessory helper on the built-in display; persistent preview-lane lifetime is still open. |
+| Actual source pixels | At the sampled source frame, baseline had 63,140 authored magenta pixels; excluded and recovered samples had zero. All 148 baseline + 437 interrupted + 76 recovery muxed timestamps matched journal decisions exactly, zero loss. | Three 360×212 takes, baseline 30 fps and subsequent 15 fps. Authored chroma presence does not prove arbitrary clean footage. A strict RGB threshold failed because the baseline decoded to 253/62/254; exact color reproduction remains unqualified. |
+| Consumer uncertainty | Recording manifest, recording_source, journal video outcome and a 12-frame exported preview retained interrupted/uncertain parent quality. Failed startup and unknown contamination onset remain explicit. | Consumers must inspect or reshoot; successful writer finalization is not clean-source proof. |
+| Capability boundary | MCP requires exclusion_identity v1 for recordings with nonempty exclude_apps. Ten Node regressions passed, including refusal of an old filter-only engine and supported forwarding. | Capability advertisement/readback is distinct from the live capture build; no installed release yet. |
+
+Private stage evidence, frozen candidates and runtime copies are in gates-v9.
+The final capability-advertisement candidate 4663eb00f2cf compiled, signed,
+loaded with the existing grant and read back exclusion_identity v1 plus the
+restored uncertain source outcome; actual capture used 281b374ad0b2.
+Only owned helpers/engines were closed; actual PID exits, zero input subscribers,
+zero preview lanes, zero exclusion leases and no pending export were verified.
+Production remained cd78c24b652e/PID 71911 with its existing grant. Host pressure
+recurred during this stage; no cause was established and no peer work was stopped.
+Remaining gates: preview-lane lifetime, raw pointer coordinates, tap/sleep gaps,
+Chrome select/nested overflow, realistic insurance/admission, capture colors,
+production install/rollback and final runbooks. Visual effects remain deferred.
+
 ## Eighth pass: mapped previews and recovered worker canary
 
 Taylor explicitly resumed at approximately 22:21 UTC. Earlier pressure incident
