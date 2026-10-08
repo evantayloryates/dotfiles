@@ -1,5 +1,46 @@
 # Qualification update — October 8, 2026
 
+## Fourth pass: signed candidate and recovery
+
+The production engine remains unchanged. This pass used an isolated signed
+engine, a task-owned native fixture and Taylor's standing visible-test permission.
+
+| Gate | Actual result | Limit |
+| --- | --- | --- |
+| Shared SDK deadline | 50 assertions: shared producer, canceled waiter, uncooperative producer, fail-fast retries, ignored late success. Discovery/start/screenshot 3-second bounds and retiring-lane admission added. | Synthetic producer faults; not proof of recovering the actual capture service from every SDK stall. |
+| Recording state/race handling | 12 assertions against actual recording scheduling/preflight: cancel/stop, eight-second production watchdog, late failures, retained unfinished admission, no peer restart. A failure reason was erased by later persistence; fixed and retested. | No synthetic SDK start seam or encoder-stall claim. Existing encoder-finalization restart behavior remains separate. |
+| Signed live capture routing | Candidate cfd6e1f887d2, PID 53662, reused existing Screen Recording access. Native menu present with child inclusion, absent with explicit false. Exclusion resolved current Sky PID 4973. Identical filtered target returned tap; baseline/different explicit options returned independent lanes. | One app/display/configuration; stale-exclusion PID churn and Chrome/Electron depth still need testing. |
+| Healthy peer survives failed target | Missing window failed; healthy display-crop take completed with 1,270 written frames, zero reported encoder drops, actual 44.302-second MP4. Scheduled cancellation passed. | Reported encoder drops do not establish every source callback/frame was delivered. |
+| Interruption and recovery | Stopped only isolated candidate mid-take, restarted against same state. Take became interrupted. Partial MP4 decoded 292 frames across 10.012 seconds; next 8-second take completed, 228 written frames, zero reported drops. | Plain ffprobe nb_frames said 30 despite 292 decoded frames. Restored manifest counters were stale (1); now identified as checkpoints. Decode footage to establish actual coverage. |
+| Source journal candidate | Asynchronous, bounded 64 queued rows/64 MiB per take; private JSONL, source/geometry/encoded frame linkage, exact decimal nanoseconds, declared semantic marks and explicit gaps. 122 overflow/clock/private-file/write/footer assertions passed. | Corrected H.264/Retina HEVC journals matched all 1,337 muxed samples exactly; zero row loss. Three HEVC geometry segments matched encoded pixels within 0.884 px. Cross-display geometry and physical-input timing remain open. No input collector or automatic native action interception claimed. |
+
+Live timing correction: the first 25-second journal take had 716 samples and
+zero telemetry loss, but every muxed timestamp differed by -1.643910 ms. A
+1 GHz track alone did not fix the separately quantized movie edit-list offset.
+Setting both movie and track timescales fixed the next H.264 (336 samples)
+and Retina HEVC (1,001 samples) takes. The failed proof remains saved.
+
+Correction: the original recorder already had an eight-second arming watchdog.
+Earlier descriptions of all engine startup as unbounded were too broad. The
+candidate isolates SDK-start failure from peer restarts, quarantines unfinished
+work and bounds discovery/preview waits. Encoder finalization retains its own
+15-second watchdog. Actual SDK process recovery remains a separate gate.
+
+Private evidence is in `gates-v4/`: deadline/startup/journal test results,
+signed candidate metadata, native source PNGs, filter/tap replies, unavailable
+and canceled recording replies, interruption/readback, and recovery capture.
+The first candidate was stopped, restarted, exercised and stopped again; its
+fixture was closed and viewfinder lanes drained. Production was not restarted.
+Final signed journal build 69ba825e0ce1 also passed real MCP readback, interrupted
+checkpoint labeling and recovery. Its partial take decoded 759 frames across
+26.021 seconds without a journal footer; the descriptor correctly reported
+incomplete telemetry and checkpoint counts. A fresh five-second take closed
+cleanly, and all 139 muxed samples matched journal timestamps exactly.
+All 209 Swift assertions, nine Node tests and four supervisor tests passed.
+Owned engines/fixture exited, active jobs and lanes were empty, and private
+runtime evidence was copied into gates-v4/runtime-evidence. No new grants or
+input lock; production remains the original build cd78c24b652e (PID 840).
+
 ## Third pass: background implementation and fault qualification
 
 No focus actions, recording, new grants, Claude inference or delegated model

@@ -24,6 +24,9 @@ async function engine(method, params = {}, timeoutMs = 20000) {
       if (hasCaptureOptions(params.target)) {
         requireCaptureOptions(await client.call("status", {}, { timeoutMs }));
       }
+      if (method === "record.source" && (await client.call("status", {}, { timeoutMs })).capabilities?.source_journal !== 1) {
+        throw new EngineError("unsupported_source_journal", "The loaded engine does not advertise source_journal v1. Legacy footage has no recorder-owned source packet.");
+      }
       return await client.call(method, params, { timeoutMs });
     } catch (err) {
       if (err.code !== "engine_down" || Date.now() > deadline) throw err;
@@ -263,6 +266,16 @@ const tools = [
     },
     annotations: { readOnlyHint: true },
     run: async ({ recording_id, ...a }) => ok(await engine(recording_id ? "record.get" : "record.list", recording_id ? { recording_id } : a)),
+  },
+  {
+    name: "recording_source",
+    description: "Get a recording's local source journal descriptor and completeness/gap diagnostics. The JSONL packet maps exact host-clock nanoseconds to video-relative time, source frames, geometry segments, encoded/held frames and declared marks. Returns paths, never bulk rows or pixels. Inspect telemetry completeness and transform qualification before composing; interrupted frame counters may be checkpoints. Requires engine source_journal v1.",
+    inputSchema: {
+      type: "object", additionalProperties: false,
+      properties: { recording_id: { type: "string" } }, required: ["recording_id"],
+    },
+    annotations: { readOnlyHint: true },
+    run: async (a) => ok(await engine("record.source", a)),
   },
   {
     name: "recording_review",

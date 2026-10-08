@@ -172,6 +172,9 @@ try {
     case "recording":
       out(await call("record.get", { recording_id: args[0] }));
       break;
+    case "record-source":
+      out(await call("record.source", { recording_id: args[0] }));
+      break;
     case "record-wait": {
       const timeout_s = Number(args[2] ?? 60);
       out(await call("record.wait", { recording_id: args[0], until: args[1] ?? "done", timeout_s }, { timeoutMs: (timeout_s + 5) * 1000 }));

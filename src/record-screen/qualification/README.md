@@ -7,7 +7,7 @@ activates its own window; arrange production time before opening it.
 
 The October 8 findings and proposed service contracts are in
 [STRATEGY.md](STRATEGY.md). Effect styles and compositing recipes are deferred.
-The second pass and remaining acceptance gates are in [GATES.md](GATES.md).
+The staged live/background passes and remaining acceptance gates are in [GATES.md](GATES.md).
 
 ## Helpers
 
@@ -32,6 +32,10 @@ No helper requests a new grant.
 | `supervisor-test.py` | Synthetic stall, interruption, concurrency and recovery checks with no screen capture |
 | `options-test.swift` | Offline target parsing and filter/child/PID source identity checks; compile with engine sources except main.swift |
 | `options-mcp.test.mjs` | Isolated engine socket: reject unsupported controls before forwarding; no real capture |
+| `deadline-test.swift` | Shared producer deadlines, waiter cancellation, ignored late completions; no SDK capture |
+| `startup-test.swift` | Actual recording state/watchdog races with a controlled preflight; no SDK discovery |
+| `journal-test.swift` | Bounded asynchronous writes, queue/byte/footer failures, exact timestamps and private files |
+| `verify-journal.py` | Compare journal decisions against actual muxed samples; optional authored-fixture pixels via ffmpeg/Pillow |
 | `bridge-probe.mjs` | MCP initialize/tools-list only, no app-server/model turn |
 
 `capture-probe WINDOW_ID MODE OUTPUT.png [CURSOR] [CHILDREN] [MARGIN] [EXCLUDE_PID]`
@@ -137,3 +141,24 @@ node --test src/record-screen/qualification/options-mcp.test.mjs
 Shared app facts and action blocks live at the computer-use capability layer;
 see `src/codex-bridge/CAPABILITY-EVIDENCE.md`. Source packets remain a private
 prototype. Their consumer delivery and automatic receipts still need work.
+
+## Recorder journal qualification
+
+Candidate service contract: [SOURCE-PACKET.md](../SOURCE-PACKET.md). Do not run
+`build.py` while preparing an isolated candidate: its default path replaces and
+registers the installed bundle. Compile into a task-owned bundle, set its source
+hash, sign with the existing identity and use a short `RECORD_SCREEN_HOME` path.
+The Unix socket path must fit macOS's path limit. Never stop the live engine or
+other agents' recordings for an isolated test.
+
+`verify-journal.py --journal SOURCE.jsonl --video VIDEO.mp4 --output PROOF.json`
+
+Add `--authored-fixture-pixels` only for this native fixture: it checks the
+known marker against each geometry segment in decoded source footage. Failed
+proofs remain evidence; do not accept a constant timestamp offset as exact
+synchronization. Baseline track timescale and movie edit-list timescale must
+both be verified. Preserve metadata equality separately from physical latency.
+
+Taylor's standing visible-test permission expires October 9 at approximately
+17:51 UTC. Input remains available; interruption is allowed. Reconfirm only
+when scope/access changes or after that authorization interval.

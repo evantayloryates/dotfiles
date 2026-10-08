@@ -28,7 +28,7 @@ test('MCP refuses an old engine before capture, forwards explicit false to capab
     createInterface({ input: socket }).on('line', line => {
       const row = JSON.parse(line); methods.push(row.method)
       let result
-      if (row.method === 'status') result = capable ? { capabilities: { target_capture_options: 1 } } : { engine: { build: 'legacy-fixture' } }
+      if (row.method === 'status') result = capable ? { capabilities: { target_capture_options: 1, source_journal: 1 } } : { engine: { build: 'legacy-fixture' } }
       else { forwarded = row.params; result = { overlay_id: 'synthetic-no-ui' } }
       socket.write(JSON.stringify({ id: row.id, result }) + '\n')
     })
@@ -66,6 +66,15 @@ test('MCP refuses an old engine before capture, forwards explicit false to capab
     const legacy = await call({ type: 'display' })
     assert.equal(legacy.isError, false)
     assert.deepEqual(methods.slice(-1), ['overlay.show'])
+    const deniedSource = await request('tools/call', { name:'recording_source', arguments:{recording_id:'synthetic'} })
+    assert.equal(deniedSource.isError, true)
+    assert.match(deniedSource.content[0].text, /unsupported_source_journal|does not advertise/)
+    assert.equal(methods.at(-1),'status')
+    capable = true
+    const acceptedSource = await request('tools/call', { name:'recording_source', arguments:{recording_id:'synthetic'} })
+    assert.equal(acceptedSource.isError,false)
+    assert.deepEqual(methods.slice(-2),['status','record.source'])
+    assert.deepEqual(forwarded,{recording_id:'synthetic'})
   } finally {
     rejectAll(new Error('cleanup')); child.stdin.end(); child.kill('SIGTERM'); lines.close()
     await new Promise(resolve => { if (child.exitCode !== null || child.signalCode) resolve(); else { child.once('exit', resolve); setTimeout(() => { child.kill('SIGKILL'); resolve() }, 1000).unref() } })

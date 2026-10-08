@@ -128,11 +128,20 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   private var framesDropped = 0
   private var framesSeen = 0
   private var firstFrameDelayMs: Double?
+  private var sourceJournal: SourceJournal?
+  private var restoredSource: [String: Any]?
+  private var sourceSequence = 0
+  private var geometrySequence = -1
+  private var previousGeometry: Data?
+  private var prerollSource: Int?
+  private var lastSource: Int?
+  private var framesProvenance = "live_counters"
   private var armTimer: DispatchSourceTimer?
   private var startTimer: DispatchSourceTimer?
   private var endTimer: DispatchSourceTimer?
   private var monitorTimer: DispatchSourceTimer?
   private var powerAssertion: IOPMAssertionID = 0
+  private let powerLock = NSLock()
   private var watchedWindow: (id: CGWindowID, frame: CGRect, pid: pid_t)?
   private var wasHidden = false
   private var wasOnScreen = true
@@ -192,7 +201,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
 
   func reschedule(start: Date?, end: Date?) throws {
     let stillScheduled: Bool = try onQueue {
-      switch self._state {
+      switch self.state {
       case .scheduled:
         let newStart = start ?? self._startAt, newEnd = end ?? self._endAt
         guard newEnd > newStart else { throw RPCError.badParams("end_at must be after start_at") }
@@ -207,10 +216,10 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
         self.endTimer = self.wallTimer(at: end.addingTimeInterval(0.15)) { [weak self] in self?.finalize(reason: nil) }
         self.note("end_moved", ["end_at": iso8601.string(from: end)])
       default:
-        throw RPCError(code: "finished", message: "recording \(self.id) is \(self._state.rawValue)")
+        throw RPCError(code: "finished", message: "recording \(self.id) is \(self.state.rawValue)")
       }
       self.persist()
-      return self._state == .scheduled
+      return self.state == .scheduled
     }
     if stillScheduled { schedule() }
   }
@@ -243,13 +252,19 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
       actualStart = m.str("actual_start").flatMap(parseISO)
       actualEnd = m.str("actual_end").flatMap(parseISO)
       firstFrameDelayMs = m.num("first_frame_delay_ms")
+      restoredSource = m["source_packet"] as? [String: Any]
+      framesProvenance = m.str("frames_provenance") ?? "saved_manifest"
       if let f = m["frames"] as? [String: Any] {
         framesWritten = Int(f.num("written") ?? 0)
         framesDropped = Int(f.num("dropped") ?? 0)
         framesSeen = Int(f.num("seen") ?? 0)
       }
       if interrupted {
-        error = "the engine stopped during this recording; the file keeps everything up to its last full second"
+        error = "the engine stopped during this recording; partial footage may remain playable, but final coverage must be checked"
+        framesProvenance = "persisted_checkpoint_not_final"
+        restoredSource?["state"] = "interrupted"
+        restoredSource?["complete"] = false
+        restoredSource?["counts_provenance"] = "persisted_checkpoint_not_final"
         persist()
       } else {
         let d = describeLocked()
@@ -291,10 +306,13 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   func addMark(_ label: String, kind: String) -> Double? {
     let (st, startNs) = snapLock.withLock { (_state, startHostSnap) }
     guard st == .recording else { return nil }
-    let t = (Double(Int64(uptimeNs()) - Int64(startNs)) / 1e9 * 1000).rounded() / 1000
-    let mark: [String: Any] = ["label": label, "kind": kind, "t_s": t, "at": iso8601.string(from: Date())]
+    let host = uptimeNs()
+    let t = (Double(Int64(host) - Int64(startNs)) / 1e9 * 1000).rounded() / 1000
+    let mark: [String: Any] = ["label": label, "kind": kind, "t_s": t, "at": iso8601.string(from: Date()),
+                             "host_ns": String(host), "relative_ns": host >= startNs ? String(host - startNs) : "-" + String(startNs - host)]
     q.async { [self] in
       marks.append(mark)
+      sourceJournal?.offer(["kind": "semantic_mark", "mark": mark, "ownership": "caller_declared"])
       persist()
     }
     return t
@@ -354,12 +372,21 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
         self.stopTimers(keepArm: false)
         self.teardownStream()
         self.writer?.cancelWriting()
+        self.sourceJournal?.finish()
         if !self.wroteFirst { try? FileManager.default.removeItem(atPath: self.videoPath) }
       }
     }
     // Map wall-clock times onto the host clock that frame timestamps use.
     startHostNs = hostNs(for: max(_startAt, now))
     endHostNs = hostNs(for: _endAt)
+    do {
+      let journal = try SourceJournal(path: dir + "/source.jsonl", epoch: startHostNs,
+                                      recordingID: id, target: targetRaw)
+      snapLock.withLock { sourceJournal = journal }
+    } catch {
+      restoredSource = ["schema": "record-screen-source/v1", "state": "unavailable", "complete": false,
+                        "error": "source journal could not be created"]
+    }
     holdPower()
     snapLock.withLock { startupPending = true }
     Task {
@@ -403,6 +430,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
           throw CancellationError()
         }
         resolved = target.describe()
+        sourceJournal?.offer(["kind": "capture", "resolved": target.describe(), "settings": settings.dict])
         areaKey = target.areaKey
         if let w = target.window {
           watchedWindow = (w.windowID, target.frame, w.owningApplication?.processID ?? 0)
@@ -450,6 +478,8 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     try FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
     try? FileManager.default.removeItem(atPath: videoPath)
     let w = try AVAssetWriter(outputURL: URL(fileURLWithPath: videoPath), fileType: .mp4)
+    // Edit-list offsets use the movie timescale independently of the track.
+    w.movieTimeScale = 1_000_000_000
     // Fragments every second: a crash or power loss still leaves a playable file.
     w.movieFragmentInterval = CMTime(seconds: 1, preferredTimescale: 600)
     let bitrate = settings.bitrateMbps.map { $0 * 1e6 } ?? Double(width * height * settings.fps) * settings.bitsPerPixel
@@ -465,6 +495,9 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
       ],
     ])
     input.expectsMediaDataInRealTime = true
+    // Preserve the source journal's nanosecond timeline in the video track;
+    // the default writer chose 1/600 s and quantized otherwise precise PTS.
+    input.mediaTimeScale = 1_000_000_000
     guard w.canAdd(input) else { throw RPCError(code: "writer", message: "cannot configure the video writer") }
     w.add(input)
     adaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: input, sourcePixelBufferAttributes: nil)
@@ -475,20 +508,45 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
 
   func stream(_ s: SCStream, didOutputSampleBuffer sb: CMSampleBuffer, of type: SCStreamOutputType) {
     guard stream === s, type == .screen, state == .arming || state == .recording,
-          let info = (CMSampleBufferGetSampleAttachmentsArray(sb, createIfNecessary: false) as? [[SCStreamFrameInfo: Any]])?.first,
-          let raw = info[.status] as? Int, SCFrameStatus(rawValue: raw) == .complete,
-          let pb = CMSampleBufferGetImageBuffer(sb) else { return }
+          let info = (CMSampleBufferGetSampleAttachmentsArray(sb, createIfNecessary: false) as? [[SCStreamFrameInfo: Any]])?.first else { return }
+    let sourceID = sourceSequence; sourceSequence += 1
+    let pts = SourceJournal.hostNS(sb.presentationTimeStamp)
+    let pb = CMSampleBufferGetImageBuffer(sb)
+    let raw = (info[.status] as? NSNumber)?.intValue
+    let geometry = SourceJournal.geometry(info, pixels: pb.map { [CVPixelBufferGetWidth($0), CVPixelBufferGetHeight($0)] } ?? [])
+    let identity = jsonData(geometry, options: [.sortedKeys])
+    if identity != previousGeometry {
+      geometrySequence += 1; previousGeometry = identity
+      sourceJournal?.offer(["kind": "geometry", "segment": geometrySequence,
+                            "first_source_frame": sourceID, "relative_ns": pts.map { sourceJournal?.relative($0) as Any? ?? NSNull() } as Any? ?? NSNull(),
+                            "geometry": geometry])
+    }
+    var row: [String: Any] = ["kind": "source_frame", "source_frame": sourceID, "geometry_segment": geometrySequence,
+                             "status": raw as Any? ?? NSNull(), "received_host_ns": String(uptimeNs()),
+                             "pts": ["value": String(sb.presentationTimeStamp.value), "timescale": sb.presentationTimeStamp.timescale],
+                             "pts_host_ns": pts.map(String.init) as Any? ?? NSNull(),
+                             "relative_ns": pts.map { sourceJournal?.relative($0) as Any? ?? NSNull() } as Any? ?? NSNull()]
+    if let ticks = info[.displayTime] as? NSNumber {
+      row["display_mach_ticks"] = String(ticks.uint64Value)
+      var timebase = mach_timebase_info_data_t(); mach_timebase_info(&timebase)
+      if timebase.denom > 0 && ticks.uint64Value <= UInt64.max / UInt64(timebase.numer) {
+        row["display_host_ns"] = String(ticks.uint64Value * UInt64(timebase.numer) / UInt64(timebase.denom))
+      }
+    }
+    sourceJournal?.offer(row)
+    guard raw == SCFrameStatus.complete.rawValue, let pb, let pts else { return }
     framesSeen += 1
-    let pts = UInt64(max(0, sb.presentationTimeStamp.seconds) * 1e9)
     lastBuffer = pb
+    lastSource = sourceID
     snapLock.withLock { tapBuffer = pb }
     if pts < startHostNs {
       prerollBuffer = pb  // the screen as it is just before start_at
+      prerollSource = sourceID
       return
     }
     if pts > endHostNs { return }
     if !wroteFirst { beginAtStart() }
-    append(pb, at: pts)
+    append(pb, at: pts, source: sourceID)
   }
 
   func stream(_ s: SCStream, didStopWithError error: Error) {
@@ -512,15 +570,21 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     actualStart = Date().addingTimeInterval(-Double(Int64(uptimeNs()) - Int64(startHostNs)) / 1e9)
     setState(.recording)
     if let pre = prerollBuffer {
-      append(pre, at: startHostNs)
+      append(pre, at: startHostNs, source: prerollSource, held: "preroll_at_start")
       prerollBuffer = nil
     }
   }
 
-  private func append(_ pb: CVPixelBuffer, at ns: UInt64) {
+  private func append(_ pb: CVPixelBuffer, at ns: UInt64, source: Int? = nil, held: String? = nil) {
     guard let input, let adaptor, ns >= startHostNs, ns <= endHostNs, ns > lastWrittenNs || framesWritten == 0 else { return }
-    guard input.isReadyForMoreMediaData else { framesDropped += 1; return }
-    if adaptor.append(pb, withPresentationTime: cmTime(ns)) {
+    let ready = input.isReadyForMoreMediaData
+    let accepted = ready && adaptor.append(pb, withPresentationTime: cmTime(ns))
+    sourceJournal?.offer(["kind": "encoded_frame", "source_frame": source as Any? ?? NSNull(),
+                          "host_ns": String(ns), "relative_ns": sourceJournal?.relative(ns) as Any? ?? NSNull(),
+                          "encoded_sequence": accepted ? framesWritten as Any : NSNull(), "accepted": accepted,
+                          "time_basis": "writer_requested_nanoseconds",
+                          "held": held as Any? ?? NSNull(), "decision": accepted ? "appended" : (ready ? "append_failed" : "encoder_backpressure")])
+    if accepted {
       if framesWritten == 0 { firstFrameDelayMs = Double(Int64(uptimeNs()) - Int64(startHostNs)) / 1e6 }
       framesWritten += 1
       lastWrittenNs = ns
@@ -548,7 +612,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     // just before the end so the file lasts the full window.
     let frameNs = UInt64(1e9 / Double(settings.fps))
     if let last = lastBuffer, endHostNs > lastWrittenNs + frameNs {
-      append(last, at: endHostNs - frameNs)
+      append(last, at: endHostNs - frameNs, source: lastSource, held: "held_at_end")
     }
     // Watchdog: if the encoder stalls, endSession/finishWriting never return
     // and this queue stays blocked. Mark the recording interrupted from
@@ -588,6 +652,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     prerollBuffer = nil
     lastBuffer = nil
     snapLock.withLock { tapBuffer = nil }
+    sourceJournal?.finish { [self] in q.async { [self] in persist() } }
     setState(s)
   }
 
@@ -657,6 +722,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     e["at"] = iso8601.string(from: Date())
     if startHostNs > 0 { e["t_s"] = (Double(Int64(uptimeNs()) - Int64(startHostNs)) / 1e9 * 1000).rounded() / 1000 }
     events.append(e)
+    sourceJournal?.offer(["kind": "disturbance", "event": e, "received_host_ns": String(uptimeNs())])
     Log.event("recording_event", ["recording_id": id, "kind": kind])
     persist()
   }
@@ -694,6 +760,8 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
       "review": review ?? NSNull(),
       "activity_per_s": activityTimeline ?? NSNull(),
       "frames": ["written": framesWritten, "dropped": framesDropped, "seen": framesSeen],
+      "frames_provenance": framesProvenance,
+      "source_packet": sourceJournal?.describe() as Any? ?? restoredSource as Any? ?? NSNull(),
     ]
     if let k = idempotencyKey { d["idempotency_key"] = k }
     if let sid = sessionID { d["session_id"] = sid }
@@ -715,6 +783,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     var d = snapLock.withLock { snapshot }
     d["state"] = state.rawValue
     d["capture_quarantined"] = captureQuarantined
+    if let journal = snapLock.withLock({ sourceJournal }) { d["source_packet"] = journal.describe() }
     return d
   }
 
@@ -766,12 +835,15 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
 
   /// Keeps the display awake from arming to the finished file.
   private func holdPower() {
-    guard powerAssertion == 0 else { return }
-    IOPMAssertionCreateWithName(kIOPMAssertionTypePreventUserIdleDisplaySleep as CFString, IOPMAssertionLevel(kIOPMAssertionLevelOn),
-                                "record-screen \(id)" as CFString, &powerAssertion)
+    powerLock.withLock {
+      guard powerAssertion == 0, !state.terminal else { return }
+      IOPMAssertionCreateWithName(kIOPMAssertionTypePreventUserIdleDisplaySleep as CFString, IOPMAssertionLevel(kIOPMAssertionLevelOn),
+                                  "record-screen \(id)" as CFString, &powerAssertion)
+    }
   }
 
   private func releasePower() {
-    if powerAssertion != 0 { IOPMAssertionRelease(powerAssertion); powerAssertion = 0 }
+    let assertion = powerLock.withLock { let value = powerAssertion; powerAssertion = 0; return value }
+    if assertion != 0 { IOPMAssertionRelease(assertion) }
   }
 }

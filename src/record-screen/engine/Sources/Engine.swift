@@ -128,6 +128,14 @@ final class Engine: @unchecked Sendable {
       return try await sessions.close(id, reopen: method == "session.reopen")
     case "record.get":
       return try await recordings.get(try recID(params)).describe()
+    case "record.source":
+      let d = try await recordings.get(try recID(params)).describe()
+      return ["recording_id": d["recording_id"]!, "state": d["state"]!,
+              "source_packet": d["source_packet"] ?? NSNull(), "video": d["video"] ?? NSNull(),
+              "frames": d["frames"] ?? NSNull(), "frames_provenance": d["frames_provenance"] ?? "saved_manifest",
+              "limits": ["Journal gaps and draining status are explicit; footage can succeed without complete telemetry",
+                         "Interrupted manifest counters are checkpoints; decode partial footage to establish actual coverage",
+                         "Transforms remain candidates outside qualified app and display geometry"]]
     case "record.list":
       return await recordings.list(params)
     case "record.stop":
@@ -191,7 +199,7 @@ final class Engine: @unchecked Sendable {
       ],
       "clock": ["uptime_ns": uptimeNs(), "wall": iso8601.string(from: now), "started_ns": startedNs],
       "permission": ["screen_recording": CGPreflightScreenCaptureAccess() ? "granted" : "missing"],
-      "capabilities": ["target_capture_options": CaptureOptions.contractVersion],
+      "capabilities": ["target_capture_options": CaptureOptions.contractVersion, "source_journal": 1],
       "displays": await displays(),
       "viewfinder": await viewfinder.state,
       "capture_health": ["discovery": await ContentCache.shared.diagnostics,

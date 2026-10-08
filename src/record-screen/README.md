@@ -440,3 +440,30 @@ First-time setup:
 
 macOS asks again every 30 days. The re-confirm date lives in
 `~/Library/Group Containers/group.com.apple.replayd/ScreenCaptureApprovals.plist`.
+
+## Candidate capture foundations
+
+The qualification branch of work is committed before engine installation.
+The currently loaded engine may therefore be older than these source additions.
+Use `status` capabilities rather than assuming the installed behavior.
+
+- `target_capture_options: 1`: explicit child-window setting and exact bundle
+  exclusions for display/rect sources. Filters and resolved PIDs distinguish
+  taps and preview lanes. Unsupported or missing exclusions fail explicitly.
+- `source_journal: 1`: MCP `recording_source`, socket `record.source`, and CLI
+  `record-source <recording_id>` return a bounded local source packet descriptor.
+  The MCP rejects legacy engines before requesting the packet. See
+  [SOURCE-PACKET.md](SOURCE-PACKET.md) for exact clocks, geometry qualification,
+  encoded/held-frame links, gaps and interrupted checkpoint counters.
+- Discovery and preview SDK work use shared three-second deadlines, with
+  unfinished producers quarantined rather than repeatedly spawned. Recording
+  startup retains its eight-second watchdog and unfinished admission slot;
+  SDK startup timeout does not restart healthy peers. Encoder-finalization
+  recovery remains separate. No deadline claims to cancel an uncooperative SDK.
+
+Delivery evidence and unresolved gates are in
+[qualification/GATES.md](qualification/GATES.md), with the active production
+roadmap in [qualification/PRODUCTION-GOAL.md](qualification/PRODUCTION-GOAL.md).
+Input provenance, supported automatic receipts, cross-display/sleep, daily-app
+menus and realistic resource budgets remain qualification work. Visual effects
+and composition recipes are deferred.
