@@ -120,4 +120,10 @@ Immediate reacquisition exposed a status clarity gap: a stopped active frontend
 was reported false while its process was still retiring. Acquisition correctly
 refused to race cleanup. Status now exposes `reactFrontendCleanupPending`, and
 a regression test verifies it remains true until process exit is observed.
-Twenty host/transport tests pass; the updated host is restarted only at idle.
+Twenty host/transport tests pass; the updated host was restarted at idle.
+The final live smoke matched the running source hash, reconstructed the real
+React app, observed pending cleanup during release, then verified no pending
+cleanup, no lease, no glow and no frontend. Local GraphQL and the web sign-in
+page independently returned HTTP 200. See `final-host-smoke-2026-10-08.json`.
+Remote Metro delivery, typed domain adapters and authenticated coach/client
+business workflows remain subsequent integrations.

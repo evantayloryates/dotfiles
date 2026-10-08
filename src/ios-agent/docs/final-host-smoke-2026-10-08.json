@@ -10,5 +10,7 @@
   "reactFrontendRunningAtFinal": false,
   "deviceForegroundAtFinal": true,
   "localGraphQLHTTP200AndQueryTypename": true,
-  "localWebSignInHTTP200": true
+  "localWebSignInHTTP200": true,
+  "reactConnectedApps": 1,
+  "reactComponentCount": 1391
 }
