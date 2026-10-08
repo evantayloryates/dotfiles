@@ -33,7 +33,10 @@ No helper requests a new grant.
 | `options-test.swift` | Offline target parsing and filter/child/PID source identity checks; compile with engine sources except main.swift |
 | `options-mcp.test.mjs` | Isolated engine socket: reject unsupported controls before forwarding; no real capture |
 | `deadline-test.swift` | Shared producer deadlines, waiter cancellation, ignored late completions; no SDK capture |
-| `managed-command-test.swift` | Owned child stdout/stderr drains, bounded output, deadline, retained admission, forced-exit recovery; no capture or UI. The command runner is not yet wired into exports. |
+| `managed-command-test.swift` | Owned child stdout/stderr drains, bounded output, deadline, retained admission, forced-exit recovery; no capture or UI. Integrated into candidate exports/probes. |
+| `export-test.swift` | Actual software MP4/GIF exports of a supplied synthetic VFR source; invalid parameters, saved packet maps, immutable names and effort defaults |
+| `verify-export.py` | Independent software packet/pixel proof for the authored uniform-grey VFR fixture; not an arbitrary app-image oracle |
+| `derivative-source.test.mjs` | Service-owned trim/GIF mapping, exact rational integers beyond JS precision, wrong identity/unknown clock refusal |
 | `startup-test.swift` | Actual recording state/watchdog races with a controlled preflight; no SDK discovery |
 | `input-test.swift` | Mechanical event scoping, contextual service stamps, namespace/restart uncertainty, strict numeric boundaries and persistence faults; no UI |
 | `admission-test.swift` | Future schedule and extension overlap/duration/lead admission, cancellation; no capture |

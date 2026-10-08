@@ -1,6 +1,33 @@
 # Qualification update — October 8, 2026
 
-## Current clean pause — October 8, 21:28 UTC
+## Eighth pass: mapped previews and recovered worker canary
+
+Taylor explicitly resumed at approximately 22:21 UTC. Earlier pressure incident
+had closed; the existing watcher was verified alive. New live work followed
+low-paging/churn samples, with no peer workflow stopped. Production remains
+cd78c24b652e/PID 71911; screen access remains granted. No release has occurred.
+
+| Gate | Verified evidence | Limits |
+| --- | --- | --- |
+| Owned subprocess recovery | 88 real-child checks: concurrent stdout/stderr drains, bounded output, short-exit races, independent caller timeout, unfinished admission, TERM-resistant child exit and recovery. | One owned child; a kernel-stuck producer remains quarantined. No global desktop restart. |
+| Derivative time/content map | Ten software exports across zero/nonzero-start VFR fixtures matched 264 actual decoded frames to expected held parent content. Final source repeated six exports/139 frames with 35 assertions, including the exact 0.07–0.14 s cut at 100 fps. MP4/GIF non-grid trims, packet clocks, scale dimensions and private output modes passed. | Authored uniform-grey content; does not prove arbitrary renderer/codec/color fidelity or GIF viewer scheduling. |
+| GIF pixel failure corrected | ffmpeg 8.1.2 `palettegen=stats_mode=diff` omitted the fixture's final 190-grey color despite correct packet counts. Full histograms preserved it; failed palette and export remain private evidence. | Local pipeline/version finding; underlying library root cause not established. |
+| Latest background worker live canary | Signed isolated fa3912d0a529 take completed: 639 exact mux/source samples, zero loss/drops, three geometry segments; two authored marker geometry proofs had zero edge error. All four typed key transitions matched native delivery timestamps exactly. | Native fixture, 22 seconds; actor ownership and pointer coordinates remain unknown. Short healthy operation does not reproduce the earlier watchdog. |
+| Worker costs and cleanup | Main refresh mean 24,724 ns/max 95,375 ns; periodic listener context mean 2.31 ms/max 6.50 ms; window context mean 3.64 ms/max 7.89 ms; shared recording monitor mean 5.10 ms/max 12.06 ms. All workers/listeners returned inactive. Owned fixture closed through CUA and inventory verified absent. | Component costs in a bounded canary, not physical input latency or a production resource budget. |
+| Real preview/media readback | Software draft, hardware standard and GIF each had 145 correct parent packet references. Real MCP recording_source/export_time_map returned actual rational media times and explicit outside-grid exclusions. Native menu appears in source and GIF preview pixels. Full/native/60-fps hardware preview had 725 mapped packets with exact nominal clock; GIF maximum nominal rounding 1/300 s. | Menu extends to the frame edge; this does not complete nested-overflow or insurance gates. |
+| Receipt uncertainty preserved | The valid action close arrived after its declared deadline; receipt stayed expired/interrupted. Typed/marker/menu observations corroborate operation behavior independently. | Do not upgrade an expired interval to timely verified completion. Close compact scopes immediately; end result/refs must match the API. |
+| Agent boundary | Ten Node regressions passed, including unsupported-engine refusal, effort forwarding, real sidecar interpolation, >2^53 exact integers, wrong identity/clock rejection and no export replay after socket loss. | Source/MCP candidate only; installed production still lacks this contract. |
+
+Private evidence is in gates-v8. Candidate source/signature history is preserved
+separately: fa3912d0a529 captured live; 9a06e1656195 loaded and exported with
+tighter clock validation; 007cee2570b2 adds unique default names and whitespace
+cleanup; 974d30f9c443 fixes decimal grid rounding and actually exported seven
+packets at parent ticks 7–14. Exact latest load/name/boundary readbacks are
+recorded in the stage summary.
+Remaining helper PID churn, raw coordinates/tap-fault/sleep behavior, overflow,
+resource insurance, installation/rollback and final runbooks remain open.
+
+## Historical clean pause — October 8, 21:28 UTC
 
 Taylor requested a pause until an explicit resume. Owned capture/fixture load
 is stopped; installed production remains unchanged. Eighth-pass offline work

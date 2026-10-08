@@ -1,6 +1,6 @@
 # Production qualification goal
 
-October 8, 2026. Goal resumed by Taylor on October 8 at 20:01 UTC. Objective: complete staged smoke testing, verification,
+October 8, 2026. Latest explicit resume: October 8 at approximately 22:21 UTC. Objective: complete staged smoke testing, verification,
 iteration and production delivery of capture foundations and their shared
 computer-use contracts. The goal remains open until delivered behavior and
 agent expectations are verified. Visual effects, cursor styling and final
@@ -176,3 +176,40 @@ VFR/held-frame footage, including non-grid trim boundaries and GIF timestamp
 quantization. Avoid promoting nominal preview sample times to actual source
 presentation times. Then return to the remaining live canary, helper PID churn,
 transient-surface, resource/insurance and production delivery gates above.
+
+## Eighth-pass resumed checkpoint
+
+The pause was revoked by Taylor's explicit go-ahead. Completed source integration
+adds bounded ffmpeg/ffprobe children, draft/standard/full effort with overrides,
+immutable exports, actual packet/content/time/scale manifests and service-side
+exact rational time mapping. The original GIF palette dropped a late color despite
+correct packet counts; full histograms fixed the authored pixel test. Ten software
+exports had 264 independent pixel matches; final source repeated six exports/139 matches with 35 assertions.
+Decimal grid arithmetic prevents a 0.07-second boundary from rounding up an
+extra frame at 100 fps; actual native-source export readback verified ticks 7–14
+and exactly seven packets.
+88 subprocess assertions and ten Node regressions passed.
+
+One 22-second native live take on the background-worker candidate passed 639
+exact muxed timestamp matches and four delivered key timestamp matches. Main
+refresh mean was 24.7 microseconds; background context and recording monitor
+worked and returned inactive. Actual source and preview contained the edge menu.
+Three real 145-frame previews passed parent-packet mapping; hardware full/native/
+60-fps added 725 verified references. Real MCP source/time-map readback passed.
+The late action close remains expired; do not infer a timely verified receipt.
+
+Source/signature history and runtime readbacks are preserved in gates-v8. Production
+remains on its original cd78c24b652e build. Close/check only the owned isolated
+engine after all captures/exports are terminal, copy its private runtime evidence,
+then continue helper lifetime/exclusion, raw-coordinate/tap-gap/sleep limits,
+remaining transient overflow and realistic resource/insurance gates. Finish with
+idle-boundary production install, rollback/readback, actual capture/consumer smoke
+and final runbooks. The full goal remains active and is not production-ready.
+
+Latest signed source hash: 974d30f9c443. It was actually loaded with the existing
+screen grant and verified the seven-packet decimal cut. The prior 007cee2570b2
+load verified two distinct default export names. The prior full
+preset used 9a06e1656195; the live capture itself used fa3912d0a529. These frozen
+source/build snapshots remain separate. All owned engines/fixture are verified
+exited, zero capture/input/preview/export/quarantine work remained, and sessions
+plus logs were copied to gates-v8/runtime-evidence before ending this stage.

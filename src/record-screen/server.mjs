@@ -7,6 +7,7 @@ import { serveMcp } from "../lib/node/mcp-stdio.mjs";
 import { callerContext } from "./lib/caller.mjs";
 import { EngineClient, EngineError } from "./lib/client.mjs";
 import { hasCaptureOptions, requireCaptureOptions } from "./lib/capture-options.mjs";
+import { mapDerivativeTimes } from "./lib/derivative-source.mjs";
 
 const log = (...args) => console.error("[record-screen]", ...args);
 const VERSION = "0.7.0";
@@ -27,6 +28,9 @@ async function engine(method, params = {}, timeoutMs = 20000) {
       if (method === "record.source" && (await client.call("status", {}, { timeoutMs })).capabilities?.source_journal !== 1) {
         throw new EngineError("unsupported_source_journal", "The loaded engine does not advertise source_journal v1. Legacy footage has no recorder-owned source packet.");
       }
+      if (["record.export", "record.export_info"].includes(method) && (await client.call("status", {}, { timeoutMs })).capabilities?.derivative_source !== 1) {
+        throw new EngineError("unsupported_derivative_source", "The loaded engine does not advertise derivative_source v1. Preview effort controls and mapped exports cannot be silently ignored.");
+      }
       if (method.startsWith("action.") && (await client.call("status", {}, { timeoutMs })).capabilities?.action_scopes !== 1) {
         throw new EngineError("unsupported_action_scopes", "The loaded engine does not advertise action_scopes v1. No action was dispatched.");
       }
@@ -35,7 +39,7 @@ async function engine(method, params = {}, timeoutMs = 20000) {
       }
       return await client.call(method, params, { timeoutMs });
     } catch (err) {
-      if (method.startsWith("action.") || err.code !== "engine_down" || Date.now() > deadline) throw err;
+      if (method.startsWith("action.") || method === "record.export" || err.code !== "engine_down" || Date.now() > deadline) throw err;
       client = new EngineClient();
       await new Promise((r) => setTimeout(r, 500));
     }
@@ -352,18 +356,34 @@ const tools = [
   {
     name: "record_export",
     description:
-      "Cut a finished recording into an mp4 (hardware-encoded, 30 fps) or a GIF (12 fps, palette-optimised, max 60 s), by seconds (from_s/to_s) or by mark labels (from_mark/to_mark). " +
-      "Cuts are frame-exact, including over stretches where the screen didn't change. Returns the file path and size; files land in the recording's exports/ folder.",
+      "Export a finished recording by seconds or mark labels. draft defaults to software/640px/12fps; standard to hardware/native/30fps; full to hardware/native/60fps. GIF defaults to software/960px/12fps and is capped at 60 s. Override width, fps and backend explicitly. " +
+      "Cuts use an explicit fps grid, preserve held content and return a recorder-owned source/timing manifest. Names are immutable; exports stay in exports/. One bounded child process at a time; partial attempts are retained on failure. No automatic replay after a disconnect.",
     inputSchema: {
       type: "object", additionalProperties: false,
       properties: {
         recording_id: { type: "string" }, format: { type: "string", enum: ["mp4", "gif"] },
         from_s: { type: "number" }, to_s: { type: "number" }, from_mark: { type: "string" }, to_mark: { type: "string" },
-        max_width: { type: "number" }, fps: { type: "number" }, name: { type: "string", description: "file name (default trim-<from>-<to>.mp4 / clip-<from>-<to>.gif)" },
+        max_width: { type: "integer", minimum: 64, maximum: 8192 }, fps: { type: "integer", minimum: 1, maximum: 120, description: "GIF maximum 50; mapping budget 120,000 frames" },
+        effort: { type: "string", enum: ["draft", "standard", "full"] }, backend: { type: "string", enum: ["software", "hardware"] },
+        name: { type: "string", description: "new file name; omitted names include a unique suffix so draft/full attempts do not overwrite each other" },
       },
       required: ["recording_id"],
     },
     run: async (a) => ok(await engine("record.export", a, 600000)),
+  },
+  {
+    name: "export_time_map",
+    description: "Map exact parent-video relative nanoseconds into a saved export's actual media clock. Handles trimmed grid origins and GIF centiseconds inside the service. Outside-clip times are explicit exclusions. This maps timeline position, not physical display latency or event ownership.",
+    inputSchema: {
+      type: "object", additionalProperties: false,
+      properties: { recording_id: { type: "string" }, name: { type: "string" }, parent_relative_ns: { type: "array", minItems: 1, maxItems: 256, items: { type: "string", pattern: "^-?[0-9]{1,24}$" } } },
+      required: ["recording_id", "name", "parent_relative_ns"],
+    },
+    annotations: { readOnlyHint: true },
+    run: async ({ recording_id, name, parent_relative_ns }) => {
+      const info = await engine("record.export_info", { recording_id, name });
+      return ok(mapDerivativeTimes(info.path, parent_relative_ns, recording_id));
+    },
   },
   {
     name: "mark",

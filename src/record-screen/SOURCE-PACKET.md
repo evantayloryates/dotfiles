@@ -7,9 +7,56 @@ Socket consumers negotiate `status.capabilities.source_journal == 1`, then call
 old engine explicitly. Replies contain paths and compact diagnostics, never
 bulk frame rows.
 
-This packet references the original capture video. Exported/trimmed/transcoded
-files must not silently reuse its origin; derivative timeline mapping remains
-a delivery gate.
+This packet references the original capture video. New capable exports carry
+a separate `record-screen-derivative/v1` sidecar and never silently reuse the
+parent epoch. Candidate delivery remains gated below.
+
+## Mapped previews and exports
+
+Negotiate `derivative_source == 1`. `record_export` adds `effort` and `backend`:
+draft defaults to software, 640-pixel maximum width and 12 fps; standard to
+hardware, native size and 30 fps; full to hardware, native size and 60 fps.
+Width/fps/backend remain explicit overrides. GIF defaults to software, 960
+pixels and 12 fps, with a 60-second limit and at most 50 fps. MP4 supports
+1–120 fps; the derivative mapping budget is 120,000 output frames. Native
+size does not upscale. Presets select encoding effort, not visual effect styles.
+
+The trim starts at the first sampling tick at or after `from_s` and excludes
+ticks at or after `to_s`. The final frame's duration can extend to the next
+tick. Decode from the beginning to preserve previously held content; round
+source transitions up so future content is not pulled into an earlier tick.
+The sidecar records requested limits, effective file coverage, grid boundaries,
+actual output packet PTS/durations, corresponding actual parent packet PTS,
+parent/source identity and an affine scale from parent pixels. Nonzero source
+starts have explicit first-frame padding. Nanosecond/clock integers are strings;
+time bases are rational. A parent packet reference is not an ownership claim.
+
+MCP `export_time_map` takes recording ID, export name and 1–256 exact parent
+relative-nanosecond strings. The service maps timeline positions into the actual
+saved media clock, including GIF centisecond rounding. It returns exact rational
+nanoseconds, the output frame index and a separate parent content-frame time.
+Outside-grid offsets remain explicit exclusions. This avoids consumer clock
+reconstruction; reception latency, protected input, pointer coordinate validity,
+parent journal gaps and physical display presentation remain independent.
+GIF viewer scheduling has not been qualified.
+
+One owned export/probe child is admitted at a time. A caller deadline requests
+termination, escalating only that child after 0.5 seconds; unfinished work keeps
+admission until actual exit and pipe drains. Pipes are read concurrently into a
+bounded buffer and keep draining after overflow. Probes have 30-second deadlines;
+draft encoding has 120 seconds, other encoding 300 seconds. A stopped connection
+never automatically replays an export. Partial files remain private diagnostic
+artifacts. Names are immutable; default names include a unique suffix. Published
+media requires a validated packet map; old engines refuse this contract explicitly.
+
+Software held-frame tests matched all 264 decoded output frames across ten MP4/GIF
+exports, including a nonzero parent start. A real isolated native take had 639
+exact source/mux matches; its three 145-frame previews had correct parent packet
+references, and real MCP source/map readback passed. A later full/native/60-fps
+hardware export produced 725 mapped frames. The original differential GIF palette
+lost a late color change despite correct packet counts on ffmpeg 8.1.2; full-frame
+histograms fixed the authored pixel proof. These are candidate results, not a
+general color-fidelity, encoder capacity, GIF playback or production-release claim.
 
 Each new take writes a private `source.jsonl` alongside its video. It retains
 metadata, not pixels or literal typed text. Outside-scope input contributes
@@ -105,8 +152,9 @@ diagnostics expose begin/end times so a stalled producer cannot make old focus
 or permission reads appear newly observed when it eventually returns.
 Per-event protected-input checks remain separate. Initial OS tap creation and
 encoder/SDK operations can still stall; background context alone is not an
-all-API timeout guarantee. This context revision is source-qualified and awaits
-a fresh isolated live canary before production delivery.
+all-API timeout guarantee. The eighth-pass isolated native canary verified these
+background workers and cleanup, with four exact delivered-key matches. This is
+not a universal stall-recovery or physical-input latency guarantee.
 
 The shared listener uses
 at most 2,048 queued scalar events, and stops after its last recording unsubscribes.
@@ -128,8 +176,9 @@ this does not prove cross-provider or sleep-safe equivalence. Event reception
 can lag generation; consumers must not infer a physical-input latency guarantee.
 `position_for_composition` remains null until the provider coordinate convention
 is qualified. Context refresh cost and last observed tap-enabled state are visible
-in status. Listener-loop window enumeration is a required improvement before
-production latency/load recommendations.
+in status. The eighth-pass listener-loop refresh averaged 24.7 microseconds
+after periodic OS context moved to background workers. That bounded component
+cost does not establish production input latency or resource capacity.
 
 The default `ambiguous_keys=shortcuts` retains extra shortcut/modifier candidates
 only during declared action blocks. `none` disables that extra temporal lane;
@@ -177,3 +226,8 @@ evidence. During the declared block, retained modifier/shortcut candidates were
 addressed to Codex and remain uncertain. Rich service-stamped action receipts
 provide operation context when a provider does not produce the OS event stream.
 They cannot fabricate the missing delivered-key trajectory or prove ownership.
+
+Eighth-pass export qualification also covered decimal cut boundaries: 0.07–0.14 s
+at 100 fps produced exactly seven packets on the latest signed isolated engine.
+Six authored final-repeat exports matched 139 decoded parent-content frames;
+these checks do not establish arbitrary codec/color or viewer scheduling fidelity.

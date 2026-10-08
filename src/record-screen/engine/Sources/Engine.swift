@@ -143,6 +143,19 @@ final class Engine: @unchecked Sendable {
       return try await sessions.close(id, reopen: method == "session.reopen")
     case "record.get":
       return try await recordings.get(try recID(params)).describe()
+    case "record.export_info":
+      let r = try await recordings.get(try recID(params))
+      guard let name = params.str("name"),
+            name.range(of: "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}\\.(mp4|gif)$", options: .regularExpression) != nil else {
+        throw RPCError.badParams("name must identify a saved mp4/gif export in this recording")
+      }
+      let path = r.dir + "/exports/" + name + ".source.json"
+      var metadata = stat()
+      guard lstat(path, &metadata) == 0, metadata.st_mode & S_IFMT == S_IFREG,
+            metadata.st_size > 0, metadata.st_size <= 32 * 1024 * 1024 else {
+        throw RPCError(code: "no_derivative_source", message: "no bounded regular derivative manifest for this export")
+      }
+      return ["recording_id": r.id, "path": path, "schema": "record-screen-derivative/v1"]
     case "record.source":
       let d = try await recordings.get(try recID(params)).describe()
       return ["recording_id": d["recording_id"]!, "state": d["state"]!,
@@ -216,14 +229,14 @@ final class Engine: @unchecked Sendable {
       "clock": ["uptime_ns": clockNS, "uptime_ns_exact":String(clockNS), "domain":"CLOCK_UPTIME_RAW", "wall": iso8601.string(from: now), "started_ns": startedNs,"started_ns_exact":String(startedNs)],
       "permission": ["screen_recording": CGPreflightScreenCaptureAccess() ? "granted" : "missing"],
       "capabilities": ["target_capture_options": CaptureOptions.contractVersion, "source_journal": 1,
-                       "input_timeline":1,"action_scopes":1],
+                       "input_timeline":1,"action_scopes":1,"derivative_source":1],
       "input_timeline":InputTimeline.shared.status,
       "action_timeline":ActionTimeline.shared.status,
       "displays": await displays(),
       "viewfinder": await viewfinder.state,
       "capture_health": ["discovery": await ContentCache.shared.diagnostics,
                          "recordings": await recordings.captureHealth,
-                         "window_monitor":RecordingWindowContext.shared.status],
+                         "window_monitor":RecordingWindowContext.shared.status,"export_child":ManagedCommand.status()],
       "overlays": await MainActor.run { Overlays.shared.active },
       "paths": ["root": paths.root, "socket": paths.socket, "log": paths.log],
     ]
@@ -386,7 +399,7 @@ final class Engine: @unchecked Sendable {
     let to = try p.str("to_mark").map(markT) ?? p.num("to_s") ?? duration
     guard to > from else { throw RPCError.badParams("the end of the export must be after its start (from \(from) s, to \(to) s)") }
     if format == "gif" && to - from > 60 { throw RPCError.badParams("GIFs are capped at 60 s; export mp4 for longer clips") }
-    let name = p.str("name") ?? String(format: "%@-%.1f-%.1f.%@", format == "gif" ? "clip" : "trim", from, to, format)
+    let name = p.str("name") ?? String(format: "%@-%.3f-%.3f-%@.%@", format == "gif" ? "clip" : "trim", from, to, String(UUID().uuidString.prefix(8)).lowercased(), format)
     // A plain file name only: exports never leave the recording's folder.
     guard name.range(of: "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$", options: .regularExpression) != nil,
           (name as NSString).pathExtension.lowercased() == format else {
@@ -396,7 +409,10 @@ final class Engine: @unchecked Sendable {
     let out = URL(fileURLWithPath: exportsDir + "/" + name).standardizedFileURL.path
     guard out.hasPrefix(exportsDir + "/") else { throw RPCError.badParams("name escapes the exports folder") }
     return try await Export.run(video: r.videoPath, out: out, format: format, from: from, to: to,
-                                maxWidth: p.num("max_width").map { Int($0) }, fps: p.num("fps").map { Int($0) })
+                                maxWidth: p.num("max_width"), fps: p.num("fps"),
+                                effort: p.str("effort") ?? "standard", backend: p.str("backend"),
+                                parentIdentity: ["recording_id": r.id, "source_packet": d["source_packet"] ?? NSNull(),
+                                                 "video_outcome": (d["source_packet"] as? [String:Any])?["video_outcome"] ?? NSNull()])
   }
 
   private func recID(_ p: [String: Any]) throws -> String {

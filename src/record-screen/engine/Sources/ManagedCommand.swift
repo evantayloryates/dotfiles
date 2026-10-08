@@ -36,7 +36,7 @@ final class ManagedCommand: @unchecked Sendable {
     return try await withCheckedThrowingContinuation { continuation in
       job.waiter = continuation
       DispatchQueue.global(qos: .utility).async { job.launch(executable, args) }
-      DispatchQueue.global().asyncAfter(deadline: .now() + timeout) { job.deadline() }
+      DispatchQueue.global().asyncAfter(deadline: .now() + timeout) { [weak job] in job?.deadline() }
     }
   }
 
@@ -84,7 +84,8 @@ final class ManagedCommand: @unchecked Sendable {
 
   private func stop() {
     if process.isRunning { process.terminate() }
-    DispatchQueue.global().asyncAfter(deadline: .now() + 0.5) { [self] in
+    DispatchQueue.global().asyncAfter(deadline: .now() + 0.5) { [weak self] in
+      guard let self else { return }
       if process.isRunning { _ = Darwin.kill(process.processIdentifier, SIGKILL) }
     }
   }

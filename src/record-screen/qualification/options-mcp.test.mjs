@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
 import { createInterface } from 'node:readline'
-import { mkdtempSync, mkdirSync, rmSync } from 'node:fs'
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import net from 'node:net'
@@ -21,14 +21,20 @@ test('optional controls require the exact contract; legacy callers bypass it', (
 
 test('MCP refuses an old engine before capture, forwards explicit false to capable engine', async () => {
   const root = mkdtempSync(join(tmpdir(), 'capture-options-mcp-')); mkdirSync(join(root, 'run'))
-  const methods = []; let capable = false, forwarded
+  const methods = []; let capable = false, forwarded, disconnectExport = false
+  const manifestPath = join(root, 'synthetic.source.json')
+  writeFileSync(manifestPath, JSON.stringify({ schema:'record-screen-derivative/v1', parent:{recording_id:'synthetic'},
+    sampling:{fps:10,first_parent_tick:'5',end_parent_tick_exclusive:'6'},time_base:['1','10'],parent_time_base:['1','10'],
+    frames:[{index:0,pts:'0',duration:'1',nominal_parent_tick:'5',parent_pts:'3',parent_packet_index:0}] }))
   const sockets = new Set()
   const fake = net.createServer(socket => {
     sockets.add(socket); socket.on('close', () => sockets.delete(socket))
     createInterface({ input: socket }).on('line', line => {
       const row = JSON.parse(line); methods.push(row.method)
       let result
-      if (row.method === 'status') result = capable ? { capabilities: { target_capture_options: 1, source_journal: 1, action_scopes:1, input_timeline:1 } } : { engine: { build: 'legacy-fixture' } }
+      if (row.method === 'record.export' && disconnectExport) { socket.destroy(); return }
+      if (row.method === 'status') result = capable ? { capabilities: { target_capture_options: 1, source_journal: 1, action_scopes:1, input_timeline:1, derivative_source:1 } } : { engine: { build: 'legacy-fixture' } }
+      else if (row.method === 'record.export_info') result = {path:manifestPath}
       else { forwarded = row.params; result = { overlay_id: 'synthetic-no-ui' } }
       socket.write(JSON.stringify({ id: row.id, result }) + '\n')
     })
@@ -89,6 +95,24 @@ test('MCP refuses an old engine before capture, forwards explicit false to capab
     assert.equal(acceptedAction.isError,false);assert.equal(methods.at(-1),'action.begin');assert.deepEqual(forwarded,actionArgs)
     const acceptedInput=await request('tools/call',{name:'record_schedule',arguments:recordingArgs})
     assert.equal(acceptedInput.isError,false);assert.equal(methods.at(-1),'record.schedule');assert.deepEqual(forwarded.input,recordingArgs.input)
+    capable=false
+    const exportArgs={recording_id:'synthetic',format:'mp4',effort:'draft',backend:'software',max_width:640,fps:12,name:'draft.mp4'}
+    const deniedExport=await request('tools/call',{name:'record_export',arguments:exportArgs})
+    assert.equal(deniedExport.isError,true);assert.match(deniedExport.content[0].text,/unsupported_derivative_source/)
+    assert.equal(methods.at(-1),'status')
+    capable=true
+    const acceptedExport=await request('tools/call',{name:'record_export',arguments:exportArgs})
+    assert.equal(acceptedExport.isError,false);assert.deepEqual(forwarded,exportArgs)
+    const mapped=await request('tools/call',{name:'export_time_map',arguments:{recording_id:'synthetic',name:'draft.mp4',parent_relative_ns:['500000000']}})
+    assert.equal(mapped.isError,false)
+    const value=JSON.parse(mapped.content[0].text)
+    assert.deepEqual(value.mapped[0].derivative_time_ns,{numerator:'0',denominator:'1'})
+    assert.deepEqual(value.mapped[0].source_frame_parent_ns,{numerator:'300000000',denominator:'1'})
+    disconnectExport=true
+    const attempts=methods.filter(m=>m==='record.export').length
+    const disconnected=await request('tools/call',{name:'record_export',arguments:exportArgs})
+    assert.equal(disconnected.isError,true)
+    assert.equal(methods.filter(m=>m==='record.export').length,attempts+1,'disconnect never replays a mutating export')
   } finally {
     rejectAll(new Error('cleanup')); child.stdin.end(); child.kill('SIGTERM'); lines.close()
     await new Promise(resolve => { if (child.exitCode !== null || child.signalCode) resolve(); else { child.once('exit', resolve); setTimeout(() => { child.kill('SIGKILL'); resolve() }, 1000).unref() } })
