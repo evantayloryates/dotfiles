@@ -15,6 +15,7 @@ test('real bridge binds diagnostics to native session events and preserves runti
       plugins: [requireMobile.resolve('@babel/plugin-transform-modules-commonjs')],
     }).code;
     let receive, published = [], timers = new Map(), nextTimer = 0, forwarded = [], hidden = false;
+    let deferred, finishRequest, requestSignal;
     const bridge = {publish: json => published.push(JSON.parse(json)), sendReact() {}};
     const fakeRequire = name => {
       if (name === 'react-native') return {
@@ -22,12 +23,19 @@ test('real bridge binds diagnostics to native session events and preserves runti
         NativeEventEmitter: class {addListener(name, listener) { assert.equal(name, 'IOSAgentCommand'); receive = listener; }},
       };
       if (name === './telemetry') return require('../native/telemetry');
+      if (name === './domain') return {createDomainRegistry: options => require('../native/domain').createDomainRegistry({...options, schedule: () => 0, cancel() {}})};
+      if (name === './runtime-config') return {metroURL: 'https://synthetic.ts.net:10444/', graphqlURL: 'https://synthetic.ts.net:10445/development/graphql', routeNames: ['Welcome']};
+      if (name === './runtime-marker') return 'test-runtime';
       if (name === 'react-devtools-core') return {connectWithCustomMessagingProtocol: () => () => {}};
       throw new Error('unexpected_dependency');
     };
     const runtime = {__DEV__: true, require: fakeRequire,
       console: {warn(...args) { forwarded.push(args); return 7; }},
-      fetch: () => Promise.resolve({status: 204}),
+      fetch: (url, options) => {
+        requestSignal = options?.signal;
+        return deferred ? new Promise(resolve => {finishRequest = resolve;}) : Promise.resolve({status: url.includes('/development/graphql') ? 200 : 204, json: async () => ({data: {__typename: 'Query'}})});
+      },
+      AbortController,
       setTimeout: callback => { const id = ++nextTimer; timers.set(id, callback); return id; },
       clearTimeout: id => timers.delete(id),
     };
@@ -52,7 +60,18 @@ test('real bridge binds diagnostics to native session events and preserves runti
     assert.equal(diagnostics.errors[0].source, 'protocol');
     assert.equal(JSON.stringify(diagnostics).includes('synthetic'), false);
     assert.deepEqual(forwarded, [['synthetic-idle'], ['synthetic-active']]);
+    runtime.__IOS_AGENT_DOMAIN__.registerNavigation(() => 'Welcome');
+    assert.equal(published.at(-1).domain.navigation.route, 'Welcome');
+    receive({command: 'diagnostics-probe'});
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(published.at(-1).domain.probe.outcome, 'ready');
+    deferred = true;
+    receive({command: 'diagnostics-probe'});
     receive({command: 'session-end'});
+    assert.equal(requestSignal.aborted, true);
+    finishRequest({status:200,json:async () => ({data:{__typename:'Query'}})});
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(published.at(-1).domain.probe, null);
     assert.equal(published.at(-1).diagnostics.active, false);
     assert.equal(published.at(-1).diagnostics.console.length, 0);
     assert.equal(published.at(-1).diagnostics.network.length, 0);

@@ -7,8 +7,32 @@
 #define IOS_AGENT_REACT 1
 #import <React/RCTEventEmitter.h>
 #import <React/RCTBridgeModule.h>
+#import <React/RCTBundleURLProvider.h>
+#if __has_include("IOSAgentRuntimeConfig.h")
+#import "IOSAgentRuntimeConfig.h"
+#endif
 #endif
 #import "TouchHID.inc"
+
+#if IOS_AGENT_REACT
+static NSURL *IOSAgentDevelopmentBundleURL(void) {
+ NSURL *fallback=[[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
+#ifdef IOS_AGENT_METRO_ENDPOINT
+ NSURLComponents *url=[NSURLComponents componentsWithString:IOS_AGENT_METRO_ENDPOINT];
+ BOOL valid=[url.scheme isEqual:@"https"] && [url.host hasSuffix:@".ts.net"] && !url.user && !url.password && !url.query && !url.fragment && [url.path isEqual:@"/"] && url.port.intValue==10444;
+ if(valid) {
+  NSString *host=[NSString stringWithFormat:@"%@:%@",url.host,url.port];
+  if([RCTBundleURLProvider isPackagerRunning:host scheme:@"https"])
+   return [RCTBundleURLProvider jsBundleURLForBundleRoot:@"index" packagerHost:host packagerScheme:@"https" enableDev:YES enableMinification:NO inlineSourceMap:NO modulesOnly:NO runModule:YES];
+ }
+ return fallback;
+#elif defined(IOS_AGENT_EMBEDDED_BUNDLE) && IOS_AGENT_EMBEDDED_BUNDLE
+ return fallback;
+#else
+ return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index"];
+#endif
+}
+#endif
 
 @interface UITouch (IOSAgentPrivate)
 - (void)setWindow:(UIWindow*)window;
@@ -225,6 +249,15 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
  @try {
   if([action isEqual:@"capabilities"]) { done([self capabilities]); return; }
   if([action isEqual:@"state"]) { done(self.appState?:@{@"ready":@NO}); return; }
+  if([action isEqual:@"diagnostics-probe"]) {
+#if IOS_AGENT_REACT
+   if(!IABridge.observing) { done(IAError(@"react_not_ready")); return; }
+   [IABridge sendEventWithName:@"IOSAgentCommand" body:@{@"command":@"diagnostics-probe"}];
+   done(@{@"delivery":@"queued-to-js",@"scope":@"synthetic-read-only-GraphQL-probe"}); return;
+#else
+   done(IAError(@"react_not_compiled")); return;
+#endif
+  }
   if([action isEqual:@"react"]) {
 #if IOS_AGENT_REACT
    NSString *message=args[@"message"];

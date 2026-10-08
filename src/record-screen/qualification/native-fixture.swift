@@ -2,6 +2,7 @@ import AppKit
 
 // A task-owned visual fixture. It receives real CUA input; it never synthesizes input.
 final class FixtureView: NSView {
+  var marker = 0
   override var isFlipped: Bool { true }
   override func draw(_ r: NSRect) {
     NSColor.white.setFill(); bounds.fill()
@@ -9,6 +10,8 @@ final class FixtureView: NSView {
     "Recorder qualification — native AppKit".draw(at: NSPoint(x: 24, y: 22), withAttributes: attributes)
     "Right-click this panel for a native menu and submenu.".draw(at: NSPoint(x: 24, y: 175), withAttributes: attributes)
     "The magenta arrow below is drawn into app content.".draw(at: NSPoint(x: 24, y: 255), withAttributes: attributes)
+    let colors = [NSColor(srgbRed: 0.9, green: 0.1, blue: 0.1, alpha: 1), NSColor(srgbRed: 0.1, green: 0.9, blue: 0.1, alpha: 1), NSColor(srgbRed: 0.1, green: 0.1, blue: 0.9, alpha: 1)]
+    colors[marker].setFill(); NSRect(x: 24, y: 220, width: 100, height: 24).fill()
     NSColor.systemPink.setFill()
     let arrow = NSBezierPath(); arrow.move(to: NSPoint(x: 55, y: 305)); arrow.line(to: NSPoint(x: 55, y: 365))
     arrow.line(to: NSPoint(x: 72, y: 350)); arrow.line(to: NSPoint(x: 95, y: 350)); arrow.close(); arrow.fill()
@@ -30,10 +33,25 @@ final class Delegate: NSObject, NSApplicationDelegate {
   var monitor: Any?
   var cover: NSWindow?
   let logQueue = DispatchQueue(label: "qualification-local-events")
+  var actionOutput: FileHandle!
+  var actionSequence = 0
+  func logAction(_ kind: String, extra: [String: Any] = [:]) {
+    actionSequence += 1
+    var row = extra
+    row["action"] = kind; row["sequence"] = actionSequence
+    row["fixture_pid"] = getpid(); row["window_id"] = window.windowNumber
+    row["host_ns"] = clock_gettime_nsec_np(CLOCK_UPTIME_RAW)
+    row["frame_appkit"] = [window.frame.minX, window.frame.minY, window.frame.width, window.frame.height]
+    var data = try! JSONSerialization.data(withJSONObject: row, options: [.sortedKeys]); data.append(10)
+    actionOutput.write(data)
+  }
   func applicationDidFinishLaunching(_ notification: Notification) {
     let path = Bundle.main.bundleURL.deletingLastPathComponent().appendingPathComponent("native-delivered-\(getpid()).jsonl")
     _ = FileManager.default.createFile(atPath: path.path, contents: nil)
     let output = try! FileHandle(forWritingTo: path)
+    let actionPath = path.deletingLastPathComponent().appendingPathComponent("native-actions-\(getpid()).jsonl")
+    _ = FileManager.default.createFile(atPath: actionPath.path, contents: nil)
+    actionOutput = try! FileHandle(forWritingTo: actionPath)
     monitor = NSEvent.addLocalMonitorForEvents(matching: [.keyDown, .keyUp, .flagsChanged, .leftMouseDown, .leftMouseUp, .rightMouseDown, .rightMouseUp, .mouseMoved, .leftMouseDragged, .scrollWheel]) { [weak self] event in
       let row: [String: Any] = ["type": event.type.rawValue, "event_uptime_s": event.timestamp,
         "received_uptime_ns": clock_gettime_nsec_np(CLOCK_UPTIME_RAW), "key_code": event.keyCode,
@@ -69,11 +87,21 @@ final class Delegate: NSObject, NSApplicationDelegate {
     occlude.frame = NSRect(x: 355, y: 390, width: 220, height: 32); view.addSubview(occlude)
     let menu = NSButton(title: "Open edge menu", target: self, action: #selector(openEdgeMenu))
     menu.frame = NSRect(x: 520, y: 340, width: 155, height: 32); view.addSubview(menu)
+    let marker = NSButton(title: "Advance timing marker", target: self, action: #selector(advanceMarker))
+    marker.frame = NSRect(x: 155, y: 215, width: 230, height: 32); view.addSubview(marker)
+    let resize = NSButton(title: "Resize 80 points", target: self, action: #selector(resizeFixture))
+    resize.frame = NSRect(x: 155, y: 340, width: 230, height: 32); view.addSubview(resize)
     window.contentView = view
     window.makeKeyAndOrderFront(nil)
     NSApplication.shared.activate(ignoringOtherApps: true)
   }
-  @objc func moveFixture() { window.setFrameOrigin(NSPoint(x: window.frame.minX + 80, y: window.frame.minY)) }
+  @objc func advanceMarker() {
+    guard let view = window.contentView as? FixtureView else { return }
+    view.marker = (view.marker + 1) % 3
+    logAction("marker", extra: ["marker": view.marker]); view.needsDisplay = true
+  }
+  @objc func moveFixture() { logAction("move"); window.setFrameOrigin(NSPoint(x: window.frame.minX + 80, y: window.frame.minY)) }
+  @objc func resizeFixture() { logAction("resize"); window.setContentSize(NSSize(width: window.frame.width + 80, height: window.contentView!.frame.height + 40)) }
   @objc func openEdgeMenu() {
     guard let view = window.contentView as? FixtureView else { return }
     view.makeMenu().popUp(positioning: nil, at: NSPoint(x: 650, y: 425), in: view)

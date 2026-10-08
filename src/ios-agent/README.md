@@ -55,7 +55,11 @@ observation chains its promise while preserving response/rejection identity; it
 does not retry or consume payloads. The adapter bundled, installed and passed native-to-JavaScript session/protocol
 and history-reset checks on the phone. Console/fetch forwarding has host
 integration coverage; a physical HTTP/console/error-handler matrix remains open.
-A typed domain command catalog remains a separate integration.
+A read-only domain registry now samples the registered navigation route and
+Apollo's last emitted query statuses during a lease. Route names come from a
+static code allowlist; query data, variables, error contents and cache contents
+are not exported. The cache metric counts records only. No refetch or navigation
+command is invoked. This adapter's installed-device gate is still pending.
 
 ## Installation and use
 
@@ -78,8 +82,23 @@ validation is retained; redirects are rejected to prevent credential forwarding.
 Debug build without editing project source. It injects the React prelude through
 a dedicated Metro wrapper, verifies native classes in the built binary and
 checks source hashes for changes during the build. The default embeds JavaScript;
-`--metro` retains the app's Metro URL. Updating Metro/OTA/build delivery remotely
-is a separate dev-foundation task; runtime inspection has no USB relay.
+`--metro` retains the app's Metro URL. `--runtime-config <private-config>` embeds
+the private tailnet endpoints and an offline JavaScript fallback. It snapshots
+the config for the build and never changes `mobile/local-env.js`.
+
+`python3 src/ios-agent/install_runtime.py --mobile <Kickoff-mobile>` starts the
+scoped `com.taylor.ios-agent.metro` LaunchAgent on loopback port 19404, with two
+workers. It verifies the existing personal tailnet, the guarded local backend
+processes, and local GraphQL/web readiness. It adds private Serve ports 10444
+(Metro), 10445 (local GraphQL) and 10446 (local web), preserving other routes and
+refusing port conflicts or Funnel. It does not start, seed or replace the backend.
+The current backend-container default is `default-ki-e3ee9-dev-1`; use
+`--backend-container` only for an equivalent guarded local runtime. `--restart`
+replaces this Metro job at a chosen idle point. Metro stdout/stderr are discarded
+to avoid retaining app console contents. Tailnet membership controls endpoint
+access; these endpoints have no public exposure. The native adapter checks Metro
+at launch; its upstream health check can wait up to ten seconds before selecting
+the embedded bundle. Runtime inspection has no USB relay.
 
 Agent workflow:
 
@@ -109,9 +128,15 @@ lease, device, stale result, unknown outcome and owner-event failure cases.
 With `npm ci --ignore-scripts` in `src/ios-agent/react`, it also runs the real pinned
 frontend against a synthetic backend, verifies component state, authentication,
 provider-crash cleanup, recovery and turn-end cleanup. The suite currently has
-20 tests. Run `node --test src/ios-agent/tests/test_telemetry.cjs` for the six
+22 tests. Run `node --test src/ios-agent/tests/test_telemetry.cjs src/ios-agent/tests/test_domain.cjs` for the eight
 metadata-adapter tests. Set `IOS_AGENT_MOBILE_ROOT` to the app checkout and run
-`node --test src/ios-agent/tests/test_bridge.cjs` for real prelude/event wiring.
+`node --test src/ios-agent/tests/test_bridge.cjs src/ios-agent/tests/test_transformer.cjs`
+for real prelude/event wiring and development-only runtime replacement, including
+Metro's relative filenames. The `diagnostics-probe` action sends a fixed,
+read-only `__typename` query to the configured local GraphQL route, records
+status/readiness enums, and cancels after ten seconds or lease end. It accepts
+no caller-supplied URL or query. A queued acknowledgment requires a later state
+assertion of the result.
 The UIKit simulator fixture and physical prototype evidence are
 separate artifacts; neither substitutes for the final installed SDK smoke.
 See [strategy gates](docs/STRATEGIES.md) for the remaining physical-device and

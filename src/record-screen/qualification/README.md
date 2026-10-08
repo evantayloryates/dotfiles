@@ -7,6 +7,7 @@ activates its own window; arrange production time before opening it.
 
 The October 8 findings and proposed service contracts are in
 [STRATEGY.md](STRATEGY.md). Effect styles and compositing recipes are deferred.
+The second pass and remaining acceptance gates are in [GATES.md](GATES.md).
 
 ## Helpers
 
@@ -18,7 +19,8 @@ No helper requests a new grant.
 | File | Purpose |
 | --- | --- |
 | `capture-probe.swift` | SCK screenshots, explicit pointer/child settings, capture transforms, optional helper-app exclusion |
-| `stream-probe.swift` | At most 60 seconds of frame timing/geometry metadata; no encoder or input |
+| `stream-probe.swift` | Bounded frame timing/geometry, explicit filters, optional sparse source PNGs and authored marker sampling; no encoder/input |
+| `normalize-source.py` | Qualification source packet with relative times, geometry segments, receipt/delivery evidence and marker joins |
 | `event-preflight.swift` | Existing permissions; demonstrates why unposted event timestamps cannot calibrate sync |
 | `event-observer.swift` | At most 180 seconds, listen-only annotated-session tap; fixture destination or foreground evidence, key codes without text |
 | `native-fixture.swift` | AppKit caret, app-painted arrow, native menus, controlled move and occlusion; task-local delivery log |
@@ -46,11 +48,21 @@ scope rule is deliberately simple, not the final event relevance policy.
 Outside-scope input contributes counts only. Capacity/disabled-tap counters
 must stay explicit; production callbacks need further load qualification.
 
-`stream-probe WINDOW_ID SECONDS OUTPUT.json`
+`stream-probe WINDOW_ID SECONDS OUTPUT.json [OPTIONS.json]`
+
+Options: `mode` (`isolated`, `included-window`, `rect`,
+`rect-excluding-pid`), `exclude_pid` (verified process), `include_children`,
+`margin` (display-bound only), `evidence_directory`, `sample_marker` (authored
+native fixture only). Duration is at most 60 seconds; a wall-time watchdog
+also bounds discovery/start/stop. Source PNGs are capped at 180, with two
+pending buffers; skipped previews are counted. Do not mistake these helpers'
+PNG cost for production encoding cost. Start sequentially until concurrent
+helper startup is separately qualified.
 
 Frame PTS, Mach display time converted to nanoseconds, callback reception,
 scale, content rect and screen rect are preserved. Clock agreement does not
-establish an action-to-pixel latency bound. Never interpolate through a
+establish an action-to-pixel latency bound. Marker joins use fixture handling,
+not physical-input or dispatch timestamps. Never interpolate through a
 display reconfiguration without starting a new geometry segment.
 
 ## Fixture and cleanup
@@ -61,6 +73,15 @@ Wrap the native binary in a task-owned `.app` with a matching
 the bundle, containing no characters. Prefer its observed AX controls over
 hard-coded coordinates. Use its explicit edge-menu button for repeatable
 child-window tests; also test genuine right-click delivery separately.
+The marker and resize buttons provide timestamped visual/geometry transitions
+in `native-actions-PID.jsonl`, separate from `native-delivered-PID.jsonl`.
+
+`normalize-source.py --stream FILE --actions JSONL --input FILE --receipt FILE --output FILE`
+
+This produces a private prototype packet, not an installed service API.
+Transforms are candidates qualified against authored fixture pixels. Raw
+input positions remain unavailable for composition until their coordinate
+semantics are tested. Missing geometry stays unknown; origin stays uncertain.
 
 Serve the browser fixture with:
 

@@ -5,6 +5,11 @@ opt-in harness. The installed capture engine was not modified or restarted.
 Visual effect styles, cursor animation recipes and composition rendering are
 next-phase work. The supplied cursor.svg is a fixture asset only.
 
+Second-pass results superseding the initial open checks are in
+[GATES.md](GATES.md): streaming helper exclusion and visible Chrome native
+menus passed in bounded probes; marker/geometry joins now have pixel evidence.
+Production integration, robust concurrency and resource budgets remain open.
+
 ## What the tests establish
 
 | Question | Evidence | Consequence |

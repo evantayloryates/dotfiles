@@ -20,7 +20,7 @@ VERSION = 1
 MAX_BODY = 8 * 1024 * 1024
 OWNER_TIMEOUT = 20 * 60
 DEVICE_TIMEOUT = 30
-OPERATIONS = {"capabilities", "tree", "image", "tap", "gesture", "text", "react", "state"}
+OPERATIONS = {"capabilities", "tree", "image", "tap", "gesture", "text", "react", "state", "diagnostics-probe"}
 STATE = Path.home() / "Library/Application Support/ios-agent"
 SOURCE_HASH = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
 
