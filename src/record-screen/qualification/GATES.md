@@ -15,6 +15,13 @@ code is committed independently of live delivery.
 | Persisted baseline learning | Two prior app observations and one prior action block saved in the shared computer-use evidence store and independently read back. Exact app/OS/provider/display keys; seven-day expiry. | Observation times use evidence mtime; versions reconciled after the same-day runs. No automatic model training, success audit or unconditional app guarantee. |
 | Qualification startup recovery | Four synthetic tests cover stalled helpers ignoring SIGTERM, partial evidence, concurrent admission, handled supervisor interruption and subsequent successful starts. Private stdout/stderr/outcomes; only owned groups stopped. | Wrapper qualifies helper control only. Engine startup deadlines, root cause, forced supervisor termination, resource budgets and actual stalled-SDK recovery are still open. |
 
+The private unsigned candidate also passed a real socket status/list smoke:
+capture-options v1 was advertised, no recordings or warm lanes were present,
+and its owned process exited cleanly. No SDK capture or permission request was
+made. Initial fixture state exceeded the macOS Unix socket path limit; the
+engine rejected it explicitly, and a short isolated state path passed. Failure
+and recovery evidence were retained; the temporary runtime state was removed.
+
 The shared store is `/Users/taylor/.local/state/codex-bridge/capability-evidence/`;
 its contract is in `src/codex-bridge/CAPABILITY-EVIDENCE.md`. Native consumers
 use it directly without self-delegation. Existing MCP processes may require
