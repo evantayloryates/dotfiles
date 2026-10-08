@@ -1,4 +1,5 @@
 import AppKit
+import Carbon
 
 // A task-owned visual fixture. It receives real CUA input; it never synthesizes input.
 final class FixtureView: NSView {
@@ -32,6 +33,9 @@ final class Delegate: NSObject, NSApplicationDelegate {
   var window: NSWindow!
   var monitor: Any?
   var cover: NSWindow?
+  var secureProbe: NSSecureTextField!
+  var normalProbe: NSTextView!
+  var ownsSecureInput = false
   let logQueue = DispatchQueue(label: "qualification-local-events")
   var actionOutput: FileHandle!
   var actionSequence = 0
@@ -77,10 +81,28 @@ final class Delegate: NSObject, NSApplicationDelegate {
     let view = FixtureView(frame: NSRect(x: 0, y: 0, width: 700, height: 450))
     let scroll = NSScrollView(frame: NSRect(x: 24, y: 66, width: 640, height: 80))
     let text = NSTextView(frame: scroll.bounds)
+    normalProbe = text
     text.string = "Caret probe: click here, then type."
     text.font = NSFont.systemFont(ofSize: 24)
     scroll.documentView = text; scroll.borderType = .lineBorder
     view.addSubview(scroll)
+    let secure=NSSecureTextField(frame:NSRect(x:24,y:150,width:250,height:24))
+    secureProbe = secure
+    secure.placeholderString="Synthetic secure input fixture"
+    secure.setAccessibilityLabel("Secure input probe")
+    view.addSubview(secure)
+    let focusSecure=NSButton(title:"Focus secure input probe",target:self,action:#selector(focusSecureProbe))
+    focusSecure.frame=NSRect(x:390,y:110,width:260,height:30);view.addSubview(focusSecure)
+    let focusNormal=NSButton(title:"Focus normal input probe",target:self,action:#selector(focusNormalProbe))
+    focusNormal.frame=NSRect(x:390,y:150,width:260,height:30);view.addSubview(focusNormal)
+    let protect=NSButton(title:"Begin protected input canary",target:self,action:#selector(beginProtectedInput))
+    protect.frame=NSRect(x:390,y:65,width:260,height:30);view.addSubview(protect)
+    let release=NSButton(title:"End protected input canary",target:self,action:#selector(endProtectedInput))
+    release.frame=NSRect(x:390,y:195,width:260,height:30);view.addSubview(release)
+    let external=NSButton(title:"Move to external display",target:self,action:#selector(moveExternal))
+    external.frame=NSRect(x:390,y:300,width:260,height:30);view.addSubview(external)
+    let home=NSButton(title:"Return to built-in display",target:self,action:#selector(moveHome))
+    home.frame=NSRect(x:390,y:265,width:260,height:30);view.addSubview(home)
     let move = NSButton(title: "Move 80 points", target: self, action: #selector(moveFixture))
     move.frame = NSRect(x: 160, y: 390, width: 180, height: 32); view.addSubview(move)
     let occlude = NSButton(title: "Toggle test occlusion", target: self, action: #selector(toggleCover))
@@ -94,6 +116,44 @@ final class Delegate: NSObject, NSApplicationDelegate {
     window.contentView = view
     window.makeKeyAndOrderFront(nil)
     NSApplication.shared.activate(ignoringOtherApps: true)
+  }
+  @objc func focusSecureProbe() {
+    NSApp.activate(ignoringOtherApps:true)
+    window.makeKeyAndOrderFront(nil)
+    window.makeFirstResponder(secureProbe)
+    logAction("focus_secure_probe")
+  }
+  @objc func focusNormalProbe() {
+    NSApp.activate(ignoringOtherApps:true)
+    window.makeKeyAndOrderFront(nil)
+    window.makeFirstResponder(normalProbe)
+    logAction("focus_normal_probe")
+  }
+  @objc func beginProtectedInput() {
+    focusSecureProbe()
+    if !ownsSecureInput { ownsSecureInput = EnableSecureEventInput() == noErr }
+    logAction("protected_input_begin",extra:["owns_secure_input":ownsSecureInput,"secure_input_enabled":IsSecureEventInputEnabled()])
+  }
+  @objc func endProtectedInput() {
+    if ownsSecureInput { _ = DisableSecureEventInput();ownsSecureInput=false }
+    focusNormalProbe()
+    logAction("protected_input_end",extra:["secure_input_enabled":IsSecureEventInputEnabled()])
+  }
+  func applicationWillTerminate(_ notification: Notification) {
+    if ownsSecureInput { _ = DisableSecureEventInput();ownsSecureInput=false }
+  }
+  @objc func moveExternal() {
+    guard let screen=NSScreen.screens.first(where:{ ($0.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value != 1 }) else {
+      logAction("external_display_unavailable");return
+    }
+    let frame=screen.visibleFrame
+    window.setFrameOrigin(NSPoint(x:frame.minX+120,y:frame.minY+100))
+    logAction("move_external",extra:["display_id":(screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value ?? 0])
+  }
+  @objc func moveHome() {
+    guard let screen=NSScreen.screens.first(where:{ ($0.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value == 1 }) else { return }
+    window.setFrameOrigin(NSPoint(x:screen.frame.minX+120,y:screen.frame.minY+160))
+    logAction("move_home",extra:["display_id":1])
   }
   @objc func advanceMarker() {
     guard let view = window.contentView as? FixtureView else { return }

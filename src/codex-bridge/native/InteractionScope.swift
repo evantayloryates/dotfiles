@@ -74,6 +74,9 @@ struct InteractionScopePolicy {
     var reasons: [String] = []
     var certainty = "candidate"
     if event.keyboard {
+      // Secure-input protection takes precedence even if an injected event is
+      // still delivered to this passive tap. Retain coverage gaps, not codes.
+      if event.secureInput { return InteractionDecision(reasons:[],certainty:"secure_input_omitted",actionIDs:[]) }
       if destination { reasons.append("destination_app"); certainty = "app_delivery_window_unresolved" }
       else if foreground { reasons.append("foreground_app_candidate") }
       if !context.actionIDs.isEmpty && !destination {

@@ -12,6 +12,25 @@ snapshot rejection and explicit age/stall/cost diagnostics. It has not been
 launched/live-tested. Last live-qualified candidate remains 99752c4615cf. Resume
 with its offload/lifecycle canary. Private pause/runtime evidence is in gates-v5.
 
+## Sixth pass: background context and cross-display evidence
+
+Resumed October 8 at 20:01 UTC under the existing production interval. Installed
+production remains untouched; signed isolated build 17b8543c1052 was used.
+
+| Gate | Actual result | Limit |
+| --- | --- | --- |
+| Single background window producer | 113 assertions passed: blocked query, one stall gap, retained unfinished slot, rejected old-generation result, fresh recovery and unavailable-query gap. Window discovery now runs on a utility queue rather than the listener run loop. | Synthetic discovery faults; no claim of terminating an uncooperative Quartz producer. |
+| Live offload/subscriber lifecycle | 1,119 main context refreshes averaged 2.202 ms, max 7.633 ms. Background window queries averaged 1.885 ms, max 14.063 ms. Zero input queue overflow; listener returned inactive with zero subscribers after both takes. | Component wall cost, not CPU attribution or guaranteed input latency. Earlier measured foreground enumeration mean was 11.663 ms. |
+| Retina/external/return geometry | Real owned AX actions moved the fixture from display 1 (scale 2) to display 5 (scale 1, negative global origin), then back. Four actual encoded marker PNGs matched their own geometry-segment transforms with zero edge error. Encoded canvas stayed 1400×964 while external content used 1× pixels. | Authored fixture only. Input position remains unqualified; idle callbacks with absent geometry stay null. |
+| Delivered events across displays | 24/24 delivered key/modifier events matched retained events by type/code and exact original event timestamp. Source/handler clocks stay separate. | This provider/fixture, not physical-input latency or sleep-safe global clock equivalence. |
+| Source/mux timing | 8,315 cross-display samples and 2,618 secure-field take samples matched journal timestamps exactly. Both journals closed with zero lost rows and zero reported encoder drops. | Accepted callback ledger, not an OS source-drop measurement. |
+| Secure-field behavior | Owned NSSecureTextField received synthetic keys; all 16 delivered key/modifier events were retained and the global protected-input flag stayed false. | A secure field alone did not exercise global suppression for this provider. Protected-input canary and explicit omission/recovery checks are next; listener health is not complete coverage. |
+
+Private gates-v6 contains frozen sources, compile/test output, both take manifests,
+exact packet proofs, key correspondence, source PNGs and sampled status. The
+pixel verifier now selects frames from their actual geometry segment and skips
+absent transforms; it no longer borrows a later segment to validate an earlier one.
+
 ## Fifth pass: input scope and contextual action blocks
 
 Production remains the original signed engine (PID 840, build cd78c24b652e);

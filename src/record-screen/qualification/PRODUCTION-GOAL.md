@@ -1,6 +1,6 @@
 # Production qualification goal
 
-October 8, 2026. Goal paused at Taylor's request before the 3 p.m. call. Objective: complete staged smoke testing, verification,
+October 8, 2026. Goal resumed by Taylor on October 8 at 20:01 UTC. Objective: complete staged smoke testing, verification,
 iteration and production delivery of capture foundations and their shared
 computer-use contracts. The goal remains open until delivered behavior and
 agent expectations are verified. Visual effects, cursor styling and final
@@ -88,3 +88,5 @@ snapshot staleness, and reports a query stalled past two seconds. It compiled
 successfully but has not been launched/live-qualified. Last live-qualified build
 is 99752c4615cf. Resume with the offload canary and failure/lifecycle checks before
 cross-display, Chrome/Electron depth, resources and production delivery.
+
+Resume: explicit go-ahead received. The earlier clean pause remains historical; production-window permission is still valid. Start with window-context sampler lifecycle and live canary.

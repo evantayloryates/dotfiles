@@ -16,6 +16,9 @@ final class TestClock: @unchecked Sendable {
     var key=InteractionSample(type:10,receivedNS:100,destinationPID:100,keyCode:12)
     check(policy.evaluate(key,context).retain,"keys delivered to app without focused text input")
     check(policy.evaluate(key,context).certainty=="app_delivery_window_unresolved","keyboard window uncertainty explicit")
+    key.secureInput=true
+    check(!policy.evaluate(key,context).retain,"protected input never retains keyboard codes even if delivered")
+    key.secureInput=false
     key.destinationPID=200; context.foregroundPID=200
     check(!policy.evaluate(key,context).retain,"unrelated unmodified typing excluded")
     context.actionIDs=["a"]; key.flags=1<<20

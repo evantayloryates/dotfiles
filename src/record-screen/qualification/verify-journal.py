@@ -55,7 +55,16 @@ def fixture_pixels(video, sources, geometry, encoded, output):
     from PIL import Image
     proofs = []
     for segment, row in geometry.items():
-        sample = next((e for e in encoded if e['source_frame'] >= row['first_source_frame'] + 6), None)
+        # Idle/status samples may legitimately have no geometry. Never borrow
+        # a frame from a later segment and claim it verifies this transform.
+        geom = row['geometry']
+        if not geom.get('screen_points') or not geom.get('desktop_points_to_source_pixels'):
+            continue
+        candidates_for_segment = [e for e in encoded
+                                  if sources[e['source_frame']]['geometry_segment'] == segment]
+        sample = next((e for e in candidates_for_segment
+                       if e['source_frame'] >= row['first_source_frame'] + 6),
+                      candidates_for_segment[-1] if candidates_for_segment else None)
         if not sample:
             continue
         index = sample['encoded_sequence']
@@ -88,7 +97,7 @@ def fixture_pixels(video, sources, geometry, encoded, output):
             proofs.append({'segment': segment, 'passed': False, 'error': 'authored marker absent'}); continue
         bounds = [min(x for x, y in points), min(y for x, y in points),
                   max(x for x, y in points) + 1, max(y for x, y in points) + 1]
-        g = row['geometry']; screen = g['screen_points']; a, b, c, d, tx, ty = g['desktop_points_to_source_pixels']
+        screen = geom['screen_points']; a, b, c, d, tx, ty = geom['desktop_points_to_source_pixels']
         # Fixture's known marker: x=24..124, y=220..244 in content; 32pt titlebar.
         desktop = [screen['x'] + 24, screen['y'] + 252, screen['x'] + 124, screen['y'] + 276]
         expected = [a*desktop[0]+c*desktop[1]+tx, b*desktop[0]+d*desktop[1]+ty,
