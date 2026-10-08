@@ -17,3 +17,5 @@ test('full cells persist with explicit row pagination and resumable character pa
  assert.throws(()=>storeSourcePage([{data:Buffer.from('invented')}],1,root),/binary_refused/)
  assert.throws(()=>storeSourcePage([{text:'x'.repeat(2000001)}],1,root),/too_large_narrow_query/)
 })
+
+test('metadata-only capture supports500 structured rows under unchanged byte cap',t=>{const root=mkdtempSync(join(realpathSync(tmpdir()),'zdr-source-test-'));t.after(()=>rmSync(root,{recursive:true,force:true}));const rows=Array.from({length:501},(_,id)=>({id,n:id*2}));const result=JSON.parse(storeSourcePage(rows,500,root));assert.equal(result.rowCount,500);assert.equal(result.hasMore,true);assert.ok(!Object.hasOwn(result,'rows'));assert.throws(()=>storeSourcePage(rows,501,root),/arguments_invalid/)})

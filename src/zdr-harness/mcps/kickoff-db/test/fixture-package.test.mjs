@@ -137,3 +137,13 @@ test('one-item supplement binds baseline, leaves primary immutable and requires 
   assert.equal(releaseFixture(join(root, supplement), receipt, destination).bundles, 1)
   assert.throws(() => call({ action: 'create', references, baseline_package_id: supplement }), /fixture_baseline_invalid/)
 })
+
+test('protected chunk diagnostics expose only declaration failures, with no sensitive row values', t => {
+  const { call, id } = setup(t)
+  call({ action: 'add_rows', package_id: id, bundle_id: 'fictional', table: 'calls', chunk_id: 'first', rows: [{ id: 'SENSITIVE_ROW', payload: { people: [{ clientId: 'SENSITIVE_FK' }] } }] })
+  const result = call({ action: 'diagnose', package_id: id, bundle_id: 'fictional' })
+  assert.equal(result.referenceFailures[0].unresolved, 1)
+  assert.equal(result.referenceFailures[0].field, 'payload.people.*.clientId')
+  assert.equal(JSON.stringify(result).includes('SENSITIVE'), false)
+  assert.throws(() => call({ action: 'diagnose', package_id: id, bundle_id: '../elsewhere' }), /fixture_chunk_invalid/)
+})

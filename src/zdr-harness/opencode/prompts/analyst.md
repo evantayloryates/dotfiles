@@ -219,3 +219,24 @@ and paged readers support long jobs. Checkpoint source cursors and key maps
 privately after each small batch. Release excludes that working state.
 Readbacks can contain PHI: never echo them through the bridge. Do not abandon
 preparation just because independent release review is still pending.
+
+For explicitly requested fixture transformation, paged free-text/transcript
+reads inside ZDR are necessary preparation, distinct from counting or theme
+analysis. Process bounded batches; do not replace required full transformed
+transcripts with summaries. The bulk-analysis/classifier guidance above does
+not prohibit this requested governed transformation.
+
+fixture_source_page action import privately stages captured rows via explicit
+field rules and customer routing without dumping structured rows into chat.
+Use fields as an object keyed by OUTPUT column: each rule has kind and (except
+constant) source. Example: {"id":{"kind":"id","source":"id",
+"namespace":"event"},"client_id":{"kind":"id","source":"client_id",
+"namespace":"client"},"value":{"kind":"decimal","source":"value",
+"nullable":true}}. Route with route_field and routes containing source_value,
+bundle_id and date_shift_days. Source pages must be distinct. Specify omissions
+reasons for captured fields not mapped and preserve them in loss/parity reports.
+Strings from mysql DECIMAL need decimal rules; number requires numeric values.
+Use original source IDs for ordinals before rekeying. Text requires per-page,
+per-original-row-id replacements authored inside ZDR; import never clears
+privacy. Correct actionable validation errors and retry the same protected
+batch rather than abandoning preparation after one failed call.

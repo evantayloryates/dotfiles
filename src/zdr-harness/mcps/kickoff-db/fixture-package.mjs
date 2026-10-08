@@ -2,6 +2,7 @@
 import { createHash, randomBytes } from 'node:crypto'
 import { mkdirSync, lstatSync, realpathSync, readFileSync, writeFileSync, readdirSync, renameSync } from 'node:fs'
 import { join, resolve, parse, dirname } from 'node:path'
+import { diagnoseBundle } from './fixture-diagnostics.mjs'
 
 const token = /^[a-z][a-z0-9_-]{0,63}$/i
 const validToken = value => typeof value === 'string' && token.test(value)
@@ -139,11 +140,11 @@ export function validateBundle(bundle, refs, catalog = null) {
 export const fixtureTool = {
   name: 'fixture_package',
   title: 'Stage a Call Guidance fixture package inside ZDR',
-  description: 'Restricted protected-file writer for Data Loader. create; put_bundle (one complete transformed customer at a time); put_report (schema, transformation, loss, categories, parity or privacy); finalize; status. list/resume/checkpoint provide durable recovery; read_bundle/read_report page sensitive staged content only inside ZDR. add_rows stages idempotent table chunks, seal_bundle validates/assembles a customer. put_catalog saves shared catalog tables; references targetScope:catalog resolves their keys. Primary packages require exactly ten bundles. create with baseline_package_id makes a separate exactly-one-bundle supplement; primary stays immutable. Supplement finalize binds the finalized primary manifest hash; release requires baseline release plus independent approval of joint package context. Validates declared primary/foreign keys including nested dot paths and array *. Does NOT deidentify or certify source parity. release requires an operator-written approval receipt bound to all package bytes and transfers only to the fixed Taylor-requested Desktop/zdr-dump destination. No caller-selected paths; summaries only. Package contents and reports remain sensitive inside ZDR.',
+  description: 'Restricted protected-file writer for Data Loader. create; put_bundle (one complete transformed customer at a time); put_report (schema, transformation, loss, categories, parity or privacy); finalize; status. list/resume/checkpoint provide durable recovery; read_bundle/read_report page sensitive staged content only inside ZDR. add_rows stages idempotent table chunks, seal_bundle validates/assembles a customer. put_catalog saves shared catalog tables; references targetScope:catalog resolves their keys. Primary packages require exactly ten bundles. create with baseline_package_id makes a separate exactly-one-bundle supplement; primary stays immutable. Supplement finalize binds the finalized primary manifest hash; release requires baseline release plus independent approval of joint package context. Validates declared primary/foreign keys including nested dot paths and array *. Does NOT deidentify or certify source parity. release requires an operator-written approval receipt bound to all package bytes and transfers only to the fixed Taylor-requested Desktop/zdr-dump destination. No caller-selected paths; summaries only. diagnose returns schema-only failed reference declarations and duplicate-key counts from staged chunks or a sealed bundle, with no records or identifier values. Package contents and reports remain sensitive inside ZDR.',
   inputSchema: {
     type: 'object', additionalProperties: false, required: ['action'],
     properties: {
-      action: { type: 'string', enum: ['create', 'put_bundle', 'put_report', 'finalize', 'status', 'release', 'list', 'checkpoint', 'resume', 'read_bundle', 'read_report', 'add_rows', 'seal_bundle', 'put_catalog', 'read_catalog', 'read_chunk'] },
+      action: { type: 'string', enum: ['create', 'put_bundle', 'put_report', 'finalize', 'status', 'release', 'list', 'checkpoint', 'resume', 'read_bundle', 'read_report', 'add_rows', 'seal_bundle', 'put_catalog', 'read_catalog', 'read_chunk', 'diagnose'] },
       package_id: { type: 'string' }, baseline_package_id: { type: 'string' },
       references: { type: 'array', items: { type: 'object', required: ['table', 'field', 'targetTable'], additionalProperties: false, properties: { table: { type: 'string' }, field: { type: 'string' }, targetTable: { type: 'string' }, nullable: { type: 'boolean' }, targetScope: { type: 'string', enum: ['bundle', 'catalog'] } } } },
       bundle: { type: 'object', required: ['bundleId', 'tables'], properties: { bundleId: { type: 'string' }, tables: { type: 'object' } }, additionalProperties: false },
@@ -238,8 +239,9 @@ export function fixturePackage(args, root) {
       requireThat(readdirSync(chunkDir).length < 1000 || readdirSync(chunkDir).includes(args.chunk_id + '.json'), 'fixture_chunk_limit')
       return encode({ stored: true, sha256: protectedWrite(join(chunkDir, args.chunk_id + '.json'), args.rows), released: false })
     }
-    if (args.action === 'seal_bundle') {
-      requireThat(!finalized && validToken(args.bundle_id), 'fixture_chunk_invalid')
+    if (['seal_bundle', 'diagnose'].includes(args.action)) {
+      requireThat((args.action === 'diagnose' || !finalized) && validToken(args.bundle_id), 'fixture_chunk_invalid')
+      if (args.action === 'diagnose' && readdirSync(join(dir, 'customers')).includes(args.bundle_id + '.json')) return encode({ package_id: args.package_id, ...diagnoseBundle(protectedRead(join(dir, 'customers', args.bundle_id + '.json')), contract.references, catalog), released: false })
       const chunkDir = protectedDirectory(join(dir, 'chunks', args.bundle_id))
       const tables = {}
       requireThat(readdirSync(chunkDir).length > 0, 'fixture_chunk_missing')
@@ -255,6 +257,7 @@ export function fixturePackage(args, root) {
           requireThat(Buffer.byteLength(encode(tables)) <= 8_000_000, 'fixture_bundle_too_large')
         }
       }
+      if (args.action === 'diagnose') return encode({ package_id: args.package_id, ...diagnoseBundle({ bundleId: args.bundle_id, tables }, contract.references, catalog), released: false })
       return fixturePackage({ action: 'put_bundle', package_id: args.package_id, bundle: { bundleId: args.bundle_id, tables } }, root)
     }
     if (args.action === 'put_bundle') {

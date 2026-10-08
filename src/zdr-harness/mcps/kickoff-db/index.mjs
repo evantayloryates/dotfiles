@@ -30,7 +30,7 @@ import { gunzipSync } from 'node:zlib'
 import { fixtureTool, fixturePackage } from './fixture-package.mjs'
 import { fixtureContextTool, fixtureContext } from './fixture-context.mjs'
 import { fixtureOrdinalTool, ordinalFromRows } from './fixture-ordinal.mjs'
-import { fixtureSourceTool, storeSourcePage, readSourcePage } from './fixture-source-page.mjs'
+import { fixtureSourceTool, SOURCE_PAGE_MAX_ROWS, storeSourcePage, readSourcePage } from './fixture-source-page.mjs'
 import { importSourcePages } from './fixture-import.mjs'
 import { fixtureFactsTool, fixtureFacts } from './fixture-facts.mjs'
 
@@ -770,7 +770,7 @@ async function fixtureSourcePage(args) {
     const statement = checkSql(args.sql)
     if (!/^SELECT\b/i.test(statement)) throw new Error('fixture_source_select_required')
     const limit = args.limit ?? 25
-    if (!Number.isInteger(limit) || limit < 1 || limit > 50) throw new Error('fixture_source_arguments_invalid')
+    if (!Number.isInteger(limit) || limit < 1 || limit > SOURCE_PAGE_MAX_ROWS) throw new Error('fixture_source_arguments_invalid')
     const c = await connection()
     const [rows] = await c.query(`SELECT * FROM (${statement}) AS fixture_source_rows LIMIT ${limit + 1}`)
     return storeSourcePage(rows, limit, root)

@@ -156,3 +156,11 @@ bound baseline and `jointPackageContextCleared:true`, based on actual qualified
 review of the added customer and combined context. Release requires the baseline
 already released at the fixed destination with the matching manifest hash.
 One-item support does not relax the ten-customer primary rule or privacy gate.
+
+`diagnose {package_id,bundle_id}` checks assembled staged chunks (or an existing
+sealed bundle) without writing them. It reports only failing declared
+`table/field/targetTable/targetScope` and unresolved/missing-field counts, plus
+per-table invalid/duplicate primary-key counts. It never returns records,
+reference values or primary keys. It uses the same protected path and assembled
+size bounds as seal, and does not certify source parity or privacy. Repair the
+actual source-backed references; do not weaken declarations just to obtain a pass.
