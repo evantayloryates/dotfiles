@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Install this personal service, preserving existing enrollment and Serve config."""
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -12,6 +13,7 @@ import sys
 import time
 from urllib.parse import urlparse
 from service import STATE
+from cli import request
 
 ROOT = Path(__file__).resolve().parent
 LABEL = "com.taylor.ios-agent"
@@ -30,6 +32,22 @@ def write_private(path, value):
     fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
     with os.fdopen(fd, "w") as f:
         json.dump(value, f)
+
+
+def wait_ready(state, expected_hash, timeout=8):
+    """Registration alone is not readiness; verify the actual responding worker."""
+    deadline = time.monotonic() + timeout
+    while True:
+        try:
+            status = request({"op": "status"}, state)
+        except (OSError, ValueError, RuntimeError):
+            if time.monotonic() >= deadline:
+                raise RuntimeError("registered_worker_not_ready")
+            time.sleep(0.1)
+            continue
+        if status.get("sourceHash") != expected_hash:
+            raise RuntimeError("running_worker_source_differs; use_--restart_at_idle")
+        return
 
 
 def main():
@@ -108,7 +126,8 @@ def main():
             if subprocess.run(["launchctl", "print", f"{domain}/{LABEL}"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0:
                 break
             time.sleep(0.2)
-    print(json.dumps({"installed": True, "restarted": a.restart, "provisioned": bool(a.provision_device), "tailnetAccount": user["LoginName"], "source": str(ROOT)}))
+    wait_ready(STATE, hashlib.sha256((ROOT / "service.py").read_bytes()).hexdigest())
+    print(json.dumps({"installed": True, "workerReady": True, "sourceVerified": True, "restarted": a.restart, "provisioned": bool(a.provision_device), "tailnetAccount": user["LoginName"], "source": str(ROOT)}))
 
 
 if __name__ == "__main__":

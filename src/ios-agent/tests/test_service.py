@@ -47,12 +47,23 @@ class BrokerTests(unittest.TestCase):
                 self.call(op="action", action="wifi", args=args)
         cid = self.call(op="action", action="wifi", args={"state": "off"})["id"]
         self.assertEqual(self.next()["command"]["id"], cid)
-        self.result(cid, result={"delivery": "prepared-shortcut-handoff", "radioVerified": False})
-        self.b.device_request({**self.device, "op": "cancel", "lease": "lease", "epoch": self.b.epoch})
+        ack = self.result(cid, result={"delivery": "prepared-shortcut-handoff", "requested": "off", "radioVerified": False})
+        self.assertEqual(ack["handoff"], cid)
+        self.assertIsNone(ack["lease"])
+        self.assertEqual(self.b.last_release["reason"], "device_wifi_handoff")
         self.assertIsNone(self.b.lease)
         self.assertEqual(self.call(op="result", id=cid)["result"]["radioVerified"], False)
         with self.assertRaisesRegex(service.Rejected, "lease_required"):
             self.call(op="action", action="wifi", args={"state": "on"})
+        with self.assertRaisesRegex(service.Rejected, "stale_result"):
+            self.result(cid, result={"delivery": "prepared-shortcut-handoff", "requested": "off"})
+
+    def test_wifi_failure_does_not_authorize_a_handoff(self):
+        cid = self.call(op="action", action="wifi", args={"state": "on"})["id"]
+        self.next()
+        ack = self.result(cid, result={"error": "wifi_handoff_pending"})
+        self.assertNotIn("handoff", ack)
+        self.assertIsNotNone(self.b.lease)
 
     def test_single_flight_no_replay_and_result_fencing(self):
         cid = self.action()

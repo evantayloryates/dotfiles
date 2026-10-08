@@ -19,13 +19,14 @@ have their own installed-build evidence before being called qualified.
    Wi-Fi while the human is using the phone.
 2. Request `ios-agent action wifi --args '{"state":"off"}' --lease-file <private>`.
    This is a semantic OS-settings handoff, not simulated touch input.
-3. The host first records **prepared-shortcut-handoff**. Only after the native
-   adapter receives its acknowledgment with the same active lease does it
-   open Shortcuts. This acknowledgment does not prove execution or radio state.
+3. The host first records **prepared-shortcut-handoff**, ends normal control and
+   authorizes that exact command ID in its acknowledgment. The native adapter
+   accepts this once, checks the epoch and originating lease, removes its glow,
+   then opens Shortcuts. This acknowledgment does not prove execution or radio state.
 4. Shortcuts runs the fixed action and returns to Kickoff using Apple's
    x-callback-url. The one-time nonce expires in 60 seconds. Error contents and
-   result text are not exported. Backgrounding clears the glow, ends normal
-   control and stops React inspection. A callback grants no control.
+   result text are not exported. Normal control and React inspection have already
+   ended before the handoff. A callback grants no control.
 5. Wait for return, no pending React cleanup, and a fresh foreground connection.
    Acquire a new lease. Inspect `state.wifiHandoff`: **returned**, **failed**,
    **cancelled**, **expired**, or **opened** are distinct. Check actual app

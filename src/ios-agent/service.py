@@ -192,6 +192,7 @@ class Broker:
             if not isinstance(boot, str) or not 1 <= len(boot) <= 128:
                 raise Rejected("boot_required")
             op = request.get("op")
+            handoff = None
             if op == "hello":
                 if self.device and self.device["boot"] != boot:
                     self.revoke("device_restarted")
@@ -216,6 +217,12 @@ class Broker:
                 if not self.lease or not cmd or cmd["status"] != "sent" or cmd["lease"] != self.lease["id"] or request.get("epoch") != self.epoch or self.clock() > cmd["deadline"]:
                     raise Rejected("stale_result")
                 cmd.update(status="completed", result=request.get("result"))
+                result = request.get("result")
+                if cmd["action"] == "wifi" and isinstance(result, dict) and result.get("delivery") == "prepared-shortcut-handoff" and result.get("requested") == cmd["args"]["state"] and "error" not in result:
+                    # Retire normal control before a settings change can drop the
+                    # network. The acknowledgment authorizes only this prepared ID.
+                    handoff = cmd["id"]
+                    self.revoke("device_wifi_handoff")
                 self.cv.notify_all()
             elif op == "next":
                 # Wake immediately on revocation; bounded idle responses renew app-side expiry.
@@ -227,6 +234,8 @@ class Broker:
             elif op != "hello":
                 raise Rejected("unsupported_device_operation")
             response = {"version": VERSION, "epoch": self.epoch, "lease": self.lease_wire()}
+            if handoff:
+                response["handoff"] = handoff
             while self.queue:
                 cmd = self.commands[self.queue.pop(0)]
                 if not self.lease or self.clock() > cmd["deadline"]:

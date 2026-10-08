@@ -382,10 +382,11 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
   if(![command isKindOfClass:NSDictionary.class]) { [self poll]; return; }
   [self execute:command completion:^(NSDictionary *result){
    [self exchange:@{@"op":@"result",@"id":command[@"id"],@"epoch":command[@"epoch"],@"result":result} completion:^(NSDictionary *ack){
+    BOOL wifiHandoff=ack && [self leased] && [command[@"lease"] isEqual:self.lease] && [command[@"epoch"] isEqual:ack[@"epoch"]] && [command[@"action"] isEqual:@"wifi"] && [ack[@"handoff"] isEqual:command[@"id"]] && !result[@"error"];
     if(ack) [self apply:ack]; else self.helloNeeded=YES;
-    // Launch only after the host has recorded the result and renewed this lease.
-    // Foreground loss then revokes normal control; the callback grants no lease.
-    if(ack && [self leased] && [command[@"lease"] isEqual:self.lease] && [command[@"action"] isEqual:@"wifi"] && !result[@"error"]) IOSAgentWiFiLaunch(command[@"id"]);
+    // The host has recorded this result and retired normal control before launch.
+    // The fenced acknowledgment grants one fixed handoff; a callback grants no lease.
+    if(wifiHandoff) IOSAgentWiFiLaunch(command[@"id"]);
     [self poll];
    }];
   }];

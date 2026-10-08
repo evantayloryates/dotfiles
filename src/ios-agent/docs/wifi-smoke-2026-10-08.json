@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-08",
+  "scope": "Personal developer iPhone; fixed Apple Shortcuts; no XCTest",
+  "usbActuator": {
+    "phoneUnlocked": true,
+    "beforeAssociated": true,
+    "afterOffAssociated": false,
+    "afterOnAssociated": true,
+    "settingsSwitchOnIndependentlyObserved": true,
+    "manualWiFiChangeRequired": false,
+    "xctestStarted": false
+  },
+  "timedMirroringExperiment": {
+    "mirroringDisconnectedAfterOff": true,
+    "recoveryWhileLockedNotQualified": true,
+    "causeEstablished": false,
+    "retiredAsOnOnlyRecoveryRetry": true
+  },
+  "initialAppHandoff": {
+    "phonePhysicallyLockedUnderMirroring": true,
+    "requested": "on",
+    "stateReported": "failed",
+    "failureOriginNotYetEstablished": true,
+    "leaseEndedByTimeout": true
+  },
+  "revisedHandoff": {
+    "hostEndsLeaseBeforeOpeningShortcuts": true,
+    "hostTestsPassed": 29,
+    "nativeCallbackFenceSimulatorPassed": true,
+    "installedPhoneSmoke": "pending",
+    "unpluggedCellularSmoke": "pending",
+    "installerActualWorkerReadinessVerified": true,
+    "nativeExecutableSHA256": "2c65d6659cc4859de1fffe8a52079e946aa2dba5fbd8bc46882f6d5df9737c56",
+    "embeddedJSSHA256": "7950d7a48abfbf9312b266f1bcd9e5d521e53410ec558b8d044937e52a59df02"
+  },
+  "radioProofBoundary": "Association metadata and interface flags alone are not the Settings radio switch."
+}
