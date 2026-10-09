@@ -1,5 +1,77 @@
 # Qualification update — October 9, 2026
 
+## Thirty-first pass: production planning delivered and readiness failure retained
+
+Current signed native build remains f314bb340344, PID35547, healthy and idle.
+No native build, restart, grant change or capture occurred in this stage.
+The previous sparse repair and full paired source proof remain authoritative.
+
+### Native readiness boundary
+
+Chrome154.0.8037.98/build8037.98 on OS25F80: two full application reads timed
+out; a separate Dock read also timed out. This is observation failure, not an
+app-specific cause or new WindowServer crash. The Chrome browser provider
+successfully created owned synthetic tab1424518068 with the native-select
+accessibility structure. Recorder inventory still reported shared window119
+off screen, titled Kickoff. One shortcut request returned and the authored
+page event count changed to4, but independent inventory showed no new window.
+Neither accepted input nor tab accessibility established native capture readiness.
+
+No shortcut replay, unrelated-window capture or alternate low-level UI route.
+Only the owned tab closed; seven existing tabs remained. Owned loopback
+server42703 was stopped/reaped (PTY exit143); session ses_94m3q8dy closed.
+Three terminal scopes imported centrally: two verified, one failed, all cleanup
+completed, zero uncovered/truncated rows. A mixed exact-entity readiness fact
+was appended/read back; unknown provider/profile dimensions keep reuse
+unconfirmed. Earlier popup pixel passes were not rolled back; dynamic fitting
+remains partial because this attempt never reached its capture precondition.
+
+### Read-only planning contract
+
+New library/CLI/MCP production_plan v1 returns explicit background/cooperative/
+reserved_interval expectations, caller-declared alignment bounds, observed
+runtime obstacles, separate cursor layers, scoped measured cost and recovery
+choices. Strict requests require exact window IDs and preserve configurable
+duration/fps/width/cursor/input/redundancy. The tool starts no capture, drives no
+UI, changes no permission and creates no input/display lock. Consent is never
+authenticated or granted by the caller field.
+
+Background UI work needs an agreed production mode. Cooperative UI and every
+reserved claim require a caller-reported interval covering the intended duration.
+Off-screen UI targets fail assessment while passive window capture can remain
+an explicit source-check candidate. Missing targets/access/capabilities,
+maintenance, discovery quarantine and off-display rectangles remain explicit.
+No observed obstacle means candidate_requires_source_check, never ready/success.
+Native provider delivery, actual encoded pixels and shared app facts are next.
+
+The point-pair benchmark is preserved as one authored50s /1000×732 /30fps pair,
+not extrapolated to capacity, P80, thermals or the requested app. Requested
+settings differences are returned; matching geometry still does not make the
+requested app representative. Max16 remains configured only; P80 stays null.
+Pointer hiding/helper exclusions cannot promise removal of content carets or
+app-painted cursors. Recovery keeps input available and preserved source gaps.
+
+Five new tests plus three adjacent option/reconnect tests passed. Actual MCP
+fixture method trace contains only status/windows.list; malformed input performs
+no RPC. Read reconnect and no-mutation-replay behavior remain passed. Fresh owned
+adapter0.9.0 advertised production_planning:1 and the read-only tool; live plan
+reported the real off-Space target and missing caller-declared interval. That
+test deliberately omitted the current authorization field to qualify its
+missing-information path, not to revoke Taylor's standing test permission.
+
+Live before/after: native build/PID unchanged, zero unfinished captures, input
+subscribers, preview lanes and active scopes. CLI background display plan also
+returned only a source-check candidate. Owned MCP49888 exited0, no stderr.
+Existing harness consumer still lacks adapter metadata; its planning support
+remains unknown and no peer restart was attempted. Native source hash unchanged.
+
+Checklist completion promotes the published clean-layer capability/requalification
+contract and human mode/alignment/recovery expectations. Broader app/provider
+pixels and production capacity remain on their existing partial gates. No new
+cursor/menu pixel guarantee or composition work is inferred from planning tests.
+Raw readiness, action/fact/audit, live plan, test logs and cleanup proofs are
+private gates-v31; source/runbook/tests are in the qualification kit and README.
+
 ## Thirtieth pass: sparse writer repair delivered with actual paired motion
 
 The actual stage29 failure led to SparseFramePadding: preserve nanosecond media

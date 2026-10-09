@@ -8,9 +8,10 @@ import { callerContext } from "./lib/caller.mjs";
 import { EngineClient, EngineError } from "./lib/client.mjs";
 import { hasCaptureOptions, requireCaptureOptions } from "./lib/capture-options.mjs";
 import { mapDerivativeTimes } from "./lib/derivative-source.mjs";
+import { planProduction, productionPlanSchema, validateProductionRequest } from "./lib/production-plan.mjs";
 
 const log = (...args) => console.error("[record-screen]", ...args);
-const VERSION = "0.8.0";
+const VERSION = "0.9.0";
 
 // ---------------------------------------------------------------- engine link
 
@@ -103,6 +104,18 @@ const ok = (v) => ({ content: [{ type: "text", text: text(v) }], isError: false 
 
 const tools = [
   {
+    name: "production_plan",
+    description: "Read-only capture planning: explicit background/cooperative/reserved expectations, caller-reported production interval, cursor-layer limits, runtime obstacles, measured point-profile costs and recovery choices. Starts no capture, drives no UI, locks no input and grants no authorization. Exact window IDs required; actual source/provider readiness remains a separate check.",
+    inputSchema: productionPlanSchema,
+    annotations: { readOnlyHint: true },
+    run: async a => {
+      const request = validateProductionRequest(a);
+      const status = await engine("status");
+      const windows = request.target.type === "window" ? await engine("windows.list", { limit: 256 }) : { windows: [], total: 0 };
+      return ok(planProduction(request, status, windows));
+    },
+  },
+  {
     name:"action_begin",
     description:"Declare a bounded contextual action block before a native or browser operation. Recorder stamps exact CLOCK_UPTIME_RAW time and resolves current bundle/PID/window identity. Does not drive the UI, lock input, or prove exclusive agent ownership. Keep returned token; native CUA needs explicit bracketing. On uncertain response recover with action_scopes before retrying.",
     inputSchema:{type:"object",additionalProperties:false,properties:{session_id:SESSION_ID,
@@ -133,7 +146,7 @@ const tools = [
     inputSchema: { type: "object", properties: {}, additionalProperties: false },
     annotations: { readOnlyHint: true },
     run: async () => ok({ ...await engine("status"), mcp_adapter: {
-      version: VERSION, replay_policy: 1, mutation_replay: "never",
+      version: VERSION, replay_policy: 1, production_planning: 1, mutation_replay: "never",
       read_reconnect_budget_ms: 12000,
       qualification: "loaded MCP adapter policy; native CLI/socket status does not describe an MCP process",
     } }),
@@ -429,6 +442,8 @@ const instructions =
   "windows / frame_check to aim (frame_check returns the image; frame_outline shows the frame to the human) → record_schedule with absolute start_at and end_at " +
   "(compute from clock.wall, which every reply carries) → mark during recording for chapters → record_wait → recording_review (contact sheet image + keyframes) " +
   "→ recording_frames for exact moments → record_export for a trimmed mp4 or GIF. " +
+  "Before production UI work, use read-only production_plan for explicit mode/alignment expectations and runtime obstacles; reuse existing user consent. " +
+  "A plan is not permission or native readiness: verify the actual target and source pixels, then explicitly schedule chosen settings. Input stays available. " +
   "Sessions are always explicit: the engine never guesses which session is yours. Many agents may use it at once; the engine never takes focus.";
 
 await serveMcp({

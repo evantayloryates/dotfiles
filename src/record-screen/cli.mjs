@@ -10,6 +10,7 @@
 //   record-screen wait [seconds]    wait until the engine answers
 //   record-screen logs [n]          last n engine log lines (default 20)
 //   record-screen windows [app] [title]        list windows (window ids for targets)
+//   record-screen production-plan <json>       read-only expectations/cost/recovery assessment
 //   record-screen verify <target> [max_width]  capture the target, print image path and checks
 //   record-screen outline <target> [label] [seconds]   draw the frame outline (0 s = until hidden)
 //   record-screen outline-off                  hide all outlines
@@ -44,6 +45,7 @@ import { fileURLToPath } from "node:url";
 import { callerContext } from "./lib/caller.mjs";
 import { prepareMaintenance, validateMaintenance, releaseMaintenance } from "./lib/maintenance.mjs";
 import { install } from "./lib/install.mjs";
+import { planProduction, validateProductionRequest } from "./lib/production-plan.mjs";
 import { call as rawCall, enginePaths, EngineError, LABEL } from "./lib/client.mjs";
 
 // Session-aware methods get the caller attached, so work bundles per agent
@@ -180,6 +182,13 @@ try {
     case "windows":
       out(await call("windows.list", { ...(args[0] ? { app: args[0] } : {}), ...(args[1] ? { title: args[1] } : {}) }));
       break;
+    case "production-plan": {
+      const request = validateProductionRequest(JSON.parse(args[0] ?? "{}"));
+      const status = await call("status");
+      const windows = request.target.type === "window" ? await call("windows.list", { limit: 256 }) : { windows: [], total: 0 };
+      out(planProduction(request, status, windows));
+      break;
+    }
     case "verify":
       out(await call("frame.verify", { target: parseTarget(args[0]), ...(args[1] ? { max_width: Number(args[1]) } : {}) }));
       break;

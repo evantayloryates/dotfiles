@@ -1,5 +1,14 @@
 # Production qualification goal
 
+Stage31 checkpoint (October 9, approximately 07:12 UTC): read-only production
+planning v1 is available through CLI and fresh MCP0.9.0. Five new planning and
+three adjacent option/reconnect tests, live owned MCP and CLI readbacks passed.
+The installed native build/PID remains unchanged and idle; no capture/restart.
+Mode/alignment, cursor-layer limits, scoped benchmark uncertainty and recovery
+expectations are published. Dynamic Chrome popup fitting remains open after
+native observation/readiness failed; that evidence and cleanup are retained.
+Continue unresolved app/menu/provider/capacity boundaries. The goal stays active.
+
 October 8, 2026. Latest explicit resume: October 8 at approximately 22:21 UTC. Objective: complete staged smoke testing, verification,
 iteration and production delivery of capture foundations and their shared
 computer-use contracts. The goal remains open until delivered behavior and

@@ -14,6 +14,19 @@ child inclusion alone did not preserve that popup in the tested window lane.
 
 ## Helpers
 
+`production-plan.test.mjs` checks mode/alignment boundaries, off-Space UI versus
+passive capture, explicit runtime obstacles, per-layer cursor limits, measured
+profile uncertainty and strict configuration. Its real MCP/socket fixture proves
+planning performs only `status` / `windows.list`; invalid requests perform no
+RPC. No UI, capture, install or user-input lock is involved. Run it with the
+adjacent option and reconnect checks after changing the adapter:
+
+```sh
+node --test src/record-screen/qualification/production-plan.test.mjs \
+  src/record-screen/qualification/options-mcp.test.mjs \
+  src/record-screen/qualification/reconnect-mcp.test.mjs
+```
+
 Build Swift helpers into a task-owned output directory with `swiftc -O`.
 `capture-probe.swift` and `stream-probe.swift` also need `-parse-as-library`.
 Use the current SDK and existing Screen Recording/Input Monitoring grants.

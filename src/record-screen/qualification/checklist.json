@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T02:57:39-04:00",
+  "updated_at": "2026-10-09T03:16:00-04:00",
   "workflow": {
     "state": "active",
-    "note": "Sparse writer repair is delivered and actual bounded moving insurance passed. 35 completed, 20 partial, 1 deferred. Continue app/menu fallback, dynamic fitting and conservative agent production modes; all owned stage resources settled."
+    "note": "Read-only production planning and cursor/user-expectation contracts are verified: 37 completed, 18 partial, 1 deferred. Chrome dynamic popup test did not establish native readiness; prior pixel evidence preserved, owned resources settled. Continue unblocked app/provider/capacity work."
   },
-  "production_note": "Signed build f314bb340344 is installed and verified through a fenced update. Real 50-second moving insurance and installed 48-sample/source MCP smoke passed; seven prior files preserved, Input Monitoring access active with protected-input gaps explicit. Broader app/provider/capacity and final full-scope expectations remain open.",
+  "production_note": "Signed native build f314bb340344 remains installed and idle. Fresh MCP0.9.0 and CLI production planning passed without restarting the engine or existing consumers. Actual paired footage and installed input/source proofs remain preserved; dynamic popup, broader provider/capacity and loaded-consumer support stay explicit.",
   "groups": [
     {
       "id": "capture",
@@ -66,10 +66,10 @@
           "title": "Complete the Chrome surface qualification lane",
           "status": "partial",
           "scope": "Genuine native menus, HTML menus, native select controls and reachability.",
-          "evidence": "Retina qualification added630 exact samples: preexisting overflow captured by child-enabled window with fitted affine and by a native2x display crop. Contained new popup passed child true/false control. Earlier external1x omission is preserved as a distinct scope; new bounded lifecycle metadata is candidate geometry.",
+          "evidence": "Retina qualification added630 exact samples: preexisting overflow captured by child-enabled window with fitted affine and by a native2x display crop. Contained new popup passed child true/false control. Earlier external1x omission is preserved as a distinct scope; new bounded lifecycle metadata is candidate geometry. Stage31 retained tab success but failed native window/readiness preparation; no take began, existing pixel passes preserved.",
           "next": "Qualify remaining context/nested/select variants, dynamic overflow fitting and app-only video; reobserve popup placement and exact environment before reuse.",
-          "anchor": "twenty-eighth-pass",
-          "updated_at": "2026-10-09T01:56:14-04:00"
+          "anchor": "thirty-first-pass",
+          "updated_at": "2026-10-09T03:16:00-04:00"
         },
         {
           "id": "electron-depth",
@@ -94,12 +94,12 @@
         {
           "id": "clean-source",
           "title": "Define reliable clean-source profiles across daily apps",
-          "status": "partial",
+          "status": "completed",
           "scope": "State which cursor-like layers can be removed for each app, provider and capture mode.",
-          "evidence": "Helper exclusion works in bounded tests; app-painted arrows, carets and a Chrome residual remain.",
-          "next": "Publish capability limits and requalification rules; defer visual replacement recipes.",
-          "anchor": "evidence",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "evidence": "Published per-layer cursor contract in read-only planner, CLI/MCP and runbook. Actual native/Chrome residual evidence retained. Explicit pointer hiding/helper exclusions remain distinct from content arrows/carets; exact app/provider/display changes require scoped source rechecks. No universal removal or new pixel guarantee.",
+          "next": "",
+          "anchor": "thirty-first-pass",
+          "updated_at": "2026-10-09T03:16:00-04:00"
         },
         {
           "id": "chrome-select-layer",
@@ -374,10 +374,10 @@
           "title": "Set a realistic resource and admission budget",
           "status": "partial",
           "scope": "CPU, memory, encoder/GPU/storage costs and useful production-duration estimates.",
-          "evidence": "Successful50s point1000x732/30fps pair measured50 samples:pressure2warning, aggregate recorder0.063CPU cores/51.7MiB RSS,8.292+8.304MB files. Zero dropped frames and2371 exact samples. Concurrent host work/GPU attribution, thermal plateau, longer duration and P80 remain unqualified; configured cap16 remains not capacity.",
+          "evidence": "Successful50s point1000x732/30fps pair measured50 samples:pressure2warning, aggregate recorder0.063CPU cores/51.7MiB RSS,8.292+8.304MB files. Zero dropped frames and2371 exact samples. Concurrent host work/GPU attribution, thermal plateau, longer duration and P80 remain unqualified; configured cap16 remains not capacity. Read-only planner now publishes this bounded profile, differences and null P80 without automatic redundancy or capacity admission.",
           "next": "Publish conservative point-profile production modes from bounded measurements; qualify representative duration/thermal behavior and broader app insurance when warranted, without repeating settled sparse-writer recovery.",
-          "anchor": "thirtieth-pass",
-          "updated_at": "2026-10-09T02:56:46-04:00"
+          "anchor": "thirty-first-pass",
+          "updated_at": "2026-10-09T03:16:00-04:00"
         },
         {
           "id": "sparse-display-writer",
@@ -466,10 +466,10 @@
           "title": "Centralize version-scoped app observations",
           "status": "partial",
           "scope": "Shared reported facts, exact environment keys, expiry and conflicting evidence.",
-          "evidence": "Four exact-entity Chrome observations appended/read back centrally: window/app select failure, display pass, mixed native readiness recovery. Unknown provider/profile versions keep reuse false; earlier native fixture/planner facts retained.",
+          "evidence": "Four exact-entity Chrome observations appended/read back centrally: window/app select failure, display pass, mixed native readiness recovery. Unknown provider/profile versions keep reuse false; earlier native fixture/planner facts retained. Stage31 mixed exact-entity native-readiness fact appended/read back: browser tab available, native app reads timed out and window stayed off Space; no environment reuse inferred.",
           "next": "Verify remaining environment versions and extend baselines only at unresolved app boundaries; routine skill adoption remains open.",
-          "anchor": "twenty-fourth-pass",
-          "updated_at": "2026-10-09T00:58:21-04:00"
+          "anchor": "thirty-first-pass",
+          "updated_at": "2026-10-09T03:16:00-04:00"
         },
         {
           "id": "requalification",
@@ -486,20 +486,20 @@
           "title": "Verify the quality of recent shared computer-use workflows",
           "status": "partial",
           "scope": "Assess delivered actions, verification and cleanup rather than tool-call counts.",
-          "evidence": "New keyboard session reports seven scopes: five verified/one failed/one not checked, all seven cleanup completed, no uncovered or truncated rows. Prior failed take and expired unanswered human request remain explicit. Separate gesture cleanup closed old fixture/session; historical call corpus ungraded.",
+          "evidence": "Earlier keyboard/gesture scoped audits remain retained. Stage31 adds three terminal native/browser scopes: two verified, one failed, all three cleanup completed, no uncovered/truncated records. Historical corpus and broad provider/physical task success remain ungraded.",
           "next": "Expand routine supported-provider quality coverage and pending physical/global checks, without inferring historical task success or actor identity.",
-          "anchor": "twenty-seventh-pass",
-          "updated_at": "2026-10-09T01:35:19-04:00"
+          "anchor": "thirty-first-pass",
+          "updated_at": "2026-10-09T03:16:00-04:00"
         },
         {
           "id": "receipt-integration",
           "title": "Improve automatic receipt coverage across providers",
           "status": "partial",
           "scope": "Capture durable operation evidence for native and browser actions.",
-          "evidence": "Native skill now links practical shared evidence; fresh explicit native click and input canaries read back through public recorded-action CLI. Twelve targeted CLI/store/outcome checks pass; exact stamps/null restart ends and idempotent bounded imports preserved. Callback wrapper prior scope remains verified.",
+          "evidence": "Native skill now links practical shared evidence; fresh explicit native click and input canaries read back through public recorded-action CLI. Twelve targeted CLI/store/outcome checks pass; exact stamps/null restart ends and idempotent bounded imports preserved. Callback wrapper prior scope remains verified. Stage31 browser open/shortcut/close scopes imported with independent two verified/one failed outcomes and complete cleanup.",
           "next": "Extend ordinary provider adoption; explicit CUA bracketing remains necessary. No external interception or authenticated actor inference.",
-          "anchor": "twenty-fifth-pass",
-          "updated_at": "2026-10-09T01:15:28-04:00"
+          "anchor": "thirty-first-pass",
+          "updated_at": "2026-10-09T03:16:00-04:00"
         },
         {
           "id": "shared-baseline-plan",
@@ -530,12 +530,12 @@
         {
           "id": "human-expectations",
           "title": "Finalize production modes and interruption expectations",
-          "status": "partial",
+          "status": "completed",
           "scope": "Clear background/cooperative/reserved-window expectations with input available and recovery choices.",
-          "evidence": "Agreed production intervals, pause boundaries and owned-only cleanup were used; no input lock was added.",
-          "next": "Publish tested mode capabilities and estimates; reserve disruptive work only through clear user alignment.",
-          "anchor": "strategy",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "evidence": "Read-only production planner and runbook publish background/cooperative/reserved expectations, caller-reported interval coverage, focus/global-shortcut limits, input always available and recovery choices. Five policy/MCP tests and live CLI/fresh MCP boundary checks passed. P80 remains explicitly unknown in the separate resource gate.",
+          "next": "",
+          "anchor": "thirty-first-pass",
+          "updated_at": "2026-10-09T03:16:00-04:00"
         },
         {
           "id": "maintenance-fence",
@@ -572,20 +572,20 @@
           "title": "Verify loaded MCP replay policy and reconnect boundaries",
           "status": "partial",
           "scope": "Never automatically resend mutations after a lost reply; distinguish loaded adapter from native engine version. Preserve existing peer MCP processes.",
-          "evidence": "Synthetic read recovery and single mutation submissions passed. Fresh adapter 0.8.0 reports replay_policy:1; same MCP PID15069 read the new native build and retained source across the warranted fenced upgrade. Connected harness adapter still omits policy.",
+          "evidence": "Synthetic read recovery and single mutation submissions remain passed. Fresh adapter0.9.0 planning/source policy readback kept native PID unchanged and exited; connected harness still omits adapter policy. No peer restart. New planning performs only status/window reads and malformed requests no RPC.",
           "next": "Verify existing consumers at their next safe launch/readback; do not force peer restarts. Keep absent loaded adapter policy unknown.",
-          "anchor": "nineteenth-pass",
-          "updated_at": "2026-10-08T23:47:29-04:00"
+          "anchor": "thirty-first-pass",
+          "updated_at": "2026-10-09T03:16:00-04:00"
         },
         {
           "id": "agent-runbooks",
           "title": "Finish agent usage and recovery runbooks",
           "status": "partial",
           "scope": "Capabilities, gaps, deadlines, semantic blocks, app facts, effort and collision/recovery guidance.",
-          "evidence": "Current source contract now documents sparse held provenance, bounded affected-only trim, exact nanosecond mapping and writer error chain. Actual 50-second paired recovery and measured point-profile costs published. Installed f314 source/MCP readback preserves input protected-gap limits; broader app/physical/provider and production-mode guidance still open.",
+          "evidence": "Current source contract now documents sparse held provenance, bounded affected-only trim, exact nanosecond mapping and writer error chain. Actual 50-second paired recovery and measured point-profile costs published. Installed f314 source/MCP readback preserves input protected-gap limits; broader app/physical/provider and production-mode guidance still open. Fresh0.9 planner/CLI and agent runbook now publish tested mode/alignment/cursor/recovery contract with cost uncertainty. Dynamic app/popup and provider adoption still open.",
           "next": "Complete dynamic app/popup fallback, conservative production-mode expectations and remaining provider/workflow adoption; preserve scoped completion and unsupported environments.",
-          "anchor": "thirtieth-pass",
-          "updated_at": "2026-10-09T02:57:39-04:00"
+          "anchor": "thirty-first-pass",
+          "updated_at": "2026-10-09T03:16:00-04:00"
         },
         {
           "id": "visual-composition",
@@ -1296,6 +1296,85 @@
       "from": "active",
       "to": "active",
       "note": "Sparse writer repair is delivered and actual bounded moving insurance passed. 35 completed, 20 partial, 1 deferred. Continue app/menu fallback, dynamic fitting and conservative agent production modes; all owned stage resources settled."
+    },
+    {
+      "kind": "item",
+      "id": "clean-source",
+      "at": "2026-10-09T03:16:00-04:00",
+      "from": "partial",
+      "to": "completed",
+      "note": "Published per-layer cursor contract in read-only planner, CLI/MCP and runbook. Actual native/Chrome residual evidence retained. Explicit pointer hiding/helper exclusions remain distinct from content arrows/carets; exact app/provider/display changes require scoped source rechecks. No universal removal or new pixel guarantee."
+    },
+    {
+      "kind": "item",
+      "id": "human-expectations",
+      "at": "2026-10-09T03:16:00-04:00",
+      "from": "partial",
+      "to": "completed",
+      "note": "Read-only production planner and runbook publish background/cooperative/reserved expectations, caller-reported interval coverage, focus/global-shortcut limits, input always available and recovery choices. Five policy/MCP tests and live CLI/fresh MCP boundary checks passed. P80 remains explicitly unknown in the separate resource gate."
+    },
+    {
+      "kind": "item",
+      "id": "chrome-depth",
+      "at": "2026-10-09T03:16:00-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Retina qualification added630 exact samples: preexisting overflow captured by child-enabled window with fitted affine and by a native2x display crop. Contained new popup passed child true/false control. Earlier external1x omission is preserved as a distinct scope; new bounded lifecycle metadata is candidate geometry. Stage31 retained tab success but failed native window/readiness preparation; no take began, existing pixel passes preserved."
+    },
+    {
+      "kind": "item",
+      "id": "app-facts",
+      "at": "2026-10-09T03:16:00-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Four exact-entity Chrome observations appended/read back centrally: window/app select failure, display pass, mixed native readiness recovery. Unknown provider/profile versions keep reuse false; earlier native fixture/planner facts retained. Stage31 mixed exact-entity native-readiness fact appended/read back: browser tab available, native app reads timed out and window stayed off Space; no environment reuse inferred."
+    },
+    {
+      "kind": "item",
+      "id": "workflow-audit",
+      "at": "2026-10-09T03:16:00-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Earlier keyboard/gesture scoped audits remain retained. Stage31 adds three terminal native/browser scopes: two verified, one failed, all three cleanup completed, no uncovered/truncated records. Historical corpus and broad provider/physical task success remain ungraded."
+    },
+    {
+      "kind": "item",
+      "id": "receipt-integration",
+      "at": "2026-10-09T03:16:00-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Native skill now links practical shared evidence; fresh explicit native click and input canaries read back through public recorded-action CLI. Twelve targeted CLI/store/outcome checks pass; exact stamps/null restart ends and idempotent bounded imports preserved. Callback wrapper prior scope remains verified. Stage31 browser open/shortcut/close scopes imported with independent two verified/one failed outcomes and complete cleanup."
+    },
+    {
+      "kind": "item",
+      "id": "resource-admission",
+      "at": "2026-10-09T03:16:00-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Successful50s point1000x732/30fps pair measured50 samples:pressure2warning, aggregate recorder0.063CPU cores/51.7MiB RSS,8.292+8.304MB files. Zero dropped frames and2371 exact samples. Concurrent host work/GPU attribution, thermal plateau, longer duration and P80 remain unqualified; configured cap16 remains not capacity. Read-only planner now publishes this bounded profile, differences and null P80 without automatic redundancy or capacity admission."
+    },
+    {
+      "kind": "item",
+      "id": "mcp-replay-boundary",
+      "at": "2026-10-09T03:16:00-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Synthetic read recovery and single mutation submissions remain passed. Fresh adapter0.9.0 planning/source policy readback kept native PID unchanged and exited; connected harness still omits adapter policy. No peer restart. New planning performs only status/window reads and malformed requests no RPC."
+    },
+    {
+      "kind": "item",
+      "id": "agent-runbooks",
+      "at": "2026-10-09T03:16:00-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Current source contract now documents sparse held provenance, bounded affected-only trim, exact nanosecond mapping and writer error chain. Actual 50-second paired recovery and measured point-profile costs published. Installed f314 source/MCP readback preserves input protected-gap limits; broader app/physical/provider and production-mode guidance still open. Fresh0.9 planner/CLI and agent runbook now publish tested mode/alignment/cursor/recovery contract with cost uncertainty. Dynamic app/popup and provider adoption still open."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T03:16:00-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Read-only production planning and cursor/user-expectation contracts are verified: 37 completed, 18 partial, 1 deferred. Chrome dynamic popup test did not establish native readiness; prior pixel evidence preserved, owned resources settled. Continue unblocked app/provider/capacity work."
     }
   ]
 }

@@ -474,6 +474,76 @@ macOS asks again every 30 days. The re-confirm date lives in
 
 ## Capture foundations and qualification
 
+Start capture coordination with `production_plan` in a fresh MCP adapter
+(`status.mcp_adapter.production_planning: 1`, adapter 0.9.0), or the immediately
+available CLI:
+
+```sh
+node /Users/taylor/src/github/dotfiles/src/record-screen/cli.mjs production-plan \
+  '{"target":{"type":"display","display_id":1},"mode":"background","activity":"passive_capture","duration_s":30}'
+```
+
+The planner reads status and, for a window, a bounded window inventory. It starts
+no capture, changes no settings, drives no UI and locks no input. Resolve exact
+window IDs with `windows`; planning does not guess an app or title. The returned
+request preserves explicit duration/fps/width/cursor/input/redundancy settings;
+its defaults (30 fps, 1000-pixel width cap, hidden capture pointer, no input,
+no redundancy) are planning values, not silently applied recording settings.
+Pass the chosen settings explicitly when scheduling.
+
+| Mode | Expectation before production |
+| --- | --- |
+| `background` | Passive capture. Agent UI work cannot promise undisturbed user work; choose an agreed mode first. Display/rect footage still includes visible occlusion and unrelated pixels. |
+| `cooperative` | For agent UI work, the caller declares a user-agreed interval covering `duration_s` through `alignment_until`. Explain focus and global-shortcut effects even with two displays. Passive capture alone does not require a new reservation. |
+| `reserved_interval` | A caller-reported approved interval covers the intended take, including passive work that claims reservation. User input remains available. No OS-level or cross-agent display lock is created. |
+
+`alignment_until` is an absolute ISO timestamp with timezone. It preserves
+caller-reported existing consent; the planner cannot authenticate it or grant
+permission. Reuse current human authorization rather than requesting it again.
+If alignment is missing/expired/too short, agree on the needed interval or
+shorten the take before driving UI. A reservation is cooperation, not isolation.
+
+`assessment: needs_resolution` names observed obstacles such as absent displays,
+off-screen UI targets, missing access/capabilities or active maintenance.
+`candidate_requires_source_check` means planning found no such obstacle;
+it **does not establish native readiness or usable encoded source footage**.
+An on-screen window can still refuse input. Reconfirm actual delivery and source
+pixels, and consult the shared exact-environment app facts below. A bounded
+inventory miss is distinguished from known absence. Observations can become
+stale immediately; planning is advisory and does not intercept later UI calls.
+
+Pointer hiding and helper exclusions are distinct from app-drawn pointers and
+text carets. The plan reports each layer separately; inspect actual pixels
+before claiming a clean source. Child inclusion is an explicit option, not a
+universal menu-capture guarantee. App/OS/provider/display/capture-option changes,
+Space changes, new helper identities and popup reopening warrant the relevant
+narrow check. Preserve established evidence instead of repeating unrelated QA.
+
+`window_display` redundancy returns guidance for two sources; it neither invents
+a backup crop nor schedules one. The stored benchmark is one authored 50-second
+1000×732 / 30 fps pair on a built-in 2× display with build f314bb340344 and no
+input telemetry. It kept 2,371 exact samples with no drops, measured about
+0.063 recorder CPU cores / 51.7 MiB peak RSS, and produced two approximately
+8.3 MB files under warning pressure. These include concurrent host work and
+do not establish attributable GPU/thermal cost, app representativeness,
+long-duration capacity or P80 timing. Even matching settings leave the requested
+app unqualified. Configured `max_concurrent:16` remains a limit, not capacity.
+The plan keeps P80 null and reports profile differences without extrapolation.
+
+When disturbed, mark and preserve the interval/journals, trim or select only
+independently verified alternative coverage, and reshoot from an application
+checkpoint when replayable. Live unrecoverable gaps stay explicit. Keep a dense
+backup trajectory across held primary frames; selecting only one backup sample
+per sparse primary timestamp discards available motion. Never block the user
+prophylactically or stop a peer workflow to make the shot pass.
+
+Five planning policy/MCP tests and three adjacent option/reconnect tests passed.
+An owned fresh adapter's live readback preserved the installed engine PID and
+zero active captures/listeners/actions/preview lanes. Existing loaded adapters
+may omit the new tool/policy: use the CLI or wait for their safe next launch;
+do not restart peers for discovery. Stage31 also preserves a failed Chrome
+native-readiness attempt without a capture or duplicated shortcut.
+
 Consult the shared app capability plan before an unfamiliar or changed surface:
 `node /Users/taylor/src/github/dotfiles/src/codex-bridge/evidence.mjs plan
 /absolute/plan-request.json`. The same service exposes `computer_use_plan` to
