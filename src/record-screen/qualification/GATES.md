@@ -1,5 +1,43 @@
 # Qualification update — October 9, 2026
 
+## Fortieth pass: service-owned transient region clipping
+
+Fresh MCP0.11.2 recording_frame_map and current CLI accept up to16 uniquely named
+desktop_regions alongside64 exact frame/relative/recorder-host queries. Each
+actual mux frame uses its own referenced affine/canvas for transformed quads,
+clipped convex polygons and continuous area fractions. Rotation/reflection use
+polygon area, not bounding-box substitution. Held frames keep referenced geometry.
+Content presence remains unverified; rectangle extent/timing caller-declared.
+
+Review identified that earlier mapping checked timestamps but did not reconcile
+canvas size against actual media. The probe now reads width/height; mismatched/
+missing declared versus mux dimensions prevents point/region projection while
+exact timestamp correspondence stays separately reported. Missing frame/source/
+affine, numerical overflow, singularity and request expansion cannot become
+spatial coverage. No new capture or geometry borrowed from a current window.
+
+21 focused/adjacent tests passed: clipping/rotation/reflection/edge/outside,
+held-source geometry, missing metadata, dimensions mismatch, strict ids/shapes,
+exact clocks, failed media, bounded probe lifecycle, MCP read-only/no-RPC malformed
+regions, planning and disconnect/no mutation replay. The old test version assertion
+was synchronized with current adapter0.11.2; prior capture evidence retained.
+
+Fresh real MCP queried3 saved Finder sources: title/text outside parent/padded,
+contained full; declared panel area fractions0.46793349/0.90973872/1. Actual full
+frame286 crop retains exact title/two synthetic lines; CLI response equals MCP.
+The parent overlaps declared panel geometry although Quick Look is omitted, an
+important content-presence negative control. Area is not a visibility score.
+Three further retained child-fitting frames reproduce1→0.75→1 marker bounds
+with0px edge error against saved decoded oracle, without reshoot/redecode.
+Central scoped fact independently read back. Owned adapterPID61553 exited0;
+f314/PID35547 unchanged/idle, no capture/UI/permission/native rebuild/peer restart.
+
+README/runbook/shared reference publish region schema, actual canvas reconciliation,
+unknowns and pixel verification. Primary-map gate expanded within completed scope;
+41completed,17partial,1deferred. Actual transient extent/content recovery, physical
+input/provider adoption/capacity remain open. Evidence private gates-v40. Next
+use this mapper for a useful missing capture boundary; preserve settled footage.
+
 ## Thirty-ninth pass: Finder depth separates menus from Quick Look
 
 Finder26.4/build1828.5.2 on25F80, native CUA version unknown, built-in2×:

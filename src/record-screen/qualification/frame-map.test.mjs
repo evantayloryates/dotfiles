@@ -8,6 +8,7 @@ import { createInterface } from 'node:readline';
 import { fileURLToPath } from 'node:url';
 import net from 'node:net';
 import { mapRecordingFrames, resolveFrameMap, validateFrameMapRequest, frameMapHealth } from '../lib/frame-map.mjs';
+import { projectRegions } from '../lib/region-map.mjs';
 
 const request = { recording_id:'rec_fixture',frame_indices:[0,1,2],desktop_points:[{x:160,y:558}] };
 function fixture() {
@@ -22,7 +23,7 @@ function fixture() {
     {kind:'encoded_frame',source_frame:9,encoded_sequence:2,relative_ns:'200000000',accepted:true,held:'held_for_sparse_interval'},
     {kind:'footer',complete:true,rows_lost:0}];
   const descriptor = { recording_id:'rec_fixture',state:'done',source_packet:{epoch_host_ns:rows[0].epoch_host_ns,complete:true,rows_lost:0} };
-  const probe = { streams:[{time_base:'1/1000000000'}],packets:[{pts:0,duration:100000000},{pts:100000000,duration:100000000},{pts:200000000,duration:100000000}] };
+  const probe = { streams:[{time_base:'1/1000000000',width:600,height:392}],packets:[{pts:0,duration:100000000},{pts:100000000,duration:100000000},{pts:200000000,duration:100000000}] };
   return { rows,descriptor,probe };
 }
 test('dynamic source joins preserve referenced held geometry and exact clocks beyond JS integer range', () => {
@@ -34,6 +35,57 @@ test('dynamic source joins preserve referenced held geometry and exact clocks be
   assert.equal(out.mapped[2].video_start_ns.numerator,'200000000');
   const host=resolveFrameMap(descriptor,{recording_id:'rec_fixture',host_ns:['10000000000000000','10000000000000001','10000000100000001'],clock_domain:'CLOCK_UPTIME_RAW'},rows,probe);
   assert.deepEqual(host.mapped.map(x=>x.frame_index),[undefined,0,1]);assert.deepEqual(host.mapped.map(x=>x.relative_ns),['-1','0','100000000']);
+});
+test('region clipping follows each actual source and retains held geometry', () => {
+  const {rows,descriptor,probe} = fixture();
+  const out = resolveFrameMap(descriptor,{...request,desktop_regions:[{id:'menu',x:650,y:450,w:100,h:100}]},rows,probe);
+  assert.deepEqual(out.mapped.map(r=>r.desktop_regions[0].canvas_relation),['clipped','contained','contained']);
+  assert.equal(out.mapped[0].desktop_regions[0].canvas_area_fraction,.7);
+  assert.equal(out.mapped[1].desktop_regions[0].canvas_area_fraction,1);
+  assert.deepEqual(out.mapped[1].desktop_regions,out.mapped[2].desktop_regions);
+  assert.equal(out.mapped[0].desktop_regions[0].content_presence,'unverified');
+  assert.equal(out.mapped[2].source_content_relative_ns,'100000000');
+});
+test('region polygon area handles rotation/reflection without substituting its bounding box', () => {
+  const r = projectRegions([{id:'rotated',x:0,y:0,w:1,h:1}],[1,1,-1,1,0,0],[2,2])[0];
+  assert.equal(r.canvas_relation,'clipped');assert.equal(r.canvas_area_fraction,.5);
+  assert.deepEqual(r.source_bounds,{x:-1,y:0,w:2,h:2});
+  const reflected = projectRegions([{id:'reflected',x:0,y:0,w:10,h:10}],[-1,0,0,1,5,0],[10,10])[0];
+  assert.equal(reflected.canvas_relation,'clipped');assert.equal(reflected.canvas_area_fraction,.5);
+});
+test('regions distinguish exact canvas edges, touching/outside and numerical unknowns', () => {
+  const rs = projectRegions([{id:'edges',x:0,y:0,w:10,h:10},{id:'touch',x:10,y:0,w:5,h:5},
+    {id:'outside',x:-20,y:0,w:5,h:5}], [1,0,0,1,0,0],[10,10]);
+  assert.deepEqual(rs.map(r=>r.canvas_relation),['contained','outside','outside']);
+  assert.deepEqual(rs.map(r=>r.canvas_area_fraction),[1,0,0]);
+  assert.throws(()=>projectRegions([{id:'overflow',x:1,y:1,w:10,h:10}],[1e308,0,0,1,0,0],[10,10]),e=>e.code==='frame_mapping');
+});
+test('missing frame/source/affine does not manufacture region coverage', () => {
+  const {rows,descriptor,probe} = fixture();const a={...request,frame_indices:[0,1,9],desktop_regions:[{id:'text',x:140,y:440,w:40,h:20}]};
+  rows[1].geometry.desktop_points_to_source_pixels=[0,0,0,0,0,0];
+  const out=resolveFrameMap(descriptor,a,rows,probe);
+  assert.equal(out.mapped[0].desktop_regions,null);assert.equal(out.mapped[2].included,false);assert.equal(out.mapped[2].desktop_regions,undefined);
+  rows.splice(rows.findIndex(r=>r.kind==='geometry'&&r.segment===1),1);
+  const missing=resolveFrameMap(descriptor,a,rows,probe);assert.equal(missing.mapped[1].metadata_available,false);assert.equal(missing.mapped[1].desktop_regions,undefined);
+});
+test('region requests reject duplicate ids, invalid shapes and payload expansion before reads', () => {
+  const region={id:'menu',x:0,y:0,w:10,h:10};
+  for(const regions of [null,{},[region,region],[{...region,w:0}],[{...region,h:-1}],[{...region,x:Infinity}],
+    [{...region,id:'arbitrary text'}],[{...region,id:'x'.repeat(65)}],[{...region,label:'extra'}],
+    Array.from({length:17},(_,i)=>({...region,id:'r'+i}))]) {
+    assert.throws(()=>validateFrameMapRequest({...request,desktop_regions:regions}),e=>e.code==='bad_frame_map');
+  }
+  assert.equal(validateFrameMapRequest({...request,desktop_regions:[region]}).desktop_regions.length,1);
+});
+test('declared canvas must match muxed dimensions before point or region projection', () => {
+  const {rows,descriptor,probe}=fixture();const a={...request,desktop_regions:[{id:'text',x:140,y:440,w:40,h:20}]};
+  probe.streams[0].width=64;
+  let r=resolveFrameMap(descriptor,a,rows,probe);assert.equal(r.mapped[0].transform_available,false);
+  assert.equal(r.mapped[0].transform_reason,'declared_canvas_differs_from_muxed_dimensions');
+  assert.equal(r.mapped[0].desktop_regions,null);assert.equal(r.mapped[0].desktop_points,null);
+  assert.equal(r.mux_source_correspondence.timestamp_correspondence_complete,true);
+  delete probe.streams[0].width;r=resolveFrameMap(descriptor,a,rows,probe);
+  assert.equal(r.mapped[0].transform_reason,'unmeasured_muxed_canvas');assert.equal(r.muxed_canvas_pixels,null);
 });
 test('exact offset boundaries, rational media clocks and presentation order do not round or borrow', () => {
   const {rows,descriptor,probe} = fixture();
@@ -79,7 +131,7 @@ test('identity, duplicate times, unsafe integers and malformed queries refuse be
 test('actual regular-file probe, leaf refusal and fresh MCP read-only boundary', async () => {
   const root=mkdtempSync(join(tmpdir(),'frame-map-mcp-'));mkdirSync(join(root,'run'));
   const {rows,descriptor}=fixture();const video=join(root,'source.mp4'),journal=join(root,'source.jsonl');
-  const generated=spawnSync('ffmpeg',['-v','error','-f','lavfi','-i','color=c=white:s=64x64:r=10','-frames:v','3','-c:v','libx264','-bf','0','-video_track_timescale','1000000000',video],{encoding:'utf8'});
+  const generated=spawnSync('ffmpeg',['-v','error','-f','lavfi','-i','color=c=white:s=600x392:r=10','-frames:v','3','-c:v','libx264','-bf','0','-video_track_timescale','1000000000',video],{encoding:'utf8'});
   assert.equal(generated.status,0,'Required local ffmpeg fixture generator failed');
   writeFileSync(journal,rows.map(r=>JSON.stringify(r)+'\n').join(''));descriptor.source_packet.path=journal;descriptor.video={path:video};
   const methods=[],sockets=new Set();let capable=true;
@@ -90,13 +142,15 @@ test('actual regular-file probe, leaf refusal and fresh MCP read-only boundary',
   lines.on('line',line=>{const row=JSON.parse(line),p=pending.get(row.id);if(p){clearTimeout(p.timer);pending.delete(row.id);p.resolve(row.result);}});
   const rpc=(method,params)=>new Promise((resolve,reject)=>{const id=++serial,timer=setTimeout(()=>reject(Error('Owned MCP deadline')),5000);pending.set(id,{resolve,reject,timer});child.stdin.write(JSON.stringify({jsonrpc:'2.0',id,method,params})+'\n');});
   try {
-    const initialized=await rpc('initialize',{protocolVersion:'2025-06-18'});assert.equal(initialized.serverInfo.version,'0.10.0');
-    const list=await rpc('tools/list',{});assert.equal(list.tools.find(x=>x.name==='recording_frame_map').annotations.readOnlyHint,true);
-    let reply=await rpc('tools/call',{name:'recording_frame_map',arguments:request});assert.equal(reply.isError,false);
+    const initialized=await rpc('initialize',{protocolVersion:'2025-06-18'});assert.equal(initialized.serverInfo.version,'0.11.2');
+    const list=await rpc('tools/list',{});const tool=list.tools.find(x=>x.name==='recording_frame_map');assert.equal(tool.annotations.readOnlyHint,true);assert.equal(tool.inputSchema.properties.desktop_regions.maxItems,16);
+    let reply=await rpc('tools/call',{name:'recording_frame_map',arguments:{...request,desktop_regions:[{id:'region',x:140,y:450,w:10,h:10}]}});assert.equal(reply.isError,false);
+    assert.equal(JSON.parse(reply.content[0].text).mapped[0].desktop_regions[0].canvas_relation,'contained');
     assert.equal(JSON.parse(reply.content[0].text).mux_source_correspondence.actual_packets,3);assert.deepEqual(methods,['status','record.source']);
     reply=await rpc('tools/call',{name:'recording_frame_map',arguments:{...request,frame_indices:[]}});assert.equal(reply.isError,true);assert.deepEqual(methods,['status','record.source']);
+    reply=await rpc('tools/call',{name:'recording_frame_map',arguments:{...request,desktop_regions:[{id:'bad',x:0,y:0,w:0,h:1}]}});assert.equal(reply.isError,true);assert.deepEqual(methods,['status','record.source']);
     capable=false;reply=await rpc('tools/call',{name:'recording_frame_map',arguments:request});assert.equal(reply.isError,true);assert.equal(methods.at(-1),'status');
-    const status=JSON.parse((await rpc('tools/call',{name:'status',arguments:{}})).content[0].text);assert.equal(status.mcp_adapter.source_frame_mapping,1);assert.equal(status.mcp_adapter.frame_mapping.active,false);
+    const status=JSON.parse((await rpc('tools/call',{name:'status',arguments:{}})).content[0].text);assert.equal(status.mcp_adapter.source_frame_mapping,1);assert.equal(status.mcp_adapter.source_region_mapping,1);assert.equal(status.mcp_adapter.frame_mapping.active,false);
     const link=join(root,'linked.jsonl');symlinkSync(journal,link);const linked=structuredClone(descriptor);linked.source_packet.path=link;
     await assert.rejects(mapRecordingFrames(linked,request));assert.equal(frameMapHealth().active,false);
     writeFileSync(journal,rows.map(r=>JSON.stringify(r)+'\n').join('')+'{"kind":');await assert.rejects(mapRecordingFrames(descriptor,request),e=>e.code==='frame_mapping');assert.equal(frameMapHealth().active,false);

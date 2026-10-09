@@ -14,7 +14,7 @@ import { planProduction, productionPlanSchema, validateProductionRequest } from 
 import {queryRecordingInput,validateInputQuery,inputQuerySchema,inputQueryHealth} from "./lib/input-query.mjs";
 
 const log = (...args) => console.error("[record-screen]", ...args);
-const VERSION = "0.11.1";
+const VERSION = "0.11.2";
 
 // ---------------------------------------------------------------- engine link
 
@@ -149,7 +149,7 @@ const tools = [
     inputSchema: { type: "object", properties: {}, additionalProperties: false },
     annotations: { readOnlyHint: true },
     run: async () => ok({ ...await engine("status"), mcp_adapter: {
-      version: VERSION, replay_policy: 1, production_planning: 1, production_storage_guidance: 1, source_frame_mapping: 1,
+      version: VERSION, replay_policy: 1, production_planning: 1, production_storage_guidance: 1, source_frame_mapping: 1, source_region_mapping: 1,
       frame_mapping: frameMapHealth(), retained_input_query: 1,
       input_query: inputQueryHealth(), mutation_replay: "never",
       read_reconnect_budget_ms: 12000,
@@ -353,7 +353,7 @@ const tools = [
   },
   {
     name: "recording_frame_map",
-    description: "Resolve actual primary-video frames, exact relative offsets or recorder-domain host nanoseconds to their own source geometry and optional desktop-point projections. Host stamps require clock_domain=CLOCK_UPTIME_RAW; external provider calibration is not inferred. Uses a bounded actual mux probe, joins exact timestamps, and keeps held-content clocks separate. Failed/interrupted footage can return known packet mappings with explicit missing matches; journal completeness is not assumed. Frame indices are presentation order; geometry is never borrowed from a newer/current frame. One owned mapping/probe at a time;64 queries/16 points,120000 packets,64MiB journal, bounded child lifetime. Read-only: no capture/export/UI or automatic mutation replay. Affine remains candidate outside qualified app/display cases; canvas inclusion does not prove visible content or actor ownership.",
+    description: "Resolve actual primary-video frames, exact relative offsets or recorder-domain host nanoseconds to their own source geometry and optional desktop-point/region projections. Up to16 named desktop_regions yield transformed quads, clipped polygons and continuous canvas-area fractions; content_presence stays unverified. Use this to detect crop clipping, then inspect actual pixels. Host stamps require clock_domain=CLOCK_UPTIME_RAW; external provider calibration is not inferred. Uses a bounded actual mux probe, joins exact timestamps, and keeps held-content clocks separate. Failed/interrupted footage can return known packet mappings with explicit missing matches; journal completeness is not assumed. Frame indices are presentation order; geometry is never borrowed from a newer/current frame. One owned mapping/probe at a time;64 queries/16 points/16 regions,120000 packets,64MiB journal, bounded child lifetime. Read-only: no capture/export/UI or automatic mutation replay. Affine remains candidate outside qualified app/display cases; canvas inclusion does not prove visible content or actor ownership.",
     inputSchema: frameMapSchema,
     annotations: { readOnlyHint: true },
     run: async (a) => {
@@ -471,7 +471,7 @@ const instructions =
   "→ recording_frames for exact moments → record_export for a trimmed mp4 or GIF. " +
   "Before production UI work, use read-only production_plan for explicit mode/alignment expectations and runtime obstacles; reuse existing user consent. " +
   "A plan is not permission or native readiness: verify the actual target and source pixels, then explicitly schedule chosen settings. Input stays available. " +
-  "Use recording_frame_map for bounded actual-mux/source geometry and point projection; missing references and uncovered times stay explicit. " +
+  "Use recording_frame_map for bounded actual-mux/source geometry and point/region projection; crop clipping is geometric, while content presence needs pixels. Missing references and uncovered times stay explicit. " +
   "Sessions are always explicit: the engine never guesses which session is yours. Many agents may use it at once; the engine never takes focus.";
 
 await serveMcp({

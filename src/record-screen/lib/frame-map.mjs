@@ -4,13 +4,14 @@ import { constants } from 'node:fs';
 import { spawn } from 'node:child_process';
 import { setImmediate as yieldLoop } from 'node:timers/promises';
 import { EngineError } from './client.mjs';
+import { MAX_REGIONS, regionSchema, validateRegions, projectRegions } from './region-map.mjs';
 
 const fail = (code, message) => { throw new EngineError(code, message); };
 const mapping = message => fail('frame_mapping', message);
 const MAX_PACKETS = 120000, MAX_ROWS = 250000, MAX_JOURNAL = 64 * 1024 * 1024;
 let running = false, probeState = null;
 export const frameMapHealth = () => ({ active: running, probe: probeState ? { ...probeState } : null,
-  max_packets: MAX_PACKETS, max_rows: MAX_ROWS, max_journal_bytes: MAX_JOURNAL });
+  max_packets: MAX_PACKETS, max_rows: MAX_ROWS, max_journal_bytes: MAX_JOURNAL, max_regions: MAX_REGIONS });
 
 export const frameMapSchema = {
   type: 'object', additionalProperties: false,
@@ -22,12 +23,13 @@ export const frameMapSchema = {
     clock_domain: { type:'string',enum:['CLOCK_UPTIME_RAW'],description:'Required with host_ns; declaring it does not calibrate an external provider clock.' },
     desktop_points: { type: 'array', maxItems: 16, items: { type: 'object', additionalProperties: false,
       properties: { x: { type: 'number' }, y: { type: 'number' } }, required: ['x', 'y'] } },
+    desktop_regions: regionSchema,
   }, required: ['recording_id'], oneOf: [{ required: ['frame_indices'] }, { required: ['relative_ns'] }, { required: ['host_ns','clock_domain'] }],
 };
 export function validateFrameMapRequest(input) {
   const bad = () => fail('bad_frame_map', 'Use recording_id and exactly one of frame_indices/relative_ns/host_ns (1–64); host_ns requires clock_domain=CLOCK_UPTIME_RAW. Optional desktop_points:0–16 finite x/y pairs.');
   if (!input || typeof input !== 'object' || Array.isArray(input) ||
-      Object.keys(input).some(k => !['recording_id','frame_indices','relative_ns','host_ns','clock_domain','desktop_points'].includes(k)) ||
+      Object.keys(input).some(k => !['recording_id','frame_indices','relative_ns','host_ns','clock_domain','desktop_points','desktop_regions'].includes(k)) ||
       typeof input.recording_id !== 'string' || input.recording_id.length > 64 || !/^rec_[A-Za-z0-9]+$/.test(input.recording_id) ||
       [input.frame_indices,input.relative_ns,input.host_ns].filter(x=>x!==undefined).length !== 1 ||
       (input.host_ns !== undefined ? input.clock_domain !== 'CLOCK_UPTIME_RAW' : input.clock_domain !== undefined)) bad();
@@ -37,7 +39,7 @@ export function validateFrameMapRequest(input) {
   const points = input.desktop_points ?? [];
   if (!Array.isArray(points) || points.length > 16 || points.some(p => !p || typeof p !== 'object' || Array.isArray(p) ||
       Object.keys(p).length !== 2 || !Number.isFinite(p.x) || !Number.isFinite(p.y))) bad();
-  return { ...input, desktop_points: points };
+  return { ...input, desktop_points: points, desktop_regions: validateRegions(input.desktop_regions) };
 }
 const exact = value => {
   if (typeof value === 'string' && /^-?[0-9]{1,24}$/.test(value)) return BigInt(value);
@@ -92,6 +94,8 @@ export function resolveFrameMap(descriptor, request, rows, probe) {
     duration: p.duration === undefined ? null : exact(p.duration) }));
   packets.sort((a,b) => a.ticks < b.ticks ? -1 : a.ticks > b.ticks ? 1 : 0);
   if (packets.some((p,i) => i && p.ticks <= packets[i-1].ticks)) mapping('Ambiguous or duplicate presentation timestamps.');
+  const muxPixels = [probe.streams[0].width,probe.streams[0].height];
+  const muxCanvasKnown = muxPixels.every(v => Number.isInteger(v) && v > 0 && v <= 16384);
   let matches = 0, references = 0;
   const matchedTimes = new Set();
   for (let i = 0; i < packets.length; i++) {
@@ -134,9 +138,11 @@ export function resolveFrameMap(descriptor, request, rows, probe) {
     if (!p.source || !p.geometry) return { ...result, reason: 'missing_source_or_geometry_reference', accepted_sequence: p.accepted.encoded_sequence };
     const matrix = p.geometry.desktop_points_to_source_pixels;
     const pixels = p.geometry.source_pixels;
-    const transform = Array.isArray(matrix) && matrix.length === 6 && matrix.every(Number.isFinite) &&
+    const affineValid = Array.isArray(matrix) && matrix.length === 6 && matrix.every(Number.isFinite) &&
       Number.isFinite(matrix[0]*matrix[3]-matrix[1]*matrix[2]) && matrix[0]*matrix[3]-matrix[1]*matrix[2] !== 0 &&
       Array.isArray(pixels) && pixels.length === 2 && pixels.every(v => Number.isInteger(v) && v > 0 && v <= 16384);
+    const canvasMatches = muxCanvasKnown && pixels?.[0] === muxPixels[0] && pixels?.[1] === muxPixels[1];
+    const transform = affineValid && canvasMatches;
     const sourceTime = p.source.pts_host_ns === null || p.source.pts_host_ns === undefined ? null : String(exact(p.source.pts_host_ns)-epoch);
     const points = transform ? request.desktop_points.map(({x,y}) => {
       const sx = matrix[0]*x+matrix[2]*y+matrix[4], sy = matrix[1]*x+matrix[3]*y+matrix[5];
@@ -147,13 +153,16 @@ export function resolveFrameMap(descriptor, request, rows, probe) {
       source_frame: p.accepted.source_frame, geometry_segment: p.source.geometry_segment,
       source_content_relative_ns: sourceTime, held: p.accepted.held ?? null,
       geometry: p.geometry, transform_available: transform, desktop_points: points,
-      ...(transform ? {} : { transform_reason: 'missing_or_invalid_declared_affine' }) };
+      desktop_regions: transform ? projectRegions(request.desktop_regions,matrix,pixels) : null,
+      ...(transform ? {} : { transform_reason: !affineValid ? 'missing_or_invalid_declared_affine'
+        : !muxCanvasKnown ? 'unmeasured_muxed_canvas' : 'declared_canvas_differs_from_muxed_dimensions' }) };
   }
   const mapped = request.frame_indices ? request.frame_indices.map(frame_index => ({ requested_frame_index: frame_index, ...project(packets[frame_index],frame_index) }))
     : request.relative_ns ? request.relative_ns.map(relative_ns => ({ requested_relative_ns: relative_ns, ...atOffset(relative_ns) }))
     : request.host_ns.map(host_ns=>{const relative=String(exact(host_ns)-epoch);return{requested_host_ns:host_ns,relative_ns:relative,...atOffset(relative)};});
   return { schema: 'record-screen-frame-map/v1', recording_id: request.recording_id, recording_state: descriptor.state,
     clock_domain: header.clock_domain, epoch_host_ns: header.epoch_host_ns, frame_order: 'presentation_timestamp_ascending',
+    muxed_canvas_pixels: muxCanvasKnown ? muxPixels : null,
     mux_source_correspondence: { actual_packets: packets.length, accepted_submissions: acceptedCount,
       exact_timestamp_matches: matches, video_packets_without_exact_match: packets.length-matches,
       accepted_without_video_packet: acceptedCount-matchedTimes.size, journal_complete: journalComplete,
@@ -166,7 +175,9 @@ export function resolveFrameMap(descriptor, request, rows, probe) {
       'Journal/video incompleteness and missing references stay explicit; never resubmit a capture or export.',
       'Packet presentation intervals are media coverage, not physical presentation latency or input-clock/actor proof.',
       'A host-clock declaration does not calibrate an external provider; use recorder-domain stamps or retain that uncertainty.',
-      'Projected points inside the encoded canvas do not prove visibility, semantic ownership or content inclusion.'] };
+      'Projected points/regions inside the encoded canvas do not prove visibility, semantic ownership or content inclusion.',
+      'Region fractions are continuous affine canvas-area estimates, not decoded pixel coverage; rectangle extent and timing are caller-declared.',
+      'Point/region projection requires declared source canvas dimensions to match the probed media stream; this does not validate affine content placement.'] };
 }
 
 async function regular(path, limit) {
@@ -210,7 +221,7 @@ async function journalRows(handle, size) {
 function probeFile(fd) {
   return new Promise((resolve,reject) => {
     const child = spawn('ffprobe', ['-v','error','-select_streams','v:0','-show_packets','-show_entries',
-      'stream=time_base:packet=pts,duration','-of','json','-i','/dev/fd/3'], { stdio:['ignore','pipe','pipe',fd] });
+      'stream=time_base,width,height:packet=pts,duration','-of','json','-i','/dev/fd/3'], { stdio:['ignore','pipe','pipe',fd] });
     probeState = { pid: child.pid ?? null, quarantined:false };
     let settled = false, bytes = 0, stderrBytes = 0, output = [];
     const finish = (error, value) => { if (!settled) { settled = true; clearTimeout(timer); error ? reject(error) : resolve(value); } };

@@ -1,5 +1,16 @@
 # Production qualification goal
 
+Stage40 checkpoint: source-owned region clipping delivered through CLI/fresh
+MCP0.11.2, with actual muxed canvas dimension reconciliation before projections.
+21 targeted/adjacent checks passed. Three retained Finder source maps agree with
+actual pixel sample and matching CLI;3 retained child-fitting regions match
+saved decoded bounds at0px edge error; negative control retains parent geometric
+panel overlap while content omitted. Four crop/area/quad fields remain geometric,
+not semantic visibility/ownership. Scoped fact read back, owned adapter61553
+exited0, f314/PID35547 unchanged/idle; no capture/UI/native rebuild/peer restart.
+41completed,17partial,1deferred; goal active. Continue a useful missing physical,
+provider, practical capture/recovery boundary without stable-source reshoots.
+
 Stage39 checkpoint: Finder menu/Quick Look lane completed for explicit scope.
 Eight sources pass18641 exact mux/source joins. Child-enabled native menus pass;
 Quick Look omitted there, padded display clips title/text, full display retains

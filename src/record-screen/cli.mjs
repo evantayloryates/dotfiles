@@ -20,7 +20,7 @@
 //   record-screen recordings [state]           list recordings, newest first
 //   record-screen recording <id>               full manifest of one recording
 //   record-screen record-source <id>           local source journal and gap descriptor
-//   record-screen frame-map <json>             actual mux/source geometry and desktop-point projection
+//   record-screen frame-map <json>             actual mux/source geometry and desktop-point/region projection
 //   record-screen input-query <json>           bounded retained events, reasons/gaps and exact receipt offsets
 //   record-screen action-begin <json>          recorder-stamped contextual block, no UI action
 //   record-screen action-end <json>            close token, caller-reported result

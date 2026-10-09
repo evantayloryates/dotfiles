@@ -220,3 +220,16 @@ scopes promptly and perform media QA afterwards; an expired scope cannot be
 extended to cover a later cleanup. Preserve its bounds and report cleanup
 separately. Broad source retains unrelated pixels; keep private evidence and
 show only necessary owned content in reports. Composition remains deferred.
+
+
+## Check a declared transient region against actual footage
+
+Fresh MCP0.11.2 recording_frame_map accepts desktop_regions with unique id and
+desktop-point x/y/w/h. The service joins actual mux frames to their referenced
+source map, then returns transformed quads/clipped polygons and continuous
+canvas-area fractions. Declared canvas dimensions must match actual muxed media
+before point/region projection. Unknown frame/metadata/transform remains unknown.
+Use a checked extent and exact source sample, then inspect relevant encoded pixels.
+The region is caller-declared: geometric containment cannot certify that a menu
+or Quick Look exists in that source, is unobscured, or belongs to the agent.
+Held frames retain older referenced content geometry. See README primary mapping.

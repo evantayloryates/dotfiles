@@ -703,7 +703,7 @@ and composition recipes are deferred.
 
 ### Service-owned primary frame mapping (October 9)
 
-Fresh MCP0.10.0 exposes read-only `recording_frame_map`; loaded adapter status
+Fresh MCP0.10.0 introduced read-only `recording_frame_map`; loaded adapter status
 advertises `mcp_adapter.source_frame_mapping:1` and its own mapping/probe health.
 The CLI `node /Users/taylor/src/github/dotfiles/src/record-screen/cli.mjs
 frame-map JSON` is immediately available without restarting existing peers.
@@ -730,6 +730,35 @@ Outside intervals, missing durations/references and unavailable transforms are
 explicit; no geometry is borrowed from a later/current frame. Inside the encoded
 canvas is a bounds check, not visible content or semantic ownership.
 
+Fresh MCP0.11.2 adds `mcp_adapter.source_region_mapping:1`. Optional
+`desktop_regions:[{id,x,y,w,h}]` accepts up to16 uniquely named caller-declared
+desktop-point rectangles. Each mapped frame returns its transformed quad,
+source bounds, clipped polygon, `canvas_relation` (contained/clipped/outside)
+and continuous `canvas_area_fraction`. `content_presence` stays unverified.
+The same source-owned affine handles child fitting and held frames; a current
+window or later geometry cannot replace it. Coordinates/dimensions are bounded
+to10million points, width/height positive, ids64 ASCII identifier characters.
+Source reads need no literal UI text.
+
+Point and region projection now require declared canvas dimensions to match
+the actual probed media stream. `muxed_canvas_pixels` reports measured width/
+height; mismatched or missing dimensions leave projection unavailable while
+exact timestamp correspondence remains separately reported. Unknown frame/
+reference/transform stays unknown. Regions are continuous geometry estimates,
+not decoded pixel counts, semantic extents, occlusion checks or proof of content.
+
+```sh
+node /Users/taylor/src/github/dotfiles/src/record-screen/cli.mjs frame-map \
+  '{"recording_id":"rec_25rmhae4","relative_ns":["20000000000"],"desktop_regions":[{"id":"title_text","x":360,"y":88,"w":600,"h":70}]}'
+```
+
+The saved Finder check reports title/text outside parent and padded footage,
+contained in full display. Actual pixels corroborate the title/text sample.
+The parent canvas geometrically overlaps the declared panel while Quick Look
+is absent: area fraction is not a content-presence confidence score. See
+qualification/FINDER-TRANSIENTS.md and GATES.md stage40. Existing adapters keep
+their loaded capabilities; CLI/fresh safe launches work without peer restart.
+
 Failed/interrupted media can still yield known packet mappings. Correspondence
 counts distinguish persisted packets, accepted submissions, exact matches and
 unmatched tails; a complete journal alone is insufficient. The retained failed
@@ -738,7 +767,7 @@ Unreadable media, malformed/unterminated journals and changed snapshots refuse
 without overwriting files or replaying capture/export work. Source clock continuity
 is returned separately, with provider/physical uncertainty intact.
 
-Bounds:1–64 queries,0–16 points,120000 packets,250000 inspected journal rows,
+Bounds:1–64 queries,0–16 points,0–16 regions,120000 packets,250000 inspected journal rows,
 64MiB regular journal,16MiB probe output,32KiB diagnostic output and1MiB response.
 Regular file leaves are opened without following symlinks. Source reads/probes
 each have10s budgets; initial OS open/read/close and process cancellation are not
