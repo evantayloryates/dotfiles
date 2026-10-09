@@ -42,7 +42,11 @@ whole90-pair.json,whole90-stderr.txt,legacy-fitted-pair.json,shared-facts.json,
 ordinary-chat-status.json,settled-status.json,*reader-settled.json}.
 Initial actual/default output proofs are retained; final numeric/snapshot parity
 confirms the later limit wording change did not alter results. Checklist46
-completed/16partial/1needs_retest/1deferred; full goal active. Next daily-app/
+completed/16partial/1needs_retest/1deferred. A final invalid boolean request is
+correctly refused as structured stdout JSON. Its checker initially expected
+stderr and failed; the saved stdout reply supplies corrected readback without
+another request. Both diagnostic streams remain retained. Full goal active.
+Next daily-app/
 physical/provider gates need renewed visible time; unblocked background diagnosis
 continues. Composition, full-shot recovery, exact fitted origin, capacity and
 ordinary consumer adoption remain open; do not replay stable source captures.
