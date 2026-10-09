@@ -258,3 +258,27 @@ Use a checked extent and exact source sample, then inspect relevant encoded pixe
 The region is caller-declared: geometric containment cannot certify that a menu
 or Quick Look exists in that source, is unobscured, or belongs to the agent.
 Held frames retain older referenced content geometry. See README primary mapping.
+
+
+## Turn rich context into a verified capture milestone
+
+Before an action, declare purpose, before_state, expected_change and
+verification_plan in an explicit action scope. Observe the actual app state,
+close that scope promptly, and query the terminal source with include_context:true.
+Keep its captured active/closed snapshots separate from later live action state.
+Select actual media with recording_frame_map, inspect decoded pixels, then
+publish a typed observed-state outcome linked to the imported terminal receipt.
+A rich block or a delivered result is not verification by itself. Native CUA
+still needs explicit bracketing; no automatic interception is implied.
+
+Stage43 Finder selection milestones proved this path with real rich snapshots,
+AX readback and actual frames465/795. A sample after the last action end was
+outside media coverage; a covered earlier sample from the same take verified
+the state without recapture. Never assume an action end or requested duration
+is a valid video time, and do not rewrite the receipt to fit the source.
+
+An empty interval gap list means no gap notifications in that interval. It
+does not certify clean input: inspect total notifications, recording_source
+protected-input state and retained event snapshots too. This take's secure-input
+notification preceded epoch, with secure_input_snapshot=true on its delivered
+pointer events; it established no new keyboard coverage.

@@ -1,5 +1,54 @@
 # Qualification update — October 9, 2026
 
+## Forty-third pass: actual rich daily-app milestones and source verification
+
+Production3ff4c4519dc8/PID74192 and fresh MCP0.11.4 captured two real reversible
+Finder list selection transitions in owned window8153, Finder26.4/build1828.5.2,
+OS25F80, built-in2×. Explicit native CUA scopes carry purpose, before_state,
+expected_change and verification_plan. Source rec_46f96jt9 retains four rich
+snapshots (active/closed for each milestone) and four pointer events, two per
+token. Captured terminal bounds/fields equal the saved service terminal replies.
+CLI and fresh MCP context reads are equal; token-filtered reads keep two updates
+and two events each. Declarations remain distinct from observed verification.
+
+Actual mux/source proof815 exact timestamp joins, zero delta, zero writer drops,
+zero journal loss, one geometry segment. Service-selected frames465 and795,
+decoded and visually inspected, show only02-menu-test.txt selected followed by
+only01-capture-marker.txt selected. Independent native AX selected filenames
+agree. The snapshots supply rich source context for later brief cues; they do
+not infer semantic meaning or authenticate the actor. No file-content before/
+after hash was taken; only reversible selection behavior is verified.
+
+Initial second preview request at41.446352861s was outside actual mux coverage:
+at_or_after_muxed_video_end. Preserve that negative map and original harness.
+A corrected request one second before the terminal scope end maps frame795 and
+shows the expected restoration. No capture/UI replay or scope-bound rewrite.
+The owned manual stop after milestones is recorded as stopped_early at41.349s;
+service action ends and scheduled duration are not media-coverage guarantees.
+
+Protected-input notification predates epoch at-0.733568639s. The requested0–60s
+input interval therefore reports zero in-interval notifications, while total1,
+source protected_input_last_observed=true and all four pointer snapshots retain
+secure_input_snapshot=true. This is no new keyboard/density proof or permission
+revocation. Read source health and actual event snapshots, not an empty filtered
+gap list alone. Input Monitoring was already enabled; no new grant flow.
+
+Four terminal replies imported exactly, with separate verified AX/pixel outcomes
+and completed episode cleanup; audit4 receipts/4 outcomes/uncovered0. Exact
+Finder rich-selection fact appended and independently read back; provider version
+unknown remains explicit. Owned folder window absent, session closed, take done,
+owned MCP exits0; production unchanged with0 actions/subscribers/unfinished/warm
+lanes. Reusable synthetic files and private evidence retained intentionally.
+No native rebuild/restart, peer reload, automatic provider interception or
+presentation-clock calibration. Two sampled frames do not certify every frame.
+
+Semantic-context gate completed for its written capture scope: intent, rich
+before/expected context, actual observed state and source-linked verification
+for later precise cues. Routine provider adoption, physical/global attribution
+and automatic interception remain their separate partial gates. Checklist42
+completed,16partial,1deferred; full goal active. Visual/audio synthesis deferred.
+Private gates-v43; retain failed sampling evidence and avoid settled reshoots.
+
 ## Forty-second pass: captured semantic context without later-state fabrication
 
 Fresh MCP0.11.4 recording_input/current input-query CLI accepts opt-in

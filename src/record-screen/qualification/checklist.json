@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T07:05:06-04:00",
+  "updated_at": "2026-10-09T07:16:42-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage42 opt-in source-owned semantic context delivered in CLI/fresh MCP0.11.4.25 focused/adjacent plus9 changed-protocol checks, actual2 retained snapshots and once-only supported reader pass. Unknown captured end not backfilled from live state; exact start maps frame1169. Chrome readiness unavailable; no UI/take, owned server/readers/session settled. Native3ff/PID74192 unchanged/idle.41 completed,17 partial,1 deferred. Continue useful remaining boundaries."
+    "note": "Stage43 completed actual rich semantic capture milestones and verified their source pixels.42 completed,16 partial,1 deferred. Remaining work targets useful physical/provider/recovery or routine adoption boundaries; preserve prior evidence and avoid settled reshoots."
   },
-  "production_note": "Signed native3ff4c4519dc8/PID74192 remains idle, grants retained. Fresh MCP0.11.4/CLI now reads opt-in captured action context with exact scope offsets and unknown ends, separate from later live state and typed outcomes.25 adjacent/focused plus9 changed-protocol checks; real retained source and once-only supported consumer verified. Peer adapters untouched. Remaining physical/provider/app/capacity boundaries stay unqualified.",
+  "production_note": "Installed native3ff4c4519dc8 remains unchanged; fresh MCP0.11.4 and CLI retain rich source context. Stage43 actual Finder milestones verified in AX and mapped encoded frames; semantic capture scope completed. Input Monitoring already granted; protected-input state gives no new keyboard coverage. Routine provider/physical/recovery limits remain explicit; visual composition deferred.",
   "groups": [
     {
       "id": "capture",
@@ -266,12 +266,12 @@
         {
           "id": "semantic-context",
           "title": "Connect rich semantic blocks to capture milestones",
-          "status": "partial",
+          "status": "completed",
           "scope": "Intent, before/after context and verification evidence for later precise cues.",
-          "evidence": "Stage42 opt-in captured context returns rich caller-authored fields and exact source scope offsets, preserving active null end despite later closed action. Actual retained2 Finder snapshots map start to frame1169; CLI/MCP equal. Rich fields authored-test/consumer declaration only, old source empty.25 focused/adjacent plus9 changed-protocol checks.",
-          "next": "Extend useful actual rich daily-app milestones and routine provider adoption; keep intent, source snapshots and separate verified observed state distinct. Visual/audio synthesis deferred.",
-          "anchor": "forty-second-pass",
-          "updated_at": "2026-10-09T07:05:06-04:00"
+          "evidence": "Stage43 real Finder2 selection milestones retain4 rich active/closed snapshots and4 pointer events. AX and decoded service-selected frames465/795 agree;815 exact mux/source joins, CLI/MCP equal. Four separate typed verified/cleanup-complete outcomes, uncovered0. After-media-end sample preserved and corrected on same take.",
+          "next": "Written capture scope complete. Extend routine provider adoption in its own gate; visual/audio cue synthesis remains deferred.",
+          "anchor": "forty-third-pass",
+          "updated_at": "2026-10-09T07:16:42-04:00"
         },
         {
           "id": "provider-gaps",
@@ -496,10 +496,10 @@
           "title": "Centralize version-scoped app observations",
           "status": "partial",
           "scope": "Shared reported facts, exact environment keys, expiry and conflicting evidence.",
-          "evidence": "Stage41 exact Finder Quick Look direct-panel pass appended/read back with native build3ff4c4519dc8, OS25F80 and built-in2×. Candidate/installed source proof independent of prior failed parent/padded lanes. Provider version remains unknown; no universal reuse.",
-          "next": "Add only useful missing app/provider capability facts; revalidate exact changed environment and transient family.",
-          "anchor": "forty-first-pass",
-          "updated_at": "2026-10-09T06:52:43-04:00"
+          "evidence": "Stage43 exact Finder rich-selection milestone fact appended and independently read back:2 real transitions, rich source context and AX/decoded frame evidence. Stage41 direct Quick Look and prior failing lanes preserved. Native-CUA provider version remains unknown.",
+          "next": "Add useful missing app/provider capability facts; revalidate exact changed environment and transient family.",
+          "anchor": "forty-third-pass",
+          "updated_at": "2026-10-09T07:16:42-04:00"
         },
         {
           "id": "requalification",
@@ -516,20 +516,20 @@
           "title": "Verify the quality of recent shared computer-use workflows",
           "status": "partial",
           "scope": "Assess delivered actions, verification and cleanup rather than tool-call counts.",
-          "evidence": "Stage42 actual supported semantic source consumer has one operation invocation and typed verified/cleanup-complete observation, uncovered0. Stage39/41 prior native audits and stage36 conflicts retained; scoped reported evidence, not historical task success rate.",
+          "evidence": "Stage43 four real native preparation/selection/restoration/cleanup receipts have separate AX/pixel verified outcomes and completed cleanup, audit uncovered0. Prior failed/conflicting outcomes remain. This is scoped reported evidence, not historical success grading.",
           "next": "Extend routine provider outcomes and actual unresolved workflows; preserve unobserved history without grading receipt results.",
-          "anchor": "forty-second-pass",
-          "updated_at": "2026-10-09T07:05:06-04:00"
+          "anchor": "forty-third-pass",
+          "updated_at": "2026-10-09T07:16:42-04:00"
         },
         {
           "id": "receipt-integration",
           "title": "Improve automatic receipt coverage across providers",
           "status": "partial",
           "scope": "Capture durable operation evidence for native and browser actions.",
-          "evidence": "Stage42 supported withRecordedWorkflow reader ran once with rich declaration context, closed before actual response verification, settled reader/session and published typed verified/cleanup-complete outcome, audit uncovered0. Native CUA interception remains explicit; prior conflicting/failed proofs retained.",
-          "next": "Extend actual ordinary provider adoption and rich daily-app observations, with proof-backed callbacks; do not infer interception or actors from reader success.",
-          "anchor": "forty-second-pass",
-          "updated_at": "2026-10-09T07:05:06-04:00"
+          "evidence": "Stage43 actual native-CUA rich milestone scopes retained4 source snapshots and4 associated pointer events; exact terminal receipts imported with separate proof-backed outcomes, audit uncovered0. Native bracketing remains explicit; no automatic interception or actor authentication.",
+          "next": "Extend ordinary provider adoption and durable operation evidence where useful; do not infer automatic coverage from explicit bracketing.",
+          "anchor": "forty-third-pass",
+          "updated_at": "2026-10-09T07:16:42-04:00"
         },
         {
           "id": "shared-baseline-plan",
@@ -1804,6 +1804,45 @@
       "from": "active",
       "to": "active",
       "note": "Stage42 opt-in source-owned semantic context delivered in CLI/fresh MCP0.11.4.25 focused/adjacent plus9 changed-protocol checks, actual2 retained snapshots and once-only supported reader pass. Unknown captured end not backfilled from live state; exact start maps frame1169. Chrome readiness unavailable; no UI/take, owned server/readers/session settled. Native3ff/PID74192 unchanged/idle.41 completed,17 partial,1 deferred. Continue useful remaining boundaries."
+    },
+    {
+      "kind": "item",
+      "id": "semantic-context",
+      "at": "2026-10-09T07:16:42-04:00",
+      "from": "partial",
+      "to": "completed",
+      "note": "Stage43 real Finder2 selection milestones retain4 rich active/closed snapshots and4 pointer events. AX and decoded service-selected frames465/795 agree;815 exact mux/source joins, CLI/MCP equal. Four separate typed verified/cleanup-complete outcomes, uncovered0. After-media-end sample preserved and corrected on same take."
+    },
+    {
+      "kind": "item",
+      "id": "workflow-audit",
+      "at": "2026-10-09T07:16:42-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage43 four real native preparation/selection/restoration/cleanup receipts have separate AX/pixel verified outcomes and completed cleanup, audit uncovered0. Prior failed/conflicting outcomes remain. This is scoped reported evidence, not historical success grading."
+    },
+    {
+      "kind": "item",
+      "id": "receipt-integration",
+      "at": "2026-10-09T07:16:42-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage43 actual native-CUA rich milestone scopes retained4 source snapshots and4 associated pointer events; exact terminal receipts imported with separate proof-backed outcomes, audit uncovered0. Native bracketing remains explicit; no automatic interception or actor authentication."
+    },
+    {
+      "kind": "item",
+      "id": "app-facts",
+      "at": "2026-10-09T07:16:42-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage43 exact Finder rich-selection milestone fact appended and independently read back:2 real transitions, rich source context and AX/decoded frame evidence. Stage41 direct Quick Look and prior failing lanes preserved. Native-CUA provider version remains unknown."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T07:16:42-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Stage43 completed actual rich semantic capture milestones and verified their source pixels.42 completed,16 partial,1 deferred. Remaining work targets useful physical/provider/recovery or routine adoption boundaries; preserve prior evidence and avoid settled reshoots."
     }
   ]
 }

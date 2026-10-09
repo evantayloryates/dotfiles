@@ -1,5 +1,17 @@
 # Production qualification goal
 
+Stage43 checkpoint: actual rich Finder selection milestones pass. Four captured
+active/closed updates carry four context fields, four pointer events; all815
+actual mux/source joins exact. Native AX and decoded service frames465/795 agree
+on second-file selection then first-file restoration. CLI/fresh MCP0.11.4 equal.
+Initial after-media-end sample retained and corrected on same source, no replay.
+Protected-input notification precedes epoch; no new keyboard claim. Four typed
+verified/cleanup-complete outcomes, audit uncovered0, exact scoped fact read back.
+Owned window/session/readers settled, native3ff/PID74192 unchanged and idle.
+Semantic-context written capture scope complete;42completed,16partial,1deferred.
+Goal active. Next: remaining physical/provider/recovery or routine adoption
+boundaries, preserving passes and failed evidence. Composition remains deferred.
+
 Stage42 checkpoint: captured action context delivered via CLI/fresh MCP0.11.4.
 25 focused/adjacent checks plus9 changed-protocol rechecks; actual retained2
 Finder snapshots preserve unknown source end despite later live closed state.
