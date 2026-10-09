@@ -649,3 +649,28 @@ sessions closed, input subscribers/actions/unfinished takes zero. Seven new-sess
 scopes have five verified/one failed/one not-checked observations, cleanup complete.
 Next unblocked lane: popup ownership/geometry and built-in overflow fallback;
 physical tests await a ready user, not repeated requests or blocked-goal status.
+
+## Twenty-eighth-pass Retina popup checkpoint
+
+Native built-in2x Chrome popup lane passed scoped pixels and geometry. A
+preexisting overflow select appeared in both child-enabled window and display
+crop. Window fitted content at1.372678 px/point; journal map aligned the base
+marker exactly and popup glyphs0.902. Display crop kept12 rows at2x/0.989.
+Contained new-popup child true/false comparison passed, but popup placement
+changed inside the same base window: dynamic overflow scale transitions remain
+untested. Four takes630 exact mux/source samples; candidate lifecycle observed
+absent/present/present/absent, semantic ownership remains authored scope only.
+
+New bounded metadata helper and source-affine verifier are repeatable kits.
+Three exact facts read back; provider/profile unknown keeps reuse unconfirmed.
+Seven receipts/latest typed outcomes6verified/1not-checked, cleanup7complete.
+A broad readiness outcome was explicitly corrected rather than retroactively
+claiming its later popup action; expired cleanup receipt retained alongside
+actual absence proof. All owned window/server/session settled, recorder idle.
+Installed53b202f58af8/PID88833 unchanged; no install/restart/security change.
+
+Next: actual dynamic overflow or realistic motion-insurance readiness and
+interference recovery. Continue high-impact boundaries, preserve prior failures,
+and avoid rerunning stable journals/clock/color or completed Input Monitoring.
+Physical-key coverage still awaits a ready user, not repeated prompts. Standing
+visible authorization remains throughOct9 17:51UTC. Goal remains active.

@@ -1,9 +1,9 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T01:35:19-04:00",
+  "updated_at": "2026-10-09T01:56:14-04:00",
   "workflow": {
     "state": "active",
-    "note": "Keyboard semantics and the cross-app default-filter repair are verified on the signed installed build. Temporary fixtures are settled; physical input remains pending. Continue high-impact popup/app and resource qualification."
+    "note": "Retina popup pixels, fitted geometry and child-option control passed;630 exact muxed/source samples. Continue dynamic overflow or motion-insurance readiness without resetting prior qualification. Physical input remains pending; all owned stage surfaces settled."
   },
   "production_note": "Signed build 53b202f58af8 is installed and verified through a fenced update. Input Monitoring survived and the changed keyboard-scope boundary passed a fresh delivered-event canary. Broader physical/provider, app, motion/resource and final production qualification remain open.",
   "groups": [
@@ -66,10 +66,10 @@
           "title": "Complete the Chrome surface qualification lane",
           "status": "partial",
           "scope": "Genuine native menus, HTML menus, native select controls and reachability.",
-          "evidence": "Native select readiness and display-layer fallback now proven for Chrome154.0.8037.98/25F80/external1x. Child-enabled isolated window and application screenshot omit this select; previous native context-menu proof retained.",
-          "next": "Qualify built-in select fallback, nested/variant surfaces and popup ownership/tracking; avoid replaying settled context-menu tests.",
-          "anchor": "twenty-fourth-pass",
-          "updated_at": "2026-10-09T00:58:21-04:00"
+          "evidence": "Retina qualification added630 exact samples: preexisting overflow captured by child-enabled window with fitted affine and by a native2x display crop. Contained new popup passed child true/false control. Earlier external1x omission is preserved as a distinct scope; new bounded lifecycle metadata is candidate geometry.",
+          "next": "Qualify remaining context/nested/select variants, dynamic overflow fitting and app-only video; reobserve popup placement and exact environment before reuse.",
+          "anchor": "twenty-eighth-pass",
+          "updated_at": "2026-10-09T01:56:14-04:00"
         },
         {
           "id": "electron-depth",
@@ -86,10 +86,10 @@
           "title": "Prove a useful overflow capture and recovery path",
           "status": "partial",
           "scope": "Display padding/cropping must add transient coverage beyond the original canvas.",
-          "evidence": "Prior beyond-frame AppKit spatial crop retained. New encoded Chrome select layer passed; display background occluded while popup persisted. One-pixel reference shift measured, no zero-offset or full-shot claim.",
-          "next": "Qualify ownership and changing popup geometry; synchronized usable base/overflow recovery remains open.",
-          "anchor": "twenty-fourth-pass",
-          "updated_at": "2026-10-09T00:58:21-04:00"
+          "evidence": "Built-in2x display crop preserved12 overflow rows at0.989 glyph overlap. Window source fitted the same popup at1.372678 px/point; saved map aligned popup0.902 and base marker edges exactly. Four takes630 exact mux/source samples. Contained option comparison passed; dynamic popup placement changed without base movement.",
+          "next": "Qualify dynamic overflow shrink/restore and scene recovery under interference. PID/layer candidates and static simultaneous sources do not prove semantic ownership, automatic tracking or full-shot insurance.",
+          "anchor": "twenty-eighth-pass",
+          "updated_at": "2026-10-09T01:56:14-04:00"
         },
         {
           "id": "clean-source",
@@ -110,6 +110,16 @@
           "next": "",
           "anchor": "twenty-fourth-pass",
           "updated_at": "2026-10-09T00:58:21-04:00"
+        },
+        {
+          "id": "retina-popup-canary",
+          "title": "Verify Retina popup pixels, child options and fitted geometry",
+          "status": "completed",
+          "scope": "Chrome154.0.8037.98 /25F80 /installed53b202f58af8; authored preexisting overflow and contained new select on built-in2x.",
+          "evidence": "Four live takes supplied630 exact muxed/source samples. Display overflow glyph IoU0.989; fitted window map gave0.902 popup overlap and zero base-marker edge error. Contained popup appeared only with child inclusion true. Bounded candidate lifecycle absent/present/present/absent; semantic ownership remains scoped to this fixture.",
+          "next": "",
+          "anchor": "twenty-eighth-pass",
+          "updated_at": "2026-10-09T01:56:14-04:00"
         }
       ]
     },
@@ -1175,6 +1185,29 @@
       "from": "active",
       "to": "active",
       "note": "Keyboard semantics and the cross-app default-filter repair are verified on the signed installed build. Temporary fixtures are settled; physical input remains pending. Continue high-impact popup/app and resource qualification."
+    },
+    {
+      "kind": "item",
+      "id": "chrome-depth",
+      "at": "2026-10-09T01:56:14-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Retina qualification added630 exact samples: preexisting overflow captured by child-enabled window with fitted affine and by a native2x display crop. Contained new popup passed child true/false control. Earlier external1x omission is preserved as a distinct scope; new bounded lifecycle metadata is candidate geometry."
+    },
+    {
+      "kind": "item",
+      "id": "overflow-recovery",
+      "at": "2026-10-09T01:56:14-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Built-in2x display crop preserved12 overflow rows at0.989 glyph overlap. Window source fitted the same popup at1.372678 px/point; saved map aligned popup0.902 and base marker edges exactly. Four takes630 exact mux/source samples. Contained option comparison passed; dynamic popup placement changed without base movement."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T01:56:14-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Retina popup pixels, fitted geometry and child-option control passed;630 exact muxed/source samples. Continue dynamic overflow or motion-insurance readiness without resetting prior qualification. Physical input remains pending; all owned stage surfaces settled."
     }
   ]
 }

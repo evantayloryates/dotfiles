@@ -387,3 +387,24 @@ cover known-other destination versus foreground, unknown physical destination,
 protected input, target-app keys and none/shortcuts/all configuration. It supplies
 no live physical/provider or actor proof. Full input-test.swift uses engine sources
 except main.swift and the shared native sources;141 checks passed for this repair.
+
+### Retina popup catalog and source-affine QA
+
+`popup-catalog.swift` is a one-shot read-only CG window metadata probe, scoped
+around an owned anchor ID. It omits titles and unrelated normal windows; same
+PID/layer/overlap are candidate clues. Compile privately with `swiftc`, then run
+under `probe-supervisor.py` with a shared series admission directory and bounded
+deadline. A missing anchor fails explicitly. This is not a daemon or UI driver.
+
+`verify-popup-affine.py` checks a supplied authored popup through the recorder
+map after actual mux/source verification. Example parameters: `--recording`
+terminal manifest JSON, `--catalog` saved probe stdout, `--popup-window` observed
+candidate ID, `--reference-menu` independently cropped authored screenshot,
+`--reference-scale 2`, `--frame-index 70`, and a fresh `--output` JSON. Explicit
+reference resampling supports fitted child content, with no searched translation.
+`--ignore-top-reference-pixels 124 --expect-absent` is the scoped contained-menu
+control used in gates-v28; it is not a general absence detector. One geometry
+segment and bright-on-dark authored glyphs only. Selected frames do not prove
+complete shot coverage or dynamic overflow transitions. Dependencies match the
+existing journal/overflow kits (Pillow, ffmpeg/ffprobe). New source QA remains
+separate from the deferred effects/composition recipes.

@@ -1,7 +1,8 @@
 # Chrome native select capture lane
 
-Qualified on Chrome 154.0.8037.98 (build 8037.98), macOS 26.5.1 / 25F80,
-installed recorder 767d45f6ce40 and the external G34WQC A display at 1x.
+Qualified on Chrome 154.0.8037.98 (build 8037.98), macOS 26.5.1 / 25F80:
+recorder 767d45f6ce40 on the external G34WQC A display at 1x, and
+53b202f58af8 on the built-in Retina display at 2x. Keep these scopes separate.
 This is a source-capture finding. Visual reintegration remains deferred.
 
 ## Observed boundary
@@ -42,6 +43,40 @@ This is a source-capture finding. Visual reintegration remains deferred.
 6. Close owned tabs/windows and settle the session. A timed-out close observation
    requires an independent absence check, not another close request.
 
-Full synchronized recovery, menu ownership, nested/select variants, built-in
-display fallback, app-only video and measured motion/resource budgets remain
-open. Source evidence: private gates-v24; report section `twenty-fourth-pass`.
+## Built-in Retina qualification
+
+The 1x omission is not a universal Chrome rule. On the built-in 2x display,
+one preexisting 424x346-point overflow select appeared in both child-enabled
+window video and a 452x370-point display crop. The display source retained all
+twelve rows at 2x with 0.989 glyph overlap. Window capture fitted the overflow
+into its fixed 1786x1256 canvas: content scale 0.686339, or 1.372678 source
+pixels per desktop point. The saved affine aligned the base marker with zero
+edge error and the popup with 0.902 glyph overlap after explicit reference
+resampling; no fitted translation was used. Use the journal map rather than
+assuming that a 2x display always means two source pixels per point.
+
+A subsequent select opened at a different position entirely inside the same
+base window. In paired live streams it appeared with child inclusion enabled
+and disappeared with it disabled. The true lane kept the base map at 2x.
+This qualifies contained child-option behavior, not an overflow-driven shrink/
+restore transition. Popup placement must be reobserved even when the base
+window has not moved. Four takes supplied 630 exact muxed/source samples.
+
+The bounded `popup-catalog.swift` helper observed a new same-PID layer-101
+window absent/present/present/absent around the authored menu lifecycle.
+It omits window titles and unrelated normal-window content, caps returned
+candidates at 64 and exposes truncation and exact query bounds. This gives
+candidate geometry; PID/layer/overlap still do not prove a general parent
+relationship. Run it under `probe-supervisor.py`, never in a capture callback.
+An unavailable anchor fails explicitly; the supervisor reaps only its child.
+
+`verify-popup-affine.py` checks supplied bright-on-dark authored popup crops
+against a selected decoded frame, including explicit scale resampling and a
+scoped absence control. It first checks actual mux/source correspondence and
+requires one geometry segment. It is source QA, not automatic menu detection,
+continuous tracking, ownership inference or a composition recipe.
+
+Full synchronized recovery, general menu ownership, nested/select variants,
+dynamic overflow fitting, app-only video and measured motion/resource budgets
+remain open. Source evidence: private gates-v24 and gates-v28; report sections
+`twenty-fourth-pass` and `twenty-eighth-pass`.

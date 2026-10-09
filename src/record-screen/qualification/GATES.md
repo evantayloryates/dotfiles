@@ -1,5 +1,65 @@
 # Qualification update — October 9, 2026
 
+## Twenty-eighth pass: Retina popup geometry and child-option depth
+
+Chrome154.0.8037.98/build8037.98 on25F80, installed53b202f58af8,
+built-in1512x982@2. Owned native New Window7937 reached the authored fixture;
+only that window was restored/resized to893x628 at(0,34). User/peer windows and
+input remained available. No installation, restart, security grant or model turn.
+
+A twelve-row select opened beyond the base: candidate7945 at(692,603,424,346),
+ChromePID71011/layer101. New one-shot popup-catalog.swift omits titles, scopes
+normal windows to the anchor PID, includes nearby nonzero-layer candidates,
+caps output64 and exposes query bounds/truncation. Four snapshots observed
+absent/present/present/absent; queries31–36ms. This authored lifecycle supports
+the observed menu association; PID/layer/overlap remain insufficient for general
+parent ownership. After cleanup, missing-anchor query failed and child reaped.
+
+Simultaneous14s sources: child-enabled native window rec_spfd672n and
+452x370-point display crop rec_cuz8dmkt at(680,590). Each140 actual mux/source
+samples matched exactly. Display crop preserved12 rows at2x; supplied848x692
+popup region mapped to its actual desktop rectangle with0.988992 glyph IoU.
+Unlike the earlier external1x scope, window capture included this preexisting
+select. It fitted content to its1786x1256 canvas using content_scale0.686339:
+1.372678 source pixels per desktop point. Explicit saved-affine reference
+resampling, with no fitted shift, gave0.902381 popup glyph IoU and zero base
+marker edge error (mask IoU0.751). Preserve that scale; do not assume display
+backing scale equals captured content scale.
+
+A second35s pair began without a popup: rec_nu93wpc8 children=true and
+rec_rsuzm9wh children=false,175 exact mux/source samples each. Opening the
+select created candidate7951 at(461,262,424,346), entirely inside the base.
+All12 rows appeared in the true lane, absent in the false lane; authored rows
+3–12 gave0.917 glyph IoU versus0.119. Top two rows omitted from the comparison
+because hover/selection changed. Both maps stayed2x. This proves contained
+child-option behavior, not the intended dynamic overflow shrink/restore test:
+popup placement changed while base geometry stayed fixed. Do not count three
+geometry transitions or infer their absence indicates a source-map failure.
+
+New verify-popup-affine.py first checks real mux/source correspondence, accepts
+one positive uniform map, checks supplied candidate/reference dimensions and
+explicitly resamples through that map without searching a translation. Selected
+frames and absence controls are authored source QA, not arbitrary segmentation,
+continuous tracking, semantic ownership or visual composition. Three actual
+saved-video checks passed; a known-absent frame rejected as expected. Four
+total takes supplied630 exact samples.
+
+Three exact-environment facts published/read back centrally; provider/profile
+unknown keeps reuse unconfirmed. Seven explicit scopes imported and audited,
+receipt results six dispatched/one interrupted. Cleanup action expired before
+end request; actual window absence is separately verified, not a rewritten
+receipt. A broad initial readiness verification reference was corrected with
+an appended not-checked outcome: its scope resized only, later popup evidence
+belongs to later scopes. Latest audit six verified/one not-checked, cleanup
+seven completed, uncovered0, truncationfalse. Earlier observation remains stored.
+
+Owned window absent, server terminal exited, session ses_3rp9nhxd closed;
+active actions/subscribers/unfinished captures0. Production unchanged/PID88833.
+Dynamic overflow transitions, general popup ownership/tracking, nested/context
+variants, app-only video and full motion/interference insurance remain open.
+The earlier external1x omission and physical-input pending result remain valid
+historical scopes. No phase reset, input locking or peer termination.
+
 ## Twenty-seventh pass: keyboard semantics and a repaired cross-app boundary
 
 Authored keyboard-fixture.swift supplies two native windows, a canvas with no
