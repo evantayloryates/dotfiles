@@ -1,9 +1,9 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-08T20:01:05-04:00",
+  "updated_at": "2026-10-08T20:33:47-04:00",
   "workflow": {
-    "state": "paused",
-    "note": "Qualification is paused at Taylor’s request. This update adds the checklist without restarting testing."
+    "state": "active",
+    "note": "Taylor resumed qualification. Prioritize high-impact investigation, preserve failed evidence and useful progress, and avoid repeated resets or rerunning settled checks."
   },
   "production_note": "Candidate changes have not been installed. Production delivery and rollback verification are still pending.",
   "groups": [
@@ -44,12 +44,12 @@
         {
           "id": "preview-lifetime",
           "title": "Guard helper identity for persistent preview lanes",
-          "status": "partial",
-          "scope": "Keep long-lived previews aligned with current excluded processes.",
-          "evidence": "Preview identity includes resolved PIDs; the recording lifetime guard does not cover persistent preview lanes.",
-          "next": "Test helper churn while a preview remains open; define interruption or safe reconfiguration.",
-          "anchor": "ninth-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "status": "completed",
+          "scope": "Candidate preview identity lifecycle: observed helper changes invalidate affected buffers/lanes, absent helpers refuse, fresh requests resolve new identities; forced SDK/main-run-loop stalls remain unqualified.",
+          "evidence": "Signed/loaded 83efb9156bea passed 15 mechanical checks, two targeted MCP tests, live affected-lane retirement with an unrelated lane retained, absent-helper refusal and fresh PID 48094 to 50261 recovery. Both owned engines exited and leases returned to zero. Off-Space helper adds no new pixel-exclusion proof; ninth-pass recording pixel evidence retained.",
+          "next": "",
+          "anchor": "tenth-pass",
+          "updated_at": "2026-10-08T20:33:47-04:00"
         },
         {
           "id": "native-menus",
@@ -140,12 +140,12 @@
         {
           "id": "pointer-coordinates",
           "title": "Qualify pointer positions for downstream composition",
-          "status": "pending",
+          "status": "partial",
           "scope": "Normalize provider positions into recorded pixels without guessing coordinate semantics.",
-          "evidence": "Raw positions remain unqualified; composition positions are withheld.",
-          "next": "Compare delivered coordinates and actual source pixels across scales, origins and providers.",
-          "anchor": "limits",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "evidence": "Four native CUA delivered clicks exactly matched raw CG coordinates and event timestamps across external 1x and built-in 2x, including negative desktop y. Saved transforms predicted decoded marker centroids within 0.5 pixels. One take supplied 481 exact source/mux samples. Initial noWindowsAvailable refusal retained; external/home AX controls recovered delivery without restarting the take.",
+          "next": "Qualify drag/scroll and another provider or physical-input lane, then expose recorder-owned mapping with explicit provider confidence; do not repeat settled native-click proof.",
+          "anchor": "tenth-pass",
+          "updated_at": "2026-10-08T20:33:47-04:00"
         },
         {
           "id": "sleep-clock",
@@ -160,12 +160,12 @@
         {
           "id": "capture-colors",
           "title": "Qualify capture color fidelity",
-          "status": "pending",
+          "status": "needs_retest",
           "scope": "Track color spaces, transfer functions and source-to-export reproduction.",
-          "evidence": "The helper baseline decoded to RGB 253/62/254; a strict threshold failed. Broader authored-chroma presence passed; exact color reproduction is unknown.",
-          "next": "Use declared color references and inspect the source/encoder/export color path.",
-          "anchor": "ninth-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "evidence": "Six declared sRGB patches across three geometry segments: Retina maximum 8-bit channel error 2, external maximum 76; return home restored initial colors. Software preview reproduced all 18 sampled parent values exactly. Capture already requests sRGB. Actual buffer/profile conversion and writer interpretation remain unknown; failed source retained.",
+          "next": "Isolate observed SCK color tags and NV12/BGRA output against PNG and encoded video; choose and test a targeted fix without repeating coordinate qualification.",
+          "anchor": "tenth-pass",
+          "updated_at": "2026-10-08T20:33:47-04:00"
         }
       ]
     },
@@ -480,5 +480,61 @@
       ]
     }
   ],
-  "history": []
+  "history": [
+    {
+      "kind": "workflow",
+      "at": "2026-10-08T20:17:06-04:00",
+      "from": "paused",
+      "to": "active",
+      "note": "Taylor resumed qualification. Prioritize high-impact investigation, preserve failed evidence and useful progress, and avoid repeated resets or rerunning settled checks."
+    },
+    {
+      "kind": "item",
+      "id": "preview-lifetime",
+      "at": "2026-10-08T20:18:01-04:00",
+      "from": "partial",
+      "to": "in_progress",
+      "note": "Ninth-pass recording lifetime checks remain preserved. Source review confirms persistent preview lanes still lack an identity lease; extending the same observer to retire stale lanes and reject in-flight stale delivery."
+    },
+    {
+      "kind": "item",
+      "id": "pointer-coordinates",
+      "at": "2026-10-08T20:24:35-04:00",
+      "from": "pending",
+      "to": "in_progress",
+      "note": "Preparing one authored fixture that records delivered native coordinates and paints the corresponding click marker; the same capture will qualify declared color references."
+    },
+    {
+      "kind": "item",
+      "id": "capture-colors",
+      "at": "2026-10-08T20:24:36-04:00",
+      "from": "pending",
+      "to": "in_progress",
+      "note": "Preparing declared sRGB RGB/gray reference patches alongside pointer markers. Existing calibrated helper-color finding and failed strict threshold remain preserved."
+    },
+    {
+      "kind": "item",
+      "id": "preview-lifetime",
+      "at": "2026-10-08T20:33:47-04:00",
+      "from": "in_progress",
+      "to": "completed",
+      "note": "Signed/loaded 83efb9156bea passed 15 mechanical checks, two targeted MCP tests, live affected-lane retirement with an unrelated lane retained, absent-helper refusal and fresh PID 48094 to 50261 recovery. Both owned engines exited and leases returned to zero. Off-Space helper adds no new pixel-exclusion proof; ninth-pass recording pixel evidence retained."
+    },
+    {
+      "kind": "item",
+      "id": "pointer-coordinates",
+      "at": "2026-10-08T20:33:47-04:00",
+      "from": "in_progress",
+      "to": "partial",
+      "note": "Four native CUA delivered clicks exactly matched raw CG coordinates and event timestamps across external 1x and built-in 2x, including negative desktop y. Saved transforms predicted decoded marker centroids within 0.5 pixels. One take supplied 481 exact source/mux samples. Initial noWindowsAvailable refusal retained; external/home AX controls recovered delivery without restarting the take."
+    },
+    {
+      "kind": "item",
+      "id": "capture-colors",
+      "at": "2026-10-08T20:33:47-04:00",
+      "from": "in_progress",
+      "to": "needs_retest",
+      "note": "Six declared sRGB patches across three geometry segments: Retina maximum 8-bit channel error 2, external maximum 76; return home restored initial colors. Software preview reproduced all 18 sampled parent values exactly. Capture already requests sRGB. Actual buffer/profile conversion and writer interpretation remain unknown; failed source retained."
+    }
+  ]
 }

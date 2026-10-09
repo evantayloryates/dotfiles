@@ -98,6 +98,7 @@ final class Lane: @unchecked Sendable {
   var stopping: CaptureDeadline<Void>?
   var lastUsed = uptimeNs()
   var served = 0
+  var exclusion: PreviewExclusion?
 
   init(key: String, width: Int, height: Int, expectedRect: CGRect?) {
     self.key = key
@@ -106,7 +107,7 @@ final class Lane: @unchecked Sendable {
     self.expectedRect = expectedRect
   }
 
-  var healthy: Bool { sink.stoppedError == nil && ready?.timedOut != true && restart?.timedOut != true }
+  var healthy: Bool { sink.stoppedError == nil && ready?.timedOut != true && restart?.timedOut != true && exclusion?.lease.change == nil }
   var startupQuarantined: Bool {
     (ready?.timedOut == true && ready?.producerFinished == false) ||
       (restart?.timedOut == true && restart?.producerFinished == false)
@@ -145,6 +146,7 @@ final class Lane: @unchecked Sendable {
 
   func retire() {
     sink.invalidate()
+    exclusion?.release()
     let s: SCStream? = lock.withLock {
       retired = true
       let current = stream; stream = nil
@@ -179,6 +181,29 @@ actor Viewfinder {
     let ms: Double
   }
 
+  private func makeLane(key: String, target: ResolvedTarget, width: Int, height: Int, expected: CGRect?) throws -> Lane {
+    let lane = Lane(key: key, width: width, height: height, expectedRect: expected)
+    if !target.captureOptions.excludeApps.isEmpty {
+      var resolved: [String:Set<Int32>] = [:]
+      for app in target.excludedApplications { resolved[app.bundleIdentifier, default: []].insert(app.processID) }
+      lane.exclusion = try PreviewExclusion(tracker: ExclusionApps.shared.tracker,
+        bundles: target.captureOptions.excludeApps, resolved: resolved) { [weak self, weak lane] change in
+          // Stop accepting buffers synchronously, before actor retirement can run.
+          lane?.sink.invalidate()
+          Task { await self?.exclusionChanged(lane, change: change) }
+        }
+    }
+    return lane
+  }
+
+  private func exclusionChanged(_ lane: Lane?, change: ExclusionIdentityChange) {
+    guard let lane, lanes[lane.key] === lane else { return }
+    lanes[lane.key] = nil
+    retire(lane)
+    Log.event("preview_exclusion_changed", change.dict)
+    reapRetired()
+  }
+
   func grab(_ t: ResolvedTarget, maxWidth: Int?) async throws -> Grab {
     let t0 = uptimeNs()
     let cfg = t.configuration(maxWidth: maxWidth)
@@ -202,7 +227,7 @@ actor Viewfinder {
         retire(l)
         lanes[key] = nil
         try admit()
-        lane = Lane(key: key, width: cfg.width, height: cfg.height, expectedRect: expected)
+        lane = try makeLane(key: key, target: t, width: cfg.width, height: cfg.height, expected: expected)
         created = true
         lanes[key] = lane
         lane.ready = CaptureDeadline(seconds: 3, label: "preview stream start") { try await lane.start(filter: t.filter, config: cfg) }
@@ -210,7 +235,7 @@ actor Viewfinder {
     } else {
       try admit()
       created = true
-      lane = Lane(key: key, width: cfg.width, height: cfg.height, expectedRect: expected)
+      lane = try makeLane(key: key, target: t, width: cfg.width, height: cfg.height, expected: expected)
       lanes[key] = lane
       lane.ready = CaptureDeadline(seconds: 3, label: "preview stream start") { try await lane.start(filter: t.filter, config: cfg) }
     }
@@ -219,6 +244,7 @@ actor Viewfinder {
 
     func screenshot() async throws -> Grab {
       try Task.checkCancellation()
+      try lane.exclusion?.validate()
       guard lanes[key] === lane else { throw RPCError(code: "capture_interrupted", message: "preview was retired while the request was in flight") }
       let shot: CaptureDeadline<CGImage>
       if let pending = lane.screenshot, !pending.producerFinished { shot = pending }
@@ -230,12 +256,14 @@ actor Viewfinder {
       }
       let img = try await shot.value()
       try Task.checkCancellation()
+      try lane.exclusion?.validate()
       guard lanes[key] === lane else { throw RPCError(code: "capture_interrupted", message: "preview was retired before screenshot delivery") }
       return Grab(image: img, source: "screenshot", ms: Double(uptimeNs() - t0) / 1e6)
     }
     do {
       try await lane.ready?.value()
     } catch {
+      try lane.exclusion?.validate()
       if lane.quarantined || error is CancellationError { throw error }
       return try await screenshot()
     }
@@ -260,6 +288,7 @@ actor Viewfinder {
     try Task.checkCancellation()
     guard lanes[key] === lane else { throw RPCError(code: "capture_interrupted", message: "preview was retired during recovery") }
     if let pb {
+      try lane.exclusion?.validate()
       lane.served += 1
       return Grab(image: try cgImage(pb), source: created ? "start" : "live", ms: Double(uptimeNs() - t0) / 1e6)
     }

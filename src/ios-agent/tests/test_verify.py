@@ -18,7 +18,9 @@ def active_status(epoch='epoch-1', boot='boot-1'):
 
 
 def state(route='ClientDashboard', age=0):
-    return {'ready': True, 'domain': {'active': True, 'ageMs': age, 'navigation': {'registered': True, 'route': route}}}
+    return {'ready': True, 'domain': {'active': True, 'ageMs': age,
+                                    'apollo': {'registered': True},
+                                    'navigation': {'registered': True, 'route': route}}}
 
 
 class ScriptedIPC:
@@ -53,6 +55,17 @@ class ScriptedIPC:
 
 
 class VerificationTests(unittest.TestCase):
+    def test_js_prelude_without_application_registration_is_not_ready(self):
+        value = {'ready': True, 'domain': {'active': True, 'ageMs': 0}}
+        passed, evidence = evaluate('ready', value)
+        self.assertFalse(passed)
+        self.assertFalse(evidence['navigationRegistered'])
+        self.assertFalse(evidence['apolloRegistered'])
+        self.assertFalse(evaluate('ready', state('unknown'))[0])
+        value = state()
+        value['domain']['apollo']['unavailable'] = True
+        self.assertFalse(evaluate('ready', value)[0])
+
     def test_stale_domain_and_unknown_route_never_pass(self):
         self.assertFalse(evaluate('route', state(age=3001), 'ClientDashboard')[0])
         self.assertFalse(evaluate('route', state(route='unknown'), 'ClientDashboard')[0])

@@ -14,12 +14,18 @@
 #endif
 #endif
 #import "TouchHID.inc"
+#import "StartupPolicy.inc"
 
 #if IOS_AGENT_REACT
 static NSString *IABundleSource=@"unknown";
+static NSTimeInterval IAStartupAt;
+static BOOL IAStartupFallbackAttempted=NO;
+static BOOL IAForceEmbedded=NO;
 static NSURL *IOSAgentDevelopmentBundleURL(void) {
+ IAStartupAt=NSProcessInfo.processInfo.systemUptime;
  NSURL *fallback=[[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
 #ifdef IOS_AGENT_METRO_ENDPOINT
+ if(IAForceEmbedded) { IABundleSource=@"embedded"; return fallback; }
  NSURLComponents *url=[NSURLComponents componentsWithString:IOS_AGENT_METRO_ENDPOINT];
  BOOL valid=[url.scheme isEqual:@"https"] && [url.host hasSuffix:@".ts.net"] && !url.user && !url.password && !url.query && !url.fragment && [url.path isEqual:@"/"] && url.port.intValue==10444;
  if(valid) {
@@ -137,7 +143,20 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
 
 @implementation IOSAgent
 - (void)startWatchdog {
- self.watchdog=[NSTimer timerWithTimeInterval:0.1 repeats:YES block:^(NSTimer *timer){ if(self.lease && ![self leased]) [self stopLease]; }];
+ self.watchdog=[NSTimer timerWithTimeInterval:0.1 repeats:YES block:^(NSTimer *timer){
+  if(self.lease && ![self leased]) [self stopLease];
+#if IOS_AGENT_REACT
+  if(IAStartupShouldFallback(IABundleSource,IANow()-IAStartupAt,
+                            [self.appState[@"applicationRegistered"] isEqual:@YES],
+                            [self active],IAStartupFallbackAttempted)) {
+   IAStartupFallbackAttempted=YES; IAForceEmbedded=YES;
+   NSString *lease=[self.lease copy], *epoch=[self.epoch copy];
+   [self stopLease]; self.appState=@{@"ready":@NO}; IAPendingState=nil;
+   if(lease && epoch) [self exchange:@{@"op":@"cancel",@"lease":lease,@"epoch":epoch} completion:^(NSDictionary *reply){}];
+   RCTTriggerReloadCommandListeners(@"ios-agent bounded startup fallback");
+  }
+#endif
+ }];
  [NSRunLoop.mainRunLoop addTimer:self.watchdog forMode:NSRunLoopCommonModes];
 }
 - (void)URLSession:(NSURLSession*)session task:(NSURLSessionTask*)task willPerformHTTPRedirection:(NSHTTPURLResponse*)response newRequest:(NSURLRequest*)request completionHandler:(void(^)(NSURLRequest*))completion {
@@ -262,6 +281,7 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
    NSMutableDictionary *state=[(self.appState?:@{@"ready":@NO}) mutableCopy];
 #if IOS_AGENT_REACT
    state[@"bundleSource"]=IABundleSource;
+   state[@"startupRecovery"]=@{@"fallbackAttempted":@(IAStartupFallbackAttempted),@"timeoutSeconds":@45};
 #endif
    state[@"wifiHandoff"]=IOSAgentWiFiState();
    done(state); return;
@@ -269,6 +289,7 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
   if([action isEqual:@"wifi"]) { done(IOSAgentWiFiPrepare(args,cid)); return; }
   if([action isEqual:@"reload"]) {
 #if IOS_AGENT_REACT
+   IAForceEmbedded=NO; IAStartupFallbackAttempted=NO;
    self.appState=@{@"ready":@NO};
    done(@{@"delivery":@"scheduled-JS-reload",@"scope":@"semantic-dev-runtime"});
    dispatch_after(dispatch_time(DISPATCH_TIME_NOW,100*NSEC_PER_MSEC),dispatch_get_main_queue(),^{ RCTTriggerReloadCommandListeners(@"ios-agent explicit development reload"); }); return;

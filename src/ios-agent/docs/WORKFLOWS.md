@@ -184,7 +184,7 @@ cohort, or delete unrelated rows for this workflow.
 ### 4. Browser coach mutation → persisted row → mobile read
 
 Open the normal non-admin session at
-`/dashboard/clients/<paired-client-id>/nutrition/settings`. The existing
+`/dashboard/client-list/<paired-client-id>/nutrition/settings`. The existing
 `next/test/e2e/tests/coach-client-nutrition-injuries.browser.test.ts` supplies a
 representative real-input path: label **Target Daily Calories:** → input → fill
 new value → blur. Wait for the `updateClient` response carrying **this exact
@@ -239,3 +239,26 @@ Wi-Fi Shortcuts handoff and recovery, USB-unplugged cellular proof, paired auth,
 business equality, and final native/glow cleanup remain open. Human steps should be limited
 to USB/lock-state and actual Apple authentication/consent gates. Unit/IPC tests
 prove the verifier's refusal and wait behavior, not a completed customer flow.
+
+## Resume qualification findings
+
+On the installed phone the exact TargetCalories client ID and baseline matched
+the guarded non-admin coach pair. A coach UI edit persisted; the original nullable
+target was restored through the UI and independently read back. Temporary auth
+tokens were retired and private credential files removed. Changed-value equality
+on the phone remains unqualified because a subsequent remote reload produced a
+black screen. Do not replay that edit to diagnose runtime startup.
+
+`ready` now rejects a prelude-only response: it requires fresh domain sampling,
+a registered structural navigation route and available registered Apollo client.
+This still does not prove a particular business screen rendered; use a native
+visible target plus component props/value assertion for each workflow.
+
+Native action transport can complete while the device rejects a hit target. The
+CLI now exits nonzero for that result, preserving its private output receipt.
+Never interpret transport completion as input or business success.
+
+Coach tab labels can be lowercase in the DOM with CSS capitalization. Tab changes
+can update context before URL routing. Navigate using the rendered settings link
+and wait for the actual form, rather than imposing a URL-transition gate on a
+context-only tab. The helper route prefix is `client-list`, not `clients`.

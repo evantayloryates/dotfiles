@@ -31,8 +31,9 @@ function createDomainRegistry({routeNames = [], now = Date.now, schedule = setIn
     values = next; observedAt = now(); emit();
   };
   return {
-    registerApollo(client) { apollo = client; sample(); return () => { if (apollo === client) { apollo = undefined; sample(); } }; },
-    registerNavigation(readRoute) { navigation = readRoute; sample(); return () => { if (navigation === readRoute) { navigation = undefined; sample(); } }; },
+    registerApollo(client) { apollo = client; sample(); if (!active) emit(); return () => { if (apollo === client) { apollo = undefined; sample(); if (!active) emit(); } }; },
+    registerNavigation(readRoute) { navigation = readRoute; sample(); if (!active) emit(); return () => { if (navigation === readRoute) { navigation = undefined; sample(); if (!active) emit(); } }; },
+    registered() { return Boolean(apollo && navigation); },
     start() { if (timer !== undefined) cancel(timer); generation++; active = true; probe = null; probeAt = null; sample(); timer = schedule(sample, 1000); },
     stop() { if (timer !== undefined) cancel(timer); timer = undefined; generation++; active = false; values = {}; observedAt = null; probe = null; probeAt = null; emit(); },
     token() { return generation; },

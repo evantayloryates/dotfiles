@@ -240,9 +240,34 @@ preserves partial media; startup identity disagreement fails explicitly. The
 manifest and `recording_source.exclusion_quality` report uncertainty, also retained
 in the journal video outcome and derivative parent outcome. The observed host
 stamp is not the first contaminated pixel. Successful finalization does not
-establish clean footage. Resolve again before a new take; persistent preview
-lanes and main-run-loop observation stalls still need qualification. MCP requires
+establish clean footage. Resolve again before a new take. MCP requires
 `exclusion_identity: 1` for a recording with nonempty exclusions.
+
+Excluded frame checks require `preview_exclusion_identity: 1`. Each request
+validates identity across resolution and image delivery; each persistent lane
+holds its own lease. Identity change invalidates its newest buffer immediately,
+retires only that lane, and releases its lease. SDK work retains its admission
+slot until settled. The shared observer admits at most 16 exclusion leases,
+including recordings, persistent lanes and in-flight frame checks; overload
+returns `capture_busy`. Fresh requests resolve new identities. Fifteen mechanical
+checks plus an owned live helper termination/relaunch canary qualified this
+candidate policy. The live preview canary did not establish pixel exclusion
+because its helper was on another Space; ninth-pass recording pixel proof remains
+separate. Forced late SDK delivery and main-run-loop stalls remain unqualified.
+
+Tenth-pass native CUA clicks matched app-delivered Quartz coordinates and raw
+event timestamps exactly across 1×/2× displays, including a negative desktop
+origin. Four decoded marker centers were within 0.5 source pixels of the saved
+affine map. This does not promote every provider's raw positions: drags, scrolling,
+physical input and other providers still need their own evidence. Requested CUA
+screenshot coordinates differed from delivered points; use delivered events.
+
+Six declared sRGB patches in three geometry segments exposed a color failure.
+Retina samples differed by at most two 8-bit channel values; the external-display
+segment differed by as much as 76. The software preview preserved all 18 sampled
+source values exactly. Capture already requests sRGB; isolate actual SCK buffer
+color metadata/pixel format and writer interpretation before selecting a fix.
+Do not normalize these results by assuming the display profile is the cause.
 
 An `exclusion_quality.state` of `observing` means no identity change was observed
 by that lease. It is not a general clean-footage proof; missing quality is unknown.

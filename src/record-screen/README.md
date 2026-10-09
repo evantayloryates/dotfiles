@@ -29,8 +29,11 @@ Recordings with nonempty `exclude_apps` additionally require
 identity before resolving the filter and interrupts a take on an observed change,
 keeping partial media. `exclusion_quality` stays uncertain on interruption;
 observation timing does not locate the first affected frame. Start a fresh take
-with freshly resolved identities. Persistent preview lanes do not yet have this
-lifetime guard. Default callers retain their previous behavior.
+with freshly resolved identities. Excluded frame checks additionally require
+`preview_exclusion_identity: 1`: affected lanes retire, in-flight images are
+validated at delivery, and a new check resolves current identities. Main-run-loop
+observation can lag; these guards do not promise zero leaked pixels. Default
+callers retain their previous behavior.
 
 Signed isolated candidates passed recording/preview routing and an owned
 background-helper termination/relaunch canary. Installed production remains

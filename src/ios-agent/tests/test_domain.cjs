@@ -2,6 +2,21 @@ const {test} = require('node:test');
 const assert = require('node:assert/strict');
 const {createDomainRegistry} = require('../native/domain');
 
+test('startup registration changes publish while idle without reading app state', () => {
+  let events=0;
+  const registry=createDomainRegistry({onChange:()=>events++});
+  assert.equal(registry.registered(),false);
+  const removeOld=registry.registerNavigation(()=>{throw Error('idle_route_read');});
+  const removeApollo=registry.registerApollo({getObservableQueries(){throw Error('idle_query_read');}});
+  assert.equal(registry.registered(),true);
+  registry.registerNavigation(()=>{throw Error('replacement_idle_read');});
+  removeOld(); assert.equal(registry.registered(),true);
+  assert.equal(events,3);
+  removeApollo(); assert.equal(registry.registered(),false);
+  assert.equal(registry.snapshot().active,false);
+  assert.equal(registry.snapshot().navigation,undefined);
+});
+
 test('inspection is lease-scoped, read-only, bounded and excludes payloads', () => {
   let reads = 0, tick;
   const registry = createDomainRegistry({routeNames: ['Welcome'], schedule: f => {tick=f;return 1;}, cancel() {}});

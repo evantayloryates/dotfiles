@@ -21,8 +21,10 @@ test('optional controls require the exact contract; legacy callers bypass it', (
 
 test('MCP refuses an old engine before capture, forwards explicit false to capable engine', async () => {
   const root = mkdtempSync(join(tmpdir(), 'capture-options-mcp-')); mkdirSync(join(root, 'run'))
-  const methods = []; let capable = false, forwarded, disconnectExport = false, exclusionCap = false
+  const methods = []; let capable = false, forwarded, disconnectExport = false, exclusionCap = false, previewExclusionCap = false
   const manifestPath = join(root, 'synthetic.source.json')
+  const imagePath = join(root, 'synthetic.png')
+  writeFileSync(imagePath, Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=', 'base64'))
   writeFileSync(manifestPath, JSON.stringify({ schema:'record-screen-derivative/v1', parent:{recording_id:'synthetic'},
     sampling:{fps:10,first_parent_tick:'5',end_parent_tick_exclusive:'6'},time_base:['1','10'],parent_time_base:['1','10'],
     frames:[{index:0,pts:'0',duration:'1',nominal_parent_tick:'5',parent_pts:'3',parent_packet_index:0}] }))
@@ -33,8 +35,9 @@ test('MCP refuses an old engine before capture, forwards explicit false to capab
       const row = JSON.parse(line); methods.push(row.method)
       let result
       if (row.method === 'record.export' && disconnectExport) { socket.destroy(); return }
-      if (row.method === 'status') result = capable ? { capabilities: { target_capture_options: 1, source_journal: 1, action_scopes:1, input_timeline:1, derivative_source:1, ...(exclusionCap?{exclusion_identity:1}:{}) } } : { engine: { build: 'legacy-fixture' } }
+      if (row.method === 'status') result = capable ? { capabilities: { target_capture_options: 1, source_journal: 1, action_scopes:1, input_timeline:1, derivative_source:1, ...(exclusionCap?{exclusion_identity:1}:{}), ...(previewExclusionCap?{preview_exclusion_identity:1}:{}) } } : { engine: { build: 'legacy-fixture' } }
       else if (row.method === 'record.export_info') result = {path:manifestPath}
+      else if (row.method === 'frame.verify') { forwarded = row.params; result = {image:{path:imagePath,format:'png'}} }
       else { forwarded = row.params; result = { overlay_id: 'synthetic-no-ui' } }
       socket.write(JSON.stringify({ id: row.id, result }) + '\n')
     })
@@ -102,6 +105,13 @@ test('MCP refuses an old engine before capture, forwards explicit false to capab
     exclusionCap=true
     const acceptedExclusion=await request('tools/call',{name:'record_schedule',arguments:exclusionArgs})
     assert.equal(acceptedExclusion.isError,false);assert.equal(methods.at(-1),'record.schedule')
+    assert.deepEqual(forwarded.target,exclusionArgs.target)
+    const deniedPreview=await request('tools/call',{name:'frame_check',arguments:{target:exclusionArgs.target}})
+    assert.equal(deniedPreview.isError,true);assert.match(deniedPreview.content[0].text,/unsupported_preview_exclusion_identity/)
+    assert.equal(methods.at(-1),'status','legacy preview does not start a stale lane')
+    previewExclusionCap=true
+    const acceptedPreview=await request('tools/call',{name:'frame_check',arguments:{target:exclusionArgs.target}})
+    assert.equal(acceptedPreview.isError,false);assert.equal(methods.at(-1),'frame.verify')
     assert.deepEqual(forwarded.target,exclusionArgs.target)
     capable=false
     const exportArgs={recording_id:'synthetic',format:'mp4',effort:'draft',backend:'software',max_width:640,fps:12,name:'draft.mp4'}

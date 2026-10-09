@@ -21,6 +21,8 @@ steps, status counts, balanced disclosure/section tags and JavaScript syntax.
 Record whether visual rendering was actually checked. Preserve the page’s
 expandable execution order and existing design.
 
-At this checkpoint the host prerequisites pass and the phone bridge is offline.
-One unlock confirmation after a restart request is pending. Do not duplicate
-that question; continue independent review and documentation work meanwhile.
+Completion discipline: one passing receipt closes its finite gate. Rerun only
+changed code, a new runtime/transport required by the gate, or a diagnosed failed
+case. Assign broader extensions to one later step instead of reopening the
+delivered baseline. Supporting suite counts do not close a product workflow.
+Record failed edges and their recovery cost before choosing another approach.

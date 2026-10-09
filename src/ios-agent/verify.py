@@ -127,9 +127,18 @@ def evaluate(gate, value, expected=None, max_age_ms=3000):
     age = domain.get('ageMs') if isinstance(domain, dict) else None
     fresh = (isinstance(domain, dict) and domain.get('active') is True and
              type(age) in (int, float) and math.isfinite(age) and 0 <= age <= max_age_ms)
-    ready = value.get('ready') is True and fresh
+    navigation = domain.get('navigation') if isinstance(domain, dict) else None
+    apollo = domain.get('apollo') if isinstance(domain, dict) else None
+    navigation_ready = (isinstance(navigation, dict) and navigation.get('registered') is True
+                        and isinstance(navigation.get('route'), str)
+                        and navigation['route'] != 'unknown'
+                        and bool(re.fullmatch('[A-Za-z_][A-Za-z0-9_]{0,63}', navigation['route'])))
+    apollo_ready = (isinstance(apollo, dict) and apollo.get('registered') is True
+                    and apollo.get('unavailable') is not True)
+    ready = value.get('ready') is True and fresh and navigation_ready and apollo_ready
     if gate == 'ready':
-        return bool(ready), {'runtimeReady': value.get('ready') is True, 'domainFresh': bool(fresh)}
+        return bool(ready), {'runtimeReady': value.get('ready') is True, 'domainFresh': bool(fresh),
+                            'navigationRegistered': bool(navigation_ready), 'apolloRegistered': bool(apollo_ready)}
     if gate == 'bundle-source':
         match = value.get('bundleSource') == expected
         return bool(ready and match), {'runtimeReady': bool(ready), 'expectedSourceMatched': bool(match)}

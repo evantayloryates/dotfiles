@@ -1,5 +1,33 @@
 # Qualification update — October 8, 2026
 
+## Tenth pass: preview lifetime and combined pointer/color evidence
+
+Taylor resumed with explicit guidance to maximize learning, retain useful work
+and avoid unnecessary rollback or repeated phases. The checklist is active.
+This stage reused the recording identity observer and one authored combined
+fixture; no installed engine or peer workflow was restarted.
+
+| Gate | Verified evidence | Limits |
+| --- | --- | --- |
+| Persistent preview lifetime | Signed candidate 83efb9156bea invalidated only the affected lane when owned helper PID 48094 exited; the unexcluded lane remained. Missing helper requests refused. Relaunched PID 50261 resolved a fresh lane. Fifteen lease checks and two targeted MCP tests passed. | Helper was on another Space, so this stage adds lifecycle evidence, not pixel-exclusion proof. Ninth-pass actual pixel evidence is preserved. Observation can lag; forced late SDK delivery remains unqualified. |
+| Delivered pointer coordinates | Four native CUA clicks matched the app's independently converted Quartz positions and raw CG timestamps exactly. Two clicks on external 1×, two on built-in 2×; three source geometry segments include negative desktop y. All four predicted source points matched decoded yellow marker centroids within 0.5 pixels. | Native CUA clicks only, not all providers/physical input/drag/scroll. Requested screenshot coordinates differed from actual delivered points. Raw composition positions remain withheld pending provider coverage and service mapping. |
+| Source clock and retention | One 48.6-second 440×312/10-fps take supplied 481 exact muxed/journal timestamps, zero lost rows and zero dropped encoder frames. App-delivered timestamps matched retained events despite unrelated global foreground. | Source spacing does not establish OS frame completeness or physical presentation latency. |
+| Color fidelity failure | Six declared sRGB patches sampled across three geometry segments: Retina maximum channel error 2, external maximum 76. External red 238/20/1, green 76/253/0, blue 56/0/253; Retina primaries 253 with other channels zero. Returning home restored the initial colors. | Actual cross-display capture/decode finding. Capture already requests sRGB. Display profile, SCK NV12 conversion and writer interpretation are hypotheses to isolate, not established causes. |
+| Preview color preservation | A 487-frame software draft preview reproduced all 18 sampled parent patch RGB values exactly. | Parent color failure propagates correctly; preview preservation does not repair the capture. Arbitrary codec/color or viewer behavior remains unqualified. |
+| Recovery and cleanup | Initial native coordinate action refused noWindowsAvailable. Exposed AX external/home controls worked, subsequent native delivery passed, and the same take was kept. Both owned engines exited 0; all three helper/fixture PIDs absent; no input subscriber, preview lane, exclusion lease or export remained. Private runtimes copied out. | Host pressure continued; no cause or production resource budget inferred. Installed production cd78c24b652e/PID 71911 stayed unchanged. |
+
+Private evidence: gates-v10/qualification-summary.json, frozen preview-source,
+coordinate-color-proof.json, preview-color-proof.json, actual decoded authored
+frames, source/mux proof and both runtime copies. The initial fake-engine test
+lacked its image response; the fixture was corrected without changing the service
+behavior. The local analyzer had no NumPy; the repeatable verifier uses Pillow
+and the standard library instead. These diagnostic failures remain recorded.
+
+Next high-impact work: isolate actual buffer color metadata/pixel format against
+PNG/encoder output without repeating pointer qualification; finish provider
+mapping/gaps and sleep boundaries, then remaining Chrome overflow, realistic
+insurance/admission and production delivery. Visual composition stays deferred.
+
 ## Ninth pass: excluded-helper lifetime and recovery
 
 The resumed workflow continued into a process-lifetime canary. Workspace launch/

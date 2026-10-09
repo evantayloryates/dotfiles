@@ -52,6 +52,13 @@ test('real bridge binds diagnostics to native session events and preserves runti
     } : original(name);
     vm.runInNewContext(code, runtime, {filename});
     assert.equal(hidden, true); assert.equal(published.at(-1).diagnostics.active, false);
+    assert.equal(published.at(-1).applicationRegistered,false);
+    const removeApollo=runtime.__IOS_AGENT_DOMAIN__.registerApollo({});
+    const removeNav=runtime.__IOS_AGENT_DOMAIN__.registerNavigation(()=>{throw Error('idle_read');});
+    assert.equal(published.at(-1).applicationRegistered,true);
+    assert.equal(published.at(-1).domain.active,false);
+    removeNav(); removeApollo();
+    assert.equal(published.at(-1).applicationRegistered,false);
     runtime.console.warn('synthetic-idle');
     receive({command: 'session-start'});
     assert.equal(published.at(-1).diagnostics.counts.warn, 0);

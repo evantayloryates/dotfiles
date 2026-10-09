@@ -31,6 +31,7 @@ No helper requests a new grant.
 | `probe-supervisor.py` | Serial admission, wall deadline, owned-process cleanup and private partial evidence for qualification helpers; not engine recovery |
 | `supervisor-test.py` | Synthetic stall, interruption, concurrency and recovery checks with no screen capture |
 | `exclusion-test.swift` | Mechanical helper identity, stale SDK filter, PID reuse, capacity, fanout and callback reentrancy; no real apps or capture |
+| `preview-exclusion-test.swift` | Persistent preview and request lease lifetimes, stale resolution/delivery refusal and cleanup; no SDK capture |
 | `options-test.swift` | Offline target parsing and filter/child/PID source identity checks; compile with engine sources except main.swift |
 | `options-mcp.test.mjs` | Isolated engine socket: reject unsupported controls before forwarding; no real capture |
 | `deadline-test.swift` | Shared producer deadlines, waiter cancellation, ignored late completions; no SDK capture |
@@ -44,6 +45,8 @@ No helper requests a new grant.
 | `recorded-action.test.mjs` | Supported wrapper never replays UI after missing receipt; shared imported provenance |
 | `journal-test.swift` | Bounded asynchronous writes, queue/byte/footer failures, exact timestamps and private files |
 | `verify-journal.py` | Compare journal decisions against actual muxed samples; optional authored-fixture pixels via ffmpeg/Pillow |
+| `coordinate-color-fixture.swift` | Declared sRGB references, app-delivered Quartz/local coordinates and painted click markers; move between displays through exposed controls |
+| `verify-coordinate-color.py` | Join actual native deliveries, journal positions and decoded authored marker/patch pixels; ffmpeg/Pillow, point-resolution fixture only |
 | `bridge-probe.mjs` | MCP initialize/tools-list only, no app-server/model turn |
 
 `capture-probe WINDOW_ID MODE OUTPUT.png [CURSOR] [CHILDREN] [MARGIN] [EXCLUDE_PID]`
@@ -171,14 +174,24 @@ Taylor's standing visible-test permission expires October 9 at approximately
 17:51 UTC. Input remains available; interruption is allowed. Reconfirm only
 when scope/access changes or after that authorization interval.
 
+The coordinate/color fixture writes `coordinate-delivered-PID.jsonl` beside its
+owned bundle. Capture its window at `max_width: 440` for the authored sampler.
+One take can contain external/home moves, native coordinate clicks and all color
+references; retain delivery refusals separately from subsequent successful input.
+The verifier's `--recording`, `--delivered` and `--output` accept absolute private
+paths. It verifies all delivered clicks and reports color error; a successful
+pointer proof does not mean color fidelity passed. Do not repeat the tenth-pass
+click series solely to investigate color: target the buffer/conversion boundary.
+
 ## Maintained progress checklist
 
 Canonical states, scopes, evidence and transition history live in
 `checklist.json`. The published page is
 `/Users/taylor/src/docs/html/record-screen-strategies/checklist.html`, linked from
 Capture foundations. Completed means verified for the stated scope; candidate
-checks and installed delivery remain separate. Current tests remain paused until
-Taylor resumes. Checklist maintenance does not resume the production goal.
+checks and installed delivery remain separate. Follow the current workflow state
+and explicit pause/resume instructions. Checklist maintenance alone does not
+resume the production goal.
 
 Update after a material evidence/state change (replace the illustrative values
 with the actual result):

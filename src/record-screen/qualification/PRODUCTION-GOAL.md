@@ -253,3 +253,35 @@ Use `checklist.py update` to save transition history and republish immediately;
 `render-report.py` republishes both pages. The maintained rule is also in
 `../AGENTS.md`, so future service edits retain this workflow. Production remains
 unreleased; visual composition remains deferred.
+
+## Tenth-pass resume
+
+Taylor resumed qualification and requested aggressive, high-impact learning with
+less duplicate work and rollback. Preserve the previous evidence and candidate
+improvements, repair only the affected boundary, and repeat settled checks only
+when new evidence warrants them. The checklist is active again. Begin with the
+remaining preview exclusion lifetime gap; reuse the recording identity observer.
+
+## Tenth-pass verified checkpoint
+
+Persistent preview identity lifetime is complete in its written candidate scope:
+15 mechanical checks, targeted old-engine refusal/forwarding, live affected-lane
+retirement, missing-app refusal and fresh PID recovery. Signed/loaded 83efb9156bea
+remains isolated. No pixel-exclusion claim from the off-Space preview fixture.
+
+One combined native take preserved 481 exact muxed timestamps and four delivered
+clicks across 1×/2× displays. Independent source marker centroids differed by no
+more than 0.5 pixels. Requested screenshot coordinates were not treated as source
+event coordinates. Remaining pointer provider/drag/scroll and service promotion
+limits stay explicit; do not repeat these clicks for unrelated color diagnosis.
+
+Six authored sRGB references exposed a real cross-display color failure (maximum
+channel error 76 externally versus 2 on Retina). Returning home restored the
+initial values. All 18 sampled software-preview values matched their parent
+exactly. Capture already requests sRGB. Next isolate actual SCK buffer color tags,
+pixel format and writer conversion; do not apply an untested profile correction.
+
+Owned helpers/fixture/engines exited; no input, lane, lease, export or quarantine
+work remains. Runtime copies and failures are preserved in gates-v10. Production
+readback stays cd78c24b652e/PID 71911. The goal/checklist remain active; no pause or
+release is implied by this checkpoint.

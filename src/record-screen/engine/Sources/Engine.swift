@@ -231,7 +231,7 @@ final class Engine: @unchecked Sendable {
       "clock": ["uptime_ns": clockNS, "uptime_ns_exact":String(clockNS), "domain":"CLOCK_UPTIME_RAW", "wall": iso8601.string(from: now), "started_ns": startedNs,"started_ns_exact":String(startedNs)],
       "permission": ["screen_recording": CGPreflightScreenCaptureAccess() ? "granted" : "missing"],
       "capabilities": ["target_capture_options": CaptureOptions.contractVersion, "source_journal": 1,
-                       "input_timeline":1,"action_scopes":1,"derivative_source":1,"exclusion_identity":1],
+                       "input_timeline":1,"action_scopes":1,"derivative_source":1,"exclusion_identity":1,"preview_exclusion_identity":1],
       "input_timeline":InputTimeline.shared.status,
       "action_timeline":ActionTimeline.shared.status,
       "displays": await displays(),
@@ -446,7 +446,16 @@ final class Engine: @unchecked Sendable {
   /// can look at. Uses the warm viewfinder stream when it can.
   private func verify(_ p: [String: Any]) async throws -> [String: Any] {
     let t0 = uptimeNs()
+    let spec = try TargetSpec.parse(p["target"])
+    // The request lease spans resolution, a recording tap or lane, and image
+    // publication. The lane has its own lease across later requests.
+    let requestLease = spec.options.excludeApps.isEmpty ? nil :
+      try ExclusionApps.shared.tracker.subscribe(spec.options.excludeApps, onChange: { _ in })
+    defer { if let requestLease { ExclusionApps.shared.tracker.unsubscribe(requestLease) } }
     let target = try await resolveTarget(p["target"])
+    var resolved: [String:Set<Int32>] = [:]
+    for app in target.excludedApplications { resolved[app.bundleIdentifier, default: []].insert(app.processID) }
+    try requestLease?.validateResolved(resolved)
     let t1 = uptimeNs()
     let maxWidth = Int(p.num("max_width") ?? 1280)
     let width = maxWidth > 0 ? maxWidth : nil
@@ -470,7 +479,10 @@ final class Engine: @unchecked Sendable {
     let stamp = "\(Int(Date().timeIntervalSince1970 * 1000))-\(String(UInt32.random(in: 0...UInt32.max), radix: 36))"
     let path = try p.str("path").map(Self.safeImagePath) ?? "\(frameDir)/verify-\(stamp).\(format == "png" ? "png" : "jpg")"
     let t2 = uptimeNs()
+    try requestLease?.validate()
     let bytes = try ImageOut.write(grab.image, to: path, format: format, quality: p.num("quality") ?? 0.8)
+    do { try requestLease?.validate() }
+    catch { try? FileManager.default.removeItem(atPath: path); throw error }
     let t3 = uptimeNs()
     var checks = ImageOut.stats(grab.image)
     var warnings = target.warnings
@@ -480,6 +492,7 @@ final class Engine: @unchecked Sendable {
     checks["warnings"] = warnings
     pruneFrames()
     if let sid { await sessions.verified(sid, image: path, target: target.describe()) }
+    try requestLease?.validate()
     return [
       "session_id": sid ?? NSNull(),
       "image": ["path": path, "w": grab.image.width, "h": grab.image.height, "bytes": bytes, "format": format],

@@ -17,6 +17,10 @@ This applies to recorder and related shared computer-use qualification work.
   deferred work. Do not silently promote a gate after unrelated tests pass.
 - Add newly discovered acceptance gates with stable IDs. Keep existing IDs and
   transition history; do not delete a failure to improve completion counts.
+- Prioritize checks that resolve several open questions. Preserve useful
+  progress and failed evidence; repair the affected boundary instead of resetting
+  whole phases. Repeat settled tests only when a new change or finding warrants
+  them. Track remaining limits explicitly rather than repeatedly relearning them.
 - Update the human-visible workflow state on pause/resume and the production
   note after actual release/readback. This ledger does not control the app goal
   and cannot authorize UI work or override a user-requested pause.

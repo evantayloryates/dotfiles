@@ -22,6 +22,7 @@ if (bridge && !global.__IOS_AGENT_BRIDGE_STARTED__) {
   };
   const publish = () => bridge.publish(JSON.stringify({
     ready: true,
+    applicationRegistered: domain?.registered() === true,
     protocol: 1,
     hermes: Boolean(global.HermesInternal),
     diagnostics: telemetry?.snapshot() || {active: false},
