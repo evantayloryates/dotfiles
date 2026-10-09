@@ -1,23 +1,30 @@
 # Production qualification goal
 
-## Current checkpoint: stage69
+## Current checkpoint: stage70 — PAUSED
 
-Resolved the concrete pre-launch receipt gap with explicit declaration-only
-intent, no PID invention/backfill or passive attribution. Signed native7c/PID39358
-installed/read back through one idle fence; fresh MCP0.16.0/27tools qualified.
-153 native/20 focused checks, adjacent reader20/21 with stale version assertion
-corrected by4 protocol checks, final10 receipt/outcome checks. Real launch scope
-retains only bundle; subsequent observed identity is separate. Post-close native
-CUA AX read relaunches fixture under new PID. First close keeps partial cleanup;
-separate exact PID/window cleanup settles both processes, session and native.
-Three receipts/outcomes and scoped failure fact independently read back.
+Taylor requested a pause. Both takes are terminal and retained: rec_4a3xs5nh
+(window H264,75s) and rec_xsdcpys2 (Safari app-crop HEVC,252.068s, explicitly
+stopped before planned300s). Session ses_xkcnt5pa is closed. Server48335 and
+sampler58181 are terminal;250 samples retained. Native39358/build7c is idle,
+with no input subscribers, active actions, unfinished recordings or lanes.
 
-Full goal ACTIVE:46completed17partial1deferred. Next qualify daily-app fixed
-crop/source coordinates and useful longer capacity; physical-input offer remains
-pending. No settled source recapture, broad history churn, speculative metadata
-inverse or repeated rollback drill. Ordinary consumer adoption remains unknown.
-Production click contract is120s after actual click, no input lock; final native
-clock helper lacks a fresh human-click/unattended-wake qualification.
+Owned Safari fixture13728 received one close; independent inventory still
+reports it, so cleanup remains unknown. Preserve Start Page13063 and Safari.
+Do not repeat an uncertain close while paused. The inert fixture server is off.
+
+Final native-clock notification helper now has actual human-click, local watcher,
+prepared exactly-once start and active-chat signal evidence. First reservation
+expired during preparation without capture; second menu batch overran120s
+(observed138.669s) and its action scope expired. Preserve this failure and the
+stale-index batch correction. Add per-action deadline checks and cleanup budget
+before another protected batch. No unattended-wake or physical-input proof.
+
+Real Safari select/change/dismiss and editing root were observed; nested menu
+was skipped. All catalog popup candidates fit the parent, so no actual overflow
+qualification. Decoded pixels, actual mux/journal coverage, continuous maps,
+resource acceptance and typed shared outcomes remain unverified. On resume,
+reuse gates-v70 retained media and pause-checkpoint.json before any new take.
+Checklist:45completed18partial1deferred. Composition remains deferred.
 
 ## Remaining work: ordered acceptance batches
 
