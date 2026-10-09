@@ -1,6 +1,17 @@
 # Production qualification goal
 
-## Current checkpoint: stage77 — ACTIVE
+## Current checkpoint: stage78 — ACTIVE
+
+
+Current MCP0.18/27tools and minimal-PATH CLI deliver opt-in preview/source joins.
+Seven actual returned rational decoder timestamps independently match mux/source
+identities: owned witness, black Safari tail and changing child fit. Fitted
+origins stay guarded, mapping failure preserves images, default adds no source
+read.73 focused checks pass. Six source hashes unchanged across CLI; owned reader
+exits0. One scoped fact readback; no native restart, capture, UI or peer refresh.
+Coordinates remain original mux canvas, not resized preview. This is not pixel
+authentication, atomic decode/map isolation or physical presentation calibration.
+Ordinary loaded22-tool schema lacks this option; current CLI is available.
 
 The fresh current-native listener and actual source canary passed. Native
 6c238cc1ba80/PID20948 remains installed. Owned 20-second source rec_e5zd4dg8
@@ -17,7 +28,7 @@ unresolved. App ready/key foreground samples identify another app; this is not a
 continuous focus or no-interruption guarantee. No physical input, density,
 provider-clock or raw-coordinate calibration claim.
 
-Current MCP 0.17 returns four scoped events/two keyboard-filtered events with
+Stage77 MCP 0.17 returned four scoped events/two keyboard-filtered events with
 context and health. The ordinary frame tool returns actual green/magenta owned
 previews with nonblank coarse diagnostics. Source hashes unchanged after reads,
 owned reader exits0. Three terminal receipts, separate verified/cleanup-complete

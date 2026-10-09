@@ -675,3 +675,14 @@ source for later changes. Keyboard delivery can remain window-unresolved even
 with a known intended target. Foreground samples of another app do not establish
 continuous focus isolation. The fresh native6c listener/delivered source canary
 passes within this scope; physical rate/provider calibration remain open.
+
+## Preview synchronization stays inside the service
+
+Current MCP0.18 `recording_frames` accepts `include_source_map:true`; the CLI
+`record-screen frames JSON` exposes the same path. It joins the returned rational
+decoder time to actual mux/source metadata. Keep preview dimensions separate
+from the original mux canvas, and preserve unmatched times or fitted-origin
+refusals. Mapping failure preserves useful preview images with an unavailable
+state. The default performs no added source read. This is a timestamp/source
+join, not pixel authentication or continuous alignment. See
+`qualification/RETAINED-PIXEL-CHECKS.md` for the exact contract and limits.

@@ -160,12 +160,12 @@ and the message says what to do next, in tool names.
 | `recordings` | one manifest by id, or a filtered list |
 | `mark` | marks now in one recording or every running one in a session |
 | `recording_review` | **contact sheet image** + keyframes, activity per second, marks; `keyframe_images: N` adds keyframe images |
-| `recording_frames` | **images** at exact offsets |
+| `recording_frames` | **images** at requested offsets; optional exact returned-time source joins |
 | `record_export` | frame-exact mp4 trim or GIF, by seconds or mark labels |
 
 Typical flow: `session_open` → `windows` / `frame_check` to aim (and
 `frame_outline` to show the human) → `record_schedule` → `mark` while it runs →
-`record_wait` → `recording_review` → `recording_frames` for exact moments →
+`record_wait` → `recording_review` → `recording_frames` for selected moments →
 `record_export` for a clip.
 
 Registration: `record-screen install` (also run by `install.sh`) adds
@@ -1063,3 +1063,15 @@ bounded shortcut candidates and explicit all mode remain configurable. The old
 failed cross-app take is retained beside the installed passing take, with exact
 app-delivery joins and real shortcut execution. See qualification/GATES.md,
 twenty-seventh pass. Actor identity and physical/global completeness stay open.
+
+## Exact source joins for decoded previews
+
+Fresh MCP0.18 `recording_frames` accepts `include_source_map:true`; CLI
+`record-screen frames JSON` exposes the same bounded read. It joins each returned
+rational decoder timestamp to the actual mux/source table, preserving held source
+references, missing joins and the fitted-child origin guard. Coordinates use the
+original mux canvas, not the resized preview. Default output/read work is unchanged.
+A separate mapping failure preserves the images with explicit unavailable state.
+This does not authenticate pixels or make the native decode and later source read
+an atomic snapshot. See [decoded frame checks](qualification/RETAINED-PIXEL-CHECKS.md)
+for the contract, seven actual retained joins and73 focused checks.

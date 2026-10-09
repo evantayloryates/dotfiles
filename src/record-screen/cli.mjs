@@ -22,6 +22,7 @@
 //   record-screen recording <id>               full manifest of one recording
 //   record-screen record-source <id>           local source journal and gap descriptor
 //   record-screen frame-map <json>             actual mux/source geometry and desktop-point/region projection
+//   record-screen frames <json>                retained previews, optional exact returned-time source joins
 //   record-screen paired-map <json>            exact paired host-interval coverage, dense backup and gaps
 //   record-screen input-query <json>           bounded retained events, reasons/gaps and exact receipt offsets
 //   record-screen action-begin <json>          recorder-stamped contextual block, no UI action
@@ -51,6 +52,7 @@ import { prepareMaintenance, validateMaintenance, releaseMaintenance } from "./l
 import { install } from "./lib/install.mjs";
 import { planProduction, validateProductionRequest } from "./lib/production-plan.mjs";
 import { mapRecordingFrames, validateFrameMapRequest } from "./lib/frame-map.mjs";
+import { readPreviewFrames } from "./lib/preview-map.mjs";
 import { mapRecordingPair, validatePairedMapRequest } from "./lib/paired-map.mjs";
 import { validateWindowQuery, requireTransientInventory } from "./lib/window-query.mjs";
 import {queryRecordingInput,validateInputQuery} from "./lib/input-query.mjs";
@@ -245,6 +247,9 @@ try {
       break;
     case "record-source":
       out(await call("record.source", { recording_id: args[0] }));
+      break;
+    case "frames":
+      out(await readPreviewFrames((method,params,timeoutMs)=>call(method,params,{timeoutMs}),JSON.parse(args[0]??"{}")));
       break;
     case "frame-map": {
       const request = validateFrameMapRequest(JSON.parse(args[0] ?? "{}"));

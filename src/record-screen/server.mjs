@@ -10,13 +10,14 @@ import { EngineClient, EngineError } from "./lib/client.mjs";
 import { hasCaptureOptions, requireCaptureOptions } from "./lib/capture-options.mjs";
 import { mapDerivativeTimes } from "./lib/derivative-source.mjs";
 import { mapRecordingFrames, validateFrameMapRequest, frameMapSchema, frameMapHealth } from "./lib/frame-map.mjs";
+import { readPreviewFrames } from "./lib/preview-map.mjs";
 import { mapRecordingPair, validatePairedMapRequest, pairedMapSchema } from "./lib/paired-map.mjs";
 import { windowQuerySchema, validateWindowQuery, requireTransientInventory } from "./lib/window-query.mjs";
 import { planProduction, productionPlanSchema, validateProductionRequest } from "./lib/production-plan.mjs";
 import {queryRecordingInput,validateInputQuery,inputQuerySchema,inputQueryHealth} from "./lib/input-query.mjs";
 
 const log = (...args) => console.error("[record-screen]", ...args);
-const VERSION = "0.17.0";
+const VERSION = "0.18.0";
 
 // ---------------------------------------------------------------- engine link
 
@@ -162,7 +163,7 @@ const tools = [
     annotations: { readOnlyHint: true },
     run: async () => ok({ ...await engine("status"), mcp_adapter: {
       version: VERSION, declared_target_context: 1, replay_policy: 1, production_planning: 1, shared_app_learning: 1, production_storage_guidance: 1, triple_source_planning: 1, source_frame_mapping: 1, source_region_mapping: 1, transient_window_query: 1,
-      frame_mapping: frameMapHealth(), paired_source_mapping: 1, paired_interval_coverage_summary: 1, fitted_child_mapping_guard: 1, retained_input_query: 1, retained_action_context: 1, retained_input_health_context: 1,
+      frame_mapping: frameMapHealth(), preview_source_mapping: 1, paired_source_mapping: 1, paired_interval_coverage_summary: 1, fitted_child_mapping_guard: 1, retained_input_query: 1, retained_action_context: 1, retained_input_health_context: 1,
       input_query: inputQueryHealth(), mutation_replay: "never",
       read_reconnect_budget_ms: 12000,
       qualification: "loaded MCP adapter policy; native CLI/socket status does not describe an MCP process",
@@ -418,16 +419,15 @@ const tools = [
   },
   {
     name: "recording_frames",
-    description: "Frames of a finished recording at exact offsets (seconds from its start), returned as images. frame_t_s is the rounded returned decoder time; new native retained_frame_pixel_stats adds exact rational frame_time and coarse32x32 pixel_checks from the scaled decoded image before JPEG. Missing fields on older native builds are unknown. Uniform white/black can both look blank: inspect actual image/mean, never infer target loss or unsampled coverage from uniformity. Use recording_frame_map for exact mux/source correspondence; returned decoder time is not itself a journal join.",
+    description: "Preview a finished recording at requested offsets in seconds; decoder selection can differ from the request. frame_t_s is rounded; native retained_frame_pixel_stats adds rational frame_time and coarse32x32 pixel_checks before JPEG. Optional include_source_map joins each exact returned decoder time to actual mux/source metadata inside the service. No rounded/nearest-frame fallback; missing joins stay explicit, mapping failure preserves images. Source coordinates refer to the original mux canvas, not the resized preview. Missing native fields are unknown. Uniform white/black can both look blank: inspect actual pixels, never infer target loss or unsampled coverage. Fitted origins remain guarded.",
     inputSchema: {
       type: "object", additionalProperties: false,
-      properties: { recording_id: { type: "string" }, at_s: { type: "array", items: { type: "number" }, description: "1–12 offsets in seconds" }, max_width: { type: "number", description: "default 1024" } },
+      properties: { recording_id: { type: "string", pattern: "^rec_[A-Za-z0-9]+$", maxLength:64 }, at_s: { type: "array", minItems:1, maxItems:12, items: { type: "number", minimum:0 }, description: "1–12 requested offsets in seconds" }, max_width: { type: "integer", minimum:64, maximum:8192, description: "default 1024" }, include_source_map: { type: "boolean", description: "Opt in to exact returned decoder-time/mux/source joins; unavailable mapping preserves previews. Default false." } },
       required: ["recording_id", "at_s"],
     },
     annotations: { readOnlyHint: true },
-    run: async ({ recording_id, at_s, max_width = 1024 }) => {
-      if (!Array.isArray(at_s) || !at_s.length || at_s.length > 12) throw new EngineError("bad_params", "at_s must list 1–12 offsets");
-      const r = await engine("record.frames", { recording_id, at_s, max_width }, 60000);
+    run: async (a) => {
+      const r = await readPreviewFrames(engine,a);
       return { content: [...r.frames.map((f) => imageContent(f.path)), { type: "text", text: text(r) }], isError: false };
     },
   },

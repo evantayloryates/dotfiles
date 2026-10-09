@@ -3362,3 +3362,27 @@ physical input/density/provider calibration or universal isolation claim. Eviden
 private gates-v77/qualification-summary.json. Checklist45completed18partial1deferred,
 full goal active. Do not repeat this passed post-restart canary without a changed
 boundary.
+
+## Stage78 — service-owned returned-preview/source synchronization
+
+Fresh MCP0.18/27tools adds optional include_source_map to recording_frames;
+current CLI frames JSON shares the path. Each returned rational decoder time
+joins an exact actual mux start and retained source reference. Requested seconds
+and rounded frame_t_s never substitute; missing/near/unsafe fields stay absent,
+fractional nanoseconds remain rational, held source geometry stays referenced.
+Original mux canvas and resized preview dimensions are separate. Fitted origins
+remain guarded. Separate bounded mapping failure preserves useful images without
+another helper preview dispatch; default adds no source read or output field.
+Native decode plus later source snapshot is not atomic file isolation or pixel
+authentication. Existing transport replay policy unchanged.
+
+Seven actual retained joins independently verified using FFprobe and journal
+identities: two owned witness, three Safari normal/black-tail, two changing-fit.
+Both fitted samples retain spatial refusal; normal/black diagnostics preserved.
+Minimal GUI-PATH MCP/CLI mappings equal; six source hashes unchanged across CLI.
+73 affected tests pass, including fractional/held/near/invalid/legacy fields,
+source/probe failure and no added default lookup. Owned reader exits0, native6c/
+PID20948 unchanged; no capture/UI/native or peer restart. One exact scoped fact
+readback, no fabricated native action receipt for this service-only read. Private
+gates-v78/qualification-summary.json. Checklist45completed18partial1deferred,
+full goal active; physical and human-dependent gates remain deferred.
