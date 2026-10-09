@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T13:48:32-04:00",
+  "updated_at": "2026-10-09T14:05:55-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage59 practical menu backup verified in scoped external TextEdit episode; childtrue omission and built-in readiness failures retained. Own3 takes/session/scopes/apps settled, engine idle. Continue targeted disturbance/coverage, fitted origin, physical/provider/capacity and ordinary consumer gates without replaying established evidence."
+    "note": "Stage60 retained registration diagnosis settled: authored held-out spatial pass, real TextEdit ambiguity refusals,16 final checks. Saved external pair stays identical after current display inventory changes. Three scoped facts read back; native unchangedidle. Continue retained-region/clipping and disturbance coverage; fitted origin and physical/provider/capacity/ordinary adoption remain open. No stable-source replay."
   },
-  "production_note": "Signed native9bfabf2dbb5c/PID24295 unchanged and idle. Stage59 real TextEdit external triple2656 exact joins and30 same-process interval segments; selected app backup menu pixels verified where both isolated modes omit. Own3 takes/session/4 scopes/apps settled, original files unchanged;4 verified/cleanupcomplete outcomes,3 scoped facts read back. Built-in readiness failures retained. Whole-shot disturbance/clipping, fitted origin, physical/provider/capacity and ordinary consumer adoption remain open.",
+  "production_note": "Signed native9bfabf2dbb5c/PID24295 and exact binary unchangedidle. Stage60 source-only registration improves authored fitted origin to1.243px at four withheld markers, but both TextEdit configurations refuse and production fitted guard remains.16 final tests, three scoped facts read back. Saved stage59 external-menu interval returns identical full paired result after current inventory has only built-in display. No UI/capture/decode/grant/restart. Full acceptance remains open.",
   "groups": [
     {
       "id": "capture",
@@ -172,10 +172,10 @@
           "title": "Synchronize primary and backup source intervals in the service",
           "status": "completed",
           "scope": "Two terminal sources: exact primary-relative/host intervals, retained same-process clock qualification, dense backup across held primary frames, independent geometry/content age/gaps and snapshot-bound pagination. Timing/geometry is not decoded rescue.",
-          "evidence": "Stage58 exact same-process interval contract retained. Stage59 real90s triple2656 exact mux/source joins; ten100ms primary-relative intervals yield30 split segments with qualified backup timing/projection. Actual selected menu/closed pixels independently checked; content remains unverified in service metadata until separate QA.",
+          "evidence": "Stage58 same-process exact interval contract and stage59 selected menu-pixel proof retained. Stage60 current inventory loses external display5; saved nested-menu100ms query returns identical full paired result/SHA and three qualified segments. No current-topology substitution, capture or decoder replay. Content remains unverified in service metadata; live-take unplug recovery not established.",
           "next": "",
-          "anchor": "fifty-eighth-pass",
-          "updated_at": "2026-10-09T13:48:32-04:00"
+          "anchor": "sixtieth-pass",
+          "updated_at": "2026-10-09T14:05:55-04:00"
         },
         {
           "id": "display-geometry",
@@ -232,10 +232,10 @@
           "title": "Qualify coordinates when real child menus change source fitting",
           "status": "needs_retest",
           "scope": "Actual child-enabled isolated window with above/below-parent popup fitting, including scale and source origin changes. Existing static/fixture maps retain their proven scope.",
-          "evidence": "Stage57 above-left child diagnostic: original parent affine error227.714px; independent known union gives0.467px at parent center and <=1.025px at sampled far markers. SCK surface bounds origin0 do not provide that desktop union. App source maps selected markers exactly; current guard preserved.",
-          "next": "Build service-owned backup-source mapping/coverage from retained paired media; precise standalone fitted union still needs independent frame-bound origin or validated registration.",
-          "anchor": "fifty-seventh-pass",
-          "updated_at": "2026-10-09T12:57:05-04:00"
+          "evidence": "Stage60 bounded offline registration recovers stage57 authored child within1.243px at four withheld markers (old error227.714px). Missing/wrong-phase controls refuse. Both real TextEdit anchor configurations refuse: small text weak, larger structure high-score but ambiguous wrong-region lookalike.16 final boundary checks pass after retained empty-result bug repair. Production fitted guard remains active; legacy clocks unknown.",
+          "next": "Add stronger independent anchors/position constraints or trustworthy frame-bound desktop union, then a real app acceptance pass. Do not loosen thresholds or replay settled source captures.",
+          "anchor": "sixtieth-pass",
+          "updated_at": "2026-10-09T14:05:55-04:00"
         },
         {
           "id": "fitted-mapping-guard",
@@ -2359,6 +2359,29 @@
       "from": "active",
       "to": "active",
       "note": "Stage59 practical menu backup verified in scoped external TextEdit episode; childtrue omission and built-in readiness failures retained. Own3 takes/session/scopes/apps settled, engine idle. Continue targeted disturbance/coverage, fitted origin, physical/provider/capacity and ordinary consumer gates without replaying established evidence."
+    },
+    {
+      "kind": "item",
+      "id": "fitted-child-mapping",
+      "at": "2026-10-09T14:05:55-04:00",
+      "from": "needs_retest",
+      "to": "needs_retest",
+      "note": "Stage60 bounded offline registration recovers stage57 authored child within1.243px at four withheld markers (old error227.714px). Missing/wrong-phase controls refuse. Both real TextEdit anchor configurations refuse: small text weak, larger structure high-score but ambiguous wrong-region lookalike.16 final boundary checks pass after retained empty-result bug repair. Production fitted guard remains active; legacy clocks unknown."
+    },
+    {
+      "kind": "item",
+      "id": "paired-source-map",
+      "at": "2026-10-09T14:05:55-04:00",
+      "from": "completed",
+      "to": "completed",
+      "note": "Stage58 same-process exact interval contract and stage59 selected menu-pixel proof retained. Stage60 current inventory loses external display5; saved nested-menu100ms query returns identical full paired result/SHA and three qualified segments. No current-topology substitution, capture or decoder replay. Content remains unverified in service metadata; live-take unplug recovery not established."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T14:05:55-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Stage60 retained registration diagnosis settled: authored held-out spatial pass, real TextEdit ambiguity refusals,16 final checks. Saved external pair stays identical after current display inventory changes. Three scoped facts read back; native unchangedidle. Continue retained-region/clipping and disturbance coverage; fitted origin and physical/provider/capacity/ordinary adoption remain open. No stable-source replay."
     }
   ]
 }

@@ -1,6 +1,21 @@
 # Production qualification goal
 
-Current checkpoint: stage59. Real90s external TextEdit triple supplies2656
+Current checkpoint: stage60. Offline two-anchor registration recovers the
+retained authored above-left child within1.243px at four excluded markers;
+old map error227.714px. Missing/wrong-phase controls and both real TextEdit
+anchor configurations refuse. High-score wrong-region lookalike demonstrates
+why peak ambiguity matters; production fitted guard remains active. Initial
+empty-result bug preserved/repaired, final16 meaningful checks pass. One owned
+offline run0.18s/165.31MiB peakRSS, not capacity/P80. Six source hashes unchanged;
+no UI/capture/decode/restart. Current external display absent; one saved100ms
+stage59 pair returns identical whole result/three segments despite topology
+change, not live-unplug recovery. Three scoped facts read back; signed9bf/
+PID24295/binary unchangedidle.46completed16partial1needs_retest1deferred.
+Next: retained-region/clipping and practical disturbance coverage; stronger
+fitted-origin constraints without replaying settled sources. Full goal active.
+Visible authorization expiredOct9 17:51UTC; background diagnosis continues.
+
+Stage59 checkpoint: real90s external TextEdit triple supplies2656
 exact mux/source joins and30 same-process paired segments. App-only backup
 contains root, Font/Highlight and typeface views omitted by both isolated modes,
 including resolvedchildtrue.15 selected source images, unobscured marker edges

@@ -1,5 +1,53 @@
 # Qualification update — October 9, 2026
 
+## Sixtieth pass: retained-pixel registration and display-independent saved mappings
+
+Background only: no UI, capture, decoder, grant, native/adapter change or restart.
+Use the retained stage57 authored above-left child and stage56 real TextEdit
+fitted sources. Existing positive and failed takes remain intact. This investigates
+spatial registration rather than effects or final composition.
+
+The bounded offline `register-paired-anchors.py` searches two independently
+selected, nonoverlapping text rectangles at the retained scale. It receives no
+oracle union translation or colored marker regions. Normalized correlation,
+alternative-peak margin, spatial separation and two-anchor translation agreement
+gate the candidate. Primary search<=1million pixels, FFT<=2,097,152 cells; templates
+and regular nonsymlink image/config inputs are bounded before allocation. Output
+is fresh mode0600. Only isotropic translation is supported. Caller regions and
+scales remain hypotheses; source-map, timing or ownership trust is not granted.
+
+| Qualification | Evidence | Limit |
+| --- | --- | --- |
+| Authored fitted origin | Text anchors score0.977/0.919, peak margins0.470/0.411, translation spread0.377px. Four excluded parent/child markers agree within1.243px; old map misses227.714px | One selected already decoded frame, not continuous/app-general verification. Legacy clocks remain unqualified |
+| Missing/wrong-phase controls | Missing backup child refuses for insufficient texture; closed primary/open backup refuses weak/ambiguous/disagreeing anchors | No nearest-frame or invented-content repair |
+| Real TextEdit fitted pair | Small document anchor score0.648/margin0.016; menu anchor0.719. A larger document-structure anchor finds a wrong-region lookalike at score0.974 but margin0.009 | Both configurations refuse. No threshold loosening, generic fitted-origin correction or production promotion |
+| Meaningful helper boundaries | Final16 tests pass: repeated-scene ambiguity, inconsistent/missing/clipped/flat regions, wrong scale, dependent anchors, source/FFT/template allocation budgets, invalid numeric shapes, symlink and overwrite refusal | Authored pixels and isolated CLI; not an OS/AppKit regression suite |
+| Saved pair after topology change | Current inventory contains built-in display1 only; retained external display5 nested-menu100ms query returns identical whole JSON and SHA, three qualified same-process segments | No unplug induced; live-take display transition/sleep recovery remains separate |
+| Bounded offline cost | One owned two-anchor run0.18s wall,0.14s user/0.02s system; peakRSS173,342,720bytes (165.31MiB) | One run, no production capacity/P80 or concurrent capture budget |
+| Shared learning and settlement | Three scoped pass/fail facts independently read back. Signed native9bf/PID24295 and exact binary hash unchanged; unfinished0/actions0/inputsubscribers0/viewfinderlanes0 | No UI receipts fabricated for offline analysis; ordinary consumer adoption remains open |
+
+Initial15 tests exposed two empty-result crashes: textureless and over-budget
+anchors produced no translations, then `max()` raised rather than returning a
+structured refusal. Both failed outputs remain. Corrected empty-set handling
+and added numeric/config boundaries yield16 final passes. Actual authored result
+was not recaptured or redecoded. Larger TextEdit anchor configuration changes
+only the hypothesis on the same retained source; its high-scoring ambiguity is
+an explicit refusal, not an accepted generic correction. Six source-image hashes
+remain unchanged. One authored successful held-out proof is insufficient to
+remove the service's `fitted_child_window_origin_unqualified` guard.
+
+Private evidence: gates-v60/{qualification-summary.json,authored-config.json,
+authored-registration-hardened.json,held-out-oracle-proof.json,
+retained-experiment-proof.json,textedit-*-registration.json,registration-tests-*.txt,
+authored-resource.txt,topology-retained-proof.json,topology-retained-pair.json,
+shared-facts.json,settled-status.json}. Initial failure logs and hypotheses remain.
+Checklist46completed/16partial/1needs_retest/1deferred; goal active. Next pursue
+retained-region/clipping and practical disturbance coverage. Standalone fitted
+origin needs stronger independent anchors/position constraints or a trustworthy
+frame-bound union observation, then a real app acceptance pass. Do not reshoot
+stable menu captures to repeat this source-only diagnosis. Future visible work
+needs a new production interval; the earlier authorization has expired.
+
 ## Fifty-ninth pass: practical native menu backup with exact same-process intervals
 
 One90-second TextEdit1.20/build415/OS25F80 triple ran on the external1920x1080

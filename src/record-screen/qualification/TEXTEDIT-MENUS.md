@@ -151,3 +151,22 @@ Further work should target missing disturbance/clipping or another environment.
 Reuse retained stage59 footage for readers/registration. Do not replay this
 settled menu episode to repair helper or publication errors. Exact resource,
 failed preparation and scope limits: GATES.md fifty-ninth pass.
+
+## Retained registration boundary — stage60
+
+The stage56 fitted TextEdit pair also serves as an offline registration refusal
+lane. Two configurations preserve the same source images: small document text
+plus a lower typeface-list anchor; then a larger left document-structure anchor
+plus the same list anchor. Small text is weak/ambiguous. Larger structure scores
+0.974 at a wrong-region lookalike, but alternative margin0.009 and disagreement
+with the list prevent a candidate. Neither configuration qualifies a corrected
+map; thresholds were not lowered. Use stronger independent features/position
+constraints before another meaningful acceptance attempt. The authored stage57
+two-heading positive/four excluded markers remains a distinct scope.
+
+Stage60 also reads back the stage59 retained nested-menu100ms pair after current
+inventory loses external display5: whole paired result and SHA remain identical,
+three same-process qualified segments. This proves saved map independence from
+current topology for that interval; no unplug or live recording was induced.
+The verified app-only menu supplement remains usable. Standalone fitted origin,
+all-shot clipping/disturbance recovery and physical/provider timing stay open.

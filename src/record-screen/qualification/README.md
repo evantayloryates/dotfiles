@@ -18,6 +18,31 @@ Reuse exact-environment facts and retained actual source frames.
 
 ## Helpers
 
+`register-paired-anchors.py CONFIG.json --output FRESH.json` is an offline
+registration experiment, **not an MCP source-map correction**. Use the bundled
+Python runtime with NumPy/Pillow. Configuration requires absolute retained
+`primary_image`/`backup_image` paths, `primary_scale` in pixels per desktop point,
+a six-number `backup_affine`, and two to four explicit anchors:
+`{"id":"heading","x":140,"y":478,"w":340,"h":40}`. Anchors must be disjoint,
+spatially separated and independently useful; coordinates/scales are caller
+hypotheses. Both scales must be positive isotropic0.05..8. Textured templates
+must fit16..512 by16..256 pixels; primary search<=1million pixels, images<=8million
+pixels/32MiB, FFT<=2,097,152 cells, config<=64KiB. Regular nonsymlink inputs and
+fresh mode0600 output are required. No decoder, subprocess, UI or mutation is
+performed by registration itself; impose an owned deadline on the CLI process.
+
+Normalized correlation>=0.8, peak margin>=0.1 and translation agreement<=2px
+produce a spatial candidate only. A convincing wrong-region lookalike can have
+high correlation; independent held-out pixels, exact source/time provenance and
+coverage checks remain mandatory. Stage60 recovers an authored above-left child
+within1.243px at four withheld markers, but both real TextEdit anchor configurations
+refuse. Missing/wrong-phase source controls also refuse. Production fitted-origin
+guard and legacy-clock limits remain unchanged; do not loosen thresholds to
+force a map. `register-paired-anchors-test.py` has16 authored acceptance/refusal
+checks, including repeated scene ambiguity, missing content, inconsistent
+anchors, wrong scale, overlapping anchors, allocation budgets and fresh-file
+preservation. Run with the same NumPy/Pillow Python runtime.
+
 `paired-map.test.mjs` checks exact two-source interval joins, dense backup across
 held primary packets, primary-relative epoch conversion, rational boundaries,
 holes/unknown tails, legacy/different-process/clock-gap refusals, fitted geometry,
