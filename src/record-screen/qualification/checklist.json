@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T16:34:22-04:00",
+  "updated_at": "2026-10-09T16:47:48-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage68 proves two actual identical-metadata/different-origin cases and verifies fixed app-crop coordinates over861 stable packets. Failed1.333px oracle remains; native unchanged/idle and owned test cleaned up. Final native-clock7s watcher synthetically checked. Next concrete pre-launch receipt gap, real-app coordinate fallback, physical offer and useful longer capacity."
+    "note": "Stage69 closes the pre-launch receipt gap and finds a concrete post-close native-CUA read relaunch. Three scopes/outcomes preserve partial first-close cleanup; separate owned cleanup settled. Native7c/fresh MCP0.16 installed and verified idle. Next daily-app coordinate fallback and useful longer capacity; physical-input offer remains pending."
   },
-  "production_note": "Current CLI/fresh MCP0.14 provides opt-in exact whole-interval region durations with budget refusal.37 affected +9 final focused checks and actual MCP/CLI/default parity. Retained90s source:1769 segments evaluated; geometry is separate from captured pixels. Legacy/fitted guards remain. Signed native9bf/PID24295/exact binary unchangedidle, three scoped facts read back, own readers settled. Ordinary loaded adapter still unverified; full acceptance open.",
+  "production_note": "Signed native7c0f81e9d71f/PID39358 installed through one idle maintenance fence, exact candidate/installed binary and signature matched, Screen Recording grant preserved. Fresh canonical MCP0.16.0/27tools supports declaration-only pre-launch intent and context; loaded peers untouched and adoption unknown. Real launch and owned cleanup qualified; full17partial acceptance gates remain open.",
   "groups": [
     {
       "id": "capture",
@@ -298,10 +298,10 @@
           "title": "Verify service-stamped action blocks and uncertain recovery",
           "status": "completed",
           "scope": "Bounded contextual scopes, caller/session checks, expiry, restart recovery and no replay.",
-          "evidence": "Restart kept an unknown end time; wrappers ran once; a late close correctly stayed expired.",
+          "evidence": "Stage69 extends qualified lifecycle with explicit declaration-only launch intent:153 native checks and20 focused cases; strict default identity preserved, prospective scopes never attribute input or bind later identity. Signed native7c and fresh MCP0.16 delivered/read back; real launch retains bundle-only target and exact service stamps.",
           "next": "",
-          "anchor": "eighth-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "anchor": "sixty-ninth-pass",
+          "updated_at": "2026-10-09T16:47:47-04:00"
         },
         {
           "id": "semantic-context",
@@ -536,10 +536,10 @@
           "title": "Centralize version-scoped app observations",
           "status": "partial",
           "scope": "Shared reported facts, exact environment keys, expiry and conflicting evidence.",
-          "evidence": "Shared scoped/version/expiry/conflict evidence retained. Stage65 three exact Chrome154/8037.98/25F80/built-in2x-encoded1x menu-viewport facts independently read back; native-CUA versionunknown remains explicit. Presence is selected-frame visual evidence with a retained95.67% nested-mask failure, not continuous readiness. Stage66 authored-app1.0/build66/built-in2x-output1x-native9bf/requested30fps fact independently read back for20s affected-interval obstruction backup; native CUA versionunknown remains. Three typed actions and actual all-packet marker/coarse-patch proof support scope. Earlier app-family and Chrome facts retained; no automatic native interception, arbitrary app readiness or model training.",
-          "next": "Keep exact daily-app/version/provider/surface keys, requalify changed boundaries and verify ordinary consumer adoption; do not duplicate settled app observations.",
-          "anchor": "sixty-sixth-pass",
-          "updated_at": "2026-10-09T15:54:44-04:00"
+          "evidence": "Prior exact version/surface facts retained. Stage69 one authored-app1.0/build68/25F80/native-CUA versionunknown post-close AX read relaunch failure fact is independently read back with1day expiry. Exact old/new process and native-window observations support scope. This is one runtime/app case, not universal behavior, automatic learning or authenticated actor proof.",
+          "next": "Use version/surface-scoped facts in ordinary consumers; requalify changed app/provider boundaries without duplicating settled observations.",
+          "anchor": "sixty-ninth-pass",
+          "updated_at": "2026-10-09T16:47:48-04:00"
         },
         {
           "id": "requalification",
@@ -556,20 +556,20 @@
           "title": "Verify the quality of recent shared computer-use workflows",
           "status": "partial",
           "scope": "Assess delivered actions, verification and cleanup rather than tool-call counts.",
-          "evidence": "Stage63 all774 retained files inspected:246 bridge report/event pairs and140 typed receipts/142 initial outcomes across35 sessions. Bridge completion has no typed verification/cleanup and no exact session-key overlap; no all-operation success rate. Four cleanup settlements preserve prior verification objects; one manual receipt gains12 source-metadata checks with cleanupunknown. Independent CLI/global audit:140 receipts/147 outcomes, uncovered0,139cleanupcompleted/1unknown, conflict1. Original hashes/wrong claim/failed correction/missing proof retained.",
-          "next": "Extend ordinary native workflow outcome coverage and targeted historical diagnosis where independent state proof exists. Keep execution status, reported verification, cleanup and actor/adoption uncertainty separate; do not replay settled actions or grade final prose.",
-          "anchor": "sixty-third-pass",
-          "updated_at": "2026-10-09T14:49:39-04:00"
+          "evidence": "Historical stage63 diagnosis retained. Stage69 targeted actual workflow finds post-close bound AX read relaunching a new PID/window. Three typed receipts/outcomes preserve verified original-process exit with partial first-close cleanup; separate exact new PID/window cleanup completed. Scoped audit uncovered0 covers stored scopes only, not all reads or implicit effects. Owned PIDs absent, sessionclosed and nativeidle.",
+          "next": "Extend ordinary native outcome coverage and diagnose specific gaps from independent observations; use inventory/process checks after final close, preserve partial outcomes and avoid broad historical rescans.",
+          "anchor": "sixty-ninth-pass",
+          "updated_at": "2026-10-09T16:47:47-04:00"
         },
         {
           "id": "receipt-integration",
           "title": "Improve automatic receipt coverage across providers",
           "status": "partial",
           "scope": "Capture durable operation evidence for native and browser actions.",
-          "evidence": "Prior owned-ID/unknown-reply and typed integration evidence retained. Stage65 one real native-CUA menu episode has durable delivered receipt, decoded/native verification and explicit settled cleanup; audit1receipt/1outcome/zero uncovered. Captured end remainsunknown after media; SCK offscreen window destructionunknown. Unsupported fact schema recovered without duplicating existing outcome. Stage66 three actual native CUA operation scopes close before media end; six source action rows and three closed snapshots retained per lane. Three terminal imported receipts each have separately verified/cleanupcomplete outcomes, independent audituncovered0 and no conflicts. Native CUA still needs manual service bracketing; local action-token and unsupported-field helper errors repaired on existing tokens without UI replay. Stage68 two actual terminal scopes/two separate verified-cleanupcomplete outcomes independently read back, stored audit uncovered0. This is2 stored receipts, not all3 UI operations: pre-launch action.begin refused unavailable bundle and actual launch is unbracketed. Only Start is captured in source; Close is post-media. Timers continue after dispatch scope end; no actor or lifecycle backfill.",
-          "next": "Resolve the concrete pre-launch declaration gap without inventing PID ownership or retroactive bounds, then verify ordinary consumer use. Preserve dispatch, asynchronous lifecycle, captured snapshots and later outcomes separately.",
-          "anchor": "sixty-eighth-pass",
-          "updated_at": "2026-10-09T16:34:22-04:00"
+          "evidence": "Stage69 resolves the stage68 pre-launch gap: actual declared launch begins before native getApp, independently observed PID remains separate. Shared receipt/outcome/source-context readers preserve resolution; legacy immutable IDs unchanged. Three actual terminal scopes/outcomes read back; first close cleanup remains partial after a provider read relaunched the app. Separate observed cleanup completed. No input capture, source backfill, authenticated actor or universal automatic native interception.",
+          "next": "Qualify ordinary consumer adoption and provider operation coverage, including read side effects. Keep launch intent, observed identity and separately verified cleanup distinct; no replay of these settled actions.",
+          "anchor": "sixty-ninth-pass",
+          "updated_at": "2026-10-09T16:47:47-04:00"
         },
         {
           "id": "shared-baseline-plan",
@@ -2668,6 +2668,45 @@
       "from": "active",
       "to": "active",
       "note": "Stage68 proves two actual identical-metadata/different-origin cases and verifies fixed app-crop coordinates over861 stable packets. Failed1.333px oracle remains; native unchanged/idle and owned test cleaned up. Final native-clock7s watcher synthetically checked. Next concrete pre-launch receipt gap, real-app coordinate fallback, physical offer and useful longer capacity."
+    },
+    {
+      "kind": "item",
+      "id": "action-receipts",
+      "at": "2026-10-09T16:47:47-04:00",
+      "from": "completed",
+      "to": "completed",
+      "note": "Stage69 extends qualified lifecycle with explicit declaration-only launch intent:153 native checks and20 focused cases; strict default identity preserved, prospective scopes never attribute input or bind later identity. Signed native7c and fresh MCP0.16 delivered/read back; real launch retains bundle-only target and exact service stamps."
+    },
+    {
+      "kind": "item",
+      "id": "receipt-integration",
+      "at": "2026-10-09T16:47:47-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage69 resolves the stage68 pre-launch gap: actual declared launch begins before native getApp, independently observed PID remains separate. Shared receipt/outcome/source-context readers preserve resolution; legacy immutable IDs unchanged. Three actual terminal scopes/outcomes read back; first close cleanup remains partial after a provider read relaunched the app. Separate observed cleanup completed. No input capture, source backfill, authenticated actor or universal automatic native interception."
+    },
+    {
+      "kind": "item",
+      "id": "workflow-audit",
+      "at": "2026-10-09T16:47:47-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Historical stage63 diagnosis retained. Stage69 targeted actual workflow finds post-close bound AX read relaunching a new PID/window. Three typed receipts/outcomes preserve verified original-process exit with partial first-close cleanup; separate exact new PID/window cleanup completed. Scoped audit uncovered0 covers stored scopes only, not all reads or implicit effects. Owned PIDs absent, sessionclosed and nativeidle."
+    },
+    {
+      "kind": "item",
+      "id": "app-facts",
+      "at": "2026-10-09T16:47:48-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Prior exact version/surface facts retained. Stage69 one authored-app1.0/build68/25F80/native-CUA versionunknown post-close AX read relaunch failure fact is independently read back with1day expiry. Exact old/new process and native-window observations support scope. This is one runtime/app case, not universal behavior, automatic learning or authenticated actor proof."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T16:47:48-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Stage69 closes the pre-launch receipt gap and finds a concrete post-close native-CUA read relaunch. Three scopes/outcomes preserve partial first-close cleanup; separate owned cleanup settled. Native7c/fresh MCP0.16 installed and verified idle. Next daily-app coordinate fallback and useful longer capacity; physical-input offer remains pending."
     }
   ]
 }

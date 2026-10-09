@@ -144,7 +144,7 @@ test('actual MCP input query negotiates capability, validates before RPC and onl
  const send=(method,params)=>new Promise((resolve,reject)=>{const id=++serial,timer=setTimeout(()=>reject(new Error('owned MCP deadline')),5000);pending.set(id,{resolve,timer});child.stdin.write(JSON.stringify({jsonrpc:'2.0',id,method,params})+'\n')});
  try{
   await send('initialize',{protocolVersion:'2025-06-18'});
-  const status=await send('tools/call',{name:'status',arguments:{}});const adapter=JSON.parse(status.content[0].text).mcp_adapter;assert.equal(adapter.version,'0.11.5');assert.equal(adapter.retained_input_health_context,1);assert.deepEqual(adapter.input_query.health_notification_limits,{preceding:16,in_interval:32,unknown_time:16});calls.length=0;
+  const status=await send('tools/call',{name:'status',arguments:{}});const adapter=JSON.parse(status.content[0].text).mcp_adapter;assert.equal(adapter.version,'0.16.0');assert.equal(adapter.retained_input_health_context,1);assert.deepEqual(adapter.input_query.health_notification_limits,{preceding:16,in_interval:32,unknown_time:16});calls.length=0;
   const invalid=await send('tools/call',{name:'recording_input',arguments:{...request,limit:257}});assert.equal(invalid.isError,true);assert.equal(calls.length,0);
   const badContext=await send('tools/call',{name:'recording_input',arguments:{...request,include_context:'true'}});assert.equal(badContext.isError,true);assert.equal(calls.length,0);
   const badHealth=await send('tools/call',{name:'recording_input',arguments:{...request,include_health_context:1}});assert.equal(badHealth.isError,true);assert.equal(calls.length,0);

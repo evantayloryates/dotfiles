@@ -1,5 +1,15 @@
 # Qualification update — October 9, 2026
 
+## Sixty-ninth pass: pre-launch receipts and a post-close provider relaunch
+
+Signed native7c0f81e9d71f/PID39358 is delivered once through the idle maintenance fence; the frozen candidate binary matches the installed signature/hash and the Screen Recording grant persists.153 native mechanical checks and20 focused Node cases pass. An adjacent reader suite passes20/21; its failure is a stale0.11.5 version assertion. Four affected protocol cases pass after version assertion updates. Final receipt/outcome checks pass10 cases. Fresh canonical MCP under minimal PATH reports0.16.0/27tools, declared_target_context1, native declared_action_targets1 and mutation_replay never. Existing loaded peer adapter adoption remains unknown.
+
+Default action.begin still resolves a running bundle/PID/window. Explicit target_resolution=declared accepts bundle only before launch, stamps service time, remains caller intent, never participates in passive input attribution and never binds a later PID/window. Wrappers refuse old native before callbacks. Terminal imports, separate outcomes and retained source context preserve resolution; legacy imports retain their original normalization/immutable IDs. Real owned launch has a declared begin/end and independently observed PID40095/window13266; no target backfill. Missing-app default and contradictory declared PID are refused.
+
+Actual cleanup exposes a shared computer-use gap: click close then bound getAXState exits PID40095 but launches PID40381/window13269. Preserve this failure; do not repeat the original close. A separate exact observed cleanup scope closes the new instance, followed by native inventory and process absence, without another app read. Three terminal receipts/outcomes and a version-scoped reported failure fact independently read back. First close cleanup remains partial; later owned cleanup is completed. The audit describes3 stored scopes, not all provider reads/implicit effects. First close scope was bundle/PID only because a helper used the wrong inventory key; no retrospective window insertion. One unsupported inventory field was corrected without UI replay.
+
+Both owned PIDs absent, native inventory empty, sessionclosed, fresh reader terminal and installed recorder idle. No capture or physical input, sleep, capacity or universal-provider proof.46completed/17partial/one deferred. Next real-app fallback and useful longer capacity while physical offer remains pending. Evidence: gates-v69.
+
 ## Sixty-eighth pass: actual metadata ambiguity and qualified fixed-crop fallback
 
 A real notification click writes the fresh private signal. The7s model-free

@@ -16,7 +16,7 @@ import { planProduction, productionPlanSchema, validateProductionRequest } from 
 import {queryRecordingInput,validateInputQuery,inputQuerySchema,inputQueryHealth} from "./lib/input-query.mjs";
 
 const log = (...args) => console.error("[record-screen]", ...args);
-const VERSION = "0.15.0";
+const VERSION = "0.16.0";
 
 // ---------------------------------------------------------------- engine link
 
@@ -53,8 +53,12 @@ async function engine(method, params = {}, timeoutMs = 20000) {
       if (["record.export", "record.export_info"].includes(method) && (await client.call("status", {}, { timeoutMs })).capabilities?.derivative_source !== 1) {
         throw new EngineError("unsupported_derivative_source", "The loaded engine does not advertise derivative_source v1. Preview effort controls and mapped exports cannot be silently ignored.");
       }
-      if (method.startsWith("action.") && (await client.call("status", {}, { timeoutMs })).capabilities?.action_scopes !== 1) {
-        throw new EngineError("unsupported_action_scopes", "The loaded engine does not advertise action_scopes v1. No action was dispatched.");
+      if (method.startsWith("action.")) {
+        const capabilities = (await client.call("status", {}, { timeoutMs })).capabilities;
+        if (capabilities?.action_scopes !== 1) throw new EngineError("unsupported_action_scopes", "The loaded engine does not advertise action_scopes v1. No action was dispatched.");
+        if (method === "action.begin" && params.target_resolution === "declared" && capabilities?.declared_action_targets !== 1) {
+          throw new EngineError("unsupported_declared_action_targets", "Declared targets require declared_action_targets v1. No action was dispatched.");
+        }
       }
       if (params.input !== undefined && (await client.call("status", {}, { timeoutMs })).capabilities?.input_timeline !== 1) {
         throw new EngineError("unsupported_input_timeline", "The loaded engine does not advertise input_timeline v1. Explicit input settings cannot be silently ignored.");
@@ -127,9 +131,10 @@ const tools = [
   },
   {
     name:"action_begin",
-    description:"Declare a bounded contextual action block before a native or browser operation. Recorder stamps exact CLOCK_UPTIME_RAW time and resolves current bundle/PID/window identity. Does not drive the UI, lock input, or prove exclusive agent ownership. Keep returned token; native CUA needs explicit bracketing. On uncertain response recover with action_scopes before retrying.",
+    description:"Declare a bounded contextual action block before a native or browser operation. Recorder stamps exact CLOCK_UPTIME_RAW time and by default resolves current bundle/PID/window identity. For pre-launch intent, target_resolution=declared accepts bundle only and never attributes passive input or automatically binds a PID. Does not drive the UI, lock input, or prove exclusive agent ownership. Keep returned token; native CUA needs explicit bracketing. On uncertain response recover with action_scopes before retrying.",
     inputSchema:{type:"object",additionalProperties:false,properties:{session_id:SESSION_ID,
       caller:{type:"string",description:"Stable caller identifier; required again at action_end."},provider:{type:"string"},action_id:{type:"string"},intent:{type:"string",maxLength:3000},
+      target_resolution:{type:"string",enum:["observed","declared"],description:"Default observed. Declared is pre-launch semantic intent only; target must contain bundle_id only."},
       target:{type:"object",additionalProperties:false,properties:{bundle_id:{type:"string"},pid:{type:"integer",minimum:1,maximum:2147483647},window_id:{type:"integer",minimum:1,maximum:4294967295}},required:["bundle_id"]},
       context:{type:"object",additionalProperties:false,properties:Object.fromEntries(["purpose","before_state","expected_change","verification_plan"].map(key=>[key,{type:"string",maxLength:1500}]))},
       timeout_s:{type:"number",minimum:1,maximum:120,description:"Default 30. Expiry ends attribution only; it cannot cancel the UI operation."}
@@ -156,7 +161,7 @@ const tools = [
     inputSchema: { type: "object", properties: {}, additionalProperties: false },
     annotations: { readOnlyHint: true },
     run: async () => ok({ ...await engine("status"), mcp_adapter: {
-      version: VERSION, replay_policy: 1, production_planning: 1, production_storage_guidance: 1, triple_source_planning: 1, source_frame_mapping: 1, source_region_mapping: 1, transient_window_query: 1,
+      version: VERSION, declared_target_context: 1, replay_policy: 1, production_planning: 1, production_storage_guidance: 1, triple_source_planning: 1, source_frame_mapping: 1, source_region_mapping: 1, transient_window_query: 1,
       frame_mapping: frameMapHealth(), paired_source_mapping: 1, paired_interval_coverage_summary: 1, fitted_child_mapping_guard: 1, retained_input_query: 1, retained_action_context: 1, retained_input_health_context: 1,
       input_query: inputQueryHealth(), mutation_replay: "never",
       read_reconnect_budget_ms: 12000,

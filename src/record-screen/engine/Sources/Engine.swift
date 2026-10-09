@@ -138,7 +138,8 @@ final class Engine: @unchecked Sendable {
       return try await mark(params)
     case "action.begin":
       guard let sid=params.str("session_id"), await sessions.exists(sid) else { throw RPCError.badParams("an existing session_id is required") }
-      let target=try validateActionTarget(params["target"])
+      let resolution=try ActionTimeline.targetResolution(params)
+      let target=try resolution=="declared" ? ActionTimeline.declaredTarget(params["target"]) : validateActionTarget(params["target"])
       return try ActionTimeline.shared.begin(params,target:target)
     case "action.end":
       guard let sid=params.str("session_id"),await sessions.exists(sid) else { throw RPCError.badParams("an existing session_id is required") }
@@ -263,7 +264,7 @@ final class Engine: @unchecked Sendable {
       "clock": ["uptime_ns": clockNS, "uptime_ns_exact":String(clockNS), "domain":"CLOCK_UPTIME_RAW", "wall": iso8601.string(from: now), "started_ns": startedNs,"started_ns_exact":String(startedNs)],
       "permission": ["screen_recording": CGPreflightScreenCaptureAccess() ? "granted" : "missing"],
       "capabilities": ["strict_capture_requests":1,"application_filter":1,"target_capture_options": CaptureOptions.contractVersion, "source_journal": 1, "source_clock_continuity":1, "source_clock_instance":1,
-                       "input_timeline":1,"input_tap_faults":1,"input_queue_loss":1,"action_scopes":1,"derivative_source":1,"exclusion_identity":1,"preview_exclusion_identity":1,"encoder_failure_isolation":1,"stream_stop_diagnostics":1,"maintenance_fence":1,"sparse_frame_padding":1,"writer_failure_details":1,"transient_window_inventory":1],
+                       "input_timeline":1,"input_tap_faults":1,"input_queue_loss":1,"action_scopes":1,"declared_action_targets":1,"derivative_source":1,"exclusion_identity":1,"preview_exclusion_identity":1,"encoder_failure_isolation":1,"stream_stop_diagnostics":1,"maintenance_fence":1,"sparse_frame_padding":1,"writer_failure_details":1,"transient_window_inventory":1],
       "maintenance":maintenance.status,
       "input_timeline":InputTimeline.shared.status,
       "action_timeline":ActionTimeline.shared.status,

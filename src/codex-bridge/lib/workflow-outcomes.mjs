@@ -46,7 +46,8 @@ export function outcomeValue(input, receipt) {
   if (!receipt || receipt.id !== value.receipt_id || receipt.value.session_id !== value.session_id) throw new Error('persisted receipt does not belong to this outcome session')
   const r = receipt.value
   return { ...value, schema: 'computer-use-workflow-outcome/v1', action_id: r.action_id,
-    caller: r.caller, provider: r.provider, target: r.target, start_ns: r.start_ns, end_ns: r.end_ns,
+    caller: r.caller, provider: r.provider, target: r.target,
+    ...(r.target_resolution === undefined ? {} : {target_resolution:r.target_resolution}), start_ns: r.start_ns, end_ns: r.end_ns,
     clock_domain: r.clock_domain, receipt_result: r.result, receipt_state: r.state ?? 'declared',
     receipt_provenance: r.provenance, provenance: 'reported_verification_and_cleanup',
     ownership: 'Caller/result unverified; evidence references are not fetched or authenticated' }

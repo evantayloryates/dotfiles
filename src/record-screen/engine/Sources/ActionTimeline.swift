@@ -24,8 +24,22 @@ final class ActionTimeline: @unchecked Sendable {
     }
     return s
   }
+  static func targetResolution(_ input: [String: Any]) throws -> String {
+    guard let raw=input["target_resolution"] else { return "observed" }
+    guard let mode=raw as? String,["observed","declared"].contains(mode) else { throw RPCError.badParams("target_resolution must be observed or declared") }
+    return mode
+  }
+  static func declaredTarget(_ raw: Any?) throws -> [String: Any] {
+    guard let target=raw as? [String: Any],Set(target.keys)==["bundle_id"],
+          let bundle=target.str("bundle_id"),!bundle.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty,bundle.utf8.count<=256 else {
+      throw RPCError.badParams("declared target requires only an exact bundle_id; pid/window_id cannot be claimed")
+    }
+    return target
+  }
   func begin(_ input: [String: Any], target: [String: Any]) throws -> [String: Any] {
-    guard Set(input.keys).isSubset(of:["session_id","caller","provider","action_id","intent","context","timeout_s","target"]) else { throw RPCError.badParams("unsupported action.begin field") }
+    guard Set(input.keys).isSubset(of:["session_id","caller","provider","action_id","intent","context","timeout_s","target","target_resolution"]) else { throw RPCError.badParams("unsupported action.begin field") }
+    let resolution=try Self.targetResolution(input)
+    if resolution=="declared" { _ = try Self.declaredTarget(target) }
     let session=try Self.text(input,"session_id"), caller=try Self.text(input,"caller"), provider=try Self.text(input,"provider")
     let action=try Self.text(input,"action_id"), intent=try Self.text(input,"intent",max:3000)
     guard Set(target.keys).isSubset(of:["bundle_id","pid","window_id"]),
@@ -51,11 +65,12 @@ final class ActionTimeline: @unchecked Sendable {
     guard !overflow else { throw RPCError.badParams("action clock range overflow") }
     let token="act_"+UUID().uuidString.lowercased()
     let row: [String: Any] = ["schema":"record-screen-action/v1","action_token":token,"action_id":action,
-      "session_id":session,"caller":caller,"provider":provider,"intent":intent,"context":context,"target":target,
+      "session_id":session,"caller":caller,"provider":provider,"intent":intent,"context":context,"target":target,"target_resolution":resolution,
       "clock_domain":"CLOCK_UPTIME_RAW","start_ns":String(start),"deadline_ns":String(deadline),"end_ns":NSNull(),
       "state":"active","result":"unknown","engine_instance":instanceID,"engine_build":Build.hash,
       "engine_pid":getpid(),"clock_provenance":"recorder_service_stamped","ownership":"caller_claimed_unverified",
-      "limits":["No automatic native-provider interception", "Result is caller-reported; source/delivery evidence must corroborate"]]
+      "limits":["No automatic native-provider interception", "Result is caller-reported; source/delivery evidence must corroborate",
+        resolution=="declared" ? "Target is declaration only: no observed PID/window, no passive input attribution, no automatic binding" : "Target identity observed at begin only"]]
     try lock.withLock {
       guard actions.values.filter({$0.str("state")=="active"}).count<64 else { throw RPCError(code:"too_many_actions",message:"64 action scopes already active") }
       guard !actions.values.contains(where:{$0.str("state")=="active" && $0.str("session_id")==session && $0.str("caller")==caller && $0.str("action_id")==action}) else {
@@ -122,7 +137,7 @@ final class ActionTimeline: @unchecked Sendable {
   func activeIDs(sessionID: String?, pid: Int32?, windowID: UInt32?, at now: UInt64) -> [String] {
     guard let sessionID else { return [] }
     return lock.withLock { actions.values.compactMap { row in
-      guard row.str("session_id")==sessionID,
+      guard row.str("target_resolution") != "declared", row.str("session_id")==sessionID,
             let start=row.str("start_ns").flatMap(UInt64.init),
             let end=(row.str("state")=="active" ? row.str("deadline_ns") : row.str("end_ns")).flatMap(UInt64.init), now>=start,now<=end else { return nil }
       let target=row["target"] as? [String: Any] ?? [:]

@@ -23,16 +23,20 @@ export function retainedActionContext(row,epoch,sourceRow,from,to) {
   if(!obj(target))fail();
   const normalizedTarget={bundle_id:text(target.bundle_id)};
   for(const [k,max] of [['pid',2147483647],['window_id',4294967295]])if(target[k]!==undefined){if(!Number.isSafeInteger(target[k])||target[k]<1||target[k]>max)fail();normalizedTarget[k]=target[k];}
+  const resolution=a.target_resolution===undefined?'legacy_unspecified':a.target_resolution;
+  if(a.target_resolution!==undefined&&!['observed','declared'].includes(resolution))fail();
+  if(resolution==='declared'&&(normalizedTarget.pid!==undefined||normalizedTarget.window_id!==undefined))fail();
   if(!obj(a.context))fail();
   const context={};for(const k of ['purpose','before_state','expected_change','verification_plan'])if(a.context[k]!==undefined)context[k]=text(a.context[k],1500);
   if(a.evidence_refs!==undefined&&(!Array.isArray(a.evidence_refs)||a.evidence_refs.length>16||a.evidence_refs.some(v=>typeof v!=='string'||!v.startsWith('/')||Buffer.byteLength(v)>2048||/[\x00-\x1f]/.test(v))))fail();
   return {overlaps,value:{source_row:sourceRow,action_token:a.action_token,action_id:text(a.action_id),session_id:text(a.session_id),
-    caller:text(a.caller),provider:text(a.provider),intent:text(a.intent,3000),context,target:normalizedTarget,state:a.state,claimed_result:a.result,
+    caller:text(a.caller),provider:text(a.provider),intent:text(a.intent,3000),context,target:normalizedTarget,target_resolution:resolution,state:a.state,claimed_result:a.result,
     start_host_ns:String(start),end_host_ns:end===null?null:String(end),declared_deadline_host_ns:String(deadline),
     start_relative_ns:String(s),end_relative_ns:end===null?null:String(end-epoch),declared_deadline_relative_ns:String(deadline-epoch),
     update_relative_ns:String(update),update_time_qualification:'Source row uses end_ns when present, otherwise start_ns; not the annotation receipt time.',
     overlap_basis:end===null?'declared_deadline_only':'recorded_scope_bounds',end_kind:a.end_kind===undefined?null:text(a.end_kind),
     evidence_refs:a.evidence_refs?[...a.evidence_refs]:[],ownership:'unknown',verification:'unverified_claim',
     limits:['Captured action snapshot, not necessarily the final action state. Missing later update remains unknown.',
-      'Scope bounds/deadlines do not prove actor ownership, provider delivery, visible changes or actual UI completion.']}};
+      'Scope bounds/deadlines do not prove actor ownership, provider delivery, visible changes or actual UI completion.',
+      resolution==='declared'?'Declared target only: no observed identity or passive input attribution; no automatic binding.':'Target resolution does not establish input ownership.']}};
 }

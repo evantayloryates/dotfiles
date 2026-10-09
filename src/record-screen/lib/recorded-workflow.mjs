@@ -32,6 +32,7 @@ export async function withRecordedWorkflow(client, declaration, operation,
       || (cleanup !== undefined && typeof cleanup !== 'function') || typeof evidenceStore?.putOutcome !== 'function') throw new TypeError('workflow requires operation, evidence store and optional callback hooks')
   const status = await client.call('status')
   if (status.capabilities?.action_scopes !== 1) throw new EngineError('unsupported_action_scopes', 'Operation not started: action_scopes v1 is required')
+  if (declaration.target_resolution === 'declared' && status.capabilities?.declared_action_targets !== 1) throw new EngineError('unsupported_declared_action_targets', 'Operation not started: declared_action_targets v1 is required')
   // Uncertain begin means no provider operation or hooks. Never resubmit begin.
   const started = await client.call('action.begin', declaration)
   let value, operationError, operationFailed = false

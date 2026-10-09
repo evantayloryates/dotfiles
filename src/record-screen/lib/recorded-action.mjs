@@ -6,6 +6,7 @@ export async function withRecordedAction(client, declaration, operation, { evide
   if (typeof operation !== 'function') throw new TypeError('operation must be a callback')
   const status=await client.call('status')
   if (status.capabilities?.action_scopes !== 1) throw new EngineError('unsupported_action_scopes','Loaded engine lacks action_scopes v1; operation was not started')
+  if (declaration.target_resolution === 'declared' && status.capabilities?.declared_action_targets !== 1) throw new EngineError('unsupported_declared_action_targets', 'Operation not started: declared_action_targets v1 is required')
   // Never retry begin: a lost response may already have created a scope.
   const started=await client.call('action.begin',declaration)
   let value, operationError

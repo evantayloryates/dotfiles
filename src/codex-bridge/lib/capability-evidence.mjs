@@ -92,12 +92,15 @@ export function validateReceipt(input, { intentMax = 1000 } = {}) {
 export function validateRecordedAction(input) {
   const allowed=['schema','action_token','action_id','session_id','caller','provider','intent','context','target',
     'clock_domain','start_ns','deadline_ns','end_ns','state','result','engine_instance','engine_build','engine_pid',
-    'clock_provenance','ownership','limits','evidence_refs','end_kind','target_lifetime_at_end','clock']
+    'clock_provenance','ownership','limits','evidence_refs','end_kind','target_lifetime_at_end','clock','target_resolution']
   fields(input,allowed,['schema','action_token','action_id','session_id','caller','provider','intent','context','target',
     'clock_domain','start_ns','deadline_ns','end_ns','state','result','engine_instance','engine_build','engine_pid','clock_provenance'])
   if(input.schema!=='record-screen-action/v1' || input.clock_provenance!=='recorder_service_stamped') fail('invalid recorder action contract')
   if(!/^act_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(input.action_token)) fail('invalid recorder token')
   if(!['closed','expired','interrupted'].includes(input.state)) fail('only terminal recorder actions can be imported')
+  const resolution=input.target_resolution ?? 'legacy_unspecified'
+  if (input.target_resolution !== undefined && !['observed','declared'].includes(resolution)) fail('invalid target resolution')
+  if (resolution === 'declared' && (input.target?.pid !== undefined || input.target?.window_id !== undefined)) fail('declared target cannot claim PID/window identity')
   const unknown=input.end_ns===null
   if(unknown && (input.state!=='interrupted' || input.result!=='interrupted' || input.end_kind!=='unknown_after_engine_restart')) fail('unknown end requires restart interruption')
   const base=validateReceipt(Object.fromEntries(['session_id','caller','action_id','provider','target','clock_domain','start_ns','end_ns','intent','result','evidence_refs']
@@ -106,7 +109,7 @@ export function validateRecordedAction(input) {
   if(BigInt(deadline)<BigInt(base.start_ns) || (!unknown && BigInt(base.end_ns)>BigInt(deadline))) fail('recorder scope bounds invalid')
   fields(input.context,['purpose','before_state','expected_change','verification_plan'],[])
   const context=Object.fromEntries(Object.entries(input.context).map(([key,value])=>[key,string(value,key,1500)]))
-  return {...base,context,end_ns:unknown ? null : base.end_ns,deadline_ns:deadline,state:input.state,
+  return {...base,context,...(input.target_resolution === undefined ? {} : {target_resolution:resolution}),end_ns:unknown ? null : base.end_ns,deadline_ns:deadline,state:input.state,
     recorder_action_token:input.action_token,engine_instance:string(input.engine_instance,'engine instance'),
     engine_build:string(input.engine_build,'engine build'),engine_pid:integer(input.engine_pid,'engine pid',1,2147483647),
     end_kind:string(input.end_kind,'end kind'),provenance:'recorder_reply_imported',

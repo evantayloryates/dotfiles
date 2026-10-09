@@ -132,6 +132,23 @@ final class TestClock: @unchecked Sendable {
     let foreign=ActionTimeline(root:root.path,clock:{clock.now()})
     check((foreign.list(sessionID:"session",caller:"other")["actions"] as? [[String:Any]])?.isEmpty==true,"recovery list caller scoped")
     check((foreign.list(sessionID:"session",caller:"agent")["actions"] as? [[String:Any]])?.count==1,"terminal token discoverable after restart")
+    var declared=params("launch"); declared["target_resolution"]="declared"
+    let declaredRow=try ledger.begin(declared,target:["bundle_id":"com.test.NotRunning"]), declaredToken=declaredRow.str("action_token")!
+    check(begun.str("target_resolution")=="observed","legacy begin defaults to observed resolution")
+    check(declaredRow.str("target_resolution")=="declared","declaration-only resolution explicit")
+    check(ledger.activeIDs(sessionID:"session",pid:nil,windowID:nil,at:clock.now()).isEmpty,"unresolved declaration never matches unowned input")
+    check(ledger.activeIDs(sessionID:"session",pid:100,windowID:10,at:clock.now()).isEmpty,"declared launch cannot attribute subsequently observed app events")
+    for bad:Any in ["unknown",true,NSNull()] {
+      var request=params("bad-resolution");request["target_resolution"]=bad
+      rejected("invalid resolution") { _=try ledger.begin(request,target:target) }
+    }
+    rejected("declaration cannot claim a process") { _=try ledger.begin(declared,target:target) }
+    rejected("declaration cannot claim a window") { _=try ActionTimeline.declaredTarget(["bundle_id":"com.test.NotRunning","window_id":10]) }
+    rejected("blank declaration refused") { _=try ActionTimeline.declaredTarget(["bundle_id":"  "]) }
+    let declaredEnd=try ledger.end(["session_id":"session","caller":"agent","action_token":declaredToken,"result":"dispatched"])
+    let declaredRecovered=foreign.list(sessionID:"session",caller:"agent")["actions"] as! [[String:Any]]
+    check(declaredRecovered.first(where:{$0.str("action_token")==declaredToken})?.str("target_resolution")=="declared","resolution persists through terminal disk recovery")
+    check((declaredEnd["target"] as? [String:Any])?.count==1,"end never backfills a claimed target identity")
     let interrupted=try ledger.begin(params("restart"),target:target), restartToken=interrupted.str("action_token")!
     let list=foreign.list(sessionID:"session",caller:"agent")["actions"] as! [[String:Any]]
     check(list.first(where:{$0.str("action_token")==restartToken})?["end_ns"] is NSNull,"restart recovery does not invent end time")

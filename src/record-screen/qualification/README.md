@@ -660,3 +660,7 @@ node /Users/taylor/src/github/dotfiles/src/record-screen/qualification/workflow-
 ```
 
 This creates/settles an owned recorder session and scopes, with four typed failed/cleanup-complete outcomes and exact readback. It drives no UI/input/capture, requests no grant, and restarts no native or peer. On a qualification failure, inspect its saved session/action files and actual state before explicit cleanup; do not rerun blindly. Natural transport loss and loaded MCP policy remain separate gates.
+
+## Declared target context checks
+
+Stage69 adds target_resolution observed/declared without a new tool. Full input-test.swift verifies declaration-only exclusion from passive attribution and immutable terminal recovery. declared-context.test.mjs checks source snapshot uncertainty and contradictory identities. recorded-action/workflow tests check exact capability refusal before callbacks and persisted receipt/outcome resolution. Legacy normalization remains unchanged; no new media or physical input is generated. Real installed launch/close qualification and scoped post-close read relaunch evidence are in gates-v69.

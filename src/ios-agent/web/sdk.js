@@ -42,11 +42,15 @@
   const shadowRoot=el=>el.shadowRoot||retainedShadowRoots.get(el);
   function inert(el){for(let node=el;node;node=node.getRootNode()?.host)if(node.closest('[inert]'))return true;return false;}
   function deepHit(x,y) {let hit=document.elementFromPoint(x,y);for(let i=0;i<16&&hit&&shadowRoot(hit);i++){const inner=shadowRoot(hit).elementFromPoint(x,y);if(!inner||inner===hit)break;hit=inner;}return hit;}
-  function semanticElements() {const roots=[document],out=[];let scanned=0;for(let i=0;i<roots.length&&i<64;i++)for(const el of roots[i].querySelectorAll('*')){if(++scanned>8000)return out;if(shadowRoot(el))roots.push(shadowRoot(el));if(el.matches('a,button,input,textarea,select,[role],[contenteditable=true],h1,h2,h3,label,video,audio'))out.push(el);if(out.length>=500)return out;}return out;}
-  function tree() {
+  function semanticElements(matches) {const roots=[document],out=[];let scanned=0;for(let i=0;i<roots.length&&i<64;i++)for(const el of roots[i].querySelectorAll('*')){if(++scanned>8000)return out;if(shadowRoot(el))roots.push(shadowRoot(el));if(el.matches('a,button,input,textarea,select,[role],[contenteditable=true],h1,h2,h3,label,video,audio')&&matches(el))out.push(el);if(out.length>=500)return out;}return out;}
+  function tree(args={}) {
+    if(args.selector!==undefined&&(typeof args.selector!=='string'||!args.selector.length||args.selector.length>200)||args.text!==undefined&&(typeof args.text!=='string'||!args.text.length||args.text.length>200))throw new Error('inspection_scope_required');
+    if(args.selector)try{document.createDocumentFragment().querySelector(args.selector);}catch{throw new Error('selector_invalid');}
+    const scoped=!!(args.selector||args.text);
+    const matches=el=>(!args.selector||el.matches(args.selector))&&(!args.text||label(el).toLowerCase().includes(args.text.toLowerCase()));
     refs = new Map(); snapshot = {id: crypto.randomUUID(), at:clock()};
     const elements = [];
-    for (const el of semanticElements()) {
+    for (const el of semanticElements(matches)) {
       if (el === glow || secret(el)) continue;
       const box = rect(el), style = getComputedStyle(el);
       if (!box.width || !box.height || style.visibility === 'hidden' || style.display === 'none') continue;
@@ -56,7 +60,7 @@
       elements.push({id, tag:el.tagName.toLowerCase(), role:el.getAttribute('role'), label:text, box, disabled:!!el.disabled,pressed:el.getAttribute('aria-pressed'),expanded:el.getAttribute('aria-expanded'),checked:'checked' in el?!!el.checked:el.getAttribute('aria-checked'),inputType:el.tagName==='INPUT'?el.type:undefined, value:'value' in el ? String(el.value).slice(0,300) : undefined, hit:!!hit && (hit === el || el.contains(hit)), inViewport:box.y < innerHeight && box.y+box.height > 0 && box.x < innerWidth && box.x+box.width > 0});
       if (elements.length >= 500) break;
     }
-    return {snapshot:snapshot.id, content:document.body.innerText.slice(0,16000), path:location.pathname, title:document.title, elements, viewport:{width:innerWidth,height:innerHeight,scale:visualViewport?.scale}, capabilities:{trustedInput:false,systemUI:false,openShadowRoots:true,closedShadowRoots:'created-after-adapter-boot',sameOriginFrames:false,crossOriginFrames:false}};
+    return {snapshot:snapshot.id, content:(scoped?elements.map(e=>e.label).join('\n'):document.body.innerText).slice(0,16000),scoped, path:location.pathname, title:document.title, elements, viewport:{width:innerWidth,height:innerHeight,scale:visualViewport?.scale}, capabilities:{trustedInput:false,systemUI:false,openShadowRoots:true,closedShadowRoots:'created-after-adapter-boot',sameOriginFrames:false,crossOriginFrames:false}};
   }
   function target(args) {
     if (!snapshot || args.snapshot !== snapshot.id || clock()-snapshot.at > 5000) throw new Error('stale_snapshot');
@@ -68,7 +72,7 @@
   async function execute(c) {
     const args = c.args || {};
     switch(c.action) {
-      case 'snapshot': return tree();
+      case 'snapshot': return tree(args);
       case 'events': return {events:[...events], contentFree:true};
       case 'state': {
         const data = {};
@@ -113,7 +117,7 @@
         if (c.remainingMs<=0) result={error:'expired_before_execution',delivery:'not-sent'};
         else {
           try { result={ok:true,value:await Promise.race([execute(c),new Promise((_,reject)=>setTimeout(()=>reject(new Error('execution_deadline_unknown')),Math.min(c.remainingMs,8000)))])}; }
-          catch(e) { const codes=['stale_snapshot','stale_target','changed_target','target_not_interactable','editable_text_required','expression_required','unsupported_action','execution_deadline_unknown']; result={ok:false,error:codes.includes(e.message)?e.message:'page_execution_failed',replay:false}; }
+          catch(e) { const codes=['stale_snapshot','stale_target','changed_target','target_not_interactable','editable_text_required','expression_required','unsupported_action','execution_deadline_unknown','selector_invalid','inspection_scope_required']; result={ok:false,error:codes.includes(e.message)?e.message:'page_execution_failed',replay:false}; }
         }
         if (JSON.stringify(result).length>800000) result={ok:false,error:'result_limit',replay:false};
         const ack=await post({op:'result',...feedback(),id:c.id,epoch:response.epoch,result}); apply(ack);

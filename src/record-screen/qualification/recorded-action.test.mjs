@@ -40,3 +40,23 @@ test('import cannot manufacture terminal stamps or erase clock uncertainty',()=>
   for(const bad of [{...receipt,end_ns:null},{...receipt,state:'active'},{...receipt,start_ns:123},{...receipt,end_ns:'9007199254740000'},
     {...receipt,end_ns:'9007300254740999'},{...receipt,context:{unsupported:'field'}},{...receipt,extra:true}]) assert.throws(()=>validateRecordedAction(bad))
 })
+
+test('pre-launch declaration requires native capability and retains uncertainty through shared storage',async()=>{
+  const request={...declaration,target_resolution:'declared'}
+  let operations=0;const old=fake()
+  await assert.rejects(withRecordedAction(old,request,async()=>operations++),e=>e.code==='unsupported_declared_action_targets')
+  assert.equal(operations,0);assert.deepEqual(old.calls.map(x=>x.method),['status'])
+  const root=mkdtempSync(join(tmpdir(),'declared-action-'));try {
+    const c={async call(method,args){if(method==='status')return {capabilities:{action_scopes:1,declared_action_targets:1}};return {...receipt,target_resolution:'declared'}}}
+    const store=new EvidenceStore(root),out=await withRecordedAction(c,request,async()=>++operations,{evidenceStore:store})
+    assert.equal(operations,1);assert.equal(out.receiptError,undefined)
+    const saved=store.receipts('test')[0].value
+    assert.equal(saved.target_resolution,'declared');assert.deepEqual(saved.target,{bundle_id:'com.test.fixture'})
+    const outcome=store.putOutcome({session_id:'test',receipt_id:out.sharedReceipt.id,observed_at:new Date().toISOString(),verification:{state:'not_checked',method:'none',summary:'No app evidence supplied',evidence_refs:[]},cleanup:{state:'unknown',summary:'No app cleanup supplied',evidence_refs:[]}})
+    assert.equal(outcome.value.target_resolution,'declared');assert.equal(store.workflowAudit('test').coverage.stored_outcomes,1)
+    assert.equal(Object.hasOwn(validateRecordedAction(receipt),'target_resolution'),false,'legacy normalization and immutable ID remain unchanged; missing resolution is unspecified')
+    for(const bad of [{...receipt,target_resolution:'unknown'},{...receipt,target_resolution:null},
+      {...receipt,target_resolution:'declared',target:{...receipt.target,pid:123}},
+      {...receipt,target_resolution:'declared',target:{...receipt.target,window_id:123}}]) assert.throws(()=>validateRecordedAction(bad))
+  } finally {rmSync(root,{recursive:true,force:true})}
+})

@@ -1,7 +1,7 @@
 # Agent usage and recovery
 
 This is the capture-foundations production runbook. The installed native build
-9bfabf2dbb5c and fresh adapter0.15.0 have the scoped proofs in
+7c0f81e9d71f and fresh adapter0.16.0 have the scoped proofs in
 [GATES.md](qualification/GATES.md). Treat these as a baseline, then inspect
 loaded status. Visual effects, cursor styling and composition recipes are the
 next phase. The [checklist](qualification/checklist.json) tracks unresolved
@@ -546,3 +546,9 @@ They do not establish continuous interval-start state or current permissions.
 Check loss, untimed observations and truncation. Health summaries repeat across
 pages, not a separate pagination stream. Defaults/cursors stay unchanged unless
 the option is enabled. Current CLI is available while older MCP refresh is pending.
+
+## Pre-launch targets and closure verification (stage69)
+
+Native7c0f81e9d71f advertises declared_action_targets1; fresh adapter0.16.0 adds target_resolution to action_begin and preserves it in retained context. Default observed requires current running identity. Use target_resolution:"declared" with target:{bundle_id:"exact.bundle"} only for prospective semantic intent such as launch. No PID/window claim, automatic binding or passive input attribution. Bracket once before native getApp, close promptly, then separately observe actual identity for subsequent observed scopes. Wrappers require exact native capability before starting the operation. Caller/result ownership stays unverified. Missing resolution on historical imports remains unspecified and retains immutable IDs.
+
+After final close, verify process/window absence through inventory. Stage69 bound getAXState following close relaunched the owned app under a new PID. Do not reacquire or read the closed app to verify cleanup. If a new instance appears, preserve the first result as partial cleanup, create a separate scope against the newly observed PID/window and close only owned state. Final cleanup used inventory/process readback; no app read followed. This one version-unknown native-CUA finding is not a universal provider claim.

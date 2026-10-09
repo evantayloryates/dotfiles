@@ -158,3 +158,10 @@ test('cleanup and publication errors remain distinct from successful verificatio
     verify: async () => verified, cleanup: async () => cleaned })
   assert.equal(operations, 2); assert.equal(failed.workflowOutcome, undefined); assert.match(failed.outcomeError.message, /publication failed/)
 }))
+
+test('declared launch cannot start on a legacy native capability even with workflow hooks',()=>isolated(async store=>{
+  const c=client();let calls=0
+  await assert.rejects(withRecordedWorkflow(c,{...declaration,target_resolution:'declared'},async()=>calls++,{
+    evidenceStore:store,verify:async()=>calls++,cleanup:async()=>calls++}),e=>e.code==='unsupported_declared_action_targets')
+  assert.equal(calls,0);assert.deepEqual(c.calls.map(x=>x.method),['status'])
+}))

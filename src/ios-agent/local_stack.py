@@ -65,18 +65,18 @@ def require_idle_host(state=STATE):
 
 
 def inspect_processes(container):
-    script = r'''
-const fs=require('fs');let server=0,starter=0,web=0;
+    classifier = (Path(__file__).parent / 'process_inventory.mjs').read_text().replace('export function', 'function')
+    script = classifier + r'''
+const fs=require('fs'),records=[];
 for(const p of fs.readdirSync('/proc').filter(v=>/^\d+$/.test(v))){try{
- const a=fs.readFileSync(`/proc/${p}/cmdline`,'utf8').split('\0').join(' ');
+ const args=fs.readFileSync(`/proc/${p}/cmdline`,'utf8').split('\0').filter(Boolean);
  const cwd=fs.readlinkSync(`/proc/${p}/cwd`);
- if(cwd==='/workspaces/kickoff/node'){
-  if(a.includes('.webpack/server.development.js'))server++;
-  if(/build:server:demo:watch|dev-demo-server.sh|webpack.development.demo/.test(a))starter++;
- }
- if(cwd==='/workspaces/kickoff/next'&&/next-server|start:demo:development|dev-demo.sh/.test(a))web++;
+ const parent=fs.readFileSync(`/proc/${p}/stat`,'utf8').match(/^\d+ \(.*\) \S+ (\d+)/)?.[1];
+ const env=fs.readFileSync(`/proc/${p}/environ`,'utf8').split('\0');
+ const envPort=env.find(v=>v.startsWith('PORT='))?.slice(5);
+ records.push({pid:p,parent,cwd,args,envPort});
 }catch{}}
-process.stdout.write(JSON.stringify({server,starter,web}));
+process.stdout.write(JSON.stringify(countProcesses(records)));
 '''
     return json.loads(run(['docker', 'exec', '-i', container, 'node', '-'], input=script.encode()))
 
@@ -105,6 +105,24 @@ def occupied(port):
         return False
 
 
+def known_web_forwarder(container):
+    """A listening Docker proxy is not proof of a live Next worker.
+
+    Admit only the existing loopback-bound, exact-container socat route, and
+    require the target port inside that verified container to be free.
+    """
+    try:
+        info = json.loads(run(['docker', 'inspect', 'kickoff-port-bridge-3000']))[0]
+        if (info['Config']['Image'] != 'alpine/socat' or
+                info['Config']['Cmd'] != ['TCP-LISTEN:3000,fork,reuseaddr', 'TCP:' + container + ':3000'] or
+                info['NetworkSettings']['Ports'].get('3000/tcp') != [{'HostIp': '127.0.0.1', 'HostPort': '3000'}]):
+            return False
+        script = "const net=require('net'),s=net.connect(3000,'127.0.0.1');s.setTimeout(1000);s.on('connect',()=>{s.destroy();process.stdout.write('busy')});s.on('error',e=>{process.stdout.write(e.code==='ECONNREFUSED'?'free':'unknown')});s.on('timeout',()=>{s.destroy();process.stdout.write('unknown')});"
+        return run(['docker', 'exec', container, 'node', '-e', script]).decode() == 'free'
+    except (StackError, KeyError, ValueError, IndexError):
+        return False
+
+
 def start(container, project):
     args = ['docker', 'exec', '-d']
     for value in ENV:
@@ -127,7 +145,7 @@ def ensure_backend(container, timeout=90, before_launch=None):
         if occupied(4000):
             raise StackError('graphql_port_owner_unverified')
     if launch_web:
-        if occupied(3000):
+        if occupied(3000) and not known_web_forwarder(container):
             raise StackError('web_port_owner_unverified')
     if launch_graphql:
         if before_launch:

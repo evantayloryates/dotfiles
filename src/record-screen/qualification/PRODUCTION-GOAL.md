@@ -1,5 +1,24 @@
 # Production qualification goal
 
+## Current checkpoint: stage69
+
+Resolved the concrete pre-launch receipt gap with explicit declaration-only
+intent, no PID invention/backfill or passive attribution. Signed native7c/PID39358
+installed/read back through one idle fence; fresh MCP0.16.0/27tools qualified.
+153 native/20 focused checks, adjacent reader20/21 with stale version assertion
+corrected by4 protocol checks, final10 receipt/outcome checks. Real launch scope
+retains only bundle; subsequent observed identity is separate. Post-close native
+CUA AX read relaunches fixture under new PID. First close keeps partial cleanup;
+separate exact PID/window cleanup settles both processes, session and native.
+Three receipts/outcomes and scoped failure fact independently read back.
+
+Full goal ACTIVE:46completed17partial1deferred. Next qualify daily-app fixed
+crop/source coordinates and useful longer capacity; physical-input offer remains
+pending. No settled source recapture, broad history churn, speculative metadata
+inverse or repeated rollback drill. Ordinary consumer adoption remains unknown.
+Production click contract is120s after actual click, no input lock; final native
+clock helper lacks a fresh human-click/unattended-wake qualification.
+
 ## Remaining work: ordered acceptance batches
 
 Taylor asked how to accelerate the remainder. Preserve all existing gate scopes
@@ -69,7 +88,7 @@ physical user input or authorize sleep/permission disruption.
 
 ## Checkpoints
 
-Current checkpoint: stage68. One new40s actual five-direction child source has
+Historical checkpoint: stage68. One new40s actual five-direction child source has
 1834 exact mux/journal joins. Two actual geometry-identical pairs differ134px/
 106px in parent placement, ruling out metadata-only origin inversion. App fixed
 crop861 stable packets passes all marker positions within1px; isolated oracle

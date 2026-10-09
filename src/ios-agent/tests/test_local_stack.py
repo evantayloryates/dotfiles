@@ -2,7 +2,7 @@ from pathlib import Path
 import unittest
 from unittest.mock import patch
 from local_stack import (checked_mount, ensure_backend, local_desktop_endpoint,
-                         require_idle_host, StackError)
+                         require_idle_host, known_web_forwarder, StackError)
 
 
 class LocalStackTests(unittest.TestCase):
@@ -75,6 +75,23 @@ class LocalStackTests(unittest.TestCase):
                 ensure_backend('fixture', before_launch=fence)
         self.assertEqual(start.call_count, 1)
         self.assertEqual(start.call_args.args, ('fixture','node'))
+
+    def test_verified_loopback_forwarder_does_not_block_missing_web_worker(self):
+        info = [{'Config': {'Image': 'alpine/socat', 'Cmd': ['TCP-LISTEN:3000,fork,reuseaddr', 'TCP:fixture:3000']}, 'NetworkSettings': {'Ports': {'3000/tcp': [{'HostIp': '127.0.0.1', 'HostPort': '3000'}]}}}]
+        import json
+        with patch('local_stack.run', side_effect=[json.dumps(info).encode(), b'free']):
+            self.assertTrue(known_web_forwarder('fixture'))
+        for outcome in [b'busy', b'unknown']:
+            with patch('local_stack.run', side_effect=[json.dumps(info).encode(), outcome]):
+                self.assertFalse(known_web_forwarder('fixture'))
+        with patch('local_stack.run', return_value=json.dumps(info).encode()):
+            self.assertFalse(known_web_forwarder('another-container'))
+
+    def test_proxy_recovery_starts_only_missing_web_and_preserves_graphql(self):
+        with patch('local_stack.local_identity'), patch('local_stack.inspect_processes', return_value={'server':1,'starter':1,'web':0}), patch('local_stack.verify_local_backend'), patch('local_stack.occupied', return_value=True), patch('local_stack.known_web_forwarder', return_value=True), patch('local_stack.probe', return_value=True), patch('local_stack.start') as start:
+            value=ensure_backend('fixture')
+        self.assertEqual(value['started'],['web'])
+        start.assert_called_once_with('fixture','next')
 
 
 if __name__ == '__main__':
