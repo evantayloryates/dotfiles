@@ -711,3 +711,27 @@ Final metadata readback found fixture CFBundleVersion776b157b432f, not the
 initially assumed1. Corrected exact-key facts were appended/read back; earlier
 immutable wrong-key observations remain explicitly unverified. No capture or UI
 replay. Provider/profile uncertainty still blocks reuse.
+
+## Thirtieth-pass sparse repair and production checkpoint
+
+Signed f314bb340344 is installed/PID35547 through one warranted idle fenced
+CLI build, reusing verified cache and preserving prior bundle. Exact prior7files
+unchanged; actual installed48-sample/MCP source smoke passed. Fresh listening
+access true; protected-input gap stays explicit. Source/held/error contract now
+published. Native code has no qualification hooks or readiness waits.
+
+15 controlled Recording checks and prior-source pixel QA passed;32 exact control
+samples,26 finalization/admission checks with15 exact samples. Failed harness
+clock ordering/zero-duration-tail evidence retained; no live clock rollback.
+Actual50s paired motion2371 exact samples,zero drops/row loss,20s cover/recovery,
+dense backup map586samples passed.50 resource observations give bounded point
+profile cost, not GPU/capacity/P80. Controlled unpadded variant proves real writer
+error chain -11800/-17771; production sparse path survived.
+
+All owned fixture/private-engine PIDs and both sessions settled; recorder idle,
+Input Monitoring access active, watcher/peer workflows preserved. Two scoped
+facts and5terminal receipts (4verified/1not-checked) read back; early cleanup
+expiry preserved separately from actual fresh close. Next: app/menu fallback
+and dynamic fitting, physical/provider/clock limits, agent production-mode
+expectations and shared workflow adoption. Do not rerun settled moving insurance
+or reset failures. Standing UI authorization still throughOct9 17:51UTC.

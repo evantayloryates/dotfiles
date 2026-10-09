@@ -437,3 +437,21 @@ one-second held-buffer control. Saved NSError domain/code/underlying chain and
 actual ffprobe packets establish the result. This reproducer intentionally
 includes failed variants; its process exit alone is not writer success. It is
 not the production repair or physical capture timing proof.
+
+### Sparse recording repair and preserved failure controls
+
+`sparse-recording-test.py --output /absolute/fresh/private/stage` freezes the
+production sources and appends test-only owned32px frame hooks. It checks actual
+writer resume, prior-source pixel references, bounded padding interruption,
+protected clock-gap behavior, forced backpressure and raw unpadded error chains.
+The production build has no test hooks or readiness waits. Original failed
+harness stages remain private; virtual receipt times must follow supplied PTS
+to avoid legitimately trimming a zero-duration accepted tail. Use ffprobe/journal
+checks and decoded pixels, not process exit alone. Signed prepare-candidate.py
+then builds without hooks; actual display/window capture qualifies live behavior.
+
+`verify-motion-insurance.py` accepts repeated identical geometry declarations
+from static/complete transitions while requiring every encoded-source transform
+to match the authored map. A sparse obstructed primary is covered by the backup's
+full dense source timeline; matching only the primary's sparse timestamps would
+reduce recovered motion to1fps. The map remains QA, not a composition recipe.

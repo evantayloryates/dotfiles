@@ -118,6 +118,8 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   // before encoder calls. This does not assert a natural hardware failure.
   var qualificationFinalizeBudget = 15.0
   var qualificationBeforeEncoderFinish: (@Sendable () -> Void)?
+  var qualificationBeforeAppend: (() -> Void)?
+  var qualificationRejectSparseFrame = false
   #endif
   private var events: [[String: Any]] = []
   private var marks: [[String: Any]] = []
@@ -140,6 +142,10 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   private var prerollBuffer: CVPixelBuffer?
   private var lastBuffer: CVPixelBuffer?
   private var lastWrittenNs: UInt64 = 0
+  private var lastEncodedBuffer: CVPixelBuffer?
+  private var lastEncodedSource: Int?
+  private var sparseFrameIssue: String?
+  private var writerFailureDetails: [String: Any]?
   private var wroteFirst = false
   private var framesWritten = 0
   private var framesDropped = 0
@@ -282,6 +288,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
       resolved = m["resolved"] as? [String: Any]
       exclusionQuality = m["exclusion_quality"] as? [String:Any]
       error = m.str("error")
+      writerFailureDetails = m["writer_failure"] as? [String: Any]
       actualStart = m.str("actual_start").flatMap(parseISO)
       actualEnd = m.str("actual_end").flatMap(parseISO)
       firstFrameDelayMs = m.num("first_frame_delay_ms")
@@ -661,8 +668,36 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   }
 
   private func append(_ pb: CVPixelBuffer, at ns: UInt64, source: Int? = nil, held: String? = nil) {
-    guard let input, let adaptor, ns >= startHostNs, ns <= endHostNs, ns > lastWrittenNs || framesWritten == 0 else { return }
+    guard input != nil, adaptor != nil, ns >= startHostNs, ns <= endHostNs, ns > lastWrittenNs || framesWritten == 0 else { return }
+    // Use the last successfully encoded source, not the newly received buffer:
+    // otherwise padding would paint future pixels into an earlier interval.
+    if framesWritten > 0, !hostClockInterrupted, let previous = lastEncodedBuffer {
+      guard let padding = SparseFramePadding.timestamps(after: lastWrittenNs, before: ns) else {
+        stopForSparseGap("sparse source interval exceeds bounded padding budget; take trimmed without inventing coverage")
+        return
+      }
+      let previousSource = lastEncodedSource
+      for stamp in padding {
+        guard appendEncoded(previous, at: stamp, source: previousSource, held: "held_for_sparse_interval") else {
+          // Do not append the next source across an unfilled oversized gap.
+          stopForSparseGap(writer?.status == .failed ? "writer failed while preserving sparse source timing" : "encoder backpressure prevented sparse interval preservation; take trimmed without extending stale footage")
+          return
+        }
+      }
+    }
+    if !appendEncoded(pb, at: ns, source: source, held: held), writer?.status == .failed, state == .recording {
+      finalize(reason: "writer failed: \(writer?.error?.localizedDescription ?? "unknown")", checkClock: false)
+    }
+  }
+
+  @discardableResult private func appendEncoded(_ pb: CVPixelBuffer, at ns: UInt64, source: Int?, held: String?) -> Bool {
+    guard let input, let adaptor, ns >= startHostNs, ns <= endHostNs, ns > lastWrittenNs || framesWritten == 0 else { return false }
+    #if RECORD_SCREEN_QUALIFICATION
+    qualificationBeforeAppend?()
+    let ready = input.isReadyForMoreMediaData && !(qualificationRejectSparseFrame && held == "held_for_sparse_interval")
+    #else
     let ready = input.isReadyForMoreMediaData
+    #endif
     let accepted = ready && adaptor.append(pb, withPresentationTime: cmTime(ns))
     sourceJournal?.offer(["kind": "encoded_frame", "source_frame": source as Any? ?? NSNull(),
                           "host_ns": String(ns), "relative_ns": sourceJournal?.relative(ns) as Any? ?? NSNull(),
@@ -673,10 +708,35 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
       if framesWritten == 0 { firstFrameDelayMs = Double(Int64(uptimeNs()) - Int64(startHostNs)) / 1e6 }
       framesWritten += 1
       lastWrittenNs = ns
+      lastEncodedBuffer = pb
+      lastEncodedSource = source
       activity.observe(pb, t: Double(ns - startHostNs) / 1e9)
     } else {
       framesDropped += 1
+      observeWriterFailure(at: ns)
     }
+    return accepted
+  }
+
+  private func stopForSparseGap(_ reason: String) {
+    sparseFrameIssue = reason
+    endHostNs = min(endHostNs, lastWrittenNs + UInt64(1e9 / Double(settings.fps)))
+    snapLock.withLock { inputEndHostSnap = endHostNs }
+    if state == .recording { finalize(reason: reason, checkClock: false) }
+  }
+
+  private func observeWriterFailure(at ns: UInt64) {
+    guard writer?.status == .failed, writerFailureDetails == nil else { return }
+    func diagnostic(_ error: Error?, depth: Int = 0) -> [String: Any]? {
+      guard let error, depth < 3 else { return nil }
+      let value = error as NSError
+      return ["domain": value.domain, "code": value.code,
+              "underlying": diagnostic(value.userInfo[NSUnderlyingErrorKey] as? Error, depth: depth + 1) as Any? ?? NSNull()]
+    }
+    writerFailureDetails = ["observed_host_ns": String(uptimeNs()), "requested_host_ns": String(ns),
+                            "writer_status": writer?.status.rawValue as Any? ?? NSNull(),
+                            "error": diagnostic(writer?.error) as Any? ?? NSNull()]
+    sourceJournal?.offer(["kind": "writer_failure", "details": writerFailureDetails!])
   }
 
   // MARK: - Finishing
@@ -721,6 +781,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     let duration = Double(endHostNs - startHostNs) / 1e9
     activityTimeline = activity.timeline(duration: duration)
     let keys = reviewKeys()
+    let finalReason = reason ?? sparseFrameIssue
     writer.finishWriting { [self] in
       snapLock.withLock { writerDone = true; encoderPending = false }
       q.async { [self] in
@@ -728,11 +789,13 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
         // deadline outcome, upgrade coverage or start a review after failure.
         guard state == .finalizing else {
           prerollBuffer = nil; lastBuffer = nil
+          lastEncodedBuffer = nil
           snapLock.withLock { tapBuffer = nil }
           persist()
           return
         }
         guard writer.status == .completed else {
+          observeWriterFailure(at: endHostNs)
           finish(.failed, reason: "writer failed: \(writer.error?.localizedDescription ?? "unknown")")
           return
         }
@@ -743,7 +806,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
           do { r = try await Review.make(video: self.videoPath, dir: self.dir, keys: keys) } catch { r = ["error": "\(error)"] }
           self.q.async { [self] in
             review = r
-            finish(reason == nil ? .done : .interrupted, reason: reason)
+            finish(finalReason == nil ? .done : .interrupted, reason: finalReason)
           }
         }
       }
@@ -757,6 +820,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     releasePower()
     prerollBuffer = nil
     lastBuffer = nil
+    lastEncodedBuffer = nil
     snapLock.withLock { tapBuffer = nil }
     stopInputJournal(outcome: ["recording_state":s.rawValue,
       "writer_status":writer.map { $0.status.rawValue } as Any? ?? NSNull(),
@@ -764,6 +828,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
       "encoded_submissions":framesWritten,
       "muxed_coverage":"unverified; accepted writer submissions can exceed persisted packets on failure",
       "exclusion_quality":exclusionQuality as Any? ?? NSNull(),
+      "writer_failure":writerFailureDetails as Any? ?? NSNull(),
       "error":reason as Any? ?? NSNull()])
     setState(s)
   }
@@ -878,6 +943,15 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   private func monitor() {
     guard state == .recording else { return }
     guard observeHostClock() else { return }
+    // One cheap heartbeat for static footage. Delayed heartbeats are repaired
+    // by the same bounded padding path before a new source or final sample.
+    if let previous = lastEncodedBuffer {
+      let now = min(uptimeNs(), endHostNs)
+      if now > lastWrittenNs, now - lastWrittenNs >= SparseFramePadding.intervalNS {
+        append(previous, at: now, source: lastEncodedSource, held: "held_for_sparse_interval")
+      }
+    }
+    guard state == .recording else { return }
     let current = describeLocked()
     snapLock.withLock { snapshot = current }
     guard let w = watchedWindow else { return }
@@ -945,6 +1019,10 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
       "review": review ?? NSNull(),
       "activity_per_s": activityTimeline ?? NSNull(),
       "frames": ["written": framesWritten, "dropped": framesDropped, "seen": framesSeen],
+      "sparse_frames": ["held_meaning": "copy of last encoded source; not fresh capture or interpolation",
+                        "max_interval_ns": String(SparseFramePadding.intervalNS),
+                        "max_padding_per_append": SparseFramePadding.maxPerAppend],
+      "writer_failure":writerFailureDetails as Any? ?? NSNull(),
       "frames_provenance": snapLock.withLock { terminalReason == nil ? framesProvenance : "persisted_checkpoint_not_final" },
       "source_packet": sourceJournal?.describe() as Any? ?? restoredSource as Any? ?? NSNull(),
     ]

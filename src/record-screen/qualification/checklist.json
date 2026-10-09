@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T02:33:44-04:00",
+  "updated_at": "2026-10-09T02:57:39-04:00",
   "workflow": {
     "state": "active",
-    "note": "Moving backup recovered a real50s shot through20s obstruction and primary writer failure. Preserve partial/failed footage; diagnose sparse writer resume next, then qualify sustained paired cost. All owned fixtures settled; Input Monitoring active."
+    "note": "Sparse writer repair is delivered and actual bounded moving insurance passed. 35 completed, 20 partial, 1 deferred. Continue app/menu fallback, dynamic fitting and conservative agent production modes; all owned stage resources settled."
   },
-  "production_note": "Signed build 53b202f58af8 is installed and verified through a fenced update. Input Monitoring survived and the changed keyboard-scope boundary passed a fresh delivered-event canary. Broader physical/provider, app, motion/resource and final production qualification remain open.",
+  "production_note": "Signed build f314bb340344 is installed and verified through a fenced update. Real 50-second moving insurance and installed 48-sample/source MCP smoke passed; seven prior files preserved, Input Monitoring access active with protected-input gaps explicit. Broader app/provider/capacity and final full-scope expectations remain open.",
   "groups": [
     {
       "id": "capture",
@@ -362,32 +362,32 @@
         {
           "id": "motion-insurance",
           "title": "Qualify motion insurance with matching backup coverage",
-          "status": "partial",
-          "scope": "A paired source must preserve the same changing scene and prove usable recovery.",
-          "evidence": "Real full-shot backup passed:1463 exact mux/source samples,49.973s coverage,575 changing ticks under20s obstruction; saved recovery map and negative controls. Primary writer failed77accepted/75persisted; prior failed preconditions remain.",
-          "next": "Diagnose sparse display writer resume, then qualify successful sustained paired cost and broader app/menu backup before recommending production redundancy.",
-          "anchor": "twenty-ninth-pass",
-          "updated_at": "2026-10-09T02:30:48-04:00"
+          "status": "completed",
+          "scope": "Authored50s point1000x732/30fps display plus isolated-window pair, real20s obstruction, exact source maps and dense same-scene backup recovery. Broader apps/menus, automatic detection and long-take capacity remain in their open gates.",
+          "evidence": "After narrow sparse-writer repair, both takes completed906+1465 exact samples,zero drops/row loss. Backup575 distinct ticks undercover; maps identical, common counters within1tick. Dense recovery map586 samples avoids1fps rescue; prior failed primary/preconditions preserved.",
+          "next": "",
+          "anchor": "thirtieth-pass",
+          "updated_at": "2026-10-09T02:56:46-04:00"
         },
         {
           "id": "resource-admission",
           "title": "Set a realistic resource and admission budget",
           "status": "partial",
           "scope": "CPU, memory, encoder/GPU/storage costs and useful production-duration estimates.",
-          "evidence": "52 passive samples cover the repaired50s pair:pressure2warning; aggregate recorder0.072 CPU cores/56.2MiB RSS. Primary failed early; backup1463 exact samples and8.299MB. Earlier admission/lifecycle proof retained; sustained encoder/GPU capacity and P80 remain unknown.",
-          "next": "After the narrow display writer repair, measure one successful bounded paired interval and define conservative modes; do not infer capacity from configured cap16.",
-          "anchor": "twenty-ninth-pass",
-          "updated_at": "2026-10-09T02:30:49-04:00"
+          "evidence": "Successful50s point1000x732/30fps pair measured50 samples:pressure2warning, aggregate recorder0.063CPU cores/51.7MiB RSS,8.292+8.304MB files. Zero dropped frames and2371 exact samples. Concurrent host work/GPU attribution, thermal plateau, longer duration and P80 remain unqualified; configured cap16 remains not capacity.",
+          "next": "Publish conservative point-profile production modes from bounded measurements; qualify representative duration/thermal behavior and broader app insurance when warranted, without repeating settled sparse-writer recovery.",
+          "anchor": "thirtieth-pass",
+          "updated_at": "2026-10-09T02:56:46-04:00"
         },
         {
           "id": "sparse-display-writer",
           "title": "Keep display writing reliable through sparse/static intervals",
-          "status": "needs_retest",
-          "scope": "Real display source becomes static under owned opaque cover, then resumes motion; primary media must survive independently of its backup.",
-          "evidence": "Actual display writer failed77accepted/75persisted samples after20s static cover; window backup survived. Isolated writer reproduced nanosecond-scale gaps:1.9/2.1s pass,2.2s and above fail with underlyingOSStatus -17771. Microsecond and1s held-buffer controls pass; production repair not yet applied.",
-          "next": "Prepare bounded explicitly journaled held frames and detailed writer errors; qualify real static/resume on isolated candidate while preserving nanosecond timestamps.",
-          "anchor": "twenty-ninth-pass",
-          "updated_at": "2026-10-09T02:33:44-04:00"
+          "status": "completed",
+          "scope": "Bounded held-source padding and affected-only trim for nanosecond sparse timing; real authored static-cover/resume plus installed readback. No arbitrary-app or longer-duration guarantee.",
+          "evidence": "Signed f314bb340344 delivered.15 controlled Recording checks/32 exact control samples and prior-source pixels passed; raw unpadded error -11800/-17771 retained. Real50s pair2371 exact samples,zero drops; display26 sparse held frames survived20s cover/resume. Installed48-sample/MCP smoke and7 prior-file hashes passed.",
+          "next": "",
+          "anchor": "thirtieth-pass",
+          "updated_at": "2026-10-09T02:56:46-04:00"
         }
       ]
     },
@@ -562,10 +562,10 @@
           "title": "Smoke-test real capture and consumers after installation",
           "status": "completed",
           "scope": "Installed passive capture and source/export/time-map consumers, persisted-history recovery and owned cleanup. Tiny static smoke only; motion/menu/input/capacity stay in their existing gates.",
-          "evidence": "Installed e0d053bc6732 passive 32px capture completed; two exact source/mux timestamps, ten exact decoded draft packets, source/time-map and actual connector readback passed. One fenced restart preserved completed history/grant; own session closed, no input/unfinished work or lease.",
+          "evidence": "Earlier installed source/export/time-map proof retained. New f314bb340344 installed10s owned-window take supplied48 exact mux/source samples; existing loaded MCP returned held/protected-gap fields. Fresh listening access true, protected-input omission explicit;7 earlier media/state files unchanged and owned cleanup verified.",
           "next": "",
-          "anchor": "eighteenth-pass",
-          "updated_at": "2026-10-08T23:29:16-04:00"
+          "anchor": "thirtieth-pass",
+          "updated_at": "2026-10-09T02:57:39-04:00"
         },
         {
           "id": "mcp-replay-boundary",
@@ -582,10 +582,10 @@
           "title": "Finish agent usage and recovery runbooks",
           "status": "partial",
           "scope": "Capabilities, gaps, deadlines, semantic blocks, app facts, effort and collision/recovery guidance.",
-          "evidence": "Keyboard fixture/verifier reproduce related pass, original default-filter failure and installed repair. Current guide separates known destination, unknown foreground fallback, bounded shortcut/all candidates and unresolved same-app window ownership. All owned fixtures/session cleanup read back.",
-          "next": "Complete remaining app/popup depth, physical/provider coverage and measured motion/resource estimates before final full-scope guidance.",
-          "anchor": "twenty-seventh-pass",
-          "updated_at": "2026-10-09T01:35:19-04:00"
+          "evidence": "Current source contract now documents sparse held provenance, bounded affected-only trim, exact nanosecond mapping and writer error chain. Actual 50-second paired recovery and measured point-profile costs published. Installed f314 source/MCP readback preserves input protected-gap limits; broader app/physical/provider and production-mode guidance still open.",
+          "next": "Complete dynamic app/popup fallback, conservative production-mode expectations and remaining provider/workflow adoption; preserve scoped completion and unsupported environments.",
+          "anchor": "thirtieth-pass",
+          "updated_at": "2026-10-09T02:57:39-04:00"
         },
         {
           "id": "visual-composition",
@@ -1249,6 +1249,53 @@
       "from": "needs_retest",
       "to": "needs_retest",
       "note": "Actual display writer failed77accepted/75persisted samples after20s static cover; window backup survived. Isolated writer reproduced nanosecond-scale gaps:1.9/2.1s pass,2.2s and above fail with underlyingOSStatus -17771. Microsecond and1s held-buffer controls pass; production repair not yet applied."
+    },
+    {
+      "kind": "item",
+      "id": "sparse-display-writer",
+      "at": "2026-10-09T02:56:46-04:00",
+      "from": "needs_retest",
+      "to": "completed",
+      "note": "Signed f314bb340344 delivered.15 controlled Recording checks/32 exact control samples and prior-source pixels passed; raw unpadded error -11800/-17771 retained. Real50s pair2371 exact samples,zero drops; display26 sparse held frames survived20s cover/resume. Installed48-sample/MCP smoke and7 prior-file hashes passed."
+    },
+    {
+      "kind": "item",
+      "id": "motion-insurance",
+      "at": "2026-10-09T02:56:46-04:00",
+      "from": "partial",
+      "to": "completed",
+      "note": "After narrow sparse-writer repair, both takes completed906+1465 exact samples,zero drops/row loss. Backup575 distinct ticks undercover; maps identical, common counters within1tick. Dense recovery map586 samples avoids1fps rescue; prior failed primary/preconditions preserved."
+    },
+    {
+      "kind": "item",
+      "id": "resource-admission",
+      "at": "2026-10-09T02:56:46-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Successful50s point1000x732/30fps pair measured50 samples:pressure2warning, aggregate recorder0.063CPU cores/51.7MiB RSS,8.292+8.304MB files. Zero dropped frames and2371 exact samples. Concurrent host work/GPU attribution, thermal plateau, longer duration and P80 remain unqualified; configured cap16 remains not capacity."
+    },
+    {
+      "kind": "item",
+      "id": "installed-smoke",
+      "at": "2026-10-09T02:57:39-04:00",
+      "from": "completed",
+      "to": "completed",
+      "note": "Earlier installed source/export/time-map proof retained. New f314bb340344 installed10s owned-window take supplied48 exact mux/source samples; existing loaded MCP returned held/protected-gap fields. Fresh listening access true, protected-input omission explicit;7 earlier media/state files unchanged and owned cleanup verified."
+    },
+    {
+      "kind": "item",
+      "id": "agent-runbooks",
+      "at": "2026-10-09T02:57:39-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Current source contract now documents sparse held provenance, bounded affected-only trim, exact nanosecond mapping and writer error chain. Actual 50-second paired recovery and measured point-profile costs published. Installed f314 source/MCP readback preserves input protected-gap limits; broader app/physical/provider and production-mode guidance still open."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T02:57:39-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Sparse writer repair is delivered and actual bounded moving insurance passed. 35 completed, 20 partial, 1 deferred. Continue app/menu fallback, dynamic fitting and conservative agent production modes; all owned stage resources settled."
     }
   ]
 }

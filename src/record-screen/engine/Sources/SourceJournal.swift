@@ -22,6 +22,7 @@ final class SourceJournal: @unchecked Sendable {
   private var phase = "writing"
   private var videoOutcome: [String: Any]?
   private var colorSegments = 0
+  private var heldEncodedFrames: [String: Int] = [:]
   private var latestColor: [String:Any]?
   private var clockContinuity = HostClockContinuity()
   private var inputGapReasons: [String:Int] = [:]
@@ -51,6 +52,9 @@ final class SourceJournal: @unchecked Sendable {
            "clock_policy": HostClockContinuity.policy,
            "video_time_origin": "encoded time zero corresponds to epoch_host_ns",
            "requested_video_timescale": 1_000_000_000, "requested_movie_timescale": 1_000_000_000,
+           "sparse_frame_policy": ["interval_ns": String(SparseFramePadding.intervalNS),
+                                   "held_meaning": "copy of last encoded source; not fresh capture or interpolation",
+                                   "max_padding_per_append": SparseFramePadding.maxPerAppend],
            "limits": ["SCK transform is a candidate until qualified for the app/display transition",
                       "Frame spacing is not a source-drop count", "No input or action ownership inferred"]])
   }
@@ -81,6 +85,11 @@ final class SourceJournal: @unchecked Sendable {
       guard phase == "writing" else { return false }
       offered += 1
       guard pending < capacity, failure == nil else { lost += 1; return false }
+      if row["kind"] as? String == "encoded_frame", row["accepted"] as? Bool == true,
+         let held = row["held"] as? String {
+        let key = held.utf8.count <= 128 && (heldEncodedFrames[held] != nil || heldEncodedFrames.count < 16) ? held : "other"
+        heldEncodedFrames[key, default: 0] += 1
+      }
       if row["kind"] as? String == "color", let color = row["color"] as? [String:Any] {
         colorSegments += 1; latestColor = color
       }
@@ -161,6 +170,8 @@ final class SourceJournal: @unchecked Sendable {
        "complete": phase == "closed" && lost == 0 && failure == nil,
        "complete_qualification": "accepted journal rows closed; not video finalization or muxed coverage",
        "video_outcome": videoOutcome as Any? ?? NSNull(),
+       "held_encoded_frames": heldEncodedFrames,
+       "held_qualification": "accepted journal decisions only; copies of declared source, not fresh capture; inspect muxed coverage and row loss",
        "color_segments":colorSegments, "latest_observed_color":latestColor as Any? ?? NSNull(),
        "clock_continuity":clockContinuity.dict,
        "input_gaps_observed":inputGapReasons,"latest_input_listener":latestInputListener as Any? ?? NSNull(),

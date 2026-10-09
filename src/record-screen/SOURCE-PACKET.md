@@ -1,12 +1,43 @@
 # Recorder-owned source journal v1
 
-Native build 767d45f6ce40 is delivered; qualified scope and remaining limits are
+Native build f314bb340344 is delivered; qualified scope and remaining limits are
 in the qualification report. Loaded capability readback remains authoritative.
 Use MCP `recording_source` or CLI `record-screen record-source <recording_id>`.
 Socket consumers negotiate `status.capabilities.source_journal == 1`, then call
 `record.source`. Legacy footage returns no source packet. The MCP refuses an
 old engine explicitly. Replies contain paths and compact diagnostics, never
 bulk frame rows.
+
+### Sparse/static footage and writer failures
+
+Negotiate `sparse_frame_padding == 1`. Native nanosecond media timing is retained.
+A static source receives explicitly held copies at approximately one-second
+intervals; bounded catch-up fills interior intervals before a resumed source.
+`encoded_frame.held == "held_for_sparse_interval"` refers to the last successfully
+encoded source frame, never to future pixels. It is neither fresh capture nor
+interpolation. `source_packet.held_encoded_frames` counts accepted journal
+submissions by reason, separately from actual media coverage and row loss.
+Older missing fields mean unmeasured behavior, not zero held frames.
+
+At most64 interior held frames are inserted per append. An oversized interval or
+encoder backpressure that prevents safe padding trims/interrupts only the affected
+take; it does not silently extend stale footage to claim completion. Clock-gap
+interruption still disables filling through uncertain time. Exact source/video
+nanoseconds remain strings; consumers do not reconstruct synchronization.
+
+Negotiate `writer_failure_details == 1` for the first observed writer failure:
+manifest/video outcome and a `writer_failure` journal row preserve observation
+and requested clocks, status and a bounded NSError domain/code chain. Arbitrary
+userInfo is not exported. Null means no observed failure/older evidence, not a
+prediction of future encoder health. Actual muxed/decoded coverage remains
+necessary: accepted submissions can exceed persisted packets.
+
+An authored50s point1000x732/30fps pair survived20s obstruction with2371 exact
+samples and zero dropped frames. The recovery QA map keeps the backup's dense
+clock through the obstruction rather than replacing only sparse primary samples
+at1fps. This is qualified fixture coverage, not an automatic arbitrary-app
+collision detector, menu rescue or production-duration/capacity guarantee.
+Final styling/composition remains the next phase.
 
 ### Ordered input loss (input_queue_loss v1)
 

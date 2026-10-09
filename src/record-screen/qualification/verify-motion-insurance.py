@@ -55,9 +55,10 @@ def verify(primary, backup, cover_log, output, diagnostics):
         errors.append('backup mux/source proof failed')
     maps = []
     for geom in [pg, bg]:
-        if len(geom) != 1:
-            errors.append('oracle requires one geometry segment per source')
-        maps.append([r['geometry'].get('desktop_points_to_source_pixels') for r in geom.values()])
+        if not geom:
+            errors.append('oracle requires known geometry for encoded sources')
+        declared = [r['geometry'].get('desktop_points_to_source_pixels') for r in geom.values()]
+        maps.append([json.loads(value) for value in sorted({json.dumps(value) for value in declared})])
         if any(r['geometry'].get('source_pixels') != [1000, 732] for r in geom.values()):
             errors.append('oracle requires 1000x732 point source')
     if maps[0] != maps[1] or maps[0] != [[1, 0, 0, 1, -120, -110]]:
@@ -103,7 +104,10 @@ def verify(primary, backup, cover_log, output, diagnostics):
                              'offset_ns': str(offset), 'tick': alt['tick']})
     failed_primary = p['state'] == 'failed'
     if not before: errors.append('no primary matching footage before cover')
-    if not failed_primary and (len(covered) < 100 or not after): errors.append('insufficient primary before/cover/after coverage')
+    if not failed_primary:
+        span = (int(covered[-1]['host_ns']) - int(covered[0]['host_ns'])) / 1e9 if covered else 0
+        if len(covered) < 10 or span < (end-begin)/1e9 - 3 or not after:
+            errors.append('insufficient sparse primary before/cover/after coverage')
     if not common_deltas or max(common_deltas) > 3: errors.append('unobstructed sources do not match moving counter within3ticks')
     selected_backup = [r for r in br if begin + 200_000_000 <= int(r['host_ns']) <= end - 200_000_000]
     unique = len({r['tick'] for r in selected_backup if r['tick'] is not None})
@@ -122,6 +126,19 @@ def verify(primary, backup, cover_log, output, diagnostics):
         if requested - planned > 0.04: errors.append('backup lacks planned take coverage within40ms')
     else:
         planned = (int(br[-1]['host_ns']) - int(br[0]['host_ns'])) / 1e9
+        bad = [row for row in pr if row['tick'] is None]
+        if bad:
+            # A static obstruction is encoded sparsely. Preserve the backup's
+            # dense source clock, rather than replacing only those sparse
+            # primary samples and inadvertently reducing recovery to1fps.
+            first_bad, last_bad = int(bad[0]['host_ns']), int(bad[-1]['host_ns'])
+            following = next((int(row['host_ns']) for row in pr if int(row['host_ns']) > last_bad and row['tick'] is not None), None)
+            if following is None:
+                errors.append('primary has no observed recovery after obstruction')
+            else:
+                repaired = [{'backup_sequence': row['encoded_sequence'], 'host_ns': row['host_ns'],
+                             'tick': row['tick'], 'reason': 'primary_obstruction_interval'}
+                            for row in br if first_bad <= int(row['host_ns']) < following]
     longest = run = 0
     previous = None
     for row in br:

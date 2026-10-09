@@ -1,5 +1,82 @@
 # Qualification update — October 9, 2026
 
+## Thirtieth pass: sparse writer repair delivered with actual paired motion
+
+The actual stage29 failure led to SparseFramePadding: preserve nanosecond media
+scale and insert explicitly held copies of the last successfully encoded source
+at1s interior intervals. Static monitoring supplies a cheap heartbeat. Resumed
+pixels are never moved backward into that interval. At most64 held frames per
+append; an oversized gap or backpressure that cannot preserve safe intervals
+trims/interrupts only the affected take. Clock uncertainty remains unfilled.
+No production readiness wait or arbitrary interpolation was introduced.
+
+Recording/source descriptors report held semantics and accepted held counts.
+New capabilities sparse_frame_padding:1 and writer_failure_details:1. First
+observed failure preserves requested/observation time, writer status and bounded
+NSError domain/code/underlying chain, without arbitrary userInfo. Raw unpadded
+control reproduced actual -11800/-17771 and verified this new diagnostic path.
+
+15 controlled actual-Recording checks passed: long-gap resumed writer, precise
+padding boundary/overflow arithmetic, prior-source pixels, bounded-work trim,
+clock-gap suppression, forced backpressure and actual failure chain. Four useful
+media controls supplied32 exact muxed timestamps;20 held frames decoded as prior
+pixels with max1gray-level error, not the future resumed source. Controlled raw
+unpadded failure remains failed; no successful prefix/full coverage inference.
+26 real finalization/admission checks and15 exact peer/watchdog samples passed
+on the earlier same-stage candidate. Only affected sparse boundaries changed.
+
+Preserved first harness failure: clock sampling happened before arming, so its
+changed offset established a baseline and no interruption occurred. Corrected
+arming observation, then independent media QA found a virtual PTS exactly at
+endSession: accepted tail correctly had zero playable duration. Controlled
+receipt clock now advances past supplied PTS before injected gap. Final proof
+passes without changing live clock interruption or repeating a whole phase.
+Initial unpaced synthetic padding also exposed backpressure dropping fresh
+content; production now stops that affected interval explicitly. Private test
+readiness/rejection hooks qualify known capacity/control, not production waits.
+
+Signed no-hook candidate f314bb340344/PID32774 loaded privately with existing
+Screen Recording grant. Owned source window7990/PID32949 at
+(120,110,1000,732); coverPID32967. Changing pixels confirmed,20s owned cover
+actually magenta on display, then automatic removal. Simultaneous50s point
+H.264/30fps sources rec_5qtmv2bk(display) and rec_q2b44yw9(window) both done,
+906+1465=2371 exact mux/source timestamps,zero drops/row loss. Display recorded
+26 explicitly held sparse frames plus preroll; all referenced known earlier
+source metadata. Every encoded transform remained[1,0,0,1,-120,-110], including
+repeated geometry declarations around idle callbacks. Backup575 distinct ticks
+under20.0015s cover; common visible counters within1tick; selected-source skew
+max16.87ms. Dense recovery map selects586 backup samples through observed
+obstruction, avoiding an accidental1fps rescue based on sparse primary samples.
+No universal menu, collision detector, physical display or long-take guarantee.
+
+Successful pair measured50 passive samples: host pressure2warning, paging max
+0.302MiB/s, compressor116.43MiB/s. Aggregate CPU core equivalents recorder0.063,
+owned motion0.121, WindowServer0.508; peak RSS51.7/79.9/120.7MiB. Files8.292MB
+and8.304MB. Concurrent host activity and warm verification remain; no GPU cause,
+capacity,thermal plateau or P80 inferred. Critical-pressure guard did not fire.
+
+One public fenced CLI build reused the exact privately verified signed cache;
+prior signed bundle preserved. Installed f314bb340344/PID35547,development team
+H77CX8PYPV,launchd confirmed. Seven earlier failed/backup state/media files stayed
+byte-identical.10s installed owned-window smoke rec_dpwuh5f4 supplied48 exact
+mux/source samples,zero drops/row loss. Fresh listener reported access=true and
+listening; actual protected-input gap1 remained visible, so no delivered key or
+complete-input claim. Existing loaded MCP returned current source/held/gap fields
+without forced adapter restart; absent replay-policy field still unknown.
+
+Two actual app-build-keyed facts read back centrally; provider/profile unknown
+blocks unconfirmed reuse. Five terminal receipts have4verified/1not-checked
+outcomes and complete cleanup. Early motion cleanup scope expired while fixture
+was intentionally retained for installed smoke; actual close has a fresh scope.
+All known owned fixture/private-engine PIDs absent, both sessions closed,
+installed actions/input/unfinished work zero. Passive watcher/peer workflows
+untouched. Private runtime and failures preserved undergates-v30.
+
+Next: broader app/menu fallback, dynamic popup tracking, physical/provider and
+clock completeness, conservative agent production modes and remaining shared
+workflow adoption. Do not reset paired motion or repeat stable source timing.
+Visual effects/composition remain deferred. Goal remains active.
+
 ## Twenty-ninth pass: moving backup survives real obstruction and writer failure
 
 Installed53b202f58af8/PID88833,25F80,built-in1512x982@2. Owned motion

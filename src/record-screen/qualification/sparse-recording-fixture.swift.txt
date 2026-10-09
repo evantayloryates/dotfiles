@@ -1,0 +1,40 @@
+// Appended only to a frozen private Recording.swift, no production RPC hooks.
+#if RECORD_SCREEN_QUALIFICATION
+extension Recording {
+  func qualificationSparseSetup(_ duration:Double) throws {
+    try q.sync {
+      try FileManager.default.createDirectory(atPath:dir,withIntermediateDirectories:true)
+      startHostNs=uptimeNs();endHostNs=startHostNs+UInt64((duration*1e9).rounded())
+      sourceJournal=try SourceJournal(path:dir+"/source.jsonl",epoch:startHostNs,recordingID:id,target:targetRaw)
+      sourceJournal?.offer(["kind":"geometry","segment":0,"first_source_frame":0,"geometry":["source_pixels":[32,32]]])
+      try makeWriter(width:32,height:32);setState(.arming);_=observeHostClock();beginAtStart()
+      qualificationBeforeAppend={ [weak self] in
+        let deadline=Date().addingTimeInterval(2)
+        while self?.input?.isReadyForMoreMediaData==false && Date()<deadline {Thread.sleep(forTimeInterval:0.001)}
+      }
+    }
+  }
+  func qualificationSparseSource(_ offset:Double,_ value:UInt8,raw:Bool=false) throws {
+    try q.sync {
+      var optional:CVPixelBuffer?
+      guard CVPixelBufferCreate(kCFAllocatorDefault,32,32,kCVPixelFormatType_32BGRA,[kCVPixelBufferIOSurfacePropertiesKey:[:]] as CFDictionary,&optional)==kCVReturnSuccess,let pb=optional else {throw RPCError.badParams("owned sparse buffer")}
+      CVPixelBufferLockBaseAddress(pb,[]);memset(CVPixelBufferGetBaseAddress(pb),Int32(value),CVPixelBufferGetBytesPerRow(pb)*32);CVPixelBufferUnlockBaseAddress(pb,[])
+      let ns=startHostNs+UInt64((offset*1e9).rounded()),source=sourceSequence;sourceSequence+=1
+      sourceJournal?.offer(["kind":"source_frame","source_frame":source,"geometry_segment":0,"status":0,"pts_host_ns":String(ns),"relative_ns":sourceJournal!.relative(ns)])
+      lastBuffer=pb;lastSource=source
+      let deadline=Date().addingTimeInterval(2)
+      while input?.isReadyForMoreMediaData==false && Date()<deadline {Thread.sleep(forTimeInterval:0.001)}
+      if raw {appendEncoded(pb,at:ns,source:source,held:nil)} else {append(pb,at:ns,source:source)}
+    }
+  }
+  func qualificationSparseFinish(){q.async{[self] in finalize(reason:nil,checkClock:false)}}
+  func qualificationSparseClockGap(){q.sync {
+    let live=HostClockSample.read()
+    // Advance the controlled receipt clock past the authored future PTS first.
+    // Ending exactly at that PTS would legitimately trim a zero-duration tail.
+    let advanced=max(live.uptimeAfter,lastWrittenNs+40_000_000),delta=advanced-live.uptimeAfter
+    _=observeHostClock(HostClockSample(uptimeBefore:advanced,continuous:live.continuous+delta,uptimeAfter:advanced))
+    _=observeHostClock(HostClockSample(uptimeBefore:advanced+1,continuous:live.continuous+delta+10_000_000_001,uptimeAfter:advanced+1))
+  }}
+}
+#endif
