@@ -114,7 +114,7 @@ def start(container, project):
     run(args)
 
 
-def ensure_backend(container, timeout=90):
+def ensure_backend(container, timeout=90, before_launch=None):
     local_identity(container)
     counts = inspect_processes(container)
     started = []
@@ -130,8 +130,12 @@ def ensure_backend(container, timeout=90):
         if occupied(3000):
             raise StackError('web_port_owner_unverified')
     if launch_graphql:
+        if before_launch:
+            before_launch()
         start(container, 'node'); started.append('graphql')
     if launch_web:
+        if before_launch:
+            before_launch()
         start(container, 'next'); started.append('web')
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
@@ -186,7 +190,8 @@ def main():
             raise StackError('configured_checkout_mount_required')
         # An owner may have arrived while Docker was starting. Preserve them.
         require_idle_host(args.state)
-        print(json.dumps(ensure_backend(args.backend_container, args.timeout)))
+        print(json.dumps(ensure_backend(args.backend_container, args.timeout,
+                                        before_launch=lambda: require_idle_host(args.state))))
     finally:
         os.close(fd)
 

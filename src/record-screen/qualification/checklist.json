@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T11:48:59-04:00",
+  "updated_at": "2026-10-09T12:07:52-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage54 verifies new app-mode and third-level native menus with saved source/input checkpoints. Passive CG events omit native submenu expansions; explicit semantic scopes and scene verification supplement them. Remaining option-contract, full recovery, physical/provider, capacity and adoption gates continue; owned UI closed and user input available."
+    "note": "Stage55 delivers strict discovery/capture option and ID-selector contracts. First adapter incompatibility retained and corrected forward; final private and installed MCP source checks pass, recorder idle and owned engines absent.44 completed,16 partial,1 deferred. Continue high-impact full recovery, physical/provider, capacity and consumer-adoption gates without repeating stable menu passes."
   },
-  "production_note": "Signed native142e81bef23e/PID21977 is installed through a guarded idle restart;168 prior state hashes preserved. Current CLI/fresh MCP0.12 supports guarded app-only fixed crops. Fresh source/listener-access checks passed; older loaded chat MCP, physical/provider timing, app/menu behavior and whole-shot recovery remain separate qualification gates.",
+  "production_note": "Signed native25bdf541968a/PID75812 installed from exact tested artifact through guarded idle restart;89 pre-stage session/recording JSON hashes preserved. Strict discovery/capture option contracts and exact-ID app/title assertions verified. Fresh MCP0.12.1 and tiny passive installed source/listener checks pass. Older loaded chat MCP, physical/provider timing, app/menu behavior and whole-shot recovery remain separate gates.",
   "groups": [
     {
       "id": "capture",
@@ -568,6 +568,16 @@
       "title": "Production delivery and next phase",
       "items": [
         {
+          "id": "capture-request-contract",
+          "title": "Reject ignored capture options and assert window selectors",
+          "status": "completed",
+          "scope": "Native windows.list and four capture entries validate supported fields and surface selectors; exact window IDs honor optional app/title constraints. Scheduling caller metadata and adapter hide:false compatibility included. Other RPCs and time/file/capacity readiness remain separate.",
+          "evidence": "Stage55 final69 native parser checks,36 adjacent source-identity checks,5 CLI/MCP checks and18 actual private contract probes pass. Unknown/mistyped fields refuse; exact live ID honors app/title constraints; zero rejected-request sessions/capture. First installed caller refusal retained, corrected native25bdf541968a/freshMCP0.12.1 scheduling passes private4+installed4 exact mux joins; hide:false absent-target refusal proves correct adapter routing.89 prior scoped JSON hashes unchanged; private engines absent and production idle.",
+          "next": "",
+          "anchor": "fifty-fifth-pass",
+          "updated_at": "2026-10-09T12:07:51-04:00"
+        },
+        {
           "id": "human-expectations",
           "title": "Finalize production modes and interruption expectations",
           "status": "completed",
@@ -592,10 +602,10 @@
           "title": "Install the candidate safely and verify rollback",
           "status": "partial",
           "scope": "Idle-boundary release with prior binary/state preserved and exact loaded-capability readback.",
-          "evidence": "Stage52 safely delivered exact tested signed142e81bef23e/PID21977 through idle maintenance fence, preserved168 prior JSON state hashes and prior binary backup. Fresh Screen Recording/Input Monitoring observation,4 exact installed joins, retained source map and owned MCP0.12 passed. Earlier private forward/fallback restoration stays valid; no forced live rollback or peer restart.",
-          "next": "Continue scoped consumer adoption and remaining natural failure/recovery cases; use guarded forward delivery rather than repeating stable restoration tests.",
-          "anchor": "fifty-second-pass",
-          "updated_at": "2026-10-09T11:06:45-04:00"
+          "evidence": "Stage55 forward-delivers exact tested25bdf541968a/PID75812 through guarded idle fence after retained first89b140 caller incompatibility. FreshMCP0.12.1 schedule and hide:false target-resolution pass; installed2s32px take4 exact joins, existing Screen Recording/Input Monitoring observations confirmed.89 pre-stage session/recording JSON hashes unchanged, prior binaries retained; owned engines exited. Earlier168-hash stage52/restoration proofs preserved; broader natural failure and adoption remain open.",
+          "next": "Continue scoped consumer adoption and remaining natural failure/recovery cases; preserve existing restoration and source proofs rather than rolling back or repeating them.",
+          "anchor": "fifty-fifth-pass",
+          "updated_at": "2026-10-09T12:07:52-04:00"
         },
         {
           "id": "installed-smoke",
@@ -2154,6 +2164,29 @@
       "from": "active",
       "to": "active",
       "note": "Stage54 verifies new app-mode and third-level native menus with saved source/input checkpoints. Passive CG events omit native submenu expansions; explicit semantic scopes and scene verification supplement them. Remaining option-contract, full recovery, physical/provider, capacity and adoption gates continue; owned UI closed and user input available."
+    },
+    {
+      "kind": "item",
+      "id": "capture-request-contract",
+      "at": "2026-10-09T12:07:51-04:00",
+      "from": "pending",
+      "to": "completed",
+      "note": "Stage55 final69 native parser checks,36 adjacent source-identity checks,5 CLI/MCP checks and18 actual private contract probes pass. Unknown/mistyped fields refuse; exact live ID honors app/title constraints; zero rejected-request sessions/capture. First installed caller refusal retained, corrected native25bdf541968a/freshMCP0.12.1 scheduling passes private4+installed4 exact mux joins; hide:false absent-target refusal proves correct adapter routing.89 prior scoped JSON hashes unchanged; private engines absent and production idle."
+    },
+    {
+      "kind": "item",
+      "id": "release-rollback",
+      "at": "2026-10-09T12:07:52-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage55 forward-delivers exact tested25bdf541968a/PID75812 through guarded idle fence after retained first89b140 caller incompatibility. FreshMCP0.12.1 schedule and hide:false target-resolution pass; installed2s32px take4 exact joins, existing Screen Recording/Input Monitoring observations confirmed.89 pre-stage session/recording JSON hashes unchanged, prior binaries retained; owned engines exited. Earlier168-hash stage52/restoration proofs preserved; broader natural failure and adoption remain open."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T12:07:52-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Stage55 delivers strict discovery/capture option and ID-selector contracts. First adapter incompatibility retained and corrected forward; final private and installed MCP source checks pass, recorder idle and owned engines absent.44 completed,16 partial,1 deferred. Continue high-impact full recovery, physical/provider, capacity and consumer-adoption gates without repeating stable menu passes."
     }
   ]
 }

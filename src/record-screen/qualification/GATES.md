@@ -1,5 +1,55 @@
 # Qualification update — October 9, 2026
 
+## Fifty-fifth pass: strict capture options and selector constraints, with adapter proof
+
+Stage54's singular `include_transient` was silently ignored by raw native RPC.
+Native `windows.list` now rejects unknown keys and malformed/bounded app/title,
+boolean and limit fields. Four capture entries (`frame.resolve`, `frame.verify`,
+`overlay.show`, `record.schedule`) reject unsupported top-level fields and parse
+the target before dispatch/session resolution. Target field sets follow display,
+rect or window mode; wrong-mode selectors and misspelled capture controls refuse.
+Window app/title selectors must be nonempty strings <=256 characters. An exact
+window ID now asserts supplied app/title constraints using the normal inventory
+matching rules; a mismatch is `target_mismatch`, not ignored metadata.
+
+Final69 native parser checks,36 adjacent source-identity checks and five CLI/MCP
+checks pass. Actual signed private engine18 probes include15 refusals, one correct
+transient inventory query and live exact Codex window resolution with matching
+metadata, plus wrong-app/wrong-title refusal. Metadata discovery only: no UI or
+window pixels. Rejected requests create zero session JSONs, recordings, preview
+lanes, overlays or input subscribers. Off-Space warning now requires real source
+pixel verification instead of promising hidden/minimized content will render.
+
+First exact candidate89b140a0d923 was delivered through the idle fence. An actual
+fresh MCP schedule then reproduced `bad_params` for its injected caller object;
+that failed reply and closed owned session remain. Raw tests missed this adapter
+boundary. Native scheduling now accepts bounded string-valued caller metadata
+as unverified clues, and MCP strips its `hide:false` routing flag from overlay.show.
+An initial state archive refused copying the Unix socket; retained files were
+completed with the socket excluded. Neither issue prompted replay or rollback.
+
+Corrected signed native25bdf541968a (SHA6fd3e0d02746d925c7fad28e264d1df506583910e82107b82791f0836048e426)
+passed the final parser/private request checks and actual fresh MCP scheduling
+before forward delivery of that exact artifact. Production PID75812, native
+`strict_capture_requests:1`, fresh adapter0.12.1 read back. Private2s16-point take
+rec_he3jmm8j and installed rec_k5ued9t3 each have four actual mux/source joins,
+zero reported journal loss; installed existing Screen Recording grant and Input
+Monitoring listen observation true. A separate fresh MCP `frame_outline` with
+hide:false and absent app reaches `target_not_found`, with no visible outline.
+Two private engines absent; owned MCP children exit0 and sessions closed.
+Production remains idle, lanes/unfinished recordings/overlays/input subscribers0.
+89 pre-stage session/recording JSON files all retain exact hashes. Prior native
+binaries retained; this89-file scope is narrower than stage52's168-file proof.
+
+Capability scope: discovery/capture fields and target selectors, not every native
+RPC or all schedule time/path/capacity readiness. Native time validation and
+idempotency behavior stay separate: an invalid or incomplete retry cannot skip
+this entry validation; recover with owned recording/session readback before any
+explicit retry. No physical key/pointer, new app/menu pixels, source rate, clock,
+capacity or old-chat adapter adoption claim. Stable TextEdit/menu evidence stays
+valid for its written builds/modes.44 completed,16 partial,1 deferred; goal active.
+Private raw reports/journals/source snapshots live under gates-v55, outside Git.
+
 ## Fifty-fourth pass: source-linked native context stack and shortcut evidence
 
 Stage46 already established TextEdit root/Font childtrue/display capture and

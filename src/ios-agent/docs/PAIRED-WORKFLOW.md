@@ -14,6 +14,10 @@ recipe and limitations; this document is available at
    `ios_stack_ensure {"timeout":60}`. It never stops/replaces existing workers,
    resets data or changes the selected Docker context. A refused or uncertain
    result means inspect current state; never repeatedly launch it.
+   Ownership is rechecked immediately before each worker launch. If another
+   owner arrives between launches, further startup is refused; already-started
+   workers are preserved. These checks are not an atomic maintenance lock with
+   device acquisition.
 2. `ios_workflow {"action":"capture"}` resolves a verified non-admin synthetic
    coach and matching client. Optional `clientId` selects a specific tagged
    client. It returns `baselineId` and structural pair IDs. `ios_read` with that

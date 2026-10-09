@@ -1,5 +1,20 @@
 # Production qualification goal
 
+Stage55 checkpoint: strict native discovery/capture field and per-surface target
+contracts delivered as exact tested signed25bdf541968a/PID75812.69 parser checks,
+36 source-identity checks,5 CLI/MCP checks,18 actual private probes pass. Exact
+ID plus app/title constraints asserted,15 request refusals and zero side effects.
+Initial89b140 native caller incompatibility reproduced via actual MCP and retained;
+forward correction accepts bounded caller object and strips adapter hide:false.
+Fresh MCP0.12.1 tiny private/installed source4+4 exact joins and installed grants
+observed; absent-target outline reaches correct refusal without UI.89 prior
+session/recording JSON hashes unchanged; own sessions/engines/children settled,
+production idle/input0. No physical/provider, all-time/path readiness or current
+chat refresh inference. New completed contract gate:44completed16partial1deferred.
+Next: practical remaining full menu recovery and physical/provider/resource/
+adoption boundaries. Preserve stage54's actual pixels/events and prior failures;
+no menu reshoot needed for request validation changes. Full goal active.
+
 Stage54 checkpoint: new installed app mode and third-level Highlight menu extend
 earlier stage46 root/Font evidence. Owned TextEdit local source prepared/saved
 before take. One90s Retina app-full-crop/isolatedwindow-childtrue pair5230 exact

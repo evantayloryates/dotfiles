@@ -66,6 +66,16 @@ class LocalStackTests(unittest.TestCase):
                 ensure_backend('fixture')
         start.assert_not_called()
 
+    def test_new_owner_between_worker_launches_preserves_owner_and_stops_admission(self):
+        with patch('local_stack.local_identity'), patch('local_stack.inspect_processes', return_value={'server':0,'starter':0,'web':0}), patch('local_stack.occupied', return_value=False), patch('local_stack.start') as start:
+            def fence():
+                if start.call_count:
+                    raise StackError('idle_host_required_for_stack_recovery')
+            with self.assertRaisesRegex(StackError, 'idle_host_required'):
+                ensure_backend('fixture', before_launch=fence)
+        self.assertEqual(start.call_count, 1)
+        self.assertEqual(start.call_args.args, ('fixture','node'))
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -14,6 +14,15 @@ child inclusion alone did not preserve that popup in the tested window lane.
 
 ## Helpers
 
+`request-contract-test.swift` exercises native discovery/capture field sets,
+per-surface targets, image/session/caller options and exact-window selector
+predicates offline. Freeze/compile it with engine/bridge sources excluding
+main.swift, `-parse-as-library`, Swift5/macOS15 arm64. Stage55 final69 checks
+supplement actual signed native/MCP probes, including retained first caller
+incompatibility. Parser success alone does not qualify SDK/app readiness or
+installation. `options-test.swift` supplies adjacent source-identity checks.
+
+
 `frame-map.test.mjs` checks service-owned exact primary mappings: dynamic/held
 source references, host integers beyond JS precision, rational/order/boundary
 semantics, failed media/metadata gaps, unknown transforms/durations, invalid

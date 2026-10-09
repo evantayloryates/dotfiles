@@ -30,6 +30,10 @@ try {
  const capture=await call('ios_workflow',{action:'capture'});
  assert.equal(capture.receipt.status,'passed');receipt.gates.exactSyntheticNonAdminPair=true;
  const baseline=(await call('ios_read',{artifactId:capture.baselineId})).data;
+ const selected=await call('ios_workflow',{action:'capture',clientId:String(baseline.clientId)});
+ assert.equal(selected.pair.clientId,String(baseline.clientId));receipt.gates.explicitClientSelection=true;
+ const foreign=await client.callTool({name:'ios_workflow',arguments:{action:'restore-check',baselineId:capture.baselineId,clientId:String(baseline.clientId)==='1'?'2':'1'}});
+ assert.equal(foreign.isError,true);assert.equal(foreign.structuredContent.reason,'paired_baseline_client_mismatch');receipt.gates.foreignClientRefused=true;
  const persisted=await call('ios_workflow',{action:'assert',stage:'pre-restore',baselineId:capture.baselineId,expected:baseline.targetDailyCalories});
  assert.equal(persisted.receipt.status,'passed');receipt.gates.samePairPersistence=true;
  const mismatch=await client.callTool({name:'ios_workflow',arguments:{action:'assert',stage:'coach-write',baselineId:capture.baselineId,expected:baseline.targetDailyCalories===2456?2457:2456}});

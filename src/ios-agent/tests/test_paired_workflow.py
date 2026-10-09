@@ -43,4 +43,13 @@ class PairedWorkflowTests(unittest.TestCase):
             with self.assertRaises(ValueError):snapshot()
             self.assertEqual(run.call_count,2)
 
+    def test_provider_cannot_substitute_another_client_for_selected_identity(self):
+        checkout=Path('/Users/taylor/src/github/kickoff')
+        outputs=[b'desktop-linux',('unix://'+str(Path.home()/'.docker/run/docker.sock')).encode(),
+                 b'ety/local-dev-foundation',json.dumps([{'Type':'bind','Source':str(checkout),'Destination':'/workspaces/kickoff'}]).encode(),
+                 json.dumps({**self.value(),'clientId':5}).encode()]
+        with patch.dict('os.environ',{'DOCKER_HOST':'','DOCKER_CONTEXT':''}), patch('paired_workflow.load_config',return_value={'mobile':str(checkout/'mobile')}), patch('paired_workflow.verify_local_backend'),patch('paired_workflow.run',side_effect=outputs):
+            with self.assertRaisesRegex(ValueError,'paired_selected_client_mismatch'):
+                snapshot(client_id='3')
+
 if __name__=='__main__':unittest.main()

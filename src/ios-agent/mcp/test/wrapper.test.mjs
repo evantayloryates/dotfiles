@@ -201,3 +201,32 @@ test('paired baseline and exact readbacks retain null, fail on collision, and re
     assert.equal(f.calls.filter(c=>c.args?.[0]==='acquire').length,0);
   }finally{await f.backend.close();await other.backend.close();await client.close();await server.close();await remote.client.close();await remote.server.close();fs.rmSync(f.state,{recursive:true});fs.rmSync(other.state,{recursive:true});}
 });
+
+test('recovery uncertainty and another owner fail without replay or device acquisition', async () => {
+  const f=fixture();const {client,server}=await clientFor(f);let starts=0;
+  f.backend.runOverride=async(kind)=>{
+    assert.equal(kind,'stack');starts++;
+    return starts===1?{ok:false,value:null,error:'cli_deadline_outcome_unknown_do_not_replay'}:
+      {ok:false,value:{backendReady:false,failure:'idle_host_required_for_stack_recovery',dataReset:false,workersStopped:false}};
+  };
+  try {
+    const unknown=await client.callTool({name:'ios_stack_ensure',arguments:{}});
+    assert.equal(unknown.isError,true);assert.equal(unknown.structuredContent.replay,false);
+    assert.equal(unknown.structuredContent.reason,'cli_deadline_outcome_unknown_do_not_replay');assert.equal(starts,1);
+    const owned=await client.callTool({name:'ios_stack_ensure',arguments:{}});
+    assert.equal(owned.isError,true);assert.equal(owned.structuredContent.workersStopped,false);
+    assert.equal(owned.structuredContent.failure,'idle_host_required_for_stack_recovery');assert.equal(starts,2);
+    assert.equal(f.calls.length,0);
+  }finally{await f.backend.close();await client.close();await server.close();fs.rmSync(f.state,{recursive:true});}
+});
+test('failed pair read creates no usable baseline and never exposes provider errors', async () => {
+  const f=fixture();const {client,server}=await clientFor(f);
+  f.backend.runOverride=async(kind)=>{assert.equal(kind,'paired');return {ok:false,error:'private-provider-secret',value:{ok:false,reason:'private-provider-secret'}};};
+  try {
+    const refused=await client.callTool({name:'ios_workflow',arguments:{action:'capture',clientId:'3'}});
+    assert.equal(refused.isError,true);assert.equal(refused.structuredContent.reason,'paired_local_read_refused');
+    assert.equal(refused.structuredContent.dataChanged,false);assert.equal(refused.structuredContent.credentialsCreated,false);
+    assert.equal(f.backend.artifacts.size,0);assert.ok(!JSON.stringify(refused).includes('private-provider-secret'));
+    assert.equal(f.calls.length,0);
+  }finally{await f.backend.close();await client.close();await server.close();fs.rmSync(f.state,{recursive:true});}
+});

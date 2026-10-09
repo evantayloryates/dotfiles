@@ -15,7 +15,7 @@ import { planProduction, productionPlanSchema, validateProductionRequest } from 
 import {queryRecordingInput,validateInputQuery,inputQuerySchema,inputQueryHealth} from "./lib/input-query.mjs";
 
 const log = (...args) => console.error("[record-screen]", ...args);
-const VERSION = "0.12.0";
+const VERSION = "0.12.1";
 
 // ---------------------------------------------------------------- engine link
 

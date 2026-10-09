@@ -1,7 +1,7 @@
 # Agent usage and recovery
 
 This is the capture-foundations production runbook. The installed native build
-142e81bef23e and fresh adapter0.12.0 have the scoped proofs in
+25bdf541968a and fresh adapter0.12.1 have the scoped proofs in
 [GATES.md](qualification/GATES.md). Treat these as a baseline, then inspect
 loaded status. Visual effects, cursor styling and composition recipes are the
 next phase. The [checklist](qualification/checklist.json) tracks unresolved
@@ -43,6 +43,17 @@ of DOM/tab automation. A background tab screenshot can succeed while native
 capture still targets another tab or an off-Space window. An on-screen flag
 alone also does not prove input delivery. Do not capture unrelated content to
 diagnose a failed owned-target preparation.
+
+Native `strict_capture_requests:1` rejects unknown discovery/capture fields and
+wrong-surface target selectors. Use `include_transients` exactly, put capture
+controls inside `target`, and omit unused app/title selectors. An exact window
+ID with app/title must match both current constraints or returns `target_mismatch`.
+Fresh MCP0.12.1 strips its hide:false routing flag; scheduling attaches supported
+unverified caller metadata. These contracts cover option/selector parsing, not
+every RPC or all time/path/capacity checks. After an uncertain schedule reply,
+read back owned recordings/sessions before an explicit full validated retry;
+entry validation also applies to idempotent requests. Verify source pixels for
+hidden/minimized/off-Space apps; no unconditional background-render promise.
 
 ## Aim and qualify only the changed boundary
 

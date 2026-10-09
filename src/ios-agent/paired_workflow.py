@@ -72,7 +72,10 @@ def snapshot(state=STATE, client_id=None):
     args+=['-w','/workspaces/kickoff/node',CONTAINER,'node','-e',SCRIPT]
     raw=run(args,input=json.dumps({'clientId':client_id}).encode(),timeout=15)
     if len(raw)>8192:raise ValueError('paired_snapshot_invalid')
-    return validate_snapshot(json.loads(raw))
+    value = validate_snapshot(json.loads(raw))
+    if client_id is not None and str(value['clientId']) != str(client_id):
+        raise ValueError('paired_selected_client_mismatch')
+    return value
 
 if __name__=='__main__':
     try:

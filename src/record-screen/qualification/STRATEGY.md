@@ -1,7 +1,7 @@
 # Capture foundations: findings and next implementation
 
-Current checkpoint: October 9, 2026, qualification stage54. Native signed build
-142e81bef23e/PID21977 remains installed and idle; guarded delivery, retained-source
+Current checkpoint: October 9, 2026, qualification stage55. Native signed build
+25bdf541968a/PID75812 is installed and idle; guarded delivery, retained-source
 mapping and scoped real-app consumers have actual evidence in GATES.md and the
 maintained checklist. Input Monitoring is enabled: installed destination-aware
 keyboard/shortcut checks and stage48 twelve native wheel events passed. Physical
@@ -9,12 +9,20 @@ rates, external-provider clocks and universal input completeness remain unproven
 The shared computer-use layer now stores exact app/environment facts, immutable
 action receipts and separate typed verification/cleanup. Unknown dimensions block
 reuse even caller confirmation; routine supported operations reinforce the store.
-Current recorder CLI/fresh MCP0.12.0 supports bounded retained input/context/health
+Current recorder CLI/fresh MCP0.12.1 supports bounded retained input/context/health
 and exact source/media geometry. This chat's older loaded MCP still needs a safe
 consumer refresh; do not infer adoption from native build or force peer restarts.
 Private signed fallback/forward restoration passed its copied-state scope.
 Visual effect styles, cursor animation recipes and composition rendering are
 next-phase work. The supplied cursor.svg is a fixture asset only.
+
+Stage55 adds strict native discovery/capture option refusal and exact-window ID
+metadata assertions.69 parser/36 source-identity checks,5 CLI/MCP checks and18
+live private probes pass. First injected-caller incompatibility is retained;
+forward correction and fresh MCP0.12.1 private/installed2s sources each have four
+exact mux joins.89 prior session/recording JSON hashes unchanged; production idle.
+This covers request fields/selectors, not every RPC or all time/file/capacity
+readiness. App-dependent hidden/off-Space source verification remains necessary.
 
 Second-pass results superseding the initial open checks are in
 [GATES.md](GATES.md): streaming helper exclusion and visible Chrome native
@@ -29,7 +37,7 @@ preserved isolated scroll pixels under display occlusion; passive GPU observatio
 add diagnosis, not calibrated encoder attribution/capacity. Stage49 fixes callback
 error report loss and proves independent terminal recovery without replay. Native
 CUA still needs explicit scopes; no automatic interception, actor authentication
-or model training.43 completed,16 partial,1 deferred; full goal active.
+or model training.44 completed,16 partial,1 deferred; full goal active.
 
 Stage51 adds a delivered guarded app filter: one exact live app on a fixed
 display crop, PID-scoped preview/source identity, input scope and explicit lifetime
