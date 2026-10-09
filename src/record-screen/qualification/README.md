@@ -47,6 +47,9 @@ No helper requests a new grant.
 | `verify-journal.py` | Compare journal decisions against actual muxed samples; optional authored-fixture pixels via ffmpeg/Pillow |
 | `coordinate-color-fixture.swift` | Declared sRGB references, app-delivered Quartz/local coordinates and painted click markers; move between displays through exposed controls |
 | `verify-coordinate-color.py` | Join actual native deliveries, journal positions and decoded authored marker/patch pixels; ffmpeg/Pillow, point-resolution fixture only |
+| `color-buffer-probe.swift` | One retained frame from the owned color fixture, BGRA/NV12 and default/709 matrix; observed tags plus VT/explicit CI sRGB PNGs, no encoder/input |
+| `color-profile-audit.swift` | Passive actual display ICC fingerprints and reference transforms; no capture, settings or UI changes |
+| `capture-color-test.swift` | Actual CV buffer tags, absent/wrong-type/oversized values, pixel-format and transfer changes; no source pixels or capture |
 | `bridge-probe.mjs` | MCP initialize/tools-list only, no app-server/model turn |
 
 `capture-probe WINDOW_ID MODE OUTPUT.png [CURSOR] [CHILDREN] [MARGIN] [EXCLUDE_PID]`
@@ -182,6 +185,21 @@ The verifier's `--recording`, `--delivered` and `--output` accept absolute priva
 paths. It verifies all delivered clicks and reports color error; a successful
 pointer proof does not mean color fidelity passed. Do not repeat the tenth-pass
 click series solely to investigate color: target the buffer/conversion boundary.
+
+`color-buffer-probe WINDOW_ID bgra|nv12 default|709 PRIVATE_DIRECTORY` admits
+only the owned color fixture bundle. Compile this single `@main` file with
+`swiftc -parse-as-library -O`, use a task-owned signed bundle with the existing
+capture identity, and fail if the existing grant is missing. It requests no new
+grant, retains one buffer, stops the stream, and has a 15-second process watchdog.
+Keep runs sequential and verify actual child exit. `color-profile-audit` takes
+one private output directory; ICC profiles and raw frames remain outside Git.
+
+The fixture now logs backing/profile draw state separately and exposes Redraw
+references / Use sRGB backing. The default preserves inherited app behavior for
+diagnosis. Use the explicit backing control for nominal sRGB reference acceptance;
+do not silently compare inherited display RGB against raw sRGB literals. The
+eleventh-pass one-take reference and consumer proof is already saved; follow
+new evidence rather than rerunning it to investigate another unrelated gate.
 
 ## Maintained progress checklist
 

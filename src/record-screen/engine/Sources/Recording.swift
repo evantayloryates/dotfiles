@@ -136,6 +136,8 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   private var sourceSequence = 0
   private var geometrySequence = -1
   private var previousGeometry: Data?
+  private var previousColor: CaptureColor?
+  private var colorSequence = -1
   private var prerollSource: Int?
   private var lastSource: Int?
   private var framesProvenance = "live_counters"
@@ -568,7 +570,17 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
                             "first_source_frame": sourceID, "relative_ns": pts.map { sourceJournal?.relative($0) as Any? ?? NSNull() } as Any? ?? NSNull(),
                             "geometry": geometry])
     }
+    if let pb, raw == SCFrameStatus.complete.rawValue {
+      let color = CaptureColor(pb)
+      if color != previousColor {
+        colorSequence += 1; previousColor = color
+        sourceJournal?.offer(["kind":"color", "segment":colorSequence, "first_source_frame":sourceID,
+          "relative_ns":pts.map { sourceJournal?.relative($0) as Any? ?? NSNull() } as Any? ?? NSNull(),
+          "color":color.dict])
+      }
+    }
     var row: [String: Any] = ["kind": "source_frame", "source_frame": sourceID, "geometry_segment": geometrySequence,
+                             "color_segment":colorSequence >= 0 ? colorSequence as Any : NSNull(),
                              "status": raw as Any? ?? NSNull(), "received_host_ns": String(uptimeNs()),
                              "pts": ["value": String(sb.presentationTimeStamp.value), "timescale": sb.presentationTimeStamp.timescale],
                              "pts_host_ns": pts.map(String.init) as Any? ?? NSNull(),

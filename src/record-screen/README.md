@@ -35,6 +35,13 @@ validated at delivery, and a new check resolves current identities. Main-run-loo
 observation can lag; these guards do not promise zero leaked pixels. Default
 callers retain their previous behavior.
 
+Candidate source packets include observed color-tag boundaries and latest color
+metadata. Requested sRGB and observed buffer tags are separate; missing fields
+are unknown. The declared SDR reference path passed cross-display source/preview
+checks, while inherited app backing profiles can change captured values. Preserve
+that behavior instead of applying an unqualified global color correction. HDR,
+physical color accuracy and viewer transfer behavior remain unqualified.
+
 Signed isolated candidates passed recording/preview routing and an owned
 background-helper termination/relaunch canary. Installed production remains
 unchanged. See [qualification/GATES.md](qualification/GATES.md) for actual source

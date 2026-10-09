@@ -269,5 +269,25 @@ source values exactly. Capture already requests sRGB; isolate actual SCK buffer
 color metadata/pixel format and writer interpretation before selecting a fix.
 Do not normalize these results by assuming the display profile is the cause.
 
+Eleventh-pass diagnosis carried this source forward: cold BGRA/NV12 buffers on
+the external display both shifted, while an explicit 709 matrix and CI sRGB
+conversion did not repair them. The shift closely matched device RGB primaries
+interpreted through the external ICC profile. Changing only the owned fixture's
+window backing to sRGB restored raw references within one channel value. Its
+actual recorded/preview path then passed 18 samples across three display segments
+within two channel values, with exact preview preservation and 229 exact muxed
+timestamps. This identifies the controlled backing-color boundary; it does not
+justify changing another app's colors or applying a global inverse transform.
+
+New source journals emit `color` rows when the observed pixel format or
+primaries/transfer/YCbCr tags change. Complete source frames carry a
+`color_segment`; absence before a complete buffer stays null. Source metadata
+includes `color_segments` and `latest_observed_color`, with the requested sRGB
+space kept separate from actual tags (the NV12 canary observed 709). Missing
+fields/tags are unknown. Metadata summarizes accepted journal rows; loss/write
+errors remain explicit. These are additive candidate fields, not an assumption
+that legacy engines measured colors. HDR, physical colorimetry, viewer transfer
+behavior and another application's original backing intent remain unqualified.
+
 An `exclusion_quality.state` of `observing` means no identity change was observed
 by that lease. It is not a general clean-footage proof; missing quality is unknown.

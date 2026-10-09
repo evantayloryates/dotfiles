@@ -21,6 +21,8 @@ final class SourceJournal: @unchecked Sendable {
   private var failure: String?
   private var phase = "writing"
   private var videoOutcome: [String: Any]?
+  private var colorSegments = 0
+  private var latestColor: [String:Any]?
 
   init(path: String, epoch: UInt64, recordingID: String, target: [String: Any],
        capacity: Int = 64, byteLimit: Int = 64 * 1024 * 1024,
@@ -55,6 +57,9 @@ final class SourceJournal: @unchecked Sendable {
       guard phase == "writing" else { return false }
       offered += 1
       guard pending < capacity, failure == nil else { lost += 1; return false }
+      if row["kind"] as? String == "color", let color = row["color"] as? [String:Any] {
+        colorSegments += 1; latestColor = color
+      }
       pending += 1
       let sequence = offered - 1
       io.async { [self] in write(row, sequence: sequence) }
@@ -116,6 +121,8 @@ final class SourceJournal: @unchecked Sendable {
        "complete": phase == "closed" && lost == 0 && failure == nil,
        "complete_qualification": "accepted journal rows closed; not video finalization or muxed coverage",
        "video_outcome": videoOutcome as Any? ?? NSNull(),
+       "color_segments":colorSegments, "latest_observed_color":latestColor as Any? ?? NSNull(),
+       "color_qualification":"observed tags from accepted rows; journal loss remains explicit; no app/backing intent inferred",
        "error": failure as Any? ?? NSNull(), "max_pending_rows": capacity, "max_bytes": byteLimit]
     }
   }

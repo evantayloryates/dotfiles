@@ -1,5 +1,39 @@
 # Qualification update — October 8, 2026
 
+## Eleventh pass: buffer/backing color isolation and source diagnostics
+
+The previous goal turn made progress: preview lifetime passed and one combined
+fixture exposed the cross-display color boundary. This stage preserved those
+results and used eight sequential single-buffer probes to isolate that boundary,
+followed by one targeted declared-backing capture. No pointer series was repeated.
+
+| Gate | Verified evidence | Limits |
+| --- | --- | --- |
+| Pre-encoder isolation | Fresh external BGRA and NV12 buffers shifted declared primaries; explicit 709 matrix and explicit CI sRGB rendering did not repair the values. Retina cold buffers stayed within two channel values. Eight probe children actually exited 0; no encoder/input was used in these probes. | Local macOS 26.5.1, two actual display profiles, owned AppKit fixture; no universal SCK or app root-cause claim. |
+| Backing-color control | Draw logs showed inherited Color LCD / DELL P2419HC backing spaces with profile refresh enabled. External source primaries closely matched device RGB interpreted through the external ICC profile. Changing only the owned window backing to sRGB restored both BGRA/NV12 references within one channel value. | Controlled backing boundary; not evidence to change another app, system profile, or apply a recorder-wide correction. Earlier shifted footage stays preserved. |
+| Actual source and preview | Signed/loaded ff2c43b308aa recorded 229 exact muxed/source timestamps with zero dropped encoder frames/lost journal rows. All 18 sampled declared reference RGB values across external → Retina → external geometry stayed within two channel values. The 230-frame software preview reproduced all 18 source values exactly. | Six authored SDR sRGB references and the local H264/software-preview path. No HDR, physical colorimetric or arbitrary viewer/codec accuracy claim. |
+| Source diagnostics | Ten CV-buffer checks passed. Source journals emit observed color boundaries and frame color-segment links; source metadata exposes the latest actual tags separately from requested sRGB. The real NV12 source observed primaries/transfer/matrix 709. Actual MCP recording_source returned these fields; persisted source/footer retained them. | Missing/legacy tags remain unknown. Summaries describe accepted journal rows; loss/error flags remain authoritative. App backing intent is not inferred from output tags. |
+| Cleanup and preservation | Both fixture PIDs absent, all eight probe children, owned MCP server and isolated engine actually exited. No input subscriber, preview lane, lease, export or quarantine work remained. Runtime evidence copied privately. Production readback stays cd78c24b652e/PID 71911. | Host pressure/churn continued independently; no peer workload was stopped and no resource capacity claim follows. |
+
+The first probe/audit compile diagnostics remain saved. The initial tag test
+expected the literal sRGB instead of CoreVideo's IEC_sRGB; the corrected test uses
+the actual constant and exits normally on failed assertions. An initial journal
+verification path was wrong; the saved runtime identity resolved the correct path
+without restarting the take. These are retained diagnostic failures, not recorder
+capture failures.
+
+Primary API references: [output-buffer color space](https://developer.apple.com/documentation/screencapturekit/scstreamconfiguration/colorspacename),
+[window backing color space](https://developer.apple.com/documentation/appkit/nswindow/colorspace),
+[backing change notification](https://developer.apple.com/documentation/appkit/nsview/viewdidchangebackingproperties()).
+The observed profile comparison is an inference from local reference transforms;
+the controlled backing experiment is the direct acceptance evidence.
+
+Private stage: gates-v11/qualification-summary.json, buffer-comparison.json,
+profile-transform-proof.json, declared-color-proof.json, preview-color-proof.json,
+source/mux proof, draw-state logs and runtime-evidence. Next: provider mapping/tap
+gaps and sleep boundaries, Chrome overflow, realistic insurance/admission, shared
+workflow receipts and idle-boundary production delivery. Effects remain deferred.
+
 ## Tenth pass: preview lifetime and combined pointer/color evidence
 
 Taylor resumed with explicit guidance to maximize learning, retain useful work

@@ -1,6 +1,6 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-08T20:33:47-04:00",
+  "updated_at": "2026-10-08T20:52:41-04:00",
   "workflow": {
     "state": "active",
     "note": "Taylor resumed qualification. Prioritize high-impact investigation, preserve failed evidence and useful progress, and avoid repeated resets or rerunning settled checks."
@@ -160,12 +160,12 @@
         {
           "id": "capture-colors",
           "title": "Qualify capture color fidelity",
-          "status": "needs_retest",
-          "scope": "Track color spaces, transfer functions and source-to-export reproduction.",
-          "evidence": "Six declared sRGB patches across three geometry segments: Retina maximum 8-bit channel error 2, external maximum 76; return home restored initial colors. Software preview reproduced all 18 sampled parent values exactly. Capture already requests sRGB. Actual buffer/profile conversion and writer interpretation remain unknown; failed source retained.",
-          "next": "Isolate observed SCK color tags and NV12/BGRA output against PNG and encoded video; choose and test a targeted fix without repeating coordinate qualification.",
-          "anchor": "tenth-pass",
-          "updated_at": "2026-10-08T20:33:47-04:00"
+          "status": "completed",
+          "scope": "Candidate SDR observed color tags and declared-sRGB source-to-preview references across both displays; inherited app backing behavior is preserved, while arbitrary backing intent, HDR, physical colorimetry and viewer transfer accuracy remain unqualified.",
+          "evidence": "Eight cold BGRA/NV12 probes isolated the pre-encoder backing-color boundary. Explicit 709 and CI sRGB did not repair inherited values; changing only the owned fixture backing restored raw references within 1 channel value. Signed/loaded ff2c43b308aa passed 10 tag checks, 229 exact muxed timestamps and 18 reference samples within 2 across three geometry segments; 230-frame software preview matched all 18 exactly. Actual MCP returned observed tags. Earlier failure and limits retained; no global color correction or other app/settings mutation.",
+          "next": "",
+          "anchor": "eleventh-pass",
+          "updated_at": "2026-10-08T20:52:41-04:00"
         }
       ]
     },
@@ -535,6 +535,22 @@
       "from": "in_progress",
       "to": "needs_retest",
       "note": "Six declared sRGB patches across three geometry segments: Retina maximum 8-bit channel error 2, external maximum 76; return home restored initial colors. Software preview reproduced all 18 sampled parent values exactly. Capture already requests sRGB. Actual buffer/profile conversion and writer interpretation remain unknown; failed source retained."
+    },
+    {
+      "kind": "item",
+      "id": "capture-colors",
+      "at": "2026-10-08T20:37:58-04:00",
+      "from": "needs_retest",
+      "to": "in_progress",
+      "note": "Tenth-pass cross-display failure remains preserved: external channel error 76, Retina 2, preview reproduces parent values. Preparing a one-buffer no-encoder comparison of NV12/BGRA, actual color attachments, VideoToolbox conversion and explicit Core Image sRGB conversion."
+    },
+    {
+      "kind": "item",
+      "id": "capture-colors",
+      "at": "2026-10-08T20:52:41-04:00",
+      "from": "in_progress",
+      "to": "completed",
+      "note": "Eight cold BGRA/NV12 probes isolated the pre-encoder backing-color boundary. Explicit 709 and CI sRGB did not repair inherited values; changing only the owned fixture backing restored raw references within 1 channel value. Signed/loaded ff2c43b308aa passed 10 tag checks, 229 exact muxed timestamps and 18 reference samples within 2 across three geometry segments; 230-frame software preview matched all 18 exactly. Actual MCP returned observed tags. Earlier failure and limits retained; no global color correction or other app/settings mutation."
     }
   ]
 }

@@ -155,6 +155,28 @@
  IAWiFi=nil;
  [IAInstance startWatchdog];
  [self run:@"capabilities" args:@{} done:^(NSDictionary *r){self.evidence[@"capabilities"]=r;}];
+ [self captureMatrix:^{[self qualifyInput];}];
+}
+- (void)captureMatrix:(void(^)(void))done {
+ [IAInstance showGlow];
+ [self run:@"image" args:@{@"scale":@4} done:^(NSDictionary *r){self.evidence[@"invalidCaptureScale"]=r;}];
+ [self run:@"image" args:@{@"scale":@1} done:^(NSDictionary *r){
+  NSData *png=[[NSData alloc] initWithBase64EncodedString:r[@"pngBase64"] options:0];
+  UIImage *image=[UIImage imageWithData:png];
+  self.evidence[@"capturePointResolution"]=@(image && CGImageGetWidth(image.CGImage)==(NSUInteger)self.window.bounds.size.width && [r[@"pngBytes"] unsignedIntegerValue]==png.length && [r[@"glowIncluded"] isEqual:@NO]);
+  [self run:@"image" args:@{} done:^(NSDictionary *r){
+   UIImage *image=[UIImage imageWithData:[[NSData alloc] initWithBase64EncodedString:r[@"pngBase64"] options:0]];
+   self.evidence[@"captureDefaultResolution"]=@(image && [r[@"scale"] isEqual:@2] && CGImageGetWidth(image.CGImage)==(NSUInteger)(self.window.bounds.size.width*2));
+   [self run:@"image" args:@{@"scale":@1} done:^(NSDictionary *r){
+    self.evidence[@"captureLeaseFencing"]=@([r[@"error"] isEqual:@"capture_lease_expired"] && [IAInstance.lease isEqual:@"new-capture-owner"] && !IAInstance.glow.hidden);
+    [self freshLease]; done();
+   }];
+   // Encoding is asynchronous. Retire its owner before the main-thread callback.
+   [IAInstance stopLease]; IAInstance.lease=@"new-capture-owner"; IAInstance.expiry=IANow()+60; [IAInstance showGlow];
+  }];
+ }];
+}
+- (void)qualifyInput {
  [IAInstance showGlow]; CGRect before=self.button.frame; BOOL keyBefore=self.window.isKeyWindow;
  NSDictionary *point=[self pointArgs:self.button];
  [self run:@"tap" args:point done:^(NSDictionary *r){

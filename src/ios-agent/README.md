@@ -114,6 +114,12 @@ It is a semantic development operation, not a native tap, and accepts no code,
 URL or navigation parameters. Verify the new state and React tree before input.
 Reload clears the cached ready flag. State reports a `bundleSource` enum
 (`tailnet-Metro`, `embedded`, or `standard-Metro`) without exporting a URL.
+The startup recovery allows one 45-second fallback if a foreground remote
+load never registers both application adapters. Successful registration is
+latched per bundle attempt, so later screen unmounts do not trigger recovery.
+Old bridge instances cannot publish into a newer attempt. Fallback retires any
+control lease; agents must acquire anew and verify. The native receipt exposes
+`startupRecovery.fallbackAttempted`; physical fallback acceptance passed on the phone.
 
 Agent workflow:
 
@@ -194,3 +200,11 @@ Keep the [progress report](docs/PROGRESS.md) current after each verification sta
 See [strategy gates](docs/STRATEGIES.md) for the remaining physical-device and
 installed-service checks. KIF-derived HID construction retains its Apache 2.0
 license under `native/KIF-LICENSE`.
+
+App-owned capture defaults to 2x point resolution; fixed `image --args
+'{"scale":1}'` reduces transport cost and `{"scale":3}` requests full density.
+The receipt labels scale, PNG bytes, render/encoding time and the unchanged
+app-window/occlusion scope. PNG encoding leaves the main queue; an ended lease
+discards its frame. `state.lastCommandTransport` contains only an action enum,
+bytes, elapsed time, HTTP status, OS error code and generation-discard boolean.
+Native transport never exports its URL, credential or response body.

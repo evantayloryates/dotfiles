@@ -285,3 +285,27 @@ Owned helpers/fixture/engines exited; no input, lane, lease, export or quarantin
 work remains. Runtime copies and failures are preserved in gates-v10. Production
 readback stays cd78c24b652e/PID 71911. The goal/checklist remain active; no pause or
 release is implied by this checkpoint.
+
+## Eleventh-pass verified checkpoint
+
+The color investigation advanced to the backing boundary without rolling back
+previous work. Eight cold single-buffer runs showed shifted external values in
+BGRA/NV12 before encoding; explicit 709 and CI sRGB did not correct them. Actual
+profile transforms closely reproduced those values. Changing only the authored
+fixture backing to declared sRGB restored raw references within one channel value.
+No global correction or other application's color space/settings was changed.
+
+Candidate ff2c43b308aa adds observed source-color boundaries and metadata, with
+requested sRGB separate from actual tags and missing values unknown. Ten tag
+checks passed. A targeted 23-second external/home/external take supplied 229
+exact muxed/source samples, three geometry segments, no encoder/journal loss and
+18 reference samples within two channel values. Its 230-frame software preview
+preserved all 18 source values exactly. Actual MCP readback returned the tags.
+
+All owned fixture/probe/MCP/engine processes exited and private runtime evidence
+was copied. Production remains cd78c24b652e/PID 71911. Inherited app backing intent,
+HDR, physical color accuracy and viewer transfer behavior remain explicit limits.
+Preserve the original failure and successful declared reference evidence rather
+than repeating them for another gate. Continue source provider/tap/sleep boundaries,
+Chrome transient overflow, measured insurance/admission, shared receipts, then
+idle-boundary install/rollback and installed consumers. The goal remains active.

@@ -43,7 +43,7 @@ bodies are persisted. A stdout success is only a pointer to the saved receipt.
 
 | Gate | Required observation | Does not establish |
 | --- | --- | --- |
-| `ready` | Exact ready boolean and active domain sampled within 3s | Full screen/content correctness |
+| `ready` | Ready plus registered navigation/Apollo and active domain sampled within 3s | Full screen/content correctness |
 | `route` | Ready plus exact registered route matching a structural name | Correct user identity or business payload |
 | `bundle-source` | Ready plus `tailnet-Metro` or `embedded` | Unique binary/JS identity; record fingerprints separately |
 | `native-tree` | Nonempty, untruncated, foreground app-owned tree | System overlays, physical touch fidelity, full accessibility |
@@ -167,7 +167,7 @@ component paths, so source names alone are not a locator or an installed proof.
 ### 3. Capture a conditional restoration receipt before changing data
 
 Capture privately: database fingerprint, selected client/coach/user IDs,
-`target_daily_calories` exact nullable baseline, relevant `updated_at`, and the
+`target_daily_calories` exact nullable baseline, a version column only if the actual schema has one, and the
 starting app route. Choose a distinct harmless synthetic target (for example
 2456 if baseline differs). Record the planned changed value and run UUID.
 
@@ -262,3 +262,14 @@ Coach tab labels can be lowercase in the DOM with CSS capitalization. Tab change
 can update context before URL routing. Navigate using the rendered settings link
 and wait for the actual form, rather than imposing a URL-transition gate on a
 context-only tab. The helper route prefix is `client-list`, not `clients`.
+
+## Startup recovery candidate
+
+Remote application startup now has a single 45-second foreground watchdog.
+The idle bridge publishes only whether both application adapters are registered;
+it reads no routes, queries or payloads outside a lease. A missing registration
+causes one bundled reload, first clearing native control and cancelling the host
+lease. `state.startupRecovery` labels fallback use. Explicit semantic reload
+starts a new remote attempt; automatic retries never loop. Physical fallback acceptance passed: the owned lease was retired, embedded
+registered adapters, and Mirroring independently showed the dashboard/glow off. After any native restart, observe a different foreground device boot
+before acquiring; a launch receipt alone does not identify the new runtime.

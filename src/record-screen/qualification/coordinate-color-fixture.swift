@@ -8,6 +8,14 @@ final class CoordinateColorView: NSView {
     ("red", [1,0,0]), ("green", [0,1,0]), ("blue", [0,0,1]),
     ("gray", [0.5,0.5,0.5]), ("white", [1,1,1]), ("black", [0,0,0])]
   override func draw(_ dirtyRect: NSRect) {
+    if let window {
+      let profile = window.colorSpace
+      CoordinateColorDelegate.logRender(["kind":"draw","host_ns":String(clock_gettime_nsec_np(CLOCK_UPTIME_RAW)),
+        "window_color_space":profile?.localizedName ?? "unknown",
+        "window_color_space_name":profile?.cgColorSpace?.name.map{String($0)} ?? "unnamed",
+        "scale":window.backingScaleFactor,"profile_refresh_enabled":window.displaysWhenScreenProfileChanges,
+        "display_name":window.screen?.localizedName ?? "unknown"])
+    }
     NSColor(srgbRed:0.2,green:0.2,blue:0.2,alpha:1).setFill(); bounds.fill()
     for (index, ref) in references.enumerated() {
       let x = CGFloat(20 + index % 3 * 140), y = CGFloat(20 + index / 3 * 85)
@@ -42,12 +50,23 @@ final class CoordinateColorDelegate: NSObject, NSApplicationDelegate {
     FileManager.default.createFile(atPath:path,contents:nil,attributes:[.posixPermissions:0o600])
     return try! FileHandle(forWritingTo:URL(fileURLWithPath:path))
   }()
+  static let renderOutput:FileHandle = {
+    let path=URL(fileURLWithPath:Bundle.main.bundlePath).deletingLastPathComponent().appendingPathComponent("coordinate-render-\(getpid()).jsonl").path
+    FileManager.default.createFile(atPath:path,contents:nil,attributes:[.posixPermissions:0o600])
+    return try! FileHandle(forWritingTo:URL(fileURLWithPath:path))
+  }()
+  static func logRender(_ row:[String:Any]) {
+    if var data=try? JSONSerialization.data(withJSONObject:row,options:[.sortedKeys]) {data.append(10);renderOutput.write(data)}
+  }
   func applicationDidFinishLaunching(_ notification:Notification) {
     window=NSWindow(contentRect:NSRect(x:900,y:120,width:440,height:280),styleMask:[.titled,.closable],backing:.buffered,defer:false)
     window.isReleasedWhenClosed=false;window.title="Coordinate and color qualification"
     let view=CoordinateColorView(frame:NSRect(x:0,y:0,width:440,height:280));window.contentView=view
     for (title,selector,x) in [("Move to external",#selector(external),20),("Move home",#selector(home),220)] {
       let button=NSButton(title:title,target:self,action:selector);button.frame=NSRect(x:x,y:215,width:190,height:35);view.addSubview(button)
+    }
+    for (title,selector,x) in [("Redraw references",#selector(redraw),20),("Use sRGB backing",#selector(pinSRGB),220)] {
+      let button=NSButton(title:title,target:self,action:selector);button.frame=NSRect(x:x,y:252,width:190,height:25);view.addSubview(button)
     }
     window.makeKeyAndOrderFront(nil)
   }
@@ -56,6 +75,8 @@ final class CoordinateColorDelegate: NSObject, NSApplicationDelegate {
     window.setFrameOrigin(NSPoint(x:screen.frame.minX+100,y:screen.frame.minY+100))
   }
   @objc func home() {window.setFrameOrigin(NSPoint(x:900,y:120))}
+  @objc func redraw() {window.contentView?.needsDisplay=true}
+  @objc func pinSRGB() {window.colorSpace = .sRGB;window.contentView?.needsDisplay=true}
   func applicationShouldTerminateAfterLastWindowClosed(_ sender:NSApplication)->Bool {true}
 }
 let app=NSApplication.shared

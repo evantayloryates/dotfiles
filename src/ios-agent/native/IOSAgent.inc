@@ -21,7 +21,11 @@ static NSString *IABundleSource=@"unknown";
 static NSTimeInterval IAStartupAt;
 static BOOL IAStartupFallbackAttempted=NO;
 static BOOL IAForceEmbedded=NO;
+static BOOL IAStartupRegistered=NO;
+static NSUInteger IABundleAttempt=0;
+static void IAResetStartupState(void);
 static NSURL *IOSAgentDevelopmentBundleURL(void) {
+ IABundleAttempt++; IAStartupRegistered=NO; IAResetStartupState();
  IAStartupAt=NSProcessInfo.processInfo.systemUptime;
  NSURL *fallback=[[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
 #ifdef IOS_AGENT_METRO_ENDPOINT
@@ -100,6 +104,8 @@ static BOOL IANumber(id n) { return [n isKindOfClass:NSNumber.class] && isfinite
 @property NSUInteger reactBytes;
 @property NSUInteger droppedReactFrames;
 @property NSDictionary *appState;
+@property NSString *currentAction;
+@property NSDictionary *lastCommandTransport;
 @property BOOL running;
 @property BOOL helloNeeded;
 @property NSUInteger connectionGeneration;
@@ -112,24 +118,31 @@ static BOOL IANumber(id n) { return [n isKindOfClass:NSNumber.class] && isfinite
 @end
 static IOSAgent *IAInstance;
 static NSDictionary *IAPendingState;
+#if IOS_AGENT_REACT
+static void IAResetStartupState(void) { IAPendingState=nil; IAInstance.appState=@{@"ready":@NO}; }
+#endif
 
 #if IOS_AGENT_REACT
 @interface IOSAgentBridge : RCTEventEmitter<RCTBridgeModule>
 @property BOOL observing;
+@property NSUInteger bundleAttempt;
 @end
 static __weak IOSAgentBridge *IABridge;
 @implementation IOSAgentBridge
 RCT_EXPORT_MODULE(IOSAgentBridge)
 + (BOOL)requiresMainQueueSetup { return YES; }
-- (instancetype)init { if((self=[super init])) IABridge=self; return self; }
+- (instancetype)init { if((self=[super init])) { IABridge=self; self.bundleAttempt=IABundleAttempt; } return self; }
 - (NSArray*)supportedEvents { return @[@"IOSAgentCommand"]; }
 - (void)startObserving { self.observing=YES; if([IAInstance leased]) [self sendEventWithName:@"IOSAgentCommand" body:@{@"command":@"session-start"}]; }
 - (void)stopObserving { self.observing=NO; }
 - (dispatch_queue_t)methodQueue { return dispatch_get_main_queue(); }
 RCT_EXPORT_METHOD(publish:(NSString*)json) {
- if(json.length>1048576) return;
+ if(self.bundleAttempt!=IABundleAttempt || json.length>1048576) return;
  id value=[NSJSONSerialization JSONObjectWithData:[json dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil];
- if([value isKindOfClass:NSDictionary.class]) { IAPendingState=value; IAInstance.appState=value; }
+ if([value isKindOfClass:NSDictionary.class]) {
+  IAPendingState=value; IAInstance.appState=value;
+  if([value[@"applicationRegistered"] isEqual:@YES]) IAStartupRegistered=YES;
+ }
 }
 RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
  if(![IAInstance leased]) return;
@@ -147,7 +160,7 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
   if(self.lease && ![self leased]) [self stopLease];
 #if IOS_AGENT_REACT
   if(IAStartupShouldFallback(IABundleSource,IANow()-IAStartupAt,
-                            [self.appState[@"applicationRegistered"] isEqual:@YES],
+                            IAStartupRegistered,
                             [self active],IAStartupFallbackAttempted)) {
    IAStartupFallbackAttempted=YES; IAForceEmbedded=YES;
    NSString *lease=[self.lease copy], *epoch=[self.epoch copy];
@@ -284,6 +297,7 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
    state[@"startupRecovery"]=@{@"fallbackAttempted":@(IAStartupFallbackAttempted),@"timeoutSeconds":@45};
 #endif
    state[@"wifiHandoff"]=IOSAgentWiFiState();
+   state[@"lastCommandTransport"]=self.lastCommandTransport?:@{};
    done(state); return;
   }
   if([action isEqual:@"wifi"]) { done(IOSAgentWiFiPrepare(args,cid)); return; }
@@ -327,11 +341,27 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
    done(@{@"snapshot":self.snapshot,@"nodes":tree,@"applicationState":@(UIApplication.sharedApplication.applicationState),@"scope":@"app-owned-main-window",@"truncated":@(self.treeTruncated)}); return;
   }
   if([action isEqual:@"image"]) {
-   UIWindow *main=[self mainWindow]; UIGraphicsImageRenderer *renderer=[[UIGraphicsImageRenderer alloc] initWithSize:main.bounds.size];
+   if(args.count>1 || (args.count && !args[@"scale"]) ||
+      (args[@"scale"] && (!IANumber(args[@"scale"]) || ![@[@1,@2,@3] containsObject:args[@"scale"]]))) { done(IAError(@"image_scale_1_2_or_3_required")); return; }
+   CGFloat scale=args[@"scale"]?[args[@"scale"] doubleValue]:2;
+   UIWindow *main=[self mainWindow];
+   UIGraphicsImageRendererFormat *format=[UIGraphicsImageRendererFormat preferredFormat];
+   format.scale=scale; format.preferredRange=UIGraphicsImageRendererFormatRangeStandard;
+   UIGraphicsImageRenderer *renderer=[[UIGraphicsImageRenderer alloc] initWithSize:main.bounds.size format:format];
+   NSTimeInterval start=IANow();
    UIImage *image=[renderer imageWithActions:^(UIGraphicsImageRendererContext *context){[main drawViewHierarchyInRect:main.bounds afterScreenUpdates:NO];}];
-   NSData *png=UIImagePNGRepresentation(image);
-   if(png.length>5242880) { done(IAError(@"image_exceeds_limit")); return; }
-   done(@{@"scope":@"app-owned-main-window",@"systemOcclusionKnown":@NO,@"glowIncluded":@NO,@"pngBase64":[png base64EncodedStringWithOptions:0]}); return;
+   double renderMs=(IANow()-start)*1000; NSString *lease=[self.lease copy];
+   dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED,0),^{
+    NSTimeInterval encoding=IANow(); NSData *png=UIImagePNGRepresentation(image);
+    double encodeMs=(IANow()-encoding)*1000;
+    NSString *encoded=png.length<=5242880?[png base64EncodedStringWithOptions:0]:nil;
+    dispatch_async(dispatch_get_main_queue(),^{
+     if(![self leased] || ![self.lease isEqual:lease]) { done(IAError(@"capture_lease_expired")); return; }
+     if(!encoded) { done(IAError(@"image_exceeds_limit")); return; }
+     done(@{@"scope":@"app-owned-main-window",@"systemOcclusionKnown":@NO,@"glowIncluded":@NO,
+            @"scale":@(scale),@"pngBytes":@(png.length),@"renderMs":@(renderMs),@"encodeMs":@(encodeMs),@"pngBase64":encoded});
+    });
+   }); return;
   }
   if([action isEqual:@"text"]) {
    UIView *first=[self responder:[self mainWindow]]; NSString *text=args[@"text"];
@@ -386,12 +416,20 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
  [request setValue:[@"Bearer " stringByAppendingString:self.config[@"token"]] forHTTPHeaderField:@"Authorization"];
  [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
  request.HTTPBody=[NSJSONSerialization dataWithJSONObject:body options:0 error:nil];
+ NSTimeInterval started=IANow(); NSUInteger bytes=request.HTTPBody.length;
+ NSString *action=self.currentAction;
+ BOOL record=[extra[@"op"] isEqual:@"result"] && action && ![action isEqual:@"state"];
  [[self.session dataTaskWithRequest:request completionHandler:^(NSData *data,NSURLResponse *response,NSError *error){
   NSDictionary *reply=nil;
   if(!error && [(NSHTTPURLResponse*)response statusCode]==200 && data.length<=8388608) {
    id parsed=[NSJSONSerialization JSONObjectWithData:data options:0 error:nil]; if([parsed isKindOfClass:NSDictionary.class]) reply=parsed;
   }
-  dispatch_async(dispatch_get_main_queue(),^{done(generation==self.connectionGeneration?reply:nil);});
+  dispatch_async(dispatch_get_main_queue(),^{
+   if(record) self.lastCommandTransport=@{@"action":action,@"requestBytes":@(bytes),@"elapsedMs":@((IANow()-started)*1000),
+                                          @"httpStatus":@([(NSHTTPURLResponse*)response statusCode]),@"errorCode":@(error.code),
+                                          @"generationDiscarded":@(generation!=self.connectionGeneration)};
+   done(generation==self.connectionGeneration?reply:nil);
+  });
  }] resume];
 }
 - (void)poll {
@@ -402,6 +440,7 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
   self.helloNeeded=NO; [self apply:reply];
   NSDictionary *command=reply[@"command"];
   if(![command isKindOfClass:NSDictionary.class]) { [self poll]; return; }
+  self.currentAction=command[@"action"];
   [self execute:command completion:^(NSDictionary *result){
    [self exchange:@{@"op":@"result",@"id":command[@"id"],@"epoch":command[@"epoch"],@"result":result} completion:^(NSDictionary *ack){
     BOOL wifiHandoff=ack && [self leased] && [command[@"lease"] isEqual:self.lease] && [command[@"epoch"] isEqual:ack[@"epoch"]] && [command[@"action"] isEqual:@"wifi"] && [ack[@"handoff"] isEqual:command[@"id"]] && !result[@"error"];

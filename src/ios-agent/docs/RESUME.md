@@ -25,14 +25,20 @@ local development DB; original nullable target restored through the product UI,
 read back, and both temporary auth tokens retired. Private credential files
 removed from host and container. No mobile changed-value equality is claimed.
 
-A second semantic JS reload from NutritionSettings left the phone black while
-the JS prelude claimed readiness and navigation/Apollo registrations were absent.
-Controlled process restart succeeded but has not yet restored meaningful app
-readiness. Investigate this changed failure once; do not replay the coach edit.
-Verifier now requires registered navigation/Apollo. CLI now treats completed
-native rejection as failure while retaining the private receipt. Focused tests:
-18 verifier checks, 5 CLI outcome/deadline checks passed. These fixes are not
-yet published. No XCTest was started.
+Remote pre-mount failure now has a physically verified bounded recovery: the
+new native 45-second registration watchdog retired the active lease, selected
+embedded, registered navigation/Apollo and rendered the dashboard. Mirroring
+independently confirmed the screen and glow off. New control requires a fresh
+lease after automatic fallback. Registration is latched per attempt and old
+bridge publications are generation fenced.
+
+A settled full-resolution app capture passed but cost 1,244,062 bytes / 14.65s,
+near the 15s command deadline. A later native-tree request timed out; the paired
+field was immediately restored through coach UI and read back null. No mobile
+changed-value equality is claimed. The new capture-budget build is installed:
+default 2x, explicit 1x/3x, background PNG encoding, lease fencing and bounded
+native transport metrics. 35 UIKit simulator gates passed with cleanup. Its
+physical capture/transport qualification is currently running. No XCTest used.
 
 Phone remains USB connected per Taylor; physical locked with Mirroring in use.
 No lease is deliberately kept across checkpoints; re-read current host status
