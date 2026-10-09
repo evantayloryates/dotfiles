@@ -301,3 +301,19 @@ even if old tool prose advertises safe retries. Recover actual owned state first
 Refresh only the relevant consumer at a safe launch boundary and read back its
 loaded capabilities/descriptions. No native restart or global peer reload is
 needed to refresh an adapter; do not infer adoption from a source-code update.
+
+
+## Keep preceding input-health evidence visible
+
+Fresh MCP0.11.5/current CLI input-query accepts include_health_context:true.
+Use it with rich captured context when inspecting retained telemetry. It returns
+bounded preceding/in-interval/untimed input-gap and listener observations, plus
+protected/unprotected/unknown snapshot counts for all retained interval events
+before filters or pages. An empty keyboard result can still have protected input.
+
+Latest timed preceding protection/listener notifications use exact offsets and
+remain historical observations; later notifications are not borrowed backward.
+They do not establish continuous interval-start state or current permissions.
+Check loss, untimed observations and truncation. Health summaries repeat across
+pages, not a separate pagination stream. Defaults/cursors stay unchanged unless
+the option is enabled. Current CLI is available while older MCP refresh is pending.

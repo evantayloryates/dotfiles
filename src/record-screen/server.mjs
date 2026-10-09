@@ -15,7 +15,7 @@ import { planProduction, productionPlanSchema, validateProductionRequest } from 
 import {queryRecordingInput,validateInputQuery,inputQuerySchema,inputQueryHealth} from "./lib/input-query.mjs";
 
 const log = (...args) => console.error("[record-screen]", ...args);
-const VERSION = "0.11.4";
+const VERSION = "0.11.5";
 
 // ---------------------------------------------------------------- engine link
 
@@ -155,7 +155,7 @@ const tools = [
     annotations: { readOnlyHint: true },
     run: async () => ok({ ...await engine("status"), mcp_adapter: {
       version: VERSION, replay_policy: 1, production_planning: 1, production_storage_guidance: 1, source_frame_mapping: 1, source_region_mapping: 1, transient_window_query: 1,
-      frame_mapping: frameMapHealth(), retained_input_query: 1, retained_action_context: 1,
+      frame_mapping: frameMapHealth(), retained_input_query: 1, retained_action_context: 1, retained_input_health_context: 1,
       input_query: inputQueryHealth(), mutation_replay: "never",
       read_reconnect_budget_ms: 12000,
       qualification: "loaded MCP adapter policy; native CLI/socket status does not describe an MCP process",
@@ -366,7 +366,7 @@ const tools = [
   },
   {
     name: "recording_input",
-    description: "Query a terminal recording's capture-retained input in an exact recorder-reception interval, with bounded event-type/action-token filters and snapshot-bound pagination. Default preserves broad retained keys/shortcuts and unassociated candidates. Inclusion reasons, same-app unresolved delivery, contextual action tokens, raw CG generation stamps and unqualified pointer coordinates remain explicit; no human/agent ownership inferred. Optional include_context returns up to64 captured action snapshots, rich caller-authored intent/context and exact scope offsets; updates can remain active/end unknown, declared deadlines and claimed results are not verified UI completion. Context summaries repeat across input pages, bounded truncation explicit; event-type filters leave them visible. Gap diagnostics survive event filters. At most256 events/page,64MiB/250000 source rows,ten-second read budget; one query per adapter. Returns whitelisted metadata and opt-in caller-authored context, never automatic key text/clipboard or the bulk journal. Query cannot recover capture-excluded events or establish actual video/physical delivery coverage. Read-only; no capture, UI, permission request or mutation replay.",
+    description: "Query a terminal recording's capture-retained input in an exact recorder-reception interval, with bounded event-type/action-token filters and snapshot-bound pagination. Default preserves broad retained keys/shortcuts and unassociated candidates. Inclusion reasons, same-app unresolved delivery, contextual action tokens, raw CG generation stamps and unqualified pointer coordinates remain explicit; no human/agent ownership inferred. Optional include_context returns up to64 captured action snapshots, rich caller-authored intent/context and exact scope offsets; updates can remain active/end unknown, declared deadlines and claimed results are not verified UI completion. Context summaries repeat across input pages, bounded truncation explicit; event-type filters leave them visible. Optional include_health_context preserves bounded preceding/in-interval/untimed notifications and all retained protection snapshot counts independent of event filters/pages; observations are not live or continuous state, later notifications are counted without backfilling. Gap diagnostics survive event filters. At most256 events/page,64MiB/250000 source rows,ten-second read budget; one query per adapter. Returns whitelisted metadata and opt-in caller-authored context, never automatic key text/clipboard or the bulk journal. Query cannot recover capture-excluded events or establish actual video/physical delivery coverage. Read-only; no capture, UI, permission request or mutation replay.",
     inputSchema: inputQuerySchema,
     annotations: {readOnlyHint:true},
     run: async a => {

@@ -48,6 +48,46 @@ test('rich captured snapshots use exact scope bounds, preserve active/unknown en
  const legacy=await queryRecordingInput(f.descriptor,request);assert.equal(legacy.captured_context,undefined);
  assert.equal(out.coverage.video_coverage_evaluated,false);
 });
+test('health context retains pre-epoch protection without making it continuous state or borrowing later observations',async t=>{
+ const pointer=ns=>event(ns,{type:1,raw_position:{x:20,y:30},secure_input_snapshot:true});
+ const f=await fixture(t,[header,
+  {kind:'input_listener',state:'listening',host_ns:String(BigInt(epoch)-10n),relative_ns:'-10',literal_text:'MUST NEVER RETURN'},
+  {kind:'input_gap',reason:'secure_input_enabled',host_ns:String(BigInt(epoch)-5n),relative_ns:'-5'},
+  pointer(1),{kind:'input_gap',reason:'secure_input_ended',host_ns:String(BigInt(epoch)+25n),relative_ns:'25'},
+  event(30),{kind:'input_listener',state:'access_revoked',host_ns:String(BigInt(epoch)+50n),relative_ns:'50'},
+  {kind:'input_gap',reason:'unknown_frontier'},footer]);
+ const out=await queryRecordingInput(f.descriptor,{...request,include_health_context:true,event_types:[22]});
+ assert.equal(out.events.length,0);const h=out.input_health_context;
+ assert.deepEqual(h.counts,{preceding:2,in_interval:1,unknown_time:1,after_interval:1});
+ assert.equal(h.latest_timed_protection_notification_before_interval.reason,'secure_input_enabled');assert.equal(h.latest_timed_protection_notification_before_interval.relative_ns,'-5');
+ assert.equal(h.latest_timed_listener_notification_before_interval.state,'listening');assert.equal(h.interval_notifications[0].reason,'secure_input_ended');
+ assert.deepEqual(h.retained_event_protection_snapshots_in_interval,{protected:1,unprotected:1,unknown:0});
+ assert.doesNotMatch(JSON.stringify(h),/access_revoked|MUST NEVER RETURN|literal_text/);assert.match(h.qualification,/not continuous state/);
+ const later=await queryRecordingInput(f.descriptor,{...request,from_relative_ns:'25',to_relative_ns:'51',include_health_context:true});
+ assert.equal(later.input_health_context.latest_timed_protection_notification_before_interval.reason,'secure_input_enabled');assert.equal(later.input_health_context.interval_notifications[0].relative_ns,'25');
+});
+test('bounded health summary repeats on filtered pages, retains latest timed precedence and does not redefine old cursors',async t=>{
+ const before=Array.from({length:18},(_,i)=>({kind:'input_gap',reason:i===17?'secure_input_enabled':'queue_overflow',relative_ns:String(i-20)}));
+ const during=Array.from({length:34},(_,i)=>({kind:'input_listener',state:'listening',relative_ns:String(i)}));
+ const untimed=Array.from({length:18},()=>({kind:'input_gap',reason:'unknown'}));
+ const f=await fixture(t,[header,...before,{kind:'input_gap',reason:'secure_input_ended',relative_ns:'-10'},...during,...untimed,event(10),event(20),footer]);
+ const query={...request,limit:1,include_health_context:true};const a=await queryRecordingInput(f.descriptor,query),b=await queryRecordingInput(f.descriptor,{...query,cursor:a.next_cursor});
+ assert.deepEqual(a.input_health_context,b.input_health_context);const h=a.input_health_context;
+ assert.deepEqual(h.counts,{preceding:19,in_interval:34,unknown_time:18,after_interval:0});assert.deepEqual(h.truncated,{preceding:true,in_interval:true,unknown_time:true});
+ assert.deepEqual([h.preceding_notifications.length,h.interval_notifications.length,h.unknown_time_notifications.length],[16,32,16]);
+ assert.equal(h.latest_timed_protection_notification_before_interval.reason,'secure_input_enabled');
+ await assert.rejects(()=>queryRecordingInput(f.descriptor,{...query,include_health_context:false,cursor:a.next_cursor}),/different query/);
+ const original=await queryRecordingInput(f.descriptor,{...request,limit:1}),omitted=await queryRecordingInput(f.descriptor,{...request,limit:1,include_health_context:false});assert.deepEqual(original,omitted);assert.equal(original.input_health_context,undefined);
+ const filtered=await queryRecordingInput(f.descriptor,{...query,action_tokens:[other],include_unassociated:false});assert.equal(filtered.events.length,0);assert.deepEqual(filtered.input_health_context,h);
+});
+test('missing health observations and partial journals stay unknown; malformed optional health refuses safely',async t=>{
+ const f=await fixture(t,[header,event(1,{secure_input_snapshot:undefined})]);f.descriptor.state='interrupted';f.descriptor.source_packet.complete=false;
+ const r=await queryRecordingInput(f.descriptor,{...request,include_health_context:true});assert.equal(r.coverage.journal_complete,false);assert.equal(r.input_health_context.latest_timed_protection_notification_before_interval,null);assert.equal(r.input_health_context.latest_timed_listener_notification_before_interval,null);assert.equal(r.input_health_context.retained_event_protection_snapshots_in_interval.unknown,1);
+ for(const row of [{kind:'input_listener',state:1,relative_ns:'-1'},{kind:'input_listener',state:'listening',host_ns:epoch,relative_ns:'-1'},{kind:'input_gap',reason:'x'.repeat(129),relative_ns:'-1'},{kind:'input_gap',reason:'queue_overflow',events_skipped:-1,relative_ns:'-1'}]){
+  await writeFile(f.path,[header,row,footer].map(x=>JSON.stringify(x)).join('\n')+'\n');await assert.rejects(()=>queryRecordingInput(f.descriptor,{...request,include_health_context:true}),e=>e.code==='input_query');assert.equal(inputQueryHealth().active,false);await queryRecordingInput(f.descriptor,request);
+ }
+ assert.throws(()=>validateInputQuery({...request,include_health_context:'true'}),e=>e.code==='bad_input_query');
+});
 test('context summaries bound snapshots, filter tokens independently and bind input cursors',async t=>{
  const rows=[header,...Array.from({length:66},()=>contextRow(1,2)),contextRow(1,2,{action_token:other}),event(10),event(20),footer];
  const f=await fixture(t,rows);const query={...request,include_context:true,action_tokens:[action],limit:1};
@@ -94,7 +134,7 @@ test('invalid requests and bounded journal/read sizes refuse without widening sc
  await writeFile(f.path,JSON.stringify(header)+'\n'+'\n'.repeat(250000));await assert.rejects(()=>queryRecordingInput(f.descriptor,request),/row\/line budget/);
 });
 test('actual MCP input query negotiates capability, validates before RPC and only reads source',async t=>{
- const f=await fixture(t,[header,contextRow(0,20),event(1),footer]);await writeFile(join(f.root,'unused'),'');
+ const f=await fixture(t,[header,{kind:'input_gap',reason:'secure_input_enabled',relative_ns:'-5'},contextRow(0,20),event(1),footer]);await writeFile(join(f.root,'unused'),'');
  const runRoot=join(f.root,'run');await (await import('node:fs/promises')).mkdir(runRoot);
  let supported=true;const calls=[];const sockets=new Set();
  const fake=net.createServer(s=>{sockets.add(s);s.on('close',()=>sockets.delete(s));createInterface({input:s}).on('line',line=>{const q=JSON.parse(line);calls.push(q.method);const result=q.method==='status'?{capabilities:{source_journal:supported?1:0}}:q.method==='record.source'?f.descriptor:null;s.write(JSON.stringify({id:q.id,result})+'\n')})});
@@ -104,10 +144,13 @@ test('actual MCP input query negotiates capability, validates before RPC and onl
  const send=(method,params)=>new Promise((resolve,reject)=>{const id=++serial,timer=setTimeout(()=>reject(new Error('owned MCP deadline')),5000);pending.set(id,{resolve,timer});child.stdin.write(JSON.stringify({jsonrpc:'2.0',id,method,params})+'\n')});
  try{
   await send('initialize',{protocolVersion:'2025-06-18'});
+  const status=await send('tools/call',{name:'status',arguments:{}});const adapter=JSON.parse(status.content[0].text).mcp_adapter;assert.equal(adapter.version,'0.11.5');assert.equal(adapter.retained_input_health_context,1);assert.deepEqual(adapter.input_query.health_notification_limits,{preceding:16,in_interval:32,unknown_time:16});calls.length=0;
   const invalid=await send('tools/call',{name:'recording_input',arguments:{...request,limit:257}});assert.equal(invalid.isError,true);assert.equal(calls.length,0);
   const badContext=await send('tools/call',{name:'recording_input',arguments:{...request,include_context:'true'}});assert.equal(badContext.isError,true);assert.equal(calls.length,0);
+  const badHealth=await send('tools/call',{name:'recording_input',arguments:{...request,include_health_context:1}});assert.equal(badHealth.isError,true);assert.equal(calls.length,0);
   const valid=await send('tools/call',{name:'recording_input',arguments:request});assert.equal(valid.isError,false);assert.equal(JSON.parse(valid.content[0].text).events.length,1);assert.deepEqual(calls,['status','record.source']);
   calls.length=0;const contextual=await send('tools/call',{name:'recording_input',arguments:{...request,include_context:true}});assert.equal(contextual.isError,false);assert.equal(JSON.parse(contextual.content[0].text).captured_context.updates[0].context.expected_change,'Quick Look visible');assert.deepEqual(calls,['status','record.source']);
+  calls.length=0;const healthy=await send('tools/call',{name:'recording_input',arguments:{...request,include_health_context:true}});assert.equal(healthy.isError,false);assert.equal(JSON.parse(healthy.content[0].text).input_health_context.latest_timed_protection_notification_before_interval.reason,'secure_input_enabled');assert.deepEqual(calls,['status','record.source']);
   supported=false;calls.length=0;const missing=await send('tools/call',{name:'recording_input',arguments:request});assert.equal(missing.isError,true);assert.deepEqual(calls,['status']);
  }finally{child.stdin.end();child.kill('SIGTERM');await new Promise(resolve=>child.exitCode!==null||child.signalCode!==null?resolve():child.once('exit',resolve));lines.close();for(const s of sockets)s.destroy();await new Promise(resolve=>fake.close(resolve))}
 });

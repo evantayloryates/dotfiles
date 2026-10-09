@@ -1,5 +1,53 @@
 # Qualification update — October 9, 2026
 
+## Forty-fifth pass: bounded input-health context without state fabrication
+
+Current CLI/fresh MCP0.11.5 recording_input accepts opt-in
+include_health_context:true and advertises retained_input_health_context1.
+The opened-source reader derives whitelisted health observations beside retained
+events: last16 preceding, first32 in-interval and first16 untimed gap/listener
+notifications with total counts and explicit truncation. Later observations
+are counted without backfilling. Latest timed preceding protection/listener
+categories use exact offset then source-row tie, independent of journal arrival
+ordering. They are not continuous interval-start state or live permission.
+
+Protected/unprotected/unknown event snapshot counts cover all retained interval
+input before type/action filtering or pagination. Health summaries repeat on
+event pages, not a notification cursor. Optional health choice binds query hash;
+default/false responses and old cursor hashes unchanged. Explicit health rejects
+malformed state/reason/time/count metadata; defaults ignore health never requested.
+Unknown literal text and all protected-key rows remain excluded/refused. Existing
+64MiB/250000-row/1MiB line/response/cooperative10s read and actual-close admission
+limits remain. No native listener/capture/writer/clock/permission change.
+
+29 initial focused/adjacent checks:28 passed, one frame-map actual protocol check
+failed only because expected version remained0.11.4 while actual was0.11.5.
+Retain failure JSON; update version assertion and rerun only affected check, pass.
+12 changed input/protocol checks final pass, including actual MCP published
+health capability/limits and invalid bool before RPC. Tests cover pre-epoch
+protection, end-exclusive boundaries, out-of-order preceding timestamps, future
+state not borrowed, untimed/capped observations, partial journal unknowns, empty
+filters, repeated pages, changed-option cursor rejection, defaults and malformed
+requested health. Prior mapping/reconnect/window checks retained, no stable rerun.
+
+Actual rec_46f96jt9, not a new capture: preceding listener−0.937902222s and secure
+input−0.733568639s, zero interval gaps but total1 and four protected pointer
+snapshots. Keyboard-only query returns zero events, preserving identical health
+summary. Current fresh native status listener inactive; historical listening
+remains a source notification. CLI/fresh MCP readbacks equal and default rich
+context response exactly matches stage43 saved result. No keyboard-density or
+actor/physical-provider clock inference. Bounded observations not universal health.
+
+Supported consumer runs once, closes scope before actual checks, settles own
+reader/session and publishes separate verified/cleanup-complete typed outcome,
+central audit uncovered0. Exact source-health fact appended/independently read
+back. Owned MCP exit0, installed3ff/PID74192 unchanged idle,0 actions/subscribers/
+unfinished/warm lanes. No capture/UI/grant/native or peer restart. Stage44 ordinary
+chat MCP refresh pending; do not infer adoption from this new source/fresh consumer.
+Checklist42completed,16partial,1deferred, full goal active. Private gates-v45.
+Next: useful remaining physical/provider/actual app/recovery or consumer adoption
+boundary; keep preceding observations and failed proofs without duplicate takes.
+
 ## Forty-fourth pass: ordinary loaded consumer contract and verified CLI fallback
 
 This chat's actual enabled record-screen MCP tools were inspected, not a new

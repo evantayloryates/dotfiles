@@ -879,6 +879,45 @@ preserved and corrected through separate typed outcomes; no source/input replay.
 Native f314/PID35547 stayed unchanged/idle; existing peer adapters were not restarted.
 See qualification/GATES.md, thirty-sixth pass.
 
+### Retained input-health context
+
+Fresh MCP0.11.5 advertises `retained_input_health_context:1` and supports
+`include_health_context:true` in recording_input/current input-query CLI.
+Use it alongside include_context when directing a recording from retained
+telemetry. An empty filtered event or gap list is not clean input coverage.
+
+```sh
+node /Users/taylor/src/github/dotfiles/src/record-screen/cli.mjs input-query \
+  '{"recording_id":"rec_EXAMPLE","from_relative_ns":"0","to_relative_ns":"30000000000","include_context":true,"include_health_context":true}'
+```
+
+`input_health_context` carries the last16 preceding, first32 in-interval and
+first16 untimed input_gap/input_listener observations in source-row order,
+plus total counts, per-group truncation and a count of after-interval observations.
+Exact timed precedence selects the latest preceding protection and listener
+notifications separately, with source-row ties. Later observations are counted,
+never backfilled as earlier state. Unknown time, lost rows and truncation remain
+uncertainty. These notifications are not continuous state at the interval start,
+live permission, exact missing-event intervals or complete input delivery.
+
+Protection snapshot counts cover all source-retained input events in the query
+interval before type/action/page filtering. Protected, unprotected and unknown
+stay distinct. The health summary repeats on input pages; it is not a health
+pagination cursor. Defaults return no health context and preserve old cursor
+hashes; enabling the option binds the cursor. Optional health fields are strictly
+validated when requested. All source/read/response and protected-key refusal
+limits still apply; unknown text fields are not returned.
+
+The real retained Finder source had listening/protection notifications at
+−0.937902222s and−0.733568639s, zero interval gap notifications, and four protected
+pointer snapshots. A keyboard-only filter returned zero events while retaining
+all that health context. Current native listener was inactive; the reader did
+not turn historical listening into current health. CLI/fresh MCP equal; default
+source-context response unchanged.29 initial checks:28 passed and one pinned
+version mismatch corrected by one affected protocol check;12 final changed
+input checks pass. Ordinary older chat consumers still need safe refresh; the
+CLI works without restarting native or peers. See GATES.md stage45.
+
 ### Destination-aware keyboard recovery (October 9)
 
 Installed signed build53b202f58af8 tightens the keyboard foreground fallback:

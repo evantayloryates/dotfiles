@@ -6,6 +6,7 @@ import {setImmediate as yieldLoop} from 'node:timers/promises';
 import {performance} from 'node:perf_hooks';
 import {EngineError} from './client.mjs';
 import {retainedActionContext} from './action-context.mjs';
+import {inputHealthContext,INPUT_HEALTH_NOTIFICATION_LIMITS} from './input-health-context.mjs';
 
 const MAX_BYTES=64*1024*1024, MAX_ROWS=250000, MAX_LINE=1024*1024;
 let active=false;
@@ -17,7 +18,7 @@ const int=(v,min=0,max=Number.MAX_SAFE_INTEGER)=>Number.isSafeInteger(v)&&v>=min
 const decimal=(v,signed=false)=>typeof v==='string'&&(signed?/^-?[0-9]{1,24}$/:/^[0-9]{1,24}$/).test(v);
 const token=v=>typeof v==='string'&&/^act_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(v);
 const digest=v=>createHash('sha256').update(v).digest('hex');
-export const inputQueryHealth=()=>({active,max_journal_bytes:MAX_BYTES,max_rows:MAX_ROWS,max_page_events:256});
+export const inputQueryHealth=()=>({active,max_journal_bytes:MAX_BYTES,max_rows:MAX_ROWS,max_page_events:256,health_notification_limits:INPUT_HEALTH_NOTIFICATION_LIMITS});
 export const inputQuerySchema={type:'object',additionalProperties:false,properties:{
  recording_id:{type:'string',pattern:'^rec_[A-Za-z0-9]+$',maxLength:64},
  from_relative_ns:{type:'string',pattern:'^-?[0-9]{1,24}$'},
@@ -27,13 +28,14 @@ export const inputQuerySchema={type:'object',additionalProperties:false,properti
  action_tokens:{type:'array',minItems:1,maxItems:16,uniqueItems:true,items:{type:'string',pattern:'^act_[0-9a-f-]{36}$'}},
  include_unassociated:{type:'boolean',default:true,description:'With an action filter, also retain events with no action token. Associations remain temporal/contextual, not ownership.'},
  include_context:{type:'boolean',default:false,description:'Return up to64 captured action snapshots overlapping this interval. Rich intent/context is caller supplied; bounds and results do not prove actors or visible changes.'},
+ include_health_context:{type:'boolean',default:false,description:'Return bounded preceding/in-interval/untimed health notifications and retained protection snapshot counts independent of event filters. Historical observations are not continuous/live state or full input coverage.'},
  cursor:{type:'object',additionalProperties:false,properties:{after_row:{type:'integer',minimum:1,maximum:MAX_ROWS},snapshot_sha256:{type:'string',pattern:'^[0-9a-f]{64}$'},query_sha256:{type:'string',pattern:'^[0-9a-f]{64}$'}},required:['after_row','snapshot_sha256','query_sha256']},
 },required:['recording_id','from_relative_ns','to_relative_ns']};
 export function validateInputQuery(input){
  if(!ownKeys(input,Object.keys(inputQuerySchema.properties))||typeof input.recording_id!=='string'||input.recording_id.length>64||!/^rec_[A-Za-z0-9]+$/.test(input.recording_id)||!decimal(input.from_relative_ns,true)||!decimal(input.to_relative_ns,true))bad();
- const a={limit:64,include_unassociated:true,include_context:false,...input};
+ const a={limit:64,include_unassociated:true,include_context:false,include_health_context:false,...input};
  const from=BigInt(a.from_relative_ns),to=BigInt(a.to_relative_ns);
- if(to<=from||to-from>3600000000000n||!int(a.limit,1,256)||typeof a.include_unassociated!=='boolean'||typeof a.include_context!=='boolean')bad();
+ if(to<=from||to-from>3600000000000n||!int(a.limit,1,256)||typeof a.include_unassociated!=='boolean'||typeof a.include_context!=='boolean'||typeof a.include_health_context!=='boolean')bad();
  for(const [key,max,valid] of [['event_types',32,v=>int(v,0,255)],['action_tokens',16,token]]){
   if(a[key]!==undefined&&(!Array.isArray(a[key])||!a[key].length||a[key].length>max||a[key].some(v=>!valid(v))||new Set(a[key]).size!==a[key].length))bad();
  }
@@ -83,6 +85,7 @@ export async function queryRecordingInput(descriptor,input){
  const path=descriptor.source_packet?.path;if(typeof path!=='string'||!path.startsWith('/'))fail('Engine must resolve an absolute journal path.');
  const canonical={recording_id:a.recording_id,from_relative_ns:String(BigInt(a.from_relative_ns)),to_relative_ns:String(BigInt(a.to_relative_ns)),limit:a.limit,include_unassociated:a.include_unassociated,event_types:a.event_types?[...a.event_types].sort((x,y)=>x-y):null,action_tokens:a.action_tokens?[...a.action_tokens].sort():null};
  if(a.include_context)canonical.include_context=true;
+ if(a.include_health_context)canonical.include_health_context=true;
  const queryHash=digest(JSON.stringify(canonical));if(a.cursor&&a.cursor.query_sha256!==queryHash)fail('Cursor belongs to a different query; start a new read without it.');
  active=true;let handle;
  try{
@@ -92,12 +95,14 @@ export async function queryRecordingInput(descriptor,input){
   const events=[],gaps=[],contexts=[];let contextTotal=0,contextEligible=0,contextFiltered=0;
   let offset=0,pending='',rows=0,header=null,footer=null,scope=null,end=null,total=0,inInterval=0,eligible=0,afterCursor=0,typeFiltered=0,actionFiltered=0,more=false,gapCount=0,unknownGapTimes=0,intervalGapCount=0;
   const from=BigInt(a.from_relative_ns),to=BigInt(a.to_relative_ns),until=performance.now()+10000;
+  const health=a.include_health_context?inputHealthContext(from,to):null;
   const rowValue=row=>{
    if(!obj(row))fail('Invalid source row object.');
    if(!header){if(row.kind!=='header'||row.schema!=='record-screen-source/v1'||row.recording_id!==a.recording_id||row.clock_domain!=='CLOCK_UPTIME_RAW'||row.epoch_host_ns!==descriptor.source_packet.epoch_host_ns)fail('Source identity/clock mismatch.');exact(row.epoch_host_ns);header=row;return}
    if(footer)fail('Rows follow a terminal source footer.');
    if(row.kind==='header')fail('Duplicate source header.');
    const epoch=exact(header.epoch_host_ns);
+   health?.observeNotification(row,epoch,rows);
    if(row.kind==='footer'){if(row.schema!=='record-screen-source/v1'||row.epoch_host_ns!==header.epoch_host_ns||typeof row.complete!=='boolean')fail('Footer identity/completion metadata mismatch.');footer=row;return}
    if(row.kind==='input_scope'){scope={scope_pid:optionalInt(row.scope_pid,1,2147483647),scope_window_id:optionalInt(row.scope_window_id,1,4294967295),ambiguous_keys:text(row.ambiguous_keys,32),pointer_in_frame:optionalBool(row.pointer_in_frame),ownership:'unknown'};return}
    if(row.kind==='input_scope_end'){end={retained:optionalInt(row.retained),outside_scope_count:optionalInt(row.outside_scope_count),queue_overflow_during_scope:optionalInt(row.queue_overflow_during_scope)};return}
@@ -116,7 +121,7 @@ export async function queryRecordingInput(descriptor,input){
     if(relevant&&gaps.length<32)gaps.push({source_row:rows,reason:text(row.reason,128),relative_ns:relative===null?null:String(relative),events_skipped:optionalInt(row.events_skipped),qualification:'Notification frontier, not the exact missing-event interval or ownership.'});return;
    }
    if(row.kind!=='input_event')return;
-   const event=normalizeEvent(row,epoch,rows);total++;const relative=BigInt(event.relative_ns);
+   const event=normalizeEvent(row,epoch,rows);health?.observeEvent(event);total++;const relative=BigInt(event.relative_ns);
    if(relative<from||relative>=to)return;inInterval++;
    if(a.event_types&&!a.event_types.includes(event.type)){typeFiltered++;return}
    if(a.action_tokens&&!event.action_tokens.some(t=>a.action_tokens.includes(t))&&!(a.include_unassociated&&!event.action_tokens.length)){actionFiltered++;return}
@@ -149,6 +154,7 @@ export async function queryRecordingInput(descriptor,input){
       'Input event-type filters do not hide context. Action-token filters apply; include_unassociated is for input events only.',
       'Intent/context are caller-authored; claimed results are not separate verification or cleanup outcomes. Use shared typed outcomes for those.',
       'Use exact start/end relative offsets with recording_frame_map for media; no visible-change, physical latency or ownership inference.']};
+  if(health)result.input_health_context=health.summary();
   if(Buffer.byteLength(JSON.stringify(result))>1024*1024)fail('Input query response exceeded1MiB; request a smaller page or narrower context interval.');return result;
  }finally{try{await handle?.close()}finally{active=false}}
 }

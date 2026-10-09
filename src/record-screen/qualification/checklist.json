@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T07:24:39-04:00",
+  "updated_at": "2026-10-09T07:33:09-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage44 actual ordinary MCP contract adoption remains partial; legacy retained-source read and current CLI fallback verified. Minimal chat-only refresh request pending.42 completed,16 partial,1 deferred. Continue independent qualification, preserve peers and prior proof."
+    "note": "Stage45 bounded retained input-health context delivered and checked against real source, filtering and CLI/fresh MCP parity. Owned reader/session settled; ordinary chat MCP refresh remains pending.42 completed,16 partial,1 deferred. Continue useful missing physical/provider/app/recovery boundaries without replaying settled sources."
   },
-  "production_note": "Native3ff4c4519dc8 remains unchanged and idle. Fresh/current CLI contracts pass; stage44 actual ordinary chat MCP still lacks adapter metadata/new tools and advertises obsolete exact-boundary/safe-retry claims. Its retained source read passes; explicit current CLI fallback verified with owned cleanup. Consumer refresh pending; no peer restart. Physical/provider/recovery limits remain explicit; composition deferred.",
+  "production_note": "Signed native3ff4c4519dc8 remains unchanged and idle. Current CLI/fresh MCP0.11.5 adds bounded source input-health context: preceding/interval/untimed observations and protection snapshots survive empty filters. Actual Finder source verified, defaults unchanged. Ordinary chat MCP still needs safe refresh; no peer restart or new permission. Physical/provider/recovery limits and composition deferral remain explicit.",
   "groups": [
     {
       "id": "capture",
@@ -278,10 +278,10 @@
           "title": "Qualify missing-event and tap-fault behavior",
           "status": "partial",
           "scope": "Expose virtual-input gaps, revoked access, disabled taps and overload.",
-          "evidence": "Approved installed Input Monitoring recovered through one fenced relaunch and fresh delivered-event canary with zero observed gaps. Earlier controlled tap-fault and ordered ingress-loss evidence remains scoped; actual physical revocation/natural timeout not covered.",
-          "next": "Qualify physical revocation/natural timeout and initial OS/per-key call bounds when isolated; do not repeat the completed grant canary.",
-          "anchor": "twenty-sixth-pass",
-          "updated_at": "2026-10-09T01:16:01-04:00"
+          "evidence": "Stage45 source-owned health context retains real pre-epoch listener/protection notifications and four protected pointer snapshots despite empty keyboard filter. CLI/fresh MCP0.11.5 equal, defaults unchanged.29 initial28pass/one version mismatch narrowly corrected;12 final input checks pass. Earlier grant/tap/ingress proofs preserved.",
+          "next": "Qualify missing physical revocation/natural timeout and initial OS/per-key bounds when isolated. Use preceding/untimed/lost/truncated source observations; do not infer live or continuous state from a gap list.",
+          "anchor": "forty-fifth-pass",
+          "updated_at": "2026-10-09T07:33:09-04:00"
         },
         {
           "id": "installed-input-access",
@@ -516,20 +516,20 @@
           "title": "Verify the quality of recent shared computer-use workflows",
           "status": "partial",
           "scope": "Assess delivered actions, verification and cleanup rather than tool-call counts.",
-          "evidence": "Stage44 ordinary CLI fallback has one real operation invocation, verified returned rich context/source epoch/815 exact joins and cleanup-complete outcome, uncovered0. Actual loaded MCP contract failure fact retained. Stage43 native proofs and older failed/conflicting outcomes preserved.",
-          "next": "Extend actual unresolved/routine provider outcomes and safe consumer adoption; historical task quality stays unknown where evidence is absent.",
-          "anchor": "forty-fourth-pass",
-          "updated_at": "2026-10-09T07:24:39-04:00"
+          "evidence": "Stage45 supported real health reader runs once with actual exact-stamp/filter/default/CLI checks, typed verified cleanup-complete outcome, audit uncovered0. Prior native/ordinary-adapter failures and conflicting verification history retained; scoped reported evidence, not historical success rate.",
+          "next": "Extend actual unresolved/routine provider outcomes and safe ordinary consumer adoption; historical task quality remains unknown without observed proof.",
+          "anchor": "forty-fifth-pass",
+          "updated_at": "2026-10-09T07:33:09-04:00"
         },
         {
           "id": "receipt-integration",
           "title": "Improve automatic receipt coverage across providers",
           "status": "partial",
           "scope": "Capture durable operation evidence for native and browser actions.",
-          "evidence": "Stage43 actual rich native scopes/outcomes preserved. Stage44 supported ordinary CLI fallback runs once, closes scope before exact returned-data verification and settles owned session; typed verified/cleanup-complete/uncovered0. Explicit bracketing only; loaded chat MCP adoption incomplete.",
-          "next": "Extend ordinary provider durable evidence and verify loaded consumer contracts at safe refresh; no automatic native interception or actor inference.",
-          "anchor": "forty-fourth-pass",
-          "updated_at": "2026-10-09T07:24:39-04:00"
+          "evidence": "Stage45 supported reader brackets one actual operation, closes scope before exact health/filter/CLI verification, settles owned session/reader and publishes typed verified cleanup-complete outcome, uncovered0. Stage43 native explicit proofs and stage44 loaded-contract gap preserved.",
+          "next": "Extend ordinary provider durable evidence and verify current contracts at safe refresh; no automatic native interception or actor inference.",
+          "anchor": "forty-fifth-pass",
+          "updated_at": "2026-10-09T07:33:09-04:00"
         },
         {
           "id": "shared-baseline-plan",
@@ -1882,6 +1882,37 @@
       "from": "active",
       "to": "active",
       "note": "Stage44 actual ordinary MCP contract adoption remains partial; legacy retained-source read and current CLI fallback verified. Minimal chat-only refresh request pending.42 completed,16 partial,1 deferred. Continue independent qualification, preserve peers and prior proof."
+    },
+    {
+      "kind": "item",
+      "id": "provider-gaps",
+      "at": "2026-10-09T07:33:09-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage45 source-owned health context retains real pre-epoch listener/protection notifications and four protected pointer snapshots despite empty keyboard filter. CLI/fresh MCP0.11.5 equal, defaults unchanged.29 initial28pass/one version mismatch narrowly corrected;12 final input checks pass. Earlier grant/tap/ingress proofs preserved."
+    },
+    {
+      "kind": "item",
+      "id": "workflow-audit",
+      "at": "2026-10-09T07:33:09-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage45 supported real health reader runs once with actual exact-stamp/filter/default/CLI checks, typed verified cleanup-complete outcome, audit uncovered0. Prior native/ordinary-adapter failures and conflicting verification history retained; scoped reported evidence, not historical success rate."
+    },
+    {
+      "kind": "item",
+      "id": "receipt-integration",
+      "at": "2026-10-09T07:33:09-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage45 supported reader brackets one actual operation, closes scope before exact health/filter/CLI verification, settles owned session/reader and publishes typed verified cleanup-complete outcome, uncovered0. Stage43 native explicit proofs and stage44 loaded-contract gap preserved."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T07:33:09-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Stage45 bounded retained input-health context delivered and checked against real source, filtering and CLI/fresh MCP parity. Owned reader/session settled; ordinary chat MCP refresh remains pending.42 completed,16 partial,1 deferred. Continue useful missing physical/provider/app/recovery boundaries without replaying settled sources."
     }
   ]
 }
