@@ -1,0 +1,27 @@
+{
+  "at": "2026-10-09T21:20:52.162Z",
+  "scope": "One physical Safari-to-Chrome private enrollment attempt through page execution; no developer channel or Mirroring",
+  "gates": {
+    "newChromeVisibleReady": false,
+    "sourceGlowOff": true
+  },
+  "replay": false,
+  "launch": {
+    "acknowledged": true,
+    "outcome": "completed"
+  },
+  "observation": [
+    {
+      "browser": "ios-safari",
+      "path": "/dev/ios-agent",
+      "visible": true,
+      "ready": true,
+      "indicator": false
+    }
+  ],
+  "status": "confirmation-required",
+  "limits": "Physical Safari reached its Open in Chrome confirmation. Network-only launch is not autonomous; OS confirmation has not been completed. The five-minute enrollment can expire while confirmation waits. Do not replay this accepted request.",
+  "userObservation": {
+    "openInChromePromptVisible": true
+  }
+}

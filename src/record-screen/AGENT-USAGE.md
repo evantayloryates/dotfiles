@@ -313,6 +313,25 @@ lane. Retained snapshots must never be rewritten from later live action state.
 
 ## Inspect coverage before accepting or recovering a take
 
+The [Safari lane](qualification/SAFARI-MENUS.md) adds real select/change/dismiss
+and editing-root pixels, exact8,900 mux/source joins, and6,684 continuous
+fixed-crop anchor packets within1px. Its35 final app packets lose the anchor
+and later samples are black while the service still reports a contained
+canvas. Use actual content checks before recovery. The source/resource costs
+are published as `resource_guidance.measured_safari_app_profile`; stopped early,
+partial process-tree costs and held mux tails remain explicit. This profile
+does not authorize a five-minute or capacity guarantee.
+
+For click-reserved production, check the SAME private signal immediately before
+each next action with `qualification/production-click.py check SIGNAL
+--operation-s 10 --cleanup-s 20`. Require `admitted:true`, allow for transport
+latency and reserve cleanup time. After a delayed observation, check again.
+An expired signal cannot be extended or replaced with an inferred click.
+Stage70 exceeded120s; that episode stays failed. These are admission snapshots
+and conservative budgets, not provider cancellation or automatic interception.
+For an explicit user-approved AFK interval, retain that separate authorization
+and its limits rather than fabricate a notification click or physical input.
+
 Check the terminal manifest and `recording_source`. A closed zero-loss journal
 does not establish every delivered event, pixel or decodable writer packet.
 Use `recording_frame_map` / CLI `frame-map` for primary media. Request at most64

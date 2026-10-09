@@ -5,9 +5,10 @@ import {randomBytes, createHash} from 'node:crypto';
 import {spawn} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {nutritionRecipe} from './workflows.mjs';
+import {mediaObservation} from './media-verification.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/workflows.mjs', 'paired_workflow.py', 'health.py', 'local_stack.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
+const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/media-verification.mjs', 'mcp/workflows.mjs', 'paired_workflow.py', 'health.py', 'local_stack.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
   .map(file => fs.readFileSync(path.join(root, file))).map(bytes => createHash('sha256').update(bytes).digest('hex')).join(':')).digest('hex');
 export const defaultState = path.join(os.homedir(), 'Library/Application Support/ios-agent');
 const idleLimit = 20 * 60 * 1000;
@@ -118,13 +119,15 @@ export class Backend {
     let current, learning;
     try { current = await this.status(); learning = await this.learning('search', {source: runtimeKey(current) || ''}); }
     catch { learning = {available: false}; }
-    return {browserWorkflow: ['ios_web_enroll (private launchFile)', 'open the intended dev browser page', 'ios_web_pages', 'ios_web_begin', 'ios_web_inspect and ios_web_action', 'ios_web_end in finally'],
+    return {browserWorkflow: ['ios_doctor (host prerequisites)', 'ios_web_pages (reuse a visible ready enrolled page)', 'ios_web_enroll only if provisioning is needed (private launchFile)', 'open the intended dev browser page if not enrolled', 'ios_web_pages', 'ios_web_begin', 'ios_web_inspect and ios_web_action', 'ios_web_end in finally'],
       browserLimits: 'Page-owned DOM input is synthetic; it does not operate OS dialogs, trusted touch, IME or microphone permission. SDK return channel works over private HTTPS; require separate off-LAN qualification. Dev-only enrollment and per-tab authentication.',
       workflow: ['ios_doctor', 'ios_begin', 'ios_native or ios_react', 'ios_verify', 'ios_end'],
       hostWorkflow: ['ios_doctor (read only)', 'ios_stack_ensure only when needed and idle; never replay an uncertain start'],
       pairedWorkflow: 'ios_workflow action=plan exposes the versioned coach-client recipe; capture/assert/restore-check independently read only the verified synthetic local row. UI rendering is a separate gate.',
       lease: 'One session per work turn. Always ios_end in finally before ending a turn. Codex should supply its actual active rollout to ios_begin. Other clients use a private connection heartbeat; MCP cannot detect a model turn ending on a persistent connection.',
-      requirements: 'Kickoff DEV foreground and unlocked, Tailscale connected, laptop services awake. USB not required.',
+      requirements: 'Native: Kickoff DEV foreground/unlocked. Browser: enrolled dev document visible on unlocked iPhone. Both require Tailscale and awake laptop services; routine control needs no USB. Developer-channel failure does not prove physical disconnection or lock.',
+      browserDomains: {media:'Content-free request outcomes, track liveness, WebRTC audio and WebSocket counters; instrument before call setup.',performance:'Bounded navigation/paint/resource/main-thread numeric timings; unavailable metrics are null, not zero.',meet:'Fixed local call-lobby projection; no identities, credentials or transcripts.',limitations:'State readback is not a trusted touch, OS permission tap, whole-phone screenshot or off-LAN verification.'},
+      browserMediaVerification: 'ios_web_verify gate=web-media direction=sent|received|both sampleMs=500..3000 requires stable advancing audio RTP counters. It returns shared structural learning evidence; a passed counter gate does not prove audible content or a completed call.',
       cleanup: 'Explicit end, cancellation, disconnect and 20-minute tool silence retire control. A heartbeat does not extend the silence limit. Native watchdog protects host loss.',
       input: 'Get a fresh tree; use its snapshot, target and observed coordinates within five seconds. Verify committed route/value after input. Never automatically replay an accepted or unknown action.',
       updates: 'JS edits use remote Metro; verify ready and route after refresh. Forms/navigation can reset. Native edits require build/install.',
@@ -191,6 +194,7 @@ export class Backend {
         const check = await this.webAction({sessionId: id, action: 'state'});
         if (check.ok !== true) throw new Error('web_page_not_ready');
         s.webFingerprint = createHash('sha256').update(JSON.stringify([adapterHash, check.value?.version, check.value?.browser, check.value?.boot])).digest('hex');
+        s.webRuntime = Object.fromEntries(['version','browser','boot'].map(k => [k,check.value?.[k]]));
         return {sessionId: id, page, ready: true, verification: check, learning: await this.learning('search',{source:s.webFingerprint}).catch(()=>({available:false})), next: 'ios_web_inspect, fresh snapshot/target, ios_web_action. Always ios_web_end in finally.'};
       }
       const verification = await this.verify({sessionId: id, gate: 'ready', timeout: 12});
@@ -314,10 +318,23 @@ export class Backend {
       ...(typeof r.value?.reason === 'string' ? {reason:r.value.reason} : {}),
       ...(!large ? {value} : {value:preview,truncated:true,next:'Use ios_read with /result/value for the complete private observation.'})};
   }
-  async webVerify({sessionId, gate, expectedPath, expectedText}) {
+  async webVerify({sessionId, gate, expectedPath, expectedText, direction = 'both', sampleMs = 1000}) {
     const s = this.session(sessionId);
     if (s.surface !== 'web') throw new Error('web_session_required');
     if (gate === 'web-route' && !expectedPath && !expectedText) return {ok:false,reason:'explicit_web_postcondition_required'};
+    if (gate === 'web-media') {
+      if (!['sent','received','both'].includes(direction) || !Number.isInteger(sampleMs) || sampleMs < 500 || sampleMs > 3000) return {ok:false,reason:'bounded_media_sample_required'};
+      const full = read => { const file=this.artifacts.get(read.artifactId)?.file; return file ? JSON.parse(fs.readFileSync(file,'utf8'))?.result?.value : read.value; };
+      const first = await this.webAction({sessionId,action:'state'}), before = full(first);
+      await new Promise(resolve => setTimeout(resolve,sampleMs));
+      const second = await this.webAction({sessionId,action:'state'}), after = full(second);
+      const observation = {readsCompleted:first.ok === true && second.ok === true,...mediaObservation(before,after,direction,s.webRuntime)};
+      const ok = Object.values(observation).every(v => v === true);
+      const receipt = {gate,status:ok?'passed':'failed',scope:'instrumented-audio-RTP-counters-only',observation};
+      const learningEvidence=await this.learning('observe',{receipt,source:s.webFingerprint}).catch(()=>({available:false}));
+      return {ok,receipt,artifactId:second.artifactId,beforeArtifactId:first.artifactId,sampleMs,learningEvidence,
+        limits:'Stable document-local stream counters; at least one stream advances in each requested direction, none reset. This does not prove audible content, call-room identity, remote playout, microphone permission or physical network route.'};
+    }
     const read = await this.webAction({sessionId, action: gate === 'web-ready' ? 'state' : 'snapshot'});
     const file=this.artifacts.get(read.artifactId)?.file;
     const value=file ? JSON.parse(fs.readFileSync(file,'utf8'))?.result?.value : read.value;

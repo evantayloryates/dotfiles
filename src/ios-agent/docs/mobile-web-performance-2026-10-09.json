@@ -1,0 +1,25 @@
+{
+  "at": "2026-10-09T21:24:37.687Z",
+  "scope": "Owned desktop Chromium/WebKit pages; physical iOS and call CPU/memory qualification are separate",
+  "engines": {
+    "chromium": {
+      "numericState": true,
+      "unsupportedMetricsRemainNull": true,
+      "contentFree": true,
+      "longTasksSupported": true,
+      "controlledLongTaskDetected": true,
+      "glowOff": true,
+      "adapterRemoved": true
+    },
+    "webkit": {
+      "numericState": true,
+      "unsupportedMetricsRemainNull": true,
+      "contentFree": true,
+      "longTasksSupported": false,
+      "controlledLongTaskDetected": null,
+      "glowOff": true,
+      "adapterRemoved": true
+    }
+  },
+  "status": "passed"
+}

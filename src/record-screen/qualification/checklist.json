@@ -1,9 +1,9 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T17:08:48-04:00",
+  "updated_at": "2026-10-09T17:31:04-04:00",
   "workflow": {
-    "state": "paused",
-    "note": "Paused at Taylor’s request. Stage70 takes saved:75s window and252.068s app crop; server/sampler terminal, session closed, native idle. Pixel/mux/map/resource verification remains pending. Two-minute reservation overrun and expired scope preserved. Owned Safari close unverified; inert fixture remains. Reuse footage on resume."
+    "state": "active",
+    "note": "Stage71 retained Safari verification complete:8,900 exact mux joins,6,684 marker packets within1px, real menus and a black app tail preserved. Six typed outcomes/three facts read back. Next self-contained nested/overflow and agent-input checks within Taylor’s two-hour AFK interval. Physical/human approval/sleep gates deferred; no blocking prompts."
   },
   "production_note": "Signed native7c0f81e9d71f/PID39358 installed through one idle maintenance fence, exact candidate/installed binary and signature matched, Screen Recording grant preserved. Fresh canonical MCP0.16.0/27tools supports declaration-only pre-launch intent and context; loaded peers untouched and adoption unknown. Real launch and owned cleanup qualified; full17partial acceptance gates remain open.",
   "groups": [
@@ -232,10 +232,10 @@
           "title": "Qualify coordinates when real child menus change source fitting",
           "status": "partial",
           "scope": "Actual child-enabled isolated window with above/below-parent popup fitting, including scale and source origin changes. Existing static/fixture maps retain their proven scope.",
-          "evidence": "Stage64 first retained real TextEdit fitted-frame spatial candidate:2 parent-toolbar+1 child-selection anchors score.950/.902/.898, spread.303px. Four withheld native viewport edges <=.803px; two glyph supports >=98.76% within1px, brightness differs. New bounded quarter_phase helper option and21 checks pass; default actual JSON unchanged. Lower child.7845 still refuses; real wrong-phase child score1/margin0/disagreement refuses despite parent matches. Production fitted guard/legacy clock uncertainty retained; no generic or continuous map release. Stage65 retained metadata distinguishes nominal Retina scaling0.5 from additional fitting0.710145 relative to baseline1 in the earlier child episode. Scale equality alone cannot establish desktop origin; analytical spare-height counterexample has identical scale and320px origin ambiguity. Diagnostic only; production guard unchanged. Stage68 actual40s five-direction source:1834 exact mux/journal stamps. Right/left identical full geometry with134px parent displacement; above/below identical geometry with106px displacement. Metadata-only inverse is disproven in this scope. Fixed app crop861 stable packets across seven phases passes markers within1px; primary753 stable packets retains right-child oracle1.333px failure against1.25px. Service seven primary maps guarded/seven backup maps available;1570 common-clock boundaries. Owned fixture absent/sessionclosed/native unchanged. Stage70 Safari native select/change/dismiss and editing root observed and captured as paired window/app takes. Catalog popup candidates all fit within the parent; this is not an overflow test. Decoded pixels, exact paired intervals and continuous fixed-crop coordinates remain unverified.",
-          "next": "Verify retained stage70 mux, pixels and app-crop geometry; preserve isolated projection guard and earlier failed origin hypothesis.",
-          "anchor": "seventieth-pass",
-          "updated_at": "2026-10-09T17:08:48-04:00"
+          "evidence": "Stage64 first retained real TextEdit fitted-frame spatial candidate:2 parent-toolbar+1 child-selection anchors score.950/.902/.898, spread.303px. Four withheld native viewport edges <=.803px; two glyph supports >=98.76% within1px, brightness differs. New bounded quarter_phase helper option and21 checks pass; default actual JSON unchanged. Lower child.7845 still refuses; real wrong-phase child score1/margin0/disagreement refuses despite parent matches. Production fitted guard/legacy clock uncertainty retained; no generic or continuous map release. Stage65 retained metadata distinguishes nominal Retina scaling0.5 from additional fitting0.710145 relative to baseline1 in the earlier child episode. Scale equality alone cannot establish desktop origin; analytical spare-height counterexample has identical scale and320px origin ambiguity. Diagnostic only; production guard unchanged. Stage68 actual40s five-direction source:1834 exact mux/journal stamps. Right/left identical full geometry with134px parent displacement; above/below identical geometry with106px displacement. Metadata-only inverse is disproven in this scope. Fixed app crop861 stable packets across seven phases passes markers within1px; primary753 stable packets retains right-child oracle1.333px failure against1.25px. Service seven primary maps guarded/seven backup maps available;1570 common-clock boundaries. Owned fixture absent/sessionclosed/native unchanged. Stage70 Safari native select/change/dismiss and editing root observed and captured as paired window/app takes. Catalog popup candidates all fit within the parent; this is not an overflow test. Decoded pixels, exact paired intervals and continuous fixed-crop coordinates remain unverified. Stage71 verifies retained Safari source:8,900 exact mux/journal stamps;6,684 consecutive app packets before229.911662823s preserve anchor within1px. Two selected menu rows match across sources within1px. Service11 app maps available/4 primary maps guarded,8,900 whole-interval boundaries.35 final app packets lose anchor; later pixels black despite contained canvas. Actual menus fit parent; isolated guard unchanged.",
+          "next": "Qualify the remaining real popup overflow/changed-fit cases through service maps; use actual decoded content and refuse black/missing backup intervals. Preserve settled Safari and origin ambiguity proofs.",
+          "anchor": "seventy-first-pass",
+          "updated_at": "2026-10-09T17:31:04-04:00"
         },
         {
           "id": "fitted-mapping-guard",
@@ -444,10 +444,10 @@
           "title": "Set a realistic resource and admission budget",
           "status": "partial",
           "scope": "CPU, memory, encoder/GPU/storage costs and useful production-duration estimates.",
-          "evidence": "Stage56 original90s pair104 observations: recorder peak53.52MiB, p50 intervalCPU6.94%/peak15.87%; TextEdit134.66MiB, host pressure1/2, no guard. Follow-up unmeasured. Prior GPU/longer profiles retained; no causal encoder/GPU/capacity/P80 proof. Stage61 one whole90 metadata CLI request evaluates1769 boundary segments in0.18s wall/maxRSS79.44MiB. Summary default4096/max16384 boundaries, over-budget refusal verified; these bounds are not capacity or P80 evidence. Stage66 measured75s useful30fps three-lane motion/movement/cover profile:90 process/host samples, recorder RSS peak463.06MiB, p50 intervalCPU8.90%/peak103.64% of one core; later settled RSS30.34MiB. Motion fixture78.34MiB and cover66.25MiB peaks; fresh host pressure2/thermal0, no guard trigger.5719 actual mux packets,40,839,659 video+4,048,850 journal bytes. One concurrent-host short take, no baseline delta/GPU/P80/long-duration capacity claim. Stage67 fresh0.15.0/CLI publishes measured three-source profile with exact source bytes/rows/packets, explicit crop/width/codec, per-source duration scenario and reader/journal flags. Live disjoint crop refused; configured slot shortfall refuses without reservation.46 affected and final12 planner checks pass; default fields/actual retained costs preserved. Capacity/GPU/P80 remain open. Stage70 saved75s window H264 and252.068s fixed app-crop HEVC (stopped for user pause before planned300s).250 resource observations retained; no guard fired. Terminal counters and finalized journals exist, but actual mux/source coverage and resource acceptance remain unverified.",
-          "next": "Reuse retained stage70 media/journals/resource samples for exact coverage and useful-duration assessment; no full five-minute or GPU claim.",
-          "anchor": "seventieth-pass",
-          "updated_at": "2026-10-09T17:08:48-04:00"
+          "evidence": "Stage56 original90s pair104 observations: recorder peak53.52MiB, p50 intervalCPU6.94%/peak15.87%; TextEdit134.66MiB, host pressure1/2, no guard. Follow-up unmeasured. Prior GPU/longer profiles retained; no causal encoder/GPU/capacity/P80 proof. Stage61 one whole90 metadata CLI request evaluates1769 boundary segments in0.18s wall/maxRSS79.44MiB. Summary default4096/max16384 boundaries, over-budget refusal verified; these bounds are not capacity or P80 evidence. Stage66 measured75s useful30fps three-lane motion/movement/cover profile:90 process/host samples, recorder RSS peak463.06MiB, p50 intervalCPU8.90%/peak103.64% of one core; later settled RSS30.34MiB. Motion fixture78.34MiB and cover66.25MiB peaks; fresh host pressure2/thermal0, no guard trigger.5719 actual mux packets,40,839,659 video+4,048,850 journal bytes. One concurrent-host short take, no baseline delta/GPU/P80/long-duration capacity claim. Stage67 fresh0.15.0/CLI publishes measured three-source profile with exact source bytes/rows/packets, explicit crop/width/codec, per-source duration scenario and reader/journal flags. Live disjoint crop refused; configured slot shortfall refuses without reservation.46 affected and final12 planner checks pass; default fields/actual retained costs preserved. Capacity/GPU/P80 remain open. Stage70 saved75s window H264 and252.068s fixed app-crop HEVC (stopped for user pause before planned300s).250 resource observations retained; no guard fired. Terminal counters and finalized journals exist, but actual mux/source coverage and resource acceptance remain unverified. Stage71 all8,900 packets decode and exactly match journals.250 samples: recorder peak38.73MiB, median intervalCPU2.98%/peak19.81% of one core, host pressure2. Safari parent only; WebContent/GPU/thermal unmeasured.75s H264 window plus about252.07s HEVC app, stopped before300s; mux tail252.561567657s includes holds. Fresh MCP/CLI planning publishes scoped measured Safari profile;12 affected planner checks pass.",
+          "next": "Extend a useful resource boundary or app process tree without repeating this source; no five-minute, GPU/driver, safe upper capacity or P80 claim.",
+          "anchor": "seventy-first-pass",
+          "updated_at": "2026-10-09T17:31:04-04:00"
         },
         {
           "id": "sparse-display-writer",
@@ -536,40 +536,40 @@
           "title": "Centralize version-scoped app observations",
           "status": "partial",
           "scope": "Shared reported facts, exact environment keys, expiry and conflicting evidence.",
-          "evidence": "Prior exact version/surface facts retained. Stage69 one authored-app1.0/build68/25F80/native-CUA versionunknown post-close AX read relaunch failure fact is independently read back with1day expiry. Exact old/new process and native-window observations support scope. This is one runtime/app case, not universal behavior, automatic learning or authenticated actor proof.",
-          "next": "Use version/surface-scoped facts in ordinary consumers; requalify changed app/provider boundaries without duplicating settled observations.",
-          "anchor": "sixty-ninth-pass",
-          "updated_at": "2026-10-09T16:47:48-04:00"
+          "evidence": "Prior exact version/surface facts retained. Stage69 one authored-app1.0/build68/25F80/native-CUA versionunknown post-close AX read relaunch failure fact is independently read back with1day expiry. Exact old/new process and native-window observations support scope. This is one runtime/app case, not universal behavior, automatic learning or authenticated actor proof. Stage71 three exact Safari26.5/build21624.2.5.11.4/macOS25F80/native-CUA-version-unknown facts independently read back: real select/root capture, fixed-crop anchor within1px, and failure of geometric containment to imply visible app. Reported single-episode/expiry keys retained.",
+          "next": "Use scoped daily-app facts in consumers and qualify changed dimensions; retain negative content-presence evidence and unknown provider version.",
+          "anchor": "seventy-first-pass",
+          "updated_at": "2026-10-09T17:31:04-04:00"
         },
         {
           "id": "requalification",
           "title": "Build maintained app lanes and breadth-first requalification",
           "status": "partial",
           "scope": "Baseline ingestion for stable daily apps and updates when app/provider/OS behavior changes.",
-          "evidence": "Stage53 targeted TextEdit lane prepares fresh owned document through native display-placement menu, captures typeface overflow for both app child settings, and preserves old off-Space -3811. Context/nested coverage remains unknown; no universal app certification.",
-          "next": "Extend useful daily-app transient lanes and version-triggered checks using source-linked evidence; planner alone does not execute canaries.",
-          "anchor": "fifty-third-pass",
-          "updated_at": "2026-10-09T11:32:16-04:00"
+          "evidence": "Stage53 targeted TextEdit lane prepares fresh owned document through native display-placement menu, captures typeface overflow for both app child settings, and preserves old off-Space -3811. Context/nested coverage remains unknown; no universal app certification. Stage71 adds documented Safari native-select/change/dismiss/editing-root depth lane with actual decoded frames, continuous markers, timestamp proofs and black-tail failure. Shared exact-environment facts read back. Nested/overflow variants remain unqualified; no broad update churn or automatic canary claim.",
+          "next": "Extend the remaining useful nested/overflow daily-app variants; use exact app/provider keys and source-linked canaries without duplicating settled tests.",
+          "anchor": "seventy-first-pass",
+          "updated_at": "2026-10-09T17:31:04-04:00"
         },
         {
           "id": "workflow-audit",
           "title": "Verify the quality of recent shared computer-use workflows",
           "status": "partial",
           "scope": "Assess delivered actions, verification and cleanup rather than tool-call counts.",
-          "evidence": "Historical stage63 diagnosis retained. Stage69 targeted actual workflow finds post-close bound AX read relaunching a new PID/window. Three typed receipts/outcomes preserve verified original-process exit with partial first-close cleanup; separate exact new PID/window cleanup completed. Scoped audit uncovered0 covers stored scopes only, not all reads or implicit effects. Owned PIDs absent, sessionclosed and nativeidle.",
-          "next": "Extend ordinary native outcome coverage and diagnose specific gaps from independent observations; use inventory/process checks after final close, preserve partial outcomes and avoid broad historical rescans.",
-          "anchor": "sixty-ninth-pass",
-          "updated_at": "2026-10-09T16:47:47-04:00"
+          "evidence": "Historical stage63 diagnosis retained. Stage69 targeted actual workflow finds post-close bound AX read relaunching a new PID/window. Three typed receipts/outcomes preserve verified original-process exit with partial first-close cleanup; separate exact new PID/window cleanup completed. Scoped audit uncovered0 covers stored scopes only, not all reads or implicit effects. Owned PIDs absent, sessionclosed and nativeidle. Stage71 six stored scopes each have read-back typed outcomes:3 verified/2 failed/1 unknown, zero uncovered. Protected menu episode stays failed for expiry/overrun; native Chrome timeout and unknown shortcut preserved. Independent later inventory finds owned Safari window absent/StartPage present without close replay; actor/time unknown. Audit covers stored scopes only.",
+          "next": "Improve current provider dispatch/observation coverage and resolve specific failures; do not grade unbracketed operations from this six-scope audit.",
+          "anchor": "seventy-first-pass",
+          "updated_at": "2026-10-09T17:31:04-04:00"
         },
         {
           "id": "receipt-integration",
           "title": "Improve automatic receipt coverage across providers",
           "status": "partial",
           "scope": "Capture durable operation evidence for native and browser actions.",
-          "evidence": "Stage69 resolves the stage68 pre-launch gap: actual declared launch begins before native getApp, independently observed PID remains separate. Shared receipt/outcome/source-context readers preserve resolution; legacy immutable IDs unchanged. Three actual terminal scopes/outcomes read back; first close cleanup remains partial after a provider read relaunched the app. Separate observed cleanup completed. No input capture, source backfill, authenticated actor or universal automatic native interception. Stage70 ordinary MCP scopes retain observed and declared identities; menu episode expired and one stale-index batch required fresh-state correction. Loaded adapter adoption remains unknown. Final owned-window close submitted once, independent inventory still reports window13728; cleanup unverified. Session closed/native idle.",
-          "next": "After resume, verify stored stage70 receipts and record separate outcomes, preserving expired scope and unknown close; no operation replay.",
-          "anchor": "seventieth-pass",
-          "updated_at": "2026-10-09T17:08:48-04:00"
+          "evidence": "Stage69 resolves the stage68 pre-launch gap: actual declared launch begins before native getApp, independently observed PID remains separate. Shared receipt/outcome/source-context readers preserve resolution; legacy immutable IDs unchanged. Three actual terminal scopes/outcomes read back; first close cleanup remains partial after a provider read relaunched the app. Separate observed cleanup completed. No input capture, source backfill, authenticated actor or universal automatic native interception. Stage70 ordinary MCP scopes retain observed and declared identities; menu episode expired and one stale-index batch required fresh-state correction. Loaded adapter adoption remains unknown. Final owned-window close submitted once, independent inventory still reports window13728; cleanup unverified. Session closed/native idle. Stage71 actual ordinary-tool scopes imported with six outcomes/readbacks; failed reservation and unknown Chrome shortcut preserved. Declared target stays separate. Later independent owned-window absence settles current cleanup without retrospective stamps or replay. Fresh owned MCP0.16 publishes new profile; existing ordinary loaded adapter version/replay still unknown.",
+          "next": "Qualify ordinary consumer adoption and remaining provider interception/read side effects; preserve settled source and typed outcomes.",
+          "anchor": "seventy-first-pass",
+          "updated_at": "2026-10-09T17:31:04-04:00"
         },
         {
           "id": "shared-baseline-plan",
@@ -612,10 +612,10 @@
           "title": "Finalize production modes and interruption expectations",
           "status": "partial",
           "scope": "Clear background/cooperative/reserved-window expectations with input available and recovery choices.",
-          "evidence": "Production expectations retained. Stage65 real human notification click writes initially empty private file; model-free7s watcher observes after5.985s and one native self-message reaches this active chat.60s menu batch completes within2min; input remains available, duplicate clicks cannot extend reservation. Active-session delivery only; no physical-input/sleep/permission authorization or unattended wake claim. Stage67 explicit fixed-crop window/app/display planning preserves no automatic following/expansion, unrelated display pixels and partial-coverage uncertainty. Actual disjoint cross-display crop refused. Planning creates no input/display lock or reservation. Stage68 real notification callback/private7s watcher emits one active-chat signal; new40s capture and owned close receipt117.289s after callback wall stamp fit reported120s. Input available, no duplicate extension. Final native-clock helper is synthetically checked only; human click/sleep/unattended wake through that revision remain unqualified. Stage70 final native-clock helper has an actual human click, model-free watcher, exactly-once prepared start and active-chat delivery. First reservation expired during preparation without a take; second final dismissal exceeded120s (observed138.669s) and action scope expired. Input remained available. Deadline enforcement and cleanup budget are not yet qualified.",
-          "next": "Add per-action reservation deadline checks and reserved cleanup budget; qualify a bounded batch without replaying this evidence.",
-          "anchor": "seventieth-pass",
-          "updated_at": "2026-10-09T17:08:48-04:00"
+          "evidence": "Production expectations retained. Stage65 real human notification click writes initially empty private file; model-free7s watcher observes after5.985s and one native self-message reaches this active chat.60s menu batch completes within2min; input remains available, duplicate clicks cannot extend reservation. Active-session delivery only; no physical-input/sleep/permission authorization or unattended wake claim. Stage67 explicit fixed-crop window/app/display planning preserves no automatic following/expansion, unrelated display pixels and partial-coverage uncertainty. Actual disjoint cross-display crop refused. Planning creates no input/display lock or reservation. Stage68 real notification callback/private7s watcher emits one active-chat signal; new40s capture and owned close receipt117.289s after callback wall stamp fit reported120s. Input available, no duplicate extension. Final native-clock helper is synthetically checked only; human click/sleep/unattended wake through that revision remain unqualified. Stage70 final native-clock helper has an actual human click, model-free watcher, exactly-once prepared start and active-chat delivery. First reservation expired during preparation without a take; second final dismissal exceeded120s (observed138.669s) and action scope expired. Input remained available. Deadline enforcement and cleanup budget are not yet qualified. Stage71 production-click check reserves cleanup and rechecks action budget;9 boundary controls pass, including stage70 overrun, stale state, duplicate nonextension and unsafe clock/files. Actual old clicked signal refused without UI. Snapshot admission does not cancel running operations or establish protected live batch success. Taylor explicitly grants two hours AFK access and requests no human-dependent operations; physical-input offer declined for now.",
+          "next": "Qualify a protected live batch only when a real reservation is available; use separate explicit AFK authorization now. Keep per-action budgets, cleanup reserve and no input locking.",
+          "anchor": "seventy-first-pass",
+          "updated_at": "2026-10-09T17:31:04-04:00"
         },
         {
           "id": "maintenance-fence",
@@ -2746,6 +2746,76 @@
       "from": "active",
       "to": "paused",
       "note": "Paused at Taylor’s request. Stage70 takes saved:75s window and252.068s app crop; server/sampler terminal, session closed, native idle. Pixel/mux/map/resource verification remains pending. Two-minute reservation overrun and expired scope preserved. Owned Safari close unverified; inert fixture remains. Reuse footage on resume."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T17:20:07-04:00",
+      "from": "paused",
+      "to": "active",
+      "note": "Resumed stage70 retained-footage verification. Verify actual mux/source coverage, decoded Safari popup pixels, fixed-crop geometry and longer resource observations before another capture. Reservation overrun and unknown owned-window close remain preserved."
+    },
+    {
+      "kind": "item",
+      "id": "fitted-child-mapping",
+      "at": "2026-10-09T17:31:04-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage64 first retained real TextEdit fitted-frame spatial candidate:2 parent-toolbar+1 child-selection anchors score.950/.902/.898, spread.303px. Four withheld native viewport edges <=.803px; two glyph supports >=98.76% within1px, brightness differs. New bounded quarter_phase helper option and21 checks pass; default actual JSON unchanged. Lower child.7845 still refuses; real wrong-phase child score1/margin0/disagreement refuses despite parent matches. Production fitted guard/legacy clock uncertainty retained; no generic or continuous map release. Stage65 retained metadata distinguishes nominal Retina scaling0.5 from additional fitting0.710145 relative to baseline1 in the earlier child episode. Scale equality alone cannot establish desktop origin; analytical spare-height counterexample has identical scale and320px origin ambiguity. Diagnostic only; production guard unchanged. Stage68 actual40s five-direction source:1834 exact mux/journal stamps. Right/left identical full geometry with134px parent displacement; above/below identical geometry with106px displacement. Metadata-only inverse is disproven in this scope. Fixed app crop861 stable packets across seven phases passes markers within1px; primary753 stable packets retains right-child oracle1.333px failure against1.25px. Service seven primary maps guarded/seven backup maps available;1570 common-clock boundaries. Owned fixture absent/sessionclosed/native unchanged. Stage70 Safari native select/change/dismiss and editing root observed and captured as paired window/app takes. Catalog popup candidates all fit within the parent; this is not an overflow test. Decoded pixels, exact paired intervals and continuous fixed-crop coordinates remain unverified. Stage71 verifies retained Safari source:8,900 exact mux/journal stamps;6,684 consecutive app packets before229.911662823s preserve anchor within1px. Two selected menu rows match across sources within1px. Service11 app maps available/4 primary maps guarded,8,900 whole-interval boundaries.35 final app packets lose anchor; later pixels black despite contained canvas. Actual menus fit parent; isolated guard unchanged."
+    },
+    {
+      "kind": "item",
+      "id": "resource-admission",
+      "at": "2026-10-09T17:31:04-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage56 original90s pair104 observations: recorder peak53.52MiB, p50 intervalCPU6.94%/peak15.87%; TextEdit134.66MiB, host pressure1/2, no guard. Follow-up unmeasured. Prior GPU/longer profiles retained; no causal encoder/GPU/capacity/P80 proof. Stage61 one whole90 metadata CLI request evaluates1769 boundary segments in0.18s wall/maxRSS79.44MiB. Summary default4096/max16384 boundaries, over-budget refusal verified; these bounds are not capacity or P80 evidence. Stage66 measured75s useful30fps three-lane motion/movement/cover profile:90 process/host samples, recorder RSS peak463.06MiB, p50 intervalCPU8.90%/peak103.64% of one core; later settled RSS30.34MiB. Motion fixture78.34MiB and cover66.25MiB peaks; fresh host pressure2/thermal0, no guard trigger.5719 actual mux packets,40,839,659 video+4,048,850 journal bytes. One concurrent-host short take, no baseline delta/GPU/P80/long-duration capacity claim. Stage67 fresh0.15.0/CLI publishes measured three-source profile with exact source bytes/rows/packets, explicit crop/width/codec, per-source duration scenario and reader/journal flags. Live disjoint crop refused; configured slot shortfall refuses without reservation.46 affected and final12 planner checks pass; default fields/actual retained costs preserved. Capacity/GPU/P80 remain open. Stage70 saved75s window H264 and252.068s fixed app-crop HEVC (stopped for user pause before planned300s).250 resource observations retained; no guard fired. Terminal counters and finalized journals exist, but actual mux/source coverage and resource acceptance remain unverified. Stage71 all8,900 packets decode and exactly match journals.250 samples: recorder peak38.73MiB, median intervalCPU2.98%/peak19.81% of one core, host pressure2. Safari parent only; WebContent/GPU/thermal unmeasured.75s H264 window plus about252.07s HEVC app, stopped before300s; mux tail252.561567657s includes holds. Fresh MCP/CLI planning publishes scoped measured Safari profile;12 affected planner checks pass."
+    },
+    {
+      "kind": "item",
+      "id": "app-facts",
+      "at": "2026-10-09T17:31:04-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Prior exact version/surface facts retained. Stage69 one authored-app1.0/build68/25F80/native-CUA versionunknown post-close AX read relaunch failure fact is independently read back with1day expiry. Exact old/new process and native-window observations support scope. This is one runtime/app case, not universal behavior, automatic learning or authenticated actor proof. Stage71 three exact Safari26.5/build21624.2.5.11.4/macOS25F80/native-CUA-version-unknown facts independently read back: real select/root capture, fixed-crop anchor within1px, and failure of geometric containment to imply visible app. Reported single-episode/expiry keys retained."
+    },
+    {
+      "kind": "item",
+      "id": "requalification",
+      "at": "2026-10-09T17:31:04-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage53 targeted TextEdit lane prepares fresh owned document through native display-placement menu, captures typeface overflow for both app child settings, and preserves old off-Space -3811. Context/nested coverage remains unknown; no universal app certification. Stage71 adds documented Safari native-select/change/dismiss/editing-root depth lane with actual decoded frames, continuous markers, timestamp proofs and black-tail failure. Shared exact-environment facts read back. Nested/overflow variants remain unqualified; no broad update churn or automatic canary claim."
+    },
+    {
+      "kind": "item",
+      "id": "workflow-audit",
+      "at": "2026-10-09T17:31:04-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Historical stage63 diagnosis retained. Stage69 targeted actual workflow finds post-close bound AX read relaunching a new PID/window. Three typed receipts/outcomes preserve verified original-process exit with partial first-close cleanup; separate exact new PID/window cleanup completed. Scoped audit uncovered0 covers stored scopes only, not all reads or implicit effects. Owned PIDs absent, sessionclosed and nativeidle. Stage71 six stored scopes each have read-back typed outcomes:3 verified/2 failed/1 unknown, zero uncovered. Protected menu episode stays failed for expiry/overrun; native Chrome timeout and unknown shortcut preserved. Independent later inventory finds owned Safari window absent/StartPage present without close replay; actor/time unknown. Audit covers stored scopes only."
+    },
+    {
+      "kind": "item",
+      "id": "receipt-integration",
+      "at": "2026-10-09T17:31:04-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage69 resolves the stage68 pre-launch gap: actual declared launch begins before native getApp, independently observed PID remains separate. Shared receipt/outcome/source-context readers preserve resolution; legacy immutable IDs unchanged. Three actual terminal scopes/outcomes read back; first close cleanup remains partial after a provider read relaunched the app. Separate observed cleanup completed. No input capture, source backfill, authenticated actor or universal automatic native interception. Stage70 ordinary MCP scopes retain observed and declared identities; menu episode expired and one stale-index batch required fresh-state correction. Loaded adapter adoption remains unknown. Final owned-window close submitted once, independent inventory still reports window13728; cleanup unverified. Session closed/native idle. Stage71 actual ordinary-tool scopes imported with six outcomes/readbacks; failed reservation and unknown Chrome shortcut preserved. Declared target stays separate. Later independent owned-window absence settles current cleanup without retrospective stamps or replay. Fresh owned MCP0.16 publishes new profile; existing ordinary loaded adapter version/replay still unknown."
+    },
+    {
+      "kind": "item",
+      "id": "human-expectations",
+      "at": "2026-10-09T17:31:04-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Production expectations retained. Stage65 real human notification click writes initially empty private file; model-free7s watcher observes after5.985s and one native self-message reaches this active chat.60s menu batch completes within2min; input remains available, duplicate clicks cannot extend reservation. Active-session delivery only; no physical-input/sleep/permission authorization or unattended wake claim. Stage67 explicit fixed-crop window/app/display planning preserves no automatic following/expansion, unrelated display pixels and partial-coverage uncertainty. Actual disjoint cross-display crop refused. Planning creates no input/display lock or reservation. Stage68 real notification callback/private7s watcher emits one active-chat signal; new40s capture and owned close receipt117.289s after callback wall stamp fit reported120s. Input available, no duplicate extension. Final native-clock helper is synthetically checked only; human click/sleep/unattended wake through that revision remain unqualified. Stage70 final native-clock helper has an actual human click, model-free watcher, exactly-once prepared start and active-chat delivery. First reservation expired during preparation without a take; second final dismissal exceeded120s (observed138.669s) and action scope expired. Input remained available. Deadline enforcement and cleanup budget are not yet qualified. Stage71 production-click check reserves cleanup and rechecks action budget;9 boundary controls pass, including stage70 overrun, stale state, duplicate nonextension and unsafe clock/files. Actual old clicked signal refused without UI. Snapshot admission does not cancel running operations or establish protected live batch success. Taylor explicitly grants two hours AFK access and requests no human-dependent operations; physical-input offer declined for now."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T17:31:04-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Stage71 retained Safari verification complete:8,900 exact mux joins,6,684 marker packets within1px, real menus and a black app tail preserved. Six typed outcomes/three facts read back. Next self-contained nested/overflow and agent-input checks within Taylor’s two-hour AFK interval. Physical/human approval/sleep gates deferred; no blocking prompts."
     }
   ]
 }

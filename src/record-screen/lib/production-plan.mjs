@@ -226,6 +226,31 @@ export function planProduction(args, status, windowResult = { windows: [], total
     resource_join: 'Observer starts during the take; no pre-take baseline or incremental memory attribution. Host workload concurrent; requested fps differs from actual packet cadence.',
   }
   const tripleDifferences = []
+  const measuredSafariAppProfile = {
+    qualification: 'One stationary Safari fixture with native select and editing menus. App HEVC continued after the75s window H264 take; stopped early for a user pause. Not a five-minute completion, upper capacity, GPU, full app process-tree or P80 measurement.',
+    engine_build: '7c0f81e9d71f', os_build: '25F80', app_version: '26.5', app_build: '21624.2.5.11.4',
+    display_scale: 2, fps: 30, input_enabled: false, show_cursor: false,
+    sources: {
+      window: { codec: 'h264', width: 1324, height: 948, requested_duration_s: 75,
+        exact_muxed_packets: 2181, video_bytes: 1957764, journal_bytes: 1370995,
+        actual_mux_end_ns: '75006785948' },
+      app: { codec: 'hevc', width: 1512, height: 982, requested_duration_s: 300,
+        stopped_at_about_s: 252.07, exact_muxed_packets: 6719, video_bytes: 5973459,
+        journal_bytes: 4320283, actual_mux_end_ns: '252561567657' },
+    },
+    resource_samples: 250, recorder_peak_rss_mib: 38.734375,
+    recorder_interval_cpu_percent_p50: 2.9761471714775514,
+    recorder_interval_cpu_percent_max: 19.813472659533236,
+    cpu_percent_basis: 'One core; cumulative ps interval observations, not encoder/GPU attribution',
+    source_journal_rows_lost: 0, capacity_qualified: false, representative_for_requested_app: false,
+    content_loss: { first_absent_anchor_ns: '229911662823', absent_packets: 35,
+      preceding_anchor_packets: 6684, preceding_max_edge_error_px: 1,
+      backup_canvas_contained_after_content_loss: true,
+      qualification: 'Authored anchor disappears and later samples are black while the affine remains contained. Geometric containment and encoder finalization do not prove visible app content.' },
+    resource_join: 'Concurrent host pressure2. Safari parent sampled; WebContent, GPU/driver and thermal unmeasured. No pre-take baseline or incremental attribution.',
+    media_duration: 'Mux packet durations include held tails and differ from controller wall duration. Preserve exact packet/source clocks; no fresh capture or completion guarantee follows from a padded tail.',
+    evidence: evidencePath, evidence_section: 'Seventy-first pass',
+  }
   if (!triple) tripleDifferences.push('different stream configuration')
   if ((a.codec ?? 'h264') !== measuredPointTripleProfile.codec) tripleDifferences.push('different codec')
   for (const k of ['fps', 'duration_s', 'input_enabled', 'show_cursor']) if (a[k] !== (k === 'duration_s' ? measuredPointTripleProfile.requested_duration_s : measuredPointTripleProfile[k])) tripleDifferences.push(`different ${k}`)
@@ -283,7 +308,7 @@ export function planProduction(args, status, windowResult = { windows: [], total
       app_drawn_pointer: 'app content remains; capture pointer hiding does not remove it',
       text_caret: 'app content remains; capture pointer hiding does not remove it',
     },
-    resource_guidance: { unfinished_recordings: status?.capture_health?.recordings?.unfinished ?? null, quarantined_recordings: status?.capture_health?.recordings?.quarantined ?? null, configured_max_concurrent: status?.capture_health?.recordings?.max_concurrent ?? null, configured_limit_is_capacity: false, measured_profile: measuredProfile, measured_single_window_profile: measuredSingleWindowProfile, measured_retina_pair_profile: measuredRetinaPairProfile, measured_point_triple_profile: measuredPointTripleProfile, profile_differences: profileDifferences, retina_pair_profile_differences: retinaDifferences, point_triple_profile_differences: tripleDifferences, storage_guidance: storageGuidance, duration_p80_s: null },
+    resource_guidance: { unfinished_recordings: status?.capture_health?.recordings?.unfinished ?? null, quarantined_recordings: status?.capture_health?.recordings?.quarantined ?? null, configured_max_concurrent: status?.capture_health?.recordings?.max_concurrent ?? null, configured_limit_is_capacity: false, measured_profile: measuredProfile, measured_single_window_profile: measuredSingleWindowProfile, measured_retina_pair_profile: measuredRetinaPairProfile, measured_point_triple_profile: measuredPointTripleProfile, measured_safari_app_profile: measuredSafariAppProfile, profile_differences: profileDifferences, retina_pair_profile_differences: retinaDifferences, point_triple_profile_differences: tripleDifferences, storage_guidance: storageGuidance, duration_p80_s: null },
     recovery: ['Mark and preserve the disrupted interval plus exact journals', 'Trim or select independently verified alternative source coverage', 'Reshoot from an application checkpoint when replayable; preserve unrecoverable live gaps'],
     next: 'Verify actual native target and encoded source pixels, consult shared exact-environment facts, then explicitly schedule the chosen sources. This plan starts no recording and authorizes no UI.',
   }

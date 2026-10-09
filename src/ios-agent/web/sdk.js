@@ -24,7 +24,7 @@
   document.documentElement.append(glow);
   function clear() { lease = null; deadline = 0; glow.style.display = 'none'; const held=wakeLock;wakeLock=null;void held?.release().catch(()=>{}); }
   const timer = setInterval(() => { if (deadline && clock() > deadline) clear(); }, 250);
-  const browser = /iPhone|iPad/.test(navigator.userAgent) ? (/CriOS/.test(navigator.userAgent) ? 'ios-chrome' : 'ios-safari') : (/AppleWebKit/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent) ? 'desktop-webkit' : 'desktop-chromium');
+  const browser = /iPhone|iPad/.test(navigator.userAgent) ? (/CriOS/.test(navigator.userAgent) ? 'ios-chrome' : 'ios-safari') : (/Android/.test(navigator.userAgent)&&/Chrome/.test(navigator.userAgent)?'android-chrome':(/AppleWebKit/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent) ? 'desktop-webkit' : 'desktop-chromium'));
   const feedback = () => ({...identity, boot, visible: !document.hidden, ready: document.readyState !== 'loading', browser, path: location.pathname, indicator: !!lease});
   async function post(body) {
     const abort = new AbortController(), timeout = setTimeout(() => abort.abort(), 6000);
@@ -125,6 +125,24 @@
     } catch { connected=false;ring({kind:'bridge',code:'transport_unavailable'}); }
     if (!stopped) setTimeout(loop, lease?300:2000);
   }
+  // Numeric diagnostics only: never resource names/URLs or attribution nodes.
+  const longTaskSupport=!!window.PerformanceObserver?.supportedEntryTypes?.includes('longtask');
+  const longTasks={count:0,totalDurationMs:0,maxDurationMs:0};let taskObserver;
+  if(longTaskSupport)try{taskObserver=new PerformanceObserver(list=>{for(const entry of list.getEntries()){if(!Number.isFinite(entry.duration))continue;longTasks.count++;longTasks.totalDurationMs+=entry.duration;longTasks.maxDurationMs=Math.max(longTasks.maxDurationMs,entry.duration);}});taskObserver.observe({type:'longtask',buffered:true});}catch{taskObserver=undefined;}
+  const finite=value=>typeof value==='number'&&Number.isFinite(value)?Math.round(value):null;
+  domains.set('performance',()=>{
+    const nav=performance.getEntriesByType('navigation')[0],resources=performance.getEntriesByType('resource').slice(-1000);
+    const paints=performance.getEntriesByType('paint');const paint=name=>finite(paints.find(p=>p.name===name)?.startTime);
+    let resourceDuration=0,transferBytes=0,knownTransfer=0;
+    for(const r of resources){if(Number.isFinite(r.duration))resourceDuration+=r.duration;if(Number.isFinite(r.transferSize)){transferBytes+=r.transferSize;knownTransfer++;}}
+    return {scope:'this document; at most last 1000 resource entries; overlapping durations are not elapsed time',
+      navigation:nav?{type:['navigate','reload','back_forward','prerender'].includes(nav.type)?nav.type:'other',domInteractiveMs:nav.domInteractive>0?finite(nav.domInteractive):null,domCompleteMs:nav.domComplete>0?finite(nav.domComplete):null,loadEndMs:nav.loadEventEnd>0?finite(nav.loadEventEnd):null}:null,
+      paint:{firstPaintMs:paint('first-paint'),firstContentfulPaintMs:paint('first-contentful-paint')},
+      resources:{observed:resources.length,totalDurationMs:finite(resourceDuration),transferBytes:knownTransfer?finite(transferBytes):null,entriesWithTransferSize:knownTransfer},
+      longTasks:{supported:!!taskObserver,count:taskObserver?longTasks.count:null,totalDurationMs:taskObserver?finite(longTasks.totalDurationMs):null,maxDurationMs:taskObserver?finite(longTasks.maxDurationMs):null},
+      memory:{jsHeapBytes:finite(performance.memory?.usedJSHeapSize),supported:Number.isFinite(performance.memory?.usedJSHeapSize)},
+      viewport:{width:innerWidth,height:innerHeight,scale:visualViewport?.scale??null},agentRequestsIncluded:true,contentFree:true};
+  });
   const originalFetch=window.fetch;
   window.fetch=function(...args) {
     const start=clock();
@@ -134,7 +152,7 @@
   };
   // Metadata only: no URLs, payloads, SDP, addresses, identifiers or audio.
   const originalWS=window.WebSocket, originalRTC=window.RTCPeerConnection;
-  const sockets=new Set(), peers=new Set(), tracks=new Set();
+  const sockets=new Set(), peers=new Set(), tracks=new Set(), counterRefs=new WeakMap();let nextCounterRef=0;
   const mediaRequests={pending:0,acquired:0,failed:0};
   const originalGUM=navigator.mediaDevices?.getUserMedia;
   const listeners=[];
@@ -161,7 +179,8 @@
     const audio=[],connections=[],transports=[];
     for(const pc of peers) {
       if(pc.signalingState==='closed')continue;connections.push({state:pc.connectionState,iceState:pc.iceConnectionState,signalingState:pc.signalingState});let reports;try{reports=await pc.getStats();}catch{continue;}const numeric=['packetsSent','packetsReceived','packetsLost','bytesSent','bytesReceived','jitter','totalAudioEnergy','totalSamplesDuration','concealedSamples','silentConcealedSamples','jitterBufferDelay','jitterBufferEmittedCount','roundTripTime'];
-      reports.forEach(r=>{if(r.type==='transport'){const sample={type:r.type};for(const k of ['bytesSent','bytesReceived','packetsSent','packetsReceived'])if(typeof r[k]==='number'&&Number.isFinite(r[k]))sample[k]=r[k];transports.push(sample);}if(r.kind==='audio'||r.mediaType==='audio'){const sample={type:r.type};for(const k of numeric)if(typeof r[k]==='number'&&Number.isFinite(r[k]))sample[k]=r[k];audio.push(sample);}});
+      let refs=counterRefs.get(pc);if(!refs){refs=new Map();counterRefs.set(pc,refs);}if(refs.size>128)refs.clear();
+      reports.forEach(r=>{if(r.type==='transport'){const sample={type:r.type};for(const k of ['bytesSent','bytesReceived','packetsSent','packetsReceived'])if(typeof r[k]==='number'&&Number.isFinite(r[k]))sample[k]=r[k];transports.push(sample);}if(r.kind==='audio'||r.mediaType==='audio'){if(!refs.has(r.id))refs.set(r.id,++nextCounterRef);const sample={type:r.type,counterRef:refs.get(r.id)};for(const k of numeric)if(typeof r[k]==='number'&&Number.isFinite(r[k]))sample[k]=r[k];audio.push(sample);}});
     }
     const visibleTracks=new Set(tracks);for(const element of document.querySelectorAll('video,audio'))if(element.srcObject instanceof MediaStream)for(const track of element.srcObject.getTracks())visibleTracks.add(track);
     return {requests:{...mediaRequests},coverage:'peer/socket objects created after adapter boot; tracks also discovered through DOM media',sockets:[...sockets],tracks:[...visibleTracks].map(t=>({kind:t.kind,enabled:t.enabled,muted:t.muted,readyState:t.readyState})),audio,connections,transports};
@@ -178,6 +197,6 @@
   const onHide=()=>{clear();if(identity)navigator.sendBeacon(endpoint,new Blob([JSON.stringify({op:'poll',...feedback(),visible:false})],{type:'application/json'}));};
   addEventListener('error',onError);addEventListener('unhandledrejection',onRejection);addEventListener('visibilitychange',onVisibility);addEventListener('pagehide',onHide);
   const installed={fetch:window.fetch,ws:window.WebSocket,rtc:window.RTCPeerConnection,gum:navigator.mediaDevices?.getUserMedia,xhrOpen:XMLHttpRequest.prototype.open,xhrSend:XMLHttpRequest.prototype.send};
-  window.__iosWebAgent={version,register:(key,read)=>{if(!/^[a-z][a-z0-9-]{0,63}$/.test(key)||typeof read!=='function')throw new Error('domain_contract');domains.set(key,read);return()=>domains.delete(key);},status:()=>({version,browser,page:identity?.page,connected:!!identity&&connected,owned:!!lease,indicator:glow.style.display!=='none'}),stop:()=>{sessionStorage.removeItem('ios-agent-page');stopped=true;onHide();clearInterval(timer);glow.remove();if(Element.prototype.attachShadow===installedAttachShadow)Element.prototype.attachShadow=originalAttachShadow;if(window.fetch===installed.fetch)window.fetch=originalFetch;if(window.WebSocket===installed.ws)window.WebSocket=originalWS;if(window.RTCPeerConnection===installed.rtc)window.RTCPeerConnection=originalRTC;if(originalGUM&&navigator.mediaDevices.getUserMedia===installed.gum)navigator.mediaDevices.getUserMedia=originalGUM;if(XMLHttpRequest.prototype.open===installed.xhrOpen)XMLHttpRequest.prototype.open=xhrOpen;if(XMLHttpRequest.prototype.send===installed.xhrSend)XMLHttpRequest.prototype.send=xhrSend;listeners.forEach(remove=>remove());for(const level of Object.keys(originalConsole))if(console[level]===installedConsole[level])console[level]=originalConsole[level];removeEventListener('error',onError);removeEventListener('unhandledrejection',onRejection);removeEventListener('visibilitychange',onVisibility);removeEventListener('pagehide',onHide);delete window.__iosWebAgent;}};
+  window.__iosWebAgent={version,register:(key,read)=>{if(!/^[a-z][a-z0-9-]{0,63}$/.test(key)||typeof read!=='function')throw new Error('domain_contract');domains.set(key,read);return()=>domains.delete(key);},status:()=>({version,browser,page:identity?.page,connected:!!identity&&connected,owned:!!lease,indicator:glow.style.display!=='none'}),stop:()=>{sessionStorage.removeItem('ios-agent-page');stopped=true;onHide();clearInterval(timer);taskObserver?.disconnect();glow.remove();if(Element.prototype.attachShadow===installedAttachShadow)Element.prototype.attachShadow=originalAttachShadow;if(window.fetch===installed.fetch)window.fetch=originalFetch;if(window.WebSocket===installed.ws)window.WebSocket=originalWS;if(window.RTCPeerConnection===installed.rtc)window.RTCPeerConnection=originalRTC;if(originalGUM&&navigator.mediaDevices.getUserMedia===installed.gum)navigator.mediaDevices.getUserMedia=originalGUM;if(XMLHttpRequest.prototype.open===installed.xhrOpen)XMLHttpRequest.prototype.open=xhrOpen;if(XMLHttpRequest.prototype.send===installed.xhrSend)XMLHttpRequest.prototype.send=xhrSend;listeners.forEach(remove=>remove());for(const level of Object.keys(originalConsole))if(console[level]===installedConsole[level])console[level]=originalConsole[level];removeEventListener('error',onError);removeEventListener('unhandledrejection',onRejection);removeEventListener('visibilitychange',onVisibility);removeEventListener('pagehide',onHide);delete window.__iosWebAgent;}};
   void loop();
 })();

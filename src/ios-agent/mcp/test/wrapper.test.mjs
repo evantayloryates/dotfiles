@@ -278,3 +278,18 @@ test('MCP scopes DOM inspection and rejects unrelated scope before dispatch',asy
  r=await client.callTool({name:'ios_web_inspect',arguments:{sessionId:'a'.repeat(32),kind:'events',text:'Save'}});assert.equal(r.structuredContent.reason,'snapshot_scope_only');assert.equal(seen.length,1);
  }finally{await f.backend.close();await client.close();await server.close();fs.rmSync(f.state,{recursive:true})}
 });
+
+
+test('browser action schema exposes fields and refuses malformed input before admission',async()=>{
+ const f=fixture(),seen=[];f.backend.webAction=async args=>{seen.push(args);return {ok:true}};const{client,server}=await clientFor(f);
+ try{
+  const tools=await client.listTools();const schema=tools.tools.find(t=>t.name==='ios_web_action').inputSchema.properties.args;
+  assert(schema.properties.snapshot&&schema.properties.target&&schema.properties.text&&schema.properties.expression);
+  for(const args of [{action:'click',args:{}},{action:'fill',args:{snapshot:'fresh',target:'1'}},{action:'evaluate',args:{}},{action:'scroll',args:{snapshot:'fresh',target:'1',expression:'no'}}]){
+   const r=await client.callTool({name:'ios_web_action',arguments:{sessionId:'a'.repeat(32),...args}});assert(r.isError);assert.equal(r.structuredContent.actionSent,false);
+  }
+  assert.equal(seen.length,0);
+  const extra=await client.callTool({name:'ios_web_action',arguments:{sessionId:'a'.repeat(32),action:'click',args:{snapshot:'fresh',target:'1',unexpected:'no'}}});assert(extra.isError);assert.equal(seen.length,0);
+  const valid=await client.callTool({name:'ios_web_action',arguments:{sessionId:'a'.repeat(32),action:'fill',args:{snapshot:'fresh',target:'1',text:''}}});assert(!valid.isError);assert.equal(seen.length,1);assert.equal(seen[0].args.text,'');
+ }finally{await f.backend.close();await client.close();await server.close();fs.rmSync(f.state,{recursive:true})}
+});

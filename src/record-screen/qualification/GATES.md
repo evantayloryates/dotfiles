@@ -3156,3 +3156,38 @@ transcript bodies were not imported into this qualification bundle.
 The task-owned native fixture and browser fixture tab were closed; its
 loopback server and probes stopped. Other Chrome tabs/windows were preserved.
 Final engine/recording/process checks are recorded with the private results.
+
+## Seventy-first pass: retained Safari evidence and production budgets
+
+Retained stage70 source now verified:8,900 exact mux/journal joins and both full
+sequential decodes. Real native selects appear in both sources; selection change,
+editing root and dismissal appear in the longer app take. Two paired selected-row
+edges agree within1px. All6,684 consecutive app marker packets before
+229.911662823s agree within1px;35 later packets lack it and sampled tail is black.
+The whole252.068s paired summary still reports backup canvas containment over
+8,900 boundaries. This is a negative control for confusing geometry with content.
+The isolated origin guard remains; no overflow or nested menu proof.
+
+250 resource observations: recorder peak38.73MiB, median interval CPU2.98% and
+peak19.81% of one core. Safari parent only; WebContent/GPU/thermal unmeasured.
+Window H26475s/app HEVC about252.07s, stopped before300s; app mux tail extends to
+252.561567657s and includes held samples. Fresh owned MCP0.16/27 tools reads back
+measured_safari_app_profile.12 affected planner checks pass; ordinary adoption
+unknown. Source rows/no losses and all packets are retained privately.
+
+Six stored scopes/outcomes read back:3verified/2failed/1unknown, zero uncovered.
+Protected menu episode remains failed for expired scope/120s overrun; native
+Chrome timeout and unknown shortcut retained. Three exact Safari facts read back.
+Original single close now independently absent; StartPage preserved, actor/time
+unknown. No close replay. Native unchanged/idle, session closed, jobs terminal.
+
+production-click check reserves10–60s cleanup and tests each next operation
+budget.9 boundary controls pass; actual expired human-click signal refuses.
+It is a snapshot and cannot cancel provider work or guarantee completion. First
+continuous rawvideo proof refused because default FFmpeg cadence duplicated
+sparse packets; passthrough cadence repaired the association without new footage.
+
+Physical input declined for now. Two-hour explicit AFK access is separate from
+notification-click reservations; continue self-contained work without requests
+for human input or new permissions.45completed18partial1deferred. Private
+gates-v70/qualification-summary.json and shared readbacks retain exact evidence.

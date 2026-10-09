@@ -42,6 +42,15 @@ control system UI. Version 1.2 adds seven browser tools (22 tools, five resource
 `ios-agent://mobile-web` resource. Browser `evaluate` deliberately executes JS
 in the explicitly enrolled development page; it does not bypass browser or OS
 authentication. Use the browser begin/end pair in finally. See MOBILE-WEB.md.
+Version 1.2.1 keeps the same catalog and adds typed browser action arguments
+plus `ios_web_verify gate=web-media`: choose direction sent, received or both;
+sampleMs is bounded to 500–3000. Stable document-local audio RTP counters must
+advance, with a connected peer and foreground ownership at both samples.
+Closed/stalled/replaced streams or a changed document fail. Receipts preserve
+only structural booleans; full readings stay private. This certifies observed
+packet counters, not an actual call, audible sound or microphone permission.
+The owned physical Android stdio smoke passed both-direction advancement,
+closed-media refusal, scoped lesson persistence/readback and glow cleanup.
 Existing Tailscale phone transport and native watchdog remain unchanged.
 
 ## Ownership and cancellation

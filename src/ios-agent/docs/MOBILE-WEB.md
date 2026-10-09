@@ -66,8 +66,9 @@ existing product track. Fetch/XHR and console wrappers add metadata only.
 
 Dated receipts prove desktop Chromium/WebKit and real iPhone Safari/Chrome DOM,
 React form input/readback, click, scroll, events, stale refs and glow cleanup.
-They are synthetic qualification-page proof, NOT a coach/client business call,
-actual microphone acquisition, independent screenshots or off-LAN proof.
+Those qualification-page receipts alone do not prove a coach/client business call,
+actual microphone acquisition, independent screenshots or off-LAN use. Follow-up
+product and microphone results below have their own narrower receipts.
 Snapshots include open shadow roots and closed roots created after adapter boot.
 Closed roots created earlier, browser-native shadow internals and frames remain
 opaque. Desktop Chromium/WebKit fixtures verified both shadow modes, click
@@ -140,10 +141,19 @@ free verified target is permitted. Hardware USB enumeration, developer discovery
 page readiness and worker/socket health are independent facts. HTTP SDK serving
 has an actual transport regression test in addition to control-socket tests.
 
-Mac bind-mount writes did not consistently notify the container's Next watcher
-in this run. An in-container touch of the edited source triggered compilation.
-This is an open automatic-update reliability gate; do not call an unchanged
-render proof of current source. No shared server was restarted to repair it.
+Mac bind-mount writes did not consistently notify the container's Next watcher;
+one in-place write also yielded truncated container bytes. Atomic replacement
+restored exact source parity. A physical Safari atomic Mac edit and restoration
+then rendered automatically, preserving route/form state without an in-container
+touch. Prefer atomic writes on this mount. Doctor checks source parity separately
+from SDK HTTP delivery; matching files do not prove compilation or phone render.
+Arbitrary in-place writes and off-LAN browser updates remain unqualified. No shared
+server was restarted for this source-update test.
+
+Physical Safari acquired one real audio track after a human OS Allow tap; the
+probe immediately stopped its tracks. No audio was recorded or uploaded. This
+qualifies acquisition and request counters, not call packet flow or automatic
+permission handling. See mobile-web-ios-safari-microphone-2026-10-09.json.
 
 Mirroring's supported Actual Size menu restored usable coordinate navigation in
 the current session; typing the enrollment into the visibly selected Safari
@@ -151,3 +161,84 @@ address field established a real ios-safari page. Keyboard shortcut/paste succes
 alone had not established phone navigation. Recheck the actual browser and route.
 This nearby provisioning route does not establish arbitrary-network launching
 or real microphone capture while mirrored.
+
+
+## Browser performance state — 9 October
+
+`ios_web_inspect kind=state` includes a content-free `performance` domain:
+navigation/paint timings, at most the last 1,000 resource entries aggregated as
+counts/duration/transfer sizes, browser-reported long tasks, optional JS heap
+bytes, and viewport geometry. No resource URLs/names or long-task attribution
+nodes are returned. Unsupported long-task and heap metrics are null. An event
+that has not completed has a null timing. Transfer sizes can be zero for cached
+or timing-restricted resources; resource durations overlap and are not elapsed
+time or CPU utilization. Bridge requests are included. This is an auxiliary
+signal, not an accurate process-memory or CPU profiler.
+
+Owned Chromium and desktop WebKit passed numeric/privacy/cleanup checks.
+Chromium detected a controlled 85ms scheduled task; WebKit explicitly reported
+long-task support unavailable. An 85ms workload inside the SDK's async command
+path did not advance Chromium's count; zero new entries cannot certify an idle
+main thread. Physical browser qualification remains separate. The observer is
+disconnected on adapter stop. See mobile-web-performance-2026-10-09.json.
+
+The official `googlechromes:` URL scheme reached Safari's physical Open in
+Chrome confirmation after one network command. This is a useful provisioning
+candidate, but autonomous browser switching is not qualified: page-owned input
+cannot press that OS/browser confirmation. Fresh target identity/readiness must
+be checked after confirmation. Do not resend accepted or uncertain launches.
+
+
+## Android substitute qualification and MCP v1.2.1 — 9 October
+
+Taylor took the iPhone; no further iPhone/Mirroring actions were performed.
+The authorized connected Pixel 6 provided new shared-browser evidence using
+owned Chrome tabs. Private HTTPS navigation preceded enrollment. MCP input and
+independent DOM readback, distinct Android identity, performance state,
+stale-target refusal and glow-off passed. USB/CDP supplied provisioning and
+independent observation; the page bridge carried commands over private HTTPS.
+This does not qualify an iOS CDP lane or physical off-LAN operation.
+
+Page-owned MCP clicks remained synthetic. Android CDP produced a trusted click
+and active user activation. An owned generated audio source (no microphone,
+speaker playback, recording, upload or external room) then sent audio to local
+WebRTC peers with advancing receive counters. Fresh installed stdio MCP v1.2.1
+also passed stable sent/received advancement, rejected closed media, and saved
+and reread a runtime-scoped evidence-linked lesson. Lesson applicability is
+conservative: document/adapter fingerprints change on a new runtime. General
+claims still require corroboration; no Android result was promoted as iOS proof.
+
+`ios_web_verify gate=web-media` samples stable document-local stream ordinals
+and RTP packet counters twice. Select sent, received or both; sampleMs 500–3000.
+Every requested direction needs at least one advancing stream and no reset or
+replacement. Ownership/HTTPS/connected-peer/document checks must pass in both
+readings. Ordinals contain no native report IDs or participant identity. Results
+are instrumented audio packet evidence, not remote playout or room correctness.
+Positive historical counters alone cannot pass. Full private readings are used
+even if a large MCP state response omits domains in its compact preview.
+
+A controlled network fault scoped to one owned Android page cleared its glow
+in about 15 seconds, revoked broker ownership, and recovered the same tab
+without reenrollment. This is a page transport-loss test, not physical VPN,
+Wi-Fi, cellular or laptop-sleep acceptance. All owned tabs/media were closed.
+See mobile-web-android-shared-driver-2026-10-09.json,
+mobile-web-android-outage-2026-10-09.json and
+mobile-web-android-mcp-media-2026-10-09.json.
+
+## Provisioning edge and recovery
+
+Mirroring clicked the physical Open in Chrome prompt after Mac approval, so
+Chrome launch itself was observed. Fresh enrollment subsequently failed:
+native address typing dropped the leading character and searched the
+short-lived dev link. Both affected grants are unusable; duplicate enrollment
+was refused. Token/URL/search text is omitted from the sanitized receipt. Do not
+repeat unverified omnibox text entry for grants. Next qualify clipboard paste
+with a plain, token-free URL before provisioning. The phone is now with Taylor;
+no phone history cleanup or further operation was attempted.
+
+A separate missing port-3000 Next worker was recovered once through guarded
+stack-ensure. Port-3020 and GraphQL were preserved, plain local/private HTTPS
+routes returned the correct page, and all 11 doctor checks passed. The cause
+of the worker disappearance is unknown. The developer channel remaining
+unavailable does not establish a disconnected or locked physical device.
+See mobile-web-resume-2026-10-09.json.

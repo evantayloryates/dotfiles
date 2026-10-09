@@ -1,0 +1,13 @@
+{
+  "at": "2026-10-09T21:38:36.669Z",
+  "scope": "Physical Pixel Chrome; owned synthetic audio source/local WebRTC peers. No microphone, speaker playback, recording or external call. Android CDP activation is not an iOS capability claim.",
+  "gates": {
+    "pageInputRemainsSynthetic": true,
+    "androidCDPTrustedActivationObserved": true,
+    "runningGeneratedAudioSource": true,
+    "receivedAudioPacketsAdvance": true,
+    "ownedMediaClosed": true,
+    "glowOff": true
+  },
+  "status": "passed"
+}

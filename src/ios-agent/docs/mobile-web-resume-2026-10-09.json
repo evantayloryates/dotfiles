@@ -1,0 +1,42 @@
+{
+  "at": "2026-10-09T21:46:36.289037+00:00",
+  "scope": "Resumed mobile-web qualification; iPhone stopped at user request; Android isolated fixture only",
+  "hostRecovery": {
+    "missingPort3000WorkerStarted": true,
+    "otherPort3020Preserved": true,
+    "graphQLPreserved": true,
+    "doctorChecksPassed": 11,
+    "doctorChecksTotal": 11,
+    "causeEstablished": false
+  },
+  "browserProvisioningIncident": {
+    "OSChromeConfirmationObserved": true,
+    "chromeOpenedThroughMirroring": true,
+    "nativeAddressEntryLostLeadingCharacter": true,
+    "shortLivedLinkSearched": true,
+    "affectedGrantsUnusable": true,
+    "duplicateGrantUseRefused": true,
+    "freshChromeIOSEnrollmentQualified": false,
+    "next": "Prove plain URL navigation with clipboard paste before provisioning; never use unverified omnibox text entry for grant links."
+  },
+  "verification": {
+    "pythonChecks": 123,
+    "MCPChecks": 18,
+    "freshPhysicalAndroidStdioMedia": "passed",
+    "hostLeased": false,
+    "finalReview": "Added fail-closed handling for malformed media arrays and reran the two focused media tests; no broader physical capability change."
+  },
+  "limits": [
+    "No off-LAN browser acceptance",
+    "No fresh iOS performance/call media acceptance",
+    "Android CDP trusted activation does not establish iOS trusted input"
+  ],
+  "cleanup": {
+    "hostLeaseIdle": true,
+    "ownedAndroidTabsClosed": true,
+    "ownedAudioObjectsClosed": true,
+    "ownedADBForwardRemoved": true,
+    "priorAndroidTailscaleTaskRestored": true,
+    "iPhoneActionsAfterUserHandoff": false
+  }
+}

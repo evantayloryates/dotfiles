@@ -118,7 +118,7 @@ class WebBridge:
                 self.b.revoke('web_document_replaced')
             p['boot'] = r.get('boot')
         p.update(seen=self.b.clock(), visible=r.get('visible') is True, ready=r.get('ready') is True, indicator=r.get('indicator') is True)
-        if r.get('browser') in ('ios-safari', 'ios-chrome', 'desktop-webkit', 'desktop-chromium'):
+        if r.get('browser') in ('ios-safari', 'ios-chrome', 'android-chrome', 'desktop-webkit', 'desktop-chromium'):
             p['browser'] = r['browser']
         path = r.get('path', '/')
         if isinstance(path, str) and path.startswith('/') and len(path) <= 256:

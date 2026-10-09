@@ -1,30 +1,37 @@
 # Production qualification goal
 
-## Current checkpoint: stage70 — PAUSED
+## Current checkpoint: stage71 — ACTIVE
 
-Taylor requested a pause. Both takes are terminal and retained: rec_4a3xs5nh
-(window H264,75s) and rec_xsdcpys2 (Safari app-crop HEVC,252.068s, explicitly
-stopped before planned300s). Session ses_xkcnt5pa is closed. Server48335 and
-sampler58181 are terminal;250 samples retained. Native39358/build7c is idle,
-with no input subscribers, active actions, unfinished recordings or lanes.
+Retained stage70 footage verified without replay:8,900 exact mux/source stamps,
+both full sequential decodes,6,684 consecutive app anchor packets within1px,
+two paired select-row edges within1px and editing-root/dismissal pixels. Service
+11 app maps available/4 isolated maps guarded. Whole252.068s geometric backup
+containment includes35 final packets missing the anchor and later black samples;
+content loss starts229.911662823s. Geometry cannot establish visible content.
+Mux app tail252.561567657s differs from about252.07s controller stop and includes
+held source. No five-minute completion, physical input or generic recovery claim.
 
-Owned Safari fixture13728 received one close; independent inventory still
-reports it, so cleanup remains unknown. Preserve Start Page13063 and Safari.
-Do not repeat an uncertain close while paused. The inert fixture server is off.
+250 resource samples: recorder peak38.73MiB/median CPU2.98% of one core; host
+pressure2. Safari parent only, no WebContent/GPU/thermal or causal upper capacity.
+Fresh owned MCP0.16/27 tools publishes scoped measured_safari_app_profile;12
+planner checks pass. Ordinary loaded MCP adoption remains unknown.
 
-Final native-clock notification helper now has actual human-click, local watcher,
-prepared exactly-once start and active-chat signal evidence. First reservation
-expired during preparation without capture; second menu batch overran120s
-(observed138.669s) and its action scope expired. Preserve this failure and the
-stale-index batch correction. Add per-action deadline checks and cleanup budget
-before another protected batch. No unattended-wake or physical-input proof.
+Six stored receipts/outcomes and three exact Safari facts independently read
+back. Protected menu scope remains failed; unknown Chrome shortcut stays unknown.
+Owned Safari fixture now absent/StartPage preserved without a repeated close;
+intervening actor/time unknown. Session closed, server/sampler terminal and
+native7c/PID39358 idle. Private gates-v70 summary/readbacks are authoritative.
 
-Real Safari select/change/dismiss and editing root were observed; nested menu
-was skipped. All catalog popup candidates fit the parent, so no actual overflow
-qualification. Decoded pixels, actual mux/journal coverage, continuous maps,
-resource acceptance and typed shared outcomes remain unverified. On resume,
-reuse gates-v70 retained media and pause-checkpoint.json before any new take.
-Checklist:45completed18partial1deferred. Composition remains deferred.
+production-click.py check now reserves cleanup and rechecks each next action;
+9 boundary tests plus actual old-signal refusal pass. No provider cancellation
+or guarantee against an overlong admitted call. Preserve the actual120s overrun.
+
+Taylor declined physical input for now, then explicitly authorized uninterrupted
+system access for the next two hours while AFK. Do not ask for human actions,
+new approvals, sleep/revocation or fabricate a click. Continue self-contained
+nested/overflow daily-app and agent-provider input checks using fresh scopes.
+Keep45completed18partial1deferred until written acceptance scopes are satisfied.
+Composition remains deferred. No settled media recapture or broad history churn.
 
 ## Remaining work: ordered acceptance batches
 

@@ -1,0 +1,13 @@
+{
+  "at": "2026-10-09T21:40:30.582Z",
+  "scope": "Physical Pixel Chrome; CDP simulates offline on one owned page. Not actual cellular, Wi-Fi, tailnet outage or iOS proof.",
+  "gates": {
+    "pageWatchdogGlowOff": true,
+    "disconnectedOwnerRetired": true,
+    "sameEnrollmentRecovered": true,
+    "freshOwnershipReady": true,
+    "finalGlowOff": true
+  },
+  "watchdogObservedMs": 15030,
+  "status": "passed"
+}

@@ -16,6 +16,11 @@ The [TextEdit menu lane](TEXTEDIT-MENUS.md) preserves built-in positive/fitted
 results and the external childtrue omission with verified app-only backup.
 Reuse exact-environment facts and retained actual source frames.
 
+The [Safari native popup lane](SAFARI-MENUS.md) has real select/change/dismiss
+and editing-root evidence with continuous fixed-crop marker verification.
+It also retains a black app tail despite geometric containment; do not treat
+a source-map containment report as proof of visible target content.
+
 ## Helpers
 
 `register-paired-anchors.py CONFIG.json --output FRESH.json` is an offline
@@ -298,9 +303,24 @@ stamp; CLOCK_MONOTONIC_RAW separately measures the120s allowance and watcher
 timeout, with boot identity checked. Duplicate callbacks do not extend time.
 Private regular files only; symlinks, incompatible clocks/boot and future times
 refuse. Native Python3.9→3.14 callback/watch, duplicates, stale allowance and
-clock/boot/symlink negatives are synthetically verified. No new physical sleep,
-actual human click through this final helper or unattended chat wake is claimed.
+clock/boot/symlink negatives are synthetically verified. No physical sleep or
+unattended chat wake is claimed. Stage70 supplies an actual
+human click, prepared start and active-chat signal through this revision; its
+menu batch overran the120s allowance and remains failed.
 Do not substitute unqualified cross-runtime `time.monotonic_ns` comparisons.
+
+Before EACH next protected UI action, run `production-click.py check SIGNAL
+--operation-s 10 --cleanup-s 20` on the original signal. Dispatch only when
+`admitted` is true. Budgets are conservative estimates, not measured P80;
+cleanup reserves10–60s and cannot be spent on another production action.
+An expired/empty/invalid signal never admits. Check again after any tool,
+transport or observation delay; do not reuse an earlier ready result. Keep
+scopes short, leave time for dismissal/cleanup, and retain an overrun instead
+of extending a click or replaying uncertain actions. The check is a snapshot,
+not automatic native interception, cancellation or input locking. Nine boundary
+tests include the stage70 late dismissal, wrong clocks/boot, future/invalid
+stamps, duplicate nonextension, stale observation and unsafe signal files.
+Run `python3 src/record-screen/qualification/production-click-test.py`.
 
 `normalize-source.py --stream FILE --actions JSONL --input FILE --receipt FILE --output FILE`
 

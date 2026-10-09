@@ -1,0 +1,14 @@
+{
+  "at": "2026-10-09T21:36:54.972Z",
+  "scope": "Physical Pixel Chrome, one task-owned tab; CDP over existing USB developer channel only for provisioning/oracle. MCP page actions use private HTTPS; off-LAN and iOS are not asserted.",
+  "gates": {
+    "plainPrivateHTTPSRoute": true,
+    "reactInputAndReadback": true,
+    "androidIdentityDistinct": true,
+    "numericPerformanceState": true,
+    "staleTargetRefused": true,
+    "glowOff": true,
+    "independentDOMAgreement": true
+  },
+  "status": "passed"
+}

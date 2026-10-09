@@ -84,3 +84,9 @@ class WebTests(unittest.TestCase):
         self.assertEqual(self.b.lease['id'],'replacement-owner')
         self.assertEqual(self.b.web.pages[self.p['page']]['boot'],'new-document')
         self.assertTrue(self.b.web.pages[self.p['page']]['visible'])
+
+    def test_android_browser_identity_is_not_desktop_or_ios(self):
+        self.b.web.page_request({**self.poll,'browser':'android-chrome'},self.origin)
+        self.assertEqual(self.b.web.pages[self.p['page']]['browser'],'android-chrome')
+        self.b.web.page_request({**self.poll,'browser':'spoofed-unknown'},self.origin)
+        self.assertEqual(self.b.web.pages[self.p['page']]['browser'],'android-chrome')

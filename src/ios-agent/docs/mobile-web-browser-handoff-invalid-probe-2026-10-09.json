@@ -1,0 +1,28 @@
+{
+  "at": "2026-10-09T21:19:51.263Z",
+  "scope": "One physical Safari-to-Chrome private enrollment attempt through page execution; no developer channel or Mirroring",
+  "gates": {
+    "newChromeVisibleReady": false,
+    "sourceGlowOff": false
+  },
+  "replay": false,
+  "launch": {
+    "acknowledged": true,
+    "outcome": "completed"
+  },
+  "observation": [
+    {
+      "browser": "ios-safari",
+      "path": "/dev/ios-agent",
+      "visible": true,
+      "ready": true,
+      "indicator": true
+    }
+  ],
+  "status": "invalid-probe",
+  "limits": "URL.protocol silently retained https when assigned a non-special scheme. This request navigated only to a same-document enrollment fragment; it did not test Chrome launching. No Chrome launch was sent.",
+  "postReleaseObservation": {
+    "sourceIndicatorOff": true,
+    "controlLeaseActive": false
+  }
+}
