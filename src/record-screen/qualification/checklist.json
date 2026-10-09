@@ -1,6 +1,6 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-08T22:16:07-04:00",
+  "updated_at": "2026-10-08T22:37:50-04:00",
   "workflow": {
     "state": "active",
     "note": "Taylor resumed qualification. Prioritize high-impact investigation, preserve failed evidence and useful progress, and avoid repeated resets or rerunning settled checks."
@@ -270,14 +270,24 @@
           "updated_at": "2026-10-08T20:01:05-04:00"
         },
         {
+          "id": "encoder-isolation",
+          "title": "Verify controlled encoder deadline isolation and late return",
+          "status": "completed",
+          "scope": "Candidate actual AVAssetWriter with authored off-screen frames, controlled blocked finalization, independent muxed clocks and retained manager admission. Does not include natural hardware/SDK hangs or installation.",
+          "evidence": "26 controlled checks and 15 exact independently decoded packet timestamps passed. Healthy peer finalized; failed journal closed while blocked; callback/call return both required; late completion preserved the interrupted outcome. Signed private service capability readback and cleanup passed. Final proof also covers early watchdog arming and empty-writer late cancellation.",
+          "next": "",
+          "anchor": "fifteenth-pass",
+          "updated_at": "2026-10-08T22:37:50-04:00"
+        },
+        {
           "id": "peer-failure",
           "title": "Verify remaining encoder/OS failure paths without harming peer takes",
           "status": "partial",
           "scope": "Avoid widening a local failure into an unexpected service interruption.",
-          "evidence": "Healthy peer capture survived a missing target; unfinished discovery remains quarantined. Existing encoder-finalization restart is a separate risk.",
-          "next": "Qualify remaining initial OS calls and encoder-stall recovery, including explicit peer-impact expectations.",
-          "anchor": "fourth-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "evidence": "Signed private 88ce9b196ca6 removes whole-engine restart; 26 actual off-screen writer/recording/admission checks plus 27 adjacent state checks passed. Healthy peer and late-return safety verified; natural hardware/initial OS faults remain open.",
+          "next": "Qualify unconfirmed SDK-stop handling and remaining initial OS calls; retain explicit shared-hardware limits and idle maintenance expectations.",
+          "anchor": "fifteenth-pass",
+          "updated_at": "2026-10-08T22:37:50-04:00"
         },
         {
           "id": "single-motion",
@@ -304,10 +314,10 @@
           "title": "Set a realistic resource and admission budget",
           "status": "partial",
           "scope": "CPU, memory, encoder/GPU/storage costs and useful production-duration estimates.",
-          "evidence": "Single-source costs and offline overlap admission were measured; they do not establish safe real-world paired capacity or P80 duration.",
-          "next": "Measure representative contention and preview costs; publish conservative limits with failure behavior.",
-          "anchor": "seventh-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "evidence": "Single-source costs and offline overlap admission were measured; they do not establish safe real-world paired capacity or P80 duration. Fifteenth pass reserves unfinished startup, encoder calls/callbacks and unconfirmed stream stops even after terminal state or requested end; late completion releases admission. Configured cap is explicitly not capacity.",
+          "next": "Qualify synchronized insurance under measured health and finalize conservative resource recommendations; natural SDK/hardware saturation is not established.",
+          "anchor": "fifteenth-pass",
+          "updated_at": "2026-10-08T22:33:44-04:00"
         }
       ]
     },
@@ -462,10 +472,10 @@
           "title": "Finish agent usage and recovery runbooks",
           "status": "partial",
           "scope": "Capabilities, gaps, deadlines, semantic blocks, app facts, effort and collision/recovery guidance.",
-          "evidence": "Source contracts, a readiness report and repeatable qualification kit exist; final reconciliation is pending.",
+          "evidence": "Source contracts, a readiness report and repeatable qualification kit exist; final reconciliation is pending. Candidate failure-isolation, retained admission and idle maintenance expectations are now documented.",
           "next": "Reconcile instructions with delivered behavior and publish limits, fallback and cleanup expectations.",
-          "anchor": "strategy",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "anchor": "fifteenth-pass",
+          "updated_at": "2026-10-08T22:33:44-04:00"
         },
         {
           "id": "visual-composition",
@@ -631,6 +641,46 @@
       "from": "partial",
       "to": "partial",
       "note": "Shared versioned observation store, conflicts/expiry and scoped Chrome facts passed earlier. A new unresolved Chrome native-select readiness case was stored and independently read back with exact entity/value/ID; unknown backend version/result stay unknown, with one-day expiry."
+    },
+    {
+      "kind": "item",
+      "id": "peer-failure",
+      "at": "2026-10-08T22:33:44-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Signed private be7de3be085f removes whole-engine restart; 23 actual off-screen writer/recording/admission checks plus 27 adjacent state checks passed. Healthy peer and late-return safety verified; natural hardware/initial OS faults remain open."
+    },
+    {
+      "kind": "item",
+      "id": "resource-admission",
+      "at": "2026-10-08T22:33:44-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Encoder/stream resource reservations now survive terminal deadlines; configured cap no longer presented as current hardware capacity."
+    },
+    {
+      "kind": "item",
+      "id": "encoder-isolation",
+      "at": "2026-10-08T22:33:44-04:00",
+      "from": "pending",
+      "to": "completed",
+      "note": "Added the completed controlled finalization subgate while retaining broader peer-failure and production gates as open."
+    },
+    {
+      "kind": "item",
+      "id": "encoder-isolation",
+      "at": "2026-10-08T22:37:50-04:00",
+      "from": "completed",
+      "to": "completed",
+      "note": "Final 88ce9b196ca6 signed/readback proof passed: early watchdog plus empty-writer boundary increased controlled checks to 26. Prior evidence retained."
+    },
+    {
+      "kind": "item",
+      "id": "peer-failure",
+      "at": "2026-10-08T22:37:50-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Final 88ce9b196ca6 signed/readback proof passed: early watchdog plus empty-writer boundary increased controlled checks to 26. Prior evidence retained."
     }
   ]
 }

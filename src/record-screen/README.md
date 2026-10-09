@@ -288,15 +288,19 @@ The engine handles requests in parallel. Measured on this M5 Pro:
 Correctness was checked by putting a differently coloured square on each test
 area and confirming every image showed its own colour.
 
-- **Recording cap: 16 at once**, set by the hardware encoder (20 ran clean, 22
-  stalled), with headroom for Zoom, FaceTime and other apps sharing it. The
-  17th gets `too_many`, naming the recordings and sessions holding slots.
-- **If the encoder stalls anyway**, recordings that can't finish within 15 s,
-  or can't start within 8 s of `start_at`, are marked `interrupted` or
-  `failed` from outside their queue. The engine then restarts itself (launchd
-  brings it back in about 5 s with a fresh encoder), and queued recordings
-  re-arm. API calls never wait on a recording's queue, so a stall can't hang
-  the engine.
+- **Recording cap: 16 at once** is the original configured budget, based on
+  historical tests. It is not a guarantee of capacity under other workloads.
+  The candidate also counts unfinished startup, encoder calls/finalization and
+  unconfirmed stream stops, including terminal takes, against admission.
+- **Candidate encoder failure isolation:** a 15-second finalization deadline
+  marks only the affected take interrupted, preserves partial media and closes
+  its journal with unverified video coverage. It does not restart the engine or
+  replay actions. Both callback completion and encoder-call return are required
+  to release that reservation. A failed stream-stop acknowledgment remains
+  reserved; an idle maintenance decision is needed if work never settles.
+  The installed older engine still has its original restart behavior until
+  the delivery gate is complete. Snapshots remain available without waiting on
+  a blocked recording queue; this does not promise hardware-level isolation.
 - **Outlines are namespaced** by `session_id` (`<session_id>:frame`), so two
   agents' outlines never replace each other. `overlay.hide {session_id}`
   hides only that session's.
@@ -485,8 +489,9 @@ Use `status` capabilities rather than assuming the installed behavior.
 - Discovery and preview SDK work use shared three-second deadlines, with
   unfinished producers quarantined rather than repeatedly spawned. Recording
   startup retains its eight-second watchdog and unfinished admission slot;
-  SDK startup timeout does not restart healthy peers. Encoder-finalization
-  recovery remains separate. No deadline claims to cancel an uncooperative SDK.
+  SDK startup timeout does not restart healthy peers. The candidate finalization
+  watchdog isolates a take and retains unfinished admission; status advertises
+  `encoder_failure_isolation: 1`. No deadline claims to cancel an uncooperative SDK.
 
 Delivery evidence and unresolved gates are in
 [qualification/GATES.md](qualification/GATES.md), with the active production

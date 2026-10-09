@@ -102,9 +102,24 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   /// down (building the review afterwards can take a few seconds).
   private var writerDone = false
   private var startupPending = false
+  private var encoderPending = false
+  private var encoderCallsPending = false
+  private var streamStopsPending = 0
+  private var streamStopFailures = 0
   private var terminalReason: String?
   var state: RecState { snapLock.withLock { _state } }
-  var captureQuarantined: Bool { snapLock.withLock { _state.terminal && startupPending } }
+  var holdsUnfinishedAdmission: Bool { snapLock.withLock { startupPending || encoderPending || encoderCallsPending || streamStopsPending > 0 } }
+  var captureQuarantined: Bool { snapLock.withLock { _state.terminal && (startupPending || encoderPending || encoderCallsPending || streamStopsPending > 0) } }
+  private var unfinishedWork: [String:Any] { snapLock.withLock {
+    ["startup":startupPending,"encoder_finalization":encoderPending,"encoder_calls":encoderCallsPending,"stream_stops":streamStopsPending,"stream_stop_failures":streamStopFailures,
+     "admission_held":startupPending || encoderPending || encoderCallsPending || streamStopsPending > 0]
+  } }
+  #if RECORD_SCREEN_QUALIFICATION
+  // Private qualification builds only: block the real finalization queue
+  // before encoder calls. This does not assert a natural hardware failure.
+  var qualificationFinalizeBudget = 15.0
+  var qualificationBeforeEncoderFinish: (@Sendable () -> Void)?
+  #endif
   private var events: [[String: Any]] = []
   private var marks: [[String: Any]] = []
   private let activity = ActivityTracker()
@@ -159,8 +174,6 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   private(set) var areaKey: String?
   private var windowGone = false
   var onChange: (@Sendable (Recording) -> Void)?
-  /// Called when the encoder stalls; the engine restarts itself to recover.
-  static var onEncoderStall: (@Sendable () -> Void)?
 
   var videoPath: String { dir + "/video.mp4" }
   var manifestPath: String { dir + "/recording.json" }
@@ -667,12 +680,26 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     guard state == .recording || state == .arming else { return }
     if checkClock && !observeHostClock() { return }
     let wasRecording = wroteFirst
+    snapLock.withLock { encoderPending = wasRecording && writer != nil && input != nil; encoderCallsPending = writer != nil }
     snapLock.withLock { inputEndHostSnap=endHostNs }
+    // Arm before persistence, held-frame writes or any encoder finishing call.
+    // A blocked queue must not prevent its own watchdog from being installed.
+    // The partial file requires independent decoding; coverage is unknown.
+    var budget = 15.0
+    #if RECORD_SCREEN_QUALIFICATION
+    budget = qualificationFinalizeBudget
+    #endif
+    DispatchQueue.global().asyncAfter(deadline: .now() + budget) { [weak self] in self?.abandonIfStuck() }
     setState(.finalizing)
     stopTimers(keepArm: false)
     teardownStream()
+    #if RECORD_SCREEN_QUALIFICATION
+    qualificationBeforeEncoderFinish?()
+    #endif
     guard wasRecording, let writer, let input else {
       writer?.cancelWriting()
+      snapLock.withLock { encoderCallsPending = false }
+      if state.terminal { persist(); return }
       try? FileManager.default.removeItem(atPath: videoPath)
       finish(.failed, reason: reason ?? "no frames arrived before end_at")
       return
@@ -683,10 +710,6 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     if !hostClockInterrupted, let last = lastBuffer, endHostNs > lastWrittenNs + frameNs {
       append(last, at: endHostNs - frameNs, source: lastSource, held: "held_at_end")
     }
-    // Watchdog: if the encoder stalls, endSession/finishWriting never return
-    // and this queue stays blocked. Mark the recording interrupted from
-    // outside the queue; the fragmented file plays up to its last fragment.
-    DispatchQueue.global().asyncAfter(deadline: .now() + 15) { [weak self] in self?.abandonIfStuck() }
     input.markAsFinished()
     writer.endSession(atSourceTime: cmTime(endHostNs))
     actualEnd = Date().addingTimeInterval(-Double(Int64(uptimeNs()) - Int64(endHostNs)) / 1e9)
@@ -694,8 +717,16 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     activityTimeline = activity.timeline(duration: duration)
     let keys = reviewKeys()
     writer.finishWriting { [self] in
-      snapLock.withLock { writerDone = true }
+      snapLock.withLock { writerDone = true; encoderPending = false }
       q.async { [self] in
+        // A late callback releases its reservation but cannot rewrite the
+        // deadline outcome, upgrade coverage or start a review after failure.
+        guard state == .finalizing else {
+          prerollBuffer = nil; lastBuffer = nil
+          snapLock.withLock { tapBuffer = nil }
+          persist()
+          return
+        }
         guard writer.status == .completed else {
           finish(.failed, reason: "writer failed: \(writer.error?.localizedDescription ?? "unknown")")
           return
@@ -712,6 +743,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
         }
       }
     }
+    snapLock.withLock { encoderCallsPending = false }
   }
 
   private func finish(_ s: RecState, reason: String?) {
@@ -747,21 +779,23 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   }
 
   private func abandonIfStuck() {
-    guard !snapLock.withLock({ writerDone }) else { return }
     abandon(if: .finalizing, as: .interrupted,
-            reason: "the encoder stalled while finishing; the file keeps what was written before the stall", stall: true)
+            reason: "encoder finalization deadline exceeded; partial muxed coverage is unverified; unfinished work retains admission without restarting peers", stall: true)
   }
 
   /// Gives up on a recording whose queue may be blocked, without touching
   /// the queue: state, snapshot and manifest are updated from outside it.
   private func abandon(if expected: RecState, as final: RecState, reason: String, stall: Bool) {
     let stuck: [String: Any]? = snapLock.withLock {
-      guard _state == expected else { return nil }
+      guard _state == expected, !stall || !writerDone || encoderCallsPending else { return nil }
       _state = final
       terminalReason = reason
       var d = snapshot
       d["state"] = final.rawValue
-      d["capture_quarantined"] = startupPending
+      d["capture_quarantined"] = startupPending || encoderPending || encoderCallsPending || streamStopsPending > 0
+      d["unfinished_work"] = ["startup":startupPending,"encoder_finalization":encoderPending,"encoder_calls":encoderCallsPending,"stream_stops":streamStopsPending,
+                              "admission_held":startupPending || encoderPending || encoderCallsPending || streamStopsPending > 0]
+      if stall { d["frames_provenance"] = "persisted_checkpoint_not_final" }
       d["error"] = reason
       snapshot = d
       return d
@@ -771,11 +805,34 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     releasePower()
     Log.event("recording_abandoned", ["recording_id": id, "reason": reason])
     onChange?(self)
-    if stall { Self.onEncoderStall?() }
+    if stall, let journal = snapLock.withLock({sourceJournal}) {
+      let outcome:[String:Any] = ["recording_state":final.rawValue,"successful_finalization":false,
+        "writer_status":NSNull(),"encoded_submissions":(d["frames"] as? [String:Any])?["written"] ?? NSNull(),
+        "counts_provenance":"persisted_checkpoint_not_final",
+        "muxed_coverage":"unverified; decode partial media before trim, alternate-source recovery or reshoot",
+        "error":reason]
+      let close: @Sendable () -> Void = { [self] in journal.finish(outcome:outcome) { [weak self] in self?.persistAbandonedSnapshot() } }
+      if inputSettings.enabled { InputTimeline.shared.unsubscribe(id:id,completion:close) }
+      else { close() }
+    }
   }
 
   private func teardownStream() {
-    if let s = stream { Task { try? await s.stopCapture() } }
+    if let s = stream {
+      snapLock.withLock { streamStopsPending += 1 }
+      Task {
+        do {
+          try await s.stopCapture()
+          snapLock.withLock { streamStopsPending -= 1 }
+        } catch {
+          // A returned error does not establish resource release. Preserve
+          // the reservation and evidence; do not repeatedly retry the SDK.
+          snapLock.withLock { streamStopFailures += 1 }
+          Log.event("stream_stop_unconfirmed",["recording_id":id,"error":"\(error)"])
+        }
+        q.async { [self] in persist() }
+      }
+    }
     stream = nil
   }
 
@@ -882,6 +939,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
       "recording_id": id,
       "state": state.rawValue,
       "capture_quarantined": captureQuarantined,
+      "unfinished_work": unfinishedWork,
       "label": label,
       "target": targetRaw,
       "settings": settings.dict,
@@ -896,7 +954,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
       "review": review ?? NSNull(),
       "activity_per_s": activityTimeline ?? NSNull(),
       "frames": ["written": framesWritten, "dropped": framesDropped, "seen": framesSeen],
-      "frames_provenance": framesProvenance,
+      "frames_provenance": snapLock.withLock { terminalReason == nil ? framesProvenance : "persisted_checkpoint_not_final" },
       "source_packet": sourceJournal?.describe() as Any? ?? restoredSource as Any? ?? NSNull(),
     ]
     if let k = idempotencyKey { d["idempotency_key"] = k }
@@ -920,6 +978,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     var d = snapLock.withLock { snapshot }
     d["state"] = state.rawValue
     d["capture_quarantined"] = captureQuarantined
+    d["unfinished_work"] = unfinishedWork
     if let journal = snapLock.withLock({ sourceJournal }) { d["source_packet"] = journal.describe() }
     return d
   }
@@ -933,6 +992,15 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     FileManager.default.createFile(atPath: tmp, contents: data)
     _ = try? FileManager.default.replaceItemAt(URL(fileURLWithPath: manifestPath), withItemAt: URL(fileURLWithPath: tmp))
     if !FileManager.default.fileExists(atPath: manifestPath) { try? FileManager.default.moveItem(atPath: tmp, toPath: manifestPath) }
+  }
+
+  /// Journal closure must remain observable even if the encoder blocks q.
+  /// Use a unique atomic replacement, not q's shared temporary filename.
+  private func persistAbandonedSnapshot() {
+    guard snapLock.withLock({ terminalReason != nil && _state.terminal }) else { return }
+    let d = describe()
+    guard let data = jsonData(d,options:[.prettyPrinted,.sortedKeys]) else { return }
+    try? data.write(to:URL(fileURLWithPath:manifestPath),options:.atomic)
   }
 
   // MARK: - Helpers

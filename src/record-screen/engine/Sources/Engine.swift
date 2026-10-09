@@ -29,17 +29,9 @@ final class Engine: @unchecked Sendable {
     }
     try server.start()
     self.server = server
-    // A stalled hardware encoder stays wedged for the life of the process.
-    // Restart (launchd brings the engine back in ~5 s); scheduled recordings
-    // re-arm, running ones are kept as interrupted.
-    let restarting = NSLock()
-    nonisolated(unsafe) var restartQueued = false
-    Recording.onEncoderStall = {
-      let first: Bool = restarting.withLock { defer { restartQueued = true }; return !restartQueued }
-      guard first else { return }
-      Log.event("exit", ["reason": "encoder stalled; restarting to recover"])
-      DispatchQueue.global().asyncAfter(deadline: .now() + 1) { exit(75) }
-    }
+    // Encoder finalization deadlines isolate the affected take. Unfinished
+    // producers retain admission; an idle maintenance restart is an explicit
+    // operational decision, never an automatic interruption of healthy peers.
     let recordings = self.recordings, sessions = self.sessions
     Task {
       await sessions.load()
@@ -231,7 +223,7 @@ final class Engine: @unchecked Sendable {
       "clock": ["uptime_ns": clockNS, "uptime_ns_exact":String(clockNS), "domain":"CLOCK_UPTIME_RAW", "wall": iso8601.string(from: now), "started_ns": startedNs,"started_ns_exact":String(startedNs)],
       "permission": ["screen_recording": CGPreflightScreenCaptureAccess() ? "granted" : "missing"],
       "capabilities": ["target_capture_options": CaptureOptions.contractVersion, "source_journal": 1, "source_clock_continuity":1,
-                       "input_timeline":1,"input_tap_faults":1,"action_scopes":1,"derivative_source":1,"exclusion_identity":1,"preview_exclusion_identity":1],
+                       "input_timeline":1,"input_tap_faults":1,"action_scopes":1,"derivative_source":1,"exclusion_identity":1,"preview_exclusion_identity":1,"encoder_failure_isolation":1],
       "input_timeline":InputTimeline.shared.status,
       "action_timeline":ActionTimeline.shared.status,
       "displays": await displays(),

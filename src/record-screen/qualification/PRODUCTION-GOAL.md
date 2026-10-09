@@ -372,3 +372,28 @@ and agent expectations, then resolve paired shot recovery under measured health.
 Return to Chrome only with a verified reachable workspace; do not rerun the same
 failed input route. Converge on idle-boundary delivery and installed consumers.
 The active objective remains full production qualification, not a menu-only result.
+
+
+## Fifteenth-pass verified checkpoint
+
+Signed isolated 88ce9b196ca6 now isolates finalization deadlines instead of
+restarting the whole engine. 26 off-screen actual-writer/recording/admission
+checks passed, including a healthy peer finishing while the affected queue
+was blocked and callback-before-call-return reservation safety. The adjacent
+startup/clock/admission checks passed 10/8/9 before the final timer-placement correction. The final 26-check proof additionally covers empty-writer late cancellation and an early watchdog.
+Independent retained decoding matched all 15 muxed timestamps. Closed source
+ledgers kept the failed video outcome; late completion did not revive a take.
+
+Exact private capability/hash/PID readback passed with the existing grant.
+The private process actually exited 0; runtime/source evidence is retained.
+Installed production remains cd78c24b652e/PID71911. Host warning pressure means
+these tiny off-screen proofs do not establish a resource budget. No new UI,
+screen capture, grant, peer restart or installation was needed.
+
+Next high-impact work: reconcile agent maintenance/admission expectations and
+qualify an unconfirmed stream-stop lane without stress or repeating settled UI.
+Resolve synchronized base/overflow recovery only with observed scene coverage
+and a suitable measured health boundary. Chrome depth needs a reachable
+workspace, not another attempt through the same failed route. Converge on a
+reviewable idle-boundary delivery kit, installed source/consumer smoke and
+final runbooks; the active objective remains production delivery.

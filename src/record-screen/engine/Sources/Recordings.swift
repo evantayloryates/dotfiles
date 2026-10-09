@@ -3,9 +3,8 @@ import Foundation
 /// The queue of recordings: creates, persists, reloads after a restart, and
 /// answers queries. Each recording runs itself (see Recording).
 actor Recordings {
-  /// Measured on this M5 Pro: 20 simultaneous hardware H.264 sessions ran
-  /// clean, 22 stalled the encoder. 16 leaves room for Zoom, FaceTime and
-  /// other apps that share the media engine.
+  /// Historical synthetic ceiling; other host workloads share the encoder.
+  /// This configured reservation budget does not guarantee current capacity.
   static let maxConcurrent = 16
   static let maxDuration: TimeInterval = 3 * 3600
   static let maxLeadTime: TimeInterval = 7 * 86400
@@ -91,12 +90,12 @@ actor Recordings {
     }
     guard end.timeIntervalSince(start) <= Self.maxDuration else { throw RPCError.badParams("recordings are capped at \(Int(Self.maxDuration / 3600)) h") }
     guard start.timeIntervalSince(now) <= Self.maxLeadTime else { throw RPCError.badParams("start_at is more than 7 days away") }
-    let overlapping = jobs.values.filter { $0.captureQuarantined || (!$0.state.terminal && $0.startAt < end && $0.endAt > start) }
+    let overlapping = jobs.values.filter { $0.holdsUnfinishedAdmission || (!$0.state.terminal && $0.startAt < end && $0.endAt > start) }
     // allow_over_cap exists for pressure tests of the hardware limit.
     let cap = (p.bool("allow_over_cap") ?? false) ? 64 : Self.maxConcurrent
     guard overlapping.count < cap else {
       let holders = overlapping.map { "\($0.id) (\($0.sessionID ?? "-"), \($0.describe().str("label") ?? ""))" }
-      throw RPCError(code: "too_many", message: "\(overlapping.count) recordings already overlap that window; the hardware encoder allows \(cap) at once. Holding slots: \(holders.joined(separator: ", "))")
+      throw RPCError(code: "too_many", message: "\(overlapping.count) overlapping or unfinished recordings hold the configured budget of \(cap); this budget is not a hardware capacity guarantee. Holding slots: \(holders.joined(separator: ", "))")
     }
     let ifLate = p.str("if_late") ?? "start"
     guard ["start", "skip"].contains(ifLate) else { throw RPCError.badParams("if_late must be start or skip") }
@@ -137,8 +136,10 @@ actor Recordings {
 
   var captureHealth: [String: Any] {
     let quarantined = jobs.values.filter { $0.captureQuarantined }
+    let unfinished = jobs.values.filter { $0.holdsUnfinishedAdmission }
     return ["quarantined": quarantined.count, "quarantined_recordings": quarantined.map { $0.id },
-            "max_concurrent": Self.maxConcurrent]
+            "unfinished":unfinished.count,"unfinished_recordings":unfinished.map { $0.id },
+            "max_concurrent": Self.maxConcurrent,"capacity_qualification":"configured budget, not measured availability under concurrent host workloads"]
   }
 
   /// Extensions must pass the same overlap budget as new takes. The actor
@@ -149,7 +150,7 @@ actor Recordings {
     guard b>a,b.timeIntervalSince(a)<=Self.maxDuration else { throw RPCError.badParams("end must follow start and duration is capped at 3 h") }
     guard a.timeIntervalSinceNow<=Self.maxLeadTime,b>Date() else { throw RPCError.badParams("new interval must end in the future and start within 7 days") }
     if rec.state == .scheduled, a<Date().addingTimeInterval(-5) { throw RPCError.badParams("scheduled start is too far in the past") }
-    let peers=jobs.values.filter { $0.id != id && ($0.captureQuarantined || (!$0.state.terminal && $0.startAt<b && $0.endAt>a)) }
+    let peers=jobs.values.filter { $0.id != id && ($0.holdsUnfinishedAdmission || (!$0.state.terminal && $0.startAt<b && $0.endAt>a)) }
     guard peers.count<Self.maxConcurrent else { throw RPCError(code:"too_many",message:"reschedule would overlap \(peers.count) other reserved or quarantined captures; capacity is \(Self.maxConcurrent)") }
     try rec.reschedule(start:start,end:end)
     return rec.describe()
@@ -198,7 +199,7 @@ actor Recordings {
 
   private func brief(_ d: [String: Any]) -> [String: Any] {
     var b: [String: Any] = [:]
-    for k in ["recording_id", "session_id", "state", "capture_quarantined", "label", "start_at", "end_at", "error", "video"] { if let v = d[k] { b[k] = v } }
+    for k in ["recording_id", "session_id", "state", "capture_quarantined", "unfinished_work", "label", "start_at", "end_at", "error", "video"] { if let v = d[k] { b[k] = v } }
     b["events"] = (d["events"] as? [Any])?.count ?? 0
     b["marks"] = (d["marks"] as? [Any])?.count ?? 0
     return b

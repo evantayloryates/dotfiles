@@ -1,0 +1,39 @@
+// Appended to the copied Recording.swift by the qualification builder, so
+// these methods exercise private production state without adding RPC APIs.
+#if RECORD_SCREEN_QUALIFICATION
+extension Recording {
+  func qualificationFrames() throws {
+    try q.sync {
+      try FileManager.default.createDirectory(atPath:dir,withIntermediateDirectories:true)
+      startHostNs=uptimeNs();endHostNs=startHostNs+200_000_000
+      inputEndHostSnap=endHostNs
+      sourceJournal=try SourceJournal(path:dir+"/source.jsonl",epoch:startHostNs,recordingID:id,target:targetRaw)
+      try makeWriter(width:32,height:32)
+      setState(.arming);beginAtStart()
+      var buffer:CVPixelBuffer?
+      guard CVPixelBufferCreate(kCFAllocatorDefault,32,32,kCVPixelFormatType_32BGRA,
+        [kCVPixelBufferIOSurfacePropertiesKey:[:] ] as CFDictionary,&buffer)==kCVReturnSuccess,let buffer else {throw RPCError.badParams("synthetic buffer")}
+      CVPixelBufferLockBaseAddress(buffer,[])
+      memset(CVPixelBufferGetBaseAddress(buffer),128,CVPixelBufferGetBytesPerRow(buffer)*32)
+      CVPixelBufferUnlockBaseAddress(buffer,[])
+      for i in 0..<5 {
+        let deadline=Date().addingTimeInterval(2)
+        while input?.isReadyForMoreMediaData == false && Date()<deadline {Thread.sleep(forTimeInterval:0.001)}
+        append(buffer,at:startHostNs+UInt64(i)*40_000_000)
+      }
+      lastBuffer=buffer;persist()
+    }
+  }
+  func qualificationEmptyWriter() throws {
+    try q.sync {
+      try FileManager.default.createDirectory(atPath:dir,withIntermediateDirectories:true)
+      startHostNs=uptimeNs();endHostNs=startHostNs+200_000_000
+      sourceJournal=try SourceJournal(path:dir+"/source.jsonl",epoch:startHostNs,recordingID:id,target:targetRaw)
+      try makeWriter(width:32,height:32);setState(.arming)
+    }
+  }
+  func qualificationFinish() { q.async { [self] in finalize(reason:nil,checkClock:false) } }
+  func qualificationRepeatWatchdog() { abandonIfStuck() }
+  func qualificationEarlyCallback() {snapLock.withLock {writerDone=true;encoderPending=false}}
+}
+#endif

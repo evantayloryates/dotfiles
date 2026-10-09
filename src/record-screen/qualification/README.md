@@ -39,6 +39,8 @@ No helper requests a new grant.
 | `export-test.swift` | Actual software MP4/GIF exports of a supplied synthetic VFR source; invalid parameters, saved packet maps, immutable names and effort defaults |
 | `verify-export.py` | Independent software packet/pixel proof for the authored uniform-grey VFR fixture; not an arbitrary app-image oracle |
 | `derivative-source.test.mjs` | Service-owned trim/GIF mapping, exact rational integers beyond JS precision, wrong identity/unknown clock refusal |
+| `encoder-finalization-test.py` | Frozen private compile plus actual off-screen AVAssetWriter, blocked finalization, late callback, peer isolation and retained manager admission; no screen or UI |
+| `verify-encoder-finalization.py` | Independently decode retained offscreen packet clocks and verify that late finalization preserves the interrupted outcome |
 | `startup-test.swift` | Actual recording state/watchdog races with a controlled preflight; no SDK discovery |
 | `input-test.swift` | Mechanical event scoping, contextual service stamps, namespace/restart uncertainty, strict numeric boundaries and persistence faults; no UI |
 | `admission-test.swift` | Future schedule and extension overlap/duration/lead admission, cancellation; no capture |
@@ -260,3 +262,21 @@ segment and equal reference/source scale, preserves the exact decoded frame time
 and refuses an existing proof/crop name. Supply only an independently observed,
 authored popup region; this is not an arbitrary-app image oracle. Source journal
 closure, spatial alignment and simultaneous scene recovery are separate claims.
+
+
+### Off-screen encoder failure isolation
+
+Run `encoder-finalization-test.py --output /absolute/private/new-stage`.
+The output directory must be new: failures, compile logs and authored videos are
+preserved rather than overwritten. The builder freezes engine/bridge sources,
+appends fixture-only accessors to the copied Recording/Recordings files and sets
+`RECORD_SCREEN_QUALIFICATION`. The production build excludes these accessors and
+queue-blocking hooks. It never installs or requests screen/input permissions.
+
+The test feeds authored 32×32 pixel buffers through the actual writer, blocks one
+finalization queue before encoder calls, and verifies the real watchdog, healthy
+peer finalization, far-future admission, journal closure and late-return policy.
+A separate controlled callback-before-call-return case keeps admission until both
+conditions settle. This is fault handling, not a natural hardware hang or resource
+stress test. Probe retained MP4 packets independently; complete journal rows do
+not imply complete video coverage.

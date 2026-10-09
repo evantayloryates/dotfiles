@@ -1,5 +1,37 @@
 # Qualification update — October 8, 2026
 
+## Fifteenth pass: encoder deadline isolation and unfinished admission
+
+Final candidate 88ce9b196ca6 removes the whole-engine encoder-stall restart callback.
+The timer arms before persistence, held-frame append or finishing/cancellation calls. The finalization deadline now isolates the affected recording, retains its
+unfinished reservation and closes input/journal telemetry without waiting on
+its blocked recording queue. A late writer callback releases settled resources
+without changing the terminal outcome or launching a review. SDK stop errors
+remain unconfirmed/reserved; no automatic repeated stop work or action replay.
+
+| Gate | Verified evidence | Limits |
+| --- | --- | --- |
+| Actual encoder/recording failure handling | 26 checks passed using authored 32×32 buffers through real AVAssetWriter and actual recording/admission code. One queue was blocked before encoder finishing calls; its healthy peer finalized. Deadline snapshots returned without waiting on that queue. | Controlled queue blockage, not a natural hardware encoder hang. Shared hardware can still affect peers. Fixture hooks are compiled only in private qualification builds. |
+| Late callback and call return | The interrupted outcome and negative video outcome survived late successful finalization. A separate controlled callback-before-call-return case retained admission and still reached the watchdog while the call remained blocked. | No assertion that all encoder APIs acknowledge completion or release promptly. |
+| Admission | The unfinished terminal take plus 15 future reservations refused a 16th future reservation; actual encoder return allowed that reservation. Resource-health IDs/counts matched settlement. Unfinished startup, encoder work and stream-stop acknowledgments use the same admission policy. | Configured cap 16 is not measured available capacity. Natural stopCapture stalls/errors were not exercised; failed acknowledgments conservatively retain their slot. |
+| Source and actual media | The failed source journal closed while its recording queue remained blocked, with null/unknown writer status, failed finalization and unverified muxed coverage. Three independently decoded MP4s supplied 15 exact journal/muxed timestamps. Actual late-file completion did not upgrade the deadline state. | Off-screen authored media only. Future partial files are not guaranteed to decode or contain every accepted submission. |
+| Adjacent state boundaries | Actual startup/cancellation/late-error (10), clock interruption (8) and scheduling/rescheduling admission (9) checks passed against the preceding frozen be7de3be085f source; the final correction changed timer placement and empty-writer finishing, covered by the 26-check finalization proof. | Controlled preflight avoids SDK discovery and UI; physical sleep and initial OS calls remain open. Historical callback-counter checks were removed with the deleted global restart API. |
+| Compiled service | Signed, privately loaded 88ce9b196ca6 independently reported encoder_failure_isolation:1, the exact loaded hash/PID, existing screen grant and zero unfinished captures. Production independently remained cd78c24b652e/PID71911. | Private capability readback, not installation or a live-screen stall proof. No new grant or live bundle replacement. |
+| Cleanup | Final private engine PID59436 exited 0 (the prior PID55561 also exited 0) and was actually reaped. Runtime/log/source copies remain private. No fixture, UI input or screen capture was used. | Pressure watcher and peer workflows stayed intact. Host pressure remained warning; no capacity or motion-insurance claim. |
+
+The first off-screen harness failed because its output directory did not exist
+before journal creation. Its crash/error artifact is preserved in encoder-isolation-1.
+The corrected directory setup passed; the final fixture added the independent
+callback-before-call-return boundary and passed 23 checks. Review then moved the watchdog ahead of held-frame/encoder operations and added an empty-writer deadline/late-cancellation case; the final 26-check proof passed. These were local
+fixture corrections, not a reset of earlier captures or service changes.
+
+Canonical repeatable kit: encoder-finalization-test.py, its copied-file accessors
+and verify-encoder-finalization.py. The builder freezes sources, preserves stage
+names and failures, and never invokes the installing build function. New source
+metadata and operational expectations are documented in SOURCE-PACKET.md.
+The broader peer-failure/resource gates remain partial for their explicit OS,
+SDK and hardware limits. Installed delivery remains pending.
+
 ## Fourteenth pass: transient overflow, occlusion and source-region evidence
 
 This stage followed the remaining menu boundary, without repeating settled clock,

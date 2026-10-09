@@ -360,3 +360,27 @@ capture showed occlusion and native pointer delivery failed. A padded native tak
 also retained the popup while losing its base. Validate the intended source and
 preserve disturbances; do not block human input or claim a usable backup merely
 from finalization. Sequential sources do not prove synchronized whole-shot recovery.
+
+
+## Candidate encoder deadline and retained admission
+
+`encoder_failure_isolation: 1` means the candidate finalization watchdog has no
+whole-engine restart callback. The affected recording becomes `interrupted`;
+`frames_provenance` is a persisted checkpoint and `video_outcome` records failed
+finalization with unverified muxed coverage. A closed/complete source journal
+still does not certify the partial MP4. Decode before trimming, using another
+source or reshooting. A late successful writer callback does not upgrade the
+terminal outcome or generate a review.
+
+`unfinished_work` distinguishes startup, encoder callback completion, encoder-call
+return and stream-stop acknowledgments. Unfinished work holds admission even
+when the requested interval ended or the recording is terminal. `capture_health`
+reports unfinished IDs and terminal quarantines; the configured cap is not a
+current hardware-capacity promise. Returned stream-stop errors remain unconfirmed
+and reserved; this does not repeatedly spawn SDK work. If a producer never returns,
+keep healthy peers running and choose maintenance at an explicitly idle boundary.
+
+The controlled off-screen proof exercises actual AVAssetWriter output and
+recording/admission code with a deliberately blocked queue. It is not a naturally
+wedged encoder, stalled stopCapture proof, or a guarantee that shared hardware
+cannot affect peers. Installed capabilities must be read back after delivery.

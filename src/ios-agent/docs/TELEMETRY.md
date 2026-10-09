@@ -100,7 +100,7 @@ checks the observer's forwarding on an isolated sentinel handler. That is narrow
 than invoking React Native's installed crash-reporter chain: the report explicitly
 labels its scope `isolated-adapter-with-device-global-fetch`. No fatal app exception
 is triggered. Host real-HTTP fixture and lease-cancellation tests pass; the exact
-installed-phone matrix remains pending until its fresh lease publishes all checks.
+installed-phone matrix passed all ten checks on the current adapter, recorded in physical-resume-smoke.json.
 
 ```sh
 /Users/taylor/dotfiles/bin/ios-agent action diagnostics-matrix \
@@ -117,5 +117,4 @@ adapter. Do not add arbitrary URL or eval control to pass missing coverage.
 
 For every physical result record the exact adapter/bundle fingerprint, current
 transport, assertions and cleanup. Keep older installed results separate from
-newer host-only changes. No physical phone, simulator, build, service or database
-was accessed by this bounded telemetry code-verification pass.
+newer host-only changes. That earlier bounded code-verification pass did not access a physical phone. Later physical global-fetch matrix and the newest unplugged GraphQL gate passed; the actual crash-reporter chain remains outside the isolated sentinel-handler scope.

@@ -13,21 +13,11 @@ final class StartupGate: @unchecked Sendable {
     pending?.resume(throwing: RPCError(code: "qualification_fault", message: "synthetic late startup failure"))
   }
 }
-final class RestartCounter: @unchecked Sendable {
-  let lock = NSLock()
-  private var count = 0
-  func increment() { lock.withLock { count += 1 } }
-  var value: Int { lock.withLock { count } }
-}
-
 @main struct StartupTest {
   static func main() async throws {
     let root = FileManager.default.temporaryDirectory.appendingPathComponent("record-startup-\(UUID().uuidString)")
     try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
     defer { try? FileManager.default.removeItem(at: root) }
-    let restarts = RestartCounter()
-    Recording.onEncoderStall = { restarts.increment() }
-    defer { Recording.onEncoderStall = nil }
     var checks = 0
     func check(_ ok: Bool, _ name: String) { guard ok else { fatalError(name) }; checks += 1 }
     func wait(_ condition: () -> Bool) async {
@@ -72,14 +62,12 @@ final class RestartCounter: @unchecked Sendable {
     await wait { stalled.state == .failed }
     check(stalled.captureQuarantined, "watchdog leaves unfinished work admitted")
     check(stalled.describe()["error"] as? String == "capture did not start within 0.06 s of start_at; unfinished startup retains its admission slot", "watchdog reason")
-    check(restarts.value == 0, "SDK startup deadline does not restart unrelated captures")
     stallGate.fail()
     await wait { !stalled.captureQuarantined }
     check(stalled.state == .failed, "late failure cannot overwrite deadline state")
     check((stalled.describe()["error"] as? String)?.contains("retains its admission slot") == true, "deadline cause survives late failure")
     await wait { persisted(stalled)["capture_quarantined"] as? Bool == false }
     check(persisted(stalled)["state"] as? String == "failed", "deadline recovery persisted")
-    check(restarts.value == 0, "no encoder-stall callback in synthetic SDK failures")
     print("{\"passed\":\(checks),\"scope\":\"actual recording scheduling, cancellation, watchdog and late preflight failures; no target discovery/capture\"}")
   }
 }

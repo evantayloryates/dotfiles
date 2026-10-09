@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "observedAt": "2026-10-09T02:28:47.172863+00:00",
+  "scope": "actual installed React Native phone app",
+  "timedHoldMs": 850,
+  "holdOpenedProductMenu": true,
+  "dedicatedLongPressRecognizerVerified": false,
+  "rejections": {
+    "covered-tab-rejection": "hit_target_changed_or_occluded",
+    "stale-snapshot-rejection": "fresh_snapshot_and_point_required",
+    "no-focus-rejection": "focused_text_input_required"
+  },
+  "coveredMenuRemainedOpen": true,
+  "closeTapCommittedAfter300msProductAnimation": true,
+  "systemOcclusionVerified": false,
+  "hardwareKeyboardSimulated": false,
+  "remaining": [
+    "dedicated long-press menu",
+    "nested gesture competition and cancellation",
+    "secure/composition field semantics"
+  ]
+}

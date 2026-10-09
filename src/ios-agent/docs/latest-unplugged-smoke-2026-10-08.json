@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "observedAt": "2026-10-09T02:28:47.172863+00:00",
+  "scope": "latest installed DEV, private Tailscale, USB unplugged by Taylor",
+  "gates": {
+    "final-off-ready": "passed",
+    "final-off-bundle": "passed",
+    "final-off-network": "passed",
+    "final-off-react": "passed",
+    "final-off-home": "passed",
+    "off-native-nutrition-route": "passed",
+    "off-native-home-route": "passed",
+    "restored-final-idle": "passed"
+  },
+  "wifiOffCallback": "returned",
+  "wifiOffIPv4Present": false,
+  "wifiOnCallback": "returned",
+  "wifiOnIPv4Present": true,
+  "settingsRadioSwitchDirectlyObservedThisBatch": false,
+  "nativeInput": "new native taps with independent committed Nutrition and Home route assertions",
+  "bundleSource": "tailnet-Metro",
+  "glowLeaseAndFrontendOff": true,
+  "productionCustomerDataUsed": false,
+  "xctestUsed": false,
+  "privateEvidencePath": "/Users/taylor/Library/Application Support/ios-agent/qualification-2026-10-08/unplugged-final-1791511425056022000",
+  "remaining": "representative physical gesture/keyboard edges, refresh/recovery cases and integration closeout"
+}

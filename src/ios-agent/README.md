@@ -1,13 +1,6 @@
 # Personal iOS app agent
 
-An earlier installed foreground app driver passed its cellular gate with USB unplugged
-and Wi-Fi disconnected on 8 October 2026. Native input, React inspection and
-lease/glow cleanup passed. A later remote-runtime build passed remote Metro
-delivery, live JavaScript marker updates, read-only navigation/Apollo status and
-embedded-bundle recovery. The newest telemetry/input qualification build is
-installed, but its phone bridge is currently offline. Its physical readiness,
-cellular check and complete coach/client workflow are still open. Host readiness
-and historical cellular results do not establish those gates.
+The latest installed SDK passed USB-unplugged Wi-Fi Off/On through private Tailscale: strict app readiness, fresh GraphQL, reconstructed React, native Nutrition/Home navigation, remote Metro and clean release. Original Wi-Fi association was restored. Both coach/client edit directions and data restoration passed. The fixed physical telemetry matrix passed ten checks. These qualify the stated dev workflows; remaining recognizer/keyboard/recovery edges are tracked in docs/QUALIFICATION.md.
 
 The host lives in dotfiles; the app integration stays on `ety/local-dev-foundation`.
 Only the explicit `IOS_AGENT_ENABLED=1` Debug build for `com.dev.kudos.fit` starts
@@ -58,7 +51,7 @@ exports message arguments, raw errors/stacks, URLs, headers or bodies. Fetch
 observation chains its promise while preserving response/rejection identity; it
 does not retry or consume payloads. The adapter bundled, installed and passed native-to-JavaScript session/protocol
 and history-reset checks on the phone. Console/fetch forwarding has host
-integration coverage; a physical HTTP/console/error-handler matrix remains open.
+integration coverage; the physical global-fetch matrix passed; the real crash-reporter chain is not invoked by the isolated sentinel-handler fixture.
 A read-only domain registry now samples the registered navigation route and
 Apollo's last emitted query statuses during a lease. Route names come from a
 static code allowlist; query data, variables, error contents and cache contents
@@ -167,7 +160,7 @@ shortcuts, then returns to the dev app. It accepts only `{"state":"on"}` or
 `{"state":"off"}`; no arbitrary shortcut name or URL is accepted. Foreground
 loss ends the lease, so reacquire after return and verify independent state.
 The USB shortcut actuator passed a connected → disconnected → connected test;
-the new app-owned command requires its own installed qualification. See
+the app-owned command passed the latest installed unplugged round trip. See
 [Wi-Fi workflow and recovery](docs/WIFI.md). A prepared acknowledgment or
 successful callback does not prove radio state.
 
