@@ -40,6 +40,13 @@ use the qualified CLI. Do not rewrite correct registrations or restart unrelated
 peers to discover capabilities. After a lost mutation reply, recover owned
 state before choosing an explicit retry, whichever consumer path is used.
 
+For workflow quality, use typed action outcomes and explicit session audits.
+Historical bridge turn completion/tool counts are execution evidence, not app
+verification, cleanup or provider adoption. A later cleanup settlement may keep
+the earlier verification object unchanged, with that distinction recorded in
+context. Check helper executable identity before acting on an old PID: stage63
+found a fixture PID reused by a live computer-use runtime and left it intact.
+
 Read-only CLI entry points:
 
 ```sh

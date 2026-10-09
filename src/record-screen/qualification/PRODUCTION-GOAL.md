@@ -1,6 +1,22 @@
 # Production qualification goal
 
-Current checkpoint: stage62. Both harness registrations correctly resolve to
+Current checkpoint: stage63. Background historical audit covers774 retained
+files:246 old bridge report/event pairs and140 typed receipts/142 initial
+outcomes across35 sessions. Bridge completion lacks typed verification/cleanup
+and exact session-key overlap; no task success rate inferred. Four delayed
+cleanup settlements preserve prior verification objects and partial history;
+one uncovered manual receipt gains12 retained source-metadata matches with
+cleanupunknown. Independent CLI/global audit now140receipts/147outcomes,
+uncovered0/partialcleanup0/cleanupcompleted139/unknown1/conflict1. Old wrong
+claim/failed correction/missing proof retained; all774 old hashes unchanged.
+Original fixture21631absent/exactsessionclosed; recycledPID66754 is live runtime
+and untouched. Shared guidance reconciled, native9bf/PID24295/binary and mapping
+sources unchangedidle.46completed16partial1needs_retest1deferred; goalactive.
+Visible renewal and ordinary adoption pending; no UI/input/capture/video decode/
+model/app-server/grant/native/peer restart. Full historical/physical/provider/
+capacity/fitted/whole-shot acceptance remains open; continue missing boundaries.
+
+Stage62 checkpoint: Both harness registrations correctly resolve to
 the canonical launcher; actual minimal GUI-PATH initialize/tools/status returns
 0.14.0,27 tools, read-only paired summary and mutation_replay never. Owned
 reader3395 exits0/independently absent; both config hashes unchanged. Ordinary

@@ -1,5 +1,56 @@
 # Qualification update — October 9, 2026
 
+## Sixty-third pass: historical workflow evidence and delayed cleanup
+
+The background audit inspected774 retained files without loading their prose
+into context or labelling text:246 old bridge report/event pairs,140 newer action
+receipts and142 typed outcomes. All35 typed session audits have complete,
+untruncated observation windows. The old report modification dates span
+September29–October6; typed receipt files beginOctober8. These are file-history
+dates, not authoritative action wall clocks or complete three-week coverage.
+
+| Lane | Actual retained evidence | Limits |
+| --- | --- | --- |
+| Historical bridge execution |246 reports/246 event logs,60 session keys;215 completed,15 failed,10 timeout,2 interrupted, and one each disconnected/needs_input/stopped/user_took_over;705 steps/688 tools/83 failed item events | Execution statuses, not task success. No typed verification/cleanup fields in these summaries; no exact session-key overlap with newer receipt store |
+| Before typed reconciliation |140 receipts/142 outcomes across35 sessions;121 verified/14 failed/3 not_checked/2 unknown;135 cleanupcompleted/4 partial/1 unknown;1 uncovered and1 conflicting verification receipt | Persisted claims, not authenticated app/actor success or all native operations |
+| Reference-path inventory |243 unique reference paths, one absent and zero nonregular | Existence does not validate content. Absent real-input-proof belongs to the preserved incorrect stage36 verified claim; failed correction remains latest |
+| Delayed cleanup |Four new immutable outcomes keep original verification objects exactly; session ses_aw8fmak4 closed, original fixture21631 independently absent, native idle | Earlier partial outcomes remain. No reconstructed old bounds, new action/grant/pixel proof or replay |
+| Previously uncovered legacy receipt |One new typed outcome rederives all12 saved marker/source metadata matches against original target/window, first matching frame and latency | Original caller_claimed provenance remains. This is retained sampled metadata correspondence, not fresh pixel decoding or physical/provider calibration; original helper cleanup stays unknown |
+| Independent after-audit |140 receipts/147 outcomes;122 verified/14 failed/3 not_checked/1 unknown;139 cleanupcompleted/1 unknown;0 uncovered/0 partial;conflict1 retained | Counts are reports. Ordinary native provider adoption and historical all-operation coverage remain open |
+
+The old marker fixture PID66754 is now a later live
+`/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl` process.
+It was not touched. PID presence alone cannot identify a retained helper or
+prove its original cleanup; executable/start identity and exact session state
+matter. A small inspection script initially confused gates-v27 with gates-v2
+and failed before publishing anything; corrected exact path selection used the
+same saved files. No desktop action was retried.
+
+All774 original file hashes remain unchanged after five appended outcomes.
+The old wrong-oracle verified claim, failed correction and absent proof reference
+are retained without fabricating a replacement file. Two independent CLI session
+audits and a fresh35-session aggregate confirm the new publication. The shared
+capability/runbook and skill-local notes now describe delayed cleanup, historical
+denominators and recycled-PID identity checks. No harness-global memory changed.
+
+Signed native9bf/PID24295/exact binary and mapping/server sources remain
+unchanged. Unfinished recordings0/actions0/input subscribers0/viewfinder lanes0.
+No UI/input, capture, video decoder, model, classifier, app-server, permission
+change or native/peer restart. Checklist46completed/16partial/1needs_retest/
+1deferred; goal active, visible renewal pending. Typed source-metadata checks do
+not complete physical/provider, precise fitted origin, capacity, whole-shot
+recovery or ordinary consumer adoption. Continue missing boundaries, preserving
+the captured passes and failures.
+
+Private evidence: gates-v63/{evidence-inventory.json,history-audit-summary.json,
+snapshot-manifest.json,typed-session-audits.json,reference-path-inventory.json,
+open-and-conflicting-records.json,retained-fixture-session.json,
+cleanup-reconciliation-proof.json,legacy-marker-source-correspondence.json,
+published-outcome-readback.json,fixture-session-audit-after.json,
+legacy-session-audit-after.json,typed-session-audits-after.json,
+qualification-summary.json}. The offline scan and reconciliation scripts are
+retained beside those proofs; they do not operate the UI or another agent.
+
 ## Sixty-second pass: configured launch and shared consumer expectations
 
 Both actual Claude and Codex registrations resolve to the canonical

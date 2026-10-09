@@ -90,6 +90,27 @@ an oversized bucket/file, symlink or corrupt entry refuses planning. Conflicts
 outside the returned window must never disappear into an apparent latest pass.
 Evidence paths are references only; their contents are not fetched or graded.
 
+Retained-history audits must keep execution and verification denominators
+separate. Stage63 inspected all246 saved bridge reports/event logs and all140
+typed receipts across35 sessions. Bridge turn completion did not carry typed
+verification or cleanup, and exact session keys did not overlap the newer store.
+Do not infer app success, cleanup or native-provider adoption from those counts,
+final prose, file modification dates or a shared caller/provider name.
+
+Later cleanup can be appended against the same immutable receipt after exact
+session/process readback. Preserve earlier partial outcomes and state explicitly
+when the prior verification object is carried forward rather than re-executed.
+Four such settlements and one retrospective source-metadata outcome now leave
+zero uncovered receipts; one cleanup remains unknown. The old incorrect verified
+claim/missing reference and its failed correction remain intact. An existing
+reference path alone would not validate its contents. See record-screen
+qualification/GATES.md stage63 for exact scope.
+
+Verify executable identity as well as PID before touching a retained helper.
+Stage63's old fixture PID66754 belonged to a later live computer-use runtime;
+it was left intact. Do not treat PID presence as proof that the original helper
+survives, or use another live process to claim its historical cleanup.
+
 Use the result to choose the next narrow check, then append a reported outcome
 with limits and evidence references through `computer_use_observe`. This same
 feedback path works for ordinary computer use without recording. Capture facts

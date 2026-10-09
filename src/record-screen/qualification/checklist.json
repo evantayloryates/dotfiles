@@ -1,9 +1,9 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T14:39:15-04:00",
+  "updated_at": "2026-10-09T14:49:39-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage62 configured launcher passes actual minimal GUI-PATH0.14.0/27-tool/replay-never readback; registrations unchanged and owned reader settled. Shared computer-use coordination guidance updated with geometry/content and consumer identity limits; native unchangedidle. Ordinary chat adapter unverified, visible renewal pending.46completed16partial1needs_retest1deferred; continue unblocked investigation without restarting peers or replaying stable captures."
+    "note": "Stage63 retained-history audit covers774 files; four delayed cleanup settlements and one missing typed outcome appended, with original history preserved.140receipts/147outcomes/uncovered0/cleanupcompleted139/unknown1/conflict1; older bridge completion is not app success or native adoption. Original files/native unchanged; no UI or replay.46completed16partial1needs_retest1deferred. Visible renewal and ordinary adoption pending; continue missing investigative boundaries."
   },
   "production_note": "Current CLI/fresh MCP0.14 provides opt-in exact whole-interval region durations with budget refusal.37 affected +9 final focused checks and actual MCP/CLI/default parity. Retained90s source:1769 segments evaluated; geometry is separate from captured pixels. Legacy/fitted guards remain. Signed native9bf/PID24295/exact binary unchangedidle, three scoped facts read back, own readers settled. Ordinary loaded adapter still unverified; full acceptance open.",
   "groups": [
@@ -556,20 +556,20 @@
           "title": "Verify the quality of recent shared computer-use workflows",
           "status": "partial",
           "scope": "Assess delivered actions, verification and cleanup rather than tool-call counts.",
-          "evidence": "Stage58 two supported recorder-stamped consumers each ran once, with terminal receipts and separate verified/cleanup-complete outcomes; fresh central audit uncovered0. Second read checks changed cursor qualification binding on retained media. Historical audit and routine adoption stay separate.",
-          "next": "Extend ordinary workflow outcome coverage and historical diagnosis without promoting source/read success to actor/input/UI completion.",
-          "anchor": "fifty-eighth-pass",
-          "updated_at": "2026-10-09T13:23:27-04:00"
+          "evidence": "Stage63 all774 retained files inspected:246 bridge report/event pairs and140 typed receipts/142 initial outcomes across35 sessions. Bridge completion has no typed verification/cleanup and no exact session-key overlap; no all-operation success rate. Four cleanup settlements preserve prior verification objects; one manual receipt gains12 source-metadata checks with cleanupunknown. Independent CLI/global audit:140 receipts/147 outcomes, uncovered0,139cleanupcompleted/1unknown, conflict1. Original hashes/wrong claim/failed correction/missing proof retained.",
+          "next": "Extend ordinary native workflow outcome coverage and targeted historical diagnosis where independent state proof exists. Keep execution status, reported verification, cleanup and actor/adoption uncertainty separate; do not replay settled actions or grade final prose.",
+          "anchor": "sixty-third-pass",
+          "updated_at": "2026-10-09T14:49:39-04:00"
         },
         {
           "id": "receipt-integration",
           "title": "Improve automatic receipt coverage across providers",
           "status": "partial",
           "scope": "Capture durable operation evidence for native and browser actions.",
-          "evidence": "Stage49 current helper preserves ordinary error identity and frozen/primitive/provider-report values as wrappercause plus workflowReport. Real installed3shape consumer gets actual terminal failures; fourth local adapter withheld successful end reply, independent action.list recovered receipt/token and separate typed outcome. Each operation/end/cleanup once; earlier unknown report not backfilled.9checks,4settled typed outcomes,2module-scoped facts readback. Stage48 native source evidence retained.",
-          "next": "Extend ordinary provider adoption and durable evidence; safe chat MCP refresh pending. No automatic native interception or authenticated actor inference; preserve unknown reports and inspect actual IDs before explicit retry.",
-          "anchor": "forty-ninth-pass",
-          "updated_at": "2026-10-09T08:35:18-04:00"
+          "evidence": "Stage63 durable typed reconciliation now covers all140 retained receipts across35 sessions, with147 outcomes/zero uncovered/one cleanupunknown. Four later cleanup settlements retain earlier partial history and exact verification objects; retrospective caller-claimed source correspondence does not add authenticated native interception. PID66754 recycled into live runtime and untouched. Earlier stage49 error/withheld-reply recovery and conflicting corrected verification history preserved.",
+          "next": "Extend actual ordinary native/browser provider adoption and durable receipt/verification/cleanup publication. Safe consumer readback pending; recover actual owned IDs after uncertain replies, verify executable identity before old-PID cleanup, and retain unknown outcomes.",
+          "anchor": "sixty-third-pass",
+          "updated_at": "2026-10-09T14:49:39-04:00"
         },
         {
           "id": "shared-baseline-plan",
@@ -2444,6 +2444,29 @@
       "from": "active",
       "to": "active",
       "note": "Stage62 configured launcher passes actual minimal GUI-PATH0.14.0/27-tool/replay-never readback; registrations unchanged and owned reader settled. Shared computer-use coordination guidance updated with geometry/content and consumer identity limits; native unchangedidle. Ordinary chat adapter unverified, visible renewal pending.46completed16partial1needs_retest1deferred; continue unblocked investigation without restarting peers or replaying stable captures."
+    },
+    {
+      "kind": "item",
+      "id": "workflow-audit",
+      "at": "2026-10-09T14:49:39-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage63 all774 retained files inspected:246 bridge report/event pairs and140 typed receipts/142 initial outcomes across35 sessions. Bridge completion has no typed verification/cleanup and no exact session-key overlap; no all-operation success rate. Four cleanup settlements preserve prior verification objects; one manual receipt gains12 source-metadata checks with cleanupunknown. Independent CLI/global audit:140 receipts/147 outcomes, uncovered0,139cleanupcompleted/1unknown, conflict1. Original hashes/wrong claim/failed correction/missing proof retained."
+    },
+    {
+      "kind": "item",
+      "id": "receipt-integration",
+      "at": "2026-10-09T14:49:39-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage63 durable typed reconciliation now covers all140 retained receipts across35 sessions, with147 outcomes/zero uncovered/one cleanupunknown. Four later cleanup settlements retain earlier partial history and exact verification objects; retrospective caller-claimed source correspondence does not add authenticated native interception. PID66754 recycled into live runtime and untouched. Earlier stage49 error/withheld-reply recovery and conflicting corrected verification history preserved."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T14:49:39-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Stage63 retained-history audit covers774 files; four delayed cleanup settlements and one missing typed outcome appended, with original history preserved.140receipts/147outcomes/uncovered0/cleanupcompleted139/unknown1/conflict1; older bridge completion is not app success or native adoption. Original files/native unchanged; no UI or replay.46completed16partial1needs_retest1deferred. Visible renewal and ordinary adoption pending; continue missing investigative boundaries."
     }
   ]
 }
