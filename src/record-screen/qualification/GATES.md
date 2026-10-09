@@ -1,4 +1,32 @@
-# Qualification update — October 8, 2026
+# Qualification update — October 9, 2026
+
+## Twentieth pass: native gesture pixels and installed input permission
+
+The installed production recorder remains 767d45f6ce40/PID15145. Its Screen
+Recording grant is present; its distinct Input Monitoring observation is false.
+Two input-enabled fixture takes finalized without input rows and recorded an
+explicit listen_access_unavailable gap. Zero journal loss does not erase this
+missing coverage. Taylor approved enabling the signed installed app; System
+Settings reached the human Touch ID prompt before adding it. No other app grant,
+credential entry or repeated permission request was performed.
+
+| Gate | Verified evidence | Limits |
+| --- | --- | --- |
+| Native readiness recovery | Initial native screenshot refused with noWindowsAvailable despite AX and isolated capture availability. The observed window Raise action restored screenshot readiness; the same fixture was retained. | Not universal off-Space recovery. Initial empty take and expired action receipt remain retained, not retroactively upgraded. |
+| App delivery | Authored AppKit canvas received down, two drags, up and wheel. Its independently converted Quartz points exactly match CG points. Wheel point delta Y was -285, continuous true, phase/momentum zero. | CUA synthesized a sparse gesture; no physical rate, smooth trajectory or touchpad-phase guarantee. Delivery does not identify actor. |
+| Recorded pixels | Existing take's drag endpoint centroid differs by at most 0.450004 source pixels; wheel stripe by 0.039990 pixels. Recorded affine mapping and two decoded mux samples were used; no replacement take. | Built-in 2x display, authored fixture, endpoint and scroll stripe only. Intermediate drag samples are too closely spaced for independent video alignment. |
+| Source/mux parity | Initial and recovered takes supplied 398 and 307 exact mux/source timestamps, zero journal loss and zero encoder drops. | Input coverage absent in both; media completeness cannot promote telemetry. |
+| Action receipts | Recovered gesture bracket closed promptly as delivered after app counters/log readback. The first bracket expired and remains interrupted. | Deliberate native bracketing, not automatic provider hooks or actor attribution. Source analysis is independent of the delivered receipt. |
+| Permission recovery | Scoped System Settings Input Monitoring lane contains no recorder row. Add reached human authentication. Taylor explicitly authorized the installed signed recorder grant. | Awaiting human authentication, app selection and actual delivered-event canary. No grant or telemetry-recovery claim yet. |
+
+New gesture-fixture.swift and verify-gesture.py support independent delivery,
+scope interval, exact raw input fields when present, and source-pixel proof.
+--require-input prevents a pixel-only result from being mistaken for input
+coverage. The current repeatable proof retains five app events, zero input
+matches and the explicit missing-access gap. Initial refusal and successful
+retained footage remain separate. No live native build/restart was needed.
+Production permission runbooks now distinguish the grants and require a fresh
+subscription plus app-delivered canary, with a fenced restart only if required.
 
 ## Nineteenth pass: ordered input loss and scope continuity
 

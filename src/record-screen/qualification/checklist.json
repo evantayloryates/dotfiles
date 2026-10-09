@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-08T23:47:29-04:00",
+  "updated_at": "2026-10-09T00:06:25-04:00",
   "workflow": {
     "state": "active",
     "note": "Taylor resumed qualification. Prioritize high-impact investigation, preserve failed evidence and useful progress, and avoid repeated resets or rerunning settled checks."
   },
-  "production_note": "Native 767d45f6ce40 is installed and independently read back with input_queue_loss:1 and the existing grant. Thirty controlled actual-queue checks passed; same MCP 0.8.0 idle read recovery survived delivery. Broader app/input/insurance/resource gates, existing consumer policy and restoration remain open.",
+  "production_note": "Native 767d45f6ce40 remains installed with Screen Recording and input_queue_loss:1. Native gesture pixels passed; Input Monitoring is separate and unavailable. Taylor approved enabling it; human authentication and fresh delivered-event canary are pending. Broader qualification remains active.",
   "groups": [
     {
       "id": "capture",
@@ -142,10 +142,10 @@
           "title": "Qualify pointer positions for downstream composition",
           "status": "partial",
           "scope": "Normalize provider positions into recorded pixels without guessing coordinate semantics.",
-          "evidence": "Four native CUA delivered clicks exactly matched raw CG coordinates and event timestamps across external 1x and built-in 2x, including negative desktop y. Saved transforms predicted decoded marker centroids within 0.5 pixels. One take supplied 481 exact source/mux samples. Initial noWindowsAvailable refusal retained; external/home AX controls recovered delivery without restarting the take.",
-          "next": "Qualify drag/scroll and another provider or physical-input lane, then expose recorder-owned mapping with explicit provider confidence; do not repeat settled native-click proof.",
-          "anchor": "tenth-pass",
-          "updated_at": "2026-10-08T20:33:47-04:00"
+          "evidence": "Four earlier native CUA clicks across 1x/2x retained exact raw timestamps/points and 0.5px alignment. New built-in 2x app-delivered drag endpoint and scroll stripe align in retained video within 0.450004/0.039990 pixels; 307 exact mux/source samples. Production input rows absent because Input Monitoring is unavailable.",
+          "next": "After human-approved installed grant, match fresh drag/wheel input rows; extend another provider or physical lane with explicit confidence. Preserve existing click/pixel proof.",
+          "anchor": "twentieth-pass",
+          "updated_at": "2026-10-09T00:06:25-04:00"
         },
         {
           "id": "sleep-clock",
@@ -178,10 +178,10 @@
           "title": "Qualify dense pointer, keyboard and gesture telemetry",
           "status": "partial",
           "scope": "Delivered keys, modifiers, motion, clicks, scroll and drag with bounded callback work.",
-          "evidence": "Native key/click evidence retained. Thirty controlled actual-queue checks now prove a 2048-event bound, exact ordered loss, separate journal loss and tail-gap flush. Installed 767d45f6ce40 reports input_queue_loss:1.",
-          "next": "Qualify native drag/scroll and physical provider-rate coverage; retain raw trajectories and explicit loss rather than repeating settled key/click proof.",
-          "anchor": "nineteenth-pass",
-          "updated_at": "2026-10-08T23:47:28-04:00"
+          "evidence": "Thirty controlled actual-queue checks and prior key/click proof retained. New native CUA canvas delivered down/two drags/up/wheel with exact independent Quartz/CG points; sparse gesture only. Installed input-enabled takes explicitly lack access and contain zero input rows.",
+          "next": "Verify installed Input Monitoring recovery through matched delivered events; then physical rate, touchpad phases and richer keyboard scope. Do not infer density from sparse CUA gestures.",
+          "anchor": "twentieth-pass",
+          "updated_at": "2026-10-09T00:06:25-04:00"
         },
         {
           "id": "ordered-input-loss",
@@ -238,10 +238,20 @@
           "title": "Qualify missing-event and tap-fault behavior",
           "status": "partial",
           "scope": "Expose virtual-input gaps, revoked access, disabled taps and overload.",
-          "evidence": "Owned passive listener: 27 policy checks; three controlled timeout recoveries then exhaustion; user-disable overrides and blocks a second subscriber. Eight exact native key transitions proved four omitted and four retained after deliberate recreation. Source summaries retain negative faults. A 750-ms passive delay produced no natural timeout.",
-          "next": "Qualify physical access revocation and natural timeout when safely observable; extend virtual-provider coverage. Initial CG/per-key/recovery calls remain unbounded; do not infer completeness from listening status.",
-          "anchor": "thirteenth-pass",
-          "updated_at": "2026-10-08T21:45:20-04:00"
+          "evidence": "Prior controlled tap fault/key recovery proof retained. Installed 767d45f6ce40 input-enabled takes finalized video but explicitly reported listen_access_unavailable and no input rows. Human-approved permission setup reached Touch ID; no grant/recovery claim yet.",
+          "next": "Complete approved grant and fresh subscription canary. Physical revocation/natural timeout and initial OS/per-key call bounds remain open.",
+          "anchor": "twentieth-pass",
+          "updated_at": "2026-10-09T00:06:25-04:00"
+        },
+        {
+          "id": "installed-input-access",
+          "title": "Verify installed Input Monitoring and delivered telemetry",
+          "status": "partial",
+          "scope": "Separate Screen Recording from the signed installed recorder Input Monitoring grant; recover only with human approval and actual delivered-event proof.",
+          "evidence": "Installed 767d45f6ce40 retained two complete videos with explicit listen_access_unavailable gaps and zero input rows. Taylor approved the specific grant; System Settings Add awaits human Touch ID. No recorder row or telemetry recovery yet.",
+          "next": "Complete human authentication, add the installed bundle, observe enabled state and match fresh app-delivered gestures to retained input rows. Use idle fenced restart only if required.",
+          "anchor": "twentieth-pass",
+          "updated_at": "2026-10-09T00:06:03-04:00"
         }
       ]
     },
@@ -446,10 +456,10 @@
           "title": "Improve automatic receipt coverage across providers",
           "status": "partial",
           "scope": "Capture durable operation evidence for native and browser actions.",
-          "evidence": "An explicit callback wrapper and imported shared receipts work; native CUA still requires deliberate bracketing.",
-          "next": "Integrate typed delivery/verification/cleanup outcomes where supported; keep uncovered operations explicit.",
-          "anchor": "fifth-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "evidence": "Prior callback/imported receipt evidence retained. New native gesture bracket closed promptly as delivered after five app events; the earlier expired bracket remains interrupted. Native screenshot refusal and observed Raise recovery preserved without fixture restart.",
+          "next": "Integrate typed outcomes automatically where supported; verify action IDs/relevance in fresh granted input rows without attributing actor from brackets.",
+          "anchor": "twentieth-pass",
+          "updated_at": "2026-10-09T00:06:25-04:00"
         }
       ]
     },
@@ -817,6 +827,38 @@
       "from": "partial",
       "to": "partial",
       "note": "Synthetic read recovery and single mutation submissions passed. Fresh adapter 0.8.0 reports replay_policy:1; same MCP PID15069 read the new native build and retained source across the warranted fenced upgrade. Connected harness adapter still omits policy."
+    },
+    {
+      "kind": "item",
+      "id": "pointer-coordinates",
+      "at": "2026-10-09T00:06:25-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Four earlier native CUA clicks across 1x/2x retained exact raw timestamps/points and 0.5px alignment. New built-in 2x app-delivered drag endpoint and scroll stripe align in retained video within 0.450004/0.039990 pixels; 307 exact mux/source samples. Production input rows absent because Input Monitoring is unavailable."
+    },
+    {
+      "kind": "item",
+      "id": "dense-events",
+      "at": "2026-10-09T00:06:25-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Thirty controlled actual-queue checks and prior key/click proof retained. New native CUA canvas delivered down/two drags/up/wheel with exact independent Quartz/CG points; sparse gesture only. Installed input-enabled takes explicitly lack access and contain zero input rows."
+    },
+    {
+      "kind": "item",
+      "id": "provider-gaps",
+      "at": "2026-10-09T00:06:25-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Prior controlled tap fault/key recovery proof retained. Installed 767d45f6ce40 input-enabled takes finalized video but explicitly reported listen_access_unavailable and no input rows. Human-approved permission setup reached Touch ID; no grant/recovery claim yet."
+    },
+    {
+      "kind": "item",
+      "id": "receipt-integration",
+      "at": "2026-10-09T00:06:25-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Prior callback/imported receipt evidence retained. New native gesture bracket closed promptly as delivered after five app events; the earlier expired bracket remains interrupted. Native screenshot refusal and observed Raise recovery preserved without fixture restart."
     }
   ]
 }

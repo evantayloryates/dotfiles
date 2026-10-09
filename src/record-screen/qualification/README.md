@@ -304,3 +304,22 @@ Run `delivery-readiness.py --candidate /absolute/candidate.app --output
 before/after status and job responses, checks signatures and source stamp, and
 keeps missing legacy diagnostics unknown. Its result does not reserve admission
 or authorize a restart. Both tools preserve prior stages rather than overwrite.
+
+### Native gesture receipts and pixels
+
+`gesture-fixture.swift` is an authored AppKit drag/wheel delivery oracle. It logs
+only events delivered to its canvas, with raw CG timestamps/points, independent
+AppKit-to-Quartz coordinates and scroll fields. It neither installs a global tap
+nor synthesizes input. Raise its observed window and verify native screenshot
+readiness before a coordinate gesture; isolated capture readiness alone is
+insufficient. Keep its delivered JSONL and video private.
+
+Run `verify-gesture.py --recording /absolute/recording-dir --delivered
+/absolute/delivered-PID.jsonl --output /absolute/private/proof-dir`. Add
+`--require-input` after the installed recorder's human-approved Input Monitoring
+grant. Without that flag, the result can prove pixels while explicitly reporting
+zero input matches. It filters app receipts to the take's interval, checks exact
+raw event timestamps/positions/scroll fields when present, and decodes the drag
+endpoint and scroll stripe using the recorded affine geometry. Separately run
+`verify-journal.py` for actual mux/source parity. Sparse CUA drag events do not
+qualify physical trajectory density, touchpad phases or actor identity.

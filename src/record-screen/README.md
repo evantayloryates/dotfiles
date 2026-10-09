@@ -474,6 +474,22 @@ macOS asks again every 30 days. The re-confirm date lives in
 
 ## Capture foundations and qualification
 
+Input telemetry needs a separate **Input Monitoring** grant for the installed
+signed `record-screend.app`. Screen Recording permission alone does not supply
+it, and `record-screen grant` only requests Screen Recording. With explicit
+user approval, add the installed bundle under System Settings > Privacy &
+Security > Input Monitoring; authentication belongs to the human user.
+Do not alter another application's permission or repeatedly request a prompt.
+
+When input is requested without this grant, video can still finalize while the
+source records `input_gap: listen_access_unavailable` and no delivered input.
+That is incomplete input coverage, even if the journal closes with no lost rows.
+`status.input_timeline.listen_access` is a last observation with its own timestamp;
+an idle value does not establish present access. A fresh subscription rechecks it.
+After approval, verify an actual app-delivered event against retained source rows.
+Use a fenced idle restart only if macOS requires it; never restart active work
+merely to refresh a permission observation.
+
 Build 767d45f6ce40 was delivered and independently read back on October 8,
 following the e0d053bc6732 foundation release.
 The existing screen grant and prior state survived the upgrade and an idle

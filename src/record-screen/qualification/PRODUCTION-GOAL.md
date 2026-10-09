@@ -481,3 +481,30 @@ same-app/contextual receipt coverage, daily-app overflow and measured motion
 insurance/resource bounds. Keep initial OS/per-key calls, physical sleep/access
 faults, listener-start coverage, safe consumer migration and restoration open.
 Do not rerun settled click/color or metadata evidence to inflate coverage.
+
+## Twentieth-pass permission checkpoint
+
+Native drag/wheel app delivery and retained video passed on the built-in 2x
+display: five sparse CUA events, exact AppKit/CG points, drag endpoint alignment
+within 0.450004 pixels and scroll stripe within 0.039990 pixels. Two existing
+takes supplied 398/307 exact mux/source samples and no encoder/journal loss.
+Initial native refusal recovered through the observed Raise action; no fixture
+restart or replay for pixel analysis. The first action expired; the later
+bracket closed promptly as delivered. Preserve both classifications.
+
+Installed native 767d45f6ce40/PID15145 has Screen Recording but currently lacks
+Input Monitoring. Both takes explicitly report listen_access_unavailable and
+zero input rows. Taylor authorized enabling the installed signed app; System
+Settings Add reached Touch ID. Authentication belongs to Taylor. The app has
+not been selected/granted yet; leave the prompt for the human without credential
+entry, repeated requests or permission changes to peers.
+
+Next: after authentication, add the exact installed bundle, observe the switch,
+then take a short fresh subscription and match actual app-delivered gestures to
+source rows via verify-gesture.py --require-input. Restart only if macOS requires
+it, using the existing idle fence. Keep current owned fixture PID21631/window6876
+and session ses_aw8fmak4 available for that continuation; no active recording,
+action or input subscriber remains. Existing footage is preserved privately under
+gates-v20. Physical provider density, touchpad phases, keyboard/global-shortcut
+scope, same-app actor distinction, broader daily-app/insurance/resource gates
+remain open. No whole-phase reset or replay of settled tests.
