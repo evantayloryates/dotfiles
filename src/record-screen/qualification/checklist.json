@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T08:01:47-04:00",
+  "updated_at": "2026-10-09T08:23:18-04:00",
   "workflow": {
     "state": "active",
-    "note": "Fixed and verified an actual shared-planner reuse hole: explicit unknown provider dimensions block callertrue confirmation. Real TextEdit fact retained, CLI/fresh shared MCP equal; typed once-only reader settled. Current daily-app version baselines refreshed, Chrome readiness unknown preserved.43 completed,16 partial,1 deferred; continue unblocked high-impact gates."
+    "note": "TextEdit scroll/source recovery qualified under real interference without reshoot:5882 exact pair joins,12 recovered native wheel events, failed first dispatch retained. Four typed episodes3verified/1failed, allsettled. Passive GPU observations and observer child CPU scope documented.43completed16partial1deferred; continue remaining physical/provider/admission and ordinary consumer refresh gates."
   },
-  "production_note": "Native3ff4c4519dc8/PID74192 unchanged idle, input access retained. Current shared planner policy1 blocks explicit unknown dimensions even callertrue; real TextEdit fact and CLI/fresh shared MCP proof verified. Installed daily-app version baselines refreshed; Chrome native readiness timeout preserved without input/capture. Recorder currentCLI/freshMCP0.11.5 remains available; ordinary chat refresh, physical/provider/recovery limits and composition deferral remain.",
+  "production_note": "Installed3ff/PID74192 remains idle with Input Monitoring access. Actual TextEdit90s pair retained5882 exact source/media joins and12 recovered native wheel events; display crop occluded while isolated document remained useful. Three verified/one failed typed episodes fully settled, facts read back. Bounded passiveGPU collector adds host observations with explicit unknown attribution/capacity. CurrentCLI/freshMCP0.11.5 available; ordinary chat safe refresh and physical/provider/admission limits remain. Composition deferred.",
   "groups": [
     {
       "id": "capture",
@@ -106,10 +106,10 @@
           "title": "Prove a useful overflow capture and recovery path",
           "status": "partial",
           "scope": "Display padding/cropping must add transient coverage beyond the original canvas.",
-          "evidence": "Stage39 padded crop omits meaningful Quick Look content; full display retains it with interference. Stage40 region mapper distinguishes bounds from pixels. Stage41 direct discovered layer3 source retains clean owned panel/title/text in candidate/installed selected frames;566 exact packets. Default inventory unchanged; no universal transient guarantee.",
-          "next": "Qualify a useful remaining actual app transient/occlusion lane; keep discovery, geometry and pixel presence distinct. Composition/reintegration deferred.",
-          "anchor": "forty-first-pass",
-          "updated_at": "2026-10-09T06:52:43-04:00"
+          "evidence": "Stage48 real TextEdit isolated source preserves six-pair scroll under actual display occlusion; selected mapped row057→001,5882 pair joins. Selected display samples omit intended document; failed primary preserved, no reshoot. Stage39/40/41 QuickLook crop/full/direct-source extent findings retained. Useful source rescue does not establish all-app transient or final reintegration.",
+          "next": "Qualify a useful remaining actual transient/extent/full-shot insurance boundary; preserve discovery/geometry/pixel distinctions and prior failed primary. Composition/reintegration deferred.",
+          "anchor": "forty-eighth-pass",
+          "updated_at": "2026-10-09T08:23:18-04:00"
         },
         {
           "id": "clean-source",
@@ -248,10 +248,10 @@
           "title": "Separate session events from unrelated user activity",
           "status": "partial",
           "scope": "Retain delivery and action-context reasons, broad shortcuts and uncertain candidates.",
-          "evidence": "New bounded retained-input API preserves12 exact prior keys, including six independently known same-app other-window deliveries with unresolved window/actor status. Optional contextual filter returns six; generous unassociated default and inclusion reasons remain explicit. Earlier installed cross-app destination repair and physical/global limits retained.",
-          "next": "Qualify physical/global input and simultaneous same-app human/agent activity at a changed boundary; use semantic context to refine candidates without authenticating actor ownership.",
-          "anchor": "thirty-sixth-pass",
-          "updated_at": "2026-10-09T05:10:16-04:00"
+          "evidence": "Stage48 broad source query retains28events including12 wheel rows with actual targetPID20383/action token while another app foreground. Other unassociated modifier/move candidates remain; ownership/window attribution unknown. All28 snapshots unprotected and one preceding listen notification, not universal physical delivery. Prior12key/two-window shortcut and known-other exclusion proof retained.",
+          "next": "Qualify actual physical/provider relevance boundary; keep broad shortcut candidates and source reasons, refine with director semantics without claiming actor or focused-field ownership.",
+          "anchor": "forty-eighth-pass",
+          "updated_at": "2026-10-09T08:23:18-04:00"
         },
         {
           "id": "protected-input",
@@ -414,10 +414,10 @@
           "title": "Set a realistic resource and admission budget",
           "status": "partial",
           "scope": "CPU, memory, encoder/GPU/storage costs and useful production-duration estimates.",
-          "evidence": "Actual330s Retina60 window/display pair passed35345 exact packets and decoded motion/stopped counters.327 fresh in-take normal pressure/nominal thermal samples; recorder0.12953cores/47.73MiB peakRSS.513.52MB video+22.63MB journals combined. Eight pressure/thermal guard checks passed; live guard inactive. Earlier point profiles retained. Stage38 CLI/fresh MCP0.11.1 publishes matched actual reference figures, separate recorder/fixture/WindowServer costs and duration-scaled byte/row/packet budget flags.10 targeted/adjacent checks and real MCP/CLI readbacks passed. One-hour reference scenario exceeds native and both reader budgets; no safe duration/disk/admission/P80 claim.",
-          "next": "Qualify a useful missing requested-app/load/GPU/capacity or practical long-shot boundary. Use explicit shorter takes and actual bytes/loss/coverage, not the reference scenario as a guarantee. Preserve settled source/guard proofs.",
-          "anchor": "thirty-eighth-pass",
-          "updated_at": "2026-10-09T05:47:53-04:00"
+          "evidence": "Stage48 actual TextEdit native2x90s pair:5882 exact packets,116GPU samples/87 approximate in-take host fields; Device/Renderer0..59 median28,Tiler0..44 median14.100fresh warning-pressure process samples; recorder7.93CPU seconds over99.999s,RSS44528..145616KiB. GPU observer reaped-child accounting added, separate2s smoke;5 checks passed. Capture/process intervals differ, no recorder/encoder attribution or thermal/capacity threshold. Earlier330s normal-pressure profile and stage38 storage budgets retained.",
+          "next": "Qualify useful remaining load/encoder/GPU calibration or practical capacity boundary; host fields alone do not establish safe admission/P80. Preserve both profiles and use shorter owned takes plus actual bytes/coverage.",
+          "anchor": "forty-eighth-pass",
+          "updated_at": "2026-10-09T08:23:18-04:00"
         },
         {
           "id": "sparse-display-writer",
@@ -526,20 +526,20 @@
           "title": "Verify the quality of recent shared computer-use workflows",
           "status": "partial",
           "scope": "Assess delivered actions, verification and cleanup rather than tool-call counts.",
-          "evidence": "Stage47 supported current shared-MCP planner operation runs once, checks real fact before/after policy and CLI equality, closes scope before verification, settles reader/session. Typed verified/cleanup-complete outcome, uncovered0. Actual Chrome native readiness timeout preserved as unknown, without fabricated dispatch receipt or historical success grading.",
-          "next": "Extend actual unresolved/routine provider outcomes and safe ordinary consumer adoption; historical task quality remains unknown without observed proof.",
-          "anchor": "forty-seventh-pass",
-          "updated_at": "2026-10-09T08:01:02-04:00"
+          "evidence": "Stage48 four genuine native episodes: prepare verified, first scroll failed noWindowsAvailable, observed/rebound document scroll verified, quit/settlement verified. Separate typed3verified/1failed and4cleanup-complete outcomes; audit uncovered0 and three scoped pass/fail/mixed facts read back. Failed dispatch/late captured null end preserved; no historical success grading or automatic interception.",
+          "next": "Extend actual routine unresolved provider outcomes and safe ordinary consumer adoption; historical task quality remains unknown without observed proof.",
+          "anchor": "forty-eighth-pass",
+          "updated_at": "2026-10-09T08:23:18-04:00"
         },
         {
           "id": "receipt-integration",
           "title": "Improve automatic receipt coverage across providers",
           "status": "partial",
           "scope": "Capture durable operation evidence for native and browser actions.",
-          "evidence": "Stage45 supported reader brackets one actual operation, closes scope before exact health/filter/CLI verification, settles owned session/reader and publishes typed verified cleanup-complete outcome, uncovered0. Stage43 native explicit proofs and stage44 loaded-contract gap preserved.",
-          "next": "Extend ordinary provider durable evidence and verify current contracts at safe refresh; no automatic native interception or actor inference.",
-          "anchor": "forty-fifth-pass",
-          "updated_at": "2026-10-09T07:33:09-04:00"
+          "evidence": "Stage48 explicit native receipts retain failed first scroll and later recovered six pairs in same take.12 wheel events addressed to target20383 carry recovery token despite different foreground. Recovery ended after media, captured null remains. Four typed outcomes3verified/1failed, allcleanup-complete/uncovered0. Prior supported CLI/freshMCP reader proof remains.",
+          "next": "Extend ordinary provider durable evidence and verify current loaded contracts at safe refresh; no automatic native interception, actor authentication or backfilled scope boundaries.",
+          "anchor": "forty-eighth-pass",
+          "updated_at": "2026-10-09T08:23:18-04:00"
         },
         {
           "id": "shared-baseline-plan",
@@ -1937,6 +1937,53 @@
       "from": "active",
       "to": "active",
       "note": "Fixed and verified an actual shared-planner reuse hole: explicit unknown provider dimensions block callertrue confirmation. Real TextEdit fact retained, CLI/fresh shared MCP equal; typed once-only reader settled. Current daily-app version baselines refreshed, Chrome readiness unknown preserved.43 completed,16 partial,1 deferred; continue unblocked high-impact gates."
+    },
+    {
+      "kind": "item",
+      "id": "resource-admission",
+      "at": "2026-10-09T08:23:18-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage48 actual TextEdit native2x90s pair:5882 exact packets,116GPU samples/87 approximate in-take host fields; Device/Renderer0..59 median28,Tiler0..44 median14.100fresh warning-pressure process samples; recorder7.93CPU seconds over99.999s,RSS44528..145616KiB. GPU observer reaped-child accounting added, separate2s smoke;5 checks passed. Capture/process intervals differ, no recorder/encoder attribution or thermal/capacity threshold. Earlier330s normal-pressure profile and stage38 storage budgets retained."
+    },
+    {
+      "kind": "item",
+      "id": "workflow-audit",
+      "at": "2026-10-09T08:23:18-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage48 four genuine native episodes: prepare verified, first scroll failed noWindowsAvailable, observed/rebound document scroll verified, quit/settlement verified. Separate typed3verified/1failed and4cleanup-complete outcomes; audit uncovered0 and three scoped pass/fail/mixed facts read back. Failed dispatch/late captured null end preserved; no historical success grading or automatic interception."
+    },
+    {
+      "kind": "item",
+      "id": "receipt-integration",
+      "at": "2026-10-09T08:23:18-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage48 explicit native receipts retain failed first scroll and later recovered six pairs in same take.12 wheel events addressed to target20383 carry recovery token despite different foreground. Recovery ended after media, captured null remains. Four typed outcomes3verified/1failed, allcleanup-complete/uncovered0. Prior supported CLI/freshMCP reader proof remains."
+    },
+    {
+      "kind": "item",
+      "id": "event-relevance",
+      "at": "2026-10-09T08:23:18-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage48 broad source query retains28events including12 wheel rows with actual targetPID20383/action token while another app foreground. Other unassociated modifier/move candidates remain; ownership/window attribution unknown. All28 snapshots unprotected and one preceding listen notification, not universal physical delivery. Prior12key/two-window shortcut and known-other exclusion proof retained."
+    },
+    {
+      "kind": "item",
+      "id": "overflow-recovery",
+      "at": "2026-10-09T08:23:18-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage48 real TextEdit isolated source preserves six-pair scroll under actual display occlusion; selected mapped row057→001,5882 pair joins. Selected display samples omit intended document; failed primary preserved, no reshoot. Stage39/40/41 QuickLook crop/full/direct-source extent findings retained. Useful source rescue does not establish all-app transient or final reintegration."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T08:23:18-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "TextEdit scroll/source recovery qualified under real interference without reshoot:5882 exact pair joins,12 recovered native wheel events, failed first dispatch retained. Four typed episodes3verified/1failed, allsettled. Passive GPU observations and observer child CPU scope documented.43completed16partial1deferred; continue remaining physical/provider/admission and ordinary consumer refresh gates."
     }
   ]
 }

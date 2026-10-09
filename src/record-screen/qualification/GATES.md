@@ -1,5 +1,67 @@
 # Qualification update — October 9, 2026
 
+## Forty-eighth pass: real-app scroll recovery and passive host GPU observations
+
+TextEdit1.20/build415/25F80, built-in Retina2×, native CUA version unknown,
+installed3ff/PID74192. Explicit local180-row synthetic RTF, two simultaneous90s
+window-childtrue/display-rectangle sources, cursorfalse and60fps requested.
+Both finalized:3013/2869 actual mux packets join source exactly,5882 total,
+zero journal rows lost. Window geometry has20 segments. Startup warned offscreen
+although earlier inventory was onscreen; source observed x−1336 then x152 at
+34.123/35.122s. Readiness can change between preparation and capture.
+
+First scroll returned noWindowsAvailable on the first dispatch; no remaining
+pairs dispatched. Failed scope closed and preserved. Reacquiring the observed
+current document binding recovered six down/up pairs in the same take, with
+fresh AX positions0.293598/0.0022075 and unchanged horizontal position. No reshoot,
+blind replay or causal claim about binding/Space change. Twelve native wheel
+rows84.278–89.553s have destination20383 and recovery token while foreground
+is another PID. That corroborates delivery, not physical device density, precise
+window ownership or actor authentication.28 retained snapshots unprotected,
+one preceding listening notification, zero observed gaps: not universal delivery.
+
+Actual service-selected decoded window frames2693/3003 at84.48/89.85s show
+row057 then row001. Initial/final app title/scrollbar differ, so exact pixel
+restoration is not claimed. Both selected paired display samples show unrelated
+occlusion and omit the intended document. Preserve private failed primary;
+isolated document is useful recovery source. Report embeds only inspected
+synthetic isolated frames, never private display content. This qualifies source
+recovery under actual interference, not all menus, continuous whole-shot coverage,
+synchronized final reintegration or production without interruptions.
+
+Recovery terminal end99.060496948s is later than video; captured context remains
+active/null end. Do not backfill late reply. Four genuine terminal receipts have
+three verified/one failed typed outcomes, all cleanup complete and audit uncovered0.
+Three exact scoped pass/fail/mixed facts independently read back. Native Quit
+submitted once; known PID absence and later native inventory false settle app.
+Local file hash unchanged, owned observer jobs and recording session closed.
+User surfaces untouched; no lock, new grant, native or peer restart.
+
+New passive sample-gpu.py uses bounded2s/1MiB AGX registry child queries, four-node
+cap, whitelisted utilization/counters and exact integer strings. Missing/invalid
+fields remain null. Five changed parser/subprocess checks passed. A120s observer
+returned116 samples,0 unavailable;87 approximate query-end-wall observations
+within the90s pair. Reported Device/Renderer percentages0..59 median28; Tiler
+0..44 median14. Query durations20.66..44.50ms, median39.13ms. These host-wide OS
+fields have unqualified averaging/reset/units and no encoder or recorder attribution.
+
+100 process observations over99.999s include post-capture: recorder CPU7.93s
+(7.93% of one core), RSS44,528..145,616KiB; TextEdit0.83s; shared WindowServer36.5s.
+All100 fresh pressure samples warning; guard inactive, no thermal plateau proof.
+GPU parent CPU excludes ioreg children in this historical profile. New terminal
+accounting separates own/reaped-child CPU; actual2s smoke reports0.009707s/
+0.037892s, two available samples. No retroactive child-cost estimate. Observer
+clock/wall joins are not recorder-clock calibration. No capacity/P80/admission
+threshold follows; earlier330s authored baseline remains distinct.
+
+Passive Chrome sample found its main thread mostly in a normal waiting run loop.
+This does not explain earlier native acquisition timeout or establish app health.
+No Chrome focus/input/restart. Current Input Monitoring listen_access true;
+actual retained wheel delivery verifies this lane, not all keyboard/physical input.
+Private gates-v48;43completed16partial1deferred, full goal active. Next: ordinary
+consumer safe refresh and remaining physical/provider/capacity boundaries, without
+repeating settled captures or silently narrowing acceptance criteria.
+
 ## Forty-seventh pass: unknown dimensions cannot be certified by a caller flag
 
 Actual current shared planner reproduced a contract contradiction on the real

@@ -532,3 +532,8 @@ from static/complete transitions while requiring every encoded-source transform
 to match the authored map. A sparse obstructed primary is covered by the backup's
 full dense source timeline; matching only the primary's sparse timestamps would
 reduce recovered motion to1fps. The map remains QA, not a composition recipe.
+
+
+## Real-app host observations
+
+Use [RESOURCE-OBSERVATIONS.md](RESOURCE-OBSERVATIONS.md) for the bounded passive GPU collector and scoped TextEdit pair. Reported host utilization is not recorder/encoder cost or a safe admission threshold. Stage48 preserves actual source recovery and failed display occlusion without a reshoot.

@@ -44,3 +44,8 @@ pass, window omission and mixed display results. References are reported local
 evidence, not authenticated ownership or automatic training. Failed preparation,
 late bounds and schema-publication failure remain recorded; settlement was not
 replayed. Private evidence: gates-v46 in this chat's capture qualification bundle.
+
+
+## Scroll and occlusion extension
+
+Stage48 used an explicitly local180-row RTF in two90s native2x sources. First dispatch failed noWindowsAvailable; observing/rebinding the current document recovered six down/up pairs in the same take. Twelve retained wheel events address TextEdit despite another foreground app. Actual mapped isolated frames2693/3003 show row057→001; simultaneous display samples omit the intended document under unrelated occlusion. Isolated footage is useful recovery, not whole-shot/menu insurance. Preserve failed scope and active/null captured recovery end because terminal close arrived after video. Four typed outcomes3verified/1failed, all cleanup complete/uncovered0; local source hash unchanged, native app/session settled. See RESOURCE-OBSERVATIONS.md for resource scope, GATES.md stage48 for exact proof.
