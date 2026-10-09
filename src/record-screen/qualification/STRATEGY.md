@@ -1,12 +1,18 @@
 # Capture foundations: findings and next implementation
 
-Current checkpoint: October 9, 2026. Native build 767d45f6ce40 is installed,
-with guarded idle delivery and independently verified source/consumer smoke.
-The initial observations below came from an opt-in qualification harness;
-subsequent evidence and limits are in GATES.md and the maintained checklist.
-Private signed fallback/forward restoration passed. Installed Input Monitoring
-is separate from the existing screen grant and still awaits human authentication
-plus a fresh delivered-event canary. Production input completeness is unproven.
+Current checkpoint: October 9, 2026, qualification stage49. Native signed build
+3ff4c4519dc8/PID74192 remains installed and idle; guarded delivery, retained-source
+mapping and scoped real-app consumers have actual evidence in GATES.md and the
+maintained checklist. Input Monitoring is enabled: installed destination-aware
+keyboard/shortcut checks and stage48 twelve native wheel events passed. Physical
+rates, external-provider clocks and universal input completeness remain unproven.
+The shared computer-use layer now stores exact app/environment facts, immutable
+action receipts and separate typed verification/cleanup. Unknown dimensions block
+reuse even caller confirmation; routine supported operations reinforce the store.
+Current recorder CLI/fresh MCP0.11.5 supports bounded retained input/context/health
+and exact source/media geometry. This chat's older loaded MCP still needs a safe
+consumer refresh; do not infer adoption from native build or force peer restarts.
+Private signed fallback/forward restoration passed its copied-state scope.
 Visual effect styles, cursor animation recipes and composition rendering are
 next-phase work. The supplied cursor.svg is a fixture asset only.
 
@@ -17,7 +23,19 @@ Installed foundation integration and controlled failure isolation are verified
 for their written scopes. Broader apps/providers, live-work collision quality,
 motion insurance and measured resource budgets remain open.
 
-## What the tests establish
+Use [AGENT-USAGE.md](../AGENT-USAGE.md) for the current production/recovery
+contract, and the checklist for scoped acceptance. Stage48 real TextEdit recovery
+preserved isolated scroll pixels under display occlusion; passive GPU observations
+add diagnosis, not calibrated encoder attribution/capacity. Stage49 fixes callback
+error report loss and proves independent terminal recovery without replay. Native
+CUA still needs explicit scopes; no automatic interception, actor authentication
+or model training.43 completed,16 partial,1 deferred; full goal active.
+
+## What the initial investigation established
+
+This table retains the original probe results and proposed follow-ups. Later
+GATES.md stages supersede its historical open checks; it is not the current
+installed capability or permission summary.
 
 | Question | Evidence | Consequence |
 | --- | --- | --- |
@@ -39,13 +57,15 @@ Initial no-event results do not prove that CUA bypasses all global event taps.
 
 ## Put shared knowledge in the computer-use capability layer
 
-The existing shared Claude-to-Codex service is `src/codex-bridge`; native
-Codex currently drives CUA directly. Neither inspected path has a demonstrated
-central app-capability learning store. Skill-local RUNS/memories and bridge
-timelines are evidence sources, not yet that store. Do not build a second
-capture-only catalog of app behavior.
+The shared Claude-to-Codex service is `src/codex-bridge`; native Codex drives
+CUA directly. Its central capability-evidence store and planner are implemented
+and verified through real current CLI/fresh shared MCP consumers. Use that store
+for exact app/environment facts, receipts and typed outcomes. Skill-local notes
+support runbooks but do not replace central facts. Do not build a second
+capture-only catalog. Baseline automation/provider adoption remains partial;
+the store does not authenticate referenced evidence or run UI canaries.
 
-Create a service-facing capability store usable by both paths. Key facts by
+The implemented service-facing capability store is usable by both paths. It keys facts by
 bundle ID, app build, OS build, UI provider/version, surface kind, display
 profile and tested capture mode. Store observation time, evidence reference,
 sample count, result, uncertainty, failure/recovery cost and expiry. Never

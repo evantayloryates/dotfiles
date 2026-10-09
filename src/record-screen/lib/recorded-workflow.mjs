@@ -2,6 +2,30 @@
 import { EngineError } from './client.mjs'
 import { validateVerification, validateCleanup } from '../../codex-bridge/lib/workflow-outcomes.mjs'
 
+export class RecordedWorkflowError extends Error {
+  constructor(cause, report) {
+    // Do not stringify a provider's thrown value into public/stored summaries.
+    super('Recorded workflow operation failed; inspect cause and workflowReport.', { cause })
+    this.name = 'RecordedWorkflowError'
+    this.workflowReport = report
+  }
+}
+
+function failureWithReport(error, report) {
+  if (error !== null && ['object', 'function'].includes(typeof error)) {
+    try {
+      // Preserve ordinary error identity, but never overwrite a provider-owned
+      // report or invoke its accessor. Frozen values and hostile descriptors
+      // retain their original identity/value as the wrapper's cause.
+      if (!Object.getOwnPropertyDescriptor(error, 'workflowReport')) {
+        Object.defineProperty(error, 'workflowReport', { value: report, writable: true, configurable: true })
+        return error
+      }
+    } catch { /* Report attachment is optional; report preservation is not. */ }
+  }
+  return new RecordedWorkflowError(error, report)
+}
+
 export async function withRecordedWorkflow(client, declaration, operation,
   { evidenceStore, verify, cleanup, result = 'dispatched', context = {} } = {}) {
   if (typeof operation !== 'function' || (verify !== undefined && typeof verify !== 'function')
@@ -40,8 +64,7 @@ export async function withRecordedWorkflow(client, declaration, operation,
   const report = { value, receipt, receiptError, sharedReceipt, workflowOutcome, outcomeError,
     verification, cleanup: cleanupOutcome, verificationError, cleanupError, actionToken: started.action_token }
   if (operationFailed) {
-    if (operationError && typeof operationError === 'object' && Object.isExtensible(operationError)) operationError.workflowReport = report
-    throw operationError
+    throw failureWithReport(operationError, report)
   }
   return report
 }

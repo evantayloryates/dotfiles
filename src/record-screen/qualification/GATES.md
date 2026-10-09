@@ -1,5 +1,53 @@
 # Qualification update — October 9, 2026
 
+## Forty-ninth pass: preserve failure reports and recover terminal state without replay
+
+Current supported withRecordedWorkflow lost its durable report when a callback
+threw frozen Error or primitive value. A read-only provider workflowReport slot
+instead masked the original with TypeError. Actual pre-fix controlled3shape proof
+retained: operation/end/cleanup each once, report unavailable. This was an error
+propagation contract hole, not capture, native input or permission failure.
+
+Current helper exports RecordedWorkflowError. Ordinary writable error objects
+retain identity with attached report; frozen/primitive values and provider-owned
+report slots retain exact original value/identity as cause in wrapper. Do not
+stringify provider failures into public/stored summaries. Descriptor inspection
+never invokes existing report getter/setter or overwrites a provider-owned slot.
+Report still separates terminal, verification, cleanup and publication errors.
+No extra dispatch, automatic end/provider replay, fabricated terminal stamp or
+backfilled historical result. Nine focused lifecycle/error tests all pass: primitive
+null/undefined/false/zero, frozen, accessors/read-only report, ordinary identity,
+uncertain begin/end, callback errors and publication failure covered.
+
+Actual installed no-UI consumer created owned ses_umrn22en and four real scopes
+against recorder3ff/PID74192. Each reads native status once then deliberately
+throws a controlled local callback failure. Frozen/primitive/read-only variants
+preserve cause/report, native closed/failed receipts and separate typed failed/
+cleanup-complete outcomes. Fourth local adapter deliberately withholds a successful
+native action.end reply: wrapper keeps action token and unknown terminal/outcome.
+Independent action.list observes actual terminal closed/failed state, imports
+that native receipt and adds a separate typed outcome. Earlier report remains
+unknown and unchanged. No second action.end, provider operation or cleanup.
+This is controlled local reply withholding, not natural network loss or UI outage.
+
+All four operations/verifications/cleanup hooks run once, four typed failed outcomes,
+four cleanup-complete, audit uncovered0. Session closed; own reader exits0. Native
+PID/build, active scopes, unfinished captures and input subscribers unchangedidle.
+No new capture, input, grant, engine or peer restart. Two module-hash/version-scoped
+passing contract/recovery facts independently read back; no authenticated actor,
+automatic native interception, physical-event or ordinary loaded-MCP adoption.
+
+Production runbook now describes wrapper cause/report and recovery using explicit
+session/caller/token and independently observed terminal receipt. Qualification
+kit includes reusable workflow-error-recovery-smoke.mjs with fresh private output.
+Strategy checkpoint reconciled stale native767 build and pending Input Monitoring
+claim with current3ff/granted/delivered source proof. Initial probe table remains
+historical; central store is described as implemented with partial automation,
+not a second proposed catalog. Stage48 source/resource passes preserved, no
+stable capture rerun or rollback. Ordinary consumer refresh and physical-input
+readiness remain pending while independent work continues. Private gates-v49;
+43completed16partial1deferred, full goal active.
+
 ## Forty-eighth pass: real-app scroll recovery and passive host GPU observations
 
 TextEdit1.20/build415/25F80, built-in Retina2×, native CUA version unknown,

@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
-import { withRecordedWorkflow } from '../lib/recorded-workflow.mjs'
+import { withRecordedWorkflow, RecordedWorkflowError } from '../lib/recorded-workflow.mjs'
 import { EvidenceStore } from '../../codex-bridge/lib/capability-evidence.mjs'
 
 const declaration = { session_id: 'test', caller: 'agent', provider: 'fixture', action_id: 'one', intent: 'Owned fixture', target: { bundle_id: 'test.fixture' } }
@@ -64,6 +64,76 @@ test('failed operation retains original error and attempts supplied cleanup once
   assert.equal(operations, 1); assert.equal(cleanups, 1)
   assert.equal(c.calls.at(-1).args.result, 'failed')
   assert.equal(store.workflowAudit('test').counts.verification.failed, 1)
+}))
+
+test('frozen and primitive failures keep cause and durable report without dispatch or cleanup replay', () => isolated(async store => {
+  for (const original of [Object.freeze(new Error('refused')), 'refused', null, undefined, false, 0]) {
+    const c = client(); let operations = 0, cleanups = 0
+    let caught
+    try {
+      await withRecordedWorkflow(c, declaration, async () => { operations++; throw original }, {
+        evidenceStore: store, verify: async () => ({ ...verified, state: 'failed' }),
+        cleanup: async () => { cleanups++; return cleaned },
+      })
+    } catch (error) { caught = error }
+    assert.ok(caught instanceof RecordedWorkflowError)
+    assert.equal(caught.cause, original)
+    assert.equal(caught.workflowReport.receipt.result, 'failed')
+    assert.equal(caught.workflowReport.workflowOutcome.value.verification.state, 'failed')
+    assert.equal(caught.workflowReport.cleanup.state, 'completed')
+    assert.equal(operations, 1); assert.equal(cleanups, 1)
+    assert.equal(c.calls.filter(call => call.method === 'action.begin').length, 1)
+    assert.equal(c.calls.filter(call => call.method === 'action.end').length, 1)
+    assert.equal(caught.message.includes('refused'), false)
+  }
+}))
+
+test('provider report slots and accessors are preserved and never invoked or overwritten', () => isolated(async store => {
+  let reads = 0, writes = 0
+  const existing = { owned: true }
+  for (const original of [Object.defineProperty(new Error('refused'), 'workflowReport', { value: existing }),
+    Object.defineProperty(new Error('refused'), 'workflowReport', {
+      get() { reads++; throw new Error('getter must not run') },
+      set() { writes++; throw new Error('setter must not run') },
+    })]) {
+    const before = Object.getOwnPropertyDescriptor(original, 'workflowReport')
+    let caught
+    try { await withRecordedWorkflow(client(), declaration, async () => { throw original }, { evidenceStore: store }) }
+    catch (error) { caught = error }
+    assert.ok(caught instanceof RecordedWorkflowError); assert.equal(caught.cause, original)
+    assert.deepEqual(Object.getOwnPropertyDescriptor(original, 'workflowReport'), before)
+    assert.equal(caught.workflowReport.receipt.result, 'failed')
+  }
+  assert.equal(reads, 0); assert.equal(writes, 0)
+}))
+
+test('frozen failure retains uncertain end and hook/publication errors without inventing a receipt', () => isolated(async store => {
+  const original = Object.freeze(new Error('provider refused'))
+  const endError = new Error('end reply lost'), verifyError = new Error('verification failed'), cleanupError = new Error('cleanup unavailable')
+  const c = client({ endError }); let operations = 0, cleanups = 0
+  let caught
+  try { await withRecordedWorkflow(c, declaration, async () => { operations++; throw original }, {
+    evidenceStore: store, verify: async () => { throw verifyError },
+    cleanup: async () => { cleanups++; throw cleanupError },
+  }) } catch (error) { caught = error }
+  assert.ok(caught instanceof RecordedWorkflowError); assert.equal(caught.cause, original)
+  const report = caught.workflowReport
+  assert.equal(report.receiptError, endError); assert.equal(report.verificationError, verifyError)
+  assert.equal(report.cleanupError, cleanupError); assert.equal(report.actionToken, receipt.action_token)
+  assert.equal(report.receipt, undefined); assert.equal(report.workflowOutcome, undefined)
+  assert.equal(report.verification.state, 'unknown'); assert.equal(report.cleanup.state, 'unknown')
+  assert.match(report.outcomeError.message, /No terminal recorder reply/)
+  assert.equal(store.workflowAudit('test').coverage.stored_receipts, 0)
+  assert.equal(operations, 1); assert.equal(cleanups, 1)
+  assert.equal(c.calls.filter(call => call.method === 'action.end').length, 1)
+  const broken = Object.create(store); broken.putOutcome = () => { throw new Error('publication unavailable') }
+  try { await withRecordedWorkflow(client(), declaration, async () => { throw original }, { evidenceStore: broken }) }
+  catch (error) {
+    assert.ok(error instanceof RecordedWorkflowError)
+    assert.ok(error.workflowReport.sharedReceipt)
+    assert.equal(error.workflowReport.workflowOutcome, undefined)
+    assert.match(error.workflowReport.outcomeError.message, /publication unavailable/)
+  }
 }))
 
 test('verification errors and proofless success cannot suppress cleanup or manufacture a passed check', () => isolated(async store => {

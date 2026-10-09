@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T08:23:18-04:00",
+  "updated_at": "2026-10-09T08:35:18-04:00",
   "workflow": {
     "state": "active",
-    "note": "TextEdit scroll/source recovery qualified under real interference without reshoot:5882 exact pair joins,12 recovered native wheel events, failed first dispatch retained. Four typed episodes3verified/1failed, allsettled. Passive GPU observations and observer child CPU scope documented.43completed16partial1deferred; continue remaining physical/provider/admission and ordinary consumer refresh gates."
+    "note": "Fixed a reproduced workflow failure-report hole. Nine focused checks and actual4episode installed consumer pass: cause/report retained, terminal recovered independently after controlled local reply withholding, no replay. Four typed failures fully settled, zero uncovered; strategy stale build/grant/store claims reconciled.43completed16partial1deferred. Continue independent work while physical readiness and ordinary MCP refresh await input."
   },
-  "production_note": "Installed3ff/PID74192 remains idle with Input Monitoring access. Actual TextEdit90s pair retained5882 exact source/media joins and12 recovered native wheel events; display crop occluded while isolated document remained useful. Three verified/one failed typed episodes fully settled, facts read back. Bounded passiveGPU collector adds host observations with explicit unknown attribution/capacity. CurrentCLI/freshMCP0.11.5 available; ordinary chat safe refresh and physical/provider/admission limits remain. Composition deferred.",
+  "production_note": "Installed3ff/PID74192 unchangedidle and Input Monitoring retained. Current recorded-workflow helper preserves frozen/primitive/provider-report errors with cause/report; actual controlled4episode consumer and independent terminal recovery pass without replay. Nine focused checks and two scoped fact readbacks verified. Earlier TextEdit recovery/GPU observations retained. Strategy grant/build/store claims reconciled. CurrentCLI/freshMCP0.11.5 available; ordinary safe refresh and physical/provider/admission limits remain. Composition deferred.",
   "groups": [
     {
       "id": "capture",
@@ -506,10 +506,10 @@
           "title": "Centralize version-scoped app observations",
           "status": "partial",
           "scope": "Shared reported facts, exact environment keys, expiry and conflicting evidence.",
-          "evidence": "Stage47 policy pass and Chrome native readiness unknown facts appended and independently read back with current exact app metadata. Native observation timed out; unrelated offscreen window preserved. Stage46 three TextEdit menu facts and prior Finder/Chrome evidence retained; unknown provider version cannot be promoted by callertrue.",
-          "next": "Add useful missing app/provider capability facts; revalidate exact changed environment and transient family.",
-          "anchor": "forty-seventh-pass",
-          "updated_at": "2026-10-09T08:01:02-04:00"
+          "evidence": "Stage49 two passing callback-report/terminal-recovery facts keyed to current module SHA and native3ff/OS25F80 appended and independently read back. Scope controlled read-only callbacks; not native UI availability or loaded consumer adoption. Stage48 exact TextEdit pass/fail/mixed source/resource facts and earlier app/environment unknown-dimension policy retained.",
+          "next": "Add useful missing actual app/provider facts with current exact metadata; reinforce ordinary supported outcomes and preserve scoped limits, conflicting history and unknown readiness.",
+          "anchor": "forty-ninth-pass",
+          "updated_at": "2026-10-09T08:35:18-04:00"
         },
         {
           "id": "requalification",
@@ -526,20 +526,20 @@
           "title": "Verify the quality of recent shared computer-use workflows",
           "status": "partial",
           "scope": "Assess delivered actions, verification and cleanup rather than tool-call counts.",
-          "evidence": "Stage48 four genuine native episodes: prepare verified, first scroll failed noWindowsAvailable, observed/rebound document scroll verified, quit/settlement verified. Separate typed3verified/1failed and4cleanup-complete outcomes; audit uncovered0 and three scoped pass/fail/mixed facts read back. Failed dispatch/late captured null end preserved; no historical success grading or automatic interception.",
-          "next": "Extend actual routine unresolved provider outcomes and safe ordinary consumer adoption; historical task quality remains unknown without observed proof.",
-          "anchor": "forty-eighth-pass",
-          "updated_at": "2026-10-09T08:23:18-04:00"
+          "evidence": "Stage49 actual installed callback consumer4controlled failures each operation/verification/cleanup once. Separate typed4failed/4cleanup-complete, audituncovered0; native session/reader settled. Earlier frozen/primitive reports lost and read-only report masked original; fixed with cause/report,9focused tests. Actual independently recovered native terminal after local reply withholding, no replay. Stage48 genuine3verified/1failed app episodes retained.",
+          "next": "Extend ordinary unresolved/routine provider outcomes and safe loaded-consumer adoption; controlled callback failures do not grade historical task success or natural UI/transport faults.",
+          "anchor": "forty-ninth-pass",
+          "updated_at": "2026-10-09T08:35:18-04:00"
         },
         {
           "id": "receipt-integration",
           "title": "Improve automatic receipt coverage across providers",
           "status": "partial",
           "scope": "Capture durable operation evidence for native and browser actions.",
-          "evidence": "Stage48 explicit native receipts retain failed first scroll and later recovered six pairs in same take.12 wheel events addressed to target20383 carry recovery token despite different foreground. Recovery ended after media, captured null remains. Four typed outcomes3verified/1failed, allcleanup-complete/uncovered0. Prior supported CLI/freshMCP reader proof remains.",
-          "next": "Extend ordinary provider durable evidence and verify current loaded contracts at safe refresh; no automatic native interception, actor authentication or backfilled scope boundaries.",
-          "anchor": "forty-eighth-pass",
-          "updated_at": "2026-10-09T08:23:18-04:00"
+          "evidence": "Stage49 current helper preserves ordinary error identity and frozen/primitive/provider-report values as wrappercause plus workflowReport. Real installed3shape consumer gets actual terminal failures; fourth local adapter withheld successful end reply, independent action.list recovered receipt/token and separate typed outcome. Each operation/end/cleanup once; earlier unknown report not backfilled.9checks,4settled typed outcomes,2module-scoped facts readback. Stage48 native source evidence retained.",
+          "next": "Extend ordinary provider adoption and durable evidence; safe chat MCP refresh pending. No automatic native interception or authenticated actor inference; preserve unknown reports and inspect actual IDs before explicit retry.",
+          "anchor": "forty-ninth-pass",
+          "updated_at": "2026-10-09T08:35:18-04:00"
         },
         {
           "id": "shared-baseline-plan",
@@ -1984,6 +1984,37 @@
       "from": "active",
       "to": "active",
       "note": "TextEdit scroll/source recovery qualified under real interference without reshoot:5882 exact pair joins,12 recovered native wheel events, failed first dispatch retained. Four typed episodes3verified/1failed, allsettled. Passive GPU observations and observer child CPU scope documented.43completed16partial1deferred; continue remaining physical/provider/admission and ordinary consumer refresh gates."
+    },
+    {
+      "kind": "item",
+      "id": "workflow-audit",
+      "at": "2026-10-09T08:35:18-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage49 actual installed callback consumer4controlled failures each operation/verification/cleanup once. Separate typed4failed/4cleanup-complete, audituncovered0; native session/reader settled. Earlier frozen/primitive reports lost and read-only report masked original; fixed with cause/report,9focused tests. Actual independently recovered native terminal after local reply withholding, no replay. Stage48 genuine3verified/1failed app episodes retained."
+    },
+    {
+      "kind": "item",
+      "id": "receipt-integration",
+      "at": "2026-10-09T08:35:18-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage49 current helper preserves ordinary error identity and frozen/primitive/provider-report values as wrappercause plus workflowReport. Real installed3shape consumer gets actual terminal failures; fourth local adapter withheld successful end reply, independent action.list recovered receipt/token and separate typed outcome. Each operation/end/cleanup once; earlier unknown report not backfilled.9checks,4settled typed outcomes,2module-scoped facts readback. Stage48 native source evidence retained."
+    },
+    {
+      "kind": "item",
+      "id": "app-facts",
+      "at": "2026-10-09T08:35:18-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage49 two passing callback-report/terminal-recovery facts keyed to current module SHA and native3ff/OS25F80 appended and independently read back. Scope controlled read-only callbacks; not native UI availability or loaded consumer adoption. Stage48 exact TextEdit pass/fail/mixed source/resource facts and earlier app/environment unknown-dimension policy retained."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T08:35:18-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Fixed a reproduced workflow failure-report hole. Nine focused checks and actual4episode installed consumer pass: cause/report retained, terminal recovered independently after controlled local reply withholding, no replay. Four typed failures fully settled, zero uncovered; strategy stale build/grant/store claims reconciled.43completed16partial1deferred. Continue independent work while physical readiness and ordinary MCP refresh await input."
     }
   ]
 }

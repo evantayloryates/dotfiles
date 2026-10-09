@@ -537,3 +537,16 @@ reduce recovered motion to1fps. The map remains QA, not a composition recipe.
 ## Real-app host observations
 
 Use [RESOURCE-OBSERVATIONS.md](RESOURCE-OBSERVATIONS.md) for the bounded passive GPU collector and scoped TextEdit pair. Reported host utilization is not recorder/encoder cost or a safe admission threshold. Stage48 preserves actual source recovery and failed display occlusion without a reshoot.
+
+
+## Callback failure reports and terminal recovery
+
+Stage49 fixes lost workflow reports for frozen/primitive errors and provider-owned report slots. `RecordedWorkflowError` preserves the original as `cause`, while ordinary errors retain identity. Inspect `workflowReport`; unknown terminal receipt is not cleanup/verification failure and does not permit replay. See AGENT-USAGE.md and GATES.md stage49.
+
+The installed smoke takes one fresh absolute private output directory and performs only controlled status-reader failures and one locally withheld end reply:
+
+```sh
+node /Users/taylor/src/github/dotfiles/src/record-screen/qualification/workflow-error-recovery-smoke.mjs /absolute/fresh/private-directory
+```
+
+This creates/settles an owned recorder session and scopes, with four typed failed/cleanup-complete outcomes and exact readback. It drives no UI/input/capture, requests no grant, and restarts no native or peer. On a qualification failure, inspect its saved session/action files and actual state before explicit cleanup; do not rerun blindly. Natural transport loss and loaded MCP policy remain separate gates.

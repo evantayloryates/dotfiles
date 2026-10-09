@@ -136,6 +136,22 @@ verification is not cleanup. Counts do not establish historical task success.
 Publish new reusable app observations centrally, including ordinary computer
 use outside recording. Keep raw media/events and literal sensitive text private.
 
+On callback failure, inspect the thrown error's `workflowReport` before deciding
+what needs recovery. Ordinary writable errors retain their identity. Frozen or
+primitive values, or a provider-owned report slot, become `RecordedWorkflowError`:
+the original thrown value remains `cause`, with the workflow report alongside it.
+Report attachment must not mask the original failure or invoke provider accessors.
+Do not serialize raw causes/provider values into shared summaries.
+
+If `receiptError` is present and no terminal receipt was received, use the retained
+action token and exact session/caller with `action.list` to inspect actual state.
+An independently observed terminal action may be imported and receive a separate
+typed outcome. Keep the earlier unknown report intact. If still active/unknown,
+retain that uncertainty; do not resend the operation/end request automatically.
+Verification, cleanup and publication errors remain separate in the report.
+Stage49 actual installed controlled callback consumer proved this path, including
+one locally withheld successful end reply, without UI, capture or native restart.
+
 For retained event inspection, use `recording_input` / CLI `input-query` with an
 exact recorder-reception interval. Default preserves broad captured keys and
 unassociated candidates; optional type/action-token filters expose their counts
