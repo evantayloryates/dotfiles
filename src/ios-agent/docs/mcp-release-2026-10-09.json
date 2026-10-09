@@ -14,7 +14,9 @@
     "explicitCleanup": true,
     "sharedLearning": true,
     "disconnectCleanup": true,
-    "allPassed": true
+    "allPassed": true,
+    "actualCodexTurnOwner": true,
+    "codexCompanionDisconnectCleanup": true
   },
   "checks": {
     "python": 101,
