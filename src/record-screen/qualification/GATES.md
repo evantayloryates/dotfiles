@@ -1,5 +1,63 @@
 # Qualification update — October 9, 2026
 
+## Thirty-fourth pass: service-owned actual frame and point mapping
+
+CLI frame-map and fresh MCP0.10.0 recording_frame_map now resolve primary media
+inside the service. Query1–64 actual presentation indices, exact relative_ns, or
+host_ns declaredCLOCK_UPTIME_RAW; optional0–16 desktop points. Exact integer/
+rational math avoids frame-rate guesses and consumer journal joins. The service
+subtracts host epochs, selects actual packet intervals and uses encoded→source
+references, including held content. Missing durations/references/transforms and
+outside/gap offsets stay explicit; no borrowing from current/newer geometry.
+
+The read-only worker opens regular leaves without following symlinks, inspects
+actual ffprobe packets via inherited video FD, verifies source identity/epoch and
+unchanged opened-file snapshots, and returns bounded results rather than raw
+input or journal rows. Bounds:64MiB journal/250000rows,120000packets,16MiB probe
+stdout/32KiB diagnostic budget/1MiB response. Read/probe10s budgets are separate;
+OS file calls/process cancellation are not hard real-time guarantees. One mapping
+per adapter process. A deadline stops only its owned child once and preserves
+quarantine until actual close; no capture, export, native rebuild or peer restart.
+
+Seven new tests passed plus eight adjacent option/reconnect/planning checks.
+Coverage includes host stamps above2^53, fractional media clocks, presentation
+ordering, exact ends, measured interval holes, held geometry despite a later
+source segment, lost rows/missing references, unsafe/duplicate metadata, singular
+maps, invalid query refusal before RPC, actual authored media/fresh MCP readback,
+symlink/unterminated-journal refusal and a10s hanging probe with busy refusal and
+actual child settlement. No natural uncooperative OS producer guarantee follows.
+
+Actual fresh MCP94435 mapped retained installed rec_4k4zmzfr; selected frames
+0,50,100,300,447 match independently decoded stage33 parent bounds exactly and
+open child bounds≤0.5px. Index448 is excluded. All448 actual timestamps match
+submissions/source refs. Final MCP97257/CLI host queries resolve offsets-1/0/10s/
+actual measured media end correctly; source point160,558 becomes30,96 during
+the shrink segment. The measured media end is45.059802648s, not a guarantee about
+the requested45s production boundary or physical presentation. Final loaded
+adapter status advertises source_frame_mapping:1 with no active probe.
+
+Retained genuinely failed private rec_au3fzmzm maps75 actual packets against77
+accepted submissions:2 unmatched tails explicit, correspondence incomplete,
+indices75/76 excluded while known frames remain usable. This actual failed-media
+proof used the same public mapping library with its retained engine descriptor;
+fresh installed MCP exercises installed successful media, not private IDs.
+Earlier recovery-primary filename selected a different successful1753-packet
+take; that preliminary artifact and correction are preserved, not used as failed
+writer evidence. No new take or whole-phase rerun was needed.
+
+Session ses_u9x27t5b/action settled with separate verified/complete outcome and
+audit. Both owned fresh MCPs exited0; test children/sockets settled. Native
+f314bb340344/PID35547/hash/capture idle state unchanged. CLI available now;
+existing peer adapters were not forced to reload. Unknown loaded adapter metadata
+still means unknown. Geometry remains candidate outside tested app/display cases;
+host-clock declaration is not external provider calibration, and canvas inclusion
+does not establish content visibility or input/actor ownership.
+
+Private evidence gates-v34 includes actual projections/offsets, failed-media map,
+pixel references,15-test output, terminal workflow and readbacks. A scoped source-
+consumer fact is published/read back. Primary mapping has its own completed
+checklist item; broader provider/clocks/apps/workflow/capacity remain partial.
+
 ## Thirty-third pass: dynamic attached-child geometry and exact source pixels
 
 Signed f314bb340344/PID35547 stayed unchanged. An authored small AppKit fixture

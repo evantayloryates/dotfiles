@@ -8,6 +8,35 @@ Socket consumers negotiate `status.capabilities.source_journal == 1`, then call
 old engine explicitly. Replies contain paths and compact diagnostics, never
 bulk frame rows.
 
+### Primary media lookup without consumer synchronization code
+
+Fresh MCP0.10.0 `recording_frame_map` or CLI `record-screen frame-map JSON`
+accepts `recording_id` plus one array of actual `frame_indices`, exact
+`relative_ns`, or `host_ns` with `clock_domain:"CLOCK_UPTIME_RAW"`. Optional
+`desktop_points:[{x,y}]` receive service-owned source-pixel projections.
+Loaded adapter status advertises `source_frame_mapping:1`; an existing older
+MCP process must not be assumed to have it. The CLI needs no peer restart.
+
+The response joins actual mux presentation timestamps to accepted source rows
+and returns each referenced geometry. It retains rational video start/end times,
+presentation and mux indices, source-content time, held reason, geometry segment
+and explicit missing matches. Actual positive durations bound intervals; holes,
+unknown tails and outside offsets are exclusions. A newer/current geometry never
+replaces held-source geometry. Candidate affine qualification remains explicit.
+
+Correspondence counts distinguish actual packets from accepted submissions and
+source-reference coverage. Failed/interrupted readable media can return known
+mappings with incomplete correspondence; an unreadable mux refuses without
+replaying capture/export. Host epoch subtraction is exact, but declaring its
+domain does not calibrate an external provider. Clock continuity and actor/input
+uncertainty stay separate from media mapping.
+
+The helper bounds queries, response size, regular-file reads and one owned
+probe per adapter process. Symlink leaves, malformed/inconsistent snapshots and
+oversized data refuse; a timed-out child keeps admission until actual close.
+See [the usage/bounds contract](README.md#service-owned-primary-frame-mapping-october-9)
+and [stage34 qualification](qualification/GATES.md#thirty-fourth-pass-service-owned-actual-frame-and-point-mapping).
+
 ### Sparse/static footage and writer failures
 
 Negotiate `sparse_frame_padding == 1`. Native nanosecond media timing is retained.

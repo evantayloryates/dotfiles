@@ -14,6 +14,21 @@ child inclusion alone did not preserve that popup in the tested window lane.
 
 ## Helpers
 
+`frame-map.test.mjs` checks service-owned exact primary mappings: dynamic/held
+source references, host integers beyond JS precision, rational/order/boundary
+semantics, failed media/metadata gaps, unknown transforms/durations, invalid
+identities/queries, actual FFmpeg/MCP file readback and owned probe timeout/busy
+settlement. The media fixture and hanging child are authored and isolated; no UI
+or installed recorder mutation. Run with existing adapter boundaries after
+changing public tool wiring:
+
+```sh
+node --test src/record-screen/qualification/frame-map.test.mjs \
+  src/record-screen/qualification/options-mcp.test.mjs \
+  src/record-screen/qualification/reconnect-mcp.test.mjs \
+  src/record-screen/qualification/production-plan.test.mjs
+```
+
 `transient-fixture.swift` is an authored attached-child geometry oracle. Launch
 through native computer use; delivered Open/Close controls create/remove a
 nonactivating NSPanel outside the parent, with exact lifecycle stamps and known

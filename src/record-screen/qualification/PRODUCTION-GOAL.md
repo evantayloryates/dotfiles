@@ -1,5 +1,14 @@
 # Production qualification goal
 
+Stage34 checkpoint: bounded service-owned frame/relative/declared-host mapping is
+delivered through CLI/fresh MCP0.10.0, without native rebuild or peer restart.
+15 focused/adjacent checks passed; actual point/offset maps match retained decoded
+source. Failed media preserves75 known packets and reports2 unmatched submissions,
+without reshooting. Owned MCP/test/session resources settled; f314/PID35547 idle.
+New primary-map checklist item completed;38completed,18partial,1deferred. Next
+resolve remaining daily-app/provider/physical-clock and workflow/capacity scopes
+against explicit supported-service contracts; no repeated stable canaries.
+
 Stage33 checkpoint: two actual45s included/excluded window captures supplied896
 exact muxed/source samples. Attached-child scale1→0.75→1 restoration and all
 parent markers passed;240 stable open child samples align within0.5px. Frozen-map

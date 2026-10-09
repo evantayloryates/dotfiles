@@ -484,7 +484,7 @@ macOS asks again every 30 days. The re-confirm date lives in
 ## Capture foundations and qualification
 
 Start capture coordination with `production_plan` in a fresh MCP adapter
-(`status.mcp_adapter.production_planning: 1`, adapter 0.9.0), or the immediately
+(`status.mcp_adapter.production_planning: 1`, introduced in0.9.0; current0.10.0), or the immediately
 available CLI:
 
 ```sh
@@ -629,8 +629,8 @@ continuity across missing transitions. A new recording scope does not inherit
 earlier overflow. Thirty controlled actual-queue checks passed; physical provider
 rate and native drag/scroll coverage remain qualification work.
 
-MCP adapter 0.8.0 reconnects only readbacks after an engine disconnect. It never
-automatically resubmits mutations, including schedules with idempotency keys.
+MCP adapters since0.8.0 reconnect only readbacks after an engine disconnect. They never
+automatically resubmit mutations, including schedules with idempotency keys.
 Recover owned sessions/recordings before explicitly retrying uncertain work.
 MCP `status.mcp_adapter.replay_policy: 1` identifies the loaded adapter; an
 absent field means unknown/older policy. Existing MCP processes may retain older
@@ -662,6 +662,57 @@ roadmap in [qualification/PRODUCTION-GOAL.md](qualification/PRODUCTION-GOAL.md).
 Input provenance, supported automatic receipts, cross-display/sleep, daily-app
 menus and realistic resource budgets remain qualification work. Visual effects
 and composition recipes are deferred.
+
+### Service-owned primary frame mapping (October 9)
+
+Fresh MCP0.10.0 exposes read-only `recording_frame_map`; loaded adapter status
+advertises `mcp_adapter.source_frame_mapping:1` and its own mapping/probe health.
+The CLI `node /Users/taylor/src/github/dotfiles/src/record-screen/cli.mjs
+frame-map JSON` is immediately available without restarting existing peers.
+The native recorder remains f314bb340344; old MCP processes do not inherit new
+JavaScript until their next safe launch. Missing adapter metadata means unknown.
+
+Provide `recording_id` and exactly one query array: `frame_indices`, `relative_ns`,
+or `host_ns`. Host queries require `clock_domain:"CLOCK_UPTIME_RAW"`; the service
+subtracts the exact epoch using integer arithmetic. This declaration does not
+calibrate a browser, OS input provider or physical presentation clock. Optional
+`desktop_points:[{x,y}]` are projected inside the service. No frame-rate guess,
+journal join, current-window lookup or geometry interpolation is needed.
+
+```sh
+node /Users/taylor/src/github/dotfiles/src/record-screen/cli.mjs frame-map \
+  '{"recording_id":"rec_4k4zmzfr","frame_indices":[0,100,447],"desktop_points":[{"x":160,"y":558}]}'
+```
+
+Actual mux packets are inspected through a read-only inherited file descriptor.
+Frames are ordered by presentation timestamps; `mux_packet_index` and accepted
+submission sequence remain separate. Exact packet times join the recorded source
+frame and its own geometry. Held content keeps its referenced source clock/map.
+Outside intervals, missing durations/references and unavailable transforms are
+explicit; no geometry is borrowed from a later/current frame. Inside the encoded
+canvas is a bounds check, not visible content or semantic ownership.
+
+Failed/interrupted media can still yield known packet mappings. Correspondence
+counts distinguish persisted packets, accepted submissions, exact matches and
+unmatched tails; a complete journal alone is insufficient. The retained failed
+writer take maps75 actual packets and reports2 unmatched accepted submissions.
+Unreadable media, malformed/unterminated journals and changed snapshots refuse
+without overwriting files or replaying capture/export work. Source clock continuity
+is returned separately, with provider/physical uncertainty intact.
+
+Bounds:1–64 queries,0–16 points,120000 packets,250000 inspected journal rows,
+64MiB regular journal,16MiB probe output,32KiB diagnostic output and1MiB response.
+Regular file leaves are opened without following symlinks. Source reads/probes
+each have10s budgets; initial OS open/read/close and process cancellation are not
+hard real-time guarantees. One mapping/probe per adapter process; concurrent work
+returns `frame_mapping_busy`. A timed-out child receives one owned stop and keeps
+the slot quarantined until actual close. These limits are not a host-capacity
+qualification, a filesystem lock or a claim that sibling adapters share admission.
+
+Stage34 verified projected points against stage33 decoded markers, exact offset/
+host exclusions through CLI/fresh live MCP, retained failed media, seven focused
+mapping checks and eight adjacent adapter/planning checks. Capture/input ownership,
+physical latency and arbitrary app transforms remain outside that proof.
 
 ### Destination-aware keyboard recovery (October 9)
 

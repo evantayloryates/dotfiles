@@ -20,6 +20,7 @@
 //   record-screen recordings [state]           list recordings, newest first
 //   record-screen recording <id>               full manifest of one recording
 //   record-screen record-source <id>           local source journal and gap descriptor
+//   record-screen frame-map <json>             actual mux/source geometry and desktop-point projection
 //   record-screen action-begin <json>          recorder-stamped contextual block, no UI action
 //   record-screen action-end <json>            close token, caller-reported result
 //   record-screen action-scopes <session> [caller]  scoped token recovery
@@ -46,6 +47,7 @@ import { callerContext } from "./lib/caller.mjs";
 import { prepareMaintenance, validateMaintenance, releaseMaintenance } from "./lib/maintenance.mjs";
 import { install } from "./lib/install.mjs";
 import { planProduction, validateProductionRequest } from "./lib/production-plan.mjs";
+import { mapRecordingFrames, validateFrameMapRequest } from "./lib/frame-map.mjs";
 import { call as rawCall, enginePaths, EngineError, LABEL } from "./lib/client.mjs";
 
 // Session-aware methods get the caller attached, so work bundles per agent
@@ -223,6 +225,13 @@ try {
     case "record-source":
       out(await call("record.source", { recording_id: args[0] }));
       break;
+    case "frame-map": {
+      const request = validateFrameMapRequest(JSON.parse(args[0] ?? "{}"));
+      if ((await call("status")).capabilities?.source_journal !== 1) throw new EngineError("unsupported_source_journal", "Frame mapping requires recorder-owned source_journal v1.");
+      const source = await call("record.source", { recording_id: request.recording_id });
+      out(await mapRecordingFrames(source, request));
+      break;
+    }
     case "record-wait": {
       const timeout_s = Number(args[2] ?? 60);
       out(await call("record.wait", { recording_id: args[0], until: args[1] ?? "done", timeout_s }, { timeoutMs: (timeout_s + 5) * 1000 }));
