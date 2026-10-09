@@ -14,6 +14,24 @@ child inclusion alone did not preserve that popup in the tested window lane.
 
 ## Helpers
 
+`transient-fixture.swift` is an authored attached-child geometry oracle. Launch
+through native computer use; delivered Open/Close controls create/remove a
+nonactivating NSPanel outside the parent, with exact lifecycle stamps and known
+colored markers. No input synthesis or protected-mode changes. Its UI buttons
+are AX actionable; this proof does not qualify their visual appearance.
+
+`verify-transient-geometry.py --recording MANIFEST --oracle ACTIONS.jsonl
+--output FRESH.json [--expect-excluded]` joins each exact encoded sample to its
+source-frame geometry, checks every parent marker, and verifies child presence
+in all stable open samples and absence before/after. It requires one logged
+cycle and an actual included/excluded setting; each phase has at least20 samples.
+Quarter-second boundary margins/1.25px tolerance are explicit. The included
+case must change and restore its affine; the control must retain one map and
+omit every child pixel.30s owned decoder deadline/16MiB frame limit, fresh
+outputs, retained stderr/timeline/phase images. Authored source QA only, not a
+menu detector, compositor or provider/presentation-latency claim. See stage33
+for real positive captures and frozen-map/wrong-marker negative controls.
+
 `sample-resources.mjs CONFIG.json FRESH_OUTPUT_DIRECTORY` passively samples
 explicit PIDs and the shared pressure status file. Configuration: `pids`
 (1–16 positive PIDs), `seconds` (1–3600), `interval_ms` (500–10000, default 1000),

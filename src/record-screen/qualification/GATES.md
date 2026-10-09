@@ -1,5 +1,61 @@
 # Qualification update — October 9, 2026
 
+## Thirty-third pass: dynamic attached-child geometry and exact source pixels
+
+Signed f314bb340344/PID35547 stayed unchanged. An authored small AppKit fixture
+opened a180×140pt nonactivating attached NSPanel20pt beyond its600pt parent.
+One delivered open and one close formed the same cycle in two simultaneous45s
+installed window captures: children enabled/disabled. Actual window IDs8055/8060,
+fixture PID83766/buildc65cbd1e8fb1 and independently logged exact host stamps are
+retained privately. This is an attached-panel oracle, not a universal NSMenu or
+Chrome popup test. Chrome native readiness/visibility help remains pending.
+
+rec_4k4zmzfr and rec_zne52k9r each finalized448 actual muxed packets;896 exact
+journal/media timestamps total,zero encoder drops/journal loss/writer error.
+Enabled geometry segments0→1→2: declared affine scale1→0.75→1. Canvas remains
+600×392pixels. The parent shrinks to450×294 while the child occupies its declared
+overflow position; unused pixels stay black. Parent screen_points still report
+the original600×392 frame, so do not infer the child union from that field alone.
+Use each source frame's declared affine including content_scale.
+
+Every decoded parent marker uses its own encoded→source_frame→geometry_segment
+join and matches the predicted center exactly. The enabled source supplies66
+stable before/240open/132after samples; open child center error≤0.5px, and child
+pixels are absent before/after. The disabled control retains one affine:65before,
+241open,132after stable samples, parent centers exact, no child pixels anywhere.
+Quarter-second lifecycle margins are explicit. No fitted translation or image
+search was used. Freezing the original affine and shifting the authored parent
+reference each fail against preserved actual media. No composition work.
+
+The new verify-transient-geometry.py consumes actual mux/source proof, checks
+all decoded parent markers, uses bounded30s owned decoder lifetime/16MiB frame
+limit and fresh output names, and retains private timelines,stderrs/phase PNGs.
+Actual loaded MCP recording_source readback matches448 frames/closed zero-loss
+journal. Service currently exposes the journal descriptor; the next high-impact
+consumer work is a bounded primary-frame map so agents need not implement these
+joins. Accepted journal decisions must not be presented as independently proven
+mux coverage, especially on failed/interrupted recordings.
+
+One native close settled the fixture; independent PID/window absence confirmed
+cleanup without reacquiring it. Session ses_53mcrde8 closed, native recorder idle,
+no unfinished takes/active scopes. Four receipts have separate verified outcomes
+and completed cleanup; one scoped fact appended/read back. Unknown provider/
+display-profile dimensions keep reuse unconfirmed. Earlier invalid input:false
+schedule was rejected before admission; corrected input:{enabled:false} produced
+the two explicit takes. No restart, permission mutation, peer interruption or
+full-phase rerun. Private evidence: gates-v33/qualification-summary.json.
+
+Permission follow-up independently reopened Input Monitoring: recorder-labelled
+row currently displays preview-record-screend.app and reads on; installed signed
+recorder reports last-observed listen_access=true. No repeated grant/restart/event
+canary. Earlier delivered grant proof remains valid; current idle access does not
+establish fresh physical/global keyboard coverage. Separate confirmation receipt
+expired during follow-up diagnosis and is retained with independent verification.
+
+Dynamic authored fitting is now pixel-qualified. Overflow recovery, daily apps,
+provider/physical clocks, shared adoption and capacity remain partial. Checklist:
+37completed,18partial,1deferred; goal remains active.
+
 ## Thirty-second pass: native readiness and longer mixed-scene profile
 
 Signed native build f314bb340344/PID 35547 stayed unchanged. The small, unchanged

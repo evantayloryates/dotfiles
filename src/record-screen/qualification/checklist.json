@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T03:49:09-04:00",
+  "updated_at": "2026-10-09T04:08:20-04:00",
   "workflow": {
     "state": "active",
-    "note": "Longer mixed-scene capture and bounded resource/guard evidence passed; 37 completed, 18 partial, 1 deferred. Native owned fixture readiness works; Chrome visibility help pending. All owned stage32 resources settled; continue independent app/provider/capacity work."
+    "note": "Dynamic attached-child fitting passed against896 actual samples and two negative controls;37 completed,18 partial,1 deferred. Owned stage33 fixture/session settled; native recorder unchanged. Next bounded service-owned frame mapping and remaining daily-app/provider/capacity work; Chrome visibility help pending."
   },
-  "production_note": "Signed native build f314bb340344/PID35547 remains unchanged and idle.110s installed source/MCP proof passed with3221 exact samples, new measured single-window profile and four isolated guard checks. CLI/fresh MCP publish both scoped benchmarks; GPU/thermals, P80, dynamic Chrome and wider provider support remain unqualified.",
+  "production_note": "Signed native f314bb340344/PID35547 unchanged and idle. Installed dynamic child pair passed896 exact samples and loaded source-MCP readback. Earlier110s source/resource profile remains available. Dynamic Chrome, physical/provider clocks, GPU/thermals and P80 remain unqualified.",
   "groups": [
     {
       "id": "capture",
@@ -86,10 +86,10 @@
           "title": "Prove a useful overflow capture and recovery path",
           "status": "partial",
           "scope": "Display padding/cropping must add transient coverage beyond the original canvas.",
-          "evidence": "Built-in2x display crop preserved12 overflow rows at0.989 glyph overlap. Window source fitted the same popup at1.372678 px/point; saved map aligned popup0.902 and base marker edges exactly. Four takes630 exact mux/source samples. Contained option comparison passed; dynamic popup placement changed without base movement.",
-          "next": "Qualify dynamic overflow shrink/restore and scene recovery under interference. PID/layer candidates and static simultaneous sources do not prove semantic ownership, automatic tracking or full-shot insurance.",
-          "anchor": "twenty-eighth-pass",
-          "updated_at": "2026-10-09T01:56:14-04:00"
+          "evidence": "Same-cycle installed AppKit attached-child included/excluded sources passed896 exact muxed samples. Enabled affine1→0.75→1 restored; all parent centers exact and240 open child samples within0.5px. Control omitted child throughout. Frozen-map/wrong-marker negatives failed. Prior Chrome padded popup and moving obstruction rescue remain retained.",
+          "next": "Qualify dynamic Chrome/native-menu depth and scene recovery in daily apps. The attached NSPanel proof does not establish arbitrary menu ownership or automatic tracking.",
+          "anchor": "thirty-third-pass",
+          "updated_at": "2026-10-09T04:08:20-04:00"
         },
         {
           "id": "clean-source",
@@ -132,20 +132,20 @@
           "title": "Verify the source journal against actual encoded packets",
           "status": "completed",
           "scope": "Recorder-owned exact timing, geometry segments, held/dropped references and explicit gaps.",
-          "evidence": "Multiple native, Chrome, Electron and preview passes matched muxed timestamps; journal closure is kept separate from video finalization.",
+          "evidence": "Earlier exact timing, held/drop, color and explicit gap proofs retained. Installed dynamic child pair adds896 exact packet timestamps and per-encoded-frame geometry joins with correct marker pixels. Actual loaded MCP source readback matched448 frames and zero-loss closed journal.",
           "next": "",
-          "anchor": "eighth-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "anchor": "thirty-third-pass",
+          "updated_at": "2026-10-09T04:08:20-04:00"
         },
         {
           "id": "display-geometry",
           "title": "Verify move, resize and cross-display geometry",
           "status": "completed",
           "scope": "Authored marker transforms on built-in Retina, external 1× display with negative origin, and return.",
-          "evidence": "Four encoded cross-display marker frames had zero edge error; all 8,315 corresponding timestamps matched.",
+          "evidence": "Earlier native Retina/external/return marker maps retained. Installed attached-panel open/close proof adds896 exact source/mux samples: enabled three-segment affine1→0.75→1 and excluded fixed affine; every parent center exact, child≤0.5px. Negative original-map/reference controls rejected.",
           "next": "",
-          "anchor": "sixth-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "anchor": "thirty-third-pass",
+          "updated_at": "2026-10-09T04:08:20-04:00"
         },
         {
           "id": "event-clock",
@@ -582,10 +582,10 @@
           "title": "Finish agent usage and recovery runbooks",
           "status": "partial",
           "scope": "Capabilities, gaps, deadlines, semantic blocks, app facts, effort and collision/recovery guidance.",
-          "evidence": "Current source contract now documents sparse held provenance, bounded affected-only trim, exact nanosecond mapping and writer error chain. Actual 50-second paired recovery and measured point-profile costs published. Installed f314 source/MCP readback preserves input protected-gap limits; broader app/physical/provider and production-mode guidance still open. Fresh0.9 planner/CLI and agent runbook now publish tested mode/alignment/cursor/recovery contract with cost uncertainty. Dynamic app/popup and provider adoption still open. Added110s mixed-scene benchmark, reusable owned pressure sampler/guard, exact decoded motion/static QA and lifecycle/cleanup limits. Chrome visibility help pending; broader app/physical/thermal work continues.",
-          "next": "Complete dynamic app/popup fallback, conservative production-mode expectations and remaining provider/workflow adoption; preserve scoped completion and unsupported environments.",
-          "anchor": "thirty-second-pass",
-          "updated_at": "2026-10-09T03:49:09-04:00"
+          "evidence": "Published production mode/cursor/resource/recovery contracts retained. Dynamic fitting guidance now requires each encoded sample’s source geometry rather than current/original window frame; actual installed896-sample proof, four verified workflow outcomes and complete cleanup are available.",
+          "next": "Deliver bounded service-owned primary-frame mapping so agents need not join raw journal rows; distinguish accepted submissions from independently proven mux coverage. Continue daily-app/provider/workflow adoption and remaining capacity limits.",
+          "anchor": "thirty-third-pass",
+          "updated_at": "2026-10-09T04:08:20-04:00"
         },
         {
           "id": "visual-composition",
@@ -1438,6 +1438,38 @@
       "from": "active",
       "to": "active",
       "note": "Longer mixed-scene capture and bounded resource/guard evidence passed; 37 completed, 18 partial, 1 deferred. Native owned fixture readiness works; Chrome visibility help pending. All owned stage32 resources settled; continue independent app/provider/capacity work."
+    },
+    {
+      "kind": "item",
+      "id": "overflow-recovery",
+      "at": "2026-10-09T04:08:20-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Same-cycle installed AppKit attached-child included/excluded sources passed896 exact muxed samples. Enabled affine1→0.75→1 restored; all parent centers exact and240 open child samples within0.5px. Control omitted child throughout. Frozen-map/wrong-marker negatives failed. Prior Chrome padded popup and moving obstruction rescue remain retained."
+    },
+    {
+      "kind": "item",
+      "id": "display-geometry",
+      "at": "2026-10-09T04:08:20-04:00",
+      "from": "completed",
+      "to": "completed",
+      "note": "Earlier native Retina/external/return marker maps retained. Installed attached-panel open/close proof adds896 exact source/mux samples: enabled three-segment affine1→0.75→1 and excluded fixed affine; every parent center exact, child≤0.5px. Negative original-map/reference controls rejected."
+    },
+    {
+      "kind": "item",
+      "id": "source-journal",
+      "at": "2026-10-09T04:08:20-04:00",
+      "from": "completed",
+      "to": "completed",
+      "note": "Earlier exact timing, held/drop, color and explicit gap proofs retained. Installed dynamic child pair adds896 exact packet timestamps and per-encoded-frame geometry joins with correct marker pixels. Actual loaded MCP source readback matched448 frames and zero-loss closed journal."
+    },
+    {
+      "kind": "item",
+      "id": "agent-runbooks",
+      "at": "2026-10-09T04:08:20-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Published production mode/cursor/resource/recovery contracts retained. Dynamic fitting guidance now requires each encoded sample’s source geometry rather than current/original window frame; actual installed896-sample proof, four verified workflow outcomes and complete cleanup are available."
     }
   ]
 }

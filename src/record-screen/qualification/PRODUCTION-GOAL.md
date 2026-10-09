@@ -1,5 +1,14 @@
 # Production qualification goal
 
+Stage33 checkpoint: two actual45s included/excluded window captures supplied896
+exact muxed/source samples. Attached-child scale1→0.75→1 restoration and all
+parent markers passed;240 stable open child samples align within0.5px. Frozen-map
+and wrong-marker controls rejected. Four verified receipts/cleanup and one fact
+read back; fixture/session closed, native f314/PID35547 unchanged/idle. No universal
+Chrome/menu or capacity claim. Next: bounded service-owned primary-frame mapping
+with exact-source/actual-mux distinctions, then remaining daily-app/physical/workflow
+boundaries. Keep Chrome help pending without repeating a blocked readiness loop.
+
 Stage32 checkpoint: owned native readiness passed; Chrome/Dock failures remain
 scoped. Actual 110s mixed-scene capture supplied 3,221 exact samples, 2,611 changing
 transitions and 595 static samples matching its stopped counter. 109 resource

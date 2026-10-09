@@ -24,6 +24,15 @@ capture. Default callers avoid the additional capability check. Raw socket
 callers must also negotiate support. Reports include requested/effective
 child settings and resolved exclusion identities.
 
+Child inclusion can change the fitted source scale within one take while the
+encoded canvas stays fixed. The installed stage33 attached-panel oracle proved
+scale1→0.75→1 with exact parent alignment and child error≤0.5px. Decode/compose
+using the encoded sample's source-frame geometry, not an idle/current map or the
+original window frame alone. `screen_points` retained the parent frame while
+`content_scale` changed. This qualifies that authored AppKit case; it does not
+establish all context menus, Chrome popups or parent ownership. See
+[stage33 evidence](qualification/GATES.md#thirty-third-pass-dynamic-attached-child-geometry-and-exact-source-pixels).
+
 Recordings with nonempty `exclude_apps` additionally require
 `status.capabilities.exclusion_identity: 1`. The candidate observes application
 identity before resolving the filter and interrupts a take on an observed change,
