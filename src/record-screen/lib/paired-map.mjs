@@ -16,6 +16,8 @@ export const pairedMapSchema = {
     desktop_points:{type:'array',maxItems:16,items:{type:'object',additionalProperties:false,
       properties:{x:{type:'number'},y:{type:'number'}},required:['x','y']}},
     desktop_regions:regionSchema,max_segments:{type:'integer',minimum:1,maximum:256},
+    include_coverage_summary:{type:'boolean',description:'Opt in to exact whole-interval durations for named regions: canvas clipping and explicit unknown states, never pixel presence.'},
+    coverage_max_segments:{type:'integer',minimum:1,maximum:16384,description:'Whole-interval summary work budget, default4096. Exceeding it returns summary unavailable; no partial coverage claim.'},
     cursor:{type:'string',maxLength:80,pattern:'^[a-f0-9]{64}:[0-9]{1,6}$'}},
   required:['primary_recording_id','backup_recording_id'],
   oneOf:[{required:['host_start_ns','host_end_ns','clock_domain']},{required:['primary_relative_start_ns','primary_relative_end_ns']}],
@@ -31,12 +33,16 @@ export function validatePairedMapRequest(a) {
     (host?a.clock_domain!=='CLOCK_UPTIME_RAW':a.clock_domain!==undefined)||
     ![start,end].every(validTime)||BigInt(end)<=BigInt(start)||
     (a.max_segments!==undefined&&(!Number.isInteger(a.max_segments)||a.max_segments<1||a.max_segments>256))||
+    (a.include_coverage_summary!==undefined&&typeof a.include_coverage_summary!=='boolean')||
+    (a.coverage_max_segments!==undefined&&(a.include_coverage_summary!==true||!Number.isInteger(a.coverage_max_segments)||a.coverage_max_segments<1||a.coverage_max_segments>16384))||
     (a.cursor!==undefined&&(typeof a.cursor!=='string'||!/^[a-f0-9]{64}:[0-9]{1,6}$/.test(a.cursor))))
-    bad('Use distinct primary/backup recording IDs and exactly one nonempty exact primary-relative interval or host interval in CLOCK_UPTIME_RAW; max_segments1–256, optional returned cursor, points/regions only.');
+    bad('Use distinct primary/backup recording IDs and exactly one nonempty exact primary-relative interval or host interval in CLOCK_UPTIME_RAW; max_segments1–256, optional returned cursor and up to16 points/regions. include_coverage_summary must be boolean; coverage_max_segments1–16384 is allowed only with summary enabled and named regions.');
   const projection=validateFrameMapRequest({recording_id:a.primary_recording_id,frame_indices:[0],
     ...(a.desktop_points!==undefined?{desktop_points:a.desktop_points}:{}),
     ...(a.desktop_regions!==undefined?{desktop_regions:a.desktop_regions}:{})});
-  return {...a,desktop_points:projection.desktop_points,desktop_regions:projection.desktop_regions,max_segments:a.max_segments??64};
+  if(a.include_coverage_summary===true&&!projection.desktop_regions.length)bad('Coverage summary requires at least one named desktop region.');
+  return {...a,desktop_points:projection.desktop_points,desktop_regions:projection.desktop_regions,max_segments:a.max_segments??64,
+    ...(a.include_coverage_summary===true?{coverage_max_segments:a.coverage_max_segments??4096}:{})};
 }
 const rat = r => ({n:BigInt(r.numerator),d:BigInt(r.denominator)});
 const compare = (a,b) => a.n*b.d<b.n*a.d?-1:a.n*b.d>b.n*a.d?1:0;
@@ -86,7 +92,8 @@ export function resolvePairedMap(snapshots,request) {
   const identity={request:{primary_recording_id:request.primary_recording_id,backup_recording_id:request.backup_recording_id,
     host_start_ns:String(start.n),host_end_ns:String(end.n),clock_domain:'CLOCK_UPTIME_RAW',
     desktop_points:request.desktop_points.map(p=>({x:p.x,y:p.y})),
-    desktop_regions:request.desktop_regions.map(r=>({id:r.id,x:r.x,y:r.y,w:r.w,h:r.h}))},
+    desktop_regions:request.desktop_regions.map(r=>({id:r.id,x:r.x,y:r.y,w:r.w,h:r.h})),
+    ...(request.include_coverage_summary===true?{include_coverage_summary:true,coverage_max_segments:request.coverage_max_segments}:{})},
     snapshots:snapshots.map((s,n)=>({id:s.descriptor.recording_id,files:s.files??null,
       epoch:indexes[n].header.epoch_host_ns,clock_instance:indexes[n].header.clock_instance??null,
       retained_descriptor:{state:s.descriptor.state,target:s.descriptor.target??null,resolved:s.descriptor.resolved??null,
@@ -101,14 +108,14 @@ export function resolvePairedMap(snapshots,request) {
   if(request.cursor&&(request.cursor.split(':')[0]!==token||offset>=times.length-1))
     throw new EngineError('paired_mapping_cursor','Source/request snapshot changed or cursor is outside this interval; read the new snapshot explicitly.');
   const projection={desktop_points:request.desktop_points,desktop_regions:request.desktop_regions};
-  function frameAt(lane,time) {
+  function frameAt(lane,time,requestedProjection=projection) {
     const table=intervals[lane],index=indexes[lane];let lo=0,hi=table.length;
     while(lo<hi){const mid=Math.floor((lo+hi)/2);if(compare(table[mid].start,time)<=0)lo=mid+1;else hi=mid;}
     const n=lo-1,p=table[n];
     if(!p)return {included:false,reason:'before_first_muxed_packet'};
     if(!p.end)return {included:false,reason:n===table.length-1?'unmeasured_last_packet_end':'unmeasured_packet_end'};
     if(compare(time,p.end)>=0)return {included:false,reason:n===table.length-1?'at_or_after_muxed_video_end':'between_measured_packet_intervals'};
-    const frame=index.project(index.packets[n],n,projection);
+    const frame=index.project(index.packets[n],n,requestedProjection);
     const source=frame.source_content_relative_ns===null||frame.source_content_relative_ns===undefined?null:
       {n:index.epoch+BigInt(frame.source_content_relative_ns),d:1n};
     return {...frame,host_packet_start_ns:serial(p.start),host_packet_end_ns:serial(p.end),
@@ -129,6 +136,52 @@ export function resolvePairedMap(snapshots,request) {
       mux_source_correspondence:result.mux_source_correspondence,clock_continuity:result.clock_continuity,
       video_outcome:result.video_outcome,source_scope:{target:i.target??null,resolved:i.capture??null}};
   });
+  function coverageSummary() {
+    const count=times.length-1,budget=request.coverage_max_segments;
+    const total=subtract(end,start);
+    const common={schema:'record-screen-paired-coverage/v1',scope:'entire_requested_interval',
+      total_duration_ns:total,required_segments:count,segment_budget:budget,
+      clock_alignment_qualified:clockAligned,source_journal_complete:metadata.map(m=>m.mux_source_correspondence.journal_complete),
+      state_precedence:['unqualified_clock (backup only)','unqualified_journal','unmeasured_packet','unmatched_source','unqualified_transform','contained/clipped/outside'],
+      content_presence:'unverified'};
+    if(count>budget)return {...common,summary_available:false,reason:'segment_budget_exceeded',evaluated_segments:0,regions:null};
+    const names=['contained','clipped','outside','unmeasured_packet','unmatched_source','unqualified_transform','unqualified_clock','unqualified_journal'];
+    const zero=()=>Object.fromEntries(names.map(k=>[k,{n:0n,d:1n}]));
+    const totals=request.desktop_regions.map(r=>({id:r.id,desktop_rect:{x:r.x,y:r.y,w:r.w,h:r.h},lanes:[zero(),zero()]}));
+    const spatialOnly={desktop_points:[],desktop_regions:request.desktop_regions};
+    for(let n=0;n<count;n++) {
+      const duration=rat(subtract(times[n+1],times[n]));
+      const frames=[frameAt(0,times[n],spatialOnly),frameAt(1,times[n],spatialOnly)];
+      for(let lane=0;lane<2;lane++)for(const region of totals) {
+        const frame=frames[lane];
+        let state=lane===1&&!clockAligned?'unqualified_clock':!common.source_journal_complete[lane]?'unqualified_journal':
+          !frame.included?'unmeasured_packet':!frame.metadata_available?'unmatched_source':!frame.transform_available?'unqualified_transform':null;
+        if(state===null) {
+          const mapped=frame.desktop_regions?.find(r=>r.id===region.id);
+          if(!mapped||!['contained','clipped','outside'].includes(mapped.canvas_relation))bad('Mapped region missing from available coverage projection.');
+          state=mapped.canvas_relation;
+        }
+        const previous=region.lanes[lane][state];
+        region.lanes[lane][state]=rat(normalize(previous.n*duration.d+duration.n*previous.d,previous.d*duration.d));
+      }
+    }
+    const regions=totals.map(r=>{
+      const lanes=r.lanes.map(durations=>{
+        const sum=Object.values(durations).reduce((a,b)=>rat(normalize(a.n*b.d+b.n*a.d,a.d*b.d)),{n:0n,d:1n});
+        if(compare(sum,rat(total))!==0)bad('Coverage durations do not partition the requested interval.');
+        return {durations_ns:Object.fromEntries(Object.entries(durations).map(([k,v])=>[k,serial(v)])),
+          entire_interval_contained_in_canvas:compare(durations.contained,rat(total))===0};
+      });
+      return {id:r.id,desktop_rect:r.desktop_rect,primary:lanes[0],backup:lanes[1]};
+    });
+    return {...common,summary_available:true,evaluated_segments:count,regions,
+      limits:['Durations partition the entire requested half-open interval, independent of returned segment page size.',
+        'Contained/clipped/outside describe affine canvas geometry only; no content presence, occlusion freedom, actor ownership or rescued-shot claim.',
+        'Clipped duration does not measure how much of the content is missing; inspect per-frame canvas_area_fraction and actual source pixels.',
+        'Unknown common clocks and incomplete journals remain unqualified buckets; valid frame candidates remain separate in segment pages.',
+        'Buckets partition time in state_precedence order; an earlier unknown state can overlap later defects, which remain visible in segment pages.',
+        'Entire-interval containment requires matched source, available declared affine and complete journal throughout; backup additionally requires a qualified common clock. Affines remain candidates outside independently tested geometry.']};
+  }
   return {schema:'record-screen-paired-map/v1',clock_domain:'CLOCK_UPTIME_RAW',clock_alignment:{state:clockState,
     qualified:clockAligned,scope:'Same retained live recorder process only; no external-provider calibration or physical presentation proof.'},
     primary:metadata[0],backup:metadata[1],requested_interval:{basis:primaryRelative?'primary_relative':'recorder_host',
@@ -137,6 +190,7 @@ export function resolvePairedMap(snapshots,request) {
     timeline_qualification:clockAligned?'recorder_process_host_intervals':'numeric_candidate_only_unqualified_clock_alignment',
     segment_count:times.length-1,returned_segments:segments.length,has_more:stop<times.length-1,
     next_cursor:stop<times.length-1?`${token}:${stop}`:null,segments,
+    ...(request.include_coverage_summary===true?{coverage_summary:coverageSummary()}:{}),
     limits:['Half-open actual mux intervals are split at both sources’ boundaries; dense backup samples survive held primary frames.',
       'Unknown packet duration, gaps, missing source matches and unqualified fitted positions remain explicit; no nearest-frame bridging.',
       'Legacy or different-process clock instances produce numeric candidates only, never qualified backup timing/projection.',

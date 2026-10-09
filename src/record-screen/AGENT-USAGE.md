@@ -103,6 +103,18 @@ and fitted-position guards; geometric availability is not captured-pixel or
 rescue proof. Inspect the relevant backup pixels before choosing coverage. See
 [the complete paired-source bounds](README.md#service-owned-paired-source-mapping-october-9).
 
+Fresh MCP0.14.0 adds `include_coverage_summary:true` for at least one named
+`desktop_regions` entry. The service sums exact durations across the entire
+requested interval, even when the returned segment page is small. Read the
+contained/clipped/outside and unknown-state durations for each source, with
+`content_presence:unverified`. A contained menu region can still be omitted
+from the footage. The summary uses the same candidate affines and fitted guard.
+`coverage_max_segments` defaults4096, bounded1..16384; exceeding it returns
+`summary_available:false`, not a partial result. Shorten the interval or choose
+an explicit budget. Keep summary options/budget unchanged when following its
+snapshot-bound cursor; page size may change. No consumer epoch or duration
+arithmetic is required. Old adapters retain the CLI/fresh-launch fallback.
+
 Native AppKit and owned Electron menu scopes have passed; Chrome has both
 passes and scoped omissions. See [Chrome select evidence](qualification/CHROME-SELECT.md).
 On external1×, a native select survived display footage but was omitted by

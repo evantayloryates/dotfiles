@@ -1,5 +1,52 @@
 # Qualification update — October 9, 2026
 
+## Sixty-first pass: service-owned whole-interval region durations
+
+Fresh MCP0.14.0/current CLI extend `recording_paired_map` with optional
+`include_coverage_summary:true` and named desktop regions. Exact rational
+nanosecond durations partition the entire requested half-open interval,
+independent of returned segment page size. Per-source contained/clipped/outside,
+unmeasured packet, unmatched source, unqualified transform/clock/journal states
+remain explicit. State precedence is declared; overlapping defects remain in
+segment pages. The consumer does not sum durations or do epoch arithmetic.
+Positive containment uses the available candidate affine, not pixel calibration.
+
+`coverage_max_segments` defaults4096, bounded1..16384. Exceeding actual boundary
+count returns summary_availablefalse/regionsnull/evaluated0, rather than a
+first-page total. Summary options/budget bind the snapshot cursor; page size
+can change. Default paired output/cursors are preserved. The source reader,
+native packet schema, installed binary and clock provenance remain unchanged.
+
+| Qualification | Evidence | Limit |
+| --- | --- | --- |
+| Affected adapter checks |37 checks pass; final9 focused checks pass | Rational thirds beyond safe integer epochs, dynamic geometry, packet holes/unknown tails, lost journals, legacy clocks, fitted guard, budgets, cursor binding and early request refusal |
+| Fresh actual MCP/CLI | Version0.14.0, schema/capability read back; same whole result; owned readers86276/90048 exit0 and independently absent | These fresh readers are not this chat's ordinary loaded adapter |
+| Real selected nested menu | Known100ms/3 segments: viewport contained in both sources; retained glyph counts0 isolated/2544 app backup | Content_presence remains unverified; containment does not establish menu presence |
+| Declared padding | Known viewport plus caller16pt padding: primary clipped100ms, backup contained100ms | Geometric padding, not a verified full shadow or effect strategy. Clipped time is not missing pixel area |
+| Whole90s source summary |1769 actual boundary segments evaluated, exactly90s document containment each lane, first page returns one segment | Metadata/source correspondence, not whole-shot pixel/occlusion/recovery proof |
+| Actual legacy/fitted refusal | Stage56 known912pt viewport100ms/7segments: primary transform unqualified100ms; backup clock unqualified100ms despite contained raw geometry | No current-process identity backfill or standalone fitted correction |
+| One owned reader cost | Whole90 CLI0.18s wall,0.14s user/0.04s system; maxRSS83,296,256bytes (79.44MiB) | One metadata invocation, not capacity/P80, cumulative concurrent/native/GPU attribution |
+| Shared facts/settlement | Three scoped pass/fail facts independently read back; six retained source-image hashes unchanged; native9bf/PID24295/exact binary unchangedidle | No UI, capture, decoding, grant/native/peer restart or fabricated UI receipts |
+
+The ordinary chat status call reaches the native engine but still lacks adapter
+metadata. Its version and mutation replay policy remain unverified. Current
+CLI/fresh0.14 consumer fallback is proven; no peer refresh/adoption is inferred.
+No native rebuild was needed. Current inventory still contains built-in display1
+only. Renewed30-minute visible-test authorization was requested after the user's
+earlier24-hour window expired; dependent UI work has not proceeded while pending.
+
+Private evidence: gates-v61/{qualification-summary.json,adapter-checks.txt,
+final-coverage-checks.txt,initial-region-result.json,final-actual-mcp-pair.json,
+final-actual-cli-pair.json,actual-next-page.json,actual-budget-refusal.json,
+whole90-pair.json,whole90-stderr.txt,legacy-fitted-pair.json,shared-facts.json,
+ordinary-chat-status.json,settled-status.json,*reader-settled.json}.
+Initial actual/default output proofs are retained; final numeric/snapshot parity
+confirms the later limit wording change did not alter results. Checklist46
+completed/16partial/1needs_retest/1deferred; full goal active. Next daily-app/
+physical/provider gates need renewed visible time; unblocked background diagnosis
+continues. Composition, full-shot recovery, exact fitted origin, capacity and
+ordinary consumer adoption remain open; do not replay stable source captures.
+
 ## Sixtieth pass: retained-pixel registration and display-independent saved mappings
 
 Background only: no UI, capture, decoder, grant, native/adapter change or restart.

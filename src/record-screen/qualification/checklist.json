@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T14:05:55-04:00",
+  "updated_at": "2026-10-09T14:26:13-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage60 retained registration diagnosis settled: authored held-out spatial pass, real TextEdit ambiguity refusals,16 final checks. Saved external pair stays identical after current display inventory changes. Three scoped facts read back; native unchangedidle. Continue retained-region/clipping and disturbance coverage; fitted origin and physical/provider/capacity/ordinary adoption remain open. No stable-source replay."
+    "note": "Stage61 service-owned whole-interval coverage delivered through current CLI/fresh MCP0.14:37 affected +9 final focused checks, actual parity/default preservation,90s/1769 exact boundary summary. Real menu containment does not prove content; budget/legacy/fitted refusals retained. Native unchangedidle, owned readers settled. Renewed visible-test request pending; continue unblocked background work. Full goal active."
   },
-  "production_note": "Signed native9bfabf2dbb5c/PID24295 and exact binary unchangedidle. Stage60 source-only registration improves authored fitted origin to1.243px at four withheld markers, but both TextEdit configurations refuse and production fitted guard remains.16 final tests, three scoped facts read back. Saved stage59 external-menu interval returns identical full paired result after current inventory has only built-in display. No UI/capture/decode/grant/restart. Full acceptance remains open.",
+  "production_note": "Current CLI/fresh MCP0.14 provides opt-in exact whole-interval region durations with budget refusal.37 affected +9 final focused checks and actual MCP/CLI/default parity. Retained90s source:1769 segments evaluated; geometry is separate from captured pixels. Legacy/fitted guards remain. Signed native9bf/PID24295/exact binary unchangedidle, three scoped facts read back, own readers settled. Ordinary loaded adapter still unverified; full acceptance open.",
   "groups": [
     {
       "id": "capture",
@@ -106,10 +106,10 @@
           "title": "Prove a useful overflow capture and recovery path",
           "status": "partial",
           "scope": "Qualified padded-display and separate-popup paths plus guarded optional fixed-crop app-only lane. Whole-shot recovery and broader app/menu behavior remain open.",
-          "evidence": "Stage59 real TextEdit external1x triple:2656 exact mux/source joins,30 same-process interval segments;15 selected decoded frames. App backup retains root/Font/Highlight/typeface where childfalse AND resolved-childtrue isolated sources omit. Equal-scale unobscured marker edges within1px; practical scoped supplement established. Built-in off-screen/-3811 and initial checks retained.",
+          "evidence": "Stage59 real TextEdit external1x triple:2656 exact mux/source joins,30 same-process interval segments;15 selected decoded frames. App backup retains root/Font/Highlight/typeface where childfalse AND resolved-childtrue isolated sources omit. Equal-scale unobscured marker edges within1px; practical scoped supplement established. Built-in off-screen/-3811 and initial checks retained. Stage61 exact whole-interval region summaries expose clipping/unknown durations, but actual contained menu omission remains a pixel-negative control.90s document containment does not prove whole-shot rescue.",
           "next": "Qualify remaining useful disturbance/clipping and whole-shot coverage, or explicitly limit recovery to verified source intervals. Keep accurate fitted-origin gate separate; do not reshoot this stable menu case.",
-          "anchor": "fifty-ninth-pass",
-          "updated_at": "2026-10-09T13:48:32-04:00"
+          "anchor": "sixty-first-pass",
+          "updated_at": "2026-10-09T14:26:13-04:00"
         },
         {
           "id": "clean-source",
@@ -171,11 +171,11 @@
           "id": "paired-source-map",
           "title": "Synchronize primary and backup source intervals in the service",
           "status": "completed",
-          "scope": "Two terminal sources: exact primary-relative/host intervals, retained same-process clock qualification, dense backup across held primary frames, independent geometry/content age/gaps and snapshot-bound pagination. Timing/geometry is not decoded rescue.",
-          "evidence": "Stage58 same-process exact interval contract and stage59 selected menu-pixel proof retained. Stage60 current inventory loses external display5; saved nested-menu100ms query returns identical full paired result/SHA and three qualified segments. No current-topology substitution, capture or decoder replay. Content remains unverified in service metadata; live-take unplug recovery not established.",
+          "scope": "Two terminal sources: exact primary-relative/host intervals, retained same-process clock qualification, dense backup across held primary frames, independent geometry/content age/gaps and snapshot-bound pagination. Timing/geometry is not decoded rescue. Optional exact whole-interval named-region state durations with explicit work budget; canvas geometry remains separate from pixels.",
+          "evidence": "Stage61 fresh MCP0.14.0/current CLI:37 affected +9 final focused checks pass; actual MCP/CLI equal, default output/cursors preserved. Real90s/1769 boundary segments exact document containment; first page one segment. Nested-menu100ms contained both yet absent in isolated pixels; padded region clips primary/fits backup. Budget refusal, legacy clock and fitted-transform unknowns retained.",
           "next": "",
-          "anchor": "sixtieth-pass",
-          "updated_at": "2026-10-09T14:05:55-04:00"
+          "anchor": "sixty-first-pass",
+          "updated_at": "2026-10-09T14:26:13-04:00"
         },
         {
           "id": "display-geometry",
@@ -444,10 +444,10 @@
           "title": "Set a realistic resource and admission budget",
           "status": "partial",
           "scope": "CPU, memory, encoder/GPU/storage costs and useful production-duration estimates.",
-          "evidence": "Stage56 original90s pair104 observations: recorder peak53.52MiB, p50 intervalCPU6.94%/peak15.87%; TextEdit134.66MiB, host pressure1/2, no guard. Follow-up unmeasured. Prior GPU/longer profiles retained; no causal encoder/GPU/capacity/P80 proof.",
+          "evidence": "Stage56 original90s pair104 observations: recorder peak53.52MiB, p50 intervalCPU6.94%/peak15.87%; TextEdit134.66MiB, host pressure1/2, no guard. Follow-up unmeasured. Prior GPU/longer profiles retained; no causal encoder/GPU/capacity/P80 proof. Stage61 one whole90 metadata CLI request evaluates1769 boundary segments in0.18s wall/maxRSS79.44MiB. Summary default4096/max16384 boundaries, over-budget refusal verified; these bounds are not capacity or P80 evidence.",
           "next": "Qualify useful capacity/encoder/GPU boundaries; keep interval-specific costs and actual media coverage, without repeating stable profiles.",
-          "anchor": "fifty-sixth-pass",
-          "updated_at": "2026-10-09T12:29:45-04:00"
+          "anchor": "sixty-first-pass",
+          "updated_at": "2026-10-09T14:26:13-04:00"
         },
         {
           "id": "sparse-display-writer",
@@ -652,10 +652,10 @@
           "title": "Verify loaded MCP replay policy and reconnect boundaries",
           "status": "partial",
           "scope": "Never automatically resend mutations after a lost reply; distinguish loaded adapter from native engine version. Preserve existing peer MCP processes.",
-          "evidence": "Stage44 actual ordinary chat MCP status/source reads pass, but no adapter version/new input/map/planning tools and obsolete exact-boundary/safe-retry description. Current CLI fallback verified against source epoch, rich updates and815 exact joins. Loaded adapter policy remains unknown; source/fresh-MCP loss-policy checks preserved.",
+          "evidence": "Stage44 actual ordinary chat MCP status/source reads pass, but no adapter version/new input/map/planning tools and obsolete exact-boundary/safe-retry description. Current CLI fallback verified against source epoch, rich updates and815 exact joins. Loaded adapter policy remains unknown; source/fresh-MCP loss-policy checks preserved. Stage61 ordinary chat status still lacks adapter metadata; native reachable, loaded adapter version/replay unverified. Fresh0.14 MCP/CLI actual coverage contract/schema/capability verified; no peer refresh or mutation replay.",
           "next": "Read back this chat adapter policy and tool descriptions after safe consumer refresh, then extend other ordinary consumers at natural launches. Never infer policy from native build or automatically replay a mutation.",
-          "anchor": "forty-fourth-pass",
-          "updated_at": "2026-10-09T07:24:39-04:00"
+          "anchor": "sixty-first-pass",
+          "updated_at": "2026-10-09T14:26:13-04:00"
         },
         {
           "id": "agent-runbooks",
@@ -2382,6 +2382,45 @@
       "from": "active",
       "to": "active",
       "note": "Stage60 retained registration diagnosis settled: authored held-out spatial pass, real TextEdit ambiguity refusals,16 final checks. Saved external pair stays identical after current display inventory changes. Three scoped facts read back; native unchangedidle. Continue retained-region/clipping and disturbance coverage; fitted origin and physical/provider/capacity/ordinary adoption remain open. No stable-source replay."
+    },
+    {
+      "kind": "item",
+      "id": "paired-source-map",
+      "at": "2026-10-09T14:26:13-04:00",
+      "from": "completed",
+      "to": "completed",
+      "note": "Stage61 fresh MCP0.14.0/current CLI:37 affected +9 final focused checks pass; actual MCP/CLI equal, default output/cursors preserved. Real90s/1769 boundary segments exact document containment; first page one segment. Nested-menu100ms contained both yet absent in isolated pixels; padded region clips primary/fits backup. Budget refusal, legacy clock and fitted-transform unknowns retained."
+    },
+    {
+      "kind": "item",
+      "id": "overflow-recovery",
+      "at": "2026-10-09T14:26:13-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage59 real TextEdit external1x triple:2656 exact mux/source joins,30 same-process interval segments;15 selected decoded frames. App backup retains root/Font/Highlight/typeface where childfalse AND resolved-childtrue isolated sources omit. Equal-scale unobscured marker edges within1px; practical scoped supplement established. Built-in off-screen/-3811 and initial checks retained. Stage61 exact whole-interval region summaries expose clipping/unknown durations, but actual contained menu omission remains a pixel-negative control.90s document containment does not prove whole-shot rescue."
+    },
+    {
+      "kind": "item",
+      "id": "resource-admission",
+      "at": "2026-10-09T14:26:13-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage56 original90s pair104 observations: recorder peak53.52MiB, p50 intervalCPU6.94%/peak15.87%; TextEdit134.66MiB, host pressure1/2, no guard. Follow-up unmeasured. Prior GPU/longer profiles retained; no causal encoder/GPU/capacity/P80 proof. Stage61 one whole90 metadata CLI request evaluates1769 boundary segments in0.18s wall/maxRSS79.44MiB. Summary default4096/max16384 boundaries, over-budget refusal verified; these bounds are not capacity or P80 evidence."
+    },
+    {
+      "kind": "item",
+      "id": "mcp-replay-boundary",
+      "at": "2026-10-09T14:26:13-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage44 actual ordinary chat MCP status/source reads pass, but no adapter version/new input/map/planning tools and obsolete exact-boundary/safe-retry description. Current CLI fallback verified against source epoch, rich updates and815 exact joins. Loaded adapter policy remains unknown; source/fresh-MCP loss-policy checks preserved. Stage61 ordinary chat status still lacks adapter metadata; native reachable, loaded adapter version/replay unverified. Fresh0.14 MCP/CLI actual coverage contract/schema/capability verified; no peer refresh or mutation replay."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T14:26:13-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Stage61 service-owned whole-interval coverage delivered through current CLI/fresh MCP0.14:37 affected +9 final focused checks, actual parity/default preservation,90s/1769 exact boundary summary. Real menu containment does not prove content; budget/legacy/fitted refusals retained. Native unchangedidle, owned readers settled. Renewed visible-test request pending; continue unblocked background work. Full goal active."
     }
   ]
 }

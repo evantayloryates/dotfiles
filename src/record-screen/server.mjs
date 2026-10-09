@@ -16,7 +16,7 @@ import { planProduction, productionPlanSchema, validateProductionRequest } from 
 import {queryRecordingInput,validateInputQuery,inputQuerySchema,inputQueryHealth} from "./lib/input-query.mjs";
 
 const log = (...args) => console.error("[record-screen]", ...args);
-const VERSION = "0.13.0";
+const VERSION = "0.14.0";
 
 // ---------------------------------------------------------------- engine link
 
@@ -157,7 +157,7 @@ const tools = [
     annotations: { readOnlyHint: true },
     run: async () => ok({ ...await engine("status"), mcp_adapter: {
       version: VERSION, replay_policy: 1, production_planning: 1, production_storage_guidance: 1, source_frame_mapping: 1, source_region_mapping: 1, transient_window_query: 1,
-      frame_mapping: frameMapHealth(), paired_source_mapping: 1, fitted_child_mapping_guard: 1, retained_input_query: 1, retained_action_context: 1, retained_input_health_context: 1,
+      frame_mapping: frameMapHealth(), paired_source_mapping: 1, paired_interval_coverage_summary: 1, fitted_child_mapping_guard: 1, retained_input_query: 1, retained_action_context: 1, retained_input_health_context: 1,
       input_query: inputQueryHealth(), mutation_replay: "never",
       read_reconnect_budget_ms: 12000,
       qualification: "loaded MCP adapter policy; native CLI/socket status does not describe an MCP process",
@@ -369,7 +369,7 @@ const tools = [
   },
   {
     name: "recording_paired_map",
-    description: "Map an exact primary-video-relative interval or recorder-host interval across two terminal recordings without consumer synchronization code. Primary-relative offsets need no clock declaration or epoch arithmetic; host offsets require clock_domain=CLOCK_UPTIME_RAW. Splits actual mux intervals at both sources’ boundaries, preserving dense backup frames across held primary footage, source geometry, exact content age, holes and missing references. Up to256 segments/page; follow only the returned snapshot-bound cursor with the same interval/projections. Same retained recorder-process clock identity is required for qualified alignment; legacy/different-process/unknown clock observations return numeric candidates only with backup availability false. Candidate affine and fitted-child guards still apply; timing/geometry availability does not prove content inclusion, same subject or successful recovery. Optional16 desktop points/regions; no pixels, capture, export, composition, UI or mutation replay. Shared single-probe admission, bounded terminal regular-file snapshots; old adapters need a safe next launch or CLI fallback.",
+    description: "Map an exact primary-video-relative interval or recorder-host interval across two terminal recordings without consumer synchronization code. Primary-relative offsets need no clock declaration or epoch arithmetic; host offsets require clock_domain=CLOCK_UPTIME_RAW. Splits actual mux intervals at both sources’ boundaries, preserving dense backup frames across held primary footage, source geometry, exact content age, holes and missing references. Up to256 segments/page; follow only the returned snapshot-bound cursor with the same interval/projections. Same retained recorder-process clock identity is required for qualified alignment; legacy/different-process/unknown clock observations return numeric candidates only with backup availability false. Candidate affine and fitted-child guards still apply; timing/geometry availability does not prove content inclusion, same subject or successful recovery. Optional16 desktop points/regions. include_coverage_summary:true with at least one named region adds exact whole-interval canvas-state durations independent of segment page size; gaps, unmatched source, incomplete journals and unqualified transforms/clocks remain separate. coverage_max_segments1–16384(default4096) bounds summary work; over-budget summary unavailable, no partial claim. Canvas containment does not mean content presence. No pixels, capture, export, composition, UI or mutation replay. Shared single-probe admission, bounded terminal regular-file snapshots; old adapters need a safe next launch or CLI fallback.",
     inputSchema: pairedMapSchema,
     annotations: { readOnlyHint: true },
     run: async a => {

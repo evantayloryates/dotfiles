@@ -1,6 +1,21 @@
 # Production qualification goal
 
-Current checkpoint: stage60. Offline two-anchor registration recovers the
+Current checkpoint: stage61. Fresh MCP0.14.0/current CLI own exact whole-interval
+named-region duration summaries, independent of segment pages.37 affected +9
+final focused checks; actual fresh MCP/CLI parity and default output/cursor
+preservation. Real90s/1769 segments exact document containment, not pixel rescue.
+Actual menu region contained in both sources despite isolated omission; declared
+16pt padding clips primary100ms but fits backup. Legacy fitted source retains
+transform/clock refusals, no backfill. Summary budgets4096default/16384max refuse
+over-budget whole queries. One owned CLI0.18s/79.44MiB, not capacity/P80. Three
+scoped facts read back; six retained imagesunchanged/native9bf/PID24295/exact
+binary unchangedidle. Ordinary loaded chat still lacks adapter metadata; no
+version/replay/adoption claim.46completed16partial1needs_retest1deferred.
+Next: daily-app/physical/provider tests when renewed visible authorization arrives;
+continue unblocked background diagnosis. Full goal active; no stable source replay.
+Earlier24-hour authorization expired; new30-minute request pending. No UI yet.
+
+Stage60 checkpoint: offline two-anchor registration recovers the
 retained authored above-left child within1.243px at four excluded markers;
 old map error227.714px. Missing/wrong-phase controls and both real TextEdit
 anchor configurations refuse. High-score wrong-region lookalike demonstrates

@@ -149,7 +149,7 @@ test('actual two-file probes and fresh MCP/CLI boundary preserve snapshots, adve
   lines.on('line',line=>{const r=JSON.parse(line),p=pending.get(r.id);if(p){clearTimeout(p.timer);pending.delete(r.id);r.error?p.reject(Error(r.error.message)):p.resolve(r.result);}});
   const rpc=(method,params)=>new Promise((resolve,reject)=>{const id=++serial,timer=setTimeout(()=>reject(Error('Owned MCP deadline')),15000);pending.set(id,{resolve,reject,timer});child.stdin.write(JSON.stringify({jsonrpc:'2.0',id,method,params})+'\n');});
   try {
-    assert.equal((await rpc('initialize',{protocolVersion:'2025-06-18'})).serverInfo.version,'0.13.0');
+    assert.equal((await rpc('initialize',{protocolVersion:'2025-06-18'})).serverInfo.version,'0.14.0');
     const tool=(await rpc('tools/list',{})).tools.find(t=>t.name==='recording_paired_map');assert(tool);assert.equal(tool.annotations.readOnlyHint,true);
     const response=await rpc('tools/call',{name:'recording_paired_map',arguments:{...request,max_segments:3}});assert.equal(response.isError,false);
     const first=JSON.parse(response.content[0].text);assert.equal(first.clock_alignment.qualified,true);assert.equal(first.segment_count,8);
@@ -162,6 +162,17 @@ test('actual two-file probes and fresh MCP/CLI boundary preserve snapshots, adve
     const before=methods.length;assert.equal((await rpc('tools/call',{name:'recording_paired_map',arguments:{...request,backup_recording_id:request.primary_recording_id}})).isError,true);assert.equal(methods.length,before);
     capable=false;assert.equal((await rpc('tools/call',{name:'recording_paired_map',arguments:request})).isError,true);assert.equal(methods.at(-1),'status');
     capable=true;const status=JSON.parse((await rpc('tools/call',{name:'status',arguments:{}})).content[0].text);assert.equal(status.mcp_adapter.paired_source_mapping,1);
+    assert.equal(status.mcp_adapter.paired_interval_coverage_summary,1);
+    assert.equal(tool.inputSchema.properties.include_coverage_summary.type,'boolean');
+    const summarized=JSON.parse((await rpc('tools/call',{name:'recording_paired_map',arguments:{...request,max_segments:1,include_coverage_summary:true}})).content[0].text);
+    const cliSummary=spawn(process.execPath,[fileURLToPath(new URL('../cli.mjs',import.meta.url)),'paired-map',JSON.stringify({...request,max_segments:1,include_coverage_summary:true})],{env:{...process.env,RECORD_SCREEN_HOME:root},stdio:['ignore','pipe','pipe']});
+    let summaryOutput='',summaryError='';cliSummary.stdout.on('data',d=>summaryOutput+=d);cliSummary.stderr.on('data',d=>summaryError+=d);
+    assert.equal(await new Promise(resolve=>cliSummary.once('exit',resolve)),0,summaryError);
+    assert.deepEqual(JSON.parse(summaryOutput).coverage_summary,summarized.coverage_summary);
+    assert.equal(summarized.coverage_summary.evaluated_segments,8);
+    const beforeInvalidSummary=methods.length;
+    assert.equal((await rpc('tools/call',{name:'recording_paired_map',arguments:{...request,include_coverage_summary:true,desktop_regions:[]}})).isError,true);
+    assert.equal(methods.length,beforeInvalidSummary);
     // Actual file reader must retain the resolved capture scope, not just the
     // requested header. This also guards a resolved child setting overriding
     // a requested false value; no geometry is borrowed from another source.
@@ -184,4 +195,79 @@ test('actual two-file probes and fresh MCP/CLI boundary preserve snapshots, adve
     for(const p of pending.values()){clearTimeout(p.timer);p.reject(Error('cleanup'));}for(const socket of sockets)socket.destroy();
     await new Promise(resolve=>fake.close(resolve));rmSync(root,{recursive:true,force:true});
   }
+});
+
+const summarize=(snapshots=pair(),patch={})=>resolvePairedMap(snapshots,{...request,include_coverage_summary:true,...patch});
+const duration=(summary,lane,state,region=0)=>summary.regions[region][lane].durations_ns[state];
+const ns=n=>({numerator:String(n),denominator:'1'});
+test('whole-interval coverage is exact across held frames and independent of segment pages',()=>{
+  const first=summarize(pair(),{max_segments:1}),full=summarize();
+  assert.equal(first.returned_segments,1);assert.equal(first.has_more,true);
+  assert.deepEqual(first.coverage_summary,full.coverage_summary);
+  assert.deepEqual(first.coverage_summary.total_duration_ns,ns(2000000000n));
+  assert.deepEqual(duration(first.coverage_summary,'backup','contained'),ns(2000000000n));
+  assert.equal(first.coverage_summary.regions[0].backup.entire_interval_contained_in_canvas,true);
+  assert.equal(first.coverage_summary.content_presence,'unverified');
+  assert.equal(resolvePairedMap(pair(),request).coverage_summary,undefined);
+});
+test('dynamic regions split into contained, clipped and outside durations without content claims',()=>{
+  const snapshots=pair();const geometry=snapshots[1].rows[1].geometry;
+  snapshots[1].rows.splice(2,0,{kind:'geometry',segment:1,geometry:{...geometry,desktop_points_to_source_pixels:[1,0,0,1,-130,-110]}},
+    {kind:'geometry',segment:2,geometry:{...geometry,desktop_points_to_source_pixels:[1,0,0,1,-1000,-110]}});
+  for(const r of snapshots[1].rows)if(r.kind==='source_frame')r.geometry_segment=r.source_frame>=6?2:r.source_frame>=3?1:0;
+  const s=summarize(snapshots).coverage_summary;
+  assert.deepEqual(duration(s,'backup','contained'),ns(750000000));
+  assert.deepEqual(duration(s,'backup','clipped'),ns(750000000));
+  assert.deepEqual(duration(s,'backup','outside'),ns(500000000));
+  assert.equal(s.regions[0].backup.entire_interval_contained_in_canvas,false);
+  assert.equal(s.regions[0].primary.entire_interval_contained_in_canvas,true);
+  assert.equal(s.content_presence,'unverified');
+});
+test('rational third-second mismatches partition exactly beyond safe integer epochs',()=>{
+  const snapshots=pair();snapshots[1].probe={streams:[{time_base:'1/3',width:64,height:64}],packets:[{pts:0,duration:1},{pts:1,duration:1}]};
+  const s=summarize(snapshots).coverage_summary;
+  assert.deepEqual(duration(s,'backup','contained'),{numerator:'1000000000',denominator:'3'});
+  assert.deepEqual(duration(s,'backup','unmatched_source'),{numerator:'1000000000',denominator:'3'});
+  assert.deepEqual(duration(s,'backup','unmeasured_packet'),{numerator:'4000000000',denominator:'3'});
+});
+test('packet holes and unknown tails are explicit coverage durations, not nearest-frame rescue',()=>{
+  const snapshots=pair();snapshots[1].probe.packets[1].duration='1';delete snapshots[1].probe.packets[7].duration;
+  const s=summarize(snapshots).coverage_summary;
+  assert.deepEqual(duration(s,'backup','unmeasured_packet'),ns(499999999));
+  assert.deepEqual(duration(s,'backup','contained'),ns(1500000001));
+  assert.equal(s.regions[0].backup.entire_interval_contained_in_canvas,false);
+});
+test('legacy clocks, incomplete journals and fitted transforms withhold whole-interval containment',()=>{
+  for(const kind of ['clock','journal','fitted']){
+    const snapshots=pair();
+    if(kind==='clock'){delete snapshots[1].rows[0].clock_instance;delete snapshots[1].descriptor.source_packet.clock_instance;}
+    if(kind==='journal'){snapshots[1].descriptor.source_packet.rows_lost=1;snapshots[1].rows.at(-1).rows_lost=1;}
+    if(kind==='fitted'){snapshots[1].rows[0].target={type:'window',include_child_windows:true};snapshots[1].rows[1].geometry.content_scale=.5;}
+    const s=summarize(snapshots).coverage_summary;
+    assert.deepEqual(duration(s,'backup',kind==='clock'?'unqualified_clock':kind==='journal'?'unqualified_journal':'unqualified_transform'),ns(2000000000));
+    assert.equal(s.regions[0].backup.entire_interval_contained_in_canvas,false);
+    assert.equal(s.content_presence,'unverified');
+  }
+});
+test('summary work budget returns unavailable without substituting a partial page',()=>{
+  const out=summarize(pair(),{max_segments:1,coverage_max_segments:7});
+  assert.equal(out.returned_segments,1);assert.equal(out.coverage_summary.summary_available,false);
+  assert.equal(out.coverage_summary.reason,'segment_budget_exceeded');assert.equal(out.coverage_summary.evaluated_segments,0);
+  assert.equal(out.coverage_summary.regions,null);assert.equal(out.coverage_summary.required_segments,8);
+  assert.equal(summarize(pair(),{coverage_max_segments:8}).coverage_summary.summary_available,true);
+});
+test('coverage option and budget are cursor-bound while default false preserves existing cursors',()=>{
+  const first=summarize(pair(),{max_segments:1});
+  assert.throws(()=>resolvePairedMap(pair(),{...request,cursor:first.next_cursor}),e=>e.code==='paired_mapping_cursor');
+  assert.throws(()=>summarize(pair(),{cursor:first.next_cursor,coverage_max_segments:4095}),e=>e.code==='paired_mapping_cursor');
+  const next=summarize(pair(),{cursor:first.next_cursor,max_segments:3});assert.deepEqual(next.coverage_summary,first.coverage_summary);
+  const old=resolvePairedMap(pair(),{...request,max_segments:1});
+  assert.deepEqual(resolvePairedMap(pair(),{...request,cursor:old.next_cursor,include_coverage_summary:false}).segments,
+    resolvePairedMap(pair(),{...request,cursor:old.next_cursor}).segments);
+});
+test('summary requests refuse unsupported budgets/types and missing regions before reading sources',()=>{
+  for(const patch of [{include_coverage_summary:1},{include_coverage_summary:'true'},{include_coverage_summary:null},
+    {include_coverage_summary:true,desktop_regions:[]},{coverage_max_segments:8},{include_coverage_summary:false,coverage_max_segments:8},
+    {include_coverage_summary:true,coverage_max_segments:0},{include_coverage_summary:true,coverage_max_segments:16385},
+    {include_coverage_summary:true,coverage_max_segments:1.5}])assert.throws(()=>validatePairedMapRequest({...request,...patch}),e=>e.code==='bad_paired_map');
 });

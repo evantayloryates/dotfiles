@@ -731,6 +731,37 @@ and composition recipes are deferred.
 
 ### Service-owned paired source mapping (October 9)
 
+Fresh MCP0.14.0 extends this contract with opt-in whole-interval region coverage
+and `mcp_adapter.paired_interval_coverage_summary:1`. Add
+`"include_coverage_summary":true` and at least one named `desktop_regions` entry
+to the request below. `coverage_summary` sums **exact rational nanosecond
+durations across the entire requested half-open interval**, independently of
+the returned segment page. Each region has primary/backup duration buckets:
+contained, clipped, outside, unmeasured packet, unmatched source, unqualified
+transform, unqualified clock and unqualified journal. Buckets partition time
+in the listed `state_precedence`; earlier uncertainty takes precedence, while
+per-segment candidates retain overlapping defects. The declaration uses
+candidate affines, not independent pixel calibration.
+
+`entire_interval_contained_in_canvas` concerns geometry/source correspondence
+only. Stage61's real nested-menu region is contained in both canvases, while
+retained pixels show it only in the backup. `content_presence` stays unverified.
+A clipped duration measures **time in a clipping state**, not the missing pixel
+area or missing-content duration; inspect per-frame `canvas_area_fraction` and
+actual pixels separately. Unknown clocks or incomplete journals prevent a
+qualified whole-interval containment claim, preserving useful frame candidates.
+
+`coverage_max_segments` defaults4096 and accepts1..16384. When the actual boundary
+count exceeds it, `summary_available:false`, reason`segment_budget_exceeded`,
+evaluated_segments0 and regionsnull explicitly refuse the summary. No first-page
+or partial-interval total substitutes for it. Reduce the requested interval or
+set a deliberate budget; configured bounds are not production capacity evidence.
+Summary options/budget are cursor-bound, but page size can change. Omitting
+the summary preserves the previous paired-map output and cursor semantics.
+The current CLI reads canonical code immediately; fresh MCP instances advertise
+0.14.0. Existing peers retain their loaded contract until a safe refresh.
+Native engine, binary and grants remain unchanged; no forced peer restart.
+
 Fresh MCP0.13.0 adds read-only `recording_paired_map` and
 `mcp_adapter.paired_source_mapping:1`. CLI `paired-map JSON` works without
 restarting other agents. Use owned terminal primary/backup recording IDs and

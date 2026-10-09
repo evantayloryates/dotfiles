@@ -16,6 +16,13 @@ or missing/gapped clock observations withhold qualified paired alignment. Do
 not borrow the current engine's UUID to backfill old recordings. Native status
 advertises `source_clock_instance:1`; that does not upgrade retained legacy data.
 
+Fresh MCP0.14.0 optionally adds whole-interval named-region duration summaries
+with `include_coverage_summary:true`. Summary computation is bounded separately
+from segment page size; clock/journal/source/transform uncertainty and geometric
+clipping remain explicit. Content presence stays unverified, and affines remain
+candidates outside tested geometry. This changes the consumer view only, not
+the retained native packet schema or historical clock identity.
+
 Fresh MCP0.13.0 `recording_paired_map` / CLI `record-screen paired-map JSON`
 maps a primary-relative range across two terminal sources. It owns epoch
 arithmetic and exact rational interval joins, preserves dense backup packet

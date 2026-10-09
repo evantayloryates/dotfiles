@@ -44,6 +44,11 @@ anchors, wrong scale, overlapping anchors, allocation budgets and fresh-file
 preservation. Run with the same NumPy/Pillow Python runtime.
 
 `paired-map.test.mjs` checks exact two-source interval joins, dense backup across
+held primary packets and whole-interval named-region durations independent of
+segment page size. Rational partitions, dynamic clipping/outside states,
+clock/journal/transform refusal, summary work budgets and option-bound cursors
+have explicit positive/negative controls. Actual fresh MCP/CLI summaries match.
+The existing source interval checks cover
 held primary packets, primary-relative epoch conversion, rational boundaries,
 holes/unknown tails, legacy/different-process/clock-gap refusals, fitted geometry,
 failed prefixes, signed content age and snapshot-bound pagination. Actual-file

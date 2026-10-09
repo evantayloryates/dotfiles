@@ -170,3 +170,21 @@ three same-process qualified segments. This proves saved map independence from
 current topology for that interval; no unplug or live recording was induced.
 The verified app-only menu supplement remains usable. Standalone fitted origin,
 all-shot clipping/disturbance recovery and physical/provider timing stay open.
+
+## Interval coverage contract — stage61
+
+Fresh MCP0.14.0/current CLI can sum named-region canvas-state durations across
+the entire requested interval using `include_coverage_summary:true`. On the
+retained stage59 nested-menu100ms interval, both sources report viewport
+containment even though the menus are absent from isolated pixels. Caller16pt
+padding gives100ms primary clipping and100ms backup containment. Do not promote
+geometry into menu presence, shadow fidelity or whole-shot recovery. An entire
+90s document interval evaluates1769 boundaries with exact90s containment each
+source; the first page can return one segment. This is source metadata coverage.
+
+The retained stage56 fitted100ms viewport keeps primary transform unqualified
+and backup common clock unqualified despite raw contained geometry. Legacy
+clock identity stays unknown. Explicit work budgets refuse an over-budget whole
+summary, and options/budget remain cursor-bound. Reuse these sources and their
+selected actual pixels instead of reshooting. See README for the0.14 request
+fields and GATES sixty-first pass for actual reader, scope and settlement proof.
