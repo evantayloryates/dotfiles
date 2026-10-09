@@ -6,6 +6,9 @@ ScreenCaptureKit), the MCP server, and a command line.
 
 For production coordination, start with [the agent usage and recovery runbook](AGENT-USAGE.md).
 It separates delivered capabilities from app/provider checks still needed.
+Native menu inclusion also needs actual app/display qualification: see the
+[TextEdit depth lane](qualification/TEXTEDIT-MENUS.md) for childtrue omission
+and the independently verified app-only fallback.
 
 Why it is built this way, with measurements:
 `~/src/docs/html/record-screen-strategies/index.html`. Bench harness:

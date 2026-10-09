@@ -1,5 +1,74 @@
 # Qualification update — October 9, 2026
 
+## Fifty-ninth pass: practical native menu backup with exact same-process intervals
+
+One90-second TextEdit1.20/build415/OS25F80 triple ran on the external1920x1080
+1x display, origin(-217,-1080). Fresh owned local RTF parent586x488 at(-4,-1002),
+PID34737/window10739, actual native right-click, Font > Highlight, typeface and
+Escape phases. Three explicit10fps/native-size/cursorfalse captures: isolated
+childfalse, isolated childtrue and full external app-only crop with exact PID
+scope. One shared recorder-process UUID32c4eace-23d0-4fcb-8e45-243fd63d5e66.
+Composition and input blocking remain absent.
+
+| Qualification | Evidence | Limit |
+| --- | --- | --- |
+| Actual media/source joins |886/885/885 actual packets,2656 total; zero timestamp difference or lost journal rows; all terminal done | Not physical timing or complete OS delivery |
+| Practical menu backup | App contains root, Font/Highlight and467pt typeface viewport; both isolated sources omit these selected views | Effective childtrue confirmed in retained capture row. Cause unknown; prior built-in positive scopes retained |
+| Service paired map | Ten100ms primary-relative intervals,30 segments split at both actual packet boundaries; qualified backup timing/projection | Five selected decoded frames per source,15 total. Metadata content_presence remains unverified; not all returned samples or entire shot checked |
+| Spatial positive control | Unobscured green text ROI edges within1px; one-pixel glyph support97.93–98.81% across10 comparisons | H.264 threshold-sensitive exact masks overlap only51–53%. No exact colorimetric claim or fitted-origin correction |
+| Input delivery | Six rows per source: right down/up and four keyboard transitions; all declared-action linked, destination34737, foreground71013 | All ownershipunknown and composition positionsnull. No physical rate, concurrent-user discrimination or authenticated provider identity |
+| Resource observation |104 samples starting19s into take; recorder peak49.64MiB, p50 intervalCPU3.96%, peak20.77%; host pressure2, guardnottriggered | Shared workload, no causal attribution/GPU/thermal/capacity/P80 promise |
+| Settlement | Four terminal action receipts, four verified/cleanupcomplete outcomes, uncovered0; three exact-entity facts independently read back | Native CUA is manually scoped, not automatically intercepted |
+
+Initial local file window10597 was moved to the built-in display and later
+reported off screen. Native window selection, Raise and Bring All to Front did
+not restore readiness. Isolated preview had the owned pixels; full built-in
+app-filtered preview failed SCK -3811. A native observation also lost its pipe;
+read inventory then rebind restored access, without service/provider restart.
+No recording was created by those blocked starts. A fresh native New Document,
+HTML paste and Save into the established private stage59 folder produced actual
+on-screen external readiness and a successful app-filtered source preview.
+The external lane was then chosen explicitly; built-in failures stay retained.
+No off-Space app-rendering guarantee or root-cause attribution follows.
+
+The initial strict binary pixel-mask assertion failed0.511, exposing codec
+sensitivity. A later full-marker spatial check encountered expected typeface
+occlusion. Both diagnostics remain; the final geometry oracle uses the
+independently unobscured left120px marker strip, bounded1px support and menu
+ROIs from observed transient geometry. App root/nested bright-glyph counts847/
+2544 versus0 in either isolated source; typeface3783 versus1466 existing text.
+This demonstrates actual mode-specific presence without reshooting the take.
+All geometry scales stay1; this episode does not retest fitted child mapping.
+The blue app text caret remains in cursorfalse footage.
+
+Helper mistakes are retained separately: unsupported windows.list pid and
+frame.verify show_cursor refused before the respective operations; wait-until
+finalized refused before readback, corrected to done on the same IDs; source
+analysis corrected input versus input_event from retained rows without another
+capture/decode pass. Shared-evidence reader-shape errors recovered original
+immutable receipt/outcome IDs and timestamps, preserving exactly four outcomes.
+No accepted/unknown UI operation was replayed to repair publication.
+
+Owned document content and native file URL were verified. Original356-byte RTF
+and fresh769-byte RTF hashes are unchanged. After Quit, native app observation
+exposed a fresh PID45373 Open-panel instance; an explicit native Quit command
+settled it. Independent ps and recorder reads confirm both PIDs absent; app
+observation was not reused as an absence check after final Quit. Owned session
+ses_rbcs67ay closed/read back, recordingsrec_q4tzu9f7/rec_nusa272g/rec_emch4dnh
+terminal. Passive resource observer settled. Native9bfabf2dbb5c/PID24295 unchanged,
+productionunfinished0/actions0/inputsubscribers0/viewfinderlanes0; no restart.
+
+Private evidence: gates-v59/{qualification-summary.json,source-analysis.json,
+*-journal-proof.json,*-frame-map.json,*-pair.json,*-{baseline,root,nested,
+typeface,closed}.png,pixel-proof.json,resource-summary.json,shared-audit.json,
+shared-facts.json,cleanup-proof.json,session-readback.json,final-status.json}.
+Failed helper scripts/outputs and readiness pixels remain alongside them.
+Canonical daily-app lane: TEXTEDIT-MENUS.md. Checklist46completed/16partial/
+1needs_retest/1deferred; full goal active. Practical interval supplement proven;
+whole-shot disturbance/clipping, precise fitted origin, physical/provider,
+capacity and ordinary consumer adoption remain open. Avoid repeating this
+settled menu episode; qualify only the next missing coverage boundary.
+
 ## Fifty-eighth pass: service-owned paired intervals and retained clock identity
 
 Previous goal turn was progress: stage57 delivered frame-bound extent and

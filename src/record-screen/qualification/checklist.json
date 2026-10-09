@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T13:23:27-04:00",
+  "updated_at": "2026-10-09T13:48:32-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage58 delivers service-owned paired intervals and retained process clocks:130 native/37 unique adapter checks,10/12 new private/installed joins, final relative pages and CLI equal.98 prior state hashes unchanged; own helpers/scopes settled.46 completed,16 partial,1 needs retest,1 deferred. Next: practical app/menu backup pixels with qualified interval coverage; fitted origin and physical/provider/capacity/adoption boundaries remain open."
+    "note": "Stage59 practical menu backup verified in scoped external TextEdit episode; childtrue omission and built-in readiness failures retained. Own3 takes/session/scopes/apps settled, engine idle. Continue targeted disturbance/coverage, fitted origin, physical/provider/capacity and ordinary consumer gates without replaying established evidence."
   },
-  "production_note": "Signed native9bfabf2dbb5c/PID24295 and fresh MCP0.13.0 paired-source mapping delivered from the exact tested artifact through idle fence;98 prior state hashes unchanged. Private/installed tiny pairs10/12 exact joins; final primary-relative pages and CLI equal. Source capture scope retained; fitted child origin still guarded. Owned helpers/sessions/scopes settled, production idle. Input delivery, ordinary older-chat adoption, physical/provider/capacity and practical whole-shot recovery remain open.",
+  "production_note": "Signed native9bfabf2dbb5c/PID24295 unchanged and idle. Stage59 real TextEdit external triple2656 exact joins and30 same-process interval segments; selected app backup menu pixels verified where both isolated modes omit. Own3 takes/session/4 scopes/apps settled, original files unchanged;4 verified/cleanupcomplete outcomes,3 scoped facts read back. Built-in readiness failures retained. Whole-shot disturbance/clipping, fitted origin, physical/provider/capacity and ordinary consumer adoption remain open.",
   "groups": [
     {
       "id": "capture",
@@ -106,10 +106,10 @@
           "title": "Prove a useful overflow capture and recovery path",
           "status": "partial",
           "scope": "Qualified padded-display and separate-popup paths plus guarded optional fixed-crop app-only lane. Whole-shot recovery and broader app/menu behavior remain open.",
-          "evidence": "Stage58 service paired interval map links retained app frames38/269/563 to existing before/open/closed pixels. Old stage57 clock provenance stays unqualified, original1563 exact joins preserved; new tiny same-process sources prove metadata only. Fitted origin remains guarded.",
-          "next": "Qualify practical app/menu backup source pixels and disturbance/clipping coverage using service-owned same-process interval mapping; preserve dense alternatives across held primary frames.",
-          "anchor": "fifty-eighth-pass",
-          "updated_at": "2026-10-09T13:21:11-04:00"
+          "evidence": "Stage59 real TextEdit external1x triple:2656 exact mux/source joins,30 same-process interval segments;15 selected decoded frames. App backup retains root/Font/Highlight/typeface where childfalse AND resolved-childtrue isolated sources omit. Equal-scale unobscured marker edges within1px; practical scoped supplement established. Built-in off-screen/-3811 and initial checks retained.",
+          "next": "Qualify remaining useful disturbance/clipping and whole-shot coverage, or explicitly limit recovery to verified source intervals. Keep accurate fitted-origin gate separate; do not reshoot this stable menu case.",
+          "anchor": "fifty-ninth-pass",
+          "updated_at": "2026-10-09T13:48:32-04:00"
         },
         {
           "id": "clean-source",
@@ -172,10 +172,10 @@
           "title": "Synchronize primary and backup source intervals in the service",
           "status": "completed",
           "scope": "Two terminal sources: exact primary-relative/host intervals, retained same-process clock qualification, dense backup across held primary frames, independent geometry/content age/gaps and snapshot-bound pagination. Timing/geometry is not decoded rescue.",
-          "evidence": "Native130 checks,37 unique adapter checks; exact tested9bfabf native/MCP0.13.0 installed. Private/installed tiny pairs10/12 exact joins; final relative interval5 segments/3 pages/CLI equal. Legacy and actual different-process clock identities stay unqualified. Snapshot cursor/capture-row effective-child tests pass.",
+          "evidence": "Stage58 exact same-process interval contract retained. Stage59 real90s triple2656 exact mux/source joins; ten100ms primary-relative intervals yield30 split segments with qualified backup timing/projection. Actual selected menu/closed pixels independently checked; content remains unverified in service metadata until separate QA.",
           "next": "",
           "anchor": "fifty-eighth-pass",
-          "updated_at": "2026-10-09T13:21:11-04:00"
+          "updated_at": "2026-10-09T13:48:32-04:00"
         },
         {
           "id": "display-geometry",
@@ -2336,6 +2336,29 @@
       "from": "partial",
       "to": "partial",
       "note": "Stage58 two supported recorder-stamped consumers each ran once, with terminal receipts and separate verified/cleanup-complete outcomes; fresh central audit uncovered0. Second read checks changed cursor qualification binding on retained media. Historical audit and routine adoption stay separate."
+    },
+    {
+      "kind": "item",
+      "id": "overflow-recovery",
+      "at": "2026-10-09T13:48:32-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage59 real TextEdit external1x triple:2656 exact mux/source joins,30 same-process interval segments;15 selected decoded frames. App backup retains root/Font/Highlight/typeface where childfalse AND resolved-childtrue isolated sources omit. Equal-scale unobscured marker edges within1px; practical scoped supplement established. Built-in off-screen/-3811 and initial checks retained."
+    },
+    {
+      "kind": "item",
+      "id": "paired-source-map",
+      "at": "2026-10-09T13:48:32-04:00",
+      "from": "completed",
+      "to": "completed",
+      "note": "Stage58 exact same-process interval contract retained. Stage59 real90s triple2656 exact mux/source joins; ten100ms primary-relative intervals yield30 split segments with qualified backup timing/projection. Actual selected menu/closed pixels independently checked; content remains unverified in service metadata until separate QA."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T13:48:32-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Stage59 practical menu backup verified in scoped external TextEdit episode; childtrue omission and built-in readiness failures retained. Own3 takes/session/scopes/apps settled, engine idle. Continue targeted disturbance/coverage, fitted origin, physical/provider/capacity and ordinary consumer gates without replaying established evidence."
     }
   ]
 }

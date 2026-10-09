@@ -99,3 +99,55 @@ Own fixture/private engine/readers/sessions settled; no input/permission/peer UI
 45completed16partial1needsretest1deferred. Goal active. Next: service-owned paired
 backup map with exact source coverage using retained media. Do not guess union
 origin from surface bounds or repeat passing captures. Composition deferred.
+
+## Stage59: external menu omission and useful app backup
+
+TextEdit1.20/415, OS25F80, recorder9bfabf2dbb5c; external1920x1080/1x at
+(-217,-1080), owned586x488 local RTF at(-4,-1002). One90s triple supplies2656
+exact mux/source joins, zero journal loss. Fifteen selected decoded frames:
+
+| Source | Root / Font–Highlight / typeface viewport |
+| --- | --- |
+| Isolated childfalse | Omitted |
+| Isolated effective childtrue | Omitted |
+| Full external app-only crop, childtrue | Present |
+
+Effective settings/PID scope verified in retained capture rows. All geometry
+scales1; this is a new omission lane, not a fitted-origin retest. Prior built-in
+positive and fitting cases remain valid for their written scopes. Cause unknown.
+The467pt typeface viewport is present, not its whole AX list. Cursorfalse still
+retains the app caret. No universal clean source or native child inclusion promise.
+
+Native AX/window screenshots did not establish built-in availability. That
+window later reported off screen; selection/Raise/Bring All to Front did not
+recover it. Isolated source pixels remained while app-filtered display preview
+failedSCK-3811. A fresh native New Document saved in the owned local evidence
+folder produced verified external readiness. Native pipe observation failure
+recovered by inventory/rebind, without peer/provider restart. No universal
+activation recipe follows.
+
+Ten100ms primary-relative intervals produce30 service-owned paired segments
+with qualified same-process timing/projection. Independently decoded app pixels
+show the useful menu supplement. Unobscured text-marker edges stay within1px;
+codec-sensitive strict masks and expected menu occlusion remain separate failed
+QA attempts. Reuse actual packet references; do not guess frame rate/epoch.
+Metadata content_presence remains unverified until independent pixel QA. This
+is a selected-interval supplement, not continuous/whole-shot rescue, fitted
+mapping, source handover, interference insurance or capacity qualification.
+
+Six events/source retain destination/action clues despite another foreground
+app; all ownershipunknown, composition positionsnull. Native AX menu picks need
+not generate pointer events. Four action receipts have separate source-verified
+and cleanupcomplete outcomes/uncovered0; three exact-entity pass/fail facts read
+back. Preserve native-CUA/provider uncertainty and existing broad input policy.
+
+The task-owned original and fresh RTF hashes are unchanged; sessionclosed and
+all three takes terminal. Quit then native app observation exposed a fresh
+Open-panel instance. The explicit native Quit command settled it; independent
+process/recorder reads confirm both owned PIDsabsent. Do not read/rebind a
+terminated app to prove absence, or quit a preexisting user instance.
+
+Further work should target missing disturbance/clipping or another environment.
+Reuse retained stage59 footage for readers/registration. Do not replay this
+settled menu episode to repair helper or publication errors. Exact resource,
+failed preparation and scope limits: GATES.md fifty-ninth pass.

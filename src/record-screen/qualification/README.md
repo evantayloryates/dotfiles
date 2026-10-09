@@ -12,6 +12,10 @@ The qualified Chrome native-select fallback and its remaining boundaries are in
 [CHROME-SELECT.md](CHROME-SELECT.md). It uses a separate display source layer;
 child inclusion alone did not preserve that popup in the tested window lane.
 
+The [TextEdit menu lane](TEXTEDIT-MENUS.md) preserves built-in positive/fitted
+results and the external childtrue omission with verified app-only backup.
+Reuse exact-environment facts and retained actual source frames.
+
 ## Helpers
 
 `paired-map.test.mjs` checks exact two-source interval joins, dense backup across

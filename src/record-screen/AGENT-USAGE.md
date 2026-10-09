@@ -157,6 +157,14 @@ before/after context. A missing future source cannot be the launch target:
 scope the actual controller with explicit launch intent, then resolve the
 launched source before its input operations. Never fabricate a PID.
 
+For TextEdit menus, consult [the scoped app lane](qualification/TEXTEDIT-MENUS.md).
+Actual external-display footage omitted root/nested/typeface menus even with
+resolved child inclusion, while concurrent app-only footage retained them.
+Use paired-source mapping and independently decoded pixels to choose a useful
+backup. Native discovery, delivery, interval coverage and content are separate
+checks. After Quit, verify absence through independent process or recorder
+reads; native app observation can expose a fresh Open-panel instance.
+
 Supported callback consumers may use `lib/recorded-workflow.mjs`. The operation
 runs once; verification and cleanup are separate hooks after the scope closes.
 Native CUA is not automatically intercepted. Import the terminal reply with
