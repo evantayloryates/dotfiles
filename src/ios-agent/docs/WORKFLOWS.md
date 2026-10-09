@@ -230,24 +230,23 @@ cleanup, and whether USB/Wi-Fi/cellular were present. A displayed build number
 is not unique binary identity. Keep an older cellular result separate from the
 latest installed build gate.
 
-## Remaining physical gates and limitations
+## Qualified scope and remaining limits
 
-The source-derived workflow plan above is not a completed browser/phone test.
-The operator has verified local identity and credential mint/readback/retirement;
-latest-build live readiness, actual typed input,
-Wi-Fi Shortcuts handoff and recovery, USB-unplugged cellular proof, paired auth,
-business equality, and final native/glow cleanup remain open. Human steps should be limited
-to USB/lock-state and actual Apple authentication/consent gates. Unit/IPC tests
-prove the verifier's refusal and wait behavior, not a completed customer flow.
+Both paired edit directions, restoration, focused replacement, remote Metro,
+USB-unplugged explicit Wi-Fi Off/On, native menu dismissal, and final lease/glow
+cleanup passed on the dated installed runtime. See the dated acceptance section
+and receipts below. Hardware-keyboard events, composition/IME fidelity,
+multi-touch, and system UI remain separate unqualified capabilities. Do not
+repeat completed business mutations to diagnose a runtime issue.
 
 ## Resume qualification findings
 
 On the installed phone the exact TargetCalories client ID and baseline matched
 the guarded non-admin coach pair. A coach UI edit persisted; the original nullable
 target was restored through the UI and independently read back. Temporary auth
-tokens were retired and private credential files removed. Changed-value equality
-on the phone remains unqualified because a subsequent remote reload produced a
-black screen. Do not replay that edit to diagnose runtime startup.
+tokens were retired and private credential files removed. That early batch did not establish changed-value equality after a black screen;
+the later current paired acceptance receipt below independently closed equality.
+Do not replay that edit to diagnose runtime startup.
 
 `ready` now rejects a prelude-only response: it requires fresh domain sampling,
 a registered structural navigation route and available registered Apollo client.

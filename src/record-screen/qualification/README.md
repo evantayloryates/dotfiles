@@ -41,6 +41,8 @@ No helper requests a new grant.
 | `derivative-source.test.mjs` | Service-owned trim/GIF mapping, exact rational integers beyond JS precision, wrong identity/unknown clock refusal |
 | `encoder-finalization-test.py` | Frozen private compile plus actual off-screen AVAssetWriter, blocked finalization, late callback, peer isolation and retained manager admission; no screen or UI |
 | `verify-encoder-finalization.py` | Independently decode retained offscreen packet clocks and verify that late finalization preserves the interrupted outcome |
+| `stream-stop-test.py` | Frozen controlled asynchronous stop and actual recording/admission/persistence proof; no SDK or UI |
+| `delivery-readiness.py` | Read-only active-job, runtime/signature and missing-diagnostic assessment; never installs or authorizes restart |
 | `startup-test.swift` | Actual recording state/watchdog races with a controlled preflight; no SDK discovery |
 | `input-test.swift` | Mechanical event scoping, contextual service stamps, namespace/restart uncertainty, strict numeric boundaries and persistence faults; no UI |
 | `admission-test.swift` | Future schedule and extension overlap/duration/lead admission, cancellation; no capture |
@@ -280,3 +282,12 @@ A separate controlled callback-before-call-return case keeps admission until bot
 conditions settle. This is fault handling, not a natural hardware hang or resource
 stress test. Probe retained MP4 packets independently; complete journal rows do
 not imply complete video coverage.
+
+
+Run `stream-stop-test.py --output /absolute/private/new-stage` for the controlled
+stop lane. Its accessors are appended only to frozen qualification copies.
+Run `delivery-readiness.py --candidate /absolute/candidate.app --output
+/absolute/private/new-assessment` for a live read-only inventory. It preserves
+before/after status and job responses, checks signatures and source stamp, and
+keeps missing legacy diagnostics unknown. Its result does not reserve admission
+or authorize a restart. Both tools preserve prior stages rather than overwrite.

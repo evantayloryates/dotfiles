@@ -86,6 +86,7 @@ def main():
                 "invalidTextMode": "text_mode_invalid",
             }
             booleans = ["textMatches", "textReplacement", "textReplacementEmpty", "invalidTextModeNoChange", "cleanup", "oldCallbackPreservesNewOwner", "independentNativeExpiry", "wifiCallbackFencing", "glowPreservesLayoutAndKey", "nestedRecognizerPrecedence", "panDefeatsLongPress", "nativeTapFocus", "focusSwitchAndUnicode", "cancelledTouchObserved", "secondaryWindowNoUnderlyingTouch", "capturePointResolution", "captureDefaultResolution", "captureLeaseFencing"]
+            booleans += ["nativeLabelFallback", "nativeLabelPrecedence", "secureDescendantLabelsHidden"]
             gates = {key: result.get(key, {}).get("error") == expected for key, expected in errors.items()}
             gates.update({key: result.get(key) in (True, 1) for key in booleans})
             gates.update(tapCount=result.get("tapCount") == 1, holdCount=result.get("holdCount") == 1, scrollOffsetY=result.get("scrollOffsetY", 0) > 50, nativeInputRuntime=result.get("capabilities", {}).get("nativeInputRuntime") is True, unchangedSources=not changed, noXCTest=result.get("xctestStarted") is False)

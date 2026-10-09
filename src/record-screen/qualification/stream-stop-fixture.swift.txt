@@ -1,0 +1,8 @@
+// Appended only to the frozen Recording.swift in the qualification build.
+#if RECORD_SCREEN_QUALIFICATION
+extension Recording {
+  func qualificationStopWork(seconds:Double,operation:@escaping @Sendable () async throws -> Void) {
+    streamStops.start(seconds:seconds,operation:operation)
+  }
+}
+#endif

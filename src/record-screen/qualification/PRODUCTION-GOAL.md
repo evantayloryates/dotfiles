@@ -397,3 +397,23 @@ and a suitable measured health boundary. Chrome depth needs a reachable
 workspace, not another attempt through the same failed route. Converge on a
 reviewable idle-boundary delivery kit, installed source/consumer smoke and
 final runbooks; the active objective remains production delivery.
+
+
+## Sixteenth-pass verified checkpoint
+
+StreamStopLedger now distinguishes running, overdue, acknowledged and returned
+unconfirmed SDK stops, retaining admission through deadlines/errors without
+retry/cancellation. 25 controlled stop/recording/admission/persistence checks
+passed. Signed private 2c8da26d3792 also completed one tiny passive canary and
+received a real stop acknowledgment: two exact muxed/source timestamps, no loss,
+zero remaining unfinished work, then actual engine exit 0. Production remains
+cd78c24b652e/PID71911. Natural stop failures and hardware release remain unproven.
+
+Read-only delivery inventory observed production idle and matching signatures,
+but legacy diagnostics are missing and the interval is unfenced. Do not convert
+those unknowns to zero. Prepare an explicit candidate maintenance/admission fence,
+installer/restart guards and preserved bundle/state artifacts; qualify these
+mechanically without stopping peers. Then make the first legacy delivery at an
+observed idle production boundary, read back installed capabilities and exercise
+real source/consumer recovery. Continue the broader app/insurance/usage gates;
+installation alone will not finish the full objective.

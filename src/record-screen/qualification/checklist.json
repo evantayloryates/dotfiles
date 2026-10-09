@@ -1,6 +1,6 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-08T22:37:50-04:00",
+  "updated_at": "2026-10-08T22:50:25-04:00",
   "workflow": {
     "state": "active",
     "note": "Taylor resumed qualification. Prioritize high-impact investigation, preserve failed evidence and useful progress, and avoid repeated resets or rerunning settled checks."
@@ -280,14 +280,24 @@
           "updated_at": "2026-10-08T22:37:50-04:00"
         },
         {
+          "id": "stream-stop-policy",
+          "title": "Verify stream-stop deadlines, errors and late acknowledgment",
+          "status": "completed",
+          "scope": "Controlled stop operations through actual recording/admission/persistence plus one tiny live successful acknowledgment. Does not include natural faults, backend physical release or production installation.",
+          "evidence": "25 controlled checks passed. Signed private 2c8da26d3792 finalized a passive canary, matched two muxed timestamps and released the acknowledged stop reservation. Returned errors remain reserved; timeout never retries. Private process exited.",
+          "next": "",
+          "anchor": "sixteenth-pass",
+          "updated_at": "2026-10-08T22:50:25-04:00"
+        },
+        {
           "id": "peer-failure",
           "title": "Verify remaining encoder/OS failure paths without harming peer takes",
           "status": "partial",
           "scope": "Avoid widening a local failure into an unexpected service interruption.",
-          "evidence": "Signed private 88ce9b196ca6 removes whole-engine restart; 26 actual off-screen writer/recording/admission checks plus 27 adjacent state checks passed. Healthy peer and late-return safety verified; natural hardware/initial OS faults remain open.",
-          "next": "Qualify unconfirmed SDK-stop handling and remaining initial OS calls; retain explicit shared-hardware limits and idle maintenance expectations.",
-          "anchor": "fifteenth-pass",
-          "updated_at": "2026-10-08T22:37:50-04:00"
+          "evidence": "Signed private 88ce9b196ca6 removes whole-engine restart; 26 actual off-screen writer/recording/admission checks plus 27 adjacent state checks passed. Healthy peer and late-return safety verified; natural hardware/initial OS faults remain open. Sixteenth pass adds 25 controlled stream-stop lifecycle/recording/admission checks and an actual successful SDK acknowledgment; deadlines/errors retain explicit reservations without retries.",
+          "next": "Prepare guarded idle maintenance/delivery; retain natural SDK/hardware and initial-call limits, then verify installed behavior.",
+          "anchor": "sixteenth-pass",
+          "updated_at": "2026-10-08T22:50:25-04:00"
         },
         {
           "id": "single-motion",
@@ -452,10 +462,10 @@
           "title": "Install the candidate safely and verify rollback",
           "status": "pending",
           "scope": "Idle-boundary release with prior binary/state preserved and exact loaded-capability readback.",
-          "evidence": "Candidate builds were signed and loaded privately; installed production remains the original build.",
-          "next": "Complete remaining release gates, prepare rollback, then install at a verified idle boundary.",
-          "anchor": "limits",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "evidence": "Read-only inventory observed unchanged production idle and matching signatures. Legacy diagnostics remain unknown and admission is unfenced; no backup, install or restart occurred.",
+          "next": "Prepare idle admission fencing, preserved bundle/state artifacts and guarded delivery; verify loaded build, source consumers and recovery afterward.",
+          "anchor": "sixteenth-pass",
+          "updated_at": "2026-10-08T22:50:25-04:00"
         },
         {
           "id": "installed-smoke",
@@ -681,6 +691,22 @@
       "from": "partial",
       "to": "partial",
       "note": "Final 88ce9b196ca6 signed/readback proof passed: early watchdog plus empty-writer boundary increased controlled checks to 26. Prior evidence retained."
+    },
+    {
+      "kind": "item",
+      "id": "peer-failure",
+      "at": "2026-10-08T22:50:25-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Controlled stop error/deadline policy and real successful acknowledgment now verified; broader natural-fault scope stays open."
+    },
+    {
+      "kind": "item",
+      "id": "stream-stop-policy",
+      "at": "2026-10-08T22:50:25-04:00",
+      "from": "pending",
+      "to": "completed",
+      "note": "Completed explicit stop-policy subgate while preserving broader peer-failure and delivery scope as open."
     }
   ]
 }

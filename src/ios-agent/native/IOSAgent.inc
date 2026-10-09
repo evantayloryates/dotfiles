@@ -9,6 +9,7 @@
 #import <React/RCTBridgeModule.h>
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTReloadCommand.h>
+#import <React/RCTDevSettings.h>
 #if __has_include("IOSAgentRuntimeConfig.h")
 #import "IOSAgentRuntimeConfig.h"
 #endif
@@ -25,6 +26,10 @@ static BOOL IAStartupRegistered=NO;
 static NSUInteger IABundleAttempt=0;
 static void IAResetStartupState(void);
 static NSURL *IOSAgentDevelopmentBundleURL(void) {
+ // Preserve other RN preferences; hide the dev product's persisted panel.
+ NSMutableDictionary *settings=[[NSUserDefaults.standardUserDefaults dictionaryForKey:@"RCTDevMenu"] mutableCopy]?:[NSMutableDictionary new];
+ settings[@"RCTPerfMonitorKey"]=@NO;
+ [NSUserDefaults.standardUserDefaults setObject:settings forKey:@"RCTDevMenu"];
  IABundleAttempt++; IAStartupRegistered=NO; IAResetStartupState();
  IAStartupAt=NSProcessInfo.processInfo.systemUptime;
  NSURL *fallback=[[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
@@ -76,6 +81,15 @@ static NSURL *IOSAgentDevelopmentBundleURL(void) {
 static NSTimeInterval IANow(void) { return NSProcessInfo.processInfo.systemUptime; }
 static NSDictionary *IAError(NSString *reason) { return @{@"error":reason}; }
 static BOOL IANumber(id n) { return [n isKindOfClass:NSNumber.class] && isfinite([n doubleValue]); }
+static NSString *IAViewLabel(UIView *view) {
+ for(UIView *ancestor=view;ancestor;ancestor=ancestor.superview) {
+  if(([ancestor isKindOfClass:UITextField.class] && [(UITextField*)ancestor isSecureTextEntry]) ||
+     ([ancestor isKindOfClass:UITextView.class] && [(UITextView*)ancestor isSecureTextEntry])) return @"";
+ }
+ if(view.accessibilityLabel.length) return view.accessibilityLabel;
+ if([view isKindOfClass:UILabel.class]) return [(UILabel*)view text]?:[(UILabel*)view attributedText].string?:@"";
+ return @"";
+}
 #import "WiFiShortcut.inc"
 
 @interface IAGlowWindow : UIWindow
@@ -123,6 +137,9 @@ static void IAResetStartupState(void) { IAPendingState=nil; IAInstance.appState=
 #endif
 
 #if IOS_AGENT_REACT
+@protocol IAPerfMonitorVisibility <NSObject>
+- (void)hide;
+@end
 @interface IOSAgentBridge : RCTEventEmitter<RCTBridgeModule>
 @property BOOL observing;
 @property NSUInteger bundleAttempt;
@@ -136,6 +153,14 @@ RCT_EXPORT_MODULE(IOSAgentBridge)
 - (void)startObserving { self.observing=YES; if([IAInstance leased]) [self sendEventWithName:@"IOSAgentCommand" body:@{@"command":@"session-start"}]; }
 - (void)stopObserving { self.observing=NO; }
 - (dispatch_queue_t)methodQueue { return dispatch_get_main_queue(); }
+RCT_EXPORT_METHOD(hideDeveloperOverlays) {
+ if(self.bundleAttempt!=IABundleAttempt) return;
+ RCTDevSettings *settings=[self.moduleRegistry moduleForName:"DevSettings"];
+ settings.isPerfMonitorShown=NO;
+ if(settings.isElementInspectorShown) [settings toggleElementInspector];
+ id<IAPerfMonitorVisibility> monitor=[self.moduleRegistry moduleForName:"PerfMonitor"];
+ if([monitor respondsToSelector:@selector(hide)]) [monitor hide];
+}
 RCT_EXPORT_METHOD(publish:(NSString*)json) {
  if(self.bundleAttempt!=IABundleAttempt || json.length>1048576) return;
  id value=[NSJSONSerialization JSONObjectWithData:[json dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil];
@@ -276,7 +301,7 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
  }
  visible=visible&&alpha>0.01&&!CGRectIsEmpty(visibleRect);
  [out addObject:@{@"node":node,@"class":NSStringFromClass(view.class),@"depth":@(depth),
-                 @"label":view.accessibilityLabel?:@"",@"identifier":view.accessibilityIdentifier?:@"",
+                 @"label":IAViewLabel(view),@"identifier":view.accessibilityIdentifier?:@"",
                  @"rect":@[@(r.origin.x),@(r.origin.y),@(r.size.width),@(r.size.height)],
                  @"visible":@(visible),@"interactive":@(view.userInteractionEnabled),@"firstResponder":@(view.isFirstResponder)}];
  for(UIView *sub in view.subviews) [self walk:sub depth:depth+1 output:out];

@@ -384,3 +384,21 @@ The controlled off-screen proof exercises actual AVAssetWriter output and
 recording/admission code with a deliberately blocked queue. It is not a naturally
 wedged encoder, stalled stopCapture proof, or a guarantee that shared hardware
 cannot affect peers. Installed capabilities must be read back after delivery.
+
+
+## Stream-stop diagnostics
+
+`stream_stop_diagnostics: 1` exposes `unfinished_work.stream_stop_work` for each
+recording: request count, held reservations, pending producers, overdue stops,
+returned/unconfirmed errors, attempt states and the latest actual outcome.
+Exact string host timestamps use CLOCK_UPTIME_RAW. The three-second diagnostic
+deadline changes only the observed state; it does not cancel/retry the stop or
+release admission. Successful actual SDK acknowledgment releases its reservation.
+A returned error marks the producer finished but resource release unconfirmed;
+retain that reservation until an explicitly idle maintenance boundary.
+
+The result is SDK acknowledgment, not an independently measured hardware-release
+assertion. Each owned SCStream is requested once. A late successful acknowledgment
+retains deadline history and cannot revive a terminal take. Metadata is available
+without waiting on the recording queue; a closed journal is separate from stop
+acknowledgment and actual muxed coverage.

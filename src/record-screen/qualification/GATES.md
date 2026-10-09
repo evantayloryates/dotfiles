@@ -1,5 +1,35 @@
 # Qualification update — October 8, 2026
 
+## Sixteenth pass: explicit stream-stop outcomes and delivery inventory
+
+Signed private candidate 2c8da26d3792 adds stream_stop_diagnostics:1. Each owned
+stream gets one stop request. The ledger reports pending, overdue, acknowledged
+and returned-error/unconfirmed states with exact host-clock boundaries, actual
+producer completion and bounded error text. The three-second diagnostic deadline
+does not cancel/retry SDK work or release its admission reservation. Actual
+successful acknowledgment releases it; a returned error remains reserved.
+
+| Gate | Verified evidence | Limits |
+| --- | --- | --- |
+| Controlled stop outcomes | 25 checks passed for deadline retention, no retry, late acknowledgment, returned error vs running producer, bounded diagnostics and reentrant status observation. | Controlled asynchronous operations, not a naturally stalled/failed stopCapture invocation. |
+| Recording/manager integration | Actual arming/cancellation, terminal persistence and future admission retained a mocked unconfirmed stop. Its peer stayed arming and was cleaned independently. Late success did not resurrect the canceled take. | Controlled preflight avoids SDK discovery; this does not measure backend resource release independently. |
+| Actual SDK acknowledgment | One passive 16-point square/32-pixel, two-second 10-fps rect canary finalized, received successful stopCapture acknowledgment and returned unfinished admission to zero. Its two static/held muxed timestamps matched the journal, with zero encoder drops or lost rows. | Tiny static source, not motion, menus, capacity or hardware-fault isolation. Raw pixels remain private; no UI interaction or input capture. |
+| Runtime and cleanup | Exact loaded hash/capabilities/PID and existing screen grant were read back. Private PID72000 exited 0 and was actually reaped; runtime copied. Production independently remained cd78c24b652e/PID71911. | No installation, new grant, user-input lock or peer restart. |
+| Delivery inventory | The new read-only kit observed the same installed engine before/after active-job enumeration, no active jobs or preview lanes, matching valid candidate/installed signing identity, and candidate stamp matching current source. 17 fixture checks exercised missing/busy/changed state, strict boolean/count types and absence of an admission fence. | Legacy unfinished-work, preview-retirement, input/action and export/discovery diagnostics remain unknown. Snapshots do not reserve admission; automatic_restart_authorized is false. No bundle backup or restart occurred. |
+
+The first compile exposed a missing explicit self reference in the new observer;
+that compile log is preserved. The corrected frozen test passed. The actual
+canary and read-only inventory were subsequent evidence, not replacements for
+older failures or menu/insurance results. StreamStopLedger and the recording
+fixture exercise the same stop-reservation code; production compilation excludes
+qualification-only fixture accessors.
+
+Next delivery work is an explicit idle admission fence and reversible bundle/state
+preparation, with the legacy first-release boundary documented separately. Keep
+all broader natural OS/hardware faults and synchronized insurance limitations.
+Do not rerun failed Chrome input routes or treat a static canary as a resource
+budget. The full production objective remains active.
+
 ## Fifteenth pass: encoder deadline isolation and unfinished admission
 
 Final candidate 88ce9b196ca6 removes the whole-engine encoder-stall restart callback.

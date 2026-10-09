@@ -37,6 +37,7 @@ if (bridge && !global.__IOS_AGENT_BRIDGE_STARTED__) {
   domain = require('./domain').createDomainRegistry({routeNames: runtime.routeNames, onChange: publish});
   global.__IOS_AGENT_DOMAIN__ = {registerApollo: domain.registerApollo, registerNavigation: domain.registerNavigation};
   LogBox.ignoreAllLogs(true);
+  bridge.hideDeveloperOverlays?.();
   new NativeEventEmitter(bridge).addListener('IOSAgentCommand', ({command, message}) => {
     if (command === 'session-start') {
       cancelFixture();

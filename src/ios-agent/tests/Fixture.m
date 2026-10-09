@@ -132,6 +132,13 @@
  dispatch_after(dispatch_time(DISPATCH_TIME_NOW,NSEC_PER_SEC),dispatch_get_main_queue(),^{[self qualify];}); return YES;
 }
 - (void)qualify {
+ UILabel *menuLabel=[UILabel new]; menuLabel.text=@"Synthetic menu option";
+ self.evidence[@"nativeLabelFallback"]=@([IAViewLabel(menuLabel) isEqual:menuLabel.text]);
+ menuLabel.accessibilityLabel=@"Explicit accessible option";
+ self.evidence[@"nativeLabelPrecedence"]=@([IAViewLabel(menuLabel) isEqual:menuLabel.accessibilityLabel]);
+ UITextField *secure=[UITextField new]; secure.secureTextEntry=YES; secure.accessibilityLabel=@"Synthetic secret";
+ [secure addSubview:menuLabel];
+ self.evidence[@"secureDescendantLabelsHidden"]=@(IAViewLabel(secure).length==0 && IAViewLabel(menuLabel).length==0);
  IAInstance=[IOSAgent new]; IAInstance.lease=@"fixture-lease"; IAInstance.epoch=@"fixture-epoch"; IAInstance.expiry=IANow()+60; IAInstance.seen=[NSMutableArray new]; IAInstance.reactFrames=[NSMutableArray new];
  NSDictionary *prepared=IOSAgentWiFiPrepare(@{@"state":@"off"},@"wifi-fixture");
  NSURLComponents *handoff=[NSURLComponents componentsWithURL:IAWiFiURL resolvingAgainstBaseURL:NO];

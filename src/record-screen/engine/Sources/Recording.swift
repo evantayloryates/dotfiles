@@ -104,15 +104,14 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   private var startupPending = false
   private var encoderPending = false
   private var encoderCallsPending = false
-  private var streamStopsPending = 0
-  private var streamStopFailures = 0
+  private let streamStops: StreamStopLedger
   private var terminalReason: String?
   var state: RecState { snapLock.withLock { _state } }
-  var holdsUnfinishedAdmission: Bool { snapLock.withLock { startupPending || encoderPending || encoderCallsPending || streamStopsPending > 0 } }
-  var captureQuarantined: Bool { snapLock.withLock { _state.terminal && (startupPending || encoderPending || encoderCallsPending || streamStopsPending > 0) } }
+  var holdsUnfinishedAdmission: Bool { snapLock.withLock { startupPending || encoderPending || encoderCallsPending || streamStops.heldCount > 0 } }
+  var captureQuarantined: Bool { snapLock.withLock { _state.terminal && (startupPending || encoderPending || encoderCallsPending || streamStops.heldCount > 0) } }
   private var unfinishedWork: [String:Any] { snapLock.withLock {
-    ["startup":startupPending,"encoder_finalization":encoderPending,"encoder_calls":encoderCallsPending,"stream_stops":streamStopsPending,"stream_stop_failures":streamStopFailures,
-     "admission_held":startupPending || encoderPending || encoderCallsPending || streamStopsPending > 0]
+    ["startup":startupPending,"encoder_finalization":encoderPending,"encoder_calls":encoderCallsPending,"stream_stops":streamStops.heldCount,"stream_stop_failures":streamStops.status["unconfirmed_errors"] ?? 0,"stream_stop_work":streamStops.status,
+     "admission_held":startupPending || encoderPending || encoderCallsPending || streamStops.heldCount > 0]
   } }
   #if RECORD_SCREEN_QUALIFICATION
   // Private qualification builds only: block the real finalization queue
@@ -183,6 +182,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
        startupPreflight: (@Sendable () async throws -> Void)? = nil, startupBudgetSeconds: Double = 8,
        inputSettings: InputSettings = .disabled) {
     self.id = id
+    self.streamStops = StreamStopLedger(recordingID:id)
     self.dir = dir
     self.targetRaw = target
     self.settings = settings
@@ -200,6 +200,11 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     self._state = state
     self.q = DispatchQueue(label: "record-screen.rec.\(id)", qos: .userInteractive)
     super.init()
+    streamStops.onChange = { [weak self] value in
+      guard let self else{return}
+      Log.event("stream_stop_state",["recording_id":self.id,"status":value])
+      self.q.async { [self] in self.persist() }
+    }
     snapshot = describeLocked()
   }
 
@@ -792,9 +797,9 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
       terminalReason = reason
       var d = snapshot
       d["state"] = final.rawValue
-      d["capture_quarantined"] = startupPending || encoderPending || encoderCallsPending || streamStopsPending > 0
-      d["unfinished_work"] = ["startup":startupPending,"encoder_finalization":encoderPending,"encoder_calls":encoderCallsPending,"stream_stops":streamStopsPending,
-                              "admission_held":startupPending || encoderPending || encoderCallsPending || streamStopsPending > 0]
+      d["capture_quarantined"] = startupPending || encoderPending || encoderCallsPending || streamStops.heldCount > 0
+      d["unfinished_work"] = ["startup":startupPending,"encoder_finalization":encoderPending,"encoder_calls":encoderCallsPending,"stream_stops":streamStops.heldCount,"stream_stop_work":streamStops.status,
+                              "admission_held":startupPending || encoderPending || encoderCallsPending || streamStops.heldCount > 0]
       if stall { d["frames_provenance"] = "persisted_checkpoint_not_final" }
       d["error"] = reason
       snapshot = d
@@ -818,21 +823,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   }
 
   private func teardownStream() {
-    if let s = stream {
-      snapLock.withLock { streamStopsPending += 1 }
-      Task {
-        do {
-          try await s.stopCapture()
-          snapLock.withLock { streamStopsPending -= 1 }
-        } catch {
-          // A returned error does not establish resource release. Preserve
-          // the reservation and evidence; do not repeatedly retry the SDK.
-          snapLock.withLock { streamStopFailures += 1 }
-          Log.event("stream_stop_unconfirmed",["recording_id":id,"error":"\(error)"])
-        }
-        q.async { [self] in persist() }
-      }
-    }
+    if let s = stream {streamStops.start {try await s.stopCapture()}}
     stream = nil
   }
 

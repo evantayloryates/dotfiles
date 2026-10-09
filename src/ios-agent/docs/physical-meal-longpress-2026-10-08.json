@@ -1,0 +1,19 @@
+{
+  "observedAt": "2026-10-09T02:44:05.544832+00:00",
+  "scope": "current installed DEV product, app-owned main window",
+  "dedicatedLongPress": {
+    "durationMs": 850,
+    "actualHandler": "meal row onLongPress calls UIKit action sheet show",
+    "nativePopoverVisibleInTreeAndImage": true,
+    "ordinaryPressRouteDidNotCommit": true,
+    "safeDismissVerified": true,
+    "businessMutations": false
+  },
+  "inspectionEdge": "Visible UILabel text omitted when accessibilityLabel is nil; adapter fix prepared, not installed",
+  "initialDismiss": "specific dimming target rejected without input; fresh observed root-window target accepted outside popover",
+  "cleanup": {
+    "homeCommitted": true,
+    "nativeIdlePassed": true,
+    "xctestStarted": false
+  }
+}

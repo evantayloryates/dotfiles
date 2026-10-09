@@ -47,6 +47,7 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--mobile", type=Path, required=True)
     p.add_argument("--udid", required=True, help="Xcode destination device UDID")
+    p.add_argument("--generic-destination", action="store_true", help="build the signed device product without requiring a connected iPhone; installation is separate")
     p.add_argument("--derived-data", type=Path, required=True)
     p.add_argument("--log", type=Path, required=True, help="private build log, not transcript output")
     p.add_argument("--metro", action="store_true", help="use normal app Metro URL instead of the embedded bundle")
@@ -90,7 +91,8 @@ def main():
     start = time.monotonic()
     before = source_hashes(mobile)
     with os.fdopen(fd, "w") as log:
-        run = subprocess.run(["xcodebuild", "-workspace", str(mobile / "ios/kudos.xcworkspace"), "-scheme", "kudos development", "-configuration", "Debug", "-destination", "id=" + a.udid, "-derivedDataPath", str(a.derived_data.resolve()),
+        destination = "generic/platform=iOS" if a.generic_destination else "id=" + a.udid
+        run = subprocess.run(["xcodebuild", "-workspace", str(mobile / "ios/kudos.xcworkspace"), "-scheme", "kudos development", "-configuration", "Debug", "-destination", destination, "-derivedDataPath", str(a.derived_data.resolve()),
                               "OTHER_CFLAGS=" + flags, "OTHER_CPLUSPLUSFLAGS=" + flags, "HEADER_SEARCH_PATHS=" + headers, "OTHER_LDFLAGS=$(inherited) -framework IOKit", "build"], env=env, stdout=log, stderr=subprocess.STDOUT)
     after = source_hashes(mobile)
     changed = before != after

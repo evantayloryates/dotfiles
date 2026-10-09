@@ -55,3 +55,20 @@ was insufficient. A later direct click succeeded; recheck the current surface be
 Network-transition qualification: existing VPN On Demand enabled and reopened readback passed, but the next Off transition still lost direct tailnet reachability. Cellular line/data and both app permissions are on. Subsequent physical unlock and DEV launch recovered strict readiness and fresh GraphQL. Causality remains unknown; no unchanged ping loop or automatic accepted-command replay is justified.
 
 Verification sequencing: diagnostics-probe is an explicit action, while verify network only observes. Submit the probe and observe immediately in the same batch; the verifier intentionally rejects results older than 3 seconds. A stale successful probe is not a failed backend.
+
+## Real UIKit meal menu — 8 October
+
+The installed meal row's dedicated onLongPress opened the native popover after
+a real 850ms hold. Main route remained ClientMealLogs. A fresh outside-popover
+window-root tap dismissed it; no menu action or business mutation was selected.
+The specific dimming-view target first rejected without delivery because hit
+ancestry differed; the observed main-window target passed the same occlusion
+guards. Home and native idle passed after dismissal.
+
+Visible UIKit UILabel text was missing from native inspection when the explicit
+accessibilityLabel was nil. The candidate now falls back to UILabel text while
+keeping explicit accessibility labels authoritative and redacting labels under
+secure text inputs. RN Perf Monitor unexpectedly appeared during this batch;
+its origin is unknown. A candidate dev-only startup/default and module-level
+hide keeps it and the element inspector out of the product view. These fixes
+require their own compiled/installed verification; do not claim delivery yet.

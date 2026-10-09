@@ -39,3 +39,14 @@ edges, controlled recovery, final whole-branch review/runbook and publication.
 Preserve concurrent recorder/Kickoff work. Dotfiles AGENTS requires commit ALL
 current dirty files and push master before ending. Kickoff 8f6742375f is local;
 publishing path is scoped audited wrapper, never bypass a policy refusal.
+
+Latest checkpoint: real meal onLongPress/popover and safe dismissal passed.
+Home and idle restored; USB unplugged. Native UILabel fallback/secure-label
+redaction and Perf Monitor suppression are being compiled in the existing
+private derived-data build, using generic iOS destination (no connected device
+needed for preparation). Build log: qualification-2026-10-08/native-label-build.log.
+Physical delivery is pending. Synthetic fixture initially found an old owned
+installation, refused a collision; bounded booted-registry cleanup removed only
+com.taylor.ios-agent.fixture, and candidate runner is in progress. No live
+subagents exist. Do not reopen the old business/network baseline without a
+changed build or newly observed failure.
