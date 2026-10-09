@@ -1,6 +1,19 @@
 # Production qualification goal
 
-Current checkpoint: stage57. Signed native89a450504bfe/PID10518 adds retained
+Current checkpoint: stage58. Signed native9bfabf2dbb5c/PID24295 plus fresh
+MCP0.13.0 deliver paired source intervals and retained same-process clock
+identity.130 native/37 unique adapter checks pass; private/installed passive
+pair10/12 exact joins, final primary-relative pages/CLI equal and actual
+different-process refusal. Retained stage57 pixel references stay legacy
+numeric QA; no provenance backfill.98 prior state hashes unchanged, exact
+tested artifact delivered once, own consumers/sessions/engine settled and
+production idle. Two typed verified/cleanupcomplete outcomes, uncovered0,
+two exact scoped facts read back.46completed16partial1needs_retest1deferred;
+whole goal active, no physical/input/provider/capacity or composition claim.
+Next: practical app/menu backup source pixels with qualified interval mapping
+and explicit disturbance/clipping/coverage limits. Preserve passed evidence.
+
+Stage57 checkpoint: signed native89a450504bfe/PID10518 adds retained
 surface bounding_points;128 native checks and a fresh MCP0.12.2 four-join
 installed canary pass.1563 actual paired source/mux joins and selected pixel
 markers diagnose a missing desktop child-union origin. The fitted projection

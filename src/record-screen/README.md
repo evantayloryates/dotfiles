@@ -726,6 +726,68 @@ Input provenance, supported automatic receipts, cross-display/sleep, daily-app
 menus and realistic resource budgets remain qualification work. Visual effects
 and composition recipes are deferred.
 
+### Service-owned paired source mapping (October 9)
+
+Fresh MCP0.13.0 adds read-only `recording_paired_map` and
+`mcp_adapter.paired_source_mapping:1`. CLI `paired-map JSON` works without
+restarting other agents. Use owned terminal primary/backup recording IDs and
+exact primary-video-relative nanosecond bounds. The service converts the range
+through the primary's retained epoch; the consumer does no epoch subtraction,
+rate estimation or nearest-frame joining. For recorder-stamped action ranges,
+use `host_start_ns` / `host_end_ns` with `clock_domain:"CLOCK_UPTIME_RAW"` instead.
+Exactly one range basis is accepted. Replace these illustrative IDs:
+
+```sh
+node /Users/taylor/src/github/dotfiles/src/record-screen/cli.mjs paired-map \
+  '{"primary_recording_id":"rec_PRIMARY","backup_recording_id":"rec_BACKUP","primary_relative_start_ns":"200000000","primary_relative_end_ns":"1200000000","max_segments":64}'
+```
+
+The timeline splits half-open intervals at **both sources' actual mux boundaries**.
+It retains every available backup sample across a held primary packet, with
+presentation/mux/source indices, referenced geometry, exact content timestamp,
+signed content age and separate per-source correspondence diagnostics. Short
+packet durations leave holes; unmeasured ends never become coverage. Failed
+readable prefixes stay separate from accepted-but-unmuxed tails. No primary
+geometry, later source content or nominal fps is substituted for the backup.
+
+Native source headers/descriptors now retain the same recorder-process UUID.
+Only matching retained identities plus measured clock-observation state qualify
+the common origin. Old journals, different engine lifetimes, descriptor mismatch
+and unknown/gapped observations return **numeric candidates only**, with
+`backup_timing_available:false` and `backup_projection_available:false`. The
+current engine's identity never fills missing historical provenance. This scope
+does not establish equivalence across engine restarts, provider clocks or
+physical presentation. Native `source_clock_instance:1` describes new capture
+support; inspect each retained source.
+
+Optional up to16 desktop points/regions project independently into each source.
+Resolved capture scope comes from its retained capture row, including effective
+child settings and target identity. Fitted child positions remain guarded.
+`backup_timing_available` means a matched backup packet/source reference and
+qualified common process clock. `backup_projection_available` additionally
+requires the existing candidate affine/canvas checks. Neither flag proves the
+same subject, captured pixels, lack of occlusion or a successfully rescued shot;
+`content_presence` remains `unverified`. Perform scoped source-pixel QA before
+choosing alternate footage. Composition is still a later phase.
+
+Requests return1–256 segments/page (default64), `segment_count`, `has_more` and
+`next_cursor`. Follow only that cursor with the same range/projections. Page size
+can change. The token binds the source/media metadata and regular-file snapshot;
+changed files/request refuse instead of mixing pages. Every page rereads bounded
+sources. Existing120,000-packet/250,000-row/64MiB-per-journal budgets,10s read/probe
+deadlines and1MiB response ceiling apply; excessive point/region pages require
+a smaller page size. One admission spans both sources, with sequential settled
+owned probes and all four file leaves checked at completion. This is bounded
+metadata consistency, not filesystem isolation, whole-shot decode or admission
+capacity. No capture/export/UI or mutation is replayed.
+
+Stage58:130 native checks and37 unique adapter checks; private/installed tiny
+passive pairs10/12 exact joins, final installed relative-range MCP/CLI parity
+and real distinct-process refusal. Three retained stage57 app images link to
+exact backup frames but remain legacy numeric QA. Qualified dense menu/occlusion
+recovery, physical/provider clocks and ordinary older-chat adapter adoption stay
+open. Preserve the older moving-insurance and pixel evidence.
+
 ### Service-owned primary frame mapping (October 9)
 
 Fresh MCP0.10.0 introduced read-only `recording_frame_map`; loaded adapter status

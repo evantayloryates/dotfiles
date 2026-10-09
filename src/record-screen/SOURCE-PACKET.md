@@ -1,12 +1,28 @@
 # Recorder-owned source journal v1
 
-Native build 89a450504bfe is delivered; qualified scope and remaining limits are
+Native build 9bfabf2dbb5c is delivered; qualified scope and remaining limits are
 in the qualification report. Loaded capability readback remains authoritative.
 Use MCP `recording_source` or CLI `record-screen record-source <recording_id>`.
 Socket consumers negotiate `status.capabilities.source_journal == 1`, then call
 `record.source`. Legacy footage returns no source packet. The MCP refuses an
 old engine explicitly. Replies contain paths and compact diagnostics, never
 bulk frame rows.
+
+New source headers and descriptors retain `clock_instance:{kind:"recorder_process",
+id:"UUID"}`, taken from this live recorder's shared instance. Matching retained
+header/descriptor identities establish the common uptime origin only within
+that process lifetime. Legacy absence, descriptor mismatch, different processes
+or missing/gapped clock observations withhold qualified paired alignment. Do
+not borrow the current engine's UUID to backfill old recordings. Native status
+advertises `source_clock_instance:1`; that does not upgrade retained legacy data.
+
+Fresh MCP0.13.0 `recording_paired_map` / CLI `record-screen paired-map JSON`
+maps a primary-relative range across two terminal sources. It owns epoch
+arithmetic and exact rational interval joins, preserves dense backup packet
+boundaries across held primary content, and returns each source's geometry,
+content age, gaps and snapshot-bound pages. Qualified timing/projection does
+not establish visible content or successful recovery. See the
+[paired-source contract](README.md#service-owned-paired-source-mapping-october-9).
 
 Current geometry segments optionally retain `bounding_points` from the same
 SCK frame's `boundingRect` attachment. These are output-surface points, separate

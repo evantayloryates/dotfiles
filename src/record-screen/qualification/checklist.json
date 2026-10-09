@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T12:57:05-04:00",
+  "updated_at": "2026-10-09T13:23:27-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage57 diagnoses the fitted child-union origin with1563 exact paired joins and scoped marker proof, and delivers optional frame-bound surface bounds. Surface bounds cannot establish desktop origin; the fitted guard stays active.128 focused native checks and installed4-join metadata canary pass,96 prior state hashes unchanged.45 completed,16 partial,1 needs retest,1 deferred. Next: service-owned backup-source mapping from retained paired evidence."
+    "note": "Stage58 delivers service-owned paired intervals and retained process clocks:130 native/37 unique adapter checks,10/12 new private/installed joins, final relative pages and CLI equal.98 prior state hashes unchanged; own helpers/scopes settled.46 completed,16 partial,1 needs retest,1 deferred. Next: practical app/menu backup pixels with qualified interval coverage; fitted origin and physical/provider/capacity/adoption boundaries remain open."
   },
-  "production_note": "Signed native89a450504bfe/PID10518 installed from the exact tested artifact through idle fence;96 prior session/recording JSON hashes unchanged. Frame-bound bounding_points and fresh MCP0.12.2 installed tiny source/map proof pass. Fitted child projections remain withheld, corrected union origin unqualified. Owned apps/engines/readers/sessions settled; ordinary older-chat adapter adoption and physical/provider/capacity/full recovery gates remain open.",
+  "production_note": "Signed native9bfabf2dbb5c/PID24295 and fresh MCP0.13.0 paired-source mapping delivered from the exact tested artifact through idle fence;98 prior state hashes unchanged. Private/installed tiny pairs10/12 exact joins; final primary-relative pages and CLI equal. Source capture scope retained; fitted child origin still guarded. Owned helpers/sessions/scopes settled, production idle. Input delivery, ordinary older-chat adoption, physical/provider/capacity and practical whole-shot recovery remain open.",
   "groups": [
     {
       "id": "capture",
@@ -85,7 +85,7 @@
           "id": "finder-depth",
           "title": "Finder native menus and Quick Look capture expectations",
           "status": "completed",
-          "scope": "Finder26.4/build1828.5.2/25F80, built-in2\u00d7, native CUA version unknown: menus, file-preview omission/crop insurance, and explicit layer3 direct-panel discovery/capture.",
+          "scope": "Finder26.4/build1828.5.2/25F80, built-in2×, native CUA version unknown: menus, file-preview omission/crop insurance, and explicit layer3 direct-panel discovery/capture.",
           "evidence": "Stage39 controls retained. Stage41 explicit broader inventory reveals Finder-owned layer3 Quick Look omitted by normal filters. Candidate446 +installed120 exact mux/source joins; selected whole-panel frames retain filename/two lines without surrounding desktop.22 native/23 adapter checks; one fenced signed install,119 prior state hashes unchanged, grants retained. Four typed outcomes/cleanup complete, zero uncovered; scoped fact read back. Owned resources settled.",
           "next": "",
           "anchor": "forty-first-pass",
@@ -106,10 +106,10 @@
           "title": "Prove a useful overflow capture and recovery path",
           "status": "partial",
           "scope": "Qualified padded-display and separate-popup paths plus guarded optional fixed-crop app-only lane. Whole-shot recovery and broader app/menu behavior remain open.",
-          "evidence": "Stage57 paired1563 exact joins: authored above-left child is retained in both sources, app parent/child marker maps exact in sampled before/open/closed phases. Fitted primary misses227.7px; oracle union explains it but is not automatic correction. Earlier real menus, cover and writer proofs retained.",
-          "next": "Qualify service-owned paired-source recovery references and continuous useful coverage using retained footage; preserve fitted guard and existing static/real-menu passes.",
-          "anchor": "fifty-seventh-pass",
-          "updated_at": "2026-10-09T12:57:05-04:00"
+          "evidence": "Stage58 service paired interval map links retained app frames38/269/563 to existing before/open/closed pixels. Old stage57 clock provenance stays unqualified, original1563 exact joins preserved; new tiny same-process sources prove metadata only. Fitted origin remains guarded.",
+          "next": "Qualify practical app/menu backup source pixels and disturbance/clipping coverage using service-owned same-process interval mapping; preserve dense alternatives across held primary frames.",
+          "anchor": "fifty-eighth-pass",
+          "updated_at": "2026-10-09T13:21:11-04:00"
         },
         {
           "id": "clean-source",
@@ -152,27 +152,37 @@
           "title": "Verify the source journal against actual encoded packets",
           "status": "completed",
           "scope": "Recorder-owned exact timing, geometry segments, held/dropped references and explicit gaps.",
-          "evidence": "Stage57 signed optional bounding_points retains same-frame surface extent separately from desktop affine; final128 journal checks and installed4 actual source/mux joins pass. Legacy field absence remains unknown. Surface extent does not supply missing child-union desktop origin.",
+          "evidence": "Installed9bfabf adds retained same-process clock_instance to source header/descriptor; surface bounds and exact source references preserved.130 native checks, tiny private/installed10/12 joins,98 prior state hashes unchanged. Legacy identity remains unknown; no physical/provider claim.",
           "next": "",
-          "anchor": "fifty-seventh-pass",
-          "updated_at": "2026-10-09T12:57:05-04:00"
+          "anchor": "fifty-eighth-pass",
+          "updated_at": "2026-10-09T13:21:11-04:00"
         },
         {
           "id": "primary-frame-map",
           "title": "Deliver service-owned primary frame and point mapping",
           "status": "completed",
           "scope": "Bounded service-owned actual mux/frame/relative/declared-host mapping, source-reference geometry, point/rectangle clipping and actual canvas dimension reconciliation.",
-          "evidence": "Stage40 CLI/fresh MCP0.11.2 adds16 named desktop regions with affine quads, clipped polygons and continuous area fractions; actual mux canvas dimensions must match before projection.21 focused/adjacent tests pass. Three Finder source maps identify clipped title/text, and matching CLI/full-frame pixel check agrees. Three retained dynamic1\u2192.75\u21921 marker regions match decoded edges at0px error. Geometric parent overlap does not establish omitted Quick Look content. Owned adapter closed; native unchanged.",
+          "evidence": "Stage40 CLI/fresh MCP0.11.2 adds16 named desktop regions with affine quads, clipped polygons and continuous area fractions; actual mux canvas dimensions must match before projection.21 focused/adjacent tests pass. Three Finder source maps identify clipped title/text, and matching CLI/full-frame pixel check agrees. Three retained dynamic1→.75→1 marker regions match decoded edges at0px error. Geometric parent overlap does not establish omitted Quick Look content. Owned adapter closed; native unchanged.",
           "next": "",
           "anchor": "fortieth-pass",
           "updated_at": "2026-10-09T06:29:23-04:00"
         },
         {
+          "id": "paired-source-map",
+          "title": "Synchronize primary and backup source intervals in the service",
+          "status": "completed",
+          "scope": "Two terminal sources: exact primary-relative/host intervals, retained same-process clock qualification, dense backup across held primary frames, independent geometry/content age/gaps and snapshot-bound pagination. Timing/geometry is not decoded rescue.",
+          "evidence": "Native130 checks,37 unique adapter checks; exact tested9bfabf native/MCP0.13.0 installed. Private/installed tiny pairs10/12 exact joins; final relative interval5 segments/3 pages/CLI equal. Legacy and actual different-process clock identities stay unqualified. Snapshot cursor/capture-row effective-child tests pass.",
+          "next": "",
+          "anchor": "fifty-eighth-pass",
+          "updated_at": "2026-10-09T13:21:11-04:00"
+        },
+        {
           "id": "display-geometry",
           "title": "Verify move, resize and cross-display geometry",
           "status": "completed",
-          "scope": "Authored marker transforms on built-in Retina, external 1\u00d7 display with negative origin, and return.",
-          "evidence": "Earlier native Retina/external/return marker maps retained. Installed attached-panel open/close proof adds896 exact source/mux samples: enabled three-segment affine1\u21920.75\u21921 and excluded fixed affine; every parent center exact, child\u22640.5px. Negative original-map/reference controls rejected.",
+          "scope": "Authored marker transforms on built-in Retina, external 1× display with negative origin, and return.",
+          "evidence": "Earlier native Retina/external/return marker maps retained. Installed attached-panel open/close proof adds896 exact source/mux samples: enabled three-segment affine1→0.75→1 and excluded fixed affine; every parent center exact, child≤0.5px. Negative original-map/reference controls rejected.",
           "next": "",
           "anchor": "thirty-third-pass",
           "updated_at": "2026-10-09T04:08:20-04:00"
@@ -480,7 +490,7 @@
           "title": "Keep preview timing and parent-frame mapping inside the service",
           "status": "completed",
           "scope": "Exact rational clocks, non-grid trims, GIF quantization, held frames and pixel transforms.",
-          "evidence": "Final authored repeat matched 139 decoded frames; real source/time-map readbacks passed, including a seven-packet 0.07\u20130.14-second boundary.",
+          "evidence": "Final authored repeat matched 139 decoded frames; real source/time-map readbacks passed, including a seven-packet 0.07–0.14-second boundary.",
           "next": "",
           "anchor": "eighth-pass",
           "updated_at": "2026-10-08T20:01:05-04:00"
@@ -546,10 +556,10 @@
           "title": "Verify the quality of recent shared computer-use workflows",
           "status": "partial",
           "scope": "Assess delivered actions, verification and cleanup rather than tool-call counts.",
-          "evidence": "Stage57 four native scopes with separate four verified/cleanupcomplete outcomes,0uncovered. Owned fixture/private engine absent/session closed; installed source passed before nonexistent MCP session_close refusal, then actual session_update close/readback settled same take without replay.",
-          "next": "Extend ordinary provider integration and loaded-consumer adoption; preserve destination/oracle matching and separate verification/cleanup rather than accepting tool names or terminal status as proof.",
-          "anchor": "fifty-seventh-pass",
-          "updated_at": "2026-10-09T12:57:05-04:00"
+          "evidence": "Stage58 two supported recorder-stamped consumers each ran once, with terminal receipts and separate verified/cleanup-complete outcomes; fresh central audit uncovered0. Second read checks changed cursor qualification binding on retained media. Historical audit and routine adoption stay separate.",
+          "next": "Extend ordinary workflow outcome coverage and historical diagnosis without promoting source/read success to actor/input/UI completion.",
+          "anchor": "fifty-eighth-pass",
+          "updated_at": "2026-10-09T13:23:27-04:00"
         },
         {
           "id": "receipt-integration",
@@ -632,10 +642,10 @@
           "title": "Smoke-test real capture and consumers after installation",
           "status": "completed",
           "scope": "Installed passive capture and source/export/time-map consumers, persisted-history recovery and owned cleanup. Tiny static smoke only; motion/menu/input/capacity stay in their existing gates.",
-          "evidence": "Stage57 exact signed89a450504bfe/PID10518 delivered through idle fence;96 prior state hashes unchanged. Fresh MCP0.12.2 passive16pt2s canary4 exact joins with new raw bounding_points, no input capture. Existing session closed/read back after wrong tool-name refusal; readers exit0, recorder idle.",
+          "evidence": "Exact signed9bfabf/PID24295 installed once through idle fence;98 prior state hashes unchanged. MCP0.13.0 tiny pair12 joins and final retained primary-relative5segments/3pages/CLI parity pass. Clock/capture-scope metadata verified; own sessions/readers settled.",
           "next": "",
-          "anchor": "fifty-seventh-pass",
-          "updated_at": "2026-10-09T12:57:05-04:00"
+          "anchor": "fifty-eighth-pass",
+          "updated_at": "2026-10-09T13:21:11-04:00"
         },
         {
           "id": "mcp-replay-boundary",
@@ -814,7 +824,7 @@
       "at": "2026-10-08T22:16:07-04:00",
       "from": "partial",
       "to": "partial",
-      "note": "Two sequential native takes passed 102 exact timestamps. A 190\u00d758 popup crop extends 140 points right/28 down beyond the original frame; its source map matched independent screenshot glyphs at zero offset (0.916 IoU). Retained evidence recheck passed. Display footage kept the popup but lost its base to occlusion."
+      "note": "Two sequential native takes passed 102 exact timestamps. A 190×58 popup crop extends 140 points right/28 down beyond the original frame; its source map matched independent screenshot glyphs at zero offset (0.916 IoU). Retained evidence recheck passed. Display footage kept the popup but lost its base to occlusion."
     },
     {
       "kind": "item",
@@ -1515,7 +1525,7 @@
       "at": "2026-10-09T04:08:20-04:00",
       "from": "partial",
       "to": "partial",
-      "note": "Same-cycle installed AppKit attached-child included/excluded sources passed896 exact muxed samples. Enabled affine1\u21920.75\u21921 restored; all parent centers exact and240 open child samples within0.5px. Control omitted child throughout. Frozen-map/wrong-marker negatives failed. Prior Chrome padded popup and moving obstruction rescue remain retained."
+      "note": "Same-cycle installed AppKit attached-child included/excluded sources passed896 exact muxed samples. Enabled affine1→0.75→1 restored; all parent centers exact and240 open child samples within0.5px. Control omitted child throughout. Frozen-map/wrong-marker negatives failed. Prior Chrome padded popup and moving obstruction rescue remain retained."
     },
     {
       "kind": "item",
@@ -1523,7 +1533,7 @@
       "at": "2026-10-09T04:08:20-04:00",
       "from": "completed",
       "to": "completed",
-      "note": "Earlier native Retina/external/return marker maps retained. Installed attached-panel open/close proof adds896 exact source/mux samples: enabled three-segment affine1\u21920.75\u21921 and excluded fixed affine; every parent center exact, child\u22640.5px. Negative original-map/reference controls rejected."
+      "note": "Earlier native Retina/external/return marker maps retained. Installed attached-panel open/close proof adds896 exact source/mux samples: enabled three-segment affine1→0.75→1 and excluded fixed affine; every parent center exact, child≤0.5px. Negative original-map/reference controls rejected."
     },
     {
       "kind": "item",
@@ -1539,7 +1549,7 @@
       "at": "2026-10-09T04:08:20-04:00",
       "from": "partial",
       "to": "partial",
-      "note": "Published production mode/cursor/resource/recovery contracts retained. Dynamic fitting guidance now requires each encoded sample\u2019s source geometry rather than current/original window frame; actual installed896-sample proof, four verified workflow outcomes and complete cleanup are available."
+      "note": "Published production mode/cursor/resource/recovery contracts retained. Dynamic fitting guidance now requires each encoded sample’s source geometry rather than current/original window frame; actual installed896-sample proof, four verified workflow outcomes and complete cleanup are available."
     },
     {
       "kind": "item",
@@ -1742,7 +1752,7 @@
       "at": "2026-10-09T06:29:23-04:00",
       "from": "completed",
       "to": "completed",
-      "note": "Stage40 CLI/fresh MCP0.11.2 adds16 named desktop regions with affine quads, clipped polygons and continuous area fractions; actual mux canvas dimensions must match before projection.21 focused/adjacent tests pass. Three Finder source maps identify clipped title/text, and matching CLI/full-frame pixel check agrees. Three retained dynamic1\u2192.75\u21921 marker regions match decoded edges at0px error. Geometric parent overlap does not establish omitted Quick Look content. Owned adapter closed; native unchanged."
+      "note": "Stage40 CLI/fresh MCP0.11.2 adds16 named desktop regions with affine quads, clipped polygons and continuous area fractions; actual mux canvas dimensions must match before projection.21 focused/adjacent tests pass. Three Finder source maps identify clipped title/text, and matching CLI/full-frame pixel check agrees. Three retained dynamic1→.75→1 marker regions match decoded edges at0px error. Geometric parent overlap does not establish omitted Quick Look content. Owned adapter closed; native unchanged."
     },
     {
       "kind": "item",
@@ -1781,7 +1791,7 @@
       "at": "2026-10-09T06:52:43-04:00",
       "from": "partial",
       "to": "partial",
-      "note": "Stage41 exact Finder Quick Look direct-panel pass appended/read back with native build3ff4c4519dc8, OS25F80 and built-in2\u00d7. Candidate/installed source proof independent of prior failed parent/padded lanes. Provider version remains unknown; no universal reuse."
+      "note": "Stage41 exact Finder Quick Look direct-panel pass appended/read back with native build3ff4c4519dc8, OS25F80 and built-in2×. Candidate/installed source proof independent of prior failed parent/padded lanes. Provider version remains unknown; no universal reuse."
     },
     {
       "kind": "item",
@@ -2006,7 +2016,7 @@
       "at": "2026-10-09T08:23:18-04:00",
       "from": "partial",
       "to": "partial",
-      "note": "Stage48 real TextEdit isolated source preserves six-pair scroll under actual display occlusion; selected mapped row057\u2192001,5882 pair joins. Selected display samples omit intended document; failed primary preserved, no reshoot. Stage39/40/41 QuickLook crop/full/direct-source extent findings retained. Useful source rescue does not establish all-app transient or final reintegration."
+      "note": "Stage48 real TextEdit isolated source preserves six-pair scroll under actual display occlusion; selected mapped row057→001,5882 pair joins. Selected display samples omit intended document; failed primary preserved, no reshoot. Stage39/40/41 QuickLook crop/full/direct-source extent findings retained. Useful source rescue does not establish all-app transient or final reintegration."
     },
     {
       "kind": "workflow",
@@ -2097,7 +2107,7 @@
       "at": "2026-10-09T11:06:45-04:00",
       "from": "active",
       "to": "active",
-      "note": "Stages51\u201352 add encoded app-only occlusion/lifetime proof, repair exclusive endpoint and unadmitted tail source, and safely deliver142e81bef23e. Failed evidence retained; remaining app, physical/provider, capacity and recovery gates continue. User input remains available."
+      "note": "Stages51–52 add encoded app-only occlusion/lifetime proof, repair exclusive endpoint and unadmitted tail source, and safely deliver142e81bef23e. Failed evidence retained; remaining app, physical/provider, capacity and recovery gates continue. User input remains available."
     },
     {
       "kind": "item",
@@ -2271,6 +2281,61 @@
       "from": "completed",
       "to": "completed",
       "note": "Stage57 exact signed89a450504bfe/PID10518 delivered through idle fence;96 prior state hashes unchanged. Fresh MCP0.12.2 passive16pt2s canary4 exact joins with new raw bounding_points, no input capture. Existing session closed/read back after wrong tool-name refusal; readers exit0, recorder idle."
+    },
+    {
+      "kind": "item",
+      "id": "paired-source-map",
+      "at": "2026-10-09T13:21:11-04:00",
+      "from": "pending",
+      "to": "completed",
+      "note": "Native130 checks,37 unique adapter checks; exact tested9bfabf native/MCP0.13.0 installed. Private/installed tiny pairs10/12 exact joins; final relative interval5 segments/3 pages/CLI equal. Legacy and actual different-process clock identities stay unqualified. Snapshot cursor/capture-row effective-child tests pass."
+    },
+    {
+      "kind": "item",
+      "id": "source-journal",
+      "at": "2026-10-09T13:21:11-04:00",
+      "from": "completed",
+      "to": "completed",
+      "note": "Installed9bfabf adds retained same-process clock_instance to source header/descriptor; surface bounds and exact source references preserved.130 native checks, tiny private/installed10/12 joins,98 prior state hashes unchanged. Legacy identity remains unknown; no physical/provider claim."
+    },
+    {
+      "kind": "item",
+      "id": "overflow-recovery",
+      "at": "2026-10-09T13:21:11-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage58 service paired interval map links retained app frames38/269/563 to existing before/open/closed pixels. Old stage57 clock provenance stays unqualified, original1563 exact joins preserved; new tiny same-process sources prove metadata only. Fitted origin remains guarded."
+    },
+    {
+      "kind": "item",
+      "id": "workflow-audit",
+      "at": "2026-10-09T13:21:11-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage58 one supported recorder-stamped consumer ran once, terminal receipt plus separately verified/cleanup-complete outcome; fresh central audit uncovered0. Exact source/pagination/CLI/cross-process readback; earlier historical audit coverage remains separate."
+    },
+    {
+      "kind": "item",
+      "id": "installed-smoke",
+      "at": "2026-10-09T13:21:11-04:00",
+      "from": "completed",
+      "to": "completed",
+      "note": "Exact signed9bfabf/PID24295 installed once through idle fence;98 prior state hashes unchanged. MCP0.13.0 tiny pair12 joins and final retained primary-relative5segments/3pages/CLI parity pass. Clock/capture-scope metadata verified; own sessions/readers settled."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T13:21:11-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Stage58 delivers service-owned paired intervals and retained process clocks:130 native/37 unique adapter checks,10/12 new private/installed joins, final relative pages and CLI equal.98 prior state hashes unchanged; own helpers/scopes settled.46 completed,16 partial,1 needs retest,1 deferred. Next: practical app/menu backup pixels with qualified interval coverage; fitted origin and physical/provider/capacity/adoption boundaries remain open."
+    },
+    {
+      "kind": "item",
+      "id": "workflow-audit",
+      "at": "2026-10-09T13:23:27-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage58 two supported recorder-stamped consumers each ran once, with terminal receipts and separate verified/cleanup-complete outcomes; fresh central audit uncovered0. Second read checks changed cursor qualification binding on retained media. Historical audit and routine adoption stay separate."
     }
   ]
 }

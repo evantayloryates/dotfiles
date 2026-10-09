@@ -69,6 +69,10 @@ final class BlockedSink: @unchecked Sendable {
       try JSONSerialization.jsonObject(with:Data($0.utf8)) as! [String:Any]
     }
     check((savedRows.last?["video_outcome"] as? [String:Any])?["encoded_submissions"] as? Int == 1210,"footer persists failure independently of row completeness")
+    let savedInstance = savedRows.first?["clock_instance"] as? [String:String]
+    let describedInstance = failedVideo.describe()["clock_instance"] as? [String:String]
+    check(savedInstance == describedInstance && savedInstance?["kind"] == "recorder_process", "source clock instance retained in header and descriptor")
+    check(savedInstance?["id"] == ActionTimeline.shared.instanceID && healthy.clockInstance == failedVideo.clockInstance, "paired journals share this live process clock instance")
     let mode = try FileManager.default.attributesOfItem(atPath:file)[.posixPermissions] as! NSNumber
     check(mode.intValue == 0o600, "private source file")
     let headerBytes = try Data(contentsOf: URL(fileURLWithPath:file)).split(separator:10).first!.count + 1

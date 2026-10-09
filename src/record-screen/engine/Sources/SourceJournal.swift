@@ -7,6 +7,9 @@ import ScreenCaptureKit
 final class SourceJournal: @unchecked Sendable {
   let path: String
   let epoch: UInt64
+  // Shared across journals from this live engine, never recovered from a newer
+  // process. This bounds cross-recording clock equivalence to one engine life.
+  let clockInstance = ActionTimeline.shared.instanceID
   private let lock = NSLock()
   private let io = DispatchQueue(label: "record-screen.source-journal", qos: .utility)
   private let capacity: Int
@@ -49,6 +52,7 @@ final class SourceJournal: @unchecked Sendable {
     }
     offer(["kind": "header", "schema": "record-screen-source/v1", "recording_id": recordingID,
            "epoch_host_ns": String(epoch), "clock_domain": "CLOCK_UPTIME_RAW", "target": target,
+           "clock_instance": ["kind":"recorder_process", "id":clockInstance],
            "clock_policy": HostClockContinuity.policy,
            "video_time_origin": "encoded time zero corresponds to epoch_host_ns",
            "requested_video_timescale": 1_000_000_000, "requested_movie_timescale": 1_000_000_000,
@@ -165,6 +169,7 @@ final class SourceJournal: @unchecked Sendable {
   func describe() -> [String: Any] {
     lock.withLock {
       ["schema": "record-screen-source/v1", "path": path, "epoch_host_ns": String(epoch),
+       "clock_instance": ["kind":"recorder_process", "id":clockInstance],
        "state": phase, "rows_offered": offered, "rows_written": written,
        "rows_lost": lost, "pending_rows": pending, "bytes": bytes,
        "complete": phase == "closed" && lost == 0 && failure == nil,

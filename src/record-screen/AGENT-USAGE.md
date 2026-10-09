@@ -93,6 +93,16 @@ baselines, expired facts, conflicts or incomplete observation windows prevent
 reuse certainty. A historical pass is not present readiness. Recheck the
 changed boundary, retaining useful previous evidence.
 
+For alternative footage, fresh MCP0.13.0 `recording_paired_map` or CLI
+`paired-map JSON` owns synchronization across terminal primary/backup sources.
+Pass a primary-relative interval; follow snapshot-bound pages to preserve dense
+backup content across held primary frames. Retained same-process clock identity
+is required for qualified timing. Legacy/different-process/unknown clock state
+returns numeric candidates only. Read exact gaps, content age, per-source scope
+and fitted-position guards; geometric availability is not captured-pixel or
+rescue proof. Inspect the relevant backup pixels before choosing coverage. See
+[the complete paired-source bounds](README.md#service-owned-paired-source-mapping-october-9).
+
 Native AppKit and owned Electron menu scopes have passed; Chrome has both
 passes and scoped omissions. See [Chrome select evidence](qualification/CHROME-SELECT.md).
 On external1×, a native select survived display footage but was omitted by

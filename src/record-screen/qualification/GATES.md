@@ -1,5 +1,80 @@
 # Qualification update — October 9, 2026
 
+## Fifty-eighth pass: service-owned paired intervals and retained clock identity
+
+Previous goal turn was progress: stage57 delivered frame-bound extent and
+diagnosed missing fitted origin. This pass preserves that evidence and builds
+the missing consumer synchronization boundary, without another menu run.
+
+Fresh MCP0.13.0 recording_paired_map and CLI paired-map accept a primary-relative
+interval or declared recorder-host interval across two terminal recordings.
+The service owns epoch arithmetic, rational half-open intersections, per-source
+geometry/content age and snapshot-bound pages. It splits both actual packet
+timelines, preserving dense backup samples across held primary packets rather
+than choosing one nearest frame. Gaps, unknown durations, missing references,
+failed prefixes and fitted-position guards remain explicit. No pixels/edits or
+composition recipe is produced; temporal/geometric availability is not rescue.
+
+Clock domain alone was insufficient provenance. Native header AND descriptor
+now retain ActionTimeline's live recorder-process UUID. Matching retained
+identities plus measured clock-observation state qualify the common origin only
+within one process life. Legacy/mismatched/different-process/unknown/gapped
+observations return numeric candidates with qualified availability false. No
+current UUID is borrowed to upgrade historical footage; restart-spanning and
+provider/physical calibration stay open. New native source_clock_instance:1
+advertises capture support, not upgrades to old sources.
+
+130 native journal checks pass.37 unique adapter checks cover primary mapping,
+12 final paired tests and11 adjacent option/reconnect/planning boundaries.
+Actual-file readers test snapshot pagination, changed request/source refusal,
+resolved-child override, malformed/symlink leaves and settlement. Existing
+bounded-probe timeout/busy checks also pass after shared snapshot refactoring.
+Source inspection found capture rows were discarded by the file whitelist,
+despite resolved-scope logic. The corrected whitelist retains capture metadata;
+the actual-file effective-child override now withholds fitted positions and
+returns the actual resolved identity. No input/key rows are returned.
+
+Private signed candidate9bfabf2dbb5c/PID23097 passes two tiny passive3s crops:
+10 exact mux/source joins,3 interval segments across2 pages, MCP/CLI equal.
+Session actually closed/read back, reader exited0; one owned engine stop exited0,
+PID absent and private state archived excluding only engine.sock. No new UI,
+input, grant request, user lock or peer restart. This is not a motion benchmark.
+
+The exact tested signed artifact was prepared once and delivered through the
+idle fence; installed native9bfabf2dbb5c/PID24295. All98 prior session/recording
+JSON hashes remain unchanged and exact candidate/installed binary hashes match.
+Installed tiny3s pair rec_czhemu6b/rec_uujuhtbp passes12 exact joins,5 segments,
+3 pages and CLI parity. After the reader/relative-range changes, a final fresh
+adapter consumes the same retained pair: primary-relative offsets converted
+by service, captured scope present, new snapshot pages/CLI equal. No recapture.
+Actual private/installed retained UUIDs differ and remain unqualified as a pair.
+
+Existing stage57 before/open/closed app images are linked to their exact backup
+frames38/269/563 by three retained interval maps (3/4/4 segments).1563 paired
+source/mux correspondences remain exact; source capture identity is retained.
+Old journals lack process identity, so the service correctly returns numeric-only
+alignment and availability false. This is linkage to three previously decoded
+marker observations, not a new whole-shot/menu/occlusion rescue proof.
+
+Two supported recorder-stamped consumer callbacks each ran once, with separate
+terminal receipts and verified/cleanup-complete outcomes. The second read checks
+the affected cursor boundary after binding descriptor qualification changes;
+source media was reused, without recapture. Both terminal receipts and read
+stdout summaries remain; final JSON map paths contain the later read. Central audit uncovered0;
+two exact service-entity facts were independently read back. All owned readers
+are terminal, both sessions closed, private engine absent, installed recorder
+idle/actions0/input0/lanes0. Existing Screen Recording grant observed; Input
+Monitoring/physical delivery was not re-proven after restart. No GPU/resource/
+capacity/P80 or ordinary older-chat adapter adoption inference.
+
+New completed gate paired-source-map covers this delivered interval contract.
+46completed/16partial/1needs_retest/1deferred. Accurate fitted origin remains
+needs_retest, overflow recovery partial; full objective active. Next high-impact
+gate: source-pixel qualification of a practical app/menu backup interval using
+retained same-process provenance, with explicit clipping/disturbance/coverage
+limits. Keep prior passing sources and failures. Visual composition deferred.
+Private evidence: capture-qualification-2026-10-08/gates-v58 beside prior stages.
+
 ## Fifty-seventh pass: frame-bound footprint diagnosis and delivered metadata
 
 Previous turn was progress: real fitted-menu pixel failure led to a service guard.

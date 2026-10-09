@@ -22,6 +22,7 @@
 //   record-screen recording <id>               full manifest of one recording
 //   record-screen record-source <id>           local source journal and gap descriptor
 //   record-screen frame-map <json>             actual mux/source geometry and desktop-point/region projection
+//   record-screen paired-map <json>            exact paired host-interval coverage, dense backup and gaps
 //   record-screen input-query <json>           bounded retained events, reasons/gaps and exact receipt offsets
 //   record-screen action-begin <json>          recorder-stamped contextual block, no UI action
 //   record-screen action-end <json>            close token, caller-reported result
@@ -50,6 +51,7 @@ import { prepareMaintenance, validateMaintenance, releaseMaintenance } from "./l
 import { install } from "./lib/install.mjs";
 import { planProduction, validateProductionRequest } from "./lib/production-plan.mjs";
 import { mapRecordingFrames, validateFrameMapRequest } from "./lib/frame-map.mjs";
+import { mapRecordingPair, validatePairedMapRequest } from "./lib/paired-map.mjs";
 import { validateWindowQuery, requireTransientInventory } from "./lib/window-query.mjs";
 import {queryRecordingInput,validateInputQuery} from "./lib/input-query.mjs";
 import { requireCaptureOptions } from "./lib/capture-options.mjs";
@@ -249,6 +251,14 @@ try {
       if ((await call("status")).capabilities?.source_journal !== 1) throw new EngineError("unsupported_source_journal", "Frame mapping requires recorder-owned source_journal v1.");
       const source = await call("record.source", { recording_id: request.recording_id });
       out(await mapRecordingFrames(source, request));
+      break;
+    }
+    case "paired-map": {
+      const request=validatePairedMapRequest(JSON.parse(args[0]??"{}"));
+      if((await call("status")).capabilities?.source_journal!==1) throw new EngineError("unsupported_source_journal","Paired mapping requires recorder-owned source_journal v1.");
+      const primary=await call("record.source",{recording_id:request.primary_recording_id});
+      const backup=await call("record.source",{recording_id:request.backup_recording_id});
+      out(await mapRecordingPair(primary,backup,request));
       break;
     }
     case "record-wait": {

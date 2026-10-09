@@ -14,6 +14,18 @@ child inclusion alone did not preserve that popup in the tested window lane.
 
 ## Helpers
 
+`paired-map.test.mjs` checks exact two-source interval joins, dense backup across
+held primary packets, primary-relative epoch conversion, rational boundaries,
+holes/unknown tails, legacy/different-process/clock-gap refusals, fitted geometry,
+failed prefixes, signed content age and snapshot-bound pagination. Actual-file
+FFmpeg/MCP/CLI checks retain resolved capture scope, exercise an effective-child
+override, reject changed cursors/symlink/malformed leaves and settle owned readers.
+Run alongside `frame-map.test.mjs` after changing shared snapshot handling;
+adjacent options/reconnect/planning checks cover the public adapter boundary.
+The media is authored and isolated, without UI, installed recorder mutation or
+physical-clock/content recovery proof. Stage58 also retains separate real native
+private/installed passive pair evidence and previously decoded legacy app images.
+
 `request-contract-test.swift` exercises native discovery/capture field sets,
 per-surface targets, image/session/caller options and exact-window selector
 predicates offline. Freeze/compile it with engine/bridge sources excluding

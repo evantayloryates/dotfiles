@@ -57,12 +57,11 @@ const identity = r => `${r.numerator}/${r.denominator}`;
 const validID = n => Number.isSafeInteger(n) && n >= 0;
 
 /** Operates on bounded snapshots. Input events are never returned. */
-export function resolveFrameMap(descriptor, request, rows, probe) {
-  request = validateFrameMapRequest(request);
-  if (descriptor?.recording_id !== request.recording_id || !['done','failed','interrupted','cancelled'].includes(descriptor.state)) mapping('Only the resolved terminal recording can be mapped.');
+export function buildFrameIndex(descriptor, rows, probe) {
+  if (typeof descriptor?.recording_id !== 'string' || !/^rec_[A-Za-z0-9]+$/.test(descriptor.recording_id) || !['done','failed','interrupted','cancelled'].includes(descriptor.state)) mapping('Only the resolved terminal recording can be mapped.');
   if (!Array.isArray(rows) || rows.length < 1 || rows.length > MAX_ROWS) mapping('Source row budget exceeded or empty.');
   const header = rows[0];
-  if (header.kind !== 'header' || header.schema !== 'record-screen-source/v1' || header.recording_id !== request.recording_id ||
+  if (header.kind !== 'header' || header.schema !== 'record-screen-source/v1' || header.recording_id !== descriptor.recording_id ||
       header.clock_domain !== 'CLOCK_UPTIME_RAW' || header.epoch_host_ns !== descriptor.source_packet?.epoch_host_ns) mapping('Source identity/epoch mismatch.');
   const epoch = exact(header.epoch_host_ns);
   // record.source intentionally omits the full manifest. Use the retained
@@ -121,7 +120,7 @@ export function resolveFrameMap(descriptor, request, rows, probe) {
   }
   const journalComplete = descriptor.source_packet?.complete === true && descriptor.source_packet?.rows_lost === 0 &&
     footer?.complete === true && footer?.rows_lost === 0;
-  function atOffset(text) {
+  function atOffset(text, request) {
     const ns = exact(text);
     let lo = 0, hi = packets.length;
     while (lo < hi) {
@@ -132,9 +131,9 @@ export function resolveFrameMap(descriptor, request, rows, probe) {
     if (!p) return { included: false, reason: 'before_first_muxed_packet' };
     if (!p.end) return { included: false, reason: index === packets.length-1 ? 'unmeasured_last_packet_end' : 'unmeasured_packet_end' };
     if (ns*BigInt(p.end.denominator) >= BigInt(p.end.numerator)) return { included: false, reason: index === packets.length-1 ? 'at_or_after_muxed_video_end' : 'between_measured_packet_intervals' };
-    return project(p,index);
+    return project(p,index,request);
   }
-  function project(p, index) {
+  function project(p, index, request) {
     if (!p) return { included: false, reason: 'frame_index_outside_muxed_video' };
     const result = { included: true, frame_index: index, mux_packet_index: p.mux_packet_index,
       video_start_ns: p.start, video_end_ns: p.end, metadata_available: false };
@@ -171,11 +170,14 @@ export function resolveFrameMap(descriptor, request, rows, probe) {
         : !muxCanvasKnown ? 'unmeasured_muxed_canvas' : !canvasMatches ? 'declared_canvas_differs_from_muxed_dimensions'
         : 'fitted_child_window_origin_unqualified' }) };
   }
-  const mapped = request.frame_indices ? request.frame_indices.map(frame_index => ({ requested_frame_index: frame_index, ...project(packets[frame_index],frame_index) }))
-    : request.relative_ns ? request.relative_ns.map(relative_ns => ({ requested_relative_ns: relative_ns, ...atOffset(relative_ns) }))
-    : request.host_ns.map(host_ns=>{const relative=String(exact(host_ns)-epoch);return{requested_host_ns:host_ns,relative_ns:relative,...atOffset(relative)};});
+  function map(request) {
+  request = validateFrameMapRequest(request);
+  if (request.recording_id !== descriptor.recording_id) mapping('Resolved recording identity mismatch.');
+  const mapped = request.frame_indices ? request.frame_indices.map(frame_index => ({ requested_frame_index: frame_index, ...project(packets[frame_index],frame_index,request) }))
+    : request.relative_ns ? request.relative_ns.map(relative_ns => ({ requested_relative_ns: relative_ns, ...atOffset(relative_ns,request) }))
+    : request.host_ns.map(host_ns=>{const relative=String(exact(host_ns)-epoch);return{requested_host_ns:host_ns,relative_ns:relative,...atOffset(relative,request)};});
   return { schema: 'record-screen-frame-map/v1', recording_id: request.recording_id, recording_state: descriptor.state,
-    clock_domain: header.clock_domain, epoch_host_ns: header.epoch_host_ns, frame_order: 'presentation_timestamp_ascending',
+    clock_domain: header.clock_domain, clock_instance: header.clock_instance ?? null, epoch_host_ns: header.epoch_host_ns, frame_order: 'presentation_timestamp_ascending',
     muxed_canvas_pixels: muxCanvasKnown ? muxPixels : null,
     mux_source_correspondence: { actual_packets: packets.length, accepted_submissions: acceptedCount,
       exact_timestamp_matches: matches, video_packets_without_exact_match: packets.length-matches,
@@ -193,6 +195,13 @@ export function resolveFrameMap(descriptor, request, rows, probe) {
       'Region fractions are continuous affine canvas-area estimates, not decoded pixel coverage; rectangle extent and timing are caller-declared.',
       'Point/region projection requires declared source canvas dimensions to match the probed media stream; this does not validate affine content placement.',
       'Fitted child-enabled or child-unknown isolated windows with content_scale other than1 retain raw geometry but withhold projected positions: their desktop union origin is unqualified. Use independently qualified source geometry.'] };
+  }
+  return {epoch, packets, map, project, header, capture, target};
+}
+export function resolveFrameMap(descriptor, request, rows, probe) {
+  request=validateFrameMapRequest(request);
+  if(descriptor?.recording_id!==request.recording_id) mapping('Resolved recording identity mismatch.');
+  return buildFrameIndex(descriptor,rows,probe).map(request);
 }
 
 async function regular(path, limit) {
@@ -223,7 +232,7 @@ async function journalRows(handle, size) {
         try { row = JSON.parse(line); } catch { mapping('Malformed source row; raw row text is not returned.'); }
         if (!row || typeof row !== 'object' || Array.isArray(row)) mapping('Invalid source row object.');
         // Keep only mapping metadata. Input text/key rows never enter the response or retained table.
-        if (['header','source_frame','geometry','encoded_frame','footer'].includes(row.kind)) rows.push(row);
+        if (['header','capture','source_frame','geometry','encoded_frame','footer'].includes(row.kind)) rows.push(row);
       }
     }
     if (pending.length > 1024*1024) mapping('Source line budget exceeded.');
@@ -258,22 +267,31 @@ function probeFile(fd) {
     });
   });
 }
-export async function mapRecordingFrames(descriptor, request) {
-  request = validateFrameMapRequest(request);
+// One admission covers every source in a paired snapshot. Each owned probe is
+// settled before the next begins; all opened leaves are checked again at the end.
+export async function withFrameSnapshots(descriptors, consume) {
   if (running || probeState) fail('frame_mapping_busy','A prior owned mapping/probe is active or not confirmed closed; retry a read later.');
-  if (descriptor?.recording_id !== request.recording_id || !['done','failed','interrupted','cancelled'].includes(descriptor.state)) mapping('Resolve a terminal recording before mapping.');
+  if (!Array.isArray(descriptors) || descriptors.length<1 || descriptors.length>2 || descriptors.some(d=>
+      typeof d?.recording_id!=='string' || !['done','failed','interrupted','cancelled'].includes(d.state))) mapping('Resolve one or two terminal recordings before mapping.');
   running = true;
-  let journal, video;
+  const files=[], snapshots=[];
   try {
-    journal = await regular(descriptor.source_packet?.path,MAX_JOURNAL);
-    video = await regular(descriptor.video?.path,64*1024*1024*1024);
-    const rows = await journalRows(journal.handle,journal.stat.size);
-    const probe = await probeFile(video.handle.fd);
-    if (!unchanged(journal.stat,await journal.handle.stat()) || !unchanged(video.stat,await video.handle.stat())) mapping('Source/media changed during mapping; no snapshot consistency claimed.');
-    const result = resolveFrameMap(descriptor,request,rows,probe);
-    if (Buffer.byteLength(JSON.stringify(result)) > 1024*1024) mapping('Mapped response exceeds1MiB; request fewer frames/points.');
-    return { ...result, snapshot_consistency: 'Opened regular leaves unchanged across read/probe; no filesystem isolation guarantee.' };
+    for(const descriptor of descriptors) {
+      const journal=await regular(descriptor.source_packet?.path,MAX_JOURNAL);files.push(journal);
+      const video=await regular(descriptor.video?.path,64*1024*1024*1024);files.push(video);
+      const rows=await journalRows(journal.handle,journal.stat.size), probe=await probeFile(video.handle.fd);
+      snapshots.push({descriptor,rows,probe,files:[journal,video].map(f=>({dev:f.stat.dev,ino:f.stat.ino,size:f.stat.size,mtimeMs:f.stat.mtimeMs,ctimeMs:f.stat.ctimeMs}))});
+    }
+    const result=consume(snapshots);
+    for(const f of files) if(!unchanged(f.stat,await f.handle.stat())) mapping('Source/media changed during mapping; no snapshot consistency claimed.');
+    if(Buffer.byteLength(JSON.stringify(result))>1024*1024) mapping('Mapped response exceeds1MiB; request fewer segments/frames/points.');
+    return {...result,snapshot_consistency:'Opened regular leaves unchanged across all reads/probes; no filesystem isolation guarantee.'};
   } finally {
-    await Promise.allSettled([journal?.handle.close(), video?.handle.close()]); running = false;
+    await Promise.allSettled(files.map(f=>f.handle.close()));running=false;
   }
+}
+export async function mapRecordingFrames(descriptor, request) {
+  request=validateFrameMapRequest(request);
+  if(descriptor?.recording_id!==request.recording_id) mapping('Resolved recording identity mismatch.');
+  return withFrameSnapshots([descriptor],s=>resolveFrameMap(descriptor,request,s[0].rows,s[0].probe));
 }
