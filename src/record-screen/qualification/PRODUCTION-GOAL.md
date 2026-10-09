@@ -239,3 +239,17 @@ health checks, then preview-lane lifetime, raw coordinates/tap/sleep gaps, Chrom
 select/nested overflow, realistic insurance/admission and capture-color fidelity.
 Finish idle-boundary install/rollback, actual consumer smoke and final runbooks.
 The full production objective remains unfinished; visual effects remain deferred.
+
+## Current pause and maintained checklist
+
+Taylor requested a clean pause after the ninth pass. Owned tests are stopped;
+qualification stays paused until an explicit resume. The subsequent checklist
+request authorizes documentation/programming work only, not more live tests.
+
+The current acceptance ledger is `checklist.json`; its human page is
+`/Users/taylor/src/docs/html/record-screen-strategies/checklist.html`.
+Read it at resume and update it when evidence changes a state or its limits.
+Use `checklist.py update` to save transition history and republish immediately;
+`render-report.py` republishes both pages. The maintained rule is also in
+`../AGENTS.md`, so future service edits retain this workflow. Production remains
+unreleased; visual composition remains deferred.

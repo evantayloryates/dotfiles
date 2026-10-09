@@ -1,0 +1,484 @@
+{
+  "schema": "capture-qualification-checklist/v1",
+  "updated_at": "2026-10-08T20:01:05-04:00",
+  "workflow": {
+    "state": "paused",
+    "note": "Qualification is paused at Taylor’s request. This update adds the checklist without restarting testing."
+  },
+  "production_note": "Candidate changes have not been installed. Production delivery and rollback verification are still pending.",
+  "groups": [
+    {
+      "id": "capture",
+      "title": "Capture surfaces and cursor visibility",
+      "items": [
+        {
+          "id": "cursor-layers",
+          "title": "Identify the different cursor layers",
+          "status": "completed",
+          "scope": "Distinguish the system pointer, helper overlays, app-painted pointers and text carets.",
+          "evidence": "Actual native and Chrome footage showed residuals after capture-level pointer hiding.",
+          "next": "",
+          "anchor": "evidence",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "capture-options",
+          "title": "Verify child-window and helper-exclusion controls",
+          "status": "completed",
+          "scope": "Explicit options, filter-aware source identity and recording-tap routing on isolated candidates.",
+          "evidence": "Native child inclusion/exclusion and filtered tap-versus-lane checks passed. Older engines refuse unsupported controls.",
+          "next": "",
+          "anchor": "fourth-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "helper-relaunch",
+          "title": "Detect excluded-helper changes and recover with a fresh take",
+          "status": "completed",
+          "scope": "Owned background helper on the built-in display; observed process changes interrupt the recording.",
+          "evidence": "Unrelated app launch/close kept the take running; helper termination preserved uncertain partial video; fresh-PID recovery passed. All 661 muxed timestamps matched.",
+          "next": "",
+          "anchor": "ninth-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "preview-lifetime",
+          "title": "Guard helper identity for persistent preview lanes",
+          "status": "partial",
+          "scope": "Keep long-lived previews aligned with current excluded processes.",
+          "evidence": "Preview identity includes resolved PIDs; the recording lifetime guard does not cover persistent preview lanes.",
+          "next": "Test helper churn while a preview remains open; define interruption or safe reconfiguration.",
+          "anchor": "ninth-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "native-menus",
+          "title": "Capture native menus and child surfaces",
+          "status": "completed",
+          "scope": "Owned AppKit fixture and the tested child-window modes.",
+          "evidence": "Native menu pixels were present with child inclusion and absent without it; bounded source frames were inspected.",
+          "next": "",
+          "anchor": "fourth-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "chrome-depth",
+          "title": "Complete the Chrome surface qualification lane",
+          "status": "partial",
+          "scope": "Genuine native menus, HTML menus, native select controls and reachability.",
+          "evidence": "Visible native and HTML menu footage passed. Earlier off-Space input/capture failures remain distinct.",
+          "next": "Test native select and deliberate nested overflow on the current app/provider versions.",
+          "anchor": "sixth-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "electron-depth",
+          "title": "Verify three nested Electron menu levels",
+          "status": "completed",
+          "scope": "Owned VS Code window in the tested child-inclusion modes.",
+          "evidence": "Three levels were captured with child inclusion and absent without it; five takes matched 5,002 muxed timestamps.",
+          "next": "",
+          "anchor": "seventh-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "overflow-recovery",
+          "title": "Prove a useful overflow capture and recovery path",
+          "status": "partial",
+          "scope": "Display padding/cropping must add transient coverage beyond the original canvas.",
+          "evidence": "A padded display pair included menus and unrelated pixels, but did not prove additional overflow rows.",
+          "next": "Capture intentional overflow and verify crop positions, occlusion tradeoffs and recoverable coverage.",
+          "anchor": "seventh-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "clean-source",
+          "title": "Define reliable clean-source profiles across daily apps",
+          "status": "partial",
+          "scope": "State which cursor-like layers can be removed for each app, provider and capture mode.",
+          "evidence": "Helper exclusion works in bounded tests; app-painted arrows, carets and a Chrome residual remain.",
+          "next": "Publish capability limits and requalification rules; defer visual replacement recipes.",
+          "anchor": "evidence",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        }
+      ]
+    },
+    {
+      "id": "synchronization",
+      "title": "Source timing, coordinates and image fidelity",
+      "items": [
+        {
+          "id": "source-journal",
+          "title": "Verify the source journal against actual encoded packets",
+          "status": "completed",
+          "scope": "Recorder-owned exact timing, geometry segments, held/dropped references and explicit gaps.",
+          "evidence": "Multiple native, Chrome, Electron and preview passes matched muxed timestamps; journal closure is kept separate from video finalization.",
+          "next": "",
+          "anchor": "eighth-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "display-geometry",
+          "title": "Verify move, resize and cross-display geometry",
+          "status": "completed",
+          "scope": "Authored marker transforms on built-in Retina, external 1× display with negative origin, and return.",
+          "evidence": "Four encoded cross-display marker frames had zero edge error; all 8,315 corresponding timestamps matched.",
+          "next": "",
+          "anchor": "sixth-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "event-clock",
+          "title": "Qualify input-to-video clocks beyond the native canaries",
+          "status": "partial",
+          "scope": "Separate delivered-event, recorder-reception and frame clocks.",
+          "evidence": "Native delivered key timestamps matched exactly, including cross-display tests; physical input latency and sleep-safe equivalence remain unproven.",
+          "next": "Verify provider clock semantics and preserve explicit uncertainty across clock discontinuities.",
+          "anchor": "sixth-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "pointer-coordinates",
+          "title": "Qualify pointer positions for downstream composition",
+          "status": "pending",
+          "scope": "Normalize provider positions into recorded pixels without guessing coordinate semantics.",
+          "evidence": "Raw positions remain unqualified; composition positions are withheld.",
+          "next": "Compare delivered coordinates and actual source pixels across scales, origins and providers.",
+          "anchor": "limits",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "sleep-clock",
+          "title": "Verify sleep, wake and display-transition policy",
+          "status": "pending",
+          "scope": "Detect clock or display discontinuities and avoid interpolating through unknown intervals.",
+          "evidence": "Cross-display movement passed; actual sleep/wake behavior is not qualified.",
+          "next": "Prove explicit gaps, clock/geometry segment boundaries and safe recovery.",
+          "anchor": "limits",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "capture-colors",
+          "title": "Qualify capture color fidelity",
+          "status": "pending",
+          "scope": "Track color spaces, transfer functions and source-to-export reproduction.",
+          "evidence": "The helper baseline decoded to RGB 253/62/254; a strict threshold failed. Broader authored-chroma presence passed; exact color reproduction is unknown.",
+          "next": "Use declared color references and inspect the source/encoder/export color path.",
+          "anchor": "ninth-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        }
+      ]
+    },
+    {
+      "id": "interaction",
+      "title": "Event relevance and semantic context",
+      "items": [
+        {
+          "id": "dense-events",
+          "title": "Qualify dense pointer, keyboard and gesture telemetry",
+          "status": "partial",
+          "scope": "Delivered keys, modifiers, motion, clicks, scroll and drag with bounded callback work.",
+          "evidence": "Native keyboard and gesture signals were retained with zero overflow in bounded takes.",
+          "next": "Test high-rate overload and other providers; keep raw trajectories and loss counts explicit.",
+          "anchor": "fifth-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "event-relevance",
+          "title": "Separate session events from unrelated user activity",
+          "status": "partial",
+          "scope": "Retain delivery and action-context reasons, broad shortcuts and uncertain candidates.",
+          "evidence": "36 native delivered events matched without target foreground; 40 unrelated key events were excluded after the action block ended.",
+          "next": "Test concurrent user/agent activity in the same app and more global-shortcut cases; do not infer ownership from focus.",
+          "anchor": "fifth-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "protected-input",
+          "title": "Verify protected-input omission and recovery",
+          "status": "completed",
+          "scope": "Explicit Carbon protected-input fixture with the tested provider.",
+          "evidence": "All 24 delivered protected events were omitted with enabled/ended gaps; six normal events recovered. A secure field alone did not enable protection.",
+          "next": "",
+          "anchor": "sixth-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "action-receipts",
+          "title": "Verify service-stamped action blocks and uncertain recovery",
+          "status": "completed",
+          "scope": "Bounded contextual scopes, caller/session checks, expiry, restart recovery and no replay.",
+          "evidence": "Restart kept an unknown end time; wrappers ran once; a late close correctly stayed expired.",
+          "next": "",
+          "anchor": "eighth-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "semantic-context",
+          "title": "Connect rich semantic blocks to capture milestones",
+          "status": "partial",
+          "scope": "Intent, before/after context and verification evidence for later precise cues.",
+          "evidence": "Recorder-stamped declared action blocks, marks and shared imported receipts have source evidence.",
+          "next": "Expand milestone coverage and supported-provider integration without inventing missing events.",
+          "anchor": "fifth-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "provider-gaps",
+          "title": "Qualify missing-event and tap-fault behavior",
+          "status": "partial",
+          "scope": "Expose virtual-input gaps, revoked access, disabled taps and overload.",
+          "evidence": "Chrome virtual typing changed DOM content without app-addressed OS key evidence; healthy listener status does not prove full coverage.",
+          "next": "Exercise tap faults/access gaps safely and verify omission, recovery and consumer diagnostics.",
+          "anchor": "sixth-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        }
+      ]
+    },
+    {
+      "id": "recovery",
+      "title": "Recovery and resource expectations",
+      "items": [
+        {
+          "id": "startup-deadlines",
+          "title": "Verify startup deadlines and retained admission",
+          "status": "completed",
+          "scope": "Bounded caller waits, unfinished producer quarantine, cancellation and late results.",
+          "evidence": "50 deadline and 12 recording-state assertions passed; live unavailable targets and isolated SDK recovery were qualified.",
+          "next": "",
+          "anchor": "fourth-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "background-context",
+          "title": "Move periodic context work away from capture and input loops",
+          "status": "completed",
+          "scope": "Shared background slots, stale snapshots, late-generation rejection and lifecycle cleanup.",
+          "evidence": "113 listener, 106 recording-monitor and 113 window-context checks passed; the later 22-second live canary completed with 639 exact source timestamps.",
+          "next": "",
+          "anchor": "eighth-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "partial-footage",
+          "title": "Preserve and diagnose interrupted footage",
+          "status": "completed",
+          "scope": "Separate journal completeness, writer outcome and actual decodable coverage.",
+          "evidence": "Actual desktop failures exposed packet/submission differences; recovery preserved uncertainty and playable partial footage.",
+          "next": "",
+          "anchor": "sixth-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "peer-failure",
+          "title": "Verify remaining encoder/OS failure paths without harming peer takes",
+          "status": "partial",
+          "scope": "Avoid widening a local failure into an unexpected service interruption.",
+          "evidence": "Healthy peer capture survived a missing target; unfinished discovery remains quarantined. Existing encoder-finalization restart is a separate risk.",
+          "next": "Qualify remaining initial OS calls and encoder-stall recovery, including explicit peer-impact expectations.",
+          "anchor": "fourth-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "single-motion",
+          "title": "Verify single-source moving footage",
+          "status": "completed",
+          "scope": "Authored point-resolution 30-fps and Retina 60-fps motion takes.",
+          "evidence": "721 and 1,384 packet timestamps matched; decoded counters changed 719 and 1,337 times.",
+          "next": "",
+          "anchor": "seventh-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "motion-insurance",
+          "title": "Qualify motion insurance with matching backup coverage",
+          "status": "needs_retest",
+          "scope": "A paired source must preserve the same changing scene and prove usable recovery.",
+          "evidence": "The paired take failed: 713 muxed packets versus 715 submissions, timing mismatch and constant counter; display backup scene coverage was not established.",
+          "next": "Correct the test preconditions and repeat under measured host health; prove actual shot recovery before recommending redundancy.",
+          "anchor": "seventh-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "resource-admission",
+          "title": "Set a realistic resource and admission budget",
+          "status": "partial",
+          "scope": "CPU, memory, encoder/GPU/storage costs and useful production-duration estimates.",
+          "evidence": "Single-source costs and offline overlap admission were measured; they do not establish safe real-world paired capacity or P80 duration.",
+          "next": "Measure representative contention and preview costs; publish conservative limits with failure behavior.",
+          "anchor": "seventh-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        }
+      ]
+    },
+    {
+      "id": "previews",
+      "title": "Fast previews and consumer contracts",
+      "items": [
+        {
+          "id": "owned-commands",
+          "title": "Bound export/probe subprocesses and recover admission",
+          "status": "completed",
+          "scope": "One owned child, concurrent pipe drains, output bounds, deadlines and quarantine until actual exit.",
+          "evidence": "88 actual-child checks passed, including TERM resistance, forced exit and subsequent recovery.",
+          "next": "",
+          "anchor": "eighth-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "preview-effort",
+          "title": "Provide draft, standard and full preview effort",
+          "status": "completed",
+          "scope": "Configurable width, frame rate and software/hardware backend for short source previews.",
+          "evidence": "Real draft, standard and GIF previews had 145 mapped frames each; full/native/60-fps added 725 references.",
+          "next": "",
+          "anchor": "eighth-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "derivative-map",
+          "title": "Keep preview timing and parent-frame mapping inside the service",
+          "status": "completed",
+          "scope": "Exact rational clocks, non-grid trims, GIF quantization, held frames and pixel transforms.",
+          "evidence": "Final authored repeat matched 139 decoded frames; real source/time-map readbacks passed, including a seven-packet 0.07–0.14-second boundary.",
+          "next": "",
+          "anchor": "eighth-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "gif-palette",
+          "title": "Correct the authored GIF palette regression",
+          "status": "completed",
+          "scope": "The tested gray-color fixture and bounded export pipeline.",
+          "evidence": "The differential palette lost the final fixture color; full histograms preserved it. Failed output was retained.",
+          "next": "",
+          "anchor": "eighth-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "export-publication",
+          "title": "Verify immutable export names and uncertain-parent provenance",
+          "status": "completed",
+          "scope": "Unique defaults, explicit overwrite refusal and preservation of source quality.",
+          "evidence": "Two default requests produced distinct names; the interrupted 12-frame preview retained uncertain parent quality.",
+          "next": "",
+          "anchor": "ninth-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "consumer-negotiation",
+          "title": "Reject unsupported capture/export contracts",
+          "status": "completed",
+          "scope": "Same-connection capability checks and explicit refusals before dispatch.",
+          "evidence": "Node regressions passed old-engine refusal, explicit option forwarding, exact time maps and no export replay after socket loss.",
+          "next": "",
+          "anchor": "ninth-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        }
+      ]
+    },
+    {
+      "id": "shared-use",
+      "title": "Shared computer-use learning and workflow quality",
+      "items": [
+        {
+          "id": "app-facts",
+          "title": "Centralize version-scoped app observations",
+          "status": "partial",
+          "scope": "Shared reported facts, exact environment keys, expiry and conflicting evidence.",
+          "evidence": "Four local tools and a CLI were tested; app observations and imported action receipts were saved/read back.",
+          "next": "Reconcile actual consumer use and feed non-recording workflows into the shared fact store.",
+          "anchor": "third-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "requalification",
+          "title": "Build maintained app lanes and breadth-first requalification",
+          "status": "partial",
+          "scope": "Baseline ingestion for stable daily apps and updates when app/provider/OS behavior changes.",
+          "evidence": "Native, Chrome and Electron lanes have scoped evidence; requalification still depends on explicit test runs.",
+          "next": "Add ingestion, expiry/update triggers and recurring evidence reinforcement without claiming automatic model training.",
+          "anchor": "strategy",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "workflow-audit",
+          "title": "Verify the quality of recent shared computer-use workflows",
+          "status": "partial",
+          "scope": "Assess delivered actions, verification and cleanup rather than tool-call counts.",
+          "evidence": "Structural audit covered 31 chats and 2,655 matching call/results; observation references do not establish successful tasks.",
+          "next": "Use structured outcomes for a trustworthy quality audit and smoke-test the shared workflow after refactors.",
+          "anchor": "seventh-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "receipt-integration",
+          "title": "Improve automatic receipt coverage across providers",
+          "status": "partial",
+          "scope": "Capture durable operation evidence for native and browser actions.",
+          "evidence": "An explicit callback wrapper and imported shared receipts work; native CUA still requires deliberate bracketing.",
+          "next": "Integrate typed delivery/verification/cleanup outcomes where supported; keep uncovered operations explicit.",
+          "anchor": "fifth-pass",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        }
+      ]
+    },
+    {
+      "id": "delivery",
+      "title": "Production delivery and next phase",
+      "items": [
+        {
+          "id": "human-expectations",
+          "title": "Finalize production modes and interruption expectations",
+          "status": "partial",
+          "scope": "Clear background/cooperative/reserved-window expectations with input available and recovery choices.",
+          "evidence": "Agreed production intervals, pause boundaries and owned-only cleanup were used; no input lock was added.",
+          "next": "Publish tested mode capabilities and estimates; reserve disruptive work only through clear user alignment.",
+          "anchor": "strategy",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "release-rollback",
+          "title": "Install the candidate safely and verify rollback",
+          "status": "pending",
+          "scope": "Idle-boundary release with prior binary/state preserved and exact loaded-capability readback.",
+          "evidence": "Candidate builds were signed and loaded privately; installed production remains the original build.",
+          "next": "Complete remaining release gates, prepare rollback, then install at a verified idle boundary.",
+          "anchor": "limits",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "installed-smoke",
+          "title": "Smoke-test real capture and consumers after installation",
+          "status": "pending",
+          "scope": "Verify delivered behavior on the installed service, not only isolated builds.",
+          "evidence": "No candidate installation has occurred; these checks are intentionally still pending.",
+          "next": "Verify installed capture, source/time-map consumers, recovery and cleanup after release.",
+          "anchor": "limits",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "agent-runbooks",
+          "title": "Finish agent usage and recovery runbooks",
+          "status": "partial",
+          "scope": "Capabilities, gaps, deadlines, semantic blocks, app facts, effort and collision/recovery guidance.",
+          "evidence": "Source contracts, a readiness report and repeatable qualification kit exist; final reconciliation is pending.",
+          "next": "Reconcile instructions with delivered behavior and publish limits, fallback and cleanup expectations.",
+          "anchor": "strategy",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "visual-composition",
+          "title": "Build cursor styles, effects and final compositing recipes",
+          "status": "deferred",
+          "scope": "Custom cursor series, visual/audio cues, overlays, frames and composition strategy.",
+          "evidence": "Taylor explicitly moved visual composition to the next phase; cursor.svg is a test asset only.",
+          "next": "Revisit after capture foundations and production expectations are qualified.",
+          "anchor": "strategy",
+          "updated_at": "2026-10-08T20:01:05-04:00"
+        }
+      ]
+    }
+  ],
+  "history": []
+}

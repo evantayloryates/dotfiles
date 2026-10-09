@@ -170,3 +170,40 @@ both be verified. Preserve metadata equality separately from physical latency.
 Taylor's standing visible-test permission expires October 9 at approximately
 17:51 UTC. Input remains available; interruption is allowed. Reconfirm only
 when scope/access changes or after that authorization interval.
+
+## Maintained progress checklist
+
+Canonical states, scopes, evidence and transition history live in
+`checklist.json`. The published page is
+`/Users/taylor/src/docs/html/record-screen-strategies/checklist.html`, linked from
+Capture foundations. Completed means verified for the stated scope; candidate
+checks and installed delivery remain separate. Current tests remain paused until
+Taylor resumes. Checklist maintenance does not resume the production goal.
+
+Update after a material evidence/state change (replace the illustrative values
+with the actual result):
+
+```sh
+python3 src/record-screen/qualification/checklist.py update ITEM_ID \
+  --status partial --evidence 'Actual saved result and its limits.' \
+  --next 'Remaining acceptance check.' --anchor ninth-pass
+```
+
+Statuses: `completed`, `partial`, `in_progress`, `needs_retest`, `pending`,
+`deferred`. Use an empty `--next ''` only for a completed scoped check. Update
+scope with `--scope` when acceptance criteria change. Do not mark a pending
+release complete because an isolated candidate passed. Commands save history,
+record Eastern time and immediately regenerate the page.
+
+```sh
+python3 src/record-screen/qualification/checklist.py workflow \
+  --state paused --note 'Taylor requested a pause; no qualification tests running.'
+python3 src/record-screen/qualification/checklist.py validate
+python3 src/record-screen/qualification/checklist.py render
+```
+
+`render-report.py --evidence EXISTING_PRIVATE_BUNDLE --output
+/Users/taylor/src/docs/html/record-screen-strategies/capture-readiness.html`
+regenerates both pages and preserves the reciprocal links. Verify that all
+checklist evidence anchors exist in the report and the published revision
+matches the canonical ledger. Read `../AGENTS.md` for the required update policy.
