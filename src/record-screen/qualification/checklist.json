@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T01:16:01-04:00",
+  "updated_at": "2026-10-09T01:35:19-04:00",
   "workflow": {
     "state": "active",
-    "note": "Installed Input Monitoring is enabled and the native delivered-event canary passed. Continue keyboard/relevance and popup depth checks; retain partial evidence and avoid rerunning settled work."
+    "note": "Keyboard semantics and the cross-app default-filter repair are verified on the signed installed build. Temporary fixtures are settled; physical input remains pending. Continue high-impact popup/app and resource qualification."
   },
-  "production_note": "Native 767d45f6ce40 remains installed. Chrome native select display-layer source and explicit cleanup passed; window/application lanes omit this surface. Input Monitoring awaits human authentication/canary; full insurance, resource budgets and broader app/input quality remain open.",
+  "production_note": "Signed build 53b202f58af8 is installed and verified through a fenced update. Input Monitoring survived and the changed keyboard-scope boundary passed a fresh delivered-event canary. Broader physical/provider, app, motion/resource and final production qualification remain open.",
   "groups": [
     {
       "id": "capture",
@@ -188,10 +188,10 @@
           "title": "Qualify dense pointer, keyboard and gesture telemetry",
           "status": "partial",
           "scope": "Delivered keys, modifiers, motion, clicks, scroll and drag with bounded callback work.",
-          "evidence": "Fresh installed listener retained 17 input rows, six exact app-delivery joins and four targeted shortcut transitions. Zero observed input gaps, queue overflow or journal loss; provider callbacks exceeded app-delivery rows, so neither proves physical trajectory density.",
-          "next": "Qualify physical rate, touchpad phases and richer keyboard scope; sparse native CUA gestures cannot establish dense physical capture.",
-          "anchor": "twenty-sixth-pass",
-          "updated_at": "2026-10-09T01:16:01-04:00"
+          "evidence": "Fresh listening native oracle retained 12 exact delivered keys and two real shortcuts; installed destination repair passed a second targeted source check. Sparse provider gestures and keyboard probes do not prove physical rates. A bounded human request ended without delivery/reply and remains pending.",
+          "next": "Qualify physical keyboard/pointer rate and touchpad phases when user is ready, then other providers; do not replay the completed grant/keyboard-source checks.",
+          "anchor": "twenty-seventh-pass",
+          "updated_at": "2026-10-09T01:35:19-04:00"
         },
         {
           "id": "ordered-input-loss",
@@ -208,10 +208,10 @@
           "title": "Separate session events from unrelated user activity",
           "status": "partial",
           "scope": "Retain delivery and action-context reasons, broad shortcuts and uncertain candidates.",
-          "evidence": "Installed source retained four fixture-addressed shortcut transitions despite another app being globally foreground, attached to exact declared action. Six gesture delivery joins pass; source PID/action interval remain clues, not authenticated actor identity. Prior uncertainty, context and joining-loss evidence retained.",
-          "next": "Test same-app concurrent human/agent activity, global shortcuts and keyboard delivery semantics while keeping uncertain candidates and explicit reasons.",
-          "anchor": "twenty-sixth-pass",
-          "updated_at": "2026-10-09T01:16:01-04:00"
+          "evidence": "Cross-app failure exposed foreground leakage despite explicit other-app destination. Installed53b202f58af8 repair excludes both unmodified transitions, preserves four shortcut candidates and unknown-destination fallback. Same-app other-window keys remain explicit unresolved candidates without wrong action IDs.",
+          "next": "Qualify physical/global input and simultaneous same-app human/agent activity; preserve unknown ownership and generous same-app keyboard coverage.",
+          "anchor": "twenty-seventh-pass",
+          "updated_at": "2026-10-09T01:35:19-04:00"
         },
         {
           "id": "protected-input",
@@ -238,10 +238,10 @@
           "title": "Connect rich semantic blocks to capture milestones",
           "status": "partial",
           "scope": "Intent, before/after context and verification evidence for later precise cues.",
-          "evidence": "Typed outcomes support bounded expected_outcome/observed_state/cleanup_plan alongside method/summaries and evidence references. Actual source/native episodes preserve readiness failure vs pixel verification and pending cleanup, without promoting missing input coverage.",
-          "next": "Expand real app milestone/context and routine provider coverage; visual/audio annotation synthesis remains deferred.",
-          "anchor": "twenty-third-pass",
-          "updated_at": "2026-10-09T00:38:40-04:00"
+          "evidence": "Native oracle supplied two actual shortcut-executed milestones with no text field and exact retained key joins, plus cross-app semantic execution after the repair. Service action intent and separate verification/cleanup remain available; app milestones were authored oracle observations.",
+          "next": "Extend real daily-app milestones and routine consumer context; generic semantic detection and later visual/audio synthesis remain open.",
+          "anchor": "twenty-seventh-pass",
+          "updated_at": "2026-10-09T01:35:19-04:00"
         },
         {
           "id": "provider-gaps",
@@ -262,6 +262,16 @@
           "next": "",
           "anchor": "twenty-sixth-pass",
           "updated_at": "2026-10-09T01:15:27-04:00"
+        },
+        {
+          "id": "keyboard-scope-canary",
+          "title": "Verify real shortcuts and destination-aware keyboard scope",
+          "status": "completed",
+          "scope": "Authored native two-window shortcut oracle on767d45f6ce40 and changed cross-app boundary on installed53b202f58af8; no physical/global coverage or actor identity.",
+          "evidence": "Two-window oracle proved 12 exact key joins/two real shortcuts without a text field. Failed cross-app take preserved; installed repair excluded two unrelated unmodified transitions and retained four bounded shortcut candidates. Twelve focused +141 mechanical/input/action checks passed; 373 exact muxed/source samples.",
+          "next": "",
+          "anchor": "twenty-seventh-pass",
+          "updated_at": "2026-10-09T01:35:19-04:00"
         }
       ]
     },
@@ -456,10 +466,10 @@
           "title": "Verify the quality of recent shared computer-use workflows",
           "status": "partial",
           "scope": "Assess delivered actions, verification and cleanup rather than tool-call counts.",
-          "evidence": "Five owned scopes now have typed audit: four verified checks/one failed readiness, one completed/four partial cleanup, no uncovered or truncated persisted rows. Fresh native skill click and installed input canaries published separately. Historical 31-chat/2655-call inventory remains ungraded.",
-          "next": "Expand routine supported workflows and deeper keyboard/provider coverage; do not infer historical success or actor identity from reported scopes.",
-          "anchor": "twenty-sixth-pass",
-          "updated_at": "2026-10-09T01:15:28-04:00"
+          "evidence": "New keyboard session reports seven scopes: five verified/one failed/one not checked, all seven cleanup completed, no uncovered or truncated rows. Prior failed take and expired unanswered human request remain explicit. Separate gesture cleanup closed old fixture/session; historical call corpus ungraded.",
+          "next": "Expand routine supported-provider quality coverage and pending physical/global checks, without inferring historical task success or actor identity.",
+          "anchor": "twenty-seventh-pass",
+          "updated_at": "2026-10-09T01:35:19-04:00"
         },
         {
           "id": "receipt-integration",
@@ -552,10 +562,10 @@
           "title": "Finish agent usage and recovery runbooks",
           "status": "partial",
           "scope": "Capabilities, gaps, deadlines, semantic blocks, app facts, effort and collision/recovery guidance.",
-          "evidence": "Native skill shared-evidence reference is live and tested with fresh delivered click/public CLI import. Approved Input Monitoring procedure now has enabled-switch, fenced-restart and actual telemetry proof. Cleanup/verification are separate; Chrome display-layer runbook retains scoped limits.",
-          "next": "Complete keyboard/global relevance depth, remaining daily-app lanes and measured motion insurance/resource estimates.",
-          "anchor": "twenty-sixth-pass",
-          "updated_at": "2026-10-09T01:15:28-04:00"
+          "evidence": "Keyboard fixture/verifier reproduce related pass, original default-filter failure and installed repair. Current guide separates known destination, unknown foreground fallback, bounded shortcut/all candidates and unresolved same-app window ownership. All owned fixtures/session cleanup read back.",
+          "next": "Complete remaining app/popup depth, physical/provider coverage and measured motion/resource estimates before final full-scope guidance.",
+          "anchor": "twenty-seventh-pass",
+          "updated_at": "2026-10-09T01:35:19-04:00"
         },
         {
           "id": "visual-composition",
@@ -1102,6 +1112,69 @@
       "from": "partial",
       "to": "partial",
       "note": "Installed source retained four fixture-addressed shortcut transitions despite another app being globally foreground, attached to exact declared action. Six gesture delivery joins pass; source PID/action interval remain clues, not authenticated actor identity. Prior uncertainty, context and joining-loss evidence retained."
+    },
+    {
+      "kind": "item",
+      "id": "event-relevance",
+      "at": "2026-10-09T01:25:35-04:00",
+      "from": "partial",
+      "to": "needs_retest",
+      "note": "Native two-window canary verified 12 exact key joins and two real shortcuts. Cross-app take exposed two unrelated unmodified transitions retained from foreground fallback despite explicit other-app destination. Failed take preserved; destination-aware repair passes 12 focused checks and fenced delivery is underway."
+    },
+    {
+      "kind": "item",
+      "id": "keyboard-scope-canary",
+      "at": "2026-10-09T01:35:19-04:00",
+      "from": "pending",
+      "to": "completed",
+      "note": "Two-window oracle proved 12 exact key joins/two real shortcuts without a text field. Failed cross-app take preserved; installed repair excluded two unrelated unmodified transitions and retained four bounded shortcut candidates. Twelve focused +141 mechanical/input/action checks passed; 373 exact muxed/source samples."
+    },
+    {
+      "kind": "item",
+      "id": "event-relevance",
+      "at": "2026-10-09T01:35:19-04:00",
+      "from": "needs_retest",
+      "to": "partial",
+      "note": "Cross-app failure exposed foreground leakage despite explicit other-app destination. Installed53b202f58af8 repair excludes both unmodified transitions, preserves four shortcut candidates and unknown-destination fallback. Same-app other-window keys remain explicit unresolved candidates without wrong action IDs."
+    },
+    {
+      "kind": "item",
+      "id": "semantic-context",
+      "at": "2026-10-09T01:35:19-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Native oracle supplied two actual shortcut-executed milestones with no text field and exact retained key joins, plus cross-app semantic execution after the repair. Service action intent and separate verification/cleanup remain available; app milestones were authored oracle observations."
+    },
+    {
+      "kind": "item",
+      "id": "dense-events",
+      "at": "2026-10-09T01:35:19-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Fresh listening native oracle retained 12 exact delivered keys and two real shortcuts; installed destination repair passed a second targeted source check. Sparse provider gestures and keyboard probes do not prove physical rates. A bounded human request ended without delivery/reply and remains pending."
+    },
+    {
+      "kind": "item",
+      "id": "workflow-audit",
+      "at": "2026-10-09T01:35:19-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "New keyboard session reports seven scopes: five verified/one failed/one not checked, all seven cleanup completed, no uncovered or truncated rows. Prior failed take and expired unanswered human request remain explicit. Separate gesture cleanup closed old fixture/session; historical call corpus ungraded."
+    },
+    {
+      "kind": "item",
+      "id": "agent-runbooks",
+      "at": "2026-10-09T01:35:19-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Keyboard fixture/verifier reproduce related pass, original default-filter failure and installed repair. Current guide separates known destination, unknown foreground fallback, bounded shortcut/all candidates and unresolved same-app window ownership. All owned fixtures/session cleanup read back."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T01:35:19-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Keyboard semantics and the cross-app default-filter repair are verified on the signed installed build. Temporary fixtures are settled; physical input remains pending. Continue high-impact popup/app and resource qualification."
     }
   ]
 }

@@ -362,3 +362,28 @@ src/record-screen/qualification/recorded-workflow.test.mjs` for outcome linking,
 uncovered/future/conflicting/truncated claims, scope/payload refusal and exactly
 once callback/hook behavior. See the shared CAPABILITY-EVIDENCE.md contract for
 the CLI/MCP audit. Explicit reported results stay separate from evidence truth.
+
+### Keyboard delivery and relevance oracle
+
+`keyboard-fixture.swift` creates two owned AppKit windows with a key sink and a
+real Command+Shift+K menu action; no text field is required. It logs delivered
+codes/flags/raw CG timestamps and window clues beside its bundle, without text,
+a global tap or input synthesis. Compile into a private bundle using the existing
+native-fixture recipe, launch through supported native UI, and inspect readiness.
+
+Use `verify-keyboard.py --recording /absolute/saved-recording-reply.json
+--delivered /absolute/keyboard-delivered-PID.jsonl --action
+/absolute/terminal-action.json --mode related --output /absolute/proof.json`.
+Repeat `--action` for both windows. Related mode checks all delivered keys,
+semantic execution, unresolved keyboard window ownership and action-token
+separation. `--mode cross-app-shortcuts` checks an actual different-app
+unmodified key plus shortcut: default unmodified exclusion, bounded candidate
+retention and no stronger foreground claim. Original negative proof is valuable;
+never replace it with a later passing take. Separately run verify-journal.py.
+
+`keyboard-relevance-test.swift` compiles with the shared native
+InteractionScope.swift using swiftc -parse-as-library -O. Its12 focused checks
+cover known-other destination versus foreground, unknown physical destination,
+protected input, target-app keys and none/shortcuts/all configuration. It supplies
+no live physical/provider or actor proof. Full input-test.swift uses engine sources
+except main.swift and the shared native sources;141 checks passed for this repair.

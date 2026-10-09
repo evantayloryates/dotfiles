@@ -562,3 +562,14 @@ roadmap in [qualification/PRODUCTION-GOAL.md](qualification/PRODUCTION-GOAL.md).
 Input provenance, supported automatic receipts, cross-display/sleep, daily-app
 menus and realistic resource budgets remain qualification work. Visual effects
 and composition recipes are deferred.
+
+### Destination-aware keyboard recovery (October 9)
+
+Installed signed build53b202f58af8 tightens the keyboard foreground fallback:
+when the CG destination names a different app, global foreground alone no longer
+retains its unmodified keys. Unknown/nonpositive destinations retain the fallback.
+Target-app keys remain generous with explicit unresolved window ownership;
+bounded shortcut candidates and explicit all mode remain configurable. The old
+failed cross-app take is retained beside the installed passing take, with exact
+app-delivery joins and real shortcut execution. See qualification/GATES.md,
+twenty-seventh pass. Actor identity and physical/global completeness stay open.

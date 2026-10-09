@@ -1,5 +1,56 @@
 # Qualification update — October 9, 2026
 
+## Twenty-seventh pass: keyboard semantics and a repaired cross-app boundary
+
+Authored keyboard-fixture.swift supplies two native windows, a canvas with no
+text field and a real Command+Shift+K menu action. NSApplication delivery logs
+retain only key codes, flags, raw timestamps and window/PID clues, no characters,
+global tap or input synthesis. Initial compiler type-check failure was repaired
+by splitting the typed row; initial source/log remain private.
+
+The first take rec_edyj9gnd finalized208 exact muxed/source samples. Twelve
+app-delivered key transitions and two actual shortcut executions joined retained
+source exactly. Six deliveries belonged to the second same-app window while the
+recording targeted the first. All stayed app_delivery_window_unresolved; second
+window keys inherited neither first-window nor second-window action IDs. This
+is intentional generous app-key coverage with uncertainty, not exact window or
+actor filtering. Fresh AX counters confirmed each shortcut once.
+
+Cross-app take rec_2v59cnnm finalized76 exact samples but FAILED its relevance
+check: two unmodified transitions explicitly delivered to a different app were
+retained because the foreground snapshot named the recording app. Four shortcut
+transitions also claimed foreground fallback. App delivery is a stronger clue
+than global focus in this observed native provider. Failed take/proof remain.
+
+InteractionScope now uses foreground fallback only when keyboard destination
+is unknown/nonpositive. A known other destination excludes unmodified typing
+unless explicit all mode opts into bounded candidates. Declared shortcut and
+modifier candidates remain; destination-targeted app keys, protected omission,
+unknown-destination fallback and pointer behavior are preserved. Twelve focused
+checks and141 existing mechanical/input/action checks passed. One fenced build
+installed signed53b202f58af8/PID88833; Screen Recording and the fresh Input
+Monitoring subscription remained granted without another human prompt.
+
+Only the changed cross-app boundary was repeated. rec_4qqnjgzm supplied89 exact
+samples, excluded both unrelated unmodified transitions and retained all four
+shortcut/modifier candidates with exactly declared_action_keyboard_candidate.
+The other app executed its shortcut once again. Zero input gaps, queue overflow
+or journal loss observed in these three takes; total373 muxed/source samples.
+This does not qualify physical rate, global OS shortcuts or simultaneous actors.
+verify-keyboard.py reproduces the related pass, prior negative and repaired pass
+from saved replies/actions/oracle logs without new UI. Three exact app facts
+were appended/read back centrally; recorder build is in capture_mode and unknown
+provider/profile dimensions keep reuse unconfirmed. A fact reader's value shape
+was corrected without duplicating the original immutable observation.
+
+Main keyboard fixture and earlier gesture fixture were closed through native
+UI; independent known-PID/window inventories proved absence, without relaunch.
+Both sessions closed. The bounded human physical-key request ended without
+a reply or any app delivery; its action expired at its declared deadline, and
+that check remains pending rather than a failed input claim. The remaining
+window was closed once; known-PID/window absence and recorder idle read back. Raw logs/footage remain private gates-v27. Broad keyboard relevance,
+provider/physical completeness, other apps and motion insurance remain open.
+
 ## Twenty-sixth pass: installed Input Monitoring recovered with delivered proof
 
 Taylor reauthorized the specific permission setup and completed the human

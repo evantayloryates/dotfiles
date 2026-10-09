@@ -620,3 +620,32 @@ Next: keyboard delivery oracle and targeted/global shortcut relevance, then popu
 ownership/geometry and built-in fallback; motion insurance only with measured
 readiness/health. Do not repeat settled timestamp/gesture pixel work or revoke
 the new grant. User display interval through Oct9 17:51 UTC. Goal remains active.
+
+## Twenty-seventh-pass keyboard boundary checkpoint
+
+Two-window native oracle proved actual shortcuts without text fields:12 exact
+key joins/two semantic executions. Same-app second-window keys remain retained
+with unresolved window ownership and no wrong action token. Different-app
+canary exposed a real default leak through foreground fallback despite known
+other destination. Preserve failed76-sample take. Only that boundary changed:
+unknown-destination fallback stays; explicit other-app unmodified keys exclude,
+bounded shortcut/all candidates and delivered target-app keys stay configurable.
+
+12 focused +141 mechanical/input/action checks passed. Signed53b202f58af8 now
+installed/PID88833 through one fenced build. New small89-sample take passed actual
+exclusion of two unmodified transitions and retention of four shortcut candidates,
+with real shortcut execution. Input grant survived. Three capture takes supplied
+373 exact muxed/source samples; original failure remains. Exact shared app facts
+include recorder version and were read back; unknown provider/profile prevents
+unconfirmed reuse. Owned main keyboard and prior gesture fixtures closed;
+old gesture session settled. Cross-app window is temporarily retained for one
+bounded physical-key request. Continue popup geometry/built-in lane and physical
+coverage as available; no phase reset or repetition of settled pixels/clocks.
+
+Physical request settlement:90s take ended without app delivery/human reply;
+no physical success/failure inference. Action expired explicitly, not replayed.
+Remaining owned fixture closed and known PIDs21631/85355/86697 absent; both
+sessions closed, input subscribers/actions/unfinished takes zero. Seven new-session
+scopes have five verified/one failed/one not-checked observations, cleanup complete.
+Next unblocked lane: popup ownership/geometry and built-in overflow fallback;
+physical tests await a ready user, not repeated requests or blocked-goal status.

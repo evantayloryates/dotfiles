@@ -31,6 +31,10 @@ final class TestClock: @unchecked Sendable {
     context.actionIDs=[]
     check(!policy.evaluate(key,context).retain,"all requires bounded action")
     context.foregroundPID=100
+    check(!policy.evaluate(key,context).retain,"known other destination beats foreground for unmodified keys")
+    context.actionIDs=["a"];context.ambiguousKeys="shortcuts";key.flags=1<<20
+    check(policy.evaluate(key,context).reasons==["declared_action_keyboard_candidate"],"known other app shortcut remains bounded candidate without foreground claim")
+    key.flags=0;context.actionIDs=[];key.destinationPID=0
     check(policy.evaluate(key,context).reasons==["foreground_app_candidate"],"foreground fallback remains candidate")
     context.foregroundPID=0
     var pointer=InteractionSample(type:5,receivedNS:200,destinationPID:100,windowUnderPointer:11,x:20,y:20)
