@@ -1,0 +1,6 @@
+#!/bin/sh
+set -eu
+IOS_MCP_ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/../src/ios-agent" && pwd)
+. "$IOS_MCP_ROOT/../lib/resolve-binary.sh"
+IOS_MCP_NODE=$(resolve_binary node)
+exec "$IOS_MCP_NODE" "$IOS_MCP_ROOT/mcp/server.mjs" "$@"

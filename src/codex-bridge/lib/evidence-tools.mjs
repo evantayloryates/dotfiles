@@ -1,4 +1,5 @@
 import { ENTITY_FIELDS, EvidenceStore, validateQuery } from './capability-evidence.mjs'
+import { planCapabilities } from './capability-planner.mjs'
 
 const entity = { type: 'object', additionalProperties: false,
   properties: Object.fromEntries(ENTITY_FIELDS.map(key => [key, { type: 'string', minLength: 1, maxLength: 256 }])), required: ENTITY_FIELDS }
@@ -8,6 +9,11 @@ const integer = { type: 'integer', minimum: 1, maximum: 4294967295 }
 const ns = { type: 'string', pattern: '^[0-9]{1,20}$', description: 'Decimal nanoseconds from the recorder CLOCK_UPTIME_RAW clock; do not substitute wall time or an unqualified clock.' }
 
 export const EVIDENCE_TOOLS = [
+  { name: 'computer_use_plan', description: 'Plan targeted baseline/requalification checks from exact local environment observations. Expiry, conflicts, missing evidence and unknown environment remain explicit. Read-only: no UI/model, evidence fetch, grant, automatic canary or actor inference.',
+    inputSchema: { type: 'object', additionalProperties: false, properties: { entity,
+      capabilities: { type: 'array', minItems: 1, maxItems: 16, uniqueItems: true, items: { type: 'string', minLength: 1, maxLength: 128 } },
+      environment_verified: { type: 'boolean', description: 'Caller confirms all entity dimensions from current metadata. False for any unknown app/provider/version/display/capture scope; planner does not inspect the environment.' },
+    }, required: ['entity', 'capabilities', 'environment_verified'] }, annotations: { readOnlyHint: true, openWorldHint: false } },
   { name: 'computer_use_observe', description: 'Append a reported app/provider capability observation with exact version/surface/display scope and local evidence. Preserves contradictory results. Does not run UI or a model, fetch evidence content, or grant access.',
     inputSchema: { type: 'object', additionalProperties: false, properties: {
       entity, capability: string, result: { type: 'string', enum: ['pass', 'fail', 'mixed', 'unknown'] },
@@ -33,6 +39,7 @@ export const EVIDENCE_TOOLS = [
 
 export function evidenceHandler(name, store = new EvidenceStore()) {
   switch (name) {
+    case 'computer_use_plan': return input => planCapabilities(store, input)
     case 'computer_use_observe': return input => store.put('facts', input)
     case 'computer_use_facts': return input => { validateQuery(input, 'facts'); return store.facts(input.entity, { includeExpired: input.include_expired ?? false, limit: input.limit ?? 20 }) }
     case 'computer_use_receipt': return input => store.put('receipts', input)

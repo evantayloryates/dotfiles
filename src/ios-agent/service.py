@@ -5,6 +5,8 @@ import hashlib
 import hmac
 import json
 import os
+import math
+import stat
 from pathlib import Path
 import secrets
 import signal
@@ -109,11 +111,19 @@ class Broker:
                         "lastRelease": self.last_release,
                         "commands": {k: v["status"] for k, v in self.commands.items()}}
             if op == "acquire":
-                path = Path(request["rollout"]).resolve()
-                base = (Path.home() / ".codex/sessions").resolve()
-                if base not in path.parents or not path.is_file():
-                    raise Rejected("owner_rollout_required")
-                thread, turn, active = owner_state(path)
+                owner_file = request.get("ownerFile")
+                if owner_file:
+                    if request.get("rollout") or not self.state:
+                        raise Rejected("one_owner_source_required")
+                    path = Path(owner_file)
+                    metadata = mcp_owner_state(path, self.state)
+                    thread, turn, active = metadata["id"], metadata["turn"], True
+                else:
+                    path = Path(request.get("rollout", "")).resolve()
+                    base = (Path.home() / ".codex/sessions").resolve()
+                    if base not in path.parents or not path.is_file():
+                        raise Rejected("owner_rollout_required")
+                    thread, turn, active = owner_state(path)
                 if not active or (thread, turn) != (request.get("thread"), request.get("turn")):
                     raise Rejected("owner_not_current_active_turn")
                 if self.lease:
@@ -125,6 +135,8 @@ class Broker:
                 self.lease = {"id": secrets.token_hex(16), "thread": thread, "turn": turn,
                               "rollout": str(path), "offset": path.stat().st_size,
                               "expires": self.clock() + OWNER_TIMEOUT}
+                if owner_file:
+                    self.lease.update(ownerFile=str(path), activityAt=metadata["activityAt"])
                 if self.state and self.config.get("node"):
                     relay = Path(__file__).parent / "react/relay.mjs"
                     try:
@@ -267,6 +279,17 @@ class Broker:
             if not self.lease:
                 return
             lease = self.lease
+            if lease.get("ownerFile"):
+                try:
+                    metadata = mcp_owner_state(Path(lease["ownerFile"]), self.state)
+                    if (metadata["id"], metadata["turn"]) != (lease["thread"], lease["turn"]):
+                        raise Rejected("mcp_owner_changed")
+                    if metadata["activityAt"] > lease["activityAt"]:
+                        lease["activityAt"] = metadata["activityAt"]
+                        lease["expires"] = self.clock() + OWNER_TIMEOUT
+                except (OSError, ValueError, Rejected):
+                    self.revoke("mcp_owner_unavailable")
+                return
             try:
                 path = Path(lease["rollout"])
                 if path.stat().st_size < lease["offset"]:
@@ -296,6 +319,39 @@ class Broker:
                                 lease["expires"] = self.clock() + OWNER_TIMEOUT
             except OSError:
                 self.revoke("owner_log_unavailable")
+
+
+def mcp_owner_state(path, state):
+    """Local stdio clients own a private heartbeat, never synthetic Codex logs.
+
+    Heartbeats prove connection liveness; only tool activity renews the 20-minute
+    silence lease. Same-user control socket remains the existing trust boundary.
+    """
+    root = Path(state).resolve() / "mcp-sessions"
+    if (path.name != "owner.json" or len(path.parent.name) != 32 or
+            any(c not in "0123456789abcdef" for c in path.parent.name) or
+            path.parent.parent != root or path.resolve() != path or
+            any(p.stat().st_mode & 0o077 for p in (root, path.parent))):
+        raise Rejected("private_mcp_owner_required")
+    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+    with os.fdopen(fd) as stream:
+        info = os.fstat(stream.fileno())
+        if not stat.S_ISREG(info.st_mode) or info.st_mode & 0o077 or info.st_size > 1024 or info.st_uid != os.getuid():
+            raise Rejected("private_mcp_owner_required")
+        value = json.load(stream)
+    if not isinstance(value, dict):
+        raise Rejected("mcp_owner_invalid")
+    now = time.time()
+    if (value.get("version") != 1 or value.get("active") is not True or
+            value.get("id") != path.parent.name or
+            not isinstance(value.get("turn"), str) or len(value["turn"]) != 32 or
+            any(c not in "0123456789abcdef" for c in value["turn"]) or
+            type(value.get("pid")) is not int or value["pid"] <= 1 or
+            any(type(value.get(k)) not in (int, float) or not math.isfinite(value[k]) or
+                not 0 <= now - value[k] <= limit for k, limit in (("heartbeatAt", 30), ("activityAt", OWNER_TIMEOUT)))):
+        raise Rejected("mcp_owner_inactive")
+    os.kill(value["pid"], 0)
+    return value
 
 
 def owner_state(path):

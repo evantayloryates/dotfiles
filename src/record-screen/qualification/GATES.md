@@ -1,5 +1,31 @@
 # Qualification update — October 9, 2026
 
+## Twenty-second pass: shared app baseline and requalification planning
+
+computer_use_plan and the standalone evidence CLI now consume the existing
+shared capability store. A caller names exact environment dimensions and 1–16
+capabilities. The planner distinguishes missing, expired, conflicting, mixed,
+unknown, reported failure and reported pass. It plans the affected baseline or
+canary without launching UI, reading evidence contents, requesting grants or
+starting a model. No second recorder-specific app catalog was created.
+
+| Gate | Verified evidence | Limits |
+| --- | --- | --- |
+| Baseline/requalification policy | Six targeted tests passed: changed app/build/OS/provider/display/capture keys do not inherit passes; expired/future claims cannot be reused; conflicts/unknowns remain explicit; unconfirmed environment disables reuse. | Environment confirmation is caller-reported. Actual visibility, permission/helper or workspace changes still need the relevant native check. No automatic UI ingestion/canary or model training. |
+| Truncation and bounds | A failure older than 100 newer pass observations disabled reuse instead of disappearing into latest-pass certainty. At most 1000 regular 64KiB files per exact bucket, 100 evaluated observations and five summaries per capability. Oversized buckets/files and symlinks refused. | Mechanical bounded scan, not a storage/latency budget under every workload. No automatic evidence pruning or archival. |
+| MCP and shared store | All 13 targeted tests passed: six planner, five store, two protocol tests. Fresh MCP advertised five evidence tools and plan readback while all model/child transport paths were forbidden inside servers. | Existing connected clients retain loaded rosters until safe launch. No forced peer restart or delegated UI/model invocation. |
+| Actual prior-lane consumer | CLI queried the stored Chrome native-select entity: its result stayed unknown, a new nested-menu capability remained missing, and unknown environment prevented reuse. | Old uncertain Chrome evidence was not regraded as success or universal failure. |
+| Native evidence feedback | Three reported observations were appended/read from the same central store: gesture pixels pass, readiness mixed, input telemetry unknown. A keyboard-shortcut capability remained missing. All four reuse candidates false because fixture/provider/profile versions are unconfirmed. | Authored fixture scopes and reported provenance only. Pixel success cannot promote input completeness, current readiness or physical density. |
+| Receipt import | Exact terminal recorder replies imported and independently read back: expired/interrupted and closed/delivered. Null/claimed ownership boundaries remained explicit. | Recorder reply is imported evidence, not authenticated actor identity or automatic provider interception. |
+
+The initial suite had one assertion comparing equivalent ISO timestamps with
+different fractional formatting. Normalizing that assertion yielded 13/13;
+the initial test source/finding is retained. No operational rollback or capture
+replay occurred. Manual, explicitly reported learning and targeted planning now
+have consumer evidence; automatic typed delivery/verification/cleanup coverage,
+historical workflow quality and daily-app baseline execution remain open.
+Input Monitoring still awaits human authentication independently of this stage.
+
 ## Twenty-first pass: private signed fallback and forward restoration
 
 The real preserved e0d053bc6732 bundle and current installed 767d45f6ce40 bundle

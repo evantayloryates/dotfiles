@@ -474,6 +474,15 @@ macOS asks again every 30 days. The re-confirm date lives in
 
 ## Capture foundations and qualification
 
+Consult the shared app capability plan before an unfamiliar or changed surface:
+`node /Users/taylor/src/github/dotfiles/src/codex-bridge/evidence.mjs plan
+/absolute/plan-request.json`. The same service exposes `computer_use_plan` to
+fresh MCP consumers. It reports missing/expired/conflicting/unknown evidence,
+exact environment keys and limits; it neither operates UI nor infers success.
+Keep unknown dimensions unconfirmed. Feed actual delivery/pixel/cleanup outcomes
+back into that shared store, including ordinary computer use without recording.
+See `src/codex-bridge/CAPABILITY-EVIDENCE.md` for the request and reuse contract.
+
 Input telemetry needs a separate **Input Monitoring** grant for the installed
 signed `record-screend.app`. Screen Recording permission alone does not supply
 it, and `record-screen grant` only requests Screen Recording. With explicit

@@ -154,7 +154,7 @@ await serveMcp({
   name: 'codex-bridge',
   version: BRIDGE_VERSION,
   instructions:
-    'computer_use_observe/facts/receipt/receipts are local evidence tools: no model, UI, app grants or app-server connection. Native Codex consumers may use these directly without self-delegation. ' +
+    'computer_use_plan/observe/facts/receipt/receipts are local evidence tools: no model, UI, app grants or app-server connection. Native Codex consumers may use these directly without self-delegation. ' +
     'Load the taylor-computer-use skill before the first call: it owns when to delegate, the task shape (posture line, app fence, cleanup), and the stop rule for sending, installing, settings and anything needing Taylor\'s own words. ' +
     'codex_computer_use delegates macOS UI work to the local Codex agent for native apps, system dialogs and anything outside the browser and shell. ' +
     'Grant apps explicitly with apps=[...]; read the "denied" section of results and re-run with grants rather than retrying blindly; codex_close_session when a workstream is done.',

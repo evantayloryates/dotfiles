@@ -54,19 +54,23 @@ function output(result, key) {
 
 test('evidence MCP mutation and readback work with transport/model paths forbidden', () => server('../server.mjs', async (request, state) => {
   const roster = await request('tools/list')
-  assert.equal(roster.tools.filter(t => t.name.startsWith('computer_use_')).length, 4)
+  assert.equal(roster.tools.filter(t => t.name.startsWith('computer_use_')).length, 5)
   const call = (name, args) => request('tools/call', { name, arguments: args })
   const fact = { entity, capability: 'menu', result: 'pass', sample_count: 1, observed_at: '2026-01-01T00:00:00Z', expires_at: '2099-01-01T00:00:00Z', evidence_refs: ['/tmp/synthetic.json'], limits: 'Synthetic only.' }
   const saved = output(await call('computer_use_observe', fact), 'entry')
   const read = output(await call('computer_use_facts', { entity }), 'entries')
   assert.equal(read.length, 1); assert.equal(read[0].id, saved.id)
+  const planned = output(await call('computer_use_plan', { entity, capabilities: ['menu', 'missing'], environment_verified: true }), 'entry')
+  assert.equal(planned.schema, 'computer-use-capability-plan/v1')
+  assert.equal(planned.checks[0].reuse_candidate, true)
+  assert.equal(planned.checks[1].next_check, 'baseline_canary')
   assert.deepEqual(output(await call('computer_use_facts', { entity: { ...entity, app_version: '2' } }), 'entries'), [])
   const receipt = { session_id: 'synthetic-session', caller: 'test', action_id: '1', provider: 'fixture', target: { bundle_id: 'test.fixture' }, clock_domain: 'CLOCK_UPTIME_RAW', start_ns: '9007199254740993', end_ns: '9007199254740995', intent: 'Synthetic', result: 'unknown', evidence_refs: [] }
   const receiptSaved = output(await call('computer_use_receipt', receipt), 'entry')
   const receipts = output(await call('computer_use_receipts', { session_id: receipt.session_id }), 'entries')
   assert.equal(receipts[0].id, receiptSaved.id)
   assert.equal(receipts[0].value.start_ns, receipt.start_ns)
-  for (const [name, args] of [['computer_use_facts', { entity, include_expired: 'false' }], ['computer_use_facts', { entity, limit: 1000 }], ['computer_use_receipts', { session_id: 'synthetic-session', keys: 'accidental' }], ['computer_use_receipt', { ...receipt, clock_domain: 'wall' }]]) {
+  for (const [name, args] of [['computer_use_plan', { entity, capabilities: [], environment_verified: true }], ['computer_use_facts', { entity, include_expired: 'false' }], ['computer_use_facts', { entity, limit: 1000 }], ['computer_use_receipts', { session_id: 'synthetic-session', keys: 'accidental' }], ['computer_use_receipt', { ...receipt, clock_domain: 'wall' }]]) {
     const result = await call(name, args); assert.equal(result.isError, true); assert.equal(result.content[0].type, 'text')
   }
   assert.deepEqual(readdirSync(state), ['capability-evidence'])

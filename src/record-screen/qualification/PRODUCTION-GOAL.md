@@ -528,3 +528,26 @@ baseline planning from exact app/environment facts, expiry/conflict-driven
 requalification and durable typed outcomes. Then targeted daily-app overflow and
 measured motion insurance when native/display readiness is available. Existing
 consumer adapter policy is unknown until safe next launch; no forced restart.
+
+## Twenty-second-pass shared planning checkpoint
+
+Shared computer_use_plan and evidence.mjs plan now turn exact entity facts into
+targeted baseline/requalification checks, keeping expiry, conflicts and missing
+or unknown evidence explicit. Unconfirmed environment and truncated observation
+windows disable reuse; older conflicts cannot disappear into newest-pass claims.
+Six planner + five store + two guarded MCP checks passed. A single test assertion
+needed equivalent ISO timestamp normalization; its original source is retained.
+
+Actual CLI queried the prior Chrome unknown lane without promoting it. Three
+native fixture observations (pixel pass/readiness mixed/input unknown) and two
+terminal recorder replies were written to the existing shared service and
+independently read back. Keyboard shortcuts remain missing; unknown fixture/
+provider/profile versions keep all reuse candidates false. No new capture,
+model, UI, grant or peer restart. Consumers discover the new tool at safe launch;
+native CLI is usable immediately. Evidence is private gates-v22.
+
+Next: typed verification/cleanup outcomes and an evidence-backed workflow audit,
+native shortcut/global-key scope after approved Input Monitoring, then reachable
+daily-app overflow and measured motion insurance/resources. Keep human Touch ID
+lane pending without repeated prompts. Exact app baseline execution and skill
+consumer adoption remain partial; planning alone does not prove UI readiness.

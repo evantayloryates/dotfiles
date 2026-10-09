@@ -1,9 +1,9 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T00:14:24-04:00",
+  "updated_at": "2026-10-09T00:23:15-04:00",
   "workflow": {
     "state": "active",
-    "note": "Private restoration passed without disturbing production. Continue exact app/environment baseline planning and typed workflow evidence while the specifically approved Input Monitoring grant awaits human authentication."
+    "note": "Shared app baseline planning and explicit outcome feedback passed targeted and live readback checks. Continue typed verification/cleanup and workflow quality evidence without rerunning settled phases; approved Input Monitoring remains pending human authentication."
   },
   "production_note": "Native 767d45f6ce40 remains installed with Screen Recording and input_queue_loss:1. Private signed fallback/forward restoration passed with terminal state and explicit checkpoint uncertainty preserved. Native gesture pixels passed; Input Monitoring awaits human authentication and delivered-event canary. Broader qualification remains active.",
   "groups": [
@@ -426,20 +426,20 @@
           "title": "Centralize version-scoped app observations",
           "status": "partial",
           "scope": "Shared reported facts, exact environment keys, expiry and conflicting evidence.",
-          "evidence": "Shared versioned observation store, conflicts/expiry and scoped Chrome facts passed earlier. A new unresolved Chrome native-select readiness case was stored and independently read back with exact entity/value/ID; unknown backend version/result stay unknown, with one-day expiry.",
-          "next": "Reconcile actual consumer use and feed non-recording workflows into the shared fact store; never promote unknown environmental observations into success guarantees.",
-          "anchor": "fourteenth-pass",
-          "updated_at": "2026-10-08T22:16:07-04:00"
+          "evidence": "Existing central immutable facts now have native CLI and fresh guarded MCP planning consumer proof. Three actual native outcomes (pixel pass/readiness mixed/input unknown) appended/read back; prior Chrome unknown retained. Two exact recorder replies imported/read back. 13 targeted tests passed; no model/UI or peer restart.",
+          "next": "Extend skill/ordinary-workflow adoption and typed outcome feedback. Keep unconfirmed provider/profile/version dimensions explicit; no universal readiness from reported pass.",
+          "anchor": "twenty-second-pass",
+          "updated_at": "2026-10-09T00:22:13-04:00"
         },
         {
           "id": "requalification",
           "title": "Build maintained app lanes and breadth-first requalification",
           "status": "partial",
           "scope": "Baseline ingestion for stable daily apps and updates when app/provider/OS behavior changes.",
-          "evidence": "Native, Chrome and Electron lanes have scoped evidence; requalification still depends on explicit test runs.",
-          "next": "Add ingestion, expiry/update triggers and recurring evidence reinforcement without claiming automatic model training.",
-          "anchor": "strategy",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "evidence": "New exact-key planner identifies baseline, expiry, conflicts, mixed/unknown and reported outcomes. Changed app/OS/provider/display/capture keys inherit no pass. Unconfirmed environment/truncated windows disable reuse; older conflict beyond 100 observations tested. Six planning policy tests passed.",
+          "next": "Execute targeted daily-app baseline lanes with current environment metadata and reinforce through routine supported outcomes; planner alone does not run canaries or certify environment.",
+          "anchor": "twenty-second-pass",
+          "updated_at": "2026-10-09T00:22:13-04:00"
         },
         {
           "id": "workflow-audit",
@@ -456,10 +456,20 @@
           "title": "Improve automatic receipt coverage across providers",
           "status": "partial",
           "scope": "Capture durable operation evidence for native and browser actions.",
-          "evidence": "Prior callback/imported receipt evidence retained. New native gesture bracket closed promptly as delivered after five app events; the earlier expired bracket remains interrupted. Native screenshot refusal and observed Raise recovery preserved without fixture restart.",
-          "next": "Integrate typed outcomes automatically where supported; verify action IDs/relevance in fresh granted input rows without attributing actor from brackets.",
-          "anchor": "twentieth-pass",
-          "updated_at": "2026-10-09T00:06:25-04:00"
+          "evidence": "Shared central store imported and exactly read back current native expired/interrupted and closed/delivered recorder replies. Existing callback/imported receipts and deliberate native bracketing remain qualified; actor/result claims stay unverified until source/app evidence.",
+          "next": "Add typed verification and cleanup outcome coverage for supported consumers and audit those receipts; avoid grading historical opaque tool results as success.",
+          "anchor": "twenty-second-pass",
+          "updated_at": "2026-10-09T00:22:13-04:00"
+        },
+        {
+          "id": "shared-baseline-plan",
+          "title": "Plan exact app baselines and targeted requalification",
+          "status": "completed",
+          "scope": "Read-only shared-store planner and native CLI/fresh MCP consumer. Exact version/environment dimensions, expiry/conflict/unknown/truncation policy; no automatic UI or historical success grading.",
+          "evidence": "13 targeted tests passed. Live CLI retained prior Chrome uncertainty; three native reported outcomes and two exact terminal recorder replies were centrally appended/read back. Unknown environment prevented reuse. An older conflict beyond 100 observations, large files/buckets and symlinks all withheld reuse or refused planning.",
+          "next": "",
+          "anchor": "twenty-second-pass",
+          "updated_at": "2026-10-09T00:22:13-04:00"
         }
       ]
     },
@@ -892,6 +902,37 @@
       "from": "active",
       "to": "active",
       "note": "Private restoration passed without disturbing production. Continue exact app/environment baseline planning and typed workflow evidence while the specifically approved Input Monitoring grant awaits human authentication."
+    },
+    {
+      "kind": "item",
+      "id": "app-facts",
+      "at": "2026-10-09T00:22:13-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Existing central immutable facts now have native CLI and fresh guarded MCP planning consumer proof. Three actual native outcomes (pixel pass/readiness mixed/input unknown) appended/read back; prior Chrome unknown retained. Two exact recorder replies imported/read back. 13 targeted tests passed; no model/UI or peer restart."
+    },
+    {
+      "kind": "item",
+      "id": "requalification",
+      "at": "2026-10-09T00:22:13-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "New exact-key planner identifies baseline, expiry, conflicts, mixed/unknown and reported outcomes. Changed app/OS/provider/display/capture keys inherit no pass. Unconfirmed environment/truncated windows disable reuse; older conflict beyond 100 observations tested. Six planning policy tests passed."
+    },
+    {
+      "kind": "item",
+      "id": "receipt-integration",
+      "at": "2026-10-09T00:22:13-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Shared central store imported and exactly read back current native expired/interrupted and closed/delivered recorder replies. Existing callback/imported receipts and deliberate native bracketing remain qualified; actor/result claims stay unverified until source/app evidence."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T00:23:15-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Shared app baseline planning and explicit outcome feedback passed targeted and live readback checks. Continue typed verification/cleanup and workflow quality evidence without rerunning settled phases; approved Input Monitoring remains pending human authentication."
     }
   ]
 }

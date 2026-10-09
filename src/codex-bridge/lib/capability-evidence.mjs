@@ -1,7 +1,7 @@
 // Shared, local evidence for native agents and bridge consumers. No transport,
 // model turn, UI action, grant or source-event collector is started here.
 import { createHash } from 'node:crypto'
-import { closeSync, fsyncSync, linkSync, mkdirSync, openSync, readFileSync, readdirSync, unlinkSync, writeFileSync } from 'node:fs'
+import { closeSync, fsyncSync, linkSync, lstatSync, mkdirSync, openSync, readFileSync, readdirSync, unlinkSync, writeFileSync } from 'node:fs'
 import { join, isAbsolute } from 'node:path'
 import { STATE_DIR } from './state.mjs'
 
@@ -140,19 +140,41 @@ export class EvidenceStore {
     return { id, path: file, value }
   }
   publish(temp, file) { publishNoReplace(temp, file) }
-  list(kind, bucket) {
+  list(kind, bucket, { maxFiles, maxBytes } = {}) {
     if (!['facts', 'receipts'].includes(kind)) fail('invalid kind')
     if (!/^[a-f0-9]{64}$/.test(bucket)) fail('query requires an exact entity or session bucket')
     const directory = join(this.root, kind, bucket)
     let names
     try { names = readdirSync(directory) } catch (error) { if (error.code === 'ENOENT') return []; throw error }
+    const eligible = names.filter(name => /^[a-f0-9]{64}\.json$/.test(name))
+    if (maxFiles !== undefined && eligible.length > integer(maxFiles, 'maxFiles', 1, 1000)) fail('observation bucket exceeds bounded planning scan; inspect/archive explicitly, no reuse recommendation')
+    if (maxBytes !== undefined) integer(maxBytes, 'maxBytes', 1, 65536)
     const entries = []
-    for (const name of names.filter(name => /^[a-f0-9]{64}\.json$/.test(name))) {
-      const entry = JSON.parse(readFileSync(join(directory, name), 'utf8'))
+    for (const name of eligible) {
+      const path = join(directory, name)
+      if (maxBytes !== undefined) {
+        const stat = lstatSync(path)
+        if (!stat.isFile() || stat.size > maxBytes) fail('planning requires bounded regular evidence files')
+      }
+      const entry = JSON.parse(readFileSync(path, 'utf8'))
       if (entry.schema !== 'computer-use-evidence/v1' || entry.kind !== kind || digest(entry.value) !== entry.id || name !== `${entry.id}.json`) fail('corrupt evidence entry')
       entries.push(entry)
     }
     return entries
+  }
+  factSnapshot(entity, { now = Date.now() } = {}) {
+    const wanted = digest(validateEntity(entity))
+    if (!Number.isFinite(now)) fail('invalid query clock')
+    const all = this.list('facts', wanted, { maxFiles: 1000, maxBytes: 65536 })
+    for (const entry of all) {
+      const { provenance, ...input } = entry.value
+      if (canonical(validateFact(input)) !== canonical(entry.value) || digest(entry.value.entity) !== wanted) fail('invalid scoped planning observation')
+    }
+    const future = all.filter(entry => Date.parse(entry.value.observed_at) > now)
+    const eligible = all.filter(entry => Date.parse(entry.value.observed_at) <= now)
+      .sort((a, b) => Date.parse(b.value.observed_at) - Date.parse(a.value.observed_at) || a.id.localeCompare(b.id))
+    return { total: all.length, future_withheld: future.length, truncated: eligible.length > 100,
+      entries: eligible.slice(0, 100).map(entry => ({ ...entry, expired: Date.parse(entry.value.expires_at) <= now })) }
   }
   facts(entity, { now = Date.now(), includeExpired = false, limit = 20 } = {}) {
     const wanted = digest(validateEntity(entity)); integer(limit, 'limit', 1, 100)

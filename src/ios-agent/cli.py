@@ -8,7 +8,7 @@ from pathlib import Path
 import socket
 import sys
 import time
-from service import STATE, owner_state
+from service import STATE, owner_state, mcp_owner_state, Rejected
 
 INSPECTION = {"ping", "status", "get-tree", "get-component", "find", "count", "errors",
               "profile-start", "profile-stop", "profile-report", "profile-slow",
@@ -108,7 +108,9 @@ def main():
     sub = p.add_subparsers(dest="op", required=True)
     sub.add_parser("status")
     acquire = sub.add_parser("acquire")
-    acquire.add_argument("--rollout", type=Path, required=True)
+    owner = acquire.add_mutually_exclusive_group(required=True)
+    owner.add_argument("--rollout", type=Path)
+    owner.add_argument("--owner-file", type=Path, help="private MCP connection lifecycle metadata")
     acquire.add_argument("--lease-file", type=Path, required=True)
     release = sub.add_parser("release")
     release.add_argument("--lease-file", type=Path, required=True)
@@ -126,10 +128,16 @@ def main():
     action_rejected = False
     action_unconfirmed = False
     if a.op == "acquire":
-        thread, turn, active = owner_state(a.rollout)
+        if a.owner_file:
+            metadata = mcp_owner_state(a.owner_file, a.state)
+            thread, turn, active = metadata["id"], metadata["turn"], True
+            message.update(ownerFile=str(a.owner_file))
+        else:
+            thread, turn, active = owner_state(a.rollout)
+            message.update(rollout=str(a.rollout.resolve()))
         if not active:
             raise RuntimeError("owner_not_active")
-        message.update(rollout=str(a.rollout.resolve()), thread=thread, turn=turn)
+        message.update(thread=thread, turn=turn)
         # Reserve the destination before acquiring: a file error must not orphan control.
         fd = os.open(a.lease_file, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
         result = None
@@ -227,6 +235,6 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except (OSError, ValueError, RuntimeError) as e:
+    except (OSError, ValueError, RuntimeError, Rejected) as e:
         print(str(e), file=sys.stderr)
         sys.exit(1)
