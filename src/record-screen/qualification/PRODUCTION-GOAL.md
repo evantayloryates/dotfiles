@@ -1,73 +1,37 @@
 # Production qualification goal
 
-## Current checkpoint: stage80 — ACTIVE
+## Current checkpoint: stage81 — ACTIVE
 
+Native6c238cc1ba80/PID20948 remains unchanged. Current MCP0.18/27tools and CLI
+provide optional exact returned-preview/source joins; older ordinary22-tool
+schema needs the current CLI for newer contracts.73 focused checks pass.
+Stage78 seven actual joins and stage80 actual pre-key40s/later42s pixel boundary
+remain qualified. Coordinates use original mux canvas, fitted origins stay
+refused, and separate mapping failure preserves previews.
 
-A natural native CUA read-only inventory pipe closed after all owned resources
-were settled. Prior sampled UI helperPID24194 absent; cause/recovery unknown.
-Recorder6c/PID20948 unchanged/idle; source hashes and current MCP/CLI retained
-reads survive. Three exact preview joins, four input events/context retained,
-owned reader exits0. No provider/native/peer/host restart, grant or human action.
-Idle separation only; no active-capture fault/partial-media salvage claim.
+After stage80 idle native UI-provider inventory pipe failure, one official reset
+of this chat's CUA client and one inventory read succeeded. No forced shared kill/
+restart or permission change. Stage81 owned native input/source canary then passes:
+two app-local raw key timestamp/keycode matches, four scoped events with pointer
+precursors,77 exact mux/source stamps, zero journal loss and all77 patches decoded
+(31green/44magenta/2boundarymargins). Current MCP reads4scoped/2keyboard events and
+two exact preview joins. Source hashes unchanged/owned readerexits0. Three verified
+cleanupcomplete outcomes, audituncovered0, shared factreadback. Owned fixture
+independently absent/sessionclosed/nativeidle. InputsourcePID40310 sampled path
+is not actor/wrapper/loaded-byte authentication. Sole recovery cause, general or
+active-capture fault recovery, continuous focus/physical timing remain unknown.
 
-Actual40s requested preview returns39.749620806s before key reception39.834917931s,
-so green is correct. Later42s returns41.754621139s and magenta. Both exact source
-joins/sample pixels pass; not physical latency or full-frame/continuous proof.
-Shared scoped fact readback. Preserve the native UI fault and continue independent
-work; do not reacquire/operate closed owned bindings or force shared recovery.
+Stage79 browser provider click changes DOM/counter with no observed global tap
+increment; same-listener native control passes. Its combined browser per-key
+verification remains unknown, shared failure fact is consumed by the planner,
+and semantic action context survives an empty events/gaps result. No Chrome
+video or menu qualification without a native owned target. Future bounded DOM
+event export is prepared but not yet live-qualified. Preserve peer media UI.
 
-
-Stage79 owned browser click changes DOM witness/counter7 with zero observed
-global tap callback delta4→4 across sampled healthy states. Same-listener native
-control then yields four callbacks/two matched keys and183 exact mux/source
-stamps, zero journal loss. Per-browser-event trust/types/key delivery unknown;
-combined browser verification remains unknown. No owned native Chrome window
-match, no Chrome video/menu result, peer media UI preserved. Six terminal typed
-outcomes:5verified/1unknown, allcleanupcomplete/uncovered0. Exact failed coverage
-fact readback and consumed by current planner; unknown provider blocks reuse.
-Owned fixture/tab absent/serverexited/sessionclosed/nativeidle. First rejected
-schedule and caller launch-provider label error preserved; no lost mutation
-replay or stamp rewrite. New fixture DOM event export prepared but not live-tested.
-
-
-Current MCP0.18/27tools and minimal-PATH CLI deliver opt-in preview/source joins.
-Seven actual returned rational decoder timestamps independently match mux/source
-identities: owned witness, black Safari tail and changing child fit. Fitted
-origins stay guarded, mapping failure preserves images, default adds no source
-read.73 focused checks pass. Six source hashes unchanged across CLI; owned reader
-exits0. One scoped fact readback; no native restart, capture, UI or peer refresh.
-Coordinates remain original mux canvas, not resized preview. This is not pixel
-authentication, atomic decode/map isolation or physical presentation calibration.
-Ordinary loaded22-tool schema lacks this option; current CLI is available.
-
-The fresh current-native listener and actual source canary passed. Native
-6c238cc1ba80/PID20948 remains installed. Owned 20-second source rec_e5zd4dg8
-has 80 exact mux/source timestamp joins, zero journal loss and all 80 witness
-patches decoded. Two app-local key handlers match raw CG timestamps/keycodes;
-the oracle did not separately log numeric event types. Before/after patch colors
-pass outside a 250ms boundary margin. Fresh listener/tap active during capture,
-four callbacks, no overflow or fault; last observed listen_access true.
-
-The provider key operation also emitted a title-bar pointer down/up pair. All
-four events carry the same action tag. Keep the pointer pair as possible focus
-preparation, with causation and actor unknown. Keyboard window ownership remains
-unresolved. App ready/key foreground samples identify another app; this is not a
-continuous focus or no-interruption guarantee. No physical input, density,
-provider-clock or raw-coordinate calibration claim.
-
-Stage77 MCP 0.17 returned four scoped events/two keyboard-filtered events with
-context and health. The ordinary frame tool returns actual green/magenta owned
-previews with nonblank coarse diagnostics. Source hashes unchanged after reads,
-owned reader exits0. Three terminal receipts, separate verified/cleanup-complete
-outcomes and one scoped fact read back; audit uncovered0. Fixture independently
-absent, exact session closed, zero unfinished recordings/scopes/subscribers.
-
-Stage76 retained pixel controls and signed-state preservation remain qualified;
-stage75 shared app-learning and stage74 source retry proofs retained. Checklist:
-45 completed,18 partial,1 deferred; full goal active, composition deferred. Explicit
-AFK access ends conservatively23:20UTC. Next pursue a genuinely missing useful
-boundary; no physical input, authentication, sleep/revocation, peer disruption or
-repeat of this passed canary.
+Checklist45completed18partial1deferred/fullgoalactive. Composition remains deferred.
+Explicit AFK authorization ends conservatively23:20UTC. Continue genuinely missing
+boundaries without physical input, authentication or disruptive sleep/revocation.
+Do not repeat passed source/canaries unless a changed boundary warrants it.
 
 ## Remaining work: ordered acceptance batches
 

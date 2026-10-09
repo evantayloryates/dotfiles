@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T18:58:52-04:00",
+  "updated_at": "2026-10-09T19:03:43-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage80 complete: a native UI inventory connection failed after capture cleanup. Recorder stayed unchanged/idle; retained hashes, current readers, three exact preview joins and input/context survived.40-second request actually returned a pre-key green frame; later joined frame is magenta. Idle fault isolation qualified, active-capture fault/recovery remains open. Continue independent work without human or shared-service restart."
+    "note": "Stage81 complete: one official reset of this chat’s CUA client/read recovered inventory, then actual owned native delivery passed. Two raw key matches,77 exact mux stamps/all decoded patches; current MCP input/preview joins verified. Three verified outcomes, cleanup complete, no shared kill/restart or permission change. Current UI read/delivery canary recovered; active-fault salvage and human/physical gates remain open."
   },
-  "production_note": "Native6c/PID20948 unchanged; current MCP0.18/CLI and retained source/input reads verified after an idle native UI-provider disconnect. All owned resources already settled; no shared restart or new capture. Three exact preview joins, source hashes unchanged; requested time can precede the actual content boundary after decoder selection. UI provider cause/recovery unverified. Browser-provider gap and fresh native listener proof retained.45 completed,18 partial,1 deferred; full goal active.",
+  "production_note": "Native6c/PID20948 unchanged. After idle UI-provider fault, own-client reset/read succeeded and an owned source verified two delivered keys,77 exact mux/source stamps and all witness patches. Current MCP0.18/27tools reads4scoped/2keyboard events and2exact preview joins; hashes unchanged, readerexits0. Three verified cleanupcomplete outcomes, fixture absent/sessionclosed/nativeidle. Recovery is scoped, cause/general recovery/physical rate unknown; ordinary22-tool full adoption remains open.45 completed,18 partial,1 deferred.",
   "groups": [
     {
       "id": "capture",
@@ -318,10 +318,10 @@
           "title": "Qualify missing-event and tap-fault behavior",
           "status": "partial",
           "scope": "Expose virtual-input gaps, revoked access, disabled taps and overload.",
-          "evidence": "Stage79 owned browser click changes DOM witness/counter7 while sampled healthy global tap callbacks4→4. Counter increments before per-recording filtering; same-listener native control4→8 with two key matches. No fault/overflow. Browser per-event trust/types/key delivery unknown; shared coverage fact reports failure.",
-          "next": "Qualify missing physical revocation/natural timeout and initial OS/per-key bounds when isolated. Preserve this provider gap; empty events/gaps and a grant cannot certify delivery.",
-          "anchor": "seventy-ninth-pass",
-          "updated_at": "2026-10-09T18:54:05-04:00"
+          "evidence": "Stage79 browser DOM click/counter changes while global callbacks4→4; same-listener native control4→8. Stage81 recovered native client delivers two raw key matches/four scoped events with healthy listener,77 exact source/mux stamps. Browser per-event trust/key details and physical/revocation bounds remain unknown.",
+          "next": "Qualify remaining physical revocation/natural timeout and per-key bounds when isolated. Keep browser/provider failure evidence separate from the recovered native canary.",
+          "anchor": "eighty-first-pass",
+          "updated_at": "2026-10-09T19:03:43-04:00"
         },
         {
           "id": "installed-input-access",
@@ -414,10 +414,10 @@
           "title": "Verify remaining encoder/OS failure paths without harming peer takes",
           "status": "partial",
           "scope": "Avoid widening a local failure into an unexpected service interruption.",
-          "evidence": "Stage80 native CUA read-only inventory pipe closed after all owned capture cleanup. Prior sampled helperPID24194 absent; cause/recovery unknown. Recorder6c/PID20948 unchanged/idle; source hashes and current MCP/CLI retained reads survive: three exact preview joins, four events/context. No shared restart.",
-          "next": "Observe a useful natural active-capture fault with exact partial media/peers when it occurs; preserve this idle isolation proof without forcing host-wide failure or replaying source footage.",
-          "anchor": "eightieth-pass",
-          "updated_at": "2026-10-09T18:58:52-04:00"
+          "evidence": "Stage80 natural idle CUA read fault leaves recorder and retained readers/hashes available. Stage81 official own-client reset/read succeeds, then two delivered key matches/77exact mux joins/all witness patches pass. No forced shared kill/restart or permission change. Native6c/PID20948 unchanged/idle; three verified cleanupcomplete outcomes.",
+          "next": "Observe useful natural active-capture fault/partial media when it occurs. Preserve this idle separation and scoped client recovery; do not assume sole cause, universal recovery or repeat canaries without another changed boundary.",
+          "anchor": "eighty-first-pass",
+          "updated_at": "2026-10-09T19:03:43-04:00"
         },
         {
           "id": "single-motion",
@@ -556,10 +556,10 @@
           "title": "Verify the quality of recent shared computer-use workflows",
           "status": "partial",
           "scope": "Assess delivered actions, verification and cleanup rather than tool-call counts.",
-          "evidence": "Stage79 six terminal imported receipts, five verified/one unknown and six cleanupcomplete outcomes; audit uncovered0. Browser combined click/key verification stays unknown because only click/counter independently observed. Raw native-launch provider label error explicitly corrected in typed summary; no stamp rewriting.",
-          "next": "Continue targeted observation at a new useful boundary; preserve unknown per-key verification and reported-provider limits, without repeating settled workflow audits.",
-          "anchor": "seventy-ninth-pass",
-          "updated_at": "2026-10-09T18:54:05-04:00"
+          "evidence": "Stage81 three terminal receipts/verified outcomes/cleanupcomplete, audit uncovered0; actual recovered native delivery and all77 decoded witness patches corroborate. Stage79 fiveverified/oneunknown preserved; no retroactive scope for failed idle inventory read and no old ordinary-adapter adoption claim.",
+          "next": "Continue targeted workflow observation only at a new useful boundary; retain caller/provider uncertainty, unknown browser per-key verification and existing failed history.",
+          "anchor": "eighty-first-pass",
+          "updated_at": "2026-10-09T19:03:43-04:00"
         },
         {
           "id": "receipt-integration",

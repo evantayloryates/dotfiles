@@ -3439,3 +3439,30 @@ authentication claim. Initial40s green sample retained, not treated as lost key
 or source regression. Shared scoped reader-isolation fact readback; no invented
 retroactive action receipt for failed inventory. Privategates-v80 summary/proof.
 Checklist45completed18partial1deferred/fullgoalactive.
+
+## Stage81 — scoped client recovery followed by actual native delivery
+
+Official cua_repl.js_reset resets only this chat's client; next single getState
+read returns native/browser inventories without errors, owned prior tab/witness
+absent. No forced shared process kill/restart, permission/config change or host
+operation. Sole cause/general recovery not established. SourcePID40310 and
+sampled process path are not actor, wrapper-version or loaded-byte authentication.
+
+Owned new19s window take on unchangednative6c/PID20948 verifies fresh listener
+and recovered provider: four scoped events1/2/10/11, two app-local rawCG stamps/
+keycodes match (oracle does not separately log numeric type).77actual mux/source
+stamps exact, zero journal loss; all77 patches decoded31greenbefore44magentaafter
+with2within250msmargins. Foreground samples another app, no continuous isolation.
+Pointer precursors/keyboardwindowunresolved/rawcoordinateuncertainty retained.
+Current MCP0.18/27tools returns4scoped/2keyboard events/context/health and2exact
+preview joins; source hashes unchanged/readersettle0. Three typed verified/
+cleanupcomplete outcomes/uncovered0 and scoped fact readback. Owned fixture
+independently absent, sessionclosed/nativeunchangedidle. No active-fault salvage,
+physical density/timing or ordinary full adapter adoption claim. A copied helper
+summary labelordinary_fields_available was corrected tofresh_native_frame_fields
+with original template summary retained, without rerunning UI/reads.
+
+Privategates-v81 verification/summary. Checklist45completed18partial1deferred,
+fullgoalactive. This changed-provider canary is qualified; do not repeat without
+a new boundary. Next qualify a useful missing DOM semantic export or available
+real popup surface, preserving unknown physical/provider cases and peer UI.
