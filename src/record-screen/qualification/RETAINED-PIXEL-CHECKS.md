@@ -61,3 +61,10 @@ that preserve black-tail diagnostics. Minimal-PATH CLI/MCP maps agree; six sourc
 hashes are unchanged across CLI reads. All73 affected checks pass, including
 held references, fractional nanoseconds, missing fields, mismatch, invalid
 requests and separate mapping failure. No new capture or native restart.
+
+Stage80 provides an actual boundary example: a40-second request returns a frame
+at39.749620806s, before key reception39.834917931s. Its green witness is correct.
+A42-second request returns41.754621139s with magenta. Both exact source joins and
+authored patch samples pass. Compare actual returned identity and source content
+before diagnosing a missed event; requested time alone is insufficient. This
+measures retained media/reception order, not physical presentation latency.

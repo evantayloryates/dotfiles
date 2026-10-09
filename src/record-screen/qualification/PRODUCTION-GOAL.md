@@ -1,6 +1,20 @@
 # Production qualification goal
 
-## Current checkpoint: stage79 — ACTIVE
+## Current checkpoint: stage80 — ACTIVE
+
+
+A natural native CUA read-only inventory pipe closed after all owned resources
+were settled. Prior sampled UI helperPID24194 absent; cause/recovery unknown.
+Recorder6c/PID20948 unchanged/idle; source hashes and current MCP/CLI retained
+reads survive. Three exact preview joins, four input events/context retained,
+owned reader exits0. No provider/native/peer/host restart, grant or human action.
+Idle separation only; no active-capture fault/partial-media salvage claim.
+
+Actual40s requested preview returns39.749620806s before key reception39.834917931s,
+so green is correct. Later42s returns41.754621139s and magenta. Both exact source
+joins/sample pixels pass; not physical latency or full-frame/continuous proof.
+Shared scoped fact readback. Preserve the native UI fault and continue independent
+work; do not reacquire/operate closed owned bindings or force shared recovery.
 
 
 Stage79 owned browser click changes DOM witness/counter7 with zero observed

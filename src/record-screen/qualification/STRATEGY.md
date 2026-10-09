@@ -1,6 +1,6 @@
 # Capture foundations: qualified strategy and remaining boundaries
 
-Current checkpoint: October9,2026, stage79. Signed native6c238cc1ba80 is installed;
+Current checkpoint: October9,2026, stage80. Signed native6c238cc1ba80 is installed;
 current CLI and fresh owned MCP0.18/27 tools carry the latest contracts. Existing
 ordinary chat exposes22 older tools, so use current CLI for missing input queries,
 source maps, planning and declaration-only launch contexts. Preserve peer servers.
@@ -21,6 +21,9 @@ One owned browser-provider sample changes DOM state without observed global tap
 callbacks; the same listener passes a native control. Keep provider semantic
 marks/app milestones separate from OS events and per-key verification unknown
 when only a tool acknowledgment/focus is available. See BROWSER-PROVIDER-INPUT.md.
+A later native UI inventory connection failed after cleanup; recorder/current
+retained readers stayed available without a shared restart. This qualifies idle
+separation, not active-capture salvage or the UI provider’s cause/recovery.
 Final cursor/effect styles and composition are deferred.
 
 ## Supported source and interaction strategy

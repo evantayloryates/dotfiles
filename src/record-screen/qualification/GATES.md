@@ -3417,3 +3417,25 @@ exact sessionclosed/native6c/PID20948 idle. One shared exact Chrome coverage fac
 reportsfail; current planner returnsreported_failure/reusefalse and retains
 unknown provider dimension, facthashunchanged. Privategates-v79 summary/proof.
 Checklist45completed18partial1deferred/fullgoalactive. SeeBROWSER-PROVIDER-INPUT.md.
+
+## Stage80 — natural idle UI-provider fault and actual preview boundary
+
+Native CUA listApps read fails with closed native pipe after all owned episode79
+resources were settled. No UI mutation or outstanding recording to recover;
+prior sampled helperPID24194 absent. Cause/new helper/automatic recovery and
+WindowServer linkage unknown. Recordernative6c/PID20948 remains unchanged/idle,
+zero unfinished/scopes/subscribers. Source/video hashes unchanged versusstage79.
+Fresh current MCP0.18/27tools and CLI return three exact retained preview/source
+joins, four input events and source action contexts. Owned readerexits0; no
+provider/native/peer/host restart, human/permission request, UI action or capture.
+This qualifies idle separation only, not active-capture fault or partial salvage.
+
+Actual requested40s preview returns39.749620806s/source162: green patchRGB1/255/1.
+Key reception39.834917931s is85.297125ms later. Requested42s returns41.754621139s/
+source170: magentaRGB255/1/255. Both returned rational times exactly join actual
+mux/source metadata. Requested offsets do not prove selected content; no physical
+latency, color calibration, full-frame/continuous coverage or atomic pixel
+authentication claim. Initial40s green sample retained, not treated as lost key
+or source regression. Shared scoped reader-isolation fact readback; no invented
+retroactive action receipt for failed inventory. Privategates-v80 summary/proof.
+Checklist45completed18partial1deferred/fullgoalactive.

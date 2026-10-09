@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T18:54:05-04:00",
+  "updated_at": "2026-10-09T18:58:52-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage79 complete: an owned browser click changed the page while global tap callbacks stayed unchanged; same-listener native positive control produced four callbacks and two matched keys. Six outcomes preserve five verified/one unknown, all cleanup complete. Shared provider coverage failure consumed by current planner. Chrome video withheld without owned native target. Continue missing boundaries without human-dependent gates."
+    "note": "Stage80 complete: a native UI inventory connection failed after capture cleanup. Recorder stayed unchanged/idle; retained hashes, current readers, three exact preview joins and input/context survived.40-second request actually returned a pre-key green frame; later joined frame is magenta. Idle fault isolation qualified, active-capture fault/recovery remains open. Continue independent work without human or shared-service restart."
   },
-  "production_note": "Native6c/PID20948 unchanged; fresh input/source and current MCP0.18 preview joins retained. Stage79 demonstrates one browser-provider telemetry gap: DOM click/counter observed, global callbacks4→4, native control4→8 with two app-delivered key matches. Per-browser-event trust/types/key delivery remain unknown, no Chrome footage. Shared exact app-learning planner returns reported_failure and blocks reuse with unknown provider version. Owned resources settled.45 completed,18 partial,1 deferred; physical input/full ordinary adoption remain open.",
+  "production_note": "Native6c/PID20948 unchanged; current MCP0.18/CLI and retained source/input reads verified after an idle native UI-provider disconnect. All owned resources already settled; no shared restart or new capture. Three exact preview joins, source hashes unchanged; requested time can precede the actual content boundary after decoder selection. UI provider cause/recovery unverified. Browser-provider gap and fresh native listener proof retained.45 completed,18 partial,1 deferred; full goal active.",
   "groups": [
     {
       "id": "capture",
@@ -192,10 +192,10 @@
           "title": "Qualify input-to-video clocks beyond the native canaries",
           "status": "partial",
           "scope": "Separate delivered-event, recorder-reception and frame clocks.",
-          "evidence": "Stage77 two delivered key raw timestamps/keycodes match and80 mux stamps exact. Stage78 seven returned rational decoder timestamps independently join actual mux/source references inside the service, including held/fractional negative boundaries in tests. No provider/physical calibration promotion.",
-          "next": "Complete physical/provider calibration and separately approved sleep boundary; consumers can use service-owned preview/source joins without reconstructing synchronization.",
-          "anchor": "seventy-eighth-pass",
-          "updated_at": "2026-10-09T18:45:34-04:00"
+          "evidence": "Stage78 seven returned rational decoder/mux/source joins qualified. Stage80 requested40s returns39.749620806s, before key reception39.834917931s; green patch correct. Requested42s returns41.754621139s, magenta. Exact source joins separate requested/decoded/event times; physical latency remains unknown.",
+          "next": "Complete physical/provider calibration and separately approved sleep boundary. Use returned frame/source identity rather than requested offsets; preserve this actual boundary proof.",
+          "anchor": "eightieth-pass",
+          "updated_at": "2026-10-09T18:58:52-04:00"
         },
         {
           "id": "pointer-coordinates",
@@ -414,10 +414,10 @@
           "title": "Verify remaining encoder/OS failure paths without harming peer takes",
           "status": "partial",
           "scope": "Avoid widening a local failure into an unexpected service interruption.",
-          "evidence": "Controlled encoder/stop isolation stays verified. Stage51 real display peer endpoint omitted one accepted sample; negative retained. Stage52 rejects exclusive endpoint and pads from last admitted source.16 native checks plus5 independent mux/source cases and actual2x static pair87 joins pass; installed tiny canary4 joins. Natural OS/encoder incident causality remains open.",
-          "next": "Observe natural faults with bounded diagnostics; inspect exact partial media and peers. Do not force host-wide failure or repeat passed source cases.",
-          "anchor": "fifty-second-pass",
-          "updated_at": "2026-10-09T11:06:45-04:00"
+          "evidence": "Stage80 native CUA read-only inventory pipe closed after all owned capture cleanup. Prior sampled helperPID24194 absent; cause/recovery unknown. Recorder6c/PID20948 unchanged/idle; source hashes and current MCP/CLI retained reads survive: three exact preview joins, four events/context. No shared restart.",
+          "next": "Observe a useful natural active-capture fault with exact partial media/peers when it occurs; preserve this idle isolation proof without forcing host-wide failure or replaying source footage.",
+          "anchor": "eightieth-pass",
+          "updated_at": "2026-10-09T18:58:52-04:00"
         },
         {
           "id": "single-motion",
@@ -632,10 +632,10 @@
           "title": "Install the candidate safely and verify rollback",
           "status": "partial",
           "scope": "Idle-boundary release with prior binary/state preserved and exact loaded-capability readback.",
-          "evidence": "Stage76 signed delivery preserved130 state hashes. Stage77 natural current-native input/capture boundary passes: fresh listening/tap enabled, four callbacks, two delivered key matches,80 exact mux/source joins, all decoded witness patches. Native remains6c/PID20948; owned reader exits0, fixture absent/sessionclosed/nativeidle.",
-          "next": "Verify ordinary full consumer adoption at a safe connection launch; preserve the settled native release, rollback and fresh input canary without repetition.",
-          "anchor": "seventy-seventh-pass",
-          "updated_at": "2026-10-09T18:38:17-04:00"
+          "evidence": "Stage76 signed/state-preserving native delivery, stage77 fresh listener/source canary and stage78 preview joins retained. Stage80 idle native UI-provider read fault leaves recorder6c/PID20948 and retained source readers/hashes intact; no provider/native/peer restart.",
+          "next": "Verify ordinary full consumer adoption at a safe launch. Preserve settled release/rollback and idle peer-isolation proof; active-capture fault salvage remains separate.",
+          "anchor": "eightieth-pass",
+          "updated_at": "2026-10-09T18:58:52-04:00"
         },
         {
           "id": "installed-smoke",

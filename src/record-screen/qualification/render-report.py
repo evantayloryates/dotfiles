@@ -547,6 +547,15 @@ if (args.evidence / 'gates-v79/qualification-summary.json').exists():
     section79 += html.escape(notes79) + '</pre></details></section>'
     page = page.replace('<section id="seventy-eighth-pass">', section79 + '<section id="seventy-eighth-pass">', 1)
 
+if (args.evidence / 'gates-v80/qualification-summary.json').exists():
+    notes80 = (args.evidence / 'gates-v80/qualification-summary.json').read_text()
+    page = page.replace('<a href="#seventy-ninth-pass">Latest qualification</a>', '<a href="#eightieth-pass">Latest qualification</a>')
+    section80 = '''<section id="eightieth-pass"><h2>A UI-provider fault leaves retained recording evidence available</h2><p><strong>A native UI inventory connection closed after all owned capture work was settled.</strong> The recorder stayed unchanged and idle. Source hashes, current readers, three preview/source joins and retained input/context remain available. No shared service was restarted. This qualifies the idle case; active-capture fault recovery and the provider’s cause or recovery remain open.</p><p>The retained preview check also exposed a useful timing boundary. A request for 40 seconds returned a frame at 39.749620806 seconds, before the key’s 39.834917931-second reception stamp. Green is correct for that selected frame. A later request returned 41.754621139 seconds and magenta. Both returned times join actual source frames.</p><div class="pair">'''
+    section80 += figure('gates-v80/after-fault-preview-1.jpg', 'Requested 40 seconds; actual returned source time 39.749620806 seconds, before the key: green.')
+    section80 += figure('gates-v80/after-fault-later.jpg', 'Requested 42 seconds; actual returned source time 41.754621139 seconds, after the key: magenta.')
+    section80 += '</div><p class="note">Native 6c/PID20948 unchanged, owned reader exits cleanly. Prior sampled UI helper absent; cause and recovery unverified. No host/provider/native/peer restart, new capture or human request. Patch samples and retained timing order are not physical latency or full-frame coverage. Shared scoped fact read back. 45 completed, 18 partial, one deferred; full goal active.</p><details><summary>Read the natural fault, retained reader and exact preview-boundary evidence</summary><pre>' + html.escape(notes80) + '</pre></details></section>'
+    page = page.replace('<section id="seventy-ninth-pass">', section80 + '<section id="seventy-ninth-pass">', 1)
+
 workflow = checklist_data['workflow']
 page = page.replace('<main><nav>', '<main><p class="note"><strong>Qualification ' + html.escape(workflow['state']) + '.</strong> ' + html.escape(workflow['note']) + ' Current acceptance states are in the checklist; earlier sections retain historical results.</p><nav>', 1)
 page = page.replace('</style>', '.checklist-link{margin-left:auto;font-weight:600}.checklist-link:focus-visible{outline:3px solid var(--blue);outline-offset:4px}</style>', 1)
