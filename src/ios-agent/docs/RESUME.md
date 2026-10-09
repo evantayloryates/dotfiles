@@ -54,3 +54,18 @@ Latest: physical isolation ready/tree/2x image/idle passed. Coach→phone 2456
 rendered and React exact synthetic client/value matched; nullable baseline restored.
 Bottom sheet/focus/scroll passed; bounded text replacement candidate has 39 fixture
 gates passed. Native build underway, not installed yet. No lease remains.
+
+Paired workflow now passed both directions: coach 2456→phone, native phone
+replacement/one Save 2345→coach. Nullable baseline restored in local row and
+phone via normal revisit/refetch; Home and idle verified. Report 10/16.
+App-owned Wi-Fi Off prepared but callback expired; USB On and foreground recovery
+restored channel. Unique dev callback build/fixture underway because DEV and
+Staging coexist with shared business URL scheme. Causality not proved.
+
+Unique callback candidate now installed; original developer signing identity and
+entitlements preserved, strict deep signature verified, 39 UIKit fixture gates
+and 2 signing-scope/timeout failure gates passed. App-owned On still did not
+return. Shared-scheme ambiguity is fixed but is not the whole explanation.
+Direct USB developer screenshot route lacks an active RSD route; no root daemon
+started. Requested physical lock once for Mirroring inspection. Host idle, no
+accepted input replay. Do not redo paired baseline or unchanged full suites.

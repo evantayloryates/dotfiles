@@ -69,7 +69,8 @@ final class InputTimeline: @unchecked Sendable {
   private var tap: CFMachPort? // main run loop only
   private var source: CFRunLoopSource?
   private var timer: Timer?
-  private var timeoutRetries = 0
+  private var faults = TapFaultPolicy() // lock; transitions on main run loop
+  private var faultOmittedCallbacks = 0
   private static let capacity = 2048
   private static let types: [CGEventType] = [.mouseMoved,.leftMouseDown,.leftMouseUp,.leftMouseDragged,
     .rightMouseDown,.rightMouseUp,.rightMouseDragged,.otherMouseDown,.otherMouseUp,.otherMouseDragged,
@@ -105,6 +106,7 @@ final class InputTimeline: @unchecked Sendable {
       "subscribers":subscriptionCount,
       "callbacks":callbacks,"observed_type_counts":Dictionary(uniqueKeysWithValues:observedTypes.map { (String($0.key),$0.value) }),
       "tap_enabled_last_observed":enabledSnapshot,
+      "tap_fault_policy":faults.dict,"callbacks_omitted_while_faulted":faultOmittedCallbacks,
       "context_refresh_count":contextRefreshCount,"context_refresh_max_ns":String(contextRefreshMaxNS),
       "context_refresh_average_ns":contextRefreshCount>0 ? String(contextRefreshTotalNS/UInt64(contextRefreshCount)) : "0",
       "queued":pending,"queue_overflow":overflow,"max_queued_events":Self.capacity,
@@ -126,6 +128,7 @@ final class InputTimeline: @unchecked Sendable {
       callback(["kind":"input_scope","scope_pid":context.pid as Any? ?? NSNull(),
                 "scope_window_id":context.windowID as Any? ?? NSNull(),"frame":rectDict(context.frame),
                 "ambiguous_keys":context.ambiguousKeys,"pointer_in_frame":context.retainPointerInFrame,
+                "listener_health":lock.withLock {faults.dict},
                 "ownership":"unknown","receive_clock_domain":"CLOCK_UPTIME_RAW"])
       DispatchQueue.main.async { [self] in startIfNeeded() }
     }
@@ -143,6 +146,7 @@ final class InputTimeline: @unchecked Sendable {
   private func broadcast(_ row: [String: Any]) { q.async { [self] in for s in subscribers.values { s.callback(row) } } }
   private func startIfNeeded() {
     guard tap == nil, lock.withLock({subscriptionCount>0}) else { return }
+    guard !lock.withLock({faults.blocksRestart}) else { return }
     let access=CGPreflightListenEventAccess()
     lock.withLock{listenAccessSnapshot=access;listenAccessObservedNS=uptimeNs()}
     guard access else {
@@ -169,8 +173,8 @@ final class InputTimeline: @unchecked Sendable {
     }
     lock.withLock{contextTap=tap}
     CFRunLoopAddSource(CFRunLoopGetMain(),source,.commonModes)
+    lock.withLock { faults.activate() }
     CGEvent.tapEnable(tap:tap,enable:true)
-    timeoutRetries=0
     lock.withLock { phase="listening"; enabledSnapshot=CGEvent.tapIsEnabled(tap:tap) }
     windows.activate()
     listenerContext.onGap={ [weak self] reason,host in self?.broadcast(["kind":"input_gap","reason":reason,"host_ns":String(host)]) }
@@ -188,7 +192,7 @@ final class InputTimeline: @unchecked Sendable {
     windows.deactivate()
     listenerContext.deactivate()
     appliedContextHostNS=0
-    lock.withLock { phase="inactive"; enabledSnapshot=false;contextTap=nil;foreground=0;snapshotNS=0;secure=false }
+    lock.withLock { phase="inactive"; enabledSnapshot=false;contextTap=nil;foreground=0;snapshotNS=0;secure=false;faults.stop() }
   }
   private func refreshContext() {
     let refreshStart=uptimeNs()
@@ -203,27 +207,59 @@ final class InputTimeline: @unchecked Sendable {
     appliedContextHostNS=context.hostNS
     let conservativeHost=context.startedHostNS>0 ? context.startedHostNS : context.hostNS
     if !value.listenAccess {
-      stop(); lock.withLock { phase="access_revoked";listenAccessSnapshot=false;listenAccessObservedNS=conservativeHost }
+      stop(); lock.withLock { phase="access_revoked";faults.revokeAccess();listenAccessSnapshot=false;listenAccessObservedNS=conservativeHost }
       broadcast(["kind":"input_gap","reason":"listen_access_revoked","host_ns":String(refreshStart)]); return
     }
     let enabled=value.tapEnabled
-    let newlyDisabled=lock.withLock { let changed=enabledSnapshot && !enabled; enabledSnapshot=enabled; return changed }
+    let newlyDisabled=lock.withLock {
+      guard conservativeHost >= faults.faultHostNS, !faults.blocksRestart else { return false }
+      let changed=enabledSnapshot && !enabled; enabledSnapshot=enabled; return changed
+    }
     if newlyDisabled { broadcast(["kind":"input_gap","reason":"tap_not_enabled_at_context_check","host_ns":String(refreshStart)]) }
     let secureNow=value.secureInput
     let changed=lock.withLock { let c=secure != secureNow; foreground=value.foregroundPID; secure=secureNow; snapshotNS=conservativeHost;listenAccessSnapshot=value.listenAccess;listenAccessObservedNS=conservativeHost; return c }
     if changed { broadcast(["kind":"input_gap","reason":secureNow ? "secure_input_enabled" : "secure_input_ended","host_ns":String(uptimeNs())]) }
+    if let heldTap=tap, let ticket=lock.withLock({faults.beginRecovery(access:value.listenAccess,observedBeginNS:conservativeHost,now:refreshStart)}) {
+      CGEvent.tapEnable(tap:heldTap,enable:true)
+      let recovered=CFMachPortIsValid(heldTap) && CGEvent.tapIsEnabled(tap:heldTap)
+      let applied=lock.withLock { () -> Bool in
+        guard faults.completeRecovery(ticket:ticket,enabled:recovered) else { return false }
+        phase=faults.state;enabledSnapshot=recovered;return true
+      }
+      if applied { broadcast(["kind":"input_listener","state":recovered ? "listening_after_timeout" : "recovery_failed",
+        "host_ns":String(uptimeNs()),"tap_fault_policy":lock.withLock{faults.dict},
+        "coverage":"recovery does not reconstruct omitted events or prove provider delivery"])
+        if !recovered {retireFaultedTap()}
+      }
+    }
+  }
+  /// Only this process's passive tap is retired; app input remains available.
+  private func retireFaultedTap() {
+    if let tap { CFMachPortInvalidate(tap) }
+    if let source { CFRunLoopRemoveSource(CFRunLoopGetMain(),source,.commonModes) }
+    tap=nil;source=nil;lock.withLock {contextTap=nil;enabledSnapshot=false}
+  }
+  func handleTapDisable(userInput: Bool) {
+    let host=uptimeNs()
+    let applied=lock.withLock { () -> Bool in
+      guard faults.disable(userInput:userInput,at:host) else { return false }
+      phase=faults.state;enabledSnapshot=false;return true
+    }
+    guard applied else { return }
+    broadcast(["kind":"input_gap","reason":userInput ? "tap_disabled_by_user_input" : "tap_timeout",
+      "host_ns":String(host),"tap_fault_policy":lock.withLock {faults.dict}])
+    if lock.withLock({faults.blocksRestart}) {retireFaultedTap()}
+    else {_=listenerContext.refresh()}
   }
   private func receive(_ type: CGEventType, _ event: CGEvent) {
     let received=uptimeNs()
     if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
-      lock.withLock { phase=type == .tapDisabledByTimeout ? "disabled_timeout" : "disabled_by_user_input"; enabledSnapshot=false }
-      broadcast(["kind":"input_gap","reason":type == .tapDisabledByTimeout ? "tap_timeout" : "tap_disabled_by_user_input","host_ns":String(received)])
-      if type == .tapDisabledByTimeout, timeoutRetries<3, CGPreflightListenEventAccess(), let tap {
-        timeoutRetries+=1; CGEvent.tapEnable(tap:tap,enable:true); lock.withLock { phase="listening_after_timeout"; enabledSnapshot=CGEvent.tapIsEnabled(tap:tap) }
-      }
+      handleTapDisable(userInput:type == .tapDisabledByUserInput)
       return
     }
-    let admitted=lock.withLock { callbacks+=1; observedTypes[type.rawValue,default:0]+=1; guard pending<Self.capacity else { overflow+=1; return false }; pending+=1; return true }
+    let admitted=lock.withLock { callbacks+=1; observedTypes[type.rawValue,default:0]+=1
+      guard faults.acceptsEvents else {faultOmittedCallbacks+=1;return false}
+      guard pending<Self.capacity else { overflow+=1; return false }; pending+=1; return true }
     guard admitted else { return }
     func value(_ field: CGEventField) -> Int64 { event.getIntegerValueField(field) }
     let window=value(.mouseEventWindowUnderMousePointer)

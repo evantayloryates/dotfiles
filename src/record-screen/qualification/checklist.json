@@ -1,6 +1,6 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-08T21:11:39-04:00",
+  "updated_at": "2026-10-08T21:17:45-04:00",
   "workflow": {
     "state": "active",
     "note": "Taylor resumed qualification. Prioritize high-impact investigation, preserve failed evidence and useful progress, and avoid repeated resets or rerunning settled checks."
@@ -226,12 +226,12 @@
         {
           "id": "provider-gaps",
           "title": "Qualify missing-event and tap-fault behavior",
-          "status": "partial",
+          "status": "in_progress",
           "scope": "Expose virtual-input gaps, revoked access, disabled taps and overload.",
-          "evidence": "Chrome virtual typing changed DOM content without app-addressed OS key evidence; healthy listener status does not prove full coverage.",
-          "next": "Exercise tap faults/access gaps safely and verify omission, recovery and consumer diagnostics.",
+          "evidence": "Source review found a permission query in the timeout callback and implicit exhausted/user-disabled states. Adding fresh background-observation recovery, explicit terminal diagnostics and lifecycle guards before owned-tap canaries.",
+          "next": "Verify timeout budget, omission and user/access overrides, then exercise only the isolated process passive tap with native delivered input.",
           "anchor": "sixth-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "updated_at": "2026-10-08T21:17:45-04:00"
         }
       ]
     },
@@ -575,6 +575,14 @@
       "from": "partial",
       "to": "partial",
       "note": "Native delivery timestamp/cross-display evidence is preserved. Bracketed host-clock boundaries, receipt segments and affected-take interruption now pass injected/live recording checks; raw provider clocks are not automatically equated to receipt or frame clocks."
+    },
+    {
+      "kind": "item",
+      "id": "provider-gaps",
+      "at": "2026-10-08T21:17:45-04:00",
+      "from": "partial",
+      "to": "in_progress",
+      "note": "Source review found a permission query in the timeout callback and implicit exhausted/user-disabled states. Adding fresh background-observation recovery, explicit terminal diagnostics and lifecycle guards before owned-tap canaries."
     }
   ]
 }

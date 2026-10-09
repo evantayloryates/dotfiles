@@ -231,7 +231,7 @@ final class Engine: @unchecked Sendable {
       "clock": ["uptime_ns": clockNS, "uptime_ns_exact":String(clockNS), "domain":"CLOCK_UPTIME_RAW", "wall": iso8601.string(from: now), "started_ns": startedNs,"started_ns_exact":String(startedNs)],
       "permission": ["screen_recording": CGPreflightScreenCaptureAccess() ? "granted" : "missing"],
       "capabilities": ["target_capture_options": CaptureOptions.contractVersion, "source_journal": 1, "source_clock_continuity":1,
-                       "input_timeline":1,"action_scopes":1,"derivative_source":1,"exclusion_identity":1,"preview_exclusion_identity":1],
+                       "input_timeline":1,"input_tap_faults":1,"action_scopes":1,"derivative_source":1,"exclusion_identity":1,"preview_exclusion_identity":1],
       "input_timeline":InputTimeline.shared.status,
       "action_timeline":ActionTimeline.shared.status,
       "displays": await displays(),

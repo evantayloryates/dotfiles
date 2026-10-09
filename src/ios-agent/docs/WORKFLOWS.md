@@ -273,3 +273,27 @@ lease. `state.startupRecovery` labels fallback use. Explicit semantic reload
 starts a new remote attempt; automatic retries never loop. Physical fallback acceptance passed: the owned lease was retired, embedded
 registered adapters, and Mirroring independently showed the dashboard/glow off. After any native restart, observe a different foreground device boot
 before acquiring; a launch receipt alone does not identify the new runtime.
+
+## Current paired acceptance receipt — 8 October
+
+Both directions passed against the exact non-admin synthetic local pair:
+coach input 2456 → guarded persisted row → native label and React client props;
+phone focused replacement 2345 → one native Save → guarded row → coach reload.
+Blank coach input restored the nullable baseline. Returning to normal Nutrition
+refetched getClientMealLogs, then reopening goals returned null props and the
+recommended 1737 Cal. No cache setter or injected GraphQL response was used.
+Home and native idle were restored. A 37-commit React profile covered the actual
+workflow; its 118.143s duration includes operator/inspection time and is not a
+product latency measure. Slowest observed render was 58.186ms in a Debug build.
+
+`text` defaults to insertion. For an already focused UITextInput, pass
+`{"mode":"replace","text":"2345"}` to select its document and deliver normal
+UIKeyInput insertion. A delivery receipt does not prove Save or persistence.
+Scroll momentum may keep changing geometry after gesture end; respect
+`target_geometry_changed`/occlusion rejections. Inspect the settled screen
+before a new explicitly targeted action. Never replay an unknown delivery.
+
+`profile-stop` returns the session summary. `profile-report` needs a component
+ID; it is not a session-wide summary command. `profile-slow` with limit 5 returned
+useful render timings without full app-state export. Keep detailed profiles
+private and publish only counts/timing claims bound to the development runtime.

@@ -144,7 +144,7 @@
  NSString *nonce=IAWiFiNonce;
  fence&=IOSAgentWiFiPrepare(@{@"state":@"on"},@"overlap")[@"error"]!=nil;
  fence&=!IOSAgentHandleURL([NSURL URLWithString:@"kudos://ordinary-business-route"]);
- fence&=IOSAgentHandleURL([NSURL URLWithString:@"kudos://ios-agent-return?nonce=wrong&outcome=success"]) && [IAWiFiNonce isEqual:nonce];
+ fence&=IOSAgentHandleURL([NSURL URLWithString:@"runner-kickoff-dev://ios-agent-return?nonce=wrong&outcome=success"]) && [IAWiFiNonce isEqual:nonce];
  fence&=IOSAgentHandleURL([NSURL URLWithString:[callback stringByAppendingString:@"&nonce=duplicate"]]) && [IAWiFiNonce isEqual:nonce];
  fence&=IOSAgentHandleURL([NSURL URLWithString:callback]) && !IAWiFiNonce && [IOSAgentWiFiState()[@"status"] isEqual:@"returned"];
  fence&=[IAInstance.lease isEqual:@"fixture-lease"] && ![IOSAgentWiFiState()[@"radioVerified"] boolValue];

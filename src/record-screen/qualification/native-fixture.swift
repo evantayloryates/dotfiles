@@ -58,6 +58,7 @@ final class Delegate: NSObject, NSApplicationDelegate {
     actionOutput = try! FileHandle(forWritingTo: actionPath)
     monitor = NSEvent.addLocalMonitorForEvents(matching: [.keyDown, .keyUp, .flagsChanged, .leftMouseDown, .leftMouseUp, .rightMouseDown, .rightMouseUp, .mouseMoved, .leftMouseDragged, .scrollWheel]) { [weak self] event in
       let row: [String: Any] = ["type": event.type.rawValue, "event_uptime_s": event.timestamp,
+        "event_host_ns_exact":event.cgEvent.map{String($0.timestamp)} as Any? ?? NSNull(),
         "received_uptime_ns": clock_gettime_nsec_np(CLOCK_UPTIME_RAW), "key_code": event.keyCode,
         "modifiers": event.modifierFlags.rawValue, "window_number": event.windowNumber,
         "x": event.locationInWindow.x, "y": event.locationInWindow.y,

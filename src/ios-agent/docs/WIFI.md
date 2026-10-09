@@ -66,3 +66,25 @@ https://support.apple.com/guide/shortcuts/use-x-callback-url-apdcd7f20a6f/ios
 
 Mirroring requirements:
 https://support.apple.com/en-us/120421
+
+## Callback isolation qualification — 8 October
+
+The original callback used the shared business `kudos` scheme. This phone has
+both Kickoff DEV and Kickoff Staging installed, making routing ambiguous. An Off
+command prepared and ended control, but its callback expired and the app channel
+did not return. USB On plus foreground recovery restored the channel. Neither
+radio-Off nor the exact cause is claimed from that acknowledgment.
+
+The candidate reserves `runner-kickoff-dev://ios-agent-return`. The explicit
+build helper appends that scheme only to its generated development app product,
+re-signs with the original local development identity and preserved entitlements,
+and strictly verifies the signature. Project/Pod Info.plists remain untouched.
+Installed handoff acceptance is pending; no staging/customer callback is changed.
+
+The installed unique-scheme On handoff also failed to return; shared-scheme
+ambiguity was not the entire cause. A one-shot `pymobiledevice3 diagnostics sleep`
+locked this paired phone, independently confirmed by Mirroring reaching its Mac
+authentication screen. This is a wired recovery convenience, not an unlock or
+authentication bypass. The direct developer screenshot attempt had no active
+RSD route; no root tunnel daemon was started. System-side inspection awaits the
+human Mac authentication step. No routine flow depends on that screenshot path.

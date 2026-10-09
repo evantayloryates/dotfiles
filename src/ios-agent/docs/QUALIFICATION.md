@@ -215,3 +215,27 @@ The current 16-step report is at
 `/Users/taylor/src/docs/html/iphone-link-status-update/index.html`.
 Refresh it as specified in [PROGRESS.md](PROGRESS.md), keeping this checkpoint
 separate from older installed/cellular results.
+
+## Paired workflow and editing qualification — 8 October evening
+
+Both real synthetic local directions passed: coach 2456 to phone, phone native
+focused replacement and one Save 2345 to coach. Exact client and non-admin pair
+verified; local row, React props and native visible value agreed. Blank coach
+restore read back null; normal mobile revisit/refetch returned null props and
+1737 recommended display. Home and native idle restored. No staging/customer
+data was used. 39 actual UIKit fixture gates passed on the text/callback SDK,
+plus two build signing-scope/failure guards. New build was development-signed,
+strictly verified and installed without project/Pod Info.plist changes.
+
+Default 2x physical capture passed: 681,027 PNG bytes, 105ms render, 25ms encode,
+6.816s command, with Mirroring disconnected. Earlier 62KB tree upload timed out
+at the native 8s request limit with -1001; causal Mirroring interference remains
+unproven. The paired workflow supplied a 37-commit Debug React profile; detailed
+artifacts remain private.
+
+Current Wi-Fi edge: the original and unique-scheme app-owned handoffs prepared
+cleanly but did not return. Shared `kudos` scheme ambiguity with coinstalled
+Staging is fixed only in the opt-in DEV product. USB On/foreground recovery
+restored the app channel. The latest cellular gate stays open. Supported USB
+diagnostic sleep can lock the phone; Mirroring then still needed human Mac
+authentication. No XCTest or privileged tunnel daemon was started.

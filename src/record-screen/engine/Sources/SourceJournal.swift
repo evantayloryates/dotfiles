@@ -24,6 +24,8 @@ final class SourceJournal: @unchecked Sendable {
   private var colorSegments = 0
   private var latestColor: [String:Any]?
   private var clockContinuity = HostClockContinuity()
+  private var inputGapReasons: [String:Int] = [:]
+  private var latestInputListener: [String:Any]?
 
   init(path: String, epoch: UInt64, recordingID: String, target: [String: Any],
        capacity: Int = 64, byteLimit: Int = 64 * 1024 * 1024,
@@ -79,6 +81,12 @@ final class SourceJournal: @unchecked Sendable {
       if row["kind"] as? String == "color", let color = row["color"] as? [String:Any] {
         colorSegments += 1; latestColor = color
       }
+      if row["kind"] as? String == "input_gap" {
+        let raw=row["reason"] as? String ?? "unknown"
+        let reason=raw.utf8.count<=128 && (inputGapReasons[raw] != nil || inputGapReasons.count<32) ? raw : "other"
+        inputGapReasons[reason,default:0] += 1
+      }
+      if row["kind"] as? String == "input_listener" {latestInputListener=row}
       pending += 1
       let sequence = offered - 1
       io.async { [self] in write(row, sequence: sequence) }
@@ -141,6 +149,8 @@ final class SourceJournal: @unchecked Sendable {
        "video_outcome": videoOutcome as Any? ?? NSNull(),
        "color_segments":colorSegments, "latest_observed_color":latestColor as Any? ?? NSNull(),
        "clock_continuity":clockContinuity.dict,
+       "input_gaps_observed":inputGapReasons,"latest_input_listener":latestInputListener as Any? ?? NSNull(),
+       "input_health_qualification":"accepted journal rows; loss remains explicit; listener state does not establish delivered-event coverage",
        "color_qualification":"observed tags from accepted rows; journal loss remains explicit; no app/backing intent inferred",
        "error": failure as Any? ?? NSNull(), "max_pending_rows": capacity, "max_bytes": byteLimit]
     }

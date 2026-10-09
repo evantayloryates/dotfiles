@@ -39,7 +39,7 @@ static NSDictionary *IOSAgentWiFiPrepare(NSDictionary *args, NSString *command) 
  IAWiFi=[@{@"requested":state,@"status":@"prepared",@"command":command} mutableCopy];
  NSMutableArray *query=[NSMutableArray arrayWithObject:[NSURLQueryItem queryItemWithName:@"name" value:[state isEqual:@"on"]?@"Runner Wi-Fi On":@"Runner Wi-Fi Off"]];
  for(NSString *outcome in @[@"success",@"error",@"cancel"]) {
-  NSURLComponents *callback=[NSURLComponents componentsWithString:@"kudos://ios-agent-return"];
+  NSURLComponents *callback=[NSURLComponents componentsWithString:@"runner-kickoff-dev://ios-agent-return"];
   callback.queryItems=@[[NSURLQueryItem queryItemWithName:@"nonce" value:IAWiFiNonce],[NSURLQueryItem queryItemWithName:@"outcome" value:outcome]];
   [query addObject:[NSURLQueryItem queryItemWithName:[@"x-" stringByAppendingString:outcome] value:callback.string]];
  }
@@ -59,7 +59,7 @@ static void IOSAgentWiFiLaunch(NSString *command) {
  }];
 }
 static BOOL IOSAgentHandleURL(NSURL *url) {
- if(![url.scheme isEqual:@"kudos"] || ![url.host isEqual:@"ios-agent-return"]) return NO;
+ if(![url.scheme isEqual:@"runner-kickoff-dev"] || ![url.host isEqual:@"ios-agent-return"]) return NO;
  // Consume this reserved dev URL even if malformed; never route it to business navigation.
  IOSAgentWiFiState();
  if(!IAWiFiNonce || url.path.length || url.user || url.password || url.fragment || url.port) return YES;
