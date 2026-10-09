@@ -72,3 +72,13 @@ secure text inputs. RN Perf Monitor unexpectedly appeared during this batch;
 its origin is unknown. A candidate dev-only startup/default and module-level
 hide keeps it and the element inspector out of the product view. These fixes
 require their own compiled/installed verification; do not claim delivery yet.
+
+## First physical Fast Refresh probe — 8 October
+
+A reversible presentation-only meal-title edit caused the app to return from
+ClientMealLogs to ClientDashboard, with the same native boot and tailnet-Metro
+bundle, no startup fallback. The changed meal title was not observed because
+the meal screen lost navigation/expanded state. Original source bytes were
+restored in finally. This is a failed state-preservation gate, not successful
+Fast Refresh. The custom transformer and RN refresh boundary are the next
+bounded diagnostic; no business mutation was repeated.
