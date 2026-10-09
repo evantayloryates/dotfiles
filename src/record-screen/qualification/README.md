@@ -684,3 +684,22 @@ This creates/settles an owned recorder session and scopes, with four typed faile
 ## Declared target context checks
 
 Stage69 adds target_resolution observed/declared without a new tool. Full input-test.swift verifies declaration-only exclusion from passive attribution and immutable terminal recovery. declared-context.test.mjs checks source snapshot uncertainty and contradictory identities. recorded-action/workflow tests check exact capability refusal before callbacks and persisted receipt/outcome resolution. Legacy normalization remains unchanged; no new media or physical input is generated. Real installed launch/close qualification and scoped post-close read relaunch evidence are in gates-v69.
+
+### App-local delivery and same-app relevance canary
+
+`interaction-fixture.swift` provides two owned windows and a non-text canvas,
+app-local event logging, app-painted point markers and genuine nested native
+menus. No global collection, input synthesis, literal text or actor inference.
+Compile an owned private `.app`, drive it through native computer use, and keep
+its delivery log alongside the recorder source. `verify-interaction.py --oracle
+FILE --journal FILE --output FRESH` checks exact timestamp/type identity,
+per-window sample coverage, receipt/delivery differences and raw position
+agreement. Independently inspect actual encoded pixels and consumer queries;
+this helper does not qualify physical rate, source transforms or menu overflow.
+
+Stage72 retained28/28 delivered events in37 rows. App-delivered sibling keys
+remain window-unresolved. Action filters can exclude that sample while optional
+unassociated retention brings it back; neither mode proves human/agent identity.
+Native menus can adapt into scrolling, ellipsized surfaces rather than overflow.
+Do not call missing rows capture loss until the actual UI and encoded source are
+compared. Keep expired scopes failed even when the pixels show success.

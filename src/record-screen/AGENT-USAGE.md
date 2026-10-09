@@ -571,3 +571,25 @@ the option is enabled. Current CLI is available while older MCP refresh is pendi
 Native7c0f81e9d71f advertises declared_action_targets1; fresh adapter0.16.0 adds target_resolution to action_begin and preserves it in retained context. Default observed requires current running identity. Use target_resolution:"declared" with target:{bundle_id:"exact.bundle"} only for prospective semantic intent such as launch. No PID/window claim, automatic binding or passive input attribution. Bracket once before native getApp, close promptly, then separately observe actual identity for subsequent observed scopes. Wrappers require exact native capability before starting the operation. Caller/result ownership stays unverified. Missing resolution on historical imports remains unspecified and retains immutable IDs.
 
 After final close, verify process/window absence through inventory. Stage69 bound getAXState following close relaunched the owned app under a new PID. Do not reacquire or read the closed app to verify cleanup. If a new instance appears, preserve the first result as partial cleanup, create a separate scope against the newly observed PID/window and close only owned state. Final cleanup used inventory/process readback; no app read followed. This one version-unknown native-CUA finding is not a universal provider claim.
+
+## Same-app keyboard activity needs semantic filtering
+
+Stage72's independent AppKit canvas receives keys without a text field. Its
+28 app-local delivered events all match retained CG timestamps/types, including
+8 keys/modifiers in a companion window of the same process. Those8 remain
+`app_delivery_window_unresolved`; focus and destination PID cannot identify the
+recorded window reliably. Broad shortcuts and typing activity remain useful.
+
+The current input-query supports `action_tokens`, `include_unassociated` and
+`include_context`. Actual stage72 broad query returns37; strict target-action
+query returns21 and excludes all8 companion events; opting to retain
+unassociated events returns29 and restores them. This narrows declared intent,
+not authenticated ownership. Retain source reasons/context and let the editing
+agent select useful semantic blocks. No physical-input or universal filtering
+promise. Raw coordinates remain unpromoted even when a scoped oracle agrees.
+
+The owned native nested menu adapted to narrower labels and then a scrolling
+206px surface inside a222px parent. Its first/last row and dismissal are in both
+encoded sources. Wider app capture preserves the same native ellipses; it cannot
+recover text the UI never displayed. Inspect the current source and actual popup
+geometry before declaring clipping, missing capture or an overflow capability.

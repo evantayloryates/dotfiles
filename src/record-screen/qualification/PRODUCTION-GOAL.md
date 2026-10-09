@@ -1,37 +1,35 @@
 # Production qualification goal
 
-## Current checkpoint: stage71 — ACTIVE
+## Current checkpoint: stage72 — ACTIVE
 
-Retained stage70 footage verified without replay:8,900 exact mux/source stamps,
-both full sequential decodes,6,684 consecutive app anchor packets within1px,
-two paired select-row edges within1px and editing-root/dismissal pixels. Service
-11 app maps available/4 isolated maps guarded. Whole252.068s geometric backup
-containment includes35 final packets missing the anchor and later black samples;
-content loss starts229.911662823s. Geometry cannot establish visible content.
-Mux app tail252.561567657s differs from about252.07s controller stop and includes
-held source. No five-minute completion, physical input or generic recovery claim.
+Explicit AFK batch complete without physical input or human prompts. Four
+owned native takes give20,808 exact mux/journal stamps, all sequential decodes
+and zero lost rows. All28 app-local delivered event types/timestamps match;
+11 raw pointer positions agree exactly. Keys delivered to a canvas without a
+text field remain captured. Eight companion-window keys are retained unresolved;
+actual broad37/strict target21/target+unassociated29 queries demonstrate semantic
+filtering without actor inference. Blue app-painted pointer survives hiding.
 
-250 resource samples: recorder peak38.73MiB/median CPU2.98% of one core; host
-pressure2. Safari parent only, no WebContent/GPU/thermal or causal upper capacity.
-Fresh owned MCP0.16/27 tools publishes scoped measured_safari_app_profile;12
-planner checks pass. Ordinary loaded MCP adoption remains unknown.
+Native nested menus adapt to narrow/short parents with ellipsis and scrolling;
+206px submenu fits222px parent. First/last row, selection and dismissal are in
+encoded pixels. This does not exercise overflow.14 unobstructed marker controls
+are within1px. Continuous marker failures during occlusion and second scaled
+isolated1.14391px edge failure against1px remain; source-map guard retained.
+App source maps10 sampled frames, isolated maps10 guarded.
 
-Six stored receipts/outcomes and three exact Safari facts independently read
-back. Protected menu scope remains failed; unknown Chrome shortcut stays unknown.
-Owned Safari fixture now absent/StartPage preserved without a repeated close;
-intervening actor/time unknown. Session closed, server/sampler terminal and
-native7c/PID39358 idle. Private gates-v70 summary/readbacks are authoritative.
+20 terminal scopes/outcomes:17 verified/3failed, zero uncovered; four exact
+fixture facts read back. Safari native getApp timeout preserved; no Safari take
+or repeat. Late narrow-dismiss stays expired despite actual successful pixels;
+unused shorten-target never dispatched. Five subsequent short-menu actions
+close promptly. Owned fixture/server absent, sessionclosed,inputsubscribers0,
+activeactions0,unfinished0; native7c/PID39358 unchanged. Ordinary loaded22tools
+still lack current adapter capabilities; no peer refresh.45completed18partial
+1deferred; composition deferred.
 
-production-click.py check now reserves cleanup and rechecks each next action;
-9 boundary tests plus actual old-signal refusal pass. No provider cancellation
-or guarantee against an overlong admitted call. Preserve the actual120s overrun.
-
-Taylor declined physical input for now, then explicitly authorized uninterrupted
-system access for the next two hours while AFK. Do not ask for human actions,
-new approvals, sleep/revocation or fabricate a click. Continue self-contained
-nested/overflow daily-app and agent-provider input checks using fresh scopes.
-Keep45completed18partial1deferred until written acceptance scopes are satisfied.
-Composition remains deferred. No settled media recapture or broad history churn.
+Next extend a useful sustained-motion production duration with CPU/RSS/coarse
+thermal/storage evidence. Separate source content and packet coverage; do not
+repeat menus or physical-input grants. AFK authorization remains bounded by
+23:20UTC conservative end, no fabricated click or human-dependent tests.
 
 ## Remaining work: ordered acceptance batches
 

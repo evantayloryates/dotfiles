@@ -3191,3 +3191,41 @@ Physical input declined for now. Two-hour explicit AFK access is separate from
 notification-click reservations; continue self-contained work without requests
 for human input or new permissions.45completed18partial1deferred. Private
 gates-v70/qualification-summary.json and shared readbacks retain exact evidence.
+
+## Seventy-second pass: delivered canvas input and native scrolling menus
+
+Under explicit AFK authorization, four self-contained native takes give20,808
+exact mux/source stamps, all full sequential decodes and zero journal loss.
+All28 app-local delivered events match exact timestamp/type: keys/modifiers in a
+canvas without a text field, motion, click, drag, wheel and companion keys.
+Eleven raw pointer coordinates agree exactly; actual source blue marker is
+centered at the declared point. Composition positions remain unpromoted.
+Recorder receipt minus CG stamp128,292–3,339,125ns; app delivery can lag receipt
+256.715ms. These are component observations, not physical presentation latency.
+
+All eight companion-window keys remain app-delivered/window-unresolved. Actual
+retained queries: broad37 includes8, strict target-action21 excludes8,
+target+unassociated29 restores8.20 target oracle events have action tags;
+companion8 do not. Source PID/focus/tags are clues, not actor authentication.
+Reusable verify-interaction.py now preserves scoped coverage and uncertainty.
+
+Nested menus appear in both sources, with selection/change/dismissal. Narrow
+parent reduces submenu width352→210 and ellipsizes labels in the native UI.
+Short222px parent reduces298px menu to206px scrolling surface. End selects last
+row; Return invokes sentinel12, visibly dismissing it. Every candidate fits its
+parent. This is useful source/provider behavior, not overflow qualification.
+Fourteen unobstructed marker controls are within1px. Occlusion probe failures
+and scaled isolated source1.14391px edge failure against1px are preserved; no
+threshold relaxation or continuous transform claim. Actual app maps10 sampled
+frames; all isolated maps remain guarded. App-painted blue pointer survives
+system-pointer hiding. Ordinary loaded22tools still lack fresh0.16 contract.
+
+Native Safari getApp timed out; original Start Page preserved, no Safari take.
+20 typed terminal scopes/outcomes independently read back:17verified/3failed,
+zero uncovered. Expired narrow-dismiss stays failed despite visible dismissal;
+unused shorten-target never dispatched and stays expired. Five subsequent short
+menu scopes close promptly. Four exact owned-fixture facts read back; unknown
+provider version prevents reusable readiness. Owned fixture/server absent,
+sessionclosed, inputsubscribers/activeactions/unfinishedrecordings0; installed
+native7c/PID39358 unchanged.45completed18partial1deferred. No physical input,
+grant/sleep change, prompt, input lock, peer restart or visual composition.
