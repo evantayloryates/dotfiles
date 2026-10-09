@@ -49,3 +49,34 @@ replayed. Private evidence: gates-v46 in this chat's capture qualification bundl
 ## Scroll and occlusion extension
 
 Stage48 used an explicitly local180-row RTF in two90s native2x sources. First dispatch failed noWindowsAvailable; observing/rebinding the current document recovered six down/up pairs in the same take. Twelve retained wheel events address TextEdit despite another foreground app. Actual mapped isolated frames2693/3003 show row057→001; simultaneous display samples omit the intended document under unrelated occlusion. Isolated footage is useful recovery, not whole-shot/menu insurance. Preserve failed scope and active/null captured recovery end because terminal close arrived after video. Four typed outcomes3verified/1failed, all cleanup complete/uncovered0; local source hash unchanged, native app/session settled. See RESOURCE-OBSERVATIONS.md for resource scope, GATES.md stage48 for exact proof.
+
+## Small-parent fitting and coordinate failure (stage56)
+
+A real586x252point parent captured root/Font/Highlight scroll viewports; they fit
+inside the parent. A912point typeface viewport enters both full-app and isolated
+child sources. The isolated1172x504 canvas shrinks the document; after closure
+it remains small, then restores for a236point reopened menu. No same-height
+cycle or full100-row AX-list claim. Four actual recordings9066 exact joins.
+
+Declared fitted affine FAILS known text source comparison (glyphIoU0.02494);
+final unshrunk parent passes the same method0.98763. Full-app lane preserves
+desktop geometry for this sampled case. Do not use the candidate fitted map for
+precise cursor/overlay placement. Above-parent union-origin change is unproven;
+repair the narrow map boundary and reuse retained sources before another take.
+Native inventory includes retained off-screen menus; require on_screen:true for
+active-phase extents. Original typeface open was after90s coverage; follow-up
+starts with preexisting large menu and has separately stopped actual ends.
+
+Nine native scoped outcomes verified/cleanupcomplete, zero uncovered. Locally
+saved owned file unchanged, PID absent and actual session.close confirmed.
+Ignored session.update(state:closed) remains negative evidence. Installed native
+25bdf/PID75812 unchanged; source/action ownership and physical clocks unproven.
+
+Stage56 forward guard delivered: fresh MCP0.12.2/current CLI withhold fitted
+child-enabled/unknown isolated-window projections. Use retained header/capture
+scope, since record.source omits target fields. First descriptor-only miss and
+pinned-version test failure retained; final14 tests and actual source reader
+pass. Two fitted frames guarded, three restored/app/original maps available;
+6457 existing packet joins preserved, five manifest hashes unchanged, MCP reader
+exit0/native PID unchanged.45 completed/16 partial/1 needs retest/1 deferred.
+Guard complete in written scope; accurate fitted child origin remains open.

@@ -948,3 +948,32 @@ Next useful lanes: another reachable daily-app transient family or provider/
 physical input coverage when available; ordinary skill adoption and recovery
 expectations remain partial. Preserve discovery/pixel/semantic distinctions and
 prior failed evidence. No whole-phase reset or unnecessary live rollback.
+
+## Fifty-sixth-pass real fitted-menu checkpoint
+
+Real small-parent native menu pass preserved: four terminal recordings9066 exact
+source/mux joins, tall912point viewport retained and later smaller236point menu
+with source size restoration. Fitted coordinate diagnostic fails0.02494 glyph
+IoU; same-method restored parent passes0.98763. Do not broaden static transform
+proof into arbitrary child fitting. New fitted-child-mapping gate needs retest;
+44 completed/16 partial/1 needs retest/1 deferred. Full goal active.
+
+Nine action outcomes verified and cleanup complete, zero uncovered; three
+exact-entity pass/fail/mixed facts saved/read back. Source/intent/actor distinctions
+maintained. Owned app absent/file unchanged/session actually closed after ignored
+state update caught by readback. No native restart;25bdf/PID75812 idle. Original
+90s resource profile only; no follow-up/GPU/capacity/P80 claim.
+
+Next high-impact operation: inspect retained paired raw pixels and source metadata
+to repair or explicitly withhold fitted origin mapping. Avoid reshoot/rollback
+of passed menus or writer/timing scopes. Physical/provider and ordinary adapter
+adoption remain open. Standing visible authorization throughOct9 17:51UTC.
+
+Stage56 forward guard delivered: fresh MCP0.12.2/current CLI withhold fitted
+child-enabled/unknown isolated-window projections. Use retained header/capture
+scope, since record.source omits target fields. First descriptor-only miss and
+pinned-version test failure retained; final14 tests and actual source reader
+pass. Two fitted frames guarded, three restored/app/original maps available;
+6457 existing packet joins preserved, five manifest hashes unchanged, MCP reader
+exit0/native PID unchanged.45 completed/16 partial/1 needs retest/1 deferred.
+Guard complete in written scope; accurate fitted child origin remains open.

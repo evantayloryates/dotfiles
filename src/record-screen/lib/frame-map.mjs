@@ -65,6 +65,10 @@ export function resolveFrameMap(descriptor, request, rows, probe) {
   if (header.kind !== 'header' || header.schema !== 'record-screen-source/v1' || header.recording_id !== request.recording_id ||
       header.clock_domain !== 'CLOCK_UPTIME_RAW' || header.epoch_host_ns !== descriptor.source_packet?.epoch_host_ns) mapping('Source identity/epoch mismatch.');
   const epoch = exact(header.epoch_host_ns);
+  // record.source intentionally omits the full manifest. Use the retained
+  // capture/header scope, not only record.get fields supplied by some callers.
+  const capture = rows.find(row => row.kind === 'capture')?.resolved;
+  const target = header.target ?? descriptor.target;
   const sources = new Map(), geometries = new Map(), accepted = new Map();
   const sequences = new Set();
   let acceptedCount = 0, footer = null;
@@ -142,7 +146,16 @@ export function resolveFrameMap(descriptor, request, rows, probe) {
       Number.isFinite(matrix[0]*matrix[3]-matrix[1]*matrix[2]) && matrix[0]*matrix[3]-matrix[1]*matrix[2] !== 0 &&
       Array.isArray(pixels) && pixels.length === 2 && pixels.every(v => Number.isInteger(v) && v > 0 && v <= 16384);
     const canvasMatches = muxCanvasKnown && pixels?.[0] === muxPixels[0] && pixels?.[1] === muxPixels[1];
-    const transform = affineValid && canvasMatches;
+    // SCK can fit a child-window union into the fixed window canvas without
+    // declaring that union's desktop origin. The real TextEdit tall-menu lane
+    // fails pixel alignment even with a finite affine and matching canvas.
+    // Preserve its metadata/timing, but do not project unqualified positions.
+    const windowCapture = capture?.kind === 'window' || target?.type === 'window' || descriptor.resolved?.kind === 'window';
+    const children = capture?.capture_options?.include_child_windows_effective ??
+      descriptor.resolved?.capture_options?.include_child_windows_effective ?? target?.include_child_windows;
+    const fittedChildren = windowCapture && children !== false &&
+      Number.isFinite(p.geometry.content_scale) && p.geometry.content_scale !== 1;
+    const transform = affineValid && canvasMatches && !fittedChildren;
     const sourceTime = p.source.pts_host_ns === null || p.source.pts_host_ns === undefined ? null : String(exact(p.source.pts_host_ns)-epoch);
     const points = transform ? request.desktop_points.map(({x,y}) => {
       const sx = matrix[0]*x+matrix[2]*y+matrix[4], sy = matrix[1]*x+matrix[3]*y+matrix[5];
@@ -155,7 +168,8 @@ export function resolveFrameMap(descriptor, request, rows, probe) {
       geometry: p.geometry, transform_available: transform, desktop_points: points,
       desktop_regions: transform ? projectRegions(request.desktop_regions,matrix,pixels) : null,
       ...(transform ? {} : { transform_reason: !affineValid ? 'missing_or_invalid_declared_affine'
-        : !muxCanvasKnown ? 'unmeasured_muxed_canvas' : 'declared_canvas_differs_from_muxed_dimensions' }) };
+        : !muxCanvasKnown ? 'unmeasured_muxed_canvas' : !canvasMatches ? 'declared_canvas_differs_from_muxed_dimensions'
+        : 'fitted_child_window_origin_unqualified' }) };
   }
   const mapped = request.frame_indices ? request.frame_indices.map(frame_index => ({ requested_frame_index: frame_index, ...project(packets[frame_index],frame_index) }))
     : request.relative_ns ? request.relative_ns.map(relative_ns => ({ requested_relative_ns: relative_ns, ...atOffset(relative_ns) }))
@@ -177,7 +191,8 @@ export function resolveFrameMap(descriptor, request, rows, probe) {
       'A host-clock declaration does not calibrate an external provider; use recorder-domain stamps or retain that uncertainty.',
       'Projected points/regions inside the encoded canvas do not prove visibility, semantic ownership or content inclusion.',
       'Region fractions are continuous affine canvas-area estimates, not decoded pixel coverage; rectangle extent and timing are caller-declared.',
-      'Point/region projection requires declared source canvas dimensions to match the probed media stream; this does not validate affine content placement.'] };
+      'Point/region projection requires declared source canvas dimensions to match the probed media stream; this does not validate affine content placement.',
+      'Fitted child-enabled or child-unknown isolated windows with content_scale other than1 retain raw geometry but withhold projected positions: their desktop union origin is unqualified. Use independently qualified source geometry.'] };
 }
 
 async function regular(path, limit) {

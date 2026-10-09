@@ -46,6 +46,40 @@ test('region clipping follows each actual source and retains held geometry', () 
   assert.equal(out.mapped[0].desktop_regions[0].content_presence,'unverified');
   assert.equal(out.mapped[2].source_content_relative_ns,'100000000');
 });
+test('fitted child window positions are withheld without losing source joins or restored maps', () => {
+  const {rows,descriptor,probe} = fixture();
+  rows[1].geometry.content_scale=1;
+  rows.find(r=>r.kind==='geometry'&&r.segment===1).geometry.content_scale=.2763157784938812;
+  const query={...request,desktop_regions:[{id:'text',x:140,y:440,w:40,h:20}]};
+  for(const child of [true,undefined]) {
+    const source={...descriptor,target:{type:'window',...(child===undefined?{}:{include_child_windows:child})}};
+    const out=resolveFrameMap(source,query,rows,probe);
+    assert.equal(out.mux_source_correspondence.timestamp_correspondence_complete,true);
+    assert.equal(out.mapped[0].transform_available,true);
+    for(const r of out.mapped.slice(1)) {
+      assert.equal(r.transform_available,false);
+      assert.equal(r.transform_reason,'fitted_child_window_origin_unqualified');
+      assert.equal(r.desktop_points,null);assert.equal(r.desktop_regions,null);
+      assert.equal(r.geometry.content_scale,.2763157784938812);
+      assert.equal(r.geometry_segment,1);assert.equal(r.metadata_available,true);
+    }
+  }
+  // The actual record.source descriptor has neither target nor resolved.
+  // Capture-row effective settings and the journal header carry this scope.
+  const retained=structuredClone(rows);
+  retained[0].target={type:'window',include_child_windows:false};
+  retained.splice(1,0,{kind:'capture',resolved:{kind:'window',capture_options:{include_child_windows_effective:true}}});
+  const fromSource=resolveFrameMap(descriptor,query,retained,probe);
+  assert.equal(fromSource.mapped[1].transform_reason,'fitted_child_window_origin_unqualified');
+  retained[1].resolved.capture_options.include_child_windows_effective=false;
+  assert.equal(resolveFrameMap(descriptor,query,retained,probe).mapped[1].transform_available,true);
+  // Effective child exclusion wins over a caller request; ordinary display
+  // scaling and existing authored shrink proofs are separate scopes.
+  for(const source of [
+    {...descriptor,target:{type:'window',include_child_windows:true},resolved:{kind:'window',capture_options:{include_child_windows_effective:false}}},
+    {...descriptor,target:{type:'rect',include_apps:['com.test.App']}},
+  ]) assert.equal(resolveFrameMap(source,query,rows,probe).mapped[1].transform_available,true);
+});
 test('region polygon area handles rotation/reflection without substituting its bounding box', () => {
   const r = projectRegions([{id:'rotated',x:0,y:0,w:1,h:1}],[1,1,-1,1,0,0],[2,2])[0];
   assert.equal(r.canvas_relation,'clipped');assert.equal(r.canvas_area_fraction,.5);
@@ -142,7 +176,7 @@ test('actual regular-file probe, leaf refusal and fresh MCP read-only boundary',
   lines.on('line',line=>{const row=JSON.parse(line),p=pending.get(row.id);if(p){clearTimeout(p.timer);pending.delete(row.id);p.resolve(row.result);}});
   const rpc=(method,params)=>new Promise((resolve,reject)=>{const id=++serial,timer=setTimeout(()=>reject(Error('Owned MCP deadline')),5000);pending.set(id,{resolve,reject,timer});child.stdin.write(JSON.stringify({jsonrpc:'2.0',id,method,params})+'\n');});
   try {
-    const initialized=await rpc('initialize',{protocolVersion:'2025-06-18'});assert.equal(initialized.serverInfo.version,'0.11.5');
+    const initialized=await rpc('initialize',{protocolVersion:'2025-06-18'});assert.equal(initialized.serverInfo.version,'0.12.2');
     const list=await rpc('tools/list',{});const tool=list.tools.find(x=>x.name==='recording_frame_map');assert.equal(tool.annotations.readOnlyHint,true);assert.equal(tool.inputSchema.properties.desktop_regions.maxItems,16);
     let reply=await rpc('tools/call',{name:'recording_frame_map',arguments:{...request,desktop_regions:[{id:'region',x:140,y:450,w:10,h:10}]}});assert.equal(reply.isError,false);
     assert.equal(JSON.parse(reply.content[0].text).mapped[0].desktop_regions[0].canvas_relation,'contained');
@@ -150,7 +184,7 @@ test('actual regular-file probe, leaf refusal and fresh MCP read-only boundary',
     reply=await rpc('tools/call',{name:'recording_frame_map',arguments:{...request,frame_indices:[]}});assert.equal(reply.isError,true);assert.deepEqual(methods,['status','record.source']);
     reply=await rpc('tools/call',{name:'recording_frame_map',arguments:{...request,desktop_regions:[{id:'bad',x:0,y:0,w:0,h:1}]}});assert.equal(reply.isError,true);assert.deepEqual(methods,['status','record.source']);
     capable=false;reply=await rpc('tools/call',{name:'recording_frame_map',arguments:request});assert.equal(reply.isError,true);assert.equal(methods.at(-1),'status');
-    const status=JSON.parse((await rpc('tools/call',{name:'status',arguments:{}})).content[0].text);assert.equal(status.mcp_adapter.source_frame_mapping,1);assert.equal(status.mcp_adapter.source_region_mapping,1);assert.equal(status.mcp_adapter.frame_mapping.active,false);
+    const status=JSON.parse((await rpc('tools/call',{name:'status',arguments:{}})).content[0].text);assert.equal(status.mcp_adapter.source_frame_mapping,1);assert.equal(status.mcp_adapter.source_region_mapping,1);assert.equal(status.mcp_adapter.fitted_child_mapping_guard,1);assert.equal(status.mcp_adapter.frame_mapping.active,false);
     const link=join(root,'linked.jsonl');symlinkSync(journal,link);const linked=structuredClone(descriptor);linked.source_packet.path=link;
     await assert.rejects(mapRecordingFrames(linked,request));assert.equal(frameMapHealth().active,false);
     writeFileSync(journal,rows.map(r=>JSON.stringify(r)+'\n').join('')+'{"kind":');await assert.rejects(mapRecordingFrames(descriptor,request),e=>e.code==='frame_mapping');assert.equal(frameMapHealth().active,false);

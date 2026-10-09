@@ -1,5 +1,84 @@
 # Qualification update — October 9, 2026
 
+## Fifty-sixth pass: real menu fitting passes pixels, but fitted coordinates fail
+
+Installed25bdf541968a/PID75812 unchanged. Previously absent TextEdit1.20/415
+opened an already-local584-byte synthetic RTF; Window > Move to Built-in Retina
+Display plus one native resize produced parent(148,73,586,252). Native context
+root/Font/Highlight viewports fit this smaller parent. The full-app inclusion
+crop and isolated child-enabled source each retain their sampled encoded stack.
+Original90s pair2609/2621 exact mux/source joins,5230 total, zero observed row
+loss or encoder drops. App source has one unknown geometry notification between
+valid segments; no transform is borrowed for that notification.
+
+The first912-point typeface popup opened after the original90s take ended.
+Retain that timing miss; new frame.verify returned start, not an original tap.
+A follow-up pair starts with this preexisting large popup, then captures native
+Escape, reopening a236-point popup, and final Escape. It ends early by explicit
+owned stop: review duration app65.676s/window66.039s, not the180s scheduled maximum or an
+identical end.1911/1925 exact joins,3836 total; all four takes9066 exact joins.
+Both follow-up sources retain the tall visible viewport. The isolated fixed
+1172x504 canvas shrinks the document at content_scale0.2763157785, remains
+shrunken in the closed sample, and restores scale1 for the smaller reopened
+popup. The full-app3024x1964 source remains in desktop coordinates.
+
+Spatial qualification FAILS on the fitted window. For known desktop text region
+(155,170,120,42), declared affine predicts source crop(4,54,70,77); independent
+app-source reference vs actual window sample gives bright-glyph IoU0.0249433.
+The SAME comparison on final unshrunk source passes0.9876333. No fitted shift or
+search is used. Above-parent popup y64 vs parent y73 may change a child-union
+origin, but this is a hypothesis, not a corrected general map. Initial frame-map
+returned candidate arithmetic, not pixel proof. Preserve passed fixture/static
+maps; fitted child-window overlays need a separate repair/qualification gate.
+Prefer the tested full-app source for this particular tall menu's spatial work.
+
+Only the visible menu viewport is covered, not100 AX font rows. Native inventory
+retains old off-screen menu windows; only on_screen:true bounds identify these
+observed phases. Six captured scope updates and four Escape key down/up events
+are retained in the follow-up window journal, zero outside counts/gap notices.
+AX popup openings have no extra CG events. Native activity/result/actor/provider
+clock completeness is not established by these counts or caller scopes.
+
+Original pair's104 process/pressure observations: recorder peakRSS53.52MiB,
+p50 intervalCPU6.94%, peak15.87%; TextEdit134.66MiB peak. Shared pressure1/2,
+no guard fired. Observer105s; no follow-up cost, GPU, capacity, causal orP80 claim.
+Nine native action scopes terminal/closed; separate nine verified action-state
+and cleanup-complete outcomes, zero uncovered receipts. Three exact-entity
+facts (menu pass, affine fail, resource mixed) independently read back centrally.
+Provider version unknown; reusable readiness remains scoped.
+
+Owned Quit submitted once; immediate CUA running inventory lagged, later PID82245
+absence and identical file hash prove settlement. session.update(state:closed)
+was silently ignored; readback open retained, actual session.close thenclosed
+readback preserved. Strict stage55 scope excluded this RPC. All four recordings
+terminal, session closed, sampler/decoder exited, native unchanged/idle and no
+preview lanes/input subscribers. No peer restart, grant, input lock or Claude use.
+Initial action.begin bad field refusal retained as observation before corrected
+request; no token or action replay. Visual/audio composition stays deferred.
+
+Forward service guard: current CLI and fresh MCP0.12.2 expose
+fitted_child_mapping_guard:1. For child-enabled/unknown isolated-window source
+with content_scale other than1, projections are null and transform_available
+false with fitted_child_window_origin_unqualified. Raw metadata/time joins remain.
+The guard uses retained header/capture rows: source descriptors omit full target
+fields. First descriptor-only candidate passed synthetic tests but failed actual
+MCP reader; saved failure guided the narrow fix. An old0.11.5 pinned test version
+also failed; updated protocol expectation, final14 focused checks pass.
+Actual fresh MCP maps two fitted frames as withheld, three restored frames as
+available; app and original isolated source remain available.6457 existing packets
+across those three queried takes still have exact joins. Five owned session/
+recording JSON hashes unchanged; reader exit0, native PID75812 unchanged. No new
+capture or native restart. The guard is complete in this bounded scope; a corrected
+fitted-origin map remains needs retest, with raw diagnostic evidence preserved.
+
+45 completed,16 partial,1 needs retest,1 deferred. Newly named fitted-child map
+gate isolates this real negative instead of rolling back prior proofs. Next:
+repair/qualify the missing spatial origin or explicitly withhold unsafe mapping;
+then remaining full-shot recovery, physical/provider, capacity and adoption.
+Private evidence: this chat capture-qualification-2026-10-08/gates-v56, including
+encoded-source-proof.json, fit-coordinate-diagnostic.json, restored-coordinate-
+proof.json, retained-input-query.json, audit.json and actual settlement readbacks.
+
 ## Fifty-fifth pass: strict capture options and selector constraints, with adapter proof
 
 Stage54's singular `include_transient` was silently ignored by raw native RPC.

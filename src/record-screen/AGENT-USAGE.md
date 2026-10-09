@@ -198,6 +198,17 @@ declared `CLOCK_UPTIME_RAW` host strings, with at most16 desktop points.
 The service owns exact epoch subtraction, mux intervals and source/geometry joins.
 Do not guess from nominal frame rate or current window dimensions.
 
+Fresh MCP0.12.2 exposes `fitted_child_mapping_guard:1`. For an isolated window
+with children enabled or unknown and observed `content_scale` other than1,
+the service returns `transform_available:false`, reason
+`fitted_child_window_origin_unqualified`, and null point/region projections.
+Raw geometry and exact source/video joins remain available for diagnosis.
+TextEdit's tall-menu lane disproved its declared fitted origin; do not bypass
+the guard by applying that raw candidate affine to overlays. Use an independently
+qualified source such as the tested full-app lane. Restored scale1 and explicit
+child-excluded mappings retain their prior scope; this guard does not prove
+arbitrary menu mapping or content presence.
+
 Held frames preserve their referenced content time and affine. Use that map
 even when a newer geometry segment exists. Inspect uncovered intervals, missing
 references, unknown ends/transforms and accepted submissions without packets.
