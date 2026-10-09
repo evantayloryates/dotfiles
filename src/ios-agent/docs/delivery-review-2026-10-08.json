@@ -1,0 +1,47 @@
+{
+  "observedAt": "2026-10-09T03:50:40.378901+00:00",
+  "servicePublication": {
+    "commit": "042fb0e74832151be943f0616c661b8ea92ad227",
+    "remoteMasterReadbackMatched": true
+  },
+  "review": {
+    "type": "Runner manual final integration and regression review plus earlier bounded parallel verification",
+    "scope": "Delivered host, CLI/native/React ownership/fencing and three Kickoff runtime hooks; paired identity helper reviewed",
+    "findingFixed": "CLI release after automatic handoff retirement failed unnecessarily; corrected without releasing another owner",
+    "releaseCleanupLiveGate": true,
+    "wholeSharedBranchIndependentReview": false
+  },
+  "sourceHashes": {
+    "service.py": "bbb8ae5cd46ba880cc28ac0b2a7f601f0cefd046f0a2d628c598c9cdd2318775",
+    "cli.py": "9bbcc233ca88f6c3a5209abe46bdd305b176980ff70763ffff5efa7c51bd3e7b",
+    "verify.py": "a86ec0e8f0db0f7ff9a25383331a1f12f7df25eebedb11a91bc7ee726fbfdb16",
+    "health.py": "f0dce0486a437f75fb4b6bc406fb20b97ca6ffa96fe316116bf5c5a4ff7a32bc",
+    "local_stack.py": "851c453d535fb633ea27b7919935de73b1d02169ba8a7d13df7bb772afcff50b",
+    "build_app.py": "33105635d1a7d5a25844ce6c59131c44e58b9b9952fbc3fd5cd30b145502d264",
+    "install.py": "46cdb72cabce5c22d3381eb036761ba1528d71b9c461ba4881260c755258cc28",
+    "install_runtime.py": "d9ed388a9f79bb86f7375059d1a3ea3fd580f0cc83d52c65e0ce378aa3f7c294",
+    "native/IOSAgent.inc": "ba17d3a6259369aaf85023ed3a63d9d261501aaacf2228847f12a78c305a3914",
+    "native/TouchHID.inc": "d44e2371ff3d6e3f5bf160eaaef19e62367aaef6e8e33718ed58e3c78106c9a3",
+    "native/StartupPolicy.inc": "685acffc489d0b033485ae102e1b49be48014fe226b9195d8d556175445e503b",
+    "native/WiFiShortcut.inc": "cdd1abaa889d02e24ddf3879c685b1636d29fa6b7b44dcfd4dee010c83b7bb23",
+    "native/bridge.js": "b47968bf51b1451b85cc255a135a5bd7f6410528aa85fa657652bfc21cbf6a3b",
+    "native/domain.js": "47ad1347b862996b693c4c17088625d689fcfaae9ad0f131dd5a0491ef24d4b2",
+    "native/telemetry.js": "313fe222bd199e04059f0d6e087fd153e10e31fab7ad70a9a068a1b9d7be4a2c",
+    "native/refresh-diagnostics.js": "b637bead52fabc42a3e990528df77f9881c6f0d55d277ba4ea20aedd1c7fa2e1",
+    "native/transformer.cjs": "c0f2f14a10d7311f5ceea3679d25df78e7e7334a5c95d04eba14448ce9214864",
+    "react/relay.mjs": "78eb67e3a434a073f6bb65bd27abd8072249d59baedb057f831a983da01bf9ba"
+  },
+  "tests": {
+    "python": 86,
+    "javascript": 22,
+    "UIKit": 51
+  },
+  "finalPhone": {
+    "usbUnplugged": true,
+    "wifiAssociationRestored": true,
+    "homeRestored": true,
+    "nativeHostIdleVerified": true
+  },
+  "kickoffPublication": "pending other agent safe settlement and audited guard; no bypass",
+  "reportBrowserRender": "not performed; file protocol rejected, static checks passed"
+}
