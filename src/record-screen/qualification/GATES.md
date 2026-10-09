@@ -1,5 +1,38 @@
 # Qualification update — October 9, 2026
 
+## Thirty-ninth pass: Finder depth separates menus from Quick Look
+
+Finder26.4/build1828.5.2 on25F80, native CUA version unknown, built-in2×:
+actual child-enabled native context/Open With submenu present, child-disabled
+control absent. Parent map remained fixed; arbitrary overflow still unproved.
+Quick Look file preview absent from child-enabled Finder source. Padded display
+retained panel body but clipped title/text above top160pt. One narrow full-display
+sample retained exact title and both synthetic text lines; unrelated notification
+overlapped upper-right panel. Broad source is insurance, not clean/unobscured
+footage. Quick Look helper/child ownership remains unestablished.
+
+Eight sources pass18,641 exact mux/source samples, zero reported writer drops
+or journal loss. Actual service mapping selected media frames, not nominal fps.
+Three passive observers exited normally:374 fresh normal-pressure observations,
+no errors/stops, no thermal/GPU/capacity attribution. Included menu input reports
+protected-input gap; no new keyboard coverage. Installed grant remains valid.
+
+First Quick Look previewed folder because selection was not verified; correction
+occurred after initial take ended. Retain that failure, then explicit row/file
+identity checks qualified narrow file-preview/full-display samples. Cleanup was
+after media end, not a captured disappearance. First cleanup receipt expired;
+later owned-window close was independently observed without rewriting bounds.
+Final setup/cleanup scopes closed promptly. Ten typed outcomes:9verified/1failed,
+cleanup10complete/uncovered0. Four central scoped facts read back; unknown
+provider version limits reuse. Owned Finder UI, recordings, observers/session
+settled; f314/PID35547 unchanged/idle, no peer restart or input/notification lock.
+
+FINDER-TRANSIENTS.md and usage runbook publish exact family/crop/precondition
+expectations. New Finder scope completed;41completed,17partial,1deferred.
+Broader recovery, ownership, provider/physical and daily-app boundaries remain
+partial. Evidence private gates-v39. Next investigate a missing boundary only;
+no replay of these settled menu or preview sources.
+
 ## Thirty-eighth pass: agents receive scoped storage and reader budgets
 
 Fresh MCP0.11.1 and CLI production-plan now publish the actual stage37 Retina

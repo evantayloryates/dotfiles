@@ -201,3 +201,22 @@ Physical sleep/wake, natural OS/hardware faults, remaining physical/global
 event attribution, some daily-app surfaces and broader routine provider adoption
 stay explicitly open in the checklist. Controlled fault tests and retained
 source proofs need not be repeated to conceal those limits.
+
+
+## Finder menus and Quick Look have different capture lanes
+
+The [qualified Finder lane](qualification/FINDER-TRANSIENTS.md) records native
+context/Open With submenu in child-enabled parent footage, while Quick Look
+file preview is absent. A padded display source caught the panel but missed
+its title/text above the crop. Full display retained that content, with an
+unrelated notification over the upper-right panel. Inspect the specific
+transient and actual encoded extent; menu success does not qualify Quick Look.
+Unknown provider version and changed environments need a narrow refresh.
+
+Select/verify the exact file row before Space, then verify preview identity
+before recording. A wrong folder preview and correction after a take ended
+cannot establish requested-file coverage. Begin/dispatch/observe/end action
+scopes promptly and perform media QA afterwards; an expired scope cannot be
+extended to cover a later cleanup. Preserve its bounds and report cleanup
+separately. Broad source retains unrelated pixels; keep private evidence and
+show only necessary owned content in reports. Composition remains deferred.

@@ -1,9 +1,9 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T05:49:48-04:00",
+  "updated_at": "2026-10-09T06:18:30-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage38 planning/storage guidance delivered via CLI/fresh MCP0.11.1:10 checks passed, actual reference figures match retained proof, explicit per-source/reader budget flags preserve unknown safe duration and app/capacity costs. Native unchanged/idle; no capture/UI/permission action.40 completed,17 partial,1 deferred. Continue remaining app/provider/physical and practical workload acceptance."
+    "note": "Stage39 Finder capture-family lane verified: menus pass, Quick Look needs broader coverage; padding clips content and full display admits interference.8 sources/18,641 exact samples; failed precondition/expired receipt preserved. Owned resources settled.41 completed,17 partial,1 deferred. Continue useful missing boundaries; retain prior evidence."
   },
   "production_note": "Signed native f314bb340344/PID35547 unchanged and idle. Fresh MCP0.11.0 adds bounded retained-input query; final CLI/MCP returns12 exact prior keys with unresolved ownership and source snapshots. Peer adapters untouched. Physical/provider calibration, remaining daily-app surfaces, routine adoption, GPU/thermals and P80 remain unqualified.",
   "groups": [
@@ -82,14 +82,24 @@
           "updated_at": "2026-10-08T20:01:05-04:00"
         },
         {
+          "id": "finder-depth",
+          "title": "Finder native menus and Quick Look capture expectations",
+          "status": "completed",
+          "scope": "Finder26.4/build1828.5.2 on25F80, built-in2×, native CUA version unknown: actual menu controls, file-preview omission, crop boundary and full-display content insurance.",
+          "evidence": "Stage39:8 sources/18,641 exact mux-source packets, zero reported drops/loss. Child-enabled menus/submenu present; disabled omitted. Quick Look omitted from parent; padded crop clips title/text; full display retains content with notification overlap. Failed folder precondition and expired cleanup bounds retained;10 typed outcomes9verified/1failed, cleanup10complete; four central facts read back. Owned resources settled.",
+          "next": "",
+          "anchor": "thirty-ninth-pass",
+          "updated_at": "2026-10-09T06:17:09-04:00"
+        },
+        {
           "id": "overflow-recovery",
           "title": "Prove a useful overflow capture and recovery path",
           "status": "partial",
           "scope": "Display padding/cropping must add transient coverage beyond the original canvas.",
-          "evidence": "Same-cycle installed AppKit attached-child included/excluded sources passed896 exact muxed samples. Enabled affine1→0.75→1 restored; all parent centers exact and240 open child samples within0.5px. Control omitted child throughout. Frozen-map/wrong-marker negatives failed. Prior Chrome padded popup and moving obstruction rescue remain retained.",
-          "next": "Qualify dynamic Chrome/native-menu depth and scene recovery in daily apps. The attached NSPanel proof does not establish arbitrary menu ownership or automatic tracking.",
-          "anchor": "thirty-third-pass",
-          "updated_at": "2026-10-09T04:08:20-04:00"
+          "evidence": "Stage39 Finder padding catches Quick Look body but clips title/text above crop; full display preserves content but notification overlaps upper-right panel. Child-enabled menu map fixed. Earlier controlled backup recovery remains valid.",
+          "next": "Qualify actual app transient extent/occlusion and source-coverage recovery without assuming arbitrary padding or unseen ownership.",
+          "anchor": "thirty-ninth-pass",
+          "updated_at": "2026-10-09T06:17:09-04:00"
         },
         {
           "id": "clean-source",
@@ -486,10 +496,10 @@
           "title": "Centralize version-scoped app observations",
           "status": "partial",
           "scope": "Shared reported facts, exact environment keys, expiry and conflicting evidence.",
-          "evidence": "Four exact-entity Chrome observations appended/read back centrally: window/app select failure, display pass, mixed native readiness recovery. Unknown provider/profile versions keep reuse false; earlier native fixture/planner facts retained. Stage31 mixed exact-entity native-readiness fact appended/read back: browser tab available, native app reads timed out and window stayed off Space; no environment reuse inferred. Stage32 adds exact fixture native-readiness and motion/static coverage facts; small native app works while Chrome/Dock failures remain scoped. Unknown provider/profile keeps reuse unconfirmed.",
-          "next": "Verify remaining environment versions and extend baselines only at unresolved app boundaries; routine skill adoption remains open.",
-          "anchor": "thirty-second-pass",
-          "updated_at": "2026-10-09T03:49:09-04:00"
+          "evidence": "Stage39 adds4 Finder26.4/build1828.5.2 scoped pass/fail/mixed facts with independent readback, alongside retained prior app observations. Menus and Quick Look use distinct capture keys. Provider version remains unknown; no universal reuse.",
+          "next": "Add only useful missing daily-app/provider capability facts; independently verify changed environment and specific transient family.",
+          "anchor": "thirty-ninth-pass",
+          "updated_at": "2026-10-09T06:17:09-04:00"
         },
         {
           "id": "requalification",
@@ -506,10 +516,10 @@
           "title": "Verify the quality of recent shared computer-use workflows",
           "status": "partial",
           "scope": "Assess delivered actions, verification and cleanup rather than tool-call counts.",
-          "evidence": "The new source consumer exposed a wrong fixture-PID oracle selection and an authored callback that incorrectly returned verified after failure. Latest corrected typed outcome is failed; conflicting history and completed cleanup preserved. Scope-derived corrected consumer has independent exact proof, verified outcome and complete cleanup. Broader historical/provider quality remains ungraded.",
-          "next": "Extend routine supported-provider verification with scope-matched evidence and callbacks that inspect actual results; preserve reported conflicts rather than infer historical task success.",
-          "anchor": "thirty-sixth-pass",
-          "updated_at": "2026-10-09T05:10:16-04:00"
+          "evidence": "Stage39 adds10 explicit typed outcomes:9 verified checks,1 failed file-selection precondition, all cleanup complete/uncovered0. One expired receipt stays interrupted while later cleanup verified separately. Earlier conflicting stage36 verification retained. This is reported scoped evidence, not every UI call or authenticated success rate.",
+          "next": "Extend routine provider/agent outcome adoption and diagnose actual unresolved workflows; preserve unobserved history instead of grading from receipt results.",
+          "anchor": "thirty-ninth-pass",
+          "updated_at": "2026-10-09T06:18:30-04:00"
         },
         {
           "id": "receipt-integration",
@@ -1646,6 +1656,45 @@
       "from": "completed",
       "to": "completed",
       "note": "Published runbook now includes bounded retained-input query and precise broad/filtered metadata semantics. Scope-matched oracle selection, checked verification callbacks and corrections with retained conflicting history are documented after actual failed/corrected consumers. Fresh adapter/CLI contracts verified; routine provider/app/physical/capacity gates stay separate. Stage38 documents source versus reader storage limits, reference scenarios and explicit short-take coverage checks; loaded0.11.1/CLI agree without peer restart."
+    },
+    {
+      "kind": "item",
+      "id": "finder-depth",
+      "at": "2026-10-09T06:17:09-04:00",
+      "from": "pending",
+      "to": "completed",
+      "note": "Stage39:8 sources/18,641 exact mux-source packets, zero reported drops/loss. Child-enabled menus/submenu present; disabled omitted. Quick Look omitted from parent; padded crop clips title/text; full display retains content with notification overlap. Failed folder precondition and expired cleanup bounds retained;10 typed outcomes9verified/1failed, cleanup10complete; four central facts read back. Owned resources settled."
+    },
+    {
+      "kind": "item",
+      "id": "app-facts",
+      "at": "2026-10-09T06:17:09-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage39 adds4 Finder26.4/build1828.5.2 scoped pass/fail/mixed facts with independent readback, alongside retained prior app observations. Menus and Quick Look use distinct capture keys. Provider version remains unknown; no universal reuse."
+    },
+    {
+      "kind": "item",
+      "id": "overflow-recovery",
+      "at": "2026-10-09T06:17:09-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage39 Finder padding catches Quick Look body but clips title/text above crop; full display preserves content but notification overlaps upper-right panel. Child-enabled menu map fixed. Earlier controlled backup recovery remains valid."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T06:17:09-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Stage39 Finder capture-family lane verified: menus pass, Quick Look needs broader coverage; padding clips content and full display admits interference.8 sources/18,641 exact samples; failed precondition/expired receipt preserved. Owned resources settled.41 completed,17 partial,1 deferred. Continue useful missing boundaries; retain prior evidence."
+    },
+    {
+      "kind": "item",
+      "id": "workflow-audit",
+      "at": "2026-10-09T06:18:30-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage39 adds10 explicit typed outcomes:9 verified checks,1 failed file-selection precondition, all cleanup complete/uncovered0. One expired receipt stays interrupted while later cleanup verified separately. Earlier conflicting stage36 verification retained. This is reported scoped evidence, not every UI call or authenticated success rate."
     }
   ]
 }

@@ -1,5 +1,16 @@
 # Production qualification goal
 
+Stage39 checkpoint: Finder menu/Quick Look lane completed for explicit scope.
+Eight sources pass18641 exact mux/source joins. Child-enabled native menus pass;
+Quick Look omitted there, padded display clips title/text, full display retains
+content with unrelated notification overlap. Failed folder selection, late
+correction and expired cleanup bounds preserved;10typed checks9verified/1failed,
+cleanup10complete/uncovered0; four scoped facts read back.374 fresh normal-pressure
+observations, no GPU/thermal/capacity claim. Owned UI/observers/tapes/session
+settled, f314/PID35547 unchanged/idle, no peer restart.41completed,17partial,
+1deferred. Goal active. Next qualify missing practical/provider/physical boundary
+and consume these app-family findings without whole-sequence reruns.
+
 Stage38 checkpoint: production-plan CLI/fresh MCP0.11.1 exposes the measured
 Retina pair, separate process observations and reference-duration storage/reader
 budget flags.10 targeted/adjacent tests and fresh real MCP/CLI passed; constants
