@@ -1,0 +1,12 @@
+{
+  "at": "2026-10-09T21:03:32.560Z",
+  "scope": "Physical iPhone ios-safari on private HTTPS; atomic Mac source write; no in-container touch; off-LAN not asserted",
+  "gates": {
+    "codeEditRendered": true,
+    "routePreserved": true,
+    "formStatePreserved": true,
+    "sourceRestored": true,
+    "restoreRendered": true,
+    "glowOff": true
+  }
+}

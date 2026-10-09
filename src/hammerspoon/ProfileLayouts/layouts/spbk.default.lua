@@ -1,0 +1,16 @@
+{
+	applications = {
+		{
+			windows = {
+				{}
+				{}
+			}
+		},
+		{
+			windows = {
+				{}
+				{}
+			}
+		},
+	}
+}

@@ -17,3 +17,5 @@ test('pending default web launcher is retained and parent cycles terminate',()=>
 });
 
 test('shell command containing another agent launcher is not a default starter',()=>{assert.equal(countProcesses([{pid:'1',cwd,args:['sh','-lc','yarn start:demo:development --port 3020']}]).web,0)});
+
+test('effective inherited CLI port wins over environment default',()=>{assert.equal(countProcesses([{pid:'1',cwd,args:['next','dev','--port','3020']},{pid:'2',parent:'1',cwd,args:['next-server'],envPort:'3000'}]).web,0)});

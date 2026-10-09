@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+HS_BIN="/Applications/Hammerspoon.app/Contents/Frameworks/hs/hs"
+RELOAD_DELAY="${RELOAD_DELAY:-0.025}"
+
+if [[ ! -x "$HS_BIN" ]]; then
+  echo "error: Hammerspoon hs CLI not found at $HS_BIN" >&2
+  exit 1
+fi
+
+format_seconds() {
+  awk -v seconds="$1" 'BEGIN { printf "%.2fs", seconds }'
+}
+
+delay_plus_bump() {
+  awk -v seconds="$1" 'BEGIN { printf "%.2fs", seconds + 0.01 }'
+}
+
+if [[ "$RELOAD_DELAY" == "0" || "$RELOAD_DELAY" == "0.0" || "$RELOAD_DELAY" == "0.00" ]]; then
+  reload_code="hs.reload()"
+else
+  reload_code="hs.timer.doAfter($RELOAD_DELAY, hs.reload); return 'reload scheduled'"
+fi
+
+set +e
+output="$("$HS_BIN" -c "$reload_code" 2>&1)"
+status=$?
+set -e
+
+printf '%s\n' "$output"
+
+if [[ $status -eq 0 ]]; then
+  exit 0
+fi
+
+echo "warning: Detected failure when using a $(format_seconds "$RELOAD_DELAY") reload delay. Consider bumping up to $(delay_plus_bump "$RELOAD_DELAY")" >&2
+exit 0

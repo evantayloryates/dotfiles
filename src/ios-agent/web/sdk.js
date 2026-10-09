@@ -12,7 +12,7 @@
   // Remove enrollment from address/history immediately, before any telemetry.
   history.replaceState(history.state, '', location.pathname + location.search);
   const boot = crypto.randomUUID();
-  let identity = enrollment ? undefined : saved, lease, deadline = 0, stopped = false, snapshot, refs = new Map();
+  let identity = enrollment ? undefined : saved, connected=false, lease, deadline = 0, stopped = false, snapshot, refs = new Map();
   let wakeLock,wakeRequest,wakeRetryAt=0;
   const seen = new Set(), events = [], domains = new Map();
   const clock = () => performance.now();
@@ -109,7 +109,7 @@
     if (stopped) return;
     try {
       if (!identity) { identity = await post({op:'join',token:enrollment,boot}); sessionStorage.removeItem('ios-agent-enrollment'); sessionStorage.setItem('ios-agent-page',JSON.stringify(identity)); enrollment=null; }
-      const response=await post({op:'poll',...feedback()}); if(stopped)return;apply(response);
+      const sentFeedback=feedback();const response=await post({op:'poll',...sentFeedback}); if(stopped)return;connected=sentFeedback.ready;apply(response);
       const c=response.command;
       if (c && lease && c.lease===lease.id && !seen.has(c.id)) {
         seen.add(c.id); if (seen.size>256) seen.delete(seen.values().next().value);
@@ -122,7 +122,7 @@
         if (JSON.stringify(result).length>800000) result={ok:false,error:'result_limit',replay:false};
         const ack=await post({op:'result',...feedback(),id:c.id,epoch:response.epoch,result}); apply(ack);
       }
-    } catch { ring({kind:'bridge',code:'transport_unavailable'}); }
+    } catch { connected=false;ring({kind:'bridge',code:'transport_unavailable'}); }
     if (!stopped) setTimeout(loop, lease?300:2000);
   }
   const originalFetch=window.fetch;
@@ -178,6 +178,6 @@
   const onHide=()=>{clear();if(identity)navigator.sendBeacon(endpoint,new Blob([JSON.stringify({op:'poll',...feedback(),visible:false})],{type:'application/json'}));};
   addEventListener('error',onError);addEventListener('unhandledrejection',onRejection);addEventListener('visibilitychange',onVisibility);addEventListener('pagehide',onHide);
   const installed={fetch:window.fetch,ws:window.WebSocket,rtc:window.RTCPeerConnection,gum:navigator.mediaDevices?.getUserMedia,xhrOpen:XMLHttpRequest.prototype.open,xhrSend:XMLHttpRequest.prototype.send};
-  window.__iosWebAgent={version,register:(key,read)=>{if(!/^[a-z][a-z0-9-]{0,63}$/.test(key)||typeof read!=='function')throw new Error('domain_contract');domains.set(key,read);return()=>domains.delete(key);},status:()=>({version,browser,page:identity?.page,connected:!!identity,owned:!!lease,indicator:glow.style.display!=='none'}),stop:()=>{sessionStorage.removeItem('ios-agent-page');stopped=true;onHide();clearInterval(timer);glow.remove();if(Element.prototype.attachShadow===installedAttachShadow)Element.prototype.attachShadow=originalAttachShadow;if(window.fetch===installed.fetch)window.fetch=originalFetch;if(window.WebSocket===installed.ws)window.WebSocket=originalWS;if(window.RTCPeerConnection===installed.rtc)window.RTCPeerConnection=originalRTC;if(originalGUM&&navigator.mediaDevices.getUserMedia===installed.gum)navigator.mediaDevices.getUserMedia=originalGUM;if(XMLHttpRequest.prototype.open===installed.xhrOpen)XMLHttpRequest.prototype.open=xhrOpen;if(XMLHttpRequest.prototype.send===installed.xhrSend)XMLHttpRequest.prototype.send=xhrSend;listeners.forEach(remove=>remove());for(const level of Object.keys(originalConsole))if(console[level]===installedConsole[level])console[level]=originalConsole[level];removeEventListener('error',onError);removeEventListener('unhandledrejection',onRejection);removeEventListener('visibilitychange',onVisibility);removeEventListener('pagehide',onHide);delete window.__iosWebAgent;}};
+  window.__iosWebAgent={version,register:(key,read)=>{if(!/^[a-z][a-z0-9-]{0,63}$/.test(key)||typeof read!=='function')throw new Error('domain_contract');domains.set(key,read);return()=>domains.delete(key);},status:()=>({version,browser,page:identity?.page,connected:!!identity&&connected,owned:!!lease,indicator:glow.style.display!=='none'}),stop:()=>{sessionStorage.removeItem('ios-agent-page');stopped=true;onHide();clearInterval(timer);glow.remove();if(Element.prototype.attachShadow===installedAttachShadow)Element.prototype.attachShadow=originalAttachShadow;if(window.fetch===installed.fetch)window.fetch=originalFetch;if(window.WebSocket===installed.ws)window.WebSocket=originalWS;if(window.RTCPeerConnection===installed.rtc)window.RTCPeerConnection=originalRTC;if(originalGUM&&navigator.mediaDevices.getUserMedia===installed.gum)navigator.mediaDevices.getUserMedia=originalGUM;if(XMLHttpRequest.prototype.open===installed.xhrOpen)XMLHttpRequest.prototype.open=xhrOpen;if(XMLHttpRequest.prototype.send===installed.xhrSend)XMLHttpRequest.prototype.send=xhrSend;listeners.forEach(remove=>remove());for(const level of Object.keys(originalConsole))if(console[level]===installedConsole[level])console[level]=originalConsole[level];removeEventListener('error',onError);removeEventListener('unhandledrejection',onRejection);removeEventListener('visibilitychange',onVisibility);removeEventListener('pagehide',onHide);delete window.__iosWebAgent;}};
   void loop();
 })();

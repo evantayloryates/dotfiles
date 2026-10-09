@@ -7,7 +7,7 @@ import {fileURLToPath} from 'node:url';
 import {nutritionRecipe} from './workflows.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/workflows.mjs', 'paired_workflow.py', 'health.py', 'local_stack.py', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
+const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/workflows.mjs', 'paired_workflow.py', 'health.py', 'local_stack.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
   .map(file => fs.readFileSync(path.join(root, file))).map(bytes => createHash('sha256').update(bytes).digest('hex')).join(':')).digest('hex');
 export const defaultState = path.join(os.homedir(), 'Library/Application Support/ios-agent');
 const idleLimit = 20 * 60 * 1000;
@@ -76,7 +76,7 @@ export class Backend {
       child.on('close', code => {
         clearTimeout(timer); this.running.delete(child);
         let value; try { value = JSON.parse(stdout); } catch { value = null; }
-        const known = /^(device_not_connected|device_already_leased|frontend_cleanup_in_progress|owner_not_active|owner_not_current_active_turn|lease_required|command_in_flight|active_React_frontend_lease_required|device_action_rejected|action_not_confirmed)/.exec(stderr)?.[1];
+        const known = /^(device_not_connected|device_already_leased|frontend_cleanup_in_progress|owner_not_active|owner_not_current_active_turn|lease_required|command_in_flight|active_React_frontend_lease_required|device_action_rejected|action_not_confirmed|web_page_not_ready)/.exec(stderr)?.[1];
         resolve({ok: code === 0 && !exceeded, value, error: exceeded ? 'cli_deadline_outcome_unknown_do_not_replay' : known || 'cli_failed_inspect_private_receipt'});
       });
     });

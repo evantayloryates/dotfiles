@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Personal dev-app broker. No system UI control; no credential/body logging."""
 import argparse
+import hashlib
 import hmac
 import json
 import os

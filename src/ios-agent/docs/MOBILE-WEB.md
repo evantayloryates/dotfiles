@@ -26,12 +26,15 @@ through CoreDevice is a provisioning convenience, not the operating transport.
    as well as label. State includes secure context, activation and registered
    domains. Events contain bounded console types, error codes and request timings;
    no console argument content, URLs, headers, request bodies, SDP or audio.
+   Optional selector/text scope finds later semantic nodes before the 500-node
+   output cap; the 8,000-element traversal cap still applies.
 5. `ios_web_action`: click/fill/scroll require fresh refs. Delivery is synthetic
    DOM input; React form state must be read back. Explicit evaluate executes JS
    in this enrolled dev document. It is NOT a read-only or trusted-input tool.
    Accepted/unknown commands never replay. Inspect independently after mutations.
 6. `ios_web_verify`: ready/DOM/route gates save structural receipts into the
-   existing shared learning store. Expected content stays in private artifacts;
+   existing shared learning store. Supply sessionId to learning search/evidence
+   to match the browser runtime rather than the native app. Expected content stays in private artifacts;
    shared evidence contains only booleans/counts. Lessons require review, never
    execute as instructions. `ios_web_end` confirms host release AND glow off.
    If page feedback is unavailable, cleanup is unconfirmed, not passed.
@@ -113,3 +116,38 @@ the arbitrary-network operating transport.
 
 The `next-router` reader supplies hydration/readiness and route/path only; queries,
 cookies, auth values and cached application models are excluded.
+
+## Product and recovery gates — 9 October, follow-up
+
+The actual authenticated Safari client lobby passed normal local cookie/GraphQL
+readback, Background-menu input/restoration and cleanup. The fixed `meet` reader
+reports only bounded call state, track presence/liveness, permission enums and
+safe error categories. Button-enabled does not mean a track was acquired.
+No call was joined in that lobby test.
+
+An enrolled document starts its adapter in `_document` before React hydration.
+SDK `connected` requires a successful ready poll, not just stored credentials.
+Actual product direct load/reload passed desktop WebKit. Physical Safari full
+product reload returned with a distinct boot, usable domain state, fresh
+ownership and glow off. Its old-document reload acknowledgment was uncertain;
+the command was not replayed. Always observe the replacement document before
+acquiring another session.
+
+Live stack recovery started only a missing port-3000 web worker while preserving
+another agent's port-3020 stack and existing GraphQL. Process admission checks
+explicit/inherited ports, and only the exact loopback Docker forwarder with a
+free verified target is permitted. Hardware USB enumeration, developer discovery,
+page readiness and worker/socket health are independent facts. HTTP SDK serving
+has an actual transport regression test in addition to control-socket tests.
+
+Mac bind-mount writes did not consistently notify the container's Next watcher
+in this run. An in-container touch of the edited source triggered compilation.
+This is an open automatic-update reliability gate; do not call an unchanged
+render proof of current source. No shared server was restarted to repair it.
+
+Mirroring's supported Actual Size menu restored usable coordinate navigation in
+the current session; typing the enrollment into the visibly selected Safari
+address field established a real ios-safari page. Keyboard shortcut/paste success
+alone had not established phone navigation. Recheck the actual browser and route.
+This nearby provisioning route does not establish arbitrary-network launching
+or real microphone capture while mirrored.

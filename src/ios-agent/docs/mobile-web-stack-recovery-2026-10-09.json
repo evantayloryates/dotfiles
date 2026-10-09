@@ -1,0 +1,20 @@
+{
+  "at": "2026-10-09T20:56:00Z",
+  "scope": "Live existing local synthetic stack; no service stopped or data reset",
+  "faults": [
+    "alternate-port worker counted as target",
+    "existing loopback Docker forwarder mistaken for target worker"
+  ],
+  "gates": {
+    "portSpecificClassification": true,
+    "exactProxyAndFreeTargetRequired": true,
+    "onlyMissingWebStarted": true,
+    "graphQLPreserved": true,
+    "otherPort3020Preserved": true,
+    "doctorAllHostChecksPassed": true
+  },
+  "notQualified": [
+    "full GraphQL cold start",
+    "sleep and VPN reconnect"
+  ]
+}

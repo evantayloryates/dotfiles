@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Read-only host prerequisite checks. Never acquires, launches or repairs."""
 import argparse
+import hashlib
+import subprocess
 import json
 from pathlib import Path
 import urllib.request
@@ -43,6 +45,8 @@ def check_host(state=STATE, backend_container='default-ki-e3ee9-dev-1'):
     check('localGraphQLReady', lambda: probe('http://127.0.0.1:4000/development/graphql', graphql=True))
     check('localWebReady', lambda: probe('http://127.0.0.1:3000/sign-in'))
     check('localMetroHTTPReady', metro_ready)
+    check('webSDKHTTPReady', sdk_ready)
+    check('localWebAdapterSourcesMatch', lambda: web_sources_match(config, backend_container))
     return {'version': 1, 'checks': checks,
             'hostPrerequisitesReady': all(checks.values()),
             'deviceRegistered': bool(status and status.get('device')),
@@ -73,6 +77,36 @@ def routes_valid(config, status):
 def metro_ready():
     with urllib.request.urlopen('http://127.0.0.1:19404/status', timeout=5) as response:
         return response.status == 200 and response.read(128) == b'packager-status:running'
+
+
+WEB_ADAPTER_FILES = ('next/pages/_app.js', 'next/pages/_document.js',
+    'next/pages/api/ios-web-agent.js', 'next/pages/api/ios-web-graphql.js',
+    'next/constants/api.ts', 'next/components/meet/index.tsx',
+    'next/utilities/ios-agent/enrollment-guard.js', 'next/utilities/ios-agent/boot.js',
+    'next/utilities/ios-agent/meet-state.js', 'next/utilities/ios-agent/use-meet-agent.js')
+
+
+def sdk_ready():
+    source = (Path(__file__).parent / 'web/sdk.js').read_bytes()
+    expected = source.replace(b'web-poc-1', ('web-' + hashlib.sha256(source).hexdigest()[:16]).encode())
+    with urllib.request.urlopen('http://127.0.0.1:19403/v1/web/sdk', timeout=3) as response:
+        return response.status == 200 and response.read(len(expected) + 1) == expected
+
+
+def web_sources_match(config, container):
+    if config is None:
+        return False
+    from local_stack import run, checked_mount
+    checkout = Path(config['mobile']).parent
+    mounts = json.loads(run(['docker', 'inspect', '--format', '{{json .Mounts}}', container]))
+    if not checked_mount(mounts, checkout):
+        return False
+    expected = {name: hashlib.sha256((checkout / name).read_bytes()).hexdigest() for name in WEB_ADAPTER_FILES}
+    # Only fixed source paths and hashes cross this read-only boundary. No envs,
+    # credentials, models, arbitrary paths or source contents are returned.
+    script = "const fs=require('fs'),crypto=require('crypto'),names=JSON.parse(fs.readFileSync(0,'utf8'));process.stdout.write(JSON.stringify(Object.fromEntries(names.map(n=>[n,crypto.createHash('sha256').update(fs.readFileSync('/workspaces/kickoff/'+n)).digest('hex')]))));"
+    observed = json.loads(run(['docker', 'exec', '-i', container, 'node', '-e', script], input=json.dumps(list(WEB_ADAPTER_FILES)).encode()))
+    return observed == expected
 
 
 def backend_valid(container):

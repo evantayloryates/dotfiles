@@ -56,6 +56,16 @@ class TransportTests(unittest.TestCase):
                 return status, json.loads(raw) if status == 200 else None
             proc = start()
             try:
+                # The browser SDK HTTP path must survive worker-identity refactors.
+                conn = http.client.HTTPConnection("127.0.0.1", port, timeout=5)
+                conn.request("GET", "/v1/web/sdk")
+                response = conn.getresponse()
+                payload = response.read().decode()
+                self.assertEqual(response.status, 200)
+                self.assertIn("__iosWebAgent", payload)
+                self.assertNotIn("web-poc-1", payload)
+                self.assertNotIn(token, payload)
+                conn.close()
                 self.assertEqual(device("hello", auth=False)[0], 403)
                 self.assertEqual(device("hello", token="unexpected")[0], 200)
                 self.assertEqual((state / "control.sock").stat().st_mode & 0o777, 0o600)

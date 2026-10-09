@@ -1,0 +1,6 @@
+{
+  "harnesses": [
+    {"id": "codex", "provider": "codex-native"},
+    {"id": "claude", "provider": "directory", "root": "~/.claude/skills"}
+  ]
+}

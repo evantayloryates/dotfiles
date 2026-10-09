@@ -1,6 +1,6 @@
 {
-  "at": "2026-10-09T19:47:10.151Z",
-  "scope": "Fresh installed stdio MCP controlling physical Safari qualification page",
+  "at": "2026-10-09T20:55:05.774Z",
+  "scope": "Fresh installed stdio MCP controlling physical Safari opted-in dev page",
   "tools": 22,
   "resources": 5,
   "gates": {
@@ -11,6 +11,7 @@
     "wrongRouteFails": true,
     "sharedLearningProposalAndReview": true,
     "counterevidenceStored": true,
+    "browserRuntimeLessonRecall": true,
     "glowOff": true
   }
 }

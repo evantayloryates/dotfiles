@@ -20,7 +20,7 @@ class HostHealthTests(unittest.TestCase):
         status = {'sourceHash': source, 'device': {'boot': 'present'}, 'lease': None,
                   'reactFrontendRunning': False, 'reactFrontendCleanupPending': False}
         patches = self.providers(status)
-        with patches[0] as ipc, patches[1], patches[2], patches[3], patches[4], patch('health.metro_ready', return_value=True):
+        with patches[0] as ipc, patches[1], patches[2], patches[3], patches[4], patch('health.metro_ready', return_value=True), patch('health.sdk_ready', return_value=True), patch('health.web_sources_match', return_value=True):
             value = check_host()
         self.assertTrue(value['hostPrerequisitesReady'])
         self.assertTrue(value['deviceRegistered'])
@@ -44,11 +44,19 @@ class HostHealthTests(unittest.TestCase):
 
     def test_unreachable_host_never_passes_idle(self):
         patches = self.providers(None)
-        with patches[0], patches[1], patches[2], patches[3], patches[4], patch('health.metro_ready', return_value=True):
+        with patches[0], patches[1], patches[2], patches[3], patches[4], patch('health.metro_ready', return_value=True), patch('health.sdk_ready', return_value=True), patch('health.web_sources_match', return_value=True):
             value = check_host()
         self.assertFalse(value['hostPrerequisitesReady'])
         self.assertFalse(value['hostIdle'])
         self.assertFalse(value['deviceRegistered'])
+
+    def test_socket_health_does_not_hide_broken_sdk_or_stale_container_source(self):
+        patches = self.providers({'sourceHash':worker_source_hash(),'lease':None,'reactFrontendRunning':False,'reactFrontendCleanupPending':False})
+        with patches[0], patches[1], patches[2], patches[3], patches[4], patch('health.metro_ready', return_value=True), patch('health.sdk_ready', return_value=False), patch('health.web_sources_match', return_value=False):
+            value=check_host()
+        self.assertFalse(value['hostPrerequisitesReady'])
+        self.assertFalse(value['checks']['webSDKHTTPReady'])
+        self.assertFalse(value['checks']['localWebAdapterSourcesMatch'])
 
 
 if __name__ == '__main__':

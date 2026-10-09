@@ -1,0 +1,13 @@
+{
+  "at": "2026-10-09T20:52:26.993Z",
+  "scope": "Owned desktop WebKit development fixture, 600 ordinary DOM controls; no physical trusted-input claim",
+  "gates": {
+    "defaultBounded": true,
+    "laterNodeFoundByScope": true,
+    "freshScopedHitTestAndScroll": true,
+    "ordinaryClickEffect": true,
+    "invalidSelectorRefused": true,
+    "fixtureRemoved": true,
+    "glowOff": true
+  }
+}

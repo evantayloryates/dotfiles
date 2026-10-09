@@ -2,7 +2,7 @@
 export function countProcesses(records) {
   const byPid = new Map(records.map(r => [String(r.pid), r]));
   const webPort = (record) => {
-    const seen = new Set();
+    const seen = new Set();let envPort;
     for (let r = record; r && !seen.has(String(r.pid)); r = byPid.get(String(r.parent))) {
       seen.add(String(r.pid));
       for (let i = 0; i < r.args.length; i++) {
@@ -10,10 +10,10 @@ export function countProcesses(records) {
         if (v === '--port' || v === '-p') return String(r.args[i + 1]);
         if (v.startsWith('--port=')) return v.slice(7);
       }
-      if (r.envPort) return String(r.envPort);
+      if (envPort === undefined && r.envPort) envPort = String(r.envPort);
       if (seen.size >= 8) break;
     }
-    return '3000';
+    return envPort || '3000';
   };
   const counts = {server: 0, starter: 0, web: 0};
   for (const r of records) {

@@ -1,0 +1,55 @@
+{
+  "at": "2026-10-09T20:50:52.380Z",
+  "scope": "Actual product /meet page, desktop WebKit over private HTTPS; no call joined or microphone opened",
+  "gates": {
+    "realProductDomainReader": true,
+    "typedMetadataOnly": true,
+    "ordinaryMenuInputAndRestoration": true,
+    "fullProductReloadReconnected": true,
+    "newDocumentBoot": true,
+    "glowOff": true
+  },
+  "state": {
+    "ready": false,
+    "connected": false,
+    "connecting": false,
+    "loading": false,
+    "supported": true,
+    "meetingNotFound": false,
+    "meetingLoadFailed": false,
+    "joinsAsCoach": false,
+    "roomState": "unknown",
+    "participants": 0,
+    "preJoinParticipants": 0,
+    "microphoneEnabled": true,
+    "cameraEnabled": true,
+    "tracks": {
+      "audio": {
+        "present": false,
+        "state": "unknown",
+        "enabled": false,
+        "muted": false
+      },
+      "video": {
+        "present": false,
+        "state": "unknown",
+        "enabled": false,
+        "muted": false
+      },
+      "screenShare": {
+        "present": false,
+        "state": "unknown",
+        "enabled": false,
+        "muted": false
+      }
+    },
+    "permissions": {
+      "microphone": "prompt",
+      "camera": "prompt"
+    },
+    "mediaErrors": {
+      "microphone": null,
+      "camera": null
+    }
+  }
+}

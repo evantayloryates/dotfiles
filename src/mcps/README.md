@@ -3,6 +3,28 @@
 Home for small, self-authored MCP servers that live with my dotfiles so they're
 versioned, portable, and available on any machine that clones this repo.
 
+## Client registrations and resource use
+
+`client-registrations.json` records the dotfiles-owned launchers and safe host
+settings for the Gmail, Cloudinary, Notion, and claude-driver clients measured in
+the October 2026 resource audit. Run `python3
+src/mcps/verify-client-registrations.py` from dotfiles to check both Codex and
+Claude registrations. The app-owned `~/.codex/config.toml` and `~/.claude.json`
+are installed invocation points; they also contain unrelated app state and are
+not wholesale symlinks into this repository. Keep credentials out of the
+registration inventory.
+
+The measured MCP fleet grows primarily by *client count*: each attached client
+starts separate stdio runtimes. On October 9 there were about 14 roots each for
+Notion, Cloudinary, and claude-driver, plus 28 Gmail roots for two accounts.
+Their sampled CPU was almost zero. Playwright MCP had another 14 roots; it was
+removed from Codex and the sole Claude project registration after confirming no
+active dotfiles or Kickoff workflow depended on its MCP tools. Playwright used
+as a test library is separate. To reduce the remaining footprint, compare
+root counts when idle chats close, then prototype a shared local transport for
+one client only if the reduction is worth the added lifecycle and isolation
+complexity. Preserve active clients and account boundaries during that test.
+
 Each subdirectory is one server. They're intentionally **zero-dependency** where
 possible (a single script run by an already-installed runtime like Node), so no
 `npm install` / build step is needed after cloning — clone dotfiles and register.

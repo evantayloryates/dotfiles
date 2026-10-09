@@ -1,0 +1,17 @@
+{
+  "at": "2026-10-09T21:01:34.584Z",
+  "scope": "Actual physical Safari microphone request; human accepted OS prompt; stream immediately stopped, no audio recorded or uploaded",
+  "sdk": "web-e9074f84d776db8b",
+  "gates": {
+    "realAudioTrackAcquired": true,
+    "trackCount": 1,
+    "probeTracksStopped": true,
+    "acquisitionCounters": {
+      "pending": 0,
+      "acquired": 1,
+      "failed": 0
+    },
+    "glowOff": true
+  },
+  "remaining": "OS permission prompt automation not qualified"
+}

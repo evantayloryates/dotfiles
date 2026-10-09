@@ -271,3 +271,10 @@ test('browser provisioning distinguishes missing transport from unlock and never
     } finally {await f.backend.close();fs.rmSync(f.state,{recursive:true,force:true});}
   }
 });
+
+test('MCP scopes DOM inspection and rejects unrelated scope before dispatch',async()=>{
+ const f=fixture(),seen=[];f.backend.webAction=async args=>{seen.push(args);return {ok:true,value:{snapshot:'fixed'}}};const{client,server}=await clientFor(f);
+ try{let r=await client.callTool({name:'ios_web_inspect',arguments:{sessionId:'a'.repeat(32),selector:'button',text:'Save'}});assert(r.structuredContent.ok);assert.deepEqual(seen[0].args,{selector:'button',text:'Save'});
+ r=await client.callTool({name:'ios_web_inspect',arguments:{sessionId:'a'.repeat(32),kind:'events',text:'Save'}});assert.equal(r.structuredContent.reason,'snapshot_scope_only');assert.equal(seen.length,1);
+ }finally{await f.backend.close();await client.close();await server.close();fs.rmSync(f.state,{recursive:true})}
+});

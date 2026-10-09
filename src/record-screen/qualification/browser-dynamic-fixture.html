@@ -1,0 +1,18 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Recorder dynamic Chrome qualification</title>
+<style>
+body{font:18px system-ui;background:#fff;margin:24px;color:#182634}h1{font-size:22px}button,select,textarea{font:18px system-ui}button{padding:9px;margin:6px}textarea{width:480px;height:70px;display:block;margin:20px 0}#anchor{position:fixed;left:32px;top:110px;width:24px;height:24px;background:rgb(255,0,0)}#pulse{position:fixed;left:70px;top:110px;width:24px;height:24px;background:rgb(0,255,0);animation:pulse 1s linear infinite}@keyframes pulse{to{opacity:.2}}#select-box{position:fixed;right:16px;bottom:16px;border:3px solid #006a79;padding:12px;background:#d5f7fa}body.contained #select-box{left:160px;top:330px;right:auto;bottom:auto}select{width:170px}#phase{font:14px monospace;margin-top:45px}
+</style>
+<h1>Recorder dynamic Chrome qualification</h1><p>Owned test surface. Native select and editing menus only.</p>
+<div id="anchor" aria-label="Fixed red capture anchor"></div><div id="pulse" aria-label="Passive encoder animation"></div>
+<p id="phase">Fixture mode: overflow</p>
+<button id="inside">Move select inside</button><button id="outside">Move select to edge</button>
+<textarea aria-label="Native editing menu">Dynamic menu sentinel</textarea>
+<div id="select-box"><label>Native select <select aria-label="Dynamic native select">
+<option>SELECT SENTINEL 01 — wide popup reference</option><option>SELECT SENTINEL 02 — wide popup reference</option><option>SELECT SENTINEL 03 — wide popup reference</option><option>SELECT SENTINEL 04 — wide popup reference</option><option>SELECT SENTINEL 05 — wide popup reference</option><option>SELECT SENTINEL 06 — wide popup reference</option><option>SELECT SENTINEL 07 — wide popup reference</option><option>SELECT SENTINEL 08 — wide popup reference</option><option>SELECT SENTINEL 09 — wide popup reference</option><option>SELECT SENTINEL 10 — wide popup reference</option><option>SELECT SENTINEL 11 — wide popup reference</option><option>SELECT SENTINEL 12 — wide popup reference</option>
+</select></label></div>
+<script>
+window.fixtureEvents=[];
+const record=(kind)=>{window.fixtureEvents.push({kind,t_ms:performance.now(),mode:document.body.classList.contains('contained')?'contained':'overflow'});if(window.fixtureEvents.length>2048)window.fixtureEvents.shift()};
+for(const [id,contained] of [['inside',true],['outside',false]])document.getElementById(id).addEventListener('click',()=>{document.body.classList.toggle('contained',contained);document.getElementById('phase').textContent='Fixture mode: '+(contained?'contained':'overflow');record('layout-change')});
+for(const type of ['pointerdown','pointerup','keydown','keyup','contextmenu','change'])document.addEventListener(type,()=>record(type));
+</script></html>
