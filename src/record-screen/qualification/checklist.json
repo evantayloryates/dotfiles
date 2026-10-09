@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T06:52:43-04:00",
+  "updated_at": "2026-10-09T07:05:06-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage41 direct floating-window lane delivered: Finder layer3 discovered explicitly,566 exact candidate/installed source packets and scoped pixels pass.22 native/23 adapter checks; signed3ff/PID74192,119 prior state hashes/grants preserved. Four typed outcomes/cleanup complete; owned resources settled.41 completed,17 partial,1 deferred. Continue useful remaining boundaries without settled-source resets."
+    "note": "Stage42 opt-in source-owned semantic context delivered in CLI/fresh MCP0.11.4.25 focused/adjacent plus9 changed-protocol checks, actual2 retained snapshots and once-only supported reader pass. Unknown captured end not backfilled from live state; exact start maps frame1169. Chrome readiness unavailable; no UI/take, owned server/readers/session settled. Native3ff/PID74192 unchanged/idle.41 completed,17 partial,1 deferred. Continue useful remaining boundaries."
   },
-  "production_note": "Signed native3ff4c4519dc8/PID74192 installed through one idle maintenance fence;119 prior state hashes unchanged, ScreenRecording and fresh Input Monitoring access retained. Fresh MCP0.11.3/CLI support explicit transient inventory and actual source mapping. Candidate/installed Quick Look source passes566 exact packets and scoped pixels. Peer adapters untouched. Protected input, physical/provider calibration, remaining apps, routine adoption, GPU/thermals and P80 remain unqualified.",
+  "production_note": "Signed native3ff4c4519dc8/PID74192 remains idle, grants retained. Fresh MCP0.11.4/CLI now reads opt-in captured action context with exact scope offsets and unknown ends, separate from later live state and typed outcomes.25 adjacent/focused plus9 changed-protocol checks; real retained source and once-only supported consumer verified. Peer adapters untouched. Remaining physical/provider/app/capacity boundaries stay unqualified.",
   "groups": [
     {
       "id": "capture",
@@ -268,10 +268,10 @@
           "title": "Connect rich semantic blocks to capture milestones",
           "status": "partial",
           "scope": "Intent, before/after context and verification evidence for later precise cues.",
-          "evidence": "Native oracle supplied two actual shortcut-executed milestones with no text field and exact retained key joins, plus cross-app semantic execution after the repair. Service action intent and separate verification/cleanup remain available; app milestones were authored oracle observations.",
-          "next": "Extend real daily-app milestones and routine consumer context; generic semantic detection and later visual/audio synthesis remain open.",
-          "anchor": "twenty-seventh-pass",
-          "updated_at": "2026-10-09T01:35:19-04:00"
+          "evidence": "Stage42 opt-in captured context returns rich caller-authored fields and exact source scope offsets, preserving active null end despite later closed action. Actual retained2 Finder snapshots map start to frame1169; CLI/MCP equal. Rich fields authored-test/consumer declaration only, old source empty.25 focused/adjacent plus9 changed-protocol checks.",
+          "next": "Extend useful actual rich daily-app milestones and routine provider adoption; keep intent, source snapshots and separate verified observed state distinct. Visual/audio synthesis deferred.",
+          "anchor": "forty-second-pass",
+          "updated_at": "2026-10-09T07:05:06-04:00"
         },
         {
           "id": "provider-gaps",
@@ -308,10 +308,10 @@
           "title": "Expose bounded retained input with exact receipt offsets and uncertainty",
           "status": "completed",
           "scope": "Service-owned interval/type/action queries, snapshot-bound pages, whitelisted input metadata and gap-preserving diagnostics. Physical completeness and actor identity remain unproven.",
-          "evidence": "Six new plus eight adjacent tests passed. Actual CLI/fresh MCP0.11.0 reads12 prior oracle-matched keys over four pages, six same-app other-window candidates unresolved, strict action filter six and two pointers unpromoted. Snapshot/filters/gaps/partial and invalid-source behavior verified; no capture or input replay.",
+          "evidence": "Stage42 extends completed bounded reader with opt-in up-to64 captured action snapshots. Defaults/cursor hashes preserved; token/type filtering independent, repeated-page/truncation explicit, null/expired/restart bounds honest.25 adjacent/focused plus9 changed-protocol checks and actual retained-source/CLI/MCP/once-only consumer pass.",
           "next": "",
-          "anchor": "thirty-sixth-pass",
-          "updated_at": "2026-10-09T05:10:16-04:00"
+          "anchor": "forty-second-pass",
+          "updated_at": "2026-10-09T07:05:06-04:00"
         }
       ]
     },
@@ -516,20 +516,20 @@
           "title": "Verify the quality of recent shared computer-use workflows",
           "status": "partial",
           "scope": "Assess delivered actions, verification and cleanup rather than tool-call counts.",
-          "evidence": "Stage39 adds10 explicit typed outcomes:9 verified checks,1 failed file-selection precondition, all cleanup complete/uncovered0. One expired receipt stays interrupted while later cleanup verified separately. Earlier conflicting stage36 verification retained. This is reported scoped evidence, not every UI call or authenticated success rate.",
-          "next": "Extend routine provider/agent outcome adoption and diagnose actual unresolved workflows; preserve unobserved history instead of grading from receipt results.",
-          "anchor": "thirty-ninth-pass",
-          "updated_at": "2026-10-09T06:18:30-04:00"
+          "evidence": "Stage42 actual supported semantic source consumer has one operation invocation and typed verified/cleanup-complete observation, uncovered0. Stage39/41 prior native audits and stage36 conflicts retained; scoped reported evidence, not historical task success rate.",
+          "next": "Extend routine provider outcomes and actual unresolved workflows; preserve unobserved history without grading receipt results.",
+          "anchor": "forty-second-pass",
+          "updated_at": "2026-10-09T07:05:06-04:00"
         },
         {
           "id": "receipt-integration",
           "title": "Improve automatic receipt coverage across providers",
           "status": "partial",
           "scope": "Capture durable operation evidence for native and browser actions.",
-          "evidence": "Prior corrected callback/oracle proof retained. Stage41 explicit native CUA setup/cleanup imported four terminal receipts with four actual proof-backed reported outcomes, cleanup complete and zero uncovered. Rejected missing-caller close corrected same token within bounds; no UI replay.",
-          "next": "Extend ordinary provider adoption and meaningful semantic context; automatic native interception remains unavailable, explicit bracketing required.",
-          "anchor": "forty-first-pass",
-          "updated_at": "2026-10-09T06:52:43-04:00"
+          "evidence": "Stage42 supported withRecordedWorkflow reader ran once with rich declaration context, closed before actual response verification, settled reader/session and published typed verified/cleanup-complete outcome, audit uncovered0. Native CUA interception remains explicit; prior conflicting/failed proofs retained.",
+          "next": "Extend actual ordinary provider adoption and rich daily-app observations, with proof-backed callbacks; do not infer interception or actors from reader success.",
+          "anchor": "forty-second-pass",
+          "updated_at": "2026-10-09T07:05:06-04:00"
         },
         {
           "id": "shared-baseline-plan",
@@ -1765,6 +1765,45 @@
       "from": "active",
       "to": "active",
       "note": "Stage41 direct floating-window lane delivered: Finder layer3 discovered explicitly,566 exact candidate/installed source packets and scoped pixels pass.22 native/23 adapter checks; signed3ff/PID74192,119 prior state hashes/grants preserved. Four typed outcomes/cleanup complete; owned resources settled.41 completed,17 partial,1 deferred. Continue useful remaining boundaries without settled-source resets."
+    },
+    {
+      "kind": "item",
+      "id": "semantic-context",
+      "at": "2026-10-09T07:05:06-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage42 opt-in captured context returns rich caller-authored fields and exact source scope offsets, preserving active null end despite later closed action. Actual retained2 Finder snapshots map start to frame1169; CLI/MCP equal. Rich fields authored-test/consumer declaration only, old source empty.25 focused/adjacent plus9 changed-protocol checks."
+    },
+    {
+      "kind": "item",
+      "id": "retained-input-query",
+      "at": "2026-10-09T07:05:06-04:00",
+      "from": "completed",
+      "to": "completed",
+      "note": "Stage42 extends completed bounded reader with opt-in up-to64 captured action snapshots. Defaults/cursor hashes preserved; token/type filtering independent, repeated-page/truncation explicit, null/expired/restart bounds honest.25 adjacent/focused plus9 changed-protocol checks and actual retained-source/CLI/MCP/once-only consumer pass."
+    },
+    {
+      "kind": "item",
+      "id": "receipt-integration",
+      "at": "2026-10-09T07:05:06-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage42 supported withRecordedWorkflow reader ran once with rich declaration context, closed before actual response verification, settled reader/session and published typed verified/cleanup-complete outcome, audit uncovered0. Native CUA interception remains explicit; prior conflicting/failed proofs retained."
+    },
+    {
+      "kind": "item",
+      "id": "workflow-audit",
+      "at": "2026-10-09T07:05:06-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage42 actual supported semantic source consumer has one operation invocation and typed verified/cleanup-complete observation, uncovered0. Stage39/41 prior native audits and stage36 conflicts retained; scoped reported evidence, not historical task success rate."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T07:05:06-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Stage42 opt-in source-owned semantic context delivered in CLI/fresh MCP0.11.4.25 focused/adjacent plus9 changed-protocol checks, actual2 retained snapshots and once-only supported reader pass. Unknown captured end not backfilled from live state; exact start maps frame1169. Chrome readiness unavailable; no UI/take, owned server/readers/session settled. Native3ff/PID74192 unchanged/idle.41 completed,17 partial,1 deferred. Continue useful remaining boundaries."
     }
   ]
 }

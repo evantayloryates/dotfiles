@@ -843,6 +843,33 @@ One active query is admitted per adapter until actual read/close settles; siblin
 adapters do not share global admission. Loaded status advertises
 `mcp_adapter.retained_input_query:1` and `input_query.active`.
 
+Fresh MCP0.11.4 adds `include_context:true` to this same query and advertises
+`mcp_adapter.retained_action_context:1`. The CLI supports it without peer reload.
+`captured_context.updates` exposes at most64 captured action snapshots with
+intent, purpose/before_state/expected_change/verification_plan, declared target,
+caller/provider, claimed result and exact start/end/deadline relative offsets.
+Unknown literal-key/clipboard fields are excluded; bounded context is explicitly
+caller-authored prose. Defaults return no context and preserve prior cursor hashes.
+
+Selection uses scope overlap, not the annotation row time. An active/interrupted
+snapshot with null end uses its declared deadline only to identify possible
+overlap; it remains null-ended and unverified. Expiry bounds attribution and
+does not cancel UI. End/start updates can fall outside the query while the scope
+overlaps it. Duplicate snapshots remain distinct in source-row order. The
+source's earlier state is never replaced by a later live action-store result.
+Rich fields missing from an old capture remain absent. Separate shared typed
+outcomes establish reported verification and cleanup, not this claimed result.
+
+Context summaries repeat on input pages and are bounded separately; source_row
+identifies each snapshot. `selection.truncated` exposes omitted eligible updates;
+narrow the interval rather than assuming completeness. Event-type filters do not
+hide context, action-token filters do, and include_unassociated affects input
+events only. Enabling context binds the page cursor to that choice. All existing
+source/read/response budgets and gap diagnostics still apply. Use exact scope
+offsets with recording_frame_map; scope presence is not a visible change,
+physical latency, exclusive actor or semantic detector. No new capture or
+composition is started by this reader.
+
 Six new and eight adjacent tests passed. Actual fresh MCP/CLI readback matches
 12 retained keys to the scope-matched delivery oracle, across four pages. Six
 belonged to the same app's other window and remain unresolved; a strict action

@@ -1,7 +1,7 @@
 # Agent usage and recovery
 
 This is the capture-foundations production runbook. The installed native build
-3ff4c4519dc8 and fresh adapter0.11.3 have the scoped proofs in
+3ff4c4519dc8 and fresh adapter0.11.4 have the scoped proofs in
 [GATES.md](qualification/GATES.md). Treat these as a baseline, then inspect
 loaded status. Visual effects, cursor styling and composition recipes are the
 next phase. The [checklist](qualification/checklist.json) tracks unresolved
@@ -108,6 +108,18 @@ clues rather than authenticated human/agent ownership. Same-app other-window
 keys can remain unresolved candidates. Keep inclusion reasons and uncertainty
 for the director's semantic refinement. Do not invent physical rate coverage
 from sparse virtual input or infer a session identity from zero-valued tags.
+
+Use `recording_input` / CLI `input-query` with `include_context:true` to read
+captured action snapshots alongside retained input. Fresh adapter0.11.4 reports
+`retained_action_context:1`. Rich purpose/before/expected/verification context
+is caller-authored. Exact start/end offsets support service-owned frame mapping;
+a declared deadline is not an observed end. Source snapshots can remain active
+after the live action store closes. Never backfill that later result into footage.
+Up to64 overlapping updates repeat on input pages, identified by source_row;
+inspect truncation and narrow the interval as needed. Event-type filters preserve
+context; action-token filters constrain it. A claimed result is separate from
+typed verification/cleanup. Actions outside capture can be absent, and empty
+captured context stays empty. Visual/audio synthesis is the next phase.
 
 For native CUA, explicitly begin a compact `action_begin` before the operation,
 retain its token and close promptly with `action_end`. Include intent and rich

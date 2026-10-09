@@ -1,5 +1,64 @@
 # Qualification update — October 9, 2026
 
+## Forty-second pass: captured semantic context without later-state fabrication
+
+Fresh MCP0.11.4 recording_input/current input-query CLI accepts opt-in
+include_context:true. The existing bounded opened-source reader now extracts up
+to64 overlapping captured action snapshots: intent, purpose/before/expected/
+verification context, declared target/caller/provider, claimed result, exact
+start/end/deadline offsets and source-row identity. Default results and cursor
+hashes unchanged. No native writer, clock, input capture or permission change.
+
+Selection uses recorded scope overlap; null-ended active/interrupted snapshots
+use a declared deadline only for possible overlap, never inferred completion.
+Update offsets are end_ns otherwise start_ns, not annotation receipt time.
+A scope may span the query even if its update stamp is outside it. Expired end
+bounds attribution, not UI cancellation. Context stays distinct from typed
+verification/cleanup; unknown literal key/clipboard fields excluded while
+caller-authored rich context is explicit. Empty old context stays empty.
+
+Event-type filters preserve context; action tokens filter it independently of
+include_unassociated input behavior. Context summaries repeat on input pages,
+source_row identifies snapshots, truncation exposes omitted eligible updates.
+Enabling context binds cursors. Existing64MiB/250000-row/1MiB-line/response and
+cooperative ten-second budgets, actual read/close admission and source integrity
+checks remain. No global admission, hard initial OS-call bound or semantic actor
+proof. Default can read historical malformed context it never requested; explicit
+context validation refuses invalid scopes/clocks/states/fields.
+
+25 focused/adjacent checks passed;9 changed-protocol checks revalidated after
+adding no-RPC invalid-context and actual MCP rich-field assertions. Exact stamps
+beyond JS integer range, spanning/edge scopes, active/interrupted null ends,
+protected gap, token/type independence, duplicate/capped snapshots, default and
+changed-context cursors, malformed bounds/context, regular-file/row/size checks,
+MCP source-only behavior and adjacent frame/window/reconnect paths covered.
+
+Actual owned retained Finder rec_dsgzm4rk yields2 snapshots. One close-menu scope
+starts at-3.988512514s and ends40.211551528s. Quick Look start40.217751403s is active
+with unknown end in this source, although the live store now has a closed action.
+Reader does not copy that later end/result. Source actual rich fields empty,
+not filled from inferred semantics. Exact start maps to actual frame1169 through
+the service. CLI/fresh MCP outputs equal; token filter selects1, type filter
+excludes input while preserving context. No new capture or stable pixel rerun.
+
+A supported withRecordedWorkflow consumer runs the reader once, closes its scope
+before checking actual response equality, then closes its own session and proves
+idle reader/native state. Rich declaration supplies purpose/before/expected/
+verification plan; typed verification/cleanup complete, central audit uncovered0.
+Central exact recorder/provider capability fact independently read back. Owned
+fresh MCP exits0. Native3ff4c4519dc8/PID74192 unchanged and idle; peers preserved.
+
+Chrome alternative: all baseline windows offscreen; CUA app observation times
+out before any provider input. Running inventory confirms app remains running.
+Owned loopback fixture serverPID78417 terminated/exit143; no UI action, Chrome
+window, recording or source result. Retain readiness failure and existing app
+proofs; no blind focus/retry or repeated question. Continue independent work.
+
+Checklist41completed,17partial,1deferred. Semantic/routine provider/physical
+coverage stays partial; visual/audio synthesis deferred. Private gates-v42.
+Next: actual useful rich daily-app milestones or a reachable missing app family;
+preserve captured versus live context and avoid resetting settled footage.
+
 ## Forty-first pass: direct floating-window discovery and installed source
 
 An explicit broader inventory found the owned Finder Quick Look panel at

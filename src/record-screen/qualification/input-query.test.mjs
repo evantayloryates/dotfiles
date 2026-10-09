@@ -14,6 +14,10 @@ const header={kind:'header',schema:'record-screen-source/v1',recording_id:id,clo
 const footer={kind:'footer',schema:header.schema,epoch_host_ns:epoch,complete:true,rows_lost:0};
 const event=(ns,overrides={})=>({kind:'input_event',received_host_ns:String(BigInt(epoch)+BigInt(ns)),relative_ns:String(ns),event_timestamp_ns:'123',type:10,key_code:8,autorepeat:false,flags:'0',source_pid:20,destination_pid:100,source_tag:'0',window_under_pointer:20,scope_certainty:'app_delivery_window_unresolved',relevance_reasons:['destination_app'],action_ids:[action],secure_input_snapshot:false,literal_text:'MUST NEVER RETURN',...overrides});
 const request={recording_id:id,from_relative_ns:'0',to_relative_ns:'50'};
+const contextRow=(start,end,overrides={})=>({kind:'action_scope',relative_ns:String(end??start),action:{schema:'record-screen-action/v1',clock_domain:'CLOCK_UPTIME_RAW',action_token:action,
+ action_id:'open-preview',session_id:'ses_fixture',caller:'owned-fixture',provider:'native-CUA',intent:'Open verified synthetic file preview',
+ target:{bundle_id:'com.apple.finder',pid:100,window_id:20},context:{purpose:'Capture menu lifecycle',before_state:'Exact synthetic file selected',expected_change:'Quick Look visible',verification_plan:'Inspect filename and source pixels',literal_text:'MUST NEVER RETURN'},
+ state:end===null?'active':'closed',result:end===null?'unknown':'delivered',start_ns:String(BigInt(epoch)+BigInt(start)),end_ns:end===null?null:String(BigInt(epoch)+BigInt(end)),deadline_ns:String(BigInt(epoch)+100n),evidence_refs:['/tmp/owned-proof.json'],...overrides}});
 async function fixture(t,rows){const root=await mkdtemp(join(tmpdir(),'input-query-'));t.after(()=>rm(root,{recursive:true,force:true}));const path=join(root,'source.jsonl');await writeFile(path,rows.map(r=>JSON.stringify(r)).join('\n')+'\n');return{root,path,descriptor:{recording_id:id,state:'done',source_packet:{path,epoch_host_ns:epoch,complete:true}}}}
 
 test('exact receipt intervals preserve broad same-app candidates, generation uncertainty and safe fields',async t=>{
@@ -30,6 +34,36 @@ test('metadata filters preserve gap evidence and make unassociated/default selec
  const broad=await queryRecordingInput(f.descriptor,{...request,action_tokens:[action]});assert.deepEqual(broad.events.map(e=>e.relative_ns),['0','20','30']);assert.equal(broad.selection.action_filtered,1);
  const narrow=await queryRecordingInput(f.descriptor,{...request,action_tokens:[action],include_unassociated:false,event_types:[22]});assert.equal(narrow.events.length,0);assert.equal(narrow.selection.type_filtered,3);assert.equal(narrow.selection.action_filtered,1);assert.equal(narrow.coverage.gaps.length,2);assert.equal(narrow.coverage.gaps_with_unknown_time,1);
  const pointer=await queryRecordingInput(f.descriptor,{...request,event_types:[22]});assert.deepEqual(pointer.events[0].raw_position,{x:-50,y:120});assert.equal(pointer.events[0].position_for_composition,null);assert.equal(pointer.events[0].scroll.momentum_phase,0);
+});
+
+test('rich captured snapshots use exact scope bounds, preserve active/unknown ends and do not become verification',async t=>{
+ const active=contextRow(-5,null),closed=contextRow(-5,75),edge=contextRow(50,60,{action_token:other});
+ const f=await fixture(t,[header,active,event(10),closed,edge,footer]);
+ const out=await queryRecordingInput(f.descriptor,{...request,include_context:true,event_types:[22]});
+ assert.equal(out.events.length,0);assert.equal(out.captured_context.updates.length,2);
+ const [a,c]=out.captured_context.updates;assert.equal(a.start_relative_ns,'-5');assert.equal(a.end_relative_ns,null);assert.equal(a.overlap_basis,'declared_deadline_only');
+ assert.equal(c.end_relative_ns,'75');assert.equal(c.update_relative_ns,'75');assert.equal(c.overlap_basis,'recorded_scope_bounds');
+ assert.equal(c.context.expected_change,'Quick Look visible');assert.equal(c.claimed_result,'delivered');assert.equal(c.verification,'unverified_claim');assert.equal(c.ownership,'unknown');
+ assert.doesNotMatch(JSON.stringify(out),/MUST NEVER RETURN|literal_text/);
+ const legacy=await queryRecordingInput(f.descriptor,request);assert.equal(legacy.captured_context,undefined);
+ assert.equal(out.coverage.video_coverage_evaluated,false);
+});
+test('context summaries bound snapshots, filter tokens independently and bind input cursors',async t=>{
+ const rows=[header,...Array.from({length:66},()=>contextRow(1,2)),contextRow(1,2,{action_token:other}),event(10),event(20),footer];
+ const f=await fixture(t,rows);const query={...request,include_context:true,action_tokens:[action],limit:1};
+ const a=await queryRecordingInput(f.descriptor,query);assert.equal(a.captured_context.selection.eligible_updates,66);assert.equal(a.captured_context.selection.action_filtered,1);assert.equal(a.captured_context.updates.length,64);assert.equal(a.captured_context.selection.truncated,true);
+ const b=await queryRecordingInput(f.descriptor,{...query,cursor:a.next_cursor});assert.deepEqual(b.captured_context,a.captured_context);assert.equal(b.events[0].relative_ns,'20');
+ await assert.rejects(()=>queryRecordingInput(f.descriptor,{...query,include_context:false,cursor:a.next_cursor}),/different query/);
+ const defaultA=await queryRecordingInput(f.descriptor,{...request,limit:1});const defaultB=await queryRecordingInput(f.descriptor,{...request,limit:1,include_context:false});assert.deepEqual(defaultA.next_cursor,defaultB.next_cursor);
+});
+test('malformed context refuses only explicit context reads and preserves protected/restart uncertainty',async t=>{
+ for(const patch of [{end_ns:null,state:'closed'},{start_ns:'1.5'},{deadline_ns:'1'},{clock_domain:'wall'},{context:{before_state:'x'.repeat(1501)}},{target:{bundle_id:'com.apple.finder',pid:true}}]){
+  const f=await fixture(t,[header,contextRow(1,2,patch),footer]);await assert.rejects(()=>queryRecordingInput(f.descriptor,{...request,include_context:true}),e=>e.code==='input_query');assert.equal(inputQueryHealth().active,false);
+  await queryRecordingInput(f.descriptor,request);
+ }
+ const r=contextRow(1,null,{state:'interrupted',result:'interrupted',end_kind:'unknown_after_engine_restart'}),f=await fixture(t,[header,r,{kind:'input_gap',reason:'protected_input'},footer]);
+ const a=await queryRecordingInput(f.descriptor,{...request,include_context:true});assert.equal(a.captured_context.updates[0].end_relative_ns,null);assert.equal(a.coverage.gaps_with_unknown_time,1);
+ assert.throws(()=>validateInputQuery({...request,include_context:1}),e=>e.code==='bad_input_query');
 });
 test('snapshot/query-bound pages retain duplicates and refuse changed filter/file cursors',async t=>{
  const f=await fixture(t,[header,...[1,1,2,3,4].map(n=>event(n)),footer]);const q={...request,limit:2};
@@ -60,7 +94,7 @@ test('invalid requests and bounded journal/read sizes refuse without widening sc
  await writeFile(f.path,JSON.stringify(header)+'\n'+'\n'.repeat(250000));await assert.rejects(()=>queryRecordingInput(f.descriptor,request),/row\/line budget/);
 });
 test('actual MCP input query negotiates capability, validates before RPC and only reads source',async t=>{
- const f=await fixture(t,[header,event(1),footer]);await writeFile(join(f.root,'unused'),'');
+ const f=await fixture(t,[header,contextRow(0,20),event(1),footer]);await writeFile(join(f.root,'unused'),'');
  const runRoot=join(f.root,'run');await (await import('node:fs/promises')).mkdir(runRoot);
  let supported=true;const calls=[];const sockets=new Set();
  const fake=net.createServer(s=>{sockets.add(s);s.on('close',()=>sockets.delete(s));createInterface({input:s}).on('line',line=>{const q=JSON.parse(line);calls.push(q.method);const result=q.method==='status'?{capabilities:{source_journal:supported?1:0}}:q.method==='record.source'?f.descriptor:null;s.write(JSON.stringify({id:q.id,result})+'\n')})});
@@ -71,7 +105,9 @@ test('actual MCP input query negotiates capability, validates before RPC and onl
  try{
   await send('initialize',{protocolVersion:'2025-06-18'});
   const invalid=await send('tools/call',{name:'recording_input',arguments:{...request,limit:257}});assert.equal(invalid.isError,true);assert.equal(calls.length,0);
+  const badContext=await send('tools/call',{name:'recording_input',arguments:{...request,include_context:'true'}});assert.equal(badContext.isError,true);assert.equal(calls.length,0);
   const valid=await send('tools/call',{name:'recording_input',arguments:request});assert.equal(valid.isError,false);assert.equal(JSON.parse(valid.content[0].text).events.length,1);assert.deepEqual(calls,['status','record.source']);
+  calls.length=0;const contextual=await send('tools/call',{name:'recording_input',arguments:{...request,include_context:true}});assert.equal(contextual.isError,false);assert.equal(JSON.parse(contextual.content[0].text).captured_context.updates[0].context.expected_change,'Quick Look visible');assert.deepEqual(calls,['status','record.source']);
   supported=false;calls.length=0;const missing=await send('tools/call',{name:'recording_input',arguments:request});assert.equal(missing.isError,true);assert.deepEqual(calls,['status']);
  }finally{child.stdin.end();child.kill('SIGTERM');await new Promise(resolve=>child.exitCode!==null||child.signalCode!==null?resolve():child.once('exit',resolve));lines.close();for(const s of sockets)s.destroy();await new Promise(resolve=>fake.close(resolve))}
 });
