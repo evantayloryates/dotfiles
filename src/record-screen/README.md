@@ -508,6 +508,14 @@ After approval, verify an actual app-delivered event against retained source row
 Use a fenced idle restart only if macOS requires it; never restart active work
 merely to refresh a permission observation.
 
+The October 9 installed canary verified the enabled switch, one fenced idle
+relaunch and a fresh listening subscription on build 767d45f6ce40. Six native
+app-delivered gesture transitions matched retained CG timestamps, types,
+destinations and positions exactly. Four targeted shortcut transitions survived
+lack of global foreground; their semantic execution, physical/global coverage
+and actor identity remain unqualified. See qualification/GATES.md, twenty-sixth
+pass. The recorder returned to zero input subscribers after that take.
+
 Build 767d45f6ce40 was delivered and independently read back on October 8,
 following the e0d053bc6732 foundation release.
 The existing screen grant and prior state survived the upgrade and an idle

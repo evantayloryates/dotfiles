@@ -598,3 +598,25 @@ Continue high-impact popup ownership/geometry/built-in fallback or approved
 input canary when authentication advances. Host pressure2 keeps paired changing
 motion pending; preserve prior failure and avoid repeating settled mux/clock
 work. User display authorization remains through Oct9 17:51 UTC.
+
+## Twenty-fifth/sixth-pass native skill and input checkpoint
+
+Native skill practical shared-evidence adoption passed one fresh app-delivered
+click and public terminal-reply import. Three CLI checks plus relevant store/
+outcome checks passed12/12. Bounded input files preserve unknown ends/idempotency;
+standard skill validation remains unavailable (PyYAML), explicit structural
+fallback passed. Typed workflow audit is scoped; historical corpus ungraded.
+
+Taylor completed human Input Monitoring authentication on reattempt. Only signed
+installed recorder was added, enabled switch read back. One fenced idle restart
+verified PID80100/build767d45f6ce40. Fresh subscription and262-sample exact mux
+canary retained17 input rows: six app-delivered gesture rows joined exactly,
+four targeted shortcut transitions survived lack of global foreground. No input
+loss/gaps observed. Shortcut semantic execution/physical/global/provider coverage
+and actor ownership remain unqualified. Action/take settled and listener idle;
+owned fixture/session retained for keyboard/relevance depth, cleanup partial.
+
+Next: keyboard delivery oracle and targeted/global shortcut relevance, then popup
+ownership/geometry and built-in fallback; motion insurance only with measured
+readiness/health. Do not repeat settled timestamp/gesture pixel work or revoke
+the new grant. User display interval through Oct9 17:51 UTC. Goal remains active.

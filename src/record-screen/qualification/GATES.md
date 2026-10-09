@@ -1,5 +1,67 @@
 # Qualification update — October 9, 2026
 
+## Twenty-sixth pass: installed Input Monitoring recovered with delivered proof
+
+Taylor reauthorized the specific permission setup and completed the human
+Touch ID gate. Native CUA selected only the installed signed record-screend.app;
+its Input Monitoring switch read back enabled. macOS required a relaunch.
+Later deferred the GUI restart; the public recorder CLI then acquired an idle
+maintenance fence, issued one restart and verified new PID80100 with unchanged
+build767d45f6ce40/signing. No peer capture or user input was stopped.
+
+A fresh subscription on retained session ses_aw8fmak4 reported listen_access=true,
+state=listening and an enabled tap. The small native window canary rec_n7hq35pf
+finalized262 accepted and actual muxed samples at exact journal timestamps.
+It retained17 input rows with zero input gaps, queue overflow or journal loss.
+All six app-delivered transitions (two down, two up, one drag, one wheel) joined
+exactly on raw CG timestamp, type, destination PID and position, inside the
+service-stamped action. Four shortcut transitions retained Command+Shift+K
+key-down/up and modifier changes addressed to the fixture, despite zero matches
+to global foreground. The fixture has no key oracle: semantic shortcut handling
+and physical/global-key coverage remain unproved. App callbacks followed recorder
+receipt by0.449–1.043ms; that is ordering, not physical latency. Extra provider
+pointer callbacks do not prove trajectory density or app delivery completeness.
+
+Action closed as dispatched before analysis; typed verification is separately
+verified and cleanup partial. CLI audit covers five reported scopes with four
+verified/one failed checks and one completed/four partial cleanups. Fixture/session
+remain for keyboard/relevance depth. Final status has no active actions, unfinished
+capture or input subscribers. Actor ownership is unknown; no input lock, model
+turn or broader menu/motion completion follows. Raw input and footage remain
+private gates-v26; screenshot confirms the specific enabled permission.
+
+Two local adapter mistakes were repaired without UI replay: an absent close
+export refused module loading before capture, and action.end lacked required
+session_id and was refused before closing. The same action was closed after
+adding that field. Shared receipt first persisted successfully; a reader's
+receipt_id/id shape error was repaired by reading that original result rather
+than recreating the UI operation. Original failures remain in this turn evidence.
+
+## Twenty-fifth pass: native skill adopts explicit shared evidence
+
+The current native skill now links a scoped shared-evidence runbook, differentiates
+recorder replies from manually declared receipts, closes action blocks before
+long checks and reports verification/cleanup separately. It preserves pending
+human approval in cleanup instead of cancelling it. Historical notes remain.
+The public evidence CLI gained recorded-action import; all compact file commands
+now bound regular nonsymlink UTF-8 inputs to64000bytes without echoing bad bodies.
+
+Three CLI integration checks plus related store/outcome checks passed12/12.
+First authored test fixture lacked required intent; only that fixture was repaired,
+with initial source retained. Standard skill validator could not load PyYAML in
+either existing runtime; existing Ruby YAML plus structural/link constraints
+passed as a declared fallback, not a standard-validator or behavioral claim.
+
+Fresh supported native skill flow delivered one down/up pair on PID21631/window6876
+within exact action bounds; AX counters each increased once. Native CUA remained
+explicitly bracketed, result dispatched. Public CLI import/readback and typed
+verified/partial-cleanup outcome passed. Earlier unassigned fixture activity was
+not attributed or regraded. Prior terminal cleanup reply imported twice with
+identical immutable value/ID and unchanged coverage, avoiding duplicate entries.
+Evidence private gates-v25. Broad ordinary-provider coverage and historical
+workflow success audit remain partial; no automatic CUA interception or actor
+authentication. Stage26 later completes the specific permission prerequisite.
+
 ## Twenty-fourth pass: Chrome select needs a separate display layer
 
 Installed PID15145/build767d45f6ce40 stayed healthy. Chrome 154.0.8037.98 /

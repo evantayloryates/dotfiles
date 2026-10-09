@@ -1,9 +1,9 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T00:58:21-04:00",
+  "updated_at": "2026-10-09T01:16:01-04:00",
   "workflow": {
     "state": "active",
-    "note": "Chrome select display-layer qualification and native cleanup passed; initial disturbed and zero-offset failures retained. Continue targeted popup ownership/geometry or approved input canary as authentication advances. Warning pressure keeps paired motion pending; no restart or phase reset."
+    "note": "Installed Input Monitoring is enabled and the native delivered-event canary passed. Continue keyboard/relevance and popup depth checks; retain partial evidence and avoid rerunning settled work."
   },
   "production_note": "Native 767d45f6ce40 remains installed. Chrome native select display-layer source and explicit cleanup passed; window/application lanes omit this surface. Input Monitoring awaits human authentication/canary; full insurance, resource budgets and broader app/input quality remain open.",
   "groups": [
@@ -152,10 +152,10 @@
           "title": "Qualify pointer positions for downstream composition",
           "status": "partial",
           "scope": "Normalize provider positions into recorded pixels without guessing coordinate semantics.",
-          "evidence": "Four earlier native CUA clicks across 1x/2x retained exact raw timestamps/points and 0.5px alignment. New built-in 2x app-delivered drag endpoint and scroll stripe align in retained video within 0.450004/0.039990 pixels; 307 exact mux/source samples. Production input rows absent because Input Monitoring is unavailable.",
-          "next": "After human-approved installed grant, match fresh drag/wheel input rows; extend another provider or physical lane with explicit confidence. Preserve existing click/pixel proof.",
-          "anchor": "twentieth-pass",
-          "updated_at": "2026-10-09T00:06:25-04:00"
+          "evidence": "Installed grant canary joined six delivered click/drag/wheel transitions exactly on raw CG timestamp, destination and position within action bounds. Earlier native endpoint pixel proof remains valid for its scope; position_for_composition stays unpromoted outside qualified provider mapping.",
+          "next": "Extend another provider or physical lane with explicit confidence; preserve existing click/gesture pixel evidence rather than rerunning it.",
+          "anchor": "twenty-sixth-pass",
+          "updated_at": "2026-10-09T01:16:01-04:00"
         },
         {
           "id": "sleep-clock",
@@ -188,10 +188,10 @@
           "title": "Qualify dense pointer, keyboard and gesture telemetry",
           "status": "partial",
           "scope": "Delivered keys, modifiers, motion, clicks, scroll and drag with bounded callback work.",
-          "evidence": "Thirty controlled actual-queue checks and prior key/click proof retained. New native CUA canvas delivered down/two drags/up/wheel with exact independent Quartz/CG points; sparse gesture only. Installed input-enabled takes explicitly lack access and contain zero input rows.",
-          "next": "Verify installed Input Monitoring recovery through matched delivered events; then physical rate, touchpad phases and richer keyboard scope. Do not infer density from sparse CUA gestures.",
-          "anchor": "twentieth-pass",
-          "updated_at": "2026-10-09T00:06:25-04:00"
+          "evidence": "Fresh installed listener retained 17 input rows, six exact app-delivery joins and four targeted shortcut transitions. Zero observed input gaps, queue overflow or journal loss; provider callbacks exceeded app-delivery rows, so neither proves physical trajectory density.",
+          "next": "Qualify physical rate, touchpad phases and richer keyboard scope; sparse native CUA gestures cannot establish dense physical capture.",
+          "anchor": "twenty-sixth-pass",
+          "updated_at": "2026-10-09T01:16:01-04:00"
         },
         {
           "id": "ordered-input-loss",
@@ -208,10 +208,10 @@
           "title": "Separate session events from unrelated user activity",
           "status": "partial",
           "scope": "Retain delivery and action-context reasons, broad shortcuts and uncertain candidates.",
-          "evidence": "Existing native delivery/action evidence retained. Controlled overload now clears missing-release drag context and excludes a later outside drag; a newly joining subscription inherits no historical loss. Dropped-event destinations/actors remain unknown.",
-          "next": "Test same-app concurrent human/agent activity and broader shortcuts/receipts. Preserve ownership uncertainty; joining-loss isolation does not establish actor separation.",
-          "anchor": "nineteenth-pass",
-          "updated_at": "2026-10-08T23:47:29-04:00"
+          "evidence": "Installed source retained four fixture-addressed shortcut transitions despite another app being globally foreground, attached to exact declared action. Six gesture delivery joins pass; source PID/action interval remain clues, not authenticated actor identity. Prior uncertainty, context and joining-loss evidence retained.",
+          "next": "Test same-app concurrent human/agent activity, global shortcuts and keyboard delivery semantics while keeping uncertain candidates and explicit reasons.",
+          "anchor": "twenty-sixth-pass",
+          "updated_at": "2026-10-09T01:16:01-04:00"
         },
         {
           "id": "protected-input",
@@ -248,20 +248,20 @@
           "title": "Qualify missing-event and tap-fault behavior",
           "status": "partial",
           "scope": "Expose virtual-input gaps, revoked access, disabled taps and overload.",
-          "evidence": "Prior controlled tap fault/key recovery proof retained. Installed 767d45f6ce40 input-enabled takes finalized video but explicitly reported listen_access_unavailable and no input rows. Human-approved permission setup reached Touch ID; no grant/recovery claim yet.",
-          "next": "Complete approved grant and fresh subscription canary. Physical revocation/natural timeout and initial OS/per-key call bounds remain open.",
-          "anchor": "twentieth-pass",
-          "updated_at": "2026-10-09T00:06:25-04:00"
+          "evidence": "Approved installed Input Monitoring recovered through one fenced relaunch and fresh delivered-event canary with zero observed gaps. Earlier controlled tap-fault and ordered ingress-loss evidence remains scoped; actual physical revocation/natural timeout not covered.",
+          "next": "Qualify physical revocation/natural timeout and initial OS/per-key call bounds when isolated; do not repeat the completed grant canary.",
+          "anchor": "twenty-sixth-pass",
+          "updated_at": "2026-10-09T01:16:01-04:00"
         },
         {
           "id": "installed-input-access",
           "title": "Verify installed Input Monitoring and delivered telemetry",
-          "status": "partial",
+          "status": "completed",
           "scope": "Separate Screen Recording from the signed installed recorder Input Monitoring grant; recover only with human approval and actual delivered-event proof.",
-          "evidence": "Installed 767d45f6ce40 retained two complete videos with explicit listen_access_unavailable gaps and zero input rows. Taylor approved the specific grant; System Settings Add awaits human Touch ID. No recorder row or telemetry recovery yet.",
-          "next": "Complete human authentication, add the installed bundle, observe enabled state and match fresh app-delivered gestures to retained input rows. Use idle fenced restart only if required.",
-          "anchor": "twentieth-pass",
-          "updated_at": "2026-10-09T00:06:03-04:00"
+          "evidence": "Taylor completed authentication; installed signed recorder switch enabled. One fenced idle restart verified unchanged build/new PID. Fresh listener retained 17 input rows; all six app-delivered gestures joined exactly and four targeted shortcut transitions survived lack of global foreground. 262 muxed/source timestamps exact; zero input gaps/queue/journal loss.",
+          "next": "",
+          "anchor": "twenty-sixth-pass",
+          "updated_at": "2026-10-09T01:15:27-04:00"
         }
       ]
     },
@@ -456,20 +456,20 @@
           "title": "Verify the quality of recent shared computer-use workflows",
           "status": "partial",
           "scope": "Assess delivered actions, verification and cleanup rather than tool-call counts.",
-          "evidence": "Historical 31-chat/2655-call structural inventory remains ungraded. New typed audit has actual reported quality evidence for three owned episodes: two verified checks/one failed readiness, one completed/two partial cleanup, no uncovered or truncated persisted rows. Receipt results and unknown ownership/evidence truth remain separate.",
-          "next": "Adopt typed outcomes in routine supported workflows and skill consumers; expand quality coverage without treating opaque historical tool results or counts as success.",
-          "anchor": "twenty-third-pass",
-          "updated_at": "2026-10-09T00:38:39-04:00"
+          "evidence": "Five owned scopes now have typed audit: four verified checks/one failed readiness, one completed/four partial cleanup, no uncovered or truncated persisted rows. Fresh native skill click and installed input canaries published separately. Historical 31-chat/2655-call inventory remains ungraded.",
+          "next": "Expand routine supported workflows and deeper keyboard/provider coverage; do not infer historical success or actor identity from reported scopes.",
+          "anchor": "twenty-sixth-pass",
+          "updated_at": "2026-10-09T01:15:28-04:00"
         },
         {
           "id": "receipt-integration",
           "title": "Improve automatic receipt coverage across providers",
           "status": "partial",
           "scope": "Capture durable operation evidence for native and browser actions.",
-          "evidence": "New explicit withRecordedWorkflow closes scopes before verification and defaults to dispatched, records typed verification/cleanup and attempts supplied hooks once. Actual installed source consumer plus seven-tool fresh MCP readback passed; 28 targeted tests preserve no-replay, unknown/null bounds, cleanup/verification errors and exact imports.",
-          "next": "Extend supported ordinary-provider adoption and native CUA deliberate bracketing; no external MCP interception or authenticated actor inference.",
-          "anchor": "twenty-third-pass",
-          "updated_at": "2026-10-09T00:38:40-04:00"
+          "evidence": "Native skill now links practical shared evidence; fresh explicit native click and input canaries read back through public recorded-action CLI. Twelve targeted CLI/store/outcome checks pass; exact stamps/null restart ends and idempotent bounded imports preserved. Callback wrapper prior scope remains verified.",
+          "next": "Extend ordinary provider adoption; explicit CUA bracketing remains necessary. No external interception or authenticated actor inference.",
+          "anchor": "twenty-fifth-pass",
+          "updated_at": "2026-10-09T01:15:28-04:00"
         },
         {
           "id": "shared-baseline-plan",
@@ -552,10 +552,10 @@
           "title": "Finish agent usage and recovery runbooks",
           "status": "partial",
           "scope": "Capabilities, gaps, deadlines, semantic blocks, app facts, effort and collision/recovery guidance.",
-          "evidence": "Current contracts document exact app planning, separate grants, prompt scope closure before checks, typed verification/cleanup, unknown/truncated audits and no-replay cleanup/error handling. Actual installed readback reused retained proof with no new capture or restart.",
-          "next": "Complete skill/ordinary-workflow adoption, reachable daily-app lanes and measured insurance/resource estimates before final full-scope production guidance.",
-          "anchor": "twenty-third-pass",
-          "updated_at": "2026-10-09T00:38:40-04:00"
+          "evidence": "Native skill shared-evidence reference is live and tested with fresh delivered click/public CLI import. Approved Input Monitoring procedure now has enabled-switch, fenced-restart and actual telemetry proof. Cleanup/verification are separate; Chrome display-layer runbook retains scoped limits.",
+          "next": "Complete keyboard/global relevance depth, remaining daily-app lanes and measured motion insurance/resource estimates.",
+          "anchor": "twenty-sixth-pass",
+          "updated_at": "2026-10-09T01:15:28-04:00"
         },
         {
           "id": "visual-composition",
@@ -1031,6 +1031,77 @@
       "from": "active",
       "to": "active",
       "note": "Chrome select display-layer qualification and native cleanup passed; initial disturbed and zero-offset failures retained. Continue targeted popup ownership/geometry or approved input canary as authentication advances. Warning pressure keeps paired motion pending; no restart or phase reset."
+    },
+    {
+      "kind": "item",
+      "id": "installed-input-access",
+      "at": "2026-10-09T01:15:27-04:00",
+      "from": "partial",
+      "to": "completed",
+      "note": "Taylor completed authentication; installed signed recorder switch enabled. One fenced idle restart verified unchanged build/new PID. Fresh listener retained 17 input rows; all six app-delivered gestures joined exactly and four targeted shortcut transitions survived lack of global foreground. 262 muxed/source timestamps exact; zero input gaps/queue/journal loss."
+    },
+    {
+      "kind": "item",
+      "id": "workflow-audit",
+      "at": "2026-10-09T01:15:28-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Five owned scopes now have typed audit: four verified checks/one failed readiness, one completed/four partial cleanup, no uncovered or truncated persisted rows. Fresh native skill click and installed input canaries published separately. Historical 31-chat/2655-call inventory remains ungraded."
+    },
+    {
+      "kind": "item",
+      "id": "receipt-integration",
+      "at": "2026-10-09T01:15:28-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Native skill now links practical shared evidence; fresh explicit native click and input canaries read back through public recorded-action CLI. Twelve targeted CLI/store/outcome checks pass; exact stamps/null restart ends and idempotent bounded imports preserved. Callback wrapper prior scope remains verified."
+    },
+    {
+      "kind": "item",
+      "id": "agent-runbooks",
+      "at": "2026-10-09T01:15:28-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Native skill shared-evidence reference is live and tested with fresh delivered click/public CLI import. Approved Input Monitoring procedure now has enabled-switch, fenced-restart and actual telemetry proof. Cleanup/verification are separate; Chrome display-layer runbook retains scoped limits."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T01:15:28-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Installed Input Monitoring is enabled and the native delivered-event canary passed. Continue keyboard/relevance and popup depth checks; retain partial evidence and avoid rerunning settled work."
+    },
+    {
+      "kind": "item",
+      "id": "pointer-coordinates",
+      "at": "2026-10-09T01:16:01-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Installed grant canary joined six delivered click/drag/wheel transitions exactly on raw CG timestamp, destination and position within action bounds. Earlier native endpoint pixel proof remains valid for its scope; position_for_composition stays unpromoted outside qualified provider mapping."
+    },
+    {
+      "kind": "item",
+      "id": "dense-events",
+      "at": "2026-10-09T01:16:01-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Fresh installed listener retained 17 input rows, six exact app-delivery joins and four targeted shortcut transitions. Zero observed input gaps, queue overflow or journal loss; provider callbacks exceeded app-delivery rows, so neither proves physical trajectory density."
+    },
+    {
+      "kind": "item",
+      "id": "provider-gaps",
+      "at": "2026-10-09T01:16:01-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Approved installed Input Monitoring recovered through one fenced relaunch and fresh delivered-event canary with zero observed gaps. Earlier controlled tap-fault and ordered ingress-loss evidence remains scoped; actual physical revocation/natural timeout not covered."
+    },
+    {
+      "kind": "item",
+      "id": "event-relevance",
+      "at": "2026-10-09T01:16:01-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Installed source retained four fixture-addressed shortcut transitions despite another app being globally foreground, attached to exact declared action. Six gesture delivery joins pass; source PID/action interval remain clues, not authenticated actor identity. Prior uncertainty, context and joining-loss evidence retained."
     }
   ]
 }
