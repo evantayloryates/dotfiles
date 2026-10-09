@@ -508,3 +508,23 @@ action or input subscriber remains. Existing footage is preserved privately unde
 gates-v20. Physical provider density, touchpad phases, keyboard/global-shortcut
 scope, same-app actor distinction, broader daily-app/insurance/resource gates
 remain open. No whole-phase reset or replay of settled tests.
+
+## Twenty-first-pass private restoration checkpoint
+
+Actual signed current -> preserved previous -> current bundles loaded privately
+as 767d45f6ce40/PID34584, e0d053bc6732/PID34587 and 767d45f6ce40/PID34601.
+All exited normally and were reaped. The copied terminal session's 22 original
+files, full source descriptors/frame counters and two settled action outcomes
+survived unchanged. An authored state=recording checkpoint became interrupted
+with explicit non-final counter/source provenance and stayed so across fallback
+and forward recovery. No capture, model turn, grant, live install or producer
+replay occurred. Production remains PID15145/build767d45f6ce40 and original
+state hashes remain exact. Private evidence is gates-v21/restoration-1.
+
+Input Monitoring setup is still waiting on Taylor's Touch ID before adding the
+specific installed recorder. Keep that grant/canary lane pending while pursuing
+independent work. Highest-impact independent next lane: shared computer-use
+baseline planning from exact app/environment facts, expiry/conflict-driven
+requalification and durable typed outcomes. Then targeted daily-app overflow and
+measured motion insurance when native/display readiness is available. Existing
+consumer adapter policy is unknown until safe next launch; no forced restart.

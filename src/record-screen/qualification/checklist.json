@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T00:06:25-04:00",
+  "updated_at": "2026-10-09T00:14:24-04:00",
   "workflow": {
     "state": "active",
-    "note": "Taylor resumed qualification. Prioritize high-impact investigation, preserve failed evidence and useful progress, and avoid repeated resets or rerunning settled checks."
+    "note": "Private restoration passed without disturbing production. Continue exact app/environment baseline planning and typed workflow evidence while the specifically approved Input Monitoring grant awaits human authentication."
   },
-  "production_note": "Native 767d45f6ce40 remains installed with Screen Recording and input_queue_loss:1. Native gesture pixels passed; Input Monitoring is separate and unavailable. Taylor approved enabling it; human authentication and fresh delivered-event canary are pending. Broader qualification remains active.",
+  "production_note": "Native 767d45f6ce40 remains installed with Screen Recording and input_queue_loss:1. Private signed fallback/forward restoration passed with terminal state and explicit checkpoint uncertainty preserved. Native gesture pixels passed; Input Monitoring awaits human authentication and delivered-event canary. Broader qualification remains active.",
   "groups": [
     {
       "id": "capture",
@@ -492,10 +492,10 @@
           "title": "Install the candidate safely and verify rollback",
           "status": "partial",
           "scope": "Idle-boundary release with prior binary/state preserved and exact loaded-capability readback.",
-          "evidence": "Delivered e0d053bc6732 through explicit observed legacy idle checks, reusing the tested signed cache. Real prior bundle and six state files verified; all prior state hashes survived delivery and fenced restart.",
-          "next": "Qualify a private restoration drill and loaded consumer expectations. Do not perform a live rollback merely to repeat successful delivery.",
-          "anchor": "eighteenth-pass",
-          "updated_at": "2026-10-08T23:29:16-04:00"
+          "evidence": "Installed fenced delivery and real grant/state preservation remain verified. New private current/previous/current drill retained all 22 copied session files, exact descriptors/counters and two settled action outcomes; authored checkpoint stays interrupted. All three owned processes reaped; production unchanged.",
+          "next": "Verify remaining loaded consumer expectations at safe launch boundaries. Do not perform a live rollback to repeat the passed private drill; live producer and universal schema recovery remain outside that proof.",
+          "anchor": "twenty-first-pass",
+          "updated_at": "2026-10-09T00:12:56-04:00"
         },
         {
           "id": "installed-smoke",
@@ -522,10 +522,10 @@
           "title": "Finish agent usage and recovery runbooks",
           "status": "partial",
           "scope": "Capabilities, gaps, deadlines, semantic blocks, app facts, effort and collision/recovery guidance.",
-          "evidence": "Source contracts, a readiness report and repeatable qualification kit exist; final reconciliation is pending. Candidate failure-isolation, retained admission and idle maintenance expectations are now documented.",
-          "next": "Reconcile instructions with delivered behavior and publish limits, fallback and cleanup expectations.",
-          "anchor": "fifteenth-pass",
-          "updated_at": "2026-10-08T22:33:44-04:00"
+          "evidence": "Installed capture/source/consumer and private restoration runbooks now distinguish full video from input coverage, separate grants, no-replay recovery and private fallback scope. Maintained checklist includes actual native gesture pixels and human authentication prerequisite.",
+          "next": "Reconcile shared app baseline planning, typed workflow outcomes, tested mode/resource estimates and remaining app/input/provider limits before final production guidance.",
+          "anchor": "twenty-first-pass",
+          "updated_at": "2026-10-09T00:12:56-04:00"
         },
         {
           "id": "visual-composition",
@@ -536,6 +536,16 @@
           "next": "Revisit after capture foundations and production expectations are qualified.",
           "anchor": "strategy",
           "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "private-restoration",
+          "title": "Verify private signed fallback and forward restoration",
+          "status": "completed",
+          "scope": "Actual preserved previous/current signed bundles; one copied terminal session and settled actions, with an authored interrupted checkpoint. No live install or producer restoration.",
+          "evidence": "Three privately loaded builds/PIDs verified and reaped: 767d45f6ce40 -> e0d053bc6732 -> 767d45f6ce40. All 22 cloned original files and two action receipts unchanged; exact source descriptors/counters survive old/new versions; authored checkpoint remains interrupted/non-final. Production PID/build and original hashes unchanged.",
+          "next": "",
+          "anchor": "twenty-first-pass",
+          "updated_at": "2026-10-09T00:12:12-04:00"
         }
       ]
     }
@@ -859,6 +869,29 @@
       "from": "partial",
       "to": "partial",
       "note": "Prior callback/imported receipt evidence retained. New native gesture bracket closed promptly as delivered after five app events; the earlier expired bracket remains interrupted. Native screenshot refusal and observed Raise recovery preserved without fixture restart."
+    },
+    {
+      "kind": "item",
+      "id": "release-rollback",
+      "at": "2026-10-09T00:12:56-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Installed fenced delivery and real grant/state preservation remain verified. New private current/previous/current drill retained all 22 copied session files, exact descriptors/counters and two settled action outcomes; authored checkpoint stays interrupted. All three owned processes reaped; production unchanged."
+    },
+    {
+      "kind": "item",
+      "id": "agent-runbooks",
+      "at": "2026-10-09T00:12:56-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Installed capture/source/consumer and private restoration runbooks now distinguish full video from input coverage, separate grants, no-replay recovery and private fallback scope. Maintained checklist includes actual native gesture pixels and human authentication prerequisite."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T00:14:24-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Private restoration passed without disturbing production. Continue exact app/environment baseline planning and typed workflow evidence while the specifically approved Input Monitoring grant awaits human authentication."
     }
   ]
 }

@@ -1,14 +1,21 @@
 # Capture foundations: findings and next implementation
 
-October 8, 2026. This pass qualified mechanisms on the actual Mac and built an
-opt-in harness. The installed capture engine was not modified or restarted.
+Current checkpoint: October 9, 2026. Native build 767d45f6ce40 is installed,
+with guarded idle delivery and independently verified source/consumer smoke.
+The initial observations below came from an opt-in qualification harness;
+subsequent evidence and limits are in GATES.md and the maintained checklist.
+Private signed fallback/forward restoration passed. Installed Input Monitoring
+is separate from the existing screen grant and still awaits human authentication
+plus a fresh delivered-event canary. Production input completeness is unproven.
 Visual effect styles, cursor animation recipes and composition rendering are
 next-phase work. The supplied cursor.svg is a fixture asset only.
 
 Second-pass results superseding the initial open checks are in
 [GATES.md](GATES.md): streaming helper exclusion and visible Chrome native
 menus passed in bounded probes; marker/geometry joins now have pixel evidence.
-Production integration, robust concurrency and resource budgets remain open.
+Installed foundation integration and controlled failure isolation are verified
+for their written scopes. Broader apps/providers, live-work collision quality,
+motion insurance and measured resource budgets remain open.
 
 ## What the tests establish
 

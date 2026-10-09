@@ -323,3 +323,20 @@ raw event timestamps/positions/scroll fields when present, and decodes the drag
 endpoint and scroll stripe using the recorded affine geometry. Separately run
 `verify-journal.py` for actual mux/source parity. Sparse CUA drag events do not
 qualify physical trajectory density, touchpad phases or actor identity.
+
+### Private signed restoration
+
+Run `restoration-drill.py --current /absolute/current.app --previous
+/absolute/preserved-previous.app --state-root /absolute/record-screen-state
+--session-id ses_EXPLICIT --output /absolute/private/new-drill`. Use a real
+lowercase recorder session identifier. The named session must contain only
+terminal recordings and settled actions; scheduled/live state is refused.
+The tool copies one session, relocates copied JSON paths, verifies signatures,
+and loads current/fallback/forward privately with a short distinct Unix socket.
+It verifies exact terminal source descriptors/counters, settled receipts,
+unchanged original/copy hashes and an authored interrupted checkpoint. Each
+owned process is stopped and reaped before the next bundle copy. Failure keeps
+the private runtime; success keeps state, replies and signed bundle copies.
+This does not install, request grants, record, replay actions, restore a live
+producer or qualify production launchd rollback. Existing byte-identical decoded
+media evidence can be reused without re-rendering.

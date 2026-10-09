@@ -1,5 +1,29 @@
 # Qualification update — October 9, 2026
 
+## Twenty-first pass: private signed fallback and forward restoration
+
+The real preserved e0d053bc6732 bundle and current installed 767d45f6ce40 bundle
+were copied to a private install location and strictly signature-verified.
+One explicit terminal session (22 files, including media/source/manifests) and
+its two settled action receipts were copied. Only copied JSON path strings
+were relocated to the short private runtime root; original state stayed intact.
+
+| Gate | Verified evidence | Limits |
+| --- | --- | --- |
+| Signed bundle restoration | Current PID34584/build767d45f6ce40, fallback PID34587/e0d053bc6732, forward PID34601/767d45f6ce40 loaded in sequence with the expected exact binary and signing identity. All three exited normally and were reaped before the next copy. | Private install location, not production launchd rollback. No installing builder, input listener, capture or permission request. |
+| Terminal history | Both recording/source API replies retained exact original frame counters and complete source descriptors, including fields unknown to the prior build. Returned media/journal paths point to the private clone. All 22 cloned original files and both action files stayed hash-identical. | One explicitly named terminal session, not every historical schema. Existing decoded media proof is reused because copies are byte-identical; no rerender or capture replay. |
+| Partial checkpoint | An authored copy of a completed take was saved as state=recording before startup. First load correctly converted it to interrupted with persisted_checkpoint_not_final counters, source complete=false and explicit checkpoint provenance. Fallback/forward retained those distinctions. | Authored checkpoint, not an actual crashed producer. Its copied complete source-file rows cannot override the interrupted manifest or prove a partial-media boundary. |
+| Receipt recovery | Both original expired/interrupted and closed/delivered outcomes survived all three loads exactly, with no active action. | Settled receipt recovery; no actor identity or live-action replay guarantee. |
+| Production isolation | Fresh production readback remains PID15145/767d45f6ce40 with screen grant, zero unfinished recordings/input subscribers/active actions and no maintenance lease. Original session/action hashes are unchanged. | Input Monitoring remains independently awaiting human authentication. Private success does not grant access or migrate existing MCP clients. |
+
+restoration-drill.py preserves failed private runtime artifacts, refuses scheduled
+or live seed manifests/actions, uses a distinct short socket/root, and retains
+signed bundles plus copied state. It never invokes an installing build, captures,
+requests a grant or contacts a model. The private restoration subgate is now
+completed for this scope. Broader consumer policy, daily-app capture, input and
+measured insurance/resource gates remain open; do not perform a live rollback
+merely to repeat this successful drill.
+
 ## Twentieth pass: native gesture pixels and installed input permission
 
 The installed production recorder remains 767d45f6ce40/PID15145. Its Screen
