@@ -408,3 +408,32 @@ segment and bright-on-dark authored glyphs only. Selected frames do not prove
 complete shot coverage or dynamic overflow transitions. Dependencies match the
 existing journal/overflow kits (Pillow, ffmpeg/ffprobe). New source QA remains
 separate from the deferred effects/composition recipes.
+
+### Bounded motion obstruction and backup QA
+
+`occlusion-fixture.swift` creates owned controls beside the authored motion
+window. Its private bundle `TargetFrame` dictionary supplies x/y/w/h desktop
+points. Native Show places a floating opaque magenta cover for at most20s;
+Remove/close restores the source. Inspect actual display pixels before assuming
+its log means visible obstruction. Do not cover unrelated windows.
+
+`verify-motion-insurance.py --primary /absolute/terminal-display.json --backup
+/absolute/terminal-window.json --cover-log /absolute/occlusion-PID.jsonl --output
+/absolute/proof.json --diagnostics` checks the point1000x732 authored motion
+fixture at(120,110),12binary counter cells and same declared source maps. Both
+media sources are independently probed/decoded. An incomplete primary permits
+only an exact verified muxed prefix; the backup must cover planned time within
+40ms and keep changing. Recovery selects actual backup samples without
+stretching missing primary footage. Diagnostic frames/maps remain private.
+This scoped oracle is not a general collision detector or composition recipe.
+Failed-backup and non-overlapping-cover controls must reject. Dependencies match
+the existing journal QA (ffmpeg/ffprobe; no additional UI control).
+
+`sparse-writer-probe.swift` isolates AVAssetWriter from screen capture using
+authored pixel buffers and sparse source times. Compile privately; run under
+probe-supervisor.py with25s deadline and a fresh output folder. Ten variants
+compare nanosecond gap boundaries, a microsecond diagnostic control and explicit
+one-second held-buffer control. Saved NSError domain/code/underlying chain and
+actual ffprobe packets establish the result. This reproducer intentionally
+includes failed variants; its process exit alone is not writer success. It is
+not the production repair or physical capture timing proof.

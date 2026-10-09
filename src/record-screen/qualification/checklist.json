@@ -1,9 +1,9 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T01:56:14-04:00",
+  "updated_at": "2026-10-09T02:33:44-04:00",
   "workflow": {
     "state": "active",
-    "note": "Retina popup pixels, fitted geometry and child-option control passed;630 exact muxed/source samples. Continue dynamic overflow or motion-insurance readiness without resetting prior qualification. Physical input remains pending; all owned stage surfaces settled."
+    "note": "Moving backup recovered a real50s shot through20s obstruction and primary writer failure. Preserve partial/failed footage; diagnose sparse writer resume next, then qualify sustained paired cost. All owned fixtures settled; Input Monitoring active."
   },
   "production_note": "Signed build 53b202f58af8 is installed and verified through a fenced update. Input Monitoring survived and the changed keyboard-scope boundary passed a fresh delivered-event canary. Broader physical/provider, app, motion/resource and final production qualification remain open.",
   "groups": [
@@ -362,22 +362,32 @@
         {
           "id": "motion-insurance",
           "title": "Qualify motion insurance with matching backup coverage",
-          "status": "needs_retest",
+          "status": "partial",
           "scope": "A paired source must preserve the same changing scene and prove usable recovery.",
-          "evidence": "The paired take failed: 713 muxed packets versus 715 submissions, timing mismatch and constant counter; display backup scene coverage was not established.",
-          "next": "Correct the test preconditions and repeat under measured host health; prove actual shot recovery before recommending redundancy.",
-          "anchor": "seventh-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "evidence": "Real full-shot backup passed:1463 exact mux/source samples,49.973s coverage,575 changing ticks under20s obstruction; saved recovery map and negative controls. Primary writer failed77accepted/75persisted; prior failed preconditions remain.",
+          "next": "Diagnose sparse display writer resume, then qualify successful sustained paired cost and broader app/menu backup before recommending production redundancy.",
+          "anchor": "twenty-ninth-pass",
+          "updated_at": "2026-10-09T02:30:48-04:00"
         },
         {
           "id": "resource-admission",
           "title": "Set a realistic resource and admission budget",
           "status": "partial",
           "scope": "CPU, memory, encoder/GPU/storage costs and useful production-duration estimates.",
-          "evidence": "Single-source costs and offline overlap admission were measured; they do not establish safe real-world paired capacity or P80 duration. Fifteenth pass reserves unfinished startup, encoder calls/callbacks and unconfirmed stream stops even after terminal state or requested end; late completion releases admission. Configured cap is explicitly not capacity.",
-          "next": "Qualify synchronized insurance under measured health and finalize conservative resource recommendations; natural SDK/hardware saturation is not established.",
-          "anchor": "fifteenth-pass",
-          "updated_at": "2026-10-08T22:33:44-04:00"
+          "evidence": "52 passive samples cover the repaired50s pair:pressure2warning; aggregate recorder0.072 CPU cores/56.2MiB RSS. Primary failed early; backup1463 exact samples and8.299MB. Earlier admission/lifecycle proof retained; sustained encoder/GPU capacity and P80 remain unknown.",
+          "next": "After the narrow display writer repair, measure one successful bounded paired interval and define conservative modes; do not infer capacity from configured cap16.",
+          "anchor": "twenty-ninth-pass",
+          "updated_at": "2026-10-09T02:30:49-04:00"
+        },
+        {
+          "id": "sparse-display-writer",
+          "title": "Keep display writing reliable through sparse/static intervals",
+          "status": "needs_retest",
+          "scope": "Real display source becomes static under owned opaque cover, then resumes motion; primary media must survive independently of its backup.",
+          "evidence": "Actual display writer failed77accepted/75persisted samples after20s static cover; window backup survived. Isolated writer reproduced nanosecond-scale gaps:1.9/2.1s pass,2.2s and above fail with underlyingOSStatus -17771. Microsecond and1s held-buffer controls pass; production repair not yet applied.",
+          "next": "Prepare bounded explicitly journaled held frames and detailed writer errors; qualify real static/resume on isolated candidate while preserving nanosecond timestamps.",
+          "anchor": "twenty-ninth-pass",
+          "updated_at": "2026-10-09T02:33:44-04:00"
         }
       ]
     },
@@ -1208,6 +1218,37 @@
       "from": "active",
       "to": "active",
       "note": "Retina popup pixels, fitted geometry and child-option control passed;630 exact muxed/source samples. Continue dynamic overflow or motion-insurance readiness without resetting prior qualification. Physical input remains pending; all owned stage surfaces settled."
+    },
+    {
+      "kind": "item",
+      "id": "motion-insurance",
+      "at": "2026-10-09T02:30:48-04:00",
+      "from": "needs_retest",
+      "to": "partial",
+      "note": "Real full-shot backup passed:1463 exact mux/source samples,49.973s coverage,575 changing ticks under20s obstruction; saved recovery map and negative controls. Primary writer failed77accepted/75persisted; prior failed preconditions remain."
+    },
+    {
+      "kind": "item",
+      "id": "resource-admission",
+      "at": "2026-10-09T02:30:49-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "52 passive samples cover the repaired50s pair:pressure2warning; aggregate recorder0.072 CPU cores/56.2MiB RSS. Primary failed early; backup1463 exact samples and8.299MB. Earlier admission/lifecycle proof retained; sustained encoder/GPU capacity and P80 remain unknown."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T02:30:58-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Moving backup recovered a real50s shot through20s obstruction and primary writer failure. Preserve partial/failed footage; diagnose sparse writer resume next, then qualify sustained paired cost. All owned fixtures settled; Input Monitoring active."
+    },
+    {
+      "kind": "item",
+      "id": "sparse-display-writer",
+      "at": "2026-10-09T02:33:44-04:00",
+      "from": "needs_retest",
+      "to": "needs_retest",
+      "note": "Actual display writer failed77accepted/75persisted samples after20s static cover; window backup survived. Isolated writer reproduced nanosecond-scale gaps:1.9/2.1s pass,2.2s and above fail with underlyingOSStatus -17771. Microsecond and1s held-buffer controls pass; production repair not yet applied."
     }
   ]
 }

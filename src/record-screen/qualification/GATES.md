@@ -1,5 +1,90 @@
 # Qualification update — October 9, 2026
 
+## Twenty-ninth pass: moving backup survives real obstruction and writer failure
+
+Installed53b202f58af8/PID88833,25F80,built-in1512x982@2. Owned motion
+window7956 at(120,110,1000,732) was independently visible and changing; no
+Space/display move, input lock, install, restart or security change. Authored
+60Hz source is bounded120s; counters preserved through renewals, never reset.
+
+Four preliminary paired takes provided5555 exact mux/source samples, but did
+not qualify insurance: first pair missed the cover and reached the motion timer;
+second pair logged20s cover while the normal-level cover remained behind the
+motion window. Both failures stay private. A shown-window log is not pixel proof.
+Owned occlusion-fixture.swift now uses a floating opaque window and
+orderFrontRegardless, with automatic20s removal and explicit native controls.
+Actual frame.verify confirmed magenta display pixels and readable isolated
+window before the next take. The prior cover fixture exited before its repair.
+
+Repaired simultaneous50s point-profile H.264/30fps take: display rect
+rec_au3fzmzm failed; isolated window rec_t4rf8p7n completed. Source maps both
+[1,0,0,1,-120,-110],1000x732. Display accepted77 submissions but persisted75
+exact prefix packets/~3.53s;803 later append decisions failed. Source callbacks
+continued after cover removal, and admission released after acknowledged stream
+stop. Writer error only says operation could not be completed; cause remains
+unknown. Failure is correlated with sparse static cover/resume, not established
+as caused by concurrency, host pressure, cover code or WindowServer. No desktop
+exit observed. Journal closure is correctly separate from media completeness.
+
+Actual backup coverage passed:1463 independently decoded/muxed samples with
+exact source timestamps,49.973s sampled coverage of50s planned take,575 distinct
+counter ticks under20.0019s cover, longest same-tick run1. Common visible sources
+agree within2 nominal60Hz ticks; replacement sample skew max6.90ms. Saved
+recovery map selects1390 source samples for unreadable/ended primary media.
+An exact persisted prefix is used only when independently established; missing
+accepted tail is never treated as pixels. Selected before/cover/after diagnostic
+frames verify usable same-scene backup. This is full-shot recovery from a failed
+primary, not successful uninterrupted paired writing or a final effect recipe.
+
+New verify-motion-insurance.py is an authored point-counter oracle: exact mux
+join, declared affine, cover interval, continuously changing backup and recovery
+map. Failed-backup and non-overlapping-cover negative controls reject. It does
+not detect arbitrary-app occlusion, infer physical presentation or prove menus,
+HDR, display movement or longer production footage. Encoded rawvideo decode
+warnings are retained; actual packet timebases, not rawvideo output DTS, drive
+source joining. A replaced backup is not a silently completed primary.
+
+119 passive resource samples include52 across the whole repaired pair. Pressure
+remained2(warning), paging max0.0083MiB/s, compressor max109.44MiB/s. Aggregate
+CPU core equivalents: recorder0.072, owned motion0.131, WindowServer0.512;
+peak RSS56.2/79.7/120.6MiB. Actual output0.426MB partial display +8.299MB backup.
+These include warm verification/other process work and concurrent workloads.
+The primary failed early, so sustained paired encoder cost, GPU attribution,
+safe capacity and P80 remain unqualified. Own critical-pressure guard did not
+fire; passive watcher and peer processes were untouched.
+
+Two exact-environment central facts preserve backup pass and writer fail;
+unknown provider/profile keeps reuse unconfirmed. Nine terminal action receipts
+have8verified/1failed outcomes, all cleanup complete. Expired first-cover receipt
+stays; later correction/readiness is not backstamped. All known owned fixture
+PIDs10994/12323/18039 absent, session closed, actions/input/unfinished work zero.
+Production build and PID unchanged; Input Monitoring remains active.
+
+An owned isolated AVAssetWriter probe now reproduced sparse timing failure
+without screen capture or concurrent encoder sources. Nanosecond media/movie
+scale:1.9s and2.1s gaps pass;2.2,2.5,4.2,4.4 and19s gaps fail with
+AVFoundationErrorDomain/-11800, underlyingNSOSStatusErrorDomain/-17771.
+Microsecond timing and one-second held buffers keep the19s-gap control playable.
+This brackets an observed boundary consistent with signed32-bit nanosecond
+duration (~2.147s); exact Apple implementation cause is an inference. It is not
+an independently read back NSError from the live failed writer. All owned
+probe children exited/reaped under25s supervision. Production stayed unchanged.
+The useful repair lane is explicit held source frames while preserving exact
+nanosecond time, rather than globally reducing synchronization fidelity.
+
+Next: prepare bounded, explicitly journaled held-frame handling plus detailed
+writer errors; qualify exact timestamps and actual sparse/static resume on an
+isolated candidate. Retain this backup and failed primary. Repair only the failing boundary, then qualify sustained paired cost
+when both writers survive. Broader app/menu insurance and automatic source
+selection remain partial. No whole-phase reset or stable journal/color replay.
+Private evidence:gates-v29. Goal remains active; visual composition deferred.
+
+
+Final metadata readback found fixture CFBundleVersion776b157b432f, not the
+initially assumed1. Corrected exact-key facts were appended/read back; earlier
+immutable wrong-key observations remain explicitly unverified. No capture or UI
+replay. Provider/profile uncertainty still blocks reuse.
+
 ## Twenty-eighth pass: Retina popup geometry and child-option depth
 
 Chrome154.0.8037.98/build8037.98 on25F80, installed53b202f58af8,

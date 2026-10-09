@@ -674,3 +674,40 @@ interference recovery. Continue high-impact boundaries, preserve prior failures,
 and avoid rerunning stable journals/clock/color or completed Input Monitoring.
 Physical-key coverage still awaits a ready user, not repeated prompts. Standing
 visible authorization remains throughOct9 17:51UTC. Goal remains active.
+
+## Twenty-ninth-pass moving insurance checkpoint
+
+Actual repaired cover exposed a display writer failure, while1463 exact backup
+frames preserve the50s changing scene through20s obstruction. Both source maps
+match; before-failure counters agree within2ticks. Full-shot backup recovery map
+and selected diagnostic frames passed, with negative controls rejected. Preserve
+primary77accepted/75persisted packets and803 failed appends. Detailed writer
+NSError is currently absent; sparse static-cover resume is the next narrow lane,
+not a proven root cause. Four preliminary pairs5555 exact samples lacked actual
+cover and remain precondition failures. No whole-phase reset.
+
+Measured52 paired resource observations remain partial: warning pressure2,
+primary failed early, no successful sustained paired or GPU/P80 guarantee. All
+owned fixtures/session settled; recorder53b202f58af8/PID88833 idle, Input
+Monitoring active, watcher untouched. Two scoped facts and9terminal receipts
+with separate8verified/1failed outcomes saved/read back centrally. Unknown
+provider/profile keeps reuse unconfirmed.
+
+Next: owned isolated sparse-writer diagnostic and failure details, then repair
+affected boundary under idle release fence and requalify only that change.
+Actual full-shot backup is useful progress; dependable paired cost/app/menu
+coverage remains open. Standing UI authorization throughOct9 17:51UTC.
+
+Same-stage follow-up: isolated writer probe reproduces gap failure at nanosecond
+media scale without screen capture.1.9/2.1s gaps pass;2.2/2.5/4.2/4.4s fail with
+AVFoundation/-11800 underlyingOSStatus/-17771.19s sparse control fails, while
+microsecond scale and one-second held-buffer control pass. The signed32-bit
+nanosecond duration limit is a supported inference, not read back from the live
+failed writer. Prepare bounded explicitly labeled held frames, preserve exact
+source timing and add diagnostic errors. Then real isolated sparse resume and
+only relevant writer/source checks; production remains unchanged.
+
+Final metadata readback found fixture CFBundleVersion776b157b432f, not the
+initially assumed1. Corrected exact-key facts were appended/read back; earlier
+immutable wrong-key observations remain explicitly unverified. No capture or UI
+replay. Provider/profile uncertainty still blocks reuse.
