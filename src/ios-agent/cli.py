@@ -15,37 +15,61 @@ INSPECTION = {"ping", "status", "get-tree", "get-component", "find", "count", "e
               "profile-rerenders", "profile-timeline", "profile-commit", "profile-export"}
 
 
-def inspect(message, state):
-    status = request({"op": "status"}, state)
+def inspect(message, state, timeout=18):
+    try:
+        return _inspect(message, state, timeout)
+    except TimeoutError:
+        raise TimeoutError("inspection_deadline_exceeded; do_not_replay") from None
+
+
+def _inspect(message, state, timeout):
+    deadline = time.monotonic() + timeout
+    def budget():
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise TimeoutError("inspection_deadline_exceeded; do_not_replay")
+        return remaining
+    def host_status():
+        return request({"op": "status"}, state, timeout=min(15, budget()))
+    status = host_status()
     if not status.get("reactFrontendRunning") or (status.get("lease") or {}).get("id") != message["lease"]:
         raise RuntimeError("active_React_frontend_lease_required")
     command = message["args"]
     if not isinstance(command, dict) or command.get("type") not in INSPECTION or len(json.dumps(command)) > 4096:
         raise RuntimeError("unsupported_inspection")
-    ready_deadline = time.monotonic() + 5
+    ready_deadline = min(deadline, time.monotonic() + 5)
     while True:
         with socket.socket(socket.AF_UNIX) as s:
-            s.settimeout(15)
+            s.settimeout(budget())
             fingerprint = hashlib.sha256(message["lease"].encode()).hexdigest()[:16]
             try:
                 s.connect(str(state / "react" / fingerprint / "daemon.sock"))
             except (FileNotFoundError, ConnectionRefusedError):
                 if time.monotonic() >= ready_deadline:
                     raise RuntimeError("react_frontend_not_ready")
-                status = request({"op": "status"}, state)
+                status = host_status()
                 if (status.get("lease") or {}).get("id") != message["lease"]:
                     raise RuntimeError("inspection_lease_ended")
-                time.sleep(0.05)
+                time.sleep(min(0.05, budget()))
                 continue  # No command sent; only frontend readiness is retried.
+            s.settimeout(budget())
             s.sendall(json.dumps(command).encode() + b"\n")
-            with s.makefile("rb") as f:
-                body = f.readline(8 * 1024 * 1024 + 1)
-            if len(body) > 8 * 1024 * 1024:
-                raise RuntimeError("inspection_response_limit")
-            result = json.loads(body)
+            body = bytearray()
+            limit = 8 * 1024 * 1024
+            while b'\n' not in body:
+                s.settimeout(budget())
+                part = s.recv(min(65536, limit + 1 - len(body)))
+                if not part:
+                    raise RuntimeError("inspection_response_incomplete; do_not_replay")
+                body.extend(part)
+                if len(body) > limit:
+                    raise RuntimeError("inspection_response_limit; do_not_replay")
+            result = json.loads(body.split(b'\n', 1)[0])
+            if not isinstance(result, dict):
+                raise RuntimeError("inspection_response_shape; do_not_replay")
             break
     # Revocation during inspection invalidates the result, including model reads.
-    status = request({"op": "status"}, state)
+    status = host_status()
     if (status.get("lease") or {}).get("id") != message["lease"]:
         raise RuntimeError("inspection_lease_ended")
     if not result.get("ok"):

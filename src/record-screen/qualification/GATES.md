@@ -1,5 +1,33 @@
 # Qualification update — October 8, 2026
 
+## Thirteenth pass: passive tap faults and truthful source diagnostics
+
+This stage preserved the previous clock/color proofs and exercised only owned
+passive listeners. No TCC switch, protected-input setting, app input or live
+engine was disabled. Input remained available. The final candidate was signed
+and loaded privately; installation remains a separate gate.
+
+| Gate | Verified evidence | Limits |
+| --- | --- | --- |
+| Fault policy | 27 checks cover fresh permission intervals, denied/stale/future observations, three timeout attempts, exhaustion, user override, generation tickets, revocation and lifecycle reset. Timeout callbacks no longer perform the permission query; recovery uses the retained background observation. | Initial CG tap creation, per-key secure-input checks and recovery APIs are not all bounded. No universal latency guarantee. |
+| Controlled timeout path | The private listener invoked the production timeout handler. Three attempts returned to listening after background permission observation and SDK enabled readback; a fourth exhausted the budget and retired only its own tap. | Controlled timeout notifications. A separate 750-ms passive callback delay produced no natural SDK timeout; this is an inconclusive natural-timeout probe, not a pass. No injection RPC was added to production. |
+| User-disable precedence | Explicitly disabling the first owned passive tap produced an actual SDK user-disable notification after the controlled timeout. The later canary retired its own tap, stayed disabled with two subscribers and required ending all scopes before deliberate recreation. | The explicit disable was diagnostic, not a physical user or OS security action. A new subscription cannot revive the blocked shared lifecycle. |
+| Actual delivery and omission | Eight native delivered key transitions were matched by exact CG timestamp and key code: four were absent while exhausted/user-disabled; four matched after recreation. App input remained available throughout. | Actor ownership is unknown; concurrent typing is not claimed as agent-owned. Exact joins prove these events, not complete keyboard coverage. Protected mode was observed globally during the first listener, not enabled or disabled by this stage. |
+| Source diagnostics | Bounded gap-reason counts, latest accepted listener/policy state and last observed protection are persisted. Fault rows now replace stale positive listener notifications. Saved real exhausted/user-disabled rows and a synthetic revoked notification verified this correction. Existing 125 journal checks passed. | Accepted notification summary, not live health. Missing protection remains unknown. Journal closure does not establish event or media coverage. Actual TCC revocation remains untested. |
+| Cleanup | All owned listener/engine/fixture PIDs exited, input subscribers and candidate resources returned to zero. Exact final build/capability readback is saved privately; production remains cd78c24b652e/PID 71911. | Preserve other applications with the same fixture bundle name and all peer workflows. No install, new grant or host sleep. |
+
+Native coordinate delivery once returned -10005/noWindowsAvailable. Exposed
+Raise/Focus normal actions recovered delivery without restarting the harness or
+service. The main run-loop refresh was functioning; the initial suspicion that
+its loop was broken was disproven. Failed/inconclusive evidence stays preserved.
+
+Private evidence: gates-v13/tap-fault-final-test.json, delivery-proof.json,
+tap-evidence and tap-evidence-v2, input-health-journal-release-test.json,
+journal-release-test.json, release-build.json, release-loaded-status.json,
+production-status.json and actual process-exit records. Provider gaps remain
+partial: physical revocation, natural timeout and broader virtual-provider
+coverage still need evidence. Chrome overflow is the next targeted live gate.
+
 ## Twelfth pass: clock gaps and affected-take interruption
 
 The eleventh pass closed the declared SDR reference/tag scope. This stage carried

@@ -319,3 +319,27 @@ behavior and another application's original backing intent remain unqualified.
 
 An `exclusion_quality.state` of `observing` means no identity change was observed
 by that lease. It is not a general clean-footage proof; missing quality is unknown.
+
+### Passive listener fault contract (candidate)
+
+Negotiate `input_tap_faults == 1`. `status.input_timeline.tap_fault_policy`
+exposes state, generation, observed faults, timeout attempts/limit and whether
+callbacks are accepted or automatic restart is blocked. A timeout can recover
+at most three times per listening lifecycle, using a fresh background permission
+observation begun after the fault and an actual tap-enabled readback. User-disable,
+exhaustion, failed recovery and observed revocation do not automatically restart
+while subscriptions remain. End existing scopes and deliberately recreate the
+listener after resolving the cause; starting another take alone cannot repair
+that shared lifecycle. No recovery reconstructs omitted events.
+
+Source descriptors/footer add `input_gaps_observed`, `latest_input_listener`
+and `protected_input_last_observed`. Counts summarize accepted gap notifications,
+with at most 32 named reasons plus `other`. Latest negative fault policy replaces
+an older positive listener notification. Protection is null before an observed
+enabled/ended notification. These are historical accepted notifications, not a
+live-health or delivered-coverage guarantee; row loss/error remains authoritative.
+
+Thirteenth-pass controlled faults and eight exact native deliveries verified
+omission/recreation. A 750-ms passive delay produced no natural timeout. Physical
+TCC revocation and broader provider coverage remain unqualified. Initial tap,
+per-key secure checks and recovery SDK calls are not all bounded.

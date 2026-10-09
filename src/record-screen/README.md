@@ -478,6 +478,10 @@ Use `status` capabilities rather than assuming the installed behavior.
   The MCP rejects legacy engines before requesting the packet. See
   [SOURCE-PACKET.md](SOURCE-PACKET.md) for exact clocks, geometry qualification,
   encoded/held-frame links, gaps and interrupted checkpoint counters.
+- `input_tap_faults: 1`: bounded timeout attempts, fresh background permission
+  observations, explicit user-disable/exhausted/revoked states and deliberate
+  listener recreation. Source input diagnostics summarize accepted notifications,
+  not live health or complete delivery. See [SOURCE-PACKET.md](SOURCE-PACKET.md).
 - Discovery and preview SDK work use shared three-second deadlines, with
   unfinished producers quarantined rather than repeatedly spawned. Recording
   startup retains its eight-second watchdog and unfinished admission slot;

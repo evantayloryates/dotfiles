@@ -43,6 +43,8 @@ No helper requests a new grant.
 | `input-test.swift` | Mechanical event scoping, contextual service stamps, namespace/restart uncertainty, strict numeric boundaries and persistence faults; no UI |
 | `admission-test.swift` | Future schedule and extension overlap/duration/lead admission, cancellation; no capture |
 | `recorded-action.test.mjs` | Supported wrapper never replays UI after missing receipt; shared imported provenance |
+| `tap-fault-test.swift` | Pure passive-listener fault policy: fresh observations, timeout budget, user override and generation reset; no OS input |
+| `input-health-journal-test.swift` | Bounded input summaries/footer and optional replay of saved fault notifications; no UI/event synthesis |
 | `journal-test.swift` | Bounded asynchronous writes, queue/byte/footer failures, exact timestamps and private files |
 | `host-clock-test.swift` | Bracketed clock samples, signed zero-offset intervals, injected divergence/regression/uncertainty, journal boundaries and passive awake samples |
 | `clock-interruption-test.swift` | Actual arming state: affected-only interruption, unfinished admission, peer preservation and late-result cleanup; controlled preflight prevents SDK/UI |

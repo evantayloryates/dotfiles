@@ -18,7 +18,7 @@ physical-resume-smoke.json; displayed build 775 is not unique identity.
 | Prelude false readiness | After a reload from goals, screen black, JS ready true, fresh domain active, no navigation/Apollo registrations. | New ready gate requires application registrations. Keep physical workflow open until actual rendered result. |
 | Startup lease race | Acquiring immediately after a successful process launch bound to the old device boot; the new boot correctly retired it. A later settled embedded session passed strict readiness. | Wait for the new foreground boot registration before acquiring; do not replay accepted commands. |
 | Remote cold load | Four native startup views and JS ready=false confirmed a pre-mount failure; host HTTPS bundle download still succeeded. Exact cause remains unknown. | One native 45-second application-registration fallback physically passed, including lease retirement, embedded selection, application registration and actual visible dashboard. Remote-load root cause remains unknown. |
-| Capture deadline margin | Settled 3x screenshot returned 1,244,062 PNG bytes in 14.65s; the fixed command deadline is 15s. Startup capture and a later tree timed out. | Default capture now 2x, optional 1x/3x, PNG encoding off main and transport size/time metadata. Installed; physical budget verification pending. No automatic replay or paired mutation left behind. |
+| Capture deadline margin | Settled 3x screenshot returned 1,244,062 PNG bytes in 14.65s; the fixed command deadline is 15s. Startup capture and a later tree timed out. | Default capture now 2x, optional 1x/3x, PNG encoding off main and transport size/time metadata. Physical budget verified: 681,027 bytes / 6.816s at 2x. No automatic replay or paired mutation left behind. |
 | Completed native rejection | Transport completed with a native error, but CLI previously exited 0. | CLI now fails and preserves private receipt; never replay an accepted input on an unknown outcome. |
 
 Finite finish line: physical rendered readiness on current source, one reversible
@@ -42,5 +42,12 @@ Native scroll inertia rejected an occluded row safely; a settled fresh snapshot
 worked. Bottom sheet focus worked; holding text moved caret without a usable
 selection menu. New bounded focused replacement uses public UITextInput selection
 and normal UIKeyInput insertion. 39 UIKit fixture gates passed including Unicode
-replacement, empty clearing and invalid-mode no-change. Physical replacement and
-reverse product mutation remain pending. Nullable baseline restored locally.
+replacement, empty clearing and invalid-mode no-change. Physical replacement/one Save and reverse coach readback passed at 2345.
+Nullable baseline restored through coach UI and normal mobile refetch.
+
+
+Unique DEV On callback returned despite the immediate observation timing out.
+Do not infer handoff failure from a failed read. Separate admission, callback,
+radio/association, and resumed app readiness. Mirroring keyboard/menu navigation
+works while pointer commands can fail with no input window; one rebind/raise
+was insufficient. Prefer the app-owned lane and retain this system-adapter edge.

@@ -79,12 +79,17 @@ The candidate reserves `runner-kickoff-dev://ios-agent-return`. The explicit
 build helper appends that scheme only to its generated development app product,
 re-signs with the original local development identity and preserved entitlements,
 and strictly verifies the signature. Project/Pod Info.plists remain untouched.
-Installed handoff acceptance is pending; no staging/customer callback is changed.
+The unique-scheme On callback returned successfully on the installed phone.
+Its first immediate state read timed out; a fresh read later showed `returned`
+within the 60-second nonce window, `en0` present/up/running with IPv4, and the
+Wi-Fi result upload completed HTTP 200 in 51.51ms (405 bytes). Callback success
+is distinct from an independently verified Settings radio switch. Off and the
+latest unplugged cellular round trip remain open.
 
-The installed unique-scheme On handoff also failed to return; shared-scheme
-ambiguity was not the entire cause. A one-shot `pymobiledevice3 diagnostics sleep`
-locked this paired phone, independently confirmed by Mirroring reaching its Mac
-authentication screen. This is a wired recovery convenience, not an unlock or
-authentication bypass. The direct developer screenshot attempt had no active
-RSD route; no root tunnel daemon was started. System-side inspection awaits the
-human Mac authentication step. No routine flow depends on that screenshot path.
+A one-shot `pymobiledevice3 diagnostics sleep` succeeded; Taylor independently
+confirmed the phone locked. This is a wired sleep convenience, not unlock or
+an authentication bypass. Mac Mirroring authentication was approved, but its
+pointer input again returned `noWindowsAvailable` while keyboard/menu navigation
+worked. One rebind and window raise did not repair it. Stop that path rather
+than repeatedly requesting another lock/authentication. The direct developer
+screenshot attempt had no active RSD route; no root daemon was started.

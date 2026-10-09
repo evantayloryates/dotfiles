@@ -62,10 +62,11 @@ App-owned Wi-Fi Off prepared but callback expired; USB On and foreground recover
 restored channel. Unique dev callback build/fixture underway because DEV and
 Staging coexist with shared business URL scheme. Causality not proved.
 
-Unique callback candidate now installed; original developer signing identity and
-entitlements preserved, strict deep signature verified, 39 UIKit fixture gates
-and 2 signing-scope/timeout failure gates passed. App-owned On still did not
-return. Shared-scheme ambiguity is fixed but is not the whole explanation.
-Direct USB developer screenshot route lacks an active RSD route; no root daemon
-started. Requested physical lock once for Mirroring inspection. Host idle, no
-accepted input replay. Do not redo paired baseline or unchanged full suites.
+Unique callback installed; strict signing, 39 UIKit fixture gates and 2 signing
+scope/failure guards passed. Fresh read proves the On callback returned with
+interface up/running/IPv4 and result upload HTTP 200 in 51.51ms (405 bytes).
+First immediate state read was unknown, not a callback failure. Latest Off/On
+and unplugged cellular remain open. Mirroring live but pointer input window
+unavailable; keyboard/menu works. One rebind/raise failed to repair pointer.
+Taylor unlocked physical phone; USB foreground launch succeeded. Continue from
+fresh runtime readiness, no unchanged broad-suite reruns. Report 10/16.

@@ -332,3 +332,23 @@ overflow, then correct motion-insurance preconditions under measured health;
 finish admission/runbooks and idle-boundary installation with installed consumers.
 Do not repeat the settled color, coordinate, preview or clock canaries without a
 new boundary change. Physical sleep cannot be inferred from injected evidence.
+
+## Thirteenth-pass verified checkpoint
+
+Owned passive tap canaries qualified bounded controlled timeout recovery,
+user-disable precedence, blocked new subscriptions and deliberate lifecycle
+recreation. Eight delivered native key transitions supplied exact omission/
+retention proof without blocking app input. The 750-ms callback probe did not
+produce a natural SDK timeout; retain it without extending stalls to force one.
+
+Source summaries now expose bounded input gap reasons and the latest accepted
+listener/policy notification, including negative faults replacing stale positive
+states. Physical TCC revocation remains untested. Initial CG APIs, per-key secure
+checks and recovery calls are not fully bounded. No all-provider coverage claim.
+
+All owned processes exited. Final signed candidate loaded privately with exact
+capability/build readback; production remains the original engine. Keep the goal
+active and carry the evidence forward. Next finish Chrome native-select/nested
+overflow, investigate the failed insurance preconditions once, then converge on
+resource admission, agent runbooks and idle-boundary production delivery. Do not
+repeat settled UI sequences merely to test a notification-summary correction.

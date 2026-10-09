@@ -208,7 +208,8 @@ final class InputTimeline: @unchecked Sendable {
     let conservativeHost=context.startedHostNS>0 ? context.startedHostNS : context.hostNS
     if !value.listenAccess {
       stop(); lock.withLock { phase="access_revoked";faults.revokeAccess();listenAccessSnapshot=false;listenAccessObservedNS=conservativeHost }
-      broadcast(["kind":"input_gap","reason":"listen_access_revoked","host_ns":String(refreshStart)]); return
+      broadcast(["kind":"input_gap","reason":"listen_access_revoked","host_ns":String(refreshStart),
+        "tap_fault_policy":lock.withLock {faults.dict}]); return
     }
     let enabled=value.tapEnabled
     let newlyDisabled=lock.withLock {

@@ -26,6 +26,7 @@ final class SourceJournal: @unchecked Sendable {
   private var clockContinuity = HostClockContinuity()
   private var inputGapReasons: [String:Int] = [:]
   private var latestInputListener: [String:Any]?
+  private var protectedInputObserved: Bool?
 
   init(path: String, epoch: UInt64, recordingID: String, target: [String: Any],
        capacity: Int = 64, byteLimit: Int = 64 * 1024 * 1024,
@@ -85,6 +86,12 @@ final class SourceJournal: @unchecked Sendable {
         let raw=row["reason"] as? String ?? "unknown"
         let reason=raw.utf8.count<=128 && (inputGapReasons[raw] != nil || inputGapReasons.count<32) ? raw : "other"
         inputGapReasons[reason,default:0] += 1
+        if let policy=row["tap_fault_policy"] as? [String:Any],let state=policy["state"] as? String {
+          latestInputListener=["kind":"input_gap","state":state,"reason":raw,
+            "host_ns":row["host_ns"] as Any? ?? NSNull(),"tap_fault_policy":policy]
+        }
+        if raw == "secure_input_enabled" {protectedInputObserved=true}
+        if raw == "secure_input_ended" {protectedInputObserved=false}
       }
       if row["kind"] as? String == "input_listener" {latestInputListener=row}
       pending += 1
@@ -150,7 +157,8 @@ final class SourceJournal: @unchecked Sendable {
        "color_segments":colorSegments, "latest_observed_color":latestColor as Any? ?? NSNull(),
        "clock_continuity":clockContinuity.dict,
        "input_gaps_observed":inputGapReasons,"latest_input_listener":latestInputListener as Any? ?? NSNull(),
-       "input_health_qualification":"accepted journal rows; loss remains explicit; listener state does not establish delivered-event coverage",
+       "protected_input_last_observed":protectedInputObserved as Any? ?? NSNull(),
+       "input_health_qualification":"latest accepted notifications/policy state, not live health; loss remains explicit; listener state does not establish delivered-event coverage",
        "color_qualification":"observed tags from accepted rows; journal loss remains explicit; no app/backing intent inferred",
        "error": failure as Any? ?? NSNull(), "max_pending_rows": capacity, "max_bytes": byteLimit]
     }

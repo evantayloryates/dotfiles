@@ -233,9 +233,11 @@ at the native 8s request limit with -1001; causal Mirroring interference remains
 unproven. The paired workflow supplied a 37-commit Debug React profile; detailed
 artifacts remain private.
 
-Current Wi-Fi edge: the original and unique-scheme app-owned handoffs prepared
-cleanly but did not return. Shared `kudos` scheme ambiguity with coinstalled
-Staging is fixed only in the opt-in DEV product. USB On/foreground recovery
-restored the app channel. The latest cellular gate stays open. Supported USB
-diagnostic sleep can lock the phone; Mirroring then still needed human Mac
-authentication. No XCTest or privileged tunnel daemon was started.
+Current Wi-Fi edge: the original shared-scheme Off callback expired; USB On and
+foreground recovery restored the channel. The installed unique DEV-scheme On
+callback subsequently returned successfully. Its immediate state read timed out,
+which was not a callback failure. Fresh read: returned, interface up/running with
+IPv4; 405-byte Wi-Fi result uploaded HTTP 200 in 51.51ms. Independent switch,
+Off return and latest unplugged cellular gates remain open. Mirroring's pointer
+input window failed despite a live image and keyboard/menu navigation; a single
+rebind/raise did not restore pointer control. No XCTest was started.
