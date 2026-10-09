@@ -576,3 +576,25 @@ the standing display authorization while leaving that grant untouched. Native
 shortcuts/physical provider scope follows actual permission/canary readback.
 Typed historical/ordinary-workflow and skill adoption remain partial. Preserve
 the owned fixture/session until its input canary or deliberate cleanup.
+
+## Twenty-fourth-pass Chrome select checkpoint
+
+Actual Chrome native select needs a separate display layer in the qualified
+154.0.8037.98/25F80/external-display scope. Window and application-filtered
+sources omitted its rows; encoded display crop preserved all12. Four small
+takes supplied232 exact muxed/source samples, including retained disturbed
+first takes. Supplied glyph proof passed at0.983 overlap after measured1px
+reference offset; failed zero-offset remains. Full-shot/motion insurance is
+still unqualified. CHROME-SELECT.md now gives agents a scoped recovery lane.
+
+Four exact-entity observations and one explicitly bracketed native cleanup
+outcome were appended/read back centrally. Unknown provider/profile versions
+keep reuse false. Earlier UI actions were unbracketed, not retrospectively
+stamped. Owned Chrome tabs/window/server/session settled; no own capture/action
+left. Earlier gesture fixture/session and human Touch ID prompt remain retained.
+Installed engine stays PID15145/767d45f6ce40. No restart/install/model/input lock.
+
+Continue high-impact popup ownership/geometry/built-in fallback or approved
+input canary when authentication advances. Host pressure2 keeps paired changing
+motion pending; preserve prior failure and avoid repeating settled mux/clock
+work. User display authorization remains through Oct9 17:51 UTC.

@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T00:40:27-04:00",
+  "updated_at": "2026-10-09T00:58:21-04:00",
   "workflow": {
     "state": "active",
-    "note": "Typed workflow outcomes and installed source-consumer smoke passed. Continue reachable daily-app popup and motion-insurance qualification under standing display authorization; preserve prior proof, pending grant, explicit partial cleanup and historical quality limits."
+    "note": "Chrome select display-layer qualification and native cleanup passed; initial disturbed and zero-offset failures retained. Continue targeted popup ownership/geometry or approved input canary as authentication advances. Warning pressure keeps paired motion pending; no restart or phase reset."
   },
-  "production_note": "Native 767d45f6ce40 remains installed. Typed workflow source consumer and scoped outcome audit passed without new capture or restart. Private restoration and native gesture pixels remain verified. Input Monitoring awaits human authentication/canary; broader app/input/insurance/resource and historical quality scope remain open.",
+  "production_note": "Native 767d45f6ce40 remains installed. Chrome native select display-layer source and explicit cleanup passed; window/application lanes omit this surface. Input Monitoring awaits human authentication/canary; full insurance, resource budgets and broader app/input quality remain open.",
   "groups": [
     {
       "id": "capture",
@@ -66,10 +66,10 @@
           "title": "Complete the Chrome surface qualification lane",
           "status": "partial",
           "scope": "Genuine native menus, HTML menus, native select controls and reachability.",
-          "evidence": "Prior native/HTML proofs retained. New narrow fixture was capturable in isolated mode but covered in display mode despite on_screen true. Native coordinates refused noWindowsAvailable; browser expand/native key delivery did not establish a visible select popup. Application-filter probe returned SCK -3811. Owned tabs closed; unresolved readiness recorded and exactly read back from shared facts as unknown.",
-          "next": "Repeat only the popup boundary on a verified reachable foreground Chrome surface. Do not infer native readiness from DOM actions, focus or on_screen metadata.",
-          "anchor": "fourteenth-pass",
-          "updated_at": "2026-10-08T22:16:07-04:00"
+          "evidence": "Native select readiness and display-layer fallback now proven for Chrome154.0.8037.98/25F80/external1x. Child-enabled isolated window and application screenshot omit this select; previous native context-menu proof retained.",
+          "next": "Qualify built-in select fallback, nested/variant surfaces and popup ownership/tracking; avoid replaying settled context-menu tests.",
+          "anchor": "twenty-fourth-pass",
+          "updated_at": "2026-10-09T00:58:21-04:00"
         },
         {
           "id": "electron-depth",
@@ -86,10 +86,10 @@
           "title": "Prove a useful overflow capture and recovery path",
           "status": "partial",
           "scope": "Display padding/cropping must add transient coverage beyond the original canvas.",
-          "evidence": "Two sequential native takes passed 102 exact timestamps. A 190×58 popup crop extends 140 points right/28 down beyond the original frame; its source map matched independent screenshot glyphs at zero offset (0.916 IoU). Retained evidence recheck passed. Display footage kept the popup but lost its base to occlusion.",
-          "next": "Qualify multiple nested levels and synchronized base/overflow coverage before promising whole-shot recovery. The supplied crop is a proven layer; automatic segmentation and broader app lanes remain open.",
-          "anchor": "fourteenth-pass",
-          "updated_at": "2026-10-08T22:16:07-04:00"
+          "evidence": "Prior beyond-frame AppKit spatial crop retained. New encoded Chrome select layer passed; display background occluded while popup persisted. One-pixel reference shift measured, no zero-offset or full-shot claim.",
+          "next": "Qualify ownership and changing popup geometry; synchronized usable base/overflow recovery remains open.",
+          "anchor": "twenty-fourth-pass",
+          "updated_at": "2026-10-09T00:58:21-04:00"
         },
         {
           "id": "clean-source",
@@ -100,6 +100,16 @@
           "next": "Publish capability limits and requalification rules; defer visual replacement recipes.",
           "anchor": "evidence",
           "updated_at": "2026-10-08T20:01:05-04:00"
+        },
+        {
+          "id": "chrome-select-layer",
+          "title": "Verify a separate source layer for Chrome native selects",
+          "status": "completed",
+          "scope": "Chrome154.0.8037.98 / macOS25F80, owned native select, external1x display, supplied popup region; full-shot insurance remains separate.",
+          "evidence": "Actual 51-sample display crop preserves all12 rows while concurrent child-enabled window and app-filtered screenshots omit them. Retained glyph IoU0.983 after measured1px reference shift; initial zero-offset failure preserved. Scoped cleanup passed.",
+          "next": "",
+          "anchor": "twenty-fourth-pass",
+          "updated_at": "2026-10-09T00:58:21-04:00"
         }
       ]
     },
@@ -426,10 +436,10 @@
           "title": "Centralize version-scoped app observations",
           "status": "partial",
           "scope": "Shared reported facts, exact environment keys, expiry and conflicting evidence.",
-          "evidence": "Existing central immutable facts now have native CLI and fresh guarded MCP planning consumer proof. Three actual native outcomes (pixel pass/readiness mixed/input unknown) appended/read back; prior Chrome unknown retained. Two exact recorder replies imported/read back. 13 targeted tests passed; no model/UI or peer restart.",
-          "next": "Extend skill/ordinary-workflow adoption and typed outcome feedback. Keep unconfirmed provider/profile/version dimensions explicit; no universal readiness from reported pass.",
-          "anchor": "twenty-second-pass",
-          "updated_at": "2026-10-09T00:22:13-04:00"
+          "evidence": "Four exact-entity Chrome observations appended/read back centrally: window/app select failure, display pass, mixed native readiness recovery. Unknown provider/profile versions keep reuse false; earlier native fixture/planner facts retained.",
+          "next": "Verify remaining environment versions and extend baselines only at unresolved app boundaries; routine skill adoption remains open.",
+          "anchor": "twenty-fourth-pass",
+          "updated_at": "2026-10-09T00:58:21-04:00"
         },
         {
           "id": "requalification",
@@ -982,6 +992,45 @@
       "from": "active",
       "to": "active",
       "note": "Typed workflow outcomes and installed source-consumer smoke passed. Continue reachable daily-app popup and motion-insurance qualification under standing display authorization; preserve prior proof, pending grant, explicit partial cleanup and historical quality limits."
+    },
+    {
+      "kind": "item",
+      "id": "chrome-select-layer",
+      "at": "2026-10-09T00:58:21-04:00",
+      "from": "pending",
+      "to": "completed",
+      "note": "Actual 51-sample display crop preserves all12 rows while concurrent child-enabled window and app-filtered screenshots omit them. Retained glyph IoU0.983 after measured1px reference shift; initial zero-offset failure preserved. Scoped cleanup passed."
+    },
+    {
+      "kind": "item",
+      "id": "chrome-depth",
+      "at": "2026-10-09T00:58:21-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Native select readiness and display-layer fallback now proven for Chrome154.0.8037.98/25F80/external1x. Child-enabled isolated window and application screenshot omit this select; previous native context-menu proof retained."
+    },
+    {
+      "kind": "item",
+      "id": "overflow-recovery",
+      "at": "2026-10-09T00:58:21-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Prior beyond-frame AppKit spatial crop retained. New encoded Chrome select layer passed; display background occluded while popup persisted. One-pixel reference shift measured, no zero-offset or full-shot claim."
+    },
+    {
+      "kind": "item",
+      "id": "app-facts",
+      "at": "2026-10-09T00:58:21-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Four exact-entity Chrome observations appended/read back centrally: window/app select failure, display pass, mixed native readiness recovery. Unknown provider/profile versions keep reuse false; earlier native fixture/planner facts retained."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T00:58:21-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Chrome select display-layer qualification and native cleanup passed; initial disturbed and zero-offset failures retained. Continue targeted popup ownership/geometry or approved input canary as authentication advances. Warning pressure keeps paired motion pending; no restart or phase reset."
     }
   ]
 }

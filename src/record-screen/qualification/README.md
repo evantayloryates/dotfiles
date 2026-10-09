@@ -8,6 +8,9 @@ activates its own window; arrange production time before opening it.
 The October 8 findings and proposed service contracts are in
 [STRATEGY.md](STRATEGY.md). Effect styles and compositing recipes are deferred.
 The staged live/background passes and remaining acceptance gates are in [GATES.md](GATES.md).
+The qualified Chrome native-select fallback and its remaining boundaries are in
+[CHROME-SELECT.md](CHROME-SELECT.md). It uses a separate display source layer;
+child inclusion alone did not preserve that popup in the tested window lane.
 
 ## Helpers
 

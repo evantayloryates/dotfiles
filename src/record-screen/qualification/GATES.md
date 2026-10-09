@@ -1,5 +1,62 @@
 # Qualification update — October 9, 2026
 
+## Twenty-fourth pass: Chrome select needs a separate display layer
+
+Installed PID15145/build767d45f6ce40 stayed healthy. Chrome 154.0.8037.98 /
+build8037.98 on macOS26.5.1/25F80 supplied the actual popup boundary. Existing
+window119 remained off Space despite Raise and Window-menu selection; native
+pointer refused. Optional CUA launch_app was absent and Dock observation timed
+out; neither was retried through a lower-level technology. Tab accessibility
+Expand/space changed the authored event count but did not establish the popup.
+Native File > New Window created owned window7522, on_screen true and a visible
+12-row select. The earlier user/peer window was preserved.
+
+The first two 4s/10fps/756-wide takes finalized 41 and39 exact muxed/source
+samples but lost the popup before capture. The second retained four geometry
+segments, including null geometry, and an off-screen disturbance. Actor/cause
+is unknown. Those takes do not prove child behavior. Repairing only window7522
+via its native Move to G34WQC A menu produced reachable external geometry.
+
+A 10s/10fps window take with effective includeChildWindows=true supplied101
+exact samples and one geometry segment. The event counter changed13->16 after
+the genuine select opening, but inspected encoded footage omitted its rows.
+A 5s/10fps/520x480 display crop supplied51 exact samples and the actual12-row
+popup. A child-enabled window screenshot during that display take omitted the
+same region; an application-filtered screenshot also omitted it. Total232
+muxed samples match accepted source timestamps exactly, without encoder/journal
+loss. This is a per-surface filter boundary, not universal Chrome behavior.
+
+The supplied424x348 popup crop maps to desktop(1155,-634) with1x display scale.
+The packet nearest the window check's reported clock differs by39.188083ms;
+that is not physical presentation or action latency. The initial zero-offset
+glyph check failed. Retained-image investigation measured a1px horizontal
+shift relative to the earlier screenshot, with glyph IoU0.98296 after that
+offset. Both findings remain. The display background was occluded by another
+app while its popup persisted; separate-layer capture passed, whole-shot
+insurance did not. No automatic segmentation, popup ownership or subpixel
+tracking claim. Raw background remains private; report shows only popup pixels.
+
+Four exact-entity app facts were appended/read back in the shared computer-use
+store: window/application select failures, display pass and mixed readiness
+recovery. Unknown provider/profile versions keep all planner reuse false.
+Earlier UI operations lacked action receipts; no past stamps were fabricated.
+The cleanup alone was explicitly bracketed. Its post-close AX read timed out;
+independent recorder inventory showed window7522 absent, without close replay.
+Typed verification/cleanup outcome readback passed. Both owned tabs/window,
+server and session settled, no active action or unfinished capture remained.
+Previous gesture fixture/session and human permission sheet remain retained.
+A cleanup reader's unsupported session.show and a facts-reader shape error
+were repaired only at readback, preserving the first persisted fact/receipt.
+
+Input Monitoring still awaits Taylor's Touch ID. Host watcher stayed pressure2
+with compressor churn; motion insurance was not armed. No install, restart,
+model turn, user-input lock or peer termination. See CHROME-SELECT.md. Private
+artifacts: gates-v24/qualification-summary.json, select-layer-proof.json
+(failed zero-offset), glyph-offset-investigation.json, select-layer-retained-
+proof.json, four journal proofs, shared-app-facts.json and cleanup-outcome-audit.
+Next: targeted popup ownership/tracking/built-in fallback or pending native
+input canary; paired changing-scene motion only after measured readiness/health.
+
 ## Twenty-third pass: typed workflow verification and cleanup
 
 The shared store now links typed outcomes to existing immutable receipts in an
