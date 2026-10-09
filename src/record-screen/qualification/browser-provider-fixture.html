@@ -1,0 +1,27 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Owned recorder provider witness 79</title>
+<style>body{font:20px system-ui;margin:32px;background:white;color:#182634}button,select,textarea{font:20px system-ui;margin:12px;padding:12px}#witness{width:100px;height:100px;background:#00ff00}#edge{position:fixed;right:12px;bottom:12px;border:3px solid #006a79;background:#d5f7fa;padding:12px}select{width:160px}#observed{font:16px monospace}body.inside #edge{left:180px;top:340px;right:auto;bottom:auto}</style>
+<h1>Owned recorder provider witness 79</h1>
+<p>Local synthetic fixture. Browser delivery is separate from global input taps.</p>
+<div id="witness" aria-label="Green provider witness"></div>
+<button id="change">Change witness to magenta</button><button id="inside">Move select inside</button><button id="outside">Move select to edge</button>
+<textarea aria-label="Owned shortcut target">Owned provider test</textarea>
+<p id="observed">Observed events: 0</p>
+<details><summary>Observed event metadata</summary><pre id="event-log" aria-label="Owned event metadata"></pre></details>
+<div id="edge"><label>Native popup <select aria-label="Owned edge native select">
+<option>PROVIDER SELECT 01 — wide native menu witness</option><option>PROVIDER SELECT 02 — wide native menu witness</option><option>PROVIDER SELECT 03 — wide native menu witness</option><option>PROVIDER SELECT 04 — wide native menu witness</option><option>PROVIDER SELECT 05 — wide native menu witness</option><option>PROVIDER SELECT 06 — wide native menu witness</option><option>PROVIDER SELECT 07 — wide native menu witness</option><option>PROVIDER SELECT 08 — wide native menu witness</option><option>PROVIDER SELECT 09 — wide native menu witness</option><option>PROVIDER SELECT 10 — wide native menu witness</option><option>PROVIDER SELECT 11 — wide native menu witness</option><option>PROVIDER SELECT 12 — wide native menu witness</option>
+</select></label></div>
+<script>
+// App-owned observation, no global input generation or literal key/text logging.
+window.fixtureEvents=[];
+for(const type of ['pointerdown','pointerup','click','keydown','keyup','wheel','focusin','contextmenu','change'])document.addEventListener(type,e=>{
+  window.fixtureEvents.push({type,event_timestamp_ms:e.timeStamp,received_performance_ms:performance.now(),is_trusted:e.isTrusted,
+    x:e.clientX??null,y:e.clientY??null,code:e.code??null,target:e.target.id||e.target.getAttribute('aria-label')||e.target.tagName,
+    modifiers:{ctrl:!!e.ctrlKey,shift:!!e.shiftKey,alt:!!e.altKey,meta:!!e.metaKey}});
+  if(window.fixtureEvents.length>2048)window.fixtureEvents.shift();document.getElementById('observed').textContent='Observed events: '+window.fixtureEvents.length;
+  // DOM-backed export works even when read-only browser evaluation isolates globals.
+  document.getElementById('event-log').textContent=JSON.stringify({retained:window.fixtureEvents.length,shown:Math.min(32,window.fixtureEvents.length),events:window.fixtureEvents.slice(-32)},null,2);
+});
+document.getElementById('change').onclick=()=>{document.getElementById('witness').style.background='#ff00ff';document.getElementById('witness').setAttribute('aria-label','Magenta provider witness');};
+document.getElementById('inside').onclick=()=>document.body.classList.add('inside');
+document.getElementById('outside').onclick=()=>document.body.classList.remove('inside');
+</script></html>

@@ -686,3 +686,14 @@ refusals. Mapping failure preserves useful preview images with an unavailable
 state. The default performs no added source read. This is a timestamp/source
 join, not pixel authentication or continuous alignment. See
 `qualification/RETAINED-PIXEL-CHECKS.md` for the exact contract and limits.
+
+## Browser effects may need a separate semantic lane
+
+Stage79's owned browser click changed the page and its counter, with no observed
+global tap callback increment; a native positive control through the same healthy
+listener produced four callbacks. Preserve browser action context and observed
+milestones separately from OS input. Do not fabricate global events or per-key
+delivery when only a tool acknowledgment/focused field is known. The scoped shared
+coverage fact is failed, and browser event detail/provider version remain unknown.
+See `qualification/BROWSER-PROVIDER-INPUT.md`; this test recorded only an owned
+native control, with no Chrome source or popup qualification.
