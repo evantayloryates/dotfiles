@@ -1,6 +1,6 @@
 # Capture foundations: findings and next implementation
 
-Current checkpoint: October 9, 2026, qualification stage52. Native signed build
+Current checkpoint: October 9, 2026, qualification stage53. Native signed build
 142e81bef23e/PID21977 remains installed and idle; guarded delivery, retained-source
 mapping and scoped real-app consumers have actual evidence in GATES.md and the
 maintained checklist. Input Monitoring is enabled: installed destination-aware
@@ -41,6 +41,17 @@ Stage52 fixes both with actual decoded off-screen/Retina checks, delivers the
 exact tested signed binary through an idle fence and preserves168 state hashes.
 Fresh MCP0.12 source/planning/refusal and listener-access checks pass; delivered
 physical events and the older loaded chat connection remain separate.
+
+Stage53 fresh owned TextEdit preparation and native display placement succeeds;
+old off-Space -3811 remains separate. Three60s sources retain5227 exact joins,
+including typeface overflow for both app child settings. Fixed crop clips the
+lower tail; late previews miss the already-disappeared popup. Current loaded MCP
+returns inspected640px historical before/menu/after frames without reshooting,
+but new adapter/replay-contract adoption remains open. Context/nested attempt
+is unqualified after stale element/after-media observations. Native Save preserves
+owned synthetic cloud autosave privately; known PID absent, no Delete. Six typed
+outcomes/cleanup complete, zero uncovered. Resource pressure level2 is observed,
+not calibrated admission. Broader recovery and physical/provider gates continue.
 
 ## What the initial investigation established
 

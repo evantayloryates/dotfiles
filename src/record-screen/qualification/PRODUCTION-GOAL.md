@@ -1,5 +1,22 @@
 # Production qualification goal
 
+Stage53 checkpoint: fresh TextEdit1.20/415 native document preparation via
+observed Window display placement; old off-Space -3811 retained. One60s Retina
+app-childtrue/false/display triple5227 exact mux/source joins, zero lost rows.
+Typeface overflow below parent passes both app settings488/487 scoped positive
+pixel samples; lower menu clipped. Later previews occur after disappearance,
+so current-chat MCP three640px retained before/menu/after images provide actual
+coverage without a reshoot. Context/nested menu remains unknown after stale
+element and after-media observations; no dispatch replay/cause attribution.
+76 fresh pressure-level2 samples, recorder0.075cores/62.06MiB; no GPU/P80 claim.
+Owned synthetic cloud autosave saved privately through native Save, exact hash/
+content match, original cloud file absent, PID27566 absent; no Delete. Six typed
+outcomes5verified/1unknown,6cleanup-complete,0uncovered; scoped fact read back.
+Native142e81bef23e/PID21977 unchanged idle/input0; own session/sampler settled.
+43completed/16partial/1deferred. Next: source-linked context/nested checkpoints
+and clipping/recovery coverage, physical/provider/resource/adoption limits.
+Continue high-impact missing boundaries without repeating stable passes.
+
 Stage45 checkpoint: bounded source input-health context in CLI/fresh MCP0.11.5.
 29 initial checks28passed/one old version assertion retained, affected recheck
 passes;12 final changed input/protocol checks pass. Actual prior Finder two

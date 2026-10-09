@@ -200,6 +200,26 @@ source frames → short mapped draft preview/export. Preserve actual source/time
 mapping across derivatives. Full visual composition and effect recipes remain
 deferred. A draft that omits the relevant interval cannot verify that interval.
 
+For transient menus, inspect the finished take around the expected opening;
+a current `frame_check` after disappearance cannot establish earlier coverage.
+The installed TextEdit1.20/415 app-only test retained its typeface popup beyond
+the document bottom with both child settings. The lower menu was crop-clipped.
+Existing `recording_frames` at3/15/25s recovered before/menu/after through the
+loaded chat MCP. Review seek requests use a600-timescale clock and returned
+`frame_t_s` is rounded to milliseconds; exact geometry/source joins belong to
+`recording_frame_map`. Copy inspected evidence privately before reusing the same
+extraction offset, whose generated filename can be overwritten.
+
+That TextEdit lane prepared a fresh owned document through New Document and
+the observed Window > Move to Built-in Retina Display menu. Confirm inventory,
+geometry and actual source pixels before recording. This qualified preparation
+does not repair every existing off-Space document or guarantee Raise succeeds.
+New documents may silently autosave into cloud storage. Track ownership and
+save owned synthetic content into the requested private evidence directory
+before quit; independently verify file content/location and PID absence. Preserve
+unrelated documents and do not turn a Save sheet's permanent Delete into routine
+cleanup. Context/nested menus remain separate unqualified cases in this pass.
+
 | Observation | Next action | Preserve or verify |
 | --- | --- | --- |
 | UI call times out or its result is unknown | Read current app state and recover the same action token; do not blindly replay | Unknown/expired receipt, separate delivery/verification evidence |

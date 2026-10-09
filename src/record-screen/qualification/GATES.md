@@ -1,5 +1,62 @@
 # Qualification update — October 9, 2026
 
+## Fifty-third pass: real TextEdit source preparation and captured typeface overflow
+
+Earlier old-document off-Space -3811 remains failed readiness evidence. Instead
+of replaying Raise, launch previously nonrunning TextEdit, create an owned blank
+document and use its observed Window > Move to Built-in Retina Display action.
+Native geometry changes from external x-4/y-1002 to built-in x148/y73; current
+on-screen inventory and inspected app-filter preview establish this preparation.
+Only synthetic text is written; TextEdit1.20/build415, OS25F80, native142e81bef23e.
+
+One60s matched H.26430fps Retina triple at fixed desktop crop128,53,900,850:
+app childtrue1740, app childfalse1736, display1751 actual packets. All5227 match
+the source journal exactly, with zero lost rows. Inspected app samples at8/15s
+show the native typeface popup for both child settings. Its lower portion extends
+beyond the document bottom561 into the padded source. An independent scoped
+pixel oracle checks the exact affine[2,0,0,2,-256,-106] and known below-parent
+ROI:488/487 positive encoded frames; all204 stable8–15s samples per app lane
+are positive, while baseline/later intervals remain black. This is known popup
+content, not a generic detector. Menu tail clips at fixed crop end903; no entire
+menu or automatic expansion claim. Earlier isolated-window childfalse omission
+and this app-mode inclusion remain distinct observations.
+
+The popup is absent after roughly21s in encoded source. Later live previews at
+37s omit it; that cannot invalidate earlier captured pixels or prove a filter
+failure. Actual current-chat loaded MCP recording_frames returns640px before/
+menu/after images at3/15/25s, all inspected. Existing record.frames six offsets
+also succeed, without a new take. Native review uses600-timescale seek requests
+and reports actual times rounded to milliseconds; use recording_frame_map for
+exact source/geometry references, not rounded review metadata. Saved frame names
+are reusable; copy evidence before a repeated extraction replaces the artifact.
+Actual CLI maps the same3/15/25s requests to exact packets and the authored ROI.
+At15s, frame437 starts14983199451ns, while preview reports14.983s; rounded
+reconstruction loses199451ns. Thus approximate scene review succeeds but its
+display timestamp cannot replace the service's exact source clock.
+
+Context scope begins just before media end but its preview observations occur
+after end. Root AX context menu was observed; nested selection returns stale
+element before confirmed dispatch. No replay, encoded context/nested pass or
+attributed disruption cause. Window later off-screen; first changed time unknown.
+Preserve this incomplete attempt and plan independent source-linked checkpoints.
+
+76 resource samples over75.013s: all pressure observations fresh level2, recorder
+average0.075 CPU cores/peak62.06MiB, TextEdit0.010 cores/116.94MiB. No guard fires.
+No thermal samples, GPU/encoder attribution, calibrated admission or P80 claim.
+
+TextEdit autosaved the owned synthetic document into its default cloud folder.
+Birth time and exact five-line content establish ownership before cleanup. Quit
+raises a Save sheet whose Delete is irreversible; native Save instead relocates
+it to private gates-v53/owned-synthetic-final.rtf. Exact content and SHA match,
+original cloud autosave absent, known owned PID27566 absent. Delete never clicked.
+Original cleanup scope remains expired/interrupted; a separate Save scope and
+later outcome record successful settlement without rewriting receipt history.
+Six typed outcomes:5verified/1unknown,6cleanup-complete,0uncovered. Exact scoped
+TextEdit fact independently read back. Owned session/sampler closed; installed
+PID21977 unchanged idle/input subscribers0. Chrome and peer workflows preserved.
+43completed/16partial/1deferred; actual context/nested/whole-shot, physical/provider
+and resource gates remain open. Composition deferred; full goal active.
+
 ## Fifty-second pass: exclusive media endpoint, admitted-source tail and guarded delivery
 
 The stage51 display peer reports598 accepted frames but597 muxed packets: its
