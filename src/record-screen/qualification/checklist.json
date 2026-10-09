@@ -1,9 +1,9 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T19:28:53-04:00",
+  "updated_at": "2026-10-09T19:32:53-04:00",
   "workflow": {
-    "state": "active",
-    "note": "Stage84 delivers service-owned exact registered frame mapping, independent verification and shared kernel worker admission. Two fitted/one held actual frames verify; ambiguity/flat/excess-delta refuse.81distinct checks and final MCP0.19/CLI parity pass. Frame-local contract complete; original continuous/real-menu fitted acceptance remains partial."
+    "state": "paused",
+    "note": "Paused at Taylor’s request after stage84 delivery. Recorder confirmed idle; stage85 only inspected retained native-menu sources/images, with no new registration request or capture. Resume from the smaller stage72 native-menu pair and preserve all refusals. Item counts remain46completed18partial1deferred."
   },
   "production_note": "Native6c/PID20948 unchanged; fresh MCP0.19/28tools and minimal-PATH CLI delivered. Exact decoded PTS/open snapshots/source-content time belong to the service. Held outputs3.884s apart have content delta0.945ms. Independent RGB checks required, original guard retained; kernel lease serializes heavy workers.46completed18partial1deferred across65items; fullgoalactive.",
   "groups": [
@@ -2970,6 +2970,13 @@
       "from": "partial",
       "to": "partial",
       "note": "Stage84 adds delivered exact frame registration/shared worker admission while preserving broader acceptance scope."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T19:32:53-04:00",
+      "from": "active",
+      "to": "paused",
+      "note": "Paused at Taylor’s request after stage84 delivery. Recorder confirmed idle; stage85 only inspected retained native-menu sources/images, with no new registration request or capture. Resume from the smaller stage72 native-menu pair and preserve all refusals. Item counts remain46completed18partial1deferred."
     }
   ]
 }

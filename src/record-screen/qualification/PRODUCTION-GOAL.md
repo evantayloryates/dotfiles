@@ -1,6 +1,25 @@
 # Production qualification goal
 
-## Current checkpoint: stage84 — ACTIVE
+## Current checkpoint: stage84 complete; stage85 preparation — PAUSED
+
+Taylor requested another pause at2026-10-09T23:32Z. The read-only status check
+confirms native6c/PID20948 idle: zero unfinished/quarantined recordings, zero
+active action scopes, subscribers, overlays and viewfinder lanes. Stage85 only
+inspected retained descriptors and images; no registration request, new capture,
+UI input, worker or source mutation was started. Checklist item states stay
+46completed18partial1deferred; workflow is paused, not complete or blocked.
+
+Resume from the retained stage72 native-menu pair: primaryrec_w4d6x3n2
+(620x542), backuprec_bax3pdne(1280x620), shared clock instance
+7cb4443f-8f73-407f-a856-c4e5cc323082. Its saved pixel-verification.json identifies
+baseline708, root1722, nested2043, selected/closed2395, resized4548,
+narrow-root4906, narrow-nested5254 and narrow-dismissed6879 primary frame indices.
+Choose disjoint textured anchors and separate actual menu/closed-canvas checks
+from those already-retained images; do not cache a matrix across phases.
+The retained Safari primaryrec_4a3xs5nh is1324x948, above the current1million
+primary-pixel budget. A refusal is expected from code inspection but has NOT
+been exercised through the current service. Preserve limits/refusals; no silent
+resizing or threshold relaxation. No new visible test until renewed authorization.
 
 Native6c238cc1ba80/PID20948 remains unchanged. Current MCP0.19/28tools and CLI
 provide optional exact returned-preview/source joins; older ordinary22-tool
