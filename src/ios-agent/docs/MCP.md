@@ -36,8 +36,12 @@ explicit and idle-only; a failed/unknown startup is never permission to replay.
 The versioned paired recipe exposes read-only exact local synthetic-pair baseline,
 persistence and restoration checks. They do not mint credentials or mutate data,
 and do not replace independent browser/phone UI evidence. See PAIRED-WORKFLOW.md.
-The MCP adapter wraps the fixed CLI operations; it cannot execute arbitrary code,
-invoke a product handler directly, control system UI or bypass authentication.
+Native tools wrap fixed CLI operations and do not invoke product handlers or
+control system UI. Version 1.2 adds seven browser tools (22 tools, five resources):
+`ios_web_pages/enroll/begin/inspect/action/verify/end`, with the
+`ios-agent://mobile-web` resource. Browser `evaluate` deliberately executes JS
+in the explicitly enrolled development page; it does not bypass browser or OS
+authentication. Use the browser begin/end pair in finally. See MOBILE-WEB.md.
 Existing Tailscale phone transport and native watchdog remain unchanged.
 
 ## Ownership and cancellation

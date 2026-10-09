@@ -1,0 +1,10 @@
+{
+  "at": "2026-10-09T19:57:52.699Z",
+  "scope": "Owned desktop WebKit real development page; lifecycle fault injection, not physical radio failure",
+  "gates": {
+    "pageWatchdogClearsOnTransportLoss": true,
+    "hostLeaseReleased": true,
+    "stopPreservesLaterWrappers": true,
+    "stopRemovesOwnedDOM": true
+  }
+}

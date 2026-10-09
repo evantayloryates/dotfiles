@@ -1,5 +1,5 @@
 {
-  "at": "2026-10-09T19:55:08.194Z",
+  "at": "2026-10-09T20:00:52.155Z",
   "scope": "Physical iPhone browser, guarded page-owned development control",
   "gates": {
     "browserLaunchBlockedDuringOwnership": true,
@@ -12,5 +12,5 @@
     "supported": true,
     "active": false
   },
-  "sdkVersion": "web-519cc9e67f20f470"
+  "sdkVersion": "web-5af6ed4be8d7012a"
 }

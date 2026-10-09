@@ -14,6 +14,60 @@ const request = { target: { type: 'window', window_id: 119 }, mode: 'cooperative
 const status = { clock: { wall: '2026-10-09T07:00:00Z' }, engine: { build: 'f314bb340344', pid: 123 }, permission: { screen_recording: 'granted' }, capabilities: { source_journal: 1, input_timeline: 1, target_capture_options: 1, exclusion_identity: 1 }, capture_health: { recordings: { max_concurrent: 16, unfinished: 0, quarantined: 0 } }, displays: [{ id: 1, main: true, scale: 2 }] }
 const inventory = { total: 1, windows: [{ window_id: 119, pid: 71011, bundle_id: 'com.google.Chrome', on_screen: false, frame: { x: 0, y: 34, w: 1000, h: 732 } }] }
 
+const tripleRequest = { target: { type: 'window', window_id: 119, include_child_windows: true }, mode: 'background', activity: 'passive_capture', duration_s: 75, redundancy: 'window_app_display', backup_rect: { x: 90, y: 90, w: 1140, h: 850 }, backup_max_width: 1140 }
+const tripleStatus = { ...status, engine: { build: '9bfabf2dbb5c', pid: 123 }, capabilities: { ...status.capabilities, application_filter: 1 }, displays: [{ id: 1, main: true, scale: 2, frame: { x: 0, y: 0, w: 1512, h: 982 } }] }
+const tripleInventory = { total: 1, windows: [{ ...inventory.windows[0], on_screen: true, frame: { x: 120, y: 110, w: 1000, h: 732 } }] }
+
+test('three-source plan binds app identity and explicit crop without creating readiness or admission', () => {
+  const p = planProduction(tripleRequest, tripleStatus, tripleInventory), r = p.resource_guidance
+  assert.equal(p.assessment, 'candidate_requires_source_check')
+  assert.equal(p.mutates, false); assert.equal(p.alignment.input_lock, false)
+  assert.deepEqual(p.planned_sources.map(x => x.role), ['window', 'app', 'display'])
+  assert.deepEqual(p.planned_sources[1].target, { type: 'rect', ...tripleRequest.backup_rect, include_apps: ['com.google.Chrome'] })
+  assert.deepEqual(p.planned_sources[2].target, { type: 'rect', ...tripleRequest.backup_rect })
+  assert.deepEqual(p.planned_sources.map(x => x.settings.max_width), [1000, 1140, 1140])
+  assert(p.planned_sources.every(x => x.settings.codec === 'h264' && x.settings.input.enabled === false))
+  assert.deepEqual(r.point_triple_profile_differences, [])
+  assert.equal(r.measured_point_triple_profile.representative_for_requested_app, false)
+  assert.equal(r.measured_point_triple_profile.recorder_peak_rss_mib, 463.0625)
+  assert.equal(r.duration_p80_s, null); assert.equal(r.configured_limit_is_capacity, false)
+  assert(p.unknowns.some(x => x.includes('coverage must be verified')))
+  assert(p.user_expectations.some(x => x.includes('unrelated desktop pixels')))
+  assert.match(p.planned_sources_qualification, /no scheduling/)
+})
+
+test('three-source scenario accounts for all lanes and does not extrapolate CPU or capacity', () => {
+  const a = planProduction(tripleRequest, tripleStatus, tripleInventory).resource_guidance.storage_guidance
+  assert.equal(a.reference, 'measured_point_triple_profile'); assert.equal(a.scenario_video_bytes, 40839659)
+  assert.deepEqual(a.scenario_journal_bytes_by_source, { window: 1382019, app: 1335172, display: 1331659 })
+  assert.deepEqual(a.scenario_journal_rows_by_source, { window: 4483, app: 4171, display: 4172 })
+  assert.deepEqual(a.scenario_muxed_packets_by_source, { window: 2181, app: 1767, display: 1771 })
+  const b = planProduction({ ...tripleRequest, duration_s: 86400 }, tripleStatus, tripleInventory).resource_guidance.storage_guidance
+  assert(Object.values(b.scenario_exceeds_budgets).every(Boolean)); assert.equal(b.safe_continuous_duration_s, null)
+  assert.equal(b.disk_space_reserved, false); assert(b.assumptions.some(x => x.includes('No extrapolation of CPU')))
+})
+
+test('three-source identity, crop, capability and settings uncertainty remain explicit', () => {
+  for (const bundle_id of [undefined, 123, 'bad/bundle']) {
+    const p = planProduction(tripleRequest, tripleStatus, { ...tripleInventory, windows: [{ ...tripleInventory.windows[0], bundle_id }] })
+    assert.equal(p.planned_sources, null); assert.equal(p.assessment, 'needs_resolution')
+  }
+  assert(planProduction(tripleRequest, status, tripleInventory).blocking_reasons.some(x => x.includes('application_filter')))
+  const outside = planProduction({ ...tripleRequest, backup_rect: { x: 9000, y: 9000, w: 100, h: 100 } }, tripleStatus, tripleInventory)
+  assert.equal(outside.assessment, 'needs_resolution')
+  const partial = planProduction({ ...tripleRequest, backup_rect: { x: 120, y: 110, w: 100, h: 100 } }, tripleStatus, tripleInventory)
+  assert(partial.unknowns.some(x => x.includes('does not contain')))
+  const changed = planProduction({ ...tripleRequest, codec: 'hevc', fps: 60, backup_max_width: 0 }, tripleStatus, tripleInventory)
+  for (const value of ['different codec', 'different fps', 'different or unobserved backup geometry/display']) assert(changed.resource_guidance.point_triple_profile_differences.includes(value))
+  assert.equal(changed.planned_sources[1].settings.codec, 'hevc'); assert.equal(changed.planned_sources[1].settings.max_width, 0)
+  const duplicateDisplay = planProduction(tripleRequest, { ...tripleStatus, displays: [tripleStatus.displays[0], tripleStatus.displays[0]] }, tripleInventory)
+  assert(duplicateDisplay.resource_guidance.point_triple_profile_differences.some(x => x.includes('unobserved backup')))
+})
+
+test('malformed or irrelevant three-source fields refuse rather than silently configure capture', () => {
+  for (const patch of [{ backup_rect: undefined }, { backup_max_width: undefined }, { backup_max_width: true }, { backup_max_width: -1 }, { backup_rect: { ...tripleRequest.backup_rect, w: 0 } }, { backup_rect: { ...tripleRequest.backup_rect, app: 'invented' } }, { redundancy: 'none' }, { target: { type: 'display', display_id: 1 } }, { codec: 'gif' }]) assert.throws(() => validateProductionRequest({ ...tripleRequest, ...patch }), e => e.code === 'bad_production_plan')
+})
+
 test('app-filter planning refuses old engines and keeps crop/identity/readiness limits explicit',()=>{
   const a={target:{type:'rect',x:0,y:0,w:500,h:500,include_apps:['com.test.App']},mode:'background',activity:'passive_capture',duration_s:30}
   const s={...status,displays:[{id:1,main:true,frame:{x:0,y:0,w:1512,h:982}}]}
@@ -133,7 +187,7 @@ test('MCP planning does only readbacks; malformed input performs no RPC', async 
   lines.on('line', line => { const row = JSON.parse(line), p = pending.get(row.id); if (p) { clearTimeout(p.timer); pending.delete(row.id); row.error ? p.reject(new Error('protocol failure')) : p.resolve(row.result) } })
   const rpc = (method, params) => new Promise((resolve, reject) => { const id = ++serial; const timer = setTimeout(() => { pending.delete(id); reject(new Error('deadline')) }, 3000); pending.set(id, { resolve, reject, timer }); child.stdin.write(JSON.stringify({ jsonrpc: '2.0', id, method, params }) + '\n') })
   try {
-    await rpc('initialize', { protocolVersion: '2025-06-18' })
+    assert.equal((await rpc('initialize', { protocolVersion: '2025-06-18' })).serverInfo.version, '0.15.0')
     const listed = await rpc('tools/list', {})
     assert.equal(listed.tools.find(t => t.name === 'production_plan').annotations.readOnlyHint, true)
     const accepted = await rpc('tools/call', { name: 'production_plan', arguments: request })
@@ -142,9 +196,19 @@ test('MCP planning does only readbacks; malformed input performs no RPC', async 
     assert.deepEqual(methods, ['status', 'windows.list'])
     const refused = await rpc('tools/call', { name: 'production_plan', arguments: { ...request, input_enabled: 'yes' } })
     assert.equal(refused.isError, true); assert.deepEqual(methods, ['status', 'windows.list'])
+    const triple = await rpc('tools/call', { name: 'production_plan', arguments: tripleRequest })
+    assert.equal(triple.isError, false)
+    const triplePlan = JSON.parse(triple.content[0].text)
+    assert.equal(triplePlan.resource_guidance.storage_guidance.reference, 'measured_point_triple_profile')
+    assert.equal(triplePlan.resource_guidance.storage_guidance.scenario_video_bytes, 40839659)
+    assert.deepEqual(methods, ['status', 'windows.list', 'status', 'windows.list'])
+    const invalidTriple = await rpc('tools/call', { name: 'production_plan', arguments: { ...tripleRequest, backup_max_width: undefined } })
+    assert.equal(invalidTriple.isError, true)
+    assert.deepEqual(methods, ['status', 'windows.list', 'status', 'windows.list'])
     const readback = await rpc('tools/call', { name: 'status', arguments: {} })
     assert.equal(JSON.parse(readback.content[0].text).mcp_adapter.production_planning, 1)
     assert.equal(JSON.parse(readback.content[0].text).mcp_adapter.production_storage_guidance, 1)
+    assert.equal(JSON.parse(readback.content[0].text).mcp_adapter.triple_source_planning, 1)
   } finally {
     child.stdin.end(); await new Promise(resolve => child.once('exit', resolve))
     for (const socket of sockets) socket.destroy()

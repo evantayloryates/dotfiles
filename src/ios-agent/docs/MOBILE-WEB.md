@@ -10,7 +10,9 @@ through CoreDevice is a provisioning convenience, not the operating transport.
 
 1. `ios_web_enroll`: obtain a private JSON launchFile, never print its URL
    fragment. Enrollment expires in five minutes and is single-use, origin-bound.
-   Open its URL in the intended browser. On the paired developer channel,
+   Pass optional `browser: ios-safari|ios-chrome` to request an idle-only,
+   atomically reserved CoreDevice launch on the privately configured device.
+   Launch acceptance is not page readiness. Otherwise open its private URL in the intended browser. On the paired developer channel,
    `devicectl device process launch --payload-url` can open Safari or Chrome.
    Off-network, an already enrolled browser tab is sufficient for page control;
    an offline/closed browser cannot be remotely launched by this page adapter.
@@ -52,7 +54,7 @@ live, subject to separately verified route/form preservation.
 `window.__iosWebAgent.register('name', readFunction)` returns an unregister
 function. Read functions should return bounded synthetic/domain diagnostics,
 never credentials, transcripts or models. The built-in media reader reports
-track kind/enabled/muted/readyState, WebSocket counts/bytes and selected audio
+track kind/enabled/muted/readyState (including existing DOM media streams), WebSocket counts/bytes and selected audio
 WebRTC counters. It covers objects created AFTER adapter boot only. Instrument
 before call setup; it does not capture audio, create a microphone or stop an
 existing product track. Fetch/XHR and console wrappers add metadata only.
@@ -85,3 +87,21 @@ upstream URL, customer database, global browser injection or credential API.
 - https://developer.chrome.com/blog/debugging-chrome-on-ios
 - https://docs.inspect.dev/developers/mcp
 - https://github.com/WebKit/WebKit/blob/main/Source/JavaScriptCore/inspector/protocol/Runtime.json
+
+## Additional qualification and limits — 9 October
+
+Physical Chrome refused covered/offscreen clicks and read-only fills, and
+refused another browser launch while owned. Desktop WebKit fault injection
+verified the 15-second glow watchdog on network loss; stop preserved wrappers
+installed later by another library and removed its own DOM. This is not physical
+cellular outage proof. Screen Wake Lock is exposed and requested only during
+ownership, but the physical browser refused it in this run. Denials are backed
+off 30 seconds; API presence is not a promise to keep the phone awake.
+
+An isolated Inspect CLI 3.3.2 provider was installed under the private service
+state for deep-inspector evaluation, with telemetry disabled and separate
+9321/9322 loopback ports. Pairing/USB/WebInspector service checks passed; zero
+inspectable targets were exposed. Safari/Chrome inspector opt-in remains an
+unqualified prerequisite. No paid plan, global injection or extra Tailscale
+listener was created. The provider is an auxiliary local developer channel, not
+the arbitrary-network operating transport.

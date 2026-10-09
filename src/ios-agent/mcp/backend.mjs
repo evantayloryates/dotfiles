@@ -262,7 +262,8 @@ export class Backend {
       if (!/^[A-Fa-f0-9-]{36}$/.test(device)) return {ok:false,reason:'configured_device_id_required',actionSent:false};
       const bundle = {'ios-safari':'com.apple.mobilesafari','ios-chrome':'com.google.chrome.ios'}[browser];
       if (!bundle) return {ok:false,reason:'supported_ios_browser_required',actionSent:false};
-      const url = JSON.parse(fs.readFileSync(a.file,'utf8')).url;
+      const sourceURL=JSON.parse(fs.readFileSync(a.file,'utf8')).url;
+      const url=sourceURL.replace(/^https:/,browser==='ios-safari'?'x-safari-https:':'googlechromes:');
       const reservation = await this.begin({surface:'launch'});
       try { launch = await new Promise(resolve=>{
         const child=spawn('/usr/bin/xcrun',['devicectl','device','process','launch','--device',device,'--timeout','12','--payload-url',url,bundle],{stdio:'ignore'});

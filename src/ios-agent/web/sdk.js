@@ -13,7 +13,7 @@
   history.replaceState(history.state, '', location.pathname + location.search);
   const boot = crypto.randomUUID();
   let identity = enrollment ? undefined : saved, lease, deadline = 0, stopped = false, snapshot, refs = new Map();
-  let wakeLock, wakeRequest;
+  let wakeLock,wakeRequest,wakeRetryAt=0;
   const seen = new Set(), events = [], domains = new Map();
   const clock = () => performance.now();
   const ring = value => { events.push({at: Math.round(clock()), ...value}); if (events.length > 160) events.shift(); };
@@ -47,7 +47,7 @@
       const id = String(elements.length + 1), text = label(el);
       refs.set(id, {el, text, box});
       const hit = document.elementFromPoint(Math.max(0, Math.min(innerWidth-1, box.x + box.width/2)), Math.max(0, Math.min(innerHeight-1, box.y + box.height/2)));
-      elements.push({id, tag:el.tagName.toLowerCase(), role:el.getAttribute('role'), label:text, box, disabled:!!el.disabled, value:'value' in el ? String(el.value).slice(0,300) : undefined, hit:!!hit && (hit === el || el.contains(hit)), inViewport:box.y < innerHeight && box.y+box.height > 0 && box.x < innerWidth && box.x+box.width > 0});
+      elements.push({id, tag:el.tagName.toLowerCase(), role:el.getAttribute('role'), label:text, box, disabled:!!el.disabled,pressed:el.getAttribute('aria-pressed'),expanded:el.getAttribute('aria-expanded'),checked:'checked' in el?!!el.checked:el.getAttribute('aria-checked'),inputType:el.tagName==='INPUT'?el.type:undefined, value:'value' in el ? String(el.value).slice(0,300) : undefined, hit:!!hit && (hit === el || el.contains(hit)), inViewport:box.y < innerHeight && box.y+box.height > 0 && box.x < innerWidth && box.x+box.width > 0});
       if (elements.length >= 500) break;
     }
     return {snapshot:snapshot.id, content:document.body.innerText.slice(0,16000), path:location.pathname, title:document.title, elements, viewport:{width:innerWidth,height:innerHeight,scale:visualViewport?.scale}, capabilities:{trustedInput:false,systemUI:false,closedShadowRoots:false,crossOriginFrames:false}};
@@ -92,7 +92,7 @@
     const next = response.lease;
     if (!next || document.hidden) clear();
     else { lease=next; deadline=clock()+Math.min(15000,next.remainingMs); glow.style.display='block';
-      if(navigator.wakeLock && !wakeLock && !wakeRequest) {const expected=next.id;wakeRequest=navigator.wakeLock.request('screen').then(async lock=>{if(stopped||!lease||lease.id!==expected||document.hidden)await lock.release();else wakeLock=lock;}).catch(()=>ring({kind:'wake-lock',code:'unavailable'})).finally(()=>{wakeRequest=null;});}
+      if(navigator.wakeLock && !wakeLock && !wakeRequest && clock()>=wakeRetryAt) {const expected=next.id;wakeRequest=navigator.wakeLock.request('screen').then(async lock=>{if(stopped||!lease||lease.id!==expected||document.hidden)await lock.release();else wakeLock=lock;}).catch(()=>{wakeRetryAt=clock()+30000;ring({kind:'wake-lock',code:'unavailable'});}).finally(()=>{wakeRequest=null;});}
     }
   }
   async function loop() {
@@ -145,12 +145,13 @@
     catch(e){ring({kind:'media',code:'request_failed'});throw e;}
   };
   domains.set('media',async()=>{
-    const audio=[];
+    const audio=[],connections=[],transports=[];
     for(const pc of peers) {
-      if(pc.signalingState==='closed')continue;let reports;try{reports=await pc.getStats();}catch{continue;}const numeric=['packetsSent','packetsReceived','packetsLost','bytesSent','bytesReceived','jitter','totalAudioEnergy','totalSamplesDuration','concealedSamples','silentConcealedSamples','jitterBufferDelay','jitterBufferEmittedCount','roundTripTime'];
-      reports.forEach(r=>{if(r.kind==='audio'||r.mediaType==='audio'){const sample={type:r.type};for(const k of numeric)if(typeof r[k]==='number'&&Number.isFinite(r[k]))sample[k]=r[k];audio.push(sample);}});
+      if(pc.signalingState==='closed')continue;connections.push({state:pc.connectionState,iceState:pc.iceConnectionState,signalingState:pc.signalingState});let reports;try{reports=await pc.getStats();}catch{continue;}const numeric=['packetsSent','packetsReceived','packetsLost','bytesSent','bytesReceived','jitter','totalAudioEnergy','totalSamplesDuration','concealedSamples','silentConcealedSamples','jitterBufferDelay','jitterBufferEmittedCount','roundTripTime'];
+      reports.forEach(r=>{if(r.type==='transport'){const sample={type:r.type};for(const k of ['bytesSent','bytesReceived','packetsSent','packetsReceived'])if(typeof r[k]==='number'&&Number.isFinite(r[k]))sample[k]=r[k];transports.push(sample);}if(r.kind==='audio'||r.mediaType==='audio'){const sample={type:r.type};for(const k of numeric)if(typeof r[k]==='number'&&Number.isFinite(r[k]))sample[k]=r[k];audio.push(sample);}});
     }
-    return {coverage:'objects created after adapter boot only',sockets:[...sockets],tracks:[...tracks].map(t=>({kind:t.kind,enabled:t.enabled,muted:t.muted,readyState:t.readyState})),audio};
+    const visibleTracks=new Set(tracks);for(const element of document.querySelectorAll('video,audio'))if(element.srcObject instanceof MediaStream)for(const track of element.srcObject.getTracks())visibleTracks.add(track);
+    return {coverage:'peer/socket objects created after adapter boot; tracks also discovered through DOM media',sockets:[...sockets],tracks:[...visibleTracks].map(t=>({kind:t.kind,enabled:t.enabled,muted:t.muted,readyState:t.readyState})),audio,connections,transports};
   });
   const xhrOpen=XMLHttpRequest.prototype.open, xhrSend=XMLHttpRequest.prototype.send;
   XMLHttpRequest.prototype.open=function(...args){return xhrOpen.apply(this,args);};
