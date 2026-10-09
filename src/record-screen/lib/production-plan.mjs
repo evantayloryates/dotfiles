@@ -114,10 +114,13 @@ export function planProduction(args, status, windowResult = { windows: [], total
   let plannedSources = null
   if (triple) {
     const bundle = typeof base?.bundle_id === 'string' && /^[A-Za-z0-9][A-Za-z0-9.-]{0,255}$/.test(base.bundle_id) ? base.bundle_id : null
+    const limit = status?.capture_health?.recordings?.max_concurrent, unfinished = status?.capture_health?.recordings?.unfinished
+    if (Number.isInteger(limit) && limit > 0 && Number.isInteger(unfinished) && unfinished >= 0 && unfinished + 3 > limit) blocks.push('Three planned sources exceed currently observed configured recording slots; this snapshot is not a capacity guarantee or reservation')
     if (status?.capabilities?.application_filter !== 1 || status?.capabilities?.target_capture_options !== 1) blocks.push('Triple-source app backup requires guarded application_filter and target_capture_options v1')
     if (!bundle) blocks.push('Exact base-window app bundle identity is unavailable; no app backup target is invented')
     const r = a.backup_rect
     if (!displays.some(d => d.frame && r.x < d.frame.x + d.frame.w && r.x + r.w > d.frame.x && r.y < d.frame.y + d.frame.h && r.y + r.h > d.frame.y)) blocks.push('Explicit backup rectangle has no observed display intersection')
+    if (base?.frame && !(r.x < base.frame.x + base.frame.w && r.x + r.w > base.frame.x && r.y < base.frame.y + base.frame.h && r.y + r.h > base.frame.y)) blocks.push('Explicit backup rectangle does not intersect the observed base window; resolve the backup surface before scheduling')
     if (base?.frame && !(r.x <= base.frame.x && r.y <= base.frame.y && r.x + r.w >= base.frame.x + base.frame.w && r.y + r.h >= base.frame.y + base.frame.h)) unknown.push('Explicit backup crop does not contain the entire observed base window; intended partial coverage and later movement/overflow need source checks')
     expectations.push('The app backup excludes other-app occlusion, while the display backup includes it and unrelated desktop pixels. Both use the caller-specified fixed crop; neither follows window movement or guarantees every popup.')
     const shared = { preset: 'evidence', codec: a.codec ?? 'h264', fps: a.fps, show_cursor: a.show_cursor, input: { enabled: a.input_enabled } }

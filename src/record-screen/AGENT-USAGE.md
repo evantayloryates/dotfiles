@@ -1,7 +1,7 @@
 # Agent usage and recovery
 
 This is the capture-foundations production runbook. The installed native build
-9bfabf2dbb5c and fresh adapter0.14.0 have the scoped proofs in
+9bfabf2dbb5c and fresh adapter0.15.0 have the scoped proofs in
 [GATES.md](qualification/GATES.md). Treat these as a baseline, then inspect
 loaded status. Visual effects, cursor styling and composition recipes are the
 next phase. The [checklist](qualification/checklist.json) tracks unresolved
@@ -255,6 +255,28 @@ core; later idle RSS was30.34MiB. Host pressure was2 and fixture thermal state
 nominal; the resource guard did not trigger. Use these actual costs to weigh
 redundancy, rather than assuming insurance is free. Requestedfps differs from
 actual muxed cadence. Longer capacity, GPU attribution and P80 remain open.
+
+Stage67 makes this measured profile available through read-only production
+planning. Fresh MCP0.15.0 reports `triple_source_planning:1`; current CLI
+`production-plan` accepts `redundancy:"window_app_display"`, explicit
+`backup_rect:{x,y,w,h}` in desktop points and `backup_max_width` in pixels.
+Optional codec defaults to h264 for these candidate settings; hevc is an
+unqualified profile difference. `planned_sources` contains three explicit
+targets/settings, deriving the app bundle only from observed exact-window
+inventory. No crop is guessed, followed or expanded, and no take is scheduled.
+Resolve a disjoint crop, unavailable identity/filter support or observed slot
+shortfall first. Partial coverage is retained as uncertainty, not full insurance.
+Check source pixels, menus, movement bounds and current disk space before using
+the proposed sources. The display crop can retain unrelated pixels; the app
+filter excludes other-app occlusion but cannot guarantee every helper popup.
+
+Read `resource_guidance.measured_point_triple_profile`, its setting differences
+and `storage_guidance` per-source scenario/budget flags. These describe one
+retained scene, not a safe duration or requested-app cost prediction. A live
+read-only existing-window plan and CLI matched the fresh registered MCP; a
+built-in crop disjoint from its external-display target was correctly refused.
+This chat's ordinary adapter still lacks metadata, so adoption remains unknown.
+Use the qualified CLI while preserving peers; do not refresh them to infer it.
 
 Keep operation scopes short and close them before the intended media boundary
 when the capture must include their end. Stage65's late end correctly stayed

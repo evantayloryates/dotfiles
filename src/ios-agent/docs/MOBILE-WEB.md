@@ -65,7 +65,11 @@ Dated receipts prove desktop Chromium/WebKit and real iPhone Safari/Chrome DOM,
 React form input/readback, click, scroll, events, stale refs and glow cleanup.
 They are synthetic qualification-page proof, NOT a coach/client business call,
 actual microphone acquisition, independent screenshots or off-LAN proof.
-Page DOM omits closed shadow roots and cross-origin frames. It does not operate
+Snapshots include open shadow roots and closed roots created after adapter boot.
+Closed roots created earlier, browser-native shadow internals and frames remain
+opaque. Desktop Chromium/WebKit fixtures verified both shadow modes, click
+effects and inherited inert refusal. Bounded traversal stops at 8,000 scanned
+elements, 64 roots or 500 semantic nodes. It is not an unbounded full DOM dump. It does not operate
 browser chrome, OS prompts, IME/keyboard hardware, trusted touch or other apps.
 WebKit Inspector can supply deeper CSS/timeline/heap information for Safari and
 Chrome; its local paired transport is a separate constraint. Inspect's CDP
@@ -103,5 +107,9 @@ state for deep-inspector evaluation, with telemetry disabled and separate
 9321/9322 loopback ports. Pairing/USB/WebInspector service checks passed; zero
 inspectable targets were exposed. Safari/Chrome inspector opt-in remains an
 unqualified prerequisite. No paid plan, global injection or extra Tailscale
-listener was created. The provider is an auxiliary local developer channel, not
+listener was created. Its isolated daemon was stopped after discovery; the installed dependency remains
+for the next opt-in test. The provider is an auxiliary local developer channel, not
 the arbitrary-network operating transport.
+
+The `next-router` reader supplies hydration/readiness and route/path only; queries,
+cookies, auth values and cached application models are excluded.

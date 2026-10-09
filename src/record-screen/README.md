@@ -509,7 +509,7 @@ macOS asks again every 30 days. The re-confirm date lives in
 ## Capture foundations and qualification
 
 Start capture coordination with `production_plan` in a fresh MCP adapter
-(`status.mcp_adapter.production_planning: 1`, introduced in0.9.0; current0.11.1), or the immediately
+(`status.mcp_adapter.production_planning: 1`, introduced in0.9.0; current0.15.0), or the immediately
 available CLI:
 
 ```sh
@@ -565,6 +565,30 @@ before claiming a clean source. Child inclusion is an explicit option, not a
 universal menu-capture guarantee. App/OS/provider/display/capture-option changes,
 Space changes, new helper identities and popup reopening warrant the relevant
 narrow check. Preserve established evidence instead of repeating unrelated QA.
+
+Fresh MCP0.15.0 advertises `triple_source_planning:1`. For
+`redundancy:"window_app_display"`, supply an exact base window plus explicit
+`backup_rect:{x,y,w,h}` in desktop points and `backup_max_width` in pixels
+(0 means native pixels). Optional `codec` is `h264` or `hevc`; triple candidate
+settings default to h264. The result's `planned_sources` describes isolated
+window, app-filtered fixed crop and unfiltered fixed crop with explicit settings.
+The app bundle comes from observed window inventory, never an inferred name.
+Missing identity/capabilities, a crop without display or base-window intersection,
+or three sources exceeding the currently observed configured slots require
+resolution. Partial base coverage is explicitly uncertain. A slot check neither
+reserves capacity nor prevents a subsequent collision. These crops never follow
+or expand automatically. Schedule nothing until the chosen targets pass source
+checks; all popup coverage and requested-app readiness remain unqualified.
+
+`resource_guidance.measured_point_triple_profile` publishes the actual stage66
+75-second three-source costs: 40,839,659 video bytes plus 4,048,850 journal bytes,
+per-source rows/packets/bytes, and measured process/host observations. Triple
+planning selects this reference for duration-scaled storage scenarios and reader
+budget flags. Matching settings do not establish capacity or content coverage;
+CPU/RSS/GPU, thermal equilibrium and P80 are not extrapolated. The actual app
+backup preserved moving authored pixels through one independent obstruction;
+arbitrary whole-shot rescue remains open. See the measured scope in
+[GATES.md](qualification/GATES.md).
 
 `window_display` redundancy returns guidance for two sources; it neither invents
 a backup crop nor schedules one. The stored benchmark is one authored 50-second

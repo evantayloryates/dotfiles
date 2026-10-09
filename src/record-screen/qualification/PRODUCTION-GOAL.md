@@ -66,7 +66,21 @@ physical user input or authorize sleep/permission disruption.
 
 ## Checkpoints
 
-Current checkpoint: stage66. New75s/requested30fps moving authored source and
+Current checkpoint: stage67. Fresh MCP0.15.0/current CLI now plan explicit
+window/app/display sources using the measured stage66 profile, per-source costs
+and reader/storage scenarios. Exact observed identity, crop intersection and
+configured slot checks precede candidate targets. Live external-window metadata
+exposed a wrong built-in backup assumption; the planner refuses that disjoint
+crop and accepts an explicit crop on the observed display with differences.
+46 affected checks and final12 planner checks pass; actual CLI/MCP parity and
+unchanged default plan fields verified. Native9bf/PID24295 unchangedidle, no new
+capture/UI/peer restart. Ordinary current consumer adoption remains unknown;
+46completed17partial1deferred. Pending physical-input offer has no answer; no
+input exercise is assumed. Next dynamic fitted origin, missing physical/provider
+input boundaries and useful longer capacity. Preserve passing authored captures
+and avoid more registration/audit churn. Composition remains deferred.
+
+Stage66 checkpoint: New75s/requested30fps moving authored source and
 independent20s cover, synchronized window/app/display lanes.5719 actual mux
 stamps match journals exactly, zero lost rows. All interior packets:565 app
 and570 isolated keep marker,567 display lose it under100% cover mask;565

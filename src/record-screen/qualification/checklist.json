@@ -1,9 +1,9 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T15:54:44-04:00",
+  "updated_at": "2026-10-09T16:12:13-04:00",
   "workflow": {
     "state": "active",
-    "note": "Goal active. Stage66 new motion/movement/20s obstruction take:5719 exact source/video joins,803 full-interval pair boundaries, all interior app/display marker checks pass; measured three-lane costs retained. Three closed source scopes and typed outcomes read back. Owned fixtures absent, sampler terminal, session closed, installed native unchanged/idle. Remaining continuous fitted origin, physical event and capacity/adoption gates stay open; visual composition deferred."
+    "note": "Stage67 delivers explicit three-source planning and measured cost scenarios through fresh MCP0.15.0/current CLI. No new capture or UI; native idle. Dynamic fitted origin, physical-input offer, longer capacity and ordinary consumer adoption remain open; retain passing evidence."
   },
   "production_note": "Current CLI/fresh MCP0.14 provides opt-in exact whole-interval region durations with budget refusal.37 affected +9 final focused checks and actual MCP/CLI/default parity. Retained90s source:1769 segments evaluated; geometry is separate from captured pixels. Legacy/fitted guards remain. Signed native9bf/PID24295/exact binary unchangedidle, three scoped facts read back, own readers settled. Ordinary loaded adapter still unverified; full acceptance open.",
   "groups": [
@@ -444,10 +444,10 @@
           "title": "Set a realistic resource and admission budget",
           "status": "partial",
           "scope": "CPU, memory, encoder/GPU/storage costs and useful production-duration estimates.",
-          "evidence": "Stage56 original90s pair104 observations: recorder peak53.52MiB, p50 intervalCPU6.94%/peak15.87%; TextEdit134.66MiB, host pressure1/2, no guard. Follow-up unmeasured. Prior GPU/longer profiles retained; no causal encoder/GPU/capacity/P80 proof. Stage61 one whole90 metadata CLI request evaluates1769 boundary segments in0.18s wall/maxRSS79.44MiB. Summary default4096/max16384 boundaries, over-budget refusal verified; these bounds are not capacity or P80 evidence. Stage66 measured75s useful30fps three-lane motion/movement/cover profile:90 process/host samples, recorder RSS peak463.06MiB, p50 intervalCPU8.90%/peak103.64% of one core; later settled RSS30.34MiB. Motion fixture78.34MiB and cover66.25MiB peaks; fresh host pressure2/thermal0, no guard trigger.5719 actual mux packets,40,839,659 video+4,048,850 journal bytes. One concurrent-host short take, no baseline delta/GPU/P80/long-duration capacity claim.",
-          "next": "Qualify a useful longer-duration/encoder or GPU boundary rather than repeating this short three-lane profile; preserve observed host workload and practical storage/reader budgets.",
-          "anchor": "sixty-sixth-pass",
-          "updated_at": "2026-10-09T15:54:44-04:00"
+          "evidence": "Stage56 original90s pair104 observations: recorder peak53.52MiB, p50 intervalCPU6.94%/peak15.87%; TextEdit134.66MiB, host pressure1/2, no guard. Follow-up unmeasured. Prior GPU/longer profiles retained; no causal encoder/GPU/capacity/P80 proof. Stage61 one whole90 metadata CLI request evaluates1769 boundary segments in0.18s wall/maxRSS79.44MiB. Summary default4096/max16384 boundaries, over-budget refusal verified; these bounds are not capacity or P80 evidence. Stage66 measured75s useful30fps three-lane motion/movement/cover profile:90 process/host samples, recorder RSS peak463.06MiB, p50 intervalCPU8.90%/peak103.64% of one core; later settled RSS30.34MiB. Motion fixture78.34MiB and cover66.25MiB peaks; fresh host pressure2/thermal0, no guard trigger.5719 actual mux packets,40,839,659 video+4,048,850 journal bytes. One concurrent-host short take, no baseline delta/GPU/P80/long-duration capacity claim. Stage67 fresh0.15.0/CLI publishes measured three-source profile with exact source bytes/rows/packets, explicit crop/width/codec, per-source duration scenario and reader/journal flags. Live disjoint crop refused; configured slot shortfall refuses without reservation.46 affected and final12 planner checks pass; default fields/actual retained costs preserved. Capacity/GPU/P80 remain open.",
+          "next": "Qualify a useful longer-duration/encoder or GPU boundary rather than repeat short triples; inspect actual source costs, host workload, reader budgets and disk.",
+          "anchor": "sixty-seventh-pass",
+          "updated_at": "2026-10-09T16:12:13-04:00"
         },
         {
           "id": "sparse-display-writer",
@@ -612,10 +612,10 @@
           "title": "Finalize production modes and interruption expectations",
           "status": "completed",
           "scope": "Clear background/cooperative/reserved-window expectations with input available and recovery choices.",
-          "evidence": "Production expectations retained. Stage65 real human notification click writes initially empty private file; model-free7s watcher observes after5.985s and one native self-message reaches this active chat.60s menu batch completes within2min; input remains available, duplicate clicks cannot extend reservation. Active-session delivery only; no physical-input/sleep/permission authorization or unattended wake claim.",
+          "evidence": "Production expectations retained. Stage65 real human notification click writes initially empty private file; model-free7s watcher observes after5.985s and one native self-message reaches this active chat.60s menu batch completes within2min; input remains available, duplicate clicks cannot extend reservation. Active-session delivery only; no physical-input/sleep/permission authorization or unattended wake claim. Stage67 explicit fixed-crop window/app/display planning preserves no automatic following/expansion, unrelated display pixels and partial-coverage uncertainty. Actual disjoint cross-display crop refused. Planning creates no input/display lock or reservation.",
           "next": "",
-          "anchor": "sixty-fifth-pass",
-          "updated_at": "2026-10-09T15:32:39-04:00"
+          "anchor": "sixty-seventh-pass",
+          "updated_at": "2026-10-09T16:12:13-04:00"
         },
         {
           "id": "maintenance-fence",
@@ -632,10 +632,10 @@
           "title": "Install the candidate safely and verify rollback",
           "status": "partial",
           "scope": "Idle-boundary release with prior binary/state preserved and exact loaded-capability readback.",
-          "evidence": "Prior guarded releases/restoration and source/state preservation remain retained; stage58 delivers signed9bf native/paired-clock support. Stage62 exact configured launcher under minimal GUI PATH exposes current0.14.0/27 tools/replay never and exits cleanly; both harness registrations unchanged. Native9bf/PID24295/exact binary and mapping/server sources unchangedidle. Agent runbook baseline corrected; ordinary chat still lacks adapter metadata, so broader adoption/natural failure gates remain open.",
-          "next": "Extend scoped consumer adoption and remaining natural failure/recovery cases at safe boundaries; preserve restoration/source proofs rather than rolling back or repeating them. Read each loaded consumer contract independently.",
-          "anchor": "sixty-second-pass",
-          "updated_at": "2026-10-09T14:39:15-04:00"
+          "evidence": "Prior guarded releases/restoration and source/state preservation remain retained; stage58 delivers signed9bf native/paired-clock support. Stage62 exact configured launcher under minimal GUI PATH exposes current0.14.0/27 tools/replay never and exits cleanly; both harness registrations unchanged. Native9bf/PID24295/exact binary and mapping/server sources unchangedidle. Agent runbook baseline corrected; ordinary chat still lacks adapter metadata, so broader adoption/natural failure gates remain open. Stage67 fresh configured launcher/CLI delivers0.15.0 three-source planning,27 tools/replay never, actual parity and guarded crop/identity/slots. Native9bf/PID24295 unchangedidle; server/planner intentionally changed. Owned readers exited0, no peer/native restart. Ordinary chat still lacks metadata; adoption unknown.",
+          "next": "Extend specific consumer adoption and natural failure/recovery at safe boundaries; retain settled restoration and source proofs without repeating rollback.",
+          "anchor": "sixty-seventh-pass",
+          "updated_at": "2026-10-09T16:12:13-04:00"
         },
         {
           "id": "installed-smoke",
@@ -652,10 +652,10 @@
           "title": "Verify loaded MCP replay policy and reconnect boundaries",
           "status": "partial",
           "scope": "Never automatically resend mutations after a lost reply; distinguish loaded adapter from native engine version. Preserve existing peer MCP processes.",
-          "evidence": "Stage62 both harness registrations resolve to the canonical launcher; actual minimal GUI-PATH initialize/tools/status exposes0.14.0,27 tools, read-only paired summary and mutation_replay never. Owned reader3395 exit0/independently absent; both config hashes unchanged. Ordinary chat status still has no adapter metadata: version/replay/adoption unknown. Per-consumer launch/readback limits reconciled in shared skill/runbook; no peer refresh or mutation replay. Earlier lost-reply/source checks retained.",
-          "next": "Read the specific ordinary consumer adapter policy and tool schema after its safe/natural launch; use qualified CLI meanwhile. Do not infer routing/policy from config, process age or native build, and never automatically replay mutations.",
-          "anchor": "sixty-second-pass",
-          "updated_at": "2026-10-09T14:39:14-04:00"
+          "evidence": "Stage62 both harness registrations resolve to the canonical launcher; actual minimal GUI-PATH initialize/tools/status exposes0.14.0,27 tools, read-only paired summary and mutation_replay never. Owned reader3395 exit0/independently absent; both config hashes unchanged. Ordinary chat status still has no adapter metadata: version/replay/adoption unknown. Per-consumer launch/readback limits reconciled in shared skill/runbook; no peer refresh or mutation replay. Earlier lost-reply/source checks retained. Stage67 fresh minimal GUI-PATH canonical launcher initialize0.15.0/27 tools/triple_source_planning1/read-only plan/mutation_replay never; real CLI/MCP parity. Ordinary chat status independently still lacks adapter metadata; version/replay/adoption unknown. No mutation replay or peer refresh.",
+          "next": "Read the specific ordinary consumer contract after a safe natural launch; use qualified CLI meanwhile. Do not infer routing or replay from configuration, process age or native build.",
+          "anchor": "sixty-seventh-pass",
+          "updated_at": "2026-10-09T16:12:13-04:00"
         },
         {
           "id": "agent-runbooks",
@@ -2590,6 +2590,45 @@
       "from": "active",
       "to": "active",
       "note": "Goal active. Stage66 new motion/movement/20s obstruction take:5719 exact source/video joins,803 full-interval pair boundaries, all interior app/display marker checks pass; measured three-lane costs retained. Three closed source scopes and typed outcomes read back. Owned fixtures absent, sampler terminal, session closed, installed native unchanged/idle. Remaining continuous fitted origin, physical event and capacity/adoption gates stay open; visual composition deferred."
+    },
+    {
+      "kind": "item",
+      "id": "resource-admission",
+      "at": "2026-10-09T16:12:13-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage56 original90s pair104 observations: recorder peak53.52MiB, p50 intervalCPU6.94%/peak15.87%; TextEdit134.66MiB, host pressure1/2, no guard. Follow-up unmeasured. Prior GPU/longer profiles retained; no causal encoder/GPU/capacity/P80 proof. Stage61 one whole90 metadata CLI request evaluates1769 boundary segments in0.18s wall/maxRSS79.44MiB. Summary default4096/max16384 boundaries, over-budget refusal verified; these bounds are not capacity or P80 evidence. Stage66 measured75s useful30fps three-lane motion/movement/cover profile:90 process/host samples, recorder RSS peak463.06MiB, p50 intervalCPU8.90%/peak103.64% of one core; later settled RSS30.34MiB. Motion fixture78.34MiB and cover66.25MiB peaks; fresh host pressure2/thermal0, no guard trigger.5719 actual mux packets,40,839,659 video+4,048,850 journal bytes. One concurrent-host short take, no baseline delta/GPU/P80/long-duration capacity claim. Stage67 fresh0.15.0/CLI publishes measured three-source profile with exact source bytes/rows/packets, explicit crop/width/codec, per-source duration scenario and reader/journal flags. Live disjoint crop refused; configured slot shortfall refuses without reservation.46 affected and final12 planner checks pass; default fields/actual retained costs preserved. Capacity/GPU/P80 remain open."
+    },
+    {
+      "kind": "item",
+      "id": "human-expectations",
+      "at": "2026-10-09T16:12:13-04:00",
+      "from": "completed",
+      "to": "completed",
+      "note": "Production expectations retained. Stage65 real human notification click writes initially empty private file; model-free7s watcher observes after5.985s and one native self-message reaches this active chat.60s menu batch completes within2min; input remains available, duplicate clicks cannot extend reservation. Active-session delivery only; no physical-input/sleep/permission authorization or unattended wake claim. Stage67 explicit fixed-crop window/app/display planning preserves no automatic following/expansion, unrelated display pixels and partial-coverage uncertainty. Actual disjoint cross-display crop refused. Planning creates no input/display lock or reservation."
+    },
+    {
+      "kind": "item",
+      "id": "release-rollback",
+      "at": "2026-10-09T16:12:13-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Prior guarded releases/restoration and source/state preservation remain retained; stage58 delivers signed9bf native/paired-clock support. Stage62 exact configured launcher under minimal GUI PATH exposes current0.14.0/27 tools/replay never and exits cleanly; both harness registrations unchanged. Native9bf/PID24295/exact binary and mapping/server sources unchangedidle. Agent runbook baseline corrected; ordinary chat still lacks adapter metadata, so broader adoption/natural failure gates remain open. Stage67 fresh configured launcher/CLI delivers0.15.0 three-source planning,27 tools/replay never, actual parity and guarded crop/identity/slots. Native9bf/PID24295 unchangedidle; server/planner intentionally changed. Owned readers exited0, no peer/native restart. Ordinary chat still lacks metadata; adoption unknown."
+    },
+    {
+      "kind": "item",
+      "id": "mcp-replay-boundary",
+      "at": "2026-10-09T16:12:13-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage62 both harness registrations resolve to the canonical launcher; actual minimal GUI-PATH initialize/tools/status exposes0.14.0,27 tools, read-only paired summary and mutation_replay never. Owned reader3395 exit0/independently absent; both config hashes unchanged. Ordinary chat status still has no adapter metadata: version/replay/adoption unknown. Per-consumer launch/readback limits reconciled in shared skill/runbook; no peer refresh or mutation replay. Earlier lost-reply/source checks retained. Stage67 fresh minimal GUI-PATH canonical launcher initialize0.15.0/27 tools/triple_source_planning1/read-only plan/mutation_replay never; real CLI/MCP parity. Ordinary chat status independently still lacks adapter metadata; version/replay/adoption unknown. No mutation replay or peer refresh."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T16:12:13-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Stage67 delivers explicit three-source planning and measured cost scenarios through fresh MCP0.15.0/current CLI. No new capture or UI; native idle. Dynamic fitted origin, physical-input offer, longer capacity and ordinary consumer adoption remain open; retain passing evidence."
     }
   ]
 }

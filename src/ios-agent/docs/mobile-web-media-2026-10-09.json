@@ -1,0 +1,12 @@
+{
+  "at": "2026-10-09T20:04:00Z",
+  "scope": "Physical Safari silent local loopback, no real call or recording",
+  "status": "partial",
+  "gates": {
+    "loopbackConnection": true,
+    "audioPacketsPositive": false,
+    "fixtureClosed": true,
+    "glowOff": true
+  },
+  "open": "Silent source did not produce positive audio packet counters. A connected peer is not proof of audio flow; qualify with granted real media or a proven running synthetic source."
+}

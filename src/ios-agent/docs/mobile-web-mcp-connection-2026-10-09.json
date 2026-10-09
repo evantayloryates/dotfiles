@@ -1,0 +1,9 @@
+{
+  "at": "2026-10-09T20:06:00.572Z",
+  "scope": "Fresh installed MCP + owned desktop WebKit real dev page; connection loss qualification",
+  "gates": {
+    "realMcpEOFReleasesOwner": true,
+    "pageGlowClears": true,
+    "anotherSessionCanAcquire": true
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "at": "2026-10-09T20:09:35.370Z",
+  "scope": "Owned desktop engines with dev adapter, actual DOM event delivery into open/closed web-component fixtures",
+  "browsers": {
+    "chromium": {
+      "openShadowDOM": true,
+      "retainedClosedShadowDOM": true,
+      "clickEffects": true,
+      "ancestorInertRefused": true,
+      "glowOff": true,
+      "sdk": "web-18074adc820637ea"
+    },
+    "webkit": {
+      "openShadowDOM": true,
+      "retainedClosedShadowDOM": true,
+      "clickEffects": true,
+      "ancestorInertRefused": true,
+      "glowOff": true,
+      "sdk": "web-18074adc820637ea"
+    }
+  }
+}

@@ -1,5 +1,48 @@
 # Qualification update — October 9, 2026
 
+## Sixty-seventh pass: measured three-source planning and explicit crop guards
+
+Fresh registered MCP0.15.0/current CLI support window_app_display planning with
+an exact base window, explicit desktop-point backup_rect and backup_max_width.
+Three candidate sources retain individual settings; app inclusion derives only
+from observed exact bundle identity. Optional h264/hevc is validated before RPC.
+The planner starts no capture, drives no UI and locks no input. Missing identity
+or filter support leaves targets unresolved. A crop outside displays or disjoint
+from the observed base is refused; partial coverage remains explicitly uncertain.
+Currently observed unfinished+3 above configured max_concurrent requires
+resolution. The snapshot reserves nothing and is not measured availability.
+
+Machine-readable point triple profile exactly matches retained stage66 actual
+packets, bytes and rows, including journal footer rows. Its storage scenario uses
+all three sources and explicit source-reader/media/journal budget flags, scaling
+only the reference scene by duration. Measured CPU/RSS/pressure/thermal and the
+20s obstruction scope remain evidence, not extrapolated requested-app capacity,
+GPU attribution, safe take length or P80. Existing default request/output is
+byte-equivalent as JSON after removing only two additive profile fields.
+
+46 affected checks pass (12 production planner plus34 frame/paired checks).
+After concrete live crop and slot guards, the final12 planner checks pass,
+including actual stdio MCP protocol and no-RPC malformed requests. No stable
+capture, codec/map implementation or previous restoration was repeated.
+
+Fresh canonical launcher under minimal GUI PATH reports0.15.0,27 tools,
+read-only production plan, triple_source_planning1 and mutation_replay never.
+Initial verifier wrongly expected known absence for the closed fixture; actual
+bounded inventory miss stays needs_resolution, never silently becomes absence.
+A narrow Codex-name query returned no window, cause unknown. A bounded on-screen
+inventory then supplied one actual external-display window. Initial built-in
+backup crop had no base intersection: the new guard refuses it. A declared crop
+on the observed display yields three candidates and explicit geometry/profile
+mismatches. Actual CLI and fresh MCP results match except observation time;
+requested-app pixels/readiness stay unqualified. Readers99629/4672 exit0.
+
+Ordinary current-chat status still lacks adapter metadata; adoption/replay/version
+remain unknown. Native9bf/PID24295/clock instance remain unchanged, idle, with
+unfinished0/actions0/subscribers0/lanes0. Server and planner source intentionally
+change; native/frame/paired sources remain unchanged. No UI, recording, export,
+permission change or native/peer restart.46completed/17partial/1deferred.
+Private evidence: capture-qualification-2026-10-08/gates-v67.
+
 ## Sixty-sixth pass: moving motion source and actual obstruction insurance
 
 One new authored75s/requested30fps three-lane episode on built-in2x, encoded1x:

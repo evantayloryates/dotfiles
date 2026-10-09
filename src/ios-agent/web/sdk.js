@@ -37,20 +37,26 @@
   function rect(el) { const r = el.getBoundingClientRect(); return {x:r.x,y:r.y,width:r.width,height:r.height}; }
   function secret(el) { return el.matches('input[type=password],input[autocomplete*=password],input[autocomplete=username],input[autocomplete=email],input[autocomplete=tel],input[autocomplete=one-time-code]'); }
   function label(el) { return (el.getAttribute('aria-label') || el.labels?.[0]?.innerText || el.innerText || el.getAttribute('title') || '').trim().slice(0,200); }
+  const retainedShadowRoots=new WeakMap(),originalAttachShadow=Element.prototype.attachShadow;
+  const installedAttachShadow=Element.prototype.attachShadow=function(...args){const root=originalAttachShadow.apply(this,args);retainedShadowRoots.set(this,root);return root;};
+  const shadowRoot=el=>el.shadowRoot||retainedShadowRoots.get(el);
+  function inert(el){for(let node=el;node;node=node.getRootNode()?.host)if(node.closest('[inert]'))return true;return false;}
+  function deepHit(x,y) {let hit=document.elementFromPoint(x,y);for(let i=0;i<16&&hit&&shadowRoot(hit);i++){const inner=shadowRoot(hit).elementFromPoint(x,y);if(!inner||inner===hit)break;hit=inner;}return hit;}
+  function semanticElements() {const roots=[document],out=[];let scanned=0;for(let i=0;i<roots.length&&i<64;i++)for(const el of roots[i].querySelectorAll('*')){if(++scanned>8000)return out;if(shadowRoot(el))roots.push(shadowRoot(el));if(el.matches('a,button,input,textarea,select,[role],[contenteditable=true],h1,h2,h3,label,video,audio'))out.push(el);if(out.length>=500)return out;}return out;}
   function tree() {
     refs = new Map(); snapshot = {id: crypto.randomUUID(), at:clock()};
     const elements = [];
-    for (const el of document.querySelectorAll('a,button,input,textarea,select,[role],[contenteditable=true],h1,h2,h3,label,video,audio')) {
+    for (const el of semanticElements()) {
       if (el === glow || secret(el)) continue;
       const box = rect(el), style = getComputedStyle(el);
       if (!box.width || !box.height || style.visibility === 'hidden' || style.display === 'none') continue;
       const id = String(elements.length + 1), text = label(el);
       refs.set(id, {el, text, box});
-      const hit = document.elementFromPoint(Math.max(0, Math.min(innerWidth-1, box.x + box.width/2)), Math.max(0, Math.min(innerHeight-1, box.y + box.height/2)));
+      const hit = deepHit(Math.max(0, Math.min(innerWidth-1, box.x + box.width/2)), Math.max(0, Math.min(innerHeight-1, box.y + box.height/2)));
       elements.push({id, tag:el.tagName.toLowerCase(), role:el.getAttribute('role'), label:text, box, disabled:!!el.disabled,pressed:el.getAttribute('aria-pressed'),expanded:el.getAttribute('aria-expanded'),checked:'checked' in el?!!el.checked:el.getAttribute('aria-checked'),inputType:el.tagName==='INPUT'?el.type:undefined, value:'value' in el ? String(el.value).slice(0,300) : undefined, hit:!!hit && (hit === el || el.contains(hit)), inViewport:box.y < innerHeight && box.y+box.height > 0 && box.x < innerWidth && box.x+box.width > 0});
       if (elements.length >= 500) break;
     }
-    return {snapshot:snapshot.id, content:document.body.innerText.slice(0,16000), path:location.pathname, title:document.title, elements, viewport:{width:innerWidth,height:innerHeight,scale:visualViewport?.scale}, capabilities:{trustedInput:false,systemUI:false,closedShadowRoots:false,crossOriginFrames:false}};
+    return {snapshot:snapshot.id, content:document.body.innerText.slice(0,16000), path:location.pathname, title:document.title, elements, viewport:{width:innerWidth,height:innerHeight,scale:visualViewport?.scale}, capabilities:{trustedInput:false,systemUI:false,openShadowRoots:true,closedShadowRoots:'created-after-adapter-boot',sameOriginFrames:false,crossOriginFrames:false}};
   }
   function target(args) {
     if (!snapshot || args.snapshot !== snapshot.id || clock()-snapshot.at > 5000) throw new Error('stale_snapshot');
@@ -69,7 +75,7 @@
         for (const [key, read] of domains) { try { data[key] = await read(); } catch { data[key] = {error:'domain_read_failed'}; } }
         return {version,boot,browser,secureContext:isSecureContext,visible:!document.hidden,indicator:!!lease,hasMediaDevices:!!navigator.mediaDevices?.getUserMedia,wakeLock:{supported:!!navigator.wakeLock,active:!!wakeLock&&!wakeLock.released},activation:{active:navigator.userActivation?.isActive,hasBeenActive:navigator.userActivation?.hasBeenActive},domains:data};
       }
-      case 'click': { const el=target(args),box=rect(el),x=box.x+box.width/2,y=box.y+box.height/2,hit=document.elementFromPoint(x,y);if(x<0||y<0||x>=innerWidth||y>=innerHeight||!hit||!(hit===el||el.contains(hit))||el.closest('[inert]'))throw new Error('target_not_interactable');el.click(); return {delivery:'synthetic-dom',trusted:false}; }
+      case 'click': { const el=target(args),box=rect(el),x=box.x+box.width/2,y=box.y+box.height/2,hit=deepHit(x,y);if(x<0||y<0||x>=innerWidth||y>=innerHeight||!hit||!(hit===el||el.contains(hit))||inert(el))throw new Error('target_not_interactable');el.click(); return {delivery:'synthetic-dom',trusted:false}; }
       case 'fill': {
         const el = target(args);
         if (el.readOnly || !el.matches('input,textarea') || typeof args.text !== 'string' || args.text.length > 4096) throw new Error('editable_text_required');
@@ -165,6 +171,6 @@
   const onHide=()=>{clear();if(identity)navigator.sendBeacon(endpoint,new Blob([JSON.stringify({op:'poll',...feedback(),visible:false})],{type:'application/json'}));};
   addEventListener('error',onError);addEventListener('unhandledrejection',onRejection);addEventListener('visibilitychange',onVisibility);addEventListener('pagehide',onHide);
   const installed={fetch:window.fetch,ws:window.WebSocket,rtc:window.RTCPeerConnection,gum:navigator.mediaDevices?.getUserMedia,xhrOpen:XMLHttpRequest.prototype.open,xhrSend:XMLHttpRequest.prototype.send};
-  window.__iosWebAgent={version,register:(key,read)=>{if(!/^[a-z][a-z0-9-]{0,63}$/.test(key)||typeof read!=='function')throw new Error('domain_contract');domains.set(key,read);return()=>domains.delete(key);},status:()=>({version,browser,page:identity?.page,connected:!!identity,owned:!!lease,indicator:glow.style.display!=='none'}),stop:()=>{sessionStorage.removeItem('ios-agent-page');stopped=true;onHide();clearInterval(timer);glow.remove();if(window.fetch===installed.fetch)window.fetch=originalFetch;if(window.WebSocket===installed.ws)window.WebSocket=originalWS;if(window.RTCPeerConnection===installed.rtc)window.RTCPeerConnection=originalRTC;if(originalGUM&&navigator.mediaDevices.getUserMedia===installed.gum)navigator.mediaDevices.getUserMedia=originalGUM;if(XMLHttpRequest.prototype.open===installed.xhrOpen)XMLHttpRequest.prototype.open=xhrOpen;if(XMLHttpRequest.prototype.send===installed.xhrSend)XMLHttpRequest.prototype.send=xhrSend;listeners.forEach(remove=>remove());for(const level of Object.keys(originalConsole))if(console[level]===installedConsole[level])console[level]=originalConsole[level];removeEventListener('error',onError);removeEventListener('unhandledrejection',onRejection);removeEventListener('visibilitychange',onVisibility);removeEventListener('pagehide',onHide);delete window.__iosWebAgent;}};
+  window.__iosWebAgent={version,register:(key,read)=>{if(!/^[a-z][a-z0-9-]{0,63}$/.test(key)||typeof read!=='function')throw new Error('domain_contract');domains.set(key,read);return()=>domains.delete(key);},status:()=>({version,browser,page:identity?.page,connected:!!identity,owned:!!lease,indicator:glow.style.display!=='none'}),stop:()=>{sessionStorage.removeItem('ios-agent-page');stopped=true;onHide();clearInterval(timer);glow.remove();if(Element.prototype.attachShadow===installedAttachShadow)Element.prototype.attachShadow=originalAttachShadow;if(window.fetch===installed.fetch)window.fetch=originalFetch;if(window.WebSocket===installed.ws)window.WebSocket=originalWS;if(window.RTCPeerConnection===installed.rtc)window.RTCPeerConnection=originalRTC;if(originalGUM&&navigator.mediaDevices.getUserMedia===installed.gum)navigator.mediaDevices.getUserMedia=originalGUM;if(XMLHttpRequest.prototype.open===installed.xhrOpen)XMLHttpRequest.prototype.open=xhrOpen;if(XMLHttpRequest.prototype.send===installed.xhrSend)XMLHttpRequest.prototype.send=xhrSend;listeners.forEach(remove=>remove());for(const level of Object.keys(originalConsole))if(console[level]===installedConsole[level])console[level]=originalConsole[level];removeEventListener('error',onError);removeEventListener('unhandledrejection',onRejection);removeEventListener('visibilitychange',onVisibility);removeEventListener('pagehide',onHide);delete window.__iosWebAgent;}};
   void loop();
 })();

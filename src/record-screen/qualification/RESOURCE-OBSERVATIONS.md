@@ -47,3 +47,16 @@ Choose explicit shorter takes and useful app checkpoints, inspect actual bytes,
 journal loss/reader budgets and encoded coverage, and stop only the affected owned
 take on observed failure. This collector adds diagnosis, not automatic capacity
 admission or full-shot insurance. See GATES.md stage48 and AGENT-USAGE.md.
+
+Stage67 exposes the actual stage66 point-resolution three-source profile through
+MCP0.15.0/current CLI production planning. Source costs are separately retained:
+window/app/display video11205246/14729976/14904437 bytes; journal1382019/1335172/
+1331659 bytes; actual rows including footer4483/4171/4172; mux packets2181/1767/
+1771. The75s requested30fps profile measured90 concurrent-host observations,
+recorder RSS peak463.0625MiB and later idle30.34375MiB, interval CPU p50
+8.8971%/peak103.6416% of one core, pressure2/thermalnominal. The observer began
+during the take, so there is no pre-take baseline or incremental memory claim.
+No attributable GPU/encoder cost, thermal plateau or P80 follows. Triple planning
+scales only this scene's storage/rows/packets by duration and checks reader and
+measured journal budgets. It does not extrapolate CPU/RSS or reserve disk/slots;
+configured overlap limits remain distinct from measured production capacity.

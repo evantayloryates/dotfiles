@@ -55,6 +55,8 @@ test('three-source identity, crop, capability and settings uncertainty remain ex
   assert(planProduction(tripleRequest, status, tripleInventory).blocking_reasons.some(x => x.includes('application_filter')))
   const outside = planProduction({ ...tripleRequest, backup_rect: { x: 9000, y: 9000, w: 100, h: 100 } }, tripleStatus, tripleInventory)
   assert.equal(outside.assessment, 'needs_resolution')
+  const disjoint = planProduction({ ...tripleRequest, backup_rect: { x: 0, y: 0, w: 100, h: 100 } }, tripleStatus, tripleInventory)
+  assert.equal(disjoint.assessment, 'needs_resolution'); assert(disjoint.blocking_reasons.some(x => x.includes('does not intersect the observed base')))
   const partial = planProduction({ ...tripleRequest, backup_rect: { x: 120, y: 110, w: 100, h: 100 } }, tripleStatus, tripleInventory)
   assert(partial.unknowns.some(x => x.includes('does not contain')))
   const changed = planProduction({ ...tripleRequest, codec: 'hevc', fps: 60, backup_max_width: 0 }, tripleStatus, tripleInventory)
@@ -62,6 +64,9 @@ test('three-source identity, crop, capability and settings uncertainty remain ex
   assert.equal(changed.planned_sources[1].settings.codec, 'hevc'); assert.equal(changed.planned_sources[1].settings.max_width, 0)
   const duplicateDisplay = planProduction(tripleRequest, { ...tripleStatus, displays: [tripleStatus.displays[0], tripleStatus.displays[0]] }, tripleInventory)
   assert(duplicateDisplay.resource_guidance.point_triple_profile_differences.some(x => x.includes('unobserved backup')))
+  const busy = planProduction(tripleRequest, { ...tripleStatus, capture_health: { recordings: { max_concurrent: 16, unfinished: 14 } } }, tripleInventory)
+  assert.equal(busy.assessment, 'needs_resolution'); assert(busy.blocking_reasons.some(x => x.includes('configured recording slots')))
+  assert.equal(busy.resource_guidance.configured_limit_is_capacity, false)
 })
 
 test('malformed or irrelevant three-source fields refuse rather than silently configure capture', () => {
