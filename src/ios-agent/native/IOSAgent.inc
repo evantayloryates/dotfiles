@@ -104,6 +104,8 @@ static NSString *IAViewLabel(UIView *view) {
 @property NSString *epoch;
 @property NSString *lease;
 @property NSTimeInterval expiry;
+@property BOOL idleTimerOverride;
+@property BOOL previousIdleTimerDisabled;
 @property NSURLSession *session;
 @property NSTimer *watchdog;
 @property IAGlowWindow *glow;
@@ -274,6 +276,7 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
 }
 - (void)stopLease {
  BOOL wasLeased=self.lease!=nil;
+ if(self.idleTimerOverride) { UIApplication.sharedApplication.idleTimerDisabled=self.previousIdleTimerDisabled; self.idleTimerOverride=NO; }
  self.lease=nil; self.expiry=0; self.glow.hidden=YES; self.snapshot=nil;
  [self.reactFrames removeAllObjects]; self.reactBytes=0; self.droppedReactFrames=0;
 #if IOS_AGENT_REACT
@@ -302,7 +305,13 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
 #if IOS_AGENT_REACT
  if(starting && IABridge.observing) [IABridge sendEventWithName:@"IOSAgentCommand" body:@{@"command":@"session-start"}];
 #endif
- if([self leased]) [self showGlow]; else [self stopLease];
+ if([self leased]) {
+  if(!self.idleTimerOverride) {
+   self.previousIdleTimerDisabled=UIApplication.sharedApplication.idleTimerDisabled;
+   self.idleTimerOverride=YES; UIApplication.sharedApplication.idleTimerDisabled=YES;
+  }
+  [self showGlow];
+ } else [self stopLease];
 }
 - (void)walk:(UIView*)view depth:(NSUInteger)depth output:(NSMutableArray*)out {
  if(out.count>=2500 || depth>60) { self.treeTruncated=YES; return; }

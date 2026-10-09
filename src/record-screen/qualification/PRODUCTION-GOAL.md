@@ -438,3 +438,25 @@ under explicit observed-idle authorization, acknowledging its unfenced interval.
 Then installed native source/consumer canary, real grant/readback, and a fenced
 subsequent restart with persisted sessions and partial metadata preserved.
 Continue broader qualification afterward; do not declare the full goal achieved.
+
+## Eighteenth-pass installed checkpoint
+
+Delivered e0d053bc6732 using the explicit legacy idle path after preserving real
+state and validating signing identity. The prepared private bundle was reused;
+the prior binary backup and all six original state hashes remain verified.
+Installed PID95149 then took one fenced restart to PID96979, preserving grant,
+history and zero unfinished resources. Tiny passive MCP capture/source/export/
+time-map consumers passed; independent decoding supplied two exact source
+timestamps and ten exact derivative packets. Actual connector readback passed.
+
+The test observer failed after restart. Retained state recovered its result,
+without repeating capture/export/restart. Same-MCP reconnect across this live
+restart remains unverified; synthetic read reconnect and mutation no-replay
+passed. Adapter 0.8.0 declares replay_policy:1, while the current harness adapter
+does not report that field. Do not treat native installation as an MCP process
+reload or force peer restarts. Verify policy at their safe next launch.
+
+Next highest-impact lanes: consumer version/replay expectations, native input
+and richer scope/receipt coverage, remaining daily-app overflow, measured motion
+insurance and resource limits. Restoration verification remains partial; avoid
+live rollback merely as a drill. Broader goal remains active; effects deferred.

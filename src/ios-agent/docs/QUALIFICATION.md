@@ -261,3 +261,6 @@ Physical menu edges: an 850ms native hold opened the real product menu. It demon
 
 
 Recovery candidate, 8 October: native trees retain capture time, with a five-second input window after the first successful delivery acknowledgment and a 15-second absolute age cap. Acknowledgment is fenced to the same snapshot, owner, epoch and foreground generation; reload invalidates it. Host background React admission yields for at most two seconds after a successful tree. Compiled fixture: 48 gates passed; host suite: 82 tests; JS suite: 22 tests. Latest signed product installed, physical recovery gates in progress. Refresh-cause enums are recorded without paths, source contents or console messages. State-preserving Fast Refresh remains unqualified.
+
+
+Scoped live recovery, 8 October: paused only the owned ios-agent worker for 35 seconds. The old lease retired, native glow/lease and provider cleanup were verified idle, and a fresh lease reached ready in 1.633 seconds with the same native boot and remote Metro. No input was submitted or replayed during the outage; no live unknown-input outcome is claimed. Actual laptop sleep, radio tailnet loss and controlled shared backend cold restart remain unqualified. Runtime-generation probe observed component refresh and Home with bundleAttempt unchanged at 1; agents must gate on committed route after source edits.

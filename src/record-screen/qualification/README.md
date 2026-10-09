@@ -253,6 +253,14 @@ matches the canonical ledger. Read `../AGENTS.md` for the required update policy
 
 ## Transient-region spatial kit
 
+Installed qualification: `installed-consumer-smoke.mjs ABSOLUTE_PRIVATE_OUTPUT`
+uses a tiny passive crop, disables input capture, tests owned admission, then
+requests one idle fenced restart. It is a production mutation kit, not a casual
+background test. Optional retained capture and export run paths resume completed
+work without replay. Keep raw media/state output private. `reconnect-mcp.test.mjs`
+uses only authored sockets to prove read recovery and single mutation submissions.
+MCP status reports loaded adapter replay policy; native CLI status does not.
+
 `serve-fixture.py --fixture /absolute/authored-fixture.html` serves only that file
 and the supplied cursor, never a directory. `browser-overflow-fixture.html` adds
 an edge native-select/editing-menu surface. Keep its server in a retained exec;

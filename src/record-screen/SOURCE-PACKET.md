@@ -1,11 +1,18 @@
 # Recorder-owned source journal v1
 
-Candidate contract; production delivery is gated by the qualification report.
+Native build e0d053bc6732 is delivered; qualified scope and remaining limits are
+in the qualification report. Loaded capability readback remains authoritative.
 Use MCP `recording_source` or CLI `record-screen record-source <recording_id>`.
 Socket consumers negotiate `status.capabilities.source_journal == 1`, then call
 `record.source`. Legacy footage returns no source packet. The MCP refuses an
 old engine explicitly. Replies contain paths and compact diagnostics, never
 bulk frame rows.
+
+MCP adapter 0.8.0 reports `status.mcp_adapter.replay_policy:1`: only readbacks
+reconnect automatically after engine loss. Mutations are never resubmitted,
+including schedules with an idempotency key. Recover owned state before a new
+explicit request. An absent adapter field means unknown/older loaded policy;
+native engine delivery does not reload existing MCP JavaScript processes.
 
 This packet references the original capture video. New capable exports carry
 a separate `record-screen-derivative/v1` sidecar and never silently reuse the

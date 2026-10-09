@@ -1,0 +1,19 @@
+{
+  "businessDataChanged": false,
+  "expandedDayBaselineVerified": false,
+  "before": {},
+  "after": {
+    "fullReloadRequests": 0,
+    "lastKind": "react-refresh",
+    "lastReason": "component-update",
+    "componentRefreshes": 1
+  },
+  "generationBefore": 1,
+  "generationAfter": 1,
+  "changedTextObserved": false,
+  "homeObserved": true,
+  "sourceBytesRestored": true,
+  "scope": "MealLog presentation-only module edit with committed Nutrition baseline; not an expanded-day test",
+  "conclusion": "Component refresh recorded; native bundle generation unchanged; Home observed. Navigation preservation is unqualified.",
+  "observedAt": "2026-10-09T03:23:19.189162+00:00"
+}

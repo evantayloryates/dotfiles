@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-08T23:15:39-04:00",
+  "updated_at": "2026-10-08T23:29:16-04:00",
   "workflow": {
     "state": "active",
     "note": "Taylor resumed qualification. Prioritize high-impact investigation, preserve failed evidence and useful progress, and avoid repeated resets or rerunning settled checks."
   },
-  "production_note": "Candidate changes have not been installed. Production delivery and rollback verification are still pending.",
+  "production_note": "Native e0d053bc6732 is installed and independently read back with the existing grant. Passive capture/source/export and one fenced restart passed; broader app/input/insurance/resource gates and restoration remain open. Fresh MCP adapter 0.8.0 declares no mutation replay; existing harness policy is not reported.",
   "groups": [
     {
       "id": "capture",
@@ -461,31 +461,41 @@
           "id": "maintenance-fence",
           "title": "Verify idle admission fencing and single restart commitment",
           "status": "completed",
-          "scope": "Signed private native policy/protocol and capable/legacy client guards. Includes controlled expiry and actual private exit; excludes first legacy race, production delivery and cross-service/input isolation.",
-          "evidence": "25 native checks, five client tests and actual private scheduled-peer/new-work refusal passed. Exact owner token/PID validated; committed fence stayed pinned and private process exited once with code 75.",
+          "scope": "Private and installed RPC idle fencing/single restart commitment. Controlled expiry and actual private/launchd exit; excludes first legacy race, physical sleep and cross-service/input isolation.",
+          "evidence": "25 native checks, five client guards and private protocol passed. Installed engine also refused a scheduled take and new work under a lease; one capable-engine restart preserved history and grant.",
           "next": "",
-          "anchor": "seventeenth-pass",
-          "updated_at": "2026-10-08T23:15:39-04:00"
+          "anchor": "eighteenth-pass",
+          "updated_at": "2026-10-08T23:29:16-04:00"
         },
         {
           "id": "release-rollback",
           "title": "Install the candidate safely and verify rollback",
           "status": "partial",
           "scope": "Idle-boundary release with prior binary/state preserved and exact loaded-capability readback.",
-          "evidence": "Signed private e0d053bc6732 verified idle admission/token/restart policy (25 checks), actual private protocol and exit, five client guards and 14 synthetic cache/backup checks. Live installer is guarded; real prior bundle/state preservation and first delivery remain pending.",
-          "next": "Preserve actual bundle/state, perform explicit observed legacy delivery, verify installed capture/consumers and fenced subsequent restart. Do not repeat a committed restart after an uncertain reply.",
-          "anchor": "seventeenth-pass",
-          "updated_at": "2026-10-08T23:15:39-04:00"
+          "evidence": "Delivered e0d053bc6732 through explicit observed legacy idle checks, reusing the tested signed cache. Real prior bundle and six state files verified; all prior state hashes survived delivery and fenced restart.",
+          "next": "Qualify a private restoration drill and loaded consumer expectations. Do not perform a live rollback merely to repeat successful delivery.",
+          "anchor": "eighteenth-pass",
+          "updated_at": "2026-10-08T23:29:16-04:00"
         },
         {
           "id": "installed-smoke",
           "title": "Smoke-test real capture and consumers after installation",
-          "status": "pending",
-          "scope": "Verify delivered behavior on the installed service, not only isolated builds.",
-          "evidence": "No candidate installation has occurred; these checks are intentionally still pending.",
-          "next": "Verify installed capture, source/time-map consumers, recovery and cleanup after release.",
-          "anchor": "limits",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "status": "completed",
+          "scope": "Installed passive capture and source/export/time-map consumers, persisted-history recovery and owned cleanup. Tiny static smoke only; motion/menu/input/capacity stay in their existing gates.",
+          "evidence": "Installed e0d053bc6732 passive 32px capture completed; two exact source/mux timestamps, ten exact decoded draft packets, source/time-map and actual connector readback passed. One fenced restart preserved completed history/grant; own session closed, no input/unfinished work or lease.",
+          "next": "",
+          "anchor": "eighteenth-pass",
+          "updated_at": "2026-10-08T23:29:16-04:00"
+        },
+        {
+          "id": "mcp-replay-boundary",
+          "title": "Verify loaded MCP replay policy and reconnect boundaries",
+          "status": "partial",
+          "scope": "Never automatically resend mutations after a lost reply; distinguish loaded adapter from native engine version. Preserve existing peer MCP processes.",
+          "evidence": "Synthetic read reconnect and single submissions for session creation, scheduling and stopping passed. Fresh adapter 0.8.0 reports replay_policy:1; connected harness adapter omits it.",
+          "next": "Verify policy at consumers next safe launch; finish live same-MCP read reconnect evidence when a warranted maintenance boundary occurs. Do not repeat completed captures or force peer restarts.",
+          "anchor": "eighteenth-pass",
+          "updated_at": "2026-10-08T23:29:16-04:00"
         },
         {
           "id": "agent-runbooks",
@@ -733,6 +743,38 @@
       "from": "pending",
       "to": "completed",
       "note": "Completed candidate fence subgate; real delivery stays partial and installed smoke stays pending."
+    },
+    {
+      "kind": "item",
+      "id": "mcp-replay-boundary",
+      "at": "2026-10-08T23:29:16-04:00",
+      "from": "pending",
+      "to": "partial",
+      "note": "Added loaded-consumer policy gate after finding general mutation replay in the adapter; fixed source and qualified synthetic/fresh-process scope."
+    },
+    {
+      "kind": "item",
+      "id": "installed-smoke",
+      "at": "2026-10-08T23:29:16-04:00",
+      "from": "pending",
+      "to": "completed",
+      "note": "Installed e0d053bc6732 passive 32px capture completed; two exact source/mux timestamps, ten exact decoded draft packets, source/time-map and actual connector readback passed. One fenced restart preserved completed history/grant; own session closed, no input/unfinished work or lease."
+    },
+    {
+      "kind": "item",
+      "id": "release-rollback",
+      "at": "2026-10-08T23:29:16-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Delivered e0d053bc6732 through explicit observed legacy idle checks, reusing the tested signed cache. Real prior bundle and six state files verified; all prior state hashes survived delivery and fenced restart."
+    },
+    {
+      "kind": "item",
+      "id": "maintenance-fence",
+      "at": "2026-10-08T23:29:16-04:00",
+      "from": "completed",
+      "to": "completed",
+      "note": "25 native checks, five client guards and private protocol passed. Installed engine also refused a scheduled take and new work under a lease; one capable-engine restart preserved history and grant."
     }
   ]
 }

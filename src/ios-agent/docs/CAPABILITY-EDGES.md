@@ -85,3 +85,6 @@ bounded diagnostic; no business mutation was repeated.
 
 
 Recovery candidate, 8 October: native trees retain capture time, with a five-second input window after the first successful delivery acknowledgment and a 15-second absolute age cap. Acknowledgment is fenced to the same snapshot, owner, epoch and foreground generation; reload invalidates it. Host background React admission yields for at most two seconds after a successful tree. Compiled fixture: 48 gates passed; host suite: 82 tests; JS suite: 22 tests. Latest signed product installed, physical recovery gates in progress. Refresh-cause enums are recorded without paths, source contents or console messages. State-preserving Fast Refresh remains unqualified.
+
+
+Direct refresh boundary evidence: presentation-only MealLog update with committed Nutrition baseline recorded a component refresh. Native bundle generation remained 1; Home was observed. This is a navigation-remount edge, not proof of a full-JS-reload request. Expanded-day baseline was not verified in this generation probe. Agents must verify committed route/state after every source edit before continuing input; source edit does not authorize replay of business mutations. Source restored; business state untouched.

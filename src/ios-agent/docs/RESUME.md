@@ -78,3 +78,6 @@ Preserve other workload edits; do not retry/bypass or ask user to run commands.
 
 
 Current recovery checkpoint: USB reconnected/unlocked by Taylor, signed snapshot/refresh candidate installed and launched. Host idle restart verified source. New service priority and native bounded acknowledgment need physical follow-up; compiled fixture 48/48, Python82/82, JS22/22. First Python suite invocation from repository root lacked the module import path; correct service-cwd invocation passed unchanged tests. Earlier Wi-Fi-on callback/IPv4 and idle verified before install. No new subagents.
+
+
+Scoped live recovery, 8 October: paused only the owned ios-agent worker for 35 seconds. The old lease retired, native glow/lease and provider cleanup were verified idle, and a fresh lease reached ready in 1.633 seconds with the same native boot and remote Metro. No input was submitted or replayed during the outage; no live unknown-input outcome is claimed. Actual laptop sleep, radio tailnet loss and controlled shared backend cold restart remain unqualified. Runtime-generation probe observed component refresh and Home with bundleAttempt unchanged at 1; agents must gate on committed route after source edits.

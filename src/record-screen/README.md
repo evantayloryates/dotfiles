@@ -472,11 +472,21 @@ First-time setup:
 macOS asks again every 30 days. The re-confirm date lives in
 `~/Library/Group Containers/group.com.apple.replayd/ScreenCaptureApprovals.plist`.
 
-## Candidate capture foundations
+## Capture foundations and qualification
 
-The qualification branch of work is committed before engine installation.
-The currently loaded engine may therefore be older than these source additions.
-Use `status` capabilities rather than assuming the installed behavior.
+Build e0d053bc6732 was delivered and independently read back on October 8.
+The existing screen grant and prior state survived the upgrade and an idle
+fenced restart. Installed passive capture/source/export consumers passed their
+written smoke scope. Use `status` capabilities for the currently loaded engine;
+broader app, input, insurance and resource qualification remains open.
+
+MCP adapter 0.8.0 reconnects only readbacks after an engine disconnect. It never
+automatically resubmits mutations, including schedules with idempotency keys.
+Recover owned sessions/recordings before explicitly retrying uncertain work.
+MCP `status.mcp_adapter.replay_policy: 1` identifies the loaded adapter; an
+absent field means unknown/older policy. Existing MCP processes may retain older
+JavaScript until their next launch; updating source or the native engine alone
+does not prove their adapter changed. CLI/socket status describes the engine.
 
 - `target_capture_options: 1`: explicit child-window setting and exact bundle
   exclusions for display/rect sources. Filters and resolved PIDs distinguish

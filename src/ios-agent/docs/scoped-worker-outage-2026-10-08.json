@@ -1,0 +1,15 @@
+{
+  "scope": "scoped-ios-agent-worker-unavailable; actual-machine-sleep-not-tested",
+  "pausedSeconds": 35.6,
+  "oldLeaseRevoked": true,
+  "releaseReason": "react_frontend_stopped",
+  "readCommandUnknownCount": 0,
+  "nativeBootUnchanged": true,
+  "inputSubmittedDuringOutage": false,
+  "inputReplayed": false,
+  "nativeAndFrontendIdleVerified": true,
+  "reacquireReadyMs": 1633,
+  "remoteMetroRecovered": true,
+  "finalIdleVerified": true,
+  "observedAt": "2026-10-09T03:25:29.054784+00:00"
+}

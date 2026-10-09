@@ -10,14 +10,19 @@ import { hasCaptureOptions, requireCaptureOptions } from "./lib/capture-options.
 import { mapDerivativeTimes } from "./lib/derivative-source.mjs";
 
 const log = (...args) => console.error("[record-screen]", ...args);
-const VERSION = "0.7.0";
+const VERSION = "0.8.0";
 
 // ---------------------------------------------------------------- engine link
 
 let client = new EngineClient();
 
-/** Calls the engine; rides out an engine restart (it self-restarts after an
- *  encoder stall and comes back in ~5 s). */
+// Only readbacks reconnect automatically. A disconnect can arrive after a
+// mutation was accepted; retrying session creation, scheduling or marks can
+// duplicate work. Recover their owned IDs/state before an explicit new request.
+const RECONNECT_READS = new Set(['ping', 'status', 'windows.list', 'session.get',
+  'session.search', 'record.get', 'record.list', 'record.source', 'record.wait',
+  'record.export_info']);
+/** Readbacks can ride out an engine restart; mutations are never replayed. */
 async function engine(method, params = {}, timeoutMs = 20000) {
   const deadline = Date.now() + 12000;
   for (;;) {
@@ -46,7 +51,7 @@ async function engine(method, params = {}, timeoutMs = 20000) {
       }
       return await client.call(method, params, { timeoutMs });
     } catch (err) {
-      if (method.startsWith("action.") || method === "record.export" || err.code !== "engine_down" || Date.now() > deadline) throw err;
+      if (!RECONNECT_READS.has(method) || err.code !== "engine_down" || Date.now() > deadline) throw err;
       client = new EngineClient();
       await new Promise((r) => setTimeout(r, 500));
     }
@@ -127,7 +132,11 @@ const tools = [
     description: "Engine health, Screen Recording permission, displays (ids, frames, scale), engine clock, warm lanes and outlines. Start here if anything fails.",
     inputSchema: { type: "object", properties: {}, additionalProperties: false },
     annotations: { readOnlyHint: true },
-    run: async () => ok(await engine("status")),
+    run: async () => ok({ ...await engine("status"), mcp_adapter: {
+      version: VERSION, replay_policy: 1, mutation_replay: "never",
+      read_reconnect_budget_ms: 12000,
+      qualification: "loaded MCP adapter policy; native CLI/socket status does not describe an MCP process",
+    } }),
   },
   {
     name: "windows",

@@ -162,6 +162,16 @@
  IAWiFi=nil;
  [IAInstance startWatchdog];
  [self run:@"capabilities" args:@{} done:^(NSDictionary *r){self.evidence[@"capabilities"]=r;}];
+ BOOL originalIdle=UIApplication.sharedApplication.idleTimerDisabled;
+ [IAInstance apply:@{@"epoch":IAInstance.epoch,@"lease":@{@"id":@"fixture-lease",@"remainingMs":@30000}}];
+ self.evidence[@"leaseKeepsPhoneAwake"]=@(UIApplication.sharedApplication.idleTimerDisabled && IAInstance.idleTimerOverride);
+ [IAInstance stopLease];
+ self.evidence[@"leaseRestoresIdleTimer"]=@(UIApplication.sharedApplication.idleTimerDisabled==originalIdle && !IAInstance.idleTimerOverride);
+ UIApplication.sharedApplication.idleTimerDisabled=YES;
+ [IAInstance apply:@{@"epoch":IAInstance.epoch,@"lease":@{@"id":@"fixture-lease",@"remainingMs":@30000}}];
+ [IAInstance stopLease];
+ self.evidence[@"preexistingKeepAwakePreserved"]=@(UIApplication.sharedApplication.idleTimerDisabled);
+ UIApplication.sharedApplication.idleTimerDisabled=originalIdle; [self freshLease];
  // A slow tree upload gains only a bounded, owner-fenced input window.
  [self pointArgs:self.button]; IAInstance.snapshotAt-=6;
  NSString *snapshot=IAInstance.snapshot; NSUInteger generation=IAInstance.connectionGeneration;

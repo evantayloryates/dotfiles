@@ -1,5 +1,38 @@
 # Qualification update — October 8, 2026
 
+## Eighteenth pass: installed delivery, source consumers and replay boundary
+
+Production now runs e0d053bc6732. The first legacy upgrade used explicit repeated
+idle observations, not an admission fence it did not yet possess. Signing team,
+bundle identifier and designated requirement matched. Six prior state files
+(18,106 bytes) were privately copied and hash-verified before delivery. The
+previous signed bundle was preserved by binary hash. The already-tested private
+candidate populated the verified prepared cache; no duplicate Swift compilation.
+Source changes were committed and pushed before live bundle replacement.
+
+| Gate | Verified evidence | Limits |
+| --- | --- | --- |
+| Installed delivery | CLI build --legacy-idle returned PID95149/e0d053bc6732. Fresh socket readback confirmed all new native capabilities, existing screen grant, candidate binary equality and unchanged prior state files. | First legacy interval remains unfenced. No new permission, UI input or peer stop. Bundle/state copies are verified; a restoration drill is still open. |
+| Live maintenance | An owned future take blocked acquisition. After its cancellation, an acquired lease refused new session creation. Later CLI restart used the capable engine fence once; fresh readback confirmed PID96979, same build/grant, completed history and zero unfinished admission. | Actual launchd restart, not hardware resource-release proof. The logging observer failed after restart; fresh readback recovered its result without issuing another restart. Same-MCP reconnect across that live restart was not verified. |
+| Installed MCP consumers | A two-second passive 16-point/32-pixel rect with input disabled completed. Source, draft export, time map and post-restart history readback passed. The actual connector independently returned the new PID/build and complete source descriptor. | Tiny static source, not motion/menu/input/capacity qualification. Explicit session retained then closed; footage retained privately. |
+| Independent media | Two source/muxed samples matched exactly, zero journal loss; ten draft packets matched derivative PTS/duration and decoded fully. | max_width is a cap, not an upscale instruction: the 32px source stays 32px. No independent held-content/pixel equivalence claim for this passive crop. |
+| Mutation replay | MCP adapter now reconnects only readbacks. One synthetic disconnect test proved read recovery and single submissions for session creation, scheduling with an idempotency key, and stopping. Fresh adapter 0.8.0 independently reports replay_policy:1. | The connected harness adapter does not report the new field; its loaded policy is unknown. Existing MCP processes need their next safe launch/readback, not a forced peer restart. |
+| Cleanup/preservation | Owned servers exited; session closed; no active take, input subscriber or maintenance lease remains. All six old state hashes still match after both restarts. | Production launchd engine stays running. No live rollback or replay of capture, export or restart to repair a test observer. |
+
+The initial export request lacked the required .mp4 suffix and was refused before
+export. The successful take was resumed rather than recorded again. After export,
+the restart observer shadowed the path resolve function with a Promise resolver;
+its logging failed after the actual restart. A new readback recovered existing
+media and state without repeating that mutation. Both failures remain private.
+A verifier initially treated max_width as forced upscaling; actual 32px media and
+the derivative manifest agree. This was an assertion correction, not a rerender.
+
+The canonical installed-consumer-smoke.mjs accepts retained capture/export runs
+for forward recovery. New adapter status distinguishes loaded JavaScript policy
+from native build capabilities. Next: qualify that replay policy at consumer
+launch boundaries and close remaining app/input/insurance/resource gates. Physical
+sleep, natural SDK stalls, initial OS calls and restoration scope stay explicit.
+
 ## Seventeenth pass: idle maintenance fence and guarded delivery entry points
 
 Signed private e0d053bc6732 reports maintenance_fence:1. The engine rejects new

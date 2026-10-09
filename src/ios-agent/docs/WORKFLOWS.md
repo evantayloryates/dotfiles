@@ -296,3 +296,6 @@ before a new explicitly targeted action. Never replay an unknown delivery.
 ID; it is not a session-wide summary command. `profile-slow` with limit 5 returned
 useful render timings without full app-state export. Keep detailed profiles
 private and publish only counts/timing claims bound to the development runtime.
+
+
+Scoped live recovery, 8 October: paused only the owned ios-agent worker for 35 seconds. The old lease retired, native glow/lease and provider cleanup were verified idle, and a fresh lease reached ready in 1.633 seconds with the same native boot and remote Metro. No input was submitted or replayed during the outage; no live unknown-input outcome is claimed. Actual laptop sleep, radio tailnet loss and controlled shared backend cold restart remain unqualified. Runtime-generation probe observed component refresh and Home with bundleAttempt unchanged at 1; agents must gate on committed route after source edits.
