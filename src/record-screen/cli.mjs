@@ -23,6 +23,7 @@
 //   record-screen record-source <id>           local source journal and gap descriptor
 //   record-screen frame-map <json>             actual mux/source geometry and desktop-point/region projection
 //   record-screen frames <json>                retained previews, optional exact returned-time source joins
+//   record-screen registered-frame <json>      exact frame-bound RGB registration with independent verification
 //   record-screen paired-map <json>            exact paired host-interval coverage, dense backup and gaps
 //   record-screen input-query <json>           bounded retained events, reasons/gaps and exact receipt offsets
 //   record-screen action-begin <json>          recorder-stamped contextual block, no UI action
@@ -52,6 +53,7 @@ import { prepareMaintenance, validateMaintenance, releaseMaintenance } from "./l
 import { install } from "./lib/install.mjs";
 import { planProduction, validateProductionRequest } from "./lib/production-plan.mjs";
 import { mapRecordingFrames, validateFrameMapRequest } from "./lib/frame-map.mjs";
+import { mapRegisteredFrame,validateRegisteredFrame } from "./lib/registered-frame.mjs";
 import { readPreviewFrames } from "./lib/preview-map.mjs";
 import { mapRecordingPair, validatePairedMapRequest } from "./lib/paired-map.mjs";
 import { validateWindowQuery, requireTransientInventory } from "./lib/window-query.mjs";
@@ -257,6 +259,12 @@ try {
       const source = await call("record.source", { recording_id: request.recording_id });
       out(await mapRecordingFrames(source, request));
       break;
+    }
+    case "registered-frame": {
+      const request=validateRegisteredFrame(JSON.parse(args[0]??"{}"));
+      const primary=await call("record.source",{recording_id:request.primary_recording_id});
+      const backup=await call("record.source",{recording_id:request.backup_recording_id});
+      out(await mapRegisteredFrame(primary,backup,request));break;
     }
     case "paired-map": {
       const request=validatePairedMapRequest(JSON.parse(args[0]??"{}"));

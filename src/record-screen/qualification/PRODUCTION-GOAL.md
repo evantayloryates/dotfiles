@@ -1,10 +1,10 @@
 # Production qualification goal
 
-## Current checkpoint: stage83 — ACTIVE
+## Current checkpoint: stage84 — ACTIVE
 
-Native6c238cc1ba80/PID20948 remains unchanged. Current MCP0.18/27tools and CLI
+Native6c238cc1ba80/PID20948 remains unchanged. Current MCP0.19/28tools and CLI
 provide optional exact returned-preview/source joins; older ordinary22-tool
-schema needs the current CLI for newer contracts.73 focused checks pass.
+schema needs the current CLI for newer contracts.81 distinct affected checks pass.
 Stage78 seven actual joins and stage80 actual pre-key40s/later42s pixel boundary
 remain qualified. Coordinates use original mux canvas, fitted origins stay
 refused, and separate mapping failure preserves previews.
@@ -42,9 +42,27 @@ parity/invalid-mode refusal pass;14imagehashes unchanged, native6c/PID unchanged
 This is a bounded offline candidate improvement, not production source mapping
 or continuous/real-menu proof. Preserve all failures and existing guard.
 
-Checklist45completed18partial1deferred/fullgoalactive. Composition remains deferred.
-Explicit AFK authorization ends conservatively23:20UTC. Continue genuinely missing
-boundaries without physical input, authentication or disruptive sleep/revocation.
+Stage84 delivers service-owned frame registration through current MCP0.19/
+28tools and CLI. IDs/frame index/anchor and independent regions are the API;
+files, backup selection at primary source-content time, exact decoded PTS/
+dimensions, RGB hashes and post-async snapshot checks belong to the service.
+Actual above/corner fitted frames and one held frame verify; right ambiguity,
+flat independent region and zero content-delta limit refuse. Held output39.966s
+selects backup36.082s with only0.945ms source-content difference. Final minimal
+PATH MCP/CLI agree completely; four source/media hashes unchanged, owned readers
+exit0, native6c/PID20948 unchanged. Kernel advisory lease serializes decode/RGB
+workers across adapters; live-owner contention/release verified.81 distinct
+focused checks pass. Existing fitted guard stays. Frame-local capability is
+complete in its stated scope; continuous changing/closed and real-menu mapping
+remain partial. High-frequency/resampling refusal preserved; no thresholds
+loosened. No UI/capture/install/peer restart.
+
+Checklist46completed18partial1deferred (65items); fullgoalactive. New completed
+item records the delivered frame-local contract without narrowing the original
+fitted/continuous acceptance criteria. Composition remains deferred.
+Explicit AFK desktop authorization ended conservatively23:20UTC. Continue
+background retained-media/code work; no new visible UI test until renewed
+authorization. Avoid physical input, authentication and sleep/revocation.
 Do not repeat passed source/canaries unless a changed boundary warrants it.
 
 ## Remaining work: ordered acceptance batches
@@ -63,11 +81,12 @@ claim that every partial gate can close in one session.
    for changing and closed popups. Deliver it through the actual source-map
    contract before claiming continuous correctness. Stage83 now provides two
    fitted RGB/heldout successes and three explicit ambiguities, alongside the
-   older real-menu candidate. Next bind registration/independent validation to
-   exact service-owned decoded frame identities, common source-content time and
-   unchanged snapshots; refuse ambiguous/missing cases. Do not keep tuning the
-   same anchors or reshooting the same geometry. Offline candidates are
-   supporting evidence, not the production implementation.
+   older real-menu candidate. Stage84 now binds registration/independent validation to exact service-owned
+   decoded frame identities, source-content time and unchanged open snapshots.
+   Next qualify useful changing/closed and real-menu retained source frames,
+   with failure/refusal or app-crop fallback preserved. Do not tune the same
+   three anchor ambiguities or reshoot the same geometry. Frame-local success
+   is not continuous mapping; original fitted acceptance stays open.
    Gate: `fitted-child-mapping`. No new UI authorization is needed for source
    investigation and isolated candidate preparation.
 2. **Batch one useful built-in-display recording.** After renewed visible

@@ -1,7 +1,7 @@
 # Agent usage and recovery
 
 This is the capture-foundations production runbook. The installed native build
-7c0f81e9d71f and fresh adapter0.16.0 have the scoped proofs in
+6c238cc1ba80 and fresh adapter0.19.0 have the scoped proofs in
 [GATES.md](qualification/GATES.md). Treat these as a baseline, then inspect
 loaded status. Visual effects, cursor styling and composition recipes are the
 next phase. The [checklist](qualification/checklist.json) tracks unresolved
@@ -697,3 +697,7 @@ delivery when only a tool acknowledgment/focused field is known. The scoped shar
 coverage fact is failed, and browser event detail/provider version remain unknown.
 See `qualification/BROWSER-PROVIDER-INPUT.md`; this test recorded only an owned
 native control, with no Chrome source or popup qualification.
+
+## Frame-local registration for guarded fitted sources
+
+Current MCP0.19/28tools and CLI offer [service-owned retained registration](qualification/REGISTERED-FRAMES.md). The service selects backup by primary source-content time and binds exact decoder PTS/opened files. Independent textured regions must pass before a local matrix is returned. Preserve unavailable reasons, fitted guard and frame-local scope; do not reuse a transform across popup changes or treat geometry as content coverage. Ordinary old consumer adoption remains separate; no peer restart.

@@ -10,6 +10,7 @@ import { EngineClient, EngineError } from "./lib/client.mjs";
 import { hasCaptureOptions, requireCaptureOptions } from "./lib/capture-options.mjs";
 import { mapDerivativeTimes } from "./lib/derivative-source.mjs";
 import { mapRecordingFrames, validateFrameMapRequest, frameMapSchema, frameMapHealth } from "./lib/frame-map.mjs";
+import { mapRegisteredFrame,validateRegisteredFrame,registeredFrameSchema,registrationHealth } from "./lib/registered-frame.mjs";
 import { readPreviewFrames } from "./lib/preview-map.mjs";
 import { mapRecordingPair, validatePairedMapRequest, pairedMapSchema } from "./lib/paired-map.mjs";
 import { windowQuerySchema, validateWindowQuery, requireTransientInventory } from "./lib/window-query.mjs";
@@ -17,7 +18,7 @@ import { planProduction, productionPlanSchema, validateProductionRequest } from 
 import {queryRecordingInput,validateInputQuery,inputQuerySchema,inputQueryHealth} from "./lib/input-query.mjs";
 
 const log = (...args) => console.error("[record-screen]", ...args);
-const VERSION = "0.18.0";
+const VERSION = "0.19.0";
 
 // ---------------------------------------------------------------- engine link
 
@@ -163,7 +164,7 @@ const tools = [
     annotations: { readOnlyHint: true },
     run: async () => ok({ ...await engine("status"), mcp_adapter: {
       version: VERSION, declared_target_context: 1, replay_policy: 1, production_planning: 1, shared_app_learning: 1, production_storage_guidance: 1, triple_source_planning: 1, source_frame_mapping: 1, source_region_mapping: 1, transient_window_query: 1,
-      frame_mapping: frameMapHealth(), preview_source_mapping: 1, paired_source_mapping: 1, paired_interval_coverage_summary: 1, fitted_child_mapping_guard: 1, retained_input_query: 1, retained_action_context: 1, retained_input_health_context: 1,
+      registered_frame_mapping:1,registration:registrationHealth(),frame_mapping: frameMapHealth(), preview_source_mapping: 1, paired_source_mapping: 1, paired_interval_coverage_summary: 1, fitted_child_mapping_guard: 1, retained_input_query: 1, retained_action_context: 1, retained_input_health_context: 1,
       input_query: inputQueryHealth(), mutation_replay: "never",
       read_reconnect_budget_ms: 12000,
       qualification: "loaded MCP adapter policy; native CLI/socket status does not describe an MCP process",
@@ -384,6 +385,12 @@ const tools = [
       const backup=await engine("record.source",{recording_id:request.backup_recording_id});
       return ok(await mapRecordingPair(primary,backup,request));
     },
+  },
+  {
+    name:"recording_registered_frame",
+    description:"Register one exact retained primary frame against a service-selected backup at its source-content time. Requires two to four caller-declared anchor regions and one to four disjoint independent verification regions. Service resolves terminal IDs, common recorder clock, content delta, opened-file snapshots, actual decoder PTS/dimensions and RGB patch verification. Ambiguity, flat/missing content, clipped regions, excessive time delta and unqualified clocks refuse. Returns a local registered matrix/projections only after independent checks; no continuous/whole-frame, physical or actor guarantee and no override of recording_frame_map fitted guard. Optional NumPy/Pillow/FFmpeg dependencies,40s worker budget; read-only, no UI/capture/restart or mutation replay.",
+    inputSchema:registeredFrameSchema,annotations:{readOnlyHint:true},
+    run:async a=>{const request=validateRegisteredFrame(a);const primary=await engine("record.source",{recording_id:request.primary_recording_id});const backup=await engine("record.source",{recording_id:request.backup_recording_id});return ok(await mapRegisteredFrame(primary,backup,request));},
   },
   {
     name: "recording_input",

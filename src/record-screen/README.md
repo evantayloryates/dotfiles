@@ -1075,3 +1075,12 @@ A separate mapping failure preserves the images with explicit unavailable state.
 This does not authenticate pixels or make the native decode and later source read
 an atomic snapshot. See [decoded frame checks](qualification/RETAINED-PIXEL-CHECKS.md)
 for the contract, seven actual retained joins and73 focused checks.
+
+## Frame-bound registration for guarded origins
+
+Fresh MCP0.19 exposes `recording_registered_frame`; current CLI uses
+`registered-frame JSON`. [The contract and actual controls](qualification/REGISTERED-FRAMES.md)
+bind service-selected source-content time, open files, exact decoded PTS and
+independent RGB verification. A local matrix is returned only after checks;
+original fitted-source guards and continuous/content uncertainty remain.
+No capture, UI, native restart or automatic consumer refresh.

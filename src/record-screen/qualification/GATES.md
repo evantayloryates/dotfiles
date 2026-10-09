@@ -3519,3 +3519,48 @@ Production fitted guard stays; accurate fitted mapping still partial. Next
 service work must bind accepted registration plus independent heldout checks
 to exact frame/snapshot/content-time identities, preserving all refusals. Do
 not tune the same rejected frames or rerun passing source canaries.
+
+## Eighty-fourth pass — service-owned exact registered frame mapping
+
+Current MCP0.19/28tools `recording_registered_frame` and CLI registered-frame
+accept distinct terminal IDs, primary frame index,2–4anchors/1–4independent
+regions and optional bounded source-content delta/projection regions. No paths,
+external clocks, affine or thresholds. Service selects backup at primary source
+content time under qualified common recorder process clock/complete journals.
+Open video FDs feed explicit first-stream FFmpeg selection; decoded rational PTS
+and dimensions must match exact mux records. RGB payload hashes/source snapshot
+identities returned. Async snapshot admission now awaits consumption and checks
+leaves afterward. Candidate/independent textured patch checks must pass before
+local matrix/projections; original fitted-source guard unchanged.
+
+Actual retained above/corner fitted frames verify with independent RGB NCC
+0.992262/0.993427 and normalized errors0.018238/0.017692. Held primary868 has
+output39.966665879s; backup850 output36.082202308s, but retained source-content
+delta is only-945000ns. Independent patch NCC0.999326/error0.008654 passes.
+Right anchors stay ambiguous; a flat independent region and maxdelta0 refuse.
+Final minimal GUI-PATH MCP/CLI held results agree on every field. Four source/
+media hashes unchanged; owned readers exit0 and worker/map states settle.
+Native6c/PID20948 unchanged. No new UI/capture/native/peer restart or human gate;
+AFK desktop authorization ended during background work, no visible test followed.
+
+Kernel advisory private lock leaf serializes decode/RGB workers across adapters
+per recorder home. Actual live competing owner refuses before decode, its
+descriptor closure permits a verified next call. No stale PID/file polling or
+kill of competing owner. Metadata probes remain per adapter; no universal
+capacity/GPU/P80 claim. Owned response overflow kills only its own process group
+and quarantine clears after confirmed close. Exact wrong PTS, wrong independent
+pixels, first-stream selection, async late source mutation/concurrent read and
+FD closure are checked.73 existing affected+8new distinct tests=81passed.
+
+High-frequency synthetic RGB refused with lossy and lossless encoding; encoder
+causality not established. Separate smooth positive control passes, thresholds
+unchanged. First fresh harness filename collision occurred after above response
+retained; reader exited0, same result reused without replay and remaining cases
+run in new owned reader. All failures preserved. Shared mixed scoped fact read
+back; no fake action receipts for offline work. Privategates-v84.
+
+New frame-registered-mapping gate complete in written frame-local scope; original
+fitted-child-mapping stays partial for continuous changing/closed and real-menu
+coverage.65items:46completed18partial1deferred/fullgoalactive. Next use new
+service contract on a useful missing retained menu boundary, not retune the same
+anchor failures or rerun passed source canaries.

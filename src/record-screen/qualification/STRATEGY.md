@@ -1,7 +1,7 @@
 # Capture foundations: qualified strategy and remaining boundaries
 
-Current checkpoint: October9,2026, stage83. Signed native6c238cc1ba80 is installed;
-current CLI and fresh owned MCP0.18/27 tools carry the latest contracts. Existing
+Current checkpoint: October9,2026, stage84. Signed native6c238cc1ba80 is installed;
+current CLI and fresh owned MCP0.19/28 tools carry the latest contracts. Existing
 ordinary chat exposes22 older tools, so use current CLI for missing input queries,
 source maps, planning and declaration-only launch contexts. Preserve peer servers.
 Stage77 independently verifies the fresh listener and two delivered keys on native6c.
@@ -9,7 +9,7 @@ All80 mux stamps and witness patches pass; permission alone never establishes
 coverage. One key operation also retains pointer precursors in the same scope,
 so action membership does not establish actor or intended cue. Physical input
 and continuous focus isolation remain unqualified. The maintained checklist currently
-has45 completed,18 partial and1 deferred items. Read PRODUCTION-GOAL.md for active
+has46 completed,18 partial and1 deferred items. Read PRODUCTION-GOAL.md for active
 work and GATES.md for exact observations; historical checkpoints below are evidence,
 not current readiness. Optional production_plan.app_learning consumes the central
 computer-use app facts through the same exact-key/expiry/conflict policy. Target
@@ -321,3 +321,12 @@ ambiguous titles remain refused at unchanged thresholds.26 focused checks and
 actual CLI parity/invalid-mode refusal pass. No production source map override;
 next bind exact frames and independent verification in the service rather than
 retune failed anchor cases or infer missing origins from metadata.
+
+Stage84 adds the production frame-local registered mapping contract. Service
+selects actual backup by primary content time, validates decoded rational PTS/
+dimensions, RGB registration and separate textured regions, then checks async
+open snapshots. Two fitted/one held actual cases pass; ambiguity/flat/excess
+delta refuse. Kernel lease admits one decode/RGB worker per recorder home;
+metadata probes still per adapter.81 checks, final minimal-PATH MCP0.19/28tools/
+CLI parity, unchanged media/native and owned reader cleanup pass. Original
+fitted guard and real-menu/continuous/resource capacity criteria remain open.

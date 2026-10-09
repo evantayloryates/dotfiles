@@ -10,7 +10,5 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 NODE="$(resolve_binary node)"
 # Optional reader dependency. Keep capture/status available when it is absent;
 # a requested media map will report its existing bounded probe error.
-if RECORD_SCREEN_FFPROBE="$(resolve_binary ffprobe 2>/dev/null)"; then
-  export FFPROBE_PATH="$RECORD_SCREEN_FFPROBE"
-fi
+. "${SCRIPT_DIR}/../lib/reader-dependencies.sh"
 exec "$NODE" "${SCRIPT_DIR}/../server.mjs" "$@"

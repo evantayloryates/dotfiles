@@ -282,7 +282,7 @@ export async function withFrameSnapshots(descriptors, consume) {
       const rows=await journalRows(journal.handle,journal.stat.size), probe=await probeFile(video.handle.fd);
       snapshots.push({descriptor,rows,probe,files:[journal,video].map(f=>({dev:f.stat.dev,ino:f.stat.ino,size:f.stat.size,mtimeMs:f.stat.mtimeMs,ctimeMs:f.stat.ctimeMs}))});
     }
-    const result=consume(snapshots);
+    const result=await consume(snapshots,descriptors.map((_,n)=>files[n*2+1].handle.fd));
     for(const f of files) if(!unchanged(f.stat,await f.handle.stat())) mapping('Source/media changed during mapping; no snapshot consistency claimed.');
     if(Buffer.byteLength(JSON.stringify(result))>1024*1024) mapping('Mapped response exceeds1MiB; request fewer segments/frames/points.');
     return {...result,snapshot_consistency:'Opened regular leaves unchanged across all reads/probes; no filesystem isolation guarantee.'};

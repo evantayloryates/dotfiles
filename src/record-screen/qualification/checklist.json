@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T19:14:28-04:00",
+  "updated_at": "2026-10-09T19:28:53-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage83 improves retained origin registration: RGB preserves color evidence lost in grayscale. Four of seven candidates pass a separate marker check; three stay refused.26focused tests and actual CLI parity pass. Production fitted guard remains; next bind accepted registration/independent verification to exact service frames. Full goal active."
+    "note": "Stage84 delivers service-owned exact registered frame mapping, independent verification and shared kernel worker admission. Two fitted/one held actual frames verify; ambiguity/flat/excess-delta refuse.81distinct checks and final MCP0.19/CLI parity pass. Frame-local contract complete; original continuous/real-menu fitted acceptance remains partial."
   },
-  "production_note": "Current native6c/PID20948 unchanged. Exact preview/source joins and stage81/82 native/DOM delivery retained. Stage83 adds two fitted and two baseline/restored candidate successes, max heldout0.506px, without loosening thresholds. No production map override or continuous/real-menu proof.45 completed,18 partial,1 deferred.",
+  "production_note": "Native6c/PID20948 unchanged; fresh MCP0.19/28tools and minimal-PATH CLI delivered. Exact decoded PTS/open snapshots/source-content time belong to the service. Held outputs3.884s apart have content delta0.945ms. Independent RGB checks required, original guard retained; kernel lease serializes heavy workers.46completed18partial1deferred across65items; fullgoalactive.",
   "groups": [
     {
       "id": "capture",
@@ -232,10 +232,10 @@
           "title": "Qualify coordinates when real child menus change source fitting",
           "status": "partial",
           "scope": "Actual child-enabled isolated window with above/below-parent popup fitting, including scale and source origin changes. Existing static/fixture maps retain their proven scope.",
-          "evidence": "Stage68 identical geometry requires134px/106pxdifferent origins; app crop verified. Stage83 same seven retained phase images:gray0/7 candidates, optionalRGB4/7; all4independent heldout blue checks<=0.506px (two fitted). Three title-ambiguity cases refused at unchanged thresholds.26tests/actualCLI all-field parity/invalid-mode refusal pass;14imagehashes unchanged. Production guard remains.",
-          "next": "Bind accepted registration and independent heldout validation to exact service-owned frame/snapshot/content-time identities; preserve ambiguous/missing refusal. Do not retune the same three failed anchor cases or infer missing origins from metadata.",
-          "anchor": "eighty-third-pass",
-          "updated_at": "2026-10-09T19:14:28-04:00"
+          "evidence": "Stage84 service-owned frame-local mapping verifies actual above/corner fitted frames plus held source-time selection. Exact decoded PTS/dimensions/open snapshots/RGB hashes and independent patches bound inside MCP/CLI. Three actual refusal controls preserved; original guard unchanged.",
+          "next": "Qualify continuous changing/closed and useful real-menu retained frames with service-owned independent verification or explicit app-crop fallback. Do not carry transforms across identical metadata or retune the three ambiguous anchors.",
+          "anchor": "eighty-fourth-pass",
+          "updated_at": "2026-10-09T19:28:53-04:00"
         },
         {
           "id": "fitted-mapping-guard",
@@ -246,6 +246,16 @@
           "next": "",
           "anchor": "fifty-sixth-pass",
           "updated_at": "2026-10-09T12:34:45-04:00"
+        },
+        {
+          "id": "frame-registered-mapping",
+          "title": "Deliver service-owned registration for exact retained frames",
+          "status": "completed",
+          "scope": "Current MCP0.19/CLI: opened-file/source-content selection, exact decoded PTS/dimensions and RGB registration with independent textured region verification for one frame. Actual authored above/corner fitted and held controls; no continuous/real-menu/physical/actor guarantee or original-map override.",
+          "evidence": "81distinct affected checks pass, actual3available/3refused cases, final minimal-PATH MCP/CLI held output equality, four hashes unchanged, readers/workers settled/nativeunchanged. Kernel lease contention/release verified; ambiguous/flat/wrong pixels/PTS/excess-delta/changed snapshots refuse.",
+          "next": "",
+          "anchor": "eighty-fourth-pass",
+          "updated_at": "2026-10-09T19:28:53-04:00"
         }
       ]
     },
@@ -444,10 +454,10 @@
           "title": "Set a realistic resource and admission budget",
           "status": "partial",
           "scope": "CPU, memory, encoder/GPU/storage costs and useful production-duration estimates.",
-          "evidence": "Stage56 original90s pair104 observations: recorder peak53.52MiB, p50 intervalCPU6.94%/peak15.87%; TextEdit134.66MiB, host pressure1/2, no guard. Follow-up unmeasured. Prior GPU/longer profiles retained; no causal encoder/GPU/capacity/P80 proof. Stage61 one whole90 metadata CLI request evaluates1769 boundary segments in0.18s wall/maxRSS79.44MiB. Summary default4096/max16384 boundaries, over-budget refusal verified; these bounds are not capacity or P80 evidence. Stage66 measured75s useful30fps three-lane motion/movement/cover profile:90 process/host samples, recorder RSS peak463.06MiB, p50 intervalCPU8.90%/peak103.64% of one core; later settled RSS30.34MiB. Motion fixture78.34MiB and cover66.25MiB peaks; fresh host pressure2/thermal0, no guard trigger.5719 actual mux packets,40,839,659 video+4,048,850 journal bytes. One concurrent-host short take, no baseline delta/GPU/P80/long-duration capacity claim. Stage67 fresh0.15.0/CLI publishes measured three-source profile with exact source bytes/rows/packets, explicit crop/width/codec, per-source duration scenario and reader/journal flags. Live disjoint crop refused; configured slot shortfall refuses without reservation.46 affected and final12 planner checks pass; default fields/actual retained costs preserved. Capacity/GPU/P80 remain open. Stage70 saved75s window H264 and252.068s fixed app-crop HEVC (stopped for user pause before planned300s).250 resource observations retained; no guard fired. Terminal counters and finalized journals exist, but actual mux/source coverage and resource acceptance remain unverified. Stage71 all8,900 packets decode and exactly match journals.250 samples: recorder peak38.73MiB, median intervalCPU2.98%/peak19.81% of one core, host pressure2. Safari parent only; WebContent/GPU/thermal unmeasured.75s H264 window plus about252.07s HEVC app, stopped before300s; mux tail252.561567657s includes holds. Fresh MCP/CLI planning publishes scoped measured Safari profile;12 affected planner checks pass. Stage73 eight-minute1000x732 H264 isolated-childfalse/app pair:26,648 exact joins, moving419.4s/static52.9s decoded counters correct.509 samples: recorder45.94MiB peak/recording median7.90% one-core CPU/post peak79.69%, all fresh pressure2/thermal0/no guard. Video+journals160,703,814 bytes. Fresh MCP0.16 reads scoped profile;12 planner checks pass. Stage74 resolves the named long-summary reader limit without raising limits or reshooting: exact service retries16384/10230, both479s geometry partitions. First GUI-style minimal-PATH reader failure retained; launcher resolves optional FFprobe explicitly and fresh MCP/CLI boundary passes.37 reader checks; geometry remains distinct from pixels/capacity.",
-          "next": "Extend a genuinely missing GPU/app resource boundary using a bounded sample; no repetition of this duration case, upper capacity or P80 claim.",
-          "anchor": "seventy-fourth-pass",
-          "updated_at": "2026-10-09T18:13:15-04:00"
+          "evidence": "Earlier source/resource profiles retained. Stage84 adds kernel advisory admission for one decode/RGB worker per recorder home across adapters: competing live owner refuses before decode, descriptor release admits verified next call. Owned overflow process-group stop/quarantine settlement tested. Metadata probes remain per adapter; no host-wide capacity/GPU/P80 guarantee.",
+          "next": "Measure useful remaining concurrent capture/insurance/reader capacity at a suitable interval; keep existing profiles and worker admission proof without repeating them.",
+          "anchor": "eighty-fourth-pass",
+          "updated_at": "2026-10-09T19:28:53-04:00"
         },
         {
           "id": "sparse-display-writer",
@@ -652,10 +662,10 @@
           "title": "Verify loaded MCP replay policy and reconnect boundaries",
           "status": "partial",
           "scope": "Never automatically resend mutations after a lost reply; distinguish loaded adapter from native engine version. Preserve existing peer MCP processes.",
-          "evidence": "Current fresh MCP0.18/27tools and minimal-PATH CLI expose optional preview/source joins; actual maps agree, default adds no source mapping. Mapping failure preserves images without another preview dispatch. Ordinary loaded22-tool schema remains older; native6c unchanged.",
-          "next": "Verify ordinary full consumer adoption at a safe launch without disturbing peers; use current CLI/fresh MCP for the delivered contracts.",
-          "anchor": "seventy-eighth-pass",
-          "updated_at": "2026-10-09T18:45:34-04:00"
+          "evidence": "Fresh MCP0.19/28tools and current minimal-PATH CLI serve exact frame registration; final held outputs agree completely, readers exit0. Service worker/snapshot/lease failure handling preserves no capture/mutation replay. Existing ordinary22-tool schema adoption remains unqualified.",
+          "next": "Verify ordinary full consumer adoption at a safe launch without disturbing peers; use current CLI or fresh owned MCP for delivered contracts.",
+          "anchor": "eighty-fourth-pass",
+          "updated_at": "2026-10-09T19:28:53-04:00"
         },
         {
           "id": "agent-runbooks",
@@ -2928,6 +2938,38 @@
       "from": "partial",
       "to": "partial",
       "note": "Stage83 RGB candidates independently verify two fitted source frames; three ambiguities stay refused. Production mapping remains open."
+    },
+    {
+      "at": "2026-10-09T19:28:53-04:00",
+      "kind": "item",
+      "id": "fitted-child-mapping",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage84 adds delivered exact frame registration/shared worker admission while preserving broader acceptance scope."
+    },
+    {
+      "at": "2026-10-09T19:28:53-04:00",
+      "kind": "item",
+      "id": "frame-registered-mapping",
+      "from": "pending",
+      "to": "completed",
+      "note": "New delivered frame-local capability; original fitted continuous/real-menu gate remains partial."
+    },
+    {
+      "at": "2026-10-09T19:28:53-04:00",
+      "kind": "item",
+      "id": "resource-admission",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage84 adds delivered exact frame registration/shared worker admission while preserving broader acceptance scope."
+    },
+    {
+      "at": "2026-10-09T19:28:53-04:00",
+      "kind": "item",
+      "id": "mcp-replay-boundary",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage84 adds delivered exact frame registration/shared worker admission while preserving broader acceptance scope."
     }
   ]
 }
