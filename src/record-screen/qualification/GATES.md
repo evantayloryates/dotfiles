@@ -1,5 +1,32 @@
 # Qualification update — October 8, 2026
 
+## Nineteenth pass: ordered input loss and scope continuity
+
+Thirty controlled checks passed through actual InputTimeline admission/scoping
+queues and SourceJournal. Authored scalar samples do not create CGEvents, install
+an OS listener, post input or interact with UI. A blocked scope callback filled
+the actual 2,048-event queue. Another 2,001 callbacks, including a release, were
+omitted. Earlier accepted samples retained their original order and zero prior
+overflow total. The gap followed them with exact callback/receipt frontiers;
+its drag-state invalidation excluded a later outside-frame drag. A fresh in-scope
+sample remained usable. A subscriber joining afterward inherited no old loss.
+
+| Gate | Verified evidence | Limits |
+| --- | --- | --- |
+| Bounded ingress | Accepted queue never exceeded 2,048, including the processing callback. First scope retained 2,049 samples, excluded one post-gap outside drag, and reported 2,001 unknown dropped callbacks. | Controlled burst, not a physical provider-rate or real-app performance guarantee. No positions, codes or actor identities are stored for omitted callbacks. |
+| Ordering and tail | Exact callback sequence 2049–4049 and receipt stamps beyond JavaScript integer precision were preserved. No prior accepted row borrowed future overflow. Unsubscribe flushed a final one-callback loss when no later accepted event existed. | Receipt order is not OS delivery completeness or physical latency. Exact global frontiers/types may extend before a joining subscription; scoped counts are separately clipped by its loss baseline. |
+| Scope continuity | Missing-release loss invalidated one drag context. A later unrelated outside drag was excluded. A joining subscriber kept a fresh event and ended with zero historical loss. | Ownership remains unknown, including shared provider PIDs. Other gap notifications conservatively clear drag context; no missing trajectory is reconstructed. |
+| Journal distinction | The test journal closed with zero lost rows while reporting 2,001 lost input callbacks in its descriptor/footer. Bounded type metadata reports unrepresented counts explicitly. | The test journal used capacity 4096 to isolate ingress from sink loss; production remains 64. Complete journal closure is not complete input coverage. |
+| Prepared candidate | Signed 767d45f6ce40 loaded privately with input_queue_loss:1 and existing screen grant, then exited and was reaped. Its source matches the 30-check frozen proof and current inputs. Signing identity matches installed production. Twelve state files (49,882 bytes) were copied and verified; signed candidate cache prepared. | Production was still e0d053bc6732 at this checkpoint. Installed delivery/read reconnect follow below when verified. No qualification hooks in the signed bundle. |
+
+Initial 27 checks established ordered ingress and tail loss. The final extension
+added the new-subscription baseline and three acceptance checks, and removed
+async semaphore-wait warnings from the test wrapper. Earlier evidence remains.
+New canonical kits input-overload-test.py and prepare-candidate.py freeze inputs;
+the latter only prepares/signs privately and never calls the installing builder.
+Provider-rate, native drag/scroll, same-app actor distinction, natural tap faults
+and precise listener-start coverage remain separate open gates.
+
 ## Eighteenth pass: installed delivery, source consumers and replay boundary
 
 Production now runs e0d053bc6732. The first legacy upgrade used explicit repeated

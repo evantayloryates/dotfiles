@@ -297,7 +297,7 @@ final class InputTimeline: @unchecked Sendable {
       guard faults.acceptsEvents else {faultOmittedCallbacks+=1;return nil}
       guard pending<Self.capacity else {
         overflow+=1
-        if pendingOverflow==nil {pendingOverflow=InputQueueLoss()}
+        if pendingOverflow==nil {pendingOverflow=InputQueueLoss(overflowBefore:overflow-1)}
         pendingOverflow!.append(sequence:UInt64(callbacks),host:received,type:type)
         return nil
       }
@@ -308,7 +308,11 @@ final class InputTimeline: @unchecked Sendable {
   }
   private func emitLoss(_ loss:InputQueueLoss) {
     for s in subscribers.values {
-      var row=loss.row;row["drag_contexts_invalidated"]=s.policy.invalidateContinuity()
+      let scopedCount=min(loss.count,max(0,loss.overflowBefore+loss.count-s.overflowStart))
+      guard scopedCount>0 else {continue}
+      var row=loss.row;row["events_skipped"]=scopedCount
+      row["scope_loss_qualification"]="count overlaps this subscription; global frontiers/types can extend before its start; omitted destinations and actors remain unknown"
+      row["drag_contexts_invalidated"]=s.policy.invalidateContinuity()
       s.callback(row)
     }
   }

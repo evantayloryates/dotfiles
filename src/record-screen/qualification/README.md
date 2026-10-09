@@ -48,6 +48,8 @@ No helper requests a new grant.
 | `build-guard-test.py` | Authored filesystem and compiler/signature adapters: refusal, retained preparation, cache reuse and verified backup; no live install |
 | `startup-test.swift` | Actual recording state/watchdog races with a controlled preflight; no SDK discovery |
 | `input-test.swift` | Mechanical event scoping, contextual service stamps, namespace/restart uncertainty, strict numeric boundaries and persistence faults; no UI |
+| `input-overload-test.py` | Frozen actual input/scoping queues, ordered loss, dropped release, joining scope and tail flush; authored scalar samples, no OS tap/UI |
+| `prepare-candidate.py` | Frozen signed native bundle outside production; never calls the installing builder or requests a grant |
 | `admission-test.swift` | Future schedule and extension overlap/duration/lead admission, cancellation; no capture |
 | `recorded-action.test.mjs` | Supported wrapper never replays UI after missing receipt; shared imported provenance |
 | `tap-fault-test.swift` | Pure passive-listener fault policy: fresh observations, timeout budget, user override and generation reset; no OS input |

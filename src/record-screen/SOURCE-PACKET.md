@@ -8,6 +8,28 @@ Socket consumers negotiate `status.capabilities.source_journal == 1`, then call
 old engine explicitly. Replies contain paths and compact diagnostics, never
 bulk frame rows.
 
+### Ordered input loss (input_queue_loss v1)
+
+Negotiate `status.capabilities.input_queue_loss == 1` for callback sequences and
+ordered loss frontiers. Retained input rows carry exact `callback_sequence` strings
+and the overflow total observed at their admission. Earlier queued rows never
+borrow a later overflow count. A gap is emitted after earlier accepted callbacks,
+or at scope end when no accepted callback follows it. Missing transitions clear
+drag continuity; outside motion cannot inherit a drag whose release may be lost.
+
+Gap `events_skipped` counts overlap this subscription. Global frontiers/type counts
+can extend before its start and are explicitly marked global; destinations and
+actors of omitted events are unknown. Newly joining scopes do not inherit old
+loss. Type metadata is bounded and reports unrepresented counts. No omitted
+positions, key codes, text or trajectories are reconstructed.
+
+`source_packet.input_events_skipped_observed` and `latest_input_queue_loss` summarize
+accepted gap metadata separately from `rows_lost`. A journal can close with
+`complete:true` and zero row loss while input callbacks were lost. Missing fields
+mean unmeasured/older behavior, and a loss gap itself can be lost by the journal.
+Production ingress capacity remains 2048; journal capacity remains 64. These are
+configured bounds, not measured provider-rate or workload capacity guarantees.
+
 MCP adapter 0.8.0 reports `status.mcp_adapter.replay_policy:1`: only readbacks
 reconnect automatically after engine loss. Mutations are never resubmitted,
 including schedules with an idempotency key. Recover owned state before a new

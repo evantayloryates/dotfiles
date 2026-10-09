@@ -167,6 +167,22 @@ def main():
                     result = request(message, a.state)
                     break
                 except RuntimeError as error:
+                    if a.op == "release" and str(error) == "lease_required":
+                        # Foreground/Wi-Fi handoff may already have retired this
+                        # capability. Confirm it is inactive; never release the
+                        # current owner or claim that the device is globally idle.
+                        current = request({"op": "status"}, a.state)
+                        if not isinstance(current, dict) or "lease" not in current:
+                            raise RuntimeError("release_state_unconfirmed") from None
+                        active = current["lease"]
+                        if active is not None and (not isinstance(active, dict) or
+                                                  not isinstance(active.get("id"), str)):
+                            raise RuntimeError("release_state_unconfirmed") from None
+                        if isinstance(active, dict) and active["id"] == message["lease"]:
+                            raise RuntimeError("release_state_unconfirmed") from None
+                        result = {"released": False, "alreadyInactive": True,
+                                  "otherOwnerActive": active is not None}
+                        break
                     if a.op != "action" or str(error) != "command_in_flight" or time.monotonic() >= admission_end:
                         raise
                     time.sleep(0.05)  # Only admission rejection is retried, never accepted input.
