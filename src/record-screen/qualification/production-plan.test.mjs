@@ -62,6 +62,43 @@ test('runtime obstacles and bounded missing inventory stay explicit', () => {
   assert.ok(input.blocking_reasons.some(s => s.includes('Input Monitoring')))
 })
 
+test('Retina reference profile never becomes admission or a safe duration', () => {
+  const retinaStatus = { ...status, displays: [{ id: 1, main: true, scale: 2, frame: { x: 0, y: 0, w: 1512, h: 982 } }] }
+  const a = { ...request, activity: 'passive_capture', duration_s: 330, fps: 60, max_width: 0 }
+  const p = planProduction(a, retinaStatus, inventory), r = p.resource_guidance
+  assert.deepEqual(r.retina_pair_profile_differences, [])
+  assert.equal(r.measured_retina_pair_profile.representative_for_requested_app, false)
+  assert.equal(r.measured_retina_pair_profile.exact_muxed_samples, 35345)
+  assert.equal(r.storage_guidance.scenario_video_bytes, 513518205)
+  assert.deepEqual(r.storage_guidance.scenario_journal_bytes_by_source, { primary: 11037570, backup: 11593393 })
+  assert.equal(r.storage_guidance.scenario_exceeds_measured_journal_limit, false)
+  assert.deepEqual(r.storage_guidance.scenario_exceeds_budgets, { native_journal_bytes: false, source_reader_rows: false, media_reader_packets: false })
+  assert.deepEqual(r.storage_guidance.scenario_journal_rows_by_source, { primary: 35725, backup: 37193 })
+  for (const k of ['free_disk_bytes','safe_continuous_duration_s']) assert.equal(r.storage_guidance[k], null)
+  assert.equal(r.storage_guidance.disk_space_reserved, false)
+  assert.equal(r.duration_p80_s, null)
+  const changed = planProduction({ ...a, input_enabled: true }, retinaStatus, inventory)
+  assert.ok(changed.resource_guidance.retina_pair_profile_differences.includes('different input_enabled'))
+  for (const displays of [[], [{ scale: 1, frame: { x: 0, y: 0, w: 1512, h: 982 } }], [retinaStatus.displays[0], retinaStatus.displays[0]]]) {
+    const uncertain = planProduction(a, { ...retinaStatus, displays }, inventory)
+    assert.ok(uncertain.resource_guidance.retina_pair_profile_differences.some(s=>s.includes('unobserved native parent')))
+  }
+})
+
+test('long-duration storage scenario warns without inventing a failure time or capture', () => {
+  const a = { ...request, mode: 'background', activity: 'passive_capture', duration_s: 3600, fps: 60, max_width: 0 }
+  const p = planProduction(a, status, inventory), s = p.resource_guidance.storage_guidance
+  assert.equal(s.scenario_exceeds_measured_journal_limit, true)
+  assert.deepEqual(s.scenario_exceeds_budgets, { native_journal_bytes: true, source_reader_rows: true, media_reader_packets: true })
+  assert.ok(p.unknowns.some(s=>s.includes('scenario warning')))
+  assert.equal(p.assessment, 'candidate_requires_source_check')
+  assert.equal(s.safe_continuous_duration_s, null)
+  assert.match(s.qualification, /not a prediction, bound/)
+  assert.ok(s.assumptions.some(s=>s.includes('does not imply video stopped')))
+  assert.equal(s.scenario_video_bytes, Math.ceil(513518205 * 3600/330))
+  assert.equal(p.mutates, false)
+})
+
 test('invalid or contradictory requests refuse rather than silently change settings', () => {
   for (const patch of [{ duration_s: true }, { duration_s: Infinity }, { fps: 1.2 }, { max_width: -1 }, { mode: 'lock_user' }, { show_cursor: 0 }, { alignment_until: '2026-10-09T08:00:00' }, { grant: true }, { target: { type: 'window', app: 'Chrome' } }, { target: { type: 'window', window_id: 119, exclude_apps: [] } }, { target: { type: 'rect', x: 0, y: 0, w: 0, h: 1 }, redundancy: 'none' }]) assert.throws(() => validateProductionRequest({ ...request, ...patch }), e => e.code === 'bad_production_plan')
   const a = validateProductionRequest({ ...request, fps: 60, max_width: 3024, show_cursor: true, input_enabled: true })
@@ -98,6 +135,7 @@ test('MCP planning does only readbacks; malformed input performs no RPC', async 
     assert.equal(refused.isError, true); assert.deepEqual(methods, ['status', 'windows.list'])
     const readback = await rpc('tools/call', { name: 'status', arguments: {} })
     assert.equal(JSON.parse(readback.content[0].text).mcp_adapter.production_planning, 1)
+    assert.equal(JSON.parse(readback.content[0].text).mcp_adapter.production_storage_guidance, 1)
   } finally {
     child.stdin.end(); await new Promise(resolve => child.once('exit', resolve))
     for (const socket of sockets) socket.destroy()

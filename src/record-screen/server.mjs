@@ -14,7 +14,7 @@ import { planProduction, productionPlanSchema, validateProductionRequest } from 
 import {queryRecordingInput,validateInputQuery,inputQuerySchema,inputQueryHealth} from "./lib/input-query.mjs";
 
 const log = (...args) => console.error("[record-screen]", ...args);
-const VERSION = "0.11.0";
+const VERSION = "0.11.1";
 
 // ---------------------------------------------------------------- engine link
 
@@ -108,7 +108,7 @@ const ok = (v) => ({ content: [{ type: "text", text: text(v) }], isError: false 
 const tools = [
   {
     name: "production_plan",
-    description: "Read-only capture planning: explicit background/cooperative/reserved expectations, caller-reported production interval, cursor-layer limits, runtime obstacles, measured point-profile costs and recovery choices. Starts no capture, drives no UI, locks no input and grants no authorization. Exact window IDs required; actual source/provider readiness remains a separate check.",
+    description: "Read-only capture planning: explicit background/cooperative/reserved expectations, caller-reported production interval, cursor-layer limits, runtime obstacles, measured point/Retina profiles, reference-scene storage scenarios and recovery choices. Scenarios are not predictions, disk reservations or capacity. Starts no capture, drives no UI, locks no input and grants no authorization. Exact window IDs required; actual source/provider readiness remains a separate check.",
     inputSchema: productionPlanSchema,
     annotations: { readOnlyHint: true },
     run: async a => {
@@ -149,7 +149,7 @@ const tools = [
     inputSchema: { type: "object", properties: {}, additionalProperties: false },
     annotations: { readOnlyHint: true },
     run: async () => ok({ ...await engine("status"), mcp_adapter: {
-      version: VERSION, replay_policy: 1, production_planning: 1, source_frame_mapping: 1,
+      version: VERSION, replay_policy: 1, production_planning: 1, production_storage_guidance: 1, source_frame_mapping: 1,
       frame_mapping: frameMapHealth(), retained_input_query: 1,
       input_query: inputQueryHealth(), mutation_replay: "never",
       read_reconnect_budget_ms: 12000,

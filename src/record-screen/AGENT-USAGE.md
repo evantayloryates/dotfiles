@@ -1,7 +1,7 @@
 # Agent usage and recovery
 
 This is the capture-foundations production runbook. The installed native build
-f314bb340344 and fresh adapter0.11.0 have the scoped proofs in
+f314bb340344 and fresh adapter0.11.1 have the scoped proofs in
 [GATES.md](qualification/GATES.md). Treat these as a baseline, then inspect
 loaded status. Visual effects, cursor styling and composition recipes are the
 next phase. The [checklist](qualification/checklist.json) tracks unresolved
@@ -170,12 +170,25 @@ whole-phase reset is necessary after a narrow failure.
 
 ## Resource and release expectations
 
-Measured evidence covers one50s point-resolution window/display pair and one
-110s authored moving/static window take. Both passed actual media checks under
-warning pressure. They do not establish requested-app representativeness,
-long-duration/thermal or GPU capacity, physical input rates or a P80 production
-duration. Configured16 overlaps are admission policy, not a production target.
+Measured evidence covers a50s point-resolution pair, a110s moving/static window,
+and a330s2000×1464/requested60fps pair. All passed actual media checks in their
+written scope; the longer pair had327 fresh normal-pressure/nominal-coarse-thermal
+observations. They do not establish requested-app representativeness, thermal
+equilibrium/GPU/capacity, physical input rates or a P80 production duration.
+Recorder CPU excludes fixture/WindowServer/GPU work; shared WindowServer costs
+are observations, not attributable capture cost. Configured16 overlaps are
+admission policy, not a production target.
 Choose conservative effort, inspect current health and measure the new boundary.
+
+Fresh0.11.1 planning exposes `production_storage_guidance:1`: the reference
+scene's duration-scaled bytes/rows/packets and separate budget flags. A scenario
+is not a prediction or safe take limit. Inspect actual disk space and source
+bytes/max_bytes/rows_lost; journal exhaustion can lose metadata while video
+continues, and bounded readers can refuse a long intact source. For long work
+choose explicit shorter takes at application checkpoints, preserve actual source
+coverage at joins and verify each source. This plan splits/schedules nothing and
+reserves no disk space. Older loaded adapters can use the current CLI without
+forcing a peer restart.
 
 Routine agents must not rebuild/restart simply to refresh capability discovery.
 If authorized maintenance is needed, use the idle fence and preserve prior

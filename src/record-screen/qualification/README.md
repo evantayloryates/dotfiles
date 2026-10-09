@@ -79,7 +79,8 @@ latency proof, capture-clock calibration or a composition recipe.
 
 `production-plan.test.mjs` checks mode/alignment boundaries, off-Space UI versus
 passive capture, explicit runtime obstacles, per-layer cursor limits, measured
-profile uncertainty and strict configuration. Its real MCP/socket fixture proves
+profile uncertainty, Retina parent-scale ambiguity, reference storage/reader
+budget scenarios with unknown safe duration, and strict configuration. Its real MCP/socket fixture proves
 planning performs only `status` / `windows.list`; invalid requests perform no
 RPC. No UI, capture, install or user-input lock is involved. Run it with the
 adjacent option and reconnect checks after changing the adapter:

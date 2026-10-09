@@ -10,7 +10,7 @@ const mapping = message => fail('frame_mapping', message);
 const MAX_PACKETS = 120000, MAX_ROWS = 250000, MAX_JOURNAL = 64 * 1024 * 1024;
 let running = false, probeState = null;
 export const frameMapHealth = () => ({ active: running, probe: probeState ? { ...probeState } : null,
-  max_packets: MAX_PACKETS, max_journal_bytes: MAX_JOURNAL });
+  max_packets: MAX_PACKETS, max_rows: MAX_ROWS, max_journal_bytes: MAX_JOURNAL });
 
 export const frameMapSchema = {
   type: 'object', additionalProperties: false,

@@ -1,9 +1,9 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T05:36:32-04:00",
+  "updated_at": "2026-10-09T05:49:48-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage37 sustained330s Retina pair passed actual source pixels and35345 exact packet joins.327 fresh normal pressure/nominal thermal samples; owned resources settled, native unchanged/idle. Input Monitoring freshly allowed/listening; secure-input gap prevents a new keyboard claim.40 completed,17 partial,1 deferred. Continue scoped planning/storage and app/provider/physical acceptance."
+    "note": "Stage38 planning/storage guidance delivered via CLI/fresh MCP0.11.1:10 checks passed, actual reference figures match retained proof, explicit per-source/reader budget flags preserve unknown safe duration and app/capacity costs. Native unchanged/idle; no capture/UI/permission action.40 completed,17 partial,1 deferred. Continue remaining app/provider/physical and practical workload acceptance."
   },
   "production_note": "Signed native f314bb340344/PID35547 unchanged and idle. Fresh MCP0.11.0 adds bounded retained-input query; final CLI/MCP returns12 exact prior keys with unresolved ownership and source snapshots. Peer adapters untouched. Physical/provider calibration, remaining daily-app surfaces, routine adoption, GPU/thermals and P80 remain unqualified.",
   "groups": [
@@ -394,10 +394,10 @@
           "title": "Set a realistic resource and admission budget",
           "status": "partial",
           "scope": "CPU, memory, encoder/GPU/storage costs and useful production-duration estimates.",
-          "evidence": "Actual330s Retina60 window/display pair passed35345 exact packets and decoded motion/stopped counters.327 fresh in-take normal pressure/nominal thermal samples; recorder0.12953cores/47.73MiB peakRSS.513.52MB video+22.63MB journals combined. Eight pressure/thermal guard checks passed; live guard inactive. Earlier point profiles retained.",
-          "next": "Publish this scoped profile in planning and define practical source-storage bounds; qualify broader app/load/GPU/capacity and production-duration estimates only where useful. Preserve completed sustained pair and thermal guards.",
-          "anchor": "thirty-seventh-pass",
-          "updated_at": "2026-10-09T05:36:31-04:00"
+          "evidence": "Actual330s Retina60 window/display pair passed35345 exact packets and decoded motion/stopped counters.327 fresh in-take normal pressure/nominal thermal samples; recorder0.12953cores/47.73MiB peakRSS.513.52MB video+22.63MB journals combined. Eight pressure/thermal guard checks passed; live guard inactive. Earlier point profiles retained. Stage38 CLI/fresh MCP0.11.1 publishes matched actual reference figures, separate recorder/fixture/WindowServer costs and duration-scaled byte/row/packet budget flags.10 targeted/adjacent checks and real MCP/CLI readbacks passed. One-hour reference scenario exceeds native and both reader budgets; no safe duration/disk/admission/P80 claim.",
+          "next": "Qualify a useful missing requested-app/load/GPU/capacity or practical long-shot boundary. Use explicit shorter takes and actual bytes/loss/coverage, not the reference scenario as a guarantee. Preserve settled source/guard proofs.",
+          "anchor": "thirty-eighth-pass",
+          "updated_at": "2026-10-09T05:47:53-04:00"
         },
         {
           "id": "sparse-display-writer",
@@ -602,10 +602,10 @@
           "title": "Finish agent usage and recovery runbooks",
           "status": "completed",
           "scope": "Published agent usage and recovery contracts, loaded capability discovery and advisory planning. Routine provider/app/physical/capacity adoption is tracked in separate gates.",
-          "evidence": "Published runbook now includes bounded retained-input query and precise broad/filtered metadata semantics. Scope-matched oracle selection, checked verification callbacks and corrections with retained conflicting history are documented after actual failed/corrected consumers. Fresh adapter/CLI contracts verified; routine provider/app/physical/capacity gates stay separate.",
+          "evidence": "Published runbook now includes bounded retained-input query and precise broad/filtered metadata semantics. Scope-matched oracle selection, checked verification callbacks and corrections with retained conflicting history are documented after actual failed/corrected consumers. Fresh adapter/CLI contracts verified; routine provider/app/physical/capacity gates stay separate. Stage38 documents source versus reader storage limits, reference scenarios and explicit short-take coverage checks; loaded0.11.1/CLI agree without peer restart.",
           "next": "",
-          "anchor": "thirty-sixth-pass",
-          "updated_at": "2026-10-09T05:10:16-04:00"
+          "anchor": "thirty-eighth-pass",
+          "updated_at": "2026-10-09T05:49:48-04:00"
         },
         {
           "id": "visual-composition",
@@ -1615,6 +1615,37 @@
       "from": "active",
       "to": "active",
       "note": "Stage37 sustained330s Retina pair passed actual source pixels and35345 exact packet joins.327 fresh normal pressure/nominal thermal samples; owned resources settled, native unchanged/idle. Input Monitoring freshly allowed/listening; secure-input gap prevents a new keyboard claim.40 completed,17 partial,1 deferred. Continue scoped planning/storage and app/provider/physical acceptance."
+    },
+    {
+      "kind": "item",
+      "id": "resource-admission",
+      "at": "2026-10-09T05:47:53-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Actual330s Retina60 window/display pair passed35345 exact packets and decoded motion/stopped counters.327 fresh in-take normal pressure/nominal thermal samples; recorder0.12953cores/47.73MiB peakRSS.513.52MB video+22.63MB journals combined. Eight pressure/thermal guard checks passed; live guard inactive. Earlier point profiles retained. Stage38 CLI/fresh MCP0.11.1 publishes matched actual reference figures, separate recorder/fixture/WindowServer costs and duration-scaled byte/row/packet budget flags.10 targeted/adjacent checks and real MCP/CLI readbacks passed. One-hour reference scenario exceeds native and both reader budgets; no safe duration/disk/admission/P80 claim."
+    },
+    {
+      "kind": "item",
+      "id": "agent-runbooks",
+      "at": "2026-10-09T05:47:53-04:00",
+      "from": "completed",
+      "to": "completed",
+      "note": "Published runbook now includes bounded retained-input query and precise broad/filtered metadata semantics. Scope-matched oracle selection, checked verification callbacks and corrections with retained conflicting history are documented after actual failed/corrected consumers. Fresh adapter/CLI contracts verified; routine provider/app/physical/capacity gates stay separate. Stage38 documents source versus reader storage limits, reference scenarios and explicit short-take coverage checks; loaded0.11.1/CLI agree without peer restart."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T05:47:53-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Stage38 planning/storage guidance delivered via CLI/fresh MCP0.11.1:10 checks passed, actual reference figures match retained proof, explicit per-source/reader budget flags preserve unknown safe duration and app/capacity costs. Native unchanged/idle; no capture/UI/permission action.40 completed,17 partial,1 deferred. Continue remaining app/provider/physical and practical workload acceptance."
+    },
+    {
+      "kind": "item",
+      "id": "agent-runbooks",
+      "at": "2026-10-09T05:49:48-04:00",
+      "from": "completed",
+      "to": "completed",
+      "note": "Published runbook now includes bounded retained-input query and precise broad/filtered metadata semantics. Scope-matched oracle selection, checked verification callbacks and corrections with retained conflicting history are documented after actual failed/corrected consumers. Fresh adapter/CLI contracts verified; routine provider/app/physical/capacity gates stay separate. Stage38 documents source versus reader storage limits, reference scenarios and explicit short-take coverage checks; loaded0.11.1/CLI agree without peer restart."
     }
   ]
 }

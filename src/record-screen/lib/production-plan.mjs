@@ -1,5 +1,7 @@
 import { EngineError } from './client.mjs'
 import { fileURLToPath } from 'node:url'
+import { frameMapHealth } from './frame-map.mjs'
+import { inputQueryHealth } from './input-query.mjs'
 
 const evidencePath = fileURLToPath(new URL('../qualification/GATES.md', import.meta.url))
 
@@ -124,7 +126,75 @@ export function planProduction(args, status, windowResult = { windows: [], total
     representative_for_requested_app: false,
     resource_join: 'Approximate wall interval; observer monotonic clock is not capture clock',
   }
-  unknown.push('Encoder/GPU attribution, thermal plateau, longer-duration capacity and P80 production-time estimates are unqualified')
+  const measuredRetinaPairProfile = {
+    qualification: 'One authored 330-second Retina window/display pair with motion then static pixels; not capacity, thermal equilibrium, P80 or requested-app representativeness',
+    engine_build: 'f314bb340344', os_build: '25F80', display_scale: 2,
+    width: 2000, height: 1464, parent_width_points: 1000, parent_height_points: 732,
+    fps: 60, requested_duration_s: 330, input_enabled: false,
+    exact_muxed_samples: 35345, dropped_frames: 0, journal_rows_lost: 0,
+    moving_span_s: [306.28661132, 306.297736144], static_span_s: [22.963437182, 22.960603152],
+    resource_samples: 327, pressure_level: 1, thermal_state: 'nominal',
+    recorder_cpu_cores: 0.12952542734272976, recorder_peak_rss_mib: 47.734375,
+    fixture_cpu_cores: 0.10571337571180638, fixture_peak_rss_mib: 80.21875,
+    shared_windowserver_cpu_cores: 0.4554320295371804, shared_windowserver_peak_rss_mib: 127.890625,
+    process_attribution: 'Cumulative process observations; recorder CPU excludes fixture/WindowServer/GPU, and shared WindowServer work is not attributable solely to capture',
+    primary_video_bytes: 310959374, backup_video_bytes: 202558831,
+    primary_journal_bytes: 11037570, backup_journal_bytes: 11593393,
+    primary_journal_rows: 35725, backup_journal_rows: 37193,
+    primary_muxed_packets: 17671, backup_muxed_packets: 17674,
+    measured_source_journal_limit_bytes: 64 * 1024 * 1024,
+    evidence: evidencePath, evidence_section: 'Thirty-seventh pass',
+    representative_for_requested_app: false,
+    resource_join: 'Approximate wall interval; coarse ProcessInfo thermal, no GPU attribution or temperature measurement',
+  }
+  const retinaDifferences = []
+  if (a.redundancy !== 'window_display') retinaDifferences.push('different stream configuration')
+  if (a.fps !== 60) retinaDifferences.push('different fps')
+  if (a.duration_s !== 330) retinaDifferences.push('different duration_s')
+  if (a.input_enabled !== false) retinaDifferences.push('different input_enabled')
+  if (a.show_cursor !== false) retinaDifferences.push('different pointer setting')
+  // Inventory can identify a candidate parent backing scale; it cannot prove
+  // eventual child fitting, encoded geometry or the backup crop's coverage.
+  const containingDisplays = base?.frame ? displays.filter(d => d.frame &&
+    base.frame.x >= d.frame.x && base.frame.y >= d.frame.y &&
+    base.frame.x + base.frame.w <= d.frame.x + d.frame.w &&
+    base.frame.y + base.frame.h <= d.frame.y + d.frame.h) : []
+  const backingScale = containingDisplays.length === 1 ? containingDisplays[0].scale : null
+  if (a.max_width !== 0 || base?.frame?.w !== 1000 || base?.frame?.h !== 732 || backingScale !== 2) retinaDifferences.push('different or unobserved native parent geometry/scale')
+  if (status?.engine?.build !== measuredRetinaPairProfile.engine_build) retinaDifferences.push('different engine build')
+  const durationRatio = a.duration_s / measuredRetinaPairProfile.requested_duration_s
+  const primaryJournalScenario = Math.ceil(measuredRetinaPairProfile.primary_journal_bytes * durationRatio)
+  const backupJournalScenario = Math.ceil(measuredRetinaPairProfile.backup_journal_bytes * durationRatio)
+  const journalScenarioExceeds = primaryJournalScenario > measuredRetinaPairProfile.measured_source_journal_limit_bytes || backupJournalScenario > measuredRetinaPairProfile.measured_source_journal_limit_bytes
+  const mappingBounds = frameMapHealth(), inputBounds = inputQueryHealth()
+  const rowsBySource = { primary: Math.ceil(measuredRetinaPairProfile.primary_journal_rows * durationRatio), backup: Math.ceil(measuredRetinaPairProfile.backup_journal_rows * durationRatio) }
+  const packetsBySource = { primary: Math.ceil(measuredRetinaPairProfile.primary_muxed_packets * durationRatio), backup: Math.ceil(measuredRetinaPairProfile.backup_muxed_packets * durationRatio) }
+  const scenarioBudgetFlags = {
+    native_journal_bytes: journalScenarioExceeds,
+    source_reader_rows: Math.max(...Object.values(rowsBySource)) > Math.min(mappingBounds.max_rows, inputBounds.max_rows),
+    media_reader_packets: Math.max(...Object.values(packetsBySource)) > mappingBounds.max_packets,
+  }
+  const storageGuidance = {
+    qualification: 'Reference-scene linear duration scenario only; not a prediction, bound, disk-space reservation or admission decision',
+    reference: 'measured_retina_pair_profile', requested_duration_s: a.duration_s,
+    reference_settings_differences: retinaDifferences,
+    scenario_video_bytes: Math.ceil((measuredRetinaPairProfile.primary_video_bytes + measuredRetinaPairProfile.backup_video_bytes) * durationRatio),
+    scenario_journal_bytes_by_source: { primary: primaryJournalScenario, backup: backupJournalScenario },
+    scenario_journal_rows_by_source: rowsBySource, scenario_muxed_packets_by_source: packetsBySource,
+    consumer_bounds: { frame_mapping: { max_packets: mappingBounds.max_packets, max_rows: mappingBounds.max_rows, max_journal_bytes: mappingBounds.max_journal_bytes }, retained_input: { max_rows: inputBounds.max_rows, max_journal_bytes: inputBounds.max_journal_bytes } },
+    scenario_exceeds_budgets: scenarioBudgetFlags,
+    measured_per_source_journal_limit_bytes: measuredRetinaPairProfile.measured_source_journal_limit_bytes,
+    scenario_exceeds_measured_journal_limit: journalScenarioExceeds,
+    free_disk_bytes: null, disk_space_reserved: false, safe_continuous_duration_s: null,
+    assumptions: ['Same authored scene and both reference sources scaled linearly by duration only; actual app/input/geometry/fps can change costs substantially',
+      'No extrapolation of CPU, RSS, thermal equilibrium or production P80',
+      'Measured journal limit belongs to the measured engine build; inspect the actual source descriptor for every take',
+      'Consumer limits belong to this loaded adapter; its bounded readers can refuse a long source even if video is intact',
+      'A full/lost source journal does not imply video stopped; later metadata and event coverage can be missing'],
+    next: 'Check available disk space and live source bytes/max_bytes/rows_lost. For longer work choose explicit shorter takes at application checkpoints, preserve actual coverage and verify each source; this tool schedules no chunks or backup.',
+  }
+  if (Object.values(scenarioBudgetFlags).some(Boolean)) unknown.push('Requested duration exceeds source or consumer budgets in the reference-scene scenario; use explicit shorter takes or verify a different capture/telemetry budget. This is a scenario warning, not a predicted failure time.')
+  unknown.push('Actual encoded geometry, requested-app costs, disk availability, encoder/GPU attribution, thermal plateau, broader workload capacity and P80 production-time estimates remain unqualified')
   return {
     schema: 'record-screen-production-plan/v1', assessment_only: true, mutates: false,
     assessment: blocks.length ? 'needs_resolution' : 'candidate_requires_source_check',
@@ -139,7 +209,7 @@ export function planProduction(args, status, windowResult = { windows: [], total
       app_drawn_pointer: 'app content remains; capture pointer hiding does not remove it',
       text_caret: 'app content remains; capture pointer hiding does not remove it',
     },
-    resource_guidance: { unfinished_recordings: status?.capture_health?.recordings?.unfinished ?? null, quarantined_recordings: status?.capture_health?.recordings?.quarantined ?? null, configured_max_concurrent: status?.capture_health?.recordings?.max_concurrent ?? null, configured_limit_is_capacity: false, measured_profile: measuredProfile, measured_single_window_profile: measuredSingleWindowProfile, profile_differences: profileDifferences, duration_p80_s: null },
+    resource_guidance: { unfinished_recordings: status?.capture_health?.recordings?.unfinished ?? null, quarantined_recordings: status?.capture_health?.recordings?.quarantined ?? null, configured_max_concurrent: status?.capture_health?.recordings?.max_concurrent ?? null, configured_limit_is_capacity: false, measured_profile: measuredProfile, measured_single_window_profile: measuredSingleWindowProfile, measured_retina_pair_profile: measuredRetinaPairProfile, profile_differences: profileDifferences, retina_pair_profile_differences: retinaDifferences, storage_guidance: storageGuidance, duration_p80_s: null },
     recovery: ['Mark and preserve the disrupted interval plus exact journals', 'Trim or select independently verified alternative source coverage', 'Reshoot from an application checkpoint when replayable; preserve unrecoverable live gaps'],
     next: 'Verify actual native target and encoded source pixels, consult shared exact-environment facts, then explicitly schedule the chosen sources. This plan starts no recording and authorizes no UI.',
   }

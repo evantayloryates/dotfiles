@@ -1,5 +1,42 @@
 # Qualification update — October 9, 2026
 
+## Thirty-eighth pass: agents receive scoped storage and reader budgets
+
+Fresh MCP0.11.1 and CLI production-plan now publish the actual stage37 Retina
+pair profile alongside the prior50s pair/110s window points. CPU/RSS observations
+separate recorder, authored fixture and shared WindowServer; GPU and causal
+WindowServer attribution remain unknown. Candidate native parent scale is
+derived only when exactly one observed display contains the entire parent.
+No current inventory is treated as actual encoded child fitting or backup pixels.
+
+Reference-scene linear duration scenarios expose per-source journal bytes/rows
+and actual packet counts, with typed budget flags. The native measured64MiB
+journal limit is distinct from loaded reader250000-row/120000-packet limits;
+reader limits come from their exported health metadata, not an independent copy.
+One-hour scenario exceeds all three, while330s remains within the reference
+budgets. These are scenarios only: actual app/input/content/fps may differ.
+No predicted failure time, safe duration, disk-space measurement/reservation,
+CPU/RSS extrapolation or admission block is inferred. Full/lost journals can
+leave video intact while later metadata/events are missing; bounded consumers
+can refuse long sources independently. Explicit short takes at app checkpoints
+require actual source-coverage checks; this tool schedules/splits nothing.
+
+Ten focused/adjacent tests passed: prior mode/alignment/runtime/strict-request,
+MCP read-only/no-RPC invalid request and reconnect/no mutation replay, plus
+Retina reference/differences/ambiguous-scale/null-limit and long-budget-scenario
+checks. Fresh real MCP/CLI agree; published byte/row/packet/resource constants
+match saved stage37 actual proofs. Native target119 differs from the reference
+geometry and remains an unqualified passive source candidate. Native signed
+f314/PID35547 unchanged/idle; owned readers exited0, no new capture/UI/permission
+or peer restart. Evidence private gates-v38; loaded older peers may lack the
+new production_storage_guidance1 flag. Current CLI is available immediately.
+
+README and usage/recovery runbook explain practical budgets and unknowns.
+Resource admission remains partial: no broader requested-app/GPU/thermal/capacity
+or productionP80 claim. Checklist40completed,17partial,1deferred; goal active.
+Next qualify only a useful missing boundary, including ordinary per-app depth
+and actual provider/physical input; do not repeat the settled point captures.
+
 ## Thirty-seventh pass: sustained Retina pair and coarse thermal guard
 
 One owned310s motion cycle was recorded by simultaneous330s window and display

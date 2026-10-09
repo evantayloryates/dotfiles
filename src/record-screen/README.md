@@ -494,7 +494,7 @@ macOS asks again every 30 days. The re-confirm date lives in
 ## Capture foundations and qualification
 
 Start capture coordination with `production_plan` in a fresh MCP adapter
-(`status.mcp_adapter.production_planning: 1`, introduced in0.9.0; current0.11.0), or the immediately
+(`status.mcp_adapter.production_planning: 1`, introduced in0.9.0; current0.11.1), or the immediately
 available CLI:
 
 ```sh
@@ -547,7 +547,8 @@ input telemetry. It kept 2,371 exact samples with no drops, measured about
 do not establish attributable GPU/thermal cost, app representativeness,
 long-duration capacity or P80 timing. Even matching settings leave the requested
 app unqualified. Configured `max_concurrent:16` remains a limit, not capacity.
-The plan keeps P80 null and reports profile differences without extrapolation.
+The plan keeps P80 null and reports profile differences without projecting
+CPU, RSS, thermal equilibrium or requested-app capacity.
 
 The additional single-window benchmark covers a 110-second 1000×732/30fps take:
 3,221 exact source/mux samples, about 89 seconds of changing authored pixels
@@ -555,12 +556,39 @@ followed by 20 seconds matching the logged stopped counter. It measured about
 0.052 recorder CPU cores/49.1MiB peak RSS and a 15.3MB file under warning pressure.
 The 109 wall-joined resource observations are approximate; their monotonic clock
 is separate. This is mixed-scene cost, not GPU/thermal capacity, requested-app
-representativeness or P80. Both profiles give an absolute evidence path/section.
+representativeness or P80. Profiles give an absolute evidence path/section.
+
+Fresh adapter0.11.1 also reports `production_storage_guidance:1` and the measured
+330s2000×1464/requested60fps window/display pair:35345 exact packets,327 fresh
+normal-pressure/nominal-coarse-thermal samples,0.12953 recorder CPU cores and
+47.73MiB peakRSS. Separate fixture/shared WindowServer observations are exposed;
+recorder CPU excludes those processes and GPU work, while shared WindowServer
+cost cannot be attributed solely to capture. Actual combined storage was
+513518205 video bytes plus22630963 journal bytes. Matching parent dimensions,
+scale, settings and native build remain only a candidate geometry match; actual
+child fitting, backup crop, requested-app costs and encoded source must be checked.
+
+`resource_guidance.storage_guidance` scales this reference scene's bytes, rows
+and packets by requested duration as a **scenario**, never a prediction or bound.
+It reports typed flags against the measured64MiB per-source native journal limit
+and this adapter's250000-row/120000-packet reader limits. Different requested
+settings are explicit; input density and content can change actual costs.
+A one-hour reference scenario exceeds all three budgets. It is a warning, not
+a predicted failure time, safe maximum take length or capture admission block.
+Free disk space and safe continuous duration remain null; no space is reserved.
+
+Check actual disk availability and each source's `bytes`, `max_bytes`,
+`rows_lost`, completeness and errors. Source journal exhaustion can leave video
+running while later metadata/events are missing. Bounded readers can refuse a
+long source even if the video is intact. Plan explicit shorter takes at useful
+application checkpoints and verify actual coverage at the joins; the plan does
+not automatically split recordings, invent overlaps or schedule backups.
 
 The opt-in qualification sampler can stop only explicit owned recordings after
-session/state checks if fresh critical pressure appears. Four fake-engine checks
-cover mismatch, already settled takes, lost replies without replay and stale
-pressure. Live guard did not fire. This is neither automatic service admission
+session/state checks if fresh critical pressure or serious/critical coarse
+thermal state appears. Eight fake-engine checks cover mismatch, settled takes,
+lost replies without replay, stale pressure and thermal identity/freshness/file
+boundaries. Live guard did not fire. This is neither automatic service admission
 nor a user-input lock; stop latency and natural pressure recovery remain unknown.
 
 When disturbed, mark and preserve the interval/journals, trim or select only

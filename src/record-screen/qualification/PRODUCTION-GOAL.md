@@ -1,5 +1,16 @@
 # Production qualification goal
 
+Stage38 checkpoint: production-plan CLI/fresh MCP0.11.1 exposes the measured
+Retina pair, separate process observations and reference-duration storage/reader
+budget flags.10 targeted/adjacent tests and fresh real MCP/CLI passed; constants
+match saved actual stage37 source/resource evidence. One-hour scenario flags
+native journal bytes and both reader row/packet budgets; no safe-duration,
+prediction, free-space, reservation or admission claim. README/runbook updated;
+native f314/PID35547 unchanged/idle, owned reader exited0, no capture/UI/grant or
+peer restart. Resource admission remains partial;40completed,17partial,1deferred.
+Goal active. Next address a missing app/provider/physical or practical budget
+boundary with fresh evidence; preserve the settled captures and uncertain gaps.
+
 Stage37 checkpoint: actual330s Retina60 window/display pair passed35345 exact
 mux/source packets and decoded moving/stopped counters.327 fresh in-take
 pressure/thermal samples normal/nominal; recorder0.12953cores/47.73MiB peakRSS,
