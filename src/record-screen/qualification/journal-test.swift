@@ -89,6 +89,15 @@ final class BlockedSink: @unchecked Sendable {
     let geometry = SourceJournal.geometry([.screenRect:CGRect(x:-217,y:-1080,width:800,height:600),
       .contentRect:CGRect(x:10,y:20,width:800,height:600),.scaleFactor:1,.contentScale:0.5],pixels:[400,300])
     check(geometry["desktop_points_to_source_pixels"] as? [Double] == [0.5,0,0,0.5,118.5,560], "negative origin transform arithmetic")
+    check(geometry["bounding_points"] is NSNull, "absent bounding attachment stays unknown")
+    let bounded = SourceJournal.geometry([.screenRect:CGRect(x:-217,y:-1080,width:800,height:600),
+      .contentRect:CGRect(x:10,y:20,width:800,height:600),.boundingRect:CGRect(x:0,y:0,width:440,height:600),
+      .scaleFactor:1,.contentScale:0.5],pixels:[400,300])
+    let encodedBounds = try JSONSerialization.jsonObject(with: JSONSerialization.data(withJSONObject: bounded)) as! [String:Any]
+    let surfaceBounds = encodedBounds["bounding_points"] as! [String:NSNumber]
+    check(surfaceBounds["x"]?.doubleValue == 0 && surfaceBounds["y"]?.doubleValue == 0 &&
+      surfaceBounds["w"]?.doubleValue == 440 && surfaceBounds["h"]?.doubleValue == 600, "frame surface bounds retained separately")
+    check(bounded["desktop_points_to_source_pixels"] as? [Double] == geometry["desktop_points_to_source_pixels"] as? [Double], "surface bounds never guessed as a desktop origin")
     let unknown = SourceJournal.geometry([:],pixels:[])
     check(unknown["desktop_points_to_source_pixels"] is NSNull, "missing geometry never invented")
     print("{\"passed\":\(checks),\"scope\":\"bounded asynchronous ledger, overflow/byte-cap gaps, private publication, exact clocks and candidate transform arithmetic; no SDK capture\"}")

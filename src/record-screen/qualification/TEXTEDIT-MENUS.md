@@ -80,3 +80,22 @@ pass. Two fitted frames guarded, three restored/app/original maps available;
 6457 existing packet joins preserved, five manifest hashes unchanged, MCP reader
 exit0/native PID unchanged.45 completed/16 partial/1 needs retest/1 deferred.
 Guard complete in written scope; accurate fitted child origin remains open.
+
+## Stage57 child-union origin checkpoint
+
+Authored above-left panel pair1563 exact joins diagnoses missing desktop origin:
+raw surface bounding/content extent starts0, while screenRect remains parent.
+Original parent affine misses227.714px; independent union oracle0.467px and
+far markers<=1.025px. App-source markers exact across selected phases. This is
+source QA with authored bounds, not a corrected generic fitted map. Current
+fitted guard stays complete; standalone accurate fitted-origin gate remains open.
+
+Signed89a450504bfe/PID10518 metadata artifact delivered once through idle fence,
+96 prior state hashes unchanged;128 native journal checks and fresh MCP0.12.2
+installed4-join raw-bounds canary pass. Wrong session_close MCP name refused;
+actual session_update close/readback settles same session without another take.
+Four verified/cleanupcomplete outcomes/uncovered0; two scoped facts read back.
+Own fixture/private engine/readers/sessions settled; no input/permission/peer UI.
+45completed16partial1needsretest1deferred. Goal active. Next: service-owned paired
+backup map with exact source coverage using retained media. Do not guess union
+origin from surface bounds or repeat passing captures. Composition deferred.

@@ -1,12 +1,22 @@
 # Recorder-owned source journal v1
 
-Native build f314bb340344 is delivered; qualified scope and remaining limits are
+Native build 89a450504bfe is delivered; qualified scope and remaining limits are
 in the qualification report. Loaded capability readback remains authoritative.
 Use MCP `recording_source` or CLI `record-screen record-source <recording_id>`.
 Socket consumers negotiate `status.capabilities.source_journal == 1`, then call
 `record.source`. Legacy footage returns no source packet. The MCP refuses an
 old engine explicitly. Replies contain paths and compact diagnostics, never
 bulk frame rows.
+
+Current geometry segments optionally retain `bounding_points` from the same
+SCK frame's `boundingRect` attachment. These are output-surface points, separate
+from `screen_points` and the candidate desktop affine. Absence remains null;
+older recordings have no field. A fitted child union can change this extent
+while `screen_points` remains anchored to the parent. Neither attachment alone
+establishes the child's desktop union origin. Stage57's authored above-left
+panel diagnoses that missing origin with actual encoded markers; the service
+keeps the fitted-child projection guard. Do not replace a desktop origin with
+the raw surface bound or claim a corrected map from its presence.
 
 ### Primary media lookup without consumer synchronization code
 

@@ -1,5 +1,75 @@
 # Qualification update — October 9, 2026
 
+## Fifty-seventh pass: frame-bound footprint diagnosis and delivered metadata
+
+Previous turn was progress: real fitted-menu pixel failure led to a service guard.
+No whole-phase reset. Signed private candidate89a450504bfe adds optional raw
+bounding_points from each SCK frame's boundingRect attachment. Apple describes
+it as a frame bounding rectangle; installed SDK defines output-surface points,
+not a desktop union anchor. Official source: https://developer.apple.com/documentation/screencapturekit/scstreamframeinfo/boundingrect.
+
+A previously absent owned Bounds Qualification1.0/build57 fixture opens an
+attached panel ABOVE and LEFT of its parent through native CUA. No input capture,
+CG synthesis, input lock or peer UI. Parent(120,430,600,392), child(40,270,180,140),
+known fixed markers and exact app-delivered lifecycle. Two90s native2x sources:
+isolated childtrue rec_gf87ejyt892 actual frames, full-app rec_c5wnptvs671;
+1563 exact mux/source joins, zero reported encoder drops or journal row loss.
+Selected encoded before/open/closed samples retain green child only during open.
+Actual callback cadence is not the requested10fps; held samples remain labeled.
+
+Open window content_scale0.7101449370. SCK screen_points remains the parent,
+while bounding_points/content_points both(0,0,482.898557,392.000005) describe the
+fitted surface extent. Original desktop affine misses the known parent center
+by227.713786px. Independently known desktop union(40,270,680,552) predicts the
+center within0.466596px. This is an authored oracle correction, NOT a corrected
+service transform. Surface bounds alone cannot be substituted for desktop origin.
+The same app source's parent center is exact in all three selected phases.
+
+PID5464/window10445 oracle scopes match both source manifests, with fixed parent
+bounds at each recorded lifecycle. Ten additional far-corner parent/child palette
+checks reuse existing decoded PNGs, maximum1.025064px under the independently
+known union map; all app-source palette checks exact. No decoder/capture replay.
+This diagnoses a missing child-union origin and qualifies this full-app fallback
+for the selected samples. It does not prove arbitrary app/menu tracking or dense
+whole-shot rescue. Current CLI/fresh MCP0.12.2 fitted guard remains active.
+
+Final128 native asynchronous-journal/metadata checks pass. Initial helper compile
+failed before execution; exact stderr not retained. Correct frozen full-input
+command compiles. An offline assertion incorrectly cast CGFloat rect fields as
+Double and failed; serialized JSON-number contract then passes. This was an
+assertion in the test executable, not a recorder or WindowServer crash. The first
+pixel diagnostic used an outdated verifier return shape; retained sources reused
+after correction. No re-recording or broad rollback.
+
+Exact signed artifact89a450504bfe (binarySHA1afca14882675c0c2e5885d06f38f8016513bf392180029dd15ffc03a30fb161)
+was copied into verified build cache and delivered once through the idle fence,
+without recompilation. InstalledPID10518, sourceSHA89a450504bfea017d7c5006a2592bf3346cb83cde8e012ea290afb7aa0907cda;
+all96 pre-stage session/recording JSON hashes unchanged. Fresh MCP0.12.2 actual
+2s16pt passive canary rec_6wftubfr has4 exact joins and raw16pt bounding attachment.
+Existing Screen Recording grant observed; no Input Monitoring/delivered-event
+coverage claimed from this input-disabled take. First script requested nonexistent
+MCP session_close after source/map passed. Correct session_update(state:closed)
+and session_show readback settle ses_xh97mury, no recapture. Both MCP readersexit0.
+
+Four terminal native scopes have separate verified/cleanupcomplete outcomes,
+zero uncovered receipts. Two exact-entity app-map pass/origin failure facts read
+back centrally. Owned fixture5464 absent after single Quit despite immediate UI
+inventory lag; terminal oracle preserved. Private engine5176 exited0 on single
+owned SIGTERM after both sources terminal/session closed. State/source/video
+archived excluding only Unix socket; originals retained. Installed recorder idle,
+lanes/unfinished/input subscribers0, no new permission or other agent restart.
+
+45 completed,16 partial,1 needs retest,1 deferred. Accurate fitted-origin mapping
+remains open; guard remains completed in its written scope. Next high-impact lane:
+service-owned paired backup mapping with exact host/source references and explicit
+coverage, using retained paired footage. That can supply an accurate source when
+primary fitting is unqualified, without inventing a desktop origin from surface
+bounds. Full-shot recovery, physical/provider, capacity and ordinary adoption
+still require their remaining gates. Composition recipes/rendering deferred.
+Private evidence: this chat capture-qualification-2026-10-08/gates-v57, including
+bounds-source-proof.json, oracle-scope-corners-proof.json, journal-test.json,
+production-preservation-proof.json, installed-summary.json and audit.json.
+
 ## Fifty-sixth pass: real menu fitting passes pixels, but fitted coordinates fail
 
 Installed25bdf541968a/PID75812 unchanged. Previously absent TextEdit1.20/415

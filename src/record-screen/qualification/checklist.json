@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T12:34:45-04:00",
+  "updated_at": "2026-10-09T12:57:05-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage56 verifies9066 exact video/source joins and real menu fitting, then delivers a guard for its disproven coordinate map. Current CLI/fresh MCP0.12.2 withhold fitted child projections while preserving raw geometry, exact joins and normal mappings;14 focused tests pass.45 completed,16 partial,1 needs retest,1 deferred. Continue precise fitted-origin mapping and remaining high-impact gates; no replay or rollback."
+    "note": "Stage57 diagnoses the fitted child-union origin with1563 exact paired joins and scoped marker proof, and delivers optional frame-bound surface bounds. Surface bounds cannot establish desktop origin; the fitted guard stays active.128 focused native checks and installed4-join metadata canary pass,96 prior state hashes unchanged.45 completed,16 partial,1 needs retest,1 deferred. Next: service-owned backup-source mapping from retained paired evidence."
   },
-  "production_note": "Signed native25bdf541968a/PID75812 unchanged and idle. Current CLI and fresh MCP0.12.2 verified fitted_child_mapping_guard:1 on retained real footage; old loaded chat MCP adoption remains unconfirmed. Fitted isolated child-window projections are explicitly withheld; exact time joins/raw geometry preserved. Use independently qualified full-app source for this tall-menu lane; corrected fitted-origin mapping and whole-shot recovery remain open.",
+  "production_note": "Signed native89a450504bfe/PID10518 installed from the exact tested artifact through idle fence;96 prior session/recording JSON hashes unchanged. Frame-bound bounding_points and fresh MCP0.12.2 installed tiny source/map proof pass. Fitted child projections remain withheld, corrected union origin unqualified. Owned apps/engines/readers/sessions settled; ordinary older-chat adapter adoption and physical/provider/capacity/full recovery gates remain open.",
   "groups": [
     {
       "id": "capture",
@@ -106,10 +106,10 @@
           "title": "Prove a useful overflow capture and recovery path",
           "status": "partial",
           "scope": "Qualified padded-display and separate-popup paths plus guarded optional fixed-crop app-only lane. Whole-shot recovery and broader app/menu behavior remain open.",
-          "evidence": "Stage56 small-parent context stack and912point typeface viewport retained in actual app/window sources; four recordings9066 exact joins. Fixed window source shrinks, then restores for236point popup; fitted affine failed known text crop while restored parent passes. Earlier occlusion/typeface evidence preserved.",
-          "next": "Repair the separately tracked fitted map; qualify useful continuous whole-shot/menu recovery without replaying passed source scenes.",
-          "anchor": "fifty-sixth-pass",
-          "updated_at": "2026-10-09T12:29:45-04:00"
+          "evidence": "Stage57 paired1563 exact joins: authored above-left child is retained in both sources, app parent/child marker maps exact in sampled before/open/closed phases. Fitted primary misses227.7px; oracle union explains it but is not automatic correction. Earlier real menus, cover and writer proofs retained.",
+          "next": "Qualify service-owned paired-source recovery references and continuous useful coverage using retained footage; preserve fitted guard and existing static/real-menu passes.",
+          "anchor": "fifty-seventh-pass",
+          "updated_at": "2026-10-09T12:57:05-04:00"
         },
         {
           "id": "clean-source",
@@ -152,10 +152,10 @@
           "title": "Verify the source journal against actual encoded packets",
           "status": "completed",
           "scope": "Recorder-owned exact timing, geometry segments, held/dropped references and explicit gaps.",
-          "evidence": "Earlier exact timing, held/drop, color and explicit gap proofs retained. Installed dynamic child pair adds896 exact packet timestamps and per-encoded-frame geometry joins with correct marker pixels. Actual loaded MCP source readback matched448 frames and zero-loss closed journal.",
+          "evidence": "Stage57 signed optional bounding_points retains same-frame surface extent separately from desktop affine; final128 journal checks and installed4 actual source/mux joins pass. Legacy field absence remains unknown. Surface extent does not supply missing child-union desktop origin.",
           "next": "",
-          "anchor": "thirty-third-pass",
-          "updated_at": "2026-10-09T04:08:20-04:00"
+          "anchor": "fifty-seventh-pass",
+          "updated_at": "2026-10-09T12:57:05-04:00"
         },
         {
           "id": "primary-frame-map",
@@ -222,10 +222,10 @@
           "title": "Qualify coordinates when real child menus change source fitting",
           "status": "needs_retest",
           "scope": "Actual child-enabled isolated window with above/below-parent popup fitting, including scale and source origin changes. Existing static/fixture maps retain their proven scope.",
-          "evidence": "Stage56 tall TextEdit menu: source scale0.27631578; declared known text crop glyphIoU0.02494. Same method final scale1 parent passes0.98763. Exact timestamps pass9066 joins; candidate affine arithmetic is insufficient pixel evidence. Current CLI/fresh MCP0.12.2 now withhold this unqualified fit; accurate replacement map remains open.",
-          "next": "Investigate and qualify the corrected child-union origin using retained paired pixels; preserve the completed service guard and normal maps.",
-          "anchor": "fifty-sixth-pass",
-          "updated_at": "2026-10-09T12:34:45-04:00"
+          "evidence": "Stage57 above-left child diagnostic: original parent affine error227.714px; independent known union gives0.467px at parent center and <=1.025px at sampled far markers. SCK surface bounds origin0 do not provide that desktop union. App source maps selected markers exactly; current guard preserved.",
+          "next": "Build service-owned backup-source mapping/coverage from retained paired media; precise standalone fitted union still needs independent frame-bound origin or validated registration.",
+          "anchor": "fifty-seventh-pass",
+          "updated_at": "2026-10-09T12:57:05-04:00"
         },
         {
           "id": "fitted-mapping-guard",
@@ -546,10 +546,10 @@
           "title": "Verify the quality of recent shared computer-use workflows",
           "status": "partial",
           "scope": "Assess delivered actions, verification and cleanup rather than tool-call counts.",
-          "evidence": "Stage56 nine native scopes with nine separately verified/cleanupcomplete outcomes and zero uncovered receipts. Six captured updates plus four Escape transitions; AX openings need semantic/source evidence. Ignored session.update state caught by readback, actual close then verified; owned file unchanged/PID absent.",
-          "next": "Extend ordinary provider integration and loaded-consumer adoption; preserve actual verification and source coverage rather than trusting terminal replies.",
-          "anchor": "fifty-sixth-pass",
-          "updated_at": "2026-10-09T12:29:45-04:00"
+          "evidence": "Stage57 four native scopes with separate four verified/cleanupcomplete outcomes,0uncovered. Owned fixture/private engine absent/session closed; installed source passed before nonexistent MCP session_close refusal, then actual session_update close/readback settled same take without replay.",
+          "next": "Extend ordinary provider integration and loaded-consumer adoption; preserve destination/oracle matching and separate verification/cleanup rather than accepting tool names or terminal status as proof.",
+          "anchor": "fifty-seventh-pass",
+          "updated_at": "2026-10-09T12:57:05-04:00"
         },
         {
           "id": "receipt-integration",
@@ -632,10 +632,10 @@
           "title": "Smoke-test real capture and consumers after installation",
           "status": "completed",
           "scope": "Installed passive capture and source/export/time-map consumers, persisted-history recovery and owned cleanup. Tiny static smoke only; motion/menu/input/capacity stay in their existing gates.",
-          "evidence": "Earlier installed source/export/time-map proof retained. New f314bb340344 installed10s owned-window take supplied48 exact mux/source samples; existing loaded MCP returned held/protected-gap fields. Fresh listening access true, protected-input omission explicit;7 earlier media/state files unchanged and owned cleanup verified.",
+          "evidence": "Stage57 exact signed89a450504bfe/PID10518 delivered through idle fence;96 prior state hashes unchanged. Fresh MCP0.12.2 passive16pt2s canary4 exact joins with new raw bounding_points, no input capture. Existing session closed/read back after wrong tool-name refusal; readers exit0, recorder idle.",
           "next": "",
-          "anchor": "thirtieth-pass",
-          "updated_at": "2026-10-09T02:57:39-04:00"
+          "anchor": "fifty-seventh-pass",
+          "updated_at": "2026-10-09T12:57:05-04:00"
         },
         {
           "id": "mcp-replay-boundary",
@@ -2231,6 +2231,46 @@
       "from": "partial",
       "to": "partial",
       "note": "Stage56 nine native scopes with nine separately verified/cleanupcomplete outcomes and zero uncovered receipts. Six captured updates plus four Escape transitions; AX openings need semantic/source evidence. Ignored session.update state caught by readback, actual close then verified; owned file unchanged/PID absent."
+    },
+    {
+      "at": "2026-10-09T12:57:05-04:00",
+      "kind": "item",
+      "id": "overflow-recovery",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage57 paired1563 exact joins: authored above-left child is retained in both sources, app parent/child marker maps exact in sampled before/open/closed phases. Fitted primary misses227.7px; oracle union explains it but is not automatic correction. Earlier real menus, cover and writer proofs retained."
+    },
+    {
+      "at": "2026-10-09T12:57:05-04:00",
+      "kind": "item",
+      "id": "source-journal",
+      "from": "completed",
+      "to": "completed",
+      "note": "Stage57 signed optional bounding_points retains same-frame surface extent separately from desktop affine; final128 journal checks and installed4 actual source/mux joins pass. Legacy field absence remains unknown. Surface extent does not supply missing child-union desktop origin."
+    },
+    {
+      "at": "2026-10-09T12:57:05-04:00",
+      "kind": "item",
+      "id": "fitted-child-mapping",
+      "from": "needs_retest",
+      "to": "needs_retest",
+      "note": "Stage57 above-left child diagnostic: original parent affine error227.714px; independent known union gives0.467px at parent center and <=1.025px at sampled far markers. SCK surface bounds origin0 do not provide that desktop union. App source maps selected markers exactly; current guard preserved."
+    },
+    {
+      "at": "2026-10-09T12:57:05-04:00",
+      "kind": "item",
+      "id": "workflow-audit",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage57 four native scopes with separate four verified/cleanupcomplete outcomes,0uncovered. Owned fixture/private engine absent/session closed; installed source passed before nonexistent MCP session_close refusal, then actual session_update close/readback settled same take without replay."
+    },
+    {
+      "at": "2026-10-09T12:57:05-04:00",
+      "kind": "item",
+      "id": "installed-smoke",
+      "from": "completed",
+      "to": "completed",
+      "note": "Stage57 exact signed89a450504bfe/PID10518 delivered through idle fence;96 prior state hashes unchanged. Fresh MCP0.12.2 passive16pt2s canary4 exact joins with new raw bounding_points, no input capture. Existing session closed/read back after wrong tool-name refusal; readers exit0, recorder idle."
     }
   ]
 }

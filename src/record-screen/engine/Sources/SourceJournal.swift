@@ -196,7 +196,7 @@ final class SourceJournal: @unchecked Sendable {
       if let d = info[key] as? NSDictionary { return CGRect(dictionaryRepresentation: d) }
       return nil
     }
-    let screen = rect(.screenRect), content = rect(.contentRect)
+    let screen = rect(.screenRect), content = rect(.contentRect), bounds = rect(.boundingRect)
     let scale = (info[.scaleFactor] as? NSNumber)?.doubleValue
     let shrink = (info[.contentScale] as? NSNumber)?.doubleValue
     var matrix: Any = NSNull()
@@ -209,6 +209,7 @@ final class SourceJournal: @unchecked Sendable {
     }
     return ["screen_points": screen.map(rectDict) as Any? ?? NSNull(),
             "content_points": content.map(rectDict) as Any? ?? NSNull(),
+            "bounding_points": bounds.map(rectDict) as Any? ?? NSNull(),
             "scale_factor": scale as Any? ?? NSNull(), "content_scale": shrink as Any? ?? NSNull(),
             "source_pixels": pixels, "desktop_points_to_source_pixels": matrix,
             "transform_qualification": "candidate_sck_affine; fixture-qualified only on tested geometry"]
