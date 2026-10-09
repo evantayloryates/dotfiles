@@ -1,6 +1,6 @@
 # Capture foundations: qualified strategy and remaining boundaries
 
-Current checkpoint: October9,2026, stage82. Signed native6c238cc1ba80 is installed;
+Current checkpoint: October9,2026, stage83. Signed native6c238cc1ba80 is installed;
 current CLI and fresh owned MCP0.18/27 tools carry the latest contracts. Existing
 ordinary chat exposes22 older tools, so use current CLI for missing input queries,
 source maps, planning and declaration-only launch contexts. Preserve peer servers.
@@ -314,3 +314,10 @@ explicit ArrowRight down/up target/trust, separate from OS telemetry and video
 clock. Opening scope expired at handoff and remains interrupted/unknown;2later
 operations verified,3cleanupcomplete/uncovered0. No capture/listener/native menu
 proof. Preserve stage79 global-tap coverage failure and historical unknown outcome.
+
+Stage83 retained RGB anchor experiment: same seven phase images/fixed anchors
+produce gray0/7 candidates vs RGB4/7, all4heldout<=0.506px (two fitted). Three
+ambiguous titles remain refused at unchanged thresholds.26 focused checks and
+actual CLI parity/invalid-mode refusal pass. No production source map override;
+next bind exact frames and independent verification in the service rather than
+retune failed anchor cases or infer missing origins from metadata.

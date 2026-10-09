@@ -59,12 +59,31 @@ correlations differ; this is spatial support, not pixel equality. A mismatched
 real backup keeps strong parent matches but refuses on child ambiguity/disagreement.
 The initial lower-child anchor still refuses. Production fitted-origin
 guard and legacy-clock limits remain unchanged; do not loosen thresholds to
-force a map. `register-paired-anchors-test.py` has21 authored acceptance/refusal
+force a map. `register-paired-anchors-test.py` has26 authored acceptance/refusal
 checks, including repeated scene ambiguity, missing content, inconsistent
 anchors, wrong scale, overlapping anchors, allocation budgets and fresh-file
 preservation, phase trial bounds, expanded-crop independence and default output.
 Run with the same NumPy/Pillow Python runtime. One three-anchor CLI took2.69s/
 156.48MiB maximum RSS; that is observed offline cost, not production P80/capacity.
+
+Optional `"feature_mode":"rgb"` preserves channel differences using per-channel
+centered normalized correlation. Default `gray` output is unchanged. RGB keeps
+the same search/template/FFT-cell, score, margin and spread limits, using up to
+three sequential channel correlations per trial. Color differences can distinguish lookalikes
+that have identical grayscale structure; this is not colorimetric accuracy.
+Stage83 fixes one actual issue on seven retained stage68 phases with the same
+two anchors: gray refuses7/7, RGB returns4candidates (baseline, above, corner,
+restored). All4pass a separate blue-marker check, maximum0.506px against1.25px.
+Right/left/below still refuse on title ambiguity; thresholds stay unchanged.
+Only two accepted frames are fitted; the other two are baseline/restoration.
+Fourteen input image hashes stay unchanged. CLI all fields agree with library,
+invalid feature mode refuses before image read, and26focused tests pass. Seven
+phase probes took2.086s gray/5.974s RGB on this host; no RSS/GPU/P80/capacity claim.
+These are static anchors at separately sampled times in stable authored phases,
+not continuous, atomic paired-frame, real-menu or production-map qualification.
+Do not keep retuning the three refused cases; the next useful work is binding
+accepted registrations and independent verification to actual service frame
+identities while preserving refusal and the fitted-source guard.
 
 `paired-map.test.mjs` checks exact two-source interval joins, dense backup across
 held primary packets and whole-interval named-region durations independent of

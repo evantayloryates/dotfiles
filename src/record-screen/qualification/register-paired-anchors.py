@@ -85,7 +85,40 @@ def match(image, template):
             'template_pixels': [w, h], 'search_positions': int(score.size), 'fft_pixels': math.prod(shape)}
 
 
-def register(primary, backup, primary_scale, backup_affine, anchors, sampling='single'):
+def match_rgb(image, template):
+    """Per-channel-centered RGB NCC; sequential FFTs preserve the cell budget."""
+    H, W, channels = image.shape; h, w, other = template.shape
+    if channels != 3 or other != 3:
+        raise ValueError('RGB arrays required')
+    if H*W > MAX_SEARCH_PIXELS or not 16 <= h <= 256 or not 16 <= w <= 512 or h > H or w > W:
+        return {'available': False, 'reason': 'search_or_anchor_budget'}
+    centered = template.astype(np.float64) - template.mean(axis=(0,1), dtype=np.float64)
+    energy = float((centered*centered).sum())
+    if energy/(h*w*3) < 100:
+        return {'available': False, 'reason': 'anchor_texture_insufficient'}
+    shape = tuple(1 << (n-1).bit_length() for n in (H+h-1, W+w-1))
+    if math.prod(shape) > MAX_FFT_PIXELS:
+        return {'available': False, 'reason': 'fft_budget'}
+    numerator = np.zeros((H-h+1,W-w+1),dtype=np.float64)
+    variance = np.zeros_like(numerator)
+    for channel in range(3):
+        plane = image[:,:,channel]
+        numerator += np.fft.irfft2(np.fft.rfft2(plane,s=shape)*np.fft.rfft2(centered[::-1,::-1,channel],s=shape),s=shape)[h-1:H,w-1:W]
+        mean_sum = sums(plane,h,w)
+        variance += np.maximum(0,sums(plane.astype(np.float64)**2,h,w)-mean_sum**2/(h*w))
+    denominator = np.sqrt(variance*energy)
+    score = np.divide(numerator,denominator,out=np.full(numerator.shape,-1.0),where=denominator>1e-6)
+    score = np.clip(score,-1,1)
+    y,x = np.unravel_index(np.argmax(score),score.shape);best=float(score[y,x])
+    score[max(0,y-5):y+6,max(0,x-5):x+6]=-1
+    return {'available':True,'location_px':[int(x),int(y)],'score':best,
+            'alternative_score':float(score.max()),'peak_margin':best-float(score.max()),
+            'template_pixels':[w,h],'search_positions':int(score.size),'fft_pixels':math.prod(shape),'channels':3}
+
+
+def register(primary, backup, primary_scale, backup_affine, anchors, sampling='single', feature_mode='gray'):
+    if feature_mode not in ('gray', 'rgb'):
+        raise ValueError('feature_mode must be gray or rgb')
     if sampling not in ('single', 'quarter_phase'):
         raise ValueError('sampling must be single or quarter_phase')
     if not finite_number(primary_scale) or not .05 <= primary_scale <= 8:
@@ -104,7 +137,7 @@ def register(primary, backup, primary_scale, backup_affine, anchors, sampling='s
         raise ValueError('source pixel budget exceeded')
     if primary.mode != 'RGB' or backup.mode != 'RGB':
         raise ValueError('RGB source images required')
-    results = []; image = gray(primary)
+    results = []; image = gray(primary) if feature_mode == 'gray' else np.asarray(primary,dtype=np.float32)
     for anchor in anchors:
         x,y,w,h = (anchor[k] for k in ['x','y','w','h'])
         box = (a*x+tx, d*y+ty, a*(x+w)+tx, d*(y+h)+ty)
@@ -128,7 +161,7 @@ def register(primary, backup, primary_scale, backup_affine, anchors, sampling='s
                         trials.append({'available':False,'reason':'backup_anchor_clipped'});continue
                     sampled_bounds[2] = max(sampled_bounds[2],sx+sw);sampled_bounds[3] = max(sampled_bounds[3],sy+sh)
                     template = backup.transform(size, Image.Transform.EXTENT, trial_box, Image.Resampling.BICUBIC)
-                    trial = match(image,gray(template))
+                    trial = match(image,gray(template)) if feature_mode == 'gray' else match_rgb(image,np.asarray(template,dtype=np.float32))
                     if trial['available']:
                         trial['translation_candidate_px'] = [trial['location_px'][0]-primary_scale*sx,trial['location_px'][1]-primary_scale*sy]
                         if sampling != 'single':trial.update(sampling_method=method,template_phase_px=[px,py])
@@ -167,6 +200,9 @@ def register(primary, backup, primary_scale, backup_affine, anchors, sampling='s
                       'Matching texture and two agreeing anchors do not prove full-frame or continuous alignment.',
                       'Legacy/different-process clocks remain unqualified; no provenance backfill.',
                       'Only positive isotropic translation is supported; no fitted union or occluded/missing content invented.']}
+    if feature_mode != 'gray':
+        output['feature_mode'] = feature_mode
+        output['limits'].append('RGB NCC keeps channel differences but does not establish colorimetric fidelity or calibrated match probabilities; three sequential channel correlations per trial (two forward FFTs and one inverse FFT per channel).')
     if sampling != 'single':
         output.update(sampling=sampling,max_sampling_trials_per_anchor=32)
         output['limits'].append('Phase/density hypotheses are bounded; trial-crop extents must remain independent. Match scores are not calibrated probabilities.')
@@ -185,11 +221,12 @@ def main():
             config=json.loads(content)
     finally:os.close(fd)
     required={'primary_image','backup_image','primary_scale','backup_affine','anchors'}
-    if not isinstance(config,dict) or not required <= set(config) or not set(config) <= required | {'sampling'}:raise ValueError('explicit images, scale, affine and anchors required')
+    if not isinstance(config,dict) or not required <= set(config) or not set(config) <= required | {'sampling','feature_mode'}:raise ValueError('explicit images, scale, affine and anchors required')
     if any(not isinstance(config[k],str) or not Path(config[k]).is_absolute() for k in ['primary_image','backup_image']):raise ValueError('absolute source paths required')
     if args.output.exists() or args.output.is_symlink():raise ValueError('fresh output required')
     if config.get('sampling','single') not in ('single','quarter_phase'):raise ValueError('sampling must be single or quarter_phase')
-    result=register(bounded_image(config['primary_image']),bounded_image(config['backup_image']),config['primary_scale'],config['backup_affine'],config['anchors'],config.get('sampling','single'))
+    if config.get('feature_mode','gray') not in ('gray','rgb'):raise ValueError('feature_mode must be gray or rgb')
+    result=register(bounded_image(config['primary_image']),bounded_image(config['backup_image']),config['primary_scale'],config['backup_affine'],config['anchors'],config.get('sampling','single'),config.get('feature_mode','gray'))
     fd=os.open(args.output,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
     with os.fdopen(fd,'w') as stream:stream.write(json.dumps(result,indent=2)+'\n')
     print(json.dumps({'available':result['candidate_transform_available'],'reasons':result['reasons'],'anchors':[{k:r.get(k)for k in ['id','score','peak_margin','translation_candidate_px']}for r in result['anchors']]}))

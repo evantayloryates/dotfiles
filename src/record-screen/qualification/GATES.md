@@ -3490,3 +3490,32 @@ replaying any UI/mutation. DOM JSON is explicitly a transcription of supported
 CUA output; original fixture retained. Privategates-v82.45completed18partial
 1deferred/fullgoalactive. Next use a genuinely missing boundary rather than
 repeat known DOM/native delivery.
+
+## Eighty-third pass — RGB preserves real origin evidence lost by grayscale
+
+Same two fixed parent red/title anchors on seven retained stage68 selected
+window/app phase frames, unchanged phase-search/score0.8/margin0.1/spread2px.
+Gray refuses7/7; red and blue structures are near equal in grayscale. Optional
+RGB per-channel-centered NCC returns4/7 candidates: baseline/above/corner/
+restored. Parent blue marker is excluded from anchors; independent authored
+union chooses its observed component, rather than candidate proximity. All4
+heldout checks pass against1.25px:0/0.505325/0.505325/0px. Only above/corner
+are fitted. Right/left/below still refuse because title peak margins stay below
+0.1; no threshold reduction, forced transform or production override.
+
+26 focused authored acceptance/refusal tests pass, including equal-gray color
+shapes, repeated RGB scene ambiguity, missing/flat content, budgets, invalid
+mode before allocation and unchanged default gray output. Actual CLI RGB output
+agrees on every returned field; invalid mode refuses before nonexistent image
+access/output creation. Fourteen input image hashes unchanged. Same7probe elapsed
+2.086s gray/5.974s RGB; no RSS/GPU/P80/capacity proof. FFT cell budget applies
+per sequential channel, three channel correlations/trial (each uses two forward and one inverse FFT). Static source times differ within
+stable phases: no moving-content/atomic frame pair or continuous real-menu map.
+Scale/backup affine/anchors remain explicit hypotheses. Shared mixed candidate
+fact read back, no fictitious UI/action receipts. Native6c/PID20948 unchanged;
+no new UI/capture/restart/human gate. Privategates-v83.
+
+Production fitted guard stays; accurate fitted mapping still partial. Next
+service work must bind accepted registration plus independent heldout checks
+to exact frame/snapshot/content-time identities, preserving all refusals. Do
+not tune the same rejected frames or rerun passing source canaries.

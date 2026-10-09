@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T19:08:11-04:00",
+  "updated_at": "2026-10-09T19:14:28-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage82 verifies the prepared owned DOM event export:11 events, explicit ArrowRight keydown/keyup and magenta witness. Two typed outcomes verified; one opening receipt expired/interrupted and remains unknown. All cleanup complete; no new capture or native input. Broader physical, provider and fitted-origin gates remain partial."
+    "note": "Stage83 improves retained origin registration: RGB preserves color evidence lost in grayscale. Four of seven candidates pass a separate marker check; three stay refused.26focused tests and actual CLI parity pass. Production fitted guard remains; next bind accepted registration/independent verification to exact service frames. Full goal active."
   },
-  "production_note": "Native6c/PID20948 unchangedidle. Current MCP0.18/CLI exact preview/source mapping qualified; stage81 recovered native delivery passes. Stage82 independently observes browser per-key DOM delivery, without OS-clock/global-tap or actor proof. Stage79 callback-gap failure/historical unknown outcome unchanged. Owned tab/server/session closed, peer media UI retained.45 completed,18 partial,1 deferred; full goal active.",
+  "production_note": "Current native6c/PID20948 unchanged. Exact preview/source joins and stage81/82 native/DOM delivery retained. Stage83 adds two fitted and two baseline/restored candidate successes, max heldout0.506px, without loosening thresholds. No production map override or continuous/real-menu proof.45 completed,18 partial,1 deferred.",
   "groups": [
     {
       "id": "capture",
@@ -232,10 +232,10 @@
           "title": "Qualify coordinates when real child menus change source fitting",
           "status": "partial",
           "scope": "Actual child-enabled isolated window with above/below-parent popup fitting, including scale and source origin changes. Existing static/fixture maps retain their proven scope.",
-          "evidence": "Stage68 proves identical geometry can require different origins. Stage78 exact preview/source joins preserve the fitted-origin refusal for two actual changing-fit samples; no rounded/nearest fallback or spatial promotion. Existing fixed app-crop/spatial candidate proofs retained.",
-          "next": "Qualify a remaining real popup overflow/changed-fit source origin. Use service-owned preview joins and qualified backup geometry; retain the current fitted guard.",
-          "anchor": "seventy-eighth-pass",
-          "updated_at": "2026-10-09T18:45:34-04:00"
+          "evidence": "Stage68 identical geometry requires134px/106pxdifferent origins; app crop verified. Stage83 same seven retained phase images:gray0/7 candidates, optionalRGB4/7; all4independent heldout blue checks<=0.506px (two fitted). Three title-ambiguity cases refused at unchanged thresholds.26tests/actualCLI all-field parity/invalid-mode refusal pass;14imagehashes unchanged. Production guard remains.",
+          "next": "Bind accepted registration and independent heldout validation to exact service-owned frame/snapshot/content-time identities; preserve ambiguous/missing refusal. Do not retune the same three failed anchor cases or infer missing origins from metadata.",
+          "anchor": "eighty-third-pass",
+          "updated_at": "2026-10-09T19:14:28-04:00"
         },
         {
           "id": "fitted-mapping-guard",
@@ -2920,6 +2920,14 @@
       "from": "partial",
       "to": "partial",
       "note": "Stage82 adds actual DOM per-key evidence and preserves the expired opening receipt; broader acceptance scope unchanged."
+    },
+    {
+      "at": "2026-10-09T19:14:28-04:00",
+      "kind": "item",
+      "id": "fitted-child-mapping",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage83 RGB candidates independently verify two fitted source frames; three ambiguities stay refused. Production mapping remains open."
     }
   ]
 }

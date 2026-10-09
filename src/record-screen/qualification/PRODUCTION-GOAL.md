@@ -1,6 +1,6 @@
 # Production qualification goal
 
-## Current checkpoint: stage82 — ACTIVE
+## Current checkpoint: stage83 — ACTIVE
 
 Native6c238cc1ba80/PID20948 remains unchanged. Current MCP0.18/27tools and CLI
 provide optional exact returned-preview/source joins; older ordinary22-tool
@@ -33,6 +33,15 @@ recording/listener or native Chrome/menu proof. Three terminal receipts retain
 uncovered0. Owned tab/server/sessionclosed, peer media UI preserved. The stage79
 historical unknown key outcome is not retroactively promoted.
 
+Stage83 tests actual retained seven-direction origin frames without new UI.
+Grayscale discarded the distinctive red/blue information and refused7/7.
+Optional RGB NCC returns4/7 candidates using the same fixed anchors/thresholds;
+all4 pass a separate withheld blue marker within0.506px (two fitted frames).
+Three title-ambiguity cases stay refused.26 focused tests and actual CLI all-field
+parity/invalid-mode refusal pass;14imagehashes unchanged, native6c/PID unchanged.
+This is a bounded offline candidate improvement, not production source mapping
+or continuous/real-menu proof. Preserve all failures and existing guard.
+
 Checklist45completed18partial1deferred/fullgoalactive. Composition remains deferred.
 Explicit AFK authorization ends conservatively23:20UTC. Continue genuinely missing
 boundaries without physical input, authentication or disruptive sleep/revocation.
@@ -52,8 +61,13 @@ claim that every partial gate can close in one session.
    geometry; otherwise establish a trustworthy frame-bound pixel registration
    or an explicit refusal
    for changing and closed popups. Deliver it through the actual source-map
-   contract before claiming continuous correctness. The single retained spatial
-   candidate is supporting evidence, not the production implementation.
+   contract before claiming continuous correctness. Stage83 now provides two
+   fitted RGB/heldout successes and three explicit ambiguities, alongside the
+   older real-menu candidate. Next bind registration/independent validation to
+   exact service-owned decoded frame identities, common source-content time and
+   unchanged snapshots; refuse ambiguous/missing cases. Do not keep tuning the
+   same anchors or reshooting the same geometry. Offline candidates are
+   supporting evidence, not the production implementation.
    Gate: `fitted-child-mapping`. No new UI authorization is needed for source
    investigation and isolated candidate preparation.
 2. **Batch one useful built-in-display recording.** After renewed visible

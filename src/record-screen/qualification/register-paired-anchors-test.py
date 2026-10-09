@@ -22,7 +22,7 @@ class RegistrationTests(unittest.TestCase):
         self.primary=Image.new('RGB',(400,250));self.primary.paste(self.backup,(40,30))
         self.anchors=[dict(id='first',x=20,y=20,w=32,h=32),dict(id='second',x=170,y=90,w=40,h=36)]
     def run_candidate(self,**kwargs):
-        return REG.register(kwargs.get('primary',self.primary),kwargs.get('backup',self.backup),kwargs.get('scale',1),kwargs.get('affine',[1,0,0,1,0,0]),kwargs.get('anchors',self.anchors),kwargs.get('sampling','single'))
+        return REG.register(kwargs.get('primary',self.primary),kwargs.get('backup',self.backup),kwargs.get('scale',1),kwargs.get('affine',[1,0,0,1,0,0]),kwargs.get('anchors',self.anchors),kwargs.get('sampling','single'),kwargs.get('feature_mode','gray'))
     def refused(self,result,reason):
         self.assertFalse(result['candidate_transform_available']);self.assertIsNone(result['candidate_desktop_to_primary_pixels']);self.assertIn(reason,result['reasons'])
     def test_translation_recovers_held_out_point(self):
@@ -94,6 +94,30 @@ class RegistrationTests(unittest.TestCase):
             original=output.read_bytes();again=subprocess.run(cmd,capture_output=True,timeout=15);self.assertNotEqual(again.returncode,0);self.assertEqual(output.read_bytes(),original)
             linked=root/'linked.json';linked.symlink_to(config);refusal=subprocess.run([*cmd[:2],str(linked),'--output',str(root/'new.json')],capture_output=True,timeout=15)
             self.assertNotEqual(refusal.returncode,0);self.assertFalse((root/'new.json').exists())
+    def test_rgb_distinguishes_equal_gray_color_shapes(self):
+        backup=Image.new('RGB',(220,150),'white')
+        backup.paste((255,0,0),(20,20,44,44));backup.paste((0,0,255),(170,90,194,114))
+        primary=Image.new('RGB',(400,250));primary.paste(backup,(40,30))
+        anchors=[dict(id='red',x=12,y=12,w=40,h=40),dict(id='blue',x=162,y=82,w=40,h=40)]
+        self.refused(self.run_candidate(primary=primary,backup=backup,anchors=anchors),'anchor_match_ambiguous')
+        result=self.run_candidate(primary=primary,backup=backup,anchors=anchors,feature_mode='rgb')
+        self.assertTrue(result['candidate_transform_available']);self.assertEqual(result['candidate_desktop_to_primary_pixels'],[1,0,0,1,40.,30.])
+        self.assertEqual(result['feature_mode'],'rgb');self.assertTrue(all(a['channels']==3 for a in result['anchors']))
+    def test_rgb_duplicate_scene_remains_ambiguous(self):
+        p=Image.new('RGB',(800,300));p.paste(self.backup,(20,20));p.paste(self.backup,(480,100))
+        self.refused(self.run_candidate(primary=p,feature_mode='rgb'),'anchor_match_ambiguous')
+    def test_rgb_flat_and_missing_refuse(self):
+        self.refused(self.run_candidate(backup=Image.new('RGB',self.backup.size,'red'),feature_mode='rgb'),'anchor_unavailable')
+        p=Image.new('RGB',self.primary.size);p.paste(self.backup.crop((20,20,52,52)),(60,50))
+        self.refused(self.run_candidate(primary=p,feature_mode='rgb'),'anchor_match_weak')
+    def test_rgb_budget_and_invalid_mode_before_allocation(self):
+        with patch.object(REG.np,'asarray',side_effect=AssertionError('must not allocate')):
+            for mode in [None,True,{},'RGB']:
+                with self.subTest(mode=mode),self.assertRaises(ValueError):self.run_candidate(feature_mode=mode)
+            with self.assertRaises(ValueError):self.run_candidate(primary=Image.new('RGB',(1100,1000)),feature_mode='rgb')
+    def test_default_gray_result_unchanged(self):
+        self.assertEqual(self.run_candidate(),self.run_candidate(feature_mode='gray'))
+        self.assertNotIn('feature_mode',self.run_candidate())
     def test_image_symlink_refusal(self):
         with tempfile.TemporaryDirectory() as folder:
             p=Path(folder)/'p.png';self.primary.save(p);q=Path(folder)/'q.png';q.symlink_to(p)
