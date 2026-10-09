@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T04:32:45-04:00",
+  "updated_at": "2026-10-09T04:52:23-04:00",
   "workflow": {
     "state": "active",
-    "note": "Primary frame mapping delivered via CLI/fresh MCP with15 targeted checks and real retained-pixel/failed-media proof;38 completed,18 partial,1 deferred. Owned readback resources settled; native unchanged/idle. Continue remaining app/provider/physical/workflow/capacity gates without restarting stable phases."
+    "note": "Production usage/recovery runbook and corrected loaded MCP0.10.1 expectations verified;39 completed,17 partial,1 deferred. Native unchanged/idle. Continue physical/provider/daily-app/capacity gates without repeating stable phases; Chrome native visibility help remains pending."
   },
-  "production_note": "Signed native f314bb340344/PID35547 unchanged. CLI frame-map and fresh MCP0.10.0 resolve exact primary mux/source/host geometry; old peer adapters may lack it and were not restarted. Dynamic Chrome, provider/physical clocks, GPU/thermals and P80 remain unqualified.",
+  "production_note": "Signed native f314bb340344/PID35547 unchanged and idle. Fresh MCP0.10.1 exposes corrected scheduling/recovery expectations and primary mapping; CLI available, peer adapters not restarted. Physical/provider calibration, remaining daily-app surfaces, routine adoption, GPU/thermals and P80 remain unqualified.",
   "groups": [
     {
       "id": "capture",
@@ -582,20 +582,20 @@
           "title": "Verify loaded MCP replay policy and reconnect boundaries",
           "status": "partial",
           "scope": "Never automatically resend mutations after a lost reply; distinguish loaded adapter from native engine version. Preserve existing peer MCP processes.",
-          "evidence": "Existing eight adjacent adapter/planning checks passed after MCP0.10.0 wiring. New map validates before RPC, performs read-only source/media lookup, refuses busy/unknown packets and never starts/replays capture/export. Fresh live adapter/CLI readback settled with unchanged native PID; loaded peer metadata remains unconfirmed.",
-          "next": "Verify remaining live consumer adoption at a natural safe launch. Never force peer restarts or infer loaded code from repository/source changes.",
-          "anchor": "thirty-fourth-pass",
-          "updated_at": "2026-10-09T04:32:45-04:00"
+          "evidence": "Fresh MCP0.10.1 discovery now explicitly rejects generic safe-retry and exact-boundary claims;10 live read-only calls preserve native PID/build and idle state. Prior mutation-loss tests and source-map proofs retained. Existing peer adapters remain untouched/unknown until their natural launch.",
+          "next": "Verify remaining routine consumer adoption at natural safe launches; recover owned IDs before any explicit retry, without forcing peer restart or repeating settled loss tests.",
+          "anchor": "thirty-fifth-pass",
+          "updated_at": "2026-10-09T04:51:52-04:00"
         },
         {
           "id": "agent-runbooks",
           "title": "Finish agent usage and recovery runbooks",
-          "status": "partial",
-          "scope": "Capabilities, gaps, deadlines, semantic blocks, app facts, effort and collision/recovery guidance.",
-          "evidence": "Published modes, cursor/resource/recovery and dynamic fitting guidance retained. CLI/fresh MCP0.10.0 now resolve primary frame/offset/host mappings and point projections; failed media/unmatched submissions, unknown bounds, per-process busy/quarantine and no replay are documented and verified.",
-          "next": "Complete daily-app/provider/workflow adoption and conservative capacity expectations; retain explicit unsupported environments and avoid rerunning stable mapped media.",
-          "anchor": "thirty-fourth-pass",
-          "updated_at": "2026-10-09T04:32:45-04:00"
+          "status": "completed",
+          "scope": "Published agent usage and recovery contracts, loaded capability discovery and advisory planning. Routine provider/app/physical/capacity adoption is tracked in separate gates.",
+          "evidence": "AGENT-USAGE.md consolidates production alignment, exact source identity, broad input/action uncertainty, source mapping, preview effort, collision recovery and release limits. Fresh MCP0.10.1 passed10 read-only protocol calls and corrected schedule/retry/capacity wording; native unchanged/idle, owned adapter exited0.",
+          "next": "",
+          "anchor": "thirty-fifth-pass",
+          "updated_at": "2026-10-09T04:51:52-04:00"
         },
         {
           "id": "visual-composition",
@@ -1512,6 +1512,29 @@
       "from": "partial",
       "to": "partial",
       "note": "Existing eight adjacent adapter/planning checks passed after MCP0.10.0 wiring. New map validates before RPC, performs read-only source/media lookup, refuses busy/unknown packets and never starts/replays capture/export. Fresh live adapter/CLI readback settled with unchanged native PID; loaded peer metadata remains unconfirmed."
+    },
+    {
+      "kind": "item",
+      "id": "agent-runbooks",
+      "at": "2026-10-09T04:51:52-04:00",
+      "from": "partial",
+      "to": "completed",
+      "note": "AGENT-USAGE.md consolidates production alignment, exact source identity, broad input/action uncertainty, source mapping, preview effort, collision recovery and release limits. Fresh MCP0.10.1 passed10 read-only protocol calls and corrected schedule/retry/capacity wording; native unchanged/idle, owned adapter exited0."
+    },
+    {
+      "kind": "item",
+      "id": "mcp-replay-boundary",
+      "at": "2026-10-09T04:51:52-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Fresh MCP0.10.1 discovery now explicitly rejects generic safe-retry and exact-boundary claims;10 live read-only calls preserve native PID/build and idle state. Prior mutation-loss tests and source-map proofs retained. Existing peer adapters remain untouched/unknown until their natural launch."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T04:51:52-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Production usage/recovery runbook and corrected loaded MCP0.10.1 expectations verified;39 completed,17 partial,1 deferred. Native unchanged/idle. Continue physical/provider/daily-app/capacity gates without repeating stable phases; Chrome native visibility help remains pending."
     }
   ]
 }

@@ -1,5 +1,14 @@
 # Production qualification goal
 
+Stage35 checkpoint: production usage/recovery runbook published and linked from
+the service README/shared computer-use reference. Fresh MCP0.10.1 made10 read-only
+protocol calls: corrected schedule contract discovered, passive candidate,
+unagreed reservation block, last-observed input uncertainty and actual off-Space
+Chrome native block verified. No capture/UI/grant/restart; owned MCP exited0,
+native f314/PID35547 unchanged/idle. Runbook gate completed for published contracts;
+39completed,17partial,1deferred. Physical/provider/daily-app/capacity adoption is
+still open in its own gates. Continue independent work while Chrome help is pending.
+
 Stage34 checkpoint: bounded service-owned frame/relative/declared-host mapping is
 delivered through CLI/fresh MCP0.10.0, without native rebuild or peer restart.
 15 focused/adjacent checks passed; actual point/offset maps match retained decoded
@@ -64,15 +73,15 @@ application's behavior or a production P80 duration.
 | --- | --- | --- |
 | Bounded capture startup and recovery | Shared SDK deadlines; uncooperative-producer, cancellation, late-callback tests; admission includes unfinished work; healthy peers survive an isolated failure. | 50 deadline assertions and 12 actual recording state/race assertions passed. Signed isolated live captures/recovery passed; uncooperative SDK producer tested synthetically only. |
 | Live capture controls and routing | Signed isolated candidate; child/menu pixels and helper exclusion; default compatibility; tap vs lane identity; current excluded PID checks; source cleanup. | Signed isolated engine passed native child inclusion/exclusion, filter-aware tap selection, unavailable-target isolation, scheduled cancellation, partial-file interruption and recovery. Exclusion PID churn and daily apps still open. |
-| Recorder-owned source journal | Frame clock/encoded-time mapping, geometry segments, affine transform validity and unknowns, held/dropped frames, source identity and gaps. Consumer receives normalized data without writing synchronization logic. | Bounded recorder-owned journal/consumer candidate passed: 1,337 H.264/Retina HEVC muxed samples match exact times; three HEVC geometry segments within 0.884 px. Initial movie-offset failure fixed. Final interrupted-journal checkpoint labeling, real MCP readback and fresh recovery passed too (139 exact samples). Native Retina/external/return geometry passed; sleep and derivative timeline mapping remain open. |
+| Recorder-owned source journal | Frame clock/encoded-time mapping, geometry segments, affine transform validity and unknowns, held/dropped frames, source identity and gaps. Consumer receives normalized data without writing synchronization logic. | Installed source/derivative contracts and exact actual-mux primary lookup delivered. Dynamic child maps and retained failed-media mismatch qualified. Physical sleep/provider calibration remain open; no nominal-rate or current-geometry guessing. |
 | Input and action provenance | Broad keys/modifiers/scroll/drag, destination/child scope, bounded uncertain actions, no unrelated text retention; service-stamped semantic action blocks; explicit source/ownership uncertainty and access gaps. | Signed native candidates passed 36/36 and 8/8 delivered keys, 40 unrelated keys excluded, service-stamped scopes/AX pixels, restart uncertainty and callback wrapper readback. 138 policy/lifecycle and nine admission assertions passed. Enumeration offload and explicit protected-input omission/recovery passed. Browser virtual-input coverage, raw coordinates, tap faults and sleep remain open. |
-| Daily app depth and transient surfaces | Native, Chrome and a supported Electron app; genuine context menus, nested/overflow surfaces, app updates, unreachable/occluded targets; useful bounded fallback. | Native and Chrome helper passes with documented limitations; depth requalification pending. |
+| Daily app depth and transient surfaces | Native, Chrome and a supported Electron app; genuine context menus, nested/overflow surfaces, app updates, unreachable/occluded targets; useful bounded fallback. | Native/Electron scoped menu depth passed; Chrome has retained passes and omissions across display environments. Dynamic attached-panel scale restoration passed. Remaining Chrome native readiness and variants need narrow checks. |
 | Collisions and synchronization | Window movement/resize/display scale and negative origins; concurrent unrelated input; idle/sleep/display changes; source loss and interruption evidence with trim/reshoot/source alternatives. | Basic marker/geometry evidence passed; broader transitions pending. |
-| Realistic resource budget | Motion, two-source insurance, actual encoding, CPU/RSS/storage/frame loss and representative previews; conservative admission/fidelity recommendations. | Static insurance evidence only; load pass pending. |
-| Safe production delivery | Verify source/build/signature, idle release boundary, preserve prior binary/state, install, read back loaded hash/capabilities, smoke real capture and consumer packet, verify rollback/recovery path. | Original signed engine remains live and unchanged. |
-| Agent runbook and service expectations | Available capabilities, effort tiers, human production modes, deadlines, gaps, semantic blocks, known app facts, collision and cleanup runbooks; final report separates verified facts from limits. | Existing report and shared store contract; final reconciliation pending. |
+| Realistic resource budget | Motion, two-source insurance, actual encoding, CPU/RSS/storage/frame loss and representative previews; conservative admission/fidelity recommendations. | Moving50s paired insurance and110s mixed single-window profiles passed; CPU/RSS/storage observations published. GPU/thermal/long-duration capacity and P80 remain unqualified. Configured admission is not measured capacity. |
+| Safe production delivery | Verify source/build/signature, idle release boundary, preserve prior binary/state, install, read back loaded hash/capabilities, smoke real capture and consumer packet, verify rollback/recovery path. | Signed f314bb340344 installed, exact loaded readback and scoped capture/consumer/grant checks passed. Private copied-state restoration drill passed. Live-producer/schema-universal recovery and routine older-adapter adoption remain open. |
+| Agent runbook and service expectations | Available capabilities, effort tiers, human production modes, deadlines, gaps, semantic blocks, known app facts, collision and cleanup runbooks; final report separates verified facts from limits. | AGENT-USAGE.md published; fresh0.10.1 loaded contract/advisory behavior verified. Existing peer processes retained. Runbook documentation gate complete; broader provider/app/physical/capacity gates remain distinct. |
 
-## Current correction
+## Historical startup correction
 
 The original recording implementation already has an eight-second arming
 watchdog, with an engine-restart callback. Earlier notes describing all engine
@@ -91,7 +100,7 @@ Shared evidence: `/Users/taylor/.local/state/codex-bridge/capability-evidence/`.
 Keep source footage/input evidence local and outside Git. Update stage states
 from actual saved results; do not infer success from tool discovery or counts.
 
-## Next checkpoint
+## Historical fifth-pass checkpoint
 
 Fifth-pass native input/action/source proofs are saved in gates-v5. Full final
 source snapshot hash 99752c4615cf, signed isolated engine, 138 input/action/numeric

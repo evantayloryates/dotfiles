@@ -12,7 +12,7 @@ import { mapRecordingFrames, validateFrameMapRequest, frameMapSchema, frameMapHe
 import { planProduction, productionPlanSchema, validateProductionRequest } from "./lib/production-plan.mjs";
 
 const log = (...args) => console.error("[record-screen]", ...args);
-const VERSION = "0.10.0";
+const VERSION = "0.10.1";
 
 // ---------------------------------------------------------------- engine link
 
@@ -267,10 +267,10 @@ const tools = [
   {
     name: "record_schedule",
     description:
-      "Schedule a recording. start_at and end_at are both required and absolute, so recordings can be queued for any future window (up to 16 overlapping, 3 h each, 7 days ahead). " +
-      "The engine arms 1 s early, so the video starts exactly at start_at showing the screen as it was then, and ends exactly at end_at. " +
+      "Schedule a recording with required absolute start_at and end_at. Configured limits: 16 overlapping, 3 h each, 7 days ahead; these are not measured capacity. " +
+      "The engine attempts to arm 1 s early. Requested times do not guarantee physical presentation or exact decodable boundaries; inspect the terminal manifest, recording_source and actual recording_frame_map coverage. Held frames retain earlier source content. " +
       "Needs session_id or session {title}. Presets: evidence (default, 1 px per point, 30 fps), demo (Retina, 60 fps), pr-clip (1280 wide, 30 fps). " +
-      "Then record_wait. Pass idempotency_key to make retries safe.",
+      "Then record_wait. Retain session/recording IDs and an idempotency_key. After a lost reply, read back owned state before an explicit retry; mutations are never automatically replayed.",
     inputSchema: {
       type: "object", additionalProperties: false,
       properties: {

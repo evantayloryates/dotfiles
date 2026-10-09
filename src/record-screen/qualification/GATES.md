@@ -1,5 +1,44 @@
 # Qualification update — October 9, 2026
 
+## Thirty-fifth pass: production runbook and loaded expectation correction
+
+AGENT-USAGE.md consolidates production arrangements, exact native/source identity,
+per-app requalification, cursor layers, broad input uncertainty, explicit action
+receipts, independent verification/cleanup, actual-media mapping, preview effort,
+collision recovery, scoped resource evidence and safe release expectations.
+README and shared computer-use reference link directly to it. Existing broad
+roadmap rows are reconciled against actual installed delivery and later proofs;
+historical checkpoints are preserved. No scope now promises physical calibration,
+universal menus, automatic native interception, input isolation or capacity/P80.
+
+Fresh MCP0.10.1 corrects the schedule description: arm early is intent, not exact
+physical/decodable boundaries; held frames reference earlier content; configured
+overlaps are not measured capacity. Lost mutation replies require owned-state
+recovery before an explicit retry, not a generic safe-retry promise. README timing
+and restart wording now agree with the actual source/media contracts. Runtime
+capture behavior, native source/hash and peer adapters were not modified.
+
+An owned fresh MCP made10 read-only protocol calls. Actual tool discovery shows
+the corrected description and required recovery/mapping tools. Live plans retain
+candidate status for passive capture, refuse an unagreed reserved interval, expose
+last-observed input uncertainty, and distinguish Chrome's observed off-Space
+native-UI block from a passive source candidate. That candidate was not captured:
+native window identity still has not been tied to an owned browser fixture.
+No repeated shortcut, focus attempt, take or permission canary was needed.
+
+Private gates-v35 stores initialization/tool contracts, before/after status,
+advisory plans, exact native inventory and qualification-summary.json. Owned
+MCP PID10424 exited0. Signed f314bb340344/PID35547 unchanged; actions/subscribers/
+unfinished captures/preview lanes all0, maintenance false. Listen access remains
+last observed true; no new physical delivery proof is claimed. Published artifact
+links/revision are checked separately. No browser refusal was bypassed.
+
+Runbook checklist scope is explicitly the published agent usage/recovery contract
+and loaded advisory/tool discovery, now completed. Routine provider adoption,
+historical workflow quality, physical clocks/input, remaining daily-app surfaces
+and capacity stay open in their existing gates.39completed,17partial,1deferred;
+goal active. This is useful contract delivery, not universal qualification.
+
 ## Thirty-fourth pass: service-owned actual frame and point mapping
 
 CLI frame-map and fresh MCP0.10.0 recording_frame_map now resolve primary media

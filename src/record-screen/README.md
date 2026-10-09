@@ -4,11 +4,14 @@ An always-on screen-recording engine that agents drive through the
 `record-screen` MCP. This folder holds the engine (`record-screend`, Swift on
 ScreenCaptureKit), the MCP server, and a command line.
 
+For production coordination, start with [the agent usage and recovery runbook](AGENT-USAGE.md).
+It separates delivered capabilities from app/provider checks still needed.
+
 Why it is built this way, with measurements:
 `~/src/docs/html/record-screen-strategies/index.html`. Bench harness:
 `~/src/docs/plans/record-screen/bench/`.
 
-## Candidate capture controls (October 8 qualification)
+## Capture controls and qualified limits
 
 The source candidate accepts `include_child_windows` and `exclude_apps` in
 JSON targets. Omission preserves existing behavior. Exclusions use at most
@@ -49,7 +52,8 @@ brackets. An observed discontinuity interrupts only the affected take, preserves
 partial footage and suppresses end-frame filling through the uncertain interval.
 The source packet reports the policy, anchors, gaps and receipt segments. Actual
 sleep/wake and other providers’ clock equivalence remain unqualified; see
-[SOURCE-PACKET.md](SOURCE-PACKET.md). Production delivery remains gated.
+[SOURCE-PACKET.md](SOURCE-PACKET.md). These capabilities are installed in build
+f314bb340344; physical sleep/wake remains unqualified.
 
 Candidate source packets include observed color-tag boundaries and latest color
 metadata. Requested sRGB and observed buffer tags are separate; missing fields
@@ -59,9 +63,10 @@ that behavior instead of applying an unqualified global color correction. HDR,
 physical color accuracy and viewer transfer behavior remain unqualified.
 
 Signed isolated candidates passed recording/preview routing and an owned
-background-helper termination/relaunch canary. Installed production remains
-unchanged. See [qualification/GATES.md](qualification/GATES.md) for actual source
-pixels, timestamp proofs, failure evidence and remaining delivery gates.
+background-helper termination/relaunch canary. Subsequent installed delivery
+and consumer checks are recorded in [qualification/GATES.md](qualification/GATES.md).
+Use loaded status for current support; historical candidate evidence does not
+establish every app, provider or failure boundary.
 
 ## Status
 
@@ -72,12 +77,14 @@ All six steps of the build order are done.
 2. **Frames.** Targets (display, rect, window), `frame.verify` through a warm
    viewfinder, and a frame outline that never appears in captures.
 3. **Recording.** Scheduled with absolute start and end times, pre-rolled so
-   the take starts exactly on time, crash-safe files, stop, cancel, move the
-   end, wait, and survival across engine restarts.
+   source coverage can be inspected against actual media, with stop, cancel,
+   move the end, wait, retained partial files and restart checkpoints. An
+   interrupted take does not resume its live producer after a restart.
 
 4. **Sessions.** Recordings, frame checks, notes and marks bundle into
    explicit session folders, searchable by clues when an agent loses the id.
-5. **MCP.** 18 tools over the engine, registered in Claude Code and Codex.
+5. **MCP.** Engine and bounded media tools, registered in Claude Code and Codex.
+   Inspect loaded tool discovery and adapter metadata rather than a historical count.
 6. **Agent outputs.** Every finished recording gets keyframes (start, marks,
    scene changes, end), a labelled contact sheet, a poster and a per-second
    activity timeline; frames at any offset; frame-exact mp4 trims and GIFs.
@@ -337,13 +344,16 @@ unless `show_cursor: true`.
 
 **Timing.**
 - The engine arms 1 s before `start_at`: it resolves the target and starts the
-  stream early. The video's first frame is the screen exactly as it was at
-  `start_at`, and the file covers exactly `start_at` to `end_at`.
-- Frames are timestamped on the host clock. Measured: on-screen changes land in
-  the file 13–22 ms after they happen (about a frame at 60 fps), and durations
-  come out exact (3.000000 s for a 3 s window).
-- A screen that never changes still gives a full-length file: the last frame
-  is repeated just before `end_at` and the session ends at `end_at`.
+  stream early. Requested times are scheduling intent, not guarantees of
+  physical presentation or exact decodable start/end boundaries.
+- Frames retain recorder-domain source and encoded timestamps. Use
+  `recording_frame_map` for actual mux intervals; provider delivery and physical
+  presentation calibration are separate, scoped checks. Historical latency
+  measurements do not establish a universal input-to-pixel bound.
+- Sparse footage can hold the last successful source frame, including bounded
+  interior padding and an end fill when permitted. Held content retains its
+  earlier source time and geometry. Clock gaps suppress uncertain end filling;
+  failed writers can leave fewer decodable packets than accepted submissions.
 - The display is kept awake from arming until the file is written (an idle
   sleep assertion). The engine can't wake a sleeping Mac for a future
   recording, and closing the lid still sleeps it.
@@ -484,7 +494,7 @@ macOS asks again every 30 days. The re-confirm date lives in
 ## Capture foundations and qualification
 
 Start capture coordination with `production_plan` in a fresh MCP adapter
-(`status.mcp_adapter.production_planning: 1`, introduced in0.9.0; current0.10.0), or the immediately
+(`status.mcp_adapter.production_planning: 1`, introduced in0.9.0; current0.10.1), or the immediately
 available CLI:
 
 ```sh
