@@ -1,5 +1,58 @@
 # Qualification update — October 9, 2026
 
+## Sixty-second pass: configured launch and shared consumer expectations
+
+Both actual Claude and Codex registrations resolve to the canonical
+`/Users/taylor/dotfiles/src/record-screen/bin/record-screen-mcp`. The selected
+command, argument/environment-key metadata and private whole-config hashes were
+read without exposing credentials or invoking Claude. Correct entries were not
+rewritten. Final independent hashes confirm both config files unchanged.
+
+One owned reader launched that exact script with PATH
+`/usr/bin:/bin:/usr/sbin:/sbin`, no inherited Node override/resolver guard, and
+only HOME/USER/TMPDIR otherwise supplied. Actual initialize reports0.14.0;
+tools/list supplies27 tools and the read-only paired coverage schema. Its own
+status reports `mutation_replay:"never"` and
+`paired_interval_coverage_summary:1`. ReaderPID3395 exits0, pending0, independently
+absent. This verifies the GUI-style registered launch chain, beyond direct-node
+source checks. No recording, UI operation, input lock, grant or native/peer
+restart was performed; no operation receipt was fabricated.
+
+The ordinary chat status call still reaches native9bf/PID24295 without
+`mcp_adapter` metadata. Its loaded version, replay policy and adoption remain
+unverified. Live candidate processes of different ages share the canonical
+script, but start times and config paths do not identify per-chat routing or
+policy. No peer was attached, killed or refreshed. Use the qualified current CLI
+while specific consumer metadata is absent; a future natural/safe launch needs
+its own status/schema readback. Do not infer the cause of missing metadata.
+
+Shared taylor-computer-use guidance now carries stages60–62's reusable limits:
+service-owned whole-interval summaries, canvas-versus-pixel evidence, retained
+fitted-origin refusals and per-consumer adoption checks. Three skill-local notes
+were appended with their historical prefixes preserved; the skill-local index
+rule was reconciled. No harness-global memory or native interception/training
+was changed. AGENT-USAGE.md now names the verified native9bf/fresh0.14 baseline
+instead of the older25bdf/0.12.1 introduction and explains this launch boundary.
+One exact module/environment-scoped capability fact was independently read back.
+It is a fresh-launch observation, not historical workflow success grading.
+
+Final native binarySHA remains
+`c75ed83ba9f60110bad57a1d43dce65302a56481ead04edb4e0f24e2a31c25d6`;
+source mapping/server hashes unchanged. Unfinished recordings0/actions0/input
+subscribers0/viewfinder lanes0. Inventory contains built-in display1 only.
+Input Monitoring's last observation is not a fresh active-listener grant test.
+Checklist46completed/16partial/1needs_retest/1deferred; full goal active.
+Visible authorization renewal remains pending, with no dependent UI action.
+Remaining daily-app/physical/provider, exact fitted origin, whole-shot recovery,
+capacity and ordinary consumer adoption gates keep their acceptance scope.
+
+Private evidence: gates-v62/{launch-config-proof.json,launcher-canary.mjs,
+launcher-initialize.json,launcher-tools.json,launcher-status.json,
+launcher-proof.json,launcher-settled.json,ordinary-chat-status.json,
+skill-reflection-proof.json,shared-fact.json,settled-status.json,
+qualification-summary.json}. No stable capture, decoder or completed test suite
+was replayed for this documentation/launch-boundary stage.
+
 ## Sixty-first pass: service-owned whole-interval region durations
 
 Fresh MCP0.14.0/current CLI extend `recording_paired_map` with optional

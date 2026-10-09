@@ -1,7 +1,7 @@
 # Agent usage and recovery
 
 This is the capture-foundations production runbook. The installed native build
-25bdf541968a and fresh adapter0.12.1 have the scoped proofs in
+9bfabf2dbb5c and fresh adapter0.14.0 have the scoped proofs in
 [GATES.md](qualification/GATES.md). Treat these as a baseline, then inspect
 loaded status. Visual effects, cursor styling and composition recipes are the
 next phase. The [checklist](qualification/checklist.json) tracks unresolved
@@ -27,6 +27,18 @@ Start with loaded `status` and an exact `windows` result. A fresh adapter report
 `source_frame_mapping:1`. CLI status describes the native engine; it cannot
 identify an already-loaded MCP process. An absent adapter field is unknown,
 not current support. Use the CLI if necessary without restarting peers.
+
+Both harness registrations point to
+`/Users/taylor/dotfiles/src/record-screen/bin/record-screen-mcp`. Stage62 verified
+that exact launcher with a minimal GUI-style PATH: initialize0.14.0, 27 tools,
+read-only paired mapping and `mutation_replay:"never"` in loaded status.
+That proves a fresh launch of the registered path, not adoption by an existing
+chat. Correct configuration, server start time and a matching native build do
+not identify the adapter serving a particular consumer. Read its own adapter
+metadata and tool schema; if absent, keep that consumer's policy unknown and
+use the qualified CLI. Do not rewrite correct registrations or restart unrelated
+peers to discover capabilities. After a lost mutation reply, recover owned
+state before choosing an explicit retry, whichever consumer path is used.
 
 Read-only CLI entry points:
 

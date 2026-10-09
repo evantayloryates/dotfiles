@@ -1,9 +1,9 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T14:26:13-04:00",
+  "updated_at": "2026-10-09T14:39:15-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage61 service-owned whole-interval coverage delivered through current CLI/fresh MCP0.14:37 affected +9 final focused checks, actual parity/default preservation,90s/1769 exact boundary summary. Real menu containment does not prove content; budget/legacy/fitted refusals retained. Native unchangedidle, owned readers settled. Renewed visible-test request pending; continue unblocked background work. Full goal active."
+    "note": "Stage62 configured launcher passes actual minimal GUI-PATH0.14.0/27-tool/replay-never readback; registrations unchanged and owned reader settled. Shared computer-use coordination guidance updated with geometry/content and consumer identity limits; native unchangedidle. Ordinary chat adapter unverified, visible renewal pending.46completed16partial1needs_retest1deferred; continue unblocked investigation without restarting peers or replaying stable captures."
   },
   "production_note": "Current CLI/fresh MCP0.14 provides opt-in exact whole-interval region durations with budget refusal.37 affected +9 final focused checks and actual MCP/CLI/default parity. Retained90s source:1769 segments evaluated; geometry is separate from captured pixels. Legacy/fitted guards remain. Signed native9bf/PID24295/exact binary unchangedidle, three scoped facts read back, own readers settled. Ordinary loaded adapter still unverified; full acceptance open.",
   "groups": [
@@ -632,10 +632,10 @@
           "title": "Install the candidate safely and verify rollback",
           "status": "partial",
           "scope": "Idle-boundary release with prior binary/state preserved and exact loaded-capability readback.",
-          "evidence": "Stage55 forward-delivers exact tested25bdf541968a/PID75812 through guarded idle fence after retained first89b140 caller incompatibility. FreshMCP0.12.1 schedule and hide:false target-resolution pass; installed2s32px take4 exact joins, existing Screen Recording/Input Monitoring observations confirmed.89 pre-stage session/recording JSON hashes unchanged, prior binaries retained; owned engines exited. Earlier168-hash stage52/restoration proofs preserved; broader natural failure and adoption remain open.",
-          "next": "Continue scoped consumer adoption and remaining natural failure/recovery cases; preserve existing restoration and source proofs rather than rolling back or repeating them.",
-          "anchor": "fifty-fifth-pass",
-          "updated_at": "2026-10-09T12:07:52-04:00"
+          "evidence": "Prior guarded releases/restoration and source/state preservation remain retained; stage58 delivers signed9bf native/paired-clock support. Stage62 exact configured launcher under minimal GUI PATH exposes current0.14.0/27 tools/replay never and exits cleanly; both harness registrations unchanged. Native9bf/PID24295/exact binary and mapping/server sources unchangedidle. Agent runbook baseline corrected; ordinary chat still lacks adapter metadata, so broader adoption/natural failure gates remain open.",
+          "next": "Extend scoped consumer adoption and remaining natural failure/recovery cases at safe boundaries; preserve restoration/source proofs rather than rolling back or repeating them. Read each loaded consumer contract independently.",
+          "anchor": "sixty-second-pass",
+          "updated_at": "2026-10-09T14:39:15-04:00"
         },
         {
           "id": "installed-smoke",
@@ -652,10 +652,10 @@
           "title": "Verify loaded MCP replay policy and reconnect boundaries",
           "status": "partial",
           "scope": "Never automatically resend mutations after a lost reply; distinguish loaded adapter from native engine version. Preserve existing peer MCP processes.",
-          "evidence": "Stage44 actual ordinary chat MCP status/source reads pass, but no adapter version/new input/map/planning tools and obsolete exact-boundary/safe-retry description. Current CLI fallback verified against source epoch, rich updates and815 exact joins. Loaded adapter policy remains unknown; source/fresh-MCP loss-policy checks preserved. Stage61 ordinary chat status still lacks adapter metadata; native reachable, loaded adapter version/replay unverified. Fresh0.14 MCP/CLI actual coverage contract/schema/capability verified; no peer refresh or mutation replay.",
-          "next": "Read back this chat adapter policy and tool descriptions after safe consumer refresh, then extend other ordinary consumers at natural launches. Never infer policy from native build or automatically replay a mutation.",
-          "anchor": "sixty-first-pass",
-          "updated_at": "2026-10-09T14:26:13-04:00"
+          "evidence": "Stage62 both harness registrations resolve to the canonical launcher; actual minimal GUI-PATH initialize/tools/status exposes0.14.0,27 tools, read-only paired summary and mutation_replay never. Owned reader3395 exit0/independently absent; both config hashes unchanged. Ordinary chat status still has no adapter metadata: version/replay/adoption unknown. Per-consumer launch/readback limits reconciled in shared skill/runbook; no peer refresh or mutation replay. Earlier lost-reply/source checks retained.",
+          "next": "Read the specific ordinary consumer adapter policy and tool schema after its safe/natural launch; use qualified CLI meanwhile. Do not infer routing/policy from config, process age or native build, and never automatically replay mutations.",
+          "anchor": "sixty-second-pass",
+          "updated_at": "2026-10-09T14:39:14-04:00"
         },
         {
           "id": "agent-runbooks",
@@ -2421,6 +2421,29 @@
       "from": "active",
       "to": "active",
       "note": "Stage61 service-owned whole-interval coverage delivered through current CLI/fresh MCP0.14:37 affected +9 final focused checks, actual parity/default preservation,90s/1769 exact boundary summary. Real menu containment does not prove content; budget/legacy/fitted refusals retained. Native unchangedidle, owned readers settled. Renewed visible-test request pending; continue unblocked background work. Full goal active."
+    },
+    {
+      "kind": "item",
+      "id": "mcp-replay-boundary",
+      "at": "2026-10-09T14:39:14-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage62 both harness registrations resolve to the canonical launcher; actual minimal GUI-PATH initialize/tools/status exposes0.14.0,27 tools, read-only paired summary and mutation_replay never. Owned reader3395 exit0/independently absent; both config hashes unchanged. Ordinary chat status still has no adapter metadata: version/replay/adoption unknown. Per-consumer launch/readback limits reconciled in shared skill/runbook; no peer refresh or mutation replay. Earlier lost-reply/source checks retained."
+    },
+    {
+      "kind": "item",
+      "id": "release-rollback",
+      "at": "2026-10-09T14:39:15-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Prior guarded releases/restoration and source/state preservation remain retained; stage58 delivers signed9bf native/paired-clock support. Stage62 exact configured launcher under minimal GUI PATH exposes current0.14.0/27 tools/replay never and exits cleanly; both harness registrations unchanged. Native9bf/PID24295/exact binary and mapping/server sources unchangedidle. Agent runbook baseline corrected; ordinary chat still lacks adapter metadata, so broader adoption/natural failure gates remain open."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T14:39:15-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Stage62 configured launcher passes actual minimal GUI-PATH0.14.0/27-tool/replay-never readback; registrations unchanged and owned reader settled. Shared computer-use coordination guidance updated with geometry/content and consumer identity limits; native unchangedidle. Ordinary chat adapter unverified, visible renewal pending.46completed16partial1needs_retest1deferred; continue unblocked investigation without restarting peers or replaying stable captures."
     }
   ]
 }

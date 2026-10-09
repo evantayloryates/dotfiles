@@ -1,6 +1,18 @@
 # Production qualification goal
 
-Current checkpoint: stage61. Fresh MCP0.14.0/current CLI own exact whole-interval
+Current checkpoint: stage62. Both harness registrations correctly resolve to
+the canonical launcher; actual minimal GUI-PATH initialize/tools/status returns
+0.14.0,27 tools, read-only paired summary and mutation_replay never. Owned
+reader3395 exits0/independently absent; both config hashes unchanged. Ordinary
+chat still lacks adapter metadata: no version/replay/adoption claim. Shared
+computer-use skill-local coordination notes/index reconciled, historical prefixes
+preserved, one scoped fact read back. Agent runbook native/fresh-adapter baseline
+updated. Native9bf/PID24295/exact binary and mapping/server sources unchangedidle.
+46completed16partial1needs_retest1deferred; full goal active. Visible renewal
+pending; continue unblocked background investigation without peer restarts or
+stable source replay. Daily-app/physical/provider and ordinary adoption still open.
+
+Stage61 checkpoint: Fresh MCP0.14.0/current CLI own exact whole-interval
 named-region duration summaries, independent of segment pages.37 affected +9
 final focused checks; actual fresh MCP/CLI parity and default output/cursor
 preservation. Real90s/1769 segments exact document containment, not pixel rescue.
