@@ -1,5 +1,18 @@
 # Production qualification goal
 
+Stage37 checkpoint: actual330s Retina60 window/display pair passed35345 exact
+mux/source packets and decoded moving/stopped counters.327 fresh in-take
+pressure/thermal samples normal/nominal; recorder0.12953cores/47.73MiB peakRSS,
+513.52MB video plus22.63MB journals combined. Eight pressure/thermal guard tests
+passed; no live guard stop. One scoped profile, notGPU/capacity/productionP80.
+Fresh installed Input Monitoring access true/listener started; secure input
+prevented a new key probe, and AX Stop emitted no pointer callbacks. Preserve
+that failed telemetry expectation and explicit gaps; earlier grant canary valid.
+Four typed receipts:3verified/1failed, all cleanup complete/uncovered0. Native
+f314/PID35547 unchanged/idle; owned fixture/observer/session settled. Checklist
+40completed,17partial,1deferred; goal active. Next publish scoped planning/storage
+expectations and continue app/provider/physical acceptance without stable reruns.
+
 Stage36 checkpoint: bounded retained-input query delivered via CLI/fresh MCP0.11.0;
 14 focused checks passed. Four real pages preserve12 exact oracle-matched keys,
 including6 same-app other-window candidates; strict contextual filter returns6,

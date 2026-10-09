@@ -56,13 +56,24 @@ stop replay after unknown reply, no process restart/kill or user-input lock.
 Fresh output preserves prior evidence; missing/stale observations remain explicit.
 Observer monotonic time is not capture time; wall joins are approximate. Engine
 read/stop calls can delay observer completion. Natural critical-pressure latency,
-GPU/thermal attribution and production capacity are unqualified.
+GPU/thermal attribution and production capacity are unqualified. Optional
+absolute `thermal_path` accepts at most4096 bytes from a regular nonsymlink leaf;
+its PID must be among `pids`, and level0..3 must match the declared state name.
+A matching observation less than15s old at serious/critical level can activate
+the same owned-stop guard. The motion fixture writes this coarse ProcessInfo
+state every5s; it is not a temperature/GPU measurement or authenticated identity.
 `resource-guard.test.mjs` checks owned single-stop, mismatch/settled refusal,
-unknown stop without replay and stale-pressure refusal against a fake engine.
+unknown stop without replay and stale-pressure refusal against a fake engine,
+plus fresh serious thermal triggering and nominal/stale/mismatched/symlink refusal.
 
 `verify-motion-duration.py` joins actual mux/source timestamps to a supplied
 motion lifecycle log and decodes the authored binary counter through its point
 affine. It preserves timelines/stderr and rejects a mismatched stopped counter.
+Declare `--scale 1|2` and optional `--minimum-motion-s`, `--minimum-static-s`,
+`--minimum-duration-s`; `--decode-timeout-s` bounds the decoder to1..180s.
+The fixture's `RSQualificationMotionSeconds` bundle setting permits10..600s
+(default120). Duration and cadence summaries use actual encoded stamps/counters,
+not the requested schedule. Stage37's330s Retina pair supplies one scoped profile.
 This is source QA for the known scene, not generic motion detection, physical
 latency proof, capture-clock calibration or a composition recipe.
 

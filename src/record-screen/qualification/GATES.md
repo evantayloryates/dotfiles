@@ -1,5 +1,54 @@
 # Qualification update — October 9, 2026
 
+## Thirty-seventh pass: sustained Retina pair and coarse thermal guard
+
+One owned310s motion cycle was recorded by simultaneous330s window and display
+sources at2000×1464/requested60fps. Actual mux/source joins passed:17671 primary
+and17674 backup packets, exact journal timestamps, zero reported writer drops
+or journal loss. Both actual packet-time spans are329.983s. Decoded binary
+counters establish306.287/306.298s moving spans with17345/17354 changing
+transitions and113 stopped samples per source spanning22.96s. Counter change
+fractions are98.89/98.92%; nominal60fps is not a physical cadence guarantee.
+Drawing/coalescing versus upstream omission is not causally distinguished.
+The wrong1× map was rejected before decoding. No reshoot or clock reconstruction.
+
+347 observer samples included327 approximately wall-aligned in-take samples.
+Recorder cumulative CPU delta42.7s over329.665s (0.12953 cores),47.73MiB peakRSS;
+fixture0.10571cores/80.22MiB; WindowServer0.45543cores/127.89MiB, with unrelated
+work attribution unknown. Video513518205bytes and journals22630963bytes combined.
+All327 pressure observations were fresh/normal and coarse ProcessInfo thermal
+observations fresh/nominal; no observer errors or guard stops. This is one
+bounded higher-fidelity point profile, not GPU, temperature, host capacity,
+thermal equilibrium, storage-duration policy or productionP80 qualification.
+
+The passive observer now accepts an optional bounded regular thermal leaf from
+an explicitly owned PID. Serious/critical fresh matching state can stop only
+declared owned takes after session/state checks. Stale/wrong-PID/state/symlink
+data stay unknown and cannot trigger a thermal stop. Eight fake-engine tests
+passed, including prior pressure guards. Stop is at most once per owned ID;
+OS reads/guard RPC are not hard real-time. Authored fixture reports coarse
+thermal state every5s and admits a bounded10..600s lifecycle; production native
+code was unchanged. Resource admission remains partial.
+
+Taylor's authentication reply triggered a fresh permission readback. Settings
+still labels its enabled row preview-record-screend.app; installed signed
+f314bb340344/PID35547 freshly reports listen_access=true and starts a listener.
+The first18s take observed secure input; AX Stop reached the app's lifecycle
+log but produced no pointer callbacks. A separate45s probe also observed secure
+input, so no key was dispatched. Both retain secure_input_enabled gaps. This
+does not invalidate the earlier completed delivered-key canary or establish new
+keyboard coverage. We did not bypass protection, mutate the permission, restart
+the recorder or ask for authentication again. Initial target.kind request was
+rejected before schedule admission; corrected target.type was submitted once.
+
+Four terminal scopes imported with separate outcomes: three verified and one
+failed fresh-pointer expectation; all cleanup complete, zero uncovered receipts.
+Owned fixturePID26839/window8065, observer and session ses_bhszrahv are settled;
+four takes terminal, native unchanged/idle, no active scopes/subscribers. Raw
+video/events remain private gates-v37.40completed,17partial,1deferred; goal active.
+Next use this profile in consumer planning and define practical storage/admission
+bounds; continue daily-app/provider/physical gates without repeating stable takes.
+
 ## Thirty-sixth pass: bounded input queries preserve broad relevance and gaps
 
 Fresh MCP0.11.0 recording_input and CLI input-query deliver interval-based retained

@@ -31,6 +31,21 @@ final class MotionDelegate: NSObject, NSApplicationDelegate {
   var stopTimer:Timer?
   var output:FileHandle!
   var monitor:Any?
+  var thermalTimer:Timer?
+  var maximumMotionSeconds:Double {
+    let n=(Bundle.main.object(forInfoDictionaryKey:"RSQualificationMotionSeconds") as? NSNumber)?.doubleValue ?? 120
+    return n.isFinite && n>=10 && n<=600 ? n : 120
+  }
+  func observeThermal() {
+    let level=ProcessInfo.processInfo.thermalState.rawValue
+    let names=["nominal","fair","serious","critical"]
+    let status:[String:Any]=["pid":getpid(),"level":level,"state":level>=0 && level<names.count ? names[level] : "unknown",
+      "timestamp":ISO8601DateFormatter().string(from:Date()),"host_ns":String(clock_gettime_nsec_np(CLOCK_UPTIME_RAW)),
+      "qualification":"Coarse ProcessInfo thermal state; not temperature, GPU attribution or recorder-owned causality"]
+    let path=Bundle.main.bundleURL.deletingLastPathComponent().appendingPathComponent("thermal-status-\(getpid()).json")
+    if let bytes=try? JSONSerialization.data(withJSONObject:status,options:[.sortedKeys]) { try? bytes.write(to:path,options:.atomic) }
+    write(["kind":"thermal_observation","level":level,"state":status["state"]!])
+  }
   func write(_ row:[String:Any]) {
     var r=row;r["host_ns"]=String(clock_gettime_nsec_np(CLOCK_UPTIME_RAW));r["pid"]=getpid()
     guard var d=try? JSONSerialization.data(withJSONObject:r,options:[.sortedKeys]) else { return }
@@ -45,24 +60,26 @@ final class MotionDelegate: NSObject, NSApplicationDelegate {
     window=NSWindow(contentRect:NSRect(x:120,y:140,width:1000,height:700),styleMask:[.titled,.closable,.resizable],backing:.buffered,defer:false)
     window.title="Recorder qualification — bounded motion";window.isReleasedWhenClosed=false
     view=MotionView(frame:NSRect(x:0,y:0,width:1000,height:700));window.contentView=view
-    let start=NSButton(title:"Start 60 Hz motion (120s maximum)",target:self,action:#selector(startMotion));start.frame=NSRect(x:24,y:25,width:330,height:32);view.addSubview(start)
+    let start=NSButton(title:"Start 60 Hz motion (\(Int(maximumMotionSeconds))s maximum)",target:self,action:#selector(startMotion));start.frame=NSRect(x:24,y:25,width:330,height:32);view.addSubview(start)
     let stop=NSButton(title:"Stop motion",target:self,action:#selector(stopMotion));stop.frame=NSRect(x:370,y:25,width:160,height:32);view.addSubview(stop)
     monitor=NSEvent.addLocalMonitorForEvents(matching:[.leftMouseDown,.leftMouseUp,.rightMouseDown,.rightMouseUp,.leftMouseDragged,.mouseMoved,.scrollWheel]) { [weak self] e in
       guard let self else{return e};self.write(["kind":"delivered_pointer","type":e.type.rawValue,"event_uptime_s":e.timestamp,"x_window":e.locationInWindow.x,"y_window":e.locationInWindow.y,"window":e.windowNumber]);return e
     }
     window.makeKeyAndOrderFront(nil);NSApp.activate(ignoringOtherApps:true)
     write(["kind":"fixture_ready","window":window.windowNumber])
+    observeThermal()
+    thermalTimer=Timer.scheduledTimer(withTimeInterval:5,repeats:true){[weak self] _ in self?.observeThermal()}
   }
   @objc func startMotion() {
     stopMotion();write(["kind":"motion_start","tick":view.tick])
     timer=Timer.scheduledTimer(withTimeInterval:1.0/60,repeats:true){[weak self] _ in guard let self else{return};self.view.tick+=1;self.view.needsDisplay=true}
-    stopTimer=Timer.scheduledTimer(withTimeInterval:120,repeats:false){[weak self] _ in self?.stopMotion()}
+    stopTimer=Timer.scheduledTimer(withTimeInterval:maximumMotionSeconds,repeats:false){[weak self] _ in self?.stopMotion()}
   }
   @objc func stopMotion() {
     timer?.invalidate();stopTimer?.invalidate();timer=nil;stopTimer=nil
     if view != nil {write(["kind":"motion_stop","tick":view.tick])}
   }
   func applicationShouldTerminateAfterLastWindowClosed(_ sender:NSApplication)->Bool{true}
-  func applicationWillTerminate(_ notification:Notification){stopMotion()}
+  func applicationWillTerminate(_ notification:Notification){thermalTimer?.invalidate();observeThermal();stopMotion()}
 }
 let app=NSApplication.shared;let delegate=MotionDelegate();app.setActivationPolicy(.regular);app.delegate=delegate;app.run()
