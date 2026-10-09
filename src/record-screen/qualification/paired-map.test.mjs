@@ -144,7 +144,8 @@ test('actual two-file probes and fresh MCP/CLI boundary preserve snapshots, adve
     const r=JSON.parse(line);methods.push(r.method);socket.write(JSON.stringify({id:r.id,result:r.method==='status'?{capabilities:{source_journal:capable?1:0}}:
       snapshots.find(s=>s.descriptor.recording_id===r.params.recording_id).descriptor})+'\n');});});
   await new Promise((resolve,reject)=>{fake.once('error',reject);fake.listen(join(root,'run/engine.sock'),resolve);});
-  const child=spawn(process.execPath,[fileURLToPath(new URL('../server.mjs',import.meta.url))],{env:{...process.env,RECORD_SCREEN_HOME:root},stdio:['pipe','pipe','pipe']});child.stderr.resume();
+  const guiEnv={...process.env,PATH:'/usr/bin:/bin:/usr/sbin:/sbin',RECORD_SCREEN_HOME:root};delete guiEnv.FFPROBE_PATH;
+  const child=spawn(fileURLToPath(new URL('../bin/record-screen-mcp',import.meta.url)),[],{env:guiEnv,stdio:['pipe','pipe','pipe']});child.stderr.resume();
   const pending=new Map();let serial=0;const lines=createInterface({input:child.stdout});
   lines.on('line',line=>{const r=JSON.parse(line),p=pending.get(r.id);if(p){clearTimeout(p.timer);pending.delete(r.id);r.error?p.reject(Error(r.error.message)):p.resolve(r.result);}});
   const rpc=(method,params)=>new Promise((resolve,reject)=>{const id=++serial,timer=setTimeout(()=>reject(Error('Owned MCP deadline')),15000);pending.set(id,{resolve,reject,timer});child.stdin.write(JSON.stringify({jsonrpc:'2.0',id,method,params})+'\n');});
@@ -156,7 +157,7 @@ test('actual two-file probes and fresh MCP/CLI boundary preserve snapshots, adve
     assert.deepEqual(methods,['status','record.source','status','record.source']);
     const second=await mapRecordingPair(snapshots[0].descriptor,snapshots[1].descriptor,{...request,cursor:first.next_cursor,max_segments:8});
     assert.equal(second.segments.length,5);assert.equal(second.has_more,false);assert.equal(frameMapHealth().active,false);assert.equal(frameMapHealth().probe,null);
-    const cli=spawn(process.execPath,[fileURLToPath(new URL('../cli.mjs',import.meta.url)),'paired-map',JSON.stringify(request)],{env:{...process.env,RECORD_SCREEN_HOME:root},stdio:['ignore','pipe','pipe']});
+    const cli=spawn(fileURLToPath(new URL('../bin/record-screen',import.meta.url)),['paired-map',JSON.stringify(request)],{env:guiEnv,stdio:['ignore','pipe','pipe']});
     let output='',error='';cli.stdout.on('data',d=>output+=d);cli.stderr.on('data',d=>error+=d);
     assert.equal(await new Promise(resolve=>cli.once('exit',resolve)),0,error);assert.equal(JSON.parse(output).segment_count,8);
     const before=methods.length;assert.equal((await rpc('tools/call',{name:'recording_paired_map',arguments:{...request,backup_recording_id:request.primary_recording_id}})).isError,true);assert.equal(methods.length,before);
@@ -165,7 +166,7 @@ test('actual two-file probes and fresh MCP/CLI boundary preserve snapshots, adve
     assert.equal(status.mcp_adapter.paired_interval_coverage_summary,1);
     assert.equal(tool.inputSchema.properties.include_coverage_summary.type,'boolean');
     const summarized=JSON.parse((await rpc('tools/call',{name:'recording_paired_map',arguments:{...request,max_segments:1,include_coverage_summary:true}})).content[0].text);
-    const cliSummary=spawn(process.execPath,[fileURLToPath(new URL('../cli.mjs',import.meta.url)),'paired-map',JSON.stringify({...request,max_segments:1,include_coverage_summary:true})],{env:{...process.env,RECORD_SCREEN_HOME:root},stdio:['ignore','pipe','pipe']});
+    const cliSummary=spawn(fileURLToPath(new URL('../bin/record-screen',import.meta.url)),['paired-map',JSON.stringify({...request,max_segments:1,include_coverage_summary:true})],{env:guiEnv,stdio:['ignore','pipe','pipe']});
     let summaryOutput='',summaryError='';cliSummary.stdout.on('data',d=>summaryOutput+=d);cliSummary.stderr.on('data',d=>summaryError+=d);
     assert.equal(await new Promise(resolve=>cliSummary.once('exit',resolve)),0,summaryError);
     assert.deepEqual(JSON.parse(summaryOutput).coverage_summary,summarized.coverage_summary);
@@ -255,6 +256,49 @@ test('summary work budget returns unavailable without substituting a partial pag
   assert.equal(out.coverage_summary.reason,'segment_budget_exceeded');assert.equal(out.coverage_summary.evaluated_segments,0);
   assert.equal(out.coverage_summary.regions,null);assert.equal(out.coverage_summary.required_segments,8);
   assert.equal(summarize(pair(),{coverage_max_segments:8}).coverage_summary.summary_available,true);
+});
+test('service retry requests preserve exact intervals, holes and unknown clocks without raising work budget',()=>{
+  for(const kind of ['ordinary','hole','unknown_clock']){
+    const snapshots=pair();
+    if(kind==='hole')snapshots[1].probe.packets[1].duration='1';
+    if(kind==='unknown_clock'){delete snapshots[1].rows[0].clock_instance;delete snapshots[1].descriptor.source_packet.clock_instance;}
+    const original=summarize(snapshots).coverage_summary;
+    const limited=summarize(snapshots,{coverage_max_segments:3,max_segments:1}).coverage_summary;
+    assert.equal(limited.summary_available,false);assert.equal(limited.evaluated_segments,0);
+    const plan=limited.retry_guidance;assert.equal(plan.plan_available,true);
+    assert.equal(plan.requests[0].host_start_ns,request.host_start_ns);
+    assert.equal(plan.requests.at(-1).host_end_ns,request.host_end_ns);
+    const totals={};
+    for(let n=0;n<plan.requests.length;n++){
+      const retry=plan.requests[n];assert.equal(retry.coverage_max_segments,3);
+      assert.equal(retry.cursor,undefined);assert.equal(retry.max_segments,1);
+      if(n)assert.equal(retry.host_start_ns,plan.requests[n-1].host_end_ns);
+      validatePairedMapRequest(retry);
+      const result=resolvePairedMap(snapshots,retry).coverage_summary;
+      assert.equal(result.summary_available,true);assert(result.evaluated_segments<=3);
+      assert.equal(result.content_presence,'unverified');
+      assert.equal(result.clock_alignment_qualified,original.clock_alignment_qualified);
+      for(const [state,amount]of Object.entries(result.regions[0].backup.durations_ns)){
+        assert.equal(amount.denominator,'1');totals[state]=(totals[state]??0n)+BigInt(amount.numerator);
+      }
+    }
+    for(const [state,amount]of Object.entries(original.regions[0].backup.durations_ns))
+      assert.equal(totals[state],BigInt(amount.numerator),kind+' '+state);
+  }
+});
+test('fractional retry boundaries remain unavailable instead of rounding source clocks',()=>{
+  const snapshots=pair();snapshots[1].probe={streams:[{time_base:'1/3',width:64,height:64}],packets:[{pts:0,duration:1},{pts:1,duration:1}]};
+  const result=summarize(snapshots,{coverage_max_segments:1}).coverage_summary;
+  assert.equal(result.summary_available,false);assert.equal(result.retry_guidance.plan_available,false);
+  assert.equal(result.retry_guidance.reason,'fractional_split_boundary');
+  assert.equal(result.retry_guidance.requests,null);assert.equal(result.regions,null);
+});
+test('retry guidance refuses excessive request count without publishing a partial plan',()=>{
+  const snapshots=pair();snapshots[1]=lane('rec_backup',20,100000000n);
+  const result=summarize(snapshots,{coverage_max_segments:1}).coverage_summary;
+  assert.equal(result.retry_guidance.required_requests,20);assert.equal(result.retry_guidance.max_requests,16);
+  assert.equal(result.retry_guidance.reason,'retry_request_limit_exceeded');
+  assert.equal(result.retry_guidance.requests,null);assert.equal(result.evaluated_segments,0);
 });
 test('coverage option and budget are cursor-bound while default false preserves existing cursors',()=>{
   const first=summarize(pair(),{max_segments:1});

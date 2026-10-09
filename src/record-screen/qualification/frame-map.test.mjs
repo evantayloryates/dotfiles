@@ -197,13 +197,13 @@ test('actual regular-file probe, leaf refusal and fresh MCP read-only boundary',
 
 test('unresponsive owned probe refuses a concurrent call and settles after one deadline stop', async () => {
   const root=mkdtempSync(join(tmpdir(),'frame-map-probe-deadline-'));
-  const oldPath=process.env.PATH;const {rows,descriptor}=fixture();
+  const oldPath=process.env.PATH,oldProbe=process.env.FFPROBE_PATH;const {rows,descriptor}=fixture();
   const journal=join(root,'source.jsonl'),video=join(root,'source.mp4'),probe=join(root,'ffprobe');
   writeFileSync(journal,rows.map(r=>JSON.stringify(r)+'\n').join(''));writeFileSync(video,'owned diagnostic sentinel');
   writeFileSync(probe,`#!${process.execPath}\nsetInterval(()=>{},1000);\n`);chmodSync(probe,0o700);
   descriptor.source_packet.path=journal;descriptor.video={path:video};
   try {
-    process.env.PATH=root;
+    process.env.PATH=root;process.env.FFPROBE_PATH=probe;
     const first=mapRecordingFrames(descriptor,request);
     const rejected=assert.rejects(first,e=>e.code==='frame_mapping_probe');
     const deadline=Date.now()+2000;
@@ -214,5 +214,5 @@ test('unresponsive owned probe refuses a concurrent call and settles after one d
     const closed=Date.now()+2000;
     while(frameMapHealth().probe&&Date.now()<closed)await new Promise(resolve=>setTimeout(resolve,10));
     assert.equal(frameMapHealth().probe,null);assert.equal(frameMapHealth().active,false);
-  } finally {process.env.PATH=oldPath;rmSync(root,{recursive:true,force:true});}
+  } finally {process.env.PATH=oldPath;if(oldProbe===undefined)delete process.env.FFPROBE_PATH;else process.env.FFPROBE_PATH=oldProbe;rmSync(root,{recursive:true,force:true});}
 });

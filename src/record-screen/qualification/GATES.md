@@ -3229,3 +3229,59 @@ provider version prevents reusable readiness. Owned fixture/server absent,
 sessionclosed, inputsubscribers/activeactions/unfinishedrecordings0; installed
 native7c/PID39358 unchanged.45completed18partial1deferred. No physical input,
 grant/sleep change, prompt, input lock, peer restart or visual composition.
+
+## Seventy-third pass: sustained production duration and a reader boundary
+
+One owned source pair records eight minutes at 1000×732 output on the built-in
+2× display, requested 30fps H264, window-childfalse and exact fixed app crop.
+Input disabled/system pointer hidden. The fixture stops its nominal 60Hz motion
+after 420.00056s at tick25194; both actual sources decode every counter sample.
+All26,648 mux/source timestamps match, zero journal loss. Window12,257 moving
+samples/12,256 changes, app12,219/12,218; spans419.4657/419.4417s. Stopped counter
+matches all1,549 window/189 app static samples over52.9710/52.9224s. Different
+static cadence is not missing content. Held preroll1 each/app held end1 remain.
+
+509 passive samples over515s:20 before/474 during/15 after. Recorder peak45.94MiB,
+fixture79.14MiB; recording median CPU7.90%/p95 8.89%/max11.82% of one core.
+After-recording peak79.69% retained. All pressure samples fresh level2, coarse
+thermal nominal; no guard. No calibrated GPU/encoder attribution, causal baseline,
+safe upper capacity or P80. Video+journals160,703,814 bytes. Packet start/end,
+container duration and controller bounds are distinct; last packet end can
+extend beyond480s while container duration is about480s.
+
+Six sampled service maps available, authored counter source geometry independently
+verified. Whole479s paired coverage needs26,614 boundaries, refuses16,384 budget,
+evaluates0. Exact240s/239s summaries each fit budget (13,969/12,646 segments),
+common clock qualified and both canvases contained. Actual content is separate.
+This names the next opportunity: bounded service retry guidance using retained
+media, not another take or a raised limit without evidence.
+
+Read-only planner exposes measured_sustained_motion_pair_profile;12 affected
+planner checks pass and fresh owned MCP0.16/27tools reads exact profile. Older
+ordinary consumer remains unchanged. Three typed verified/cleanupcomplete
+outcomes and two scoped facts independently read back, zero uncovered. First
+Quit preflight refused inactive native binding before dispatch; current owned
+PID/window independently verified, documented AX refresh then one accepted Quit.
+No unknown-action replay or app read after close. Owned fixture/sampler absent,
+sessionclosed, native7c/PID39358 unchangedidle; zero unfinished/actions/subscribers.
+45completed18partial1deferred. Physical, sleep, grants, peer restarts and
+composition untouched. Private gates-v73 is authoritative.
+
+
+## Seventy-fourth pass: bounded reader guidance and minimal-PATH delivery
+
+Whole retained479s summary still refuses26614>16384/evaluated0/regionsnull.
+Service now returns two exact adjacent requests, evaluated16384/10230 with same
+budget, both lanes partition479s. Content remains unverified by geometry; common
+recorder-process clock unchanged. Fractional split boundaries and >16 requests
+refuse the complete plan, no rounding/partial requests/automatic read.
+
+Fresh GUI-style minimal-PATH MCP initially failed to start FFprobe. Preserve
+that failure. Both launchers now resolve the optional reader with the centralized
+resolver/explicit FFPROBE_PATH, keeping capture/status usable when unavailable.
+Actual fresh MCP0.16/27tools reads plan and both summaries; owned reader exits0,
+all four source files unchanged.37 affected paired/frame checks pass, including
+real minimal-PATH MCP/CLI and owned-probe timeout/busy settlement. One scoped
+shared fact read back; no invented UI receipt or capture. Native/peer untouched.
+45completed18partial1deferred, full goal active. Private gates-v74 holds request,
+results, source hashes, failed first reader and final current-MCP readbacks.

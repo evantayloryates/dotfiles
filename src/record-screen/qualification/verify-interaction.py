@@ -19,7 +19,14 @@ def bounds(values):
 
 
 def verify(oracle, journal):
-    delivered = [r for r in oracle if 'event_timestamp_ns' in r]
+    header = journal[0] if journal else {}
+    end = next((r for r in reversed(journal) if r['kind'] == 'input_scope_end'), None)
+    if header.get('kind') != 'header' or not end:
+        raise ValueError('A retained input scope and its terminal bound are required')
+    begin_ns, end_ns = int(header['epoch_host_ns']), int(end['host_ns'])
+    all_delivered = [r for r in oracle if 'event_timestamp_ns' in r]
+    delivered = [r for r in all_delivered
+                 if begin_ns <= int(r['received_host_ns']) < end_ns]
     retained = [r for r in journal if r['kind'] == 'input_event']
     index = collections.defaultdict(list)
     for row in retained:
@@ -35,7 +42,7 @@ def verify(oracle, journal):
             'relevance_reasons': collections.Counter(), 'with_action_tags': 0,
             'without_action_tags': 0, 'recorder_receipt_minus_event_ns': [],
             'app_delivery_minus_recorder_receipt_ns': [], 'pointer_errors': [],
-            'position_promoted': 0})
+            'position_promoted': 0, 'matched_key_codes': 0})
         group['delivered'] += 1
         group['event_kinds'][event['kind']] += 1
         if len(matches) != 1:
@@ -43,6 +50,12 @@ def verify(oracle, journal):
                              'exact_match_count': len(matches)})
             continue
         row = matches[0]
+        if event['cg_type'] in [10, 11, 12]:
+            if event['key_code'] != row.get('key_code'):
+                failures.append({'lane': lane, 'event_kind': event['kind'],
+                                 'error': 'matched stamp/type disagrees on key code'})
+            else:
+                group['matched_key_codes'] += 1
         group['matched_once'] += 1
         group['certainty'][row['scope_certainty']] += 1
         group['relevance_reasons'].update(row['relevance_reasons'])
@@ -63,13 +76,18 @@ def verify(oracle, journal):
         group['matched_pointer_positions'] = len(errors)
         group['max_raw_pointer_disagreement_points'] = max(errors) if errors else None
     footer = next((r for r in reversed(journal) if r['kind'] == 'footer'), None)
+    if not footer or not footer.get('complete') or footer.get('rows_lost') != 0:
+        failures.append({'error': 'input journal completeness/loss does not establish this sample'})
     return {'schema': 'owned-interaction-qualification/v1',
         'exact_delivery_sample_passed': bool(delivered) and not failures,
         'delivered': len(delivered), 'retained': len(retained), 'groups': groups,
+        'oracle_delivery_interval_host_ns': [str(begin_ns), str(end_ns)],
+        'oracle_outside_delivery_interval': len(all_delivered) - len(delivered),
         'failures': failures, 'journal_lost_rows': footer.get('rows_lost') if footer else None,
         'limits': ['Same-app sibling activity is deliberately retained with window uncertainty.',
             'Action tags declare intent intervals; absence or presence does not authenticate the actor.',
             'Raw CG timestamp identity is scoped sample evidence, not external clock calibration.',
+            'Oracle selection uses app receipt within the terminal input scope; boundary delivery may differ from tap receipt.',
             'Raw positions are not promoted; separate source-pixel qualification remains required.',
             'This sample measures no physical input density, touchpad phases or unseen event loss.']}
 

@@ -6,4 +6,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 . "${SCRIPT_DIR}/../../lib/resolve-binary.sh"
 NODE="$(resolve_binary node)"
+if RECORD_SCREEN_FFPROBE="$(resolve_binary ffprobe 2>/dev/null)"; then
+  export FFPROBE_PATH="$RECORD_SCREEN_FFPROBE"
+fi
 exec "$NODE" "${SCRIPT_DIR}/../cli.mjs" "$@"

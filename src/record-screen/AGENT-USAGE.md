@@ -593,3 +593,30 @@ The owned native nested menu adapted to narrower labels and then a scrolling
 encoded sources. Wider app capture preserves the same native ellipses; it cannot
 recover text the UI never displayed. Inspect the current source and actual popup
 geometry before declaring clipping, missing capture or an overflow capability.
+
+## A sustained capture can exceed a paired-summary reader budget
+
+The planner exposes `measured_sustained_motion_pair_profile`: one actual eight
+minute,1000×732 H264 window/app pair with about419.4s of decoded changing counters
+and53s of the correct stopped state.26,648 exact timestamps, zero journal loss;
+509 CPU/RSS/pressure/coarse thermal observations. This extends duration evidence,
+not upper capacity or another app's representativeness. See
+[the scoped envelope](qualification/SUSTAINED-MOTION.md).
+
+A whole479s paired geometric summary needs26,614 boundaries and refuses the
+16,384 budget with no partial-summary claim. Actual adjacent240s/239s queries
+pass on the same source. The service now returns
+`coverage_summary.retry_guidance` on budget refusal. If `plan_available:true`,
+issue its exact adjacent requests explicitly with the unchanged budget. The
+retained take's generated split evaluates16,384 and10,230 boundaries, covering
+479s. Fractional split boundaries/excess16 requests withhold the entire plan;
+never round clocks or use a partial request list. Each service read can still
+refuse or observe changed sources. Preserve its clock/journal/content uncertainty.
+No automatic retry or aggregation occurs; no reshoot is needed for this reader
+budget. Keep geometry, pixel presence and held-source time distinct.
+
+MCP/CLI launchers explicitly resolve optional FFprobe with the centralized
+resolver and respect `FFPROBE_PATH`; GUI minimal PATH is now tested. If the
+reader dependency is absent, capture/status remain available and the requested
+map fails with its bounded probe error. Direct `node server.mjs` consumers must
+provide the dependency through `FFPROBE_PATH` or their executable PATH.

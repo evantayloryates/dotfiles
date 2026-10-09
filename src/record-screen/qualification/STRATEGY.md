@@ -1,73 +1,79 @@
-# Capture foundations: findings and next implementation
+# Capture foundations: qualified strategy and remaining boundaries
 
-Current checkpoint: October 9, 2026, qualification stage55. Native signed build
-25bdf541968a/PID75812 is installed and idle; guarded delivery, retained-source
-mapping and scoped real-app consumers have actual evidence in GATES.md and the
-maintained checklist. Input Monitoring is enabled: installed destination-aware
-keyboard/shortcut checks and stage48 twelve native wheel events passed. Physical
-rates, external-provider clocks and universal input completeness remain unproven.
-The shared computer-use layer now stores exact app/environment facts, immutable
-action receipts and separate typed verification/cleanup. Unknown dimensions block
-reuse even caller confirmation; routine supported operations reinforce the store.
-Current recorder CLI/fresh MCP0.12.1 supports bounded retained input/context/health
-and exact source/media geometry. This chat's older loaded MCP still needs a safe
-consumer refresh; do not infer adoption from native build or force peer restarts.
-Private signed fallback/forward restoration passed its copied-state scope.
-Visual effect styles, cursor animation recipes and composition rendering are
-next-phase work. The supplied cursor.svg is a fixture asset only.
+Current checkpoint: October9,2026, stage74. Signed native7c0f81e9d71f is installed;
+current CLI and fresh owned MCP0.16/27 tools carry the latest contracts. Existing
+ordinary chat exposes22 older tools, so use current CLI for missing input queries,
+source maps, planning and declaration-only launch contexts. Preserve peer servers.
+Input Monitoring is enabled and delivered-event samples are verified; permission
+status alone does not establish input coverage. The maintained checklist currently
+has45 completed,18 partial and1 deferred items. Read PRODUCTION-GOAL.md for active
+work and GATES.md for exact observations; historical checkpoints below are evidence,
+not current readiness. Final cursor/effect styles and composition are deferred.
 
-Stage55 adds strict native discovery/capture option refusal and exact-window ID
-metadata assertions.69 parser/36 source-identity checks,5 CLI/MCP checks and18
-live private probes pass. First injected-caller incompatibility is retained;
-forward correction and fresh MCP0.12.1 private/installed2s sources each have four
-exact mux joins.89 prior session/recording JSON hashes unchanged; production idle.
-This covers request fields/selectors, not every RPC or all time/file/capacity
-readiness. App-dependent hidden/off-Space source verification remains necessary.
+## Supported source and interaction strategy
 
-Second-pass results superseding the initial open checks are in
-[GATES.md](GATES.md): streaming helper exclusion and visible Chrome native
-menus passed in bounded probes; marker/geometry joins now have pixel evidence.
-Installed foundation integration and controlled failure isolation are verified
-for their written scopes. Broader apps/providers, live-work collision quality,
-motion insurance and measured resource budgets remain open.
+1. **Plan an explicit source and production mode.** Prefer isolated window footage
+   for a covered parent. When transient fitting or omission matters, add a qualified
+   fixed app crop or display/popup source for the affected interval. These sources
+   have distinct occlusion, same-app interference, off-Space and crop limits.
+   Redundancy is optional and measured; it cannot promise universal recovery.
+2. **Keep synchronization inside the service.** Exact mux timestamps, source
+   references, geometry and recorder clock continuity form the mapping contract.
+   Source/packet clock joins are qualified, while provider and physical-event
+   presentation clocks retain explicit uncertainty. Fitted isolated origins remain
+   guarded when metadata cannot determine them. App-crop maps are useful only when
+   actual captured pixels corroborate the intended region.
+3. **Retain broad useful events with reasons.** Destination app/window clues,
+   pointer candidates, drag continuity and explicit action context remain separate
+   from actor identity. Keys need no focused text field. Stage72's companion-window
+   input stays unresolved; strict target-action queries can exclude its sample,
+   while optional unassociated retention restores it. Literal text is not captured.
+4. **Bracket prospective intent and record independent outcomes.** Declare bundle
+   only before launch; independently observe actual PID/window before subsequent
+   scopes. Close scopes promptly, then inspect pixels and delivery logs. Persist
+   separate verification/cleanup outcomes in the shared computer-use store.
+   A successful pixel change does not repair an expired receipt. Native CUA still
+   needs explicit bracketing; there is no automatic provider interception.
+5. **Treat user alignment as a production contract.** Background capture takes no
+   focus; agent UI may. Cooperative/explicit AFK access and human-click reservations
+   are distinct. Reserve cleanup and check the budget before each protected action.
+   Keep inputs available, detect disturbance and salvage only proven intervals.
+   No display-only input lock or guaranteed two-minute completion is established.
+6. **Verify terminal footage and recovery before reuse.** Read actual source/mux
+   correspondence, decode affected pixels and inspect omissions/occlusion. Retained
+   Safari app footage can be black while geometrically contained. Native menus can
+   adapt into ellipses and scrolling instead of overflowing. A wider backup cannot
+   reconstruct UI content never displayed. Fast previews and exact source maps are
+   delivered foundations; final visual recipes remain next-phase work.
 
-Use [AGENT-USAGE.md](../AGENT-USAGE.md) for the current production/recovery
-contract, and the checklist for scoped acceptance. Stage48 real TextEdit recovery
-preserved isolated scroll pixels under display occlusion; passive GPU observations
-add diagnosis, not calibrated encoder attribution/capacity. Stage49 fixes callback
-error report loss and proves independent terminal recovery without replay. Native
-CUA still needs explicit scopes; no automatic interception, actor authentication
-or model training.44 completed,16 partial,1 deferred; full goal active.
+## Shared learning and production evidence
 
-Stage51 adds a delivered guarded app filter: one exact live app on a fixed
-display crop, PID-scoped preview/source identity, input scope and explicit lifetime
-interruption. Actual authored encoded footage preserves568 changing samples beneath
-a20s opaque cover; app/source termination and fresh-PID preview retirement passed.
-Real TextEdit off-Space readiness remains partial. A display peer endpoint packet
-discrepancy exposed exclusive-end admission and received-buffer tail defects.
-Stage52 fixes both with actual decoded off-screen/Retina checks, delivers the
-exact tested signed binary through an idle fence and preserves168 state hashes.
-Fresh MCP0.12 source/planning/refusal and listener-access checks pass; delivered
-physical events and the older loaded chat connection remain separate.
+Use the shared computer-use capability layer for exact app/provider/OS/display
+facts and immutable operation/verification/cleanup records. Unknown dimensions,
+expiry and conflicting evidence prevent readiness reuse. Stable daily-app lanes
+have source-specific runbooks; routine computer use reinforces the same store.
+The store retains reported evidence and does not authenticate actors, inspect
+referenced files automatically or implement model training.
 
-Stage53 fresh owned TextEdit preparation and native display placement succeeds;
-old off-Space -3811 remains separate. Three60s sources retain5227 exact joins,
-including typeface overflow for both app child settings. Fixed crop clips the
-lower tail; late previews miss the already-disappeared popup. Current loaded MCP
-returns inspected640px historical before/menu/after frames without reshooting,
-but new adapter/replay-contract adoption remains open. Context/nested attempt
-is unqualified after stale element/after-media observations. Native Save preserves
-owned synthetic cloud autosave privately; known PID absent, no Delete. Six typed
-outcomes/cleanup complete, zero uncovered. Resource pressure level2 is observed,
-not calibrated admission. Broader recovery and physical/provider gates continue.
+Stage72 preserves20 terminal outcomes (17 verified/3 failed) and four scoped
+fixture facts. Four native takes have20,808 exact mux/source stamps and complete
+sequential decodes. All28 app-delivered event timestamps/types match, eleven raw
+pointer positions agree, and fourteen unobstructed source marker controls are
+within1px. Expired scopes and scaled-source/occlusion failures remain explicit.
+No physical-rate, universal filtering, overflowing-menu or whole-shot guarantee.
 
-Stage54 adds actual app-mode context root/Font/Highlight plus isolated-childtrue
-source comparison:5230 exact joins and saved before/after evidence. Right-click
-and Escape survive destination-based retention with a different foreground app;
-two native AX expansions leave no additional CG transitions. Semantic scopes and
-source-linked checkpoints supplement passive telemetry. Raw typo silently
-returned normal inventory: inspect resolved scope, not just RPC success. Earlier
-root/Font proofs retained; resource/physical/full recovery/adoption remain open.
+Stage71 verifies the retained Safari native selects/editing root and8,900 exact
+packet stamps. Its35 final app packets lose the target despite affine containment.
+Measured resource profiles and storage estimates describe specific captures,
+not capacity admission, calibrated GPU costs or production P80. Native release
+and private restoration were qualified through idle fences; ordinary consumer
+adoption and natural failures remain separate acceptance work.
+
+Remaining high-value boundaries: service-owned real changing/fitted popup origin,
+useful sustained production duration/resource profiles, ordinary consumer contract
+adoption, physical input/provider timing and separately approved sleep/revocation.
+Continue independent work when a human-dependent lane is deferred. Do not repeat
+settled footage or roll back successful phases merely because a later test fails.
 
 ## What the initial investigation established
 

@@ -70,7 +70,11 @@ Run with the same NumPy/Pillow Python runtime. One three-anchor CLI took2.69s/
 held primary packets and whole-interval named-region durations independent of
 segment page size. Rational partitions, dynamic clipping/outside states,
 clock/journal/transform refusal, summary work budgets and option-bound cursors
-have explicit positive/negative controls. Actual fresh MCP/CLI summaries match.
+have explicit positive/negative controls. Service retry guidance preserves exact
+adjacent intervals at unchanged budgets, including actual holes/unknown clocks;
+fractional/excess plans refuse completely. Actual fresh MCP/CLI summaries match
+through real launchers with a GUI-style minimal PATH. Launchers use the shared
+resolver for optional FFprobe; direct Node consumers use FFPROBE_PATH or PATH.
 The existing source interval checks cover
 held primary packets, primary-relative epoch conversion, rational boundaries,
 holes/unknown tails, legacy/different-process/clock-gap refusals, fitted geometry,
@@ -693,8 +697,9 @@ menus. No global collection, input synthesis, literal text or actor inference.
 Compile an owned private `.app`, drive it through native computer use, and keep
 its delivery log alongside the recorder source. `verify-interaction.py --oracle
 FILE --journal FILE --output FRESH` checks exact timestamp/type identity,
-per-window sample coverage, receipt/delivery differences and raw position
-agreement. Independently inspect actual encoded pixels and consumer queries;
+per-window sample coverage, key-code identity, receipt/delivery differences and
+raw position agreement. Oracle app receipt is bounded by the take epoch and
+terminal input-scope end; later activity is counted separately. Independently inspect actual encoded pixels and consumer queries;
 this helper does not qualify physical rate, source transforms or menu overflow.
 
 Stage72 retained28/28 delivered events in37 rows. App-delivered sibling keys

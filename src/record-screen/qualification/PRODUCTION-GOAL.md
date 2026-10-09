@@ -1,35 +1,30 @@
 # Production qualification goal
 
-## Current checkpoint: stage72 — ACTIVE
+## Current checkpoint: stage74 — ACTIVE
 
-Explicit AFK batch complete without physical input or human prompts. Four
-owned native takes give20,808 exact mux/journal stamps, all sequential decodes
-and zero lost rows. All28 app-local delivered event types/timestamps match;
-11 raw pointer positions agree exactly. Keys delivered to a canvas without a
-text field remain captured. Eight companion-window keys are retained unresolved;
-actual broad37/strict target21/target+unassociated29 queries demonstrate semantic
-filtering without actor inference. Blue app-painted pointer survives hiding.
+Retained stage73 eight-minute pair now has service-owned long-summary retry
+requests. Original479s summary remains unavailable at26614>16384 boundaries,
+evaluated0/regionsnull. Two exact adjacent requests evaluate16384/10230 with
+unchanged budget and cover479s in both lanes. Common recorder clock and canvas
+containment remain qualified; geometry content_presence stays unverified.
+Fractional split boundaries/excess16 requests refuse the entire plan without
+rounding or partial requests. No automatic retry, aggregation or reshoot.
 
-Native nested menus adapt to narrow/short parents with ellipsis and scrolling;
-206px submenu fits222px parent. First/last row, selection and dismissal are in
-encoded pixels. This does not exercise overflow.14 unobstructed marker controls
-are within1px. Continuous marker failures during occlusion and second scaled
-isolated1.14391px edge failure against1px remain; source-map guard retained.
-App source maps10 sampled frames, isolated maps10 guarded.
+Fresh GUI-style minimal-PATH MCP exposed absent FFprobe lookup. Initial failure
+preserved; both launchers now resolve the optional reader through the centralized
+binary resolver, respecting explicit FFPROBE_PATH. Capture/status can still start
+without it; requested mapping retains its bounded probe error. Current fresh
+MCP0.16/27tools reads actual retained retry summaries, owned process exits0;
+37 affected paired/frame reader checks pass, including minimal-PATH MCP/CLI and
+owned timeout/busy settlement. All four media/journal hashes unchanged. One scoped
+shared fact read back; no fabricated native action receipt for read-only work.
 
-20 terminal scopes/outcomes:17 verified/3failed, zero uncovered; four exact
-fixture facts read back. Safari native getApp timeout preserved; no Safari take
-or repeat. Late narrow-dismiss stays expired despite actual successful pixels;
-unused shorten-target never dispatched. Five subsequent short-menu actions
-close promptly. Owned fixture/server absent, sessionclosed,inputsubscribers0,
-activeactions0,unfinished0; native7c/PID39358 unchanged. Ordinary loaded22tools
-still lack current adapter capabilities; no peer refresh.45completed18partial
-1deferred; composition deferred.
-
-Next extend a useful sustained-motion production duration with CPU/RSS/coarse
-thermal/storage evidence. Separate source content and packet coverage; do not
-repeat menus or physical-input grants. AFK authorization remains bounded by
-23:20UTC conservative end, no fabricated click or human-dependent tests.
+Stage73 source/resource proof and stage72 delivery/menu/relevance proofs retained.
+Native7c/PID39358 unchanged; no capture, restart, input or peer refresh in stage74.
+Ordinary loaded22-tool adoption remains unknown.45completed18partial1deferred;
+full goal active, composition deferred. No new human-dependent tests while AFK.
+AFK conservative end23:20UTC. Next pursue a genuinely missing real-app transient
+or resource boundary, preserving prior failures and avoiding passed-take replay.
 
 ## Remaining work: ordered acceptance batches
 

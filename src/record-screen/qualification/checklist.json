@@ -1,9 +1,9 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T17:51:25-04:00",
+  "updated_at": "2026-10-09T18:13:15-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage72 self-contained AFK batch verified: four takes/20,808 exact mux joins/full decodes,28 delivered event matches and actual same-app keyboard query controls. Nested menus adapted to scrolling inside short parent; no overflow pass.20 typed outcomes/four facts saved. Next longer bounded motion/resource capture; physical/human/sleep gates remain deferred."
+    "note": "Stage74 complete: service-generated bounded retry requests cover retained479s exactly in two reads (16,384/10,230 boundaries), same budgets and explicit uncertainty. Fresh GUI-style minimal-PATH MCP exposed FFprobe lookup failure; shared launcher resolution fixed and actual readback passes.37 affected reader checks pass, source hashes unchanged. Next pursue a missing real-app/transient or resource boundary; physical/human/sleep remain deferred, no blocking prompts."
   },
   "production_note": "Signed native7c0f81e9d71f/PID39358 installed through one idle maintenance fence, exact candidate/installed binary and signature matched, Screen Recording grant preserved. Fresh canonical MCP0.16.0/27tools supports declaration-only pre-launch intent and context; loaded peers untouched and adoption unknown. Real launch and owned cleanup qualified; full18partial acceptance gates remain open.",
   "groups": [
@@ -172,10 +172,10 @@
           "title": "Synchronize primary and backup source intervals in the service",
           "status": "completed",
           "scope": "Two terminal sources: exact primary-relative/host intervals, retained same-process clock qualification, dense backup across held primary frames, independent geometry/content age/gaps and snapshot-bound pagination. Timing/geometry is not decoded rescue. Optional exact whole-interval named-region state durations with explicit work budget; canvas geometry remains separate from pixels.",
-          "evidence": "Stage61 fresh MCP0.14.0/current CLI:37 affected +9 final focused checks pass; actual MCP/CLI equal, default output/cursors preserved. Real90s/1769 boundary segments exact document containment; first page one segment. Nested-menu100ms contained both yet absent in isolated pixels; padded region clips primary/fits backup. Budget refusal, legacy clock and fitted-transform unknowns retained.",
+          "evidence": "Stage61 fresh MCP0.14.0/current CLI:37 affected +9 final focused checks pass; actual MCP/CLI equal, default output/cursors preserved. Real90s/1769 boundary segments exact document containment; first page one segment. Nested-menu100ms contained both yet absent in isolated pixels; padded region clips primary/fits backup. Budget refusal, legacy clock and fitted-transform unknowns retained. Stage74 retains whole479s refusal26614>16384; returns two valid exact adjacent host requests that independently evaluate16384/10230 under unchanged budget. Both lanes partition479s with same-clock geometry and content unverified. Fractional/excess16-request plans refuse without rounding/partial output. Fresh minimal-PATH MCP readback passes after centralized FFprobe resolution;37 affected reader checks pass, source hashes unchanged.",
           "next": "",
-          "anchor": "sixty-first-pass",
-          "updated_at": "2026-10-09T14:26:13-04:00"
+          "anchor": "seventy-fourth-pass",
+          "updated_at": "2026-10-09T18:13:15-04:00"
         },
         {
           "id": "display-geometry",
@@ -444,10 +444,10 @@
           "title": "Set a realistic resource and admission budget",
           "status": "partial",
           "scope": "CPU, memory, encoder/GPU/storage costs and useful production-duration estimates.",
-          "evidence": "Stage56 original90s pair104 observations: recorder peak53.52MiB, p50 intervalCPU6.94%/peak15.87%; TextEdit134.66MiB, host pressure1/2, no guard. Follow-up unmeasured. Prior GPU/longer profiles retained; no causal encoder/GPU/capacity/P80 proof. Stage61 one whole90 metadata CLI request evaluates1769 boundary segments in0.18s wall/maxRSS79.44MiB. Summary default4096/max16384 boundaries, over-budget refusal verified; these bounds are not capacity or P80 evidence. Stage66 measured75s useful30fps three-lane motion/movement/cover profile:90 process/host samples, recorder RSS peak463.06MiB, p50 intervalCPU8.90%/peak103.64% of one core; later settled RSS30.34MiB. Motion fixture78.34MiB and cover66.25MiB peaks; fresh host pressure2/thermal0, no guard trigger.5719 actual mux packets,40,839,659 video+4,048,850 journal bytes. One concurrent-host short take, no baseline delta/GPU/P80/long-duration capacity claim. Stage67 fresh0.15.0/CLI publishes measured three-source profile with exact source bytes/rows/packets, explicit crop/width/codec, per-source duration scenario and reader/journal flags. Live disjoint crop refused; configured slot shortfall refuses without reservation.46 affected and final12 planner checks pass; default fields/actual retained costs preserved. Capacity/GPU/P80 remain open. Stage70 saved75s window H264 and252.068s fixed app-crop HEVC (stopped for user pause before planned300s).250 resource observations retained; no guard fired. Terminal counters and finalized journals exist, but actual mux/source coverage and resource acceptance remain unverified. Stage71 all8,900 packets decode and exactly match journals.250 samples: recorder peak38.73MiB, median intervalCPU2.98%/peak19.81% of one core, host pressure2. Safari parent only; WebContent/GPU/thermal unmeasured.75s H264 window plus about252.07s HEVC app, stopped before300s; mux tail252.561567657s includes holds. Fresh MCP/CLI planning publishes scoped measured Safari profile;12 affected planner checks pass.",
-          "next": "Extend a useful resource boundary or app process tree without repeating this source; no five-minute, GPU/driver, safe upper capacity or P80 claim.",
-          "anchor": "seventy-first-pass",
-          "updated_at": "2026-10-09T17:31:04-04:00"
+          "evidence": "Stage56 original90s pair104 observations: recorder peak53.52MiB, p50 intervalCPU6.94%/peak15.87%; TextEdit134.66MiB, host pressure1/2, no guard. Follow-up unmeasured. Prior GPU/longer profiles retained; no causal encoder/GPU/capacity/P80 proof. Stage61 one whole90 metadata CLI request evaluates1769 boundary segments in0.18s wall/maxRSS79.44MiB. Summary default4096/max16384 boundaries, over-budget refusal verified; these bounds are not capacity or P80 evidence. Stage66 measured75s useful30fps three-lane motion/movement/cover profile:90 process/host samples, recorder RSS peak463.06MiB, p50 intervalCPU8.90%/peak103.64% of one core; later settled RSS30.34MiB. Motion fixture78.34MiB and cover66.25MiB peaks; fresh host pressure2/thermal0, no guard trigger.5719 actual mux packets,40,839,659 video+4,048,850 journal bytes. One concurrent-host short take, no baseline delta/GPU/P80/long-duration capacity claim. Stage67 fresh0.15.0/CLI publishes measured three-source profile with exact source bytes/rows/packets, explicit crop/width/codec, per-source duration scenario and reader/journal flags. Live disjoint crop refused; configured slot shortfall refuses without reservation.46 affected and final12 planner checks pass; default fields/actual retained costs preserved. Capacity/GPU/P80 remain open. Stage70 saved75s window H264 and252.068s fixed app-crop HEVC (stopped for user pause before planned300s).250 resource observations retained; no guard fired. Terminal counters and finalized journals exist, but actual mux/source coverage and resource acceptance remain unverified. Stage71 all8,900 packets decode and exactly match journals.250 samples: recorder peak38.73MiB, median intervalCPU2.98%/peak19.81% of one core, host pressure2. Safari parent only; WebContent/GPU/thermal unmeasured.75s H264 window plus about252.07s HEVC app, stopped before300s; mux tail252.561567657s includes holds. Fresh MCP/CLI planning publishes scoped measured Safari profile;12 affected planner checks pass. Stage73 eight-minute1000x732 H264 isolated-childfalse/app pair:26,648 exact joins, moving419.4s/static52.9s decoded counters correct.509 samples: recorder45.94MiB peak/recording median7.90% one-core CPU/post peak79.69%, all fresh pressure2/thermal0/no guard. Video+journals160,703,814 bytes. Fresh MCP0.16 reads scoped profile;12 planner checks pass. Stage74 resolves the named long-summary reader limit without raising limits or reshooting: exact service retries16384/10230, both479s geometry partitions. First GUI-style minimal-PATH reader failure retained; launcher resolves optional FFprobe explicitly and fresh MCP/CLI boundary passes.37 reader checks; geometry remains distinct from pixels/capacity.",
+          "next": "Extend a genuinely missing GPU/app resource boundary using a bounded sample; no repetition of this duration case, upper capacity or P80 claim.",
+          "anchor": "seventy-fourth-pass",
+          "updated_at": "2026-10-09T18:13:15-04:00"
         },
         {
           "id": "sparse-display-writer",
@@ -536,40 +536,40 @@
           "title": "Centralize version-scoped app observations",
           "status": "partial",
           "scope": "Shared reported facts, exact environment keys, expiry and conflicting evidence.",
-          "evidence": "Prior exact version/surface facts retained. Stage69 one authored-app1.0/build68/25F80/native-CUA versionunknown post-close AX read relaunch failure fact is independently read back with1day expiry. Exact old/new process and native-window observations support scope. This is one runtime/app case, not universal behavior, automatic learning or authenticated actor proof. Stage71 three exact Safari26.5/build21624.2.5.11.4/macOS25F80/native-CUA-version-unknown facts independently read back: real select/root capture, fixed-crop anchor within1px, and failure of geometric containment to imply visible app. Reported single-episode/expiry keys retained. Stage72 four exact owned-fixture facts independently read back, including negative overflow control. Provider version remains unknown; reusable readiness is withheld.",
+          "evidence": "Prior exact version/surface facts retained. Stage69 one authored-app1.0/build68/25F80/native-CUA versionunknown post-close AX read relaunch failure fact is independently read back with1day expiry. Exact old/new process and native-window observations support scope. This is one runtime/app case, not universal behavior, automatic learning or authenticated actor proof. Stage71 three exact Safari26.5/build21624.2.5.11.4/macOS25F80/native-CUA-version-unknown facts independently read back: real select/root capture, fixed-crop anchor within1px, and failure of geometric containment to imply visible app. Reported single-episode/expiry keys retained. Stage72 four exact owned-fixture facts independently read back, including negative overflow control. Provider version remains unknown; reusable readiness is withheld. Stage73 two exact facts read back. Separate stage72 source-helper diagnostic identifies all28 matching events sourcePID76855/installed26.1001.1001394; wrapper unknown stays unknown.",
           "next": "Use scoped daily-app facts in consumers and qualify changed dimensions; retain negative content-presence evidence and unknown provider version.",
-          "anchor": "seventy-second-pass",
-          "updated_at": "2026-10-09T17:51:25-04:00"
+          "anchor": "seventy-third-pass",
+          "updated_at": "2026-10-09T18:06:35-04:00"
         },
         {
           "id": "requalification",
           "title": "Build maintained app lanes and breadth-first requalification",
           "status": "partial",
           "scope": "Baseline ingestion for stable daily apps and updates when app/provider/OS behavior changes.",
-          "evidence": "Stage53 targeted TextEdit lane prepares fresh owned document through native display-placement menu, captures typeface overflow for both app child settings, and preserves old off-Space -3811. Context/nested coverage remains unknown; no universal app certification. Stage71 adds documented Safari native-select/change/dismiss/editing-root depth lane with actual decoded frames, continuous markers, timestamp proofs and black-tail failure. Shared exact-environment facts read back. Nested/overflow variants remain unqualified; no broad update churn or automatic canary claim. Stage72 native nested menu shrinks352→210px wide, then298→206px high with scrolling inside222px parent. Both sources show first/last row and selection/dismissal; UI itself ellipsizes labels. No overflow qualification.",
+          "evidence": "Stage53 targeted TextEdit lane prepares fresh owned document through native display-placement menu, captures typeface overflow for both app child settings, and preserves old off-Space -3811. Context/nested coverage remains unknown; no universal app certification. Stage71 adds documented Safari native-select/change/dismiss/editing-root depth lane with actual decoded frames, continuous markers, timestamp proofs and black-tail failure. Shared exact-environment facts read back. Nested/overflow variants remain unqualified; no broad update churn or automatic canary claim. Stage72 native nested menu shrinks352→210px wide, then298→206px high with scrolling inside222px parent. Both sources show first/last row and selection/dismissal; UI itself ellipsizes labels. No overflow qualification. Stage73 new sustained-motion duration extends the owned source envelope; all counter samples correct and explicit long-reader refusal retained.",
           "next": "Extend the remaining useful nested/overflow daily-app variants; use exact app/provider keys and source-linked canaries without duplicating settled tests.",
-          "anchor": "seventy-second-pass",
-          "updated_at": "2026-10-09T17:51:25-04:00"
+          "anchor": "seventy-third-pass",
+          "updated_at": "2026-10-09T18:06:35-04:00"
         },
         {
           "id": "workflow-audit",
           "title": "Verify the quality of recent shared computer-use workflows",
           "status": "partial",
           "scope": "Assess delivered actions, verification and cleanup rather than tool-call counts.",
-          "evidence": "Historical stage63 diagnosis retained. Stage69 targeted actual workflow finds post-close bound AX read relaunching a new PID/window. Three typed receipts/outcomes preserve verified original-process exit with partial first-close cleanup; separate exact new PID/window cleanup completed. Scoped audit uncovered0 covers stored scopes only, not all reads or implicit effects. Owned PIDs absent, sessionclosed and nativeidle. Stage71 six stored scopes each have read-back typed outcomes:3 verified/2 failed/1 unknown, zero uncovered. Protected menu episode stays failed for expiry/overrun; native Chrome timeout and unknown shortcut preserved. Independent later inventory finds owned Safari window absent/StartPage present without close replay; actor/time unknown. Audit covers stored scopes only. Stage72 twenty imported terminal scopes/outcomes read back:17 verified/3failed; zero uncovered. Expired narrow-dismiss stays failed despite visible dismissal; unused scope expires without dispatch. No provider interception claim.",
+          "evidence": "Historical stage63 diagnosis retained. Stage69 targeted actual workflow finds post-close bound AX read relaunching a new PID/window. Three typed receipts/outcomes preserve verified original-process exit with partial first-close cleanup; separate exact new PID/window cleanup completed. Scoped audit uncovered0 covers stored scopes only, not all reads or implicit effects. Owned PIDs absent, sessionclosed and nativeidle. Stage71 six stored scopes each have read-back typed outcomes:3 verified/2 failed/1 unknown, zero uncovered. Protected menu episode stays failed for expiry/overrun; native Chrome timeout and unknown shortcut preserved. Independent later inventory finds owned Safari window absent/StartPage present without close replay; actor/time unknown. Audit covers stored scopes only. Stage72 twenty imported terminal scopes/outcomes read back:17 verified/3failed; zero uncovered. Expired narrow-dismiss stays failed despite visible dismissal; unused scope expires without dispatch. No provider interception claim. Stage73 three verified/cleanupcomplete outcomes, zero uncovered; captures retain motion start/end scope context. Cleanup independently observed, provider preflight failure preserved.",
           "next": "Improve current provider dispatch/observation coverage and resolve specific failures; do not grade unbracketed operations from this six-scope audit.",
-          "anchor": "seventy-second-pass",
-          "updated_at": "2026-10-09T17:51:25-04:00"
+          "anchor": "seventy-third-pass",
+          "updated_at": "2026-10-09T18:06:35-04:00"
         },
         {
           "id": "receipt-integration",
           "title": "Improve automatic receipt coverage across providers",
           "status": "partial",
           "scope": "Capture durable operation evidence for native and browser actions.",
-          "evidence": "Stage69 resolves the stage68 pre-launch gap: actual declared launch begins before native getApp, independently observed PID remains separate. Shared receipt/outcome/source-context readers preserve resolution; legacy immutable IDs unchanged. Three actual terminal scopes/outcomes read back; first close cleanup remains partial after a provider read relaunched the app. Separate observed cleanup completed. No input capture, source backfill, authenticated actor or universal automatic native interception. Stage70 ordinary MCP scopes retain observed and declared identities; menu episode expired and one stale-index batch required fresh-state correction. Loaded adapter adoption remains unknown. Final owned-window close submitted once, independent inventory still reports window13728; cleanup unverified. Session closed/native idle. Stage71 actual ordinary-tool scopes imported with six outcomes/readbacks; failed reservation and unknown Chrome shortcut preserved. Declared target stays separate. Later independent owned-window absence settles current cleanup without retrospective stamps or replay. Fresh owned MCP0.16 publishes new profile; existing ordinary loaded adapter version/replay still unknown. Stage72 declared launch followed by independently observed PID/window;20 typed terminal outcomes and cleanup complete read back. Ordinary loaded22-tool schema still lacks fresh0.16 tools; no peer refresh.",
+          "evidence": "Stage69 resolves the stage68 pre-launch gap: actual declared launch begins before native getApp, independently observed PID remains separate. Shared receipt/outcome/source-context readers preserve resolution; legacy immutable IDs unchanged. Three actual terminal scopes/outcomes read back; first close cleanup remains partial after a provider read relaunched the app. Separate observed cleanup completed. No input capture, source backfill, authenticated actor or universal automatic native interception. Stage70 ordinary MCP scopes retain observed and declared identities; menu episode expired and one stale-index batch required fresh-state correction. Loaded adapter adoption remains unknown. Final owned-window close submitted once, independent inventory still reports window13728; cleanup unverified. Session closed/native idle. Stage71 actual ordinary-tool scopes imported with six outcomes/readbacks; failed reservation and unknown Chrome shortcut preserved. Declared target stays separate. Later independent owned-window absence settles current cleanup without retrospective stamps or replay. Fresh owned MCP0.16 publishes new profile; existing ordinary loaded adapter version/replay still unknown. Stage72 declared launch followed by independently observed PID/window;20 typed terminal outcomes and cleanup complete read back. Ordinary loaded22-tool schema still lacks fresh0.16 tools; no peer refresh. Stage73 three terminal verified/cleanupcomplete outcomes independently read back; native inactive-binding Quit preflight rejected before dispatch, fresh observed state then one accepted Quit. No automatic interception or ordinary adoption claim.",
           "next": "Qualify ordinary consumer adoption and remaining provider interception/read side effects; preserve settled source and typed outcomes.",
-          "anchor": "seventy-second-pass",
-          "updated_at": "2026-10-09T17:51:25-04:00"
+          "anchor": "seventy-third-pass",
+          "updated_at": "2026-10-09T18:06:35-04:00"
         },
         {
           "id": "shared-baseline-plan",
@@ -652,10 +652,10 @@
           "title": "Verify loaded MCP replay policy and reconnect boundaries",
           "status": "partial",
           "scope": "Never automatically resend mutations after a lost reply; distinguish loaded adapter from native engine version. Preserve existing peer MCP processes.",
-          "evidence": "Stage62 both harness registrations resolve to the canonical launcher; actual minimal GUI-PATH initialize/tools/status exposes0.14.0,27 tools, read-only paired summary and mutation_replay never. Owned reader3395 exit0/independently absent; both config hashes unchanged. Ordinary chat status still has no adapter metadata: version/replay/adoption unknown. Per-consumer launch/readback limits reconciled in shared skill/runbook; no peer refresh or mutation replay. Earlier lost-reply/source checks retained. Stage67 fresh minimal GUI-PATH canonical launcher initialize0.15.0/27 tools/triple_source_planning1/read-only plan/mutation_replay never; real CLI/MCP parity. Ordinary chat status independently still lacks adapter metadata; version/replay/adoption unknown. No mutation replay or peer refresh.",
-          "next": "Read the specific ordinary consumer contract after a safe natural launch; use qualified CLI meanwhile. Do not infer routing or replay from configuration, process age or native build.",
-          "anchor": "sixty-seventh-pass",
-          "updated_at": "2026-10-09T16:12:13-04:00"
+          "evidence": "Stage62 both harness registrations resolve to the canonical launcher; actual minimal GUI-PATH initialize/tools/status exposes0.14.0,27 tools, read-only paired summary and mutation_replay never. Owned reader3395 exit0/independently absent; both config hashes unchanged. Ordinary chat status still has no adapter metadata: version/replay/adoption unknown. Per-consumer launch/readback limits reconciled in shared skill/runbook; no peer refresh or mutation replay. Earlier lost-reply/source checks retained. Stage67 fresh minimal GUI-PATH canonical launcher initialize0.15.0/27 tools/triple_source_planning1/read-only plan/mutation_replay never; real CLI/MCP parity. Ordinary chat status independently still lacks adapter metadata; version/replay/adoption unknown. No mutation replay or peer refresh. Stage73 fresh owned0.16/27tools reads sustained profile; no old-peer refresh or ordinary adoption inference. Stage74 fresh canonical GUI-style MCP0.16/27tools reads generated retry plan and both exact summaries. Initial minimal-PATH FFprobe failure repaired through shared launcher resolution. No native/peer restart or automatic retry; ordinary loaded22-tool adoption remains unknown.",
+          "next": "Use current CLI/fresh MCP for newer contracts; verify ordinary consumer adoption at a safe launch without disturbing peers.",
+          "anchor": "seventy-fourth-pass",
+          "updated_at": "2026-10-09T18:13:15-04:00"
         },
         {
           "id": "agent-runbooks",
@@ -2816,6 +2816,30 @@
       "from": "active",
       "to": "active",
       "note": "Stage71 retained Safari verification complete:8,900 exact mux joins,6,684 marker packets within1px, real menus and a black app tail preserved. Six typed outcomes/three facts read back. Next self-contained nested/overflow and agent-input checks within Taylor’s two-hour AFK interval. Physical/human approval/sleep gates deferred; no blocking prompts."
+    },
+    {
+      "kind": "item",
+      "id": "paired-source-map",
+      "at": "2026-10-09T18:13:15-04:00",
+      "from": "completed",
+      "to": "completed",
+      "note": "Stage74 retains whole479s refusal26614>16384; returns two valid exact adjacent host requests that independently evaluate16384/10230 under unchanged budget. Both lanes partition479s with same-clock geometry and content unverified. Fractional/excess16-request plans refuse without rounding/partial output. Fresh minimal-PATH MCP readback passes after centralized FFprobe resolution;37 affected reader checks pass, source hashes unchanged."
+    },
+    {
+      "kind": "item",
+      "id": "resource-admission",
+      "at": "2026-10-09T18:13:15-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage74 resolves the named long-summary reader limit without raising limits or reshooting: exact service retries16384/10230, both479s geometry partitions. First GUI-style minimal-PATH reader failure retained; launcher resolves optional FFprobe explicitly and fresh MCP/CLI boundary passes.37 reader checks; geometry remains distinct from pixels/capacity."
+    },
+    {
+      "kind": "item",
+      "id": "mcp-replay-boundary",
+      "at": "2026-10-09T18:13:15-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage74 fresh canonical GUI-style MCP0.16/27tools reads generated retry plan and both exact summaries. Initial minimal-PATH FFprobe failure repaired through shared launcher resolution. No native/peer restart or automatic retry; ordinary loaded22-tool adoption remains unknown."
     }
   ]
 }

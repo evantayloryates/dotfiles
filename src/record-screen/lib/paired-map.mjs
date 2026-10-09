@@ -17,7 +17,7 @@ export const pairedMapSchema = {
       properties:{x:{type:'number'},y:{type:'number'}},required:['x','y']}},
     desktop_regions:regionSchema,max_segments:{type:'integer',minimum:1,maximum:256},
     include_coverage_summary:{type:'boolean',description:'Opt in to exact whole-interval durations for named regions: canvas clipping and explicit unknown states, never pixel presence.'},
-    coverage_max_segments:{type:'integer',minimum:1,maximum:16384,description:'Whole-interval summary work budget, default4096. Exceeding it returns summary unavailable; no partial coverage claim.'},
+    coverage_max_segments:{type:'integer',minimum:1,maximum:16384,description:'Whole-interval summary work budget, default4096. Exceeding it returns summary unavailable with bounded exact retry requests when representable; no partial coverage claim or automatic retry.'},
     cursor:{type:'string',maxLength:80,pattern:'^[a-f0-9]{64}:[0-9]{1,6}$'}},
   required:['primary_recording_id','backup_recording_id'],
   oneOf:[{required:['host_start_ns','host_end_ns','clock_domain']},{required:['primary_relative_start_ns','primary_relative_end_ns']}],
@@ -144,7 +144,30 @@ export function resolvePairedMap(snapshots,request) {
       clock_alignment_qualified:clockAligned,source_journal_complete:metadata.map(m=>m.mux_source_correspondence.journal_complete),
       state_precedence:['unqualified_clock (backup only)','unqualified_journal','unmeasured_packet','unmatched_source','unqualified_transform','contained/clipped/outside'],
       content_presence:'unverified'};
-    if(count>budget)return {...common,summary_available:false,reason:'segment_budget_exceeded',evaluated_segments:0,regions:null};
+    if(count>budget) {
+      const requiredRequests=Math.ceil(count/budget),maxRequests=16;
+      const guidance={schema:'record-screen-paired-coverage-retry/v1',plan_available:false,
+        required_requests:requiredRequests,max_requests:maxRequests,requests:null,
+        qualification:'Read-only retry guidance from this snapshot. No summary, automatic read, budget increase or clock/content qualification.',
+        limits:['Re-read terminal source snapshots through the service; preserve any later unavailable or changed-source result.',
+          'Exact adjacent host intervals partition the original request; each retains the original clock, geometry and content uncertainty.',
+          'Fractional split boundaries are not rounded into integer API clocks. No partial retry plan is returned.']};
+      if(requiredRequests>maxRequests)guidance.reason='retry_request_limit_exceeded';
+      else {
+        const retries=[];
+        for(let n=0;n<count;n+=budget) {
+          const from=serial(times[n]),to=serial(times[Math.min(count,n+budget)]);
+          if(from.denominator!=='1'||to.denominator!=='1') {
+            guidance.reason='fractional_split_boundary';break;
+          }
+          const {host_start_ns,host_end_ns,primary_relative_start_ns,primary_relative_end_ns,clock_domain,cursor,...base}=request;
+          retries.push({...base,host_start_ns:from.numerator,host_end_ns:to.numerator,clock_domain:'CLOCK_UPTIME_RAW'});
+        }
+        if(!guidance.reason){guidance.plan_available=true;guidance.requests=retries;}
+      }
+      return {...common,summary_available:false,reason:'segment_budget_exceeded',evaluated_segments:0,
+        regions:null,retry_guidance:guidance};
+    }
     const names=['contained','clipped','outside','unmeasured_packet','unmatched_source','unqualified_transform','unqualified_clock','unqualified_journal'];
     const zero=()=>Object.fromEntries(names.map(k=>[k,{n:0n,d:1n}]));
     const totals=request.desktop_regions.map(r=>({id:r.id,desktop_rect:{x:r.x,y:r.y,w:r.w,h:r.h},lanes:[zero(),zero()]}));

@@ -251,6 +251,68 @@ export function planProduction(args, status, windowResult = { windows: [], total
     media_duration: 'Mux packet durations include held tails and differ from controller wall duration. Preserve exact packet/source clocks; no fresh capture or completion guarantee follows from a padded tail.',
     evidence: evidencePath, evidence_section: 'Seventy-first pass',
   }
+  const measuredSustainedMotionPairProfile = {
+    "qualification": "One owned authored1000x732 point-resolution H264 window-childfalse/app-crop pair,8min capture with7min nominal60Hz motion and static tail. Actual source coverage verified; no requested-app representativeness, safe upper capacity, calibrated GPU attribution or P80.",
+    "engine_build": "7c0f81e9d71f",
+    "os_build": "25F80",
+    "display_scale": 2,
+    "fps": 30,
+    "input_enabled": false,
+    "show_cursor": false,
+    "requested_duration_s": 480,
+    "motion_timer_s": 420,
+    "codec": "h264",
+    "sources": {
+      "window": {
+        "width": 1000,
+        "height": 732,
+        "exact_muxed_packets": 14025,
+        "video_bytes": 71768989,
+        "journal_bytes": 8823892,
+        "moving_span_s": 419.465722083,
+        "static_span_s": 52.97101425,
+        "moving_samples": 12257,
+        "changing_transitions": 12256,
+        "static_samples": 1549,
+        "last_packet_start_ns": "479988454434",
+        "last_packet_end_ns": "480022948809",
+        "container_duration_s": "479.999999"
+      },
+      "app": {
+        "width": 1000,
+        "height": 732,
+        "exact_muxed_packets": 12623,
+        "video_bytes": 71525090,
+        "journal_bytes": 8585843,
+        "moving_span_s": 419.441696375,
+        "static_span_s": 52.922375154,
+        "moving_samples": 12219,
+        "changing_transitions": 12218,
+        "static_samples": 189,
+        "last_packet_start_ns": "479966667000",
+        "last_packet_end_ns": "480002067904",
+        "container_duration_s": "480.000000"
+      }
+    },
+    "source_journal_rows_lost": 0,
+    "resource_samples": 509,
+    "recorder_peak_rss_mib": 45.9375,
+    "recorder_recording_cpu_percent_p50": 7.900609019138076,
+    "recorder_recording_cpu_percent_p95": 8.893158702987487,
+    "recorder_recording_cpu_percent_max": 11.815971176190557,
+    "recorder_after_recording_cpu_percent_max": 79.69170133911597,
+    "cpu_percent_basis": "One core; approximate wall phases/cumulative ps intervals, not encoder/GPU attribution or causal baseline.",
+    "host_pressure_level": 2,
+    "coarse_thermal_state": "nominal",
+    "guard_triggered": false,
+    "capacity_qualified": false,
+    "representative_for_requested_app": false,
+    "resource_join": "20 pre/474 recording/15 post samples, all pressure/thermal observations fresh; concurrent host workload. RSS is per-process, not incremental or physical allocation.",
+    "paired_summary_limit": "Whole479s needs26614 boundaries and refuses16384 budget; tested240s/239s summaries each available/contained. Stage74 exact service retry requests evaluate16384/10230 at unchanged budget; fresh minimal-PATH MCP passes. Do not infer content from geometry or automatically retry; fractional/excess request plans refuse.",
+    "media_duration": "Last packet end/container duration/source content are distinct; preroll and final held source remain explicit. App static cadence differs while stopped counter stays exact."
+  }
+  measuredSustainedMotionPairProfile.evidence = evidencePath;
+  measuredSustainedMotionPairProfile.evidence_section = "Seventy-third pass";
   if (!triple) tripleDifferences.push('different stream configuration')
   if ((a.codec ?? 'h264') !== measuredPointTripleProfile.codec) tripleDifferences.push('different codec')
   for (const k of ['fps', 'duration_s', 'input_enabled', 'show_cursor']) if (a[k] !== (k === 'duration_s' ? measuredPointTripleProfile.requested_duration_s : measuredPointTripleProfile[k])) tripleDifferences.push(`different ${k}`)
@@ -308,7 +370,7 @@ export function planProduction(args, status, windowResult = { windows: [], total
       app_drawn_pointer: 'app content remains; capture pointer hiding does not remove it',
       text_caret: 'app content remains; capture pointer hiding does not remove it',
     },
-    resource_guidance: { unfinished_recordings: status?.capture_health?.recordings?.unfinished ?? null, quarantined_recordings: status?.capture_health?.recordings?.quarantined ?? null, configured_max_concurrent: status?.capture_health?.recordings?.max_concurrent ?? null, configured_limit_is_capacity: false, measured_profile: measuredProfile, measured_single_window_profile: measuredSingleWindowProfile, measured_retina_pair_profile: measuredRetinaPairProfile, measured_point_triple_profile: measuredPointTripleProfile, measured_safari_app_profile: measuredSafariAppProfile, profile_differences: profileDifferences, retina_pair_profile_differences: retinaDifferences, point_triple_profile_differences: tripleDifferences, storage_guidance: storageGuidance, duration_p80_s: null },
+    resource_guidance: { unfinished_recordings: status?.capture_health?.recordings?.unfinished ?? null, quarantined_recordings: status?.capture_health?.recordings?.quarantined ?? null, configured_max_concurrent: status?.capture_health?.recordings?.max_concurrent ?? null, configured_limit_is_capacity: false, measured_profile: measuredProfile, measured_single_window_profile: measuredSingleWindowProfile, measured_retina_pair_profile: measuredRetinaPairProfile, measured_point_triple_profile: measuredPointTripleProfile, measured_safari_app_profile: measuredSafariAppProfile, measured_sustained_motion_pair_profile: measuredSustainedMotionPairProfile, profile_differences: profileDifferences, retina_pair_profile_differences: retinaDifferences, point_triple_profile_differences: tripleDifferences, storage_guidance: storageGuidance, duration_p80_s: null },
     recovery: ['Mark and preserve the disrupted interval plus exact journals', 'Trim or select independently verified alternative source coverage', 'Reshoot from an application checkpoint when replayable; preserve unrecoverable live gaps'],
     next: 'Verify actual native target and encoded source pixels, consult shared exact-environment facts, then explicitly schedule the chosen sources. This plan starts no recording and authorizes no UI.',
   }

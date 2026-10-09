@@ -244,7 +244,7 @@ async function journalRows(handle, size) {
 }
 function probeFile(fd) {
   return new Promise((resolve,reject) => {
-    const child = spawn('ffprobe', ['-v','error','-select_streams','v:0','-show_packets','-show_entries',
+    const child = spawn(process.env.FFPROBE_PATH || 'ffprobe', ['-v','error','-select_streams','v:0','-show_packets','-show_entries',
       'stream=time_base,width,height:packet=pts,duration','-of','json','-i','/dev/fd/3'], { stdio:['ignore','pipe','pipe',fd] });
     probeState = { pid: child.pid ?? null, quarantined:false };
     let settled = false, bytes = 0, stderrBytes = 0, output = [];
