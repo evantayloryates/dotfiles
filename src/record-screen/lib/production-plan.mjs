@@ -1,4 +1,7 @@
 import { EngineError } from './client.mjs'
+import { fileURLToPath } from 'node:url'
+
+const evidencePath = fileURLToPath(new URL('../qualification/GATES.md', import.meta.url))
 
 // Read-only guidance. These observations are not resource admission, a user
 // grant, app readiness, a menu detector or an automatic capture operation.
@@ -101,7 +104,7 @@ export function planProduction(args, status, windowResult = { windows: [], total
     pressure_level: 2, exact_muxed_samples: 2371, dropped_frames: 0,
     recorder_cpu_cores: 0.06317, recorder_peak_rss_mib: 51.703,
     primary_bytes: 8291792, backup_bytes: 8303598,
-    evidence: 'qualification/GATES.md#thirtieth-pass',
+    evidence: evidencePath, evidence_section: 'Thirtieth pass',
     representative_for_requested_app: false,
   }
   const profileDifferences = []
@@ -109,6 +112,18 @@ export function planProduction(args, status, windowResult = { windows: [], total
   for (const k of ['fps', 'duration_s', 'input_enabled']) if (a[k] !== measuredProfile[k]) profileDifferences.push(`different ${k}`)
   if (a.max_width !== measuredProfile.width || base?.frame?.w !== 1000 || base?.frame?.h !== 732) profileDifferences.push('different or unobserved encoded geometry')
   if (status?.engine?.build !== measuredProfile.engine_build) profileDifferences.push('different engine build')
+  const measuredSingleWindowProfile = {
+    qualification: 'One authored 110-second point-resolution window take with motion then static pixels; not capacity, P80 or requested-app representativeness',
+    engine_build: 'f314bb340344', os_build: '25F80', display_scale: 2,
+    width: 1000, height: 732, fps: 30, requested_duration_s: 110, input_enabled: false,
+    exact_muxed_samples: 3221, dropped_frames: 0, journal_rows_lost: 0,
+    moving_span_s: 89.238544598, static_span_s: 20.245941292,
+    resource_samples: 109, pressure_level: 2,
+    recorder_cpu_cores: 0.052431, recorder_peak_rss_mib: 49.0625, video_bytes: 15281232,
+    evidence: evidencePath, evidence_section: 'Thirty-second pass',
+    representative_for_requested_app: false,
+    resource_join: 'Approximate wall interval; observer monotonic clock is not capture clock',
+  }
   unknown.push('Encoder/GPU attribution, thermal plateau, longer-duration capacity and P80 production-time estimates are unqualified')
   return {
     schema: 'record-screen-production-plan/v1', assessment_only: true, mutates: false,
@@ -124,7 +139,7 @@ export function planProduction(args, status, windowResult = { windows: [], total
       app_drawn_pointer: 'app content remains; capture pointer hiding does not remove it',
       text_caret: 'app content remains; capture pointer hiding does not remove it',
     },
-    resource_guidance: { unfinished_recordings: status?.capture_health?.recordings?.unfinished ?? null, quarantined_recordings: status?.capture_health?.recordings?.quarantined ?? null, configured_max_concurrent: status?.capture_health?.recordings?.max_concurrent ?? null, configured_limit_is_capacity: false, measured_profile: measuredProfile, profile_differences: profileDifferences, duration_p80_s: null },
+    resource_guidance: { unfinished_recordings: status?.capture_health?.recordings?.unfinished ?? null, quarantined_recordings: status?.capture_health?.recordings?.quarantined ?? null, configured_max_concurrent: status?.capture_health?.recordings?.max_concurrent ?? null, configured_limit_is_capacity: false, measured_profile: measuredProfile, measured_single_window_profile: measuredSingleWindowProfile, profile_differences: profileDifferences, duration_p80_s: null },
     recovery: ['Mark and preserve the disrupted interval plus exact journals', 'Trim or select independently verified alternative source coverage', 'Reshoot from an application checkpoint when replayable; preserve unrecoverable live gaps'],
     next: 'Verify actual native target and encoded source pixels, consult shared exact-environment facts, then explicitly schedule the chosen sources. This plan starts no recording and authorizes no UI.',
   }

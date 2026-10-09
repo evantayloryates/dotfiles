@@ -37,6 +37,8 @@ test('matching measured dimensions preserve unqualified app/capacity and cursor 
   assert.equal(p.resource_guidance.measured_profile.representative_for_requested_app, false)
   assert.equal(p.resource_guidance.configured_limit_is_capacity, false)
   assert.equal(p.resource_guidance.duration_p80_s, null)
+  assert.equal(p.resource_guidance.measured_single_window_profile.representative_for_requested_app, false)
+  assert.equal(p.resource_guidance.measured_single_window_profile.exact_muxed_samples, 3221)
   assert.match(p.cursor_layers.text_caret, /app content remains/)
   assert.match(p.cursor_layers.app_drawn_pointer, /does not remove/)
   assert.equal(p.mutates, false)

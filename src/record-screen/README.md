@@ -530,6 +530,20 @@ long-duration capacity or P80 timing. Even matching settings leave the requested
 app unqualified. Configured `max_concurrent:16` remains a limit, not capacity.
 The plan keeps P80 null and reports profile differences without extrapolation.
 
+The additional single-window benchmark covers a 110-second 1000×732/30fps take:
+3,221 exact source/mux samples, about 89 seconds of changing authored pixels
+followed by 20 seconds matching the logged stopped counter. It measured about
+0.052 recorder CPU cores/49.1MiB peak RSS and a 15.3MB file under warning pressure.
+The 109 wall-joined resource observations are approximate; their monotonic clock
+is separate. This is mixed-scene cost, not GPU/thermal capacity, requested-app
+representativeness or P80. Both profiles give an absolute evidence path/section.
+
+The opt-in qualification sampler can stop only explicit owned recordings after
+session/state checks if fresh critical pressure appears. Four fake-engine checks
+cover mismatch, already settled takes, lost replies without replay and stale
+pressure. Live guard did not fire. This is neither automatic service admission
+nor a user-input lock; stop latency and natural pressure recovery remain unknown.
+
 When disturbed, mark and preserve the interval/journals, trim or select only
 independently verified alternative coverage, and reshoot from an application
 checkpoint when replayable. Live unrecoverable gaps stay explicit. Keep a dense
@@ -561,6 +575,13 @@ Native CUA remains explicit. Shared `computer_use_outcome`/`computer_use_audit`
 and `evidence.mjs outcome/audit` preserve typed observations; a delivered receipt
 alone does not establish verification or cleanup. Audit counts describe reported
 persisted scopes, not all historical operations or task success rates.
+
+For launch, the future source app may have no live identity; action_begin refuses
+that missing target. A lifecycle scope can name the actual existing controller
+with explicit launch intent, then independently resolve the new source PID/window
+before its input scopes. Do not attribute future-source input to the controller
+or fabricate a PID. After close, stale running inventory is not proof of failed
+cleanup: check known PID/window absence before another close or getApp relaunch.
 
 Input telemetry needs a separate **Input Monitoring** grant for the installed
 signed `record-screend.app`. Screen Recording permission alone does not supply

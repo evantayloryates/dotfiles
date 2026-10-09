@@ -14,6 +14,25 @@ child inclusion alone did not preserve that popup in the tested window lane.
 
 ## Helpers
 
+`sample-resources.mjs CONFIG.json FRESH_OUTPUT_DIRECTORY` passively samples
+explicit PIDs and the shared pressure status file. Configuration: `pids`
+(1–16 positive PIDs), `seconds` (1–3600), `interval_ms` (500–10000, default 1000),
+and absolute `pressure_path`. Optional `guard_session_id` + `guard_recording_ids`
+(at most 4) enables a critical-pressure stop after session/state readback. No
+stop replay after unknown reply, no process restart/kill or user-input lock.
+Fresh output preserves prior evidence; missing/stale observations remain explicit.
+Observer monotonic time is not capture time; wall joins are approximate. Engine
+read/stop calls can delay observer completion. Natural critical-pressure latency,
+GPU/thermal attribution and production capacity are unqualified.
+`resource-guard.test.mjs` checks owned single-stop, mismatch/settled refusal,
+unknown stop without replay and stale-pressure refusal against a fake engine.
+
+`verify-motion-duration.py` joins actual mux/source timestamps to a supplied
+motion lifecycle log and decodes the authored binary counter through its point
+affine. It preserves timelines/stderr and rejects a mismatched stopped counter.
+This is source QA for the known scene, not generic motion detection, physical
+latency proof, capture-clock calibration or a composition recipe.
+
 `production-plan.test.mjs` checks mode/alignment boundaries, off-Space UI versus
 passive capture, explicit runtime obstacles, per-layer cursor limits, measured
 profile uncertainty and strict configuration. Its real MCP/socket fixture proves

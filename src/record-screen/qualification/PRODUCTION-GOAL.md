@@ -1,5 +1,13 @@
 # Production qualification goal
 
+Stage32 checkpoint: owned native readiness passed; Chrome/Dock failures remain
+scoped. Actual 110s mixed-scene capture supplied 3,221 exact samples, 2,611 changing
+transitions and 595 static samples matching its stopped counter. 109 resource
+observations/four isolated guard tests passed; five planning checks publish the
+additional scoped profile. Native build/PID unchanged, all owned resources settled.
+Chrome visibility help pending; continue independent work. 37 completed, 18 partial,
+1 deferred; broader app/provider/physical/capacity boundaries open, goal active.
+
 Stage31 checkpoint (October 9, approximately 07:12 UTC): read-only production
 planning v1 is available through CLI and fresh MCP0.9.0. Five new planning and
 three adjacent option/reconnect tests, live owned MCP and CLI readbacks passed.

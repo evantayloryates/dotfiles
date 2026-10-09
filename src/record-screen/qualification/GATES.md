@@ -1,5 +1,76 @@
 # Qualification update — October 9, 2026
 
+## Thirty-second pass: native readiness and longer mixed-scene profile
+
+Signed native build f314bb340344/PID 35547 stayed unchanged. The small, unchanged
+owned native fixture read completed in 0.885s with an on-screen window and valid
+actual source pixels. Stage31 Chrome/Dock reads remain scoped observation
+failures; the native provider is not uniformly broken. Causes remain unknown.
+Chrome visibility help is pending while independent work continues.
+
+The pre-launch scope correctly refused an absent source app: no scope/UI action
+was fabricated. Launch was bracketed against actual controller Codex/PID 71013,
+with explicit lifecycle intent. After CUA launch, owned fixture 57284/window 8032
+resolved independently; later motion/close scopes used that identity. No future
+PID/input was inferred from the controller receipt. An old bundle-path assumption
+was corrected to the actual preserved bundle before launch, without phase reset.
+
+One native button request started the authored 120s timer. Recording began later,
+so the 110s take naturally included about 89s moving pixels and 20s static pixels.
+The useful transition was retained rather than reshot to force an all-moving
+label. rec_xm9er7ep finalized done: 3,221 actual muxed samples exactly match
+journal decisions; zero encoder drops, journal loss, observed clock gaps or
+writer errors. There were 3,250 source callbacks; requested 30fps does not assert
+constant-rate delivery.
+
+Independent decoded counter: 2,612 moving samples/2,611 changes over 89.239s;
+595 static samples over 20.246s match logged stopped tick 7,194 (mod4096=3,098).
+Actual packet span 109.995s. Quarter-second transition margins remain explicit.
+A wrong stopped-counter reference was rejected using preserved media. No visual
+composition work. Unchanged fresh-source pixels are not held-buffer padding:
+the journal has one preroll hold, not 595 artificial holds. Actual loaded MCP
+source readback passed.
+
+### Measured costs and owned guard
+
+The bounded observer ran 130s/129 samples; 109 wall-joined observations fall
+inside the take. Recorder aggregate CPU 0.05243 core equivalents, peak RSS
+49.0625MiB; owned fixture 0.11856/78.53MiB; WindowServer 0.45736/114.41MiB.
+Recorder RSS first 48.61/last 47.14MiB is not a thermal/leak plateau claim.
+Pressure stayed warning level 2; maximum paging 0.01656MiB/s, compressor
+30.302MiB/s. Video 15,281,232 bytes. Other host work is included; GPU attribution,
+representative long-duration capacity and P80 remain unqualified.
+
+Reusable sample-resources.mjs validates bounded PID/duration/rate configuration,
+records observer monotonic time separately from approximate wall/resource joins,
+and preserves missing/stale samples. Optional critical guard accepts explicit
+session/recording IDs, checks session/state, and submits at most one stop per
+take. Mismatch/settled take refuses; lost stop reply stays unknown without replay.
+No process restart/kill or input lock. This is an opt-in qualification controller,
+not automatic service admission. Four fake-engine tests passed; live guard did
+not fire. Hard stop latency and natural critical-pressure recovery stay unknown.
+
+Planning publishes the new single-window mixed-scene benchmark with absolute
+evidence path, preserving the paired profile, null P80 and unqualified requested
+app. Five targeted planning tests/final CLI readback passed; the closed target
+correctly stays unavailable. No native rebuild or forced peer adapter restart.
+Existing loaded planning policy remains unknown; CLI/fresh adapters are available.
+
+### Settlement and learning
+
+One close request returned; immediate native inventory briefly said running.
+Subsequent PID/window absence confirmed termination without another close/getApp
+relaunch. Observer and tests are terminal; session ses_u8fkf28f closed, recorder
+idle, zero unfinished captures/subscribers/preview lanes/actions or maintenance
+lease. Three separately verified receipts have complete cleanup; no uncovered or
+truncated audit records. Two exact-entity facts appended/read back; provider/
+profile unknown dimensions keep reuse unconfirmed. Media/source/logs are private
+in gates-v32 and the owned production session directory.
+
+Resource, app/provider and workflow gates remain partial. Checklist remains
+37 completed, 18 partial, 1 deferred. Dynamic popup, physical input/sleep,
+broader workflow/provider and capacity boundaries stay open.
+
 ## Thirty-first pass: production planning delivered and readiness failure retained
 
 Current signed native build remains f314bb340344, PID35547, healthy and idle.
