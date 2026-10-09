@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "at": "2026-10-09T04:38:21.986Z",
+  "transport": "private-tailnet-existing-phone-link",
+  "actualHarnessCatalogRefreshed": false,
+  "gates": {
+    "discovery": true,
+    "resources": true,
+    "ready": true,
+    "remoteBundle": true,
+    "nativeTree": true,
+    "reactTree": true,
+    "nativeInputAndRouteRestore": true,
+    "explicitCleanup": true,
+    "sharedLearning": true,
+    "disconnectCleanup": true,
+    "allPassed": true
+  },
+  "checks": {
+    "python": 101,
+    "mcpSDK": 8,
+    "sourceAndNativeIdleReadback": true,
+    "generalLearningTwoRuntimes": true
+  },
+  "registration": {
+    "codex": "saved_and_read_back",
+    "claude-code": "saved_and_read_back",
+    "claude-desktop": "saved_and_read_back",
+    "cursor": "saved_and_read_back",
+    "opencode": "saved_and_read_back"
+  },
+  "limits": [
+    "Existing harness tool catalogs have not been forcibly reloaded.",
+    "Local stdio clients on this Mac; remote HTTP MCP is not exposed.",
+    "Persistent generic clients must call end at turn completion; no universal turn-end event exists."
+  ]
+}

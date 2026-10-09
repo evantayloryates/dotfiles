@@ -182,7 +182,7 @@ volume-button exit gesture or control the system's automation state.
 
 ## Verification
 
-`python3 -B -m unittest discover -s src/ios-agent/tests -v` exercises synthetic
+`PYTHONPATH=src/ios-agent python3 -B -m unittest discover -s src/ios-agent/tests -v` exercises synthetic
 lease, device, stale result, unknown outcome and owner-event failure cases.
 With `npm ci --ignore-scripts` in `src/ios-agent/react`, it also runs the real pinned
 frontend against a synthetic backend, verifies component state, authentication,

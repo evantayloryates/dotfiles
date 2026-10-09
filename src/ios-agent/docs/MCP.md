@@ -1,5 +1,9 @@
 # iOS agent MCP — shared service interface and operational learning
 
+Protocol references: [MCP stdio transport](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports),
+[tool contract](https://modelcontextprotocol.io/specification/2025-06-18/server/tools),
+[Codex registration](https://learn.chatgpt.com/docs/extend/mcp?surface=cli).
+
 Launch `/Users/taylor/dotfiles/bin/ios-agent-mcp` as a local stdio MCP server.
 Install pinned dependencies once with `npm ci --ignore-scripts` in
 `/Users/taylor/dotfiles/src/ios-agent/mcp`. No model API, embedding service,
