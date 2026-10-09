@@ -85,7 +85,9 @@ def match(image, template):
             'template_pixels': [w, h], 'search_positions': int(score.size), 'fft_pixels': math.prod(shape)}
 
 
-def register(primary, backup, primary_scale, backup_affine, anchors):
+def register(primary, backup, primary_scale, backup_affine, anchors, sampling='single'):
+    if sampling not in ('single', 'quarter_phase'):
+        raise ValueError('sampling must be single or quarter_phase')
     if not finite_number(primary_scale) or not .05 <= primary_scale <= 8:
         raise ValueError('bounded positive primary pixels-per-desktop-point required')
     if not isinstance(backup_affine, list) or len(backup_affine) != 6 or not all(finite_number(v) for v in backup_affine):
@@ -111,11 +113,33 @@ def register(primary, backup, primary_scale, backup_affine, anchors):
         size = (round(primary_scale*w), round(primary_scale*h))
         if not 16 <= size[0] <= 512 or not 16 <= size[1] <= 256 or size[0] > primary.width or size[1] > primary.height:
             results.append({'id':anchor['id'],'desktop_anchor':anchor,'available':False,'reason':'search_or_anchor_budget'});continue
-        # extent keeps fractional backup sampling rather than inventing a crop origin.
-        template = backup.transform(size, Image.Transform.EXTENT, box, Image.Resampling.BICUBIC)
-        result = {'id':anchor['id'], 'desktop_anchor':anchor, **match(image,gray(template))}
-        if result['available']:
-            result['translation_candidate_px'] = [result['location_px'][0]-primary_scale*x,result['location_px'][1]-primary_scale*y]
+        # Default extent/cursor behavior stays unchanged. Optional phase trials
+        # preserve the declared scale instead of rounding a region into a new density.
+        phases = (0,) if sampling == 'single' else (0,.25,.5,.75)
+        methods = ('rounded_region_extent',) if sampling == 'single' else ('rounded_region_extent','exact_density_extent')
+        trials = []; sampled_bounds = [x,y,x+w,y+h]
+        for method in methods:
+            for px in phases:
+                for py in phases:
+                    sx,sy = x+px/primary_scale,y+py/primary_scale
+                    sw,sh = (w,h) if method == 'rounded_region_extent' else (size[0]/primary_scale,size[1]/primary_scale)
+                    trial_box = (a*sx+tx,d*sy+ty,a*(sx+sw)+tx,d*(sy+sh)+ty)
+                    if trial_box[2] > backup.width or trial_box[3] > backup.height:
+                        trials.append({'available':False,'reason':'backup_anchor_clipped'});continue
+                    sampled_bounds[2] = max(sampled_bounds[2],sx+sw);sampled_bounds[3] = max(sampled_bounds[3],sy+sh)
+                    template = backup.transform(size, Image.Transform.EXTENT, trial_box, Image.Resampling.BICUBIC)
+                    trial = match(image,gray(template))
+                    if trial['available']:
+                        trial['translation_candidate_px'] = [trial['location_px'][0]-primary_scale*sx,trial['location_px'][1]-primary_scale*sy]
+                        if sampling != 'single':trial.update(sampling_method=method,template_phase_px=[px,py])
+                    trials.append(trial)
+        available = [t for t in trials if t['available']]
+        # Select by score, then apply the unchanged ambiguity/quality gates.
+        # Do not choose a lower-score false location just because its margin passes.
+        best = max(available,key=lambda t:t['score']) if available else trials[0]
+        result = {'id':anchor['id'], 'desktop_anchor':anchor, **best}
+        if sampling != 'single':
+            result.update(sampling_trials=len(trials),available_sampling_trials=len(available),sampled_desktop_bounds=sampled_bounds)
         results.append(result)
     reasons=[]
     if not all(r['available'] for r in results):reasons.append('anchor_unavailable')
@@ -124,6 +148,9 @@ def register(primary, backup, primary_scale, backup_affine, anchors):
     if len({r['id'] for r in results}) != len(results):reasons.append('anchor_ids_duplicate')
     if any(min(p['x']+p['w'],q['x']+q['w']) > max(p['x'],q['x']) and min(p['y']+p['h'],q['y']+q['h']) > max(p['y'],q['y']) for i,p in enumerate(anchors) for q in anchors[i+1:]):
         reasons.append('anchors_overlap')
+    sampled = [r.get('sampled_desktop_bounds') for r in results]
+    if sampling != 'single' and any(min(p[2],q[2]) > max(p[0],q[0]) and min(p[3],q[3]) > max(p[1],q[1]) for i,p in enumerate(sampled) if p for q in sampled[i+1:] if q):
+        reasons.append('anchor_sampling_extents_overlap')
     centers = [(r['desktop_anchor']['x']+r['desktop_anchor']['w']/2,r['desktop_anchor']['y']+r['desktop_anchor']['h']/2) for r in results if 'desktop_anchor' in r]
     separated = len(centers)==len(results) and max(math.dist(p,q)*primary_scale for p in centers for q in centers) >= 64
     if not separated:reasons.append('anchors_not_spatially_separated')
@@ -132,7 +159,7 @@ def register(primary, backup, primary_scale, backup_affine, anchors):
     if spread is None or spread > 2:reasons.append('anchors_disagree')
     available=not reasons
     fitted = [primary_scale,0,0,primary_scale,*[sum(t[axis]for t in translations)/len(translations) for axis in [0,1]]] if available else None
-    return {'schema':'offline-paired-anchor-registration/v1','candidate_transform_available':available,
+    output = {'schema':'offline-paired-anchor-registration/v1','candidate_transform_available':available,
             'candidate_desktop_to_primary_pixels':fitted,'reasons':reasons,'anchors':results,
             'translation_spread_px':spread,'qualification':'spatial_candidate_only; timing/provenance and held-out pixel verification required',
             'production_source_map_changed':False,
@@ -140,6 +167,10 @@ def register(primary, backup, primary_scale, backup_affine, anchors):
                       'Matching texture and two agreeing anchors do not prove full-frame or continuous alignment.',
                       'Legacy/different-process clocks remain unqualified; no provenance backfill.',
                       'Only positive isotropic translation is supported; no fitted union or occluded/missing content invented.']}
+    if sampling != 'single':
+        output.update(sampling=sampling,max_sampling_trials_per_anchor=32)
+        output['limits'].append('Phase/density hypotheses are bounded; trial-crop extents must remain independent. Match scores are not calibrated probabilities.')
+    return output
 
 
 def main():
@@ -153,11 +184,12 @@ def main():
             if len(content)>65536:raise ValueError('config grew beyond byte budget')
             config=json.loads(content)
     finally:os.close(fd)
-    allowed={'primary_image','backup_image','primary_scale','backup_affine','anchors'}
-    if not isinstance(config,dict) or set(config)!=allowed:raise ValueError('explicit images, scale, affine and anchors required')
+    required={'primary_image','backup_image','primary_scale','backup_affine','anchors'}
+    if not isinstance(config,dict) or not required <= set(config) or not set(config) <= required | {'sampling'}:raise ValueError('explicit images, scale, affine and anchors required')
     if any(not isinstance(config[k],str) or not Path(config[k]).is_absolute() for k in ['primary_image','backup_image']):raise ValueError('absolute source paths required')
     if args.output.exists() or args.output.is_symlink():raise ValueError('fresh output required')
-    result=register(bounded_image(config['primary_image']),bounded_image(config['backup_image']),config['primary_scale'],config['backup_affine'],config['anchors'])
+    if config.get('sampling','single') not in ('single','quarter_phase'):raise ValueError('sampling must be single or quarter_phase')
+    result=register(bounded_image(config['primary_image']),bounded_image(config['backup_image']),config['primary_scale'],config['backup_affine'],config['anchors'],config.get('sampling','single'))
     fd=os.open(args.output,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
     with os.fdopen(fd,'w') as stream:stream.write(json.dumps(result,indent=2)+'\n')
     print(json.dumps({'available':result['candidate_transform_available'],'reasons':result['reasons'],'anchors':[{k:r.get(k)for k in ['id','score','peak_margin','translation_candidate_px']}for r in result['anchors']]}))

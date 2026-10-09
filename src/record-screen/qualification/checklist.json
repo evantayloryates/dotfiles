@@ -1,9 +1,9 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T14:49:39-04:00",
+  "updated_at": "2026-10-09T15:13:32-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage63 retained-history audit covers774 files; four delayed cleanup settlements and one missing typed outcome appended, with original history preserved.140receipts/147outcomes/uncovered0/cleanupcompleted139/unknown1/conflict1; older bridge completion is not app success or native adoption. Original files/native unchanged; no UI or replay.46completed16partial1needs_retest1deferred. Visible renewal and ordinary adoption pending; continue missing investigative boundaries."
+    "note": "Stage64: 46 completed, 17 partial, one deferred. Retained fitted-frame candidate passed scoped spatial checks; production guard remains. Remaining work is grouped into ordered acceptance batches in Capture foundations: background fitted-map preparation, one mixed desktop/physical-input canary, ordinary consumer adoption, then isolated sleep/permission checks and production-envelope reconciliation. Avoid broad repeat audits and stable reshoots. Visible authorization awaits renewal; qualified CLI lets independent work continue."
   },
   "production_note": "Current CLI/fresh MCP0.14 provides opt-in exact whole-interval region durations with budget refusal.37 affected +9 final focused checks and actual MCP/CLI/default parity. Retained90s source:1769 segments evaluated; geometry is separate from captured pixels. Legacy/fitted guards remain. Signed native9bf/PID24295/exact binary unchangedidle, three scoped facts read back, own readers settled. Ordinary loaded adapter still unverified; full acceptance open.",
   "groups": [
@@ -230,12 +230,12 @@
         {
           "id": "fitted-child-mapping",
           "title": "Qualify coordinates when real child menus change source fitting",
-          "status": "needs_retest",
+          "status": "partial",
           "scope": "Actual child-enabled isolated window with above/below-parent popup fitting, including scale and source origin changes. Existing static/fixture maps retain their proven scope.",
-          "evidence": "Stage60 bounded offline registration recovers stage57 authored child within1.243px at four withheld markers (old error227.714px). Missing/wrong-phase controls refuse. Both real TextEdit anchor configurations refuse: small text weak, larger structure high-score but ambiguous wrong-region lookalike.16 final boundary checks pass after retained empty-result bug repair. Production fitted guard remains active; legacy clocks unknown.",
-          "next": "Add stronger independent anchors/position constraints or trustworthy frame-bound desktop union, then a real app acceptance pass. Do not loosen thresholds or replay settled source captures.",
-          "anchor": "sixtieth-pass",
-          "updated_at": "2026-10-09T14:05:55-04:00"
+          "evidence": "Stage64 first retained real TextEdit fitted-frame spatial candidate:2 parent-toolbar+1 child-selection anchors score.950/.902/.898, spread.303px. Four withheld native viewport edges <=.803px; two glyph supports >=98.76% within1px, brightness differs. New bounded quarter_phase helper option and21 checks pass; default actual JSON unchanged. Lower child.7845 still refuses; real wrong-phase child score1/margin0/disagreement refuses despite parent matches. Production fitted guard/legacy clock uncertainty retained; no generic or continuous map release.",
+          "next": "Qualify service-owned continuous fitted origin or trustworthy frame-bound child union, including changing/closed popup states and actual source-map delivery. Preserve the single-frame positive, failed hypotheses and guarded unknowns; no threshold lowering, clock backfill or stable source reshoot.",
+          "anchor": "sixty-fourth-pass",
+          "updated_at": "2026-10-09T15:07:54-04:00"
         },
         {
           "id": "fitted-mapping-guard",
@@ -2467,6 +2467,28 @@
       "from": "active",
       "to": "active",
       "note": "Stage63 retained-history audit covers774 files; four delayed cleanup settlements and one missing typed outcome appended, with original history preserved.140receipts/147outcomes/uncovered0/cleanupcompleted139/unknown1/conflict1; older bridge completion is not app success or native adoption. Original files/native unchanged; no UI or replay.46completed16partial1needs_retest1deferred. Visible renewal and ordinary adoption pending; continue missing investigative boundaries."
+    },
+    {
+      "kind": "item",
+      "id": "fitted-child-mapping",
+      "at": "2026-10-09T15:07:54-04:00",
+      "from": "needs_retest",
+      "to": "partial",
+      "note": "Stage64 first retained real TextEdit fitted-frame spatial candidate:2 parent-toolbar+1 child-selection anchors score.950/.902/.898, spread.303px. Four withheld native viewport edges <=.803px; two glyph supports >=98.76% within1px, brightness differs. New bounded quarter_phase helper option and21 checks pass; default actual JSON unchanged. Lower child.7845 still refuses; real wrong-phase child score1/margin0/disagreement refuses despite parent matches. Production fitted guard/legacy clock uncertainty retained; no generic or continuous map release."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T15:07:54-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Stage64 first real retained fitted-origin spatial candidate advances that gate to partial: parent+child anchors agree, four withheld edges <.81px, text supports about1px.21 focused checks/default parity and wrong-phase refusal pass. Production fitted source-map guard and legacy clock uncertainty stay active; sources/native unchangedidle.46completed17partial1deferred. No UI or reshoot; visible renewal/ordinary adoption pending, continue missing practical boundaries."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T15:13:32-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Stage64: 46 completed, 17 partial, one deferred. Retained fitted-frame candidate passed scoped spatial checks; production guard remains. Remaining work is grouped into ordered acceptance batches in Capture foundations: background fitted-map preparation, one mixed desktop/physical-input canary, ordinary consumer adoption, then isolated sleep/permission checks and production-envelope reconciliation. Avoid broad repeat audits and stable reshoots. Visible authorization awaits renewal; qualified CLI lets independent work continue."
     }
   ]
 }

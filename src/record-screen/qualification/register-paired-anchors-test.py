@@ -22,7 +22,7 @@ class RegistrationTests(unittest.TestCase):
         self.primary=Image.new('RGB',(400,250));self.primary.paste(self.backup,(40,30))
         self.anchors=[dict(id='first',x=20,y=20,w=32,h=32),dict(id='second',x=170,y=90,w=40,h=36)]
     def run_candidate(self,**kwargs):
-        return REG.register(kwargs.get('primary',self.primary),kwargs.get('backup',self.backup),kwargs.get('scale',1),kwargs.get('affine',[1,0,0,1,0,0]),kwargs.get('anchors',self.anchors))
+        return REG.register(kwargs.get('primary',self.primary),kwargs.get('backup',self.backup),kwargs.get('scale',1),kwargs.get('affine',[1,0,0,1,0,0]),kwargs.get('anchors',self.anchors),kwargs.get('sampling','single'))
     def refused(self,result,reason):
         self.assertFalse(result['candidate_transform_available']);self.assertIsNone(result['candidate_desktop_to_primary_pixels']);self.assertIn(reason,result['reasons'])
     def test_translation_recovers_held_out_point(self):
@@ -33,6 +33,25 @@ class RegistrationTests(unittest.TestCase):
     def test_repeated_scene_ambiguous(self):
         p=Image.new('RGB',(800,300));p.paste(self.backup,(20,20));p.paste(self.backup,(480,100))
         self.refused(self.run_candidate(primary=p),'anchor_match_ambiguous')
+    def test_phase_sampling_bounded_and_default_unchanged(self):
+        default=self.run_candidate();self.assertEqual(default,self.run_candidate(sampling='single'));self.assertNotIn('sampling',default)
+        result=self.run_candidate(sampling='quarter_phase');self.assertTrue(result['candidate_transform_available'])
+        self.assertEqual(result['candidate_desktop_to_primary_pixels'],[1,0,0,1,40.,30.])
+        self.assertTrue(all(r['sampling_trials']==32 for r in result['anchors']))
+        self.assertFalse(result['production_source_map_changed'])
+    def test_phase_repeated_scene_remains_ambiguous(self):
+        p=Image.new('RGB',(800,300));p.paste(self.backup,(20,20));p.paste(self.backup,(480,100))
+        self.refused(self.run_candidate(primary=p,sampling='quarter_phase'),'anchor_match_ambiguous')
+    def test_phase_missing_anchor_is_not_invented(self):
+        backup=self.backup.copy();backup.paste((0,0,0),(169,89,213,129))
+        self.refused(self.run_candidate(backup=backup,sampling='quarter_phase'),'anchor_unavailable')
+    def test_phase_trial_extents_must_be_independent(self):
+        anchors=[dict(id='a',x=20,y=20,w=32,h=32),dict(id='b',x=52,y=20,w=40,h=36)]
+        self.refused(self.run_candidate(anchors=anchors,sampling='quarter_phase'),'anchor_sampling_extents_overlap')
+    def test_invalid_sampling_checked_before_allocation(self):
+        with patch.object(REG,'gray',side_effect=AssertionError('must not allocate')):
+            for value in [True,None,{},'arbitrary',32]:
+                with self.subTest(value=value),self.assertRaises(ValueError):self.run_candidate(sampling=value)
     def test_inconsistent_scene_translation(self):
         p=self.primary.copy();a=self.anchors[1];box=(a['x'],a['y'],a['x']+a['w'],a['y']+a['h'])
         p.paste((0,0,0),(210,120,250,156));p.paste(self.backup.crop(box),(222,120))

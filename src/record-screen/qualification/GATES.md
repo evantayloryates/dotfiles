@@ -1,5 +1,52 @@
 # Qualification update — October 9, 2026
 
+## Sixty-fourth pass: first retained real-app fitted-origin candidate
+
+The real stage56 TextEdit fitted pair now has a constrained offline spatial
+candidate without reshooting. New independent parent-toolbar and child-selection
+anchors plus bounded phase/density sampling resolve the selected frame's origin.
+The helper remains an experiment; production source mapping still withholds
+`fitted_child_window_origin_unqualified`. Legacy source clock identity stays
+unknown, and the saved app/window samples differ by about11.6ms.
+
+`register-paired-anchors.py` accepts optional `sampling:"quarter_phase"`:
+quarter-pixel offsets and original versus exact-density extents give32 trials per
+anchor, at most128 across four anchors. The original score0.8/margin0.1/spread2px
+gates are unchanged. Select the highest score before applying those gates;
+never pick a weaker location to avoid an ambiguity refusal. Expanded trial-crop
+extents must remain independent. Default `single` output remains exactly equal
+to the saved actual stage60 refusal; invalid sampling refuses before image reads.
+Source/config/image/FFT allocation and fresh-output bounds remain intact.
+
+| Qualification | Evidence | Limit |
+| --- | --- | --- |
+| Real parent+child candidate | Three disjoint anchors score0.950/0.902/0.898; margins0.253/0.303/0.217; translations agree within0.303px | New caller anchor hypotheses, one retained selected pair; no automatic subject ownership or generic source-map promotion |
+| Withheld native child edges | Four source rows derived from saved native layer101 viewport x283/w159 match observed menu fill edges within0.803px | Logical viewport/fill, not full shadows, every child edge or continuous geometry |
+| Withheld document/menu glyphs | Two excluded regions have bidirectional bright-support agreement >=98.76% within1px; no refit on them | Gray correlations0.734/0.774 and brightness counts differ; support alignment is not pixel equality or full text/extent coverage |
+| Lower child hypothesis | Best score0.7845, margin0.145, similar translation; refused | No threshold lowering to force acceptance; initial failure remains |
+| Actual wrong-phase backup | Parent matches remain strong; child false peak score1.0/margin0 and inconsistent translation refuse the whole candidate | High score alone and parent agreement cannot establish popup correspondence |
+| Current helper/CLI |21 meaningful focused checks pass; canonical three-anchor CLI matches independent prototype; actual default JSON preserved; malformed option produces no output | Authored boundaries plus retained source readback, no new capture/UI or installed source-map change |
+| One owned cost | Three-anchor CLI2.69s wall/2.54s user/0.06s system; maxRSS164,085,760bytes (156.48MiB) | One offline invocation, not production P80, capacity or concurrent capture attribution |
+| Shared evidence/settlement | Two exact source/helper-scoped facts independently read back; skill-local coordination lessons appended; all six source hashes and native9bf/PID24295/binary unchangedidle | No UI/input, capture, video decode, grant or native/peer restart; ordinary consumer adoption remains separate |
+
+The candidate affine is
+`[0.5526315569877625,0,0,0.5526315569877625,-81.592098792394,-35.271928111712135]`.
+It is not written to any recording, source packet or current MCP response.
+Old failed affine/glyph and weak/ambiguous anchor evidence remains. The fitted
+checklist gate moves from needs_retest to partial for this first real-app sampled
+spatial acceptance; service-owned continuous origin qualification and actual
+production mapping remain its next acceptance step.46completed/17partial/
+1deferred; goal active. Visible renewal pending, composition deferred.
+
+Private evidence: gates-v64/{phase-experiment.json,child-phase-experiment.json,
+child-upper-phase-experiment.json,real-three-anchor-config.json,
+real-three-anchor-result.json,real-wrong-phase-result.json,held-out-check.json,
+actual-cli-proof.json,phase-helper-tests.txt,real-three-anchor-resource.txt,
+default-retained-result.json,invalid-sampling-stderr.txt,shared-facts.json,
+settled-status.json,qualification-summary.json}. Separate hypotheses/failures
+remain retained; successful parent results were reused for child experiments.
+No stable source capture, video decode or unrelated regression suite was replayed.
+
 ## Sixty-third pass: historical workflow evidence and delayed cleanup
 
 The background audit inspected774 retained files without loading their prose

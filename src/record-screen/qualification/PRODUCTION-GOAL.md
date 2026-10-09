@@ -1,6 +1,84 @@
 # Production qualification goal
 
-Current checkpoint: stage63. Background historical audit covers774 retained
+## Remaining work: ordered acceptance batches
+
+Taylor asked how to accelerate the remainder. Preserve all existing gate scopes
+and evidence. The next stages should produce acceptance evidence, fix a concrete
+failure, or resolve a named limitation; avoid another broad historical audit or
+offline registration tuning loop. These batches are an execution order, not a
+claim that every partial gate can close in one session.
+
+1. **Prepare the service-owned fitted mapping boundary in the background.**
+   Establish a trustworthy frame-bound origin/child union or an explicit refusal
+   for changing and closed popups. Deliver it through the actual source-map
+   contract before claiming continuous correctness. The single retained spatial
+   candidate is supporting evidence, not the production implementation.
+   Gate: `fitted-child-mapping`. No new UI authorization is needed for source
+   investigation and isolated candidate preparation.
+2. **Batch one useful built-in-display recording.** After renewed visible
+   authorization, use an owned Chrome/native fixture to exercise the missing
+   select/nested menu variants, window movement, popup open/change/dismiss and
+   one benign obstruction. Preserve synchronized isolated/app/display sources
+   only where each answers a missing question. Inspect actual retained media
+   over the affected intervals, including clipped or absent content; geometry
+   alone cannot establish rescue. Collect resource samples and typed workflow
+   receipts during the same run. Gates: `chrome-depth`, `overflow-recovery`,
+   `fitted-child-mapping`, `resource-admission`, `app-facts`, `requalification`,
+   `workflow-audit`, `receipt-integration`. If the fitted candidate is not ready,
+   the other missing tests can proceed without claiming fitted acceptance.
+3. **Include about one minute of Taylor's physical input in that run.** Mark
+   the requested input interval, then observe real pointer motion, clicks,
+   keyboard shortcuts and touchpad scroll phases alongside the agent's action
+   scopes. Measure source/video timing, coordinates, rate, missing data and
+   attribution uncertainty; distinguish declared ownership from measured
+   provenance. Gates: `event-clock`, `pointer-coordinates`, `dense-events`,
+   `event-relevance`, and the applicable `provider-gaps` boundary. A planning
+   allowance of 20 minutes for the desktop batch is not a measured P80 or a
+   promise that all these scopes will close.
+4. **Verify ordinary consumer adoption at one safe launch boundary.** Read back
+   the actual loaded tool schema/replay policy and one durable operation,
+   verification and cleanup outcome. Refresh only the intended connection when
+   safe; preserve peers. The qualified CLI is sufficient for the preceding
+   batches, so an MCP refresh is not their prerequisite. Gates:
+   `mcp-replay-boundary`, `receipt-integration`, `workflow-audit`,
+   `release-rollback`. Do not rerun the settled restoration drill.
+5. **Arrange isolated disruptive checks separately.** Physical sleep/wake and
+   permission-revocation behavior need a suitable human-approved interval;
+   routine capture permission does not authorize interruption of other work.
+   Gates: `sleep-clock`, `provider-gaps`, `event-clock`. Observe natural peer
+   failures and preserve exact partial media when they occur; do not provoke a
+   host-wide failure to complete `peer-failure` or `release-rollback`.
+6. **Finish the supported production envelope and agent runbook.** Reconcile
+   each remaining acceptance criterion against evidence, supported settings,
+   refusal/recovery behavior and named unqualified cases. Measure useful
+   capacity settings rather than pursuing a universal hardware guarantee.
+   Keep genuinely open criteria partial; no silent scope reductions or
+   unsupported completion claims. Composition remains the deferred next phase.
+
+Advance checklist states immediately after each batch. Stop/replan an individual
+test when it loses readiness or its bounded time budget; retain its artifacts
+and proceed to an independent missing check. Repeat passed evidence only when
+a changed boundary or specific failure warrants it. Visible authorization is
+currently pending; continue independent preparation without taking focus.
+
+## Checkpoints
+
+Current checkpoint: stage64. First retained real-app fitted-origin spatial
+candidate:2 parent-toolbar+1 child-selection anchors score.950/.902/.898 with
+.303px agreement. Four withheld native menu fill edges <=.803px; two glyph
+supports >=98.76% within1px, brightness differs. Initial lower child.7845 refused;
+real wrong-phase backup keeps parent matches but child score1/margin0/disagreement
+refuses. Bounded quarter_phase option32trials/anchor/max128, expanded-crop
+independence,21 focused checks pass; default actual JSON unchanged, final CLI
+matches prototype, malformed flag refuses. One offline CLI2.69s/156.48MiB,
+not P80/capacity. Two scoped facts readback; sources/native9bf/PID24295/binary
+unchangedidle. Fitted gate partial for one real sampled spatial acceptance;
+production guard/legacy clock uncertainty remain.46completed17partial1deferred,
+fullgoalactive. Visible renewal/ordinary adoption pending; no UI/input/capture/
+video decode/grant/native/peer restart. Next service-owned continuous fitted
+origin and other missing practical gates; no stable capture reshoot.
+
+Stage63 checkpoint: Background historical audit covers774 retained
 files:246 old bridge report/event pairs and140 typed receipts/142 initial
 outcomes across35 sessions. Bridge completion lacks typed verification/cleanup
 and exact session-key overlap; no task success rate inferred. Four delayed

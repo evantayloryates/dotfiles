@@ -28,20 +28,38 @@ spatially separated and independently useful; coordinates/scales are caller
 hypotheses. Both scales must be positive isotropic0.05..8. Textured templates
 must fit16..512 by16..256 pixels; primary search<=1million pixels, images<=8million
 pixels/32MiB, FFT<=2,097,152 cells, config<=64KiB. Regular nonsymlink inputs and
-fresh mode0600 output are required. No decoder, subprocess, UI or mutation is
+fresh mode0600 output are required. No video decoder, subprocess, UI or mutation is
 performed by registration itself; impose an owned deadline on the CLI process.
+
+Optional `"sampling":"quarter_phase"` tries32 bounded templates per anchor:
+quarter-pixel phase offsets with the original rounded-region extent and an
+extent preserving the declared source density. Choose the highest score, then
+apply the same score/margin/translation gates. The default `single` result is
+unchanged, including actual retained refusal output. No arbitrary grid/kernel
+or threshold options are exposed. Two to four anchors give at most128 trials;
+one FFT/allocation budget applies at a time. Expanded trial-crop extents must
+remain independent; adjacent declared anchors can therefore be refused. Score
+is not a calibrated probability. Include actual parent and child structure,
+then verify withheld regions; parent agreement alone cannot prove a popup match.
 
 Normalized correlation>=0.8, peak margin>=0.1 and translation agreement<=2px
 produce a spatial candidate only. A convincing wrong-region lookalike can have
 high correlation; independent held-out pixels, exact source/time provenance and
 coverage checks remain mandatory. Stage60 recovers an authored above-left child
-within1.243px at four withheld markers, but both real TextEdit anchor configurations
-refuse. Missing/wrong-phase source controls also refuse. Production fitted-origin
+within1.243px at four withheld markers, while both initial real TextEdit anchor
+configurations refuse. Stage64's new parent-toolbar/child-selection anchors and
+bounded phase sampling recover one real retained fitted frame: four withheld
+menu edges within0.803px and two glyph supports within about1px. Brightness/text
+correlations differ; this is spatial support, not pixel equality. A mismatched
+real backup keeps strong parent matches but refuses on child ambiguity/disagreement.
+The initial lower-child anchor still refuses. Production fitted-origin
 guard and legacy-clock limits remain unchanged; do not loosen thresholds to
-force a map. `register-paired-anchors-test.py` has16 authored acceptance/refusal
+force a map. `register-paired-anchors-test.py` has21 authored acceptance/refusal
 checks, including repeated scene ambiguity, missing content, inconsistent
 anchors, wrong scale, overlapping anchors, allocation budgets and fresh-file
-preservation. Run with the same NumPy/Pillow Python runtime.
+preservation, phase trial bounds, expanded-crop independence and default output.
+Run with the same NumPy/Pillow Python runtime. One three-anchor CLI took2.69s/
+156.48MiB maximum RSS; that is observed offline cost, not production P80/capacity.
 
 `paired-map.test.mjs` checks exact two-source interval joins, dense backup across
 held primary packets and whole-interval named-region durations independent of
