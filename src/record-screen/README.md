@@ -474,11 +474,18 @@ macOS asks again every 30 days. The re-confirm date lives in
 
 ## Capture foundations and qualification
 
-Build e0d053bc6732 was delivered and independently read back on October 8.
+Build 767d45f6ce40 was delivered and independently read back on October 8,
+following the e0d053bc6732 foundation release.
 The existing screen grant and prior state survived the upgrade and an idle
 fenced restart. Installed passive capture/source/export consumers passed their
 written smoke scope. Use `status` capabilities for the currently loaded engine;
 broader app, input, insurance and resource qualification remains open.
+
+`input_queue_loss:1` preserves callback receipt order through bounded ingress
+overload, reports lost callbacks separately from journal rows, and clears drag
+continuity across missing transitions. A new recording scope does not inherit
+earlier overflow. Thirty controlled actual-queue checks passed; physical provider
+rate and native drag/scroll coverage remain qualification work.
 
 MCP adapter 0.8.0 reconnects only readbacks after an engine disconnect. It never
 automatically resubmits mutations, including schedules with idempotency keys.

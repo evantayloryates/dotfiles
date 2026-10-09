@@ -1,6 +1,6 @@
 # Recorder-owned source journal v1
 
-Native build e0d053bc6732 is delivered; qualified scope and remaining limits are
+Native build 767d45f6ce40 is delivered; qualified scope and remaining limits are
 in the qualification report. Loaded capability readback remains authoritative.
 Use MCP `recording_source` or CLI `record-screen record-source <recording_id>`.
 Socket consumers negotiate `status.capabilities.source_journal == 1`, then call

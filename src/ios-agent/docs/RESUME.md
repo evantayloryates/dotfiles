@@ -1,28 +1,22 @@
 # Current Runner checkpoint — 8 October 2026
 
-Goal active; 13/16 bounded gates complete. One parallel pass finished; proceed sequentially.
-Report: /Users/taylor/src/docs/html/iphone-link-status-update/index.html.
-Newest snapshot/refresh/keep-awake candidate is signed and installed. Compiled
-UIKit fixture 51 gates; Python 82 tests; JavaScript 22 tests passed. Native fresh
-Nutrition navigation passed through the tailnet with USB connected. Scoped
-35-second worker outage retired control and recovered readiness in 1.633s.
+14/16 bounded qualification stages complete. Latest SDK wireless input passed
+after Taylor unplugged USB. Wi-Fi On/association restored; Home foreground and
+no lease/glow/frontend/pending cleanup. Native 51, Python 86, JavaScript 22.
+No XCTest or Mirroring needed for this final smoke. Current receipts:
+recovery-wireless-final-2026-10-08.json and release-cleanup-final-2026-10-08.json.
 
-Phone now: USB connected, DEV foreground on remote Metro without fallback,
-no Wi-Fi IPv4 association. No active lease/glow/frontend. Taylor has been asked
-only to unplug USB and keep DEV open/unlocked; await that answer for the final
-changed-binary wireless input gate. Do not ask Taylor to change Wi-Fi. Restore
-Wi-Fi On after testing and verify association plus native/provider idle.
+Remaining stage 15: audited Kickoff publication blocked by shared tracked edits.
+Taylor authorized coordination with Runner (2), chat
+01a11e05-c0e6-7923-b763-ad83b052845c. Message sent asking it to settle only its
+scoped changes at a verified safe checkpoint. Preserve all other workloads;
+no direct push/guard bypass. Wait for its completion/current tracked status.
+Stage 16 is dev-only-scope deferral. Report is
+/Users/taylor/src/docs/html/iphone-link-status-update/index.html.
 
-Fast Refresh edge: a MealLog presentation edit recorded a component refresh,
-but navigation returned Home while native bundle generation stayed at 1.
-Source bytes restored; no business data changed. Expanded-day baseline was not
-verified in that generation probe. Verify committed route after every source
-edit; no state-preservation guarantee or replay of mutations.
-
-Dotfiles service changes are being published on master under its all-dirty-files
-policy. Kickoff audited push refused because it could not prove there are no
-unstaged tracked changes. Preserve concurrent workload edits; do not bypass.
-No XCTest, debugger, QuickTime or temporary root tunnel is running.
+Do not repeat passing baselines. Refresh may reset navigation; ready/route gate
+after edits. Actual machine sleep, VPN outage and cold shared backend remain
+unqualified. Dotfiles AGENTS: commit all dirty files/push master before ending.
 
 ## Historical checkpoints — superseded by the current state above
 

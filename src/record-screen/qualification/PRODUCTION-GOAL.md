@@ -460,3 +460,24 @@ Next highest-impact lanes: consumer version/replay expectations, native input
 and richer scope/receipt coverage, remaining daily-app overflow, measured motion
 insurance and resource limits. Restoration verification remains partial; avoid
 live rollback merely as a drill. Broader goal remains active; effects deferred.
+
+## Nineteenth-pass installed checkpoint
+
+Thirty checks through actual bounded input/scoping queues proved ordered loss,
+2,048-event admission, dropped-release drag invalidation, a joining scope's loss
+baseline and final loss flush. One scope retained 2,049 samples, excluded a later
+outside drag and reported 2,001 lost callbacks separately from zero journal loss.
+These were authored scalar samples; physical provider rates remain unqualified.
+
+Signed 767d45f6ce40 matched that frozen proof and loaded privately before delivery.
+One fenced build reused it and independently loaded PID15145/input_queue_loss:1.
+The same fresh MCP 0.8.0 process read the new build and preserved source after
+native restart, closing the prior live idle-read reconnection gap. All twelve
+preserved state files and existing grant survived; no unfinished work, subscriber
+or lease remained. The test consumer exited; production remains running.
+
+Next: native drag/scroll delivery versus retained telemetry and pixels, richer
+same-app/contextual receipt coverage, daily-app overflow and measured motion
+insurance/resource bounds. Keep initial OS/per-key calls, physical sleep/access
+faults, listener-start coverage, safe consumer migration and restoration open.
+Do not rerun settled click/color or metadata evidence to inflate coverage.

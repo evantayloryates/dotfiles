@@ -1,6 +1,6 @@
 # Personal iOS app agent
 
-The earlier recorded SDK passed the full USB-unplugged Wi-Fi Off/On cycle through private Tailscale, with app/backend/React/native navigation and clean release. Both coach/client edit directions and restoration passed. The newest snapshot/refresh/keep-awake candidate is installed and ready on remote Metro with no Wi-Fi IPv4 association; its final unplugged input acceptance is pending. Recovery limits and exact build evidence are in docs/QUALIFICATION.md.
+The latest snapshot/refresh/keep-awake SDK passed USB-unplugged native Nutrition→Home, native/React inspection, remote Metro and fresh backend readiness through private Tailscale without a Wi-Fi IPv4 association. Wi-Fi On and Home were restored; native/host cleanup passed. Both coach/client edit directions and exact restoration passed on the earlier dated runtime. See docs/recovery-wireless-final-2026-10-08.json for the newest build identity and docs/DELIVERY.md for the agent operating contract.
 
 The host lives in dotfiles; the app integration stays on `ety/local-dev-foundation`.
 Only the explicit `IOS_AGENT_ENABLED=1` Debug build for `com.dev.kudos.fit` starts
@@ -166,7 +166,7 @@ the app-owned command passed the latest installed unplugged round trip. See
 [Wi-Fi workflow and recovery](docs/WIFI.md). A prepared acknowledgment or
 successful callback does not prove radio state.
 
-Explicitly release before finishing a turn. A separately running observer also
+Explicitly release before finishing a turn. An already-retired lease now cleans its local capability file after confirming it no longer owns control; this never releases a replacement owner or establishes global idle. A separately running observer also
 releases at turn completion, including agents that forget. Do not keep a lease
 file or try to reuse it in another turn. Do not acquire while the human is using
 the phone. Use Mirroring for nearby system recovery or explicitly authorized,
@@ -182,7 +182,7 @@ lease, device, stale result, unknown outcome and owner-event failure cases.
 With `npm ci --ignore-scripts` in `src/ios-agent/react`, it also runs the real pinned
 frontend against a synthetic backend, verifies component state, authentication,
 provider-crash cleanup, recovery and turn-end cleanup. At the current checkpoint
-65 Python checks pass, including fixed verifier, health, recovery and absolute
+86 Python checks pass, including fixed verifier, health, recovery and absolute
 IPC deadline tests. Run `node --test src/ios-agent/tests/test_telemetry.cjs src/ios-agent/tests/test_domain.cjs`
 for metadata/failure-path checks. Set `IOS_AGENT_MOBILE_ROOT` to the app checkout and run
 `node --test src/ios-agent/tests/test_bridge.cjs src/ios-agent/tests/test_transformer.cjs`
@@ -194,10 +194,10 @@ no caller-supplied URL or query. A queued acknowledgment requires a later state
 assertion of the result.
 The UIKit simulator fixture and physical prototype evidence are
 separate artifacts; neither substitutes for the final installed SDK smoke.
-The combined JavaScript suite passed 18 checks; the extended UIKit simulator
-matrix passed 31 gates. The paired local-auth helper passed 45 focused
+The combined JavaScript suite passed 22 checks; the extended UIKit simulator
+matrix passed 51 gates. The paired local-auth helper passed 45 focused
 Kickoff checks and live mint/readback/retirement, but signed-in browser/phone
-workflow acceptance remains open.
+workflow acceptance passed on the recorded paired runtime.
 Keep the [progress report](docs/PROGRESS.md) current after each verification stage.
 See [strategy gates](docs/STRATEGIES.md) for the remaining physical-device and
 installed-service checks. KIF-derived HID construction retains its Apache 2.0
@@ -214,7 +214,7 @@ Native transport never exports its URL, credential or response body.
 Native tree labels use explicit accessibility labels first, then visible UILabel
 text. Secure text-input descendants return an empty label. This made the actual
 iOS UIKit meal-menu options readable without screenshot interpretation; the
-42-gate compiled fixture covers fallback/precedence/redaction. The dedicated
+51-gate compiled fixture covers fallback/precedence/redaction. The dedicated
 dev adapter clears RN's persisted Perf Monitor preference at bundle selection
 and hides the active performance/element-inspector panels when its prelude
 starts. Diagnostics remain available in the agent channel. Physical verification
@@ -227,7 +227,7 @@ and the current route before input, and never replay accepted business changes
 to restore a lost screen. See docs/CAPABILITY-EDGES.md for the open gate.
 
 
-For slow wireless links, successful tree delivery reserves a bounded follow-up opportunity: five seconds after the first owner-fenced acknowledgment, with total capture age capped at 15 seconds and live geometry/hit checks retained. Background React polling yields up to two seconds after a native tree. The candidate also exposes allowlisted refresh cause counters in `state.refreshDiagnostics`; it never exports reload messages or source paths. Physical recovery qualification is pending; ordinary Fast Refresh may still reset navigation.
+For slow wireless links, successful tree delivery reserves a bounded follow-up opportunity: five seconds after the first owner-fenced acknowledgment, with total capture age capped at 15 seconds and live geometry/hit checks retained. Background React polling yields up to two seconds after a native tree. The candidate also exposes allowlisted refresh cause counters in `state.refreshDiagnostics`; it never exports reload messages or source paths. Latest installed wireless input and scoped-worker recovery passed; ordinary Fast Refresh may still reset navigation.
 
 
 Lease-scoped keep-awake candidate: UIKit idle timer is disabled only while control is leased; release, foreground loss and expiry restore its prior value. A preexisting disabled idle timer remains disabled. This does not prevent a manual lock or remove phone/Mac authentication. Compiled fixture 51 gates passed, including the three idle-timer checks. Latest signed build installed. Fixture runner now repairs only a missing-payload registry record on its own freshly booted simulator; a real installation or shared boot remains a collision refusal. Wi-Fi-off handoff briefly lost transport; fixed USB On recovery and a fresh build restored foreground registration. No single root cause is claimed for that transport loss.

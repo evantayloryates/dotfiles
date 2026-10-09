@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-08T23:29:16-04:00",
+  "updated_at": "2026-10-08T23:47:29-04:00",
   "workflow": {
     "state": "active",
     "note": "Taylor resumed qualification. Prioritize high-impact investigation, preserve failed evidence and useful progress, and avoid repeated resets or rerunning settled checks."
   },
-  "production_note": "Native e0d053bc6732 is installed and independently read back with the existing grant. Passive capture/source/export and one fenced restart passed; broader app/input/insurance/resource gates and restoration remain open. Fresh MCP adapter 0.8.0 declares no mutation replay; existing harness policy is not reported.",
+  "production_note": "Native 767d45f6ce40 is installed and independently read back with input_queue_loss:1 and the existing grant. Thirty controlled actual-queue checks passed; same MCP 0.8.0 idle read recovery survived delivery. Broader app/input/insurance/resource gates, existing consumer policy and restoration remain open.",
   "groups": [
     {
       "id": "capture",
@@ -178,20 +178,30 @@
           "title": "Qualify dense pointer, keyboard and gesture telemetry",
           "status": "partial",
           "scope": "Delivered keys, modifiers, motion, clicks, scroll and drag with bounded callback work.",
-          "evidence": "Native keyboard and gesture signals were retained with zero overflow in bounded takes.",
-          "next": "Test high-rate overload and other providers; keep raw trajectories and loss counts explicit.",
-          "anchor": "fifth-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "evidence": "Native key/click evidence retained. Thirty controlled actual-queue checks now prove a 2048-event bound, exact ordered loss, separate journal loss and tail-gap flush. Installed 767d45f6ce40 reports input_queue_loss:1.",
+          "next": "Qualify native drag/scroll and physical provider-rate coverage; retain raw trajectories and explicit loss rather than repeating settled key/click proof.",
+          "anchor": "nineteenth-pass",
+          "updated_at": "2026-10-08T23:47:28-04:00"
+        },
+        {
+          "id": "ordered-input-loss",
+          "title": "Preserve input loss order and scope continuity",
+          "status": "completed",
+          "scope": "Actual bounded ingress/scoping queues with authored scalar samples: ordered loss, dropped-release invalidation, joining scope and tail flush; installed native capability and source retention readback. Excludes physical provider rates, OS delivery completeness and actor identity.",
+          "evidence": "30 checks passed: 2048-event cap, 2001 exact lost callbacks, 2049 retained first-scope samples, one later outside drag excluded, new scope inherited no old loss. Journal closed with zero row loss while reporting input loss. Signed candidate installed through one fenced build.",
+          "next": "",
+          "anchor": "nineteenth-pass",
+          "updated_at": "2026-10-08T23:47:28-04:00"
         },
         {
           "id": "event-relevance",
           "title": "Separate session events from unrelated user activity",
           "status": "partial",
           "scope": "Retain delivery and action-context reasons, broad shortcuts and uncertain candidates.",
-          "evidence": "36 native delivered events matched without target foreground; 40 unrelated key events were excluded after the action block ended.",
-          "next": "Test concurrent user/agent activity in the same app and more global-shortcut cases; do not infer ownership from focus.",
-          "anchor": "fifth-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "evidence": "Existing native delivery/action evidence retained. Controlled overload now clears missing-release drag context and excludes a later outside drag; a newly joining subscription inherits no historical loss. Dropped-event destinations/actors remain unknown.",
+          "next": "Test same-app concurrent human/agent activity and broader shortcuts/receipts. Preserve ownership uncertainty; joining-loss isolation does not establish actor separation.",
+          "anchor": "nineteenth-pass",
+          "updated_at": "2026-10-08T23:47:29-04:00"
         },
         {
           "id": "protected-input",
@@ -492,10 +502,10 @@
           "title": "Verify loaded MCP replay policy and reconnect boundaries",
           "status": "partial",
           "scope": "Never automatically resend mutations after a lost reply; distinguish loaded adapter from native engine version. Preserve existing peer MCP processes.",
-          "evidence": "Synthetic read reconnect and single submissions for session creation, scheduling and stopping passed. Fresh adapter 0.8.0 reports replay_policy:1; connected harness adapter omits it.",
-          "next": "Verify policy at consumers next safe launch; finish live same-MCP read reconnect evidence when a warranted maintenance boundary occurs. Do not repeat completed captures or force peer restarts.",
-          "anchor": "eighteenth-pass",
-          "updated_at": "2026-10-08T23:29:16-04:00"
+          "evidence": "Synthetic read recovery and single mutation submissions passed. Fresh adapter 0.8.0 reports replay_policy:1; same MCP PID15069 read the new native build and retained source across the warranted fenced upgrade. Connected harness adapter still omits policy.",
+          "next": "Verify existing consumers at their next safe launch/readback; do not force peer restarts. Keep absent loaded adapter policy unknown.",
+          "anchor": "nineteenth-pass",
+          "updated_at": "2026-10-08T23:47:29-04:00"
         },
         {
           "id": "agent-runbooks",
@@ -775,6 +785,38 @@
       "from": "completed",
       "to": "completed",
       "note": "25 native checks, five client guards and private protocol passed. Installed engine also refused a scheduled take and new work under a lease; one capable-engine restart preserved history and grant."
+    },
+    {
+      "kind": "item",
+      "id": "ordered-input-loss",
+      "at": "2026-10-08T23:47:28-04:00",
+      "from": "pending",
+      "to": "completed",
+      "note": "Completed scoped ingress-loss subgate; dense provider/gesture telemetry and broad relevance remain partial."
+    },
+    {
+      "kind": "item",
+      "id": "dense-events",
+      "at": "2026-10-08T23:47:28-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Native key/click evidence retained. Thirty controlled actual-queue checks now prove a 2048-event bound, exact ordered loss, separate journal loss and tail-gap flush. Installed 767d45f6ce40 reports input_queue_loss:1."
+    },
+    {
+      "kind": "item",
+      "id": "event-relevance",
+      "at": "2026-10-08T23:47:29-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Existing native delivery/action evidence retained. Controlled overload now clears missing-release drag context and excludes a later outside drag; a newly joining subscription inherits no historical loss. Dropped-event destinations/actors remain unknown."
+    },
+    {
+      "kind": "item",
+      "id": "mcp-replay-boundary",
+      "at": "2026-10-08T23:47:29-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Synthetic read recovery and single mutation submissions passed. Fresh adapter 0.8.0 reports replay_policy:1; same MCP PID15069 read the new native build and retained source across the warranted fenced upgrade. Connected harness adapter still omits policy."
     }
   ]
 }

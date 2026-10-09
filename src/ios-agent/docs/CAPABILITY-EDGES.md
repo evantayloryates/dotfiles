@@ -1,8 +1,23 @@
+# Current installed acceptance — 8 October 2026
+
+The latest snapshot/refresh/keep-awake SDK passed the exact USB-unplugged
+wireless input gate without Wi-Fi IPv4 association, including strict readiness,
+remote Metro, fresh backend probe, native/React inspection and committed
+Nutrition→Home. Wi-Fi On callback and association were restored. Native and
+host lease/glow/frontend cleanup passed. See recovery-wireless-final-2026-10-08.json
+for exact fingerprints. Python 86, JavaScript 22, compiled UIKit 51 passed.
+
+A scoped 35-second worker outage recovered fresh readiness in 1.633 seconds.
+Fast Refresh can reset navigation while bundle generation stays unchanged;
+forms/state preservation is not qualified. Actual laptop sleep, VPN outage and
+shared cold backend are unqualified; do not infer their success. Agent runbook:
+DELIVERY.md. Historical records below describe their own dated builds.
+
 # Verified capability edges — personal development service
 
 This ledger records where qualification changes the strategy. It is not a
-claim of universal Appium/Chrome parity. Current binary fingerprints are in
-physical-resume-smoke.json; displayed build 775 is not unique identity.
+claim of universal Appium/Chrome parity. Newest binary fingerprints are in
+recovery-wireless-final-2026-10-08.json; displayed build 775 is not unique identity.
 
 | Edge | Observed result | Agent response / delivery consequence |
 | --- | --- | --- |
@@ -70,8 +85,7 @@ accessibilityLabel was nil. The candidate now falls back to UILabel text while
 keeping explicit accessibility labels authoritative and redacting labels under
 secure text inputs. RN Perf Monitor unexpectedly appeared during this batch;
 its origin is unknown. A candidate dev-only startup/default and module-level
-hide keeps it and the element inspector out of the product view. These fixes
-require their own compiled/installed verification; do not claim delivery yet.
+hide keeps it and the element inspector out of the product view. These fixes passed the later compiled and installed native-label gates.
 
 ## First physical Fast Refresh probe — 8 October
 

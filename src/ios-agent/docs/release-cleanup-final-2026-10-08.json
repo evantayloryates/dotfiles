@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "observedAt": "2026-10-09T03:47:31.536021+00:00",
+  "focusedChecks": 10,
+  "pythonSuite": 86,
+  "liveRetiredLeaseCleanup": true,
+  "retiredCapabilityFileRemoved": true,
+  "replacementOwnerPreservedByTests": true,
+  "unconfirmedStateRetainsFile": true,
+  "nativeHostIdle": true,
+  "scope": "CLI cleanup; no automatic input replay or release of another owner"
+}

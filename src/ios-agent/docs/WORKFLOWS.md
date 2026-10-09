@@ -147,8 +147,7 @@ checks, six receipt/transaction lifecycle checks and 24 existing local-access
 checks pass (45 total). The helper compiled; a live invalid-client invocation
 refused access and left no credential file. A successful live mint independently
 verified hashed storage, single use and expiry. Both issued tokens were retired
-immediately and the private credential file was removed. This qualifies the
-helper, not successful paired browser/phone sign-in or the product round trip.
+immediately and the private credential file was removed. The helper gate is separate from the later completed paired product round trip recorded below.
 
 Build with `yarn build:scripts` inside the guarded local node runtime. Invoke
 `.webpack/scripts/dev-paired-login.js --client-id <verified-tagged-client-id>

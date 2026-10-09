@@ -1,3 +1,18 @@
+# Current installed acceptance — 8 October 2026
+
+The latest snapshot/refresh/keep-awake SDK passed the exact USB-unplugged
+wireless input gate without Wi-Fi IPv4 association, including strict readiness,
+remote Metro, fresh backend probe, native/React inspection and committed
+Nutrition→Home. Wi-Fi On callback and association were restored. Native and
+host lease/glow/frontend cleanup passed. See recovery-wireless-final-2026-10-08.json
+for exact fingerprints. Python 86, JavaScript 22, compiled UIKit 51 passed.
+
+A scoped 35-second worker outage recovered fresh readiness in 1.633 seconds.
+Fast Refresh can reset navigation while bundle generation stays unchanged;
+forms/state preservation is not qualified. Actual laptop sleep, VPN outage and
+shared cold backend are unqualified; do not infer their success. Agent runbook:
+DELIVERY.md. Historical records below describe their own dated builds.
+
 # Qualification record — 7–8 October 2026
 
 The service is personal development tooling. Customer production instrumentation

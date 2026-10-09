@@ -16,7 +16,7 @@ Gate 1: real-device compatibility and no XCTest dependency. Gate 2: actual nativ
 | agent-device + React/domain adapters | Agent-oriented selectors, snapshots, replay and provider abstraction | Backend-dependent; not evidence of a no-XCTest real-iPhone path | Official docs inspected; not runtime qualified |
 | Maestro / Detox simulator lane | Deterministic broad native UI regression testing | Official iOS configurations are simulator-oriented | Source/documentation gate; existing Maestro CLI available |
 | maestro-runner physical-device lane | Provider orchestration with existing flow formats and reports | Uses WDA/XCUITest on iOS; does not remove system constraints | Official repository inspected |
-| KIF-inspired in-process event adapter | Touch delivery inside the app, no out-of-process UI automation runner; control over indicator | Private Apple APIs require runtime qualification; ordinary SDK APIs do not expose touch constructors | Installed SDK delivered taps, scrolling and UIKeyInput; physical timed hold tested, full recognizer matrix pending |
+| KIF-inspired in-process event adapter | Touch delivery inside the app, no out-of-process UI automation runner; control over indicator | Private Apple APIs require runtime qualification; ordinary SDK APIs do not expose touch constructors | Installed SDK delivered taps, scrolling and UIKeyInput; dedicated meal hold, nested child scroll and UIKit menu labels passed; hardware/IME/multi-touch remain unqualified |
 | EarlGrey-inspired synchronisation | Observe real idleness instead of timing sleeps | EarlGrey versions differ; avoid assuming its runner model removes XCTest UI automation | Source candidate |
 | Native accessibility/view introspection + React DevTools | Correlate native bounds/hits with React components and committed state | App background/occlusion can invalidate apparent UI; flattened Fabric views require care | Installed SDK native tree + React props/hooks + profiling qualified |
 | FLEX / Reveal as optional adapters | Deep UIKit/runtime/layout diagnostics | Human tooling is not automatically an agent API; raw network payload capture unsuitable as a default | Official repositories/docs inspected |
@@ -53,3 +53,14 @@ The current evaluation binary already has a non-Personal-Team development profil
 - https://doronz88.github.io/pymobiledevice3/api/capture/
 - https://support.apple.com/en-us/120421
 - https://appium.github.io/appium-xcuitest-driver/latest/troubleshooting/
+
+## Final installed ranking — 8 October
+
+Champion 1 passed latest-build USB-unplugged native and React/domain access,
+backend/Metro, restored Wi-Fi and final idle. The bounded snapshot acknowledgment
+addresses the observed stale-before-delivery rejection while preserving live
+hit/geometry fencing. Scoped worker outage and one-shot startup fallback passed.
+Its main remaining app-development edge is navigation/form state across refresh;
+verify route after edits rather than pretending preserved state. Champions 2/3
+remain fallbacks for system UI and independent observations. No evidence ranks
+the primary as universally more capable than XCTest outside its app scope.

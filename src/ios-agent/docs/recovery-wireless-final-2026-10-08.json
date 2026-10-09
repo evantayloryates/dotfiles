@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "observedAt": "2026-10-09T03:47:31.536021+00:00",
+  "scope": "Latest snapshot/refresh/keep-awake installed DEV; Taylor confirmed USB unplugged; no Wi-Fi IPv4 association during wireless input",
+  "gates": {
+    "unplugged/remote-metro": "passed",
+    "unplugged/native": "passed",
+    "unplugged/off-idle": "passed",
+    "unplugged/react": "passed",
+    "unplugged/home-committed": "passed",
+    "unplugged/ready": "passed",
+    "unplugged/backend": "passed",
+    "unplugged/nutrition-committed": "passed",
+    "restore-on/idle": "passed",
+    "restore-on/ready": "passed",
+    "restore-on/home": "passed",
+    "release-cleanup/idle": "passed"
+  },
+  "nativeExecutableSHA256": "c998999191afa088534e7509bb1a127ab6e4784927890fdcaedb3a6a5c491b00",
+  "embeddedJSSHA256": "5adbe04e3687aa52d3cccd80c95e35663f355af648016fe7ade1fdb611762d38",
+  "usbUnpluggedConfirmed": true,
+  "wifiIPv4DuringWireless": false,
+  "wifiOnCallbackReturned": true,
+  "wifiIPv4Restored": true,
+  "settingsRadioSwitchDirectlyObserved": false,
+  "nativeNutritionHomeDeliveryAndCommittedRoutes": true,
+  "bundleSource": "tailnet-Metro",
+  "fallbackAttempted": false,
+  "nativeHostIdle": true,
+  "xctestUsed": false,
+  "businessDataMutatedThisBatch": false,
+  "privateEvidencePath": "/Users/taylor/Library/Application Support/ios-agent/qualification-2026-10-08/lease-keep-awake-physical",
+  "limits": [
+    "App-owned foreground scope",
+    "Main-window capture cannot prove system occlusion",
+    "Fast Refresh may reset navigation/forms",
+    "Actual laptop sleep, VPN outage and shared backend cold restart not qualified"
+  ]
+}
