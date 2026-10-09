@@ -164,6 +164,21 @@ more insurance than replayable demonstrations; never blindly double every
 stream. Benchmark incremental CPU, memory, GPU/encoder pressure, thermals,
 frame loss and storage under realistic motion before recommending redundancy.
 
+### Application-filtered lane: source viability established, production open
+
+Stage50 raw application-filtered TextEdit source stayed readable under a20s
+opaque cover and changed to row127 while covered. Simultaneous display controls
+showed actual cover and later unrelated user content;2,470 exact media/source joins
+apply to display controls only. Raw app buffers and87 sparse PNGs are not encoded
+app-mode delivery, guaranteed freshness or whole-shot recovery.
+
+Implement an explicit optional app-filtered lane with exact current app identity,
+separate filter/source keys, declared crop/geometry and lifecycle/input scope.
+Qualify encoded pixels and menus before production use. A fixed crop cannot promise
+out-of-frame transients, other Spaces or isolation from user actions inside the
+same application. Retain existing isolated/window/display passes and use the
+cheapest demonstrated source appropriate to the shot.
+
 ## Human expectations during production
 
 Choose an explicit mode and state its limits before starting: background

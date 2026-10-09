@@ -117,6 +117,9 @@ final class Collector: NSObject, SCStreamOutput, @unchecked Sendable {
       switch mode {
       case "isolated": filter = SCContentFilter(desktopIndependentWindow: window)
       case "included-window": filter = SCContentFilter(display: display, including: [window])
+      case "app":
+        guard let app = window.owningApplication else { exit(5) }
+        filter = SCContentFilter(display: display, including: [app], exceptingWindows: [])
       case "rect": filter = SCContentFilter(display: display, excludingWindows: [])
       case "rect-excluding-pid":
         guard let pid = options["exclude_pid"] as? Int32, let app = content.applications.first(where: { $0.processID == pid }) else { exit(5) }
@@ -150,6 +153,8 @@ final class Collector: NSObject, SCStreamOutput, @unchecked Sendable {
         "options": options, "evidence_errors": output.evidenceErrors, "evidence_skipped": output.evidenceSkipped,
         "encoded_pixels": [config.width, config.height], "display_id": display.displayID, "scale": scale,
         "crop": [crop.minX, crop.minY, crop.width, crop.height],
+        "selected_application": window.owningApplication.map { ["bundle_id": $0.bundleIdentifier, "pid": Int($0.processID)] as [String: Any] } ?? [:],
+        "pixel_kind": "raw_source_buffers_not_encoded_video",
         "limit": "Marker timestamps represent fixture action handling, not dispatch or physical input. Sparse PNG encoding adds probe overhead. Fixed display crop does not track moving windows."]
       try JSONSerialization.data(withJSONObject: result, options: [.sortedKeys]).write(to: URL(fileURLWithPath: a[3]))
       print("{\"frames\":\(rows.count)}")

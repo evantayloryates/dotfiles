@@ -1,5 +1,54 @@
 # Qualification update — October 9, 2026
 
+## Fiftieth pass: application-filtered source viability under real occlusion
+
+TextEdit1.20/build415,25F80, built-in1512x982@2. Launched only previously
+nonrunning TextEdit and authored local occlusion fixture; exact existing180row
+RTF reused with unchanged SHA. Actual document8925/PID95271 at152,74,610,860.
+New bounded stream-probe mode app selects owningApplication, includes that exact
+SCK application on overlapping display, explicit crop and childtrue/cursorfalse.
+Results name selected bundle/PID and raw_source_buffers_not_encoded_video.
+This is a raw qualification source, not production application target or encoding.
+Initial compile without parse-as-library failed; retained. Correct compile passed.
+First action.begin omitted required bundle and was rejected before scope/input;
+corrected exact bundle/PID/window scope accepted. No accepted action replay.
+
+Two supervised45/40s raw sources returned2611/2321 complete callback rows,
+46/41 sparse PNGs, zero evidence errors/skips; each helper exit0/reaped. Fixture
+controls were native CUA only, floating opaque magenta covers auto-removed at
+20.001208/20.001612s by exact own handler log. Logs alone do not establish pixels.
+Actual cropped display H.264/30fps controls show magenta, while inspected app
+source retains readable synthetic document. Display controls independently pass
+1315/1155 exact mux/source joins,2470 total, zero lost journal rows. Raw app
+Double PTS fields are not exact nanosecond media joins/provider calibration.
+
+Second native scroll changes AX scrollbar to1. An earlier sparse sample remains
+row001; later source frame00928 at receipt126627085582166, inside logged cover,
+shows row127. Nine sparse source samples inside cover differ from earlier body
+by mean52.1385 RGB in inspected region. No interpretation of that observed gap
+as physical input latency, guaranteed app refresh or stale-source deadline.
+Display decoded15s sample remains magenta. After removal, later display sample
+contains unrelated user foreground content, kept private and omitted from public
+report. App source continues showing synthetic TextEdit row127. This confirms
+useful app-filtered changing source under interference, not universal isolation,
+all-frame freshness, whole-shot insurance or final post reintegration.
+
+Actual7 scoped terminals:4verified/3unknown; separate later pixel/cleanup outcomes
+7verified/7complete, uncovered0. Unknown original terminal results remain unchanged.
+One exact TextEdit/probeSHA/environment-scoped pass fact independently read back.
+No automatic interception/authenticated actor/model training or ordinary MCP adoption.
+Both owned apps quit through fresh native app menus once; known PID absence and
+settled inventory confirm. Own session ses_ykuemkyn closed, two recordings done,
+all helper groups reaped, engine3ff/PID74192 unchangedidle/grantsretained.
+
+Production decision: promote app-filtered capture as a bounded optional lane with
+explicit app identity, crop/geometry, source keys, input scope and lifecycle guard.
+Do not enable by default or conflate raw proof with encoded/live delivery. Still
+need actual encoded app-mode menus/overflow, native lifecycle/admission qualification,
+Chrome reachable surface, physical/provider/sleep and ordinary consumer gates.
+No completed item narrowed, stable pass reset or rollback.43completed16partial1deferred.
+Private gates-v50; full goal active, composition remains deferred.
+
 ## Forty-ninth pass: preserve failure reports and recover terminal state without replay
 
 Current supported withRecordedWorkflow lost its durable report when a callback

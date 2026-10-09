@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T08:35:18-04:00",
+  "updated_at": "2026-10-09T10:28:42-04:00",
   "workflow": {
     "state": "active",
-    "note": "Fixed a reproduced workflow failure-report hole. Nine focused checks and actual4episode installed consumer pass: cause/report retained, terminal recovered independently after controlled local reply withholding, no replay. Four typed failures fully settled, zero uncovered; strategy stale build/grant/store claims reconciled.43completed16partial1deferred. Continue independent work while physical readiness and ordinary MCP refresh await input."
+    "note": "Application-filtered raw TextEdit source survives real opaque cover and changes while covered. Two display controls2470 exact joins;7 outcomes fully settled and scoped fact read back. Current production unchangedidle. Next: guarded optional encoded app lane, without resetting existing passes.43completed16partial1deferred; physical readiness and ordinary consumer refresh remain pending."
   },
-  "production_note": "Installed3ff/PID74192 unchangedidle and Input Monitoring retained. Current recorded-workflow helper preserves frozen/primitive/provider-report errors with cause/report; actual controlled4episode consumer and independent terminal recovery pass without replay. Nine focused checks and two scoped fact readbacks verified. Earlier TextEdit recovery/GPU observations retained. Strategy grant/build/store claims reconciled. CurrentCLI/freshMCP0.11.5 available; ordinary safe refresh and physical/provider/admission limits remain. Composition deferred.",
+  "production_note": "Installed3ff/PID74192 unchangedidle; permissions retained. Stage50 optional application-filter raw TextEdit source survives actual cover and changes while covered; two display controls2470 exact joins. Not yet encoded/live app mode. Seven verified outcomes/cleanupcomplete, scoped fact readback and source hash preserved. CurrentCLI/freshMCP0.11.5 available; physical/provider/admission and ordinary safe consumer refresh remain. Composition deferred.",
   "groups": [
     {
       "id": "capture",
@@ -85,7 +85,7 @@
           "id": "finder-depth",
           "title": "Finder native menus and Quick Look capture expectations",
           "status": "completed",
-          "scope": "Finder26.4/build1828.5.2/25F80, built-in2×, native CUA version unknown: menus, file-preview omission/crop insurance, and explicit layer3 direct-panel discovery/capture.",
+          "scope": "Finder26.4/build1828.5.2/25F80, built-in2\u00d7, native CUA version unknown: menus, file-preview omission/crop insurance, and explicit layer3 direct-panel discovery/capture.",
           "evidence": "Stage39 controls retained. Stage41 explicit broader inventory reveals Finder-owned layer3 Quick Look omitted by normal filters. Candidate446 +installed120 exact mux/source joins; selected whole-panel frames retain filename/two lines without surrounding desktop.22 native/23 adapter checks; one fenced signed install,119 prior state hashes unchanged, grants retained. Four typed outcomes/cleanup complete, zero uncovered; scoped fact read back. Owned resources settled.",
           "next": "",
           "anchor": "forty-first-pass",
@@ -106,10 +106,10 @@
           "title": "Prove a useful overflow capture and recovery path",
           "status": "partial",
           "scope": "Display padding/cropping must add transient coverage beyond the original canvas.",
-          "evidence": "Stage48 real TextEdit isolated source preserves six-pair scroll under actual display occlusion; selected mapped row057→001,5882 pair joins. Selected display samples omit intended document; failed primary preserved, no reshoot. Stage39/40/41 QuickLook crop/full/direct-source extent findings retained. Useful source rescue does not establish all-app transient or final reintegration.",
-          "next": "Qualify a useful remaining actual transient/extent/full-shot insurance boundary; preserve discovery/geometry/pixel distinctions and prior failed primary. Composition/reintegration deferred.",
-          "anchor": "forty-eighth-pass",
-          "updated_at": "2026-10-09T08:23:18-04:00"
+          "evidence": "Earlier moving/isolated recovery passes preserved. Stage50 adds application-filtered TextEdit raw source: readable beneath20s opaque cover and row127 changed in9 sampled frames while covered. Two display controls have2470 exact joins; late unrelated user pixels kept private. App source is not encoded/live production mode.",
+          "next": "Deliver explicit app-filtered identity/crop/geometry/input/lifecycle contract and encoded pixel proof; continue menu/overflow coverage and measured insurance. Whole-shot reintegration remains later composition work.",
+          "anchor": "fiftieth-pass",
+          "updated_at": "2026-10-09T10:28:42-04:00"
         },
         {
           "id": "clean-source",
@@ -162,7 +162,7 @@
           "title": "Deliver service-owned primary frame and point mapping",
           "status": "completed",
           "scope": "Bounded service-owned actual mux/frame/relative/declared-host mapping, source-reference geometry, point/rectangle clipping and actual canvas dimension reconciliation.",
-          "evidence": "Stage40 CLI/fresh MCP0.11.2 adds16 named desktop regions with affine quads, clipped polygons and continuous area fractions; actual mux canvas dimensions must match before projection.21 focused/adjacent tests pass. Three Finder source maps identify clipped title/text, and matching CLI/full-frame pixel check agrees. Three retained dynamic1→.75→1 marker regions match decoded edges at0px error. Geometric parent overlap does not establish omitted Quick Look content. Owned adapter closed; native unchanged.",
+          "evidence": "Stage40 CLI/fresh MCP0.11.2 adds16 named desktop regions with affine quads, clipped polygons and continuous area fractions; actual mux canvas dimensions must match before projection.21 focused/adjacent tests pass. Three Finder source maps identify clipped title/text, and matching CLI/full-frame pixel check agrees. Three retained dynamic1\u2192.75\u21921 marker regions match decoded edges at0px error. Geometric parent overlap does not establish omitted Quick Look content. Owned adapter closed; native unchanged.",
           "next": "",
           "anchor": "fortieth-pass",
           "updated_at": "2026-10-09T06:29:23-04:00"
@@ -171,8 +171,8 @@
           "id": "display-geometry",
           "title": "Verify move, resize and cross-display geometry",
           "status": "completed",
-          "scope": "Authored marker transforms on built-in Retina, external 1× display with negative origin, and return.",
-          "evidence": "Earlier native Retina/external/return marker maps retained. Installed attached-panel open/close proof adds896 exact source/mux samples: enabled three-segment affine1→0.75→1 and excluded fixed affine; every parent center exact, child≤0.5px. Negative original-map/reference controls rejected.",
+          "scope": "Authored marker transforms on built-in Retina, external 1\u00d7 display with negative origin, and return.",
+          "evidence": "Earlier native Retina/external/return marker maps retained. Installed attached-panel open/close proof adds896 exact source/mux samples: enabled three-segment affine1\u21920.75\u21921 and excluded fixed affine; every parent center exact, child\u22640.5px. Negative original-map/reference controls rejected.",
           "next": "",
           "anchor": "thirty-third-pass",
           "updated_at": "2026-10-09T04:08:20-04:00"
@@ -460,7 +460,7 @@
           "title": "Keep preview timing and parent-frame mapping inside the service",
           "status": "completed",
           "scope": "Exact rational clocks, non-grid trims, GIF quantization, held frames and pixel transforms.",
-          "evidence": "Final authored repeat matched 139 decoded frames; real source/time-map readbacks passed, including a seven-packet 0.07–0.14-second boundary.",
+          "evidence": "Final authored repeat matched 139 decoded frames; real source/time-map readbacks passed, including a seven-packet 0.07\u20130.14-second boundary.",
           "next": "",
           "anchor": "eighth-pass",
           "updated_at": "2026-10-08T20:01:05-04:00"
@@ -784,7 +784,7 @@
       "at": "2026-10-08T22:16:07-04:00",
       "from": "partial",
       "to": "partial",
-      "note": "Two sequential native takes passed 102 exact timestamps. A 190×58 popup crop extends 140 points right/28 down beyond the original frame; its source map matched independent screenshot glyphs at zero offset (0.916 IoU). Retained evidence recheck passed. Display footage kept the popup but lost its base to occlusion."
+      "note": "Two sequential native takes passed 102 exact timestamps. A 190\u00d758 popup crop extends 140 points right/28 down beyond the original frame; its source map matched independent screenshot glyphs at zero offset (0.916 IoU). Retained evidence recheck passed. Display footage kept the popup but lost its base to occlusion."
     },
     {
       "kind": "item",
@@ -1485,7 +1485,7 @@
       "at": "2026-10-09T04:08:20-04:00",
       "from": "partial",
       "to": "partial",
-      "note": "Same-cycle installed AppKit attached-child included/excluded sources passed896 exact muxed samples. Enabled affine1→0.75→1 restored; all parent centers exact and240 open child samples within0.5px. Control omitted child throughout. Frozen-map/wrong-marker negatives failed. Prior Chrome padded popup and moving obstruction rescue remain retained."
+      "note": "Same-cycle installed AppKit attached-child included/excluded sources passed896 exact muxed samples. Enabled affine1\u21920.75\u21921 restored; all parent centers exact and240 open child samples within0.5px. Control omitted child throughout. Frozen-map/wrong-marker negatives failed. Prior Chrome padded popup and moving obstruction rescue remain retained."
     },
     {
       "kind": "item",
@@ -1493,7 +1493,7 @@
       "at": "2026-10-09T04:08:20-04:00",
       "from": "completed",
       "to": "completed",
-      "note": "Earlier native Retina/external/return marker maps retained. Installed attached-panel open/close proof adds896 exact source/mux samples: enabled three-segment affine1→0.75→1 and excluded fixed affine; every parent center exact, child≤0.5px. Negative original-map/reference controls rejected."
+      "note": "Earlier native Retina/external/return marker maps retained. Installed attached-panel open/close proof adds896 exact source/mux samples: enabled three-segment affine1\u21920.75\u21921 and excluded fixed affine; every parent center exact, child\u22640.5px. Negative original-map/reference controls rejected."
     },
     {
       "kind": "item",
@@ -1509,7 +1509,7 @@
       "at": "2026-10-09T04:08:20-04:00",
       "from": "partial",
       "to": "partial",
-      "note": "Published production mode/cursor/resource/recovery contracts retained. Dynamic fitting guidance now requires each encoded sample’s source geometry rather than current/original window frame; actual installed896-sample proof, four verified workflow outcomes and complete cleanup are available."
+      "note": "Published production mode/cursor/resource/recovery contracts retained. Dynamic fitting guidance now requires each encoded sample\u2019s source geometry rather than current/original window frame; actual installed896-sample proof, four verified workflow outcomes and complete cleanup are available."
     },
     {
       "kind": "item",
@@ -1712,7 +1712,7 @@
       "at": "2026-10-09T06:29:23-04:00",
       "from": "completed",
       "to": "completed",
-      "note": "Stage40 CLI/fresh MCP0.11.2 adds16 named desktop regions with affine quads, clipped polygons and continuous area fractions; actual mux canvas dimensions must match before projection.21 focused/adjacent tests pass. Three Finder source maps identify clipped title/text, and matching CLI/full-frame pixel check agrees. Three retained dynamic1→.75→1 marker regions match decoded edges at0px error. Geometric parent overlap does not establish omitted Quick Look content. Owned adapter closed; native unchanged."
+      "note": "Stage40 CLI/fresh MCP0.11.2 adds16 named desktop regions with affine quads, clipped polygons and continuous area fractions; actual mux canvas dimensions must match before projection.21 focused/adjacent tests pass. Three Finder source maps identify clipped title/text, and matching CLI/full-frame pixel check agrees. Three retained dynamic1\u2192.75\u21921 marker regions match decoded edges at0px error. Geometric parent overlap does not establish omitted Quick Look content. Owned adapter closed; native unchanged."
     },
     {
       "kind": "item",
@@ -1751,7 +1751,7 @@
       "at": "2026-10-09T06:52:43-04:00",
       "from": "partial",
       "to": "partial",
-      "note": "Stage41 exact Finder Quick Look direct-panel pass appended/read back with native build3ff4c4519dc8, OS25F80 and built-in2×. Candidate/installed source proof independent of prior failed parent/padded lanes. Provider version remains unknown; no universal reuse."
+      "note": "Stage41 exact Finder Quick Look direct-panel pass appended/read back with native build3ff4c4519dc8, OS25F80 and built-in2\u00d7. Candidate/installed source proof independent of prior failed parent/padded lanes. Provider version remains unknown; no universal reuse."
     },
     {
       "kind": "item",
@@ -1976,7 +1976,7 @@
       "at": "2026-10-09T08:23:18-04:00",
       "from": "partial",
       "to": "partial",
-      "note": "Stage48 real TextEdit isolated source preserves six-pair scroll under actual display occlusion; selected mapped row057→001,5882 pair joins. Selected display samples omit intended document; failed primary preserved, no reshoot. Stage39/40/41 QuickLook crop/full/direct-source extent findings retained. Useful source rescue does not establish all-app transient or final reintegration."
+      "note": "Stage48 real TextEdit isolated source preserves six-pair scroll under actual display occlusion; selected mapped row057\u2192001,5882 pair joins. Selected display samples omit intended document; failed primary preserved, no reshoot. Stage39/40/41 QuickLook crop/full/direct-source extent findings retained. Useful source rescue does not establish all-app transient or final reintegration."
     },
     {
       "kind": "workflow",
@@ -2015,6 +2015,21 @@
       "from": "active",
       "to": "active",
       "note": "Fixed a reproduced workflow failure-report hole. Nine focused checks and actual4episode installed consumer pass: cause/report retained, terminal recovered independently after controlled local reply withholding, no replay. Four typed failures fully settled, zero uncovered; strategy stale build/grant/store claims reconciled.43completed16partial1deferred. Continue independent work while physical readiness and ordinary MCP refresh await input."
+    },
+    {
+      "kind": "item",
+      "id": "overflow-recovery",
+      "at": "2026-10-09T10:28:42-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Earlier moving/isolated recovery passes preserved. Stage50 adds application-filtered TextEdit raw source: readable beneath20s opaque cover and row127 changed in9 sampled frames while covered. Two display controls have2470 exact joins; late unrelated user pixels kept private. App source is not encoded/live production mode."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T10:28:42-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Application-filtered raw TextEdit source survives real opaque cover and changes while covered. Two display controls2470 exact joins;7 outcomes fully settled and scoped fact read back. Current production unchangedidle. Next: guarded optional encoded app lane, without resetting existing passes.43completed16partial1deferred; physical readiness and ordinary consumer refresh remain pending."
     }
   ]
 }
