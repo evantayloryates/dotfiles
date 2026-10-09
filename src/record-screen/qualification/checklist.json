@@ -1,9 +1,9 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T11:32:16-04:00",
+  "updated_at": "2026-10-09T11:48:59-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage53 verifies real TextEdit typeface overflow and historical low-resolution review without reshooting. Source-linked context/nested and recovery, physical/provider, capacity and ordinary consumer-adoption gates remain open. Owned source saved privately and closed; user input stays available."
+    "note": "Stage54 verifies new app-mode and third-level native menus with saved source/input checkpoints. Passive CG events omit native submenu expansions; explicit semantic scopes and scene verification supplement them. Remaining option-contract, full recovery, physical/provider, capacity and adoption gates continue; owned UI closed and user input available."
   },
   "production_note": "Signed native142e81bef23e/PID21977 is installed through a guarded idle restart;168 prior state hashes preserved. Current CLI/fresh MCP0.12 supports guarded app-only fixed crops. Fresh source/listener-access checks passed; older loaded chat MCP, physical/provider timing, app/menu behavior and whole-shot recovery remain separate qualification gates.",
   "groups": [
@@ -93,23 +93,23 @@
         },
         {
           "id": "textedit-depth",
-          "title": "TextEdit root context menu and Font submenu capture lane",
+          "title": "TextEdit native menus and shortcut capture lane",
           "status": "completed",
-          "scope": "TextEdit1.20/build415/25F80, built-in2x, native CUA version unknown: three cursorfalse capture modes, root and Font submenu only.",
-          "evidence": "Stage46 three45s sources: actual25s/44s menu pixels retained childtrue/display, omitted childfalse.2661 exact mux/source joins, zero lost rows. Display pointer-like residual survives; caret/selection remains. Five typed verified/cleanup-complete episodes, uncovered0, three exact facts read back; owned document moved locally, app/session settled.",
+          "scope": "TextEdit1.20/415/25F80, built-in2x, native142e81bef23e; owned synthetic source. Stage46 root/Font child modes plus stage54 app-only and isolated-childtrue third-level Highlight; no physical/actor/full-list guarantees.",
+          "evidence": "Stage54 new app-only full-crop/isolatedwindow-childtrue90s pair5230 exact joins; root22s/Font43s/Highlight66s/dismissed85s encoded pixels and scoped Mint oracle pass. Four right-click/Escape transitions despite other foreground; two AX expansions need explicit source checkpoints. Owned local document saved before take, file unchanged/PID absent; five typed verified/cleanupcomplete. Stage46 childfalse omission preserved.",
           "next": "",
-          "anchor": "forty-sixth-pass",
-          "updated_at": "2026-10-09T07:52:09-04:00"
+          "anchor": "fifty-fourth-pass",
+          "updated_at": "2026-10-09T11:48:59-04:00"
         },
         {
           "id": "overflow-recovery",
           "title": "Prove a useful overflow capture and recovery path",
           "status": "partial",
           "scope": "Qualified padded-display and separate-popup paths plus guarded optional fixed-crop app-only lane. Whole-shot recovery and broader app/menu behavior remain open.",
-          "evidence": "Stage53 installed TextEdit app-childtrue/false/display triple5227 exact joins; native typeface overflow below parent in both app settings488/487 scoped positive frames. Lower tail clipped; late preview absent after disappearance. Context/nested attempt unqualified. Stage52 endpoint/tail repair delivered; stage51 changing-source cover proof preserved.",
-          "next": "Qualify source-linked context/nested checkpoints, full overflow coverage and retained pair shot recovery; do not reshoot verified typeface/occlusion or repeat delivered endpoint repair.",
-          "anchor": "fifty-third-pass",
-          "updated_at": "2026-10-09T11:32:15-04:00"
+          "evidence": "Stage54 app-only/full builtin and isolated-childtrue retain root/Font/Highlight stack and dismissal; known stack fits parent. Stage53 typeface overflow below parent passes both app child settings but fixed crop clips tail. Stage51 changing-source cover and stage52 delivered endpoint repair preserved.",
+          "next": "Qualify useful full-overflow fitting and retained pair shot recovery; preserve passed context/typeface/occlusion cases instead of repeating them.",
+          "anchor": "fifty-fourth-pass",
+          "updated_at": "2026-10-09T11:48:59-04:00"
         },
         {
           "id": "clean-source",
@@ -248,10 +248,10 @@
           "title": "Separate session events from unrelated user activity",
           "status": "partial",
           "scope": "Retain delivery and action-context reasons, broad shortcuts and uncertain candidates.",
-          "evidence": "Stage48 broad source query retains28events including12 wheel rows with actual targetPID20383/action token while another app foreground. Other unassociated modifier/move candidates remain; ownership/window attribution unknown. All28 snapshots unprotected and one preceding listen notification, not universal physical delivery. Prior12key/two-window shortcut and known-other exclusion proof retained.",
-          "next": "Qualify actual physical/provider relevance boundary; keep broad shortcut candidates and source reasons, refine with director semantics without claiming actor or focused-field ownership.",
-          "anchor": "forty-eighth-pass",
-          "updated_at": "2026-10-09T08:23:18-04:00"
+          "evidence": "Stage54 strict destination scopes retain four native right-click/Escape events addressed to TextEdit while another app is foreground;171 outside counts,0queueoverflow/gaps, ownership unknown. Two AX submenu expansions have no additional retained CG transitions despite actual changed pixels. Explicit scopes and scene checkpoints supplement telemetry; no complete action or user attribution claim.",
+          "next": "Qualify remaining physical/provider attribution boundaries; retain broad shortcuts, source reasons and semantic context without actor/focused-field inference.",
+          "anchor": "fifty-fourth-pass",
+          "updated_at": "2026-10-09T11:48:59-04:00"
         },
         {
           "id": "protected-input",
@@ -506,10 +506,10 @@
           "title": "Centralize version-scoped app observations",
           "status": "partial",
           "scope": "Shared reported facts, exact environment keys, expiry and conflicting evidence.",
-          "evidence": "Stage53 exact TextEdit1.20/415/OS25F80/native142e81bef23e typeface-overflow app-mode fact independently read back, with clipping/context/readiness limits. Earlier conflicting off-Space and other scoped app/provider evidence preserved.",
+          "evidence": "Stage54 exact TextEdit1.20/415/OS25F80/native142e81bef23e context/Font/Highlight two-mode fact independently read back, scoped to source pixels and known Mint oracle. Five verified/cleanupcomplete outcomes; prior typeface/clipping/off-Space/childfalse facts remain distinct.",
           "next": "Reinforce routine missing app/provider observations with exact metadata; preserve conflicting history and unknown readiness.",
-          "anchor": "fifty-third-pass",
-          "updated_at": "2026-10-09T11:32:16-04:00"
+          "anchor": "fifty-fourth-pass",
+          "updated_at": "2026-10-09T11:48:59-04:00"
         },
         {
           "id": "requalification",
@@ -526,10 +526,10 @@
           "title": "Verify the quality of recent shared computer-use workflows",
           "status": "partial",
           "scope": "Assess delivered actions, verification and cleanup rather than tool-call counts.",
-          "evidence": "Stage53 six native scopes have5verified/1unknown outcomes and6cleanup-complete;0uncovered. Expired original cleanup stays interrupted while separate native Save and exact private-file/PID proof settle owned cloud autosave. Context after-media/stale element retained; ordinary loaded MCP recovered3 historical frames without replay.",
-          "next": "Extend routine provider integration/adoption and actual unresolved delivery checks; scoped outcomes do not grade all historical tasks.",
-          "anchor": "fifty-third-pass",
-          "updated_at": "2026-10-09T11:32:16-04:00"
+          "evidence": "Stage54 five native scopes and separate verified/cleanupcomplete outcomes,0uncovered; three source-captured action updates, original ends preserved. Owned local source pre-saved and unchanged after quit; PID absence resolves lag without repeat dispatch. Initial unavailable target and mistyped raw inventory arguments preserved separately from encoded capture proof.",
+          "next": "Extend ordinary provider integration and loaded-consumer adoption; native AX operations require declared scopes/source checks because CG events do not describe every UI change.",
+          "anchor": "fifty-fourth-pass",
+          "updated_at": "2026-10-09T11:48:59-04:00"
         },
         {
           "id": "receipt-integration",
@@ -2107,6 +2107,53 @@
       "from": "active",
       "to": "active",
       "note": "Stage53 verifies real TextEdit typeface overflow and historical low-resolution review without reshooting. Source-linked context/nested and recovery, physical/provider, capacity and ordinary consumer-adoption gates remain open. Owned source saved privately and closed; user input stays available."
+    },
+    {
+      "kind": "item",
+      "id": "textedit-depth",
+      "at": "2026-10-09T11:48:59-04:00",
+      "from": "completed",
+      "to": "completed",
+      "note": "Stage54 new app-only full-crop/isolatedwindow-childtrue90s pair5230 exact joins; root22s/Font43s/Highlight66s/dismissed85s encoded pixels and scoped Mint oracle pass. Four right-click/Escape transitions despite other foreground; two AX expansions need explicit source checkpoints. Owned local document saved before take, file unchanged/PID absent; five typed verified/cleanupcomplete. Stage46 childfalse omission preserved."
+    },
+    {
+      "kind": "item",
+      "id": "overflow-recovery",
+      "at": "2026-10-09T11:48:59-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage54 app-only/full builtin and isolated-childtrue retain root/Font/Highlight stack and dismissal; known stack fits parent. Stage53 typeface overflow below parent passes both app child settings but fixed crop clips tail. Stage51 changing-source cover and stage52 delivered endpoint repair preserved."
+    },
+    {
+      "kind": "item",
+      "id": "event-relevance",
+      "at": "2026-10-09T11:48:59-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage54 strict destination scopes retain four native right-click/Escape events addressed to TextEdit while another app is foreground;171 outside counts,0queueoverflow/gaps, ownership unknown. Two AX submenu expansions have no additional retained CG transitions despite actual changed pixels. Explicit scopes and scene checkpoints supplement telemetry; no complete action or user attribution claim."
+    },
+    {
+      "kind": "item",
+      "id": "app-facts",
+      "at": "2026-10-09T11:48:59-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage54 exact TextEdit1.20/415/OS25F80/native142e81bef23e context/Font/Highlight two-mode fact independently read back, scoped to source pixels and known Mint oracle. Five verified/cleanupcomplete outcomes; prior typeface/clipping/off-Space/childfalse facts remain distinct."
+    },
+    {
+      "kind": "item",
+      "id": "workflow-audit",
+      "at": "2026-10-09T11:48:59-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage54 five native scopes and separate verified/cleanupcomplete outcomes,0uncovered; three source-captured action updates, original ends preserved. Owned local source pre-saved and unchanged after quit; PID absence resolves lag without repeat dispatch. Initial unavailable target and mistyped raw inventory arguments preserved separately from encoded capture proof."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T11:48:59-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Stage54 verifies new app-mode and third-level native menus with saved source/input checkpoints. Passive CG events omit native submenu expansions; explicit semantic scopes and scene verification supplement them. Remaining option-contract, full recovery, physical/provider, capacity and adoption gates continue; owned UI closed and user input available."
     }
   ]
 }

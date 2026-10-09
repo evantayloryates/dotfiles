@@ -1,5 +1,54 @@
 # Qualification update — October 9, 2026
 
+## Fifty-fourth pass: source-linked native context stack and shortcut evidence
+
+Stage46 already established TextEdit root/Font childtrue/display capture and
+childfalse omission. This pass qualifies the new installed app-only mode and
+the deeper Highlight submenu; it does not replace or repeat the earlier proof.
+Previously nonrunning TextEdit creates one owned synthetic document, moves via
+observed Window menu to built-in2x and saves into exact private gates-v54 before
+capture. Exact local content/hash verified. Initial pre-launch action target is
+unavailable and refuses; separate launch intent targets the current recorder.
+
+One90s H.26430fps pair: full built-in crop include_apps TextEdit/childtrue and
+isolated owned window10086/childtrue. App2608/window2622 actual packets, all5230
+exact source joins, zero journal loss or reported encoder drops. In-take checks
+return source:tap. Root22s, Font43s, Highlight66s and dismissed85s are inspected
+in encoded app source; isolated66s contains the same three-level stack. No color
+choice applied; source file unchanged. Menu bodies fit the parent in this placement;
+root list uses its native scrolling viewport, not every AX item visible at once.
+App source geometry[2,0,0,2,0,0] and exact service-mapped known desktop regions
+agree with source pixels. A first blue-color oracle overlaps earlier Font selection;
+retain it, then strengthen with known Mint-circle region:42/81 green pixels only
+at66s, zero in3/22/43/85s. This is a scene-specific oracle, not menu recognition.
+
+Passive input in both modes retains right-button down/up at11.7575/11.8101s and
+Escape down/up at81.0877s, destination50035 while foreground71013. Four events,
+171 outside-scope counts, zero observed queue overflow/gaps. Three captured action
+updates returned through installed CLI with context/health; receipt/source unknown
+ends stay distinct from later outcomes. Source49559/tag0 and ownership unknown;
+no physical generation clock, coordinates, actor or rate guarantee. Font/Highlight
+expansions change actual pixels without additional retained CG transitions. Native
+AX action history therefore needs explicit scopes and scene checkpoints alongside
+the passive event stream. No pointer/text-field focus-only shortcut inference.
+
+Three raw inventory calls used mistyped include_transient instead of supported
+include_transients; replies remain inventory_scope normal. This is not transient
+enumeration evidence. Preserve the typo/refusal history and inspect resolved
+capabilities/result scope; a successful raw reply can ignore unknown parameters.
+No reshoot solely for already-proven menu pixels or inventory embellishment.
+
+104 fresh pressure-level2 samples over105.002s; recorder0.066 CPU cores/62.25MiB
+peak, TextEdit0.0057cores/134.88MiB. Guard does not fire; no thermal/GPU/encoder/P80
+or calibrated admission claim. Saved owned source quits with one native shortcut.
+Immediate running inventory lags; known PID50035 absent and file SHA unchanged
+settle cleanup without a second quit/relaunch. Five scopes/typed verified outcomes,
+five cleanup-complete, zero uncovered. Exact scoped capture fact independently
+read back. Own session/resource worker closed; installed142e81bef23e/PID21977
+unchanged idle/input subscribers0. Chrome/peers preserved.43completed/16partial/
+1deferred; whole-shot/full overflow, other apps/providers/physical/adoption/resource
+gates remain open. Composition remains deferred; full goal active.
+
 ## Fifty-third pass: real TextEdit source preparation and captured typeface overflow
 
 Earlier old-document off-Space -3811 remains failed readiness evidence. Instead

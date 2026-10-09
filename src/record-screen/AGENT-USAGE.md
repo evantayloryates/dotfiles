@@ -220,6 +220,26 @@ before quit; independently verify file content/location and PID absence. Preserv
 unrelated documents and do not turn a Save sheet's permanent Delete into routine
 cleanup. Context/nested menus remain separate unqualified cases in this pass.
 
+Stage54 extends the installed TextEdit lane to context root > Font > Highlight
+in app-only full-display crop and isolated-window childtrue sources. Actual
+encoded before/root/submenus/after pixels pass; the stack fits the parent in this
+placement. The root menu scrolls, so AX enumeration is not a promise that all
+entries appear simultaneously. Capture starts before the menu action, and scene
+checks happen while the menu is open. Preserve earlier childfalse/off-Space limits.
+
+That take retains right-click and Escape down/up addressed to TextEdit even while
+another app is globally foreground. Native submenu expansions appear without
+additional retained CG events. Use declared semantic scopes plus source-linked
+checkpoints for native AX actions; four retained events are not a complete UI
+history, actor identity or physical rate measurement. Outside-scope counts do
+not identify user events. Keep captured unknown ends separate from later outcomes.
+
+Prefer the current CLI/MCP schemas over raw RPC. For opt-in broad inventory the
+field is `include_transients`; confirm `inventory_scope:including_transients`.
+Three mistyped raw calls with `include_transient` silently returned normal scope.
+RPC success alone does not prove an option was applied. Those calls contribute
+no transient-enumeration pass; actual encoded menu coverage is separate evidence.
+
 | Observation | Next action | Preserve or verify |
 | --- | --- | --- |
 | UI call times out or its result is unknown | Read current app state and recover the same action token; do not blindly replay | Unknown/expired receipt, separate delivery/verification evidence |

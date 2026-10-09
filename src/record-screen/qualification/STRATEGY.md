@@ -1,6 +1,6 @@
 # Capture foundations: findings and next implementation
 
-Current checkpoint: October 9, 2026, qualification stage53. Native signed build
+Current checkpoint: October 9, 2026, qualification stage54. Native signed build
 142e81bef23e/PID21977 remains installed and idle; guarded delivery, retained-source
 mapping and scoped real-app consumers have actual evidence in GATES.md and the
 maintained checklist. Input Monitoring is enabled: installed destination-aware
@@ -52,6 +52,14 @@ is unqualified after stale element/after-media observations. Native Save preserv
 owned synthetic cloud autosave privately; known PID absent, no Delete. Six typed
 outcomes/cleanup complete, zero uncovered. Resource pressure level2 is observed,
 not calibrated admission. Broader recovery and physical/provider gates continue.
+
+Stage54 adds actual app-mode context root/Font/Highlight plus isolated-childtrue
+source comparison:5230 exact joins and saved before/after evidence. Right-click
+and Escape survive destination-based retention with a different foreground app;
+two native AX expansions leave no additional CG transitions. Semantic scopes and
+source-linked checkpoints supplement passive telemetry. Raw typo silently
+returned normal inventory: inspect resolved scope, not just RPC success. Earlier
+root/Font proofs retained; resource/physical/full recovery/adoption remain open.
 
 ## What the initial investigation established
 

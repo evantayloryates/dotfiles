@@ -1,5 +1,22 @@
 # Production qualification goal
 
+Stage54 checkpoint: new installed app mode and third-level Highlight menu extend
+earlier stage46 root/Font evidence. Owned TextEdit local source prepared/saved
+before take. One90s Retina app-full-crop/isolatedwindow-childtrue pair5230 exact
+mux/source joins,0lost rows. Actual root22/Font43/Highlight66/dismissed85s pixels,
+mapped known regions and stronger Mint42/81 oracle pass. Four right-click/Escape
+events retained despite other foreground app; two native expansions supply no
+additional CG transitions. Explicit scopes/scene checkpoints required; ownership,
+physical clocks/coordinates/rate remain unknown. Three captured context updates;
+171 outside counts,0queueoverflow/gaps, not user attribution/completeness proof.
+Mistyped raw include_transient ignored, normal inventory scope; no enumeration
+pass. Five typed verified/cleanupcomplete outcomes/uncovered0; scoped fact read
+back. Saved file unchanged/PID50035absent, own session/resource worker settled.
+Native142e81bef23e/PID21977 unchangedidle/input0.104 fresh pressure-level2 samples,
+0.066cores/62.25MiB, no GPU/P80 admission.43completed16partial1deferred; goalactive.
+Next: resolve raw option-contract refusal, useful full-overflow/shot recovery and
+remaining physical/provider/resource/adoption gates; preserve stable menu passes.
+
 Stage53 checkpoint: fresh TextEdit1.20/415 native document preparation via
 observed Window display placement; old off-Space -3811 retained. One60s Retina
 app-childtrue/false/display triple5227 exact mux/source joins, zero lost rows.

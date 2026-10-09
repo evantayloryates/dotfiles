@@ -56,8 +56,8 @@ def local_desktop_endpoint(endpoint):
             (Path.home() / '.docker/run/docker.sock').resolve())
 
 
-def require_idle_host():
-    status = request({'op': 'status'}, STATE, timeout=2)
+def require_idle_host(state=STATE):
+    status = request({'op': 'status'}, state, timeout=2)
     if (status.get('lease') is not None or
             status.get('reactFrontendRunning') is not False or
             status.get('reactFrontendCleanupPending') is not False):
@@ -149,6 +149,7 @@ def ensure_backend(container, timeout=90):
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--state', type=Path, default=STATE)
     parser.add_argument('--backend-container', default='default-ki-e3ee9-dev-1')
     parser.add_argument('--timeout', type=int, default=90)
     args = parser.parse_args()
@@ -162,8 +163,8 @@ def main():
                     '{{.Endpoints.docker.Host}}']).decode().strip()
     if not local_desktop_endpoint(endpoint):
         raise StackError('existing_local_desktop_endpoint_required')
-    require_idle_host()
-    fd = os.open(STATE / 'local-stack.lock', os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW, 0o600)
+    require_idle_host(args.state)
+    fd = os.open(args.state / 'local-stack.lock', os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW, 0o600)
     try:
         info = os.fstat(fd)
         if not stat.S_ISREG(info.st_mode) or info.st_mode & 0o077 or info.st_uid != os.getuid():
@@ -172,8 +173,8 @@ def main():
             fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError:
             raise StackError('stack_recovery_in_progress') from None
-        require_idle_host()
-        config = load_config(STATE / 'dev-runtime.json')
+        require_idle_host(args.state)
+        config = load_config(args.state / 'dev-runtime.json')
         checkout = Path(config['mobile']).parent
         if run(['git', '-C', str(checkout), 'branch', '--show-current']).decode().strip() != 'ety/local-dev-foundation':
             raise StackError('configured_foundation_branch_required')
@@ -184,7 +185,7 @@ def main():
         if not checked_mount(mounts, checkout):
             raise StackError('configured_checkout_mount_required')
         # An owner may have arrived while Docker was starting. Preserve them.
-        require_idle_host()
+        require_idle_host(args.state)
         print(json.dumps(ensure_backend(args.backend_container, args.timeout)))
     finally:
         os.close(fd)
