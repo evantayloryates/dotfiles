@@ -1,5 +1,40 @@
 # Qualification update — October 8, 2026
 
+## Fourteenth pass: transient overflow, occlusion and source-region evidence
+
+This stage followed the remaining menu boundary, without repeating settled clock,
+color or pointer series. Current production still reads cd78c24b652e/PID 71911.
+The privately loaded a07dfd59e1b9 candidate completed two sequential five-second,
+10-fps native takes, with passive input disabled. Host pressure remained warning;
+these small clips do not establish a resource budget or justify concurrent load.
+
+| Gate | Verified evidence | Limits |
+| --- | --- | --- |
+| Chrome readiness | An owned new window resized to 626×603 and was reported on-screen. Isolated SCK capture contained its fixture; padded display capture showed occlusion by unrelated content. Native coordinates refused noWindowsAvailable. Browser expand and native key activity did not establish a visible native-select popup. | Capture-level reachability and interaction readiness differ. AX Raise/window selection did not establish usable foreground delivery. The application-filter probe returned SCK -3811; no empty/menu-absence conclusion follows. Existing native-menu successes remain valid for their own scope. |
+| Native workspace recovery | The owned AppKit fixture was initially off-Space. Its exposed external-display and normal-focus controls produced an observed visible menu on the external workspace; no global setting or peer window was changed. | This fixture control is not a universal app activation mechanism. Menu IDs disappeared before subsequent actions; the keyboard sequence did not prove deeper levels. |
+| Encoded source correspondence | Window and padded-rect takes each finalized 51 packets, exactly matching source decisions, with no lost journal rows or dropped encoder frames. Both retained one geometry segment. | Sequential static takes, not synchronized insurance or production capacity. One sampled window frame did not show the menu; it does not establish universal child-window failure or a precisely joined menu-open interval. |
+| Overflow crop | The supplied 190×58 native popup region maps to global (2282,253) from the padded source affine map. Its bounds extend 140 points right and 28 down beyond the original 700×482 window. The region has 9,520 square points outside that frame. Independently captured popup glyphs matched at zero spatial offset, with 0.916 glyph intersection-over-union after H264. | Authored supplied region, equal 1× pixel scale and one geometry segment. This is a spatial proof, not automatic segmentation, latency or simultaneous scene coverage. Region area includes its bounded rectangle; it is not a count of exclusively native-menu pixels. |
+| Occlusion and recovery | The actual padded video retained the popup but lost the base window to occlusion. The extracted menu-only PNG and manifest preserve source sample/time/global position while excluding unrelated background from the published report. | Whole-shot recovery still needs synchronized base/overflow coverage. Do not recommend display redundancy solely because its file finalized. The later scoped owner lookup returned no matching window; popup ownership remains unestablished. |
+| Shared learning | Chrome's unresolved readiness case was appended to the shared computer-use evidence store and independently read back with exact entity, value and ID. Result and backend version remain unknown; expiry is one day. | No reusable success guarantee, automatic grading or model training. This adds measured uncertainty instead of overriding prior differently scoped successes. |
+| Cleanup | Both owned Chrome tabs closed, native fixture PID exited, server exec ended 143 after its requested SIGTERM, private engine actually exited 0; subscribers/preview/quarantine returned to zero. Private runtime evidence was copied. | Peer tabs/workflows, production and the pressure watcher remain intact. No input lock, new grant, physical sleep or installation. |
+
+The first server detached from its exec and was absent when the browser refused
+the connection. A retained exec corrected that process-lifetime precondition; the
+same owned tab was reloaded. Native launcher/Dock observations timed out and were
+not treated as activation success. Failed delivery and capture outcomes remain
+private evidence, rather than restarting or rolling back prior qualification.
+
+`verify-overflow.py` verifies actual muxed correspondence, requires one usable
+geometry map and equal reference scale, extracts a supplied region from a decoded
+frame, preserves exact video-relative time and validates fixture glyph alignment.
+It refuses out-of-bounds regions and existing proof names. Verification from the
+retained private runtime copy also passed; no UI sequence was repeated.
+
+Private evidence: gates-v14/qualification-summary.json, *-journal-proof.json,
+*-geometry.json, overflow-spatial-proof.json, retained-overflow-spatial-proof.json,
+menu-glyph-alignment.json, shared-fact-proof.json, cleanup.json and runtime-evidence.
+The report embeds only the authored popup crop, not unrelated display pixels.
+
 ## Thirteenth pass: passive tap faults and truthful source diagnostics
 
 This stage preserved the previous clock/color proofs and exercised only owned

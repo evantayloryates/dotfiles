@@ -79,17 +79,33 @@ The candidate reserves `runner-kickoff-dev://ios-agent-return`. The explicit
 build helper appends that scheme only to its generated development app product,
 re-signs with the original local development identity and preserved entitlements,
 and strictly verifies the signature. Project/Pod Info.plists remain untouched.
-The unique-scheme On callback returned successfully on the installed phone.
-Its first immediate state read timed out; a fresh read later showed `returned`
-within the 60-second nonce window, `en0` present/up/running with IPv4, and the
-Wi-Fi result upload completed HTTP 200 in 51.51ms (405 bytes). Callback success
-is distinct from an independently verified Settings radio switch. Off and the
-latest unplugged cellular round trip remain open.
+Both unique-scheme callbacks returned on the installed phone. On uploaded a
+405-byte result HTTP 200 in 51.51ms; Off uploaded 406 bytes in 18.715ms.
+Immediate state reads can be unknown; a fresh read after recovery confirmed Off
+returned. Do not infer callback failure from a timed-out observation.
 
-A one-shot `pymobiledevice3 diagnostics sleep` succeeded; Taylor independently
-confirmed the phone locked. This is a wired sleep convenience, not unlock or
-an authentication bypass. Mac Mirroring authentication was approved, but its
-pointer input again returned `noWindowsAvailable` while keyboard/menu navigation
-worked. One rebind and window raise did not repair it. Stop that path rather
-than repeatedly requesting another lock/authentication. The direct developer
-screenshot attempt had no active RSD route; no root daemon was started.
+The isolated Wi-Fi Off test lost even direct Tailscale reachability to the phone;
+USB On recovery restored it (105ms via LAN). This narrows the failure to the
+network transition, rather than only the app driver. Cellular Data and the
+cellular line were independently observed enabled in Settings. VPN On Demand
+was off; it is now enabled on the existing account, with Wi-Fi and Cellular both
+Always, verified by leaving and reopening its preferences. The subsequent Off test still lost direct tailnet ping; foregrounding Tailscale did not immediately restore it. Automatic reconnect is not a proven fix. Kickoff DEV and Tailscale cellular permissions were also observed enabled. After physical unlock and DEV foreground, the bridge, strict readiness, fresh GraphQL probe and native idle passed. The exact recovery cause remains unproven.
+
+The paired USB IORegistry diagnostic exposes Wi-Fi driver power state but no conclusive Settings radio switch. A successful CoreDevice Shortcuts launch is not execution evidence. Use the app-owned callback and fresh interface observation, and independently verify association rather than treating launch success as restoration.
+
+Mirroring pointer delivery initially failed with noWindowsAvailable, despite
+images/keyboard/menu working. Rebind/raise did not repair it. A later direct
+click on Tailscale succeeded, and settings navigation now works. Recheck the
+current surface before asking the human for a click; do not carry a stale
+provider failure into a new connection. Keep all phone inspection in the shared
+Mirroring window. The temporary QuickTime USB preview is closed; it had exposed
+a headphones dialog, which Taylor subsequently confirmed absent.
+
+A diagnostics sleep success is not sufficient proof of physical lock.
+Independent confirmation is required when Mirroring still reports in use.
+The direct developer screenshot attempt had no active RSD route; no root
+daemon or XCTest was started.
+
+## Unplugged bundle transport — 8 October late evening
+
+With USB unplugged, strict readiness, fresh GraphQL, reconstructed React and real native Nutrition navigation (ClientMealLogs) passed. An unconfirmed Home action was not replayed; independent state still showed Nutrition. A semantic reload hit the one-shot embedded fallback and recovered Home. The live Metro bundle measured 34,982,522 decoded bytes with no content encoding. Dev-only streaming compression reduced wire bytes to 7,869,716 (77.5%), with identical SHA-256 of the decoded JavaScript and preserved RN multipart protocol. After the scoped idle Metro restart, the phone loaded tailnet-Metro with no fallback. This is a verified transport improvement; exact cellular path and the final explicit Off batch remain separately open. On callback returned, but no Wi-Fi IPv4 association was observed, so On execution is not called verified association restoration.

@@ -1,0 +1,24 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Recorder overflow qualification</title>
+<style>
+body{font:18px system-ui;background:#fff;margin:18px;color:#15202a}h1{font-size:22px}button,select,textarea{font:18px system-ui}textarea{width:90%;height:80px}#native{border:3px solid #ce087d;padding:25px;margin-top:20px}#edge{position:fixed;right:14px;bottom:14px;background:#d5f7fa;padding:12px;border:3px solid #006a79}select{width:160px}#counter{font:14px monospace}
+</style>
+<h1>Recorder overflow qualification</h1>
+<p>Owned synthetic surface. Use native menus and observe the actual capture.</p>
+<textarea aria-label="Native editing menu">Overflow sentinel</textarea>
+<section id="native">Right-click native menu target</section>
+<p id="counter">Fixture event count: 0</p>
+<div id="edge"><label>Native select <select aria-label="Overflow native select">
+<option>SELECT SENTINEL 01 — wide popup reference</option><option>SELECT SENTINEL 02 — wide popup reference</option>
+<option>SELECT SENTINEL 03 — wide popup reference</option><option>SELECT SENTINEL 04 — wide popup reference</option>
+<option>SELECT SENTINEL 05 — wide popup reference</option><option>SELECT SENTINEL 06 — wide popup reference</option>
+<option>SELECT SENTINEL 07 — wide popup reference</option><option>SELECT SENTINEL 08 — wide popup reference</option>
+<option>SELECT SENTINEL 09 — wide popup reference</option><option>SELECT SENTINEL 10 — wide popup reference</option>
+<option>SELECT SENTINEL 11 — wide popup reference</option><option>SELECT SENTINEL 12 — wide popup reference</option>
+</select></label></div>
+<script>
+// Authored page telemetry: event type/geometry only, no key values or text.
+window.fixtureEvents=[];
+for(const type of ['pointermove','pointerdown','pointerup','keydown','keyup','wheel','focusin','contextmenu','change'])document.addEventListener(type,e=>{
+const v={type,t_ms:performance.now(),x:e.clientX??null,y:e.clientY??null,target:e.target.id||e.target.getAttribute('aria-label')||e.target.tagName};
+window.fixtureEvents.push(v);if(window.fixtureEvents.length>10000)window.fixtureEvents.shift();document.querySelector('#counter').textContent='Fixture event count: '+window.fixtureEvents.length;});
+</script></html>

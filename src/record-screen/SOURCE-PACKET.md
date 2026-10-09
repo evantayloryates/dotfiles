@@ -343,3 +343,20 @@ Thirteenth-pass controlled faults and eight exact native deliveries verified
 omission/recreation. A 750-ms passive delay produced no natural timeout. Physical
 TCC revocation and broader provider coverage remain unqualified. Initial tap,
 per-key secure checks and recovery SDK calls are not all bounded.
+
+### Supplied transient regions and visibility limits
+
+Fourteenth-pass padded display footage retained an authored popup outside the
+original window frame. A decoded region and its exact source time/global affine
+position matched an independent screenshot. `qualification/verify-overflow.py`
+is a single-geometry fixture verifier; it does not infer menu ownership or perform
+automatic segmentation. Its bounded crop manifest can preserve a source layer
+for the later composition phase without copying unrelated background.
+
+Window `on_screen`, app focus, an AX tree and a browser screenshot are different
+observations. None establishes visible unoccluded display content or native popup
+readiness. The same stage captured an isolated Chrome fixture while display
+capture showed occlusion and native pointer delivery failed. A padded native take
+also retained the popup while losing its base. Validate the intended source and
+preserve disturbances; do not block human input or claim a usable backup merely
+from finalization. Sequential sources do not prove synchronized whole-shot recovery.

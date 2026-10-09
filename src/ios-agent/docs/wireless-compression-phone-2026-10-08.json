@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "observedAt": "2026-10-09T02:13:57.975778+00:00",
+  "scope": "latest installed unique DEV callback build, USB unplugged by Taylor",
+  "appReady": true,
+  "freshGraphQL": true,
+  "reactTree": true,
+  "nativeNutritionRoute": true,
+  "unconfirmedHomeActionReplayed": false,
+  "uncompressedRemoteLoadSelectedEmbeddedFallback": true,
+  "compressedRemoteLoad": "passed",
+  "fallbackAfterCompression": false,
+  "wifiOnCallbackReturned": true,
+  "wifiAssociationRestored": false,
+  "cellularPathIndependentlyVerified": false,
+  "remaining": "Explicit Off and fresh complete remote/React/backend/native/idle gate; physical input matrix"
+}

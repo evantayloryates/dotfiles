@@ -233,11 +233,22 @@ at the native 8s request limit with -1001; causal Mirroring interference remains
 unproven. The paired workflow supplied a 37-commit Debug React profile; detailed
 artifacts remain private.
 
-Current Wi-Fi edge: the original shared-scheme Off callback expired; USB On and
-foreground recovery restored the channel. The installed unique DEV-scheme On
-callback subsequently returned successfully. Its immediate state read timed out,
-which was not a callback failure. Fresh read: returned, interface up/running with
-IPv4; 405-byte Wi-Fi result uploaded HTTP 200 in 51.51ms. Independent switch,
-Off return and latest unplugged cellular gates remain open. Mirroring's pointer
-input window failed despite a live image and keyboard/menu navigation; a single
-rebind/raise did not restore pointer control. No XCTest was started.
+Current Wi-Fi edge: both unique DEV On and Off callbacks returned. Direct
+Tailscale reachability failed with Wi-Fi Off and recovered after explicit USB On;
+latest unplugged cellular remains open. Cellular Data/line are enabled. Existing
+VPN On Demand was off, now enabled with Wi-Fi/Cellular Always and reopened
+readback verified; transition retest lost direct tailnet reachability; foregrounding Tailscale did not immediately restore it. After physical unlock and DEV foreground, fresh application readiness, a new GraphQL probe and clean idle passed. Mirroring pointer control recovered
+on a later direct click; initial provider failure is historical, not a current
+requirement for human clicks. No XCTest started.
+
+React inspection reliability: absolute 18-second IPC budget now covers frontend
+readiness, provider response and final owner fencing. A dribbling response cannot
+extend the deadline; incomplete frames and non-object responses reject without
+replay. Five real Unix-socket checks passed, alongside two control deadline and
+three CLI outcome checks (10 focused checks total). Live inspection of this CLI revision passed with a fresh foreground lease: strict readiness, depth-8 React reconstruction, explicit release and native idle. The private receipt is inspection-live-1791510650363947000.
+
+## Unplugged bundle transport — 8 October late evening
+
+With USB unplugged, strict readiness, fresh GraphQL, reconstructed React and real native Nutrition navigation (ClientMealLogs) passed. An unconfirmed Home action was not replayed; independent state still showed Nutrition. A semantic reload hit the one-shot embedded fallback and recovered Home. The live Metro bundle measured 34,982,522 decoded bytes with no content encoding. Dev-only streaming compression reduced wire bytes to 7,869,716 (77.5%), with identical SHA-256 of the decoded JavaScript and preserved RN multipart protocol. After the scoped idle Metro restart, the phone loaded tailnet-Metro with no fallback. This is a verified transport improvement; exact cellular path and the final explicit Off batch remain separately open. On callback returned, but no Wi-Fi IPv4 association was observed, so On execution is not called verified association restoration.
+
+CLI uncertain outcomes now retain a mode-0600 receipt with the accepted command ID, terminal status or sanitized result_observation_failed reason. No command is resubmitted. Twelve focused outcome/deadline/inspection checks passed, including unknown/cancelled and loss of result observation.

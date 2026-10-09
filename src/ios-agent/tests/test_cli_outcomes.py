@@ -41,3 +41,41 @@ class ActionOutcomeTests(unittest.TestCase):
 
     def test_confirmed_delivery_is_success(self):
         self.invoke({'delivered': True, 'commitVerified': False})
+
+    def test_uncertain_terminal_outcomes_keep_private_receipt_without_replay(self):
+        for terminal in ['unknown', 'cancelled']:
+            with self.subTest(terminal=terminal):
+                self.uncertain({'id': 'accepted-command', 'status': terminal,
+                                'reason': 'command_timeout'})
+
+    def test_lost_result_observation_keeps_identity_and_hides_exception(self):
+        self.uncertain(RuntimeError('sensitive provider detail'), {
+            'id': 'accepted-command', 'status': 'unknown',
+            'reason': 'result_observation_failed'})
+
+    def test_other_command_or_invalid_status_cannot_confirm_input(self):
+        for answer in [{'id':'other-command','status':'completed','result':{'delivered':True}},
+                       {'id':'accepted-command','status':'invented'}, None]:
+            with self.subTest(answer=answer):
+                self.uncertain(answer, {'id':'accepted-command','status':'unknown',
+                                       'reason':'result_observation_failed'})
+
+    def uncertain(self, answer, expected=None):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            lease = root / 'lease.json'
+            lease.write_text(json.dumps({'lease': 'a' * 32}))
+            lease.chmod(0o600)
+            output = root / 'receipt.json'
+            argv = ['ios-agent', 'action', 'tap', '--lease-file', str(lease),
+                    '--output', str(output)]
+            stdout = io.StringIO()
+            with patch('sys.argv', argv), patch.object(cli, 'request', side_effect=[
+                    {'id': 'accepted-command'}, answer]) as rpc, contextlib.redirect_stdout(stdout):
+                with self.assertRaisesRegex(RuntimeError, '^action_not_confirmed;'):
+                    cli.main()
+            self.assertEqual(rpc.call_count, 2)
+            self.assertEqual(json.loads(output.read_text()), expected or answer)
+            self.assertEqual(output.stat().st_mode & 0o077, 0)
+            self.assertTrue(lease.exists())
+            self.assertNotIn('sensitive provider detail', stdout.getvalue())

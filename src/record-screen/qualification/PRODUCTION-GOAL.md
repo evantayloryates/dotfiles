@@ -352,3 +352,23 @@ active and carry the evidence forward. Next finish Chrome native-select/nested
 overflow, investigate the failed insurance preconditions once, then converge on
 resource admission, agent runbooks and idle-boundary production delivery. Do not
 repeat settled UI sequences merely to test a notification-summary correction.
+
+## Fourteenth-pass verified checkpoint
+
+Two sequential native captures preserved 102 exact muxed/source timestamps. A
+supplied popup crop extended beyond the original window and matched the independent
+screenshot at zero spatial offset. Its exact decoded sample/time/global map is
+saved, including a repeat from retained evidence. Display occlusion removed the
+base while preserving the popup; whole-shot insurance remains unqualified.
+
+Chrome select/deeper menus remain partial: isolated content was capturable while
+native input/foreground readiness failed, and app capture returned -3811. Preserve
+the existing successes and the new scoped unknown. Shared evidence exact readback
+passed; no unknown backend version becomes a capability guarantee.
+
+All owned processes and tabs are closed. Production stays the original build.
+Continue unblocked background work on affected-only encoder recovery/admission
+and agent expectations, then resolve paired shot recovery under measured health.
+Return to Chrome only with a verified reachable workspace; do not rerun the same
+failed input route. Converge on idle-boundary delivery and installed consumers.
+The active objective remains full production qualification, not a menu-only result.

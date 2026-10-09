@@ -46,8 +46,12 @@ replacement, empty clearing and invalid-mode no-change. Physical replacement/one
 Nullable baseline restored through coach UI and normal mobile refetch.
 
 
-Unique DEV On callback returned despite the immediate observation timing out.
+Both unique DEV callbacks returned despite immediate observations timing out.
 Do not infer handoff failure from a failed read. Separate admission, callback,
 radio/association, and resumed app readiness. Mirroring keyboard/menu navigation
 works while pointer commands can fail with no input window; one rebind/raise
-was insufficient. Prefer the app-owned lane and retain this system-adapter edge.
+was insufficient. A later direct click succeeded; recheck the current surface before requesting a human click. Prefer the app-owned lane and retain this system-adapter edge.
+
+Network-transition qualification: existing VPN On Demand enabled and reopened readback passed, but the next Off transition still lost direct tailnet reachability. Cellular line/data and both app permissions are on. Subsequent physical unlock and DEV launch recovered strict readiness and fresh GraphQL. Causality remains unknown; no unchanged ping loop or automatic accepted-command replay is justified.
+
+Verification sequencing: diagnostics-probe is an explicit action, while verify network only observes. Submit the probe and observe immediately in the same batch; the verifier intentionally rejects results older than 3 seconds. A stale successful probe is not a failed backend.

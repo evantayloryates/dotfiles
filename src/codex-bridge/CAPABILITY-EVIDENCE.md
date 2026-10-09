@@ -100,3 +100,11 @@ store does not start this listener, read raw source packets or classify human
 text. Current proof: 36/36 native keys despite non-foreground delivery; 40 separate-
 app keys excluded after block closure; eight final keys matched; scope restart
 kept end time unknown. See record-screen/qualification/GATES.md for limits.
+
+Fourteenth-pass native qualification appended a scoped Chrome native-select
+readiness observation and independently verified its exact entity/value/ID.
+The result and input-backend version remain unknown, with one-day expiry. An
+isolated fixture was capturable despite display occlusion and failed native
+coordinate delivery. Do not convert this observation into universal Chrome
+failure or a reusable success guarantee; keep surface, capture and workspace
+conditions attached. The recorder report embeds no unrelated display content.

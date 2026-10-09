@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "scope": "live private Metro bundle transport",
+  "routes": [
+    {
+      "requestedEncoding": "identity",
+      "encoding": null,
+      "httpStatus": 200,
+      "wireBytes": 34982522,
+      "decodedBytes": 34982522,
+      "sha256": "3df84a5b7ed9f7f2c13baf601234509807904f215f11ef0e8e40f334e0232bc3",
+      "mime": "application/javascript; charset=UTF-8",
+      "elapsedMs": 430
+    },
+    {
+      "requestedEncoding": "gzip",
+      "encoding": "gzip",
+      "httpStatus": 200,
+      "wireBytes": 7869716,
+      "decodedBytes": 34982522,
+      "sha256": "3df84a5b7ed9f7f2c13baf601234509807904f215f11ef0e8e40f334e0232bc3",
+      "mime": "application/javascript; charset=UTF-8",
+      "elapsedMs": 470
+    }
+  ],
+  "decodedEquality": true,
+  "wireReductionPercent": 77.5,
+  "physicalPhoneReloadVerified": false
+}

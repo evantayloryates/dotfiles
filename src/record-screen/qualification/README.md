@@ -48,6 +48,7 @@ No helper requests a new grant.
 | `journal-test.swift` | Bounded asynchronous writes, queue/byte/footer failures, exact timestamps and private files |
 | `host-clock-test.swift` | Bracketed clock samples, signed zero-offset intervals, injected divergence/regression/uncertainty, journal boundaries and passive awake samples |
 | `clock-interruption-test.swift` | Actual arming state: affected-only interruption, unfinished admission, peer preservation and late-result cleanup; controlled preflight prevents SDK/UI |
+| `verify-overflow.py` | Supplied authored popup region: actual muxed proof, exact decoded sample/time, global map and independent glyph alignment; no automatic segmentation |
 | `verify-journal.py` | Compare journal decisions against actual muxed samples; optional authored-fixture pixels via ffmpeg/Pillow |
 | `coordinate-color-fixture.swift` | Declared sRGB references, app-delivered Quartz/local coordinates and painted click markers; move between displays through exposed controls |
 | `verify-coordinate-color.py` | Join actual native deliveries, journal positions and decoded authored marker/patch pixels; ffmpeg/Pillow, point-resolution fixture only |
@@ -242,3 +243,20 @@ python3 src/record-screen/qualification/checklist.py render
 regenerates both pages and preserves the reciprocal links. Verify that all
 checklist evidence anchors exist in the report and the published revision
 matches the canonical ledger. Read `../AGENTS.md` for the required update policy.
+
+## Transient-region spatial kit
+
+`serve-fixture.py --fixture /absolute/authored-fixture.html` serves only that file
+and the supplied cursor, never a directory. `browser-overflow-fixture.html` adds
+an edge native-select/editing-menu surface. Keep its server in a retained exec;
+a detached helper can disappear when its launching exec ends. Native popup
+readiness requires observation beyond DOM/AX focus and window on-screen metadata.
+
+Use `verify-overflow.py --recording RETAINED_MANIFEST.json --reference SCREENSHOT.png
+--reference-metadata CAPTURE_METADATA.json --region X Y W H --original-frame
+GLOBAL_X GLOBAL_Y W H --output NEW_PROOF.json`. Bounds use source pixels; the
+original frame uses global points. The verifier requires one axis-aligned geometry
+segment and equal reference/source scale, preserves the exact decoded frame time,
+and refuses an existing proof/crop name. Supply only an independently observed,
+authored popup region; this is not an arbitrary-app image oracle. Source journal
+closure, spatial alignment and simultaneous scene recovery are separate claims.

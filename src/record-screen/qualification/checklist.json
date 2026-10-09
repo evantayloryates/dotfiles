@@ -1,6 +1,6 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-08T21:45:20-04:00",
+  "updated_at": "2026-10-08T22:16:07-04:00",
   "workflow": {
     "state": "active",
     "note": "Taylor resumed qualification. Prioritize high-impact investigation, preserve failed evidence and useful progress, and avoid repeated resets or rerunning settled checks."
@@ -66,10 +66,10 @@
           "title": "Complete the Chrome surface qualification lane",
           "status": "partial",
           "scope": "Genuine native menus, HTML menus, native select controls and reachability.",
-          "evidence": "Visible native and HTML menu footage passed. Earlier off-Space input/capture failures remain distinct.",
-          "next": "Test native select and deliberate nested overflow on the current app/provider versions.",
-          "anchor": "sixth-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "evidence": "Prior native/HTML proofs retained. New narrow fixture was capturable in isolated mode but covered in display mode despite on_screen true. Native coordinates refused noWindowsAvailable; browser expand/native key delivery did not establish a visible select popup. Application-filter probe returned SCK -3811. Owned tabs closed; unresolved readiness recorded and exactly read back from shared facts as unknown.",
+          "next": "Repeat only the popup boundary on a verified reachable foreground Chrome surface. Do not infer native readiness from DOM actions, focus or on_screen metadata.",
+          "anchor": "fourteenth-pass",
+          "updated_at": "2026-10-08T22:16:07-04:00"
         },
         {
           "id": "electron-depth",
@@ -86,10 +86,10 @@
           "title": "Prove a useful overflow capture and recovery path",
           "status": "partial",
           "scope": "Display padding/cropping must add transient coverage beyond the original canvas.",
-          "evidence": "A padded display pair included menus and unrelated pixels, but did not prove additional overflow rows.",
-          "next": "Capture intentional overflow and verify crop positions, occlusion tradeoffs and recoverable coverage.",
-          "anchor": "seventh-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "evidence": "Two sequential native takes passed 102 exact timestamps. A 190×58 popup crop extends 140 points right/28 down beyond the original frame; its source map matched independent screenshot glyphs at zero offset (0.916 IoU). Retained evidence recheck passed. Display footage kept the popup but lost its base to occlusion.",
+          "next": "Qualify multiple nested levels and synchronized base/overflow coverage before promising whole-shot recovery. The supplied crop is a proven layer; automatic segmentation and broader app lanes remain open.",
+          "anchor": "fourteenth-pass",
+          "updated_at": "2026-10-08T22:16:07-04:00"
         },
         {
           "id": "clean-source",
@@ -386,10 +386,10 @@
           "title": "Centralize version-scoped app observations",
           "status": "partial",
           "scope": "Shared reported facts, exact environment keys, expiry and conflicting evidence.",
-          "evidence": "Four local tools and a CLI were tested; app observations and imported action receipts were saved/read back.",
-          "next": "Reconcile actual consumer use and feed non-recording workflows into the shared fact store.",
-          "anchor": "third-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "evidence": "Shared versioned observation store, conflicts/expiry and scoped Chrome facts passed earlier. A new unresolved Chrome native-select readiness case was stored and independently read back with exact entity/value/ID; unknown backend version/result stay unknown, with one-day expiry.",
+          "next": "Reconcile actual consumer use and feed non-recording workflows into the shared fact store; never promote unknown environmental observations into success guarantees.",
+          "anchor": "fourteenth-pass",
+          "updated_at": "2026-10-08T22:16:07-04:00"
         },
         {
           "id": "requalification",
@@ -591,6 +591,46 @@
       "from": "in_progress",
       "to": "partial",
       "note": "Owned passive listener: 27 policy checks; three controlled timeout recoveries then exhaustion; user-disable overrides and blocks a second subscriber. Eight exact native key transitions proved four omitted and four retained after deliberate recreation. Source summaries retain negative faults. A 750-ms passive delay produced no natural timeout."
+    },
+    {
+      "kind": "item",
+      "id": "chrome-depth",
+      "at": "2026-10-08T21:48:41-04:00",
+      "from": "partial",
+      "to": "in_progress",
+      "note": "Prior native context/HTML menu evidence preserved. Starting one owned synthetic edge-select/editing-menu fixture on the current Chrome provider; existing native window is off-Space."
+    },
+    {
+      "kind": "item",
+      "id": "chrome-depth",
+      "at": "2026-10-08T21:56:41-04:00",
+      "from": "in_progress",
+      "to": "partial",
+      "note": "Prior native/HTML capture proofs retained. New narrow fixture was capturable in isolated mode but covered in display mode despite on_screen true. Native coordinates refused noWindowsAvailable; browser expand/native key delivery did not establish a visible select popup. Application-filter probe returned SCK -3811. Owned tabs closed; no capture-mode failure is being promoted as menu absence."
+    },
+    {
+      "kind": "item",
+      "id": "overflow-recovery",
+      "at": "2026-10-08T22:16:07-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Two sequential native takes passed 102 exact timestamps. A 190×58 popup crop extends 140 points right/28 down beyond the original frame; its source map matched independent screenshot glyphs at zero offset (0.916 IoU). Retained evidence recheck passed. Display footage kept the popup but lost its base to occlusion."
+    },
+    {
+      "kind": "item",
+      "id": "chrome-depth",
+      "at": "2026-10-08T22:16:07-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Prior native/HTML proofs retained. New narrow fixture was capturable in isolated mode but covered in display mode despite on_screen true. Native coordinates refused noWindowsAvailable; browser expand/native key delivery did not establish a visible select popup. Application-filter probe returned SCK -3811. Owned tabs closed; unresolved readiness recorded and exactly read back from shared facts as unknown."
+    },
+    {
+      "kind": "item",
+      "id": "app-facts",
+      "at": "2026-10-08T22:16:07-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Shared versioned observation store, conflicts/expiry and scoped Chrome facts passed earlier. A new unresolved Chrome native-select readiness case was stored and independently read back with exact entity/value/ID; unknown backend version/result stay unknown, with one-day expiry."
     }
   ]
 }

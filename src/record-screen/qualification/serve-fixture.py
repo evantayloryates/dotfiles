@@ -7,8 +7,10 @@ from pathlib import Path
 parser = argparse.ArgumentParser()
 parser.add_argument('--port', type=int, default=47861)
 parser.add_argument('--cursor', type=Path, required=True)
+parser.add_argument('--fixture', type=Path, default=Path(__file__).with_name('browser-fixture.html'),
+                    help='Explicit authored fixture only; no directory is served.')
 args = parser.parse_args()
-routes = {'/': (Path(__file__).with_name('browser-fixture.html'), 'text/html'),
+routes = {'/': (args.fixture, 'text/html'),
           '/cursor.svg': (args.cursor, 'image/svg+xml')}
 
 class Handler(BaseHTTPRequestHandler):

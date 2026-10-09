@@ -124,6 +124,7 @@ def main():
     a = p.parse_args()
     message = {"op": a.op}
     action_rejected = False
+    action_unconfirmed = False
     if a.op == "acquire":
         thread, turn, active = owner_state(a.rollout)
         if not active:
@@ -173,23 +174,35 @@ def main():
             cid = result["id"]
             end = time.monotonic() + 18
             while time.monotonic() < end:
-                result = request({"op": "result", "id": cid, "lease": message["lease"]}, a.state)
+                try:
+                    result = request({"op": "result", "id": cid, "lease": message["lease"]}, a.state)
+                    if (not isinstance(result, dict) or result.get("id") != cid or
+                            result.get("status") not in {"queued", "sent", "completed", "unknown", "cancelled"}):
+                        raise RuntimeError("result_identity_or_status_invalid")
+                except (OSError, ValueError, RuntimeError):
+                    # Admission succeeded. Loss of its observation cannot justify
+                    # replay, and must not discard the accepted command identity.
+                    result = {"id": cid, "status": "unknown", "reason": "result_observation_failed"}
+                    break
                 if result["status"] not in ("queued", "sent"):
                     break
                 time.sleep(0.1)
             if result["status"] != "completed":
-                raise RuntimeError("action_not_confirmed; do not replay a mutation")
-            action_rejected = (not isinstance(result.get("result"), dict) or
-                               "error" in result["result"])
+                action_unconfirmed = True
+            action_rejected = (not action_unconfirmed and
+                               (not isinstance(result.get("result"), dict) or
+                                "error" in result["result"]))
         if a.op in ("action", "inspect") and a.output:
             fd = os.open(a.output, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
             with os.fdopen(fd, "w") as f:
                 json.dump(result, f)
-            result = {"status": "completed", "output": str(a.output.resolve())}
+            result = {"status": result.get("status", "completed"), "output": str(a.output.resolve())}
         if a.op == "release":
             a.lease_file.unlink()
     if action_rejected:
         raise RuntimeError("device_action_rejected; inspect_private_receipt; do_not_replay")
+    if action_unconfirmed:
+        raise RuntimeError("action_not_confirmed; inspect_private_receipt; do_not_replay")
     if a.op == "status" and result.get("lease"):
         result["lease"] = {k: result["lease"][k] for k in ("thread", "turn")}
     print(json.dumps(result))
