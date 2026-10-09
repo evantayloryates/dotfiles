@@ -29,6 +29,13 @@ all cleanup complete, audit uncovered zero. The shared Chrome/provider coverage
 fact reports failure, with provider version unknown. Native fixture/tab absent,
 owned loopback server exited and exact session closed.
 
+Actual service input queries return zero events and zero gap notifications for
+the browser action, but retain one closed semantic action snapshot. The native
+control returns four events and two action snapshots. Both still declare input
+delivery completeness unproven. This qualifies a useful fallback: retain the
+source-owned action context even when OS events are absent. A closed snapshot
+does not invent a missing captured begin update or independently verify delivery.
+
 Agents should preserve provider-specific semantic action marks and observed app
 milestones alongside global telemetry. A DOM-delivered effect may need an
 agent-authored cue; do not fabricate an OS event, clock, pointer coordinate or

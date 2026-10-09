@@ -1,6 +1,6 @@
 # Capture foundations: qualified strategy and remaining boundaries
 
-Current checkpoint: October9,2026, stage78. Signed native6c238cc1ba80 is installed;
+Current checkpoint: October9,2026, stage79. Signed native6c238cc1ba80 is installed;
 current CLI and fresh owned MCP0.18/27 tools carry the latest contracts. Existing
 ordinary chat exposes22 older tools, so use current CLI for missing input queries,
 source maps, planning and declaration-only launch contexts. Preserve peer servers.
@@ -17,6 +17,10 @@ bundle association, unknown environment dimensions and reported evidence limits
 stay explicit. It does not automatically choose capture settings or run a canary.
 Opt-in preview/source joins now identify actual returned decoder frames inside
 the service, preserving original-canvas dimensions and fitted refusals.
+One owned browser-provider sample changes DOM state without observed global tap
+callbacks; the same listener passes a native control. Keep provider semantic
+marks/app milestones separate from OS events and per-key verification unknown
+when only a tool acknowledgment/focus is available. See BROWSER-PROVIDER-INPUT.md.
 Final cursor/effect styles and composition are deferred.
 
 ## Supported source and interaction strategy

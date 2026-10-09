@@ -3386,3 +3386,34 @@ PID20948 unchanged; no capture/UI/native or peer restart. One exact scoped fact
 readback, no fabricated native action receipt for this service-only read. Private
 gates-v78/qualification-summary.json. Checklist45completed18partial1deferred,
 full goal active; physical and human-dependent gates remain deferred.
+
+## Stage79 — browser provider gap with same-listener native control
+
+Owned local Chrome154.0.8037.98/build8037.98 tab receives a browser Playwright
+click/key operation: click changes green witness to magenta, DOM counter7.
+Global callback count remains4→4 across sampled healthy/listening/tap-enabled
+states. Native InputTimeline.admit increments before per-recording filtering,
+so this is not only an empty target query. Same-listener native CUA control then
+raises callbacks4→8: types1/2/10/11 in its scope, two app-local raw key timestamp/
+keycode matches.183 actual mux/source stamps exact, zero journal loss. No fault
+or overflow; sampled states do not prove continuous health, OS completeness,
+physical/browser clock calibration or actor identity.
+
+Read-only browser evaluate does not expose window.fixtureEvents although DOM
+counter updates. Per-browser-event trust/type/key delivery stay unverified;
+accepted press/focused textbox is not per-key proof. Combined browser operation
+verification unknown, narrower click/counter proof retained. Fixture now renders
+bounded last32 event metadata in DOM for future use; this export is not live
+qualified. Recorder native inventory has no owned-title Chrome window match;
+Chrome video/popups withheld and existing peer media tab preserved. Only owned
+native control recorded. No native/peer restart or human/physical gate.
+
+Six terminal receipts/outcomes:5verified1unknown, allcleanupcomplete/audit
+uncovered0. Raw launch-listener79 provider labelbrowser-cua was a caller error;
+actual native CUA invocation explicitly preserved in typed outcome. First
+schedule rejected unsupportedshows_cursor before acceptance, correctedshow_cursor
+without unknown mutation replay. Owned fixture/tab absent, HTTPserverexited,
+exact sessionclosed/native6c/PID20948 idle. One shared exact Chrome coverage fact
+reportsfail; current planner returnsreported_failure/reusefalse and retains
+unknown provider dimension, facthashunchanged. Privategates-v79 summary/proof.
+Checklist45completed18partial1deferred/fullgoalactive. SeeBROWSER-PROVIDER-INPUT.md.

@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T18:45:34-04:00",
+  "updated_at": "2026-10-09T18:54:05-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage78 complete: current MCP0.18/CLI can join returned preview decoder times to actual mux/source metadata. Seven actual retained joins independently verified; changing-fit guard and black-tail diagnostics preserved.73 focused checks pass, source hashes unchanged. Stage77 fresh delivered input canary retained. Continue missing boundaries; physical and human-dependent gates deferred."
+    "note": "Stage79 complete: an owned browser click changed the page while global tap callbacks stayed unchanged; same-listener native positive control produced four callbacks and two matched keys. Six outcomes preserve five verified/one unknown, all cleanup complete. Shared provider coverage failure consumed by current planner. Chrome video withheld without owned native target. Continue missing boundaries without human-dependent gates."
   },
-  "production_note": "Signed native6c238cc1ba80/PID20948 unchanged; stage77 fresh listener and delivered key/source canary passes. Current MCP0.18/27tools and minimal-PATH CLI deliver opt-in exact preview/source joins. Seven actual decoder/mux/source identities verified, including fitted-origin refusals; mapping failures preserve images. Ordinary loaded22-tool adapter lacks this optional schema; use current CLI without peer restarts. Physical input, universal provider filtering and18 partial acceptance gates remain open.",
+  "production_note": "Native6c/PID20948 unchanged; fresh input/source and current MCP0.18 preview joins retained. Stage79 demonstrates one browser-provider telemetry gap: DOM click/counter observed, global callbacks4→4, native control4→8 with two app-delivered key matches. Per-browser-event trust/types/key delivery remain unknown, no Chrome footage. Shared exact app-learning planner returns reported_failure and blocks reuse with unknown provider version. Owned resources settled.45 completed,18 partial,1 deferred; physical input/full ordinary adoption remain open.",
   "groups": [
     {
       "id": "capture",
@@ -278,10 +278,10 @@
           "title": "Separate session events from unrelated user activity",
           "status": "partial",
           "scope": "Retain delivery and action-context reasons, broad shortcuts and uncertain candidates.",
-          "evidence": "Stage72 broad/strict/unassociated companion evidence retained. Stage77 one key operation retains a preceding title-bar pointer down/up plus both keys in the same action scope. Keys remain app_delivery_window_unresolved; pointer pair is possible focus preparation, with actor/causation unknown. Type and semantic context remain separate.",
-          "next": "Qualify remaining physical/provider attribution boundaries. Keep auxiliary pointer candidates and broad shortcuts; action membership alone cannot identify intended visual cues or actor.",
-          "anchor": "seventy-seventh-pass",
-          "updated_at": "2026-10-09T18:38:17-04:00"
+          "evidence": "Stage77 one native key operation retains pointer precursors in the same scope. Stage79 browser DOM click/counter changes produce zero observed global callback delta, then native control yields four. Separate provider action context/app milestones from OS input; per-key browser delivery and actor remain unknown.",
+          "next": "Qualify remaining physical/provider attribution boundaries without repeating this browser gap. Preserve broad events, auxiliary gestures and observed semantic milestones; never synthesize missing OS evidence.",
+          "anchor": "seventy-ninth-pass",
+          "updated_at": "2026-10-09T18:54:05-04:00"
         },
         {
           "id": "protected-input",
@@ -318,10 +318,10 @@
           "title": "Qualify missing-event and tap-fault behavior",
           "status": "partial",
           "scope": "Expose virtual-input gaps, revoked access, disabled taps and overload.",
-          "evidence": "Stage45 source-owned health context retains real pre-epoch listener/protection notifications and four protected pointer snapshots despite empty keyboard filter. CLI/fresh MCP0.11.5 equal, defaults unchanged.29 initial28pass/one version mismatch narrowly corrected;12 final input checks pass. Earlier grant/tap/ingress proofs preserved.",
-          "next": "Qualify missing physical revocation/natural timeout and initial OS/per-key bounds when isolated. Use preceding/untimed/lost/truncated source observations; do not infer live or continuous state from a gap list.",
-          "anchor": "forty-fifth-pass",
-          "updated_at": "2026-10-09T07:33:09-04:00"
+          "evidence": "Stage79 owned browser click changes DOM witness/counter7 while sampled healthy global tap callbacks4→4. Counter increments before per-recording filtering; same-listener native control4→8 with two key matches. No fault/overflow. Browser per-event trust/types/key delivery unknown; shared coverage fact reports failure.",
+          "next": "Qualify missing physical revocation/natural timeout and initial OS/per-key bounds when isolated. Preserve this provider gap; empty events/gaps and a grant cannot certify delivery.",
+          "anchor": "seventy-ninth-pass",
+          "updated_at": "2026-10-09T18:54:05-04:00"
         },
         {
           "id": "installed-input-access",
@@ -536,10 +536,10 @@
           "title": "Centralize version-scoped app observations",
           "status": "partial",
           "scope": "Shared reported facts, exact environment keys, expiry and conflicting evidence.",
-          "evidence": "Prior exact version/surface facts retained. Stage69 one authored-app1.0/build68/25F80/native-CUA versionunknown post-close AX read relaunch failure fact is independently read back with1day expiry. Exact old/new process and native-window observations support scope. This is one runtime/app case, not universal behavior, automatic learning or authenticated actor proof. Stage71 three exact Safari26.5/build21624.2.5.11.4/macOS25F80/native-CUA-version-unknown facts independently read back: real select/root capture, fixed-crop anchor within1px, and failure of geometric containment to imply visible app. Reported single-episode/expiry keys retained. Stage72 four exact owned-fixture facts independently read back, including negative overflow control. Provider version remains unknown; reusable readiness is withheld. Stage73 two exact facts read back. Separate stage72 source-helper diagnostic identifies all28 matching events sourcePID76855/installed26.1001.1001394; wrapper unknown stays unknown. Stage75 recorder production_plan opt-in app_learning consumes central typed facts with exact entity keys. Actual fresh MCP0.17/current CLI return the same two reported passes; unknown provider blocks reuse despite claimed confirmation. Changed app build returns missing; target bundle mismatch withholds without store lookup. Three source fact hashes unchanged across CLI read. No referenced evidence-content fetch, automatic source selection, canary or learning write.64 affected checks pass.",
-          "next": "Qualify genuinely changed daily-app dimensions with targeted source canaries when needed; retain provider/version uncertainty and scoped reported facts rather than broad certification.",
-          "anchor": "seventy-fifth-pass",
-          "updated_at": "2026-10-09T18:19:07-04:00"
+          "evidence": "Stage79 Chrome154.0.8037.98/build8037.98 exact shared provider-coverage fact reports failure. Current planner consumes reported_failure against observed Chrome bundle and preserves unknown provider version/reusefalse despite claimed confirmation; fact hash unchanged. Prior source-specific facts retained.",
+          "next": "Qualify genuinely changed daily-app dimensions with targeted canaries. Reuse the scoped negative provider observation to avoid assuming global tap coverage, without broad app certification.",
+          "anchor": "seventy-ninth-pass",
+          "updated_at": "2026-10-09T18:54:05-04:00"
         },
         {
           "id": "requalification",
@@ -556,10 +556,10 @@
           "title": "Verify the quality of recent shared computer-use workflows",
           "status": "partial",
           "scope": "Assess delivered actions, verification and cleanup rather than tool-call counts.",
-          "evidence": "Stage77 launch/key/close have three terminal imported receipts, separate verified outcomes and completed cleanup; independent audit uncovered0. Two raw key matches and80 decoded witness frames corroborate delivered content. Foreground samples identify another app, without continuous focus/no-interruption proof.",
-          "next": "Continue targeted workflow observation on a genuinely new boundary; no inference of whole-workflow success or continuous background isolation from this sample.",
-          "anchor": "seventy-seventh-pass",
-          "updated_at": "2026-10-09T18:38:17-04:00"
+          "evidence": "Stage79 six terminal imported receipts, five verified/one unknown and six cleanupcomplete outcomes; audit uncovered0. Browser combined click/key verification stays unknown because only click/counter independently observed. Raw native-launch provider label error explicitly corrected in typed summary; no stamp rewriting.",
+          "next": "Continue targeted observation at a new useful boundary; preserve unknown per-key verification and reported-provider limits, without repeating settled workflow audits.",
+          "anchor": "seventy-ninth-pass",
+          "updated_at": "2026-10-09T18:54:05-04:00"
         },
         {
           "id": "receipt-integration",

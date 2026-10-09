@@ -1,6 +1,19 @@
 # Production qualification goal
 
-## Current checkpoint: stage78 — ACTIVE
+## Current checkpoint: stage79 — ACTIVE
+
+
+Stage79 owned browser click changes DOM witness/counter7 with zero observed
+global tap callback delta4→4 across sampled healthy states. Same-listener native
+control then yields four callbacks/two matched keys and183 exact mux/source
+stamps, zero journal loss. Per-browser-event trust/types/key delivery unknown;
+combined browser verification remains unknown. No owned native Chrome window
+match, no Chrome video/menu result, peer media UI preserved. Six terminal typed
+outcomes:5verified/1unknown, allcleanupcomplete/uncovered0. Exact failed coverage
+fact readback and consumed by current planner; unknown provider blocks reuse.
+Owned fixture/tab absent/serverexited/sessionclosed/nativeidle. First rejected
+schedule and caller launch-provider label error preserved; no lost mutation
+replay or stamp rewrite. New fixture DOM event export prepared but not live-tested.
 
 
 Current MCP0.18/27tools and minimal-PATH CLI deliver opt-in preview/source joins.
