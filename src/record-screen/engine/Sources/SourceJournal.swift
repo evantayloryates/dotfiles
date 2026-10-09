@@ -25,6 +25,8 @@ final class SourceJournal: @unchecked Sendable {
   private var latestColor: [String:Any]?
   private var clockContinuity = HostClockContinuity()
   private var inputGapReasons: [String:Int] = [:]
+  private var inputEventsSkipped:[String:Int]=[:]
+  private var latestInputQueueLoss:[String:Any]?
   private var latestInputListener: [String:Any]?
   private var protectedInputObserved: Bool?
 
@@ -86,6 +88,11 @@ final class SourceJournal: @unchecked Sendable {
         let raw=row["reason"] as? String ?? "unknown"
         let reason=raw.utf8.count<=128 && (inputGapReasons[raw] != nil || inputGapReasons.count<32) ? raw : "other"
         inputGapReasons[reason,default:0] += 1
+        if let count=row["events_skipped"] as? Int,count>0 {
+          let old=inputEventsSkipped[reason,default:0]
+          inputEventsSkipped[reason]=old>Int.max-count ? Int.max : old+count
+        }
+        if reason == "queue_overflow" {latestInputQueueLoss=row}
         if let policy=row["tap_fault_policy"] as? [String:Any],let state=policy["state"] as? String {
           latestInputListener=["kind":"input_gap","state":state,"reason":raw,
             "host_ns":row["host_ns"] as Any? ?? NSNull(),"tap_fault_policy":policy]
@@ -157,6 +164,7 @@ final class SourceJournal: @unchecked Sendable {
        "color_segments":colorSegments, "latest_observed_color":latestColor as Any? ?? NSNull(),
        "clock_continuity":clockContinuity.dict,
        "input_gaps_observed":inputGapReasons,"latest_input_listener":latestInputListener as Any? ?? NSNull(),
+       "input_events_skipped_observed":inputEventsSkipped,"latest_input_queue_loss":latestInputQueueLoss as Any? ?? NSNull(),
        "protected_input_last_observed":protectedInputObserved as Any? ?? NSNull(),
        "input_health_qualification":"latest accepted notifications/policy state, not live health; loss remains explicit; listener state does not establish delivered-event coverage",
        "color_qualification":"observed tags from accepted rows; journal loss remains explicit; no app/backing intent inferred",

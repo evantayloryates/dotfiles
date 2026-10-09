@@ -1,6 +1,6 @@
 # Personal iOS app agent
 
-The latest installed SDK passed USB-unplugged Wi-Fi Off/On through private Tailscale: strict app readiness, fresh GraphQL, reconstructed React, native Nutrition/Home navigation, remote Metro and clean release. Original Wi-Fi association was restored. Both coach/client edit directions and data restoration passed. The fixed physical telemetry matrix passed ten checks. These qualify the stated dev workflows; remaining recognizer/keyboard/recovery edges are tracked in docs/QUALIFICATION.md.
+The earlier recorded SDK passed the full USB-unplugged Wi-Fi Off/On cycle through private Tailscale, with app/backend/React/native navigation and clean release. Both coach/client edit directions and restoration passed. The newest snapshot/refresh/keep-awake candidate is installed and ready on remote Metro with no Wi-Fi IPv4 association; its final unplugged input acceptance is pending. Recovery limits and exact build evidence are in docs/QUALIFICATION.md.
 
 The host lives in dotfiles; the app integration stays on `ety/local-dev-foundation`.
 Only the explicit `IOS_AGENT_ENABLED=1` Debug build for `com.dev.kudos.fit` starts
@@ -228,3 +228,6 @@ to restore a lost screen. See docs/CAPABILITY-EDGES.md for the open gate.
 
 
 For slow wireless links, successful tree delivery reserves a bounded follow-up opportunity: five seconds after the first owner-fenced acknowledgment, with total capture age capped at 15 seconds and live geometry/hit checks retained. Background React polling yields up to two seconds after a native tree. The candidate also exposes allowlisted refresh cause counters in `state.refreshDiagnostics`; it never exports reload messages or source paths. Physical recovery qualification is pending; ordinary Fast Refresh may still reset navigation.
+
+
+Lease-scoped keep-awake candidate: UIKit idle timer is disabled only while control is leased; release, foreground loss and expiry restore its prior value. A preexisting disabled idle timer remains disabled. This does not prevent a manual lock or remove phone/Mac authentication. Compiled fixture 51 gates passed, including the three idle-timer checks. Latest signed build installed. Fixture runner now repairs only a missing-payload registry record on its own freshly booted simulator; a real installation or shared boot remains a collision refusal. Wi-Fi-off handoff briefly lost transport; fixed USB On recovery and a fresh build restored foreground registration. No single root cause is claimed for that transport loss.

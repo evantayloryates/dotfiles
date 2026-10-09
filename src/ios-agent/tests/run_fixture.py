@@ -41,6 +41,7 @@ def main():
     if owned_boot:
         cmd("xcrun", "simctl", "boot", a.simulator)
     installed = False
+    stale_registry_removed = False
     try:
         with tempfile.TemporaryDirectory() as temp:
             app = Path(temp) / "Fixture.app"
@@ -51,8 +52,18 @@ def main():
             cmd("xcrun", "--sdk", "iphonesimulator", "clang", "-fobjc-arc", "-fblocks", "-target", "arm64-apple-ios26.5-simulator", "-isysroot", sdk,
                 "-framework", "UIKit", "-framework", "Foundation", "-framework", "QuartzCore", "-framework", "CoreGraphics", "-framework", "IOKit", str(ROOT / "tests/Fixture.m"), "-o", str(app / "Fixture"))
             cmd("codesign", "--force", "--sign", "-", str(app))
-            if BUNDLE in installed_apps(a.simulator):
-                raise RuntimeError("fixture_already_installed_refusing_collision")
+            registry = installed_apps(a.simulator).get(BUNDLE)
+            if registry:
+                # CoreSimulator can restore a stale registry record after an
+                # owned shutdown even though uninstall removed the payload.
+                payload = Path(registry.get("Path", "/"))
+                bundle_root = Path(device["dataPath"]) / "Containers/Bundle/Application"
+                if not owned_boot or not payload.is_absolute() or not payload.is_relative_to(bundle_root) or payload.exists():
+                    raise RuntimeError("fixture_already_installed_refusing_collision")
+                cmd("xcrun", "simctl", "uninstall", a.simulator, BUNDLE)
+                if BUNDLE in installed_apps(a.simulator):
+                    raise RuntimeError("stale_fixture_registry_not_removed")
+                stale_registry_removed = True
             executable_hash = hashlib.sha256((app / "Fixture").read_bytes()).hexdigest()
             cmd("xcrun", "simctl", "install", a.simulator, str(app))
             installed = True
@@ -67,7 +78,7 @@ def main():
                 raise RuntimeError("fixture_did_not_finish")
             result = json.loads(evidence.read_text())
             changed = any(hashlib.sha256(path.read_bytes()).hexdigest() != source_hashes[str(path.relative_to(ROOT))] for path in native_sources)
-            result.update(scope="synthetic UIKit simulator", simulator=device["name"], sourceHashes=source_hashes, sourceChangedDuringRun=changed, fixtureExecutableHash=executable_hash, observedAtUTC=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()))
+            result.update(staleOwnedRegistryRemoved=stale_registry_removed, scope="synthetic UIKit simulator", simulator=device["name"], sourceHashes=source_hashes, sourceChangedDuringRun=changed, fixtureExecutableHash=executable_hash, observedAtUTC=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()))
             errors = {
                 "occlusionRejection": "hit_target_changed_or_occluded",
                 "staleSnapshotRejection": "fresh_snapshot_and_point_required",

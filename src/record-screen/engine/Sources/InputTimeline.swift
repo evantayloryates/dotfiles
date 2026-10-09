@@ -65,7 +65,10 @@ final class InputTimeline: @unchecked Sendable {
   private var contextRefreshMaxNS: UInt64 = 0
   private var phase = "inactive"
   private var subscriptionCount = 0
-  private var reportedOverflow = 0 // q only
+  private var pendingOverflow:InputQueueLoss? // lock; emitted with next admission/end
+#if RECORD_SCREEN_QUALIFICATION
+  private var qualificationNoTap=false
+#endif
   private var tap: CFMachPort? // main run loop only
   private var source: CFRunLoopSource?
   private var timer: Timer?
@@ -136,6 +139,7 @@ final class InputTimeline: @unchecked Sendable {
   func updateFrame(id: String, frame: CGRect) { q.async { [self] in subscribers[id]?.context.frame=frame } }
   func unsubscribe(id: String, completion: (@Sendable () -> Void)? = nil) {
     q.async { [self] in
+      if let loss=lock.withLock({ () -> InputQueueLoss? in let value=pendingOverflow;pendingOverflow=nil;return value }) { emitLoss(loss) }
       if let s=subscribers.removeValue(forKey:id) { s.callback(["kind":"input_scope_end","host_ns":String(uptimeNs()),
         "retained":s.retained,"outside_scope_count":s.excluded,"queue_overflow_during_scope":lock.withLock {overflow-s.overflowStart}]) }
       lock.withLock { subscriptionCount=subscribers.count }
@@ -143,8 +147,14 @@ final class InputTimeline: @unchecked Sendable {
       completion?()
     }
   }
-  private func broadcast(_ row: [String: Any]) { q.async { [self] in for s in subscribers.values { s.callback(row) } } }
+  private func broadcast(_ row: [String: Any]) { q.async { [self] in for s in subscribers.values {
+    if row["kind"] as? String == "input_gap" { s.policy.invalidateContinuity() }
+    s.callback(row)
+  } } }
   private func startIfNeeded() {
+#if RECORD_SCREEN_QUALIFICATION
+    if qualificationNoTap { return }
+#endif
     guard tap == nil, lock.withLock({subscriptionCount>0}) else { return }
     guard !lock.withLock({faults.blocksRestart}) else { return }
     let access=CGPreflightListenEventAccess()
@@ -258,10 +268,7 @@ final class InputTimeline: @unchecked Sendable {
       handleTapDisable(userInput:type == .tapDisabledByUserInput)
       return
     }
-    let admitted=lock.withLock { callbacks+=1; observedTypes[type.rawValue,default:0]+=1
-      guard faults.acceptsEvents else {faultOmittedCallbacks+=1;return false}
-      guard pending<Self.capacity else { overflow+=1; return false }; pending+=1; return true }
-    guard admitted else { return }
+    guard let ticket=admit(type:type.rawValue,received:received) else { return }
     func value(_ field: CGEventField) -> Int64 { event.getIntegerValueField(field) }
     let window=value(.mouseEventWindowUnderMousePointer)
     var sample=InteractionSample(type:type.rawValue,receivedNS:received,eventNS:event.timestamp,
@@ -282,15 +289,33 @@ final class InputTimeline: @unchecked Sendable {
       }
     }
     let copied=sample
-    q.async { [self] in process(copied); lock.withLock { pending-=1 } }
+    q.async { [self] in process(copied,ticket:ticket); lock.withLock { pending-=1 } }
   }
-  private func process(_ event: InteractionSample) {
-    let context=windows.snapshot
-    let snapshot=(lock.withLock { overflow },context.transientWindows,context.hostNS)
-    if snapshot.0>reportedOverflow {
-      let gap:[String:Any]=["kind":"input_gap","reason":"queue_overflow","events_skipped":snapshot.0-reportedOverflow,"host_ns":String(uptimeNs())]
-      for s in subscribers.values { s.callback(gap) }; reportedOverflow=snapshot.0
+  private func admit(type:UInt32,received:UInt64) -> InputQueueTicket? {
+    lock.withLock {
+      callbacks+=1;observedTypes[type,default:0]+=1
+      guard faults.acceptsEvents else {faultOmittedCallbacks+=1;return nil}
+      guard pending<Self.capacity else {
+        overflow+=1
+        if pendingOverflow==nil {pendingOverflow=InputQueueLoss()}
+        pendingOverflow!.append(sequence:UInt64(callbacks),host:received,type:type)
+        return nil
+      }
+      pending+=1
+      let ticket=InputQueueTicket(sequence:UInt64(callbacks),overflowTotal:overflow,loss:pendingOverflow)
+      pendingOverflow=nil;return ticket
     }
+  }
+  private func emitLoss(_ loss:InputQueueLoss) {
+    for s in subscribers.values {
+      var row=loss.row;row["drag_contexts_invalidated"]=s.policy.invalidateContinuity()
+      s.callback(row)
+    }
+  }
+  private func process(_ event: InteractionSample,ticket:InputQueueTicket) {
+    let context=windows.snapshot
+    let snapshot=(ticket.overflowTotal,context.transientWindows,context.hostNS)
+    if let loss=ticket.loss {emitLoss(loss)}
     for s in subscribers.values {
       s.context.foregroundPID=event.foregroundPID
       s.context.transientWindows=s.context.pid.flatMap { snapshot.1[$0] } ?? []
@@ -300,6 +325,7 @@ final class InputTimeline: @unchecked Sendable {
       s.retained+=1
       var row: [String: Any] = ["kind":"input_event","type":event.type,"received_host_ns":String(event.receivedNS),
         "event_timestamp_ns":String(event.eventNS),"event_clock_qualification":"raw CG timestamp; normalized timeline uses recorder receipt time",
+        "callback_sequence":String(ticket.sequence),"callback_sequence_qualification":"this listener instance; receipt order, not provider delivery completeness",
         "source_pid":event.sourcePID,"source_tag":String(event.sourceTag),"destination_pid":event.destinationPID,
         "window_under_pointer":event.windowUnderPointer,"flags":String(event.flags),"relevance_reasons":decision.reasons,
         "scope_certainty":decision.certainty,"action_ids":decision.actionIDs,"ownership":"unknown",
@@ -319,4 +345,13 @@ final class InputTimeline: @unchecked Sendable {
       s.callback(row)
     }
   }
+#if RECORD_SCREEN_QUALIFICATION
+  /// Authored scalar samples only. Never creates a CGEvent/tap or posts input.
+  func qualificationActivate() { qualificationNoTap=true;lock.withLock {faults.activate();phase="qualification_no_OS_tap"} }
+  func qualificationReceive(_ sample:InteractionSample) {
+    guard let ticket=admit(type:sample.type,received:sample.receivedNS) else {return}
+    q.async { [self] in process(sample,ticket:ticket);lock.withLock {pending-=1} }
+  }
+  func qualificationBarrier(_ completion:@escaping @Sendable ()->Void) {q.async(execute:completion)}
+#endif
 }

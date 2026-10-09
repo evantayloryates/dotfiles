@@ -62,6 +62,10 @@ struct InteractionDecision {
 struct InteractionScopePolicy {
   private struct Drag { let since: UInt64; let eventNumber: Int64 }
   private var drags: [String: Drag] = [:]
+  /// A missing release must not attach later unrelated pointer work to a drag.
+  @discardableResult mutating func invalidateContinuity() -> Int {
+    let count=drags.count; drags.removeAll(keepingCapacity:true); return count
+  }
   mutating func evaluate(_ event: InteractionSample, _ context: InteractionScopeContext) -> InteractionDecision {
     drags = drags.filter { event.receivedNS >= $0.value.since && event.receivedNS - $0.value.since <= 30_000_000_000 }
     let key = "\(event.sourcePID):\(event.button)"

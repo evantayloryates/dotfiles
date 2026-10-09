@@ -1,3 +1,31 @@
+# Current Runner checkpoint — 8 October 2026
+
+Goal active; 13/16 bounded gates complete. One parallel pass finished; proceed sequentially.
+Report: /Users/taylor/src/docs/html/iphone-link-status-update/index.html.
+Newest snapshot/refresh/keep-awake candidate is signed and installed. Compiled
+UIKit fixture 51 gates; Python 82 tests; JavaScript 22 tests passed. Native fresh
+Nutrition navigation passed through the tailnet with USB connected. Scoped
+35-second worker outage retired control and recovered readiness in 1.633s.
+
+Phone now: USB connected, DEV foreground on remote Metro without fallback,
+no Wi-Fi IPv4 association. No active lease/glow/frontend. Taylor has been asked
+only to unplug USB and keep DEV open/unlocked; await that answer for the final
+changed-binary wireless input gate. Do not ask Taylor to change Wi-Fi. Restore
+Wi-Fi On after testing and verify association plus native/provider idle.
+
+Fast Refresh edge: a MealLog presentation edit recorded a component refresh,
+but navigation returned Home while native bundle generation stayed at 1.
+Source bytes restored; no business data changed. Expanded-day baseline was not
+verified in that generation probe. Verify committed route after every source
+edit; no state-preservation guarantee or replay of mutations.
+
+Dotfiles service changes are being published on master under its all-dirty-files
+policy. Kickoff audited push refused because it could not prove there are no
+unstaged tracked changes. Preserve concurrent workload edits; do not bypass.
+No XCTest, debugger, QuickTime or temporary root tunnel is running.
+
+## Historical checkpoints — superseded by the current state above
+
 # Runner checkpoint — 8 October 2026 late evening
 
 Goal active. Report at /Users/taylor/src/docs/html/iphone-link-status-update/index.html.
@@ -81,3 +109,6 @@ Current recovery checkpoint: USB reconnected/unlocked by Taylor, signed snapshot
 
 
 Scoped live recovery, 8 October: paused only the owned ios-agent worker for 35 seconds. The old lease retired, native glow/lease and provider cleanup were verified idle, and a fresh lease reached ready in 1.633 seconds with the same native boot and remote Metro. No input was submitted or replayed during the outage; no live unknown-input outcome is claimed. Actual laptop sleep, radio tailnet loss and controlled shared backend cold restart remain unqualified. Runtime-generation probe observed component refresh and Home with bundleAttempt unchanged at 1; agents must gate on committed route after source edits.
+
+
+Lease-scoped keep-awake candidate: UIKit idle timer is disabled only while control is leased; release, foreground loss and expiry restore its prior value. A preexisting disabled idle timer remains disabled. This does not prevent a manual lock or remove phone/Mac authentication. Compiled fixture 51 gates passed, including the three idle-timer checks. Latest signed build installed. Fixture runner now repairs only a missing-payload registry record on its own freshly booted simulator; a real installation or shared boot remains a collision refusal. Wi-Fi-off handoff briefly lost transport; fixed USB On recovery and a fresh build restored foreground registration. No single root cause is claimed for that transport loss.
