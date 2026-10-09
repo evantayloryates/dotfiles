@@ -263,7 +263,7 @@ final class Engine: @unchecked Sendable {
       "clock": ["uptime_ns": clockNS, "uptime_ns_exact":String(clockNS), "domain":"CLOCK_UPTIME_RAW", "wall": iso8601.string(from: now), "started_ns": startedNs,"started_ns_exact":String(startedNs)],
       "permission": ["screen_recording": CGPreflightScreenCaptureAccess() ? "granted" : "missing"],
       "capabilities": ["target_capture_options": CaptureOptions.contractVersion, "source_journal": 1, "source_clock_continuity":1,
-                       "input_timeline":1,"input_tap_faults":1,"input_queue_loss":1,"action_scopes":1,"derivative_source":1,"exclusion_identity":1,"preview_exclusion_identity":1,"encoder_failure_isolation":1,"stream_stop_diagnostics":1,"maintenance_fence":1,"sparse_frame_padding":1,"writer_failure_details":1],
+                       "input_timeline":1,"input_tap_faults":1,"input_queue_loss":1,"action_scopes":1,"derivative_source":1,"exclusion_identity":1,"preview_exclusion_identity":1,"encoder_failure_isolation":1,"stream_stop_diagnostics":1,"maintenance_fence":1,"sparse_frame_padding":1,"writer_failure_details":1,"transient_window_inventory":1],
       "maintenance":maintenance.status,
       "input_timeline":InputTimeline.shared.status,
       "action_timeline":ActionTimeline.shared.status,
@@ -468,11 +468,15 @@ final class Engine: @unchecked Sendable {
   }
 
   private func listWindows(_ p: [String: Any]) async throws -> [String: Any] {
+    let transients = try RPCNumber.boolean(p, "include_transients") ?? false
     let content = try await Targets.content(fresh: true)
     let all = Targets.listWindows(app: p.str("app"), title: p.str("title"), content: content,
-                                  includeOffscreen: !(p.bool("on_screen_only") ?? false))
+                                  includeOffscreen: !(p.bool("on_screen_only") ?? false), includeTransients: transients)
     let limit = Int(p.num("limit") ?? 50)
-    return ["windows": all.prefix(limit).map(windowDict), "total": all.count]
+    return ["windows": all.prefix(limit).map(windowDict), "total": all.count,
+      "inventory_scope": transients ? "including_transients" : "normal",
+      "limits": ["Inventory membership and proximity do not establish parent ownership or captured pixels",
+                 "Use exact window IDs for helper/panel targets and verify current identity and encoded content"]]
   }
 
   /// Captures the target as it looks right now and writes an image the agent

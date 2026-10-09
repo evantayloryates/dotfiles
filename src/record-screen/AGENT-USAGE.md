@@ -1,7 +1,7 @@
 # Agent usage and recovery
 
 This is the capture-foundations production runbook. The installed native build
-f314bb340344 and fresh adapter0.11.1 have the scoped proofs in
+3ff4c4519dc8 and fresh adapter0.11.3 have the scoped proofs in
 [GATES.md](qualification/GATES.md). Treat these as a baseline, then inspect
 loaded status. Visual effects, cursor styling and composition recipes are the
 next phase. The [checklist](qualification/checklist.json) tracks unresolved
@@ -45,6 +45,19 @@ alone also does not prove input delivery. Do not capture unrelated content to
 diagnose a failed owned-target preparation.
 
 ## Aim and qualify only the changed boundary
+
+The default window inventory contains normal windows. For a missing floating
+panel, use `windows {include_transients:true,app:"com.apple.finder",
+on_screen_only:true}` or the CLI JSON form. Check native
+`capabilities.transient_window_inventory:1` and fresh adapter
+`mcp_adapter.transient_window_query:1`; explicit scope is refused on older
+native engines. Narrow by app/title and inspect the actual ID, PID, layer and
+extent. Membership is discovery, not semantic parenthood, input ownership or
+pixel presence. Exact-window planning includes broader inventory when supported.
+The scoped Finder Quick Look lane captures its layer3 panel directly; see
+[Finder qualification](qualification/FINDER-TRANSIENTS.md). Verify current
+identity and encoded pixels before depending on it. Keep display insurance for
+unqualified surfaces rather than assuming all popups have the same behavior.
 
 | Source | Selection and narrow check | Limits and fallback |
 | --- | --- | --- |

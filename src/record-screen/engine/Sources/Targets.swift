@@ -249,16 +249,15 @@ enum Targets {
   }
 
   /// Normal app windows, front to back as macOS orders them, on-screen first.
-  static func listWindows(app: String?, title: String?, content: SCShareableContent, includeOffscreen: Bool = true) -> [SCWindow] {
+  static func listWindows(app: String?, title: String?, content: SCShareableContent, includeOffscreen: Bool = true,
+                          includeTransients: Bool = false) -> [SCWindow] {
     let order = frontToBackOrder()
     let me = getpid()
     return content.windows.filter { w in
-      guard w.windowLayer == 0, w.frame.width >= 100, w.frame.height >= 60, w.owningApplication?.processID != me else { return false }
-      // System UI helpers (input-method cursors and the like) and untitled
-      // off-screen utility windows are never what an agent means.
-      if (w.owningApplication?.bundleIdentifier ?? "").contains(".xpc.") { return false }
-      if !w.isOnScreen && (w.title ?? "").isEmpty { return false }
-      if !includeOffscreen && !w.isOnScreen { return false }
+      guard WindowInventoryPolicy.includes(layer: w.windowLayer, width: w.frame.width, height: w.frame.height,
+        bundle: w.owningApplication?.bundleIdentifier ?? "", title: w.title ?? "", onScreen: w.isOnScreen,
+        ownProcess: w.owningApplication?.processID == me, includeOffscreen: includeOffscreen,
+        includeTransients: includeTransients) else { return false }
       if let a = app?.lowercased() {
         let bid = w.owningApplication?.bundleIdentifier.lowercased() ?? ""
         let name = w.owningApplication?.applicationName.lowercased() ?? ""

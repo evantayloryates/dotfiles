@@ -18,6 +18,10 @@ enum RPCNumber {
     return n.boolValue
   }
   static func validate(_ method:String,_ p:[String:Any]) throws {
+    if method == "windows.list" {
+      _ = try boolean(p,"include_transients")
+      _ = try boolean(p,"on_screen_only")
+    }
     // All these names are numeric in the public protocol; validate before
     // target discovery, filesystem work or capture admission occurs.
     for key in ["max_width","fps","limit","events","keyframe_images"] where p[key] != nil {

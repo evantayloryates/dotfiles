@@ -171,7 +171,8 @@ record-screen probe      # list content + 64 px screenshot, with timings
 record-screen restart    # reserve idle admission, restart once, verify new PID
 record-screen build      # preserve/reuse signed build, deliver at idle, verify hash
 record-screen logs 50    # tail the engine log
-record-screen windows [app] [title]            # find window ids
+record-screen windows [app] [title]            # find normal window ids
+record-screen windows '{"app":"com.apple.finder","on_screen_only":true,"include_transients":true}' # explicit floating/helper discovery
 record-screen verify <target> [max_width]      # capture now; prints image path, checks, timings
 record-screen outline <target> [label] [secs]  # draw the frame outline (0 s = until hidden)
 record-screen outline-off
@@ -217,7 +218,7 @@ requests; replies may come back out of order, so match them by `id`.
 | `status` | engine (version, build hash, pid, signing, uptime), clock, permission, displays, paths |
 | `permission.request` | `{screen_recording: granted\|missing, next}` |
 | `capture.probe` | `{ok, displays, windows, list_ms, screenshot_ms}`, or `capture_unavailable` |
-| `windows.list` | `{app?, title?, on_screen_only?, limit?}` → windows front to back: id, title, app, bundle id, pid, frame, on_screen |
+| `windows.list` | `{app?, title?, on_screen_only?, include_transients?, limit?}` → windows front to back: id, title, app, bundle id, pid, frame, layer, on_screen; inventory_scope and limits |
 | `frame.resolve` | `{target}` → kind, display, frame, scale, pixels, window, warnings |
 | `frame.verify` | `{target, max_width? (1280; 0 = native), format? jpeg\|png, quality?, path?}` → image path and size, target, checks (luma, looks_blank, warnings), timings and `source` |
 | `overlay.show` | `{target, label?, seconds? (8; 0 = until hidden), overlay_id?, session_id?, capturable?}`; ids become `<session_id or shared>:<overlay_id>` |
@@ -502,7 +503,20 @@ node /Users/taylor/src/github/dotfiles/src/record-screen/cli.mjs production-plan
   '{"target":{"type":"display","display_id":1},"mode":"background","activity":"passive_capture","duration_s":30}'
 ```
 
-The planner reads status and, for a window, a bounded window inventory. It starts
+Window discovery defaults to normal layer0 windows with the existing minimum
+size and helper/title filters. Explicit `include_transients:true` broadens it to
+nonnegative layers, small and helper surfaces; own-process/invalid extents remain
+excluded. `on_screen_only` still constrains both scopes. Use app/title/limit to
+bound discovery, then verify current exact ID/PID/layer/extent and encoded pixels.
+`inventory_scope` and limits explain the selected lane. Native
+`transient_window_inventory:1` is required for any explicit true/false option;
+fresh MCP0.11.3 reports `transient_window_query:1`. Older engines refuse explicit
+scope rather than silently substituting normal inventory. The qualified Finder
+Quick Look panel is layer3; direct capture avoids its parent omission/cropped
+content. Discovery does not establish semantic parenthood or actor ownership.
+See [Finder scope](qualification/FINDER-TRANSIENTS.md).
+
+The planner reads status and, for a window, a bounded window inventory. Exact-window planning uses broader inventory when the native capability is present. It starts
 no capture, changes no settings, drives no UI and locks no input. Resolve exact
 window IDs with `windows`; planning does not guess an app or title. The returned
 request preserves explicit duration/fps/width/cursor/input/redundancy settings;

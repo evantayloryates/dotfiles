@@ -1,5 +1,59 @@
 # Qualification update — October 9, 2026
 
+## Forty-first pass: direct floating-window discovery and installed source
+
+An explicit broader inventory found the owned Finder Quick Look panel at
+window8096, FinderPID71091, layer3,816×849pt. The unchanged normal inventory
+omits layer3; this establishes the scoped discovery cause rather than inventing
+a helper PID. New WindowInventoryPolicy keeps the normal layer/size/.xpc/title
+filters and adds an explicit include_transients opt-in for floating/small/helper
+surfaces, still excluding own process, invalid extents and negative layers.
+Inventory membership is not semantic parenthood, input ownership or pixels.
+
+Native transient_window_inventory1 and fresh MCP0.11.3 transient_window_query1
+make the option discoverable. Strict adapter validation refuses malformed
+requests before RPC. Explicit true/false refuses unsupported native capability;
+default calls remain legacy-compatible. Exact-window planning uses broader
+inventory when supported, so a discovered floating ID is not falsely absent.
+22 native policy assertions and23 focused/adjacent adapter checks passed;
+actual native invalid booleans/limit refused before discovery. No source writer
+or clock implementation changed. The hypothesized negative-limit issue was
+already guarded and is not claimed as a new bug.
+
+Signed frozen candidate3ff4c4519dc8 recorded the exact panel with childfalse,
+cursorfalse/native resolution.446 actual mux/journal timestamps match exactly,
+zero reported drops/lost rows. Actual mapped frame222 shows complete isolated
+panel, filename and two synthetic text lines, without surrounding desktop or
+visible pointer in that sample. Title region is contained at2×; geometry alone
+still reports content_presence unverified. Private media/state preserved;
+owned UI/session and enginePID68291 settled, both MCP consumers exit0.
+
+Production delivery reused the verified signed artifact through one warranted
+idle maintenance fence: f314/PID35547→3ff4c4519dc8/PID74192. Prior bundle preserved;
+all119 prior JSON state hashes unchanged. Installed ScreenRecording granted,
+fresh listener listen_access true. Immediate post-restart null was correctly
+unknown before startup, not lost permission. An8s installed take adds120 exact
+mux/journal packets; actual mapped frame60 preserves the same clean owned panel
+and content. CLI map equals fresh MCP. Protected input was observed and retained
+as a gap; no new delivered-key or physical density claim. Input authorization
+was already completed at stage26; no additional Settings/grant change here.
+
+Four explicit native setup/cleanup receipts now have four independently reported
+verified outcomes and completed cleanup, with zero uncovered receipts across
+two sessions. Central exact Finder fact read back; provider version unknown
+prevents a universal reuse guarantee. A cleanup end request missing caller was
+refused; the same token closed within original bounds, no UI replay. A fact
+readback assertion incorrectly expected an object; corrected against the actual
+array without republishing or replaying production.
+
+Scope: Finder26.4/build1828.5.2/25F80, native CUA version unknown, built-in2×,
+one synthetic file. Selected pixel samples do not prove all-frame cleanliness,
+arbitrary menus/caret hiding, occlusion, capacity or actor identity. Existing
+peer adapters remain loaded until safe launch; no forced reload. Production
+idle; owned UI/capture/actions/listener/sessions/private engine settled.41
+completed,17 partial,1 deferred. Evidence private gates-v41. Continue useful
+remaining app/provider/recovery boundaries without resetting prior qualification.
+
 ## Fortieth pass: service-owned transient region clipping
 
 Fresh MCP0.11.2 recording_frame_map and current CLI accept up to16 uniquely named

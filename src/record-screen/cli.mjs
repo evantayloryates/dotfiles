@@ -2,6 +2,7 @@
 // record-screen: command line for the capture engine. Prints JSON.
 //
 //   record-screen status            engine, permission, clock and displays
+//   record-screen windows <json>    explicit bounded discovery, including include_transients
 //   record-screen ping              socket round trip in ms
 //   record-screen grant             ask macOS for Screen Recording (prompts once)
 //   record-screen probe             prove ScreenCaptureKit works, with timings
@@ -49,6 +50,7 @@ import { prepareMaintenance, validateMaintenance, releaseMaintenance } from "./l
 import { install } from "./lib/install.mjs";
 import { planProduction, validateProductionRequest } from "./lib/production-plan.mjs";
 import { mapRecordingFrames, validateFrameMapRequest } from "./lib/frame-map.mjs";
+import { validateWindowQuery, requireTransientInventory } from "./lib/window-query.mjs";
 import {queryRecordingInput,validateInputQuery} from "./lib/input-query.mjs";
 import { call as rawCall, enginePaths, EngineError, LABEL } from "./lib/client.mjs";
 
@@ -184,12 +186,16 @@ try {
       break;
     }
     case "windows":
-      out(await call("windows.list", { ...(args[0] ? { app: args[0] } : {}), ...(args[1] ? { title: args[1] } : {}) }));
+      {
+        const query=validateWindowQuery(args[0]?.startsWith('{') ? JSON.parse(args[0]) : { ...(args[0] ? { app: args[0] } : {}), ...(args[1] ? { title: args[1] } : {}) });
+        if(Object.hasOwn(query,'include_transients'))requireTransientInventory(await call('status'),query);
+        out(await call("windows.list",query));
+      }
       break;
     case "production-plan": {
       const request = validateProductionRequest(JSON.parse(args[0] ?? "{}"));
       const status = await call("status");
-      const windows = request.target.type === "window" ? await call("windows.list", { limit: 256 }) : { windows: [], total: 0 };
+      const windows = request.target.type === "window" ? await call("windows.list", { limit: 256, ...(status.capabilities?.transient_window_inventory === 1 ? {include_transients:true} : {}) }) : { windows: [], total: 0 };
       out(planProduction(request, status, windows));
       break;
     }

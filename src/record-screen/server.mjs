@@ -10,11 +10,12 @@ import { EngineClient, EngineError } from "./lib/client.mjs";
 import { hasCaptureOptions, requireCaptureOptions } from "./lib/capture-options.mjs";
 import { mapDerivativeTimes } from "./lib/derivative-source.mjs";
 import { mapRecordingFrames, validateFrameMapRequest, frameMapSchema, frameMapHealth } from "./lib/frame-map.mjs";
+import { windowQuerySchema, validateWindowQuery, requireTransientInventory } from "./lib/window-query.mjs";
 import { planProduction, productionPlanSchema, validateProductionRequest } from "./lib/production-plan.mjs";
 import {queryRecordingInput,validateInputQuery,inputQuerySchema,inputQueryHealth} from "./lib/input-query.mjs";
 
 const log = (...args) => console.error("[record-screen]", ...args);
-const VERSION = "0.11.2";
+const VERSION = "0.11.3";
 
 // ---------------------------------------------------------------- engine link
 
@@ -31,6 +32,10 @@ async function engine(method, params = {}, timeoutMs = 20000) {
   const deadline = Date.now() + 12000;
   for (;;) {
     try {
+      if (method === "windows.list") {
+        validateWindowQuery(params);
+        if (Object.hasOwn(params,"include_transients")) requireTransientInventory(await client.call("status",{}, {timeoutMs}),params);
+      }
       if (hasCaptureOptions(params.target)) {
         const status=await client.call("status", {}, { timeoutMs });
         requireCaptureOptions(status);
@@ -114,7 +119,7 @@ const tools = [
     run: async a => {
       const request = validateProductionRequest(a);
       const status = await engine("status");
-      const windows = request.target.type === "window" ? await engine("windows.list", { limit: 256 }) : { windows: [], total: 0 };
+      const windows = request.target.type === "window" ? await engine("windows.list", { limit: 256, ...(status.capabilities?.transient_window_inventory === 1 ? {include_transients:true} : {}) }) : { windows: [], total: 0 };
       return ok(planProduction(request, status, windows));
     },
   },
@@ -149,7 +154,7 @@ const tools = [
     inputSchema: { type: "object", properties: {}, additionalProperties: false },
     annotations: { readOnlyHint: true },
     run: async () => ok({ ...await engine("status"), mcp_adapter: {
-      version: VERSION, replay_policy: 1, production_planning: 1, production_storage_guidance: 1, source_frame_mapping: 1, source_region_mapping: 1,
+      version: VERSION, replay_policy: 1, production_planning: 1, production_storage_guidance: 1, source_frame_mapping: 1, source_region_mapping: 1, transient_window_query: 1,
       frame_mapping: frameMapHealth(), retained_input_query: 1,
       input_query: inputQueryHealth(), mutation_replay: "never",
       read_reconnect_budget_ms: 12000,
@@ -158,11 +163,8 @@ const tools = [
   },
   {
     name: "windows",
-    description: "List windows front to back (on-screen first) with window_id, app, bundle id, title, frame and on_screen. Use it to build window targets.",
-    inputSchema: {
-      type: "object", additionalProperties: false,
-      properties: { app: { type: "string", description: "bundle id or name (substring)" }, title: { type: "string" }, on_screen_only: { type: "boolean" }, limit: { type: "number" } },
-    },
+    description: "List windows front to back (on-screen first) with window_id, app, bundle id, title, frame, layer and on_screen. Default normal inventory excludes floating/small/.xpc helpers. Opt into include_transients explicitly only with native transient_window_inventory1; then target a currently verified exact ID. Inventory membership/proximity is not semantic ownership or captured-pixel proof. Bounded limit1–1000; use app/title/on_screen_only to narrow. Read-only; no capture/UI/restart.",
+    inputSchema: windowQuerySchema,
     annotations: { readOnlyHint: true },
     run: async (a) => ok(await engine("windows.list", a)),
   },

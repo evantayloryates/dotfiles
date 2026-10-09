@@ -835,3 +835,23 @@ expiry preserved separately from actual fresh close. Next: app/menu fallback
 and dynamic fitting, physical/provider/clock limits, agent production-mode
 expectations and shared workflow adoption. Do not rerun settled moving insurance
 or reset failures. Standing UI authorization still throughOct9 17:51UTC.
+
+## Forty-first-pass floating source and installed checkpoint
+
+Finder Quick Look is a Finder-owned layer3 panel omitted by normal inventory.
+Explicit broader discovery plus exact-window capture passes candidate446 and
+installed120 exact mux/source joins. Actual selected frames retain the entire
+isolated owned panel/title/two lines.22 native policy assertions and23 adapter
+checks pass; default discovery unchanged, malformed/unsupported opt-in explicit.
+Fresh MCP0.11.3 and CLI map agree. No capture writer/clock change.
+
+One idle fenced install reused signed3ff4c4519dc8; installedPID74192, all119 prior
+state files unchanged and grants retained. Fresh listener shows access but
+protected input remains a gap, not key coverage. Four central typed outcomes
+verified/cleanup complete, zero uncovered; scoped Finder fact read back. Owned
+UI/sessions/private engine and readers settled; peers preserved.41/17/1 remains.
+
+Next useful lanes: another reachable daily-app transient family or provider/
+physical input coverage when available; ordinary skill adoption and recovery
+expectations remain partial. Preserve discovery/pixel/semantic distinctions and
+prior failed evidence. No whole-phase reset or unnecessary live rollback.

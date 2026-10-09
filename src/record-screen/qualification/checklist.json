@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T06:29:23-04:00",
+  "updated_at": "2026-10-09T06:52:43-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage40 source-owned region clipping delivered through CLI/fresh MCP0.11.2.21 focused/adjacent tests, actual Finder coverage and retained dynamic marker bounds pass. Canvas dimensions reconciled; geometric area remains separate from content presence. Native unchanged, owned adapter closed.41 completed,17 partial,1 deferred. Continue useful missing boundaries without settled-source reshoots."
+    "note": "Stage41 direct floating-window lane delivered: Finder layer3 discovered explicitly,566 exact candidate/installed source packets and scoped pixels pass.22 native/23 adapter checks; signed3ff/PID74192,119 prior state hashes/grants preserved. Four typed outcomes/cleanup complete; owned resources settled.41 completed,17 partial,1 deferred. Continue useful remaining boundaries without settled-source resets."
   },
-  "production_note": "Signed native f314bb340344/PID35547 unchanged and idle. Fresh MCP0.11.0 adds bounded retained-input query; final CLI/MCP returns12 exact prior keys with unresolved ownership and source snapshots. Peer adapters untouched. Physical/provider calibration, remaining daily-app surfaces, routine adoption, GPU/thermals and P80 remain unqualified.",
+  "production_note": "Signed native3ff4c4519dc8/PID74192 installed through one idle maintenance fence;119 prior state hashes unchanged, ScreenRecording and fresh Input Monitoring access retained. Fresh MCP0.11.3/CLI support explicit transient inventory and actual source mapping. Candidate/installed Quick Look source passes566 exact packets and scoped pixels. Peer adapters untouched. Protected input, physical/provider calibration, remaining apps, routine adoption, GPU/thermals and P80 remain unqualified.",
   "groups": [
     {
       "id": "capture",
@@ -85,21 +85,21 @@
           "id": "finder-depth",
           "title": "Finder native menus and Quick Look capture expectations",
           "status": "completed",
-          "scope": "Finder26.4/build1828.5.2 on25F80, built-in2×, native CUA version unknown: actual menu controls, file-preview omission, crop boundary and full-display content insurance.",
-          "evidence": "Stage39:8 sources/18,641 exact mux-source packets, zero reported drops/loss. Child-enabled menus/submenu present; disabled omitted. Quick Look omitted from parent; padded crop clips title/text; full display retains content with notification overlap. Failed folder precondition and expired cleanup bounds retained;10 typed outcomes9verified/1failed, cleanup10complete; four central facts read back. Owned resources settled.",
+          "scope": "Finder26.4/build1828.5.2/25F80, built-in2×, native CUA version unknown: menus, file-preview omission/crop insurance, and explicit layer3 direct-panel discovery/capture.",
+          "evidence": "Stage39 controls retained. Stage41 explicit broader inventory reveals Finder-owned layer3 Quick Look omitted by normal filters. Candidate446 +installed120 exact mux/source joins; selected whole-panel frames retain filename/two lines without surrounding desktop.22 native/23 adapter checks; one fenced signed install,119 prior state hashes unchanged, grants retained. Four typed outcomes/cleanup complete, zero uncovered; scoped fact read back. Owned resources settled.",
           "next": "",
-          "anchor": "thirty-ninth-pass",
-          "updated_at": "2026-10-09T06:17:09-04:00"
+          "anchor": "forty-first-pass",
+          "updated_at": "2026-10-09T06:52:43-04:00"
         },
         {
           "id": "overflow-recovery",
           "title": "Prove a useful overflow capture and recovery path",
           "status": "partial",
           "scope": "Display padding/cropping must add transient coverage beyond the original canvas.",
-          "evidence": "Stage39 padding clips Quick Look content; full display preserves it with notification overlap. Stage40 source-owned region mapping reports title/text outside parent/padded and contained full, with actual mux canvas check; parent geometric panel overlap remains explicitly unverified content.21 tests, actual retained source/decoded-region checks pass without reshooting.",
-          "next": "Qualify a useful remaining actual app transient extent/occlusion and source-coverage recovery. Use declared-region clipping plus pixel presence; padding or area fraction alone cannot promise coverage.",
-          "anchor": "fortieth-pass",
-          "updated_at": "2026-10-09T06:29:23-04:00"
+          "evidence": "Stage39 padded crop omits meaningful Quick Look content; full display retains it with interference. Stage40 region mapper distinguishes bounds from pixels. Stage41 direct discovered layer3 source retains clean owned panel/title/text in candidate/installed selected frames;566 exact packets. Default inventory unchanged; no universal transient guarantee.",
+          "next": "Qualify a useful remaining actual app transient/occlusion lane; keep discovery, geometry and pixel presence distinct. Composition/reintegration deferred.",
+          "anchor": "forty-first-pass",
+          "updated_at": "2026-10-09T06:52:43-04:00"
         },
         {
           "id": "clean-source",
@@ -496,10 +496,10 @@
           "title": "Centralize version-scoped app observations",
           "status": "partial",
           "scope": "Shared reported facts, exact environment keys, expiry and conflicting evidence.",
-          "evidence": "Stage39 adds4 Finder26.4/build1828.5.2 scoped pass/fail/mixed facts with independent readback, alongside retained prior app observations. Menus and Quick Look use distinct capture keys. Provider version remains unknown; no universal reuse.",
-          "next": "Add only useful missing daily-app/provider capability facts; independently verify changed environment and specific transient family.",
-          "anchor": "thirty-ninth-pass",
-          "updated_at": "2026-10-09T06:17:09-04:00"
+          "evidence": "Stage41 exact Finder Quick Look direct-panel pass appended/read back with native build3ff4c4519dc8, OS25F80 and built-in2×. Candidate/installed source proof independent of prior failed parent/padded lanes. Provider version remains unknown; no universal reuse.",
+          "next": "Add only useful missing app/provider capability facts; revalidate exact changed environment and transient family.",
+          "anchor": "forty-first-pass",
+          "updated_at": "2026-10-09T06:52:43-04:00"
         },
         {
           "id": "requalification",
@@ -526,10 +526,10 @@
           "title": "Improve automatic receipt coverage across providers",
           "status": "partial",
           "scope": "Capture durable operation evidence for native and browser actions.",
-          "evidence": "Corrected actual fresh-MCP input consumer uses the supported wrapper with independently checked source/oracle proof, separate cleanup and central audit. Original failed attempt and erroneous verification claim retained/corrected against its immutable receipt; no replay. Explicit native CUA bracketing and routine provider adoption remain open.",
-          "next": "Extend ordinary provider adoption and meaningful semantic context; verified callback reports need actual proof, while explicit CUA bracketing remains required.",
-          "anchor": "thirty-sixth-pass",
-          "updated_at": "2026-10-09T05:10:16-04:00"
+          "evidence": "Prior corrected callback/oracle proof retained. Stage41 explicit native CUA setup/cleanup imported four terminal receipts with four actual proof-backed reported outcomes, cleanup complete and zero uncovered. Rejected missing-caller close corrected same token within bounds; no UI replay.",
+          "next": "Extend ordinary provider adoption and meaningful semantic context; automatic native interception remains unavailable, explicit bracketing required.",
+          "anchor": "forty-first-pass",
+          "updated_at": "2026-10-09T06:52:43-04:00"
         },
         {
           "id": "shared-baseline-plan",
@@ -582,10 +582,10 @@
           "title": "Install the candidate safely and verify rollback",
           "status": "partial",
           "scope": "Idle-boundary release with prior binary/state preserved and exact loaded-capability readback.",
-          "evidence": "Installed fenced delivery and real grant/state preservation remain verified. New private current/previous/current drill retained all 22 copied session files, exact descriptors/counters and two settled action outcomes; authored checkpoint stays interrupted. All three owned processes reaped; production unchanged.",
-          "next": "Verify remaining loaded consumer expectations at safe launch boundaries. Do not perform a live rollback to repeat the passed private drill; live producer and universal schema recovery remain outside that proof.",
-          "anchor": "twenty-first-pass",
-          "updated_at": "2026-10-09T00:12:56-04:00"
+          "evidence": "Prior private current/previous/current drill retained. Stage41 warranted idle fenced delivery reused verified signed artifact, preserved prior bundle and119 unchanged state hashes; installed3ff/PID74192 grants/120 actual source packets/fresh MCP0.11.3 capability and CLI parity checked. Peers not reloaded.",
+          "next": "Verify remaining ordinary loaded consumers at their safe launch; do not repeat passed private restoration with a live rollback. Universal schema recovery remains outside proof.",
+          "anchor": "forty-first-pass",
+          "updated_at": "2026-10-09T06:52:43-04:00"
         },
         {
           "id": "installed-smoke",
@@ -1718,6 +1718,53 @@
       "from": "active",
       "to": "active",
       "note": "Stage40 source-owned region clipping delivered through CLI/fresh MCP0.11.2.21 focused/adjacent tests, actual Finder coverage and retained dynamic marker bounds pass. Canvas dimensions reconciled; geometric area remains separate from content presence. Native unchanged, owned adapter closed.41 completed,17 partial,1 deferred. Continue useful missing boundaries without settled-source reshoots."
+    },
+    {
+      "kind": "item",
+      "id": "finder-depth",
+      "at": "2026-10-09T06:52:43-04:00",
+      "from": "completed",
+      "to": "completed",
+      "note": "Stage39 controls retained. Stage41 explicit broader inventory reveals Finder-owned layer3 Quick Look omitted by normal filters. Candidate446 +installed120 exact mux/source joins; selected whole-panel frames retain filename/two lines without surrounding desktop.22 native/23 adapter checks; one fenced signed install,119 prior state hashes unchanged, grants retained. Four typed outcomes/cleanup complete, zero uncovered; scoped fact read back. Owned resources settled."
+    },
+    {
+      "kind": "item",
+      "id": "overflow-recovery",
+      "at": "2026-10-09T06:52:43-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage39 padded crop omits meaningful Quick Look content; full display retains it with interference. Stage40 region mapper distinguishes bounds from pixels. Stage41 direct discovered layer3 source retains clean owned panel/title/text in candidate/installed selected frames;566 exact packets. Default inventory unchanged; no universal transient guarantee."
+    },
+    {
+      "kind": "item",
+      "id": "app-facts",
+      "at": "2026-10-09T06:52:43-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage41 exact Finder Quick Look direct-panel pass appended/read back with native build3ff4c4519dc8, OS25F80 and built-in2×. Candidate/installed source proof independent of prior failed parent/padded lanes. Provider version remains unknown; no universal reuse."
+    },
+    {
+      "kind": "item",
+      "id": "release-rollback",
+      "at": "2026-10-09T06:52:43-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Prior private current/previous/current drill retained. Stage41 warranted idle fenced delivery reused verified signed artifact, preserved prior bundle and119 unchanged state hashes; installed3ff/PID74192 grants/120 actual source packets/fresh MCP0.11.3 capability and CLI parity checked. Peers not reloaded."
+    },
+    {
+      "kind": "item",
+      "id": "receipt-integration",
+      "at": "2026-10-09T06:52:43-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Prior corrected callback/oracle proof retained. Stage41 explicit native CUA setup/cleanup imported four terminal receipts with four actual proof-backed reported outcomes, cleanup complete and zero uncovered. Rejected missing-caller close corrected same token within bounds; no UI replay."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T06:52:43-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Stage41 direct floating-window lane delivered: Finder layer3 discovered explicitly,566 exact candidate/installed source packets and scoped pixels pass.22 native/23 adapter checks; signed3ff/PID74192,119 prior state hashes/grants preserved. Four typed outcomes/cleanup complete; owned resources settled.41 completed,17 partial,1 deferred. Continue useful remaining boundaries without settled-source resets."
     }
   ]
 }
