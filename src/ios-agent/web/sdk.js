@@ -131,6 +131,7 @@
   // Metadata only: no URLs, payloads, SDP, addresses, identifiers or audio.
   const originalWS=window.WebSocket, originalRTC=window.RTCPeerConnection;
   const sockets=new Set(), peers=new Set(), tracks=new Set();
+  const mediaRequests={pending:0,acquired:0,failed:0};
   const originalGUM=navigator.mediaDevices?.getUserMedia;
   const listeners=[];
   const listen=(object,type,fn)=>{object.addEventListener(type,fn);listeners.push(()=>object.removeEventListener(type,fn));};
@@ -147,8 +148,10 @@
     listen(pc,'connectionstatechange',()=>ring({kind:'webrtc',code:pc.connectionState}));return pc;
   }});
   if(originalGUM) navigator.mediaDevices.getUserMedia=async function(...args){
-    try{const stream=await originalGUM.apply(this,args);for(const track of stream.getTracks()){tracks.add(track);if(tracks.size>32)tracks.delete(tracks.values().next().value);}ring({kind:'media',code:'acquired',trackCount:stream.getTracks().length});return stream;}
-    catch(e){ring({kind:'media',code:'request_failed'});throw e;}
+    const start=clock();mediaRequests.pending++;ring({kind:'media',code:'requested'});
+    try{const stream=await originalGUM.apply(this,args);for(const track of stream.getTracks()){tracks.add(track);if(tracks.size>32)tracks.delete(tracks.values().next().value);}mediaRequests.acquired++;ring({kind:'media',code:'acquired',durationMs:Math.round(clock()-start),trackCount:stream.getTracks().length});return stream;}
+    catch(e){mediaRequests.failed++;ring({kind:'media',code:'request_failed',durationMs:Math.round(clock()-start)});throw e;}
+    finally{mediaRequests.pending--;}
   };
   domains.set('media',async()=>{
     const audio=[],connections=[],transports=[];
@@ -157,7 +160,7 @@
       reports.forEach(r=>{if(r.type==='transport'){const sample={type:r.type};for(const k of ['bytesSent','bytesReceived','packetsSent','packetsReceived'])if(typeof r[k]==='number'&&Number.isFinite(r[k]))sample[k]=r[k];transports.push(sample);}if(r.kind==='audio'||r.mediaType==='audio'){const sample={type:r.type};for(const k of numeric)if(typeof r[k]==='number'&&Number.isFinite(r[k]))sample[k]=r[k];audio.push(sample);}});
     }
     const visibleTracks=new Set(tracks);for(const element of document.querySelectorAll('video,audio'))if(element.srcObject instanceof MediaStream)for(const track of element.srcObject.getTracks())visibleTracks.add(track);
-    return {coverage:'peer/socket objects created after adapter boot; tracks also discovered through DOM media',sockets:[...sockets],tracks:[...visibleTracks].map(t=>({kind:t.kind,enabled:t.enabled,muted:t.muted,readyState:t.readyState})),audio,connections,transports};
+    return {requests:{...mediaRequests},coverage:'peer/socket objects created after adapter boot; tracks also discovered through DOM media',sockets:[...sockets],tracks:[...visibleTracks].map(t=>({kind:t.kind,enabled:t.enabled,muted:t.muted,readyState:t.readyState})),audio,connections,transports};
   });
   const xhrOpen=XMLHttpRequest.prototype.open, xhrSend=XMLHttpRequest.prototype.send;
   XMLHttpRequest.prototype.open=function(...args){return xhrOpen.apply(this,args);};

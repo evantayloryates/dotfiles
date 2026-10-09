@@ -283,18 +283,24 @@ export class Backend {
     fs.writeFileSync(a.file, JSON.stringify(r.value), {flag: 'wx', mode: 0o600});
     const ok = r.ok && r.value?.status === 'completed' && r.value?.result?.ok === true;
     const value = r.value?.result?.value;
+    const large = JSON.stringify(value || {}).length > 12000;
+    const preview = large && action === 'snapshot' ? {...value, content:value.content?.slice(0,2000),elements:value.elements?.slice(0,25),nodeCount:value.elements?.length} :
+      large && action === 'state' ? {...value,domains:undefined,domainNames:Object.keys(value.domains || {})} : undefined;
     return {ok, artifactId: a.id, outcome: r.value?.status || 'unknown', error: r.value?.result?.error, replay: false,
-      ...(JSON.stringify(value || {}).length <= 12000 ? {value} : {truncated: true, next: 'Use ios_read for bounded inspection.'})};
+      ...(typeof r.value?.reason === 'string' ? {reason:r.value.reason} : {}),
+      ...(!large ? {value} : {value:preview,truncated:true,next:'Use ios_read with /result/value for the complete private observation.'})};
   }
   async webVerify({sessionId, gate, expectedPath, expectedText}) {
     const s = this.session(sessionId);
     if (s.surface !== 'web') throw new Error('web_session_required');
     if (gate === 'web-route' && !expectedPath && !expectedText) return {ok:false,reason:'explicit_web_postcondition_required'};
     const read = await this.webAction({sessionId, action: gate === 'web-ready' ? 'state' : 'snapshot'});
-    const observation = gate === 'web-ready' ? {visible:read.value?.visible === true,secureContext:read.value?.secureContext === true,indicatorOn:read.value?.indicator === true} :
-      {snapshotAvailable:typeof read.value?.snapshot === 'string',nodeCount:read.value?.elements?.length || 0,
-       ...(expectedPath ? {expectedPathMatched:read.value?.path === expectedPath} : {}),
-       ...(expectedText ? {expectedTextMatched:read.value?.content?.includes(expectedText) === true} : {})};
+    const file=this.artifacts.get(read.artifactId)?.file;
+    const value=file ? JSON.parse(fs.readFileSync(file,'utf8'))?.result?.value : read.value;
+    const observation = gate === 'web-ready' ? {visible:value?.visible === true,secureContext:value?.secureContext === true,indicatorOn:value?.indicator === true} :
+      {snapshotAvailable:typeof value?.snapshot === 'string',nodeCount:value?.elements?.length || 0,
+       ...(expectedPath ? {expectedPathMatched:value?.path === expectedPath} : {}),
+       ...(expectedText ? {expectedTextMatched:value?.content?.includes(expectedText) === true} : {})};
     const ok=read.ok && Object.values(observation).every(v=>typeof v==='number'?v>0:v===true);
     const receipt={gate,status:ok?'passed':'failed',observation};
     const learningEvidence=await this.learning('observe',{receipt,source:s.webFingerprint}).catch(()=>({available:false}));

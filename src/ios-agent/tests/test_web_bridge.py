@@ -74,3 +74,13 @@ class WebTests(unittest.TestCase):
             self.assertIsNone(result['lease'])
             self.assertNotEqual(replacement.epoch,b.epoch)
             self.assertEqual(len(replacement.web.pages),1)
+
+    def test_delayed_retired_document_cannot_hide_or_replace_new_owner(self):
+        newer = {**self.poll, 'boot':'new-document'}
+        self.b.web.page_request(newer,self.origin)
+        self.b.lease = {'id':'replacement-owner','surface':'web','page':self.p['page'],'thread':'t','turn':'t','expires':1300}
+        with self.assertRaisesRegex(Rejected,'retired_web_document'):
+            self.b.web.page_request({**self.poll,'visible':False},self.origin)
+        self.assertEqual(self.b.lease['id'],'replacement-owner')
+        self.assertEqual(self.b.web.pages[self.p['page']]['boot'],'new-document')
+        self.assertTrue(self.b.web.pages[self.p['page']]['visible'])

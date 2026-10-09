@@ -1,0 +1,25 @@
+{
+  "at": "2026-10-09T20:26:39.480Z",
+  "scope": "Actual local synthetic client /meet lobby on physical iPhone browser; no call joined",
+  "dom": {
+    "nodes": 15,
+    "fields": [],
+    "buttons": [
+      "Microphone",
+      "Choose microphone",
+      "Camera",
+      "Choose camera",
+      "Background options",
+      "Join as Client"
+    ]
+  },
+  "gates": {
+    "actualClientRoute": true,
+    "reactMenuReadback": true,
+    "menuRestored": true,
+    "clientAuthenticationReadback": true,
+    "routeReceipt": true,
+    "callJoined": false,
+    "glowOff": true
+  }
+}

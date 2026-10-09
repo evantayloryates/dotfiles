@@ -107,6 +107,13 @@ class WebBridge:
             self.reject('web_page_auth_required')
         p = self.pages.setdefault(pid, {'origin':origin, 'seen':self.b.clock(), 'browser':'unknown', 'visible':False, 'ready':False, 'path':'/', 'indicator':False, 'boot':r.get('boot')})
         if p.get('boot') != r.get('boot'):
+            # A delayed old-document poll/pagehide must not replace a newer
+            # document or revoke its owner. This also fences cloned tab storage.
+            retired = p.setdefault('retiredBoots', [])
+            if r.get('boot') in retired:
+                self.reject('retired_web_document')
+            retired.append(p.get('boot'))
+            del retired[:-64]
             if self.b.lease and self.b.lease.get('page') == pid:
                 self.b.revoke('web_document_replaced')
             p['boot'] = r.get('boot')

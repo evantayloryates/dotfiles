@@ -230,3 +230,20 @@ test('failed pair read creates no usable baseline and never exposes provider err
     assert.equal(f.calls.length,0);
   }finally{await f.backend.close();await client.close();await server.close();fs.rmSync(f.state,{recursive:true});}
 });
+
+test('large browser observations retain usable headers and verify the full private DOM', async () => {
+  const state=fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(),'ios-web-large-')));
+  const full={snapshot:'fresh-browser',path:'/meet',content:'x'.repeat(20000)+' far-tail-postcondition',elements:Array.from({length:300},(_,i)=>({id:String(i),tag:'button',label:'Synthetic '+i+' '.repeat(60)}))};
+  const backend=new Backend({state,run:async(kind,args,input)=>{
+    if(kind==='learning')return {ok:true,value:input.op==='observe'?{evidenceId:'f'.repeat(32)}:{lessons:[]}};
+    if(kind==='cli'&&args[0]==='acquire'){fs.writeFileSync(args[args.indexOf('--lease-file')+1],JSON.stringify({lease:'private'}),{mode:0o600});return {ok:true};}
+    if(kind==='cli'&&args[0]==='release'){fs.unlinkSync(args[args.indexOf('--lease-file')+1]);return {ok:true,value:{released:true}};}
+    if(kind==='web')return {ok:true,value:{status:'completed',result:{ok:true,value:input.action==='state'?{version:'test-sdk',boot:'doc',browser:'ios-safari',visible:true,indicator:true,secureContext:true,domains:{large:'x'.repeat(20000)}}:full}}};
+    throw Error('unexpected fixture call');
+  }});
+  try{const begin=await backend.begin({surface:'web',page:'p'.repeat(32)});assert.equal(begin.verification.value.version,'test-sdk');assert.equal(begin.verification.truncated,true);
+    const snap=await backend.webAction({sessionId:begin.sessionId,action:'snapshot'});assert.equal(snap.value.snapshot,'fresh-browser');assert.equal(snap.value.nodeCount,300);assert.equal(snap.value.elements.length,25);assert.equal(snap.truncated,true);
+    const verified=await backend.webVerify({sessionId:begin.sessionId,gate:'web-route',expectedPath:'/meet',expectedText:'far-tail-postcondition'});assert.equal(verified.ok,true);assert.equal(verified.receipt.observation.nodeCount,300);
+    assert.equal(backend.read({artifactId:snap.artifactId,pointer:'/result/value/elements/299'}).data.id,'299');
+  }finally{await backend.close();fs.rmSync(state,{recursive:true,force:true});}
+});
