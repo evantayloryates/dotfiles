@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "observedAt": "2026-10-09T04:02:47.107807+00:00",
+  "kickoffBranch": "ety/local-dev-foundation",
+  "kickoffCommit": "2a5218abb8ae905f9f04a6949df45adefcdd3a29",
+  "remoteBranchReadbackMatched": true,
+  "trackedTreeClean": true,
+  "publicationPath": "audited .codex/tools/publish.mjs",
+  "guardBypassed": false,
+  "callRigHandoffCommit": "f9717b52be",
+  "codexGuideRetainedByUserPreference": true,
+  "privateContinuityAndBrowserArtifactsExcluded": true,
+  "customerProductionDeployment": false,
+  "installedPersonalServiceQualified": true,
+  "freshHostPrerequisitesPassed": true,
+  "nativeHostIdleVerified": true,
+  "limitations": [
+    "Fast Refresh may reset navigation/forms",
+    "Actual laptop sleep, tailnet outage and controlled shared backend cold restart unqualified",
+    "System UI, physical IME and multi-touch outside qualified scope",
+    "Call-rig physical network and customer-production integration remain separate"
+  ]
+}

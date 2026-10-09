@@ -1,0 +1,11 @@
+{
+  "observedAt": "2026-10-09T04:00:22.163768+00:00",
+  "callRigHandoffCommit": "f9717b52be",
+  "exactOwnedFiles": 46,
+  "owningTaskFrozenConfirmation": true,
+  "privateGeneratedAssetsExcluded": true,
+  "preCommitLint": "passed",
+  "physicalPhoneAndSharedServicesChanged": false,
+  "remainingTrackedDifference": "AGENTS.md symlink to regular Codex guide; prior author unverified; user preference pending",
+  "publicationAttemptedAfterThisChange": false
+}

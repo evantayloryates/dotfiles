@@ -1,22 +1,25 @@
-# Current Runner checkpoint — 8 October 2026
+# Runner delivery complete — 9 October 2026
 
-14/16 bounded qualification stages complete. Latest SDK wireless input passed
-after Taylor unplugged USB. Wi-Fi On/association restored; Home foreground and
-no lease/glow/frontend/pending cleanup. Native 51, Python 86, JavaScript 22.
-No XCTest or Mirroring needed for this final smoke. Current receipts:
-recovery-wireless-final-2026-10-08.json and release-cleanup-final-2026-10-08.json.
+15/16 stages delivered or qualified; stage 16 deferred by dev-only scope.
+The installed personal service is ready for the qualified app-owned workflows.
+Latest USB-unplugged native/React/remote-Metro/backend acceptance passed;
+Wi-Fi association and Home restored; current native/host lease, glow and frontend
+off. Python 86, JS 22, UIKit fixture 51 passed. No XCTest.
 
-Remaining stage 15: audited Kickoff publication blocked by shared tracked edits.
-Taylor authorized coordination with Runner (2), chat
-01a11e05-c0e6-7923-b763-ad83b052845c. Message sent asking it to settle only its
-scoped changes at a verified safe checkpoint. Preserve all other workloads;
-no direct push/guard bypass. Wait for its completion/current tracked status.
-Stage 16 is dev-only-scope deferral. Report is
+Kickoff audited foundation push succeeded at 2a5218abb8; remote branch HEAD
+matched. Exact frozen Runner (2) call-rig handoff committed in f9717b52be, with
+known call-rig limitations recorded. Taylor chose to retain the Codex AGENTS
+guide. Private continuity/browser artifacts remain excluded. No develop merge,
+customer production deployment or staging qualification is claimed.
+
+Runbook DELIVERY.md; newest binary recovery-wireless-final-2026-10-08.json;
+publication publication-closeout-2026-10-09.json. Report:
 /Users/taylor/src/docs/html/iphone-link-status-update/index.html.
 
-Do not repeat passing baselines. Refresh may reset navigation; ready/route gate
-after edits. Actual machine sleep, VPN outage and cold shared backend remain
-unqualified. Dotfiles AGENTS: commit all dirty files/push master before ending.
+Fast Refresh can reset navigation/forms. Hardware keyboard/IME/multi-touch,
+whole-phone occlusion, actual laptop sleep/VPN outage and shared backend cold
+recovery remain unqualified. Do not reopen passed baselines without changed code
+or a specific failure. Start the next task from its explicit scope.
 
 ## Historical checkpoints — superseded by the current state above
 

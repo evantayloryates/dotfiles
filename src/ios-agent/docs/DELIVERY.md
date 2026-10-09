@@ -96,3 +96,11 @@ when iOS or the React Native architecture changes.
 
 Temporary source probes were restored. Detailed private evidence is retained;
 no XCTest, debugger, preview or temporary root tunnel is required to use the service.
+
+## Publication closeout — 9 October
+
+Audited foundation-branch push succeeded at `2a5218abb8`, with independent remote
+HEAD readback. Dotfiles runtime/runbook is published on master. No develop merge
+or customer production deployment. The shared call-rig source was committed
+from its exact frozen owner handoff, separately; its physical/network/production
+limits and final mouse-activation edge remain in its own task.

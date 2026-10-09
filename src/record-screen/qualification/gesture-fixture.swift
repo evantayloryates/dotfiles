@@ -29,8 +29,8 @@ final class GestureCanvas:NSView {
       "event_timestamp_ns":String(cg?.timestamp ?? 0),"cg_type":cg?.type.rawValue as Any? ?? NSNull(),
       "cg_position":cg.map{[$0.location.x,$0.location.y]} ?? [],"local_top_left":[local.x,local.y],
       "expected_quartz":[global.x,main.frame.maxY-global.y],"window_number":window.windowNumber,
-      "event_number":event.eventNumber,"destination_pid":field(.eventTargetUnixProcessID),"source_pid":field(.eventSourceUnixProcessID),
-      "source_tag":String(field(.eventSourceUserData)),"button":event.buttonNumber,
+      "event_number":field(.mouseEventNumber),"destination_pid":field(.eventTargetUnixProcessID),"source_pid":field(.eventSourceUnixProcessID),
+      "source_tag":String(field(.eventSourceUserData)),"button":field(.mouseEventButtonNumber),
       "window_quartz_frame":[window.frame.minX,main.frame.maxY-window.frame.maxY,window.frame.width,window.frame.height],
       "scale":window.backingScaleFactor,"scroll_total":scrollTotal,"ownership":"unknown; app delivery does not establish actor"]
     if kind=="wheel" {row["scroll"]=["cg_x":cg?.getDoubleValueField(.scrollWheelEventPointDeltaAxis2) ?? 0,
