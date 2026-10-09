@@ -1,7 +1,7 @@
 # Personal iOS app agent
 
 For MCP clients, launch `/Users/taylor/dotfiles/bin/ios-agent-mcp` and call
-`ios_guide` → `ios_begin` → inspect/act/verify → `ios_end`. The wrapper manages
+`ios_guide` → `ios_doctor` → `ios_begin` → inspect/act/verify → `ios_end`. If host prerequisites fail, inspect the diagnosis before phone setup; `ios_stack_ensure` explicitly starts/reuses guarded local dependencies when idle. `ios_workflow` supplies the paired coach/client recipe and read-only persistence checks. The wrapper manages
 private lease/evidence files and includes shared cross-harness operational learning.
 See [MCP.md](docs/MCP.md) for registration, lifecycle and learning semantics.
 

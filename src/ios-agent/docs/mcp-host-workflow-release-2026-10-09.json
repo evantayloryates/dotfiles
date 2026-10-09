@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "at": "2026-10-09T16:01:42.340Z",
+  "scope": "real stdio MCP, existing guarded local stack, read-only synthetic pair",
+  "gates": {
+    "discovery": true,
+    "hostDiagnosis": true,
+    "warmStackReuse": true,
+    "afterRecoveryDiagnosis": true,
+    "recipe": true,
+    "workflowResource": true,
+    "exactSyntheticNonAdminPair": true,
+    "samePairPersistence": true,
+    "wrongValueFails": true,
+    "baselineUnchanged": true,
+    "noPhoneLeaseOrFrontend": true,
+    "allPassed": true
+  },
+  "limits": [
+    "No fresh physical UI edits or assertions in this smoke. Dated original round-trip remains separate.",
+    "Cold launcher qualification is isolated/unit evidence, not a shared-stack destructive restart."
+  ],
+  "serviceVersion": "1.1.0",
+  "toolCount": 15,
+  "resourceCount": 4,
+  "tests": {
+    "python": 106,
+    "mcpSDK": 10
+  },
+  "isolatedStartupScope": "Real loopback child processes and HTTP readiness; mocked Docker, database identity and launcher. Actual shared GraphQL/Next cold restart not performed.",
+  "freshPhysicalWorkflow": "pending Mirroring Mac authentication; no new native implementation in this release",
+  "catalogRefresh": "Fresh stdio clients verified; already-running harness MCP connections require reconnect."
+}

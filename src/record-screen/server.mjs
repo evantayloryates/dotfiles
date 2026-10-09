@@ -209,7 +209,8 @@ const tools = [
     run: async (a) => {
       if (a.hide) return ok(await engine("overlay.hide", { overlay_id: a.overlay_id, session_id: a.session_id }));
       if (!a.target) throw new EngineError("bad_params", "target is required unless hide is true");
-      return ok(await engine("overlay.show", a));
+      const { hide, ...show } = a;
+      return ok(await engine("overlay.show", show));
     },
   },
   {

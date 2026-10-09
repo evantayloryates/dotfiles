@@ -1,9 +1,11 @@
 # Agent acceptance gates and paired local workflow
 
-Status: fixed read-only verifier implemented and adversarial unit/IPC checks pass.
-The representative coach/client workflow below is a source-derived execution
-plan, **not a completed installed-phone smoke**. An operator must attach exact
-runtime identity and live evidence before marking it qualified.
+Status: fixed read-only verifier and the representative physical coach/client
+round trip are qualified by the dated acceptance evidence below. The reusable
+MCP recipe is in PAIRED-WORKFLOW.md and `ios_workflow action=plan`; it includes
+connection-owned baseline capture and independent local persistence/restoration
+checks. These checks do not replace either UI's rendering or cleanup gates.
+New runs must attach their exact runtime identity and independent live evidence.
 
 ## Fixed assertion/wait CLI
 

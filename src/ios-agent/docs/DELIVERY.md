@@ -1,7 +1,7 @@
 # Agent operating contract — installed personal development service
 
 MCP follow-on: `/Users/taylor/dotfiles/bin/ios-agent-mcp` exposes the fixed CLI
-through 12 tools and three resources. `ios_guide` → `ios_begin` → inspect/act/verify
+through 15 tools and four resources. `ios_guide` → `ios_doctor` → `ios_begin` → inspect/act/verify
 → `ios_end` manages lease/evidence paths and independently confirms cleanup.
 See MCP.md for shared operational learning and per-harness lifecycle boundaries.
 

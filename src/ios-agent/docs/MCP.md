@@ -29,6 +29,13 @@ credentials or new network listener is needed by the MCP wrapper.
    never silently passed; standalone `ios_verify idle` remains available.
 
 Resource URIs expose this guide, DELIVERY.md and CAPABILITY-EDGES.md.
+Version 1.1 adds `ios_doctor`, `ios_stack_ensure`, `ios_workflow` and the
+`ios-agent://paired-workflow` resource: 15 tools and four resources in total.
+Diagnose host prerequisites before requesting phone setup. Stack recovery is
+explicit and idle-only; a failed/unknown startup is never permission to replay.
+The versioned paired recipe exposes read-only exact local synthetic-pair baseline,
+persistence and restoration checks. They do not mint credentials or mutate data,
+and do not replace independent browser/phone UI evidence. See PAIRED-WORKFLOW.md.
 The MCP adapter wraps the fixed CLI operations; it cannot execute arbitrary code,
 invoke a product handler directly, control system UI or bypass authentication.
 Existing Tailscale phone transport and native watchdog remain unchanged.
@@ -89,10 +96,9 @@ classifier or semantic reranker. Free text has a narrow accidental-secret check;
 it is not a comprehensive sensitive-data detector. Lessons are data, never
 executable instructions, and cannot widen the service's tool capabilities.
 
-Useful next extensions: recipes with explicit postconditions and cleanup;
-contradiction-driven requalification; export of reviewed operational knowledge;
-per-harness Stop hooks calling end without duplicating the learning database.
-These are proposals, not implemented capabilities.
+The paired recipe now supplies explicit postconditions and cleanup. General
+recipe execution, contradiction-driven requalification, knowledge export and
+per-harness Stop hooks remain possible extensions, not implemented capabilities.
 
 ## Harness configuration
 

@@ -74,6 +74,10 @@ test('MCP refuses an old engine before capture, forwards explicit false to capab
     assert.deepEqual(methods, ['status', 'status', 'overlay.show'])
     assert.equal(forwarded.target.include_child_windows, false)
     assert.deepEqual(forwarded.target.exclude_apps, ['com.test.Helper'])
+    const shown = await request('tools/call', {name:'frame_outline',arguments:{target,hide:false}})
+    assert.equal(shown.isError,false)
+    assert.equal(methods.at(-1),'overlay.show')
+    assert.equal(Object.hasOwn(forwarded,'hide'),false,'adapter-only show/hide selector is not a native capture field')
     capable = false
     const legacy = await call({ type: 'display' })
     assert.equal(legacy.isError, false)

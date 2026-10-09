@@ -4,9 +4,10 @@ import os from 'node:os';
 import {randomBytes, createHash} from 'node:crypto';
 import {spawn} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
+import {nutritionRecipe} from './workflows.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json']
+const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/workflows.mjs', 'paired_workflow.py', 'health.py', 'local_stack.py', 'cli.py', 'learning.py', 'mcp/package-lock.json']
   .map(file => fs.readFileSync(path.join(root, file))).map(bytes => createHash('sha256').update(bytes).digest('hex')).join(':')).digest('hex');
 export const defaultState = path.join(os.homedir(), 'Library/Application Support/ios-agent');
 const idleLimit = 20 * 60 * 1000;
@@ -42,9 +43,10 @@ export class Backend {
   }
   async run(kind, args, input, timeout = 120000) {
     if (this.runOverride) return this.runOverride(kind, args, input);
-    const files = {cli: 'cli.py', verify: 'verify.py', doctor: 'health.py', learning: 'learning.py'};
+    const files = {cli: 'cli.py', verify: 'verify.py', doctor: 'health.py', stack: 'local_stack.py', paired: 'paired_workflow.py', learning: 'learning.py'};
+    if (!files[kind]) throw new Error('fixed_operation_required');
     const argv = kind === 'learning' ? [path.join(this.state, 'learning')] :
-      kind === 'cli' ? ['--state', this.state, ...args] : [...args, '--state', this.state];
+      kind === 'paired' ? [] : kind === 'cli' ? ['--state', this.state, ...args] : [...args, '--state', this.state];
     return new Promise((resolve, reject) => {
       const child = spawn('/usr/bin/python3', ['-B', path.join(root, files[kind]), ...argv],
         {stdio: ['pipe', 'pipe', 'pipe'], env: {...process.env, PYTHONDONTWRITEBYTECODE: '1'}});
@@ -97,7 +99,9 @@ export class Backend {
     let current, learning;
     try { current = await this.status(); learning = await this.learning('search', {source: runtimeKey(current) || ''}); }
     catch { learning = {available: false}; }
-    return {workflow: ['ios_begin', 'ios_native or ios_react', 'ios_verify', 'ios_end'],
+    return {workflow: ['ios_doctor', 'ios_begin', 'ios_native or ios_react', 'ios_verify', 'ios_end'],
+      hostWorkflow: ['ios_doctor (read only)', 'ios_stack_ensure only when needed and idle; never replay an uncertain start'],
+      pairedWorkflow: 'ios_workflow action=plan exposes the versioned coach-client recipe; capture/assert/restore-check independently read only the verified synthetic local row. UI rendering is a separate gate.',
       lease: 'One session per work turn. Always ios_end in finally before ending a turn. Codex should supply its actual active rollout to ios_begin. Other clients use a private connection heartbeat; MCP cannot detect a model turn ending on a persistent connection.',
       requirements: 'Kickoff DEV foreground and unlocked, Tailscale connected, laptop services awake. USB not required.',
       cleanup: 'Explicit end, cancellation, disconnect and 20-minute tool silence retire control. A heartbeat does not extend the silence limit. Native watchdog protects host loss.',
@@ -105,6 +109,48 @@ export class Backend {
       updates: 'JS edits use remote Metro; verify ready and route after refresh. Forms/navigation can reset. Native edits require build/install.',
       visibility: 'Main-window data excludes system overlays. UIKeyInput is semantic editing. No arbitrary system UI, IME or multi-touch guarantee.',
       sharedLearning: learning};
+  }
+  async doctor() {
+    const r = await this.run('doctor', [], undefined, 45000);
+    if (!r.value || typeof r.value.hostPrerequisitesReady !== 'boolean') return {ok: false, reason: 'host_diagnosis_unavailable'};
+    const value = safe(r.value);
+    return {...value, ok: r.ok && value.hostPrerequisitesReady, failedChecks: Object.entries(value.checks || {}).filter(([,v]) => v !== true).map(([k]) => k),
+      next: 'Host checks do not establish phone readiness. Inspect failed checks before changing services or asking for phone setup.'};
+  }
+  async stackEnsure({timeout = 60} = {}) {
+    if (this.closing || [...this.sessions.values()].some(s => s.active)) return {ok: false, reason: 'idle_host_required_for_stack_recovery', actionSent: false};
+    const r = await this.run('stack', ['--timeout', String(timeout)], undefined, 145000);
+    if (!r.value) return {ok: false, reason: r.error, outcome: 'inspect_current_state_before_retry', replay: false};
+    return {...safe(r.value), ok: r.ok && r.value.backendReady === true, replay: false,
+      next: 'Run ios_doctor after any uncertain result. This tool never stops existing workers, resets data, or promises phone readiness.'};
+  }
+  async workflow({action = 'plan', clientId, baselineId, stage, expected} = {}) {
+    if (action === 'plan') return {ok: true, recipe: nutritionRecipe};
+    let baseline;
+    if (action !== 'capture') {
+      const record = this.artifacts.get(baselineId);
+      if (!record || record.type !== 'paired-baseline') throw new Error('owned_baseline_required');
+      baseline = JSON.parse(fs.readFileSync(record.file, 'utf8'));
+      if (clientId !== undefined && String(clientId) !== String(baseline.clientId)) return {ok: false, reason: 'paired_baseline_client_mismatch', dataChanged: false, credentialsCreated: false};
+      clientId = String(baseline.clientId);
+    }
+    const r = await this.run('paired', [], {state: this.state, clientId}, 45000);
+    if (!r.ok || r.value?.ok !== true || !r.value.snapshot) return {ok: false, reason: 'paired_local_read_refused', dataChanged: false, credentialsCreated: false};
+    const current = r.value.snapshot;
+    if (action === 'capture') {
+      const a = this.artifact({id: null, dir: this.observationDirectory()}, 'paired-baseline');
+      fs.writeFileSync(a.file, JSON.stringify(current), {flag: 'wx', mode: 0o600});
+      return {ok: true, baselineId: a.id, artifactId: a.id, pair: {clientId: String(current.clientId), coachId: String(current.coachId)},
+        receipt: {gate: 'paired-baseline', status: 'passed', scope: 'guarded-local-persistence-only', observation: {localIdentity: true, syntheticPair: true, nonAdminCoach: true}},
+        next: 'Use ios_read on this baselineId for the original synthetic value. Independently match both authenticated UIs; no login or UI assertion was performed.'};
+    }
+    const same = ['clientId','clientUserId','coachId','coachUserId','databaseFingerprint'].every(k => String(current[k]) === String(baseline[k]));
+    const target = action === 'restore-check' ? baseline.targetDailyCalories : expected;
+    const matched = same && current.targetDailyCalories === target;
+    return {ok: matched, receipt: {gate: action === 'restore-check' ? 'paired-restoration' : 'paired-persistence', stage,
+      status: matched ? 'passed' : 'failed', scope: 'guarded-local-persistence-only', observation: {sameDatabaseAndPair: same, expectedValueMatched: matched}},
+      dataChanged: false, credentialsCreated: false, replay: false,
+      next: 'This is database readback only. Verify phone and coach rendering separately; stop on a changed pair/value rather than replaying a mutation.'};
   }
   async begin({rollout} = {}) {
     if (this.closing || [...this.sessions.values()].some(s => s.active)) throw new Error('end_existing_session_first');

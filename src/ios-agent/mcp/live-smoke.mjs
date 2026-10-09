@@ -27,9 +27,9 @@ async function call(client, name, args = {}) {
 let owner, session;
 try {
   owner = await connect('independent-mcp-client-A');
-  receipt.gates.discovery = (await owner.listTools()).tools.length === 12;
+  receipt.gates.discovery = (await owner.listTools()).tools.length === 15;
   const resources = await owner.listResources();
-  receipt.gates.resources = resources.resources.length === 3;
+  receipt.gates.resources = resources.resources.length === 4;
   await owner.readResource({uri: 'ios-agent://mcp'});
   const begin = await call(owner, 'ios_begin'); session = begin.sessionId;
   receipt.gates.ready = begin.ready === true;

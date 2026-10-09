@@ -48,8 +48,8 @@ test('SDK discovers tools/resources, intuitive lifecycle, image content and priv
   const f = fixture(); const {client, server} = await clientFor(f);
   try {
     const names = (await client.listTools()).tools.map(t => t.name);
-    assert.equal(names.length, 12); assert.ok(names.includes('ios_begin'));
-    assert.equal((await client.listResources()).resources.length, 3);
+    assert.equal(names.length, 15); assert.ok(names.includes('ios_begin'));
+    assert.equal((await client.listResources()).resources.length, 4);
     const begin = (await client.callTool({name: 'ios_begin', arguments: {}})).structuredContent;
     assert.equal(begin.ready, true); assert.equal(f.held(), true);
     const action = (await client.callTool({name: 'ios_native', arguments: {sessionId: begin.sessionId, action: 'tree'}})).structuredContent;
@@ -146,7 +146,58 @@ test('real launcher stdio handshake works in a minimal GUI PATH without device c
   const client = new Client({name: 'stdio-canary', version: '1'});
   const transport = new StdioClientTransport({command: path.join(os.homedir(), 'dotfiles/bin/ios-agent-mcp'), env: {HOME: os.homedir(), PATH: '/usr/bin:/bin'}, stderr: 'pipe'});
   let stderr = ''; transport.stderr?.on('data', x => { stderr += x; });
-  try { await client.connect(transport); assert.equal((await client.listTools()).tools.length, 12); }
+  try { await client.connect(transport); assert.equal((await client.listTools()).tools.length, 15); }
   finally { await client.close(); }
   assert.equal(stderr, '');
+});
+test('host tools preserve failed checks, refuse stack work with an owner, and never acquire the phone', async () => {
+  const f = fixture(); const original = f.backend.runOverride;
+  let healthy = true, starts = 0;
+  f.backend.runOverride = async (kind, args, input) => {
+    if (kind === 'doctor') return {ok: healthy, value: {hostPrerequisitesReady: healthy,
+      checks: {localGraphQLReady: healthy}, applicationReadiness: 'requires_owned_lease', repairsPerformed: false}};
+    if (kind === 'stack') { starts++; return {ok: true, value: {backendReady: true, started: [], dataReset: false, workersStopped: false}}; }
+    return original(kind, args, input);
+  };
+  const {client, server} = await clientFor(f);
+  try {
+    assert.equal((await client.callTool({name:'ios_doctor',arguments:{}})).structuredContent.ok,true);
+    healthy=false;
+    const failed=await client.callTool({name:'ios_doctor',arguments:{}});
+    assert.equal(failed.isError,true); assert.deepEqual(failed.structuredContent.failedChecks,['localGraphQLReady']);
+    assert.equal(f.calls.filter(c=>c.args?.[0]==='acquire').length,0);
+    const begin=await f.backend.begin();
+    assert.equal((await client.callTool({name:'ios_stack_ensure',arguments:{}})).isError,true);assert.equal(starts,0);
+    await f.backend.end(begin.sessionId);
+    const reused=await client.callTool({name:'ios_stack_ensure',arguments:{timeout:5}});
+    assert.equal(reused.structuredContent.ok,true);assert.equal(starts,1);assert.equal(reused.structuredContent.replay,false);
+    assert.equal((await client.callTool({name:'ios_stack_ensure',arguments:{timeout:999}})).isError,true);assert.equal(starts,1);
+  } finally {await f.backend.close();await client.close();await server.close();fs.rmSync(f.state,{recursive:true});}
+});
+test('paired baseline and exact readbacks retain null, fail on collision, and reject cross-client baseline IDs', async () => {
+  const f=fixture(); const original=f.backend.runOverride;
+  let current={coachId:1,coachUserId:2,clientId:3,clientUserId:4,databaseFingerprint:'b'.repeat(64),targetDailyCalories:null};
+  f.backend.runOverride=async(kind,args,input)=>kind==='paired'?{ok:true,value:{ok:true,snapshot:{...current}}}:original(kind,args,input);
+  const {client,server}=await clientFor(f); const other=fixture();const remote=await clientFor(other);
+  try {
+    const plan=(await client.callTool({name:'ios_workflow',arguments:{action:'plan'}})).structuredContent;
+    assert.equal(plan.recipe.steps.length,8);assert.ok(plan.recipe.limitations.some(v=>v.includes('No automatic')));
+    assert.ok((await client.readResource({uri:'ios-agent://paired-workflow'})).contents[0].text.includes('read'));
+    const capture=(await client.callTool({name:'ios_workflow',arguments:{action:'capture',clientId:'3'}})).structuredContent;
+    assert.equal(capture.receipt.scope,'guarded-local-persistence-only');
+    assert.equal(f.backend.read({artifactId:capture.baselineId}).data.targetDailyCalories,null);
+    assert.equal((await client.callTool({name:'ios_workflow',arguments:{action:'restore-check',baselineId:capture.baselineId,clientId:'5'}})).structuredContent.reason,'paired_baseline_client_mismatch');
+    assert.equal((await remote.client.callTool({name:'ios_workflow',arguments:{action:'restore-check',baselineId:capture.baselineId}})).isError,true);
+    current.targetDailyCalories=2456;
+    assert.equal((await client.callTool({name:'ios_workflow',arguments:{action:'assert',stage:'coach-write',baselineId:capture.baselineId,expected:2456}})).structuredContent.ok,true);
+    assert.equal((await client.callTool({name:'ios_workflow',arguments:{action:'restore-check',baselineId:capture.baselineId}})).isError,true);
+    current.targetDailyCalories=null;
+    assert.equal((await client.callTool({name:'ios_workflow',arguments:{action:'restore-check',baselineId:capture.baselineId}})).structuredContent.ok,true);
+    current.databaseFingerprint='c'.repeat(64);
+    const changed=await client.callTool({name:'ios_workflow',arguments:{action:'restore-check',baselineId:capture.baselineId}});
+    assert.equal(changed.isError,true);assert.equal(changed.structuredContent.receipt.observation.sameDatabaseAndPair,false);
+    assert.equal((await client.callTool({name:'ios_workflow',arguments:{action:'assert',baselineId:capture.baselineId}})).isError,true);
+    assert.equal((await client.callTool({name:'ios_workflow',arguments:{action:'capture',clientId:'sql'}})).isError,true);
+    assert.equal(f.calls.filter(c=>c.args?.[0]==='acquire').length,0);
+  }finally{await f.backend.close();await other.backend.close();await client.close();await server.close();await remote.client.close();await remote.server.close();fs.rmSync(f.state,{recursive:true});fs.rmSync(other.state,{recursive:true});}
 });

@@ -22,6 +22,10 @@ struct TargetSpec {
     guard let p = any as? [String: Any], let type = p["type"] as? String else {
       throw RPCError.badParams("target must be an object with a type: display, rect or window")
     }
+    let selectors:[String:Set<String>] = ["display":["display_id"],"rect":["x","y","w","h"],"window":["window_id","app","title"]]
+    if let names=selectors[type] {
+      try RPCNumber.fields(p,allowed:names.union(["type","include_child_windows","exclude_apps","include_apps"]),label:"target \(type)")
+    }
     func num(_ k: String,min:Double = -10_000_000,max:Double = 10_000_000) throws -> Double? {
       try RPCNumber.optional(p,k,min:min,max:max)
     }
@@ -39,7 +43,11 @@ struct TargetSpec {
       return TargetSpec(surface: .rect(CGRect(x: x, y: y, width: w, height: h)), options: options)
     case "window":
       let id = try identifier("window_id")
+      try RPCNumber.string(p,"app");try RPCNumber.string(p,"title")
       let app = p["app"] as? String, title = p["title"] as? String
+      for value in [app,title].compactMap({$0}) where value.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty {
+        throw RPCError.badParams("window app/title selectors must be nonempty; omit unused selectors")
+      }
       guard id != nil || app != nil || title != nil else {
         throw RPCError.badParams("window target needs window_id, or app and/or title")
       }
@@ -50,6 +58,15 @@ struct TargetSpec {
     default:
       throw RPCError.badParams("unknown target type \(type); use display, rect or window")
     }
+  }
+
+  static func matchesWindow(app:String?,title:String?,bundle:String?,name:String?,windowTitle:String?) -> Bool {
+    if let a=app?.lowercased() {
+      let bid=bundle?.lowercased() ?? "",label=name?.lowercased() ?? ""
+      guard bid==a || label==a || label.contains(a) else { return false }
+    }
+    if let t=title?.lowercased(),!(windowTitle ?? "").lowercased().contains(t) { return false }
+    return true
   }
 }
 
@@ -244,7 +261,7 @@ enum Targets {
       if let running = NSRunningApplication(processIdentifier: pid), running.isHidden {
         warnings.append("the app is hidden, so the window renders nothing; unhide it or recording will be empty")
       } else if !onScreen {
-        warnings.append("window is not on screen (another Space, or minimized); another Space records fine, a minimized window does not")
+        warnings.append("window is not on screen (another Space or minimized); verify actual source pixels. Off-Space rendering is app-dependent; hidden/minimized content may be absent")
       }
       return ResolvedTarget(kind: "window", filter: SCContentFilter(desktopIndependentWindow: w), display: d,
                             frame: frame, sourceRect: nil, scale: displayScale(d.displayID), window: w, warnings: warnings,
@@ -256,6 +273,9 @@ enum Targets {
     if let id {
       guard let w = content.windows.first(where: { $0.windowID == id }) else {
         throw RPCError(code: "target_not_found", message: "no window \(id); it may have closed. Use windows.list to find it again")
+      }
+      guard TargetSpec.matchesWindow(app:app,title:title,bundle:w.owningApplication?.bundleIdentifier,name:w.owningApplication?.applicationName,windowTitle:w.title) else {
+        throw RPCError(code:"target_mismatch",message:"window \(id) does not match the supplied app/title selectors; inspect its current metadata before choosing a target")
       }
       return w
     }
@@ -276,15 +296,7 @@ enum Targets {
         bundle: w.owningApplication?.bundleIdentifier ?? "", title: w.title ?? "", onScreen: w.isOnScreen,
         ownProcess: w.owningApplication?.processID == me, includeOffscreen: includeOffscreen,
         includeTransients: includeTransients) else { return false }
-      if let a = app?.lowercased() {
-        let bid = w.owningApplication?.bundleIdentifier.lowercased() ?? ""
-        let name = w.owningApplication?.applicationName.lowercased() ?? ""
-        guard bid == a || name == a || name.contains(a) else { return false }
-      }
-      if let t = title?.lowercased() {
-        guard (w.title ?? "").lowercased().contains(t) else { return false }
-      }
-      return true
+      return TargetSpec.matchesWindow(app:app,title:title,bundle:w.owningApplication?.bundleIdentifier,name:w.owningApplication?.applicationName,windowTitle:w.title)
     }.sorted { a, b in
       if a.isOnScreen != b.isOnScreen { return a.isOnScreen }
       return (order[a.windowID] ?? Int.max) < (order[b.windowID] ?? Int.max)
