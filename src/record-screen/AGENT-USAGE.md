@@ -1,7 +1,7 @@
 # Agent usage and recovery
 
 This is the capture-foundations production runbook. The installed native build
-3ff4c4519dc8 and fresh adapter0.11.4 have the scoped proofs in
+142e81bef23e and fresh adapter0.12.0 have the scoped proofs in
 [GATES.md](qualification/GATES.md). Treat these as a baseline, then inspect
 loaded status. Visual effects, cursor styling and composition recipes are the
 next phase. The [checklist](qualification/checklist.json) tracks unresolved
@@ -63,7 +63,16 @@ unqualified surfaces rather than assuming all popups have the same behavior.
 | --- | --- | --- |
 | Window | Exact window ID, explicit child option, actual encoded pixels | Covered content may survive, but hidden/closed/off-Space behavior varies. Child inclusion may fit/shrink the parent. It does not establish arbitrary popup ownership. |
 | Display/rect | Observed display and sufficiently padded desktop rectangle | Visible occlusion and unrelated content enter the source. A parent-sized crop can omit overflow. Preserve position and geometry when selecting a supplemental layer. |
+| App-only fixed crop | One exact running bundle in `include_apps`, display/rect crop, native `application_filter:1`; inspect actual source | Same-app windows/actions can enter. No automatic tracking or overflow expansion; hidden/Space/menu behavior needs an app check. Observed process changes interrupt affected take and retire its preview; resolve a fresh take. |
 | Window plus display | Independently verify both sources on the intended interval | Extra CPU/storage cost. Backup coverage must actually contain the missing pixels and motion. No automatic semantic rescue or universal capacity claim. |
+
+`include_apps` accepts exactly one bundle and cannot combine nonempty exclusions
+or window targets. Current CLI/fresh MCP refuse unsupported native capability
+before capture. Inspect `application_filter_quality`; identity change remains
+uncertain and observation can lag. This optional lane preserves changing authored
+source beneath actual unrelated-app occlusion in stage51; TextEdit off-Space
+readiness still failed. Use it as a qualified source option and retain explicit
+fallback expectations.
 
 Consult shared app facts using `computer_use_plan` or
 `node /Users/taylor/src/github/dotfiles/src/codex-bridge/evidence.mjs plan

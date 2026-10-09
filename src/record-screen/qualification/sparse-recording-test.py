@@ -31,4 +31,5 @@ with (stage/'compile.log').open('w') as log:
  subprocess.run(command,stdout=log,stderr=log,check=True,timeout=180)
 with (stage/'stdout.json').open('w') as out,(stage/'stderr.log').open('w') as err:
  subprocess.run([str(stage/'sparse-test'),str(stage/'evidence')],stdout=out,stderr=err,check=True,timeout=30)
+subprocess.run(['python3',str(kit/'verify-sparse-finalization.py'),'--evidence',str(stage/'evidence'),'--output',str(stage/'packet-proof.json')],check=True,timeout=60)
 print((stage/'stdout.json').read_text().strip())

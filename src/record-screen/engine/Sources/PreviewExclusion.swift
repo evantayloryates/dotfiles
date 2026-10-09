@@ -9,10 +9,10 @@ final class PreviewExclusion: @unchecked Sendable {
   private let lock = NSLock()
   private var released = false
 
-  init(tracker: ExclusionIdentityTracker, bundles: [String], resolved: [String:Set<Int32>],
+  init(tracker: ExclusionIdentityTracker, bundles: [String], resolved: [String:Set<Int32>], role: String = "exclusion",
        onChange: @escaping @Sendable (ExclusionIdentityChange) -> Void) throws {
     self.tracker = tracker
-    lease = try tracker.subscribe(bundles, onChange: onChange)
+    lease = try tracker.subscribe(bundles, role: role, onChange: onChange)
     do { try lease.validateResolved(resolved) }
     catch { tracker.unsubscribe(lease); throw error }
   }

@@ -130,6 +130,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   private var resolved: [String: Any]?
   private var exclusionLease:ExclusionIdentityLease?
   private var exclusionQuality:[String:Any]?
+  private var identityQualityKey: String { (targetRaw["include_apps"] as? [String])?.isEmpty == false ? "application_filter_quality" : "exclusion_quality" }
 
   private var stream: SCStream?
   private var writer: AVAssetWriter?
@@ -286,7 +287,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
       review = m["review"] as? [String: Any]
       activityTimeline = m["activity_per_s"] as? [Double]
       resolved = m["resolved"] as? [String: Any]
-      exclusionQuality = m["exclusion_quality"] as? [String:Any]
+      exclusionQuality = m[identityQualityKey] as? [String:Any]
       error = m.str("error")
       writerFailureDetails = m["writer_failure"] as? [String: Any]
       actualStart = m.str("actual_start").flatMap(parseISO)
@@ -445,8 +446,8 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
       try await startupPreflight?()
       guard state == .arming else { return }
       let spec = try TargetSpec.parse(targetRaw)
-      if !spec.options.excludeApps.isEmpty {
-        let lease=try ExclusionApps.shared.tracker.subscribe(spec.options.excludeApps) {[weak self] change in
+      if !spec.options.identityBundles.isEmpty {
+        let lease=try ExclusionApps.shared.tracker.subscribe(spec.options.identityBundles, role:spec.options.identityRole) {[weak self] change in
           self?.q.async {[weak self] in self?.exclusionChanged(change)}
         }
         do {
@@ -454,6 +455,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
             guard state == .arming else{throw CancellationError()}
             exclusionLease=lease
             exclusionQuality=["state":"observing","policy":"interrupt take on observed process identity change",
+                              "filter_role":spec.options.identityRole,
                               "first_affected_frame":"unknown on change; observation can lag"]
             try lease.validate()
           }
@@ -477,7 +479,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
       try q.sync {
         guard state == .arming else { throw CancellationError() }
         var excluded:[String:Set<Int32>]=[:]
-        for app in target.excludedApplications {excluded[app.bundleIdentifier,default:[]].insert(app.processID)}
+        for app in target.identityApplications {excluded[app.bundleIdentifier,default:[]].insert(app.processID)}
         try exclusionLease?.validateResolved(excluded)
         try makeWriter(width: cfg.width, height: cfg.height)
       }
@@ -492,7 +494,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
         resolved = target.describe()
         sourceJournal?.offer(["kind": "capture", "resolved": target.describe(), "settings": settings.dict])
         if inputSettings.enabled, let journal=sourceJournal {
-          let context=InteractionScopeContext(pid:target.window?.owningApplication?.processID,
+          let context=InteractionScopeContext(pid:target.inputScopePID,
             windowID:target.window?.windowID,frame:target.frame,ambiguousKeys:inputSettings.ambiguousKeys,
             retainPointerInFrame:inputSettings.pointerInFrame)
           InputTimeline.shared.subscribe(id:id,sessionID:sessionID,context:context) { [weak self] value in
@@ -635,7 +637,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
       prerollSource = sourceID
       return
     }
-    if pts > endHostNs { return }
+    if pts >= endHostNs { return }
     if !wroteFirst { beginAtStart() }
     append(pb, at: pts, source: sourceID)
   }
@@ -668,7 +670,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   }
 
   private func append(_ pb: CVPixelBuffer, at ns: UInt64, source: Int? = nil, held: String? = nil) {
-    guard input != nil, adaptor != nil, ns >= startHostNs, ns <= endHostNs, ns > lastWrittenNs || framesWritten == 0 else { return }
+    guard input != nil, adaptor != nil, ns >= startHostNs, ns < endHostNs, ns > lastWrittenNs || framesWritten == 0 else { return }
     // Use the last successfully encoded source, not the newly received buffer:
     // otherwise padding would paint future pixels into an earlier interval.
     if framesWritten > 0, !hostClockInterrupted, let previous = lastEncodedBuffer {
@@ -691,7 +693,9 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   }
 
   @discardableResult private func appendEncoded(_ pb: CVPixelBuffer, at ns: UInt64, source: Int?, held: String?) -> Bool {
-    guard let input, let adaptor, ns >= startHostNs, ns <= endHostNs, ns > lastWrittenNs || framesWritten == 0 else { return false }
+    // The writer session is [start, end). A sample at end has no duration
+    // inside the take and can be omitted by the muxer despite append success.
+    guard let input, let adaptor, ns >= startHostNs, ns < endHostNs, ns > lastWrittenNs || framesWritten == 0 else { return false }
     #if RECORD_SCREEN_QUALIFICATION
     qualificationBeforeAppend?()
     let ready = input.isReadyForMoreMediaData && !(qualificationRejectSparseFrame && held == "held_for_sparse_interval")
@@ -772,8 +776,8 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     // A static screen sends one frame and then nothing: repeat the last frame
     // just before the end so the file lasts the full window.
     let frameNs = UInt64(1e9 / Double(settings.fps))
-    if !hostClockInterrupted, let last = lastBuffer, endHostNs > lastWrittenNs + frameNs {
-      append(last, at: endHostNs - frameNs, source: lastSource, held: "held_at_end")
+    if !hostClockInterrupted, let last = lastEncodedBuffer, endHostNs > lastWrittenNs + frameNs {
+      append(last, at: endHostNs - frameNs, source: lastEncodedSource, held: "held_at_end")
     }
     input.markAsFinished()
     writer.endSession(atSourceTime: cmTime(endHostNs))
@@ -827,7 +831,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
       "successful_finalization":writer?.status == .completed,
       "encoded_submissions":framesWritten,
       "muxed_coverage":"unverified; accepted writer submissions can exceed persisted packets on failure",
-      "exclusion_quality":exclusionQuality as Any? ?? NSNull(),
+      identityQualityKey:exclusionQuality as Any? ?? NSNull(),
       "writer_failure":writerFailureDetails as Any? ?? NSNull(),
       "error":reason as Any? ?? NSNull()])
     setState(s)
@@ -928,14 +932,14 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     guard state == .arming || state == .recording else{return}
     exclusionQuality=["state":"uncertain","change":change.dict,
                       "clean_coverage":"not established; inspect partial media or reshoot"]
-    note("exclusion_identity_changed",change.dict)
+    note(change.role == "inclusion" ? "application_filter_identity_changed" : "exclusion_identity_changed",change.dict)
     if state == .recording {
       endHostNs=min(endHostNs,uptimeNs())
-      finalize(reason:"excluded helper identity changed; partial footage may contain the replacement; resolve again before a new take")
+      finalize(reason:change.role == "inclusion" ? "included app identity changed; inspect uncertain partial footage and resolve a new take" : "excluded helper identity changed; partial footage may contain the replacement; resolve again before a new take")
     } else {
       teardownStream();writer?.cancelWriting()
       try? FileManager.default.removeItem(atPath:videoPath)
-      finish(.failed,reason:"excluded helper identity changed while arming; capture setup was abandoned")
+      finish(.failed,reason:"\(change.role) app identity changed while arming; capture setup was abandoned")
     }
   }
 
@@ -947,7 +951,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     // by the same bounded padding path before a new source or final sample.
     if let previous = lastEncodedBuffer {
       let now = min(uptimeNs(), endHostNs)
-      if now > lastWrittenNs, now - lastWrittenNs >= SparseFramePadding.intervalNS {
+      if now < endHostNs, now > lastWrittenNs, now - lastWrittenNs >= SparseFramePadding.intervalNS {
         append(previous, at: now, source: lastEncodedSource, held: "held_for_sparse_interval")
       }
     }
@@ -1029,7 +1033,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     if let k = idempotencyKey { d["idempotency_key"] = k }
     if let sid = sessionID { d["session_id"] = sid }
     if let r = resolved { d["resolved"] = r }
-    if let quality=exclusionQuality {d["exclusion_quality"]=quality}
+    if let quality=exclusionQuality {d[identityQualityKey]=quality}
     if let e = snapLock.withLock({ terminalReason ?? error }) { d["error"] = e }
     if let a = actualStart { d["actual_start"] = iso8601.string(from: a) }
     if let a = actualEnd { d["actual_end"] = iso8601.string(from: a) }

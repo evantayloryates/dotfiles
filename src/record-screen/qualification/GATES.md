@@ -1,5 +1,94 @@
 # Qualification update — October 9, 2026
 
+## Fifty-second pass: exclusive media endpoint, admitted-source tail and guarded delivery
+
+The stage51 display peer reports598 accepted frames but597 muxed packets: its
+final held timestamp equals the session endpoint. A small off-screen pre-fix
+case retains that packet in the mux, but decode omits it. This does not reproduce
+every full-resolution omission; it proves an endpoint sample has no admitted
+interval. A guards-only candidate then exposes a second defect: final padding
+uses the latest received buffer even when its endpoint frame was rejected.
+Actual tail decodes199 instead of expected100 and references unadmitted source2.
+All negative evidence remains on disk; no repeat take conceals the failure.
+
+Recording now admits `[start,end)` in source, append and encoder guards; a late
+heartbeat cannot append at end. Final padding copies lastEncodedBuffer/source,
+never a received but unadmitted future/backpressured frame. Independent helper
+verify-sparse-finalization.py checks exact healthy/trimmed mux joins, endpoint
+exclusion, tail source ID and actual decoded grey pixels. Final native16 checks
+pass; resumed26, endpoint4, budget2, clock-gap2, backpressure2 packets all match.
+The intentional raw/unpadded encoder diagnostic retains its native failure check.
+Final endpoint tail references source1 and decodes100. Bounded/source clock and
+backpressure semantics remain intact; no OS or physical presentation guarantee.
+
+Signed hooks-free142e81bef23e full-resolution2x static app/display pair runs30s:
+43/44 exact packet/source joins,0 lost rows; all43 decoded app counters read0.
+Static holds are declared copies, not fresh source frames or sustained motion.
+Own fixture/session/helper settled and private runtime copied before candidate
+shutdown. Earlier stage51 changing-source/lifetime proofs are retained rather
+than re-shot; only the changed writer boundary is additionally qualified here.
+
+Guarded idle CLI delivery reuses the exact tested signed binary, verifies current
+source hash and prior binary backup, then commits one maintenance restart.
+Installed142e81bef23e/PID21977, prior74192.168 original state JSON hashes are
+unchanged. Screen Recording granted; fresh2s16px passive installed canary returns
+4 exact joins and a new Input Monitoring access observationtrue. Ambiguous keys
+and pointer-in-frame retention disabled; no delivered-input canary claimed.
+Fresh owned MCP0.12 verifies app-mode planning, absent-app target_not_found,
+retained existing frame map and source packet; its child exits0. Current chat's
+older loaded MCP and unrelated peers were not forcibly refreshed. Installed
+recorder idle, own sessions closed, input subscribers0, no active owned fixtures.
+
+Native application_filter:1 is delivered; fixed-crop include_apps contract is now
+available to current CLI/fresh MCP. Same-app user windows/actions, app rendering
+when hidden/minimized/off-Space, real app menus, crop overflow, source freshness,
+physical/provider clocks and whole-shot rescue remain scoped open gates. TextEdit
+-3811 stays a separate readiness failure.43 completed,16 partial,1 deferred;
+composition deferred; full goal active.
+
+## Fifty-first pass: encoded app-only capture and observed process lifetime guards
+
+Candidate01931e9b0010 adds exactly one include_apps bundle on fixed display/rect
+crops, distinct resolved PID source/preview keys, input scope PID and shared bounded
+inclusion identity observer. Window targets, empty/multiple identifiers and mixing
+inclusion/exclusion fail. Capability application_filter:1 is required by current
+CLI/MCP before forwarding; installed3ff refuses the new option. Native36 option,
+23 preview lease,35 observer checks and10 focused Node tests passed.
+
+Actual authored source PID8810 on built-in2x display:45s app/display H.264 pair.
+App1169 and display1171 mux/source timestamps match exactly,0 lost rows. During
+an actual20.0021795s opaque unrelated-app cover,568 app counter samples remain
+readable and all567 transitions change;569 paired display samples are unreadable.
+Boundary margins200ms; fixed crop, authored app, no physical latency guarantee.
+Decoded synthetic app/cover images inspected before public embedding. A generic
+motion-duration validator also required a stopped/static phase outside this take;
+its failed report remains intact and is not an encoding failure or static pass.
+Preview filenames during-cover were actually sampled after the take: no tap claim.
+
+Quitting the exact included PID interrupts its actual take, retains570 exact mux
+joins and uncertain application_filter_quality; first affected frame remains
+unknown. The independent display peer remains done, but readback finds598 accepted
+submissions versus597 packets: final held timestamp at the session endpoint is
+omitted. Preserve this failure and investigate the endpoint; no replacement take.
+Fresh owned process14314 obtains a new PID key; two previews are warm before quit.
+Observed quit retires only app-filtered lane, independent display remains, leases
+return0 and absent app frame.verify refuses target_not_found. Source/preview guard
+observations do not guarantee instantaneous identity/pixel detection.
+
+Real TextEdit remains separate: actual off-screen window, AX raise unchanged,
+SCK-3811 app preview; no encoded app-mode TextEdit pass. One unsupported optional
+launch API and Dock read timeout were not successful dispatches. Original scope
+expires interrupted. Fresh-fixture launch terminal also expired while its actual
+onscreen evidence later succeeded; terminal history is not rewritten.
+
+12 actual scopes settle:7verified,2unknown,1failed,2interrupted. Typed outcomes
+separate later verification and cleanup. Own session closed, all five known owned
+PIDs absent, previews/leases0, runtime evidence preserved. Installed3ff/PID74192
+remains unchangedidle with grants retained. API is candidate-only until guarded
+native delivery. Same-app windows/user actions, fixed geometry, hidden/minimized/
+off-Space source drawing, real menus/overflow and whole-shot recovery remain open.
+43 completed,16 partial,1 deferred; composition deferred; full goal active.
+
 ## Fiftieth pass: application-filtered source viability under real occlusion
 
 TextEdit1.20/build415,25F80, built-in1512x982@2. Launched only previously

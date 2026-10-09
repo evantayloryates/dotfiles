@@ -15,7 +15,7 @@ import { planProduction, productionPlanSchema, validateProductionRequest } from 
 import {queryRecordingInput,validateInputQuery,inputQuerySchema,inputQueryHealth} from "./lib/input-query.mjs";
 
 const log = (...args) => console.error("[record-screen]", ...args);
-const VERSION = "0.11.5";
+const VERSION = "0.12.0";
 
 // ---------------------------------------------------------------- engine link
 
@@ -38,7 +38,7 @@ async function engine(method, params = {}, timeoutMs = 20000) {
       }
       if (hasCaptureOptions(params.target)) {
         const status=await client.call("status", {}, { timeoutMs });
-        requireCaptureOptions(status);
+        requireCaptureOptions(status, params.target);
         if (method === "record.schedule" && params.target.exclude_apps?.length && status.capabilities?.exclusion_identity !== 1) {
           throw new EngineError("unsupported_exclusion_identity", "The loaded engine does not advertise exclusion_identity v1. A recording with helper exclusions requires process-lifetime interruption and explicit quality uncertainty.");
         }
@@ -82,6 +82,7 @@ const TARGET = {
     window_id: { type: "number" }, app: { type: "string" }, title: { type: "string" },
     include_child_windows: { type: "boolean", description: "Explicit child-window inclusion. Omit to retain the SDK default. Qualify menu pixels for the app/mode before relying on it." },
     exclude_apps: { type: "array", maxItems: 8, items: { type: "string", pattern: "^[A-Za-z0-9][A-Za-z0-9.-]*$", maxLength: 256 }, description: "Exact bundles to exclude on display/rect targets. Missing apps fail; unsupported on isolated windows. Recordings interrupt and preserve partial media if an observed process identity changes. Preview lanes retire and reject stale in-flight images; a new request resolves fresh identities. Observation can lag and the first affected frame stays unknown. No implicit exclusions." },
+    include_apps: { type: "array", minItems: 1, maxItems: 1, items: { type: "string", pattern: "^[A-Za-z0-9][A-Za-z0-9.-]*$", maxLength: 256 }, description: "Optional app-filtered display/rect source: one exact bundle with one current shareable process. Cannot combine with exclude_apps or window target. Fixed display crop does not follow windows or expand overflow. Source keys include resolved PID. Recording interrupts and previews retire on observed identity change; no automatic replacement. Same-app user actions/windows remain possible. Hidden/minimized/off-Space drawing and menus require actual pixel qualification." },
   },
   required: ["type"],
 };

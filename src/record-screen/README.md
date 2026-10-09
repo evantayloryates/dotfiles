@@ -27,6 +27,17 @@ capture. Default callers avoid the additional capability check. Raw socket
 callers must also negotiate support. Reports include requested/effective
 child settings and resolved exclusion identities.
 
+The candidate also accepts `include_apps:["exact.bundle.id"]` on display/rect
+targets. Exactly one running shareable process is selected; empty/multiple apps,
+window targets and mixed exclusions fail. `application_filter:1` is required
+by current CLI/MCP; an older engine is refused before capture. App-only streams
+use a fixed crop, current PID identity and `application_filter_quality`. Observed
+process replacement/termination interrupts the take and retires its preview;
+partial footage stays uncertain. Start a fresh take after resolving again.
+This reduces unrelated-app occlusion in stage51 authored encoded footage; it
+does not isolate same-app user actions or establish menus, hidden/off-Space
+drawing, window tracking or overflow outside the crop. Delivered in signed build142e81bef23e; consult loaded capability status.
+
 Child inclusion can change the fitted source scale within one take while the
 encoded canvas stays fixed. The installed stage33 attached-panel oracle proved
 scale1→0.75→1 with exact parent alignment and child error≤0.5px. Decode/compose

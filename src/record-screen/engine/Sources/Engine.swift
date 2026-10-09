@@ -262,7 +262,7 @@ final class Engine: @unchecked Sendable {
       ],
       "clock": ["uptime_ns": clockNS, "uptime_ns_exact":String(clockNS), "domain":"CLOCK_UPTIME_RAW", "wall": iso8601.string(from: now), "started_ns": startedNs,"started_ns_exact":String(startedNs)],
       "permission": ["screen_recording": CGPreflightScreenCaptureAccess() ? "granted" : "missing"],
-      "capabilities": ["target_capture_options": CaptureOptions.contractVersion, "source_journal": 1, "source_clock_continuity":1,
+      "capabilities": ["application_filter":1,"target_capture_options": CaptureOptions.contractVersion, "source_journal": 1, "source_clock_continuity":1,
                        "input_timeline":1,"input_tap_faults":1,"input_queue_loss":1,"action_scopes":1,"derivative_source":1,"exclusion_identity":1,"preview_exclusion_identity":1,"encoder_failure_isolation":1,"stream_stop_diagnostics":1,"maintenance_fence":1,"sparse_frame_padding":1,"writer_failure_details":1,"transient_window_inventory":1],
       "maintenance":maintenance.status,
       "input_timeline":InputTimeline.shared.status,
@@ -272,7 +272,8 @@ final class Engine: @unchecked Sendable {
       "capture_health": ["discovery": await ContentCache.shared.diagnostics,
                          "recordings": await recordings.captureHealth,
                          "window_monitor":RecordingWindowContext.shared.status,"export_child":ManagedCommand.status(),
-                         "exclusion_identity":ExclusionApps.shared.tracker.status],
+                         "exclusion_identity":ExclusionApps.shared.tracker.status,
+                         "application_filter_identity":ExclusionApps.shared.tracker.status],
       "overlays": await MainActor.run { Overlays.shared.active },
       "paths": ["root": paths.root, "socket": paths.socket, "log": paths.log],
     ]
@@ -486,12 +487,12 @@ final class Engine: @unchecked Sendable {
     let spec = try TargetSpec.parse(p["target"])
     // The request lease spans resolution, a recording tap or lane, and image
     // publication. The lane has its own lease across later requests.
-    let requestLease = spec.options.excludeApps.isEmpty ? nil :
-      try ExclusionApps.shared.tracker.subscribe(spec.options.excludeApps, onChange: { _ in })
+    let requestLease = spec.options.identityBundles.isEmpty ? nil :
+      try ExclusionApps.shared.tracker.subscribe(spec.options.identityBundles, role:spec.options.identityRole, onChange: { _ in })
     defer { if let requestLease { ExclusionApps.shared.tracker.unsubscribe(requestLease) } }
     let target = try await resolveTarget(p["target"])
     var resolved: [String:Set<Int32>] = [:]
-    for app in target.excludedApplications { resolved[app.bundleIdentifier, default: []].insert(app.processID) }
+    for app in target.identityApplications { resolved[app.bundleIdentifier, default: []].insert(app.processID) }
     try requestLease?.validateResolved(resolved)
     let t1 = uptimeNs()
     let maxWidth = Int(p.num("max_width") ?? 1280)

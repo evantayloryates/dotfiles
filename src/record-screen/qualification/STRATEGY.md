@@ -1,7 +1,7 @@
 # Capture foundations: findings and next implementation
 
-Current checkpoint: October 9, 2026, qualification stage49. Native signed build
-3ff4c4519dc8/PID74192 remains installed and idle; guarded delivery, retained-source
+Current checkpoint: October 9, 2026, qualification stage52. Native signed build
+142e81bef23e/PID21977 remains installed and idle; guarded delivery, retained-source
 mapping and scoped real-app consumers have actual evidence in GATES.md and the
 maintained checklist. Input Monitoring is enabled: installed destination-aware
 keyboard/shortcut checks and stage48 twelve native wheel events passed. Physical
@@ -9,7 +9,7 @@ rates, external-provider clocks and universal input completeness remain unproven
 The shared computer-use layer now stores exact app/environment facts, immutable
 action receipts and separate typed verification/cleanup. Unknown dimensions block
 reuse even caller confirmation; routine supported operations reinforce the store.
-Current recorder CLI/fresh MCP0.11.5 supports bounded retained input/context/health
+Current recorder CLI/fresh MCP0.12.0 supports bounded retained input/context/health
 and exact source/media geometry. This chat's older loaded MCP still needs a safe
 consumer refresh; do not infer adoption from native build or force peer restarts.
 Private signed fallback/forward restoration passed its copied-state scope.
@@ -30,6 +30,17 @@ add diagnosis, not calibrated encoder attribution/capacity. Stage49 fixes callba
 error report loss and proves independent terminal recovery without replay. Native
 CUA still needs explicit scopes; no automatic interception, actor authentication
 or model training.43 completed,16 partial,1 deferred; full goal active.
+
+Stage51 adds a delivered guarded app filter: one exact live app on a fixed
+display crop, PID-scoped preview/source identity, input scope and explicit lifetime
+interruption. Actual authored encoded footage preserves568 changing samples beneath
+a20s opaque cover; app/source termination and fresh-PID preview retirement passed.
+Real TextEdit off-Space readiness remains partial. A display peer endpoint packet
+discrepancy exposed exclusive-end admission and received-buffer tail defects.
+Stage52 fixes both with actual decoded off-screen/Retina checks, delivers the
+exact tested signed binary through an idle fence and preserves168 state hashes.
+Fresh MCP0.12 source/planning/refusal and listener-access checks pass; delivered
+physical events and the older loaded chat connection remain separate.
 
 ## What the initial investigation established
 

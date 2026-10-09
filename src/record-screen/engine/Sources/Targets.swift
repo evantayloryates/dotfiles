@@ -43,8 +43,8 @@ struct TargetSpec {
       guard id != nil || app != nil || title != nil else {
         throw RPCError.badParams("window target needs window_id, or app and/or title")
       }
-      guard options.excludeApps.isEmpty else {
-        throw RPCError.badParams("exclude_apps is supported only on display and rect targets; isolated window content cannot exclude applications")
+      guard options.excludeApps.isEmpty && options.includeApps.isEmpty else {
+        throw RPCError.badParams("include_apps and exclude_apps are supported only on display and rect targets")
       }
       return TargetSpec(surface: .window(id: id, app: app, title: title), options: options)
     default:
@@ -70,19 +70,22 @@ struct ResolvedTarget {
   var excludesSelf = false
   var captureOptions = CaptureOptions()
   var excludedApplications: [SCRunningApplication] = []
+  var includedApplications: [SCRunningApplication] = []
+  var identityApplications: [SCRunningApplication] { includedApplications.isEmpty ? excludedApplications : includedApplications }
+  var inputScopePID: Int32? { window?.owningApplication?.processID ?? (includedApplications.count == 1 ? includedApplications[0].processID : nil) }
 
   /// Identity of the content filter. Same key: the viewfinder only needs a new
   /// area or size (sourceRect lives in the stream configuration).
   var key: String {
     let base = window.map { "window:\($0.windowID)" } ?? "display:\(display.displayID):\(excludesSelf ? "x" : "")"
-    return captureOptions.sourceKey(base, excludedPIDs: excludedApplications.map { $0.processID })
+    return captureOptions.sourceKey(base, excludedPIDs: excludedApplications.map { $0.processID }, includedPIDs: includedApplications.map { $0.processID })
   }
 
   /// Source coverage AND optional filter/configuration identity, used to tap
   /// recordings. Unconfigured callers retain their old keys exactly.
   var areaKey: String {
     let base = window.map { "window:\($0.windowID)" } ?? "display:\(display.displayID):\(sourceRect.map { "\(Int($0.minX)),\(Int($0.minY)),\(Int($0.width)),\(Int($0.height))" } ?? "full")"
-    return captureOptions.sourceKey(base, excludedPIDs: excludedApplications.map { $0.processID })
+    return captureOptions.sourceKey(base, excludedPIDs: excludedApplications.map { $0.processID }, includedPIDs: includedApplications.map { $0.processID })
   }
 
   var pixelSize: CGSize { CGSize(width: frame.width * scale, height: frame.height * scale) }
@@ -100,10 +103,15 @@ struct ResolvedTarget {
         "include_child_windows_requested": captureOptions.includeChildWindows.map { $0 as Any } ?? NSNull(),
         "include_child_windows_effective": configuration(maxWidth: nil).includeChildWindows,
         "exclude_apps": captureOptions.excludeApps,
+        "include_apps": captureOptions.includeApps,
+        "resolved_inclusions": includedApplications.map { ["bundle_id": $0.bundleIdentifier, "pid": Int($0.processID)] as [String: Any] },
         "resolved_exclusions": excludedApplications.map { ["bundle_id": $0.bundleIdentifier, "pid": Int($0.processID)] as [String: Any] },
       ],
     ]
     if let w = window { d["window"] = windowDict(w) }
+    if !includedApplications.isEmpty {
+      d["application_filter"] = ["scope_pid": inputScopePID as Any? ?? NSNull(), "crop_policy": "fixed display region; no window tracking or automatic overflow expansion", "identity_policy": "interrupt on observed app identity change; no automatic replacement", "limits": "Same-app user actions/windows can change pixels. Hidden/minimized/off-Space drawing and menus require actual source qualification."]
+    }
     return d
   }
 
@@ -173,6 +181,16 @@ enum Targets {
   }
 
   static func resolve(_ spec: TargetSpec, content: SCShareableContent) throws -> ResolvedTarget {
+    var inclusions: [SCRunningApplication] = []
+    if let bundle = spec.options.includeApps.first {
+      inclusions = content.applications.filter {
+        guard $0.bundleIdentifier == bundle, $0.processID != getpid(), let app = NSRunningApplication(processIdentifier: $0.processID) else { return false }
+        return !app.isTerminated && app.bundleIdentifier == bundle
+      }
+      guard inclusions.count == 1 else {
+        throw RPCError(code: "target_not_found", message: "included app \(bundle) needs one current shareable process; absent or ambiguous identity is not captured")
+      }
+    }
     var exclusions = ownApps(content)
     for bundle in spec.options.excludeApps {
       let applications = content.applications.filter {
@@ -190,10 +208,10 @@ enum Targets {
       guard let d = content.displays.first(where: { $0.displayID == want }) else {
         throw RPCError(code: "target_not_found", message: "no display \(want); displays: \(content.displays.map { $0.displayID })")
       }
-      let filter = SCContentFilter(display: d, excludingApplications: exclusions, exceptingWindows: [])
+      let filter = inclusions.isEmpty ? SCContentFilter(display: d, excludingApplications: exclusions, exceptingWindows: []) : SCContentFilter(display: d, including: inclusions, exceptingWindows: [])
       return ResolvedTarget(kind: "display", filter: filter, display: d, frame: d.frame, sourceRect: nil,
                             scale: displayScale(d.displayID), window: nil, warnings: [], excludesSelf: !ownApps(content).isEmpty,
-                            captureOptions: spec.options, excludedApplications: exclusions)
+                            captureOptions: spec.options, excludedApplications: inclusions.isEmpty ? exclusions : [], includedApplications: inclusions)
 
     case .rect(let r):
       let center = CGPoint(x: r.midX, y: r.midY)
@@ -208,10 +226,10 @@ enum Targets {
         warnings.append("rect extends past display \(d.displayID); captured only the part on it: \(rectDict(clipped))")
       }
       let local = clipped.offsetBy(dx: -d.frame.minX, dy: -d.frame.minY)
-      let filter = SCContentFilter(display: d, excludingApplications: exclusions, exceptingWindows: [])
+      let filter = inclusions.isEmpty ? SCContentFilter(display: d, excludingApplications: exclusions, exceptingWindows: []) : SCContentFilter(display: d, including: inclusions, exceptingWindows: [])
       return ResolvedTarget(kind: "rect", filter: filter, display: d, frame: clipped, sourceRect: local,
                             scale: displayScale(d.displayID), window: nil, warnings: warnings, excludesSelf: !ownApps(content).isEmpty,
-                            captureOptions: spec.options, excludedApplications: exclusions)
+                            captureOptions: spec.options, excludedApplications: inclusions.isEmpty ? exclusions : [], includedApplications: inclusions)
 
     case .window(let id, let app, let title):
       let w = try findWindow(id: id, app: app, title: title, content: content)

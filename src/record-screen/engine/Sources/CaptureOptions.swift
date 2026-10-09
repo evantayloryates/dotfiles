@@ -7,7 +7,10 @@ struct CaptureOptions {
   static let contractVersion = 1
   var includeChildWindows: Bool? = nil
   var excludeApps: [String] = []
-  var configured: Bool { includeChildWindows != nil || !excludeApps.isEmpty }
+  var includeApps: [String] = []
+  var identityBundles: [String] { includeApps.isEmpty ? excludeApps : includeApps }
+  var identityRole: String { includeApps.isEmpty ? "exclusion" : "inclusion" }
+  var configured: Bool { includeChildWindows != nil || !excludeApps.isEmpty || !includeApps.isEmpty }
 
   static func parse(_ parameters: [String: Any]) throws -> CaptureOptions {
     var result = CaptureOptions()
@@ -24,18 +27,28 @@ struct CaptureOptions {
       }
       result.excludeApps = Array(Set(values)).sorted()
     }
+    if let raw = parameters["include_apps"] {
+      guard let values = raw as? [String], values.count == 1,
+            values[0].count <= 256,
+            values[0].range(of: "^[A-Za-z0-9][A-Za-z0-9.-]*$", options: .regularExpression) != nil else {
+        throw RPCError.badParams("include_apps requires exactly one exact bundle identifier")
+      }
+      guard result.excludeApps.isEmpty else { throw RPCError.badParams("include_apps and exclude_apps cannot be combined") }
+      result.includeApps = values
+    }
     return result
   }
 
   /// Resolved PIDs matter: a restarted helper must not reuse its old stream.
-  func identity(excludedPIDs: [Int32]) -> String {
+  func identity(excludedPIDs: [Int32], includedPIDs: [Int32] = []) -> String {
     guard configured else { return "" }
     let children = includeChildWindows.map { $0 ? "true" : "false" } ?? "default"
-    return "children=\(children);apps=\(excludeApps.joined(separator: ","));pids=\(Set(excludedPIDs).sorted().map(String.init).joined(separator: ","))"
+    let old = "children=\(children);apps=\(excludeApps.joined(separator: ","));pids=\(Set(excludedPIDs).sorted().map(String.init).joined(separator: ","))"
+    return includeApps.isEmpty ? old : old + ";include=\(includeApps.joined(separator: ","));included-pids=\(Set(includedPIDs).sorted().map(String.init).joined(separator: ","))"
   }
 
-  func sourceKey(_ base: String, excludedPIDs: [Int32]) -> String {
-    let suffix = identity(excludedPIDs: excludedPIDs)
+  func sourceKey(_ base: String, excludedPIDs: [Int32], includedPIDs: [Int32] = []) -> String {
+    let suffix = identity(excludedPIDs: excludedPIDs, includedPIDs: includedPIDs)
     return suffix.isEmpty ? base : "\(base)|\(suffix)"
   }
 }

@@ -37,6 +37,18 @@ import Foundation
     check(tracker.status["leases"] as? Int == 0, "deinit releases an abandoned lane")
     rejects({ _ = try PreviewExclusion(tracker: tracker, bundles: ["missing.Helper"], resolved: [:], onChange: { _ in }) }, "target_not_found")
     check(tracker.status["leases"] as? Int == 0, "missing app does not leak capacity")
+    let included = try PreviewExclusion(tracker:tracker,bundles:["test.Helper"],resolved:["test.Helper":[12]],role:"inclusion",onChange:{_ in})
+    let includedRequest = try tracker.subscribe(["test.Helper"],role:"inclusion",onChange:{_ in})
+    try included.validate(); try includedRequest.validateResolved(["test.Helper":[12]]); checks += 2
+    check(tracker.status["inclusion_leases"] as? Int == 2,"both inclusion leases tracked")
+    tracker.observe(["test.Helper":[old]],at:6)
+    rejects({try included.validate()},"inclusion_changed")
+    rejects({try includedRequest.validate()},"inclusion_changed")
+    check(included.lease.change?.dict["filter_role"] as? String == "inclusion","identity event names inclusion")
+    tracker.observe(["test.Helper":[new]],at:7)
+    rejects({try included.validate()},"inclusion_changed")
+    included.release();tracker.unsubscribe(includedRequest)
+    check(tracker.status["leases"] as? Int == 0,"inclusion retirement releases all capacity")
     print("{\"passed\":\(checks),\"scope\":\"preview lease setup, invalidation, stale delivery refusal, independent request lifetime and retirement; no SDK capture\"}")
   }
 }

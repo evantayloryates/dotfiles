@@ -14,6 +14,15 @@ const request = { target: { type: 'window', window_id: 119 }, mode: 'cooperative
 const status = { clock: { wall: '2026-10-09T07:00:00Z' }, engine: { build: 'f314bb340344', pid: 123 }, permission: { screen_recording: 'granted' }, capabilities: { source_journal: 1, input_timeline: 1, target_capture_options: 1, exclusion_identity: 1 }, capture_health: { recordings: { max_concurrent: 16, unfinished: 0, quarantined: 0 } }, displays: [{ id: 1, main: true, scale: 2 }] }
 const inventory = { total: 1, windows: [{ window_id: 119, pid: 71011, bundle_id: 'com.google.Chrome', on_screen: false, frame: { x: 0, y: 34, w: 1000, h: 732 } }] }
 
+test('app-filter planning refuses old engines and keeps crop/identity/readiness limits explicit',()=>{
+  const a={target:{type:'rect',x:0,y:0,w:500,h:500,include_apps:['com.test.App']},mode:'background',activity:'passive_capture',duration_s:30}
+  const s={...status,displays:[{id:1,main:true,frame:{x:0,y:0,w:1512,h:982}}]}
+  assert(planProduction(a,s).blocking_reasons.some(x=>x.includes('application_filter')))
+  const p=planProduction(a,{...s,capabilities:{...s.capabilities,application_filter:1}})
+  assert.equal(p.assessment,'candidate_requires_source_check');assert(p.unknowns.some(x=>x.includes('app presence')));assert(p.user_expectations.some(x=>x.includes('fixed crop')))
+  for(const target of [{...a.target,include_apps:[]},{...a.target,include_apps:['com.test.App','com.test.Other']},{...a.target,exclude_apps:['com.test.Other']},{type:'window',window_id:119,include_apps:['com.test.App']}])assert.throws(()=>validateProductionRequest({...a,target}),e=>e.code==='bad_production_plan')
+})
+
 test('off-Space native UI and unagreed intervals never become ready plans', () => {
   let p = planProduction(request, status, inventory)
   assert.equal(p.assessment, 'needs_resolution')

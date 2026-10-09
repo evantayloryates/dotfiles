@@ -23,6 +23,10 @@ import Foundation
   check(r.state == .recording,"large gap no longer fails writer on resume")
   r.qualificationSparseFinish();await wait(r);check(r.state == .done,"real repaired sparse writer finalizes")
   check(r.describe()["writer_failure"] is NSNull,"healthy sparse take has no false failure diagnostic")
+  let boundary=try make("endpoint",2);try boundary.qualificationSparseSetup(2)
+  try boundary.qualificationSparseSource(0,20);try boundary.qualificationSparseSource(1.5,100);try boundary.qualificationSparseSource(2,200)
+  boundary.qualificationSparseFinish();await wait(boundary)
+  check(boundary.state == .done,"endpoint take finalizes; independent mux proof checks accepted boundary stamps")
   let budget=try make("budget",200);try budget.qualificationSparseSetup(200)
   try budget.qualificationSparseSource(0,20);try budget.qualificationSparseSource(1,40);try budget.qualificationSparseSource(80,200)
   await wait(budget);check(budget.state == .interrupted,"oversized padding trims only affected take")
@@ -44,7 +48,7 @@ import Foundation
   let diagnostic=failure.describe()["writer_failure"] as? [String:Any]
   let underlying=(diagnostic?["error"] as? [String:Any])?["underlying"] as? [String:Any]
   check(underlying?["code"] as? Int == -17771,"real writer error chain retained without userInfo dump")
-  let result:[String:Any]=["checks":checks,"resumed":r.describe(),"budget":budget.describe(),"clock-gap":clock.describe(),"backpressure":backpressure.describe(),"diagnostic":failure.describe()]
+  let result:[String:Any]=["checks":checks,"resumed":r.describe(),"endpoint":boundary.describe(),"budget":budget.describe(),"clock-gap":clock.describe(),"backpressure":backpressure.describe(),"diagnostic":failure.describe()]
   try jsonData(result,options:[.prettyPrinted,.sortedKeys])!.write(to:root.appendingPathComponent("proof.json"));print("{\"checks\":\(checks),\"scope\":\"actual Recording sparse writer, bounded trim and clock-gap suppression; no capture/UI\"}")
  }
 }

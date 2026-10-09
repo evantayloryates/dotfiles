@@ -17,11 +17,14 @@ test('optional controls require the exact contract; legacy callers bypass it', (
   assert.equal(hasCaptureOptions({ type: 'display', exclude_apps: [] }), true)
   for (const value of [undefined, {}, { capabilities: {} }, { capabilities: { target_capture_options: true } }, { capabilities: { target_capture_options: 2 } }]) assert.throws(() => requireCaptureOptions(value), error => error.code === 'unsupported_capture_options')
   assert.doesNotThrow(() => requireCaptureOptions({ capabilities: { target_capture_options: 1 } }))
+  assert.equal(hasCaptureOptions({type:'rect',include_apps:['com.test.App']}),true)
+  assert.throws(()=>requireCaptureOptions({capabilities:{target_capture_options:1}},{include_apps:['com.test.App']}),e=>e.code==='unsupported_application_filter')
+  assert.doesNotThrow(()=>requireCaptureOptions({capabilities:{target_capture_options:1,application_filter:1}},{include_apps:['com.test.App']}))
 })
 
 test('MCP refuses an old engine before capture, forwards explicit false to capable engine', async () => {
   const root = mkdtempSync(join(tmpdir(), 'capture-options-mcp-')); mkdirSync(join(root, 'run'))
-  const methods = []; let capable = false, forwarded, disconnectExport = false, exclusionCap = false, previewExclusionCap = false
+  const methods = []; let capable = false, forwarded, disconnectExport = false, exclusionCap = false, previewExclusionCap = false, appFilterCap = false
   const manifestPath = join(root, 'synthetic.source.json')
   const imagePath = join(root, 'synthetic.png')
   writeFileSync(imagePath, Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=', 'base64'))
@@ -35,7 +38,7 @@ test('MCP refuses an old engine before capture, forwards explicit false to capab
       const row = JSON.parse(line); methods.push(row.method)
       let result
       if (row.method === 'record.export' && disconnectExport) { socket.destroy(); return }
-      if (row.method === 'status') result = capable ? { capabilities: { target_capture_options: 1, source_journal: 1, action_scopes:1, input_timeline:1, derivative_source:1, ...(exclusionCap?{exclusion_identity:1}:{}), ...(previewExclusionCap?{preview_exclusion_identity:1}:{}) } } : { engine: { build: 'legacy-fixture' } }
+      if (row.method === 'status') result = capable ? { capabilities: { target_capture_options: 1, source_journal: 1, action_scopes:1, input_timeline:1, derivative_source:1, ...(appFilterCap?{application_filter:1}:{}), ...(exclusionCap?{exclusion_identity:1}:{}), ...(previewExclusionCap?{preview_exclusion_identity:1}:{}) } } : { engine: { build: 'legacy-fixture' } }
       else if (row.method === 'record.export_info') result = {path:manifestPath}
       else if (row.method === 'frame.verify') { forwarded = row.params; result = {image:{path:imagePath,format:'png'}} }
       else { forwarded = row.params; result = { overlay_id: 'synthetic-no-ui' } }
@@ -106,6 +109,14 @@ test('MCP refuses an old engine before capture, forwards explicit false to capab
     const acceptedExclusion=await request('tools/call',{name:'record_schedule',arguments:exclusionArgs})
     assert.equal(acceptedExclusion.isError,false);assert.equal(methods.at(-1),'record.schedule')
     assert.deepEqual(forwarded.target,exclusionArgs.target)
+    const appArgs={...recordingArgs,target:{type:'rect',x:0,y:0,w:100,h:100,include_apps:['com.test.App']}}
+    for(const [name,args] of [['record_schedule',appArgs],['frame_check',{target:appArgs.target}]]){
+      const denied=await request('tools/call',{name,arguments:args});assert.equal(denied.isError,true);assert.match(denied.content[0].text,/unsupported_application_filter/);assert.equal(methods.at(-1),'status')
+    }
+    appFilterCap=true
+    for(const [name,args,method] of [['record_schedule',appArgs,'record.schedule'],['frame_check',{target:appArgs.target},'frame.verify']]){
+      const accepted=await request('tools/call',{name,arguments:args});assert.equal(accepted.isError,false);assert.equal(methods.at(-1),method);assert.deepEqual(forwarded.target,appArgs.target)
+    }
     const deniedPreview=await request('tools/call',{name:'frame_check',arguments:{target:exclusionArgs.target}})
     assert.equal(deniedPreview.isError,true);assert.match(deniedPreview.content[0].text,/unsupported_preview_exclusion_identity/)
     assert.equal(methods.at(-1),'status','legacy preview does not start a stale lane')

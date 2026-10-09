@@ -183,11 +183,11 @@ actor Viewfinder {
 
   private func makeLane(key: String, target: ResolvedTarget, width: Int, height: Int, expected: CGRect?) throws -> Lane {
     let lane = Lane(key: key, width: width, height: height, expectedRect: expected)
-    if !target.captureOptions.excludeApps.isEmpty {
+    if !target.captureOptions.identityBundles.isEmpty {
       var resolved: [String:Set<Int32>] = [:]
-      for app in target.excludedApplications { resolved[app.bundleIdentifier, default: []].insert(app.processID) }
+      for app in target.identityApplications { resolved[app.bundleIdentifier, default: []].insert(app.processID) }
       lane.exclusion = try PreviewExclusion(tracker: ExclusionApps.shared.tracker,
-        bundles: target.captureOptions.excludeApps, resolved: resolved) { [weak self, weak lane] change in
+        bundles: target.captureOptions.identityBundles, resolved: resolved, role: target.captureOptions.identityRole) { [weak self, weak lane] change in
           // Stop accepting buffers synchronously, before actor retirement can run.
           lane?.sink.invalidate()
           Task { await self?.exclusionChanged(lane, change: change) }
@@ -200,7 +200,7 @@ actor Viewfinder {
     guard let lane, lanes[lane.key] === lane else { return }
     lanes[lane.key] = nil
     retire(lane)
-    Log.event("preview_exclusion_changed", change.dict)
+    Log.event(change.role == "inclusion" ? "preview_application_filter_changed" : "preview_exclusion_changed", change.dict)
     reapRetired()
   }
 

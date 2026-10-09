@@ -66,6 +66,15 @@ state every5s; it is not a temperature/GPU measurement or authenticated identity
 unknown stop without replay and stale-pressure refusal against a fake engine,
 plus fresh serious thermal triggering and nominal/stale/mismatched/symlink refusal.
 
+`sparse-recording-test.py --output FRESH_DIRECTORY` freezes the native writer
+and runs owned off-screen buffers. `verify-sparse-finalization.py` independently
+joins healthy/trimmed-case packets and checks endpoint exclusion, exact source
+reference and decoded tail pixels. The take is `[start,end)`: endpoint samples
+have no admitted interval; final padding copies the last successfully encoded
+source. The deliberate unpadded encoder-failure diagnostic remains separate.
+Stage52 retains a failed endpoint case and final corrected proof. No capture,
+UI, permission or installation is involved.
+
 `verify-motion-duration.py` joins actual mux/source timestamps to a supplied
 motion lifecycle log and decodes the authored binary counter through its point
 affine. It preserves timelines/stderr and rejects a mismatched stopped counter.

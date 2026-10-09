@@ -52,13 +52,16 @@ import { planProduction, validateProductionRequest } from "./lib/production-plan
 import { mapRecordingFrames, validateFrameMapRequest } from "./lib/frame-map.mjs";
 import { validateWindowQuery, requireTransientInventory } from "./lib/window-query.mjs";
 import {queryRecordingInput,validateInputQuery} from "./lib/input-query.mjs";
+import { requireCaptureOptions } from "./lib/capture-options.mjs";
 import { call as rawCall, enginePaths, EngineError, LABEL } from "./lib/client.mjs";
 
 // Session-aware methods get the caller attached, so work bundles per agent
 // session without passing ids around.
 const WITH_CALLER = /^(record\.schedule|session\.create)$/;
-const call = (method, params = {}, opts) =>
-  rawCall(method, WITH_CALLER.test(method) && !params.caller ? { ...params, caller: callerContext() } : params, opts);
+const call = async (method, params = {}, opts) => {
+  if (params.target && Object.hasOwn(params.target, "include_apps")) requireCaptureOptions(await rawCall("status", {}, opts), params.target);
+  return rawCall(method, WITH_CALLER.test(method) && !params.caller ? { ...params, caller: callerContext() } : params, opts);
+};
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 process.stdout.on("error", (e) => process.exit(e.code === "EPIPE" ? 0 : 1));

@@ -18,6 +18,7 @@ export const productionPlanSchema = {
       w: { type: 'number', exclusiveMinimum: 0 }, h: { type: 'number', exclusiveMinimum: 0 },
       include_child_windows: { type: 'boolean' },
       exclude_apps: { type: 'array', maxItems: 8, items: { type: 'string', maxLength: 256 } },
+      include_apps: { type: 'array', minItems: 1, maxItems: 1, items: { type: 'string', maxLength: 256 } },
     }, required: ['type'], description: 'Use an exact window_id from windows; no fuzzy app/title resolution.' },
     mode: { type: 'string', enum: ['background', 'cooperative', 'reserved_interval'] },
     activity: { type: 'string', enum: ['passive_capture', 'agent_ui'] },
@@ -52,10 +53,12 @@ export function validateProductionRequest(args) {
   if (t.type === 'window' && !number(t.window_id, 1, 4294967295, true)) bad('Window planning requires an exact window_id')
   if (t.display_id !== undefined && !number(t.display_id, 1, Number.MAX_SAFE_INTEGER, true)) bad('Invalid display_id')
   if (t.type === 'rect' && (!number(t.x, -1e7, 1e7) || !number(t.y, -1e7, 1e7) || !number(t.w, Number.MIN_VALUE, 16384) || !number(t.h, Number.MIN_VALUE, 16384))) bad('Rect planning requires finite positive dimensions and finite desktop coordinates')
-  const relevant = t.type === 'window' ? ['type', 'window_id', 'include_child_windows'] : t.type === 'rect' ? ['type', 'x', 'y', 'w', 'h', 'include_child_windows', 'exclude_apps'] : ['type', 'display_id', 'include_child_windows', 'exclude_apps']
+  const relevant = t.type === 'window' ? ['type', 'window_id', 'include_child_windows'] : t.type === 'rect' ? ['type', 'x', 'y', 'w', 'h', 'include_child_windows', 'exclude_apps', 'include_apps'] : ['type', 'display_id', 'include_child_windows', 'exclude_apps', 'include_apps']
   if (Object.keys(t).some(k => !relevant.includes(k))) bad('Target fields do not match this capture type')
   if (t.include_child_windows !== undefined && typeof t.include_child_windows !== 'boolean') bad('Invalid child-window option')
   if (t.exclude_apps !== undefined && (!Array.isArray(t.exclude_apps) || t.exclude_apps.length > 8 || t.exclude_apps.some(v => typeof v !== 'string' || v.length > 256 || !/^[A-Za-z0-9][A-Za-z0-9.-]*$/.test(v)))) bad('Invalid exact helper bundle exclusions')
+  if (t.include_apps !== undefined && (!Array.isArray(t.include_apps) || t.include_apps.length !== 1 || t.include_apps.some(v => typeof v !== 'string' || v.length > 256 || !/^[A-Za-z0-9][A-Za-z0-9.-]*$/.test(v)))) bad('App inclusion requires one exact bundle')
+  if (t.include_apps !== undefined && t.exclude_apps?.length) bad('App inclusion and exclusion cannot be combined')
   if (a.redundancy === 'window_display' && t.type !== 'window') bad('The measured paired profile requires an exact base window; it does not invent a backup target')
   if (a.alignment_until !== undefined && (typeof a.alignment_until !== 'string' || !/^\d{4}-\d{2}-\d{2}T.+(?:Z|[+-]\d{2}:\d{2})$/.test(a.alignment_until) || !Number.isFinite(Date.parse(a.alignment_until)))) bad('alignment_until needs an absolute ISO timestamp with timezone')
   return a
@@ -87,6 +90,9 @@ export function planProduction(args, status, windowResult = { windows: [], total
   if (t.type === 'window') {
     expectations.push('Window capture can preserve covered content; hidden/minimized/closed windows and app-specific child fitting still require observation.')
     unknown.push('Consult exact app/OS/provider/display capability facts; child inclusion does not guarantee every context menu or popup')
+  } else if (t.include_apps) {
+    expectations.push('App-filtered display/rect capture keeps a fixed crop. Same-app user actions/windows can change pixels; hidden/minimized/off-Space drawing and menus remain app-specific. Identity changes interrupt rather than silently replacing the source.')
+    unknown.push('Included app identity and native UI readiness need live source checks; this planning inventory does not prove app presence, drawing, menu capture or clean coverage. Crop does not follow window movement or expand overflow.')
   } else expectations.push('Visible occlusion and unrelated desktop pixels can enter display/rect footage. Keep the required region visible; preserve interrupted evidence.')
   if (a.redundancy !== 'none') {
     unknown.push('Backup crop, popup overflow, clocks and decodable coverage must be verified for this app; no automatic backup, rescue or semantic ownership is inferred')
@@ -99,6 +105,7 @@ export function planProduction(args, status, windowResult = { windows: [], total
   }
   for (const [field, capability] of [['include_child_windows', 'target_capture_options'], ['exclude_apps', 'target_capture_options']]) if (Object.hasOwn(t, field) && status?.capabilities?.[capability] !== 1) blocks.push(`Loaded engine does not advertise ${capability} v1 for explicit ${field}`)
   if (t.exclude_apps?.length && status?.capabilities?.exclusion_identity !== 1) blocks.push('Helper-excluded recordings require observed exclusion identity v1')
+  if (Object.hasOwn(t, 'include_apps') && status?.capabilities?.application_filter !== 1) blocks.push('App-filtered capture requires guarded application_filter v1; old engines have not applied this selection')
   const measuredProfile = {
     qualification: 'One authored 50-second point-resolution display/window pair; not an admission budget, production duration estimate or capacity guarantee',
     engine_build: 'f314bb340344', os_build: '25F80', display_scale: 2,

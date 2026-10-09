@@ -12,11 +12,12 @@ struct ExclusionIdentityChange: Sendable {
   let before: Set<ExclusionAppIdentity>
   let after: Set<ExclusionAppIdentity>
   let observedNS: UInt64
+  var role: String = "exclusion"
   var dict: [String: Any] {
     ["bundle_id":bundle,"old_pids":before.map{$0.pid}.sorted(),
      "new_pids":after.map{$0.pid}.sorted(),"observed_host_ns":String(observedNS),
      "first_affected_frame":"unknown; observation is not process/pixel onset",
-     "qualification":"exclusion identity changed; inspect the take or reshoot"]
+     "filter_role":role,"qualification":"\(role) identity changed; inspect the take or reshoot"]
   }
 }
 
@@ -26,19 +27,20 @@ final class ExclusionIdentityLease: @unchecked Sendable {
   private let lock=NSLock()
   private var first:ExclusionIdentityChange?
   let onChange:@Sendable (ExclusionIdentityChange)->Void
-  init(expected:[String:Set<ExclusionAppIdentity>],onChange:@escaping @Sendable (ExclusionIdentityChange)->Void){self.expected=expected;self.onChange=onChange}
+  let role: String
+  init(expected:[String:Set<ExclusionAppIdentity>],role:String = "exclusion",onChange:@escaping @Sendable (ExclusionIdentityChange)->Void){self.expected=expected;self.role=role;self.onChange=onChange}
   var change:ExclusionIdentityChange? {lock.withLock{first}}
   func invalidate(_ change:ExclusionIdentityChange)->Bool {
     lock.withLock{guard first==nil else{return false};first=change;return true}
   }
   func validate() throws {
-    if let change {throw RPCError(code:"exclusion_changed",message:"excluded app \(change.bundle) changed process identity during capture setup; resolve again before a new take")}
+    if let change {throw RPCError(code:"\(role)_changed",message:"\(role) app \(change.bundle) changed process identity during capture setup; resolve again before a new take")}
   }
   func validateResolved(_ resolved:[String:Set<Int32>]) throws {
     try validate()
     for (bundle,identities) in expected {
       guard resolved[bundle]==Set(identities.map{$0.pid}),!identities.isEmpty else {
-        throw RPCError(code:"exclusion_changed",message:"excluded app \(bundle) resolution disagrees with the observed application identity; retry after it settles")
+        throw RPCError(code:"\(role)_changed",message:"\(role) app \(bundle) resolution disagrees with the observed application identity; inspect identity before a new take")
       }
     }
   }
@@ -60,7 +62,7 @@ final class ExclusionIdentityTracker: @unchecked Sendable {
         for bundle in lease.expected.keys.sorted() {
           let before=lease.expected[bundle] ?? [],after=apps[bundle] ?? []
           guard before != after else{continue}
-          let change=ExclusionIdentityChange(bundle:bundle,before:before,after:after,observedNS:ns)
+          let change=ExclusionIdentityChange(bundle:bundle,before:before,after:after,observedNS:ns,role:lease.role)
           if lease.invalidate(change){invalidations+=1;notices.append((lease,change))}
           break
         }
@@ -69,24 +71,25 @@ final class ExclusionIdentityTracker: @unchecked Sendable {
     }
     for (lease,change) in notices {lease.onChange(change)}
   }
-  func subscribe(_ bundles:[String],onChange:@escaping @Sendable (ExclusionIdentityChange)->Void) throws -> ExclusionIdentityLease {
+  func subscribe(_ bundles:[String],role:String = "exclusion",onChange:@escaping @Sendable (ExclusionIdentityChange)->Void) throws -> ExclusionIdentityLease {
     try lock.withLock {
       guard let current else{throw RPCError(code:"exclusion_unavailable",message:"application identity observation has not initialized")}
       guard leases.count<16 else{throw RPCError(code:"capture_busy",message:"exclusion observer already has 16 capture leases")}
       let requested=Set(bundles)
+      guard ["exclusion","inclusion"].contains(role) else { throw RPCError.badParams("unknown filter identity role") }
       guard !requested.isEmpty,requested.count<=8 else{throw RPCError.badParams("exclusion lease requires 1–8 bundles")}
       var expected:[String:Set<ExclusionAppIdentity>]=[:]
       for bundle in requested {
-        guard let identities=current[bundle],!identities.isEmpty else{throw RPCError(code:"target_not_found",message:"excluded app \(bundle) is not running")}
+        guard let identities=current[bundle],!identities.isEmpty else{throw RPCError(code:"target_not_found",message:"\(role) app \(bundle) is not running")}
         expected[bundle]=identities
       }
-      let lease=ExclusionIdentityLease(expected:expected,onChange:onChange)
+      let lease=ExclusionIdentityLease(expected:expected,role:role,onChange:onChange)
       leases[lease.token]=lease;return lease
     }
   }
   func unsubscribe(_ lease:ExclusionIdentityLease){_=lock.withLock{leases.removeValue(forKey:lease.token)}}
   var status:[String:Any] {lock.withLock{
-    ["leases":leases.count,"initialized":current != nil,"observations":observations,
+    ["leases":leases.count,"inclusion_leases":leases.values.filter{$0.role == "inclusion"}.count,"initialized":current != nil,"observations":observations,
      "invalidations":invalidations,"last_observed_change_host_ns":String(observedNS),
      "policy":"interrupt take on observed identity change; no automatic filter replacement",
      "coverage":"main-run-loop observation can lag; first affected pixel is unknown"]
