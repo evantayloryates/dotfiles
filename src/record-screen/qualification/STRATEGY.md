@@ -1,14 +1,18 @@
 # Capture foundations: qualified strategy and remaining boundaries
 
-Current checkpoint: October9,2026, stage74. Signed native7c0f81e9d71f is installed;
-current CLI and fresh owned MCP0.16/27 tools carry the latest contracts. Existing
+Current checkpoint: October9,2026, stage75. Signed native7c0f81e9d71f is installed;
+current CLI and fresh owned MCP0.17/27 tools carry the latest contracts. Existing
 ordinary chat exposes22 older tools, so use current CLI for missing input queries,
 source maps, planning and declaration-only launch contexts. Preserve peer servers.
 Input Monitoring is enabled and delivered-event samples are verified; permission
 status alone does not establish input coverage. The maintained checklist currently
 has45 completed,18 partial and1 deferred items. Read PRODUCTION-GOAL.md for active
 work and GATES.md for exact observations; historical checkpoints below are evidence,
-not current readiness. Final cursor/effect styles and composition are deferred.
+not current readiness. Optional production_plan.app_learning consumes the central
+computer-use app facts through the same exact-key/expiry/conflict policy. Target
+bundle association, unknown environment dimensions and reported evidence limits
+stay explicit. It does not automatically choose capture settings or run a canary.
+Final cursor/effect styles and composition are deferred.
 
 ## Supported source and interaction strategy
 

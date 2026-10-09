@@ -2,6 +2,8 @@ import { EngineError } from './client.mjs'
 import { fileURLToPath } from 'node:url'
 import { frameMapHealth } from './frame-map.mjs'
 import { inputQueryHealth } from './input-query.mjs'
+import { EvidenceStore, ENTITY_FIELDS } from '../../codex-bridge/lib/capability-evidence.mjs'
+import { planCapabilities, validatePlan } from '../../codex-bridge/lib/capability-planner.mjs'
 
 const evidencePath = fileURLToPath(new URL('../qualification/GATES.md', import.meta.url))
 
@@ -35,6 +37,12 @@ export const productionPlanSchema = {
     backup_max_width: { type: 'integer', minimum: 0, maximum: 16384, description: 'Explicit backup pixel-width cap for window_app_display; 0 means native pixels. No capture setting is applied by planning.' },
     codec: { type: 'string', enum: ['h264', 'hevc'], description: 'Optional encoder choice. Triple-source candidate settings default to h264; changed encoders remain outside that measured profile.' },
     alignment_until: { type: 'string', description: 'Optional ISO time of the user-agreed production interval. Caller-reported; never an authenticated permission grant.' },
+    app_learning: { type: 'object', additionalProperties: false, properties: {
+      entity: { type: 'object', additionalProperties: false,
+        properties: Object.fromEntries(ENTITY_FIELDS.map(k => [k, { type: 'string', minLength: 1, maxLength: 256 }])), required: ENTITY_FIELDS },
+      capabilities: { type: 'array', minItems: 1, maxItems: 16, uniqueItems: true, items: { type: 'string', minLength: 1, maxLength: 128 } },
+      environment_verified: { type: 'boolean' },
+    }, required: ['entity', 'capabilities', 'environment_verified'], description: 'Opt-in exact shared computer-use facts. Requires the observed window bundle or explicit include_apps bundle to match. Reported observations only; unknown dimensions block reuse even if claimed verified. No evidence-content read, canary, capture selection or source-readiness claim.' },
   }, required: ['target', 'mode', 'activity', 'duration_s'],
 }
 
@@ -73,14 +81,34 @@ export function validateProductionRequest(args) {
     if (!number(r.x, -1e7, 1e7) || !number(r.y, -1e7, 1e7) || !number(r.w, Number.MIN_VALUE, 16384) || !number(r.h, Number.MIN_VALUE, 16384) || !number(a.backup_max_width, 0, 16384, true)) bad('Triple-source planning requires an explicit finite backup rectangle and pixel-width cap')
   } else if (Object.hasOwn(a, 'backup_rect') || Object.hasOwn(a, 'backup_max_width')) bad('Backup rectangle/width apply only to window_app_display')
   if (a.alignment_until !== undefined && (typeof a.alignment_until !== 'string' || !/^\d{4}-\d{2}-\d{2}T.+(?:Z|[+-]\d{2}:\d{2})$/.test(a.alignment_until) || !Number.isFinite(Date.parse(a.alignment_until)))) bad('alignment_until needs an absolute ISO timestamp with timezone')
+  if (Object.hasOwn(a, 'app_learning')) {
+    try { validatePlan(a.app_learning) } catch { bad('app_learning requires the exact shared entity,1–16 distinct capabilities and a boolean environment_verified; no extra fields') }
+  }
   return a
 }
 
-export function planProduction(args, status, windowResult = { windows: [], total: 0 }) {
+export function planProduction(args, status, windowResult = { windows: [], total: 0 }, { evidenceStore } = {}) {
   const a = validateProductionRequest(args), blocks = [], unknown = [], expectations = []
   const now = Date.parse(status?.clock?.wall), t = a.target
   const windows = windowResult?.windows ?? []
   const base = t.type === 'window' ? windows.find(w => w.window_id === t.window_id) : null
+  let appLearning
+  if (a.app_learning) {
+    const bundle = base?.bundle_id ?? t.include_apps?.[0] ?? null
+    const association = base?.bundle_id ? 'observed_window_bundle' : t.include_apps?.[0] ? 'declared_app_filter_only' : 'unresolved_app_target'
+    appLearning = { schema: 'record-screen-app-learning/v1', state: 'withheld', target_bundle_id: bundle,
+      target_association: association, read_only: true,
+      qualification: 'Shared reported observations only. Bundle association does not confirm other entity dimensions, app presence, menu pixels or source readiness. No capture selection, evidence-content read, canary or learning write.' }
+    if (!bundle) appLearning.reason = 'target_bundle_unresolved'
+    else if (bundle !== a.app_learning.entity.bundle_id) appLearning.reason = 'target_bundle_mismatch'
+    else {
+      try {
+        appLearning.plan = planCapabilities(evidenceStore ?? new EvidenceStore(), a.app_learning, { now: Number.isFinite(now) ? now : Date.now() })
+        appLearning.state = 'reported'
+      } catch { appLearning.state = 'unavailable'; appLearning.reason = 'bounded_shared_fact_lookup_failed' }
+    }
+    unknown.push('Shared app observations do not establish live readiness; preserve unknown dimensions, expiry/conflicts, target association and original evidence limits')
+  }
   const displays = Array.isArray(status?.displays) ? status.displays : []
   const display = t.type === 'display' ? displays.find(d => t.display_id === undefined ? d.main : d.id === t.display_id) : null
   if (!Number.isFinite(now)) blocks.push('Engine wall clock unavailable; production interval cannot be assessed')
@@ -359,6 +387,7 @@ export function planProduction(args, status, windowResult = { windows: [], total
     schema: 'record-screen-production-plan/v1', assessment_only: true, mutates: false,
     assessment: blocks.length ? 'needs_resolution' : 'candidate_requires_source_check',
     request: a, observed_at: status?.clock ?? null,
+    ...(appLearning ? { app_learning: appLearning } : {}),
     ...(triple ? { planned_sources: plannedSources, planned_sources_qualification: 'Explicit candidate targets/settings only; no scheduling, automatic crop tracking, app identity lease or source readiness. Apply settings explicitly and verify actual sources.' } : {}),
     engine: status?.engine ? { build: status.engine.build, pid: status.engine.pid } : null,
     target_observation: base ? { window_id: base.window_id, pid: base.pid, bundle_id: base.bundle_id, on_screen: base.on_screen, frame: base.frame } : display,

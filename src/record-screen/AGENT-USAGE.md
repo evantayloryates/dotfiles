@@ -620,3 +620,40 @@ resolver and respect `FFPROBE_PATH`; GUI minimal PATH is now tested. If the
 reader dependency is absent, capture/status remain available and the requested
 map fails with its bounded probe error. Direct `node server.mjs` consumers must
 provide the dependency through `FFPROBE_PATH` or their executable PATH.
+
+
+## Consult shared app learning from the recording plan
+
+Current MCP0.17/current CLI `production-plan` accepts optional `app_learning`:
+
+```json
+{
+  "entity": {
+    "bundle_id": "com.example.App", "app_version": "1", "app_build": "1",
+    "os_build": "25F80", "provider": "native-cua", "provider_version": "unknown",
+    "surface": "exact-tested-surface", "capture_mode": "exact-tested-mode",
+    "display_profile": "exact-tested-display"
+  },
+  "capabilities": ["exact-stored-capability"],
+  "environment_verified": false
+}
+```
+
+Nest it alongside the usual target/mode/activity/duration. Copy the exact entity
+from a scoped observation, then independently confirm the current dimensions.
+For a window target, the observed bundle must match; for an app-filtered crop,
+`include_apps` must match. A declared app filter does not prove the app is present.
+An unfiltered display/rect has no app association and withholds lookup. Missing
+or mismatched target bundle does not read the store.
+
+The result includes shared reported observations, evidence references/limits and
+next-check guidance. Unknown dimension sentinels block reuse even if the caller
+claims verified. Changed app/OS/provider/display/capture keys do not inherit old
+facts; expiry, conflict and bounded observation-window truncation remain explicit.
+If local facts are unavailable, preserve that state; capture planning still runs.
+No referenced evidence content is fetched, metadata rewritten, canary dispatched
+or capture choice automatically applied. A reported pass/reuse candidate still
+needs a live source check. This supplies memory without claiming universal app
+readiness. Actual stage73/74 fact reads through fresh MCP and current CLI agree;
+unknown provider remains unqualified. Older loaded adapters need current CLI or
+a safe next launch. Preserve active peer connections.

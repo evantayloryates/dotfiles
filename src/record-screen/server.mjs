@@ -16,7 +16,7 @@ import { planProduction, productionPlanSchema, validateProductionRequest } from 
 import {queryRecordingInput,validateInputQuery,inputQuerySchema,inputQueryHealth} from "./lib/input-query.mjs";
 
 const log = (...args) => console.error("[record-screen]", ...args);
-const VERSION = "0.16.0";
+const VERSION = "0.17.0";
 
 // ---------------------------------------------------------------- engine link
 
@@ -119,7 +119,7 @@ const ok = (v) => ({ content: [{ type: "text", text: text(v) }], isError: false 
 const tools = [
   {
     name: "production_plan",
-    description: "Read-only capture planning: explicit background/cooperative/reserved expectations, caller-reported production interval, cursor-layer limits, runtime obstacles, measured point/Retina and window/app/display profiles, reference-scene storage scenarios and recovery choices. window_app_display needs an exact window plus explicit backup_rect/backup_max_width; returns candidate per-source targets/settings, never schedules them or follows movement. Scenarios are not predictions, disk reservations or capacity. Starts no capture, drives no UI, locks no input and grants no authorization. Actual source/provider readiness remains a separate check.",
+    description: "Read-only capture planning: explicit background/cooperative/reserved expectations, caller-reported production interval, cursor-layer limits, runtime obstacles, measured point/Retina and window/app/display profiles, reference-scene storage scenarios and recovery choices. window_app_display needs an exact window plus explicit backup_rect/backup_max_width; returns candidate per-source targets/settings, never schedules them or follows movement. Scenarios are not predictions, disk reservations or capacity. Starts no capture, drives no UI, locks no input and grants no authorization. Optional app_learning joins exact shared computer-use facts when target bundle matches; unknown dimensions, expiry/conflicts and source limits remain explicit, with no evidence-content read, canary or automatic selection. Actual source/provider readiness remains a separate check.",
     inputSchema: productionPlanSchema,
     annotations: { readOnlyHint: true },
     run: async a => {
@@ -161,7 +161,7 @@ const tools = [
     inputSchema: { type: "object", properties: {}, additionalProperties: false },
     annotations: { readOnlyHint: true },
     run: async () => ok({ ...await engine("status"), mcp_adapter: {
-      version: VERSION, declared_target_context: 1, replay_policy: 1, production_planning: 1, production_storage_guidance: 1, triple_source_planning: 1, source_frame_mapping: 1, source_region_mapping: 1, transient_window_query: 1,
+      version: VERSION, declared_target_context: 1, replay_policy: 1, production_planning: 1, shared_app_learning: 1, production_storage_guidance: 1, triple_source_planning: 1, source_frame_mapping: 1, source_region_mapping: 1, transient_window_query: 1,
       frame_mapping: frameMapHealth(), paired_source_mapping: 1, paired_interval_coverage_summary: 1, fitted_child_mapping_guard: 1, retained_input_query: 1, retained_action_context: 1, retained_input_health_context: 1,
       input_query: inputQueryHealth(), mutation_replay: "never",
       read_reconnect_budget_ms: 12000,

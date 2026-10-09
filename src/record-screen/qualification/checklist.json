@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T18:13:15-04:00",
+  "updated_at": "2026-10-09T18:19:07-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage74 complete: service-generated bounded retry requests cover retained479s exactly in two reads (16,384/10,230 boundaries), same budgets and explicit uncertainty. Fresh GUI-style minimal-PATH MCP exposed FFprobe lookup failure; shared launcher resolution fixed and actual readback passes.37 affected reader checks pass, source hashes unchanged. Next pursue a missing real-app/transient or resource boundary; physical/human/sleep remain deferred, no blocking prompts."
+    "note": "Stage75 complete: current production planner optionally consumes exact shared computer-use app facts. Actual MCP0.17/CLI readback agrees; unknown provider blocks reuse, changed app build misses, target bundle mismatch withholds, malformed input refuses.64 affected checks pass; no UI/capture or human prompt. Remaining scopes stay partial. Next pursue a missing real-app/transient acceptance boundary; reuse settled resource and reader proofs."
   },
-  "production_note": "Signed native7c0f81e9d71f/PID39358 installed through one idle maintenance fence, exact candidate/installed binary and signature matched, Screen Recording grant preserved. Fresh canonical MCP0.16.0/27tools supports declaration-only pre-launch intent and context; loaded peers untouched and adoption unknown. Real launch and owned cleanup qualified; full18partial acceptance gates remain open.",
+  "production_note": "Signed native7c0f81e9d71f/PID39358 installed through one idle maintenance fence, exact candidate/installed binary and signature matched, Screen Recording grant preserved. Fresh canonical MCP0.17.0/27tools supports declaration-only pre-launch intent/context and optional shared app learning; loaded peers untouched and adoption unknown. Real launch and owned cleanup qualified; full18partial acceptance gates remain open.",
   "groups": [
     {
       "id": "capture",
@@ -536,20 +536,20 @@
           "title": "Centralize version-scoped app observations",
           "status": "partial",
           "scope": "Shared reported facts, exact environment keys, expiry and conflicting evidence.",
-          "evidence": "Prior exact version/surface facts retained. Stage69 one authored-app1.0/build68/25F80/native-CUA versionunknown post-close AX read relaunch failure fact is independently read back with1day expiry. Exact old/new process and native-window observations support scope. This is one runtime/app case, not universal behavior, automatic learning or authenticated actor proof. Stage71 three exact Safari26.5/build21624.2.5.11.4/macOS25F80/native-CUA-version-unknown facts independently read back: real select/root capture, fixed-crop anchor within1px, and failure of geometric containment to imply visible app. Reported single-episode/expiry keys retained. Stage72 four exact owned-fixture facts independently read back, including negative overflow control. Provider version remains unknown; reusable readiness is withheld. Stage73 two exact facts read back. Separate stage72 source-helper diagnostic identifies all28 matching events sourcePID76855/installed26.1001.1001394; wrapper unknown stays unknown.",
-          "next": "Use scoped daily-app facts in consumers and qualify changed dimensions; retain negative content-presence evidence and unknown provider version.",
-          "anchor": "seventy-third-pass",
-          "updated_at": "2026-10-09T18:06:35-04:00"
+          "evidence": "Prior exact version/surface facts retained. Stage69 one authored-app1.0/build68/25F80/native-CUA versionunknown post-close AX read relaunch failure fact is independently read back with1day expiry. Exact old/new process and native-window observations support scope. This is one runtime/app case, not universal behavior, automatic learning or authenticated actor proof. Stage71 three exact Safari26.5/build21624.2.5.11.4/macOS25F80/native-CUA-version-unknown facts independently read back: real select/root capture, fixed-crop anchor within1px, and failure of geometric containment to imply visible app. Reported single-episode/expiry keys retained. Stage72 four exact owned-fixture facts independently read back, including negative overflow control. Provider version remains unknown; reusable readiness is withheld. Stage73 two exact facts read back. Separate stage72 source-helper diagnostic identifies all28 matching events sourcePID76855/installed26.1001.1001394; wrapper unknown stays unknown. Stage75 recorder production_plan opt-in app_learning consumes central typed facts with exact entity keys. Actual fresh MCP0.17/current CLI return the same two reported passes; unknown provider blocks reuse despite claimed confirmation. Changed app build returns missing; target bundle mismatch withholds without store lookup. Three source fact hashes unchanged across CLI read. No referenced evidence-content fetch, automatic source selection, canary or learning write.64 affected checks pass.",
+          "next": "Qualify genuinely changed daily-app dimensions with targeted source canaries when needed; retain provider/version uncertainty and scoped reported facts rather than broad certification.",
+          "anchor": "seventy-fifth-pass",
+          "updated_at": "2026-10-09T18:19:07-04:00"
         },
         {
           "id": "requalification",
           "title": "Build maintained app lanes and breadth-first requalification",
           "status": "partial",
           "scope": "Baseline ingestion for stable daily apps and updates when app/provider/OS behavior changes.",
-          "evidence": "Stage53 targeted TextEdit lane prepares fresh owned document through native display-placement menu, captures typeface overflow for both app child settings, and preserves old off-Space -3811. Context/nested coverage remains unknown; no universal app certification. Stage71 adds documented Safari native-select/change/dismiss/editing-root depth lane with actual decoded frames, continuous markers, timestamp proofs and black-tail failure. Shared exact-environment facts read back. Nested/overflow variants remain unqualified; no broad update churn or automatic canary claim. Stage72 native nested menu shrinks352→210px wide, then298→206px high with scrolling inside222px parent. Both sources show first/last row and selection/dismissal; UI itself ellipsizes labels. No overflow qualification. Stage73 new sustained-motion duration extends the owned source envelope; all counter samples correct and explicit long-reader refusal retained.",
-          "next": "Extend the remaining useful nested/overflow daily-app variants; use exact app/provider keys and source-linked canaries without duplicating settled tests.",
-          "anchor": "seventy-third-pass",
-          "updated_at": "2026-10-09T18:06:35-04:00"
+          "evidence": "Stage53 targeted TextEdit lane prepares fresh owned document through native display-placement menu, captures typeface overflow for both app child settings, and preserves old off-Space -3811. Context/nested coverage remains unknown; no universal app certification. Stage71 adds documented Safari native-select/change/dismiss/editing-root depth lane with actual decoded frames, continuous markers, timestamp proofs and black-tail failure. Shared exact-environment facts read back. Nested/overflow variants remain unqualified; no broad update churn or automatic canary claim. Stage72 native nested menu shrinks352→210px wide, then298→206px high with scrolling inside222px parent. Both sources show first/last row and selection/dismissal; UI itself ellipsizes labels. No overflow qualification. Stage73 new sustained-motion duration extends the owned source envelope; all counter samples correct and explicit long-reader refusal retained. Stage75 shared facts now reach recorder planning directly. Exact changed app_build returns missing evidence rather than inheriting prior observations; typed conflict/unknown/mismatched-target cases tested. No automatic requalification or canary execution.",
+          "next": "Extend a remaining useful real-app overflow/changed-fit variant; use opt-in exact shared app learning to avoid repeating settled source proofs.",
+          "anchor": "seventy-fifth-pass",
+          "updated_at": "2026-10-09T18:19:07-04:00"
         },
         {
           "id": "workflow-audit",
@@ -652,10 +652,10 @@
           "title": "Verify loaded MCP replay policy and reconnect boundaries",
           "status": "partial",
           "scope": "Never automatically resend mutations after a lost reply; distinguish loaded adapter from native engine version. Preserve existing peer MCP processes.",
-          "evidence": "Stage62 both harness registrations resolve to the canonical launcher; actual minimal GUI-PATH initialize/tools/status exposes0.14.0,27 tools, read-only paired summary and mutation_replay never. Owned reader3395 exit0/independently absent; both config hashes unchanged. Ordinary chat status still has no adapter metadata: version/replay/adoption unknown. Per-consumer launch/readback limits reconciled in shared skill/runbook; no peer refresh or mutation replay. Earlier lost-reply/source checks retained. Stage67 fresh minimal GUI-PATH canonical launcher initialize0.15.0/27 tools/triple_source_planning1/read-only plan/mutation_replay never; real CLI/MCP parity. Ordinary chat status independently still lacks adapter metadata; version/replay/adoption unknown. No mutation replay or peer refresh. Stage73 fresh owned0.16/27tools reads sustained profile; no old-peer refresh or ordinary adoption inference. Stage74 fresh canonical GUI-style MCP0.16/27tools reads generated retry plan and both exact summaries. Initial minimal-PATH FFprobe failure repaired through shared launcher resolution. No native/peer restart or automatic retry; ordinary loaded22-tool adoption remains unknown.",
+          "evidence": "Stage62 both harness registrations resolve to the canonical launcher; actual minimal GUI-PATH initialize/tools/status exposes0.14.0,27 tools, read-only paired summary and mutation_replay never. Owned reader3395 exit0/independently absent; both config hashes unchanged. Ordinary chat status still has no adapter metadata: version/replay/adoption unknown. Per-consumer launch/readback limits reconciled in shared skill/runbook; no peer refresh or mutation replay. Earlier lost-reply/source checks retained. Stage67 fresh minimal GUI-PATH canonical launcher initialize0.15.0/27 tools/triple_source_planning1/read-only plan/mutation_replay never; real CLI/MCP parity. Ordinary chat status independently still lacks adapter metadata; version/replay/adoption unknown. No mutation replay or peer refresh. Stage73 fresh owned0.16/27tools reads sustained profile; no old-peer refresh or ordinary adoption inference. Stage74 fresh canonical GUI-style MCP0.16/27tools reads generated retry plan and both exact summaries. Initial minimal-PATH FFprobe failure repaired through shared launcher resolution. No native/peer restart or automatic retry; ordinary loaded22-tool adoption remains unknown. Stage75 fresh canonical MCP0.17/27tools advertises shared_app_learning and optional production_plan schema; actual source fact reads/current CLI agree. Owned reader exits0, native7c/PID39358 idle. Ordinary loaded22-tool contract remains older/unknown; no peer refresh.",
           "next": "Use current CLI/fresh MCP for newer contracts; verify ordinary consumer adoption at a safe launch without disturbing peers.",
-          "anchor": "seventy-fourth-pass",
-          "updated_at": "2026-10-09T18:13:15-04:00"
+          "anchor": "seventy-fifth-pass",
+          "updated_at": "2026-10-09T18:19:07-04:00"
         },
         {
           "id": "agent-runbooks",
@@ -2840,6 +2840,30 @@
       "from": "partial",
       "to": "partial",
       "note": "Stage74 fresh canonical GUI-style MCP0.16/27tools reads generated retry plan and both exact summaries. Initial minimal-PATH FFprobe failure repaired through shared launcher resolution. No native/peer restart or automatic retry; ordinary loaded22-tool adoption remains unknown."
+    },
+    {
+      "kind": "item",
+      "id": "app-facts",
+      "at": "2026-10-09T18:19:07-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage75 recorder production_plan opt-in app_learning consumes central typed facts with exact entity keys. Actual fresh MCP0.17/current CLI return the same two reported passes; unknown provider blocks reuse despite claimed confirmation. Changed app build returns missing; target bundle mismatch withholds without store lookup. Three source fact hashes unchanged across CLI read. No referenced evidence-content fetch, automatic source selection, canary or learning write.64 affected checks pass."
+    },
+    {
+      "kind": "item",
+      "id": "requalification",
+      "at": "2026-10-09T18:19:07-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage75 shared facts now reach recorder planning directly. Exact changed app_build returns missing evidence rather than inheriting prior observations; typed conflict/unknown/mismatched-target cases tested. No automatic requalification or canary execution."
+    },
+    {
+      "kind": "item",
+      "id": "mcp-replay-boundary",
+      "at": "2026-10-09T18:19:07-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage75 fresh canonical MCP0.17/27tools advertises shared_app_learning and optional production_plan schema; actual source fact reads/current CLI agree. Owned reader exits0, native7c/PID39358 idle. Ordinary loaded22-tool contract remains older/unknown; no peer refresh."
     }
   ]
 }

@@ -176,7 +176,7 @@ test('actual regular-file probe, leaf refusal and fresh MCP read-only boundary',
   lines.on('line',line=>{const row=JSON.parse(line),p=pending.get(row.id);if(p){clearTimeout(p.timer);pending.delete(row.id);p.resolve(row.result);}});
   const rpc=(method,params)=>new Promise((resolve,reject)=>{const id=++serial,timer=setTimeout(()=>reject(Error('Owned MCP deadline')),5000);pending.set(id,{resolve,reject,timer});child.stdin.write(JSON.stringify({jsonrpc:'2.0',id,method,params})+'\n');});
   try {
-    const initialized=await rpc('initialize',{protocolVersion:'2025-06-18'});assert.equal(initialized.serverInfo.version,'0.16.0');
+    const initialized=await rpc('initialize',{protocolVersion:'2025-06-18'});assert.equal(initialized.serverInfo.version,'0.17.0');
     const list=await rpc('tools/list',{});const tool=list.tools.find(x=>x.name==='recording_frame_map');assert.equal(tool.annotations.readOnlyHint,true);assert.equal(tool.inputSchema.properties.desktop_regions.maxItems,16);
     let reply=await rpc('tools/call',{name:'recording_frame_map',arguments:{...request,desktop_regions:[{id:'region',x:140,y:450,w:10,h:10}]}});assert.equal(reply.isError,false);
     assert.equal(JSON.parse(reply.content[0].text).mapped[0].desktop_regions[0].canvas_relation,'contained');

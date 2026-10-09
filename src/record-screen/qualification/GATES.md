@@ -3285,3 +3285,26 @@ real minimal-PATH MCP/CLI and owned-probe timeout/busy settlement. One scoped
 shared fact read back; no invented UI receipt or capture. Native/peer untouched.
 45completed18partial1deferred, full goal active. Private gates-v74 holds request,
 results, source hashes, failed first reader and final current-MCP readbacks.
+
+
+## Seventy-fifth pass: recorder consumes shared application memory
+
+production_plan.app_learning optionally joins the central computer-use typed
+facts, using exact9-field entity keys and1–16 named capabilities. Observed window
+bundle or declared include_apps bundle must match; unresolved/mismatch withholds
+store lookup. Shared unknown/expiry/conflict/truncation policy preserved. Optional
+store failure leaves base capture assessment available, app learning unavailable.
+No referenced evidence read, fact write, automatic canary or source choice.
+
+Actual current MCP0.17/27tools and minimal-PATH CLI return the same two stage73/74
+reported passes. Unknown provider overrides true confirmation/block reuse; changed
+app build is missing, bundle mismatch withheld, malformed input refused.64
+focused planner/input/frame/pair tests pass, including isolated no-write/conflict
+and actual schema boundary. Three fact hashes unchanged across CLI, owned reader
+exit0/native7c/PID39358 unchangedidle. Initial local manifest helper assumed query
+entries have paths; corrected before CLI dispatch with original publication paths.
+No new receipt/fact is invented for this read-only lookup qualification.
+
+Existing stage48 GPU observations reused rather than resampled.45completed18partial
+1deferred/full goal active; no native UI, capture, human prompt or peer refresh.
+Private gates-v75 retains actual plans, current tool/readback and test evidence.

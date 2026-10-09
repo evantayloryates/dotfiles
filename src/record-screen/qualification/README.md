@@ -708,3 +708,11 @@ unassociated retention brings it back; neither mode proves human/agent identity.
 Native menus can adapt into scrolling, ellipsized surfaces rather than overflow.
 Do not call missing rows capture loss until the actual UI and encoded source are
 compared. Keep expired scopes failed even when the pixels show success.
+
+
+`production-plan.test.mjs` also tests opt-in shared app learning through the real
+planner/MCP boundary: exact entity matching, unknown environment sentinels,
+changed versions, typed conflicting observations, no write/evidence-content fetch,
+lookup failure isolation and malformed input before RPC. The inherited shared
+planner policy remains authoritative; local authored observations are test-only.
+Stage75 current MCP0.17/current CLI read actual retained scoped facts consistently.

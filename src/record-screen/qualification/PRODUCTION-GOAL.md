@@ -1,30 +1,33 @@
 # Production qualification goal
 
-## Current checkpoint: stage74 — ACTIVE
+## Current checkpoint: stage75 — ACTIVE
 
-Retained stage73 eight-minute pair now has service-owned long-summary retry
-requests. Original479s summary remains unavailable at26614>16384 boundaries,
-evaluated0/regionsnull. Two exact adjacent requests evaluate16384/10230 with
-unchanged budget and cover479s in both lanes. Common recorder clock and canvas
-containment remain qualified; geometry content_presence stays unverified.
-Fractional split boundaries/excess16 requests refuse the entire plan without
-rounding or partial requests. No automatic retry, aggregation or reshoot.
+Recorder production_plan now optionally consumes the central computer-use typed
+app facts. `app_learning` uses the shared exact9-field entity/1–16 capabilities/
+boolean confirmation contract. Observed window or explicitly included app bundle
+must match; absent/mismatched target bundles withhold lookup. Shared environment,
+expiry, conflict, truncation and provenance policy stays authoritative. A store
+failure reports unavailable app learning without disabling the capture assessment.
+No evidence-content read, baseline canary, automatic source selection or fact write.
 
-Fresh GUI-style minimal-PATH MCP exposed absent FFprobe lookup. Initial failure
-preserved; both launchers now resolve the optional reader through the centralized
-binary resolver, respecting explicit FFPROBE_PATH. Capture/status can still start
-without it; requested mapping retains its bounded probe error. Current fresh
-MCP0.16/27tools reads actual retained retry summaries, owned process exits0;
-37 affected paired/frame reader checks pass, including minimal-PATH MCP/CLI and
-owned timeout/busy settlement. All four media/journal hashes unchanged. One scoped
-shared fact read back; no fabricated native action receipt for read-only work.
+Actual fresh MCP0.17/27tools and current minimal-PATH CLI return the same two
+reported stage73/74 passes. Unknown provider version overrides claimed true and
+blocks reuse; changed app_build gives missing, bundle mismatch withholds,
+malformed request refuses.64 affected tests pass, including isolated shared-store
+read/no-write/changed-key/conflict controls and actual MCP interface. Three live
+fact files hash unchanged across CLI read. Owned fresh reader exits0; installed
+native7c/PID39358 idle/unchanged. Ordinary loaded22-tool adoption remains unknown.
 
-Stage73 source/resource proof and stage72 delivery/menu/relevance proofs retained.
-Native7c/PID39358 unchanged; no capture, restart, input or peer refresh in stage74.
-Ordinary loaded22-tool adoption remains unknown.45completed18partial1deferred;
-full goal active, composition deferred. No new human-dependent tests while AFK.
-AFK conservative end23:20UTC. Next pursue a genuinely missing real-app transient
-or resource boundary, preserving prior failures and avoiding passed-take replay.
+Stage74 exact long-summary retry/GUI FFprobe fixes and stage73 source/resource
+proof retained. Existing stage48 already supplies bounded host GPU observations;
+no duplicate GPU observer/capture was run. Read-only qualification helper first
+assumed query entries include paths; repaired before CLI dispatch using original
+immutable fact publication paths, without modifying central observations.
+
+45completed18partial1deferred. Full goal active; composition deferred. No user
+prompt/physical/sleep/grant test while AFK, conservative end23:20UTC. Next pursue
+one genuinely missing real-app/transient acceptance boundary using retained
+scoped app knowledge, without replaying passed media or speculative inverse fits.
 
 ## Remaining work: ordered acceptance batches
 

@@ -3,11 +3,12 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { spawn } from 'node:child_process'
 import { createInterface } from 'node:readline'
-import { mkdtempSync, mkdirSync, rmSync } from 'node:fs'
+import { mkdtempSync, mkdirSync, rmSync, readFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import net from 'node:net'
 import { fileURLToPath } from 'node:url'
+import { EvidenceStore } from '../../codex-bridge/lib/capability-evidence.mjs'
 import { planProduction, validateProductionRequest } from '../lib/production-plan.mjs'
 
 const request = { target: { type: 'window', window_id: 119 }, mode: 'cooperative', activity: 'agent_ui', duration_s: 50, redundancy: 'window_display', alignment_until: '2026-10-09T08:00:00Z' }
@@ -173,9 +174,61 @@ test('invalid or contradictory requests refuse rather than silently change setti
   assert.equal(a.fps, 60); assert.equal(a.max_width, 3024); assert.equal(a.show_cursor, true)
 })
 
+const learningEntity = { bundle_id: 'com.google.Chrome', app_version: 'test', app_build: 'test', os_build: '25F80', provider: 'native-cua', provider_version: 'unknown', surface: 'test-popup', capture_mode: 'window-test', display_profile: 'test-display' }
+const learning = { entity: learningEntity, capabilities: ['popup'], environment_verified: true }
+const fact = (entity, result = 'pass') => ({ entity, capability: 'popup', result, sample_count: 1, observed_at: '2026-10-09T06:00:00Z', expires_at: '2026-10-10T06:00:00Z', evidence_refs: ['/tmp/not-fetched-by-planner'], limits: 'Authored test observation only' })
+
+test('shared app learning retains unknown environment and changed-version isolation; reads never write or fetch evidence', () => {
+  const root = mkdtempSync(join(tmpdir(), 'capture-shared-learning-')), store = new EvidenceStore(root)
+  try {
+    const entry = store.put('facts', fact(learningEntity)), original = readFileSync(entry.path, 'utf8')
+    const p = planProduction({ ...request, app_learning: learning }, status, inventory, { evidenceStore: store })
+    assert.equal(p.app_learning.state, 'reported'); assert.equal(p.app_learning.target_association, 'observed_window_bundle')
+    assert.equal(p.app_learning.plan.checks[0].evidence_state, 'reported_pass')
+    assert.equal(p.app_learning.plan.checks[0].reuse_candidate, false)
+    assert.equal(p.app_learning.plan.environment_claimed_verified, true)
+    assert.equal(p.app_learning.plan.environment_verified, false)
+    assert.deepEqual(p.app_learning.plan.unknown_dimensions, ['provider_version'])
+    assert.equal(p.assessment, planProduction(request, status, inventory).assessment)
+    assert.equal(p.mutates, false); assert.equal(readFileSync(entry.path, 'utf8'), original)
+    const changed = planProduction({ ...request, app_learning: { ...learning, entity: { ...learningEntity, app_build: 'changed' } } }, status, inventory, { evidenceStore: store })
+    assert.equal(changed.app_learning.plan.checks[0].evidence_state, 'missing')
+    const confirmed = { ...learningEntity, provider_version: 'authored-test-version' }; store.put('facts', fact(confirmed))
+    const known = planProduction({ ...request, app_learning: { ...learning, entity: confirmed } }, status, inventory, { evidenceStore: store })
+    assert.equal(known.app_learning.plan.checks[0].reuse_candidate, true)
+    store.put('facts', fact(confirmed, 'fail'))
+    const conflict = planProduction({ ...request, app_learning: { ...learning, entity: confirmed } }, status, inventory, { evidenceStore: store })
+    assert.equal(conflict.app_learning.plan.checks[0].evidence_state, 'conflicting')
+    assert.equal(conflict.app_learning.plan.checks[0].reuse_candidate, false)
+  } finally { rmSync(root, { recursive: true, force: true }) }
+})
+
+test('unresolved or mismatched app target withholds lookup; optional store failure preserves capture assessment', () => {
+  let reads = 0; const store = { factSnapshot() { reads++; throw Error('private failure detail') } }
+  assert.equal(planProduction(request, status, inventory, { evidenceStore: store }).app_learning, undefined)
+  const mismatch = planProduction({ ...request, app_learning: { ...learning, entity: { ...learningEntity, bundle_id: 'com.test.Other' } } }, status, inventory, { evidenceStore: store })
+  assert.equal(mismatch.app_learning.reason, 'target_bundle_mismatch'); assert.equal(reads, 0)
+  const unresolved = planProduction({ ...request, app_learning: learning }, status, { windows: [], total: 0 }, { evidenceStore: store })
+  assert.equal(unresolved.app_learning.reason, 'target_bundle_unresolved'); assert.equal(reads, 0)
+  const unavailable = planProduction({ ...request, app_learning: learning }, status, inventory, { evidenceStore: store })
+  assert.equal(unavailable.app_learning.state, 'unavailable'); assert.equal(reads, 1)
+  assert.equal(unavailable.assessment, planProduction(request, status, inventory).assessment)
+  assert(!JSON.stringify(unavailable).includes('private failure detail'))
+  const declared = planProduction({ target: { type: 'rect', x: 0, y: 0, w: 100, h: 100, include_apps: ['com.google.Chrome'] }, mode: 'background', activity: 'passive_capture', duration_s: 10, app_learning: learning }, tripleStatus, undefined, { evidenceStore: store })
+  assert.equal(declared.app_learning.target_association, 'declared_app_filter_only')
+  assert.equal(declared.mutates, false)
+})
+
+test('malformed shared requests refuse before lookup or native RPC', () => {
+  for (const app_learning of [null, { ...learning, environment_verified: 'yes' }, { ...learning, capabilities: [] }, { ...learning, capabilities: ['popup', 'popup'] }, { ...learning, entity: { ...learningEntity, app_build: undefined } }, { ...learning, path: '/tmp/arbitrary' }])
+    assert.throws(() => validateProductionRequest({ ...request, app_learning }), e => e.code === 'bad_production_plan')
+})
+
 test('MCP planning does only readbacks; malformed input performs no RPC', async () => {
   const root = mkdtempSync(join(tmpdir(), 'production-plan-mcp-')); mkdirSync(join(root, 'run'))
   const methods = [], sockets = new Set()
+  const sharedStore = new EvidenceStore(join(root, 'bridge/capability-evidence'))
+  const sharedEntry = sharedStore.put('facts', fact(learningEntity)), factBefore = readFileSync(sharedEntry.path, 'utf8')
   const fake = net.createServer(socket => {
     sockets.add(socket); socket.on('close', () => sockets.delete(socket))
     createInterface({ input: socket }).on('line', line => {
@@ -185,14 +238,14 @@ test('MCP planning does only readbacks; malformed input performs no RPC', async 
     })
   })
   await new Promise((resolve, reject) => { fake.once('error', reject); fake.listen(join(root, 'run/engine.sock'), resolve) })
-  const child = spawn(process.execPath, [fileURLToPath(new URL('../server.mjs', import.meta.url))], { env: { ...process.env, RECORD_SCREEN_HOME: root }, stdio: ['pipe', 'pipe', 'pipe'] })
+  const child = spawn(process.execPath, [fileURLToPath(new URL('../server.mjs', import.meta.url))], { env: { ...process.env, RECORD_SCREEN_HOME: root, CODEX_BRIDGE_STATE_DIR: join(root, 'bridge') }, stdio: ['pipe', 'pipe', 'pipe'] })
   child.stderr.resume()
   let serial = 0; const pending = new Map()
   const lines = createInterface({ input: child.stdout })
   lines.on('line', line => { const row = JSON.parse(line), p = pending.get(row.id); if (p) { clearTimeout(p.timer); pending.delete(row.id); row.error ? p.reject(new Error('protocol failure')) : p.resolve(row.result) } })
   const rpc = (method, params) => new Promise((resolve, reject) => { const id = ++serial; const timer = setTimeout(() => { pending.delete(id); reject(new Error('deadline')) }, 3000); pending.set(id, { resolve, reject, timer }); child.stdin.write(JSON.stringify({ jsonrpc: '2.0', id, method, params }) + '\n') })
   try {
-    assert.equal((await rpc('initialize', { protocolVersion: '2025-06-18' })).serverInfo.version, '0.16.0')
+    assert.equal((await rpc('initialize', { protocolVersion: '2025-06-18' })).serverInfo.version, '0.17.0')
     const listed = await rpc('tools/list', {})
     assert.equal(listed.tools.find(t => t.name === 'production_plan').annotations.readOnlyHint, true)
     const accepted = await rpc('tools/call', { name: 'production_plan', arguments: request })
@@ -214,6 +267,18 @@ test('MCP planning does only readbacks; malformed input performs no RPC', async 
     assert.equal(JSON.parse(readback.content[0].text).mcp_adapter.production_planning, 1)
     assert.equal(JSON.parse(readback.content[0].text).mcp_adapter.production_storage_guidance, 1)
     assert.equal(JSON.parse(readback.content[0].text).mcp_adapter.triple_source_planning, 1)
+    assert.equal(JSON.parse(readback.content[0].text).mcp_adapter.shared_app_learning, 1)
+    assert(listed.tools.find(t => t.name === 'production_plan').inputSchema.properties.app_learning)
+    const shared = await rpc('tools/call', { name: 'production_plan', arguments: { ...request, app_learning: learning } })
+    assert.equal(shared.isError, false)
+    const sharedPlan = JSON.parse(shared.content[0].text)
+    assert.equal(sharedPlan.app_learning.plan.checks[0].evidence_state, 'reported_pass')
+    assert.equal(sharedPlan.app_learning.plan.checks[0].reuse_candidate, false)
+    assert.equal(readFileSync(sharedEntry.path, 'utf8'), factBefore)
+    const beforeBadLearning = methods.length
+    const badLearning = await rpc('tools/call', { name: 'production_plan', arguments: { ...request, app_learning: { ...learning, environment_verified: 'yes' } } })
+    assert.equal(badLearning.isError, true); assert.equal(methods.length, beforeBadLearning)
+    assert(methods.every(m => ['status', 'windows.list'].includes(m)))
   } finally {
     child.stdin.end(); await new Promise(resolve => child.once('exit', resolve))
     for (const socket of sockets) socket.destroy()
