@@ -1,5 +1,46 @@
 # Qualification update — October 9, 2026
 
+## Forty-seventh pass: unknown dimensions cannot be certified by a caller flag
+
+Actual current shared planner reproduced a contract contradiction on the real
+TextEdit child-enabled passing fact: provider_version unknown, caller flag true,
+reuse_candidate true. Pre-fix JSON retained. Current planner now has explicit
+environment_policy_version1. Reserved exact metadata sentinels unknown/unavailable/
+unspecified/unverified/not_available (case/outer whitespace ignored) override
+caller confirmation. Output separates environment_claimed_verified from effective
+environment_verified and names unknown_dimensions. Checks preserve reported pass,
+same exact entity/fact IDs, but withhold reuse/not_after with explicit reasons.
+No arbitrary prose interpretation, metadata certification, bucket normalization,
+evidence mutation, UI canary or model training. Known confirmed scope stays a
+candidate under existing expiry/conflict/truncation rules; not unconditional ready.
+
+Seven planner checks plus actual shared-MCP mutation/readback test passed with
+all server child spawning/network forbidden. Ninth initial adjacent recorder
+roster check failed stale target-count3 after production_plan added a fourth
+target schema. Correct only the named capture target selection and rerun only
+that affected check, pass; preserve initial8pass/1fail and recheck proof.
+Every entity field, multi-unknown/case/whitespace, true/false confirmation,
+unchanged fact bytes and fully named current pass boundaries covered.
+
+One supported consumer reads actual real-store plan through fresh shared MCP
+and CLI, equal except planned_at. Both caller flags keep effectivefalse, reported
+pass/unknown provider evidence visible, reusefalse/not_afternull. Operation once,
+scope closed before verification, typed verified/cleanup-complete outcome and
+audit uncovered0. Own reader exits0 and session closes; native3ff/PID74192 remains
+idle, no capture/input/grant/native or peer restart. Old loaded consumers not
+inferred updated. Read policy marker or use current CLI; stage44 refresh pending.
+
+Explicit installed Info.plist/sw_vers baselines refreshed without scanning apps:
+Chrome154.0.8037.98/build8037.98, Finder26.4/build1828.5.2, TextEdit1.20/build415,
+OS25F80. Native CUA provider version remains unknown. Chrome running, no normal
+onscreen target; unrelated existing window offscreen. Native getApp observation
+timed out; no input/new window or take. Preserve user's window and report readiness
+unknown rather than infer app availability. Independently read back new scoped
+unknown readiness and passing policy facts; no historical opaque action grading.
+Private gates-v47;43completed16partial1deferred, goal active. This closes an actual
+reuse-contract hole while Chrome/provider, physical/input and loaded-consumer
+qualification remain open; no repeat of settled menu captures.
+
 ## Forty-sixth pass: TextEdit native menus and display pointer residual
 
 TextEdit1.20/build415/25F80 on built-in Retina2×, native CUA version unknown.

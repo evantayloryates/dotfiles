@@ -27,7 +27,7 @@ export const EVIDENCE_TOOLS = [
   { name: 'computer_use_plan', description: 'Plan targeted baseline/requalification checks from exact local environment observations. Expiry, conflicts, missing evidence and unknown environment remain explicit. Read-only: no UI/model, evidence fetch, grant, automatic canary or actor inference.',
     inputSchema: { type: 'object', additionalProperties: false, properties: { entity,
       capabilities: { type: 'array', minItems: 1, maxItems: 16, uniqueItems: true, items: { type: 'string', minLength: 1, maxLength: 128 } },
-      environment_verified: { type: 'boolean', description: 'Caller confirms all entity dimensions from current metadata. False for any unknown app/provider/version/display/capture scope; planner does not inspect the environment.' },
+      environment_verified: { type: 'boolean', description: 'Caller confirms all entity dimensions from current metadata. Explicit unknown/unavailable/unspecified/unverified/not_available dimensions override true and block reuse. Other values are not independently inspected; false for any unconfirmed dimension.' },
     }, required: ['entity', 'capabilities', 'environment_verified'] }, annotations: { readOnlyHint: true, openWorldHint: false } },
   { name: 'computer_use_observe', description: 'Append a reported app/provider capability observation with exact version/surface/display scope and local evidence. Preserves contradictory results. Does not run UI or a model, fetch evidence content, or grant access.',
     inputSchema: { type: 'object', additionalProperties: false, properties: {

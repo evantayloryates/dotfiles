@@ -283,6 +283,25 @@ protected-input state and retained event snapshots too. This take's secure-input
 notification preceded epoch, with secure_input_snapshot=true on its delivered
 pointer events; it established no new keyboard coverage.
 
+## Unknown app dimensions cannot become reusable facts
+
+Read the shared `computer_use_plan` result's `environment_policy_version:1`,
+`environment_claimed_verified`, effective `environment_verified` and
+`unknown_dimensions`. Reserved explicit unknown/unavailable/unspecified/unverified/
+not_available values block reuse even if the caller checks the confirmation flag.
+The passing fact remains visible, with its original entity/ID/limits; it does
+not become a current readiness guarantee. Other named dimensions still require
+actual metadata confirmation. Case/whitespace handling applies to reserved
+sentinels, not entity-key normalization or arbitrary prose interpretation.
+
+Stage47 reproduced the prior contradiction with the actual TextEdit fact and
+verified current CLI/fresh shared MCP agree on blocked reuse. Existing loaded
+consumers may retain earlier behavior; inspect the policy marker or use the
+shared evidence CLI without restarting peers. Installed app version readback
+alone does not establish native UI reachability: Chrome's current native app
+observation timed out while its unrelated window was off-screen. Preserve that
+window and qualify the failed precondition before dispatching or recording.
+
 
 ## When an ordinary chat still exposes an older MCP contract
 

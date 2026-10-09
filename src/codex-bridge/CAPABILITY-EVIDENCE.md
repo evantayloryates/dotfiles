@@ -65,6 +65,16 @@ Set `environment_verified:false` if any app/provider version, display profile
 or surface scope is unknown. The flag is caller-reported; this tool does not
 inspect installed apps or certify the caller's claim. Exact app/OS/provider/
 display/capture changes lead to a new bucket and missing-evidence baseline.
+Current plans advertise `environment_policy_version:1`, retain the caller flag
+as `environment_claimed_verified`, and return an effective `environment_verified`.
+An explicit dimension value `unknown`, `unavailable`, `unspecified`, `unverified`
+or `not_available` always forces that effective value false, even when the caller
+sets true. Matching ignores case and surrounding whitespace for these reserved
+sentinels only; it does not normalize entity buckets or interpret arbitrary prose.
+`unknown_dimensions` names the affected fields and checks keep the passing facts
+visible while blocking reuse and expiry promotion. Other named values remain
+caller-reported, not independently verified. Old loaded processes may lack this
+policy; read back the policy marker or use the current CLI without restarting peers.
 Expiry requires a refresh canary; conflicting results require a targeted
 boundary check. A current reported pass can become a scoped reuse candidate
 only with confirmed environment and complete observation-window coverage.

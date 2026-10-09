@@ -64,6 +64,16 @@ test('evidence MCP mutation and readback work with transport/model paths forbidd
   assert.equal(planned.schema, 'computer-use-capability-plan/v1')
   assert.equal(planned.checks[0].reuse_candidate, true)
   assert.equal(planned.checks[1].next_check, 'baseline_canary')
+  const unknownEntity = { ...entity, provider_version: 'unknown' }
+  const unknownFact = output(await call('computer_use_observe', { ...fact, entity: unknownEntity }), 'entry')
+  const unknownPlan = output(await call('computer_use_plan', { entity: unknownEntity, capabilities: ['menu'], environment_verified: true }), 'entry')
+  assert.equal(unknownPlan.environment_policy_version, 1)
+  assert.equal(unknownPlan.environment_claimed_verified, true)
+  assert.equal(unknownPlan.environment_verified, false)
+  assert.deepEqual(unknownPlan.unknown_dimensions, ['provider_version'])
+  assert.equal(unknownPlan.checks[0].reuse_candidate, false)
+  assert.equal(unknownPlan.checks[0].not_after, null)
+  assert.deepEqual(unknownPlan.checks[0].observation_ids, [unknownFact.id])
   assert.deepEqual(output(await call('computer_use_facts', { entity: { ...entity, app_version: '2' } }), 'entries'), [])
   const receipt = { session_id: 'synthetic-session', caller: 'test', action_id: '1', provider: 'fixture', target: { bundle_id: 'test.fixture' }, clock_domain: 'CLOCK_UPTIME_RAW', start_ns: '9007199254740993', end_ns: '9007199254740995', intent: 'Synthetic', result: 'unknown', evidence_refs: [] }
   const receiptSaved = output(await call('computer_use_receipt', receipt), 'entry')
@@ -87,7 +97,7 @@ test('evidence MCP mutation and readback work with transport/model paths forbidd
 
 test('recorder target options are discoverable without engine capture or transport', () => server('../../record-screen/server.mjs', async request => {
   const roster = await request('tools/list')
-  const aimed = roster.tools.filter(t => t.inputSchema?.properties?.target?.properties?.type)
+  const aimed = roster.tools.filter(t => ['frame_check', 'frame_outline', 'record_schedule'].includes(t.name))
   assert.equal(aimed.length, 3)
   for (const tool of aimed) {
     assert.equal(tool.inputSchema.properties.target.properties.include_child_windows.type, 'boolean')

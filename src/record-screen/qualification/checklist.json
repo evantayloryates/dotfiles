@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T07:52:18-04:00",
+  "updated_at": "2026-10-09T08:01:47-04:00",
   "workflow": {
     "state": "active",
-    "note": "TextEdit root/Font lane qualified across three capture modes;2661 exact joins. Display residual, protected input and late source end remain explicit. Owned app/session settled, five verified typed outcomes and three scoped facts read back.43 completed,16 partial,1 deferred; continue remaining high-impact boundaries without duplicate takes."
+    "note": "Fixed and verified an actual shared-planner reuse hole: explicit unknown provider dimensions block callertrue confirmation. Real TextEdit fact retained, CLI/fresh shared MCP equal; typed once-only reader settled. Current daily-app version baselines refreshed, Chrome readiness unknown preserved.43 completed,16 partial,1 deferred; continue unblocked high-impact gates."
   },
-  "production_note": "Signed native3ff4c4519dc8/PID74192 unchanged idle; installed Input Monitoring access remains true. New TextEdit root/Font lane passes scoped child-enabled capture with2661 exact joins; display retains pointer-like residual, childfalse omits menus. Captured late Font end stays null. Five typed episodes settled; current CLI/freshMCP0.11.5 supported while ordinary chat refresh pending. Broader provider/physical/recovery limits and composition deferral remain.",
+  "production_note": "Native3ff4c4519dc8/PID74192 unchanged idle, input access retained. Current shared planner policy1 blocks explicit unknown dimensions even callertrue; real TextEdit fact and CLI/fresh shared MCP proof verified. Installed daily-app version baselines refreshed; Chrome native readiness timeout preserved without input/capture. Recorder currentCLI/freshMCP0.11.5 remains available; ordinary chat refresh, physical/provider/recovery limits and composition deferral remain.",
   "groups": [
     {
       "id": "capture",
@@ -506,30 +506,30 @@
           "title": "Centralize version-scoped app observations",
           "status": "partial",
           "scope": "Shared reported facts, exact environment keys, expiry and conflicting evidence.",
-          "evidence": "Stage46 TextEdit1.20/build415 exact-entity root/Font menu facts appended and independently read back: childtrue pass, childfalse fail, padded display mixed due to pointer-like residual. Earlier Finder/Chrome facts and unknown native provider version retained.",
+          "evidence": "Stage47 policy pass and Chrome native readiness unknown facts appended and independently read back with current exact app metadata. Native observation timed out; unrelated offscreen window preserved. Stage46 three TextEdit menu facts and prior Finder/Chrome evidence retained; unknown provider version cannot be promoted by callertrue.",
           "next": "Add useful missing app/provider capability facts; revalidate exact changed environment and transient family.",
-          "anchor": "forty-sixth-pass",
-          "updated_at": "2026-10-09T07:52:09-04:00"
+          "anchor": "forty-seventh-pass",
+          "updated_at": "2026-10-09T08:01:02-04:00"
         },
         {
           "id": "requalification",
           "title": "Build maintained app lanes and breadth-first requalification",
           "status": "partial",
           "scope": "Baseline ingestion for stable daily apps and updates when app/provider/OS behavior changes.",
-          "evidence": "New exact-key planner identifies baseline, expiry, conflicts, mixed/unknown and reported outcomes. Changed app/OS/provider/display/capture keys inherit no pass. Unconfirmed environment/truncated windows disable reuse; older conflict beyond 100 observations tested. Six planning policy tests passed. Stage32 resolves controller/source lifecycle identities separately, retains Chrome failed preparation and appends two actual bounded fixture facts.",
+          "evidence": "Stage47 exact installed Chrome154.0.8037.98/build8037.98, Finder26.4/build1828.5.2, TextEdit1.20/build415/25F80 baselines refreshed. Provider remains unknown; explicit unknown dimensions now block reuse even callertrue. Actual real-fact CLI/MCP proof, unchanged entities/facts, and scoped Chrome readiness unknown retained; no automatic canary or blanket certification.",
           "next": "Execute targeted daily-app baseline lanes with current environment metadata and reinforce through routine supported outcomes; planner alone does not run canaries or certify environment.",
-          "anchor": "thirty-second-pass",
-          "updated_at": "2026-10-09T03:49:09-04:00"
+          "anchor": "forty-seventh-pass",
+          "updated_at": "2026-10-09T08:01:02-04:00"
         },
         {
           "id": "workflow-audit",
           "title": "Verify the quality of recent shared computer-use workflows",
           "status": "partial",
           "scope": "Assess delivered actions, verification and cleanup rather than tool-call counts.",
-          "evidence": "Stage45 supported real health reader runs once with actual exact-stamp/filter/default/CLI checks, typed verified cleanup-complete outcome, audit uncovered0. Prior native/ordinary-adapter failures and conflicting verification history retained; scoped reported evidence, not historical success rate.",
+          "evidence": "Stage47 supported current shared-MCP planner operation runs once, checks real fact before/after policy and CLI equality, closes scope before verification, settles reader/session. Typed verified/cleanup-complete outcome, uncovered0. Actual Chrome native readiness timeout preserved as unknown, without fabricated dispatch receipt or historical success grading.",
           "next": "Extend actual unresolved/routine provider outcomes and safe ordinary consumer adoption; historical task quality remains unknown without observed proof.",
-          "anchor": "forty-fifth-pass",
-          "updated_at": "2026-10-09T07:33:09-04:00"
+          "anchor": "forty-seventh-pass",
+          "updated_at": "2026-10-09T08:01:02-04:00"
         },
         {
           "id": "receipt-integration",
@@ -546,10 +546,10 @@
           "title": "Plan exact app baselines and targeted requalification",
           "status": "completed",
           "scope": "Read-only shared-store planner and native CLI/fresh MCP consumer. Exact version/environment dimensions, expiry/conflict/unknown/truncation policy; no automatic UI or historical success grading.",
-          "evidence": "13 targeted tests passed. Live CLI retained prior Chrome uncertainty; three native reported outcomes and two exact terminal recorder replies were centrally appended/read back. Unknown environment prevented reuse. An older conflict beyond 100 observations, large files/buckets and symlinks all withheld reuse or refused planning.",
+          "evidence": "Stage47 real TextEdit unknown-provider pass was incorrectly reusable with callertrue. Current policy1 blocks reserved unknown dimensions despite confirmation, preserves claimed/effective flags and same fact IDs. Seven planner/shared protocol checks pass; initial stale roster failure retained and affected recheck passed. Actual CLI/fresh shared MCP equal, once-only typed consumer verified/settled, uncovered0. Prior expiry/conflict/truncation proofs retained.",
           "next": "",
-          "anchor": "twenty-second-pass",
-          "updated_at": "2026-10-09T00:22:13-04:00"
+          "anchor": "forty-seventh-pass",
+          "updated_at": "2026-10-09T08:01:02-04:00"
         },
         {
           "id": "typed-workflow-outcomes",
@@ -1930,6 +1930,13 @@
       "from": "active",
       "to": "active",
       "note": "TextEdit root/Font lane qualified across three capture modes;2661 exact joins. Display residual, protected input and late source end remain explicit. Owned app/session settled, five verified typed outcomes and three scoped facts read back.43 completed,16 partial,1 deferred; continue remaining high-impact boundaries without duplicate takes."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T08:01:47-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Fixed and verified an actual shared-planner reuse hole: explicit unknown provider dimensions block callertrue confirmation. Real TextEdit fact retained, CLI/fresh shared MCP equal; typed once-only reader settled. Current daily-app version baselines refreshed, Chrome readiness unknown preserved.43 completed,16 partial,1 deferred; continue unblocked high-impact gates."
     }
   ]
 }

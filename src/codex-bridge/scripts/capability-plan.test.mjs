@@ -46,6 +46,35 @@ test('expiry and future claims cannot silently reuse a prior pass', () => isolat
   assert.equal(result.checks[0].not_after, null)
 }))
 
+test('a caller confirmation cannot promote explicit unknown dimensions into reusable app evidence', () => isolated(store => {
+  for (const field of Object.keys(entity)) {
+    const scoped = { ...entity, [field]: 'unknown' }
+    const saved = store.put('facts', { ...fact, entity: scoped })
+    const before = readFileSync(saved.path)
+    const result = plan(store, { ...request, entity: scoped })
+    assert.equal(result.environment_claimed_verified, true)
+    assert.equal(result.environment_verified, false)
+    assert.deepEqual(result.unknown_dimensions, [field])
+    assert.equal(result.checks[0].evidence_state, 'reported_pass')
+    assert.deepEqual(result.checks[0].observation_ids, [saved.id])
+    assert.equal(result.checks[0].reuse_candidate, false)
+    assert.equal(result.checks[0].not_after, null)
+    assert.equal(result.checks[0].next_check, 'verify_exact_environment_before_using_observations')
+    assert(result.checks[0].reasons.includes('unknown_entity_dimensions'))
+    assert.deepEqual(readFileSync(saved.path), before)
+  }
+  const scoped = { ...entity, app_build: ' UnAvAiLaBlE ', provider_version: 'unverified', display_profile: 'not_available' }
+  store.put('facts', { ...fact, entity: scoped })
+  for (const environment_verified of [true, false]) {
+    const result = plan(store, { ...request, entity: scoped, environment_verified })
+    assert.equal(result.environment_verified, false)
+    assert.deepEqual(result.unknown_dimensions, ['app_build', 'provider_version', 'display_profile'])
+    assert.equal(result.checks[0].reuse_candidate, false)
+  }
+  store.put('facts', fact)
+  assert.equal(plan(store).checks[0].reuse_candidate, true, 'Fully named confirmed scope remains a candidate, not independently certified')
+}))
+
 test('conflicting/mixed/unknown failures retain uncertainty; unconfirmed environment blocks reuse', () => isolated(store => {
   store.put('facts', fact)
   const unconfirmed = plan(store, { ...request, environment_verified: false }).checks[0]
