@@ -1,5 +1,39 @@
 # Qualification update — October 8, 2026
 
+## Twelfth pass: clock gaps and affected-take interruption
+
+The eleventh pass closed the declared SDR reference/tag scope. This stage carried
+that evidence forward and investigated clocks without putting the shared host to
+sleep. The first passive test exposed a valid zero-offset bracket crossing zero;
+signed interval bounds corrected that failure without restarting a capture phase.
+
+| Gate | Verified evidence | Limits |
+| --- | --- | --- |
+| Clock interval policy | 26 checks cover divergence, regressions, delayed callbacks, cumulative offset change, repeated unbounded samples, exact integers, persisted boundaries and late closure. All 100 passive awake samples were bounded; the final sample run peaked at 125 ns. | No actual sleep, physical input latency or all-provider clock calibration. The reported 1-ms bracket and 250-ms change thresholds are conservative qualification boundaries, not universal detection. |
+| Awake source/MCP | Signed/loaded 73034c7240cf captured 81 exact muxed/journal timestamps and nine clock anchors over 8.16 seconds, with 87 callbacks and zero lost rows/gaps. Actual MCP returned the new continuity policy; source frames retained receipt segment 0. | A static authored window still produced callbacks. This does not independently prove a sparse-callback or wake path. Timer monitoring is a separate code path, not inferred from the count. |
+| Arming interruption | Ten actual recording-state checks interrupted only the affected preflight, retained unfinished admission, preserved a peer and rejected late resurrection; no service restart. A final early-arm guard prevents proceeding into power/startup work after the initial sample already failed. | Controlled preflight prevents SDK discovery and UI. Final guard candidate is loaded privately; installation remains pending. |
+| Recording interruption | A signed private harness ran the actual frozen recording implementation. Injecting a continuous-clock offset interrupted a real owned-window capture: one gap, 33 exact muxed/journal timestamps, zero lost rows, successful partial finalization and no held-at-end fill. Saved manifest and footer retained the interruption. | Injected divergence, not physical sleep. The harness has a private entry point; no fault-injection RPC was added to the service. Active-path proof precedes the final early-arm guard, which does not change that path. |
+| Journal bounds | 125 existing overflow, byte/footer-cap, closure and exact-time checks passed after clock rows were integrated. | A complete journal remains distinct from complete source/media coverage. |
+| Cleanup | Both fixture lifetimes, two isolated service engines, the actual-capture harness and MCP child exited; leases, input, preview, export and quarantine returned to zero. Latest guard process also exits after capability readback. | Installed production stays the original cd78c24b652e/PID 71911; peer workflows and the host pressure watcher were preserved. |
+
+The initial unsigned-offset test failure stays in `initial-host-clock-test.stderr`.
+The first compile omitted the existing geometry dependency; full frozen sources
+corrected that harness setup. A status helper initially expected the build at the
+wrong JSON level, and a malformed target was refused before capture. The existing
+session and engine were reused after correcting the request; no take was restarted.
+
+Apple documents [uptime excluding sleep](https://developer.apple.com/documentation/kernel/1462446-mach_absolute_time)
+and [continuous time including sleep](https://developer.apple.com/documentation/kernel/1646199-mach_continuous_time).
+Observed offset changes alone do not identify their physical cause. The recorder
+owns detection and stops the affected take at the previous observation/accepted
+frame boundary, preserving uncertainty and partial media instead of extending a
+held frame through it. Physical sleep/wake remains partial in the checklist.
+
+Private evidence: gates-v12/host-clock-final-test.json,
+clock-interruption-guard-test.json, journal-test.json, clock-journal-proof.json,
+mcp-source-readback.json, active-clock-proof.json, active-journal-proof.json,
+active-evidence, guard-build.json, guard-loaded-status.json and exit records.
+
 ## Eleventh pass: buffer/backing color isolation and source diagnostics
 
 The previous goal turn made progress: preview lifetime passed and one combined

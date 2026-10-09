@@ -138,6 +138,9 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   private var previousGeometry: Data?
   private var previousColor: CaptureColor?
   private var colorSequence = -1
+  private var receiptClockSegment = 0
+  private var lastReceiptClockNS: UInt64?
+  private var hostClockInterrupted = false
   private var prerollSource: Int?
   private var lastSource: Int?
   private var framesProvenance = "live_counters"
@@ -396,6 +399,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
       let journal = try SourceJournal(path: dir + "/source.jsonl", epoch: startHostNs,
                                       recordingID: id, target: targetRaw)
       snapLock.withLock { sourceJournal = journal }
+      guard observeHostClock() else { return }
     } catch {
       restoredSource = ["schema": "record-screen-source/v1", "state": "unavailable", "complete": false,
                         "error": "source journal could not be created"]
@@ -555,6 +559,8 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   func stream(_ s: SCStream, didOutputSampleBuffer sb: CMSampleBuffer, of type: SCStreamOutputType) {
     guard stream === s, type == .screen, state == .arming || state == .recording,
           let info = (CMSampleBufferGetSampleAttachmentsArray(sb, createIfNecessary: false) as? [[SCStreamFrameInfo: Any]])?.first else { return }
+    let receiptClock = HostClockSample.read()
+    guard observeHostClock(receiptClock) else { return }
     let sourceID = sourceSequence; sourceSequence += 1
     let pts = SourceJournal.hostNS(sb.presentationTimeStamp)
     let pb = CMSampleBufferGetImageBuffer(sb)
@@ -581,7 +587,8 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     }
     var row: [String: Any] = ["kind": "source_frame", "source_frame": sourceID, "geometry_segment": geometrySequence,
                              "color_segment":colorSequence >= 0 ? colorSequence as Any : NSNull(),
-                             "status": raw as Any? ?? NSNull(), "received_host_ns": String(uptimeNs()),
+                             "status": raw as Any? ?? NSNull(), "received_host_ns": String(receiptClock.uptimeAfter),
+                             "receipt_clock_segment":sourceJournal != nil ? receiptClockSegment as Any : NSNull(),
                              "pts": ["value": String(sb.presentationTimeStamp.value), "timescale": sb.presentationTimeStamp.timescale],
                              "pts_host_ns": pts.map(String.init) as Any? ?? NSNull(),
                              "relative_ns": pts.map { sourceJournal?.relative($0) as Any? ?? NSNull() } as Any? ?? NSNull()]
@@ -656,8 +663,9 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
 
   // MARK: - Finishing
 
-  private func finalize(reason: String?) {
+  private func finalize(reason: String?, checkClock: Bool = true) {
     guard state == .recording || state == .arming else { return }
+    if checkClock && !observeHostClock() { return }
     let wasRecording = wroteFirst
     snapLock.withLock { inputEndHostSnap=endHostNs }
     setState(.finalizing)
@@ -672,7 +680,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
     // A static screen sends one frame and then nothing: repeat the last frame
     // just before the end so the file lasts the full window.
     let frameNs = UInt64(1e9 / Double(settings.fps))
-    if let last = lastBuffer, endHostNs > lastWrittenNs + frameNs {
+    if !hostClockInterrupted, let last = lastBuffer, endHostNs > lastWrittenNs + frameNs {
       append(last, at: endHostNs - frameNs, source: lastSource, held: "held_at_end")
     }
     // Watchdog: if the encoder stalls, endSession/finishWriting never return
@@ -782,6 +790,27 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
 
   // MARK: - Watching for disturbances
 
+  /// Called on this recording's queue. No service restart or peer interruption.
+  /// An unbounded sample is also uncertainty: stop rather than invent coverage.
+  @discardableResult func observeHostClock(_ sample:HostClockSample = .read()) -> Bool {
+    guard state == .arming || state == .recording, let journal=sourceJournal else { return true }
+    let segment=journal.observeClock(sample)
+    guard segment != receiptClockSegment else { lastReceiptClockNS=sample.uptimeAfter; return true }
+    receiptClockSegment=segment
+    hostClockInterrupted=true
+    note("host_clock_gap",["receipt_clock_segment":segment,
+      "coverage":"unknown across clock observation interval; inspect partial media or reshoot"])
+    endHostNs=max(lastWrittenNs,min(endHostNs,max(startHostNs,lastReceiptClockNS ?? startHostNs)))
+    let reason="host clock continuity is uncertain; affected take stopped without filling the unknown interval"
+    if state == .recording { finalize(reason:reason,checkClock:false) }
+    else {
+      teardownStream();writer?.cancelWriting()
+      try? FileManager.default.removeItem(atPath:videoPath)
+      finish(.failed,reason:reason)
+    }
+    return false
+  }
+
   private func exclusionChanged(_ change:ExclusionIdentityChange) {
     guard state == .arming || state == .recording else{return}
     exclusionQuality=["state":"uncertain","change":change.dict,
@@ -800,6 +829,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   /// Once a second: did the target window move, resize, hide or vanish?
   private func monitor() {
     guard state == .recording else { return }
+    guard observeHostClock() else { return }
     let current = describeLocked()
     snapLock.withLock { snapshot = current }
     guard let w = watchedWindow else { return }

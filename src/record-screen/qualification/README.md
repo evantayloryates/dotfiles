@@ -44,6 +44,8 @@ No helper requests a new grant.
 | `admission-test.swift` | Future schedule and extension overlap/duration/lead admission, cancellation; no capture |
 | `recorded-action.test.mjs` | Supported wrapper never replays UI after missing receipt; shared imported provenance |
 | `journal-test.swift` | Bounded asynchronous writes, queue/byte/footer failures, exact timestamps and private files |
+| `host-clock-test.swift` | Bracketed clock samples, signed zero-offset intervals, injected divergence/regression/uncertainty, journal boundaries and passive awake samples |
+| `clock-interruption-test.swift` | Actual arming state: affected-only interruption, unfinished admission, peer preservation and late-result cleanup; controlled preflight prevents SDK/UI |
 | `verify-journal.py` | Compare journal decisions against actual muxed samples; optional authored-fixture pixels via ffmpeg/Pillow |
 | `coordinate-color-fixture.swift` | Declared sRGB references, app-delivered Quartz/local coordinates and painted click markers; move between displays through exposed controls |
 | `verify-coordinate-color.py` | Join actual native deliveries, journal positions and decoded authored marker/patch pixels; ffmpeg/Pillow, point-resolution fixture only |

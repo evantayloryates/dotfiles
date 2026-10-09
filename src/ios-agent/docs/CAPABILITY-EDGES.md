@@ -27,3 +27,20 @@ physical input/recovery limits, reviewed service and agent runbook. Proposed
 scenario clocks, arbitrary evaluation, full network bodies, multi-touch, staging
 and general system automation are separate extensions, not reasons to endlessly
 reopen already-qualified baseline gates.
+
+## Physical transport and focused editing — 8 October
+
+With physical phone unlocked and Mirroring disconnected, the same installed
+build passed ready, 321-node tree, 2x capture and native idle. Capture: 681,027
+PNG bytes, 105ms render, 25ms encode, 6.816s command. Earlier 62KB tree result
+upload failed at 8s with NSURLSession -1001. Authenticated Mac HTTPS uploads
+through 1.24MB passed synthetic wrong-target rejection in 0.27s. These isolate
+a phone transport condition; they do not prove Mirroring causes the failure.
+
+Actual coach mutation rendered on paired phone, exact React client/value matched.
+Native scroll inertia rejected an occluded row safely; a settled fresh snapshot
+worked. Bottom sheet focus worked; holding text moved caret without a usable
+selection menu. New bounded focused replacement uses public UITextInput selection
+and normal UIKeyInput insertion. 39 UIKit fixture gates passed including Unicode
+replacement, empty clearing and invalid-mode no-change. Physical replacement and
+reverse product mutation remain pending. Nullable baseline restored locally.

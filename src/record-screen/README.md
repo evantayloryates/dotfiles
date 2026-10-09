@@ -35,6 +35,13 @@ validated at delivery, and a new check resolves current identities. Main-run-loo
 observation can lag; these guards do not promise zero leaked pixels. Default
 callers retain their previous behavior.
 
+Candidate clock continuity samples both uptime and continuous time with bounded
+brackets. An observed discontinuity interrupts only the affected take, preserves
+partial footage and suppresses end-frame filling through the uncertain interval.
+The source packet reports the policy, anchors, gaps and receipt segments. Actual
+sleep/wake and other providers’ clock equivalence remain unqualified; see
+[SOURCE-PACKET.md](SOURCE-PACKET.md). Production delivery remains gated.
+
 Candidate source packets include observed color-tag boundaries and latest color
 metadata. Requested sRGB and observed buffer tags are separate; missing fields
 are unknown. The declared SDR reference path passed cross-display source/preview

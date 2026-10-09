@@ -40,7 +40,7 @@ default 2x, explicit 1x/3x, background PNG encoding, lease fencing and bounded
 native transport metrics. 35 UIKit simulator gates passed with cleanup. Its
 physical capture/transport qualification is currently running. No XCTest used.
 
-Phone remains USB connected per Taylor; physical locked with Mirroring in use.
+Phone remains USB connected per Taylor; physically unlocked and Mirroring disconnected.
 No lease is deliberately kept across checkpoints; re-read current host status
 before further actions. Host service/Metro/backend remain running. Preserve
 concurrent recorder edits in dotfiles and unrelated Kickoff artifacts.
@@ -49,3 +49,8 @@ Next finite gates: recover meaningful current app runtime; complete paired mobil
 read/equality and restoration; qualify app-owned Wi-Fi handoff and cellular;
 representative physical/refresh edges; whole-scope review/runbook/publication.
 Staging/system-control expansion remains deferred.
+
+Latest: physical isolation ready/tree/2x image/idle passed. Coach→phone 2456
+rendered and React exact synthetic client/value matched; nullable baseline restored.
+Bottom sheet/focus/scroll passed; bounded text replacement candidate has 39 fixture
+gates passed. Native build underway, not installed yet. No lease remains.

@@ -366,7 +366,16 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
   if([action isEqual:@"text"]) {
    UIView *first=[self responder:[self mainWindow]]; NSString *text=args[@"text"];
    if(![text isKindOfClass:NSString.class] || text.length>4096 || ![first conformsToProtocol:@protocol(UIKeyInput)]) { done(IAError(@"focused_text_input_required")); return; }
-   [(id<UIKeyInput>)first insertText:text]; done(@{@"delivered":@YES,@"method":@"UIKeyInput",@"commitVerified":@NO}); return;
+   NSString *mode=args[@"mode"]?:@"insert";
+   if(![mode isEqual:@"insert"] && ![mode isEqual:@"replace"]) { done(IAError(@"text_mode_invalid")); return; }
+   if([mode isEqual:@"replace"]) {
+    if(![first conformsToProtocol:@protocol(UITextInput)]) { done(IAError(@"focused_text_selection_required")); return; }
+    id<UITextInput> input=(id<UITextInput>)first;
+    UITextRange *range=[input textRangeFromPosition:input.beginningOfDocument toPosition:input.endOfDocument];
+    if(!range) { done(IAError(@"focused_text_selection_required")); return; }
+    input.selectedTextRange=range;
+   }
+   [(id<UIKeyInput>)first insertText:text]; done(@{@"delivered":@YES,@"method":@"UIKeyInput",@"mode":mode,@"commitVerified":@NO}); return;
   }
   if(![action isEqual:@"tap"] && ![action isEqual:@"gesture"]) { done(IAError(@"unsupported_action")); return; }
   if(![[self capabilities][@"nativeInputRuntime"] boolValue]) { done(IAError(@"native_input_unavailable")); return; }

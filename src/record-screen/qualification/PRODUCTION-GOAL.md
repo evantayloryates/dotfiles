@@ -309,3 +309,26 @@ Preserve the original failure and successful declared reference evidence rather
 than repeating them for another gate. Continue source provider/tap/sleep boundaries,
 Chrome transient overflow, measured insurance/admission, shared receipts, then
 idle-boundary install/rollback and installed consumers. The goal remains active.
+
+## Twelfth-pass verified checkpoint
+
+Clock policy now uses bracketed uptime/continuous samples and signed offset bounds.
+The initial zero-offset sampling failure is preserved. Twenty-six checks and 100
+awake samples passed; 125 existing journal-bound tests passed after integration.
+One awake source/MCP canary preserved 81 exact timestamps and nine anchors.
+
+The recorder now interrupts only the affected take on an observed gap, preserving
+partial media and avoiding held-at-end interpolation. Ten actual arming-state
+checks preserved peer and unfinished-producer admission. A real owned-window
+canary with an injected offset finalized 33 exact samples, one explicit gap and
+no held-at-end fill. Actual sleep/wake and provider equivalence remain partial.
+
+The final early-arm guard stops setup immediately if the first sample is already
+uncertain, avoiding a power/startup resource acquired after failure. Its private
+frozen candidate gets exact capability/build readback; no production installation.
+All owned processes exit and private evidence remains in gates-v12. Keep the goal
+and checklist active. Next prioritize tap/provider fault boundaries and Chrome
+overflow, then correct motion-insurance preconditions under measured health;
+finish admission/runbooks and idle-boundary installation with installed consumers.
+Do not repeat the settled color, coordinate, preview or clock canaries without a
+new boundary change. Physical sleep cannot be inferred from injected evidence.

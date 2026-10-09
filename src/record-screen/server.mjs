@@ -316,7 +316,7 @@ const tools = [
   },
   {
     name: "recording_source",
-    description: "Get a recording's local source journal descriptor and completeness/gap diagnostics. The JSONL packet maps exact host-clock nanoseconds to video-relative time, source frames, geometry segments, encoded/held frames and declared marks. Returns paths, never bulk rows or pixels. Journal completeness and video_outcome are separate: a closed journal can outlive a failed encoder, and accepted submissions can exceed persisted packets. Failed/interrupted footage needs decoded coverage before recovery; null video_outcome means unmeasured/legacy. Inspect transform qualification before composing. Requires engine source_journal v1.",
+    description: "Get a recording's local source journal descriptor and completeness/gap diagnostics. The JSONL packet maps exact host-clock nanoseconds to video-relative time, source frames, geometry segments, encoded/held frames and declared marks. Newer candidates include observed color tags and clock_continuity; absent legacy fields mean unknown. Clock gaps interrupt the affected take; receipt segments do not calibrate provider timestamps. Returns paths, never bulk rows or pixels. Journal completeness and video_outcome are separate: a closed journal can outlive a failed encoder, and accepted submissions can exceed persisted packets. Failed/interrupted footage needs decoded coverage before recovery; null video_outcome means unmeasured/legacy. Inspect transform qualification before composing. Requires engine source_journal v1.",
     inputSchema: {
       type: "object", additionalProperties: false,
       properties: { recording_id: { type: "string" } }, required: ["recording_id"],

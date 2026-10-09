@@ -1,8 +1,8 @@
 import Foundation
 
-/// Monotonic host clock in nanoseconds. Same base as ScreenCaptureKit frame
-/// timestamps and Hammerspoon's hs.timer.absoluteTime(), so agents can place
-/// markers on recordings without calibration.
+/// Recorder receipt clock in nanoseconds; excludes system sleep. Qualified SCK
+/// canaries share this domain. Do not infer another provider's clock equivalence
+/// or interpolate across a source journal clock gap.
 func uptimeNs() -> UInt64 { clock_gettime_nsec_np(CLOCK_UPTIME_RAW) }
 
 private let timebase: mach_timebase_info_data_t = {

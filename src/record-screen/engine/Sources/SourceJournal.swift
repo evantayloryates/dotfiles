@@ -23,6 +23,7 @@ final class SourceJournal: @unchecked Sendable {
   private var videoOutcome: [String: Any]?
   private var colorSegments = 0
   private var latestColor: [String:Any]?
+  private var clockContinuity = HostClockContinuity()
 
   init(path: String, epoch: UInt64, recordingID: String, target: [String: Any],
        capacity: Int = 64, byteLimit: Int = 64 * 1024 * 1024,
@@ -42,6 +43,7 @@ final class SourceJournal: @unchecked Sendable {
     }
     offer(["kind": "header", "schema": "record-screen-source/v1", "recording_id": recordingID,
            "epoch_host_ns": String(epoch), "clock_domain": "CLOCK_UPTIME_RAW", "target": target,
+           "clock_policy": HostClockContinuity.policy,
            "video_time_origin": "encoded time zero corresponds to epoch_host_ns",
            "requested_video_timescale": 1_000_000_000, "requested_movie_timescale": 1_000_000_000,
            "limits": ["SCK transform is a candidate until qualified for the app/display transition",
@@ -53,7 +55,24 @@ final class SourceJournal: @unchecked Sendable {
   }
 
   @discardableResult func offer(_ row: [String: Any]) -> Bool {
+    lock.withLock { offerLocked(row) }
+  }
+
+  /// Sampling/row acceptance is serialized, including a static screen's monitor.
+  /// Reading the clocks performs no OS enumeration or permission request.
+  @discardableResult func observeClock(_ sample: HostClockSample = .read()) -> Int {
     lock.withLock {
+      guard phase == "writing" else { return clockContinuity.segment }
+      for var row in clockContinuity.observe(sample) {
+        row["received_host_ns"] = String(sample.uptimeAfter)
+        row["relative_ns"] = relative(sample.uptimeAfter)
+        _ = offerLocked(row)
+      }
+      return clockContinuity.segment
+    }
+  }
+
+  private func offerLocked(_ row: [String: Any]) -> Bool {
       guard phase == "writing" else { return false }
       offered += 1
       guard pending < capacity, failure == nil else { lost += 1; return false }
@@ -64,7 +83,6 @@ final class SourceJournal: @unchecked Sendable {
       let sequence = offered - 1
       io.async { [self] in write(row, sequence: sequence) }
       return true
-    }
   }
 
   private func write(_ row: [String: Any], sequence: Int) {
@@ -122,6 +140,7 @@ final class SourceJournal: @unchecked Sendable {
        "complete_qualification": "accepted journal rows closed; not video finalization or muxed coverage",
        "video_outcome": videoOutcome as Any? ?? NSNull(),
        "color_segments":colorSegments, "latest_observed_color":latestColor as Any? ?? NSNull(),
+       "clock_continuity":clockContinuity.dict,
        "color_qualification":"observed tags from accepted rows; journal loss remains explicit; no app/backing intent inferred",
        "error": failure as Any? ?? NSNull(), "max_pending_rows": capacity, "max_bytes": byteLimit]
     }

@@ -198,6 +198,9 @@
      self.evidence[@"scrollOffsetY"]=@(self.scroll.contentOffset.y);
      IAInstance.lease=@"fixture-lease"; IAInstance.expiry=IANow()+60;
      [self.field becomeFirstResponder]; [self run:@"text" args:@{@"text":@"Synthetic QA"} done:^(NSDictionary *typed){self.evidence[@"textDelivery"]=typed;self.evidence[@"textMatches"]=@([self.field.text isEqual:@"Synthetic QA"]);}];
+     [self run:@"text" args:@{@"text":@"Replaced 🐾",@"mode":@"replace"} done:^(NSDictionary *typed){self.evidence[@"textReplacement"]=@([self.field.text isEqual:@"Replaced 🐾"]);}];
+     [self run:@"text" args:@{@"text":@"",@"mode":@"replace"} done:^(NSDictionary *typed){self.evidence[@"textReplacementEmpty"]=@(self.field.text.length==0);}];
+     [self run:@"text" args:@{@"text":@"Must not insert",@"mode":@"invalid"} done:^(NSDictionary *typed){self.evidence[@"invalidTextMode"]=typed;self.evidence[@"invalidTextModeNoChange"]=@(self.field.text.length==0);}];
      [self.field resignFirstResponder];
      [self extended:^{
      NSMutableDictionary *pending=[[self pointArgs:self.hold] mutableCopy]; pending[@"endX"]=pending[@"x"]; pending[@"endY"]=pending[@"y"]; pending[@"durationMs"]=@1200;

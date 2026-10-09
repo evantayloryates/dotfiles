@@ -1,6 +1,6 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-08T20:52:41-04:00",
+  "updated_at": "2026-10-08T21:11:39-04:00",
   "workflow": {
     "state": "active",
     "note": "Taylor resumed qualification. Prioritize high-impact investigation, preserve failed evidence and useful progress, and avoid repeated resets or rerunning settled checks."
@@ -132,10 +132,10 @@
           "title": "Qualify input-to-video clocks beyond the native canaries",
           "status": "partial",
           "scope": "Separate delivered-event, recorder-reception and frame clocks.",
-          "evidence": "Native delivered key timestamps matched exactly, including cross-display tests; physical input latency and sleep-safe equivalence remain unproven.",
-          "next": "Verify provider clock semantics and preserve explicit uncertainty across clock discontinuities.",
-          "anchor": "sixth-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "evidence": "Native delivery timestamp/cross-display evidence is preserved. Bracketed host-clock boundaries, receipt segments and affected-take interruption now pass injected/live recording checks; raw provider clocks are not automatically equated to receipt or frame clocks.",
+          "next": "Qualify remaining provider/physical-input clock semantics; preserve uncertainty and stop affected footage at observed discontinuities.",
+          "anchor": "twelfth-pass",
+          "updated_at": "2026-10-08T21:11:39-04:00"
         },
         {
           "id": "pointer-coordinates",
@@ -150,12 +150,12 @@
         {
           "id": "sleep-clock",
           "title": "Verify sleep, wake and display-transition policy",
-          "status": "pending",
-          "scope": "Detect clock or display discontinuities and avoid interpolating through unknown intervals.",
-          "evidence": "Cross-display movement passed; actual sleep/wake behavior is not qualified.",
-          "next": "Prove explicit gaps, clock/geometry segment boundaries and safe recovery.",
-          "anchor": "limits",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "status": "partial",
+          "scope": "Service-owned bracketed clock observations, explicit uncertain intervals and affected-only take interruption. Physical sleep/wake remains unqualified.",
+          "evidence": "26 checks and 100 awake samples passed; 125 journal-bound checks passed. Live awake take/MCP: 81 exact timestamps, nine anchors, no lost rows. Ten arming-state checks preserved peers/admission. Injected gap in real capture: 33 exact samples, one gap, partial finalization and no held-at-end fill.",
+          "next": "Qualify physical sleep/wake when it can be isolated safely; retain threshold, source-coverage and provider-clock uncertainty. Do not repeat injected or awake canaries without a changed boundary.",
+          "anchor": "twelfth-pass",
+          "updated_at": "2026-10-08T21:11:39-04:00"
         },
         {
           "id": "capture-colors",
@@ -551,6 +551,30 @@
       "from": "in_progress",
       "to": "completed",
       "note": "Eight cold BGRA/NV12 probes isolated the pre-encoder backing-color boundary. Explicit 709 and CI sRGB did not repair inherited values; changing only the owned fixture backing restored raw references within 1 channel value. Signed/loaded ff2c43b308aa passed 10 tag checks, 229 exact muxed timestamps and 18 reference samples within 2 across three geometry segments; 230-frame software preview matched all 18 exactly. Actual MCP returned observed tags. Earlier failure and limits retained; no global color correction or other app/settings mutation."
+    },
+    {
+      "kind": "item",
+      "id": "sleep-clock",
+      "at": "2026-10-08T20:56:23-04:00",
+      "from": "pending",
+      "to": "in_progress",
+      "note": "Preparing bracketed uptime/continuous samples, explicit observation gaps and service-owned receipt segments. Actual shared-host sleep remains untested; no global sleep is requested."
+    },
+    {
+      "kind": "item",
+      "id": "sleep-clock",
+      "at": "2026-10-08T21:11:39-04:00",
+      "from": "in_progress",
+      "to": "partial",
+      "note": "26 checks and 100 awake samples passed; 125 journal-bound checks passed. Live awake take/MCP: 81 exact timestamps, nine anchors, no lost rows. Ten arming-state checks preserved peers/admission. Injected gap in real capture: 33 exact samples, one gap, partial finalization and no held-at-end fill."
+    },
+    {
+      "kind": "item",
+      "id": "event-clock",
+      "at": "2026-10-08T21:11:39-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Native delivery timestamp/cross-display evidence is preserved. Bracketed host-clock boundaries, receipt segments and affected-take interruption now pass injected/live recording checks; raw provider clocks are not automatically equated to receipt or frame clocks."
     }
   ]
 }

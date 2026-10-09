@@ -11,6 +11,34 @@ This packet references the original capture video. New capable exports carry
 a separate `record-screen-derivative/v1` sidecar and never silently reuse the
 parent epoch. Candidate delivery remains gated below.
 
+## Clock discontinuities
+
+Candidate capability `source_clock_continuity == 1` adds bracketed clock anchors,
+explicit `clock_gap` rows and `source_packet.clock_continuity`. Older source
+packets lack these fields; their continuity is unknown, not verified. Exact clock
+values remain decimal strings. Receipt time stays `CLOCK_UPTIME_RAW`; the
+additional `CLOCK_MONOTONIC_RAW` sample detects changes in the observed offset.
+The two uptime reads bound sampling skew, including a signed interval around zero.
+
+Frames link `receipt_clock_segment`, which identifies their receipt-time segment;
+it does not remap frame PTS or calibrate a provider's raw event timestamp. A change
+greater than the recorded 250-ms threshold, clock regression or unbounded sampling
+bracket creates an explicit uncertain observation interval. Delayed callbacks
+with both clocks advancing equally do not establish sleep. The 1-ms bracket
+limit and threshold are reported in the policy; smaller changes remain unqualified.
+
+The candidate interrupts only the affected take. It preserves partial footage,
+ends at the previous observation/accepted frame boundary and disables the normal
+held-at-end fill. An arming take fails without inventing media; unfinished startup
+still retains admission until actual completion. No service restart or peer stop
+is requested. Inspect decoded partial coverage or reshoot; do not interpolate
+through the gap. Samples alone do not establish physical sleep duration or cause.
+Journal loss and writer outcome remain separate from observed clock state.
+
+Primary clock semantics: Apple's [uptime clock](https://developer.apple.com/documentation/kernel/1462446-mach_absolute_time)
+and [continuous clock](https://developer.apple.com/documentation/kernel/1646199-mach_continuous_time).
+Actual shared-host sleep/wake and all-provider clock equivalence remain open.
+
 ## Mapped previews and exports
 
 Negotiate `derivative_source == 1`. `record_export` adds `effort` and `backend`:

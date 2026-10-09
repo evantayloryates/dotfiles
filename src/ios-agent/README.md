@@ -155,6 +155,13 @@ another attempt. Warm reuse passed live; controlled cold recovery is still an
 acceptance gate. The lock serializes this tool, not every independent agent or
 process on the laptop, so an ownership check cannot guarantee zero collisions.
 
+Focused text insertion uses `text` with `{"text":"…"}`. To replace the current
+field, add `"mode":"replace"`; the adapter selects the actual focused
+UITextInput document and calls UIKeyInput insertion. Empty replacement clears
+the field. It never sets a React prop or invokes a product handler. This is
+semantic text editing, not hardware-keyboard simulation. Confirm the rendered
+value and persisted mutation before treating delivery as completion.
+
 The fixed `wifi` action hands off to the phone's **Runner Wi-Fi On/Off** Apple
 shortcuts, then returns to the dev app. It accepts only `{"state":"on"}` or
 `{"state":"off"}`; no arbitrary shortcut name or URL is accepted. Foreground
