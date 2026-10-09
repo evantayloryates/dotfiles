@@ -157,7 +157,11 @@ enum Review {
       let (img, actual) = try await gen.image(at: CMTime(seconds: tt, preferredTimescale: 600))
       let path = String(format: "%@/at-%07.3f.jpg", outDir, tt)
       _ = try ImageOut.write(img, to: path, format: "jpeg", quality: 0.8)
-      out.append(["t_s": tt, "frame_t_s": (actual.seconds * 1000).rounded() / 1000, "path": path, "w": img.width, "h": img.height])
+      out.append(["t_s": tt, "frame_t_s": (actual.seconds * 1000).rounded() / 1000,
+                  "frame_time": ["value": String(actual.value), "timescale": actual.timescale],
+                  "path": path, "w": img.width, "h": img.height,
+                  "pixel_checks": ImageOut.stats(img),
+                  "pixel_checks_qualification": "Coarse32x32 decoded-image uniformity before JPEG encoding, after requested preview scaling. A legitimate dark/empty scene can look blank; this does not identify the target, prove missing content, calibrate color or qualify unsampled frames. frame_time is the returned decoder image time, not an exact source-journal join."])
     }
     return out
   }

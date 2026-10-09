@@ -3308,3 +3308,28 @@ No new receipt/fact is invented for this read-only lookup qualification.
 Existing stage48 GPU observations reused rather than resampled.45completed18partial
 1deferred/full goal active; no native UI, capture, human prompt or peer refresh.
 Private gates-v75 retains actual plans, current tool/readback and test evidence.
+
+
+## Seventy-sixth pass: retained pixels can warn independently of canvas maps
+
+Review.frames adds ImageOut.stats on decoded scaled preview before JPEG plus
+exact rational returned frame_time. Six actual function outputs pass: three
+Safari retained samples and authored white/black/varied controls.220s normal
+luma201.9/SD99.4 vs231/245s black0/0. Known anchor geometry remains contained at
+all three; exact returned decoder times match actual mux starts. Ordinary231s
+JPEG all265600 RGB pixels zero. White254/0 also looks_blank: uniformity is a
+sampled warning, not semantic target-loss/unsampled coverage/color calibration.
+
+Signed frozen native6c238cc1ba80/PID20948 delivered once through idle fence;
+130 prior state JSON hashes unchanged/installed binary exact/codesign matches,
+Screen Recording reported granted. Fresh MCP0.17 and existing ordinary frame
+tool both read fields; reader exit0/nativeidle. No new capture or input canary:
+listen_access null is unknown after restart. Do not infer delivered input or
+full older22-tool adoption. One scoped pixel fact independently read back.
+
+Native Chrome acquisition returns AX, independent window119/PID71011 offscreen;
+existing media UI preserved. No input/capture/fixture. One typed terminal read
+outcome verified/cleanupcomplete, audit uncovered0/sessionclosed. Kept outside
+capture proof. No user prompt/peer refresh/rollback drill.45completed18partial
+1deferred/full goal active. Private gates-v76 retains candidate/source/signature,
+actual decoder/MCP/ordinary output, controls, mappings and preservation proof.

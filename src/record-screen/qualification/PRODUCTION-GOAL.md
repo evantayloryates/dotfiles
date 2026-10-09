@@ -1,33 +1,35 @@
 # Production qualification goal
 
-## Current checkpoint: stage75 — ACTIVE
+## Current checkpoint: stage76 — ACTIVE
 
-Recorder production_plan now optionally consumes the central computer-use typed
-app facts. `app_learning` uses the shared exact9-field entity/1–16 capabilities/
-boolean confirmation contract. Observed window or explicitly included app bundle
-must match; absent/mismatched target bundles withhold lookup. Shared environment,
-expiry, conflict, truncation and provenance policy stays authoritative. A store
-failure reports unavailable app learning without disabling the capture assessment.
-No evidence-content read, baseline canary, automatic source selection or fact write.
+Native6c238cc1ba80/PID20948 installed once via idle maintenance fence, reusing
+verified frozen signed binary.130 prior state JSON hashes unchanged; Screen
+Recording reported granted. Review.frames now returns existing32x32 uniformity
+stats on decoded preview before JPEG, plus exact rational returned decoder time.
+No capture callback/input/guard logic changed. Six actual native Review.frames
+outputs pass: three retained Safari frames and white/black/varied authored controls.
 
-Actual fresh MCP0.17/27tools and current minimal-PATH CLI return the same two
-reported stage73/74 passes. Unknown provider version overrides claimed true and
-blocks reuse; changed app_build gives missing, bundle mismatch withholds,
-malformed request refuses.64 affected tests pass, including isolated shared-store
-read/no-write/changed-key/conflict controls and actual MCP interface. Three live
-fact files hash unchanged across CLI read. Owned fresh reader exits0; installed
-native7c/PID39358 idle/unchanged. Ordinary loaded22-tool adoption remains unknown.
+Actual220s normal luma201.9/SD99.4;231/245s black0/0 while authored anchor geometry
+contained at all three. Three returned decoder times independently match actual
+mux starts; ordinary231s preview all265600 RGB pixels zero. Uniform white254/0
+also looks blank. Keep heuristic, sampled coverage, color/semantic uncertainty
+explicit; it cannot detect universal target loss. Current fresh MCP0.17 and
+existing ordinary frame tool both expose fields. Full older22-tool adoption
+still unknown; current CLI remains fallback. One exact scoped pixel fact read back.
 
-Stage74 exact long-summary retry/GUI FFprobe fixes and stage73 source/resource
-proof retained. Existing stage48 already supplies bounded host GPU observations;
-no duplicate GPU observer/capture was run. Read-only qualification helper first
-assumed query entries include paths; repaired before CLI dispatch using original
-immutable fact publication paths, without modifying central observations.
+Chrome native acquisition now returns AX but recorder window119/PID71011 offscreen
+and existing UI marked media capture. Preserved without input/capture/new fixture.
+One terminal read acquisition outcome verified/cleanupcomplete/audit uncovered0;
+sessionclosed. Do not infer native delivery from AX or disturb peer UI to force
+this lane. Owned fresh reader exits0, native idle with no scopes/unfinished work.
 
-45completed18partial1deferred. Full goal active; composition deferred. No user
-prompt/physical/sleep/grant test while AFK, conservative end23:20UTC. Next pursue
-one genuinely missing real-app/transient acceptance boundary using retained
-scoped app knowledge, without replaying passed media or speculative inverse fits.
+No input listener/delivery canary after this review-only restart. listen_access
+null means unknown, not denied; verify at the next useful owned capture boundary,
+without a human-dependent prompt. Prior input proof remains scoped to its build.
+Stage75 shared app-learning/64 focused tests and stage74 retry/source proofs retained.
+45completed18partial1deferred/full goal active, composition deferred. AFK conservative
+end23:20UTC. Next pursue a genuinely missing boundary on an owned reachable surface;
+reuse settled source proofs and preserve peer UI/current raw footage.
 
 ## Remaining work: ordered acceptance batches
 

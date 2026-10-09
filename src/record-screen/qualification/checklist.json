@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T18:19:07-04:00",
+  "updated_at": "2026-10-09T18:29:09-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage75 complete: current production planner optionally consumes exact shared computer-use app facts. Actual MCP0.17/CLI readback agrees; unknown provider blocks reuse, changed app build misses, target bundle mismatch withholds, malformed input refuses.64 affected checks pass; no UI/capture or human prompt. Remaining scopes stay partial. Next pursue a missing real-app/transient acceptance boundary; reuse settled resource and reader proofs."
+    "note": "Stage76 complete: installed native6c adds coarse decoded-frame pixel diagnostics and exact returned decoder time. Six retained/authored outputs pass, three actual source joins match, existing ordinary frame tool sees new native fields.130 prior JSON files unchanged, no new capture. Chrome AX now reachable but window offscreen/existing media UI preserved. Next pursue a missing boundary without disturbing peer UI; physical/human/sleep remain deferred."
   },
-  "production_note": "Signed native7c0f81e9d71f/PID39358 installed through one idle maintenance fence, exact candidate/installed binary and signature matched, Screen Recording grant preserved. Fresh canonical MCP0.17.0/27tools supports declaration-only pre-launch intent/context and optional shared app learning; loaded peers untouched and adoption unknown. Real launch and owned cleanup qualified; full18partial acceptance gates remain open.",
+  "production_note": "Signed native6c238cc1ba80/PID20948 installed through one idle maintenance fence; candidate/installed binary and signature matched,130 prior state JSON hashes unchanged, Screen Recording reported granted. Retained frame diagnostics/current MCP0.17/27tools and existing ordinary frame tool verified. No new capture or input-delivery canary after this review-only native change; last-observed input listen_access null is unknown, not denied. Fresh listener/delivered canary remains required before relying on new input coverage. Ordinary full adapter adoption and18 partial acceptance gates remain open.",
   "groups": [
     {
       "id": "capture",
@@ -232,10 +232,10 @@
           "title": "Qualify coordinates when real child menus change source fitting",
           "status": "partial",
           "scope": "Actual child-enabled isolated window with above/below-parent popup fitting, including scale and source origin changes. Existing static/fixture maps retain their proven scope.",
-          "evidence": "Stage64 first retained real TextEdit fitted-frame spatial candidate:2 parent-toolbar+1 child-selection anchors score.950/.902/.898, spread.303px. Four withheld native viewport edges <=.803px; two glyph supports >=98.76% within1px, brightness differs. New bounded quarter_phase helper option and21 checks pass; default actual JSON unchanged. Lower child.7845 still refuses; real wrong-phase child score1/margin0/disagreement refuses despite parent matches. Production fitted guard/legacy clock uncertainty retained; no generic or continuous map release. Stage65 retained metadata distinguishes nominal Retina scaling0.5 from additional fitting0.710145 relative to baseline1 in the earlier child episode. Scale equality alone cannot establish desktop origin; analytical spare-height counterexample has identical scale and320px origin ambiguity. Diagnostic only; production guard unchanged. Stage68 actual40s five-direction source:1834 exact mux/journal stamps. Right/left identical full geometry with134px parent displacement; above/below identical geometry with106px displacement. Metadata-only inverse is disproven in this scope. Fixed app crop861 stable packets across seven phases passes markers within1px; primary753 stable packets retains right-child oracle1.333px failure against1.25px. Service seven primary maps guarded/seven backup maps available;1570 common-clock boundaries. Owned fixture absent/sessionclosed/native unchanged. Stage70 Safari native select/change/dismiss and editing root observed and captured as paired window/app takes. Catalog popup candidates all fit within the parent; this is not an overflow test. Decoded pixels, exact paired intervals and continuous fixed-crop coordinates remain unverified. Stage71 verifies retained Safari source:8,900 exact mux/journal stamps;6,684 consecutive app packets before229.911662823s preserve anchor within1px. Two selected menu rows match across sources within1px. Service11 app maps available/4 primary maps guarded,8,900 whole-interval boundaries.35 final app packets lose anchor; later pixels black despite contained canvas. Actual menus fit parent; isolated guard unchanged. Stage72 app service projects10 sampled frames; isolated10 remain guarded. Fourteen unobstructed controls within1px, actual blue marker projections exact. Second scaled isolated source initial1.14391px edge failure against1px preserved; occluded markers do not prove transform failure.",
-          "next": "Qualify the remaining real popup overflow/changed-fit cases through service maps; use actual decoded content and refuse black/missing backup intervals. Preserve settled Safari and origin ambiguity proofs.",
-          "anchor": "seventy-second-pass",
-          "updated_at": "2026-10-09T17:51:25-04:00"
+          "evidence": "Stage64 first retained real TextEdit fitted-frame spatial candidate:2 parent-toolbar+1 child-selection anchors score.950/.902/.898, spread.303px. Four withheld native viewport edges <=.803px; two glyph supports >=98.76% within1px, brightness differs. New bounded quarter_phase helper option and21 checks pass; default actual JSON unchanged. Lower child.7845 still refuses; real wrong-phase child score1/margin0/disagreement refuses despite parent matches. Production fitted guard/legacy clock uncertainty retained; no generic or continuous map release. Stage65 retained metadata distinguishes nominal Retina scaling0.5 from additional fitting0.710145 relative to baseline1 in the earlier child episode. Scale equality alone cannot establish desktop origin; analytical spare-height counterexample has identical scale and320px origin ambiguity. Diagnostic only; production guard unchanged. Stage68 actual40s five-direction source:1834 exact mux/journal stamps. Right/left identical full geometry with134px parent displacement; above/below identical geometry with106px displacement. Metadata-only inverse is disproven in this scope. Fixed app crop861 stable packets across seven phases passes markers within1px; primary753 stable packets retains right-child oracle1.333px failure against1.25px. Service seven primary maps guarded/seven backup maps available;1570 common-clock boundaries. Owned fixture absent/sessionclosed/native unchanged. Stage70 Safari native select/change/dismiss and editing root observed and captured as paired window/app takes. Catalog popup candidates all fit within the parent; this is not an overflow test. Decoded pixels, exact paired intervals and continuous fixed-crop coordinates remain unverified. Stage71 verifies retained Safari source:8,900 exact mux/journal stamps;6,684 consecutive app packets before229.911662823s preserve anchor within1px. Two selected menu rows match across sources within1px. Service11 app maps available/4 primary maps guarded,8,900 whole-interval boundaries.35 final app packets lose anchor; later pixels black despite contained canvas. Actual menus fit parent; isolated guard unchanged. Stage72 app service projects10 sampled frames; isolated10 remain guarded. Fourteen unobstructed controls within1px, actual blue marker projections exact. Second scaled isolated source initial1.14391px edge failure against1px preserved; occluded markers do not prove transform failure. Stage76 adds decoded-frame warning evidence separate from geometry: retained Safari anchor remains contained at220/231/245s, but two latter decoded samples all black. Coarse stats flag uniformity without claiming semantic target loss; all265600 RGB preview pixels of ordinary231s image zero. Exact decoder/mux joins checked independently for three frames.",
+          "next": "Qualify a remaining real popup overflow/changed-fit case when the surface is available; preserve black/missing backup intervals and the current fitted-origin guard.",
+          "anchor": "seventy-sixth-pass",
+          "updated_at": "2026-10-09T18:29:09-04:00"
         },
         {
           "id": "fitted-mapping-guard",
@@ -480,10 +480,10 @@
           "title": "Provide draft, standard and full preview effort",
           "status": "completed",
           "scope": "Configurable width, frame rate and software/hardware backend for short source previews.",
-          "evidence": "Real draft, standard and GIF previews had 145 mapped frames each; full/native/60-fps added 725 references.",
+          "evidence": "Real draft, standard and GIF previews had 145 mapped frames each; full/native/60-fps added 725 references. Stage76 existing recording_frames now includes exact rational returned decoder frame_time and coarse32x32 decoded-image pixel_checks before JPEG. Three real Safari samples distinguish normal201.9/99.4 from black0/0 while authored anchor geometry contained; all three returned times exactly join mux starts. Authored uniform white254/0 also looks blank, preserving heuristic limits. Installed6c/fresh MCP and existing ordinary frame tool read back fields; no new capture.",
           "next": "",
-          "anchor": "eighth-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "anchor": "seventy-sixth-pass",
+          "updated_at": "2026-10-09T18:29:09-04:00"
         },
         {
           "id": "derivative-map",
@@ -556,10 +556,10 @@
           "title": "Verify the quality of recent shared computer-use workflows",
           "status": "partial",
           "scope": "Assess delivered actions, verification and cleanup rather than tool-call counts.",
-          "evidence": "Historical stage63 diagnosis retained. Stage69 targeted actual workflow finds post-close bound AX read relaunching a new PID/window. Three typed receipts/outcomes preserve verified original-process exit with partial first-close cleanup; separate exact new PID/window cleanup completed. Scoped audit uncovered0 covers stored scopes only, not all reads or implicit effects. Owned PIDs absent, sessionclosed and nativeidle. Stage71 six stored scopes each have read-back typed outcomes:3 verified/2 failed/1 unknown, zero uncovered. Protected menu episode stays failed for expiry/overrun; native Chrome timeout and unknown shortcut preserved. Independent later inventory finds owned Safari window absent/StartPage present without close replay; actor/time unknown. Audit covers stored scopes only. Stage72 twenty imported terminal scopes/outcomes read back:17 verified/3failed; zero uncovered. Expired narrow-dismiss stays failed despite visible dismissal; unused scope expires without dispatch. No provider interception claim. Stage73 three verified/cleanupcomplete outcomes, zero uncovered; captures retain motion start/end scope context. Cleanup independently observed, provider preflight failure preserved.",
-          "next": "Improve current provider dispatch/observation coverage and resolve specific failures; do not grade unbracketed operations from this six-scope audit.",
-          "anchor": "seventy-third-pass",
-          "updated_at": "2026-10-09T18:06:35-04:00"
+          "evidence": "Historical stage63 diagnosis retained. Stage69 targeted actual workflow finds post-close bound AX read relaunching a new PID/window. Three typed receipts/outcomes preserve verified original-process exit with partial first-close cleanup; separate exact new PID/window cleanup completed. Scoped audit uncovered0 covers stored scopes only, not all reads or implicit effects. Owned PIDs absent, sessionclosed and nativeidle. Stage71 six stored scopes each have read-back typed outcomes:3 verified/2 failed/1 unknown, zero uncovered. Protected menu episode stays failed for expiry/overrun; native Chrome timeout and unknown shortcut preserved. Independent later inventory finds owned Safari window absent/StartPage present without close replay; actor/time unknown. Audit covers stored scopes only. Stage72 twenty imported terminal scopes/outcomes read back:17 verified/3failed; zero uncovered. Expired narrow-dismiss stays failed despite visible dismissal; unused scope expires without dispatch. No provider interception claim. Stage73 three verified/cleanupcomplete outcomes, zero uncovered; captures retain motion start/end scope context. Cleanup independently observed, provider preflight failure preserved. Stage76 native Chrome acquisition returns AX, while independent recorder window119/PID71011 offscreen. Existing UI marked media capture preserved; no input/capture/fixture created. One terminal acquisition outcome verified/cleanupcomplete/audit uncovered0; sessionclosed. Accessibility acquisition alone is not native delivery or capture readiness.",
+          "next": "Continue targeted workflow observation only on owned reachable surfaces, preserving peer UI; no inference of delivery from accessibility or whole-workflow success from one receipt.",
+          "anchor": "seventy-sixth-pass",
+          "updated_at": "2026-10-09T18:29:09-04:00"
         },
         {
           "id": "receipt-integration",
@@ -632,10 +632,10 @@
           "title": "Install the candidate safely and verify rollback",
           "status": "partial",
           "scope": "Idle-boundary release with prior binary/state preserved and exact loaded-capability readback.",
-          "evidence": "Prior guarded releases/restoration and source/state preservation remain retained; stage58 delivers signed9bf native/paired-clock support. Stage62 exact configured launcher under minimal GUI PATH exposes current0.14.0/27 tools/replay never and exits cleanly; both harness registrations unchanged. Native9bf/PID24295/exact binary and mapping/server sources unchangedidle. Agent runbook baseline corrected; ordinary chat still lacks adapter metadata, so broader adoption/natural failure gates remain open. Stage67 fresh configured launcher/CLI delivers0.15.0 three-source planning,27 tools/replay never, actual parity and guarded crop/identity/slots. Native9bf/PID24295 unchangedidle; server/planner intentionally changed. Owned readers exited0, no peer/native restart. Ordinary chat still lacks metadata; adoption unknown.",
-          "next": "Extend specific consumer adoption and natural failure/recovery at safe boundaries; retain settled restoration and source proofs without repeating rollback.",
-          "anchor": "sixty-seventh-pass",
-          "updated_at": "2026-10-09T16:12:13-04:00"
+          "evidence": "Prior guarded releases/restoration and source/state preservation remain retained; stage58 delivers signed9bf native/paired-clock support. Stage62 exact configured launcher under minimal GUI PATH exposes current0.14.0/27 tools/replay never and exits cleanly; both harness registrations unchanged. Native9bf/PID24295/exact binary and mapping/server sources unchangedidle. Agent runbook baseline corrected; ordinary chat still lacks adapter metadata, so broader adoption/natural failure gates remain open. Stage67 fresh configured launcher/CLI delivers0.15.0 three-source planning,27 tools/replay never, actual parity and guarded crop/identity/slots. Native9bf/PID24295 unchangedidle; server/planner intentionally changed. Owned readers exited0, no peer/native restart. Ordinary chat still lacks metadata; adoption unknown. Stage76 review-only native6c238cc1ba80/PID20948 delivered once from verified signed frozen candidate via idle fence. Binary exact match/130 prior state JSON hashes unchanged/Screen Recording reported granted; fresh MCP0.17 and existing ordinary frame tool read retained pixels/extra fields. No input listener canary after restart; listen_access null unknown. Original rollback drill retained, not repeated.",
+          "next": "Verify a useful natural next capture/input listener at its actual source boundary; preserve signed artifact/state and settled rollback evidence, ordinary full adoption still open.",
+          "anchor": "seventy-sixth-pass",
+          "updated_at": "2026-10-09T18:29:09-04:00"
         },
         {
           "id": "installed-smoke",
@@ -2864,6 +2864,38 @@
       "from": "partial",
       "to": "partial",
       "note": "Stage75 fresh canonical MCP0.17/27tools advertises shared_app_learning and optional production_plan schema; actual source fact reads/current CLI agree. Owned reader exits0, native7c/PID39358 idle. Ordinary loaded22-tool contract remains older/unknown; no peer refresh."
+    },
+    {
+      "kind": "item",
+      "id": "fitted-child-mapping",
+      "at": "2026-10-09T18:29:09-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage76 adds decoded-frame warning evidence separate from geometry: retained Safari anchor remains contained at220/231/245s, but two latter decoded samples all black. Coarse stats flag uniformity without claiming semantic target loss; all265600 RGB preview pixels of ordinary231s image zero. Exact decoder/mux joins checked independently for three frames."
+    },
+    {
+      "kind": "item",
+      "id": "preview-effort",
+      "at": "2026-10-09T18:29:09-04:00",
+      "from": "completed",
+      "to": "completed",
+      "note": "Stage76 existing recording_frames now includes exact rational returned decoder frame_time and coarse32x32 decoded-image pixel_checks before JPEG. Three real Safari samples distinguish normal201.9/99.4 from black0/0 while authored anchor geometry contained; all three returned times exactly join mux starts. Authored uniform white254/0 also looks blank, preserving heuristic limits. Installed6c/fresh MCP and existing ordinary frame tool read back fields; no new capture."
+    },
+    {
+      "kind": "item",
+      "id": "workflow-audit",
+      "at": "2026-10-09T18:29:09-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage76 native Chrome acquisition returns AX, while independent recorder window119/PID71011 offscreen. Existing UI marked media capture preserved; no input/capture/fixture created. One terminal acquisition outcome verified/cleanupcomplete/audit uncovered0; sessionclosed. Accessibility acquisition alone is not native delivery or capture readiness."
+    },
+    {
+      "kind": "item",
+      "id": "release-rollback",
+      "at": "2026-10-09T18:29:09-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage76 review-only native6c238cc1ba80/PID20948 delivered once from verified signed frozen candidate via idle fence. Binary exact match/130 prior state JSON hashes unchanged/Screen Recording reported granted; fresh MCP0.17 and existing ordinary frame tool read retained pixels/extra fields. No input listener canary after restart; listen_access null unknown. Original rollback drill retained, not repeated."
     }
   ]
 }

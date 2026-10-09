@@ -412,8 +412,12 @@ Built for agents that can't watch video.
   `review/contact.jpg` with up to 12 labelled tiles (start, end and marks
   always included); `review/poster.jpg` (the end state). A static recording
   gets a few evenly spaced frames instead of changes.
-- **Frames at offsets** (`record.frames`) come out exact. Recordings are
-  variable frame rate, so `frame_t_s` says when the frame shown began.
+- **Frames at offsets** (`record.frames`) return a decoder image selected for the
+  request. `frame_t_s` is rounded to milliseconds; native
+  `retained_frame_pixel_stats:1` also returns exact rational `frame_time` and
+  coarse decoded-image `pixel_checks` before JPEG. Uniformity can describe a
+  legitimate white/black view; it does not prove target loss or unsampled content.
+  Use source mapping for exact mux/source joins, not the rounded seek field.
 - **Exports** (`record.export`, ffmpeg from Homebrew): the engine decodes from
   the start with the hardware decoder, converts to a constant rate
   (`fps=`), and cuts with `trim`, so a cut point inside a stretch where nothing

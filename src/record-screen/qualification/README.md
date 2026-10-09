@@ -716,3 +716,10 @@ changed versions, typed conflicting observations, no write/evidence-content fetc
 lookup failure isolation and malformed input before RPC. The inherited shared
 planner policy remains authoritative; local authored observations are test-only.
 Stage75 current MCP0.17/current CLI read actual retained scoped facts consistently.
+
+
+[Decoded-frame checks](RETAINED-PIXEL-CHECKS.md) document the actual native
+Review.frames pixel diagnostics and rational returned decoder time. The
+retained-frame-test.swift helper uses the production function on six real/authored
+outputs, preserving uniform-white/black ambiguity. Stage76 installed/fresh MCP
+and ordinary existing frame tool readback pass; no new capture or physical input.

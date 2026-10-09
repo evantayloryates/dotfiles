@@ -418,7 +418,7 @@ const tools = [
   },
   {
     name: "recording_frames",
-    description: "Frames of a finished recording at exact offsets (seconds from its start), returned as images. frame_t_s says when the frame shown actually began (recordings only add frames when the screen changes).",
+    description: "Frames of a finished recording at exact offsets (seconds from its start), returned as images. frame_t_s is the rounded returned decoder time; new native retained_frame_pixel_stats adds exact rational frame_time and coarse32x32 pixel_checks from the scaled decoded image before JPEG. Missing fields on older native builds are unknown. Uniform white/black can both look blank: inspect actual image/mean, never infer target loss or unsampled coverage from uniformity. Use recording_frame_map for exact mux/source correspondence; returned decoder time is not itself a journal join.",
     inputSchema: {
       type: "object", additionalProperties: false,
       properties: { recording_id: { type: "string" }, at_s: { type: "array", items: { type: "number" }, description: "1–12 offsets in seconds" }, max_width: { type: "number", description: "default 1024" } },

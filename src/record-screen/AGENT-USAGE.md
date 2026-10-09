@@ -370,8 +370,13 @@ The installed TextEdit1.20/415 app-only test retained its typeface popup beyond
 the document bottom with both child settings. The lower menu was crop-clipped.
 Existing `recording_frames` at3/15/25s recovered before/menu/after through the
 loaded chat MCP. Review seek requests use a600-timescale clock and returned
-`frame_t_s` is rounded to milliseconds; exact geometry/source joins belong to
-`recording_frame_map`. Copy inspected evidence privately before reusing the same
+`frame_t_s` is rounded to milliseconds. Native retained_frame_pixel_stats:1
+adds exact rational returned `frame_time` and coarse32x32 decoded-image
+`pixel_checks` before JPEG; older builds omit them. Uniform white and black can
+both look blank; preserve the mean, actual image and uncertainty. These are
+sampled warnings, not target-loss/content detection. Exact geometry/source joins
+still belong to `recording_frame_map`. See
+[decoded-frame checks](qualification/RETAINED-PIXEL-CHECKS.md). Copy inspected evidence privately before reusing the same
 extraction offset, whose generated filename can be overwritten.
 
 That TextEdit lane prepared a fresh owned document through New Document and
