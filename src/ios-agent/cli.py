@@ -112,7 +112,7 @@ def main():
     owner.add_argument("--rollout", type=Path)
     owner.add_argument("--owner-file", type=Path, help="private MCP connection lifecycle metadata")
     acquire.add_argument("--connection-owner", type=Path, help="optional MCP connection guard alongside a real Codex rollout")
-    acquire.add_argument("--surface", choices=("native", "web"), default="native")
+    acquire.add_argument("--surface", choices=("native", "web", "launch"), default="native")
     acquire.add_argument("--page")
     acquire.add_argument("--lease-file", type=Path, required=True)
     release = sub.add_parser("release")

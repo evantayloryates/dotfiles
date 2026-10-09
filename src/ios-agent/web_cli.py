@@ -5,11 +5,14 @@ import json
 import sys
 import time
 from cli import request
-from service import STATE
+from service import STATE, Rejected
 from pathlib import Path
 
 
+accepted_id = None
+
 def main():
+    global accepted_id
     p = argparse.ArgumentParser()
     p.add_argument('--state', type=Path, default=STATE)
     a = p.parse_args()
@@ -19,6 +22,7 @@ def main():
     result = request(r, a.state)
     if r['op'] == 'web_action':
         cid = result['id']
+        accepted_id = cid
         end = time.monotonic() + 14
         while time.monotonic() < end:
             result = request({'op':'web_result','id':cid,'lease':r['lease']}, a.state)
@@ -32,7 +36,9 @@ def main():
 if __name__ == '__main__':
     try:
         main()
-    except Exception:
+    except Exception as error:
         # Raw exceptions can include local paths/data. No secret-bearing stderr.
-        print(json.dumps({'error':'web_operation_refused_or_unknown','replay':False}))
+        codes={'web_lease_required','web_command_in_flight','web_page_not_ready','unsupported_web_action','private_web_origin_required','unknown_web_command'}
+        code=str(error) if isinstance(error,(Rejected,RuntimeError)) and str(error) in codes else 'web_operation_refused_or_unknown'
+        print(json.dumps({'id':accepted_id,'status':'unknown' if accepted_id else 'refused','error':code,'actionSent':accepted_id is not None,'replay':False}))
         sys.exit(1)

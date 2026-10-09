@@ -66,7 +66,24 @@ physical user input or authorize sleep/permission disruption.
 
 ## Checkpoints
 
-Current checkpoint: stage65. The real notification click changed an initially
+Current checkpoint: stage66. New75s/requested30fps moving authored source and
+independent20s cover, synchronized window/app/display lanes.5719 actual mux
+stamps match journals exactly, zero lost rows. All interior packets:565 app
+and570 isolated keep marker,567 display lose it under100% cover mask;565
+unique app coarse-patch hashes show continuing content.200ms at each edge
+withheld.803 full-interval service pair boundaries contained; geometry and
+content proof remain distinct.90 resource samples: native peak463.06MiB,CPU
+p50 8.90%/peak103.64%, later settled30.34MiB; pressure2/thermal0/no guard.
+40,839,659 video+4,048,850 journal bytes. Three closed scopes captured per lane,
+three typed verified/cleanupcomplete outcomes and one scoped fact read back,
+uncovered0. Both owned fixture apps absent/sampler terminal/sessionclosed/native
+9bf/PID24295 unchangedidle. Local helper schema errors repaired without UI
+replay; rawvideo DTS rounding logs retained as QA limits.46completed17partial
+1deferred. Goal active. Next source-owned dynamic fitted origin, physical input,
+longer useful capacity and ordinary consumer adoption; do not repeat this passed
+authored obstruction or stage65 menus. Composition remains deferred.
+
+Stage65 checkpoint: The real notification click changed an initially
 empty private file; the model-free seven-second watcher observed it after5.985s
 and one native self-message reached this chat. A60s/15fps Chrome window/app/
 display episode finished within the two-minute window.2650 actual mux packets

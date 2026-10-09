@@ -1,5 +1,51 @@
 # Qualification update — October 9, 2026
 
+## Sixty-sixth pass: moving motion source and actual obstruction insurance
+
+One new authored75s/requested30fps three-lane episode on built-in2x, encoded1x:
+window1000x732, app-filtered and display crops1140x850. Native controls start
+60Hz authored motion, move source80pt right/50pt down, show an independent
+400x250 magenta cover, restore and stop. The cover removes itself at its20s
+limit; the later Remove button finds no cover. User input remains available.
+
+Actual2181 window+1767 app+1771 display=5719 muxed timestamps match their own
+source journals exactly; all closed with zero lost rows. Three service action
+scopes retain start AND closed snapshots in all three sources before media end.
+Local helper first guessed nested action_token, then sent unsupported detail;
+failures are retained. Repaired existing tokens, no replayed UI or new take.
+
+All actual packets in the20.003650334s cover interval interior, excluding200ms
+at either lifecycle edge, are decoded and checked.565 app and570 isolated
+packets keep the authored green marker;567 display packets lose it and have
+100% magenta support over the coarse cover crop. The app's covered patch has
+565 unique coarse pixel hashes and <=1.875% magenta support. This proves a
+continuing authored backup patch during the obstruction, not arbitrary whole-
+shot rescue. No held packets inside this interval. Original geometry/source
+media preserved; window projection guard remains, app/display maps available.
+The service's entire20s pair summary evaluates803 common-process clock boundary
+segments: both named marker/cover regions contained for the full interval.
+Containment alone remains separate from the all-packet decoded content checks.
+
+90 passive process/host observations, no guard trigger. Recorder RSS peak
+463.06MiB, intervalCPU p50 8.90%/peak103.64% of one core; later idle RSS30.34MiB.
+Motion fixture peak78.34MiB, cover66.25MiB; fresh pressure2, thermalnominal0.
+Video40,839,659 bytes + journals4,048,850. Requested30fps is not a constant
+delivered cadence. One short concurrent-host profile, not incremental memory
+attribution, GPU/encoder-owned cost, P80 or long-duration capacity proof.
+Rawvideo QA output reported DTS-rounding warnings; decoded counts equal the
+independently verified original packet counts, media timestamps unchanged.
+
+Three terminal receipts and separate verified/cleanupcomplete outcomes read
+back, audituncovered0/conflicts0. One exact authored-app capability fact read
+back with provider versionunknown. Owned fixture apps independently absent
+from native inventory and ps; sampler terminal, exact sessionclosed/readback,
+recorder9bf/PID24295 idle/actions0/input0. Source signatures unchanged.
+Report uses owned-window crops to avoid publishing collateral desktop pixels.
+46completed/17partial/1deferred; broader recovery, dynamic fitted origin, real
+physical events, useful longer capacity and ordinary consumer adoption remain
+open. This advances the practical recovery gate without reshooting stable menus.
+Private evidence: capture-qualification-2026-10-08/gates-v66.
+
 ## Sixty-fifth pass: click-reserved Chrome menu and app-video acceptance
 
 - Taylor renewed access to both displays. A requested terminal-notifier2.0.0

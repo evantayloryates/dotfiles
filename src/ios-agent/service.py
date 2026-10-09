@@ -91,12 +91,12 @@ class Broker:
             self.web.tick()
             if self.device and self.clock() - self.device["seen"] > DEVICE_TIMEOUT:
                 self.device = None
-                if not self.lease or self.lease.get("surface") != "web":
+                if not self.lease or self.lease.get("surface", "native") == "native":
                     self.revoke("device_disconnected")
 
     def lease_wire(self):
         self.tick()
-        if not self.lease or self.lease.get("surface") == "web":
+        if not self.lease or self.lease.get("surface", "native") != "native":
             return None
         return {"id": self.lease["id"], "epoch": self.epoch,
                 "remainingMs": int(min(DEVICE_TIMEOUT, max(0, self.lease["expires"] - self.clock())) * 1000)}
@@ -143,13 +143,13 @@ class Broker:
                 if self.stopping_frontends:
                     raise Rejected("frontend_cleanup_in_progress")
                 surface = request.get("surface", "native")
-                if surface not in ("native", "web"):
+                if surface not in ("native", "web", "launch"):
                     raise Rejected("unsupported_surface")
                 if surface == "web":
                     page = self.web.pages.get(request.get("page"))
                     if not page or not page["visible"] or not page["ready"]:
                         raise Rejected("web_page_not_ready")
-                elif not self.device:
+                elif surface == "native" and not self.device:
                     raise Rejected("device_not_connected")
                 self.lease = {"id": secrets.token_hex(16), "thread": thread, "turn": turn,
                               "rollout": str(path), "offset": path.stat().st_size,
@@ -178,7 +178,7 @@ class Broker:
                         self.revoke("frontend_start_failed")
                         raise Rejected("frontend_start_failed")
                 self.cv.notify_all()
-                return {"id": self.lease["id"], "epoch": self.epoch} if surface == "web" else self.lease_wire()
+                return {"id": self.lease["id"], "epoch": self.epoch} if surface != "native" else self.lease_wire()
             if op == "result":
                 cmd = self.commands.get(request.get("id"))
                 if cmd and cmd["lease"] == request.get("lease") and cmd["status"] not in ("queued", "sent"):
@@ -191,7 +191,7 @@ class Broker:
                 self.revoke("owner_released")
                 return {"released": True}
             if op == "action":
-                if self.lease.get("surface") == "web":
+                if self.lease.get("surface", "native") != "native":
                     raise Rejected("native_surface_required")
                 action = request.get("action")
                 if action not in OPERATIONS:
@@ -242,7 +242,7 @@ class Broker:
             op = request.get("op")
             handoff = None
             if op == "hello":
-                if self.device and self.device["boot"] != boot and (not self.lease or self.lease.get("surface") != "web"):
+                if self.device and self.device["boot"] != boot and (not self.lease or self.lease.get("surface", "native") == "native"):
                     self.revoke("device_restarted")
                 self.device = {"boot": boot, "bundle": request["bundle"],
                                "build": str(request.get("build", "unknown"))[:64], "seen": self.clock()}

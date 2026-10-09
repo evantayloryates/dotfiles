@@ -1,0 +1,16 @@
+{
+  "at": "2026-10-09T19:47:10.151Z",
+  "scope": "Fresh installed stdio MCP controlling physical Safari qualification page",
+  "tools": 22,
+  "resources": 5,
+  "gates": {
+    "discovery": true,
+    "pageReadiness": true,
+    "dom": true,
+    "route": true,
+    "wrongRouteFails": true,
+    "sharedLearningProposalAndReview": true,
+    "counterevidenceStored": true,
+    "glowOff": true
+  }
+}

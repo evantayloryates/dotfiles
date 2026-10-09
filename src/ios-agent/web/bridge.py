@@ -87,8 +87,8 @@ class WebBridge:
             grant = self.grants.get(r.get('token'))
             if not grant or grant['origin'] != origin or len(self.pages) >= 16:
                 self.reject('web_enrollment_refused')
-            # One grant authorizes a single browser document. Full navigation needs
-            # a fresh grant; SPA routing/HMR retain the current document.
+            # One grant enrolls one tab. Its authenticated session survives reload;
+            # every new document boot retires previous ownership and commands.
             del self.grants[r['token']]
             pid, token = secrets.token_hex(16), secrets.token_urlsafe(32)
             self.clients[pid] = {'hash':hashlib.sha256(token.encode()).hexdigest(),'origin':origin,'expires':time.time()+86400}

@@ -237,6 +237,30 @@ PID is a failed precondition. If an earlier reported verification was incorrect,
 append a corrected typed outcome and retain conflicting history rather than
 overwriting the receipt or hiding the failed operation.
 
+## Measured short-take insurance profile
+
+Stage66 tested one75-second built-in Retina take at point resolution with
+requested30fps: isolated1000x732 plus app-filtered/display1140x850 crops.
+A20-second independent cover hid an authored marker in every checked display
+packet, while app and isolated footage preserved it throughout the interval
+interior. The app's covered motion patch kept changing. The service evaluated
+803 paired boundaries over the full interval with common-process clocks and
+contained marker/cover regions. Exclude unproven transition edges; the fixture
+used200ms at each lifecycle boundary. This is a supported investigation example,
+not an automatic obstruction detector or a universal rescue guarantee.
+
+The three sources produced40.84MB video and4.05MB journals. Passive observations
+saw recorder RSS peak463.06MiB, intervalCPU p50 8.90% and peak103.64% of one
+core; later idle RSS was30.34MiB. Host pressure was2 and fixture thermal state
+nominal; the resource guard did not trigger. Use these actual costs to weigh
+redundancy, rather than assuming insurance is free. Requestedfps differs from
+actual muxed cadence. Longer capacity, GPU attribution and P80 remain open.
+
+Keep operation scopes short and close them before the intended media boundary
+when the capture must include their end. Stage65's late end correctly stayed
+unknown in the source; stage66 retained all three closed snapshots in each
+lane. Retained snapshots must never be rewritten from later live action state.
+
 ## Inspect coverage before accepting or recovering a take
 
 Check the terminal manifest and `recording_source`. A closed zero-loss journal

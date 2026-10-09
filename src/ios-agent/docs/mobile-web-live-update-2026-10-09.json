@@ -1,0 +1,12 @@
+{
+  "at": "2026-10-09T19:42:30.696Z",
+  "scope": "Physical iPhone Chrome on private HTTPS; off-LAN not asserted",
+  "gates": {
+    "codeEditRendered": true,
+    "routePreserved": true,
+    "formStatePreserved": true,
+    "sourceRestored": true,
+    "restoreRendered": true,
+    "glowOff": true
+  }
+}

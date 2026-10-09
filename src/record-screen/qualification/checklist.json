@@ -1,9 +1,9 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T15:37:13-04:00",
+  "updated_at": "2026-10-09T15:54:44-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage65 real notification click and native self-message delivered the two-minute reservation; one60s Chrome menu batch produced2650 exact packet/source joins and scoped window/app/display menu evidence. Owned tab/server/watcher/session settled, native unchangedidle. One isolated nested96% pixel-support comparison remains failed; no threshold weakening or repeat take.46completed17partial1deferred. Taylor renewed display access; continue fitted source mapping, useful disturbance recovery and remaining physical/provider/capacity/adoption checks."
+    "note": "Goal active. Stage66 new motion/movement/20s obstruction take:5719 exact source/video joins,803 full-interval pair boundaries, all interior app/display marker checks pass; measured three-lane costs retained. Three closed source scopes and typed outcomes read back. Owned fixtures absent, sampler terminal, session closed, installed native unchanged/idle. Remaining continuous fitted origin, physical event and capacity/adoption gates stay open; visual composition deferred."
   },
   "production_note": "Current CLI/fresh MCP0.14 provides opt-in exact whole-interval region durations with budget refusal.37 affected +9 final focused checks and actual MCP/CLI/default parity. Retained90s source:1769 segments evaluated; geometry is separate from captured pixels. Legacy/fitted guards remain. Signed native9bf/PID24295/exact binary unchangedidle, three scoped facts read back, own readers settled. Ordinary loaded adapter still unverified; full acceptance open.",
   "groups": [
@@ -106,10 +106,10 @@
           "title": "Prove a useful overflow capture and recovery path",
           "status": "partial",
           "scope": "Qualified padded-display and separate-popup paths plus guarded optional fixed-crop app-only lane. Whole-shot recovery and broader app/menu behavior remain open.",
-          "evidence": "Stage59 real TextEdit external1x triple:2656 exact mux/source joins,30 same-process interval segments;15 selected decoded frames. App backup retains root/Font/Highlight/typeface where childfalse AND resolved-childtrue isolated sources omit. Equal-scale unobscured marker edges within1px; practical scoped supplement established. Built-in off-screen/-3811 and initial checks retained. Stage61 exact whole-interval region summaries expose clipping/unknown durations, but actual contained menu omission remains a pixel-negative control.90s document containment does not prove whole-shot rescue.",
-          "next": "Qualify remaining useful disturbance/clipping and whole-shot coverage, or explicitly limit recovery to verified source intervals. Keep accurate fitted-origin gate separate; do not reshoot this stable menu case.",
-          "anchor": "sixty-first-pass",
-          "updated_at": "2026-10-09T14:26:13-04:00"
+          "evidence": "Stage59 real TextEdit external1x triple:2656 exact mux/source joins,30 same-process interval segments;15 selected decoded frames. App backup retains root/Font/Highlight/typeface where childfalse AND resolved-childtrue isolated sources omit. Equal-scale unobscured marker edges within1px; practical scoped supplement established. Built-in off-screen/-3811 and initial checks retained. Stage61 exact whole-interval region summaries expose clipping/unknown durations, but actual contained menu omission remains a pixel-negative control.90s document containment does not prove whole-shot rescue. Stage66 new75s/30fps owned moving motion window, app-filtered and padded display take.5719 actual mux/source joins, zero journal loss.20.00365s real opaque cover; interval interior excludes200ms at edges.565 app packets preserve green marker and565 unique coarse-patch hashes;567 display packets show cover,570 isolated preserve marker.803 common-clock pair boundaries are contained throughout. Actual selected owned-window crops verified. Covers one authored affected interval; arbitrary whole-shot/menu recovery remains open.",
+          "next": "Resolve remaining popup/changed-fit coverage and useful clipping transitions through actual delivered source maps. Use verified affected intervals only; preserve unqualified edges and do not repeat the passed obstruction take.",
+          "anchor": "sixty-sixth-pass",
+          "updated_at": "2026-10-09T15:54:44-04:00"
         },
         {
           "id": "clean-source",
@@ -444,10 +444,10 @@
           "title": "Set a realistic resource and admission budget",
           "status": "partial",
           "scope": "CPU, memory, encoder/GPU/storage costs and useful production-duration estimates.",
-          "evidence": "Stage56 original90s pair104 observations: recorder peak53.52MiB, p50 intervalCPU6.94%/peak15.87%; TextEdit134.66MiB, host pressure1/2, no guard. Follow-up unmeasured. Prior GPU/longer profiles retained; no causal encoder/GPU/capacity/P80 proof. Stage61 one whole90 metadata CLI request evaluates1769 boundary segments in0.18s wall/maxRSS79.44MiB. Summary default4096/max16384 boundaries, over-budget refusal verified; these bounds are not capacity or P80 evidence.",
-          "next": "Qualify useful capacity/encoder/GPU boundaries; keep interval-specific costs and actual media coverage, without repeating stable profiles.",
-          "anchor": "sixty-first-pass",
-          "updated_at": "2026-10-09T14:26:13-04:00"
+          "evidence": "Stage56 original90s pair104 observations: recorder peak53.52MiB, p50 intervalCPU6.94%/peak15.87%; TextEdit134.66MiB, host pressure1/2, no guard. Follow-up unmeasured. Prior GPU/longer profiles retained; no causal encoder/GPU/capacity/P80 proof. Stage61 one whole90 metadata CLI request evaluates1769 boundary segments in0.18s wall/maxRSS79.44MiB. Summary default4096/max16384 boundaries, over-budget refusal verified; these bounds are not capacity or P80 evidence. Stage66 measured75s useful30fps three-lane motion/movement/cover profile:90 process/host samples, recorder RSS peak463.06MiB, p50 intervalCPU8.90%/peak103.64% of one core; later settled RSS30.34MiB. Motion fixture78.34MiB and cover66.25MiB peaks; fresh host pressure2/thermal0, no guard trigger.5719 actual mux packets,40,839,659 video+4,048,850 journal bytes. One concurrent-host short take, no baseline delta/GPU/P80/long-duration capacity claim.",
+          "next": "Qualify a useful longer-duration/encoder or GPU boundary rather than repeating this short three-lane profile; preserve observed host workload and practical storage/reader budgets.",
+          "anchor": "sixty-sixth-pass",
+          "updated_at": "2026-10-09T15:54:44-04:00"
         },
         {
           "id": "sparse-display-writer",
@@ -536,10 +536,10 @@
           "title": "Centralize version-scoped app observations",
           "status": "partial",
           "scope": "Shared reported facts, exact environment keys, expiry and conflicting evidence.",
-          "evidence": "Shared scoped/version/expiry/conflict evidence retained. Stage65 three exact Chrome154/8037.98/25F80/built-in2x-encoded1x menu-viewport facts independently read back; native-CUA versionunknown remains explicit. Presence is selected-frame visual evidence with a retained95.67% nested-mask failure, not continuous readiness.",
-          "next": "Reinforce routine missing app/provider observations with exact metadata; preserve conflicting history and unknown readiness.",
-          "anchor": "sixty-fifth-pass",
-          "updated_at": "2026-10-09T15:32:39-04:00"
+          "evidence": "Shared scoped/version/expiry/conflict evidence retained. Stage65 three exact Chrome154/8037.98/25F80/built-in2x-encoded1x menu-viewport facts independently read back; native-CUA versionunknown remains explicit. Presence is selected-frame visual evidence with a retained95.67% nested-mask failure, not continuous readiness. Stage66 authored-app1.0/build66/built-in2x-output1x-native9bf/requested30fps fact independently read back for20s affected-interval obstruction backup; native CUA versionunknown remains. Three typed actions and actual all-packet marker/coarse-patch proof support scope. Earlier app-family and Chrome facts retained; no automatic native interception, arbitrary app readiness or model training.",
+          "next": "Keep exact daily-app/version/provider/surface keys, requalify changed boundaries and verify ordinary consumer adoption; do not duplicate settled app observations.",
+          "anchor": "sixty-sixth-pass",
+          "updated_at": "2026-10-09T15:54:44-04:00"
         },
         {
           "id": "requalification",
@@ -566,10 +566,10 @@
           "title": "Improve automatic receipt coverage across providers",
           "status": "partial",
           "scope": "Capture durable operation evidence for native and browser actions.",
-          "evidence": "Prior owned-ID/unknown-reply and typed integration evidence retained. Stage65 one real native-CUA menu episode has durable delivered receipt, decoded/native verification and explicit settled cleanup; audit1receipt/1outcome/zero uncovered. Captured end remainsunknown after media; SCK offscreen window destructionunknown. Unsupported fact schema recovered without duplicating existing outcome.",
-          "next": "Extend actual ordinary native/browser provider adoption and durable receipt/verification/cleanup publication. Safe consumer readback pending; recover actual owned IDs after uncertain replies, verify executable identity before old-PID cleanup, and retain unknown outcomes.",
-          "anchor": "sixty-fifth-pass",
-          "updated_at": "2026-10-09T15:32:39-04:00"
+          "evidence": "Prior owned-ID/unknown-reply and typed integration evidence retained. Stage65 one real native-CUA menu episode has durable delivered receipt, decoded/native verification and explicit settled cleanup; audit1receipt/1outcome/zero uncovered. Captured end remainsunknown after media; SCK offscreen window destructionunknown. Unsupported fact schema recovered without duplicating existing outcome. Stage66 three actual native CUA operation scopes close before media end; six source action rows and three closed snapshots retained per lane. Three terminal imported receipts each have separately verified/cleanupcomplete outcomes, independent audituncovered0 and no conflicts. Native CUA still needs manual service bracketing; local action-token and unsupported-field helper errors repaired on existing tokens without UI replay.",
+          "next": "Verify ordinary loaded-consumer schema and durable outcome at one safe connection boundary; preserve peers, recovered tokens and failed helper evidence.",
+          "anchor": "sixty-sixth-pass",
+          "updated_at": "2026-10-09T15:54:44-04:00"
         },
         {
           "id": "shared-baseline-plan",
@@ -2551,6 +2551,45 @@
       "from": "partial",
       "to": "partial",
       "note": "Stage64 first retained real TextEdit fitted-frame spatial candidate:2 parent-toolbar+1 child-selection anchors score.950/.902/.898, spread.303px. Four withheld native viewport edges <=.803px; two glyph supports >=98.76% within1px, brightness differs. New bounded quarter_phase helper option and21 checks pass; default actual JSON unchanged. Lower child.7845 still refuses; real wrong-phase child score1/margin0/disagreement refuses despite parent matches. Production fitted guard/legacy clock uncertainty retained; no generic or continuous map release. Stage65 retained metadata distinguishes nominal Retina scaling0.5 from additional fitting0.710145 relative to baseline1 in the earlier child episode. Scale equality alone cannot establish desktop origin; analytical spare-height counterexample has identical scale and320px origin ambiguity. Diagnostic only; production guard unchanged."
+    },
+    {
+      "kind": "item",
+      "id": "overflow-recovery",
+      "at": "2026-10-09T15:54:44-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage59 real TextEdit external1x triple:2656 exact mux/source joins,30 same-process interval segments;15 selected decoded frames. App backup retains root/Font/Highlight/typeface where childfalse AND resolved-childtrue isolated sources omit. Equal-scale unobscured marker edges within1px; practical scoped supplement established. Built-in off-screen/-3811 and initial checks retained. Stage61 exact whole-interval region summaries expose clipping/unknown durations, but actual contained menu omission remains a pixel-negative control.90s document containment does not prove whole-shot rescue. Stage66 new75s/30fps owned moving motion window, app-filtered and padded display take.5719 actual mux/source joins, zero journal loss.20.00365s real opaque cover; interval interior excludes200ms at edges.565 app packets preserve green marker and565 unique coarse-patch hashes;567 display packets show cover,570 isolated preserve marker.803 common-clock pair boundaries are contained throughout. Actual selected owned-window crops verified. Covers one authored affected interval; arbitrary whole-shot/menu recovery remains open."
+    },
+    {
+      "kind": "item",
+      "id": "resource-admission",
+      "at": "2026-10-09T15:54:44-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage56 original90s pair104 observations: recorder peak53.52MiB, p50 intervalCPU6.94%/peak15.87%; TextEdit134.66MiB, host pressure1/2, no guard. Follow-up unmeasured. Prior GPU/longer profiles retained; no causal encoder/GPU/capacity/P80 proof. Stage61 one whole90 metadata CLI request evaluates1769 boundary segments in0.18s wall/maxRSS79.44MiB. Summary default4096/max16384 boundaries, over-budget refusal verified; these bounds are not capacity or P80 evidence. Stage66 measured75s useful30fps three-lane motion/movement/cover profile:90 process/host samples, recorder RSS peak463.06MiB, p50 intervalCPU8.90%/peak103.64% of one core; later settled RSS30.34MiB. Motion fixture78.34MiB and cover66.25MiB peaks; fresh host pressure2/thermal0, no guard trigger.5719 actual mux packets,40,839,659 video+4,048,850 journal bytes. One concurrent-host short take, no baseline delta/GPU/P80/long-duration capacity claim."
+    },
+    {
+      "kind": "item",
+      "id": "receipt-integration",
+      "at": "2026-10-09T15:54:44-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Prior owned-ID/unknown-reply and typed integration evidence retained. Stage65 one real native-CUA menu episode has durable delivered receipt, decoded/native verification and explicit settled cleanup; audit1receipt/1outcome/zero uncovered. Captured end remainsunknown after media; SCK offscreen window destructionunknown. Unsupported fact schema recovered without duplicating existing outcome. Stage66 three actual native CUA operation scopes close before media end; six source action rows and three closed snapshots retained per lane. Three terminal imported receipts each have separately verified/cleanupcomplete outcomes, independent audituncovered0 and no conflicts. Native CUA still needs manual service bracketing; local action-token and unsupported-field helper errors repaired on existing tokens without UI replay."
+    },
+    {
+      "kind": "item",
+      "id": "app-facts",
+      "at": "2026-10-09T15:54:44-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Shared scoped/version/expiry/conflict evidence retained. Stage65 three exact Chrome154/8037.98/25F80/built-in2x-encoded1x menu-viewport facts independently read back; native-CUA versionunknown remains explicit. Presence is selected-frame visual evidence with a retained95.67% nested-mask failure, not continuous readiness. Stage66 authored-app1.0/build66/built-in2x-output1x-native9bf/requested30fps fact independently read back for20s affected-interval obstruction backup; native CUA versionunknown remains. Three typed actions and actual all-packet marker/coarse-patch proof support scope. Earlier app-family and Chrome facts retained; no automatic native interception, arbitrary app readiness or model training."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T15:54:44-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Goal active. Stage66 new motion/movement/20s obstruction take:5719 exact source/video joins,803 full-interval pair boundaries, all interior app/display marker checks pass; measured three-lane costs retained. Three closed source scopes and typed outcomes read back. Owned fixtures absent, sampler terminal, session closed, installed native unchanged/idle. Remaining continuous fitted origin, physical event and capacity/adoption gates stay open; visual composition deferred."
     }
   ]
 }

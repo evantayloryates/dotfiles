@@ -1,0 +1,16 @@
+{
+  "at": "2026-10-09T19:55:08.194Z",
+  "scope": "Physical iPhone browser, guarded page-owned development control",
+  "gates": {
+    "browserLaunchBlockedDuringOwnership": true,
+    "readonlyFillRefused": true,
+    "occludedClickRefused": true,
+    "offscreenClickRefused": true,
+    "releaseGlowOff": true
+  },
+  "wakeLock": {
+    "supported": true,
+    "active": false
+  },
+  "sdkVersion": "web-519cc9e67f20f470"
+}

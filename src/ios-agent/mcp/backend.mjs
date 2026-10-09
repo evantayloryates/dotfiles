@@ -163,10 +163,11 @@ export class Backend {
     const s = {id, dir, turn: hex(), owner: path.join(dir, 'owner.json'),
       lease: path.join(dir, 'lease.json'), activity: Date.now(), active: true, busy: false, surface, page};
     this.sessions.set(id, s); this.writeOwner(s);
-    s.acquisition = this.run('cli', ['acquire', ...(surface === 'web' ? ['--surface', 'web', '--page', page] : []), ...(rollout ? ['--rollout', rollout, '--connection-owner', s.owner] : ['--owner-file', s.owner]), '--lease-file', s.lease]);
+    s.acquisition = this.run('cli', ['acquire', ...(surface !== 'native' ? ['--surface', surface, ...(surface === 'web' ? ['--page', page] : [])] : []), ...(rollout ? ['--rollout', rollout, '--connection-owner', s.owner] : ['--owner-file', s.owner]), '--lease-file', s.lease]);
     const r = await s.acquisition;
     if (!r.ok || this.closing) { await this.end(id); throw new Error(r.error || 'session_closed'); }
     try {
+      if (surface === 'launch') return {sessionId:id,maintenanceOwner:true};
       if (surface === 'web') {
         const check = await this.webAction({sessionId: id, action: 'state'});
         if (check.ok !== true) throw new Error('web_page_not_ready');
@@ -244,7 +245,8 @@ export class Backend {
     const r = await this.run('web', [], {op: 'web_pages'}, 8000);
     return r.ok ? {...r.value, ok: true} : {ok: false, reason: r.error};
   }
-  async webEnroll({path: route = '/dev/ios-agent'} = {}) {
+  async webEnroll({path: route = '/dev/ios-agent', browser} = {}) {
+    if (browser && (await this.status()).lease) return {ok:false,reason:'idle_device_required_for_browser_launch',actionSent:false};
     const runtime = JSON.parse(fs.readFileSync(path.join(this.state, 'dev-runtime.json'), 'utf8'));
     const origin = new URL(runtime.webURL).origin;
     if (!route.startsWith('/') || route.startsWith('//') || route.includes('#') || route.includes('\\')) throw new Error('local_route_required');
@@ -252,7 +254,24 @@ export class Backend {
     if (!r.ok || !r.value.token) return {ok: false, reason: 'web_enrollment_unavailable'};
     const a = this.artifact({id: null, dir: this.observationDirectory()}, 'web-enrollment');
     fs.writeFileSync(a.file, JSON.stringify({url: origin + route + '#ios-agent=' + encodeURIComponent(r.value.token)}), {flag: 'wx', mode: 0o600});
-    return {ok: true, launchFile: a.file, expiresIn: 300, next: 'Use this private JSON URL to open the intended dev page in Safari or Chrome. Do not log enrollment fragments.'};
+    let launch;
+    if (browser) {
+      const configFile = path.join(this.state, 'web-device.json');
+      if (!fs.existsSync(configFile) || fs.statSync(configFile).mode & 0o077) return {ok:false,reason:'private_web_device_configuration_required',launchFile:a.file,actionSent:false};
+      const device = JSON.parse(fs.readFileSync(configFile,'utf8')).coreDeviceId;
+      if (!/^[A-Fa-f0-9-]{36}$/.test(device)) return {ok:false,reason:'configured_device_id_required',actionSent:false};
+      const bundle = {'ios-safari':'com.apple.mobilesafari','ios-chrome':'com.google.chrome.ios'}[browser];
+      if (!bundle) return {ok:false,reason:'supported_ios_browser_required',actionSent:false};
+      const url = JSON.parse(fs.readFileSync(a.file,'utf8')).url;
+      const reservation = await this.begin({surface:'launch'});
+      try { launch = await new Promise(resolve=>{
+        const child=spawn('/usr/bin/xcrun',['devicectl','device','process','launch','--device',device,'--timeout','12','--payload-url',url,bundle],{stdio:'ignore'});
+        let settled=false;const timer=setTimeout(()=>{child.kill('SIGTERM');if(!settled){settled=true;resolve({outcome:'unknown',replay:false});}},15000);
+        child.on('error',()=>{clearTimeout(timer);if(!settled){settled=true;resolve({outcome:'not-started',replay:false});}});
+        child.on('close',code=>{clearTimeout(timer);if(!settled){settled=true;resolve({outcome:code===0?'developer-request-accepted':'unconfirmed',replay:false});}});
+      }); } finally { await this.end(reservation.sessionId); }
+    }
+    return {ok: true, launchFile: a.file, expiresIn: 300, ...(launch?{launch}:{}), next: 'Use this private JSON URL to open the intended dev page in Safari or Chrome. Do not log enrollment fragments.'};
   }
   async webAction({sessionId, action, args = {}}) {
     const s = this.session(sessionId);
