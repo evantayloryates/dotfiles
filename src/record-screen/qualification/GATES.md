@@ -1,5 +1,47 @@
 # Qualification update — October 9, 2026
 
+## Forty-fourth pass: ordinary loaded consumer contract and verified CLI fallback
+
+This chat's actual enabled record-screen MCP tools were inspected, not a new
+private test server. Native status reaches signed3ff4c4519dc8/PID74192, but no
+mcp_adapter metadata is returned. Enabled tool inventory lacks recording_input,
+recording_frame_map and production_plan. The loaded record_schedule description
+still claims exactly requested start/end and idempotency keys make retries safe.
+Current source/fresh0.11.4 contracts already correct both; the loaded consumer
+has not adopted that contract. Its adapter version/replay behavior remains
+unknown, not inferred from the native build. No peer process PID inferred.
+
+One actual ordinary recording_source call returns retained rec_46f96jt9 and its
+exact epoch,815 written packets and zero row loss. This read succeeds despite
+missing newer tool contracts. No new schedule/mutation was sent through the
+legacy adapter. A supported explicit current CLI fallback runs once, closes its
+scope before proof checks, then settles only its own session. Actual CLI input
+matches the saved four rich source snapshots, and frame-map returns actual795
+with815 exact mux/source timestamp matches and the ordinary MCP source epoch.
+No source reshoot, stable pixel rerun or mutation-loss test repetition.
+
+The fallback has typed verified/cleanup-complete outcome, central audit uncovered0;
+current-chat adapter-contract fail fact appended and independently read back.
+This failure is loaded contract adoption, not native capture health. Unknown
+provider version restricts reuse. Installed recorder unchanged and idle, owned
+reader session closed; no permission change, capture, engine/peer restart.
+A minimal request asks for only this chat's MCP safe refresh while independent
+work continues; no elapsed-time approval or refresh is inferred.
+
+Chrome preparation: acquisition of existing owned qualification tab1424518056
+via documented getTab timed out waiting for Emulation.setFocusEmulationEnabled.
+No page state returned or page input dispatched. The timeout may follow partial
+backend focus-emulation configuration; absence of all side effects is unproven.
+Do not retry blindly, infer native reachability from a tab handle, launch another
+peer window or substitute unsupported CDP control. Prior passed/failed app sources
+remain unchanged. Other browser/native/human readiness lanes can progress.
+
+Checklist42completed,16partial,1deferred, full goal active. Loaded MCP replay and
+release-adoption gates remain partial with this actual consumer evidence. Use
+the verified current CLI for missing tools, inspect loaded adapter policy at a
+natural safe refresh, recover exact owned IDs before any explicit mutation retry.
+Private gates-v44. No completion/zero-collision/all-provider guarantee follows.
+
 ## Forty-third pass: actual rich daily-app milestones and source verification
 
 Production3ff4c4519dc8/PID74192 and fresh MCP0.11.4 captured two real reversible

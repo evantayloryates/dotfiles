@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T07:16:42-04:00",
+  "updated_at": "2026-10-09T07:24:39-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage43 completed actual rich semantic capture milestones and verified their source pixels.42 completed,16 partial,1 deferred. Remaining work targets useful physical/provider/recovery or routine adoption boundaries; preserve prior evidence and avoid settled reshoots."
+    "note": "Stage44 actual ordinary MCP contract adoption remains partial; legacy retained-source read and current CLI fallback verified. Minimal chat-only refresh request pending.42 completed,16 partial,1 deferred. Continue independent qualification, preserve peers and prior proof."
   },
-  "production_note": "Installed native3ff4c4519dc8 remains unchanged; fresh MCP0.11.4 and CLI retain rich source context. Stage43 actual Finder milestones verified in AX and mapped encoded frames; semantic capture scope completed. Input Monitoring already granted; protected-input state gives no new keyboard coverage. Routine provider/physical/recovery limits remain explicit; visual composition deferred.",
+  "production_note": "Native3ff4c4519dc8 remains unchanged and idle. Fresh/current CLI contracts pass; stage44 actual ordinary chat MCP still lacks adapter metadata/new tools and advertises obsolete exact-boundary/safe-retry claims. Its retained source read passes; explicit current CLI fallback verified with owned cleanup. Consumer refresh pending; no peer restart. Physical/provider/recovery limits remain explicit; composition deferred.",
   "groups": [
     {
       "id": "capture",
@@ -516,20 +516,20 @@
           "title": "Verify the quality of recent shared computer-use workflows",
           "status": "partial",
           "scope": "Assess delivered actions, verification and cleanup rather than tool-call counts.",
-          "evidence": "Stage43 four real native preparation/selection/restoration/cleanup receipts have separate AX/pixel verified outcomes and completed cleanup, audit uncovered0. Prior failed/conflicting outcomes remain. This is scoped reported evidence, not historical success grading.",
-          "next": "Extend routine provider outcomes and actual unresolved workflows; preserve unobserved history without grading receipt results.",
-          "anchor": "forty-third-pass",
-          "updated_at": "2026-10-09T07:16:42-04:00"
+          "evidence": "Stage44 ordinary CLI fallback has one real operation invocation, verified returned rich context/source epoch/815 exact joins and cleanup-complete outcome, uncovered0. Actual loaded MCP contract failure fact retained. Stage43 native proofs and older failed/conflicting outcomes preserved.",
+          "next": "Extend actual unresolved/routine provider outcomes and safe consumer adoption; historical task quality stays unknown where evidence is absent.",
+          "anchor": "forty-fourth-pass",
+          "updated_at": "2026-10-09T07:24:39-04:00"
         },
         {
           "id": "receipt-integration",
           "title": "Improve automatic receipt coverage across providers",
           "status": "partial",
           "scope": "Capture durable operation evidence for native and browser actions.",
-          "evidence": "Stage43 actual native-CUA rich milestone scopes retained4 source snapshots and4 associated pointer events; exact terminal receipts imported with separate proof-backed outcomes, audit uncovered0. Native bracketing remains explicit; no automatic interception or actor authentication.",
-          "next": "Extend ordinary provider adoption and durable operation evidence where useful; do not infer automatic coverage from explicit bracketing.",
-          "anchor": "forty-third-pass",
-          "updated_at": "2026-10-09T07:16:42-04:00"
+          "evidence": "Stage43 actual rich native scopes/outcomes preserved. Stage44 supported ordinary CLI fallback runs once, closes scope before exact returned-data verification and settles owned session; typed verified/cleanup-complete/uncovered0. Explicit bracketing only; loaded chat MCP adoption incomplete.",
+          "next": "Extend ordinary provider durable evidence and verify loaded consumer contracts at safe refresh; no automatic native interception or actor inference.",
+          "anchor": "forty-fourth-pass",
+          "updated_at": "2026-10-09T07:24:39-04:00"
         },
         {
           "id": "shared-baseline-plan",
@@ -582,10 +582,10 @@
           "title": "Install the candidate safely and verify rollback",
           "status": "partial",
           "scope": "Idle-boundary release with prior binary/state preserved and exact loaded-capability readback.",
-          "evidence": "Prior private current/previous/current drill retained. Stage41 warranted idle fenced delivery reused verified signed artifact, preserved prior bundle and119 unchanged state hashes; installed3ff/PID74192 grants/120 actual source packets/fresh MCP0.11.3 capability and CLI parity checked. Peers not reloaded.",
-          "next": "Verify remaining ordinary loaded consumers at their safe launch; do not repeat passed private restoration with a live rollback. Universal schema recovery remains outside proof.",
-          "anchor": "forty-first-pass",
-          "updated_at": "2026-10-09T06:52:43-04:00"
+          "evidence": "Stage41 installed3ff/PID74192/grants/119 prior state hashes and direct-source120 packets remain valid; private restoration drill preserved. Stage44 ordinary source/CLI fallback pass but this chat loaded adapter lacks newer contracts and still advertises old timing/retry claims. No live rollback or peer reload.",
+          "next": "Verify corrected loaded consumer contracts at safe refresh; preserve the passed private restoration drill and installed native health rather than rolling back stable capture.",
+          "anchor": "forty-fourth-pass",
+          "updated_at": "2026-10-09T07:24:39-04:00"
         },
         {
           "id": "installed-smoke",
@@ -602,10 +602,10 @@
           "title": "Verify loaded MCP replay policy and reconnect boundaries",
           "status": "partial",
           "scope": "Never automatically resend mutations after a lost reply; distinguish loaded adapter from native engine version. Preserve existing peer MCP processes.",
-          "evidence": "Fresh MCP0.10.1 discovery now explicitly rejects generic safe-retry and exact-boundary claims;10 live read-only calls preserve native PID/build and idle state. Prior mutation-loss tests and source-map proofs retained. Existing peer adapters remain untouched/unknown until their natural launch.",
-          "next": "Verify remaining routine consumer adoption at natural safe launches; recover owned IDs before any explicit retry, without forcing peer restart or repeating settled loss tests.",
-          "anchor": "thirty-fifth-pass",
-          "updated_at": "2026-10-09T04:51:52-04:00"
+          "evidence": "Stage44 actual ordinary chat MCP status/source reads pass, but no adapter version/new input/map/planning tools and obsolete exact-boundary/safe-retry description. Current CLI fallback verified against source epoch, rich updates and815 exact joins. Loaded adapter policy remains unknown; source/fresh-MCP loss-policy checks preserved.",
+          "next": "Read back this chat adapter policy and tool descriptions after safe consumer refresh, then extend other ordinary consumers at natural launches. Never infer policy from native build or automatically replay a mutation.",
+          "anchor": "forty-fourth-pass",
+          "updated_at": "2026-10-09T07:24:39-04:00"
         },
         {
           "id": "agent-runbooks",
@@ -1843,6 +1843,45 @@
       "from": "active",
       "to": "active",
       "note": "Stage43 completed actual rich semantic capture milestones and verified their source pixels.42 completed,16 partial,1 deferred. Remaining work targets useful physical/provider/recovery or routine adoption boundaries; preserve prior evidence and avoid settled reshoots."
+    },
+    {
+      "kind": "item",
+      "id": "mcp-replay-boundary",
+      "at": "2026-10-09T07:24:39-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage44 actual ordinary chat MCP status/source reads pass, but no adapter version/new input/map/planning tools and obsolete exact-boundary/safe-retry description. Current CLI fallback verified against source epoch, rich updates and815 exact joins. Loaded adapter policy remains unknown; source/fresh-MCP loss-policy checks preserved."
+    },
+    {
+      "kind": "item",
+      "id": "release-rollback",
+      "at": "2026-10-09T07:24:39-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage41 installed3ff/PID74192/grants/119 prior state hashes and direct-source120 packets remain valid; private restoration drill preserved. Stage44 ordinary source/CLI fallback pass but this chat loaded adapter lacks newer contracts and still advertises old timing/retry claims. No live rollback or peer reload."
+    },
+    {
+      "kind": "item",
+      "id": "receipt-integration",
+      "at": "2026-10-09T07:24:39-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage43 actual rich native scopes/outcomes preserved. Stage44 supported ordinary CLI fallback runs once, closes scope before exact returned-data verification and settles owned session; typed verified/cleanup-complete/uncovered0. Explicit bracketing only; loaded chat MCP adoption incomplete."
+    },
+    {
+      "kind": "item",
+      "id": "workflow-audit",
+      "at": "2026-10-09T07:24:39-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage44 ordinary CLI fallback has one real operation invocation, verified returned rich context/source epoch/815 exact joins and cleanup-complete outcome, uncovered0. Actual loaded MCP contract failure fact retained. Stage43 native proofs and older failed/conflicting outcomes preserved."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T07:24:39-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Stage44 actual ordinary MCP contract adoption remains partial; legacy retained-source read and current CLI fallback verified. Minimal chat-only refresh request pending.42 completed,16 partial,1 deferred. Continue independent qualification, preserve peers and prior proof."
     }
   ]
 }

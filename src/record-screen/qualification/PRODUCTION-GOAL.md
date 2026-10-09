@@ -1,5 +1,16 @@
 # Production qualification goal
 
+Stage44 checkpoint: actual ordinary chat MCP reaches native3ff/PID74192 and
+retained source, but lacks adapter metadata/new tools and still advertises exact
+boundaries/safe retries. Version/replay behavior unknown; adoption incomplete.
+Current CLI fallback ran once with explicit scope, four rich updates and actual
+frame795/815 exact joins/source epoch parity; separate verified cleanup-complete
+outcome, audit uncovered0. Scoped adapter-contract fail fact read back. No new
+capture/UI page input, native/grant/peer restart; owned session settled, idle.
+Chrome owned-tab acquisition timed out before page state; no blind retry.
+Minimal current-chat MCP refresh request pending, continue independent work.
+42completed,16partial,1deferred; goal active, no release-completion claim.
+
 Stage43 checkpoint: actual rich Finder selection milestones pass. Four captured
 active/closed updates carry four context fields, four pointer events; all815
 actual mux/source joins exact. Native AX and decoded service frames465/795 agree

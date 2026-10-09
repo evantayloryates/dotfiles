@@ -282,3 +282,22 @@ does not certify clean input: inspect total notifications, recording_source
 protected-input state and retained event snapshots too. This take's secure-input
 notification preceded epoch, with secure_input_snapshot=true on its delivered
 pointer events; it established no new keyboard coverage.
+
+
+## When an ordinary chat still exposes an older MCP contract
+
+Check the actual loaded status.mcp_adapter and enabled tools. Native engine
+PID/build alone cannot identify the adapter version or its replay behavior.
+Stage44 this chat could read a retained source while reporting no adapter metadata
+and exposing no recording_input, recording_frame_map or production_plan. Its
+schedule description still promised exact times and safe retries; those claims
+contradict the current production contract and must not guide recovery.
+
+Use the current CLI for missing capabilities, preserving the explicit session/
+recording IDs and action scopes. Current input-query and frame-map were checked
+against this ordinary consumer's source epoch and retained rich context without
+a new capture or peer restart. Treat automatic mutation replay as never allowed,
+even if old tool prose advertises safe retries. Recover actual owned state first.
+Refresh only the relevant consumer at a safe launch boundary and read back its
+loaded capabilities/descriptions. No native restart or global peer reload is
+needed to refresh an adapter; do not infer adoption from a source-code update.
