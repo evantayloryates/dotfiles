@@ -22,8 +22,8 @@ remain unconfirmed/reserved; no automatic repeated stop work or action replay.
 The first off-screen harness failed because its output directory did not exist
 before journal creation. Its crash/error artifact is preserved in encoder-isolation-1.
 The corrected directory setup passed; the final fixture added the independent
-callback-before-call-return boundary and passed 23 checks. Review then moved the watchdog ahead of held-frame/encoder operations and added an empty-writer deadline/late-cancellation case; the final 26-check proof passed. These were local
-fixture corrections, not a reset of earlier captures or service changes.
+callback-before-call-return boundary and passed 23 checks. Review then moved the watchdog ahead of held-frame/encoder operations and added an empty-writer deadline/late-cancellation case; the final 26-check proof passed. The directory error required a local fixture correction. The timer change improves
+the service; earlier captures and successful evidence remain intact.
 
 Canonical repeatable kit: encoder-finalization-test.py, its copied-file accessors
 and verify-encoder-finalization.py. The builder freezes sources, preserves stage
