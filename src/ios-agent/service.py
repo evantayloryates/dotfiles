@@ -422,6 +422,7 @@ def run_server(config, state=STATE):
                 self.send_error(404)
                 return
             payload = (Path(__file__).parent / "web/sdk.js").read_bytes()
+            payload = payload.replace(b"web-poc-1", ("web-" + hashlib.sha256(payload).hexdigest()[:16]).encode())
             self.send_response(200)
             self.send_header("Content-Type", "application/javascript")
             self.send_header("Cache-Control", "no-store")

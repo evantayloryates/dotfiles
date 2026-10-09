@@ -66,7 +66,7 @@
       case 'state': {
         const data = {};
         for (const [key, read] of domains) { try { data[key] = await read(); } catch { data[key] = {error:'domain_read_failed'}; } }
-        return {version,browser,secureContext:isSecureContext,visible:!document.hidden,indicator:!!lease,hasMediaDevices:!!navigator.mediaDevices?.getUserMedia,activation:{active:navigator.userActivation?.isActive,hasBeenActive:navigator.userActivation?.hasBeenActive},domains:data};
+        return {version,boot,browser,secureContext:isSecureContext,visible:!document.hidden,indicator:!!lease,hasMediaDevices:!!navigator.mediaDevices?.getUserMedia,activation:{active:navigator.userActivation?.isActive,hasBeenActive:navigator.userActivation?.hasBeenActive},domains:data};
       }
       case 'click': { const el=target(args); el.click(); return {delivery:'synthetic-dom',trusted:false}; }
       case 'fill': {

@@ -64,6 +64,7 @@ export function createServer(backend = new Backend()) {
   tool('ios_web_begin', 'Acquire one opted-in visible browser document through the same native/device owner fence. Uses MCP lifecycle cleanup. No second native/browser owner. Always ios_web_end in finally.', {page: id, rollout: z.string().max(1024).optional()}, args => backend.begin({...args, surface: 'web'}));
   tool('ios_web_inspect', 'Inspect bounded DOM layout/hit-test references, content-free console/network events, or registered domain state. Snapshot references expire after five seconds. This is page-owned inspection, not system screenshots or cross-origin frames.', {sessionId: id, kind: z.enum(['snapshot','events','state']).default('snapshot')}, args => backend.webAction({sessionId: args.sessionId, action: args.kind}), true);
   tool('ios_web_action', 'Explicit developer page execution: click/fill/scroll require a fresh snapshot and target. Delivery is synthetic DOM, not trusted native input or user activation. evaluate explicitly executes arbitrary JS in this opted-in dev document. Accepted/unknown commands are never replayed; verify effect with a fresh inspection.', {sessionId: id, action: z.enum(['click','fill','scroll','evaluate']), args: z.record(z.unknown()).default({})}, args => backend.webAction(args));
+  tool('ios_web_verify', 'Independent page readback and shared structural learning evidence. web-ready verifies foreground/HTTPS/glow; web-dom requires DOM nodes; web-route requires exact expectedPath or expectedText. Does not certify trusted input, microphone, screenshots or physical network route. Actual contents remain in private artifacts.', {sessionId: id, gate: z.enum(['web-ready','web-dom','web-route']), expectedPath: z.string().max(256).optional(), expectedText: z.string().max(300).optional()}, args => backend.webVerify(args), true);
   tool('ios_web_end', 'Release this browser session and read back the page glow off. Disconnected feedback is unconfirmed, never passed. Does not release another owner.', {sessionId: id}, args => backend.webEnd(args.sessionId));
   tool('ios_status', 'Read host/device status without acquiring control. Connectivity alone does not prove app readiness.', {}, async () => {
     const value = await backend.status(); return {...safe(value), leased: value.lease !== null, commands: undefined};
@@ -91,7 +92,7 @@ export function createServer(backend = new Backend()) {
     {query: z.string().max(100).default(''), limit: z.number().int().min(1).max(20).default(8), includeProposed: z.boolean().default(false)}, async args =>
       backend.learning('search', {...args, source: runtimeKey(await backend.status().catch(() => null)) || ''}), true);
   tool('ios_learning_evidence', 'Read bounded shared structural verification receipts for corroboration across harnesses. No private trees or app values. Defaults to the current runtime; matchingRuntime=false allows explicitly reviewing historical versions.',
-    {gate: z.enum(gates).optional(), matchingRuntime: z.boolean().default(true), limit: z.number().int().min(1).max(20).default(10)}, async args =>
+    {gate: z.enum([...gates, 'web-ready','web-dom','web-route','web-idle']).optional(), matchingRuntime: z.boolean().default(true), limit: z.number().int().min(1).max(20).default(10)}, async args =>
       backend.learning('evidence', {...args, source: runtimeKey(await backend.status().catch(() => null)) || ''}), true);
   tool('ios_learning_propose', 'Capture a reusable operational lesson linked to a service-generated learning evidenceId returned by ios_verify. No credentials, URLs, app values, transcripts or raw trees. Starts proposed, not automatically trusted. Stable key groups competing lessons.',
     {key: z.string().regex(/^[a-z][a-z0-9-]{1,63}$/), lesson: z.string().min(1).max(1200), evidenceId: id,
@@ -100,7 +101,7 @@ export function createServer(backend = new Backend()) {
     {lessonId: id, state: z.enum(['supported', 'retired']), reason: z.string().min(1).max(600), evidenceId: id,
       corroboratingEvidenceId: id.optional()}, args => backend.learning('review', args));
   const docroot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../docs');
-  for (const [name, file] of [['operating-contract', 'DELIVERY.md'], ['capability-edges', 'CAPABILITY-EDGES.md'], ['mcp', 'MCP.md'], ['paired-workflow', 'PAIRED-WORKFLOW.md']]) {
+  for (const [name, file] of [['operating-contract', 'DELIVERY.md'], ['capability-edges', 'CAPABILITY-EDGES.md'], ['mcp', 'MCP.md'], ['paired-workflow', 'PAIRED-WORKFLOW.md'], ['mobile-web', 'MOBILE-WEB.md']]) {
     server.registerResource(name, `ios-agent://${name}`, {mimeType: 'text/markdown'}, uri => ({contents: [{uri: uri.href, mimeType: 'text/markdown', text: fs.readFileSync(path.join(docroot, file), 'utf8')}]}));
   }
   return {server, backend};

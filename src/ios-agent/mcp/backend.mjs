@@ -7,7 +7,7 @@ import {fileURLToPath} from 'node:url';
 import {nutritionRecipe} from './workflows.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/workflows.mjs', 'paired_workflow.py', 'health.py', 'local_stack.py', 'cli.py', 'learning.py', 'mcp/package-lock.json']
+const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/workflows.mjs', 'paired_workflow.py', 'health.py', 'local_stack.py', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
   .map(file => fs.readFileSync(path.join(root, file))).map(bytes => createHash('sha256').update(bytes).digest('hex')).join(':')).digest('hex');
 export const defaultState = path.join(os.homedir(), 'Library/Application Support/ios-agent');
 const idleLimit = 20 * 60 * 1000;
@@ -170,7 +170,8 @@ export class Backend {
       if (surface === 'web') {
         const check = await this.webAction({sessionId: id, action: 'state'});
         if (check.ok !== true) throw new Error('web_page_not_ready');
-        return {sessionId: id, page, ready: true, verification: check, next: 'ios_web_inspect, fresh snapshot/target, ios_web_action. Always ios_web_end in finally.'};
+        s.webFingerprint = createHash('sha256').update(JSON.stringify([adapterHash, check.value?.version, check.value?.browser, check.value?.boot])).digest('hex');
+        return {sessionId: id, page, ready: true, verification: check, learning: await this.learning('search',{source:s.webFingerprint}).catch(()=>({available:false})), next: 'ios_web_inspect, fresh snapshot/target, ios_web_action. Always ios_web_end in finally.'};
       }
       const verification = await this.verify({sessionId: id, gate: 'ready', timeout: 12});
       if (verification.receipt.status !== 'passed') throw new Error('app_not_ready');
@@ -265,6 +266,20 @@ export class Backend {
     return {ok, artifactId: a.id, outcome: r.value?.status || 'unknown', error: r.value?.result?.error, replay: false,
       ...(JSON.stringify(value || {}).length <= 12000 ? {value} : {truncated: true, next: 'Use ios_read for bounded inspection.'})};
   }
+  async webVerify({sessionId, gate, expectedPath, expectedText}) {
+    const s = this.session(sessionId);
+    if (s.surface !== 'web') throw new Error('web_session_required');
+    if (gate === 'web-route' && !expectedPath && !expectedText) return {ok:false,reason:'explicit_web_postcondition_required'};
+    const read = await this.webAction({sessionId, action: gate === 'web-ready' ? 'state' : 'snapshot'});
+    const observation = gate === 'web-ready' ? {visible:read.value?.visible === true,secureContext:read.value?.secureContext === true,indicatorOn:read.value?.indicator === true} :
+      {snapshotAvailable:typeof read.value?.snapshot === 'string',nodeCount:read.value?.elements?.length || 0,
+       ...(expectedPath ? {expectedPathMatched:read.value?.path === expectedPath} : {}),
+       ...(expectedText ? {expectedTextMatched:read.value?.content?.includes(expectedText) === true} : {})};
+    const ok=read.ok && Object.values(observation).every(v=>typeof v==='number'?v>0:v===true);
+    const receipt={gate,status:ok?'passed':'failed',observation};
+    const learningEvidence=await this.learning('observe',{receipt,source:s.webFingerprint}).catch(()=>({available:false}));
+    return {ok,receipt,artifactId:read.artifactId,learningEvidence};
+  }
   async webEnd(id) {
     const s = this.sessions.get(id), page = s?.page;
     const release = await this.end(id);
@@ -273,7 +288,11 @@ export class Backend {
     while (Date.now() < until) {
       const pages = await this.webPages();
       const p = pages.pages?.find(p => p.id === page);
-      if (p?.indicator === false) return {...release, indicatorOff: true};
+      if (p?.indicator === false) {
+        const receipt={gate:'web-idle',status:'passed',observation:{ownerReleased:release.released === true,indicatorOff:true}};
+        const learningEvidence=s?.webFingerprint ? await this.learning('observe',{receipt,source:s.webFingerprint}).catch(()=>({available:false})) : {available:false};
+        return {...release, indicatorOff:true,receipt,learningEvidence};
+      }
       await new Promise(resolve => setTimeout(resolve, 250));
     }
     return {...release, indicatorOff: 'unconfirmed', ok: false, next: 'Host release alone cannot confirm the disconnected page indicator.'};
