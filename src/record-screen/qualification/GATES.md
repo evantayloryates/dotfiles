@@ -1,5 +1,45 @@
 # Qualification update — October 9, 2026
 
+## Forty-sixth pass: TextEdit native menus and display pointer residual
+
+TextEdit1.20/build415/25F80 on built-in Retina2×, native CUA version unknown.
+Three simultaneous45s installed3ff/PID74192 sources, all cursorfalse: isolated
+childtrue rec_emppc462, childfalse rec_e9zk8ex9, padded display rec_5m82hcjn.
+Actual service-selected25s/44s frames show root context menu and left Font
+submenu present in childtrue/display and absent in childfalse.887/888/886 muxed
+samples join exact source decisions,2661 total, all complete with zero lost rows.
+Display preserves a pointer-like residual despite cursorfalse plus unrelated
+desktop; its origin is unknown. Public figures use inspected owned-interior
+crops, not full desktop. Window retains caret/selection. No universal pointer
+removal, all-app menus, third-level, app-only or continuous-presence guarantee.
+
+Root context source active/closed and Font active snapshot retained. Font closed
+after media end, so captured end stays null; actual44s pixels provide evidence
+without backfilling later terminal state or repeating take. Input health carries
+pre-epoch listener−0.930701976s/protection−0.727909309s and two protected pointer
+snapshots despite zero interval gaps. No new key or physical-density proof.
+
+Cold launch timeout nevertheless launched app; actual inventory grounded later
+scope. Rejected binding corrected, no cold-launch receipt fabricated. Selection
+changed alpha to punctuation on right click; exact authored text remained intact.
+Default autosave went to iCloud; observed native Move To moved only new synthetic
+document into gates-v46, exact content/destination and old path absence checked.
+Document close opened picker; Cancel/CmdQ did not establish exit. New scope and
+observed app menu Quit settled owned PID861; immediate inventory lag retained.
+Unsupported scope_ms rejected before UI; corrected timeout_s accepted. Fact
+publication initially rejected array limits after five outcomes persisted;
+corrected string resumed publication without replaying settlement or outcomes.
+
+Five verified/cleanup-complete typed episodes, audit uncovered0, three exact
+TextEdit facts independently read back (pass/fail/mixed), provider unknown kept.
+Owned session closed, document retained locally for reuse, app exited, native
+unchanged idle. Current live listen_access true; grants already enabled, no new
+permission/restart/peer reload. Dedicated TextEdit lane complete for written
+root/Font capture scope:43 completed,16 partial,1 deferred; full goal active.
+Private gates-v46; runbook TEXTEDIT-MENUS.md. Next useful boundary remains actual
+Chrome/provider/recovery adoption; preserve covered/failing sources and avoid
+duplicating settled lanes.
+
 ## Forty-fifth pass: bounded input-health context without state fabrication
 
 Current CLI/fresh MCP0.11.5 recording_input accepts opt-in

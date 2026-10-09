@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T07:33:09-04:00",
+  "updated_at": "2026-10-09T07:52:18-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage45 bounded retained input-health context delivered and checked against real source, filtering and CLI/fresh MCP parity. Owned reader/session settled; ordinary chat MCP refresh remains pending.42 completed,16 partial,1 deferred. Continue useful missing physical/provider/app/recovery boundaries without replaying settled sources."
+    "note": "TextEdit root/Font lane qualified across three capture modes;2661 exact joins. Display residual, protected input and late source end remain explicit. Owned app/session settled, five verified typed outcomes and three scoped facts read back.43 completed,16 partial,1 deferred; continue remaining high-impact boundaries without duplicate takes."
   },
-  "production_note": "Signed native3ff4c4519dc8 remains unchanged and idle. Current CLI/fresh MCP0.11.5 adds bounded source input-health context: preceding/interval/untimed observations and protection snapshots survive empty filters. Actual Finder source verified, defaults unchanged. Ordinary chat MCP still needs safe refresh; no peer restart or new permission. Physical/provider/recovery limits and composition deferral remain explicit.",
+  "production_note": "Signed native3ff4c4519dc8/PID74192 unchanged idle; installed Input Monitoring access remains true. New TextEdit root/Font lane passes scoped child-enabled capture with2661 exact joins; display retains pointer-like residual, childfalse omits menus. Captured late Font end stays null. Five typed episodes settled; current CLI/freshMCP0.11.5 supported while ordinary chat refresh pending. Broader provider/physical/recovery limits and composition deferral remain.",
   "groups": [
     {
       "id": "capture",
@@ -90,6 +90,16 @@
           "next": "",
           "anchor": "forty-first-pass",
           "updated_at": "2026-10-09T06:52:43-04:00"
+        },
+        {
+          "id": "textedit-depth",
+          "title": "TextEdit root context menu and Font submenu capture lane",
+          "status": "completed",
+          "scope": "TextEdit1.20/build415/25F80, built-in2x, native CUA version unknown: three cursorfalse capture modes, root and Font submenu only.",
+          "evidence": "Stage46 three45s sources: actual25s/44s menu pixels retained childtrue/display, omitted childfalse.2661 exact mux/source joins, zero lost rows. Display pointer-like residual survives; caret/selection remains. Five typed verified/cleanup-complete episodes, uncovered0, three exact facts read back; owned document moved locally, app/session settled.",
+          "next": "",
+          "anchor": "forty-sixth-pass",
+          "updated_at": "2026-10-09T07:52:09-04:00"
         },
         {
           "id": "overflow-recovery",
@@ -496,10 +506,10 @@
           "title": "Centralize version-scoped app observations",
           "status": "partial",
           "scope": "Shared reported facts, exact environment keys, expiry and conflicting evidence.",
-          "evidence": "Stage43 exact Finder rich-selection milestone fact appended and independently read back:2 real transitions, rich source context and AX/decoded frame evidence. Stage41 direct Quick Look and prior failing lanes preserved. Native-CUA provider version remains unknown.",
+          "evidence": "Stage46 TextEdit1.20/build415 exact-entity root/Font menu facts appended and independently read back: childtrue pass, childfalse fail, padded display mixed due to pointer-like residual. Earlier Finder/Chrome facts and unknown native provider version retained.",
           "next": "Add useful missing app/provider capability facts; revalidate exact changed environment and transient family.",
-          "anchor": "forty-third-pass",
-          "updated_at": "2026-10-09T07:16:42-04:00"
+          "anchor": "forty-sixth-pass",
+          "updated_at": "2026-10-09T07:52:09-04:00"
         },
         {
           "id": "requalification",
@@ -1913,6 +1923,13 @@
       "from": "active",
       "to": "active",
       "note": "Stage45 bounded retained input-health context delivered and checked against real source, filtering and CLI/fresh MCP parity. Owned reader/session settled; ordinary chat MCP refresh remains pending.42 completed,16 partial,1 deferred. Continue useful missing physical/provider/app/recovery boundaries without replaying settled sources."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T07:52:18-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "TextEdit root/Font lane qualified across three capture modes;2661 exact joins. Display residual, protected input and late source end remain explicit. Owned app/session settled, five verified typed outcomes and three scoped facts read back.43 completed,16 partial,1 deferred; continue remaining high-impact boundaries without duplicate takes."
     }
   ]
 }
