@@ -1,35 +1,35 @@
 # Production qualification goal
 
-## Current checkpoint: stage76 — ACTIVE
+## Current checkpoint: stage77 — ACTIVE
 
-Native6c238cc1ba80/PID20948 installed once via idle maintenance fence, reusing
-verified frozen signed binary.130 prior state JSON hashes unchanged; Screen
-Recording reported granted. Review.frames now returns existing32x32 uniformity
-stats on decoded preview before JPEG, plus exact rational returned decoder time.
-No capture callback/input/guard logic changed. Six actual native Review.frames
-outputs pass: three retained Safari frames and white/black/varied authored controls.
+The fresh current-native listener and actual source canary passed. Native
+6c238cc1ba80/PID20948 remains installed. Owned 20-second source rec_e5zd4dg8
+has 80 exact mux/source timestamp joins, zero journal loss and all 80 witness
+patches decoded. Two app-local key handlers match raw CG timestamps/keycodes;
+the oracle did not separately log numeric event types. Before/after patch colors
+pass outside a 250ms boundary margin. Fresh listener/tap active during capture,
+four callbacks, no overflow or fault; last observed listen_access true.
 
-Actual220s normal luma201.9/SD99.4;231/245s black0/0 while authored anchor geometry
-contained at all three. Three returned decoder times independently match actual
-mux starts; ordinary231s preview all265600 RGB pixels zero. Uniform white254/0
-also looks blank. Keep heuristic, sampled coverage, color/semantic uncertainty
-explicit; it cannot detect universal target loss. Current fresh MCP0.17 and
-existing ordinary frame tool both expose fields. Full older22-tool adoption
-still unknown; current CLI remains fallback. One exact scoped pixel fact read back.
+The provider key operation also emitted a title-bar pointer down/up pair. All
+four events carry the same action tag. Keep the pointer pair as possible focus
+preparation, with causation and actor unknown. Keyboard window ownership remains
+unresolved. App ready/key foreground samples identify another app; this is not a
+continuous focus or no-interruption guarantee. No physical input, density,
+provider-clock or raw-coordinate calibration claim.
 
-Chrome native acquisition now returns AX but recorder window119/PID71011 offscreen
-and existing UI marked media capture. Preserved without input/capture/new fixture.
-One terminal read acquisition outcome verified/cleanupcomplete/audit uncovered0;
-sessionclosed. Do not infer native delivery from AX or disturb peer UI to force
-this lane. Owned fresh reader exits0, native idle with no scopes/unfinished work.
+Current MCP 0.17 returns four scoped events/two keyboard-filtered events with
+context and health. The ordinary frame tool returns actual green/magenta owned
+previews with nonblank coarse diagnostics. Source hashes unchanged after reads,
+owned reader exits0. Three terminal receipts, separate verified/cleanup-complete
+outcomes and one scoped fact read back; audit uncovered0. Fixture independently
+absent, exact session closed, zero unfinished recordings/scopes/subscribers.
 
-No input listener/delivery canary after this review-only restart. listen_access
-null means unknown, not denied; verify at the next useful owned capture boundary,
-without a human-dependent prompt. Prior input proof remains scoped to its build.
-Stage75 shared app-learning/64 focused tests and stage74 retry/source proofs retained.
-45completed18partial1deferred/full goal active, composition deferred. AFK conservative
-end23:20UTC. Next pursue a genuinely missing boundary on an owned reachable surface;
-reuse settled source proofs and preserve peer UI/current raw footage.
+Stage76 retained pixel controls and signed-state preservation remain qualified;
+stage75 shared app-learning and stage74 source retry proofs retained. Checklist:
+45 completed,18 partial,1 deferred; full goal active, composition deferred. Explicit
+AFK access ends conservatively23:20UTC. Next pursue a genuinely missing useful
+boundary; no physical input, authentication, sleep/revocation, peer disruption or
+repeat of this passed canary.
 
 ## Remaining work: ordered acceptance batches
 

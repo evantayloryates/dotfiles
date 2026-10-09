@@ -3333,3 +3333,32 @@ outcome verified/cleanupcomplete, audit uncovered0/sessionclosed. Kept outside
 capture proof. No user prompt/peer refresh/rollback drill.45completed18partial
 1deferred/full goal active. Private gates-v76 retains candidate/source/signature,
 actual decoder/MCP/ordinary output, controls, mappings and preservation proof.
+
+## Stage77 — fresh listener, delivered keys and provider operation granularity
+
+The installed native6c238cc1ba80/PID20948 records an owned 20-second AppKit
+background witness, isolated childfalse/inputtrue/cursorfalse, 300x232 at4fps.
+All80 mux packet stamps exactly match source rows;84 source callbacks, zero
+journal loss. All80 patch centers decoded:25 green before the key,53 magenta
+after,2 withheld within250ms margins. Current Input Monitoring last observed true;
+listener and tap active during capture, four callbacks, zero overflow/fault.
+
+Two app-local handlers match raw CG timestamp/keycode and corresponding retained
+10/11 types; the oracle did not independently log numeric CG type. Recorder
+receipt-minus-raw is110584/154500ns; app receipt-minus-recorder17.650541/
+18.132792ms. These are observed sample deltas, not calibrated physical latency.
+The same key action also retains title-bar pointer down/up, possible focus
+preparation without proven causation. Actor stays unknown, keys remain app
+window unresolved, raw positions unpromoted. App ready/key foreground samples
+identify another app, not continuous focus isolation.
+
+Fresh MCP0.17/27tools returns four scoped events and two keyboard-filtered events,
+with semantic/health context preserved. The existing ordinary frame tool returns
+actual green/magenta previews and coarse nonblank diagnostics. All source hashes
+unchanged after reads, owned reader exits0. Three imported terminal receipts/
+verified outcomes/cleanupcomplete; shared audit uncovered0 and scoped fact read
+back. Owned fixture independently absent, exact sessionclosed/nativeidle. No
+physical input/density/provider calibration or universal isolation claim. Evidence:
+private gates-v77/qualification-summary.json. Checklist45completed18partial1deferred,
+full goal active. Do not repeat this passed post-restart canary without a changed
+boundary.

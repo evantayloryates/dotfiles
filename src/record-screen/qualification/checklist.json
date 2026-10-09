@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T18:29:09-04:00",
+  "updated_at": "2026-10-09T18:38:17-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage76 complete: installed native6c adds coarse decoded-frame pixel diagnostics and exact returned decoder time. Six retained/authored outputs pass, three actual source joins match, existing ordinary frame tool sees new native fields.130 prior JSON files unchanged, no new capture. Chrome AX now reachable but window offscreen/existing media UI preserved. Next pursue a missing boundary without disturbing peer UI; physical/human/sleep remain deferred."
+    "note": "Stage77 complete: fresh current-native input listener and owned 20-second capture passed. Two delivered keys match retained timestamps/keycodes; all 80 source/mux stamps and decoded witness patches verified. A key operation also retained a title-bar click pair, kept as possible focus preparation. Three verified outcomes, cleanup complete. Continue missing boundaries without physical or human-dependent gates."
   },
-  "production_note": "Signed native6c238cc1ba80/PID20948 installed through one idle maintenance fence; candidate/installed binary and signature matched,130 prior state JSON hashes unchanged, Screen Recording reported granted. Retained frame diagnostics/current MCP0.17/27tools and existing ordinary frame tool verified. No new capture or input-delivery canary after this review-only native change; last-observed input listen_access null is unknown, not denied. Fresh listener/delivered canary remains required before relying on new input coverage. Ordinary full adapter adoption and18 partial acceptance gates remain open.",
+  "production_note": "Signed native 6c238cc1ba80/PID20948 has a fresh delivered input/source canary after the review-only restart. Input Monitoring last observed true, listener active during capture, four callbacks without loss/fault. Two app-delivered key timestamps/keycodes match; 80 exact mux/source joins and all patch samples decoded. Current MCP 0.17 and ordinary frame previews verified. Same-scope pointer precursors and unresolved keyboard window ownership remain explicit. Physical input, universal provider filtering, ordinary full adapter adoption and 18 partial gates remain open.",
   "groups": [
     {
       "id": "capture",
@@ -278,10 +278,10 @@
           "title": "Separate session events from unrelated user activity",
           "status": "partial",
           "scope": "Retain delivery and action-context reasons, broad shortcuts and uncertain candidates.",
-          "evidence": "Prior delivery/scoping checks retained. Stage65 actual native-CUA menu sequence retains10 events each window/app and4 in display crop, with reasons/action clues; queueoverflow0. AX submenu expansion need not emitCG transitions. Actor and physical input unknown; action end after media not backfilled. Stage72 sibling-window keys8/8 remain app-delivered/window-unresolved. Actual queries broad37, strict target-action21 excludes all8, target+unassociated29 restores8.20 target oracle events tagged;8 sibling untagged. No actor inference.",
-          "next": "Qualify remaining physical/provider attribution boundaries; retain broad shortcuts, source reasons and semantic context without actor/focused-field inference.",
-          "anchor": "seventy-second-pass",
-          "updated_at": "2026-10-09T17:51:25-04:00"
+          "evidence": "Stage72 broad/strict/unassociated companion evidence retained. Stage77 one key operation retains a preceding title-bar pointer down/up plus both keys in the same action scope. Keys remain app_delivery_window_unresolved; pointer pair is possible focus preparation, with actor/causation unknown. Type and semantic context remain separate.",
+          "next": "Qualify remaining physical/provider attribution boundaries. Keep auxiliary pointer candidates and broad shortcuts; action membership alone cannot identify intended visual cues or actor.",
+          "anchor": "seventy-seventh-pass",
+          "updated_at": "2026-10-09T18:38:17-04:00"
         },
         {
           "id": "protected-input",
@@ -556,20 +556,20 @@
           "title": "Verify the quality of recent shared computer-use workflows",
           "status": "partial",
           "scope": "Assess delivered actions, verification and cleanup rather than tool-call counts.",
-          "evidence": "Historical stage63 diagnosis retained. Stage69 targeted actual workflow finds post-close bound AX read relaunching a new PID/window. Three typed receipts/outcomes preserve verified original-process exit with partial first-close cleanup; separate exact new PID/window cleanup completed. Scoped audit uncovered0 covers stored scopes only, not all reads or implicit effects. Owned PIDs absent, sessionclosed and nativeidle. Stage71 six stored scopes each have read-back typed outcomes:3 verified/2 failed/1 unknown, zero uncovered. Protected menu episode stays failed for expiry/overrun; native Chrome timeout and unknown shortcut preserved. Independent later inventory finds owned Safari window absent/StartPage present without close replay; actor/time unknown. Audit covers stored scopes only. Stage72 twenty imported terminal scopes/outcomes read back:17 verified/3failed; zero uncovered. Expired narrow-dismiss stays failed despite visible dismissal; unused scope expires without dispatch. No provider interception claim. Stage73 three verified/cleanupcomplete outcomes, zero uncovered; captures retain motion start/end scope context. Cleanup independently observed, provider preflight failure preserved. Stage76 native Chrome acquisition returns AX, while independent recorder window119/PID71011 offscreen. Existing UI marked media capture preserved; no input/capture/fixture created. One terminal acquisition outcome verified/cleanupcomplete/audit uncovered0; sessionclosed. Accessibility acquisition alone is not native delivery or capture readiness.",
-          "next": "Continue targeted workflow observation only on owned reachable surfaces, preserving peer UI; no inference of delivery from accessibility or whole-workflow success from one receipt.",
-          "anchor": "seventy-sixth-pass",
-          "updated_at": "2026-10-09T18:29:09-04:00"
+          "evidence": "Stage77 launch/key/close have three terminal imported receipts, separate verified outcomes and completed cleanup; independent audit uncovered0. Two raw key matches and80 decoded witness frames corroborate delivered content. Foreground samples identify another app, without continuous focus/no-interruption proof.",
+          "next": "Continue targeted workflow observation on a genuinely new boundary; no inference of whole-workflow success or continuous background isolation from this sample.",
+          "anchor": "seventy-seventh-pass",
+          "updated_at": "2026-10-09T18:38:17-04:00"
         },
         {
           "id": "receipt-integration",
           "title": "Improve automatic receipt coverage across providers",
           "status": "partial",
           "scope": "Capture durable operation evidence for native and browser actions.",
-          "evidence": "Stage69 resolves the stage68 pre-launch gap: actual declared launch begins before native getApp, independently observed PID remains separate. Shared receipt/outcome/source-context readers preserve resolution; legacy immutable IDs unchanged. Three actual terminal scopes/outcomes read back; first close cleanup remains partial after a provider read relaunched the app. Separate observed cleanup completed. No input capture, source backfill, authenticated actor or universal automatic native interception. Stage70 ordinary MCP scopes retain observed and declared identities; menu episode expired and one stale-index batch required fresh-state correction. Loaded adapter adoption remains unknown. Final owned-window close submitted once, independent inventory still reports window13728; cleanup unverified. Session closed/native idle. Stage71 actual ordinary-tool scopes imported with six outcomes/readbacks; failed reservation and unknown Chrome shortcut preserved. Declared target stays separate. Later independent owned-window absence settles current cleanup without retrospective stamps or replay. Fresh owned MCP0.16 publishes new profile; existing ordinary loaded adapter version/replay still unknown. Stage72 declared launch followed by independently observed PID/window;20 typed terminal outcomes and cleanup complete read back. Ordinary loaded22-tool schema still lacks fresh0.16 tools; no peer refresh. Stage73 three terminal verified/cleanupcomplete outcomes independently read back; native inactive-binding Quit preflight rejected before dispatch, fresh observed state then one accepted Quit. No automatic interception or ordinary adoption claim.",
-          "next": "Qualify ordinary consumer adoption and remaining provider interception/read side effects; preserve settled source and typed outcomes.",
-          "anchor": "seventy-third-pass",
-          "updated_at": "2026-10-09T18:06:35-04:00"
+          "evidence": "Stage77 three native CUA operations prospectively scoped/imported with independent verification and cleanup; audit uncovered0. A key operation yields pointer precursors in the same action, preserving provider granularity uncertainty. Current MCP input queries/ordinary frame reads match retained evidence.",
+          "next": "Qualify ordinary full consumer adoption and remaining provider interception/read side effects; explicit bracketing remains required, without replaying settled sources.",
+          "anchor": "seventy-seventh-pass",
+          "updated_at": "2026-10-09T18:38:17-04:00"
         },
         {
           "id": "shared-baseline-plan",
@@ -632,10 +632,10 @@
           "title": "Install the candidate safely and verify rollback",
           "status": "partial",
           "scope": "Idle-boundary release with prior binary/state preserved and exact loaded-capability readback.",
-          "evidence": "Prior guarded releases/restoration and source/state preservation remain retained; stage58 delivers signed9bf native/paired-clock support. Stage62 exact configured launcher under minimal GUI PATH exposes current0.14.0/27 tools/replay never and exits cleanly; both harness registrations unchanged. Native9bf/PID24295/exact binary and mapping/server sources unchangedidle. Agent runbook baseline corrected; ordinary chat still lacks adapter metadata, so broader adoption/natural failure gates remain open. Stage67 fresh configured launcher/CLI delivers0.15.0 three-source planning,27 tools/replay never, actual parity and guarded crop/identity/slots. Native9bf/PID24295 unchangedidle; server/planner intentionally changed. Owned readers exited0, no peer/native restart. Ordinary chat still lacks metadata; adoption unknown. Stage76 review-only native6c238cc1ba80/PID20948 delivered once from verified signed frozen candidate via idle fence. Binary exact match/130 prior state JSON hashes unchanged/Screen Recording reported granted; fresh MCP0.17 and existing ordinary frame tool read retained pixels/extra fields. No input listener canary after restart; listen_access null unknown. Original rollback drill retained, not repeated.",
-          "next": "Verify a useful natural next capture/input listener at its actual source boundary; preserve signed artifact/state and settled rollback evidence, ordinary full adoption still open.",
-          "anchor": "seventy-sixth-pass",
-          "updated_at": "2026-10-09T18:29:09-04:00"
+          "evidence": "Stage76 signed delivery preserved130 state hashes. Stage77 natural current-native input/capture boundary passes: fresh listening/tap enabled, four callbacks, two delivered key matches,80 exact mux/source joins, all decoded witness patches. Native remains6c/PID20948; owned reader exits0, fixture absent/sessionclosed/nativeidle.",
+          "next": "Verify ordinary full consumer adoption at a safe connection launch; preserve the settled native release, rollback and fresh input canary without repetition.",
+          "anchor": "seventy-seventh-pass",
+          "updated_at": "2026-10-09T18:38:17-04:00"
         },
         {
           "id": "installed-smoke",

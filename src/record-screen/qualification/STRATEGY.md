@@ -1,12 +1,14 @@
 # Capture foundations: qualified strategy and remaining boundaries
 
-Current checkpoint: October9,2026, stage76. Signed native6c238cc1ba80 is installed;
+Current checkpoint: October9,2026, stage77. Signed native6c238cc1ba80 is installed;
 current CLI and fresh owned MCP0.17/27 tools carry the latest contracts. Existing
 ordinary chat exposes22 older tools, so use current CLI for missing input queries,
 source maps, planning and declaration-only launch contexts. Preserve peer servers.
-Prior Input Monitoring delivery samples remain scoped to their native build.
-The review-only6c restart has not recreated a listener/delivery canary; current
-listen_access null is unknown. Permission alone never establishes coverage. The maintained checklist currently
+Stage77 independently verifies the fresh listener and two delivered keys on native6c.
+All80 mux stamps and witness patches pass; permission alone never establishes
+coverage. One key operation also retains pointer precursors in the same scope,
+so action membership does not establish actor or intended cue. Physical input
+and continuous focus isolation remain unqualified. The maintained checklist currently
 has45 completed,18 partial and1 deferred items. Read PRODUCTION-GOAL.md for active
 work and GATES.md for exact observations; historical checkpoints below are evidence,
 not current readiness. Optional production_plan.app_learning consumes the central

@@ -662,3 +662,16 @@ needs a live source check. This supplies memory without claiming universal app
 readiness. Actual stage73/74 fact reads through fresh MCP and current CLI agree;
 unknown provider remains unqualified. Older loaded adapters need current CLI or
 a safe next launch. Preserve active peer connections.
+
+## Provider operations can include ancillary input
+
+A single native CUA key operation in the stage77 owned witness emitted a title-bar
+pointer down/up before the delivered key pair. All four retained events have the
+same action tag. Keep the pointer pair as possible focus preparation; its actor
+and causation are unverified. An action scope describes an operation interval,
+not necessarily one input gesture or the intended visual cue. Use event types,
+delivery reasons and semantic context when selecting cues, preserving the broad
+source for later changes. Keyboard delivery can remain window-unresolved even
+with a known intended target. Foreground samples of another app do not establish
+continuous focus isolation. The fresh native6c listener/delivered source canary
+passes within this scope; physical rate/provider calibration remain open.
