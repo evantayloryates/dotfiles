@@ -16,7 +16,7 @@ Claude ──MCP stdio──▶ bin/codex-bridge-mcp (server.mjs)
 
 ## Shared local evidence
 
-The service also exposes four local capability/receipt tools to native and
+The service also exposes seven local capability/receipt/outcome tools to native and
 bridge consumers. They do not connect to the app-server or consume a model
 turn. See [CAPABILITY-EVIDENCE.md](CAPABILITY-EVIDENCE.md) for exact version
 scoping, expiry, provenance and the standalone CLI.

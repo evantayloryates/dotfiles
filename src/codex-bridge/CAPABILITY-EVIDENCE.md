@@ -187,6 +187,31 @@ counts and opaque bodies have not been promoted to a success audit.
 
 ## Recorder reply import and shared native policy
 
+Native consumers can import an already settled recorder reply without writing
+a Node wrapper:
+
+```sh
+node /Users/taylor/src/github/dotfiles/src/codex-bridge/evidence.mjs recorded-action /absolute/private/action-end.json
+node /Users/taylor/src/github/dotfiles/src/codex-bridge/evidence.mjs outcome /absolute/private/outcome.json
+node /Users/taylor/src/github/dotfiles/src/codex-bridge/evidence.mjs audit EXPLICIT_SESSION_ID
+```
+
+The first command returns the immutable receipt ID for the outcome's
+`receipt_id`. It imports the full terminal reply as received, preserving exact
+service stamps, context and null end bounds for restart interruption. Active
+replies refuse. Reimporting identical replies returns the same ID; a storage
+failure never warrants repeating the UI operation. Read back receipts/audit
+before claiming publication. These commands do not drive UI or connect to the
+app-server. The MCP manual receipt schema remains separate from reply import.
+
+CLI JSON request/reply files must be regular, non-symlink, valid UTF-8 JSON and
+at most 64,000 bytes, including files that grow while being read. Input errors
+never echo the file's body. Keep authored compact requests and summaries in
+those files; bulk source rows, screenshots, credentials and raw tool bodies
+belong in their existing private stores. Three CLI integration checks cover
+exact/imported clocks and idempotency, unknown restart bounds/active refusal,
+and malformed/oversized/symlink/non-file refusal without publication.
+
 The recorder exposes action_begin/end/scopes with exact service times and rich
 context, gated by action_scopes v1. Supported callbacks use
 `src/record-screen/lib/recorded-action.mjs:withRecordedAction`; native CUA remains
