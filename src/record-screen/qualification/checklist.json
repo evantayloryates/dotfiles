@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T19:03:43-04:00",
+  "updated_at": "2026-10-09T19:08:11-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage81 complete: one official reset of this chat’s CUA client/read recovered inventory, then actual owned native delivery passed. Two raw key matches,77 exact mux stamps/all decoded patches; current MCP input/preview joins verified. Three verified outcomes, cleanup complete, no shared kill/restart or permission change. Current UI read/delivery canary recovered; active-fault salvage and human/physical gates remain open."
+    "note": "Stage82 verifies the prepared owned DOM event export:11 events, explicit ArrowRight keydown/keyup and magenta witness. Two typed outcomes verified; one opening receipt expired/interrupted and remains unknown. All cleanup complete; no new capture or native input. Broader physical, provider and fitted-origin gates remain partial."
   },
-  "production_note": "Native6c/PID20948 unchanged. After idle UI-provider fault, own-client reset/read succeeded and an owned source verified two delivered keys,77 exact mux/source stamps and all witness patches. Current MCP0.18/27tools reads4scoped/2keyboard events and2exact preview joins; hashes unchanged, readerexits0. Three verified cleanupcomplete outcomes, fixture absent/sessionclosed/nativeidle. Recovery is scoped, cause/general recovery/physical rate unknown; ordinary22-tool full adoption remains open.45 completed,18 partial,1 deferred.",
+  "production_note": "Native6c/PID20948 unchangedidle. Current MCP0.18/CLI exact preview/source mapping qualified; stage81 recovered native delivery passes. Stage82 independently observes browser per-key DOM delivery, without OS-clock/global-tap or actor proof. Stage79 callback-gap failure/historical unknown outcome unchanged. Owned tab/server/session closed, peer media UI retained.45 completed,18 partial,1 deferred; full goal active.",
   "groups": [
     {
       "id": "capture",
@@ -318,10 +318,10 @@
           "title": "Qualify missing-event and tap-fault behavior",
           "status": "partial",
           "scope": "Expose virtual-input gaps, revoked access, disabled taps and overload.",
-          "evidence": "Stage79 browser DOM click/counter changes while global callbacks4→4; same-listener native control4→8. Stage81 recovered native client delivers two raw key matches/four scoped events with healthy listener,77 exact source/mux stamps. Browser per-event trust/key details and physical/revocation bounds remain unknown.",
-          "next": "Qualify remaining physical revocation/natural timeout and per-key bounds when isolated. Keep browser/provider failure evidence separate from the recovered native canary.",
-          "anchor": "eighty-first-pass",
-          "updated_at": "2026-10-09T19:03:43-04:00"
+          "evidence": "Stage82 DOM-backed export independently observes11 events including ArrowRight keydown/keyup, isTrusted true; browser clock uncalibrated and trust not actor/human identity. Stage79 callback4→4 differential/failure and unknown historical key outcome preserved; native recovered stage81 positive control retained.",
+          "next": "Qualify remaining physical revocation/natural timeout and OS delivery bounds when isolated; do not substitute DOM delivery/trust for global event coverage.",
+          "anchor": "eighty-second-pass",
+          "updated_at": "2026-10-09T19:08:11-04:00"
         },
         {
           "id": "installed-input-access",
@@ -556,20 +556,20 @@
           "title": "Verify the quality of recent shared computer-use workflows",
           "status": "partial",
           "scope": "Assess delivered actions, verification and cleanup rather than tool-call counts.",
-          "evidence": "Stage81 three terminal receipts/verified outcomes/cleanupcomplete, audit uncovered0; actual recovered native delivery and all77 decoded witness patches corroborate. Stage79 fiveverified/oneunknown preserved; no retroactive scope for failed idle inventory read and no old ordinary-adapter adoption claim.",
-          "next": "Continue targeted workflow observation only at a new useful boundary; retain caller/provider uncertainty, unknown browser per-key verification and existing failed history.",
-          "anchor": "eighty-first-pass",
-          "updated_at": "2026-10-09T19:03:43-04:00"
+          "evidence": "Stage82 three terminal receipts:2verified/1unknown after opener expired during handoff; all cleanupcomplete/uncovered0. Actual DOM key transition evidence retained independently, without rewriting expired delivery. Prior stage81 native recovery verified.",
+          "next": "Observe a new useful provider boundary; keep unknown expired scope and historical failures. Scope expiry during handoff requires fresh context for subsequent operations, not replay or edited timestamps.",
+          "anchor": "eighty-second-pass",
+          "updated_at": "2026-10-09T19:08:11-04:00"
         },
         {
           "id": "receipt-integration",
           "title": "Improve automatic receipt coverage across providers",
           "status": "partial",
           "scope": "Capture durable operation evidence for native and browser actions.",
-          "evidence": "Stage77 three native CUA operations prospectively scoped/imported with independent verification and cleanup; audit uncovered0. A key operation yields pointer precursors in the same action, preserving provider granularity uncertainty. Current MCP input queries/ordinary frame reads match retained evidence.",
-          "next": "Qualify ordinary full consumer adoption and remaining provider interception/read side effects; explicit bracketing remains required, without replaying settled sources.",
-          "anchor": "seventy-seventh-pass",
-          "updated_at": "2026-10-09T18:38:17-04:00"
+          "evidence": "Stage82 browser operations explicitly bracketed and imported: opener expires/interrupted at handoff, DOM and close delivered/verified;3cleanupcomplete/uncovered0. Independent tab inventory preserves peer media UI; exact sessionclosed/nativeunchangedidle.",
+          "next": "Qualify ordinary full consumer adoption and remaining provider interception/read side effects. Explicit bracketing and separate actual delivery proof remain required.",
+          "anchor": "eighty-second-pass",
+          "updated_at": "2026-10-09T19:08:11-04:00"
         },
         {
           "id": "shared-baseline-plan",
@@ -2896,6 +2896,30 @@
       "from": "partial",
       "to": "partial",
       "note": "Stage76 review-only native6c238cc1ba80/PID20948 delivered once from verified signed frozen candidate via idle fence. Binary exact match/130 prior state JSON hashes unchanged/Screen Recording reported granted; fresh MCP0.17 and existing ordinary frame tool read retained pixels/extra fields. No input listener canary after restart; listen_access null unknown. Original rollback drill retained, not repeated."
+    },
+    {
+      "at": "2026-10-09T19:08:11-04:00",
+      "kind": "item",
+      "id": "provider-gaps",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage82 adds actual DOM per-key evidence and preserves the expired opening receipt; broader acceptance scope unchanged."
+    },
+    {
+      "at": "2026-10-09T19:08:11-04:00",
+      "kind": "item",
+      "id": "workflow-audit",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage82 adds actual DOM per-key evidence and preserves the expired opening receipt; broader acceptance scope unchanged."
+    },
+    {
+      "at": "2026-10-09T19:08:11-04:00",
+      "kind": "item",
+      "id": "receipt-integration",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage82 adds actual DOM per-key evidence and preserves the expired opening receipt; broader acceptance scope unchanged."
     }
   ]
 }

@@ -3466,3 +3466,27 @@ Privategates-v81 verification/summary. Checklist45completed18partial1deferred,
 fullgoalactive. This changed-provider canary is qualified; do not repeat without
 a new boundary. Next qualify a useful missing DOM semantic export or available
 real popup surface, preserving unknown physical/provider cases and peer UI.
+
+## Eighty-second pass — actual DOM event export, separate from OS telemetry
+
+The prepared bounded DOM metadata export is live-qualified on an owned local
+Chrome tab1424518106. Supported textContent read observes11 events, including
+ArrowRight keydown/up targeted to Owned shortcut target with isTrusted=true;
+magenta witness and focus independently observed. No literal key text logged.
+Browser event/performance milliseconds are uncalibrated to OS/video clocks;
+isTrusted is not human/actor authentication. No recording or native listener
+was started, and stage79 global-tap failure/historical unknown outcome stays.
+
+Opening scope expired/interrupted during handoff before terminal completion.
+Actual tab creation is separately observed, but its typed verification stays
+unknown. DOM and cleanup scopes delivered/verified; all3cleanupcomplete with
+audituncovered0. Shared exact Chrome/provider DOM-delivery pass read back;
+unknown provider version forbids automatic reuse. No Chrome native/window/menu
+proof. Owned tab independently absent, peer media tab retained, serverexit0/
+exact sessionclosed/native6c/PID20948unchangedidle/0scopes/unfinished/subscribers.
+Initial settlement helper expected actions.active rather than action_timeline
+and failed after cleanup; corrected on the same retained artifacts without
+replaying any UI/mutation. DOM JSON is explicitly a transcription of supported
+CUA output; original fixture retained. Privategates-v82.45completed18partial
+1deferred/fullgoalactive. Next use a genuinely missing boundary rather than
+repeat known DOM/native delivery.

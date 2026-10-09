@@ -563,6 +563,12 @@ if (args.evidence / 'gates-v81/qualification-summary.json').exists():
     section81 += html.escape(notes81) + '</pre></details></section>'
     page = page.replace('<section id="eightieth-pass">', section81 + '<section id="eightieth-pass">', 1)
 
+if (args.evidence / 'gates-v82/qualification-summary.json').exists():
+    notes82 = (args.evidence / 'gates-v82/qualification-summary.json').read_text()
+    page = page.replace('<a href="#eighty-first-pass">Latest qualification</a>', '<a href="#eighty-second-pass">Latest qualification</a>')
+    section82 = '<section id="eighty-second-pass"><h2>Browser key delivery becomes directly observable</h2><p><strong>The prepared DOM-backed export now independently shows ArrowRight key-down and key-up.</strong> Eleven owned events retain target, trust and browser timestamps; the visual witness is magenta. Browser trust does not authenticate a human or actor, and these clocks remain separate from OS/video timing.</p><p>No new recording or native input was needed. The earlier global-tap coverage failure and historically unknown browser key outcome remain unchanged. The opening scope expired during handoff and stays interrupted/unknown; the following DOM and close operations are verified. All three cleanup outcomes are complete, with no uncovered receipts.</p><p class="note">Owned tab independently absent, peer media tab retained, server exited and exact session closed. Native6c/PID20948 unchanged and idle. No Chrome footage/menu, physical input or continuous timing proof.45 completed,18 partial,one deferred; full goal active.</p><details><summary>Read the owned DOM events, honest scope expiry and cleanup evidence</summary><pre>' + html.escape(notes82) + '</pre></details></section>'
+    page = page.replace('<section id="eighty-first-pass">', section82 + '<section id="eighty-first-pass">', 1)
+
 workflow = checklist_data['workflow']
 page = page.replace('<main><nav>', '<main><p class="note"><strong>Qualification ' + html.escape(workflow['state']) + '.</strong> ' + html.escape(workflow['note']) + ' Current acceptance states are in the checklist; earlier sections retain historical results.</p><nav>', 1)
 page = page.replace('</style>', '.checklist-link{margin-left:auto;font-weight:600}.checklist-link:focus-visible{outline:3px solid var(--blue);outline-offset:4px}</style>', 1)

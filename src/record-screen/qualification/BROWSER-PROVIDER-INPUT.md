@@ -48,3 +48,18 @@ was corrected to `show_cursor`. The launch-control receipt also contains a
 caller provider-label error (`browser-cua` for a native CUA call), explicitly
 preserved in its typed outcome. Neither error justifies rewriting timestamps,
 replaying an unknown mutation or claiming authenticated provider identity.
+
+Stage82 separately qualifies the prepared DOM-backed export. Eleven observations
+include explicit ArrowRight keydown and keyup on the owned textarea, each with
+isTrusted=true. Browser event/performance timestamps, coordinates and target
+are retained as DOM observations. They do not establish OS/video clock mapping,
+human identity, global tap delivery or physical input rate. No recording/listener
+was started. Stage79 per-key verification remains historically unknown; that
+episode's failed global-tap coverage fact is unchanged.
+
+Three terminal stage82 receipts have2verified/1unknown: opening scope expired
+during handoff before completion. Actual ready tab observed afterward does not
+rewrite the expired receipt. All cleanup complete; audituncovered0. Owned tab
+independently absent, peer media tab retained, serverexit0/sessionclosed/native
+unchangedidle. Scope deadlines continue during context handoff; close scopes
+promptly and begin fresh scopes for later actions rather than replay a mutation.

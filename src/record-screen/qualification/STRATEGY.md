@@ -1,6 +1,6 @@
 # Capture foundations: qualified strategy and remaining boundaries
 
-Current checkpoint: October9,2026, stage81. Signed native6c238cc1ba80 is installed;
+Current checkpoint: October9,2026, stage82. Signed native6c238cc1ba80 is installed;
 current CLI and fresh owned MCP0.18/27 tools carry the latest contracts. Existing
 ordinary chat exposes22 older tools, so use current CLI for missing input queries,
 source maps, planning and declaration-only launch contexts. Preserve peer servers.
@@ -308,3 +308,9 @@ Private artifacts:
 Recorder session: `ses_znmm2ude`; recordings `rec_9ysm6u63`, `rec_329z2bru`,
 `rec_pwxrgkwx`, `rec_cu7uaw6w`. Initial and revised probe outputs are preserved
 with their limitations; no raw user typing or transcript bodies are published.
+
+Stage82 qualifies owned DOM-backed browser event export:11 observations include
+explicit ArrowRight down/up target/trust, separate from OS telemetry and video
+clock. Opening scope expired at handoff and remains interrupted/unknown;2later
+operations verified,3cleanupcomplete/uncovered0. No capture/listener/native menu
+proof. Preserve stage79 global-tap coverage failure and historical unknown outcome.

@@ -1,6 +1,6 @@
 # Production qualification goal
 
-## Current checkpoint: stage81 — ACTIVE
+## Current checkpoint: stage82 — ACTIVE
 
 Native6c238cc1ba80/PID20948 remains unchanged. Current MCP0.18/27tools and CLI
 provide optional exact returned-preview/source joins; older ordinary22-tool
@@ -25,8 +25,13 @@ Stage79 browser provider click changes DOM/counter with no observed global tap
 increment; same-listener native control passes. Its combined browser per-key
 verification remains unknown, shared failure fact is consumed by the planner,
 and semantic action context survives an empty events/gaps result. No Chrome
-video or menu qualification without a native owned target. Future bounded DOM
-event export is prepared but not yet live-qualified. Preserve peer media UI.
+video or menu qualification without a native owned target. Stage82 now independently observes the prepared DOM export:11 events, explicit
+ArrowRight keydown/keyup with target/trust flags and magenta witness. Browser
+clock remains uncalibrated; DOM trust is not actor/human authentication. No new
+recording/listener or native Chrome/menu proof. Three terminal receipts retain
+2verified/1unknown (opening scope expired during handoff), allcleanupcomplete/
+uncovered0. Owned tab/server/sessionclosed, peer media UI preserved. The stage79
+historical unknown key outcome is not retroactively promoted.
 
 Checklist45completed18partial1deferred/fullgoalactive. Composition remains deferred.
 Explicit AFK authorization ends conservatively23:20UTC. Continue genuinely missing
