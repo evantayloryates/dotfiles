@@ -494,7 +494,7 @@ macOS asks again every 30 days. The re-confirm date lives in
 ## Capture foundations and qualification
 
 Start capture coordination with `production_plan` in a fresh MCP adapter
-(`status.mcp_adapter.production_planning: 1`, introduced in0.9.0; current0.10.1), or the immediately
+(`status.mcp_adapter.production_planning: 1`, introduced in0.9.0; current0.11.0), or the immediately
 available CLI:
 
 ```sh
@@ -723,6 +723,63 @@ Stage34 verified projected points against stage33 decoded markers, exact offset/
 host exclusions through CLI/fresh live MCP, retained failed media, seven focused
 mapping checks and eight adjacent adapter/planning checks. Capture/input ownership,
 physical latency and arbitrary app transforms remain outside that proof.
+
+### Bounded retained-input query (October 9)
+
+Fresh MCP0.11.0 `recording_input` / CLI `input-query JSON` reads a terminal
+recording's retained input without exposing the bulk journal or literal text:
+
+```sh
+node /Users/taylor/src/github/dotfiles/src/record-screen/cli.mjs input-query \
+  '{"recording_id":"rec_EXAMPLE","from_relative_ns":"0","to_relative_ns":"30000000000","event_types":[10,11,12],"limit":64}'
+```
+
+Replace the example ID with an owned/relevant recording. Exact signed decimal
+offsets use recorder reception time; the upper bound is exclusive and the
+interval spans at most one hour. Default64/max256 events per page. Omit
+`event_types` for all capture-retained event types; specify up to32 distinct CG
+types when needed. Keyboard down/up/modifier types10/11/12 retain broad shortcuts
+and same-app unresolved deliveries. Raw CG timestamps stay separate; raw pointer
+coordinates are returned with `position_for_composition:null`.
+
+Optional `action_tokens` is an OR filter over up to16 exact recorder tokens.
+`include_unassociated:true` also preserves events with no token by default;
+set false explicitly for a narrow contextual selection. Even a matching token
+does not prove an actor: unrelated same-app activity during a declared block
+can share it. Type/action filtered counts are mechanical query exclusions,
+not a contamination estimate. Capture-excluded event contents cannot be recovered.
+
+Pass the returned `next_cursor` verbatim as `cursor` with the same query. It binds
+the source byte hash, canonical filters/interval/page size and physical row frontier.
+Changed source or query refuses continuation; begin a new read. Duplicate events
+are preserved in source-row order. Callback sequence is listener-instance receipt
+order, not a global deduplication key or generation-order guarantee.
+
+Response `coverage` retains scoped gap notifications even when event filters
+exclude every event, plus whole-source counts, input scope/end and truncated
+gap details. Untimed gaps remain explicit. Journal completion never establishes
+input delivery or actual video coverage: input completeness is `unproven`, and
+`video_coverage_evaluated:false`. Use `recording_frame_map` for media; consult
+`recording_source` for source clock continuity and actions for rich semantic blocks.
+
+The engine resolves paths from recording IDs. Only terminal sources are accepted;
+leaf symlinks, nonregular files, identity/clock mismatches, malformed/unterminated
+rows and protected-keyboard rows refuse the query. Whitelisted metadata excludes
+unknown literal-text/clipboard fields. Limits:64MiB journal,250000 inspected rows,
+1MiB line/response,32 reported interval/untimed gaps and a cooperative ten-second
+read budget. Initial/open/read/stat/close OS calls are not hard real-time bounded.
+One active query is admitted per adapter until actual read/close settles; sibling
+adapters do not share global admission. Loaded status advertises
+`mcp_adapter.retained_input_query:1` and `input_query.active`.
+
+Six new and eight adjacent tests passed. Actual fresh MCP/CLI readback matches
+12 retained keys to the scope-matched delivery oracle, across four pages. Six
+belonged to the same app's other window and remain unresolved; a strict action
+filter returns six, while two pointer events retain unqualified positions.
+The failed wrong-oracle attempt and incorrect verification callback report were
+preserved and corrected through separate typed outcomes; no source/input replay.
+Native f314/PID35547 stayed unchanged/idle; existing peer adapters were not restarted.
+See qualification/GATES.md, thirty-sixth pass.
 
 ### Destination-aware keyboard recovery (October 9)
 

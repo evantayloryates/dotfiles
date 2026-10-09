@@ -253,6 +253,17 @@ or guaranteed ownership. Keep source files local and out of Git.
 
 ## Input and semantic blocks
 
+Fresh MCP0.11.0 `recording_input` / CLI `input-query` consumes the terminal source
+packet through a bounded, whitelisted interval query. Exact receipt offsets,
+relevance reasons and unresolved same-app/action/actor metadata remain explicit.
+Snapshot/query-bound pagination preserves source-row order and duplicate events;
+gaps survive type/action filtering. It never loads bulk raw rows into an agent
+response, reads characters or promotes raw generation timestamps/coordinates.
+Known retained rows from incomplete terminal journals can be returned with missing
+footer/coverage explicit; malformed or unterminated rows refuse the entire read.
+Capture-excluded contents, actual video coverage and physical completeness cannot
+be inferred. See README's bounded retained-input query contract and stage36 evidence.
+
 Negotiate `input_timeline == 1`. New takes on capable engines enable passive
 scoped input by default; legacy saved jobs keep input disabled. `record_schedule`
 accepts `input: {enabled, ambiguous_keys, pointer_in_frame}`. No grant is requested

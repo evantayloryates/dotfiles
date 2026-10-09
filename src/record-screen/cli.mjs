@@ -21,6 +21,7 @@
 //   record-screen recording <id>               full manifest of one recording
 //   record-screen record-source <id>           local source journal and gap descriptor
 //   record-screen frame-map <json>             actual mux/source geometry and desktop-point projection
+//   record-screen input-query <json>           bounded retained events, reasons/gaps and exact receipt offsets
 //   record-screen action-begin <json>          recorder-stamped contextual block, no UI action
 //   record-screen action-end <json>            close token, caller-reported result
 //   record-screen action-scopes <session> [caller]  scoped token recovery
@@ -48,6 +49,7 @@ import { prepareMaintenance, validateMaintenance, releaseMaintenance } from "./l
 import { install } from "./lib/install.mjs";
 import { planProduction, validateProductionRequest } from "./lib/production-plan.mjs";
 import { mapRecordingFrames, validateFrameMapRequest } from "./lib/frame-map.mjs";
+import {queryRecordingInput,validateInputQuery} from "./lib/input-query.mjs";
 import { call as rawCall, enginePaths, EngineError, LABEL } from "./lib/client.mjs";
 
 // Session-aware methods get the caller attached, so work bundles per agent
@@ -189,6 +191,14 @@ try {
       const status = await call("status");
       const windows = request.target.type === "window" ? await call("windows.list", { limit: 256 }) : { windows: [], total: 0 };
       out(planProduction(request, status, windows));
+      break;
+    }
+    case "input-query": {
+      const request=validateInputQuery(JSON.parse(args[0]??"{}"));
+      const status=await call("status");
+      if(status.capabilities?.source_journal!==1)throw new EngineError("unsupported_source_journal","Retained input query requires source_journal v1; no capture was started.");
+      const source=await call("record.source",{recording_id:request.recording_id});
+      out(await queryRecordingInput(source,request));
       break;
     }
     case "verify":

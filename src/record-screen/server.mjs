@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // record-screen MCP server: the agent-facing tools over the record-screend
-// engine (see README.md). Stateless: every call goes to the engine's socket.
+// engine (see README.md), plus bounded local media/input readers. Adapter-owned
+// query/probe admission is separate from native engine capability/health.
 import { readFileSync } from "node:fs";
 
 import { serveMcp } from "../lib/node/mcp-stdio.mjs";
@@ -10,9 +11,10 @@ import { hasCaptureOptions, requireCaptureOptions } from "./lib/capture-options.
 import { mapDerivativeTimes } from "./lib/derivative-source.mjs";
 import { mapRecordingFrames, validateFrameMapRequest, frameMapSchema, frameMapHealth } from "./lib/frame-map.mjs";
 import { planProduction, productionPlanSchema, validateProductionRequest } from "./lib/production-plan.mjs";
+import {queryRecordingInput,validateInputQuery,inputQuerySchema,inputQueryHealth} from "./lib/input-query.mjs";
 
 const log = (...args) => console.error("[record-screen]", ...args);
-const VERSION = "0.10.1";
+const VERSION = "0.11.0";
 
 // ---------------------------------------------------------------- engine link
 
@@ -148,7 +150,8 @@ const tools = [
     annotations: { readOnlyHint: true },
     run: async () => ok({ ...await engine("status"), mcp_adapter: {
       version: VERSION, replay_policy: 1, production_planning: 1, source_frame_mapping: 1,
-      frame_mapping: frameMapHealth(), mutation_replay: "never",
+      frame_mapping: frameMapHealth(), retained_input_query: 1,
+      input_query: inputQueryHealth(), mutation_replay: "never",
       read_reconnect_budget_ms: 12000,
       qualification: "loaded MCP adapter policy; native CLI/socket status does not describe an MCP process",
     } }),
@@ -357,6 +360,17 @@ const tools = [
       const request = validateFrameMapRequest(a);
       const source = await engine("record.source", { recording_id: request.recording_id });
       return ok(await mapRecordingFrames(source, request));
+    },
+  },
+  {
+    name: "recording_input",
+    description: "Query a terminal recording's capture-retained input in an exact recorder-reception interval, with bounded event-type/action-token filters and snapshot-bound pagination. Default preserves broad retained keys/shortcuts and unassociated candidates. Inclusion reasons, same-app unresolved delivery, contextual action tokens, raw CG generation stamps and unqualified pointer coordinates remain explicit; no human/agent ownership inferred. Gap diagnostics survive event filters. At most256 events/page,64MiB/250000 source rows,ten-second read budget; one query per adapter. Returns whitelisted metadata, never literal text/clipboard or the bulk journal. Query cannot recover capture-excluded events or establish actual video/physical delivery coverage. Read-only; no capture, UI, permission request or mutation replay.",
+    inputSchema: inputQuerySchema,
+    annotations: {readOnlyHint:true},
+    run: async a => {
+      const request=validateInputQuery(a);
+      const source=await engine("record.source",{recording_id:request.recording_id});
+      return ok(await queryRecordingInput(source,request));
     },
   },
   {

@@ -1,7 +1,7 @@
 # Agent usage and recovery
 
 This is the capture-foundations production runbook. The installed native build
-f314bb340344 and fresh adapter0.10.1 have the scoped proofs in
+f314bb340344 and fresh adapter0.11.0 have the scoped proofs in
 [GATES.md](qualification/GATES.md). Treat these as a baseline, then inspect
 loaded status. Visual effects, cursor styling and composition recipes are the
 next phase. The [checklist](qualification/checklist.json) tracks unresolved
@@ -110,6 +110,22 @@ Native CUA is not automatically intercepted. Import the terminal reply with
 verification is not cleanup. Counts do not establish historical task success.
 Publish new reusable app observations centrally, including ordinary computer
 use outside recording. Keep raw media/events and literal sensitive text private.
+
+For retained event inspection, use `recording_input` / CLI `input-query` with an
+exact recorder-reception interval. Default preserves broad captured keys and
+unassociated candidates; optional type/action-token filters expose their counts
+without implying actor ownership. Snapshot/query-bound pages avoid bulk journal
+loads and keep gap evidence independent of event selection. Source row order,
+generation timestamps, unknown positions and actual media coverage stay distinct.
+Fresh loaded status reports `retained_input_query:1`; older adapters can use the
+CLI. See the bounded retained-input query section in README for limits and fields.
+
+Verification callbacks must inspect actual operation/proof state before reporting
+success. A returned receipt or evidence path is not verification. Match an oracle
+to the recording's saved scope identity before joining events; a different fixture
+PID is a failed precondition. If an earlier reported verification was incorrect,
+append a corrected typed outcome and retain conflicting history rather than
+overwriting the receipt or hiding the failed operation.
 
 ## Inspect coverage before accepting or recovering a take
 

@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T04:52:23-04:00",
+  "updated_at": "2026-10-09T05:10:16-04:00",
   "workflow": {
     "state": "active",
-    "note": "Production usage/recovery runbook and corrected loaded MCP0.10.1 expectations verified;39 completed,17 partial,1 deferred. Native unchanged/idle. Continue physical/provider/daily-app/capacity gates without repeating stable phases; Chrome native visibility help remains pending."
+    "note": "Bounded retained-input query delivered and verified:14 focused checks,12 exact prior keys over four pages, same-app uncertainty and gaps preserved. Wrong-oracle/callback claim corrected with history retained; native unchanged/idle.40 completed,17 partial,1 deferred. Continue physical/provider/daily-app/capacity gates."
   },
-  "production_note": "Signed native f314bb340344/PID35547 unchanged and idle. Fresh MCP0.10.1 exposes corrected scheduling/recovery expectations and primary mapping; CLI available, peer adapters not restarted. Physical/provider calibration, remaining daily-app surfaces, routine adoption, GPU/thermals and P80 remain unqualified.",
+  "production_note": "Signed native f314bb340344/PID35547 unchanged and idle. Fresh MCP0.11.0 adds bounded retained-input query; final CLI/MCP returns12 exact prior keys with unresolved ownership and source snapshots. Peer adapters untouched. Physical/provider calibration, remaining daily-app surfaces, routine adoption, GPU/thermals and P80 remain unqualified.",
   "groups": [
     {
       "id": "capture",
@@ -228,10 +228,10 @@
           "title": "Separate session events from unrelated user activity",
           "status": "partial",
           "scope": "Retain delivery and action-context reasons, broad shortcuts and uncertain candidates.",
-          "evidence": "Cross-app failure exposed foreground leakage despite explicit other-app destination. Installed53b202f58af8 repair excludes both unmodified transitions, preserves four shortcut candidates and unknown-destination fallback. Same-app other-window keys remain explicit unresolved candidates without wrong action IDs.",
-          "next": "Qualify physical/global input and simultaneous same-app human/agent activity; preserve unknown ownership and generous same-app keyboard coverage.",
-          "anchor": "twenty-seventh-pass",
-          "updated_at": "2026-10-09T01:35:19-04:00"
+          "evidence": "New bounded retained-input API preserves12 exact prior keys, including six independently known same-app other-window deliveries with unresolved window/actor status. Optional contextual filter returns six; generous unassociated default and inclusion reasons remain explicit. Earlier installed cross-app destination repair and physical/global limits retained.",
+          "next": "Qualify physical/global input and simultaneous same-app human/agent activity at a changed boundary; use semantic context to refine candidates without authenticating actor ownership.",
+          "anchor": "thirty-sixth-pass",
+          "updated_at": "2026-10-09T05:10:16-04:00"
         },
         {
           "id": "protected-input",
@@ -292,6 +292,16 @@
           "next": "",
           "anchor": "twenty-seventh-pass",
           "updated_at": "2026-10-09T01:35:19-04:00"
+        },
+        {
+          "id": "retained-input-query",
+          "title": "Expose bounded retained input with exact receipt offsets and uncertainty",
+          "status": "completed",
+          "scope": "Service-owned interval/type/action queries, snapshot-bound pages, whitelisted input metadata and gap-preserving diagnostics. Physical completeness and actor identity remain unproven.",
+          "evidence": "Six new plus eight adjacent tests passed. Actual CLI/fresh MCP0.11.0 reads12 prior oracle-matched keys over four pages, six same-app other-window candidates unresolved, strict action filter six and two pointers unpromoted. Snapshot/filters/gaps/partial and invalid-source behavior verified; no capture or input replay.",
+          "next": "",
+          "anchor": "thirty-sixth-pass",
+          "updated_at": "2026-10-09T05:10:16-04:00"
         }
       ]
     },
@@ -496,20 +506,20 @@
           "title": "Verify the quality of recent shared computer-use workflows",
           "status": "partial",
           "scope": "Assess delivered actions, verification and cleanup rather than tool-call counts.",
-          "evidence": "Earlier scoped keyboard/gesture and stage31 failed readiness audits remain retained. Stage32 adds three independently verified launch/motion/close scopes, all cleanup completed, zero uncovered/truncated rows. Immediate stale running inventory was resolved by actual PID/window absence; historical/broad provider success remains ungraded.",
-          "next": "Expand routine supported-provider quality coverage and pending physical/global checks, without inferring historical task success or actor identity.",
-          "anchor": "thirty-second-pass",
-          "updated_at": "2026-10-09T03:49:09-04:00"
+          "evidence": "The new source consumer exposed a wrong fixture-PID oracle selection and an authored callback that incorrectly returned verified after failure. Latest corrected typed outcome is failed; conflicting history and completed cleanup preserved. Scope-derived corrected consumer has independent exact proof, verified outcome and complete cleanup. Broader historical/provider quality remains ungraded.",
+          "next": "Extend routine supported-provider verification with scope-matched evidence and callbacks that inspect actual results; preserve reported conflicts rather than infer historical task success.",
+          "anchor": "thirty-sixth-pass",
+          "updated_at": "2026-10-09T05:10:16-04:00"
         },
         {
           "id": "receipt-integration",
           "title": "Improve automatic receipt coverage across providers",
           "status": "partial",
           "scope": "Capture durable operation evidence for native and browser actions.",
-          "evidence": "Earlier native explicit CUA bracketing/typed outcomes retained. Actual fresh MCP source-map consumer used supported workflow wrapper with independent pixel verification and separately verified MCP/session/engine cleanup. One immutable receipt with revised verified outcomes/audit read back; no automatic interception or authenticated actor inference.",
-          "next": "Extend ordinary provider adoption and meaningful semantic context in routine workflows; explicit CUA bracketing remains necessary.",
-          "anchor": "thirty-fourth-pass",
-          "updated_at": "2026-10-09T04:32:45-04:00"
+          "evidence": "Corrected actual fresh-MCP input consumer uses the supported wrapper with independently checked source/oracle proof, separate cleanup and central audit. Original failed attempt and erroneous verification claim retained/corrected against its immutable receipt; no replay. Explicit native CUA bracketing and routine provider adoption remain open.",
+          "next": "Extend ordinary provider adoption and meaningful semantic context; verified callback reports need actual proof, while explicit CUA bracketing remains required.",
+          "anchor": "thirty-sixth-pass",
+          "updated_at": "2026-10-09T05:10:16-04:00"
         },
         {
           "id": "shared-baseline-plan",
@@ -592,10 +602,10 @@
           "title": "Finish agent usage and recovery runbooks",
           "status": "completed",
           "scope": "Published agent usage and recovery contracts, loaded capability discovery and advisory planning. Routine provider/app/physical/capacity adoption is tracked in separate gates.",
-          "evidence": "AGENT-USAGE.md consolidates production alignment, exact source identity, broad input/action uncertainty, source mapping, preview effort, collision recovery and release limits. Fresh MCP0.10.1 passed10 read-only protocol calls and corrected schedule/retry/capacity wording; native unchanged/idle, owned adapter exited0.",
+          "evidence": "Published runbook now includes bounded retained-input query and precise broad/filtered metadata semantics. Scope-matched oracle selection, checked verification callbacks and corrections with retained conflicting history are documented after actual failed/corrected consumers. Fresh adapter/CLI contracts verified; routine provider/app/physical/capacity gates stay separate.",
           "next": "",
-          "anchor": "thirty-fifth-pass",
-          "updated_at": "2026-10-09T04:51:52-04:00"
+          "anchor": "thirty-sixth-pass",
+          "updated_at": "2026-10-09T05:10:16-04:00"
         },
         {
           "id": "visual-composition",
@@ -1535,6 +1545,53 @@
       "from": "active",
       "to": "active",
       "note": "Production usage/recovery runbook and corrected loaded MCP0.10.1 expectations verified;39 completed,17 partial,1 deferred. Native unchanged/idle. Continue physical/provider/daily-app/capacity gates without repeating stable phases; Chrome native visibility help remains pending."
+    },
+    {
+      "kind": "item",
+      "id": "retained-input-query",
+      "at": "2026-10-09T05:10:16-04:00",
+      "from": "pending",
+      "to": "completed",
+      "note": "Six new plus eight adjacent tests passed. Actual CLI/fresh MCP0.11.0 reads12 prior oracle-matched keys over four pages, six same-app other-window candidates unresolved, strict action filter six and two pointers unpromoted. Snapshot/filters/gaps/partial and invalid-source behavior verified; no capture or input replay."
+    },
+    {
+      "kind": "item",
+      "id": "event-relevance",
+      "at": "2026-10-09T05:10:16-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "New bounded retained-input API preserves12 exact prior keys, including six independently known same-app other-window deliveries with unresolved window/actor status. Optional contextual filter returns six; generous unassociated default and inclusion reasons remain explicit. Earlier installed cross-app destination repair and physical/global limits retained."
+    },
+    {
+      "kind": "item",
+      "id": "workflow-audit",
+      "at": "2026-10-09T05:10:16-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "The new source consumer exposed a wrong fixture-PID oracle selection and an authored callback that incorrectly returned verified after failure. Latest corrected typed outcome is failed; conflicting history and completed cleanup preserved. Scope-derived corrected consumer has independent exact proof, verified outcome and complete cleanup. Broader historical/provider quality remains ungraded."
+    },
+    {
+      "kind": "item",
+      "id": "receipt-integration",
+      "at": "2026-10-09T05:10:16-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Corrected actual fresh-MCP input consumer uses the supported wrapper with independently checked source/oracle proof, separate cleanup and central audit. Original failed attempt and erroneous verification claim retained/corrected against its immutable receipt; no replay. Explicit native CUA bracketing and routine provider adoption remain open."
+    },
+    {
+      "kind": "item",
+      "id": "agent-runbooks",
+      "at": "2026-10-09T05:10:16-04:00",
+      "from": "completed",
+      "to": "completed",
+      "note": "Published runbook now includes bounded retained-input query and precise broad/filtered metadata semantics. Scope-matched oracle selection, checked verification callbacks and corrections with retained conflicting history are documented after actual failed/corrected consumers. Fresh adapter/CLI contracts verified; routine provider/app/physical/capacity gates stay separate."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T05:10:16-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Bounded retained-input query delivered and verified:14 focused checks,12 exact prior keys over four pages, same-app uncertainty and gaps preserved. Wrong-oracle/callback claim corrected with history retained; native unchanged/idle.40 completed,17 partial,1 deferred. Continue physical/provider/daily-app/capacity gates."
     }
   ]
 }

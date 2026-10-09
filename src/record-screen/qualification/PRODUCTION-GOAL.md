@@ -1,5 +1,15 @@
 # Production qualification goal
 
+Stage36 checkpoint: bounded retained-input query delivered via CLI/fresh MCP0.11.0;
+14 focused checks passed. Four real pages preserve12 exact oracle-matched keys,
+including6 same-app other-window candidates; strict contextual filter returns6,
+two raw pointers remain unpromoted. Initial wrong oracle/incorrect verified
+callback claim corrected to failed with conflicting history retained; corrected
+consumer independently verified/cleaned. Native f314/PID35547 unchanged/idle,
+all owned MCPs/sessions settled.40completed,17partial,1deferred; goal active.
+Continue physical/provider/daily-app/capacity acceptance without replaying retained
+source/input or repeating stable canaries. Chrome help remains pending.
+
 Stage35 checkpoint: production usage/recovery runbook published and linked from
 the service README/shared computer-use reference. Fresh MCP0.10.1 made10 read-only
 protocol calls: corrected schedule contract discovered, passive candidate,

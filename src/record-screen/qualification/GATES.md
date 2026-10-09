@@ -1,5 +1,57 @@
 # Qualification update — October 9, 2026
 
+## Thirty-sixth pass: bounded input queries preserve broad relevance and gaps
+
+Fresh MCP0.11.0 recording_input and CLI input-query deliver interval-based retained
+input without bulk source rows or literal text. Exact BigInt reception/epoch
+mapping, half-open intervals, optional type/action-token predicates, generous
+unassociated default and snapshot/query-bound pagination are service-owned.
+Reasons, same-app unresolved delivery, contextual tokens, raw generation clocks
+and unqualified pointer positions stay separate. Gap diagnostics survive event
+filters, and capture-excluded contents cannot be recovered. No actor inference,
+physical delivery completeness or implicit actual-media coverage is claimed.
+
+Only engine-resolved terminal journals are accepted. One query slot per adapter;
+64MiB/250000 inspected rows,1MiB lines/responses,256 events/page,32 gap details,
+cooperative10s read budget. Open/read/stat/close OS calls are not a hard real-time
+guarantee. Regular unchanged opened leaves and byte/query hashes protect paging;
+no filesystem lock or host-global admission follows. Malformed/unterminated rows,
+identity/receipt mismatches, protected-keyboard rows and changed cursors refuse.
+
+All14 focused tests passed: six new query cases and eight adjacent MCP/options/
+planning checks. Coverage includes >2^53 exact receipt time, before/start/exclusive
+end, broad same-app candidates, gap-preserving metadata filters, duplicate/page
+continuity, changed-source/filter cursors, failed/incomplete terminal snapshots,
+busy/invalid/private-field refusal, file/row/line bounds and actual fake-engine MCP
+negotiation/no-RPC invalid input. Initial warning-word-order assertion failure
+was retained and fixed without relaxing implementation behavior.
+
+Actual fresh MCP and final CLI reuse rec_edyj9gnd's retained journal unchanged.
+Four pages returned12 keyboard events; every receipt/type/code/generation stamp
+joins the source and matching PID85355 app oracle exactly. Six deliveries were
+to the same app's other window and remain app_delivery_window_unresolved with
+ownership unknown. A strict contextual action filter returns6; default broad
+keys remain12. Two pointer events retain raw positions/null composition position.
+Final source hash911b43c5e6c489134333ae1ac2bdbb2aded18605d6112ad875f02f40f606074a.
+No new capture, input generation, UI operation or source replay.
+
+The first consumer selected PID86697's oracle for PID85355's recording and failed.
+Its authored verification callback incorrectly returned verified without checking
+operation failure. This claim was corrected to failed against the immutable
+original receipt09a79ce1cfa744815108e4bff79ae1acd747bb1822950dc6def1e20512eb0746;
+central audit retains conflicting history and completed cleanup. This was an
+evidence-selection/callback error, not a production query failure. The corrected
+consumer resolves the oracle from saved input scope and verifies a real proof
+before success. New session ses_s6mthmra/receipt60fe2b055d0685a0edd72667c47dc20cc730132e9e8edadfff36d3e9d839bd18
+has separately verified/complete outcome and zero uncovered receipts.
+
+Final live adapter readback reports retained_input_query1/inactive. Owned MCP
+PID17986 and final observer19741 exited0; failed-run observer/session also settled.
+Native signed f314bb340344/PID35547/hash stayed unchanged and idle.14 tests and
+final saved artifact checks are private gates-v36. Existing peer adapters untouched.
+New query gate complete for its mechanical scope; physical/global relevance,
+routine provider adoption, remaining app/clock/capacity gates remain partial.
+
 ## Thirty-fifth pass: production runbook and loaded expectation correction
 
 AGENT-USAGE.md consolidates production arrangements, exact native/source identity,
