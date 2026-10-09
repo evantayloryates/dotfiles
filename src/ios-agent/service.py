@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Personal dev-app broker. No system UI control; no credential/body logging."""
 import argparse
-import hashlib
 import hmac
 import json
 import os
@@ -17,6 +16,7 @@ import threading
 import time
 import uuid
 from web.bridge import WebBridge
+from source_hash import worker_source_hash
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 VERSION = 1
@@ -25,7 +25,7 @@ OWNER_TIMEOUT = 20 * 60
 DEVICE_TIMEOUT = 30
 OPERATIONS = {"capabilities", "tree", "image", "tap", "gesture", "text", "react", "state", "diagnostics-probe", "diagnostics-matrix", "reload", "wifi"}
 STATE = Path.home() / "Library/Application Support/ios-agent"
-SOURCE_HASH = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+SOURCE_HASH = worker_source_hash()
 
 
 class Rejected(Exception):

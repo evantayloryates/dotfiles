@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Install this personal service, preserving existing enrollment and Serve config."""
 import argparse
-import hashlib
 import json
 import os
 from pathlib import Path
@@ -13,6 +12,7 @@ import sys
 import time
 from urllib.parse import urlparse
 from service import STATE
+from source_hash import worker_source_hash
 from cli import request
 
 ROOT = Path(__file__).resolve().parent
@@ -139,7 +139,7 @@ def main():
             if registered.returncode != 5 or time.monotonic() >= deadline:
                 raise RuntimeError("launch_registration_failed")
             time.sleep(0.2)
-    wait_ready(STATE, hashlib.sha256((ROOT / "service.py").read_bytes()).hexdigest())
+    wait_ready(STATE, worker_source_hash())
     print(json.dumps({"installed": True, "workerReady": True, "sourceVerified": True, "restarted": a.restart, "provisioned": bool(a.provision_device), "tailnetAccount": user["LoginName"], "source": str(ROOT)}))
 
 

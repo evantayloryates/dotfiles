@@ -242,8 +242,32 @@ test('large browser observations retain usable headers and verify the full priva
     throw Error('unexpected fixture call');
   }});
   try{const begin=await backend.begin({surface:'web',page:'p'.repeat(32)});assert.equal(begin.verification.value.version,'test-sdk');assert.equal(begin.verification.truncated,true);
+    const browserSource=backend.sessions.get(begin.sessionId).webFingerprint;assert.match(browserSource,/^[a-f0-9]{64}$/);assert.equal(await backend.learningSource(begin.sessionId),browserSource);
     const snap=await backend.webAction({sessionId:begin.sessionId,action:'snapshot'});assert.equal(snap.value.snapshot,'fresh-browser');assert.equal(snap.value.nodeCount,300);assert.equal(snap.value.elements.length,25);assert.equal(snap.truncated,true);
     const verified=await backend.webVerify({sessionId:begin.sessionId,gate:'web-route',expectedPath:'/meet',expectedText:'far-tail-postcondition'});assert.equal(verified.ok,true);assert.equal(verified.receipt.observation.nodeCount,300);
     assert.equal(backend.read({artifactId:snap.artifactId,pointer:'/result/value/elements/299'}).data.id,'299');
   }finally{await backend.close();fs.rmSync(state,{recursive:true,force:true});}
+});
+
+test('browser provisioning distinguishes missing transport from unlock and never replays uncertain launch', async () => {
+  for (const mode of ['unavailable','locked','reachable']) {
+    const f=fixture(), original=f.backend.runOverride, deviceCalls=[];
+    fs.writeFileSync(path.join(f.state,'dev-runtime.json'),JSON.stringify({webURL:'https://penelope.taile8fdd0.ts.net:10446'}),{mode:0o600});
+    fs.writeFileSync(path.join(f.state,'web-device.json'),JSON.stringify({coreDeviceId:'EFF7037C-94D3-5222-AB4A-770D3AB5BBC9'}),{mode:0o600});
+    f.backend.runOverride=(kind,args,input)=>kind==='web'?Promise.resolve({ok:true,value:{token:'synthetic-enrollment'}}):original(kind,args,input);
+    f.backend.deviceRun=async args=>{deviceCalls.push(args);return args[1]==='info' ?
+      mode==='unavailable'?{ok:false,data:{error:{code:1011}}}:{ok:true,data:{result:{lockState:{passcodeRequired:mode==='locked'}}}}:
+      {ok:false,outcome:'unknown',replay:false};};
+    try {
+      const result=await f.backend.webEnroll({browser:'ios-safari'});
+      if(mode==='reachable'){
+        assert.equal(result.launch.outcome,'unknown');assert.equal(result.launch.replay,false);assert.equal(deviceCalls.length,2);
+        assert.equal(deviceCalls[1][deviceCalls[1].indexOf('--payload-url')+1].startsWith('x-safari-https:'),true);
+        assert.equal(f.held(),false);
+      } else {
+        assert.equal(result.actionSent,false);assert.equal(deviceCalls.length,1);assert.equal(f.calls.some(c=>c.args?.[0]==='acquire'),false);
+        assert.equal(result.reason,mode==='locked'?'device_developer_unlock_required':'developer_device_unavailable');
+      }
+    } finally {await f.backend.close();fs.rmSync(f.state,{recursive:true,force:true});}
+  }
 });

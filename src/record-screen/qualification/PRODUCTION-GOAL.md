@@ -9,7 +9,10 @@ offline registration tuning loop. These batches are an execution order, not a
 claim that every partial gate can close in one session.
 
 1. **Prepare the service-owned fitted mapping boundary in the background.**
-   Establish a trustworthy frame-bound origin/child union or an explicit refusal
+   Stage68 proves two actual different origins share the entire isolated metadata.
+   Stop attempting its inverse. Prefer independently qualified app-crop source
+   geometry; otherwise establish a trustworthy frame-bound pixel registration
+   or an explicit refusal
    for changing and closed popups. Deliver it through the actual source-map
    contract before claiming continuous correctness. The single retained spatial
    candidate is supporting evidence, not the production implementation.
@@ -66,7 +69,24 @@ physical user input or authorize sleep/permission disruption.
 
 ## Checkpoints
 
-Current checkpoint: stage67. Fresh MCP0.15.0/current CLI now plan explicit
+Current checkpoint: stage68. One new40s actual five-direction child source has
+1834 exact mux/journal joins. Two actual geometry-identical pairs differ134px/
+106px in parent placement, ruling out metadata-only origin inversion. App fixed
+crop861 stable packets passes all marker positions within1px; isolated oracle
+right-child1.333px fails1.25px and stays false. Service withholds seven primary
+maps/supplies seven backup maps;1570 whole-interval boundaries retain qualified
+common-process clock. Two outcomes/two facts read back; owned fixture absent,
+sessionclosed/watcherterminal/native9bf unchangedidle. Close117.289s after
+callback wall stamp, within120s. Cross-Python monotonic mismatch diagnosed,
+native CLOCK_UPTIME_RAW samples independently bracket-verified; no inferred
+physical latency.46completed17partial1deferred. Goal active; physical offer
+unanswered. Next resolve the concrete unavailable-target pre-launch receipt gap without
+inventing PID ownership or retroactive timestamps; qualify real-app fixed-crop
+coordinates or frame-bound pixel registration, useful longer capacity and ordinary
+adoption.
+Do not repeat the settled five-direction fixture or invert its ambiguous fields.
+
+Stage67 checkpoint: Fresh MCP0.15.0/current CLI now plan explicit
 window/app/display sources using the measured stage66 profile, per-source costs
 and reader/storage scenarios. Exact observed identity, crop intersection and
 configured slot checks precede candidate targets. Live external-window metadata

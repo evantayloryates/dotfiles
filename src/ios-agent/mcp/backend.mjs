@@ -25,10 +25,25 @@ export function runtimeKey(status) {
   return createHash('sha256').update(JSON.stringify([adapterHash, status.sourceHash, status.device.bundle, status.device.boot])).digest('hex');
 }
 
+export function runCoreDevice(args, {jsonFile, timeout = 15000} = {}) {
+  return new Promise(resolve => {
+    const child = spawn('/usr/bin/xcrun', ['devicectl', ...args, ...(jsonFile ? ['--json-output', jsonFile] : [])], {stdio:'ignore'});
+    let settled = false;
+    const finish = value => { if (settled) return; settled = true; clearTimeout(timer); resolve(value); };
+    const timer = setTimeout(() => { child.kill('SIGTERM'); finish({ok:false,outcome:'unknown',replay:false}); }, timeout);
+    child.on('error', () => finish({ok:false,outcome:'not-started',replay:false}));
+    child.on('close', code => {
+      let data; try { if (jsonFile) data = JSON.parse(fs.readFileSync(jsonFile,'utf8')); } catch {}
+      finish({ok:code===0,outcome:code===0?'developer-request-accepted':'unconfirmed',data,replay:false});
+    });
+  });
+}
+
 export class Backend {
-  constructor({state = defaultState, run} = {}) {
+  constructor({state = defaultState, run, deviceRun = runCoreDevice} = {}) {
     this.state = path.resolve(state);
     this.runOverride = run;
+    this.deviceRun = deviceRun;
     this.sessions = new Map();
     this.artifacts = new Map();
     this.running = new Set();
@@ -94,6 +109,10 @@ export class Backend {
     const r = await this.run('learning', [], {op, args}, 8000);
     if (!r.ok || r.value?.error) throw new Error('shared_learning_unavailable');
     return r.value;
+  }
+  async learningSource(sessionId) {
+    if (sessionId) { const s=this.session(sessionId); if(s.surface==='web') return s.webFingerprint || ''; }
+    return runtimeKey(await this.status().catch(()=>null)) || '';
   }
   async guide() {
     let current, learning;
@@ -262,15 +281,20 @@ export class Backend {
       if (!/^[A-Fa-f0-9-]{36}$/.test(device)) return {ok:false,reason:'configured_device_id_required',actionSent:false};
       const bundle = {'ios-safari':'com.apple.mobilesafari','ios-chrome':'com.google.chrome.ios'}[browser];
       if (!bundle) return {ok:false,reason:'supported_ios_browser_required',actionSent:false};
+      const preflightFile = path.join(this.observationDirectory(), hex()+'.json');
+      let preflight;
+      try { preflight = await this.deviceRun(['device','info','lockState','--device',device,'--timeout','6'], {jsonFile:preflightFile,timeout:9000}); }
+      finally { fs.rmSync(preflightFile,{force:true}); }
+      if (!preflight.ok) return {ok:false,reason:preflight.data?.error?.code===1011?'developer_device_unavailable':'developer_channel_unconfirmed',launchFile:a.file,actionSent:false,
+        next:'Use an already enrolled visible page over the network. Restore the developer channel only if browser provisioning is needed; do not infer a locked phone.'};
+      const lockState=preflight.data?.result?.lockState || preflight.data?.result?.deviceProperties?.lockState || preflight.data?.result;
+      if (lockState?.passcodeRequired===true) return {ok:false,reason:'device_developer_unlock_required',launchFile:a.file,actionSent:false};
       const sourceURL=JSON.parse(fs.readFileSync(a.file,'utf8')).url;
-      const url=sourceURL.replace(/^https:/,browser==='ios-safari'?'x-safari-https:':'googlechromes:');
+      const url=browser==='ios-safari'?sourceURL.replace(/^https:/,'x-safari-https:'):sourceURL;
       const reservation = await this.begin({surface:'launch'});
-      try { launch = await new Promise(resolve=>{
-        const child=spawn('/usr/bin/xcrun',['devicectl','device','process','launch','--device',device,'--timeout','12','--payload-url',url,bundle],{stdio:'ignore'});
-        let settled=false;const timer=setTimeout(()=>{child.kill('SIGTERM');if(!settled){settled=true;resolve({outcome:'unknown',replay:false});}},15000);
-        child.on('error',()=>{clearTimeout(timer);if(!settled){settled=true;resolve({outcome:'not-started',replay:false});}});
-        child.on('close',code=>{clearTimeout(timer);if(!settled){settled=true;resolve({outcome:code===0?'developer-request-accepted':'unconfirmed',replay:false});}});
-      }); } finally { await this.end(reservation.sessionId); }
+      try { const result = await this.deviceRun(['device','process','launch','--device',device,'--timeout','12','--payload-url',url,bundle]);
+        launch={outcome:result.outcome,replay:false};
+      } finally { await this.end(reservation.sessionId); }
     }
     return {ok: true, launchFile: a.file, expiresIn: 300, ...(launch?{launch}:{}), next: 'Use this private JSON URL to open the intended dev page in Safari or Chrome. Do not log enrollment fragments.'};
   }

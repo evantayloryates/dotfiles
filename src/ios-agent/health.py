@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Read-only host prerequisite checks. Never acquires, launches or repairs."""
 import argparse
-import hashlib
 import json
 from pathlib import Path
 import urllib.request
@@ -10,6 +9,7 @@ from install import tailscale
 from install_runtime import probe, serve_compatible, verify_local_backend
 from dev_runtime import load_config
 from service import STATE
+from source_hash import worker_source_hash
 
 
 def check_host(state=STATE, backend_container='default-ki-e3ee9-dev-1'):
@@ -30,7 +30,7 @@ def check_host(state=STATE, backend_container='default-ki-e3ee9-dev-1'):
         pass
     checks['hostWorkerResponding'] = isinstance(status, dict)
     checks['hostWorkerSourceVerified'] = bool(status and status.get('sourceHash') ==
-        hashlib.sha256((Path(__file__).parent / 'service.py').read_bytes()).hexdigest())
+        worker_source_hash())
     config = None
     try:
         config = load_config(state / 'dev-runtime.json')

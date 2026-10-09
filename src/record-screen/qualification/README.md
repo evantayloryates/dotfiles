@@ -274,6 +274,34 @@ child-window tests; also test genuine right-click delivery separately.
 The marker and resize buttons provide timestamped visual/geometry transitions
 in `native-actions-PID.jsonl`, separate from `native-delivered-PID.jsonl`.
 
+`origin-fixture.swift` runs one28-second independently logged cycle after an
+actual native Start action: baseline, right, left, above, below, corner and
+restoration. Its panels have no shadows; marker animation supplies source
+updates. `verify-origin-metadata.py --recording MANIFEST --oracle JSONL
+--output FRESH.json` inspects every actual decoded packet, keys stable phases
+to the referenced source PTS (including held content), excludes250ms at edges
+and keeps the1.25px center threshold. Optional `--app-backup` verifies the exact
+owned app-only crop using its declared affine, without a fitted-union override.
+Fresh output,16MiB canvas,60s owned decoder deadline and per-phase source images
+are explicit. The known oracle union is unavailable to production; a false
+reference-check flag must remain false. Stage68 retains the1.333px right-child
+failure, actual identical-metadata/different-origin pairs, and a passing fixed
+crop. This is source QA, not visual composition or a general menu detector.
+
+`production-click.py prepare /absolute/private/signal.json` creates a fresh
+empty0600 file. The requested notification's fixed click command invokes
+`production-click.py click` on that exact file. `production-click.py watch`
+checks it every7s without a model and emits one terminal ready/expired result.
+It performs no chat delivery; the active orchestrator delivers once and must
+respect the remaining interval. Native CLOCK_UPTIME_RAW supplies a recorder
+stamp; CLOCK_MONOTONIC_RAW separately measures the120s allowance and watcher
+timeout, with boot identity checked. Duplicate callbacks do not extend time.
+Private regular files only; symlinks, incompatible clocks/boot and future times
+refuse. Native Python3.9→3.14 callback/watch, duplicates, stale allowance and
+clock/boot/symlink negatives are synthetically verified. No new physical sleep,
+actual human click through this final helper or unattended chat wake is claimed.
+Do not substitute unqualified cross-runtime `time.monotonic_ns` comparisons.
+
 `normalize-source.py --stream FILE --actions JSONL --input FILE --receipt FILE --output FILE`
 
 This produces a private prototype packet, not an installed service API.

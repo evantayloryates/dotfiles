@@ -1,5 +1,69 @@
 # Qualification update — October 9, 2026
 
+## Sixty-eighth pass: actual metadata ambiguity and qualified fixed-crop fallback
+
+A real notification click writes the fresh private signal. The7s model-free
+watcher terminates and one native self-message reaches this active chat. New40s
+window-childtrue/app-filtered-crop capture on native9bf/PID24295, no input capture.
+Owned app Start triggers a28s cycle: baseline/right/left/above/below/corner/
+restored. All1834 actual mux stamps match journals exactly, zero lost rows.
+250ms lifecycle edges withheld; held samples use referenced source content PTS.
+
+Two actual pairs prove metadata nonuniqueness, rather than an analytical guess:
+right/left share entire geometry segment3 while parent centers differ134px;
+above/below share segment4 while parent centers differ106px. All stable isolated
+samples have bounding_points equal to content_points, not a separate desktop
+union. Geometry-segment stability does not establish origin stability. Retained
+raw affine parent error reaches133.833px. Do not invert these fields or waive
+production fitted_child_window_origin_unqualified on equal scale.
+
+The independent oracle-union experiment is useful but NOT a full pass:
+753 stable isolated packets keep expected markers/absences, minimum101 perphase.
+Right-child max center error1.333324px fails unchanged1.25px. Left/above/below/
+corner center errors are smaller; the original failure stays false. A fixture's
+known union cannot be backfilled into production or generic app metadata.
+
+Fixed app crop861 stable packets across all seven phases keeps every expected
+marker, none before/after; parentmax0px/childmax1px passes. Actual service source
+queries withhold all seven selected primary transforms and provide all seven
+backup maps. Common-process whole27.001572584s paired summary evaluates1570
+boundaries; backup canvas contained throughout. Pixel presence/marker QA remains
+separate from geometric containment. This establishes one useful native-panel
+fallback, not every real menu, alpha, clipping case or universal shot rescue.
+
+No new origin override/native release/MCP version. Two actual terminal receipts,
+two separate verified/cleanupcomplete outcomes and two scoped facts independently
+read back. The audit's uncovered0 describes its2 stored receipts, not all native
+calls: pre-launch action.begin refused unavailable bundle, and actual getApp
+launch remains unbracketed. Only Start's scope is retained in media; Close is
+post-media. The timer cycle continues after Start dispatch scope ends, without
+an authenticated continuous actor claim.
+
+Owned app PID21719 and inventory absent; exact sessionclosed/readback, watcher
+terminal and native unchangedidle. Close receipt117.289s after notification
+callback wall stamp, within the reported120s interval. Cross-runtime monotonic
+values were incompatible: system Python3.9 sampled~14ms process-relative while
+Homebrew3.14 sampled~148217s host-wide, both report mach_absolute_time. Do not
+compute latency between them. Separate clock_gettime_nsec_np(CLOCK_UPTIME_RAW)
+samples from both fit common native observer brackets; no new click or input.
+Callback dispatch/physical click latency and unattended future-turn wake remain
+unqualified. Stage65's earlier latency used wall timestamps and is unchanged.
+
+A reusable production-click.py helper fixes future callback/watch clock choice:
+recorder CLOCK_UPTIME_RAW stamps remain separate from CLOCK_MONOTONIC_RAW
+allowance/timeout, with boot identity. Actual synthetic system3.9 callback→
+Homebrew3.14 watcher is ready; duplicate callbacks cannot extend. Wrong clock,
+wrong boot and symlink refuse; expired continuous allowance stays expired.
+No notification, human click or physical sleep used in this helper smoke. Chat
+delivery remains an active orchestrator responsibility, not a background-wake
+claim. Empty private file/7s model-free watch retained.
+
+46completed/17partial/1deferred. Real-app continuous coordinates, physical events,
+capacity and ordinary consumer adoption remain open. Stop pursuing an inverse
+of isolated metadata alone: prefer independently qualified fixed app-crop maps
+or future frame-bound pixel registration. Preserve stable captures and the
+failed oracle hypothesis. Private evidence: gates-v68.
+
 ## Sixty-seventh pass: measured three-source planning and explicit crop guards
 
 Fresh registered MCP0.15.0/current CLI support window_app_display planning with

@@ -278,6 +278,34 @@ built-in crop disjoint from its external-display target was correctly refused.
 This chat's ordinary adapter still lacks metadata, so adoption remains unknown.
 Use the qualified CLI while preserving peers; do not refresh them to infer it.
 
+Stage68 adds a decisive actual origin negative control. In a new owned native
+child-enabled source, right/left placements share identical entire geometry
+while the parent moves134 source pixels; above/below also share geometry while
+the parent moves106 pixels. A geometry segment can therefore span different
+desktop origins. `bounding_points` is equal to `content_points` in these
+isolated samples; it cannot supply the missing desktop child union. Do not
+invert the rectangles, cache an inferred origin for the segment, or use scale
+equality to bypass the production guard.
+
+The independent no-shadow app oracle also retains a right-child center error
+1.333px against the unchanged1.25px threshold. Its known union is fixture
+knowledge, not a production mapping input. The fixed app crop instead preserves
+all markers in861 stable packets across baseline, five positions and restoration,
+with child center error at most1px. Actual service queries withhold all seven
+selected isolated projections and supply all seven app maps; a common-process
+paired summary evaluates1570 boundaries across27.0016s. Canvas containment and
+decoded marker proof remain distinct. This supports the explicit fixed-crop
+backup route in the tested scope; real menus, clipping, alpha and general
+continuous origin still need their own evidence.
+
+Production-window notifications are also clock-sensitive. Stage68 observes
+Python3.9's process-relative monotonic origin versus3.14's host-wide origin.
+Do not compare those values. The actual reservation used its callback wall stamp;
+the close receipt was117.289s later. Separate native CLOCK_UPTIME_RAW samples
+fit common brackets in both runtimes. Use a qualified shared clock for future
+watchers, and keep callback latency, physical click time and unattended wake
+separate from backend acceptance and active-chat delivery.
+
 Keep operation scopes short and close them before the intended media boundary
 when the capture must include their end. Stage65's late end correctly stayed
 unknown in the source; stage66 retained all three closed snapshots in each

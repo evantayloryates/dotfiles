@@ -1,8 +1,7 @@
-import hashlib
-from pathlib import Path
 import unittest
 from unittest.mock import patch
 from health import check_host, routes_valid
+from source_hash import worker_source_hash
 
 
 class HostHealthTests(unittest.TestCase):
@@ -17,7 +16,7 @@ class HostHealthTests(unittest.TestCase):
                 patch('health.probe', return_value=True)]
 
     def test_healthy_host_never_claims_app_readiness_or_mutates(self):
-        source = hashlib.sha256((Path(__file__).parents[1] / 'service.py').read_bytes()).hexdigest()
+        source = worker_source_hash()
         status = {'sourceHash': source, 'device': {'boot': 'present'}, 'lease': None,
                   'reactFrontendRunning': False, 'reactFrontendCleanupPending': False}
         patches = self.providers(status)

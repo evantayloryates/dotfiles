@@ -1,0 +1,11 @@
+{
+  "at": "2026-10-09T20:28:49.543Z",
+  "scope": "Desktop WebKit, controlled media promise; no physical microphone acquisition",
+  "gates": {
+    "pendingRequestDistinguished": true,
+    "resolvedRequestCounted": true,
+    "rejectedRequestCounted": true,
+    "contentFreeEvents": true,
+    "glowOff": true
+  }
+}

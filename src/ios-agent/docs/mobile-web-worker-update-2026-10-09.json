@@ -1,0 +1,13 @@
+{
+  "at": "2026-10-09T20:31:19.795Z",
+  "scope": "Scoped ios-agent worker replacement under its maintenance ownership; existing app and web workers preserved",
+  "gates": {
+    "reservedIdleMaintenance": true,
+    "workerInstalledAndSourceVerified": true,
+    "epochChanged": true,
+    "sourceIdentityChanged": true,
+    "authenticatedSafariReconnectedWithoutReenrollment": true,
+    "pageReadbackAfterWorkerUpdate": true,
+    "glowOff": true
+  }
+}

@@ -10,12 +10,14 @@ try{await client.connect(new StdioClientTransport({command:'/Users/taylor/dotfil
  const begin=await call('ios_web_begin',{page:p.id});session=begin.sessionId;
  const ready=await call('ios_web_verify',{sessionId:session,gate:'web-ready'});assert(ready.ok);
  const dom=await call('ios_web_verify',{sessionId:session,gate:'web-dom'});assert(dom.ok);
- const route=await call('ios_web_verify',{sessionId:session,gate:'web-route',expectedPath:'/dev/ios-agent',expectedText:'iPhone browser qualification'});assert(route.ok);
+ const expectedPath=process.argv.includes('--meet')?'/meet':'/dev/ios-agent';
+ const route=await call('ios_web_verify',{sessionId:session,gate:'web-route',expectedPath,...(expectedPath==='/dev/ios-agent'?{expectedText:'iPhone browser qualification'}:{})});assert(route.ok);
  const failed=await client.callTool({name:'ios_web_verify',arguments:{sessionId:session,gate:'web-route',expectedPath:'/wrong'}});assert(failed.isError);assert.equal(failed.structuredContent.receipt.status,'failed');
  const proposal=await call('ios_learning_propose',{key:'browser-page-readback',lesson:'Use a separate browser verification gate to confirm expected page state after input. A delivery acknowledgment alone does not establish the committed page state.',evidenceId:route.learningEvidence.evidenceId,scope:'runtime'});
  await call('ios_learning_review',{lessonId:proposal.lessonId,state:'supported',reason:'The physical Safari route and expected page text were independently read back. A deliberately wrong route failed its gate.',evidenceId:route.learningEvidence.evidenceId});
- const evidence=await call('ios_learning_evidence',{gate:'web-route',matchingRuntime:false,limit:5});assert(evidence.evidence.some(e=>e.receipt.status==='failed'));assert(evidence.evidence.some(e=>e.receipt.status==='passed'));
+ const evidence=await call('ios_learning_evidence',{sessionId:session,gate:'web-route',matchingRuntime:true,limit:5});assert(evidence.evidence.some(e=>e.receipt.status==='failed'));assert(evidence.evidence.some(e=>e.receipt.status==='passed'));
+ const recalled=await call('ios_learning_search',{sessionId:session,query:'browser-page-readback'});assert(recalled.lessons.some(l=>l.id===proposal.lessonId&&l.versionMatches));
  const end=await call('ios_web_end',{sessionId:session});assert.equal(end.indicatorOff,true);session=null;
- const result={at:new Date().toISOString(),scope:'Fresh installed stdio MCP controlling physical Safari qualification page',tools:22,resources:5,gates:{discovery:true,pageReadiness:true,dom:true,route:true,wrongRouteFails:true,sharedLearningProposalAndReview:true,counterevidenceStored:true,glowOff:true}};
+ const result={at:new Date().toISOString(),scope:'Fresh installed stdio MCP controlling physical Safari opted-in dev page',tools:22,resources:5,gates:{discovery:true,pageReadiness:true,dom:true,route:true,wrongRouteFails:true,sharedLearningProposalAndReview:true,counterevidenceStored:true,browserRuntimeLessonRecall:true,glowOff:true}};
  fs.writeFileSync(new URL('../docs/mobile-web-mcp-smoke-2026-10-09.json',import.meta.url),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result));
 }finally{if(session)await client.callTool({name:'ios_web_end',arguments:{sessionId:session}}).catch(()=>{});await client.close();}
