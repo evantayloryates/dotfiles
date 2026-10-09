@@ -48,7 +48,7 @@ test('SDK discovers tools/resources, intuitive lifecycle, image content and priv
   const f = fixture(); const {client, server} = await clientFor(f);
   try {
     const names = (await client.listTools()).tools.map(t => t.name);
-    assert.equal(names.length, 15); assert.ok(names.includes('ios_begin'));
+    assert.equal(names.length, 21); assert.ok(names.includes('ios_begin'));
     assert.equal((await client.listResources()).resources.length, 4);
     const begin = (await client.callTool({name: 'ios_begin', arguments: {}})).structuredContent;
     assert.equal(begin.ready, true); assert.equal(f.held(), true);
@@ -146,7 +146,7 @@ test('real launcher stdio handshake works in a minimal GUI PATH without device c
   const client = new Client({name: 'stdio-canary', version: '1'});
   const transport = new StdioClientTransport({command: path.join(os.homedir(), 'dotfiles/bin/ios-agent-mcp'), env: {HOME: os.homedir(), PATH: '/usr/bin:/bin'}, stderr: 'pipe'});
   let stderr = ''; transport.stderr?.on('data', x => { stderr += x; });
-  try { await client.connect(transport); assert.equal((await client.listTools()).tools.length, 15); }
+  try { await client.connect(transport); assert.equal((await client.listTools()).tools.length, 21); }
   finally { await client.close(); }
   assert.equal(stderr, '');
 });

@@ -43,10 +43,10 @@ export class Backend {
   }
   async run(kind, args, input, timeout = 120000) {
     if (this.runOverride) return this.runOverride(kind, args, input);
-    const files = {cli: 'cli.py', verify: 'verify.py', doctor: 'health.py', stack: 'local_stack.py', paired: 'paired_workflow.py', learning: 'learning.py'};
+    const files = {web: 'web_cli.py', cli: 'cli.py', verify: 'verify.py', doctor: 'health.py', stack: 'local_stack.py', paired: 'paired_workflow.py', learning: 'learning.py'};
     if (!files[kind]) throw new Error('fixed_operation_required');
     const argv = kind === 'learning' ? [path.join(this.state, 'learning')] :
-      kind === 'paired' ? [] : kind === 'cli' ? ['--state', this.state, ...args] : [...args, '--state', this.state];
+      kind === 'web' ? ['--state', this.state] : kind === 'paired' ? [] : kind === 'cli' ? ['--state', this.state, ...args] : [...args, '--state', this.state];
     return new Promise((resolve, reject) => {
       const child = spawn('/usr/bin/python3', ['-B', path.join(root, files[kind]), ...argv],
         {stdio: ['pipe', 'pipe', 'pipe'], env: {...process.env, PYTHONDONTWRITEBYTECODE: '1'}});
@@ -99,7 +99,9 @@ export class Backend {
     let current, learning;
     try { current = await this.status(); learning = await this.learning('search', {source: runtimeKey(current) || ''}); }
     catch { learning = {available: false}; }
-    return {workflow: ['ios_doctor', 'ios_begin', 'ios_native or ios_react', 'ios_verify', 'ios_end'],
+    return {browserWorkflow: ['ios_web_enroll (private launchFile)', 'open the intended dev browser page', 'ios_web_pages', 'ios_web_begin', 'ios_web_inspect and ios_web_action', 'ios_web_end in finally'],
+      browserLimits: 'Page-owned DOM input is synthetic; it does not operate OS dialogs, trusted touch, IME or microphone permission. SDK return channel works over private HTTPS; require separate off-LAN qualification. Dev-only enrollment and per-tab authentication.',
+      workflow: ['ios_doctor', 'ios_begin', 'ios_native or ios_react', 'ios_verify', 'ios_end'],
       hostWorkflow: ['ios_doctor (read only)', 'ios_stack_ensure only when needed and idle; never replay an uncertain start'],
       pairedWorkflow: 'ios_workflow action=plan exposes the versioned coach-client recipe; capture/assert/restore-check independently read only the verified synthetic local row. UI rendering is a separate gate.',
       lease: 'One session per work turn. Always ios_end in finally before ending a turn. Codex should supply its actual active rollout to ios_begin. Other clients use a private connection heartbeat; MCP cannot detect a model turn ending on a persistent connection.',
@@ -152,19 +154,24 @@ export class Backend {
       dataChanged: false, credentialsCreated: false, replay: false,
       next: 'This is database readback only. Verify phone and coach rendering separately; stop on a changed pair/value rather than replaying a mutation.'};
   }
-  async begin({rollout} = {}) {
+  async begin({rollout, surface = 'native', page} = {}) {
     if (this.closing || [...this.sessions.values()].some(s => s.active)) throw new Error('end_existing_session_first');
     const base = path.join(this.state, 'mcp-sessions');
     fs.mkdirSync(base, {recursive: true, mode: 0o700});
     if (fs.lstatSync(base).isSymbolicLink() || fs.statSync(base).mode & 0o077) throw new Error('private_session_directory_required');
     const id = hex(); const dir = path.join(base, id); fs.mkdirSync(dir, {mode: 0o700});
     const s = {id, dir, turn: hex(), owner: path.join(dir, 'owner.json'),
-      lease: path.join(dir, 'lease.json'), activity: Date.now(), active: true, busy: false};
+      lease: path.join(dir, 'lease.json'), activity: Date.now(), active: true, busy: false, surface, page};
     this.sessions.set(id, s); this.writeOwner(s);
-    s.acquisition = this.run('cli', ['acquire', ...(rollout ? ['--rollout', rollout, '--connection-owner', s.owner] : ['--owner-file', s.owner]), '--lease-file', s.lease]);
+    s.acquisition = this.run('cli', ['acquire', ...(surface === 'web' ? ['--surface', 'web', '--page', page] : []), ...(rollout ? ['--rollout', rollout, '--connection-owner', s.owner] : ['--owner-file', s.owner]), '--lease-file', s.lease]);
     const r = await s.acquisition;
     if (!r.ok || this.closing) { await this.end(id); throw new Error(r.error || 'session_closed'); }
     try {
+      if (surface === 'web') {
+        const check = await this.webAction({sessionId: id, action: 'state'});
+        if (check.ok !== true) throw new Error('web_page_not_ready');
+        return {sessionId: id, page, ready: true, verification: check, next: 'ios_web_inspect, fresh snapshot/target, ios_web_action. Always ios_web_end in finally.'};
+      }
       const verification = await this.verify({sessionId: id, gate: 'ready', timeout: 12});
       if (verification.receipt.status !== 'passed') throw new Error('app_not_ready');
       return {sessionId: id, ready: true, ownership: rollout ? 'codex-turn' : 'mcp-connection', verification,
@@ -231,6 +238,45 @@ export class Backend {
     if (text.length > limit) return {artifactId, truncated: true, characters: text.length,
       next: 'Use a JSON pointer to select a smaller subtree. No partial JSON is returned.'};
     return {artifactId, data};
+  }
+  async webPages() {
+    const r = await this.run('web', [], {op: 'web_pages'}, 8000);
+    return r.ok ? {...r.value, ok: true} : {ok: false, reason: r.error};
+  }
+  async webEnroll({path: route = '/dev/ios-agent'} = {}) {
+    const runtime = JSON.parse(fs.readFileSync(path.join(this.state, 'dev-runtime.json'), 'utf8'));
+    const origin = new URL(runtime.webURL).origin;
+    if (!route.startsWith('/') || route.startsWith('//') || route.includes('#') || route.includes('\\')) throw new Error('local_route_required');
+    const r = await this.run('web', [], {op: 'web_enroll', origin}, 8000);
+    if (!r.ok || !r.value.token) return {ok: false, reason: 'web_enrollment_unavailable'};
+    const a = this.artifact({id: null, dir: this.observationDirectory()}, 'web-enrollment');
+    fs.writeFileSync(a.file, JSON.stringify({url: origin + route + '#ios-agent=' + encodeURIComponent(r.value.token)}), {flag: 'wx', mode: 0o600});
+    return {ok: true, launchFile: a.file, expiresIn: 300, next: 'Use this private JSON URL to open the intended dev page in Safari or Chrome. Do not log enrollment fragments.'};
+  }
+  async webAction({sessionId, action, args = {}}) {
+    const s = this.session(sessionId);
+    if (s.surface !== 'web') throw new Error('web_session_required');
+    const lease = JSON.parse(fs.readFileSync(s.lease, 'utf8')).lease;
+    const r = await this.run('web', [], {op: 'web_action', lease, action, args}, 22000);
+    const a = this.artifact(s, 'web-observation');
+    fs.writeFileSync(a.file, JSON.stringify(r.value), {flag: 'wx', mode: 0o600});
+    const ok = r.ok && r.value?.status === 'completed' && r.value?.result?.ok === true;
+    const value = r.value?.result?.value;
+    return {ok, artifactId: a.id, outcome: r.value?.status || 'unknown', error: r.value?.result?.error, replay: false,
+      ...(JSON.stringify(value || {}).length <= 12000 ? {value} : {truncated: true, next: 'Use ios_read for bounded inspection.'})};
+  }
+  async webEnd(id) {
+    const s = this.sessions.get(id), page = s?.page;
+    const release = await this.end(id);
+    if (!page) return {...release, indicatorOff: 'unconfirmed'};
+    const until = Date.now() + 7000;
+    while (Date.now() < until) {
+      const pages = await this.webPages();
+      const p = pages.pages?.find(p => p.id === page);
+      if (p?.indicator === false) return {...release, indicatorOff: true};
+      await new Promise(resolve => setTimeout(resolve, 250));
+    }
+    return {...release, indicatorOff: 'unconfirmed', ok: false, next: 'Host release alone cannot confirm the disconnected page indicator.'};
   }
   async end(id) {
     const s = this.sessions.get(id);

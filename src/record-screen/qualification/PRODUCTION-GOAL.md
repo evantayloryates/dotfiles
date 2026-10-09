@@ -58,12 +58,39 @@ claim that every partial gate can close in one session.
 Advance checklist states immediately after each batch. Stop/replan an individual
 test when it loses readiness or its bounded time budget; retain its artifacts
 and proceed to an independent missing check. Repeat passed evidence only when
-a changed boundary or specific failure warrants it. Visible authorization is
-currently pending; continue independent preparation without taking focus.
+a changed boundary or specific failure warrants it. Taylor renewed full display
+access on October 9. Use a requested click notification when uninterrupted
+access is needed; the two-minute reservation begins at the click and must not
+be inferred from elapsed time. Ordinary display authorization does not offer
+physical user input or authorize sleep/permission disruption.
 
 ## Checkpoints
 
-Current checkpoint: stage64. First retained real-app fitted-origin spatial
+Current checkpoint: stage65. The real notification click changed an initially
+empty private file; the model-free seven-second watcher observed it after5.985s
+and one native self-message reached this chat. A60s/15fps Chrome window/app/
+display episode finished within the two-minute window.2650 actual mux packets
+join source stamps exactly, zero journal loss; three100ms window/app queries
+retain11 paired segments. Nine selected frames contain native select, editing
+root and Writing Direction submenu. Eight declared bright-support comparisons
+pass96%; isolated nested reverse support95.67% fails, unchanged threshold.
+Closed controls retain background matching-tone pixels, not zero/OCR proof.
+Window/app10 input events each, display4; no physical density/actor/provider
+calibration claim. Action end/final mark after media remain absent in capture.
+Three scoped facts and one typed verified/cleanupcomplete outcome read back,
+audituncovered0. Owned tab absent/server/watcher exited/sessionclosed/native
+9bf/PID24295 unchangedidle. SCK still lists the offscreen former window; actual
+window destruction unknown. Initial analysis/schema/runtime assumptions repaired
+on retained artifacts, no second take or duplicate receipt/outcome.46completed/
+17partial/1deferred. Production fitted guard remains; normal downsampling also
+needs distinction from child fitting. Six retained samples now separate nominal
+parent scaling from additional fit; scale equality alone leaves origin ambiguous
+in an analytical spare-height example. Do not release a ratio-only guard bypass.
+No motion/occlusion/resource/capacity or
+physical canary completed. Next source-owned fitted mapping and remaining
+independent live acceptance batches; composition deferred, full goal open.
+
+Stage64 checkpoint: First retained real-app fitted-origin spatial
 candidate:2 parent-toolbar+1 child-selection anchors score.950/.902/.898 with
 .303px agreement. Four withheld native menu fill edges <=.803px; two glyph
 supports >=98.76% within1px, brightness differs. Initial lower child.7845 refused;

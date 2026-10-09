@@ -1,5 +1,65 @@
 # Qualification update — October 9, 2026
 
+## Sixty-fifth pass: click-reserved Chrome menu and app-video acceptance
+
+- Taylor renewed access to both displays. A requested terminal-notifier2.0.0
+  notification writes an initially empty private file on click. A local loop
+  checks every7s without inference; its active tool orchestrator sends one
+  native message to this chat. Actual click-to-observation5.985s. The reserved
+  two minutes begins at click; it does not offer physical input or authorize
+  sleep/permission changes. No input lock. This was an active-session delivery,
+  not an unattended future-turn scheduler qualification.
+- Chrome154.0.8037.98/build8037.98, macOS25F80, owned native window12791/PID71011,
+  built-in2x, evidence1x1024x948. One60s/15fps synchronized window-childtrue,
+  app-filtered window rect and display rect episode captures native select,
+  editing context menu and Writing Direction submenu. No user tab closed.
+- Actual mux/source timestamp equality:890 window+882 app+878 display=2650,
+  zero lost journal rows. Three100ms same-process window/app intervals supply
+  eleven paired segments. Selected native AX and nine actual decoded frames
+  verify viewport presence; no whole-shot rescue or continuous fit claim.
+- Declared bright-mask correspondence within1px: select>99.49%, root>99.83%;
+  isolated nested observed-to-display99.59%, reverse95.67% fails the unchanged
+  96% threshold. App nested reverse96.06% passes. Eight of nine comparisons
+  pass; the failure stays visible. Closed control masks retain some underlying
+  fixture edges/text. No zero-content, OCR, alpha or pixel-equality claim.
+- Passive telemetry: window/app10 events each (four mouse transitions and six
+  key transitions), display4 mouse transitions, queueoverflow0. Relevance/
+  action clues and unknown actor remain explicit. Native AX expansions do not
+  require extra CG input. Final action end and dismissal mark arrived after
+  media; captured context is not backfilled from the later closed receipt.
+- Raw content_scale0.5 reflects this1x encoded Retina source. Primary projection
+  remains guarded; raw candidate affine and contained menus are not permission
+  to bypass it. Distinguishing ordinary downsampling from actual child fitting
+  is part of the remaining source-owned mapping work.
+- Three exact scoped facts and one typed verified/cleanupcomplete outcome read
+  back; session audituncovered0. Receipt publication before an unsupported fact
+  entity field succeeded; recovery publishes only missing facts, avoiding a
+  duplicate receipt/outcome. Initial null geometry, event-kind, missing-key,
+  NumPy and zero-background-mask assumptions remain retained diagnostics.
+- Owned tab independently absent; server/watch loop exited, exact sessionclosed,
+  native9bf/PID24295/exact prior signatures unchangedidle. SCK retains former
+  window12791 as offscreen; destruction remains unknown. No peer/native restart,
+  grant changes or repeat capture.46completed17partial1deferred. Dynamic
+  overflow fitting, practical disturbance recovery, physical input, useful
+  resource/capacity envelope and ordinary consumer adoption remain open.
+
+
+### Downsampling distinction and next mapping boundary
+
+Six retained metadata samples separate the nominal parent fit from additional
+fitting: Chrome1x-on2x observed0.5 equals its nominal0.5; the earlier attached-child
+open sample observed0.710145 is below nominal1, with before/closed restored1.
+This diagnoses scale behavior, not desktop origin. A mathematical spare-height
+canvas can fit parent and above-parent union at the same scale while their
+origin candidates differ320px; this is not a measured SCK example. Therefore a
+scale-equality bypass is not a complete fix. Keep the production guard and use
+independently qualified paired app/display geometry where available. The next
+actual map acceptance must cover frame-bound origin, normal output downsampling,
+spare-canvas aspect and popup open/change/close, without repeating the settled
+selected-menu take. Private gates-v65/downsampling-diagnostic.json retains the
+source hashes, six samples and analytical counterexample. No new capture or
+continuous-map claim.
+
 ## Sixty-fourth pass: first retained real-app fitted-origin candidate
 
 The real stage56 TextEdit fitted pair now has a constrained offline spatial

@@ -1,0 +1,26 @@
+{
+  "at": "2026-10-09T19:36:35.987Z",
+  "scope": "Desktop engines over real private HTTPS, not physical iPhone",
+  "browsers": {
+    "chromium": {
+      "dom": true,
+      "reactFormReadback": true,
+      "clickEffect": true,
+      "contentFreeSignals": true,
+      "staleTargetsRefused": true,
+      "secondOwnerRefused": true,
+      "explicitGlowOff": true,
+      "reloadReconnectAndRelease": true
+    },
+    "webkit": {
+      "dom": true,
+      "reactFormReadback": true,
+      "clickEffect": true,
+      "contentFreeSignals": true,
+      "staleTargetsRefused": true,
+      "secondOwnerRefused": true,
+      "explicitGlowOff": true,
+      "reloadReconnectAndRelease": true
+    }
+  }
+}

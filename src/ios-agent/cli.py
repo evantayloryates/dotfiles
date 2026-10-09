@@ -112,6 +112,8 @@ def main():
     owner.add_argument("--rollout", type=Path)
     owner.add_argument("--owner-file", type=Path, help="private MCP connection lifecycle metadata")
     acquire.add_argument("--connection-owner", type=Path, help="optional MCP connection guard alongside a real Codex rollout")
+    acquire.add_argument("--surface", choices=("native", "web"), default="native")
+    acquire.add_argument("--page")
     acquire.add_argument("--lease-file", type=Path, required=True)
     release = sub.add_parser("release")
     release.add_argument("--lease-file", type=Path, required=True)
@@ -143,7 +145,7 @@ def main():
             message.update(connectionOwner=str(a.connection_owner))
         if not active:
             raise RuntimeError("owner_not_active")
-        message.update(thread=thread, turn=turn)
+        message.update(thread=thread, turn=turn, surface=a.surface, page=a.page)
         # Reserve the destination before acquiring: a file error must not orphan control.
         fd = os.open(a.lease_file, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
         result = None

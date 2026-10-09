@@ -1,0 +1,18 @@
+{
+  "at": "2026-10-09T19:34:56.984Z",
+  "browser": "ios-safari",
+  "scope": "Physical iPhone, private HTTPS page-owned adapter; transport not yet independently proven off-LAN",
+  "gates": {
+    "realDOM": true,
+    "reactFormReadback": true,
+    "clickEffect": true,
+    "scrollAndHit": true,
+    "staleTargetRefused": true,
+    "consoleAndNetwork": true,
+    "secureContext": true,
+    "explicitDevEvaluation": true,
+    "trustedInput": false,
+    "microphoneAcquisition": false,
+    "glowOffReadback": true
+  }
+}

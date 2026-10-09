@@ -16,6 +16,7 @@ import socketserver
 import threading
 import time
 import uuid
+from web.bridge import WebBridge
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 VERSION = 1
@@ -44,6 +45,7 @@ class Broker:
         self.last_release = None
         self.state = state
         self.frontend = None
+        self.web = WebBridge(self, Rejected)
         self.frontend_port = None
         self.stopping_frontends = []
 
@@ -52,6 +54,7 @@ class Broker:
             if self.lease:
                 self.last_release = {"reason": reason, "thread": self.lease["thread"], "turn": self.lease["turn"]}
             self.lease = None
+            self.web.revoke()
             self.native_priority_until = 0.0
             if self.frontend and self.frontend.poll() is None:
                 try:
@@ -85,13 +88,15 @@ class Broker:
                 self.revoke("command_timeout")
             if self.lease and self.clock() >= self.lease["expires"]:
                 self.revoke("owner_expired")
+            self.web.tick()
             if self.device and self.clock() - self.device["seen"] > DEVICE_TIMEOUT:
                 self.device = None
-                self.revoke("device_disconnected")
+                if not self.lease or self.lease.get("surface") != "web":
+                    self.revoke("device_disconnected")
 
     def lease_wire(self):
         self.tick()
-        if not self.lease:
+        if not self.lease or self.lease.get("surface") == "web":
             return None
         return {"id": self.lease["id"], "epoch": self.epoch,
                 "remainingMs": int(min(DEVICE_TIMEOUT, max(0, self.lease["expires"] - self.clock())) * 1000)}
@@ -100,6 +105,8 @@ class Broker:
         with self.cv:
             self.tick()
             op = request.get("op")
+            if isinstance(op, str) and op.startswith("web_"):
+                return self.web.control(request)
             if op == "status":
                 return {"version": VERSION, "sourceHash": SOURCE_HASH, "epoch": self.epoch,
                         "reactFrontendRunning": bool(self.frontend and self.frontend.poll() is None),
@@ -135,16 +142,25 @@ class Broker:
                     raise Rejected("device_already_leased")
                 if self.stopping_frontends:
                     raise Rejected("frontend_cleanup_in_progress")
-                if not self.device:
+                surface = request.get("surface", "native")
+                if surface not in ("native", "web"):
+                    raise Rejected("unsupported_surface")
+                if surface == "web":
+                    page = self.web.pages.get(request.get("page"))
+                    if not page or not page["visible"] or not page["ready"]:
+                        raise Rejected("web_page_not_ready")
+                elif not self.device:
                     raise Rejected("device_not_connected")
                 self.lease = {"id": secrets.token_hex(16), "thread": thread, "turn": turn,
                               "rollout": str(path), "offset": path.stat().st_size,
-                              "expires": self.clock() + OWNER_TIMEOUT}
+                              "expires": self.clock() + OWNER_TIMEOUT, "surface": surface}
+                if surface == "web":
+                    self.lease["page"] = request["page"]
                 if owner_file:
                     self.lease.update(ownerFile=str(path), activityAt=metadata["activityAt"])
                 if connection:
                     self.lease["connectionOwner"] = connection
-                if self.state and self.config.get("node"):
+                if surface == "native" and self.state and self.config.get("node"):
                     relay = Path(__file__).parent / "react/relay.mjs"
                     try:
                         with socket.socket() as available:
@@ -162,7 +178,7 @@ class Broker:
                         self.revoke("frontend_start_failed")
                         raise Rejected("frontend_start_failed")
                 self.cv.notify_all()
-                return self.lease_wire()
+                return {"id": self.lease["id"], "epoch": self.epoch} if surface == "web" else self.lease_wire()
             if op == "result":
                 cmd = self.commands.get(request.get("id"))
                 if cmd and cmd["lease"] == request.get("lease") and cmd["status"] not in ("queued", "sent"):
@@ -175,6 +191,8 @@ class Broker:
                 self.revoke("owner_released")
                 return {"released": True}
             if op == "action":
+                if self.lease.get("surface") == "web":
+                    raise Rejected("native_surface_required")
                 action = request.get("action")
                 if action not in OPERATIONS:
                     raise Rejected("unsupported_action")
@@ -224,7 +242,7 @@ class Broker:
             op = request.get("op")
             handoff = None
             if op == "hello":
-                if self.device and self.device["boot"] != boot:
+                if self.device and self.device["boot"] != boot and (not self.lease or self.lease.get("surface") != "web"):
                     self.revoke("device_restarted")
                 self.device = {"boot": boot, "bundle": request["bundle"],
                                "build": str(request.get("build", "unknown"))[:64], "seen": self.clock()}
@@ -399,7 +417,45 @@ def run_server(config, state=STATE):
         def log_message(self, *_):
             pass
 
+        def do_GET(self):
+            if self.path != "/v1/web/sdk":
+                self.send_error(404)
+                return
+            payload = (Path(__file__).parent / "web/sdk.js").read_bytes()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/javascript")
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("Content-Length", str(len(payload)))
+            self.end_headers()
+            self.wfile.write(payload)
+
         def do_POST(self):
+            if self.path == "/v1/web":
+                try:
+                    size = int(self.headers.get("Content-Length", "0"))
+                    if not 0 < size <= 1024 * 1024:
+                        raise Rejected("invalid_size")
+                    self.connection.settimeout(5)
+                    request = json.loads(self.rfile.read(size))
+                    if not isinstance(request, dict):
+                        raise Rejected("invalid_request")
+                    with broker.cv:
+                        broker.tick()
+                        result = broker.web.page_request(request, self.headers.get("X-IOS-Web-Origin", ""))
+                    code = 200
+                except (ValueError, KeyError, TypeError, OSError, Rejected) as e:
+                    result, code = {"error": str(e) if isinstance(e, Rejected) else "invalid_request"}, 400
+                payload = encode(result)
+                self.send_response(code)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Cache-Control", "no-store")
+                self.send_header("Content-Length", str(len(payload)))
+                self.end_headers()
+                try:
+                    self.wfile.write(payload)
+                except OSError:
+                    pass
+                return
             if self.path != "/v1/device" or not hmac.compare_digest(self.headers.get("Authorization", "").encode(), ("Bearer " + config["token"]).encode()):
                 self.send_error(403)
                 return
