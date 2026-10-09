@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T00:23:15-04:00",
+  "updated_at": "2026-10-09T00:40:27-04:00",
   "workflow": {
     "state": "active",
-    "note": "Shared app baseline planning and explicit outcome feedback passed targeted and live readback checks. Continue typed verification/cleanup and workflow quality evidence without rerunning settled phases; approved Input Monitoring remains pending human authentication."
+    "note": "Typed workflow outcomes and installed source-consumer smoke passed. Continue reachable daily-app popup and motion-insurance qualification under standing display authorization; preserve prior proof, pending grant, explicit partial cleanup and historical quality limits."
   },
-  "production_note": "Native 767d45f6ce40 remains installed with Screen Recording and input_queue_loss:1. Private signed fallback/forward restoration passed with terminal state and explicit checkpoint uncertainty preserved. Native gesture pixels passed; Input Monitoring awaits human authentication and delivered-event canary. Broader qualification remains active.",
+  "production_note": "Native 767d45f6ce40 remains installed. Typed workflow source consumer and scoped outcome audit passed without new capture or restart. Private restoration and native gesture pixels remain verified. Input Monitoring awaits human authentication/canary; broader app/input/insurance/resource and historical quality scope remain open.",
   "groups": [
     {
       "id": "capture",
@@ -228,10 +228,10 @@
           "title": "Connect rich semantic blocks to capture milestones",
           "status": "partial",
           "scope": "Intent, before/after context and verification evidence for later precise cues.",
-          "evidence": "Recorder-stamped declared action blocks, marks and shared imported receipts have source evidence.",
-          "next": "Expand milestone coverage and supported-provider integration without inventing missing events.",
-          "anchor": "fifth-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "evidence": "Typed outcomes support bounded expected_outcome/observed_state/cleanup_plan alongside method/summaries and evidence references. Actual source/native episodes preserve readiness failure vs pixel verification and pending cleanup, without promoting missing input coverage.",
+          "next": "Expand real app milestone/context and routine provider coverage; visual/audio annotation synthesis remains deferred.",
+          "anchor": "twenty-third-pass",
+          "updated_at": "2026-10-09T00:38:40-04:00"
         },
         {
           "id": "provider-gaps",
@@ -446,20 +446,20 @@
           "title": "Verify the quality of recent shared computer-use workflows",
           "status": "partial",
           "scope": "Assess delivered actions, verification and cleanup rather than tool-call counts.",
-          "evidence": "Structural audit covered 31 chats and 2,655 matching call/results; observation references do not establish successful tasks.",
-          "next": "Use structured outcomes for a trustworthy quality audit and smoke-test the shared workflow after refactors.",
-          "anchor": "seventh-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "evidence": "Historical 31-chat/2655-call structural inventory remains ungraded. New typed audit has actual reported quality evidence for three owned episodes: two verified checks/one failed readiness, one completed/two partial cleanup, no uncovered or truncated persisted rows. Receipt results and unknown ownership/evidence truth remain separate.",
+          "next": "Adopt typed outcomes in routine supported workflows and skill consumers; expand quality coverage without treating opaque historical tool results or counts as success.",
+          "anchor": "twenty-third-pass",
+          "updated_at": "2026-10-09T00:38:39-04:00"
         },
         {
           "id": "receipt-integration",
           "title": "Improve automatic receipt coverage across providers",
           "status": "partial",
           "scope": "Capture durable operation evidence for native and browser actions.",
-          "evidence": "Shared central store imported and exactly read back current native expired/interrupted and closed/delivered recorder replies. Existing callback/imported receipts and deliberate native bracketing remain qualified; actor/result claims stay unverified until source/app evidence.",
-          "next": "Add typed verification and cleanup outcome coverage for supported consumers and audit those receipts; avoid grading historical opaque tool results as success.",
-          "anchor": "twenty-second-pass",
-          "updated_at": "2026-10-09T00:22:13-04:00"
+          "evidence": "New explicit withRecordedWorkflow closes scopes before verification and defaults to dispatched, records typed verification/cleanup and attempts supplied hooks once. Actual installed source consumer plus seven-tool fresh MCP readback passed; 28 targeted tests preserve no-replay, unknown/null bounds, cleanup/verification errors and exact imports.",
+          "next": "Extend supported ordinary-provider adoption and native CUA deliberate bracketing; no external MCP interception or authenticated actor inference.",
+          "anchor": "twenty-third-pass",
+          "updated_at": "2026-10-09T00:38:40-04:00"
         },
         {
           "id": "shared-baseline-plan",
@@ -470,6 +470,16 @@
           "next": "",
           "anchor": "twenty-second-pass",
           "updated_at": "2026-10-09T00:22:13-04:00"
+        },
+        {
+          "id": "typed-workflow-outcomes",
+          "title": "Keep receipt, verification and cleanup outcomes separate",
+          "status": "completed",
+          "scope": "Bounded shared outcome/audit contract, explicit callback wrapper and one actual installed source consumer; no automatic native CUA interception or historical task success grading.",
+          "evidence": "28 targeted tests passed; four outcome checks also extended to preserve null restart ends. Actual wrapper reused byte-identical 307-sample source/media proof and closed its own dispatched action before verification. CLI audited three owned reported episodes: two verified checks/one failed readiness, one completed/two partial cleanup. Unknown/no-proof/future/conflicting/truncated claims remain explicit.",
+          "next": "",
+          "anchor": "twenty-third-pass",
+          "updated_at": "2026-10-09T00:38:39-04:00"
         }
       ]
     },
@@ -532,10 +542,10 @@
           "title": "Finish agent usage and recovery runbooks",
           "status": "partial",
           "scope": "Capabilities, gaps, deadlines, semantic blocks, app facts, effort and collision/recovery guidance.",
-          "evidence": "Installed capture/source/consumer and private restoration runbooks now distinguish full video from input coverage, separate grants, no-replay recovery and private fallback scope. Maintained checklist includes actual native gesture pixels and human authentication prerequisite.",
-          "next": "Reconcile shared app baseline planning, typed workflow outcomes, tested mode/resource estimates and remaining app/input/provider limits before final production guidance.",
-          "anchor": "twenty-first-pass",
-          "updated_at": "2026-10-09T00:12:56-04:00"
+          "evidence": "Current contracts document exact app planning, separate grants, prompt scope closure before checks, typed verification/cleanup, unknown/truncated audits and no-replay cleanup/error handling. Actual installed readback reused retained proof with no new capture or restart.",
+          "next": "Complete skill/ordinary-workflow adoption, reachable daily-app lanes and measured insurance/resource estimates before final full-scope production guidance.",
+          "anchor": "twenty-third-pass",
+          "updated_at": "2026-10-09T00:38:40-04:00"
         },
         {
           "id": "visual-composition",
@@ -933,6 +943,45 @@
       "from": "active",
       "to": "active",
       "note": "Shared app baseline planning and explicit outcome feedback passed targeted and live readback checks. Continue typed verification/cleanup and workflow quality evidence without rerunning settled phases; approved Input Monitoring remains pending human authentication."
+    },
+    {
+      "kind": "item",
+      "id": "workflow-audit",
+      "at": "2026-10-09T00:38:39-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Historical 31-chat/2655-call structural inventory remains ungraded. New typed audit has actual reported quality evidence for three owned episodes: two verified checks/one failed readiness, one completed/two partial cleanup, no uncovered or truncated persisted rows. Receipt results and unknown ownership/evidence truth remain separate."
+    },
+    {
+      "kind": "item",
+      "id": "receipt-integration",
+      "at": "2026-10-09T00:38:40-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "New explicit withRecordedWorkflow closes scopes before verification and defaults to dispatched, records typed verification/cleanup and attempts supplied hooks once. Actual installed source consumer plus seven-tool fresh MCP readback passed; 28 targeted tests preserve no-replay, unknown/null bounds, cleanup/verification errors and exact imports."
+    },
+    {
+      "kind": "item",
+      "id": "semantic-context",
+      "at": "2026-10-09T00:38:40-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Typed outcomes support bounded expected_outcome/observed_state/cleanup_plan alongside method/summaries and evidence references. Actual source/native episodes preserve readiness failure vs pixel verification and pending cleanup, without promoting missing input coverage."
+    },
+    {
+      "kind": "item",
+      "id": "agent-runbooks",
+      "at": "2026-10-09T00:38:40-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Current contracts document exact app planning, separate grants, prompt scope closure before checks, typed verification/cleanup, unknown/truncated audits and no-replay cleanup/error handling. Actual installed readback reused retained proof with no new capture or restart."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-09T00:40:27-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Typed workflow outcomes and installed source-consumer smoke passed. Continue reachable daily-app popup and motion-insurance qualification under standing display authorization; preserve prior proof, pending grant, explicit partial cleanup and historical quality limits."
     }
   ]
 }

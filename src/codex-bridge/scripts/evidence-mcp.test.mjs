@@ -54,7 +54,7 @@ function output(result, key) {
 
 test('evidence MCP mutation and readback work with transport/model paths forbidden', () => server('../server.mjs', async (request, state) => {
   const roster = await request('tools/list')
-  assert.equal(roster.tools.filter(t => t.name.startsWith('computer_use_')).length, 5)
+  assert.equal(roster.tools.filter(t => t.name.startsWith('computer_use_')).length, 7)
   const call = (name, args) => request('tools/call', { name, arguments: args })
   const fact = { entity, capability: 'menu', result: 'pass', sample_count: 1, observed_at: '2026-01-01T00:00:00Z', expires_at: '2099-01-01T00:00:00Z', evidence_refs: ['/tmp/synthetic.json'], limits: 'Synthetic only.' }
   const saved = output(await call('computer_use_observe', fact), 'entry')
@@ -70,7 +70,16 @@ test('evidence MCP mutation and readback work with transport/model paths forbidd
   const receipts = output(await call('computer_use_receipts', { session_id: receipt.session_id }), 'entries')
   assert.equal(receipts[0].id, receiptSaved.id)
   assert.equal(receipts[0].value.start_ns, receipt.start_ns)
-  for (const [name, args] of [['computer_use_plan', { entity, capabilities: [], environment_verified: true }], ['computer_use_facts', { entity, include_expired: 'false' }], ['computer_use_facts', { entity, limit: 1000 }], ['computer_use_receipts', { session_id: 'synthetic-session', keys: 'accidental' }], ['computer_use_receipt', { ...receipt, clock_domain: 'wall' }]]) {
+  const uncovered = output(await call('computer_use_audit', { session_id: receipt.session_id }), 'entry')
+  assert.equal(uncovered.counts.verification.unknown, 1)
+  const outcome = { session_id: receipt.session_id, receipt_id: receiptSaved.id, observed_at: '2026-01-01T00:00:00Z',
+    verification: { state: 'unknown', method: 'none', summary: 'Synthetic delivery unqualified.', evidence_refs: [] },
+    cleanup: { state: 'not_required', summary: 'No native operation started.', evidence_refs: [] } }
+  const recorded = output(await call('computer_use_outcome', outcome), 'entry')
+  const audit = output(await call('computer_use_audit', { session_id: receipt.session_id }), 'entry')
+  assert.equal(audit.details[0].latest_outcome_id, recorded.id)
+  assert.equal(audit.counts.cleanup.not_required, 1)
+  for (const [name, args] of [['computer_use_outcome', { ...outcome, receipt_id: '0'.repeat(64) }], ['computer_use_audit', { session_id: receipt.session_id, extra: true }], ['computer_use_plan', { entity, capabilities: [], environment_verified: true }], ['computer_use_facts', { entity, include_expired: 'false' }], ['computer_use_facts', { entity, limit: 1000 }], ['computer_use_receipts', { session_id: 'synthetic-session', keys: 'accidental' }], ['computer_use_receipt', { ...receipt, clock_domain: 'wall' }]]) {
     const result = await call(name, args); assert.equal(result.isError, true); assert.equal(result.content[0].type, 'text')
   }
   assert.deepEqual(readdirSync(state), ['capability-evidence'])

@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto'
 import { closeSync, fsyncSync, linkSync, lstatSync, mkdirSync, openSync, readFileSync, readdirSync, unlinkSync, writeFileSync } from 'node:fs'
 import { join, isAbsolute } from 'node:path'
 import { STATE_DIR } from './state.mjs'
+import { outcomeValue, auditOutcomes, validateOutcomeRequest } from './workflow-outcomes.mjs'
 
 export const EVIDENCE_DIR = join(STATE_DIR, 'capability-evidence')
 export const ENTITY_FIELDS = ['bundle_id', 'app_version', 'app_build', 'os_build', 'provider', 'provider_version', 'surface', 'capture_mode', 'display_profile']
@@ -119,6 +120,21 @@ export class EvidenceStore {
     return this.putValidated(kind,value)
   }
   putRecordedAction(reply) { return this.putValidated('receipts',validateRecordedAction(reply)) }
+  putOutcome(input) {
+    validateOutcomeRequest(input)
+    const receipts = this.list('receipts', digest(input.session_id), { maxFiles: 1000, maxBytes: 65536 })
+    const value = outcomeValue(input, receipts.find(r => r.id === input.receipt_id))
+    if (Buffer.byteLength(canonical(value)) > 64000) fail('workflow outcome exceeds bounded payload; entry not published')
+    return this.putValidated('outcomes', value)
+  }
+  workflowAudit(session, { limit = 20, now = Date.now() } = {}) {
+    string(session, 'session_id')
+    const bucket = digest(session)
+    const receipts = this.list('receipts', bucket, { maxFiles: 1000, maxBytes: 65536 })
+    const outcomes = this.list('outcomes', bucket, { maxFiles: 1000, maxBytes: 65536 })
+    if ([...receipts, ...outcomes].some(e => e.value.session_id !== session)) fail('workflow evidence outside exact session scope')
+    return auditOutcomes(receipts, outcomes, { now, limit })
+  }
   putValidated(kind,value) {
     const bucket = digest(kind === 'facts' ? value.entity : value.session_id)
     const id = digest(value), directory = join(this.root, kind, bucket), file = join(directory, `${id}.json`)
@@ -141,7 +157,7 @@ export class EvidenceStore {
   }
   publish(temp, file) { publishNoReplace(temp, file) }
   list(kind, bucket, { maxFiles, maxBytes } = {}) {
-    if (!['facts', 'receipts'].includes(kind)) fail('invalid kind')
+    if (!['facts', 'receipts', 'outcomes'].includes(kind)) fail('invalid kind')
     if (!/^[a-f0-9]{64}$/.test(bucket)) fail('query requires an exact entity or session bucket')
     const directory = join(this.root, kind, bucket)
     let names

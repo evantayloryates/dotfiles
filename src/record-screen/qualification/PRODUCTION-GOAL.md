@@ -551,3 +551,28 @@ native shortcut/global-key scope after approved Input Monitoring, then reachable
 daily-app overflow and measured motion insurance/resources. Keep human Touch ID
 lane pending without repeated prompts. Exact app baseline execution and skill
 consumer adoption remain partial; planning alone does not prove UI readiness.
+
+## Twenty-third-pass typed workflow checkpoint
+
+Shared outcome/audit tools link separate verification/cleanup states to persisted
+receipts, preserve exact actor claims/clock bounds, and keep uncovered, future,
+conflicting and truncated observations explicit. Four outcome plus six new
+callback tests passed alongside prior relevant tests: 28 total. Fresh guarded
+MCP advertises seven evidence tools without model/transport paths.
+
+Actual withRecordedWorkflow source consumer passed against PID15145/767d45f6ce40.
+It ran once, closed its dispatched action before verification, matched existing
+source/video bytes to retained 307-sample proof and verified own-action cleanup.
+No capture, render, UI action, permission request or restart. Two previous native
+episodes were explicitly reported from retained readiness/pixel evidence. CLI
+audit now covers all three: verification two verified/one failed, cleanup one
+completed/two partial. These are scoped reported checks, not task success rates
+or a regraded historical corpus. Private evidence is gates-v23.
+
+Next highest-impact capture lane: verify reachable daily-app/native popup
+readiness and correct motion-insurance preconditions under measured host health.
+Input grant remains pending human Touch ID; video/app lanes can progress under
+the standing display authorization while leaving that grant untouched. Native
+shortcuts/physical provider scope follows actual permission/canary readback.
+Typed historical/ordinary-workflow and skill adoption remain partial. Preserve
+the owned fixture/session until its input canary or deliberate cleanup.

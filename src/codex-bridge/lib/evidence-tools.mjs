@@ -7,8 +7,23 @@ const references = { type: 'array', maxItems: 16, items: { type: 'string', descr
 const string = { type: 'string', minLength: 1, maxLength: 256 }
 const integer = { type: 'integer', minimum: 1, maximum: 4294967295 }
 const ns = { type: 'string', pattern: '^[0-9]{1,20}$', description: 'Decimal nanoseconds from the recorder CLOCK_UPTIME_RAW clock; do not substitute wall time or an unqualified clock.' }
+const verification = { type: 'object', additionalProperties: false, properties: {
+  state: { type: 'string', enum: ['verified', 'failed', 'not_checked', 'unknown'] },
+  method: { type: 'string', minLength: 1, maxLength: 128 }, summary: { type: 'string', minLength: 1, maxLength: 1000 }, evidence_refs: references,
+}, required: ['state', 'method', 'summary', 'evidence_refs'] }
+const cleanup = { type: 'object', additionalProperties: false, properties: {
+  state: { type: 'string', enum: ['completed', 'partial', 'not_required', 'unknown'] },
+  summary: { type: 'string', minLength: 1, maxLength: 1000 }, evidence_refs: references,
+}, required: ['state', 'summary', 'evidence_refs'] }
 
 export const EVIDENCE_TOOLS = [
+  { name: 'computer_use_outcome', description: 'Append typed reported verification and cleanup linked to a persisted receipt in the same explicit session. Verified/failed checks and completed/partial cleanup require local evidence references; contents and ownership are not authenticated. Does not run UI, model or cleanup.',
+    inputSchema: { type: 'object', additionalProperties: false, properties: {
+      session_id: string, receipt_id: { type: 'string', pattern: '^[a-f0-9]{64}$' }, observed_at: string, verification, cleanup,
+      context: { type: 'object', additionalProperties: false, properties: Object.fromEntries(['expected_outcome', 'observed_state', 'cleanup_plan'].map(k => [k, { type: 'string', minLength: 1, maxLength: 1500 }])) },
+    }, required: ['session_id', 'receipt_id', 'observed_at', 'verification', 'cleanup'] }, annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false } },
+  { name: 'computer_use_audit', description: 'Audit bounded reported outcomes for one explicit session. Receipt result, verification and cleanup stay separate; uncovered receipts remain unknown and conflicting history is retained. Counts are not task success rates. No UI, text grading, evidence fetch or model.',
+    inputSchema: { type: 'object', additionalProperties: false, properties: { session_id: string, limit: { type: 'integer', minimum: 1, maximum: 100 } }, required: ['session_id'] }, annotations: { readOnlyHint: true, openWorldHint: false } },
   { name: 'computer_use_plan', description: 'Plan targeted baseline/requalification checks from exact local environment observations. Expiry, conflicts, missing evidence and unknown environment remain explicit. Read-only: no UI/model, evidence fetch, grant, automatic canary or actor inference.',
     inputSchema: { type: 'object', additionalProperties: false, properties: { entity,
       capabilities: { type: 'array', minItems: 1, maxItems: 16, uniqueItems: true, items: { type: 'string', minLength: 1, maxLength: 128 } },
@@ -39,6 +54,8 @@ export const EVIDENCE_TOOLS = [
 
 export function evidenceHandler(name, store = new EvidenceStore()) {
   switch (name) {
+    case 'computer_use_outcome': return input => store.putOutcome(input)
+    case 'computer_use_audit': return input => { validateQuery(input, 'receipts'); return store.workflowAudit(input.session_id, { limit: input.limit ?? 20 }) }
     case 'computer_use_plan': return input => planCapabilities(store, input)
     case 'computer_use_observe': return input => store.put('facts', input)
     case 'computer_use_facts': return input => { validateQuery(input, 'facts'); return store.facts(input.entity, { includeExpired: input.include_expired ?? false, limit: input.limit ?? 20 }) }

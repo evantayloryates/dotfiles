@@ -111,6 +111,7 @@ def main():
     owner = acquire.add_mutually_exclusive_group(required=True)
     owner.add_argument("--rollout", type=Path)
     owner.add_argument("--owner-file", type=Path, help="private MCP connection lifecycle metadata")
+    acquire.add_argument("--connection-owner", type=Path, help="optional MCP connection guard alongside a real Codex rollout")
     acquire.add_argument("--lease-file", type=Path, required=True)
     release = sub.add_parser("release")
     release.add_argument("--lease-file", type=Path, required=True)
@@ -135,6 +136,11 @@ def main():
         else:
             thread, turn, active = owner_state(a.rollout)
             message.update(rollout=str(a.rollout.resolve()))
+        if a.connection_owner:
+            if a.owner_file:
+                raise RuntimeError("codex_connection_owner_required")
+            mcp_owner_state(a.connection_owner, a.state)
+            message.update(connectionOwner=str(a.connection_owner))
         if not active:
             raise RuntimeError("owner_not_active")
         message.update(thread=thread, turn=turn)

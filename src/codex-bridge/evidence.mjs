@@ -7,7 +7,7 @@ import { planCapabilities } from './lib/capability-planner.mjs'
 const [command, file, extra] = process.argv.slice(2)
 try {
   if (!command || command === 'help') {
-    console.log('node evidence.mjs fact FILE.json | facts ENTITY.json [--expired] | plan REQUEST.json | receipt FILE.json | receipts SESSION_ID')
+    console.log('node evidence.mjs fact FILE.json | facts ENTITY.json [--expired] | plan REQUEST.json | receipt FILE.json | receipts SESSION_ID | outcome FILE.json | audit SESSION_ID')
   } else {
     const store = new EvidenceStore()
     let output
@@ -15,6 +15,10 @@ try {
       output = store.put(command === 'fact' ? 'facts' : 'receipts', JSON.parse(readFileSync(file, 'utf8')))
     } else if (command === 'plan') {
       output = planCapabilities(store, JSON.parse(readFileSync(file, 'utf8')))
+    } else if (command === 'outcome') {
+      output = store.putOutcome(JSON.parse(readFileSync(file, 'utf8')))
+    } else if (command === 'audit') {
+      output = store.workflowAudit(file)
     } else if (command === 'facts') {
       output = store.facts(JSON.parse(readFileSync(file, 'utf8')), { includeExpired: extra === '--expired' })
     } else if (command === 'receipts') {

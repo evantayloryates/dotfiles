@@ -1,5 +1,10 @@
 # Personal iOS app agent
 
+For MCP clients, launch `/Users/taylor/dotfiles/bin/ios-agent-mcp` and call
+`ios_guide` → `ios_begin` → inspect/act/verify → `ios_end`. The wrapper manages
+private lease/evidence files and includes shared cross-harness operational learning.
+See [MCP.md](docs/MCP.md) for registration, lifecycle and learning semantics.
+
 The latest snapshot/refresh/keep-awake SDK passed USB-unplugged native Nutrition→Home, native/React inspection, remote Metro and fresh backend readiness through private Tailscale without a Wi-Fi IPv4 association. Wi-Fi On and Home were restored; native/host cleanup passed. Both coach/client edit directions and exact restoration passed on the earlier dated runtime. See docs/recovery-wireless-final-2026-10-08.json for the newest build identity and docs/DELIVERY.md for the agent operating contract.
 
 The host lives in dotfiles; the app integration stays on `ety/local-dev-foundation`.

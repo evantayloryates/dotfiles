@@ -483,6 +483,15 @@ Keep unknown dimensions unconfirmed. Feed actual delivery/pixel/cleanup outcomes
 back into that shared store, including ordinary computer use without recording.
 See `src/codex-bridge/CAPABILITY-EVIDENCE.md` for the request and reuse contract.
 
+Supported callback consumers can use `lib/recorded-workflow.mjs` to keep
+dispatch, verification and cleanup separate. The wrapper closes the recorder
+action before long checks, invokes the operation once, attempts supplied cleanup
+once after a known begin, and never replays UI on receipt/evidence failure.
+Native CUA remains explicit. Shared `computer_use_outcome`/`computer_use_audit`
+and `evidence.mjs outcome/audit` preserve typed observations; a delivered receipt
+alone does not establish verification or cleanup. Audit counts describe reported
+persisted scopes, not all historical operations or task success rates.
+
 Input telemetry needs a separate **Input Monitoring** grant for the installed
 signed `record-screend.app`. Screen Recording permission alone does not supply
 it, and `record-screen grant` only requests Screen Recording. With explicit

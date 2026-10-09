@@ -1,5 +1,10 @@
 # Agent operating contract — installed personal development service
 
+MCP follow-on: `/Users/taylor/dotfiles/bin/ios-agent-mcp` exposes the fixed CLI
+through 12 tools and three resources. `ios_guide` → `ios_begin` → inspect/act/verify
+→ `ios_end` manages lease/evidence paths and independently confirms cleanup.
+See MCP.md for shared operational learning and per-harness lifecycle boundaries.
+
 Use `/Users/taylor/dotfiles/bin/ios-agent`. App integration is isolated on
 `ety/local-dev-foundation`. The dedicated Debug app is `com.dev.kudos.fit`.
 Routine app control uses private Tailscale HTTPS, without USB, XCTest or Mirroring.

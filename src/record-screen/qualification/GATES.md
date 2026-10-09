@@ -1,5 +1,31 @@
 # Qualification update — October 9, 2026
 
+## Twenty-third pass: typed workflow verification and cleanup
+
+The shared store now links typed outcomes to existing immutable receipts in an
+exact session. Dispatch/delivery result, verification and cleanup remain separate.
+Outcome reporting cannot replace receipt target, caller or exact host-clock bounds.
+An audit leaves verification/cleanup unknown without a typed report, including
+when a receipt claims verified. References and ownership remain unverified claims;
+no opaque historical text is graded as success.
+
+| Gate | Verified evidence | Limits |
+| --- | --- | --- |
+| Outcome contract | Four targeted tests prove exact joins/stamps, immutable/idempotent readback, wrong-session/missing-receipt refusal, proofless pass/cleanup and oversized-payload refusal, future withholding, conflicting history and truncation. | References are not fetched or authenticated; summaries are reported. Audit covers persisted scopes, not every operation or task success. |
+| Callback lifecycle | Six targeted wrapper tests prove no hooks after uncertain begin, one operation, action closure before verification, supplied cleanup once after errors, generic stored error summaries, no fabricated reply/outcome and no replay after receipt/publication failure. | Supported explicit callback path; no native CUA interception. Cleanup must be owned and authorized. Unknown hook results stay unknown. |
+| Regression/protocol scope | All 28 targeted tests passed: planner/store/protocol, typed outcomes, new workflow wrapper and legacy action wrapper. Fresh MCP advertised seven evidence tools with model/child transport paths forbidden inside servers. | Existing loaded rosters wait for safe launch; no forced peer restart or model/UI use. |
+| Installed source consumer | Actual engine PID15145/build767d45f6ce40 ran one read-only source operation through the wrapper. Its dispatched scope closed before verification. Source/video bytes matched retained 307-packet proof; typed verified check and completed own-action cleanup independently read back. | Existing media proof reused; no capture, rerender or native input coverage added. Cleanup scope is only this readback action. |
+| Actual native episode audit | Two earlier episodes were reported from retained evidence: initial readiness failed, recovered pixel check verified; both cleanup states partial. CLI/store audit read three receipts and three outcomes with no uncovered or truncated rows: receipt results dispatched/delivered/interrupted; verification two verified/one failed; cleanup one completed/two partial. | Owned qualification episodes only. Fixture PID21631 and session remain live/open for the approved grant canary. Broader historical 2655-call corpus lacks typed outcomes; no success-rate claim. |
+
+Missing terminal reply prevents stamp/outcome fabrication while supplied verify/
+cleanup hooks can still report locally. The new wrapper defaults to dispatched;
+verification failure cannot be turned into cleanup success or operation replay.
+Outcomes are bounded before publication and audited under explicit scan limits.
+Production native identity remains unchanged with no active action/input subscriber.
+Input Monitoring still awaits human authentication. Daily-app capture, shortcuts,
+same-app differentiation, measured insurance/resources and skill adoption remain
+open; native CUA still uses deliberate bracketing.
+
 ## Twenty-second pass: shared app baseline and requalification planning
 
 computer_use_plan and the standalone evidence CLI now consume the existing

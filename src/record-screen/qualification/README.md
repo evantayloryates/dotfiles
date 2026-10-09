@@ -340,3 +340,22 @@ the private runtime; success keeps state, replies and signed bundle copies.
 This does not install, request grants, record, replay actions, restore a live
 producer or qualify production launchd rollback. Existing byte-identical decoded
 media evidence can be reused without re-rendering.
+
+### Typed recorded workflow
+
+`recorded-workflow-smoke.mjs --output /absolute/private/new-dir --session
+ses_EXPLICIT --recording rec_EXPLICIT --retained /absolute/retained-take
+--proof /absolute/source-journal-proof.json` exercises the supported callback
+wrapper against an installed engine. The explicit owned recording must be done.
+It reads source, compares actual media/source hashes with already decoded copies,
+closes the action before verification, confirms own action closure and publishes
+typed outcomes to the shared capability service. It does not record, render,
+request permission, operate UI, restart or replay a mutation. Retained proof and
+byte identity preserve prior media checks without rerunning them. This tests
+source-consumer workflow integration; it does not add native gesture coverage.
+
+Run `node --test src/codex-bridge/scripts/workflow-outcome.test.mjs
+src/record-screen/qualification/recorded-workflow.test.mjs` for outcome linking,
+uncovered/future/conflicting/truncated claims, scope/payload refusal and exactly
+once callback/hook behavior. See the shared CAPABILITY-EVIDENCE.md contract for
+the CLI/MCP audit. Explicit reported results stay separate from evidence truth.

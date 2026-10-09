@@ -126,6 +126,11 @@ class Broker:
                     thread, turn, active = owner_state(path)
                 if not active or (thread, turn) != (request.get("thread"), request.get("turn")):
                     raise Rejected("owner_not_current_active_turn")
+                connection = request.get("connectionOwner")
+                if connection:
+                    if owner_file or not self.state:
+                        raise Rejected("codex_connection_owner_required")
+                    mcp_owner_state(Path(connection), self.state)
                 if self.lease:
                     raise Rejected("device_already_leased")
                 if self.stopping_frontends:
@@ -137,6 +142,8 @@ class Broker:
                               "expires": self.clock() + OWNER_TIMEOUT}
                 if owner_file:
                     self.lease.update(ownerFile=str(path), activityAt=metadata["activityAt"])
+                if connection:
+                    self.lease["connectionOwner"] = connection
                 if self.state and self.config.get("node"):
                     relay = Path(__file__).parent / "react/relay.mjs"
                     try:
@@ -279,6 +286,12 @@ class Broker:
             if not self.lease:
                 return
             lease = self.lease
+            if lease.get("connectionOwner"):
+                try:
+                    mcp_owner_state(Path(lease["connectionOwner"]), self.state)
+                except (OSError, ValueError, Rejected):
+                    self.revoke("mcp_connection_unavailable")
+                    return
             if lease.get("ownerFile"):
                 try:
                     metadata = mcp_owner_state(Path(lease["ownerFile"]), self.state)

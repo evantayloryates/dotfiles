@@ -1,0 +1,152 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import {Client} from '@modelcontextprotocol/sdk/client/index.js';
+import {InMemoryTransport} from '@modelcontextprotocol/sdk/inMemory.js';
+import {StdioClientTransport} from '@modelcontextprotocol/sdk/client/stdio.js';
+import {Backend, runtimeKey} from '../backend.mjs';
+import {createServer} from '../server.mjs';
+
+function fixture() {
+  const state = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'ios-mcp-test-')));
+  const calls = []; let held = false, failReady = false, unknown = false;
+  const run = async (kind, args, input) => {
+    calls.push({kind, args, input});
+    if (kind === 'learning') return {ok: true, value: input.op === 'observe' ? {evidenceId: 'e'.repeat(32)} : {lessons: []}};
+    if (args[0] === 'status') return {ok: true, value: {sourceHash: 'a'.repeat(64), device: {boot: 'fixture', bundle: 'com.dev.kudos.fit'}, lease: held ? {id: 'never-expose'} : null}};
+    if (args[0] === 'acquire') {
+      const file = args[args.indexOf('--lease-file') + 1];
+      fs.writeFileSync(file, JSON.stringify({lease: 'never-expose'}), {mode: 0o600}); held = true;
+      return {ok: true, value: {acquired: true}};
+    }
+    if (args[0] === 'release') { fs.unlinkSync(args[args.indexOf('--lease-file') + 1]); held = false; return {ok: true, value: {released: true}}; }
+    const file = args[args.indexOf('--output') + 1];
+    if (kind === 'verify') {
+      const failed = failReady && args[0] === 'ready';
+      fs.writeFileSync(file, JSON.stringify({gate: args[0], status: failed ? 'failed' : 'passed', observation: {runtimeReady: !failed}}), {mode: 0o600});
+      return {ok: !failed};
+    }
+    const action = args[1];
+    const value = action === 'image' ? {pngBase64: 'aW1hZ2U=', scope: 'app-owned-main-window'} : {snapshot: 'fresh', nodes: [{label: 'Synthetic', token: 'never-expose'}]};
+    fs.writeFileSync(file, JSON.stringify({id: 'accepted-once', status: unknown ? 'unknown' : 'completed', result: value}), {mode: 0o600});
+    return {ok: !unknown, error: unknown ? 'action_not_confirmed' : undefined};
+  };
+  const backend = new Backend({state, run});
+  return {backend, calls, state, held: () => held, setFail: () => { failReady = true; }, setUnknown: () => { unknown = true; }};
+}
+async function clientFor(f) {
+  const {server} = createServer(f.backend);
+  const [ct, st] = InMemoryTransport.createLinkedPair();
+  await server.connect(st);
+  const client = new Client({name: 'independent-fixture-harness', version: '1'});
+  await client.connect(ct);
+  return {client, server};
+}
+test('SDK discovers tools/resources, intuitive lifecycle, image content and private capability redaction', async () => {
+  const f = fixture(); const {client, server} = await clientFor(f);
+  try {
+    const names = (await client.listTools()).tools.map(t => t.name);
+    assert.equal(names.length, 12); assert.ok(names.includes('ios_begin'));
+    assert.equal((await client.listResources()).resources.length, 3);
+    const begin = (await client.callTool({name: 'ios_begin', arguments: {}})).structuredContent;
+    assert.equal(begin.ready, true); assert.equal(f.held(), true);
+    const action = (await client.callTool({name: 'ios_native', arguments: {sessionId: begin.sessionId, action: 'tree'}})).structuredContent;
+    assert.equal(action.data.snapshot, 'fresh'); assert.ok(!JSON.stringify(action).includes('never-expose'));
+    const image = (await client.callTool({name: 'ios_native', arguments: {sessionId: begin.sessionId, action: 'image'}})).structuredContent;
+    const read = await client.callTool({name: 'ios_read', arguments: {artifactId: image.artifactId}});
+    assert.equal(read.content[0].type, 'image');
+    const secretPointer = await client.callTool({name: 'ios_read', arguments: {artifactId: action.artifactId, pointer: '/result/nodes/0/token'}});
+    assert.equal(secretPointer.isError, true);
+    await client.callTool({name: 'ios_end', arguments: {sessionId: begin.sessionId}});
+    assert.equal(f.held(), false);
+    const idle = await client.callTool({name: 'ios_verify', arguments: {gate: 'idle'}});
+    assert.equal(idle.structuredContent.receipt.status, 'passed');
+    assert.equal((await client.callTool({name: 'ios_native', arguments: {sessionId: begin.sessionId, action: 'tap'}})).isError, true);
+  } finally { await f.backend.close(); await client.close(); await server.close(); fs.rmSync(f.state, {recursive: true}); }
+});
+test('failed begin readiness releases; accepted unknown action is not replayed', async () => {
+  const f = fixture(); f.setFail();
+  try { await assert.rejects(f.backend.begin(), /app_not_ready/); assert.equal(f.held(), false); }
+  finally { await f.backend.close(); fs.rmSync(f.state, {recursive: true}); }
+  const second = fixture();
+  try {
+    const begin = await second.backend.begin(); second.setUnknown();
+    const result = await second.backend.action({sessionId: begin.sessionId, action: 'tap'});
+    assert.equal(result.status, 'unknown'); assert.equal(result.replay, false);
+    assert.equal(second.calls.filter(c => c.args?.[0] === 'action').length, 1);
+    assert.equal(second.backend.read({artifactId: result.artifactId}).data.id, 'accepted-once');
+  } finally { await second.backend.close(); fs.rmSync(second.state, {recursive: true}); }
+});
+test('connection close marks owner inactive and releases exactly once', async () => {
+  const f = fixture();
+  try {
+    const begin = await f.backend.begin();
+    const owner = f.backend.sessions.get(begin.sessionId).owner;
+    await Promise.all([f.backend.close(), f.backend.close()]);
+    assert.equal(JSON.parse(fs.readFileSync(owner)).active, false);
+    assert.equal(f.calls.filter(c => c.args?.[0] === 'release').length, 1);
+    assert.equal(f.held(), false);
+  } finally { fs.rmSync(f.state, {recursive: true}); }
+});
+test('concurrent MCP calls are rejected before CLI admission; validation rejects arbitrary actions', async () => {
+  const f = fixture(); const original = f.backend.guide.bind(f.backend);
+  let entered; const started = new Promise(r => { entered = r; }); let done;
+  f.backend.guide = async () => { entered(); await new Promise(r => { done = r; }); return original(); };
+  const {client, server} = await clientFor(f);
+  try {
+    const pending = client.callTool({name: 'ios_guide', arguments: {}}); await started;
+    const blocked = await client.callTool({name: 'ios_begin', arguments: {}});
+    assert.equal(blocked.isError, true); assert.equal(f.calls.filter(c => c.args?.[0] === 'acquire').length, 0);
+    done(); await pending;
+    const invalid = await client.callTool({name: 'ios_native', arguments: {sessionId: 'a'.repeat(32), action: 'eval'}});
+    assert.equal(invalid.isError, true);
+  } finally { await f.backend.close(); await client.close(); await server.close(); fs.rmSync(f.state, {recursive: true}); }
+});
+test('SDK cancellation retires control without replay and connection can start a fresh session', async () => {
+  const f = fixture(); const {client, server} = await clientFor(f);
+  try {
+    const begin = await f.backend.begin();
+    const original = f.backend.action.bind(f.backend); let started; const entered = new Promise(r => { started = r; });
+    f.backend.action = async args => { started(); await new Promise(r => setTimeout(r, 150)); return original(args); };
+    const controller = new AbortController();
+    const pending = client.callTool({name: 'ios_native', arguments: {sessionId: begin.sessionId, action: 'tree'}}, undefined, {signal: controller.signal});
+    await entered; controller.abort(); await assert.rejects(pending);
+    await new Promise(r => setTimeout(r, 250));
+    assert.equal(f.held(), false);
+    assert.equal(f.calls.filter(c => c.args?.[0] === 'action').length, 0);
+    assert.equal((await f.backend.begin()).ready, true);
+  } finally { await f.backend.close(); await client.close(); await server.close(); fs.rmSync(f.state, {recursive: true}); }
+});
+test('native boot and source changes alter conservative lesson applicability', () => {
+  const a = {sourceHash: 'a'.repeat(64), device: {bundle: 'com.dev.kudos.fit', boot: 'one'}};
+  assert.notEqual(runtimeKey(a), runtimeKey({...a, device: {...a.device, boot: 'two'}}));
+  assert.notEqual(runtimeKey(a), runtimeKey({...a, sourceHash: 'b'.repeat(64)}));
+});
+test('disconnect during pending acquisition waits for admission and releases its resulting capability', async () => {
+  const f = fixture(); const original = f.backend.runOverride;
+  let started; const entered = new Promise(r => { started = r; }); let admit;
+  f.backend.runOverride = async (kind, args, input) => {
+    if (args?.[0] === 'acquire') { started(); await new Promise(r => { admit = r; }); }
+    return original(kind, args, input);
+  };
+  try {
+    const beginning = f.backend.begin({rollout: '/actual-active-rollout'});
+    await entered;
+    const closing = f.backend.close();
+    admit();
+    await assert.rejects(beginning); await closing;
+    assert.equal(f.held(), false);
+    assert.equal(f.calls.filter(c => c.args?.[0] === 'release').length, 1);
+    assert.ok(f.calls.find(c => c.args?.[0] === 'acquire').args.includes('--connection-owner'));
+  } finally { fs.rmSync(f.state, {recursive: true}); }
+});
+test('real launcher stdio handshake works in a minimal GUI PATH without device control', async () => {
+  const client = new Client({name: 'stdio-canary', version: '1'});
+  const transport = new StdioClientTransport({command: path.join(os.homedir(), 'dotfiles/bin/ios-agent-mcp'), env: {HOME: os.homedir(), PATH: '/usr/bin:/bin'}, stderr: 'pipe'});
+  let stderr = ''; transport.stderr?.on('data', x => { stderr += x; });
+  try { await client.connect(transport); assert.equal((await client.listTools()).tools.length, 12); }
+  finally { await client.close(); }
+  assert.equal(stderr, '');
+});

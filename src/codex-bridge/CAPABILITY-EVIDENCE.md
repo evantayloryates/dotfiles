@@ -16,6 +16,8 @@ leaves no visible partial entry. Power-loss recovery is not qualified.
 
 | MCP tool | Contract |
 | --- | --- |
+| `computer_use_outcome` | Append separate reported verification/cleanup states linked to an existing receipt in the same session. Evidence references required for verified/failed checks and completed/partial cleanup. |
+| `computer_use_audit` | Read a bounded typed outcome audit for one explicit session. Uncovered receipts remain unknown; latest claims and conflicting verification history remain separate. Counts are not task success rates. |
 | `computer_use_plan` | Plan 1–16 named capabilities for one exact entity. Distinguish missing/expired/conflicting/mixed/unknown observations from reported pass. Caller confirms environment dimensions; no UI canary or automatic success grading. |
 | `computer_use_observe` | Append a reported capability observation. Exact app/OS/provider/display/surface/capture scope, evidence references, limits, observation time and expiry are required. |
 | `computer_use_facts` | Read one exact entity key, at most 100 entries. Different versions do not inherit results; future observations are withheld and expired observations are omitted by default. Conflicts are preserved. |
@@ -33,6 +35,8 @@ node /Users/taylor/src/github/dotfiles/src/codex-bridge/evidence.mjs facts /abso
 node /Users/taylor/src/github/dotfiles/src/codex-bridge/evidence.mjs plan /absolute/plan-request.json
 node /Users/taylor/src/github/dotfiles/src/codex-bridge/evidence.mjs receipt /absolute/receipt.json
 node /Users/taylor/src/github/dotfiles/src/codex-bridge/evidence.mjs receipts SESSION_ID
+node /Users/taylor/src/github/dotfiles/src/codex-bridge/evidence.mjs outcome /absolute/outcome.json
+node /Users/taylor/src/github/dotfiles/src/codex-bridge/evidence.mjs audit SESSION_ID
 ```
 
 Use `facts ENTITY.json --expired` to inspect stale observations explicitly.
@@ -84,6 +88,45 @@ No watcher, scheduled canary, model training or automatic native-provider hook
 is implied. Existing MCP processes keep their loaded tool roster until their
 next safe launch; the CLI is immediately available without restarting peers.
 
+## Typed verification and cleanup
+
+An outcome names `session_id`, the persisted `receipt_id`, `observed_at`,
+`verification` and `cleanup`, with optional contextual blocks. Verification
+contains `state` (verified/failed/not_checked/unknown), `method`, `summary` and
+`evidence_refs`. Cleanup contains `state` (completed/partial/not_required/unknown),
+`summary` and `evidence_refs`. Verified/failed verification and completed/partial
+cleanup need nonempty absolute evidence references; contents are not fetched.
+Optional `context` supports expected_outcome, observed_state and cleanup_plan.
+Keep raw inputs, tool output bodies and secrets out of these summaries.
+
+The immutable outcome inherits caller, provider, target, result and exact clock
+bounds from the linked receipt; the caller cannot replace those through an
+outcome. Ownership and reported results remain unverified. The entire outcome
+payload must fit 64,000 UTF-8 bytes before publication. A missing receipt or
+wrong session refuses publication. Reporting a revised outcome appends another
+entry rather than erasing prior failure or partial cleanup.
+
+The audit scans at most 1000 regular 64KiB files per receipt/outcome bucket,
+evaluates at most 100 receipts and 100 non-future outcomes, and returns at most
+100 detail rows (default 20). It validates outcome/receipt agreement and makes
+truncation, future withholding and uncovered receipts explicit. A receipt that
+claims delivered or verified still has unknown verification/cleanup without a
+typed outcome. Latest verification and prior conflicting verified/failed states
+remain distinct; older history outside the window may be unknown. This audit
+measures persisted reported observations only, not every UI action, authenticated
+agent identity, evidence truth or historical task success.
+
+`src/record-screen/lib/recorded-workflow.mjs:withRecordedWorkflow` is the supported
+explicit callback path. It requires an evidence store, dispatches the operation
+once and defaults the receipt result to dispatched. It closes the recorder scope
+before potentially long verify/cleanup callbacks. Hooks run only after known begin;
+supplied cleanup is attempted once even after operation/verification failure.
+Missing or invalid proof becomes unknown rather than success. Callback errors
+remain in the calling process; stored summaries are generic. Missing terminal
+reply prevents stamp/outcome fabrication. Receipt or publication failure never
+replays the operation. Native CUA still needs explicit calls/bracketing; this
+helper does not intercept its API or authorize UI/cleanup beyond the task scope.
+
 Receipt bounds are unsigned decimal strings, preserving nanoseconds above
 JavaScript's integer precision. Only the recorder's `CLOCK_UPTIME_RAW` domain
 is accepted here; callers must sample that qualified clock, not label wall
@@ -130,6 +173,17 @@ CLI/shared-store readback kept prior Chrome readiness unknown and three native
 fixture outcomes separate; both recorder action outcomes were imported exactly.
 This establishes explicit evidence feedback and planning, not automatic outcome
 auditing of historical opaque UI tool results.
+
+October 9 typed workflow qualification adds four outcome and six callback tests;
+with prior planner/store/protocol and legacy callback checks, 28 tests pass.
+Fresh guarded MCP advertises seven evidence tools. Actual installed readback
+through the new wrapper reused byte-identical 307-sample media/source proof,
+closed its own action before verification, and recorded scoped completed cleanup.
+Two earlier native episodes were explicitly reported from retained evidence:
+one readiness failure and one pixel check pass, both with partial cleanup while
+their fixture/session await the input-grant canary. CLI audit read back all three.
+The broader historical CUA corpus still lacks this typed coverage; its call
+counts and opaque bodies have not been promoted to a success audit.
 
 ## Recorder reply import and shared native policy
 
