@@ -79,7 +79,9 @@ validation is retained; redirects are rejected to prevent credential forwarding.
 --derived-data <private-build-dir> --log <new-private-log>` creates the explicit
 Debug build without editing project source. It injects the React prelude through
 a dedicated Metro wrapper, verifies native classes in the built binary and
-checks source hashes for changes during the build. The default embeds JavaScript;
+checks source hashes for changes during the build. Use `--generic-destination`
+to prepare a signed device product while the iPhone is disconnected; USB or an
+existing developer connection is only needed for installation. The default embeds JavaScript;
 `--metro` retains the app's Metro URL. `--runtime-config <private-config>` embeds
 the private tailnet endpoints and an offline JavaScript fallback. It snapshots
 the config for the build and never changes `mobile/local-env.js`.
@@ -208,3 +210,21 @@ app-window/occlusion scope. PNG encoding leaves the main queue; an ended lease
 discards its frame. `state.lastCommandTransport` contains only an action enum,
 bytes, elapsed time, HTTP status, OS error code and generation-discard boolean.
 Native transport never exports its URL, credential or response body.
+
+Native tree labels use explicit accessibility labels first, then visible UILabel
+text. Secure text-input descendants return an empty label. This made the actual
+iOS UIKit meal-menu options readable without screenshot interpretation; the
+42-gate compiled fixture covers fallback/precedence/redaction. The dedicated
+dev adapter clears RN's persisted Perf Monitor preference at bundle selection
+and hides the active performance/element-inspector panels when its prelude
+starts. Diagnostics remain available in the agent channel. Physical verification
+found those panels absent on the updated signed product.
+
+Fast Refresh state preservation is not qualified: a presentation-only meal edit
+returned the current app to Home while retaining the native boot. Source was
+restored. Treat a source update as a potential route/form reset, inspect readiness
+and the current route before input, and never replay accepted business changes
+to restore a lost screen. See docs/CAPABILITY-EDGES.md for the open gate.
+
+
+For slow wireless links, successful tree delivery reserves a bounded follow-up opportunity: five seconds after the first owner-fenced acknowledgment, with total capture age capped at 15 seconds and live geometry/hit checks retained. Background React polling yields up to two seconds after a native tree. The candidate also exposes allowlisted refresh cause counters in `state.refreshDiagnostics`; it never exports reload messages or source paths. Physical recovery qualification is pending; ordinary Fast Refresh may still reset navigation.

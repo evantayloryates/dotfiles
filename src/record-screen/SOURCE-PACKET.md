@@ -402,3 +402,28 @@ assertion. Each owned SCStream is requested once. A late successful acknowledgme
 retains deadline history and cannot revive a terminal take. Metadata is available
 without waiting on the recording queue; a closed journal is separate from stop
 acknowledgment and actual muxed coverage.
+
+
+## Idle maintenance and delivery
+
+`maintenance_fence: 1` exposes acquire, validate, release and restart operations.
+Acquire fences new engine work before inspecting existing jobs. Active/scheduled
+takes always block maintenance. Default leases require settled resources; explicit
+`allow_unfinished_terminal:true` can prepare recovery of unconfirmed terminal
+resources, retaining coverage uncertainty. It does not cancel/replay actions or
+lock user input. Saved-history loading also rejects new capture/mutation work.
+
+Leases expire after 5–180 seconds unless a checked restart is committed. Expiry
+opens admission without restarting; commitment pins admission until actual process
+exit. Tokens bind to that process. Inspect/validate the owner token immediately
+before delivery; a read-only idle snapshot does not replace a fence. Lease clocks
+are CLOCK_MONOTONIC_RAW, distinct from the frame journal's CLOCK_UPTIME_RAW.
+
+CLI `build`/`restart` use these guards and submit restart once. They observe a new
+PID and completed history loading, and build checks the expected loaded hash.
+`--recover-terminal` is explicit idle recovery, not permission to stop active
+peers. First legacy upgrades require `--legacy-idle`: missing legacy diagnostics
+remain unknown and this boundary is unfenced. Normal installers do not infer that
+flag. Prepared bundles and verified prior copies are retained; do not automatically
+roll back or repeat a restart after an observation timeout. Inspect authoritative
+process/build state and preserve partial source evidence first.

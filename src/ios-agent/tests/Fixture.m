@@ -162,6 +162,28 @@
  IAWiFi=nil;
  [IAInstance startWatchdog];
  [self run:@"capabilities" args:@{} done:^(NSDictionary *r){self.evidence[@"capabilities"]=r;}];
+ // A slow tree upload gains only a bounded, owner-fenced input window.
+ [self pointArgs:self.button]; IAInstance.snapshotAt-=6;
+ NSString *snapshot=IAInstance.snapshot; NSUInteger generation=IAInstance.connectionGeneration;
+ [IAInstance acknowledgeSnapshot:snapshot lease:@"other-owner" epoch:IAInstance.epoch generation:generation];
+ [IAInstance acknowledgeSnapshot:@"superseded" lease:IAInstance.lease epoch:IAInstance.epoch generation:generation];
+ [IAInstance acknowledgeSnapshot:snapshot lease:IAInstance.lease epoch:@"other-epoch" generation:generation];
+ [IAInstance acknowledgeSnapshot:snapshot lease:IAInstance.lease epoch:IAInstance.epoch generation:generation+1];
+ self.evidence[@"snapshotAckFencing"]=@(IAInstance.snapshotDeliveredAt==0);
+ NSTimeInterval captured=IAInstance.snapshotAt;
+ [IAInstance acknowledgeSnapshot:snapshot lease:IAInstance.lease epoch:IAInstance.epoch generation:generation];
+ NSTimeInterval acknowledged=IAInstance.snapshotDeliveredAt;
+ self.evidence[@"snapshotAckPreservesCapture"]=@(acknowledged>captured && IAInstance.snapshotAt==captured);
+ [IAInstance acknowledgeSnapshot:snapshot lease:IAInstance.lease epoch:IAInstance.epoch generation:generation];
+ self.evidence[@"snapshotAckOneShot"]=@(IAInstance.snapshotDeliveredAt==acknowledged);
+ // Do not deliver touches for these boundary checks; a cover verifies that
+ // the accepted age still proceeds to live hit testing, not direct handlers.
+ NSDictionary *point=@{@"snapshot":snapshot,@"target":@"missing",@"x":@30,@"y":@30};
+ [self run:@"tap" args:point done:^(NSDictionary *r){self.evidence[@"snapshotAckLiveValidation"]=@([r[@"error"] isEqual:@"hit_target_changed_or_occluded"]);}];
+ IAInstance.snapshotDeliveredAt-=6;
+ [self run:@"tap" args:point done:^(NSDictionary *r){self.evidence[@"snapshotAckWindowExpiry"]=@([r[@"error"] isEqual:@"fresh_snapshot_and_point_required"]);}];
+ IAInstance.snapshotDeliveredAt=IANow(); IAInstance.snapshotAt=IANow()-16;
+ [self run:@"tap" args:point done:^(NSDictionary *r){self.evidence[@"snapshotAbsoluteAgeCap"]=@([r[@"error"] isEqual:@"fresh_snapshot_and_point_required"]);}];
  [self captureMatrix:^{[self qualifyInput];}];
 }
 - (void)captureMatrix:(void(^)(void))done {

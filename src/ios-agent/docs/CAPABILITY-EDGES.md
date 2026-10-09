@@ -82,3 +82,6 @@ the meal screen lost navigation/expanded state. Original source bytes were
 restored in finally. This is a failed state-preservation gate, not successful
 Fast Refresh. The custom transformer and RN refresh boundary are the next
 bounded diagnostic; no business mutation was repeated.
+
+
+Recovery candidate, 8 October: native trees retain capture time, with a five-second input window after the first successful delivery acknowledgment and a 15-second absolute age cap. Acknowledgment is fenced to the same snapshot, owner, epoch and foreground generation; reload invalidates it. Host background React admission yields for at most two seconds after a successful tree. Compiled fixture: 48 gates passed; host suite: 82 tests; JS suite: 22 tests. Latest signed product installed, physical recovery gates in progress. Refresh-cause enums are recorded without paths, source contents or console messages. State-preserving Fast Refresh remains unqualified.

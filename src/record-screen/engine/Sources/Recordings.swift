@@ -142,6 +142,16 @@ actor Recordings {
             "max_concurrent": Self.maxConcurrent,"capacity_qualification":"configured budget, not measured availability under concurrent host workloads"]
   }
 
+  func maintenanceBlockers(allowUnfinishedTerminal:Bool) -> [String] {
+    jobs.values.sorted{$0.id<$1.id}.compactMap {rec in
+      if !rec.state.terminal {return "\(rec.id) is \(rec.state.rawValue)"}
+      if !allowUnfinishedTerminal && rec.holdsUnfinishedAdmission {return "\(rec.id) retains unfinished work"}
+      let packet=rec.describe()["source_packet"] as? [String:Any]
+      if !allowUnfinishedTerminal,let phase=packet?.str("state"),["writing","draining"].contains(phase) {return "\(rec.id) journal is \(phase)"}
+      return nil
+    }
+  }
+
   /// Extensions must pass the same overlap budget as new takes. The actor
   /// serializes schedule/reschedule admission; a terminal transition can still
   /// occur before the recording queue applies the change and then fails closed.

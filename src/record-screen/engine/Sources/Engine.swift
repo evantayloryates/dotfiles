@@ -11,6 +11,7 @@ final class Engine: @unchecked Sendable {
   private let startedAt = Date()
   private let startedNs = uptimeNs()
   private let viewfinder = Viewfinder()
+  private let maintenance = MaintenanceFence()
   private lazy var sessions = Sessions(root: paths.root + "/sessions")
   private lazy var recordings = Recordings(legacyRoot: paths.root + "/recordings", sessions: sessions)
 
@@ -36,6 +37,7 @@ final class Engine: @unchecked Sendable {
     Task {
       await sessions.load()
       await recordings.load()
+      self.maintenance.didLoad()
     }
     for sig in [SIGTERM, SIGINT] {
       signal(sig, SIG_IGN)
@@ -57,6 +59,8 @@ final class Engine: @unchecked Sendable {
   // MARK: - Methods
 
   private func handle(_ method: String, _ params: [String: Any]) async throws -> Any {
+    let admitted = try maintenance.enter(method)
+    defer {if admitted {maintenance.leave()}}
     let result = try await dispatch(method, params)
     // Every object reply carries the engine clock, so agents can compute
     // absolute start_at/end_at times without asking separately.
@@ -71,6 +75,42 @@ final class Engine: @unchecked Sendable {
   private func dispatch(_ method: String, _ params: [String: Any]) async throws -> Any {
     try RPCNumber.validate(method,params)
     switch method {
+    case "maintenance.status":
+      return maintenance.status
+    case "maintenance.validate":
+      guard let token=params.str("token") else{throw RPCError.badParams("token is required")}
+      try maintenance.validate(token);return ["lease":maintenance.status,"pid":Int(getpid()),"build":Build.hash]
+    case "maintenance.restart":
+      guard let token=params.str("token") else{throw RPCError.badParams("token is required")}
+      try maintenance.commitRestart(token)
+      Log.event("maintenance_restart",["pid":getpid(),"build":Build.hash])
+      // Committing pins admission until actual exit. It cannot expire into
+      // newly admitted peer work between authorization and process teardown.
+      DispatchQueue.global().asyncAfter(deadline:.now()+0.1){exit(75)}
+      return ["restart_committed":true,"pid":Int(getpid()),"lease":maintenance.status]
+    case "maintenance.release":
+      guard let token=params.str("token") else{throw RPCError.badParams("token is required")}
+      try maintenance.release(token);return maintenance.status
+    case "maintenance.acquire":
+      let seconds=try RPCNumber.optional(params,"ttl_s",min:5,max:180) ?? 30
+      let allow=try RPCNumber.boolean(params,"allow_unfinished_terminal") ?? false
+      let token=try maintenance.reserve(seconds:seconds)
+      var blockers=await recordings.maintenanceBlockers(allowUnfinishedTerminal:allow)
+      let preview=await viewfinder.state
+      if !(preview["lanes"] as? [[String:Any]] ?? []).isEmpty {blockers.append("preview lanes exist")}
+      if !allow && preview["retiring"] as? Int != 0 {blockers.append("retiring previews remain")}
+      let discovery=await ContentCache.shared.diagnostics
+      if discovery["inflight"] as? Bool != false && !(allow && discovery["quarantined"] as? Bool == true) {blockers.append("SDK discovery is unfinished")}
+      if InputTimeline.shared.status["subscribers"] as? Int != 0 {blockers.append("input subscribers remain")}
+      if !allow && InputTimeline.shared.status["queued"] as? Int != 0 {blockers.append("input delivery is queued")}
+      if ActionTimeline.shared.status["active"] as? Int != 0 {blockers.append("active action scopes remain")}
+      if ManagedCommand.status()["pending"] as? Bool != false {blockers.append("export/probe child remains")}
+      let outlines=await MainActor.run {Overlays.shared.active}
+      if !outlines.isEmpty {blockers.append("overlays remain")}
+      do {try maintenance.prepare(token,blockers:blockers)}
+      catch {try? maintenance.release(token);throw error}
+      return ["token":token,"lease":maintenance.status,"allow_unfinished_terminal":allow,
+        "limits":["The holder must revalidate the token and PID immediately before maintenance","No bundle replacement, restart, user input lock or UI action has occurred"]]
     case "ping":
       return ["pong": true, "clock_ns": uptimeNs()]
     case "status":
@@ -223,7 +263,8 @@ final class Engine: @unchecked Sendable {
       "clock": ["uptime_ns": clockNS, "uptime_ns_exact":String(clockNS), "domain":"CLOCK_UPTIME_RAW", "wall": iso8601.string(from: now), "started_ns": startedNs,"started_ns_exact":String(startedNs)],
       "permission": ["screen_recording": CGPreflightScreenCaptureAccess() ? "granted" : "missing"],
       "capabilities": ["target_capture_options": CaptureOptions.contractVersion, "source_journal": 1, "source_clock_continuity":1,
-                       "input_timeline":1,"input_tap_faults":1,"action_scopes":1,"derivative_source":1,"exclusion_identity":1,"preview_exclusion_identity":1,"encoder_failure_isolation":1,"stream_stop_diagnostics":1],
+                       "input_timeline":1,"input_tap_faults":1,"action_scopes":1,"derivative_source":1,"exclusion_identity":1,"preview_exclusion_identity":1,"encoder_failure_isolation":1,"stream_stop_diagnostics":1,"maintenance_fence":1],
+      "maintenance":maintenance.status,
       "input_timeline":InputTimeline.shared.status,
       "action_timeline":ActionTimeline.shared.status,
       "displays": await displays(),

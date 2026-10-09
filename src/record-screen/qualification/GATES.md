@@ -1,5 +1,35 @@
 # Qualification update — October 8, 2026
 
+## Seventeenth pass: idle maintenance fence and guarded delivery entry points
+
+Signed private e0d053bc6732 reports maintenance_fence:1. The engine rejects new
+mutating/capture work while saved history is loading or an idle lease is held.
+Readback stays available. Acquisition first fences admissions, then rejects
+active/scheduled jobs and observed resources. Default maintenance requires all
+resources settled; explicit allow_unfinished_terminal recovery can retain unknown
+terminal work while still refusing active/scheduled jobs, live previews, active
+actions, subscribers, exports and overlays. No user-input lock is involved.
+
+| Gate | Verified evidence | Limits |
+| --- | --- | --- |
+| Native policy | 25 checks passed for boot readiness, admitted operations, provisional census, owner tokens, expiry, bounds and commit pinning. Committing a restart prevents expiry from reopening admissions before actual exit. | Controlled clock advances, not physical sleep. Lease timestamps explicitly use CLOCK_MONOTONIC_RAW; no frame-clock equivalence is claimed. |
+| Actual protocol | An owned scheduled job blocked acquisition; after its cancellation, a lease blocked new session creation. Exact PID/token validation and release passed. A second lease committed one restart; private PID88851 actually exited 75 and was reaped. | Private instance without launchd; no production restart or automatic recovery timing claim. No screen capture or UI action in this stage. |
+| Client guards | Five Node tests passed: default legacy refusal, explicitly observed/unfenced legacy path, busy/unknown/changed refusal and exact capable-engine token/PID checks. CLI build/restart now use the fence and observe a committed restart once; new PID/build and load completion are checked. | The legacy first upgrade cannot retroactively gain a fence. Its explicit flag and repeated idle observations remain an admitted race, not isolation. |
+| Build cache and preservation | 14 authored-filesystem checks passed. No-token, busy legacy and wrong-PID cases did not compile/install. Final lease expiry preserved the compiled artifact and old bundle; renewed delivery reused the artifact and verified the prior-bundle copy. Current build was a no-op. | Synthetic compiler/signature adapter; real signed private bundle verification is separate. No real production bundle/state backup was performed. |
+| Installer | The ordinary installer delegates changed live builds to the guarded CLI; unchanged builds stay running. Cold installation holds the actual engine instance lock. Running legacy upgrades require explicit --legacy-idle instead of silently restarting. Shell/JS/Python syntax checks passed. | Installer has not run live. Existing launchd job is preserved; bootstrap/delivery behavior still needs installed evidence. |
+| Runtime boundary | Exact e0d053bc6732 hash/capabilities and existing grant were read back. All owned processes exited; production independently remained cd78c24b652e/PID71911. | Signed prepared candidate only, not production delivery. |
+
+The initial policy compiled with a default-function sendability warning. The
+final closure removed it, and a whitespace parser error in that edit was preserved
+before correction. The first authorized-exit artifact copy encountered a Unix
+socket; retained files were copied without sockets, without replaying the test.
+Final corrected artifacts omit ephemeral sockets and contain actual exit evidence.
+
+Next: preserve the real prior bundle and state manifests, make the explicitly
+observed first legacy delivery, then verify installed hash/capabilities, real
+capture/source consumers, and a fenced subsequent restart. Keep the full broader
+app, event, insurance and resource gates active; installation will not end the goal.
+
 ## Sixteenth pass: explicit stream-stop outcomes and delivery inventory
 
 Signed private candidate 2c8da26d3792 adds stream_stop_diagnostics:1. Each owned

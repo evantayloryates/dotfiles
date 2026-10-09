@@ -42,6 +42,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { callerContext } from "./lib/caller.mjs";
+import { prepareMaintenance, validateMaintenance, releaseMaintenance } from "./lib/maintenance.mjs";
 import { install } from "./lib/install.mjs";
 import { call as rawCall, enginePaths, EngineError, LABEL } from "./lib/client.mjs";
 
@@ -109,6 +110,10 @@ function takeFlag(name) {
   argv.splice(i, 2);
   return v;
 }
+const legacyIdle = argv.includes("--legacy-idle");
+if (legacyIdle) argv.splice(argv.indexOf("--legacy-idle"), 1);
+const recoverTerminal = argv.includes("--recover-terminal");
+if (recoverTerminal) argv.splice(argv.indexOf("--recover-terminal"), 1);
 const sessionFlag = takeFlag("--session");
 const newFlag = takeFlag("--new");
 const [cmd = "status", ...args] = argv;
@@ -130,16 +135,37 @@ try {
       out(await call("capture.probe"));
       break;
     case "restart":
-      restart();
-      await waitUp();
-      out(await call("status"));
-      break;
     case "build": {
-      const r = execFileSync("/usr/bin/python3", [path.join(HERE, "build.py")], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
-      restart();
-      await waitUp();
-      const s = await call("status");
-      out({ bundle: r.trim(), build: s.engine.build, permission: s.permission });
+      const prepared = await prepareMaintenance(call, { allowLegacyIdle: legacyIdle, allowUnfinishedTerminal: recoverTerminal });
+      let issued = false;
+      try {
+        let bundle;
+        if (cmd === "build") {
+          const flags = prepared.mode === "fenced" ? ["--maintenance-token", prepared.token] : ["--legacy-idle"];
+          bundle = execFileSync("/usr/bin/python3", [path.join(HERE, "build.py"), ...flags], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
+        }
+        await validateMaintenance(call, prepared);
+        issued = true; // Observe an uncertain reply; never duplicate-submit.
+        if (prepared.mode === "fenced") {
+          try { await call("maintenance.restart", { token: prepared.token }, { timeoutMs: 5000 }); }
+          catch (e) { if (!["engine_down", "timeout", "socket_error"].includes(e.code)) { issued = false; throw e; } }
+        } else { restart(); }
+        const until = Date.now() + 20000;
+        let loaded;
+        while (Date.now() < until) {
+          try { const s = await call("status", {}, { timeoutMs: 1000 }); if (s.engine?.pid !== prepared.pid && s.maintenance?.loading !== true) { loaded = s; break; } }
+          catch {}
+          await sleep(200);
+        }
+        if (loaded && cmd === "build") {
+          const expected = readFileSync(path.resolve(HERE, "../../data/record-screen/source.sha256"), "utf8").trim().slice(0, 12);
+          if (loaded.engine?.build !== expected) throw new EngineError("build_mismatch", "New PID loaded a different build; inspect before any further action");
+        }
+        if (!loaded) throw new EngineError("maintenance_unresolved", "Restart was issued once; no new PID was confirmed. Inspect the existing process before any further action");
+        out({ ...(bundle ? { bundle } : {}), ...loaded, maintenance_mode: prepared.mode });
+      } finally {
+        if (!issued) await releaseMaintenance(call, prepared).catch(() => {});
+      }
       break;
     }
     case "wait":

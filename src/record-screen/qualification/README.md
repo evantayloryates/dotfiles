@@ -43,6 +43,9 @@ No helper requests a new grant.
 | `verify-encoder-finalization.py` | Independently decode retained offscreen packet clocks and verify that late finalization preserves the interrupted outcome |
 | `stream-stop-test.py` | Frozen controlled asynchronous stop and actual recording/admission/persistence proof; no SDK or UI |
 | `delivery-readiness.py` | Read-only active-job, runtime/signature and missing-diagnostic assessment; never installs or authorizes restart |
+| `maintenance-test.swift` | Controlled load/admission/census/token/expiry and pinned-restart policy; no actual process exit |
+| `maintenance-mcp.test.mjs` | Client capable/legacy maintenance guards, without live changes |
+| `build-guard-test.py` | Authored filesystem and compiler/signature adapters: refusal, retained preparation, cache reuse and verified backup; no live install |
 | `startup-test.swift` | Actual recording state/watchdog races with a controlled preflight; no SDK discovery |
 | `input-test.swift` | Mechanical event scoping, contextual service stamps, namespace/restart uncertainty, strict numeric boundaries and persistence faults; no UI |
 | `admission-test.swift` | Future schedule and extension overlap/duration/lead admission, cancellation; no capture |

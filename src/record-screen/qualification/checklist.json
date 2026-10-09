@@ -1,6 +1,6 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-08T22:50:25-04:00",
+  "updated_at": "2026-10-08T23:15:39-04:00",
   "workflow": {
     "state": "active",
     "note": "Taylor resumed qualification. Prioritize high-impact investigation, preserve failed evidence and useful progress, and avoid repeated resets or rerunning settled checks."
@@ -458,14 +458,24 @@
           "updated_at": "2026-10-08T20:01:05-04:00"
         },
         {
+          "id": "maintenance-fence",
+          "title": "Verify idle admission fencing and single restart commitment",
+          "status": "completed",
+          "scope": "Signed private native policy/protocol and capable/legacy client guards. Includes controlled expiry and actual private exit; excludes first legacy race, production delivery and cross-service/input isolation.",
+          "evidence": "25 native checks, five client tests and actual private scheduled-peer/new-work refusal passed. Exact owner token/PID validated; committed fence stayed pinned and private process exited once with code 75.",
+          "next": "",
+          "anchor": "seventeenth-pass",
+          "updated_at": "2026-10-08T23:15:39-04:00"
+        },
+        {
           "id": "release-rollback",
           "title": "Install the candidate safely and verify rollback",
-          "status": "pending",
+          "status": "partial",
           "scope": "Idle-boundary release with prior binary/state preserved and exact loaded-capability readback.",
-          "evidence": "Read-only inventory observed unchanged production idle and matching signatures. Legacy diagnostics remain unknown and admission is unfenced; no backup, install or restart occurred.",
-          "next": "Prepare idle admission fencing, preserved bundle/state artifacts and guarded delivery; verify loaded build, source consumers and recovery afterward.",
-          "anchor": "sixteenth-pass",
-          "updated_at": "2026-10-08T22:50:25-04:00"
+          "evidence": "Signed private e0d053bc6732 verified idle admission/token/restart policy (25 checks), actual private protocol and exit, five client guards and 14 synthetic cache/backup checks. Live installer is guarded; real prior bundle/state preservation and first delivery remain pending.",
+          "next": "Preserve actual bundle/state, perform explicit observed legacy delivery, verify installed capture/consumers and fenced subsequent restart. Do not repeat a committed restart after an uncertain reply.",
+          "anchor": "seventeenth-pass",
+          "updated_at": "2026-10-08T23:15:39-04:00"
         },
         {
           "id": "installed-smoke",
@@ -707,6 +717,22 @@
       "from": "pending",
       "to": "completed",
       "note": "Completed explicit stop-policy subgate while preserving broader peer-failure and delivery scope as open."
+    },
+    {
+      "kind": "item",
+      "id": "release-rollback",
+      "at": "2026-10-08T23:15:39-04:00",
+      "from": "pending",
+      "to": "partial",
+      "note": "Signed private e0d053bc6732 verified idle admission/token/restart policy (25 checks), actual private protocol and exit, five client guards and 14 synthetic cache/backup checks. Live installer is guarded; real prior bundle/state preservation and first delivery remain pending."
+    },
+    {
+      "kind": "item",
+      "id": "maintenance-fence",
+      "at": "2026-10-08T23:15:39-04:00",
+      "from": "pending",
+      "to": "completed",
+      "note": "Completed candidate fence subgate; real delivery stays partial and installed smoke stays pending."
     }
   ]
 }

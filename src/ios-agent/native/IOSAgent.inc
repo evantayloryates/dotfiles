@@ -110,6 +110,7 @@ static NSString *IAViewLabel(UIView *view) {
 @property NSMapTable<NSString*,UIView*> *nodes;
 @property NSString *snapshot;
 @property NSTimeInterval snapshotAt;
+@property NSTimeInterval snapshotDeliveredAt;
 @property BOOL treeTruncated;
 @property NSMutableDictionary<NSString*,NSValue*> *nodeRects;
 @property NSMutableArray<NSString*> *seen;
@@ -120,6 +121,7 @@ static NSString *IAViewLabel(UIView *view) {
 @property NSDictionary *appState;
 @property NSString *currentAction;
 @property NSDictionary *lastCommandTransport;
+@property NSDictionary *refreshDiagnostics;
 @property BOOL running;
 @property BOOL helloNeeded;
 @property NSUInteger connectionGeneration;
@@ -129,11 +131,12 @@ static NSString *IAViewLabel(UIView *view) {
 - (void)stopLease;
 - (void)execute:(NSDictionary*)command completion:(void(^)(NSDictionary*))done;
 - (void)exchange:(NSDictionary*)extra completion:(void(^)(NSDictionary*))done;
+- (void)acknowledgeSnapshot:(NSString*)snapshot lease:(NSString*)lease epoch:(NSString*)epoch generation:(NSUInteger)generation;
 @end
 static IOSAgent *IAInstance;
 static NSDictionary *IAPendingState;
 #if IOS_AGENT_REACT
-static void IAResetStartupState(void) { IAPendingState=nil; IAInstance.appState=@{@"ready":@NO}; }
+static void IAResetStartupState(void) { IAPendingState=nil; IAInstance.appState=@{@"ready":@NO}; IAInstance.snapshot=nil; IAInstance.snapshotDeliveredAt=0; }
 #endif
 
 #if IOS_AGENT_REACT
@@ -160,6 +163,19 @@ RCT_EXPORT_METHOD(hideDeveloperOverlays) {
  if(settings.isElementInspectorShown) [settings toggleElementInspector];
  id<IAPerfMonitorVisibility> monitor=[self.moduleRegistry moduleForName:"PerfMonitor"];
  if([monitor respondsToSelector:@selector(hide)]) [monitor hide];
+}
+RCT_EXPORT_METHOD(recordRefresh:(NSString*)json) {
+ if(self.bundleAttempt!=IABundleAttempt || ![IAInstance leased] || json.length>256) return;
+ id value=[NSJSONSerialization JSONObjectWithData:[json dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil];
+ if(![value isKindOfClass:NSDictionary.class]) return;
+ NSString *kind=value[@"kind"], *reason=value[@"reason"];
+ BOOL full=[kind isEqual:@"full-reload"] && [@[@"no-root-boundary",@"dependency-cycle",@"no-longer-a-boundary",@"invalidated-boundary",@"other"] containsObject:reason];
+ BOOL fast=[kind isEqual:@"react-refresh"] && [reason isEqual:@"component-update"];
+ if(!full && !fast) return;
+ NSDictionary *previous=IAInstance.refreshDiagnostics;
+ IAInstance.refreshDiagnostics=@{@"fullReloadRequests":@([previous[@"fullReloadRequests"] unsignedIntegerValue]+(full?1:0)),
+                                 @"componentRefreshes":@([previous[@"componentRefreshes"] unsignedIntegerValue]+(fast?1:0)),
+                                 @"lastKind":kind,@"lastReason":reason};
 }
 RCT_EXPORT_METHOD(publish:(NSString*)json) {
  if(self.bundleAttempt!=IABundleAttempt || json.length>1048576) return;
@@ -319,10 +335,11 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
    NSMutableDictionary *state=[(self.appState?:@{@"ready":@NO}) mutableCopy];
 #if IOS_AGENT_REACT
    state[@"bundleSource"]=IABundleSource;
-   state[@"startupRecovery"]=@{@"fallbackAttempted":@(IAStartupFallbackAttempted),@"timeoutSeconds":@45};
+   state[@"startupRecovery"]=@{@"fallbackAttempted":@(IAStartupFallbackAttempted),@"timeoutSeconds":@45,@"bundleAttempt":@(IABundleAttempt)};
 #endif
    state[@"wifiHandoff"]=IOSAgentWiFiState();
    state[@"lastCommandTransport"]=self.lastCommandTransport?:@{};
+   state[@"refreshDiagnostics"]=self.refreshDiagnostics?:@{};
    done(state); return;
   }
   if([action isEqual:@"wifi"]) { done(IOSAgentWiFiPrepare(args,cid)); return; }
@@ -361,7 +378,7 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
 #endif
   }
   if([action isEqual:@"tree"]) {
-   self.nodes=[NSMapTable strongToWeakObjectsMapTable]; self.nodeRects=[NSMutableDictionary new]; self.snapshot=NSUUID.UUID.UUIDString; self.snapshotAt=IANow(); self.treeTruncated=NO;
+   self.nodes=[NSMapTable strongToWeakObjectsMapTable]; self.nodeRects=[NSMutableDictionary new]; self.snapshot=NSUUID.UUID.UUIDString; self.snapshotAt=IANow(); self.snapshotDeliveredAt=0; self.treeTruncated=NO;
    NSMutableArray *tree=[NSMutableArray new]; [self walk:[self mainWindow] depth:0 output:tree];
    done(@{@"snapshot":self.snapshot,@"nodes":tree,@"applicationState":@(UIApplication.sharedApplication.applicationState),@"scope":@"app-owned-main-window",@"truncated":@(self.treeTruncated)}); return;
   }
@@ -404,7 +421,7 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
   }
   if(![action isEqual:@"tap"] && ![action isEqual:@"gesture"]) { done(IAError(@"unsupported_action")); return; }
   if(![[self capabilities][@"nativeInputRuntime"] boolValue]) { done(IAError(@"native_input_unavailable")); return; }
-  if(!self.snapshot || IANow()-self.snapshotAt>5 || ![args[@"snapshot"] isEqual:self.snapshot] || !IANumber(args[@"x"]) || !IANumber(args[@"y"])) { done(IAError(@"fresh_snapshot_and_point_required")); return; }
+  if(!self.snapshot || (IANow()-self.snapshotAt>15 || IANow()-(self.snapshotDeliveredAt?:self.snapshotAt)>5) || ![args[@"snapshot"] isEqual:self.snapshot] || !IANumber(args[@"x"]) || !IANumber(args[@"y"])) { done(IAError(@"fresh_snapshot_and_point_required")); return; }
   CGPoint point=CGPointMake([args[@"x"] doubleValue],[args[@"y"] doubleValue]); UIWindow *window=[self mainWindow];
   if(!CGRectContainsPoint(window.bounds,point)) { done(IAError(@"outside_app")); return; }
   UIView *expected=[self.nodes objectForKey:args[@"target"]], *hit=[self frontHit:point];
@@ -439,6 +456,14 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
    });
   }
  } @catch(NSException *e) { [self stopLease]; done(IAError(@"private_api_exception")); }
+}
+// Upload latency must not consume the whole input window. Never recapture or
+// extend repeatedly: retain a 15-second absolute age cap and five seconds after
+// the first successful acknowledgment, with the same owner/epoch/generation.
+- (void)acknowledgeSnapshot:(NSString*)snapshot lease:(NSString*)lease epoch:(NSString*)epoch generation:(NSUInteger)generation {
+ if(!self.snapshotDeliveredAt && snapshot && [snapshot isEqual:self.snapshot] &&
+    [self leased] && [lease isEqual:self.lease] && [epoch isEqual:self.epoch] &&
+    generation==self.connectionGeneration && IANow()-self.snapshotAt<=15) self.snapshotDeliveredAt=IANow();
 }
 - (void)exchange:(NSDictionary*)extra completion:(void(^)(NSDictionary*))done {
  NSUInteger generation=self.connectionGeneration;
@@ -475,10 +500,15 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
   NSDictionary *command=reply[@"command"];
   if(![command isKindOfClass:NSDictionary.class]) { [self poll]; return; }
   self.currentAction=command[@"action"];
+  NSUInteger generation=self.connectionGeneration;
   [self execute:command completion:^(NSDictionary *result){
    [self exchange:@{@"op":@"result",@"id":command[@"id"],@"epoch":command[@"epoch"],@"result":result} completion:^(NSDictionary *ack){
     BOOL wifiHandoff=ack && [self leased] && [command[@"lease"] isEqual:self.lease] && [command[@"epoch"] isEqual:ack[@"epoch"]] && [command[@"action"] isEqual:@"wifi"] && [ack[@"handoff"] isEqual:command[@"id"]] && !result[@"error"];
-    if(ack) [self apply:ack]; else self.helloNeeded=YES;
+    if(ack) {
+     [self apply:ack];
+     if([command[@"action"] isEqual:@"tree"] && !result[@"error"])
+      [self acknowledgeSnapshot:result[@"snapshot"] lease:command[@"lease"] epoch:command[@"epoch"] generation:generation];
+    } else self.helloNeeded=YES;
     // The host has recorded this result and retired normal control before launch.
     // The fenced acknowledgment grants one fixed handoff; a callback grants no lease.
     if(wifiHandoff) IOSAgentWiFiLaunch(command[@"id"]);

@@ -33,6 +33,7 @@ class Broker:
     def __init__(self, config, clock=time.monotonic, state=None):
         self.config, self.clock = config, clock
         self.cv = threading.Condition(threading.RLock())
+        self.native_priority_until = 0.0
         self.epoch = uuid.uuid4().hex
         self.lease = None
         self.device = None
@@ -49,6 +50,7 @@ class Broker:
             if self.lease:
                 self.last_release = {"reason": reason, "thread": self.lease["thread"], "turn": self.lease["turn"]}
             self.lease = None
+            self.native_priority_until = 0.0
             if self.frontend and self.frontend.poll() is None:
                 try:
                     os.killpg(self.frontend.pid, signal.SIGTERM)
@@ -164,11 +166,18 @@ class Broker:
                     raise Rejected("wifi_state_on_or_off_required")
                 if action in ("diagnostics-probe", "diagnostics-matrix") and args:
                     raise Rejected("diagnostic_arguments_not_allowed")
+                # Give a just-delivered native tree a short opportunity for its
+                # caller's follow-up. Empty React polling must not consume that
+                # snapshot's entire age budget on a slow wireless transport.
+                if action == "react" and self.clock() < self.native_priority_until:
+                    raise Rejected("command_in_flight")  # not accepted; relay already waits
                 # Single flight: a timeout is an unknown mutation outcome, never a replay.
                 if any(c["status"] in ("queued", "sent") for c in self.commands.values()):
                     raise Rejected("command_in_flight")
                 if len(self.commands) >= 128:
                     self.commands = {k: v for k, v in list(self.commands.items())[-64:]}
+                if action != "react":
+                    self.native_priority_until = 0.0
                 cid = uuid.uuid4().hex
                 self.commands[cid] = {"id": cid, "action": action, "args": args,
                                       "lease": self.lease["id"], "epoch": self.epoch,
@@ -220,6 +229,8 @@ class Broker:
                     raise Rejected("stale_result")
                 cmd.update(status="completed", result=request.get("result"))
                 result = request.get("result")
+                if cmd["action"] == "tree" and isinstance(result, dict) and "error" not in result:
+                    self.native_priority_until = self.clock() + 2.0
                 if cmd["action"] == "wifi" and isinstance(result, dict) and result.get("delivery") == "prepared-shortcut-handoff" and result.get("requested") == cmd["args"]["state"] and "error" not in result:
                     # Retire normal control before a settings change can drop the
                     # network. The acknowledgment authorizes only this prepared ID.

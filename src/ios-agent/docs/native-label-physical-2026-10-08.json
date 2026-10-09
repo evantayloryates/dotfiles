@@ -1,0 +1,23 @@
+{
+  "observedAt": "2026-10-09T02:55:02.308918+00:00",
+  "signedBuildPassed": true,
+  "genericDestinationBuildSeconds": 189.4,
+  "sourceChangedDuringBuild": false,
+  "installed": true,
+  "nativeBinarySHA256": "e8f2bfaea49cf201b545e0c8bbea0f944c5c08d2ef9b61a3927faa2d1ed1d5ab",
+  "embeddedJSSHA256": "fc29681b79d7d2786e9a74d110c270141282bbac0fa0f2e5bc120cc5d60e3e56",
+  "physical": {
+    "strictReadyPassed": true,
+    "remoteMetroSelected": true,
+    "debugPerformancePanelsAbsentInTreeAndViewedImage": true,
+    "realMealLongPress850msOpenedUIKitPopover": true,
+    "visibleUIKitOptionsReadable": true,
+    "safeOutsideDismissDelivered": true,
+    "businessMutationPerformed": false
+  },
+  "limits": {
+    "secureLabelsRedacted": "compiled fixture passed; physical password entry not performed",
+    "firstFastRefreshStatePreservation": "failed; returned Home with same native boot, source restored",
+    "systemOcclusionKnown": false
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "observedAt": "2026-10-09T02:58:16.206991+00:00",
+  "scope": "actual RN horizontal child inside vertical meal scroll view",
+  "availableHorizontalRangePoints": 6.333343505859375,
+  "observedHorizontalMovementPoints": 6.333333333333332,
+  "reachedMeasuredEnd": true,
+  "verticalParentPositionPreserved": true,
+  "initialTestThresholdExceededAvailableRange": true,
+  "inputReplayPerformed": false,
+  "systemInputOrMultiTouchClaimed": false
+}

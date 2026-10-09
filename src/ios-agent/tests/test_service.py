@@ -72,6 +72,32 @@ class BrokerTests(unittest.TestCase):
         self.assertNotIn("handoff", ack)
         self.assertIsNotNone(self.b.lease)
 
+    def test_tree_reserves_bounded_followup_without_accepting_or_replaying_react(self):
+        cid = self.call(op="action", action="tree", args={})["id"]
+        self.next()
+        self.result(cid, result={"snapshot": "synthetic", "nodes": []})
+        before = set(self.b.commands)
+        with self.assertRaisesRegex(service.Rejected, "command_in_flight"):
+            self.call(op="action", action="react", args={})
+        self.assertEqual(set(self.b.commands), before)
+        tap = self.action()
+        self.assertEqual(self.next()["command"]["id"], tap)
+        self.result(tap)
+        # Accepted native input releases priority immediately.
+        react = self.call(op="action", action="react", args={})["id"]
+        self.assertEqual(self.next()["command"]["id"], react)
+        self.result(react)
+        tree = self.call(op="action", action="tree", args={})["id"]
+        self.next(); self.result(tree, result={"snapshot": "synthetic", "nodes": []})
+        self.now += 2.01
+        react = self.call(op="action", action="react", args={})["id"]
+        self.assertEqual(self.next()["command"]["id"], react)
+
+    def test_failed_tree_does_not_reserve_react_transport(self):
+        cid = self.call(op="action", action="tree", args={})["id"]
+        self.next(); self.result(cid, result={"error": "synthetic"})
+        self.call(op="action", action="react", args={})
+
     def test_single_flight_no_replay_and_result_fencing(self):
         cid = self.action()
         with self.assertRaisesRegex(service.Rejected, "in_flight"):

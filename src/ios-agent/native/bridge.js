@@ -38,6 +38,7 @@ if (bridge && !global.__IOS_AGENT_BRIDGE_STARTED__) {
   global.__IOS_AGENT_DOMAIN__ = {registerApollo: domain.registerApollo, registerNavigation: domain.registerNavigation};
   LogBox.ignoreAllLogs(true);
   bridge.hideDeveloperOverlays?.();
+  require('./refresh-diagnostics').installRefreshDiagnostics(global, event => bridge.recordRefresh?.(JSON.stringify(event)));
   new NativeEventEmitter(bridge).addListener('IOSAgentCommand', ({command, message}) => {
     if (command === 'session-start') {
       cancelFixture();

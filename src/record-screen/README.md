@@ -152,8 +152,8 @@ record-screen status     # engine, signing, permission, clock, displays
 record-screen ping       # round trip in ms
 record-screen grant      # macOS Screen Recording prompt (shows once per app)
 record-screen probe      # list content + 64 px screenshot, with timings
-record-screen restart    # kickstart the LaunchAgent and wait for it
-record-screen build      # rebuild if sources changed, then restart
+record-screen restart    # reserve idle admission, restart once, verify new PID
+record-screen build      # preserve/reuse signed build, deliver at idle, verify hash
 record-screen logs 50    # tail the engine log
 record-screen windows [app] [title]            # find window ids
 record-screen verify <target> [max_width]      # capture now; prints image path, checks, timings
@@ -442,10 +442,14 @@ the engine checks the peer's uid.
   (up to 20 s after the last verify).
 - **One instance.** An flock on `run/engine.lock`; a second copy exits 0.
 - **Restarts on crash, not on clean exit.** `KeepAlive.SuccessfulExit = false`.
-- **Installs don't interrupt it.** `install.sh` restarts the engine only when
-  the build hash changed or the plist link moved. After editing the plist
-  itself, reload by hand:
-  `launchctl bootout gui/$(id -u)/com.taylor.record-screen && launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.taylor.record-screen.plist`.
+- **Delivery requires an idle boundary.** Changed live builds use an engine
+  maintenance lease; active and scheduled work refuses delivery. Unchanged
+  installation leaves the engine running. The first upgrade from a legacy
+  engine requires explicit `--legacy-idle` and repeated idle observations;
+  that path cannot fence new work. `--recover-terminal` permits deliberate
+  recovery of unresolved terminal resources while still refusing live work.
+  Prepared signed artifacts and verified prior bundles remain available after
+  failed delivery. An uncertain restart is observed once, never replayed.
 
 ## Screen Recording permission
 

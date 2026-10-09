@@ -22,6 +22,7 @@ test('real bridge binds diagnostics to native session events and preserves runti
         NativeModules: {IOSAgentBridge: bridge}, LogBox: {ignoreAllLogs: value => { hidden = value; }},
         NativeEventEmitter: class {addListener(name, listener) { assert.equal(name, 'IOSAgentCommand'); receive = listener; }},
       };
+      if (name === './refresh-diagnostics') return require('../native/refresh-diagnostics');
       if (name === './telemetry') return require('../native/telemetry');
       if (name === './domain') return {createDomainRegistry: options => require('../native/domain').createDomainRegistry({...options, schedule: () => 0, cancel() {}})};
       if (name === './runtime-config') return {metroURL: 'https://synthetic.ts.net:10444/', graphqlURL: 'https://synthetic.ts.net:10445/development/graphql', routeNames: ['Welcome']};

@@ -417,3 +417,24 @@ mechanically without stopping peers. Then make the first legacy delivery at an
 observed idle production boundary, read back installed capabilities and exercise
 real source/consumer recovery. Continue the broader app/insurance/usage gates;
 installation alone will not finish the full objective.
+
+
+## Seventeenth-pass verified checkpoint
+
+Signed private e0d053bc6732 adds idle RPC admission fencing, load readiness,
+checked owner tokens and a pinned single restart commitment. 25 native policy
+checks, five client tests and 14 synthetic build/cache/backup checks passed.
+Actual private protocol refused a scheduled peer and new work under a lease,
+validated/released the owner token, then exited once with status 75. Its process
+was reaped; Unix sockets were omitted from retained runtime artifacts.
+
+CLI build/restart and the normal installer now guard maintenance. Prepared signed
+artifacts survive final lease expiry, so delivery can retry without recompiling;
+prior bundles are verified before replacement. These filesystem mechanics were
+tested on authored files. Production still runs cd78c24b652e/PID71911; no install.
+
+Next high-impact stage: real bundle/state preservation and first legacy delivery
+under explicit observed-idle authorization, acknowledging its unfenced interval.
+Then installed native source/consumer canary, real grant/readback, and a fenced
+subsequent restart with persisted sessions and partial metadata preserved.
+Continue broader qualification afterward; do not declare the full goal achieved.

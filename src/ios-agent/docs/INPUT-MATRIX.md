@@ -93,3 +93,25 @@ only its own `com.taylor.ios-agent.fixture` app, and restores a simulator that i
 booted to Shutdown. A previously booted simulator remains booted. It never
 boots or shuts other simulators, enrolls an app, connects to the live broker, or
 accesses business data.
+
+## Current physical additions — 8 October
+
+The installed adapter passed the real meal row's dedicated 850ms long-press,
+UIKit popover text inspection, outside-popover dismissal, absence of performance
+and warning panels, and restored native idle. The horizontal macro row inside
+the vertical meal list moved exactly its 6.333-point overflow while preserving
+vertical position. A generic 20-point fixture assertion was invalid for this
+small row; existing geometry/after evidence closes the correct end-of-content
+assertion without another input attempt. Actual focused replacement/Save and
+normal native navigation remain qualified by the paired workflow.
+
+The candidate's 42 compiled UIKit gates include explicit accessibility-label
+precedence, UILabel text fallback, and secure input descendant redaction.
+Physical IME/composition, hardware keypresses, multi-touch and system UI are
+not qualified by UIKeyInput or by app-owned pixels. Cancellation of an accepted
+long gesture retired the host command as unknown, explicitly released control
+and passed native idle; no input was replayed. Its target was a passive view,
+so this alone is not a physical competing-recognizer cancellation assertion.
+
+
+Recovery candidate, 8 October: native trees retain capture time, with a five-second input window after the first successful delivery acknowledgment and a 15-second absolute age cap. Acknowledgment is fenced to the same snapshot, owner, epoch and foreground generation; reload invalidates it. Host background React admission yields for at most two seconds after a successful tree. Compiled fixture: 48 gates passed; host suite: 82 tests; JS suite: 22 tests. Latest signed product installed, physical recovery gates in progress. Refresh-cause enums are recorded without paths, source contents or console messages. State-preserving Fast Refresh remains unqualified.
