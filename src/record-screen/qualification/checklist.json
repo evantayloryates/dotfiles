@@ -1,6 +1,6 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-10T17:03:02-04:00",
+  "updated_at": "2026-10-10T18:15:44-04:00",
   "workflow": {
     "state": "complete",
     "note": "Supported capture foundation release delivered and representative agent path verified. All three bounded closure batches finished: existing menu footage decision, current adapter/CLI input-preview-export verification, and explicit release disposition.49completed15partial1deferred; original broader partial scopes remain visible as limitations or follow-up, with no ongoing experiments. Visual composition stays deferred."
@@ -19,7 +19,10 @@
           "evidence": "Actual native and Chrome footage showed residuals after capture-level pointer hiding.",
           "next": "",
           "anchor": "evidence",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "updated_at": "2026-10-08T20:01:05-04:00",
+          "summary": "Distinguish the system pointer, helper overlays, app-painted pointers and text carets.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "capture-options",
@@ -29,7 +32,10 @@
           "evidence": "Native child inclusion/exclusion and filtered tap-versus-lane checks passed. Older engines refuse unsupported controls.",
           "next": "",
           "anchor": "fourth-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "updated_at": "2026-10-08T20:01:05-04:00",
+          "summary": "Explicit options, filter-aware source identity and recording-tap routing on isolated candidates.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "helper-relaunch",
@@ -39,7 +45,10 @@
           "evidence": "Unrelated app launch/close kept the take running; helper termination preserved uncertain partial video; fresh-PID recovery passed. All 661 muxed timestamps matched.",
           "next": "",
           "anchor": "ninth-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "updated_at": "2026-10-08T20:01:05-04:00",
+          "summary": "Owned background helper on the built-in display; observed process changes interrupt the recording.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "preview-lifetime",
@@ -49,7 +58,10 @@
           "evidence": "Signed/loaded 83efb9156bea passed 15 mechanical checks, two targeted MCP tests, live affected-lane retirement with an unrelated lane retained, absent-helper refusal and fresh PID 48094 to 50261 recovery. Both owned engines exited and leases returned to zero. Off-Space helper adds no new pixel-exclusion proof; ninth-pass recording pixel evidence retained.",
           "next": "",
           "anchor": "tenth-pass",
-          "updated_at": "2026-10-08T20:33:47-04:00"
+          "updated_at": "2026-10-08T20:33:47-04:00",
+          "summary": "Candidate preview identity lifecycle: observed helper changes invalidate affected buffers/lanes, absent helpers refuse, fresh requests resolve new identities; forced SDK/main-run-loop stalls remain unqualified.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "native-menus",
@@ -59,7 +71,10 @@
           "evidence": "Native menu pixels were present with child inclusion and absent without it; bounded source frames were inspected.",
           "next": "",
           "anchor": "fourth-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "updated_at": "2026-10-08T20:01:05-04:00",
+          "summary": "Owned AppKit fixture and the tested child-window modes.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "chrome-depth",
@@ -70,7 +85,15 @@
           "next": "Qualify dynamic overflow fitting/change/close with service-owned mapping and useful remaining variants; preserve this actual app-video/context/nested pass and failed comparison without a repeat take.",
           "anchor": "sixty-fifth-pass",
           "updated_at": "2026-10-09T15:32:39-04:00",
-          "why_partial": "Common Chrome menus have been captured successfully, but we have not established reliable behavior for every menu that extends beyond the window, changes size or closes during a take. One image comparison also fell short of its acceptance target. This is deferred coverage, not a permission blocker: closing it needs targeted tests and any resulting fixes; use the qualified app or wider display capture for now."
+          "why_partial": "Common Chrome menus have been captured successfully, but we have not established reliable behavior for every menu that extends beyond the window, changes size or closes during a take. One image comparison also fell short of its acceptance target. This is deferred coverage, not a permission blocker: closing it needs targeted tests and any resulting fixes; use the qualified app or wider display capture for now.",
+          "summary": "Extend Chrome menu coverage when a genuinely new or overflowing case is available.",
+          "work_state": "deferred",
+          "work_updated_at": "2026-10-10T18:13:51-04:00",
+          "prerequisite": {
+            "environment": "A useful new Chrome popup/overflow variant during authorized work or in the dedicated sandbox.",
+            "user_involvement": "No mandatory hands-on input; preserve the current task and collect only authorized content.",
+            "ready_when": "The variant changes a real recording decision and has enough evidence for a targeted comparison."
+          }
         },
         {
           "id": "electron-depth",
@@ -80,7 +103,10 @@
           "evidence": "Three levels were captured with child inclusion and absent without it; five takes matched 5,002 muxed timestamps.",
           "next": "",
           "anchor": "seventh-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "updated_at": "2026-10-08T20:01:05-04:00",
+          "summary": "Owned VS Code window in the tested child-inclusion modes.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "finder-depth",
@@ -90,7 +116,10 @@
           "evidence": "Stage39 controls retained. Stage41 explicit broader inventory reveals Finder-owned layer3 Quick Look omitted by normal filters. Candidate446 +installed120 exact mux/source joins; selected whole-panel frames retain filename/two lines without surrounding desktop.22 native/23 adapter checks; one fenced signed install,119 prior state hashes unchanged, grants retained. Four typed outcomes/cleanup complete, zero uncovered; scoped fact read back. Owned resources settled.",
           "next": "",
           "anchor": "forty-first-pass",
-          "updated_at": "2026-10-09T06:52:43-04:00"
+          "updated_at": "2026-10-09T06:52:43-04:00",
+          "summary": "Finder26.4/build1828.5.2/25F80, built-in2×, native CUA version unknown: menus, file-preview omission/crop insurance, and explicit layer3 direct-panel discovery/capture.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "textedit-depth",
@@ -100,7 +129,10 @@
           "evidence": "Stage54 new app-only full-crop/isolatedwindow-childtrue90s pair5230 exact joins; root22s/Font43s/Highlight66s/dismissed85s encoded pixels and scoped Mint oracle pass. Four right-click/Escape transitions despite other foreground; two AX expansions need explicit source checkpoints. Owned local document saved before take, file unchanged/PID absent; five typed verified/cleanupcomplete. Stage46 childfalse omission preserved.",
           "next": "",
           "anchor": "fifty-fourth-pass",
-          "updated_at": "2026-10-09T11:48:59-04:00"
+          "updated_at": "2026-10-09T11:48:59-04:00",
+          "summary": "TextEdit1.20/415/25F80, built-in2x, native142e81bef23e; owned synthetic source. Stage46 root/Font child modes plus stage54 app-only and isolated-childtrue third-level Highlight; no physical/actor/full-list guarantees.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "overflow-recovery",
@@ -108,10 +140,18 @@
           "status": "partial",
           "scope": "Qualified padded-display and separate-popup paths plus guarded optional fixed-crop app-only lane. Whole-shot recovery and broader app/menu behavior remain open.",
           "evidence": "Qualified padded/app/obstruction recovery proofs retained. Stage89 shows independent animated streams can disagree despite close clocks; stage90 fixes release choice to qualified app/display fallback, inspected backup, trim or reshoot. Two50s sources retain selected menus; fixed app positions pass, but OS constrained menus inside parent. No whole-shot animated repair claim.",
-          "next": "Supported with explicit limits: use source-qualified app/padded display or inspect backup pixels before recovery. Automatic whole-shot animated rescue remains follow-up; no further registration tuning for this release.",
+          "next": "Apply the timing-parity principle to future changes; retain wider-source/trim/reshoot fallbacks and collect suitable evidence without a new tuning campaign.",
           "anchor": "release-decision",
           "updated_at": "2026-10-10T16:46:35-04:00",
-          "why_partial": "We can capture extra space around a window, but automatically repairing an entire moving scene from a backup recording is still unresolved. Two recordings can show different moments of an animation even when their timestamps are close, so combining them can introduce visible jumps. Completing this needs reliable matching of the actual images and further recovery engineering; today, use a sufficiently wide main capture, inspect backup footage, or trim and reshoot the affected section."
+          "why_partial": "We can capture extra space around a window, but automatically repairing an entire moving scene from a backup recording is still unresolved. Two recordings can show different moments of an animation even when their timestamps are close, so combining them can introduce visible jumps. Completing this needs reliable matching of the actual images and further recovery engineering; today, use a sufficiently wide main capture, inspect backup footage, or trim and reshoot the affected section.",
+          "summary": "Keep backup footage aligned precisely; automatic repair still needs matching visual states.",
+          "work_state": "deferred",
+          "work_updated_at": "2026-10-10T18:13:51-04:00",
+          "prerequisite": {
+            "environment": "A representative moving-scene sample with primary and backup footage, exact source clocks and independently checked image states.",
+            "user_involvement": "No hands-on input; an authorized natural opportunity or dedicated sandbox.",
+            "ready_when": "A useful sample shows which pictures can actually be combined, or a single-source approach makes the repair testable."
+          }
         },
         {
           "id": "clean-source",
@@ -121,7 +161,10 @@
           "evidence": "Published per-layer cursor contract in read-only planner, CLI/MCP and runbook. Actual native/Chrome residual evidence retained. Explicit pointer hiding/helper exclusions remain distinct from content arrows/carets; exact app/provider/display changes require scoped source rechecks. No universal removal or new pixel guarantee.",
           "next": "",
           "anchor": "thirty-first-pass",
-          "updated_at": "2026-10-09T03:16:00-04:00"
+          "updated_at": "2026-10-09T03:16:00-04:00",
+          "summary": "State which cursor-like layers can be removed for each app, provider and capture mode.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "chrome-select-layer",
@@ -131,7 +174,10 @@
           "evidence": "Actual 51-sample display crop preserves all12 rows while concurrent child-enabled window and app-filtered screenshots omit them. Retained glyph IoU0.983 after measured1px reference shift; initial zero-offset failure preserved. Scoped cleanup passed.",
           "next": "",
           "anchor": "twenty-fourth-pass",
-          "updated_at": "2026-10-09T00:58:21-04:00"
+          "updated_at": "2026-10-09T00:58:21-04:00",
+          "summary": "Chrome154.0.8037.98 / macOS25F80, owned native select, external1x display, supplied popup region; full-shot insurance remains separate.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "retina-popup-canary",
@@ -141,7 +187,10 @@
           "evidence": "Four live takes supplied630 exact muxed/source samples. Display overflow glyph IoU0.989; fitted window map gave0.902 popup overlap and zero base-marker edge error. Contained popup appeared only with child inclusion true. Bounded candidate lifecycle absent/present/present/absent; semantic ownership remains scoped to this fixture.",
           "next": "",
           "anchor": "twenty-eighth-pass",
-          "updated_at": "2026-10-09T01:56:14-04:00"
+          "updated_at": "2026-10-09T01:56:14-04:00",
+          "summary": "Chrome154.0.8037.98 /25F80 /installed53b202f58af8; authored preexisting overflow and contained new select on built-in2x.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         }
       ]
     },
@@ -157,7 +206,10 @@
           "evidence": "Installed9bfabf adds retained same-process clock_instance to source header/descriptor; surface bounds and exact source references preserved.130 native checks, tiny private/installed10/12 joins,98 prior state hashes unchanged. Legacy identity remains unknown; no physical/provider claim.",
           "next": "",
           "anchor": "fifty-eighth-pass",
-          "updated_at": "2026-10-09T13:21:11-04:00"
+          "updated_at": "2026-10-09T13:21:11-04:00",
+          "summary": "Recorder-owned exact timing, geometry segments, held/dropped references and explicit gaps.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "primary-frame-map",
@@ -167,7 +219,10 @@
           "evidence": "Stage40 CLI/fresh MCP0.11.2 adds16 named desktop regions with affine quads, clipped polygons and continuous area fractions; actual mux canvas dimensions must match before projection.21 focused/adjacent tests pass. Three Finder source maps identify clipped title/text, and matching CLI/full-frame pixel check agrees. Three retained dynamic1→.75→1 marker regions match decoded edges at0px error. Geometric parent overlap does not establish omitted Quick Look content. Owned adapter closed; native unchanged.",
           "next": "",
           "anchor": "fortieth-pass",
-          "updated_at": "2026-10-09T06:29:23-04:00"
+          "updated_at": "2026-10-09T06:29:23-04:00",
+          "summary": "Bounded service-owned actual mux/frame/relative/declared-host mapping, source-reference geometry, point/rectangle clipping and actual canvas dimension reconciliation.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "paired-source-map",
@@ -177,7 +232,10 @@
           "evidence": "Stage61 fresh MCP0.14.0/current CLI:37 affected +9 final focused checks pass; actual MCP/CLI equal, default output/cursors preserved. Real90s/1769 boundary segments exact document containment; first page one segment. Nested-menu100ms contained both yet absent in isolated pixels; padded region clips primary/fits backup. Budget refusal, legacy clock and fitted-transform unknowns retained. Stage74 retains whole479s refusal26614>16384; returns two valid exact adjacent host requests that independently evaluate16384/10230 under unchanged budget. Both lanes partition479s with same-clock geometry and content unverified. Fractional/excess16-request plans refuse without rounding/partial output. Fresh minimal-PATH MCP readback passes after centralized FFprobe resolution;37 affected reader checks pass, source hashes unchanged.",
           "next": "",
           "anchor": "seventy-fourth-pass",
-          "updated_at": "2026-10-09T18:13:15-04:00"
+          "updated_at": "2026-10-09T18:13:15-04:00",
+          "summary": "Two terminal sources: exact primary-relative/host intervals, retained same-process clock qualification, dense backup across held primary frames, independent geometry/content age/gaps and snapshot-bound pagination. Timing/geometry is not decoded rescue. Optional exact whole-interval named-region state durations with explicit work budget; canvas geometry remains separate from pixels.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "display-geometry",
@@ -187,7 +245,10 @@
           "evidence": "Earlier native Retina/external/return marker maps retained. Installed attached-panel open/close proof adds896 exact source/mux samples: enabled three-segment affine1→0.75→1 and excluded fixed affine; every parent center exact, child≤0.5px. Negative original-map/reference controls rejected.",
           "next": "",
           "anchor": "thirty-third-pass",
-          "updated_at": "2026-10-09T04:08:20-04:00"
+          "updated_at": "2026-10-09T04:08:20-04:00",
+          "summary": "Authored marker transforms on built-in Retina, external 1× display with negative origin, and return.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "event-clock",
@@ -195,10 +256,18 @@
           "status": "partial",
           "scope": "Separate delivered-event, recorder-reception and frame clocks.",
           "evidence": "Stage78 seven returned rational decoder/mux/source joins qualified. Stage80 requested40s returns39.749620806s, before key reception39.834917931s; green patch correct. Requested42s returns41.754621139s, magenta. Exact source joins separate requested/decoded/event times; physical latency remains unknown.",
-          "next": "Complete physical/provider calibration and separately approved sleep boundary. Use returned frame/source identity rather than requested offsets; preserve this actual boundary proof.",
+          "next": "Wait for Taylor’s review of this explanation; do not start a new calibration batch as part of this page update.",
           "anchor": "eightieth-pass",
           "updated_at": "2026-10-09T18:58:52-04:00",
-          "why_partial": "We can link saved video frames to the recorder’s event timeline, but that does not yet measure the full delay between a physical key press or mouse action and the app’s visible response. Physical input and additional automation methods need their own calibration, and sleep needs a separate test. Those checks were left outside the delivered scope; use the verified frame-to-event timing now without treating it as a guarantee of physical response time."
+          "why_partial": "We can link saved video frames to the recorder’s event timeline, but that does not yet measure the full delay between a physical key press or mouse action and the app’s visible response. Physical input and additional automation methods need their own calibration, and sleep needs a separate test. Those checks were left outside the delivered scope; use the verified frame-to-event timing now without treating it as a guarantee of physical response time.",
+          "summary": "Know whether a cue should follow the input, its delivery or the app’s visible reaction.",
+          "work_state": "review",
+          "work_updated_at": "2026-10-10T18:13:51-04:00",
+          "examples": [
+            "Example (illustrative times): you click at 12.000 seconds, the recorder receives the event at 12.006, and the next recorded picture shows the button responding at 12.033. Those are three useful moments, not three contradictory timestamps.",
+            "With calibration, a click marker can track the input while a “Saved” cue waits for the visible response. Without it, an effect may lead or trail the action, and an agent may mistake a delayed app reaction for a missed input. Exact frame joins work now; physical-action latency and additional providers remain unmeasured. At 30 fps, precise event timing cannot create a picture between the captured frames."
+          ],
+          "review_question": "Does this make the value clear: distinguish input time from app reaction time, then align each visual cue to the appropriate actual frame?"
         },
         {
           "id": "pointer-coordinates",
@@ -206,10 +275,18 @@
           "status": "partial",
           "scope": "Normalize provider positions into recorded pixels without guessing coordinate semantics.",
           "evidence": "Installed grant canary joined six delivered click/drag/wheel transitions exactly on raw CG timestamp, destination and position within action bounds. Earlier native endpoint pixel proof remains valid for its scope; position_for_composition stays unpromoted outside qualified provider mapping. Stage72 eleven raw pointer positions equal independent app-local CG delivery. Blue app-painted marker is centered exactly at source-projected desktop500,610 in both actual sources; coordinates remain unpromoted outside this case.",
-          "next": "Extend another provider or physical lane with explicit confidence; preserve existing click/gesture pixel evidence rather than rerunning it.",
+          "next": "Wait for Taylor’s review; preserve the existing native mapping without implying universal provider coverage.",
           "anchor": "seventy-second-pass",
           "updated_at": "2026-10-09T17:51:25-04:00",
-          "why_partial": "Pointer placement is verified for the tested native input method and capture setup. Other automation methods and display arrangements can use different coordinate conventions, so the same accuracy has not been demonstrated for them. Closing that gap needs a targeted comparison for each additional setup; meanwhile, use the qualified mapping and retain the original positions rather than assuming every setup is interchangeable."
+          "why_partial": "Pointer placement is verified for the tested native input method and capture setup. Other automation methods and display arrangements can use different coordinate conventions, so the same accuracy has not been demonstrated for them. Closing that gap needs a targeted comparison for each additional setup; meanwhile, use the qualified mapping and retain the original positions rather than assuming every setup is interchangeable.",
+          "summary": "Keep a replacement cursor on the clicked control when displays, crops or preview sizes change.",
+          "work_state": "review",
+          "work_updated_at": "2026-10-10T18:13:51-04:00",
+          "examples": [
+            "Example: the pointer is at desktop position (400, 300), and the recorded crop starts at (200, 100). On a 2× Retina capture, that click belongs at video pixel (400, 400). A half-size preview then places it at (200, 200).",
+            "A tool that treats desktop points as video pixels can put the replacement cursor beside the button instead of on it. Qualifying each provider’s coordinate convention lets the service perform the transforms, so the composing agent can change crop or output size without manually repairing cursor placement. The tested native case works; other setups still need their own comparison."
+          ],
+          "review_question": "Does the cropped Retina example make the benefit clear: one recorded click stays attached to the correct control through capture and export?"
         },
         {
           "id": "sleep-clock",
@@ -217,10 +294,18 @@
           "status": "partial",
           "scope": "Service-owned bracketed clock observations, explicit uncertain intervals and affected-only take interruption. Physical sleep/wake remains unqualified.",
           "evidence": "26 checks and 100 awake samples passed; 125 journal-bound checks passed. Live awake take/MCP: 81 exact timestamps, nine anchors, no lost rows. Ten arming-state checks preserved peers/admission. Injected gap in real capture: 33 exact samples, one gap, partial finalization and no held-at-end fill.",
-          "next": "Qualify physical sleep/wake when it can be isolated safely; retain threshold, source-coverage and provider-clock uncertainty. Do not repeat injected or awake canaries without a changed boundary.",
+          "next": "Leave sleep testing deferred; prioritize desktop recording visibility and cooperative global pause.",
           "anchor": "twelfth-pass",
           "updated_at": "2026-10-08T21:11:39-04:00",
-          "why_partial": "The recorder handles tested timing gaps, but we have not verified what happens when this Mac actually sleeps and wakes during a recording. That test would interrupt the desktop and needs a separately agreed time; routine display access is not approval to put the Mac to sleep. Until then, treat a detected interruption as a break in the take, preserve the available footage and start a fresh take rather than promising seamless continuity."
+          "why_partial": "Taylor has chosen not to spend time qualifying sleep/wake now: this Mac is normally kept awake and recording visibility is the higher priority. Existing gap detection remains useful, but physical sleep behavior stays unverified. Revisit only if production needs change; the new desktop status and safe-pause gate are a separate Ready task.",
+          "summary": "Assume an awake Mac for normal use; retain gap detection without pursuing a sleep test now.",
+          "work_state": "deferred",
+          "work_updated_at": "2026-10-10T18:13:51-04:00",
+          "prerequisite": {
+            "environment": "A future production need for sleep/wake behavior and an explicitly agreed disruptive test window.",
+            "user_involvement": "Taylor chooses whether and when putting the Mac to sleep is acceptable. No participation is requested now.",
+            "ready_when": "Sleep/wake becomes a real requirement and Taylor authorizes that specific test."
+          }
         },
         {
           "id": "capture-colors",
@@ -230,7 +315,10 @@
           "evidence": "Eight cold BGRA/NV12 probes isolated the pre-encoder backing-color boundary. Explicit 709 and CI sRGB did not repair inherited values; changing only the owned fixture backing restored raw references within 1 channel value. Signed/loaded ff2c43b308aa passed 10 tag checks, 229 exact muxed timestamps and 18 reference samples within 2 across three geometry segments; 230-frame software preview matched all 18 exactly. Actual MCP returned observed tags. Earlier failure and limits retained; no global color correction or other app/settings mutation.",
           "next": "",
           "anchor": "eleventh-pass",
-          "updated_at": "2026-10-08T20:52:41-04:00"
+          "updated_at": "2026-10-08T20:52:41-04:00",
+          "summary": "Candidate SDR observed color tags and declared-sRGB source-to-preview references across both displays; inherited app backing behavior is preserved, while arbitrary backing intent, HDR, physical colorimetry and viewer transfer accuracy remain unqualified.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "fitted-child-mapping",
@@ -238,10 +326,19 @@
           "status": "partial",
           "scope": "Actual child-enabled isolated window with above/below-parent popup fitting, including scale and source origin changes. Existing static/fixture maps retain their proven scope.",
           "evidence": "Frame-local fitted/held proofs and guards retained. Stage90 reviews actual retry2 root/short/nested/moved/dismissed encoded samples with2656exact mux/source joins. OS constrained menus inside parent, so no above/below fitting proof. Five fixed app-source positions pass; child-enabled downsampled window origin stays refused. Release strategy uses qualified app/padded-display fallback.",
-          "next": "Research follow-up: continuous above/below real-menu fitting remains unavailable. Use supported app/display sources; do not repeat this contained fixture or relax refusal guards.",
+          "next": "Follow the temporary overflow probe in SERVICE-PRINCIPLES.md; capture opportunities without weakening mapping guards.",
           "anchor": "release-decision",
           "updated_at": "2026-10-10T16:46:35-04:00",
-          "why_partial": "When a menu extends outside an isolated window, macOS can change the captured picture’s size or position, and the available capture information does not always tell us exactly where everything moved. The latest real-menu test stayed inside the parent window, so it could not resolve this question. Completing it needs a genuine overflow case and reliable mapping throughout the change; use the qualified app or wider display capture while this research remains open."
+          "why_partial": "The missing ingredient is a genuine menu that extends outside its parent and changes the captured picture’s position or scale. Agents now have an explicit probe: notice those cases during authorized work and preserve high-fidelity timing, geometry and private footage for later analysis. The current fixture stayed contained, so repeating it cannot settle this; use the qualified app/display fallback meanwhile.",
+          "summary": "Watch for real overflowing menus and save precise samples for a dedicated mapping pass.",
+          "work_state": "deferred",
+          "work_updated_at": "2026-10-10T18:13:51-04:00",
+          "prerequisite": {
+            "environment": "An actual above/below-parent popup or changing-fit occurrence, with private footage, app/provider versions, geometry and exact frame/event identities.",
+            "user_involvement": "No physical input is required. Collect during already authorized work; do not disrupt Taylor solely to manufacture an occurrence.",
+            "ready_when": "At least one useful real overflow sample is available for an independent dedicated smoke run."
+          },
+          "doc_link": "/Users/taylor/src/github/dotfiles/src/record-screen/qualification/FOLLOW-UP.md"
         },
         {
           "id": "fitted-mapping-guard",
@@ -251,7 +348,10 @@
           "evidence": "Fresh MCP0.12.2/current CLI use retained header/capture scope. Actual fitted frames320/965 return false/null projections; restored1127/1375/1923 and app/original window mappings remain available.14 focused tests pass; initial descriptor-only miss retained and repaired.",
           "next": "",
           "anchor": "fifty-sixth-pass",
-          "updated_at": "2026-10-09T12:34:45-04:00"
+          "updated_at": "2026-10-09T12:34:45-04:00",
+          "summary": "Service frame mapping for isolated child-enabled or child-unknown windows with observed content_scale other than1; preserve raw geometry and exact time/source correspondence.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "frame-registered-mapping",
@@ -261,7 +361,10 @@
           "evidence": "81distinct affected checks pass, actual3available/3refused cases, final minimal-PATH MCP/CLI held output equality, four hashes unchanged, readers/workers settled/nativeunchanged. Kernel lease contention/release verified; ambiguous/flat/wrong pixels/PTS/excess-delta/changed snapshots refuse.",
           "next": "",
           "anchor": "eighty-fourth-pass",
-          "updated_at": "2026-10-09T19:28:53-04:00"
+          "updated_at": "2026-10-09T19:28:53-04:00",
+          "summary": "Current MCP0.19/CLI: opened-file/source-content selection, exact decoded PTS/dimensions and RGB registration with independent textured region verification for one frame. Actual authored above/corner fitted and held controls; no continuous/real-menu/physical/actor guarantee or original-map override.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         }
       ]
     },
@@ -275,10 +378,23 @@
           "status": "partial",
           "scope": "Delivered keys, modifiers, motion, clicks, scroll and drag with bounded callback work.",
           "evidence": "Fresh listening native oracle retained 12 exact delivered keys and two real shortcuts; installed destination repair passed a second targeted source check. Sparse provider gestures and keyboard probes do not prove physical rates. A bounded human request ended without delivery/reply and remains pending. Stage72 AppKit canvas receives keys without a text field, modifiers, movement, click, drag and one wheel;28/28 delivered oracle events retained in37 rows, no journal loss. Physical rates/touchpad remain open.",
-          "next": "Qualify physical keyboard/pointer rate and touchpad phases when user is ready, then other providers; do not replay the completed grant/keyboard-source checks.",
+          "next": "Prepare the standalone test before arranging Taylor’s focused interval; no human-input request is active now.",
           "anchor": "seventy-second-pass",
           "updated_at": "2026-10-09T17:51:25-04:00",
-          "why_partial": "The recorder retained the input delivered in our automated tests, including shortcuts outside text fields. We still need a short hands-on mouse, keyboard and trackpad session to establish real input rates and the stages of a physical scroll gesture; you previously asked us to continue without that participation. Automated evidence remains useful now, but more of the same tests cannot establish physical-device coverage."
+          "why_partial": "Automated delivery is already verified for its tested scope. The remaining question is what real devices deliver during sustained movement, shortcuts and trackpad scrolling. This is now a standalone hands-on test with a prepared fixture and simple steps, rather than something to coordinate alongside other production tasks.",
+          "summary": "A short standalone mouse, keyboard and trackpad test; this needs your focused participation.",
+          "work_state": "deferred",
+          "work_updated_at": "2026-10-10T18:13:51-04:00",
+          "prerequisite": {
+            "environment": "Owned native test window, independent event witness and a short prepared take; no competing automation.",
+            "user_involvement": "High attention: about 60–90 seconds of following simple pointer, key and trackpad prompts.",
+            "ready_when": "Taylor chooses a focused interval and the entire fixture is ready before the start cue."
+          },
+          "acceptance": [
+            "Compare independently received physical input with listener rows and actual video/frame timing.",
+            "Record sustained movement coverage, shortcut delivery and trackpad start/motion/release/momentum, with explicit losses or unknowns."
+          ],
+          "doc_link": "/Users/taylor/src/github/dotfiles/src/record-screen/qualification/FOLLOW-UP.md"
         },
         {
           "id": "ordered-input-loss",
@@ -288,7 +404,10 @@
           "evidence": "30 checks passed: 2048-event cap, 2001 exact lost callbacks, 2049 retained first-scope samples, one later outside drag excluded, new scope inherited no old loss. Journal closed with zero row loss while reporting input loss. Signed candidate installed through one fenced build.",
           "next": "",
           "anchor": "nineteenth-pass",
-          "updated_at": "2026-10-08T23:47:28-04:00"
+          "updated_at": "2026-10-08T23:47:28-04:00",
+          "summary": "Actual bounded ingress/scoping queues with authored scalar samples: ordered loss, dropped-release invalidation, joining scope and tail flush; installed native capability and source retention readback. Excludes physical provider rates, OS delivery completeness and actor identity.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "event-relevance",
@@ -296,10 +415,18 @@
           "status": "partial",
           "scope": "Retain delivery and action-context reasons, broad shortcuts and uncertain candidates.",
           "evidence": "Stage77 one native key operation retains pointer precursors in the same scope. Stage79 browser DOM click/counter changes produce zero observed global callback delta, then native control yields four. Separate provider action context/app milestones from OS input; per-key browser delivery and actor remain unknown.",
-          "next": "Qualify remaining physical/provider attribution boundaries without repeating this browser gap. Preserve broad events, auxiliary gestures and observed semantic milestones; never synthesize missing OS evidence.",
+          "next": "Apply rich-evidence/director-owned selection guidance now. Do not pursue exhaustive mixed-user attribution without a demonstrated production need.",
           "anchor": "seventy-ninth-pass",
           "updated_at": "2026-10-09T18:54:05-04:00",
-          "why_partial": "An event arriving in the right app does not by itself reveal whether you or an agent caused it. We record useful context, but reliable separation during mixed human and agent activity still needs controlled examples and better attribution rules. This is unfinished attribution work rather than a capture-permission problem; keep broad shortcut coverage, mark uncertain ownership explicitly and let the driving agent use its task context to choose relevant events."
+          "why_partial": "The service can supply detailed timing, targets, action context and uncertainty, but the driving agent knows which events matter to its plan. Taylor’s medium-term direction is a dedicated runtime with little competing human input, so exhaustive human-versus-agent attribution is no longer a priority. Preserve broad events with bounded queries and reversible filters; keep uncertain ownership explicit.",
+          "summary": "Give the driving agent rich, bounded event evidence; avoid aggressive service-side relevance filtering.",
+          "work_state": "deferred",
+          "work_updated_at": "2026-10-10T18:13:51-04:00",
+          "prerequisite": {
+            "environment": "A demonstrated recording problem that cannot be solved by rich context and director-side selection, preferably on the future isolated runtime.",
+            "user_involvement": "No hands-on test is requested; Taylor only needs to prioritize a concrete remaining use case.",
+            "ready_when": "A real attribution failure justifies a small, targeted investigation instead of universal ownership inference."
+          }
         },
         {
           "id": "protected-input",
@@ -309,7 +436,10 @@
           "evidence": "All 24 delivered protected events were omitted with enabled/ended gaps; six normal events recovered. A secure field alone did not enable protection.",
           "next": "",
           "anchor": "sixth-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "updated_at": "2026-10-08T20:01:05-04:00",
+          "summary": "Explicit Carbon protected-input fixture with the tested provider.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "action-receipts",
@@ -319,7 +449,10 @@
           "evidence": "Stage69 extends qualified lifecycle with explicit declaration-only launch intent:153 native checks and20 focused cases; strict default identity preserved, prospective scopes never attribute input or bind later identity. Signed native7c and fresh MCP0.16 delivered/read back; real launch retains bundle-only target and exact service stamps.",
           "next": "",
           "anchor": "sixty-ninth-pass",
-          "updated_at": "2026-10-09T16:47:47-04:00"
+          "updated_at": "2026-10-09T16:47:47-04:00",
+          "summary": "Bounded contextual scopes, caller/session checks, expiry, restart recovery and no replay.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "semantic-context",
@@ -329,7 +462,10 @@
           "evidence": "Stage43 real Finder2 selection milestones retain4 rich active/closed snapshots and4 pointer events. AX and decoded service-selected frames465/795 agree;815 exact mux/source joins, CLI/MCP equal. Four separate typed verified/cleanup-complete outcomes, uncovered0. After-media-end sample preserved and corrected on same take.",
           "next": "Written capture scope complete. Extend routine provider adoption in its own gate; visual/audio cue synthesis remains deferred.",
           "anchor": "forty-third-pass",
-          "updated_at": "2026-10-09T07:16:42-04:00"
+          "updated_at": "2026-10-09T07:16:42-04:00",
+          "summary": "Intent, before/after context and verification evidence for later precise cues.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "provider-gaps",
@@ -337,10 +473,24 @@
           "status": "partial",
           "scope": "Expose virtual-input gaps, revoked access, disabled taps and overload.",
           "evidence": "Stage82 DOM-backed export independently observes11 events including ArrowRight keydown/keyup, isTrusted true; browser clock uncalibrated and trust not actor/human identity. Stage79 callback4→4 differential/failure and unknown historical key outcome preserved; native recovered stage81 positive control retained.",
-          "next": "Qualify remaining physical revocation/natural timeout and OS delivery bounds when isolated; do not substitute DOM delivery/trust for global event coverage.",
+          "next": "Build the observation harness first in the dedicated environment, then expand the provider/action baseline.",
           "anchor": "eighty-second-pass",
           "updated_at": "2026-10-09T19:08:11-04:00",
-          "why_partial": "Some browser automation changes the page without passing through the system-wide input listener, so that listener cannot recover events it never received. We have demonstrated this gap, but not every automation method or permission-loss scenario has been checked. Closing the remainder needs targeted coverage checks and separately arranged disruptive permission tests; meanwhile, report missing system input honestly and retain page-level action evidence separately."
+          "why_partial": "We know some browser actions bypass the system listener, but need a clearer reusable test before expanding the provider baseline. First compare declared expected events with a healthy global listener and independent app delivery, distinguishing real bypass from incomplete observation. Then compare visible user-like actions with silent preparation; run this in an uninterrupted environment rather than during Taylor’s normal work.",
+          "summary": "Measure which automation methods produce real system events and which intentionally work backstage.",
+          "work_state": "deferred",
+          "work_updated_at": "2026-10-10T18:13:51-04:00",
+          "prerequisite": {
+            "environment": "Dedicated device/runtime or a long agreed uninterrupted interval, with independent native/browser witnesses.",
+            "user_involvement": "No physical input once the environment is handed over; unlike the physical-input test, this needs absence of competing user activity.",
+            "ready_when": "The uninterrupted environment and witness mechanism are available; permission revocation remains a separate approved subtest."
+          },
+          "acceptance": [
+            "The harness distinguishes a known native delivery, known browser bypass and an intentionally incomplete observation.",
+            "Results retain expected/observed event sequences, listener health/loss, app outcome, source timing and provider versions.",
+            "Publish a scoped presented/backstage provider baseline without inventing global events."
+          ],
+          "doc_link": "/Users/taylor/src/github/dotfiles/src/record-screen/qualification/FOLLOW-UP.md"
         },
         {
           "id": "installed-input-access",
@@ -350,7 +500,10 @@
           "evidence": "Taylor completed authentication; installed signed recorder switch enabled. One fenced idle restart verified unchanged build/new PID. Fresh listener retained 17 input rows; all six app-delivered gestures joined exactly and four targeted shortcut transitions survived lack of global foreground. 262 muxed/source timestamps exact; zero input gaps/queue/journal loss. Stage37 follow-up: persisted Settings row label preview-record-screend.app remains on; installed unchanged f314/PID35547 freshly reports listen_access=true and listener starts. Secure input observed in both short probes; AX Stop produced no pointer callbacks and no key was dispatched. Explicit gaps retained; prior delivered canary remains the coverage proof.",
           "next": "",
           "anchor": "twenty-sixth-pass",
-          "updated_at": "2026-10-09T05:36:31-04:00"
+          "updated_at": "2026-10-09T05:36:31-04:00",
+          "summary": "Separate Screen Recording from the signed installed recorder Input Monitoring grant; recover only with human approval and actual delivered-event proof.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "keyboard-scope-canary",
@@ -360,7 +513,10 @@
           "evidence": "Two-window oracle proved 12 exact key joins/two real shortcuts without a text field. Failed cross-app take preserved; installed repair excluded two unrelated unmodified transitions and retained four bounded shortcut candidates. Twelve focused +141 mechanical/input/action checks passed; 373 exact muxed/source samples.",
           "next": "",
           "anchor": "twenty-seventh-pass",
-          "updated_at": "2026-10-09T01:35:19-04:00"
+          "updated_at": "2026-10-09T01:35:19-04:00",
+          "summary": "Authored native two-window shortcut oracle on767d45f6ce40 and changed cross-app boundary on installed53b202f58af8; no physical/global coverage or actor identity.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "retained-input-query",
@@ -370,7 +526,10 @@
           "evidence": "Stage42 extends completed bounded reader with opt-in up-to64 captured action snapshots. Defaults/cursor hashes preserved; token/type filtering independent, repeated-page/truncation explicit, null/expired/restart bounds honest.25 adjacent/focused plus9 changed-protocol checks and actual retained-source/CLI/MCP/once-only consumer pass.",
           "next": "",
           "anchor": "forty-second-pass",
-          "updated_at": "2026-10-09T07:05:06-04:00"
+          "updated_at": "2026-10-09T07:05:06-04:00",
+          "summary": "Service-owned interval/type/action queries, snapshot-bound pages, whitelisted input metadata and gap-preserving diagnostics. Physical completeness and actor identity remain unproven.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         }
       ]
     },
@@ -386,7 +545,10 @@
           "evidence": "50 deadline and 12 recording-state assertions passed; live unavailable targets and isolated SDK recovery were qualified.",
           "next": "",
           "anchor": "fourth-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "updated_at": "2026-10-08T20:01:05-04:00",
+          "summary": "Bounded caller waits, unfinished producer quarantine, cancellation and late results.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "background-context",
@@ -396,7 +558,10 @@
           "evidence": "113 listener, 106 recording-monitor and 113 window-context checks passed; the later 22-second live canary completed with 639 exact source timestamps.",
           "next": "",
           "anchor": "eighth-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "updated_at": "2026-10-08T20:01:05-04:00",
+          "summary": "Shared background slots, stale snapshots, late-generation rejection and lifecycle cleanup.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "partial-footage",
@@ -406,7 +571,10 @@
           "evidence": "Actual desktop failures exposed packet/submission differences; recovery preserved uncertainty and playable partial footage.",
           "next": "",
           "anchor": "sixth-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "updated_at": "2026-10-08T20:01:05-04:00",
+          "summary": "Separate journal completeness, writer outcome and actual decodable coverage.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "encoder-isolation",
@@ -416,7 +584,10 @@
           "evidence": "26 controlled checks and 15 exact independently decoded packet timestamps passed. Healthy peer finalized; failed journal closed while blocked; callback/call return both required; late completion preserved the interrupted outcome. Signed private service capability readback and cleanup passed. Final proof also covers early watchdog arming and empty-writer late cancellation.",
           "next": "",
           "anchor": "fifteenth-pass",
-          "updated_at": "2026-10-08T22:37:50-04:00"
+          "updated_at": "2026-10-08T22:37:50-04:00",
+          "summary": "Candidate actual AVAssetWriter with authored off-screen frames, controlled blocked finalization, independent muxed clocks and retained manager admission. Does not include natural hardware/SDK hangs or installation.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "stream-stop-policy",
@@ -426,18 +597,29 @@
           "evidence": "25 controlled checks passed. Signed private 2c8da26d3792 finalized a passive canary, matched two muxed timestamps and released the acknowledged stop reservation. Returned errors remain reserved; timeout never retries. Private process exited.",
           "next": "",
           "anchor": "sixteenth-pass",
-          "updated_at": "2026-10-08T22:50:25-04:00"
+          "updated_at": "2026-10-08T22:50:25-04:00",
+          "summary": "Controlled stop operations through actual recording/admission/persistence plus one tiny live successful acknowledgment. Does not include natural faults, backend physical release or production installation.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "peer-failure",
-          "title": "Verify remaining encoder/OS failure paths without harming peer takes",
+          "title": "Keep a local capture failure from breaking other recordings",
           "status": "partial",
           "scope": "Avoid widening a local failure into an unexpected service interruption.",
           "evidence": "Stage80 natural idle CUA read fault leaves recorder and retained readers/hashes available. Stage81 official own-client reset/read succeeds, then two delivered key matches/77exact mux joins/all witness patches pass. No forced shared kill/restart or permission change. Native6c/PID20948 unchanged/idle; three verified cleanupcomplete outcomes. Stage86 reproduces worker death releasing admission while decoder survives; inherited kernel lease now stays held until actual holder closure. Controlled before/after and9distinct affected checks pass; ordinary retained result unchanged, no peer restart. Stalled holders still refuse; no active OS/host capacity proof.",
-          "next": "Observe useful natural active-capture fault/partial media when it occurs. Preserve this idle separation and scoped client recovery; do not assume sole cause, universal recovery or repeat canaries without another changed boundary.",
+          "next": "Wait for Taylor’s review; observe a useful natural active-capture incident or use a dedicated environment rather than inducing a host failure now.",
           "anchor": "eighty-sixth-pass",
           "updated_at": "2026-10-10T15:35:05-04:00",
-          "why_partial": "Recovery and isolation work for the controlled failures we tested, but we have not established recovery from a system-wide failure while a recording is active. Deliberately causing that failure on a shared Mac would disrupt other work, so it is not an appropriate routine smoke test. Closing the gap needs an isolated test environment or useful evidence from a natural incident; rely on the qualified smaller failure cases and do not promise that a host crash will preserve a complete take."
+          "why_partial": "This item is about containing failures and recovering honestly. Controlled helper failures have been tested, but an active system-wide capture or WindowServer failure can affect every recording and has not been shown to recover cleanly. Triggering that on this shared Mac would disrupt unrelated work; the remaining claim needs an isolated test or evidence from a natural incident.",
+          "summary": "Preserve useful footage and other agents’ recordings when a helper, encoder or macOS capture path fails.",
+          "work_state": "review",
+          "work_updated_at": "2026-10-10T18:13:51-04:00",
+          "examples": [
+            "Example 1: one agent asks for preview frames and its decoder process dies. Another agent is still recording. Good isolation means the recording continues, the failed preview reports a clear error, and any surviving decoder still counts against resource admission. Without it, the service might restart everything or launch too many workers. This controlled worker case has evidence.",
+            "Example 2: macOS WindowServer becomes unresponsive during a live take. The picture may stop arriving across several sources. The useful outcome is a clear interrupted interval, recoverable footage up to that point and an honest instruction to start a fresh take. A successful helper test cannot establish that the OS-wide incident will preserve or finalize every file. That broader active-capture case remains unverified."
+          ],
+          "review_question": "Is the distinction clear between containing one failed helper (tested cases) and salvaging footage after a system-wide failure (still unverified)?"
         },
         {
           "id": "single-motion",
@@ -447,7 +629,10 @@
           "evidence": "721 and 1,384 packet timestamps matched; decoded counters changed 719 and 1,337 times.",
           "next": "",
           "anchor": "seventh-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "updated_at": "2026-10-08T20:01:05-04:00",
+          "summary": "Authored point-resolution 30-fps and Retina 60-fps motion takes.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "motion-insurance",
@@ -457,7 +642,10 @@
           "evidence": "After narrow sparse-writer repair, both takes completed906+1465 exact samples,zero drops/row loss. Backup575 distinct ticks undercover; maps identical, common counters within1tick. Dense recovery map586 samples avoids1fps rescue; prior failed primary/preconditions preserved.",
           "next": "",
           "anchor": "thirtieth-pass",
-          "updated_at": "2026-10-09T02:56:46-04:00"
+          "updated_at": "2026-10-09T02:56:46-04:00",
+          "summary": "Authored50s point1000x732/30fps display plus isolated-window pair, real20s obstruction, exact source maps and dense same-scene backup recovery. Broader apps/menus, automatic detection and long-take capacity remain in their open gates.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "resource-admission",
@@ -465,10 +653,24 @@
           "status": "partial",
           "scope": "CPU, memory, encoder/GPU/storage costs and useful production-duration estimates.",
           "evidence": "Earlier source/resource profiles retained. Stage84 adds kernel advisory admission for one decode/RGB worker per recorder home across adapters: competing live owner refuses before decode, descriptor release admits verified next call. Owned overflow process-group stop/quarantine settlement tested. Metadata probes remain per adapter; no host-wide capacity/GPU/P80 guarantee. Stage86 reproduces worker death releasing admission while decoder survives; inherited kernel lease now stays held until actual holder closure. Controlled before/after and9distinct affected checks pass; ordinary retained result unchanged, no peer restart. Stalled holders still refuse; no active OS/host capacity proof. Stage90 retry2 sampler has only3points/no terminal result, so no new capacity or effective guard claim. Existing measured profiles and kernel admission proof remain authoritative.",
-          "next": "Supported with measured profiles and bounded reader admission; additional insurance is opt-in. Host-wide GPU/capacity/P80 certification remains follow-up, not a promise from configured slots.",
+          "next": "Run the dedicated allocation pass when its environment exists; use the separate basic resource-awareness task in the meantime.",
           "anchor": "release-decision",
           "updated_at": "2026-10-10T16:47:00-04:00",
-          "why_partial": "We measured useful recording profiles and verified limits on competing video readers, but we do not yet have a dependable whole-Mac capacity estimate while other apps are busy. The latest resource measurement ended before it produced a complete result. A further bounded workload measurement is needed, not a permission change; this broader capacity work was deferred, so use the measured profiles and make extra backup recordings an explicit resource trade-off."
+          "why_partial": "Measured profiles and reader admission guards exist, but they are not a whole-Mac capacity policy. Broad tuning needs a controlled environment so other work does not obscure what caused pressure or dropped coverage. A separate basic-awareness task will use current host observations and retain decision logs now; the dedicated pass can improve its allocation strategy later.",
+          "summary": "Tune recording resource allocation in an uninterrupted sandbox; keep practical awareness and logs in normal use.",
+          "work_state": "deferred",
+          "work_updated_at": "2026-10-10T18:13:51-04:00",
+          "prerequisite": {
+            "environment": "Dedicated uninterrupted runtime, controlled background workload and bounded representative recording/backup scenarios.",
+            "user_involvement": "No hands-on participation after handover; resource stress should not compete with Taylor’s normal desktop work.",
+            "ready_when": "The sandbox and workload limits are agreed, and basic observations/decision logs are available for comparison."
+          },
+          "acceptance": [
+            "Measure selected single/paired/backup workloads, CPU/memory/storage pressure and useful encoder/GPU evidence.",
+            "Improve one practical allocation policy with before/after evidence and retrospective decision logs.",
+            "Keep requested picture quality explicit; do not infer safe capacity from configured slots."
+          ],
+          "doc_link": "/Users/taylor/src/github/dotfiles/src/record-screen/qualification/FOLLOW-UP.md"
         },
         {
           "id": "sparse-display-writer",
@@ -478,7 +680,29 @@
           "evidence": "Signed f314bb340344 delivered.15 controlled Recording checks/32 exact control samples and prior-source pixels passed; raw unpadded error -11800/-17771 retained. Real50s pair2371 exact samples,zero drops; display26 sparse held frames survived20s cover/resume. Installed48-sample/MCP smoke and7 prior-file hashes passed.",
           "next": "",
           "anchor": "thirtieth-pass",
-          "updated_at": "2026-10-09T02:56:46-04:00"
+          "updated_at": "2026-10-09T02:56:46-04:00",
+          "summary": "Bounded held-source padding and affected-only trim for nanosecond sparse timing; real authored static-cover/resume plus installed readback. No arbitrary-app or longer-duration guarantee.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
+        },
+        {
+          "id": "adaptive-resource-awareness",
+          "title": "Add basic resource-aware production planning and logs",
+          "summary": "Observe host pressure and disk availability, recommend conservative optional-work choices, and save compact decision evidence.",
+          "scope": "Observe host pressure and disk availability, recommend conservative optional-work choices, and save compact decision evidence.",
+          "status": "completed",
+          "work_state": "completed",
+          "evidence": "Current CLI and fresh registered MCP0.19.2 both return host pressure/disk/coarse-load advice and saved private audit records, independently read back.18 focused policy/planner/integration checks pass. Native PID799 and active-take count unchanged; no capture, restart or settings change. Snapshot-only advisory; no continuous GPU/thermal/capacity guarantee.",
+          "next": "Use the advice and logs in ordinary production planning; tune the policy later in the deferred dedicated resource environment.",
+          "anchor": "limits",
+          "updated_at": "2026-10-10T18:15:44-04:00",
+          "work_updated_at": "2026-10-10T18:15:44-04:00",
+          "acceptance": [
+            "Current observations, freshness, unknowns and the proposed workload appear in production planning.",
+            "Pressure changes the recommendation without silently changing capture quality or stopping peers.",
+            "Private bounded decision logs support later retrospective analysis; unavailable metrics stay unknown."
+          ],
+          "doc_link": "/Users/taylor/src/github/dotfiles/src/record-screen/qualification/FOLLOW-UP.md"
         }
       ]
     },
@@ -494,7 +718,10 @@
           "evidence": "88 actual-child checks passed, including TERM resistance, forced exit and subsequent recovery.",
           "next": "",
           "anchor": "eighth-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "updated_at": "2026-10-08T20:01:05-04:00",
+          "summary": "One owned child, concurrent pipe drains, output bounds, deadlines and quarantine until actual exit.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "preview-effort",
@@ -504,7 +731,10 @@
           "evidence": "Real draft, standard and GIF previews had 145 mapped frames each; full/native/60-fps added 725 references. Stage76 existing recording_frames now includes exact rational returned decoder frame_time and coarse32x32 decoded-image pixel_checks before JPEG. Three real Safari samples distinguish normal201.9/99.4 from black0/0 while authored anchor geometry contained; all three returned times exactly join mux starts. Authored uniform white254/0 also looks blank, preserving heuristic limits. Installed6c/fresh MCP and existing ordinary frame tool read back fields; no new capture.",
           "next": "",
           "anchor": "seventy-sixth-pass",
-          "updated_at": "2026-10-09T18:29:09-04:00"
+          "updated_at": "2026-10-09T18:29:09-04:00",
+          "summary": "Configurable width, frame rate and software/hardware backend for short source previews.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "derivative-map",
@@ -514,7 +744,10 @@
           "evidence": "Final authored repeat matched 139 decoded frames; real source/time-map readbacks passed, including a seven-packet 0.07–0.14-second boundary.",
           "next": "",
           "anchor": "eighth-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "updated_at": "2026-10-08T20:01:05-04:00",
+          "summary": "Exact rational clocks, non-grid trims, GIF quantization, held frames and pixel transforms.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "gif-palette",
@@ -524,7 +757,10 @@
           "evidence": "The differential palette lost the final fixture color; full histograms preserved it. Failed output was retained.",
           "next": "",
           "anchor": "eighth-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "updated_at": "2026-10-08T20:01:05-04:00",
+          "summary": "The tested gray-color fixture and bounded export pipeline.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "export-publication",
@@ -534,7 +770,10 @@
           "evidence": "Two default requests produced distinct names; the interrupted 12-frame preview retained uncertain parent quality.",
           "next": "",
           "anchor": "ninth-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "updated_at": "2026-10-08T20:01:05-04:00",
+          "summary": "Unique defaults, explicit overwrite refusal and preservation of source quality.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "consumer-negotiation",
@@ -544,13 +783,16 @@
           "evidence": "Node regressions passed old-engine refusal, explicit option forwarding, exact time maps and no export replay after socket loss.",
           "next": "",
           "anchor": "ninth-pass",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "updated_at": "2026-10-08T20:01:05-04:00",
+          "summary": "Same-connection capability checks and explicit refusals before dispatch.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         }
       ]
     },
     {
       "id": "shared-use",
-      "title": "Shared computer-use learning and workflow quality",
+      "title": "App observations and tool integration",
       "items": [
         {
           "id": "app-facts",
@@ -558,32 +800,57 @@
           "status": "partial",
           "scope": "Shared reported facts, exact environment keys, expiry and conflicting evidence.",
           "evidence": "Stage79 Chrome154.0.8037.98/build8037.98 exact shared provider-coverage fact reports failure. Current planner consumes reported_failure against observed Chrome bundle and preserves unknown provider version/reusefalse despite claimed confirmation; fact hash unchanged. Prior source-specific facts retained.",
-          "next": "Qualify genuinely changed daily-app dimensions with targeted canaries. Reuse the scoped negative provider observation to avoid assuming global tap coverage, without broad app certification.",
+          "next": "Publish useful observations during normal workflows now; use the dedicated environment for deeper missing app cases.",
           "anchor": "seventy-ninth-pass",
           "updated_at": "2026-10-09T18:54:05-04:00",
-          "why_partial": "Shared app knowledge works for the combinations we have actually observed, but some app and automation-tool versions are still unidentified or untested. A successful observation cannot safely cover every later update. Expanding coverage needs version identification and targeted checks when an app or tool changes; for now, reuse matching observations and keep unfamiliar combinations explicitly unknown."
+          "why_partial": "The shared version-scoped fact store and recorder planning lookup already work. What remains is deliberate depth for untested app versions and recording gotchas, which is best done in a dedicated environment. Ordinary use should keep adding compact observations now, including source/menu behavior, timing confidence, failures and private evidence references; this does not require a full certification pass before shipping.",
+          "summary": "Grow recording-specific app knowledge during normal use; deepen missing app cases in a dedicated environment.",
+          "work_state": "deferred",
+          "work_updated_at": "2026-10-10T18:13:51-04:00",
+          "prerequisite": {
+            "environment": "Dedicated uninterrupted runtime with selected daily apps and permission to prepare the needed owned test cases.",
+            "user_involvement": "No hands-on input; agree the app scope and hand over the environment.",
+            "ready_when": "The chosen apps/versions and uninterrupted environment are available for targeted missing cases."
+          },
+          "acceptance": [
+            "Selected apps have useful recording-specific source choices and gotchas in the existing shared store.",
+            "Facts preserve versions, uncertainty, expiry/conflicts and private evidence links, and are retrievable during recorder planning."
+          ],
+          "doc_link": "/Users/taylor/src/github/dotfiles/src/record-screen/qualification/FOLLOW-UP.md"
         },
         {
           "id": "requalification",
-          "title": "Build maintained app lanes and breadth-first requalification",
+          "title": "Learn from app changes and repair actual failures",
           "status": "partial",
           "scope": "Baseline ingestion for stable daily apps and updates when app/provider/OS behavior changes.",
           "evidence": "Stage53 targeted TextEdit lane prepares fresh owned document through native display-placement menu, captures typeface overflow for both app child settings, and preserves old off-Space -3811. Context/nested coverage remains unknown; no universal app certification. Stage71 adds documented Safari native-select/change/dismiss/editing-root depth lane with actual decoded frames, continuous markers, timestamp proofs and black-tail failure. Shared exact-environment facts read back. Nested/overflow variants remain unqualified; no broad update churn or automatic canary claim. Stage72 native nested menu shrinks352→210px wide, then298→206px high with scrolling inside222px parent. Both sources show first/last row and selection/dismissal; UI itself ellipsizes labels. No overflow qualification. Stage73 new sustained-motion duration extends the owned source envelope; all counter samples correct and explicit long-reader refusal retained. Stage75 shared facts now reach recorder planning directly. Exact changed app_build returns missing evidence rather than inheriting prior observations; typed conflict/unknown/mismatched-target cases tested. No automatic requalification or canary execution.",
-          "next": "Extend a remaining useful real-app overflow/changed-fit variant; use opt-in exact shared app learning to avoid repeating settled source proofs.",
+          "next": "Follow the fast-shipping/repair principle and implement the Ready recorder ticket pipeline; do not build a universal update-blocking test matrix.",
           "anchor": "seventy-fifth-pass",
           "updated_at": "2026-10-09T18:19:07-04:00",
-          "why_partial": "We have app-specific test procedures and version-scoped observations, but the service does not yet automatically run the right checks after an app or tool update. That requires additional automation to detect changes, choose tests and save the new results; repeating the existing menu tests alone would not finish it. This engineering was deferred from the delivered scope, so use targeted manual checks when a relevant version changes."
+          "why_partial": "Automatic broad app requalification is not implemented and is no longer the preferred next step. Taylor wants fast local delivery, embedded learning and a dependable bug-to-fix path. Keep the existing app observations and targeted smoke checks; the new Ready repair-ticket task will provide durable issue IDs, developer dispatch, a release log and a ready-for-use signal.",
+          "summary": "Ship local changes quickly, learn from actual failures and use targeted repair rather than broad update gates.",
+          "work_state": "ready",
+          "work_updated_at": "2026-10-10T18:13:51-04:00",
+          "doc_link": "/Users/taylor/src/github/dotfiles/src/record-screen/qualification/FOLLOW-UP.md"
         },
         {
           "id": "workflow-audit",
-          "title": "Verify the quality of recent shared computer-use workflows",
+          "title": "Keep computer-use quality with its owning maintainers",
           "status": "partial",
           "scope": "Assess delivered actions, verification and cleanup rather than tool-call counts.",
           "evidence": "Stage90 reconciles recent owned production sessions: retry1 has1verified/2unknown outcomes, retry2 has2verified/1unknown; all cleanupcomplete and zero uncovered receipts. Expired scopes stay unknown. Session metadata closure corrected after visible cleanup; no past bound edits or UI replay.",
-          "next": "Supported typed reporting/audits are delivered. Historical all-operation success and unknown expired attribution remain follow-up; do not replay settled workflows.",
+          "next": "Use computer use through its supported interface; route dependency implementation/repair to its own maintainers instead of taking over their audit backlog.",
           "anchor": "release-decision",
           "updated_at": "2026-10-10T16:47:00-04:00",
-          "why_partial": "Recent workflows have recorded outcomes, but some older records only show that an operation ran, not that it achieved the intended result on screen. Missing historical evidence cannot be honestly reconstructed after the fact. Keep those outcomes unknown, capture stronger evidence in future workflows and repeat an old action only when resolving it would change a current decision; a complete historical success claim remains unavailable."
+          "why_partial": "Computer use has its own implementation and maintenance responsibility. The recorder should specify the desired action and presentation, inspect its observed result and file a reproducible dependency issue when needed. Exhaustively grading historical computer-use workflows is not recorder work; preserve unknown old outcomes without making them a release blocker.",
+          "summary": "Computer-use maintainers own their workflow quality; the recorder reports concrete dependency failures.",
+          "work_state": "deferred",
+          "work_updated_at": "2026-10-10T18:13:51-04:00",
+          "prerequisite": {
+            "environment": "A current reproducible recording problem whose root cause belongs to the computer-use provider.",
+            "user_involvement": "No user input is inherently required; only a specific reproduction and the dependency maintainer’s workflow.",
+            "ready_when": "The owning computer-use maintainer accepts a bounded issue that helps a current recorder use case."
+          }
         },
         {
           "id": "receipt-integration",
@@ -591,10 +858,23 @@
           "status": "partial",
           "scope": "Capture durable operation evidence for native and browser actions.",
           "evidence": "Explicit native/browser scope and outcome proofs retained. Stage90 imports actual recent terminal native scopes, preserves expired attribution as unknown, and independently reads zero-uncovered audits and closed sessions. This does not intercept all provider preparation/read side effects.",
-          "next": "Use explicit supported scopes and typed outcomes. Automatic full-provider interception remains follow-up work; preserve unknown side effects.",
+          "next": "Use explicit supported scopes now; run the broader coverage pass in the dedicated environment.",
           "anchor": "release-decision",
           "updated_at": "2026-10-10T16:47:00-04:00",
-          "why_partial": "Actions placed inside an explicit tracking scope have durable records, but some automation tools also move focus or perform setup actions that are not automatically recorded as separate steps. Covering those remaining paths requires more integration work and targeted checks. That work was deferred from the delivered scope; use explicit action scopes and verified outcomes now, while leaving unobserved side effects unknown."
+          "why_partial": "Explicit action scopes and typed outcomes already work. Broader coverage needs a quiet environment to observe provider preparation, focus changes and read-side effects without mixing in user activity. The recorder will clarify and test the interface it consumes; instrumentation fixes inside computer use belong to that tool’s maintainers.",
+          "summary": "Compare hidden setup/focus side effects with action receipts in an uninterrupted provider test.",
+          "work_state": "deferred",
+          "work_updated_at": "2026-10-10T18:13:51-04:00",
+          "prerequisite": {
+            "environment": "Dedicated uninterrupted environment, known provider versions and independent action/input/outcome witnesses.",
+            "user_involvement": "No physical input required; Taylor hands over the environment rather than following an input script.",
+            "ready_when": "The sandbox and relevant provider paths are available for a bounded coverage comparison."
+          },
+          "acceptance": [
+            "Selected provider setup/read/focus paths have explicit observed coverage and unknowns.",
+            "Recorder-owned receipt handling is verified; provider implementation bugs are handed to their owner."
+          ],
+          "doc_link": "/Users/taylor/src/github/dotfiles/src/record-screen/qualification/FOLLOW-UP.md"
         },
         {
           "id": "shared-baseline-plan",
@@ -604,7 +884,10 @@
           "evidence": "Stage47 real TextEdit unknown-provider pass was incorrectly reusable with callertrue. Current policy1 blocks reserved unknown dimensions despite confirmation, preserves claimed/effective flags and same fact IDs. Seven planner/shared protocol checks pass; initial stale roster failure retained and affected recheck passed. Actual CLI/fresh shared MCP equal, once-only typed consumer verified/settled, uncovered0. Prior expiry/conflict/truncation proofs retained.",
           "next": "",
           "anchor": "forty-seventh-pass",
-          "updated_at": "2026-10-09T08:01:02-04:00"
+          "updated_at": "2026-10-09T08:01:02-04:00",
+          "summary": "Read-only shared-store planner and native CLI/fresh MCP consumer. Exact version/environment dimensions, expiry/conflict/unknown/truncation policy; no automatic UI or historical success grading.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "typed-workflow-outcomes",
@@ -614,7 +897,10 @@
           "evidence": "28 targeted tests passed; four outcome checks also extended to preserve null restart ends. Actual wrapper reused byte-identical 307-sample source/media proof and closed its own dispatched action before verification. CLI audited three owned reported episodes: two verified checks/one failed readiness, one completed/two partial cleanup. Unknown/no-proof/future/conflicting/truncated claims remain explicit.",
           "next": "",
           "anchor": "twenty-third-pass",
-          "updated_at": "2026-10-09T00:38:39-04:00"
+          "updated_at": "2026-10-09T00:38:39-04:00",
+          "summary": "Bounded shared outcome/audit contract, explicit callback wrapper and one actual installed source consumer; no automatic native CUA interception or historical task success grading.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         }
       ]
     },
@@ -630,7 +916,10 @@
           "evidence": "Stage55 final69 native parser checks,36 adjacent source-identity checks,5 CLI/MCP checks and18 actual private contract probes pass. Unknown/mistyped fields refuse; exact live ID honors app/title constraints; zero rejected-request sessions/capture. First installed caller refusal retained, corrected native25bdf541968a/freshMCP0.12.1 scheduling passes private4+installed4 exact mux joins; hide:false absent-target refusal proves correct adapter routing.89 prior scoped JSON hashes unchanged; private engines absent and production idle.",
           "next": "",
           "anchor": "fifty-fifth-pass",
-          "updated_at": "2026-10-09T12:07:51-04:00"
+          "updated_at": "2026-10-09T12:07:51-04:00",
+          "summary": "Native windows.list and four capture entries validate supported fields and surface selectors; exact window IDs honor optional app/title constraints. Scheduling caller metadata and adapter hide:false compatibility included. Other RPCs and time/file/capacity readiness remain separate.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "human-expectations",
@@ -640,7 +929,10 @@
           "evidence": "Background/cooperative/reserved production expectations documented. Actual retry2 callback yields two50s takes and independently observed visible cleanup79.598s into120s; input available/no extension. Earlier failed admissions preserved. Snapshot admission is not hard cancellation, an input lock or P80 guarantee. Aggregate menu scope expired/unknown; later session metadata closure separately corrected/read back. All recent owned sessions closed; no UI replay.",
           "next": "",
           "anchor": "release-decision",
-          "updated_at": "2026-10-10T16:46:35-04:00"
+          "updated_at": "2026-10-10T16:46:35-04:00",
+          "summary": "Clear background/cooperative/reserved-window expectations with input available and recovery choices.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "maintenance-fence",
@@ -650,7 +942,10 @@
           "evidence": "25 native checks, five client guards and private protocol passed. Installed engine also refused a scheduled take and new work under a lease; one capable-engine restart preserved history and grant.",
           "next": "",
           "anchor": "eighteenth-pass",
-          "updated_at": "2026-10-08T23:29:16-04:00"
+          "updated_at": "2026-10-08T23:29:16-04:00",
+          "summary": "Private and installed RPC idle fencing/single restart commitment. Controlled expiry and actual private/launchd exit; excludes first legacy race, physical sleep and cross-service/input isolation.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "release-rollback",
@@ -660,7 +955,10 @@
           "evidence": "Signed/state-preserving native delivery and private restoration proofs retained. Stage90 current signed6c/PID799 executable equals stage76 candidate SHA; strict signature check passes. Fresh registered0.19.1/28tools verifies retained input, exact previews, new36frame draft export and clean reader exit; current CLI equals MCP. Ordinary0.19.0 is explicitly identified; current CLI/fresh connection supplies new policy without peer restarts. Active OS-fault recovery remains separately partial.",
           "next": "",
           "anchor": "release-decision",
-          "updated_at": "2026-10-10T16:46:35-04:00"
+          "updated_at": "2026-10-10T16:46:35-04:00",
+          "summary": "Idle-boundary release with prior binary/state preserved and exact loaded-capability readback.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "installed-smoke",
@@ -670,7 +968,10 @@
           "evidence": "Exact signed9bfabf/PID24295 installed once through idle fence;98 prior state hashes unchanged. MCP0.13.0 tiny pair12 joins and final retained primary-relative5segments/3pages/CLI parity pass. Clock/capture-scope metadata verified; own sessions/readers settled.",
           "next": "",
           "anchor": "fifty-eighth-pass",
-          "updated_at": "2026-10-09T13:21:11-04:00"
+          "updated_at": "2026-10-09T13:21:11-04:00",
+          "summary": "Installed passive capture and source/export/time-map consumers, persisted-history recovery and owned cleanup. Tiny static smoke only; motion/menu/input/capacity stay in their existing gates.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "mcp-replay-boundary",
@@ -680,7 +981,10 @@
           "evidence": "Stage85 ordinary chat exposes28tools/status0.19.0; direct nested registration equals fresh MCP in all fields; original fitted guard preserved. Three focused current checks pass: reads reconnect and accepted session/schedule/stop/export mutations dispatch once after lost replies. Eight source/media hashes unchanged; owned readerexit0/maps/workerssettled; no peer restart.",
           "next": "",
           "anchor": "eighty-fifth-pass",
-          "updated_at": "2026-10-10T15:30:53-04:00"
+          "updated_at": "2026-10-10T15:30:53-04:00",
+          "summary": "Never automatically resend mutations after a lost reply; distinguish loaded adapter from native engine version. Preserve existing peer MCP processes.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "agent-runbooks",
@@ -690,17 +994,29 @@
           "evidence": "Published runbook now includes bounded retained-input query and precise broad/filtered metadata semantics. Scope-matched oracle selection, checked verification callbacks and corrections with retained conflicting history are documented after actual failed/corrected consumers. Fresh adapter/CLI contracts verified; routine provider/app/physical/capacity gates stay separate. Stage38 documents source versus reader storage limits, reference scenarios and explicit short-take coverage checks; loaded0.11.1/CLI agree without peer restart.",
           "next": "",
           "anchor": "thirty-eighth-pass",
-          "updated_at": "2026-10-09T05:49:48-04:00"
+          "updated_at": "2026-10-09T05:49:48-04:00",
+          "summary": "Published agent usage and recovery contracts, loaded capability discovery and advisory planning. Routine provider/app/physical/capacity adoption is tracked in separate gates.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
         {
           "id": "visual-composition",
           "title": "Build cursor styles, effects and final compositing recipes",
-          "status": "deferred",
-          "scope": "Custom cursor series, visual/audio cues, overlays, frames and composition strategy.",
-          "evidence": "Taylor explicitly moved visual composition to the next phase; cursor.svg is a test asset only.",
-          "next": "Revisit after capture foundations and production expectations are qualified.",
+          "status": "pending",
+          "scope": "One basic configurable cursor/click composition using the supplied test asset; broader visual styles remain later iterations.",
+          "evidence": "Taylor moved this work to Ready on October10. The supplied cursor.svg is a starting asset; the first basic configurable treatment has not yet been implemented.",
+          "next": "Implement one small cursor/click recipe with an explicit hotspot, service timing/coordinates, draft preview and final export.",
           "anchor": "strategy",
-          "updated_at": "2026-10-08T20:01:05-04:00"
+          "updated_at": "2026-10-08T20:01:05-04:00",
+          "summary": "Start a basic configurable cursor treatment using cursor.svg, a short take and a cheap alignment preview.",
+          "work_state": "ready",
+          "work_updated_at": "2026-10-10T18:13:51-04:00",
+          "acceptance": [
+            "Use /Users/taylor/Desktop/cursor.svg with a declared hotspot and configurable size/opacity.",
+            "Verify alignment on a short take using service-owned actual frame/event mapping.",
+            "Render a cheap preview and one final output while preserving an editable recipe."
+          ],
+          "doc_link": "/Users/taylor/src/github/dotfiles/src/record-screen/qualification/FOLLOW-UP.md"
         },
         {
           "id": "private-restoration",
@@ -710,7 +1026,50 @@
           "evidence": "Three privately loaded builds/PIDs verified and reaped: 767d45f6ce40 -> e0d053bc6732 -> 767d45f6ce40. All 22 cloned original files and two action receipts unchanged; exact source descriptors/counters survive old/new versions; authored checkpoint remains interrupted/non-final. Production PID/build and original hashes unchanged.",
           "next": "",
           "anchor": "twenty-first-pass",
-          "updated_at": "2026-10-09T00:12:12-04:00"
+          "updated_at": "2026-10-09T00:12:12-04:00",
+          "summary": "Actual preserved previous/current signed bundles; one copied terminal session and settled actions, with an authored interrupted checkpoint. No live install or producer restoration.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T18:10:51-04:00"
+        },
+        {
+          "id": "desktop-production-gate",
+          "title": "Add a desktop recording panel and global safe-pause gate",
+          "summary": "See recording state at a glance; pause future starts, drain current work safely and queue requests until resumed.",
+          "scope": "See recording state at a glance; pause future starts, drain current work safely and queue requests until resumed.",
+          "status": "pending",
+          "work_state": "ready",
+          "evidence": "New implementation brief requested by Taylor; no installed capability or implementation pass is claimed.",
+          "next": "Implement the shared service gate first, then its panel/widget; see the implementation brief.",
+          "anchor": "limits",
+          "updated_at": "2026-10-10T18:13:51-04:00",
+          "work_updated_at": "2026-10-10T18:13:51-04:00",
+          "acceptance": [
+            "The panel shows fresh active/queued/draining/paused state and unmistakable stale or unavailable data.",
+            "Pause closes admissions across MCP, CLI and already scheduled starts; current work reaches a declared safe boundary without an input lock.",
+            "Queued requests survive restart; resume handles elapsed schedules explicitly and cannot replay uncertain UI actions.",
+            "Evaluate a large native desktop widget; retain a live companion panel because widget refresh is system-managed."
+          ],
+          "doc_link": "/Users/taylor/src/github/dotfiles/src/record-screen/qualification/FOLLOW-UP.md"
+        },
+        {
+          "id": "recorder-repair-tickets",
+          "title": "File recorder bugs and notify waiting agents when a fix is usable",
+          "summary": "Return a durable ticket ID, dispatch targeted developer work, publish the verified release and wake subscribed consumers.",
+          "scope": "Return a durable ticket ID, dispatch targeted developer work, publish the verified release and wake subscribed consumers.",
+          "status": "pending",
+          "work_state": "ready",
+          "evidence": "New implementation brief requested by Taylor; no installed capability or implementation pass is claimed.",
+          "next": "Implement the durable ticket/worker/subscriber lifecycle in the brief; keep computer-use dependency repairs with that service’s maintainers.",
+          "anchor": "limits",
+          "updated_at": "2026-10-10T18:13:51-04:00",
+          "work_updated_at": "2026-10-10T18:13:51-04:00",
+          "acceptance": [
+            "A bounded MCP bug report creates or reuses a durable ticket and routes it to the recorder developer queue.",
+            "Targeted repair status distinguishes patch prepared from delivered, verified and ready for use.",
+            "A deterministic ticket watcher emits an idempotent completion signal, surviving restarts without model polling.",
+            "A waiting agent can continue other work, inspect the delivered build, retry explicitly and report whether it is unblocked."
+          ],
+          "doc_link": "/Users/taylor/src/github/dotfiles/src/record-screen/qualification/FOLLOW-UP.md"
         }
       ]
     }
@@ -3175,6 +3534,159 @@
       "from": "active",
       "to": "complete",
       "note": "Supported capture foundation release delivered and representative agent path verified. All three bounded closure batches finished: existing menu footage decision, current adapter/CLI input-preview-export verification, and explicit release disposition.49completed15partial1deferred; original broader partial scopes remain visible as limitations or follow-up, with no ongoing experiments. Visual composition stays deferred."
+    },
+    {
+      "kind": "work_state",
+      "id": "overflow-recovery",
+      "at": "2026-10-10T18:13:51-04:00",
+      "from": "ready",
+      "to": "deferred",
+      "note": "Timing parity directive added; broader repair waits for suitable same-scene evidence."
+    },
+    {
+      "kind": "work_state",
+      "id": "event-clock",
+      "at": "2026-10-10T18:13:51-04:00",
+      "from": "ready",
+      "to": "review",
+      "note": "Added a hypothetical input-to-frame example for Taylor’s review."
+    },
+    {
+      "kind": "work_state",
+      "id": "pointer-coordinates",
+      "at": "2026-10-10T18:13:51-04:00",
+      "from": "ready",
+      "to": "review",
+      "note": "Added a Retina/crop/export example for Taylor’s review."
+    },
+    {
+      "kind": "work_state",
+      "id": "sleep-clock",
+      "at": "2026-10-10T18:13:51-04:00",
+      "from": "ready",
+      "to": "deferred",
+      "note": "Taylor deferred sleep testing in favor of a visible global cooperative pause gate."
+    },
+    {
+      "kind": "work_state",
+      "id": "fitted-child-mapping",
+      "at": "2026-10-10T18:13:51-04:00",
+      "from": "ready",
+      "to": "deferred",
+      "note": "Activated an opportunistic genuine-overflow probe in the agent docs."
+    },
+    {
+      "kind": "work_state",
+      "id": "dense-events",
+      "at": "2026-10-10T18:13:51-04:00",
+      "from": "ready",
+      "to": "deferred",
+      "note": "Split physical input into a focused standalone test requiring Taylor’s active participation."
+    },
+    {
+      "kind": "work_state",
+      "id": "event-relevance",
+      "at": "2026-10-10T18:13:51-04:00",
+      "from": "ready",
+      "to": "deferred",
+      "note": "Adopted director-owned selection and dedicated-device direction; exhaustive human attribution is not current scope."
+    },
+    {
+      "kind": "work_state",
+      "id": "provider-gaps",
+      "at": "2026-10-10T18:13:51-04:00",
+      "from": "ready",
+      "to": "deferred",
+      "note": "Defined an expected-versus-observed delivery harness for an uninterrupted sandbox."
+    },
+    {
+      "kind": "work_state",
+      "id": "peer-failure",
+      "at": "2026-10-10T18:13:51-04:00",
+      "from": "ready",
+      "to": "review",
+      "note": "Rewrote failure-isolation explanation with worker and WindowServer examples."
+    },
+    {
+      "kind": "work_state",
+      "id": "resource-admission",
+      "at": "2026-10-10T18:13:51-04:00",
+      "from": "ready",
+      "to": "deferred",
+      "note": "Separated dedicated capacity tuning from a basic host-aware planning/logging task."
+    },
+    {
+      "kind": "work_state",
+      "id": "app-facts",
+      "at": "2026-10-10T18:13:51-04:00",
+      "from": "ready",
+      "to": "deferred",
+      "note": "Kept existing shared app learning and defined a dedicated depth pass with no new certification gate."
+    },
+    {
+      "kind": "work_state",
+      "id": "requalification",
+      "at": "2026-10-10T18:13:51-04:00",
+      "from": "ready",
+      "to": "ready",
+      "note": "Changed the forward strategy to learning from use and targeted repair, with a new Ready ticket pipeline."
+    },
+    {
+      "kind": "work_state",
+      "id": "workflow-audit",
+      "at": "2026-10-10T18:13:51-04:00",
+      "from": "ready",
+      "to": "deferred",
+      "note": "Decoupled computer-use maintenance and historical audit from recorder release scope."
+    },
+    {
+      "kind": "work_state",
+      "id": "receipt-integration",
+      "at": "2026-10-10T18:13:51-04:00",
+      "from": "ready",
+      "to": "deferred",
+      "note": "Moved broader receipt coverage to the dedicated uninterrupted environment."
+    },
+    {
+      "kind": "work_state",
+      "id": "visual-composition",
+      "at": "2026-10-10T18:13:51-04:00",
+      "from": "ready",
+      "to": "ready",
+      "note": "Taylor moved basic cursor/composition implementation to Ready."
+    },
+    {
+      "kind": "work_state",
+      "id": "chrome-depth",
+      "at": "2026-10-10T18:13:51-04:00",
+      "from": "ready",
+      "to": "deferred",
+      "note": "Retained Chrome breadth as opportunistic/deferred coverage, without repeating settled cases."
+    },
+    {
+      "kind": "item",
+      "id": "adaptive-resource-awareness",
+      "at": "2026-10-10T18:15:44-04:00",
+      "from": "pending",
+      "to": "completed",
+      "note": "Current CLI and fresh registered MCP0.19.2 both return host pressure/disk/coarse-load advice and saved private audit records, independently read back.18 focused policy/planner/integration checks pass. Native PID799 and active-take count unchanged; no capture, restart or settings change. Snapshot-only advisory; no continuous GPU/thermal/capacity guarantee."
+    },
+    {
+      "kind": "work_state",
+      "id": "adaptive-resource-awareness",
+      "at": "2026-10-10T18:15:44-04:00",
+      "from": "ready",
+      "to": "completed",
+      "note": "Delivered and read back the basic host-aware planning/logging baseline; dedicated capacity tuning remains Deferred."
+    },
+    {
+      "kind": "item",
+      "id": "visual-composition",
+      "at": "2026-10-10T18:15:44-04:00",
+      "from": "deferred",
+      "to": "pending",
+      "note": "Policy deferral removed by Taylor; now eligible for a basic first implementation, with no implementation pass claimed."
     }
-  ]
+  ],
+  "work_note": "Follow-up work is tracked separately from the completed capture-foundations baseline. Pending means underway; Ready can start; Deferred names its prerequisite; Review waits for Taylor’s second feedback."
 }

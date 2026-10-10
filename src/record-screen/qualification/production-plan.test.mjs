@@ -245,7 +245,7 @@ test('MCP planning does only readbacks; malformed input performs no RPC', async 
   lines.on('line', line => { const row = JSON.parse(line), p = pending.get(row.id); if (p) { clearTimeout(p.timer); pending.delete(row.id); row.error ? p.reject(new Error('protocol failure')) : p.resolve(row.result) } })
   const rpc = (method, params) => new Promise((resolve, reject) => { const id = ++serial; const timer = setTimeout(() => { pending.delete(id); reject(new Error('deadline')) }, 3000); pending.set(id, { resolve, reject, timer }); child.stdin.write(JSON.stringify({ jsonrpc: '2.0', id, method, params }) + '\n') })
   try {
-    assert.equal((await rpc('initialize', { protocolVersion: '2025-06-18' })).serverInfo.version, '0.19.1')
+    assert.equal((await rpc('initialize', { protocolVersion: '2025-06-18' })).serverInfo.version, '0.19.2')
     const listed = await rpc('tools/list', {})
     assert.equal(listed.tools.find(t => t.name === 'production_plan').annotations.readOnlyHint, true)
     const accepted = await rpc('tools/call', { name: 'production_plan', arguments: request })

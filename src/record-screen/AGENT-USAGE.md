@@ -1,10 +1,23 @@
 # Agent usage and recovery
 
+Read [service first principles](SERVICE-PRINCIPLES.md) before planning or
+extending a recording workflow. Timing parity is a core deliverable: pursue
+approximately 1 ms alignment, accept useful measured 1–10 ms bounds, preserve
+exact source clocks and uncertainty, and keep joins inside the service. Do not
+discard useful capabilities for unrealistic precision or infer equal visual
+content from equal timestamps. Rich event selection belongs to the driving
+agent; computer use remains a separately maintained tool dependency.
+
+The maintained checklist distinguishes work states (Completed, Pending,
+Ready, Deferred, Review) from historical verification. Desktop cooperative
+pause, automatic repair tickets and other Ready briefs are not installed tools.
+Visual composition has been moved to Ready; it is no longer deferred by policy.
+
 This is the capture-foundations production runbook. The installed native build
 6c238cc1ba80 and fresh adapter0.19.1 have the scoped proofs in
 [GATES.md](qualification/GATES.md). Treat these as a baseline, then inspect
-loaded status. Visual effects, cursor styling and composition recipes are the
-next phase. The [checklist](qualification/checklist.json) tracks unresolved
+loaded status. Visual effects, cursor styling and composition recipes are ready
+for a basic first implementation. The [checklist](qualification/checklist.json) tracks unresolved
 qualification; this runbook does not certify those environments.
 
 Stage85 verifies this chat's ordinary loaded adapter:28tools, status0.19.0,
@@ -71,6 +84,16 @@ node /Users/taylor/src/github/dotfiles/src/record-screen/cli.mjs production-plan
 
 `production_plan` returns obstacles or `candidate_requires_source_check`.
 It starts no recording, applies no capture settings and grants no UI permission.
+Fresh adapter0.19.2/current CLI add `resource_guidance.adaptive`: this call's
+memory-pressure/disk/coarse-load observations, explicit unknowns and conservative
+recommendations. Inspect `mcp_adapter.resource_awareness:1` on the intended
+connection. Advice changes under pressure but does not enforce admission,
+silently reduce fidelity or stop peers. Recheck before starting; this is not a
+continuous take monitor or a safe-capacity estimate. Compact private resource
+decision logs retain up to128 records under
+`~/.record-screen/diagnostics/resource-plans/` (or `RECORD_SCREEN_HOME`).
+Audit-write contention/failure is explicit and does not block planning. Existing
+loaded adapters need a fresh connection or the CLI; no peer restart is needed.
 For an exact window, confirm native identity and source content independently
 of DOM/tab automation. A background tab screenshot can succeed while native
 capture still targets another tab or an off-Space window. An on-screen flag

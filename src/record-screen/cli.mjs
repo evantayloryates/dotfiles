@@ -52,6 +52,7 @@ import { callerContext } from "./lib/caller.mjs";
 import { prepareMaintenance, validateMaintenance, releaseMaintenance } from "./lib/maintenance.mjs";
 import { install } from "./lib/install.mjs";
 import { planProduction, validateProductionRequest } from "./lib/production-plan.mjs";
+import { observeResourcePlan } from "./lib/resource-awareness.mjs";
 import { mapRecordingFrames, validateFrameMapRequest } from "./lib/frame-map.mjs";
 import { mapRegisteredFrame,validateRegisteredFrame } from "./lib/registered-frame.mjs";
 import { readPreviewFrames } from "./lib/preview-map.mjs";
@@ -205,7 +206,7 @@ try {
       const request = validateProductionRequest(JSON.parse(args[0] ?? "{}"));
       const status = await call("status");
       const windows = request.target.type === "window" ? await call("windows.list", { limit: 256, ...(status.capabilities?.transient_window_inventory === 1 ? {include_transients:true} : {}) }) : { windows: [], total: 0 };
-      out(planProduction(request, status, windows));
+      out(await observeResourcePlan(planProduction(request, status, windows)));
       break;
     }
     case "input-query": {

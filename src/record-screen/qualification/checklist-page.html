@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="checklist-revision" content="$revision">
+<title>Capture foundations checklist</title>
+<style>
+:root{color-scheme:light;--ink:#17202b;--paper:#f2f4f6;--line:#c9d3dd;--blue:#24727a;--muted:#455567}
+*{box-sizing:border-box}body{margin:0;color:var(--ink);background:var(--paper);font:16px/1.55 "Avenir Next",system-ui,sans-serif}
+main{max-width:1100px;margin:auto;padding:26px 24px 64px}a{color:var(--blue);text-underline-offset:3px}button{font:inherit;cursor:pointer}
+header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}h1{font-size:clamp(28px,4vw,38px);line-height:1.2;letter-spacing:-.025em;margin:20px 0 8px}h2{font-size:20px;line-height:1.3;margin:26px 0 8px}h4{font-size:16px;margin:16px 0 6px}p{max-width:76ch;margin:8px 0}.meta,time{font-size:13px;color:var(--muted)}
+.toolbar{padding:16px 0 12px;border-bottom:1px solid var(--line);margin:12px 0}.filters,.actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.filter,.action{border:1px solid var(--line);border-radius:5px;background:white;padding:7px 11px;color:var(--muted)}.filter{box-shadow:inset 0 -3px transparent}.filter[aria-pressed=true]{border-color:currentColor;box-shadow:inset 0 -3px currentColor;font-weight:600}.filter[aria-pressed=false]{color:#65717c;background:transparent}.filter span{margin-left:6px;font-variant-numeric:tabular-nums}.actions{margin-top:12px}.action{font-size:13px;padding:4px 9px}#visible-count{margin-left:auto}.completed{color:#24614e}.pending{color:#76520f}.ready{color:#126676}.deferred{color:#644880}.review{color:#94501a}
+ul.checklist{list-style:none;margin:0;padding:0}.item{border-top:1px solid var(--line);scroll-margin-top:14px}.item:last-child{border-bottom:1px solid var(--line)}.item-details>summary{list-style:none;display:grid;grid-template-columns:112px minmax(0,1fr) 16px;gap:16px;align-items:start;padding:14px 4px;cursor:pointer}.item-details>summary::-webkit-details-marker{display:none}.item-details>summary:hover{background:#e8edf0}.status{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;border:1px solid currentColor;border-radius:4px;padding:3px 7px;width:max-content;white-space:nowrap;margin-top:1px;background:white}.item-title{display:block;font-size:17px;font-weight:600;line-height:1.35}.item-description{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;color:var(--muted);font-size:14px;line-height:1.45;margin-top:4px}.chevron{font-size:20px;line-height:1.1;color:var(--muted)}details[open]>summary .item-description{display:block}.item-details[open]>summary .chevron{transform:rotate(180deg)}.item-body{margin:0 36px 20px 132px;font-size:15px}.item-body>a{display:inline-block;margin:8px 20px 0 0}.callout{background:white;border-left:3px solid #b48b42;padding:12px 16px;margin:14px 0}.callout h4{margin:0 0 6px}.examples{border-left-color:var(--blue)}.review-note{border-left-color:#94501a}dl{margin:8px 0}dt{font-weight:600}dd{margin:0 0 10px;max-width:76ch}.auxiliary{margin:18px 0;font-size:14px}.auxiliary>summary{cursor:pointer;font-weight:600}.auxiliary li{margin:10px 0}.auxiliary time{display:block}.auxiliary p{max-width:85ch}.empty{padding:24px;background:white;border:1px solid var(--line)}footer{margin-top:28px;border-top:1px solid var(--line);padding-top:16px;font-size:13px;color:var(--muted)}[hidden]{display:none!important}:focus-visible{outline:3px solid var(--blue);outline-offset:4px}
+@media(max-width:600px){main{padding:18px 16px 48px}.item-details>summary{grid-template-columns:86px minmax(0,1fr) 12px;gap:10px}.item-title{font-size:16px}.status{font-size:12px;padding:3px 5px}.item-body{margin:0 0 18px}.filter{font-size:14px}.filter span{margin-left:3px}#visible-count{margin-left:0;width:100%}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body><main>
+<header><a href="$report_href">Back to Capture foundations</a><span class="meta">Updated <time datetime="$updated_at">$updated_label</time></span></header>
+<h1>Capture foundations checklist</h1>
+<p>Choose states to show. Expand an item for its evidence, examples and next step.</p>
+<div class="toolbar">
+<div class="filters" role="group" aria-label="Filter by work state">$filters</div>
+<div class="actions"><button class="action" id="show-all" type="button">Show all states</button><button class="action" id="expand-visible" type="button">Expand visible</button><button class="action" id="collapse-all" type="button">Collapse all</button><span class="meta" id="visible-count" role="status" aria-live="polite">$total items</span></div>
+</div>
+<p class="empty" id="empty" hidden>No items match these states. Select another state or show all states.</p>
+$groups
+<details class="auxiliary"><summary>What the states mean</summary><dl>$legend</dl><p>Work state describes what happens next. The separate verification record inside each item preserves what has actually passed, failed or remains partial. Review stays Review until Taylor responds; Deferred moves to Ready when its stated prerequisite is met.</p></details>
+<details class="auxiliary"><summary>Delivered baseline and operating limits</summary><p><strong>Capture foundations: $workflow.</strong> $workflow_note</p><p>$production_note</p><p>Completed applies to the written scope. New work does not erase earlier passes or failures, and a Ready task is not an implemented capability.</p></details>
+<details class="auxiliary"><summary>Recent state changes</summary><ul>$history</ul></details>
+<footer><p>The page is generated from the maintained checklist. Reload to see new evidence or state changes. Filters are saved in this page’s URL; filter buttons do not change the underlying work states.</p><a href="$report_href">Back to Capture foundations</a></footer>
+</main>
+<script>
+(() => {
+  const buttons = [...document.querySelectorAll('[data-filter]')];
+  const items = [...document.querySelectorAll('.item')];
+  const groups = [...document.querySelectorAll('.checklist-group')];
+  const states = buttons.map(button => button.dataset.filter);
+  const selected = new Set(states);
+  const readFilters = () => {
+    const params = new URLSearchParams(location.search);
+    selected.clear();
+    (params.has('states') ? params.get('states').split(',') : states).filter(state => states.includes(state)).forEach(state => selected.add(state));
+  };
+  const apply = (save = false) => {
+    buttons.forEach(button => button.setAttribute('aria-pressed', String(selected.has(button.dataset.filter))));
+    items.forEach(item => { item.hidden = !selected.has(item.dataset.state); });
+    groups.forEach(group => { group.hidden = ![...group.querySelectorAll('.item')].some(item => !item.hidden); });
+    const count = items.filter(item => !item.hidden).length;
+    document.getElementById('visible-count').textContent = count + ' of ' + items.length + ' items';
+    document.getElementById('empty').hidden = count > 0;
+    if (save) {
+      const url = new URL(location.href);
+      if (selected.size === states.length) url.searchParams.delete('states');
+      else url.searchParams.set('states', states.filter(state => selected.has(state)).join(','));
+      history.replaceState(null, '', url);
+    }
+  };
+  const openHash = () => {
+    let id;
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch { return; }
+    const item = items.find(candidate => candidate.id === id);
+    if (!item) return;
+    selected.add(item.dataset.state);
+    apply(true);
+    item.querySelector('.item-details').open = true;
+    item.scrollIntoView({block:'start'});
+  };
+  buttons.forEach(button => button.addEventListener('click', () => {
+    const state = button.dataset.filter;
+    if (selected.has(state)) selected.delete(state); else selected.add(state);
+    apply(true);
+  }));
+  document.getElementById('show-all').addEventListener('click', () => { states.forEach(state => selected.add(state)); apply(true); });
+  document.getElementById('expand-visible').addEventListener('click', () => items.filter(item => !item.hidden).forEach(item => { item.querySelector('.item-details').open = true; }));
+  document.getElementById('collapse-all').addEventListener('click', () => items.forEach(item => { item.querySelector('.item-details').open = false; }));
+  window.addEventListener('hashchange', openHash);
+  window.addEventListener('popstate', () => { readFilters(); apply(); openHash(); });
+  readFilters(); apply(); openHash();
+})();
+</script>
+</body></html>

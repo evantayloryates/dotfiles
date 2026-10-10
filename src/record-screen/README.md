@@ -4,6 +4,22 @@ An always-on screen-recording engine that agents drive through the
 `record-screen` MCP. This folder holds the engine (`record-screend`, Swift on
 ScreenCaptureKit), the MCP server, and a command line.
 
+## Current development direction
+
+Read [service first principles](SERVICE-PRINCIPLES.md) and the maintained
+[follow-up briefs](qualification/FOLLOW-UP.md). Timing parity is a core
+deliverable: pursue measured alignment near1ms, accept useful1–10ms bounds and
+preserve exact clocks/frame identity with uncertainty. The recorder owns timing
+joins; driving agents select relevant events from rich bounded evidence.
+Computer use is a separately maintained dependency. Local updates favor
+targeted checks, use-driven learning and quick repair over broad release gates.
+
+Current CLI/fresh MCP0.19.2 planning adds coarse host-aware resource advice and
+bounded private decision logs; it does not change settings or enforce resource
+admission. Desktop safe-pause control and automated repair tickets are Ready
+briefs, not installed tools. Basic cursor composition is Ready. The checklist's
+five work states preserve the separate historical qualification results.
+
 For production coordination, start with [the agent usage and recovery runbook](AGENT-USAGE.md).
 It separates delivered capabilities from app/provider checks still needed.
 Native menu inclusion also needs actual app/display qualification: see the

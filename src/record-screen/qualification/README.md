@@ -450,7 +450,7 @@ new evidence rather than rerunning it to investigate another unrelated gate.
 
 ## Maintained progress checklist
 
-Canonical states, scopes, evidence and transition history live in
+Canonical work states, verification records, scopes, evidence and history live in
 `checklist.json`. The published page is
 `/Users/taylor/src/docs/html/record-screen-strategies/checklist.html`, linked from
 Capture foundations. Completed means verified for the stated scope; candidate
@@ -468,8 +468,9 @@ python3 src/record-screen/qualification/checklist.py update ITEM_ID \
   --why-partial 'What remains, why it is unfinished, what would close it, and what works now.'
 ```
 
-Statuses: `completed`, `partial`, `in_progress`, `needs_retest`, `pending`,
-`deferred`. Use an empty `--next ''` only for a completed scoped check. Update
+Verification statuses remain `completed`, `partial`, `in_progress`,
+`needs_retest`, `pending`, `deferred`, preserving historical evidence.
+Use an empty `--next ''` only for a completed scoped check. Update
 scope with `--scope` when acceptance criteria change. Do not mark a pending
 release complete because an isolated candidate passed. Commands save history,
 record Eastern time and immediately regenerate the page.
@@ -481,6 +482,28 @@ deliberately deferred coverage. Explain the next requirement and the supported
 option available now. Existing explanations are retained when the flag is
 omitted; refresh them whenever the item's limits change. Validation rejects a
 partial item without an explanation. Other statuses do not display this section.
+
+The compact page starts with every item collapsed. Its multi-select filters use
+the independent `work_state`: `completed`, `pending` (underway), `ready`,
+`deferred` or `review`. Ready is eligible work, not an implemented capability.
+Review waits for Taylor's feedback. Deferred requires `prerequisite.environment`,
+`prerequisite.user_involvement` and `prerequisite.ready_when`; be explicit about
+hands-on participation versus an uninterrupted environment. Preserve the
+verification status and its evidence when only the next-work decision changes.
+
+```sh
+python3 src/record-screen/qualification/checklist.py work-state ITEM_ID \
+  --state deferred --note 'Waiting for the agreed standalone input test.' \
+  --environment 'Owned fixture, no competing automation.' \
+  --user-involvement 'About 60–90 seconds of focused physical input.' \
+  --ready-when 'Taylor chooses the interval and the fixture is prepared.'
+```
+
+Each item needs a short `summary`. Optional `examples`, `acceptance`,
+`review_question` and `doc_link` appear in its expanded body. The renderer uses
+`checklist-page.html`; it stores filter selections in the URL, reveals linked
+items, hides empty groups and preserves no-match feedback. It does not edit
+canonical work states from the browser. Keep source data current, then render.
 
 ```sh
 python3 src/record-screen/qualification/checklist.py workflow \

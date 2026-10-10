@@ -9,6 +9,7 @@ import json
 from pathlib import Path
 import re
 import tempfile
+from string import Template
 from zoneinfo import ZoneInfo
 
 SOURCE = Path(__file__).with_name('checklist.json')
@@ -22,6 +23,13 @@ STATUSES = {
     'deferred': ('Deferred', '—', 'Intentionally outside the current phase.'),
 }
 WORKFLOW = {'paused': 'Paused', 'active': 'In progress', 'blocked': 'Needs input', 'complete': 'Complete'}
+WORK_STATES = {
+    'completed': ('Completed', '✓', 'Delivered or verified for the written scope.'),
+    'pending': ('Pending', '↻', 'Work is underway; completion has not been verified.'),
+    'ready': ('Ready', '○', 'Can be picked up without an outstanding prerequisite.'),
+    'deferred': ('Deferred', '—', 'Wanted, but waiting for the stated environment, participation or evidence.'),
+    'review': ('Review', '?', 'An explanation or decision is ready for Taylor’s feedback.'),
+}
 
 
 def timestamp(value):
@@ -55,6 +63,16 @@ def validate(data):
             item_ids.add(item['id'])
             if item['status'] not in STATUSES:
                 raise ValueError(f'invalid status: {item["id"]}')
+            if item.get('work_state') not in WORK_STATES:
+                raise ValueError(f'invalid work state: {item["id"]}')
+            if not item.get('summary', '').strip():
+                raise ValueError(f'missing compact summary: {item["id"]}')
+            if item['work_state'] == 'deferred':
+                for field in ['environment', 'user_involvement', 'ready_when']:
+                    if not item.get('prerequisite', {}).get(field, '').strip():
+                        raise ValueError(f'deferred item needs {field}: {item["id"]}')
+            if item['work_state'] == 'review' and not item.get('review_question', '').strip():
+                raise ValueError(f'review item needs a feedback question: {item["id"]}')
             for field in ['scope', 'evidence', 'anchor']:
                 if not item[field].strip():
                     raise ValueError(f'missing {field}: {item["id"]}')
@@ -67,12 +85,12 @@ def validate(data):
             timestamp(item['updated_at'])
     for change in data['history']:
         timestamp(change['at'])
-        if change['kind'] not in ['workflow','item']:
+        if change['kind'] not in ['workflow','item','work_state']:
             raise ValueError('invalid transition kind')
-        allowed = WORKFLOW if change['kind'] == 'workflow' else STATUSES
+        allowed = WORKFLOW if change['kind'] == 'workflow' else WORK_STATES if change['kind'] == 'work_state' else STATUSES
         if change['from'] not in allowed or change['to'] not in allowed:
             raise ValueError('invalid transition history')
-        if change['kind'] == 'item' and change['id'] not in item_ids:
+        if change['kind'] != 'workflow' and change['id'] not in item_ids:
             raise ValueError('history references an unknown item')
     return data
 
@@ -100,58 +118,46 @@ def render_checklist(data, output=OUTPUT, report_href='capture-readiness.html'):
         raise ValueError('report link must be a sibling HTML page')
     esc = html.escape
     items = [item for group in data['groups'] for item in group['items']]
-    counts = Counter(item['status'] for item in items)
+    counts = Counter(item['work_state'] for item in items)
     revision = hashlib.sha256(json.dumps(data, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
     updated = timestamp(data['updated_at']).astimezone(ZoneInfo('America/New_York'))
-    display_date = updated.strftime('%B %d, %Y at %I:%M %p %Z').replace(' 0', ' ')
-    page = f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="checklist-revision" content="{revision}"><title>Capture foundations checklist</title>
-<style>
-:root{{color-scheme:light;--ink:#17202b;--paper:#f2f4f6;--line:#c9d3dd;--blue:#24727a}}*{{box-sizing:border-box}}body{{margin:0;color:var(--ink);background:var(--paper);font:17px/1.6 "Avenir Next",system-ui,sans-serif}}main{{max-width:1100px;margin:auto;padding:32px 24px 72px}}a{{color:var(--blue);text-underline-offset:3px}}h1{{font-size:clamp(30px,5vw,46px);line-height:1.15;letter-spacing:-.025em;margin:32px 0 16px}}h2{{font-size:25px;line-height:1.25;margin:42px 0 8px}}p{{max-width:76ch}}.meta{{font-size:15px;color:#455567}}.notice{{background:white;border-left:4px solid #805410;padding:14px 18px;margin:24px 0}}.notice p{{margin:5px 0}}nav,.counts{{display:flex;gap:10px 20px;flex-wrap:wrap}}nav{{margin:22px 0}}.counts{{margin:22px 0}}.status{{display:inline-flex;gap:7px;align-items:center;font-weight:600;font-size:14px;border:1px solid currentColor;border-radius:4px;padding:4px 9px;white-space:nowrap;background:white}}.completed{{color:#24614e}}.partial,.in_progress{{color:#76520f}}.needs_retest{{color:#a12538}}.pending{{color:#465260}}.deferred{{color:#644880}}ul.checklist{{list-style:none;margin:0;padding:0}}.item{{display:grid;grid-template-columns:150px minmax(0,1fr);gap:20px;padding:22px 0;border-top:1px solid var(--line);scroll-margin-top:20px}}.item:last-child{{border-bottom:1px solid var(--line)}}.item h3{{font-size:19px;line-height:1.35;margin:0 0 8px}}.item p{{margin:7px 0;font-size:16px}}.remaining-work{{background:white;border-left:3px solid #b48b42;padding:12px 16px;margin:14px 0}}.remaining-work h4{{font-size:16px;line-height:1.4;margin:0 0 6px}}.remaining-work p{{margin:0}}.evidence-link,.recorded{{font-size:14px}}.recorded{{color:#455567;margin-left:14px}}.legend{{flex-basis:100%;background:white;padding:16px 20px;margin:26px 0}}.legend summary{{font-weight:600;cursor:pointer}}.legend dl{{display:grid;grid-template-columns:150px minmax(0,1fr);gap:12px 20px}}.legend dt{{font-weight:600}}.legend dd{{margin:0}}.history{{padding-left:22px}}.history li{{margin:12px 0}}footer{{margin-top:36px;border-top:1px solid var(--line);padding-top:18px;font-size:15px}}:focus-visible{{outline:3px solid var(--blue);outline-offset:4px}}@media(max-width:600px){{main{{padding:24px 16px 48px}}.item{{grid-template-columns:minmax(0,1fr);gap:10px}}.legend dl{{grid-template-columns:minmax(0,1fr);gap:6px}}.legend dd{{margin-bottom:12px}}.recorded{{display:block;margin:6px 0 0}}}}@media(prefers-reduced-motion:reduce){{html{{scroll-behavior:auto}}}}
-</style></head><body><main>
-<a href="{esc(report_href)}">Back to Capture foundations</a>
-<h1>Capture foundations checklist</h1>
-<p>What has been verified, what still needs work, and what comes after capture foundations.</p>
-<p class="meta">Updated <time datetime="{esc(data['updated_at'])}">{esc(display_date)}</time>. Each check links to its saved evidence; subsequent state changes are recorded below.</p>
-<div class="notice"><p><strong>Qualification: {esc(WORKFLOW[data['workflow']['state']])}.</strong> {esc(data['workflow']['note'])}</p><p>{esc(data['production_note'])}</p></div>
-<p><strong>Completed means verified for the stated scope.</strong> It does not mean every app, provider or failure mode is covered. Candidate checks and production delivery are tracked separately.</p>
-<div class="counts" aria-label="Checklist status counts">'''
-    for status, (label, icon, _) in STATUSES.items():
-        if counts[status]:
-            page += f'<span class="status {status}"><span aria-hidden="true">{icon}</span>{counts[status]} {esc(label.lower())}</span>'
-    page += '<details class="legend"><summary>What the statuses mean</summary><dl>'
-    for label, _, definition in STATUSES.values():
-        page += f'<dt>{esc(label)}</dt><dd>{esc(definition)}</dd>'
-    page += '</dl></details></div><nav aria-label="Checklist sections">'
+    filters = ''.join(f'<button type="button" class="filter {state}" data-filter="{state}" aria-pressed="true">{esc(label)} <span>{counts[state]}</span></button>' for state, (label, _, _) in WORK_STATES.items())
+    legend = ''.join(f'<dt>{esc(label)}</dt><dd>{esc(definition)}</dd>' for label, _, definition in WORK_STATES.values())
+    groups = []
     for group in data['groups']:
-        page += f'<a href="#{group["id"]}">{esc(group["title"])}</a>'
-    page += '</nav>'
-    for group in data['groups']:
-        page += f'<section aria-labelledby="{group["id"]}"><h2 id="{group["id"]}">{esc(group["title"])}</h2><ul class="checklist">'
+        rows = []
         for item in group['items']:
-            status = item['status']
-            label, icon, _ = STATUSES[status]
-            page += f'<li class="item" id="{item["id"]}" data-status="{status}"><div><span class="status {status}"><span aria-hidden="true">{icon}</span>{esc(label)}</span></div><div><h3>{esc(item["title"])}</h3><p>{esc(item["scope"])}</p>'
-            if status == 'partial':
-                page += f'<section class="remaining-work" aria-labelledby="{item["id"]}-remaining"><h4 id="{item["id"]}-remaining">Why the remaining work is still open</h4><p>{esc(item["why_partial"])}</p></section>'
-            page += f'<p><strong>Evidence:</strong> {esc(item["evidence"])}</p>'
+            state = item['work_state']
+            label, icon, _ = WORK_STATES[state]
+            parts = [f'<p><strong>Scope:</strong> {esc(item["scope"])}</p>']
+            if item.get('why_partial') and item['status'] == 'partial':
+                parts.append(f'<section class="callout"><h4>Why the remaining work is still open</h4><p>{esc(item["why_partial"])}</p></section>')
+            if item.get('examples'):
+                examples = ''.join(f'<p>{esc(example)}</p>' for example in item['examples'])
+                parts.append(f'<section class="callout examples"><h4>What this would look like</h4>{examples}</section>')
+            if state == 'deferred':
+                prerequisite = item['prerequisite']
+                parts.append('<section class="callout"><h4>What moves this to Ready</h4><dl>' + ''.join(f'<dt>{label}</dt><dd>{esc(prerequisite[field])}</dd>' for field,label in [('environment','Environment'),('user_involvement','Your involvement'),('ready_when','Ready when')]) + '</dl></section>')
+            if state == 'review':
+                parts.append(f'<section class="callout review-note"><h4>For your review</h4><p>{esc(item["review_question"])}</p></section>')
+            if item.get('acceptance'):
+                parts.append('<h4>Done when</h4><ul>' + ''.join(f'<li>{esc(step)}</li>' for step in item['acceptance']) + '</ul>')
+            parts.append(f'<p><strong>Verification record: {esc(STATUSES[item["status"]][0])}.</strong> {esc(item["evidence"])}</p>')
             if item['next']:
-                page += f'<p><strong>Next:</strong> {esc(item["next"])}</p>'
-            page += f'<a class="evidence-link" href="{esc(report_href)}#{item["anchor"]}">View supporting evidence</a><span class="recorded">Status recorded <time datetime="{esc(item["updated_at"])}">{esc(timestamp(item["updated_at"]).astimezone(ZoneInfo("America/New_York")).strftime("%b %d, %I:%M %p %Z"))}</time></span></div></li>'
-        page += '</ul></section>'
-    page += '<section><h2>Recent state changes</h2>'
-    if data['history']:
-        names = {item['id']:item['title'] for item in items}
-        page += '<ul class="history">'
-        for change in reversed(data['history'][-12:]):
-            labels = WORKFLOW if change['kind'] == 'workflow' else {s:v[0] for s,v in STATUSES.items()}
-            name = 'Qualification activity' if change['kind'] == 'workflow' else names[change['id']]
-            changed = timestamp(change['at']).astimezone(ZoneInfo('America/New_York')).strftime('%b %d, %I:%M %p %Z')
-            page += f'<li><strong>{esc(name)}:</strong> {esc(labels[change["from"]])} → {esc(labels[change["to"]])}. {esc(change["note"])} <span class="meta">{esc(changed)}</span></li>'
-        page += '</ul>'
-    else:
-        page += '<p>This is the initial reconciled checklist. Subsequent state changes will appear here.</p>'
-    page += f'</section><footer><p>This page is regenerated when qualification states or supporting evidence change. Reload an open page to see the latest published checkpoint.</p><a href="{esc(report_href)}">Back to Capture foundations</a></footer></main></body></html>'
+                parts.append(f'<p><strong>Next:</strong> {esc(item["next"])}</p>')
+            parts.append(f'<a href="{esc(report_href)}#{item["anchor"]}">View supporting evidence</a>')
+            if item.get('doc_link'):
+                parts.append(f'<a href="{esc(item["doc_link"], quote=True)}">Read the implementation brief</a>')
+            rows.append(f'<li class="item" id="{item["id"]}" data-state="{state}"><details class="item-details"><summary><span class="status {state}"><span aria-hidden="true">{icon}</span>{esc(label)}</span><span class="item-heading"><span class="item-title">{esc(item["title"])}</span><span class="item-description">{esc(item["summary"])}</span></span><span class="chevron" aria-hidden="true">⌄</span></summary><div class="item-body">' + ''.join(parts) + '</div></details></li>')
+        groups.append(f'<section class="checklist-group" aria-labelledby="{group["id"]}"><h2 id="{group["id"]}">{esc(group["title"])}</h2><ul class="checklist">' + ''.join(rows) + '</ul></section>')
+    names = {item['id']:item['title'] for item in items}
+    history = []
+    for change in reversed(data['history'][-12:]):
+        labels = WORKFLOW if change['kind'] == 'workflow' else {s:v[0] for s,v in (WORK_STATES if change['kind'] == 'work_state' else STATUSES).items()}
+        name = 'Qualification activity' if change['kind'] == 'workflow' else names[change['id']]
+        history.append(f'<li><strong>{esc(name)}:</strong> {esc(labels[change["from"]])} → {esc(labels[change["to"]])}. {esc(change["note"])} <time datetime="{esc(change["at"])}">{esc(timestamp(change["at"]).strftime("%b %d, %I:%M %p %Z"))}</time></li>')
+    template = Template(Path(__file__).with_name('checklist-page.html').read_text())
+    page = template.substitute(revision=revision, report_href=esc(report_href), updated_at=esc(data['updated_at']), updated_label=esc(updated.strftime('%b %d, %I:%M %p %Z')), filters=filters, legend=legend, groups=''.join(groups), history=''.join(history), workflow=esc(WORKFLOW[data['workflow']['state']]), workflow_note=esc(data['workflow']['note']), production_note=esc(data['production_note']), total=len(items))
     atomic_write(output, page)
     return {'items':len(items), 'counts':dict(counts), 'revision':revision, 'output':str(output)}
 
@@ -172,6 +178,15 @@ def main():
     update.add_argument('--scope')
     update.add_argument('--anchor')
     update.add_argument('--why-partial', help='Plain-language reason the remainder is open, what would close it, and the current supported option.')
+    work = commands.add_parser('work-state')
+    work.add_argument('id')
+    work.add_argument('--state', choices=WORK_STATES, required=True)
+    work.add_argument('--note', required=True)
+    work.add_argument('--summary')
+    work.add_argument('--environment')
+    work.add_argument('--user-involvement')
+    work.add_argument('--ready-when')
+    work.add_argument('--review-question')
     workflow = commands.add_parser('workflow')
     workflow.add_argument('--state', choices=WORKFLOW, required=True)
     workflow.add_argument('--note', required=True)
@@ -189,13 +204,27 @@ def main():
                 item[key] = getattr(args,key)
         data['history'].append({'kind':'item','id':args.id,'at':now,'from':previous,'to':args.status,'note':args.evidence})
         data['updated_at'] = now
+    elif args.command == 'work-state':
+        item = next((item for group in data['groups'] for item in group['items'] if item['id'] == args.id), None)
+        if item is None:
+            parser.error('unknown checklist item')
+        previous = item['work_state']
+        item.update(work_state=args.state, work_updated_at=now)
+        for key in ['summary', 'review_question']:
+            if getattr(args, key) is not None:
+                item[key] = getattr(args, key)
+        for key in ['environment', 'user_involvement', 'ready_when']:
+            if getattr(args, key) is not None:
+                item.setdefault('prerequisite', {})[key] = getattr(args, key)
+        data['history'].append({'kind':'work_state','id':args.id,'at':now,'from':previous,'to':args.state,'note':args.note})
+        data['updated_at'] = now
     elif args.command == 'workflow':
         previous = data['workflow']['state']
         data['workflow'] = {'state':args.state,'note':args.note}
         data['history'].append({'kind':'workflow','at':now,'from':previous,'to':args.state,'note':args.note})
         data['updated_at'] = now
     validate(data)
-    if args.command in ['update','workflow']:
+    if args.command in ['update','workflow','work-state']:
         atomic_write(args.source, json.dumps(data, indent=2, ensure_ascii=False)+'\n')
     if args.command == 'validate':
         print(json.dumps({'valid':True,'items':sum(len(g['items']) for g in data['groups'])}))

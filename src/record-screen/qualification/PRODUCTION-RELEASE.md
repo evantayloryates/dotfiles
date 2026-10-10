@@ -1,5 +1,14 @@
 # Capture foundations release decision
 
+Subsequent October10 planning update: the live checklist now separates next-work
+states from this release's historical qualification record. Taylor moved basic
+visual composition to Ready, deferred sleep testing, assigned review examples
+and prioritized timing parity, ordinary-use learning and targeted repairs.
+Current CLI/fresh MCP0.19.2 additionally deliver advisory host resource snapshots
+and compact private decision logs. See [first principles](../SERVICE-PRINCIPLES.md)
+and [follow-up briefs](FOLLOW-UP.md). The original release evidence below remains
+unchanged; desktop pause control and the ticket pipeline are not installed yet.
+
 October 10, 2026. The supported foundation is delivered through the existing
 signed native service and the registered adapter/CLI paths. This decision uses
 Taylor's revised bounded goal. The original qualification checklist continues
