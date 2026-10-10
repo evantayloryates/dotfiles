@@ -14,7 +14,6 @@ LINKS = {
     'Library/LaunchAgents/com.taylor.kickoff-live-transcript.plist': 'src/launchagents/com.taylor.kickoff-live-transcript.plist',
     'Library/LaunchAgents/me.taylor.switchboard.outbox.plist': 'src/switchboard/launchd/me.taylor.switchboard.outbox.plist',
     '.local/bin/switchboard-outbox.sh': 'src/switchboard/bin/switchboard-outbox.sh',
-    '.skhdrc': 'src/skhd/skhdrc',
 }
 
 def main():
@@ -38,7 +37,7 @@ def main():
                 temporary.unlink(missing_ok=True)
         else:
             raise SystemExit('Trigger needs canonical symlink: '+installed)
-    print('All eight migrated trigger paths resolve to their canonical dotfiles sources')
+    print(f'All {len(LINKS)} migrated trigger paths resolve to their canonical dotfiles sources')
 
 if __name__ == '__main__':
     main()

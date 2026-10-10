@@ -211,3 +211,20 @@ when the fixed shortcut route is reachable.
 Locking may interrupt active iPhone Mirroring and its reconnect can require Mac
 authentication. Use `ios_device_lock` at a deliberate transition; never use it as
 a routine readiness poll. Ordinary status/wait operations send no locking input.
+
+## End-of-work phone presentation
+
+Taylor prefers the **Home Screen** after agents finish or pause phone work. No
+need to restore the previous app. Stop capture, end the native/page lease, verify
+glow/inspection cleanup, then navigate Home through a verified available system
+input route. Do not leave Kickoff DEV open without ongoing work. Preserve other
+agent ownership and do not navigate Home during intermediate session handoffs.
+
+`ios_end`/`ios_web_end` currently release control; they do **not** navigate Home.
+The paired lock shortcut is a separate action, not a Home substitute. Mirroring
+Home works only while its system-control session is reachable. On 10 October the
+Mac Shortcuts action search did not expose Go to Home Screen; the empty test
+shortcut was removed. A phone-local Home shortcut remains unqualified. When Home
+is unavailable, report `homeNavigationPending`; do not silently force-quit the
+app or start XCTest just for cleanup. Finish this remaining integration when the
+phone-side setup can be driven.

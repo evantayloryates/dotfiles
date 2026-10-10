@@ -48,6 +48,7 @@ struct HostMain {
       do {
         guard let url=WidgetBridge.snapshotURL else{throw RecorderControl.Failure("Shared container unavailable")}
         let sample=try RecorderControl.sample();try JSONEncoder().encode(sample).write(to:url,options:.atomic)
+        try FileManager.default.setAttributes([.posixPermissions:0o600],ofItemAtPath:url.path)
         print(String(data:try JSONEncoder().encode(sample),encoding:.utf8)!);return
       } catch {fputs("\(error)\n",stderr);exit(1)}
     }

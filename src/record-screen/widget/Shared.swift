@@ -42,8 +42,9 @@ enum RecorderControl {
     var address=sockaddr_un();address.sun_family=sa_family_t(AF_UNIX)
     let path=FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".record-screen/run/engine.sock").path
     guard path.utf8.count<MemoryLayout.size(ofValue:address.sun_path) else{throw Failure("Socket path too long")}
-    withUnsafeMutablePointer(to:&address.sun_path){p in p.withMemoryRebound(to:CChar.self,capacity:104){_ = path.withCString{strcpy($0,$1)}($0)}}
-    let connected=withUnsafePointer(to:&address){$0.withMemoryRebound(to:sockaddr.self,capacity:1){connect(fd,$0,socklen_t(MemoryLayout.size(ofValue:address)))}}
+    withUnsafeMutablePointer(to:&address.sun_path){p in p.withMemoryRebound(to:CChar.self,capacity:104){dest in path.withCString{source in _ = strcpy(dest,source)}}}
+    let addressSize=socklen_t(MemoryLayout.size(ofValue:address))
+    let connected=withUnsafePointer(to:&address){$0.withMemoryRebound(to:sockaddr.self,capacity:1){connect(fd,$0,addressSize)}}
     guard connected==0 else{throw Failure("Recorder did not answer")}
     var request=try JSONSerialization.data(withJSONObject:["id":1,"method":method,"params":[:]])
     request.append(10)
