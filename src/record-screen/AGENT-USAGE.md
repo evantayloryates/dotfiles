@@ -1,7 +1,7 @@
 # Agent usage and recovery
 
 This is the capture-foundations production runbook. The installed native build
-6c238cc1ba80 and current adapter0.19.0 have the scoped proofs in
+6c238cc1ba80 and fresh adapter0.19.1 have the scoped proofs in
 [GATES.md](qualification/GATES.md). Treat these as a baseline, then inspect
 loaded status. Visual effects, cursor styling and composition recipes are the
 next phase. The [checklist](qualification/checklist.json) tracks unresolved
@@ -11,6 +11,15 @@ Stage85 verifies this chat's ordinary loaded adapter:28tools, status0.19.0,
 registered native-menu output equal to fresh MCP and mutation_replay:"never".
 This is an observed current consumer, not a guarantee that every existing chat
 has reloaded. Inspect each consumer's status; preserve peer processes.
+
+The [supported release decision](qualification/PRODUCTION-RELEASE.md) defines
+what agents can use now and gives a disposition for every broader open gate.
+Stage90 verifies the registered0.19.1 retained-input/preview/export path and CLI
+parity. An existing0.19.0 consumer retains its observed contract; use current CLI
+or a fresh registered connection for nearest-content registration. The unfinished
+`include_source_context` candidate is not part of the public interface. Before
+claiming cleanup, read back `session_show.state`; use `session_update` with
+`state:"closed"`, not a metadata update or a file named closed-session.
 
 ## Choose the production arrangement
 

@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-10T16:21:11-04:00",
+  "updated_at": "2026-10-10T16:47:01-04:00",
   "workflow": {
-    "state": "active",
-    "note": "Retrospective: freeze new capability work and use three bounded closure batches: existing menu footage review, chosen agent-path verification, release decision. Keep all original acceptance scopes/statuses. Stage87 retry2 produced two50s takes and owned cleanup around79.6s after callback; pixel qualification remains unfinished and aggregate action scope expired. Previous notification-pending note is historical.47completed17partial1deferred; no new completion claimed. See PRODUCTION-GOAL.md execution correction."
+    "state": "complete",
+    "note": "Supported capture foundation release delivered and representative agent path verified. All three bounded closure batches finished: existing menu footage decision, current adapter/CLI input-preview-export verification, and explicit release disposition.49completed15partial1deferred; original broader partial scopes remain visible as limitations or follow-up, with no ongoing experiments. Visual composition stays deferred."
   },
-  "production_note": "Stage88 native6c/PID799 observed stable; current CLI/fresh MCP0.19.1 nearest retained content policy verified at four moving/static samples. Ordinary adapter remains0.19.0. Exact PTS/common clocks and independent RGB checks belong to service; original fitted guard retained.47completed17partial1deferred across65items; fullgoalactive.",
+  "production_note": "Supported release: signed native6c238cc1ba80/PID799 and fresh registered adapter0.19.1/28tools verified. Existing adapter0.19.0 retains its observed contract; current CLI/fresh launch supplies new registration policy.49completed15partial1deferred. Remaining broader scopes have explicit supported limits, external validation or research follow-up in the release decision; effects deferred. Unfinished reception/source-context candidate excluded.",
   "groups": [
     {
       "id": "capture",
@@ -106,10 +106,10 @@
           "title": "Prove a useful overflow capture and recovery path",
           "status": "partial",
           "scope": "Qualified padded-display and separate-popup paths plus guarded optional fixed-crop app-only lane. Whole-shot recovery and broader app/menu behavior remain open.",
-          "evidence": "Existing qualified padding/app/obstruction recovery proofs retained. Stage89 current exact source joins plus prior full-decode counters compare26648 frames: nearest moving state agreement about48%, authored matching-counter bound about51% within50ms; individual regressions and static source-age refusals retained. Temporal alignment alone cannot qualify whole-shot or animated patch recovery.",
-          "next": "Use prepared actual menu batch on fresh production callback. Verify needed dynamic pixels, not only geometry/time. Evaluate one adequate capture master for frame-exact derived views; no derived-source implementation or continuous recovery proof yet.",
-          "anchor": "eighty-ninth-pass",
-          "updated_at": "2026-10-10T16:09:09-04:00"
+          "evidence": "Qualified padded/app/obstruction recovery proofs retained. Stage89 shows independent animated streams can disagree despite close clocks; stage90 fixes release choice to qualified app/display fallback, inspected backup, trim or reshoot. Two50s sources retain selected menus; fixed app positions pass, but OS constrained menus inside parent. No whole-shot animated repair claim.",
+          "next": "Supported with explicit limits: use source-qualified app/padded display or inspect backup pixels before recovery. Automatic whole-shot animated rescue remains follow-up; no further registration tuning for this release.",
+          "anchor": "release-decision",
+          "updated_at": "2026-10-10T16:46:35-04:00"
         },
         {
           "id": "clean-source",
@@ -232,10 +232,10 @@
           "title": "Qualify coordinates when real child menus change source fitting",
           "status": "partial",
           "scope": "Actual child-enabled isolated window with above/below-parent popup fitting, including scale and source origin changes. Existing static/fixture maps retain their proven scope.",
-          "evidence": "Stage84 fitted/held and stage85 contained AppKit pairs remain verified. Stage87 legacy clock refusal and failed start retained. Stage88 fixes covering-vs-nearest source-content choice: four retained moving/static samples pass independent pixels with delta<=7.45325ms; zero delta refuses. CLI/fresh MCP0.19.1 equal, ordinary0.19.0 unchanged. Continuous/above-below real-menu fitting remains open.",
-          "next": "Use prepared small-parent menu capture on an actual fresh callback; verify tall/short/moved source fitting without rerunning settled motion samples. Nearest-content timestamp selection does not establish continuous mapping.",
-          "anchor": "eighty-eighth-pass",
-          "updated_at": "2026-10-10T15:59:47-04:00"
+          "evidence": "Frame-local fitted/held proofs and guards retained. Stage90 reviews actual retry2 root/short/nested/moved/dismissed encoded samples with2656exact mux/source joins. OS constrained menus inside parent, so no above/below fitting proof. Five fixed app-source positions pass; child-enabled downsampled window origin stays refused. Release strategy uses qualified app/padded-display fallback.",
+          "next": "Research follow-up: continuous above/below real-menu fitting remains unavailable. Use supported app/display sources; do not repeat this contained fixture or relax refusal guards.",
+          "anchor": "release-decision",
+          "updated_at": "2026-10-10T16:46:35-04:00"
         },
         {
           "id": "fitted-mapping-guard",
@@ -454,10 +454,10 @@
           "title": "Set a realistic resource and admission budget",
           "status": "partial",
           "scope": "CPU, memory, encoder/GPU/storage costs and useful production-duration estimates.",
-          "evidence": "Earlier source/resource profiles retained. Stage84 adds kernel advisory admission for one decode/RGB worker per recorder home across adapters: competing live owner refuses before decode, descriptor release admits verified next call. Owned overflow process-group stop/quarantine settlement tested. Metadata probes remain per adapter; no host-wide capacity/GPU/P80 guarantee. Stage86 reproduces worker death releasing admission while decoder survives; inherited kernel lease now stays held until actual holder closure. Controlled before/after and9distinct affected checks pass; ordinary retained result unchanged, no peer restart. Stalled holders still refuse; no active OS/host capacity proof.",
-          "next": "Measure useful remaining concurrent capture/insurance/reader capacity at a suitable interval; keep existing profiles and worker admission proof without repeating them.",
-          "anchor": "eighty-sixth-pass",
-          "updated_at": "2026-10-10T15:35:05-04:00"
+          "evidence": "Earlier source/resource profiles retained. Stage84 adds kernel advisory admission for one decode/RGB worker per recorder home across adapters: competing live owner refuses before decode, descriptor release admits verified next call. Owned overflow process-group stop/quarantine settlement tested. Metadata probes remain per adapter; no host-wide capacity/GPU/P80 guarantee. Stage86 reproduces worker death releasing admission while decoder survives; inherited kernel lease now stays held until actual holder closure. Controlled before/after and9distinct affected checks pass; ordinary retained result unchanged, no peer restart. Stalled holders still refuse; no active OS/host capacity proof. Stage90 retry2 sampler has only3points/no terminal result, so no new capacity or effective guard claim. Existing measured profiles and kernel admission proof remain authoritative.",
+          "next": "Supported with measured profiles and bounded reader admission; additional insurance is opt-in. Host-wide GPU/capacity/P80 certification remains follow-up, not a promise from configured slots.",
+          "anchor": "release-decision",
+          "updated_at": "2026-10-10T16:47:00-04:00"
         },
         {
           "id": "sparse-display-writer",
@@ -566,20 +566,20 @@
           "title": "Verify the quality of recent shared computer-use workflows",
           "status": "partial",
           "scope": "Assess delivered actions, verification and cleanup rather than tool-call counts.",
-          "evidence": "Stage82 three terminal receipts:2verified/1unknown after opener expired during handoff; all cleanupcomplete/uncovered0. Actual DOM key transition evidence retained independently, without rewriting expired delivery. Prior stage81 native recovery verified.",
-          "next": "Observe a new useful provider boundary; keep unknown expired scope and historical failures. Scope expiry during handoff requires fresh context for subsequent operations, not replay or edited timestamps.",
-          "anchor": "eighty-second-pass",
-          "updated_at": "2026-10-09T19:08:11-04:00"
+          "evidence": "Stage90 reconciles recent owned production sessions: retry1 has1verified/2unknown outcomes, retry2 has2verified/1unknown; all cleanupcomplete and zero uncovered receipts. Expired scopes stay unknown. Session metadata closure corrected after visible cleanup; no past bound edits or UI replay.",
+          "next": "Supported typed reporting/audits are delivered. Historical all-operation success and unknown expired attribution remain follow-up; do not replay settled workflows.",
+          "anchor": "release-decision",
+          "updated_at": "2026-10-10T16:47:00-04:00"
         },
         {
           "id": "receipt-integration",
           "title": "Improve automatic receipt coverage across providers",
           "status": "partial",
           "scope": "Capture durable operation evidence for native and browser actions.",
-          "evidence": "Stage82 browser operations explicitly bracketed and imported: opener expires/interrupted at handoff, DOM and close delivered/verified;3cleanupcomplete/uncovered0. Independent tab inventory preserves peer media UI; exact sessionclosed/nativeunchangedidle.",
-          "next": "Qualify ordinary full consumer adoption and remaining provider interception/read side effects. Explicit bracketing and separate actual delivery proof remain required.",
-          "anchor": "eighty-second-pass",
-          "updated_at": "2026-10-09T19:08:11-04:00"
+          "evidence": "Explicit native/browser scope and outcome proofs retained. Stage90 imports actual recent terminal native scopes, preserves expired attribution as unknown, and independently reads zero-uncovered audits and closed sessions. This does not intercept all provider preparation/read side effects.",
+          "next": "Use explicit supported scopes and typed outcomes. Automatic full-provider interception remains follow-up work; preserve unknown side effects.",
+          "anchor": "release-decision",
+          "updated_at": "2026-10-10T16:47:00-04:00"
         },
         {
           "id": "shared-baseline-plan",
@@ -620,12 +620,12 @@
         {
           "id": "human-expectations",
           "title": "Finalize production modes and interruption expectations",
-          "status": "partial",
+          "status": "completed",
           "scope": "Clear background/cooperative/reserved-window expectations with input available and recovery choices.",
-          "evidence": "Production expectations retained. Stage65 real human notification click writes initially empty private file; model-free7s watcher observes after5.985s and one native self-message reaches this active chat.60s menu batch completes within2min; input remains available, duplicate clicks cannot extend reservation. Active-session delivery only; no physical-input/sleep/permission authorization or unattended wake claim. Stage67 explicit fixed-crop window/app/display planning preserves no automatic following/expansion, unrelated display pixels and partial-coverage uncertainty. Actual disjoint cross-display crop refused. Planning creates no input/display lock or reservation. Stage68 real notification callback/private7s watcher emits one active-chat signal; new40s capture and owned close receipt117.289s after callback wall stamp fit reported120s. Input available, no duplicate extension. Final native-clock helper is synthetically checked only; human click/sleep/unattended wake through that revision remain unqualified. Stage70 final native-clock helper has an actual human click, model-free watcher, exactly-once prepared start and active-chat delivery. First reservation expired during preparation without a take; second final dismissal exceeded120s (observed138.669s) and action scope expired. Input remained available. Deadline enforcement and cleanup budget are not yet qualified. Stage71 production-click check reserves cleanup and rechecks action budget;9 boundary controls pass, including stage70 overrun, stale state, duplicate nonextension and unsafe clock/files. Actual old clicked signal refused without UI. Snapshot admission does not cancel running operations or establish protected live batch success. Taylor explicitly grants two hours AFK access and requests no human-dependent operations; physical-input offer declined for now. Stage72 explicit AFK access used without prompts/locks. Late45s action close remains failed; later five scrolling-menu actions close promptly. Production notification120s reservation has not been requalified.",
-          "next": "Qualify a protected live batch only when a real reservation is available; use separate explicit AFK authorization now. Keep per-action budgets, cleanup reserve and no input locking.",
-          "anchor": "seventy-second-pass",
-          "updated_at": "2026-10-09T17:51:25-04:00"
+          "evidence": "Background/cooperative/reserved production expectations documented. Actual retry2 callback yields two50s takes and independently observed visible cleanup79.598s into120s; input available/no extension. Earlier failed admissions preserved. Snapshot admission is not hard cancellation, an input lock or P80 guarantee. Aggregate menu scope expired/unknown; later session metadata closure separately corrected/read back. All recent owned sessions closed; no UI replay.",
+          "next": "",
+          "anchor": "release-decision",
+          "updated_at": "2026-10-10T16:46:35-04:00"
         },
         {
           "id": "maintenance-fence",
@@ -640,12 +640,12 @@
         {
           "id": "release-rollback",
           "title": "Install the candidate safely and verify rollback",
-          "status": "partial",
+          "status": "completed",
           "scope": "Idle-boundary release with prior binary/state preserved and exact loaded-capability readback.",
-          "evidence": "Stage76 signed/state-preserving native delivery, stage77 fresh listener/source canary and stage78 preview joins retained. Stage80 idle native UI-provider read fault leaves recorder6c/PID20948 and retained source readers/hashes intact; no provider/native/peer restart.",
-          "next": "Verify ordinary full consumer adoption at a safe launch. Preserve settled release/rollback and idle peer-isolation proof; active-capture fault salvage remains separate.",
-          "anchor": "eightieth-pass",
-          "updated_at": "2026-10-09T18:58:52-04:00"
+          "evidence": "Signed/state-preserving native delivery and private restoration proofs retained. Stage90 current signed6c/PID799 executable equals stage76 candidate SHA; strict signature check passes. Fresh registered0.19.1/28tools verifies retained input, exact previews, new36frame draft export and clean reader exit; current CLI equals MCP. Ordinary0.19.0 is explicitly identified; current CLI/fresh connection supplies new policy without peer restarts. Active OS-fault recovery remains separately partial.",
+          "next": "",
+          "anchor": "release-decision",
+          "updated_at": "2026-10-10T16:46:35-04:00"
         },
         {
           "id": "installed-smoke",
@@ -3097,6 +3097,69 @@
       "from": "active",
       "to": "active",
       "note": "Retrospective: freeze new capability work and use three bounded closure batches: existing menu footage review, chosen agent-path verification, release decision. Keep all original acceptance scopes/statuses. Stage87 retry2 produced two50s takes and owned cleanup around79.6s after callback; pixel qualification remains unfinished and aggregate action scope expired. Previous notification-pending note is historical.47completed17partial1deferred; no new completion claimed. See PRODUCTION-GOAL.md execution correction."
+    },
+    {
+      "kind": "item",
+      "id": "release-rollback",
+      "at": "2026-10-10T16:46:35-04:00",
+      "from": "partial",
+      "to": "completed",
+      "note": "Signed/state-preserving native delivery and private restoration proofs retained. Stage90 current signed6c/PID799 executable equals stage76 candidate SHA; strict signature check passes. Fresh registered0.19.1/28tools verifies retained input, exact previews, new36frame draft export and clean reader exit; current CLI equals MCP. Ordinary0.19.0 is explicitly identified; current CLI/fresh connection supplies new policy without peer restarts. Active OS-fault recovery remains separately partial."
+    },
+    {
+      "kind": "item",
+      "id": "human-expectations",
+      "at": "2026-10-10T16:46:35-04:00",
+      "from": "partial",
+      "to": "completed",
+      "note": "Background/cooperative/reserved production expectations documented. Actual retry2 callback yields two50s takes and independently observed visible cleanup79.598s into120s; input available/no extension. Earlier failed admissions preserved. Snapshot admission is not hard cancellation, an input lock or P80 guarantee. Aggregate menu scope expired/unknown; later session metadata closure separately corrected/read back. All recent owned sessions closed; no UI replay."
+    },
+    {
+      "kind": "item",
+      "id": "fitted-child-mapping",
+      "at": "2026-10-10T16:46:35-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Frame-local fitted/held proofs and guards retained. Stage90 reviews actual retry2 root/short/nested/moved/dismissed encoded samples with2656exact mux/source joins. OS constrained menus inside parent, so no above/below fitting proof. Five fixed app-source positions pass; child-enabled downsampled window origin stays refused. Release strategy uses qualified app/padded-display fallback."
+    },
+    {
+      "kind": "item",
+      "id": "overflow-recovery",
+      "at": "2026-10-10T16:46:35-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Qualified padded/app/obstruction recovery proofs retained. Stage89 shows independent animated streams can disagree despite close clocks; stage90 fixes release choice to qualified app/display fallback, inspected backup, trim or reshoot. Two50s sources retain selected menus; fixed app positions pass, but OS constrained menus inside parent. No whole-shot animated repair claim."
+    },
+    {
+      "kind": "item",
+      "id": "workflow-audit",
+      "at": "2026-10-10T16:47:00-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage90 reconciles recent owned production sessions: retry1 has1verified/2unknown outcomes, retry2 has2verified/1unknown; all cleanupcomplete and zero uncovered receipts. Expired scopes stay unknown. Session metadata closure corrected after visible cleanup; no past bound edits or UI replay."
+    },
+    {
+      "kind": "item",
+      "id": "receipt-integration",
+      "at": "2026-10-10T16:47:00-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Explicit native/browser scope and outcome proofs retained. Stage90 imports actual recent terminal native scopes, preserves expired attribution as unknown, and independently reads zero-uncovered audits and closed sessions. This does not intercept all provider preparation/read side effects."
+    },
+    {
+      "kind": "item",
+      "id": "resource-admission",
+      "at": "2026-10-10T16:47:00-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Earlier source/resource profiles retained. Stage84 adds kernel advisory admission for one decode/RGB worker per recorder home across adapters: competing live owner refuses before decode, descriptor release admits verified next call. Owned overflow process-group stop/quarantine settlement tested. Metadata probes remain per adapter; no host-wide capacity/GPU/P80 guarantee. Stage86 reproduces worker death releasing admission while decoder survives; inherited kernel lease now stays held until actual holder closure. Controlled before/after and9distinct affected checks pass; ordinary retained result unchanged, no peer restart. Stalled holders still refuse; no active OS/host capacity proof. Stage90 retry2 sampler has only3points/no terminal result, so no new capacity or effective guard claim. Existing measured profiles and kernel admission proof remain authoritative."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-10T16:47:01-04:00",
+      "from": "active",
+      "to": "complete",
+      "note": "Supported capture foundation release delivered and representative agent path verified. All three bounded closure batches finished: existing menu footage decision, current adapter/CLI input-preview-export verification, and explicit release disposition.49completed15partial1deferred; original broader partial scopes remain visible as limitations or follow-up, with no ongoing experiments. Visual composition stays deferred."
     }
   ]
 }

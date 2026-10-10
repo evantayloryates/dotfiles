@@ -154,3 +154,9 @@ test('actual MCP input query negotiates capability, validates before RPC and onl
   supported=false;calls.length=0;const missing=await send('tools/call',{name:'recording_input',arguments:request});assert.equal(missing.isError,true);assert.deepEqual(calls,['status']);
  }finally{child.stdin.end();child.kill('SIGTERM');await new Promise(resolve=>child.exitCode!==null||child.signalCode!==null?resolve():child.once('exit',resolve));lines.close();for(const s of sockets)s.destroy();await new Promise(resolve=>fake.close(resolve))}
 });
+
+// A retained candidate must not silently enlarge the supported public contract.
+test('unreleased source-context candidate is absent from supported input contract',()=>{
+ assert.equal(inputQueryHealth().reception_source_context,undefined);
+ assert.throws(()=>validateInputQuery({...request,include_source_context:true}),e=>e.code==='bad_input_query');
+});

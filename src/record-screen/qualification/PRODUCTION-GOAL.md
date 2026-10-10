@@ -1,5 +1,42 @@
 # Production qualification goal
 
+## Current checkpoint: supported release closure (stage90)
+
+The revised bounded goal supersedes the earlier universal qualification target.
+[PRODUCTION-RELEASE.md](PRODUCTION-RELEASE.md) defines supported agent workflows,
+source/fallback decisions and disposition of every broader open item. Original
+acceptance scopes and failure history remain unchanged.
+
+Current signed native6c238cc1ba80/PID799 equals the stage76 installed candidate
+hash; strict signature verification passes. Fresh registered adapter0.19.1 has
+28tools; ordinary chat0.19.0 retains its observed contract. Current CLI/fresh MCP
+input replies agree in every field. Four retained events/two keys, rich context
+and health, two exact preview joins, one new3s draft MP4/36fully decoded frames
+and exact export mapping pass. Original hashes unchanged/owned readerexit0.
+No new capture/UI/native install or peer restart in this closure batch.
+
+Retained retry2:1467window+1189app mux packets exactly match journals, zero loss.
+Root/short/nested/moved/dismissed encoded samples inspected; five authored app
+positions verified. OS constrained menus inside parent: no true overflow fit
+claim. Choose app/padded-display fallback; keep isolated origin refusal.
+Visible fixture cleanup79.598s after callback passes120s interval; aggregate
+menu scope expired/unknown attribution. Only3resource samples/no terminal result:
+no capacity/guard claim. Do not reshoot this fixture or retune registration.
+
+Files named closed-session actually held open state. Three recent owned session
+records now independently closed, after visible cleanup. Imported outcomes retain
+expired scopes as unknown and independently read back audits show zero uncovered
+receipts. No UI replay or reconstructed past timestamps. Unfinished reception-to-
+mux candidate remains in code but is no longer imported/exposed in supported
+input query;13affected contract checks pass. No new feature dependency remains.
+
+Release/rollback and production expectations now meet their original written
+scopes:49completed15partial1deferred. Broader research stays visible with explicit
+fallback/unavailable behavior and is not silently promoted. Eight-requirement completion audit passes: no remaining supported-release
+blockers, current native idle and three owned sessions independently closed.
+Goal-tool completion readback follows repository publication. No further background
+experiments are part of this supported release. Visual composition is deferred.
+
 ## Execution correction: bounded release decisions (2026-10-10)
 
 Taylor requested a retrospective because additional investigation was producing
@@ -68,7 +105,7 @@ unless the chosen release decision cannot be made from retained evidence. Prepar
 all actions before requesting a reservation, then give the callback immediate
 priority; no background implementation while a click reservation is pending.
 
-## Current checkpoint: stage89 dense source-state comparison — ACTIVE
+## Historical stage89 checkpoint: dense source-state comparison
 
 New numeric QA indexes26,648 current mux/source packets against prior decoded
 counter timelines. Nearest timestamps improve exact moving counter agreement
