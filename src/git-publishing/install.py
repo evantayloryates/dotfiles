@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Install only dotfiles Git defaults and its scoped Codex publishing rule."""
+"""Install dotfiles Git defaults and scoped Codex/Claude publishing guards."""
+import json
 from pathlib import Path
 import shutil
 import subprocess
@@ -24,3 +25,21 @@ else:
         rules.unlink()
     rules.symlink_to(target)
     print('Installed repo-local Git defaults and versioned Codex dotfiles rule. Existing sessions require policy reload/restart.')
+
+# Global registration also covers Claude chats started in another repository.
+# The hook itself acts only on direct pushes targeting the dotfiles checkout.
+claude_settings = Path.home() / '.claude/settings.json'
+settings = json.loads(claude_settings.read_text()) if claude_settings.exists() else {}
+hook = {'matcher': 'Bash', 'hooks': [{
+    'type': 'command',
+    'command': f'python3 "{source / "claude_guard.py"}"',
+    'timeout': 5,
+}]}
+pre = settings.setdefault('hooks', {}).setdefault('PreToolUse', [])
+if hook not in pre:
+    pre.append(hook)
+    claude_settings.parent.mkdir(parents=True, exist_ok=True)
+    if claude_settings.exists():
+        shutil.copy2(claude_settings, claude_settings.with_name('settings.before-dotfiles-' + str(time.time_ns()) + '.json.bak'))
+    claude_settings.write_text(json.dumps(settings, indent=2) + '\n')
+print('Claude dotfiles guard installed; existing hooks and permission preferences preserved.')

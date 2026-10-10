@@ -28,6 +28,10 @@ rewrite is ever needed, retain an explicit expected-SHA lease and preserve newer
 remote work. Keep master published; stop only for an actual unresolved conflict,
 credentials, an enforced policy refusal or a substantive failed check.
 
-Install repo defaults and Codex rules on another Mac with
+Claude reads this same guide through the `CLAUDE.md` symlink. Its project default
+is no-prompt mode; a scoped PreToolUse guard rejects common unsafe direct dotfiles
+pushes without prompting. Both harnesses use the same publisher and Git defaults.
+
+Install repo defaults and Codex/Claude guards on another Mac with
 `python3 src/git-publishing/install.py`. Worktrees share the publication lock;
 independent machines coordinate through the remote lease.

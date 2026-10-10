@@ -29,3 +29,21 @@ these are collaboration guardrails, not an adversarial Git security sandbox.
 
 Sources: https://git-scm.com/docs/git-push and
 https://developers.openai.com/codex/rules .
+
+## Claude parity
+
+`CLAUDE.md` links to the same `AGENTS.md`. `.claude/settings.json` pins the repo's
+existing no-prompt preference and allows the fixed publisher. The shared Git
+defaults apply to both harnesses. The installer preserves all existing global
+Claude settings/hooks and adds a Bash PreToolUse guard, so chats in other repos
+also get the dotfiles-only check. It denies common direct force/mirror/+ref pushes,
+including cwd, `cd` and Git `-C` forms; normal pushes and explicit leases continue
+through the existing permission flow. It never returns `ask` or overrides another
+guard. No global permission mode is changed. Secret/security hooks stay enabled.
+
+This is a collaboration guardrail, not a shell sandbox: generated scripts, aliases
+and nested interpreters are outside its scope. Use the publisher for complete
+fetch/rebase/lease guarantees. Load a fresh Claude session to ensure new hooks and
+guide text are active; existing sessions can retain earlier configuration.
+
+Hook protocol: https://code.claude.com/docs/en/hooks

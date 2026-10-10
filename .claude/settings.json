@@ -1,5 +1,10 @@
 {
   "permissions": {
+    "defaultMode": "bypassPermissions",
+    "allow": [
+      "Bash(/Users/taylor/dotfiles/bin/dotfiles-publish)",
+      "Bash(/Users/taylor/src/github/dotfiles/bin/dotfiles-publish)"
+    ],
     "additionalDirectories": ["/"]
   }
 }
