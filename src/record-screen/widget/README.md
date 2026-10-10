@@ -2,15 +2,22 @@
 
 The signed **Record Screen Control** companion and WidgetKit extension are
 installed under `data/record-screen/widget/Record Screen Control.app`.
-Widget build **b2a6d8226847** is separate from recorder build **e402dc736458**;
+Widget build **6bf373369ced** is separate from recorder build **e402dc736458**;
 installing it did not rebuild/restart the recorder or change its capture grants.
 
-Add it using **Desktop → Edit Widgets**, search **Screen recording** (app:
-**Record Screen Control**), and choose **Large**. Medium is also supported.
-Placement is normal per-user macOS configuration. Registration and a compiled
-widget are not evidence that it has been placed or visually verified. Current
-configuration count is zero; desktop appearance and actual link clicks still
-need Taylor’s placement and a final targeted UI check.
+The original build registered but was absent from the gallery: its executable
+returned before answering the system's descriptor request. The corrected build
+uses Xcode's `_NSExtensionMain` linker entry point. Notification Center now
+receives **Screen recording**, and WidgetKit successfully loads both Medium and
+Large gallery placeholders. A successful registration alone does not establish
+this; inspect the descriptor/placeholder result after installation.
+
+To add: right-click empty **desktop wallpaper**, choose **Edit Widgets**, search
+**Screen recording** (app **Record Screen Control**), and drag the Large preview
+to the desktop; click **Done**. Reopen an already-open gallery after an upgrade.
+The repaired extension's actual gallery/desktop appearance and link clicks still
+need a UI check. CUA cannot acquire Notification Center on this Mac in this run;
+configuration count remains zero. Do not claim visually verified placement.
 
 The widget shows sampled recording/queue/action counts, sample age and explicit
 unavailable/stale state. Pause and Resume links open the signed companion, which

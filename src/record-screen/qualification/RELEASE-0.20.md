@@ -12,7 +12,7 @@ keep their loaded code; the CLI reads current code without restarting peers.
   stale-timer fencing, no late auto-start after a queued start expires, native
   desktop reading/control panel and cross-client/CLI controls. Current takes
   drain safely; arbitrary external UI tools cooperate through checkpoints.
-- Native WidgetKit desktop companion b2a6d8226847, signed and registered, with
+- Native WidgetKit desktop companion 6bf373369ced, signed and registered, with
   sampled status, freshness, fixed Pause/Resume links and a Live panel link. Its
   control/snapshot checks passed; desktop placement and link-click UI checks
   await Taylor. No recorder restart or capture-permission change.
@@ -86,3 +86,10 @@ panel and native WidgetKit companion are installed. Actual widget placement
 and desktop link clicks still await Taylor; the OS currently reports zero
 configured instances. See [widget usage and evidence](../widget/README.md). No optional new qualification is silently
 made a blocker, and no unverified criterion is called completed.
+
+
+Widget gallery correction: the initial companion registered but exited before
+answering descriptor requests. The corrected extension matches Xcode's
+NSExtensionMain entry point. Notification Center receives its entry and both
+Medium/Large placeholders load successfully; actual visual placement/link-click
+verification remains outstanding. See widget/README.md for the evidence limits.

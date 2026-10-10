@@ -1,9 +1,9 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-10T19:20:06-04:00",
+  "updated_at": "2026-10-10T19:39:26-04:00",
   "workflow": {
     "state": "blocked",
-    "note": "Release 0.20 and native widget are installed. Final widget appearance/link verification needs Taylor to place Screen recording through Desktop → Edit Widgets → Large, or explicitly accept panel-only delivery for this release. WidgetKit still reports zero configured instances after three goal turns. Recorder/helper are healthy and idle; no settled tests need repeating."
+    "note": "The initial widget was missing from the gallery because of a startup defect, now fixed in installed companion 6bf373369ced. Notification Center receives Screen recording and both size previews load. Actual gallery/desktop appearance and control clicks remain unverified; CUA cannot acquire Notification Center. Gate/live panel remain healthy and usable; no broad recorder retesting is needed."
   },
   "production_note": "Release 0.20 is installed and ready for Taylor’s smoke test: native e402dc736458, fresh MCP adapter 0.20.0 or current CLI. Global safe pause/queue, live desktop panel, exact optional input/frame context, first cursor recipe, shared app observations and a real verified repair/subscriber cycle are delivered. Existing clients are preserved. See the release smoke test linked above. The native WidgetKit companion is installed; placement and its final desktop UI check are the single Review step; the broader Deferred tests retain Taylor’s stated prerequisites.",
   "groups": [
@@ -1038,10 +1038,10 @@
           "scope": "See recording state at a glance; pause future starts, drain current work safely and queue requests until resumed.",
           "status": "partial",
           "work_state": "review",
-          "evidence": "Native e402dc736458 is installed. Thirty-five controlled checks cover durable pause, restart, stale timers, bounded queue and explicit expired schedules. Private and installed native panel controls passed AX/CLI readback. An owned take queued/resumed, drained while paused and finalized; the final panel correctly showed one in-flight action. No input lock or forced peer restart. Widget companion b2a6d8226847 compiled/signed/registered with its own running helper. Seventeen contract checks passed; installed control calls paused/resumed the service and matching private snapshots updated. Original native e402dc736458/PID58895 remained unchanged. WidgetKit configuration count is zero; actual gallery/desktop appearance and link clicks are not yet verified.",
-          "next": "Taylor: Desktop → Edit Widgets → search Screen recording (app: Record Screen Control) → Large. Let the agent know when placed; verify its display and Pause/Resume links against service readback.",
+          "evidence": "Native safe-pause gate/live panel retain their passing evidence. Taylor screenshots proved companion b2a6d8226847 was absent from the gallery despite registration. Fixed build 6bf373369ced installs the required NSExtensionMain entry point and MacOSX platform metadata. Signature verified; Notification Center receives Screen recording and WidgetKit successfully loads Medium and Large placeholders. Recorder unchanged. Configured instances remain zero; actual gallery/desktop pixels and link clicks remain unverified.",
+          "next": "Verify the repaired gallery entry and placed widget, then click Pause/Resume and compare with service state. Reopen an already-open Edit Widgets gallery after the upgrade.",
           "anchor": "release-020",
-          "updated_at": "2026-10-10T19:18:07-04:00",
+          "updated_at": "2026-10-10T19:39:17-04:00",
           "work_updated_at": "2026-10-10T19:06:38-04:00",
           "acceptance": [
             "The panel shows fresh active/queued/draining/paused state and unmistakable stale or unavailable data.",
@@ -1050,7 +1050,7 @@
             "Evaluate a large native desktop widget; retain a live companion panel because widget refresh is system-managed."
           ],
           "doc_link": "/Users/taylor/src/github/dotfiles/src/record-screen/qualification/RELEASE-0.20.md",
-          "why_partial": "The service gate and live panel are complete. A true macOS widget is now implemented and installed too. The remaining step is placing it on the desktop and checking its actual appearance and links. The available UI automation cannot reach the desktop gallery, and macOS currently reports no configured widget. Taylor can add Screen recording through Edit Widgets; then we can finish the small UI check. Registration alone is not a visual pass.",
+          "why_partial": "The gate and live panel work. The first widget installation had a startup defect, so it could not appear in the picker; this was our implementation issue, not a missing user step. The repair is installed and macOS now loads both size previews. We still need to see the actual widget and exercise its controls. Current UI automation cannot open Notification Center; the live panel remains usable meanwhile.",
           "review_question": "Please add the installed widget and confirm when it is visible, or explicitly accept the live panel for this release while widget placement waits."
         },
         {
@@ -3830,6 +3830,21 @@
       "from": "active",
       "to": "blocked",
       "note": "Release 0.20 and native widget are installed. Final widget appearance/link verification needs Taylor to place Screen recording through Desktop → Edit Widgets → Large, or explicitly accept panel-only delivery for this release. WidgetKit still reports zero configured instances after three goal turns. Recorder/helper are healthy and idle; no settled tests need repeating."
+    },
+    {
+      "kind": "item",
+      "id": "desktop-production-gate",
+      "at": "2026-10-10T19:39:17-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Native safe-pause gate/live panel retain their passing evidence. Taylor screenshots proved companion b2a6d8226847 was absent from the gallery despite registration. Fixed build 6bf373369ced installs the required NSExtensionMain entry point and MacOSX platform metadata. Signature verified; Notification Center receives Screen recording and WidgetKit successfully loads Medium and Large placeholders. Recorder unchanged. Configured instances remain zero; actual gallery/desktop pixels and link clicks remain unverified."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-10T19:39:26-04:00",
+      "from": "blocked",
+      "to": "blocked",
+      "note": "The initial widget was missing from the gallery because of a startup defect, now fixed in installed companion 6bf373369ced. Notification Center receives Screen recording and both size previews load. Actual gallery/desktop appearance and control clicks remain unverified; CUA cannot acquire Notification Center. Gate/live panel remain healthy and usable; no broad recorder retesting is needed."
     }
   ],
   "work_note": "Completed work states include useful delivered portions of broader historical Partial items. Expanded verification records preserve limits. Deferred prerequisites remain explicit; Review is a genuine user decision."

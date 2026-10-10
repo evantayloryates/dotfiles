@@ -1,5 +1,21 @@
 # Production qualification goal
 
+## Widget gallery repair (October 10, 19:37 EDT)
+
+Taylor's screenshots established that the previous widget was not addable.
+The placement blocker was misdiagnosed: registration did not establish gallery
+availability. Logs showed the extension exiting normally before the descriptor
+reply. Corrected companion 6bf373369ced uses Xcode's NSExtensionMain linker
+entry point and MacOSX platform metadata. Installed signature verified;
+Notification Center received the widget and WidgetKit loaded both Medium/Large
+placeholders successfully. Recorder was not rebuilt/restarted. Private evidence:
+release-next/widget/gallery-repair.json and gallery-repair.log.
+
+Actual gallery/desktop pixels and widget link clicks remain unverified because
+CUA cannot acquire Notification Center; configuration count is zero. Do not
+repeat settled recorder checks or present this as a full desktop UI pass.
+This checkpoint supersedes the earlier claim that placement alone was missing.
+
 ## Goal blocked: final widget placement (October 10)
 
 The placement prerequisite remained unresolved across three consecutive goal
