@@ -27,7 +27,7 @@ No human/auth/physical input required beyond optional production click. Continue
 independent useful work while pending; no global input lock or extension.
 47completed17partial1deferred. Visual composition remains deferred.
 
-## Current checkpoint: stage87 capture refused; owned cleanup verified — ACTIVE
+## Historical stage87 checkpoint: capture refused; owned cleanup verified
 
 The actual production callback was observed after6.591s. Orchestration consumed
 its start allowance: at capture preflight only47.099s remained, below the required

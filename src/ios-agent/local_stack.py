@@ -105,22 +105,31 @@ def occupied(port):
         return False
 
 
-def known_web_forwarder(container):
+def known_forwarder(container, port):
     """A listening Docker proxy is not proof of a live Next worker.
 
     Admit only the existing loopback-bound, exact-container socat route, and
     require the target port inside that verified container to be free.
     """
     try:
-        info = json.loads(run(['docker', 'inspect', 'kickoff-port-bridge-3000']))[0]
-        if (info['Config']['Image'] != 'alpine/socat' or
-                info['Config']['Cmd'] != ['TCP-LISTEN:3000,fork,reuseaddr', 'TCP:' + container + ':3000'] or
-                info['NetworkSettings']['Ports'].get('3000/tcp') != [{'HostIp': '127.0.0.1', 'HostPort': '3000'}]):
+        if port not in (3000, 4000):
             return False
-        script = "const net=require('net'),s=net.connect(3000,'127.0.0.1');s.setTimeout(1000);s.on('connect',()=>{s.destroy();process.stdout.write('busy')});s.on('error',e=>{process.stdout.write(e.code==='ECONNREFUSED'?'free':'unknown')});s.on('timeout',()=>{s.destroy();process.stdout.write('unknown')});"
+        info = json.loads(run(['docker', 'inspect', 'kickoff-port-bridge-' + str(port)]))[0]
+        # Preserve the existing GraphQL bridge's binding; this admits its exact
+        # owner, not arbitrary listeners, and changes no Docker/network config.
+        binding = '127.0.0.1' if port == 3000 else '0.0.0.0'
+        if (info['Config']['Image'] != 'alpine/socat' or
+                info['Config']['Cmd'] != ['TCP-LISTEN:' + str(port) + ',fork,reuseaddr', 'TCP:' + container + ':' + str(port)] or
+                info['NetworkSettings']['Ports'].get(str(port) + '/tcp') != [{'HostIp': binding, 'HostPort': str(port)}]):
+            return False
+        script = "const net=require('net'),s=net.connect(" + str(port) + ",'127.0.0.1');s.setTimeout(1000);s.on('connect',()=>{s.destroy();process.stdout.write('busy')});s.on('error',e=>{process.stdout.write(e.code==='ECONNREFUSED'?'free':'unknown')});s.on('timeout',()=>{s.destroy();process.stdout.write('unknown')});"
         return run(['docker', 'exec', container, 'node', '-e', script]).decode() == 'free'
     except (StackError, KeyError, ValueError, IndexError):
         return False
+
+
+def known_web_forwarder(container):
+    return known_forwarder(container, 3000)
 
 
 def start(container, project):
@@ -142,7 +151,7 @@ def ensure_backend(container, timeout=90, before_launch=None):
     launch_graphql = not counts['server'] and not counts['starter']
     launch_web = not counts['web']
     if launch_graphql:
-        if occupied(4000):
+        if occupied(4000) and not known_forwarder(container, 4000):
             raise StackError('graphql_port_owner_unverified')
     if launch_web:
         if occupied(3000) and not known_web_forwarder(container):
