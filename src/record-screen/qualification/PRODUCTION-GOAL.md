@@ -1,5 +1,73 @@
 # Production qualification goal
 
+## Execution correction: bounded release decisions (2026-10-10)
+
+Taylor requested a retrospective because additional investigation was producing
+little checklist completion. This section supersedes the execution order below;
+it does not change historical evidence, original acceptance scopes or statuses.
+
+Diagnosis: the work mixed concept qualification, new feature implementation,
+verification-framework development and universal production assurance. Stages65
+through89 moved the completed count46 to47. The checklist has306 history entries,
+but these include evidence-only updates, not306 completed checks. Important
+findings justified targeted work; they did not justify keeping every research
+question on the release critical path. Two stage87 attempts lost their capture
+windows to orchestration work. An optional input/source-context feature was then
+started while existing menu footage still awaited review. Stop this expansion.
+
+Freeze new capability work. The optional input-source-context implementation was
+committed in shared checkpoint2f01c59, but has not been qualified or versioned for
+release. Treat it as an unfinished candidate, not a production capability. Do not
+spend the next batch polishing it, discard its work, or imply committed means
+validated. Explicitly resolve its inclusion before release.
+
+Every next investigation must name the agent task, release decision, existing
+evidence gap, observable pass/fail and fallback before dispatch. Budget each
+question45minutes of active work and at most one targeted follow-up. At that
+boundary choose a supported fallback, document unavailable behavior, or identify
+a concrete release blocker. Time passing never turns a failure into a pass.
+Do not repeat passed checks without a changed dependency or contradictory result.
+No new broad framework, app lane or stress matrix without a demonstrated blocker.
+
+Three closure batches, in order:
+
+1. Review the already captured stage87 retry2 menu footage (45min active budget).
+   Check actual encoded menu presence/clipping, movement and needed source geometry;
+   reuse existing timestamps/journal tools. Produce a source-mode decision and
+   supported fallback. Do not pursue universal isolated child-menu registration.
+   Retry2 produced two50s takes and independent fixture absence about79.6s after
+   callback. Pixel qualification is unfinished. The aggregate action scope expired;
+   visible results must not retroactively authenticate its action attribution.
+2. Verify the chosen agent path end to end (60min active budget). Identify exact
+   native/adapter versions and test one representative useful recording plus
+   preview, retained telemetry, stop/export and cleanup through the intended
+   consumer. Reuse existing passing release, cursor, timing and failure checks.
+   Fix only a failure blocking this declared path. Do not restart shared peers.
+3. Publish the release decision (30min active budget). Map every open checklist
+   item to release blocker, supported-with-limit, external validation, or research
+   follow-up. Preserve original partial statuses and acceptance scopes. State exact
+   supported surfaces, cursor limits, clock/attribution meaning, interruption
+   behavior, measured resource envelope and fallback/refusal behavior. Record any
+   deployment/adoption still pending. These budgets are stop/replan boundaries,
+   not a completion guarantee. Use the following budget only for a named blocker.
+
+Proposed initial envelope: qualified capture sources and clean system-pointer
+mode; retained input/semantic context with explicit uncertainty; service-owned
+mux/source timing; conservative menu fallback to a qualified app or padded display
+source. Do not promise arbitrary fitted isolated-menu coordinates, frame-perfect
+animated rescue between independent captures, physical-input calibration,
+universal provider coverage, rare host-fault recovery or host-wide capacity/P80.
+Physical input, sleep/revocation and rare OS faults must not trigger more requests
+in this phase. Their original requirements remain visible for later validation.
+A narrower supported release is not completion of the original full research goal.
+
+Progress reports should state decisions closed, remaining release blockers and
+agent tasks now possible. Publish one concise batch update and changed checklist
+states; retain raw evidence without another large narrative pass. No new UI test
+unless the chosen release decision cannot be made from retained evidence. Prepare
+all actions before requesting a reservation, then give the callback immediate
+priority; no background implementation while a click reservation is pending.
+
 ## Current checkpoint: stage89 dense source-state comparison — ACTIVE
 
 New numeric QA indexes26,648 current mux/source packets against prior decoded

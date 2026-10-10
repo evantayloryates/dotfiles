@@ -137,3 +137,20 @@ MCP: `npm test` in `src/ios-agent/mcp`. SDK client tests cover discovery, resour
 listing, lifecycle, bounded read/redaction, images, unknown outcomes, cancellation,
 collision rejection and the actual launcher in a minimal GUI PATH. Physical MCP
 acceptance and registration results are recorded separately in the release receipt.
+
+
+### v1.3.0 mobile-browser additions
+
+- `ios_web_inspect kind=element`: required fresh snapshot/target, fixed CSS,
+  ancestors, hit testing, visual viewport and occlusion; no system screenshot.
+- `ios_web_enroll rememberBrowser=true`: explicit origin-bound, 24-hour browser
+  opt-in; new tabs get distinct identities without a fresh secret URL. Default
+  is false. Source/boot discovery makes reload replacement observable.
+- Media state exposes hook coverage; late API installation and later wrapper
+  replacement are distinguished from empty counters.
+
+Existing clients must reconnect to discover the added schema fields. The
+service is installed locally; new SDK source takes effect on a fresh document.
+Physical Chrome CSS, performance, fresh-document and new-tab recovery have dated
+10 October receipts. Chrome microphone remains NotAllowedError in this run;
+full-call, trusted input and physical off-LAN browser gates are open.

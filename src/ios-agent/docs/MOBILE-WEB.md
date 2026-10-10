@@ -242,3 +242,65 @@ routes returned the correct page, and all 11 doctor checks passed. The cause
 of the worker disappearance is unknown. The developer channel remaining
 unavailable does not establish a disconnected or locked physical device.
 See mobile-web-resume-2026-10-09.json.
+
+
+## Physical Chrome and browser recovery — 10 October
+
+Fresh MCP v1.3.0 retains 22 tools and five resources. `ios_web_inspect
+kind=element` accepts a fresh snapshot/target and returns fixed computed CSS,
+bounded ancestors, visual viewport/scroll and actual center-hit occlusion.
+Physical untethered Chrome passed computed font-size, temporary-cover detection,
+stale-reference refusal and cover/glow cleanup. Browser/native occlusion,
+stylesheet origins and process memory are outside this document reader.
+Physical Chrome performance readings passed; heap and long-task support are
+explicitly unavailable/null on this runtime.
+
+`ios_web_enroll rememberBrowser=true` explicitly remembers the dev origin for
+24 hours from initial consent. A new tab can open a plain local URL and obtain
+its own page/token/boot without another enrollment fragment. Browser and page
+credentials have separate types; neither can impersonate the other. Resumed
+pages inherit the original expiry. Host persistence contains hashes only.
+`stop()` clears the browser's new-tab opt-in; already enrolled other tabs retain
+their own original expiry. Default enrollment is still per-tab only. This is
+not a remotely launchable browser or an indefinite authorization.
+
+Three focused protocol checks passed wrong-origin/token/type, original expiry,
+page capacity, hash-only restart and preservation of another owner. Fresh stdio
+MCP plus desktop WebKit passed plain-route new-tab bootstrap, distinct identity,
+source/boot discovery and opt-out. Physical Chrome then passed remembered
+provisioning, a plain-URL new-tab resume, control and glow-off with USB unplugged.
+The paired wireless developer channel opened the tabs; private HTTPS carries
+routine control. Physical off-LAN browser operation is still unqualified.
+
+Discovery now includes acknowledged boot and SDK version. After a reload, wait
+for a different boot and fresh ready/visible feedback; a cached ready record or
+fixed short delay is insufficient. A physical Chrome reload was issued once,
+its acknowledgment was unknown, and it was not replayed. The first reacquire
+was premature; later independent observation confirmed a new live boot.
+
+Media state includes `hooks.microphoneAPIAtBoot`, `hooks.microphone`, `hooks.peer`
+and `hooks.socket`. Zero counters with a missing hook are incomplete coverage,
+not proof that nothing happened. The SDK attaches when the microphone API
+becomes available, reports a later replacement, and preserves that replacement
+on stop. A controlled late-API fixture passed accounting and teardown. A fresh
+physical Chrome document showed all three hooks attached. Its actual React
+microphone button then failed with `NotAllowedError`; failed-request accounting,
+no live tracks and glow-off were independently read back. No prompt automation,
+actual Chrome acquisition, audio packet flow or real call is claimed. Prior
+Safari acquisition remains separate dated evidence.
+
+## Scoped host recovery diagnostics — 10 October
+
+The exact existing Docker socat forwarders for ports 3000 and 4000 are admitted
+only after verifying image, command, destination, existing binding and a free
+inner target. The helper preserves those bindings. Actual cold recovery started
+missing GraphQL and Next and passed all eleven doctor checks. It did not reset
+data or stop workers. A subsequent missing Next worker was started alone.
+
+The Next child launcher now saves a private 64 KiB tail and fixed exit receipt
+inside the container. No raw logs are exported and no restart loop is added.
+It reports exit code/signal, fixed error categories and observed cgroup OOM-kill
+advancement. Existing trace files are opened without following symlinks. The
+prior unexplained exit has no established cause; later instrumented runtime
+remained running during this batch. `doctor` still distinguishes host readiness
+from browser readiness.

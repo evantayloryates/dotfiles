@@ -1,9 +1,9 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-10T16:09:09-04:00",
+  "updated_at": "2026-10-10T16:21:11-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage89 dense retained-counter comparison completed:26648 current mux/source joins, five actual service choices agree, hashes unchanged. About48% moving counter identity with nearest timestamps; oracle about51%, regressions/refusals retained. No new UI/capture. Menu notification still pending;47completed17partial1deferred, full goalactive."
+    "note": "Retrospective: freeze new capability work and use three bounded closure batches: existing menu footage review, chosen agent-path verification, release decision. Keep all original acceptance scopes/statuses. Stage87 retry2 produced two50s takes and owned cleanup around79.6s after callback; pixel qualification remains unfinished and aggregate action scope expired. Previous notification-pending note is historical.47completed17partial1deferred; no new completion claimed. See PRODUCTION-GOAL.md execution correction."
   },
   "production_note": "Stage88 native6c/PID799 observed stable; current CLI/fresh MCP0.19.1 nearest retained content policy verified at four moving/static samples. Ordinary adapter remains0.19.0. Exact PTS/common clocks and independent RGB checks belong to service; original fitted guard retained.47completed17partial1deferred across65items; fullgoalactive.",
   "groups": [
@@ -3090,6 +3090,13 @@
       "from": "active",
       "to": "active",
       "note": "Stage89 dense retained-counter comparison completed:26648 current mux/source joins, five actual service choices agree, hashes unchanged. About48% moving counter identity with nearest timestamps; oracle about51%, regressions/refusals retained. No new UI/capture. Menu notification still pending;47completed17partial1deferred, full goalactive."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-10T16:21:11-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Retrospective: freeze new capability work and use three bounded closure batches: existing menu footage review, chosen agent-path verification, release decision. Keep all original acceptance scopes/statuses. Stage87 retry2 produced two50s takes and owned cleanup around79.6s after callback; pixel qualification remains unfinished and aggregate action scope expired. Previous notification-pending note is historical.47completed17partial1deferred; no new completion claimed. See PRODUCTION-GOAL.md execution correction."
     }
   ]
 }

@@ -1,0 +1,53 @@
+{
+  "at": "2026-10-10T20:17:42.314Z",
+  "scope": "Physical Chrome qualification-page microphone button via synthetic DOM click; no call, playback, recording or upload",
+  "gates": {
+    "liveTracksNone": true
+  },
+  "delivery": {
+    "delivery": "synthetic-dom",
+    "trusted": false
+  },
+  "media": {
+    "hooks": {
+      "microphoneAPIAtBoot": true,
+      "microphone": true,
+      "peer": true,
+      "socket": true
+    },
+    "requests": {
+      "pending": 0,
+      "acquired": 0,
+      "failed": 1
+    },
+    "coverage": "peer/socket objects created after adapter boot; tracks also discovered through DOM media",
+    "sockets": [],
+    "tracks": [],
+    "audio": [],
+    "connections": [],
+    "transports": []
+  },
+  "microphoneResult": "NotAllowedError",
+  "status": "bounded-unavailable",
+  "cleanup": {
+    "released": true,
+    "detail": {
+      "released": true
+    },
+    "next": "Call ios_verify gate=idle without a session to confirm native and host cleanup.",
+    "indicatorOff": true,
+    "receipt": {
+      "gate": "web-idle",
+      "status": "passed",
+      "observation": {
+        "ownerReleased": true,
+        "indicatorOff": true
+      }
+    },
+    "learningEvidence": {
+      "evidenceId": "4650021fc148453d9949ee9ae9d7f77e",
+      "gate": "web-idle",
+      "status": "passed"
+    }
+  }
+}
