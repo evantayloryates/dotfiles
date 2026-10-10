@@ -1,11 +1,16 @@
 # Agent usage and recovery
 
 This is the capture-foundations production runbook. The installed native build
-6c238cc1ba80 and fresh adapter0.19.0 have the scoped proofs in
+6c238cc1ba80 and current adapter0.19.0 have the scoped proofs in
 [GATES.md](qualification/GATES.md). Treat these as a baseline, then inspect
 loaded status. Visual effects, cursor styling and composition recipes are the
 next phase. The [checklist](qualification/checklist.json) tracks unresolved
 qualification; this runbook does not certify those environments.
+
+Stage85 verifies this chat's ordinary loaded adapter:28tools, status0.19.0,
+registered native-menu output equal to fresh MCP and mutation_replay:"never".
+This is an observed current consumer, not a guarantee that every existing chat
+has reloaded. Inspect each consumer's status; preserve peer processes.
 
 ## Choose the production arrangement
 

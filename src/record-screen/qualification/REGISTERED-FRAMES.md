@@ -120,3 +120,26 @@ lease without stale PID files or polling. The lock leaf is regular, private,
 owned and nonsymlink. Metadata probes retain their per-adapter admission; this
 is not a global host capacity/GPU/P80 guarantee. The final minimal-PATH MCP/CLI
 held-frame outputs agree completely with the lease enabled and both settle.
+
+## Native-menu and ordinary consumer qualification
+
+Stage85 exercises eight retained AppKit pairs through current MCP0.19: baseline,
+root/nested menus, selected/closed, resized and narrow root/nested/dismissed.
+Each independently returns[1,0,0,1,-120,-210] on its original620x542 canvas.
+Separate actual menu or canvas-label patches have RGBNCC>=0.99152; retained
+source-content differences are at most36.804583ms. The caller declares different
+independent patches for different phases; this is not a cached continuous map.
+These real native menus fit within the parent. No new above/below-parent fitted
+menu origin is qualified. The unchanged encoded canvas includes black unused
+space after resize; canvas containment alone still cannot prove content.
+
+Requesting the disappeared menu's region refuses for insufficient texture,
+rather than passing white agreement. The larger retained Safari1324x948 primary
+returns decoded_pixel_budget before decoding. No silent resampling or score change.
+The ordinary chat's28tools/status0.19 and direct nested response now match the
+fresh reader in every result field. Original recording_frame_map remains guarded.
+Three focused socket/capability checks verify read reconnect and single dispatch
+for accepted session/schedule/stop/export mutations after lost replies. This is
+controlled transport evidence, not a deliberately crashed production capture.
+Eight source/media hashes stay unchanged; owned readers/workers settle. Native
+6c/PID799 was already running before the batch and was not restarted by it.

@@ -1,9 +1,9 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-09T19:32:53-04:00",
+  "updated_at": "2026-10-10T15:30:53-04:00",
   "workflow": {
-    "state": "paused",
-    "note": "Paused at Taylor’s request after stage84 delivery. Recorder confirmed idle; stage85 only inspected retained native-menu sources/images, with no new registration request or capture. Resume from the smaller stage72 native-menu pair and preserve all refusals. Item counts remain46completed18partial1deferred."
+    "state": "active",
+    "note": "Stage85 verifies8retained native-menu/resize/dismissal frame pairs and2refusal controls. Ordinary MCP0.19/28tools now matches fresh registration;3focused disconnect checks pass, closing MCP adoption/replay gate.47completed17partial1deferred. Continuous true-fit, physical input and host capacity remain open; no new UI/capture."
   },
   "production_note": "Native6c/PID20948 unchanged; fresh MCP0.19/28tools and minimal-PATH CLI delivered. Exact decoded PTS/open snapshots/source-content time belong to the service. Held outputs3.884s apart have content delta0.945ms. Independent RGB checks required, original guard retained; kernel lease serializes heavy workers.46completed18partial1deferred across65items; fullgoalactive.",
   "groups": [
@@ -232,10 +232,10 @@
           "title": "Qualify coordinates when real child menus change source fitting",
           "status": "partial",
           "scope": "Actual child-enabled isolated window with above/below-parent popup fitting, including scale and source origin changes. Existing static/fixture maps retain their proven scope.",
-          "evidence": "Stage84 service-owned frame-local mapping verifies actual above/corner fitted frames plus held source-time selection. Exact decoded PTS/dimensions/open snapshots/RGB hashes and independent patches bound inside MCP/CLI. Three actual refusal controls preserved; original guard unchanged.",
-          "next": "Qualify continuous changing/closed and useful real-menu retained frames with service-owned independent verification or explicit app-crop fallback. Do not carry transforms across identical metadata or retune the three ambiguous anchors.",
-          "anchor": "eighty-fourth-pass",
-          "updated_at": "2026-10-09T19:28:53-04:00"
+          "evidence": "Stage84 exact fitted/held frame service proofs remain. Stage85 eight real AppKit root/nested/closed/resize frame pairs independently pass (NCC>=0.99152; source-content delta<=36.805ms); vanished menu texture and oversized Safari refuse. These menus fit inside parent; continuous/above-below fitting remains unqualified. Original map guard unchanged.",
+          "next": "Investigate retained true-fit real-menu source pairs or explicit app-crop fallback. Do not cache local matrices across frames, reinterpret legacy clocks, reshoot passed phases or retune refused anchors.",
+          "anchor": "eighty-fifth-pass",
+          "updated_at": "2026-10-10T15:30:53-04:00"
         },
         {
           "id": "fitted-mapping-guard",
@@ -660,12 +660,12 @@
         {
           "id": "mcp-replay-boundary",
           "title": "Verify loaded MCP replay policy and reconnect boundaries",
-          "status": "partial",
+          "status": "completed",
           "scope": "Never automatically resend mutations after a lost reply; distinguish loaded adapter from native engine version. Preserve existing peer MCP processes.",
-          "evidence": "Fresh MCP0.19/28tools and current minimal-PATH CLI serve exact frame registration; final held outputs agree completely, readers exit0. Service worker/snapshot/lease failure handling preserves no capture/mutation replay. Existing ordinary22-tool schema adoption remains unqualified.",
-          "next": "Verify ordinary full consumer adoption at a safe launch without disturbing peers; use current CLI or fresh owned MCP for delivered contracts.",
-          "anchor": "eighty-fourth-pass",
-          "updated_at": "2026-10-09T19:28:53-04:00"
+          "evidence": "Stage85 ordinary chat exposes28tools/status0.19.0; direct nested registration equals fresh MCP in all fields; original fitted guard preserved. Three focused current checks pass: reads reconnect and accepted session/schedule/stop/export mutations dispatch once after lost replies. Eight source/media hashes unchanged; owned readerexit0/maps/workerssettled; no peer restart.",
+          "next": "",
+          "anchor": "eighty-fifth-pass",
+          "updated_at": "2026-10-10T15:30:53-04:00"
         },
         {
           "id": "agent-runbooks",
@@ -2977,6 +2977,36 @@
       "from": "active",
       "to": "paused",
       "note": "Paused at Taylor’s request after stage84 delivery. Recorder confirmed idle; stage85 only inspected retained native-menu sources/images, with no new registration request or capture. Resume from the smaller stage72 native-menu pair and preserve all refusals. Item counts remain46completed18partial1deferred."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-10T15:28:28-04:00",
+      "from": "paused",
+      "to": "active",
+      "note": "Resumed at Taylor’s request. Stage85 is exercising the current service on retained native root/nested menus, resize/dismissal and explicit refusal controls; no new capture or desktop interaction."
+    },
+    {
+      "kind": "item",
+      "id": "mcp-replay-boundary",
+      "at": "2026-10-10T15:30:53-04:00",
+      "from": "partial",
+      "to": "completed",
+      "note": "Stage85 ordinary chat exposes28tools/status0.19.0; direct nested registration equals fresh MCP in all fields; original fitted guard preserved. Three focused current checks pass: reads reconnect and accepted session/schedule/stop/export mutations dispatch once after lost replies. Eight source/media hashes unchanged; owned readerexit0/maps/workerssettled; no peer restart."
+    },
+    {
+      "kind": "item",
+      "id": "fitted-child-mapping",
+      "at": "2026-10-10T15:30:53-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage84 exact fitted/held frame service proofs remain. Stage85 eight real AppKit root/nested/closed/resize frame pairs independently pass (NCC>=0.99152; source-content delta<=36.805ms); vanished menu texture and oversized Safari refuse. These menus fit inside parent; continuous/above-below fitting remains unqualified. Original map guard unchanged."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-10T15:30:53-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Stage85 verifies8retained native-menu/resize/dismissal frame pairs and2refusal controls. Ordinary MCP0.19/28tools now matches fresh registration;3focused disconnect checks pass, closing MCP adoption/replay gate.47completed17partial1deferred. Continuous true-fit, physical input and host capacity remain open; no new UI/capture."
     }
   ]
 }

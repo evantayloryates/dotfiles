@@ -1,29 +1,40 @@
 # Production qualification goal
 
-## Current checkpoint: stage84 complete; stage85 preparation — PAUSED
+## Current checkpoint: stage85 — ACTIVE
 
-Taylor requested another pause at2026-10-09T23:32Z. The read-only status check
-confirms native6c/PID20948 idle: zero unfinished/quarantined recordings, zero
-active action scopes, subscribers, overlays and viewfinder lanes. Stage85 only
-inspected retained descriptors and images; no registration request, new capture,
-UI input, worker or source mutation was started. Checklist item states stay
-46completed18partial1deferred; workflow is paused, not complete or blocked.
+Resumed at Taylor's request on2026-10-10. Current native6c238cc1ba80/PID799
+started at02:00:02.623Z before this batch; historicalPID20948 is not current.
+No native restart, install, UI input or capture was performed by stage85.
+Eight actual retained stage72 AppKit frame pairs independently verify through
+fresh MCP0.19: baseline, root/nested menus, selection/closure, resize and narrow
+root/nested/dismissed phases. Primary620x542/app1280x620; matrix[1,0,0,1,-120,-210]
+for each separately tested pair, minimum independentRGBNCC0.99152, largest
+absolute source-content delta36.804583ms. Phase-specific hypotheses remain local;
+no continuous/above-below-parent fitting or transform reuse is qualified.
+Closed-menu region refuses insufficient texture; actual Safari1324x948 refuses
+before decode under the existing primary pixel budget. No threshold/rescale change.
 
-Resume from the retained stage72 native-menu pair: primaryrec_w4d6x3n2
-(620x542), backuprec_bax3pdne(1280x620), shared clock instance
-7cb4443f-8f73-407f-a856-c4e5cc323082. Its saved pixel-verification.json identifies
-baseline708, root1722, nested2043, selected/closed2395, resized4548,
-narrow-root4906, narrow-nested5254 and narrow-dismissed6879 primary frame indices.
-Choose disjoint textured anchors and separate actual menu/closed-canvas checks
-from those already-retained images; do not cache a matrix across phases.
-The retained Safari primaryrec_4a3xs5nh is1324x948, above the current1million
-primary-pixel budget. A refusal is expected from code inspection but has NOT
-been exercised through the current service. Preserve limits/refusals; no silent
-resizing or threshold relaxation. No new visible test until renewed authorization.
+The ordinary chat now exposes28record-screen tools and loaded status0.19.0.
+Its direct nested-menu response equals the fresh MCP result in every field;
+original recording_frame_map still refuses fitted_child_window_origin_unqualified.
+Three focused current disconnect/capability checks pass, including accepted
+session/schedule/stop/export no-replay and safe read recovery. The MCP adoption/
+replay gate is now completed for this loaded contract. Eight source/media hashes
+remain unchanged after ordinary reads; owned readerexits0; workers/maps settle;
+native6c/PID799 unchanged during the batch. Shared scoped native-menu fact readback
+passes; unknown app version/build prevents reusable certification. No UI receipts
+were fabricated for offline work.
 
-Native6c238cc1ba80/PID20948 remains unchanged. Current MCP0.19/28tools and CLI
-provide optional exact returned-preview/source joins; older ordinary22-tool
-schema needs the current CLI for newer contracts.81 distinct affected checks pass.
+Checklist47completed17partial1deferred (65items); full goalactive. Original fitted/
+continuous acceptance remains partial. Next use the retained true-fit real-menu
+sources to identify a useful service-qualified pair or explicit app-crop fallback;
+legacy clock absence must stay refused. Do not repeat these eight passed phases.
+Visible desktop authorization has expired; continue background work until renewed.
+Physical input stays deferred at Taylor's request; avoid authentication/sleep gates.
+
+Historical stages through84 used native6c238cc1ba80/PID20948. Current MCP0.19/
+28tools and CLI provide optional exact returned-preview/source joins. Stage85
+now verifies ordinary consumer adoption.81 distinct stage84 affected checks pass.
 Stage78 seven actual joins and stage80 actual pre-key40s/later42s pixel boundary
 remain qualified. Coordinates use original mux canvas, fitted origins stay
 refused, and separate mapping failure preserves previews.
@@ -76,7 +87,7 @@ complete in its stated scope; continuous changing/closed and real-menu mapping
 remain partial. High-frequency/resampling refusal preserved; no thresholds
 loosened. No UI/capture/install/peer restart.
 
-Checklist46completed18partial1deferred (65items); fullgoalactive. New completed
+Stage84 checklist46completed18partial1deferred (65items); fullgoalactive. New completed
 item records the delivered frame-local contract without narrowing the original
 fitted/continuous acceptance criteria. Composition remains deferred.
 Explicit AFK desktop authorization ended conservatively23:20UTC. Continue
@@ -102,7 +113,8 @@ claim that every partial gate can close in one session.
    fitted RGB/heldout successes and three explicit ambiguities, alongside the
    older real-menu candidate. Stage84 now binds registration/independent validation to exact service-owned
    decoded frame identities, source-content time and unchanged open snapshots.
-   Next qualify useful changing/closed and real-menu retained source frames,
+   Stage85 qualifies eight local native-menu/resize/closed phases. Next qualify
+   true-fit real-menu retained source frames or an explicit fallback,
    with failure/refusal or app-crop fallback preserved. Do not tune the same
    three anchor ambiguities or reshoot the same geometry. Frame-local success
    is not continuous mapping; original fitted acceptance stays open.

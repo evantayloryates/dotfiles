@@ -330,3 +330,13 @@ delta refuse. Kernel lease admits one decode/RGB worker per recorder home;
 metadata probes still per adapter.81 checks, final minimal-PATH MCP0.19/28tools/
 CLI parity, unchanged media/native and owned reader cleanup pass. Original
 fitted guard and real-menu/continuous/resource capacity criteria remain open.
+
+
+Stage85 strengthens local native-menu support: eight exact baseline/root/nested/
+closed/resize pairs pass separate textured checks; closed-menu white agreement
+and Safari's oversized canvas refuse. No continuous or above/below-parent menu
+fit claim. The ordinary chat now advertises28tools/status0.19 and produces the
+same nested result as a fresh MCP; source-map guard unchanged. Three focused
+socket checks preserve no mutation replay. Current adoption gate completed;
+original fitted, physical and host capacity scopes remain open. Use phase-local
+matrices and app-crop fallback rather than inferring content from containment.

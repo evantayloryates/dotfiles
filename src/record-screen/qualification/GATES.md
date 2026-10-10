@@ -3564,3 +3564,25 @@ fitted-child-mapping stays partial for continuous changing/closed and real-menu
 coverage.65items:46completed18partial1deferred/fullgoalactive. Next use new
 service contract on a useful missing retained menu boundary, not retune the same
 anchor failures or rerun passed source canaries.
+
+
+## Stage85: retained native menus and ordinary loaded MCP adoption
+
+Eight exact retained stage72 primary/app frame pairs independently pass native
+root/nested and resize/dismissal phases. Minimum verificationNCC0.991520529;
+max absolute source-content delta36804583ns; all separately observed matrices
+[1,0,0,1,-120,-210]. This is local real AppKit evidence; menus stay within parent,
+so continuous/above-below fitted origin acceptance remains partial. Closed-menu
+region refuses texture; Safari1324x948 primary refuses decoded_pixel_budget before
+decode. No resize or threshold relaxation; no repeated capture or UI.
+
+Ordinary tools now expose28; loaded status0.19.0 confirms mutation_replay:never.
+Direct nested registration equals fresh MCP all fields; original source-map
+fitted guard stays. Three current focused tests pass, including accepted lost
+session/schedule/stop/export replies dispatched once and read recovery. This
+closes current MCP adoption/replay scope without restarting peers. Eight source/
+media hashes unchanged after direct reads; readerexit0/maps/workerssettled.
+Native6c/PID799 started before batch, stable during it. Unknown fixture app version/
+build and current-vs-historical clock identities stay explicit. One reported scoped
+fact saved/readback; no fake offline UI receipts.47completed17partial1deferred.
+Private evidence: capture-qualification-2026-10-08/gates-v85/.
