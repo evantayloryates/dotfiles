@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>ENVFILE</key>
+		<string>.env.development</string>
+		<key>IOS_AGENT_MOBILE_ROOT</key>
+		<string>/Users/taylor/src/github/kickoff/mobile</string>
+		<key>IOS_AGENT_RUNTIME_CONFIG</key>
+		<string>/Users/taylor/Library/Application Support/ios-agent/dev-runtime.json</string>
+	</dict>
+	<key>ExitTimeOut</key>
+	<integer>5</integer>
+	<key>KeepAlive</key>
+	<true/>
+	<key>Label</key>
+	<string>com.taylor.ios-agent.metro</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/opt/homebrew/Cellar/node@22/22.23.1/bin/node</string>
+		<string>/Users/taylor/src/github/kickoff/mobile/node_modules/react-native/cli.js</string>
+		<string>start</string>
+		<string>--host</string>
+		<string>127.0.0.1</string>
+		<string>--port</string>
+		<string>19404</string>
+		<string>--config</string>
+		<string>/Users/taylor/src/github/dotfiles/src/ios-agent/native/metro.cjs</string>
+		<string>--max-workers</string>
+		<string>2</string>
+		<string>--no-interactive</string>
+	</array>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>StandardErrorPath</key>
+	<string>/dev/null</string>
+	<key>StandardOutPath</key>
+	<string>/dev/null</string>
+	<key>ThrottleInterval</key>
+	<integer>5</integer>
+	<key>WorkingDirectory</key>
+	<string>/Users/taylor/src/github/kickoff/mobile</string>
+</dict>
+</plist>

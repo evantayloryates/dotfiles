@@ -49,3 +49,7 @@ src/speak/.build/
 # Python runtime bytecode is regenerated locally.
 __pycache__/
 *.py[cod]
+
+# Private app-owned MCP invocation configuration; canonical files stay local.
+/src/mcps/host-config/*.json
+/src/mcps/host-config/*.toml

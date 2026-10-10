@@ -1,6 +1,37 @@
 # Production qualification goal
 
-## Current checkpoint: stage86 — ACTIVE
+## Current checkpoint: stage87 prepared — ACTIVE
+
+Stage87 prepared a new owned Native Menu Fit.app (bundle
+com.taylor.record-screen.menu-fit-qualification,version1.0/build87) on disk;
+Swift compilation/adhoc signing and helper parsing pass. Native inventory
+confirmed it was absent before notification. No launch, UI input or recording
+has occurred. Session ses_s8ng4zsu exists without an active action. Two planned
+50s/30fps sources are isolated child-enabled window plus fixed app-filtered crop;
+input telemetry disabled to avoid an authentication/physical-input dependency.
+Tall/short native menus, parent movement, dismissal, action receipts and resource
+sampling are prepared together. This is preparation, not fitted-map proof.
+
+Requested terminal-notifier2.0.0 alert accepted. The initially empty private
+signal and local seven-second model-free watcher await the actual click; this
+renews only a120s cooperative interval. No input lock/extension. Watcher is
+execsession76409; private gates-v87/watcher-live.json records its observed PID.
+Revalidate the actual handle/process before waiting. A file/path alone is not
+live-job proof. If the watcher completed, read watch-observed.json and immediately
+check current reservation with production-click.py before every native action.
+Do not start if expired; do not emulate the user's click or infer consent from
+elapsed time. No unattended future-turn wake guarantee from the shell watcher.
+On actual click, deliver the authorized same-chat signal once, then run the
+prepared action.mjs/start.mjs through native CUA. Same IDs/tokens are recovered
+after uncertainty; no reschedule/relaunch/close replay. New source analysis follows.
+
+Current service explicitly refuses the older real TextEdit fit pair
+rec_r6rpthn5/rec_7vw5v5yr at frame320: unqualified_common_clock /
+missing_or_invalid_retained_clock_instance, before decode. Earlier pixel
+registration remains a spatial candidate; no retrospective clock override.
+Current memory pressure sample is warning2 with paging/compressor churn; fresh
+critical-pressure guard stops only the two supplied owned take IDs. This is not
+a host capacity or P80 claim.47completed17partial1deferred; goalactive.
 
 Stage86 finds and fixes an actual isolated reader-lifecycle gap. Before the fix,
 fatal Python worker death leaves its decoder alive but releases the shared kernel
@@ -158,7 +189,7 @@ claim that every partial gate can close in one session.
    `event-relevance`, and the applicable `provider-gaps` boundary. A planning
    allowance of 20 minutes for the desktop batch is not a measured P80 or a
    promise that all these scopes will close.
-4. **Verify ordinary consumer adoption at one safe launch boundary.** Read back
+4. **Completed in stage85: ordinary consumer adoption.** Do not repeat. Read back
    the actual loaded tool schema/replay policy and one durable operation,
    verification and cleanup outcome. Refresh only the intended connection when
    safe; preserve peers. The qualified CLI is sufficient for the preceding

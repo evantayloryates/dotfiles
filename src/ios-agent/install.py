@@ -118,8 +118,10 @@ def main():
     if target.exists() and not unchanged and not a.restart:
         raise SystemExit("existing_launch_configuration_differs; use_--restart_at_idle")
     if not unchanged:
-        target.write_bytes(desired)
-        os.chmod(target, 0o600)
+        plist.write_bytes(desired)
+    if not target.is_symlink():
+        target.unlink(missing_ok=True)
+        target.symlink_to(plist)
     domain = f"gui/{os.getuid()}"
     active = subprocess.run(["launchctl", "print", f"{domain}/{LABEL}"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
     if active and a.restart:

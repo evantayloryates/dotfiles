@@ -11,6 +11,7 @@ import tomllib
 ROOT = Path(__file__).resolve().parent
 
 def write_private(path, text):
+    path = path.resolve()  # Preserve the installed invocation symlink.
     fd, name = tempfile.mkstemp(prefix=".mcp-config-", dir=path.parent)
     try:
         os.fchmod(fd, 0o600)

@@ -161,9 +161,11 @@ def main():
     temporary = STATE / "dev-runtime.next.json"
     write_private(temporary, config); temporary.replace(config_path)
     target.parent.mkdir(parents=True, exist_ok=True)
-    with os.fdopen(os.open(target, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600), "wb") as file:
-        file.write(plistlib.dumps(desired))
-    os.chmod(target, 0o600)
+    source_plist = ROOT / (LABEL + ".plist")
+    source_plist.write_bytes(plistlib.dumps(desired))
+    if not target.is_symlink() or target.resolve() != source_plist.resolve():
+        target.unlink(missing_ok=True)
+        target.symlink_to(source_plist)
     if not active:
         subprocess.run(["launchctl", "bootstrap", domain, str(target)], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     deadline = time.monotonic() + 30

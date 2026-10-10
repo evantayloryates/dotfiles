@@ -1,0 +1,19 @@
+{
+  "name": "taylor-gmail-mcp",
+  "version": "1.4.6-taylor.1",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "0.4.0",
+    "@types/mime-types": "2.1.4",
+    "google-auth-library": "9.15.1",
+    "googleapis": "129.0.0",
+    "mcp-evals": "1.0.18",
+    "mime-types": "3.0.2",
+    "nodemailer": "7.0.13",
+    "open": "10.2.0",
+    "zod": "3.25.76",
+    "zod-to-json-schema": "3.25.2"
+  }
+}

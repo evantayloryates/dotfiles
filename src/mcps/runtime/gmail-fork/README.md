@@ -1,0 +1,3 @@
+# Focused Gmail MCP fork
+
+Derived from gmail-mcp-multiauth 1.4.6 distributed JavaScript; upstream license retained. All 21 tool contracts and handlers are preserved. The only behavior change is importing the Gmail API module instead of eagerly loading every Google API. OAuth/account isolation is retained in the dotfiles Gmail launcher. This fork is source-owned here; exact dependencies are pinned and locked. Reinstall with `npm ci --prefix src/mcps/runtime/gmail-fork --ignore-scripts --no-audit --no-fund`. The Google internal module path must be checked on upgrades. The baseline upstream package remains installed for compatibility comparison and rollback, but is not used by new clients.

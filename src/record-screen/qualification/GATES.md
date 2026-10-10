@@ -3606,3 +3606,23 @@ capture, grant, install, native or peer restart. Resource admission and active
 encoder/OS fault gates stay partial: this is controlled child lifecycle evidence,
 not real FFmpeg fatal/active OS failure or host capacity/P80 certification.
 Private evidence: capture-qualification-2026-10-08/gates-v86/.
+
+
+## Stage87 preparation: small native-menu fitting batch and legacy clock refusal
+
+New Native Menu Fit fixture compiles/signs at version1.0/build87; exact source/
+binary hashes retained. It has a small parent, native tall/short/submenus,
+explicit move control and three independent authored QA patches. All changes
+require delivered UI actions, with app-local semantic lifecycle stamps; no global
+input synthesis or physical input required. Prepared50s/30fps isolated/app pair,
+action begin/end, first-frame readiness, marks, owned resource guard and collection
+helpers parse. Native inventory confirmed absent before alert; no launch/capture.
+
+Terminal-notifier2.0.0 accepted the requested two-minute click alert. Private
+empty-file seven-second model-free watcher is observed live by handle and exact
+PID. Click/banner pending; no source fitting or cleanup success claimed. The
+shell watcher alone does not guarantee an unattended future chat wake.
+Current legacy TextEdit frame320 pair explicitly refuses unqualified_common_clock
+before decode, preserving old spatial candidate vs new timing-proof distinction.
+47completed17partial1deferred; no existing acceptance scope narrowed.
+Private evidence: capture-qualification-2026-10-08/gates-v87/.

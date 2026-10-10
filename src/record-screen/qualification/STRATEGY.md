@@ -349,3 +349,12 @@ checks and unchanged ordinary retained-menu output pass; only the failed new
 harness check rerun. This strengthens scoped worker isolation without claiming
 active OS recovery, host GPU/capacity or P80. Continue missing capture acceptance
 rather than widening this reader proof into a general safety guarantee.
+
+
+Stage87 preparation separates source geometry from timing qualification: current
+service refuses legacy real TextEdit fit footage without a retained clock identity.
+Do not retrofit synchronization from image similarity. A small parent/tall native
+menu fixture and app-crop insurance batch are compiled/prepared, awaiting actual
+production click; no new capture result yet. Guard owned IDs during fresh critical
+pressure and inspect actual pixels/origins after real recording. Preserve local
+registration refusal rather than promising universal origin recovery.
