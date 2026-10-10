@@ -68,8 +68,9 @@ Physical Safari console/network capture passed with a >12 KiB event, masked
 sentinel, preserved response readability, private persistence and glow-off.
 Generated audio track lifetime survived recorder stop, but its AudioContext was
 suspended and no audio chunk was produced. Audio is not qualified by that result.
-Native adapter built and signature verified; installed/native capture evidence
-must be checked separately. React Native raw audio requires a native audio adapter.
+The signed native adapter installed, strict runtime readiness passed, seven
+console/network events persisted, and idle verification confirmed lease/glow off.
+React Native raw audio still requires a native audio adapter.
 
 ## 5. Paid membership
 

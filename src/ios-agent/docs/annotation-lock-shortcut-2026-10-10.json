@@ -1,0 +1,30 @@
+{
+  "at": "2026-10-10T22:59:33.610Z",
+  "shortcut": "Runner Lock iPhone",
+  "xctestStarted": false,
+  "replay": false,
+  "macActionCreated": true,
+  "macICloudSyncAlreadyEnabled": true,
+  "preflight": {
+    "ok": true
+  },
+  "dispatch": {
+    "ok": true,
+    "outcome": "developer-request-accepted",
+    "diagnostic": {
+      "exitCode": 0,
+      "errors": []
+    }
+  },
+  "postflight": {
+    "ok": true
+  },
+  "lockedVerified": false,
+  "cleanup": {
+    "released": true,
+    "detail": {
+      "released": true
+    },
+    "next": "Call ios_verify gate=idle without a session to confirm native and host cleanup."
+  }
+}

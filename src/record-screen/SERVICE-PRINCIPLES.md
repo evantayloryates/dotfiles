@@ -91,8 +91,9 @@ update-blocking test matrices. Preserve measured limits and failures. Collect
 diagnostics during normal use and repair the demonstrated problem without
 rerunning unrelated settled phases. Never silently replay an uncertain mutation.
 
-The proposed ticket/report, developer dispatch, release log and subscriber
-completion signal are Ready implementation work, not available MCP tools yet.
+The recorder exposes durable ticket/report, bounded developer dispatch, private
+release log and subscriber wait tools. Inspect actual ticket state and delivery
+evidence; a worker may still be unavailable or need input.
 A repair must identify the delivered build, its targeted verification and when
 it is actually usable. “Patch prepared” is not “released”; a waiting consumer
 should receive a ready-for-use signal and verify its retry. See the follow-up
@@ -110,7 +111,7 @@ not a reason to couple the services' implementations or developer queues.
 
 ## User visibility and cooperative pause
 
-A future desktop status panel/widget will expose a global, persistent
+The native desktop status panel exposes a global, persistent
 “please reach a safe pause point” gate and resume control. It must close
 admission to new recording work immediately when a pause is requested, allow
 current work to settle safely, show what is still draining, and queue later
@@ -120,8 +121,9 @@ The widget is a view/controller, not the enforcement boundary.
 
 Sleep/wake qualification is deferred by Taylor. Normal production assumes an
 awake Mac, with the existing gap detection retained. This assumption does not
-turn untested sleep behavior into a pass. The status panel and gate are Ready
-work and must not be advertised as installed until implemented and verified.
+turn untested sleep behavior into a pass. The service-owned gate and native desktop panel are installed and verified
+for their stated cooperative scope. A true WidgetKit desktop widget is a
+separate presentation choice, not the enforcement boundary.
 
 ## Basic resource awareness before broad capacity work
 

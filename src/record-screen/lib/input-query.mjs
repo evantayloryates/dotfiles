@@ -161,7 +161,7 @@ export async function queryRecordingInput(descriptor,input){
   if(health)result.input_health_context=health.summary();
   if(a.include_source_frames){
    try{result.source_frame_context=await mapInputReceptionFrames(descriptor,events,stat,a.cursor?.source_media_snapshot_sha256);
-    if(result.next_cursor&&result.source_frame_context.media_snapshot_sha256)result.next_cursor.source_media_snapshot_sha256=result.source_frame_context.media_snapshot_sha256;
+    if(result.next_cursor){const media=a.cursor?.source_media_snapshot_sha256??result.source_frame_context.media_snapshot_sha256;if(media)result.next_cursor.source_media_snapshot_sha256=media;}
    }catch(error){result.source_frame_context={schema:"record-screen-input-source-context/v1",state:"unavailable",reason:error.code||"source_context_failed",qualification:"Input rows remain useful. No reaction latency, provider calibration or missing video coverage was inferred."};}
   }
   if(Buffer.byteLength(JSON.stringify(result))>1024*1024)fail('Input query response exceeded1MiB; request a smaller page or narrower context interval.');return result;

@@ -63,11 +63,13 @@ final class ProductionPanel: NSObject {
       do {
         let d=try await read(),phase=d.str("state") ?? "unavailable"
         let active=d["active"] as? [[String:Any]] ?? [],queued=d["queued"] as? [[String:Any]] ?? []
+        let activeActions=max(0,d["active_action_scopes"] as? Int ?? 0)
         let paused=d["pause_requested"] as? Bool == true
         state.stringValue=["idle":"Ready · no active recording","recording":"Recording","draining":"Pause requested · finishing","paused":"Paused","unavailable":"Service loading / unavailable"][phase] ?? phase
         let names=active.prefix(2).compactMap{$0.str("label") ?? $0.str("id")}.joined(separator:", ")
         let expired=queued.filter{($0["production_queue"] as? [String:Any])?["requires_reschedule"] as? Bool == true}.count
-        detail.stringValue="\(active.count) active · \(queued.count) queued\(names.isEmpty ? "" : "\n"+names)\n"+(paused ? "New requests wait. Current work finishes safely." : "New recording requests may start.")+(expired>0 ? "\n\(expired) queued take(s) need new start times." : "")+"\nYour mouse and keyboard remain available."
+        let actionText="\(activeActions) in-flight action\(activeActions == 1 ? "" : "s")"
+        detail.stringValue="\(active.count) active · \(queued.count) queued · \(actionText)\(names.isEmpty ? "" : "\n"+names)\n"+(paused ? "New requests wait. Current work finishes safely." : "New recording requests may start.")+(expired>0 ? "\n\(expired) queued take(s) need new start times." : "")+"\nYour mouse and keyboard remain available."
         freshness.stringValue="Updated just now · service clock \(d.str("sampled_at") ?? "unknown")"
         pause.isEnabled = !paused && !changing && phase != "unavailable";resume.isEnabled=paused && !changing && phase != "unavailable"
       } catch {state.stringValue="Status unavailable";detail.stringValue="The service did not answer. Recording state is unknown. No input is blocked.";freshness.stringValue="Refresh failed · \(Date())";pause.isEnabled=false;resume.isEnabled=false}

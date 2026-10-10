@@ -15,6 +15,6 @@ try{
  const cleanup=await call('ios_web_action',{sessionId:session,action:'evaluate',args:{expression:`(()=>{const f=window.__iosOwnedAudioFixture;const originalStillLive=f.d.stream.getAudioTracks()[0].readyState==='live';f.o.stop();f.d.stream.getTracks().forEach(t=>t.stop());f.c.close();f.e.remove();delete window.__iosOwnedAudioFixture;return {originalStillLive};})()`}});assert(cleanup.value.originalStillLive);proof.gates.originalAudioTrackPreserved=true;proof.gates.generatedStreamPrivateAudioChunks=audio.audioChunks>0;
  proof.status=audio.audioChunks>0?'passed':'partial-audio-no-chunks';
 }finally{
- if(session){try{proof.cleanup=await call('ios_web_end',{sessionId:session});}catch{proof.cleanup={confirmed:false};}}
+ if(session){try{await call('ios_web_action',{sessionId:session,action:'evaluate',args:{expression:"(()=>{const f=window.__iosOwnedAudioFixture;if(f){try{f.o.stop();}catch{}f.d.stream.getTracks().forEach(t=>t.stop());void f.c.close();f.e.remove();delete window.__iosOwnedAudioFixture;}return {cleaned:true};})()"}});}catch{}try{proof.cleanup=await call('ios_web_end',{sessionId:session});}catch{proof.cleanup={confirmed:false};}}
  await client.close();proof.status||='failed';fs.writeFileSync(new URL('../docs/annotation-rich-capture-2026-10-10.json',import.meta.url),JSON.stringify(proof,null,2)+'\n');console.log(JSON.stringify(proof));
 }

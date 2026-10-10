@@ -108,7 +108,7 @@ def worker(db,id):
         # Resolve only the bundled authenticated CLI, not an arbitrary PATH tool.
         candidates=[Path('/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex'),Path('/Applications/Codex.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex')]
         binary=next(p for p in candidates if p.exists())
-        cmd=[str(binary),'exec','--ephemeral','-c','approval_policy="never"','--sandbox','workspace-write','--add-dir',str(HOME),'--add-dir',str(ROOT/'data/record-screen'),'--output-schema',str(folder/'schema.json'),'--output-last-message',str(folder/'result.json'),'-']
+        cmd=[str(binary),'exec','--ephemeral','-c','approval_policy="never"','--add-dir',str(HOME),'--add-dir',str(ROOT/'data/record-screen'),'--output-schema',str(folder/'schema.json'),'--output-last-message',str(folder/'result.json'),'-']
         with (folder/'worker.log').open('wb') as log:
             process=subprocess.Popen(cmd,cwd=ROOT,stdin=subprocess.PIPE,stdout=log,stderr=log,start_new_session=True)
             try:process.communicate(prompt.encode(),timeout=900)

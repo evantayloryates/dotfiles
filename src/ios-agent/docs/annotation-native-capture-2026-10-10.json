@@ -1,38 +1,59 @@
 {
-  "at": "2026-10-10T22:53:27.698Z",
-  "scope": "Physical installed native capture and cleanup; no native audio claim",
-  "launch": {
+  "at": "2026-10-10T22:54:38.799Z",
+  "scope": "Installed adapter capture after observed Home rendering",
+  "ready": true,
+  "capability": "explicit-JS-console-network",
+  "start": {
     "ok": true,
-    "target": "kickoff-dev",
-    "outcome": "developer-request-accepted",
-    "diagnostic": {
-      "exitCode": 0,
-      "errors": []
+    "captureId": "a0d6ae4d59b10ce2eb7f2a6872face20",
+    "status": {
+      "active": true,
+      "bufferedEvents": 0,
+      "modes": [
+        "console",
+        "network"
+      ],
+      "id": "a0d6ae4d59b10ce2eb7f2a6872face20",
+      "bufferedBytes": 0,
+      "remainingMs": 59998,
+      "dropped": 0,
+      "sequence": 0,
+      "coverage": {
+        "network": "fetch text bodies and XHR text; WebSocket send and new socket receive; streams/binary bodies not consumed",
+        "audio": "existing live audio tracks only; no microphone acquisition; recorder clones stopped, app tracks preserved"
+      }
     },
-    "replay": false,
-    "foregroundVerified": false,
-    "transport": "paired-developer-channel",
-    "offLANQualified": false,
-    "next": "Wait for native readiness, then ios_begin. Request acceptance is not foreground readiness."
+    "replay": false
   },
-  "availability": {
-    "readyToAcquire": true,
-    "surface": "native",
-    "boot": "20F20B7F-D41C-498A-89A7-22B919B791D4",
-    "ageMs": 0,
-    "runtimeVerified": false,
-    "leaseAcquired": false,
-    "next": "ios_begin verifies the current app runtime before control."
+  "probe": true,
+  "capture": {
+    "ok": true,
+    "events": 7,
+    "bytes": 3655
   },
-  "failure": "app_not_ready",
+  "kinds": [
+    "console",
+    "network"
+  ],
+  "syntheticConsoleCaptured": true,
+  "networkCaptured": true,
+  "cleanup": {
+    "released": true,
+    "detail": {
+      "released": false,
+      "alreadyInactive": true,
+      "otherOwnerActive": false
+    },
+    "next": "Call ios_verify gate=idle without a session to confirm native and host cleanup."
+  },
   "idle": {
-    "artifactId": "53e81103136958648988d34438bef022",
+    "artifactId": "f9214c5381eb7f2bdd6b16c12f680b3b",
     "receipt": {
       "version": 1,
       "gate": "idle",
       "status": "passed",
-      "attempts": 2,
-      "elapsedMs": 256,
+      "attempts": 1,
+      "elapsedMs": 1,
       "observation": {
         "hostIdle": true,
         "deviceFeedbackKnown": true,
@@ -41,7 +62,7 @@
       }
     },
     "learningEvidence": {
-      "evidenceId": "f15736c9a1814521a5915e90af3f6a25",
+      "evidenceId": "0249e5e5b3b945a885a5d49264a409c9",
       "gate": "idle",
       "status": "passed"
     }

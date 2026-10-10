@@ -751,3 +751,91 @@ a continuous map from four local passes. Prefer preserving one adequate master
 when frame-exact derived views are required; qualify its actual menu/content
 coverage first. Separate insurance sources remain useful with scoped content
 verification. Details and initial failed analyses are retained in stage89.
+
+## Release 0.20: visible production, repair and first composition
+
+Begin with `production_status` (CLI `production-status`). The service owns the
+persistent global gate. Before each new agent UI step, use
+`production_checkpoint`: if `pause_requested`, finish the operation already in
+flight safely and wait. New recordings queue while paused. An already-started
+recording continues to its planned end/finalization. This is cooperative pause,
+not emergency stop, input interception or a lock on Taylor's mouse/keyboard.
+Use `production_panel_show` for the movable native desktop reading panel.
+`production_pause` / `production_resume` act across MCP clients and the CLI and
+survive native restarts. Queued takes whose start time passes while paused
+require explicit rescheduling; Resume never silently starts those late takes.
+The queue is bounded to128 scheduled requests; concurrent capture remains16
+admissions, which is a safety cap rather than measured host capacity.
+
+A status refresh can say Loading/Unavailable. Treat it as unknown, never idle.
+The panel excludes itself from recorder sources. Existing previews may remain
+visible; Pause refuses new capture probes/previews, outlines and action scopes.
+External computer-use tools must honor checkpoints; the gate cannot cancel an
+arbitrary UI command already accepted by another service. Pausing an agent chat
+is separate from pausing global production.
+
+`recording_input` now optionally accepts `include_source_frames:true`. Each
+bounded page can return `source_frame_context`: exact recorder-reception events
+joined to actual mux packet intervals and their referenced source geometry.
+Held content keeps its earlier source-content time. Missing video, legacy clock
+identity, clock gaps or unbounded observations leave this optional context
+Unavailable while preserving useful input rows. Pagination retains the source
+and media snapshot fingerprint. This is not physical response latency or proof
+that the app visually reacted in the matching frame. The service performs joins;
+consumers should not recreate epoch/clock conversion themselves.
+
+Use `app_observe` after a useful recording discovery, source-choice success,
+transient/cursor gotcha, failure or app update. It writes to the existing shared
+version-scoped fact store; `app_facts` reads it and `production_plan.app_learning`
+can consume qualified matching observations. Include observed versions, source
+mode, display profile, private evidence references and limits. Unknown versions
+stay unknown; a report is not independent verification. Prefer one useful new
+observation to repeating broad settled matrices. Keep the real-menu overflow
+active probe opportunistic and preserve its high-fidelity replay evidence.
+
+File recorder failures with `report_bug`: bounded symptom, expected/observed
+behavior, build/provider/app, exact recording/session IDs and private evidence
+references. Never paste raw input, footage, credentials or bulk logs. Open exact
+duplicates reuse a ticket. By default one bounded developer attempt is dispatched;
+`dispatch:false` files only. `repair_status` distinguishes Working, Patch prepared,
+Needs input, Dispatch uncertain and Ready for use. A missing permission, sandbox
+boundary, busy delivery or unavailable worker is visible rather than bypassed.
+Computer-use defects use `owner:computer_use` and go to its maintainer.
+
+`repair_subscribe` returns a durable subscription; the same caller and
+subscription_key recover it. `repair_wait` (or CLI `repair-wait <json>`) checks
+persisted state every seven seconds without model inference, for up to60 seconds
+per call. Keep the CLI wait in a background task while doing other work. It
+returns one consumable ready event per subscription after actual build/proof
+readback. `repair_unsubscribe` cancels only the notification. A lost response
+can be inspected through the ticket and subscription state; do not create a new
+ticket or replay the original operation blindly. `repair_retry` is an explicit
+triaged redispatch, including acknowledgement for an uncertain prior attempt.
+Native fixes are installed at an idle maintenance boundary; adapter changes
+load in fresh MCP clients or the current CLI. Old clients are not killed to
+reload them. Inspect the actual loaded version and retry your original operation
+explicitly after receiving a usable release.
+
+`cursor_render` creates the first editable cursor/click derivative. Supply the
+terminal recording, absolute SVG/PNG asset, original-asset hotspot and explicit
+`coordinate_basis:acknowledged_recorder_desktop_candidate`. This acknowledges
+the coordinate convention for the chosen take; it does not certify any provider
+or authenticate actors. Choose relevant `source_rows` or `action_tokens` when
+needed. Configure size, opacity, maximum hold, click-ring duration and typing
+hide. Draft defaults to640px/15fps/fast encoding; Final to1280px/30fps/higher
+quality. Both can be overridden within the exposed bounds. The service selects
+actual source pictures on exact rational output times; no smoothing or invented
+intermediate source images are added. Returned recipes, timelines, source/asset
+fingerprints and cursor/click sample PNGs are retained privately beside the MP4.
+Inspect those representative frames before choosing a final render.
+
+The first recipe is bounded to60 seconds,7200 source frames and2MP output, with
+one shared render admission and a180-second worker budget. Dependencies live in
+`data/record-screen/render-venv`: create it with `python3 -m venv` and install
+Pillow/CairoSVG there; FFmpeg/FFprobe must be available. Source video is untouched.
+Output is silent SDR H.264. Audio/HDR preservation, advanced animation, backdrop
+repair and final cursor style selection are not implemented by this first recipe.
+Capture with `show_cursor:false`; app-drawn cursors/carets may remain. Fitted
+child-window origins and clock gaps retain refusal guards. Provider coordinates
+and automation side effects require visible verification: AX button actions can
+include focus clicks without a one-to-one pointer trace of their semantic action.
