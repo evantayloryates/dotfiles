@@ -136,8 +136,12 @@ def start(container, project):
     args = ['docker', 'exec', '-d']
     for value in ENV:
         args += ['-e', value]
-    args += ['-w', '/workspaces/kickoff/' + project, container, 'sh', '-c',
-             'exec yarn start:demo:development </dev/null >/dev/null 2>&1']
+    args += ['-w', '/workspaces/kickoff/' + project, container]
+    if project == 'next':
+        args += ['node', '--input-type=module', '-e',
+                 (Path(__file__).parent / 'worker-launcher.mjs').read_text()]
+    else:
+        args += ['sh', '-c', 'exec yarn start:demo:development </dev/null >/dev/null 2>&1']
     run(args)
 
 

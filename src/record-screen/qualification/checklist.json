@@ -1,9 +1,9 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-10T15:59:47-04:00",
+  "updated_at": "2026-10-10T16:09:09-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage88 nearest-content reader fix verified on four retained moving/static samples plus zero-delta refusal; five focused checks pass, source hashes unchanged/native idle. Current CLI/fresh0.19.1 available; ordinary0.19.0 unchanged. Stage87 retry notification accepted, click pending.47completed17partial1deferred; goalactive."
+    "note": "Stage89 dense retained-counter comparison completed:26648 current mux/source joins, five actual service choices agree, hashes unchanged. About48% moving counter identity with nearest timestamps; oracle about51%, regressions/refusals retained. No new UI/capture. Menu notification still pending;47completed17partial1deferred, full goalactive."
   },
   "production_note": "Stage88 native6c/PID799 observed stable; current CLI/fresh MCP0.19.1 nearest retained content policy verified at four moving/static samples. Ordinary adapter remains0.19.0. Exact PTS/common clocks and independent RGB checks belong to service; original fitted guard retained.47completed17partial1deferred across65items; fullgoalactive.",
   "groups": [
@@ -106,10 +106,10 @@
           "title": "Prove a useful overflow capture and recovery path",
           "status": "partial",
           "scope": "Qualified padded-display and separate-popup paths plus guarded optional fixed-crop app-only lane. Whole-shot recovery and broader app/menu behavior remain open.",
-          "evidence": "Stage59 real TextEdit external1x triple:2656 exact mux/source joins,30 same-process interval segments;15 selected decoded frames. App backup retains root/Font/Highlight/typeface where childfalse AND resolved-childtrue isolated sources omit. Equal-scale unobscured marker edges within1px; practical scoped supplement established. Built-in off-screen/-3811 and initial checks retained. Stage61 exact whole-interval region summaries expose clipping/unknown durations, but actual contained menu omission remains a pixel-negative control.90s document containment does not prove whole-shot rescue. Stage66 new75s/30fps owned moving motion window, app-filtered and padded display take.5719 actual mux/source joins, zero journal loss.20.00365s real opaque cover; interval interior excludes200ms at edges.565 app packets preserve green marker and565 unique coarse-patch hashes;567 display packets show cover,570 isolated preserve marker.803 common-clock pair boundaries are contained throughout. Actual selected owned-window crops verified. Covers one authored affected interval; arbitrary whole-shot/menu recovery remains open. Stage72 all native submenu candidates fit parent even after vertical shrink; adapted scroll UI is recorded in both sources. No newly verified overflow recovery.",
-          "next": "Resolve remaining popup/changed-fit coverage and useful clipping transitions through actual delivered source maps. Use verified affected intervals only; preserve unqualified edges and do not repeat the passed obstruction take.",
-          "anchor": "seventy-second-pass",
-          "updated_at": "2026-10-09T17:51:25-04:00"
+          "evidence": "Existing qualified padding/app/obstruction recovery proofs retained. Stage89 current exact source joins plus prior full-decode counters compare26648 frames: nearest moving state agreement about48%, authored matching-counter bound about51% within50ms; individual regressions and static source-age refusals retained. Temporal alignment alone cannot qualify whole-shot or animated patch recovery.",
+          "next": "Use prepared actual menu batch on fresh production callback. Verify needed dynamic pixels, not only geometry/time. Evaluate one adequate capture master for frame-exact derived views; no derived-source implementation or continuous recovery proof yet.",
+          "anchor": "eighty-ninth-pass",
+          "updated_at": "2026-10-10T16:09:09-04:00"
         },
         {
           "id": "clean-source",
@@ -3075,6 +3075,21 @@
       "from": "active",
       "to": "active",
       "note": "Stage88 nearest-content reader fix verified on four retained moving/static samples plus zero-delta refusal; five focused checks pass, source hashes unchanged/native idle. Current CLI/fresh0.19.1 available; ordinary0.19.0 unchanged. Stage87 retry notification accepted, click pending.47completed17partial1deferred; goalactive."
+    },
+    {
+      "kind": "item",
+      "id": "overflow-recovery",
+      "at": "2026-10-10T16:09:09-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Existing qualified padding/app/obstruction recovery proofs retained. Stage89 current exact source joins plus prior full-decode counters compare26648 frames: nearest moving state agreement about48%, authored matching-counter bound about51% within50ms; individual regressions and static source-age refusals retained. Temporal alignment alone cannot qualify whole-shot or animated patch recovery."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-10T16:09:09-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Stage89 dense retained-counter comparison completed:26648 current mux/source joins, five actual service choices agree, hashes unchanged. About48% moving counter identity with nearest timestamps; oracle about51%, regressions/refusals retained. No new UI/capture. Menu notification still pending;47completed17partial1deferred, full goalactive."
     }
   ]
 }

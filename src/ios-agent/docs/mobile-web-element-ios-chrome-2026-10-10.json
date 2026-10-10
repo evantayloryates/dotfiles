@@ -1,0 +1,15 @@
+{
+  "at": "2026-10-10T20:08:22.767Z",
+  "browser": "ios-chrome",
+  "scope": "Physical browser over private HTTPS; owned qualification input and temporary occluder. User confirms no USB. No physical off-LAN claim.",
+  "gates": {
+    "freshMCPDiscovery": true,
+    "physicalPerformanceAvailable": true,
+    "computedCSSAndHitReadback": true,
+    "actualOccluderExplained": true,
+    "staleInspectionRefused": true,
+    "occluderRemovedAndGlowOff": true
+  },
+  "sdk": "web-dbd01815585ea6f4",
+  "status": "passed"
+}

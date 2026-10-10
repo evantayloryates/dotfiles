@@ -742,3 +742,12 @@ Review.frames pixel diagnostics and rational returned decoder time. The
 retained-frame-test.swift helper uses the production function on six real/authored
 outputs, preserving uniform-white/black ambiguity. Stage76 installed/fresh MCP
 and ordinary existing frame tool readback pass; no new capture or physical input.
+
+`compare-content-selection.py PRIVATE_SOURCE_INDEX.json OUTPUT.json` compares
+covering and nearest retained source timestamps with existing authored decoded
+counters, writes all numeric comparison rows privately, and returns compact
+bidirectional phase counts. Its index is built from current open-file exact mux/
+source joins plus retained full-decode timelines; stage89 private index.mjs is
+the fixture adapter. It never drives UI, decodes new pixels, chooses by image
+score or changes production policy. Invalid reversed lifecycle phases refuse
+before outputs. See REGISTERED-FRAMES.md for dense evidence and oracle limits.

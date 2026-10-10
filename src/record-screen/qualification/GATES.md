@@ -3638,3 +3638,23 @@ stable, worker/map settled/readerexit0. Five distinct focused checks pass; initi
 new test footer-order harness failure corrected/only failed check rerun. Ordinary
 adapter still0.19.0; no peer restart or automatic adoption. No continuous/real-fit
 or physical claim.47completed17partial1deferred; evidence gates-v88/.
+
+## Stage89: dense counter evidence limits temporal interchangeability
+
+Current snapshots exactly join26,648 packets to prior decoded numeric counter
+timelines. Five selected-index/delta witnesses agree with actual stage88 service
+results; metadata matches both stage88 snapshots/four source hashes unchanged.
+Nearest source-time selection raises window→app exact moving counter agreement
+869→5860/12257, reverse5371→5844/12219. Individual counter error regresses6
+and532 times respectively. Matching-counter oracle availability6240 in each
+direction is only an authored diagnostic bound within50ms, not deployed logic
+or fullframe identity. Longest nearest mismatch runs about2.29/2.27seconds.
+Static window→app441/1549 admits;1108 source-age refusals retained. Reverse189
+static all admit. Temporal closeness does not prove the same app paint.
+
+Initial bulk return hit existing1MiB snapshot guard; private harness now writes
+a numeric candidate and promotes only after snapshot verification. Initial
+phase lookup chose initialization stop before start; erroneous report preserved,
+lookup corrected/strict pre-output refusal verified. No service guard relaxed.
+No new decode/UI/capture/grant/physical/sleep/restart. Native6c/799idle, ordinary
+adapter0.19.0.47completed17partial1deferred; evidence gates-v89/.

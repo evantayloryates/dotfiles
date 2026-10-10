@@ -366,3 +366,14 @@ three other moving/static samples. Choose by timestamps once, never pixel-score
 retry. Keep original coverage refusal and selected geometry, exact PTS/common
 clock/delta/independent verification. Fresh0.19.1/current CLI have this policy;
 ordinary0.19.0 is older. Four samples do not provide continuous fitting proof.
+
+Stage89's dense counter analysis changes the insurance strategy: separate30fps
+streams do not necessarily contain the same paint generation, even under one
+recorder clock. Nearest content time helps but only about48% of moving counters
+match; an authored counter oracle reaches about51% within50ms. Retain that
+negative evidence and individual regressions. Prefer one adequate master source
+for exact same-frame derived views where its content coverage is qualified,
+with separate insurance streams for cases needing broader capture. This is a
+strategy inference, not a new rendering recipe or implemented derived-source
+feature. Verify needed dynamic regions and preserve unknowns; no threshold or
+clock override, whole-frame patch assumption or continuous-map promotion.

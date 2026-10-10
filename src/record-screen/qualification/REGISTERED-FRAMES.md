@@ -177,3 +177,30 @@ This selection cannot bridge missing original media coverage or establish a
 continuous transform. Negative content age explicitly means the selected source
 is later than the primary source timestamp; packet time and source time remain
 separate. Interval paired maps retain their original coverage semantics.
+
+## Dense retained-counter comparison (stage89)
+
+The retained eight-minute30fps pair exposes a limit that four successful frame
+registrations cannot establish. Exact current mux/source joins cover26,648
+frames; prior full-decode twelve-bit counters are reused without a new video
+decode. A standalone numeric comparison agrees with five actual service frame
+choices and keeps source timestamps separate from output packet timestamps.
+
+For window→app moving frames, nearest source time improves exact counter matches
+from869/12,257 to5,860/12,257; reverse direction improves5,371/12,219 to
+5,844/12,219. Some individual choices regress (6forward,532reverse). An authored
+counter oracle finds a matching value within50ms for only6,240 moving frames
+in either direction. This oracle is diagnostic; it is not deployed selection
+and cannot prove whole-frame identity. Longer mismatch runs exceed two seconds.
+
+A closer retained timestamp is not a paint-generation identifier. Independent
+content checks remain required, particularly when borrowing animated pixels
+from another stream. Static matches describe admitted subsets: window→app
+441/1,549 passes the source-age cap while1,108 refuses; reverse189/189 admits.
+Do not bypass clock guards because a small counter or background appears static.
+
+This suggests preserving one adequate capture master for frame-exact derived
+views where it contains all required pixels. That is a strategy inference, not
+a new derived-source implementation or universal app certification. Separate
+backup streams still provide useful insurance with explicitly checked content
+and uncertainty. Continuous changing-content/fitted-menu mapping remains open.

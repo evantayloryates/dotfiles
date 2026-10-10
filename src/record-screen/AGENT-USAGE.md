@@ -706,3 +706,16 @@ native control, with no Chrome source or popup qualification.
 ## Frame-local registration for guarded fitted sources
 
 Current MCP0.19/28tools and CLI offer [service-owned retained registration](qualification/REGISTERED-FRAMES.md). The service selects backup by primary source-content time and binds exact decoder PTS/opened files. Independent textured regions must pass before a local matrix is returned. Preserve unavailable reasons, fitted guard and frame-local scope; do not reuse a transform across popup changes or treat geometry as content coverage. Ordinary old consumer adoption remains separate; no peer restart.
+
+### Paired streams may contain different app paints
+
+Use exact source timestamps to align candidates, then verify the pixels needed
+for recovery. In the retained authored30fps motion pair, nearest timestamps
+match the decoded counter in about48% of moving frames in either direction.
+An oracle that knows that counter finds only about51% within the same50ms cap.
+Neither a small time difference nor a successful static-region registration
+proves the same animated app state. Do not borrow whole frames or interpolate
+a continuous map from four local passes. Prefer preserving one adequate master
+when frame-exact derived views are required; qualify its actual menu/content
+coverage first. Separate insurance sources remain useful with scoped content
+verification. Details and initial failed analyses are retained in stage89.

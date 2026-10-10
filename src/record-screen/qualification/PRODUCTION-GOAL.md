@@ -1,6 +1,32 @@
 # Production qualification goal
 
-## Current checkpoint: stage88 nearest-content selection verified — ACTIVE
+## Current checkpoint: stage89 dense source-state comparison — ACTIVE
+
+New numeric QA indexes26,648 current mux/source packets against prior decoded
+counter timelines. Nearest timestamps improve exact moving counter agreement
+869→5860/12257 window→app,5371→5844/12219 reverse. Errors individually regress
+6/532 comparisons; nearest mismatch runs reach2.29/2.27seconds. An authored
+matching-counter oracle finds6240 states per direction within50ms, about51%.
+It is diagnostic only, not deployed selection/full-image recovery proof. Static
+window→app admits441/1549, refusing1108 for source age; reverse189all admit.
+
+Five actual service frame choices/deltas match numeric analysis; metadata equals
+stage88 snapshots and four hashes remain unchanged. No new decode/UI/capture.
+Initial1MiB bulk response refusal and wrong lifecycle phase preserved/corrected;
+service guard unchanged, invalid reversed phase now refuses before output.
+Native6c/PID799idle/worker-map settled; ordinary adapter0.19.0 observed20:07UTC.
+47completed17partial1deferred. Strategy now explicitly prefers one adequate
+capture master for same-frame derivatives where coverage is qualified, keeping
+separate insurance/content uncertainty; no new derived-source implementation.
+
+Stage87 retry1 ready alert still pending: session ses_y72uvtt6, watcherexec92250,
+exact observed PythonPID63508, signal gates-v87/retry1/click-signal.json. Recheck
+actual process/terminal, then current callback reservation before visible action.
+Never replay old first-click launch or reuse its interval. Prepared50s pair and
+native CUA actions are ready; no authentication/physical input needed. Continue
+independent unblocked work; composition deferred, full goalactive.
+
+## Historical stage88 checkpoint: nearest-content selection verified
 
 Retained moving pixels exposed a temporal choice problem: covering backup582
 was25.880ms older, two spatial anchors agreed, but independent motion NCC0.6875
