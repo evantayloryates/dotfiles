@@ -1,0 +1,8 @@
+{
+  "at": "2026-10-10T20:27:24.116Z",
+  "scope": "Physical paired iPhone over Wi-Fi with USB unplugged; read-only DVT screenshot, no XCTest/Mirroring/HID",
+  "gates": {
+    "freshCatalog23Tools": true
+  },
+  "status": "failed"
+}

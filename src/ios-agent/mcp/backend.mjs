@@ -8,7 +8,7 @@ import {nutritionRecipe} from './workflows.mjs';
 import {mediaObservation} from './media-verification.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/media-verification.mjs', 'mcp/workflows.mjs', 'paired_workflow.py', 'health.py', 'local_stack.py', 'worker-launcher.mjs', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
+const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/media-verification.mjs', 'mcp/workflows.mjs', 'paired_workflow.py', 'health.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
   .map(file => fs.readFileSync(path.join(root, file))).map(bytes => createHash('sha256').update(bytes).digest('hex')).join(':')).digest('hex');
 export const defaultState = path.join(os.homedir(), 'Library/Application Support/ios-agent');
 const idleLimit = 20 * 60 * 1000;
@@ -66,12 +66,12 @@ export class Backend {
   }
   async run(kind, args, input, timeout = 120000) {
     if (this.runOverride) return this.runOverride(kind, args, input);
-    const files = {web: 'web_cli.py', cli: 'cli.py', verify: 'verify.py', doctor: 'health.py', stack: 'local_stack.py', paired: 'paired_workflow.py', learning: 'learning.py'};
+    const files = {web: 'web_cli.py', cli: 'cli.py', verify: 'verify.py', doctor: 'health.py', stack: 'local_stack.py', paired: 'paired_workflow.py', learning: 'learning.py', provider:'device_observer.py'};
     if (!files[kind]) throw new Error('fixed_operation_required');
     const argv = kind === 'learning' ? [path.join(this.state, 'learning')] :
-      kind === 'web' ? ['--state', this.state] : kind === 'paired' ? [] : kind === 'cli' ? ['--state', this.state, ...args] : [...args, '--state', this.state];
+      kind === 'provider' ? [] : kind === 'web' ? ['--state', this.state] : kind === 'paired' ? [] : kind === 'cli' ? ['--state', this.state, ...args] : [...args, '--state', this.state];
     return new Promise((resolve, reject) => {
-      const child = spawn('/usr/bin/python3', ['-B', path.join(root, files[kind]), ...argv],
+      const child = spawn(kind==='provider'?path.join(this.state,'providers/pymobiledevice3-11.15.5/bin/python'):'/usr/bin/python3', ['-B', path.join(root, files[kind]), ...argv],
         {stdio: ['pipe', 'pipe', 'pipe'], env: {...process.env, PYTHONDONTWRITEBYTECODE: '1'}});
       this.running.add(child);
       let stdout = '', stderr = '', exceeded = false;
@@ -127,6 +127,7 @@ export class Backend {
     try { current = await this.status(); learning = await this.learning('search', {source: runtimeKey(current) || ''}); }
     catch { learning = {available: false}; }
     return {browserWorkflow: ['ios_doctor (host prerequisites)', 'ios_web_pages (reuse a visible ready enrolled page)', 'ios_web_enroll only if provisioning is needed (private launchFile)', 'open the intended dev browser page if not enrolled', 'ios_web_pages', 'ios_web_begin', 'ios_web_inspect and ios_web_action', 'ios_web_end in finally'],
+      deviceObserver: 'ios_device_inspect kind=screen|capabilities reads the paired iPhone without XCTest or Mirroring. With no session it reserves/releases a temporary owner. ios_read renders a private full-display image. Nearby paired wireless developer transport only; HID input not qualified.',
       browserLimits: 'Page-owned DOM input is synthetic; it does not operate OS dialogs, trusted touch, IME or microphone permission. SDK return channel works over private HTTPS; require separate off-LAN qualification. Dev-only enrollment and per-tab authentication.',
       workflow: ['ios_doctor', 'ios_begin', 'ios_native or ios_react', 'ios_verify', 'ios_end'],
       hostWorkflow: ['ios_doctor (read only)', 'ios_stack_ensure only when needed and idle; never replay an uncertain start'],
@@ -270,6 +271,32 @@ export class Backend {
     if (text.length > limit) return {artifactId, truncated: true, characters: text.length,
       next: 'Use a JSON pointer to select a smaller subtree. No partial JSON is returned.'};
     return {artifactId, data};
+  }
+  async deviceInspect({kind='screen',sessionId}={}) {
+    let s,temporary=false;
+    try {
+      if(!fs.existsSync(path.join(this.state,'providers/pymobiledevice3-11.15.5/bin/python')))return {ok:false,reason:'device_observer_not_installed',inputSent:false};
+      if(sessionId)s=this.session(sessionId);
+      else {const acquired=await this.begin({surface:'launch'});s=this.session(acquired.sessionId);temporary=true;}
+      const configFile=path.join(this.state,'web-device.json');
+      if(!fs.existsSync(configFile)||fs.statSync(configFile).mode&0o077)return {ok:false,reason:'private_web_device_configuration_required',inputSent:false};
+      const configured=JSON.parse(fs.readFileSync(configFile,'utf8')),device=configured.coreDeviceId;
+      if(!/^[A-Fa-f0-9-]{36}$/.test(device))return {ok:false,reason:'configured_device_id_required',inputSent:false};
+      let serial=configured.hardwareUDID;
+      if(!/^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{16}$/.test(serial||'')){
+        const detail=await this.deviceRun(['device','info','details','--device',device,'--timeout','8'],{timeout:11000});
+        if(!detail.ok)return {ok:false,reason:'developer_channel_unconfirmed',inputSent:false};
+        serial=detail.data?.result?.connectionProperties?.localHostnames?.map(x=>x.replace(/\.coredevice\.local$/,'')).find(x=>/^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{16}$/.test(x));
+      }
+      if(!serial)return {ok:false,reason:'configured_device_identity_unconfirmed',inputSent:false};
+      this.session(s.id);
+      const a=this.artifact(s,kind==='screen'?'image':'device-capabilities');
+      const run=await this.run('provider',[],{kind,serial,state:this.state,leaseFile:s.lease,output:a.file},26000);
+      if(!run.ok||run.value?.ok!==true||!fs.existsSync(a.file))return {ok:false,reason:run.value?.reason||'device_observation_unavailable',phase:run.value?.phase,inputSent:false};
+      this.session(s.id);
+      const value=JSON.parse(fs.readFileSync(a.file,'utf8')).result;
+      return {ok:true,artifactId:a.id,metadata:safe(value),inputSent:false,next:kind==='screen'?'Use ios_read with this artifactId for the actual full-device PNG. Paired nearby developer transport; separate from arbitrary-network page control.':'Service availability is not proof of Web Inspector opt-in or native touch.'};
+    } finally {if(temporary&&s)await this.end(s.id);}
   }
   async webPages() {
     const r = await this.run('web', [], {op: 'web_pages'}, 8000);
