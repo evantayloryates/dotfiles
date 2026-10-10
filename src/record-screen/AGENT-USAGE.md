@@ -800,14 +800,22 @@ duplicates reuse a ticket. By default one bounded developer attempt is dispatche
 `dispatch:false` files only. `repair_status` distinguishes Working, Patch prepared,
 Needs input, Dispatch uncertain and Ready for use. A missing permission, sandbox
 boundary, busy delivery or unavailable worker is visible rather than bypassed.
-Computer-use defects use `owner:computer_use` and go to its maintainer.
+Computer-use defects use `owner:computer_use`; the ticket returns a routing
+instruction rather than dispatching a recorder worker to repair that dependency.
+Forward the reproduction through the computer-use service’s own mechanism.
 
 `repair_subscribe` returns a durable subscription; the same caller and
 subscription_key recover it. `repair_wait` (or CLI `repair-wait <json>`) checks
 persisted state every seven seconds without model inference, for up to60 seconds
-per call. Keep the CLI wait in a background task while doing other work. It
-returns one consumable ready event per subscription after actual build/proof
-readback. `repair_unsubscribe` cancels only the notification. A lost response
+per call. `record-screen repair-watch <json>` maintains that deterministic wait
+for up to24 hours: stdout stays empty until one ready event, making redirection
+to a private watcher file a cheap completion hook. It does not wake the model
+on unchanged state. Keep it in a background task while doing other work.
+The wait/watch hook returns one consumable ready event per subscription after
+actual build/proof readback. `repair_releases` reads the bounded delivered-release
+log. `repair_feedback` appends your retry or verification result without changing
+the original worker limits, ready revision or subscriber delivery. A failed retry
+should file a new incident with the new reproduction. `repair_unsubscribe` cancels only the notification. A lost response
 can be inspected through the ticket and subscription state; do not create a new
 ticket or replay the original operation blindly. `repair_retry` is an explicit
 triaged redispatch, including acknowledgement for an uncertain prior attempt.

@@ -45,9 +45,12 @@ def report(db,a):
     if not isinstance(refs,list) or len(refs)>16 or any(not bounded(r,4096) or not r.startswith('/') for r in refs):raise ValueError('up to 16 absolute private evidence references')
     if a.get('owner','recorder') not in ['recorder','computer_use']:raise ValueError('invalid owner')
     if 'dispatch' in a and not isinstance(a['dispatch'],bool):raise ValueError('dispatch must be boolean')
-    fingerprint=hashlib.sha256(json.dumps({k:a.get(k) for k in ['symptom','expected','observed','build','provider','app','owner']},sort_keys=True).encode()).hexdigest()
+    identity={k:a.get(k) for k in ['symptom','expected','observed','build','provider','app','owner']}
+    legacy_fingerprint=hashlib.sha256(json.dumps(identity,sort_keys=True).encode()).hexdigest()
+    identity['owner']=a.get('owner','recorder')
+    fingerprint=hashlib.sha256(json.dumps(identity,sort_keys=True).encode()).hexdigest()
     with tx(db):
-        for (raw,) in db.execute('SELECT body FROM tickets WHERE fingerprint=?',(fingerprint,)):
+        for (raw,) in db.execute('SELECT body FROM tickets WHERE fingerprint IN (?,?)',(fingerprint,legacy_fingerprint)):
             row=json.loads(raw)
             if row['state'] not in ['ready_for_use','cannot_reproduce']:return {**row,'deduplicated':True}
         id='bug_'+uuid.uuid4().hex[:24]
@@ -153,6 +156,22 @@ def main():
                 result['triage_history']=result['triage_history'][-16:]
                 result.update(state='reported',updated_at=now(),revision=result['revision']+1,worker_pid=None);put(db,result)
             subprocess.Popen([sys.executable,__file__,'worker',result['ticket_id']],stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,start_new_session=True)
+        elif args.command=='feedback':
+            if set(a)-{'ticket_id','result','note','evidence_refs'} or a.get('result') not in ['verified','failed','unknown'] or not bounded(a.get('note'),3000):raise ValueError('ticket_id, result and bounded note required')
+            refs=a.get('evidence_refs',[])
+            if not isinstance(refs,list) or len(refs)>16 or any(not bounded(x,4096) or not x.startswith('/') for x in refs):raise ValueError('bounded absolute evidence_refs required')
+            with tx(db):
+                result=ticket(db,a['ticket_id']);feedback={'at':now(),'result':a['result'],'note':a['note'],'evidence_refs':refs,'provenance':'caller_reported_follow_up'}
+                result.setdefault('consumer_feedback',[]).append(feedback);result['consumer_feedback']=result['consumer_feedback'][-16:]
+                if result.get('release'):
+                    result['release']['consumer_feedback']=result['consumer_feedback'];old=db.execute('SELECT body FROM releases WHERE ticket=?',(result['ticket_id'],)).fetchone()
+                    if old:
+                        release=json.loads(old[0]);release['consumer_feedback']=result['consumer_feedback'];save(db,'releases',result['ticket_id'],release)
+                put(db,result)
+        elif args.command=='releases':
+            limit=a.get('limit',20)
+            if set(a)-{'limit'} or isinstance(limit,bool) or not isinstance(limit,int) or not 1<=limit<=100:raise ValueError('limit must be1–100')
+            result={'releases':[json.loads(r[0]) for r in db.execute('SELECT body FROM releases ORDER BY rowid DESC LIMIT ?',(limit,))]}
         elif args.command=='subscribe':result=subscribe(db,a)
         elif args.command=='cancel':result=signal(db,a['subscription_id'],True)
         elif args.command=='wait':

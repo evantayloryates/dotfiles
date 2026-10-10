@@ -66,8 +66,10 @@ undrained device buffers. No collection while idle.
 
 Physical Safari console/network capture passed with a >12 KiB event, masked
 sentinel, preserved response readability, private persistence and glow-off.
-Generated audio track lifetime survived recorder stop, but its AudioContext was
-suspended and no audio chunk was produced. Audio is not qualified by that result.
+A subsequent trusted Mirroring tap started a silent generated Safari stream.
+Three private audio chunks assembled into valid AAC media (2.241 seconds).
+Capture stop preserved the source track; fixture and glow cleanup passed.
+This qualifies generated-stream capture, not microphone or full-call behavior.
 The signed native adapter installed, strict runtime readiness passed, seven
 console/network events persisted, and idle verification confirmed lease/glow off.
 React Native raw audio still requires a native audio adapter.
@@ -98,3 +100,15 @@ requires a harness scheduler and is not claimed by this MCP tool.
 - XCTest approval report: https://github.com/appium/appium/issues/19363
 - WDA lifecycle: https://appium.github.io/appium-xcuitest-driver/latest/reference/capabilities/
 - Minimal board: https://wiki.seeedstudio.com/XIAO_ESP32C3_Getting_Started/
+
+## Phone locking follow-up
+
+Created **Runner Lock iPhone** on the Mac with one Apple Lock Screen action.
+iCloud Sync was already enabled. It appeared on the physical phone, one fixed
+developer-channel URL invocation locked it, and independent `passcodeRequired`
+readback plus live Mirroring confirmed the result. `ios_device_lock` exposes this
+without an arbitrary URL/name, and skips dispatch when already locked. Unlock
+and true OS authentication remain human actions; nearby lock is not off-LAN proof.
+
+The configured `/Users/taylor/dotfiles/bin/speak` helper is required for human
+unblock alerts: speak the actual concise request, never placeholder wording.

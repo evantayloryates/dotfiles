@@ -2,7 +2,7 @@ import fs from 'node:fs';import assert from 'node:assert/strict';import {Client}
 const client=new Client({name:'physical-rich-capture',version:'1'}),proof={at:new Date().toISOString(),scope:'Physical iOS Safari synthetic DEV console/network and generated-stream recording; no microphone or off-LAN claim',gates:{}};let session;
 const call=async(name,args={})=>{const r=await client.callTool({name,arguments:args});if(r.isError)throw Error(name+':'+JSON.stringify(r.structuredContent));return r.structuredContent;};
 try{
- await client.connect(new StdioClientTransport({command:'/Users/taylor/dotfiles/bin/ios-agent-mcp',stderr:'pipe'}));await call('ios_guide');assert.equal((await client.listTools()).tools.length,26);proof.gates.catalog26=true;
+ await client.connect(new StdioClientTransport({command:'/Users/taylor/dotfiles/bin/ios-agent-mcp',stderr:'pipe'}));await call('ios_guide');assert.equal((await client.listTools()).tools.length,27);proof.gates.catalog27=true;
  const ready=await call('ios_wait_ready',{surface:'web',browser:'ios-safari',timeoutSeconds:0});assert(ready.readyToAcquire);assert.equal(ready.leaseAcquired,false);proof.gates.readinessWithoutLease=true;
  session=(await call('ios_web_begin',{page:ready.page})).sessionId;assert(session);
  const start=await call('ios_capture',{sessionId:session,op:'start',modes:['console','network'],seconds:60});assert(start.ok);

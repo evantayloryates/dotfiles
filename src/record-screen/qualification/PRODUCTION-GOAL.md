@@ -1,5 +1,33 @@
 # Production qualification goal
 
+## Current checkpoint: release 0.20 delivered (October 10)
+
+This checkpoint supersedes earlier installed-version and scope statements below.
+Native **e402dc736458** is installed; fresh MCP **0.20.0** and current CLI expose
+the release. [RELEASE-0.20.md](RELEASE-0.20.md) maps useful verified portions into
+the supported tools and gives Taylor a short smoke test. Existing peer adapters
+were preserved; use a fresh client for new tool discovery.
+
+Global pause/queue and live panel passed 35 controlled checks plus installed
+AX/CLI and owned-take draining tests. Input/frame context and the first cursor
+recipe passed focused readers/refusals and actual source/render alignment.
+Fresh MCP checked a 45-frame draft and shared app observation readback. A real
+repair ticket delivered the panel action-count fix through the idle fence,
+commit/push and delivery readback; a model-free subscriber received revision 6
+once, a second wait emitted nothing, and parent AX verified the installed fix.
+
+The maintained checklist now marks the useful delivered portions Completed
+without erasing historical Partial scopes. User-deferred physical, provider,
+capacity, app-depth and broader failure work keeps its explicit prerequisites.
+One decision is still Review: whether the installed movable panel satisfies
+this release, or Taylor wants a true WidgetKit surface included now. No approval
+of widget deferral is assumed. Goal remains active for that decision and Taylor’s
+release feedback; no broad retesting or new capture experiment is pending.
+
+Private evidence: the existing capture-qualification-2026-10-08/release-next
+bundle under this chat’s visualization directory. Owned recordings/actions have
+settled; global gate is open. Cursor outputs remain under .record-screen/composites.
+
 ## Current checkpoint: supported release closure (stage90)
 
 The revised bounded goal supersedes the earlier universal qualification target.

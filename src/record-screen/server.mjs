@@ -517,6 +517,8 @@ const instructions =
   "→ recording_frames for exact moments → record_export for a trimmed mp4 or GIF. " +
   "Before production UI work, use read-only production_plan for explicit mode/alignment expectations and runtime obstacles; reuse existing user consent. " +
   "A plan is not permission or native readiness: verify the actual target and source pixels, then explicitly schedule chosen settings. Input stays available. " +
+  "Use production_checkpoint before each new production UI step; honor the persistent global safe-pause gate and use production_panel_show for user visibility. New takes queue while paused, elapsed queued starts require explicit rescheduling, and external tools must cooperate. " +
+  "Use report_bug/repair_status for recorder incidents, repair_subscribe/repair_wait (CLI repair-watch for a persistent no-inference hook), then inspect delivered build/load policy and retry explicitly. Publish useful version-scoped observations through app_observe; do not repair computer-use internals here. cursor_render offers the first bounded draft/final editable cursor recipe with required hotspot and coordinate acknowledgement; inspect returned samples. " +
   "Use recording_frame_map for bounded actual-mux/source geometry and point/region projection; crop clipping is geometric, while content presence needs pixels. Missing references and uncovered times stay explicit. " +
   "Sessions are always explicit: the engine never guesses which session is yours. Many agents may use it at once; the engine never takes focus.";
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import importlib.util, tempfile, os, threading, unittest
+import importlib.util, tempfile, os, threading, unittest, subprocess, sys, json
 from pathlib import Path
 spec=importlib.util.spec_from_file_location('repair',Path(__file__).resolve().parents[1]/'repair-service.py');r=importlib.util.module_from_spec(spec);spec.loader.exec_module(r)
 class Repairs(unittest.TestCase):
@@ -9,6 +9,22 @@ class Repairs(unittest.TestCase):
  def report(self):return r.report(self.db,{'symptom':'Export fails','expected':'A usable export','observed':'Explicit export error','dispatch':False})
  def test_duplicates_and_durable_readback(self):
   t=self.report();self.assertTrue(self.report()['deduplicated']);self.assertEqual(t['ticket_id'],self.report()['ticket_id']);other=r.conn();self.assertEqual(r.ticket(other,t['ticket_id'])['state'],'reported');other.close()
+ def test_default_owner_matches_explicit_recorder(self):
+  t=self.report();a={'symptom':'Export fails','expected':'A usable export','observed':'Explicit export error','dispatch':False,'owner':'recorder'}
+  same=r.report(self.db,a);self.assertTrue(same['deduplicated']);self.assertEqual(same['ticket_id'],t['ticket_id'])
+ def command(self,name,args):
+  env={**os.environ,'RECORD_SCREEN_HOME':str(r.BASE.parent)}
+  return json.loads(subprocess.check_output([sys.executable,str(Path(r.__file__)),name],input=json.dumps(args),text=True,env=env))
+ def test_feedback_preserves_readiness_revision_and_original_limits(self):
+  t=self.report();s=r.subscribe(self.db,{'ticket_id':t['ticket_id'],'caller':'feedback','subscription_key':'once'})
+  prepared=r.outcome(self.db,t['ticket_id'],'patch_prepared','not delivered')
+  f=self.command('feedback',{'ticket_id':t['ticket_id'],'result':'verified','note':'Caller checked patch only'})
+  self.assertEqual(f['state'],'patch_prepared');self.assertEqual(f['revision'],prepared['revision']);self.assertIsNone(r.signal(self.db,s['subscription_id'])['event']);self.assertEqual(self.command('releases',{})['releases'],[])
+  ready=r.outcome(self.db,t['ticket_id'],'ready_for_use','delivered',{'native_build':'fixture','limits':'original limitation'})
+  self.assertIsNotNone(r.signal(self.db,s['subscription_id'])['event'])
+  f=self.command('feedback',{'ticket_id':t['ticket_id'],'result':'failed','note':'New consumer issue needs a new incident','evidence_refs':['/private/fixture']})
+  self.assertEqual(f['revision'],ready['revision']);self.assertEqual(f['state'],'ready_for_use');self.assertEqual(f['release']['limits'],'original limitation')
+  release=self.command('releases',{'limit':1})['releases'][0];self.assertEqual(release['consumer_feedback'][-1]['result'],'failed');self.assertIsNone(r.signal(self.db,s['subscription_id'])['event'])
  def test_no_success_for_prepared_or_input(self):
   t=self.report();s=r.subscribe(self.db,{'ticket_id':t['ticket_id'],'caller':'test','subscription_key':'one'})
   for state in ['working','patch_prepared','needs_input','dispatch_uncertain']:

@@ -17,14 +17,17 @@
     }
   },
   "postflight": {
-    "ok": true
+    "ok": true,
+    "passcodeRequired": true,
+    "unlockedSinceBoot": true
   },
-  "lockedVerified": false,
+  "lockedVerified": true,
   "cleanup": {
     "released": true,
     "detail": {
       "released": true
     },
     "next": "Call ios_verify gate=idle without a session to confirm native and host cleanup."
-  }
+  },
+  "independentMirroringConnected": true
 }

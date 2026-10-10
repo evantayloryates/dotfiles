@@ -1,0 +1,58 @@
+{
+  "at": "2026-10-10T23:02:16.104Z",
+  "scope": "Physical Safari generated silent destination stream, started by trusted Mirroring tap; no microphone/full-call/off-LAN proof",
+  "source": {
+    "state": "running",
+    "trackLive": true
+  },
+  "capture": {
+    "ok": true,
+    "chunks": 3,
+    "events": 3,
+    "bytes": 12822,
+    "remainingEvents": 0
+  },
+  "manifestHasNoBase64": true,
+  "chunkBytes": 5483,
+  "originalTrackStillLive": true,
+  "status": "passed",
+  "cleanup": {
+    "released": true,
+    "detail": {
+      "released": false,
+      "alreadyInactive": true,
+      "otherOwnerActive": false
+    },
+    "next": "Call ios_verify gate=idle without a session to confirm native and host cleanup.",
+    "indicatorOff": true,
+    "receipt": {
+      "gate": "web-idle",
+      "status": "passed",
+      "observation": {
+        "ownerReleased": true,
+        "indicatorOff": true
+      }
+    },
+    "learningEvidence": {
+      "evidenceId": "08129b6a35d64858ad7fee4f883d5a2e",
+      "gate": "web-idle",
+      "status": "passed"
+    }
+  },
+  "assembledMedia": {
+    "probeExit": 0,
+    "streams": [
+      {
+        "codec_name": "aac",
+        "codec_type": "audio",
+        "duration": "2.241333"
+      }
+    ],
+    "format": {
+      "duration": "2.241333",
+      "size": "11937"
+    },
+    "privateModeVerified": true,
+    "retainedInsideCaptureTTL": true
+  }
+}

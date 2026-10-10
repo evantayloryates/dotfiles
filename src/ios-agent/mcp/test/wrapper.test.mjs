@@ -48,7 +48,7 @@ test('SDK discovers tools/resources, intuitive lifecycle, image content and priv
   const f = fixture(); const {client, server} = await clientFor(f);
   try {
     const names = (await client.listTools()).tools.map(t => t.name);
-    assert.equal(names.length, 26); assert.ok(names.includes('ios_begin'));
+    assert.equal(names.length, 27); assert.ok(names.includes('ios_begin'));
     assert.equal((await client.listResources()).resources.length, 5);
     const begin = (await client.callTool({name: 'ios_begin', arguments: {}})).structuredContent;
     assert.equal(begin.ready, true); assert.equal(f.held(), true);
@@ -146,7 +146,7 @@ test('real launcher stdio handshake works in a minimal GUI PATH without device c
   const client = new Client({name: 'stdio-canary', version: '1'});
   const transport = new StdioClientTransport({command: path.join(os.homedir(), 'dotfiles/bin/ios-agent-mcp'), env: {HOME: os.homedir(), PATH: '/usr/bin:/bin'}, stderr: 'pipe'});
   let stderr = ''; transport.stderr?.on('data', x => { stderr += x; });
-  try { await client.connect(transport); assert.equal((await client.listTools()).tools.length, 26); }
+  try { await client.connect(transport); assert.equal((await client.listTools()).tools.length, 27); }
   finally { await client.close(); }
   assert.equal(stderr, '');
 });
@@ -314,5 +314,14 @@ test('fixed launch reserves before preflight, refuses unlock requirement and nev
  try{
   assert.equal((await f.backend.deviceLaunch({target:'untrusted-bundle'})).inputSent,false);assert.equal((await f.backend.deviceLaunch()).reason,'developer_unlock_required');assert.equal(launches,0);assert(!f.held());
   locked=false;const result=await f.backend.deviceLaunch();assert.equal(result.outcome,'unknown');assert.equal(result.replay,false);assert.equal(result.offLANQualified,false);assert.equal(launches,1);assert(!f.held());
+ }finally{await f.backend.close();fs.rmSync(f.state,{recursive:true});}
+});
+
+test('fixed lock skips already-locked input, fences unknown dispatch and verifies actual state',async()=>{
+ const f=fixture();fs.writeFileSync(path.join(f.state,'web-device.json'),JSON.stringify({coreDeviceId:'12345678-1234-1234-1234-123456789abc'}),{mode:0o600});let locked=true,launches=0;
+ f.backend.deviceRun=async(args)=>{assert(f.held());if(args.includes('lockState'))return {ok:true,data:{result:{passcodeRequired:locked}}};assert(args.includes('shortcuts://run-shortcut?name=Runner%20Lock%20iPhone'));launches++;locked=true;return {ok:false,outcome:'unknown'};};
+ try{
+  const idle=await f.backend.deviceLock();assert(idle.lockedVerified);assert.equal(idle.inputSent,false);assert.equal(launches,0);assert(!f.held());
+  locked=false;const result=await f.backend.deviceLock();assert(result.lockedVerified);assert.equal(result.replay,false);assert.equal(result.outcome,'unknown');assert.equal(launches,1);assert(!f.held());
  }finally{await f.backend.close();fs.rmSync(f.state,{recursive:true});}
 });

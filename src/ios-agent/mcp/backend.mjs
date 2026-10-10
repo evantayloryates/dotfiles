@@ -139,6 +139,7 @@ export class Backend {
     return {browserWorkflow: ['ios_doctor (host prerequisites)', 'ios_web_pages (reuse a visible ready enrolled page)', 'ios_web_enroll only if provisioning is needed (private launchFile)', 'open the intended dev browser page if not enrolled', 'ios_web_pages', 'ios_web_begin', 'ios_web_inspect and ios_web_action', 'ios_web_end in finally'],
       readiness: 'ios_wait_ready waits up to 55 seconds without a lease, waking on fresh foreground app/page events. Repeat bounded waits while this task is waiting; do not infer lock from offline. ios_begin still verifies the runtime. MCP availability does not itself schedule a new model turn.',
       launch: 'ios_device_launch has fixed DEV/Settings/Safari/Chrome targets through a paired nearby developer channel. DEV launch was qualified from Settings without XCTest. Arbitrary-network foreground launch remains unqualified; Tailscale page/app control alone cannot launch a suspended app.',
+      lock: 'ios_device_lock runs only Runner Lock iPhone through the paired developer channel, then independently reads passcodeRequired. The one-action Apple shortcut is installed and physically verified. Already locked is a no-input success. It cannot unlock the phone, does not store a passcode, and is not an arbitrary-network system-control lane.',
       richCapture: 'ios_capture is explicit synthetic-DEV capture only: start selected console/network/audio modes, drain bounded batches, stop, then end in finally. Default 2 MiB ring, max 8 MiB, max 10 minutes; host 32 MiB/capture and 128 MiB total. Artifacts expire after one hour by default (max 24 hours) and private audio chunks stay off the transcript. Clone existing audio tracks only; no microphone request. Inspect remainingEvents and dropped counts; this is not lossless whole-device traffic capture.',
       deviceObserver: 'ios_device_inspect kind=screen|capabilities|browser-debug reads the paired iPhone without XCTest or Mirroring. With no session it reserves/releases a temporary owner. ios_read renders a private full-display image. Nearby paired wireless developer transport only; HID input not qualified.',
       browserLimits: 'Page-owned DOM input is synthetic; it does not operate OS dialogs, trusted touch, IME or microphone permission. SDK return channel works over private HTTPS; require separate off-LAN qualification. Dev-only enrollment and per-tab authentication.',
@@ -336,6 +337,30 @@ export class Backend {
       return {ok:launched.ok,target,outcome:launched.outcome,diagnostic:launched.diagnostic,replay:false,
         foregroundVerified:false,transport:'paired-developer-channel',offLANQualified:false,
         next:target==='kickoff-dev'?'Wait for native readiness, then ios_begin. Request acceptance is not foreground readiness.':'Inspect the full phone screen independently. Settings navigation still requires a system input provider.'};
+    } finally {await this.end(reservation.sessionId);}
+  }
+  async deviceLock() {
+    const reservation=await this.begin({surface:'launch'});
+    try {
+      const file=path.join(this.state,'web-device.json');
+      if(!fs.existsSync(file)||fs.lstatSync(file).isSymbolicLink()||fs.statSync(file).mode&0o077)return {ok:false,reason:'private_web_device_configuration_required',inputSent:false};
+      const device=JSON.parse(fs.readFileSync(file,'utf8')).coreDeviceId;
+      if(!/^[A-Fa-f0-9-]{36}$/.test(device||''))return {ok:false,reason:'configured_device_id_required',inputSent:false};
+      const observe=async()=>{const r=await this.deviceRun(['device','info','lockState','--device',device,'--timeout','8'],{timeout:11000});const state=r.data?.result?.lockState||r.data?.result?.deviceProperties?.lockState||r.data?.result;return {ok:r.ok,required:state?.passcodeRequired};};
+      const before=await observe();
+      if(!before.ok||typeof before.required!=='boolean')return {ok:false,reason:'device_lock_state_unconfirmed',inputSent:false,lockState:'unknown'};
+      if(before.required)return {ok:true,alreadyLocked:true,lockedVerified:true,inputSent:false};
+      this.session(reservation.sessionId);
+      const sent=await this.deviceRun(['device','process','launch','--device',device,'--timeout','12','--payload-url','shortcuts://run-shortcut?name=Runner%20Lock%20iPhone','com.apple.shortcuts'],{timeout:15000});
+      // Observe after one dispatch; an unknown launch is never replayed.
+      let after;
+      for(let attempt=0;attempt<3;attempt++){
+        after=await observe();if(after.ok&&after.required===true)break;
+        if(attempt<2)await new Promise(resolve=>setTimeout(resolve,500));
+      }
+      const lockedVerified=after?.ok===true&&after.required===true;
+      return {ok:lockedVerified,lockedVerified,inputSent:true,outcome:sent.outcome,replay:false,transport:'paired-developer-channel',offLANQualified:false,
+        next:lockedVerified?'The phone is locked. Connect Mirroring if needed; a later physical unlock still requires the human.':'Inspect the phone independently. Shortcut dispatch is not proof of locking; do not replay an unknown outcome.'};
     } finally {await this.end(reservation.sessionId);}
   }
   async capture({sessionId,op='status',modes=['console','network'],seconds=120,maxBytes=2097152,ttlSeconds=3600}={}) {

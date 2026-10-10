@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-10T18:48:45-04:00",
+  "updated_at": "2026-10-10T19:06:38-04:00",
   "workflow": {
     "state": "active",
-    "note": "Implementing the next release: persistent global pause/queue and desktop panel candidate, repair tickets, useful verified partial capabilities and first cursor recipe. Focused acceptance checks; no whole-phase reruns."
+    "note": "Release 0.20 delivered and focused verification passed. Ready for Taylor’s personal smoke test. One presentation decision remains in Review: accept the installed panel for this release or include a true native widget. No further broad smoke matrix is running."
   },
-  "production_note": "Supported release: signed native6c238cc1ba80/PID799 and fresh registered adapter0.19.1/28tools verified. Existing adapter0.19.0 retains its observed contract; current CLI/fresh launch supplies new registration policy.49completed15partial1deferred. Remaining broader scopes have explicit supported limits, external validation or research follow-up in the release decision; effects deferred. Unfinished reception/source-context candidate excluded.",
+  "production_note": "Release 0.20 is installed and ready for Taylor’s smoke test: native e402dc736458, fresh MCP adapter 0.20.0 or current CLI. Global safe pause/queue, live desktop panel, exact optional input/frame context, first cursor recipe, shared app observations and a real verified repair/subscriber cycle are delivered. Existing clients are preserved. See the release smoke test linked above. True WidgetKit presentation is the single Review decision; the broader Deferred tests retain Taylor’s stated prerequisites.",
   "groups": [
     {
       "id": "capture",
@@ -255,38 +255,38 @@
           "title": "Qualify input-to-video clocks beyond the native canaries",
           "status": "partial",
           "scope": "Separate delivered-event, recorder-reception and frame clocks.",
-          "evidence": "Stage78 seven returned rational decoder/mux/source joins qualified. Stage80 requested40s returns39.749620806s, before key reception39.834917931s; green patch correct. Requested42s returns41.754621139s, magenta. Exact source joins separate requested/decoded/event times; physical latency remains unknown.",
-          "next": "Wait for Taylor’s review of this explanation; do not start a new calibration batch as part of this page update.",
-          "anchor": "eightieth-pass",
-          "updated_at": "2026-10-09T18:58:52-04:00",
+          "evidence": "Optional input reception context now joins retained events to actual mux frames, held source age and snapshot identity. Fresh installed MCP reads passed; 27 input/frame-reader checks and 2 reception-context checks passed. Existing exact source/preview joins remain available.",
+          "next": "Use the delivered joins now. Physical response calibration remains in the separately Deferred hands-on input test.",
+          "anchor": "release-020",
+          "updated_at": "2026-10-10T19:06:38-04:00",
           "why_partial": "We can link saved video frames to the recorder’s event timeline, but that does not yet measure the full delay between a physical key press or mouse action and the app’s visible response. Physical input and additional automation methods need their own calibration, and sleep needs a separate test. Those checks were left outside the delivered scope; use the verified frame-to-event timing now without treating it as a guarantee of physical response time.",
-          "summary": "Know whether a cue should follow the input, its delivery or the app’s visible reaction.",
-          "work_state": "ready",
-          "work_updated_at": "2026-10-10T18:44:01-04:00",
+          "summary": "Service-owned event/frame timing is delivered; physical reaction latency remains a separate test.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T19:06:38-04:00",
           "examples": [
             "Example (illustrative times): you click at 12.000 seconds, the recorder receives the event at 12.006, and the next recorded picture shows the button responding at 12.033. Those are three useful moments, not three contradictory timestamps.",
             "With calibration, a click marker can track the input while a “Saved” cue waits for the visible response. Without it, an effect may lead or trail the action, and an agent may mistake a delayed app reaction for a missed input. Exact frame joins work now; physical-action latency and additional providers remain unmeasured. At 30 fps, precise event timing cannot create a picture between the captured frames."
           ],
-          "review_question": "Does this make the value clear: distinguish input time from app reaction time, then align each visual cue to the appropriate actual frame?"
+          "doc_link": "/Users/taylor/src/github/dotfiles/src/record-screen/qualification/RELEASE-0.20.md"
         },
         {
           "id": "pointer-coordinates",
           "title": "Qualify pointer positions for downstream composition",
           "status": "partial",
           "scope": "Normalize provider positions into recorded pixels without guessing coordinate semantics.",
-          "evidence": "Installed grant canary joined six delivered click/drag/wheel transitions exactly on raw CG timestamp, destination and position within action bounds. Earlier native endpoint pixel proof remains valid for its scope; position_for_composition stays unpromoted outside qualified provider mapping. Stage72 eleven raw pointer positions equal independent app-local CG delivery. Blue app-painted marker is centered exactly at source-projected desktop500,610 in both actual sources; coordinates remain unpromoted outside this case.",
-          "next": "Wait for Taylor’s review; preserve the existing native mapping without implying universal provider coverage.",
-          "anchor": "seventy-second-pass",
-          "updated_at": "2026-10-09T17:51:25-04:00",
+          "evidence": "Existing native/cross-display mapping evidence retained. Installed direct-coordinate take rec_fzk9xct9 captured 12 events; the rendered cursor tip matched the red marker at [84,248] and recorded drag endpoint [480,550]. Fresh MCP rendered a size/opacity-configured 45-frame preview. AX button focus-click side effects are preserved as a distinct limit.",
+          "next": "Use the qualified mapping and explicit coordinate acknowledgment; additional provider conventions remain in the Deferred delivery-parity pass.",
+          "anchor": "release-020",
+          "updated_at": "2026-10-10T19:06:38-04:00",
           "why_partial": "Pointer placement is verified for the tested native input method and capture setup. Other automation methods and display arrangements can use different coordinate conventions, so the same accuracy has not been demonstrated for them. Closing that gap needs a targeted comparison for each additional setup; meanwhile, use the qualified mapping and retain the original positions rather than assuming every setup is interchangeable.",
-          "summary": "Keep a replacement cursor on the clicked control when displays, crops or preview sizes change.",
-          "work_state": "ready",
-          "work_updated_at": "2026-10-10T18:44:01-04:00",
+          "summary": "The first cursor render uses qualified coordinates and refuses unknown mappings.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T19:06:38-04:00",
           "examples": [
             "Example: the pointer is at desktop position (400, 300), and the recorded crop starts at (200, 100). On a 2× Retina capture, that click belongs at video pixel (400, 400). A half-size preview then places it at (200, 200).",
             "A tool that treats desktop points as video pixels can put the replacement cursor beside the button instead of on it. Qualifying each provider’s coordinate convention lets the service perform the transforms, so the composing agent can change crop or output size without manually repairing cursor placement. The tested native case works; other setups still need their own comparison."
           ],
-          "review_question": "Does the cropped Retina example make the benefit clear: one recorded click stays attached to the correct control through capture and export?"
+          "doc_link": "/Users/taylor/src/github/dotfiles/src/record-screen/qualification/RELEASE-0.20.md"
         },
         {
           "id": "sleep-clock",
@@ -607,19 +607,19 @@
           "title": "Keep a local capture failure from breaking other recordings",
           "status": "partial",
           "scope": "Avoid widening a local failure into an unexpected service interruption.",
-          "evidence": "Stage80 natural idle CUA read fault leaves recorder and retained readers/hashes available. Stage81 official own-client reset/read succeeds, then two delivered key matches/77exact mux joins/all witness patches pass. No forced shared kill/restart or permission change. Native6c/PID20948 unchanged/idle; three verified cleanupcomplete outcomes. Stage86 reproduces worker death releasing admission while decoder survives; inherited kernel lease now stays held until actual holder closure. Controlled before/after and9distinct affected checks pass; ordinary retained result unchanged, no peer restart. Stalled holders still refuse; no active OS/host capacity proof.",
-          "next": "Wait for Taylor’s review; observe a useful natural active-capture incident or use a dedicated environment rather than inducing a host failure now.",
-          "anchor": "eighty-sixth-pass",
-          "updated_at": "2026-10-10T15:35:05-04:00",
+          "evidence": "Existing controlled helper/decoder isolation, inherited admission lease, partial-media and recovery proofs remain in the supported release. New repair tickets distinguish prepared, uncertain and delivered outcomes; a real panel repair completed without restarting active recordings or peer adapters. No host-wide fault was induced.",
+          "next": "Use take-local errors, retained partial media and the repair ticket path. Broader active OS-crash salvage needs a dedicated environment or a useful natural incident.",
+          "anchor": "release-020",
+          "updated_at": "2026-10-10T19:06:38-04:00",
           "why_partial": "This item is about containing failures and recovering honestly. Controlled helper failures have been tested, but an active system-wide capture or WindowServer failure can affect every recording and has not been shown to recover cleanly. Triggering that on this shared Mac would disrupt unrelated work; the remaining claim needs an isolated test or evidence from a natural incident.",
-          "summary": "Preserve useful footage and other agents’ recordings when a helper, encoder or macOS capture path fails.",
-          "work_state": "ready",
-          "work_updated_at": "2026-10-10T18:44:01-04:00",
+          "summary": "Verified local failure containment and recoverable outputs are included; host-wide crash survival is unpromised.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T19:06:38-04:00",
           "examples": [
             "Example 1: one agent asks for preview frames and its decoder process dies. Another agent is still recording. Good isolation means the recording continues, the failed preview reports a clear error, and any surviving decoder still counts against resource admission. Without it, the service might restart everything or launch too many workers. This controlled worker case has evidence.",
             "Example 2: macOS WindowServer becomes unresponsive during a live take. The picture may stop arriving across several sources. The useful outcome is a clear interrupted interval, recoverable footage up to that point and an honest instruction to start a fresh take. A successful helper test cannot establish that the OS-wide incident will preserve or finalize every file. That broader active-capture case remains unverified."
           ],
-          "review_question": "Is the distinction clear between containing one failed helper (tested cases) and salvaging footage after a system-wide failure (still unverified)?"
+          "doc_link": "/Users/taylor/src/github/dotfiles/src/record-screen/qualification/RELEASE-0.20.md"
         },
         {
           "id": "single-motion",
@@ -823,15 +823,15 @@
           "title": "Learn from app changes and repair actual failures",
           "status": "partial",
           "scope": "Baseline ingestion for stable daily apps and updates when app/provider/OS behavior changes.",
-          "evidence": "Stage53 targeted TextEdit lane prepares fresh owned document through native display-placement menu, captures typeface overflow for both app child settings, and preserves old off-Space -3811. Context/nested coverage remains unknown; no universal app certification. Stage71 adds documented Safari native-select/change/dismiss/editing-root depth lane with actual decoded frames, continuous markers, timestamp proofs and black-tail failure. Shared exact-environment facts read back. Nested/overflow variants remain unqualified; no broad update churn or automatic canary claim. Stage72 native nested menu shrinks352→210px wide, then298→206px high with scrolling inside222px parent. Both sources show first/last row and selection/dismissal; UI itself ellipsizes labels. No overflow qualification. Stage73 new sustained-motion duration extends the owned source envelope; all counter samples correct and explicit long-reader refusal retained. Stage75 shared facts now reach recorder planning directly. Exact changed app_build returns missing evidence rather than inheriting prior observations; typed conflict/unknown/mismatched-target cases tested. No automatic requalification or canary execution.",
-          "next": "Follow the fast-shipping/repair principle and implement the Ready recorder ticket pipeline; do not build a universal update-blocking test matrix.",
-          "anchor": "seventy-fifth-pass",
-          "updated_at": "2026-10-09T18:19:07-04:00",
-          "why_partial": "Automatic broad app requalification is not implemented and is no longer the preferred next step. Taylor wants fast local delivery, embedded learning and a dependable bug-to-fix path. Keep the existing app observations and targeted smoke checks; the new Ready repair-ticket task will provide durable issue IDs, developer dispatch, a release log and a ready-for-use signal.",
-          "summary": "Ship local changes quickly, learn from actual failures and use targeted repair rather than broad update gates.",
-          "work_state": "ready",
-          "work_updated_at": "2026-10-10T18:13:51-04:00",
-          "doc_link": "/Users/taylor/src/github/dotfiles/src/record-screen/qualification/FOLLOW-UP.md"
+          "evidence": "Recorder app_observe/app_facts use the existing shared exact-version knowledge store; fresh MCP observation and fact readback passed. A real report_bug ticket delivered native e402dc736458, published its release, notified one subscriber once and accepted parent UI-verification feedback. Broad update-blocking certification was not added.",
+          "next": "Capture useful observations during normal use; file actual failures and retry explicitly after delivery. Dedicated app-depth coverage remains Deferred.",
+          "anchor": "release-020",
+          "updated_at": "2026-10-10T19:06:38-04:00",
+          "why_partial": "The useful local strategy is delivered: record app observations, ship targeted changes and repair actual failures through a tested ticket loop. An automatic all-app update certification system is not implemented and is not the preferred strategy. Wider app-depth coverage has its own Deferred prerequisite.",
+          "summary": "Shared app observations and a tested bug-to-fix path are available to every fresh recorder client.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T19:06:38-04:00",
+          "doc_link": "/Users/taylor/src/github/dotfiles/src/record-screen/qualification/RELEASE-0.20.md"
         },
         {
           "id": "workflow-audit",
@@ -1001,22 +1001,22 @@
         },
         {
           "id": "visual-composition",
-          "title": "Build cursor styles, effects and final compositing recipes",
-          "status": "pending",
+          "title": "Deliver the first configurable cursor/click recipe",
+          "status": "completed",
           "scope": "One basic configurable cursor/click composition using the supplied test asset; broader visual styles remain later iterations.",
-          "evidence": "Taylor moved this work to Ready on October10. The supplied cursor.svg is a starting asset; the first basic configurable treatment has not yet been implemented.",
-          "next": "Implement one small cursor/click recipe with an explicit hotspot, service timing/coordinates, draft preview and final export.",
-          "anchor": "strategy",
-          "updated_at": "2026-10-08T20:01:05-04:00",
-          "summary": "Start a basic configurable cursor treatment using cursor.svg, a short take and a cheap alignment preview.",
-          "work_state": "pending",
-          "work_updated_at": "2026-10-10T18:48:45-04:00",
+          "evidence": "Supplied cursor.svg rendered with an explicit hotspot, configurable size/opacity, click rings and typing hide. Installed marker/drag alignment, fresh MCP 45-frame draft, separate final output and 4 cursor acceptance/refusal checks passed. Recipes, timelines, meaningful samples and immutable originals are retained.",
+          "next": "Taylor can smoke-test the first treatment and choose its next visual direction. Additional styles and audio/HDR compositing are later design choices, not claims of this first recipe.",
+          "anchor": "release-020",
+          "updated_at": "2026-10-10T19:06:38-04:00",
+          "summary": "The first configurable cursor/click recipe renders Draft and Final outputs with editable timing and style.",
+          "work_state": "completed",
+          "work_updated_at": "2026-10-10T19:06:38-04:00",
           "acceptance": [
             "Use /Users/taylor/Desktop/cursor.svg with a declared hotspot and configurable size/opacity.",
             "Verify alignment on a short take using service-owned actual frame/event mapping.",
             "Render a cheap preview and one final output while preserving an editable recipe."
           ],
-          "doc_link": "/Users/taylor/src/github/dotfiles/src/record-screen/qualification/FOLLOW-UP.md"
+          "doc_link": "/Users/taylor/src/github/dotfiles/src/record-screen/qualification/RELEASE-0.20.md"
         },
         {
           "id": "private-restoration",
@@ -1034,42 +1034,44 @@
         {
           "id": "desktop-production-gate",
           "title": "Add a desktop recording panel and global safe-pause gate",
-          "summary": "See recording state at a glance; pause future starts, drain current work safely and queue requests until resumed.",
+          "summary": "Installed desktop panel and persistent safe-pause queue work; a true macOS widget is the remaining presentation decision.",
           "scope": "See recording state at a glance; pause future starts, drain current work safely and queue requests until resumed.",
-          "status": "pending",
-          "work_state": "pending",
-          "evidence": "New implementation brief requested by Taylor; no installed capability or implementation pass is claimed.",
-          "next": "Implement the shared service gate first, then its panel/widget; see the implementation brief.",
-          "anchor": "limits",
-          "updated_at": "2026-10-10T18:13:51-04:00",
-          "work_updated_at": "2026-10-10T18:44:01-04:00",
+          "status": "partial",
+          "work_state": "review",
+          "evidence": "Native e402dc736458 is installed. Thirty-five controlled checks cover durable pause, restart, stale timers, bounded queue and explicit expired schedules. Private and installed native panel controls passed AX/CLI readback. An owned take queued/resumed, drained while paused and finalized; the final panel correctly showed one in-flight action. No input lock or forced peer restart.",
+          "next": "Taylor: confirm the movable panel is sufficient for this release, or ask to include a true native desktop widget before closing this item.",
+          "anchor": "release-020",
+          "updated_at": "2026-10-10T19:06:38-04:00",
+          "work_updated_at": "2026-10-10T19:06:38-04:00",
           "acceptance": [
             "The panel shows fresh active/queued/draining/paused state and unmistakable stale or unavailable data.",
             "Pause closes admissions across MCP, CLI and already scheduled starts; current work reaches a declared safe boundary without an input lock.",
             "Queued requests survive restart; resume handles elapsed schedules explicitly and cannot replay uncertain UI actions.",
             "Evaluate a large native desktop widget; retain a live companion panel because widget refresh is system-managed."
           ],
-          "doc_link": "/Users/taylor/src/github/dotfiles/src/record-screen/qualification/FOLLOW-UP.md"
+          "doc_link": "/Users/taylor/src/github/dotfiles/src/record-screen/qualification/RELEASE-0.20.md",
+          "why_partial": "The global gate and live desktop panel are delivered and ready to use. A true macOS desktop widget is a different presentation surface and has not been built. Widget refresh is system-managed, so it would still need the service gate and live panel underneath. We are asking whether this panel is sufficient for this release or whether the native widget must also ship now; no widget deferral has been approved.",
+          "review_question": "Is the installed movable desktop panel sufficient for this release, with a true desktop widget later, or must the widget ship now?"
         },
         {
           "id": "recorder-repair-tickets",
           "title": "File recorder bugs and notify waiting agents when a fix is usable",
-          "summary": "Return a durable ticket ID, dispatch targeted developer work, publish the verified release and wake subscribed consumers.",
+          "summary": "Durable tickets, a developer repair, release readback and a single ready signal passed end to end.",
           "scope": "Return a durable ticket ID, dispatch targeted developer work, publish the verified release and wake subscribed consumers.",
-          "status": "pending",
-          "work_state": "pending",
-          "evidence": "New implementation brief requested by Taylor; no installed capability or implementation pass is claimed.",
-          "next": "Implement the durable ticket/worker/subscriber lifecycle in the brief; keep computer-use dependency repairs with that service’s maintainers.",
-          "anchor": "limits",
-          "updated_at": "2026-10-10T18:13:51-04:00",
-          "work_updated_at": "2026-10-10T18:45:32-04:00",
+          "status": "completed",
+          "work_state": "completed",
+          "evidence": "Real ticket bug_222cb658ed024988bb4c7b65 preserved its prepared patch through an explicit retry, installed e402dc736458 through the idle fence and committed/pushed. Delivery readback produced ready revision 6 once; a repeated wait produced no event. Native AX confirmed the repaired in-flight action count. Eight isolated lifecycle checks passed; fresh MCP discovered all 45 tools and read the delivered release plus parent feedback.",
+          "next": "Use report_bug, repair_subscribe and repair_wait or the model-free repair-watch CLI. Inspect loaded versions and retry explicitly; existing MCP clients keep their loaded code.",
+          "anchor": "release-020",
+          "updated_at": "2026-10-10T19:06:38-04:00",
+          "work_updated_at": "2026-10-10T19:06:38-04:00",
           "acceptance": [
             "A bounded MCP bug report creates or reuses a durable ticket and routes it to the recorder developer queue.",
             "Targeted repair status distinguishes patch prepared from delivered, verified and ready for use.",
             "A deterministic ticket watcher emits an idempotent completion signal, surviving restarts without model polling.",
             "A waiting agent can continue other work, inspect the delivered build, retry explicitly and report whether it is unblocked."
           ],
-          "doc_link": "/Users/taylor/src/github/dotfiles/src/record-screen/qualification/FOLLOW-UP.md"
+          "doc_link": "/Users/taylor/src/github/dotfiles/src/record-screen/qualification/RELEASE-0.20.md"
         }
       ]
     }
@@ -3741,7 +3743,79 @@
       "from": "ready",
       "to": "pending",
       "note": "First configurable cursor/click renderer implemented with draft/final effort, retained recipes and service-owned frame/event mapping. Asset/footage acceptance checks remain; final visual styling is still Taylor’s choice."
+    },
+    {
+      "kind": "work_state",
+      "id": "event-clock",
+      "at": "2026-10-10T19:06:38-04:00",
+      "from": "ready",
+      "to": "completed",
+      "note": "Optional input reception context now joins retained events to actual mux frames, held source age and snapshot identity. Fresh installed MCP reads passed; 27 input/frame-reader checks and 2 reception-context checks passed. Existing exact source/preview joins remain available."
+    },
+    {
+      "kind": "work_state",
+      "id": "pointer-coordinates",
+      "at": "2026-10-10T19:06:38-04:00",
+      "from": "ready",
+      "to": "completed",
+      "note": "Existing native/cross-display mapping evidence retained. Installed direct-coordinate take rec_fzk9xct9 captured 12 events; the rendered cursor tip matched the red marker at [84,248] and recorded drag endpoint [480,550]. Fresh MCP rendered a size/opacity-configured 45-frame preview. AX button focus-click side effects are preserved as a distinct limit."
+    },
+    {
+      "kind": "work_state",
+      "id": "peer-failure",
+      "at": "2026-10-10T19:06:38-04:00",
+      "from": "ready",
+      "to": "completed",
+      "note": "Existing controlled helper/decoder isolation, inherited admission lease, partial-media and recovery proofs remain in the supported release. New repair tickets distinguish prepared, uncertain and delivered outcomes; a real panel repair completed without restarting active recordings or peer adapters. No host-wide fault was induced."
+    },
+    {
+      "kind": "work_state",
+      "id": "requalification",
+      "at": "2026-10-10T19:06:38-04:00",
+      "from": "ready",
+      "to": "completed",
+      "note": "Recorder app_observe/app_facts use the existing shared exact-version knowledge store; fresh MCP observation and fact readback passed. A real report_bug ticket delivered native e402dc736458, published its release, notified one subscriber once and accepted parent UI-verification feedback. Broad update-blocking certification was not added."
+    },
+    {
+      "kind": "item",
+      "id": "visual-composition",
+      "at": "2026-10-10T19:06:38-04:00",
+      "from": "pending",
+      "to": "completed",
+      "note": "Supplied cursor.svg rendered with an explicit hotspot, configurable size/opacity, click rings and typing hide. Installed marker/drag alignment, fresh MCP 45-frame draft, separate final output and 4 cursor acceptance/refusal checks passed. Recipes, timelines, meaningful samples and immutable originals are retained."
+    },
+    {
+      "kind": "work_state",
+      "id": "visual-composition",
+      "at": "2026-10-10T19:06:38-04:00",
+      "from": "pending",
+      "to": "completed",
+      "note": "Supplied cursor.svg rendered with an explicit hotspot, configurable size/opacity, click rings and typing hide. Installed marker/drag alignment, fresh MCP 45-frame draft, separate final output and 4 cursor acceptance/refusal checks passed. Recipes, timelines, meaningful samples and immutable originals are retained."
+    },
+    {
+      "kind": "item",
+      "id": "recorder-repair-tickets",
+      "at": "2026-10-10T19:06:38-04:00",
+      "from": "pending",
+      "to": "completed",
+      "note": "Real ticket bug_222cb658ed024988bb4c7b65 preserved its prepared patch through an explicit retry, installed e402dc736458 through the idle fence and committed/pushed. Delivery readback produced ready revision 6 once; a repeated wait produced no event. Native AX confirmed the repaired in-flight action count. Eight isolated lifecycle checks passed; fresh MCP discovered all 45 tools and read the delivered release plus parent feedback."
+    },
+    {
+      "kind": "work_state",
+      "id": "recorder-repair-tickets",
+      "at": "2026-10-10T19:06:38-04:00",
+      "from": "pending",
+      "to": "completed",
+      "note": "Real ticket bug_222cb658ed024988bb4c7b65 preserved its prepared patch through an explicit retry, installed e402dc736458 through the idle fence and committed/pushed. Delivery readback produced ready revision 6 once; a repeated wait produced no event. Native AX confirmed the repaired in-flight action count. Eight isolated lifecycle checks passed; fresh MCP discovered all 45 tools and read the delivered release plus parent feedback."
+    },
+    {
+      "kind": "work_state",
+      "id": "desktop-production-gate",
+      "at": "2026-10-10T19:06:38-04:00",
+      "from": "pending",
+      "to": "review",
+      "note": "Panel and global gate delivered and verified; native-widget presentation remains an explicit Taylor decision, not an approved deferral."
     }
   ],
-  "work_note": "Follow-up work is tracked separately from the completed capture-foundations baseline. Pending means underway; Ready can start; Deferred names its prerequisite; Review waits for Taylor’s second feedback."
+  "work_note": "Completed work states include useful delivered portions of broader historical Partial items. Expanded verification records preserve limits. Deferred prerequisites remain explicit; Review is a genuine user decision."
 }

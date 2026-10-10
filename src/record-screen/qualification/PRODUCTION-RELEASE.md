@@ -1,5 +1,10 @@
 # Capture foundations release decision
 
+This is the earlier capture-foundations baseline. [Release0.20](RELEASE-0.20.md)
+integrates its useful verified portions with the new production gate, repair
+tickets and first composition recipe. The table below records the earlier
+baseline disposition; current work states live in the checklist.
+
 Subsequent October10 planning update: the live checklist now separates next-work
 states from this release's historical qualification record. Taylor moved basic
 visual composition to Ready, deferred sleep testing, assigned review examples

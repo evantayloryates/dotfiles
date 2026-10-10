@@ -1,5 +1,10 @@
 # record-screen
 
+Current delivery: [Recorder 0.20 release and smoke test](qualification/RELEASE-0.20.md).
+Global production Pause/Resume and the native desktop panel are service-owned;
+use checkpoints before new UI. Fresh clients expose repair tickets, shared app
+observations and the first configurable cursor recipe. See [agent usage](AGENT-USAGE.md).
+
 An always-on screen-recording engine that agents drive through the
 `record-screen` MCP. This folder holds the engine (`record-screend`, Swift on
 ScreenCaptureKit), the MCP server, and a command line.

@@ -186,9 +186,24 @@ Fresh MCP also passed the foreground Safari fixed Runtime read on 10 October, re
 
 ## Version 1.4 — explicit capture and availability
 
-The current catalog has 26 tools / 5 resources. `ios_device_launch`,
+The current catalog has 27 tools / 5 resources. `ios_device_launch`,
 `ios_wait_ready` and `ios_capture` are documented in the README. Agents must
 wait without a lease for foreground availability, acquire only when ready, and
 end in finally. Do not turn an offline bridge into a request to unplug/unlock.
 Capture is explicit, synthetic development only, bounded, scrubbed and expiring.
 It does not make all audio, browser-native input or off-site launch qualified.
+
+### Lock without a human request
+
+`ios_device_lock` runs only the installed **Runner Lock iPhone** shortcut and
+checks `passcodeRequired` independently. It holds the shared owner during dispatch
+and verification, sends no input when already locked, and never replays an
+uncertain launch. This is paired developer transport, not off-LAN launch.
+Create the one-action Lock Screen shortcut on the Mac with existing iCloud Sync;
+this exact shortcut synced, locked the physical iPhone and enabled Mirroring on
+10 October. It does not unlock the phone or alter authentication.
+
+For a genuine human unblock, use `/Users/taylor/dotfiles/bin/speak` with the actual
+short request (for example, "Unlock the iPhone."), then ask the same concise
+question. Do not substitute `say`, speak placeholder text, or ask for locking
+when the fixed shortcut route is reachable.

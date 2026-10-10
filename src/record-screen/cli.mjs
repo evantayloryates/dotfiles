@@ -172,12 +172,14 @@ try {
       if(Date.now()>=deadline){process.stderr.write("Repair still pending; no completion signal emitted.\n");process.exitCode=2;}
       break;
     }
+    case "repair-feedback":
+    case "repair-releases":
     case "repair-retry":
     case "repair-status":
     case "repair-subscribe":
     case "repair-wait":
     case "repair-unsubscribe": {
-      const commands={"report-bug":"report","repair-retry":"retry","repair-status":"status","repair-subscribe":"subscribe","repair-wait":"wait","repair-unsubscribe":"cancel"};
+      const commands={"report-bug":"report","repair-retry":"retry","repair-releases":"releases","repair-feedback":"feedback","repair-status":"status","repair-subscribe":"subscribe","repair-wait":"wait","repair-unsubscribe":"cancel"};
       out(await repairCall(commands[cmd],JSON.parse(args[0]||"{}")));break;
     }
     case "app-observe":

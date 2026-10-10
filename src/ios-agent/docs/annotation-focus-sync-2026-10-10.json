@@ -1,0 +1,18 @@
+{
+  "at": "2026-10-10T23:04:47.154Z",
+  "scope": "Bounded non-silencing Focus sync probe; phone Open App automation not yet configured",
+  "before": {
+    "ok": true,
+    "value": null
+  },
+  "during": {
+    "ok": false,
+    "value": null
+  },
+  "pulseExit": 0,
+  "after": {
+    "ok": true,
+    "value": null
+  },
+  "restoredNoFocus": true
+}

@@ -1,10 +1,12 @@
 # Next work and prerequisites
 
-October 10, 2026. This is the implementation brief behind the maintained
-checklist, not a claim that the proposed tools are installed. Work state is
-independent of historical qualification. Existing source proofs remain useful.
+October 10, 2026. The initial briefs below are retained as design history.
+[Release 0.20](RELEASE-0.20.md) now delivers the global gate/live panel, recorder
+repair lifecycle and first configurable cursor recipe. The checklist is current;
+original broad qualification scopes remain distinct from delivered portions.
+A true WidgetKit presentation is still an explicit Review decision.
 
-## Desktop status and cooperative global pause — Ready
+## Desktop status and cooperative global pause — panel delivered; widget in Review
 
 Build a reading-first panel showing Recording, Pause requested / draining,
 Paused, Idle, Queued and Unavailable, plus active take names, queued counts,

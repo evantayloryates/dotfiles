@@ -247,7 +247,7 @@ Installed iOS agent and Metro launch plists are symlinks to the real plists in t
 
 ## On-demand capture, launch and readiness — v1.4
 
-The fresh MCP catalog contains 26 tools and five resources. New entry points:
+The fresh MCP catalog contains 27 tools and five resources. New entry points:
 
 - `ios_device_launch target=kickoff-dev|settings|safari|chrome` reserves the same
   device fence, checks the configured paired developer channel, sends once and

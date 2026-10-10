@@ -2,13 +2,13 @@
 
 The release integrates useful verified portions of partial qualification items;
 their broader historical scopes and limitations remain visible in the checklist.
-The first new native build is3a048fbec3f8; the real panel repair ticket will record
-its subsequent delivered build. Fresh MCP adapters report0.20.0. Existing clients
+Native build **e402dc736458** is installed, including the real panel-ticket
+repair. The initial gate/panel build 3a048fbec3f8 remains in the delivery history. Fresh MCP adapters report 0.20.0 and expose 45 tools. Existing clients
 keep their loaded code; the CLI reads current code without restarting peers.
 
 ## Included in this release
 
-- Persistent service-owned global safe Pause/Resume,128-request bounded queue,
+- Persistent service-owned global safe Pause/Resume, 128-request bounded queue,
   stale-timer fencing, no late auto-start after a queued start expires, native
   desktop reading/control panel and cross-client/CLI controls. Current takes
   drain safely; arbitrary external UI tools cooperate through checkpoints.
@@ -53,15 +53,20 @@ Private acceptance bundle:
 35 controlled native gate checks passed. The private and installed native panel
 Pause/Resume controls were read back through AX and CLI. A private owned take
 queued, started after Resume, stayed active while Pause showed Draining and
-finalized normally. Installed direct-coordinate take rec_fzk9xct9 retained12
+finalized normally. Installed direct-coordinate take rec_fzk9xct9 retained 12
 input events with optional frame context available; rendered cursor positions
 matched the observed marker [84,248] and drag endpoint [480,550]. Its fresh MCP
-consumer smoke checked tool discovery, frame-context reads, a decoded45-frame
-preview and shared fact readback.27 input/frame reader checks,2 reception-context
-checks,4 cursor acceptance/refusal checks and6 durable-ticket checks passed.
+consumer smoke checked tool discovery, frame-context reads, a decoded 45-frame
+preview and shared fact readback. 27 input/frame reader checks, 2 reception-context
+checks, 4 cursor acceptance/refusal checks and 8 durable-ticket checks passed, including feedback that cannot promote a
+prepared patch or retrigger a ready signal.
 Draft/final recipe renders and representative PNGs are retained privately.
-The live developer-ticket completion evidence is recorded separately rather than
-being inferred from those isolated lifecycle checks.
+Real ticket bug_222cb658ed024988bb4c7b65 reached the developer worker, preserved
+a prepared patch across its explicit sandbox stop, then delivered e402dc736458
+through the idle fence and commit/push. Supervisor readback emitted ready
+revision 6 once through the deterministic watcher. A repeated wait emitted no
+second event. Final native AX confirmed “0 active · 0 queued · 1 in-flight
+action” while draining, and the owned action/session settled with the gate open.
 
 ## Explicit remaining boundaries
 
