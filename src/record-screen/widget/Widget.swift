@@ -17,7 +17,8 @@ struct ProductionView:View {
     VStack(alignment:.leading,spacing:6) {
       Label("Screen recording",systemImage:"record.circle").font(.headline)
       Text(entry.expired ? "Check live status" : entry.snapshot.title).font(.title3.bold())
-      Text("\(entry.snapshot.active) active · \(entry.snapshot.queued) queued · \(entry.snapshot.actions) actions").font(.subheadline)
+      if entry.snapshot.phase == "unavailable" {Text("Counts unavailable").font(.subheadline)}
+      else {Text("\(entry.expired ? "Last sample: " : "")\(entry.snapshot.active) active · \(entry.snapshot.queued) queued · \(entry.snapshot.actions) actions").font(.subheadline)}
       if entry.snapshot.sampledAt.timeIntervalSince1970>0 {
         HStack(spacing:4){Text("Sampled");Text(entry.snapshot.sampledAt,style:.relative);Text("ago")}.font(.caption).foregroundStyle(.secondary)
       } else {Text("Service status unavailable").font(.caption).foregroundStyle(.secondary)}

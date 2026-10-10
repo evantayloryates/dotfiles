@@ -31,6 +31,11 @@ struct Snapshot: Codable, Equatable {
 /// The unsandboxed companion alone talks to the existing private recorder socket.
 /// Only these three fixed gate/panel operations are accepted; URLs carry no commands.
 enum RecorderControl {
+  static func method(for url:URL)->String? {
+    guard url.scheme=="record-screen-control",url.path.isEmpty,url.query==nil,url.fragment==nil,url.user==nil,url.password==nil,url.port==nil,
+          let action=url.host,["pause","resume","panel"].contains(action) else{return nil}
+    return action=="panel" ? "production.panel.show" : "production."+action
+  }
   static func call(_ method:String) throws -> [String:Any] {
     guard ["production.status","production.pause","production.resume","production.panel.show"].contains(method) else{throw Failure("Unsupported operation")}
     let fd=socket(AF_UNIX,SOCK_STREAM,0)

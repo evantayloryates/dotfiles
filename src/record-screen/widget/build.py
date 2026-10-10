@@ -18,7 +18,8 @@ LSREGISTER='/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchS
 
 def run(*args):return subprocess.run(args,check=True,capture_output=True,text=True).stdout
 def main():
- p=argparse.ArgumentParser(description=__doc__);p.add_argument('--install',action='store_true');a=p.parse_args()
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('--install',action='store_true');p.add_argument('--upgrade',action='store_true');a=p.parse_args()
+ if a.upgrade and not a.install:p.error('--upgrade requires --install')
  paths=[SRC/'Shared.swift',SRC/'Host.swift',SRC/'Widget.swift',Path(__file__)]
  digest=hashlib.sha256(b''.join(x.name.encode()+x.read_bytes() for x in paths)).hexdigest()
  prepared=DATA/'prepared'/digest;app=prepared/APP_NAME
@@ -52,18 +53,25 @@ def main():
  run('/usr/bin/codesign','--verify','--deep','--strict',str(app))
  result={'candidate':str(app),'widget_build':digest[:12],'group':GROUP,'installed':False}
  if a.install:
+  if hashlib.sha256(b''.join(x.name.encode()+x.read_bytes() for x in paths)).hexdigest()!=digest:raise RuntimeError('Source changed after compilation; prepared candidate retained, no install')
   # The helper is independent of recording; do not replace a running helper.
   label=f'gui/{os.getuid()}/{LABEL}'
   live=subprocess.run(['/bin/launchctl','print',label],capture_output=True).returncode==0
-  if live:raise RuntimeError('Existing widget host is running; use its deliberate upgrade boundary before replacing it')
+  if live and not a.upgrade:raise RuntimeError('Existing widget host is running; explicit --upgrade required')
   target=DATA/APP_NAME
-  if target.exists():raise RuntimeError('Existing companion bundle is preserved; choose an explicit upgrade')
+  if target.exists():
+   if not a.upgrade:raise RuntimeError('Existing companion bundle is preserved; explicit --upgrade required')
+   info=plistlib.loads((target/'Contents/Info.plist').read_bytes())
+   if info.get('CFBundleIdentifier')!=BUNDLE:raise RuntimeError('Unexpected bundle; no replacement')
+  if live:run('/bin/launchctl','bootout',label)
+  # Every prior immutable signed candidate remains under prepared/ for recovery.
+  if target.exists():shutil.rmtree(target)
   shutil.copytree(app,target);run(LSREGISTER,'-f',str(target))
   agents=Path.home()/'Library/LaunchAgents';agents.mkdir(exist_ok=True)
   logs=DATA/'logs';logs.mkdir(exist_ok=True)
-  config={'Label':LABEL,'ProgramArguments':[str(target/'Contents/MacOS/record-screen-control')],'RunAtLoad':True,'KeepAlive':True,'ProcessType':'Background','StandardOutPath':str(logs/'stdout.log'),'StandardErrorPath':str(logs/'stderr.log')}
+  config={'Label':LABEL,'ProgramArguments':['/usr/bin/env','-i','HOME='+str(Path.home()),'PATH=/usr/bin:/bin',str(target/'Contents/MacOS/record-screen-control')],'RunAtLoad':True,'KeepAlive':True,'ProcessType':'Background','StandardOutPath':str(logs/'stdout.log'),'StandardErrorPath':str(logs/'stderr.log')}
   plist=agents/(LABEL+'.plist')
-  if plist.exists():raise RuntimeError('Existing launch agent is preserved')
+  if plist.exists() and not a.upgrade:raise RuntimeError('Existing launch agent is preserved')
   plist.write_bytes(plistlib.dumps(config));plist.chmod(0o600)
   run('/bin/launchctl','bootstrap',f'gui/{os.getuid()}',str(plist))
   result.update(installed=True,bundle=str(target),launch_agent=str(plist))
