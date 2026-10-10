@@ -12,7 +12,6 @@ struct ProductionProvider:TimelineProvider {
 }
 struct ProductionView:View {
   let entry:ProductionEntry
-  @Environment(\.widgetFamily) var family
   var body:some View {
     VStack(alignment:.leading,spacing:6) {
       Label("Screen recording",systemImage:"record.circle").font(.headline)
@@ -22,7 +21,6 @@ struct ProductionView:View {
       if entry.snapshot.sampledAt.timeIntervalSince1970>0 {
         HStack(spacing:4){Text("Sampled");Text(entry.snapshot.sampledAt,style:.relative);Text("ago")}.font(.caption).foregroundStyle(.secondary)
       } else {Text("Service status unavailable").font(.caption).foregroundStyle(.secondary)}
-      if family == .systemLarge {Text("Pause lets current work finish safely. Your input stays available.").font(.caption)}
       HStack(spacing:18) {
         Link("Pause",destination:URL(string:"record-screen-control://pause")!)
         Link("Resume",destination:URL(string:"record-screen-control://resume")!)
@@ -38,6 +36,6 @@ struct RecordScreenWidget:Widget {
     StaticConfiguration(kind:WidgetBridge.kind,provider:ProductionProvider()){ProductionView(entry:$0)}
       .configurationDisplayName("Screen recording")
       .description("Recording state and cooperative global Pause/Resume.")
-      .supportedFamilies([.systemMedium,.systemLarge])
+      .supportedFamilies([.systemMedium])
   }
 }

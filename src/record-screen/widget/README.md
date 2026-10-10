@@ -2,21 +2,23 @@
 
 The signed **Record Screen Control** companion and WidgetKit extension are
 installed under `data/record-screen/widget/Record Screen Control.app`.
-Widget build **6bf373369ced** is separate from recorder build **e402dc736458**;
+Widget build **5e680bb4c5ab** is separate from recorder build **e402dc736458**;
 installing it did not rebuild/restart the recorder or change its capture grants.
 
 The original build registered but was absent from the gallery: its executable
 returned before answering the system's descriptor request. The corrected build
 uses Xcode's `_NSExtensionMain` linker entry point. Notification Center now
-receives **Screen recording**, and WidgetKit successfully loads both Medium and
-Large gallery placeholders. A successful registration alone does not establish
+receives **Screen recording**. Taylor confirmed both original size previews in
+the gallery; at Taylor’s request the taller Large size was then removed. The
+installed widget now supports **Medium only**, and macOS reports that single
+family and successfully loads its preview. A successful registration alone does not establish
 this; inspect the descriptor/placeholder result after installation.
 
 To add: right-click empty **desktop wallpaper**, choose **Edit Widgets**, search
-**Screen recording** (app **Record Screen Control**), and drag the Large preview
+**Screen recording** (app **Record Screen Control**), and drag the single Medium preview
 to the desktop; click **Done**. Reopen an already-open gallery after an upgrade.
-The repaired extension's actual gallery/desktop appearance and link clicks still
-need a UI check. CUA cannot acquire Notification Center on this Mac in this run;
+The gallery appearance was confirmed by Taylor’s screenshot. Desktop placement
+and actual control clicks still need a UI check. CUA cannot acquire Notification Center on this Mac in this run;
 configuration count remains zero. Do not claim visually verified placement.
 
 The widget shows sampled recording/queue/action counts, sample age and explicit
@@ -51,7 +53,8 @@ widget inherits the live panel’s capture exclusion.
 candidate. `--install` registers a first installation. Deliberate
 `--install --upgrade` replaces/restarts only the widget companion; original
 signed candidates stay available under `prepared/`. Never use this to restart
-the recorder. Builds freeze source and reject drift before installation.
+the recorder. Builds freeze source and reject drift before installation. The bundle version
+changes with the source fingerprint so macOS refreshes widget descriptors.
 The existing H77CX8PYPV development identity/app-group team must match;
 no account enrollment, new signing identity or permission change is attempted.
 

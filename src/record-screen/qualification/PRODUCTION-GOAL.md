@@ -1,5 +1,17 @@
 # Production qualification goal
 
+## Single-size widget ready to add (October 10, 19:44 EDT)
+
+Taylor confirmed the two-size gallery rendering, then requested removal of Large.
+Installed companion 5e680bb4c5ab supports Medium only. macOS descriptor reports
+supportedFamilies (systemMedium), Notification Center receives the widget and
+its Medium placeholder loads successfully. Source-derived bundle versions avoid
+reusing the original fixed version when the extension changes. Signed install
+verified; recorder remains untouched. Private evidence: widget/medium-only.log.
+Taylor will add the single widget next; desktop appearance and actual control
+clicks remain the final targeted check. Earlier Large-placement instructions and
+claims that the gallery appearance is unknown are superseded by this checkpoint.
+
 ## Widget gallery repair (October 10, 19:37 EDT)
 
 Taylor's screenshots established that the previous widget was not addable.

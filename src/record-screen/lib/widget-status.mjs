@@ -6,7 +6,7 @@ import {fileURLToPath} from 'node:url';
 const exec=promisify(execFile);
 const bundle=fileURLToPath(new URL('../../../data/record-screen/widget/Record Screen Control.app',import.meta.url));
 const group='H77CX8PYPV.com.taylor.record-screen.widget';
-const instructions='Desktop → Edit Widgets → search Screen recording (app: Record Screen Control) → choose Large. The service gate is authoritative; macOS schedules widget refreshes. Open the live panel for current status.';
+const instructions='Right-click empty desktop wallpaper → Edit Widgets → search Screen recording (app: Record Screen Control) → add the single Medium preview. The service gate is authoritative; macOS schedules widget refreshes. Open the live panel for current status.';
 
 export async function widgetStatus(){
  const result={schema:'record-screen-widget-status/v1',installed:false,helper_running:null,configured_widget_count:null,desktop_placement:'not_observable_from_configuration_count',snapshot:null,instructions};

@@ -32,7 +32,7 @@ def main():
    assert hashlib.sha256(b''.join(x.name.encode()+(frozen/x.name).read_bytes() for x in paths)).hexdigest()==digest
    candidate=temp/APP_NAME;mac=candidate/'Contents/MacOS';mac.mkdir(parents=True)
    extension=candidate/'Contents/PlugIns/RecordScreenWidget.appex';extmac=extension/'Contents/MacOS';extmac.mkdir(parents=True)
-   common={'CFBundleShortVersionString':'0.20.0','CFBundleVersion':'1','LSMinimumSystemVersion':'15.0','CFBundleSupportedPlatforms':['MacOSX'],'RSWidgetBuild':digest[:12]}
+   common={'CFBundleShortVersionString':'0.20.0','CFBundleVersion':f'{int(digest[:3],16)}.{int(digest[3:5],16)%100}.{int(digest[5:7],16)%100}','LSMinimumSystemVersion':'15.0','CFBundleSupportedPlatforms':['MacOSX'],'RSWidgetBuild':digest[:12]}
    host={**common,'CFBundleIdentifier':BUNDLE,'CFBundleName':'Record Screen Control','CFBundleDisplayName':'Screen recording','CFBundleExecutable':'record-screen-control','CFBundlePackageType':'APPL','LSUIElement':True,'CFBundleURLTypes':[{'CFBundleURLName':BUNDLE,'CFBundleURLSchemes':['record-screen-control']} ]}
    widget={**common,'CFBundleIdentifier':BUNDLE+'.widget','CFBundleName':'Screen recording','CFBundleDisplayName':'Screen recording','CFBundleExecutable':'RecordScreenWidget','CFBundlePackageType':'XPC!','NSExtension':{'NSExtensionPointIdentifier':'com.apple.widgetkit-extension'}}
    (candidate/'Contents/Info.plist').write_bytes(plistlib.dumps(host));(extension/'Contents/Info.plist').write_bytes(plistlib.dumps(widget))
