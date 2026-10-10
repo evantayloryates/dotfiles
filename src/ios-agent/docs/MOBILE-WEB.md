@@ -304,3 +304,20 @@ advancement. Existing trace files are opened without following symlinks. The
 prior unexplained exit has no established cause; later instrumented runtime
 remained running during this batch. `doctor` still distinguishes host readiness
 from browser readiness.
+
+## Paired developer observer — 10 October
+
+A fresh MCP connection now exposes `ios_device_inspect`. The optional pinned
+pymobiledevice3 11.15.5 provider captured the actual full iPhone display over
+paired Wi-Fi without USB, root, XCTest or Mirroring. MCP image readback and
+temporary-owner release passed. This revealed Safari's actual Settings switches
+and avoids asking the user to describe screens that this observer can see.
+The device does not advertise the tested CoreDevice screen/HID services; DVT
+screenshot is the working route. Native touch remains unqualified.
+
+Enabling Safari Web Inspector changed its explicit refusal into successful
+service connection and target discovery. Safari then enrolled wirelessly with
+a fresh document identity and passed the authenticated synthetic client lobby,
+normal Background-menu open/close, route restoration and glow-off. The fixed deep Runtime read separately passed through fresh MCP with the existing page owner and glow-off. Service discovery alone is insufficient; empty targets and old/suspended tabs remain explicit diagnostic outcomes.
+Remote Automation availability does not establish trusted input or OS prompt
+control. No other iOS browser is assumed to inherit Safari's feature flags.

@@ -76,7 +76,9 @@ export class Backend {
       this.running.add(child);
       let stdout = '', stderr = '', exceeded = false;
       const timer = setTimeout(() => { exceeded = true; child.kill('SIGTERM'); }, timeout);
-      child.stdout.on('data', chunk => { stdout += chunk; if (stdout.length > 10 * 1024 * 1024) { exceeded = true; child.kill('SIGTERM'); } });
+      // A bounded 12 MiB device PNG expands to 16 MiB in base64.
+      const stdoutLimit=(kind==='provider'?18:10)*1024*1024;
+      child.stdout.on('data', chunk => { stdout += chunk; if (stdout.length > stdoutLimit) { exceeded = true; child.kill('SIGTERM'); } });
       child.stderr.on('data', chunk => { if (stderr.length < 1024) stderr += chunk; });
       child.stdin.on('error', () => {});
       child.stdin.end(input ? JSON.stringify(input) : undefined);
@@ -127,7 +129,7 @@ export class Backend {
     try { current = await this.status(); learning = await this.learning('search', {source: runtimeKey(current) || ''}); }
     catch { learning = {available: false}; }
     return {browserWorkflow: ['ios_doctor (host prerequisites)', 'ios_web_pages (reuse a visible ready enrolled page)', 'ios_web_enroll only if provisioning is needed (private launchFile)', 'open the intended dev browser page if not enrolled', 'ios_web_pages', 'ios_web_begin', 'ios_web_inspect and ios_web_action', 'ios_web_end in finally'],
-      deviceObserver: 'ios_device_inspect kind=screen|capabilities reads the paired iPhone without XCTest or Mirroring. With no session it reserves/releases a temporary owner. ios_read renders a private full-display image. Nearby paired wireless developer transport only; HID input not qualified.',
+      deviceObserver: 'ios_device_inspect kind=screen|capabilities|browser-debug reads the paired iPhone without XCTest or Mirroring. With no session it reserves/releases a temporary owner. ios_read renders a private full-display image. Nearby paired wireless developer transport only; HID input not qualified.',
       browserLimits: 'Page-owned DOM input is synthetic; it does not operate OS dialogs, trusted touch, IME or microphone permission. SDK return channel works over private HTTPS; require separate off-LAN qualification. Dev-only enrollment and per-tab authentication.',
       workflow: ['ios_doctor', 'ios_begin', 'ios_native or ios_react', 'ios_verify', 'ios_end'],
       hostWorkflow: ['ios_doctor (read only)', 'ios_stack_ensure only when needed and idle; never replay an uncertain start'],
@@ -291,7 +293,7 @@ export class Backend {
       if(!serial)return {ok:false,reason:'configured_device_identity_unconfirmed',inputSent:false};
       this.session(s.id);
       const a=this.artifact(s,kind==='screen'?'image':'device-capabilities');
-      const run=await this.run('provider',[],{kind,serial,state:this.state,leaseFile:s.lease,output:a.file},26000);
+      const run=await this.run('provider',[],{kind,serial,state:this.state,leaseFile:s.lease,ownerFile:s.owner,output:a.file},26000);
       if(!run.ok||run.value?.ok!==true||!fs.existsSync(a.file))return {ok:false,reason:run.value?.reason||'device_observation_unavailable',phase:run.value?.phase,inputSent:false};
       this.session(s.id);
       const value=JSON.parse(fs.readFileSync(a.file,'utf8')).result;

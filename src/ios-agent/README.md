@@ -4,6 +4,7 @@ For MCP clients, launch `/Users/taylor/dotfiles/bin/ios-agent-mcp` and call
 `ios_guide` → `ios_doctor` → `ios_begin` → inspect/act/verify → `ios_end`. If host prerequisites fail, inspect the diagnosis before phone setup; `ios_stack_ensure` explicitly starts/reuses guarded local dependencies when idle. `ios_workflow` supplies the paired coach/client recipe and read-only persistence checks. The wrapper manages
 private lease/evidence files and includes shared cross-harness operational learning.
 See [MCP.md](docs/MCP.md) for registration, lifecycle and learning semantics.
+Optional `ios_device_inspect` adds a paired Wi-Fi full-display screenshot and fixed Safari debugger diagnostics without XCTest. See the provider setup and nearby-transport limits in that guide.
 
 The latest snapshot/refresh/keep-awake SDK passed USB-unplugged native Nutrition→Home, native/React inspection, remote Metro and fresh backend readiness through private Tailscale without a Wi-Fi IPv4 association. Wi-Fi On and Home were restored; native/host cleanup passed. Both coach/client edit directions and exact restoration passed on the earlier dated runtime. See docs/recovery-wireless-final-2026-10-08.json for the newest build identity and docs/DELIVERY.md for the agent operating contract.
 

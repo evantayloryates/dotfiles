@@ -1,0 +1,52 @@
+{
+  "at": "2026-10-10T20:35:23.110Z",
+  "scope": "Physical untethered iPhone, foreground dev-origin latest target only, fixed metadata read without userGesture, shared existing page owner",
+  "result": {
+    "ok": true,
+    "artifactId": "3090832b5edec6d5922071f30fc0157f",
+    "metadata": {
+      "scope": "dev-origin-browser-debug",
+      "provider": "pymobiledevice3-11.15.5",
+      "transport": "native-remoted",
+      "capabilities": {
+        "dvt": true,
+        "coreDeviceScreen": false,
+        "coreDeviceTouch": false,
+        "webInspectorService": true
+      },
+      "systemInput": false,
+      "offLANQualified": false,
+      "inspectorEnabled": true,
+      "devTargets": 2,
+      "busyTargets": 0,
+      "truncated": true,
+      "pages": [
+        {
+          "browser": "com.apple.mobilesafari",
+          "readConfirmed": true,
+          "state": {
+            "originMatches": true,
+            "ready": "complete",
+            "visible": true,
+            "loaderPresent": true,
+            "sdkPresent": true,
+            "sdkConnected": true,
+            "sdkOwned": true,
+            "indicator": true,
+            "tabCredentialPresent": true,
+            "browserResumePresent": true,
+            "secureContext": true,
+            "mediaAPI": true,
+            "userActivation": false,
+            "domElements": 144,
+            "scripts": 21
+          }
+        }
+      ],
+      "userGestureRequested": false
+    },
+    "inputSent": false,
+    "next": "Service availability is not proof of Web Inspector opt-in or native touch."
+  },
+  "indicatorOff": true
+}

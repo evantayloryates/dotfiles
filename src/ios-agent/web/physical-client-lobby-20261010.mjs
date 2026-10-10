@@ -1,5 +1,5 @@
 import fs from'node:fs';import assert from'node:assert/strict';import{Backend}from'../mcp/backend.mjs';
-const wanted=process.argv.includes('--safari')?'ios-safari':'ios-chrome';const b=new Backend();let session;const proof={at:new Date().toISOString(),scope:'Actual local synthetic client /meet lobby on physical iPhone Chrome; untethered private HTTPS; no call joined or off-LAN claim'};
+const wanted=process.argv.includes('--safari')?'ios-safari':'ios-chrome';const b=new Backend();let session;const proof={at:new Date().toISOString(),scope:`Actual local synthetic client /meet lobby on physical iPhone ${wanted}; untethered private HTTPS; no call joined or off-LAN claim`};
 try{
  const initial=(await b.webPages()).pages.find(p=>p.browser===wanted&&p.visible&&p.ready);assert(initial);session=(await b.begin({surface:'web',page:initial.id})).sessionId;
  const nav=await b.webAction({sessionId:session,action:'evaluate',args:{expression:"void window.next.router.push('/meet');({requested:true})"}});assert(nav.ok);await b.webEnd(session);session=null;

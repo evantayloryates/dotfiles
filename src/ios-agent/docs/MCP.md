@@ -154,3 +154,31 @@ service is installed locally; new SDK source takes effect on a fresh document.
 Physical Chrome CSS, performance, fresh-document and new-tab recovery have dated
 10 October receipts. Chrome microphone remains NotAllowedError in this run;
 full-call, trusted input and physical off-LAN browser gates are open.
+
+## Paired full-device observation — 10 October
+
+Version 1.3 exposes 23 tools and five resources. `ios_device_inspect` is the
+optional read-only paired-device lane: `kind=screen|capabilities|browser-debug`.
+Without a session it reserves/releases a temporary shared owner; with sessionId
+it uses that connection's existing native or browser owner. Competing owners
+are refused. `ios_read` returns the actual full-display PNG as MCP image content,
+including browser chrome and OS overlays. It does not deliver system input.
+
+Install the isolated pinned provider using Python 3.11+ (macOS/Python 3.14 lock
+qualified): `python3 /Users/taylor/dotfiles/src/ios-agent/install_observer.py`.
+Use `--check` for a dependency-only validation with no device action. The service
+uses the private environment's bin/python directly, not generated provider CLI
+entrypoints. No root, XCTest, Mirroring, new port or Tailscale Serve edit is used.
+
+Actual untethered paired Wi-Fi screenshot and fresh stdio MCP image read passed
+on 10 October; independent MCP status confirmed the temporary owner released.
+This Apple developer transport requires nearby paired reachability. It is NOT
+qualified across arbitrary networks. The enrolled page lane remains the
+Tailscale operating path. Do not infer lock or cable state from a failed tunnel.
+
+`browser-debug` requests Web Inspector opt-in/discovery and fixed, content-free
+SDK/bootstrap state for the configured private development origin only. It skips
+unrelated origins, other attached inspectors and inactive browsers; it never
+enables console history or requests a user gesture. An enabled service, empty
+target list or deadline does not prove successful deep runtime inspection.
+Fresh MCP also passed the foreground Safari fixed Runtime read on 10 October, reused its existing page owner and verified glow-off. This is an independent bootstrap diagnostic, not a full remote debugger API.

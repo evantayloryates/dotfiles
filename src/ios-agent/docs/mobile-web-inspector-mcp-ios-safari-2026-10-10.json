@@ -1,0 +1,51 @@
+{
+  "at": "2026-10-10T20:36:14.325Z",
+  "scope": "Physical Safari, private development origin, nearby paired Wi-Fi Inspector alongside Tailscale page ownership; no userGesture, no system input",
+  "gates": {
+    "fixedIndependentRuntimeRead": true,
+    "sharedOwnerReused": true,
+    "glowOff": true
+  },
+  "metadata": {
+    "scope": "dev-origin-browser-debug",
+    "provider": "pymobiledevice3-11.15.5",
+    "transport": "native-remoted",
+    "capabilities": {
+      "dvt": true,
+      "coreDeviceScreen": false,
+      "coreDeviceTouch": false,
+      "webInspectorService": true
+    },
+    "systemInput": false,
+    "offLANQualified": false,
+    "inspectorEnabled": true,
+    "devTargets": 2,
+    "busyTargets": 0,
+    "truncated": true,
+    "pages": [
+      {
+        "browser": "com.apple.mobilesafari",
+        "readConfirmed": true,
+        "state": {
+          "originMatches": true,
+          "ready": "complete",
+          "visible": true,
+          "loaderPresent": true,
+          "sdkPresent": true,
+          "sdkConnected": true,
+          "sdkOwned": true,
+          "indicator": true,
+          "tabCredentialPresent": true,
+          "browserResumePresent": true,
+          "secureContext": true,
+          "mediaAPI": true,
+          "userActivation": false,
+          "domElements": 144,
+          "scripts": 21
+        }
+      }
+    ],
+    "userGestureRequested": false
+  },
+  "status": "passed"
+}
