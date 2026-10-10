@@ -143,3 +143,20 @@ for accepted session/schedule/stop/export mutations after lost replies. This is
 controlled transport evidence, not a deliberately crashed production capture.
 Eight source/media hashes stay unchanged; owned readers/workers settle. Native
 6c/PID799 was already running before the batch and was not restarted by it.
+
+## Admission when a worker dies
+
+Stage86 reproduces abrupt Python worker death while a bounded owned substitute
+decoder remains alive. The old worker-only lock released too early. The decoder
+now inherits the same open kernel lease descriptor. A new adapter stays refused
+until every holder closes, even if its Python parent has died. Normal decode
+still verifies through the ordinary MCP with exactly the same retained result.
+The before/after probe and nine distinct affected checks pass; only the new
+initially failing harness check was rerun. Source media stays unchanged.
+
+Worker stdout/stderr EOF is not decoder closure or lease release proof. The
+qualification probe observes kernel acquisition independently after owned group
+cleanup; production continues to refuse while the lock is held. A stalled
+holder can therefore keep admission unavailable. This change does not add an
+automatic peer kill/restart or prove host-wide capacity/OS capture recovery.
+Controlled substitute decoder evidence is distinct from a real FFmpeg crash.

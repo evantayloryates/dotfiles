@@ -16,12 +16,15 @@ import time
 from fractions import Fraction
 
 
-def decode(ffmpeg, fd, index, dimensions, expected_time):
+def decode(ffmpeg, fd, index, dimensions, expected_time, lease_fd=None):
     from PIL import Image
     command=[ffmpeg,'-hide_banner','-loglevel','info','-threads','1','-copyts','-i',f'/dev/fd/{fd}',
              '-map','0:v:0','-vf',f'select=eq(n\\,{index}),showinfo','-frames:v','1','-fps_mode','passthrough',
              '-f','image2pipe','-c:v','png','pipe:1']
-    child=subprocess.Popen(command,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,pass_fds=(fd,))
+    # The decoder can outlive a fatally terminated worker. Keep the same kernel
+    # lease open in both processes until all admitted decode work has closed.
+    inherited=(fd,) if lease_fd is None else (fd,lease_fd)
+    child=subprocess.Popen(command,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,pass_fds=inherited)
     output=bytearray();diagnostics=bytearray();until=time.monotonic()+12
     try:
         with selectors.DefaultSelector() as selector:
@@ -76,10 +79,10 @@ def verify_regions(primary,backup,scale,backup_affine,registered,regions):
     return observations
 
 
-def registration(config):
+def registration(config, lease_fd):
     images=[];identities=[]
     for lane in range(2):
-        image,identity=decode(config['ffmpeg'],3+lane,config[['primary_index','backup_index'][lane]],config['dimensions'][lane],config['frame_times'][lane])
+        image,identity=decode(config['ffmpeg'],3+lane,config[['primary_index','backup_index'][lane]],config['dimensions'][lane],config['frame_times'][lane],lease_fd)
         images.append(image);identities.append(identity)
     spec=importlib.util.spec_from_file_location('anchors',Path(__file__).parent.parent/'qualification/register-paired-anchors.py')
     module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
@@ -105,7 +108,7 @@ def main():
             raise ValueError('registration_lock_unavailable')
         try:fcntl.flock(fd,fcntl.LOCK_EX|fcntl.LOCK_NB)
         except BlockingIOError:return {'state':'unavailable','reason':'registration_busy'}
-        return registration(config)
+        return registration(config,fd)
     finally:os.close(fd)
 
 

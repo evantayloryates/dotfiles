@@ -340,3 +340,12 @@ same nested result as a fresh MCP; source-map guard unchanged. Three focused
 socket checks preserve no mutation replay. Current adoption gate completed;
 original fitted, physical and host capacity scopes remain open. Use phase-local
 matrices and app-crop fallback rather than inferring content from containment.
+
+
+Stage86 adds decoder lease inheritance after reproducing premature admission
+release on fatal worker death. Kernel holder state, not worker pipe EOF/PID,
+controls new admission; a stalled holder remains refused. Nine distinct affected
+checks and unchanged ordinary retained-menu output pass; only the failed new
+harness check rerun. This strengthens scoped worker isolation without claiming
+active OS recovery, host GPU/capacity or P80. Continue missing capture acceptance
+rather than widening this reader proof into a general safety guarantee.

@@ -70,3 +70,12 @@ test('kernel lease refuses a competing live owner and releases without stale PID
  const busy=await mapRegisteredFrame(s[0].descriptor,s[1].descriptor,request);assert.equal(busy.reason,'registration_busy');assert.equal(busy.image_registration.decoded_frames,undefined);process.kill(owner.pid,0);owner.stdin.end();assert.equal(await exit,0);owner=null;const available=await mapRegisteredFrame(s[0].descriptor,s[1].descriptor,request);assert.equal(available.state,'available');assert.equal(registrationHealth().worker,null);
  }finally{if(owner)owner.kill('SIGKILL');process.env=old;rmSync(root,{recursive:true,force:true})}
 });
+
+test('decoder retains shared admission after fatal worker death, then releases on owned group closure',()=>{
+ const python='/Users/taylor/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3';
+ const result=spawnSync(python,[new URL('./decoder-lease-probe.py',import.meta.url).pathname],{encoding:'utf8',timeout:20000});
+ assert.equal(result.status,0,result.stderr||result.stdout);const evidence=JSON.parse(result.stdout);
+ assert.equal(evidence.decoder_live_after_worker_death,true);assert.equal(evidence.lease_retained_after_worker_death,true);
+ assert.equal(evidence.lease_available_after_owned_group_cleanup,true);assert.equal(evidence.owned_stdout_stderr_eof,true);
+ assert.equal(evidence.owned_worker_exit,-9);
+});

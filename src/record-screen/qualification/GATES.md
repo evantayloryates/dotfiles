@@ -3586,3 +3586,23 @@ Native6c/PID799 started before batch, stable during it. Unknown fixture app vers
 build and current-vs-historical clock identities stay explicit. One reported scoped
 fact saved/readback; no fake offline UI receipts.47completed17partial1deferred.
 Private evidence: capture-qualification-2026-10-08/gates-v85/.
+
+
+## Stage86: preserve reader admission across fatal worker death
+
+An isolated actual Python worker with bounded owned substitute decoder reproduces
+premature lease release after fatal worker death. Same kernel descriptor is now
+inherited by its decoder. Beforeprobe:false/afterprobe:true for retained lease;
+after owned group stop, independent kernel acquisition proves release. Worker
+pipe EOF alone never establishes it. Nine distinct affected checks pass (eight
+existing, only the failed new probe rerun). First redundant-finally killpg and
+premature post-EOF lock assertion remain retained harness failures, corrected
+without changing score/budget policy or rerunning passed source investigations.
+
+Ordinary0.19 MCP retained-menu response still equals stage85 in all fields;
+eight media/journal hashes unchanged, worker/map settle, native6c/PID799stable.
+One worker-hash scoped fact saved/readback; no invented UI receipts. No UI,
+capture, grant, install, native or peer restart. Resource admission and active
+encoder/OS fault gates stay partial: this is controlled child lifecycle evidence,
+not real FFmpeg fatal/active OS failure or host capacity/P80 certification.
+Private evidence: capture-qualification-2026-10-08/gates-v86/.

@@ -1,9 +1,9 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-10T15:30:53-04:00",
+  "updated_at": "2026-10-10T15:35:05-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage85 verifies8retained native-menu/resize/dismissal frame pairs and2refusal controls. Ordinary MCP0.19/28tools now matches fresh registration;3focused disconnect checks pass, closing MCP adoption/replay gate.47completed17partial1deferred. Continuous true-fit, physical input and host capacity remain open; no new UI/capture."
+    "note": "Stage85 closes ordinary MCP adoption/replay after8native-menu frame checks. Stage86 fixes premature shared admission release after worker death: decoder inherits kernel lease;9distinct affected checks and unchanged ordinary output pass.47completed17partial1deferred. Remaining capture/physical/capacity acceptance stays open; goalactive."
   },
   "production_note": "Native6c/PID20948 unchanged; fresh MCP0.19/28tools and minimal-PATH CLI delivered. Exact decoded PTS/open snapshots/source-content time belong to the service. Held outputs3.884s apart have content delta0.945ms. Independent RGB checks required, original guard retained; kernel lease serializes heavy workers.46completed18partial1deferred across65items; fullgoalactive.",
   "groups": [
@@ -424,10 +424,10 @@
           "title": "Verify remaining encoder/OS failure paths without harming peer takes",
           "status": "partial",
           "scope": "Avoid widening a local failure into an unexpected service interruption.",
-          "evidence": "Stage80 natural idle CUA read fault leaves recorder and retained readers/hashes available. Stage81 official own-client reset/read succeeds, then two delivered key matches/77exact mux joins/all witness patches pass. No forced shared kill/restart or permission change. Native6c/PID20948 unchanged/idle; three verified cleanupcomplete outcomes.",
+          "evidence": "Stage80 natural idle CUA read fault leaves recorder and retained readers/hashes available. Stage81 official own-client reset/read succeeds, then two delivered key matches/77exact mux joins/all witness patches pass. No forced shared kill/restart or permission change. Native6c/PID20948 unchanged/idle; three verified cleanupcomplete outcomes. Stage86 reproduces worker death releasing admission while decoder survives; inherited kernel lease now stays held until actual holder closure. Controlled before/after and9distinct affected checks pass; ordinary retained result unchanged, no peer restart. Stalled holders still refuse; no active OS/host capacity proof.",
           "next": "Observe useful natural active-capture fault/partial media when it occurs. Preserve this idle separation and scoped client recovery; do not assume sole cause, universal recovery or repeat canaries without another changed boundary.",
-          "anchor": "eighty-first-pass",
-          "updated_at": "2026-10-09T19:03:43-04:00"
+          "anchor": "eighty-sixth-pass",
+          "updated_at": "2026-10-10T15:35:05-04:00"
         },
         {
           "id": "single-motion",
@@ -454,10 +454,10 @@
           "title": "Set a realistic resource and admission budget",
           "status": "partial",
           "scope": "CPU, memory, encoder/GPU/storage costs and useful production-duration estimates.",
-          "evidence": "Earlier source/resource profiles retained. Stage84 adds kernel advisory admission for one decode/RGB worker per recorder home across adapters: competing live owner refuses before decode, descriptor release admits verified next call. Owned overflow process-group stop/quarantine settlement tested. Metadata probes remain per adapter; no host-wide capacity/GPU/P80 guarantee.",
+          "evidence": "Earlier source/resource profiles retained. Stage84 adds kernel advisory admission for one decode/RGB worker per recorder home across adapters: competing live owner refuses before decode, descriptor release admits verified next call. Owned overflow process-group stop/quarantine settlement tested. Metadata probes remain per adapter; no host-wide capacity/GPU/P80 guarantee. Stage86 reproduces worker death releasing admission while decoder survives; inherited kernel lease now stays held until actual holder closure. Controlled before/after and9distinct affected checks pass; ordinary retained result unchanged, no peer restart. Stalled holders still refuse; no active OS/host capacity proof.",
           "next": "Measure useful remaining concurrent capture/insurance/reader capacity at a suitable interval; keep existing profiles and worker admission proof without repeating them.",
-          "anchor": "eighty-fourth-pass",
-          "updated_at": "2026-10-09T19:28:53-04:00"
+          "anchor": "eighty-sixth-pass",
+          "updated_at": "2026-10-10T15:35:05-04:00"
         },
         {
           "id": "sparse-display-writer",
@@ -3007,6 +3007,29 @@
       "from": "active",
       "to": "active",
       "note": "Stage85 verifies8retained native-menu/resize/dismissal frame pairs and2refusal controls. Ordinary MCP0.19/28tools now matches fresh registration;3focused disconnect checks pass, closing MCP adoption/replay gate.47completed17partial1deferred. Continuous true-fit, physical input and host capacity remain open; no new UI/capture."
+    },
+    {
+      "kind": "item",
+      "id": "peer-failure",
+      "at": "2026-10-10T15:35:05-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage80 natural idle CUA read fault leaves recorder and retained readers/hashes available. Stage81 official own-client reset/read succeeds, then two delivered key matches/77exact mux joins/all witness patches pass. No forced shared kill/restart or permission change. Native6c/PID20948 unchanged/idle; three verified cleanupcomplete outcomes. Stage86 reproduces worker death releasing admission while decoder survives; inherited kernel lease now stays held until actual holder closure. Controlled before/after and9distinct affected checks pass; ordinary retained result unchanged, no peer restart. Stalled holders still refuse; no active OS/host capacity proof."
+    },
+    {
+      "kind": "item",
+      "id": "resource-admission",
+      "at": "2026-10-10T15:35:05-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Earlier source/resource profiles retained. Stage84 adds kernel advisory admission for one decode/RGB worker per recorder home across adapters: competing live owner refuses before decode, descriptor release admits verified next call. Owned overflow process-group stop/quarantine settlement tested. Metadata probes remain per adapter; no host-wide capacity/GPU/P80 guarantee. Stage86 reproduces worker death releasing admission while decoder survives; inherited kernel lease now stays held until actual holder closure. Controlled before/after and9distinct affected checks pass; ordinary retained result unchanged, no peer restart. Stalled holders still refuse; no active OS/host capacity proof."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-10T15:35:05-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Stage85 closes ordinary MCP adoption/replay after8native-menu frame checks. Stage86 fixes premature shared admission release after worker death: decoder inherits kernel lease;9distinct affected checks and unchanged ordinary output pass.47completed17partial1deferred. Remaining capture/physical/capacity acceptance stays open; goalactive."
     }
   ]
 }

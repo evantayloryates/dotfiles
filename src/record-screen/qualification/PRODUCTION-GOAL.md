@@ -1,6 +1,24 @@
 # Production qualification goal
 
-## Current checkpoint: stage85 — ACTIVE
+## Current checkpoint: stage86 — ACTIVE
+
+Stage86 finds and fixes an actual isolated reader-lifecycle gap. Before the fix,
+fatal Python worker death leaves its decoder alive but releases the shared kernel
+lease. Decoder now inherits the same lease descriptor, so competing admission
+stays refused until the actual remaining holder closes. Controlled before/after
+probe verifies this, then verifies kernel release after stopping only the owned
+test group. Worker pipe EOF is explicitly insufficient. A first duplicate-finally
+kill and later premature release assertion are preserved as harness failures;
+final probe sends stop once and checks the kernel lease for at most2seconds.
+Eight existing affected registration checks pass; only failed new probe rerun,
+which now passes (nine distinct checks). Ordinary MCP actual retained native-menu
+result equals stage85 in all fields after the fix; eight source/media hashes stay
+unchanged; workers/maps settled/native6c/PID799stable. Scoped worker-hash fact
+readback passes. No UI/capture/grant/install/native or peer restart. Does not
+close active OS fault recovery or host-wide capacity/P80 gates.47completed,
+17partial,1deferred; original goalactive. Next ordered batch remains true-fit
+real-menu source investigation or explicit app-crop fallback, not another reader
+tuning loop or repetition of passed frames.
 
 Resumed at Taylor's request on2026-10-10. Current native6c238cc1ba80/PID799
 started at02:00:02.623Z before this batch; historicalPID20948 is not current.
