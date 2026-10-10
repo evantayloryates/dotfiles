@@ -8,7 +8,7 @@ import {nutritionRecipe} from './workflows.mjs';
 import {mediaObservation} from './media-verification.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/media-verification.mjs', 'mcp/workflows.mjs', 'paired_workflow.py', 'health.py', 'local_stack.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
+const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/media-verification.mjs', 'mcp/workflows.mjs', 'paired_workflow.py', 'health.py', 'local_stack.py', 'worker-launcher.mjs', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
   .map(file => fs.readFileSync(path.join(root, file))).map(bytes => createHash('sha256').update(bytes).digest('hex')).join(':')).digest('hex');
 export const defaultState = path.join(os.homedir(), 'Library/Application Support/ios-agent');
 const idleLimit = 20 * 60 * 1000;
@@ -275,12 +275,12 @@ export class Backend {
     const r = await this.run('web', [], {op: 'web_pages'}, 8000);
     return r.ok ? {...r.value, ok: true} : {ok: false, reason: r.error};
   }
-  async webEnroll({path: route = '/dev/ios-agent', browser} = {}) {
+  async webEnroll({path: route = '/dev/ios-agent', browser, rememberBrowser=false} = {}) {
     if (browser && (await this.status()).lease) return {ok:false,reason:'idle_device_required_for_browser_launch',actionSent:false};
     const runtime = JSON.parse(fs.readFileSync(path.join(this.state, 'dev-runtime.json'), 'utf8'));
     const origin = new URL(runtime.webURL).origin;
     if (!route.startsWith('/') || route.startsWith('//') || route.includes('#') || route.includes('\\')) throw new Error('local_route_required');
-    const r = await this.run('web', [], {op: 'web_enroll', origin}, 8000);
+    const r = await this.run('web', [], {op: 'web_enroll', origin, rememberBrowser}, 8000);
     if (!r.ok || !r.value.token) return {ok: false, reason: 'web_enrollment_unavailable'};
     const a = this.artifact({id: null, dir: this.observationDirectory()}, 'web-enrollment');
     fs.writeFileSync(a.file, JSON.stringify({url: origin + route + '#ios-agent=' + encodeURIComponent(r.value.token)}), {flag: 'wx', mode: 0o600});

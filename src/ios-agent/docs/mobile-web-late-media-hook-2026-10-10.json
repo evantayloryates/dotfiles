@@ -1,0 +1,21 @@
+{
+  "at": "2026-10-10T20:14:27.917Z",
+  "scope": "Desktop WebKit controlled late API and later replacement; no physical media request",
+  "gates": {
+    "lateAPIWrapped": true,
+    "rejectedRequestCounted": true,
+    "laterReplacementReported": true,
+    "laterReplacementPreserved": true
+  },
+  "request": {
+    "ok": true,
+    "artifactId": "b2851746b5794899e08de1f9b855ab30",
+    "outcome": "completed",
+    "replay": false,
+    "value": {
+      "rejected": true,
+      "errorName": "NotAllowedError"
+    }
+  },
+  "status": "passed"
+}

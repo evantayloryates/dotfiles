@@ -6,9 +6,10 @@
   const version = 'web-poc-1';
   const grants = new URLSearchParams(location.hash.slice(1));
   let enrollment = grants.get('ios-agent') || sessionStorage.getItem('ios-agent-enrollment');
-  let saved;
+  let saved,browserResume;
   try { saved = JSON.parse(sessionStorage.getItem('ios-agent-page') || 'null'); } catch {}
-  if (!enrollment && !saved) return;
+  try { browserResume=JSON.parse(localStorage.getItem('ios-agent-browser-resume')||'null');if(browserResume?.expiresAt<=Date.now()){localStorage.removeItem('ios-agent-browser-resume');browserResume=null;} }catch{}
+  if (!enrollment && !saved && !browserResume) return;
   // Remove enrollment from address/history immediately, before any telemetry.
   history.replaceState(history.state, '', location.pathname + location.search);
   const boot = crypto.randomUUID();
@@ -25,13 +26,13 @@
   function clear() { lease = null; deadline = 0; glow.style.display = 'none'; const held=wakeLock;wakeLock=null;void held?.release().catch(()=>{}); }
   const timer = setInterval(() => { if (deadline && clock() > deadline) clear(); }, 250);
   const browser = /iPhone|iPad/.test(navigator.userAgent) ? (/CriOS/.test(navigator.userAgent) ? 'ios-chrome' : 'ios-safari') : (/Android/.test(navigator.userAgent)&&/Chrome/.test(navigator.userAgent)?'android-chrome':(/AppleWebKit/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent) ? 'desktop-webkit' : 'desktop-chromium'));
-  const feedback = () => ({...identity, boot, visible: !document.hidden, ready: document.readyState !== 'loading', browser, path: location.pathname, indicator: !!lease});
+  const feedback = () => ({...identity, boot, version, visible: !document.hidden, ready: document.readyState !== 'loading', browser, path: location.pathname, indicator: !!lease});
   async function post(body) {
     const abort = new AbortController(), timeout = setTimeout(() => abort.abort(), 6000);
     try {
       const response = await fetch(endpoint, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body), signal:abort.signal, cache:'no-store'});
-      if (!response.ok) throw new Error('bridge_refused');
-      const result = await response.json(); if (result.error) throw new Error('bridge_refused'); return result;
+      const result = await response.json();
+      if(!response.ok||result.error)throw new Error(result.error==='web_page_auth_required'?'web_page_auth_required':'bridge_refused');return result;
     } finally { clearTimeout(timeout); }
   }
   function rect(el) { const r = el.getBoundingClientRect(); return {x:r.x,y:r.y,width:r.width,height:r.height}; }
@@ -79,6 +80,7 @@
     return {target:describe(el),computed,ancestors,centerHit:describe(hit),interactable:inside&&!!hit&&(hit===el||el.contains(hit))&&!inert(el),inert:inert(el),focused:document.activeElement===el,readOnly:!!el.readOnly,disabled:!!el.disabled,scroll:{top:el.scrollTop,left:el.scrollLeft,width:el.scrollWidth,height:el.scrollHeight},viewport:{width:innerWidth,height:innerHeight,visualHeight:visualViewport?.height??innerHeight,visualOffsetTop:visualViewport?.offsetTop??0},limits:'Computed styles and DOM hit test in this document; no browser/system occlusion, stylesheet origin or native keyboard guarantee.'};
   }
   async function execute(c) {
+    installMediaHook();
     const args = c.args || {};
     switch(c.action) {
       case 'snapshot': return tree(args);
@@ -117,8 +119,13 @@
   }
   async function loop() {
     if (stopped) return;
+    installMediaHook();
     try {
-      if (!identity) { identity = await post({op:'join',token:enrollment,boot}); sessionStorage.removeItem('ios-agent-enrollment'); sessionStorage.setItem('ios-agent-page',JSON.stringify(identity)); enrollment=null; }
+      if (!identity) {
+        identity=await post(enrollment?{op:'join',token:enrollment,boot}:{op:'resume',...browserResume,boot});
+        if(identity.browserResume){browserResume=identity.browserResume;try{localStorage.setItem('ios-agent-browser-resume',JSON.stringify(browserResume));}catch{}delete identity.browserResume;}
+        sessionStorage.removeItem('ios-agent-enrollment');sessionStorage.setItem('ios-agent-page',JSON.stringify(identity));enrollment=null;
+      }
       const sentFeedback=feedback();const response=await post({op:'poll',...sentFeedback}); if(stopped)return;connected=sentFeedback.ready;apply(response);
       const c=response.command;
       if (c && lease && c.lease===lease.id && !seen.has(c.id)) {
@@ -132,7 +139,7 @@
         if (JSON.stringify(result).length>800000) result={ok:false,error:'result_limit',replay:false};
         const ack=await post({op:'result',...feedback(),id:c.id,epoch:response.epoch,result}); apply(ack);
       }
-    } catch { connected=false;ring({kind:'bridge',code:'transport_unavailable'}); }
+    } catch(e) { connected=false;if(e.message==='web_page_auth_required'){sessionStorage.removeItem('ios-agent-page');identity=null;if(browserResume?.expiresAt<=Date.now()){browserResume=null;try{localStorage.removeItem('ios-agent-browser-resume');}catch{}}if(!browserResume){stopped=true;clear();}}ring({kind:'bridge',code:'transport_unavailable'}); }
     if (!stopped) setTimeout(loop, lease?300:2000);
   }
   // Numeric diagnostics only: never resource names/URLs or attribution nodes.
@@ -164,7 +171,8 @@
   const originalWS=window.WebSocket, originalRTC=window.RTCPeerConnection;
   const sockets=new Set(), peers=new Set(), tracks=new Set(), counterRefs=new WeakMap();let nextCounterRef=0;
   const mediaRequests={pending:0,acquired:0,failed:0};
-  const originalGUM=navigator.mediaDevices?.getUserMedia;
+  const mediaAPIAtBoot=!!navigator.mediaDevices?.getUserMedia;
+  let originalGUM,installedGUM,mediaDeviceObject;
   const listeners=[];
   const listen=(object,type,fn)=>{object.addEventListener(type,fn);listeners.push(()=>object.removeEventListener(type,fn));};
   if(originalWS) window.WebSocket=new Proxy(originalWS,{construct(target,args,newTarget){
@@ -179,12 +187,19 @@
     const pc=Reflect.construct(target,args,newTarget);peers.add(pc);if(peers.size>16)peers.delete(peers.values().next().value);
     listen(pc,'connectionstatechange',()=>ring({kind:'webrtc',code:pc.connectionState}));return pc;
   }});
-  if(originalGUM) navigator.mediaDevices.getUserMedia=async function(...args){
+  function installMediaHook(){
+    if(installedGUM||!navigator.mediaDevices?.getUserMedia)return;
+    mediaDeviceObject=navigator.mediaDevices;originalGUM=mediaDeviceObject.getUserMedia;
+    installedGUM=async function(...args){
     const start=clock();mediaRequests.pending++;ring({kind:'media',code:'requested'});
     try{const stream=await originalGUM.apply(this,args);for(const track of stream.getTracks()){tracks.add(track);if(tracks.size>32)tracks.delete(tracks.values().next().value);}mediaRequests.acquired++;ring({kind:'media',code:'acquired',durationMs:Math.round(clock()-start),trackCount:stream.getTracks().length});return stream;}
     catch(e){mediaRequests.failed++;ring({kind:'media',code:'request_failed',durationMs:Math.round(clock()-start)});throw e;}
     finally{mediaRequests.pending--;}
-  };
+    };
+    try{mediaDeviceObject.getUserMedia=installedGUM;}catch{installedGUM=undefined;return;}
+    if(mediaDeviceObject.getUserMedia!==installedGUM)installedGUM=undefined;
+  }
+  installMediaHook();
   domains.set('media',async()=>{
     const audio=[],connections=[],transports=[];
     for(const pc of peers) {
@@ -193,7 +208,7 @@
       reports.forEach(r=>{if(r.type==='transport'){const sample={type:r.type};for(const k of ['bytesSent','bytesReceived','packetsSent','packetsReceived'])if(typeof r[k]==='number'&&Number.isFinite(r[k]))sample[k]=r[k];transports.push(sample);}if(r.kind==='audio'||r.mediaType==='audio'){if(!refs.has(r.id))refs.set(r.id,++nextCounterRef);const sample={type:r.type,counterRef:refs.get(r.id)};for(const k of numeric)if(typeof r[k]==='number'&&Number.isFinite(r[k]))sample[k]=r[k];audio.push(sample);}});
     }
     const visibleTracks=new Set(tracks);for(const element of document.querySelectorAll('video,audio'))if(element.srcObject instanceof MediaStream)for(const track of element.srcObject.getTracks())visibleTracks.add(track);
-    return {requests:{...mediaRequests},coverage:'peer/socket objects created after adapter boot; tracks also discovered through DOM media',sockets:[...sockets],tracks:[...visibleTracks].map(t=>({kind:t.kind,enabled:t.enabled,muted:t.muted,readyState:t.readyState})),audio,connections,transports};
+    return {hooks:{microphoneAPIAtBoot:mediaAPIAtBoot,microphone:!!installedGUM&&navigator.mediaDevices?.getUserMedia===installedGUM,peer:window.RTCPeerConnection===installed.rtc,socket:window.WebSocket===installed.ws},requests:{...mediaRequests},coverage:'peer/socket objects created after adapter boot; tracks also discovered through DOM media',sockets:[...sockets],tracks:[...visibleTracks].map(t=>({kind:t.kind,enabled:t.enabled,muted:t.muted,readyState:t.readyState})),audio,connections,transports};
   });
   const xhrOpen=XMLHttpRequest.prototype.open, xhrSend=XMLHttpRequest.prototype.send;
   XMLHttpRequest.prototype.open=function(...args){return xhrOpen.apply(this,args);};
@@ -207,6 +222,6 @@
   const onHide=()=>{clear();if(identity)navigator.sendBeacon(endpoint,new Blob([JSON.stringify({op:'poll',...feedback(),visible:false})],{type:'application/json'}));};
   addEventListener('error',onError);addEventListener('unhandledrejection',onRejection);addEventListener('visibilitychange',onVisibility);addEventListener('pagehide',onHide);
   const installed={fetch:window.fetch,ws:window.WebSocket,rtc:window.RTCPeerConnection,gum:navigator.mediaDevices?.getUserMedia,xhrOpen:XMLHttpRequest.prototype.open,xhrSend:XMLHttpRequest.prototype.send};
-  window.__iosWebAgent={version,register:(key,read)=>{if(!/^[a-z][a-z0-9-]{0,63}$/.test(key)||typeof read!=='function')throw new Error('domain_contract');domains.set(key,read);return()=>domains.delete(key);},status:()=>({version,browser,page:identity?.page,connected:!!identity&&connected,owned:!!lease,indicator:glow.style.display!=='none'}),stop:()=>{sessionStorage.removeItem('ios-agent-page');stopped=true;onHide();clearInterval(timer);taskObserver?.disconnect();glow.remove();if(Element.prototype.attachShadow===installedAttachShadow)Element.prototype.attachShadow=originalAttachShadow;if(window.fetch===installed.fetch)window.fetch=originalFetch;if(window.WebSocket===installed.ws)window.WebSocket=originalWS;if(window.RTCPeerConnection===installed.rtc)window.RTCPeerConnection=originalRTC;if(originalGUM&&navigator.mediaDevices.getUserMedia===installed.gum)navigator.mediaDevices.getUserMedia=originalGUM;if(XMLHttpRequest.prototype.open===installed.xhrOpen)XMLHttpRequest.prototype.open=xhrOpen;if(XMLHttpRequest.prototype.send===installed.xhrSend)XMLHttpRequest.prototype.send=xhrSend;listeners.forEach(remove=>remove());for(const level of Object.keys(originalConsole))if(console[level]===installedConsole[level])console[level]=originalConsole[level];removeEventListener('error',onError);removeEventListener('unhandledrejection',onRejection);removeEventListener('visibilitychange',onVisibility);removeEventListener('pagehide',onHide);delete window.__iosWebAgent;}};
+  window.__iosWebAgent={version,register:(key,read)=>{if(!/^[a-z][a-z0-9-]{0,63}$/.test(key)||typeof read!=='function')throw new Error('domain_contract');domains.set(key,read);return()=>domains.delete(key);},status:()=>({version,browser,page:identity?.page,connected:!!identity&&connected,owned:!!lease,indicator:glow.style.display!=='none'}),stop:()=>{sessionStorage.removeItem('ios-agent-page');try{localStorage.removeItem('ios-agent-browser-resume');}catch{}stopped=true;onHide();clearInterval(timer);taskObserver?.disconnect();glow.remove();if(Element.prototype.attachShadow===installedAttachShadow)Element.prototype.attachShadow=originalAttachShadow;if(window.fetch===installed.fetch)window.fetch=originalFetch;if(window.WebSocket===installed.ws)window.WebSocket=originalWS;if(window.RTCPeerConnection===installed.rtc)window.RTCPeerConnection=originalRTC;if(installedGUM&&mediaDeviceObject.getUserMedia===installedGUM)mediaDeviceObject.getUserMedia=originalGUM;if(XMLHttpRequest.prototype.open===installed.xhrOpen)XMLHttpRequest.prototype.open=xhrOpen;if(XMLHttpRequest.prototype.send===installed.xhrSend)XMLHttpRequest.prototype.send=xhrSend;listeners.forEach(remove=>remove());for(const level of Object.keys(originalConsole))if(console[level]===installedConsole[level])console[level]=originalConsole[level];removeEventListener('error',onError);removeEventListener('unhandledrejection',onRejection);removeEventListener('visibilitychange',onVisibility);removeEventListener('pagehide',onHide);delete window.__iosWebAgent;}};
   void loop();
 })();

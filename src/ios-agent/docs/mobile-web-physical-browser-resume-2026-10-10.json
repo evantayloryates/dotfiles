@@ -1,0 +1,15 @@
+{
+  "at": "2026-10-10T20:16:59.605Z",
+  "browser": "ios-chrome",
+  "scope": "Physical iPhone Chrome with USB unplugged; paired developer channel opens a plain route, then private HTTPS bridge resumes. No arbitrary-network launch or off-LAN claim.",
+  "gates": {
+    "rememberedOnlyAfterOptIn": true,
+    "plainRouteNewTabEnrolled": true,
+    "distinctPageIdentity": true,
+    "originalExpiryPreserved": true,
+    "controlReacquired": true,
+    "glowOff": true
+  },
+  "launchOutcome": "developer-request-accepted",
+  "status": "passed"
+}

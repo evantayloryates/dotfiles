@@ -55,10 +55,10 @@ class WebBridge:
             if u.scheme != 'https' or not u.hostname or not u.hostname.endswith('.ts.net') or u.port != 10446 or u.path not in ('', '/') or u.query or u.fragment or u.username or u.password:
                 self.reject('private_web_origin_required')
             token = secrets.token_urlsafe(32)
-            self.grants[token] = {'origin': r['origin'].rstrip('/'), 'expires': self.b.clock() + 300}
+            self.grants[token] = {'origin': r['origin'].rstrip('/'), 'expires': self.b.clock() + 300, 'rememberBrowser':r.get('rememberBrowser') is True}
             return {'token': token, 'expiresIn': 300}
         if op == 'web_pages':
-            return {'pages': [{'id': k, 'browser': p['browser'], 'visible': p['visible'], 'ready': p['ready'], 'path': p['path'], 'indicator': p['indicator'], 'ageMs': int((self.b.clock()-p['seen'])*1000)} for k, p in self.pages.items()]}
+            return {'pages': [{'id': k, 'browser': p['browser'], 'visible': p['visible'], 'ready': p['ready'], 'path': p['path'], 'indicator': p['indicator'], 'ageMs': int((self.b.clock()-p['seen'])*1000), 'boot':p.get('boot'), 'version':p.get('version')} for k, p in self.pages.items()]}
         if op == 'web_result':
             c = self.commands.get(r.get('id'))
             if not c or c['lease'] != r.get('lease'):
@@ -80,6 +80,29 @@ class WebBridge:
             return {'id': cid, 'delivery': 'queued', 'replay': False}
         self.reject('unsupported_web_control')
 
+    def persist_clients(self):
+        self.clients = dict(list(self.clients.items())[-128:])
+        if self.clients_file:
+            tmp = self.clients_file.with_suffix('.next')
+            fd = os.open(tmp, os.O_WRONLY|os.O_CREAT|os.O_TRUNC|os.O_NOFOLLOW, 0o600)
+            with os.fdopen(fd, 'w') as f:
+                os.fchmod(f.fileno(), 0o600)
+                json.dump(self.clients, f)
+            os.replace(tmp, self.clients_file)
+
+    def authenticate(self, r, origin, kind):
+        client = self.clients.get(r.get('page'))
+        if not client or client.get('type', 'page') != kind or client['expires'] <= time.time() or client['origin'] != origin or not secrets.compare_digest(hashlib.sha256(str(r.get('token', '')).encode()).hexdigest(), client['hash']):
+            self.reject('web_page_auth_required')
+        return client
+
+    def mint(self, origin, boot, expires):
+        pid, token = secrets.token_hex(16), secrets.token_urlsafe(32)
+        self.clients[pid] = {'type':'page','hash':hashlib.sha256(token.encode()).hexdigest(),'origin':origin,'expires':expires}
+        self.persist_clients()
+        self.pages[pid] = {'origin':origin,'seen':self.b.clock(),'browser':'unknown','visible':False,'ready':False,'path':'/','indicator':False,'boot':boot}
+        return {'page':pid,'token':token,'epoch':self.b.epoch}
+
     def page_request(self, r, origin):
         self.tick()
         op = r.get('op')
@@ -90,21 +113,23 @@ class WebBridge:
             # One grant enrolls one tab. Its authenticated session survives reload;
             # every new document boot retires previous ownership and commands.
             del self.grants[r['token']]
-            pid, token = secrets.token_hex(16), secrets.token_urlsafe(32)
-            self.clients[pid] = {'hash':hashlib.sha256(token.encode()).hexdigest(),'origin':origin,'expires':time.time()+86400}
-            self.clients = dict(list(self.clients.items())[-128:])
-            if self.clients_file:
-                tmp = self.clients_file.with_suffix('.next')
-                fd = os.open(tmp, os.O_WRONLY|os.O_CREAT|os.O_TRUNC,0o600)
-                with os.fdopen(fd,'w') as f:
-                    json.dump(self.clients,f)
-                os.replace(tmp,self.clients_file)
-            self.pages[pid] = { 'origin': origin, 'seen': self.b.clock(), 'browser': 'unknown', 'visible': False, 'ready': False, 'path': '/', 'indicator': False, 'boot': r.get('boot')}
-            return {'page': pid, 'token': token, 'epoch': self.b.epoch}
+            identity = self.mint(origin, r.get('boot'), time.time()+86400)
+            if grant.get('rememberBrowser'):
+                rid, token = secrets.token_hex(16), secrets.token_urlsafe(32)
+                expiry = self.clients[identity['page']]['expires']
+                self.clients[rid] = {'type':'browser','hash':hashlib.sha256(token.encode()).hexdigest(),'origin':origin,'expires':expiry}
+                self.persist_clients()
+                identity['browserResume'] = {'page':rid,'token':token,'expiresAt':int(expiry*1000)}
+            return identity
+        if op == 'resume':
+            client = self.authenticate(r, origin, 'browser')
+            if len(self.pages) >= 16:
+                self.reject('web_page_limit')
+            # Each tab has independent ownership and boot fencing. Resume never
+            # extends the original browser consent or revokes another tab.
+            return self.mint(origin, r.get('boot'), client['expires'])
         pid = r.get('page')
-        client = self.clients.get(pid)
-        if not client or client['expires'] <= time.time() or client['origin'] != origin or not secrets.compare_digest(hashlib.sha256(str(r.get('token', '')).encode()).hexdigest(), client['hash']):
-            self.reject('web_page_auth_required')
+        self.authenticate(r, origin, 'page')
         p = self.pages.setdefault(pid, {'origin':origin, 'seen':self.b.clock(), 'browser':'unknown', 'visible':False, 'ready':False, 'path':'/', 'indicator':False, 'boot':r.get('boot')})
         if p.get('boot') != r.get('boot'):
             # A delayed old-document poll/pagehide must not replace a newer
@@ -120,6 +145,9 @@ class WebBridge:
         p.update(seen=self.b.clock(), visible=r.get('visible') is True, ready=r.get('ready') is True, indicator=r.get('indicator') is True)
         if r.get('browser') in ('ios-safari', 'ios-chrome', 'android-chrome', 'desktop-webkit', 'desktop-chromium'):
             p['browser'] = r['browser']
+        version = r.get('version')
+        if isinstance(version, str) and version.startswith('web-') and len(version) <= 40:
+            p['version'] = version
         path = r.get('path', '/')
         if isinstance(path, str) and path.startswith('/') and len(path) <= 256:
             p['path'] = path  # Local synthetic inspection metadata, never a log.

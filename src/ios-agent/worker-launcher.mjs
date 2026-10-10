@@ -11,9 +11,10 @@ let tail=Buffer.alloc(0),timer,done=false;
 const oom=()=>{try{return Number(fs.readFileSync('/sys/fs/cgroup/memory.events','utf8').match(/^oom_kill (\d+)$/m)?.[1]);}catch{return null;}};
 const initialOOM=oom();
 const child=spawn('yarn',['start:demo:development'],{stdio:['ignore','pipe','pipe'],detached:true});
-const write=value=>fs.writeFileSync(receiptFile,JSON.stringify(value),{mode:0o600});
+const writePrivate=(file,value)=>{const fd=fs.openSync(file,fs.constants.O_WRONLY|fs.constants.O_CREAT|fs.constants.O_TRUNC|fs.constants.O_NOFOLLOW,0o600);try{fs.fchmodSync(fd,0o600);fs.writeFileSync(fd,value);}finally{fs.closeSync(fd);}};
+const write=value=>writePrivate(receiptFile,JSON.stringify(value));
 write({startedAt:Date.now(),pid:child.pid,state:'running',rawLogExported:false});
-const flush=()=>{timer=null;fs.writeFileSync(tailFile,tail,{mode:0o600});};
+const flush=()=>{timer=null;writePrivate(tailFile,tail);};
 const append=chunk=>{tail=Buffer.concat([tail,chunk]);if(tail.length>65536)tail=tail.subarray(tail.length-65536);if(!timer)timer=setTimeout(flush,1000).unref();};
 child.stdout.on('data',append);child.stderr.on('data',append);
 const finish=(code,signal)=>{

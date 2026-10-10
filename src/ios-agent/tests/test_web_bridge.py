@@ -90,3 +90,48 @@ class WebTests(unittest.TestCase):
         self.assertEqual(self.b.web.pages[self.p['page']]['browser'],'android-chrome')
         self.b.web.page_request({**self.poll,'browser':'spoofed-unknown'},self.origin)
         self.assertEqual(self.b.web.pages[self.p['page']]['browser'],'android-chrome')
+
+    def test_remember_opt_in_mints_distinct_tabs_without_revoking_owner(self):
+        normal=self.b.control({'op':'web_enroll','origin':self.origin})
+        identity=self.b.web.page_request({'op':'join','token':normal['token'],'boot':'plain'},self.origin)
+        self.assertNotIn('browserResume',identity)
+        grant=self.b.control({'op':'web_enroll','origin':self.origin,'rememberBrowser':True})
+        parent=self.b.web.page_request({'op':'join','token':grant['token'],'boot':'parent'},self.origin)
+        resume=parent['browserResume']
+        a=self.b.web.page_request({'op':'resume',**resume,'boot':'child-a'},self.origin)
+        c=self.b.web.page_request({'op':'resume',**resume,'boot':'child-b'},self.origin)
+        self.assertEqual(len({parent['page'],a['page'],c['page']}),3)
+        self.assertEqual(self.b.lease['id'],'owner')
+        self.assertEqual(self.b.web.clients[a['page']]['expires'],self.b.web.clients[resume['page']]['expires'])
+        self.assertNotIn('browserResume',a)
+
+    def test_resume_origin_type_expiry_and_capacity_fences(self):
+        grant=self.b.control({'op':'web_enroll','origin':self.origin,'rememberBrowser':True})
+        parent=self.b.web.page_request({'op':'join','token':grant['token'],'boot':'parent'},self.origin)
+        resume=parent['browserResume']
+        for r,origin in (({**resume,'token':'bad'},self.origin),(resume,'https://other.ts.net:10446'),(parent,self.origin)):
+            with self.assertRaisesRegex(Rejected,'web_page_auth_required'):
+                self.b.web.page_request({'op':'resume',**r},origin)
+        with self.assertRaisesRegex(Rejected,'web_page_auth_required'):
+            self.b.web.page_request({'op':'poll',**resume},self.origin)
+        original=self.b.web.clients[resume['page']]['expires']
+        self.b.web.clients[resume['page']]['expires']=0
+        with self.assertRaisesRegex(Rejected,'web_page_auth_required'):
+            self.b.web.page_request({'op':'resume',**resume},self.origin)
+        self.b.web.clients[resume['page']]['expires']=original
+        while len(self.b.web.pages)<16:
+            self.b.web.page_request({'op':'resume',**resume,'boot':'another'},self.origin)
+        with self.assertRaisesRegex(Rejected,'web_page_limit'):
+            self.b.web.page_request({'op':'resume',**resume},self.origin)
+
+    def test_resume_hash_only_persistence_and_restart(self):
+        with tempfile.TemporaryDirectory() as d:
+            b=Broker({'device':'p','bundle':'com.dev.kudos.fit'},lambda:self.now,state=Path(d))
+            grant=b.control({'op':'web_enroll','origin':self.origin,'rememberBrowser':True})
+            parent=b.web.page_request({'op':'join','token':grant['token'],'boot':'parent'},self.origin)
+            resume=parent['browserResume']
+            self.assertNotIn(resume['token'],(Path(d)/'web-clients.json').read_text())
+            replacement=Broker({'device':'p','bundle':'com.dev.kudos.fit'},lambda:self.now,state=Path(d))
+            child=replacement.web.page_request({'op':'resume',**resume,'boot':'new-tab'},self.origin)
+            self.assertNotEqual(child['page'],parent['page'])
+            self.assertIsNone(replacement.lease)

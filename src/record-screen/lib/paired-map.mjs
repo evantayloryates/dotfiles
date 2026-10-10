@@ -53,7 +53,7 @@ const normalize = (n,d) => {
 const serial = a => normalize(a.n,a.d);
 const plus = (a,n) => ({n:a.n+n*a.d,d:a.d});
 const subtract = (a,b) => normalize(a.n*b.d-b.n*a.d,a.d*b.d);
-function clockIdentity(header,descriptor) {
+export function clockIdentity(header,descriptor) {
   const c=header.clock_instance,s=descriptor.source_packet?.clock_instance;
   const valid=v=>v&&v.kind==='recorder_process'&&typeof v.id==='string'&&/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(v.id)&&Object.keys(v).length===2;
   if(!valid(c))return {state:'missing_or_invalid_retained_clock_instance',instance:null};

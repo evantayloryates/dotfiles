@@ -1,0 +1,18 @@
+{
+  "at": "2026-10-10T20:11:40.063Z",
+  "browser": "ios-chrome",
+  "scope": "Physical browser microphone into two local in-document WebRTC peers; no playback, recording, external room or upload",
+  "gates": {
+    "audioReceivedPacketsAdvance": false
+  },
+  "fixture": {
+    "state": "failed",
+    "stage": "microphone",
+    "errorName": "NotAllowedError",
+    "trackCount": 0,
+    "peerState": null,
+    "receiverState": null
+  },
+  "status": "failed",
+  "failure": "physical_audio_packet_gate_not_passed"
+}

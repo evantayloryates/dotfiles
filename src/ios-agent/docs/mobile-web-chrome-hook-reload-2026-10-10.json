@@ -1,0 +1,42 @@
+{
+  "at": "2026-10-10T20:14:47.897Z",
+  "scope": "Physical iPhone Chrome, user reports untethered; reload to qualify new hook coverage, not off-LAN",
+  "gates": {
+    "freshDocument": true,
+    "currentMediaHooksAttached": true
+  },
+  "reloadOutcome": "unknown",
+  "status": "passed",
+  "sdk": "web-7bffc4069b5c3637",
+  "mediaHooks": {
+    "microphoneAPIAtBoot": true,
+    "microphone": true,
+    "peer": true,
+    "socket": true
+  },
+  "performance": true,
+  "observation": "Original reload was not replayed; first reacquire was premature, later fresh document independently observed.",
+  "cleanup": {
+    "released": true,
+    "detail": {
+      "released": false,
+      "alreadyInactive": true,
+      "otherOwnerActive": false
+    },
+    "next": "Call ios_verify gate=idle without a session to confirm native and host cleanup.",
+    "indicatorOff": true,
+    "receipt": {
+      "gate": "web-idle",
+      "status": "passed",
+      "observation": {
+        "ownerReleased": true,
+        "indicatorOff": true
+      }
+    },
+    "learningEvidence": {
+      "evidenceId": "089426a3418b41a3ace53cae42233c37",
+      "gate": "web-idle",
+      "status": "passed"
+    }
+  }
+}
