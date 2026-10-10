@@ -464,7 +464,8 @@ with the actual result):
 ```sh
 python3 src/record-screen/qualification/checklist.py update ITEM_ID \
   --status partial --evidence 'Actual saved result and its limits.' \
-  --next 'Remaining acceptance check.' --anchor ninth-pass
+  --next 'Remaining acceptance check.' --anchor ninth-pass \
+  --why-partial 'What remains, why it is unfinished, what would close it, and what works now.'
 ```
 
 Statuses: `completed`, `partial`, `in_progress`, `needs_retest`, `pending`,
@@ -472,6 +473,14 @@ Statuses: `completed`, `partial`, `in_progress`, `needs_retest`, `pending`,
 scope with `--scope` when acceptance criteria change. Do not mark a pending
 release complete because an isolated candidate passed. Commands save history,
 record Eastern time and immediately regenerate the page.
+
+Every partial item has a visible "Why the remaining work is still open"
+subsection. Write its `--why-partial` explanation for a product manager: identify
+whether the remainder needs human participation, additional engineering or
+deliberately deferred coverage. Explain the next requirement and the supported
+option available now. Existing explanations are retained when the flag is
+omitted; refresh them whenever the item's limits change. Validation rejects a
+partial item without an explanation. Other statuses do not display this section.
 
 ```sh
 python3 src/record-screen/qualification/checklist.py workflow \

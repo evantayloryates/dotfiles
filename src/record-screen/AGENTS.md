@@ -11,6 +11,11 @@ This applies to recorder and related shared computer-use qualification work.
 - Use `qualification/checklist.py update` to record the status, compact evidence,
   next acceptance step and any changed scope/evidence anchor. The command saves
   transition history and immediately republishes the checklist page.
+- Every partial item must include `why_partial`: a short, plain-language
+  explanation of what remains, why it is unfinished, what would close it and
+  the supported option available now. Keep it current when limits change.
+  Distinguish human participation, unresolved engineering and deliberate scope
+  deferrals; do not describe deferred work as impossible or externally blocked.
 - Completed means verified for the written scope; isolated candidate tests do
   not complete installation, universal behavior or final production readiness.
   Preserve failed evidence with `needs_retest`; distinguish partial, pending and

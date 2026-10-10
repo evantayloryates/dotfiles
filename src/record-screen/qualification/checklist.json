@@ -1,6 +1,6 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-10T16:47:01-04:00",
+  "updated_at": "2026-10-10T17:03:02-04:00",
   "workflow": {
     "state": "complete",
     "note": "Supported capture foundation release delivered and representative agent path verified. All three bounded closure batches finished: existing menu footage decision, current adapter/CLI input-preview-export verification, and explicit release disposition.49completed15partial1deferred; original broader partial scopes remain visible as limitations or follow-up, with no ongoing experiments. Visual composition stays deferred."
@@ -69,7 +69,8 @@
           "evidence": "Stage65 owned Chrome154/8037.98 built-in2x encoded1x window/app/display60s captures select, editing root and Writing Direction submenu in nine selected decoded frames;2650 exact mux/source joins. Eight declared bright-support comparisons pass96%; isolated nested reverse95.67% fails. Ordinary reachability repaired by moving only owned tab into own window. Prior1x omission/Retina positives retained.",
           "next": "Qualify dynamic overflow fitting/change/close with service-owned mapping and useful remaining variants; preserve this actual app-video/context/nested pass and failed comparison without a repeat take.",
           "anchor": "sixty-fifth-pass",
-          "updated_at": "2026-10-09T15:32:39-04:00"
+          "updated_at": "2026-10-09T15:32:39-04:00",
+          "why_partial": "Common Chrome menus have been captured successfully, but we have not established reliable behavior for every menu that extends beyond the window, changes size or closes during a take. One image comparison also fell short of its acceptance target. This is deferred coverage, not a permission blocker: closing it needs targeted tests and any resulting fixes; use the qualified app or wider display capture for now."
         },
         {
           "id": "electron-depth",
@@ -109,7 +110,8 @@
           "evidence": "Qualified padded/app/obstruction recovery proofs retained. Stage89 shows independent animated streams can disagree despite close clocks; stage90 fixes release choice to qualified app/display fallback, inspected backup, trim or reshoot. Two50s sources retain selected menus; fixed app positions pass, but OS constrained menus inside parent. No whole-shot animated repair claim.",
           "next": "Supported with explicit limits: use source-qualified app/padded display or inspect backup pixels before recovery. Automatic whole-shot animated rescue remains follow-up; no further registration tuning for this release.",
           "anchor": "release-decision",
-          "updated_at": "2026-10-10T16:46:35-04:00"
+          "updated_at": "2026-10-10T16:46:35-04:00",
+          "why_partial": "We can capture extra space around a window, but automatically repairing an entire moving scene from a backup recording is still unresolved. Two recordings can show different moments of an animation even when their timestamps are close, so combining them can introduce visible jumps. Completing this needs reliable matching of the actual images and further recovery engineering; today, use a sufficiently wide main capture, inspect backup footage, or trim and reshoot the affected section."
         },
         {
           "id": "clean-source",
@@ -195,7 +197,8 @@
           "evidence": "Stage78 seven returned rational decoder/mux/source joins qualified. Stage80 requested40s returns39.749620806s, before key reception39.834917931s; green patch correct. Requested42s returns41.754621139s, magenta. Exact source joins separate requested/decoded/event times; physical latency remains unknown.",
           "next": "Complete physical/provider calibration and separately approved sleep boundary. Use returned frame/source identity rather than requested offsets; preserve this actual boundary proof.",
           "anchor": "eightieth-pass",
-          "updated_at": "2026-10-09T18:58:52-04:00"
+          "updated_at": "2026-10-09T18:58:52-04:00",
+          "why_partial": "We can link saved video frames to the recorder’s event timeline, but that does not yet measure the full delay between a physical key press or mouse action and the app’s visible response. Physical input and additional automation methods need their own calibration, and sleep needs a separate test. Those checks were left outside the delivered scope; use the verified frame-to-event timing now without treating it as a guarantee of physical response time."
         },
         {
           "id": "pointer-coordinates",
@@ -205,7 +208,8 @@
           "evidence": "Installed grant canary joined six delivered click/drag/wheel transitions exactly on raw CG timestamp, destination and position within action bounds. Earlier native endpoint pixel proof remains valid for its scope; position_for_composition stays unpromoted outside qualified provider mapping. Stage72 eleven raw pointer positions equal independent app-local CG delivery. Blue app-painted marker is centered exactly at source-projected desktop500,610 in both actual sources; coordinates remain unpromoted outside this case.",
           "next": "Extend another provider or physical lane with explicit confidence; preserve existing click/gesture pixel evidence rather than rerunning it.",
           "anchor": "seventy-second-pass",
-          "updated_at": "2026-10-09T17:51:25-04:00"
+          "updated_at": "2026-10-09T17:51:25-04:00",
+          "why_partial": "Pointer placement is verified for the tested native input method and capture setup. Other automation methods and display arrangements can use different coordinate conventions, so the same accuracy has not been demonstrated for them. Closing that gap needs a targeted comparison for each additional setup; meanwhile, use the qualified mapping and retain the original positions rather than assuming every setup is interchangeable."
         },
         {
           "id": "sleep-clock",
@@ -215,7 +219,8 @@
           "evidence": "26 checks and 100 awake samples passed; 125 journal-bound checks passed. Live awake take/MCP: 81 exact timestamps, nine anchors, no lost rows. Ten arming-state checks preserved peers/admission. Injected gap in real capture: 33 exact samples, one gap, partial finalization and no held-at-end fill.",
           "next": "Qualify physical sleep/wake when it can be isolated safely; retain threshold, source-coverage and provider-clock uncertainty. Do not repeat injected or awake canaries without a changed boundary.",
           "anchor": "twelfth-pass",
-          "updated_at": "2026-10-08T21:11:39-04:00"
+          "updated_at": "2026-10-08T21:11:39-04:00",
+          "why_partial": "The recorder handles tested timing gaps, but we have not verified what happens when this Mac actually sleeps and wakes during a recording. That test would interrupt the desktop and needs a separately agreed time; routine display access is not approval to put the Mac to sleep. Until then, treat a detected interruption as a break in the take, preserve the available footage and start a fresh take rather than promising seamless continuity."
         },
         {
           "id": "capture-colors",
@@ -235,7 +240,8 @@
           "evidence": "Frame-local fitted/held proofs and guards retained. Stage90 reviews actual retry2 root/short/nested/moved/dismissed encoded samples with2656exact mux/source joins. OS constrained menus inside parent, so no above/below fitting proof. Five fixed app-source positions pass; child-enabled downsampled window origin stays refused. Release strategy uses qualified app/padded-display fallback.",
           "next": "Research follow-up: continuous above/below real-menu fitting remains unavailable. Use supported app/display sources; do not repeat this contained fixture or relax refusal guards.",
           "anchor": "release-decision",
-          "updated_at": "2026-10-10T16:46:35-04:00"
+          "updated_at": "2026-10-10T16:46:35-04:00",
+          "why_partial": "When a menu extends outside an isolated window, macOS can change the captured picture’s size or position, and the available capture information does not always tell us exactly where everything moved. The latest real-menu test stayed inside the parent window, so it could not resolve this question. Completing it needs a genuine overflow case and reliable mapping throughout the change; use the qualified app or wider display capture while this research remains open."
         },
         {
           "id": "fitted-mapping-guard",
@@ -271,7 +277,8 @@
           "evidence": "Fresh listening native oracle retained 12 exact delivered keys and two real shortcuts; installed destination repair passed a second targeted source check. Sparse provider gestures and keyboard probes do not prove physical rates. A bounded human request ended without delivery/reply and remains pending. Stage72 AppKit canvas receives keys without a text field, modifiers, movement, click, drag and one wheel;28/28 delivered oracle events retained in37 rows, no journal loss. Physical rates/touchpad remain open.",
           "next": "Qualify physical keyboard/pointer rate and touchpad phases when user is ready, then other providers; do not replay the completed grant/keyboard-source checks.",
           "anchor": "seventy-second-pass",
-          "updated_at": "2026-10-09T17:51:25-04:00"
+          "updated_at": "2026-10-09T17:51:25-04:00",
+          "why_partial": "The recorder retained the input delivered in our automated tests, including shortcuts outside text fields. We still need a short hands-on mouse, keyboard and trackpad session to establish real input rates and the stages of a physical scroll gesture; you previously asked us to continue without that participation. Automated evidence remains useful now, but more of the same tests cannot establish physical-device coverage."
         },
         {
           "id": "ordered-input-loss",
@@ -291,7 +298,8 @@
           "evidence": "Stage77 one native key operation retains pointer precursors in the same scope. Stage79 browser DOM click/counter changes produce zero observed global callback delta, then native control yields four. Separate provider action context/app milestones from OS input; per-key browser delivery and actor remain unknown.",
           "next": "Qualify remaining physical/provider attribution boundaries without repeating this browser gap. Preserve broad events, auxiliary gestures and observed semantic milestones; never synthesize missing OS evidence.",
           "anchor": "seventy-ninth-pass",
-          "updated_at": "2026-10-09T18:54:05-04:00"
+          "updated_at": "2026-10-09T18:54:05-04:00",
+          "why_partial": "An event arriving in the right app does not by itself reveal whether you or an agent caused it. We record useful context, but reliable separation during mixed human and agent activity still needs controlled examples and better attribution rules. This is unfinished attribution work rather than a capture-permission problem; keep broad shortcut coverage, mark uncertain ownership explicitly and let the driving agent use its task context to choose relevant events."
         },
         {
           "id": "protected-input",
@@ -331,7 +339,8 @@
           "evidence": "Stage82 DOM-backed export independently observes11 events including ArrowRight keydown/keyup, isTrusted true; browser clock uncalibrated and trust not actor/human identity. Stage79 callback4→4 differential/failure and unknown historical key outcome preserved; native recovered stage81 positive control retained.",
           "next": "Qualify remaining physical revocation/natural timeout and OS delivery bounds when isolated; do not substitute DOM delivery/trust for global event coverage.",
           "anchor": "eighty-second-pass",
-          "updated_at": "2026-10-09T19:08:11-04:00"
+          "updated_at": "2026-10-09T19:08:11-04:00",
+          "why_partial": "Some browser automation changes the page without passing through the system-wide input listener, so that listener cannot recover events it never received. We have demonstrated this gap, but not every automation method or permission-loss scenario has been checked. Closing the remainder needs targeted coverage checks and separately arranged disruptive permission tests; meanwhile, report missing system input honestly and retain page-level action evidence separately."
         },
         {
           "id": "installed-input-access",
@@ -427,7 +436,8 @@
           "evidence": "Stage80 natural idle CUA read fault leaves recorder and retained readers/hashes available. Stage81 official own-client reset/read succeeds, then two delivered key matches/77exact mux joins/all witness patches pass. No forced shared kill/restart or permission change. Native6c/PID20948 unchanged/idle; three verified cleanupcomplete outcomes. Stage86 reproduces worker death releasing admission while decoder survives; inherited kernel lease now stays held until actual holder closure. Controlled before/after and9distinct affected checks pass; ordinary retained result unchanged, no peer restart. Stalled holders still refuse; no active OS/host capacity proof.",
           "next": "Observe useful natural active-capture fault/partial media when it occurs. Preserve this idle separation and scoped client recovery; do not assume sole cause, universal recovery or repeat canaries without another changed boundary.",
           "anchor": "eighty-sixth-pass",
-          "updated_at": "2026-10-10T15:35:05-04:00"
+          "updated_at": "2026-10-10T15:35:05-04:00",
+          "why_partial": "Recovery and isolation work for the controlled failures we tested, but we have not established recovery from a system-wide failure while a recording is active. Deliberately causing that failure on a shared Mac would disrupt other work, so it is not an appropriate routine smoke test. Closing the gap needs an isolated test environment or useful evidence from a natural incident; rely on the qualified smaller failure cases and do not promise that a host crash will preserve a complete take."
         },
         {
           "id": "single-motion",
@@ -457,7 +467,8 @@
           "evidence": "Earlier source/resource profiles retained. Stage84 adds kernel advisory admission for one decode/RGB worker per recorder home across adapters: competing live owner refuses before decode, descriptor release admits verified next call. Owned overflow process-group stop/quarantine settlement tested. Metadata probes remain per adapter; no host-wide capacity/GPU/P80 guarantee. Stage86 reproduces worker death releasing admission while decoder survives; inherited kernel lease now stays held until actual holder closure. Controlled before/after and9distinct affected checks pass; ordinary retained result unchanged, no peer restart. Stalled holders still refuse; no active OS/host capacity proof. Stage90 retry2 sampler has only3points/no terminal result, so no new capacity or effective guard claim. Existing measured profiles and kernel admission proof remain authoritative.",
           "next": "Supported with measured profiles and bounded reader admission; additional insurance is opt-in. Host-wide GPU/capacity/P80 certification remains follow-up, not a promise from configured slots.",
           "anchor": "release-decision",
-          "updated_at": "2026-10-10T16:47:00-04:00"
+          "updated_at": "2026-10-10T16:47:00-04:00",
+          "why_partial": "We measured useful recording profiles and verified limits on competing video readers, but we do not yet have a dependable whole-Mac capacity estimate while other apps are busy. The latest resource measurement ended before it produced a complete result. A further bounded workload measurement is needed, not a permission change; this broader capacity work was deferred, so use the measured profiles and make extra backup recordings an explicit resource trade-off."
         },
         {
           "id": "sparse-display-writer",
@@ -549,7 +560,8 @@
           "evidence": "Stage79 Chrome154.0.8037.98/build8037.98 exact shared provider-coverage fact reports failure. Current planner consumes reported_failure against observed Chrome bundle and preserves unknown provider version/reusefalse despite claimed confirmation; fact hash unchanged. Prior source-specific facts retained.",
           "next": "Qualify genuinely changed daily-app dimensions with targeted canaries. Reuse the scoped negative provider observation to avoid assuming global tap coverage, without broad app certification.",
           "anchor": "seventy-ninth-pass",
-          "updated_at": "2026-10-09T18:54:05-04:00"
+          "updated_at": "2026-10-09T18:54:05-04:00",
+          "why_partial": "Shared app knowledge works for the combinations we have actually observed, but some app and automation-tool versions are still unidentified or untested. A successful observation cannot safely cover every later update. Expanding coverage needs version identification and targeted checks when an app or tool changes; for now, reuse matching observations and keep unfamiliar combinations explicitly unknown."
         },
         {
           "id": "requalification",
@@ -559,7 +571,8 @@
           "evidence": "Stage53 targeted TextEdit lane prepares fresh owned document through native display-placement menu, captures typeface overflow for both app child settings, and preserves old off-Space -3811. Context/nested coverage remains unknown; no universal app certification. Stage71 adds documented Safari native-select/change/dismiss/editing-root depth lane with actual decoded frames, continuous markers, timestamp proofs and black-tail failure. Shared exact-environment facts read back. Nested/overflow variants remain unqualified; no broad update churn or automatic canary claim. Stage72 native nested menu shrinks352→210px wide, then298→206px high with scrolling inside222px parent. Both sources show first/last row and selection/dismissal; UI itself ellipsizes labels. No overflow qualification. Stage73 new sustained-motion duration extends the owned source envelope; all counter samples correct and explicit long-reader refusal retained. Stage75 shared facts now reach recorder planning directly. Exact changed app_build returns missing evidence rather than inheriting prior observations; typed conflict/unknown/mismatched-target cases tested. No automatic requalification or canary execution.",
           "next": "Extend a remaining useful real-app overflow/changed-fit variant; use opt-in exact shared app learning to avoid repeating settled source proofs.",
           "anchor": "seventy-fifth-pass",
-          "updated_at": "2026-10-09T18:19:07-04:00"
+          "updated_at": "2026-10-09T18:19:07-04:00",
+          "why_partial": "We have app-specific test procedures and version-scoped observations, but the service does not yet automatically run the right checks after an app or tool update. That requires additional automation to detect changes, choose tests and save the new results; repeating the existing menu tests alone would not finish it. This engineering was deferred from the delivered scope, so use targeted manual checks when a relevant version changes."
         },
         {
           "id": "workflow-audit",
@@ -569,7 +582,8 @@
           "evidence": "Stage90 reconciles recent owned production sessions: retry1 has1verified/2unknown outcomes, retry2 has2verified/1unknown; all cleanupcomplete and zero uncovered receipts. Expired scopes stay unknown. Session metadata closure corrected after visible cleanup; no past bound edits or UI replay.",
           "next": "Supported typed reporting/audits are delivered. Historical all-operation success and unknown expired attribution remain follow-up; do not replay settled workflows.",
           "anchor": "release-decision",
-          "updated_at": "2026-10-10T16:47:00-04:00"
+          "updated_at": "2026-10-10T16:47:00-04:00",
+          "why_partial": "Recent workflows have recorded outcomes, but some older records only show that an operation ran, not that it achieved the intended result on screen. Missing historical evidence cannot be honestly reconstructed after the fact. Keep those outcomes unknown, capture stronger evidence in future workflows and repeat an old action only when resolving it would change a current decision; a complete historical success claim remains unavailable."
         },
         {
           "id": "receipt-integration",
@@ -579,7 +593,8 @@
           "evidence": "Explicit native/browser scope and outcome proofs retained. Stage90 imports actual recent terminal native scopes, preserves expired attribution as unknown, and independently reads zero-uncovered audits and closed sessions. This does not intercept all provider preparation/read side effects.",
           "next": "Use explicit supported scopes and typed outcomes. Automatic full-provider interception remains follow-up work; preserve unknown side effects.",
           "anchor": "release-decision",
-          "updated_at": "2026-10-10T16:47:00-04:00"
+          "updated_at": "2026-10-10T16:47:00-04:00",
+          "why_partial": "Actions placed inside an explicit tracking scope have durable records, but some automation tools also move focus or perform setup actions that are not automatically recorded as separate steps. Covering those remaining paths requires more integration work and targeted checks. That work was deferred from the delivered scope; use explicit action scopes and verified outcomes now, while leaving unobserved side effects unknown."
         },
         {
           "id": "shared-baseline-plan",

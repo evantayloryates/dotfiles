@@ -62,6 +62,8 @@ def validate(data):
                 raise ValueError('invalid evidence anchor')
             if item['status'] != 'completed' and not item['next'].strip():
                 raise ValueError(f'open item needs a next acceptance step: {item["id"]}')
+            if item['status'] == 'partial' and not item.get('why_partial', '').strip():
+                raise ValueError(f'partial item needs a plain-language explanation: {item["id"]}')
             timestamp(item['updated_at'])
     for change in data['history']:
         timestamp(change['at'])
@@ -105,7 +107,7 @@ def render_checklist(data, output=OUTPUT, report_href='capture-readiness.html'):
     page = f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="checklist-revision" content="{revision}"><title>Capture foundations checklist</title>
 <style>
-:root{{color-scheme:light;--ink:#17202b;--paper:#f2f4f6;--line:#c9d3dd;--blue:#24727a}}*{{box-sizing:border-box}}body{{margin:0;color:var(--ink);background:var(--paper);font:17px/1.6 "Avenir Next",system-ui,sans-serif}}main{{max-width:1100px;margin:auto;padding:32px 24px 72px}}a{{color:var(--blue);text-underline-offset:3px}}h1{{font-size:clamp(30px,5vw,46px);line-height:1.15;letter-spacing:-.025em;margin:32px 0 16px}}h2{{font-size:25px;line-height:1.25;margin:42px 0 8px}}p{{max-width:76ch}}.meta{{font-size:15px;color:#455567}}.notice{{background:white;border-left:4px solid #805410;padding:14px 18px;margin:24px 0}}.notice p{{margin:5px 0}}nav,.counts{{display:flex;gap:10px 20px;flex-wrap:wrap}}nav{{margin:22px 0}}.counts{{margin:22px 0}}.status{{display:inline-flex;gap:7px;align-items:center;font-weight:600;font-size:14px;border:1px solid currentColor;border-radius:4px;padding:4px 9px;white-space:nowrap;background:white}}.completed{{color:#24614e}}.partial,.in_progress{{color:#76520f}}.needs_retest{{color:#a12538}}.pending{{color:#465260}}.deferred{{color:#644880}}ul.checklist{{list-style:none;margin:0;padding:0}}.item{{display:grid;grid-template-columns:150px minmax(0,1fr);gap:20px;padding:22px 0;border-top:1px solid var(--line);scroll-margin-top:20px}}.item:last-child{{border-bottom:1px solid var(--line)}}.item h3{{font-size:19px;line-height:1.35;margin:0 0 8px}}.item p{{margin:7px 0;font-size:16px}}.evidence-link,.recorded{{font-size:14px}}.recorded{{color:#455567;margin-left:14px}}.legend{{flex-basis:100%;background:white;padding:16px 20px;margin:26px 0}}.legend summary{{font-weight:600;cursor:pointer}}.legend dl{{display:grid;grid-template-columns:150px minmax(0,1fr);gap:12px 20px}}.legend dt{{font-weight:600}}.legend dd{{margin:0}}.history{{padding-left:22px}}.history li{{margin:12px 0}}footer{{margin-top:36px;border-top:1px solid var(--line);padding-top:18px;font-size:15px}}:focus-visible{{outline:3px solid var(--blue);outline-offset:4px}}@media(max-width:600px){{main{{padding:24px 16px 48px}}.item{{grid-template-columns:minmax(0,1fr);gap:10px}}.legend dl{{grid-template-columns:minmax(0,1fr);gap:6px}}.legend dd{{margin-bottom:12px}}.recorded{{display:block;margin:6px 0 0}}}}@media(prefers-reduced-motion:reduce){{html{{scroll-behavior:auto}}}}
+:root{{color-scheme:light;--ink:#17202b;--paper:#f2f4f6;--line:#c9d3dd;--blue:#24727a}}*{{box-sizing:border-box}}body{{margin:0;color:var(--ink);background:var(--paper);font:17px/1.6 "Avenir Next",system-ui,sans-serif}}main{{max-width:1100px;margin:auto;padding:32px 24px 72px}}a{{color:var(--blue);text-underline-offset:3px}}h1{{font-size:clamp(30px,5vw,46px);line-height:1.15;letter-spacing:-.025em;margin:32px 0 16px}}h2{{font-size:25px;line-height:1.25;margin:42px 0 8px}}p{{max-width:76ch}}.meta{{font-size:15px;color:#455567}}.notice{{background:white;border-left:4px solid #805410;padding:14px 18px;margin:24px 0}}.notice p{{margin:5px 0}}nav,.counts{{display:flex;gap:10px 20px;flex-wrap:wrap}}nav{{margin:22px 0}}.counts{{margin:22px 0}}.status{{display:inline-flex;gap:7px;align-items:center;font-weight:600;font-size:14px;border:1px solid currentColor;border-radius:4px;padding:4px 9px;white-space:nowrap;background:white}}.completed{{color:#24614e}}.partial,.in_progress{{color:#76520f}}.needs_retest{{color:#a12538}}.pending{{color:#465260}}.deferred{{color:#644880}}ul.checklist{{list-style:none;margin:0;padding:0}}.item{{display:grid;grid-template-columns:150px minmax(0,1fr);gap:20px;padding:22px 0;border-top:1px solid var(--line);scroll-margin-top:20px}}.item:last-child{{border-bottom:1px solid var(--line)}}.item h3{{font-size:19px;line-height:1.35;margin:0 0 8px}}.item p{{margin:7px 0;font-size:16px}}.remaining-work{{background:white;border-left:3px solid #b48b42;padding:12px 16px;margin:14px 0}}.remaining-work h4{{font-size:16px;line-height:1.4;margin:0 0 6px}}.remaining-work p{{margin:0}}.evidence-link,.recorded{{font-size:14px}}.recorded{{color:#455567;margin-left:14px}}.legend{{flex-basis:100%;background:white;padding:16px 20px;margin:26px 0}}.legend summary{{font-weight:600;cursor:pointer}}.legend dl{{display:grid;grid-template-columns:150px minmax(0,1fr);gap:12px 20px}}.legend dt{{font-weight:600}}.legend dd{{margin:0}}.history{{padding-left:22px}}.history li{{margin:12px 0}}footer{{margin-top:36px;border-top:1px solid var(--line);padding-top:18px;font-size:15px}}:focus-visible{{outline:3px solid var(--blue);outline-offset:4px}}@media(max-width:600px){{main{{padding:24px 16px 48px}}.item{{grid-template-columns:minmax(0,1fr);gap:10px}}.legend dl{{grid-template-columns:minmax(0,1fr);gap:6px}}.legend dd{{margin-bottom:12px}}.recorded{{display:block;margin:6px 0 0}}}}@media(prefers-reduced-motion:reduce){{html{{scroll-behavior:auto}}}}
 </style></head><body><main>
 <a href="{esc(report_href)}">Back to Capture foundations</a>
 <h1>Capture foundations checklist</h1>
@@ -129,7 +131,10 @@ def render_checklist(data, output=OUTPUT, report_href='capture-readiness.html'):
         for item in group['items']:
             status = item['status']
             label, icon, _ = STATUSES[status]
-            page += f'<li class="item" id="{item["id"]}" data-status="{status}"><div><span class="status {status}"><span aria-hidden="true">{icon}</span>{esc(label)}</span></div><div><h3>{esc(item["title"])}</h3><p>{esc(item["scope"])}</p><p><strong>Evidence:</strong> {esc(item["evidence"])}</p>'
+            page += f'<li class="item" id="{item["id"]}" data-status="{status}"><div><span class="status {status}"><span aria-hidden="true">{icon}</span>{esc(label)}</span></div><div><h3>{esc(item["title"])}</h3><p>{esc(item["scope"])}</p>'
+            if status == 'partial':
+                page += f'<section class="remaining-work" aria-labelledby="{item["id"]}-remaining"><h4 id="{item["id"]}-remaining">Why the remaining work is still open</h4><p>{esc(item["why_partial"])}</p></section>'
+            page += f'<p><strong>Evidence:</strong> {esc(item["evidence"])}</p>'
             if item['next']:
                 page += f'<p><strong>Next:</strong> {esc(item["next"])}</p>'
             page += f'<a class="evidence-link" href="{esc(report_href)}#{item["anchor"]}">View supporting evidence</a><span class="recorded">Status recorded <time datetime="{esc(item["updated_at"])}">{esc(timestamp(item["updated_at"]).astimezone(ZoneInfo("America/New_York")).strftime("%b %d, %I:%M %p %Z"))}</time></span></div></li>'
@@ -166,6 +171,7 @@ def main():
     update.add_argument('--next', required=True)
     update.add_argument('--scope')
     update.add_argument('--anchor')
+    update.add_argument('--why-partial', help='Plain-language reason the remainder is open, what would close it, and the current supported option.')
     workflow = commands.add_parser('workflow')
     workflow.add_argument('--state', choices=WORKFLOW, required=True)
     workflow.add_argument('--note', required=True)
@@ -178,7 +184,7 @@ def main():
             parser.error('unknown checklist item')
         previous = item['status']
         item.update(status=args.status, evidence=args.evidence, next=args.next, updated_at=now)
-        for key in ['scope','anchor']:
+        for key in ['scope','anchor','why_partial']:
             if getattr(args,key) is not None:
                 item[key] = getattr(args,key)
         data['history'].append({'kind':'item','id':args.id,'at':now,'from':previous,'to':args.status,'note':args.evidence})
