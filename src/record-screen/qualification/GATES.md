@@ -3608,21 +3608,19 @@ not real FFmpeg fatal/active OS failure or host capacity/P80 certification.
 Private evidence: capture-qualification-2026-10-08/gates-v86/.
 
 
-## Stage87 preparation: small native-menu fitting batch and legacy clock refusal
+## Stage87: production admission refused; owned cleanup verified
 
-New Native Menu Fit fixture compiles/signs at version1.0/build87; exact source/
-binary hashes retained. It has a small parent, native tall/short/submenus,
-explicit move control and three independent authored QA patches. All changes
-require delivered UI actions, with app-local semantic lifecycle stamps; no global
-input synthesis or physical input required. Prepared50s/30fps isolated/app pair,
-action begin/end, first-frame readiness, marks, owned resource guard and collection
-helpers parse. Native inventory confirmed absent before alert; no launch/capture.
+The compiled/signed small-parent native menu fixture retains tall/short/submenu,
+move controls, independent QA patches and app-local lifecycle stamps. Actual
+notification callback observed6.591s later. Delayed orchestration left47.099s at
+capture preflight;30s operation+20s cleanup reserve refused. No take scheduled.
+Original50s plan shortened to25s before dispatch; neither ran. Do not count this
+as fitted-menu or successful live deadline-enforcement qualification.
 
-Terminal-notifier2.0.0 accepted the requested two-minute click alert. Private
-empty-file seven-second model-free watcher is observed live by handle and exact
-PID. Click/banner pending; no source fitting or cleanup success claimed. The
-shell watcher alone does not guarantee an unattended future chat wake.
-Current legacy TextEdit frame320 pair explicitly refuses unqualified_common_clock
-before decode, preserving old spatial candidate vs new timing-proof distinction.
-47completed17partial1deferred; no existing acceptance scope narrowed.
-Private evidence: capture-qualification-2026-10-08/gates-v87/.
+Owned launch PID60213/window4117 and one close have two verified action outcomes,
+cleanup completed/uncovered0. Independent inventory absence/session closed/native
+6c/PID799idle; cleanup check92.273s after callback within120s. Watcher terminal,
+same-chat delivery late, input available. Next ready alert must be last after
+bookkeeping; use a fresh signal/session and immediately handle actual callback.
+Legacy fitted TextEdit frame320 refuses missing clock identity before decode.
+47completed17partial1deferred; private evidence: gates-v87/.

@@ -351,10 +351,10 @@ active OS recovery, host GPU/capacity or P80. Continue missing capture acceptanc
 rather than widening this reader proof into a general safety guarantee.
 
 
-Stage87 preparation separates source geometry from timing qualification: current
-service refuses legacy real TextEdit fit footage without a retained clock identity.
-Do not retrofit synchronization from image similarity. A small parent/tall native
-menu fixture and app-crop insurance batch are compiled/prepared, awaiting actual
-production click; no new capture result yet. Guard owned IDs during fresh critical
-pressure and inspect actual pixels/origins after real recording. Preserve local
-registration refusal rather than promising universal origin recovery.
+Stage87 preserves a failed live production episode: orchestration delay consumed
+the start budget and capture admission refused with47.099s remaining against50s
+reserved. No take started. Owned launch/close independently settled within120s,
+but this does not qualify a successful menu batch. Finish bookkeeping before
+sending the next alert and wait directly on a fresh callback. Retained legacy
+TextEdit timing absence remains refused; compiled fixture reuse avoids repeating
+preparation. Local registration still requires actual pixels and common clocks.

@@ -1,9 +1,9 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-10T15:44:04-04:00",
+  "updated_at": "2026-10-10T15:48:46-04:00",
   "workflow": {
     "state": "active",
-    "note": "Stage87 small native-menu fit batch compiled/prepared; notification accepted and model-free7s watcher awaiting actual two-minute click. No new launch/capture yet. Current MCP refuses legacy TextEdit pair without retained clock identity.47completed17partial1deferred; goalactive, acceptance scopes unchanged."
+    "note": "Stage87 actual callback observed; capture preflight refused47.099s remaining against30+20s reserve. No take scheduled. Owned launch/close verified and independently absent within120s, session closed/native idle. Fresh prepared attempt next;47completed17partial1deferred, scopes unchanged."
   },
   "production_note": "Native6c/PID20948 unchanged; fresh MCP0.19/28tools and minimal-PATH CLI delivered. Exact decoded PTS/open snapshots/source-content time belong to the service. Held outputs3.884s apart have content delta0.945ms. Independent RGB checks required, original guard retained; kernel lease serializes heavy workers.46completed18partial1deferred across65items; fullgoalactive.",
   "groups": [
@@ -232,10 +232,10 @@
           "title": "Qualify coordinates when real child menus change source fitting",
           "status": "partial",
           "scope": "Actual child-enabled isolated window with above/below-parent popup fitting, including scale and source origin changes. Existing static/fixture maps retain their proven scope.",
-          "evidence": "Stage84 exact fitted/held frame service proofs remain. Stage85 eight real AppKit root/nested/closed/resize frame pairs independently pass (NCC>=0.99152; source-content delta<=36.805ms); vanished menu texture and oversized Safari refuse. These menus fit inside parent; continuous/above-below fitting remains unqualified. Original map guard unchanged. Stage87 current service refuses legacy real TextEdit frame320 pair without retained clock identity before decode. New small-parent native-menu batch compiles/signs and is prepared; actual notification click/live capture still pending.",
-          "next": "On actual production click, run the prepared50s native tall/short/moved-menu pair; independently verify true-fit frames or app-crop fallback. Recheck native clock reservation before each UI action. Do not retrofit legacy clocks, replay unknown mutations or cache local transforms.",
+          "evidence": "Stage84 fitted/held frame and stage85 contained AppKit pairs remain verified. Stage87 refuses legacy TextEdit clocks before decode; actual small-menu attempt could not admit capture after orchestration delay. Two owned UI actions verified/cleanup complete within120s; no recording or new fitted proof.",
+          "next": "Reuse compiled fixture in fresh attempt; finish bookkeeping before notification, handle callback directly, record tall/short/moved native menus and independently verify pixels and maps.",
           "anchor": "eighty-seventh-pass",
-          "updated_at": "2026-10-10T15:44:04-04:00"
+          "updated_at": "2026-10-10T15:48:46-04:00"
         },
         {
           "id": "fitted-mapping-guard",
@@ -3045,6 +3045,21 @@
       "from": "partial",
       "to": "partial",
       "note": "Stage84 exact fitted/held frame service proofs remain. Stage85 eight real AppKit root/nested/closed/resize frame pairs independently pass (NCC>=0.99152; source-content delta<=36.805ms); vanished menu texture and oversized Safari refuse. These menus fit inside parent; continuous/above-below fitting remains unqualified. Original map guard unchanged. Stage87 current service refuses legacy real TextEdit frame320 pair without retained clock identity before decode. New small-parent native-menu batch compiles/signs and is prepared; actual notification click/live capture still pending."
+    },
+    {
+      "kind": "item",
+      "id": "fitted-child-mapping",
+      "at": "2026-10-10T15:48:46-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Stage84 fitted/held frame and stage85 contained AppKit pairs remain verified. Stage87 refuses legacy TextEdit clocks before decode; actual small-menu attempt could not admit capture after orchestration delay. Two owned UI actions verified/cleanup complete within120s; no recording or new fitted proof."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-10T15:48:46-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Stage87 actual callback observed; capture preflight refused47.099s remaining against30+20s reserve. No take scheduled. Owned launch/close verified and independently absent within120s, session closed/native idle. Fresh prepared attempt next;47completed17partial1deferred, scopes unchanged."
     }
   ]
 }

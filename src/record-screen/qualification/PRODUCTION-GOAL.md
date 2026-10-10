@@ -1,37 +1,28 @@
 # Production qualification goal
 
-## Current checkpoint: stage87 prepared — ACTIVE
+## Current checkpoint: stage87 capture refused; owned cleanup verified — ACTIVE
 
-Stage87 prepared a new owned Native Menu Fit.app (bundle
-com.taylor.record-screen.menu-fit-qualification,version1.0/build87) on disk;
-Swift compilation/adhoc signing and helper parsing pass. Native inventory
-confirmed it was absent before notification. No launch, UI input or recording
-has occurred. Session ses_s8ng4zsu exists without an active action. Two planned
-50s/30fps sources are isolated child-enabled window plus fixed app-filtered crop;
-input telemetry disabled to avoid an authentication/physical-input dependency.
-Tall/short native menus, parent movement, dismissal, action receipts and resource
-sampling are prepared together. This is preparation, not fitted-map proof.
+The actual production callback was observed after6.591s. Orchestration consumed
+its start allowance: at capture preflight only47.099s remained, below the required
+30s operation plus20s cleanup reserve. No recording was scheduled. Original50s
+plan was shortened to25s before dispatch, but even that admission refused. This
+is a failed production episode, not fitted-menu proof or a successful capture.
 
-Requested terminal-notifier2.0.0 alert accepted. The initially empty private
-signal and local seven-second model-free watcher await the actual click; this
-renews only a120s cooperative interval. No input lock/extension. Watcher is
-execsession76409; private gates-v87/watcher-live.json records its observed PID.
-Revalidate the actual handle/process before waiting. A file/path alone is not
-live-job proof. If the watcher completed, read watch-observed.json and immediately
-check current reservation with production-click.py before every native action.
-Do not start if expired; do not emulate the user's click or infer consent from
-elapsed time. No unattended future-turn wake guarantee from the shell watcher.
-On actual click, deliver the authorized same-chat signal once, then run the
-prepared action.mjs/start.mjs through native CUA. Same IDs/tokens are recovered
-after uncertainty; no reschedule/relaunch/close replay. New source analysis follows.
+The owned Native Menu Fit.app launched once (PID60213/window4117), then closed
+once; independent inventory confirms absence. Session ses_s8ng4zsu closed and
+native6c238cc1ba80/PID799 remains idle. Cleanup check was92.273s after callback,
+within120s. Two actual action receipts have verified outcomes and completed
+cleanup, uncovered0. The watcher exited0; do not reuse its historical handle or
+populated signal. Same-chat signal delivery happened after cleanup, so it was
+not a timely start trigger. Input stayed available; no lock/extension/restart.
 
-Current service explicitly refuses the older real TextEdit fit pair
-rec_r6rpthn5/rec_7vw5v5yr at frame320: unqualified_common_clock /
-missing_or_invalid_retained_clock_instance, before decode. Earlier pixel
-registration remains a spatial candidate; no retrospective clock override.
-Current memory pressure sample is warning2 with paging/compressor churn; fresh
-critical-pressure guard stops only the two supplied owned take IDs. This is not
-a host capacity or P80 claim.47completed17partial1deferred; goalactive.
+Next: finish bookkeeping before sending a fresh ready notification. Reuse the
+compiled fixture and stable helpers in a fresh attempt directory/session/signal,
+wait directly on callback, then launch/capture/act/close within the fresh budget.
+Never replay uncertain schedule/launch/close calls. No physical input is required.
+Current service still refuses legacy TextEdit frame320 without retained clock
+identity before decode; do not retrofit synchronization from image similarity.
+47completed17partial1deferred; acceptance scopes unchanged, full goalactive.
 
 Stage86 finds and fixes an actual isolated reader-lifecycle gap. Before the fix,
 fatal Python worker death leaves its decoder alive but releases the shared kernel

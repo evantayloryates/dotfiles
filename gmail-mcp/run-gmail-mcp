@@ -18,13 +18,12 @@ case "$account" in
     ;;
 esac
 
-env_file="/Users/taylor/dotfiles/.env"
-if [[ -f "$env_file" ]]; then
-  set -a
-  # shellcheck disable=SC1090
-  source "$env_file"
-  set +a
-fi
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+. "${SCRIPT_DIR}/../src/lib/read-env.sh"
+export ENV_FILE="${SCRIPT_DIR}/../.env"
+gmail_env="$(env_export PERSONAL_GMAIL_APP_SECRET)"
+eval "$gmail_env"
+unset gmail_env
 
 : "${PERSONAL_GMAIL_APP_SECRET:?PERSONAL_GMAIL_APP_SECRET is required in /Users/taylor/dotfiles/.env}"
 
