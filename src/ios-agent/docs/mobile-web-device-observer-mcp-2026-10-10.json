@@ -1,8 +1,24 @@
 {
-  "at": "2026-10-10T20:27:24.116Z",
+  "at": "2026-10-10T20:29:52.449Z",
   "scope": "Physical paired iPhone over Wi-Fi with USB unplugged; read-only DVT screenshot, no XCTest/Mirroring/HID",
   "gates": {
-    "freshCatalog23Tools": true
+    "freshCatalog23Tools": true,
+    "realPNGReadThroughMCP": true
+  },
+  "metadata": {
+    "scope": "whole-device-display",
+    "provider": "pymobiledevice3-11.15.5",
+    "transport": "native-remoted",
+    "capabilities": {
+      "dvt": true,
+      "coreDeviceScreen": false,
+      "coreDeviceTouch": false,
+      "webInspectorService": true
+    },
+    "systemInput": false,
+    "offLANQualified": false,
+    "width": 1170,
+    "height": 2532
   },
   "status": "failed"
 }
