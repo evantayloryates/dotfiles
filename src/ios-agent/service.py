@@ -50,6 +50,28 @@ class Broker:
         self.frontend_port = None
         self.stopping_frontends = []
 
+    def start_react_frontend(self):
+        if self.frontend and self.frontend.poll() is None:
+            return
+        if not self.state or not self.config.get("node"):
+            raise Rejected("react_frontend_configuration_required")
+        relay = Path(__file__).parent / "react/relay.mjs"
+        try:
+            with socket.socket() as available:
+                available.bind(("127.0.0.1", 0))
+                self.frontend_port = available.getsockname()[1]
+            self.frontend = subprocess.Popen([self.config["node"], str(relay), str(self.state)], stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True, umask=0o077)
+            self.frontend.stdin.write(encode({"lease": self.lease["id"], "port": self.frontend_port}))
+            self.frontend.stdin.close()
+        except OSError:
+            if self.frontend and self.frontend.stdin:
+                try:
+                    self.frontend.stdin.close()
+                except OSError:
+                    pass
+            self.revoke("frontend_start_failed")
+            raise Rejected("frontend_start_failed")
+
     def revoke(self, reason):
         with self.cv:
             if self.lease:
@@ -161,23 +183,6 @@ class Broker:
                     self.lease.update(ownerFile=str(path), activityAt=metadata["activityAt"])
                 if connection:
                     self.lease["connectionOwner"] = connection
-                if surface == "native" and self.state and self.config.get("node"):
-                    relay = Path(__file__).parent / "react/relay.mjs"
-                    try:
-                        with socket.socket() as available:
-                            available.bind(("127.0.0.1", 0))
-                            self.frontend_port = available.getsockname()[1]
-                        self.frontend = subprocess.Popen([self.config["node"], str(relay), str(self.state)], stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True, umask=0o077)
-                        self.frontend.stdin.write(encode({"lease": self.lease["id"], "port": self.frontend_port}))
-                        self.frontend.stdin.close()
-                    except OSError:
-                        if self.frontend and self.frontend.stdin:
-                            try:
-                                self.frontend.stdin.close()
-                            except OSError:
-                                pass
-                        self.revoke("frontend_start_failed")
-                        raise Rejected("frontend_start_failed")
                 self.cv.notify_all()
                 return {"id": self.lease["id"], "epoch": self.epoch} if surface != "native" else self.lease_wire()
             if op == "result":
@@ -188,6 +193,11 @@ class Broker:
                     return {k: cmd[k] for k in ("id", "status", "result", "reason") if k in cmd}
             if not self.lease or request.get("lease") != self.lease["id"]:
                 raise Rejected("lease_required")
+            if op == "react_start":
+                if self.lease.get("surface", "native") != "native":
+                    raise Rejected("native_surface_required")
+                self.start_react_frontend()
+                return {"reactFrontendStarted": True}
             if op == "release":
                 self.revoke("owner_released")
                 return {"released": True}

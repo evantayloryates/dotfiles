@@ -236,3 +236,9 @@ For slow wireless links, successful tree delivery reserves a bounded follow-up o
 
 
 Lease-scoped keep-awake candidate: UIKit idle timer is disabled only while control is leased; release, foreground loss and expiry restore its prior value. A preexisting disabled idle timer remains disabled. This does not prevent a manual lock or remove phone/Mac authentication. Compiled fixture 51 gates passed, including the three idle-timer checks. Latest signed build installed. Fixture runner now repairs only a missing-payload registry record on its own freshly booted simulator; a real installation or shared boot remains a collision refusal. Wi-Fi-off handoff briefly lost transport; fixed USB On recovery and a fresh build restored foreground registration. No single root cause is claimed for that transport loss.
+
+## Resource behavior
+
+Native leases start without a React inspector. The first `ios_react` inspection starts its lease-owned relay/provider, waits for a connected app with reconstructed components, then sends the requested command once. Native-only tree/tap/state operations avoid the roughly 120 MiB inspector family measured on October 10. React inspection retains the same lease fencing and end-of-turn cleanup. First React inspection pays connection startup latency; later inspections reuse that lease’s provider. Historical multi-GiB Metro bundle peaks are separate from this saved native-only baseline.
+
+Installed iOS agent and Metro launch plists are symlinks to the real plists in this directory. Both installers preserve that layout.

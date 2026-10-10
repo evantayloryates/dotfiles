@@ -358,3 +358,11 @@ but this does not qualify a successful menu batch. Finish bookkeeping before
 sending the next alert and wait directly on a fresh callback. Retained legacy
 TextEdit timing absence remains refused; compiled fixture reuse avoids repeating
 preparation. Local registration still requires actual pixels and common clocks.
+
+Stage88 shows why media coverage is insufficient for rapidly changing content:
+the covering backup is25.88ms old and fails held-out pixels despite exact spatial
+anchors. Nearest retained source time repairs the same pair at7.45ms and passes
+three other moving/static samples. Choose by timestamps once, never pixel-score
+retry. Keep original coverage refusal and selected geometry, exact PTS/common
+clock/delta/independent verification. Fresh0.19.1/current CLI have this policy;
+ordinary0.19.0 is older. Four samples do not provide continuous fitting proof.

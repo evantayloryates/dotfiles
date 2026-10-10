@@ -119,7 +119,7 @@ def main():
         raise SystemExit("existing_launch_configuration_differs; use_--restart_at_idle")
     if not unchanged:
         plist.write_bytes(desired)
-    if not target.is_symlink():
+    if not target.is_symlink() or target.resolve() != plist.resolve():
         target.unlink(missing_ok=True)
         target.symlink_to(plist)
     domain = f"gui/{os.getuid()}"

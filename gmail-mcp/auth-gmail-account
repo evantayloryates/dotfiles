@@ -18,7 +18,6 @@ const allowed = new Set([
   "personal-primary",
   "personal-secondary",
   "personal-legacy",
-  "work-primary",
 ]);
 if (!allowed.has(account)) {
   console.error(`Unknown Gmail account name: ${account}`);

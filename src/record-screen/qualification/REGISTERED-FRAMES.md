@@ -160,3 +160,20 @@ cleanup; production continues to refuse while the lock is held. A stalled
 holder can therefore keep admission unavailable. This change does not add an
 automatic peer kill/restart or prove host-wide capacity/OS capture recovery.
 Controlled substitute decoder evidence is distinct from a real FFmpeg crash.
+
+## Nearest retained content selection (reader0.19.1)
+
+Frame-local registration first requires the primary source-content timestamp to
+fall in a measured backup packet interval with qualified geometry. It then scans
+the already bounded packet table (maximum120,000) for the closest referenced
+source-content timestamp, using exact integers. Future output packets are allowed
+for offline alignment. Equal distances prefer the original covering packet, then
+first presentation order. No image-based retry or threshold override is used.
+
+The response records covering and selected indices and candidate count in
+`backup_selection`; status advertises its policy. Delta limits, selected geometry,
+retained common-clock identity and independent held-out RGB checks still apply.
+This selection cannot bridge missing original media coverage or establish a
+continuous transform. Negative content age explicitly means the selected source
+is later than the primary source timestamp; packet time and source time remain
+separate. Interval paired maps retain their original coverage semantics.

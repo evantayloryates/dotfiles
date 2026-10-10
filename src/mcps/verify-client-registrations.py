@@ -30,6 +30,10 @@ def main() -> int:
             launcher = Path(config["command"])
             if not launcher.exists() or not launcher.resolve().is_relative_to(ROOT.resolve()):
                 errors.append(f"{host}/{name}: launcher not in dotfiles")
+    for host, names in expected.get("removed_servers", {}).items():
+        for name in names:
+            if name in actual[host]:
+                errors.append(f"{host}/{name}: removed account still registered")
     if "playwright" in actual["codex"] or "playwright" in actual["claude"]:
         errors.append("Playwright MCP registration remains in global config")
     for project, settings in claude.get("projects", {}).items():
@@ -40,6 +44,12 @@ def main() -> int:
         settings = json.loads(settings_path.read_text())
         if any("playwright" in name.lower() and enabled for name, enabled in settings.get("enabledPlugins", {}).items()):
             errors.append("Claude Playwright plugin remains enabled")
+    for relative, target in [(".codex/config.toml", "src/mcps/host-config/codex.toml"), (".claude.json", "src/mcps/host-config/claude.json"), ("Library/LaunchAgents/com.taylor.ios-agent.plist", "src/ios-agent/com.taylor.ios-agent.plist"), ("Library/LaunchAgents/com.taylor.ios-agent.metro.plist", "src/ios-agent/com.taylor.ios-agent.metro.plist")]:
+        trigger = HOME / relative
+        if not trigger.is_symlink() or trigger.resolve() != (ROOT / target).resolve():
+            errors.append(f"{relative}: canonical dotfiles symlink missing")
+    if not (MANIFEST.parent / "runtime/gmail-fork/index.js").exists():
+        errors.append("Gmail fork source missing")
     packages = json.loads((MANIFEST.parent / "runtime/package.json").read_text())["dependencies"]
     for name, version in packages.items():
         package_path = MANIFEST.parent / "runtime/node_modules" / name / "package.json"

@@ -32,8 +32,25 @@ def _inspect(message, state, timeout):
     def host_status():
         return request({"op": "status"}, state, timeout=min(15, budget()))
     status = host_status()
-    if not status.get("reactFrontendRunning") or (status.get("lease") or {}).get("id") != message["lease"]:
+    if (status.get("lease") or {}).get("id") != message["lease"]:
         raise RuntimeError("active_React_frontend_lease_required")
+    if not status.get("reactFrontendRunning"):
+        # One idempotent, lease-bound start; native-only work needs no frontend.
+        request({"op": "react_start", "lease": message["lease"]}, state, timeout=min(5, budget()))
+        status = host_status()
+        if not status.get("reactFrontendRunning") or (status.get("lease") or {}).get("id") != message["lease"]:
+            raise RuntimeError("active_React_frontend_lease_required")
+        # IPC readiness precedes reconstructed React data. Poll only provider
+        # status before sending the caller's command, never replay that command.
+        ready_until = min(deadline, time.monotonic() + 5)
+        while True:
+            provider = _inspect({**message, "args": {"type": "status"}}, state, timeout=min(5, budget()))
+            data = provider.get("data", {})
+            if data.get("connectedApps", 0) > 0 and data.get("componentCount", 0) > 0:
+                break
+            if time.monotonic() >= ready_until:
+                raise RuntimeError("react_provider_not_ready; command_not_sent")
+            time.sleep(min(0.05, budget()))
     command = message["args"]
     if not isinstance(command, dict) or command.get("type") not in INSPECTION or len(json.dumps(command)) > 4096:
         raise RuntimeError("unsupported_inspection")

@@ -1078,7 +1078,7 @@ for the contract, seven actual retained joins and73 focused checks.
 
 ## Frame-bound registration for guarded origins
 
-Fresh MCP0.19 exposes `recording_registered_frame`; current CLI uses
+Fresh MCP0.19.1 exposes `recording_registered_frame`; current CLI uses
 `registered-frame JSON`. [The contract and actual controls](qualification/REGISTERED-FRAMES.md)
 bind service-selected source-content time, open files, exact decoded PTS and
 independent RGB verification. A local matrix is returned only after checks;

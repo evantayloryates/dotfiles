@@ -10,18 +10,23 @@ Cloudinary, Notion and claude-driver. Apply it with
 `python3 src/mcps/install-client-registrations.py --apply`, then run
 `python3 src/mcps/verify-client-registrations.py`. The installer changes only
 managed fields, preserves other servers and private app state, and writes host
-files privately. Codex and Claude require entries in their mixed app configuration
-files; these are necessary invocation triggers generated from dotfiles, rather
-than independent sources. Whole-file symlinks would also capture private app state.
+files privately. Codex and Claude invocation paths are symlinks to the real files in
+`src/mcps/host-config/`. Those real files contain private app state and are ignored
+by Git. The shareable registration manifest is versioned; the installer resolves
+the symlinks before atomic writes so it preserves the trigger topology.
 
-Gmail, Notion and Cloudinary upstream packages now execute from
+Notion and Cloudinary upstream packages execute from
 `src/mcps/runtime/node_modules`, with exact versions and dependency integrity
 recorded in `runtime/package-lock.json`. Reinstall with
 `npm ci --prefix src/mcps/runtime --ignore-scripts --no-audit --no-fund`.
 Dependencies are ignored generated installations inside the repo; custom launchers,
 package manifests, dependency lock and claude-driver source are tracked here.
 OAuth credentials and other private runtime state stay outside the tracked tree.
-Existing connected clients retain their old processes until their normal reconnect;
+Gmail now executes the focused source fork in `runtime/gmail-fork/`, which preserves
+all 21 upstream tools and imports only the Gmail module of Google’s API library.
+Its dependency lock and verification benchmark are stored beside the source. The
+Gmail launcher loads only its OAuth client secret, rather than exporting the full
+dotfiles environment. Existing connected clients retain their old processes until their normal reconnect;
 new clients use the local runtime. Do not kill active clients to force migration.
 
 The measured MCP fleet grows primarily by *client count*: each attached client

@@ -3624,3 +3624,17 @@ same-chat delivery late, input available. Next ready alert must be last after
 bookkeeping; use a fresh signal/session and immediately handle actual callback.
 Legacy fitted TextEdit frame320 refuses missing clock identity before decode.
 47completed17partial1deferred; private evidence: gates-v87/.
+
+## Stage88: nearest retained content repairs a sampled motion mismatch
+
+Covering backup582 was25.880ms older at primary583; exact spatial anchors agree,
+but independent moving pixels refuse NCC0.6875/MAE0.1377. Reverse pair7.453ms
+passes, motivating source-time selection rather than weaker pixel thresholds.
+Fresh reader0.19.1 chooses nearest retained content after original coverage/clock
+checks; deterministic ties and selected geometry/delta/PTS checks remain. Four
+20/240/417.6/475s samples pass NCC>=0.999314; zero delta refuses before decode.
+Current CLI/fresh response equal all fields, four hashes unchanged, native6c/799
+stable, worker/map settled/readerexit0. Five distinct focused checks pass; initial
+new test footer-order harness failure corrected/only failed check rerun. Ordinary
+adapter still0.19.0; no peer restart or automatic adoption. No continuous/real-fit
+or physical claim.47completed17partial1deferred; evidence gates-v88/.

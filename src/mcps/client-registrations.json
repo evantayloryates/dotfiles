@@ -10,14 +10,6 @@
       "startup_timeout_sec": 120.0,
       "tool_timeout_sec": 120.0
     },
-    "gmail_work_primary": {
-      "command": "/Users/taylor/src/github/dotfiles/gmail-mcp/run-gmail-mcp",
-      "args": [
-        "work-primary"
-      ],
-      "startup_timeout_sec": 120.0,
-      "tool_timeout_sec": 120.0
-    },
     "kickoff-cloudinary": {
       "command": "/Users/taylor/src/github/dotfiles/src/mcps/kickoff-cloudinary-mcp",
       "startup_timeout_sec": 60.0,
@@ -32,6 +24,22 @@
     "claude-driver": {
       "command": "/Users/taylor/src/github/dotfiles/src/claude-driver/bin/claude-driver-mcp",
       "tool_timeout_sec": 300.0
+    },
+    "gmail_personal_secondary": {
+      "command": "/Users/taylor/src/github/dotfiles/gmail-mcp/run-gmail-mcp",
+      "args": [
+        "personal-secondary"
+      ],
+      "startup_timeout_sec": 120.0,
+      "tool_timeout_sec": 120.0
+    },
+    "gmail_personal_legacy": {
+      "command": "/Users/taylor/src/github/dotfiles/gmail-mcp/run-gmail-mcp",
+      "args": [
+        "personal-legacy"
+      ],
+      "startup_timeout_sec": 120.0,
+      "tool_timeout_sec": 120.0
     }
   },
   "claude": {
@@ -39,12 +47,6 @@
       "command": "/Users/taylor/src/github/dotfiles/gmail-mcp/run-gmail-mcp",
       "args": [
         "personal-primary"
-      ]
-    },
-    "gmail-work-primary": {
-      "command": "/Users/taylor/src/github/dotfiles/gmail-mcp/run-gmail-mcp",
-      "args": [
-        "work-primary"
       ]
     },
     "kickoff-cloudinary": {
@@ -64,6 +66,26 @@
       "command": "/Users/taylor/src/github/dotfiles/src/claude-driver/bin/claude-driver-mcp",
       "args": [],
       "env": {}
+    },
+    "gmail-personal-secondary": {
+      "command": "/Users/taylor/src/github/dotfiles/gmail-mcp/run-gmail-mcp",
+      "args": [
+        "personal-secondary"
+      ]
+    },
+    "gmail-personal-legacy": {
+      "command": "/Users/taylor/src/github/dotfiles/gmail-mcp/run-gmail-mcp",
+      "args": [
+        "personal-legacy"
+      ]
     }
+  },
+  "removed_servers": {
+    "codex": [
+      "gmail_work_primary"
+    ],
+    "claude": [
+      "gmail-work-primary"
+    ]
   }
 }

@@ -4,19 +4,38 @@ umask 077
 
 account="${1:-}"
 if [[ -z "$account" ]]; then
-  echo "Usage: $0 <personal-primary|work-primary> [gmail-mcp-multiauth args...]" >&2
+  echo "Usage: $0 <personal-primary|personal-secondary|personal-legacy> [gmail-mcp-multiauth args...]" >&2
   exit 64
 fi
 shift || true
 
 case "$account" in
-  personal-primary|work-primary)
+  personal-primary|personal-secondary|personal-legacy)
     ;;
   *)
     echo "Unknown Gmail MCP account: $account" >&2
     exit 64
     ;;
 esac
+
+# Refuse a credentialless account before allocating a Node server or loading secrets.
+credential_file="${HOME}/.gmail-mcp-accounts/${account}/credentials.json"
+if ! python3 - "$credential_file" <<'CHECK'
+import json
+from pathlib import Path
+import sys
+try:
+    p = Path(sys.argv[1])
+    data = json.loads(p.read_text())
+    valid = bool(data.get("refresh_token")) and not (p.stat().st_mode & 0o077)
+except (OSError, ValueError):
+    valid = False
+sys.exit(0 if valid else 1)
+CHECK
+then
+  echo "Gmail account ${account} needs private OAuth credentials; run /Users/taylor/src/github/dotfiles/gmail-mcp/auth-gmail-account ${account} and complete Google sign-in." >&2
+  exit 78
+fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 . "${SCRIPT_DIR}/../src/lib/read-env.sh"

@@ -37,6 +37,9 @@ def main():
         if not match:
             continue
         name = match.group(1) or match.group(2)
+        if name in manifest.get("removed_servers", {}).get("codex", []):
+            sections[i] = ""
+            continue
         desired = manifest["codex"].get(name)
         if desired is None:
             continue
@@ -57,13 +60,17 @@ def main():
     parsed = tomllib.loads(updated)
     before = tomllib.loads(original)
     for name, config in before.get("mcp_servers", {}).items():
-        if name not in manifest["codex"]:
+        if name not in manifest["codex"] and name not in manifest.get("removed_servers", {}).get("codex", []):
             assert parsed["mcp_servers"][name] == config, "Unmanaged server changed"
     for key, value in before.items():
         if key != "mcp_servers":
             assert parsed[key] == value, "Unrelated Codex setting changed"
     claude = json.loads(claude_path.read_text())
     servers = claude.setdefault("mcpServers", {})
+    for name in manifest.get("removed_servers", {}).get("claude", []):
+        servers.pop(name, None)
+        for project in claude.get("projects", {}).values():
+            project.get("mcpServers", {}).pop(name, None)
     for name, desired in manifest["claude"].items():
         servers.setdefault(name, {}).update(desired)
     if args.apply:

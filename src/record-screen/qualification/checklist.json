@@ -5,7 +5,7 @@
     "state": "active",
     "note": "Stage87 actual callback observed; capture preflight refused47.099s remaining against30+20s reserve. No take scheduled. Owned launch/close verified and independently absent within120s, session closed/native idle. Fresh prepared attempt next;47completed17partial1deferred, scopes unchanged."
   },
-  "production_note": "Native6c/PID20948 unchanged; fresh MCP0.19/28tools and minimal-PATH CLI delivered. Exact decoded PTS/open snapshots/source-content time belong to the service. Held outputs3.884s apart have content delta0.945ms. Independent RGB checks required, original guard retained; kernel lease serializes heavy workers.46completed18partial1deferred across65items; fullgoalactive.",
+  "production_note": "Stage88 native6c/PID799 observed stable; current CLI/fresh MCP0.19.1 nearest retained content policy verified at four moving/static samples. Ordinary adapter remains0.19.0. Exact PTS/common clocks and independent RGB checks belong to service; original fitted guard retained.47completed17partial1deferred across65items; fullgoalactive.",
   "groups": [
     {
       "id": "capture",

@@ -8,7 +8,7 @@ import {resolvePairedMap} from './paired-map.mjs';
 import {regionSchema,validateRegions,projectRegions} from './region-map.mjs';
 const bad=m=>{throw new EngineError('bad_registered_frame',m)};
 let worker=null;
-export const registrationHealth=()=>({worker:worker?{...worker}:null,shared_worker_lease:'kernel_advisory_per_recorder_home',deadline_ms:40000,primary_pixel_budget:1000000,backup_pixel_budget:8000000});
+export const registrationHealth=()=>({worker:worker?{...worker}:null,backup_selection:'nearest_retained_source_content_time',shared_worker_lease:'kernel_advisory_per_recorder_home',deadline_ms:40000,primary_pixel_budget:1000000,backup_pixel_budget:8000000});
 export const registeredFrameSchema={type:'object',additionalProperties:false,properties:{
  primary_recording_id:{type:'string',pattern:'^rec_[A-Za-z0-9]+$',maxLength:64},backup_recording_id:{type:'string',pattern:'^rec_[A-Za-z0-9]+$',maxLength:64},
  primary_frame_index:{type:'integer',minimum:0,maximum:119999},anchors:{...regionSchema,minItems:2,maxItems:4},verification_regions:{...regionSchema,minItems:1,maxItems:4},
@@ -41,8 +41,26 @@ export function selectRegisteredFrames(snapshots,a){
  base.clock_alignment=pair.clock_alignment;
  if(!pair.clock_alignment.qualified)return {result:unavailable(base,'unqualified_common_clock')};
  if(![pair.primary,pair.backup].every(m=>m.mux_source_correspondence.journal_complete))return {result:unavailable(base,'incomplete_source_journal')};
- const backup=pair.segments[0].backup;base.backup=backup;
- if(!backup.included||!backup.metadata_available||!backup.transform_available||backup.source_content_host_ns==null)return {result:unavailable(base,'backup_projection_unavailable')};
+ const covering=pair.segments[0].backup;base.backup=covering;
+ // Preserve the coverage refusal: nearest-content selection cannot bridge a
+ // missing packet interval. Offline registration may use a later packet when
+ // its retained source is closer; presentation coverage alone biases the
+ // previous frame and can mismatch fast-changing pixels.
+ if(!covering.included||!covering.metadata_available||!covering.transform_available||covering.source_content_host_ns==null)return {result:unavailable(base,'backup_projection_unavailable')};
+ let selected=covering.frame_index,nearest=null;
+ for(let n=0;n<indexes[1].packets.length;n++){
+  const p=indexes[1].packets[n];
+  if(!p.accepted||!p.source||!p.geometry||p.source.pts_host_ns==null)continue;
+  const stamp=String(p.source.pts_host_ns);
+  if(!/^[0-9]{1,24}$/.test(stamp))return {result:unavailable(base,'invalid_backup_content_clock')};
+  const delta=BigInt(stamp)-sourceHost,distance=delta<0n?-delta:delta;
+  if(nearest===null||distance<nearest||(distance===nearest&&n===covering.frame_index)){nearest=distance;selected=n;}
+ }
+ const p=indexes[1].packets[selected],mapped=indexes[1].project(p,selected,{desktop_points:[],desktop_regions:[]});
+ const host=BigInt(p.source.pts_host_ns),hostTime=t=>t?{numerator:String(BigInt(t.numerator)+indexes[1].epoch*BigInt(t.denominator)),denominator:t.denominator}:null;
+ const backup={...mapped,host_packet_start_ns:hostTime(p.start),host_packet_end_ns:hostTime(p.end),source_content_host_ns:{numerator:String(host),denominator:'1'},content_age_at_segment_start_ns:{numerator:String(sourceHost-host),denominator:'1'}};base.backup=backup;
+ base.backup_selection={policy:'nearest_retained_source_content_time',covering_frame_index:covering.frame_index,selected_frame_index:selected,packet_candidates:indexes[1].packets.length,tie_break:'covering_packet_then_first_presentation_order',qualification:'Offline frame-local selection only; future output packets permitted, no image-based candidate retries or coverage-gap bridging.'};
+ if(!backup.metadata_available||!backup.transform_available)return {result:unavailable(base,'backup_projection_unavailable')};
  const bh=backup.source_content_host_ns;if(bh.denominator!=='1')return {result:unavailable(base,'fractional_backup_content_clock')};
  const delta=BigInt(bh.numerator)-sourceHost;base.source_content_delta_ns=String(delta);base.max_content_delta_ns=a.max_content_delta_ns;
  if((delta<0n?-delta:delta)>BigInt(a.max_content_delta_ns))return {result:unavailable(base,'source_content_delta_exceeded')};

@@ -1,5 +1,32 @@
 # Production qualification goal
 
+## Current checkpoint: stage88 nearest-content selection verified — ACTIVE
+
+Retained moving pixels exposed a temporal choice problem: covering backup582
+was25.880ms older, two spatial anchors agreed, but independent motion NCC0.6875
+refused. Reverse pair at7.453ms passes. Reader now chooses nearest retained
+source-content time from the bounded packet table after original coverage and
+common-clock checks. Future packets allowed offline; ties covering then first
+presentation order; no image retries/threshold relaxation. Selected geometry,
+exact PTS, clock/journal/delta/independent-pixel checks remain authoritative.
+
+Fresh MCP0.19.1 verifies samples at20.003,240.001,417.631 and475.032seconds,
+all matrix[1,0,0,1,-120,-110], independent NCC>=0.999314 and absolute content
+delta<=7.45325ms. Zero delta refuses before decode. Current CLI equals fresh
+moving20 response in all fields; four source/media hashes unchanged. Five distinct
+focused checks pass; first new malformed-footer test fixture corrected and only
+failed check rerun. Native6c/PID799stable, worker/map settled/readerexit0.
+Ordinary chat still0.19.0: use current CLI/fresh0.19.1 for new policy; no peer
+restart or unverified consumer adoption. Four samples are not continuous mapping.
+
+Fresh stage87 retry1 session ses_y72uvtt6/signal prepared; notification accepted,
+watcher exec92250 polls7s. At checkpoint signal empty/no recording. Immediately
+check actual callback and current reservation before visible action. Do not treat
+historical watcher handle as live evidence; read process/terminal state first.
+No human/auth/physical input required beyond optional production click. Continue
+independent useful work while pending; no global input lock or extension.
+47completed17partial1deferred. Visual composition remains deferred.
+
 ## Current checkpoint: stage87 capture refused; owned cleanup verified — ACTIVE
 
 The actual production callback was observed after6.591s. Orchestration consumed

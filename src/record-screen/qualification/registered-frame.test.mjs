@@ -18,6 +18,29 @@ test('selection retains guarded primary and chooses backup by held source conten
  const s=fixture();s[0].rows.find(r=>r.kind==='encoded_frame'&&r.encoded_sequence===2).source_frame=0;
  const out=selectRegisteredFrames(s,{...request,primary_frame_index:2});assert.equal(out.config.primary_index,2);assert.equal(out.config.backup_index,0);assert.equal(out.base.primary.transform_available,false);assert.equal(out.base.source_content_delta_ns,'0');
 });
+test('nearest retained content can use a future packet, with deterministic ties and unchanged delta refusal',()=>{
+ const s=fixture(),sources=s[1].rows.filter(r=>r.kind==='source_frame');
+ sources[1].pts_host_ns=String(epoch+80000000n);sources[2].pts_host_ns=String(epoch+110000000n);
+ const out=selectRegisteredFrames(s,request);assert.equal(out.config.backup_index,2);assert.equal(out.base.source_content_delta_ns,'10000000');
+ assert.equal(out.base.backup_selection.covering_frame_index,1);assert.equal(out.base.backup_selection.policy,'nearest_retained_source_content_time');
+ assert.equal(out.base.backup.video_start_ns.numerator,'200000000');assert.equal(out.base.backup.content_age_at_segment_start_ns.numerator,'-10000000');
+ assert.equal(selectRegisteredFrames(s,{...request,max_content_delta_ns:'9999999'}).result.reason,'source_content_delta_exceeded');
+ sources[1].pts_host_ns=String(epoch+90000000n);assert.equal(selectRegisteredFrames(s,request).config.backup_index,1,'equal distance retains covering packet');
+ s[1].rows.find(r=>r.kind==='encoded_frame'&&r.encoded_sequence===0).source_frame=2;
+ sources[1].pts_host_ns=String(epoch+80000000n);assert.equal(selectRegisteredFrames(s,request).config.backup_index,0,'duplicate held source uses first presentation order');
+});
+test('nearest content does not bridge a packet gap or bypass selected geometry and malformed clocks',()=>{
+ const s=fixture();s[0].rows.find(r=>r.kind==='source_frame'&&r.source_frame===1).pts_host_ns=String(epoch+175000000n);
+ s[1].probe.packets[1].duration=50000000;
+ assert.equal(selectRegisteredFrames(s,request).result.reason,'backup_projection_unavailable');
+ const bad=fixture();bad[1].rows.find(r=>r.kind==='source_frame'&&r.source_frame===2).pts_host_ns='malformed';
+ assert.equal(selectRegisteredFrames(bad,request).result.reason,'invalid_backup_content_clock');
+ const fitted=fixture();fitted[1].rows.find(r=>r.kind==='source_frame'&&r.source_frame===2).pts_host_ns=String(epoch+100000001n);
+ fitted[1].rows.find(r=>r.kind==='source_frame'&&r.source_frame===1).pts_host_ns=String(epoch+80000000n);
+ fitted[1].rows.splice(-1,0,{kind:'geometry',segment:1,geometry:{source_pixels:[640,480],desktop_points_to_source_pixels:[1,0,0,1,0,0],content_scale:.5}});
+ fitted[1].rows.find(r=>r.kind==='source_frame'&&r.source_frame===2).geometry_segment=1;fitted[1].rows[0].target.type='window';
+ assert.equal(selectRegisteredFrames(fitted,request).result.reason,'backup_projection_unavailable');
+});
 test('clock uncertainty, gaps, content age, missing references and fitted backup refuse before decoding',()=>{
  for(const kind of ['clock','continuity','age','missing','fitted']){
  const s=fixture();if(kind==='clock'){s[1].rows[0].clock_instance={...clock,id:'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'};s[1].descriptor.source_packet.clock_instance=s[1].rows[0].clock_instance;}

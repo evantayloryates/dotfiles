@@ -21,6 +21,33 @@ class BrokerTests(unittest.TestCase):
     def call(self, **kw):
         return self.b.control({"lease": "lease", **kw})
 
+    def test_native_reads_do_not_start_react_frontend(self):
+        with patch.object(self.b, "start_react_frontend") as start:
+            self.call(op="action", action="tree", args={})
+            self.assertFalse(self.call(op="status")["reactFrontendRunning"])
+            start.assert_not_called()
+
+    def test_react_start_requires_owned_native_lease(self):
+        with patch.object(self.b, "start_react_frontend") as start:
+            with self.assertRaisesRegex(service.Rejected, "lease_required"):
+                self.b.control({"op": "react_start", "lease": "other"})
+            start.assert_not_called()
+            self.b.lease["surface"] = "web"
+            with self.assertRaisesRegex(service.Rejected, "native_surface_required"):
+                self.call(op="react_start")
+            start.assert_not_called()
+            self.b.lease["surface"] = "native"
+            self.assertTrue(self.call(op="react_start")["reactFrontendStarted"])
+            start.assert_called_once()
+
+    def test_react_frontend_start_is_idempotent(self):
+        from unittest.mock import Mock
+        self.b.frontend = Mock()
+        self.b.frontend.poll.return_value = None
+        with patch.object(service.subprocess, "Popen") as launch:
+            self.b.start_react_frontend()
+            launch.assert_not_called()
+
     def test_status_reports_process_cleanup_until_exit_observed(self):
         class Process:
             exited = False
@@ -201,8 +228,10 @@ class BrokerTests(unittest.TestCase):
             self.b.state = home / "state"
             self.b.config["node"] = "/missing-node"
             with patch.object(service.Path, "home", return_value=home), patch.object(service.subprocess, "Popen", side_effect=OSError("synthetic startup failure")):
+                lease = self.b.control({"op": "acquire", "rollout": str(path), "thread": "thread", "turn": "turn"})
+                self.assertIsNone(self.b.frontend)
                 with self.assertRaisesRegex(service.Rejected, "frontend_start_failed"):
-                    self.b.control({"op": "acquire", "rollout": str(path), "thread": "thread", "turn": "turn"})
+                    self.b.control({"op": "react_start", "lease": lease["id"]})
             self.assertIsNone(self.b.lease)
             self.assertIsNone(self.b.frontend)
 

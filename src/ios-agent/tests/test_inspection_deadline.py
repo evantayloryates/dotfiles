@@ -52,6 +52,41 @@ class InspectionDeadlineTests(unittest.TestCase):
                     if dribble:
                         self.assertLess(elapsed, 0.6)
 
+    def test_lazy_start_waits_for_components_before_sending_profile_once(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            state = Path(temporary)
+            lease = 'a' * 32
+            folder = state / 'react' / hashlib.sha256(lease.encode()).hexdigest()[:16]
+            folder.mkdir(parents=True)
+            received = []
+            with socket.socket(socket.AF_UNIX) as listener:
+                listener.bind(str(folder / 'daemon.sock'))
+                listener.listen()
+                def serve():
+                    for response in [
+                        {"ok": True, "data": {"connectedApps": 1, "componentCount": 0}},
+                        {"ok": True, "data": {"connectedApps": 1, "componentCount": 4}},
+                        {"ok": True, "data": {"started": True}},
+                    ]:
+                        with listener.accept()[0] as connection:
+                            received.append(json.loads(connection.recv(4096)))
+                            connection.sendall(json.dumps(response).encode() + b'\n')
+                worker = threading.Thread(target=serve, daemon=True)
+                worker.start()
+                launched = []
+                def rpc(message, *args, **kwargs):
+                    if message['op'] == 'react_start':
+                        launched.append(message['lease'])
+                        return {"reactFrontendStarted": True}
+                    return {"reactFrontendRunning": bool(launched), "lease": {"id": lease}}
+                with patch.object(cli, 'request', side_effect=rpc):
+                    result = cli.inspect({'lease': lease, 'args': {'type': 'profile-start'}}, state, timeout=2)
+                worker.join(timeout=1)
+                self.assertFalse(worker.is_alive())
+                self.assertTrue(result['data']['started'])
+                self.assertEqual(launched, [lease])
+                self.assertEqual(received, [{'type': 'status'}, {'type': 'status'}, {'type': 'profile-start'}])
+
     def test_dribbling_response_cannot_extend_total_deadline(self):
         with self.assertRaises((TimeoutError, socket.timeout)):
             self.run_provider(b'', dribble=True)
