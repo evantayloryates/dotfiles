@@ -243,3 +243,56 @@ Lease-scoped keep-awake candidate: UIKit idle timer is disabled only while contr
 Native leases start without a React inspector. The first `ios_react` inspection starts its lease-owned relay/provider, waits for a connected app with reconstructed components, then sends the requested command once. Native-only tree/tap/state operations avoid the roughly 120 MiB inspector family measured on October 10. React inspection retains the same lease fencing and end-of-turn cleanup. First React inspection pays connection startup latency; later inspections reuse that lease’s provider. Historical multi-GiB Metro bundle peaks are separate from this saved native-only baseline.
 
 Installed iOS agent and Metro launch plists are symlinks to the real plists in this directory. Both installers preserve that layout.
+
+
+## On-demand capture, launch and readiness — v1.4
+
+The fresh MCP catalog contains 26 tools and five resources. New entry points:
+
+- `ios_device_launch target=kickoff-dev|settings|safari|chrome` reserves the same
+  device fence, checks the configured paired developer channel, sends once and
+  releases. Follow DEV launch with `ios_wait_ready` and `ios_begin`; request
+  acceptance alone is not foreground proof. Nearby paired DEV launch from Settings
+  passed without XCTest. Off-site foreground launch is still unqualified.
+- `ios_wait_ready surface=native|web|any timeoutSeconds=45` holds no lease and
+  wakes on fresh foreground registration. Browser/page filters select web only.
+  Repeat bounded waits while the task is waiting. Offline does not mean locked.
+  Acquisition still verifies the current runtime. This tool cannot schedule a
+  model turn after an agent has ended its turn.
+- `ios_capture sessionId=… op=start modes=[console,network,audio]` enables only the
+  requested modes in the owned synthetic DEV surface. Default 120 seconds,
+  maximum 600; default ring 2 MiB, maximum 8 MiB. Drain during longer work;
+  `stop` stops hooks/recorders and saves one bounded batch. Continue `drain` until
+  `remainingEvents=0`, then end in finally. End attempts bounded remaining drains
+  and reports `captureCleanup.complete`; owner/visibility loss discards device
+  buffers. A dropped counter or incomplete drain is a real evidence gap.
+
+Capture manifests and separate audio chunks are private under
+`~/Library/Application Support/ios-agent/rich-captures`, mode 0700/0600. Artifacts
+expire after one hour by default (600–86400 seconds configurable), with cleanup
+in both MCP and the always-on worker; cleanup resumes after host sleep/restart.
+Host quotas are 32 MiB per capture and 128 MiB total. Counts are returned to the
+agent; use `ios_read` with a JSON pointer for selected events. Raw audio is never
+expanded into the transcript. Chunks are ordered stream fragments, not necessarily
+individually playable files; ring rollover can remove the initial container header.
+
+Known credential fields, URL credentials and recognizable token text are masked
+(first/last four for longer values). Ordinary payloads remain available. This
+quick scrub is not a claim to recognize every secret. Fetch body clones are
+bounded at 32 KiB and do not consume the app response. Binary/stream request
+bodies, native URLSession traffic and already-open WebSocket receives are outside
+current coverage. Native capture needs the updated adapter; React Native does not
+provide browser MediaRecorder, so native raw audio needs a separate adapter.
+
+Audio mode clones existing live audio tracks; it neither requests microphone
+permission nor stops the app's tracks. No new microphone is acquired implicitly.
+Safari recording must have a producing source: the first generated-stream probe
+returned no chunks while AudioContext was suspended. Console/network capture on
+physical Safari passed; empty audio output is not audio qualification.
+
+Normal control remains app/page-owned with our glow. Safari Remote Automation was
+advertised but a bounded real session request did not complete on iOS 26.7.1.
+AX audit capabilities were readable, but no native activation was proved. WDA
+runner reuse can amortize an existing approval; it does not establish approval-free
+restart, and a running runner retains the Apple overlay. No device passcode is
+stored or injected. See `docs/ANNOTATION-DELIVERY.md` for current candidate gates.

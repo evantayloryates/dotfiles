@@ -1,0 +1,31 @@
+{
+  "at": "2026-10-10T22:46:20.347Z",
+  "scope": "Physical Safari MediaRecorder on an explicitly acquired disabled microphone track; no audible/full-call/off-LAN claim",
+  "gates": {},
+  "source": {
+    "acquired": false,
+    "reason": "permission-not-resolved"
+  },
+  "status": "source-not-acquired",
+  "cleanup": {
+    "released": true,
+    "detail": {
+      "released": true
+    },
+    "next": "Call ios_verify gate=idle without a session to confirm native and host cleanup.",
+    "indicatorOff": true,
+    "receipt": {
+      "gate": "web-idle",
+      "status": "passed",
+      "observation": {
+        "ownerReleased": true,
+        "indicatorOff": true
+      }
+    },
+    "learningEvidence": {
+      "evidenceId": "16f11efa83764fe5b3b190e9c96ea75b",
+      "gate": "web-idle",
+      "status": "passed"
+    }
+  }
+}

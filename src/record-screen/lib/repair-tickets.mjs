@@ -1,0 +1,19 @@
+import{spawn}from'node:child_process';
+import{fileURLToPath}from'node:url';
+import{EngineError}from'./client.mjs';
+const script=fileURLToPath(new URL('../repair-service.py',import.meta.url));
+export function repairCall(command,args){return new Promise((resolve,reject)=>{
+ const p=spawn('/usr/bin/python3',['-B',script,command],{stdio:['pipe','pipe','pipe']});let out='',err='';
+ const timer=setTimeout(()=>p.kill('SIGTERM'),75000);
+ p.stdout.on('data',b=>{out+=b;if(out.length>2*1024*1024)p.kill('SIGTERM')});p.stderr.on('data',b=>{err+=b;if(err.length>65536)p.kill('SIGTERM')});
+ p.on('error',e=>{clearTimeout(timer);reject(e)});p.on('exit',code=>{clearTimeout(timer);try{const row=JSON.parse(out);code===0?resolve(row):reject(new EngineError('repair_service',row.message||'Repair command failed'))}catch{reject(new EngineError('repair_service','No valid repair reply; inspect state before any retry.'))}});p.stdin.end(JSON.stringify(args));
+})}
+const str={type:'string',maxLength:256};
+export const repairTools=[
+ {name:'report_bug',command:'report',description:'File a durable recorder incident and by default dispatch one bounded developer repair attempt. Exact duplicate open reports reuse the ticket. Captures metadata/private references, never bulk logs or footage. Worker preserves active recordings and verifies actual delivery before ready signals. owner=computer_use routes the reproduction to that maintainer without changing its implementation. dispatch=false files only. Worker availability/authentication and safe delivery can remain pending; no mutation replay.',properties:{symptom:{type:'string',minLength:1,maxLength:3000},expected:{type:'string',minLength:1,maxLength:3000},observed:{type:'string',minLength:1,maxLength:3000},build:str,provider:str,app:str,session_id:str,recording_id:str,evidence_refs:{type:'array',maxItems:16,items:{type:'string',maxLength:4096}},owner:{type:'string',enum:['recorder','computer_use']},dispatch:{type:'boolean',default:true}},required:['symptom','expected','observed']},
+ {name:'repair_retry',command:'retry',description:'Explicitly redispatch a settled pending-input/prepared/uncertain ticket after triage. Never automatically replay. An uncertain attempt requires acknowledgement after inspecting prior work.',properties:{ticket_id:str,note:{type:'string',minLength:1,maxLength:3000},acknowledge_uncertain:{type:'boolean'}},required:['ticket_id','note']},
+ {name:'repair_status',command:'status',description:'Read ticket state, actual release/proof metadata or the smallest missing-input issue. Disappeared workers become explicitly uncertain, never automatically replayed.',properties:{ticket_id:str},required:['ticket_id'],read:true},
+ {name:'repair_subscribe',command:'subscribe',description:'Create/recover a durable ready-for-use subscription for a ticket and caller. Stable subscription_key deduplicates. Use repair_wait or the CLI wait command as the no-inference hook; no chat is automatically messaged.',properties:{ticket_id:str,caller:str,subscription_key:str},required:['ticket_id','caller','subscription_key']},
+ {name:'repair_wait',command:'wait',description:'No-model deterministic watcher: check the durable subscription every seven seconds, return one ready event after delivered verification. Up to60 seconds per call; cancellation, duplicate delivery and restart state are preserved. Keep a background CLI wait running while doing other work. A timed-out wait does not mean the repair failed.',properties:{subscription_id:str,timeout_s:{type:'number',minimum:0,maximum:60}},required:['subscription_id']},
+ {name:'repair_unsubscribe',command:'cancel',description:'Cancel a ready subscription; leaves the ticket and developer work intact.',properties:{subscription_id:str},required:['subscription_id']},
+];

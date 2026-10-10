@@ -15,7 +15,7 @@ final class MaintenanceFence: @unchecked Sendable {
   private var loaded=false
   private var operations=0
   private var lease:Lease?
-  private static let reads:Set<String>=["ping","status","record.get","record.list","record.source","record.export_info","record.wait","session.get","session.search","action.list","maintenance.status","maintenance.acquire","maintenance.release","maintenance.validate","maintenance.restart"]
+  private static let reads:Set<String>=["ping","status","production.status","production.checkpoint","record.get","record.list","record.source","record.export_info","record.wait","session.get","session.search","action.list","maintenance.status","maintenance.acquire","maintenance.release","maintenance.validate","maintenance.restart"]
   func didLoad(){lock.withLock {loaded=true}}
   private func expire(_ now:UInt64){if let value=lease,!value.committed && value.expires<=now {lease=nil}}
   func enter(_ method:String) throws -> Bool {

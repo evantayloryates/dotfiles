@@ -1,0 +1,14 @@
+{
+  "at": "2026-10-10T22:47:23.384Z",
+  "scope": "AX Allow after collecting complete observed microphone prompt context",
+  "code": 0,
+  "result": {
+    "inputSent": false,
+    "xctestStarted": false,
+    "replay": false,
+    "visited": 3,
+    "allowTargetFound": false,
+    "promptTextFound": true,
+    "devHostFound": true
+  }
+}

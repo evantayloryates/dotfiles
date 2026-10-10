@@ -1,0 +1,49 @@
+{
+  "at": "2026-10-10T22:53:27.698Z",
+  "scope": "Physical installed native capture and cleanup; no native audio claim",
+  "launch": {
+    "ok": true,
+    "target": "kickoff-dev",
+    "outcome": "developer-request-accepted",
+    "diagnostic": {
+      "exitCode": 0,
+      "errors": []
+    },
+    "replay": false,
+    "foregroundVerified": false,
+    "transport": "paired-developer-channel",
+    "offLANQualified": false,
+    "next": "Wait for native readiness, then ios_begin. Request acceptance is not foreground readiness."
+  },
+  "availability": {
+    "readyToAcquire": true,
+    "surface": "native",
+    "boot": "20F20B7F-D41C-498A-89A7-22B919B791D4",
+    "ageMs": 0,
+    "runtimeVerified": false,
+    "leaseAcquired": false,
+    "next": "ios_begin verifies the current app runtime before control."
+  },
+  "failure": "app_not_ready",
+  "idle": {
+    "artifactId": "53e81103136958648988d34438bef022",
+    "receipt": {
+      "version": 1,
+      "gate": "idle",
+      "status": "passed",
+      "attempts": 2,
+      "elapsedMs": 256,
+      "observation": {
+        "hostIdle": true,
+        "deviceFeedbackKnown": true,
+        "nativeLeaseOff": true,
+        "nativeIndicatorOff": true
+      }
+    },
+    "learningEvidence": {
+      "evidenceId": "f15736c9a1814521a5915e90af3f6a25",
+      "gate": "idle",
+      "status": "passed"
+    }
+  }
+}

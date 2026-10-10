@@ -48,7 +48,7 @@ test('SDK discovers tools/resources, intuitive lifecycle, image content and priv
   const f = fixture(); const {client, server} = await clientFor(f);
   try {
     const names = (await client.listTools()).tools.map(t => t.name);
-    assert.equal(names.length, 23); assert.ok(names.includes('ios_begin'));
+    assert.equal(names.length, 26); assert.ok(names.includes('ios_begin'));
     assert.equal((await client.listResources()).resources.length, 5);
     const begin = (await client.callTool({name: 'ios_begin', arguments: {}})).structuredContent;
     assert.equal(begin.ready, true); assert.equal(f.held(), true);
@@ -146,7 +146,7 @@ test('real launcher stdio handshake works in a minimal GUI PATH without device c
   const client = new Client({name: 'stdio-canary', version: '1'});
   const transport = new StdioClientTransport({command: path.join(os.homedir(), 'dotfiles/bin/ios-agent-mcp'), env: {HOME: os.homedir(), PATH: '/usr/bin:/bin'}, stderr: 'pipe'});
   let stderr = ''; transport.stderr?.on('data', x => { stderr += x; });
-  try { await client.connect(transport); assert.equal((await client.listTools()).tools.length, 23); }
+  try { await client.connect(transport); assert.equal((await client.listTools()).tools.length, 26); }
   finally { await client.close(); }
   assert.equal(stderr, '');
 });
@@ -292,4 +292,27 @@ test('browser action schema exposes fields and refuses malformed input before ad
   const extra=await client.callTool({name:'ios_web_action',arguments:{sessionId:'a'.repeat(32),action:'click',args:{snapshot:'fresh',target:'1',unexpected:'no'}}});assert(extra.isError);assert.equal(seen.length,0);
   const valid=await client.callTool({name:'ios_web_action',arguments:{sessionId:'a'.repeat(32),action:'fill',args:{snapshot:'fresh',target:'1',text:''}}});assert(!valid.isError);assert.equal(seen.length,1);assert.equal(seen[0].args.text,'');
  }finally{await f.backend.close();await client.close();await server.close();fs.rmSync(f.state,{recursive:true})}
+});
+
+test('large capture persists full scrubbed result, deletes intermediate raw receipt and drains at end',async()=>{
+ const f=fixture();const original=f.backend.runOverride;let batches=0;
+ f.backend.runOverride=async(kind,args,input)=>{
+  if(kind==='web')return {ok:true,value:{status:'completed',result:{ok:true,value:input.args.op==='start'?{active:true}:{capture:{dropped:0},events:[{kind:'console',args:['x'.repeat(20000),{authorization:'abcdefghijklmnop'}]}],remainingEvents:++batches===1?1:0}}}};
+  return original(kind,args,input);
+ };
+ try{
+  const begin=await f.backend.begin();f.backend.sessions.get(begin.sessionId).surface='web';
+  await f.backend.capture({sessionId:begin.sessionId,op:'start',modes:['console']});
+  const end=await f.backend.end(begin.sessionId);assert(end.released);assert(end.captureCleanup.complete);assert.equal(batches,2);assert.equal(end.captureCleanup.artifactIds.length,2);
+  for(const artifactId of end.captureCleanup.artifactIds){const a=f.backend.artifacts.get(artifactId),text=fs.readFileSync(a.file,'utf8');assert(!text.includes('abcdefghijklmnop'));assert(text.includes('abcd…mnop'));assert(text.length>20000);}
+  assert.equal([...f.backend.artifacts.values()].filter(a=>a.type==='web-observation').length,0);assert.equal(f.held(),false);
+ }finally{await f.backend.close();fs.rmSync(f.state,{recursive:true});}
+});
+test('fixed launch reserves before preflight, refuses unlock requirement and never replays unknown launch',async()=>{
+ const f=fixture();fs.writeFileSync(path.join(f.state,'web-device.json'),JSON.stringify({coreDeviceId:'12345678-1234-1234-1234-123456789abc'}),{mode:0o600});let launches=0,locked=true;
+ f.backend.deviceRun=async(args)=>{assert(f.held());if(args.includes('lockState'))return {ok:true,data:{result:{passcodeRequired:locked}}};launches++;return {ok:false,outcome:'unknown'};};
+ try{
+  assert.equal((await f.backend.deviceLaunch({target:'untrusted-bundle'})).inputSent,false);assert.equal((await f.backend.deviceLaunch()).reason,'developer_unlock_required');assert.equal(launches,0);assert(!f.held());
+  locked=false;const result=await f.backend.deviceLaunch();assert.equal(result.outcome,'unknown');assert.equal(result.replay,false);assert.equal(result.offLANQualified,false);assert.equal(launches,1);assert(!f.held());
+ }finally{await f.backend.close();fs.rmSync(f.state,{recursive:true});}
 });

@@ -144,7 +144,7 @@ test('actual MCP input query negotiates capability, validates before RPC and onl
  const send=(method,params)=>new Promise((resolve,reject)=>{const id=++serial,timer=setTimeout(()=>reject(new Error('owned MCP deadline')),5000);pending.set(id,{resolve,timer});child.stdin.write(JSON.stringify({jsonrpc:'2.0',id,method,params})+'\n')});
  try{
   await send('initialize',{protocolVersion:'2025-06-18'});
-  const status=await send('tools/call',{name:'status',arguments:{}});const adapter=JSON.parse(status.content[0].text).mcp_adapter;assert.equal(adapter.version,'0.19.1');assert.equal(adapter.retained_input_health_context,1);assert.deepEqual(adapter.input_query.health_notification_limits,{preceding:16,in_interval:32,unknown_time:16});calls.length=0;
+  const status=await send('tools/call',{name:'status',arguments:{}});const adapter=JSON.parse(status.content[0].text).mcp_adapter;assert.match(adapter.version,/^0\.20\./);assert.equal(adapter.retained_input_health_context,1);assert.deepEqual(adapter.input_query.health_notification_limits,{preceding:16,in_interval:32,unknown_time:16});calls.length=0;
   const invalid=await send('tools/call',{name:'recording_input',arguments:{...request,limit:257}});assert.equal(invalid.isError,true);assert.equal(calls.length,0);
   const badContext=await send('tools/call',{name:'recording_input',arguments:{...request,include_context:'true'}});assert.equal(badContext.isError,true);assert.equal(calls.length,0);
   const badHealth=await send('tools/call',{name:'recording_input',arguments:{...request,include_health_context:1}});assert.equal(badHealth.isError,true);assert.equal(calls.length,0);
@@ -155,8 +155,11 @@ test('actual MCP input query negotiates capability, validates before RPC and onl
  }finally{child.stdin.end();child.kill('SIGTERM');await new Promise(resolve=>child.exitCode!==null||child.signalCode!==null?resolve():child.once('exit',resolve));lines.close();for(const s of sockets)s.destroy();await new Promise(resolve=>fake.close(resolve))}
 });
 
-// A retained candidate must not silently enlarge the supported public contract.
-test('unreleased source-context candidate is absent from supported input contract',()=>{
- assert.equal(inputQueryHealth().reception_source_context,undefined);
- assert.throws(()=>validateInputQuery({...request,include_source_context:true}),e=>e.code==='bad_input_query');
+test('optional reception source context preserves input when video is unavailable',async t=>{
+ assert.equal(inputQueryHealth().reception_source_context,1);
+ const f=await fixture(t,[header,event(1)]);const result=await queryRecordingInput(f.descriptor,{...request,include_source_frames:true});
+ assert.equal(result.events.length,1);assert.equal(result.source_frame_context.state,'unavailable');
+ assert.equal(validateInputQuery({...request,include_source_frames:true}).include_source_frames,true);
+ assert.throws(()=>validateInputQuery({...request,include_source_frames:'yes'}));
+ assert.throws(()=>validateInputQuery({...request,cursor:{after_row:1,snapshot_sha256:'0'.repeat(64),query_sha256:'0'.repeat(64),source_media_snapshot_sha256:'0'.repeat(64)}}));
 });

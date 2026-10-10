@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parent
 
 
 def source_hashes(mobile):
-    paths = list((ROOT / "native").glob("*")) + [mobile / "ios/kudos/AppDelegate.mm", mobile / "ios/kudos/Info.plist"]
+    paths = list((ROOT / "native").glob("*")) + [ROOT / "web/rich-capture.js"] + [mobile / "ios/kudos/AppDelegate.mm", mobile / "ios/kudos/Info.plist"]
     return {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths if p.is_file()}
 
 

@@ -1,0 +1,49 @@
+{
+  "at": "2026-10-10T22:43:06.927Z",
+  "scope": "Physical iOS Safari synthetic DEV console/network and generated-stream recording; no microphone or off-LAN claim",
+  "gates": {
+    "catalog26": true,
+    "readinessWithoutLease": true,
+    "originalResponseReadable": true,
+    "largePayloadPersistedScrubbed": true,
+    "originalAudioTrackPreserved": true,
+    "generatedStreamPrivateAudioChunks": false
+  },
+  "capture": {
+    "events": 4,
+    "bytes": 29531,
+    "remainingEvents": 0
+  },
+  "audioSetup": {
+    "trackLive": true,
+    "context": "suspended",
+    "recorder": "function"
+  },
+  "audio": {
+    "chunks": 0,
+    "events": 0,
+    "bytes": 406
+  },
+  "status": "partial-audio-no-chunks",
+  "cleanup": {
+    "released": true,
+    "detail": {
+      "released": true
+    },
+    "next": "Call ios_verify gate=idle without a session to confirm native and host cleanup.",
+    "indicatorOff": true,
+    "receipt": {
+      "gate": "web-idle",
+      "status": "passed",
+      "observation": {
+        "ownerReleased": true,
+        "indicatorOff": true
+      }
+    },
+    "learningEvidence": {
+      "evidenceId": "25308f340a5f4f389b1a94c6e8d1a3ff",
+      "gate": "web-idle",
+      "status": "passed"
+    }
+  }
+}

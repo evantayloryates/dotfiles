@@ -13,6 +13,7 @@ module.exports = {
     const hash = crypto.createHash('sha256');
     for (const file of ['transformer.cjs', 'bridge.js', 'telemetry.js', 'domain.js', 'runtime-config.js', 'runtime-config.cjs', 'runtime-marker.js', 'refresh-diagnostics.js']) hash.update(fs.readFileSync(path.join(__dirname, file)));
     hash.update(JSON.stringify(runtime));
+    hash.update(fs.readFileSync(path.join(__dirname, '../web/rich-capture.js')));
     return String(upstream.getCacheKey?.() || '') + hash.digest('hex');
   },
   transform(args) {

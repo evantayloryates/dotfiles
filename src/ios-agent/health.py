@@ -87,7 +87,7 @@ WEB_ADAPTER_FILES = ('next/pages/_app.js', 'next/pages/_document.js',
 
 
 def sdk_ready():
-    source = (Path(__file__).parent / 'web/sdk.js').read_bytes()
+    source = (Path(__file__).parent / 'web/rich-capture.js').read_bytes() + b'\n' + (Path(__file__).parent / 'web/sdk.js').read_bytes()
     expected = source.replace(b'web-poc-1', ('web-' + hashlib.sha256(source).hexdigest()[:16]).encode())
     with urllib.request.urlopen('http://127.0.0.1:19403/v1/web/sdk', timeout=3) as response:
         return response.status == 200 and response.read(len(expected) + 1) == expected

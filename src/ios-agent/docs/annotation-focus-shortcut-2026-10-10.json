@@ -1,0 +1,15 @@
+{
+  "at": "2026-10-10T18:54:19.120813-04:00",
+  "signed": true,
+  "bytes": 26224,
+  "phoneImportOrAutomationConfigured": false,
+  "diagnostic": null,
+  "macFocusCreated": true,
+  "shareAcrossDevicesAlreadyOn": true,
+  "peopleSilenced": 0,
+  "appsSilenced": 0,
+  "focusActivated": false,
+  "shortcutImported": false,
+  "phoneAutomationConfigured": false,
+  "macShortcutPreview": "Open App target unresolved on Mac; import canceled; phone action must be selected and verified"
+}

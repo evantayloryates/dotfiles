@@ -24,9 +24,28 @@ VERSION = 1
 MAX_BODY = 8 * 1024 * 1024
 OWNER_TIMEOUT = 20 * 60
 DEVICE_TIMEOUT = 30
-OPERATIONS = {"capabilities", "tree", "image", "tap", "gesture", "text", "react", "state", "diagnostics-probe", "diagnostics-matrix", "reload", "wifi"}
+OPERATIONS = {"capabilities", "tree", "image", "tap", "gesture", "text", "react", "state", "diagnostics-probe", "diagnostics-matrix", "reload", "wifi", "capture"}
 STATE = Path.home() / "Library/Application Support/ios-agent"
 SOURCE_HASH = worker_source_hash()
+
+
+def prune_captures(state, now=None):
+    """Idle worker owns retention too: cleanup survives all MCP clients closing."""
+    now=time.time()*1000 if now is None else now
+    root=Path(state)/'rich-captures'
+    if not root.is_dir() or root.is_symlink():return
+    try:
+        for directory in root.iterdir():
+            if directory.is_symlink() or not directory.is_dir() or len(directory.name)!=32 or any(c not in '0123456789abcdef' for c in directory.name):continue
+            meta=directory/'retention.json'
+            if meta.is_symlink() or not meta.is_file() or meta.stat().st_size>4096:continue
+            try:
+                expiry=json.loads(meta.read_text()).get('expiresAt')
+                if type(expiry) in (int,float) and math.isfinite(expiry) and now>=expiry:
+                    import shutil
+                    shutil.rmtree(directory)
+            except (OSError,ValueError,TypeError):pass
+    except OSError:pass
 
 
 class Rejected(Exception):
@@ -49,6 +68,7 @@ class Broker:
         self.web = WebBridge(self, Rejected)
         self.frontend_port = None
         self.stopping_frontends = []
+        self.capture_prune_at = 0.0
 
     def start_react_frontend(self):
         if self.frontend and self.frontend.poll() is None:
@@ -95,6 +115,9 @@ class Broker:
 
     def tick(self):
         with self.cv:
+            if self.state and self.clock() >= self.capture_prune_at:
+                self.capture_prune_at = self.clock() + 5
+                prune_captures(self.state)
             remaining = []
             for process, deadline in self.stopping_frontends:
                 if process.poll() is None:
@@ -128,6 +151,27 @@ class Broker:
         with self.cv:
             self.tick()
             op = request.get("op")
+            if op == 'ready_wait':
+                surface=request.get('surface','any'); browser=request.get('browser'); page=request.get('page')
+                timeout=request.get('timeoutSeconds',45)
+                if surface not in ('any','native','web') or browser not in (None,'ios-safari','ios-chrome') or type(timeout) is not int or not 0<=timeout<=55:
+                    raise Rejected('bounded_ready_wait_required')
+                if page is not None and (not isinstance(page,str) or len(page)!=32 or any(c not in '0123456789abcdef' for c in page)):
+                    raise Rejected('page_identity_required')
+                if browser or page: surface='web'
+                until=time.monotonic()+timeout
+                while True:
+                    self.tick(); idle=not self.lease and not self.stopping_frontends
+                    if idle and surface in ('any','native') and self.device and self.clock()-self.device['seen']<=5 and self.device.get('feedback',{}).get('foreground') is True:
+                        return {'readyToAcquire':True,'surface':'native','boot':self.device['boot'],'ageMs':int((self.clock()-self.device['seen'])*1000),'runtimeVerified':False,'leaseAcquired':False,'next':'ios_begin verifies the current app runtime before control.'}
+                    if idle and surface in ('any','web'):
+                        pages=[(pid,p) for pid,p in self.web.pages.items() if p['visible'] and p['ready'] and self.clock()-p['seen']<=5 and p['browser'] in ('ios-safari','ios-chrome') and (not browser or p['browser']==browser) and (not page or pid==page)]
+                        if pages:
+                            pid,p=max(pages,key=lambda item:item[1]['seen'])
+                            return {'readyToAcquire':True,'surface':'web','page':pid,'browser':p['browser'],'boot':p.get('boot'),'ageMs':int((self.clock()-p['seen'])*1000),'leaseAcquired':False,'next':'ios_web_begin performs owned state verification. Availability can change before acquisition.'}
+                    remaining=until-time.monotonic()
+                    if remaining<=0:return {'readyToAcquire':False,'reason':'another_owner' if not idle else 'no_fresh_foreground_bridge','lockState':'unknown','leaseAcquired':False,'next':'Continue ios_wait_ready while waiting for this task. No physical cause or user action is inferred.'}
+                    self.cv.wait(min(remaining,1))
             if isinstance(op, str) and op.startswith("web_"):
                 return self.web.control(request)
             if op == "status":
@@ -307,6 +351,7 @@ class Broker:
                 response["command"]["remainingMs"] = int((cmd["deadline"] - self.clock()) * 1000)
                 break
             response["lease"] = self.lease_wire()
+            self.cv.notify_all()
             return response
 
     def observe_owner(self):
@@ -432,7 +477,7 @@ def run_server(config, state=STATE):
             if self.path != "/v1/web/sdk":
                 self.send_error(404)
                 return
-            payload = (Path(__file__).parent / "web/sdk.js").read_bytes()
+            payload = (Path(__file__).parent / "web/rich-capture.js").read_bytes() + b'\n' + (Path(__file__).parent / "web/sdk.js").read_bytes()
             payload = payload.replace(b"web-poc-1", ("web-" + hashlib.sha256(payload).hexdigest()[:16]).encode())
             self.send_response(200)
             self.send_header("Content-Type", "application/javascript")

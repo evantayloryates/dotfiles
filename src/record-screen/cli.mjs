@@ -70,6 +70,10 @@ const call = async (method, params = {}, opts) => {
   return rawCall(method, WITH_CALLER.test(method) && !params.caller ? { ...params, caller: callerContext() } : params, opts);
 };
 
+import {renderCursor,validateCursorRecipe} from "./lib/cursor-render.mjs";
+import {repairCall} from "./lib/repair-tickets.mjs";
+import {evidenceHandler} from "../codex-bridge/lib/evidence-tools.mjs";
+
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 process.stdout.on("error", (e) => process.exit(e.code === "EPIPE" ? 0 : 1));
 const out = (v) => process.stdout.write(JSON.stringify(v, null, 2) + "\n");
@@ -120,6 +124,23 @@ function absTime(t) {
 }
 
 const argv = process.argv.slice(2);
+// Help must never fall through to a mutating subcommand (notably build/grant).
+if(argv.includes("--help")||argv.includes("-h")||argv[0]==="help") {
+  process.stdout.write(`record-screen — local screen recording and evidence tools
+Usage: record-screen <command> [arguments]
+Read: status, ping, windows, sessions, session, recordings, source, frame-map,
+      paired-map, registered-frame, input-query, frames, review, app-facts
+Production: production-plan <json>, production-status, production-checkpoint,
+      production-pause, production-resume, production-panel-show/hide
+Capture: record <target> <start> <end>, record-wait, stop, cancel, export
+Composition: cursor-render <json> (required asset, hotspot, coordinate_basis)
+Repair: report-bug <json>, repair-status/retry/subscribe/wait/unsubscribe <json>
+Learning: app-observe <json> (shared version-scoped facts)
+Lifecycle: build, restart, grant, install (mutations; never run for help)
+Protocol: call <method> <json>
+Use AGENT-USAGE.md for field contracts and production checkpoints.
+`);process.exit(0);
+}
 // --session <id> / --new <title> pick the session for `record`.
 function takeFlag(name) {
   const i = argv.indexOf(name);
@@ -137,6 +158,28 @@ const newFlag = takeFlag("--new");
 const [cmd = "status", ...args] = argv;
 try {
   switch (cmd) {
+    case "cursor-render": {const r=validateCursorRecipe(JSON.parse(args[0]||"{}"));out(await renderCursor(await call("record.source",{recording_id:r.recording_id}),r));break;}
+    case "report-bug":
+    case "repair-retry":
+    case "repair-status":
+    case "repair-subscribe":
+    case "repair-wait":
+    case "repair-unsubscribe": {
+      const commands={"report-bug":"report","repair-retry":"retry","repair-status":"status","repair-subscribe":"subscribe","repair-wait":"wait","repair-unsubscribe":"cancel"};
+      out(await repairCall(commands[cmd],JSON.parse(args[0]||"{}")));break;
+    }
+    case "app-observe":
+    case "app-facts":out(await evidenceHandler(cmd.replace("app-","computer_use_"))(JSON.parse(args[0]||"{}")));break;
+    case "production-status":
+    case "production-checkpoint":
+    case "production-pause":
+    case "production-resume":
+    case "production-panel-show":
+    case "production-panel-hide": {
+      const status=await call("status");
+      if(status.capabilities?.production_gate!==1) throw new EngineError("unsupported_production_gate","Loaded engine lacks production_gate v1; nothing dispatched.");
+      out(await call(cmd.replace("production-","production.").replace("panel-","panel.")));break;
+    }
     case "status":
       out(await call("status"));
       break;

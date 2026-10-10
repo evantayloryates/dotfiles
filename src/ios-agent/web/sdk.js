@@ -23,7 +23,8 @@
   glow.setAttribute('aria-hidden', 'true');
   glow.style.cssText = 'position:fixed;inset:0;z-index:2147483647;pointer-events:none;border-radius:22px;border:3px solid transparent;background:linear-gradient(120deg,#fd9075,#d168e2,#638eff,#79e7c6) border-box;mask:linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0);mask-composite:exclude;-webkit-mask:linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;display:none;box-sizing:border-box;';
   document.documentElement.append(glow);
-  function clear() { lease = null; deadline = 0; glow.style.display = 'none'; const held=wakeLock;wakeLock=null;void held?.release().catch(()=>{}); }
+  let richCapture;
+  function clear() { lease = null; deadline = 0; glow.style.display = 'none'; void richCapture?.stop(true);const held=wakeLock;wakeLock=null;void held?.release().catch(()=>{}); }
   const timer = setInterval(() => { if (deadline && clock() > deadline) clear(); }, 250);
   const browser = /iPhone|iPad/.test(navigator.userAgent) ? (/CriOS/.test(navigator.userAgent) ? 'ios-chrome' : 'ios-safari') : (/Android/.test(navigator.userAgent)&&/Chrome/.test(navigator.userAgent)?'android-chrome':(/AppleWebKit/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent) ? 'desktop-webkit' : 'desktop-chromium'));
   const feedback = () => ({...identity, boot, version, visible: !document.hidden, ready: document.readyState !== 'loading', browser, path: location.pathname, indicator: !!lease});
@@ -83,6 +84,14 @@
     installMediaHook();
     const args = c.args || {};
     switch(c.action) {
+      case 'capture': {
+        if(!richCapture)throw new Error('capture_adapter_unavailable');
+        if(args.op==='start')return richCapture.start(args);
+        if(args.op==='status')return richCapture.status();
+        if(args.op==='drain')return richCapture.drain();
+        if(args.op==='stop'){await richCapture.stop();return richCapture.drain();}
+        throw new Error('capture_operation_required');
+      }
       case 'snapshot': return tree(args);
       case 'element': return elementDetails(args);
       case 'events': return {events:[...events], contentFree:true};
@@ -222,6 +231,11 @@
   const onHide=()=>{clear();if(identity)navigator.sendBeacon(endpoint,new Blob([JSON.stringify({op:'poll',...feedback(),visible:false})],{type:'application/json'}));};
   addEventListener('error',onError);addEventListener('unhandledrejection',onRejection);addEventListener('visibilitychange',onVisibility);addEventListener('pagehide',onHide);
   const installed={fetch:window.fetch,ws:window.WebSocket,rtc:window.RTCPeerConnection,gum:navigator.mediaDevices?.getUserMedia,xhrOpen:XMLHttpRequest.prototype.open,xhrSend:XMLHttpRequest.prototype.send};
+  if(typeof __iosCreateCapture==='function')richCapture=__iosCreateCapture(window,{exclude:address=>address===endpoint,sources:()=>{
+    const all=new Set(tracks);for(const pc of peers){for(const x of [...pc.getSenders(),...pc.getReceivers()])if(x.track)all.add(x.track);}
+    for(const el of document.querySelectorAll('audio,video'))if(el.srcObject instanceof MediaStream)for(const track of el.srcObject.getAudioTracks())all.add(track);
+    return [...all];
+  }});
   window.__iosWebAgent={version,register:(key,read)=>{if(!/^[a-z][a-z0-9-]{0,63}$/.test(key)||typeof read!=='function')throw new Error('domain_contract');domains.set(key,read);return()=>domains.delete(key);},status:()=>({version,browser,page:identity?.page,connected:!!identity&&connected,owned:!!lease,indicator:glow.style.display!=='none'}),stop:()=>{sessionStorage.removeItem('ios-agent-page');try{localStorage.removeItem('ios-agent-browser-resume');}catch{}stopped=true;onHide();clearInterval(timer);taskObserver?.disconnect();glow.remove();if(Element.prototype.attachShadow===installedAttachShadow)Element.prototype.attachShadow=originalAttachShadow;if(window.fetch===installed.fetch)window.fetch=originalFetch;if(window.WebSocket===installed.ws)window.WebSocket=originalWS;if(window.RTCPeerConnection===installed.rtc)window.RTCPeerConnection=originalRTC;if(installedGUM&&mediaDeviceObject.getUserMedia===installedGUM)mediaDeviceObject.getUserMedia=originalGUM;if(XMLHttpRequest.prototype.open===installed.xhrOpen)XMLHttpRequest.prototype.open=xhrOpen;if(XMLHttpRequest.prototype.send===installed.xhrSend)XMLHttpRequest.prototype.send=xhrSend;listeners.forEach(remove=>remove());for(const level of Object.keys(originalConsole))if(console[level]===installedConsole[level])console[level]=originalConsole[level];removeEventListener('error',onError);removeEventListener('unhandledrejection',onRejection);removeEventListener('visibilitychange',onVisibility);removeEventListener('pagehide',onHide);delete window.__iosWebAgent;}};
   void loop();
 })();

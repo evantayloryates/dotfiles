@@ -1,0 +1,16 @@
+{
+  "at": "2026-10-10T22:44:36.582Z",
+  "scope": "Safari WebDriver diagnostic following initial WirError; own context only",
+  "code": 0,
+  "result": {
+    "xctestStarted": false,
+    "inputSent": false,
+    "replay": false,
+    "available": "WIRAutomationAvailabilityAvailable",
+    "safariActive": true,
+    "viable": false,
+    "failure": "TimeoutError",
+    "diagnostic": "",
+    "lastStage": "automation-request"
+  }
+}

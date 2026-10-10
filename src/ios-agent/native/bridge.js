@@ -13,6 +13,9 @@ if (bridge && !global.__IOS_AGENT_BRIDGE_STARTED__) {
   let probeRequest;
   let fixtureRequest;
   let fixtureReport;
+  const richCapture = require('../web/rich-capture')(global, {exclude:url=>typeof url==='string'&&url.includes('/v1/')});
+  let captureReceipt;
+  let captureEpoch=0;
   const cancelFixture = () => { fixtureRequest?.abort(); fixtureRequest = undefined; fixtureReport = undefined; };
   const cancelProbe = () => {
     if (!probeRequest) return;
@@ -31,7 +34,8 @@ if (bridge && !global.__IOS_AGENT_BRIDGE_STARTED__) {
     bundleMarker: require('./runtime-marker'),
     remoteRuntimeConfigured: Boolean(runtime.metroURL),
     logBoxHidden: true,
-    consoleContentExported: false,
+    consoleContentExported: Boolean(captureReceipt?.ok && captureReceipt?.value?.events?.some(event=>event.kind==='console')),
+    richCapture: captureReceipt,
   }));
   telemetry = require('./telemetry').installTelemetry(global, {onChange: publish});
   domain = require('./domain').createDomainRegistry({routeNames: runtime.routeNames, onChange: publish});
@@ -41,6 +45,7 @@ if (bridge && !global.__IOS_AGENT_BRIDGE_STARTED__) {
   require('./refresh-diagnostics').installRefreshDiagnostics(global, event => bridge.recordRefresh?.(JSON.stringify(event)));
   new NativeEventEmitter(bridge).addListener('IOSAgentCommand', ({command, message}) => {
     if (command === 'session-start') {
+      captureEpoch++;void richCapture.stop(true);captureReceipt=undefined;
       cancelFixture();
       cancelProbe();
       disconnect?.();
@@ -53,6 +58,8 @@ if (bridge && !global.__IOS_AGENT_BRIDGE_STARTED__) {
         onMessage: (event, payload) => bridge.sendReact(JSON.stringify({event, payload, sequence: ++sequence})),
       });
     } else if (command === 'session-end') {
+      captureEpoch++;
+      void richCapture.stop(true);captureReceipt=undefined;
       cancelFixture();
       cancelProbe();
       disconnect?.();
@@ -60,6 +67,16 @@ if (bridge && !global.__IOS_AGENT_BRIDGE_STARTED__) {
       listeners.clear();
       telemetry.stop();
       domain.stop();
+    } else if (command === 'capture' && telemetry.isActive()) {
+      const expectedCaptureEpoch=captureEpoch;
+      void (async()=>{let request;try{request=JSON.parse(message);let value;
+        if(request.op==='start')value=richCapture.start(request);
+        else if(request.op==='status')value=richCapture.status();
+        else if(request.op==='drain')value=richCapture.drain();
+        else if(request.op==='stop'){await richCapture.stop();value=richCapture.drain();}
+        else throw new Error('capture_operation_required');
+        if(expectedCaptureEpoch!==captureEpoch)return;captureReceipt={requestId:request.requestId,ok:true,value};
+      }catch{if(expectedCaptureEpoch!==captureEpoch)return;captureReceipt={requestId:request?.requestId,ok:false,error:'capture_operation_unavailable'};}publish();})();
     } else if (command === 'diagnostics-probe' && telemetry.isActive() && runtime.graphqlURL) {
       if (probeRequest) return;
       const token = domain.token();

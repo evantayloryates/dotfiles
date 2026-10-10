@@ -254,7 +254,7 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
  if([UIApplication.sharedApplication respondsToSelector:@selector(_touchesEvent)]) event=[UIApplication.sharedApplication _touchesEvent];
  for(NSString *s in @[@"_clearTouches",@"_setHIDEvent:",@"_addTouch:forDelayedDelivery:"]) input&=[event respondsToSelector:NSSelectorFromString(s)];
  return @{@"nativeInputRuntime":@(input),@"selectors":selectors,@"applicationState":@(UIApplication.sharedApplication.applicationState),
-          @"imageScope":@"app-owned-main-window",@"inputMethod":@"in-process UIEvent",@"textMethod":@"UIKeyInput",@"xctest":@NO,@"wifiControl":@"fixed-Apple-Shortcuts-handoff"};
+          @"imageScope":@"app-owned-main-window",@"inputMethod":@"in-process UIEvent",@"textMethod":@"UIKeyInput",@"xctest":@NO,@"richCapture":@"explicit-JS-console-network",@"wifiControl":@"fixed-Apple-Shortcuts-handoff"};
 }
 - (void)showGlow {
  if(!self.glow) {
@@ -352,6 +352,17 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
    done(state); return;
   }
   if([action isEqual:@"wifi"]) { done(IOSAgentWiFiPrepare(args,cid)); return; }
+  if([action isEqual:@"capture"]) {
+#if IOS_AGENT_REACT
+   if(!IABridge.observing || ![args[@"requestId"] isKindOfClass:NSString.class]) { done(IAError(@"capture_bridge_not_ready")); return; }
+   NSData *data=[NSJSONSerialization dataWithJSONObject:args options:0 error:nil];
+   if(!data || data.length>4096) { done(IAError(@"bounded_capture_options_required")); return; }
+   [IABridge sendEventWithName:@"IOSAgentCommand" body:@{@"command":@"capture",@"message":[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]}];
+   done(@{@"delivery":@"queued-to-js",@"requestId":args[@"requestId"]});return;
+#else
+   done(IAError(@"react_not_compiled")); return;
+#endif
+  }
   if([action isEqual:@"reload"]) {
 #if IOS_AGENT_REACT
    IAForceEmbedded=NO; IAStartupFallbackAttempted=NO;

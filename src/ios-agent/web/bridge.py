@@ -7,7 +7,7 @@ import time
 from pathlib import Path
 from urllib.parse import urlsplit
 
-ACTIONS = {'snapshot', 'element', 'events', 'click', 'fill', 'scroll', 'evaluate', 'state'}
+ACTIONS = {'snapshot', 'element', 'events', 'click', 'fill', 'scroll', 'evaluate', 'state', 'capture'}
 
 
 class WebBridge:
@@ -166,6 +166,7 @@ class WebBridge:
         if lease and lease.get('surface') == 'web' and lease.get('page') == pid:
             wire = {'id': lease['id'], 'epoch': self.b.epoch, 'remainingMs': int(min(15, max(0, lease['expires'] - self.b.clock())) * 1000)}
         response = {'lease': wire, 'epoch': self.b.epoch}
+        with self.b.cv:self.b.cv.notify_all()
         for c in self.commands.values():
             if c['status'] == 'queued' and c['page'] == pid and wire and c['lease'] == wire['id']:
                 c['status'] = 'sent'

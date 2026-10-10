@@ -18,6 +18,7 @@ test('real bridge binds diagnostics to native session events and preserves runti
     let deferred, finishRequest, requestSignal, finishFixture, fixtureSignal;
     const bridge = {publish: json => published.push(JSON.parse(json)), sendReact() {}};
     const fakeRequire = name => {
+      if (name === '../web/rich-capture') return require('../web/rich-capture');
       if (name === 'react-native') return {
         NativeModules: {IOSAgentBridge: bridge}, LogBox: {ignoreAllLogs: value => { hidden = value; }},
         NativeEventEmitter: class {addListener(name, listener) { assert.equal(name, 'IOSAgentCommand'); receive = listener; }},

@@ -82,6 +82,11 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   /// qualification. Neither is exposed over RPC; production uses nil / 8 s.
   private let startupPreflight: (@Sendable () async throws -> Void)?
   private let startupBudgetSeconds: Double
+  private let productionGate:ProductionGate?
+  private var gateGeneration:UInt64=0
+  private var productionHeld=false
+  private var requiresReschedule=false
+  private var productionQueueReason:String?
   // Written only on `q` (under snapLock); read anywhere through the accessors.
   private var _startAt: Date
   private var _endAt: Date
@@ -187,13 +192,18 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   init(id: String, dir: String, target: [String: Any], settings: RecordSettings, label: String, startAt: Date, endAt: Date,
        ifLate: String, idempotencyKey: String?, sessionID: String?, createdAt: Date = Date(), state: RecState = .scheduled,
        startupPreflight: (@Sendable () async throws -> Void)? = nil, startupBudgetSeconds: Double = 8,
-       inputSettings: InputSettings = .disabled) {
+       inputSettings: InputSettings = .disabled, productionGate:ProductionGate? = nil,
+       productionHeld:Bool = false, requiresReschedule:Bool = false) {
     self.id = id
     self.streamStops = StreamStopLedger(recordingID:id)
     self.dir = dir
     self.targetRaw = target
     self.settings = settings
     self.inputSettings = inputSettings
+    self.productionGate=productionGate
+    self.productionHeld=productionHeld || (productionGate?.snapshot.paused ?? false)
+    self.requiresReschedule=requiresReschedule
+    self.gateGeneration=productionGate?.snapshot.generation ?? 0
     self.label = label
     self._startAt = startAt
     self._endAt = endAt
@@ -223,6 +233,15 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
       guard state == .scheduled else { return }
       armTimer?.cancel()
       let now = Date()
+      if let gate=productionGate {
+        let current=gate.snapshot
+        gateGeneration=current.generation
+        if current.paused {productionHeld=true;productionQueueReason="global_pause";persist();return}
+        if requiresReschedule || (productionHeld && _startAt<=now) {
+          productionHeld=true;requiresReschedule=true;productionQueueReason="elapsed_schedule_requires_reschedule";persist();return
+        }
+        productionHeld=false;productionQueueReason=nil
+      }
       if _endAt <= now {
         finish(.missed, reason: "end_at passed before the recording could start")
         return
@@ -244,6 +263,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
         guard newEnd > newStart,newEnd.timeIntervalSince(newStart)<=Recordings.maxDuration,
               newStart.timeIntervalSinceNow<=Recordings.maxLeadTime else { throw RPCError.badParams("invalid reschedule interval: 3 h duration and 7 day lead limits apply") }
         self.snapLock.withLock { self._startAt = newStart; self._endAt = newEnd }
+        self.requiresReschedule=false
       case .arming, .recording:
         guard start == nil else { throw RPCError(code: "already_started", message: "recording \(self.id) already started; only end_at can change") }
         guard let end else { return false }
@@ -393,8 +413,18 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
 
   // MARK: - Arming and capture
 
+  func holdForProductionPause() {
+    q.async { [self] in
+      guard state == .scheduled else{return}
+      armTimer?.cancel();productionHeld=true;productionQueueReason="global_pause";persist()
+    }
+  }
+
   private func arm() {
     guard state == .scheduled else { return }
+    if let gate=productionGate,!gate.admit(id,generation:gateGeneration) {
+      productionHeld=true;productionQueueReason=gate.snapshot.paused ? "global_pause" : "admission_changed_or_full";persist();return
+    }
     let now = Date()
     let lateBy = now.timeIntervalSince(_startAt)
     if lateBy > 2 {
@@ -1029,6 +1059,8 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
       "writer_failure":writerFailureDetails as Any? ?? NSNull(),
       "frames_provenance": snapLock.withLock { terminalReason == nil ? framesProvenance : "persisted_checkpoint_not_final" },
       "source_packet": sourceJournal?.describe() as Any? ?? restoredSource as Any? ?? NSNull(),
+      "production_queue":["held":productionHeld,"requires_reschedule":requiresReschedule,
+        "reason":productionQueueReason as Any? ?? NSNull()],
     ]
     if let k = idempotencyKey { d["idempotency_key"] = k }
     if let sid = sessionID { d["session_id"] = sid }
@@ -1057,6 +1089,7 @@ final class Recording: NSObject, SCStreamOutput, SCStreamDelegate, @unchecked Se
   }
 
   private func persist() {
+    if state.terminal && !holdsUnfinishedAdmission {productionGate?.release(id)}
     let d = describeLocked()
     snapLock.withLock { snapshot = d }
     try? FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)

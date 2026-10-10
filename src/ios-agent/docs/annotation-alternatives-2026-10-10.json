@@ -1,0 +1,64 @@
+{
+  "at": "2026-10-10T22:32:05.276Z",
+  "scope": "paired alternative providers; no presses or XCTest",
+  "result": [
+    {
+      "axServiceAdvertised": true
+    },
+    {
+      "axCapabilitiesRead": true,
+      "capabilities": [
+        "deviceCapabilities",
+        "deviceInspectorMoveWithOptions:",
+        "auditCaseIDsForAuditGroup:",
+        "deviceAccessibilitySettings",
+        "deviceAllAuditCaseIDs",
+        "deviceAllSupportedAuditTypes",
+        "deviceApiVersion",
+        "deviceAuditIssueSupportedKeys",
+        "deviceBailWithMessage:",
+        "deviceBeginAuditCaseIDs:",
+        "deviceBeginAuditTypes:",
+        "deviceCaptureScreenshot",
+        "deviceCurrentState",
+        "deviceDidGetTargeted",
+        "deviceElement:performAction:withValue:",
+        "deviceElement:setValue:attribute:",
+        "deviceElement:valueForAttribute:",
+        "deviceElement:valueForParameterizedAttribute:withObject:",
+        "deviceEnableHighlight:",
+        "deviceFetchElementAtNormalizedDeviceCoordinate:",
+        "deviceFetchResolvesElementsOnSimulator",
+        "deviceFetchSpecialElement:",
+        "deviceHighlightIssue:",
+        "deviceHighlightIssues:",
+        "deviceHumanReadableDescriptionForAuditCaseID:",
+        "deviceInspectorAutodrillIntoElements:",
+        "deviceInspectorCanNavWhileMonitoringEvents",
+        "deviceInspectorEnable:",
+        "deviceInspectorFocusOnElement:",
+        "deviceInspectorInformCurrentCursorPosition:",
+        "deviceInspectorLockOnCurrentElement",
+        "deviceInspectorPreviewOnElement:",
+        "deviceInspectorSetMonitoredEventType:",
+        "deviceInspectorShowIgnoredElements:",
+        "deviceInspectorShowVisuals:",
+        "deviceInspectorSupportedEventTypes",
+        "deviceInspectorSupportsAutodrillIntoElements",
+        "deviceInspectorSupportsIgnoredElements",
+        "devicePerformFinalCleanup",
+        "deviceResetToDefaultAccessibilitySettings",
+        "deviceRunningApplications",
+        "deviceSetAppMonitoringEnabled:",
+        "deviceSetAuditTargetPid:",
+        "deviceSetAuditUIPid:",
+        "deviceUpdateAccessibilitySetting:withValue:"
+      ]
+    },
+    {
+      "remoteAutomationState": "WIRAutomationAvailabilityAvailable",
+      "safariDiscovered": false
+    }
+  ],
+  "exitCode": 0
+}

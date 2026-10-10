@@ -1,5 +1,3 @@
-// UNRELEASED CANDIDATE: intentionally not imported by the supported adapter/CLI.
-// Reception-to-mux integration is deferred; see qualification/PRODUCTION-GOAL.md.
 // Optional reception-to-mux join. Provider positions/generation stay unqualified.
 import{createHash}from'node:crypto';
 import{EngineError}from'./client.mjs';

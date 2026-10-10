@@ -18,8 +18,12 @@ import { planProduction, productionPlanSchema, validateProductionRequest } from 
 import { observeResourcePlan } from "./lib/resource-awareness.mjs";
 import {queryRecordingInput,validateInputQuery,inputQuerySchema,inputQueryHealth} from "./lib/input-query.mjs";
 
+import {renderCursor,validateCursorRecipe,cursorRenderSchema} from "./lib/cursor-render.mjs";
+import {repairCall,repairTools} from "./lib/repair-tickets.mjs";
+import {EVIDENCE_TOOLS as evidenceTools,evidenceHandler} from "../codex-bridge/lib/evidence-tools.mjs";
+
 const log = (...args) => console.error("[record-screen]", ...args);
-const VERSION = "0.19.2";
+const VERSION = "0.20.0";
 
 // ---------------------------------------------------------------- engine link
 
@@ -30,12 +34,13 @@ let client = new EngineClient();
 // duplicate work. Recover their owned IDs/state before an explicit new request.
 const RECONNECT_READS = new Set(['ping', 'status', 'windows.list', 'session.get',
   'session.search', 'record.get', 'record.list', 'record.source', 'record.wait',
-  'record.export_info']);
+  'record.export_info', 'production.status', 'production.checkpoint']);
 /** Readbacks can ride out an engine restart; mutations are never replayed. */
 async function engine(method, params = {}, timeoutMs = 20000) {
   const deadline = Date.now() + 12000;
   for (;;) {
     try {
+      if (method.startsWith("production.") && (await client.call("status", {}, { timeoutMs })).capabilities?.production_gate !== 1) throw new EngineError("unsupported_production_gate", "Loaded engine lacks production_gate v1; no control action was dispatched.");
       if (method === "windows.list") {
         validateWindowQuery(params);
         if (Object.hasOwn(params,"include_transients")) requireTransientInventory(await client.call("status",{}, {timeoutMs}),params);
@@ -120,6 +125,17 @@ const toolish = (m) => TOOL_NAMES.reduce((s, [re, to]) => s.replace(re, to), m);
 const ok = (v) => ({ content: [{ type: "text", text: text(v) }], isError: false });
 
 const tools = [
+  {name:"cursor_render",description:"Render one bounded editable cursor/click recipe from terminal footage and retained pointer input. Service owns exact source/frame joins and timing; fitted-origin/gap refusal guards apply. Required hotspot and coordinate_basis acknowledge the tested desktop convention; raw provider positions/actors are not automatically qualified. Source rows/action tokens let the director select relevant events. Configurable size, opacity, typing hide, hold, click duration; draft/final effort. Up to60s/7200 source frames/2MP output; shared render lock,180s worker budget, local Pillow/CairoSVG/FFmpeg dependencies. Original media untouched; private recipe/timeline/three sample frames and silent SDR H.264 output. No cursor erasure, HDR/audio preservation or whole-shot backup recovery. Inspect representative samples before final use.",inputSchema:cursorRenderSchema,run:async a=>{const r=validateCursorRecipe(a);return ok(await renderCursor(await engine("record.source",{recording_id:r.recording_id}),r))}},
+  ...repairTools.map(({name,command,description,properties,required,read})=>({name,description,inputSchema:{type:"object",additionalProperties:false,properties,required},annotations:{readOnlyHint:read===true},run:async a=>ok(await repairCall(command,a))})),
+  ...evidenceTools.filter(t=>["computer_use_observe","computer_use_facts"].includes(t.name)).map(t=>({...t,name:t.name.replace("computer_use_","app_"),description:"Shared recorder/app learning: "+t.description,run:async a=>ok(await evidenceHandler(t.name)(a))})),
+  ...[
+    ["production_status","production.status","Read authoritative global recording, draining and queued state. No capture or UI. Check freshness; unavailable is not idle."],
+    ["production_checkpoint","production.checkpoint","Read the global safe-pause gate between planned UI steps. If pause_requested, finish the already-started operation safely and stop starting new production actions until resumed. Recorder admission is enforced; arbitrary external UI tools must cooperate."],
+    ["production_pause","production.pause","Persist a global cooperative pause across clients and engine restarts. New takes queue; current recordings and already-started operations finish safely. Never locks human input or immediately stops a take. Read back state after uncertain replies; do not replay."],
+    ["production_resume","production.resume","Reopen global recording admission. Future queued takes can start at their requested times; elapsed queued takes need explicit record_reschedule. Never silently starts a late queued take. Do not replay uncertain replies."],
+    ["production_panel_show","production.panel.show","Show the movable native desktop reading panel with live recording/queue status and global safe Pause/Resume controls. Excluded from recorder capture. This is a panel, not a WidgetKit desktop widget."],
+    ["production_panel_hide","production.panel.hide","Hide the desktop reading panel; recording and the persistent pause state are unaffected."]
+  ].map(([name,method,description])=>({name,description,inputSchema:{type:"object",properties:{},additionalProperties:false},annotations:{readOnlyHint:["production.status","production.checkpoint"].includes(method)},run:async a=>ok(await engine(method,a))})),
   {
     name: "production_plan",
     description: "Read-only capture planning: explicit background/cooperative/reserved expectations, caller-reported production interval, cursor-layer limits, runtime obstacles, measured point/Retina and window/app/display profiles, reference-scene storage scenarios and recovery choices. window_app_display needs an exact window plus explicit backup_rect/backup_max_width; returns candidate per-source targets/settings, never schedules them or follows movement. Scenarios are not predictions, disk reservations or capacity. Starts no capture, drives no UI, locks no input and grants no authorization. Optional app_learning joins exact shared computer-use facts when target bundle matches; unknown dimensions, expiry/conflicts and source limits remain explicit, with no evidence-content read, canary or automatic selection. Actual source/provider readiness remains a separate check. Fresh host pressure/disk/coarse-load observations adapt advisory optional-work guidance and write bounded private decision diagnostics; no settings, admission or other recordings are changed.",
@@ -164,7 +180,7 @@ const tools = [
     inputSchema: { type: "object", properties: {}, additionalProperties: false },
     annotations: { readOnlyHint: true },
     run: async () => ok({ ...await engine("status"), mcp_adapter: {
-      version: VERSION, declared_target_context: 1, replay_policy: 1, production_planning: 1, resource_awareness: 1, shared_app_learning: 1, production_storage_guidance: 1, triple_source_planning: 1, source_frame_mapping: 1, source_region_mapping: 1, transient_window_query: 1,
+      version: VERSION, production_gate_controls: 1, repair_tickets:1, shared_app_observation:1, cursor_recipe:1, input_reception_frame_context:1, declared_target_context: 1, replay_policy: 1, production_planning: 1, resource_awareness: 1, shared_app_learning: 1, production_storage_guidance: 1, triple_source_planning: 1, source_frame_mapping: 1, source_region_mapping: 1, transient_window_query: 1,
       registered_frame_mapping:1,registration:registrationHealth(),frame_mapping: frameMapHealth(), preview_source_mapping: 1, paired_source_mapping: 1, paired_interval_coverage_summary: 1, fitted_child_mapping_guard: 1, retained_input_query: 1, retained_action_context: 1, retained_input_health_context: 1,
       input_query: inputQueryHealth(), mutation_replay: "never",
       read_reconnect_budget_ms: 12000,

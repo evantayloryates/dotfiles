@@ -11,11 +11,13 @@ actor Recordings {
 
   private let legacyRoot: String
   private let sessions: Sessions
+  private let productionGate:ProductionGate?
   private var jobs: [String: Recording] = [:]
 
-  init(legacyRoot: String, sessions: Sessions) {
+  init(legacyRoot: String, sessions: Sessions, productionGate:ProductionGate? = nil) {
     self.legacyRoot = legacyRoot
     self.sessions = sessions
+    self.productionGate=productionGate
   }
 
   // MARK: - Lifecycle
@@ -42,7 +44,9 @@ actor Recordings {
                           label: m.str("label") ?? "", startAt: start, endAt: end, ifLate: m.str("if_late") ?? "start",
                           idempotencyKey: m.str("idempotency_key"), sessionID: m.str("session_id"),
                           createdAt: m.str("created_at").flatMap(parseISO) ?? Date(), state: state,
-                          inputSettings:InputSettings.saved(m["input_settings"]))
+                          inputSettings:InputSettings.saved(m["input_settings"]),productionGate:productionGate,
+                          productionHeld:(m["production_queue"] as? [String:Any])?.bool("held") ?? false,
+                          requiresReschedule:(m["production_queue"] as? [String:Any])?.bool("requires_reschedule") ?? false)
       watch(rec)
       jobs[id] = rec
       if state == .scheduled {
@@ -93,7 +97,11 @@ actor Recordings {
     let overlapping = jobs.values.filter { $0.holdsUnfinishedAdmission || (!$0.state.terminal && $0.startAt < end && $0.endAt > start) }
     // allow_over_cap exists for pressure tests of the hardware limit.
     let cap = (p.bool("allow_over_cap") ?? false) ? 64 : Self.maxConcurrent
-    guard overlapping.count < cap else {
+    let paused=productionGate?.snapshot.paused ?? false
+    guard !paused || jobs.values.filter({$0.state == .scheduled}).count<128 else {
+      throw RPCError(code:"production_queue_full",message:"Global pause queue has128 pending requests; cancel or settle an existing request before submitting more.")
+    }
+    guard paused || overlapping.count < cap else {
       let holders = overlapping.map { "\($0.id) (\($0.sessionID ?? "-"), \($0.describe().str("label") ?? ""))" }
       throw RPCError(code: "too_many", message: "\(overlapping.count) overlapping or unfinished recordings hold the configured budget of \(cap); this budget is not a hardware capacity guarantee. Holding slots: \(holders.joined(separator: ", "))")
     }
@@ -104,7 +112,7 @@ actor Recordings {
     let dir = "\(sessionDir)/recordings/\(id)"
     let rec = Recording(id: id, dir: dir, target: target, settings: settings, label: p.str("label") ?? "",
                         startAt: start, endAt: end, ifLate: ifLate, idempotencyKey: p.str("idempotency_key"), sessionID: sessionID,
-                        inputSettings:inputSettings)
+                        inputSettings:inputSettings,productionGate:productionGate)
     watch(rec)
     jobs[id] = rec
     rec.save()
@@ -118,6 +126,29 @@ actor Recordings {
   func get(_ id: String) throws -> Recording {
     guard let r = jobs[id] else { throw RPCError(code: "not_found", message: "no recording \(id); use record.list") }
     return r
+  }
+
+  func productionChanged(paused:Bool) {
+    for rec in jobs.values.sorted(by:{$0.createdAt<$1.createdAt}) where rec.state == .scheduled {
+      if paused {rec.holdForProductionPause()} else {rec.schedule()}
+    }
+  }
+
+  var productionStatus:[String:Any] {
+    let gate=productionGate?.status ?? [:]
+    let paused=gate["pause_requested"] as? Bool ?? false
+    let draining=jobs.values.filter{[.arming,.recording,.finalizing].contains($0.state) || $0.holdsUnfinishedAdmission}
+    let queued=jobs.values.filter{$0.state == .scheduled && (paused || (($0.describe()["production_queue"] as? [String:Any])?.bool("held") ?? false))}
+    let activeActions=ActionTimeline.shared.status["active"] as? Int ?? 0
+    var result=gate
+    result["state"]=paused ? (draining.isEmpty && activeActions==0 ? "paused" : "draining") : (draining.isEmpty ? "idle" : "recording")
+    result["active"]=draining.map{brief($0.describe())}
+    result["queued"]=queued.sorted{$0.createdAt<$1.createdAt}.map{brief($0.describe())}
+    result["scheduled_count"]=jobs.values.filter{$0.state == .scheduled}.count
+    result["active_action_scopes"]=activeActions
+    result["sampled_at"]=iso8601.string(from:Date())
+    result["safe_boundary"]="Existing takes finalize and action scopes close; agents must honor production.checkpoint before new UI. No emergency stop or input lock."
+    return result
   }
 
   func byIdempotencyKey(_ key: String) -> Recording? {
@@ -209,7 +240,7 @@ actor Recordings {
 
   private func brief(_ d: [String: Any]) -> [String: Any] {
     var b: [String: Any] = [:]
-    for k in ["recording_id", "session_id", "state", "capture_quarantined", "unfinished_work", "label", "start_at", "end_at", "error", "video"] { if let v = d[k] { b[k] = v } }
+    for k in ["recording_id", "session_id", "state", "capture_quarantined", "unfinished_work", "production_queue", "label", "start_at", "end_at", "error", "video"] { if let v = d[k] { b[k] = v } }
     b["events"] = (d["events"] as? [Any])?.count ?? 0
     b["marks"] = (d["marks"] as? [Any])?.count ?? 0
     return b

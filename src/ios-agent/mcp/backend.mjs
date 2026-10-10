@@ -6,9 +6,10 @@ import {spawn} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {nutritionRecipe} from './workflows.mjs';
 import {mediaObservation} from './media-verification.mjs';
+import {CaptureStore} from './capture-store.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/media-verification.mjs', 'mcp/workflows.mjs', 'paired_workflow.py', 'health.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
+const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/capture-store.mjs', 'web/rich-capture.js', 'ready_wait.py', 'mcp/media-verification.mjs', 'mcp/workflows.mjs', 'paired_workflow.py', 'health.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
   .map(file => fs.readFileSync(path.join(root, file))).map(bytes => createHash('sha256').update(bytes).digest('hex')).join(':')).digest('hex');
 export const defaultState = path.join(os.homedir(), 'Library/Application Support/ios-agent');
 const idleLimit = 20 * 60 * 1000;
@@ -42,7 +43,8 @@ export function runCoreDevice(args, {jsonFile, timeout = 15000} = {}) {
       let data; try { if (jsonFile) data = JSON.parse(fs.readFileSync(jsonFile,'utf8')); } catch {}
       const errors=[];const scan=v=>{if(!v||typeof v!=='object'||errors.length>=8)return;if(Number.isInteger(v.code)&&typeof v.domain==='string'&&/^[A-Za-z0-9._-]{1,100}$/.test(v.domain))errors.push({code:v.code,domain:v.domain});for(const child of Object.values(v))if(child&&typeof child==='object')scan(child);};scan(data?.error);
       const parserIssue=/Unexpected argument/i.test(errorText)?'unexpected_argument':/Unknown option/i.test(errorText)?'unknown_option':/Invalid value/i.test(errorText)?'invalid_value':/Missing (expected )?(argument|value)/i.test(errorText)?'missing_argument_or_value':undefined;
-      finish({ok:code===0,outcome:code===0?'developer-request-accepted':data?.error?'developer-request-rejected':'unconfirmed',data,diagnostic:{exitCode:code,errors,...(parserIssue?{parserIssue}:{})},replay:false});
+      const timedOut=/timed? out|timeout.*exceed|exceeded.*timeout/i.test(errorText);
+      finish({ok:code===0,outcome:timedOut?'unknown':code===0?'developer-request-accepted':data?.error?'developer-request-rejected':'unconfirmed',data,diagnostic:{exitCode:code,errors,...(timedOut?{timedOut:true}:{}),...(parserIssue?{parserIssue}:{})},replay:false});
     });
   });
 }
@@ -56,7 +58,11 @@ export class Backend {
     this.artifacts = new Map();
     this.running = new Set();
     this.closing = false;
+    this.captures=new Map();
+    this.captureStore=new CaptureStore(this.state);
+    this.waitControllers=new Set();
     this.timer = setInterval(() => {
+      try{this.captureStore.prune();}catch{} // Retention cannot interrupt control cleanup.
       for (const s of this.sessions.values()) {
         if (Date.now() - s.activity > idleLimit) { s.active = false; void this.end(s.id); }
         else if (s.active) this.writeOwner(s);
@@ -64,16 +70,17 @@ export class Backend {
     }, 5000);
     this.timer.unref();
   }
-  async run(kind, args, input, timeout = 120000) {
+  async run(kind, args, input, timeout = 120000, signal) {
     if (this.runOverride) return this.runOverride(kind, args, input);
-    const files = {web: 'web_cli.py', cli: 'cli.py', verify: 'verify.py', doctor: 'health.py', stack: 'local_stack.py', paired: 'paired_workflow.py', learning: 'learning.py', provider:'device_observer.py'};
+    const files = {wait:'ready_wait.py', web: 'web_cli.py', cli: 'cli.py', verify: 'verify.py', doctor: 'health.py', stack: 'local_stack.py', paired: 'paired_workflow.py', learning: 'learning.py', provider:'device_observer.py'};
     if (!files[kind]) throw new Error('fixed_operation_required');
     const argv = kind === 'learning' ? [path.join(this.state, 'learning')] :
-      kind === 'provider' ? [] : kind === 'web' ? ['--state', this.state] : kind === 'paired' ? [] : kind === 'cli' ? ['--state', this.state, ...args] : [...args, '--state', this.state];
+      kind === 'provider' ? [] : ['web','wait'].includes(kind) ? ['--state', this.state] : kind === 'paired' ? [] : kind === 'cli' ? ['--state', this.state, ...args] : [...args, '--state', this.state];
     return new Promise((resolve, reject) => {
       const child = spawn(kind==='provider'?path.join(this.state,'providers/pymobiledevice3-11.15.5/bin/python'):'/usr/bin/python3', ['-B', path.join(root, files[kind]), ...argv],
         {stdio: ['pipe', 'pipe', 'pipe'], env: {...process.env, PYTHONDONTWRITEBYTECODE: '1'}});
       this.running.add(child);
+      const abort=()=>child.kill('SIGTERM');signal?.addEventListener('abort',abort,{once:true});if(signal?.aborted)abort();
       let stdout = '', stderr = '', exceeded = false;
       const timer = setTimeout(() => { exceeded = true; child.kill('SIGTERM'); }, timeout);
       // A bounded 12 MiB device PNG expands to 16 MiB in base64.
@@ -84,6 +91,7 @@ export class Backend {
       child.stdin.end(input ? JSON.stringify(input) : undefined);
       child.on('error', () => { clearTimeout(timer); this.running.delete(child); reject(new Error('cli_start_failed')); });
       child.on('close', code => {
+        signal?.removeEventListener('abort',abort);
         clearTimeout(timer); this.running.delete(child);
         let value; try { value = JSON.parse(stdout); } catch { value = null; }
         const known = /^(device_not_connected|device_already_leased|frontend_cleanup_in_progress|owner_not_active|owner_not_current_active_turn|lease_required|command_in_flight|active_React_frontend_lease_required|device_action_rejected|action_not_confirmed|web_page_not_ready)/.exec(stderr)?.[1];
@@ -129,6 +137,9 @@ export class Backend {
     try { current = await this.status(); learning = await this.learning('search', {source: runtimeKey(current) || ''}); }
     catch { learning = {available: false}; }
     return {browserWorkflow: ['ios_doctor (host prerequisites)', 'ios_web_pages (reuse a visible ready enrolled page)', 'ios_web_enroll only if provisioning is needed (private launchFile)', 'open the intended dev browser page if not enrolled', 'ios_web_pages', 'ios_web_begin', 'ios_web_inspect and ios_web_action', 'ios_web_end in finally'],
+      readiness: 'ios_wait_ready waits up to 55 seconds without a lease, waking on fresh foreground app/page events. Repeat bounded waits while this task is waiting; do not infer lock from offline. ios_begin still verifies the runtime. MCP availability does not itself schedule a new model turn.',
+      launch: 'ios_device_launch has fixed DEV/Settings/Safari/Chrome targets through a paired nearby developer channel. DEV launch was qualified from Settings without XCTest. Arbitrary-network foreground launch remains unqualified; Tailscale page/app control alone cannot launch a suspended app.',
+      richCapture: 'ios_capture is explicit synthetic-DEV capture only: start selected console/network/audio modes, drain bounded batches, stop, then end in finally. Default 2 MiB ring, max 8 MiB, max 10 minutes; host 32 MiB/capture and 128 MiB total. Artifacts expire after one hour by default (max 24 hours) and private audio chunks stay off the transcript. Clone existing audio tracks only; no microphone request. Inspect remainingEvents and dropped counts; this is not lossless whole-device traffic capture.',
       deviceObserver: 'ios_device_inspect kind=screen|capabilities|browser-debug reads the paired iPhone without XCTest or Mirroring. With no session it reserves/releases a temporary owner. ios_read renders a private full-display image. Nearby paired wireless developer transport only; HID input not qualified.',
       browserLimits: 'Page-owned DOM input is synthetic; it does not operate OS dialogs, trusted touch, IME or microphone permission. SDK return channel works over private HTTPS; require separate off-LAN qualification. Dev-only enrollment and per-tab authentication.',
       workflow: ['ios_doctor', 'ios_begin', 'ios_native or ios_react', 'ios_verify', 'ios_end'],
@@ -234,13 +245,14 @@ export class Backend {
     if (fs.lstatSync(dir).isSymbolicLink() || fs.statSync(dir).mode & 0o077) throw new Error('private_observation_directory_required');
     return dir;
   }
-  async action({sessionId, action, args = {}}, inspect = false) {
+  async action({sessionId, action, args = {}}, inspect = false, capturePoll=false) {
     const s = this.session(sessionId);
     const a = this.artifact(s, inspect ? 'react' : action);
     const result = await this.run('cli', [inspect ? 'inspect' : 'action', ...(!inspect ? [action] : []),
       '--args', JSON.stringify(args), '--lease-file', s.lease, '--output', a.file]);
     if (!fs.existsSync(a.file)) return {ok: false, reason: result.error, actionSent: 'unknown', replay: false};
     const receipt = JSON.parse(fs.readFileSync(a.file, 'utf8'));
+    if(action==='state'&&!capturePoll&&receipt.result?.richCapture){delete receipt.result.richCapture;fs.writeFileSync(a.file,JSON.stringify(receipt),{mode:0o600});}
     let data = safe(receipt.result || receipt.data || receipt);
     if (!inspect && action === 'tree' && Array.isArray(data.nodes)) {
       const all = data.nodes;
@@ -263,13 +275,13 @@ export class Backend {
       if (typeof image?.pngBase64 !== 'string') throw new Error('image_unavailable');
       return {image: image.pngBase64, metadata: safe(image)};
     }
-    value = safe(value); // Redact before selection; a pointer cannot expose a secret scalar.
+    value = a.type==='capture'?value:safe(value); // Capture content was scrubbed before persistence.
     if (pointer) for (const part of pointer.split('/').slice(1)) {
       const key = part.replace(/~1/g, '/').replace(/~0/g, '~');
       if (!value || !Object.hasOwn(value, key)) throw new Error('pointer_not_found');
       value = value[key];
     }
-    const data = safe(value), text = JSON.stringify(data);
+    const data = a.type==='capture'?value:safe(value), text = JSON.stringify(data);
     if (text.length > limit) return {artifactId, truncated: true, characters: text.length,
       next: 'Use a JSON pointer to select a smaller subtree. No partial JSON is returned.'};
     return {artifactId, data};
@@ -299,6 +311,67 @@ export class Backend {
       const value=JSON.parse(fs.readFileSync(a.file,'utf8')).result;
       return {ok:true,artifactId:a.id,metadata:safe(value),inputSent:false,next:kind==='screen'?'Use ios_read with this artifactId for the actual full-device PNG. Paired nearby developer transport; separate from arbitrary-network page control.':'Service availability is not proof of Web Inspector opt-in or native touch.'};
     } finally {if(temporary&&s)await this.end(s.id);}
+  }
+  async waitReady({surface='any',browser,page,timeoutSeconds=45}={},signal) {
+    const controller=new AbortController();this.waitControllers.add(controller);
+    const abort=()=>controller.abort();signal?.addEventListener('abort',abort,{once:true});if(signal?.aborted||this.closing)abort();
+    try{const r=await this.run('wait',[],{surface,browser,page,timeoutSeconds},(timeoutSeconds+4)*1000,controller.signal);return r.value||{readyToAcquire:false,reason:controller.signal.aborted?'cancelled':'readiness_channel_unavailable',leaseAcquired:false};}
+    finally{this.waitControllers.delete(controller);signal?.removeEventListener('abort',abort);}
+  }
+  async deviceLaunch({target='kickoff-dev'}={}) {
+    const bundles={'kickoff-dev':'com.dev.kudos.fit',settings:'com.apple.Preferences',safari:'com.apple.mobilesafari',chrome:'com.google.chrome.ios'};
+    if(!Object.hasOwn(bundles,target))return {ok:false,reason:'fixed_launch_target_required',inputSent:false};
+    const reservation=await this.begin({surface:'launch'});
+    try {
+      const file=path.join(this.state,'web-device.json');
+      if(!fs.existsSync(file)||fs.lstatSync(file).isSymbolicLink()||fs.statSync(file).mode&0o077)return {ok:false,reason:'private_web_device_configuration_required',inputSent:false};
+      const device=JSON.parse(fs.readFileSync(file,'utf8')).coreDeviceId;
+      if(!/^[A-Fa-f0-9-]{36}$/.test(device||''))return {ok:false,reason:'configured_device_id_required',inputSent:false};
+      const preflight=await this.deviceRun(['device','info','lockState','--device',device,'--timeout','8'],{timeout:11000});
+      if(!preflight.ok)return {ok:false,reason:'developer_channel_unconfirmed',inputSent:false,lockState:'unknown',replay:false};
+      const state=preflight.data?.result?.lockState||preflight.data?.result?.deviceProperties?.lockState||preflight.data?.result;
+      if(state?.passcodeRequired===true||state?.unlocked===false)return {ok:false,reason:'developer_unlock_required',inputSent:false,replay:false};
+      this.session(reservation.sessionId);
+      const launched=await this.deviceRun(['device','process','launch','--device',device,'--timeout','12',bundles[target]],{timeout:15000});
+      return {ok:launched.ok,target,outcome:launched.outcome,diagnostic:launched.diagnostic,replay:false,
+        foregroundVerified:false,transport:'paired-developer-channel',offLANQualified:false,
+        next:target==='kickoff-dev'?'Wait for native readiness, then ios_begin. Request acceptance is not foreground readiness.':'Inspect the full phone screen independently. Settings navigation still requires a system input provider.'};
+    } finally {await this.end(reservation.sessionId);}
+  }
+  async capture({sessionId,op='status',modes=['console','network'],seconds=120,maxBytes=2097152,ttlSeconds=3600}={}) {
+    const s=this.session(sessionId);
+    if(!['native','web'].includes(s.surface))return {ok:false,reason:'app_or_page_session_required'};
+    let capture=this.captures.get(sessionId);
+    if(op==='start') {
+      if(capture?.active)return {ok:false,reason:'capture_already_active'};
+      capture={id:hex(),active:true};this.captureStore.create(capture.id,ttlSeconds);this.captures.set(sessionId,capture);
+    } else if(!capture)return {ok:false,reason:'start_capture_first'};
+    const request={op,id:capture.id,...(op==='start'?{modes,seconds,maxBytes}:{})};
+    let response;
+    if(s.surface==='web')response=await this.webAction({sessionId,action:'capture',args:request});
+    else {
+      request.requestId=hex();
+      const sent=await this.action({sessionId,action:'capture',args:request});
+      if(!sent.ok){if(sent.data?.error==='unsupported_action')capture.active=false;return {...sent,next:'Native capture requires the updated signed adapter. Do not replay an unknown input.'};}
+      const until=Date.now()+6000;
+      while(Date.now()<until){const read=await this.action({sessionId,action:'state'},false,true);const file=this.artifacts.get(read.artifactId)?.file;
+        const receipt=file?JSON.parse(fs.readFileSync(file)).result?.richCapture:undefined;
+        if(file){fs.rmSync(file,{force:true});this.artifacts.delete(read.artifactId);}
+        if(receipt?.requestId===request.requestId){response=receipt;break;}
+        await new Promise(resolve=>setTimeout(resolve,150));
+      }
+      if(!response)return {ok:false,reason:'capture_acknowledgment_unknown',replay:false};
+    }
+    if(response.artifactId){const intermediate=this.artifacts.get(response.artifactId);if(intermediate){response.value=JSON.parse(fs.readFileSync(intermediate.file,'utf8')).result?.value;fs.rmSync(intermediate.file,{force:true});}this.artifacts.delete(response.artifactId);}
+    if(!response.ok)return {ok:false,reason:response.error||response.reason||'capture_not_confirmed',outcome:response.outcome,replay:false};
+    const value=response.value;
+    if(op==='stop')capture.active=false;
+    if(value?.events){
+      const saved=this.captureStore.save(capture.id,value),artifactId=hex();this.artifacts.set(artifactId,{file:saved.file,type:'capture',sessionId});
+      return {ok:true,captureId:capture.id,artifactId,eventCount:saved.eventCount,audioChunks:saved.audioChunks,storedBytes:saved.bytes,remainingEvents:value.remainingEvents,
+        retentionSecondsRemaining:saved.retentionSecondsRemaining,replay:false,next:'Use ios_read with a JSON pointer for selected scrubbed events. Audio bytes stay in private chunk files.'};
+    }
+    return {ok:true,captureId:capture.id,status:value,replay:false};
   }
   async webPages() {
     const r = await this.run('web', [], {op: 'web_pages'}, 8000);
@@ -404,20 +477,26 @@ export class Backend {
     const s = this.sessions.get(id);
     if (!s) return {released: false, alreadyEnded: true};
     if (s.endPromise) return s.endPromise;
-    s.active = false; this.writeOwner(s);
     s.endPromise = (async () => {
+      let captureCleanup;
+      if(this.captures.get(id)?.active&&s.active&&!this.closing){
+        try {const started=Date.now();captureCleanup=await this.capture({sessionId:id,op:'stop'});const artifacts=captureCleanup.artifactId?[captureCleanup.artifactId]:[];while(captureCleanup.ok&&captureCleanup.remainingEvents>0&&Date.now()-started<10000){captureCleanup=await this.capture({sessionId:id,op:'drain'});if(captureCleanup.artifactId)artifacts.push(captureCleanup.artifactId);}captureCleanup={...captureCleanup,artifactIds:artifacts,complete:captureCleanup.ok&&captureCleanup.remainingEvents===0};}catch{captureCleanup={complete:false,reason:'capture_cleanup_unconfirmed'};} // Watchdog handles lost ownership.
+      }
+      s.active = false; this.writeOwner(s);
       // Acquisition reserves an empty file before broker admission. Wait for
       // that single result before release, or a disconnect could orphan a lease.
       if (s.acquisition) await s.acquisition.catch(() => {});
       let release = {ok: true, value: {alreadyInactive: true}};
       if (fs.existsSync(s.lease)) release = await this.run('cli', ['release', '--lease-file', s.lease], undefined, 20000);
       this.sessions.delete(id);
-      return {released: release.ok, detail: release.ok ? safe(release.value) : release.error,
+      this.captures.delete(id);
+      return {released: release.ok,...(captureCleanup?{captureCleanup}:{}), detail: release.ok ? safe(release.value) : release.error,
         next: 'Call ios_verify gate=idle without a session to confirm native and host cleanup.'};
     })();
     return s.endPromise;
   }
   async cancel() {
+    for(const controller of this.waitControllers)controller.abort();
     // Mark every owner inactive before waiting for any IPC; accepted input is
     // observed once by its original CLI, never restarted by cancellation.
     for (const s of this.sessions.values()) { s.active = false; this.writeOwner(s); }

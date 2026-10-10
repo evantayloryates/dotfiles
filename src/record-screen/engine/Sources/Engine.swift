@@ -13,7 +13,8 @@ final class Engine: @unchecked Sendable {
   private let viewfinder = Viewfinder()
   private let maintenance = MaintenanceFence()
   private lazy var sessions = Sessions(root: paths.root + "/sessions")
-  private lazy var recordings = Recordings(legacyRoot: paths.root + "/recordings", sessions: sessions)
+  private lazy var productionGate=ProductionGate(path:paths.root+"/production-gate.json")
+  private lazy var recordings = Recordings(legacyRoot: paths.root + "/recordings", sessions: sessions,productionGate:productionGate)
 
   init(paths: Paths, lock: InstanceLock) {
     self.paths = paths
@@ -23,7 +24,16 @@ final class Engine: @unchecked Sendable {
   func start() throws {
     _ = ExclusionApps.shared // install workspace observation on the main thread
     ActionTimeline.shared.configure(root:paths.root+"/actions")
+    MainActor.assumeIsolated {ProductionPanel.shared.configure(preference:paths.root+"/production-panel-visible",read:{[weak self] in
+      guard let self else{throw RPCError(code:"engine_down",message:"Service unavailable")}
+      return try await self.handle("production.status",[:]) as? [String:Any] ?? [:]
+    },change:{[weak self] paused in
+      guard let self else{throw RPCError(code:"engine_down",message:"Service unavailable")}
+      _ = try await self.handle(paused ? "production.pause" : "production.resume",[:])
+    })
+    }
     let actionRecordings=self.recordings
+    productionGate.onRelease = { Task { await actionRecordings.productionChanged(paused:false) } }
     ActionTimeline.shared.onChange = { value in Task { await actionRecordings.annotateAction(value) } }
     let server = SocketServer(path: paths.socket) { [unowned self] method, params in
       try await self.handle(method, params)
@@ -74,7 +84,22 @@ final class Engine: @unchecked Sendable {
 
   private func dispatch(_ method: String, _ params: [String: Any]) async throws -> Any {
     try RPCNumber.validate(method,params)
+    if ["capture.probe","frame.verify","overlay.show","action.begin"].contains(method) {try productionGate.requireOpen()}
     switch method {
+    case "production.status", "production.checkpoint":
+      var result=await recordings.productionStatus
+      result["service_loading"]=maintenance.status["loading"]
+      if maintenance.status["loading"] as? Bool == true {result["state"]="unavailable"}
+      return result
+    case "production.panel.show", "production.panel.hide":
+      await MainActor.run {if method.hasSuffix("show"){ProductionPanel.shared.show()}else{ProductionPanel.shared.hide()}}
+      return ["visible":method.hasSuffix("show"),"desktop_widget":false,"input_locked":false]
+    case "production.pause", "production.resume":
+      let paused=method=="production.pause"
+      try productionGate.setPaused(paused)
+      await recordings.productionChanged(paused:paused)
+      Log.event("production_gate_changed",["pause_requested":paused,"generation":productionGate.snapshot.generation])
+      return await recordings.productionStatus
     case "maintenance.status":
       return maintenance.status
     case "maintenance.validate":
@@ -264,8 +289,9 @@ final class Engine: @unchecked Sendable {
       "clock": ["uptime_ns": clockNS, "uptime_ns_exact":String(clockNS), "domain":"CLOCK_UPTIME_RAW", "wall": iso8601.string(from: now), "started_ns": startedNs,"started_ns_exact":String(startedNs)],
       "permission": ["screen_recording": CGPreflightScreenCaptureAccess() ? "granted" : "missing"],
       "capabilities": ["strict_capture_requests":1,"application_filter":1,"target_capture_options": CaptureOptions.contractVersion, "source_journal": 1, "source_clock_continuity":1, "source_clock_instance":1,
-                       "input_timeline":1,"input_tap_faults":1,"input_queue_loss":1,"action_scopes":1,"declared_action_targets":1,"derivative_source":1,"exclusion_identity":1,"preview_exclusion_identity":1,"encoder_failure_isolation":1,"stream_stop_diagnostics":1,"maintenance_fence":1,"sparse_frame_padding":1,"writer_failure_details":1,"transient_window_inventory":1,"retained_frame_pixel_stats":1],
+                       "input_timeline":1,"input_tap_faults":1,"input_queue_loss":1,"action_scopes":1,"declared_action_targets":1,"derivative_source":1,"exclusion_identity":1,"preview_exclusion_identity":1,"encoder_failure_isolation":1,"stream_stop_diagnostics":1,"maintenance_fence":1,"production_gate":1,"sparse_frame_padding":1,"writer_failure_details":1,"transient_window_inventory":1,"retained_frame_pixel_stats":1],
       "maintenance":maintenance.status,
+      "production":await recordings.productionStatus,
       "input_timeline":InputTimeline.shared.status,
       "action_timeline":ActionTimeline.shared.status,
       "displays": await displays(),

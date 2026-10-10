@@ -182,3 +182,13 @@ unrelated origins, other attached inspectors and inactive browsers; it never
 enables console history or requests a user gesture. An enabled service, empty
 target list or deadline does not prove successful deep runtime inspection.
 Fresh MCP also passed the foreground Safari fixed Runtime read on 10 October, reused its existing page owner and verified glow-off. This is an independent bootstrap diagnostic, not a full remote debugger API.
+
+
+## Version 1.4 — explicit capture and availability
+
+The current catalog has 26 tools / 5 resources. `ios_device_launch`,
+`ios_wait_ready` and `ios_capture` are documented in the README. Agents must
+wait without a lease for foreground availability, acquire only when ready, and
+end in finally. Do not turn an offline bridge into a request to unplug/unlock.
+Capture is explicit, synthetic development only, bounded, scrubbed and expiring.
+It does not make all audio, browser-native input or off-site launch qualified.

@@ -1,9 +1,9 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-10T18:15:44-04:00",
+  "updated_at": "2026-10-10T18:48:45-04:00",
   "workflow": {
-    "state": "complete",
-    "note": "Supported capture foundation release delivered and representative agent path verified. All three bounded closure batches finished: existing menu footage decision, current adapter/CLI input-preview-export verification, and explicit release disposition.49completed15partial1deferred; original broader partial scopes remain visible as limitations or follow-up, with no ongoing experiments. Visual composition stays deferred."
+    "state": "active",
+    "note": "Implementing the next release: persistent global pause/queue and desktop panel candidate, repair tickets, useful verified partial capabilities and first cursor recipe. Focused acceptance checks; no whole-phase reruns."
   },
   "production_note": "Supported release: signed native6c238cc1ba80/PID799 and fresh registered adapter0.19.1/28tools verified. Existing adapter0.19.0 retains its observed contract; current CLI/fresh launch supplies new registration policy.49completed15partial1deferred. Remaining broader scopes have explicit supported limits, external validation or research follow-up in the release decision; effects deferred. Unfinished reception/source-context candidate excluded.",
   "groups": [
@@ -261,8 +261,8 @@
           "updated_at": "2026-10-09T18:58:52-04:00",
           "why_partial": "We can link saved video frames to the recorder’s event timeline, but that does not yet measure the full delay between a physical key press or mouse action and the app’s visible response. Physical input and additional automation methods need their own calibration, and sleep needs a separate test. Those checks were left outside the delivered scope; use the verified frame-to-event timing now without treating it as a guarantee of physical response time.",
           "summary": "Know whether a cue should follow the input, its delivery or the app’s visible reaction.",
-          "work_state": "review",
-          "work_updated_at": "2026-10-10T18:13:51-04:00",
+          "work_state": "ready",
+          "work_updated_at": "2026-10-10T18:44:01-04:00",
           "examples": [
             "Example (illustrative times): you click at 12.000 seconds, the recorder receives the event at 12.006, and the next recorded picture shows the button responding at 12.033. Those are three useful moments, not three contradictory timestamps.",
             "With calibration, a click marker can track the input while a “Saved” cue waits for the visible response. Without it, an effect may lead or trail the action, and an agent may mistake a delayed app reaction for a missed input. Exact frame joins work now; physical-action latency and additional providers remain unmeasured. At 30 fps, precise event timing cannot create a picture between the captured frames."
@@ -280,8 +280,8 @@
           "updated_at": "2026-10-09T17:51:25-04:00",
           "why_partial": "Pointer placement is verified for the tested native input method and capture setup. Other automation methods and display arrangements can use different coordinate conventions, so the same accuracy has not been demonstrated for them. Closing that gap needs a targeted comparison for each additional setup; meanwhile, use the qualified mapping and retain the original positions rather than assuming every setup is interchangeable.",
           "summary": "Keep a replacement cursor on the clicked control when displays, crops or preview sizes change.",
-          "work_state": "review",
-          "work_updated_at": "2026-10-10T18:13:51-04:00",
+          "work_state": "ready",
+          "work_updated_at": "2026-10-10T18:44:01-04:00",
           "examples": [
             "Example: the pointer is at desktop position (400, 300), and the recorded crop starts at (200, 100). On a 2× Retina capture, that click belongs at video pixel (400, 400). A half-size preview then places it at (200, 200).",
             "A tool that treats desktop points as video pixels can put the replacement cursor beside the button instead of on it. Qualifying each provider’s coordinate convention lets the service perform the transforms, so the composing agent can change crop or output size without manually repairing cursor placement. The tested native case works; other setups still need their own comparison."
@@ -613,8 +613,8 @@
           "updated_at": "2026-10-10T15:35:05-04:00",
           "why_partial": "This item is about containing failures and recovering honestly. Controlled helper failures have been tested, but an active system-wide capture or WindowServer failure can affect every recording and has not been shown to recover cleanly. Triggering that on this shared Mac would disrupt unrelated work; the remaining claim needs an isolated test or evidence from a natural incident.",
           "summary": "Preserve useful footage and other agents’ recordings when a helper, encoder or macOS capture path fails.",
-          "work_state": "review",
-          "work_updated_at": "2026-10-10T18:13:51-04:00",
+          "work_state": "ready",
+          "work_updated_at": "2026-10-10T18:44:01-04:00",
           "examples": [
             "Example 1: one agent asks for preview frames and its decoder process dies. Another agent is still recording. Good isolation means the recording continues, the failed preview reports a clear error, and any surviving decoder still counts against resource admission. Without it, the service might restart everything or launch too many workers. This controlled worker case has evidence.",
             "Example 2: macOS WindowServer becomes unresponsive during a live take. The picture may stop arriving across several sources. The useful outcome is a clear interrupted interval, recoverable footage up to that point and an honest instruction to start a fresh take. A successful helper test cannot establish that the OS-wide incident will preserve or finalize every file. That broader active-capture case remains unverified."
@@ -1009,8 +1009,8 @@
           "anchor": "strategy",
           "updated_at": "2026-10-08T20:01:05-04:00",
           "summary": "Start a basic configurable cursor treatment using cursor.svg, a short take and a cheap alignment preview.",
-          "work_state": "ready",
-          "work_updated_at": "2026-10-10T18:13:51-04:00",
+          "work_state": "pending",
+          "work_updated_at": "2026-10-10T18:48:45-04:00",
           "acceptance": [
             "Use /Users/taylor/Desktop/cursor.svg with a declared hotspot and configurable size/opacity.",
             "Verify alignment on a short take using service-owned actual frame/event mapping.",
@@ -1037,12 +1037,12 @@
           "summary": "See recording state at a glance; pause future starts, drain current work safely and queue requests until resumed.",
           "scope": "See recording state at a glance; pause future starts, drain current work safely and queue requests until resumed.",
           "status": "pending",
-          "work_state": "ready",
+          "work_state": "pending",
           "evidence": "New implementation brief requested by Taylor; no installed capability or implementation pass is claimed.",
           "next": "Implement the shared service gate first, then its panel/widget; see the implementation brief.",
           "anchor": "limits",
           "updated_at": "2026-10-10T18:13:51-04:00",
-          "work_updated_at": "2026-10-10T18:13:51-04:00",
+          "work_updated_at": "2026-10-10T18:44:01-04:00",
           "acceptance": [
             "The panel shows fresh active/queued/draining/paused state and unmistakable stale or unavailable data.",
             "Pause closes admissions across MCP, CLI and already scheduled starts; current work reaches a declared safe boundary without an input lock.",
@@ -1057,12 +1057,12 @@
           "summary": "Return a durable ticket ID, dispatch targeted developer work, publish the verified release and wake subscribed consumers.",
           "scope": "Return a durable ticket ID, dispatch targeted developer work, publish the verified release and wake subscribed consumers.",
           "status": "pending",
-          "work_state": "ready",
+          "work_state": "pending",
           "evidence": "New implementation brief requested by Taylor; no installed capability or implementation pass is claimed.",
           "next": "Implement the durable ticket/worker/subscriber lifecycle in the brief; keep computer-use dependency repairs with that service’s maintainers.",
           "anchor": "limits",
           "updated_at": "2026-10-10T18:13:51-04:00",
-          "work_updated_at": "2026-10-10T18:13:51-04:00",
+          "work_updated_at": "2026-10-10T18:45:32-04:00",
           "acceptance": [
             "A bounded MCP bug report creates or reuses a durable ticket and routes it to the recorder developer queue.",
             "Targeted repair status distinguishes patch prepared from delivered, verified and ready for use.",
@@ -3686,6 +3686,61 @@
       "from": "deferred",
       "to": "pending",
       "note": "Policy deferral removed by Taylor; now eligible for a basic first implementation, with no implementation pass claimed."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-10T18:44:01-04:00",
+      "from": "complete",
+      "to": "active",
+      "note": "Implementing the next release: persistent global pause/queue and desktop panel candidate, repair tickets, useful verified partial capabilities and first cursor recipe. Focused acceptance checks; no whole-phase reruns."
+    },
+    {
+      "kind": "work_state",
+      "id": "desktop-production-gate",
+      "at": "2026-10-10T18:44:01-04:00",
+      "from": "ready",
+      "to": "pending",
+      "note": "Native pause/queue candidate passes 35 controlled checks; signed panel candidate compiled. Live installation and panel interaction acceptance remain."
+    },
+    {
+      "kind": "work_state",
+      "id": "event-clock",
+      "at": "2026-10-10T18:44:01-04:00",
+      "from": "review",
+      "to": "ready",
+      "note": "Taylor reviewed the explanation and approved using the verified portion in the release. Physical-response calibration remains separately deferred; retain exact service frame/event joins now."
+    },
+    {
+      "kind": "work_state",
+      "id": "pointer-coordinates",
+      "at": "2026-10-10T18:44:01-04:00",
+      "from": "review",
+      "to": "ready",
+      "note": "Taylor reviewed the explanation. Integrate qualified mappings and explicit refusal/unknown cases; no universal-provider coordinate claim."
+    },
+    {
+      "kind": "work_state",
+      "id": "peer-failure",
+      "at": "2026-10-10T18:44:01-04:00",
+      "from": "review",
+      "to": "ready",
+      "note": "Taylor reviewed the concrete examples. Integrate verified per-take isolation and recoverable partial outputs; retain explicit limits for whole-host crashes."
+    },
+    {
+      "kind": "work_state",
+      "id": "recorder-repair-tickets",
+      "at": "2026-10-10T18:45:32-04:00",
+      "from": "ready",
+      "to": "pending",
+      "note": "Durable ticket/store, worker dispatch and seven-second subscription hook implemented. Isolated lifecycle checks and actual worker/delivery acceptance remain."
+    },
+    {
+      "kind": "work_state",
+      "id": "visual-composition",
+      "at": "2026-10-10T18:48:45-04:00",
+      "from": "ready",
+      "to": "pending",
+      "note": "First configurable cursor/click renderer implemented with draft/final effort, retained recipes and service-owned frame/event mapping. Asset/footage acceptance checks remain; final visual styling is still Taylor’s choice."
     }
   ],
   "work_note": "Follow-up work is tracked separately from the completed capture-foundations baseline. Pending means underway; Ready can start; Deferred names its prerequisite; Review waits for Taylor’s second feedback."

@@ -1,0 +1,42 @@
+{
+  "at": "2026-10-10T22:31:41.635Z",
+  "scope": "paired wireless native launch; not off-LAN",
+  "gates": {
+    "freshNativeReady": true,
+    "nativeStateRead": true,
+    "noXCTest": true
+  },
+  "ready": {
+    "version": 1,
+    "gate": "ready",
+    "status": "passed",
+    "attempts": 7,
+    "elapsedMs": 3835,
+    "observation": {
+      "runtimeReady": true,
+      "domainFresh": true,
+      "navigationRegistered": true,
+      "apolloRegistered": true
+    }
+  },
+  "release": {
+    "released": true,
+    "detail": {
+      "released": true
+    },
+    "next": "Call ios_verify gate=idle without a session to confirm native and host cleanup."
+  },
+  "idle": {
+    "version": 1,
+    "gate": "idle",
+    "status": "passed",
+    "attempts": 1,
+    "elapsedMs": 0,
+    "observation": {
+      "hostIdle": true,
+      "deviceFeedbackKnown": true,
+      "nativeLeaseOff": true,
+      "nativeIndicatorOff": true
+    }
+  }
+}

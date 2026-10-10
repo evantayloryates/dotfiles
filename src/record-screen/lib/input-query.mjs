@@ -3,6 +3,7 @@ import {open} from 'node:fs/promises';
 import {constants} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {setImmediate as yieldLoop} from 'node:timers/promises';
+import {mapInputReceptionFrames} from './input-source-context.mjs';
 import {performance} from 'node:perf_hooks';
 import {EngineError} from './client.mjs';
 import {retainedActionContext} from './action-context.mjs';
@@ -18,7 +19,7 @@ const int=(v,min=0,max=Number.MAX_SAFE_INTEGER)=>Number.isSafeInteger(v)&&v>=min
 const decimal=(v,signed=false)=>typeof v==='string'&&(signed?/^-?[0-9]{1,24}$/:/^[0-9]{1,24}$/).test(v);
 const token=v=>typeof v==='string'&&/^act_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(v);
 const digest=v=>createHash('sha256').update(v).digest('hex');
-export const inputQueryHealth=()=>({active,max_journal_bytes:MAX_BYTES,max_rows:MAX_ROWS,max_page_events:256,health_notification_limits:INPUT_HEALTH_NOTIFICATION_LIMITS});
+export const inputQueryHealth=()=>({active,reception_source_context:1,max_journal_bytes:MAX_BYTES,max_rows:MAX_ROWS,max_page_events:256,health_notification_limits:INPUT_HEALTH_NOTIFICATION_LIMITS});
 export const inputQuerySchema={type:'object',additionalProperties:false,properties:{
  recording_id:{type:'string',pattern:'^rec_[A-Za-z0-9]+$',maxLength:64},
  from_relative_ns:{type:'string',pattern:'^-?[0-9]{1,24}$'},
@@ -28,19 +29,21 @@ export const inputQuerySchema={type:'object',additionalProperties:false,properti
  action_tokens:{type:'array',minItems:1,maxItems:16,uniqueItems:true,items:{type:'string',pattern:'^act_[0-9a-f-]{36}$'}},
  include_unassociated:{type:'boolean',default:true,description:'With an action filter, also retain events with no action token. Associations remain temporal/contextual, not ownership.'},
  include_context:{type:'boolean',default:false,description:'Return up to64 captured action snapshots overlapping this interval. Rich intent/context is caller supplied; bounds and results do not prove actors or visible changes.'},
+ include_source_frames:{type:'boolean',default:false,description:'Optional service-owned reception-to-actual-mux joins for this bounded event page. Not app-reaction latency or provider-coordinate qualification. Missing video/clock/geometry remains explicit; input rows still return.'},
  include_health_context:{type:'boolean',default:false,description:'Return bounded preceding/in-interval/untimed health notifications and retained protection snapshot counts independent of event filters. Historical observations are not continuous/live state or full input coverage.'},
- cursor:{type:'object',additionalProperties:false,properties:{after_row:{type:'integer',minimum:1,maximum:MAX_ROWS},snapshot_sha256:{type:'string',pattern:'^[0-9a-f]{64}$'},query_sha256:{type:'string',pattern:'^[0-9a-f]{64}$'}},required:['after_row','snapshot_sha256','query_sha256']},
+ cursor:{type:'object',additionalProperties:false,properties:{after_row:{type:'integer',minimum:1,maximum:MAX_ROWS},snapshot_sha256:{type:'string',pattern:'^[0-9a-f]{64}$'},query_sha256:{type:'string',pattern:'^[0-9a-f]{64}$'},source_media_snapshot_sha256:{type:'string',pattern:'^[0-9a-f]{64}$'}},required:['after_row','snapshot_sha256','query_sha256','source_media_snapshot_sha256']},
 },required:['recording_id','from_relative_ns','to_relative_ns']};
 export function validateInputQuery(input){
  if(!ownKeys(input,Object.keys(inputQuerySchema.properties))||typeof input.recording_id!=='string'||input.recording_id.length>64||!/^rec_[A-Za-z0-9]+$/.test(input.recording_id)||!decimal(input.from_relative_ns,true)||!decimal(input.to_relative_ns,true))bad();
- const a={limit:64,include_unassociated:true,include_context:false,include_health_context:false,...input};
+ const a={limit:64,include_unassociated:true,include_context:false,include_health_context:false,include_source_frames:false,...input};
  const from=BigInt(a.from_relative_ns),to=BigInt(a.to_relative_ns);
- if(to<=from||to-from>3600000000000n||!int(a.limit,1,256)||typeof a.include_unassociated!=='boolean'||typeof a.include_context!=='boolean'||typeof a.include_health_context!=='boolean')bad();
+ if(to<=from||to-from>3600000000000n||!int(a.limit,1,256)||typeof a.include_unassociated!=='boolean'||typeof a.include_context!=='boolean'||typeof a.include_health_context!=='boolean'||typeof a.include_source_frames!=='boolean')bad();
  for(const [key,max,valid] of [['event_types',32,v=>int(v,0,255)],['action_tokens',16,token]]){
   if(a[key]!==undefined&&(!Array.isArray(a[key])||!a[key].length||a[key].length>max||a[key].some(v=>!valid(v))||new Set(a[key]).size!==a[key].length))bad();
  }
  if(input.include_unassociated===false&&!a.action_tokens)bad();
  if(a.cursor!==undefined&&(!ownKeys(a.cursor,['after_row','snapshot_sha256','query_sha256'])||!int(a.cursor.after_row,1,MAX_ROWS)||!['snapshot_sha256','query_sha256'].every(k=>typeof a.cursor[k]==='string'&&/^[0-9a-f]{64}$/.test(a.cursor[k]))))bad();
+ if(a.cursor?.source_media_snapshot_sha256!==undefined&&(!a.include_source_frames||!/^[0-9a-f]{64}$/.test(a.cursor.source_media_snapshot_sha256)))bad();
  return a;
 }
 const exact=(v,signed=false)=>{if(!decimal(v,signed))fail('Source contains an invalid exact clock/metadata integer.');return BigInt(v)};
@@ -84,6 +87,7 @@ export async function queryRecordingInput(descriptor,input){
  if(descriptor?.recording_id!==a.recording_id||!['done','failed','interrupted','cancelled'].includes(descriptor.state))fail('Resolve the exact terminal recording before querying.');
  const path=descriptor.source_packet?.path;if(typeof path!=='string'||!path.startsWith('/'))fail('Engine must resolve an absolute journal path.');
  const canonical={recording_id:a.recording_id,from_relative_ns:String(BigInt(a.from_relative_ns)),to_relative_ns:String(BigInt(a.to_relative_ns)),limit:a.limit,include_unassociated:a.include_unassociated,event_types:a.event_types?[...a.event_types].sort((x,y)=>x-y):null,action_tokens:a.action_tokens?[...a.action_tokens].sort():null};
+ if(a.include_source_frames)canonical.include_source_frames=true;
  if(a.include_context)canonical.include_context=true;
  if(a.include_health_context)canonical.include_health_context=true;
  const queryHash=digest(JSON.stringify(canonical));if(a.cursor&&a.cursor.query_sha256!==queryHash)fail('Cursor belongs to a different query; start a new read without it.');
@@ -155,6 +159,11 @@ export async function queryRecordingInput(descriptor,input){
       'Intent/context are caller-authored; claimed results are not separate verification or cleanup outcomes. Use shared typed outcomes for those.',
       'Use exact start/end relative offsets with recording_frame_map for media; no visible-change, physical latency or ownership inference.']};
   if(health)result.input_health_context=health.summary();
+  if(a.include_source_frames){
+   try{result.source_frame_context=await mapInputReceptionFrames(descriptor,events,stat,a.cursor?.source_media_snapshot_sha256);
+    if(result.next_cursor&&result.source_frame_context.media_snapshot_sha256)result.next_cursor.source_media_snapshot_sha256=result.source_frame_context.media_snapshot_sha256;
+   }catch(error){result.source_frame_context={schema:"record-screen-input-source-context/v1",state:"unavailable",reason:error.code||"source_context_failed",qualification:"Input rows remain useful. No reaction latency, provider calibration or missing video coverage was inferred."};}
+  }
   if(Buffer.byteLength(JSON.stringify(result))>1024*1024)fail('Input query response exceeded1MiB; request a smaller page or narrower context interval.');return result;
  }finally{try{await handle?.close()}finally{active=false}}
 }

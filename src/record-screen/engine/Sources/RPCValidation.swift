@@ -27,6 +27,7 @@ enum RPCNumber {
     return n.boolValue
   }
   static func validate(_ method:String,_ p:[String:Any]) throws {
+    if method.hasPrefix("production.") {try fields(p,allowed:[],label:method)}
     if method == "windows.list" {
       try fields(p,allowed:["app","title","on_screen_only","include_transients","limit"],label:method)
       try string(p,"app");try string(p,"title")

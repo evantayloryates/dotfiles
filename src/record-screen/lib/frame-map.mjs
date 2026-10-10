@@ -214,7 +214,7 @@ async function regular(path, limit) {
   } catch (error) { await handle.close(); throw error; }
 }
 const unchanged = (a,b) => a.dev === b.dev && a.ino === b.ino && a.size === b.size && a.mtimeMs === b.mtimeMs && a.ctimeMs === b.ctimeMs;
-async function journalRows(handle, size) {
+async function journalRows(handle, size, includeInput=false) {
   const rows = [], chunk = Buffer.alloc(65536), decoder = new TextDecoder('utf-8', { fatal:true });
   let offset = 0, pending = '', inspected = 0;
   const until = Date.now()+10000;
@@ -231,8 +231,8 @@ async function journalRows(handle, size) {
         let row;
         try { row = JSON.parse(line); } catch { mapping('Malformed source row; raw row text is not returned.'); }
         if (!row || typeof row !== 'object' || Array.isArray(row)) mapping('Invalid source row object.');
-        // Keep only mapping metadata. Input text/key rows never enter the response or retained table.
-        if (['header','capture','source_frame','geometry','encoded_frame','footer'].includes(row.kind)) rows.push(row);
+        // Default readers keep mapping metadata only. The bounded renderer may retain input privately; no raw input enters map responses.
+        if (['header','capture','source_frame','geometry','encoded_frame','footer'].includes(row.kind) || includeInput && row.kind==='input_event') rows.push(includeInput?{...row,_source_row:inspected}:row);
       }
     }
     if (pending.length > 1024*1024) mapping('Source line budget exceeded.');
@@ -269,7 +269,7 @@ function probeFile(fd) {
 }
 // One admission covers every source in a paired snapshot. Each owned probe is
 // settled before the next begins; all opened leaves are checked again at the end.
-export async function withFrameSnapshots(descriptors, consume) {
+export async function withFrameSnapshots(descriptors, consume, {includeInput=false}={}) {
   if (running || probeState) fail('frame_mapping_busy','A prior owned mapping/probe is active or not confirmed closed; retry a read later.');
   if (!Array.isArray(descriptors) || descriptors.length<1 || descriptors.length>2 || descriptors.some(d=>
       typeof d?.recording_id!=='string' || !['done','failed','interrupted','cancelled'].includes(d.state))) mapping('Resolve one or two terminal recordings before mapping.');
@@ -279,7 +279,7 @@ export async function withFrameSnapshots(descriptors, consume) {
     for(const descriptor of descriptors) {
       const journal=await regular(descriptor.source_packet?.path,MAX_JOURNAL);files.push(journal);
       const video=await regular(descriptor.video?.path,64*1024*1024*1024);files.push(video);
-      const rows=await journalRows(journal.handle,journal.stat.size), probe=await probeFile(video.handle.fd);
+      const rows=await journalRows(journal.handle,journal.stat.size,includeInput), probe=await probeFile(video.handle.fd);
       snapshots.push({descriptor,rows,probe,files:[journal,video].map(f=>({dev:f.stat.dev,ino:f.stat.ino,size:f.stat.size,mtimeMs:f.stat.mtimeMs,ctimeMs:f.stat.ctimeMs}))});
     }
     const result=await consume(snapshots,descriptors.map((_,n)=>files[n*2+1].handle.fd));

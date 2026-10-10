@@ -1,0 +1,11 @@
+{
+  "at": "2026-10-10T22:52:52.876Z",
+  "scope": "Final signed native adapter install after independent unsupported_action proved old adapter still installed",
+  "ok": true,
+  "outcome": "developer-request-accepted",
+  "diagnostic": {
+    "exitCode": 0,
+    "errors": []
+  },
+  "replay": false
+}
