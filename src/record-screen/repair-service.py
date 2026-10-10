@@ -24,6 +24,8 @@ def tx(db):
     try: yield;db.execute('COMMIT')
     except BaseException: db.execute('ROLLBACK');raise
 
+def node_binary():
+    return subprocess.check_output(['/bin/sh',str(ROOT/'src/lib/resolve-binary.sh'),'node'],text=True,timeout=5).strip()
 def now():return time.time()
 def save(db,table,id,row):db.execute(f'INSERT OR REPLACE INTO {table} VALUES(?,?)',(id,json.dumps(row)))
 def ticket(db,id):
@@ -109,6 +111,8 @@ def worker(db,id):
         candidates=[Path('/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex'),Path('/Applications/Codex.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex')]
         binary=next(p for p in candidates if p.exists())
         cmd=[str(binary),'exec','--ephemeral','-c','approval_policy="never"','--add-dir',str(HOME),'--add-dir',str(ROOT/'data/record-screen'),'--output-schema',str(folder/'schema.json'),'--output-last-message',str(folder/'result.json'),'-']
+        overrides=json.loads(subprocess.check_output([node_binary(),str(ROOT/'src/record-screen/lib/repair-worker-config.mjs')],text=True,timeout=5))
+        for override in overrides:cmd[2:2]=['-c',override]
         with (folder/'worker.log').open('wb') as log:
             process=subprocess.Popen(cmd,cwd=ROOT,stdin=subprocess.PIPE,stdout=log,stderr=log,start_new_session=True)
             try:process.communicate(prompt.encode(),timeout=900)
@@ -119,11 +123,11 @@ def worker(db,id):
         if result['state']=='ready_for_use':
             # The agent report is not delivery proof. Verify the actual native
             # service plus adapter leaf and a bounded local verification artifact.
-            r=subprocess.run(['node',str(ROOT/'src/record-screen/cli.mjs'),'status'],capture_output=True,text=True,timeout=20,check=True)
+            r=subprocess.run([node_binary(),str(ROOT/'src/record-screen/cli.mjs'),'status'],capture_output=True,text=True,timeout=20,check=True)
             status=json.loads(r.stdout);actual=hashlib.sha256((ROOT/'src/record-screen/server.mjs').read_bytes()).hexdigest()
             proof=Path(result['verification_path'])
             if status['engine']['build']!=result['native_build'] or actual!=result['adapter_sha256'] or not proof.is_absolute() or not proof.is_file() or proof.stat().st_size>1024*1024:raise ValueError('Worker finished but delivery/proof readback did not match; no ready signal emitted')
-            release={k:result[k] for k in ['summary','native_build','adapter_sha256','verification_path','limits']};release['verified_at']=now()
+            release={k:result[k] for k in ['summary','native_build','adapter_sha256','verification_path','limits']};release['verified_at']=now();release['load_policy']='Native delivery identity was read back. Adapter changes load in fresh MCP clients or the current CLI; existing clients are preserved. Inspect your loaded version before retrying.'
             return outcome(db,id,'ready_for_use',result['summary'],release)
         return outcome(db,id,result['state'],result['summary'])
     except Exception as e:return outcome(db,id,'needs_input',str(e))

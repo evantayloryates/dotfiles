@@ -160,6 +160,18 @@ try {
   switch (cmd) {
     case "cursor-render": {const r=validateCursorRecipe(JSON.parse(args[0]||"{}"));out(await renderCursor(await call("record.source",{recording_id:r.recording_id}),r));break;}
     case "report-bug":
+    case "repair-watch": {
+      const a=JSON.parse(args[0]||"{}"),duration=a.timeout_s??86400;
+      if(!Number.isFinite(duration)||duration<1||duration>86400)throw new EngineError("repair_watch","timeout_s must be1–86400");
+      const deadline=Date.now()+duration*1000;
+      while(Date.now()<deadline){
+        const r=await repairCall("wait",{subscription_id:a.subscription_id,timeout_s:Math.min(60,(deadline-Date.now())/1000)});
+        if(r.event){out(r);break;}
+        if(r.state!=="waiting"){process.stderr.write(`Subscription ${r.state}; inspect repair status. No new ready event emitted.\n`);process.exitCode=2;break;}
+      }
+      if(Date.now()>=deadline){process.stderr.write("Repair still pending; no completion signal emitted.\n");process.exitCode=2;}
+      break;
+    }
     case "repair-retry":
     case "repair-status":
     case "repair-subscribe":
