@@ -69,10 +69,20 @@
     if (label(ref.el) !== ref.text || Object.keys(current).some(k => Math.abs(current[k] - ref.box[k]) > 2)) throw new Error('changed_target');
     return ref.el;
   }
+  function elementDetails(args) {
+    const el=target(args),box=rect(el),x=box.x+box.width/2,y=box.y+box.height/2;
+    const describe=node=>node&&!secret(node)?{tag:node.tagName.toLowerCase(),role:node.getAttribute('role'),label:label(node).slice(0,180),box:rect(node)}:null;
+    const fields=['display','position','visibility','opacity','zIndex','pointerEvents','overflowX','overflowY','fontSize','fontWeight','lineHeight','color','backgroundColor','borderRadius','paddingTop','paddingRight','paddingBottom','paddingLeft','transform','contain','contentVisibility'];
+    const style=getComputedStyle(el),computed=Object.fromEntries(fields.map(k=>[k,String(style[k]||'').slice(0,180)]));
+    const inside=x>=0&&y>=0&&x<innerWidth&&y<innerHeight,hit=inside?deepHit(x,y):null,ancestors=[];
+    for(let p=el.parentElement||el.getRootNode()?.host;p&&ancestors.length<8;p=p.parentElement||p.getRootNode()?.host){const info=describe(p);if(info)ancestors.push(info);}
+    return {target:describe(el),computed,ancestors,centerHit:describe(hit),interactable:inside&&!!hit&&(hit===el||el.contains(hit))&&!inert(el),inert:inert(el),focused:document.activeElement===el,readOnly:!!el.readOnly,disabled:!!el.disabled,scroll:{top:el.scrollTop,left:el.scrollLeft,width:el.scrollWidth,height:el.scrollHeight},viewport:{width:innerWidth,height:innerHeight,visualHeight:visualViewport?.height??innerHeight,visualOffsetTop:visualViewport?.offsetTop??0},limits:'Computed styles and DOM hit test in this document; no browser/system occlusion, stylesheet origin or native keyboard guarantee.'};
+  }
   async function execute(c) {
     const args = c.args || {};
     switch(c.action) {
       case 'snapshot': return tree(args);
+      case 'element': return elementDetails(args);
       case 'events': return {events:[...events], contentFree:true};
       case 'state': {
         const data = {};

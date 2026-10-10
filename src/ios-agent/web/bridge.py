@@ -7,7 +7,7 @@ import time
 from pathlib import Path
 from urllib.parse import urlsplit
 
-ACTIONS = {'snapshot', 'events', 'click', 'fill', 'scroll', 'evaluate', 'state'}
+ACTIONS = {'snapshot', 'element', 'events', 'click', 'fill', 'scroll', 'evaluate', 'state'}
 
 
 class WebBridge:

@@ -28,14 +28,21 @@ export function runtimeKey(status) {
 
 export function runCoreDevice(args, {jsonFile, timeout = 15000} = {}) {
   return new Promise(resolve => {
-    const child = spawn('/usr/bin/xcrun', ['devicectl', ...args, ...(jsonFile ? ['--json-output', jsonFile] : [])], {stdio:'ignore'});
+    const temporary = jsonFile ? null : fs.mkdtempSync(path.join(os.tmpdir(),'ios-agent-device-'));
+    if (temporary) jsonFile=path.join(temporary,'result.json');
+    // Launch's variadic app arguments consume flags after the bundle ID.
+    // Keep developer output options before that positional argument.
+    const child = spawn('/usr/bin/xcrun', ['devicectl', ...args.slice(0,3), '--json-output', jsonFile, ...args.slice(3)], {stdio:['ignore','ignore','pipe']});
+    let errorText='';child.stderr.on('data',chunk=>{if(errorText.length<8000)errorText+=chunk;});
     let settled = false;
-    const finish = value => { if (settled) return; settled = true; clearTimeout(timer); resolve(value); };
+    const finish = value => { if (settled) return; settled = true; clearTimeout(timer); if(temporary)fs.rmSync(temporary,{recursive:true,force:true}); resolve(value); };
     const timer = setTimeout(() => { child.kill('SIGTERM'); finish({ok:false,outcome:'unknown',replay:false}); }, timeout);
     child.on('error', () => finish({ok:false,outcome:'not-started',replay:false}));
     child.on('close', code => {
       let data; try { if (jsonFile) data = JSON.parse(fs.readFileSync(jsonFile,'utf8')); } catch {}
-      finish({ok:code===0,outcome:code===0?'developer-request-accepted':'unconfirmed',data,replay:false});
+      const errors=[];const scan=v=>{if(!v||typeof v!=='object'||errors.length>=8)return;if(Number.isInteger(v.code)&&typeof v.domain==='string'&&/^[A-Za-z0-9._-]{1,100}$/.test(v.domain))errors.push({code:v.code,domain:v.domain});for(const child of Object.values(v))if(child&&typeof child==='object')scan(child);};scan(data?.error);
+      const parserIssue=/Unexpected argument/i.test(errorText)?'unexpected_argument':/Unknown option/i.test(errorText)?'unknown_option':/Invalid value/i.test(errorText)?'invalid_value':/Missing (expected )?(argument|value)/i.test(errorText)?'missing_argument_or_value':undefined;
+      finish({ok:code===0,outcome:code===0?'developer-request-accepted':data?.error?'developer-request-rejected':'unconfirmed',data,diagnostic:{exitCode:code,errors,...(parserIssue?{parserIssue}:{})},replay:false});
     });
   });
 }
@@ -287,7 +294,7 @@ export class Backend {
       if (!bundle) return {ok:false,reason:'supported_ios_browser_required',actionSent:false};
       const preflightFile = path.join(this.observationDirectory(), hex()+'.json');
       let preflight;
-      try { preflight = await this.deviceRun(['device','info','lockState','--device',device,'--timeout','6'], {jsonFile:preflightFile,timeout:9000}); }
+      try { preflight = await this.deviceRun(['device','info','lockState','--device',device,'--timeout','12'], {jsonFile:preflightFile,timeout:15000}); }
       finally { fs.rmSync(preflightFile,{force:true}); }
       if (!preflight.ok) return {ok:false,reason:preflight.data?.error?.code===1011?'developer_device_unavailable':'developer_channel_unconfirmed',launchFile:a.file,actionSent:false,
         next:'Use an already enrolled visible page over the network. Restore the developer channel only if browser provisioning is needed; do not infer a locked phone.'};
@@ -297,7 +304,7 @@ export class Backend {
       const url=browser==='ios-safari'?sourceURL.replace(/^https:/,'x-safari-https:'):sourceURL;
       const reservation = await this.begin({surface:'launch'});
       try { const result = await this.deviceRun(['device','process','launch','--device',device,'--timeout','12','--payload-url',url,bundle]);
-        launch={outcome:result.outcome,replay:false};
+        launch={outcome:result.outcome,...(result.diagnostic?{diagnostic:result.diagnostic}:{}),replay:false};
       } finally { await this.end(reservation.sessionId); }
     }
     return {ok: true, launchFile: a.file, expiresIn: 300, ...(launch?{launch}:{}), next: 'Use this private JSON URL to open the intended dev page in Safari or Chrome. Do not log enrollment fragments.'};
