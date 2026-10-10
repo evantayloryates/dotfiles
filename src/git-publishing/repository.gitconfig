@@ -1,0 +1,12 @@
+# Repo-local defaults for Taylor’s shared dotfiles hub.
+[pull]
+    rebase = true
+[branch "master"]
+    rebase = true
+[rebase]
+    autoStash = false
+    updateRefs = false
+[push]
+    default = simple
+[rerere]
+    enabled = true

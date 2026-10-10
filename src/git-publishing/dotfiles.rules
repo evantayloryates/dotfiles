@@ -1,0 +1,32 @@
+# Taylor authorizes autonomous dotfiles publication; no prompt rules.
+# Prefix rules cover common spellings, not every Git alias/flag permutation.
+prefix_rule(
+    pattern=[["/Users/taylor/dotfiles/bin/dotfiles-publish", "/Users/taylor/src/github/dotfiles/bin/dotfiles-publish"]],
+    decision="allow",
+    justification="Taylor authorizes fetch/rebase and publication with an explicit expected-SHA lease.",
+)
+prefix_rule(
+    pattern=[["git", "/usr/bin/git", "/opt/homebrew/bin/git"], "-C", ["/Users/taylor/dotfiles", "/Users/taylor/src/github/dotfiles"], "push"],
+    decision="allow",
+    justification="Taylor authorizes routine dotfiles publishing without human approval; prefer bin/dotfiles-publish.",
+)
+prefix_rule(
+    pattern=[["git", "/usr/bin/git", "/opt/homebrew/bin/git"], "-C", ["/Users/taylor/dotfiles", "/Users/taylor/src/github/dotfiles"], "push", ["--force", "-f", "--mirror", "--no-force-with-lease"]],
+    decision="forbidden",
+    justification="Never publish dotfiles with unleased force. Use bin/dotfiles-publish or an explicit --force-with-lease=refs/heads/master:<expected-sha>.",
+)
+prefix_rule(
+    pattern=[["git", "/usr/bin/git", "/opt/homebrew/bin/git"], "-C", ["/Users/taylor/dotfiles", "/Users/taylor/src/github/dotfiles"], "push", "origin", ["--force", "-f", "--mirror", "--no-force-with-lease"]],
+    decision="forbidden",
+    justification="Never publish dotfiles with unleased force. Use bin/dotfiles-publish or an explicit --force-with-lease=refs/heads/master:<expected-sha>.",
+)
+prefix_rule(
+    pattern=[["git", "/usr/bin/git", "/opt/homebrew/bin/git"], "-C", ["/Users/taylor/dotfiles", "/Users/taylor/src/github/dotfiles"], "push", "origin", ["master", "refs/heads/master", "HEAD:master", "HEAD:refs/heads/master"], ["--force", "-f", "--mirror", "--no-force-with-lease"]],
+    decision="forbidden",
+    justification="Never publish dotfiles with unleased force. Use bin/dotfiles-publish or an explicit --force-with-lease=refs/heads/master:<expected-sha>.",
+)
+prefix_rule(
+    pattern=[["git", "/usr/bin/git", "/opt/homebrew/bin/git"], "-C", ["/Users/taylor/dotfiles", "/Users/taylor/src/github/dotfiles"], "push", "origin", ["+master", "+master:master", "+HEAD:master", "+HEAD:refs/heads/master", "+refs/heads/master:refs/heads/master"]],
+    decision="forbidden",
+    justification="Never publish dotfiles with unleased force. Use bin/dotfiles-publish or an explicit --force-with-lease=refs/heads/master:<expected-sha>.",
+)

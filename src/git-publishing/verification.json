@@ -1,0 +1,18 @@
+{
+  "at": "2026-10-10T23:38:15.888761+00:00",
+  "scope": "Real temporary Git remotes/clones and Codex rule evaluator; no GitHub push attempted under stale live policy",
+  "tests": {
+    "realDivergentClientsPreserved": true,
+    "realLeaseRaceRejectedThenRecovered": true,
+    "dirtySharedEditsNotStashedOrDropped": true,
+    "normalPushAllowed": true,
+    "explicitLeaseAllowed": true,
+    "commonUnleasedForceForbidden": true,
+    "unrelatedKickoffRulesUnchanged": true
+  },
+  "limits": [
+    "Prefix rules are not a complete Git alias/flag firewall.",
+    "Other clients must follow AGENTS.md; arbitrary local Git commands do not acquire the helper lock.",
+    "Existing Codex sessions require policy reload/restart; active execution-policy refusals are not bypassed."
+  ]
+}

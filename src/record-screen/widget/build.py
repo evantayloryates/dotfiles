@@ -32,7 +32,7 @@ def main():
    assert hashlib.sha256(b''.join(x.name.encode()+(frozen/x.name).read_bytes() for x in paths)).hexdigest()==digest
    candidate=temp/APP_NAME;mac=candidate/'Contents/MacOS';mac.mkdir(parents=True)
    extension=candidate/'Contents/PlugIns/RecordScreenWidget.appex';extmac=extension/'Contents/MacOS';extmac.mkdir(parents=True)
-   common={'CFBundleShortVersionString':'0.20.0','CFBundleVersion':'1','LSMinimumSystemVersion':'15.0','RSWidgetBuild':digest[:12]}
+   common={'CFBundleShortVersionString':'0.20.0','CFBundleVersion':'1','LSMinimumSystemVersion':'15.0','CFBundleSupportedPlatforms':['MacOSX'],'RSWidgetBuild':digest[:12]}
    host={**common,'CFBundleIdentifier':BUNDLE,'CFBundleName':'Record Screen Control','CFBundleDisplayName':'Screen recording','CFBundleExecutable':'record-screen-control','CFBundlePackageType':'APPL','LSUIElement':True,'CFBundleURLTypes':[{'CFBundleURLName':BUNDLE,'CFBundleURLSchemes':['record-screen-control']} ]}
    widget={**common,'CFBundleIdentifier':BUNDLE+'.widget','CFBundleName':'Screen recording','CFBundleDisplayName':'Screen recording','CFBundleExecutable':'RecordScreenWidget','CFBundlePackageType':'XPC!','NSExtension':{'NSExtensionPointIdentifier':'com.apple.widgetkit-extension'}}
    (candidate/'Contents/Info.plist').write_bytes(plistlib.dumps(host));(extension/'Contents/Info.plist').write_bytes(plistlib.dumps(widget))
@@ -41,7 +41,9 @@ def main():
    widget_ent.write_bytes(plistlib.dumps({'com.apple.security.application-groups':[GROUP],'com.apple.security.app-sandbox':True}))
    for name,source,dest,ent,identifier in [('host','Host.swift',mac/'record-screen-control',host_ent,BUNDLE),('widget','Widget.swift',extmac/'RecordScreenWidget',widget_ent,BUNDLE+'.widget')]:
     args=['/usr/bin/xcrun','swiftc','-O','-swift-version','5','-parse-as-library','-target','arm64-apple-macos15.0','-o',str(dest),str(frozen/'Shared.swift'),str(frozen/source)]
-    if name=='widget':args+=['-application-extension']
+    # Match Xcode's app-extension product: Widget.main registers the widget,
+    # while NSExtensionMain keeps the system extension connection alive.
+    if name=='widget':args+=['-application-extension','-Xlinker','-e','-Xlinker','_NSExtensionMain']
     subprocess.run(args,check=True)
    run('/usr/bin/codesign','--force','--sign',identity,'--identifier',BUNDLE+'.widget','--entitlements',str(widget_ent),'--timestamp=none',str(extension))
    run('/usr/bin/codesign','--force','--sign',identity,'--identifier',BUNDLE,'--entitlements',str(host_ent),'--timestamp=none',str(candidate))
