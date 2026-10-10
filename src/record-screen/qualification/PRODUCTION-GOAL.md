@@ -34,7 +34,8 @@ Release/rollback and production expectations now meet their original written
 scopes:49completed15partial1deferred. Broader research stays visible with explicit
 fallback/unavailable behavior and is not silently promoted. Eight-requirement completion audit passes: no remaining supported-release
 blockers, current native idle and three owned sessions independently closed.
-Goal-tool completion readback follows repository publication. No further background
+Goal marked complete and independently read back after repository publication.
+No further background
 experiments are part of this supported release. Visual composition is deferred.
 
 ## Execution correction: bounded release decisions (2026-10-10)
