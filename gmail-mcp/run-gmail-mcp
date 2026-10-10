@@ -66,4 +66,4 @@ export GMAIL_OAUTH_PATH="$oauth_file"
 export GMAIL_CREDENTIALS_PATH="${state_dir}/credentials.json"
 export GMAIL_ACCOUNT_NAME="$account"
 
-npx -y gmail-mcp-multiauth@1.4.6 "$@"
+/Users/taylor/src/github/dotfiles/src/mcps/run-local-package gmail-mcp-multiauth "$@"

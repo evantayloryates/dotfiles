@@ -19,4 +19,4 @@ unset notion_env
 export NOTION_TOKEN="$KICKOFF_NOTION_PAT"
 unset KICKOFF_NOTION_PAT OPENAPI_MCP_HEADERS
 
-exec "$NPX" --yes @notionhq/notion-mcp-server@2.5.1 --transport stdio
+exec "${SCRIPT_DIR}/run-local-package" @notionhq/notion-mcp-server --transport stdio

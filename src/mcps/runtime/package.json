@@ -1,0 +1,10 @@
+{
+  "name": "taylor-custom-mcp-runtime",
+  "private": true,
+  "version": "1.0.0",
+  "dependencies": {
+    "gmail-mcp-multiauth": "1.4.6",
+    "@notionhq/notion-mcp-server": "2.5.1",
+    "@cloudinary/asset-management-mcp": "0.11.0"
+  }
+}

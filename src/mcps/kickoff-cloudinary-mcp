@@ -25,4 +25,4 @@ CLOUDINARY_API_SECRET="$("${SCRIPT_DIR}/../../bin/op" read 'op://rr6wstyda3xmgnx
 export CLOUDINARY_API_KEY CLOUDINARY_API_SECRET
 : "${CLOUDINARY_API_SECRET:?Scoped Cloudinary secret lookup failed}"
 unset KICKOFF_CLOUDINARY_TOKEN KICKOFF_CLOUDINARY_API_KEY KICKOFF_CLOUDINARY_CLOUD_NAME
-exec "$NPX" --yes @cloudinary/asset-management-mcp@0.11.0 start
+exec "${SCRIPT_DIR}/run-local-package" @cloudinary/asset-management-mcp start

@@ -35,6 +35,16 @@ def main() -> int:
     for project, settings in claude.get("projects", {}).items():
         if "playwright" in settings.get("mcpServers", {}):
             errors.append(f"Playwright MCP registration remains in project {project}")
+    settings_path = HOME / ".claude/settings.json"
+    if settings_path.exists():
+        settings = json.loads(settings_path.read_text())
+        if any("playwright" in name.lower() and enabled for name, enabled in settings.get("enabledPlugins", {}).items()):
+            errors.append("Claude Playwright plugin remains enabled")
+    packages = json.loads((MANIFEST.parent / "runtime/package.json").read_text())["dependencies"]
+    for name, version in packages.items():
+        package_path = MANIFEST.parent / "runtime/node_modules" / name / "package.json"
+        if not package_path.exists() or json.loads(package_path.read_text()).get("version") != version:
+            errors.append(f"{name}: local runtime missing or version differs")
     if errors:
         for error in errors:
             print(error, file=sys.stderr)

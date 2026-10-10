@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "scope": "Custom MCP clients measured in the resource audit; host config files are installed invocation points",
+  "scope": "Canonical fleet registrations; external host entries are necessary triggers. Package lock and installed upstream runtimes live in dotfiles/src/mcps/runtime.",
   "codex": {
     "gmail_personal_primary": {
-      "command": "/Users/taylor/dotfiles/gmail-mcp/run-gmail-mcp",
+      "command": "/Users/taylor/src/github/dotfiles/gmail-mcp/run-gmail-mcp",
       "args": [
         "personal-primary"
       ],
@@ -11,7 +11,7 @@
       "tool_timeout_sec": 120.0
     },
     "gmail_work_primary": {
-      "command": "/Users/taylor/dotfiles/gmail-mcp/run-gmail-mcp",
+      "command": "/Users/taylor/src/github/dotfiles/gmail-mcp/run-gmail-mcp",
       "args": [
         "work-primary"
       ],
@@ -19,49 +19,49 @@
       "tool_timeout_sec": 120.0
     },
     "kickoff-cloudinary": {
-      "command": "/Users/taylor/dotfiles/src/mcps/kickoff-cloudinary-mcp",
+      "command": "/Users/taylor/src/github/dotfiles/src/mcps/kickoff-cloudinary-mcp",
       "startup_timeout_sec": 60.0,
       "tool_timeout_sec": 120.0
     },
     "kickoff-notion": {
-      "command": "/Users/taylor/dotfiles/src/mcps/kickoff-notion-mcp",
+      "command": "/Users/taylor/src/github/dotfiles/src/mcps/kickoff-notion-mcp",
       "disabled_tools": [
         "API-get-users"
       ]
     },
     "claude-driver": {
-      "command": "/Users/taylor/dotfiles/src/claude-driver/bin/claude-driver-mcp",
+      "command": "/Users/taylor/src/github/dotfiles/src/claude-driver/bin/claude-driver-mcp",
       "tool_timeout_sec": 300.0
     }
   },
   "claude": {
     "gmail-personal-primary": {
-      "command": "/Users/taylor/dotfiles/gmail-mcp/run-gmail-mcp",
+      "command": "/Users/taylor/src/github/dotfiles/gmail-mcp/run-gmail-mcp",
       "args": [
         "personal-primary"
       ]
     },
     "gmail-work-primary": {
-      "command": "/Users/taylor/dotfiles/gmail-mcp/run-gmail-mcp",
+      "command": "/Users/taylor/src/github/dotfiles/gmail-mcp/run-gmail-mcp",
       "args": [
         "work-primary"
       ]
     },
     "kickoff-cloudinary": {
       "type": "stdio",
-      "command": "/Users/taylor/dotfiles/src/mcps/kickoff-cloudinary-mcp",
+      "command": "/Users/taylor/src/github/dotfiles/src/mcps/kickoff-cloudinary-mcp",
       "args": [],
       "env": {}
     },
     "kickoff-notion": {
       "type": "stdio",
-      "command": "/Users/taylor/dotfiles/src/mcps/kickoff-notion-mcp",
+      "command": "/Users/taylor/src/github/dotfiles/src/mcps/kickoff-notion-mcp",
       "args": [],
       "env": {}
     },
     "claude-driver": {
       "type": "stdio",
-      "command": "/Users/taylor/dotfiles/src/claude-driver/bin/claude-driver-mcp",
+      "command": "/Users/taylor/src/github/dotfiles/src/claude-driver/bin/claude-driver-mcp",
       "args": [],
       "env": {}
     }

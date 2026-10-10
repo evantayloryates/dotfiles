@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -euo pipefail
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+. "${SCRIPT_DIR}/../lib/resolve-binary.sh"
+NODE="$(resolve_binary node)"
+case "${1:-}" in
+  gmail-mcp-multiauth) entry="gmail-mcp-multiauth/dist/index.js" ;;
+  @notionhq/notion-mcp-server) entry="@notionhq/notion-mcp-server/bin/cli.mjs" ;;
+  @cloudinary/asset-management-mcp) entry="@cloudinary/asset-management-mcp/bin/mcp-server.js" ;;
+  *) echo "Unknown MCP package" >&2; exit 64 ;;
+esac
+shift
+if [[ ! -f "$SCRIPT_DIR/runtime/node_modules/$entry" ]]; then
+  echo "MCP runtime missing. Run npm ci --prefix $SCRIPT_DIR/runtime --ignore-scripts --no-audit --no-fund" >&2
+  exit 69
+fi
+exec "$NODE" "$SCRIPT_DIR/runtime/node_modules/$entry" "$@"

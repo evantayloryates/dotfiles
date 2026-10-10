@@ -5,22 +5,35 @@ versioned, portable, and available on any machine that clones this repo.
 
 ## Client registrations and resource use
 
-`client-registrations.json` records the dotfiles-owned launchers and safe host
-settings for the Gmail, Cloudinary, Notion, and claude-driver clients measured in
-the October 2026 resource audit. Run `python3
-src/mcps/verify-client-registrations.py` from dotfiles to check both Codex and
-Claude registrations. The app-owned `~/.codex/config.toml` and `~/.claude.json`
-are installed invocation points; they also contain unrelated app state and are
-not wholesale symlinks into this repository. Keep credentials out of the
-registration inventory.
+`client-registrations.json` is the canonical fleet configuration for Gmail,
+Cloudinary, Notion and claude-driver. Apply it with
+`python3 src/mcps/install-client-registrations.py --apply`, then run
+`python3 src/mcps/verify-client-registrations.py`. The installer changes only
+managed fields, preserves other servers and private app state, and writes host
+files privately. Codex and Claude require entries in their mixed app configuration
+files; these are necessary invocation triggers generated from dotfiles, rather
+than independent sources. Whole-file symlinks would also capture private app state.
+
+Gmail, Notion and Cloudinary upstream packages now execute from
+`src/mcps/runtime/node_modules`, with exact versions and dependency integrity
+recorded in `runtime/package-lock.json`. Reinstall with
+`npm ci --prefix src/mcps/runtime --ignore-scripts --no-audit --no-fund`.
+Dependencies are ignored generated installations inside the repo; custom launchers,
+package manifests, dependency lock and claude-driver source are tracked here.
+OAuth credentials and other private runtime state stay outside the tracked tree.
+Existing connected clients retain their old processes until their normal reconnect;
+new clients use the local runtime. Do not kill active clients to force migration.
 
 The measured MCP fleet grows primarily by *client count*: each attached client
 starts separate stdio runtimes. On October 9 there were about 14 roots each for
 Notion, Cloudinary, and claude-driver, plus 28 Gmail roots for two accounts.
 Their sampled CPU was almost zero. Playwright MCP had another 14 roots; it was
-removed from Codex and the sole Claude project registration after confirming no
-active dotfiles or Kickoff workflow depended on its MCP tools. Playwright used
-as a test library is separate. To reduce the remaining footprint, compare
+removed from Codex and the sole Claude project registration on Oct 9. A follow-up
+found Claude’s user plugin still enabled and uninstalled it on Oct 10. No
+active dependency was found in the inspected dotfiles/Kickoff instructions or MCP registrations. Playwright used
+as a test library is separate. For agent browser work, use the harness integrated
+browser or installed Chrome computer-use tools. Do not re-register Playwright MCP
+or reinstall its plugin as a fallback; Kickoff Playwright E2E tests remain supported. To reduce the remaining footprint, compare
 root counts when idle chats close, then prototype a shared local transport for
 one client only if the reduction is worth the added lifecycle and isolation
 complexity. Preserve active clients and account boundaries during that test.
