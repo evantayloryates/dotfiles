@@ -1,9 +1,9 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-10T19:18:07-04:00",
+  "updated_at": "2026-10-10T19:20:06-04:00",
   "workflow": {
-    "state": "active",
-    "note": "Release 0.20 is installed and ready for Taylor’s smoke test. Native widget b2a6d8226847 is also installed; actual desktop placement/display/link verification is the only remaining Review step. No broad test matrix or capture experiment is running."
+    "state": "blocked",
+    "note": "Release 0.20 and native widget are installed. Final widget appearance/link verification needs Taylor to place Screen recording through Desktop → Edit Widgets → Large, or explicitly accept panel-only delivery for this release. WidgetKit still reports zero configured instances after three goal turns. Recorder/helper are healthy and idle; no settled tests need repeating."
   },
   "production_note": "Release 0.20 is installed and ready for Taylor’s smoke test: native e402dc736458, fresh MCP adapter 0.20.0 or current CLI. Global safe pause/queue, live desktop panel, exact optional input/frame context, first cursor recipe, shared app observations and a real verified repair/subscriber cycle are delivered. Existing clients are preserved. See the release smoke test linked above. The native WidgetKit companion is installed; placement and its final desktop UI check are the single Review step; the broader Deferred tests retain Taylor’s stated prerequisites.",
   "groups": [
@@ -3823,6 +3823,13 @@
       "from": "partial",
       "to": "partial",
       "note": "Native widget installed/registered with 17 contract checks and live control/snapshot verification; actual desktop placement and link clicks await Taylor. No widget deferral assumed."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-10T19:20:06-04:00",
+      "from": "active",
+      "to": "blocked",
+      "note": "Release 0.20 and native widget are installed. Final widget appearance/link verification needs Taylor to place Screen recording through Desktop → Edit Widgets → Large, or explicitly accept panel-only delivery for this release. WidgetKit still reports zero configured instances after three goal turns. Recorder/helper are healthy and idle; no settled tests need repeating."
     }
   ],
   "work_note": "Completed work states include useful delivered portions of broader historical Partial items. Expanded verification records preserve limits. Deferred prerequisites remain explicit; Review is a genuine user decision."

@@ -1,5 +1,20 @@
 # Production qualification goal
 
+## Goal blocked: final widget placement (October 10)
+
+The placement prerequisite remained unresolved across three consecutive goal
+turns. Current production_widget_status independently reports installed
+b2a6d8226847, running helper PID73031, a fresh idle snapshot and zero configured
+widgets. No user reply or approval to postpone this release criterion arrived.
+The supported UI surfaces could not reach the desktop gallery; no further
+independent release work is pending. Stop automatic continuation here.
+
+Unblock with Taylor placing Screen recording through Desktop → Edit Widgets →
+Large and resuming for the final appearance/link check, or explicitly accepting
+the installed live panel for this release. The service is healthy and available
+for Taylor’s smoke test. This is a blocked goal, not a recorder outage, a pause
+of global recording admission or a claim of full completion.
+
 ## Native widget continuation (October 10)
 
 The native widget is now implemented rather than deferred: signed companion
