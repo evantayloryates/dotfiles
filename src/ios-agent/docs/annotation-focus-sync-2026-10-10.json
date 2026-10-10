@@ -14,5 +14,13 @@
     "ok": true,
     "value": null
   },
-  "restoredNoFocus": true
+  "restoredNoFocus": true,
+  "phoneCreatedFocus": {
+    "name": "Agent Launch",
+    "people": "None silenced",
+    "apps": "None silenced",
+    "activated": false,
+    "openAppAutomationConfigured": false,
+    "appearedOnMacAfterSettingsRefresh": false
+  }
 }

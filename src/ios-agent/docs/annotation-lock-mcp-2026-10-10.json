@@ -1,0 +1,19 @@
+{
+  "at": "2026-10-10T23:09:07.892Z",
+  "scope": "Physical configured paired iPhone; fixed shortcut lock; no XCTest or credentials",
+  "result": {
+    "ok": true,
+    "lockedVerified": true,
+    "inputSent": true,
+    "outcome": "developer-request-accepted",
+    "replay": false,
+    "transport": "paired-developer-channel",
+    "offLANQualified": false,
+    "next": "The phone is locked. Connect Mirroring if needed; a later physical unlock still requires the human."
+  },
+  "catalogTools": 27,
+  "ownerReleased": true,
+  "status": "passed",
+  "mirroringAfterLock": "Connection interrupted; Try Again reached Mac authentication gate",
+  "usage": "Deliberate lock transition only, not readiness polling"
+}

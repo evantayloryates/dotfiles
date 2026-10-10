@@ -207,3 +207,7 @@ For a genuine human unblock, use `/Users/taylor/dotfiles/bin/speak` with the act
 short request (for example, "Unlock the iPhone."), then ask the same concise
 question. Do not substitute `say`, speak placeholder text, or ask for locking
 when the fixed shortcut route is reachable.
+
+Locking may interrupt active iPhone Mirroring and its reconnect can require Mac
+authentication. Use `ios_device_lock` at a deliberate transition; never use it as
+a routine readiness poll. Ordinary status/wait operations send no locking input.

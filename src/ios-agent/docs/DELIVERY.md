@@ -110,3 +110,17 @@ HEAD readback. Dotfiles runtime/runbook is published on master. No develop merge
 or customer production deployment. The shared call-rig source was committed
 from its exact frozen owner handoff, separately; its physical/network/production
 limits and final mouse-activation edge remain in its own task.
+
+
+### 10 October annotation follow-up
+
+Fresh stdio catalog: 27 tools / five resources. `ios_device_lock` physically ran
+Runner Lock iPhone, verified passcodeRequired, and released its temporary owner.
+It uses nearby paired developer transport, cannot unlock, and may interrupt
+Mirroring. `annotation-lock-mcp-2026-10-10.json` records this boundary.
+
+`annotation-trusted-audio-2026-10-10.json` qualifies Safari generated-stream
+recording: three private chunks, valid assembled AAC, original track preserved,
+fixture removed and glow off. This is not a microphone/full-call/Chrome/off-LAN
+claim. Native console/network qualification is in the current dated native receipt.
+Off-site foreground launch and approval-free system fallback remain open.

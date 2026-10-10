@@ -17,11 +17,15 @@ Shortcuts automation set to Run Immediately → Open App → Kickoff DEV. Apple
 documents Focus sharing and Focus automation triggers separately; their combined
 foreground behavior on this exact phone is NOT tested. Use a dedicated Focus
 without notification suppression, restore the previous state, bound each request,
-and require a fresh app boot/foreground heartbeat. An APNs notification can offer
-a tap-to-open fallback, but cannot promise automatic foreground launch. The dedicated non-silencing Focus was created on the Mac; Share Across Devices
-was already on. It has not been activated and phone automation is not configured.
-A signed shortcut template passed signing, but its iOS-only app target did not
-resolve in the Mac preview, so import was canceled; signing is not execution proof.
+and require a fresh app boot/foreground heartbeat. An APNs notification can offer a tap-to-open fallback, but cannot promise automatic foreground launch.
+
+Bounded physical experiment: created a dedicated non-silencing Focus on the Mac
+and a separate **Agent Launch** Focus on the iPhone (People and Apps both show
+None silenced). Existing Share Across Devices is on. Neither new profile appeared
+on the other device after refresh. A ten-second Mac Focus pulse completed and
+restored no Focus; phone foregrounding was not proved. Phone Open App automation
+is not yet configured. Do not repeat the same sync loop or publish this as a
+remote launch route. A signed template alone did not resolve its iOS app target.
 
 ## 2. Avoid recurring XCTest approval
 
@@ -107,7 +111,11 @@ Created **Runner Lock iPhone** on the Mac with one Apple Lock Screen action.
 iCloud Sync was already enabled. It appeared on the physical phone, one fixed
 developer-channel URL invocation locked it, and independent `passcodeRequired`
 readback plus live Mirroring confirmed the result. `ios_device_lock` exposes this
-without an arbitrary URL/name, and skips dispatch when already locked. Unlock
+without an arbitrary URL/name, and skips dispatch when already locked. Fresh
+stdio MCP discovery returned 27 tools; physical lock, independent state readback
+and owner release passed. Running it during Mirroring interrupted that session;
+reconnecting reached the Mac-authentication gate. Use locking at a deliberate
+workflow transition, not as a health probe. Unlock
 and true OS authentication remain human actions; nearby lock is not off-LAN proof.
 
 The configured `/Users/taylor/dotfiles/bin/speak` helper is required for human
