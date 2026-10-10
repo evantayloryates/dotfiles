@@ -3,7 +3,9 @@
 Current delivery: [Recorder 0.20 release and smoke test](qualification/RELEASE-0.20.md).
 Global production Pause/Resume and the native desktop panel are service-owned;
 use checkpoints before new UI. Fresh clients expose repair tickets, shared app
-observations and the first configurable cursor recipe. See [agent usage](AGENT-USAGE.md).
+observations and the first configurable cursor recipe. The signed [native widget
+companion](widget/README.md) is also installed; actual desktop placement and its
+final link-click check await Taylor. See [agent usage](AGENT-USAGE.md).
 
 An always-on screen-recording engine that agents drive through the
 `record-screen` MCP. This folder holds the engine (`record-screend`, Swift on
@@ -19,11 +21,12 @@ joins; driving agents select relevant events from rich bounded evidence.
 Computer use is a separately maintained dependency. Local updates favor
 targeted checks, use-driven learning and quick repair over broad release gates.
 
-Current CLI/fresh MCP0.19.2 planning adds coarse host-aware resource advice and
-bounded private decision logs; it does not change settings or enforce resource
-admission. Desktop safe-pause control and automated repair tickets are Ready
-briefs, not installed tools. Basic cursor composition is Ready. The checklist's
-five work states preserve the separate historical qualification results.
+Current CLI/fresh MCP 0.20.0 includes coarse host-aware resource advice and
+bounded private decision logs; those advisories do not silently change settings
+or fidelity. Desktop safe-pause control, repair tickets and basic cursor
+composition are delivered. Native widget status is inspectable through
+production_widget_status. The checklist’s five work states preserve the
+separate historical qualification results and the final widget UI check.
 
 For production coordination, start with [the agent usage and recovery runbook](AGENT-USAGE.md).
 It separates delivered capabilities from app/provider checks still needed.

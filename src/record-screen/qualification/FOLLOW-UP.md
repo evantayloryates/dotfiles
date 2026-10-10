@@ -4,9 +4,10 @@ October 10, 2026. The initial briefs below are retained as design history.
 [Release 0.20](RELEASE-0.20.md) now delivers the global gate/live panel, recorder
 repair lifecycle and first configurable cursor recipe. The checklist is current;
 original broad qualification scopes remain distinct from delivered portions.
-A true WidgetKit presentation is still an explicit Review decision.
+The native WidgetKit companion is also installed; desktop placement and its
+final appearance/link check remain Review. See [widget usage](../widget/README.md).
 
-## Desktop status and cooperative global pause — panel delivered; widget in Review
+## Desktop status and cooperative global pause — panel and widget installed; desktop UI check in Review
 
 Build a reading-first panel showing Recording, Pause requested / draining,
 Paused, Idle, Queued and Unavailable, plus active take names, queued counts,

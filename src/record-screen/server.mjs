@@ -19,6 +19,7 @@ import { observeResourcePlan } from "./lib/resource-awareness.mjs";
 import {queryRecordingInput,validateInputQuery,inputQuerySchema,inputQueryHealth} from "./lib/input-query.mjs";
 
 import {renderCursor,validateCursorRecipe,cursorRenderSchema} from "./lib/cursor-render.mjs";
+import {widgetStatus} from "./lib/widget-status.mjs";
 import {repairCall,repairTools} from "./lib/repair-tickets.mjs";
 import {EVIDENCE_TOOLS as evidenceTools,evidenceHandler} from "../codex-bridge/lib/evidence-tools.mjs";
 
@@ -126,6 +127,7 @@ const ok = (v) => ({ content: [{ type: "text", text: text(v) }], isError: false 
 
 const tools = [
   {name:"cursor_render",description:"Render one bounded editable cursor/click recipe from terminal footage and retained pointer input. Service owns exact source/frame joins and timing; fitted-origin/gap refusal guards apply. Required hotspot and coordinate_basis acknowledge the tested desktop convention; raw provider positions/actors are not automatically qualified. Source rows/action tokens let the director select relevant events. Configurable size, opacity, typing hide, hold, click duration; draft/final effort. Up to60s/7200 source frames/2MP output; shared render lock,180s worker budget, local Pillow/CairoSVG/FFmpeg dependencies. Original media untouched; private recipe/timeline/three sample frames and silent SDR H.264 output. No cursor erasure, HDR/audio preservation or whole-shot backup recovery. Inspect representative samples before final use.",inputSchema:cursorRenderSchema,run:async a=>{const r=validateCursorRecipe(a);return ok(await renderCursor(await engine("record.source",{recording_id:r.recording_id}),r))}},
+  {name:"production_widget_status",description:"Read native desktop widget installation, helper state, configured instance count, sampled-state freshness and placement instructions. Read-only; configuration count cannot prove desktop placement or actual clicks. Widget display is system-refreshed; use production_status for authoritative current state.",inputSchema:{type:"object",additionalProperties:false,properties:{}},annotations:{readOnlyHint:true},run:async()=>ok(await widgetStatus())},
   ...repairTools.map(({name,command,description,properties,required,read})=>({name,description,inputSchema:{type:"object",additionalProperties:false,properties,required},annotations:{readOnlyHint:read===true},run:async a=>ok(await repairCall(command,a))})),
   ...evidenceTools.filter(t=>["computer_use_observe","computer_use_facts"].includes(t.name)).map(t=>({...t,name:t.name.replace("computer_use_","app_"),description:"Shared recorder/app learning: "+t.description,run:async a=>ok(await evidenceHandler(t.name)(a))})),
   ...[
@@ -180,7 +182,7 @@ const tools = [
     inputSchema: { type: "object", properties: {}, additionalProperties: false },
     annotations: { readOnlyHint: true },
     run: async () => ok({ ...await engine("status"), mcp_adapter: {
-      version: VERSION, production_gate_controls: 1, repair_tickets:1, shared_app_observation:1, cursor_recipe:1, input_reception_frame_context:1, declared_target_context: 1, replay_policy: 1, production_planning: 1, resource_awareness: 1, shared_app_learning: 1, production_storage_guidance: 1, triple_source_planning: 1, source_frame_mapping: 1, source_region_mapping: 1, transient_window_query: 1,
+      version: VERSION, native_widget_status:1, production_gate_controls: 1, repair_tickets:1, shared_app_observation:1, cursor_recipe:1, input_reception_frame_context:1, declared_target_context: 1, replay_policy: 1, production_planning: 1, resource_awareness: 1, shared_app_learning: 1, production_storage_guidance: 1, triple_source_planning: 1, source_frame_mapping: 1, source_region_mapping: 1, transient_window_query: 1,
       registered_frame_mapping:1,registration:registrationHealth(),frame_mapping: frameMapHealth(), preview_source_mapping: 1, paired_source_mapping: 1, paired_interval_coverage_summary: 1, fitted_child_mapping_guard: 1, retained_input_query: 1, retained_action_context: 1, retained_input_health_context: 1,
       input_query: inputQueryHealth(), mutation_replay: "never",
       read_reconnect_budget_ms: 12000,

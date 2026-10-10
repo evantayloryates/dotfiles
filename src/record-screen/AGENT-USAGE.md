@@ -761,6 +761,10 @@ flight safely and wait. New recordings queue while paused. An already-started
 recording continues to its planned end/finalization. This is cooperative pause,
 not emergency stop, input interception or a lock on Taylor's mouse/keyboard.
 Use `production_panel_show` for the movable native desktop reading panel.
+`production_widget_status` reads the separately installed native WidgetKit
+companion’s build, helper state, configuration count and snapshot age. Widget
+refreshes are system-managed; use authoritative `production_status` for current
+state. Counts alone cannot establish desktop placement. See widget/README.md.
 `production_pause` / `production_resume` act across MCP clients and the CLI and
 survive native restarts. Queued takes whose start time passes while paused
 require explicit rescheduling; Resume never silently starts those late takes.

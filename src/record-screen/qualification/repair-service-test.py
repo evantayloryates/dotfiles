@@ -25,6 +25,11 @@ class Repairs(unittest.TestCase):
   f=self.command('feedback',{'ticket_id':t['ticket_id'],'result':'failed','note':'New consumer issue needs a new incident','evidence_refs':['/private/fixture']})
   self.assertEqual(f['revision'],ready['revision']);self.assertEqual(f['state'],'ready_for_use');self.assertEqual(f['release']['limits'],'original limitation')
   release=self.command('releases',{'limit':1})['releases'][0];self.assertEqual(release['consumer_feedback'][-1]['result'],'failed');self.assertIsNone(r.signal(self.db,s['subscription_id'])['event'])
+ def test_actual_cli_report_routes_to_ticket_not_watcher(self):
+  env={**os.environ,'RECORD_SCREEN_HOME':str(r.BASE.parent)}
+  args={'symptom':'Dependency failed','expected':'Owner routing','observed':'Not delivered','owner':'computer_use','dispatch':False}
+  raw=subprocess.check_output(['node',str(Path(r.__file__).with_name('cli.mjs')),'report-bug',json.dumps(args)],text=True,env=env)
+  t=json.loads(raw);self.assertEqual(t['state'],'needs_input');self.assertIsNone(t['worker_pid']);self.assertEqual(r.ticket(self.db,t['ticket_id'])['report']['symptom'],args['symptom'])
  def test_no_success_for_prepared_or_input(self):
   t=self.report();s=r.subscribe(self.db,{'ticket_id':t['ticket_id'],'caller':'test','subscription_key':'one'})
   for state in ['working','patch_prepared','needs_input','dispatch_uncertain']:

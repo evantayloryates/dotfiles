@@ -1,5 +1,22 @@
 # Production qualification goal
 
+## Native widget continuation (October 10)
+
+The native widget is now implemented rather than deferred: signed companion
+b2a6d8226847 and extension registered, own clean-environment helper running,
+17 contract checks plus actual service pause/resume/shared-snapshot readback
+passed. Native recorder e402dc736458/PID58895 stayed unchanged. Fresh MCP exposes
+production_widget_status; configuration count is currently zero. A CLI bug
+found during integration (report-bug falling into repair-watch) is corrected and
+covered by an actual isolated CLI test; 9 repair lifecycle checks pass.
+
+Remaining Review is now desktop placement and actual widget display/link clicks,
+not a presentation-design decision. Native desktop/gallery controls are outside
+the reachable CUA surfaces in this run. Taylor has a concise request to add the
+installed widget, or explicitly approve relying on the live panel for this
+release. No approval is assumed, and no actual widget UI pass is claimed.
+The goal stays active pending that final check; do not rerun unrelated phases.
+
 ## Current checkpoint: release 0.20 delivered (October 10)
 
 This checkpoint supersedes earlier installed-version and scope statements below.

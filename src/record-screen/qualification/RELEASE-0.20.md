@@ -3,7 +3,7 @@
 The release integrates useful verified portions of partial qualification items;
 their broader historical scopes and limitations remain visible in the checklist.
 Native build **e402dc736458** is installed, including the real panel-ticket
-repair. The initial gate/panel build 3a048fbec3f8 remains in the delivery history. Fresh MCP adapters report 0.20.0 and expose 45 tools. Existing clients
+repair. The initial gate/panel build 3a048fbec3f8 remains in the delivery history. Fresh MCP adapters report 0.20.0 and expose 46 tools. Existing clients
 keep their loaded code; the CLI reads current code without restarting peers.
 
 ## Included in this release
@@ -12,6 +12,10 @@ keep their loaded code; the CLI reads current code without restarting peers.
   stale-timer fencing, no late auto-start after a queued start expires, native
   desktop reading/control panel and cross-client/CLI controls. Current takes
   drain safely; arbitrary external UI tools cooperate through checkpoints.
+- Native WidgetKit desktop companion b2a6d8226847, signed and registered, with
+  sampled status, freshness, fixed Pause/Resume links and a Live panel link. Its
+  control/snapshot checks passed; desktop placement and link-click UI checks
+  await Taylor. No recorder restart or capture-permission change.
 - Exact optional input-reception-to-actual-frame context, with held source ages,
   clock/snapshot limits and useful input preserved when video context is absent.
 - First configurable SVG/PNG cursor/click recipe, draft and final effort, private
@@ -30,7 +34,9 @@ keep their loaded code; the CLI reads current code without restarting peers.
 
 ## Taylor's short smoke test
 
-1. In the **Screen recording** desktop panel, request safe pause. With no take
+1. Add **Screen recording** through Desktop → Edit Widgets (app: **Record Screen
+   Control**) and choose Large. Let the agent know it is placed for the final
+   appearance/link check. In the **Screen recording** desktop panel, request safe pause. With no take
    active, it should say Paused. Resume should return to Ready. Your mouse and
    keyboard stay usable throughout. Close hides the panel without changing the
    gate; `record-screen production-panel-show` reopens it.
@@ -58,7 +64,7 @@ input events with optional frame context available; rendered cursor positions
 matched the observed marker [84,248] and drag endpoint [480,550]. Its fresh MCP
 consumer smoke checked tool discovery, frame-context reads, a decoded 45-frame
 preview and shared fact readback. 27 input/frame reader checks, 2 reception-context
-checks, 4 cursor acceptance/refusal checks and 8 durable-ticket checks passed, including feedback that cannot promote a
+checks, 4 cursor acceptance/refusal checks and 9 durable-ticket checks passed, including feedback that cannot promote a
 prepared patch or retrigger a ready signal.
 Draft/final recipe renders and representative PNGs are retained privately.
 Real ticket bug_222cb658ed024988bb4c7b65 reached the developer worker, preserved
@@ -76,6 +82,7 @@ real overflow discovery and per-app depth/receipt passes keep Taylor's stated
 Deferred prerequisites. Their useful existing portions are included above.
 Millisecond clock precision is preserved; physical reaction latency and frame
 cadence are separate and are not certified by exact timestamps. The desktop
-panel is installed; a true WidgetKit desktop widget remains a presentation
-choice awaiting Taylor's response. No optional new qualification is silently
+panel and native WidgetKit companion are installed. Actual widget placement
+and desktop link clicks still await Taylor; the OS currently reports zero
+configured instances. See [widget usage and evidence](../widget/README.md). No optional new qualification is silently
 made a blocker, and no unverified criterion is called completed.

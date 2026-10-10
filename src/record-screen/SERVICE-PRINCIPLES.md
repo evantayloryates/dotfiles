@@ -122,8 +122,9 @@ The widget is a view/controller, not the enforcement boundary.
 Sleep/wake qualification is deferred by Taylor. Normal production assumes an
 awake Mac, with the existing gap detection retained. This assumption does not
 turn untested sleep behavior into a pass. The service-owned gate and native desktop panel are installed and verified
-for their stated cooperative scope. A true WidgetKit desktop widget is a
-separate presentation choice, not the enforcement boundary.
+for their stated cooperative scope. A signed WidgetKit companion is also installed; its sampled display is
+system-refreshed and not the enforcement boundary. Final desktop placement and
+link-click verification remain explicit in the checklist.
 
 ## Basic resource awareness before broad capacity work
 

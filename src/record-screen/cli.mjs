@@ -48,6 +48,7 @@ import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import {widgetStatus} from "./lib/widget-status.mjs";
 import { callerContext } from "./lib/caller.mjs";
 import { prepareMaintenance, validateMaintenance, releaseMaintenance } from "./lib/maintenance.mjs";
 import { install } from "./lib/install.mjs";
@@ -131,7 +132,8 @@ Usage: record-screen <command> [arguments]
 Read: status, ping, windows, sessions, session, recordings, source, frame-map,
       paired-map, registered-frame, input-query, frames, review, app-facts
 Production: production-plan <json>, production-status, production-checkpoint,
-      production-pause, production-resume, production-panel-show/hide
+      production-pause, production-resume, production-panel-show/hide,
+      production-widget-status
 Capture: record <target> <start> <end>, record-wait, stop, cancel, export
 Composition: cursor-render <json> (required asset, hotspot, coordinate_basis)
 Repair: report-bug <json>, repair-status/retry/subscribe/wait/unsubscribe <json>
@@ -159,7 +161,6 @@ const [cmd = "status", ...args] = argv;
 try {
   switch (cmd) {
     case "cursor-render": {const r=validateCursorRecipe(JSON.parse(args[0]||"{}"));out(await renderCursor(await call("record.source",{recording_id:r.recording_id}),r));break;}
-    case "report-bug":
     case "repair-watch": {
       const a=JSON.parse(args[0]||"{}"),duration=a.timeout_s??86400;
       if(!Number.isFinite(duration)||duration<1||duration>86400)throw new EngineError("repair_watch","timeout_s must be1–86400");
@@ -172,6 +173,7 @@ try {
       if(Date.now()>=deadline){process.stderr.write("Repair still pending; no completion signal emitted.\n");process.exitCode=2;}
       break;
     }
+    case "report-bug":
     case "repair-feedback":
     case "repair-releases":
     case "repair-retry":
@@ -184,6 +186,8 @@ try {
     }
     case "app-observe":
     case "app-facts":out(await evidenceHandler(cmd.replace("app-","computer_use_"))(JSON.parse(args[0]||"{}")));break;
+    case "production-widget-status":
+      out(await widgetStatus());break;
     case "production-status":
     case "production-checkpoint":
     case "production-pause":
