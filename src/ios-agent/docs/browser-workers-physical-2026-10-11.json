@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-11",
+  "version": "1.9.20",
+  "scope": "Physical Safari and Chrome, synthetic local DEV counter fixture",
+  "chrome": {
+    "workerCount": 1,
+    "workersInitialized": 1,
+    "domainsDisabled": true,
+    "counterBefore": 10,
+    "counterAfter": 104,
+    "workerStoppedConfirmed": true,
+    "receipt": "owned-inspector-1791705670606407000.json"
+  },
+  "safari": {
+    "workerCount": 1,
+    "workersInitialized": 1,
+    "domainsDisabled": true,
+    "counterBefore": 29,
+    "counterAfter": 112,
+    "receipt": "owned-inspector-1791705824141850000.json",
+    "workerStoppedConfirmed": true
+  },
+  "checks": {
+    "pythonInspector": 23,
+    "mcpDebuggerSchemaBackend": 5
+  },
+  "boundaries": [
+    "Same original XCTest owner retained; fresh MCP schema tested separately from provider physical probe.",
+    "Dedicated worker IDs/names/URLs only. No worker source/evaluation or service-worker proof.",
+    "Page Network socket attribution remains independent and unknown when no creation URL was observed.",
+    "Every worker initialized even during owner loss/disable; cleanup failure is not success.",
+    "Nearby paired Inspector only."
+  ]
+}

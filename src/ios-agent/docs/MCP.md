@@ -581,3 +581,13 @@ The separate runner-lifetime reservation remains experimental and absent from th
 `ios_system_action {sessionId,action:"orientation",orientation:"portrait"}` requests one fixed orientation and reads provider state. `landscape` is also allowed. Inspect actual layout separately; this is not orientation lock. Physical Chrome recovered a clipped Join button, then joined through a fresh exact native target query. Unknown input is never replayed; all existing owner/lock/app-scope guards apply. See NATIVE-INPUT.md and system-orientation-physical-2026-10-11.json.
 
 Published1.9.18 adds explicit portrait/landscape recovery with provider readback, plus exact-label anchored scrolling for nested native/browser panes. Both physically exercised without restarting the held runner. Native web taps require independent DOM clipping/hit-test review; AX visibility can be misleading. 25 focused driver/schema/backend checks pass.
+
+## WebSocket capture and native selects (published1.9.19)
+
+`ios_browser_debug op=network` includes WebSocket lifecycle and frame events in the existing bounded private capture. Physical Chrome retained159frames/15189payloadbytes with zero drops and disable/detach confirmed. Text preserves content with known-key/Bearer scrubbing; binary content is omitted. Missing socket-creation URLs stay unattributed. Use selected `ios_read` pointers.
+
+`ios_system_action action=tap elementType=XCUIElementTypeOther` opens a uniquely named native web-select control; inspect native options and tap the observed choice. Chrome transport selection and independent DOM value readback passed. Other is never accepted for field typing. Chrome's three audio baselines and three probe-only faults also passed, with both calls exited, provider0participants/recordings0, receiver stopped and Home confirmed. See the individual evidence files; no off-LAN RTC or controlled CPU comparison is implied.
+
+## Dedicated worker discovery (1.9.20)
+
+`ios_browser_debug op=workers` returns a bounded worker catalog. Physical Safari/Chrome synthetic-worker discovery, mandatory initialization, continued execution and domain cleanup passed. Worker debugging has an execution gate: this service initializes every reported worker even after owner loss. Read the private worker list selectively. This does not expose worker source/evaluation or assign unattributed Network frames to a worker. See BROWSER-DEBUG.md.

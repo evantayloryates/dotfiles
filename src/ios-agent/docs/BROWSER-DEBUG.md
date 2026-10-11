@@ -184,3 +184,11 @@ Protocols:
 Network capture now includes WebSocket creation, handshake, sent/received frames, errors and close events. Text frames retain structured content with the same known-key scrubbing and shared1000-event/2MiB budget; plain Bearer values are masked. Binary payloads retain opcode/length/timing, with media content available through explicit audio capture. No interception or always-on listener. Fresh summaries expose frame count and payload bytes.
 
 Physical Chrome captured159 frames/15189 payload bytes in3 seconds with zero drops and disable/detach confirmed.152 frames had no observed socket-creation URL; keep that attribution unknown. An empty Network window is not evidence that a worker or socket is idle. This does not establish a worker debugger attachment. See `network-websocket-physical-2026-10-11.json`.
+
+## Dedicated worker catalog (1.9.20)
+
+`ios_browser_debug {browser:"safari",op:"workers",sampleMs:1000}` briefly enables WebKit's Worker domain, retains worker IDs/names/scrubbed URLs, then disables and detaches. Chrome uses the same operation. Every reported worker is immediately sent `Worker.initialized`, including after owner loss or during disable, so this inspection does not intentionally leave workers suspended. Initialization or disable failure fails the operation.
+
+Physical Safari and Chrome each found the named synthetic counter worker, initialized it, and detached. Independent DOM counters advanced10→104 in Chrome and29→112 in Safari. These are controlled counter-page proofs, not product-worker source, evaluation, service-worker or socket attribution. A zero-row window provides no measured worker content. The existing private event budget/one-hour expiry applies. Twenty-three Python lifecycle checks and five MCP debugger/schema checks pass.
+
+Protocol: https://raw.githubusercontent.com/WebKit/WebKit/main/Source/JavaScriptCore/inspector/protocol/Worker.json

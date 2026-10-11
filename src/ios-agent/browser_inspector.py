@@ -81,7 +81,7 @@ async def inspect(session, request, target, expected, check):
     request['_inputDispatched']=False
     request['_contextStage']='initial'
     op=request.get('op','overview')
-    allowed={'overview','dom','sources','source','styles','console','trace','network','profile','resources','evaluate'}
+    allowed={'overview','dom','sources','source','styles','console','trace','network','profile','resources','workers','evaluate'}
     if op not in allowed:raise ValueError('fixed_debug_operation_required')
     reference=request.get('documentRef')
     if op in ('source','evaluate') and not re.fullmatch('[a-f0-9]{32}',reference or ''):
@@ -109,11 +109,22 @@ async def inspect(session, request, target, expected, check):
         'browser':target.application.bundle,'ready':ctx['ready'],'scope':'paired-dev-WebKit-Inspector','userGestureRequested':False,'replay':False}
     if op=='overview':return {**result,'domainsDisabled':True}
     domains=[];events=Events();old_handlers={};paused=False;timeline_requested=False;profile_requested=False
+    worker_tasks=[];worker_ids=set();worker_initialized=[]
+    async def initialize_worker(worker_id):
+        # Enabling Worker can suspend newly reported workers. This is mandatory
+        # release cleanup, so it must run even if ownership expires afterward.
+        await command(session,'Worker.initialized',timeout=2,workerId=worker_id)
+        worker_initialized.append(worker_id)
     resource_requested=[];resource_clock=asyncio.get_running_loop().time()
     def handler(method):
         def record(event):
             nonlocal paused
             if method=='Debugger.paused':paused=True
+            if method=='Worker.workerCreated':
+                worker_id=event.get('params',{}).get('workerId')
+                if isinstance(worker_id,str) and worker_id not in worker_ids:
+                    worker_ids.add(worker_id)
+                    worker_tasks.append(asyncio.create_task(initialize_worker(worker_id)))
             elapsed=round((asyncio.get_running_loop().time()-resource_clock)*1000,3) if op=='resources' else None
             events.add(method,event.get('params',{}),elapsed)
         return record
@@ -132,6 +143,7 @@ async def inspect(session, request, target, expected, check):
                  'console':['Console.messageAdded','Console.messageRepeatCountUpdated','Console.messagesCleared'],
                  'trace':['Timeline.eventRecorded','Timeline.recordingStarted','Timeline.recordingStopped'],
                  'network':['Network.requestWillBeSent','Network.responseReceived','Network.dataReceived','Network.loadingFinished','Network.loadingFailed','Network.requestServedFromMemoryCache','Network.webSocketCreated','Network.webSocketWillSendHandshakeRequest','Network.webSocketHandshakeResponseReceived','Network.webSocketFrameReceived','Network.webSocketFrameSent','Network.webSocketFrameError','Network.webSocketClosed'],
+                 'workers':['Worker.workerCreated','Worker.workerTerminated'],
                  'profile':['ScriptProfiler.trackingStart','ScriptProfiler.trackingUpdate','ScriptProfiler.trackingComplete'],
                  'resources':['Memory.trackingStart','Memory.trackingUpdate','Memory.trackingComplete','Memory.memoryPressure',
                               'CPUProfiler.trackingStart','CPUProfiler.trackingUpdate','CPUProfiler.trackingComplete']} .get(op,[])
@@ -175,7 +187,7 @@ async def inspect(session, request, target, expected, check):
             check();result['computed']=await command(session,'CSS.getComputedStyleForNode',nodeId=node['nodeId'])
             check();result['inline']=await command(session,'CSS.getInlineStylesForNode',nodeId=node['nodeId'])
             result['selector']=request['selector']
-        elif op in ('console','trace','network','profile','resources'):
+        elif op in ('console','trace','network','profile','resources','workers'):
             if op=='profile':
                 check();profile_requested=True
                 await command(session,'ScriptProfiler.startTracking',includeSamples=True)
@@ -187,7 +199,7 @@ async def inspect(session, request, target, expected, check):
                     check();resource_requested.append(domain)
                     await command(session,domain+'.startTracking')
             else:
-                domain={'console':'Console','trace':'Timeline','network':'Network'}[op]
+                domain={'console':'Console','trace':'Timeline','network':'Network','workers':'Worker'}[op]
                 await enable(domain)
             if op=='trace':
                 check();timeline_requested=True
@@ -219,12 +231,20 @@ async def inspect(session, request, target, expected, check):
                 await command(session,domain+'.stopTracking',timeout=2)
                 result[{'Memory':'memoryStopped','CPUProfiler':'cpuProfilerStopped'}[domain]]=True
             except Exception:cleanup.append(domain+'.stopTracking')
+        if worker_tasks:
+            failures=await asyncio.gather(*worker_tasks,return_exceptions=True)
+            if any(isinstance(e,BaseException) for e in failures):cleanup.append('Worker.initialized')
         if paused:
             try:await command(session,'Debugger.resume',timeout=2)
             except Exception:cleanup.append('Debugger.resume')
         for domain in reversed(domains):
             try:await command(session,domain+'.disable',timeout=2)
             except Exception:cleanup.append(domain+'.disable')
+        # A worker can arrive while disable is in flight. Drain its mandatory
+        # initialization as well before restoring handlers/detaching.
+        if worker_tasks:
+            failures=await asyncio.gather(*worker_tasks,return_exceptions=True)
+            if any(isinstance(e,BaseException) for e in failures) and 'Worker.initialized' not in cleanup:cleanup.append('Worker.initialized')
         for method,old in old_handlers.items():
             if old is None:session.response_methods.pop(method,None)
             else:session.response_methods[method]=old
@@ -235,6 +255,8 @@ async def inspect(session, request, target, expected, check):
             request['_receiverFailureType']=getattr(session,'_ios_agent_receiver_failure',None)
             raise ValueError('debug_cleanup_unconfirmed')
     result.update(eventCount=len(events.rows),droppedEvents=events.dropped,retainedBytes=events.bytes)
+    if op=='workers':
+        result.update(workers=[x['params'] for x in events.rows if x['method']=='Worker.workerCreated'],workerCount=len(worker_ids),workersInitialized=len(worker_initialized),workerInitializationConfirmed=len(worker_ids)==len(worker_initialized),coverage='Observed dedicated Worker domain catalog only; no worker source, evaluation or network attribution.',events=events.rows)
     if op=='network':
         frames=[x for x in events.rows if x['method'] in ('Network.webSocketFrameReceived','Network.webSocketFrameSent')]
         result.update(webSocketFrames=len(frames),webSocketPayloadBytes=sum(x['params'].get('response',{}).get('payloadLength',0) for x in frames if isinstance(x['params'].get('response',{}).get('payloadLength'),(int,float))),

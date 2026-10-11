@@ -240,4 +240,41 @@ class InspectorTests(unittest.IsolatedAsyncioTestCase):
         e.add('Network.webSocketFrameReceived',{'response':{'opcode':1,'payloadData':'Bearer abcdefghijklmnop'}})
         self.assertEqual(e.rows[1]['params']['response']['payloadData'],'Bearer abcd…mnop')
 
+    async def test_worker_catalog_initializes_every_worker_without_source_or_evaluation(self):
+        original=self.s.send_command
+        async def send(method,**args):
+            if method=='Worker.enable':
+                self.s.emit('Worker.workerCreated',workerId='w1',url='https://u:pass@dev.example.ts.net/audio.js?token=x',name='audio')
+                self.s.emit('Worker.workerCreated',workerId='w1',url='https://dev.example.ts.net/audio.js',name='audio')
+            if method=='Worker.disable':self.s.emit('Worker.workerCreated',workerId='w2',url='https://dev.example.ts.net/late.js',name='late')
+            return await original(method,**args)
+        self.s.send_command=send
+        r=await self.run_debug({'op':'workers','sampleMs':100})
+        self.assertEqual(r['workerCount'],2);self.assertEqual(r['workersInitialized'],2)
+        self.assertTrue(r['workerInitializationConfirmed']);self.assertTrue(r['domainsDisabled'])
+        self.assertEqual(r['workers'][0]['url'],'https://dev.example.ts.net/audio.js')
+        self.assertEqual(len([m for m,_ in self.s.calls if m=='Worker.initialized']),2)
+        self.assertFalse(any(m=='Worker.sendMessageToWorker' for m,_ in self.s.calls));self.assertEqual(self.s.response_methods,{})
+
+    async def test_worker_owner_loss_still_initializes_and_disables(self):
+        original=self.s.send_command
+        async def send(method,**args):
+            if method=='Worker.enable':self.s.emit('Worker.workerCreated',workerId='w1',url='https://dev.example.ts.net/a.js',name='a')
+            return await original(method,**args)
+        self.s.send_command=send
+        def check():
+            if any(m=='Worker.enable' for m,_ in self.s.calls):raise ValueError('observer_owner_expired')
+        with self.assertRaisesRegex(ValueError,'observer_owner_expired'):await self.run_debug({'op':'workers'},check)
+        self.assertIn(('Worker.initialized',{'workerId':'w1'}),self.s.calls);self.assertIn(('Worker.disable',{}),self.s.calls)
+        self.assertEqual(self.s.response_methods,{})
+
+    async def test_worker_initialization_failure_is_not_success(self):
+        original=self.s.send_command
+        async def send(method,**args):
+            if method=='Worker.enable':self.s.emit('Worker.workerCreated',workerId='w1',url='https://dev.example.ts.net/a.js',name='a')
+            return await original(method,**args)
+        self.s.send_command=send;self.s.fail='Worker.initialized'
+        with self.assertRaisesRegex(ValueError,'debug_cleanup_unconfirmed'):await self.run_debug({'op':'workers','sampleMs':100})
+        self.assertIn(('Worker.disable',{}),self.s.calls);self.assertEqual(self.s.response_methods,{})
+
 if __name__=='__main__':unittest.main()
