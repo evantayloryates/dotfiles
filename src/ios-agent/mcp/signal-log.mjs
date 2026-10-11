@@ -12,8 +12,8 @@ const DIR = path.join(ROOT, 'signals');
 const FILE_BYTES = 128 * 1024, TOTAL_BYTES = 2 * 1024 * 1024, MAX_FILES = 32;
 const MAX_AGE = 7 * 86400 * 1000, ROTATE_AGE = 86400 * 1000;
 const ids = new Set(['traceId','requestId','sessionId','ownerId','pageId','buildId','bootId','epoch','backendEpoch','clientEpoch','sourceHash','leaseFingerprint','sourceStream']);
-const aliases = {trace:'traceId',request:'requestId',session:'sessionId',owner:'ownerId',page:'pageId',build:'buildId',boot:'bootId'};
-const words = new Set(['tool','action','op','surface','transport','provider','stage','phase','outcome','reason','code','version','errorName','errorCode','route']);
+const aliases = {trace:'traceId',request:'requestId',session:'sessionId',owner:'ownerId',page:'pageId',build:'buildId',boot:'bootId',routeName:'route',previousRouteName:'previousRoute',operationName:'op',errorCount:'count'};
+const words = new Set(['tool','action','op','kind','surface','transport','provider','stage','phase','fromState','toState','outcome','reason','code','version','errorName','errorCode','route','previousRoute']);
 const numeric = new Set(['durationMs','count','attemptCount','retryCount','acceptedCount','failedCount','frameCount','signalCount','dropCount','droppedCount','truncatedCount','sourceAtMs','sourceSeq','bytes']);
 const booleans = new Set(['dispatched','inputSent','verified','released','ready','truncated']);
 const scopes = new Set(['mcp','browser','host','native','kck-native','kck-web','kck-call']);
@@ -74,6 +74,10 @@ function clean(fields) {
       if (typeof value === 'string' && /^[a-f0-9]{12}$/.test(value)) out[key]=value;
       continue;
     }
+    if (key === 'statusCode') {
+      if (Number.isInteger(value) && value >= 100 && value <= 599) out[key]=value;
+      continue;
+    }
     if (ids.has(key)) { const v = safeId(value); if (v !== undefined) out[key] = v; }
     else if (words.has(key)) { const v = scrub(value, 80); if (v) out[key] = v; }
     else if (numeric.has(key) && typeof value === 'number' && Number.isFinite(value) && value >= 0) out[key] = Math.min(value, 1e15);
@@ -132,7 +136,7 @@ export function emitSignal(scope, event, fields = {}) {
     delete data.level;
     const row = {v:1,time:new Date().toISOString(),id:randomBytes(8).toString('hex'),scope,event,level,...data};
     let line = JSON.stringify(row)+'\n';
-    for (const key of ['stack','detail','message','url','route','sourceHash','backendEpoch','clientEpoch','buildId','ownerId','pageId','bootId','version','provider','transport','surface','stage','phase']) {
+    for (const key of ['stack','detail','message','url','route','previousRoute','sourceHash','backendEpoch','clientEpoch','buildId','ownerId','pageId','bootId','version','provider','transport','surface','stage','phase']) {
       if (Buffer.byteLength(line)<=1200) break;
       delete row[key]; line=JSON.stringify(row)+'\n';
     }
@@ -192,7 +196,7 @@ export function readSignals(options = {}) {
     for (const r of rows) {
       if (taken>=limit) break;
       const shown=[r.time,r.event.startsWith(r.scope+'.')?r.event:r.scope+'.'+r.event,`level=${r.level}`];
-      for (const [key,value] of Object.entries(clean(r))) if (ids.has(key)||words.has(key)||numeric.has(key)||booleans.has(key)||['message','detail','stack','url'].includes(key)) shown.push(`${key}=${display(value,key)}`);
+      for (const [key,value] of Object.entries(clean(r))) if (ids.has(key)||words.has(key)||numeric.has(key)||booleans.has(key)||['message','detail','stack','url','statusCode'].includes(key)) shown.push(`${key}=${display(value,key)}`);
       const line=shown.join(' ').slice(0,400);
       if (bytes+Buffer.byteLength(line)+1>maxBytes) break;
       lines.push(line); bytes+=Buffer.byteLength(line)+1; taken++;

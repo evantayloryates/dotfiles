@@ -19,7 +19,7 @@ test('JS and Python emit compatible bounded private rows; reader filters and pag
   try {
     const js=`import {emitSignal,withSignalContext,readSignals} from ${JSON.stringify(modulePath)};
       await withSignalContext({requestId:'abcdef0123456789abcdef0123456789'},async()=>{
-        if(!emitSignal('mcp','input.dispatch',{tool:'ios_action',action:'tap',dispatched:true,trace:'0123456789abcdef0123456789abcdef',lease:'live-capability',sourceAtMs:1781212345678,sourceSeq:3,url:'https://example.com/users/123?token=secret',ignored:{body:'private'}})) process.exit(2);
+        if(!emitSignal('mcp','input.dispatch',{tool:'ios_action',action:'tap',dispatched:true,trace:'0123456789abcdef0123456789abcdef',lease:'live-capability',sourceAtMs:1781212345678,sourceSeq:3,routeName:'paired',previousRouteName:'waiting',operationName:'tap',fromState:'admitted',toState:'sent',statusCode:202,errorCount:0,url:'https://example.com/users/123?token=secret',ignored:{body:'private'}})) process.exit(2);
         if(!emitSignal('mcp','input.result',{outcome:'unknown',reason:'provider_deadline',message:'Bearer very-secret',inputSent:true})) process.exit(3);
       });
       console.log(JSON.stringify(readSignals({scope:'mcp',limit:1})));`;
@@ -45,6 +45,10 @@ with m.signal_context(trace='1234567890abcdef1234567890abcdef'):
     assert.equal(rows.find(r=>r.event==='input.dispatch').url,'public:/users/:id');
     assert.equal(rows.find(r=>r.event==='input.dispatch').traceId,'0123456789abcdef0123456789abcdef');
     assert.equal(rows.find(r=>r.event==='input.dispatch').sourceAtMs,1781212345678);
+    assert.equal(rows.find(r=>r.event==='input.dispatch').route,'paired');
+    assert.equal(rows.find(r=>r.event==='input.dispatch').previousRoute,'waiting');
+    assert.equal(rows.find(r=>r.event==='input.dispatch').statusCode,202);
+    assert.equal(rows.find(r=>r.event==='input.dispatch').count,0);
     assert.match(rows.find(r=>r.event==='input.dispatch').leaseFingerprint,/^[a-f0-9]{12}$/);
     assert.doesNotMatch(JSON.stringify(rows),/live-capability/);
     assert.equal(rows.find(r=>r.event==='input.verified').traceId,'1234567890abcdef1234567890abcdef');

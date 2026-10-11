@@ -20,8 +20,8 @@ MAX_FILES = 32
 MAX_AGE = 7 * 86400
 ROTATE_AGE = 86400
 IDS = {'traceId', 'requestId', 'sessionId', 'ownerId', 'pageId', 'buildId', 'bootId', 'epoch', 'backendEpoch', 'clientEpoch', 'sourceHash', 'leaseFingerprint', 'sourceStream'}
-ALIASES = {'trace':'traceId', 'request':'requestId', 'session':'sessionId', 'owner':'ownerId', 'page':'pageId', 'build':'buildId', 'boot':'bootId'}
-WORDS = {'tool', 'action', 'op', 'surface', 'transport', 'provider', 'stage', 'phase', 'outcome', 'reason', 'code', 'version', 'errorName', 'errorCode', 'route'}
+ALIASES = {'trace':'traceId', 'request':'requestId', 'session':'sessionId', 'owner':'ownerId', 'page':'pageId', 'build':'buildId', 'boot':'bootId', 'routeName':'route', 'previousRouteName':'previousRoute', 'operationName':'op', 'errorCount':'count'}
+WORDS = {'tool', 'action', 'op', 'kind', 'surface', 'transport', 'provider', 'stage', 'phase', 'fromState', 'toState', 'outcome', 'reason', 'code', 'version', 'errorName', 'errorCode', 'route', 'previousRoute'}
 NUMERIC = {'durationMs', 'count', 'attemptCount', 'retryCount', 'acceptedCount', 'failedCount', 'frameCount', 'signalCount', 'dropCount', 'droppedCount', 'truncatedCount', 'sourceAtMs', 'sourceSeq', 'bytes'}
 BOOLEANS = {'dispatched', 'inputSent', 'verified', 'released', 'ready', 'truncated'}
 SCOPES = {'mcp', 'browser', 'host', 'native', 'kck-native', 'kck-web', 'kck-call'}
@@ -108,6 +108,10 @@ def _clean(fields):
             continue
         if key == 'leaseFingerprint':
             if isinstance(value, str) and re.fullmatch(r'[a-f0-9]{12}', value):
+                out[key] = value
+            continue
+        if key == 'statusCode':
+            if type(value) is int and 100 <= value <= 599:
                 out[key] = value
             continue
         if key in IDS:
@@ -217,7 +221,7 @@ def emit_signal(scope, event, **fields):
         row = {'v': 1, 'time': datetime.now(timezone.utc).isoformat(timespec='milliseconds').replace('+00:00', 'Z'),
                'id': secrets.token_hex(8), 'scope': scope, 'event': event, 'level': level, **data}
         line = (json.dumps(row, separators=(',', ':'), ensure_ascii=False) + '\n').encode()
-        for key in ('stack', 'detail', 'message', 'url', 'route', 'sourceHash', 'backendEpoch', 'clientEpoch', 'buildId', 'ownerId', 'pageId', 'bootId', 'version', 'provider', 'transport', 'surface', 'stage', 'phase'):
+        for key in ('stack', 'detail', 'message', 'url', 'route', 'previousRoute', 'sourceHash', 'backendEpoch', 'clientEpoch', 'buildId', 'ownerId', 'pageId', 'bootId', 'version', 'provider', 'transport', 'surface', 'stage', 'phase'):
             if len(line) <= 1200:
                 break
             row.pop(key, None)

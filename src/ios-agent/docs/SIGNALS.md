@@ -32,14 +32,14 @@ JSONL rows have `v:1`, UTC `time`, random row `id`, `scope`, dotted `event`, `le
 
 | Type | Allowed fields |
 | --- | --- |
-| Bounded words | `tool`, `action`, `op`, `surface`, `transport`, `provider`, `stage`, `phase`, `outcome`, `reason`, `code`, `version`, `errorName`, `errorCode`, `route` |
+| Bounded words | `tool`, `action`, `op`, `kind`, `surface`, `transport`, `provider`, `stage`, `phase`, `fromState`, `toState`, `outcome`, `reason`, `code`, `version`, `errorName`, `errorCode`, `route`, `previousRoute` |
 | Correlation / build IDs | `traceId`, `requestId`, `sessionId`, `ownerId`, `pageId`, `buildId`, `bootId`, `epoch`, `backendEpoch`, `clientEpoch`, `sourceHash`, `sourceStream`, `leaseFingerprint` |
-| Nonnegative numbers | `durationMs`, `count`, `attemptCount`, `retryCount`, `acceptedCount`, `failedCount`, `frameCount`, `signalCount`, `dropCount`, `droppedCount`, `truncatedCount`, `sourceAtMs`, `sourceSeq`, `bytes` |
+| Nonnegative numbers | `durationMs`, `count`, `attemptCount`, `retryCount`, `acceptedCount`, `failedCount`, `frameCount`, `signalCount`, `dropCount`, `droppedCount`, `truncatedCount`, `sourceAtMs`, `sourceSeq`, `bytes`; `statusCode` only from 100 to 599 |
 | Booleans | `dispatched`, `inputSent`, `verified`, `released`, `ready`, `truncated` |
 | Error evidence | `message`, `detail` (160 characters), `stack` (240 characters) |
 | URL | `url`, reduced to origin class and pathname template |
 
-Aliases `trace`, `request`, `session`, `owner`, `page`, `build`, `boot` normalize to the corresponding `*Id` field. `lease` and `leaseId` become a twelve-hex SHA-256 `leaseFingerprint`; the live lease value is never stored. A precomputed twelve-hex `leaseFingerprint` may be passed directly. A queued browser/native signal can carry `sourceStream`, `sourceAtMs`, `sourceSeq`, and `droppedCount`; `time` remains host ingestion time, and source clocks are not presumed synchronized.
+Aliases `trace`, `request`, `session`, `owner`, `page`, `build`, `boot` normalize to the corresponding `*Id` field. `routeName`, `previousRouteName`, `operationName`, and `errorCount` normalize to `route`, `previousRoute`, `op`, and `count`. `lease` and `leaseId` become a twelve-hex SHA-256 `leaseFingerprint`; the live lease value is never stored. A precomputed twelve-hex `leaseFingerprint` may be passed directly. A queued browser/native signal can carry `sourceStream`, `sourceAtMs`, `sourceSeq`, and `droppedCount`; `time` remains host ingestion time, and source clocks are not presumed synchronized.
 
 Unknown keys, nested values, arrays and objects are discarded. `level` is a special top-level argument. Do not pass arbitrary request, response, error, page or provider objects. Extract only the listed scalars. `message`/`stack` are bounded and scrubbed, but callers should still prefer controlled error codes over text that could contain user content. Values containing credential markers, JWTs or long base64 strings become `[redacted]`. URLs lose host, query and fragment; path segments that resemble identifiers become `:id`. Raw payloads, text inputs, headers, signed URLs, enrollment fragments, tokens, cookies and image/audio bytes must never be provided as signal fields. If uncertain, omit the field. If optional fields would push a record past 1,200 bytes, less important error detail is omitted while core outcome and correlation fields remain.
 
