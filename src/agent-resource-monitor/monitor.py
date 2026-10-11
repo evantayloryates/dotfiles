@@ -92,7 +92,7 @@ def identity(exe, argv, env):
                 if index < len(argv) and ID.fullmatch(argv[index]):
                     owner, source = argv[index], 'launch-argument:' + flag
                     break
-    scripts = [os.path.basename(a) for a in argv if a.endswith(('.mjs', '.cjs', '.js'))][:3]
+    scripts = [os.path.basename(a) for a in argv if a.endswith(('.mjs', '.cjs', '.js', '.py'))][:3]
     return {'role': role, 'script_names': scripts, 'owner': owner, 'owner_evidence': source}
 
 

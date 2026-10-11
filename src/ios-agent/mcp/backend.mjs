@@ -358,6 +358,10 @@ export class Backend {
   }
   async systemAction(args) {
     const s=this.session(args.sessionId);if(!s.systemDriver)throw Error('session_required');
+    if(args.action==='scroll'&&args.snapshot===undefined){
+      const tree=await s.systemDriver.inspect();
+      args={...args,snapshot:tree.snapshot};
+    }
     if(args.action==='tap'&&args.label!==undefined){
       const tree=await s.systemDriver.inspect();
       const matches=tree.nodes.filter(n=>n.visible&&n.enabled&&n.label===args.label&&n.type===args.elementType);

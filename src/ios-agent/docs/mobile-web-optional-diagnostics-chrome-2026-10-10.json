@@ -66,5 +66,11 @@
   },
   "nativeInputQualified": false,
   "audibleAudioQualified": false,
-  "nativeHierarchyRead": true
+  "nativeHierarchyRead": true,
+  "nativeTapObservation": {
+    "action": "Test microphone and release",
+    "response": "unknown deadline; not replayed",
+    "effectReadback": "Microphone: NotAllowedError",
+    "scope": "physical Chrome qualification page only"
+  }
 }

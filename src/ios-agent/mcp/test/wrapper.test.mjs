@@ -335,3 +335,10 @@ test('system startup uses private boolean owner check rather than redacted statu
   finally{await f.backend.close();fs.rmSync(f.state,{recursive:true,force:true});}
  }}finally{SystemDriver.prototype.start=original;}
 });
+test('native scroll captures fresh hierarchy only when caller omits snapshot',async()=>{
+ const f=fixture();try{const begun=await f.backend.begin({surface:'launch'}),s=f.backend.sessions.get(begun.sessionId);let inspections=0;const calls=[];
+ s.systemDriver={inspect:async()=>{inspections++;return {snapshot:'fresh-native'}},action:async a=>{calls.push(a);return {ok:true,replay:false}},stop:async()=>({ok:true,runnerStopped:true})};
+ await f.backend.systemAction({sessionId:s.id,action:'scroll',direction:'down'});assert.equal(inspections,1);assert.equal(calls[0].snapshot,'fresh-native');
+ await f.backend.systemAction({sessionId:s.id,action:'scroll',direction:'up',snapshot:'caller-snapshot'});assert.equal(inspections,1);assert.equal(calls[1].snapshot,'caller-snapshot');
+ }finally{await f.backend.close();fs.rmSync(f.state,{recursive:true,force:true});}
+});

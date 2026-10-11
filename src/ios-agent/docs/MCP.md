@@ -305,7 +305,9 @@ one visible/enabled matching element, then applies the existing live element
 uniqueness and hittability checks before one native click. This removes model
 round-trip expiry for a known control. Duplicate/missing labels send no input.
 Unknown input still requires a new observation and is never automatically replayed.
-No secure field or arbitrary predicate selector is accepted.
+No secure field or arbitrary predicate selector is accepted. Scroll can likewise
+omit snapshot to capture a fresh native hierarchy immediately before one half-page
+movement; a supplied stale snapshot still fails, and unknown input is not retried.
 
 The fallback sets WDA waitForIdleTimeout to one second. A Chrome native click
 completed while its response exceeded the client deadline; the previous ten-second
