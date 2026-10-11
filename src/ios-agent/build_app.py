@@ -103,7 +103,7 @@ def main():
     before = source_hashes(mobile)
     with os.fdopen(fd, "w") as log:
         destination = "generic/platform=iOS" if a.generic_destination else "id=" + a.udid
-        run = subprocess.run(["xcodebuild", "-workspace", str(mobile / "ios/kudos.xcworkspace"), "-scheme", "kudos development", "-configuration", "Debug", "-destination", destination, "-derivedDataPath", str(a.derived_data.resolve()),
+        run = subprocess.run(["xcodebuild", "-jobs", "2", "-workspace", str(mobile / "ios/kudos.xcworkspace"), "-scheme", "kudos development", "-configuration", "Debug", "-destination", destination, "-derivedDataPath", str(a.derived_data.resolve()),
                               "OTHER_CFLAGS=" + flags, "OTHER_CPLUSPLUSFLAGS=" + flags, "HEADER_SEARCH_PATHS=" + headers, "OTHER_LDFLAGS=$(inherited) -framework IOKit", "build"], env=env, stdout=log, stderr=subprocess.STDOUT)
     after = source_hashes(mobile)
     changed = before != after

@@ -21,3 +21,12 @@ test('unknown native handoff is released and never retried',async()=>{
  b.status=async()=>({});b.waitReady=async()=>({readyToAcquire:true});b.begin=async()=>({sessionId:'owned'});b.action=async()=>{sends++;return {ok:false,actionSent:'unknown'}};b.end=async()=>{ends++};
  try{const r=await b.webEnroll({browser:'ios-safari',transport:'app'});assert.equal(r.ok,false);assert.equal(r.launch.inputSent,'unknown');assert.equal(r.launch.replay,false);assert.equal(sends,1);assert.equal(ends,1)}finally{await b.close();fs.rmSync(state,{recursive:true,force:true});}
 });
+for(const failure of [false,true])test(`native Home fallback ${failure?'preserves unknown':'uses one fenced suspension'} without paired dispatch`,async()=>{
+ const state=fs.mkdtempSync(path.join(os.tmpdir(),'ios-app-home-')),events=[];
+ const b=new Backend({state,run:async()=>{throw Error('no provider dispatch')}});
+ b.waitReady=async()=>({readyToAcquire:false});b.deviceLaunch=async()=>{events.push('launch');return {foregroundVerified:true}};
+ b.begin=async a=>{assert(a.nativeOnly);events.push('begin');return {sessionId:'owned'}};
+ b.action=async a=>{assert.equal(a.action,'home');events.push('home');return {ok:!failure,actionSent:'unknown'}};
+ b.end=async()=>{events.push('end')};
+ try{const r=await b.deviceHome({transport:'app'});assert.equal(r.ok,!failure);assert.equal(r.homeVerified,false);assert.equal(r.inputSent,failure?'unknown':true);assert.deepEqual(events,['launch','begin','home','end'])}finally{await b.close();fs.rmSync(state,{recursive:true,force:true})}
+});
