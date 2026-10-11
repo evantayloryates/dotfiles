@@ -15,6 +15,7 @@ export const nativeSchemas={
  gesture:z.object({...point,endX:coordinate,endY:coordinate,durationMs:z.number().finite().min(50).max(5000)}).strict(),
  text:z.object({text:z.string().max(4096).describe('Semantic UIKeyInput text; empty string is allowed for replacement.'),mode:z.enum(['insert','replace']).optional()}).strict(),
  wifi:z.object({state:z.enum(['on','off'])}).strict(),
+ 'browser-handoff':z.object({browser:z.enum(['ios-safari','ios-chrome']),url:z.string().min(1).max(4096)}).strict(),
 };
 export const nativeArguments=z.union(Object.entries(nativeSchemas).map(([action,schema])=>schema.describe(`Arguments for ${action}`))).default({});
 const component=z.union([z.number().int().nonnegative(),z.string().min(1).max(300)]).describe('Observed React component ID or exact provider label; not a native target.');

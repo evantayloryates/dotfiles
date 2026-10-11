@@ -6,6 +6,13 @@ complete autonomous whole-phone operation.
 
 ## 1. Open the app remotely
 
+**11October update:** native cellular launch is now delivered through the actual
+MCP1.9.44 Focus fallback, with USB absent and fresh runtime/idle proof. The dated
+experiments below explain earlier boundaries and are superseded for native
+foregrounding only. See focus-cellular-mcp-2026-10-11.json. Browser cellular
+launch/Inspector remains a distinct gate.
+
+
 `ios_device_launch` now exposes four fixed launch targets behind the shared owner
 fence. A physical nearby paired Wi-Fi launch moved from Settings to Kickoff DEV,
 then strict native readiness and fresh state passed. No XCTest or user action.

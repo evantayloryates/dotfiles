@@ -527,14 +527,18 @@ export class Backend {
     try{const r=await this.run('wait',[],{surface,browser,page,timeoutSeconds},(timeoutSeconds+4)*1000,controller.signal);return r.value||{readyToAcquire:false,reason:controller.signal.aborted?'cancelled':'readiness_channel_unavailable',leaseAcquired:false};}
     finally{this.waitControllers.delete(controller);signal?.removeEventListener('abort',abort);}
   }
+  async appTransportPreferred() {
+    if(!focusLaunchEnabled(this.state))return false;
+    try{
+      const file=path.join(this.state,'developer-tailnet.json'),stat=fs.lstatSync(file);
+      if(stat.isFile()&&!stat.isSymbolicLink()&&!(stat.mode&0o077)&&stat.size<4096){const config=JSON.parse(fs.readFileSync(file));if(tailnetHost(config.address))return (await endpointState(config.address,49152))!=='open';}
+    }catch{}
+    return false;
+  }
   async deviceLaunch({target='kickoff-dev',transport='auto'}={}) {
     if(!['auto','paired','focus'].includes(transport)||transport==='focus'&&target!=='kickoff-dev')return {ok:false,reason:'fixed_launch_transport_required',inputSent:false};
     let useFocus=transport==='focus';
-    if(transport==='auto'&&target==='kickoff-dev'&&focusLaunchEnabled(this.state)){
-      try{const file=path.join(this.state,'developer-tailnet.json'),stat=fs.lstatSync(file);
-        if(stat.isFile()&&!stat.isSymbolicLink()&&!(stat.mode&0o077)&&stat.size<4096){const config=JSON.parse(fs.readFileSync(file));if(tailnetHost(config.address))useFocus=(await endpointState(config.address,49152))!=='open';}
-      }catch{}
-    }
+    if(transport==='auto'&&target==='kickoff-dev')useFocus=await this.appTransportPreferred();
     if(useFocus){
       const acquired=await this.begin({surface:'launch'});let result;
       try{result=await focusLaunch({state:this.state,check:()=>this.session(acquired.sessionId),runShortcut:this.focusRunShortcut});}finally{await this.end(acquired.sessionId);}
@@ -595,7 +599,17 @@ export class Backend {
       }finally{fs.rmSync(artifact.file,{force:true});this.artifacts.delete(artifact.id);}
     }finally{await this.end(reservation.sessionId);}
   }
-  async deviceHome() {
+  async deviceHome({transport='auto'}={}) {
+    if(!['auto','paired','app'].includes(transport))return {ok:false,reason:'home_transport_required',inputSent:false};
+    if(transport==='app'||transport==='auto'&&await this.appTransportPreferred()){
+      const current=await this.waitReady({surface:'native',timeoutSeconds:0});
+      if(!current.readyToAcquire){const opened=await this.deviceLaunch({target:'kickoff-dev'});if(opened.foregroundVerified!==true)return {...opened,ok:false,next:'Foreground is unconfirmed; Home was not sent. Do not replay the launch.'};}
+      const acquired=await this.begin({surface:'native',nativeOnly:true});
+      try{
+        const result=await this.action({sessionId:acquired.sessionId,action:'home'});
+        return {ok:result.ok===true,transport:'app-owned-home',inputSent:result.ok?true:(result.actionSent??'unknown'),homeVerified:false,replay:false,next:'DEV prepared one Home handoff and retired its lease. Whole-display confirmation remains separate; do not replay this input.'};
+      }finally{await this.end(acquired.sessionId);}
+    }
     const reservation=await this.begin({surface:'launch'});
     try {
       const file=path.join(this.state,'web-device.json'),transport=path.join(this.state,'developer-tailnet.json');
@@ -678,7 +692,8 @@ export class Backend {
     const r = await this.run('web', [], {op: 'web_pages'}, 8000);
     return r.ok ? {...r.value, ok: true} : {ok: false, reason: r.error};
   }
-  async webEnroll({path: route = '/dev/ios-agent', browser, rememberBrowser=false,profile='app'} = {}) {
+  async webEnroll({path: route = '/dev/ios-agent', browser, rememberBrowser=false,profile='app',transport='auto'} = {}) {
+    if(!['auto','paired','app'].includes(transport)||transport==='app'&&!browser)return {ok:false,reason:'browser_transport_required',actionSent:false};
     if (browser && (await this.status()).lease) return {ok:false,reason:'idle_device_required_for_browser_launch',actionSent:false};
     const runtime = JSON.parse(fs.readFileSync(path.join(this.state, 'dev-runtime.json'), 'utf8'));
     const origin = webProfileOrigin(runtime.webURL,profile);
@@ -689,6 +704,22 @@ export class Backend {
     fs.writeFileSync(a.file, JSON.stringify({url: origin + route + '#ios-agent=' + encodeURIComponent(r.value.token)}), {flag: 'wx', mode: 0o600});
     let launch;
     if (browser) {
+      let appHandoff=transport==='app';
+      if(transport==='auto')appHandoff=await this.appTransportPreferred();
+      if(appHandoff){
+        const current=await this.waitReady({surface:'native',timeoutSeconds:0});
+        if(!current.readyToAcquire){
+          const opened=await this.deviceLaunch({target:'kickoff-dev'});
+          if(opened.foregroundVerified!==true)return {ok:false,profile,launchFile:a.file,launch:opened,next:'Native foreground is unconfirmed; do not replay any accepted or unknown launch.'};
+        }
+        const reservation=await this.begin({surface:'native',nativeOnly:true});
+        try{
+          const sourceURL=JSON.parse(fs.readFileSync(a.file,'utf8')).url;
+          const result=await this.action({sessionId:reservation.sessionId,action:'browser-handoff',args:{browser,url:sourceURL}});
+          launch={ok:result.ok===true,transport:'app-owned-private-URL',inputSent:result.ok===true?true:(result.actionSent??'unknown'),foregroundVerified:false,replay:false,...(result.ok?{}:{reason:result.reason||'native_browser_handoff_unconfirmed'})};
+        }finally{await this.end(reservation.sessionId);}
+        return {ok:launch.ok,profile,launchFile:a.file,expiresIn:300,launch,next:'Handoff acceptance is not browser readiness. Wait for the intended visible ios_web_pages entry, then acquire it. Never replay accepted or unknown URL delivery.'};
+      }
       const configFile = path.join(this.state, 'web-device.json');
       if (!fs.existsSync(configFile) || fs.lstatSync(configFile).isSymbolicLink() || fs.statSync(configFile).mode & 0o077) return {ok:false,reason:'private_web_device_configuration_required',launchFile:a.file,actionSent:false};
       const device = JSON.parse(fs.readFileSync(configFile,'utf8')).coreDeviceId;

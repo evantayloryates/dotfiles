@@ -13,7 +13,7 @@ through CoreDevice is a provisioning convenience, not the operating transport.
 2. Only if no usable enrollment exists, `ios_web_enroll`: obtain a private JSON launchFile, never print its URL
    fragment. Enrollment expires in five minutes and is single-use, origin-bound.
    Pass optional `browser: ios-safari|ios-chrome` to request an idle-only,
-   atomically reserved CoreDevice launch on the privately configured device.
+   atomically reserved launch on the privately configured device.
    Launch acceptance is not page readiness. Otherwise open its private URL in the intended browser. On the paired developer channel,
    `devicectl device process launch --payload-url` can open Safari or Chrome.
    Off-network, an already enrolled browser tab is sufficient for page control;
@@ -21,7 +21,9 @@ through CoreDevice is a provisioning convenience, not the operating transport.
    The separate fixed `ios_device_launch` now supports an explicit paired developer
    tunnel through Tailscale; see DEVELOPER-TAILNET.md. Overlay foregrounding passed,
    but physical off-LAN acceptance is still pending. Enrollment URL delivery
-   remains on the existing CoreDevice provisioning path.
+   uses paired appservice when that lane is available. The1.9.45 app-owned
+   private-URL handoff is a candidate pending physical qualification; do not
+   infer browser readiness from its prepared result.
    Then `ios_web_pages`: choose the actual page ID and browser, check visible/ready
    and age. Desktop WebKit is not evidence of a physical iPhone.
 3. `ios_web_begin`: one session per work turn. This acquires the SAME owner

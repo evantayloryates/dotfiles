@@ -300,5 +300,26 @@ class BrokerTests(unittest.TestCase):
             self.assertIsNone(self.b.lease)
 
 
+
+    def test_browser_handoff_restricts_destination_before_dispatch(self):
+        self.b.config['endpoint']='https://host.tail.ts.net/v1/device'
+        url='https://host.tail.ts.net:10446/dev/ios-agent#ios-agent=synthetic-token'
+        for source in [url.replace('host.tail','other.tail'),url.replace(':10446',':443'),url.replace('/dev/','/customer/'),url.replace('https:','http:'),url.replace('#ios-agent=','#other='),url.replace('/dev/','/dev/../')]:
+            with self.assertRaises(service.Rejected):self.call(op='action',action='browser-handoff',args={'browser':'ios-safari','url':source})
+        self.assertFalse(self.b.commands)
+        accepted=self.call(op='action',action='browser-handoff',args={'browser':'ios-safari','url':url})
+        self.assertEqual(self.b.commands[accepted['id']]['status'],'queued')
+
+    def test_browser_handoff_retires_owner_only_after_matching_native_result(self):
+        self.b.config['endpoint']='https://host.tail.ts.net/v1/device'
+        accepted=self.call(op='action',action='browser-handoff',args={'browser':'ios-chrome','url':'https://host.tail.ts.net:10520/dev/ios-agent#ios-agent=synthetic-token'})
+        self.b.device_request({**self.device,'op':'next'})
+        result=self.b.device_request({**self.device,'op':'result','id':accepted['id'],'epoch':self.b.epoch,'result':{'delivery':'prepared-browser-handoff','browser':'ios-chrome'}})
+        self.assertEqual(result['handoff'],accepted['id'])
+        self.assertIsNone(self.b.lease)
+        self.assertEqual(self.b.commands[accepted['id']]['status'],'completed')
+        recovered=self.call(op='result',id=accepted['id'])
+        self.assertEqual(recovered['status'],'completed')
+
 if __name__ == "__main__":
     unittest.main()

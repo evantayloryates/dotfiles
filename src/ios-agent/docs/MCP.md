@@ -869,3 +869,19 @@ fixed49152, at most1.5s, and skips the probe during another owner. TCP acceptanc
 is not authenticated RSD or system-input readiness; refusal does not establish
 lock, missing USB or VPN failure. Use the surviving app/page bridge for recovery.
 See untethered-cellular-developer-boundary-2026-10-11.json.
+
+## Cellular native foreground — 1.9.44
+
+`ios_device_launch {target:"kickoff-dev",transport:"auto"}` preflights the fixed
+developer endpoint. With the private Focus setup enabled, an unavailable endpoint
+selects one iCloud Focus pulse before any launch input. `transport:"focus"` selects
+that native-only path explicitly. Personal Focus is preserved; the dedicated Focus
+is restored and ownership released before fresh bridge observation. Follow with
+`ios_begin` for actual readiness. Physical USB-absent cellular qualification passed.
+No passcode exemption, locked-phone operation or cellular browser Inspector claim.
+See focus-cellular-mcp-2026-10-11.json and DELIVERY.md.
+
+`ios_native action=developer-probe` is a diagnostic on the updated native adapter:
+fixed loopback49152 only, IPv4/IPv6,500ms each, zero authentication/application
+bytes. Both accepted physically with Wi-FiIPv4absent. It does not establish a
+paired developer session; do not substitute it for readiness.

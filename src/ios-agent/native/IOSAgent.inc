@@ -93,6 +93,7 @@ static NSString *IAViewLabel(UIView *view) {
  return @"";
 }
 #import "WiFiShortcut.inc"
+#import "BrowserHandoff.inc"
 
 @interface IAGlowWindow : UIWindow
 @end
@@ -258,7 +259,7 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
  return @{@"nativeInputRuntime":@(input),@"selectors":selectors,@"applicationState":@(UIApplication.sharedApplication.applicationState),
           @"deliveryId":[NSBundle.mainBundle objectForInfoDictionaryKey:@"IOSAgentDeliveryId"]?:NSNull.null,
           @"homeRuntime":@([UIApplication.sharedApplication respondsToSelector:NSSelectorFromString(@"suspend")]),
-          @"imageScope":@"app-owned-main-window",@"inputMethod":@"in-process UIEvent",@"textMethod":@"UIKeyInput",@"xctest":@NO,@"richCapture":@"explicit-JS-console-network",@"wifiControl":@"fixed-Apple-Shortcuts-handoff",@"developerProbe":@"fixed-loopback-tcp-49152"};
+          @"imageScope":@"app-owned-main-window",@"inputMethod":@"in-process UIEvent",@"textMethod":@"UIKeyInput",@"xctest":@NO,@"richCapture":@"explicit-JS-console-network",@"wifiControl":@"fixed-Apple-Shortcuts-handoff",@"developerProbe":@"fixed-loopback-tcp-49152",@"browserHandoff":@"fixed-private-dev-origins"};
 }
 - (void)showGlow {
  if(!self.glow) {
@@ -369,6 +370,7 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
    }); return;
   }
   if([action isEqual:@"wifi"]) { done(IOSAgentWiFiPrepare(args,cid)); return; }
+  if([action isEqual:@"browser-handoff"]) { done(IOSAgentBrowserPrepare(args,cid,self.config)); return; }
   if([action isEqual:@"capture"]) {
 #if IOS_AGENT_REACT
    if(!IABridge.observing || ![args[@"requestId"] isKindOfClass:NSString.class]) { done(IAError(@"capture_bridge_not_ready")); return; }
@@ -543,6 +545,7 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
    [self exchange:@{@"op":@"result",@"id":command[@"id"],@"epoch":command[@"epoch"],@"result":result} completion:^(NSDictionary *ack){
     BOOL wifiHandoff=ack && [self leased] && [command[@"lease"] isEqual:self.lease] && [command[@"epoch"] isEqual:ack[@"epoch"]] && [command[@"action"] isEqual:@"wifi"] && [ack[@"handoff"] isEqual:command[@"id"]] && !result[@"error"];
     BOOL homeHandoff=ack && [self leased] && [command[@"lease"] isEqual:self.lease] && [command[@"epoch"] isEqual:ack[@"epoch"]] && [command[@"action"] isEqual:@"home"] && [ack[@"handoff"] isEqual:command[@"id"]] && !result[@"error"];
+    BOOL browserHandoff=ack && [self leased] && [command[@"lease"] isEqual:self.lease] && [command[@"epoch"] isEqual:ack[@"epoch"]] && [command[@"action"] isEqual:@"browser-handoff"] && [ack[@"handoff"] isEqual:command[@"id"]] && !result[@"error"];
     if(ack) {
      [self apply:ack];
      if([command[@"action"] isEqual:@"tree"] && !result[@"error"])
@@ -551,6 +554,7 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
     // The host has recorded this result and retired normal control before launch.
     // The fenced acknowledgment grants one fixed handoff; a callback grants no lease.
     if(wifiHandoff) IOSAgentWiFiLaunch(command[@"id"]);
+    if(browserHandoff) IOSAgentBrowserLaunch(command[@"id"]);
     if(homeHandoff) {
      // Report the actual cleared app state before suspending. A competing
      // owner or lost acknowledgment cancels this handoff, never gets displaced.

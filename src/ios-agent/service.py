@@ -25,7 +25,7 @@ VERSION = 1
 MAX_BODY = 8 * 1024 * 1024
 OWNER_TIMEOUT = 20 * 60
 DEVICE_TIMEOUT = 30
-OPERATIONS = {"capabilities", "tree", "image", "tap", "gesture", "text", "react", "state", "diagnostics-probe", "diagnostics-matrix", "developer-probe", "reload", "wifi", "capture", "home"}
+OPERATIONS = {"capabilities", "tree", "image", "tap", "gesture", "text", "react", "state", "diagnostics-probe", "diagnostics-matrix", "developer-probe", "reload", "wifi", "capture", "home", "browser-handoff"}
 STATE = Path.home() / "Library/Application Support/ios-agent"
 SOURCE_HASH = worker_source_hash()
 
@@ -260,6 +260,16 @@ class Broker:
                     raise Rejected("wifi_state_on_or_off_required")
                 if action == "home" and args:
                     raise Rejected("home_arguments_not_allowed")
+                if action == "browser-handoff":
+                    from urllib.parse import urlsplit
+                    source=args.get("url")
+                    if set(args)!={"browser","url"} or args.get("browser") not in ("ios-safari","ios-chrome") or not isinstance(source,str) or len(source)>4096:
+                        raise Rejected("fixed_dev_browser_required")
+                    try:
+                        url=urlsplit(source); endpoint=urlsplit(self.config["endpoint"])
+                        valid=(url.scheme=="https" and url.hostname==endpoint.hostname and url.hostname.endswith('.ts.net') and not url.username and not url.password and url.port in (10446,10520) and not url.query and url.path.startswith('/dev/') and '..' not in url.path and '\\' not in source and url.fragment.startswith('ios-agent=') and 10<len(url.fragment)<2048)
+                    except (ValueError,AttributeError):valid=False
+                    if not valid:raise Rejected("fixed_private_dev_browser_URL_required")
                 if action in ("diagnostics-probe", "diagnostics-matrix", "developer-probe") and args:
                     raise Rejected("diagnostic_arguments_not_allowed")
                 # Give a just-delivered native tree a short opportunity for its
@@ -338,6 +348,9 @@ class Broker:
                 if cmd["action"] == "home" and isinstance(result, dict) and result.get("delivery") == "prepared-home-handoff" and "error" not in result:
                     handoff = cmd["id"]
                     self.revoke("device_home_handoff")
+                if cmd["action"] == "browser-handoff" and isinstance(result,dict) and result.get("delivery")=="prepared-browser-handoff" and result.get("browser")==cmd["args"]["browser"] and "error" not in result:
+                    handoff=cmd["id"]
+                    self.revoke("device_browser_handoff")
                 self.cv.notify_all()
             elif op == "next":
                 # Wake immediately on revocation; bounded idle responses renew app-side expiry.
