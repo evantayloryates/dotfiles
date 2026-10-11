@@ -12,11 +12,15 @@ test('typed native/React requests reject mismatched or malformed fields before d
   await call('ios_native',{action:'text',args:{text:'',mode:'replace'}});assert.equal(seen[0][0].args.text,'');
   await call('ios_native',{action:'gesture',args:{snapshot:'observed',target:'observed',x:0,y:0,endX:10,endY:10,durationMs:5000}});assert.equal(seen[1][0].args.durationMs,5000);
   await call('ios_react',{command:{type:'get-tree',depth:8,noHost:true}});assert.equal(seen[2][1],true);
+  assert((await call('ios_native',{action:'developer-probe',args:{host:'127.0.0.1'}})).isError);
+  const before=seen.length;
+  assert(!(await call('ios_native',{action:'developer-probe'})).isError);
+  assert.equal(seen.length,before+1);assert.equal(seen.at(-1)[0].action,'developer-probe');
   const tools=(await c.listTools()).tools;const react=tools.find(x=>x.name==='ios_react');assert(JSON.stringify(react.inputSchema).includes('profile-timeline'));
   assert((await c.listResources()).resources.some(x=>x.uri==='ios-agent://native-input'));
  }finally{await c.close();await server.close();}
 });
 test('all current native actions and 15 provider command variants remain discoverable',()=>{
- assert.equal(Object.keys(nativeSchemas).length,12);
+ assert.equal(Object.keys(nativeSchemas).length,13);
  for(const command of [{type:'ping'},{type:'status'},{type:'count'},{type:'errors'},{type:'get-tree'},{type:'get-component',id:0},{type:'find',name:'Test'},{type:'profile-start'},{type:'profile-stop'},{type:'profile-report',componentId:'Target#1'},{type:'profile-slow',limit:5},{type:'profile-rerenders'},{type:'profile-timeline',sort:'duration'},{type:'profile-commit',index:0},{type:'profile-export'}])assert(reactCommand.safeParse(command).success,command.type);
 });

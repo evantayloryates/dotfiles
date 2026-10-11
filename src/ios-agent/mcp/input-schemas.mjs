@@ -9,7 +9,7 @@ export const nativeSelector=z.union([
  z.object({class:ref,label:ref.optional(),identifier:ref.optional()}).strict(),
 ]);
 export const nativeSchemas={
- capabilities:empty,tree:empty,state:empty,'diagnostics-probe':empty,'diagnostics-matrix':empty,reload:empty,home:empty,
+ capabilities:empty,tree:empty,state:empty,'diagnostics-probe':empty,'diagnostics-matrix':empty,'developer-probe':empty,reload:empty,home:empty,
  image:z.object({scale:z.union([z.literal(1),z.literal(2),z.literal(3)]).optional()}).strict(),
  tap:z.union([z.object(point).strict(),z.object({selector:nativeSelector}).strict()]),
  gesture:z.object({...point,endX:coordinate,endY:coordinate,durationMs:z.number().finite().min(50).max(5000)}).strict(),

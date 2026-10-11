@@ -1,0 +1,42 @@
+{
+  "observedAt": "2026-10-11T17:27:50.620257+00:00",
+  "version": "1.9.44",
+  "nativeFocusLaunch": {
+    "usbAttached": false,
+    "developerEndpointTCP": "refused",
+    "singlePulse": true,
+    "XCTestStarted": false,
+    "focusRestored": true,
+    "freshNativeForeground": true,
+    "ownedRuntimeReady": true,
+    "navigation": "ClientDashboard",
+    "bundleSource": "tailnet-Metro",
+    "wifiIPv4Present": false,
+    "idlePassed": true
+  },
+  "wirelessInstall": {
+    "jobId": "b4fb9c0f802e4fd081e58f563448c109",
+    "deliveryId": "950108093b654ae89522d589f1d59d3c",
+    "signatureVerified": true,
+    "sourceChangedDuringBuild": false,
+    "installedIdentityVerified": true,
+    "usbAttached": false
+  },
+  "phoneLoopback": {
+    "ipv4": "accepted",
+    "ipv6": "accepted",
+    "wifiIPv4Present": false,
+    "authenticationAttempted": false,
+    "developerChannelVerified": false
+  },
+  "limits": [
+    "Native foreground launch is qualified; browser cellular launch and Inspector remain separate.",
+    "Loopback TCP acceptance does not establish remote pairing or background relay lifetime.",
+    "XCTest authentication exemption is not established."
+  ],
+  "receipts": {
+    "focus": "runner-delivery-WVoFnR/2-6.json",
+    "install": "runner-delivery-WVoFnR/15-17.json",
+    "loopback": "runner-delivery-E1fC0R/2-5.json"
+  }
+}

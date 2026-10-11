@@ -13,9 +13,10 @@ export function focusLaunchEnabled(state) {
 }
 
 function shortcut(name,timeout){return new Promise((resolve,reject)=>{
-  execFile('/usr/bin/shortcuts',['run',name],{timeout,maxBuffer:8192},(error,stdout)=>{
+  const child=execFile('/usr/bin/shortcuts',['run',name],{timeout,maxBuffer:8192},(error,stdout)=>{
     if(error)reject(Error('fixed_shortcut_outcome_unconfirmed'));else resolve(stdout.trim());
   });
+  child.stdin.on('error',()=>{});child.stdin.end();
 });}
 
 export async function focusLaunch({state,check,runShortcut=shortcut}) {

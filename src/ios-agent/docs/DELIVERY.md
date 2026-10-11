@@ -10,7 +10,7 @@ another owner's work to refresh schemas. See MCP.md for the operating recipes.
 | --- | --- | --- |
 | Native DEV app | doctor → begin → native/react → verify | native Home → end |
 | Safari / Chrome DEV page | web_pages → web_begin → inspect/action/verify | web_end → device_home (configured paired Tailscale); independently inspect Home |
-| Page not yet available | doctor connectivity=true; wait_ready; fixed device_launch through the configured paired lane | No lease held while waiting |
+| Page not yet available | doctor connectivity=true; wait_ready; fixed device_launch (native Focus fallback when provisioned) | No lease held while waiting |
 | Exact observed system permission | End page/app session → system_begin → inspect/action | system_end; require runnerStopped |
 | Deeper browser diagnosis | browser_debug; source/styles/dom/network/profile/heap/breakpoint/worker-* | Diagnostic domains stop and detach; content expires |
 | Synthetic audio comparison | audio_probe plan; verify fixture/recording before call | stop probe, release call media, end page session |
@@ -23,7 +23,8 @@ workflows and synthetic rich-capture passed; see
 owned-acceptance-2026-10-11.json. Actual-provider received audio capture and call
 cleanup now passed through MCP
 (see provider-received-capture-mcp-2026-10-11.json). Actual off-LAN launch
-remains a separate gate. Long-lived harnesses may retain an
+is now qualified for native DEV through the phone-local Focus fallback in1.9.44;
+cellular browser foreground/Inspector remains a separate gate. Long-lived harnesses may retain an
 earlier catalog until their own MCP connection refreshes.
 
 Use `/Users/taylor/dotfiles/bin/ios-agent`. App integration is isolated on
@@ -31,6 +32,30 @@ Use `/Users/taylor/dotfiles/bin/ios-agent`. App integration is isolated on
 Routine app control uses private Tailscale HTTPS, without USB, XCTest or Mirroring.
 USB is a native build/install and recovery route. Customer production and staging
 instrumentation are excluded from this delivery.
+
+## Native foregrounding from cellular — 1.9.44
+
+`ios_device_launch {target:"kickoff-dev"}` chooses the existing paired lane when
+its fixed endpoint is reachable. If that endpoint refuses and the private
+Focus setup is enabled, it sends one dedicated iCloud Focus pulse. The existing
+phone automation opens DEV. It preserves a personal Focus, restores its own
+temporary Focus, releases the launch owner, then reads fresh bridge availability.
+Follow with `ios_begin` for actual runtime readiness; do not replay an unknown pulse.
+Explicit `transport:"focus"` selects this native-only lane.
+
+Physical MCP qualification passed with USB absent, Wi-FiIPv4absent and the external
+developer endpoint refused. Fresh runtime, tailnet-Metro and lease/glow-off passed.
+No XCTest, Mirroring or phone tap was used. This does not unlock a locked phone.
+Provisioning uses private0600 `focus-launch.json` with exactly
+`{"version":1,"enabled":true}` and the three fixed Mac Shortcuts documented in
+the implementation; it also requires the dedicated phone-local Run Immediately
+automation. Enabling the JSON alone does not provision that automation.
+
+Signed delivery950108093b654ae89522d589f1d59d3c installed wirelessly and exposes
+`ios_native action=developer-probe`: fixed loopback49152, two500ms bounds, no
+authentication/bytes/caller address. Both families accepted on the phone with
+Wi-FiIPv4absent. This supports a relay experiment; it is not a verified developer
+channel. See focus-cellular-mcp-2026-10-11.json.
 
 ## Disabled reservation candidate
 

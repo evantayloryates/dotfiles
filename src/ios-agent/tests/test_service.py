@@ -75,6 +75,17 @@ class BrokerTests(unittest.TestCase):
         cid = self.call(op="action", action="diagnostics-matrix", args={})["id"]
         self.assertEqual(self.next()["command"]["id"], cid)
 
+    def test_developer_probe_requires_native_owner_and_dispatches_no_arguments(self):
+        with self.assertRaisesRegex(service.Rejected, "lease_required"):
+            self.b.control({"op": "action", "action": "developer-probe", "args": {}})
+        self.b.lease["surface"] = "web"
+        with self.assertRaisesRegex(service.Rejected, "native_surface_required"):
+            self.call(op="action", action="developer-probe", args={})
+        self.b.lease["surface"] = "native"
+        cid = self.call(op="action", action="developer-probe", args={})["id"]
+        command = self.next()["command"]
+        self.assertEqual((command["id"], command["action"], command["args"]), (cid, "developer-probe", {}))
+
     def test_wifi_accepts_only_fixed_states_without_url_escape_hatches(self):
         for args in ({}, {"state": "toggle"}, {"state": "on", "url": "https://example.com"}, {"state": []}, {"state": True}):
             with self.assertRaisesRegex(service.Rejected, "wifi_state_on_or_off_required"):
