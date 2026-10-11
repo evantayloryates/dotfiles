@@ -130,7 +130,7 @@ export class Backend {
     return r.value;
   }
   async learningSource(sessionId) {
-    if (sessionId) { const s=this.session(sessionId); if(s.surface==='web') return s.webFingerprint || ''; }
+    if (sessionId) { const s=this.session(sessionId); if(s.surface==='web') return s.webFingerprint || ''; if(s.surface==='system')return s.systemFingerprint||''; }
     return runtimeKey(await this.status().catch(()=>null)) || '';
   }
   async guide() {
@@ -309,10 +309,25 @@ export class Backend {
       this.session(s.id);
       const a=this.artifact(s,kind==='screen'?'image':'device-capabilities');
       const run=await this.run('provider',[],{kind,serial,state:this.state,leaseFile:s.lease,ownerFile:s.owner,output:a.file},26000);
-      if(!run.ok||run.value?.ok!==true||!fs.existsSync(a.file))return {ok:false,reason:run.value?.reason||'device_observation_unavailable',phase:run.value?.phase,inputSent:false};
+      if(!run.ok||run.value?.ok!==true||!fs.existsSync(a.file)){
+        let learningEvidence;
+        if(kind==='resource-profile'){
+          const source=createHash('sha256').update(JSON.stringify([adapterHash,serial,null,'pymobiledevice3-11.15.5'])).digest('hex');
+          const receipt={gate:'device-profile',status:'failed',observation:{observationCompleted:false,inputSent:false,deadlineExceeded:run.value?.reason==='device_observation_deadline',waitingForSamples:run.value?.phase==='resource_profile_sample',osVersionKnown:false}};
+          learningEvidence=await this.learning('observe',{receipt,source}).catch(()=>({available:false}));
+        }
+        return {ok:false,reason:run.value?.reason||'device_observation_unavailable',phase:run.value?.phase,...(learningEvidence?{learningEvidence}:{}),inputSent:false};
+      }
       this.session(s.id);
       const value=JSON.parse(fs.readFileSync(a.file,'utf8')).result;
-      return {ok:true,artifactId:a.id,metadata:safe(value),inputSent:false,next:kind==='screen'?'Use ios_read with this artifactId for the actual full-device PNG. Paired nearby developer transport; separate from arbitrary-network page control.':kind==='resource-profile'?'Three bounded process samples; CPU is provider raw units and WebContent is not page attribution. The profiler is closed; a temporary owner is released only when this call created it.':'Service availability is not proof of Web Inspector opt-in or native touch.'};
+      let learningEvidence;
+      if(kind==='resource-profile'){
+        const processes=(value.samples||[]).flatMap(x=>x.processes||[]);
+        const receipt={gate:'device-profile',status:value.sampleCount===3&&value.profilerStopped===true?'passed':'failed',observation:{sampleCount:value.sampleCount||0,profilerStopped:value.profilerStopped===true,memoryReadings:processes.filter(p=>Number.isFinite(p.physicalFootprintBytes)).length,cpuReadings:processes.filter(p=>Number.isFinite(p.cpuUsageRaw)).length,pageAttributed:false}};
+        const source=createHash('sha256').update(JSON.stringify([adapterHash,serial,value.productVersion,value.provider])).digest('hex');
+        learningEvidence=await this.learning('observe',{receipt,source}).catch(()=>({available:false}));
+      }
+      return {ok:true,artifactId:a.id,metadata:safe(value),...(learningEvidence?{learningEvidence}:{}),inputSent:false,next:kind==='screen'?'Use ios_read with this artifactId for the actual full-device PNG. Paired nearby developer transport; separate from arbitrary-network page control.':kind==='resource-profile'?'Three bounded process samples; CPU is provider raw units and WebContent is not page attribution. The profiler is closed; a temporary owner is released only when this call created it.':'Service availability is not proof of Web Inspector opt-in or native touch.'};
     } finally {if(temporary&&s)await this.end(s.id);}
   }
   async systemBegin({rollout}={}) {
@@ -321,7 +336,10 @@ export class Backend {
     try{
       const result=await s.systemDriver.start();
       if(!result.ok){const cleanup=await this.end(s.id);return {...result,cleanup};}
-      s.surface='system';return {...result,sessionId:s.id,next:'Use ios_system_inspect and fresh targets; ios_system_end in finally stops the runner and Apple overlay. Normal page/app work should use its own driver.'};
+      s.surface='system';s.systemFingerprint=createHash('sha256').update(JSON.stringify([adapterHash,s.systemDriver.deviceIdentity,s.systemDriver.runtime?.os,s.systemDriver.runtime?.build])).digest('hex');
+      const receipt={gate:'system-ready',status:'passed',observation:{runnerReady:true,sharedOwner:true,nearbyStartupOnly:true}};
+      const learningEvidence=await this.learning('observe',{receipt,source:s.systemFingerprint}).catch(()=>({available:false}));
+      return {...result,sessionId:s.id,learningEvidence,next:'Use ios_system_inspect and fresh targets; ios_system_end in finally stops the runner and Apple overlay. Normal page/app work should use its own driver.'};
     }catch{const cleanup=await this.end(s.id);return {ok:false,reason:'system_start_unconfirmed_inspect_phone',replay:false,cleanup};}
   }
   async systemInspect({sessionId}) {
@@ -333,12 +351,12 @@ export class Backend {
   }
   async systemAction(args) {
     const s=this.session(args.sessionId);if(!s.systemDriver)throw Error('session_required');
-    return s.systemDriver.action(args);
+    const result=await s.systemDriver.action(args);if(args.action==='home')s.systemHomeConfirmed=result.homeConfirmed===true;return result;
   }
   async systemEnd({sessionId,home=true}) {
     const s=this.session(sessionId);if(!s.systemDriver)throw Error('session_required');
     let presentation={homeNavigationPending:true};
-    if(home)presentation=await s.systemDriver.action({action:'home'});
+    if(home){presentation=await s.systemDriver.action({action:'home'});s.systemHomeConfirmed=presentation.homeConfirmed===true;}
     const ended=await this.end(sessionId);
     return {...ended,presentation,ok:ended.systemCleanup?.runnerStopped===true,next:'XCTest fallback is stopped. Begin a fresh native/browser lease for normal work.'};
   }
@@ -398,7 +416,7 @@ export class Backend {
     let capture=this.captures.get(sessionId);
     if(op==='start') {
       if(capture?.active)return {ok:false,reason:'capture_already_active'};
-      capture={id:hex(),active:true};this.captureStore.create(capture.id,ttlSeconds);this.captures.set(sessionId,capture);
+      capture={id:hex(),active:true,modes:[...modes]};this.captureStore.create(capture.id,ttlSeconds);this.captures.set(sessionId,capture);
     } else if(!capture)return {ok:false,reason:'start_capture_first'};
     const request={op,id:capture.id,...(op==='start'?{modes,seconds,maxBytes}:{})};
     let response;
@@ -422,8 +440,11 @@ export class Backend {
     if(op==='stop')capture.active=false;
     if(value?.events){
       const saved=this.captureStore.save(capture.id,value),artifactId=hex();this.artifacts.set(artifactId,{file:saved.file,type:'capture',sessionId});
+      const audio=capture.modes?.includes('audio'),receipt={gate:audio?'capture-audio':'capture-data',status:(audio?saved.audioChunks>0:saved.eventCount>0)?'passed':'failed',observation:{eventCount:saved.eventCount,audioChunks:saved.audioChunks,remainingEvents:value.remainingEvents,captureStopped:op==='stop',metadataOnly:true}};
+      const source=await this.learningSource(sessionId).catch(()=>'');
+      const learningEvidence=source?await this.learning('observe',{receipt,source}).catch(()=>({available:false})):{available:false};
       return {ok:true,captureId:capture.id,artifactId,eventCount:saved.eventCount,audioChunks:saved.audioChunks,storedBytes:saved.bytes,remainingEvents:value.remainingEvents,
-        retentionSecondsRemaining:saved.retentionSecondsRemaining,replay:false,next:'Use ios_read with a JSON pointer for selected scrubbed events. Audio bytes stay in private chunk files.'};
+        retentionSecondsRemaining:saved.retentionSecondsRemaining,learningEvidence,replay:false,next:'Use ios_read with a JSON pointer for selected scrubbed events. Audio bytes stay in private chunk files.'};
     }
     return {ok:true,captureId:capture.id,status:value,replay:false};
   }
@@ -543,6 +564,10 @@ export class Backend {
       if (s.acquisition) await s.acquisition.catch(() => {});
       let release = {ok: true, value: {alreadyInactive: true}};
       if (fs.existsSync(s.lease)) release = await this.run('cli', ['release', '--lease-file', s.lease], undefined, 20000);
+      if(systemCleanup&&s.systemFingerprint){
+        const receipt={gate:'system-idle',status:systemCleanup.runnerStopped===true&&release.ok?'passed':'failed',observation:{runnerStopped:systemCleanup.runnerStopped===true,ownerReleased:release.ok,...(typeof s.systemHomeConfirmed==='boolean'?{homeConfirmed:s.systemHomeConfirmed}:{})}};
+        systemCleanup.learningEvidence=await this.learning('observe',{receipt,source:s.systemFingerprint}).catch(()=>({available:false}));
+      }
       this.sessions.delete(id);
       this.captures.delete(id);
       return {released: release.ok,...(systemCleanup?{systemCleanup,ok:systemCleanup.ok}:{}),...(captureCleanup?{captureCleanup}:{}), detail: release.ok ? safe(release.value) : release.error,

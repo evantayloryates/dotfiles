@@ -24,7 +24,7 @@
   glow.style.cssText = 'position:fixed;inset:0;z-index:2147483647;pointer-events:none;border-radius:22px;border:3px solid transparent;background:linear-gradient(120deg,#fd9075,#d168e2,#638eff,#79e7c6) border-box;mask:linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0);mask-composite:exclude;-webkit-mask:linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;display:none;box-sizing:border-box;';
   document.documentElement.append(glow);
   let richCapture;
-  function clear() { lease = null; deadline = 0; glow.style.display = 'none'; void richCapture?.stop(true);const held=wakeLock;wakeLock=null;void held?.release().catch(()=>{}); }
+  function clear() { lease = null; deadline = 0; glow.style.display = 'none'; void richCapture?.stop(true);stopOptionalMetrics();const held=wakeLock;wakeLock=null;void held?.release().catch(()=>{}); }
   const timer = setInterval(() => { if (deadline && clock() > deadline) clear(); }, 250);
   const browser = /iPhone|iPad/.test(navigator.userAgent) ? (/CriOS/.test(navigator.userAgent) ? 'ios-chrome' : 'ios-safari') : (/Android/.test(navigator.userAgent)&&/Chrome/.test(navigator.userAgent)?'android-chrome':(/AppleWebKit/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent) ? 'desktop-webkit' : 'desktop-chromium'));
   const feedback = () => ({...identity, boot, version, visible: !document.hidden, ready: document.readyState !== 'loading', browser, path: location.pathname, indicator: !!lease});
@@ -156,6 +156,31 @@
   const longTasks={count:0,totalDurationMs:0,maxDurationMs:0};let taskObserver;
   if(longTaskSupport)try{taskObserver=new PerformanceObserver(list=>{for(const entry of list.getEntries()){if(!Number.isFinite(entry.duration))continue;longTasks.count++;longTasks.totalDurationMs+=entry.duration;longTasks.maxDurationMs=Math.max(longTasks.maxDurationMs,entry.duration);}});taskObserver.observe({type:'longtask',buffered:true});}catch{taskObserver=undefined;}
   const finite=value=>typeof value==='number'&&Number.isFinite(value)?Math.round(value):null;
+  // Optional diagnostics begin only on an owned state read and stop with ownership.
+  // Aggregate numbers only; never retain DOM nodes, resource URLs or event targets.
+  const optionalMetrics=new Map();
+  function stopOptionalMetrics(){for(const metric of optionalMetrics.values()){metric.observer?.disconnect();metric.observer=null;}}
+  function optionalMetric(type){
+    const supported=!!window.PerformanceObserver?.supportedEntryTypes?.includes(type);
+    let metric=optionalMetrics.get(type);
+    if(!metric?.observer&&supported&&lease&&!document.hidden){
+      metric={count:0,totalDurationMs:0,maxDurationMs:0,latestStartMs:null,observer:null};optionalMetrics.set(type,metric);
+      try{metric.observer=new PerformanceObserver(list=>{for(const entry of list.getEntries()){
+        if(!Number.isFinite(entry.duration)||entry.duration<0||!Number.isFinite(entry.startTime)||entry.startTime<0)continue;
+        metric.count=Math.min(2147483647,metric.count+1);metric.totalDurationMs=Math.min(Number.MAX_SAFE_INTEGER,metric.totalDurationMs+entry.duration);
+        metric.maxDurationMs=Math.max(metric.maxDurationMs,entry.duration);metric.latestStartMs=entry.startTime;
+      }});metric.observer.observe({type,buffered:true,...(type==='event'?{durationThreshold:16}:{})});}
+      catch{metric.observer?.disconnect();metric.observer=null;}
+    }
+    const observing=!!metric?.observer;
+    return {supported,observing,observedEntries:observing?metric.count:null,totalDurationMs:observing?finite(metric.totalDurationMs):null,maxDurationMs:observing?finite(metric.maxDurationMs):null,latestStartMs:observing?finite(metric.latestStartMs):null};
+  }
+  function audioSessionState(){
+    try{const session=navigator.audioSession;if(!session)return {supported:false,type:null,state:null};
+      return {supported:true,type:['auto','playback','transient','transient-solo','ambient','play-and-record'].includes(session.type)?session.type:null,state:['inactive','active','interrupted'].includes(session.state)?session.state:null};
+    }catch{return {supported:true,readConfirmed:false,type:null,state:null};}
+  }
+
   domains.set('performance',()=>{
     const nav=performance.getEntriesByType('navigation')[0],resources=performance.getEntriesByType('resource').slice(-1000);
     const paints=performance.getEntriesByType('paint');const paint=name=>finite(paints.find(p=>p.name===name)?.startTime);
@@ -166,6 +191,9 @@
       paint:{firstPaintMs:paint('first-paint'),firstContentfulPaintMs:paint('first-contentful-paint')},
       resources:{observed:resources.length,totalDurationMs:finite(resourceDuration),transferBytes:knownTransfer?finite(transferBytes):null,entriesWithTransferSize:knownTransfer},
       longTasks:{supported:!!taskObserver,count:taskObserver?longTasks.count:null,totalDurationMs:taskObserver?finite(longTasks.totalDurationMs):null,maxDurationMs:taskObserver?finite(longTasks.maxDurationMs):null},
+      eventTiming:{...optionalMetric('event'),durationThresholdMs:16,scope:'entry durations, not INP; buffered entries may precede ownership'},
+      largestContentfulPaint:{...optionalMetric('largest-contentful-paint'),scope:'latest candidate start time; not final LCP until page lifecycle completes'},
+      audioSession:audioSessionState(),
       memory:{jsHeapBytes:finite(performance.memory?.usedJSHeapSize),supported:Number.isFinite(performance.memory?.usedJSHeapSize)},
       viewport:{width:innerWidth,height:innerHeight,scale:visualViewport?.scale??null},agentRequestsIncluded:true,contentFree:true};
   });

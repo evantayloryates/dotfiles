@@ -1,0 +1,77 @@
+{
+  "at": "2026-10-11T00:35:59.490Z",
+  "scope": "Owned desktop Chromium/WebKit pages; physical iOS and call CPU/memory qualification are separate",
+  "engines": {
+    "chromium": {
+      "numericState": true,
+      "unsupportedMetricsRemainNull": true,
+      "contentFree": true,
+      "longTasksSupported": true,
+      "controlledLongTaskDetected": true,
+      "optionalDiagnostics": {
+        "eventTiming": {
+          "supported": true,
+          "observing": true,
+          "observedEntries": 0,
+          "totalDurationMs": 0,
+          "maxDurationMs": 0,
+          "latestStartMs": null,
+          "durationThresholdMs": 16,
+          "scope": "entry durations, not INP; buffered entries may precede ownership"
+        },
+        "largestContentfulPaint": {
+          "supported": true,
+          "observing": true,
+          "observedEntries": 1,
+          "totalDurationMs": 0,
+          "maxDurationMs": 0,
+          "latestStartMs": 596,
+          "scope": "latest candidate start time; not final LCP until page lifecycle completes"
+        },
+        "audioSession": {
+          "supported": false,
+          "type": null,
+          "state": null
+        }
+      },
+      "glowOff": true,
+      "adapterRemoved": true
+    },
+    "webkit": {
+      "numericState": true,
+      "unsupportedMetricsRemainNull": true,
+      "contentFree": true,
+      "longTasksSupported": false,
+      "controlledLongTaskDetected": null,
+      "optionalDiagnostics": {
+        "eventTiming": {
+          "supported": true,
+          "observing": true,
+          "observedEntries": 0,
+          "totalDurationMs": 0,
+          "maxDurationMs": 0,
+          "latestStartMs": null,
+          "durationThresholdMs": 16,
+          "scope": "entry durations, not INP; buffered entries may precede ownership"
+        },
+        "largestContentfulPaint": {
+          "supported": true,
+          "observing": true,
+          "observedEntries": 1,
+          "totalDurationMs": 0,
+          "maxDurationMs": 0,
+          "latestStartMs": 402,
+          "scope": "latest candidate start time; not final LCP until page lifecycle completes"
+        },
+        "audioSession": {
+          "supported": true,
+          "type": "auto",
+          "state": null
+        }
+      },
+      "glowOff": true,
+      "adapterRemoved": true
+    }
+  },
+  "status": "passed"
+}

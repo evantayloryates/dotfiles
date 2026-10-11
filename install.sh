@@ -131,14 +131,14 @@ if [[ "$(uname)" == "Darwin" ]]; then
     # The macOS app needs Xcode, so it is not built here: run `zdr-harness app`.
   fi
 
-  # com.taylor.record-screen: the screen-recording engine agents drive through
-  # the record-screen MCP. Built with swiftc (Command Line Tools are enough);
-  # skipped when no Swift toolchain is installed. See src/record-screen/README.md.
+  # com.taylor.smart-record: the screen-recording engine agents drive through
+  # the smart-record MCP. Built with swiftc (Command Line Tools are enough);
+  # skipped when no Swift toolchain is installed. See src/smart-record/README.md.
   if xcrun --find swiftc >/dev/null 2>&1; then
-    if bash "$DOTFILES_DIR/src/record-screen/install.sh" >/dev/null; then
-      log "🎥 Built + loaded com.taylor.record-screen LaunchAgent"
+    if bash "$DOTFILES_DIR/src/smart-record/install.sh" >/dev/null; then
+      log "🎥 Built + loaded com.taylor.smart-record LaunchAgent"
     else
-      log "⚠️  record-screen install failed — run src/record-screen/install.sh to see why"
+      log "⚠️  smart-record install failed — run src/smart-record/install.sh to see why"
     fi
   fi
 fi

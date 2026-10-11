@@ -17,6 +17,13 @@ class LearningTests(unittest.TestCase):
         return self.store.dispatch('observe', {'source': source, 'receipt': {'gate': 'ready', 'status': status,
             'observation': {'runtimeReady': True, 'token': 'secret sentinel', 'tree': {'raw': 'never'}}}})['evidenceId']
 
+    def test_new_diagnostic_gates_store_only_structural_receipts(self):
+        for gate in ['device-profile','system-ready','system-idle','capture-audio','capture-data']:
+            result=self.store.dispatch('observe',{'source':'a'*64,'receipt':{'gate':gate,'status':'passed','observation':{'sampleCount':3,'runnerStopped':True,'rawConsole':'private sentinel','audioBytes':'base64 sentinel','processes':[{'pid':77}]}}})
+            row=self.store.dispatch('evidence',{'source':'a'*64,'gate':gate})['evidence'][0]
+            self.assertEqual(row['id'],result['evidenceId'])
+            self.assertEqual(row['receipt']['observation'],{'runnerStopped':True,'sampleCount':3})
+
     def test_proposals_review_version_filter_dedup_and_retirement(self):
         eid = self.evidence()
         args = dict(key='ready-before-input', lesson='Require actual readiness before sending input.', evidenceId=eid)

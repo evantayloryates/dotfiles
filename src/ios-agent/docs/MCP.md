@@ -275,3 +275,23 @@ then completed in 2.128 seconds with no prompt. Five disabled-source AAC chunks
 were saved privately, decoded, and the test stream was stopped. Camera and
 Location stayed Ask. This is not audible microphone or full-call qualification.
 Receipt: annotation-safari-permission-wda-2026-10-10.json.
+
+### Shared evidence for new diagnostics
+
+Process profiles, system startup/cleanup and saved capture batches now append
+content-free verification receipts to the same cross-harness learning database.
+Use `ios_learning_evidence gate=device-profile|system-ready|system-idle|capture-audio|capture-data`.
+For an active system session, pass its `sessionId` to match that runner's provider,
+OS/build and code fingerprint. For an explicitly historical profile/capture receipt,
+use `matchingRuntime:false` and review its fingerprint and date before reuse.
+The shared records hold only counts and booleans. Trees, process identities,
+console, requests and audio stay in private artifacts, outside lesson text.
+A positive audio receipt proves chunks were stored, not audible/full-call success.
+New lessons still require proposal and agent review; receipts do not automatically
+turn prose into trusted guidance or weaken the two-runtime requirement for a
+supported general lesson.
+
+Failed resource-profile jobs also save a structural negative receipt. When the
+provider fails before returning its OS version, the fingerprint explicitly uses
+an unknown OS component; it is not an exact-iOS success claim. A timeout does not
+prove that the phone is locked, disconnected, or missing USB.

@@ -1,0 +1,54 @@
+# Qualification progress checklist
+
+Taylor requested a maintained checklist alongside the capture-readiness report.
+This applies to recorder and related shared computer-use qualification work.
+
+- Read `SERVICE-PRINCIPLES.md` before recorder implementation or production work.
+  Pursue measured timing parity near 1 ms (useful 1–10 ms bounds are acceptable),
+  preserve source precision/uncertainty and own synchronization in the service.
+  Observe the temporary overflow probe during useful authorized work. Keep
+  computer-use maintenance separate from recorder ownership.
+
+- Read `qualification/checklist.json` and the latest checkpoint in
+  `qualification/PRODUCTION-GOAL.md` when resuming this work.
+- Whenever acceptance evidence changes an item's state or materially changes
+  its limits, update its canonical checklist entry before ending the stage.
+  Do not wait for Taylor to request another checklist refresh.
+- Use `qualification/checklist.py update` to record the status, compact evidence,
+  next acceptance step and any changed scope/evidence anchor. The command saves
+  transition history and immediately republishes the checklist page.
+- Every partial item must include `why_partial`: a short, plain-language
+  explanation of what remains, why it is unfinished, what would close it and
+  the supported option available now. Keep it current when limits change.
+  Distinguish human participation, unresolved engineering and deliberate scope
+  deferrals; do not describe deferred work as impossible or externally blocked.
+- Maintain `work_state` separately from the historical verification `status`.
+  Use Completed, Pending (underway), Ready, Deferred or Review. Deferred entries
+  require environment, user involvement and a concrete Ready condition; Review
+  stays Review until Taylor has responded to its explanation or decision.
+  Update work state with `checklist.py work-state`. A Ready brief does not mean
+  a capability is implemented. Preserve original qualification evidence/history.
+- Completed means verified for the written scope; isolated candidate tests do
+  not complete installation, universal behavior or final production readiness.
+  Preserve failed evidence with `needs_retest`; distinguish partial, pending and
+  deferred work. Do not silently promote a gate after unrelated tests pass.
+- Add newly discovered acceptance gates with stable IDs. Keep existing IDs and
+  transition history; do not delete a failure to improve completion counts.
+- Prioritize checks that resolve several open questions. Preserve useful
+  progress and failed evidence; repair the affected boundary instead of resetting
+  whole phases. Repeat settled tests only when a new change or finding warrants
+  them. Track remaining limits explicitly rather than repeatedly relearning them.
+- Update the human-visible workflow state on pause/resume and the production
+  note after actual release/readback. This ledger does not control the app goal
+  and cannot authorize UI work or override a user-requested pause.
+- Keep raw footage, input rows and crash reports out of the checklist and Git.
+  Link to the corresponding report evidence section, with compact scope/limits.
+- The published pages belong in the existing directory:
+  `/Users/taylor/src/docs/html/smart-record-strategies/`.
+  `capture-readiness.html` links to `checklist.html`; the checklist links back.
+- `qualification/render-report.py` republishes both pages. Verify schema,
+  state counts, navigation targets and published data revision after updates.
+  Follow the existing verification limits; do not bypass a browser refusal.
+
+See `qualification/README.md` for update/render commands. Follow the repository's
+commit/push policy at each stopping point.

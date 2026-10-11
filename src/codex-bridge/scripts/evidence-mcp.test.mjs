@@ -15,7 +15,7 @@ async function server(relative, run) {
   const guard = join(root, 'guard.mjs')
   writeFileSync(guard, `import cp from 'node:child_process'; import net from 'node:net'; import {syncBuiltinESMExports} from 'node:module'; const deny=()=>{throw new Error('TRANSPORT_FORBIDDEN_IN_QUALIFICATION')}; for(const k of ['spawn','spawnSync','fork','exec','execSync','execFile','execFileSync']) cp[k]=deny; net.Socket.prototype.connect=deny; syncBuiltinESMExports();`)
   const state = join(root, 'state')
-  const child = spawn(process.execPath, ['--import', guard, fileURLToPath(new URL(relative, import.meta.url))], { env: { ...process.env, CODEX_BRIDGE_STATE_DIR: state, RECORD_SCREEN_HOME: join(root, 'recorder'), CODEX_BRIDGE_TRANSPORT: 'stdio' }, stdio: ['pipe', 'pipe', 'pipe'] })
+  const child = spawn(process.execPath, ['--import', guard, fileURLToPath(new URL(relative, import.meta.url))], { env: { ...process.env, CODEX_BRIDGE_STATE_DIR: state, SMART_RECORD_HOME: join(root, 'recorder'), CODEX_BRIDGE_TRANSPORT: 'stdio' }, stdio: ['pipe', 'pipe', 'pipe'] })
   let serial = 0, stderr = ''; const pending = new Map()
   const lines = createInterface({ input: child.stdout })
   child.stderr.on('data', bytes => { stderr += bytes })
@@ -95,7 +95,7 @@ test('evidence MCP mutation and readback work with transport/model paths forbidd
   assert.deepEqual(readdirSync(state), ['capability-evidence'])
 }))
 
-test('recorder target options are discoverable without engine capture or transport', () => server('../../record-screen/server.mjs', async request => {
+test('recorder target options are discoverable without engine capture or transport', () => server('../../smart-record/server.mjs', async request => {
   const roster = await request('tools/list')
   const aimed = roster.tools.filter(t => ['frame_check', 'frame_outline', 'record_schedule'].includes(t.name))
   assert.equal(aimed.length, 3)

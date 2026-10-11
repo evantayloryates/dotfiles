@@ -67,7 +67,7 @@ def identity(exe, argv, env):
         services = ('gmail-mcp-multiauth', '@notionhq/notion-mcp-server',
                     '@cloudinary/asset-management-mcp', '@playwright/mcp',
                     'claude-driver', 'classifier-mcp', 'zdr-ask-mcp',
-                    'kickoff-stage-db-mcp', 'record-screen-mcp')
+                    'kickoff-stage-db-mcp', 'smart-record-mcp')
         service = next((s for s in services if any(s in a for a in argv)), None)
         if '/mcps/runtime/gmail-fork/index.js' in joined:
             role = 'MCP: gmail-mcp-multiauth'

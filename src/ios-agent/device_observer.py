@@ -43,7 +43,7 @@ async def observe(r):
             'coreDeviceTouch':'com.apple.coredevice.hid.universalhidservice',
             'webInspectorService':'com.apple.webinspector.shim.remote',
         }.items()}
-        result = {'scope':'paired-device-read-only','provider':'pymobiledevice3-11.15.5','transport':'native-remoted','capabilities':caps,'systemInput':False,'offLANQualified':False}
+        result = {'scope':'paired-device-read-only','provider':'pymobiledevice3-11.15.5','productVersion':getattr(rsd,'product_version',None),'transport':'native-remoted','capabilities':caps,'systemInput':False,'offLANQualified':False}
         if r['kind'] == 'screen':
             owned(r)
             r['_phase']='dvt_connect'

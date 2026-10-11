@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { test } from 'node:test'
 
 const cli = new URL('../evidence.mjs', import.meta.url).pathname
-const reply = { schema:'record-screen-action/v1', action_token:'act_12345678-1234-1234-1234-123456789abc',
+const reply = { schema:'smart-record-action/v1', action_token:'act_12345678-1234-1234-1234-123456789abc',
   action_id:'authored-cli', session_id:'authored-session', caller:'test', provider:'authored', intent:'Authored CLI import',
   target:{bundle_id:'authored.fixture',pid:123,window_id:456}, clock_domain:'CLOCK_UPTIME_RAW',
   clock_provenance:'recorder_service_stamped', start_ns:'9007199254740993', end_ns:'9007199254741001',

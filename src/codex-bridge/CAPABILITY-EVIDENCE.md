@@ -103,7 +103,7 @@ when the prior verification object is carried forward rather than re-executed.
 Four such settlements and one retrospective source-metadata outcome now leave
 zero uncovered receipts; one cleanup remains unknown. The old incorrect verified
 claim/missing reference and its failed correction remain intact. An existing
-reference path alone would not validate its contents. See record-screen
+reference path alone would not validate its contents. See smart-record
 qualification/GATES.md stage63 for exact scope.
 
 Verify executable identity as well as PID before touching a retained helper.
@@ -147,7 +147,7 @@ remain distinct; older history outside the window may be unknown. This audit
 measures persisted reported observations only, not every UI action, authenticated
 agent identity, evidence truth or historical task success.
 
-`src/record-screen/lib/recorded-workflow.mjs:withRecordedWorkflow` is the supported
+`src/smart-record/lib/recorded-workflow.mjs:withRecordedWorkflow` is the supported
 explicit callback path. It requires an evidence store, dispatches the operation
 once and defaults the receipt result to dispatched. It closes the recorder scope
 before potentially long verify/cleanup callbacks. Hooks run only after known begin;
@@ -245,7 +245,7 @@ and malformed/oversized/symlink/non-file refusal without publication.
 
 The recorder exposes action_begin/end/scopes with exact service times and rich
 context, gated by action_scopes v1. Supported callbacks use
-`src/record-screen/lib/recorded-action.mjs:withRecordedAction`; native CUA remains
+`src/smart-record/lib/recorded-action.mjs:withRecordedAction`; native CUA remains
 explicitly bracketed. Receipt failure never triggers UI replay. `EvidenceStore`
 can `putRecordedAction(reply)` after terminal settlement, preserving null ends
 for engine-restart interruption. Imported provenance is recorder_reply_imported:
@@ -258,7 +258,7 @@ candidates, drag continuity and differentiated window clues without text. The
 store does not start this listener, read raw source packets or classify human
 text. Current proof: 36/36 native keys despite non-foreground delivery; 40 separate-
 app keys excluded after block closure; eight final keys matched; scope restart
-kept end time unknown. See record-screen/qualification/GATES.md for limits.
+kept end time unknown. See smart-record/qualification/GATES.md for limits.
 
 Fourteenth-pass native qualification appended a scoped Chrome native-select
 readiness observation and independently verified its exact entity/value/ID.

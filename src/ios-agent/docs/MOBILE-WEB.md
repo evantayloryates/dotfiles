@@ -355,3 +355,20 @@ use Mirroring as a runtime dependency. A successful nearby wireless start does
 not prove off-site startup or eliminate Apple's possible authorization prompts.
 The direct Tailscale lockdown-port handshake reset; an open port was not treated
 as a working developer-service connection. See MCP.md for ownership and cleanup.
+
+## Optional browser diagnostics — 10 October
+
+`ios_web_inspect kind=state` includes
+`domains.performance.eventTiming`, `largestContentfulPaint` and `audioSession`.
+Event Timing and LCP observers start on an owned state read and disconnect when
+ownership/visibility ends. A second read obtains asynchronously emitted values.
+Support, active observation, zero entries and unavailable/null remain distinct.
+Only numeric aggregates are retained: no DOM attribution, resource URLs or event
+labels. Buffered entries can precede the current ownership window. Event durations
+are not INP, and the latest LCP candidate is not a final page-lifecycle LCP.
+AudioSession reads type/state without changing routing or requesting a microphone.
+A browser can expose the object while omitting state; that value remains null.
+
+Standards: https://www.w3.org/TR/audio-session/ ,
+https://www.w3.org/TR/event-timing/ ,
+https://www.w3.org/TR/largest-contentful-paint/ .

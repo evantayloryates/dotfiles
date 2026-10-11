@@ -32,7 +32,7 @@ test('receipt claims do not establish verification or cleanup; joined outcomes r
   assert.equal(covered.counts.cleanup.partial, 1)
   assert.equal(covered.counts.uncovered_receipts, 0)
   assert.deepEqual(readFileSync(r.path), before)
-  const interrupted = store.putRecordedAction({ ...receipt, schema: 'record-screen-action/v1',
+  const interrupted = store.putRecordedAction({ ...receipt, schema: 'smart-record-action/v1',
     action_token: 'act_12345678-1234-1234-1234-123456789abc', context: {},
     deadline_ns: '9007199255740993', end_ns: null, state: 'interrupted', result: 'interrupted',
     engine_instance: 'fixture', engine_build: 'fixture', engine_pid: 100,

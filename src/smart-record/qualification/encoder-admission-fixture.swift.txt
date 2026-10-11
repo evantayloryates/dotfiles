@@ -1,0 +1,5 @@
+#if SMART_RECORD_QUALIFICATION
+extension Recordings {
+  func qualificationTrack(_ recording:Recording) {jobs[recording.id]=recording}
+}
+#endif

@@ -36,7 +36,9 @@ export function parseTree(xml){
 export class SystemDriver {
   constructor({state,session,check}){this.state=state;this.session=session;this.check=check;this.snapshot=null;this.child=null;this.startPromise=null;}
   async http(method,route,body,timeout=12000){
-    const response=await fetch(this.base+route,{method,signal:AbortSignal.timeout(timeout),headers:{'content-type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)});
+    let response;
+    try{response=await fetch(this.base+route,{method,signal:AbortSignal.timeout(timeout),headers:{'content-type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)});}
+    catch(error){throw Error(['TimeoutError','AbortError'].includes(error.name)?'system_endpoint_deadline':'system_endpoint_unreachable');}
     const reader=response.body.getReader();let text='',bytes=0;const decoder=new TextDecoder();
     try{while(true){const {value,done}=await reader.read();if(done)break;bytes+=value.length;if(bytes>2*1024*1024)throw Error('system_response_bounded');text+=decoder.decode(value,{stream:true});}}finally{await reader.cancel().catch(()=>{});}
     const r=JSON.parse(text);if(!response.ok||r.value?.error)throw Error('system_provider_rejected');return r;
@@ -46,6 +48,7 @@ export class SystemDriver {
     const file=path.join(this.state,'system-driver.json');
     if(!fs.existsSync(file)||fs.lstatSync(file).isSymbolicLink()||fs.statSync(file).mode&0o077)return {ok:false,reason:'private_system_driver_configuration_required'};
     const config=JSON.parse(fs.readFileSync(file));if(!tailnetHost(config.address))return {ok:false,reason:'configured_tailnet_address_required'};
+    this.deviceIdentity=JSON.parse(fs.readFileSync(path.join(this.state,'web-device.json'))).hardwareUDID;
     this.base=`http://${config.address}:8100`;this.check();
     const endpoint=await endpointState(config.address);
     if(endpoint==='open')return {ok:false,reason:'existing_system_runner_preserved'};
@@ -57,7 +60,7 @@ export class SystemDriver {
     this.child.stderr.on('data',()=>{});this.child.stdin.on('error',()=>{});
     let pending='';this.child.stdout.on('data',bytes=>{pending+=bytes;if(pending.length>16000)pending='';let at;while((at=pending.indexOf('\n'))>=0){try{const r=JSON.parse(pending.slice(0,at));if(r.stopped)this.cleanup=r;if(r.started===false)this.failed=true;}catch{}pending=pending.slice(at+1);}});
     const until=Date.now()+45000;let ready=false;
-    while(Date.now()<until){this.check();if(this.failed||this.child.exitCode!==null)break;try{ready=(await this.http('GET','/status',undefined,1000)).value?.ready===true;if(ready)break;}catch{}await sleep(500);}
+    while(Date.now()<until){this.check();if(this.failed||this.child.exitCode!==null)break;try{this.runtime=(await this.http('GET','/status',undefined,1000)).value;ready=this.runtime?.ready===true;if(ready)break;}catch{}await sleep(500);}
     if(!ready)return {ok:false,reason:'system_start_unconfirmed_inspect_phone',replay:false};
     this.check();const r=await this.http('POST','/session',{capabilities:{alwaysMatch:{shouldWaitForQuiescence:false,shouldUseCompactResponses:true}}});
     this.sid=r.sessionId||r.value?.sessionId;if(!/^[A-Fa-f0-9-]{36}$/.test(this.sid||''))return {ok:false,reason:'system_session_unconfirmed',replay:false};
@@ -99,7 +102,7 @@ export class SystemDriver {
         this.check();inputSent=true;await this.http('POST',this.route(`/element/${eid}/click`),{});
       }else return {ok:false,reason:'fixed_system_action_required',actionSent:false};
       return {ok:true,delivery:'native-XCTest',effect:'unverified; inspect again',replay:false};
-    }catch{if(inputSent)this.uncertain=true;return {ok:false,outcome:inputSent?'unknown_or_rejected':'not_sent',actionSent:inputSent,reason:'inspect_current_phone_state',replay:false};}
+    }catch(error){if(inputSent)this.uncertain=true;const known=new Set(['physical_unlock_required','system_app_scope_required','system_endpoint_deadline','system_endpoint_unreachable','system_provider_rejected']);return {ok:false,outcome:inputSent?'unknown_or_rejected':'not_sent',actionSent:inputSent,reason:known.has(error.message)?error.message:'inspect_current_phone_state',replay:false};}
   }
   async stop(){
     if(this.stopping)return this.stopping;

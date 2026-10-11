@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-# The record-screen engine CLI (see src/record-screen/README.md).
-exec "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../src/record-screen/bin/record-screen" "$@"

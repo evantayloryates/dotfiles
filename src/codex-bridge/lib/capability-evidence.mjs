@@ -95,7 +95,7 @@ export function validateRecordedAction(input) {
     'clock_provenance','ownership','limits','evidence_refs','end_kind','target_lifetime_at_end','clock','target_resolution']
   fields(input,allowed,['schema','action_token','action_id','session_id','caller','provider','intent','context','target',
     'clock_domain','start_ns','deadline_ns','end_ns','state','result','engine_instance','engine_build','engine_pid','clock_provenance'])
-  if(input.schema!=='record-screen-action/v1' || input.clock_provenance!=='recorder_service_stamped') fail('invalid recorder action contract')
+  if(input.schema!=='smart-record-action/v1' || input.clock_provenance!=='recorder_service_stamped') fail('invalid recorder action contract')
   if(!/^act_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(input.action_token)) fail('invalid recorder token')
   if(!['closed','expired','interrupted'].includes(input.state)) fail('only terminal recorder actions can be imported')
   const resolution=input.target_resolution ?? 'legacy_unspecified'
