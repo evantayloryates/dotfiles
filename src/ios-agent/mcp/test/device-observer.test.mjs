@@ -7,7 +7,7 @@ function fixture(blocked=false,profile=false){
   if(kind==='cli'&&args[0]==='acquire'){if(blocked)return {ok:false,error:'device_already_leased'};held=true;fs.writeFileSync(args[args.indexOf('--lease-file')+1],JSON.stringify({lease:'private-owner'}));return {ok:true};}
   if(kind==='cli'&&args[0]==='release'){held=false;fs.unlinkSync(args[args.indexOf('--lease-file')+1]);return {ok:true,value:{released:true}};}
   if(kind==='learning'){receipts.push(input.args);return {ok:true,value:{evidenceId:'fixture-evidence',gate:input.args.receipt.gate,status:input.args.receipt.status}};}
-  if(kind==='provider'){assert(held);if(profile==='timeout')return {ok:false,value:{reason:'device_observation_deadline',phase:'resource_profile_sample'}};if(profile){fs.writeFileSync(input.output,JSON.stringify({result:{productVersion:'26.7.1',provider:'pymobiledevice3-11.15.5',sampleCount:3,profilerStopped:true,samples:[{processes:[{physicalFootprintBytes:0,cpuUsageRaw:null},{physicalFootprintBytes:null,cpuUsageRaw:0},{physicalFootprintBytes:8}]}]}}));return {ok:true,value:{ok:true}};}fs.writeFileSync(input.output,JSON.stringify({result:{pngBase64:'iVBORw0KGgo=',scope:'whole-device-display',width:1170,height:2532}}));return {ok:true,value:{ok:true}};}
+  if(kind==='provider'){assert(held);assert(['configured','usb-recovery'].includes(input.transport));if(profile==='timeout')return {ok:false,value:{reason:'device_observation_deadline',phase:'resource_profile_sample'}};if(profile){fs.writeFileSync(input.output,JSON.stringify({result:{productVersion:'26.7.1',provider:'pymobiledevice3-11.15.5',sampleCount:3,profilerStopped:true,samples:[{processes:[{physicalFootprintBytes:0,cpuUsageRaw:null},{physicalFootprintBytes:null,cpuUsageRaw:0},{physicalFootprintBytes:8}]}]}}));return {ok:true,value:{ok:true}};}fs.writeFileSync(input.output,JSON.stringify({result:{pngBase64:'iVBORw0KGgo=',scope:'whole-device-display',width:1170,height:2532}}));return {ok:true,value:{ok:true}};}
   throw Error('unexpected fixture operation');
  }});return {backend,state,calls,receipts,held:()=>held};
 }
@@ -27,4 +27,12 @@ test('profile learning distinguishes available zero from missing metrics and sav
  else {assert.equal(result.ok,false);assert.equal(receipt.status,'failed');assert.equal(receipt.observation.deadlineExceeded,true);assert.equal(receipt.observation.osVersionKnown,false);assert(!('sampleCount' in receipt.observation));}
  assert.equal(result.learningEvidence.evidenceId,'fixture-evidence');
  }finally{await f.backend.close();fs.rmSync(f.state,{recursive:true,force:true});}}
+});
+
+test('explicit USB recovery admits screen only and rejects broader work before ownership',async()=>{
+ const f=fixture();try{
+  for(const args of [{kind:'resource-profile',transport:'usb-recovery'},{kind:'screen',transport:'other'},{kind:'screen',transport:'usb-recovery',debug:{op:'dom'}}]){const r=await f.backend.deviceInspect(args);assert.equal(r.ok,false);assert.equal(r.inputSent,false);}
+  assert.equal(f.calls.length,0);
+  const r=await f.backend.deviceInspect({kind:'screen',transport:'usb-recovery'});assert(r.ok);assert.equal(f.held(),false);
+ }finally{await f.backend.close();fs.rmSync(f.state,{recursive:true,force:true});}
 });

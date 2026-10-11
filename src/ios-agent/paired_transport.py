@@ -27,8 +27,23 @@ def tailnet_config(state, serial):
 
 
 @asynccontextmanager
-async def paired_rsd(state, serial, check):
+async def paired_rsd(state, serial, check, transport='configured'):
     """One operation, one separately authenticated userspace tunnel, exact UDID."""
+    if transport not in ('configured', 'usb-recovery'):
+        raise ValueError('fixed_developer_transport_required')
+    if transport == 'usb-recovery':
+        # Explicit read-only recovery, never an automatic fallback from tailnet.
+        from connectivity import usb_attached
+        check()
+        if usb_attached(serial) is not True:
+            raise ValueError('fixed_usb_device_not_enumerated')
+        from pymobiledevice3.remote.native_tunnel import NativeRemotedTunnel
+        async with NativeRemotedTunnel(serial=serial) as rsd:
+            if rsd.udid != serial:
+                raise ValueError('developer_device_identity_mismatch')
+            check()
+            yield rsd, 'usb-recovery-native-remoted'
+        return
     config = tailnet_config(state, serial)
     check()
     if config is None:

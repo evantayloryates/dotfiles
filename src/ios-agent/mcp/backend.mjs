@@ -383,7 +383,9 @@ export class Backend {
       ...(pagination?{pagination}:{}),next: 'Use a smaller subtree or an explicit array offset/count window. No partial JSON is returned.'};
     return {artifactId, data,...(pagination?{pagination}:{})};
   }
-  async deviceInspect({kind='screen',sessionId,debug,audit}={}) {
+  async deviceInspect({kind='screen',sessionId,debug,audit,transport='configured'}={}) {
+    if(!['configured','usb-recovery'].includes(transport))return {ok:false,reason:'fixed_developer_transport_required',inputSent:false};
+    if(transport==='usb-recovery'&&(!['screen','capabilities'].includes(kind)||debug||audit))return {ok:false,reason:'usb_recovery_read_only_screen_or_capabilities_required',inputSent:false};
     let s,temporary=false,expressionDispatched=false,heapDispatched=false;
     try {
       if(['heap','breakpoint'].includes(debug?.op)&&!sessionId)return {ok:false,reason:`owned_debug_session_required_for_${debug.op}`,inputSent:false,runtimeMutationSent:false};
@@ -413,7 +415,7 @@ export class Backend {
       const a=this.artifact(s,kind==='screen'?'image':'device-capabilities');
       expressionDispatched=debug?.expression!==undefined;
       heapDispatched=['heap','breakpoint'].includes(debug?.op);
-      const run=await this.run('provider',[],{kind,serial,state:this.state,leaseFile:s.lease,ownerFile:s.owner,output:a.file,...(debug?{debug}:{}),...(audit?{audit}:{})},debug||audit?35000:26000);
+      const run=await this.run('provider',[],{kind,serial,transport,state:this.state,leaseFile:s.lease,ownerFile:s.owner,output:a.file,...(debug?{debug}:{}),...(audit?{audit}:{})},debug||audit?35000:26000);
       if(!run.ok||run.value?.ok!==true||!fs.existsSync(a.file)){
         let learningEvidence;
         if(kind==='resource-profile'){

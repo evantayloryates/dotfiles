@@ -25,6 +25,11 @@ def owned(r):
 
 async def observe(r):
     r['_phase']='validation'
+    transport = r.get('transport', 'configured')
+    if transport not in ('configured','usb-recovery'):
+        raise ValueError('fixed_developer_transport_required')
+    if transport == 'usb-recovery' and r.get('kind') not in ('screen','capabilities'):
+        raise ValueError('usb_recovery_read_only_screen_or_capabilities_required')
     if r.get('kind') not in ('screen','capabilities','browser-debug','resource-profile','fixed-launch','browser-launch','shortcut-home','ax-native-tab','accessibility-audit') or not re.fullmatch(r'[0-9A-Fa-f]{8}-[0-9A-Fa-f]{16}', r.get('serial','')):
         raise ValueError('fixed_observer_request_required')
     if r['kind']=='browser-launch':
@@ -41,7 +46,9 @@ async def observe(r):
     from pymobiledevice3.services.dvt.instruments.screenshot import Screenshot
     owned(r)
     r['_phase']='paired_developer_tunnel'
-    async with paired_rsd(r['state'],r['serial'],lambda:owned(r)) as (rsd,transport):
+    tunnel = (paired_rsd(r['state'],r['serial'],lambda:owned(r),transport=transport)
+              if transport == 'usb-recovery' else paired_rsd(r['state'],r['serial'],lambda:owned(r)))
+    async with tunnel as (rsd,transport):
         r['_phase']='service_discovery'
         services = (rsd.peer_info or {}).get('Services', {})
         caps = {label:name in services for label,name in {

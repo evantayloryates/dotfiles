@@ -14,7 +14,7 @@ class WatchTests(unittest.TestCase):
                         targets=[dict(pid=123,cpu_percent=98 if tick[0]<=7 else 0)]), []
         with tempfile.TemporaryDirectory() as folder:
             root=Path(folder)
-            with patch.object(b,'measure',sample), patch.object(b,'processes',return_value=([],'ok')), patch.object(b.watcher,'light_sample',return_value={}), patch.object(b.time,'sleep'):
+            with patch.object(b,'diagnose'), patch.object(b,'measure',sample), patch.object(b,'processes',return_value=([],'ok')), patch.object(b.watcher,'light_sample',return_value={}), patch.object(b.time,'sleep'):
                 b.watch(root,count=40)
             episodes=list(root.glob('episode-*.json'))
             self.assertEqual(len(episodes),1)
@@ -22,6 +22,10 @@ class WatchTests(unittest.TestCase):
             self.assertEqual(episode['samples'][0]['monotonic'],1)
             self.assertEqual(b.status(root)['state'],'watching')
             self.assertFalse(b.status(root)['preflight_warning'])
+    def test_redaction(self):
+        text=b.redact("AA:BB:CC:DD:EE:FF J23P6QB926JY 2294894D-7918-3325-96AD-8A61E3BCCBD1")
+        self.assertEqual(text,"[address] [identifier] [uuid]")
+
     def test_stale(self):
         with tempfile.TemporaryDirectory() as folder:
             root=Path(folder)

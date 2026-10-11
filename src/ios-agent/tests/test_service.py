@@ -21,6 +21,24 @@ class BrokerTests(unittest.TestCase):
     def call(self, **kw):
         return self.b.control({"lease": "lease", **kw})
 
+    def test_relay_requires_native_owner_and_is_closed_on_release(self):
+        with self.assertRaisesRegex(service.Rejected,'explicit_relay_start_required'):
+            self.call(op='action',action='developer-relay',args={})
+        self.b.lease['surface']='web'
+        with self.assertRaisesRegex(service.Rejected,'foreground_native_owner_required'):
+            self.call(op='developer_relay_start')
+        self.b.lease['surface']='native'
+        relay=None
+        try:
+            start=self.call(op='developer_relay_start');self.assertGreater(start['port'],0);relay=self.b.developer_relay
+            with self.assertRaisesRegex(service.Rejected,'relay_already_started_no_replay'):
+                self.call(op='developer_relay_start')
+            with self.assertRaisesRegex(service.Rejected,'foreground_owned_relay_required'):
+                self.b.device_request({**self.device,'op':'developer_relay','lease':'lease','epoch':self.b.epoch,'sequence':0,'data':'','feedback':{'foreground':False}})
+            self.call(op='release');self.assertTrue(relay.closed);self.assertIsNone(self.b.developer_relay)
+        finally:
+            if relay:relay.close();relay.thread.join(1)
+
     def test_native_reads_do_not_start_react_frontend(self):
         with patch.object(self.b, "start_react_frontend") as start:
             self.call(op="action", action="tree", args={})

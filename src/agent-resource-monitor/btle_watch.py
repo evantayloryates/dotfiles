@@ -7,6 +7,9 @@ import datetime as dt
 import fcntl
 import json
 import itertools
+import re
+import threading
+import subprocess
 import os
 from pathlib import Path
 import time
@@ -89,12 +92,57 @@ def inventory(rows):
 
 
 def prune(root):
-    files = sorted(root.glob('episode-*.json'), key=lambda p:p.stat().st_mtime, reverse=True)
+    files = sorted(root.glob('episode-*'), key=lambda p:p.stat().st_mtime, reverse=True)
     total = 0
     for i, file in enumerate(files):
         total += file.stat().st_size
         if i >= 100 or total > 32*1024**2 or time.time()-file.stat().st_mtime > 14*86400:
             file.unlink()
+
+
+def redact(text):
+    text = re.sub(r'([0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}', '[address]', text)
+    text = re.sub(r'[0-9a-fA-F]{8}-[0-9a-fA-F-]{27,}', '[uuid]', text)
+    return re.sub(r'\b[A-Z0-9]{10,16}\b', '[identifier]', text)
+
+
+def diagnose(episode_path, pid):
+    """Bounded asynchronous local capture. Never prompts, mutates devices or retries sudo."""
+    destination = Path(episode_path).with_suffix('.diagnostics.json')
+    result = dict(checked_at=watcher.monitor.now(),pid=pid,
+                  limitation='Private log fields remain redacted; nearby device records are correlation, not proof of the caller.')
+    logs = watcher.run(['/usr/bin/log','show','--last','2m','--info','--debug','--style','json',
+                        '--predicate','process == "BTLEServer" OR process == "uarpd" OR subsystem CONTAINS[c] "uarp" OR ((process == "audioaccessoryd" OR process == "bluetoothd") AND (eventMessage BEGINSWITH "Fetched Device: BTCloudDevice:" OR eventMessage BEGINSWITH "devicesUpdatedWithDevices:" OR eventMessage BEGINSWITH "Create Device Record: BTCloudDevice:"))'],timeout=12,limit=1024*1024)
+    result['log_status'] = {k:v for k,v in logs.items() if k!='output'}
+    try:
+        events = json.loads(logs.get('output',''))
+        result['events'] = [dict(timestamp=e.get('timestamp'),process=Path(e.get('processImagePath','')).name,
+                                 category=e.get('category'),message=redact(e.get('eventMessage',''))) for e in events]
+    except ValueError:
+        result['events'] = [];result['log_parse']='unavailable or truncated'
+    devices = watcher.run(['/usr/sbin/system_profiler','SPBluetoothDataType','-json'],timeout=12,limit=512*1024)
+    result['device_status'] = devices['status']
+    try:
+        state=json.loads(devices.get('output',''))['SPBluetoothDataType'][0]
+        result['devices']={}
+        keep={'device_firmwareVersion','device_caseVersion','device_productID','device_vendorID','device_minorType',
+              'device_batteryLevelCase','device_batteryLevelLeft','device_batteryLevelRight'}
+        for key in ('device_connected','device_not_connected'):
+            result['devices'][key]=[{name:{k:v for k,v in info.items() if k in keep}}
+                                    for entry in state.get(key,[]) for name,info in entry.items()]
+    except (ValueError,KeyError,IndexError):
+        result['device_parse']='unavailable or truncated'
+    # Verify target identity before one non-interactive privileged capture. No persisted grant.
+    targets, health=processes()
+    if health=='ok' and any(p['pid']==pid and p['executable']=='/usr/sbin/BTLEServer' for p in targets):
+        stack=Path(episode_path).with_suffix('.stack.txt')
+        attempt=watcher.run(['/usr/bin/sudo','-n','/usr/bin/sample',str(pid),'3','-file',str(stack)],timeout=12,limit=4096)
+        result['stack_capture']={k:v for k,v in attempt.items() if k!='output'}
+        result['stack_capture']['path']=str(stack) if stack.is_file() else None
+        result['stack_capture']['authentication_note']='Unavailable may mean human administrator authentication is required; never prompt or install sudoers rules.'
+    else:
+        result['stack_capture']={'status':'target changed or unavailable'}
+    watcher.write_json(destination,result)
 
 
 def watch(root=ROOT, count=None):
@@ -107,6 +155,8 @@ def watch(root=ROOT, count=None):
         ring = deque(maxlen=60)
         episode = None
         hits = quiet = 0
+        diagnostic_job = None
+        diagnostic_started = float('-inf')
         for tick in range(count) if count is not None else itertools.count():
             started = time.monotonic()
             row, rows = measure(previous)
@@ -122,7 +172,11 @@ def watch(root=ROOT, count=None):
                 episode = dict(started_at=row['timestamp'], path=str(root/f'episode-{key}.json'),
                                samples=list(ring), candidate_inventory=inventory(processes(True)[0]),
                                attribution='Temporal correlation only; inventory does not establish a Bluetooth caller.',
-                               stack_capture='Not attempted: previous unprivileged system-process sample was denied by macOS.')
+                               stack_capture='See adjacent diagnostics.json; one non-interactive sample attempt when authorized.')
+                if (diagnostic_job is None or not diagnostic_job.is_alive()) and time.monotonic()-diagnostic_started >= 600:
+                    diagnostic_started=time.monotonic()
+                    diagnostic_job=threading.Thread(target=diagnose,args=(episode['path'],next(p['pid'] for p in row['targets'] if (p.get('cpu_percent') or 0)>=THRESHOLD)),daemon=True)
+                    diagnostic_job.start()
             elif episode:
                 episode['samples'].append(row)
             if episode:
@@ -138,7 +192,7 @@ def watch(root=ROOT, count=None):
             watcher.write_json(root/'status.json', dict(**row, high_cpu=high(row),
                                sustained_high_cpu=hits >= 5, state='incident' if episode else 'watching',
                                watcher_pid=os.getpid(), interval_seconds=1, threshold_cpu_percent=THRESHOLD,
-                               trigger_seconds=5, episode_path=episode['path'] if episode else None))
+                               trigger_seconds=5, episode_path=episode['path'] if episode else None, diagnostic_capture_enabled=True))
             time.sleep(max(0, 1-(time.monotonic()-started)))
 
 

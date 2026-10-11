@@ -94,6 +94,7 @@ static NSString *IAViewLabel(UIView *view) {
 }
 #import "WiFiShortcut.inc"
 #import "BrowserHandoff.inc"
+#import "DeveloperRelay.inc"
 
 @interface IAGlowWindow : UIWindow
 @end
@@ -280,6 +281,7 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
  self.glow.hidden=NO;
 }
 - (void)stopLease {
+ IOSAgentRelayStop();
  BOOL wasLeased=self.lease!=nil;
  if(self.idleTimerOverride) { UIApplication.sharedApplication.idleTimerDisabled=self.previousIdleTimerDisabled; self.idleTimerOverride=NO; }
  self.lease=nil; self.expiry=0; self.glow.hidden=YES; self.snapshot=nil;
@@ -372,6 +374,10 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
   }
   if([action isEqual:@"wifi"]) { done(IOSAgentWiFiPrepare(args,cid)); return; }
   if([action isEqual:@"browser-handoff"]) { done(IOSAgentBrowserPrepare(args,cid,self.config)); return; }
+  if([action isEqual:@"developer-relay"]) {
+   if(args.count) { done(IAError(@"diagnostic_arguments_not_allowed"));return; }
+   done(IOSAgentRelayStart(^(NSDictionary *frame,void(^reply)(NSDictionary*)){[self exchange:frame completion:reply];},self.lease,self.epoch));return;
+  }
   if([action isEqual:@"capture"]) {
 #if IOS_AGENT_REACT
    if(!IABridge.observing || ![args[@"requestId"] isKindOfClass:NSString.class]) { done(IAError(@"capture_bridge_not_ready")); return; }

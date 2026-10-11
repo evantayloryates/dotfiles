@@ -76,4 +76,23 @@ class TransportTests(unittest.IsolatedAsyncioTestCase):
   e=await self.exercise('pair');self.assertNotIn('rsd-open',e);self.assertEqual(e[-1],'provider-close')
  async def test_cancellation_closes_without_global_flag_leak(self):
   e=await self.exercise('cancel');self.assertEqual(e[-4:],['rsd-close','dial-close','tunnel-close','provider-close'])
+class USBRecoveryTests(unittest.IsolatedAsyncioTestCase):
+ async def exercise(self,detected=True,identity=SERIAL):
+  events=[]
+  class Native:
+   def __init__(self,serial):events.append(('serial',serial))
+   async def __aenter__(self):events.append('open');return Obj(udid=identity)
+   async def __aexit__(self,*args):events.append('close')
+  with tempfile.TemporaryDirectory() as d,patch('connectivity.usb_attached',return_value=detected),patch.dict(sys.modules,{'pymobiledevice3.remote.native_tunnel':Obj(NativeRemotedTunnel=Native)}):
+   try:
+    async with p.paired_rsd(d,SERIAL,lambda:events.append('owner'),transport='usb-recovery') as (_,transport):
+     self.assertEqual(transport,'usb-recovery-native-remoted');events.append('yield')
+   except ValueError as e:events.append(str(e))
+  return events
+ async def test_positive_usb_checks_exact_identity_and_closes(self):
+  e=await self.exercise();self.assertIn(('serial',SERIAL),e);self.assertIn('yield',e);self.assertEqual(e[-1],'close')
+ async def test_negative_usb_does_not_open_any_provider(self):
+  e=await self.exercise(False);self.assertNotIn('open',e);self.assertIn('fixed_usb_device_not_enumerated',e)
+ async def test_wrong_identity_closes_without_yield(self):
+  e=await self.exercise(identity='wrong');self.assertNotIn('yield',e);self.assertIn('close',e);self.assertIn('developer_device_identity_mismatch',e)
 if __name__=='__main__':unittest.main()

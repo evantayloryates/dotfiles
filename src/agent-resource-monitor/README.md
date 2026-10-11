@@ -270,3 +270,23 @@ interrupting possible firmware transfers while investigating.
 Evidence: `/Users/taylor/src/docs/html/resource-usage-audit/btleserver-stack-analysis-2026-10-11.json`
 and adjacent retained stack text. Repeat the sample on recurrence, then correlate
 bounded accessory events and a single authorized connection change before assigning cause.
+
+### Recurrence capture and notifications
+
+The BTLE watcher now starts one asynchronous diagnostic capture at incident onset
+(with a ten-minute cooldown across rotated bundles): the preceding two minutes
+of BTLE/UARP events plus narrowly selected accessory identity events, connected
+and disconnected device models/names/firmware/battery, and one `sudo -n sample`
+attempt after verifying the PID still belongs to BTLEServer. It never prompts for
+credentials, grants root access, restarts a daemon or changes a connection. If
+administrator authorization is unavailable, stack capture is marked unavailable.
+Identifiers are sanitized; OS-private fields remain private, so exact accessory
+attribution is not guaranteed. Log and inventory reads have 12-second timeouts
+and 1 MiB / 512 KiB limits. Diagnostic/stack companions share the 100-file,
+32-MiB, 14-day retention bound. This explicitly authorized diagnostic extension
+captures selected sanitized event bodies; the ordinary recorder remains content-free.
+A thread heartbeat named `btleserver-recurrence-watch` checks every five minutes,
+deduplicates recurrence alerts, updates the audit and reports actionable failures.
+CPU detection remains one-second local sampling; notifications are on the heartbeat
+cadence and depend on Codex being able to run. Old PID 11713 incidents are baseline,
+not new recurrence alerts. No remediation runs automatically.

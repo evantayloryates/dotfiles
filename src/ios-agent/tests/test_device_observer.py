@@ -77,6 +77,11 @@ class ObserverBoundaryTests(unittest.IsolatedAsyncioTestCase):
                 await observer.resource_profile({},None)
         self.assertEqual(calls,['open','open','close','close'])
 
+    async def test_usb_recovery_rejects_input_and_debug_before_provider_import(self):
+        for kind in ('fixed-launch','browser-launch','shortcut-home','browser-debug','resource-profile'):
+            with self.assertRaisesRegex(ValueError,'usb_recovery_read_only_screen_or_capabilities_required'):
+                await observer.observe({'kind':kind,'transport':'usb-recovery'})
+
     async def test_fixed_launch_refuses_arbitrary_target_before_provider_import(self):
         with self.assertRaisesRegex(ValueError,'fixed_launch_target_required'):
             await observer.observe({'kind':'fixed-launch','serial':'00008110-001451690A21801E','target':'unrelated-app'})

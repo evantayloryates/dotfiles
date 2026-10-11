@@ -25,7 +25,7 @@ VERSION = 1
 MAX_BODY = 8 * 1024 * 1024
 OWNER_TIMEOUT = 20 * 60
 DEVICE_TIMEOUT = 30
-OPERATIONS = {"capabilities", "tree", "image", "tap", "gesture", "text", "react", "state", "diagnostics-probe", "diagnostics-matrix", "developer-probe", "reload", "wifi", "capture", "home", "browser-handoff"}
+OPERATIONS = {"capabilities", "tree", "image", "tap", "gesture", "text", "react", "state", "diagnostics-probe", "diagnostics-matrix", "developer-probe", "developer-relay", "reload", "wifi", "capture", "home", "browser-handoff"}
 STATE = Path.home() / "Library/Application Support/ios-agent"
 SOURCE_HASH = worker_source_hash()
 
@@ -70,6 +70,7 @@ class Broker:
         self.frontend_port = None
         self.stopping_frontends = []
         self.capture_prune_at = 0.0
+        self.developer_relay = None
 
     def start_react_frontend(self):
         if self.frontend and self.frontend.poll() is None:
@@ -95,6 +96,9 @@ class Broker:
 
     def revoke(self, reason):
         with self.cv:
+            if self.developer_relay:
+                self.developer_relay.close(reason)
+                self.developer_relay = None
             if self.lease:
                 self.last_release = {"reason": reason, "thread": self.lease["thread"], "turn": self.lease["turn"]}
             self.lease = None
@@ -247,6 +251,16 @@ class Broker:
             if op == "release":
                 self.revoke("owner_released")
                 return {"released": True}
+            if op == 'developer_relay_start':
+                if self.lease.get('surface') != 'native' or not self.device:
+                    raise Rejected('foreground_native_owner_required')
+                if self.developer_relay:
+                    raise Rejected('relay_already_started_no_replay')
+                from developer_relay import PairingRelay
+                self.developer_relay = PairingRelay(self.lease['id'], self.device['boot'])
+                return self.developer_relay.summary()
+            if op == 'developer_relay_status':
+                return self.developer_relay.summary() if self.developer_relay else {'closed': True}
             if op == "action":
                 if self.lease.get("surface", "native") != "native":
                     raise Rejected("native_surface_required")
@@ -270,7 +284,9 @@ class Broker:
                         valid=(url.scheme=="https" and url.hostname==endpoint.hostname and url.hostname.endswith('.ts.net') and not url.username and not url.password and url.port in (10446,10520) and not url.query and url.path.startswith('/dev/') and '..' not in url.path and '\\' not in source and url.fragment.startswith('ios-agent=') and 10<len(url.fragment)<2048)
                     except (ValueError,AttributeError):valid=False
                     if not valid:raise Rejected("fixed_private_dev_browser_URL_required")
-                if action in ("diagnostics-probe", "diagnostics-matrix", "developer-probe") and args:
+                if action == 'developer-relay' and not self.developer_relay:
+                    raise Rejected('explicit_relay_start_required')
+                if action in ("diagnostics-probe", "diagnostics-matrix", "developer-probe", "developer-relay") and args:
                     raise Rejected("diagnostic_arguments_not_allowed")
                 # Give a just-delivered native tree a short opportunity for its
                 # caller's follow-up. Empty React polling must not consume that
@@ -327,6 +343,15 @@ class Broker:
                 # Objective-C boolean expressions may serialize as NSNumber 0/1.
                 # Normalize only those exact primitive values; metadata is not auth.
                 self.device["feedback"] = {k: bool(feedback[k]) for k in ("foreground", "indicator", "leased") if type(feedback.get(k)) in (bool, int) and feedback[k] in (0, 1)}
+            if op == 'developer_relay':
+                relay = self.developer_relay
+                if not self.lease or not relay or request.get('lease') != self.lease['id'] or request.get('epoch') != self.epoch or relay.boot != boot or not feedback or not feedback.get('foreground'):
+                    raise Rejected('foreground_owned_relay_required')
+                try:
+                    frame = relay.exchange(request.get('sequence'), request.get('data'))
+                except ValueError as e:
+                    raise Rejected(str(e)) from None
+                return {'epoch': self.epoch, 'relay': frame}
             if op == "cancel":
                 if self.lease and request.get("lease") == self.lease["id"] and request.get("epoch") == self.epoch:
                     self.revoke("device_foreground_lost")

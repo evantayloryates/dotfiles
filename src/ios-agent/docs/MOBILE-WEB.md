@@ -654,3 +654,27 @@ restore Wi-Fi. Chrome launch and deeper cellular Inspector remain open gates.
 The earlier dated nearby proofs above retain their original scope. This new
 Safari result supersedes the old generic claim that all cellular foreground
 launch remains unqualified; it does not qualify OS permission input or Inspector.
+
+## Explicit USB recovery (MCP1.9.47)
+
+`ios_device_inspect {kind:"screen",transport:"usb-recovery"}` reads the fixed
+phone through native remoted after positive exact-serial USB enumeration. It
+uses the same shared owner and private artifact/read interface. `capabilities`
+is the only other admitted kind; no debug, input, launch or profiling is admitted.
+Configured tailnet remains the default, with no automatic USB fallback. Physical
+MCP screenshot passed on11October; USB is a development recovery lane, not the
+arbitrary-network runtime requirement.
+
+Signed1.9.46 delivery4034fdeaee2849b0b1461bc56d9f532d was installed and its fresh
+running identity matched. App-owned Home handoff independently showed Home.
+The HTTPS/default-browser Chrome candidate actually opened Safari on this phone;
+it does not qualify as Chrome-specific launch. The existing paired Chrome route
+foregrounded/enrolled Chrome, passed owned readiness and a draft-value readback,
+and released with indicatorOff=true. This does not qualify cellular Chrome launch.
+
+The outgoing pairing relay is a candidate only: one foreground DEV stream to
+127.0.0.1:49152,60seconds/4MiB, loopback host ingress, exact shared lease/boot,
+sequence and bounded buffers, no payload logging. No default MCP tool exposes it.
+Its first gate is existing-trust pair verification with autopair=false; RSD
+identity, secondary listener, browser foreground and cellular Inspector remain
+separate gates. Background, locked-phone and general system control are not claims.

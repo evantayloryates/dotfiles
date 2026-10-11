@@ -2,7 +2,7 @@
 import hashlib
 from pathlib import Path
 
-WORKER_FILES = ('service.py', 'web/bridge.py', 'source_hash.py')
+WORKER_FILES = ('service.py', 'web/bridge.py', 'source_hash.py', 'developer_relay.py')
 
 def worker_source_hash(root=None):
     root = Path(root) if root is not None else Path(__file__).resolve().parent

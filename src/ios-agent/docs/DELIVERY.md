@@ -559,3 +559,12 @@ fixed49152, at most1.5s, and skips the probe during another owner. TCP acceptanc
 is not authenticated RSD or system-input readiness; refusal does not establish
 lock, missing USB or VPN failure. Use the surviving app/page bridge for recovery.
 See untethered-cellular-developer-boundary-2026-10-11.json.
+
+11October resume: signed1.9.46 build46ba10e5fb884906aa90d0b4afb03f50 installed
+once via MCP receipt35876bd766d145f774b57568e19ff674; fresh delivery4034fdeaee2849b0b1461bc56d9f532d
+matched. Home cleanup independently viewed. Chrome HTTPS candidate opened Safari;
+retain the paired Chrome path and do not claim cellular Chrome launch. MCP1.9.47
+adds explicit USB screen/capabilities recovery, physically read through actual MCP.
+Foreground-only outgoing pairing relay candidate build4c713076a2394c00beb5a2bc42190ff7
+is running, not installed/qualified. Core worker restarted only after verified idle;
+source identity matched, existing enrollment and Serve routes preserved.
