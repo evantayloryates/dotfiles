@@ -414,7 +414,7 @@ dispatched effects remain distinct. See browser-debug-dual-physical-2026-10-10.j
 
 `ios_build plan/start/retry/status` wraps the existing signed generic-device DEV build
 with durable job recovery and a process-held collision lock. The catalog now has
-35 tools / nine resources. Read ios-agent://native-build and
+36 tools / nine resources. Read ios-agent://native-build and
 ios-agent://browser-debug for the complete recipes. See NATIVE-BUILD.md. A build does not install, launch
 or control the phone. MCP install packaging remains an explicit outstanding item;
 no automatic replacement or readiness claim is made.
@@ -443,7 +443,7 @@ or whole-phone control is claimed.
 
 ## MCP 1.9.2 — condition waits
 
-The catalog remains 35 tools / nine resources. `ios_web_verify` now accepts a
+The catalog remains 36 tools / nine resources. `ios_web_verify` now accepts a
 bounded condition wait and `web-element` with a unique semantic selector,
 optional exact expectedValue, and visible/interactable/editable state. It returns
 fresh references on success, stops on read/ownership failure, and never repeats
@@ -538,3 +538,11 @@ Version 1.9.9 also adds `ios_browser_debug op=network`, using the same private b
 ###1.9.11: native buffered response bodies
 
 Opt-in `ios_capture modes=["network"]` now reads a clone of React Native buffered text/JSON blobs only when their actual size is at most32768 bytes. Own FileReaders abort on capture stop/release. Physical GraphQL body capture and ten caller/HTTP/error checks passed; native XHR200/404/500/status0 and existing WebSocket send were observed. Unknown/oversize bodies remain explicitly unavailable.
+
+## Synthetic audio probes (1.9.12)
+
+`ios_audio_probe` exposes fixed plan/select/run/read/stop operations for an owned
+physical mobile call-rig page. Read `ios-agent://audio-probe` for recording-off
+fixture prerequisites, receiver startup, interpretation and cleanup. This is
+a ten-second extra-stream experiment, with no automatic input replay or promise
+of audible latency, comparative CPU/memory, or off-LAN WebRTC.

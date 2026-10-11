@@ -60,3 +60,11 @@ test('call wait observes pending permission becoming ready without dispatching i
   const failed=await backend.webVerify({sessionId,gate:'web-call',callPhase:'lobby',timeoutSeconds:2});assert.equal(failed.ok,false);assert.equal(failed.checks,1);assert.equal(failed.reason,'condition_observation_failed');
  }finally{await backend.close();fs.rmSync(dir,{recursive:true,force:true});}
 });
+
+test('same-session call route departure releases known observed media, never a fresh empty page',()=>{
+ const v=fixture();delete v.domains.meet;v.domains.media.tracks=[{kind:'audio',readyState:'ended'}];
+ assert(!passed(callObservation(v,runtime,'released')));
+ assert(passed(callObservation(v,runtime,'released',{priorConnected:true})));
+ v.domains.media.tracks[0].readyState='live';assert(!passed(callObservation(v,runtime,'released',{priorConnected:true})));
+ v.domains.media.tracks[0].readyState='ended';v.boot='different';assert(!passed(callObservation(v,runtime,'released',{priorConnected:true})));
+});

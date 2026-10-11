@@ -503,3 +503,14 @@ released gate. See call-media-lifetime-2026-10-10.json.
 
 Receipt: browser-call-rig-profile-2026-10-10.json. Nearby call proof does not
 replace the separate cellular page proof or establish an off-LAN full call.
+
+### Three-transport lab
+
+`ios_audio_probe` and `ios-agent://audio-probe` now expose the bounded synthetic
+call-rig experiment. Its owned domain projection gives agents strategy, named
+fault, source liveness and terminal counts without tokens or raw errors.
+Nearby physical Safari delivered PCM/WSS, Opus/WSS and Opus/WebRTC; scoped
+slow-reader, dropped-decode, unavailable-codec and disconnect edges are retained
+separately. The experiment never changes the primary call transport. Native
+WebRTC host ICE has no off-LAN qualification. Use the versioned resource for
+fixture/provider preflight, managed receiver startup and cleanup.

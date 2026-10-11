@@ -5,6 +5,7 @@ import {randomBytes, createHash} from 'node:crypto';
 import {spawn} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {nutritionRecipe} from './workflows.mjs';
+import {audioProbePlan, probeExpression, validProbeSelection} from './audio-probe.mjs';
 import {mediaObservation} from './media-verification.mjs';
 import {callObservation} from './call-verification.mjs';
 import {webProfileOrigin} from './web-profiles.mjs';
@@ -163,6 +164,7 @@ export class Backend {
       pairedWorkflow: 'ios_workflow action=plan exposes the versioned coach-client recipe; capture/assert/restore-check independently read only the verified synthetic local row. UI rendering is a separate gate.',
       lease: 'One session per work turn. Always ios_end in finally before ending a turn. Codex should pass its actual threadId on begin; the service discovers only that exact rollout. Inherited CODEX_THREAD_ID is a fallback when present. Check lifecycle.threadId or supply the actual rollout explicitly. Missing/ambiguous metadata uses explicitly reported mcp-connection ownership. Other clients use a private connection heartbeat and must end in finally; persistent MCP alone has no universal turn-end signal.',
       requirements: 'Native: Kickoff DEV foreground/unlocked. Browser: enrolled dev document visible on unlocked iPhone. Both require Tailscale and awake laptop services; routine control needs no USB. Developer-channel failure does not prove physical disconnection or lock.',
+      audioProbes: 'ios_audio_probe plan/select/run/read/stop wraps the synthetic three-transport lab. Read ios-agent://audio-probe before joining; recording and exact provider fixture must be independently verified. Readback and call cleanup stay separate.',
       browserDomains: {layout:'ios_web_inspect kind=element reports fresh target computed CSS, center hit, bounded ancestors and viewport; use snapshot and target refs.',media:'Content-free request outcomes, track liveness, WebRTC audio and WebSocket counters. Check media.hooks coverage before interpreting zero counts; late microphone APIs are wrapped without replacing later libraries.',performance:'Bounded navigation/paint/resource/main-thread timings, optional Event Timing/LCP observers and readonly AudioSession type/state. Inspect domains.performance; a second state read obtains buffered asynchronous values. Optional observers stop with ownership. Event entry durations are not INP; latest LCP is a candidate. Unsupported readings stay null.',meet:'Fixed local call-lobby projection; no identities, credentials or transcripts.',limitations:'State readback is not a trusted touch, OS permission tap, whole-phone screenshot or off-LAN verification.'},
       browserMediaVerification: 'ios_web_verify gate=web-media direction=sent|received|both sampleMs=500..3000 requires stable advancing audio RTP counters. It returns shared structural learning evidence; a passed counter gate does not prove audible content or a completed call.',
       networkRecovery: 'After an intentional cellular/Wi-Fi-Off test, restore Wi-Fi before diagnosing nearby control as unavailable. Read the current developer transport; failure does not prove an unplugged cable. The fixed Runner Wi-Fi On paired recovery shortcut works outside DEV, but dispatch alone is not switch/association proof. An off-LAN browser page alone cannot yet press system Allow or restore Wi-Fi.',
@@ -339,6 +341,7 @@ export class Backend {
     if (a.type === 'image') {
       const image = value.result;
       if (typeof image?.pngBase64 !== 'string') throw new Error('image_unavailable');
+      if (image.pngBase64.length > 8 * 1024 * 1024) throw new Error('image_transport_limit_capture_again');
       return {image: image.pngBase64, metadata: safe(image)};
     }
     value = ['capture','inspector'].includes(a.type)?value:safe(value); // Deep content was scrubbed before persistence.
@@ -588,12 +591,31 @@ export class Backend {
     fs.writeFileSync(a.file, JSON.stringify(r.value), {flag: 'wx', mode: 0o600});
     const ok = r.ok && r.value?.status === 'completed' && r.value?.result?.ok === true;
     const value = r.value?.result?.value;
+    if(action==='state'&&ok&&value?.domains?.meet?.connected===true)s.webSawConnectedCall=true;
     const large = JSON.stringify(value || {}).length > 12000;
     const preview = large && action === 'snapshot' ? {...value, content:value.content?.slice(0,2000),elements:value.elements?.slice(0,25),nodeCount:value.elements?.length} :
       large && action === 'state' ? {...value,domains:undefined,domainNames:Object.keys(value.domains || {})} : undefined;
     return {ok, artifactId: a.id, outcome: r.value?.status || 'unknown', error: r.value?.result?.error, replay: false,
       ...(typeof r.value?.reason === 'string' ? {reason:r.value.reason} : {}),
       ...(!large ? {value} : {value:preview,truncated:true,next:'Use ios_read with /result/value for the complete private observation.'})};
+  }
+  async audioProbe({action='plan',sessionId,strategy,fault}) {
+    if(action==='plan')return {ok:true,recipe:audioProbePlan};
+    const s=this.session(sessionId);
+    if(s.surface!=='web')throw new Error('web_session_required');
+    if(action==='select'&&!validProbeSelection(strategy,fault))return {ok:false,reason:'invalid_probe_selection',inputSent:false};
+    const read=await this.webAction({sessionId,action:'state'});
+    const file=this.artifacts.get(read.artifactId)?.file;
+    const page=file?JSON.parse(fs.readFileSync(file,'utf8'))?.result?.value:read.value;
+    if(!read.ok||!page?.visible||!page?.secureContext||!page?.indicator||page.boot!==s.webRuntime.boot||page.browser!==s.webRuntime.browser||page.version!==s.webRuntime.version)return {ok:false,reason:'probe_page_not_owned_ready',inputSent:false,artifactId:read.artifactId};
+    const probe=page.domains?.['transport-lab'],meet=page.domains?.meet;
+    if(!probe)return {ok:false,reason:'probe_adapter_missing',inputSent:false,artifactId:read.artifactId};
+    if(action==='read')return {ok:true,probe,primaryCall:{connected:meet?.connected===true,microphoneEnabled:meet?.microphoneEnabled===true},artifactId:read.artifactId};
+    if(action==='stop'&&!probe.running)return {ok:true,inputSent:false,alreadyStopped:true,probe};
+    if(action!=='stop'&&(!meet?.connected||!probe.sourceLive||!probe.sourceEnabled))return {ok:false,reason:'probe_live_call_required',inputSent:false};
+    if(action!=='stop'&&probe.running)return {ok:false,reason:'probe_already_running',inputSent:false};
+    // One fixed page input, never repeated or inferred successful from readback.
+    return this.webAction({sessionId,action:'evaluate',args:{expression:probeExpression(action,strategy,fault)}});
   }
   async webVerify({sessionId, gate, expectedPath, expectedText, selector, expectedValue, callPhase, elementState='visible', timeoutSeconds=0, direction = 'both', sampleMs = 1000}, signal) {
     const s = this.session(sessionId);
@@ -623,7 +645,7 @@ export class Backend {
       this.session(sessionId); // Refuse a replaced/retired owner before every read.
       read=await this.webAction({sessionId,action:['web-ready','web-call'].includes(gate)?'state':'snapshot',args:selector?{selector}:{}});checks++;
       const value=full(read);
-      callCheck=gate==='web-call'?callObservation(value,s.webRuntime,callPhase):undefined;
+      callCheck=gate==='web-call'?callObservation(value,s.webRuntime,callPhase,{priorConnected:s.webSawConnectedCall===true}):undefined;
       observation=callCheck?callCheck.observation:gate==='web-ready'?{visible:value?.visible===true,secureContext:value?.secureContext===true,indicatorOn:value?.indicator===true,
         sameRuntime:['browser','boot','version'].every(k=>typeof value?.[k]==='string'&&value[k].length>0&&value[k]===s.webRuntime[k])}:
         {snapshotAvailable:typeof value?.snapshot==='string',nodeCount:value?.elements?.length||0,

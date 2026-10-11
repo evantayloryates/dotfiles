@@ -1,6 +1,6 @@
 # Agent operating contract — installed personal development service
 
-MCP follow-on: `/Users/taylor/dotfiles/bin/ios-agent-mcp` exposes 35 tools and
+MCP follow-on: `/Users/taylor/dotfiles/bin/ios-agent-mcp` exposes 36 tools and
 nine resources in v1.9.0 source. Published v1.8.1 qualified signed build
 preparation and physical Safari source/CSS/console/passive-timeline reads. Native
 installation and Home/relaunch passed; see native-delivery-physical-2026-10-10.json. Long-lived harnesses

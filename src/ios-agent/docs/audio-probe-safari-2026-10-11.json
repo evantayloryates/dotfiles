@@ -1,0 +1,312 @@
+{
+  "observedAt": "2026-10-11T05:57:21.051314+00:00",
+  "scope": "physical Safari iPhone, nearby private Tailscale HTTPS; synthetic local coaching call",
+  "tool": "ios_audio_probe",
+  "provider": {
+    "participants": 2,
+    "recordParticipantsOnConnect": false,
+    "audioVideoExcluded": true,
+    "recordingsFound": 0,
+    "checkedAt": "2026-10-11T05:53:27.854Z"
+  },
+  "experiments": {
+    "pcmBaseline": {
+      "strategy": "pcm-ws",
+      "fault": "none",
+      "running": false,
+      "sourceLive": true,
+      "sourceEnabled": true,
+      "result": {
+        "event": "summary",
+        "reason": "complete",
+        "sent": 498,
+        "drops": 3,
+        "queueHighWater": 0,
+        "bufferedBytesHighWater": 0,
+        "encodeQueueHighWater": 0,
+        "received": 498,
+        "bytes": 484056,
+        "gaps": 0,
+        "decodedSamples": 239040,
+        "rttP50Ms": 10,
+        "rttP95Ms": 12.000000000001819,
+        "durationMs": 10196,
+        "eventLoopP95Ms": 3,
+        "visible": true,
+        "sourceLive": true
+      }
+    },
+    "opusBaseline": {
+      "result": {
+        "role": "client",
+        "strategy": "opus-ws",
+        "fault": "none",
+        "browser": "safari-ios",
+        "sent": 498,
+        "drops": 4,
+        "queueHighWater": 1,
+        "bufferedBytesHighWater": 0,
+        "encodeQueueHighWater": 0,
+        "received": 498,
+        "bytes": 45916,
+        "gaps": 0,
+        "decodedSamples": 478080,
+        "rttP50Ms": 10.000000000001819,
+        "rttP95Ms": 13,
+        "event": "summary",
+        "reason": "complete",
+        "durationMs": 10235,
+        "eventLoopP95Ms": 3,
+        "visible": true,
+        "sourceLive": true
+      }
+    },
+    "rtcBaseline": {
+      "strategy": "webrtc",
+      "fault": "none",
+      "running": false,
+      "sourceLive": true,
+      "sourceEnabled": true,
+      "result": {
+        "event": "summary",
+        "reason": "complete",
+        "received": 485,
+        "decodedSamples": 465600,
+        "rttP50Ms": 9.999999999985448,
+        "durationMs": 10242,
+        "eventLoopP95Ms": 3,
+        "visible": true,
+        "sourceLive": true
+      }
+    },
+    "pcmSlowReaderInitial": {
+      "strategy": "pcm-ws",
+      "fault": "slow-reader",
+      "running": false,
+      "sourceLive": true,
+      "sourceEnabled": true,
+      "result": {
+        "event": "summary",
+        "reason": "complete",
+        "sent": 497,
+        "drops": 4,
+        "queueHighWater": 0,
+        "bufferedBytesHighWater": 0,
+        "encodeQueueHighWater": 0,
+        "received": 497,
+        "bytes": 483084,
+        "gaps": 0,
+        "decodedSamples": 238560,
+        "rttP50Ms": 9,
+        "rttP95Ms": 11,
+        "durationMs": 10154,
+        "eventLoopP95Ms": 3.000000000029104,
+        "visible": true,
+        "sourceLive": true
+      }
+    },
+    "rtcOutage": {
+      "strategy": "webrtc",
+      "fault": "outage",
+      "running": false,
+      "sourceLive": true,
+      "sourceEnabled": true,
+      "result": {
+        "event": "stop",
+        "reason": "connection",
+        "received": 144,
+        "decodedSamples": 138240,
+        "durationMs": 3175,
+        "eventLoopP95Ms": 183,
+        "visible": true,
+        "sourceLive": true
+      }
+    },
+    "opusUnavailable": {
+      "strategy": "opus-ws",
+      "fault": "disable-opus",
+      "running": false,
+      "sourceLive": true,
+      "sourceEnabled": true,
+      "result": {
+        "event": "failure",
+        "reason": "unsupported"
+      }
+    },
+    "opusDrop10": {
+      "strategy": "opus-ws",
+      "fault": "drop-10",
+      "running": false,
+      "sourceLive": true,
+      "sourceEnabled": true,
+      "result": {
+        "event": "summary",
+        "reason": "complete",
+        "sent": 497,
+        "drops": 4,
+        "queueHighWater": 1,
+        "bufferedBytesHighWater": 0,
+        "encodeQueueHighWater": 0,
+        "received": 497,
+        "bytes": 46054,
+        "gaps": 0,
+        "decodedSamples": 430080,
+        "rttP50Ms": 10,
+        "rttP95Ms": 13,
+        "durationMs": 10151,
+        "eventLoopP95Ms": 3.0000000001164153,
+        "visible": true,
+        "sourceLive": true
+      }
+    }
+  },
+  "updatedWorkerStallProgress": {
+    "strategy": "pcm-ws",
+    "fault": "slow-reader",
+    "running": true,
+    "sourceLive": true,
+    "sourceEnabled": true,
+    "result": {
+      "event": "progress",
+      "sent": 447,
+      "drops": 5,
+      "queueHighWater": 0,
+      "bufferedBytesHighWater": 0,
+      "encodeQueueHighWater": 0,
+      "received": 447,
+      "bytes": 434484,
+      "gaps": 0,
+      "decodedSamples": 214560,
+      "rttP50Ms": 11,
+      "rttP95Ms": 2670.000000000001,
+      "workerRevision": 2,
+      "rttMaxMs": 3080
+    }
+  },
+  "leaseEndProbeReadback": {
+    "ok": true,
+    "probe": {
+      "strategy": "pcm-ws",
+      "fault": "none",
+      "running": false,
+      "sourceLive": true,
+      "sourceEnabled": true,
+      "result": {
+        "event": "stop",
+        "reason": "manual",
+        "sent": 122,
+        "drops": 4,
+        "queueHighWater": 0,
+        "bufferedBytesHighWater": 0,
+        "encodeQueueHighWater": 0,
+        "received": 121,
+        "bytes": 117612,
+        "gaps": 0,
+        "decodedSamples": 58080,
+        "rttP50Ms": 10,
+        "rttP95Ms": 12,
+        "durationMs": 2844,
+        "eventLoopP95Ms": 80.00000000023283,
+        "workerRevision": 2,
+        "rttMaxMs": 14.999999999999943,
+        "visible": true,
+        "sourceLive": true
+      }
+    },
+    "primaryCall": {
+      "connected": true,
+      "microphoneEnabled": true
+    },
+    "artifactId": "19f5281bcf137d4433703f6e0d99f055"
+  },
+  "primaryRtpAfterFaults": {
+    "gate": "web-media",
+    "status": "passed",
+    "scope": "instrumented-audio-RTP-counters-only",
+    "observation": {
+      "readsCompleted": true,
+      "sameDocument": true,
+      "foregroundOwned": true,
+      "connectedPeer": true,
+      "sentPacketsAdvance": true
+    }
+  },
+  "pageLeaseEnd": {
+    "gate": "web-idle",
+    "status": "passed",
+    "observation": {
+      "ownerReleased": true,
+      "indicatorOff": true
+    }
+  },
+  "nativeIdle": {
+    "version": 1,
+    "gate": "idle",
+    "status": "passed",
+    "attempts": 1,
+    "elapsedMs": 1,
+    "observation": {
+      "hostIdle": true,
+      "deviceFeedbackKnown": true,
+      "nativeLeaseOff": true,
+      "nativeIndicatorOff": true
+    }
+  },
+  "managedReceiver": {
+    "startPassed": true,
+    "statusOwnedPidPassed": true,
+    "stopIdleVerified": true,
+    "sudoRequired": false,
+    "activeAndPeersAfterStop": 0
+  },
+  "checks": {
+    "mcpTargetedPassed": 36,
+    "pythonReceiverPassed": 4,
+    "frontendTargetedPassed": 2,
+    "imageBudgetTestPassed": 1
+  },
+  "limits": [
+    "Initial short RTT tail hid the stall; revised worker2 progress retained P95 about2.6s and max3.08s.",
+    "Docker bind view temporarily truncated the shared JSON schema; atomic same-byte replacement restored parity. Terminal fallback prevents stale schema from leaving running controls stuck.",
+    "The final route-release gate originally failed because the meet domain was unregistered. New same-session context rule passed7 targeted checks and the retained actual physical post-route state; no new live call was repeated for this logic-only correction.",
+    "Safari sent RTP and receiver decode are proven; this pass does not prove audible received Safari playout.",
+    "No comparative CPU/memory, full off-LAN call, Chrome strategy parity or off-LAN native WebRTC claim.",
+    "No automatic production transport policy was installed."
+  ],
+  "mcpVersion": "1.9.12",
+  "home": {
+    "pairedLaunchAccepted": true,
+    "nativeHomePrepared": true,
+    "independentFullDisplayHomeVerified": true,
+    "wifiOnInDisplay": true,
+    "noAutomationOverlay": true
+  },
+  "imageTransportFix": {
+    "version": "1.9.12",
+    "tools": 36,
+    "resources": 10,
+    "imageReturned": true,
+    "imageBase64Bytes": 4472860,
+    "withinTransportBudget": true,
+    "hostIdle": true,
+    "metadata": {
+      "scope": "whole-device-display",
+      "provider": "pymobiledevice3-11.15.5",
+      "productVersion": "26.7.1",
+      "transport": "native-remoted",
+      "capabilities": {
+        "dvt": true,
+        "coreDeviceScreen": false,
+        "coreDeviceTouch": false,
+        "webInspectorService": true
+      },
+      "systemInput": false,
+      "offLANQualified": false,
+      "width": 1170,
+      "height": 2532
+    },
+    "losslessPixelComparisonPassed": true
+  },
+  "kickoffCommit": "5498c17ad0",
+  "kickoffPublication": "audited guard refused unsettled tracked edits; preserving peer changes"
+}

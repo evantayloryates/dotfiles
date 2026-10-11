@@ -56,7 +56,15 @@ async def observe(r):
                 raise ValueError('bounded_png_required')
             from PIL import Image
             import io
-            width,height = Image.open(io.BytesIO(image)).size
+            decoded = Image.open(io.BytesIO(image))
+            width,height = decoded.size
+            # DVT may return effectively uncompressed PNGs. Preserve every pixel
+            # but fit below the MCP SDK10MiB JSON/base64 message limit.
+            compressed = io.BytesIO()
+            decoded.save(compressed, format='PNG', optimize=True)
+            image = compressed.getvalue()
+            if len(image) > 6 * 1024 * 1024:
+                raise ValueError('screenshot_transport_limit')
             result.update(scope='whole-device-display',pngBase64=base64.b64encode(image).decode(),width=width,height=height)
         elif r['kind'] == 'resource-profile':
             result.update(await resource_profile(r,rsd))
