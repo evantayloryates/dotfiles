@@ -846,3 +846,26 @@ handled microphone Allow through bounded XCTest, then returned to page-owned con
 new XCTest authorization can still need the human. Read AUDIO-PROBE.md and
 provider-received-capture-mcp-2026-10-11.json. This is nearby evidence; retain the
 separate off-LAN qualification and Safari native hit-geometry boundary.
+
+## 11 October: actual untethered cellular boundary —1.9.43
+
+With USB independently absent and Wi-Fi IPv4 absent, fresh owned native
+readiness, React1577-node inspection, GraphQL and a committed Home-tab route
+passed. The separate developer endpoint49152 refused, so paired Home/screenshot
+sent no input. Wi-Fi On through the app-owned Shortcut restored IPv4 and the
+paired endpoint without USB. Both Safari/Chrome direct DEV URL delivery, page
+readiness and Inspector then passed on Wi-Fi, with indicators off afterward.
+This is not cellular foreground/Inspector qualification.
+
+Keeping one authenticated paired tunnel and DVT channel open did not survive a
+correctly encoded Wi-Fi-Off transition. Its attempted On failed before input;
+normal native recovery restored Wi-Fi. Earlier plus-encoded shortcut experiments
+never changed Wi-Fi and are excluded from retention evidence. Reuse this failure;
+do not repeat the same retained-channel approach.
+
+`ios_doctor connectivity=true` now reports `developerEndpointTCP` separately:
+accepted, refused, timeout, unavailable or null when not probed. It checks only
+fixed49152, at most1.5s, and skips the probe during another owner. TCP acceptance
+is not authenticated RSD or system-input readiness; refusal does not establish
+lock, missing USB or VPN failure. Use the surviving app/page bridge for recovery.
+See untethered-cellular-developer-boundary-2026-10-11.json.

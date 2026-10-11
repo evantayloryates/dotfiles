@@ -1,0 +1,145 @@
+{
+  "observedAt": "2026-10-11T16:59:33.618551+00:00",
+  "testedVersion": "1.9.42",
+  "diagnosticVersion": "1.9.43",
+  "scope": "Physical iPhone: no USB, cellular native control; Wi-Fi-restored paired browser qualification. No XCTest/Mirroring started.",
+  "cellularNative": {
+    "usbAttached": false,
+    "wifiIPv4Present": false,
+    "ready": true,
+    "reactTotalCount": 1577,
+    "networkGate": "passed",
+    "tapDelivered": true,
+    "committedRoute": "ClientDashboard",
+    "cleanup": "passed"
+  },
+  "developerBoundary": {
+    "homeInputSent": false,
+    "screenshotFailure": "ConnectionRefusedError",
+    "phase": "paired_developer_tunnel",
+    "cellularDiagnosis": {
+      "observedAt": 1791737837.6576672,
+      "usbAttached": false,
+      "tailnetConfigured": true,
+      "tailnetPeerKnown": true,
+      "tailnetPeerOnline": true,
+      "tailnetPingSucceeded": true,
+      "bridgeReadyToAcquire": true,
+      "bridgeReason": "fresh_foreground_bridge",
+      "lockState": "unknown",
+      "developerChannelVerified": false,
+      "developerEndpointTCP": "refused",
+      "phoneInputSent": false,
+      "repairsPerformed": false,
+      "next": "App/page bridge is available, but the paired developer TCP endpoint refused. Use the working bridge; after Wi-Fi-Off restore Wi-Fi through its owned shortcut if needed. This does not prove lock, cable or VPN failure."
+    },
+    "wifiOnIPv4Present": true,
+    "cause": "Not proven. Endpoint refusal correlates with Wi-Fi Off and resolves after Wi-Fi On; app Tailscale traffic still works."
+  },
+  "wifiUntetheredBrowsers": {
+    "safari": {
+      "urlLaunchAccepted": true,
+      "foregroundVerified": true,
+      "readyGate": "passed",
+      "domGate": "passed",
+      "inspector": true,
+      "inspectorDetached": true,
+      "glowOff": true
+    },
+    "chrome": {
+      "urlLaunchAccepted": true,
+      "foregroundVerified": true,
+      "readyGate": "passed",
+      "inspector": true,
+      "inspectorDetached": true,
+      "glowOff": true
+    }
+  },
+  "retainedTunnel": {
+    "firstAttemptsInvalid": "Python URL encoder used plus signs for shortcut spaces. Private screenshot showed missing shortcut; these attempts prove no network transition.",
+    "correctedAttempt": {
+      "exit": 0,
+      "probe": {
+        "scope": "one retained paired tunnel across fixed Wi-Fi Off/On, no USB fallback",
+        "newXCTest": false,
+        "at": 1791737778.6546218,
+        "transport": "tailnet-paired-userspace",
+        "usbAttached": false,
+        "baselineScreenshotBytes": 848615,
+        "offDispatch": true,
+        "newEndpointTCP": "TimeoutError",
+        "retainedReadPassed": false,
+        "retainedReadError": "TimeoutError",
+        "onDispatch": false,
+        "onError": "TimeoutError",
+        "ownTunnelClosed": true
+      },
+      "release": {
+        "released": true,
+        "detail": {
+          "released": true
+        },
+        "next": "Call ios_verify gate=idle without a session to confirm native and host cleanup."
+      }
+    },
+    "independentAfterOffWifiIPv4Present": false,
+    "conclusion": "Retained paired tunnel did not survive the correctly encoded Wi-Fi-Off transition. On request failed before dispatch; native owned Wi-Fi On restored association."
+  },
+  "cleanup": {
+    "wifiIPv4Present": true,
+    "nativeHomePrepared": true,
+    "homeIndependentlyViewed": true,
+    "nativeIdle": "passed",
+    "newXCTestStarted": false,
+    "newMirroringUsed": false
+  },
+  "newDiagnosis": {
+    "focusedConnectivityChecks": 8,
+    "focusedHealthChecks": 6,
+    "freshMCP": {
+      "serverVersion": "1.9.43",
+      "result": {
+        "version": 1,
+        "checks": {
+          "hostWorkerResponding": true,
+          "hostWorkerSourceVerified": true,
+          "privateRuntimeConfigValid": true,
+          "personalTailnetRunning": true,
+          "privateServeRoutesVerified": true,
+          "guardedLocalBackendProcess": true,
+          "localGraphQLReady": true,
+          "localWebReady": true,
+          "localMetroHTTPReady": true,
+          "webSDKHTTPReady": true,
+          "localWebAdapterSourcesMatch": true
+        },
+        "hostPrerequisitesReady": true,
+        "deviceRegistered": true,
+        "ownerActive": false,
+        "hostIdle": true,
+        "applicationReadiness": "requires_fresh_owned_lease_and_verify_ready",
+        "repairsPerformed": false,
+        "connectivity": {
+          "observedAt": 1791737910.559923,
+          "usbAttached": false,
+          "tailnetConfigured": true,
+          "tailnetPeerKnown": true,
+          "tailnetPeerOnline": true,
+          "tailnetPingSucceeded": true,
+          "bridgeReadyToAcquire": false,
+          "bridgeReason": "no_fresh_foreground_bridge",
+          "lockState": "unknown",
+          "developerChannelVerified": false,
+          "developerEndpointTCP": "accepted",
+          "phoneInputSent": false,
+          "repairsPerformed": false,
+          "next": "Tailnet answered. Inspect the paired launch route or wait for a foreground bridge; lock state remains unknown."
+        },
+        "ok": true,
+        "failedChecks": [],
+        "next": "Host checks do not establish phone readiness. Use connectivity=true for actual fixed-phone USB detection, one tailnet ping, fixed developer TCP endpoint status and lease-free bridge readiness. Inspect evidence before requesting phone setup."
+      }
+    }
+  },
+  "remaining": "Wi-Fi-Off cellular foreground/Inspector cannot use the current paired developer endpoint. No generic phone-unlock or authorization exemption claimed."
+}

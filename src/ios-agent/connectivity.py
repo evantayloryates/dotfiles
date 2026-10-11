@@ -3,6 +3,7 @@ import json
 import os
 import plistlib
 import re
+import socket
 import subprocess
 import time
 from pathlib import Path
@@ -64,6 +65,19 @@ def ping_phone(address):
     return None
 
 
+def developer_endpoint_tcp(address):
+    # Fixed paired endpoint only. TCP acceptance is not authenticated RSD readiness.
+    try:
+        with socket.create_connection((address, 49152), timeout=1.5):
+            return 'accepted'
+    except ConnectionRefusedError:
+        return 'refused'
+    except TimeoutError:
+        return 'timeout'
+    except OSError:
+        return 'unavailable'
+
+
 def peer_status():
     value = subprocess.run([TAILSCALE, 'status', '--json'],
                            env={**os.environ, 'TAILSCALE_BE_CLI': '1'},
@@ -79,6 +93,7 @@ def diagnose(state):
               'tailnetPeerOnline': None, 'tailnetPingSucceeded': None,
               'bridgeReadyToAcquire': None, 'bridgeReason': 'unavailable',
               'lockState': 'unknown', 'developerChannelVerified': False,
+              'developerEndpointTCP': None,
               'phoneInputSent': False, 'repairsPerformed': False}
     try:
         ready = request({'op': 'ready_wait', 'timeoutSeconds': 0}, Path(state), timeout=2)
@@ -101,6 +116,8 @@ def diagnose(state):
         config = tailnet_config(state, serial)
         result['tailnetConfigured'] = config is not None
         if config:
+            if result['bridgeReason'] != 'another_owner':
+                result['developerEndpointTCP'] = developer_endpoint_tcp(config['address'])
             status = peer_status()
             peers = [peer for peer in status.get('Peer', {}).values()
                      if config['address'] in peer.get('TailscaleIPs', [])]
@@ -110,7 +127,9 @@ def diagnose(state):
                 result['tailnetPingSucceeded'] = ping_phone(config['address'])
     except Exception:
         pass
-    if result['bridgeReadyToAcquire']:
+    if result['bridgeReadyToAcquire'] and result['developerEndpointTCP'] == 'refused':
+        result['next'] = 'App/page bridge is available, but the paired developer TCP endpoint refused. Use the working bridge; after Wi-Fi-Off restore Wi-Fi through its owned shortcut if needed. This does not prove lock, cable or VPN failure.'
+    elif result['bridgeReadyToAcquire']:
         result['next'] = 'Acquire the intended app/page and verify it; reachability does not prove developer-channel or system-input readiness.'
     elif result['bridgeReason'] == 'another_owner':
         result['next'] = 'Wait for the current owner. Do not launch, repair or request phone changes.'

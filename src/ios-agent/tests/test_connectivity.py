@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch
-from connectivity import diagnose, usb_match, ping_phone
+from connectivity import diagnose, usb_match, ping_phone, developer_endpoint_tcp
 from subprocess import CompletedProcess
 
 SERIAL = '00008110-0012345678901234'
@@ -9,6 +9,29 @@ PEER = {'Peer': {'fixed': {'TailscaleIPs': ['100.64.1.2'], 'Online': False}}}
 
 
 class ConnectivityTests(unittest.TestCase):
+    def setUp(self):
+        self.endpoint = patch('connectivity.developer_endpoint_tcp', return_value='accepted')
+        self.endpoint.start()
+        self.addCleanup(self.endpoint.stop)
+
+    def test_bridge_survives_developer_refusal_without_false_setup_request(self):
+        with patch('connectivity.fixed_serial', return_value=SERIAL), patch('connectivity.usb_attached', return_value=False), patch('connectivity.tailnet_config', return_value=CONFIG), patch('connectivity.peer_status', return_value=PEER), patch('connectivity.ping_phone', return_value=True), patch('connectivity.developer_endpoint_tcp', return_value='refused'), patch('connectivity.request', return_value={'readyToAcquire': True}):
+            value = diagnose('/private-fixture')
+        self.assertEqual(value['developerEndpointTCP'], 'refused')
+        self.assertTrue(value['bridgeReadyToAcquire'])
+        self.assertFalse(value['developerChannelVerified'])
+        self.assertIn('Use the working bridge', value['next'])
+        self.assertNotIn('Connect USB', value['next'])
+
+    def test_endpoint_probe_is_fixed_bounded_and_not_authentication_proof(self):
+        self.endpoint.stop()
+        with patch('connectivity.socket.create_connection') as connect:
+            self.assertEqual(developer_endpoint_tcp(CONFIG['address']), 'accepted')
+        connect.assert_called_once_with((CONFIG['address'], 49152), timeout=1.5)
+        for error, expected in [(ConnectionRefusedError(), 'refused'), (TimeoutError(), 'timeout'), (OSError('private-secret'), 'unavailable')]:
+            with patch('connectivity.socket.create_connection', side_effect=error):
+                self.assertEqual(developer_endpoint_tcp(CONFIG['address']), expected)
+
     def test_usb_requires_exact_device_not_another_iphone(self):
         tree = [{'IORegistryEntryChildren': [{'USB Product Name': 'iPhone', 'USB Serial Number': 'another'}]}]
         self.assertFalse(usb_match(tree, SERIAL))
@@ -44,9 +67,10 @@ class ConnectivityTests(unittest.TestCase):
 
     def test_ambiguous_peer_sends_no_ping_and_another_owner_is_preserved(self):
         peers = {'Peer': {'one': PEER['Peer']['fixed'], 'two': PEER['Peer']['fixed']}}
-        with patch('connectivity.fixed_serial', return_value=SERIAL), patch('connectivity.usb_attached', return_value=True), patch('connectivity.tailnet_config', return_value=CONFIG), patch('connectivity.peer_status', return_value=peers), patch('connectivity.ping_phone') as ping, patch('connectivity.request', return_value={'readyToAcquire': False, 'reason': 'another_owner'}):
+        with patch('connectivity.fixed_serial', return_value=SERIAL), patch('connectivity.usb_attached', return_value=True), patch('connectivity.tailnet_config', return_value=CONFIG), patch('connectivity.peer_status', return_value=peers), patch('connectivity.ping_phone') as ping, patch('connectivity.developer_endpoint_tcp') as endpoint, patch('connectivity.request', return_value={'readyToAcquire': False, 'reason': 'another_owner'}):
             value = diagnose('/private-fixture')
         ping.assert_not_called()
+        endpoint.assert_not_called()
         self.assertIsNone(value['tailnetPingSucceeded'])
         self.assertIn('Wait for the current owner', value['next'])
 
