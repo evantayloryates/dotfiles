@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "at": "2026-10-11T04:30:04.104640+00:00",
+  "mcpVersion": "1.9.8",
+  "scope": "physical native app-owned condition waits",
+  "gates": {
+    "navigationDelivered": true,
+    "realControl": {
+      "version": 1,
+      "gate": "native-element",
+      "status": "passed",
+      "attempts": 2,
+      "elapsedMs": 1032,
+      "observation": {
+        "uniqueVisibleElement": true,
+        "interactiveRequired": true
+      }
+    },
+    "missingControl": {
+      "version": 1,
+      "gate": "native-element",
+      "status": "failed",
+      "attempts": 2,
+      "elapsedMs": 1000,
+      "observation": {
+        "uniqueVisibleElement": false,
+        "interactiveRequired": false
+      },
+      "reason": "native_element_not_found"
+    },
+    "sharedEvidenceCreated": true,
+    "homePrepared": true,
+    "cleanup": {
+      "version": 1,
+      "gate": "idle",
+      "status": "passed",
+      "attempts": 1,
+      "elapsedMs": 1,
+      "observation": {
+        "hostIdle": true,
+        "deviceFeedbackKnown": true,
+        "nativeLeaseOff": true,
+        "nativeIndicatorOff": true
+      }
+    }
+  },
+  "checks": {
+    "targetedNodePassed": 37,
+    "newConditionChecksPassed": 4,
+    "cases": [
+      "delayed native control",
+      "full private tree beyond compact prefix",
+      "ambiguous/truncated/read-failed owner stops",
+      "post-read ownership loss refuses",
+      "case sensitivity, hidden/noninteractive refusal",
+      "bounded absence and cancellation",
+      "malformed MCP arguments refuse before dispatch"
+    ]
+  },
+  "limits": [
+    "Native hierarchy visible/interactive flags do not establish whole-phone occlusion or hittability. Actual input still checks fresh native hit/geometry.",
+    "No text-value, IME, multi-touch or fault-injection extension.",
+    "Physical control wait and absence were tested nearby; no new off-LAN proof claimed.",
+    "No independent Home Screen screenshot in this run; Home prepared, device lease/glow off verified."
+  ],
+  "privateEvidenceDirectory": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-kdFY2G"
+}

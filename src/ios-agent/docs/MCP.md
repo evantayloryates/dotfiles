@@ -506,3 +506,15 @@ require user review/trust; this release does not install or bypass them.
 
 Reference: [Codex lifecycle hooks](https://learn.chatgpt.com/docs/hooks),
 [Claude lifecycle hooks](https://code.claude.com/docs/en/hooks).
+
+### 1.9.8: wait for a native control
+
+`ios_verify gate=native-element selector={identifier:"nutrition-settings"} state=interactable timeout=8`
+waits for one exact visible app-owned native control. Select by label, identifier,
+class or their exact combination; visible is the default state. It reads the full
+private hierarchy and returns fresh snapshot/target/rect references, a compact
+receipt and shared content-free evidence. Missing controls wait within the caller's
+1–30 second budget; ambiguity, truncated trees, lost ownership and failed reads
+stop. No touch, text or business mutation is replayed. Native input still checks
+fresh geometry/hit testing; visibility here is not whole-phone occlusion or a
+committed input value. Existing route/readiness gates already support bounded waits.

@@ -69,7 +69,7 @@ class LearningStore:
             receipt = args['receipt']
             # Keep fixed CLI gate fields only; never serialize arbitrary provider data.
             gate = receipt.get('gate')
-            if gate not in ('ready', 'route', 'bundle-source', 'network', 'native-tree', 'react-tree', 'host-idle', 'idle', 'web-ready', 'web-route', 'web-dom', 'web-element', 'web-call', 'web-idle', 'web-media', 'device-profile', 'system-ready', 'system-idle', 'capture-audio', 'capture-data'):
+            if gate not in ('ready', 'route', 'bundle-source', 'network', 'native-tree', 'native-element', 'react-tree', 'host-idle', 'idle', 'web-ready', 'web-route', 'web-dom', 'web-element', 'web-call', 'web-idle', 'web-media', 'device-profile', 'system-ready', 'system-idle', 'capture-audio', 'capture-data'):
                 raise ValueError('fixed_gate_required')
             outcome = receipt.get('status')
             source = args['source']

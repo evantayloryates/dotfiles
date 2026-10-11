@@ -13,9 +13,10 @@ import {SystemDriver} from './system-driver.mjs';
 import {nativeDelivery} from './native-delivery.mjs';
 import {planNativeTap} from './native-selector.mjs';
 import {codexOwnerContext} from './owner-context.mjs';
+import {waitNativeElement} from './native-condition.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/input-schemas.mjs', 'mcp/native-selector.mjs', 'mcp/owner-context.mjs', 'mcp/system-driver.mjs', 'system_runner.py', 'mcp/capture-store.mjs', 'web/rich-capture.js', 'ready_wait.py', 'mcp/media-verification.mjs', 'mcp/call-verification.mjs', 'mcp/web-profiles.mjs', 'mcp/workflows.mjs', 'fixture_jobs.py', 'build_jobs.py', 'build_app.py', 'native_delivery.py', 'mcp/native-delivery.mjs', 'tests/run_fixture.py', 'paired_workflow.py', 'health.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'browser_inspector.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
+const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/input-schemas.mjs', 'mcp/native-selector.mjs', 'mcp/owner-context.mjs', 'mcp/native-condition.mjs', 'mcp/system-driver.mjs', 'system_runner.py', 'mcp/capture-store.mjs', 'web/rich-capture.js', 'ready_wait.py', 'mcp/media-verification.mjs', 'mcp/call-verification.mjs', 'mcp/web-profiles.mjs', 'mcp/workflows.mjs', 'fixture_jobs.py', 'build_jobs.py', 'build_app.py', 'native_delivery.py', 'mcp/native-delivery.mjs', 'tests/run_fixture.py', 'paired_workflow.py', 'health.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'browser_inspector.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
   .map(file => fs.readFileSync(path.join(root, file))).map(bytes => createHash('sha256').update(bytes).digest('hex')).join(':')).digest('hex');
 export const defaultState = path.join(os.homedir(), 'Library/Application Support/ios-agent');
 const idleLimit = 20 * 60 * 1000;
@@ -158,6 +159,7 @@ export class Backend {
       inputRecipes: 'Read ios-agent://native-input for typed native/React examples, focused text editing, bounded profiling, Wi-Fi handoff and verification. Native target IDs and React component IDs are different. Invalid argument combinations are refused before phone dispatch.',
       nativeBuild: 'Read ios-agent://native-build. ios_build plan/start/retry/status exposes durable signed generic-device DEV builds. Recover jobId after disconnect; build success is not installed readiness. ios_install plan/start/status validates a signed deliveryId, installs on the fixed paired phone and independently checks the running identity. Use a 180-second client request timeout; recover installId rather than replaying after interruption. React readiness and native Home cleanup are separate.',
       inputMatrix: 'ios_input_matrix plan/start/status exposes the compiled UIKit fixture as a durable serialized simulator job. Require completed, passed and cleanupVerified; no physical-iPhone, React Native, browser or off-LAN proof. Jobs survive MCP reconnect for cleanup; never restart an uncertain job.',
+      nativeConditions: 'ios_verify gate=native-element waits 1..30 seconds for one exact label/identifier/class match, visible or interactable. Returns fresh native references; no input. Route/ready gates already wait. Stop on read/owner failure or ambiguity; no whole-phone occlusion or committed value claim.',
       pairedWorkflow: 'ios_workflow action=plan exposes the versioned coach-client recipe; capture/assert/restore-check independently read only the verified synthetic local row. UI rendering is a separate gate.',
       lease: 'One session per work turn. Always ios_end in finally before ending a turn. Codex should pass its actual threadId on begin; the service discovers only that exact rollout. Inherited CODEX_THREAD_ID is a fallback when present. Check lifecycle.threadId or supply the actual rollout explicitly. Missing/ambiguous metadata uses explicitly reported mcp-connection ownership. Other clients use a private connection heartbeat and must end in finally; persistent MCP alone has no universal turn-end signal.',
       requirements: 'Native: Kickoff DEV foreground/unlocked. Browser: enrolled dev document visible on unlocked iPhone. Both require Tailscale and awake laptop services; routine control needs no USB. Developer-channel failure does not prove physical disconnection or lock.',
@@ -263,11 +265,22 @@ export class Backend {
         learning: await this.learning('search', {source: runtimeKey(await this.status()) || ''}).catch(() => ({available: false}))};
     } catch (error) { await this.end(id); throw error; }
   }
-  async verify({sessionId, gate, expected, timeout = 12}) {
+  async verify({sessionId, gate, expected, selector, state, timeout = 12},signal) {
     const s = sessionId ? this.session(sessionId) : {dir: this.observationDirectory(), id: null};
     if (!sessionId && !['idle', 'host-idle'].includes(gate)) throw new Error('session_required');
     const a = this.artifact(s, 'verification');
     const before = runtimeKey(await this.status().catch(() => null));
+    if(gate==='native-element'){
+      const value=await waitNativeElement({selector,state,timeout,signal,owned:()=>this.session(sessionId),read:async timeoutMs=>{
+        const read=await this.action({sessionId,action:'tree',timeoutMs});
+        if(!read.ok)throw Error('tree_failed');
+        return JSON.parse(fs.readFileSync(this.artifacts.get(read.artifactId).file,'utf8')).result;
+      }});
+      fs.writeFileSync(a.file,JSON.stringify(value),{flag:'wx',mode:0o600});
+      const source=runtimeKey(await this.status().catch(()=>null));
+      const learningEvidence=source&&source===before?await this.learning('observe',{receipt:value.receipt,source}).catch(()=>({available:false})):{available:false};
+      return {...value,artifactId:a.id,learningEvidence};
+    }
     const result = await this.run('verify', [gate, '--timeout', String(timeout), '--output', a.file,
       ...(sessionId && !['idle', 'host-idle'].includes(gate) ? ['--lease-file', s.lease] : []), ...(expected ? ['--expect', expected] : [])]);
     if (!fs.existsSync(a.file)) throw new Error(result.error);
@@ -283,7 +296,7 @@ export class Backend {
     if (fs.lstatSync(dir).isSymbolicLink() || fs.statSync(dir).mode & 0o077) throw new Error('private_observation_directory_required');
     return dir;
   }
-  async action({sessionId, action, args = {}}, inspect = false, capturePoll=false) {
+  async action({sessionId, action, args = {}, timeoutMs=120000}, inspect = false, capturePoll=false) {
     const s = this.session(sessionId);
     if(!inspect && action==='tap' && args.selector){
       const tree=await this.action({sessionId,action:'tree'});
@@ -299,7 +312,7 @@ export class Backend {
     }
     const a = this.artifact(s, inspect ? 'react' : action);
     const result = await this.run('cli', [inspect ? 'inspect' : 'action', ...(!inspect ? [action] : []),
-      '--args', JSON.stringify(args), '--lease-file', s.lease, '--output', a.file]);
+      '--args', JSON.stringify(args), '--lease-file', s.lease, '--output', a.file],undefined,timeoutMs);
     if (!fs.existsSync(a.file)) return {ok: false, reason: result.error, actionSent: 'unknown', replay: false};
     const receipt = JSON.parse(fs.readFileSync(a.file, 'utf8'));
     if(action==='state'&&!capturePoll&&receipt.result?.richCapture){delete receipt.result.richCapture;fs.writeFileSync(a.file,JSON.stringify(receipt),{mode:0o600});}

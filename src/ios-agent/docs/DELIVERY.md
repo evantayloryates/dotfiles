@@ -178,3 +178,7 @@ See native-build-mcp-2026-10-10.json and browser-debug-physical-2026-10-10.json.
 ## 11 October: Codex turn discovery
 
 MCP 1.9.7 accepts the actual Codex `threadId` on native/browser/system begin. It reads that exact thread’s current rollout from the native state database, validates matching session metadata, and delegates active-turn admission/retirement to the existing broker. This fixes resumed chats whose original rollout has ended. Fresh physical native admission, Home handoff and idle/glow-off passed; 31 targeted Node checks and three structural lifecycle checks passed. Completion/interrupt tests are structural, not a claim that every persistent harness now provides automatic Stop. Claude and clients without Codex metadata must still end in finally. See codex-owner-discovery-2026-10-11.json.
+
+## 11 October: native control waits
+
+MCP1.9.8 extends ios_verify with native-element: one exact visible/interactive control, bounded1–30seconds, fresh references and shared structural evidence. Physical Nutrition→settings readiness passed in1.032seconds/two reads; a missing-control timeout failed correctly at1second, without input. Home prepared and device lease/glow-off passed.37 targeted checks include four new condition/integration cases. No new off-LAN, hit-testing, text-value or fault-injection claim. See native-condition-2026-10-11.json.
