@@ -1,0 +1,39 @@
+{
+  "observedAt": "2026-10-11T01:32:21.747273+00:00",
+  "version": "1.7.0",
+  "entryPoint": "installed ios-agent-mcp via fresh SDK stdio clients",
+  "jobId": "c7a2fa2a7f424b79802f54400236778b",
+  "scope": "compiled synthetic UIKit simulator only; not physical iOS, React Native, browser, IME or off-LAN proof",
+  "state": "completed",
+  "passed": true,
+  "gateCount": 51,
+  "failedGates": [],
+  "sourceChangedDuringRun": false,
+  "sourceHashes": {
+    "tests/Fixture.m": "a27203f9061889f9e3330a08c3dbd6fb91f74ad544a532edf13c17ffbe43d527",
+    "tests/run_fixture.py": "009c72f5a17059c20728d0868a15bc012f0c7ca62330c723335e429d2ddca9ea",
+    "native/IOSAgent.inc": "48df60b0f9f9c96507fe3104606afe0beff1eb867a801a89296eae31caddf90f",
+    "native/StartupPolicy.inc": "685acffc489d0b033485ae102e1b49be48014fe226b9195d8d556175445e503b",
+    "native/TouchHID.inc": "d44e2371ff3d6e3f5bf160eaaef19e62367aaef6e8e33718ed58e3c78106c9a3",
+    "native/WiFiShortcut.inc": "cdd1abaa889d02e24ddf3879c685b1636d29fa6b7b44dcfd4dee010c83b7bb23"
+  },
+  "fixtureExecutableHash": "1d35834afec689d31245de9c6072555b2e31b913a116173dffdb26639c906fa9",
+  "cleanupVerified": true,
+  "restoredState": "Shutdown",
+  "runnerExitCode": 0,
+  "startConnectionClosedBeforeCompletion": true,
+  "statusRecoveredAcrossFreshConnections": true,
+  "concurrentStartRefused": true,
+  "directCLICollisionRefused": true,
+  "collisionOutputCreated": false,
+  "phoneLeaseAcquired": false,
+  "xctestStarted": false,
+  "focusedTests": {
+    "python": 4,
+    "mcp": 25
+  },
+  "limits": [
+    "Simulator proof does not establish physical iPhone, React Native, browser, IME or off-LAN behavior.",
+    "No periodic testing installed."
+  ]
+}

@@ -10,7 +10,7 @@ import {CaptureStore} from './capture-store.mjs';
 import {SystemDriver} from './system-driver.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/system-driver.mjs', 'system_runner.py', 'mcp/capture-store.mjs', 'web/rich-capture.js', 'ready_wait.py', 'mcp/media-verification.mjs', 'mcp/workflows.mjs', 'paired_workflow.py', 'health.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
+const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/system-driver.mjs', 'system_runner.py', 'mcp/capture-store.mjs', 'web/rich-capture.js', 'ready_wait.py', 'mcp/media-verification.mjs', 'mcp/workflows.mjs', 'fixture_jobs.py', 'tests/run_fixture.py', 'paired_workflow.py', 'health.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
   .map(file => fs.readFileSync(path.join(root, file))).map(bytes => createHash('sha256').update(bytes).digest('hex')).join(':')).digest('hex');
 export const defaultState = path.join(os.homedir(), 'Library/Application Support/ios-agent');
 const idleLimit = 20 * 60 * 1000;
@@ -73,10 +73,10 @@ export class Backend {
   }
   async run(kind, args, input, timeout = 120000, signal) {
     if (this.runOverride) return this.runOverride(kind, args, input);
-    const files = {wait:'ready_wait.py', web: 'web_cli.py', cli: 'cli.py', verify: 'verify.py', doctor: 'health.py', stack: 'local_stack.py', paired: 'paired_workflow.py', learning: 'learning.py', provider:'device_observer.py'};
+    const files = {wait:'ready_wait.py', web: 'web_cli.py', cli: 'cli.py', verify: 'verify.py', doctor: 'health.py', stack: 'local_stack.py', paired: 'paired_workflow.py', learning: 'learning.py', provider:'device_observer.py', fixture:'fixture_jobs.py'};
     if (!files[kind]) throw new Error('fixed_operation_required');
     const argv = kind === 'learning' ? [path.join(this.state, 'learning')] :
-      kind === 'provider' ? [] : ['web','wait'].includes(kind) ? ['--state', this.state] : kind === 'paired' ? [] : kind === 'cli' ? ['--state', this.state, ...args] : [...args, '--state', this.state];
+      kind === 'provider' ? [] : ['web','wait','fixture'].includes(kind) ? ['--state', this.state] : kind === 'paired' ? [] : kind === 'cli' ? ['--state', this.state, ...args] : [...args, '--state', this.state];
     return new Promise((resolve, reject) => {
       const child = spawn(kind==='provider'?path.join(this.state,'providers/pymobiledevice3-11.15.5/bin/python'):'/usr/bin/python3', ['-B', path.join(root, files[kind]), ...argv],
         {stdio: ['pipe', 'pipe', 'pipe'], env: {...process.env, PYTHONDONTWRITEBYTECODE: '1'}});
@@ -146,6 +146,7 @@ export class Backend {
       browserLimits: 'Page-owned DOM input is synthetic; it does not operate OS dialogs, trusted touch, IME or microphone permission. SDK return channel works over private HTTPS; require separate off-LAN qualification. Dev-only enrollment and per-tab authentication.',
       workflow: ['ios_doctor', 'ios_begin', 'ios_native or ios_react', 'ios_verify', 'ios_end'],
       hostWorkflow: ['ios_doctor (read only)', 'ios_stack_ensure only when needed and idle; never replay an uncertain start'],
+      inputMatrix: 'ios_input_matrix plan/start/status exposes the compiled UIKit fixture as a durable serialized simulator job. Require completed, passed and cleanupVerified; no physical-iPhone, React Native, browser or off-LAN proof. Jobs survive MCP reconnect for cleanup; never restart an uncertain job.',
       pairedWorkflow: 'ios_workflow action=plan exposes the versioned coach-client recipe; capture/assert/restore-check independently read only the verified synthetic local row. UI rendering is a separate gate.',
       lease: 'One session per work turn. Always ios_end in finally before ending a turn. Codex should supply its actual active rollout to ios_begin. Other clients use a private connection heartbeat; MCP cannot detect a model turn ending on a persistent connection.',
       requirements: 'Native: Kickoff DEV foreground/unlocked. Browser: enrolled dev document visible on unlocked iPhone. Both require Tailscale and awake laptop services; routine control needs no USB. Developer-channel failure does not prove physical disconnection or lock.',
@@ -173,6 +174,10 @@ export class Backend {
     if (!r.value) return {ok: false, reason: r.error, outcome: 'inspect_current_state_before_retry', replay: false};
     return {...safe(r.value), ok: r.ok && r.value.backendReady === true, replay: false,
       next: 'Run ios_doctor after any uncertain result. This tool never stops existing workers, resets data, or promises phone readiness.'};
+  }
+  async inputMatrix(args = {}) {
+    const r = await this.run('fixture', [], args, 25000);
+    return r.value ? safe(r.value) : {ok:false,reason:r.error,replay:false,next:'Inspect ios_input_matrix action=status before starting again.'};
   }
   async workflow({action = 'plan', clientId, baselineId, stage, expected} = {}) {
     if (action === 'plan') return {ok: true, recipe: nutritionRecipe};

@@ -118,3 +118,19 @@ Recovery candidate, 8 October: native trees retain capture time, with a five-sec
 
 
 Lease-scoped keep-awake candidate: UIKit idle timer is disabled only while control is leased; release, foreground loss and expiry restore its prior value. A preexisting disabled idle timer remains disabled. This does not prevent a manual lock or remove phone/Mac authentication. Compiled fixture 51 gates passed, including the three idle-timer checks. Latest signed build installed. Fixture runner now repairs only a missing-payload registry record on its own freshly booted simulator; a real installation or shared boot remains a collision refusal. Wi-Fi-off handoff briefly lost transport; fixed USB On recovery and a fresh build restored foreground registration. No single root cause is claimed for that transport loss.
+
+## MCP delivery — 10 October 2026
+
+Agents can discover `ios_input_matrix` and `ios-agent://native-input-matrix`.
+Use plan, start once, then status with the returned job ID. Status works after
+MCP reconnect; the isolated worker finishes cleanup independently. The fixed
+dedicated simulator and direct CLI now share a process-held lock. No phone
+lease, XCTest, network change or periodic suite is involved.
+
+A completed job requires both independent fixture assertions and verified cleanup,
+with source/executable hashes. Physical keyboard and gesture extensions above
+remain separate unqualified gates; simulator success does not retire them.
+
+Fresh installed-MCP smoke passed all 51 gates, reconnect/status, concurrent MCP
+and direct-CLI collision refusal, fixture removal and restored Shutdown.
+See `input-matrix-mcp-2026-10-10.json` for the source-bound receipt.

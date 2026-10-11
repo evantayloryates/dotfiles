@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Compile/run a synthetic UIKit fixture, never XCTest or a real app account."""
 import argparse
+import fcntl
 import hashlib
 import json
 import os
@@ -29,7 +30,15 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--simulator", required=True)
     p.add_argument("--output", type=Path, required=True)
+    p.add_argument("--lock-fd", type=int, help=argparse.SUPPRESS)
     a = p.parse_args()
+    lock_root = Path.home() / "Library/Application Support/ios-agent/qualification-locks"
+    lock_root.mkdir(parents=True, exist_ok=True, mode=0o700)
+    fixture_lock = a.lock_fd if a.lock_fd is not None else os.open(lock_root / "native-input.lock", os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW, 0o600)
+    try:
+        fcntl.flock(fixture_lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        raise RuntimeError("fixture_job_already_running")
     a.output.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
     if a.output.exists():
         raise FileExistsError("fixture_output_already_exists")

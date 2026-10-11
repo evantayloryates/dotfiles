@@ -243,7 +243,7 @@ and paired nearby success does not qualify off-LAN access.
 
 Four tools make the proven signed WebDriverAgent route reusable:
 `ios_system_begin`, `ios_system_inspect`, `ios_system_action`, `ios_system_end`.
-The catalog is 31 tools and five resources. End the normal app/page session first.
+The catalog is 32 tools and six resources. End the normal app/page session first.
 Start only when genuine native input or browser/system UI is needed. The same
 exclusive device owner prevents a second cooperating agent from taking control.
 
@@ -360,3 +360,30 @@ acquisition, so never assume an app-level or earlier site grant suppresses all
 prompts. Use bounded native permission handling when observed; no Mirroring or
 human microphone tap was needed. This is not audible audio or full-call proof.
 Receipt: annotation-chrome-permission-wda-2026-10-10.json.
+
+## On-demand native input qualification (v1.7.0)
+
+`ios_input_matrix {action:"plan"}` explains the compiled UIKit fixture.
+`{action:"start"}` returns a durable `jobId` immediately; poll
+`{action:"status",jobId}` on this or another MCP connection. Omitting `jobId`
+lists the ten most recent jobs. Read `ios-agent://native-input-matrix` for exact
+coverage and physical limitations.
+
+The job compiles the current real native driver into the isolated synthetic app
+on **Kickoff iOS POC**. It takes a process-held simulator lock shared with the
+direct CLI runner. It does not acquire the phone, invoke XCTest, alter Wi-Fi,
+access accounts, or schedule periodic tests. Run on meaningful native input
+changes, not as a polling test suite. A new start is never recovery for an
+uncertain response: recover the existing job through status first.
+
+Success requires `state:"completed"`, `passed:true`, `cleanupVerified:true`,
+all independent behavior gates, stable source hashes, runner exit 0, and an
+independent original simulator-state readback. The runner checks app registry
+absence before restoring a simulator it booted. Raw evidence and logs stay in
+private `qualification-jobs/<jobId>` files. MCP EOF leaves an explicitly started
+job running to its cleanup; reconnect to observe it. The ten-minute execution
+deadline requests Python cancellation, preserving its cleanup block and lock
+until exit. A killed worker/host yields unconfirmed state, never a green receipt.
+
+This is simulator driver proof. It does not establish physical phone gestures,
+React Native composition, IME/hardware keyboard, browser or off-LAN behavior.
