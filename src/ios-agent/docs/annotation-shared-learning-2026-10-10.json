@@ -1,0 +1,39 @@
+{
+  "observedAt": "2026-10-11T00:39:21.409316+00:00",
+  "scope": "Real fresh stdio MCP clients; physical iPhone diagnostics and Safari capture; DEV only",
+  "gatesAdded": [
+    "device-profile",
+    "system-ready",
+    "system-idle",
+    "capture-audio",
+    "capture-data"
+  ],
+  "physical": {
+    "systemReadyEvidenceId": "7bfa791c887045099c4479cf63be06f7",
+    "systemIdleEvidenceId": "b83ec92882f843fd8b1b6c29e104851b",
+    "runnerStopped": true,
+    "ownerReleased": true,
+    "profile": {
+      "evidenceId": "10c87b6bac6243aea0edb540ae8ab99c",
+      "gate": "device-profile",
+      "status": "passed"
+    },
+    "profileSampleCount": 3,
+    "profileOS": "26.7.1",
+    "captureDataEvidenceId": "2756680751e44bc6b099d59250c0e2a7",
+    "captureEvents": 1,
+    "captureStopped": true,
+    "indicatorOff": true
+  },
+  "crossClientReadback": {
+    "systemReadyAndIdle": true,
+    "deviceProfile": true,
+    "captureData": true
+  },
+  "failureCoverage": {
+    "actualEarlierProfileDeadline": "resource_profile_sample; no lock/cable inference",
+    "automaticFailureReceipt": "fixture verified; OS unknown remains explicit",
+    "chromeActivation": "unknown outcome; no replay; native hierarchy read failed; runner stop verified"
+  },
+  "remainingQualification": "New capture-audio auto-receipt is contract-integrated; earlier physical audio proof precedes this new receipt schema. No new audible/full-call or Chrome claim."
+}

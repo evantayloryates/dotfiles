@@ -1,0 +1,83 @@
+{
+  "observedAt": "2026-10-11T00:39:21.409726+00:00",
+  "scope": "Physical Safari iOS 26.7.1 owned DEV qualification page over existing private HTTPS bridge",
+  "status": "passed within stated scope",
+  "performance": {
+    "scope": "this document; at most last 1000 resource entries; overlapping durations are not elapsed time",
+    "navigation": {
+      "type": "reload",
+      "domInteractiveMs": 856,
+      "domCompleteMs": 9794,
+      "loadEndMs": 9794
+    },
+    "paint": {
+      "firstPaintMs": null,
+      "firstContentfulPaintMs": 9955
+    },
+    "resources": {
+      "observed": 78,
+      "totalDurationMs": 42399,
+      "transferBytes": 2223646,
+      "entriesWithTransferSize": 78
+    },
+    "longTasks": {
+      "supported": false,
+      "count": null,
+      "totalDurationMs": null,
+      "maxDurationMs": null
+    },
+    "eventTiming": {
+      "supported": true,
+      "observing": true,
+      "observedEntries": 0,
+      "totalDurationMs": 0,
+      "maxDurationMs": 0,
+      "latestStartMs": null,
+      "durationThresholdMs": 16,
+      "scope": "entry durations, not INP; buffered entries may precede ownership"
+    },
+    "largestContentfulPaint": {
+      "supported": true,
+      "observing": true,
+      "observedEntries": 1,
+      "totalDurationMs": 0,
+      "maxDurationMs": 0,
+      "latestStartMs": 9955,
+      "scope": "latest candidate start time; not final LCP until page lifecycle completes"
+    },
+    "audioSession": {
+      "supported": true,
+      "type": "auto",
+      "state": "inactive"
+    },
+    "memory": {
+      "jsHeapBytes": null,
+      "supported": false
+    },
+    "viewport": {
+      "width": 390,
+      "height": 699,
+      "scale": 1
+    },
+    "agentRequestsIncluded": true,
+    "contentFree": true
+  },
+  "observations": {
+    "realPaintCandidate": true,
+    "audioSessionRead": {
+      "supported": true,
+      "type": "auto",
+      "state": "inactive"
+    },
+    "eventTimingSupported": true,
+    "eventTimingEntriesObserved": 0,
+    "glowOff": true,
+    "originalBrowserBootChangedOnExplicitReload": true
+  },
+  "limits": [
+    "No trusted slow-event test on iPhone",
+    "No INP, final LCP, per-page CPU or audible call proof",
+    "Observer disconnect qualified separately in desktop Chromium/WebKit",
+    "No phone flag changes, routing changes or microphone request"
+  ]
+}

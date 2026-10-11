@@ -1,5 +1,5 @@
 {
-  "at": "2026-10-11T00:35:59.490Z",
+  "at": "2026-10-11T00:38:41.817Z",
   "scope": "Owned desktop Chromium/WebKit pages; physical iOS and call CPU/memory qualification are separate",
   "engines": {
     "chromium": {
@@ -25,7 +25,7 @@
           "observedEntries": 1,
           "totalDurationMs": 0,
           "maxDurationMs": 0,
-          "latestStartMs": 596,
+          "latestStartMs": 408,
           "scope": "latest candidate start time; not final LCP until page lifecycle completes"
         },
         "audioSession": {
@@ -34,6 +34,7 @@
           "state": null
         }
       },
+      "optionalObserversStopped": true,
       "glowOff": true,
       "adapterRemoved": true
     },
@@ -60,7 +61,7 @@
           "observedEntries": 1,
           "totalDurationMs": 0,
           "maxDurationMs": 0,
-          "latestStartMs": 402,
+          "latestStartMs": 350,
           "scope": "latest candidate start time; not final LCP until page lifecycle completes"
         },
         "audioSession": {
@@ -69,6 +70,7 @@
           "state": null
         }
       },
+      "optionalObserversStopped": true,
       "glowOff": true,
       "adapterRemoved": true
     }
