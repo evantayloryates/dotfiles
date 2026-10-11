@@ -22,6 +22,18 @@ class WatchTests(unittest.TestCase):
             self.assertEqual(episode['samples'][0]['monotonic'],1)
             self.assertEqual(b.status(root)['state'],'watching')
             self.assertFalse(b.status(root)['preflight_warning'])
+    def test_moderate_work_and_short_spike(self):
+        for cpus,expected in [([40]*35,1),([95]*4+[0]*35,0),([0]*40,0)]:
+            tick=[0]
+            def sample(previous):
+                n=tick[0];tick[0]+=1
+                return dict(timestamp=b.watcher.monitor.now(),monotonic=n,collection_health='ok',targets=[dict(pid=123,cpu_percent=cpus[n])]), []
+            with tempfile.TemporaryDirectory() as folder:
+                root=Path(folder)
+                with patch.object(b,'diagnose'),patch.object(b,'measure',sample),patch.object(b,'processes',return_value=([],'ok')),patch.object(b.watcher,'light_sample',return_value={}),patch.object(b.time,'sleep'):
+                    b.watch(root,count=len(cpus))
+                self.assertEqual(len(list(root.glob('episode-*.json'))),expected)
+
     def test_redaction(self):
         text=b.redact("AA:BB:CC:DD:EE:FF J23P6QB926JY 2294894D-7918-3325-96AD-8A61E3BCCBD1")
         self.assertEqual(text,"[address] [identifier] [uuid]")

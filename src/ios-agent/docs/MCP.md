@@ -1,6 +1,6 @@
 # iOS agent MCP — shared service interface and operational learning
 
-Current interface: **39 tools / ten resources**. `ios_guide.interface` identifies
+Current interface: **40 tools / ten resources**. `ios_guide.interface` identifies
 the process answering this connection. `/Users/taylor/dotfiles/bin/ios-agent-mcp
 --catalog` reads the installed catalog without host/phone access. A missing
 `interface` means the connected process predates this check; absent new tools
@@ -39,8 +39,8 @@ Safari/Chrome launch, fresh document acquisition and managed developer-channel
 ownership when an explicitly provisioned reflection node exists. Inspector calls
 reuse that channel. `ios_web_end` requests Home and closes it. Nearby Chrome and
 actual MCP open/Inspector/end passed; Wi-Fi-off reflected transport was refused.
-Current node scope is qualification; permanent provisioning and off-LAN gates
-remain incomplete. Read MOBILE-WEB.md for the boundary.
+The exact existing relay node is retained for personal DEV after explicit approval
+and adoption readback. Deep off-LAN Inspector remains unqualified. Read MOBILE-WEB.md for the boundary.
 
 1. `ios_guide` gives the operating contract and applicable shared lessons.
 2. `ios_begin {}` acquires control and checks actual app readiness. It returns a

@@ -25,8 +25,9 @@ also passed. With Wi-Fi disabled, the reflected developer TCP listener returned
 a matching RST/ACK and ECONNREFUSED; further timeout increases are unwarranted.
 Cellular Safari's app-owned handoff and an already visible enrolled page are
 separate working paths. No new USB dependency, XCTest or Mirroring is introduced.
-The current reflection node is **temporary qualification infrastructure**, not
-a completed permanent deployment. See CELLULAR-RELAY-CANDIDATE.md. This tool
+The exact existing reflection node is retained for personal DEV after explicit
+approval and guarded adoption/readback. See ../relay/README.md and
+CELLULAR-RELAY-CANDIDATE.md. This tool
 never changes Wi-Fi or silently falls back to USB.
 
 1. `ios_web_pages`: reuse a fresh visible, ready enrolled iPhone page in the intended browser. Do not reenroll a working tab.

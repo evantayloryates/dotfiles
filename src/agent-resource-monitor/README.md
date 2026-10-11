@@ -313,3 +313,49 @@ authentication. The installer is not itself authorized in sudoers. Post-install
 verification must check ownership, no-argument permission, rejected extra arguments,
 and one real capture before claiming unattended capture works. Remove the grant
 with `sudo rm /private/etc/sudoers.d/taylor-btle-stack`; this does not stop monitoring.
+
+### BTLE event relay and hourly evaluation (Oct 11)
+
+`com.taylor.btle-watch` retains one-second local detection and bounded async
+capture. Presence is not an incident. Capture starts at >=80% CPU for five
+consecutive samples, or >=30% mean CPU across 30 same-PID samples. CPU100% is
+one core. The 0–100 activity index is severity, not a probability or proof of
+pathology: max(current CPU/80, 30-s mean CPU/30), capped at100. Thirty samples
+below30% end an incident. PID changes reset the rolling work window.
+
+`com.taylor.btle-events` uses launchd StartInterval300 (not a model scheduler).
+It reads local episode files, groups uninterrupted rotations, coalesces phases,
+and queues only new onset, diagnostic-status, recovery or health-failure events.
+Idle/absent targets invoke no Node transport and no model. An exclusive lock
+prevents overlapping relays. State lives in private `btle/event-relay.json`.
+Run `python3 src/agent-resource-monitor/btle_events.py` for the real entrypoint.
+Both LaunchAgent trigger paths are symlinks to canonical dotfiles plists.
+
+The event adapter uses the existing local app-server durable `thread/queue/add`
+for the explicitly authorized audit chat. It never resumes the chat on another
+server, changes model/settings, interrupts a turn or restarts a shared daemon.
+It saves a stable client message ID before sending, independently reads the
+queue, reconciles consumed items in history after uncertain replies, and never
+blindly retries a mutation. Queue acceptance does not prove chat execution.
+Hourly dedicated evaluation replaces five-minute model polling and audits both
+capture and delivery health. If the app/daemon is unavailable, pending evidence
+remains local for hourly review; the adapter does not start it automatically.
+The initial transport experiment started a previously stopped managed daemon;
+no existing daemon or active agent was restarted. Its experimental queue API
+is locally qualified, not established by the public App Server docs. Requalify
+on protocol/app upgrades. Actual first callback receipt remains a separate gate.
+
+Smoke evidence: five Python tests cover sustained high/moderate load, short
+spikes, stale status, rotation/recovery deduplication and redaction. Live watcher
+sampling and launchd relay entrypoint were checked; idle relay ~66ms, no send.
+A deterministic eight-second-spike simulation caught7/300 onset phases with
+five-minute point samples versus300/300 with ideal one-second capture. This is
+simulation, not an induced system incident. Synthetic real callback has a
+private queue receipt in `btle/event-transport-smoke.json`; its eventual chat
+receipt belongs in `btle/event-smoke-received.json`.
+
+Investigation callbacks read capture output while the bounded recorder continues.
+Keep explicit hypotheses, supporting/contradicting evidence and next safe test;
+compare CoreUARP hot stacks with accessory timelines, not only CPU. Firmware or
+connection timing alone never proves an accessory caused the spin. No automated
+remediation or elevated arbitrary command access is introduced.

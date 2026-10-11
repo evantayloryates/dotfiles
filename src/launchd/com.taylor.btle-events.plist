@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>Label</key><string>com.taylor.btle-events</string>
+<key>ProgramArguments</key><array><string>/usr/bin/python3</string><string>/Users/taylor/src/github/dotfiles/src/agent-resource-monitor/btle_events.py</string></array>
+<key>StartInterval</key><integer>300</integer>
+<key>RunAtLoad</key><true/>
+<key>ProcessType</key><string>Background</string>
+<key>Nice</key><integer>10</integer>
+<key>LowPriorityIO</key><true/>
+</dict></plist>

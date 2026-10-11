@@ -132,7 +132,7 @@ def diagnose(episode_path, pid):
                                     for entry in state.get(key,[]) for name,info in entry.items()]
     except (ValueError,KeyError,IndexError):
         result['device_parse']='unavailable or truncated'
-    # Verify target identity before one non-interactive privileged capture. No persisted grant.
+    # Verify target identity before one non-interactive fixed-helper capture.
     targets, health=processes()
     if health=='ok' and any(p['pid']==pid and p['executable']=='/usr/sbin/BTLEServer' for p in targets):
         stack=Path(episode_path).with_suffix('.stack.txt')
@@ -170,10 +170,18 @@ def watch(root=ROOT, count=None):
             if tick % 5 == 0:
                 pressure = watcher.light_sample(pressure)
             row['pressure'] = pressure
+            if ring and [p['pid'] for p in ring[-1]['targets']] != [p['pid'] for p in row['targets']]:
+                ring.clear()
+                hits = quiet = 0
             ring.append(row)
+            window=list(ring)[-30:]
+            values=[sum(t.get('cpu_percent') or 0 for t in x['targets']) for x in window]
+            row['activity_score']=round(min(100,max((values[-1] if values else 0)/80*100, sum(values)/len(values)/30*100 if len(values)>=30 else 0)),1)
+            row['activity_score_note']='CPU severity index, not probability; 100 = instantaneous 80% CPU or 30-s mean 30%.'
+            sustained_work = len(values)>=30 and sum(values)/len(values)>=30
             hits = hits+1 if high(row) else 0
-            quiet = 0 if high(row) else quiet+1
-            if hits >= 5 and episode is None:
+            quiet = 0 if any((p.get('cpu_percent') or 0)>=30 for p in row['targets']) else quiet+1
+            if (hits >= 5 or sustained_work) and episode is None:
                 key = dt.datetime.now(dt.timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
                 episode = dict(started_at=row['timestamp'], path=str(root/f'episode-{key}.json'),
                                samples=list(ring), candidate_inventory=inventory(processes(True)[0]),
@@ -181,7 +189,7 @@ def watch(root=ROOT, count=None):
                                stack_capture='See adjacent diagnostics.json; one non-interactive sample attempt when authorized.')
                 if (diagnostic_job is None or not diagnostic_job.is_alive()) and time.monotonic()-diagnostic_started >= 600:
                     diagnostic_started=time.monotonic()
-                    diagnostic_job=threading.Thread(target=diagnose,args=(episode['path'],next(p['pid'] for p in row['targets'] if (p.get('cpu_percent') or 0)>=THRESHOLD)),daemon=True)
+                    diagnostic_job=threading.Thread(target=diagnose,args=(episode['path'],max(row['targets'],key=lambda p:p.get('cpu_percent') or 0)['pid']),daemon=True)
                     diagnostic_job.start()
             elif episode:
                 episode['samples'].append(row)
@@ -198,7 +206,7 @@ def watch(root=ROOT, count=None):
             watcher.write_json(root/'status.json', dict(**row, high_cpu=high(row),
                                sustained_high_cpu=hits >= 5, state='incident' if episode else 'watching',
                                watcher_pid=os.getpid(), interval_seconds=1, threshold_cpu_percent=THRESHOLD,
-                               trigger_seconds=5, episode_path=episode['path'] if episode else None, diagnostic_capture_enabled=True))
+                               trigger_seconds=5, episode_path=episode['path'] if episode else None, diagnostic_capture_enabled=True, moderate_cpu_percent=30, moderate_seconds=30, recovery_quiet_seconds=30))
             time.sleep(max(0, 1-(time.monotonic()-started)))
 
 

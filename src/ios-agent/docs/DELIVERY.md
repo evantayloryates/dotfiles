@@ -1,7 +1,7 @@
 # Agent operating contract — installed personal development service
 
 Start with `ios_guide`. Its `interface` reports this connection's version,
-39 tools and ten resources. Compare `/Users/taylor/dotfiles/bin/ios-agent-mcp
+40 tools and ten resources. Compare `/Users/taylor/dotfiles/bin/ios-agent-mcp
 --catalog` for installed source without acquiring the phone. A guide without
 `interface` is an older connection. Refresh only at an idle point; never kill
 another owner's work to refresh schemas. See MCP.md for the operating recipes.
@@ -17,20 +17,23 @@ another owner's work to refresh schemas. See MCP.md for the operating recipes.
 
 For unavailable pages, expired grants or pending cleanup, use the recovery decision card in MOBILE-WEB.md. Read-only host diagnosis is allowed while another connection owns the phone; that does not grant access to its session.
 
-Signed native delivery5da0f761d1fa477dac788b5b621c2b06 was installed
-and independently matched on11October for the owned acceptance below. It is
-superseded by wireless delivery33da0bab6a8f429380f4f35aec4701cd for the cellular
-Safari handoff; a1.9.46 Chrome replacement is currently building. Fresh owned native/Safari/Chrome
-workflows and synthetic rich-capture passed; see
-owned-acceptance-2026-10-11.json. Actual-provider received audio capture and call
-cleanup now passed through MCP
-(see provider-received-capture-mcp-2026-10-11.json). Actual off-LAN launch
-is now qualified for native DEV through the phone-local Focus fallback in1.9.44;
-Safari cellular foreground and owned DOM/React save passed in1.9.45. Chrome
-custom-scheme handoff produced an independently viewed Open confirmation; its
-normal-HTTPS replacement still needs qualification. Deep cellular Inspector
-remains separate. Long-lived harnesses may retain an
-earlier catalog until their own MCP connection refreshes.
+Current MCP source is1.9.49. Signed candidate333fc2b73381422180f46783d53b1a9d
+completed with verified signature and adapter, delivery8a0c15bd53fa4c34b6d82b06a16ebf95;
+installation and app-owned Chrome qualification are being performed separately.
+The phone-local Chrome Shortcut passed a fresh nearby launch after its one-time
+permissions, then actual MCP readiness, glow cleanup and independent Home readback.
+It is not yet proof of the app-owned or cellular hop. The prior HTTPS candidate
+opened Safari; it is superseded as the next experiment, not counted as Chrome proof.
+
+Native DEV cellular foregrounding and Safari cellular app-owned DOM/React Save
+passed on their recorded signed deliveries. Nearby managed Chrome launch, input,
+Inspector and channel/Home cleanup passed through actual MCP1.9.48. The exact
+existing relay node is now retained for personal DEV with approved single-route
+scope and verified restart policy. Actual-provider received synthetic audio
+capture and call cleanup passed; see provider-received-capture-mcp-2026-10-11.json.
+Deep cellular Inspector remains separate. Long-lived harnesses retain their
+connection catalog until refreshed at an owned idle point. Historical receipts
+below preserve the limits of each earlier build.
 
 Use `/Users/taylor/dotfiles/bin/ios-agent`. App integration is isolated on
 `ety/local-dev-foundation`. The dedicated Debug app is `com.dev.kudos.fit`.
