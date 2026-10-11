@@ -742,3 +742,20 @@ Eight provider/four MCP cases pass. Default remains39tools/10resources; the opti
 AX flag adds one tool. Corrected Home/Nutrition, standalone XCTest-free and physical
 off-LAN operation remain unqualified. It stays disabled for routine workflows.
 The original runner was never stopped; independent unlocked Home cleanup passed.
+
+## 1.9.35 — retained host is not phone readiness
+
+A long user-requested hold lost the phone runner while its host owner remained
+alive. Xcode recorded a killed original test, then failed authorization for its
+replacement and exited. The cause of the original kill remains unknown.
+New driver instances return `system_runner_exited` before additional requests
+when their child ended, or the exact observed `xctest_authorization_failed` gate.
+That gate does not prove a currently locked screen or a particular passcode
+requirement. Transport errors still do not infer lock. Do not replay input or
+repeatedly restart in pursuit of authorization. Long retention is not an
+authentication exemption. Existing loaded connections are not hot-patched.
+
+Safari Remote Automation was separately evaluated over paired Tailscale. Its DOM
+reads/navigation worked; click and keyboard effect gates failed. It is closed as
+a default-driver candidate rather than exposed as another unreliable tool.
+See SAFARI-AUTOMATION-CANDIDATE.md and xctest-hold-failure-2026-10-11.json.

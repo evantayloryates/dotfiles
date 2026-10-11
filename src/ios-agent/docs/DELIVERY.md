@@ -312,3 +312,20 @@ Eight provider/four MCP cases pass. Default remains39tools/10resources; the opti
 AX flag adds one tool. Corrected Home/Nutrition, standalone XCTest-free and physical
 off-LAN operation remain unqualified. It stays disabled for routine workflows.
 The original runner was never stopped; independent unlocked Home cleanup passed.
+
+## MCP1.9.35 — long-hold failure diagnosis
+
+The user-requested original host owner was preserved, but the phone runner later
+disappeared. The Xcode result records a killed test, then authorization failure
+for its automatic replacement; the original host test process subsequently
+exited. No intentional end was sent. The cause of the original kill is unknown.
+Mirroring could reconnect without a prompt, but did not restore XCTest.
+
+Future driver instances distinguish an exited owned runner from a transport-only
+failure and report the exact observed UI-testing authorization failure before
+more requests/input. Eight Python and29Node cases pass. This improves diagnosis;
+it does not bypass Apple authorization or guarantee long-lived automation.
+The original loaded MCP connection remains unchanged and its owner remains held.
+See xctest-hold-failure-2026-10-11.json. Safari Remote Automation input was also
+evaluated and closed as an unsuitable default driver: its reads work, but click
+and keyboard effect gates failed. SAFARI-AUTOMATION-CANDIDATE.md records the edge.

@@ -1,0 +1,20 @@
+{
+  "at": "2026-10-11T11:03:45.198596+00:00",
+  "scope": "Observed long-hold failure and new exact diagnostic contracts; no physical authorization repair claimed",
+  "originalRunnerLastRead": "2026-10-11T10:51:45Z",
+  "originalRunnerFailure": "Test crashed with signal kill.",
+  "replacementFailure": "UI testing initialization failed with LocalAuthentication authentication failure / sharing authentication timeout",
+  "xcodeFinishedAt": "2026-10-11T11:00:36Z",
+  "ownerPreserved": true,
+  "intentionalEndSent": false,
+  "hostTestProcessExited": true,
+  "causeOfOriginalKill": "unknown",
+  "replacementAuthorizationRequired": "unconfirmed precise action; do not infer a passcode or unlock from generic endpoint loss",
+  "tests": {
+    "pythonSystemRunner": 8,
+    "nodeSystemDriver": 29,
+    "newCases": 4,
+    "passed": true
+  },
+  "delivered": "Future SystemDriver instances report an exited runner and exact observed authorization gate before issuing more requests/input; transport-only errors do not infer lock. Original1.9.12 connection is unchanged."
+}

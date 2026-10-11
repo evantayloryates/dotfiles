@@ -9,6 +9,19 @@ test('native tree projection excludes secure values and keeps ordinary labels',a
 test('system endpoint must be the configured IPv4 tailnet address',()=>{assert(tailnetHost('100.106.65.81'));for(const h of ['127.0.0.1','100.128.1.1','example.com','100.106.65.81:8100','100.064.1.1'])assert(!tailnetHost(h));});
 test('an open native endpoint is distinguished from a refused socket',async()=>{const net=await import('node:net');const {endpointState}=await import('../system-driver.mjs');const server=net.createServer(socket=>socket.end());await new Promise(r=>server.listen(0,'127.0.0.1',r));const port=server.address().port;assert.equal(await endpointState('127.0.0.1',port),'open');await new Promise(r=>server.close(r));assert.equal(await endpointState('127.0.0.1',port),'refused');});
 test('native network failure reports transport cause without inferring a lock or exposing raw errors',async()=>{const d=new SystemDriver({state:'/unused',session:{},check:()=>{}});d.base='http://127.0.0.1:1';d.sid='a'.repeat(36);const original=globalThis.fetch;try{for(const [name,reason] of [['TimeoutError','system_endpoint_deadline'],['TypeError','system_endpoint_unreachable']]){globalThis.fetch=async()=>{const e=Error('private provider detail');e.name=name;throw e;};await assert.rejects(d.http('GET','/status'),{message:reason});}d.http=async()=>{throw Error('system_endpoint_deadline');};const result=await d.action({action:'home'});assert.equal(result.reason,'system_endpoint_deadline');assert.equal(result.actionSent,false);assert(!JSON.stringify(result).includes('private'));}finally{globalThis.fetch=original;}});
+test('an exited owned runner reports its exact authorization gate before another request or input',async()=>{
+ for(const gate of [undefined,'physical_unlock_required','xctest_authorization_failed']){
+  const {d,calls}=fixture();d.child={exitCode:65};d.startupGate=gate;
+  const r=await d.action({action:'home'});
+  assert.equal(r.reason,gate||'system_runner_exited');assert.equal(r.actionSent,false);assert.equal(r.replay,false);
+  assert.equal(calls.length,0);await assert.rejects(d.inspect(),{message:gate||'system_runner_exited'});
+ }
+});
+test('a live child and retained drivers without a child still use current phone state',async()=>{
+ for(const child of [null,{exitCode:null}]){const {d,calls}=fixture();d.child=child;d.startupGate='physical_unlock_required';
+  assert.equal(await d.context(),'com.apple.mobilesafari');assert.equal(calls.length,2);
+ }
+});
 test('uncertain or replaced broker ownership refuses native mutations before dispatch',async()=>{for(const reason of ['owner_not_active','system_ownership_unconfirmed'])for(const action of ['home','activate','scroll','tap']){const {d,calls}=fixture(),http=d.http;d.authorize=async()=>{throw Error(reason)};d.http=async(m,r,b)=>{if(r.endsWith('/elements'))return {value:[{ELEMENT:'a'.repeat(36)}]};if(r.endsWith('/attribute/hittable'))return {value:true};return http(m,r,b);};const result=await d.action({action,app:'chrome',direction:'up',snapshot:d.snapshot.id,target:'1'});assert.equal(result.actionSent,false);assert.equal(result.reason,reason);assert(!calls.some(([m,r])=>m==='POST'&&!r.endsWith('/elements')));}});
 test('named SwiftUI switch targets its unique native child and refuses ambiguous children',async()=>{
  for(const count of [0,1,2]){const {d,calls}=fixture(),http=d.http;d.snapshot.nodes[1].type='XCUIElementTypeSwitch';const parent='a'.repeat(36),child='b'.repeat(36);

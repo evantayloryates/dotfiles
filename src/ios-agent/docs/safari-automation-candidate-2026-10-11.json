@@ -1,0 +1,97 @@
+{
+  "XCTestStarted": false,
+  "operations": [
+    {
+      "name": "request-owned-automation-session",
+      "outcome": "accepted"
+    },
+    {
+      "name": "initial-owned-contexts",
+      "outcome": "accepted"
+    },
+    {
+      "name": "create-owned-context",
+      "outcome": "accepted"
+    },
+    {
+      "name": "navigate-fixed-fixture",
+      "outcome": "accepted"
+    },
+    {
+      "name": "read-fixture",
+      "outcome": "accepted"
+    },
+    {
+      "name": "find-fixed-button",
+      "outcome": "accepted"
+    },
+    {
+      "name": "one-element-click",
+      "outcome": "unconfirmed",
+      "errorType": "WirError",
+      "reason": "NotImplemented"
+    },
+    {
+      "name": "independent-page-click-read",
+      "outcome": "accepted"
+    },
+    {
+      "name": "focus-fixed-input",
+      "outcome": "accepted"
+    },
+    {
+      "name": "one-key-insertion",
+      "outcome": "accepted"
+    },
+    {
+      "name": "independent-page-input-read",
+      "outcome": "accepted"
+    }
+  ],
+  "transport": "tailnet-paired-userspace",
+  "deviceVersion": "26.7.1",
+  "before": {
+    "title": "Owned Safari Automation probe",
+    "originMatches": true,
+    "clicks": 0,
+    "trusted": null,
+    "value": "",
+    "inputEvents": 0,
+    "visible": true
+  },
+  "afterClick": {
+    "title": "Owned Safari Automation probe",
+    "originMatches": true,
+    "clicks": 0,
+    "trusted": null,
+    "value": "",
+    "inputEvents": 0,
+    "visible": true
+  },
+  "afterKeyboard": {
+    "title": "Owned Safari Automation probe",
+    "originMatches": true,
+    "clicks": 0,
+    "trusted": null,
+    "value": "",
+    "inputEvents": 0,
+    "visible": true
+  },
+  "ownedContextClosed": true,
+  "ownedContextsAfterClose": 1,
+  "socketDetached": true,
+  "inspectorClosed": true,
+  "runnerContinuityVerified": false,
+  "scope": "Bounded Safari Remote Automation candidate, paired Tailscale; no live-media or reliable trusted-input qualification",
+  "at": "2026-10-11T11:03:45.198596+00:00",
+  "decision": "Do not add a default MCP driver: DOM reads/navigation work, element click is NotImplemented and accepted keyboard insertion changed neither value nor input events.",
+  "upstream": [
+    "https://webkit.org/blog/9395/webdriver-is-coming-to-safari-in-ios-13/",
+    "https://developer.apple.com/documentation/safari-developer-tools/ios-enabling-webdriver",
+    "https://bugs.webkit.org/show_bug.cgi?id=322938",
+    "https://bugs.webkit.org/show_bug.cgi?id=322937"
+  ],
+  "postDetachAutomationTargets": 0,
+  "fixtureRemovedByHash": true,
+  "originalRunnerClaimCorrection": "The private probe set originalRunnerPreserved without independently verifying the phone process. That is not proof. The phone process was later absent; causality is unknown."
+}

@@ -145,10 +145,15 @@ async def confirm_stopped(serial, started):
 def startup_gate(text):
     # Only this concrete Xcode preflight error proves a physical unlock gate.
     # Generic lock words, missing transport and XCTest authorization differ.
-    if ('Error Domain=com.apple.dt.deviceprep Code=-3' in text and
-            'because the device is locked.' in text):
-        return 'physical_unlock_required'
-    return None
+    gates=[]
+    for match in re.finditer(r'Error Domain=com\.apple\.dt\.deviceprep Code=-3',text):
+        if 'because the device is locked.' in text[match.start():]:
+            gates.append((match.start(),'physical_unlock_required'))
+    # This is a separate UI-testing authorization failure, not evidence that
+    # the screen is currently locked or that a particular passcode is needed.
+    for match in re.finditer(r'Failed to initialize for UI testing:[^\n]*Error Domain=com\.apple\.LocalAuthentication[^\n]*Authentication failure\.',text):
+        gates.append((match.start(),'xctest_authorization_failed'))
+    return max(gates)[1] if gates else None
 
 async def collect_runner_output(reader, log, started):
     carry=b'';reported_gate=None

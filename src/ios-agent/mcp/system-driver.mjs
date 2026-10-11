@@ -68,10 +68,11 @@ export class SystemDriver {
     this.child=spawn(path.join(this.state,'providers/pymobiledevice3-11.15.5/bin/python'),['-B',path.join(root,'system_runner.py'),argv],{stdio:['pipe','pipe','pipe']});
     this.exit=new Promise(resolve=>{this.child.once('error',()=>{this.failed=true;resolve();});this.child.once('close',resolve);});
     this.child.stderr.on('data',()=>{});this.child.stdin.on('error',()=>{});
-    let pending='';this.child.stdout.on('data',bytes=>{pending+=bytes;if(pending.length>16000)pending='';let at;while((at=pending.indexOf('\n'))>=0){try{const r=JSON.parse(pending.slice(0,at));if(r.stopped)this.cleanup=r;if(r.started===false)this.failed=true;if(r.startupGate==='physical_unlock_required')this.startupGate=r.startupGate;}catch{}pending=pending.slice(at+1);}});
+    let pending='';this.child.stdout.on('data',bytes=>{pending+=bytes;if(pending.length>16000)pending='';let at;while((at=pending.indexOf('\n'))>=0){try{const r=JSON.parse(pending.slice(0,at));if(r.stopped)this.cleanup=r;if(r.started===false)this.failed=true;if(['physical_unlock_required','xctest_authorization_failed'].includes(r.startupGate))this.startupGate=r.startupGate;}catch{}pending=pending.slice(at+1);}});
     const until=Date.now()+45000;let ready=false;
     while(Date.now()<until){this.check();if(this.failed||this.child.exitCode!==null)break;try{this.runtime=(await this.http('GET','/status',undefined,1000)).value;ready=this.runtime?.ready===true;if(ready)break;}catch{}await sleep(500);}
     if(!ready)return {ok:false,reason:this.startupGate||'system_start_unconfirmed_inspect_phone',replay:false};
+    this.startupGate=undefined;
     await this.authorize();this.check();const r=await this.http('POST','/session',{capabilities:{alwaysMatch:{shouldWaitForQuiescence:false,waitForIdleTimeout:1,shouldUseCompactResponses:true}}});
     this.sid=r.sessionId||r.value?.sessionId;if(!/^[A-Fa-f0-9-]{36}$/.test(this.sid||''))return {ok:false,reason:'system_session_unconfirmed',replay:false};
     return {ok:true,transport:'signed-XCTest-runner/paired-developer-start/Tailscale-WDA',indicator:'Apple Automation Running',offLANStartQualified:false,authentication:'Apple may require physical authorization; no passcode is stored or entered'};
@@ -86,7 +87,7 @@ export class SystemDriver {
     } while(true);
   }
   route(r){if(!this.sid)throw Error('system_session_required');return `/session/${this.sid}${r}`;}
-  async context(requireScopedApp=true){this.check();const locked=(await this.http('GET',this.route('/wda/locked'))).value;if(locked!==false)throw Error('physical_unlock_required');const a=(await this.http('GET',this.route('/wda/activeAppInfo'))).value;if(!a?.bundleId||requireScopedApp&&!allowed.has(a.bundleId))throw Error('system_app_scope_required');return a.bundleId;}
+  async context(requireScopedApp=true){this.check();if(this.child?.exitCode!==null&&this.child?.exitCode!==undefined)throw Error(this.startupGate||'system_runner_exited');const locked=(await this.http('GET',this.route('/wda/locked'))).value;if(locked!==false)throw Error('physical_unlock_required');const a=(await this.http('GET',this.route('/wda/activeAppInfo'))).value;if(!a?.bundleId||requireScopedApp&&!allowed.has(a.bundleId))throw Error('system_app_scope_required');return a.bundleId;}
   async readAlert(){
     this.check();let text;
     try{text=(await this.http('GET',this.route('/alert/text'),undefined,2000)).value;}
@@ -213,7 +214,7 @@ export class SystemDriver {
         await this.authorize();this.check();inputSent=true;await this.http('POST',this.route(`/element/${eid}/click`),{});
       }else return {ok:false,reason:'fixed_system_action_required',actionSent:false};
       return {ok:true,delivery:'native-XCTest',effect:'unverified; inspect again',replay:false};
-    }catch(error){if(inputSent)this.uncertain=true;const known=new Set(['physical_unlock_required','system_app_scope_required','system_endpoint_deadline','system_endpoint_unreachable','system_provider_rejected','owner_not_active','system_ownership_unconfirmed','retained_runner_unavailable']);return {ok:false,outcome:inputSent?'unknown_or_rejected':'not_sent',actionSent:inputSent,reason:known.has(error.message)?error.message:'inspect_current_phone_state',replay:false};}
+    }catch(error){if(inputSent)this.uncertain=true;const known=new Set(['physical_unlock_required','xctest_authorization_failed','system_runner_exited','system_app_scope_required','system_endpoint_deadline','system_endpoint_unreachable','system_provider_rejected','owner_not_active','system_ownership_unconfirmed','retained_runner_unavailable']);return {ok:false,outcome:inputSent?'unknown_or_rejected':'not_sent',actionSent:inputSent,reason:known.has(error.message)?error.message:'inspect_current_phone_state',replay:false};}
   }
   async stop(){
     if(this.stopping)return this.stopping;

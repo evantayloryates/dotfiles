@@ -44,6 +44,29 @@ class SystemRunnerBoundaryTests(unittest.IsolatedAsyncioTestCase):
             with patch.object(runner,'request') as request:
                 self.assertFalse(runner.owned({'ownerFile':str(owner)}));request.assert_not_called()
 
+    def test_authorization_failure_is_distinct_from_physical_unlock(self):
+        line='Failed to initialize for UI testing: Error Domain=com.apple.LocalAuthentication Code=-1 "Authentication failure."'
+        self.assertEqual(runner.startup_gate(line),'xctest_authorization_failed')
+        for text in ['Authentication failure.', 'Failed to initialize for UI testing: network error',
+                     'Error Domain=com.apple.LocalAuthentication Code=-1 Authentication failure.']:
+            self.assertIsNone(runner.startup_gate(text))
+        unlock='Error Domain=com.apple.dt.deviceprep Code=-3 because the device is locked.'
+        self.assertEqual(runner.startup_gate(unlock+'\n'+line),'xctest_authorization_failed')
+        self.assertEqual(runner.startup_gate(line+'\n'+unlock),'physical_unlock_required')
+        self.assertIsNone(runner.startup_gate('Authentication failure.\nFailed to initialize for UI testing: Error Domain=Other'))
+
+    async def test_runner_reports_later_authorization_failure_after_unlock_gate(self):
+        with tempfile.TemporaryDirectory() as d, patch('builtins.print') as emit:
+            log=Path(d)/'log';log.touch()
+            chunks=iter([b'Error Domain=com.apple.dt.deviceprep Code=-3 because the device is locked.\n',
+                         b'Failed to initialize for UI testing: Error Domain=com.apple.LocalAuthentication Authentication failure.\n',b''])
+            class Reader:
+                async def read(self,size):return next(chunks)
+            reader=Reader()
+            await runner.collect_runner_output(reader,log,set())
+            gates=[json.loads(c.args[0])['startupGate'] for c in emit.call_args_list]
+            self.assertEqual(gates,['physical_unlock_required','xctest_authorization_failed'])
+
 class OwnershipGraceTests(unittest.TestCase):
     def test_transient_unknown_has_bounded_grace_but_confirmed_loss_stops(self):
         g=runner.OwnershipGrace()
