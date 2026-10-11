@@ -30,3 +30,29 @@ test('fixed launch/Home may leave an unrelated foreground app without inspecting
  }
  const {d,calls}=fixture();d.http=async()=>({value:true});assert.equal((await d.action({action:'activate',app:'chrome'})).reason,'physical_unlock_required');assert.equal(calls.length,0);
 });
+
+ test('Shortcuts is a fixed setup target; arbitrary apps remain refused',async()=>{
+ const {d,calls}=fixture(),http=d.http;let active='com.apple.mobilesafari';
+ d.http=async(m,r,b)=>{if(r.endsWith('/wda/activeAppInfo'))return {value:{bundleId:active}};if(r.endsWith('/wda/apps/activate'))active=b.bundleId;return http(m,r,b);};
+ assert.equal((await d.action({action:'activate',app:'shortcuts'})).foregroundConfirmed,true);
+ assert.equal(await d.context(),'com.apple.shortcuts');
+ assert.equal((await d.action({action:'activate',app:'com.example.arbitrary'})).actionSent,false);
+ assert.equal(active,'com.apple.shortcuts');
+ });
+
+ test('foreground handoff waits on reads and never replays Home; owner loss stops observation',async()=>{
+ const {d,calls}=fixture(),http=d.http;let reads=0;
+ d.http=async(m,r,b)=>{if(r.endsWith('/wda/activeAppInfo'))return {value:{bundleId:++reads<3?'com.apple.Preferences':'com.apple.springboard'}};return http(m,r,b);};
+ assert.equal((await d.action({action:'home'})).homeConfirmed,true);
+ assert.equal(calls.filter(([m,r])=>m==='POST'&&r==='/wda/homescreen').length,1);
+ d.check=()=>{throw Error('owner_not_active')};await assert.rejects(d.foregroundMatches('com.apple.springboard'),/owner_not_active/);
+ });
+
+ test('installed MCP schema admits fixed Shortcuts setup and rejects arbitrary activation',async()=>{
+ const {Client}=await import('@modelcontextprotocol/sdk/client/index.js');const {InMemoryTransport}=await import('@modelcontextprotocol/sdk/inMemory.js');const {createServer}=await import('../server.mjs');
+ const seen=[];const {server}=createServer({systemAction:async args=>{seen.push(args);return {ok:true}},cancel:async()=>{},close:async()=>{}});
+ const [ct,st]=InMemoryTransport.createLinkedPair();await server.connect(st);const c=new Client({name:'system-setup-test',version:'1'});await c.connect(ct);
+ try{assert(!(await c.callTool({name:'ios_system_action',arguments:{sessionId:'a'.repeat(32),action:'activate',app:'shortcuts'}})).isError);
+ assert((await c.callTool({name:'ios_system_action',arguments:{sessionId:'a'.repeat(32),action:'activate',app:'com.example.arbitrary'}})).isError);assert.equal(seen.length,1);
+ }finally{await c.close();await server.close();}
+ });

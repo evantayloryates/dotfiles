@@ -82,12 +82,24 @@ async def confirm_stopped(serial, started):
         if attempt == 1:await asyncio.sleep(0.25)
     return False, 2
 
+def startup_gate(text):
+    # Only this concrete Xcode preflight error proves a physical unlock gate.
+    # Generic lock words, missing transport and XCTest authorization differ.
+    if ('Error Domain=com.apple.dt.deviceprep Code=-3' in text and
+            'because the device is locked.' in text):
+        return 'physical_unlock_required'
+    return None
+
 async def collect_runner_output(reader, log, started):
-    carry=b''
+    carry=b'';reported_gate=None
     with log.open('r+b') as output:
         while chunk:=await reader.read(8192):
             text=(carry+chunk).decode(errors='replace')
-            started.update(int(x) for x in re.findall(r'WebDriverAgentRunner-Runner\[(\d+):',text));carry=chunk[-256:]
+            started.update(int(x) for x in re.findall(r'WebDriverAgentRunner-Runner\[(\d+):',text))
+            gate=startup_gate(text)
+            if gate and gate!=reported_gate:
+                reported_gate=gate;print(json.dumps({'startupGate':gate}),flush=True)
+            carry=(carry+chunk)[-2048:]
             if output.tell()+len(chunk)>1024*1024:
                 output.seek(-min(output.tell(),512*1024),os.SEEK_END);tail=output.read();output.seek(0);output.write(tail);output.truncate()
             output.write(chunk);output.flush()

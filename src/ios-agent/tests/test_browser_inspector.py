@@ -43,6 +43,33 @@ class InspectorTests(unittest.IsolatedAsyncioTestCase):
         self.s.changed=True
         with self.assertRaisesRegex(ValueError,'debug_document_changed'):await self.run_debug({'op':'source','documentRef':r['documentRef'],'scriptId':'1'})
         self.assertEqual(len([x for x in self.s.calls if x[0]=='Debugger.getScriptSource']),1)
+    async def test_network_retains_transport_details_scrubs_fields_and_disables(self):
+        original=self.s.send_command
+        async def send(method,**args):
+            if method=='Network.enable':
+                self.s.emit('Network.requestWillBeSent',requestId='1',request={'url':'https://user:pass@dev.example.ts.net/graphql?token=secret','headers':{'Authorization':'Bearer abcdefghijklmnop','Accept':'application/json'},'postData':'{"password":"abcdefghijklmnop","synthetic":true}'})
+                self.s.emit('Network.responseReceived',requestId='1',response={'status':200,'source':'network','timing':{'requestStart':1,'responseStart':3}})
+                self.s.emit('Network.loadingFinished',requestId='1',metrics={'protocol':'h2','responseBodyBytesReceived':42})
+            return await original(method,**args)
+        self.s.send_command=send
+        r=await self.run_debug({'op':'network','sampleMs':100})
+        self.assertEqual(r['eventCount'],3);self.assertTrue(r['domainsDisabled'])
+        request=r['events'][0]['params']['request']
+        self.assertEqual(request['url'],'https://dev.example.ts.net/graphql')
+        self.assertEqual(request['headers']['Authorization'],'Bear…mnop')
+        self.assertEqual(json.loads(request['postData'])['password'],'abcd…mnop')
+        self.assertTrue(json.loads(request['postData'])['synthetic'])
+        self.assertEqual(r['events'][2]['params']['metrics']['protocol'],'h2')
+        self.assertEqual(self.s.calls[-1][0],'Network.disable');self.assertEqual(self.s.response_methods,{})
+
+    async def test_network_lost_owner_still_disables_and_preserves_external_handlers(self):
+        sentinel=lambda event:None;self.s.response_methods['Network.loadingFailed']=sentinel
+        def check():
+            if any(m=='Network.enable' for m,_ in self.s.calls):raise ValueError('observer_owner_expired')
+        with self.assertRaisesRegex(ValueError,'observer_owner_expired'):await self.run_debug({'op':'network','sampleMs':100},check)
+        self.assertEqual(self.s.calls[-1][0],'Network.disable')
+        self.assertIs(self.s.response_methods['Network.loadingFailed'],sentinel)
+
     async def test_styles_return_matched_inline_computed_and_disable(self):
         r=await self.run_debug({'op':'styles','selector':'#fixture'})
         self.assertIn('matched',r);self.assertIn('computed',r);self.assertIn('inline',r)

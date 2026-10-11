@@ -13,6 +13,10 @@ def scrub(value, key=''):
         if isinstance(value,str) and re.fullmatch(r'.{4}….{4}',value):return value
         if isinstance(value,str) and len(value)>12:return value[:4]+'…'+value[-4:]
         return '<redacted>'
+    if key.lower() in ('url','documenturl') and isinstance(value,str):return safe_url(value)
+    if key=='postData' and isinstance(value,str):
+        try:return json.dumps(scrub(json.loads(value)))
+        except (ValueError,TypeError):return value
     if isinstance(value,dict):return {k:scrub(v,k) for k,v in value.items()}
     if isinstance(value,list):return [scrub(v) for v in value]
     return value
@@ -67,7 +71,7 @@ async def inspect(session, request, target, expected, check):
     request['_inputDispatched']=False
     request['_contextStage']='initial'
     op=request.get('op','overview')
-    allowed={'overview','sources','source','styles','console','trace','evaluate'}
+    allowed={'overview','sources','source','styles','console','trace','network','evaluate'}
     if op not in allowed:raise ValueError('fixed_debug_operation_required')
     reference=request.get('documentRef')
     if op in ('source','evaluate') and not re.fullmatch('[a-f0-9]{32}',reference or ''):
@@ -114,7 +118,8 @@ async def inspect(session, request, target, expected, check):
         methods={'sources':['Debugger.scriptParsed','Debugger.scriptFailedToParse','Debugger.paused'],
                  'source':['Debugger.scriptParsed','Debugger.paused'],
                  'console':['Console.messageAdded','Console.messageRepeatCountUpdated','Console.messagesCleared'],
-                 'trace':['Timeline.eventRecorded','Timeline.recordingStarted','Timeline.recordingStopped']} .get(op,[])
+                 'trace':['Timeline.eventRecorded','Timeline.recordingStarted','Timeline.recordingStopped'],
+                 'network':['Network.requestWillBeSent','Network.responseReceived','Network.dataReceived','Network.loadingFinished','Network.loadingFailed','Network.requestServedFromMemoryCache']} .get(op,[])
         for method in methods:
             old_handlers[method]=session.response_methods.get(method)
             session.response_methods[method]=handler(method)
@@ -143,8 +148,8 @@ async def inspect(session, request, target, expected, check):
             check();result['computed']=await command(session,'CSS.getComputedStyleForNode',nodeId=node['nodeId'])
             check();result['inline']=await command(session,'CSS.getInlineStylesForNode',nodeId=node['nodeId'])
             result['selector']=request['selector']
-        elif op in ('console','trace'):
-            domain='Console' if op=='console' else 'Timeline'
+        elif op in ('console','trace','network'):
+            domain={'console':'Console','trace':'Timeline','network':'Network'}[op]
             await enable(domain)
             if op=='trace':
                 check();timeline_requested=True

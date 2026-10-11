@@ -33,6 +33,11 @@ class SystemRunnerBoundaryTests(unittest.IsolatedAsyncioTestCase):
             await runner.collect_runner_output(reader,log,started)
             self.assertEqual(started,{77});self.assertLessEqual(log.stat().st_size,1024*1024)
 
+    def test_only_exact_xcode_preflight_error_reports_unlock_gate(self):
+        self.assertEqual(runner.startup_gate('Error Domain=com.apple.dt.deviceprep Code=-3 Xcode cannot launch runner because the device is locked.'),'physical_unlock_required')
+        for text in ['locked','device unavailable','Enter iPhone Passcode for XCTest','Error Domain=Other Code=-3 because the device is locked.']:
+            self.assertIsNone(runner.startup_gate(text))
+
     def test_stale_owner_fails_before_any_device_or_broker_request(self):
         with tempfile.TemporaryDirectory() as d:
             owner=Path(d)/'owner.json';owner.write_text(json.dumps({'active':True,'heartbeatAt':0,'activityAt':0,'pid':1}))

@@ -1,0 +1,51 @@
+{
+  "at": "2026-10-11T04:55:10.405845+00:00",
+  "version": "1.9.9",
+  "scope": "physical on-demand WebKit Network capture; paired nearby Inspector",
+  "browsers": {
+    "safari": {
+      "eventCount": 9,
+      "droppedEvents": 0,
+      "retainedBytes": 8983,
+      "domainsDisabled": true,
+      "detached": true,
+      "transport": "native-remoted",
+      "offLANQualified": false,
+      "retentionSeconds": 3600,
+      "indicatorOff": true,
+      "eventMethods": [
+        "Network.dataReceived",
+        "Network.loadingFinished",
+        "Network.requestWillBeSent",
+        "Network.responseReceived"
+      ],
+      "protocols": [
+        "h2"
+      ],
+      "knownTokenFieldsScrubbed": true
+    },
+    "chrome": {
+      "eventCount": 16,
+      "droppedEvents": 0,
+      "retainedBytes": 14958,
+      "domainsDisabled": true,
+      "detached": true,
+      "transport": "native-remoted",
+      "offLANQualified": false,
+      "retentionSeconds": 3600,
+      "indicatorOff": true,
+      "sampledCompletionHasHTTP2": true,
+      "sampledCookieScrubbed": true
+    }
+  },
+  "targetedTests": {
+    "pythonInspector": 13,
+    "mcpDebugger": 5
+  },
+  "limits": [
+    "Not off-LAN Inspector proof",
+    "No response bodies fetched; in-flight requests may lack a start event",
+    "Provider timing may be zero or negative; retained raw values are not calibrated latency",
+    "No heap, breakpoint or worker-target qualification"
+  ]
+}

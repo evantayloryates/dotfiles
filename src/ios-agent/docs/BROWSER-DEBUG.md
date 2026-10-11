@@ -34,6 +34,20 @@ For Chrome choose `browser:"chrome"` and verify its own Web Inspector opt-in
 and active DEV target. Existing Inspector attachments are never displaced.
 A missing/busy/suspended target is a refusal; do not repeatedly try it blindly.
 
+## Network details (1.9.9)
+
+`{browser:"safari",op:"network",sampleMs:1000}` collects a bounded Inspector
+Network window: request/response, cache source, transfer size, timing, protocol
+and failures when WebKit supplies them. It does not refetch a resource, alter
+caching, intercept requests or download response bodies. Use `ios_capture` for
+explicit app-level response content. Existing long-lived requests may have no
+initial request event during this window; optional metrics remain absent.
+Read `/result/pages/0/debug/events` in the private artifact selectively.
+An optional expression uses the same owned-page/document rules below.
+Network.disable and socket detach must succeed even after lost ownership.
+Physical Safari and Chrome network qualification passed; see browser-network-physical-2026-10-11.json.
+Protocol: https://raw.githubusercontent.com/WebKit/WebKit/main/Source/JavaScriptCore/inspector/protocol/Network.json
+
 ## Explicit evaluation
 
 `op:"evaluate"`, or an `expression` during console/trace, additionally requires
@@ -106,3 +120,5 @@ same hostname comes from the private runtime configuration. Physical Chrome
 overview on the call-rig origin passed, with domains disabled and Inspector
 detached. This remains a nearby developer transport, separate from Tailscale
 page input. See browser-call-rig-profile-2026-10-10.json.
+
+Physical 1.9.9 capture retained 9 Safari / 16 Chrome events with zero drops, scrubbed known token/cookie fields, domains disabled, Inspector detached and page glow off. WebKit supplied HTTP/2 and byte counters. Preserve provider timing values, including zero/negative values, as raw diagnostics rather than calibrated latency.

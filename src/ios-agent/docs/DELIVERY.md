@@ -182,3 +182,7 @@ MCP 1.9.7 accepts the actual Codex `threadId` on native/browser/system begin. It
 ## 11 October: native control waits
 
 MCP1.9.8 extends ios_verify with native-element: one exact visible/interactive control, bounded1–30seconds, fresh references and shared structural evidence. Physical Nutrition→settings readiness passed in1.032seconds/two reads; a missing-control timeout failed correctly at1second, without input. Home prepared and device lease/glow-off passed.37 targeted checks include four new condition/integration cases. No new off-LAN, hit-testing, text-value or fault-injection claim. See native-condition-2026-10-11.json.
+
+MCP 1.9.9 adds fixed Shortcuts setup targeting, bounded foreground readback and exact Xcode unlock-gate diagnosis. Fifteen focused driver tests and six runner tests pass. Physical Shortcuts launch and Run Immediately selection passed; its Open App action is not yet saved. No off-site launch claim.
+
+MCP 1.9.9 physical acceptance: Shortcuts launch and Run Immediately selection passed; automation is not yet saved because its editor tree timed out. Home foreground and matching runner stop passed. Inspector Network capture passed in physical Safari/Chrome (9/16 events, zero drops, scrubbed known token/cookie fields, domains disabled, detached, glows off). Raw provider timings are not calibrated latency. No off-site launch or Inspector claim.

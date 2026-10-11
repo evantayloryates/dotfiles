@@ -1,0 +1,43 @@
+{
+  "at": "2026-10-11T04:55:10.405845+00:00",
+  "scope": "bounded system setup and startup diagnosis",
+  "candidateVersion": "1.9.9",
+  "physical": {
+    "v198StartAfterHumanXCTestAuthorization": true,
+    "settingsFocusProfiles": [
+      "Agent Launch",
+      "Runner Dev Launch"
+    ],
+    "shareAcrossDevices": true,
+    "restartBeforeUnlock": {
+      "ready": false,
+      "xcodeGate": "physical_unlock_required",
+      "runnerStopped": true
+    },
+    "shortcutsLaunchQualified": true,
+    "candidateStartAfterPhysicalUnlock": true,
+    "runImmediatelySelected": true,
+    "automationSaved": false,
+    "shortcutsEditorReads": {
+      "completed": true,
+      "afterCreateNewShortcut": "two system_endpoint_deadline reads; action not replayed"
+    },
+    "candidateCleanup": {
+      "ok": true,
+      "homeConfirmed": true,
+      "replay": false,
+      "runnerStopped": true
+    }
+  },
+  "targetedTests": {
+    "driver": 15,
+    "runner": 6,
+    "inspector": 13,
+    "mcpDebugger": 5
+  },
+  "limits": [
+    "No passcode entered or stored",
+    "Off-site foreground launch unproved; phone-local automation not saved",
+    "Shortcuts automation editor source timed out after accepted Create New Shortcut; Home and runner stop independently passed"
+  ]
+}

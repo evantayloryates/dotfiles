@@ -7,7 +7,7 @@ import net from 'node:net';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const id=()=>randomBytes(16).toString('hex');
-const bundles={'kickoff-dev':'com.dev.kudos.fit',safari:'com.apple.mobilesafari',chrome:'com.google.chrome.ios',settings:'com.apple.Preferences'};
+const bundles={'kickoff-dev':'com.dev.kudos.fit',safari:'com.apple.mobilesafari',chrome:'com.google.chrome.ios',settings:'com.apple.Preferences',shortcuts:'com.apple.shortcuts'};
 const allowed=new Set([...Object.values(bundles),'com.apple.springboard']);
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 export function endpointState(host,port=8100){return new Promise(resolve=>{
@@ -59,13 +59,22 @@ export class SystemDriver {
     this.child=spawn(path.join(this.state,'providers/pymobiledevice3-11.15.5/bin/python'),['-B',path.join(root,'system_runner.py'),argv],{stdio:['pipe','pipe','pipe']});
     this.exit=new Promise(resolve=>{this.child.once('error',()=>{this.failed=true;resolve();});this.child.once('close',resolve);});
     this.child.stderr.on('data',()=>{});this.child.stdin.on('error',()=>{});
-    let pending='';this.child.stdout.on('data',bytes=>{pending+=bytes;if(pending.length>16000)pending='';let at;while((at=pending.indexOf('\n'))>=0){try{const r=JSON.parse(pending.slice(0,at));if(r.stopped)this.cleanup=r;if(r.started===false)this.failed=true;}catch{}pending=pending.slice(at+1);}});
+    let pending='';this.child.stdout.on('data',bytes=>{pending+=bytes;if(pending.length>16000)pending='';let at;while((at=pending.indexOf('\n'))>=0){try{const r=JSON.parse(pending.slice(0,at));if(r.stopped)this.cleanup=r;if(r.started===false)this.failed=true;if(r.startupGate==='physical_unlock_required')this.startupGate=r.startupGate;}catch{}pending=pending.slice(at+1);}});
     const until=Date.now()+45000;let ready=false;
     while(Date.now()<until){this.check();if(this.failed||this.child.exitCode!==null)break;try{this.runtime=(await this.http('GET','/status',undefined,1000)).value;ready=this.runtime?.ready===true;if(ready)break;}catch{}await sleep(500);}
-    if(!ready)return {ok:false,reason:'system_start_unconfirmed_inspect_phone',replay:false};
+    if(!ready)return {ok:false,reason:this.startupGate||'system_start_unconfirmed_inspect_phone',replay:false};
     await this.authorize();this.check();const r=await this.http('POST','/session',{capabilities:{alwaysMatch:{shouldWaitForQuiescence:false,waitForIdleTimeout:1,shouldUseCompactResponses:true}}});
     this.sid=r.sessionId||r.value?.sessionId;if(!/^[A-Fa-f0-9-]{36}$/.test(this.sid||''))return {ok:false,reason:'system_session_unconfirmed',replay:false};
     return {ok:true,transport:'signed-XCTest-runner/paired-developer-start/Tailscale-WDA',indicator:'Apple Automation Running',offLANStartQualified:false,authentication:'Apple may require physical authorization; no passcode is stored or entered'};
+  }
+  async foregroundMatches(expected){
+    // A successful dispatch can precede SpringBoard's foreground handoff.
+    // Re-read only; never send the action twice. Keep every read owner-fenced.
+    const deadline=Date.now()+2000;
+    do {this.check();const active=(await this.http('GET',this.route('/wda/activeAppInfo'),undefined,2000)).value;this.check();
+      if(active?.bundleId===expected)return true;
+      if(Date.now()>=deadline)return false;await sleep(200);
+    } while(true);
   }
   route(r){if(!this.sid)throw Error('system_session_required');return `/session/${this.sid}${r}`;}
   async context(requireScopedApp=true){this.check();const locked=(await this.http('GET',this.route('/wda/locked'))).value;if(locked!==false)throw Error('physical_unlock_required');const a=(await this.http('GET',this.route('/wda/activeAppInfo'))).value;if(!a?.bundleId||requireScopedApp&&!allowed.has(a.bundleId))throw Error('system_app_scope_required');return a.bundleId;}
@@ -95,8 +104,8 @@ export class SystemDriver {
     try{
       // Fixed launch/Home never inspect the previous app's contents. Still refuse a locked phone.
       const bundle=await this.context(!['activate','home'].includes(action));
-      if(action==='home'){this.snapshot=null;await this.authorize();this.check();inputSent=true;await this.http('POST','/wda/homescreen',{});return {ok:true,homeConfirmed:(await this.http('GET',this.route('/wda/activeAppInfo'))).value?.bundleId==='com.apple.springboard',replay:false};}
-      if(action==='activate'){if(!bundles[app])return {ok:false,reason:'fixed_system_app_required',actionSent:false};this.snapshot=null;await this.authorize();this.check();inputSent=true;await this.http('POST',this.route('/wda/apps/activate'),{bundleId:bundles[app]});return {ok:true,foregroundConfirmed:(await this.context())===bundles[app],replay:false};}
+      if(action==='home'){this.snapshot=null;await this.authorize();this.check();inputSent=true;await this.http('POST','/wda/homescreen',{});return {ok:true,homeConfirmed:await this.foregroundMatches('com.apple.springboard'),replay:false};}
+      if(action==='activate'){if(!bundles[app])return {ok:false,reason:'fixed_system_app_required',actionSent:false};this.snapshot=null;await this.authorize();this.check();inputSent=true;await this.http('POST',this.route('/wda/apps/activate'),{bundleId:bundles[app]});return {ok:true,foregroundConfirmed:await this.foregroundMatches(bundles[app]),replay:false};}
       if(action==='tap'&&label!==undefined){
         if(typeof label!=='string'||!label.length||label.length>500||!['XCUIElementTypeButton','XCUIElementTypeCell','XCUIElementTypeSwitch','XCUIElementTypeLink'].includes(elementType))return {ok:false,reason:'typed_system_label_required',actionSent:false};
         this.snapshot=null;

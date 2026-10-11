@@ -17,6 +17,8 @@ test('debugger schema rejects incomplete evaluation and cross-operation argument
   assert(!(await c.callTool({name:'ios_browser_debug',arguments:{browser:'safari',op:'styles',selector:'body'}})).isError);
   assert.equal(seen[0].kind,'browser-debug');assert.equal(seen[0].debug.selector,'body');assert(!('sessionId' in seen[0].debug));assert.equal(seen[0].debug.profile,'app');
   await c.callTool({name:'ios_browser_debug',arguments:{browser:'chrome',profile:'call-rig'}});assert.equal(seen[1].debug.profile,'call-rig');
+  assert(!(await c.callTool({name:'ios_browser_debug',arguments:{browser:'safari',op:'network',sampleMs:100}})).isError);assert.equal(seen[2].debug.op,'network');
+  assert((await c.callTool({name:'ios_browser_debug',arguments:{browser:'safari',op:'network',expression:'42'}})).isError);assert.equal(seen.length,3);
  }finally{await c.close();await server.close();}
 });
 
