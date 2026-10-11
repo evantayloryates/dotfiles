@@ -34,8 +34,31 @@
     "requestedMinutes": 60,
     "requestedType": "global for taylor",
     "installerPrepared": true,
-    "installed": false,
-    "status": "awaiting one administrator authentication"
+    "installed": true,
+    "status": "installed and authenticated; independent fresh-shell sudo -n checks passed",
+    "active": true,
+    "verifiedAt": "2026-10-11T01:28:33.209727+00:00",
+    "effectivePolicy": {
+      "timestamp_timeout": 60,
+      "timestamp_type": "global",
+      "user": "taylor"
+    },
+    "policyFile": "/private/etc/sudoers.d/90-taylor-session",
+    "policyOwner": "root:wheel",
+    "policyMode": "0440",
+    "completePolicyValidation": "visudo -c passed",
+    "freshShellChecks": [
+      {
+        "command": "sudo -n /usr/bin/id -u",
+        "exitCode": 0,
+        "stdout": "0"
+      },
+      {
+        "command": "sudo -n /usr/bin/true",
+        "exitCode": 0
+      }
+    ],
+    "boundary": "Sliding inactivity cache; authentication remains required after expiry or invalidation. No new passwordless command grant. Not required by iOS MCP runtime."
   },
   "boundary": "Suppresses automatic verbose failure diagnostics, not normal runner logs, ownership cleanup or Apple iPhone authorization. Off-LAN runner startup remains unqualified."
 }
