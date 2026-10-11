@@ -30,6 +30,15 @@ clock conversion or assume a requested preview time was returned exactly.
 
 ## Rich evidence; director-owned selection
 
+The session is the production workspace. Generate timing/provenance artifacts
+as part of successful capture/derivative publication and make them discoverable
+through ordinary session reads; do not require a separate agent bookkeeping
+step. Preserve immutable artifact history. Optional precision queries should
+read existing maps, not become hidden prerequisites for composition. See
+[session strategy](SESSION-STRATEGY.md). `record_export` and `cursor_render` are
+explicitly provisional; reviewing their migration/retirement is required when
+official session composition tools arrive.
+
 Retain broad delivered shortcuts, pointer/gesture transitions and rich semantic
 action blocks. Provide bounded queries, summaries, interval/type/action filters
 and private artifacts so richness does not flood an agent's context. Preserve

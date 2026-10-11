@@ -11,7 +11,7 @@ agent; computer use remains a separately maintained tool dependency.
 The maintained checklist distinguishes work states (Completed, Pending,
 Ready, Deferred, Review) from historical verification. A Ready brief alone does
 not establish an installed tool. The current [Smart Record delivery](qualification/SMART-RECORD-RELEASE.md)
-documents adapter0.20.0, native build d7a6a75d975f and the installed widget;
+documents adapter0.20.1, native build d7a6a75d975f and the installed widget;
 inspect loaded `status.mcp_adapter` and native status for each consumer.
 Cooperative pause, repair tickets and a first bounded cursor renderer are delivered.
 
@@ -22,7 +22,7 @@ artifacts into sessions, and provides bounded event/action queries, source/frame
 timing joins, geometry mapping and review images. The driving agent selects
 relevant events and directs the production.
 
-Two public tools already create footage derivatives: `record_export` trims one
+Two provisional public tools already create footage derivatives: `record_export` trims one
 recording into MP4/GIF with cadence/size/effort controls, and `cursor_render`
 overlays one configurable cursor/click treatment on one terminal recording.
 `export_time_map` maps exported times; it does not edit footage. The cursor
@@ -37,6 +37,14 @@ evidence; they do not assemble or replace footage. Agents currently compose
 broader final masters using tools outside Smart Record. The first cursor
 renderer is an existing optional building block for the forthcoming composition
 work, not a preferred style or recipe-book design decision.
+
+`session_show` now includes a fresh bounded `bundle` inventory: capture files,
+recording states/unfinished work, export media and automatically generated map
+paths. No explicit mapping call is needed to create or discover those maps.
+`export_time_map` is optional for particular exact-offset queries. Inventory
+coverage and file presence do not establish artifact validity or job success.
+See [session strategy](SESSION-STRATEGY.md) for current behavior, the official
+composition direction and the required provisional-tool cleanup checkpoint.
 
 The [checklist](qualification/checklist.json) preserves the supported scopes and
 unresolved qualification. The older stage/version observations below are
@@ -855,7 +863,7 @@ load in fresh MCP clients or the current CLI. Old clients are not killed to
 reload them. Inspect the actual loaded version and retry your original operation
 explicitly after receiving a usable release.
 
-`cursor_render` creates the first editable cursor/click derivative. Supply the
+`cursor_render` is a provisional editable cursor/click derivative. Supply the
 terminal recording, absolute SVG/PNG asset, original-asset hotspot and explicit
 `coordinate_basis:acknowledged_recorder_desktop_candidate`. This acknowledges
 the coordinate convention for the chosen take; it does not certify any provider

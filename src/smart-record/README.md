@@ -6,6 +6,12 @@ single Medium **Smart Record** widget is installed and placed. Fresh clients
 expose repair tickets, shared app observations and the first configurable cursor
 recipe. See [agent usage](AGENT-USAGE.md).
 
+Adapter0.20.1 adds a compact live artifact inventory to `session_show` and the
+`session` CLI command. Export timing maps are already generated automatically;
+the explicit mapping tool is an optional precision query. Export/cursor tools
+are provisional pending the official composition interface. See
+[session strategy and cleanup plan](SESSION-STRATEGY.md).
+
 An always-on screen-recording engine that agents drive through the
 `smart-record` MCP. This folder holds the engine (`smart-recordd`, Swift on
 ScreenCaptureKit), the MCP server, and a command line.

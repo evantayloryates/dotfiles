@@ -2,10 +2,23 @@
 
 The service is installed as `smart-record`, with native engine `smart-recordd`
 and the single Medium **Smart Record** desktop widget. The existing feature
-release remains 0.20.0; the delivered native build is d7a6a75d975f and the
+release is now adapter0.20.1; the delivered native build is d7a6a75d975f and the
 companion build is be27e75d391a.
 
 ## Delivered composition boundary
+
+Adapter0.20.1 adds the live `session_show`/CLI bundle inventory without restarting
+the recorder. Automatically published export maps are discoverable with their
+media and source files. `export_time_map` remains an optional exact-offset read;
+it does not generate the map. Both footage-producing tools below are explicitly
+provisional, with a required migration/retirement review when official
+composition tools arrive. See [session strategy](../SESSION-STRATEGY.md).
+
+Nine focused bundle/mapping/MCP checks pass. A fresh registered minimal-PATH MCP
+reports0.20.1/session_bundle1, discovers46 tools and returns the same inventory
+as the CLI for an existing session/export. Provisional descriptions pass.
+Native PID89707/build d7a6a75d975f remains unchanged. Already-loaded adapters
+retain their version until refreshed; the current CLI is immediately usable.
 
 The capture/session/event/frame foundation is delivered. Two public tools also
 produce derivatives: `record_export` trims one take into MP4/GIF, and

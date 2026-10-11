@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-10T20:36:45-04:00",
+  "updated_at": "2026-10-10T21:35:09-04:00",
   "workflow": {
     "state": "complete",
-    "note": "Supported foundation and comprehensive Smart Record rename delivered.58 Completed; 11 Deferred retain Taylor’s stated prerequisites. New feedback is handled as scoped repair work."
+    "note": "Supported foundation, rename and session artifact discovery delivered. Official composition is Ready for the next phase; deferred tests retain their prerequisites."
   },
-  "production_note": "Smart Record is installed and ready for ordinary smoke use. Signed native d7a6a75d975f, companion be27e75d391a and the renamed46-tool MCP are verified.58 Completed; 11 Deferred keep their explicit prerequisites.",
+  "production_note": "Smart Record foundation is delivered. Fresh adapter0.20.1 adds automatic session artifact/map discovery; native d7a6a75d975f and widget be27e75d391a remain installed.59 Completed,11 Deferred,1 Ready for official session composition and provisional-tool cleanup.",
   "groups": [
     {
       "id": "capture",
@@ -1005,10 +1005,10 @@
           "status": "completed",
           "scope": "One basic configurable cursor/click composition using the supplied test asset; broader visual styles remain later iterations.",
           "evidence": "Supplied cursor.svg rendered with an explicit hotspot, configurable size/opacity, click rings and typing hide. Installed marker/drag alignment, fresh MCP 45-frame draft, separate final output and 4 cursor acceptance/refusal checks passed. Recipes, timelines, meaningful samples and immutable originals are retained.",
-          "next": "Taylor can smoke-test the first treatment and choose its next visual direction. Additional styles and audio/HDR compositing are later design choices, not claims of this first recipe.",
+          "next": "Keep usable now. At official composition integration, review cursor_render and record_export together, migrate useful internals/recipes, and remove superseded interfaces/examples.",
           "anchor": "release-020",
-          "updated_at": "2026-10-10T19:06:38-04:00",
-          "summary": "The first configurable cursor/click recipe renders Draft and Final outputs with editable timing and style.",
+          "updated_at": "2026-10-10T21:35:09-04:00",
+          "summary": "A delivered provisional cursor/click renderer; official composition tools must explicitly replace, retire or document its compatibility role.",
           "work_state": "completed",
           "work_updated_at": "2026-10-10T19:06:38-04:00",
           "acceptance": [
@@ -1086,6 +1086,34 @@
           "anchor": "service-rename",
           "updated_at": "2026-10-10T20:36:45-04:00",
           "work_updated_at": "2026-10-10T20:36:45-04:00"
+        },
+        {
+          "id": "session-artifact-bundle",
+          "title": "Discover source and export timing artifacts through the session",
+          "status": "completed",
+          "work_state": "completed",
+          "scope": "Adapter0.20.1 session_show and CLI session reads add a fresh bounded inventory of capture/source/manifest/export files and automatically saved export-map paths. Explicit mapping stays optional; file availability is not media validation.",
+          "summary": "Session reads now expose recording states and artifact/map paths together; no separate map-generation call is needed.",
+          "evidence": "Nine focused session-bundle, exact derivative-map and MCP checks pass. Fresh minimal-PATH MCP0.20.1/46tools and CLI return the same inventory for a retained session with one available export/map. Native PID89707 remains unchanged; no capture, render or original-data mutation.",
+          "next": "Use ordinary session reads for discovery; query particular exact offsets only when useful. Scene/job subscriptions and cursor-artifact registration belong to the Ready composition work.",
+          "anchor": "session-strategy",
+          "updated_at": "2026-10-10T21:35:09-04:00",
+          "work_updated_at": "2026-10-10T21:35:09-04:00",
+          "doc_link": "/Users/taylor/src/github/dotfiles/src/smart-record/SESSION-STRATEGY.md"
+        },
+        {
+          "id": "official-session-composition",
+          "title": "Design the official session composition interface and retire provisional tools",
+          "status": "pending",
+          "work_state": "ready",
+          "scope": "Use Taylor’s preferred recipe-book design to define versioned scenes/sequences, source-to-master timing, durable job/artifact states, compact change/wait hooks and internal automatic mapping. Register cursor/other derived outputs in the session workspace.",
+          "summary": "Ready for the composition phase. record_export and cursor_render are useful provisional tools with an explicit replacement/retirement checkpoint.",
+          "evidence": "Taylor approved keeping both tools temporarily and asked that timing/bookkeeping become session-owned. SESSION-STRATEGY.md defines the delivered inventory boundary and the next design/cleanup contract. This is planned work, not an implemented compositor.",
+          "next": "Begin with Taylor’s preferred composition recipes. Before declaring official composition delivered, migrate useful internals/retained recipes and choose retirement or a documented compatibility role for both provisional tools; verify discovery and artifact readability.",
+          "anchor": "session-strategy",
+          "updated_at": "2026-10-10T21:35:09-04:00",
+          "work_updated_at": "2026-10-10T21:35:09-04:00",
+          "doc_link": "/Users/taylor/src/github/dotfiles/src/smart-record/SESSION-STRATEGY.md"
         }
       ]
     }
@@ -3951,6 +3979,30 @@
       "from": "pending",
       "to": "completed",
       "note": "Taylor re-added the new-identity widget; one configuration and readable renamed desktop control verified."
+    },
+    {
+      "kind": "item",
+      "id": "session-artifact-bundle",
+      "at": "2026-10-10T21:35:09-04:00",
+      "from": "pending",
+      "to": "completed",
+      "note": "Nine focused session-bundle, exact derivative-map and MCP checks pass. Fresh minimal-PATH MCP0.20.1/46tools and CLI return the same inventory for a retained session with one available export/map. Native PID89707 remains unchanged; no capture, render or original-data mutation."
+    },
+    {
+      "kind": "item",
+      "id": "official-session-composition",
+      "at": "2026-10-10T21:35:09-04:00",
+      "from": "pending",
+      "to": "pending",
+      "note": "Taylor approved keeping both tools temporarily and asked that timing/bookkeeping become session-owned. SESSION-STRATEGY.md defines the delivered inventory boundary and the next design/cleanup contract. This is planned work, not an implemented compositor."
+    },
+    {
+      "kind": "item",
+      "id": "visual-composition",
+      "at": "2026-10-10T21:35:09-04:00",
+      "from": "completed",
+      "to": "completed",
+      "note": "Taylor designated cursor_render and record_export provisional pending the official session composition interface; cleanup is tracked as a Ready task."
     }
   ],
   "work_note": "Completed work states include useful delivered portions of broader historical Partial items. Expanded verification records preserve limits. Deferred prerequisites remain explicit; Review is a genuine user decision."

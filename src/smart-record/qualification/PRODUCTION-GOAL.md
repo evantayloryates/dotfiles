@@ -1,5 +1,19 @@
 # Production qualification goal
 
+## Session workspace follow-up delivered (October 10, 21:33 EDT)
+
+Adapter0.20.1 adds a read-only bounded artifact inventory to existing MCP
+session_show and CLI session reads. Export maps were already generated
+automatically; ordinary discovery now links them beside media/source files and
+native state. Explicit export_time_map stays optional for exact-offset queries.
+record_export/cursor_render descriptions and success receipts are provisional;
+SESSION-STRATEGY.md records the official composition contract and required
+migration/retirement review. Nine targeted tests pass; actual retained session
+with one export returns identical fresh MCP/CLI inventories. No capture,
+renderer job, native restart, background polling or original-data rewrite.
+Further session jobs/change notifications and cursor registration belong to the
+Ready official-composition design, not an expansion of completed capture tests.
+
 ## Smart Record rename delivered (October 10)
 
 Signed native d7a6a75d975f and companion be27e75d391a are installed under
