@@ -10,6 +10,15 @@ import signal
 import sys
 import time
 from cli import request
+try:
+    from signals import emit_signal
+except ImportError:
+    emit_signal = None
+
+def _signal(event, **fields):
+    try:
+        if emit_signal:emit_signal('host', event, **fields)
+    except Exception:pass
 
 logging.disable(logging.CRITICAL)
 BUNDLE = 'com.dev.kudos.fit.WebDriverAgentRunner.xctrunner'
@@ -165,6 +174,7 @@ async def collect_runner_output(reader, log, started):
             started.update(int(x) for x in re.findall(r'WebDriverAgentRunner-Runner\[(\d+):',text))
             gate=startup_gate(text)
             if gate and gate!=reported_gate:
+                _signal('runner.startup_gate', outcome='blocked', reason=gate)
                 reported_gate=gate;print(json.dumps({'startupGate':gate}),flush=True)
             carry=(carry+chunk)[-2048:]
             if output.tell()+len(chunk)>1024*1024:
@@ -186,11 +196,13 @@ async def main(r):
             '-collect-test-diagnostics','never',
             stdin=asyncio.subprocess.DEVNULL,stdout=asyncio.subprocess.PIPE,stderr=asyncio.subprocess.STDOUT,start_new_session=True)
         pump=asyncio.create_task(collect_runner_output(child.stdout,log,started))
+        _signal('runner.started', outcome='process_started', phase='retained' if retained else 'owned')
         print(json.dumps({'started':True}),flush=True)
         if retained:
             if not await retained_ready(r):
                 reason='reservation_start_unconfirmed'
                 return
+            _signal('runner.ready', outcome='verified', phase='retained')
             stopping=None
             transport=None
         else:
@@ -234,12 +246,14 @@ async def main(r):
         stopped, attempts = await confirm_stopped(serial, started)
         if retained:
             reservation_update(r, phase='stopped', active=False, ready=False, runnerStopped=stopped, reason=reason, verificationAttempts=attempts)
+        _signal('runner.stopped', outcome='verified' if stopped else 'unconfirmed', reason=reason, attempts=attempts)
         print(json.dumps({'stopped':True,'runnerStopped':stopped,'verificationAttempts':attempts,'reason':reason}),flush=True)
 
 if __name__ == '__main__':
     r = json.loads(sys.argv[1])
     try:asyncio.run(main(r))
     except Exception:
+        _signal('runner.startup', outcome='refused', reason='system_runner_unavailable')
         if r.get('reservationFile'):
             try:
                 from system_reservation import read_record, write_record

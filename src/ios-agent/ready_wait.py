@@ -4,7 +4,7 @@ import json
 import sys
 from pathlib import Path
 from cli import request
-from service import STATE
+from service import STATE, _signal
 
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--state',type=Path,default=STATE)
@@ -12,4 +12,6 @@ def main():
     print(json.dumps(request(r,args.state,timeout=r.get('timeoutSeconds',45)+3)))
 if __name__=='__main__':
     try:main()
-    except Exception:print(json.dumps({'readyToAcquire':False,'reason':'readiness_channel_unavailable','lockState':'unknown','leaseAcquired':False}));sys.exit(1)
+    except Exception:
+        _signal('host', 'readiness.channel', outcome='unavailable', reason='readiness_channel_unavailable')
+        print(json.dumps({'readyToAcquire':False,'reason':'readiness_channel_unavailable','lockState':'unknown','leaseAcquired':False}));sys.exit(1)

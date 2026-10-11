@@ -1,4 +1,5 @@
 import importlib.util
+import hashlib
 import json
 from pathlib import Path
 import tempfile
@@ -38,6 +39,75 @@ class BrokerTests(unittest.TestCase):
             self.call(op='release');self.assertTrue(relay.closed);self.assertIsNone(self.b.developer_relay)
         finally:
             if relay:relay.close();relay.thread.join(1)
+
+    def test_native_signals_are_drained_once_without_exposing_payloads(self):
+        payload = {"iosSignals": {"stream": "abc1-1234", "records": [
+            {"sequence": 1, "sourceAtMs": 1791740000000, "event": "kck.call.started", "fields": {"outcome": "accepted", "requestId": "a"*32,
+                "body": "secret", "reason": "unsafe value"}},
+            {"sequence": 2, "event": "bad event", "fields": {"outcome": "ignored"}}]}}
+        with patch.object(service, "emit_signal") as emit:
+            self.b.receive_native_signals(payload)
+            self.assertNotIn("iosSignals", payload)
+            emit.assert_called_once_with("kck-native", "kck.call.started", outcome="accepted", requestId="a"*32,
+                                         sourceAtMs=1791740000000, sourceStreamId="abc1-1234", sourceSeq=1,
+                                         sourceBootId=hashlib.sha256(b'boot').hexdigest()[:16])
+            self.b.receive_native_signals({"iosSignals": {"stream": "abc1-1234", "records": [
+                {"sequence": 1, "event": "kck.call.started", "fields": {"outcome": "accepted"}}]}})
+            emit.assert_called_once()
+
+    def test_command_signals_preserve_boundary_and_never_log_arguments(self):
+        with patch.object(service, "emit_signal") as emit:
+            cid = self.action()
+            self.next()
+            self.result(cid)
+        names = [call.args[1] for call in emit.call_args_list]
+        self.assertEqual(names, ["command.accepted", "command.dispatched", "command.reported"])
+        self.assertNotIn("args", str(emit.call_args_list))
+
+    def test_repeated_hello_does_not_repeat_bridge_transition(self):
+        with patch.object(service, "emit_signal") as emit:
+            self.b.device_request({**self.device, "feedback": {"foreground": True}})
+            self.b.device_request({**self.device, "feedback": {"foreground": True}})
+        names = [call.args[1] for call in emit.call_args_list]
+        self.assertEqual(names, ["bridge.foreground"])
+
+    def test_native_signal_overflow_is_reported_once(self):
+        receipt = {"iosSignals": {"stream": "abc1-1234", "dropped": 3, "records": []}}
+        with patch.object(service, "emit_signal") as emit:
+            self.b.receive_native_signals(receipt)
+            self.b.receive_native_signals({"iosSignals": {"stream": "abc1-1234", "dropped": 3, "records": []}})
+        emit.assert_called_once_with("host", "native.signal_overflow", outcome="dropped",
+                                     droppedCount=3, sourceStreamId="abc1-1234",
+                                     sourceBootId=hashlib.sha256(b'boot').hexdigest()[:16])
+
+    def test_state_command_drains_native_receipt_without_exposing_it(self):
+        cid = self.call(op="action", action="state", args={})["id"]
+        self.next()
+        with patch.object(service, "emit_signal") as emit:
+            self.result(cid, result={"ready": True, "iosSignals": {"stream": "abc1-1234", "records": [
+                {"sequence": 1, "event": "kck.call.started", "fields": {"outcome": "accepted"}}]}})
+        outcome = self.call(op="result", id=cid)
+        self.assertEqual(outcome["result"], {"ready": True})
+        emit.assert_called_once()
+
+    def test_signal_writer_failure_does_not_fail_command(self):
+        with patch.object(service, "emit_signal", side_effect=OSError("disk unavailable")):
+            cid = self.action()
+            self.next()
+            self.result(cid)
+        self.assertEqual(self.call(op="result", id=cid)["status"], "completed")
+
+    def test_kickoff_native_fields_are_retained_without_payload(self):
+        payload = {"iosSignals": {"stream": "abc1-1234", "records": [{"sequence": 1,
+            "event": "apollo.response_observed", "fields": {"operationName": "ClientSummary", "kind": "query",
+            "statusCode": 200, "errorCount": 2, "response": {"secret": "data"}}}]}}
+        with patch.object(service, "emit_signal") as emit:
+            self.b.receive_native_signals(payload)
+        fields = emit.call_args.kwargs
+        self.assertEqual(emit.call_args.args[:2], ("kck-native", "apollo.response_observed"))
+        self.assertEqual({k: fields[k] for k in ("operationName", "kind", "statusCode", "errorCount")},
+                         {"operationName": "ClientSummary", "kind": "query", "statusCode": 200, "errorCount": 2})
+        self.assertNotIn("response", fields)
 
     def test_home_handoff_requires_fresh_post_transition_foreground(self):
         cid=self.call(op='action',action='home',args={})['id']

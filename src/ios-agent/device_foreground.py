@@ -1,6 +1,15 @@
 """Short-lived Apple app-state evidence, independent of XCTest and page JS."""
 import asyncio
 import time
+try:
+    from signals import emit_signal
+except ImportError:
+    emit_signal = None
+
+def _signal(event, **fields):
+    try:
+        if emit_signal:emit_signal('host', event, **fields)
+    except Exception:pass
 
 SERVICE='com.apple.accessibility.axAuditDaemon.remoteserver.shim.remote'
 BUNDLES={'com.dev.kudos.fit','com.apple.Preferences','com.apple.mobilesafari','com.google.chrome.ios'}
@@ -16,6 +25,7 @@ async def launch_observed(r,rsd,bundle,dispatch,check):
     check()
     if SERVICE not in (getattr(rsd,'peer_info',None) or {}).get('Services',{}):
         value=await dispatch()
+        _signal('foreground.observation', outcome='unavailable', reason='app_state_service_unavailable')
         return value,{'foregroundVerified':False,'foregroundReason':'app_state_service_unavailable'}
     from pymobiledevice3.services.accessibilityaudit import AccessibilityAudit
     audit=AccessibilityAudit(rsd);entered=False;monitoring=False;task=None;last=None;ready=asyncio.Event()
@@ -41,6 +51,7 @@ async def launch_observed(r,rsd,bundle,dispatch,check):
             # No monitoring admitted. The paired fixed launch still works when
             # an older iOS version lacks this optional observation channel.
             await asyncio.wait_for(audit.close(),2)
+            _signal('foreground.observation', outcome='unavailable', reason='app_state_observer_unavailable')
             return await dispatch(),{'foregroundVerified':False,'foregroundReason':'app_state_observer_unavailable'}
         check();r['_phase']='foreground_monitor_start';monitoring=True
         await asyncio.wait_for(audit.set_app_monitoring_enabled(True),2)
@@ -58,6 +69,8 @@ async def launch_observed(r,rsd,bundle,dispatch,check):
             'foregroundScope':'bounded Apple app-state event; not native/React/page readiness'}
         if matched:evidence['foregroundEvidence']={'provider':'Apple-AX-app-state','bundle':bundle,'state':8,
             'observedAt':last['observedAt'],'ageMs':round((time.monotonic()-last['monotonic'])*1000)}
+        _signal('foreground.observation', outcome='verified' if matched else 'unconfirmed',
+                reason=evidence['foregroundReason'])
         return value,evidence
     finally:
         if task:
@@ -71,4 +84,6 @@ async def launch_observed(r,rsd,bundle,dispatch,check):
         if entered:
             try:await asyncio.wait_for(audit.close(),2)
             except Exception as error:cleanup_errors.append(error)
-        if cleanup_errors:raise ValueError('foreground_cleanup_unconfirmed') from cleanup_errors[0]
+        if cleanup_errors:
+            _signal('foreground.cleanup', outcome='unconfirmed', reason='foreground_cleanup_unconfirmed')
+            raise ValueError('foreground_cleanup_unconfirmed') from cleanup_errors[0]

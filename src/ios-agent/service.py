@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import hmac
+from itertools import islice
 import json
 import os
 import math
@@ -20,6 +21,10 @@ import uuid
 from web.bridge import WebBridge
 from source_hash import worker_source_hash
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+try:
+    from signals import emit_signal
+except ImportError:  # The signal library is installed with the integrated release.
+    emit_signal = None
 
 VERSION = 1
 MAX_BODY = 8 * 1024 * 1024
@@ -28,6 +33,32 @@ DEVICE_TIMEOUT = 30
 OPERATIONS = {"capabilities", "tree", "image", "tap", "gesture", "text", "react", "state", "diagnostics-probe", "diagnostics-matrix", "developer-probe", "developer-relay", "reload", "wifi", "capture", "home", "browser-handoff"}
 STATE = Path.home() / "Library/Application Support/ios-agent"
 SOURCE_HASH = worker_source_hash()
+QUIET_ACTIONS = {"state", "tree", "image", "react"}
+NATIVE_SIGNAL_FIELDS = {"level", "outcome", "reason", "code", "surface", "phase", "route", "appState", "state", "status",
+                        "routeName", "previousRouteName", "operationName", "kind", "fromState", "toState", "statusCode", "errorCount",
+                        "traceId", "requestId", "sessionId", "ownerId", "pageId", "buildId", "deliveryId", "durationMs", "count", "attempts", "httpStatus", "networkStatus"}
+
+
+def _signal(scope, event, **fields):
+    try:
+        if emit_signal:
+            emit_signal(scope, event, **fields)
+    except Exception:
+        pass
+
+
+def _code(value):
+    return value if isinstance(value, str) and re.fullmatch(r"[A-Za-z][A-Za-z0-9_.-]{0,63}", value) else "unclassified"
+
+
+def _native_field_ok(key, value):
+    if type(value) in (int, float):
+        return 0 <= value <= 1e7 and math.isfinite(value)
+    if not isinstance(value, str):
+        return False
+    if key in ("routeName", "previousRouteName"):
+        return value == "unknown" or bool(re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]{0,63}", value))
+    return _code(value) == value
 
 
 def prune_captures(state, now=None):
@@ -71,6 +102,59 @@ class Broker:
         self.stopping_frontends = []
         self.capture_prune_at = 0.0
         self.developer_relay = None
+        self.native_signal_stream = None
+        self.native_signal_sequence = 0
+        self.native_signal_dropped = 0
+
+    def receive_native_signals(self, value):
+        """Drain a bounded JS receipt embedded in an existing native state reply."""
+        if not isinstance(value, dict) or not isinstance(value.get("iosSignals"), dict):
+            return
+        envelope = value.pop("iosSignals")
+        stream, records = envelope.get("stream"), envelope.get("records")
+        if not isinstance(stream, str) or not re.fullmatch(r"[a-z0-9-]{4,48}", stream) or not isinstance(records, list):
+            return
+        if stream != self.native_signal_stream:
+            self.native_signal_stream, self.native_signal_sequence, self.native_signal_dropped = stream, 0, 0
+        dropped = envelope.get("dropped")
+        if type(dropped) is int and self.native_signal_dropped < dropped <= 1_000_000:
+            _signal("host", "native.signal_overflow", outcome="dropped", droppedCount=dropped - self.native_signal_dropped,
+                    sourceStreamId=stream,
+                    sourceBootId=hashlib.sha256(self.device["boot"].encode()).hexdigest()[:16] if self.device else None)
+            self.native_signal_dropped = dropped
+        for record in records[:32]:
+            if not isinstance(record, dict):
+                continue
+            seq, event, fields = record.get("sequence"), record.get("event"), record.get("fields")
+            if (type(seq) is not int or seq <= self.native_signal_sequence or
+                    not isinstance(event, str) or len(event) > 80 or not re.fullmatch(r"[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+", event) or
+                    not isinstance(fields, dict)):
+                continue
+            clean = {k: v for k, v in islice(fields.items(), 16)
+                     if k in NATIVE_SIGNAL_FIELDS and _native_field_ok(k, v)}
+            if "operationName" in clean and not re.fullmatch(r"[A-Za-z][A-Za-z0-9_-]{0,63}", clean["operationName"]):
+                clean.pop("operationName")
+            if clean.get("kind") not in (None, "query", "mutation", "subscription", "unknown"):
+                clean.pop("kind")
+            for key in ("fromState", "toState"):
+                if clean.get(key) not in (None, "active", "inactive", "background", "unknown"):
+                    clean.pop(key)
+            if clean.get("level") not in (None, "info", "warn", "error"):
+                clean.pop("level")
+            if "statusCode" in clean and (type(clean["statusCode"]) is not int or not 100 <= clean["statusCode"] <= 599):
+                clean.pop("statusCode")
+            if "errorCount" in clean and (type(clean["errorCount"]) is not int or not 0 <= clean["errorCount"] <= 20):
+                clean.pop("errorCount")
+            source_at = record.get("sourceAtMs")
+            if type(source_at) in (int, float) and 0 <= source_at <= 4e12 and math.isfinite(source_at):
+                clean["sourceAtMs"] = source_at
+            clean.update(sourceStreamId=stream, sourceSeq=seq)
+            if self.device:
+                clean["sourceBootId"] = hashlib.sha256(self.device["boot"].encode()).hexdigest()[:16]
+            if self.device and self.device.get("deliveryId"):
+                clean.setdefault("buildId", self.device["deliveryId"])
+            _signal("kck-native", event, **clean)
+            self.native_signal_sequence = seq
 
     def start_react_frontend(self):
         if self.frontend and self.frontend.poll() is None:
@@ -96,6 +180,9 @@ class Broker:
 
     def revoke(self, reason):
         with self.cv:
+            if self.lease:
+                _signal("host", "lease.released", outcome="released", reason=_code(reason),
+                        sessionId=self.lease["id"], surface=self.lease.get("surface", "native"))
             if self.developer_relay:
                 self.developer_relay.close(reason)
                 self.developer_relay = None
@@ -114,6 +201,9 @@ class Broker:
             self.frontend_port = None
             for cmd in self.commands.values():
                 if cmd["status"] in ("queued", "sent"):
+                    if cmd["action"] not in QUIET_ACTIONS:
+                        _signal("host", "command.terminal", outcome="cancelled" if cmd["status"] == "queued" else "unknown",
+                                reason=_code(reason), requestId=cmd["id"], sessionId=cmd["lease"], code=cmd["action"])
                     cmd.update(status="cancelled" if cmd["status"] == "queued" else "unknown", reason=reason)
             self.queue.clear()
             self.cv.notify_all()
@@ -141,6 +231,8 @@ class Broker:
                 self.revoke("owner_expired")
             self.web.tick()
             if self.device and self.clock() - self.device["seen"] > DEVICE_TIMEOUT:
+                _signal("host", "bridge.freshness", outcome="stale", reason="device_timeout", buildId=self.device.get("deliveryId"),
+                        sourceBootId=hashlib.sha256(self.device["boot"].encode()).hexdigest()[:16])
                 self.device = None
                 if not self.lease or self.lease.get("surface", "native") == "native":
                     self.revoke("device_disconnected")
@@ -234,6 +326,8 @@ class Broker:
                 if connection:
                     self.lease["connectionOwner"] = connection
                 self.cv.notify_all()
+                _signal("host", "lease.acquired", outcome="accepted", sessionId=self.lease["id"], surface=surface,
+                        buildId=self.device.get("deliveryId") if surface == "native" and self.device else None)
                 return {"id": self.lease["id"], "epoch": self.epoch} if surface != "native" else self.lease_wire()
             if op == "result":
                 cmd = self.commands.get(request.get("id"))
@@ -308,6 +402,8 @@ class Broker:
                                       "status": "queued", "deadline": self.clock() + 15}
                 self.queue.append(cid)
                 self.cv.notify_all()
+                if action not in QUIET_ACTIONS:
+                    _signal("host", "command.accepted", outcome="queued", requestId=cid, sessionId=self.lease["id"], code=action)
                 return {"id": cid}
             if op == "result":
                 cmd = self.commands.get(request.get("id"))
@@ -328,7 +424,10 @@ class Broker:
                 raise Rejected("boot_required")
             op = request.get("op")
             handoff = None
+            prior_foreground = (self.device.get("feedback", {}).get("foreground")
+                                if self.device and self.device["boot"] == boot else None)
             if op == "hello":
+                first = self.device is None or self.device["boot"] != boot
                 if self.device and self.device["boot"] != boot and (not self.lease or self.lease.get("surface", "native") == "native"):
                     self.revoke("device_restarted")
                 self.device = {"boot": boot, "bundle": request["bundle"],
@@ -336,6 +435,9 @@ class Broker:
                 delivery_id = request.get("deliveryId")
                 if isinstance(delivery_id, str) and re.fullmatch(r'[a-f0-9]{32}', delivery_id):
                     self.device['deliveryId'] = delivery_id
+                if first:
+                    _signal("host", "bridge.registration", outcome="observed", buildId=self.device.get("deliveryId"),
+                            code="native_hello", sourceBootId=hashlib.sha256(boot.encode()).hexdigest()[:16])
             elif not self.device or self.device["boot"] != boot:
                 raise Rejected("hello_required")
             else:
@@ -345,6 +447,10 @@ class Broker:
                 # Objective-C boolean expressions may serialize as NSNumber 0/1.
                 # Normalize only those exact primitive values; metadata is not auth.
                 self.device["feedback"] = {k: bool(feedback[k]) for k in ("foreground", "indicator", "leased") if type(feedback.get(k)) in (bool, int) and feedback[k] in (0, 1)}
+                current_foreground = self.device["feedback"].get("foreground")
+                if current_foreground is not None and current_foreground != prior_foreground:
+                    _signal("host", "bridge.foreground", outcome="visible" if current_foreground else "background",
+                            buildId=self.device.get("deliveryId"), sourceBootId=hashlib.sha256(boot.encode()).hexdigest()[:16])
             if op == 'developer_relay':
                 relay = self.developer_relay
                 if not self.lease or not relay or request.get('lease') != self.lease['id'] or request.get('epoch') != self.epoch or relay.boot != boot or not feedback or not feedback.get('foreground'):
@@ -365,6 +471,13 @@ class Broker:
                     raise Rejected("stale_result")
                 cmd.update(status="completed", result=request.get("result"))
                 result = request.get("result")
+                if cmd["action"] == "state":
+                    self.receive_native_signals(result)
+                elif cmd["action"] not in QUIET_ACTIONS:
+                    error = result.get("error") if isinstance(result, dict) else None
+                    _signal("host", "command.reported", outcome="error" if error else "reported",
+                            requestId=cmd["id"], sessionId=cmd["lease"], code=cmd["action"],
+                            reason=_code(error) if error else None)
                 if cmd["action"] == "tree" and isinstance(result, dict) and "error" not in result:
                     self.native_priority_until = self.clock() + 2.0
                 if cmd["action"] == "wifi" and isinstance(result, dict) and result.get("delivery") == "prepared-shortcut-handoff" and result.get("requested") == cmd["args"]["state"] and "error" not in result:
@@ -403,6 +516,9 @@ class Broker:
                     self.revoke("command_expired")
                     break
                 cmd["status"] = "sent"
+                if cmd["action"] not in QUIET_ACTIONS:
+                    _signal("host", "command.dispatched", outcome="sent", requestId=cmd["id"],
+                            sessionId=cmd["lease"], code=cmd["action"])
                 response["command"] = {k: cmd[k] for k in ("id", "action", "args", "lease", "epoch")}
                 response["command"]["remainingMs"] = int((cmd["deadline"] - self.clock()) * 1000)
                 break

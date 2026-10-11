@@ -9,6 +9,15 @@ import re
 import subprocess
 import sys
 from build_jobs import private_base, status
+try:
+    from signals import emit_signal
+except ImportError:
+    emit_signal = None
+
+def _signal(event, **fields):
+    try:
+        if emit_signal:emit_signal('host', event, **fields)
+    except Exception:pass
 
 
 def prepare(state, job):
@@ -59,6 +68,8 @@ def main():
         value = {'ok': False, 'reason': str(e)}
     except Exception:
         value = {'ok': False, 'reason': 'signed_product_validation_failed'}
+    _signal('delivery.prepared', outcome='verified' if value.get('ok') else 'refused',
+            buildId=value.get('jobId'), deliveryId=value.get('deliveryId'), reason=value.get('reason'))
     print(json.dumps(value))
 
 if __name__ == '__main__': main()

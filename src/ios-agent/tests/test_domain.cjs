@@ -51,3 +51,31 @@ test('replacement registration and late probe completion are fenced', () => {
   assert.deepEqual(registry.snapshot().probe, {httpStatus:200,graphqlReady:true,outcome:'ready',ageMs:0});
   clock += 4000; assert.equal(registry.snapshot().probe.ageMs,4000);
 });
+
+test('signal queue is bounded, metadata-only and no-throw', () => {
+  let publishes = 0;
+  const registry = createDomainRegistry({now: () => 1000, onChange() {publishes++;}});
+  registry.signal('kck.call.started', {outcome: 'accepted', requestId: 'a'.repeat(32),
+    url: 'https://private.example/?token=secret', body: 'secret', reason: 'contains a secret'});
+  assert.deepEqual(registry.signalSnapshot().records[0].fields,
+    {outcome: 'accepted', requestId: 'a'.repeat(32)});
+  registry.signal('bad event', {outcome: 'ignored'});
+  registry.signal('kck.call.ended', Object.defineProperty({}, 'outcome', {enumerable: true, get() {throw Error('bad getter');}}));
+  for (let i = 0; i < 40; i++) registry.signal('kck.call.step', {count: i});
+  const snapshot = registry.signalSnapshot();
+  assert.equal(snapshot.records.length, 32);
+  assert.equal(snapshot.dropped, 9);
+  assert.equal(snapshot.records[0].sequence, 10);
+  assert.equal(snapshot.records.at(-1).fields.count, 39);
+  assert.equal(publishes, 1);
+});
+
+test('Kickoff native signal fields retain static route and operation metadata', () => {
+  const registry = createDomainRegistry({routeNames: ['Welcome', 'ClientCall']});
+  registry.signal('navigation.route_changed', {routeName: 'ClientCall', previousRouteName: 'Welcome',
+    operationName: 'ClientSummary', kind: 'query', fromState: 'inactive', toState: 'active',
+    statusCode: 200, errorCount: 2, pageURL: 'https://private.example/secret'});
+  assert.deepEqual(registry.signalSnapshot().records[0].fields, {
+    routeName: 'ClientCall', previousRouteName: 'Welcome', operationName: 'ClientSummary', kind: 'query',
+    fromState: 'inactive', toState: 'active', statusCode: 200, errorCount: 2});
+});

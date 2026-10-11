@@ -16,7 +16,7 @@ from urllib.parse import urlsplit
 from cli import request
 from dev_runtime import load_config
 from install_runtime import probe, verify_local_backend
-from service import STATE
+from service import STATE, _signal
 
 
 class StackError(RuntimeError):
@@ -188,6 +188,7 @@ def main():
     parser.add_argument('--backend-container', default='default-ki-e3ee9-dev-1')
     parser.add_argument('--timeout', type=int, default=90)
     args = parser.parse_args()
+    _signal('host', 'stack.recovery', outcome='requested')
     if not 5 <= args.timeout <= 120:
         raise StackError('timeout_out_of_bounds')
     if os.environ.get('DOCKER_HOST') or (os.environ.get('DOCKER_CONTEXT') and os.environ['DOCKER_CONTEXT'] != 'desktop-linux'):
@@ -221,8 +222,10 @@ def main():
             raise StackError('configured_checkout_mount_required')
         # An owner may have arrived while Docker was starting. Preserve them.
         require_idle_host(args.state)
-        print(json.dumps(ensure_backend(args.backend_container, args.timeout,
-                                        before_launch=lambda: require_idle_host(args.state))))
+        result = ensure_backend(args.backend_container, args.timeout,
+                                before_launch=lambda: require_idle_host(args.state))
+        _signal('host', 'stack.recovery', outcome='ready', count=len(result['started']))
+        print(json.dumps(result))
     finally:
         os.close(fd)
 
@@ -231,6 +234,9 @@ if __name__ == '__main__':
     try:
         main()
     except Exception as error:
+        reason = str(error) if isinstance(error, StackError) else 'guarded_stack_recovery_failed'
+        _signal('host', 'stack.recovery', outcome='refused' if isinstance(error, StackError) else 'error',
+                reason=reason.split(';', 1)[0])
         print(json.dumps({'backendReady': False, 'failure': str(error) if isinstance(error, StackError) else 'guarded_stack_recovery_failed',
                           'outcome': 'inspect_current_state_before_retry', 'dataReset': False, 'workersStopped': False}))
         raise SystemExit(2)

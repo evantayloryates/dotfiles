@@ -32,6 +32,7 @@ if (bridge && !global.__IOS_AGENT_BRIDGE_STARTED__) {
     diagnostics: telemetry?.snapshot() || {active: false},
     telemetryFixture: fixtureReport,
     domain: domain?.snapshot() || {active: false},
+    iosSignals: domain?.signalSnapshot() || null,
     bundleMarker: require('./runtime-marker'),
     remoteRuntimeConfigured: Boolean(runtime.metroURL),
     logBoxHidden: true,
@@ -41,7 +42,7 @@ if (bridge && !global.__IOS_AGENT_BRIDGE_STARTED__) {
   }));
   telemetry = require('./telemetry').installTelemetry(global, {onChange: publish});
   domain = require('./domain').createDomainRegistry({routeNames: runtime.routeNames, onChange: publish});
-  global.__IOS_AGENT_DOMAIN__ = {registerApollo: domain.registerApollo, registerNavigation: domain.registerNavigation};
+  global.__IOS_AGENT_DOMAIN__ = {registerApollo: domain.registerApollo, registerNavigation: domain.registerNavigation, signal: domain.signal};
   LogBox.ignoreAllLogs(true);
   bridge.hideDeveloperOverlays?.();
   require('./refresh-diagnostics').installRefreshDiagnostics(global, event => bridge.recordRefresh?.(JSON.stringify(event)));

@@ -4,6 +4,7 @@ import argparse
 import fcntl
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -13,9 +14,18 @@ import sys
 import time
 import uuid
 from dev_runtime import load_config
+try:
+    from signals import emit_signal
+except ImportError:
+    emit_signal = None
 
 ROOT=Path(__file__).resolve().parent
 LOCK_ROOT=Path.home()/'Library/Application Support/ios-agent/qualification-locks'
+
+def _signal(event, **fields):
+    try:
+        if emit_signal:emit_signal('host', event, **fields)
+    except Exception:pass
 
 def write(file,value):
     temporary=file.with_suffix('.next')
@@ -117,6 +127,10 @@ def work(base,job_id,lock_fd):
                       executableHash=executable_hash,sourceHashes=evidence.get('sources',{}))
     except Exception as error:result['reason']=type(error).__name__
     finally:
+        seconds = result.get('seconds')
+        _signal('build.terminal', outcome=result['state'], buildId=job_id,
+                deliveryId=result.get('deliveryId'), reason=result.get('reason'),
+                durationMs=round(seconds*1000) if type(seconds) in (int,float) and math.isfinite(seconds) and 0 <= seconds <= 1e7 else None)
         result['finishedAt']=time.time();write(folder/'result.json',result);os.close(lock_fd)
 
 def main():
@@ -132,6 +146,9 @@ def main():
         elif action=='status':result=status(base,query.get('jobId'))
         else:result={'ok':False,'reason':'fixed_build_action_required','actionSent':False}
     except Exception as error:result={'ok':False,'reason':type(error).__name__,'actionSent':False}
+    if action in ('start','retry'):
+        _signal('build.request', outcome='accepted' if result.get('ok') else 'refused',
+                buildId=result.get('jobId'), reason=result.get('reason'), code=action)
     print(json.dumps(result))
 
 if __name__=='__main__':main()
