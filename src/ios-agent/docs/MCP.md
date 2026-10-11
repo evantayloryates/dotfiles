@@ -620,3 +620,15 @@ Document references now use WebKit frame/loader IDs rather than jittering `perfo
 ## Worker-level diagnostics (1.9.23)
 
 `ios_browser_debug op=worker-sources|worker-source|worker-console|worker-profile` requires a fresh `documentRef` and exact `workerId` from `op=workers`. `worker-source` additionally needs its own worker script catalog's `scriptId`; source windows retain the existing bounds. Worker console has a100–3000ms window and may include replayed history. Worker profiling samples JavaScript stacks for100–3000ms and confirms stop/completion; zero samples are valid for quiet work. Provider timestamps can be zero, so this is stack visibility, not elapsed worker CPU. This uses WebKit's worker protocol channel, initializes all discovered workers, resumes unexpected pauses, disables nested domains and detaches. No caller evaluation, service-worker or network-attribution claim. Read ios-agent://browser-debug.
+
+### Paired browser URL delivery (1.9.27)
+When developer-tailnet.json is configured, `ios_web_enroll` with `browser` sends
+the generated private DEV URL directly to Safari or Chrome through the separately
+paired Tailscale developer channel. It activates the selected browser and preserves
+its process. No USB/LAN fallback, sudo, XCTest start or unreliable lock-state query.
+The short exclusive launch reservation is released in finally. Inspect `launch`:
+`ok:true` at the top means enrollment was created, not that URL delivery or page
+readiness passed. Use `ios_web_pages` afterward. Accepted/unknown delivery is never
+replayed. URLs/fragments stay in private launch files/stdin; no arbitrary origin,
+browser bundle, launch option or command is accepted. Full fresh-owner workflow
+qualification awaits safe release of the original explicitly-held XCTest owner.

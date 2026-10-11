@@ -1,4 +1,4 @@
-# Developer services through Tailscale — 1.9.25
+# Developer services through Tailscale — 1.9.27
 
 The native/page bridge remains the routine control path. A separate paired
 userspace RSD tunnel now makes the fixed app launcher, Web Inspector, full-screen
@@ -41,9 +41,15 @@ Do not print pairing records, enrollment URLs or a raw discovery dump.
 - Remote CoreDevice lock-state query returned CoreDeviceError in this experiment.
   This launcher therefore reports lockState unknown. It does not infer a lock
   or disconnected cable, enter a passcode, or retry an unknown dispatch.
-- Browser enrollment URLs, the Lock Screen shortcut and signed build installation
-  still use their existing CoreDevice paths. This increment does not claim to
-  make those provisioning operations remote.
+- Browser enrollment URL delivery now uses this paired lane when configured.
+  `ios_web_enroll browser=ios-safari|ios-chrome` sends the private URL through
+  CoreDevice appservice with a structured payloadURL and fixed browser bundle,
+  activates=true and terminateExisting=false. No Safari-to-Chrome handoff or
+  lock-state preflight is needed. Inspect `launch` and then `ios_web_pages`: an
+  accepted dispatch is not page readiness. Unknown dispatch is never replayed.
+  The URL and fragment stay in private files/stdin, never public summaries.
+- The Lock Screen shortcut and signed build installation retain their existing
+  provisioning path. This increment does not claim to make them remote.
 
 ## Evidence and boundaries
 
@@ -64,3 +70,10 @@ Remote RSD pairing also does not grant an XCTest authorization exemption.
 
 Primary mechanisms: [pymobiledevice3 network stacks](https://doronz88.github.io/pymobiledevice3/guides/network-stacks/),
 [RemoteXPC pairing](https://github.com/doronz88/pymobiledevice3/blob/master/misc/RemoteXPC.md).
+
+Specific-page Safari/Chrome payload delivery passed through the explicit tailnet
+provider under the held original owner. Read-only Inspector target metadata and
+independent WDA foreground identified the intended browser and probe URL. Full
+MCP-owned enrollment under a fresh owner remains a separate post-hold gate.
+A system Watch update alert temporarily covered Safari; its exact observed Dismiss
+button cleared it without changing Watch settings. See browser-launch-physical-2026-10-11.json.

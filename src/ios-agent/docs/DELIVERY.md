@@ -223,3 +223,11 @@ Safari/Chrome positive tiny-button findings passed; background DEV refused befor
 audit start. Browser chrome can appear in results. Low-contrast positive control
 failed, and clipped-text fixture attribution is unproved, so no zero-issue
 accessibility certification is exposed. See ACCESSIBILITY.md.
+
+#### 1.9.27 — paired browser URL delivery
+Specific DEV URLs now reach Safari and Chrome directly over the configured paired
+Tailscale developer lane. Both physical browser destinations and exact probe
+query markers were independently read; no default-browser handoff needed.
+Original XCTest remained active. Three provider-contract checks and four launch/
+enrollment adapter checks passed; existing wrapper coverage passed separately.
+Fresh MCP-owned enrollment and physical off-LAN acceptance remain explicit gates.

@@ -1,0 +1,104 @@
+{
+  "version": "1.9.27",
+  "at": "2026-10-11T09:48:38.036430+00:00",
+  "transport": "tailnet-paired-userspace",
+  "originalXCTestPreserved": true,
+  "proof": {
+    "safariLaunch": {
+      "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/tailnet-provider-1791712022305509000.json",
+      "sha256": "27e805d17b278d6e7512fe0d3c006d1381f899298a193900811999c495783ad1",
+      "summary": {
+        "transport": "tailnet-paired-userspace",
+        "scope": "fixed-dev-browser-launch",
+        "inputSent": true,
+        "foregroundVerified": false
+      }
+    },
+    "safariForeground": {
+      "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-input-1791712042544.json",
+      "sha256": "b6c790a7c6cbe6e2d7283ea2ac80a4701b90b1b0adeda1ff5ed37bb13d38e7b9",
+      "summary": {
+        "bundle": "com.apple.mobilesafari"
+      }
+    },
+    "safariTarget": {
+      "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/tailnet-url-inspect-1791712044683845000.json",
+      "sha256": "5edd812cc0793e78b3fe2fa01271f5148ab3a4c961e6a380767e913439ee986b",
+      "targets": [
+        {
+          "bundle": "com.apple.mobilesafari",
+          "active": 2,
+          "path": "/dev/ios-agent",
+          "probe": [
+            "shipped-safari-1927"
+          ]
+        }
+      ]
+    },
+    "chromeLaunch": {
+      "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/tailnet-provider-1791712060796332000.json",
+      "sha256": "971b064879072056f3f5fd01a50deed786226ded4145336fe222a16a675b648b",
+      "summary": {
+        "transport": "tailnet-paired-userspace",
+        "scope": "fixed-dev-browser-launch",
+        "inputSent": true,
+        "foregroundVerified": false
+      }
+    },
+    "chromeForeground": {
+      "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-input-1791712080909.json",
+      "sha256": "529a88983627914a50e94c0b537157fdcf9f601f427d95b73240877b387106e5",
+      "summary": {
+        "bundle": "com.google.chrome.ios"
+      }
+    },
+    "chromeTarget": {
+      "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/tailnet-url-inspect-1791712083064632000.json",
+      "sha256": "db1326ec0e81f123bf5b4b0860efbe0942ca916c2ee035d554671053e736b31d",
+      "targets": [
+        {
+          "bundle": "com.google.chrome.ios",
+          "active": 2,
+          "path": "/dev/ios-agent",
+          "probe": [
+            "shipped-chrome-1927"
+          ]
+        }
+      ]
+    },
+    "home": {
+      "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-input-1791712096757.json",
+      "sha256": "0e1ac09de2ebefffec3b9c20c074bf6f903dc11c455e9a181a4ef96aa2fe5061",
+      "summary": {
+        "homeConfirmed": true
+      }
+    },
+    "systemAlertRead": {
+      "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-input-1791711916064.json",
+      "sha256": "9c839373b497aa23a1d733d02d586ab1d9cb8726cc53576f024d5b33b48bb745",
+      "summary": {
+        "text": "Update Apple Watch\nTo manage settings on this Apple Watch, make sure it is on the latest version of watchOS.",
+        "buttons": [
+          "Dismiss",
+          "Update"
+        ]
+      }
+    },
+    "systemAlertDismiss": {
+      "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-input-1791711920236.json",
+      "sha256": "20fd24e0a9d651a9f399e547df2c3e8ded9f4df663875b25102fa54589356c13",
+      "summary": {}
+    }
+  },
+  "checks": {
+    "providerContract": 3,
+    "launchEnrollmentAndWrapper": 29
+  },
+  "limits": [
+    "Phone nearby; physical off-LAN acceptance remains open.",
+    "Full MCP-owned fresh-client enrollment waits for the held original owner release.",
+    "Accepted launch is not foreground readiness; separate WDA and Inspector metadata were used.",
+    "System Watch update alert temporarily covered Safari; exact observed Dismiss cleared it, without a Watch update.",
+    "No USB/LAN fallback, remoted suspension, sudo, XCTest restart or arbitrary URL launch."
+  ]
+}

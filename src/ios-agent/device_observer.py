@@ -25,8 +25,10 @@ def owned(r):
 
 async def observe(r):
     r['_phase']='validation'
-    if r.get('kind') not in ('screen','capabilities','browser-debug','resource-profile','fixed-launch','accessibility-audit') or not re.fullmatch(r'[0-9A-Fa-f]{8}-[0-9A-Fa-f]{16}', r.get('serial','')):
+    if r.get('kind') not in ('screen','capabilities','browser-debug','resource-profile','fixed-launch','browser-launch','accessibility-audit') or not re.fullmatch(r'[0-9A-Fa-f]{8}-[0-9A-Fa-f]{16}', r.get('serial','')):
         raise ValueError('fixed_observer_request_required')
+    if r['kind']=='browser-launch':
+        browser_launch_arguments(r)
     if r['kind']=='accessibility-audit':
         from device_accessibility import arguments
         arguments(r.get('audit',{}))
@@ -62,6 +64,8 @@ async def observe(r):
             result.update(scope='fixed-device-launch',target=r['target'],pid=pid,inputSent=True,
                           foregroundVerified=False,replay=False,lockState='unknown',
                           outcome='developer-request-accepted')
+        elif r['kind']=='browser-launch':
+            result.update(await browser_launch(r,rsd))
         elif r['kind'] == 'screen':
             owned(r)
             r['_phase']='dvt_connect'
@@ -94,6 +98,44 @@ async def observe(r):
         owned(r)
         r['_phase']='native_tunnel_close'
         return result
+
+def browser_launch_arguments(r):
+    if r.get('browser') not in ('safari','chrome') or r.get('profile','app') not in ('app','call-rig'):
+        raise ValueError('fixed_browser_launch_required')
+    runtime=Path(r['state'])/'dev-runtime.json'
+    if runtime.is_symlink() or runtime.stat().st_mode & 0o077:
+        raise ValueError('private_dev_origin_required')
+    expected=browser_profile_origin(json.loads(runtime.read_text())['webURL'],r.get('profile','app'))
+    url=r.get('url')
+    if not isinstance(url,str) or len(url)>4096 or any(ord(c)<32 for c in url) or '\\' in url:
+        raise ValueError('fixed_browser_launch_required')
+    u=urlsplit(url)
+    if ((u.scheme,u.hostname,u.port)!=(expected.scheme,expected.hostname,expected.port)
+            or u.username or u.password or not u.path.startswith('/') or u.path.startswith('//')
+            or u.fragment and not re.fullmatch(r'ios-agent=[A-Za-z0-9_-]{43}',u.fragment)):
+        raise ValueError('fixed_browser_launch_required')
+    return url,{'safari':'com.apple.mobilesafari','chrome':'com.google.chrome.ios'}[r['browser']]
+
+async def browser_launch(r,rsd):
+    from pymobiledevice3.remote.core_device.app_service import AppServiceService
+    import plistlib
+    url,bundle=browser_launch_arguments(r)
+    options={'arguments':[],'environmentVariables':{},'standardIOUsesPseudoterminals':True,
+             'startStopped':False,'terminateExisting':False,'activates':True,
+             'user':{'shortName':'mobile'},'platformSpecificOptions':plistlib.dumps({}),
+             'payloadURL':{'relative':url}}
+    r['_phase']='browser_launch_connect'
+    async with AppServiceService(rsd) as service:
+        owned(r);r['_phase']='browser_url_launch';r['_launchSent']='unknown'
+        response=await service.invoke('com.apple.coredevice.feature.launchapplication',{
+            'applicationSpecifier':{'bundleIdentifier':{'_0':bundle}},
+            'options':options,'standardIOIdentifiers':{}})
+        r['_launchSent']=True
+    owned(r)
+    pid=(response.get('processToken') or {}).get('processIdentifier')
+    return {'scope':'fixed-dev-browser-launch','browser':r['browser'],'profile':r.get('profile','app'),
+            'pid':int(pid) if isinstance(pid,int) and not isinstance(pid,bool) and 0<pid<2**31 else None,'inputSent':True,'foregroundVerified':False,
+            'lockState':'unknown','outcome':'developer-request-accepted','replay':False}
 
 def profile_process(row):
     """Keep only known app/browser process metrics; no command lines or identities."""
@@ -213,7 +255,7 @@ def main():
     except Exception as e:
         known={'InvalidServiceError':'developer_service_unavailable','WebInspectorNotEnabledError':'web_inspector_disabled','DeviceNotFoundError':'paired_device_unavailable','UserspaceTunnelUnavailableError':'paired_tunnel_unavailable','TimeoutError':'device_observation_deadline','ConnectionTerminatedError':'developer_connection_lost'}
         code=known.get(type(e).__name__,'device_observation_unavailable')
-        if isinstance(e,ValueError) and str(e) in {'observer_owner_expired','pinned_observer_required','bounded_png_required','private_observer_output_required','fixed_observer_request_required','private_dev_origin_required','fresh_debug_document_required','owned_browser_session_required_for_evaluation','visible_dev_document_required','debug_document_changed','script_not_in_current_document','script_source_unavailable','debug_selector_not_found','bounded_debug_artifact_required','debug_cleanup_unconfirmed','fixed_debug_operation_required','bounded_dom_selector_required','dom_projection_unavailable','owned_debug_session_required_for_heap','bounded_heap_snapshot_required','supported_heap_snapshot_format_required','debug_loader_identity_unavailable','owned_debug_session_required_for_breakpoint','source_fenced_breakpoint_required','bounded_breakpoint_window_required','debug_script_source_changed','breakpoint_install_unconfirmed','debug_unexpected_pause_before_breakpoint','breakpoint_locals_unavailable','private_developer_tailnet_configuration_required','fixed_developer_tailnet_configuration_required','fixed_developer_tailnet_address_required','developer_device_identity_mismatch','developer_transport_already_active','fixed_launch_target_required','fixed_accessibility_arguments_required','foreground_dev_surface_required','accessibility_service_unavailable','accessibility_check_unavailable','accessibility_cleanup_unconfirmed','accessibility_surface_changed','current_debug_worker_required','debug_worker_terminated','script_not_in_current_worker','bounded_worker_debug_required','worker_profile_incomplete'}:code=str(e)
+        if isinstance(e,ValueError) and str(e) in {'observer_owner_expired','pinned_observer_required','bounded_png_required','private_observer_output_required','fixed_observer_request_required','private_dev_origin_required','fresh_debug_document_required','owned_browser_session_required_for_evaluation','visible_dev_document_required','debug_document_changed','script_not_in_current_document','script_source_unavailable','debug_selector_not_found','bounded_debug_artifact_required','debug_cleanup_unconfirmed','fixed_debug_operation_required','bounded_dom_selector_required','dom_projection_unavailable','owned_debug_session_required_for_heap','bounded_heap_snapshot_required','supported_heap_snapshot_format_required','debug_loader_identity_unavailable','owned_debug_session_required_for_breakpoint','source_fenced_breakpoint_required','bounded_breakpoint_window_required','debug_script_source_changed','breakpoint_install_unconfirmed','debug_unexpected_pause_before_breakpoint','breakpoint_locals_unavailable','private_developer_tailnet_configuration_required','fixed_developer_tailnet_configuration_required','fixed_developer_tailnet_address_required','developer_device_identity_mismatch','developer_transport_already_active','fixed_launch_target_required','fixed_browser_launch_required','fixed_accessibility_arguments_required','foreground_dev_surface_required','accessibility_service_unavailable','accessibility_check_unavailable','accessibility_cleanup_unconfirmed','accessibility_surface_changed','current_debug_worker_required','debug_worker_terminated','script_not_in_current_worker','bounded_worker_debug_required','worker_profile_incomplete'}:code=str(e)
         failure_type=type(e).__name__
         diagnostic={**({'auditRequested':True} if r.get('_auditRequested') else {}),**{k:r.get('debug',{}).get(v) for k,v in [('workerCleanup','_workerCleanup'),('breakpointRequested','_breakpointRequested'),('breakpointCleanup','_breakpointCleanup'),('heapSnapshotRequested','_heapSnapshotRequested'),('failedMethod','_failedMethod'),('cleanupFailures','_cleanupFailures'),('receiverFailureType','_receiverFailureType'),('documentChange','_documentChange')] if r.get('debug',{}).get(v)}}
         sent=r.get('_launchSent',('unknown' if r['debug']['_inputDispatched'] else False) if '_inputDispatched' in r.get('debug',{}) else ('unknown' if r.get('debug',{}).get('expression') is not None else False))

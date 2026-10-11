@@ -612,11 +612,29 @@ export class Backend {
     let launch;
     if (browser) {
       const configFile = path.join(this.state, 'web-device.json');
-      if (!fs.existsSync(configFile) || fs.statSync(configFile).mode & 0o077) return {ok:false,reason:'private_web_device_configuration_required',launchFile:a.file,actionSent:false};
+      if (!fs.existsSync(configFile) || fs.lstatSync(configFile).isSymbolicLink() || fs.statSync(configFile).mode & 0o077) return {ok:false,reason:'private_web_device_configuration_required',launchFile:a.file,actionSent:false};
       const device = JSON.parse(fs.readFileSync(configFile,'utf8')).coreDeviceId;
       if (!/^[A-Fa-f0-9-]{36}$/.test(device)) return {ok:false,reason:'configured_device_id_required',actionSent:false};
       const bundle = {'ios-safari':'com.apple.mobilesafari','ios-chrome':'com.google.chrome.ios'}[browser];
       if (!bundle) return {ok:false,reason:'supported_ios_browser_required',actionSent:false};
+      let tailnetConfigured=false;
+      try{fs.lstatSync(path.join(this.state,'developer-tailnet.json'));tailnetConfigured=true;}catch(error){if(error.code!=='ENOENT')throw error;}
+      if(tailnetConfigured){
+        const serial=JSON.parse(fs.readFileSync(configFile,'utf8')).hardwareUDID;
+        if(!/^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{16}$/.test(serial||''))return {ok:false,reason:'configured_device_identity_unconfirmed',launchFile:a.file,actionSent:false};
+        const reservation=await this.begin({surface:'launch'});
+        try{
+          const owner=this.session(reservation.sessionId),receipt=this.artifact(owner,'browser-launch');
+          try{
+            const sourceURL=JSON.parse(fs.readFileSync(a.file,'utf8')).url;
+            const result=await this.run('provider',[],{kind:'browser-launch',browser:browser==='ios-safari'?'safari':'chrome',profile,url:sourceURL,serial,state:this.state,leaseFile:owner.lease,ownerFile:owner.owner,output:receipt.file},26000);
+            this.session(owner.id);
+            if(!result.ok||result.value?.ok!==true||!fs.existsSync(receipt.file))launch={ok:false,outcome:'unknown',reason:result.value?.reason||'developer_launch_unconfirmed',inputSent:result.value?.inputSent??'unknown',replay:false};
+            else launch={ok:true,...safe(JSON.parse(fs.readFileSync(receipt.file,'utf8')).result),replay:false};
+          }finally{fs.rmSync(receipt.file,{force:true});this.artifacts.delete(receipt.id);}
+        }finally{await this.end(reservation.sessionId);}
+        return {ok:true,profile,launchFile:a.file,expiresIn:300,launch,next:'Enrollment was created; inspect launch outcome, then ios_web_pages for actual page readiness. Accepted or unknown URL delivery must not be replayed. The private launch file contains the expiring enrollment fragment; do not log it.'};
+      }
       const preflightFile = path.join(this.observationDirectory(), hex()+'.json');
       let preflight;
       try { preflight = await this.deviceRun(['device','info','lockState','--device',device,'--timeout','12'], {jsonFile:preflightFile,timeout:15000}); }
