@@ -8,6 +8,9 @@ do not prove the installed service lacks them. Refresh the harness connection at
 an idle point, preserving any active owner. Source publication alone cannot
 refresh an existing harness. DELIVERY.md has the short native/browser/system
 workflow table; this document retains the detailed historical changes below.
+The recovery decision card in MOBILE-WEB.md applies to both native and browser
+availability: diagnose host first, wait without control, reuse authenticated
+state, and preserve unknown input/cleanup outcomes.
 
 Protocol references: [MCP stdio transport](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports),
 [tool contract](https://modelcontextprotocol.io/specification/2025-06-18/server/tools),

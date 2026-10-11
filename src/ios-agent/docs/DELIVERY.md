@@ -12,8 +12,10 @@ another owner's work to refresh schemas. See MCP.md for the operating recipes.
 | Safari / Chrome DEV page | web_pages → web_begin → inspect/action/verify | web_end; Home only through an available system route |
 | Page not yet available | wait_ready; nearby fixed device_launch if reachable | No lease held while waiting |
 | Exact observed system permission | End page/app session → system_begin → inspect/action | system_end; require runnerStopped |
-| Deeper browser diagnosis | browser_debug; sources/styles/dom/network/profile | Diagnostic domains stop and detach; content expires |
+| Deeper browser diagnosis | browser_debug; source/styles/dom/network/profile/heap/breakpoint/worker-* | Diagnostic domains stop and detach; content expires |
 | Synthetic audio comparison | audio_probe plan; verify fixture/recording before call | stop probe, release call media, end page session |
+
+For unavailable pages, expired grants or pending cleanup, use the recovery decision card in MOBILE-WEB.md. Read-only host diagnosis is allowed while another connection owns the phone; that does not grant access to its session.
 
 Native installation and Home/relaunch passed; see
 native-delivery-physical-2026-10-10.json. Long-lived harnesses may retain an

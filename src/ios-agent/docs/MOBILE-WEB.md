@@ -9,7 +9,8 @@ through CoreDevice is a provisioning convenience, not the operating transport.
 
 ## MCP workflow
 
-1. `ios_web_enroll`: obtain a private JSON launchFile, never print its URL
+1. `ios_web_pages`: reuse a fresh visible, ready enrolled iPhone page in the intended browser. Do not reenroll a working tab.
+2. Only if no usable enrollment exists, `ios_web_enroll`: obtain a private JSON launchFile, never print its URL
    fragment. Enrollment expires in five minutes and is single-use, origin-bound.
    Pass optional `browser: ios-safari|ios-chrome` to request an idle-only,
    atomically reserved CoreDevice launch on the privately configured device.
@@ -17,7 +18,7 @@ through CoreDevice is a provisioning convenience, not the operating transport.
    `devicectl device process launch --payload-url` can open Safari or Chrome.
    Off-network, an already enrolled browser tab is sufficient for page control;
    an offline/closed browser cannot be remotely launched by this page adapter.
-2. `ios_web_pages`: choose the actual page ID and browser, check visible/ready
+   Then `ios_web_pages`: choose the actual page ID and browser, check visible/ready
    and age. Desktop WebKit is not evidence of a physical iPhone.
 3. `ios_web_begin`: one session per work turn. This acquires the SAME owner
    fence as native input, atomically in the existing broker. A second native or
@@ -39,6 +40,25 @@ through CoreDevice is a provisioning convenience, not the operating transport.
    shared evidence contains only booleans/counts. Lessons require review, never
    execute as instructions. `ios_web_end` confirms host release AND glow off.
    If page feedback is unavailable, cleanup is unconfirmed, not passed.
+
+## Recovery decision card
+
+| Observation | Next action | What it does not prove |
+| --- | --- | --- |
+| Host diagnosis fails | Read `ios_doctor.failedChecks`. Use `ios_stack_ensure` only for a missing supported dependency while idle; inspect an uncertain start before another attempt. | Phone lock, USB state or browser permission. |
+| Host ready; app/page offline | Wait with `ios_wait_ready` for up to55 seconds per call, without a lease. Continue bounded waits while the task is pending. Check an available paired launch route before asking the user. | An offline bridge does not identify why the document is unavailable. |
+| Visible authenticated tab reconnects | Reuse `ios_web_pages`, then acquire a fresh `ios_web_begin`; old snapshots/leases are invalid. | Reconnection does not replay an accepted/unknown action. |
+| Grant expired before enrollment | Inspect pages first. If no usable enrolled tab exists, issue one new grant and open its private launchFile once. | Expired grant does not require resetting the browser or all site data. |
+| End lacks phone feedback | Preserve the unconfirmed cleanup receipt. Wait for fresh feedback; acquire only after the prior owner/cleanup fence allows it. Use `ios_web_pages` for fresh indicator state, or `ios_verify gate=idle` for native/host cleanup. | Host release alone does not establish that the phone acknowledged cleanup. |
+| Exact microphone/Open dialog blocks | Use an available scoped `ios_system_begin` fallback, a fresh native hierarchy and exact observed target; verify the page afterward. | Page DOM/evaluate cannot press a system permission, and paired XCTest is not an off-LAN system-control lane. |
+| Another owner is active | Wait; do not refresh its MCP process, start another runner or take its lease. Read-only host diagnosis remains available. | A stale tool catalog is not a reason to interrupt working control. |
+
+Only ask for the specific human action supported by current evidence: an actual
+Apple authentication gate, physical unlock or cable change when that transport
+is genuinely required. Do not infer any of those from an offline bridge or
+CoreDevice timeout. Nearby developer transport and arbitrary-network page
+control are separate lanes. Real laptop sleep, physical VPN outage and off-site
+foreground launch still require their own acceptance tests.
 
 ## Lifecycle and visibility
 
