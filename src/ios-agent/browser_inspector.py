@@ -7,6 +7,7 @@ from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit
 from browser_heap import MAX_HEAP_BYTES, project_snapshot
 from browser_breakpoint import capture as capture_breakpoint
+from browser_worker import capture as capture_worker
 
 MAX_BYTES = 2 * 1024 * 1024
 
@@ -83,10 +84,10 @@ async def inspect(session, request, target, expected, check):
     request['_inputDispatched']=False
     request['_contextStage']='initial'
     op=request.get('op','overview')
-    allowed={'overview','dom','sources','source','styles','console','trace','network','profile','resources','workers','heap','breakpoint','evaluate'}
+    allowed={'overview','dom','sources','source','styles','console','trace','network','profile','resources','workers','heap','breakpoint','worker-sources','worker-source','worker-console','worker-profile','evaluate'}
     if op not in allowed:raise ValueError('fixed_debug_operation_required')
     reference=request.get('documentRef')
-    if op in ('source','evaluate','heap','breakpoint') and not re.fullmatch('[a-f0-9]{32}',reference or ''):
+    if op in ('source','evaluate','heap','breakpoint','worker-sources','worker-source','worker-console','worker-profile') and not re.fullmatch('[a-f0-9]{32}',reference or ''):
         raise ValueError('fresh_debug_document_required')
     if op=='breakpoint' and request.get('ownedDebugSession') is not True:
         raise ValueError('owned_debug_session_required_for_breakpoint')
@@ -122,6 +123,11 @@ async def inspect(session, request, target, expected, check):
         'targetHash':hashlib.sha256(json.dumps([target.application.bundle,target.application.id_,target.page.id_]).encode()).hexdigest()[:32]},
         'browser':target.application.bundle,'ready':ctx['ready'],'scope':'paired-dev-WebKit-Inspector','userGestureRequested':False,'replay':False}
     if op=='overview':return {**result,'domainsDisabled':True}
+    if op in ('worker-sources','worker-source','worker-console','worker-profile'):
+        result.update(await capture_worker(session,request,command,check,Events,safe_url,ProtocolError))
+        request['_contextStage']='after_operation'
+        await context()
+        return result
     if op=='breakpoint':
         result.update(await capture_breakpoint(session,request,command,context,check,scrub))
         request['_contextStage']='after_operation'

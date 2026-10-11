@@ -229,3 +229,18 @@ This intentionally pauses the target and changes its timing. Do not use it to be
 Protocol sources: [Debugger](https://raw.githubusercontent.com/WebKit/WebKit/main/Source/JavaScriptCore/inspector/protocol/Debugger.json), [Runtime descriptors](https://raw.githubusercontent.com/WebKit/WebKit/main/Source/JavaScriptCore/inspector/protocol/Runtime.json).
 
 Physical Safari and Chrome each hit `agentBreakpointTick` at zero-based line4/column2, read `step`/`nextCount`, removed the breakpoint, confirmed the resumed event, disabled and detached. Independent counters advanced after resume. Safari rejected a deliberately wrong source hash before breakpoint dispatch and still disabled Debugger. See `browser-breakpoint-physical-2026-10-11.json`. These provider proofs are separate from fresh MCP schema/backend checks; the original old-schema XCTest connection was preserved.
+
+## Dedicated worker source and console (1.9.23)
+
+The audio path may execute outside the page's JavaScript context. These operations use WebKit's actual dedicated-worker Inspector channel, rather than pretending page console or network events describe that worker:
+
+1. `ios_browser_debug {browser:"safari",op:"workers",sessionId}`; read `/result/pages/0/debug/workers` for a current exact `workerId` and use the response's `documentRef`.
+2. `op:"worker-sources"` with both references lists that worker's scripts.
+3. `op:"worker-source"` additionally takes an exact catalog `scriptId`, `startLine` and `lineCount` (1–200). It returns a128KiB maximum source window and full-source SHA256.
+4. `op:"worker-console"` captures100–3000ms of worker Console events. Read selected `/result/pages/0/debug/events`; existing console history may replay, so a retained message alone is not proof of a newly executed action.
+
+Only the selected current dedicated worker receives nested Inspector commands. Every worker reported during attach/disable is immediately initialized so it can execute. Unexpected worker debugger pauses are resumed and confirmed; source/console domains and parent Worker subscriptions are disabled before detach, even after owner loss. A terminated worker invalidates its reference and cancels pending commands. Do not retry a stale ID blindly: rediscover workers in the current document. Failure to confirm cleanup fails the operation.
+
+No caller worker evaluation, worker breakpoint, service-worker coverage, audio content capture or worker network attribution. The ordinary2MiB event/capture budgets,1000event ceiling, private artifacts and one-hour expiry apply. Nearby paired Inspector only. Source reads can affect debugger/JIT timing and are separate from resource benchmarks.
+
+[WebKit Worker protocol](https://raw.githubusercontent.com/WebKit/WebKit/main/Source/JavaScriptCore/inspector/protocol/Worker.json)

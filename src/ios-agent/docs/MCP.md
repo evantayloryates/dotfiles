@@ -603,3 +603,7 @@ Document references now use WebKit frame/loader IDs rather than jittering `perfo
 ## One-shot breakpoint investigation (1.9.22)
 
 `ios_browser_debug op=breakpoint` requires the current connection's web/system `sessionId`, fresh `documentRef`, exact `scriptId`, full-source `sourceHash` from `op=source`, and zero-based `lineNumber`/optional `columnNumber`. `sampleMs` bounds waiting to100–3000ms. It captures one stack plus bounded own primitive locals; removes the breakpoint, confirms resume, disables and detaches in the same call. No persistent pause, stepping, caller expression, getter invocation or trusted input. `breakpointHit:false` is a valid no-hit window, not execution proof. `runtimeMutationSent` describes breakpoint dispatch separately from UI input; rejected source/document guards are false and uncertain dispatch remains unknown. Read ios-agent://browser-debug for recipes and physical qualification boundaries.
+
+## Worker-level diagnostics (1.9.23)
+
+`ios_browser_debug op=worker-sources|worker-source|worker-console` requires a fresh `documentRef` and exact `workerId` from `op=workers`. `worker-source` additionally needs its own worker script catalog's `scriptId`; source windows retain the existing bounds. Worker console has a100–3000ms window and may include replayed history. This uses WebKit's worker protocol channel, initializes all discovered workers, resumes unexpected pauses, disables nested domains and detaches. No caller evaluation, service-worker or network-attribution claim. Read ios-agent://browser-debug.
