@@ -1,0 +1,16 @@
+{
+  "observedAt": "2026-10-11T06:21:00Z",
+  "browser": "Chrome iOS26.7.1",
+  "operation": "dom",
+  "transport": "nearby paired WebKit Inspector",
+  "inputSent": false,
+  "owner": "reused active authorized XCTest connection; no second lease",
+  "matchedControls": 24,
+  "truncated": false,
+  "clippedTransportSummary": true,
+  "transportSummaryOpen": false,
+  "nativeAXReportedVisible": true,
+  "domainsDisabled": true,
+  "detached": true,
+  "boundary": "No native input, off-LAN Inspector or Chrome three-transport comparison proof. DOM read exposed real clipping that the native tree missed."
+}

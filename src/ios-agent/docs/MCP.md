@@ -541,6 +541,11 @@ Opt-in `ios_capture modes=["network"]` now reads a clone of React Native buffere
 
 ## Synthetic audio probes (1.9.12)
 
+The 1.9.13 Inspector adds `ios_browser_debug op=dom`: bounded read-only controls,
+ancestor clipping and DOM hit points. It can reuse an active system fallback
+session without ending XCTest. See BROWSER-DEBUG.md and the separate physical
+Chrome receipt. It does not qualify native delivery or off-LAN Inspector.
+
 `ios_audio_probe` exposes fixed plan/select/run/read/stop operations for an owned
 physical mobile call-rig page. Read `ios-agent://audio-probe` for recording-off
 fixture prerequisites, receiver startup, interpretation and cleanup. This is

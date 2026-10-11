@@ -95,6 +95,27 @@ class InspectorTests(unittest.IsolatedAsyncioTestCase):
         r=await self.run_debug({'op':'styles','selector':'#fixture'})
         self.assertIn('matched',r);self.assertIn('computed',r);self.assertIn('inline',r)
         self.assertNotIn('CSS.enable',[method for method,_ in self.s.calls]);self.assertFalse(r['styleEventsSubscribed']);self.assertTrue(r['domainsDisabled'])
+    async def test_fixed_dom_read_needs_no_page_input_and_fences_navigation(self):
+        original=self.s.send_command
+        async def send(method,**args):
+            if method=='Runtime.evaluate' and 'originMatches' not in args['expression']:
+                self.assertFalse(args['userGesture']);self.assertNotIn('__SELECTOR__',args['expression'])
+                self.assertIn('elementFromPoint',args['expression'])
+                return {'result':{'value':{'items':[{'label':'probe','visible':False,'clipped':True}],'matchedCount':1}}}
+            return await original(method,**args)
+        self.s.send_command=send;self.s.owned=False
+        r=await self.run_debug({'op':'dom','selector':'summary'})
+        self.assertFalse(r.get('userGestureRequested'));self.assertTrue(r['domainsDisabled'])
+        self.assertFalse(r['dom']['items'][0]['visible']);self.assertEqual(self.s.response_methods,{})
+        with self.assertRaisesRegex(ValueError,'bounded_dom_selector_required'):
+            await self.run_debug({'op':'dom','selector':'x'*301})
+        async def changing(method,**args):
+            result=await send(method,**args)
+            if method=='Runtime.evaluate' and 'originMatches' not in args['expression']:self.s.changed=True
+            return result
+        self.s.send_command=changing
+        with self.assertRaisesRegex(ValueError,'debug_document_changed'):
+            await self.run_debug({'op':'dom','documentRef':r['documentRef']})
     async def test_trace_stops_and_counts_final_events_and_never_requests_user_gesture(self):
         r=await self.run_debug({'op':'trace','sampleMs':100})
         self.assertTrue(r['timelineStopped']);self.assertTrue(r['domainsDisabled']);self.assertEqual(r['eventCount'],2)

@@ -3,6 +3,7 @@ import asyncio
 import hashlib
 import json
 import re
+from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit
 
 MAX_BYTES = 2 * 1024 * 1024
@@ -71,7 +72,7 @@ async def inspect(session, request, target, expected, check):
     request['_inputDispatched']=False
     request['_contextStage']='initial'
     op=request.get('op','overview')
-    allowed={'overview','sources','source','styles','console','trace','network','profile','evaluate'}
+    allowed={'overview','dom','sources','source','styles','console','trace','network','profile','evaluate'}
     if op not in allowed:raise ValueError('fixed_debug_operation_required')
     reference=request.get('documentRef')
     if op in ('source','evaluate') and not re.fullmatch('[a-f0-9]{32}',reference or ''):
@@ -138,6 +139,18 @@ async def inspect(session, request, target, expected, check):
                 text='\n'.join(lines[start:start+count]);encoded=text.encode();cut=len(encoded)>131072
                 result['source']={'scriptId':script_id,'startLine':start,'lineCount':min(count,max(0,len(lines)-start)),'totalLines':len(lines),'text':encoded[:131072].decode(errors='replace'),'truncated':cut,'sha256':hashlib.sha256(source.encode()).hexdigest()}
             result['scriptCount']=len(scripts)
+        elif op=='dom':
+            # A fixed projection supplements native AX visibility with actual
+            # ancestor clipping and DOM hit testing. Never executes caller JS.
+            selector=request.get('selector')
+            if selector is not None and (not isinstance(selector,str) or not 1<=len(selector)<=300):
+                raise ValueError('bounded_dom_selector_required')
+            expression=Path(__file__).with_name('browser_dom.js').read_text().replace('__SELECTOR__',json.dumps(selector))
+            check();data=await command(session,'Runtime.evaluate',expression=expression,returnByValue=True,userGesture=False,doNotPauseOnExceptionsAndMuteConsole=True)
+            value=data.get('result',{}).get('value')
+            if not isinstance(value,dict) or not isinstance(value.get('items'),list):
+                raise ValueError('dom_projection_unavailable')
+            result['dom']=scrub(value)
         elif op=='styles':
             check();doc=await command(session,'DOM.getDocument')
             check();node=await command(session,'DOM.querySelector',nodeId=doc['root']['nodeId'],selector=request['selector'])

@@ -140,3 +140,19 @@ are preserved. Physical Safari and Chrome qualification passed: 47/48 stacks, 45
 Inspector tests and five MCP debugger tests pass.
 
 Protocol: https://raw.githubusercontent.com/WebKit/WebKit/main/Source/JavaScriptCore/inspector/protocol/ScriptProfiler.json
+
+## Rendered controls alongside native accessibility
+
+`ios_browser_debug browser=chrome op=dom profile=call-rig` reads up to 200
+controls through a fixed read-only projection. An optional CSS selector narrows
+the result. Each control includes its label, value, options, rectangle, ancestor
+clipping and a DOM hit test at its visible center. Password/credential fields
+are redacted. Content remains in the expiring private artifact; read only the
+needed items. No caller JavaScript or input is dispatched by this operation.
+
+This is useful during a system fallback: pass that same system sessionId to
+reuse its owner while inspecting the active DEV page. It neither acquires a
+second owner nor releases the signed runner. Native AX can mark a clipped
+WebKit control visible even when its reported center lands on other content.
+Do not treat that AX flag, DOM hit test or delivered tap as a verified effect.
+Nearby Inspector remains separate from network-only page operation.
