@@ -576,8 +576,8 @@ Safari replaces its address field when opening the keyboard. Use `ios_system_act
 The separate runner-lifetime reservation remains experimental and absent from the default catalog. The Safari one-shot extension experiment was not integrated: it created a tab but did not foreground Safari from Home, so it does not solve off-site launch.
 
 
-## Device orientation (1.9.18 candidate)
+## Device orientation (published1.9.18)
 
 `ios_system_action {sessionId,action:"orientation",orientation:"portrait"}` requests one fixed orientation and reads provider state. `landscape` is also allowed. Inspect actual layout separately; this is not orientation lock. Physical Chrome recovered a clipped Join button, then joined through a fresh exact native target query. Unknown input is never replayed; all existing owner/lock/app-scope guards apply. See NATIVE-INPUT.md and system-orientation-physical-2026-10-11.json.
 
-1.9.18 candidate adds explicit portrait/landscape recovery with provider readback, plus exact-label anchored scrolling for nested native/browser panes. Both physically exercised without restarting the held runner. Native web taps require independent DOM clipping/hit-test review; AX visibility can be misleading. 25 focused driver/schema/backend checks pass.
+Published1.9.18 adds explicit portrait/landscape recovery with provider readback, plus exact-label anchored scrolling for nested native/browser panes. Both physically exercised without restarting the held runner. Native web taps require independent DOM clipping/hit-test review; AX visibility can be misleading. 25 focused driver/schema/backend checks pass.

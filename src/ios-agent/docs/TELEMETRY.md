@@ -124,3 +124,9 @@ newer host-only changes. That earlier bounded code-verification pass did not acc
 React Native whatwg-fetch stores responses in a buffered Blob rather than a ReadableStream. Opt-in rich capture now uses a cancellable FileReader only when that actual Blob reports at most32768 bytes; a Content-Length header never authorizes the read. It reads a clone, preserves the caller response, scrubs known fields and aborts its reader on capture stop or lease release. Unknown/oversize blobs retain bodyUnavailable. The ordinary metadata mode is unchanged.
 
 Four focused capture checks passed. Physical native GraphQL body capture and all ten HTTP/error fixture checks passed with capture active; XHR200/404/500/status0 and existing WebSocket send were observed. Capture stopped and idle/glow-off passed. See native-buffered-capture-2026-10-11.json. Publication is verified separately.
+
+## Installed crash-reporter composition
+
+The actual installed Bugsnag global-error plugin was composed with our telemetry wrapper in an isolated ErrorUtils runtime and dummy client. Reporter-first and observer-first ordering both forwarded the identical error/fatal flag once, even with an observer that throws. Disposal stopped telemetry while preserving the reporter chain. No phone crash or external report was induced; this is source-composition proof, separate from device fatal-crash or network-delivery proof. See `native-installed-crash-chain-2026-10-11.json`.
+
+To repeat only after handler changes: `node tests/probe-installed-crash-chain.cjs /path/to/mobile/node_modules/@bugsnag/plugin-react-native-global-error-handler/error-handler.js`.

@@ -1,0 +1,45 @@
+{
+  "ok": true,
+  "scope": "installed Bugsnag plugin with isolated ErrorUtils and dummy client; no app crash or external delivery",
+  "pluginSourceSha256": "1753a951cb725158fb16f0355ee7f18a4b3efb2da0bc6233c7527f9999682908",
+  "cases": [
+    {
+      "order": "reporter-first",
+      "failObserver": false,
+      "reporterOnce": true,
+      "originalForwardedOnce": true,
+      "sameError": true,
+      "fatalPreserved": true,
+      "disposedObserverSilent": true
+    },
+    {
+      "order": "reporter-first",
+      "failObserver": true,
+      "reporterOnce": true,
+      "originalForwardedOnce": true,
+      "sameError": true,
+      "fatalPreserved": true,
+      "disposedObserverSilent": true
+    },
+    {
+      "order": "observer-first",
+      "failObserver": false,
+      "reporterOnce": true,
+      "originalForwardedOnce": true,
+      "sameError": true,
+      "fatalPreserved": true,
+      "disposedObserverSilent": true
+    },
+    {
+      "order": "observer-first",
+      "failObserver": true,
+      "reporterOnce": true,
+      "originalForwardedOnce": true,
+      "sameError": true,
+      "fatalPreserved": true,
+      "disposedObserverSilent": true
+    }
+  ],
+  "date": "2026-10-11",
+  "boundary": "Actual installed plugin source, isolated controlled runtime/dummy client. Does not prove a device fatal crash or real Bugsnag network delivery. Both install orders and diagnostic observer failure preserve forwarding and disposal."
+}
