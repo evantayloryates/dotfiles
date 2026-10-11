@@ -1,7 +1,7 @@
 # Agent operating contract — installed personal development service
 
 MCP follow-on: `/Users/taylor/dotfiles/bin/ios-agent-mcp` exposes the fixed CLI
-through 31 tools and five resources in the current v1.5 source. A long-lived
+through 31 tools and five resources in the current v1.6.2 source. A long-lived
 harness may retain its earlier tool inventory until that connection refreshes. `ios_guide` → `ios_doctor` → `ios_begin` → inspect/act/verify
 → `ios_end` manages lease/evidence paths and independently confirms cleanup.
 See MCP.md for shared operational learning and per-harness lifecycle boundaries.
@@ -143,3 +143,23 @@ or lost lease. Its private runner log rolls over at 1 MiB.
 `ios_device_inspect kind=resource-profile` adds three bounded process CPU/memory
 samples through the pinned paired provider. Missing metrics stay null; shared
 WebContent is not page attribution and CPU is raw provider units.
+
+## Latest bounded browser/system qualification
+
+Physical Safari and Chrome microphone permission recovery passed without Mirroring.
+Chrome required enabling its iOS Microphone switch and accepting the exact DEV-host
+prompt; live native label targeting and nested SwiftUI toggle resolution are in MCP.
+The ordinary Chrome page driver then saved four disabled-microphone-source AAC
+chunks, decoded successfully, preserved the source, and stopped it during explicit
+fixture cleanup. Page glow-off and native runner PID cleanup passed.
+
+Intentional XCTest exit previously triggered Xcode failure diagnostics, leaving
+`devicectl diagnose` and `sudo true` authentication prompts. The signed runner now
+uses `-collect-test-diagnostics never`; physical exit produced neither a new
+diagnostic process nor a sudo probe. Routine iOS MCP operation needs no root.
+The optional one-hour sudo cache is independent development configuration.
+
+These results do not qualify actual call audio, native raw audio, arbitrary-network
+runner startup, universal passcode-free authorization, or browser off-LAN updates.
+See annotation-chrome-permission-wda-2026-10-10.json and
+annotation-sudo-diagnostics-2026-10-10.json for the dated gates.
