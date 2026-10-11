@@ -28,7 +28,7 @@ var __iosCreateCapture = (() => {
     const readers=new Set(),pendingAudio=new Set();
     const size=value=>JSON.stringify(value).length*2;
     const status=()=>({active:!!active,id:active?.id||null,modes:active?.modes||[],remainingMs:active?Math.max(0,active.until-now()):0,bufferedEvents:events.length,bufferedBytes:bytes,dropped,sequence,
-      coverage:{network:'fetch text bodies and XHR text; WebSocket send and new socket receive; streams/binary bodies not consumed',audio:'existing live audio tracks only; no microphone acquisition; recorder clones stopped, app tracks preserved'}});
+      coverage:{network:'fetch text streams and bounded native blobs; XHR text; WebSocket send and new socket receive; original app bodies preserved',audio:'existing live audio tracks only; no microphone acquisition; recorder clones stopped, app tracks preserved'}});
     const append=(kind,value,epoch=generation)=>{
       try {
       if(!active||epoch!==generation||!active.modes.includes(kind))return;
@@ -67,7 +67,22 @@ var __iosCreateCapture = (() => {
         if(!/(json|text|xml|javascript|form-urlencoded)/i.test(type))return;
         if(!active||epoch!==generation)return;
         const copy=response.clone();reader=copy.body?.getReader?.();
-        if(!reader){append('network',{...base,bodyUnavailable:'bounded_stream_reader_unavailable'},epoch);return;}
+        if(!reader){
+          // React Native's whatwg-fetch has already buffered a Blob. Inspect
+          // its actual byte size, never a server-supplied Content-Length.
+          const blob=copy._bodyBlob;
+          if(!blob||!Number.isInteger(blob.size)||blob.size<0||blob.size>32768||typeof runtime.FileReader!=='function'){
+            append('network',{...base,bodyUnavailable:'bounded_stream_reader_unavailable'},epoch);return;
+          }
+          const file=new runtime.FileReader();reader={cancel:async()=>file.abort()};readers.add(reader);
+          const text=await new Promise((resolve,reject)=>{
+            file.onload=()=>resolve(file.result);file.onerror=()=>reject(new Error('blob_read_failed'));
+            file.onabort=()=>reject(new Error('blob_read_cancelled'));file.readAsText(blob);
+          });
+          if(typeof text!=='string')throw new Error('blob_text_required');
+          let body=text;try{body=JSON.parse(text);}catch{}
+          append('network',{...base,body:sanitize(body),truncated:false,bodyReader:'bounded-native-blob'},epoch);return;
+        }
         readers.add(reader);const decoder=new runtime.TextDecoder();let text='',n=0,truncated=false;
         while(n<32768){const part=await reader.read();if(part.done)break;const take=part.value.subarray(0,32768-n);n+=take.byteLength;text+=decoder.decode(take,{stream:true});if(take.length<part.value.length||n>=32768){truncated=true;break;}}
         text+=decoder.decode();void reader.cancel().catch(()=>{});

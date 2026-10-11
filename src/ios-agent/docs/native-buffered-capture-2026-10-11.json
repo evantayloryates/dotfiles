@@ -1,0 +1,63 @@
+{
+  "at": "2026-10-11T05:23:53.557175+00:00",
+  "version": "1.9.11",
+  "scope": "Installed iPhone Hermes adapter after one scheduled JS reload; opted-in native network capture; nearby Wi-Fi/Tailscale, USB connected",
+  "sourceSha256": "47c8076f73658b47c9b4a6087baedc079247bd9c804bb8cb9e951e400175e1b3",
+  "positiveGraphQL": {
+    "callerProbeReady": true,
+    "bodyCaptured": true,
+    "xhrResponse200": true,
+    "existingWebSocketSendObserved": true
+  },
+  "matrix": {
+    "scope": "isolated-adapter-with-device-global-fetch",
+    "checks": {
+      "http404": true,
+      "isolatedHandlerRestored": true,
+      "historyCleared": true,
+      "timeout": true,
+      "cancellation": true,
+      "http500": true,
+      "http200": true,
+      "lateResultFenced": true,
+      "appHandlerUntouched": true,
+      "syntheticHandlerForwarded": true
+    },
+    "passed": true
+  },
+  "cleanup": {
+    "version": 1,
+    "gate": "idle",
+    "status": "passed",
+    "attempts": 1,
+    "elapsedMs": 0,
+    "observation": {
+      "hostIdle": true,
+      "deviceFeedbackKnown": true,
+      "nativeLeaseOff": true,
+      "nativeIndicatorOff": true
+    }
+  },
+  "hostChecks": {
+    "focusedCaptureTests": 4
+  },
+  "limits": [
+    "New socket receive not physically qualified in this native batch.",
+    "Actual installed crash-reporter invocation not exercised; isolated sentinel forwarding and installed handler identity preservation passed.",
+    "Native blob fallback only reads known actual buffers at most32768 bytes and aborts its own FileReader on stop; unknown/oversize remains bodyUnavailable.",
+    "Home handoff prepared; no independent Home screenshot in this batch."
+  ],
+  "captureSummary": {
+    "events": 26,
+    "xhrStatuses": {
+      "200": 2,
+      "404": 1,
+      "500": 1,
+      "0": 1
+    },
+    "bufferedBodies": 4,
+    "fetchErrors": 2,
+    "stopped": true
+  },
+  "passed": true
+}

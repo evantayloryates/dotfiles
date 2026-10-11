@@ -26,3 +26,15 @@ test('audio chunks stay in private files; retention removes artifacts, not arbit
  store.prune(Date.now()+601000);assert(!fs.existsSync(saved.file));
  }finally{fs.rmSync(state,{recursive:true,force:true});}
 });
+
+test('native buffered blob capture uses actual size, preserves caller response and aborts on release',async()=>{
+ const r=runtime();let reads=0,aborts=0,pending;
+ r.FileReader=class{readAsText(blob){reads++;pending=this;if(blob.text!=='pending'){this.result=blob.text;queueMicrotask(()=>this.onload());}}abort(){aborts++;this.onabort?.();}};
+ const response={headers:new Headers({'content-type':'application/json','content-length':'1'}),clone(){return {_bodyBlob:this.blob};},blob:{size:32,text:'{"answer":42,"token":"abcdefghijklmnop"}'}};
+ r.fetch=async()=>response;const original=r.fetch,c=create(r);c.start({id:'d'.repeat(32),modes:['network'],seconds:10});
+ assert.equal(await r.fetch('https://dev.test/fixture'),response);await new Promise(x=>setTimeout(x,0));
+ let events=c.drain().events;const body=events.find(x=>x.bodyReader==='bounded-native-blob');assert.equal(body.body.answer,42);assert.equal(body.body.token,'abcd…mnop');assert.equal(reads,1);
+ response.blob={size:32769,text:'not read'};await r.fetch('https://dev.test/oversize');await new Promise(x=>setTimeout(x,0));assert.equal(reads,1);assert(c.drain().events.some(x=>x.bodyUnavailable));
+ response.blob={size:7,text:'pending'};await r.fetch('https://dev.test/pending');await c.stop(true);assert(aborts>=2);assert.equal(r.fetch,original);assert.equal(c.status().bufferedEvents,0);
+ pending.result='late';pending.onload();await new Promise(x=>setTimeout(x,0));assert.equal(c.status().bufferedEvents,0);
+});

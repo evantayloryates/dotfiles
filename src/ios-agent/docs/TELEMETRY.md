@@ -118,3 +118,9 @@ adapter. Do not add arbitrary URL or eval control to pass missing coverage.
 For every physical result record the exact adapter/bundle fingerprint, current
 transport, assertions and cleanup. Keep older installed results separate from
 newer host-only changes. That earlier bounded code-verification pass did not access a physical phone. Later physical global-fetch matrix and the newest unplugged GraphQL gate passed; the actual crash-reporter chain remains outside the isolated sentinel-handler scope.
+
+## Explicit native response bodies —1.9.11
+
+React Native whatwg-fetch stores responses in a buffered Blob rather than a ReadableStream. Opt-in rich capture now uses a cancellable FileReader only when that actual Blob reports at most32768 bytes; a Content-Length header never authorizes the read. It reads a clone, preserves the caller response, scrubs known fields and aborts its reader on capture stop or lease release. Unknown/oversize blobs retain bodyUnavailable. The ordinary metadata mode is unchanged.
+
+Four focused capture checks passed. Physical native GraphQL body capture and all ten HTTP/error fixture checks passed with capture active; XHR200/404/500/status0 and existing WebSocket send were observed. Capture stopped and idle/glow-off passed. See native-buffered-capture-2026-10-11.json. Publication is verified separately.

@@ -530,3 +530,11 @@ reports `physical_unlock_required`; generic startup/transport failures and
 XCTest passcode authorization remain separate and unconfirmed until observed.
 
 Version 1.9.9 also adds `ios_browser_debug op=network`, using the same private bounded Inspector lifecycle. Request/response/cache/timing/protocol/failure events are available when supplied by WebKit; response bodies are not fetched. Physical Safari and Chrome passed with nine and sixteen retained events, zero drops, disabled domains, detached Inspector and glow off. Known token/cookie fields were scrubbed. Provider timestamps can be zero or negative; do not treat them as calibrated latency. Thirteen Python Inspector checks and five MCP debugger checks pass. See browser-network-physical-2026-10-11.json.
+
+###1.9.10: browser JavaScript stacks
+
+`ios_browser_debug op=profile browser=safari|chrome sampleMs=1000` captures bounded ScriptProfiler stacks. Physical Safari47/Chrome48 samples passed with stop, completion, detach and glow cleanup. All physical sample timestamps were zero: use code attribution and counts, not time-based flame charts. Detailed stacks remain in private one-hour artifacts.
+
+###1.9.11: native buffered response bodies
+
+Opt-in `ios_capture modes=["network"]` now reads a clone of React Native buffered text/JSON blobs only when their actual size is at most32768 bytes. Own FileReaders abort on capture stop/release. Physical GraphQL body capture and ten caller/HTTP/error checks passed; native XHR200/404/500/status0 and existing WebSocket send were observed. Unknown/oversize bodies remain explicitly unavailable.
