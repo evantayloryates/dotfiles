@@ -1,5 +1,14 @@
 # iOS agent MCP — shared service interface and operational learning
 
+Current interface: **36 tools / ten resources**. `ios_guide.interface` identifies
+the process answering this connection. `/Users/taylor/dotfiles/bin/ios-agent-mcp
+--catalog` reads the installed catalog without host/phone access. A missing
+`interface` means the connected process predates this check; absent new tools
+do not prove the installed service lacks them. Refresh the harness connection at
+an idle point, preserving any active owner. Source publication alone cannot
+refresh an existing harness. DELIVERY.md has the short native/browser/system
+workflow table; this document retains the detailed historical changes below.
+
 Protocol references: [MCP stdio transport](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports),
 [tool contract](https://modelcontextprotocol.io/specification/2025-06-18/server/tools),
 [Codex registration](https://learn.chatgpt.com/docs/extend/mcp?surface=cli).

@@ -362,3 +362,19 @@ test('native-only diagnostic begin keeps failed JS startup separate from readine
   }finally{await client.close();await f.backend.close();await server.close();fs.rmSync(f.state,{recursive:true,force:true});}
  }
 });
+
+test('guide identifies the actual connected catalog without phone acquisition', async () => {
+  const backend={guide:async()=>({workflow:['ios_begin','ios_end']}),cancel:async()=>{throw Error('unexpected cancel')}};
+  const {server,catalog}=createServer(backend);
+  const [ct,st]=InMemoryTransport.createLinkedPair();await server.connect(st);
+  const client=new Client({name:'catalog-smoke',version:'1'});await client.connect(ct);
+  try {
+    const guide=(await client.callTool({name:'ios_guide',arguments:{}})).structuredContent;
+    const tools=(await client.listTools()).tools.map(t=>t.name);
+    const resources=(await client.listResources()).resources.map(r=>r.uri);
+    assert.deepEqual(guide.interface.tools,tools);assert.deepEqual(guide.interface.resources,resources);
+    assert.equal(guide.interface.version,client.getServerVersion().version);
+    assert.equal(guide.interface.toolCount,tools.length);assert.equal(guide.interface.resourceCount,resources.length);
+    assert.deepEqual(catalog(),guide.interface);assert.match(guide.connectionNote,/does not upgrade/);
+  } finally {await client.close();await server.close()}
+});

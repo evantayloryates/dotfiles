@@ -1,12 +1,23 @@
 # Agent operating contract — installed personal development service
 
-MCP follow-on: `/Users/taylor/dotfiles/bin/ios-agent-mcp` exposes 36 tools and
-nine resources in v1.9.0 source. Published v1.8.1 qualified signed build
-preparation and physical Safari source/CSS/console/passive-timeline reads. Native
-installation and Home/relaunch passed; see native-delivery-physical-2026-10-10.json. Long-lived harnesses
-may retain an earlier catalog until their MCP connection refreshes.
-`ios_guide` → `ios_doctor` → `ios_begin` → inspect/act/verify → `ios_end`.
-See MCP.md for shared operational learning and per-harness lifecycle boundaries.
+Start with `ios_guide`. Its `interface` reports this connection's version,
+36 tools and ten resources. Compare `/Users/taylor/dotfiles/bin/ios-agent-mcp
+--catalog` for installed source without acquiring the phone. A guide without
+`interface` is an older connection. Refresh only at an idle point; never kill
+another owner's work to refresh schemas. See MCP.md for the operating recipes.
+
+| Task | First useful operations | Cleanup |
+| --- | --- | --- |
+| Native DEV app | doctor → begin → native/react → verify | native Home → end |
+| Safari / Chrome DEV page | web_pages → web_begin → inspect/action/verify | web_end; Home only through an available system route |
+| Page not yet available | wait_ready; nearby fixed device_launch if reachable | No lease held while waiting |
+| Exact observed system permission | End page/app session → system_begin → inspect/action | system_end; require runnerStopped |
+| Deeper browser diagnosis | browser_debug; sources/styles/dom/network/profile | Diagnostic domains stop and detach; content expires |
+| Synthetic audio comparison | audio_probe plan; verify fixture/recording before call | stop probe, release call media, end page session |
+
+Native installation and Home/relaunch passed; see
+native-delivery-physical-2026-10-10.json. Long-lived harnesses may retain an
+earlier catalog until their own MCP connection refreshes.
 
 Use `/Users/taylor/dotfiles/bin/ios-agent`. App integration is isolated on
 `ety/local-dev-foundation`. The dedicated Debug app is `com.dev.kudos.fit`.
