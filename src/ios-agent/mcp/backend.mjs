@@ -18,7 +18,7 @@ import {claudeTurnOwner,sameClaudeTurn} from './claude-lifecycle.mjs';
 import {waitNativeElement} from './native-condition.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/input-schemas.mjs', 'mcp/native-selector.mjs', 'mcp/owner-context.mjs', 'mcp/claude-lifecycle.mjs', 'claude-begin-hook.mjs', 'mcp/native-condition.mjs', 'mcp/system-driver.mjs', 'mcp/system-reservation.mjs', 'system_runner.py', 'system_reservation.py', 'mcp/capture-store.mjs', 'web/rich-capture.js', 'ready_wait.py', 'mcp/media-verification.mjs', 'mcp/call-verification.mjs', 'mcp/web-profiles.mjs', 'mcp/workflows.mjs', 'fixture_jobs.py', 'build_jobs.py', 'build_app.py', 'native_delivery.py', 'mcp/native-delivery.mjs', 'tests/run_fixture.py', 'paired_workflow.py', 'health.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'device_foreground.py', 'paired_transport.py','device_accessibility.py', 'browser_inspector.py', 'browser_dom.js', 'browser_heap.py','browser_breakpoint.py','browser_worker.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
+const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/input-schemas.mjs', 'mcp/native-selector.mjs', 'mcp/owner-context.mjs', 'mcp/claude-lifecycle.mjs', 'claude-begin-hook.mjs', 'mcp/native-condition.mjs', 'mcp/system-driver.mjs', 'mcp/system-reservation.mjs', 'system_runner.py', 'system_reservation.py', 'mcp/capture-store.mjs', 'web/rich-capture.js', 'ready_wait.py', 'mcp/media-verification.mjs', 'mcp/call-verification.mjs', 'mcp/web-profiles.mjs', 'mcp/workflows.mjs', 'fixture_jobs.py', 'build_jobs.py', 'build_app.py', 'native_delivery.py', 'mcp/native-delivery.mjs', 'tests/run_fixture.py', 'paired_workflow.py', 'health.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'device_foreground.py','device_ax_native.py', 'paired_transport.py','device_accessibility.py', 'browser_inspector.py', 'browser_dom.js', 'browser_heap.py','browser_breakpoint.py','browser_worker.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
   .map(file => fs.readFileSync(path.join(root, file))).map(bytes => createHash('sha256').update(bytes).digest('hex')).join(':')).digest('hex');
 export const defaultState = path.join(os.homedir(), 'Library/Application Support/ios-agent');
 const idleLimit = 20 * 60 * 1000;
@@ -538,6 +538,25 @@ export class Backend {
         foregroundVerified:false,transport:'paired-developer-channel',offLANQualified:false,
         next:target==='kickoff-dev'?'Wait for native readiness, then ios_begin. Request acceptance is not foreground readiness.':'Inspect the full phone screen independently. Settings navigation still requires a system input provider.'};
     } finally {await this.end(reservation.sessionId);}
+  }
+  async nativeAXTab({tab}={}) {
+    if(process.env.IOS_AGENT_EXPERIMENTAL_AX!=='1')return {ok:false,reason:'experimental_ax_disabled',inputSent:false};
+    if(!['home','workouts','nutrition','invite'].includes(tab))return {ok:false,reason:'fixed_ax_native_tab_required',inputSent:false};
+    const reservation=await this.begin({surface:'launch'});
+    try {
+      const file=path.join(this.state,'web-device.json');
+      if(!fs.existsSync(file)||fs.lstatSync(file).isSymbolicLink()||fs.statSync(file).mode&0o077)return {ok:false,reason:'private_web_device_configuration_required',inputSent:false};
+      if(!fs.existsSync(path.join(this.state,'developer-tailnet.json')))return {ok:false,reason:'paired_tailnet_configuration_required',inputSent:false};
+      const serial=JSON.parse(fs.readFileSync(file,'utf8')).hardwareUDID;
+      if(!/^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{16}$/.test(serial||''))return {ok:false,reason:'configured_device_identity_unconfirmed',inputSent:false};
+      const owner=this.session(reservation.sessionId),artifact=this.artifact(owner,'native-ax');
+      try {
+        const result=await this.run('provider',[],{kind:'ax-native-tab',axTab:tab,experimentalAX:true,serial,state:this.state,leaseFile:owner.lease,ownerFile:owner.owner,output:artifact.file},26000);
+        this.session(owner.id);
+        if(!result.ok||result.value?.ok!==true||!fs.existsSync(artifact.file))return {ok:false,reason:result.value?.reason||'native_ax_unconfirmed',inputSent:result.value?.inputSent??'unknown',replay:false};
+        return {ok:true,...safe(JSON.parse(fs.readFileSync(artifact.file,'utf8')).result),replay:false};
+      }finally{fs.rmSync(artifact.file,{force:true});this.artifacts.delete(artifact.id);}
+    }finally{await this.end(reservation.sessionId);}
   }
   async deviceHome() {
     const reservation=await this.begin({surface:'launch'});
