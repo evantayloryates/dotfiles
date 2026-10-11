@@ -356,6 +356,7 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
    state[@"startupRecovery"]=@{@"fallbackAttempted":@(IAStartupFallbackAttempted),@"timeoutSeconds":@45,@"bundleAttempt":@(IABundleAttempt)};
 #endif
    state[@"wifiHandoff"]=IOSAgentWiFiState();
+   state[@"browserHandoff"]=IOSAgentBrowserState();
    state[@"lastCommandTransport"]=self.lastCommandTransport?:@{};
    state[@"refreshDiagnostics"]=self.refreshDiagnostics?:@{};
    done(state); return;

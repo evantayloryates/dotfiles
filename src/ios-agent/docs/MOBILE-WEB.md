@@ -18,12 +18,13 @@ through CoreDevice is a provisioning convenience, not the operating transport.
    `devicectl device process launch --payload-url` can open Safari or Chrome.
    Off-network, an already enrolled browser tab is sufficient for page control;
    an offline/closed browser cannot be remotely launched by this page adapter.
-   The separate fixed `ios_device_launch` now supports an explicit paired developer
-   tunnel through Tailscale; see DEVELOPER-TAILNET.md. Overlay foregrounding passed,
-   but physical off-LAN acceptance is still pending. Enrollment URL delivery
-   uses paired appservice when that lane is available. The1.9.45 app-owned
-   private-URL handoff is a candidate pending physical qualification; do not
-   infer browser readiness from its prepared result.
+   The separate fixed `ios_device_launch` supports an explicit paired developer
+   tunnel through Tailscale; see DEVELOPER-TAILNET.md. Enrollment URL delivery
+   uses paired appservice when that lane is available. When developer TCP refuses,
+   the provisioned native Focus route and1.9.45 app-owned Safari private-URL
+   handoff passed cellular launch and DOM control. Chrome's app handoff and deep
+   cellular Inspector remain unconfirmed. Require actual page readiness after
+   every prepared handoff.
    Then `ios_web_pages`: choose the actual page ID and browser, check visible/ready
    and age. Desktop WebKit is not evidence of a physical iPhone.
 3. `ios_web_begin`: one session per work turn. This acquires the SAME owner
@@ -53,7 +54,7 @@ through CoreDevice is a provisioning convenience, not the operating transport.
 | --- | --- | --- |
 | Host diagnosis fails | Read `ios_doctor.failedChecks`. Use `ios_stack_ensure` only for a missing supported dependency while idle; inspect an uncertain start before another attempt. | Phone lock, USB state or browser permission. |
 | Host ready; app/page offline | Wait with `ios_wait_ready` for up to55 seconds per call, without a lease. Continue bounded waits while the task is pending. Check an available paired launch route before asking the user. | An offline bridge does not identify why the document is unavailable. |
-| Cable/network state is uncertain | Run `ios_doctor {connectivity:true}` once. Inspect fixed-device USB detection, cached peer state, one tailnet ping and bridge readiness separately. | Peer Online is not a successful ping; ping is not a developer tunnel. Null means unknown. None establishes lock or cellular state. |
+| Cable/network state is uncertain | Run `ios_doctor {connectivity:true}` once. Inspect USB enumeration, cached peer state, one tailnet ping and bridge readiness separately. Negative enumeration leaves physical cable state unknown; cross-check CoreDevice/USBMux if recovery requires that lane. | An unenumerated phone may still have a cable connected. Peer Online is not a successful ping; ping is not a developer tunnel. Null means unknown. None establishes lock or cellular state. |
 | After Wi-Fi-Off, tailnet answers but no page is ready | Reassess the paired launch route when phone work is available. Do not repeat a stale request to connect USB. | A returning tailnet ping does not prove Wi-Fi restoration, a foreground app or successful off-LAN control. |
 | Visible authenticated tab reconnects | Reuse `ios_web_pages`, then acquire a fresh `ios_web_begin`; old snapshots/leases are invalid. | Reconnection does not replay an accepted/unknown action. |
 | Grant expired before enrollment | Inspect pages first. If no usable enrolled tab exists, issue one new grant and open its private launchFile once. | Expired grant does not require resetting the browser or all site data. |

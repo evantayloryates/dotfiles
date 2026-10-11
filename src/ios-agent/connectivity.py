@@ -89,6 +89,8 @@ def peer_status():
 
 def diagnose(state):
     result = {'observedAt': time.time(), 'usbAttached': None,
+              'usbEnumerationDetected': None,
+              'usbObservation': 'unavailable; physical cable state unknown',
               'tailnetConfigured': None, 'tailnetPeerKnown': None,
               'tailnetPeerOnline': None, 'tailnetPingSucceeded': None,
               'bridgeReadyToAcquire': None, 'bridgeReason': 'unavailable',
@@ -109,7 +111,16 @@ def diagnose(state):
         result['next'] = 'Fixed phone configuration unavailable; no USB or peer identity inferred.'
         return result
     try:
-        result['usbAttached'] = usb_attached(serial)
+        detected = usb_attached(serial)
+        result['usbEnumerationDetected'] = detected
+        # An absent registry entry is not evidence that Taylor unplugged the
+        # cable: charging-only, accessory approval and failed enumeration all
+        # have the same negative result. Preserve the positive legacy field,
+        # but never turn a negative inventory into a physical setup claim.
+        result['usbAttached'] = True if detected else None
+        result['usbObservation'] = ('fixed phone enumerated on USB; developer readiness separate'
+                                    if detected else
+                                    'fixed phone not enumerated; physical cable state unknown')
     except Exception:
         pass
     try:
@@ -138,5 +149,5 @@ def diagnose(state):
     elif result['usbAttached'] is True:
         result['next'] = 'Fixed phone is detected on USB. Inspect the paired developer channel; after Wi-Fi-Off use Runner Wi-Fi On, then verify connectivity. Do not request cable reconnection.'
     else:
-        result['next'] = 'No working route is established by these reads. Wait for availability; after Wi-Fi-Off restore Wi-Fi through an available paired route. Do not infer lock, cellular state or a defective cable.'
+        result['next'] = 'No working route is established by these reads. Wait for availability; after Wi-Fi-Off restore Wi-Fi through an available paired route. Do not infer lock, cellular state, an unplugged cable or a defective cable. A negative USB inventory alone does not justify a cable request.'
     return result

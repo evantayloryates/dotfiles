@@ -1,0 +1,43 @@
+{
+  "observedAt": "2026-10-11T17:58:44.207049+00:00",
+  "kind": "chrome-handoff-recovery",
+  "phoneUnlocked": "user-confirmed",
+  "beforeUSB": {
+    "registryEnumerated": false,
+    "usbMuxDevices": 0,
+    "coreDeviceTunnel": "unavailable",
+    "userLaterConfirmedCableWasUnplugged": true
+  },
+  "afterUSB": {
+    "registryEnumerated": true,
+    "coreDevice": "available-paired"
+  },
+  "display": {
+    "scope": "whole-device-display",
+    "transport": "explicit-USB-recovery-native-remoted",
+    "modal": "Kickoff DEV wants to open Chrome",
+    "buttons": [
+      "Cancel",
+      "Open"
+    ],
+    "XCTestStarted": false,
+    "MirroringUsed": false
+  },
+  "recovery": {
+    "fixedWiFiOnShortcutDispatchedOnce": true,
+    "independentWiFiIconVisible": true,
+    "chromeModalStillPresent": true,
+    "ownerReleased": true
+  },
+  "candidate": {
+    "version": "1.9.46",
+    "buildJobId": "46ba10e5fb884906aa90d0b4afb03f50",
+    "mode": "system-default-https",
+    "physicallyQualified": false
+  },
+  "privateReceipts": [
+    "usb-recovery-4J6r0M/screen.json",
+    "usb-recovery-lNDoSu/screen.json",
+    "runner-delivery-XEglFt/11.json"
+  ]
+}

@@ -46,6 +46,9 @@ class ConnectivityTests(unittest.TestCase):
         self.assertEqual(value['lockState'], 'unknown')
         self.assertFalse(value['developerChannelVerified'])
         self.assertFalse(value['phoneInputSent'])
+        self.assertFalse(value['usbEnumerationDetected'])
+        self.assertIsNone(value['usbAttached'])
+        self.assertIn('physical cable state unknown', value['usbObservation'])
         ping.assert_called_once_with(CONFIG['address'])
         self.assertEqual(ipc.call_args.args[0], {'op': 'ready_wait', 'timeoutSeconds': 0})
 
@@ -53,6 +56,7 @@ class ConnectivityTests(unittest.TestCase):
         with patch('connectivity.fixed_serial', return_value=SERIAL), patch('connectivity.usb_attached', side_effect=RuntimeError('secret-do-not-export')), patch('connectivity.tailnet_config', return_value=CONFIG), patch('connectivity.peer_status', side_effect=RuntimeError('private')), patch('connectivity.request', side_effect=RuntimeError('private')):
             value = diagnose('/private-fixture')
         self.assertIsNone(value['usbAttached'])
+        self.assertIsNone(value['usbEnumerationDetected'])
         self.assertIsNone(value['tailnetPingSucceeded'])
         self.assertIsNone(value['bridgeReadyToAcquire'])
         self.assertEqual(value['lockState'], 'unknown')
@@ -62,6 +66,7 @@ class ConnectivityTests(unittest.TestCase):
         with patch('connectivity.fixed_serial', return_value=SERIAL), patch('connectivity.usb_attached', return_value=True), patch('connectivity.tailnet_config', return_value=CONFIG), patch('connectivity.peer_status', return_value=PEER), patch('connectivity.ping_phone', return_value=False), patch('connectivity.request', return_value={'readyToAcquire': False}):
             value = diagnose('/private-fixture')
         self.assertTrue(value['usbAttached'])
+        self.assertTrue(value['usbEnumerationDetected'])
         self.assertIn('Do not request cable reconnection', value['next'])
         self.assertEqual(value['lockState'], 'unknown')
 

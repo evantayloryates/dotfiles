@@ -9,9 +9,9 @@ for(const ready of [true,false])test(`app browser handoff ${ready?'reuses native
  b.status=async()=>({});b.waitReady=async()=>({readyToAcquire:ready});
  b.deviceLaunch=async a=>{events.push('launch');assert.equal(a.target,'kickoff-dev');return {foregroundVerified:true}};
  b.begin=async a=>{assert(a.nativeOnly);events.push('begin');return {sessionId:'owned'}};
- b.action=async a=>{events.push('handoff');assert.equal(a.sessionId,'owned');assert.equal(a.action,'browser-handoff');assert.equal(a.args.browser,'ios-chrome');assert.equal(a.args.url,'https://dev.tail.ts.net:10520/dev/ios-agent#ios-agent='+'S'.repeat(43));return {ok:true}};
+ b.action=async a=>{events.push('handoff');assert.equal(a.sessionId,'owned');assert.equal(a.action,'browser-handoff');assert.equal(a.args.browser,'ios-chrome');assert.equal(a.args.url,'https://dev.tail.ts.net:10520/dev/ios-agent#ios-agent='+'S'.repeat(43));return {ok:true,data:{mode:'system-default-https'}}};
  b.end=async id=>{assert.equal(id,'owned');events.push('end')};
- try{const r=await b.webEnroll({browser:'ios-chrome',profile:'call-rig',transport:'app'});assert(r.ok);assert.equal(r.launch.foregroundVerified,false);assert(!JSON.stringify(r).includes('S'.repeat(43)));assert.deepEqual(events,ready?['begin','handoff','end']:['launch','begin','handoff','end']);}
+ try{const r=await b.webEnroll({browser:'ios-chrome',profile:'call-rig',transport:'app'});assert(r.ok);assert.equal(r.launch.foregroundVerified,false);assert.equal(r.launch.browserRoute,'system-default-https');assert.equal(r.launch.requiresDefaultBrowser,'ios-chrome');assert(!JSON.stringify(r).includes('S'.repeat(43)));assert.deepEqual(events,ready?['begin','handoff','end']:['launch','begin','handoff','end']);}
  finally{await b.close();fs.rmSync(state,{recursive:true,force:true});}
 });
 test('unknown native handoff is released and never retried',async()=>{

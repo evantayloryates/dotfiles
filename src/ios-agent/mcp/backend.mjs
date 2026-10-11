@@ -723,7 +723,7 @@ export class Backend {
         try{
           const sourceURL=JSON.parse(fs.readFileSync(a.file,'utf8')).url;
           const result=await this.action({sessionId:reservation.sessionId,action:'browser-handoff',args:{browser,url:sourceURL}});
-          launch={ok:result.ok===true,transport:'app-owned-private-URL',inputSent:result.ok===true?true:(result.actionSent??'unknown'),foregroundVerified:false,replay:false,...(result.ok?{}:{reason:result.reason||'native_browser_handoff_unconfirmed'})};
+          launch={ok:result.ok===true,transport:'app-owned-private-URL',browserRoute:result.data?.mode||'installed-adapter-route-unreported',...(result.data?.mode==='system-default-https'?{requiresDefaultBrowser:'ios-chrome'}:{}),inputSent:result.ok===true?true:(result.actionSent??'unknown'),foregroundVerified:false,replay:false,...(result.ok?{}:{reason:result.reason||'native_browser_handoff_unconfirmed'})};
         }finally{await this.end(reservation.sessionId);}
         return {ok:launch.ok,profile,launchFile:a.file,expiresIn:300,launch,next:'Handoff acceptance is not browser readiness. Wait for the intended visible ios_web_pages entry, then acquire it. Never replay accepted or unknown URL delivery.'};
       }

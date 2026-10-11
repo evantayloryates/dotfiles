@@ -26,9 +26,12 @@ Next gates after authenticated foreground success:
 3. Explicit stop/owner-loss/expiry and restored device presentation. Do not extend
    ordinary native input into the background or keep a hidden perpetual runner.
 
-The1.9.45 native private-URL handoff is a separate, simpler browser-launch candidate.
-If it passes, use it for browser opening and reserve the relay for actual deeper
-Inspector/system gaps. A failed relay must not remove that working control path.
+The1.9.45 native private-URL handoff passed cellular Safari launch and owned DOM
+fill/Save/React readback, with glow-off. Its Chrome custom scheme instead produced
+an independently viewed OS Open confirmation. The1.9.46 candidate uses ordinary
+HTTPS into the existing default Chrome browser and still requires physical
+qualification. Use qualified app-owned routes for opening; reserve the relay for
+actual deeper Inspector/system gaps. A failed relay must not remove that working control path.
 This is personal DEV only; staging remains deferred. No relay tool is enabled yet.
 
 Provider source: paired_transport.py and the pinned pymobiledevice3
