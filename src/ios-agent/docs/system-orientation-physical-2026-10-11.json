@@ -1,0 +1,35 @@
+{
+  "observedAt": "2026-10-11T07:22:26.851579+00:00",
+  "candidateVersion": "1.9.18",
+  "scope": "physical-Chrome-under-original-system-owner; MCP schema separately qualified",
+  "beforeViewport": {
+    "width": 750,
+    "height": 334
+  },
+  "beforeJoinClipped": true,
+  "nativeScrollDidNotRevealJoin": true,
+  "orientationRequested": "portrait",
+  "providerOrientationReadback": "PORTRAIT",
+  "afterViewport": {
+    "width": 390,
+    "height": 669
+  },
+  "afterJoin": {
+    "visible": true,
+    "clipped": false,
+    "hitAtVisibleCenter": true,
+    "disabled": false
+  },
+  "externalForegroundChangeRefusedBeforeInput": true,
+  "unrelatedAppContentsRead": false,
+  "originalRunnerStopped": false,
+  "newWDASessionCreated": false,
+  "driverChecks": 22,
+  "limits": [
+    "Provider device orientation alone does not establish app layout; independent DOM checked here.",
+    "No off-LAN startup or no-passcode guarantee.",
+    "This requests orientation; it is not orientation lock. Portrait later reverted to landscape, so an immediate fresh native target query was used after a second explicit request."
+  ],
+  "portraitLaterReverted": true,
+  "immediateOrientThenGuardedJoinPassed": true
+}

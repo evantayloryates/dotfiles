@@ -106,7 +106,7 @@ export class SystemDriver {
     }
     return {eid};
   }
-  async action({action,snapshot,target,direction,app,label,elementType,text}){
+  async action({action,snapshot,target,direction,app,label,elementType,text,orientation}){
     this.check();
     if(this.uncertain)return {ok:false,reason:'system_observation_required',actionSent:false,replay:false};
     let inputSent=false;
@@ -115,10 +115,19 @@ export class SystemDriver {
       const bundle=await this.context(!['activate','home'].includes(action));
       if(action==='home'){this.snapshot=null;await this.authorize();this.check();inputSent=true;await this.http('POST','/wda/homescreen',{});return {ok:true,homeConfirmed:await this.foregroundMatches('com.apple.springboard'),replay:false};}
       if(action==='activate'){if(!bundles[app])return {ok:false,reason:'fixed_system_app_required',actionSent:false};this.snapshot=null;await this.authorize();this.check();inputSent=true;await this.http('POST',this.route('/wda/apps/activate'),{bundleId:bundles[app]});return {ok:true,foregroundConfirmed:await this.foregroundMatches(bundles[app]),replay:false};}
-      if((action==='tap'&&label!==undefined)||['type','clear','focus'].includes(action)){
+      if(action==='orientation'){
+        if(!['portrait','landscape'].includes(orientation))return {ok:false,reason:'fixed_orientation_required',actionSent:false};
+        this.snapshot=null;await this.authorize();this.check();inputSent=true;
+        await this.http('POST',this.route('/orientation'),{orientation:orientation.toUpperCase()});
+        this.check();const actual=(await this.http('GET',this.route('/orientation'))).value;this.check();
+        if(await this.context()!==bundle)return {ok:false,outcome:'unknown_or_rejected',actionSent:true,reason:'system_app_changed',replay:false};
+        return {ok:true,orientationConfirmed:actual===orientation.toUpperCase(),requested:orientation,actual:typeof actual==='string'?actual:null,effect:'Inspect current viewport and controls; device orientation alone does not prove app layout.',replay:false};
+      }
+      if((['tap','scroll'].includes(action)&&label!==undefined)||['type','clear','focus'].includes(action)){
         const textAction=['type','clear','focus'].includes(action);
         const types=textAction?['XCUIElementTypeTextField','XCUIElementTypeSearchField','XCUIElementTypeTextView']:['XCUIElementTypeButton','XCUIElementTypeCell','XCUIElementTypeSwitch','XCUIElementTypeLink'];
         if(typeof label!=='string'||!label.length||label.length>500||!types.includes(elementType))return {ok:false,reason:'typed_system_label_required',actionSent:false};
+        if(action==='scroll'&&!['up','down','left','right'].includes(direction))return {ok:false,reason:'scroll_direction_required',actionSent:false};
         if(action==='type'&&(typeof text!=='string'||!text.length||text.length>256)||action!=='type'&&text!==undefined)return {ok:false,reason:'system_text_argument_mismatch',actionSent:false};
         this.snapshot=null;
         const predicate=`type == ${JSON.stringify(elementType)} AND label == ${JSON.stringify(label)} AND visible == 1 AND enabled == 1`;
@@ -129,8 +138,21 @@ export class SystemDriver {
         const hittable=(await this.http('GET',this.route(`/element/${eid}/attribute/hittable`))).value;
         if(![true,1,'true','1'].includes(hittable))return {ok:false,reason:'system_target_occluded',actionSent:false};
         if(await this.context()!==bundle)return {ok:false,reason:'system_app_changed',actionSent:false};
+        const point={x:rect.x+rect.width/2,y:rect.y+rect.height/2};
+        let gesture;
+        if(action==='scroll'){
+          // Content moves opposite the requested scroll direction. Anchor at a
+          // freshly resolved visible control so nested panes receive the gesture.
+          const end={...point},axis=['up','down'].includes(direction)?'y':'x';
+          end[axis]+=(['down','right'].includes(direction)?-1:1)*150;
+          const origin=axis==='y'?screen.y:screen.x,size=axis==='y'?screen.height:screen.width;
+          end[axis]=Math.max(origin+12,Math.min(origin+size-12,end[axis]));
+          if(Math.abs(end[axis]-point[axis])<40)return {ok:false,reason:'scroll_anchor_needs_space',actionSent:false};
+          gesture={fromX:point.x,fromY:point.y,toX:end.x,toY:end.y,duration:0.05};
+        }
         await this.authorize();this.check();inputSent=true;
-        await this.http('POST',this.route(`/element/${eid}/${action==='type'?'value':action==='clear'?'clear':'click'}`),action==='type'?{text,frequency:40}:{});
+        if(gesture)await this.http('POST',this.route('/wda/dragfromtoforduration'),gesture);
+        else await this.http('POST',this.route(`/element/${eid}/${action==='type'?'value':action==='clear'?'clear':'click'}`),action==='type'?{text,frequency:40}:{});
         return {ok:true,delivery:'native-XCTest',effect:'unverified; inspect again',replay:false};
       }
       const s=this.snapshot;if(!s||snapshot!==s.id||Date.now()-s.at>5000)return {ok:false,reason:'fresh_system_snapshot_required',actionSent:false};

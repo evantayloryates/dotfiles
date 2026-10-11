@@ -101,3 +101,18 @@ Use explicit `ios_system_action action=focus label=Address
 intents against the new field. `focus` sends one guarded native click and no
 text or clear. Secure fields remain excluded. Submit by tapping the observed
 Go button and verify the resulting URL/page, rather than appending Return.
+
+
+## Recover a clipped browser layout — 1.9.18 candidate
+
+`ios_system_action {sessionId,action:"orientation",orientation:"portrait"}` requests device portrait orientation and independently reads it back. `landscape` is the other allowed value. The same owner/lock/app-scope guards apply; an unknown write is never replayed automatically. Inspect the actual page afterward: Apple device orientation is not an app-layout guarantee.
+
+Physical Chrome had a750×334 landscape viewport with Join below the clipped area; native scroll did not reveal it. Portrait readback passed, the viewport became390×669, and independent DOM showed Join visible and hit-testable. This is not orientation lock: portrait later reverted; an immediate orientation request followed by a fresh guarded Join query succeeded. A separate unexpected Clock foreground was refused before input; fixed Chrome activation recovered without reading Clock content. See system-orientation-physical-2026-10-11.json.
+
+References: https://developer.apple.com/documentation/xcuiautomation/xcuidevice/orientation and https://appium.readthedocs.io/en/stable/en/commands/session/orientation/set-orientation/
+
+### Nested browser panels (1.9.18)
+
+`ios_system_action(action="scroll", direction="down", label="Follow call microphone", elementType="XCUIElementTypeSwitch")` resolves a unique live anchor, checks native bounds/hittability and ownership, and sends one drag of at most 150 points opposite the requested content-scroll direction. No caller coordinates or implicit click. Choose an anchor visibly inside the intended pane. Inspect afterward: inertia can move content farther than the gesture.
+
+On Chrome iOS, native accessibility reported a clipped transport summary as visible/hittable; tapping it changed the microphone beneath it. Native hittability alone does not establish web hit testing. Use the browser DOM clipping and `hitAtVisibleCenter` evidence before native web taps. Anchored scrolling exposed that summary and independent DOM confirmed it visible and hit-testable. The service does not yet automatically correlate native and DOM targets. See `system-scroll-physical-2026-10-11.json`.

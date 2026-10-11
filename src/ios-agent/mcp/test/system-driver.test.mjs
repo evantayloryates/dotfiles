@@ -70,6 +70,28 @@ function fieldFixture(mode='ready'){
  };
  return {d,calls};
 }
+test('orientation sends once under owner authority and independently reads provider state',async()=>{
+ for(const mode of ['ready','mismatch','authority','unknown']){
+  const {d,calls}=fixture(),http=d.http;d.authorize=async()=>{if(mode==='authority')throw Error('system_ownership_unconfirmed');};
+  d.http=async(m,r,b)=>{if(r.endsWith('/orientation')){calls.push([m,r,b]);if(m==='POST'){if(mode==='unknown')throw Error('system_endpoint_deadline');assert.deepEqual(b,{orientation:'PORTRAIT'});return {value:null};}return {value:mode==='mismatch'?'LANDSCAPE':'PORTRAIT'};}return http(m,r,b);};
+  const r=await d.action({action:'orientation',orientation:'portrait'});
+  assert.equal(calls.filter(([m,r])=>m==='POST'&&r.endsWith('/orientation')).length,mode==='authority'?0:1);
+  assert.equal(r.orientationConfirmed,mode==='ready'?true:mode==='mismatch'?false:undefined);
+  if(mode==='unknown'){assert.equal(r.outcome,'unknown_or_rejected');assert.equal((await d.action({action:'orientation',orientation:'portrait'})).reason,'system_observation_required');}
+ }
+ const {d,calls}=fixture();assert.equal((await d.action({action:'orientation',orientation:'upside-down'})).actionSent,false);assert(!calls.some(([m])=>m==='POST'));
+});
+test('MCP orientation is explicit and cannot be smuggled into another action',async()=>{
+ const {Client}=await import('@modelcontextprotocol/sdk/client/index.js');const {InMemoryTransport}=await import('@modelcontextprotocol/sdk/inMemory.js');const {createServer}=await import('../server.mjs');
+ const seen=[];const {server}=createServer({systemAction:async args=>{seen.push(args);return {ok:true}},cancel:async()=>{},close:async()=>{}});
+ const [ct,st]=InMemoryTransport.createLinkedPair();await server.connect(st);const c=new Client({name:'orientation-test',version:'1'});await c.connect(ct);
+ try{
+  const base={sessionId:'a'.repeat(32),action:'orientation',orientation:'portrait'};
+  assert(!(await c.callTool({name:'ios_system_action',arguments:base})).isError);assert.equal(seen.length,1);
+  for(const patch of [{orientation:undefined},{action:'home'}])assert.equal((await c.callTool({name:'ios_system_action',arguments:{...base,...patch}})).structuredContent.ok,false);
+  assert((await c.callTool({name:'ios_system_action',arguments:{...base,orientation:'upside-down'}})).isError);assert.equal(seen.length,1);
+ }finally{await c.close();await server.close();}
+});
 test('ordinary field typing appends once; clearing requires its own explicit action',async()=>{
  const {d,calls}=fieldFixture();const target={label:'Test draft',elementType:'XCUIElementTypeTextField'};
  assert.equal((await d.action({action:'type',...target,text:'Runner café 👋'})).ok,true);
@@ -120,4 +142,32 @@ test('MCP admits ordinary field text and rejects missing, oversized or secure in
   assert.equal(seen.length,2);assert.equal(seen[1].action,'focus');
   assert((await c.callTool({name:'ios_system_action',arguments:{...target,action:'focus'}})).isError);assert.equal(seen.length,2);
  }finally{await c.close();await server.close();}
+});
+
+test('anchored scrolling targets a unique live control with bounded content-direction gesture and no click',async()=>{
+ for(const mode of ['ready','duplicate','occluded','authority','unknown']){
+  const {d,calls}=fieldFixture(mode),http=d.http;
+  d.http=async(m,r,b)=>{if(r.endsWith('/wda/dragfromtoforduration')){calls.push([m,r,b]);if(mode==='unknown')throw Error('system_endpoint_deadline');return {value:null};}return http(m,r,b);};
+  const args={action:'scroll',direction:'up',label:'Nested panel control',elementType:'XCUIElementTypeButton'};
+  const result=await d.action(args),gestures=calls.filter(c=>c[1].endsWith('/wda/dragfromtoforduration'));
+  assert.equal(gestures.length,['ready','unknown'].includes(mode)?1:0);
+  if(mode==='ready'){assert.equal(result.ok,true);assert.deepEqual(gestures[0][2],{fromX:85,fromY:35,toX:85,toY:185,duration:0.05});}
+  if(mode==='unknown'){assert.equal(result.outcome,'unknown_or_rejected');assert.equal((await d.action(args)).reason,'system_observation_required');}
+  assert(!calls.some(c=>c[1].endsWith('/click')));
+ }
+});
+test('MCP admits an exact typed scroll anchor and rejects conflicting snapshot addressing',async()=>{
+ const {Client}=await import('@modelcontextprotocol/sdk/client/index.js');const {InMemoryTransport}=await import('@modelcontextprotocol/sdk/inMemory.js');const {createServer}=await import('../server.mjs');
+ const seen=[];const {server}=createServer({systemAction:async args=>{seen.push(args);return {ok:true}},cancel:async()=>{},close:async()=>{}});
+ const [ct,st]=InMemoryTransport.createLinkedPair();await server.connect(st);const c=new Client({name:'anchored-scroll-test',version:'1'});await c.connect(ct);
+ const args={sessionId:'a'.repeat(32),action:'scroll',direction:'down',label:'Panel',elementType:'XCUIElementTypeButton'};
+ try{assert(!(await c.callTool({name:'ios_system_action',arguments:args})).isError);assert.equal(seen.length,1);
+ assert.equal((await c.callTool({name:'ios_system_action',arguments:{...args,snapshot:'b'.repeat(32)}})).structuredContent.ok,false);assert.equal(seen.length,1);
+ }finally{await c.close();await server.close();}
+});
+test('backend does not spend a full XML read on an exact scroll anchor',async()=>{
+ const {Backend}=await import('../backend.mjs');const b=Object.create(Backend.prototype);let reads=0,seen;
+ b.session=()=>({systemDriver:{inspect:async()=>{reads++;return {snapshot:'fresh'};},action:async args=>{seen=args;return {ok:true};}}});
+ await b.systemAction({sessionId:'owned',action:'scroll',direction:'down',label:'Panel',elementType:'XCUIElementTypeButton'});assert.equal(reads,0);assert.equal(seen.snapshot,undefined);
+ await b.systemAction({sessionId:'owned',action:'scroll',direction:'down'});assert.equal(reads,1);assert.equal(seen.snapshot,'fresh');
 });

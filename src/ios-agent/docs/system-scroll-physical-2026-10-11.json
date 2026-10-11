@@ -1,0 +1,43 @@
+{
+  "date": "2026-10-11",
+  "surface": "Chrome iOS real iPhone, synthetic local DEV call",
+  "candidateVersion": "1.9.18",
+  "result": "passed bounded native anchor scroll with independent browser DOM readback",
+  "before": {
+    "summary": "Audio transport experiments",
+    "visible": false,
+    "clipped": true,
+    "hitAtVisibleCenter": false,
+    "y": 597.625
+  },
+  "input": {
+    "action": "scroll",
+    "direction": "down",
+    "label": "Follow call microphone",
+    "elementType": "XCUIElementTypeSwitch",
+    "nativeDragMaxPoints": 150,
+    "pressSeconds": 0.05,
+    "receipt": "owned-input-1791703744414.json"
+  },
+  "after": {
+    "summary": "Audio transport experiments",
+    "visible": true,
+    "clipped": false,
+    "hitAtVisibleCenter": true,
+    "y": 305.625,
+    "artifact": "owned-inspector-1791703748428467000.json"
+  },
+  "edge": {
+    "nativeHittabilityIsInsufficientForClippedWebControls": true,
+    "evidence": "Before scroll, native summary was visible and hittable but clipped behind call microphone. Accepted tap left summary closed and changed microphone from 1 to 0. Receipt184 shows mic1; receipt186 mic0. No automatic replay.",
+    "mitigation": "Inspect browser clipping/hit testing before native browser taps; choose a visible control inside the intended pane as scroll anchor and inspect after each gesture.",
+    "notClaimed": "Automatic DOM/native cross-validation; exact content displacement; arbitrary gesture coordinates; browser DOM input lease during held system lease."
+  },
+  "checks": {
+    "systemDriverTests": 25,
+    "unknownInputReplayPrevented": true,
+    "ownerAuthorityRequired": true,
+    "secureFieldsExcluded": true
+  },
+  "runner": "Original XCTest owner and WDA session preserved; no restart or new authentication."
+}
