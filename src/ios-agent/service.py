@@ -286,7 +286,9 @@ class Broker:
                     if not valid:raise Rejected("fixed_private_dev_browser_URL_required")
                 if action == 'developer-relay' and not self.developer_relay:
                     raise Rejected('explicit_relay_start_required')
-                if action in ("diagnostics-probe", "diagnostics-matrix", "developer-probe", "developer-relay") and args:
+                if action == 'developer-relay' and args and (set(args) != {'route'} or args['route'] not in ('direct','reflected')):
+                    raise Rejected('fixed_relay_route_required')
+                if action in ("diagnostics-probe", "diagnostics-matrix", "developer-probe") and args:
                     raise Rejected("diagnostic_arguments_not_allowed")
                 # Give a just-delivered native tree a short opportunity for its
                 # caller's follow-up. Empty React polling must not consume that

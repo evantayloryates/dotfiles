@@ -136,10 +136,16 @@ def diagnose(episode_path, pid):
     targets, health=processes()
     if health=='ok' and any(p['pid']==pid and p['executable']=='/usr/sbin/BTLEServer' for p in targets):
         stack=Path(episode_path).with_suffix('.stack.txt')
-        attempt=watcher.run(['/usr/bin/sudo','-n','/usr/bin/sample',str(pid),'3','-file',str(stack)],timeout=12,limit=4096)
+        helper=Path('/Library/PrivilegedHelperTools/com.taylor.btle-stack-capture')
+        if helper.is_file():
+            attempt=watcher.run(['/usr/bin/sudo','-n',str(helper)],timeout=12,limit=512*1024)
+            if attempt['status']=='ok' and not attempt.get('truncated'):
+                stack.write_text(attempt.get('output',''))
+        else:
+            attempt=watcher.run(['/usr/bin/sudo','-n','/usr/bin/sample',str(pid),'3','-file',str(stack)],timeout=12,limit=4096)
         result['stack_capture']={k:v for k,v in attempt.items() if k!='output'}
         result['stack_capture']['path']=str(stack) if stack.is_file() else None
-        result['stack_capture']['authentication_note']='Unavailable may mean human administrator authentication is required; never prompt or install sudoers rules.'
+        result['stack_capture']['authentication_note']='Unavailable may mean helper installation is pending, capture cooldown or sampling failure. The explicit no-argument helper grant is installed only with user administrator approval. Never prompt from the watcher.'
     else:
         result['stack_capture']={'status':'target changed or unavailable'}
     watcher.write_json(destination,result)

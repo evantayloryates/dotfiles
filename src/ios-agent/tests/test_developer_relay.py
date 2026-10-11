@@ -13,6 +13,7 @@ class RelayTests(unittest.TestCase):
     response=r.exchange(0,base64.b64encode(b'\xff\x00reply').decode())
     self.assertEqual(base64.b64decode(response['data']),b'\x00\xffpair')
     self.assertEqual(c.recv(32),b'\xff\x00reply')
+    self.assertEqual(r.summary()['frames'],1);self.assertEqual(r.summary()['phoneBytes'],7);self.assertEqual(r.summary()['consumerBytes'],6)
     with self.assertRaises(OSError):socket.create_connection(('127.0.0.1',r.port),timeout=.1)
    self.wait(lambda:r.closed)
   finally:r.close();r.thread.join(1)

@@ -1,0 +1,87 @@
+{
+  "observedAt": "2026-10-11T19:06:46.409500+00:00",
+  "scope": "Personal DEV candidate, not delivered",
+  "directPhoneResults": [
+    {
+      "condition": "direct-loopback",
+      "ok": false,
+      "reason": "foreground_pairing_relay_unconfirmed",
+      "failureType": "TimeoutError",
+      "phase": "existing_trust_pair_verify",
+      "relay": {
+        "scope": "foreground-fixed-loopback-pairing-candidate",
+        "port": 53321,
+        "connected": true,
+        "closed": true,
+        "bytes": 203,
+        "deadlineSeconds": 60,
+        "reason": "consumer_closed_or_deadline",
+        "payloadLogged": false
+      },
+      "newPairingAttempted": false,
+      "payloadLogged": false
+    },
+    {
+      "condition": "direct-loopback-provider-preloaded",
+      "ok": false,
+      "reason": "foreground_pairing_relay_unconfirmed",
+      "failureType": "TimeoutError",
+      "phase": "existing_trust_pair_verify",
+      "relay": {
+        "scope": "foreground-fixed-loopback-pairing-candidate",
+        "port": 53673,
+        "connected": true,
+        "closed": true,
+        "bytes": 203,
+        "frames": 1,
+        "phoneBytes": 0,
+        "consumerBytes": 203,
+        "deadlineSeconds": 60,
+        "reason": "consumer_closed_or_deadline",
+        "payloadLogged": false
+      },
+      "newPairingAttempted": false,
+      "payloadLogged": false
+    }
+  ],
+  "reflectionLinuxProof": {
+    "roundTripExact": true,
+    "packets": 10,
+    "bytes": 588,
+    "interfaceRemoved": true,
+    "iPhoneProven": false,
+    "payloadLogged": false
+  },
+  "temporaryNetwork": {
+    "node": "runner-relay-test",
+    "existingPersonalAccountVerified": true,
+    "approvedRoute": "10.7.0.1/32",
+    "approvalPersisted": true,
+    "noSNAT": true,
+    "exitNode": false,
+    "publishedPorts": false,
+    "phonePeerReachable": true
+  },
+  "nativeCandidate": {
+    "buildJob": "71ca6285b9f943c383ab5b0720c48a8e",
+    "state": "building",
+    "fixedRoutes": [
+      "direct",
+      "reflected"
+    ],
+    "fixedPort": 49152,
+    "seconds": 60,
+    "maxBytes": 4194304,
+    "publicMCPRelayToolEnabled": false
+  },
+  "remainingGates": [
+    "reflected foreground existing-trust pairing",
+    "independent RSD identity",
+    "authenticated secondary channel",
+    "Chrome URL launch and owned page readiness",
+    "bounded background Inspector and cleanup"
+  ],
+  "noNewPairingAttempted": true,
+  "noXCTestStarted": true,
+  "noMirroringStarted": true
+}

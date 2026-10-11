@@ -1,0 +1,49 @@
+{
+  "observedAt": "2026-10-11T18:39:39.947800+00:00",
+  "mcpVersion": "1.9.47",
+  "signedDelivery": {
+    "jobId": "46ba10e5fb884906aa90d0b4afb03f50",
+    "installId": "35876bd766d145f774b57568e19ff674",
+    "deliveryId": "4034fdeaee2849b0b1461bc56d9f532d",
+    "installedIdentityVerified": true
+  },
+  "httpsChromeCandidate": {
+    "requested": "ios-chrome",
+    "actualReadyBrowser": "ios-safari",
+    "chromeQualified": false,
+    "personalDefaultChanged": false
+  },
+  "pairedChrome": {
+    "foregroundVerified": true,
+    "ready": true,
+    "draftValueReadbackPassed": true,
+    "indicatorOff": true,
+    "cellularQualified": false
+  },
+  "appHome": {
+    "singleDispatch": true,
+    "independentWholeDisplayHomeViewed": true,
+    "transport": "app-owned-home",
+    "cellularQualified": false
+  },
+  "usbRecovery": {
+    "actualMCPToolPassed": true,
+    "transport": "usb-recovery-native-remoted",
+    "positiveFixedUSBRequired": true,
+    "image1170x2532": true,
+    "readOnlyKinds": [
+      "screen",
+      "capabilities"
+    ],
+    "automaticFallback": false
+  },
+  "cleanup": {
+    "ownerReleased": true,
+    "xctestStarted": false,
+    "mirroringStarted": false
+  },
+  "privateEvidence": [
+    "runner-resume-3Kuynk",
+    "runner-resume-ynt5sy"
+  ]
+}

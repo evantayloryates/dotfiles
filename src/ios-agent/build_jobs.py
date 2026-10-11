@@ -104,9 +104,9 @@ def work(base,job_id,lock_fd):
         evidence=json.loads(evidence_path.read_text()) if fresh else {}
         product=Path(evidence.get('product') or '/missing')
         expected_parent=(derived/'Build/Products/Debug-iphoneos').resolve()
-        product_valid=product.is_dir() and product.resolve().parent==expected_parent
+        product_valid=product.is_dir() and product.resolve().parent==expected_parent and (product/'Info.plist').is_file()
         executable_hash=None;bundle_valid=False
-        if product_valid:
+        if product_valid and code == 0:
             import plistlib
             info=plistlib.loads((product/'Info.plist').read_bytes());bundle_valid=info.get('CFBundleIdentifier')=='com.dev.kudos.fit'
             binary=product/info['CFBundleExecutable'];executable_hash=hashlib.sha256(binary.read_bytes()).hexdigest()

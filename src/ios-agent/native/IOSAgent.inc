@@ -260,6 +260,7 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
  return @{@"nativeInputRuntime":@(input),@"selectors":selectors,@"applicationState":@(UIApplication.sharedApplication.applicationState),
           @"deliveryId":[NSBundle.mainBundle objectForInfoDictionaryKey:@"IOSAgentDeliveryId"]?:NSNull.null,
           @"homeRuntime":@([UIApplication.sharedApplication respondsToSelector:NSSelectorFromString(@"suspend")]),
+          @"developerRelay":IOSAgentRelayState(),
           @"imageScope":@"app-owned-main-window",@"inputMethod":@"in-process UIEvent",@"textMethod":@"UIKeyInput",@"xctest":@NO,@"richCapture":@"explicit-JS-console-network",@"wifiControl":@"fixed-Apple-Shortcuts-handoff",@"developerProbe":@"fixed-loopback-tcp-49152",@"browserHandoff":@"fixed-private-dev-origins"};
 }
 - (void)showGlow {
@@ -375,8 +376,8 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
   if([action isEqual:@"wifi"]) { done(IOSAgentWiFiPrepare(args,cid)); return; }
   if([action isEqual:@"browser-handoff"]) { done(IOSAgentBrowserPrepare(args,cid,self.config)); return; }
   if([action isEqual:@"developer-relay"]) {
-   if(args.count) { done(IAError(@"diagnostic_arguments_not_allowed"));return; }
-   done(IOSAgentRelayStart(^(NSDictionary *frame,void(^reply)(NSDictionary*)){[self exchange:frame completion:reply];},self.lease,self.epoch));return;
+   if(args.count>1 || (args.count && ![@[@"direct",@"reflected"] containsObject:args[@"route"]])) { done(IAError(@"fixed_relay_route_required"));return; }
+   done(IOSAgentRelayStart(^(NSDictionary *frame,void(^reply)(NSDictionary*)){[self exchange:frame completion:reply];},self.lease,self.epoch,args[@"route"]?:@"direct"));return;
   }
   if([action isEqual:@"capture"]) {
 #if IOS_AGENT_REACT

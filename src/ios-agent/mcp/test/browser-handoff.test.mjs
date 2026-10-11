@@ -30,3 +30,11 @@ for(const failure of [false,true])test(`native Home fallback ${failure?'preserve
  b.end=async()=>{events.push('end')};
  try{const r=await b.deviceHome({transport:'app'});assert.equal(r.ok,!failure);assert.equal(r.homeVerified,false);assert.equal(r.inputSent,failure?'unknown':true);assert.deepEqual(events,['launch','begin','home','end'])}finally{await b.close();fs.rmSync(state,{recursive:true,force:true})}
 });
+test('auto Chrome refuses an unqualified default-browser fallback before any phone input',async()=>{
+ const state=fs.mkdtempSync(path.join(os.tmpdir(),'ios-chrome-auto-'));
+ fs.writeFileSync(path.join(state,'dev-runtime.json'),JSON.stringify({webURL:'https://dev.tail.ts.net:10446'}));
+ const b=new Backend({state,run:async(kind)=>{assert.equal(kind,'web');return {ok:true,value:{token:'A'.repeat(43)}}}});
+ b.status=async()=>({});b.appTransportPreferred=async()=>true;
+ b.deviceLaunch=async()=>{throw Error('phone input forbidden')};b.begin=async()=>{throw Error('ownership forbidden')};
+ try{const r=await b.webEnroll({browser:'ios-chrome'});assert.equal(r.ok,false);assert.equal(r.inputSent,false);assert.equal(r.reason,'chrome_cellular_launch_unqualified');}finally{await b.close();fs.rmSync(state,{recursive:true,force:true});}
+});

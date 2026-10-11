@@ -290,3 +290,26 @@ deduplicates recurrence alerts, updates the audit and reports actionable failure
 CPU detection remains one-second local sampling; notifications are on the heartbeat
 cadence and depend on Codex being able to run. Old PID 11713 incidents are baseline,
 not new recurrence alerts. No remediation runs automatically.
+
+### Optional narrowly scoped automatic stack permission
+
+Prepared at Taylor's explicit request. Install once with:
+
+```
+sudo /bin/bash /Users/taylor/src/github/dotfiles/src/agent-resource-monitor/install-btle-stack-permission.sh
+```
+
+The installer copies the helper to `/Library/PrivilegedHelperTools/com.taylor.btle-stack-capture`,
+root:wheel 0755, checks root-owned non-writable parent directories, and validates
+`/private/etc/sudoers.d/taylor-btle-stack` (0440) with visudo. The rule permits only
+Taylor to invoke this fixed helper as root with **no arguments**. No passwordless
+permission is granted for sample, launchctl, a shell, or editable repository code.
+The helper selects only a root-owned `/usr/sbin/BTLEServer`, samples three seconds,
+returns up to 500,000 bytes on stdout, uses root-only temporary storage, and limits
+captures to once per minute with an exclusive lock. It does not change a daemon,
+accessory, SIP or any credential. The watcher copies returned stacks into its
+ordinary private incident bundle. Installation requires one human administrator
+authentication. The installer is not itself authorized in sudoers. Post-install
+verification must check ownership, no-argument permission, rejected extra arguments,
+and one real capture before claiming unattended capture works. Remove the grant
+with `sudo rm /private/etc/sudoers.d/taylor-btle-stack`; this does not stop monitoring.

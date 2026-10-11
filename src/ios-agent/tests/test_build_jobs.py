@@ -59,6 +59,19 @@ class BuildJobsTests(unittest.TestCase):
      jobs.work(base,job,fd)
     r=json.loads((folder/'result.json').read_text());self.assertEqual(r['ok'],not changed and not stale);self.assertFalse(r['installed']);self.assertFalse(r['phoneInputSent']);self.assertEqual(r['buildManifestFresh'],not stale)
     if not stale:self.assertEqual(r['sourceChangedDuringBuild'],changed)
+ def test_failed_compile_preserves_exit_when_partial_app_has_no_info_plist(self):
+  import hashlib
+  with tempfile.TemporaryDirectory() as directory:
+   base=jobs.private_base(Path(directory));job='f'*32;folder=base/job;folder.mkdir(mode=0o700)
+   jobs.write(folder/'runtime.json',{'mobile':'/fixed/mobile'})
+   jobs.write(folder/'request.json',{'startedAt':0,'runtimeHash':hashlib.sha256((folder/'runtime.json').read_bytes()).hexdigest()})
+   product=folder/'DerivedData/Build/Products/Debug-iphoneos/Kickoff.app';product.mkdir(parents=True)
+   jobs.write(folder/'DerivedData/ios-agent-build.json',{'product':str(product),'seconds':1,'sourceChangedDuringBuild':False})
+   fd=os.open(folder/'lock',os.O_RDWR|os.O_CREAT,0o600)
+   with patch.object(jobs,'load_config',return_value={'mobile':'/fixed/mobile'}),patch.object(jobs.subprocess,'Popen',return_value=SimpleNamespace(pid=123,wait=lambda timeout:65,poll=lambda:65)),patch.object(jobs.signal,'signal'):
+    jobs.work(base,job,fd)
+   result=json.loads((folder/'result.json').read_text())
+   self.assertEqual(result['exitCode'],65);self.assertFalse(result['productVerified']);self.assertEqual(result['state'],'failed');self.assertNotIn('reason',result)
  def test_retry_refuses_nonterminal_or_changed_runtime(self):
   with tempfile.TemporaryDirectory() as directory:
    base=jobs.private_base(Path(directory));locks=Path(directory)/'locks';job='c'*32;folder=base/job;folder.mkdir(mode=0o700)

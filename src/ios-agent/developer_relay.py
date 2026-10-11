@@ -17,6 +17,8 @@ class PairingRelay:
         self.outgoing = bytearray()
         self.incoming = bytearray()
         self.total = 0
+        self.phone_bytes = 0
+        self.consumer_bytes = 0
         self.sequence = 0
         self.reason = None
         self.closed = False
@@ -58,6 +60,7 @@ class PairingRelay:
                 self.reason = 'byte_limit'
                 raise ValueError('relay_byte_limit')
             self.incoming.extend(data)
+            self.phone_bytes += len(data)
             self.total += len(data)
             outgoing = bytes(self.outgoing[:self.CHUNK])
             del self.outgoing[:len(outgoing)]
@@ -93,6 +96,7 @@ class PairingRelay:
                         self.reason = 'byte_limit'
                         break
                     self.outgoing.extend(data)
+                    self.consumer_bytes += len(data)
                     self.total += len(data)
         except OSError:
             pass
@@ -104,4 +108,5 @@ class PairingRelay:
     def summary(self):
         return {'scope': 'foreground-fixed-loopback-pairing-candidate', 'port': self.port,
                 'connected': self.connected, 'closed': self.closed, 'bytes': self.total,
+                'frames': self.sequence, 'phoneBytes': self.phone_bytes, 'consumerBytes': self.consumer_bytes,
                 'deadlineSeconds': 60, 'reason': self.reason, 'payloadLogged': False}
