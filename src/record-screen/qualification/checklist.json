@@ -1,9 +1,9 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-10T19:44:07-04:00",
+  "updated_at": "2026-10-10T20:01:34-04:00",
   "workflow": {
-    "state": "blocked",
-    "note": "The single Medium widget is installed and ready to add. macOS confirms only systemMedium and successfully loads its preview; Taylor previously confirmed gallery rendering. Awaiting Taylor’s placement for the final desktop/status/control check. The gate and live panel remain usable."
+    "state": "active",
+    "note": "Desktop widget placement confirmed by Taylor, one configured instance and actual desktop pixels. Final widget Pause/Resume/link check underway with a brief user click because the UI tool cannot target the desktop links. Existing recorder verification is reused; no broad retesting or new release scope."
   },
   "production_note": "Release 0.20 is installed and ready for Taylor’s smoke test: native e402dc736458, fresh MCP adapter 0.20.0 or current CLI. Global safe pause/queue, live desktop panel, exact optional input/frame context, first cursor recipe, shared app observations and a real verified repair/subscriber cycle are delivered. Existing clients are preserved. See the release smoke test linked above. The native WidgetKit companion is installed; placement and its final desktop UI check are the single Review step; the broader Deferred tests retain Taylor’s stated prerequisites.",
   "groups": [
@@ -1038,10 +1038,10 @@
           "scope": "See recording state at a glance; pause future starts, drain current work safely and queue requests until resumed.",
           "status": "partial",
           "work_state": "review",
-          "evidence": "The gate and live panel retain passing evidence. Taylor screenshot confirmed the repaired gallery rendered both original sizes. At Taylor’s request, Large is removed. Installed signed companion 5e680bb4c5ab supports Medium only; macOS descriptor reports supportedFamilies (systemMedium), Notification Center receives it and its Medium preview loads successfully. No recorder restart. Desktop placement and actual widget control clicks remain outstanding.",
-          "next": "Taylor will add the single Medium widget. Then verify its visible status and click Pause/Resume against service readback.",
+          "evidence": "Gate/live-panel and direct companion controls retain passing evidence. Taylor added the single Medium widget; installed 5e680bb4c5ab, configuration count 1 and actual display pixels confirm placement, Ready and fresh counts. A screenshot-grounded native CUA Pause click failed before dispatch with noWindowsAvailable; Notification Center exposes an empty auxiliary window. Restored temporarily hidden apps. Recorder e402dc736458/PID58895 unchanged. Real widget control click/readback remains pending.",
+          "next": "Taylor clicks widget Pause and leaves it paused; verify authoritative response before Resume and Live panel link checks. The click request has been reprompted after confirming the native limitation.",
           "anchor": "release-020",
-          "updated_at": "2026-10-10T19:44:07-04:00",
+          "updated_at": "2026-10-10T20:01:34-04:00",
           "work_updated_at": "2026-10-10T19:06:38-04:00",
           "acceptance": [
             "The panel shows fresh active/queued/draining/paused state and unmistakable stale or unavailable data.",
@@ -1050,7 +1050,7 @@
             "Offer the single compact Medium desktop widget; retain a live companion panel because widget refresh is system-managed."
           ],
           "doc_link": "/Users/taylor/src/github/dotfiles/src/record-screen/qualification/RELEASE-0.20.md",
-          "why_partial": "The widget is now available in the gallery and offers only the compact size Taylor requested. Taylor will add it to the desktop next. The remaining check is whether the placed widget shows useful status and its buttons change the global pause state correctly; the gate and live panel already work.",
+          "why_partial": "The widget is installed, visible and reporting fresh state. To finish, we need to check its actual buttons. Computer use cannot deliver the click: the desktop attempt fails with noWindowsAvailable, and the widget links are absent from the accessible window. Taylor has been asked to click Pause once so the agent can verify the resulting service state. Direct companion controls already work but are a separate check.",
           "review_question": "Add the single Medium widget, then let the agent verify its visible status and Pause/Resume controls."
         },
         {
@@ -3860,6 +3860,29 @@
       "from": "blocked",
       "to": "blocked",
       "note": "The single Medium widget is installed and ready to add. macOS confirms only systemMedium and successfully loads its preview; Taylor previously confirmed gallery rendering. Awaiting Taylor’s placement for the final desktop/status/control check. The gate and live panel remain usable."
+    },
+    {
+      "kind": "item",
+      "id": "desktop-production-gate",
+      "at": "2026-10-10T20:00:14-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Gate/live-panel and companion controls retain passing evidence. Taylor added the single Medium widget; installed build 5e680bb4c5ab, WidgetKit configuration count 1 and an actual built-in display capture confirm desktop placement. Widget visibly shows Ready, 0 active/queued/actions and a fresh four-second sample. Recorder e402dc736458/PID58895 unchanged. Actual widget control clicks are the final pending check; CUA targets an empty Notification Center window, so a brief Taylor click/readback is requested."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-10T20:00:14-04:00",
+      "from": "blocked",
+      "to": "active",
+      "note": "Desktop widget placement confirmed by Taylor, one configured instance and actual desktop pixels. Final widget Pause/Resume/link check underway with a brief user click because the UI tool cannot target the desktop links. Existing recorder verification is reused; no broad retesting or new release scope."
+    },
+    {
+      "kind": "item",
+      "id": "desktop-production-gate",
+      "at": "2026-10-10T20:01:34-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Gate/live-panel and direct companion controls retain passing evidence. Taylor added the single Medium widget; installed 5e680bb4c5ab, configuration count 1 and actual display pixels confirm placement, Ready and fresh counts. A screenshot-grounded native CUA Pause click failed before dispatch with noWindowsAvailable; Notification Center exposes an empty auxiliary window. Restored temporarily hidden apps. Recorder e402dc736458/PID58895 unchanged. Real widget control click/readback remains pending."
     }
   ],
   "work_note": "Completed work states include useful delivered portions of broader historical Partial items. Expanded verification records preserve limits. Deferred prerequisites remain explicit; Review is a genuine user decision."

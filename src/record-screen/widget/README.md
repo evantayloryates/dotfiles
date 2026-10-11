@@ -17,9 +17,12 @@ this; inspect the descriptor/placeholder result after installation.
 To add: right-click empty **desktop wallpaper**, choose **Edit Widgets**, search
 **Screen recording** (app **Record Screen Control**), and drag the single Medium preview
 to the desktop; click **Done**. Reopen an already-open gallery after an upgrade.
-The gallery appearance was confirmed by Taylor’s screenshot. Desktop placement
-and actual control clicks still need a UI check. CUA cannot acquire Notification Center on this Mac in this run;
-configuration count remains zero. Do not claim visually verified placement.
+Gallery appearance and placement are confirmed: Taylor added it, WidgetKit
+reports one configured instance, and an actual display capture shows the
+compact widget Ready on the built-in desktop. Actual control clicks are the
+remaining check. CUA sees a different empty Notification Center window and
+cannot target the desktop links; the direct companion/service controls already
+passed independently. Do not treat those direct controls as a widget click test.
 
 The widget shows sampled recording/queue/action counts, sample age and explicit
 unavailable/stale state. Pause and Resume links open the signed companion, which

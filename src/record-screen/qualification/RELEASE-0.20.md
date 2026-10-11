@@ -14,8 +14,8 @@ keep their loaded code; the CLI reads current code without restarting peers.
   drain safely; arbitrary external UI tools cooperate through checkpoints.
 - Native WidgetKit desktop companion 5e680bb4c5ab, signed and registered, with
   sampled status, freshness, fixed Pause/Resume links and a Live panel link. Its
-  control/snapshot checks passed; desktop placement and link-click UI checks
-  await Taylor. No recorder restart or capture-permission change.
+  control/snapshot checks passed and desktop placement is confirmed; actual
+  widget link-click verification remains underway. No recorder restart or capture-permission change.
 - Exact optional input-reception-to-actual-frame context, with held source ages,
   clock/snapshot limits and useful input preserved when video context is absent.
 - First configurable SVG/PNG cursor/click recipe, draft and final effort, private
@@ -34,12 +34,14 @@ keep their loaded code; the CLI reads current code without restarting peers.
 
 ## Taylor's short smoke test
 
-1. Add **Screen recording** through Desktop → Edit Widgets (app: **Record Screen
-   Control**) and choose Large. Let the agent know it is placed for the final
-   appearance/link check. In the **Screen recording** desktop panel, request safe pause. With no take
-   active, it should say Paused. Resume should return to Ready. Your mouse and
-   keyboard stay usable throughout. Close hides the panel without changing the
-   gate; `record-screen production-panel-show` reopens it.
+1. The single **Medium** widget is installed and Taylor has added it to the
+   desktop. Click **Pause**: with no take active, the authoritative service should
+   become Paused. Click **Resume**: it should return to Ready. The widget is a
+   sampled display, so macOS may delay its text refresh; **Live panel** shows
+   current state. Your mouse and keyboard stay usable throughout. Close hides
+   the panel without changing the gate; `record-screen production-panel-show`
+   reopens it.
+
 2. Ask an agent to record one short throwaway window while showing the panel.
    Pause during the take: expect “finishing,” not an abrupt stop. A second request
    should wait. Let the active take end, then Resume. If the queued start has
@@ -82,20 +84,22 @@ real overflow discovery and per-app depth/receipt passes keep Taylor's stated
 Deferred prerequisites. Their useful existing portions are included above.
 Millisecond clock precision is preserved; physical reaction latency and frame
 cadence are separate and are not certified by exact timestamps. The desktop
-panel and native WidgetKit companion are installed. Actual widget placement
-and desktop link clicks still await Taylor; the OS currently reports zero
-configured instances. See [widget usage and evidence](../widget/README.md). No optional new qualification is silently
-made a blocker, and no unverified criterion is called completed.
+panel and native WidgetKit companion are installed. Taylor confirmed placement;
+macOS reports one configured instance and a display capture shows the compact
+widget on the built-in desktop, Ready with a fresh sample. Actual widget control
+clicks are the last targeted verification. See [widget usage and evidence](../widget/README.md).
+No optional new qualification is silently made a blocker, and no unverified
+criterion is called completed.
 
 
 Widget gallery correction: the initial companion registered but exited before
 answering descriptor requests. The corrected extension matches Xcode's
 NSExtensionMain entry point. Notification Center receives its entry and both
-Medium/Large placeholders load successfully; actual visual placement/link-click
-verification remains outstanding. See widget/README.md for the evidence limits.
+original Medium/Large placeholders loaded successfully. Large was subsequently
+removed at Taylor’s request; actual desktop control clicks remain outstanding. See widget/README.md for the evidence limits.
 
 
 Taylor confirmed gallery rendering and requested one compact size. Large is
 removed; installed companion 5e680bb4c5ab offers Medium only. The current macOS
 descriptor and successful Medium preview load confirm that choice. Desktop
-placement and control clicks remain outstanding; no other release checks rerun.
+placement is confirmed. Control clicks remain outstanding; no other release checks rerun.

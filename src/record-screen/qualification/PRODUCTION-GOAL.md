@@ -1,5 +1,22 @@
 # Production qualification goal
 
+## Placed widget: final real control check (October 10, 20:01 EDT)
+
+Taylor added the widget. Current WidgetKit count is one; actual built-in display
+pixels show the compact widget Ready with fresh counts. Installed recorder
+remains e402dc736458/PID58895 and widget 5e680bb4c5ab. The first handoff requested
+Pause; Taylor asked that the native route be confirmed before manual input.
+That check now has a concrete failure: a screenshot-grounded CUA desktop Pause
+click throws noWindowsAvailable before dispatch. Notification Center AX selects
+an empty auxiliary window, and macOS window-specific binding is unsupported.
+Temporarily hidden apps were restored through Finder Show All.
+
+A minimal human Pause click is pending, followed by service readback and the
+Resume/Live panel links. Do not claim completion from direct companion controls,
+substitute a CLI pause for the widget click, or repeat old capture qualification.
+The installed release remains available for Taylor’s smoke test. No additional
+criterion has been deferred. Private evidence: widget/desktop-placement.json.
+
 ## Single-size widget ready to add (October 10, 19:44 EDT)
 
 Taylor confirmed the two-size gallery rendering, then requested removal of Large.
