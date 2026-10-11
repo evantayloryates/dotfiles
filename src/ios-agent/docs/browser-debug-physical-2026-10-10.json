@@ -1,0 +1,118 @@
+{
+  "browser": "safari",
+  "sources": {
+    "operation": "sources",
+    "documentRef": "2c240a5150aec830c7cf78f3013fce77",
+    "browser": "com.apple.mobilesafari",
+    "ready": "complete",
+    "scriptCount": 352,
+    "eventCount": 353,
+    "droppedEvents": 0,
+    "retainedBytes": 534309,
+    "domainsDisabled": true,
+    "detached": true,
+    "transport": "native-remoted",
+    "offLANQualified": false,
+    "retentionSeconds": 3600
+  },
+  "source": {
+    "operation": "source",
+    "documentRef": "2c240a5150aec830c7cf78f3013fce77",
+    "browser": "com.apple.mobilesafari",
+    "ready": "complete",
+    "scriptCount": 355,
+    "eventCount": 356,
+    "droppedEvents": 0,
+    "retainedBytes": 534738,
+    "domainsDisabled": true,
+    "detached": true,
+    "transport": "native-remoted",
+    "offLANQualified": false,
+    "retentionSeconds": 3600,
+    "sha256": "6fd1590126982f3ff88e349909ac530de959d25baededd860295cadf67feccdc",
+    "totalLines": 3,
+    "characters": 7073
+  },
+  "styles": {
+    "operation": "styles",
+    "documentRef": "2c240a5150aec830c7cf78f3013fce77",
+    "browser": "com.apple.mobilesafari",
+    "ready": "complete",
+    "eventCount": 0,
+    "droppedEvents": 0,
+    "retainedBytes": 0,
+    "domainsDisabled": true,
+    "detached": true,
+    "transport": "native-remoted",
+    "offLANQualified": false,
+    "retentionSeconds": 3600,
+    "inlineFontSizeFound": true,
+    "computedPropertyCount": 531,
+    "computedFontSize": "18px",
+    "matchedRuleCount": 2,
+    "styleEventsSubscribed": false
+  },
+  "console": {
+    "operation": "console",
+    "documentRef": "2c240a5150aec830c7cf78f3013fce77",
+    "browser": "com.apple.mobilesafari",
+    "ready": "complete",
+    "eventCount": 1,
+    "droppedEvents": 0,
+    "retainedBytes": 565,
+    "domainsDisabled": true,
+    "detached": true,
+    "transport": "native-remoted",
+    "offLANQualified": false,
+    "retentionSeconds": 3600,
+    "warningFound": true
+  },
+  "error": "{\"name\":\"ios_browser_debug\",\"ok\":false,\"reason\":\"debug_document_changed\",\"phase\":\"web_inspector_trace\",\"failureType\":\"ValueError\",\"diagnostic\":{},\"inputSent\":\"unknown\",\"replay\":false}",
+  "cleanup": {
+    "released": true,
+    "detail": {
+      "released": true
+    },
+    "next": "Call ios_verify gate=idle without a session to confirm native and host cleanup.",
+    "indicatorOff": true,
+    "receipt": {
+      "gate": "web-idle",
+      "status": "passed",
+      "observation": {
+        "ownerReleased": true,
+        "indicatorOff": true
+      }
+    },
+    "learningEvidence": {
+      "evidenceId": "c5bb348b1a9f4146a9ba7810e457a04e",
+      "gate": "web-idle",
+      "status": "passed"
+    }
+  },
+  "observedAt": "2026-10-11T02:11:31.640869+00:00",
+  "version": "1.8.1",
+  "overallCombinedGatePassed": false,
+  "scope": "Physical iPhone Safari, paired developer Inspector; separate from network page control",
+  "passiveTrace": {
+    "passed": true,
+    "eventCount": 3,
+    "timelineStopped": true,
+    "domainsDisabled": true,
+    "detached": true,
+    "inputSent": false,
+    "offLANQualified": false
+  },
+  "fixes": [
+    "Trim source-map/provider extras before catalog budget; physical catalog had zero drops.",
+    "Use direct style reads without CSS change subscriptions; CSS.enable/disable did not answer on this phone."
+  ],
+  "limits": [
+    "Combined explicit trace effect encountered document change, input outcome conservatively unknown; never replayed.",
+    "Passive trace is not calibrated page CPU or a JS sampling profile.",
+    "Chrome Inspector not qualified; its enrolled network page was visible and ready but no Inspector target was discoverable.",
+    "Signed XCTest fallback start was unconfirmed; stopped runner and released ownership.",
+    "Nearby Inspector does not establish arbitrary-network operation."
+  ],
+  "xctestAuthorizationPromptObserved": true,
+  "promptDismissal": "User Cancel requested after independently viewing actual physical screen; runner already verified stopped."
+}

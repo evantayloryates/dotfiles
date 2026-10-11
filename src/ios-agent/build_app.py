@@ -86,6 +86,13 @@ def main():
     env = {**os.environ, "IOS_AGENT_MOBILE_ROOT": str(mobile), "ENVFILE": ".env.development", "RCT_NO_LAUNCH_PACKAGER": "1", "BUGSNAG_DISABLE_UPLOAD": "1", "BUNDLE_CONFIG": str(ROOT / "native/metro.cjs")}
     env.pop("SKIP_BUNDLING", None)
     env.pop("IOS_AGENT_RUNTIME_CONFIG", None)
+    # GUI MCP clients need not inherit a shell TMPDIR. Xcode's source-map
+    # phase writes below it; keep that output private and off the filesystem root.
+    build_temp = a.derived_data.resolve().parent / (a.derived_data.name + '-temp')
+    build_temp.mkdir(parents=True, exist_ok=True, mode=0o700)
+    if build_temp.is_symlink() or build_temp.stat().st_mode & 0o077:
+        raise SystemExit('private_build_temp_required')
+    env['TMPDIR'] = str(build_temp) + '/'
     if runtime_snapshot:
         env["IOS_AGENT_RUNTIME_CONFIG"] = str(runtime_snapshot)
     start = time.monotonic()

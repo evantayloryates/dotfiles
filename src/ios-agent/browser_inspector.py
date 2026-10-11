@@ -30,7 +30,16 @@ class ProtocolError(RuntimeError):
 
 
 async def command(session, method, timeout=4, **args):
-    response=await asyncio.wait_for(session.send_command(method,**args),timeout)
+    session._ios_agent_last_method=method
+    try:
+        response=await asyncio.wait_for(session.send_command(method,**args),timeout)
+    except asyncio.TimeoutError:
+        receiver=getattr(session,'_receive_task',None)
+        if receiver and receiver.done() and not receiver.cancelled():
+            error=receiver.exception()
+            if error:
+                session._ios_agent_receiver_failure=type(error).__name__
+        raise
     if isinstance(response,dict) and 'message' in response.get('params',{}):
         response=json.loads(response['params']['message'])
         if 'error' in response:raise ProtocolError(method)
@@ -42,6 +51,11 @@ async def command(session, method, timeout=4, **args):
 class Events:
     def __init__(self):self.rows=[];self.bytes=0;self.dropped=0
     def add(self,method,params):
+        if method=='Debugger.scriptParsed':
+            # Source-map data URLs and provider extras can dwarf the catalog.
+            # Retain only source references; source content has its own window.
+            params={k:(safe_url(v) if k in ('url','sourceMapURL') else v) for k,v in params.items()
+                    if k in ('scriptId','url','startLine','startColumn','endLine','endColumn','sourceMapURL','isModule')}
         row=scrub({'method':method,'params':params})
         size=len(json.dumps(row).encode())
         if len(self.rows)>=1000 or self.bytes+size>MAX_BYTES:
@@ -113,7 +127,9 @@ async def inspect(session, request, target, expected, check):
             check();doc=await command(session,'DOM.getDocument')
             check();node=await command(session,'DOM.querySelector',nodeId=doc['root']['nodeId'],selector=request['selector'])
             if not node.get('nodeId'):raise ValueError('debug_selector_not_found')
-            await enable('CSS')
+            # Fixed style reads do not need CSS change subscriptions. Enabling
+            # CSS enumerates all stylesheets and can stall this device's page.
+            result['styleEventsSubscribed']=False
             check();result['matched']=await command(session,'CSS.getMatchedStylesForNode',nodeId=node['nodeId'],includePseudo=True,includeInherited=True)
             check();result['computed']=await command(session,'CSS.getComputedStyleForNode',nodeId=node['nodeId'])
             check();result['inline']=await command(session,'CSS.getInlineStylesForNode',nodeId=node['nodeId'])
@@ -134,6 +150,7 @@ async def inspect(session, request, target, expected, check):
         if after!=document:raise ValueError('debug_document_changed')
     finally:
         cleanup=[]
+        failed_method=getattr(session,'_ios_agent_last_method',None)
         if timeline_requested:
             try:
                 await command(session,'Timeline.stop',timeout=2)
@@ -149,7 +166,11 @@ async def inspect(session, request, target, expected, check):
             if old is None:session.response_methods.pop(method,None)
             else:session.response_methods[method]=old
         result['domainsDisabled']=not cleanup
-        if cleanup:raise ValueError('debug_cleanup_unconfirmed')
+        if cleanup:
+            request['_failedMethod']=failed_method
+            request['_cleanupFailures']=cleanup
+            request['_receiverFailureType']=getattr(session,'_ios_agent_receiver_failure',None)
+            raise ValueError('debug_cleanup_unconfirmed')
     result.update(eventCount=len(events.rows),droppedEvents=events.dropped,retainedBytes=events.bytes)
     if op in ('sources','source'):result['events']=[x for x in events.rows if x['method']!='Debugger.scriptParsed']
     result=scrub(result)

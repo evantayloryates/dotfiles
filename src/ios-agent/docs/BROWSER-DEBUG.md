@@ -2,9 +2,8 @@
 
 `ios_browser_debug` adds independent WebKit diagnostics for the configured
 private DEV origin. It uses the existing pinned paired-device observer, without
-XCTest or Mirroring. **Physical qualification of these new operations is pending.**
-The older fixed Safari bootstrap read is independently qualified; that is not
-proof of the new domains or Chrome.
+XCTest or Mirroring. **Physical Safari source/CSS/console/passive-timeline reads passed.**
+Chrome Inspector and combined trace effects remain unqualified.
 
 ## Choose the lane
 
@@ -51,6 +50,7 @@ inspect it rather than replaying the expression.
 
 Each invocation detaches its own Inspector socket and stops its receiver.
 Enabled domains are disabled even after uncertain enable or lost ownership;
+CSS uses fixed direct reads without change subscriptions.
 an attempted timeline start always gets a stop attempt. A cleanup failure fails
 the operation. Read-only calls without a session reserve and release a temporary
 shared owner. An existing owner's work is never displaced.
@@ -68,14 +68,28 @@ secrets. Files are 0600 in 0700 directories.
 
 ## Current evidence
 
-Nine Python fault/ownership/domain checks, four existing observer boundary
-checks, and 33 focused MCP discovery/capture/observer checks passed on 10 October.
-The fresh installed candidate exposes 33 tools and seven resources.
-The host doctor passed 11/11; Safari's Tailscale page was registered and visible.
-The paired transport could not discover the phone (`_RemotePairingDeviceNotFoundError`),
-and CoreDevice independently reported its tunnel unavailable. No page or console
-failure is inferred from that transport result. Physical source/CSS/console/trace
-and independent Chrome qualification remain the next gate.
+Physical Safari qualification on 10 October passed source catalogs/windows,
+matched/inline/computed CSS (531 properties, expected 18px fixture font), and an
+explicit synthetic console warning under the owned glow. Trimming source-map
+and provider extras before catalog admission produced zero dropped entries.
+Direct CSS reads avoid CSS change subscriptions: CSS.enable/disable did not
+answer on this phone. No stylesheet or product source was changed.
+
+A separate passive timeline returned three events, stopped and detached. The
+combined trace effect encountered a changed document and was not replayed;
+its input outcome stays conservatively unknown. Passive tracing does not prove
+that combined workflow or calibrated page CPU. Page lease release and glow off
+passed. See browser-debug-physical-2026-10-10.json.
+
+Chrome's enrolled page was visible/ready, but no matching Inspector target was
+discoverable. Its separate Web Inspector setting and required relaunch remain
+to be confirmed. A bounded XCTest startup did not become ready; runner stop and
+shared ownership release passed. No Mirroring was used. Neither browser result
+qualifies arbitrary-network Inspector access.
+
+Ten Python fault/ownership/domain checks and focused MCP discovery/capture checks
+pass. v1.8.1 exposes 34 tools and nine resources. Script catalogs remain bounded
+and can be incomplete on larger pages; inspect dropped counts.
 
 Protocol references: [Debugger](https://raw.githubusercontent.com/WebKit/WebKit/main/Source/JavaScriptCore/inspector/protocol/Debugger.json),
 [DOM](https://raw.githubusercontent.com/WebKit/WebKit/main/Source/JavaScriptCore/inspector/protocol/DOM.json),

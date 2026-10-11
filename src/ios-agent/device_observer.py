@@ -178,7 +178,8 @@ def main():
         code=known.get(type(e).__name__,'device_observation_unavailable')
         if isinstance(e,ValueError) and str(e) in {'observer_owner_expired','pinned_observer_required','bounded_png_required','private_observer_output_required','fixed_observer_request_required','private_dev_origin_required','fresh_debug_document_required','owned_browser_session_required_for_evaluation','visible_dev_document_required','debug_document_changed','script_not_in_current_document','script_source_unavailable','debug_selector_not_found','bounded_debug_artifact_required','debug_cleanup_unconfirmed','fixed_debug_operation_required'}:code=str(e)
         failure_type=type(e).__name__
-        print(json.dumps({'ok':False,'reason':code,'phase':r.get('_phase','validation'),'failureType':failure_type if re.fullmatch('[A-Za-z0-9_]{1,80}',failure_type) else 'Unknown','inputSent':False}))
+        diagnostic={k:r.get('debug',{}).get(v) for k,v in [('failedMethod','_failedMethod'),('cleanupFailures','_cleanupFailures'),('receiverFailureType','_receiverFailureType')] if r.get('debug',{}).get(v)}
+        print(json.dumps({'ok':False,'reason':code,'phase':r.get('_phase','validation'),'failureType':failure_type if re.fullmatch('[A-Za-z0-9_]{1,80}',failure_type) else 'Unknown','diagnostic':diagnostic,'inputSent':False}))
         sys.exit(1)
 
 if __name__=='__main__':main()

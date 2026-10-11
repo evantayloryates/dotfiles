@@ -1,8 +1,8 @@
 # Agent operating contract — installed personal development service
 
 MCP follow-on: `/Users/taylor/dotfiles/bin/ios-agent-mcp` exposes the fixed CLI
-through 33 tools and seven resources in the current v1.8.0 candidate source.
-The last fully published catalog was v1.7.1 (32 tools). The new Inspector tool
+through 34 tools and nine resources in the current v1.8.1 candidate source.
+The v1.8.0 Inspector candidate is published; the last qualified catalog was v1.7.1 (32 tools). The new Inspector tool
 awaits its physical source/CSS/console/timeline gate; see BROWSER-DEBUG.md. A long-lived
 harness may retain its earlier tool inventory until that connection refreshes. `ios_guide` → `ios_doctor` → `ios_begin` → inspect/act/verify
 → `ios_end` manages lease/evidence paths and independently confirms cleanup.
@@ -165,3 +165,10 @@ These results do not qualify actual call audio, native raw audio, arbitrary-netw
 runner startup, universal passcode-free authorization, or browser off-LAN updates.
 See annotation-chrome-permission-wda-2026-10-10.json and
 annotation-sudo-diagnostics-2026-10-10.json for the dated gates.
+
+
+v1.8.1 adds a verified durable signed native build job (installation separate)
+and browser-debug/native-build recipe resources: 34 tools, nine resources.
+Safari source/CSS/console/passive-timeline Inspector reads are physically
+qualified. Chrome Inspector and combined trace effects remain unqualified.
+See native-build-mcp-2026-10-10.json and browser-debug-physical-2026-10-10.json.

@@ -46,7 +46,7 @@ class InspectorTests(unittest.IsolatedAsyncioTestCase):
     async def test_styles_return_matched_inline_computed_and_disable(self):
         r=await self.run_debug({'op':'styles','selector':'#fixture'})
         self.assertIn('matched',r);self.assertIn('computed',r);self.assertIn('inline',r)
-        self.assertEqual(self.s.calls[-1][0],'CSS.disable');self.assertTrue(r['domainsDisabled'])
+        self.assertNotIn('CSS.enable',[method for method,_ in self.s.calls]);self.assertFalse(r['styleEventsSubscribed']);self.assertTrue(r['domainsDisabled'])
     async def test_trace_stops_and_counts_final_events_and_never_requests_user_gesture(self):
         r=await self.run_debug({'op':'trace','sampleMs':100})
         self.assertTrue(r['timelineStopped']);self.assertTrue(r['domainsDisabled']);self.assertEqual(r['eventCount'],2)
@@ -87,5 +87,10 @@ class InspectorTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(e.rows),1000);self.assertEqual(e.dropped,2)
         self.assertEqual(e.rows[0]['params']['password'],'1234…3456')
         e.add('huge',{'text':'x'*(debug.MAX_BYTES+1)});self.assertEqual(e.dropped,3)
+    def test_script_catalog_omits_bulk_provider_fields_before_event_budget(self):
+        e=debug.Events()
+        e.add('Debugger.scriptParsed',{'scriptId':'7','url':'https://dev.test/a.js?token=private','sourceMapURL':'data:application/json,'+'x'*debug.MAX_BYTES,'providerBulk':'x'*debug.MAX_BYTES})
+        self.assertEqual(e.dropped,0);self.assertLess(e.bytes,3000)
+        p=e.rows[0]['params'];self.assertEqual(p['url'],'https://dev.test/a.js');self.assertNotIn('providerBulk',p)
 
 if __name__=='__main__':unittest.main()

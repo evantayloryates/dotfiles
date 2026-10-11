@@ -401,8 +401,16 @@ profiling and Wi-Fi handoff. Native target and React component IDs stay distinct
 ## On-demand browser debugger (v1.8 candidate)
 
 `ios_browser_debug` adds source catalogs and bounded source windows, matched CSS,
-console windows and short WebKit timelines. Its typed surface makes 33 tools;
-resources remain seven. Read BROWSER-DEBUG.md for recipes, ownership and retention.
-These new operations require their own physical qualification; existing fixed
-Safari bootstrap proof is narrower. Routine network page control stays on
+console windows and short WebKit timelines. Read ios-agent://browser-debug or BROWSER-DEBUG.md for recipes, ownership and retention.
+Physical Safari source/CSS/console/passive-timeline reads passed. Chrome Inspector
+and combined trace effects remain unqualified; see the dated browser-debug receipt. Routine network page control stays on
 `ios_web_*`; paired Inspector availability is a separate prerequisite.
+
+## Durable native build preparation (v1.8.1 candidate)
+
+`ios_build plan/start/retry/status` wraps the existing signed generic-device DEV build
+with durable job recovery and a process-held collision lock. The catalog now has
+34 tools / nine resources. Read ios-agent://native-build and
+ios-agent://browser-debug for the complete recipes. See NATIVE-BUILD.md. A build does not install, launch
+or control the phone. MCP install packaging remains an explicit outstanding item;
+no automatic replacement or readiness claim is made.

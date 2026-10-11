@@ -10,7 +10,7 @@ import {CaptureStore} from './capture-store.mjs';
 import {SystemDriver} from './system-driver.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/input-schemas.mjs', 'mcp/system-driver.mjs', 'system_runner.py', 'mcp/capture-store.mjs', 'web/rich-capture.js', 'ready_wait.py', 'mcp/media-verification.mjs', 'mcp/workflows.mjs', 'fixture_jobs.py', 'tests/run_fixture.py', 'paired_workflow.py', 'health.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'browser_inspector.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
+const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/input-schemas.mjs', 'mcp/system-driver.mjs', 'system_runner.py', 'mcp/capture-store.mjs', 'web/rich-capture.js', 'ready_wait.py', 'mcp/media-verification.mjs', 'mcp/workflows.mjs', 'fixture_jobs.py', 'build_jobs.py', 'build_app.py', 'tests/run_fixture.py', 'paired_workflow.py', 'health.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'browser_inspector.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
   .map(file => fs.readFileSync(path.join(root, file))).map(bytes => createHash('sha256').update(bytes).digest('hex')).join(':')).digest('hex');
 export const defaultState = path.join(os.homedir(), 'Library/Application Support/ios-agent');
 const idleLimit = 20 * 60 * 1000;
@@ -73,7 +73,7 @@ export class Backend {
   }
   async run(kind, args, input, timeout = 120000, signal) {
     if (this.runOverride) return this.runOverride(kind, args, input);
-    const files = {wait:'ready_wait.py', web: 'web_cli.py', cli: 'cli.py', verify: 'verify.py', doctor: 'health.py', stack: 'local_stack.py', paired: 'paired_workflow.py', learning: 'learning.py', provider:'device_observer.py', fixture:'fixture_jobs.py'};
+    const files = {wait:'ready_wait.py', web: 'web_cli.py', cli: 'cli.py', verify: 'verify.py', doctor: 'health.py', stack: 'local_stack.py', paired: 'paired_workflow.py', learning: 'learning.py', provider:'device_observer.py', fixture:'fixture_jobs.py', build:'build_jobs.py'};
     if (!files[kind]) throw new Error('fixed_operation_required');
     const argv = kind === 'learning' ? [path.join(this.state, 'learning')] :
       kind === 'provider' ? [] : ['web','wait','fixture'].includes(kind) ? ['--state', this.state] : kind === 'paired' ? [] : kind === 'cli' ? ['--state', this.state, ...args] : [...args, '--state', this.state];
@@ -142,13 +142,14 @@ export class Backend {
       launch: 'ios_device_launch has fixed DEV/Settings/Safari/Chrome targets through a paired nearby developer channel. DEV launch was qualified from Settings without XCTest. Arbitrary-network foreground launch remains unqualified; Tailscale page/app control alone cannot launch a suspended app.',
       lock: 'ios_device_lock runs only Runner Lock iPhone through the paired developer channel, then independently reads passcodeRequired. The one-action Apple shortcut is installed and physically verified. Already locked is a no-input success. It cannot unlock the phone, does not store a passcode, and is not an arbitrary-network system-control lane.',
       richCapture: 'ios_capture is explicit synthetic-DEV capture only: start selected console/network/audio modes, drain bounded batches, stop, then end in finally. Default 2 MiB ring, max 8 MiB, max 10 minutes; host 32 MiB/capture and 128 MiB total. Artifacts expire after one hour by default (max 24 hours) and private audio chunks stay off the transcript. Clone existing audio tracks only; no microphone request. Inspect remainingEvents and dropped counts; this is not lossless whole-device traffic capture.',
-      browserDebugger: 'v1.8 candidate: physical new-domain qualification is pending. ios_browser_debug exposes on-demand source catalogs/windows, matched CSS, console and short WebKit timeline records through the paired Inspector. Content stays in private artifacts; read selected pointers. Evaluation requires an active matching browser page lease/glow and fresh documentRef. No breakpoint/heap or arbitrary-network Inspector claim.',
+      browserDebugger: 'Read ios-agent://browser-debug. v1.8.1: physical Safari source/CSS/console/passive-timeline reads passed; Chrome Inspector and combined trace effects remain unqualified. ios_browser_debug exposes on-demand source catalogs/windows, matched CSS, console and short WebKit timeline records through the paired Inspector. Content stays in private artifacts; read selected pointers. Evaluation requires an active matching browser page lease/glow and fresh documentRef. No breakpoint/heap or arbitrary-network Inspector claim.',
       deviceObserver: 'ios_device_inspect kind=screen|capabilities|browser-debug|resource-profile reads the paired iPhone without XCTest or Mirroring. With no session it reserves/releases a temporary owner. ios_read renders a private full-display image. Nearby paired wireless developer transport only; HID input not qualified.',
       browserLimits: 'Page-owned DOM input is synthetic; it does not operate OS dialogs, trusted touch, IME or microphone permission. SDK return channel works over private HTTPS; require separate off-LAN qualification. Dev-only enrollment and per-tab authentication.',
       workflow: ['ios_doctor', 'ios_begin', 'ios_native or ios_react', 'ios_verify', 'ios_end'],
       hostWorkflow: ['ios_doctor (read only)', 'ios_stack_ensure only when needed and idle; never replay an uncertain start'],
       inputRecipes: 'Read ios-agent://native-input for typed native/React examples, focused text editing, bounded profiling, Wi-Fi handoff and verification. Native target IDs and React component IDs are different. Invalid argument combinations are refused before phone dispatch.',
-      inputMatrix: 'ios_input_matrix plan/start/status exposes the compiled UIKit fixture as a durable serialized simulator job. Require completed, passed and cleanupVerified; no physical-iPhone, React Native, browser or off-LAN proof. Jobs survive MCP reconnect for cleanup; never restart an uncertain job.',
+      nativeBuild: 'Read ios-agent://native-build. ios_build plan/start/retry/status exposes durable signed generic-device DEV builds. No phone install, launch, sudo or XCTest. Recover jobId after disconnect; build success is not installed readiness.',
+      inputMatrix: 'ios_input_matrix plan/start/retry/status exposes the compiled UIKit fixture as a durable serialized simulator job. Require completed, passed and cleanupVerified; no physical-iPhone, React Native, browser or off-LAN proof. Jobs survive MCP reconnect for cleanup; never restart an uncertain job.',
       pairedWorkflow: 'ios_workflow action=plan exposes the versioned coach-client recipe; capture/assert/restore-check independently read only the verified synthetic local row. UI rendering is a separate gate.',
       lease: 'One session per work turn. Always ios_end in finally before ending a turn. Codex should supply its actual active rollout to ios_begin. Other clients use a private connection heartbeat; MCP cannot detect a model turn ending on a persistent connection.',
       requirements: 'Native: Kickoff DEV foreground/unlocked. Browser: enrolled dev document visible on unlocked iPhone. Both require Tailscale and awake laptop services; routine control needs no USB. Developer-channel failure does not prove physical disconnection or lock.',
@@ -176,6 +177,10 @@ export class Backend {
     if (!r.value) return {ok: false, reason: r.error, outcome: 'inspect_current_state_before_retry', replay: false};
     return {...safe(r.value), ok: r.ok && r.value.backendReady === true, replay: false,
       next: 'Run ios_doctor after any uncertain result. This tool never stops existing workers, resets data, or promises phone readiness.'};
+  }
+  async buildJob(args = {}) {
+    const r=await this.run('build',[],args,25000);
+    return r.value?safe(r.value):{ok:false,reason:r.error,replay:false,next:'Recover ios_build status before any new start.'};
   }
   async inputMatrix(args = {}) {
     const r = await this.run('fixture', [], args, 25000);
@@ -332,7 +337,7 @@ export class Backend {
           const receipt={gate:'device-profile',status:'failed',observation:{observationCompleted:false,inputSent:false,deadlineExceeded:run.value?.reason==='device_observation_deadline',waitingForSamples:run.value?.phase==='resource_profile_sample',osVersionKnown:false}};
           learningEvidence=await this.learning('observe',{receipt,source}).catch(()=>({available:false}));
         }
-        return {ok:false,reason:run.value?.reason||'device_observation_unavailable',phase:run.value?.phase,failureType:run.value?.failureType,...(learningEvidence?{learningEvidence}:{}),inputSent:debug?.expression!==undefined?'unknown':false,replay:false};
+        return {ok:false,reason:run.value?.reason||'device_observation_unavailable',phase:run.value?.phase,failureType:run.value?.failureType,...(debug?{diagnostic:run.value?.diagnostic}:{}),...(learningEvidence?{learningEvidence}:{}),inputSent:debug?.expression!==undefined?'unknown':false,replay:false};
       }
       this.session(s.id);
       const value=JSON.parse(fs.readFileSync(a.file,'utf8')).result;

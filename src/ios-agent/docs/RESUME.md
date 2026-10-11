@@ -112,3 +112,9 @@ Lease-scoped keep-awake candidate: UIKit idle timer is disabled only while contr
 
 
 Browser Inspector candidate, 10 October: v1.8.0 / 33 tools / seven resources. ios_browser_debug adds sources/windows, matched/inline/computed CSS, bounded console/timeline and owned-page explicit evaluation. See BROWSER-DEBUG.md and browser-debug-candidate-2026-10-10.json. Focused checks pass; physical new-domain qualification remains pending. Safari Tailscale page is visible/ready, but Apple paired tunnel cannot currently discover the phone. CoreDevice independently reports tunnel unavailable; no lock/cable inference. USB requested for this narrow Inspector smoke, no XCTest/Mirroring requested. Candidate is not overall production completion.
+
+
+2026-10-11T02:05:05.436288+00:00: Durable native-build gate passed, job a82c52776ecf4f349986fe8619bfe689. First failure retained; private TMPDIR repair and explicit retry passed in 50.4s. Independent manifest/signature/runtime-hash readback passed. MCP install remains next; Safari Inspector physical gate now proceeds after user confirmed tether/unlock. No phone lease/glow/XCTest started yet. See native-build-mcp-2026-10-10.json.
+
+
+2026-10-11T02:12:44.841471+00:00: Physical Safari sources/window, direct CSS, console effect and separate passive timeline passed. CSS subscription path failed; direct reads repaired it. Combined trace effect hit changed-document guard, never replayed. Chrome page ready, Inspector target missing. Bounded XCTest start unconfirmed; runner stopped/released. Physical screenshot independently shows XCTest passcode prompt; asked user to Cancel and spoke actual request. Chrome stays pending; no Mirroring. Publication next.

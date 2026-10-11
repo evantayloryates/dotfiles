@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-11T02:04:49.168552+00:00",
+  "version": "1.8.1",
+  "scope": "MCP durable signed DEV build only; no phone delivery",
+  "result": "passed",
+  "jobId": "a82c52776ecf4f349986fe8619bfe689",
+  "firstJobId": "eb52b1daed144229beb4a90541dc2265",
+  "firstFailure": {
+    "state": "failed",
+    "exitCode": 65,
+    "cause": "GUI environment lacked TMPDIR; source-map output attempted filesystem root",
+    "fix": "fixed private derived-data sibling TMPDIR"
+  },
+  "retry": {
+    "state": "completed",
+    "exitCode": 0,
+    "seconds": 50.4,
+    "productVerified": true,
+    "agentBinaryVerified": true,
+    "signatureVerified": true,
+    "devCallbackRegistered": true,
+    "sourceChangedDuringBuild": false,
+    "executableHash": "f69d5f6c24068bfc89da14046587d85736ccaa0fd191a20c94c260353cb82a1f",
+    "installed": false,
+    "xctestStarted": false,
+    "phoneInputSent": false,
+    "supersededCacheRetryRefused": true
+  },
+  "independentReadback": {
+    "manifestAfterJobStart": true,
+    "codesignStrictDeepPassed": true,
+    "runtimeSnapshotHashMatched": true
+  },
+  "mcpEvidence": {
+    "disconnectRecoveryPassed": true,
+    "competingStartRefused": true,
+    "freshCatalog": {
+      "version": "1.8.1",
+      "tools": 34,
+      "resources": 9
+    }
+  },
+  "focusedTests": {
+    "pythonCases": 6,
+    "mcpBuildSchemaCases": 1,
+    "mcpWrapperDiscoveryAndBuildPassed": 25
+  },
+  "limits": [
+    "Installation is not part of this tool and remains an outstanding integration.",
+    "Executable hash is not full resource identity.",
+    "No phone, arbitrary-network Inspector, real audio or whole-service release qualification.",
+    "No new native build after metadata-only fresh-manifest guard; stale-manifest case is covered by the focused test and this manifest was independently fresh."
+  ]
+}
