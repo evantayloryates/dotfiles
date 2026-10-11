@@ -65,6 +65,27 @@ class InspectorTests(unittest.IsolatedAsyncioTestCase):
         self.s.fail='Timeline.stop'
         with self.assertRaisesRegex(ValueError,'debug_cleanup_unconfirmed'):await self.run_debug({'op':'trace','sampleMs':100})
         self.assertEqual(self.s.calls[-1][0],'Timeline.disable');self.assertEqual(self.s.response_methods,{})
+    async def test_document_change_reports_before_or_after_input_without_replay(self):
+        ref=await self.ref();original=self.s.send_command
+        async def change_before(method,**args):
+            result=await original(method,**args)
+            if method=='Timeline.start':self.s.changed=True
+            return result
+        self.s.send_command=change_before
+        request={'op':'trace','documentRef':ref,'ownedPage':'p','expression':'42','sampleMs':100}
+        with self.assertRaisesRegex(ValueError,'debug_document_changed'):await self.run_debug(request)
+        self.assertFalse(request['_inputDispatched']);self.assertEqual(request['_documentChange']['stage'],'before_expression')
+        self.assertEqual([x[0] for x in self.s.calls][-2:],['Timeline.stop','Timeline.disable'])
+        self.s=Session();ref=await self.ref();original=self.s.send_command
+        async def change_after(method,**args):
+            result=await original(method,**args)
+            if method=='Runtime.evaluate' and args['expression']=='42':self.s.changed=True
+            return result
+        self.s.send_command=change_after
+        request={'op':'console','documentRef':ref,'ownedPage':'p','expression':'42','sampleMs':100}
+        with self.assertRaisesRegex(ValueError,'debug_document_changed'):await self.run_debug(request)
+        self.assertTrue(request['_inputDispatched']);self.assertEqual(request['_documentChange']['stage'],'after_operation')
+        self.assertEqual(len([args for method,args in self.s.calls if method=='Runtime.evaluate' and args['expression']=='42']),1)
     async def test_evaluation_requires_matching_live_glow_and_console_scrubs_known_fields(self):
         ref=await self.ref()
         with self.assertRaisesRegex(ValueError,'owned_browser_session'):await self.run_debug({'op':'evaluate','documentRef':ref,'expression':'42'})

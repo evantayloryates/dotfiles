@@ -402,8 +402,9 @@ profiling and Wi-Fi handoff. Native target and React component IDs stay distinct
 
 `ios_browser_debug` adds source catalogs and bounded source windows, matched CSS,
 console windows and short WebKit timelines. Read ios-agent://browser-debug or BROWSER-DEBUG.md for recipes, ownership and retention.
-Physical Safari source/CSS/console/passive-timeline reads passed. Chrome Inspector
-and combined trace effects remain unqualified; see the dated browser-debug receipt. Routine network page control stays on
+Physical Safari/Chrome source/CSS/console and combined bounded timeline reads
+passed nearby. Use fresh document references; pre-input rejection and unknown
+dispatched effects remain distinct. See browser-debug-dual-physical-2026-10-10.json. Routine network page control stays on
 `ios_web_*`; paired Inspector availability is a separate prerequisite.
 
 ## Durable native build preparation (v1.8.1 candidate)

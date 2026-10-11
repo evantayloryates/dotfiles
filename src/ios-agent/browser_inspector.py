@@ -64,6 +64,8 @@ class Events:
 
 
 async def inspect(session, request, target, expected, check):
+    request['_inputDispatched']=False
+    request['_contextStage']='initial'
     op=request.get('op','overview')
     allowed={'overview','sources','source','styles','console','trace','evaluate'}
     if op not in allowed:raise ValueError('fixed_debug_operation_required')
@@ -80,12 +82,17 @@ async def inspect(session, request, target, expected, check):
         if not value.get('originMatches') or value.get('visible') is not True or type(value.get('timeOrigin')) not in (int,float):
             raise ValueError('visible_dev_document_required')
         ref=hashlib.sha256(json.dumps([target.application.bundle,target.application.id_,target.page.id_,value['timeOrigin']]).encode()).hexdigest()[:32]
-        if reference and ref!=reference:raise ValueError('debug_document_changed')
+        if reference and ref!=reference:
+            request['_documentChange']={'stage':request['_contextStage'],'observedRef':ref,'timeOrigin':value['timeOrigin'],
+                'targetHash':hashlib.sha256(json.dumps([target.application.bundle,target.application.id_,target.page.id_]).encode()).hexdigest()[:32]}
+            raise ValueError('debug_document_changed')
         if request.get('expression') is not None and (value.get('page')!=request['ownedPage'] or value.get('owned') is not True or value.get('indicator') is not True):
             raise ValueError('owned_browser_session_required_for_evaluation')
         return ref,value
     document,ctx=await context()
-    result={'operation':op,'documentRef':document,'browser':target.application.bundle,'ready':ctx['ready'],'scope':'paired-dev-WebKit-Inspector','userGestureRequested':False,'replay':False}
+    result={'operation':op,'documentRef':document,'documentIdentity':{'timeOrigin':ctx['timeOrigin'],
+        'targetHash':hashlib.sha256(json.dumps([target.application.bundle,target.application.id_,target.page.id_]).encode()).hexdigest()[:32]},
+        'browser':target.application.bundle,'ready':ctx['ready'],'scope':'paired-dev-WebKit-Inspector','userGestureRequested':False,'replay':False}
     if op=='overview':return {**result,'domainsDisabled':True}
     domains=[];events=Events();old_handlers={};paused=False;timeline_requested=False
     def handler(method):
@@ -99,7 +106,9 @@ async def inspect(session, request, target, expected, check):
         domains.append(domain)
         check();await command(session,domain+'.enable')
     async def evaluate():
+        request['_contextStage']='before_expression'
         await context();check()
+        request['_inputDispatched']=True
         return await command(session,'Runtime.evaluate',expression=request['expression'],returnByValue=True,userGesture=False,doNotPauseOnExceptionsAndMuteConsole=False)
     try:
         methods={'sources':['Debugger.scriptParsed','Debugger.scriptFailedToParse','Debugger.paused'],
@@ -146,6 +155,7 @@ async def inspect(session, request, target, expected, check):
                 check();await asyncio.sleep(min(.1,max(0,until-asyncio.get_running_loop().time())))
             result['events']=events.rows
         elif op=='evaluate':result['evaluation']=await evaluate()
+        request['_contextStage']='after_operation'
         after,_=await context()
         if after!=document:raise ValueError('debug_document_changed')
     finally:

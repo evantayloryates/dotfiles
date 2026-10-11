@@ -44,3 +44,21 @@ test('private inspector artifact is summarized, readable selectively, and expire
 test('oversize debugger artifact fails storage admission',()=>{
  const state=fs.mkdtempSync(path.join(os.tmpdir(),'inspector-quota-'));try{const store=new CaptureStore(state);assert.throws(()=>store.saveDiagnostic({content:'x'.repeat(2*1024*1024)}),/capture_storage_quota_reached/);assert.equal(store.directories().length,0);}finally{fs.rmSync(state,{recursive:true,force:true});}
 });
+
+
+test('provider distinguishes rejected pre-input document guard from unknown dispatched effect',async()=>{
+ const state=fs.mkdtempSync(path.join(os.tmpdir(),'inspector-dispatch-'));
+ const python=path.join(state,'providers/pymobiledevice3-11.15.5/bin/python');fs.mkdirSync(path.dirname(python),{recursive:true});fs.writeFileSync(python,'');
+ fs.writeFileSync(path.join(state,'web-device.json'),JSON.stringify({coreDeviceId:'EFF7037C-94D3-5222-AB4A-770D3AB5BBC9',hardwareUDID:'00008110-001451690A21801E'}),{mode:0o600});
+ let sent=false;const b=new Backend({state,run:async()=>({ok:false,value:{reason:'debug_document_changed',inputSent:sent,diagnostic:{documentChange:{stage:sent===false?'initial':'after_operation'}}}})});
+ b.session=()=>({id:'owned',surface:'web',page:'page',lease:'private',owner:'private',dir:state});
+ try{for(const expected of [false,'unknown']){sent=expected;const r=await b.deviceInspect({kind:'browser-debug',sessionId:'owned',debug:{op:'trace',expression:'42'}});assert.equal(r.inputSent,expected);assert.equal(r.replay,false);assert.equal(r.reason,'debug_document_changed');}}
+ finally{b.session=Backend.prototype.session;await b.close();fs.rmSync(state,{recursive:true,force:true});}
+});
+
+test('read-only debug tells an owned connection to pass its existing session',async()=>{
+ const state=fs.mkdtempSync(path.join(os.tmpdir(),'inspector-owner-'));const python=path.join(state,'providers/pymobiledevice3-11.15.5/bin/python');fs.mkdirSync(path.dirname(python),{recursive:true});fs.writeFileSync(python,'');
+ const b=new Backend({state});b.begin=async()=>{throw Error('end_existing_session_first');};
+ try{const r=await b.deviceInspect({kind:'browser-debug',debug:{op:'sources'}});assert.equal(r.reason,'end_existing_session_first');assert.equal(r.inputSent,false);}
+ finally{await b.close();fs.rmSync(state,{recursive:true,force:true});}
+});

@@ -1,9 +1,8 @@
-# On-demand browser Inspector — v1.8 candidate
+# On-demand browser Inspector — v1.9.1
 
 `ios_browser_debug` adds independent WebKit diagnostics for the configured
 private DEV origin. It uses the existing pinned paired-device observer, without
-XCTest or Mirroring. **Physical Safari source/CSS/console/passive-timeline reads passed.**
-Chrome Inspector and combined trace effects remain unqualified.
+XCTest or Mirroring. **Physical Safari and Chrome source/CSS/console and bounded combined-timeline reads passed nearby.**
 
 ## Choose the lane
 
@@ -75,21 +74,23 @@ and provider extras before catalog admission produced zero dropped entries.
 Direct CSS reads avoid CSS change subscriptions: CSS.enable/disable did not
 answer on this phone. No stylesheet or product source was changed.
 
-A separate passive timeline returned three events, stopped and detached. The
-combined trace effect encountered a changed document and was not replayed;
-its input outcome stays conservatively unknown. Passive tracing does not prove
-that combined workflow or calibrated page CPU. Page lease release and glow off
-passed. See browser-debug-physical-2026-10-10.json.
+Fresh physical Chrome qualification enabled Settings → Content settings → Web
+Inspector (previously Off), then restarted Chrome once. Source discovery found
+407 scripts with zero drops; bounded source-window, CSS, console warning and
+combined timeline effect/readback passed. Safari combined timeline effect also
+passed after physical unlock with Mirroring disconnected. Both traces stopped,
+disabled their domains and detached; page release confirmed glow off.
 
-Chrome's enrolled page was visible/ready, but no matching Inspector target was
-discoverable. Its separate Web Inspector setting and required relaunch remain
-to be confirmed. A bounded XCTest startup did not become ready; runner stop and
-shared ownership release passed. No Mirroring was used. Neither browser result
-qualifies arbitrary-network Inspector access.
+Document references must be fresh. A stale reference is rejected before input;
+request diagnostics now distinguish initial / before-expression / after-operation
+identity changes. Only a confirmed pre-expression rejection reports inputSent=false;
+a dispatched expression with an uncertain outcome remains unknown and must not
+be replayed. The previous Safari attempt lost ownership when temporary Mirroring
+was closed during the trace; its uncertain input was not replayed.
 
-Ten Python fault/ownership/domain checks and focused MCP discovery/capture checks
-pass. v1.8.1 exposes 34 tools and nine resources. Script catalogs remain bounded
-and can be incomplete on larger pages; inspect dropped counts.
+See browser-debug-dual-physical-2026-10-10.json. Fifteen focused Python checks and
+eight MCP debugger/observer checks pass. Neither browser result qualifies
+arbitrary-network Inspector access, breakpoints, heaps or audible audio.
 
 Protocol references: [Debugger](https://raw.githubusercontent.com/WebKit/WebKit/main/Source/JavaScriptCore/inspector/protocol/Debugger.json),
 [DOM](https://raw.githubusercontent.com/WebKit/WebKit/main/Source/JavaScriptCore/inspector/protocol/DOM.json),

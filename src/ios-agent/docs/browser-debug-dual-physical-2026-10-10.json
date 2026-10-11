@@ -1,0 +1,93 @@
+{
+  "at": "2026-10-11T02:39:37.619754+00:00",
+  "version": "1.9.1",
+  "scope": "Physical paired nearby iPhone; Inspector not off-LAN qualified",
+  "chromeSetup": {
+    "settingInitiallyOff": true,
+    "enabledVia": "temporary iPhone Mirroring, Settings > Content settings > Web Inspector",
+    "oneDeveloperRelaunchAccepted": true,
+    "runtimeUsesMirroring": false
+  },
+  "chrome": {
+    "styles": {
+      "operation": "styles",
+      "documentRef": "917187c40cc9ab4c863cd1e3c923ec9f",
+      "browser": "com.google.chrome.ios",
+      "eventCount": 0,
+      "droppedEvents": 0,
+      "domainsDisabled": true,
+      "computedProperties": 531,
+      "fontSize": "18px",
+      "matchedRules": 2
+    },
+    "console": {
+      "operation": "console",
+      "documentRef": "917187c40cc9ab4c863cd1e3c923ec9f",
+      "browser": "com.google.chrome.ios",
+      "eventCount": 2,
+      "droppedEvents": 0,
+      "domainsDisabled": true,
+      "expectedWarningCaptured": true
+    },
+    "trace": {
+      "operation": "trace",
+      "documentRef": "6f901967cca2248a9661fe1a99192e58",
+      "browser": "com.google.chrome.ios",
+      "eventCount": 3,
+      "droppedEvents": 0,
+      "timelineStopped": true,
+      "domainsDisabled": true,
+      "evaluationConfirmed": true
+    },
+    "source": {
+      "operation": "source",
+      "documentRef": "5e6f9c40e814c0158131061b04137b58",
+      "browser": "com.google.chrome.ios",
+      "eventCount": 418,
+      "droppedEvents": 0,
+      "domainsDisabled": true,
+      "scriptCount": 417,
+      "sourceWindow": {
+        "lineCount": 1,
+        "totalLines": 1,
+        "sha256": "52422487ff14485a4c1fde3f2705eaf6962cafef2a746fe9b6491d3d0fff6342",
+        "truncated": false
+      }
+    }
+  },
+  "safariCombinedTrace": {
+    "passed": true,
+    "operation": "trace",
+    "documentRef": "cfb1fafc9c1e7f6ded990eac72b7b935",
+    "browser": "com.apple.mobilesafari",
+    "ready": "complete",
+    "eventCount": 17,
+    "droppedEvents": 0,
+    "retainedBytes": 19307,
+    "timelineStopped": true,
+    "domainsDisabled": true,
+    "detached": true,
+    "transport": "native-remoted",
+    "offLANQualified": false,
+    "retentionSeconds": 3600
+  },
+  "cleanup": {
+    "chromeIndicatorOff": true,
+    "safariIndicatorOff": true,
+    "mirroringProcessStopped": true
+  },
+  "diagnosticRepair": {
+    "preExpressionGuardReportsInputNotSent": true,
+    "dispatchedUncertainEffectNeverReplayed": true,
+    "contextStageAndTargetHashRetained": true
+  },
+  "checks": {
+    "python": 15,
+    "mcp": 8
+  },
+  "limits": [
+    "No breakpoints, heap or worker/frame debugger",
+    "No trusted input or OS permission claim",
+    "No off-LAN Inspector or audible media claim"
+  ]
+}
