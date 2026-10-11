@@ -1,0 +1,69 @@
+{
+  "scope": "Physical iOS Chrome DEV qualification page; no Mirroring",
+  "diagnostics": {
+    "scope": "this document; at most last 1000 resource entries; overlapping durations are not elapsed time",
+    "navigation": {
+      "type": "navigate",
+      "domInteractiveMs": 2693,
+      "domCompleteMs": 14033,
+      "loadEndMs": 14033
+    },
+    "paint": {
+      "firstPaintMs": null,
+      "firstContentfulPaintMs": 14093
+    },
+    "resources": {
+      "observed": 73,
+      "totalDurationMs": 44409,
+      "transferBytes": 2223612,
+      "entriesWithTransferSize": 73
+    },
+    "longTasks": {
+      "supported": false,
+      "count": null,
+      "totalDurationMs": null,
+      "maxDurationMs": null
+    },
+    "eventTiming": {
+      "supported": true,
+      "observing": true,
+      "observedEntries": 0,
+      "totalDurationMs": 0,
+      "maxDurationMs": 0,
+      "latestStartMs": null,
+      "durationThresholdMs": 16,
+      "scope": "entry durations, not INP; buffered entries may precede ownership"
+    },
+    "largestContentfulPaint": {
+      "supported": true,
+      "observing": true,
+      "observedEntries": 1,
+      "totalDurationMs": 0,
+      "maxDurationMs": 0,
+      "latestStartMs": 14093,
+      "scope": "latest candidate start time; not final LCP until page lifecycle completes"
+    },
+    "audioSession": {
+      "supported": true,
+      "type": "auto",
+      "state": null
+    },
+    "memory": {
+      "jsHeapBytes": null,
+      "supported": false
+    },
+    "viewport": {
+      "width": 390,
+      "height": 669,
+      "scale": 1
+    },
+    "agentRequestsIncluded": true,
+    "contentFree": true
+  },
+  "microphone": {
+    "state": "failed",
+    "code": "NotAllowedError"
+  },
+  "nativeInputQualified": false,
+  "audibleAudioQualified": false
+}
