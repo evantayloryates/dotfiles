@@ -534,3 +534,19 @@ slow-reader, dropped-decode, unavailable-codec and disconnect edges are retained
 separately. The experiment never changes the primary call transport. Native
 WebRTC host ICE has no off-LAN qualification. Use the versioned resource for
 fixture/provider preflight, managed receiver startup and cleanup.
+
+## Safari received-track capture primitive — 11 October
+
+The shipped `rich-capture.js` factory and `CaptureStore` were exercised with a
+physical Safari received WebRTC track carrying a synthetic440Hz source.152new
+RTP packets advanced during recording;3chunks/77,566bytes independently decoded
+on the host into144,320non-silent48kHzframes (RMS0.10484). Recorder stop preserved
+the original track. Fixture cleanup then stopped tracks, closed both peers and
+AudioContext, removed the temporary files/receiver and returned Home. The original
+XCTest authorization was preserved throughout.
+
+This qualifies the received-track recorder primitive, not a full Safari provider
+call or MCP page-ownership/source-discovery path. No microphone was acquired, no
+speaker playback was used, and local host ICE is not off-LAN proof. The existing
+MCP capture operation already uses this factory; no runtime behavior changed.
+See safari-received-capture-physical-2026-10-11.json.

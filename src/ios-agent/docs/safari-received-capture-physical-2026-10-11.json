@@ -1,0 +1,48 @@
+{
+  "at": "2026-10-11T08:59:08.367656+00:00",
+  "version": "1.9.24",
+  "scope": "Physical Safari synthetic document-local received WebRTC track; shipped rich-capture factory and CaptureStore, not a full MCP-owned provider call",
+  "capture": {
+    "rtcConnected": true,
+    "receivedPacketDelta": 152,
+    "capturedChunks": 3,
+    "capturedBytes": 77566,
+    "decodedFrames": 144320,
+    "sampleRate": 48000,
+    "channels": 1,
+    "rms": 0.1048365924998078,
+    "peak": 0.15405288338661194,
+    "appTrackLiveAfterStop": true,
+    "captureStopped": true,
+    "dropped": 0,
+    "peersClosed": true,
+    "audioContextClosed": true
+  },
+  "hostDecode": {
+    "decoder": "host ffmpeg independent MP4 decode",
+    "frames": 144320,
+    "sampleRate": 48000,
+    "rms": 0.1048365940682057,
+    "peak": 0.15405289828777313,
+    "sha256": "2ef642cb42777651b97e0b2efc2d172a73d6d5a6027ba61dabb8e22a126c3334",
+    "nonSilent": true,
+    "retention": "same one-hour capture directory"
+  },
+  "factorySha256": "0b85a66ee76f281250a1fd8490188f679754101f3220d57d3edfa9401b822ba3",
+  "storeSha256": "973b8842edbd6a7fa1539903bf1bed5714be02db8b15329b46294df1da49695a",
+  "privateArtifactsExpireAfterOneHour": true,
+  "independentDomReadConfirmedStopped": true,
+  "hostUploadReceiptSaved": true,
+  "homeConfirmed": true,
+  "temporaryFixturesRemoved": 3,
+  "syntheticReceiverStopped": true,
+  "originalXCTestPreserved": true,
+  "boundaries": [
+    "No microphone requested;440Hz oscillator fed an existing received RTC track, with no speaker playback.",
+    "Nearby host ICE only; this does not overturn earlier cellular host-ICE failures or prove off-LAN RTC.",
+    "The exact shipped capture factory cloned the received track; this did not exercise MCP page ownership or SDK track discovery.",
+    "Actual Safari provider call, source discovery and owned-MCP capture remain a distinct end-to-end gate.",
+    "Original track remained live after recorder stop; fixture then explicitly stopped sources/receivers, closed peers and AudioContext.",
+    "Independent host decode proved144320non-silent48kHzframes; not audible playout or audio latency."
+  ]
+}
