@@ -86,6 +86,17 @@ to two seconds after a tree. Live geometry/hit checks still run. Let scroll
 momentum settle before the next tree; target-geometry rejection is useful evidence.
 A result acknowledgment proves delivery, not a saved business mutation.
 
+## Active work and honest blocked handoffs
+
+A driver failure is an engineering task while a concrete workaround remains.
+Try the next changed condition; do not repeat unchanged smoke checks. Before
+ending an unfinished goal turn, read its actual platform status. Never say
+nothing is needed while a blocked goal cannot restart itself. If the runtime
+cannot resume it, name the required Play/Resume action, request it, and continue
+independent work in the current turn. A checkpoint or shell process does not
+schedule another turn. Keep actual authentication and publication refusals
+explicit; never disguise them as completion or route around them.
+
 ## Failure and collisions
 
 | Observation | Next action |
@@ -448,3 +459,18 @@ ended that attempt with its own enabling-automation timeout; runner stop and lea
 release were confirmed. Human authorization/resumed ready remains open. Nineteen
 focused Node checks and one exact-error Python check passed. No passcode bypass,
 Mirroring dependence or off-LAN startup qualification is claimed.
+
+## 11 October: active goal and exact alert selection correction
+
+A stalled goal required the human Play control; active state was independently
+read back. The operating guidance above now prohibits an unactionable blocked
+handoff. The first-observer experiment applied before native querying: SpringBoard
+alert inspection responded, but the Safari-owned camera prompt remained visible
+and Safari alert inspection timed out. No physical input was sent; own runner
+stop and owner release passed. See goal-resume-observer-2026-10-11.json.
+
+MCP1.9.41 corrects exact alert dispatch to the installed WDA handler's `name`
+field. The former `buttonName` field was ignored by that provider, permitting
+default-button selection. Seven focused checks pass, including the installed
+provider source contract. Physical selection acceptance remains pending; this
+fix does not claim that stalled Safari inspection is resolved.

@@ -1,0 +1,50 @@
+{
+  "observedAt": "2026-10-11T16:17:56.165234+00:00",
+  "scope": "Changed-condition WDA observer test; no physical input sent",
+  "goal": {
+    "before": "blocked",
+    "nativeCodexControl": "provider refused access to Codex app; no alternate route attempted",
+    "humanAction": "Play pressed",
+    "after": "active"
+  },
+  "observerFirst": {
+    "springboardSettingsApplied": true,
+    "springboardAlertReadMs": 449,
+    "springboardAlert": "no such alert; camera prompt remained visible in independent screenshot",
+    "safariSettingsApplied": true,
+    "safariAlertRead": "timed out at4002ms",
+    "nativeSafariWorkaroundQualified": false
+  },
+  "cleanup": {
+    "released": true,
+    "systemCleanup": {
+      "ok": true,
+      "runnerStopped": true,
+      "verificationAttempts": 1,
+      "cleanupReason": "explicit_end_or_eof",
+      "learningEvidence": {
+        "evidenceId": "b201f570edee457da62f96ccc244becb",
+        "gate": "system-idle",
+        "status": "passed"
+      }
+    },
+    "ok": true,
+    "detail": {
+      "released": false,
+      "alreadyInactive": true,
+      "otherOwnerActive": false
+    },
+    "next": "XCTest fallback is stopped. Begin a fresh native/browser lease for normal work.",
+    "presentation": {
+      "homeNavigationPending": true
+    }
+  },
+  "fix": {
+    "exactButtonKey": "name",
+    "previousKey": "buttonName",
+    "providerEvidence": "installed FBAlertViewCommands.m handleAlertAcceptCommand reads request.arguments[@\"name\"]",
+    "focusedChecksPassed": 7,
+    "physicalExactButtonRetest": "pending"
+  },
+  "next": "Investigate bounded accessibility snapshot deadline or independent Apple AX alert observation; do not repeat unchanged automatic Safari resolution. Existing publication policy refusal remains binding."
+}

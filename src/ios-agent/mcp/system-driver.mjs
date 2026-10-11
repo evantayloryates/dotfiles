@@ -152,7 +152,9 @@ export class SystemDriver {
         if(current.authentication)return {ok:false,reason:'human_authentication_required',actionSent:false};
         await this.authorize();this.check();
         this.snapshot=null;inputSent=true;
-        await this.http('POST',this.route('/alert/accept'),{buttonName:label});
+        // The pinned WDA handler reads `name`; an unknown key silently falls
+        // back to accepting its default button, which may be a different one.
+        await this.http('POST',this.route('/alert/accept'),{name:label});
         return {ok:true,delivery:'native-XCTest-alert',effect:'unverified; inspect again',replay:false};
       }
       if(action==='orientation'){
