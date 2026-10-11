@@ -38,3 +38,33 @@ test('native buffered blob capture uses actual size, preserves caller response a
  response.blob={size:7,text:'pending'};await r.fetch('https://dev.test/pending');await c.stop(true);assert(aborts>=2);assert.equal(r.fetch,original);assert.equal(c.status().bufferedEvents,0);
  pending.result='late';pending.onload();await new Promise(x=>setTimeout(x,0));assert.equal(c.status().bufferedEvents,0);
 });
+
+test('failed audio recorder construction stops only its clone and does not retry each scan',async()=>{
+ const r=runtime();let scans,clones=0,cloneStops=0,sourceStops=0,attempts=0;
+ r.setInterval=fn=>{scans=fn;return 1;};r.clearInterval=()=>{};
+ r.MediaStream=class{constructor(tracks){this.tracks=tracks;}};
+ r.MediaRecorder=class{static isTypeSupported(){return true;}constructor(){attempts++;throw Error('synthetic unsupported track');}};
+ const source={kind:'audio',readyState:'live',stop(){sourceStops++;},clone(){clones++;return {stop(){cloneStops++;}};}};
+ const c=create(r,{sources:()=>[source]});
+ try{
+  c.start({id:'e'.repeat(32),modes:['audio'],seconds:10});scans();scans();
+  assert.equal(clones,1);assert.equal(attempts,1);assert.equal(cloneStops,1);assert.equal(sourceStops,0);
+  assert.equal(c.drain().events.filter(x=>x.reason==='recorder_or_track_clone_unavailable').length,1);
+ }finally{await c.stop(true);}
+ assert.equal(sourceStops,0);assert.equal(cloneStops,1);
+});
+
+test('partially started recorder is stopped on failure; a new capture may try that source once again',async()=>{
+ const r=runtime();let cloneStops=0,recorderStops=0,attempts=0,sourceStops=0;
+ r.setInterval=()=>1;r.clearInterval=()=>{};r.MediaStream=class{};
+ r.MediaRecorder=class{
+  static isTypeSupported(){return true;}
+  constructor(){attempts++;this.state='inactive';}
+  start(){this.state='recording';throw Error('synthetic start failure');}
+  stop(){recorderStops++;assert.equal(this.ondataavailable,null);this.state='inactive';}
+ };
+ const source={kind:'audio',readyState:'live',stop(){sourceStops++;},clone(){return {stop(){cloneStops++;}};}};
+ const c=create(r,{sources:()=>[source]});
+ for(let i=0;i<2;i++){c.start({id:String(i+1).repeat(32),modes:['audio'],seconds:10});await c.stop(true);}
+ assert.equal(attempts,2);assert.equal(cloneStops,2);assert.equal(recorderStops,2);assert.equal(sourceStops,0);
+});

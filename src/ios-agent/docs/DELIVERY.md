@@ -283,3 +283,20 @@ remains unqualified while the original user-requested runner hold continues.
 This candidate is preserved for focused qualification, not counted as a delivered
 routine control path. NATIVE-AX-CANDIDATE.md and ax-native-candidate-2026-10-11.json
 record the exact proof, failed effect gate and reasons for keeping it disabled.
+
+## MCP1.9.33 — failed audio-recorder cleanup
+
+If MediaStream/MediaRecorder construction or recorder start fails after cloning an
+audio track, capture now stops that clone and any partially started recorder. It
+records one failure and avoids retrying that same source on each one-second scan
+within the capture. A new explicitly started capture may try the source again.
+The application source is never stopped. Six capture contracts pass, including
+constructor and partial-start failure cleanup. Physical Chrome with a deliberately
+failing recorder confirmed one attempt/one clone stop, live source preservation,
+final resource cleanup and independent Home return. See
+capture-failure-cleanup-physical-2026-10-11.json.
+
+Fresh browser documents receive the repair. Native includes this factory at build
+time, so the currently installed native adapter needs a later build; it was not
+replaced while preserving the original XCTest hold. Default catalog remains39
+tools/10resources. No new source-discovery/provider-call or off-LAN claim.

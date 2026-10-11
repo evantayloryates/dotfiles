@@ -1,0 +1,31 @@
+{
+  "at": "2026-10-11T10:49:01.996000+00:00",
+  "version": "1.9.33",
+  "scope": "Physical Chrome coerced recorder-construction failure in the shipped factory; no microphone or provider call",
+  "beforeFix": "Focused fake recorder reproduced three constructor attempts and unstopped clones across three scans.",
+  "physical": {
+    "clones": 1,
+    "cloneStops": 1,
+    "attempts": 1,
+    "sourceLiveAfterFailure": true,
+    "captureStopped": true,
+    "oneFailureEvent": true,
+    "fixtureSourceEnded": true,
+    "contextClosed": true,
+    "recorderRestored": true
+  },
+  "unitCases": {
+    "captureSuitePassed": 6,
+    "newFailureCases": 2
+  },
+  "factorySha256": "372a79cdcbba3fcbed2792d0fce04ec3d98f8ea4b4186c6f688b8eb4ca8793ad",
+  "homeIndependentlyConfirmed": true,
+  "fixturesRemovedByHash": 3,
+  "originalXCTestPreserved": true,
+  "boundaries": [
+    "Failure was deliberately induced; this is not evidence of a natural Chrome recorder failure.",
+    "The successful received-track recording parity was qualified before this catch-path-only repair; no baseline was rerun.",
+    "New browser documents load this factory; an already loaded document must reload before receiving it.",
+    "Native uses the same factory at build time; its installed adapter must be rebuilt to receive this repair. No native rebuild was performed during the original runner hold."
+  ]
+}
