@@ -14,7 +14,10 @@ credentials or new network listener is needed by the MCP wrapper.
 1. `ios_guide` gives the operating contract and applicable shared lessons.
 2. `ios_begin {}` acquires control and checks actual app readiness. It returns a
    session ID; output directories, CLI lease files and evidence paths are managed.
-   Codex should supply its **actual active rollout path** to retain automatic turn
+   Codex: pass your actual `threadId` on begin for exact rollout discovery.
+   Inherited `CODEX_THREAD_ID` is used when present, but standard SDK stdio
+   environment filtering can omit it. Verify `lifecycle.threadId`; an explicit
+   **actual active rollout path** overrides discovery and retains automatic turn
    completion/interruption detection. Other clients use connection ownership.
 3. `ios_native` or `ios_react` returns bounded inspection and private artifact IDs.
    Native tree targets are used exactly as observed. `ios_read` selects larger
@@ -482,3 +485,24 @@ The companion Kickoff call-page repair stops its owned microphone/camera tracks 
 ### 1.9.6: fresh exact native targeting
 
 `ios_native action=tap args={selector:{label,identifier,class}}` reads the full tree and dispatches one guarded tap within the same call. Supply any nonempty subset of these exact fields; all supplied fields must match. Exactly one visible interactive valid-bounds view is required. Ambiguity/absence send no touch. No ranking or automatic input replay. The existing explicit snapshot/target/point form remains available. See `ios-agent://native-input` and `native-selector-2026-10-10.json` for physical evidence and limits.
+
+### 1.9.7: exact Codex work-turn ownership
+
+Pass your actual `threadId` to `ios_begin`, `ios_web_begin` or `ios_system_begin`.
+No transcript path lookup is needed. When omitted, inherited `CODEX_THREAD_ID`
+is used if present (the standard SDK may filter it out). Native, browser and system
+acquisitions read that exact thread’s current rollout from Codex’s read-only native state database and validate its metadata. This follows resumed/segmented chats rather than selecting their original file. Legacy installations without a database accept a single matching rollout; ambiguity refuses automatic discovery.
+The existing broker then requires its current active turn; completion or abort
+retires ownership alongside the independent MCP connection guard. No newest-chat
+heuristic, conversation export, hook trust change or global notification overwrite.
+
+Check `begin.lifecycle`: missing, ambiguous or unavailable metadata explicitly
+reports `mcp-connection` and its reason. A globally shared MCP process must not
+inherit a different chat’s ID; compare the returned threadId before device input
+and use the explicit rollout override when needed. Claude and clients without
+that inherited context still require explicit end/finally or connection close.
+This is not universal persistent-harness Stop-hook coverage. Supported Codex hooks
+require user review/trust; this release does not install or bypass them.
+
+Reference: [Codex lifecycle hooks](https://learn.chatgpt.com/docs/hooks),
+[Claude lifecycle hooks](https://code.claude.com/docs/en/hooks).

@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "at": "2026-10-11T04:25:23.803811+00:00",
+  "mcpVersion": "1.9.7",
+  "scope": "DEV; exact Codex active-turn admission and explicit physical cleanup",
+  "discovery": {
+    "authority": "read-only native Codex state database, exact supplied thread ID",
+    "resumedRolloutResolved": true,
+    "metadataThreadMatched": true,
+    "originalRolloutWasStale": true,
+    "standardSdkEnvFiltered": true,
+    "explicitThreadIdQualified": true,
+    "contentExported": false
+  },
+  "physical": {
+    "ready": "passed",
+    "lifecycle": {
+      "mode": "codex-turn",
+      "source": "explicit-thread",
+      "threadId": "01a116ef-a3ad-74c3-ad32-6869c9c14e03"
+    },
+    "homeHandoffPrepared": true,
+    "homeIndependentlyObserved": false,
+    "cleanup": {
+      "version": 1,
+      "gate": "idle",
+      "status": "passed",
+      "attempts": 1,
+      "elapsedMs": 0,
+      "observation": {
+        "hostIdle": true,
+        "deviceFeedbackKnown": true,
+        "nativeLeaseOff": true,
+        "nativeIndicatorOff": true
+      }
+    }
+  },
+  "checks": {
+    "nodeTargetedPassed": 31,
+    "brokerStructuralLifecyclePassed": 3,
+    "covers": [
+      "exact resumed lookup",
+      "missing/invalid/ambiguous/symlink/mismatched discovery refuses",
+      "explicit missing thread refuses before acquisition",
+      "explicit rollout override",
+      "connection close/cancel and acquire race cleanup",
+      "partial completion line not consumed",
+      "completion retires owner",
+      "new turn retires old owner"
+    ]
+  },
+  "limits": [
+    "Live admission used the actual active root turn; completion/interruption/replacement were tested with structural broker fixtures, not by ending the active root turn.",
+    "No universal persistent-harness Stop hook is installed. Claude still requires explicit end/finally or connection close.",
+    "Home was prepared and idle physically observed; no independent Home Screen image was taken in this run.",
+    "Codex native state schema and node:sqlite availability are discovery dependencies; failure is explicit and does not choose a stale original transcript."
+  ],
+  "privateEvidenceDirectory": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-DuxUiY"
+}

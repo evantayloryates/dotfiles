@@ -90,7 +90,9 @@ fixed USB recovery adapter or nearby Mirroring when its auth/lock state permits.
 
 ## Explicit limits
 
-Fast Refresh navigation/form preservation failed or remains unqualified. Actual
+Native Fast Refresh now preserves the qualified screen route, expanded day and
+unsaved meal draft (native-refresh-2026-10-10.json). Class owners or invalid refresh
+boundaries can still reset state. Actual
 laptop sleep/wake, tailnet VPN outage and controlled shared backend cold restart
 are unqualified; worker pause is not claimed as equivalent. No guaranteed latency
 or availability SLA is inferred from a development phone.
@@ -172,3 +174,7 @@ and browser-debug/native-build recipe resources: 34 tools, nine resources.
 Safari source/CSS/console/passive-timeline Inspector reads are physically
 qualified. Chrome Inspector and combined trace effects remain unqualified.
 See native-build-mcp-2026-10-10.json and browser-debug-physical-2026-10-10.json.
+
+## 11 October: Codex turn discovery
+
+MCP 1.9.7 accepts the actual Codex `threadId` on native/browser/system begin. It reads that exact thread’s current rollout from the native state database, validates matching session metadata, and delegates active-turn admission/retirement to the existing broker. This fixes resumed chats whose original rollout has ended. Fresh physical native admission, Home handoff and idle/glow-off passed; 31 targeted Node checks and three structural lifecycle checks passed. Completion/interrupt tests are structural, not a claim that every persistent harness now provides automatic Stop. Claude and clients without Codex metadata must still end in finally. See codex-owner-discovery-2026-10-11.json.

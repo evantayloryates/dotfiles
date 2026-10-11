@@ -12,9 +12,10 @@ import {CaptureStore} from './capture-store.mjs';
 import {SystemDriver} from './system-driver.mjs';
 import {nativeDelivery} from './native-delivery.mjs';
 import {planNativeTap} from './native-selector.mjs';
+import {codexOwnerContext} from './owner-context.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/input-schemas.mjs', 'mcp/native-selector.mjs', 'mcp/system-driver.mjs', 'system_runner.py', 'mcp/capture-store.mjs', 'web/rich-capture.js', 'ready_wait.py', 'mcp/media-verification.mjs', 'mcp/call-verification.mjs', 'mcp/web-profiles.mjs', 'mcp/workflows.mjs', 'fixture_jobs.py', 'build_jobs.py', 'build_app.py', 'native_delivery.py', 'mcp/native-delivery.mjs', 'tests/run_fixture.py', 'paired_workflow.py', 'health.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'browser_inspector.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
+const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/input-schemas.mjs', 'mcp/native-selector.mjs', 'mcp/owner-context.mjs', 'mcp/system-driver.mjs', 'system_runner.py', 'mcp/capture-store.mjs', 'web/rich-capture.js', 'ready_wait.py', 'mcp/media-verification.mjs', 'mcp/call-verification.mjs', 'mcp/web-profiles.mjs', 'mcp/workflows.mjs', 'fixture_jobs.py', 'build_jobs.py', 'build_app.py', 'native_delivery.py', 'mcp/native-delivery.mjs', 'tests/run_fixture.py', 'paired_workflow.py', 'health.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'browser_inspector.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
   .map(file => fs.readFileSync(path.join(root, file))).map(bytes => createHash('sha256').update(bytes).digest('hex')).join(':')).digest('hex');
 export const defaultState = path.join(os.homedir(), 'Library/Application Support/ios-agent');
 const idleLimit = 20 * 60 * 1000;
@@ -55,10 +56,11 @@ export function runCoreDevice(args, {jsonFile, timeout = 15000} = {}) {
 }
 
 export class Backend {
-  constructor({state = defaultState, run, deviceRun = runCoreDevice} = {}) {
+  constructor({state = defaultState, run, deviceRun = runCoreDevice, ownerContext} = {}) {
     this.state = path.resolve(state);
     this.runOverride = run;
     this.deviceRun = deviceRun;
+    this.ownerContext = ownerContext || (run ? () => ({mode:'mcp-connection',reason:'isolated-adapter'}) : codexOwnerContext);
     this.sessions = new Map();
     this.artifacts = new Map();
     this.running = new Set();
@@ -157,7 +159,7 @@ export class Backend {
       nativeBuild: 'Read ios-agent://native-build. ios_build plan/start/retry/status exposes durable signed generic-device DEV builds. Recover jobId after disconnect; build success is not installed readiness. ios_install plan/start/status validates a signed deliveryId, installs on the fixed paired phone and independently checks the running identity. Use a 180-second client request timeout; recover installId rather than replaying after interruption. React readiness and native Home cleanup are separate.',
       inputMatrix: 'ios_input_matrix plan/start/status exposes the compiled UIKit fixture as a durable serialized simulator job. Require completed, passed and cleanupVerified; no physical-iPhone, React Native, browser or off-LAN proof. Jobs survive MCP reconnect for cleanup; never restart an uncertain job.',
       pairedWorkflow: 'ios_workflow action=plan exposes the versioned coach-client recipe; capture/assert/restore-check independently read only the verified synthetic local row. UI rendering is a separate gate.',
-      lease: 'One session per work turn. Always ios_end in finally before ending a turn. Codex should supply its actual active rollout to ios_begin. Other clients use a private connection heartbeat; MCP cannot detect a model turn ending on a persistent connection.',
+      lease: 'One session per work turn. Always ios_end in finally before ending a turn. Codex should pass its actual threadId on begin; the service discovers only that exact rollout. Inherited CODEX_THREAD_ID is a fallback when present. Check lifecycle.threadId or supply the actual rollout explicitly. Missing/ambiguous metadata uses explicitly reported mcp-connection ownership. Other clients use a private connection heartbeat and must end in finally; persistent MCP alone has no universal turn-end signal.',
       requirements: 'Native: Kickoff DEV foreground/unlocked. Browser: enrolled dev document visible on unlocked iPhone. Both require Tailscale and awake laptop services; routine control needs no USB. Developer-channel failure does not prove physical disconnection or lock.',
       browserDomains: {layout:'ios_web_inspect kind=element reports fresh target computed CSS, center hit, bounded ancestors and viewport; use snapshot and target refs.',media:'Content-free request outcomes, track liveness, WebRTC audio and WebSocket counters. Check media.hooks coverage before interpreting zero counts; late microphone APIs are wrapped without replacing later libraries.',performance:'Bounded navigation/paint/resource/main-thread timings, optional Event Timing/LCP observers and readonly AudioSession type/state. Inspect domains.performance; a second state read obtains buffered asynchronous values. Optional observers stop with ownership. Event entry durations are not INP; latest LCP is a candidate. Unsupported readings stay null.',meet:'Fixed local call-lobby projection; no identities, credentials or transcripts.',limitations:'State readback is not a trusted touch, OS permission tap, whole-phone screenshot or off-LAN verification.'},
       browserMediaVerification: 'ios_web_verify gate=web-media direction=sent|received|both sampleMs=500..3000 requires stable advancing audio RTP counters. It returns shared structural learning evidence; a passed counter gate does not prove audible content or a completed call.',
@@ -222,8 +224,13 @@ export class Backend {
       dataChanged: false, credentialsCreated: false, replay: false,
       next: 'This is database readback only. Verify phone and coach rendering separately; stop on a changed pair/value rather than replaying a mutation.'};
   }
-  async begin({rollout, surface = 'native', page, nativeOnly = false} = {}) {
+  async begin({rollout, threadId, surface = 'native', page, nativeOnly = false} = {}) {
     if (this.closing || [...this.sessions.values()].some(s => s.active)) throw new Error('end_existing_session_first');
+    if (rollout&&threadId) throw new Error('one_codex_owner_reference_required');
+    const lifecycle=rollout?{mode:'codex-turn',source:'explicit-rollout'}:this.ownerContext({threadId});
+    if (threadId&&!lifecycle.rollout) throw new Error(lifecycle.reason||'codex_rollout_unavailable');
+    rollout ||= lifecycle.rollout;
+    const ownership={mode:lifecycle.mode,...(lifecycle.source?{source:lifecycle.source}:{}),...(lifecycle.threadId?{threadId:lifecycle.threadId}:{}),...(lifecycle.reason?{reason:lifecycle.reason}:{})};
     const base = path.join(this.state, 'mcp-sessions');
     fs.mkdirSync(base, {recursive: true, mode: 0o700});
     if (fs.lstatSync(base).isSymbolicLink() || fs.statSync(base).mode & 0o077) throw new Error('private_session_directory_required');
@@ -235,23 +242,23 @@ export class Backend {
     const r = await s.acquisition;
     if (!r.ok || this.closing) { await this.end(id); throw new Error(r.error || 'session_closed'); }
     try {
-      if (surface === 'launch') return {sessionId:id,maintenanceOwner:true};
+      if (surface === 'launch') return {sessionId:id,maintenanceOwner:true,lifecycle:ownership};
       if (surface === 'web') {
         const check = await this.webAction({sessionId: id, action: 'state'});
         if (check.ok !== true) throw new Error('web_page_not_ready');
         s.webFingerprint = createHash('sha256').update(JSON.stringify([adapterHash, check.value?.version, check.value?.browser, check.value?.boot])).digest('hex');
         s.webRuntime = Object.fromEntries(['version','browser','boot'].map(k => [k,check.value?.[k]]));
-        return {sessionId: id, page, ready: true, verification: check, learning: await this.learning('search',{source:s.webFingerprint}).catch(()=>({available:false})), next: 'ios_web_inspect, fresh snapshot/target, ios_web_action. Always ios_web_end in finally.'};
+        return {sessionId: id, page, ready: true, lifecycle:ownership, verification: check, learning: await this.learning('search',{source:s.webFingerprint}).catch(()=>({available:false})), next: 'ios_web_inspect, fresh snapshot/target, ios_web_action. Always ios_web_end in finally.'};
       }
       if(nativeOnly){
         const verification=await this.action({sessionId:id,action:'capabilities'});
         if(!verification.ok||verification.data?.applicationState!==0)throw new Error('app_not_ready');
-        return {sessionId:id,ready:false,nativeBridgeReady:true,verification,
+        return {sessionId:id,ready:false,nativeBridgeReady:true,lifecycle:ownership,verification,
           next:'Native diagnostics only: inspect state/tree/capabilities, reload explicitly or return Home. React/app readiness is unproven. End in finally.'};
       }
       const verification = await this.verify({sessionId: id, gate: 'ready', timeout: 12});
       if (verification.receipt.status !== 'passed') throw new Error('app_not_ready');
-      return {sessionId: id, ready: true, ownership: rollout ? 'codex-turn' : 'mcp-connection', verification,
+      return {sessionId: id, ready: true, ownership: rollout ? 'codex-turn' : 'mcp-connection', lifecycle:ownership, verification,
         next: 'Inspect a native or React tree. Call ios_end before ending this work turn.',
         learning: await this.learning('search', {source: runtimeKey(await this.status()) || ''}).catch(() => ({available: false}))};
     } catch (error) { await this.end(id); throw error; }
@@ -392,8 +399,8 @@ export class Backend {
       return {ok:false,reason,inputSent:expressionDispatched?'unknown':false,replay:false};
     } finally {if(temporary&&s)await this.end(s.id);}
   }
-  async systemBegin({rollout}={}) {
-    const acquired=await this.begin({surface:'launch',rollout}),s=this.session(acquired.sessionId);
+  async systemBegin({rollout,threadId}={}) {
+    const acquired=await this.begin({surface:'launch',rollout,threadId}),s=this.session(acquired.sessionId);
     s.systemDriver=new SystemDriver({state:this.state,session:s,check:()=>this.session(s.id),authorize:async()=>{
       this.session(s.id);
       const status=await this.run('cli',['owner-check','--lease-file',s.lease],undefined,5000);
@@ -407,7 +414,7 @@ export class Backend {
       s.surface='system';s.systemFingerprint=createHash('sha256').update(JSON.stringify([adapterHash,s.systemDriver.deviceIdentity,s.systemDriver.runtime?.os,s.systemDriver.runtime?.build])).digest('hex');
       const receipt={gate:'system-ready',status:'passed',observation:{runnerReady:true,sharedOwner:true,nearbyStartupOnly:true}};
       const learningEvidence=await this.learning('observe',{receipt,source:s.systemFingerprint}).catch(()=>({available:false}));
-      return {...result,sessionId:s.id,learningEvidence,next:'Use ios_system_inspect and fresh targets; ios_system_end in finally stops the runner and Apple overlay. Normal page/app work should use its own driver.'};
+      return {...result,sessionId:s.id,lifecycle:acquired.lifecycle,learningEvidence,next:'Use ios_system_inspect and fresh targets; ios_system_end in finally stops the runner and Apple overlay. Normal page/app work should use its own driver.'};
     }catch{const cleanup=await this.end(s.id);return {ok:false,reason:'system_start_unconfirmed_inspect_phone',replay:false,cleanup};}
   }
   async systemInspect({sessionId}) {
