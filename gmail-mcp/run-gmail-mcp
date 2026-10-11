@@ -43,6 +43,8 @@ export ENV_FILE="${SCRIPT_DIR}/../.env"
 gmail_env="$(env_export PERSONAL_GMAIL_APP_SECRET)"
 eval "$gmail_env"
 unset gmail_env
+# env_export emits shell assignments; explicitly export the one required child value.
+export PERSONAL_GMAIL_APP_SECRET
 
 : "${PERSONAL_GMAIL_APP_SECRET:?PERSONAL_GMAIL_APP_SECRET is required in /Users/taylor/dotfiles/.env}"
 
