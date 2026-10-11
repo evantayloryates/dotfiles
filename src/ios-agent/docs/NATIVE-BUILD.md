@@ -27,8 +27,8 @@ unrelated manually invoked Xcode builds; source-change detection remains useful.
 No phone lease, install, launch, XCTest, sudo, shared service restart, arbitrary
 command/path/checkout, or periodic suite is part of this tool. MCP EOF does not
 cancel an explicitly requested build. Build success does not prove the installed
-phone identity or readiness. **Installation is still separate; its MCP packaging
-and physical verification remain outstanding.** The existing signed build/install
+phone identity or readiness. **Installation is separate and is now exposed through `ios_install`;
+its signed-identity and physical Home/readiness qualification is recorded below.** The existing signed build/install
 workflow remains available for that subsequent, explicitly chosen step.
 
 Use build jobs for native adapter changes or required delivery, not ordinary
@@ -79,3 +79,16 @@ then Home/idle passed a second time. No sudo, XCTest or Mirroring was used.
 ready=false, allowing diagnosis/Home when JS startup has not registered. Normal
 begin still requires app/domain readiness. Start React inspection with ios_react
 status before asking ios_verify for react-tree. See the physical receipt.
+
+## Updated product prepared — 11 October
+
+Job `e9f862ef121c447987d7fed37767aace` completed a signed generic-device
+DEV build in249.2seconds. The new bridge, refresh diagnostics and capture factory
+were included with stable source hashes. Independent signed-product validation
+passed, and a fresh MCP connection recovered the completed job. No installation,
+phone input, owner acquisition or XCTest startup occurred.
+
+Use this completed job for the subsequent guarded install rather than building
+these unchanged sources again. The receipt is
+`native-build-prepared-2026-10-11.json`. Installed identity, React readiness and
+new adapter qualification remain separate physical gates.

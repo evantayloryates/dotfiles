@@ -29,7 +29,12 @@ instrumentation are excluded from this delivery.
 
 ## Disabled reservation candidate
 
-1.9.16 includes an opt-in runner-lifetime candidate, excluded from the normal catalog. It has structural and preservation tests, but has not passed physical retained startup/re-entry. Do not enable it in routine harness configuration yet. See RUNNER-RESERVATION-CANDIDATE.md. Today’s original ten-hour hold is still maintained by its original active owner.
+1.9.16 includes an opt-in runner-lifetime candidate, excluded from the normal catalog. It has structural and preservation tests, but has not passed physical retained startup/re-entry. Do not enable it in routine harness configuration yet. See RUNNER-RESERVATION-CANDIDATE.md. The original host owner is retained during Taylor’s AFK window. The phone runner
+was killed at about10:55UTC on11October; its automatic replacement failed
+authentication and Xcode ended at11:00:36UTC. Host ownership does not prove
+usable XCTest. Safari Remote Automation overlapped the loss, so interference
+cannot be excluded; do not run competing automation-session experiments during
+a requested runner hold. See xctest-hold-failure-2026-10-11.json.
 
 ## Qualified today
 

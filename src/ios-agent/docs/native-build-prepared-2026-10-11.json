@@ -1,0 +1,30 @@
+{
+  "ok": true,
+  "jobId": "e9f862ef121c447987d7fed37767aace",
+  "state": "completed",
+  "installed": false,
+  "xctestStarted": false,
+  "phoneInputSent": false,
+  "replay": false,
+  "exitCode": 0,
+  "seconds": 249.2,
+  "deliveryId": "5da0f761d1fa477dac788b5b621c2b06",
+  "buildManifestFresh": true,
+  "productVerified": true,
+  "agentBinaryVerified": true,
+  "signatureVerified": true,
+  "devCallbackRegistered": true,
+  "sourceChangedDuringBuild": false,
+  "executableHash": "f473a18ef9e23a55fd03594a3dd044b998b64fd70e239afadcd742448d6f3789",
+  "finishedAt": 1791717586.626465,
+  "independentSignedProductValidation": true,
+  "currentSourceHashesMatch": true,
+  "builtSourceHashes": {
+    "bridge.js": "81ab959ed414a1cd5e9bf593c0067ecacba4265c0f2af6cb7ac438374bf85424",
+    "refresh-diagnostics.js": "6206ea40b8b14dd1c0f4eeccc90b2f23f06a13864db0196100341a17b2f4e71c",
+    "rich-capture.js": "2c3135042647c52d584e145f3dfb279706f4e21d1a449360ed7372e410983cb4"
+  },
+  "version": "1.9.36",
+  "scope": "Signed generic iPhone DEV product prepared only; no phone owner acquisition, installation, launch or XCTest. Physical install/readiness and new adapter qualification remain open.",
+  "freshMCPBuildStatusRecovered": true
+}
