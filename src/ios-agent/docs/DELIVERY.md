@@ -1,11 +1,11 @@
 # Agent operating contract — installed personal development service
 
-MCP follow-on: `/Users/taylor/dotfiles/bin/ios-agent-mcp` exposes the fixed CLI
-through 34 tools and nine resources in the current v1.8.1 candidate source.
-The v1.8.0 Inspector candidate is published; the last qualified catalog was v1.7.1 (32 tools). The new Inspector tool
-awaits its physical source/CSS/console/timeline gate; see BROWSER-DEBUG.md. A long-lived
-harness may retain its earlier tool inventory until that connection refreshes. `ios_guide` → `ios_doctor` → `ios_begin` → inspect/act/verify
-→ `ios_end` manages lease/evidence paths and independently confirms cleanup.
+MCP follow-on: `/Users/taylor/dotfiles/bin/ios-agent-mcp` exposes 35 tools and
+nine resources in v1.9.0 source. Published v1.8.1 qualified signed build
+preparation and physical Safari source/CSS/console/passive-timeline reads. Native
+installation and Home/relaunch passed; see native-delivery-physical-2026-10-10.json. Long-lived harnesses
+may retain an earlier catalog until their MCP connection refreshes.
+`ios_guide` → `ios_doctor` → `ios_begin` → inspect/act/verify → `ios_end`.
 See MCP.md for shared operational learning and per-harness lifecycle boundaries.
 
 Use `/Users/taylor/dotfiles/bin/ios-agent`. App integration is isolated on

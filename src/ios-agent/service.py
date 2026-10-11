@@ -6,6 +6,7 @@ import hmac
 import json
 import os
 import math
+import re
 import stat
 from pathlib import Path
 import secrets
@@ -24,7 +25,7 @@ VERSION = 1
 MAX_BODY = 8 * 1024 * 1024
 OWNER_TIMEOUT = 20 * 60
 DEVICE_TIMEOUT = 30
-OPERATIONS = {"capabilities", "tree", "image", "tap", "gesture", "text", "react", "state", "diagnostics-probe", "diagnostics-matrix", "reload", "wifi", "capture"}
+OPERATIONS = {"capabilities", "tree", "image", "tap", "gesture", "text", "react", "state", "diagnostics-probe", "diagnostics-matrix", "reload", "wifi", "capture", "home"}
 STATE = Path.home() / "Library/Application Support/ios-agent"
 SOURCE_HASH = worker_source_hash()
 
@@ -179,7 +180,8 @@ class Broker:
                         "reactFrontendRunning": bool(self.frontend and self.frontend.poll() is None),
                         "reactFrontendCleanupPending": bool(self.stopping_frontends),
                         "reactFrontendPort": self.frontend_port,
-                        "device": None if not self.device else {k: self.device[k] for k in ("build", "bundle", "boot")},
+                        "device": None if not self.device else {k: self.device[k] for k in ("build", "bundle", "boot", "deliveryId") if k in self.device},
+                        "deviceAgeMs": None if not self.device else max(0, int((self.clock()-self.device["seen"])*1000)),
                         "deviceFeedback": None if not self.device else self.device.get("feedback"),
                         "lease": None if not self.lease else {k: self.lease[k] for k in ("id", "thread", "turn")},
                         "lastRelease": self.last_release,
@@ -256,6 +258,8 @@ class Broker:
                     raise Rejected("invalid_arguments")
                 if action == "wifi" and (set(args) != {"state"} or args["state"] not in ("on", "off")):
                     raise Rejected("wifi_state_on_or_off_required")
+                if action == "home" and args:
+                    raise Rejected("home_arguments_not_allowed")
                 if action in ("diagnostics-probe", "diagnostics-matrix") and args:
                     raise Rejected("diagnostic_arguments_not_allowed")
                 # Give a just-delivered native tree a short opportunity for its
@@ -301,6 +305,9 @@ class Broker:
                     self.revoke("device_restarted")
                 self.device = {"boot": boot, "bundle": request["bundle"],
                                "build": str(request.get("build", "unknown"))[:64], "seen": self.clock()}
+                delivery_id = request.get("deliveryId")
+                if isinstance(delivery_id, str) and re.fullmatch(r'[a-f0-9]{32}', delivery_id):
+                    self.device['deliveryId'] = delivery_id
             elif not self.device or self.device["boot"] != boot:
                 raise Rejected("hello_required")
             else:
@@ -328,6 +335,9 @@ class Broker:
                     # network. The acknowledgment authorizes only this prepared ID.
                     handoff = cmd["id"]
                     self.revoke("device_wifi_handoff")
+                if cmd["action"] == "home" and isinstance(result, dict) and result.get("delivery") == "prepared-home-handoff" and "error" not in result:
+                    handoff = cmd["id"]
+                    self.revoke("device_home_handoff")
                 self.cv.notify_all()
             elif op == "next":
                 # Wake immediately on revocation; bounded idle responses renew app-side expiry.

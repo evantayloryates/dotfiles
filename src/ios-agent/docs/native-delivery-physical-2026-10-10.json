@@ -1,0 +1,141 @@
+{
+  "observedAt": "2026-10-11T02:28:02.016525+00:00",
+  "release": "1.9.0",
+  "scope": "personal Kickoff DEV; paired installation, network-native Home",
+  "build": {
+    "ok": true,
+    "jobId": "843d65a575304f12a9b6d5b92bf7eec1",
+    "state": "completed",
+    "installed": false,
+    "xctestStarted": false,
+    "phoneInputSent": false,
+    "replay": false,
+    "exitCode": 0,
+    "seconds": 108.8,
+    "deliveryId": "7dc9686e60874ba08e416caa871a2880",
+    "buildManifestFresh": true,
+    "productVerified": true,
+    "agentBinaryVerified": true,
+    "signatureVerified": true,
+    "devCallbackRegistered": true,
+    "sourceChangedDuringBuild": false,
+    "executableHash": "cf22575563eed120b1a3db4ea2b2150d9ef6ceb840d117505fc2288340e447f1",
+    "finishedAt": 1791685517.84606
+  },
+  "install": {
+    "ok": true,
+    "installId": "1af1c16970ca736fcfd802edf0da647a",
+    "jobId": "843d65a575304f12a9b6d5b92bf7eec1",
+    "deliveryId": "7dc9686e60874ba08e416caa871a2880",
+    "startedAt": 1791685524664,
+    "handlerPid": 29841,
+    "state": "verified",
+    "installSent": true,
+    "launchSent": true,
+    "installedIdentityVerified": true,
+    "replay": false,
+    "installOutcome": "developer-request-accepted",
+    "launchOutcome": "developer-request-accepted",
+    "observedBoot": "91134D1F-5248-4A03-865A-FA5D9AB003B3",
+    "next": "Use ios_begin for React readiness, then native home and ios_end. Installation does not establish JS readiness or Home cleanup.",
+    "finishedAt": 1791685535633,
+    "ownerReleased": true
+  },
+  "nativeCapabilities": {
+    "xctest": false,
+    "applicationState": 0,
+    "richCapture": "explicit-JS-console-network",
+    "selectors": {
+      "setTapCount:": true,
+      "setView:": true,
+      "setTimestamp:": true,
+      "_setHidEvent:": true,
+      "setPhase:": true,
+      "setWindow:": true,
+      "_setLocationInWindow:resetPrevious:": true
+    },
+    "inputMethod": "in-process UIEvent",
+    "textMethod": "UIKeyInput",
+    "homeRuntime": true,
+    "wifiControl": "fixed-Apple-Shortcuts-handoff",
+    "imageScope": "app-owned-main-window",
+    "nativeInputRuntime": true,
+    "deliveryId": "7dc9686e60874ba08e416caa871a2880"
+  },
+  "ready": {
+    "version": 1,
+    "gate": "ready",
+    "status": "passed",
+    "attempts": 1,
+    "elapsedMs": 265,
+    "observation": {
+      "runtimeReady": true,
+      "domainFresh": true,
+      "navigationRegistered": true,
+      "apolloRegistered": true
+    }
+  },
+  "reactTree": {
+    "version": 1,
+    "gate": "react-tree",
+    "status": "passed",
+    "attempts": 1,
+    "elapsedMs": 256,
+    "observation": {
+      "reconstructedRoots": 15,
+      "totalComponents": 986,
+      "depthLimit": 8,
+      "providerConnected": true
+    }
+  },
+  "firstHomeIdle": {
+    "version": 1,
+    "gate": "idle",
+    "status": "passed",
+    "attempts": 1,
+    "elapsedMs": 0,
+    "observation": {
+      "hostIdle": true,
+      "deviceFeedbackKnown": true,
+      "nativeLeaseOff": true,
+      "nativeIndicatorOff": true
+    }
+  },
+  "physicalHomeScreenshotViewed": true,
+  "reactivation": {
+    "version": 1,
+    "gate": "ready",
+    "status": "passed",
+    "attempts": 2,
+    "elapsedMs": 1800,
+    "observation": {
+      "runtimeReady": true,
+      "domainFresh": true,
+      "navigationRegistered": true,
+      "apolloRegistered": true
+    }
+  },
+  "secondHomeIdle": {
+    "version": 1,
+    "gate": "idle",
+    "status": "passed",
+    "attempts": 1,
+    "elapsedMs": 0,
+    "observation": {
+      "hostIdle": true,
+      "deviceFeedbackKnown": true,
+      "nativeLeaseOff": true,
+      "nativeIndicatorOff": true
+    }
+  },
+  "noSudo": true,
+  "noXCTest": true,
+  "noMirroring": true,
+  "limits": [
+    "First 12-second ready gate preceded JS registration; later ready passed on same installation, without reload/reinstall.",
+    "First react-tree gate had no frontend; explicit ios_react status started it, then reconstruction passed.",
+    "Home is explicit app-owned DEV private UIKit suspension, not global system control.",
+    "Paired launch/install and screenshot remain nearby only; arbitrary-network foreground launch remains open.",
+    "Home command reports prepared handoff, physical screenshot and idle checks independently establish this qualified result."
+  ]
+}

@@ -9,6 +9,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 import time
+import uuid
 from dev_runtime import load_config
 
 ROOT = Path(__file__).resolve().parent
@@ -27,6 +28,9 @@ def register_dev_callback(app, log_path):
     built_info = plistlib.loads(info_path.read_bytes())
     if built_info.get('CFBundleIdentifier') != 'com.dev.kudos.fit':
         raise RuntimeError('dev_callback_product_required')
+    # A unique signed product stamp is readable by the running DEV adapter;
+    # repeated display build numbers cannot identify an installed product.
+    built_info['IOSAgentDeliveryId'] = uuid.uuid4().hex
     with tempfile.TemporaryDirectory(prefix='ios-agent-sign-') as signing:
         with log_path.open('a') as log:
             subprocess.run(['codesign', '-d', '--extract-certificates=' + str(Path(signing) / 'signer-'), str(app)], check=True, stdout=log, stderr=log, timeout=30)
@@ -118,7 +122,8 @@ def main():
     signature_verified = False
     if product and run.returncode == 0 and not changed and sdk_present:
         callback_registered, signature_verified = register_dev_callback(Path(product), a.log)
-    evidence = {"exit": run.returncode, "seconds": round(time.monotonic() - start, 1), "product": product, "agentBinaryVerified": sdk_present, "devCallbackRegistered": callback_registered, "signatureVerified": signature_verified, "sourceEdited": False, "xctestStarted": False, "sourceChangedDuringBuild": changed, "runtimeConfigHash": hashlib.sha256(runtime_snapshot.read_bytes()).hexdigest() if runtime_snapshot else None, "embeddedFallback": not a.metro, "sources": after}
+    delivery_id = plistlib.loads((Path(product) / 'Info.plist').read_bytes()).get('IOSAgentDeliveryId') if product and signature_verified else None
+    evidence = {"exit": run.returncode, "seconds": round(time.monotonic() - start, 1), "product": product, "deliveryId": delivery_id, "agentBinaryVerified": sdk_present, "devCallbackRegistered": callback_registered, "signatureVerified": signature_verified, "sourceEdited": False, "xctestStarted": False, "sourceChangedDuringBuild": changed, "runtimeConfigHash": hashlib.sha256(runtime_snapshot.read_bytes()).hexdigest() if runtime_snapshot else None, "embeddedFallback": not a.metro, "sources": after}
     (a.derived_data / "ios-agent-build.json").write_text(json.dumps(evidence, indent=2) + "\n")
     print(json.dumps({k: v for k, v in evidence.items() if k != "sources"}))
     raise SystemExit(run.returncode or int(changed or not product or not sdk_present or not callback_registered or not signature_verified))

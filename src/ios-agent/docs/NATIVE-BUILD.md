@@ -55,3 +55,27 @@ private temp directory allowed an explicit terminal-failure retry to finish in
 A failed receipt that has a newer job sharing its derived data cannot be retried.
 Use the latest failed receipt or start fresh. This prevents an old retry from
 overwriting a newer completed product prepared for delivery.
+
+## Guarded delivery candidate
+
+New builds receive a unique signed `IOSAgentDeliveryId` in their built Info.plist.
+`ios_install` accepts their completed jobId and retains a durable installId receipt.
+It validates the product again under the phone owner, checks actual lock state,
+installs once, launches DEV once, and checks a fresh matching running identity.
+Status recovers receipts across clients. Unknown inputs are never replayed.
+Use a 180-second client request timeout. A dead interrupted handler is unconfirmed;
+inspect current device state before deciding any next action.
+
+Installation is still separate from JS readiness and cleanup. After `ios_begin`,
+inspect capabilities/React. The new explicit native Home handoff clears control
+before own-app suspension; physical qualification is recorded separately.
+
+
+Physical delivery passed: signed stamp matched both fresh host registration and
+native capabilities; React readiness and 986 components reconstructed. App-owned
+Home was independently viewed, idle passed, paired relaunch reached ready again,
+then Home/idle passed a second time. No sudo, XCTest or Mirroring was used.
+`ios_begin nativeOnly=true` verifies foreground native capabilities while leaving
+ready=false, allowing diagnosis/Home when JS startup has not registered. Normal
+begin still requires app/domain readiness. Start React inspection with ios_react
+status before asking ios_verify for react-tree. See the physical receipt.

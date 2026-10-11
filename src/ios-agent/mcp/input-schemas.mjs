@@ -4,7 +4,7 @@ const ref=z.string().min(1).max(128);
 const coordinate=z.number().finite().nonnegative();
 const point={snapshot:ref.describe('Exact snapshot from the latest native tree; expires after five seconds.'),target:ref.describe('Exact target from that tree, never inferred from list order.'),x:coordinate,y:coordinate};
 export const nativeSchemas={
- capabilities:empty,tree:empty,state:empty,'diagnostics-probe':empty,'diagnostics-matrix':empty,reload:empty,
+ capabilities:empty,tree:empty,state:empty,'diagnostics-probe':empty,'diagnostics-matrix':empty,reload:empty,home:empty,
  image:z.object({scale:z.union([z.literal(1),z.literal(2),z.literal(3)]).optional()}).strict(),
  tap:z.object(point).strict(),
  gesture:z.object({...point,endX:coordinate,endY:coordinate,durationMs:z.number().finite().min(50).max(5000)}).strict(),

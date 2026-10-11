@@ -17,6 +17,6 @@ test('typed native/React requests reject mismatched or malformed fields before d
  }finally{await c.close();await server.close();}
 });
 test('all current native actions and 15 provider command variants remain discoverable',()=>{
- assert.equal(Object.keys(nativeSchemas).length,11);
+ assert.equal(Object.keys(nativeSchemas).length,12);
  for(const command of [{type:'ping'},{type:'status'},{type:'count'},{type:'errors'},{type:'get-tree'},{type:'get-component',id:0},{type:'find',name:'Test'},{type:'profile-start'},{type:'profile-stop'},{type:'profile-report',componentId:'Target#1'},{type:'profile-slow',limit:5},{type:'profile-rerenders'},{type:'profile-timeline',sort:'duration'},{type:'profile-commit',index:0},{type:'profile-export'}])assert(reactCommand.safeParse(command).success,command.type);
 });

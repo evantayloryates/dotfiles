@@ -99,6 +99,21 @@ class BrokerTests(unittest.TestCase):
         self.assertNotIn("handoff", ack)
         self.assertIsNotNone(self.b.lease)
 
+    def test_signed_delivery_identity_is_optional_exact_and_distinct_from_display_build(self):
+        self.b.device_request({**self.device, 'deliveryId':'a'*32})
+        state=self.call(op='status');self.assertEqual(state['device']['deliveryId'],'a'*32);self.assertEqual(state['deviceAgeMs'],0)
+        self.now+=1;self.assertEqual(self.call(op='status')['deviceAgeMs'],1000)
+        self.b.device_request({**self.device, 'deliveryId':'not-a-build-stamp'})
+        self.assertNotIn('deliveryId',self.call(op='status')['device'])
+
+    def test_home_requires_empty_args_and_retires_lease_only_for_prepared_command(self):
+        with self.assertRaisesRegex(service.Rejected,'home_arguments_not_allowed'):self.call(op='action',action='home',args={'url':'arbitrary'})
+        cid=self.call(op='action',action='home',args={})['id'];self.next()
+        ack=self.result(cid,result={'delivery':'prepared-home-handoff','homeVerified':False})
+        self.assertEqual(ack['handoff'],cid);self.assertIsNone(ack['lease']);self.assertIsNone(self.b.lease)
+        self.assertEqual(self.b.last_release['reason'],'device_home_handoff')
+        self.assertFalse(self.call(op='result',id=cid)['result']['homeVerified'])
+
     def test_tree_reserves_bounded_followup_without_accepting_or_replaying_react(self):
         cid = self.call(op="action", action="tree", args={})["id"]
         self.next()

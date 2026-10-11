@@ -410,7 +410,29 @@ and combined trace effects remain unqualified; see the dated browser-debug recei
 
 `ios_build plan/start/retry/status` wraps the existing signed generic-device DEV build
 with durable job recovery and a process-held collision lock. The catalog now has
-34 tools / nine resources. Read ios-agent://native-build and
+35 tools / nine resources. Read ios-agent://native-build and
 ios-agent://browser-debug for the complete recipes. See NATIVE-BUILD.md. A build does not install, launch
 or control the phone. MCP install packaging remains an explicit outstanding item;
 no automatic replacement or readiness claim is made.
+
+
+## Signed native installation (v1.9.0)
+
+`ios_install action=plan|start|status` accepts only a completed `ios_build` jobId.
+The fixed product is revalidated under the shared phone owner: DEV bundle ID,
+unique signed deliveryId, executable hash and strict/deep signature verification.
+No arbitrary product path/device/app, sudo, XCTest or Mirroring. Use a 180-second
+MCP client timeout for start (CoreDevice install can take up to 60 seconds).
+
+The private installId receipt survives reconnect. Accepted/unknown dispatches
+are never replayed automatically. A successful result requires a fresh foreground
+bridge reporting the same deliveryId, not repeated display build 775.
+The signed stamp is local build provenance plus app self-report, not hardware
+attestation. `ios_begin` independently qualifies React readiness afterward.
+
+`ios_native action=home args={}` is an explicit DEV-only cleanup handoff. The
+host retires control and the app confirms cleared glow before requesting its own
+suspension; a lost acknowledgment or newer owner cancels that request. Prepared
+handoff is not physical Home proof. Always end in finally, then verify idle.
+Native Home and relaunch passed on the physical iPhone; see native-delivery-physical-2026-10-10.json. No off-LAN installation
+or whole-phone control is claimed.

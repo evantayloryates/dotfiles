@@ -111,7 +111,7 @@ def work(base,job_id,lock_fd):
             info=plistlib.loads((product/'Info.plist').read_bytes());bundle_valid=info.get('CFBundleIdentifier')=='com.dev.kudos.fit'
             binary=product/info['CFBundleExecutable'];executable_hash=hashlib.sha256(binary.read_bytes()).hexdigest()
         passed=code==0 and fresh and product_valid and bundle_valid and evidence.get('sourceChangedDuringBuild') is False and all(evidence.get(k) is True for k in ['agentBinaryVerified','devCallbackRegistered','signatureVerified'])
-        result.update(ok=passed,state='completed' if passed else 'failed',exitCode=code,seconds=evidence.get('seconds'),buildManifestFresh=fresh,productVerified=product_valid and bundle_valid,
+        result.update(ok=passed,state='completed' if passed else 'failed',exitCode=code,seconds=evidence.get('seconds'),deliveryId=evidence.get('deliveryId'),buildManifestFresh=fresh,productVerified=product_valid and bundle_valid,
                       agentBinaryVerified=evidence.get('agentBinaryVerified') is True,signatureVerified=evidence.get('signatureVerified') is True,
                       devCallbackRegistered=evidence.get('devCallbackRegistered') is True,sourceChangedDuringBuild=evidence.get('sourceChangedDuringBuild'),
                       executableHash=executable_hash,sourceHashes=evidence.get('sources',{}))

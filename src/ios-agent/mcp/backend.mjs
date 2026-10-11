@@ -8,9 +8,10 @@ import {nutritionRecipe} from './workflows.mjs';
 import {mediaObservation} from './media-verification.mjs';
 import {CaptureStore} from './capture-store.mjs';
 import {SystemDriver} from './system-driver.mjs';
+import {nativeDelivery} from './native-delivery.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/input-schemas.mjs', 'mcp/system-driver.mjs', 'system_runner.py', 'mcp/capture-store.mjs', 'web/rich-capture.js', 'ready_wait.py', 'mcp/media-verification.mjs', 'mcp/workflows.mjs', 'fixture_jobs.py', 'build_jobs.py', 'build_app.py', 'tests/run_fixture.py', 'paired_workflow.py', 'health.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'browser_inspector.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
+const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/input-schemas.mjs', 'mcp/system-driver.mjs', 'system_runner.py', 'mcp/capture-store.mjs', 'web/rich-capture.js', 'ready_wait.py', 'mcp/media-verification.mjs', 'mcp/workflows.mjs', 'fixture_jobs.py', 'build_jobs.py', 'build_app.py', 'native_delivery.py', 'mcp/native-delivery.mjs', 'tests/run_fixture.py', 'paired_workflow.py', 'health.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'browser_inspector.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
   .map(file => fs.readFileSync(path.join(root, file))).map(bytes => createHash('sha256').update(bytes).digest('hex')).join(':')).digest('hex');
 export const defaultState = path.join(os.homedir(), 'Library/Application Support/ios-agent');
 const idleLimit = 20 * 60 * 1000;
@@ -73,7 +74,7 @@ export class Backend {
   }
   async run(kind, args, input, timeout = 120000, signal) {
     if (this.runOverride) return this.runOverride(kind, args, input);
-    const files = {wait:'ready_wait.py', web: 'web_cli.py', cli: 'cli.py', verify: 'verify.py', doctor: 'health.py', stack: 'local_stack.py', paired: 'paired_workflow.py', learning: 'learning.py', provider:'device_observer.py', fixture:'fixture_jobs.py', build:'build_jobs.py'};
+    const files = {wait:'ready_wait.py', web: 'web_cli.py', cli: 'cli.py', verify: 'verify.py', doctor: 'health.py', stack: 'local_stack.py', paired: 'paired_workflow.py', learning: 'learning.py', provider:'device_observer.py', fixture:'fixture_jobs.py', build:'build_jobs.py', delivery:'native_delivery.py'};
     if (!files[kind]) throw new Error('fixed_operation_required');
     const argv = kind === 'learning' ? [path.join(this.state, 'learning')] :
       kind === 'provider' ? [] : ['web','wait','fixture'].includes(kind) ? ['--state', this.state] : kind === 'paired' ? [] : kind === 'cli' ? ['--state', this.state, ...args] : [...args, '--state', this.state];
@@ -148,7 +149,7 @@ export class Backend {
       workflow: ['ios_doctor', 'ios_begin', 'ios_native or ios_react', 'ios_verify', 'ios_end'],
       hostWorkflow: ['ios_doctor (read only)', 'ios_stack_ensure only when needed and idle; never replay an uncertain start'],
       inputRecipes: 'Read ios-agent://native-input for typed native/React examples, focused text editing, bounded profiling, Wi-Fi handoff and verification. Native target IDs and React component IDs are different. Invalid argument combinations are refused before phone dispatch.',
-      nativeBuild: 'Read ios-agent://native-build. ios_build plan/start/retry/status exposes durable signed generic-device DEV builds. No phone install, launch, sudo or XCTest. Recover jobId after disconnect; build success is not installed readiness.',
+      nativeBuild: 'Read ios-agent://native-build. ios_build plan/start/retry/status exposes durable signed generic-device DEV builds. Recover jobId after disconnect; build success is not installed readiness. ios_install plan/start/status validates a signed deliveryId, installs on the fixed paired phone and independently checks the running identity. Use a 180-second client request timeout; recover installId rather than replaying after interruption. React readiness and native Home cleanup are separate.',
       inputMatrix: 'ios_input_matrix plan/start/status exposes the compiled UIKit fixture as a durable serialized simulator job. Require completed, passed and cleanupVerified; no physical-iPhone, React Native, browser or off-LAN proof. Jobs survive MCP reconnect for cleanup; never restart an uncertain job.',
       pairedWorkflow: 'ios_workflow action=plan exposes the versioned coach-client recipe; capture/assert/restore-check independently read only the verified synthetic local row. UI rendering is a separate gate.',
       lease: 'One session per work turn. Always ios_end in finally before ending a turn. Codex should supply its actual active rollout to ios_begin. Other clients use a private connection heartbeat; MCP cannot detect a model turn ending on a persistent connection.',
@@ -157,7 +158,7 @@ export class Backend {
       browserMediaVerification: 'ios_web_verify gate=web-media direction=sent|received|both sampleMs=500..3000 requires stable advancing audio RTP counters. It returns shared structural learning evidence; a passed counter gate does not prove audible content or a completed call.',
       microphoneWorkflow: 'Safari: use bounded native page controls to save Microphone=Allow for the exact DEV host, then verify getUserMedia through the normal page driver. Chrome: first inspect Settings > Privacy & Security > Microphone; a disabled Chrome app switch can cause NotAllowedError without a site prompt. Named SwiftUI switches resolve their unique nested native toggle; inspect value afterward. Use exact observed Allow labels only after identifying the expected DEV microphone prompt. Never use Mirroring as runtime permission control, assume tap success equals permission, enter a passcode, or replay an unknown request.',
       systemFallback: 'Explicit ios_system_begin/inspect/action/end uses the existing signed WDA runner for native Safari/Chrome/Settings/Kickoff and Home. Fixed activate/Home may leave another app without inspecting it. Xcode automatic privileged diagnostics are disabled; ordinary sessions need no sudo. End the normal app/page lease first; end the fallback in finally, normally return Home, and verify runnerStopped. Startup uses paired nearby developer transport; WDA HTTP uses Tailscale but off-LAN start is unqualified. Apple may request human authorization; no passcode is entered. EOF/dead owner independently stops the runner. Do not use this for routine DOM/app work.',
-      cleanup: 'When finished or pausing phone work: stop capture, release control, confirm glow/inspection cleanup, then return the phone to its Home Screen using an available verified system-control route. Taylor prefers Home over restoring the previous app; do not leave Kickoff DEV foreground without a continuing task. Do not send Home during an intermediate session handoff or while another agent owns the device. Home is available within an explicitly started system fallback; normal native/browser end does not start XCTest just for cleanup. Report homeNavigationPending if no verified route is reachable. Never substitute force-quit, lock, XCTest startup or an unverified shortcut. Explicit end, cancellation, disconnect and 20-minute tool silence retire control; the native watchdog protects host loss.',
+      cleanup: 'When finished or pausing phone work: stop capture, release control, confirm glow/inspection cleanup, then return the phone to its Home Screen using an available verified system-control route. Taylor prefers Home over restoring the previous app; do not leave Kickoff DEV foreground without a continuing task. Do not send Home during an intermediate session handoff or while another agent owns the device. For an owned updated native app, send ios_native action=home before ios_end; this retires the lease and asks the DEV app to return Home without XCTest. Use ios_begin nativeOnly=true when JS startup fails. Browser Home still needs an available system route; normal end never starts XCTest just for cleanup. Report homeNavigationPending if no verified route is reachable. Never substitute force-quit, lock, XCTest startup or an unverified shortcut. Explicit end, cancellation, disconnect and 20-minute tool silence retire control; the native watchdog protects host loss.',
       input: 'Get a fresh tree; use its snapshot, target and observed coordinates within five seconds. Verify committed route/value after input. Never automatically replay an accepted or unknown action.',
       updates: 'JS edits use remote Metro; verify ready and route after refresh. Forms/navigation can reset. Native edits require build/install.',
       visibility: 'Normal main-window data excludes system overlays. Explicit system fallback includes native browser/system hierarchy. UIKeyInput is semantic editing. No arbitrary system UI, IME or multi-touch guarantee.',
@@ -178,6 +179,7 @@ export class Backend {
     return {...safe(r.value), ok: r.ok && r.value.backendReady === true, replay: false,
       next: 'Run ios_doctor after any uncertain result. This tool never stops existing workers, resets data, or promises phone readiness.'};
   }
+  async installJob(args = {}) { return nativeDelivery(this,args); }
   async buildJob(args = {}) {
     const r=await this.run('build',[],args,25000);
     return r.value?safe(r.value):{ok:false,reason:r.error,replay:false,next:'Recover ios_build status before any new start.'};
@@ -214,7 +216,7 @@ export class Backend {
       dataChanged: false, credentialsCreated: false, replay: false,
       next: 'This is database readback only. Verify phone and coach rendering separately; stop on a changed pair/value rather than replaying a mutation.'};
   }
-  async begin({rollout, surface = 'native', page} = {}) {
+  async begin({rollout, surface = 'native', page, nativeOnly = false} = {}) {
     if (this.closing || [...this.sessions.values()].some(s => s.active)) throw new Error('end_existing_session_first');
     const base = path.join(this.state, 'mcp-sessions');
     fs.mkdirSync(base, {recursive: true, mode: 0o700});
@@ -234,6 +236,12 @@ export class Backend {
         s.webFingerprint = createHash('sha256').update(JSON.stringify([adapterHash, check.value?.version, check.value?.browser, check.value?.boot])).digest('hex');
         s.webRuntime = Object.fromEntries(['version','browser','boot'].map(k => [k,check.value?.[k]]));
         return {sessionId: id, page, ready: true, verification: check, learning: await this.learning('search',{source:s.webFingerprint}).catch(()=>({available:false})), next: 'ios_web_inspect, fresh snapshot/target, ios_web_action. Always ios_web_end in finally.'};
+      }
+      if(nativeOnly){
+        const verification=await this.action({sessionId:id,action:'capabilities'});
+        if(!verification.ok||verification.data?.applicationState!==0)throw new Error('app_not_ready');
+        return {sessionId:id,ready:false,nativeBridgeReady:true,verification,
+          next:'Native diagnostics only: inspect state/tree/capabilities, reload explicitly or return Home. React/app readiness is unproven. End in finally.'};
       }
       const verification = await this.verify({sessionId: id, gate: 'ready', timeout: 12});
       if (verification.receipt.status !== 'passed') throw new Error('app_not_ready');
@@ -271,6 +279,7 @@ export class Backend {
     const receipt = JSON.parse(fs.readFileSync(a.file, 'utf8'));
     if(action==='state'&&!capturePoll&&receipt.result?.richCapture){delete receipt.result.richCapture;fs.writeFileSync(a.file,JSON.stringify(receipt),{mode:0o600});}
     let data = safe(receipt.result || receipt.data || receipt);
+    if(action==='home'&&result.ok&&data.delivery==='prepared-home-handoff')s.nativeHomePrepared=true;
     if (!inspect && action === 'tree' && Array.isArray(data.nodes)) {
       const all = data.nodes;
       const useful = all.filter(n => n.visible && (n.label || n.identifier || n.firstResponder));
@@ -610,6 +619,10 @@ export class Backend {
       if (s.acquisition) await s.acquisition.catch(() => {});
       let release = {ok: true, value: {alreadyInactive: true}};
       if (fs.existsSync(s.lease)) release = await this.run('cli', ['release', '--lease-file', s.lease], undefined, 20000);
+      if(s.nativeHomePrepared&&!release.ok){
+        const current=await this.status().catch(()=>null);
+        if(current&&current.lease===null)release={ok:true,value:{alreadyRetired:true,reason:'native_home_handoff',homeVerified:false}};
+      }
       if(systemCleanup&&s.systemFingerprint){
         const receipt={gate:'system-idle',status:systemCleanup.runnerStopped===true&&release.ok?'passed':'failed',observation:{runnerStopped:systemCleanup.runnerStopped===true,ownerReleased:release.ok,...(typeof s.systemHomeConfirmed==='boolean'?{homeConfirmed:s.systemHomeConfirmed}:{})}};
         systemCleanup.learningEvidence=await this.learning('observe',{receipt,source:s.systemFingerprint}).catch(()=>({available:false}));

@@ -118,3 +118,29 @@ Browser Inspector candidate, 10 October: v1.8.0 / 33 tools / seven resources. io
 
 
 2026-10-11T02:12:44.841471+00:00: Physical Safari sources/window, direct CSS, console effect and separate passive timeline passed. CSS subscription path failed; direct reads repaired it. Combined trace effect hit changed-document guard, never replayed. Chrome page ready, Inspector target missing. Bounded XCTest start unconfirmed; runner stopped/released. Physical screenshot independently shows XCTest passcode prompt; asked user to Cancel and spoke actual request. Chrome stays pending; no Mirroring. Publication next.
+
+2026-10-11 native delivery candidate: v1.9.0 /35 tools /9 resources. Added
+unique signed product deliveryId, guarded ios_install plan/start/status with
+private durable receipts and no automatic install/launch replay, fresh matching
+running-identity gate. Host worker source restarted while independently idle.
+No sudo/XCTest/Mirroring used for this increment. Focused service28, delivery
+validator3, JS wrapper23/delivery5/typed2/schema1 passed. Two builds correctly
+refused native source changes during construction; final job
+843d65a575304f12a9b6d5b92bf7eec1 includes settled Home polling-chain fix.
+Physical install/Home/relaunch qualification remains next. Latest whole-device
+screenshot independently showed Chrome qualification page, no XCTest modal;
+no additional user action requested. Preserve the pending install receipt after
+any interruption; never replay accepted/unknown CoreDevice input.
+
+
+Native delivery/Home physical gate PASSED: final build 843d65a575304f12a9b6d5b92bf7eec1
+(108.8s); deliveryId 7dc9686e60874ba08e416caa871a2880; ios_install receipt
+1af1c16970ca736fcfd802edf0da647a survived cross-client status. Exact fresh
+running stamp and native capabilities matched. Initial JS-ready gate was too
+early; nativeOnly diagnostics acquired while correctly ready=false, then same
+installed app ready/Apollo/navigation passed. Explicit ios_react status started
+frontend, reconstructed986 components/15roots. Native Home screenshot viewed;
+idle passed. Paired relaunch and regular begin ready passed in1.8s; second Home
+and idle passed. All leases/frontend/glow retired, phone left Home. No sudo,
+XCTest or Mirroring. Publication next. Overall goal still active; browser/off-LAN
+and broader opportunities remain in report.

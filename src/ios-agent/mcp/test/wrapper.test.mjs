@@ -48,7 +48,7 @@ test('SDK discovers tools/resources, intuitive lifecycle, image content and priv
   const f = fixture(); const {client, server} = await clientFor(f);
   try {
     const names = (await client.listTools()).tools.map(t => t.name);
-    assert.equal(names.length, 34); assert.ok(names.includes('ios_begin'));
+    assert.equal(names.length, 35); assert.ok(names.includes('ios_begin'));
     assert.equal((await client.listResources()).resources.length, 9);
     const begin = (await client.callTool({name: 'ios_begin', arguments: {}})).structuredContent;
     assert.equal(begin.ready, true); assert.equal(f.held(), true);
@@ -146,7 +146,7 @@ test('real launcher stdio handshake works in a minimal GUI PATH without device c
   const client = new Client({name: 'stdio-canary', version: '1'});
   const transport = new StdioClientTransport({command: path.join(os.homedir(), 'dotfiles/bin/ios-agent-mcp'), env: {HOME: os.homedir(), PATH: '/usr/bin:/bin'}, stderr: 'pipe'});
   let stderr = ''; transport.stderr?.on('data', x => { stderr += x; });
-  try { await client.connect(transport); assert.equal((await client.listTools()).tools.length, 34); }
+  try { await client.connect(transport); assert.equal((await client.listTools()).tools.length, 35); }
   finally { await client.close(); }
   assert.equal(stderr, '');
 });
@@ -346,4 +346,19 @@ test('native scroll captures fresh hierarchy only when caller omits snapshot',as
  await f.backend.systemAction({sessionId:s.id,action:'scroll',direction:'down'});assert.equal(inspections,1);assert.equal(calls[0].snapshot,'fresh-native');
  await f.backend.systemAction({sessionId:s.id,action:'scroll',direction:'up',snapshot:'caller-snapshot'});assert.equal(inspections,1);assert.equal(calls[1].snapshot,'caller-snapshot');
  }finally{await f.backend.close();fs.rmSync(f.state,{recursive:true,force:true});}
+});
+
+test('native-only diagnostic begin keeps failed JS startup separate from readiness and refuses background',async()=>{
+ for(const foreground of [true,false]){
+  const f=fixture();f.setFail();let requested;
+  f.backend.action=async q=>{requested=q;return {ok:true,data:{applicationState:foreground?0:2,deliveryId:'b'.repeat(32)}};};
+  const {client,server}=await clientFor(f);
+  try{
+   const r=await client.callTool({name:'ios_begin',arguments:{nativeOnly:true}});
+   assert.equal(requested.action,'capabilities');
+   if(foreground){assert.equal(r.structuredContent.ready,false);assert.equal(r.structuredContent.nativeBridgeReady,true);await f.backend.end(r.structuredContent.sessionId);}
+   else{assert(r.isError);assert.equal(f.backend.sessions.size,0);}
+   assert(!f.calls.some(c=>c.kind==='verify'&&c.args[0]==='ready'));
+  }finally{await client.close();await f.backend.close();await server.close();fs.rmSync(f.state,{recursive:true,force:true});}
+ }
 });

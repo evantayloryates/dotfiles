@@ -3,6 +3,7 @@
 #if DEBUG && defined(IOS_AGENT_ENABLED) && IOS_AGENT_ENABLED
 #import <UIKit/UIKit.h>
 #import <QuartzCore/QuartzCore.h>
+#import <objc/message.h>
 #if __has_include(<React/RCTEventEmitter.h>)
 #define IOS_AGENT_REACT 1
 #import <React/RCTEventEmitter.h>
@@ -254,6 +255,8 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
  if([UIApplication.sharedApplication respondsToSelector:@selector(_touchesEvent)]) event=[UIApplication.sharedApplication _touchesEvent];
  for(NSString *s in @[@"_clearTouches",@"_setHIDEvent:",@"_addTouch:forDelayedDelivery:"]) input&=[event respondsToSelector:NSSelectorFromString(s)];
  return @{@"nativeInputRuntime":@(input),@"selectors":selectors,@"applicationState":@(UIApplication.sharedApplication.applicationState),
+          @"deliveryId":[NSBundle.mainBundle objectForInfoDictionaryKey:@"IOSAgentDeliveryId"]?:NSNull.null,
+          @"homeRuntime":@([UIApplication.sharedApplication respondsToSelector:NSSelectorFromString(@"suspend")]),
           @"imageScope":@"app-owned-main-window",@"inputMethod":@"in-process UIEvent",@"textMethod":@"UIKeyInput",@"xctest":@NO,@"richCapture":@"explicit-JS-console-network",@"wifiControl":@"fixed-Apple-Shortcuts-handoff"};
 }
 - (void)showGlow {
@@ -340,6 +343,10 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
  [self.seen addObject:cid]; if(self.seen.count>256) [self.seen removeObjectAtIndex:0];
  @try {
   if([action isEqual:@"capabilities"]) { done([self capabilities]); return; }
+  if([action isEqual:@"home"]) {
+   if(args.count || ![UIApplication.sharedApplication respondsToSelector:NSSelectorFromString(@"suspend")]) { done(IAError(@"home_runtime_unavailable")); return; }
+   done(@{@"delivery":@"prepared-home-handoff",@"requiresFreshLease":@YES,@"homeVerified":@NO}); return;
+  }
   if([action isEqual:@"state"]) {
    NSMutableDictionary *state=[(self.appState?:@{@"ready":@NO}) mutableCopy];
 #if IOS_AGENT_REACT
@@ -489,6 +496,7 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
  NSUInteger generation=self.connectionGeneration;
  NSMutableDictionary *body=[@{@"device":self.config[@"device"],@"bundle":NSBundle.mainBundle.bundleIdentifier,@"boot":self.boot,
                              @"build":[NSBundle.mainBundle objectForInfoDictionaryKey:@"CFBundleVersion"]?:@"unknown",
+                             @"deliveryId":[NSBundle.mainBundle objectForInfoDictionaryKey:@"IOSAgentDeliveryId"]?:NSNull.null,
                              @"feedback":@{@"foreground":@([self active]),@"indicator":@(self.glow&&!self.glow.hidden),@"leased":@([self leased])}} mutableCopy]; [body addEntriesFromDictionary:extra];
  NSMutableURLRequest *request=[NSMutableURLRequest requestWithURL:[NSURL URLWithString:self.config[@"endpoint"]]];
  request.HTTPMethod=@"POST"; request.timeoutInterval=8;
@@ -524,6 +532,7 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
   [self execute:command completion:^(NSDictionary *result){
    [self exchange:@{@"op":@"result",@"id":command[@"id"],@"epoch":command[@"epoch"],@"result":result} completion:^(NSDictionary *ack){
     BOOL wifiHandoff=ack && [self leased] && [command[@"lease"] isEqual:self.lease] && [command[@"epoch"] isEqual:ack[@"epoch"]] && [command[@"action"] isEqual:@"wifi"] && [ack[@"handoff"] isEqual:command[@"id"]] && !result[@"error"];
+    BOOL homeHandoff=ack && [self leased] && [command[@"lease"] isEqual:self.lease] && [command[@"epoch"] isEqual:ack[@"epoch"]] && [command[@"action"] isEqual:@"home"] && [ack[@"handoff"] isEqual:command[@"id"]] && !result[@"error"];
     if(ack) {
      [self apply:ack];
      if([command[@"action"] isEqual:@"tree"] && !result[@"error"])
@@ -532,6 +541,19 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
     // The host has recorded this result and retired normal control before launch.
     // The fenced acknowledgment grants one fixed handoff; a callback grants no lease.
     if(wifiHandoff) IOSAgentWiFiLaunch(command[@"id"]);
+    if(homeHandoff) {
+     // Report the actual cleared app state before suspending. A competing
+     // owner or lost acknowledgment cancels this handoff, never gets displaced.
+     [self exchange:@{@"op":@"cancel",@"lease":command[@"lease"],@"epoch":command[@"epoch"]} completion:^(NSDictionary *idle){
+      if(idle && ![idle[@"lease"] isKindOfClass:NSDictionary.class] && [idle[@"epoch"] isEqual:command[@"epoch"]] && [self active]) {
+       SEL suspend=NSSelectorFromString(@"suspend");
+       if([UIApplication.sharedApplication respondsToSelector:suspend]) ((void(*)(id,SEL))objc_msgSend)(UIApplication.sharedApplication,suspend);
+       // Keep the single polling chain alive across suspension and next foreground.
+       [self poll];
+      } else [self poll];
+     }];
+     return;
+    }
     [self poll];
    }];
   }];
