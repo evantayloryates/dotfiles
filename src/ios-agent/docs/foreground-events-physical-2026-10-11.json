@@ -1,0 +1,191 @@
+{
+  "at": "2026-10-11T10:24:57.193588+00:00",
+  "version": "1.9.31",
+  "originalRunnerPreserved": true,
+  "proof": {
+    "settings": {
+      "foregroundEvidence": {
+        "provider": "Apple-AX-app-state",
+        "bundle": "com.apple.Preferences",
+        "state": 8,
+        "observedAt": 1791714116.402257,
+        "ageMs": 102
+      },
+      "transport": "tailnet-paired-userspace",
+      "independentReadback": {
+        "locked": false,
+        "bundle": "com.apple.Preferences"
+      },
+      "privateReceipts": [
+        "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/tailnet-provider-1791714114974188000.json",
+        "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-input-1791714123899.json"
+      ],
+      "sha256": [
+        "943da199268ffec476467150d3d91c79f17b5c3a1b5fec213e7f387e77f3549b",
+        "13abf4f0fa04b51d1b8b72b827c3933b4f1f1aa65038bbd73058e1c0bed9b55f"
+      ]
+    },
+    "safari": {
+      "foregroundEvidence": {
+        "provider": "Apple-AX-app-state",
+        "bundle": "com.apple.mobilesafari",
+        "state": 8,
+        "observedAt": 1791714125.3997571,
+        "ageMs": 103
+      },
+      "transport": "tailnet-paired-userspace",
+      "independentReadback": {
+        "locked": false,
+        "bundle": "com.apple.mobilesafari"
+      },
+      "privateReceipts": [
+        "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/tailnet-provider-1791714123958715000.json",
+        "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-input-1791714131313.json"
+      ],
+      "sha256": [
+        "86e9dcd64bf2dd03117f3a89f6632b16bbfd82c5f766bb1e8d74c126a6c9d6ea",
+        "b6c790a7c6cbe6e2d7283ea2ac80a4701b90b1b0adeda1ff5ed37bb13d38e7b9"
+      ]
+    },
+    "chrome": {
+      "foregroundEvidence": {
+        "provider": "Apple-AX-app-state",
+        "bundle": "com.google.chrome.ios",
+        "state": 8,
+        "observedAt": 1791714148.4276302,
+        "ageMs": 105
+      },
+      "transport": "tailnet-paired-userspace",
+      "independentReadback": {
+        "locked": false,
+        "bundle": "com.google.chrome.ios"
+      },
+      "privateReceipts": [
+        "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/tailnet-provider-1791714147179437000.json",
+        "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-input-1791714166938.json"
+      ],
+      "sha256": [
+        "a725d3fc589395fdc8c865b999f2842ffbd19638a273a892ab7bec1fcfd115db",
+        "529a88983627914a50e94c0b537157fdcf9f601f427d95b73240877b387106e5"
+      ]
+    },
+    "kickoff-dev": {
+      "foregroundEvidence": {
+        "provider": "Apple-AX-app-state",
+        "bundle": "com.dev.kudos.fit",
+        "state": 8,
+        "observedAt": 1791714168.453055,
+        "ageMs": 101
+      },
+      "transport": "tailnet-paired-userspace",
+      "independentReadback": {
+        "locked": false,
+        "bundle": "com.dev.kudos.fit"
+      },
+      "privateReceipts": [
+        "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/tailnet-provider-1791714166996358000.json",
+        "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-input-1791714184513.json"
+      ],
+      "sha256": [
+        "61a14afee6774cd108b5d3d59f16d9242743d33c1778f64a5b1af1804822596c",
+        "fed41d824d9102599227f8cc7dfee1e2011857422c5d1eef18bcc23e8fc34751"
+      ]
+    },
+    "chromeURL": {
+      "foregroundEvidence": {
+        "provider": "Apple-AX-app-state",
+        "bundle": "com.google.chrome.ios",
+        "state": 8,
+        "observedAt": 1791714233.881483,
+        "ageMs": 102
+      },
+      "privateReceipts": [
+        "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/tailnet-provider-1791714232464509000.json",
+        "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/tailnet-url-inspect-1791714259694327000.json"
+      ],
+      "queryMarkerConfirmed": true,
+      "marker": "1931",
+      "path": "/dev/ios-agent"
+    }
+  },
+  "tests": {
+    "newAppStateContracts": 7,
+    "relatedBrowserAndHomePayloadContracts": 6,
+    "passed": true
+  },
+  "freshStdio": {
+    "at": "2026-10-11T10:23:32.204Z",
+    "version": "1.9.31",
+    "tools": [
+      "ios_guide",
+      "ios_wait_ready",
+      "ios_harness_end",
+      "ios_capture",
+      "ios_device_launch",
+      "ios_device_home",
+      "ios_device_lock",
+      "ios_system_begin",
+      "ios_system_inspect",
+      "ios_system_action",
+      "ios_system_end",
+      "ios_doctor",
+      "ios_stack_ensure",
+      "ios_build",
+      "ios_install",
+      "ios_input_matrix",
+      "ios_workflow",
+      "ios_browser_debug",
+      "ios_accessibility_audit",
+      "ios_device_inspect",
+      "ios_web_pages",
+      "ios_web_enroll",
+      "ios_web_begin",
+      "ios_web_inspect",
+      "ios_web_action",
+      "ios_web_verify",
+      "ios_audio_probe",
+      "ios_web_end",
+      "ios_status",
+      "ios_begin",
+      "ios_end",
+      "ios_verify",
+      "ios_native",
+      "ios_react",
+      "ios_read",
+      "ios_learning_search",
+      "ios_learning_evidence",
+      "ios_learning_propose",
+      "ios_learning_review"
+    ],
+    "resources": [
+      {
+        "uri": "ios-agent://operating-contract",
+        "bytes": 19198
+      },
+      {
+        "uri": "ios-agent://mcp",
+        "bytes": 50607
+      },
+      {
+        "uri": "ios-agent://mobile-web",
+        "bytes": 36839
+      }
+    ],
+    "resourceCount": 10,
+    "guidePassed": true,
+    "heapSchema": true,
+    "breakpointSchema": true,
+    "artifactPagingSchema": true,
+    "workerDebugSchema": true,
+    "recoveryRecipe": true,
+    "claudeOwnerSchema": true,
+    "unmatchedCleanupNoOp": true,
+    "scope": "fresh real stdio catalog, guide and changed-resource reads only; no phone lease or runner operation"
+  },
+  "limits": [
+    "Bounded foreground event only; not lock or native/React/page readiness.",
+    "SpringBoard foreground was not emitted in the Home probe; other apps backgrounding is not Home proof.",
+    "No element focus, press, accessibility setting or visual-overlay call. Monitoring disable/final cleanup and channel close run on every admitted monitor.",
+    "No physical off-LAN or fresh MCP-owned workflow claim while original exclusive hold remains."
+  ]
+}

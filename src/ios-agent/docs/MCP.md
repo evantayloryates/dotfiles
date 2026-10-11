@@ -684,3 +684,21 @@ snapshot/target as an alternative to label/type; secure-entry fields stay exclud
 Physical Shortcuts icon-menu and rename-field input passed with independent
 readback. The snapshot is consumed before dispatch; accepted or unknown input
 must be observed rather than replayed.
+
+## MCP1.9.31: observed foreground transitions
+
+Configured paired `ios_device_launch` and browser URL delivery now briefly monitor
+Apple AX app-state events around their single dispatch. A matching target state8
+produces `foregroundVerified:true` with provider, bundle, timestamp and age.
+A later background event retires that evidence. A missing/failed optional observer
+does not invent foreground success or substitute USB/XCTest. No whole-phone
+app history, element focus, accessibility setting or visual overlay is captured.
+Monitoring disable/final cleanup and channel close run in finally; cleanup failure
+fails the operation without replaying its accepted or uncertain launch.
+
+Physical paired Tailscale events for DEV, Settings, Safari and Chrome matched four
+independent original-WDA foreground reads. Home via the phone shortcut remains
+`homeVerified:false`: no SpringBoard foreground event was emitted in that probe,
+and backgrounding the other apps does not prove Home. This is bounded app-state
+evidence, not lock state, app/page readiness or off-LAN qualification.
+See foreground-events-physical-2026-10-11.json.

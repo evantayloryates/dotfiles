@@ -262,3 +262,13 @@ refused. Physical clear/type readback matched Runner Home, and saved library
 readback confirmed one action.72focused Node cases and12Python provider cases
 passed. Fresh real stdio catalog/guide discovery is recorded separately.
 See home-geometry-physical-2026-10-11.json.
+
+## MCP1.9.31 — app-state evidence without XCTest
+
+Fixed paired launches and browser URL delivery can report a short-lived Apple AX
+foreground event for the exact target. Physical DEV/Settings/Safari/Chrome events
+matched independent foreground reads. Normal native/page readiness is still a
+separate check; no unlock or Home state is inferred. The stream sends no focus,
+activation or visual-overlay command, disables monitoring and closes after one
+launch. Seven new event contracts plus six related payload/Home contracts passed.
+The original held runner remains unchanged; off-LAN qualification is still open.

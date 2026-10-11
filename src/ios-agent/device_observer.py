@@ -57,12 +57,16 @@ async def observe(r):
                      'safari':'com.apple.mobilesafari','chrome':'com.google.chrome.ios'}
             if r.get('target') not in bundles:raise ValueError('fixed_launch_target_required')
             r['_phase']='dvt_launch_connect'
-            async with DvtProvider(rsd) as dvt, ProcessControl(dvt) as control:
-                owned(r);r['_phase']='fixed_launch';r['_launchSent']='unknown'
-                pid=await control.launch(bundles[r['target']],kill_existing=False)
-                r['_launchSent']=True
+            async def dispatch():
+                async with DvtProvider(rsd) as dvt, ProcessControl(dvt) as control:
+                    owned(r);r['_phase']='fixed_launch';r['_launchSent']='unknown'
+                    pid=await control.launch(bundles[r['target']],kill_existing=False)
+                    r['_launchSent']=True
+                    return pid
+            from device_foreground import launch_observed
+            pid,foreground=await launch_observed(r,rsd,bundles[r['target']],dispatch,lambda:owned(r))
             result.update(scope='fixed-device-launch',target=r['target'],pid=pid,inputSent=True,
-                          foregroundVerified=False,replay=False,lockState='unknown',
+                          **foreground,replay=False,lockState='unknown',
                           outcome='developer-request-accepted')
         elif r['kind']=='browser-launch':
             result.update(await browser_launch(r,rsd))
@@ -120,9 +124,11 @@ def browser_launch_arguments(r):
 
 async def browser_launch(r,rsd):
     url,bundle=browser_launch_arguments(r)
-    pid=await payload_launch(r,rsd,bundle,url,'browser_url_launch')
+    from device_foreground import launch_observed
+    async def dispatch():return await payload_launch(r,rsd,bundle,url,'browser_url_launch')
+    pid,foreground=await launch_observed(r,rsd,bundle,dispatch,lambda:owned(r))
     return {'scope':'fixed-dev-browser-launch','browser':r['browser'],'profile':r.get('profile','app'),
-            'pid':pid,'inputSent':True,'foregroundVerified':False,
+            'pid':pid,'inputSent':True,**foreground,
             'lockState':'unknown','outcome':'developer-request-accepted','replay':False}
 
 async def shortcut_home(r,rsd):
@@ -271,7 +277,7 @@ def main():
     except Exception as e:
         known={'InvalidServiceError':'developer_service_unavailable','WebInspectorNotEnabledError':'web_inspector_disabled','DeviceNotFoundError':'paired_device_unavailable','UserspaceTunnelUnavailableError':'paired_tunnel_unavailable','TimeoutError':'device_observation_deadline','ConnectionTerminatedError':'developer_connection_lost'}
         code=known.get(type(e).__name__,'device_observation_unavailable')
-        if isinstance(e,ValueError) and str(e) in {'observer_owner_expired','pinned_observer_required','bounded_png_required','private_observer_output_required','fixed_observer_request_required','private_dev_origin_required','fresh_debug_document_required','owned_browser_session_required_for_evaluation','visible_dev_document_required','debug_document_changed','script_not_in_current_document','script_source_unavailable','debug_selector_not_found','bounded_debug_artifact_required','debug_cleanup_unconfirmed','fixed_debug_operation_required','bounded_dom_selector_required','dom_projection_unavailable','owned_debug_session_required_for_heap','bounded_heap_snapshot_required','supported_heap_snapshot_format_required','debug_loader_identity_unavailable','owned_debug_session_required_for_breakpoint','source_fenced_breakpoint_required','bounded_breakpoint_window_required','debug_script_source_changed','breakpoint_install_unconfirmed','debug_unexpected_pause_before_breakpoint','breakpoint_locals_unavailable','private_developer_tailnet_configuration_required','fixed_developer_tailnet_configuration_required','fixed_developer_tailnet_address_required','developer_device_identity_mismatch','developer_transport_already_active','fixed_launch_target_required','fixed_browser_launch_required','fixed_accessibility_arguments_required','foreground_dev_surface_required','accessibility_service_unavailable','accessibility_check_unavailable','accessibility_cleanup_unconfirmed','accessibility_surface_changed','current_debug_worker_required','debug_worker_terminated','script_not_in_current_worker','bounded_worker_debug_required','worker_profile_incomplete'}:code=str(e)
+        if isinstance(e,ValueError) and str(e) in {'observer_owner_expired','pinned_observer_required','bounded_png_required','private_observer_output_required','fixed_observer_request_required','private_dev_origin_required','fresh_debug_document_required','owned_browser_session_required_for_evaluation','visible_dev_document_required','debug_document_changed','script_not_in_current_document','script_source_unavailable','debug_selector_not_found','bounded_debug_artifact_required','debug_cleanup_unconfirmed','fixed_debug_operation_required','bounded_dom_selector_required','dom_projection_unavailable','owned_debug_session_required_for_heap','bounded_heap_snapshot_required','supported_heap_snapshot_format_required','debug_loader_identity_unavailable','owned_debug_session_required_for_breakpoint','source_fenced_breakpoint_required','bounded_breakpoint_window_required','debug_script_source_changed','breakpoint_install_unconfirmed','debug_unexpected_pause_before_breakpoint','breakpoint_locals_unavailable','private_developer_tailnet_configuration_required','fixed_developer_tailnet_configuration_required','fixed_developer_tailnet_address_required','developer_device_identity_mismatch','developer_transport_already_active','fixed_launch_target_required','fixed_browser_launch_required','fixed_home_shortcut_required','fixed_foreground_target_required','foreground_cleanup_unconfirmed','fixed_accessibility_arguments_required','foreground_dev_surface_required','accessibility_service_unavailable','accessibility_check_unavailable','accessibility_cleanup_unconfirmed','accessibility_surface_changed','current_debug_worker_required','debug_worker_terminated','script_not_in_current_worker','bounded_worker_debug_required','worker_profile_incomplete'}:code=str(e)
         failure_type=type(e).__name__
         diagnostic={**({'auditRequested':True} if r.get('_auditRequested') else {}),**{k:r.get('debug',{}).get(v) for k,v in [('workerCleanup','_workerCleanup'),('breakpointRequested','_breakpointRequested'),('breakpointCleanup','_breakpointCleanup'),('heapSnapshotRequested','_heapSnapshotRequested'),('failedMethod','_failedMethod'),('cleanupFailures','_cleanupFailures'),('receiverFailureType','_receiverFailureType'),('documentChange','_documentChange')] if r.get('debug',{}).get(v)}}
         sent=r.get('_launchSent',('unknown' if r['debug']['_inputDispatched'] else False) if '_inputDispatched' in r.get('debug',{}) else ('unknown' if r.get('debug',{}).get('expression') is not None else False))
