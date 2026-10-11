@@ -1,11 +1,13 @@
 {
-  "at": "2026-10-11T00:22:35.873Z",
+  "at": "2026-10-11T00:23:32.111Z",
   "scope": "Physical paired iPhone; signed WDA startup, native Safari settings and Home; Tailscale HTTP; no Mirroring/USB discovery/off-LAN-start claim",
   "toolCount": 31,
   "started": true,
   "activateSafari": true,
-  "status": "failed",
-  "failure": "expected PageFormatMenuButton",
+  "persistedWebsiteMicrophone": "Allow",
+  "nativeTap": true,
+  "homeConfirmed": true,
+  "status": "passed",
   "connectionClosed": true,
-  "privateEvidence": "/Users/taylor/Library/Application Support/ios-agent/system-smoke-btjPvY"
+  "privateEvidence": "/Users/taylor/Library/Application Support/ios-agent/system-smoke-rFoLwT"
 }
