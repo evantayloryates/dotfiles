@@ -1,0 +1,10 @@
+{
+  "manifest_version": 3,
+  "name": "Runner Browser Probe",
+  "version": "0.1.0",
+  "description": "One-shot private DEV tab navigation experiment. No page capture.",
+  "permissions": ["alarms", "storage", "tabs"],
+  "host_permissions": ["__DEV_HOST_PATTERN__"],
+  "background": {"service_worker": "background.js"},
+  "action": {"default_popup": "popup.html"}
+}

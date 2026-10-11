@@ -26,3 +26,10 @@ changed code, a new runtime/transport required by the gate, or a diagnosed faile
 case. Assign broader extensions to one later step instead of reopening the
 delivered baseline. Supporting suite counts do not close a product workflow.
 Record failed edges and their recovery cost before choosing another approach.
+
+
+### 11 October: reserved hold and browser diagnostic candidates
+
+Taylor explicitly requested preserving the original authorized XCTest for ten hours (through approximately16:07UTC). It stays under its original MCP owner; no runner adoption, restart or lease release. Real MCP activity renewals run while this root work turn stays active. The separate disabled1.9.16 lifetime reservation candidate is committedbe93af3 and needs its first physical cross-lease/expiry gate after this hold.
+
+1.9.17 candidate: Safari returned four CPU/memory readings in two seconds, both tracking stops and detach passed. Native ordinary field focus now handles the observed Safari keyboard handoff;20 driver and19 Inspector checks pass. Chrome also returned four CPU/memory readings with stops, disable and detach verified; host monotonic receive offsets preserve arrival order alongside unchanged zero provider times. Publication remains pending. A signed Safari one-shot tab extension is installed as a narrow experiment; foreground alarm/tab creation passed. Home stayed foreground31.57seconds after arm, so the extension is closed as an off-site launch solution. Explicit close and uninstall passed; source/evidence retained.

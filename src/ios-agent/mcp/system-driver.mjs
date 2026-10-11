@@ -115,8 +115,8 @@ export class SystemDriver {
       const bundle=await this.context(!['activate','home'].includes(action));
       if(action==='home'){this.snapshot=null;await this.authorize();this.check();inputSent=true;await this.http('POST','/wda/homescreen',{});return {ok:true,homeConfirmed:await this.foregroundMatches('com.apple.springboard'),replay:false};}
       if(action==='activate'){if(!bundles[app])return {ok:false,reason:'fixed_system_app_required',actionSent:false};this.snapshot=null;await this.authorize();this.check();inputSent=true;await this.http('POST',this.route('/wda/apps/activate'),{bundleId:bundles[app]});return {ok:true,foregroundConfirmed:await this.foregroundMatches(bundles[app]),replay:false};}
-      if((action==='tap'&&label!==undefined)||['type','clear'].includes(action)){
-        const textAction=['type','clear'].includes(action);
+      if((action==='tap'&&label!==undefined)||['type','clear','focus'].includes(action)){
+        const textAction=['type','clear','focus'].includes(action);
         const types=textAction?['XCUIElementTypeTextField','XCUIElementTypeSearchField','XCUIElementTypeTextView']:['XCUIElementTypeButton','XCUIElementTypeCell','XCUIElementTypeSwitch','XCUIElementTypeLink'];
         if(typeof label!=='string'||!label.length||label.length>500||!types.includes(elementType))return {ok:false,reason:'typed_system_label_required',actionSent:false};
         if(action==='type'&&(typeof text!=='string'||!text.length||text.length>256)||action!=='type'&&text!==undefined)return {ok:false,reason:'system_text_argument_mismatch',actionSent:false};

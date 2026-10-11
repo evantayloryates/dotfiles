@@ -83,6 +83,43 @@ class InspectorTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn(('ScriptProfiler.startTracking',{'includeSamples':True}),self.s.calls)
         self.assertEqual(self.s.calls[-1][0],'ScriptProfiler.stopTracking');self.assertEqual(self.s.response_methods,{})
 
+    async def test_resources_capture_provider_cpu_memory_and_stop_both_without_gc(self):
+        original=self.s.send_command
+        async def send(method,**args):
+            if method=='Memory.startTracking':self.s.emit('Memory.trackingUpdate',event={'timestamp':1,'categories':[{'type':'javascript','size':4096}]})
+            if method=='CPUProfiler.startTracking':self.s.emit('CPUProfiler.trackingUpdate',event={'timestamp':1,'usage':12.5,'threads':[{'name':'worker','usage':4}]})
+            return await original(method,**args)
+        self.s.send_command=send
+        r=await self.run_debug({'op':'resources','sampleMs':100})
+        self.assertTrue(all(type(x['receivedElapsedMs']) is float and x['receivedElapsedMs']>=0 for x in r['events']))
+        self.assertEqual(r['events'][0]['params']['event']['timestamp'],1)
+        self.assertIn('host monotonic',r['eventClock'])
+        self.assertEqual(r['memorySamples'],1);self.assertEqual(r['cpuSamples'],1)
+        self.assertTrue(r['memoryStopped']);self.assertTrue(r['cpuProfilerStopped']);self.assertTrue(r['domainsDisabled'])
+        self.assertFalse(r['forcedGarbageCollection']);self.assertEqual(self.s.response_methods,{})
+        calls=[m for m,_ in self.s.calls]
+        self.assertLess(calls.index('CPUProfiler.stopTracking'),calls.index('Memory.stopTracking'))
+        self.assertEqual(calls[-1],'Memory.disable')
+        self.assertFalse(any(m.startswith('Heap.') for m in calls))
+
+    async def test_resources_uncertain_start_still_stops_and_preserves_handlers(self):
+        sentinel=lambda e:None;self.s.response_methods['Memory.trackingUpdate']=sentinel
+        self.s.fail='CPUProfiler.startTracking'
+        with self.assertRaises(debug.ProtocolError):await self.run_debug({'op':'resources'})
+        calls=[m for m,_ in self.s.calls]
+        self.assertIn('CPUProfiler.stopTracking',calls);self.assertIn('Memory.stopTracking',calls)
+        self.assertEqual(calls[-1],'Memory.disable')
+        self.assertIs(self.s.response_methods['Memory.trackingUpdate'],sentinel)
+
+    async def test_resources_lost_owner_stops_and_cleanup_failure_is_not_success(self):
+        def check():
+            if any(m=='CPUProfiler.startTracking' for m,_ in self.s.calls):raise ValueError('observer_owner_expired')
+        with self.assertRaisesRegex(ValueError,'observer_owner_expired'):await self.run_debug({'op':'resources'},check)
+        self.assertIn(('CPUProfiler.stopTracking',{}),self.s.calls);self.assertIn(('Memory.stopTracking',{}),self.s.calls)
+        self.s=Session();self.s.fail='Memory.stopTracking'
+        with self.assertRaisesRegex(ValueError,'debug_cleanup_unconfirmed'):await self.run_debug({'op':'resources','sampleMs':100})
+        self.assertEqual(self.s.calls[-1][0],'Memory.disable')
+
     async def test_script_profile_uncertain_start_stops_and_cleanup_failure_stays_failed(self):
         self.s.fail='ScriptProfiler.startTracking'
         with self.assertRaises(debug.ProtocolError):await self.run_debug({'op':'profile','sampleMs':100})

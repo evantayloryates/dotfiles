@@ -89,3 +89,15 @@ input masquerading as an OS tap. Apple may require human authorization.
 On meaningful driver changes, discover `ios_input_matrix` and read
 `ios-agent://native-input-matrix`. That isolated simulator job does not qualify
 physical IME, multi-touch, competing-recognizer cancellation or off-LAN use.
+
+
+### Safari address-field focus handoff
+
+Safari can replace its address field when the keyboard appears. An initial
+`type` or `clear` may focus it and then reject its stale native element. Do not
+replay that uncertain input. Inspect its current value and keyboard state.
+Use explicit `ios_system_action action=focus label=Address
+ elementType=XCUIElementTypeTextField`, inspect, then clear/type as separate
+intents against the new field. `focus` sends one guarded native click and no
+text or clear. Secure fields remain excluded. Submit by tapping the observed
+Go button and verify the resulting URL/page, rather than appending Return.

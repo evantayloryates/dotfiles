@@ -1,0 +1,626 @@
+{
+  "observedAt": "2026-10-11T07:14:26.599958+00:00",
+  "candidateVersion": "1.9.17",
+  "scope": "physical-paired-WebKit-provider-under-original-system-owner; MCP-schema-qualified-separately",
+  "originalRunnerStopped": false,
+  "safari": {
+    "operation": "resources",
+    "memorySamples": 4,
+    "cpuSamples": 4,
+    "memoryStopped": true,
+    "cpuProfilerStopped": true,
+    "domainsDisabled": true,
+    "eventCount": 12,
+    "droppedEvents": 0,
+    "retainedBytes": 2654,
+    "attribution": "WebKit resource-usage events for this inspected target; may include shared process work. Not whole-device usage or audio latency.",
+    "forcedGarbageCollection": false
+  },
+  "safariReadings": {
+    "cpu": [
+      {
+        "timestamp": 0,
+        "usage": 2.8999998569488525,
+        "threads": [
+          {
+            "name": "Main Thread",
+            "usage": 2.8999998569488525,
+            "type": "main"
+          },
+          {
+            "name": "JavaScriptCore libpas scavenger",
+            "usage": 0
+          },
+          {
+            "name": "",
+            "usage": 0
+          },
+          {
+            "name": "",
+            "usage": 0
+          }
+        ]
+      },
+      {
+        "timestamp": 0,
+        "usage": 0.8999999761581421,
+        "threads": [
+          {
+            "name": "Main Thread",
+            "usage": 0.8999999761581421,
+            "type": "main"
+          },
+          {
+            "name": "JavaScriptCore libpas scavenger",
+            "usage": 0
+          },
+          {
+            "name": "",
+            "usage": 0
+          },
+          {
+            "name": "",
+            "usage": 0
+          }
+        ]
+      },
+      {
+        "timestamp": 0,
+        "usage": 0.20000000298023224,
+        "threads": [
+          {
+            "name": "Main Thread",
+            "usage": 0.10000000149011612,
+            "type": "main"
+          },
+          {
+            "name": "JavaScriptCore libpas scavenger",
+            "usage": 0.10000000149011612
+          },
+          {
+            "name": "",
+            "usage": 0
+          },
+          {
+            "name": "",
+            "usage": 0
+          }
+        ]
+      },
+      {
+        "timestamp": 0,
+        "usage": 0,
+        "threads": [
+          {
+            "name": "Main Thread",
+            "usage": 0,
+            "type": "main"
+          },
+          {
+            "name": "JavaScriptCore libpas scavenger",
+            "usage": 0
+          },
+          {
+            "name": "",
+            "usage": 0
+          },
+          {
+            "name": "",
+            "usage": 0
+          }
+        ]
+      }
+    ],
+    "memory": [
+      {
+        "timestamp": 0,
+        "categories": [
+          {
+            "type": "javascript",
+            "size": 14836153
+          },
+          {
+            "type": "jit",
+            "size": 1064960
+          },
+          {
+            "type": "images",
+            "size": 0
+          },
+          {
+            "type": "layers",
+            "size": 0
+          },
+          {
+            "type": "page",
+            "size": 46079559
+          },
+          {
+            "type": "other",
+            "size": 13926400
+          }
+        ]
+      },
+      {
+        "timestamp": 0,
+        "categories": [
+          {
+            "type": "javascript",
+            "size": 14836153
+          },
+          {
+            "type": "jit",
+            "size": 1064960
+          },
+          {
+            "type": "images",
+            "size": 0
+          },
+          {
+            "type": "layers",
+            "size": 0
+          },
+          {
+            "type": "page",
+            "size": 45997639
+          },
+          {
+            "type": "other",
+            "size": 13926400
+          }
+        ]
+      },
+      {
+        "timestamp": 0,
+        "categories": [
+          {
+            "type": "javascript",
+            "size": 14836153
+          },
+          {
+            "type": "jit",
+            "size": 1064960
+          },
+          {
+            "type": "images",
+            "size": 0
+          },
+          {
+            "type": "layers",
+            "size": 0
+          },
+          {
+            "type": "page",
+            "size": 45997639
+          },
+          {
+            "type": "other",
+            "size": 13926400
+          }
+        ]
+      },
+      {
+        "timestamp": 0,
+        "categories": [
+          {
+            "type": "javascript",
+            "size": 14836153
+          },
+          {
+            "type": "jit",
+            "size": 1064960
+          },
+          {
+            "type": "images",
+            "size": 0
+          },
+          {
+            "type": "layers",
+            "size": 0
+          },
+          {
+            "type": "page",
+            "size": 45964871
+          },
+          {
+            "type": "other",
+            "size": 13926400
+          }
+        ]
+      }
+    ]
+  },
+  "detached": true,
+  "chromeQualified": true,
+  "limitations": [
+    "All physical provider timestamps were zero; not calibrated interval timing",
+    "WebKit process work may be shared",
+    "No heap snapshot, forced GC, off-LAN Inspector, audible-latency or whole-device claim",
+    "Host monotonic receive offsets preserve arrival order, not calibrated provider measurement times. Safari earlier proof predates this additive field."
+  ],
+  "focusedChecks": {
+    "pythonInspector": 19,
+    "mcpDebugger": 5
+  },
+  "chrome": {
+    "operation": "resources",
+    "memorySamples": 4,
+    "cpuSamples": 4,
+    "memoryStopped": true,
+    "cpuProfilerStopped": true,
+    "domainsDisabled": true,
+    "eventCount": 12,
+    "droppedEvents": 0,
+    "retainedBytes": 5184,
+    "attribution": "WebKit resource-usage events for this inspected target; may include shared process work. Not whole-device usage or audio latency.",
+    "forcedGarbageCollection": false,
+    "eventClock": "receivedElapsedMs is host monotonic receive time, not provider measurement time; raw provider timestamps are unchanged"
+  },
+  "chromeReadings": {
+    "cpu": [
+      {
+        "receivedElapsedMs": 63.972,
+        "timestamp": 0,
+        "usage": 4.099999904632568,
+        "threads": [
+          {
+            "name": "Main Thread",
+            "usage": 3.799999952316284,
+            "type": "main"
+          },
+          {
+            "name": "WebKitWebRTCNetwork",
+            "usage": 0
+          },
+          {
+            "name": "WebKitWebRTCSignaling",
+            "usage": 0
+          },
+          {
+            "name": "JavaScriptCore libpas scavenger",
+            "usage": 0.10000000149011612
+          },
+          {
+            "name": "RemoteAudioDestinationProxy render thread",
+            "usage": 0,
+            "type": "webkit"
+          },
+          {
+            "name": "caulk::deferred_logger",
+            "usage": 0
+          },
+          {
+            "name": "caulk.messenger.shared:high",
+            "usage": 0
+          },
+          {
+            "name": "AudioMediaStreamTrackRendererInternalUnit thread",
+            "usage": 0,
+            "type": "webkit"
+          },
+          {
+            "name": "RemoteAudioDestinationProxy render thread",
+            "usage": 0,
+            "type": "webkit"
+          },
+          {
+            "name": "",
+            "usage": 0
+          },
+          {
+            "name": "",
+            "usage": 0.20000000298023224
+          },
+          {
+            "name": "JIT Worklist Helper Thread",
+            "usage": 0,
+            "type": "webkit"
+          }
+        ]
+      },
+      {
+        "receivedElapsedMs": 566.197,
+        "timestamp": 0,
+        "usage": 0.6000000238418579,
+        "threads": [
+          {
+            "name": "Main Thread",
+            "usage": 0.5,
+            "type": "main"
+          },
+          {
+            "name": "WebKitWebRTCNetwork",
+            "usage": 0
+          },
+          {
+            "name": "WebKitWebRTCSignaling",
+            "usage": 0
+          },
+          {
+            "name": "JavaScriptCore libpas scavenger",
+            "usage": 0.10000000149011612
+          },
+          {
+            "name": "RemoteAudioDestinationProxy render thread",
+            "usage": 0,
+            "type": "webkit"
+          },
+          {
+            "name": "caulk::deferred_logger",
+            "usage": 0
+          },
+          {
+            "name": "caulk.messenger.shared:high",
+            "usage": 0
+          },
+          {
+            "name": "AudioMediaStreamTrackRendererInternalUnit thread",
+            "usage": 0,
+            "type": "webkit"
+          },
+          {
+            "name": "RemoteAudioDestinationProxy render thread",
+            "usage": 0,
+            "type": "webkit"
+          },
+          {
+            "name": "",
+            "usage": 0
+          },
+          {
+            "name": "",
+            "usage": 0
+          },
+          {
+            "name": "JIT Worklist Helper Thread",
+            "usage": 0,
+            "type": "webkit"
+          }
+        ]
+      },
+      {
+        "receivedElapsedMs": 1069.316,
+        "timestamp": 0,
+        "usage": 0.30000001192092896,
+        "threads": [
+          {
+            "name": "Main Thread",
+            "usage": 0.10000000149011612,
+            "type": "main"
+          },
+          {
+            "name": "WebKitWebRTCNetwork",
+            "usage": 0
+          },
+          {
+            "name": "WebKitWebRTCSignaling",
+            "usage": 0
+          },
+          {
+            "name": "JavaScriptCore libpas scavenger",
+            "usage": 0.20000000298023224
+          },
+          {
+            "name": "RemoteAudioDestinationProxy render thread",
+            "usage": 0,
+            "type": "webkit"
+          },
+          {
+            "name": "caulk::deferred_logger",
+            "usage": 0
+          },
+          {
+            "name": "caulk.messenger.shared:high",
+            "usage": 0
+          },
+          {
+            "name": "AudioMediaStreamTrackRendererInternalUnit thread",
+            "usage": 0,
+            "type": "webkit"
+          },
+          {
+            "name": "RemoteAudioDestinationProxy render thread",
+            "usage": 0,
+            "type": "webkit"
+          },
+          {
+            "name": "",
+            "usage": 0
+          },
+          {
+            "name": "",
+            "usage": 0
+          },
+          {
+            "name": "JIT Worklist Helper Thread",
+            "usage": 0,
+            "type": "webkit"
+          }
+        ]
+      },
+      {
+        "receivedElapsedMs": 1573.146,
+        "timestamp": 0,
+        "usage": 0.6000000238418579,
+        "threads": [
+          {
+            "name": "Main Thread",
+            "usage": 0.5,
+            "type": "main"
+          },
+          {
+            "name": "WebKitWebRTCNetwork",
+            "usage": 0
+          },
+          {
+            "name": "WebKitWebRTCSignaling",
+            "usage": 0
+          },
+          {
+            "name": "JavaScriptCore libpas scavenger",
+            "usage": 0.10000000149011612
+          },
+          {
+            "name": "RemoteAudioDestinationProxy render thread",
+            "usage": 0,
+            "type": "webkit"
+          },
+          {
+            "name": "caulk::deferred_logger",
+            "usage": 0
+          },
+          {
+            "name": "caulk.messenger.shared:high",
+            "usage": 0
+          },
+          {
+            "name": "AudioMediaStreamTrackRendererInternalUnit thread",
+            "usage": 0,
+            "type": "webkit"
+          },
+          {
+            "name": "RemoteAudioDestinationProxy render thread",
+            "usage": 0,
+            "type": "webkit"
+          },
+          {
+            "name": "",
+            "usage": 0
+          },
+          {
+            "name": "",
+            "usage": 0
+          },
+          {
+            "name": "JIT Worklist Helper Thread",
+            "usage": 0,
+            "type": "webkit"
+          }
+        ]
+      }
+    ],
+    "memory": [
+      {
+        "receivedElapsedMs": 64.06,
+        "timestamp": 0,
+        "categories": [
+          {
+            "type": "javascript",
+            "size": 24128505
+          },
+          {
+            "type": "jit",
+            "size": 737280
+          },
+          {
+            "type": "images",
+            "size": 0
+          },
+          {
+            "type": "layers",
+            "size": 0
+          },
+          {
+            "type": "page",
+            "size": 86873095
+          },
+          {
+            "type": "other",
+            "size": 21266432
+          }
+        ]
+      },
+      {
+        "receivedElapsedMs": 566.363,
+        "timestamp": 0,
+        "categories": [
+          {
+            "type": "javascript",
+            "size": 24128505
+          },
+          {
+            "type": "jit",
+            "size": 737280
+          },
+          {
+            "type": "images",
+            "size": 0
+          },
+          {
+            "type": "layers",
+            "size": 0
+          },
+          {
+            "type": "page",
+            "size": 86807559
+          },
+          {
+            "type": "other",
+            "size": 21266432
+          }
+        ]
+      },
+      {
+        "receivedElapsedMs": 1069.42,
+        "timestamp": 0,
+        "categories": [
+          {
+            "type": "javascript",
+            "size": 24128505
+          },
+          {
+            "type": "jit",
+            "size": 737280
+          },
+          {
+            "type": "images",
+            "size": 0
+          },
+          {
+            "type": "layers",
+            "size": 0
+          },
+          {
+            "type": "page",
+            "size": 86561799
+          },
+          {
+            "type": "other",
+            "size": 21266432
+          }
+        ]
+      },
+      {
+        "receivedElapsedMs": 1573.248,
+        "timestamp": 0,
+        "categories": [
+          {
+            "type": "javascript",
+            "size": 24128505
+          },
+          {
+            "type": "jit",
+            "size": 737280
+          },
+          {
+            "type": "images",
+            "size": 0
+          },
+          {
+            "type": "layers",
+            "size": 0
+          },
+          {
+            "type": "page",
+            "size": 86594567
+          },
+          {
+            "type": "other",
+            "size": 21266432
+          }
+        ]
+      }
+    ]
+  },
+  "chromeDetached": true
+}

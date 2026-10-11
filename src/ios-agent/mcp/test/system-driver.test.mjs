@@ -79,6 +79,18 @@ test('ordinary field typing appends once; clearing requires its own explicit act
  assert.equal((await d.action({action:'clear',...target})).ok,true);
  assert.equal(calls.filter(c=>c[1].endsWith('/clear')).length,1);
 });
+test('field focus is one guarded click with no implicit clear or text',async()=>{
+ const {d,calls}=fieldFixture();
+ assert.equal((await d.action({action:'focus',label:'Address',elementType:'XCUIElementTypeTextField'})).ok,true);
+ assert.equal(calls.filter(c=>c[1].endsWith('/click')).length,1);
+ assert(!calls.some(c=>c[1].endsWith('/value')||c[1].endsWith('/clear')));
+ for(const mode of ['duplicate','occluded','authority']){
+  const {d,calls}=fieldFixture(mode);
+  assert.equal((await d.action({action:'focus',label:'Address',elementType:'XCUIElementTypeTextField'})).actionSent,false);
+  assert(!calls.some(c=>c[1].endsWith('/click')));
+ }
+ assert.equal((await d.action({action:'focus',label:'Passcode',elementType:'XCUIElementTypeSecureTextField'})).actionSent,false);
+});
 test('field input refuses secure, oversized, ambiguous, occluded and lost-owner targets',async()=>{
  for(const [mode,patch] of [['ready',{elementType:'XCUIElementTypeSecureTextField'}],['ready',{text:'x'.repeat(257)}],['duplicate',{}],['occluded',{}],['authority',{}]]){
   const {d,calls}=fieldFixture(mode);const r=await d.action({action:'type',label:'Test draft',elementType:'XCUIElementTypeTextField',text:'draft',...patch});
@@ -104,5 +116,8 @@ test('MCP admits ordinary field text and rejects missing, oversized or secure in
    assert.equal(r.structuredContent.ok,false);
   }
   assert.equal(seen.length,1);
+  assert(!(await c.callTool({name:'ios_system_action',arguments:{...target,action:'focus',text:undefined}})).isError);
+  assert.equal(seen.length,2);assert.equal(seen[1].action,'focus');
+  assert((await c.callTool({name:'ios_system_action',arguments:{...target,action:'focus'}})).isError);assert.equal(seen.length,2);
  }finally{await c.close();await server.close();}
 });

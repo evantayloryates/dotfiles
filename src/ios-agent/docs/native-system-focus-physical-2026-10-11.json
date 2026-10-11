@@ -1,0 +1,19 @@
+{
+  "observedAt": "2026-10-11T07:07:24.423133+00:00",
+  "candidateVersion": "1.9.17",
+  "scope": "physical-Safari-provider-under-original-exclusive-owner; MCP schema tested separately",
+  "focusSingleNativeClickPassed": true,
+  "focusFreshInspectionPassed": true,
+  "clearReadbackEmptyPassed": true,
+  "typeExactURLReadbackPassed": true,
+  "implicitClear": false,
+  "secureInput": false,
+  "newRunnerOrSessionCreated": false,
+  "originalRunnerStopped": false,
+  "observedEdge": "Unfocused Safari type/clear focused the keyboard then returned provider rejection. Fresh field readback reconciled actual value; explicit focus avoids combining that handoff with text.",
+  "focusedDriverTests": 20,
+  "limits": [
+    "No passcode, IME or hardware-key claim",
+    "Submission is separate; tap observed Go and verify page"
+  ]
+}

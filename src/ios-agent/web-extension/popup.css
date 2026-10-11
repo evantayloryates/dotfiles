@@ -1,0 +1,1 @@
+:root { color-scheme: light dark; font: 15px/1.5 system-ui; } body { min-width: 260px; padding: 18px; margin: 0; } h1 { font-size: 19px; line-height: 1.2; } button { display: block; padding: 12px; margin: 10px 0; width: 100%; font: inherit; } #status { font-size: 13px; opacity: .75; }

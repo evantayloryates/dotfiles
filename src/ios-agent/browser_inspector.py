@@ -55,13 +55,14 @@ async def command(session, method, timeout=4, **args):
 
 class Events:
     def __init__(self):self.rows=[];self.bytes=0;self.dropped=0
-    def add(self,method,params):
+    def add(self,method,params,received_elapsed_ms=None):
         if method=='Debugger.scriptParsed':
             # Source-map data URLs and provider extras can dwarf the catalog.
             # Retain only source references; source content has its own window.
             params={k:(safe_url(v) if k in ('url','sourceMapURL') else v) for k,v in params.items()
                     if k in ('scriptId','url','startLine','startColumn','endLine','endColumn','sourceMapURL','isModule')}
         row=scrub({'method':method,'params':params})
+        if received_elapsed_ms is not None:row['receivedElapsedMs']=received_elapsed_ms
         size=len(json.dumps(row).encode())
         if len(self.rows)>=1000 or self.bytes+size>MAX_BYTES:
             self.dropped+=1;return
@@ -72,7 +73,7 @@ async def inspect(session, request, target, expected, check):
     request['_inputDispatched']=False
     request['_contextStage']='initial'
     op=request.get('op','overview')
-    allowed={'overview','dom','sources','source','styles','console','trace','network','profile','evaluate'}
+    allowed={'overview','dom','sources','source','styles','console','trace','network','profile','resources','evaluate'}
     if op not in allowed:raise ValueError('fixed_debug_operation_required')
     reference=request.get('documentRef')
     if op in ('source','evaluate') and not re.fullmatch('[a-f0-9]{32}',reference or ''):
@@ -100,11 +101,13 @@ async def inspect(session, request, target, expected, check):
         'browser':target.application.bundle,'ready':ctx['ready'],'scope':'paired-dev-WebKit-Inspector','userGestureRequested':False,'replay':False}
     if op=='overview':return {**result,'domainsDisabled':True}
     domains=[];events=Events();old_handlers={};paused=False;timeline_requested=False;profile_requested=False
+    resource_requested=[];resource_clock=asyncio.get_running_loop().time()
     def handler(method):
         def record(event):
             nonlocal paused
             if method=='Debugger.paused':paused=True
-            events.add(method,event.get('params',{}))
+            elapsed=round((asyncio.get_running_loop().time()-resource_clock)*1000,3) if op=='resources' else None
+            events.add(method,event.get('params',{}),elapsed)
         return record
     async def enable(domain):
         # Track before dispatch: even an uncertain enable must get a cleanup attempt.
@@ -121,7 +124,9 @@ async def inspect(session, request, target, expected, check):
                  'console':['Console.messageAdded','Console.messageRepeatCountUpdated','Console.messagesCleared'],
                  'trace':['Timeline.eventRecorded','Timeline.recordingStarted','Timeline.recordingStopped'],
                  'network':['Network.requestWillBeSent','Network.responseReceived','Network.dataReceived','Network.loadingFinished','Network.loadingFailed','Network.requestServedFromMemoryCache'],
-                 'profile':['ScriptProfiler.trackingStart','ScriptProfiler.trackingUpdate','ScriptProfiler.trackingComplete']} .get(op,[])
+                 'profile':['ScriptProfiler.trackingStart','ScriptProfiler.trackingUpdate','ScriptProfiler.trackingComplete'],
+                 'resources':['Memory.trackingStart','Memory.trackingUpdate','Memory.trackingComplete','Memory.memoryPressure',
+                              'CPUProfiler.trackingStart','CPUProfiler.trackingUpdate','CPUProfiler.trackingComplete']} .get(op,[])
         for method in methods:
             old_handlers[method]=session.response_methods.get(method)
             session.response_methods[method]=handler(method)
@@ -162,10 +167,17 @@ async def inspect(session, request, target, expected, check):
             check();result['computed']=await command(session,'CSS.getComputedStyleForNode',nodeId=node['nodeId'])
             check();result['inline']=await command(session,'CSS.getInlineStylesForNode',nodeId=node['nodeId'])
             result['selector']=request['selector']
-        elif op in ('console','trace','network','profile'):
+        elif op in ('console','trace','network','profile','resources'):
             if op=='profile':
                 check();profile_requested=True
                 await command(session,'ScriptProfiler.startTracking',includeSamples=True)
+            elif op=='resources':
+                # No heap snapshot or forced GC. These are WebKit's bounded
+                # resource-usage events, with provider-defined attribution.
+                await enable('Memory')
+                for domain in ('Memory','CPUProfiler'):
+                    check();resource_requested.append(domain)
+                    await command(session,domain+'.startTracking')
             else:
                 domain={'console':'Console','trace':'Timeline','network':'Network'}[op]
                 await enable(domain)
@@ -194,6 +206,11 @@ async def inspect(session, request, target, expected, check):
                 await command(session,'ScriptProfiler.stopTracking',timeout=2)
                 result['profilerStopped']=True
             except Exception:cleanup.append('ScriptProfiler.stopTracking')
+        for domain in reversed(resource_requested):
+            try:
+                await command(session,domain+'.stopTracking',timeout=2)
+                result[{'Memory':'memoryStopped','CPUProfiler':'cpuProfilerStopped'}[domain]]=True
+            except Exception:cleanup.append(domain+'.stopTracking')
         if paused:
             try:await command(session,'Debugger.resume',timeout=2)
             except Exception:cleanup.append('Debugger.resume')
@@ -215,6 +232,12 @@ async def inspect(session, request, target, expected, check):
         traces=[t for x in completed for t in x.get('samples',{}).get('stackTraces',[])]
         result.update(profileComplete=bool(completed),sampleCount=len(traces),
                       attribution='JavaScript sampling only; not whole-browser CPU or memory')
+    if op=='resources':
+        result.update(memorySamples=sum(x['method']=='Memory.trackingUpdate' for x in events.rows),
+                      cpuSamples=sum(x['method']=='CPUProfiler.trackingUpdate' for x in events.rows),
+                      attribution='WebKit resource-usage events for this inspected target; may include shared process work. Not whole-device usage or audio latency.',
+                      forcedGarbageCollection=False,
+                      eventClock='receivedElapsedMs is host monotonic receive time, not provider measurement time; raw provider timestamps are unchanged')
     if op in ('sources','source'):result['events']=[x for x in events.rows if x['method']!='Debugger.scriptParsed']
     result=scrub(result)
     if len(json.dumps(result).encode())>MAX_BYTES:raise ValueError('bounded_debug_artifact_required')

@@ -156,3 +156,25 @@ second owner nor releases the signed runner. Native AX can mark a clipped
 WebKit control visible even when its reported center lands on other content.
 Do not treat that AX flag, DOM hit test or delivered tap as a verified effect.
 Nearby Inspector remains separate from network-only page operation.
+
+
+## CPU and memory resource probe — 1.9.17 candidate
+
+`ios_browser_debug browser=safari|chrome op=resources sampleMs=1500` subscribes
+briefly to WebKit Memory and CPUProfiler resource-usage events. It does not take
+a heap snapshot, force garbage collection, run a caller expression or change
+product settings. Both tracking stops and Memory.disable must pass; uncertain
+starts and lost ownership still attempt cleanup. Zero retained samples means
+no measurement, never zero usage. Provider events may include shared-process
+work; do not label them exclusive page or whole-device measurements.
+
+Artifacts use the same one-hour expiry, event/byte budgets and selected-pointer
+reads. The MCP schema and nineteen Python Inspector checks pass. Physical Safari
+returned four CPU and four memory readings in two seconds, with no drops, both
+tracking stops, Memory.disable and detach verified. Every provider timestamp
+was zero: retain sequence/order and reported percentages/bytes, not calibrated
+interval timing. Chrome also returned four CPU and four memory readings with both stops, disable and detach passed. The added `receivedElapsedMs` records host monotonic arrival offsets; it does not replace provider timestamps or establish measurement intervals. Publication remains pending. See `browser-resources-physical-2026-10-11.json`.
+
+Protocols:
+- https://raw.githubusercontent.com/WebKit/WebKit/main/Source/JavaScriptCore/inspector/protocol/Memory.json
+- https://raw.githubusercontent.com/WebKit/WebKit/main/Source/JavaScriptCore/inspector/protocol/CPUProfiler.json

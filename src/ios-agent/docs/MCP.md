@@ -566,3 +566,11 @@ of audible latency, comparative CPU/memory, or off-LAN WebRTC.
 `ios_system_action action=type` appends up to256characters to one exact `label`/`elementType` ordinary TextField, SearchField or TextView. `action=clear` is explicit and takes no text. Secure fields and passcodes are excluded. Each mutation resolves a unique live, visible, enabled, hittable target and rechecks the current owner before sending once. Read the effect afterward; an unknown outcome must never be replayed blindly.
 
 Physical Chrome: address clear/readback, URL type/readback, separate observed Go navigation, Unicode React form value and clear/independent DOM readback passed. Type the address without Return, inspect it, then tap the observed Go button. Combined URL+Return was unreliable. The original authorized XCTest runner remained active; no session restart. See native-system-text-physical-2026-10-11.json. Fresh connections load this schema; an already connected server keeps its older schema until an idle refresh.
+
+## Browser resources and explicit field focus (1.9.17)
+
+`ios_browser_debug {browser:"safari",op:"resources",sampleMs:1500}` captures bounded WebKit CPU and memory readings. Chrome uses the same operation with `browser:"chrome"`. Both physical browsers returned four readings of each in two seconds, with tracking stopped, Memory disabled and Inspector detached. No caller expression or forced GC is allowed. Read selected private event subtrees; attribution can include shared-process work. Provider timestamps were zero; host `receivedElapsedMs` preserves arrival order without claiming calibrated measurement time. See BROWSER-DEBUG.md.
+
+Safari replaces its address field when opening the keyboard. Use `ios_system_action {action:"focus",label:"Address",elementType:"XCUIElementTypeTextField",sessionId}`, then inspect before clear/type. Focus sends one guarded click and no text. Physical focus → fresh inspection → clear → empty readback → type → exact URL readback → separate Go passed under the original runner. See NATIVE-INPUT.md. No IME, secure field or passcode capability is implied.
+
+The separate runner-lifetime reservation remains experimental and absent from the default catalog. The Safari one-shot extension experiment was not integrated: it created a tab but did not foreground Safari from Home, so it does not solve off-site launch.
