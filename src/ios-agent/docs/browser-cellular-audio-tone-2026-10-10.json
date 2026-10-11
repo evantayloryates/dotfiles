@@ -1,0 +1,48 @@
+{
+  "at": "2026-10-11T02:52:37.648Z",
+  "scope": "Owned Safari cellular DEV fixture; brief authorized microphone acquisition, disabled immediately and stopped before capture; generated 523.25 Hz source, no speaker/call",
+  "gates": {
+    "source": {
+      "state": "running",
+      "sampleRate": 48000,
+      "trackCount": 1,
+      "microphoneStopped": true
+    },
+    "capture": {
+      "audioChunks": 4,
+      "storedBytes": 14544,
+      "remainingEvents": 0
+    },
+    "sourcePreserved": {
+      "sourceLive": true,
+      "context": "running"
+    },
+    "fixtureCleanup": {
+      "clean": true
+    },
+    "cleanup": {
+      "released": true,
+      "indicatorOff": true
+    },
+    "decodedTone": {
+      "decoded": true,
+      "sampleRate": 24000,
+      "channels": 1,
+      "durationSeconds": 3.305,
+      "rms": 0.07073,
+      "peakHz": 523,
+      "expectedHz": 523.25,
+      "neighborRejectionRatio": 2609150.6,
+      "frequencyConfirmed": true
+    }
+  },
+  "baselineEdge": {
+    "withoutCapture": "AudioContext stayed suspended; no recording started, fixture cleanup passed",
+    "supportedCandidate": "Brief authorized microphone acquired, disabled immediately and stopped before generated-source recording",
+    "serviceBehavior": "ios_capture still clones existing tracks only; it never requests a microphone"
+  },
+  "limits": [
+    "Generated tone, not an actual coach/client call or acoustic audibility",
+    "Safari only; Chrome microphone/call qualification remains separate"
+  ]
+}

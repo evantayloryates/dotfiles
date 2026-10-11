@@ -1,0 +1,48 @@
+{
+  "at": "2026-10-11T02:54:32.461Z",
+  "scope": "Owned Safari cellular DEV fixture; brief authorized microphone acquisition, disabled immediately, retained during ICE negotiation and stopped before capture; generated 523.25 Hz source through document-local bidirectional WebRTC, no speaker/call",
+  "gates": {
+    "source": {
+      "state": "running",
+      "sampleRate": 48000,
+      "trackCount": 1,
+      "microphoneStopped": false
+    },
+    "rtc": {
+      "candidateCounts": [
+        2,
+        2
+      ],
+      "candidateFailures": 0,
+      "states": [
+        {
+          "connection": "connecting",
+          "ice": "checking",
+          "gathering": "complete"
+        },
+        {
+          "connection": "connecting",
+          "ice": "checking",
+          "gathering": "complete"
+        }
+      ],
+      "microphoneStopped": true,
+      "connected": false,
+      "receivers": 2,
+      "originalLive": true
+    },
+    "fixtureCleanup": {
+      "clean": true
+    },
+    "cleanup": {
+      "released": true,
+      "indicatorOff": true
+    }
+  },
+  "error": "loopback_rtc_not_connected",
+  "limits": [
+    "Document-local host-candidate loopback only; not a real call or TURN path",
+    "Two distinct activation hypotheses checked; no unchanged third retry",
+    "No connected RTP flow claimed; microphone stopped, fixture removed and glow off"
+  ]
+}

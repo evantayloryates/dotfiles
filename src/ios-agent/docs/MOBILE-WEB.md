@@ -411,3 +411,26 @@ returns the last private observation artifact and structural receipt, not raw
 content. `web-media` stays one explicit advancement sample, without repeat-until-
 passing behavior. Physical Safari on cellular passed a deliberately delayed DOM
 condition in two reads/1.397 seconds, fixture restoration and glow cleanup.
+
+## Chrome cellular acceptance — same final batch
+
+Chrome independently passed USB-unplugged/Wi-Fi-Off DOM fill/save, atomic Mac
+source edit and exact restoration with draft/route preserved, navigation readback,
+local same-origin GraphQL HTTP200 and glow-off. The new bounded element wait was
+used for render completion. Safari-to-Chrome switching required its browser-owned
+Open confirmation; page control did not press that dialog. Both browsers now have
+physical cellular operating proof. Nearby Inspector and off-site browser launch
+remain separate. See browser-cellular-chrome-2026-10-10.json.
+
+Safari non-silent capture also decoded a generated 523.25Hz source at 523Hz,
+RMS0.07073, 3.305seconds. A brief already-authorized microphone acquisition enabled
+Web Audio; that mic was disabled immediately and stopped before recording.
+Capture stopped its clones while preserving the generated source, then fixture
+cleanup closed it. This is a dev experiment, not a new behavior of ios_capture:
+the service still captures only existing tracks and never starts a microphone.
+An actual call should reuse its existing capture owner. The no-capture baseline
+remained suspended. See browser-cellular-audio-tone-2026-10-10.json.
+
+### Cellular WebRTC probe boundary
+
+Two document-local Safari probes generated two host candidates per peer and no candidate-add errors, but remained ICE checking with no confirmed RTP flow. Retaining authorized capture during negotiation did not resolve it. Both fixtures and capture tracks were cleaned up. This does not diagnose the actual Twilio/TURN call path; use the real call for the next media gate rather than repeating host-only loopback. See `browser-cellular-rtc-boundary-2026-10-10.json`.
