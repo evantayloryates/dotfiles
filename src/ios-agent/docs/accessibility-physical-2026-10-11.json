@@ -1,0 +1,284 @@
+{
+  "at": "2026-10-11T09:36:51.379420+00:00",
+  "version": "1.9.26",
+  "scope": "physical native/DEV browser static audit over explicit paired Tailscale userspace transport; nearby phone, not off-LAN acceptance",
+  "newXCTestStarted": false,
+  "originalXCTestPreserved": true,
+  "settingsChanged": false,
+  "microphoneUsed": false,
+  "prototypeCapabilities": {
+    "inputSent": false,
+    "settingsChanged": false,
+    "newXCTestStarted": false,
+    "transport": "tailnet-paired-userspace",
+    "advertised": true,
+    "ok": true,
+    "capabilities": [
+      "deviceCapabilities",
+      "deviceInspectorMoveWithOptions:",
+      "auditCaseIDsForAuditGroup:",
+      "deviceAccessibilitySettings",
+      "deviceAllAuditCaseIDs",
+      "deviceAllSupportedAuditTypes",
+      "deviceApiVersion",
+      "deviceAuditIssueSupportedKeys",
+      "deviceBailWithMessage:",
+      "deviceBeginAuditCaseIDs:",
+      "deviceBeginAuditTypes:",
+      "deviceCaptureScreenshot",
+      "deviceCurrentState",
+      "deviceDidGetTargeted",
+      "deviceElement:performAction:withValue:",
+      "deviceElement:setValue:attribute:",
+      "deviceElement:valueForAttribute:",
+      "deviceElement:valueForParameterizedAttribute:withObject:",
+      "deviceEnableHighlight:",
+      "deviceFetchElementAtNormalizedDeviceCoordinate:",
+      "deviceFetchResolvesElementsOnSimulator",
+      "deviceFetchSpecialElement:",
+      "deviceHighlightIssue:",
+      "deviceHighlightIssues:",
+      "deviceHumanReadableDescriptionForAuditCaseID:",
+      "deviceInspectorAutodrillIntoElements:",
+      "deviceInspectorCanNavWhileMonitoringEvents",
+      "deviceInspectorEnable:",
+      "deviceInspectorFocusOnElement:",
+      "deviceInspectorInformCurrentCursorPosition:",
+      "deviceInspectorLockOnCurrentElement",
+      "deviceInspectorPreviewOnElement:",
+      "deviceInspectorSetMonitoredEventType:",
+      "deviceInspectorShowIgnoredElements:",
+      "deviceInspectorShowVisuals:",
+      "deviceInspectorSupportedEventTypes",
+      "deviceInspectorSupportsAutodrillIntoElements",
+      "deviceInspectorSupportsIgnoredElements",
+      "devicePerformFinalCleanup",
+      "deviceResetToDefaultAccessibilitySettings",
+      "deviceRunningApplications",
+      "deviceSetAppMonitoringEnabled:",
+      "deviceSetAuditTargetPid:",
+      "deviceSetAuditUIPid:",
+      "deviceUpdateAccessibilitySetting:withValue:"
+    ],
+    "auditTypes": [
+      "testTypeSufficientElementDescription",
+      "testTypeContrast",
+      "testTypeHitRegion",
+      "testTypeElementDetection",
+      "testTypeTextClipped",
+      "testTypeTrait",
+      "testTypeDynamicText"
+    ],
+    "ownConnectionClosed": true,
+    "elapsedMs": 1085
+  },
+  "native": {
+    "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/tailnet-provider-1791711074063791000.json",
+    "sha256": "8de65907e4e5847833e0cf717ec779196b099f6bdc52ea24d9b24d862ba707bb",
+    "summary": {
+      "transport": "tailnet-paired-userspace",
+      "scope": "dev-static-accessibility-audit",
+      "target": "kickoff-dev",
+      "checks": [
+        "hit-region",
+        "text-clipped",
+        "contrast"
+      ],
+      "issueCount": 0,
+      "droppedIssues": 0,
+      "auditCompleted": true,
+      "auditChannelClosed": true,
+      "finalCleanupSent": true,
+      "foregroundVerified": true,
+      "documentRef": null,
+      "noIssuesIsNotAccessibilityCertification": true,
+      "contrastPositiveControlQualified": false
+    },
+    "reportedIssues": []
+  },
+  "safari": {
+    "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/tailnet-provider-1791711176457383000.json",
+    "sha256": "41cb87d027d7aa527035d639305efbd7a8ed5e191df754a9da28e30b52131a89",
+    "summary": {
+      "transport": "tailnet-paired-userspace",
+      "scope": "dev-static-accessibility-audit",
+      "target": "safari",
+      "checks": [
+        "hit-region",
+        "text-clipped",
+        "contrast"
+      ],
+      "issueCount": 4,
+      "droppedIssues": 0,
+      "auditCompleted": true,
+      "auditChannelClosed": true,
+      "finalCleanupSent": true,
+      "foregroundVerified": true,
+      "documentRef": "378e19b4076cd24b949ca71310cde5c8",
+      "noIssuesIsNotAccessibilityCertification": true,
+      "contrastPositiveControlQualified": false
+    },
+    "reportedIssues": [
+      {
+        "issue_classification": "testTypeHitRegion",
+        "element_rect_value": "{{32, 262}, {12, 13}}",
+        "font_size": 0.0,
+        "long_description_extra_info": [
+          "Current size is 12 x 13"
+        ]
+      },
+      {
+        "issue_classification": "testTypeHitRegion",
+        "element_rect_value": "{{136, 776.33333333333337}, {120.33333333333331, 19.333333333333258}}",
+        "font_size": 0.0,
+        "long_description_extra_info": [
+          "Current size is 120 x 19"
+        ]
+      },
+      {
+        "issue_classification": "testTypeHitRegion",
+        "element_rect_value": "{{269.33333333333337, 775.66666666666663}, {17.666666666666686, 21}}",
+        "font_size": 0.0,
+        "long_description_extra_info": [
+          "Current size is 18 x 21"
+        ]
+      },
+      {
+        "issue_classification": "testTypeTextClipped",
+        "element_rect_value": "{{102.66666666666666, 776.33333333333337}, {153.66666666666666, 19.333333333333332}}",
+        "font_size": 0.0,
+        "long_description_extra_info": null
+      }
+    ]
+  },
+  "chrome": {
+    "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/tailnet-provider-1791711248062798000.json",
+    "sha256": "b4108c6a6c3b9f9d548c583408df9276cf89d1d0e3781a93ba9695cdefb360bd",
+    "summary": {
+      "transport": "tailnet-paired-userspace",
+      "scope": "dev-static-accessibility-audit",
+      "target": "chrome",
+      "checks": [
+        "hit-region",
+        "text-clipped",
+        "contrast"
+      ],
+      "issueCount": 7,
+      "droppedIssues": 0,
+      "auditCompleted": true,
+      "auditChannelClosed": true,
+      "finalCleanupSent": true,
+      "foregroundVerified": true,
+      "documentRef": "d8497b1e5533bc9c5b1ccfbc23fb7bf6",
+      "noIssuesIsNotAccessibilityCertification": true,
+      "contrastPositiveControlQualified": false
+    },
+    "reportedIssues": [
+      {
+        "issue_classification": "testTypeHitRegion",
+        "element_rect_value": "{{32, 312}, {12, 13}}",
+        "font_size": 0.0,
+        "long_description_extra_info": [
+          "Current size is 12 x 13"
+        ]
+      },
+      {
+        "issue_classification": "testTypeTextClipped",
+        "element_rect_value": "{{50.000000000000007, 647.33333333333326}, {110.66666666666667, 17}}",
+        "font_size": 0.0,
+        "long_description_extra_info": null
+      },
+      {
+        "issue_classification": "testTypeTextClipped",
+        "element_rect_value": "{{50.000000000000007, 159.33333333333334}, {110.66666666666667, 17}}",
+        "font_size": 0.0,
+        "long_description_extra_info": null
+      },
+      {
+        "issue_classification": "testTypeTextClipped",
+        "element_rect_value": "{{237, 403.33333333333337}, {110.66666666666667, 17}}",
+        "font_size": 0.0,
+        "long_description_extra_info": null
+      },
+      {
+        "issue_classification": "testTypeTextClipped",
+        "element_rect_value": "{{237, 647.33333333333326}, {110.66666666666667, 17}}",
+        "font_size": 0.0,
+        "long_description_extra_info": null
+      },
+      {
+        "issue_classification": "testTypeTextClipped",
+        "element_rect_value": "{{50.000000000000007, 403.33333333333337}, {110.66666666666667, 17}}",
+        "font_size": 0.0,
+        "long_description_extra_info": null
+      },
+      {
+        "issue_classification": "testTypeTextClipped",
+        "element_rect_value": "{{237, 159.33333333333334}, {110.66666666666667, 17}}",
+        "font_size": 0.0,
+        "long_description_extra_info": null
+      }
+    ]
+  },
+  "cleanupHome": {
+    "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-input-1791711305156.json",
+    "sha256": "0e1ac09de2ebefffec3b9c20c074bf6f903dc11c455e9a181a4ef96aa2fe5061",
+    "summary": {
+      "homeConfirmed": true
+    },
+    "reportedIssues": []
+  },
+  "fixture": {
+    "source": "tests/fixtures/accessibility.html",
+    "sha256": "8923fd24907d9b23131c141ec4cb42cbc931e8d1321aafad44f568b577439b69",
+    "temporaryPublicCopyRemoved": true,
+    "intendedTinyControlPoints": [
+      12,
+      13
+    ],
+    "tinyControlReportedByBothBrowsers": true,
+    "contrastPositiveControlPassed": false,
+    "clippedFixtureParagraphAttributionProved": false,
+    "browserChromeCanAppear": true
+  },
+  "backgroundNativeRefusal": {
+    "reason": "foreground_dev_surface_required",
+    "phase": "accessibility_foreground",
+    "auditRequested": false,
+    "inputSent": false
+  },
+  "resolvedAdmissionBoundary": "Native tree action under the held system owner was refused with native_surface_required. Final native preflight uses fresh authenticated SDK foreground status, not a cross-surface action or new owner.",
+  "optionalControlServices": {
+    "com.apple.coredevice.hid.indigo": false,
+    "com.apple.coredevice.hid.universalhidservice": false,
+    "com.apple.coredevice.displayservice": false,
+    "com.apple.coredevice.pasteboardservice": false,
+    "com.apple.coredevice.appservice": true,
+    "com.apple.coredevice.deviceinfo": true
+  },
+  "pinnedProviderIntegrity": {
+    "version": "11.15.5",
+    "distributionRecordHashesMatched": [
+      "remote/userspace_tunnel.py",
+      "remote/tunnel_service.py",
+      "remote/core_device/hid_service.py"
+    ],
+    "directUrlPresent": false
+  },
+  "checks": {
+    "pythonAuditLifecycle": 9,
+    "mcpArtifactAdapter": 2,
+    "wrapperAndAudit": 27,
+    "pythonAuditAndObserver": 15,
+    "freshStdioCatalogGuide": true,
+    "tools": 37,
+    "resources": 10
+  },
+  "limits": [
+    "Zero reported issues is not an accessibility certification.",
+    "Static findings may include native browser chrome; rectangles are screen points, not DOM CSS coordinates.",
+    "Contrast positive control failed; clipped fixture paragraph attribution remains unproved.",
+    "Full MCP-owned device invocation under a fresh client waits for the original intentionally-held owner release.",
+    "No Dynamic Text or system accessibility setting changes; no simulated press API."
+  ]
+}
