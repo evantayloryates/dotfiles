@@ -285,3 +285,9 @@ test('MCP planning does only readbacks; malformed input performs no RPC', async 
     await new Promise(resolve => fake.close(resolve)); rmSync(root, { recursive: true, force: true })
   }
 })
+test('malformed real-use requests explain valid enums and target nesting without coercion',()=>{
+ assert.throws(()=>validateProductionRequest({...request,activity:'read_only_fantasy_walkthrough'}),/activity; expected one of: passive_capture, agent_ui/);
+ assert.throws(()=>validateProductionRequest({...request,target:{...request.target,include_children:true,show_cursor:false}}),/Unknown target fields: include_children, show_cursor.*include_child_windows.*request root/);
+ assert.throws(()=>validateProductionRequest({...request,target:null}),/target must be an object/);
+ assert.equal(validateProductionRequest({...request,target:{...request.target,include_child_windows:false},show_cursor:false}).target.include_child_windows,false);
+});

@@ -462,3 +462,13 @@ show pending request counts and permission/error categories. Raw provider errors
 identities, SDP and tokens are omitted. These conditions complement the separate
 `web-media` RTP advancement gate; they do not prove audible playout or provider
 room identity. Released covers instrumented document media only.
+
+
+### 1.9.4: named browser stacks
+
+`ios_web_enroll profile=app|call-rig` and `ios_browser_debug profile=app|call-rig`
+select fixed private origins. `app` remains the default (10446→3000/4000);
+`call-rig` selects10520→3020/4020 without replacing normal dev routes.
+The dedicated route/stack and recording-disabled synthetic fixture must exist
+before enrollment. Pairing, RTP, audio, provider state and cleanup remain separate
+checks. Read ios-agent://mobile-web for setup and boundaries.

@@ -52,7 +52,7 @@ class WebBridge:
         op = r['op']
         if op == 'web_enroll':
             u = urlsplit(r.get('origin', ''))
-            if u.scheme != 'https' or not u.hostname or not u.hostname.endswith('.ts.net') or u.port != 10446 or u.path not in ('', '/') or u.query or u.fragment or u.username or u.password:
+            if u.scheme != 'https' or not u.hostname or not u.hostname.endswith('.ts.net') or u.port not in (10446, 10520) or u.path not in ('', '/') or u.query or u.fragment or u.username or u.password:
                 self.reject('private_web_origin_required')
             token = secrets.token_urlsafe(32)
             self.grants[token] = {'origin': r['origin'].rstrip('/'), 'expires': self.b.clock() + 300, 'rememberBrowser':r.get('rememberBrowser') is True}

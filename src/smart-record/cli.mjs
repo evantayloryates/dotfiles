@@ -48,6 +48,7 @@ import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import {withWaitResult} from "./lib/wait-result.mjs";
 import {widgetStatus} from "./lib/widget-status.mjs";
 import { callerContext } from "./lib/caller.mjs";
 import { prepareMaintenance, validateMaintenance, releaseMaintenance } from "./lib/maintenance.mjs";
@@ -339,7 +340,7 @@ try {
     }
     case "record-wait": {
       const timeout_s = Number(args[2] ?? 60);
-      out(await call("record.wait", { recording_id: args[0], until: args[1] ?? "done", timeout_s }, { timeoutMs: (timeout_s + 5) * 1000 }));
+      out(withWaitResult(await call("record.wait", { recording_id: args[0], until: args[1] ?? "done", timeout_s }, { timeoutMs: (timeout_s + 5) * 1000 }), args[1] ?? "done"));
       break;
     }
     case "stop":

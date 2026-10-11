@@ -53,6 +53,6 @@ def main(job):
             p.terminate()
             try:p.wait(timeout=3)
             except subprocess.TimeoutExpired:p.kill();p.wait()
-    receipt={'schema':'smart-record-cursor-render/v1','path':str(out),'frames':len(t['frames']),'fps':t['fps'],'size':t['output_pixels'],'effort':r['effort'],'samples':receipts,'output':str(root),'events_selected':t['events_selected'],'timing_qualification':t['timing_qualification'],'position_qualification':t['position_qualification']}
+    receipt={'schema':'smart-record-cursor-render/v1','path':str(out),'frames':len(t['frames']),'fps':t['fps'],'size':t['output_pixels'],'effort':r['effort'],'samples':receipts,'output':str(root),'events_selected':t['events_selected'],'pointer_coverage':t['pointer_coverage'],'warnings':t['warnings'],'timing_qualification':t['timing_qualification'],'position_qualification':t['position_qualification']}
     (root/'render.json').write_text(json.dumps(receipt,indent=2));print(json.dumps(receipt))
 if __name__=='__main__':main(json.load(sys.stdin))

@@ -6,7 +6,11 @@ single Medium **Smart Record** widget is installed and placed. Fresh clients
 expose repair tickets, shared app observations and the first configurable cursor
 recipe. See [agent usage](AGENT-USAGE.md).
 
-Adapter0.20.1 adds a compact live artifact inventory to `session_show` and the
+Adapter0.20.2 adds explicit wait-state/deadline guidance, actionable planning
+errors and cursor position-coverage diagnostics from the first production run.
+See the [run review](qualification/SLEEPER-RUN-REVIEW.md).
+
+Adapter0.20.1 added a compact live artifact inventory to `session_show` and the
 `session` CLI command. Export timing maps are already generated automatically;
 the explicit mapping tool is an optional precision query. Export/cursor tools
 are provisional pending the official composition interface. See

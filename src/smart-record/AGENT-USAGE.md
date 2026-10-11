@@ -11,9 +11,54 @@ agent; computer use remains a separately maintained tool dependency.
 The maintained checklist distinguishes work states (Completed, Pending,
 Ready, Deferred, Review) from historical verification. A Ready brief alone does
 not establish an installed tool. The current [Smart Record delivery](qualification/SMART-RECORD-RELEASE.md)
-documents adapter0.20.1, native build d7a6a75d975f and the installed widget;
+documents adapter0.20.2, native build d7a6a75d975f and the installed widget;
 inspect loaded `status.mcp_adapter` and native status for each consumer.
 Cooperative pause, repair tickets and a first bounded cursor renderer are delivered.
+
+## Fast production path: prepare, capture, verify
+
+Use the current tool schemas and this short path first; historical qualification
+stages below are evidence, not setup steps for every recording. A rejected
+request should be corrected from the returned field/enum guidance before reading
+implementation source. Never replay an uncertain accepted mutation.
+
+1. Prepare the owned browser/window and computer-use bindings before the take.
+   Check actual pixels, not only window existence. Keep audience actions separate
+   from quiet preparation. Choose the framing and prepare a short scene sequence.
+2. Use an exact target from `windows`. A valid planning example is:
+   `production_plan({target:{type:"window",window_id:119,include_child_windows:false},mode:"cooperative",activity:"agent_ui",duration_s:60,show_cursor:false,input_enabled:true})`.
+   Substitute the observed ID and authorized arrangement. `activity` is an enum;
+   put prose in session purpose/action intent. `show_cursor` belongs at the root.
+   Use that same target in `frame_check` and `record_schedule`.
+3. A canary proves delivered input only if an action actually happens during it
+   and the retained rows and pictures confirm the expected result. Five seconds
+   can expire during agent/tool overhead. Prepare the action first and choose a
+   budget that includes round trips; zero input rows never pass an input canary.
+4. After `record_wait(until:"recording")`, check state and
+   `wait_result.may_begin_actions` / `remaining_s`. A terminal result can return
+   with `timed_out:false`; that is not permission to act into a finished take.
+   These are engine-clock snapshots, not reservations. Check the production gate
+   before acting, and stop or explicitly extend the owned take before its deadline
+   when the planned action will not fit. Do not silently replay uncertain input.
+5. Action intent/start marks identify a request, not the moment the next page
+   becomes visible. Put a separate content-ready mark after verifying the visible
+   result. Preserve both times and actual event/frame joins for later editing.
+6. Before rendering, inspect raw samples for baked-in pointers/highlights.
+   `show_cursor:false` suppresses the capture-controlled pointer, not arbitrary
+   painted overlays. A visible residual is a compromised clean source; record it
+   and choose a tested cleaner path or explicitly retain the limitation. Do not
+   blur/delogo changing page content as an automatic repair.
+7. Inspect `cursor_render.pointer_coverage`, warnings and samples. Native clicks
+   can deliver only sparse jumps rather than a smooth trajectory. Missing initial
+   positions, expired holds and typing-hide intervals are explicit; longer holds
+   do not recover real motion. Escape and Command/Control shortcuts do not hide
+   the pointer as typing. Other keys remain a presentation heuristic, not proof
+   that text was entered. Encoding success is not visual acceptance.
+8. Broader external assembly must preserve a sidecar describing source IDs,
+   selected intervals, cursor recipe/output IDs and final output path. Until the
+   official composition interface owns this, do not imply external masters are
+   automatically discoverable through the session bundle. Verify final playback
+   and cleanup with readbacks.
 
 ## Current capture and composition boundary
 

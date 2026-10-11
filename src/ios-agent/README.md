@@ -316,3 +316,9 @@ cleanup passed; normal page-driver microphone acquisition then needed no prompt.
 `ios_device_inspect kind=resource-profile` records three process CPU/memory samples
 without XCTest. Use actual sample elapsed times, treat CPU as raw provider units,
 and do not attribute shared WebContent memory to one page.
+
+
+The mobile-web MCP also offers a named `call-rig` profile for the dedicated
+provider-backed local call stack, alongside the default `app` profile. See
+[mobile-web setup](docs/MOBILE-WEB.md#named-call-rig-profile--194); enrollment
+selects a fixed private origin and does not install or repair its local services.

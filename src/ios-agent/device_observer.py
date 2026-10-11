@@ -102,15 +102,23 @@ async def resource_profile(r,rsd):
             'missingMetrics':'null means unavailable; never zero inferred',
             'profilerStopped':True}
 
+def browser_profile_origin(web_url,profile='app'):
+    expected=urlsplit(web_url)
+    if profile not in ('app','call-rig'):
+        raise ValueError('fixed_web_profile_required')
+    if (expected.scheme!='https' or not re.fullmatch(r'[a-z0-9-]+\.[a-z0-9-]+\.ts\.net',expected.hostname or '')
+        or expected.port!=10446 or expected.username or expected.password
+        or expected.path not in ('','/') or expected.query or expected.fragment):
+        raise ValueError('private_dev_origin_required')
+    return expected._replace(netloc=f'{expected.hostname}:{10520 if profile=="call-rig" else 10446}')
+
 async def browser_debug(r,rsd):
     """Inspect only this service's DEV origin; richer reads require explicit debug options."""
     from pymobiledevice3.services.webinspector import WebinspectorService
     runtime=Path(r['state'])/'dev-runtime.json'
     if runtime.is_symlink() or runtime.stat().st_mode & 0o077:
         raise ValueError('private_dev_origin_required')
-    expected=urlsplit(json.loads(runtime.read_text())['webURL'])
-    if expected.scheme!='https' or not expected.hostname or not expected.hostname.endswith('.ts.net'):
-        raise ValueError('private_dev_origin_required')
+    expected=browser_profile_origin(json.loads(runtime.read_text())['webURL'],r.get('debug',{}).get('profile','app'))
     inspector=WebinspectorService(rsd)
     r['_phase']='web_inspector_connect'
     try:

@@ -7,3 +7,18 @@ test('exact epoch, measured held pictures and hotspot-ready projected positions'
 test('selection, hold duration and typing behavior are configurable',()=>{const f=fixture();assert.equal(buildCursorTimeline(f,{...r(),max_hold_ms:50}).frames[1].pointer,null);assert.notEqual(buildCursorTimeline(f,{...r(),hide_on_typing:false}).frames[2].pointer,null);assert.throws(()=>buildCursorTimeline(f,{...r(),source_rows:[101]}),/No selected/)});
 test('clock gaps, unqualified fitted origins and missing frame coverage refuse',()=>{let f=fixture();f.descriptor.source_packet.clock_continuity.observed_gaps=1;assert.throws(()=>buildCursorTimeline(f,r()),/clock/);f=fixture();f.rows[0].target={type:'window'};f.rows[1].geometry.content_scale=.5;assert.throws(()=>buildCursorTimeline(f,r()),/fitted/);f=fixture();delete f.rows[3].accepted;assert.throws(()=>buildCursorTimeline(f,r()),/unavailable/)});
 test('invalid or over-budget recipes refuse before capture/filesystem work',()=>{for(const patch of [{hotspot:[NaN,0]},{opacity:2},{fps:0},{from_s:5,to_s:4},{to_s:61},{coordinate_basis:'guess'},{source_rows:[1,1]},{asset_path:'relative'},{extra:true}])assert.throws(()=>validateCursorRecipe({...r(),...patch}));});
+test('Escape and command/control shortcuts do not masquerade as typing',()=>{
+ for(const patch of [{key_code:53,flags:'0'},{key_code:0,flags:String(1<<20)},{key_code:0,flags:String(1<<18)}]){
+  const f=fixture();Object.assign(f.rows.find(x=>x.type===10),patch);
+  const t=buildCursorTimeline(f,r());assert.notEqual(t.frames[2].pointer,null);assert.equal(t.pointer_coverage.positioned_frames,3);
+ }
+ const f=fixture();Object.assign(f.rows.find(x=>x.type===10),{key_code:0,flags:'0'});
+ assert.equal(buildCursorTimeline(f,r()).frames[2].pointer,null);
+});
+test('coverage exposes initial absence, expired holds and intentional typing hide',()=>{
+ let t=buildCursorTimeline(fixture(),r());assert.equal(t.pointer_coverage.absence_frames_by_reason.typing_hide,1);assert.equal(t.pointer_coverage.unpositioned_frames,1);assert.equal(t.warnings.length,1);
+ t=buildCursorTimeline(fixture(),{...r(),max_hold_ms:50});assert.equal(t.pointer_coverage.absence_frames_by_reason.hold_expired,2);assert.equal(t.pointer_coverage.longest_unpositioned_s,.2);
+ const f=fixture(),e=f.rows.find(x=>x.type===1);e.relative_ns='100000000';e.received_host_ns=String(BigInt(epoch)+100000000n);
+ t=buildCursorTimeline(f,{...r(),hide_on_typing:false});assert.equal(t.pointer_coverage.absence_frames_by_reason.no_prior_position,1);assert.equal(t.pointer_coverage.first_position_output_s,.1);
+ assert.match(t.pointer_coverage.qualification,/not visible cursor pixels/);
+});

@@ -46,6 +46,13 @@ class ObserverBoundaryTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(calls[-2:],['detach','close'])
         self.assertTrue(result['pages'][0]['readConfirmed'])
 
+    def test_browser_profiles_are_fixed_and_origin_bound(self):
+        self.assertEqual(observer.browser_profile_origin('https://dev.tail.ts.net:10446','call-rig').port,10520)
+        self.assertEqual(observer.browser_profile_origin('https://dev.tail.ts.net:10446').port,10446)
+        for url in ['https://dev.tail.ts.net.evil:10446','https://token@dev.tail.ts.net:10446','https://dev.tail.ts.net:10446/path','https://dev.tail.ts.net:10520']:
+            with self.assertRaises(ValueError):observer.browser_profile_origin(url,'call-rig')
+        with self.assertRaises(ValueError):observer.browser_profile_origin('https://dev.tail.ts.net:10446','arbitrary')
+
     def test_profile_omits_unrelated_processes_and_preserves_unknown_metrics(self):
         self.assertIsNone(observer.profile_process({'name':'Messages','pid':7,'cpuUsage':88}))
         self.assertEqual(observer.profile_process({'name':'WebContent','pid':7,'cpuUsage':0,'physFootprint':None}),

@@ -2,8 +2,24 @@
 
 The service is installed as `smart-record`, with native engine `smart-recordd`
 and the single Medium **Smart Record** desktop widget. The existing feature
-release is now adapter0.20.1; the delivered native build is d7a6a75d975f and the
+release is now adapter0.20.2; the delivered native build is d7a6a75d975f and the
 companion build is be27e75d391a.
+
+## Production feedback update:0.20.2
+
+The completed Sleeper run exposed two malformed requests, an empty input canary,
+sparse cursor placement, an Escape/typing-hide defect and premature scene marks.
+Fresh clients now get actionable production-plan field/enum errors, explicit
+record-wait state/deadline guidance and cursor coverage/warnings in render receipts.
+Escape and Command/Control shortcuts no longer hide the cursor as typing. Agent
+guidance now leads with a short prepared-action workflow and verified scene anchors.
+
+31 focused checks plus actual retained-source MCP/CLI and one15-frame render pass.
+Native build/PID and the user's Desktop movie are unchanged. Existing adapters
+remain loaded at their prior version; new connections and current CLI use0.20.2.
+The stationary pointer residual's producer remains unconfirmed. External masters
+and cursor outputs still need official session composition integration.
+See [independent run review](SLEEPER-RUN-REVIEW.md) for findings and limits.
 
 ## Delivered composition boundary
 

@@ -135,3 +135,14 @@ class WebTests(unittest.TestCase):
             child=replacement.web.page_request({'op':'resume',**resume,'boot':'new-tab'},self.origin)
             self.assertNotEqual(child['page'],parent['page'])
             self.assertIsNone(replacement.lease)
+
+    def test_call_rig_grant_is_port_bound_and_cannot_resume_on_normal_app(self):
+        origin=self.origin.replace(':10446',':10520')
+        g=self.b.control({'op':'web_enroll','origin':origin,'rememberBrowser':True})
+        with self.assertRaisesRegex(Rejected,'web_enrollment_refused'):
+            self.b.web.page_request({'op':'join','token':g['token'],'boot':'rig'},self.origin)
+        joined=self.b.web.page_request({'op':'join','token':g['token'],'boot':'rig'},origin)
+        with self.assertRaisesRegex(Rejected,'web_page_auth_required'):
+            self.b.web.page_request({**joined,'op':'poll','boot':'rig'},self.origin)
+        with self.assertRaisesRegex(Rejected,'private_web_origin_required'):
+            self.b.control({'op':'web_enroll','origin':self.origin.replace(':10446',':10521')})

@@ -20,12 +20,13 @@ import { observeResourcePlan } from "./lib/resource-awareness.mjs";
 import {queryRecordingInput,validateInputQuery,inputQuerySchema,inputQueryHealth} from "./lib/input-query.mjs";
 
 import {renderCursor,validateCursorRecipe,cursorRenderSchema} from "./lib/cursor-render.mjs";
+import {withWaitResult} from "./lib/wait-result.mjs";
 import {widgetStatus} from "./lib/widget-status.mjs";
 import {repairCall,repairTools} from "./lib/repair-tickets.mjs";
 import {EVIDENCE_TOOLS as evidenceTools,evidenceHandler} from "../codex-bridge/lib/evidence-tools.mjs";
 
 const log = (...args) => console.error("[smart-record]", ...args);
-const VERSION = "0.20.1";
+const VERSION = "0.20.2";
 
 // ---------------------------------------------------------------- engine link
 
@@ -85,7 +86,7 @@ async function engine(method, params = {}, timeoutMs = 20000) {
 // ------------------------------------------------------------------- schemas
 
 const TARGET = {
-  type: "object",
+  type: "object", additionalProperties: false,
   description:
     "What to capture. Global points, origin top-left of the main display, y down (same as Hammerspoon hs.window:frame()). " +
     '{"type":"display","display_id"?} (omit id = main) | {"type":"rect","x","y","w","h"} | ' +
@@ -127,7 +128,7 @@ const toolish = (m) => TOOL_NAMES.reduce((s, [re, to]) => s.replace(re, to), m);
 const ok = (v) => ({ content: [{ type: "text", text: text(v) }], isError: false });
 
 const tools = [
-  {name:"cursor_render",description:"Provisional composition tool: review replacement/retirement when official session composition tools ship. Render one bounded editable cursor/click recipe from terminal footage and retained pointer input. Service owns exact source/frame joins and timing; fitted-origin/gap refusal guards apply. Required hotspot and coordinate_basis acknowledge the tested desktop convention; raw provider positions/actors are not automatically qualified. Source rows/action tokens let the director select relevant events. Configurable size, opacity, typing hide, hold, click duration; draft/final effort. Up to60s/7200 source frames/2MP output; shared render lock,180s worker budget, local Pillow/CairoSVG/FFmpeg dependencies. Original media untouched; private recipe/timeline/three sample frames and silent SDR H.264 output. No cursor erasure, HDR/audio preservation or whole-shot backup recovery. Inspect representative samples before final use.",inputSchema:cursorRenderSchema,run:async a=>{const r=validateCursorRecipe(a);return ok(await renderCursor(await engine("record.source",{recording_id:r.recording_id}),r))}},
+  {name:"cursor_render",description:"Provisional composition tool: review replacement/retirement when official session composition tools ship. Render one bounded editable cursor/click recipe from terminal footage and retained pointer input. Service owns exact source/frame joins and timing; fitted-origin/gap refusal guards apply. Required hotspot and coordinate_basis acknowledge the tested desktop convention; raw provider positions/actors are not automatically qualified. Source rows/action tokens let the director select relevant events. Configurable size, opacity, typing hide, hold, click duration; draft/final effort. Up to60s/7200 source frames/2MP output; shared render lock,180s worker budget, local Pillow/CairoSVG/FFmpeg dependencies. Original media untouched; private recipe/timeline/representative sample frames and silent SDR H.264 output. No cursor erasure, HDR/audio preservation or whole-shot backup recovery. Returns pointer_coverage and warnings; encoding success does not establish complete cursor coverage. Inspect representative samples before final use.",inputSchema:cursorRenderSchema,run:async a=>{const r=validateCursorRecipe(a);return ok(await renderCursor(await engine("record.source",{recording_id:r.recording_id}),r))}},
   {name:"production_widget_status",description:"Read native desktop widget installation, helper state, configured instance count, sampled-state freshness and placement instructions. Read-only; configuration count cannot prove desktop placement or actual clicks. Widget display is system-refreshed; use production_status for authoritative current state.",inputSchema:{type:"object",additionalProperties:false,properties:{}},annotations:{readOnlyHint:true},run:async()=>ok(await widgetStatus())},
   ...repairTools.map(({name,command,description,properties,required,read})=>({name,description,inputSchema:{type:"object",additionalProperties:false,properties,required},annotations:{readOnlyHint:read===true},run:async a=>ok(await repairCall(command,a))})),
   ...evidenceTools.filter(t=>["computer_use_observe","computer_use_facts"].includes(t.name)).map(t=>({...t,name:t.name.replace("computer_use_","app_"),description:"Shared recorder/app learning: "+t.description,run:async a=>ok(await evidenceHandler(t.name)(a))})),
@@ -183,7 +184,7 @@ const tools = [
     inputSchema: { type: "object", properties: {}, additionalProperties: false },
     annotations: { readOnlyHint: true },
     run: async () => ok({ ...await engine("status"), mcp_adapter: {
-      version: VERSION, session_bundle:1, provisional_composition_tools:["record_export","cursor_render"], native_widget_status:1, production_gate_controls: 1, repair_tickets:1, shared_app_observation:1, cursor_recipe:1, input_reception_frame_context:1, declared_target_context: 1, replay_policy: 1, production_planning: 1, resource_awareness: 1, shared_app_learning: 1, production_storage_guidance: 1, triple_source_planning: 1, source_frame_mapping: 1, source_region_mapping: 1, transient_window_query: 1,
+      version: VERSION, wait_state_guidance:1, cursor_coverage:1, session_bundle:1, provisional_composition_tools:["record_export","cursor_render"], native_widget_status:1, production_gate_controls: 1, repair_tickets:1, shared_app_observation:1, cursor_recipe:1, input_reception_frame_context:1, declared_target_context: 1, replay_policy: 1, production_planning: 1, resource_awareness: 1, shared_app_learning: 1, production_storage_guidance: 1, triple_source_planning: 1, source_frame_mapping: 1, source_region_mapping: 1, transient_window_query: 1,
       registered_frame_mapping:1,registration:registrationHealth(),frame_mapping: frameMapHealth(), preview_source_mapping: 1, paired_source_mapping: 1, paired_interval_coverage_summary: 1, fitted_child_mapping_guard: 1, retained_input_query: 1, retained_action_context: 1, retained_input_health_context: 1,
       input_query: inputQueryHealth(), mutation_replay: "never",
       read_reconnect_budget_ms: 12000,
@@ -327,7 +328,7 @@ const tools = [
   },
   {
     name: "record_wait",
-    description: "Block until a recording starts (until: recording) or finishes (until: done, default). Returns its manifest: state, video path, frames, marks, events, error. timed_out says if it gave up.",
+    description: "Block until a recording starts (until: recording) or finishes (until: done, default). Returns its manifest: state, video path, frames, marks, events, error. timed_out says if it gave up. Terminal states can return even when waiting for recording. Check wait_result.may_begin_actions and remaining_s before driving UI; they are engine-clock snapshots, not reservations or gate approval.",
     inputSchema: {
       type: "object", additionalProperties: false,
       properties: { recording_id: { type: "string" }, until: { type: "string", enum: ["recording", "done"] }, timeout_s: { type: "number", description: "default 120, max 3600" } },
@@ -341,7 +342,7 @@ const tools = [
         // short tool timeouts stay alive.
         const slice = Math.max(1, Math.min(15, (deadline - Date.now()) / 1000));
         const r = await engine("record.wait", { recording_id, until, timeout_s: slice }, (slice + 10) * 1000);
-        if (!r.timed_out || Date.now() >= deadline) return ok(r);
+        if (!r.timed_out || Date.now() >= deadline) return ok(withWaitResult(r, until));
         ctx.progress(`${recording_id}: ${r.state}`);
       }
     },
@@ -492,7 +493,7 @@ const tools = [
   },
   {
     name: "mark",
-    description: "Mark this moment in running recordings (one by recording_id, or every running one in session_id) for chapters and trims; returns each video offset t_s. Without a running recording the mark still lands in the session log.",
+    description: "Mark this moment in running recordings (one by recording_id, or every running one in session_id) for chapters and trims; returns each video offset t_s. Without a running recording the mark still lands in the session log. A mark records caller intent/time, not visual success. For a content-ready scene anchor, verify the visible result first and distinguish it from action-start intent.",
     inputSchema: {
       type: "object", additionalProperties: false,
       properties: { label: { type: "string" }, recording_id: { type: "string" }, session_id: SESSION_ID, kind: { type: "string" } },

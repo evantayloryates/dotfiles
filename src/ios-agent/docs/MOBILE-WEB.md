@@ -2,8 +2,9 @@
 
 Use actual Safari and Chrome on the iPhone. The adapter lives in an explicitly
 enrolled local development document. Requests return through the existing
-private HTTPS web origin on port 10446 to the same broker as native control.
-No new Serve route or public Funnel is installed. Physical browser opening
+private HTTPS web origin to the same broker as native control.
+Named profiles keep separate local stacks: `app` uses 10446→3000/4000;
+`call-rig` uses 10520→3020/4020. Both remain private; Funnel stays off. Physical browser opening
 through CoreDevice is a provisioning convenience, not the operating transport.
 
 ## MCP workflow
@@ -456,3 +457,26 @@ Runner Wi-Fi On shortcut is a paired recovery path; independently verify Setting
 or current association afterward. Launch acceptance is not proof of execution.
 A browser-only cellular page does not currently provide a native permission tap
 or a qualified remote Wi-Fi-settings lane.
+
+
+## Named call-rig profile — 1.9.4
+
+Use `ios_web_enroll profile=call-rig` with the synthetic room path when a real
+provider-backed coach/client smoke needs the dedicated local stack. The default
+`app` profile is unchanged. Enrollment does not start servers, configure provider
+credentials, create a room, disable recording, or install a Serve route. Check
+those prerequisites independently; a loaded lobby is not a connected call.
+
+The private host route is `tailscale serve --bg --https=10520
+http://127.0.0.1:3020` (one command). Preserve existing routes. Next's fixed
+same-origin proxy sends 10520/3020 requests to local GraphQL4020 and
+10446/3000 requests to4000. The agent SDK still reaches the same owner broker.
+Tokens and remembered-browser enrollment remain bound to their exact origin;
+no caller-supplied upstream is accepted. Next requires its existing DEV/demo
+and non-hosted gates for either profile.
+
+For independent nearby source/CSS/timeline inspection, pass the same
+`profile=call-rig` to `ios_browser_debug`. Omitting it selects the regular app
+origin. The profile does not make Inspector available off LAN. Routine page
+DOM/state/input uses Tailscale; new system prompts still require the bounded
+native fallback and its separately verified developer startup path.

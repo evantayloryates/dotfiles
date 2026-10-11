@@ -1729,3 +1729,24 @@ Own fixture/private engine/readers/sessions settled; no input/permission/peer UI
 45completed16partial1needsretest1deferred. Goal active. Next: service-owned paired
 backup map with exact source coverage using retained media. Do not guess union
 origin from surface bounds or repeat passing captures. Composition deferred.
+
+
+## First production feedback checkpoint — October10 late evening
+
+The completed smart-record-test Sleeper walkthrough was independently reviewed
+from its trace, all three retained takes, native RPC logs and cursor derivatives.
+Capture/finalization/journal-loss checks passed for this run; the input canary
+contained zero input. Cursor placement was absent on893/1740 original master
+frames and a stationary painted residual remains of unconfirmed origin. Scene
+labels are intent times, not independently verified content-ready times.
+
+Adapter0.20.2 supplies actionable planning errors, explicit wait-state/deadline
+guidance and pointer-coverage receipts. Escape/Command/Control shortcuts no longer
+hide the cursor as typing.31 focused checks, actual fresh minimal-PATH MCP/CLI
+readbacks and a new15-frame decoded derivative pass. Retained timeline analysis
+restores40 positioned frames after the Escape fix. NativePID89707/buildd7a6a75d975f
+and the user's delivered movie are unchanged. A scoped reported app fact preserves
+the residual with unknown-version reuse blocked.60 Completed/11 Deferred/1 Ready;
+o general compositor, smooth pointer trajectory or clean-source claim was added.
+Next: Taylor's visual feedback, then the Ready official-composition design with
+session-owned derivative/master provenance. No broad regression or reshoot loop.

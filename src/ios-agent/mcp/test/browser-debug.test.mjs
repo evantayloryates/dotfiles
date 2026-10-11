@@ -10,12 +10,13 @@ test('debugger schema rejects incomplete evaluation and cross-operation argument
  const seen=[];const {server}=createServer({deviceInspect:async x=>{seen.push(x);return {ok:true};},cancel:async()=>{},close:async()=>{}});
  const [ct,st]=InMemoryTransport.createLinkedPair();await server.connect(st);const c=new Client({name:'debug-schema',version:'1'});await c.connect(ct);
  try{
-  for(const args of [{op:'source'},{op:'styles'},{op:'evaluate',expression:'42'},{op:'overview',expression:'42',documentRef:'a'.repeat(32),sessionId:'b'.repeat(32)},{op:'console',selector:'body'},{op:'trace',scriptId:'1'},{op:'trace',sampleMs:3001},{op:'shell'},{browser:'firefox'}]){
+  for(const args of [{op:'source'},{op:'styles'},{op:'evaluate',expression:'42'},{op:'overview',expression:'42',documentRef:'a'.repeat(32),sessionId:'b'.repeat(32)},{op:'console',selector:'body'},{op:'trace',scriptId:'1'},{op:'trace',sampleMs:3001},{op:'shell'},{browser:'firefox'},{profile:'arbitrary'}]){
    assert((await c.callTool({name:'ios_browser_debug',arguments:{browser:'safari',...args}})).isError,JSON.stringify(args));
   }
   assert.equal(seen.length,0);
   assert(!(await c.callTool({name:'ios_browser_debug',arguments:{browser:'safari',op:'styles',selector:'body'}})).isError);
-  assert.equal(seen[0].kind,'browser-debug');assert.equal(seen[0].debug.selector,'body');assert(!('sessionId' in seen[0].debug));
+  assert.equal(seen[0].kind,'browser-debug');assert.equal(seen[0].debug.selector,'body');assert(!('sessionId' in seen[0].debug));assert.equal(seen[0].debug.profile,'app');
+  await c.callTool({name:'ios_browser_debug',arguments:{browser:'chrome',profile:'call-rig'}});assert.equal(seen[1].debug.profile,'call-rig');
  }finally{await c.close();await server.close();}
 });
 

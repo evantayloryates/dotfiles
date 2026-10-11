@@ -48,8 +48,13 @@ export const productionPlanSchema = {
 
 const bad = message => { throw new EngineError('bad_production_plan', message) }
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value)
-function keys(value, allowed) {
-  if (!object(value) || Object.keys(value).some(k => !allowed.includes(k))) bad('Unknown or invalid production-plan field')
+function keys(value, allowed, path = 'production_plan') {
+  if (!object(value)) bad(`${path} must be an object`)
+  const unknown = Object.keys(value).filter(k => !allowed.includes(k))
+  if (unknown.length) {
+    const hints = path === 'target' ? ' Use include_child_windows for child inclusion; show_cursor belongs at the request root.' : ''
+    bad(`Unknown ${path} fields: ${unknown.join(', ')}. Allowed: ${allowed.join(', ')}.${hints}`)
+  }
 }
 function number(value, low, high, integer = false) {
   return typeof value === 'number' && Number.isFinite(value) && value >= low && value <= high && (!integer || Number.isInteger(value))
@@ -58,11 +63,11 @@ function number(value, low, high, integer = false) {
 export function validateProductionRequest(args) {
   keys(args, Object.keys(productionPlanSchema.properties))
   const a = { fps: 30, max_width: 1000, show_cursor: false, input_enabled: false, redundancy: 'none', ...args }
-  for (const k of ['mode', 'activity', 'redundancy']) if (!productionPlanSchema.properties[k].enum.includes(a[k])) bad(`Invalid ${k}`)
+  for (const k of ['mode', 'activity', 'redundancy']) if (!productionPlanSchema.properties[k].enum.includes(a[k])) bad(`Invalid ${k}; expected one of: ${productionPlanSchema.properties[k].enum.join(', ')}. Put descriptive intent in the session purpose or action intent.`)
   if (!number(a.duration_s, 1, 86400) || !number(a.fps, 1, 120, true) || !number(a.max_width, 0, 16384, true)) bad('Invalid duration, fps or max_width')
   if (typeof a.show_cursor !== 'boolean' || typeof a.input_enabled !== 'boolean') bad('Cursor and input settings must be booleans')
   if (a.codec !== undefined && !productionPlanSchema.properties.codec.enum.includes(a.codec)) bad('Invalid codec')
-  keys(a.target, Object.keys(productionPlanSchema.properties.target.properties))
+  keys(a.target, Object.keys(productionPlanSchema.properties.target.properties), 'target')
   const t = a.target
   if (!['window', 'display', 'rect'].includes(t.type)) bad('Invalid target type')
   if (t.type === 'window' && !number(t.window_id, 1, 4294967295, true)) bad('Window planning requires an exact window_id')
@@ -76,7 +81,7 @@ export function validateProductionRequest(args) {
   if (t.include_apps !== undefined && t.exclude_apps?.length) bad('App inclusion and exclusion cannot be combined')
   if (a.redundancy !== 'none' && t.type !== 'window') bad('Redundant planning requires an exact base window; it does not invent a backup target')
   if (a.redundancy === 'window_app_display') {
-    keys(a.backup_rect, ['x', 'y', 'w', 'h'])
+    keys(a.backup_rect, ['x', 'y', 'w', 'h'], 'backup_rect')
     const r = a.backup_rect
     if (!number(r.x, -1e7, 1e7) || !number(r.y, -1e7, 1e7) || !number(r.w, Number.MIN_VALUE, 16384) || !number(r.h, Number.MIN_VALUE, 16384) || !number(a.backup_max_width, 0, 16384, true)) bad('Triple-source planning requires an explicit finite backup rectangle and pixel-width cap')
   } else if (Object.hasOwn(a, 'backup_rect') || Object.hasOwn(a, 'backup_max_width')) bad('Backup rectangle/width apply only to window_app_display')
