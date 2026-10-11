@@ -25,6 +25,10 @@ Routine app control uses private Tailscale HTTPS, without USB, XCTest or Mirrori
 USB is a native build/install and recovery route. Customer production and staging
 instrumentation are excluded from this delivery.
 
+## Disabled reservation candidate
+
+1.9.16 includes an opt-in runner-lifetime candidate, excluded from the normal catalog. It has structural and preservation tests, but has not passed physical retained startup/re-entry. Do not enable it in routine harness configuration yet. See RUNNER-RESERVATION-CANDIDATE.md. Today’s original ten-hour hold is still maintained by its original active owner.
+
 ## Qualified today
 
 - Native view geometry, fresh target/hit fencing, tap, scroll, timed hold and

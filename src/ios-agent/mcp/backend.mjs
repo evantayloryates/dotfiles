@@ -17,7 +17,7 @@ import {codexOwnerContext} from './owner-context.mjs';
 import {waitNativeElement} from './native-condition.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/input-schemas.mjs', 'mcp/native-selector.mjs', 'mcp/owner-context.mjs', 'mcp/native-condition.mjs', 'mcp/system-driver.mjs', 'system_runner.py', 'mcp/capture-store.mjs', 'web/rich-capture.js', 'ready_wait.py', 'mcp/media-verification.mjs', 'mcp/call-verification.mjs', 'mcp/web-profiles.mjs', 'mcp/workflows.mjs', 'fixture_jobs.py', 'build_jobs.py', 'build_app.py', 'native_delivery.py', 'mcp/native-delivery.mjs', 'tests/run_fixture.py', 'paired_workflow.py', 'health.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'browser_inspector.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
+const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/input-schemas.mjs', 'mcp/native-selector.mjs', 'mcp/owner-context.mjs', 'mcp/native-condition.mjs', 'mcp/system-driver.mjs', 'mcp/system-reservation.mjs', 'system_runner.py', 'system_reservation.py', 'mcp/capture-store.mjs', 'web/rich-capture.js', 'ready_wait.py', 'mcp/media-verification.mjs', 'mcp/call-verification.mjs', 'mcp/web-profiles.mjs', 'mcp/workflows.mjs', 'fixture_jobs.py', 'build_jobs.py', 'build_app.py', 'native_delivery.py', 'mcp/native-delivery.mjs', 'tests/run_fixture.py', 'paired_workflow.py', 'health.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'browser_inspector.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
   .map(file => fs.readFileSync(path.join(root, file))).map(bytes => createHash('sha256').update(bytes).digest('hex')).join(':')).digest('hex');
 export const defaultState = path.join(os.homedir(), 'Library/Application Support/ios-agent');
 const idleLimit = 20 * 60 * 1000;
@@ -81,10 +81,10 @@ export class Backend {
   }
   async run(kind, args, input, timeout = 120000, signal) {
     if (this.runOverride) return this.runOverride(kind, args, input);
-    const files = {wait:'ready_wait.py', web: 'web_cli.py', cli: 'cli.py', verify: 'verify.py', doctor: 'health.py', stack: 'local_stack.py', paired: 'paired_workflow.py', learning: 'learning.py', provider:'device_observer.py', fixture:'fixture_jobs.py', build:'build_jobs.py', delivery:'native_delivery.py'};
+    const files = {wait:'ready_wait.py', web: 'web_cli.py', cli: 'cli.py', verify: 'verify.py', doctor: 'health.py', stack: 'local_stack.py', paired: 'paired_workflow.py', learning: 'learning.py', provider:'device_observer.py', fixture:'fixture_jobs.py', build:'build_jobs.py', delivery:'native_delivery.py',reservation:'system_reservation.py'};
     if (!files[kind]) throw new Error('fixed_operation_required');
     const argv = kind === 'learning' ? [path.join(this.state, 'learning')] :
-      kind === 'provider' ? [] : ['web','wait','fixture'].includes(kind) ? ['--state', this.state] : kind === 'paired' ? [] : kind === 'cli' ? ['--state', this.state, ...args] : [...args, '--state', this.state];
+      ['provider','reservation'].includes(kind) ? [] : ['web','wait','fixture'].includes(kind) ? ['--state', this.state] : kind === 'paired' ? [] : kind === 'cli' ? ['--state', this.state, ...args] : [...args, '--state', this.state];
     return new Promise((resolve, reject) => {
       const child = spawn(kind==='provider'?path.join(this.state,'providers/pymobiledevice3-11.15.5/bin/python'):'/usr/bin/python3', ['-B', path.join(root, files[kind]), ...argv],
         {stdio: ['pipe', 'pipe', 'pipe'], env: {...process.env, PYTHONDONTWRITEBYTECODE: '1'}});
@@ -415,6 +415,19 @@ export class Backend {
       return {ok:false,reason,inputSent:expressionDispatched?'unknown':false,replay:false};
     } finally {if(temporary&&s)await this.end(s.id);}
   }
+  async systemReservation({action='status',durationSeconds=1800,reservationId,threadId}={}) {
+    // Candidate remains explicitly gated until physical detach/re-entry passes.
+    if(process.env.IOS_AGENT_EXPERIMENTAL_RETENTION!=='1')return {ok:false,reason:'runner_retention_candidate_not_physically_qualified',inputSent:false};
+    if(action==='status')return (await this.run('reservation',[],{op:'status',state:this.state},5000)).value;
+    if(!['start','end'].includes(action))return {ok:false,reason:'fixed_reservation_operation_required'};
+    if(action==='end'&&!/^[a-f0-9]{32}$/.test(reservationId||''))return {ok:false,reason:'matching_reservation_required',inputSent:false};
+    if(action==='start'&&(!Number.isInteger(durationSeconds)||durationSeconds<1||durationSeconds>36000||reservationId!==undefined))return {ok:false,reason:'bounded_reservation_required',inputSent:false};
+    const acquired=await this.begin({surface:'launch',threadId}),s=this.session(acquired.sessionId);
+    try{
+      const result=await this.run('reservation',[],{op:action==='start'?'start':'stop',state:this.state,durationSeconds,reservationId,ownerFile:s.owner,leaseFile:s.lease,log:path.join(s.dir,'system-reservation.log')},action==='start'?55000:42000);
+      return result.value||{ok:false,reason:'reservation_unconfirmed',replay:false};
+    }finally{await this.end(s.id);}
+  }
   async systemBegin({rollout,threadId}={}) {
     const acquired=await this.begin({surface:'launch',rollout,threadId}),s=this.session(acquired.sessionId);
     s.systemDriver=new SystemDriver({state:this.state,session:s,check:()=>this.session(s.id),authorize:async()=>{
@@ -430,7 +443,7 @@ export class Backend {
       s.surface='system';s.systemFingerprint=createHash('sha256').update(JSON.stringify([adapterHash,s.systemDriver.deviceIdentity,s.systemDriver.runtime?.os,s.systemDriver.runtime?.build])).digest('hex');
       const receipt={gate:'system-ready',status:'passed',observation:{runnerReady:true,sharedOwner:true,nearbyStartupOnly:true}};
       const learningEvidence=await this.learning('observe',{receipt,source:s.systemFingerprint}).catch(()=>({available:false}));
-      return {...result,sessionId:s.id,lifecycle:acquired.lifecycle,learningEvidence,next:'Use ios_system_inspect and fresh targets; ios_system_end in finally stops the runner and Apple overlay. Normal page/app work should use its own driver.'};
+      return {...result,sessionId:s.id,lifecycle:acquired.lifecycle,learningEvidence,next:result.retained?'Use ios_system_inspect and observed targets; ios_system_end releases input control but preserves the explicit reservation and Apple overlay. Reservation end/expiry stops its runner.':'Use ios_system_inspect and fresh targets; ios_system_end in finally stops the runner and Apple overlay. Normal page/app work should use its own driver.'};
     }catch{const cleanup=await this.end(s.id);return {ok:false,reason:'system_start_unconfirmed_inspect_phone',replay:false,cleanup};}
   }
   async systemInspect({sessionId}) {
@@ -454,7 +467,7 @@ export class Backend {
     if(home){try{presentation=await s.systemDriver.action({action:'home'});s.systemHomeConfirmed=presentation.homeConfirmed===true;}
       catch{presentation={ok:false,homeConfirmed:false,reason:'home_navigation_unconfirmed',replay:false};s.systemHomeConfirmed=false;}}
     const ended=await this.end(sessionId);
-    return {...ended,presentation,ok:ended.released===true&&ended.systemCleanup?.runnerStopped===true,next:ended.systemCleanup?.runnerStopped===true?'XCTest fallback is stopped. Begin a fresh native/browser lease for normal work.':'Runner cleanup is unconfirmed; inspect the phone and paired channel before starting another fallback.'};
+    return {...ended,presentation,ok:ended.released===true&&(ended.systemCleanup?.runnerStopped===true||ended.systemCleanup?.retained===true),next:ended.systemCleanup?.retained?'Input control ended; the explicitly reserved runner and Apple indicator remain until reservation end/expiry. Begin native/browser control normally.':ended.systemCleanup?.runnerStopped===true?'XCTest fallback is stopped. Begin a fresh native/browser lease for normal work.':'Runner cleanup is unconfirmed; inspect the phone and paired channel before starting another fallback.'};
   }
   async waitReady({surface='any',browser,page,timeoutSeconds=45}={},signal) {
     const controller=new AbortController();this.waitControllers.add(controller);
@@ -719,14 +732,14 @@ export class Backend {
         const current=await this.status().catch(()=>null);
         if(current&&current.lease===null)release={ok:true,value:{alreadyRetired:true,reason:'native_home_handoff',homeVerified:false}};
       }
-      if(systemCleanup&&s.systemFingerprint){
+      if(systemCleanup&&s.systemFingerprint&&!systemCleanup.retained){
         const receipt={gate:'system-idle',status:systemCleanup.runnerStopped===true&&release.ok?'passed':'failed',observation:{runnerStopped:systemCleanup.runnerStopped===true,ownerReleased:release.ok,...(typeof s.systemHomeConfirmed==='boolean'?{homeConfirmed:s.systemHomeConfirmed}:{})}};
         systemCleanup.learningEvidence=await this.learning('observe',{receipt,source:s.systemFingerprint}).catch(()=>({available:false}));
       }
       this.sessions.delete(id);
       this.captures.delete(id);
       return {released: release.ok,...(systemCleanup?{systemCleanup,ok:systemCleanup.ok}:{}),...(captureCleanup?{captureCleanup}:{}), detail: release.ok ? safe(release.value) : release.error,
-        next: 'Call ios_verify gate=idle without a session to confirm native and host cleanup.'};
+        next: systemCleanup?.retained?'Input lease released; explicitly reserved XCTest remains. End its reservation to remove Apple automation.':'Call ios_verify gate=idle without a session to confirm native and host cleanup.'};
     })();
     return s.endPromise;
   }

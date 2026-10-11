@@ -4,6 +4,7 @@ import {spawn,execFile} from 'node:child_process';
 import {randomBytes} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import net from 'node:net';
+import {retainedRunner} from './system-reservation.mjs';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const id=()=>randomBytes(16).toString('hex');
@@ -34,7 +35,7 @@ export function parseTree(xml){
 }
 
 export class SystemDriver {
-  constructor({state,session,check,authorize=async()=>{}}){this.state=state;this.session=session;this.check=check;this.authorize=authorize;this.snapshot=null;this.child=null;this.startPromise=null;}
+  constructor({state,session,check,authorize=async()=>{}}){this.state=state;this.session=session;this.check=()=>{check();if(this.retained){const current=retainedRunner(this.state);if(!current||current.id!==this.retained.id||current.sessionId!==this.sid)throw Error('retained_runner_unavailable');}};this.authorize=authorize;this.snapshot=null;this.child=null;this.startPromise=null;}
   async http(method,route,body,timeout=12000){
     let response;
     try{response=await fetch(this.base+route,{method,signal:AbortSignal.timeout(timeout),headers:{'content-type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)});}
@@ -50,6 +51,14 @@ export class SystemDriver {
     const config=JSON.parse(fs.readFileSync(file));if(!tailnetHost(config.address))return {ok:false,reason:'configured_tailnet_address_required'};
     this.deviceIdentity=JSON.parse(fs.readFileSync(path.join(this.state,'web-device.json'))).hardwareUDID;
     this.base=`http://${config.address}:8100`;this.check();
+    const retained=process.env.IOS_AGENT_EXPERIMENTAL_RETENTION==='1'?retainedRunner(this.state):null;
+    if(retained){
+      await this.authorize();this.check();
+      const status=await this.http('GET','/status',undefined,2000);
+      if(status.value?.ready!==true||status.sessionId!==retained.sessionId)return {ok:false,reason:'retained_runner_identity_unconfirmed',replay:false};
+      this.retained=retained;this.sid=retained.sessionId;this.runtime=status.value;this.check();
+      return {ok:true,retained:true,reservationId:retained.id,expiresAt:retained.expiresAt,transport:'retained-signed-XCTest/Tailscale-WDA',indicator:'Apple Automation Running',inputAuthority:'exclusive current broker lease',offLANStartQualified:false};
+    }
     const endpoint=await endpointState(config.address);
     if(endpoint==='open')return {ok:false,reason:'existing_system_runner_preserved'};
     if(endpoint!=='refused')return {ok:false,reason:'system_endpoint_reachability_unconfirmed',replay:false};
@@ -141,10 +150,10 @@ export class SystemDriver {
         await this.authorize();this.check();inputSent=true;await this.http('POST',this.route(`/element/${eid}/click`),{});
       }else return {ok:false,reason:'fixed_system_action_required',actionSent:false};
       return {ok:true,delivery:'native-XCTest',effect:'unverified; inspect again',replay:false};
-    }catch(error){if(inputSent)this.uncertain=true;const known=new Set(['physical_unlock_required','system_app_scope_required','system_endpoint_deadline','system_endpoint_unreachable','system_provider_rejected','owner_not_active','system_ownership_unconfirmed']);return {ok:false,outcome:inputSent?'unknown_or_rejected':'not_sent',actionSent:inputSent,reason:known.has(error.message)?error.message:'inspect_current_phone_state',replay:false};}
+    }catch(error){if(inputSent)this.uncertain=true;const known=new Set(['physical_unlock_required','system_app_scope_required','system_endpoint_deadline','system_endpoint_unreachable','system_provider_rejected','owner_not_active','system_ownership_unconfirmed','retained_runner_unavailable']);return {ok:false,outcome:inputSent?'unknown_or_rejected':'not_sent',actionSent:inputSent,reason:known.has(error.message)?error.message:'inspect_current_phone_state',replay:false};}
   }
   async stop(){
     if(this.stopping)return this.stopping;
-    this.stopping=(async()=>{await this.startPromise?.catch(()=>{});if(this.sid)try{await this.http('DELETE',this.route(''),undefined,4000);}catch{}if(this.child){this.child.stdin.end('stop\n');await Promise.race([this.exit,sleep(38000)]);return {ok:this.cleanup?.runnerStopped===true,runnerStopped:this.cleanup?.runnerStopped===true,verificationAttempts:this.cleanup?.verificationAttempts,cleanupReason:this.cleanup?.reason||'unconfirmed'};}return {ok:true,runnerStopped:true,notStarted:true};})();return this.stopping;
+    this.stopping=(async()=>{await this.startPromise?.catch(()=>{});if(this.retained){const current=retainedRunner(this.state);return {ok:current?.id===this.retained.id,runnerStopped:false,retained:current?.id===this.retained.id,reservationId:this.retained.id,expiresAt:this.retained.expiresAt,inputReleasedSeparately:true,...(!current?{reason:'retained_runner_state_unconfirmed'}:{})};}if(this.sid)try{await this.http('DELETE',this.route(''),undefined,4000);}catch{}if(this.child){this.child.stdin.end('stop\n');await Promise.race([this.exit,sleep(38000)]);return {ok:this.cleanup?.runnerStopped===true,runnerStopped:this.cleanup?.runnerStopped===true,verificationAttempts:this.cleanup?.verificationAttempts,cleanupReason:this.cleanup?.reason||'unconfirmed'};}return {ok:true,runnerStopped:true,notStarted:true};})();return this.stopping;
   }
 }
