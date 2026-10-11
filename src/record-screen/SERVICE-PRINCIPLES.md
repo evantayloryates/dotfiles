@@ -124,8 +124,9 @@ awake Mac, with the existing gap detection retained. This assumption does not
 turn untested sleep behavior into a pass. The service-owned gate and native desktop panel are installed and verified
 for their stated cooperative scope. A signed WidgetKit companion is also installed; its sampled display is
 system-refreshed and not the enforcement boundary. Desktop placement and Taylor's original Pause click are verified. Its single
-background play/pause App Intent has verified sandbox transport; the actual new
-WidgetKit button dispatch remains explicit in the checklist. Keep control
+background play/pause App Intent has verified sandbox transport and actual
+WidgetKit dispatch. Focused and unfocused rendering use readable controls and
+explicit gate state. Keep control
 acknowledgment tied to authoritative state, expire delayed requests and never
 silently replay an uncertain control.
 

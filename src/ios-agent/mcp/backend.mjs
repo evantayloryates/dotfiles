@@ -310,7 +310,7 @@ export class Backend {
       if(!run.ok||run.value?.ok!==true||!fs.existsSync(a.file))return {ok:false,reason:run.value?.reason||'device_observation_unavailable',phase:run.value?.phase,inputSent:false};
       this.session(s.id);
       const value=JSON.parse(fs.readFileSync(a.file,'utf8')).result;
-      return {ok:true,artifactId:a.id,metadata:safe(value),inputSent:false,next:kind==='screen'?'Use ios_read with this artifactId for the actual full-device PNG. Paired nearby developer transport; separate from arbitrary-network page control.':kind==='resource-profile'?'Three bounded process samples; CPU is provider raw units and WebContent is not page attribution. The profiler and temporary owner are released.':'Service availability is not proof of Web Inspector opt-in or native touch.'};
+      return {ok:true,artifactId:a.id,metadata:safe(value),inputSent:false,next:kind==='screen'?'Use ios_read with this artifactId for the actual full-device PNG. Paired nearby developer transport; separate from arbitrary-network page control.':kind==='resource-profile'?'Three bounded process samples; CPU is provider raw units and WebContent is not page attribution. The profiler is closed; a temporary owner is released only when this call created it.':'Service availability is not proof of Web Inspector opt-in or native touch.'};
     } finally {if(temporary&&s)await this.end(s.id);}
   }
   async waitReady({surface='any',browser,page,timeoutSeconds=45}={},signal) {

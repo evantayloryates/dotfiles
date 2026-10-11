@@ -2,7 +2,7 @@
 
 The signed **Record Screen Control** companion and WidgetKit extension are
 installed under `data/record-screen/widget/Record Screen Control.app`.
-Widget build **37e8fd05c806** is separate from recorder build **e402dc736458**;
+Widget build **0c731006740f** is separate from recorder build **e402dc736458**;
 installing it did not rebuild/restart the recorder or change its capture grants.
 
 The original build registered but was absent from the gallery: its executable
@@ -21,8 +21,9 @@ Gallery appearance and placement are confirmed: Taylor added it, WidgetKit
 reports one configured instance, and an actual display capture shows the
 compact widget Ready on the built-in desktop. Taylor's actual Pause click was
 independently read back as Paused (generation 9). The later interactive-button
-upgrade keeps the same single Medium widget; its actual new button dispatch
-still needs a desktop click check. CUA cannot target that desktop surface.
+upgrade keeps the same single Medium widget; its actual Resume interaction is now confirmed by WidgetKit execution logs,
+service generation 11 and Taylor's screenshots. CUA cannot itself click that
+surface; the system log identifies the real extension invocation independently.
 
 The widget now has **one interactive button**: ▶ Resume while paused, ⏸ Pause
 while accepting work. It uses a background App Intent, with `openAppWhenRun`
@@ -88,7 +89,15 @@ the actual paused state without foreground activation. The original unbundled
 probe failed in sandbox initialization; the correctly packaged app probe passed.
 This establishes the sandbox transport, not actual WidgetKit button dispatch.
 Taylor's earlier real widget Pause click passed on the old link version.
-The new button's final desktop appearance/click remains explicit in the checklist.
+Actual WidgetKit dispatch also passed: chronod received SetRecordingGateIntent
+at 20:14:21.238, extension perform ran from .272 to .688, and chronod reported
+success with openAppWhenRun NO. The service became Ready at generation 11.
+Taylor's focused screenshot shows the single blue Pause button. The unfocused
+screenshot exposed flattened same-color prominent button content. The repaired
+build reads widgetRenderingMode: fullColor keeps the blue button; other modes use
+primary text and a transparent capsule outline. Actual unfocused display pixels
+confirm the pause glyph and text are legible. State reads “Recording allowed” or
+“New work paused”; a draining pause additionally says it is finishing safely.
 
 Apple references: [interactive widgets](https://developer.apple.com/documentation/widgetkit/adding-interactivity-to-widgets-and-live-activities),
 [app groups](https://developer.apple.com/documentation/xcode/configuring-app-groups),

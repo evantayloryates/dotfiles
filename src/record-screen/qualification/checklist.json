@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-10T20:14:49-04:00",
+  "updated_at": "2026-10-10T20:18:31-04:00",
   "workflow": {
-    "state": "active",
-    "note": "Installed the requested single background play/pause widget control; contract/mailbox and signed sandboxed intent checks pass. Fixed retained old extension and verified successful fresh timelines. Awaiting Taylor’s actual new-button click; service remains paused, no unrelated qualification repeated."
+    "state": "complete",
+    "note": "Supported release 0.20 delivered and ready for Taylor’s smoke use. Final native widget control and unfocused contrast verified. 57 Completed; 11 Deferred retain explicit user prerequisites. New feedback is scoped repair work, not an expanding completion gate."
   },
-  "production_note": "Release 0.20 is installed for Taylor’s smoke test: recorder e402dc736458, fresh MCP 0.20.0/current CLI, global gate/queue, live panel, optional exact input/frame joins, first cursor recipe, shared app observations and verified repair/subscriber cycle. The placed single-Medium widget 37e8fd05c806 now has one background play/pause button. Its transport and upgrade repair pass focused checks; actual new-button dispatch remains the single Review step. Deferred work keeps Taylor’s stated prerequisites.",
+  "production_note": "Release 0.20 is delivered and ready for Taylor’s smoke use: recorder e402dc736458, fresh MCP 0.20.0/current CLI; global gate/queue, live panel, optional exact input/frame joins, first cursor recipe, shared app observations and verified repair/subscriber cycle. The placed single-Medium widget 0c731006740f has one background play/pause button, actual WidgetKit Resume dispatch and readable focused/unfocused state. Supported release checks are complete; 11 Deferred items retain Taylor’s explicitly agreed prerequisites.",
   "groups": [
     {
       "id": "capture",
@@ -1034,15 +1034,15 @@
         {
           "id": "desktop-production-gate",
           "title": "Add a desktop recording panel and global safe-pause gate",
-          "summary": "The gate, live panel and compact widget are installed; one background play/pause button replaces the two links.",
+          "summary": "Delivered global safe-pause gate, live panel and one compact background play/pause widget; actual control dispatch and unfocused readability verified.",
           "scope": "See recording state at a glance; pause future starts, drain current work safely and queue requests until resumed.",
-          "status": "partial",
-          "work_state": "review",
-          "evidence": "Taylor’s original real widget Pause click was confirmed in service state (generation 9). Installed single-Medium widget 37e8fd05c806 now has one background play/pause App Intent and optional Details link. Seventeen contract and 22 mailbox checks passed; a signed sandboxed same-intent app probe confirmed Pause (generation 10). Installer retires only the old extension after a stale-code/bundle-version mismatch; current macOS timeline reloads succeed. Recorder e402dc736458 remains untouched. Actual new widget appearance and button dispatch await Taylor; the first screenshot showed the previous cached layout.",
-          "next": "Taylor checks the current one-button widget and clicks Resume once; verify authoritative state and that no foreground window opened. Reuse all passing recorder evidence.",
+          "status": "completed",
+          "work_state": "completed",
+          "evidence": "The global gate/live panel retain passing controlled and installed evidence. Taylor’s original widget Pause click reached generation 9. Actual new single-button Resume is confirmed by chronod/WidgetKit: SetRecordingGateIntent executed in the extension from 20:14:21.272 to .688, succeeded with openAppWhenRun NO, and service became Ready/generation 11. Installed widget 0c731006740f. Seventeen contract and 22 mailbox checks plus a signed sandboxed intent probe pass. Retained old-extension upgrade failure repaired. Taylor confirmed focused layout; unfocused blank-button defect was fixed using rendering-mode-aware outlined controls and actual unfocused pixels show readable Pause icon/text. Explicit Recording allowed/New work paused state, no input lock, recorder unchanged.",
+          "next": "",
           "anchor": "release-020",
-          "updated_at": "2026-10-10T20:14:49-04:00",
-          "work_updated_at": "2026-10-10T19:06:38-04:00",
+          "updated_at": "2026-10-10T20:18:31-04:00",
+          "work_updated_at": "2026-10-10T20:18:31-04:00",
           "acceptance": [
             "The panel shows fresh active/queued/draining/paused state and unmistakable stale or unavailable data.",
             "Pause closes admissions across MCP, CLI and already scheduled starts; current work reaches a declared safe boundary without an input lock.",
@@ -1051,7 +1051,7 @@
             "The single play/pause App Intent button requests an explicit state in the background, confirms service state and does not open the app; stale status is never presented as a confirmed current state."
           ],
           "doc_link": "/Users/taylor/src/github/dotfiles/src/record-screen/qualification/RELEASE-0.20.md",
-          "why_partial": "The widget has been upgraded and its background control path works from a signed sandboxed app. macOS initially kept showing the old controls; that upgrade issue is fixed and new timelines load successfully. We still need one click in the actual desktop widget to confirm macOS routes the new button correctly and leaves other windows alone. Computer use cannot target the desktop widget, so Taylor has been asked for that brief check. The service remains paused until Taylor resumes it.",
+          "why_partial": "",
           "review_question": "Does the updated widget show one play/pause button and change state without opening a window?"
         },
         {
@@ -3899,6 +3899,29 @@
       "from": "active",
       "to": "active",
       "note": "Installed the requested single background play/pause widget control; contract/mailbox and signed sandboxed intent checks pass. Fixed retained old extension and verified successful fresh timelines. Awaiting Taylor’s actual new-button click; service remains paused, no unrelated qualification repeated."
+    },
+    {
+      "kind": "item",
+      "id": "desktop-production-gate",
+      "at": "2026-10-10T20:18:31-04:00",
+      "from": "partial",
+      "to": "completed",
+      "note": "The global gate/live panel retain passing controlled and installed evidence. Taylor’s original widget Pause click reached generation 9. Actual new single-button Resume is confirmed by chronod/WidgetKit: SetRecordingGateIntent executed in the extension from 20:14:21.272 to .688, succeeded with openAppWhenRun NO, and service became Ready/generation 11. Installed widget 0c731006740f. Seventeen contract and 22 mailbox checks plus a signed sandboxed intent probe pass. Retained old-extension upgrade failure repaired. Taylor confirmed focused layout; unfocused blank-button defect was fixed using rendering-mode-aware outlined controls and actual unfocused pixels show readable Pause icon/text. Explicit Recording allowed/New work paused state, no input lock, recorder unchanged."
+    },
+    {
+      "kind": "work_state",
+      "id": "desktop-production-gate",
+      "at": "2026-10-10T20:18:31-04:00",
+      "from": "review",
+      "to": "completed",
+      "note": "Taylor’s screenshots and system execution logs complete real widget control evidence; repaired the unfocused button contrast and verified actual source pixels. Earlier failures remain recorded."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-10T20:18:31-04:00",
+      "from": "active",
+      "to": "complete",
+      "note": "Supported release 0.20 delivered and ready for Taylor’s smoke use. Final native widget control and unfocused contrast verified. 57 Completed; 11 Deferred retain explicit user prerequisites. New feedback is scoped repair work, not an expanding completion gate."
     }
   ],
   "work_note": "Completed work states include useful delivered portions of broader historical Partial items. Expanded verification records preserve limits. Deferred prerequisites remain explicit; Review is a genuine user decision."

@@ -1,5 +1,26 @@
 # Production qualification goal
 
+## Delivered supported release; widget control and contrast verified (October 10, 20:19 EDT)
+
+Installed widget 0c731006740f. Actual desktop Resume action is independently
+confirmed: chronod received SetRecordingGateIntent at 20:14:21.238, the widget
+extension invoked/finished perform at .272/.688 and chronod reported success
+with openAppWhenRun NO. Service is Ready, pause_requested false, generation 11.
+Taylor's screenshots showed a good focused blue button but an unreadable
+unfocused prominent button. The fix uses widgetRenderingMode: fullColor retains
+the blue control; vibrant/accented uses a transparent primary-text outline.
+Actual unfocused source pixels show a readable pause glyph and Pause label.
+The state now says Recording allowed or New work paused, with draining explicit.
+
+The supported 0.20 release is delivered and ready for Taylor's ordinary smoke
+use. The final desktop-gate item is Completed; 57 checklist items Completed and
+11 Deferred with Taylor's explicit prerequisites. No new deferrals, broad
+retesting or hidden release gates. Recorder e402dc736458/PID58895 unchanged.
+Private widget/interactive-widget-checks.json and actual-widget-intent.log retain
+actual dispatch, source pixels and earlier failures. Stop expanding this goal;
+handle new use feedback as a scoped follow-up/repair. Earlier checkpoints below
+are historical and superseded by this verified delivery.
+
 ## Background single-button widget (October 10, 20:16 EDT)
 
 Taylor's real original widget Pause click passed: service paused generation 9 at

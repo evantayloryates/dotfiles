@@ -12,11 +12,11 @@ keep their loaded code; the CLI reads current code without restarting peers.
   stale-timer fencing, no late auto-start after a queued start expires, native
   desktop reading/control panel and cross-client/CLI controls. Current takes
   drain safely; arbitrary external UI tools cooperate through checkpoints.
-- Native WidgetKit companion 37e8fd05c806, one Medium widget with sampled status,
+- Native WidgetKit companion 0c731006740f, one Medium widget with sampled status,
   freshness and a single background play/pause App Intent button; Details opens
   the optional live panel. Taylor's original widget Pause click passed; 17
   contract/22 mailbox checks and a signed sandboxed same-intent probe passed.
-  Final new-widget appearance/button dispatch remains Review. The upgrade now
+  Actual WidgetKit Resume dispatch and focused/unfocused appearance are verified. The upgrade now
   retires only its old extension process to avoid stale version mismatches.
   No recorder restart or capture-permission change.
 - Exact optional input-reception-to-actual-frame context, with held source ages,
@@ -87,8 +87,11 @@ Millisecond clock precision is preserved; physical reaction latency and frame
 cadence are separate and are not certified by exact timestamps. The desktop
 panel and native WidgetKit companion are installed. Desktop placement and
 Taylor's original real Pause click passed. The new single-button background
-transport is verified from a signed sandboxed app; actual WidgetKit dispatch and
-fresh appearance remain the final focused Review check. See
+transport is verified from a signed sandboxed app; actual WidgetKit Resume dispatch passed with openAppWhenRun NO and service
+state Ready/generation 11. Taylor's screenshots established the focused display
+and exposed the unfocused button-contrast defect. Build 0c731006740f fixes that
+mode with a transparent outline; actual unfocused pixels show a readable pause
+glyph/label. Explicit state text makes admission clear. See
 [widget usage and evidence](../widget/README.md). No other release criterion is
 silently deferred or called complete.
 
