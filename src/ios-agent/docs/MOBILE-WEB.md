@@ -632,3 +632,24 @@ Eleven focused host checks, including exact page-SDK wiring, passed. Actual
 provider-call attribution on iPhone remains the next physical gate. Existing
 phone pages need a reload to use the new SDK; native installed builds are not
 claimed to expose browser-only provenance.
+
+## Cellular Safari handoff —1.9.45, 11 October
+
+Signed delivery33da0bab6a8f429380f4f35aec4701cd installed wirelessly and its running
+identity matched. With USB absent, Wi-Fi IPv4 absent and external developer
+TCP49152 refused, `ios_web_enroll browser=ios-safari transport=auto` used the
+DEV app's fixed private-URL handoff. A fresh visible Safari page then passed
+owned readiness, unique-target DOM fill, independent field readback, guarded
+Save, committed React result and indicator-off cleanup. No XCTest, Mirroring
+or human action was used. See safari-cellular-handoff-mcp-2026-10-11.json.
+
+Chrome accepted its app-owned URL handoff but no fresh page appeared. A single
+Focus recovery pulse restored the prior Mac Focus without producing a fresh
+native bridge. Neither input was replayed. The phone remained unlocked according
+to Taylor; its screen has not yet been inspected, so a modal or lock is not the
+diagnosed cause. USB recovery is requested to inspect the actual state and
+restore Wi-Fi. Chrome launch and deeper cellular Inspector remain open gates.
+
+The earlier dated nearby proofs above retain their original scope. This new
+Safari result supersedes the old generic claim that all cellular foreground
+launch remains unqualified; it does not qualify OS permission input or Inspector.
