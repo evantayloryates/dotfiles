@@ -45,10 +45,10 @@ var __iosCreateCapture = (() => {
     };
     const trackAudio=()=>{
       if(!active?.modes.includes('audio'))return;
-      let available;try{available=sources().slice(0,32);}catch{append('audio',{unavailable:true,reason:'track_discovery_failed'});return;}
+      let available;try{available=sources();}catch{append('audio',{unavailable:true,reason:'track_discovery_failed'});return;}
       for(const track of available){
         if(track.kind!=='audio'||track.readyState!=='live'||recorders.has(track)||failedTracks.has(track))continue;
-        if(audioSources.length>=32){audioSourceLimitReached=true;continue;}
+        if(audioSources.length>=32){audioSourceLimitReached=true;break;}
         const epoch=generation;let clone,recorder,origins=[];
         try{origins=(sourceKinds?.(track)||[]).slice(0,16).filter(x=>['get-user-media','rtc-sender','rtc-receiver','dom-media'].includes(x));}catch{}
         const source={trackRef:audioSources.length+1,origins:[...new Set(origins)],recorder:'starting'};audioSources.push(source);

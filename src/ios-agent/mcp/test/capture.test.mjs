@@ -101,6 +101,18 @@ test('audio discovery bounds recorder attempts across the entire capture',async(
  try{c.start({id:'8'.repeat(32),modes:['audio'],seconds:10});first=false;scan();assert.equal(attempts,32);assert.equal(c.status().coverage.audioSources.length,32);assert.equal(c.status().coverage.audioSourceLimitReached,true);}finally{await c.stop(true);}
 });
 
+test('stable discovery reports omitted live audio beyond the recorder limit',async()=>{
+ const r=runtime();let attempts=0;
+ r.setInterval=()=>1;r.clearInterval=()=>{};r.MediaStream=class{};
+ r.MediaRecorder=class{static isTypeSupported(){return true;}constructor(){attempts++;throw Error('unavailable');}};
+ const tracks=Array.from({length:33},()=>({kind:'audio',readyState:'live',clone(){return {stop(){}};}}));
+ for(const count of [32,33]){
+  const c=create(r,{sources:()=>tracks.slice(0,count)});
+  try{c.start({id:'7'.repeat(32),modes:['audio'],seconds:10});assert.equal(c.status().coverage.audioSourceLimitReached,count===33);assert.equal(c.status().coverage.audioSources.length,32);}finally{await c.stop(true);}
+ }
+ assert.equal(attempts,64);
+});
+
 test('on-demand capture sees an already-open real WebSocket without closing it',async()=>{
  const {createServer}=await import('node:http'),{createHash}=await import('node:crypto');
  const server=createServer();
