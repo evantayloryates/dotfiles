@@ -1,0 +1,55 @@
+{
+  "at": "2026-10-11T10:41:03.403757+00:00",
+  "version": "1.9.32",
+  "defaultEnabled": false,
+  "flag": "IOS_AGENT_EXPERIMENTAL_AX=1",
+  "tool": "ios_ax_native_tab",
+  "originalXCTestPreserved": true,
+  "findings": {
+    "chrome": "focus exposed browser chrome; no synthetic page activation sent",
+    "safari": "one empty-caption focus; no synthetic page activation sent",
+    "nativeOriginalEncoding": "Nutrition request accepted; independent selected-tab read showed no change",
+    "offlineSerialization": "pinned perform_press element does not round trip (KeyError); corrected nested handle round trips",
+    "nativeCorrectedPrimitive": "Workouts moved from unselected to selected; independent original WDA readback confirmed it",
+    "packagedCandidate": "Home request accepted; subsequent selected-tab read still showed Workouts. Effect remains unconfirmed; do not replay.",
+    "scope": "four fixed native DEV tabs only; no arbitrary caption, coordinate, typing or authentication input"
+  },
+  "tests": {
+    "nativeProviderCases": 7,
+    "MCPAndBackendCases": 4,
+    "passed": true
+  },
+  "remainingGates": [
+    "Reliable packaged activation with independent selected-tab readback.",
+    "Standalone XCTest-free operation after Taylor explicitly releases the retained runner.",
+    "Physical off-LAN and fresh MCP-owned operation.",
+    "General Safari/Chrome/system-UI coverage remains unproven."
+  ],
+  "source": "https://github.com/doronz88/pymobiledevice3/blob/master/pymobiledevice3/services/accessibilityaudit.py",
+  "receipts": {
+    "ax-activation-1791714374432022000.json": {
+      "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/ax-activation-1791714374432022000.json",
+      "sha256": "c291f32b2350c17b4f9f9608deed7f32d3030efa727cfe9474421c9e3faa4c2b"
+    },
+    "ax-activation-1791714436419727000.json": {
+      "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/ax-activation-1791714436419727000.json",
+      "sha256": "ce657d62337dabd72603cc9de3ec7674ed4b36c33e5352beeeeef9c356d89607"
+    },
+    "ax-native-1791714535393000000.json": {
+      "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/ax-native-1791714535393000000.json",
+      "sha256": "934cb54df290ca6e40bfe8289cb4681ed2af5685bb50cc0a8dfb504498cb3315"
+    },
+    "ax-native-1791714602102908000.json": {
+      "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/ax-native-1791714602102908000.json",
+      "sha256": "7800215cad769708d32bb265348dd8e6dc73492adf7b1650ed252215375b1920"
+    },
+    "tailnet-provider-1791715135847741000.json": {
+      "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/tailnet-provider-1791715135847741000.json",
+      "sha256": "196b8e6ab733d896dcae1e0fb8eacecb0059ecda0f8fbd2b22e114e2e2910968"
+    },
+    "owned-input-1791715150243.json": {
+      "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-input-1791715150243.json",
+      "sha256": "8add22a48e6ea6053eac85207d34b4a90a062be974eb0b3476a6de83fc452713"
+    }
+  }
+}

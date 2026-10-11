@@ -25,12 +25,16 @@ class NativeAX(unittest.IsolatedAsyncioTestCase):
      if mode=='unknown':raise ConnectionError()
    async def move_focus(self,direction):
     calls.append('move')
+    if direction==5:
+     await self._event_queue.put(('hostInspectorCurrentElementChanged:',[Focus('DEV header')]))
+     return
     caption=['Invite, tab, 4 of 4, Button','Nutrition, tab, 3 of 4, Button'][min(self.step,1)];self.step+=1
+    if mode=='selected' and self.step==2:caption+=', Selected'
     if mode=='wrong':caption='Confirm Apple ID password, Button'
     if mode=='extension':await self._event_queue.put(('hostAppStateChanged:',[{'displayID':'com.example.helper-extension','state':8}]))
     if mode=='lost':await self._event_queue.put(('hostAppStateChanged:',[{'displayID':ax.BUNDLE,'state':4}]))
     await self._event_queue.put(('hostInspectorCurrentElementChanged:',[Focus(caption)]))
-  audit=Audit();module=Obj(AXAuditInspectorFocus_v1=Focus,Direction=Obj(Last=6,Previous=3),deserialize_object=lambda v:v)
+  audit=Audit();module=Obj(AXAuditInspectorFocus_v1=Focus,Direction=Obj(First=5,Last=6,Previous=3),deserialize_object=lambda v:v)
   with patch.dict(sys.modules,{'pymobiledevice3.services.accessibilityaudit':module}):
    if mode=='lost':
     with self.assertRaisesRegex(ValueError,'ax_native_surface_changed'):await ax.focus_press(audit,7,'nutrition',lambda:None)
@@ -43,6 +47,8 @@ class NativeAX(unittest.IsolatedAsyncioTestCase):
   r=await self.scenario('accepted');self.assertTrue(r['axPressSent']);self.assertFalse(r['effectVerified']);self.assertEqual(r['focusSteps'],2)
  async def test_another_foreground_running_extension_is_not_proof_the_target_backgrounded(self):
   self.assertTrue((await self.scenario('extension'))['axPressSent'])
+ async def test_selected_tab_is_an_observed_no_input_result(self):
+  r=await self.scenario('selected');self.assertTrue(r['alreadySelected']);self.assertFalse(r['axPressSent']);self.assertTrue(r['selectedAXObserved'])
  async def test_unknown_press_never_repeats(self):
   r=await self.scenario('unknown');self.assertEqual(r['axPressSent'],'unknown');self.assertFalse(r['replay'])
  async def test_unexpected_caption_and_foreground_loss_refuse_activation(self):

@@ -47,6 +47,13 @@ async def focus_press(audit,pid,tab,check,trace=None,report=None):
         await audit.set_monitored_event_type()
         await audit._invoke('deviceSetAuditTargetPid:',pid,expects_reply=False)
         task=asyncio.create_task(collect());await asyncio.sleep(0)
+        # AX focus can persist across connections. A Last command emits no
+        # event when already at Last. Move to First once, then resolve Last
+        # freshly; this is inspector focus only, never a repeated activation.
+        check();await audit.move_focus(Direction.First)
+        try:await asyncio.wait_for(queue.get(),1)
+        except TimeoutError:pass
+        while not queue.empty():queue.get_nowait()
         for step in range(4):
             check()
             if lost:raise ValueError('ax_native_surface_changed')
@@ -54,10 +61,12 @@ async def focus_press(audit,pid,tab,check,trace=None,report=None):
             try:f,at=await asyncio.wait_for(queue.get(),1.5)
             except TimeoutError:return {'ok':False,'reason':'ax_native_focus_unconfirmed','axPressSent':False,'replay':False}
             caption=f.caption or '';expected=TABS[tab]
-            if caption not in {c for label in TABS.values() for c in (label,label+', Button')}:
-                return {'ok':False,'reason':'fixed_ax_native_tab_order_required','axPressSent':False,'replay':False}
+            if caption not in {c for label in TABS.values() for c in (label,label+', Button',label+', Button, Selected')}:
+                return {'ok':False,'reason':'fixed_ax_native_tab_order_required','axPressSent':False,'replay':False,'observedCaption':caption[:300]}
             seen.append(caption)
-            if caption not in (expected,expected+', Button'):continue
+            if caption not in (expected,expected+', Button',expected+', Button, Selected'):continue
+            if caption==expected+', Button, Selected':
+                return {'ok':True,'tab':tab,'alreadySelected':True,'selectedAXObserved':True,'axPressSent':False,'effectVerified':False,'replay':False,'focusSteps':len(seen)}
             check()
             if lost or time.monotonic()-at>2:raise ValueError('ax_native_surface_changed')
             element,action=element_payload(f.element.identifier if f.element else None)

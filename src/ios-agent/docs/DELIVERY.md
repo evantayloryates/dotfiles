@@ -272,3 +272,14 @@ separate check; no unlock or Home state is inferred. The stream sends no focus,
 activation or visual-overlay command, disables monitoring and closes after one
 launch. Seven new event contracts plus six related payload/Home contracts passed.
 The original held runner remains unchanged; off-LAN qualification is still open.
+
+## MCP1.9.32 — disabled Apple AX candidate
+
+Default catalog remains39tools/10resources. The opt-in native AX tab-recovery
+candidate adds one tool only with IOS_AGENT_EXPERIMENTAL_AX=1; no harness was
+changed. The corrected low-level Workouts activation passed, but packaged Home
+activation did not change selection. Standalone XCTest-free/off-LAN operation
+remains unqualified while the original user-requested runner hold continues.
+This candidate is preserved for focused qualification, not counted as a delivered
+routine control path. NATIVE-AX-CANDIDATE.md and ax-native-candidate-2026-10-11.json
+record the exact proof, failed effect gate and reasons for keeping it disabled.
