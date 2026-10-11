@@ -295,3 +295,14 @@ Failed resource-profile jobs also save a structural negative receipt. When the
 provider fails before returning its OS version, the fingerprint explicitly uses
 an unknown OS component; it is not an exact-iOS success claim. A timeout does not
 prove that the phone is locked, disconnected, or missing USB.
+
+## Exact-label native input
+
+Within an explicit system fallback, `ios_system_action` tap can take `label` plus
+`elementType` (Button, Cell, Switch or Link using its full XCUIElementType name),
+instead of snapshot/target. The service takes a new hierarchy, requires exactly
+one visible/enabled matching element, then applies the existing live element
+uniqueness and hittability checks before one native click. This removes model
+round-trip expiry for a known control. Duplicate/missing labels send no input.
+Unknown input still requires a new observation and is never automatically replayed.
+No secure field or arbitrary predicate selector is accepted.

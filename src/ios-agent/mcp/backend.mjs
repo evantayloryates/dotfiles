@@ -352,6 +352,12 @@ export class Backend {
   }
   async systemAction(args) {
     const s=this.session(args.sessionId);if(!s.systemDriver)throw Error('session_required');
+    if(args.action==='tap'&&args.label!==undefined){
+      const tree=await s.systemDriver.inspect();
+      const matches=tree.nodes.filter(n=>n.visible&&n.enabled&&n.label===args.label&&n.type===args.elementType);
+      if(matches.length!==1)return {ok:false,reason:'unique_system_label_required',actionSent:false,replay:false,matches:matches.length};
+      args={sessionId:args.sessionId,action:'tap',snapshot:tree.snapshot,target:matches[0].target};
+    }
     const result=await s.systemDriver.action(args);if(args.action==='home')s.systemHomeConfirmed=result.homeConfirmed===true;return result;
   }
   async systemEnd({sessionId,home=true}) {
