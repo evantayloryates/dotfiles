@@ -1,5 +1,5 @@
 // Private transport for the qualified nearby managed MCP lifecycle.
-// Cellular and permanent-node provisioning remain separate qualification gates.
+// The exact approved node is retained for personal DEV; cellular stays unqualified.
 import {spawn} from 'node:child_process';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
