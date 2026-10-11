@@ -1,0 +1,67 @@
+{
+  "at": "2026-10-11T05:13:23.603412+00:00",
+  "version": "1.9.10",
+  "scope": "Physical Safari and Chrome nearby paired WebKit ScriptProfiler; USB connected, Mirroring disconnected; optional expression under owned matching page glow",
+  "passed": true,
+  "browsers": [
+    {
+      "operation": "profile",
+      "documentRef": "a22749a9a722433b8ccb33231512dbab",
+      "browser": "com.apple.mobilesafari",
+      "ready": "complete",
+      "eventCount": 2,
+      "droppedEvents": 0,
+      "retainedBytes": 37972,
+      "profilerStopped": true,
+      "profileComplete": true,
+      "sampleCount": 47,
+      "domainsDisabled": true,
+      "detached": true,
+      "transport": "native-remoted",
+      "offLANQualified": false,
+      "retentionSeconds": 3600,
+      "fixtureEvaluatedOnce": true,
+      "replay": false,
+      "fixtureSamples": 45,
+      "nonZeroTimestamps": 0,
+      "fixtureReturnedIterations": 756728,
+      "indicatorOff": true
+    },
+    {
+      "operation": "profile",
+      "documentRef": "f525814d181d5c67f05c90aea5ed3040",
+      "browser": "com.google.chrome.ios",
+      "ready": "complete",
+      "eventCount": 2,
+      "droppedEvents": 0,
+      "retainedBytes": 39263,
+      "profilerStopped": true,
+      "profileComplete": true,
+      "sampleCount": 48,
+      "domainsDisabled": true,
+      "detached": true,
+      "transport": "native-remoted",
+      "offLANQualified": false,
+      "retentionSeconds": 3600,
+      "fixtureEvaluatedOnce": true,
+      "replay": false,
+      "fixtureSamples": 44,
+      "nonZeroTimestamps": 0,
+      "fixtureReturnedIterations": 591105,
+      "indicatorOff": true
+    }
+  ],
+  "limits": [
+    "All physical stack timestamps were zero; stacks support code attribution/sample counts, not calibrated time or flame charts.",
+    "No whole-browser CPU, heap, GPU, worker, audible audio, off-site Inspector or untethered qualification."
+  ],
+  "checks": {
+    "pythonInspector": 15,
+    "mcpDebugger": 5
+  },
+  "preInputRejection": {
+    "reason": "debug_document_changed",
+    "inputSent": false,
+    "resolved": "Used reported current document before a single fixture dispatch; no accepted input replay."
+  }
+}

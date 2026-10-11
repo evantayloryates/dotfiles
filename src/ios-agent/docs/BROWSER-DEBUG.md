@@ -122,3 +122,21 @@ detached. This remains a nearby developer transport, separate from Tailscale
 page input. See browser-call-rig-profile-2026-10-10.json.
 
 Physical 1.9.9 capture retained 9 Safari / 16 Chrome events with zero drops, scrubbed known token/cookie fields, domains disabled, Inspector detached and page glow off. WebKit supplied HTTP/2 and byte counters. Preserve provider timing values, including zero/negative values, as raw diagnostics rather than calibrated latency.
+
+## JavaScript sampling profile (1.9.10)
+
+`ios_browser_debug browser=safari|chrome op=profile sampleMs=1000` records a bounded
+ScriptProfiler sample into the same one-hour private diagnostic store. Require
+`profilerStopped:true` and `profileComplete:true`; `sampleCount:0` means no retained
+stacks, not zero CPU use. Final trackingComplete samples are retained after Stop.
+The 1000-event/2-MiB budget may drop data; inspect droppedEvents before drawing
+conclusions. Sampling measures JavaScript work, not whole-browser CPU, GPU, memory,
+or audible audio. No GC, heap snapshot or persistent profiler is started.
+
+An optional expression requires the current matching page lease/glow and documentRef,
+exactly like Network and trace. On an uncertain start or lost owner, cleanup still
+attempts Stop once; cleanup failure remains failed. Existing Inspector attachments
+are preserved. Physical Safari and Chrome qualification passed: 47/48 stacks, 45/44 fixture stacks, zero drops, stop/detach and glow-off confirmed. Every sample timestamp was zero on this phone; use stacks and counts for attribution, not timed flame charts. See browser-profile-physical-2026-10-11.json. Fifteen focused Python
+Inspector tests and five MCP debugger tests pass.
+
+Protocol: https://raw.githubusercontent.com/WebKit/WebKit/main/Source/JavaScriptCore/inspector/protocol/ScriptProfiler.json

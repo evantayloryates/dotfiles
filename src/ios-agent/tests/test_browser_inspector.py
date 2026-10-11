@@ -70,6 +70,27 @@ class InspectorTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.s.calls[-1][0],'Network.disable')
         self.assertIs(self.s.response_methods['Network.loadingFailed'],sentinel)
 
+    async def test_script_profile_retains_final_samples_and_stops_without_gc(self):
+        original=self.s.send_command
+        async def send(method,**args):
+            if method=='ScriptProfiler.startTracking':self.s.emit('ScriptProfiler.trackingStart',timestamp=1)
+            if method=='ScriptProfiler.stopTracking':self.s.emit('ScriptProfiler.trackingComplete',timestamp=2,samples={'stackTraces':[{'timestamp':1.5,'stackFrames':[{'name':'fixture','url':'https://dev.example.ts.net/a.js?token=secret','line':4}]}]})
+            return await original(method,**args)
+        self.s.send_command=send
+        r=await self.run_debug({'op':'profile','sampleMs':100})
+        self.assertTrue(r['profilerStopped']);self.assertTrue(r['profileComplete']);self.assertEqual(r['sampleCount'],1)
+        self.assertEqual(r['events'][-1]['params']['samples']['stackTraces'][0]['stackFrames'][0]['url'],'https://dev.example.ts.net/a.js')
+        self.assertIn(('ScriptProfiler.startTracking',{'includeSamples':True}),self.s.calls)
+        self.assertEqual(self.s.calls[-1][0],'ScriptProfiler.stopTracking');self.assertEqual(self.s.response_methods,{})
+
+    async def test_script_profile_uncertain_start_stops_and_cleanup_failure_stays_failed(self):
+        self.s.fail='ScriptProfiler.startTracking'
+        with self.assertRaises(debug.ProtocolError):await self.run_debug({'op':'profile','sampleMs':100})
+        self.assertEqual(self.s.calls[-1][0],'ScriptProfiler.stopTracking')
+        self.s=Session();self.s.fail='ScriptProfiler.stopTracking'
+        with self.assertRaisesRegex(ValueError,'debug_cleanup_unconfirmed'):await self.run_debug({'op':'profile','sampleMs':100})
+        self.assertEqual(self.s.response_methods,{})
+
     async def test_styles_return_matched_inline_computed_and_disable(self):
         r=await self.run_debug({'op':'styles','selector':'#fixture'})
         self.assertIn('matched',r);self.assertIn('computed',r);self.assertIn('inline',r)

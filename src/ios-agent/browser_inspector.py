@@ -71,7 +71,7 @@ async def inspect(session, request, target, expected, check):
     request['_inputDispatched']=False
     request['_contextStage']='initial'
     op=request.get('op','overview')
-    allowed={'overview','sources','source','styles','console','trace','network','evaluate'}
+    allowed={'overview','sources','source','styles','console','trace','network','profile','evaluate'}
     if op not in allowed:raise ValueError('fixed_debug_operation_required')
     reference=request.get('documentRef')
     if op in ('source','evaluate') and not re.fullmatch('[a-f0-9]{32}',reference or ''):
@@ -98,7 +98,7 @@ async def inspect(session, request, target, expected, check):
         'targetHash':hashlib.sha256(json.dumps([target.application.bundle,target.application.id_,target.page.id_]).encode()).hexdigest()[:32]},
         'browser':target.application.bundle,'ready':ctx['ready'],'scope':'paired-dev-WebKit-Inspector','userGestureRequested':False,'replay':False}
     if op=='overview':return {**result,'domainsDisabled':True}
-    domains=[];events=Events();old_handlers={};paused=False;timeline_requested=False
+    domains=[];events=Events();old_handlers={};paused=False;timeline_requested=False;profile_requested=False
     def handler(method):
         def record(event):
             nonlocal paused
@@ -119,7 +119,8 @@ async def inspect(session, request, target, expected, check):
                  'source':['Debugger.scriptParsed','Debugger.paused'],
                  'console':['Console.messageAdded','Console.messageRepeatCountUpdated','Console.messagesCleared'],
                  'trace':['Timeline.eventRecorded','Timeline.recordingStarted','Timeline.recordingStopped'],
-                 'network':['Network.requestWillBeSent','Network.responseReceived','Network.dataReceived','Network.loadingFinished','Network.loadingFailed','Network.requestServedFromMemoryCache']} .get(op,[])
+                 'network':['Network.requestWillBeSent','Network.responseReceived','Network.dataReceived','Network.loadingFinished','Network.loadingFailed','Network.requestServedFromMemoryCache'],
+                 'profile':['ScriptProfiler.trackingStart','ScriptProfiler.trackingUpdate','ScriptProfiler.trackingComplete']} .get(op,[])
         for method in methods:
             old_handlers[method]=session.response_methods.get(method)
             session.response_methods[method]=handler(method)
@@ -148,9 +149,13 @@ async def inspect(session, request, target, expected, check):
             check();result['computed']=await command(session,'CSS.getComputedStyleForNode',nodeId=node['nodeId'])
             check();result['inline']=await command(session,'CSS.getInlineStylesForNode',nodeId=node['nodeId'])
             result['selector']=request['selector']
-        elif op in ('console','trace','network'):
-            domain={'console':'Console','trace':'Timeline','network':'Network'}[op]
-            await enable(domain)
+        elif op in ('console','trace','network','profile'):
+            if op=='profile':
+                check();profile_requested=True
+                await command(session,'ScriptProfiler.startTracking',includeSamples=True)
+            else:
+                domain={'console':'Console','trace':'Timeline','network':'Network'}[op]
+                await enable(domain)
             if op=='trace':
                 check();timeline_requested=True
                 await command(session,'Timeline.start',maxCallStackDepth=5)
@@ -171,6 +176,11 @@ async def inspect(session, request, target, expected, check):
                 await command(session,'Timeline.stop',timeout=2)
                 result['timelineStopped']=True
             except Exception:cleanup.append('Timeline.stop')
+        if profile_requested:
+            try:
+                await command(session,'ScriptProfiler.stopTracking',timeout=2)
+                result['profilerStopped']=True
+            except Exception:cleanup.append('ScriptProfiler.stopTracking')
         if paused:
             try:await command(session,'Debugger.resume',timeout=2)
             except Exception:cleanup.append('Debugger.resume')
@@ -187,6 +197,11 @@ async def inspect(session, request, target, expected, check):
             request['_receiverFailureType']=getattr(session,'_ios_agent_receiver_failure',None)
             raise ValueError('debug_cleanup_unconfirmed')
     result.update(eventCount=len(events.rows),droppedEvents=events.dropped,retainedBytes=events.bytes)
+    if op=='profile':
+        completed=[x['params'] for x in events.rows if x['method']=='ScriptProfiler.trackingComplete']
+        traces=[t for x in completed for t in x.get('samples',{}).get('stackTraces',[])]
+        result.update(profileComplete=bool(completed),sampleCount=len(traces),
+                      attribution='JavaScript sampling only; not whole-browser CPU or memory')
     if op in ('sources','source'):result['events']=[x for x in events.rows if x['method']!='Debugger.scriptParsed']
     result=scrub(result)
     if len(json.dumps(result).encode())>MAX_BYTES:raise ValueError('bounded_debug_artifact_required')
