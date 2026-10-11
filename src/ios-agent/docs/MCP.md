@@ -243,7 +243,7 @@ and paired nearby success does not qualify off-LAN access.
 
 Four tools make the proven signed WebDriverAgent route reusable:
 `ios_system_begin`, `ios_system_inspect`, `ios_system_action`, `ios_system_end`.
-The catalog is 32 tools and six resources. End the normal app/page session first.
+The catalog is 32 tools and seven resources. End the normal app/page session first.
 Start only when genuine native input or browser/system UI is needed. The same
 exclusive device owner prevents a second cooperating agent from taking control.
 
@@ -387,3 +387,13 @@ until exit. A killed worker/host yields unconfirmed state, never a green receipt
 
 This is simulator driver proof. It does not establish physical phone gestures,
 React Native composition, IME/hardware keyboard, browser or off-LAN behavior.
+
+## Typed native and React inputs (v1.7.1)
+
+`ios_native.args` exposes typed branches for all 11 current app actions and
+rejects action/argument mismatches before phone dispatch. `ios_react.command`
+is a discriminated union of the 15 existing fixed provider commands, including
+component IDs and all profiling readers. No product-handler, state-injection or
+arbitrary provider command was added. Read `ios-agent://native-input` for short
+recipes covering verified navigation, text replacement, gesture outcomes,
+profiling and Wi-Fi handoff. Native target and React component IDs stay distinct.

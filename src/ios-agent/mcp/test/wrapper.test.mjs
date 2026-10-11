@@ -49,7 +49,7 @@ test('SDK discovers tools/resources, intuitive lifecycle, image content and priv
   try {
     const names = (await client.listTools()).tools.map(t => t.name);
     assert.equal(names.length, 32); assert.ok(names.includes('ios_begin'));
-    assert.equal((await client.listResources()).resources.length, 6);
+    assert.equal((await client.listResources()).resources.length, 7);
     const begin = (await client.callTool({name: 'ios_begin', arguments: {}})).structuredContent;
     assert.equal(begin.ready, true); assert.equal(f.held(), true);
     const action = (await client.callTool({name: 'ios_native', arguments: {sessionId: begin.sessionId, action: 'tree'}})).structuredContent;

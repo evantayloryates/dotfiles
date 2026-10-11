@@ -57,6 +57,7 @@ import { observeResourcePlan } from "./lib/resource-awareness.mjs";
 import { mapRecordingFrames, validateFrameMapRequest } from "./lib/frame-map.mjs";
 import { mapRegisteredFrame,validateRegisteredFrame } from "./lib/registered-frame.mjs";
 import { readPreviewFrames } from "./lib/preview-map.mjs";
+import { withSessionBundle } from "./lib/session-bundle.mjs";
 import { mapRecordingPair, validatePairedMapRequest } from "./lib/paired-map.mjs";
 import { validateWindowQuery, requireTransientInventory } from "./lib/window-query.mjs";
 import {queryRecordingInput,validateInputQuery} from "./lib/input-query.mjs";
@@ -355,7 +356,7 @@ try {
       break;
     }
     case "session":
-      out(await call("session.get", { session_id: args[0] }));
+      out(await withSessionBundle(await call("session.get", { session_id: args[0] })));
       break;
     case "session-new":
       out(await call("session.create", { title: args[0], ...(args[1] ? { purpose: args[1] } : {}) }));

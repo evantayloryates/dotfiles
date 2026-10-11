@@ -1,0 +1,13 @@
+{
+  "at": "2026-10-11T01:34:04.730Z",
+  "version": "1.7.1",
+  "tools": 32,
+  "resources": 7,
+  "nativeResourceReadable": true,
+  "typedReactSchema": true,
+  "malformedNativeRefusedBeforeSession": true,
+  "unsupportedReactRejected": true,
+  "guideInputRecipePresent": true,
+  "guideMatrixPresent": true,
+  "phoneAcquired": false
+}

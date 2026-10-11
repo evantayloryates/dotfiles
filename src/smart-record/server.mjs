@@ -9,6 +9,7 @@ import { callerContext } from "./lib/caller.mjs";
 import { EngineClient, EngineError } from "./lib/client.mjs";
 import { hasCaptureOptions, requireCaptureOptions } from "./lib/capture-options.mjs";
 import { mapDerivativeTimes } from "./lib/derivative-source.mjs";
+import { withSessionBundle } from "./lib/session-bundle.mjs";
 import { mapRecordingFrames, validateFrameMapRequest, frameMapSchema, frameMapHealth } from "./lib/frame-map.mjs";
 import { mapRegisteredFrame,validateRegisteredFrame,registeredFrameSchema,registrationHealth } from "./lib/registered-frame.mjs";
 import { readPreviewFrames } from "./lib/preview-map.mjs";
@@ -24,7 +25,7 @@ import {repairCall,repairTools} from "./lib/repair-tickets.mjs";
 import {EVIDENCE_TOOLS as evidenceTools,evidenceHandler} from "../codex-bridge/lib/evidence-tools.mjs";
 
 const log = (...args) => console.error("[smart-record]", ...args);
-const VERSION = "0.20.0";
+const VERSION = "0.20.1";
 
 // ---------------------------------------------------------------- engine link
 
@@ -126,7 +127,7 @@ const toolish = (m) => TOOL_NAMES.reduce((s, [re, to]) => s.replace(re, to), m);
 const ok = (v) => ({ content: [{ type: "text", text: text(v) }], isError: false });
 
 const tools = [
-  {name:"cursor_render",description:"Render one bounded editable cursor/click recipe from terminal footage and retained pointer input. Service owns exact source/frame joins and timing; fitted-origin/gap refusal guards apply. Required hotspot and coordinate_basis acknowledge the tested desktop convention; raw provider positions/actors are not automatically qualified. Source rows/action tokens let the director select relevant events. Configurable size, opacity, typing hide, hold, click duration; draft/final effort. Up to60s/7200 source frames/2MP output; shared render lock,180s worker budget, local Pillow/CairoSVG/FFmpeg dependencies. Original media untouched; private recipe/timeline/three sample frames and silent SDR H.264 output. No cursor erasure, HDR/audio preservation or whole-shot backup recovery. Inspect representative samples before final use.",inputSchema:cursorRenderSchema,run:async a=>{const r=validateCursorRecipe(a);return ok(await renderCursor(await engine("record.source",{recording_id:r.recording_id}),r))}},
+  {name:"cursor_render",description:"Provisional composition tool: review replacement/retirement when official session composition tools ship. Render one bounded editable cursor/click recipe from terminal footage and retained pointer input. Service owns exact source/frame joins and timing; fitted-origin/gap refusal guards apply. Required hotspot and coordinate_basis acknowledge the tested desktop convention; raw provider positions/actors are not automatically qualified. Source rows/action tokens let the director select relevant events. Configurable size, opacity, typing hide, hold, click duration; draft/final effort. Up to60s/7200 source frames/2MP output; shared render lock,180s worker budget, local Pillow/CairoSVG/FFmpeg dependencies. Original media untouched; private recipe/timeline/three sample frames and silent SDR H.264 output. No cursor erasure, HDR/audio preservation or whole-shot backup recovery. Inspect representative samples before final use.",inputSchema:cursorRenderSchema,run:async a=>{const r=validateCursorRecipe(a);return ok(await renderCursor(await engine("record.source",{recording_id:r.recording_id}),r))}},
   {name:"production_widget_status",description:"Read native desktop widget installation, helper state, configured instance count, sampled-state freshness and placement instructions. Read-only; configuration count cannot prove desktop placement or actual clicks. Widget display is system-refreshed; use production_status for authoritative current state.",inputSchema:{type:"object",additionalProperties:false,properties:{}},annotations:{readOnlyHint:true},run:async()=>ok(await widgetStatus())},
   ...repairTools.map(({name,command,description,properties,required,read})=>({name,description,inputSchema:{type:"object",additionalProperties:false,properties,required},annotations:{readOnlyHint:read===true},run:async a=>ok(await repairCall(command,a))})),
   ...evidenceTools.filter(t=>["computer_use_observe","computer_use_facts"].includes(t.name)).map(t=>({...t,name:t.name.replace("computer_use_","app_"),description:"Shared recorder/app learning: "+t.description,run:async a=>ok(await evidenceHandler(t.name)(a))})),
@@ -182,7 +183,7 @@ const tools = [
     inputSchema: { type: "object", properties: {}, additionalProperties: false },
     annotations: { readOnlyHint: true },
     run: async () => ok({ ...await engine("status"), mcp_adapter: {
-      version: VERSION, native_widget_status:1, production_gate_controls: 1, repair_tickets:1, shared_app_observation:1, cursor_recipe:1, input_reception_frame_context:1, declared_target_context: 1, replay_policy: 1, production_planning: 1, resource_awareness: 1, shared_app_learning: 1, production_storage_guidance: 1, triple_source_planning: 1, source_frame_mapping: 1, source_region_mapping: 1, transient_window_query: 1,
+      version: VERSION, session_bundle:1, native_widget_status:1, production_gate_controls: 1, repair_tickets:1, shared_app_observation:1, cursor_recipe:1, input_reception_frame_context:1, declared_target_context: 1, replay_policy: 1, production_planning: 1, resource_awareness: 1, shared_app_learning: 1, production_storage_guidance: 1, triple_source_planning: 1, source_frame_mapping: 1, source_region_mapping: 1, transient_window_query: 1,
       registered_frame_mapping:1,registration:registrationHealth(),frame_mapping: frameMapHealth(), preview_source_mapping: 1, paired_source_mapping: 1, paired_interval_coverage_summary: 1, fitted_child_mapping_guard: 1, retained_input_query: 1, retained_action_context: 1, retained_input_health_context: 1,
       input_query: inputQueryHealth(), mutation_replay: "never",
       read_reconnect_budget_ms: 12000,
@@ -272,10 +273,10 @@ const tools = [
   },
   {
     name: "session_show",
-    description: "One session in full: title, purpose, made_by, counts, its recordings (state, label, video path, marks) and recent events.",
+    description: "One session: title, purpose, made_by, counts, recording states and recent events, plus a fresh bounded bundle inventory of source/video/manifest and export/timing-map paths. Export maps are generated automatically; export_time_map is an optional exact-offset query. No bulk rows/media, writes or background work. Inventory availability is file presence, not content validation; truncation and missing/unsafe paths remain explicit.",
     inputSchema: { type: "object", additionalProperties: false, properties: { session_id: SESSION_ID, events: { type: "number" } }, required: ["session_id"] },
     annotations: { readOnlyHint: true },
-    run: async (a) => ok(await engine("session.get", a)),
+    run: async (a) => ok(await withSessionBundle(await engine("session.get", a))),
   },
   {
     name: "session_note",
@@ -460,7 +461,7 @@ const tools = [
   {
     name: "record_export",
     description:
-      "Export a finished recording by seconds or mark labels. draft defaults to software/640px/12fps; standard to hardware/native/30fps; full to hardware/native/60fps. GIF defaults to software/960px/12fps and is capped at 60 s. Override width, fps and backend explicitly. " +
+      "Provisional single-take export tool: review replacement/retirement when official session composition tools ship. Export a finished recording by seconds or mark labels. draft defaults to software/640px/12fps; standard to hardware/native/30fps; full to hardware/native/60fps. GIF defaults to software/960px/12fps and is capped at 60 s. Override width, fps and backend explicitly. " +
       "Cuts use an explicit fps grid, preserve held content and return a recorder-owned source/timing manifest. Names are immutable; exports stay in exports/. One bounded child process at a time; partial attempts are retained on failure. No automatic replay after a disconnect.",
     inputSchema: {
       type: "object", additionalProperties: false,
@@ -477,7 +478,7 @@ const tools = [
   },
   {
     name: "export_time_map",
-    description: "Map exact parent-video relative nanoseconds into a saved export's actual media clock. Handles trimmed grid origins and GIF centiseconds inside the service. Outside-clip times are explicit exclusions. This maps timeline position, not physical display latency or event ownership.",
+    description: "Optional precision query against the timing map already generated and saved automatically by record_export; normal session discovery does not require this call. Map exact parent-video relative nanoseconds into a saved export's actual media clock. Handles trimmed grid origins and GIF centiseconds inside the service. Outside-clip times are explicit exclusions. This maps timeline position, not physical display latency or event ownership.",
     inputSchema: {
       type: "object", additionalProperties: false,
       properties: { recording_id: { type: "string" }, name: { type: "string" }, parent_relative_ns: { type: "array", minItems: 1, maxItems: 256, items: { type: "string", pattern: "^-?[0-9]{1,24}$" } } },
