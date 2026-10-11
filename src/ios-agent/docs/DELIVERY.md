@@ -345,3 +345,53 @@ Nine host checks passed, including a real transport and exact SDK integration;
 physical Safari/Chrome acceptance remains open. No app/page reload, native build,
 XCTest startup or original-owner handoff was performed. See
 existing-websocket-capture-2026-10-11.json.
+
+
+## Fresh owned acceptance —11 October, MCP1.9.36
+
+The prepared signed build `e9f862ef121c447987d7fed37767aace` is now installed.
+Fresh running deliveryId matched `5da0f761d1fa477dac788b5b621c2b06`.
+A fresh real stdio MCP connection passed native readiness, normal Nutrition-tab
+input with committed `ClientMealLogs` readback, React inspection (1577 components),
+a fresh synthetic GraphQL probe, rich console/network capture, prepared Home
+handoff and independently acknowledged idle/glow-off. The initial route assertion
+used the display caption, and an earlier probe expired while another assertion
+ran; corrected expectations/fresh probe passed without replaying navigation.
+
+Fresh owned Safari and Chrome sessions passed ordinary React form fill/save and
+rendered readback. Each discovered one WebSocket opened before capture, retained
+13 receive events, and left the original socket open after stop. These physical
+MCP-owned receipts close the existing-socket acceptance gate from1.9.36.
+Each also discovered and recorded the synthetic received WebRTC track through
+`ios_capture`. Host ffmpeg decoded the saved chunks (Safari494528/Chrome88000
+mono48kHz frames). These fixtures had suspended AudioContexts and decoded silence:
+this proves source discovery, recording/artifact transport and original-track
+preservation, not audible or non-silent provider-call audio. Earlier independent
+primitive receipts establish non-silent synthetic capture separately.
+Both browser sessions confirmed ownership released and glow off. All synthetic
+peers, tracks, contexts and socket fixtures were explicitly disposed.
+
+The stale original host owner was released by Codex turn cleanup before this
+batch. No XCTest, Mirroring, sudo or microphone approval was used for this batch.
+Claude CLI currently reports loggedIn=false; its live lifecycle-hook acceptance
+remains pending. Do not substitute a host-only hook test for that gate.
+
+### Cellular transition is not qualified
+
+USB inspection found no attached iPhone. The fixed Wi-Fi Off shortcut handoff
+retired native control and acknowledged idle. The subsequent Tailscale developer
+launch failed before input; the phone also stopped answering Tailscale ping, and
+native/page bridges remained unavailable after a bounded readiness wait. Nearby
+CoreDevice recovery launch timed out and was not replayed. USB recovery was
+requested; Wi-Fi restoration remains pending. This does not establish a locked
+phone or a defective cable, and it is not successful off-LAN acceptance.
+
+Do not repeat Wi-Fi Off while this failure is unresolved. Once recovered, inspect
+cellular availability, Tailscale per-app cellular permission/VPN state and the
+actual shortcut outcome. A viable cellular test needs both an observed ready
+transport and an independently available recovery path. A phone-local timed
+recovery shortcut is a useful candidate, but its background completion must be
+qualified before relying on it. No new always-on runner or hidden transport
+fallback is introduced by this evidence update.
+
+See `owned-acceptance-2026-10-11.json` for structural receipts and exact boundaries.

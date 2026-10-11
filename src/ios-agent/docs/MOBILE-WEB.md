@@ -593,3 +593,20 @@ page documents need reload; no routine page was reloaded while preserving the
 original owner. Sockets created before adapter boot or through saved constructor
 references are not universally discoverable. Native has no existing-socket registry.
 See existing-websocket-capture-2026-10-11.json.
+
+
+## Fresh owned MCP capture —11 October,1.9.36
+
+A fresh real MCP connection qualified both physical iOS browsers: enrolled page
+readiness, normal React form fill/save/readback, existing-WebSocket receive
+capture, synthetic received-track discovery/recording, original-track/socket
+preservation and explicit glow-off cleanup. Inspector overview also passed under
+the owned Chrome session through the explicit tailnet userspace developer lane.
+The new audio fixtures decoded valid but silent output because their AudioContexts
+were suspended; they do not qualify audible/provider-call audio. See
+`owned-acceptance-2026-10-11.json`.
+
+The follow-up Wi-Fi-off transition lost phone Tailscale reachability and both
+bridges. Cellular foreground launch/Inspector remain unqualified. Do not repeat
+network switching until the cause and a recovery path are established. Nearby
+launch or a valid VPN enrollment is insufficient evidence for cellular readiness.

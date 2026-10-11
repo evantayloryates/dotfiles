@@ -1,0 +1,220 @@
+{
+  "at": "2026-10-11T14:07:47.859286+00:00",
+  "version": "1.9.36",
+  "scope": "Fresh real MCP connection, physical iPhone, native signed install and browser owned capture. Nearby phone over explicit tailnet; cellular transition failed.",
+  "install": {
+    "ok": true,
+    "jobId": "e9f862ef121c447987d7fed37767aace",
+    "deliveryId": "5da0f761d1fa477dac788b5b621c2b06",
+    "installedIdentityVerified": true,
+    "ownerReleased": true
+  },
+  "native": {
+    "ready": {
+      "version": 1,
+      "gate": "ready",
+      "status": "passed",
+      "attempts": 1,
+      "elapsedMs": 260,
+      "observation": {
+        "runtimeReady": true,
+        "domainFresh": true,
+        "navigationRegistered": true,
+        "apolloRegistered": true
+      }
+    },
+    "reactComponents": 1577,
+    "route": {
+      "version": 1,
+      "gate": "route",
+      "status": "passed",
+      "attempts": 1,
+      "elapsedMs": 255,
+      "observation": {
+        "runtimeReady": true,
+        "expectedRouteMatched": true
+      }
+    },
+    "network": {
+      "version": 1,
+      "gate": "network",
+      "status": "passed",
+      "attempts": 1,
+      "elapsedMs": 261,
+      "observation": {
+        "runtimeReady": true,
+        "probeKnown": true,
+        "graphqlReady": true,
+        "probeFreshnessVerified": true
+      }
+    },
+    "capture": {
+      "ok": true,
+      "eventCount": 33,
+      "storedBytes": 21211,
+      "remainingEvents": 0
+    },
+    "captureResponseBodies": true,
+    "homePrepared": true,
+    "cleanup": {
+      "version": 1,
+      "gate": "idle",
+      "status": "passed",
+      "attempts": 1,
+      "elapsedMs": 1,
+      "observation": {
+        "hostIdle": true,
+        "deviceFeedbackKnown": true,
+        "nativeLeaseOff": true,
+        "nativeIndicatorOff": true
+      }
+    }
+  },
+  "safari": {
+    "version": "web-fcde168f08563334",
+    "formReadback": {
+      "gate": "web-route",
+      "status": "passed",
+      "observation": {
+        "snapshotAvailable": true,
+        "nodeCount": 10,
+        "expectedTextMatched": true
+      }
+    },
+    "existingSocket": {
+      "coverage": {
+        "existingDiscoveryAvailable": true,
+        "discoveryFailed": false,
+        "existingWatched": 1,
+        "newWatched": 0,
+        "listenersActive": 1
+      },
+      "receiveEvents": 13,
+      "originalOpenAfterStop": true
+    },
+    "audio": {
+      "chunks": 10,
+      "receivedTrackRef": 3,
+      "independentDecode": true,
+      "decodedFrames48k": 494528,
+      "rms": 0,
+      "contextSuspended": true,
+      "noMicrophoneRequest": true,
+      "sourceTracksLiveAfterStop": {
+        "sourceLive": true,
+        "receivedLive": true,
+        "fixtureRemoved": true
+      }
+    },
+    "cleanup": {
+      "gate": "web-idle",
+      "status": "passed",
+      "observation": {
+        "ownerReleased": true,
+        "indicatorOff": true
+      }
+    }
+  },
+  "chrome": {
+    "version": "web-fcde168f08563334",
+    "formReadback": {
+      "gate": "web-route",
+      "status": "passed",
+      "observation": {
+        "snapshotAvailable": true,
+        "nodeCount": 10,
+        "expectedTextMatched": true
+      }
+    },
+    "existingSocket": {
+      "coverage": {
+        "existingDiscoveryAvailable": true,
+        "discoveryFailed": false,
+        "existingWatched": 1,
+        "newWatched": 0,
+        "listenersActive": 1
+      },
+      "receiveEvents": 13,
+      "originalOpenAfterStop": true
+    },
+    "inspector": {
+      "operation": "overview",
+      "documentRef": "9ca80ade278d74f4c6dda8f8c545959d",
+      "browser": "com.google.chrome.ios",
+      "ready": "complete",
+      "domainsDisabled": true,
+      "detached": true,
+      "transport": "tailnet-paired-userspace",
+      "offLANQualified": false,
+      "retentionSeconds": 3600,
+      "artifactBytes": 1179
+    },
+    "audio": {
+      "chunks": 2,
+      "receivedTrackRef": 3,
+      "independentDecode": true,
+      "decodedFrames48k": 88000,
+      "rms": 0,
+      "contextSuspended": true,
+      "noMicrophoneRequest": true,
+      "sourceTracksLiveAfterStop": {
+        "sourceLive": true,
+        "receivedLive": true,
+        "fixtureRemoved": true
+      }
+    },
+    "cleanup": {
+      "gate": "web-idle",
+      "status": "passed",
+      "observation": {
+        "ownerReleased": true,
+        "indicatorOff": true
+      }
+    }
+  },
+  "testCorrections": [
+    "Initial native route assertion used UI tab caption instead of internal ClientMealLogs route; actual readback corrected the expectation without replaying navigation.",
+    "Initial probe freshness expired while another assertion ran; a distinct fresh read-only probe immediately verified successfully.",
+    "Initial web-element selector matched multiple buttons; unique selector resolved before sending any click.",
+    "Private test terminal canonical buffering rejected a long command before dispatch; fixture absence was independently read back, then private terminal buffering was disabled."
+  ],
+  "cellular": {
+    "usbDevicePresent": false,
+    "wifiOffHandoff": {
+      "requiresFreshLease": true,
+      "delivery": "prepared-shortcut-handoff",
+      "requested": "off",
+      "radioVerified": false
+    },
+    "cleanupBeforeNetworkChange": {
+      "version": 1,
+      "gate": "idle",
+      "status": "passed",
+      "attempts": 1,
+      "elapsedMs": 1,
+      "observation": {
+        "hostIdle": true,
+        "deviceFeedbackKnown": true,
+        "nativeLeaseOff": true,
+        "nativeIndicatorOff": true
+      }
+    },
+    "launch": {
+      "ok": false,
+      "reason": "device_observation_deadline",
+      "phase": "paired_developer_tunnel",
+      "inputSent": false,
+      "replay": false
+    },
+    "tailscalePing": "timeout",
+    "pageBridge": "offline",
+    "nearbyRecoveryLaunch": "timeout; not replayed",
+    "recovery": "USB requested; pending"
+  },
+  "limits": [
+    "Audio capture proves owned source discovery/received-track recording and decode, not audible/non-silent content. Earlier independent primitive receipts cover non-silent synthetic decode.",
+    "A provider coaching call, physically off-site launch and cellular Inspector have not passed in this batch.",
+    "No XCTest, Mirroring, sudo or microphone grant was used. Phone lock is not inferred from network failure."
+  ],
+  "privateReceipts": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-z7e7nk"
+}
