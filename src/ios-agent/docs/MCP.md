@@ -904,3 +904,11 @@ See focus-cellular-mcp-2026-10-11.json and DELIVERY.md.
 fixed loopback49152 only, IPv4/IPv6,500ms each, zero authentication/application
 bytes. Both accepted physically with Wi-FiIPv4absent. It does not establish a
 paired developer session; do not substitute it for readiness.
+
+Managed acquisition owner parity (1.9.51): Claude main-agent hooks now include
+`ios_web_open`; the exact prompt owner reaches its normal cleanup path. Re-run
+`install_claude_hooks.py` to migrate exact old service entries, without changing
+permissions or unrelated hooks. Existing sessions need a config reload. New
+hooks permit150seconds for bounded cellular Focus/Home cleanup. Explicit end in
+finally still applies; child hook delivery remains excluded. See
+claude-managed-open-2026-10-11.json for the actual CLI wiring receipt.

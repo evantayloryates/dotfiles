@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Merge qualified main-agent cleanup hooks, preserving other Claude settings."""
+"""Merge and migrate qualified main-agent hooks, preserving other Claude settings."""
 import argparse
 import json
 from pathlib import Path
@@ -17,21 +17,37 @@ def install(path, dry=False):
     data = json.loads(json.dumps(before))
     hooks = data.setdefault('hooks', {})
     added = 0
+    updated = 0
     for event, entries in expected.items():
         current = hooks.setdefault(event, [])
         if not isinstance(current, list):
             raise ValueError('existing_hook_event_invalid')
         for entry in entries:
+            # Replace only our exact prior entry. Foreign/mixed hooks and
+            # permission settings are preserved, including concurrent edits.
+            legacy = json.loads(json.dumps(entry))
+            if event == 'PreToolUse':
+                legacy['matcher'] = '^mcp__ios-agent__ios_(begin|web_begin|system_begin)$'
+            elif event in ('Stop', 'StopFailure', 'SessionEnd'):
+                for hook in legacy.get('hooks', []):
+                    if hook.get('type') == 'mcp_tool' and hook.get('server') == 'ios-agent' and hook.get('tool') == 'ios_harness_end':
+                        hook['timeout'] = 90
+            if legacy != entry and legacy in current:
+                if entry in current:
+                    current.remove(legacy)
+                else:
+                    current[current.index(legacy)] = entry
+                updated += 1
             if entry not in current:
                 current.append(entry)
                 added += 1
-    if added and not dry:
+    if (added or updated) and not dry:
         write_atomic(path, json.dumps(data, indent=2) + '\n', expected_previous=previous)
         if json.loads(path.read_text()) != data:
             raise ValueError('hook_install_readback_failed')
-    return {'addedEntries': added, 'dryRun': dry,
+    return {'addedEntries': added, 'updatedEntries': updated, 'dryRun': dry,
             'scope': 'Claude Code main agent; children require explicit end',
-            'changed': bool(added and not dry), 'permissionSettingsChanged': False,
+            'changed': bool((added or updated) and not dry), 'permissionSettingsChanged': False,
             'takesEffect': 'new Claude Code sessions; active sessions untouched'}
 
 

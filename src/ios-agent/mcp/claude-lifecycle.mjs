@@ -18,7 +18,7 @@ export function sameClaudeTurn(a,b) {
 // transcript, contact a service, or keep a mutable "current agent" binding.
 export function claudeBeginHook(input) {
   if(input?.hook_event_name!=='PreToolUse'||
-    !/^mcp__ios-agent__ios_(?:begin|web_begin|system_begin)$/.test(input.tool_name||''))return {};
+    !/^mcp__ios-agent__ios_(?:begin|web_begin|web_open|system_begin)$/.test(input.tool_name||''))return {};
   const original=input.tool_input;
   if(!original||typeof original!=='object'||Array.isArray(original))return {};
   let owner;

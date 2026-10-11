@@ -2,7 +2,7 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "^mcp__ios-agent__ios_(begin|web_begin|system_begin)$",
+        "matcher": "^mcp__ios-agent__ios_(begin|web_begin|web_open|system_begin)$",
         "hooks": [
           {
             "type": "command",
@@ -29,7 +29,7 @@
               "promptId": "${prompt_id}",
               "agentId": "${agent_id}"
             },
-            "timeout": 90
+            "timeout": 150
           }
         ]
       }
@@ -47,7 +47,7 @@
               "promptId": "${prompt_id}",
               "agentId": "${agent_id}"
             },
-            "timeout": 90
+            "timeout": 150
           }
         ]
       }
@@ -65,7 +65,7 @@
               "promptId": "${prompt_id}",
               "agentId": "${agent_id}"
             },
-            "timeout": 90
+            "timeout": 150
           }
         ]
       }

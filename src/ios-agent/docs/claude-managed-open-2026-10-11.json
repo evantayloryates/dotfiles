@@ -1,0 +1,43 @@
+{
+  "observedAt": "2026-10-11T21:04:25.280890+00:00",
+  "version": "1.9.51",
+  "problem": "Managed ios_web_open omitted from older Claude PreToolUse matcher",
+  "fix": "Exact Claude prompt owner is injected for managed acquisition; shipped old service-owned entries migrated without duplicates",
+  "focusedNodeChecksPassed": 15,
+  "focusedInstallerChecksPassed": 5,
+  "actualClaudeProbe": {
+    "mode": "web-open",
+    "entrypoint": "mcp__ios-agent__ios_web_open",
+    "ownerInjected": true,
+    "cliVersion": "2.1.292 (Claude Code)",
+    "exit": 0,
+    "apiCalls": 2,
+    "beginCount": 1,
+    "stopCount": 1,
+    "stopFailureObserved": false,
+    "eofCleanupConfirmed": true,
+    "sameConnection": true,
+    "mainAgentIdEmpty": true,
+    "subagentOwnerQualified": false,
+    "continuedPromptReused": false,
+    "scope": "actual CLI and production MCP/backend; local fake API, fake phone IPC; no physical qualification",
+    "passed": true
+  },
+  "installedHooks": {
+    "addedEntries": 0,
+    "updatedEntries": 4,
+    "dryRun": false,
+    "scope": "Claude Code main agent; children require explicit end",
+    "changed": true,
+    "permissionSettingsChanged": false,
+    "takesEffect": "new Claude Code sessions; active sessions untouched"
+  },
+  "permissionsUnchanged": true,
+  "installedReadbackMatched": true,
+  "installerIdempotent": true,
+  "cleanupHookTimeoutSeconds": 150,
+  "nativeCodeChanged": false,
+  "physicalBrowserQualificationReused": "managed-cellular-mcp-2026-10-11.json / physical MCP1.9.50",
+  "childHooksQualified": false,
+  "existingSessionsNeedReload": true
+}

@@ -5,8 +5,8 @@ The MCP cleanup bridge is available in1.9.29. Version1.9.39 installs the
 end in finally; hooks are an additional cleanup guard. Existing sessions are
 untouched; new Claude Code sessions load the merged configuration.
 
-`python3 src/ios-agent/install_claude_hooks.py` merges only missing hook entries
-and verifies readback. `--dry-run` makes no changes. Private backups, an optimistic
+`python3 src/ios-agent/install_claude_hooks.py` merges missing hook entries,
+migrates only exact prior service-owned entries, and verifies readback. `--dry-run` makes no changes. Private backups, an optimistic
 write check and idempotence preserve other settings. No permission mode changes.
 The shipped `mcp/claude-hooks.json` skips child begin events and omits SubagentStop:
 child agents retain explicit end, EOF and silence safeguards until their actual
@@ -15,7 +15,8 @@ hook delivery is qualified. The full candidate remains for future qualification.
 ## What is implemented
 
 `mcp/claude-hooks.candidate.json` uses a deterministic PreToolUse command for the
-three begin tools. It copies the existing tool arguments and adds `claudeOwner`:
+four acquisition tools (`ios_begin`, `ios_web_begin`, `ios_web_open`,
+`ios_system_begin`). It copies the existing tool arguments and adds `claudeOwner`:
 the actual session_id, prompt_id and optional agent_id from the hook event.
 There is no shared mutable "current agent" binding, transcript read, model call,
 permission override or extra listener. Explicit Codex owner arguments are left
@@ -94,3 +95,20 @@ safeguards. Do not claim universal instant cleanup or extend a retained runner
 through this hook. Explicit bounded reservation has its own independent gate.
 
 Primary reference: [Claude Code hook lifecycle and input/output contract](https://code.claude.com/docs/en/hooks).
+
+## Managed browser ownership —1.9.51
+
+The shipped main-agent PreToolUse matcher now includes `ios_web_open`. Its exact
+Claude prompt owner flows through managed browser acquisition and normal Stop
+cleanup. Previously the new entrypoint was omitted from the older matcher; an
+agent that forgot explicit end could therefore miss Stop cleanup. The installer
+replaces the exact old service entry without duplicating it or changing foreign
+hooks/permissions. Owned cleanup hooks now allow150seconds, matching the MCP
+client budget and accommodating the bounded cellular Focus/Home path. This is
+not an increase to lease lifetime or a guarantee of instantaneous cleanup.
+
+Focused protocol/router/installer checks and one actual Claude CLI managed-open
+hook probe verify this wiring. That probe uses loopback decisions and fake phone
+IPC; physical Chrome open/control/end remains its separate1.9.50 receipt. No
+new phone workflow is needed for the matcher-only change. Existing Claude chats
+load hooks only when restarted; explicit end in finally remains required.

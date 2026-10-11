@@ -15,6 +15,7 @@ class FixtureBackend extends Backend {
   return {ok:true,value:{}};
  }});}
  async begin(args){const value=await super.begin({...args,surface:'launch'});save({kind:'begin',owner:args.claudeOwner,id:value.sessionId});return value;}
+ async webOpen(args){return this.begin(args);} // Hook/owner fixture only; no browser or phone IPC.
  async harnessEnd(args){const value=await super.harnessEnd(args);save({kind:'end',args,cleanup:value.cleanup});return value;}
 }
 const backend=new FixtureBackend(),{server}=createServer(backend),transport=new StdioServerTransport();

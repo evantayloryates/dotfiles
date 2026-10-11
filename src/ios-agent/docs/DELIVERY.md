@@ -17,7 +17,7 @@ another owner's work to refresh schemas. See MCP.md for the operating recipes.
 
 For unavailable pages, expired grants or pending cleanup, use the recovery decision card in MOBILE-WEB.md. Read-only host diagnosis is allowed while another connection owns the phone; that does not grant access to its session.
 
-Current MCP source is1.9.50. Signed job333fc2b73381422180f46783d53b1a9d
+Current MCP source is1.9.51. Signed job333fc2b73381422180f46783d53b1a9d
 installed delivery8a0c15bd53fa4c34b6d82b06a16ebf95 with matched running identity.
 The phone-local Chrome Shortcut passed one-time permission persistence, then
 app-owned cellular launch, fresh owned readiness, fill/Save/committed React
@@ -576,3 +576,8 @@ adds explicit USB screen/capabilities recovery, physically read through actual M
 Foreground-only outgoing pairing relay candidate build4c713076a2394c00beb5a2bc42190ff7
 is running, not installed/qualified. Core worker restarted only after verified idle;
 source identity matched, existing enrollment and Serve routes preserved.
+
+Managed `ios_web_open` Claude owner injection is corrected in1.9.51. The exact
+legacy hook entries migrate without duplicates;150-second cleanup budgets match
+the cellular Focus/Home route. Physical page control is unchanged from1.9.50.
+See CLAUDE-CLEANUP.md and claude-managed-open-2026-10-11.json.

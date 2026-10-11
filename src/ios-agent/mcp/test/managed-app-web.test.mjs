@@ -6,15 +6,15 @@ import path from 'node:path';
 import {openManagedWeb,openAppWeb,pageIdleConfirmed} from '../web-open.mjs';
 import {Backend} from '../backend.mjs';
 
-test('cellular managed open requires a fresh intended page and forwards exact lifecycle',async()=>{
+for(const lifecycle of [{threadId:'exact-thread'},{claudeOwner:{sessionId:'550e8400-e29b-41d4-a716-446655440000',promptId:'550e8400-e29b-41d4-a716-446655440001',agentId:''}}])test(`cellular managed open forwards exact ${lifecycle.claudeOwner?'Claude prompt':'Codex turn'} lifecycle`,async()=>{
  const calls=[],s={};let reads=0;
  const b={appTransportPreferred:async()=>true,
   webPages:async()=>({ok:true,pages:reads++?[{id:'old',browser:'ios-chrome',visible:true,ready:true,ageMs:0},{id:'new',browser:'ios-chrome',visible:true,ready:true,ageMs:0}]:[{id:'old'}]}),
   webEnroll:async a=>{calls.push(a);return {ok:true,launch:{browserRoute:'phone-local-chrome-shortcut'}}},
   begin:async a=>{calls.push(a);return {sessionId:'owned',ready:true}},session:()=>s,end:async()=>{throw Error('must retain successful owner')}};
- const r=await openManagedWeb(b,{browser:'ios-chrome',profile:'call-rig',threadId:'exact-thread'});
+ const r=await openManagedWeb(b,{browser:'ios-chrome',profile:'call-rig',...lifecycle});
  assert(r.ok);assert.equal(r.transport,'app-owned-browser-handoff');assert(s.appManagedHome);
- assert.deepEqual(calls,[{browser:'ios-chrome',profile:'call-rig',path:'/dev/ios-agent',transport:'auto'},{surface:'web',page:'new',threadId:'exact-thread',rollout:undefined,claudeOwner:undefined}]);
+ assert.deepEqual(calls,[{browser:'ios-chrome',profile:'call-rig',path:'/dev/ios-agent',transport:'auto'},{surface:'web',page:'new',threadId:undefined,rollout:undefined,claudeOwner:undefined,...lifecycle}]);
 });
 test('unknown launch is never replayed or sent through another provider',async()=>{
  let sends=0;

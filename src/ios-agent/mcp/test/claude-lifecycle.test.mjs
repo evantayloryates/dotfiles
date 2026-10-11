@@ -38,6 +38,11 @@ test('actual hook executable bounds malformed input and emits the unchanged-fiel
   const mainOnly=input=>spawnSync(process.execPath,[executable.pathname,'--main-agent-only'],{input:JSON.stringify(input),encoding:'utf8'});
   assert.equal(JSON.parse(mainOnly(input).stdout).hookSpecificOutput.updatedInput.nativeOnly,true);
   assert.deepEqual(JSON.parse(mainOnly({...input,agent_id:'child'}).stdout),{});
+  const managed={...input,tool_name:'mcp__ios-agent__ios_web_open',tool_input:{browser:'ios-chrome',profile:'app'}};
+  const matcher=JSON.parse(fs.readFileSync(new URL('../claude-hooks.json',import.meta.url))).hooks.PreToolUse[0].matcher;
+  assert(new RegExp(matcher).test(managed.tool_name));
+  assert.deepEqual(JSON.parse(mainOnly(managed).stdout).hookSpecificOutput.updatedInput,{...managed.tool_input,claudeOwner:owner});
+  assert.deepEqual(JSON.parse(mainOnly({...managed,agent_id:'child'}).stdout),{});
 });
 test('Claude ownership overrides inherited Codex context, but explicit mixed owners refuse before admission',async()=>{
   const f=fixture();try{
@@ -82,12 +87,12 @@ test('real MCP protocol forwards exact owner and hook fields, and rejects mixed 
   const {Client}=await import('@modelcontextprotocol/sdk/client/index.js');
   const {InMemoryTransport}=await import('@modelcontextprotocol/sdk/inMemory.js');
   const {createServer}=await import('../server.mjs');const seen=[];
-  const backend={close:async()=>{},begin:async x=>{seen.push(['begin',x]);return {ok:true};},systemBegin:async x=>{seen.push(['system',x]);return {ok:true};},harnessEnd:async x=>{seen.push(['end',x]);return {ok:true,suppressOutput:true};}};
+  const backend={close:async()=>{},begin:async x=>{seen.push(['begin',x]);return {ok:true};},webOpen:async x=>{seen.push(['managed-open',x]);return {ok:true};},systemBegin:async x=>{seen.push(['system',x]);return {ok:true};},harnessEnd:async x=>{seen.push(['end',x]);return {ok:true,suppressOutput:true};}};
   const {server}=createServer(backend),c=new Client({name:'claude-hook-contract',version:'1'}),[a,b]=InMemoryTransport.createLinkedPair();
   await server.connect(a);await c.connect(b);
   try{
-    for(const name of ['ios_begin','ios_web_begin','ios_system_begin']){
-      const args={claudeOwner:owner,...(name==='ios_web_begin'?{page:'a'.repeat(32)}:{})};
+    for(const name of ['ios_begin','ios_web_begin','ios_web_open','ios_system_begin']){
+      const args={claudeOwner:owner,...(name==='ios_web_begin'?{page:'a'.repeat(32)}:name==='ios_web_open'?{browser:'ios-chrome'}:{})};
       assert((await c.callTool({name,arguments:args})).structuredContent.ok);
       assert.deepEqual(seen.at(-1)[1].claudeOwner,owner);
     }
