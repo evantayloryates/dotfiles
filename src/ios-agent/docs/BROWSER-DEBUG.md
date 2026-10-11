@@ -96,3 +96,13 @@ Protocol references: [Debugger](https://raw.githubusercontent.com/WebKit/WebKit/
 [DOM](https://raw.githubusercontent.com/WebKit/WebKit/main/Source/JavaScriptCore/inspector/protocol/DOM.json),
 [CSS](https://raw.githubusercontent.com/WebKit/WebKit/main/Source/JavaScriptCore/inspector/protocol/CSS.json),
 [Timeline](https://raw.githubusercontent.com/WebKit/WebKit/main/Source/JavaScriptCore/inspector/protocol/Timeline.json).
+
+
+### Named local stacks — 1.9.4
+
+Pass `profile:"call-rig"` to inspect the dedicated10520 origin instead of the
+default10446 app origin. Only these fixed private origins are allowed; the
+same hostname comes from the private runtime configuration. Physical Chrome
+overview on the call-rig origin passed, with domains disabled and Inspector
+detached. This remains a nearby developer transport, separate from Tailscale
+page input. See browser-call-rig-profile-2026-10-10.json.

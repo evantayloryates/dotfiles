@@ -1,0 +1,138 @@
+{
+  "at": "2026-10-11T03:29:16.303620+00:00",
+  "version": "1.9.4",
+  "scope": "physical Chrome iOS nearby provider-backed synthetic call, private Tailscale10520 profile; no off-LAN full-call claim",
+  "profiles": {
+    "app": "10446\u21923000/4000",
+    "call-rig": "10520\u21923020/4020",
+    "sameBroker": true,
+    "originBound": true,
+    "funnel": false
+  },
+  "phone": {
+    "browser": "ios-chrome",
+    "systemPromptsAgentHandled": [
+      "camera",
+      "microphone"
+    ],
+    "newHumanApprovalRequired": false,
+    "XCTestStopped": true,
+    "stopVerificationAttempts": 1,
+    "microphonePermissionAfterReload": "granted",
+    "cameraPermissionAfterReload": "granted"
+  },
+  "call": {
+    "pairedGate": "passed",
+    "providerParticipants": 2,
+    "providerRecordingOnConnect": false,
+    "providerRules": [
+      "exclude audio",
+      "exclude video"
+    ],
+    "providerRecordings": 0,
+    "RTP": {
+      "sentAdvance": true,
+      "receivedAdvance": true,
+      "sampleMs": 1500
+    },
+    "syntheticCoachSource": true,
+    "phonePhysicalMicDisabled": true,
+    "phoneCameraOff": true
+  },
+  "capture": {
+    "chunks": 27,
+    "dropped": 0,
+    "remainingEvents": 0,
+    "activeAfterStop": false,
+    "decodedTracks": [
+      {
+        "trackRef": 1,
+        "chunks": 9,
+        "encodedBytes": 3556,
+        "decodeExit": 0,
+        "samples": 151872,
+        "durationSeconds": 9.492,
+        "rms": 0.0,
+        "peak": 0.0,
+        "nonSilent": false
+      },
+      {
+        "trackRef": 2,
+        "chunks": 9,
+        "encodedBytes": 3536,
+        "decodeExit": 0,
+        "samples": 151872,
+        "durationSeconds": 9.492,
+        "rms": 0.0,
+        "peak": 0.0,
+        "nonSilent": false
+      },
+      {
+        "trackRef": 4,
+        "chunks": 9,
+        "encodedBytes": 133586,
+        "decodeExit": 0,
+        "samples": 151531,
+        "durationSeconds": 9.4706875,
+        "rms": 0.08848190944095645,
+        "peak": 0.9343695044517517,
+        "nonSilent": true
+      }
+    ],
+    "meaning": "Non-silent received synthetic call audio decoded on host; not acoustic playout or speech-quality scoring."
+  },
+  "debugger": {
+    "profile": "call-rig",
+    "browser": "chrome",
+    "operation": "overview",
+    "passed": true,
+    "domainsDisabled": true,
+    "detached": true,
+    "offLANQualified": false
+  },
+  "edges": [
+    {
+      "edge": "stale compiled frontend",
+      "effect": "Join Load failed while same-origin probe passed",
+      "resolution": "Source file watch triggered compilation; compiled10520 origin independently checked, then paired Join passed."
+    },
+    {
+      "edge": "explicit Hang Up retains lobby microphone",
+      "effect": "released gate correctly failed full-media shutdown after peer closed",
+      "resolution": "Leave meet route and reload qualification document; fresh document has zero media requests/tracks/peers. Product unmount cleanup remains improvement work."
+    },
+    {
+      "edge": "muted remote source",
+      "effect": "first packet sample received did not advance",
+      "resolution": "Selected cached synthetic source; bidirectional packet sample then passed."
+    }
+  ],
+  "cleanup": {
+    "clientDisconnected": true,
+    "providerParticipantsAfter": 1,
+    "coachMuted": true,
+    "coachCameraOff": true,
+    "coachSourceRestored": true,
+    "captureStopped": true,
+    "captureRingEmpty": true,
+    "freshQualificationDocumentNoMedia": true,
+    "glowOff": true,
+    "ownerReleased": true,
+    "XCTestStopped": true
+  },
+  "checks": {
+    "nodePassed": 31,
+    "pythonPassed": 20,
+    "nextPassed": 15,
+    "note": "Initial Next command omitted repository test config; rerun with test/unit/vitest.config.ts passed all15."
+  },
+  "privateEvidence": [
+    "runner-delivery-ASKtQa/1..50",
+    "runner-delivery-0SHwZG/1..17"
+  ],
+  "limits": [
+    "Nearby native permission/Inspector startup is separate from off-LAN page control.",
+    "Three-strategy fault comparison remains open.",
+    "No authenticated call on arbitrary external network was exercised in this pass."
+  ]
+}
