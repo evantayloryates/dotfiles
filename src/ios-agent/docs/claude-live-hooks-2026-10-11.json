@@ -58,5 +58,14 @@
     "CLI2.1.292 did not dispatch StopFailure for the injected API400. Actual MCP EOF cleanup released the owner instead.",
     "SessionEnd MCP hook runs after disconnection in these print-mode runs; it is opportunistic, not a required cleanup path."
   ],
-  "next": "One real foreground page/native owner workflow through the same actual CLI lifecycle. No account login is necessary for this loopback lifecycle acceptance."
+  "next": "One real foreground page/native owner workflow through the same actual CLI lifecycle. No account login is necessary for this loopback lifecycle acceptance.",
+  "subagentAttempt": {
+    "at": "2026-10-11T14:42:16.017998+00:00",
+    "qualified": false,
+    "ownerAcquired": false,
+    "connectionClosedCleanly": true,
+    "nonExecutionKind": "automode-parsing-error",
+    "reason": "Automatic approval review could not evaluate the synthetic Agent action. No mode change or retry.",
+    "scope": "This is a local fixture limitation, not evidence of physical subagent cleanup failure."
+  }
 }

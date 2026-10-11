@@ -64,8 +64,10 @@ Observed outcomes:
 
 Evidence: `claude-live-hooks-2026-10-11.json`. The account authorization problem
 no longer blocks lifecycle protocol qualification. The remaining physical gate
-is one normal owned workflow followed by actual hook cleanup. Subagent hook
-execution remains unqualified. Keep candidate hooks uninstalled until that gate
+is one normal owned workflow followed by actual hook cleanup. A local subagent probe was stopped before admission by automatic review
+(`automode-parsing-error`); no owner was acquired, and no permission mode was
+changed or retry attempted. This does not prove subagent cleanup failed.
+Subagent hook execution remains unqualified. Keep candidate hooks uninstalled until that gate
 is satisfied; preserve unrelated settings when merging verified entries.
 
 Stop does not run on user interruption. SessionEnd is opportunistic if its MCP
