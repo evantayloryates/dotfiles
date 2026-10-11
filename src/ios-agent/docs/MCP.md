@@ -730,3 +730,15 @@ Fresh browser documents receive the repair. Native includes this factory at buil
 time, so the currently installed native adapter needs a later build; it was not
 replaced while preserving the original XCTest hold. Default catalog remains39
 tools/10resources. No new source-discovery/provider-call or off-LAN claim.
+
+## MCP1.9.34 — AX channel settlement, candidate still disabled
+
+A new Invite activation passed with500ms of AX channel settlement, and the actual
+packaged candidate then changed Invite to Workouts with independent native
+readback. The candidate now preserves that bounded interval before final cleanup;
+no activation is retried. This supports cleanup timing as an explanation for an
+earlier unchanged Home selection, but does not uniquely establish that cause.
+Eight provider/four MCP cases pass. Default remains39tools/10resources; the optional
+AX flag adds one tool. Corrected Home/Nutrition, standalone XCTest-free and physical
+off-LAN operation remain unqualified. It stays disabled for routine workflows.
+The original runner was never stopped; independent unlocked Home cleanup passed.

@@ -77,6 +77,13 @@ async def focus_press(audit,pid,tab,check,trace=None,report=None):
                 r['axPressSent']=True
                 if report is not None:report['_axPressSent']=True
             except Exception:r.update(ok=False,reason='ax_native_press_unknown')
+            # Fire-and-forget dispatch only queues the native activation. An
+            # immediate final cleanup preceded an unchanged selection. Preserve
+            # the channel for the bounded interval qualified on another tab;
+            # this is not a retry or a claim of selected-tab verification.
+            await asyncio.sleep(.5);check()
+            if lost:raise ValueError('ax_native_surface_changed')
+            r['settleMs']=500
             return r
         return {'ok':False,'reason':'fixed_ax_native_tab_not_found','axPressSent':False,'replay':False}
     finally:

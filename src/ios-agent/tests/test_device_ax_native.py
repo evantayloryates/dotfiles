@@ -23,6 +23,11 @@ class NativeAX(unittest.IsolatedAsyncioTestCase):
     if name=='deviceElement:performAction:withValue:':
      self.lastElement=args[0]
      if mode=='unknown':raise ConnectionError()
+     if mode=='delivery':
+      async def queued():await asyncio.sleep(.01);calls.append('effect-delivered')
+      self.delivery=asyncio.create_task(queued())
+    elif name=='devicePerformFinalCleanup' and mode=='delivery' and hasattr(self,'delivery'):
+     if not self.delivery.done():self.delivery.cancel()
    async def move_focus(self,direction):
     calls.append('move')
     if direction==5:
@@ -41,8 +46,11 @@ class NativeAX(unittest.IsolatedAsyncioTestCase):
     result=None
    else:result=await ax.focus_press(audit,7,'nutrition',lambda:None)
   self.assertEqual(calls[-2:],[('monitor',False),'devicePerformFinalCleanup'])
-  self.assertEqual(calls.count('deviceElement:performAction:withValue:'),1 if mode in ['accepted','unknown','extension'] else 0)
+  self.assertEqual(calls.count('deviceElement:performAction:withValue:'),1 if mode in ['accepted','unknown','extension','delivery'] else 0)
+  if mode=='delivery':self.assertLess(calls.index('effect-delivered'),calls.index('devicePerformFinalCleanup'))
   return result
+ async def test_queued_activation_can_settle_before_cleanup_without_replay(self):
+  r=await self.scenario('delivery');self.assertEqual(r['settleMs'],500);self.assertFalse(r['effectVerified'])
  async def test_fixed_observed_native_tab_activates_once_with_corrected_handle(self):
   r=await self.scenario('accepted');self.assertTrue(r['axPressSent']);self.assertFalse(r['effectVerified']);self.assertEqual(r['focusSteps'],2)
  async def test_another_foreground_running_extension_is_not_proof_the_target_backgrounded(self):

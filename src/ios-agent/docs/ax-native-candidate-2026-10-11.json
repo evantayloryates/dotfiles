@@ -1,6 +1,6 @@
 {
-  "at": "2026-10-11T10:41:03.403757+00:00",
-  "version": "1.9.32",
+  "at": "2026-10-11T10:52:05.093891+00:00",
+  "version": "1.9.34",
   "defaultEnabled": false,
   "flag": "IOS_AGENT_EXPERIMENTAL_AX=1",
   "tool": "ios_ax_native_tab",
@@ -12,15 +12,18 @@
     "offlineSerialization": "pinned perform_press element does not round trip (KeyError); corrected nested handle round trips",
     "nativeCorrectedPrimitive": "Workouts moved from unselected to selected; independent original WDA readback confirmed it",
     "packagedCandidate": "Home request accepted; subsequent selected-tab read still showed Workouts. Effect remains unconfirmed; do not replay.",
-    "scope": "four fixed native DEV tabs only; no arbitrary caption, coordinate, typing or authentication input"
+    "scope": "four fixed native DEV tabs only; no arbitrary caption, coordinate, typing or authentication input",
+    "settledInvite": "A new Invite activation with500ms channel settlement changed selected tab; independent original WDA readback passed.",
+    "packagedWorkouts": "After retaining the channel500ms in the shipped candidate, one fresh Invite-to-Workouts transition passed independent selected-tab readback.",
+    "timingHypothesis": "Keeping the fire-and-forget channel alive before final cleanup is supported by these different-target results, not isolated as the unique cause of the earlier Home failure."
   },
   "tests": {
-    "nativeProviderCases": 7,
+    "nativeProviderCases": 8,
     "MCPAndBackendCases": 4,
     "passed": true
   },
   "remainingGates": [
-    "Reliable packaged activation with independent selected-tab readback.",
+    "All-tab effect qualification: packaged Workouts passed; corrected Home and Nutrition are not newly qualified.",
     "Standalone XCTest-free operation after Taylor explicitly releases the retained runner.",
     "Physical off-LAN and fresh MCP-owned operation.",
     "General Safari/Chrome/system-UI coverage remains unproven."
@@ -50,6 +53,22 @@
     "owned-input-1791715150243.json": {
       "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-input-1791715150243.json",
       "sha256": "8add22a48e6ea6053eac85207d34b4a90a062be974eb0b3476a6de83fc452713"
+    },
+    "ax-settle-1791715816075901000.json": {
+      "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/ax-settle-1791715816075901000.json",
+      "sha256": "f70438571b66ab4e8169f7e78a05cd2ca4139d45ef4ae7245c2b1267f371f003"
+    },
+    "tailnet-provider-1791715839915270000.json": {
+      "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/tailnet-provider-1791715839915270000.json",
+      "sha256": "cfb709a34dd41150dbf871aca455b50f5b9e3c3ac8a816784b82b3a256ec64f9"
+    },
+    "owned-input-1791715848315.json": {
+      "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-input-1791715848315.json",
+      "sha256": "cc34ee141176b3ffca5e589a6a789add2de2cd0585cc510c5d1a96b5a6d7ea49"
+    },
+    "owned-input-1791715905865.json": {
+      "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-input-1791715905865.json",
+      "sha256": "683fc6c746868df06ee49f06bb918d4961ff3ecfc750fbd3180f2ccbac14bce5"
     }
   }
 }

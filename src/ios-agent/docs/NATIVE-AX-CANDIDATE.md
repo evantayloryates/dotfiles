@@ -1,8 +1,9 @@
 # Apple AX native recovery candidate — disabled
 
 Do not enable for routine agents yet. Workouts activation passed through a corrected
-Apple accessibility payload, but the packaged Home-tab request was accepted without
-changing the selected tab. The original XCTest runner was active throughout, so
+Apple accessibility payload, and a later packaged Invite-to-Workouts transition passed after a500ms channel
+settlement. An earlier immediately cleaned Home request had no effect. Corrected
+Home/Nutrition effects remain unqualified. The original XCTest runner was active throughout, so
 standalone approval-free operation is also unqualified. No current workflow depends
 on this candidate. Use the delivered native driver, fixed Home shortcut and bounded
 XCTest fallback under their documented gates.
@@ -25,3 +26,10 @@ independent selected-tab or route check; an unchanged selection is not success.
 Monitoring disable/final cleanup and channel close remain mandatory. The candidate
 has seven focused provider cases and four MCP/backend cases. Its material physical
 gates are still open, so it is absent from the default catalog and harness config.
+
+The candidate now holds its AX channel for500ms after a single activation before
+final cleanup. A separately instrumented Invite activation and the actual packaged
+Workouts path then passed independent selected-tab readbacks. This supports the
+cleanup-timing hypothesis without proving it uniquely caused the older Home
+failure. No accepted action was replayed as an uncertain retry. It remains
+disabled: all-tab, standalone XCTest-free and physical off-LAN gates are open.
