@@ -18,22 +18,50 @@
   const seen = new Set(), events = [], domains = new Map();
   const clock = () => performance.now();
   const ring = value => { events.push({at: Math.round(clock()), ...value}); if (events.length > 160) events.shift(); };
+  // Only typed metadata crosses the bridge. This queue rides existing poll/result
+  // traffic and is bounded even when the transport is unavailable.
+  const signalQueue=[];let signalSeq=0, signalDropped=0, transportFailed=false;
+  const signalNumbers=new Set(['durationMs','count','dropped','tracks','frames','bytes','samples','packets','audioTracks','videoTracks','streamCount','peerCount','failureCount','trackCount','audioTrackCount','videoTrackCount','senderCount','receiverCount','candidateCount','framesSent','framesReceived','bytesSent','bytesReceived','packetsSent','packetsReceived','packetsLost','rttMs','jitterMs','bitrateKbps','participants','sent','received','drops','gaps']);
+  const signalBooleans=new Set(['ready','visible','muted','enabled','active','present']);
+  const signalCodes=new Set(['outcome','reason','code','action','phase']);
+  const signalEnums={provider:new Set(['twilio-video','unknown']),strategy:new Set(['pcm-ws','opus-ws','webrtc','unknown']),kind:new Set(['microphone','camera','audio','video','unknown']),state:new Set(['granted','prompt','denied','unknown','connecting','connected','reconnecting','disconnected','started','stopped','ended','failed','active','inactive'])};
+  const signalFields=new Set([...signalNumbers,...signalBooleans,...signalCodes,...Object.keys(signalEnums)]);
+  const validSignalCode=value=>typeof value==='string'&&/^[a-z][a-z0-9_-]{0,47}$/.test(value)&&!/(token|secret|password|credential|authorization|cookie|bearer)/.test(value)&&(value.length<=15||value.includes('_')||value.includes('-'));
+  function signal(event,fields={}) {
+    try {
+      if(typeof event!=='string'||! /^(?:browser|kck\.(?:web|call))\.[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*){0,3}$/.test(event)||!fields||typeof fields!=='object'||Array.isArray(fields))return;
+      const clean={};
+      for(const [key,value] of Object.entries(fields).slice(0,8)){
+        if(!signalFields.has(key))continue;
+        if(signalNumbers.has(key)&&Number.isSafeInteger(value)&&value>=0&&value<=(key==='participants'?1000:1000000000000))clean[key]=value;
+        else if(signalBooleans.has(key)&&typeof value==='boolean')clean[key]=value;
+        else if(signalCodes.has(key)&&validSignalCode(value))clean[key]=value;
+        else if(signalEnums[key]?.has(value))clean[key]=value;
+      }
+      signalQueue.push({seq:++signalSeq,sourceAtMs:Date.now(),event,fields:clean});
+      if(signalQueue.length>32){signalQueue.shift();signalDropped=Math.min(1000000,signalDropped+1);}
+    } catch {} // App supplied diagnostics must never affect page execution.
+  }
   const glow = document.createElement('div');
   glow.dataset.iosAgent = 'indicator';
   glow.setAttribute('aria-hidden', 'true');
   glow.style.cssText = 'position:fixed;inset:0;z-index:2147483647;pointer-events:none;border-radius:22px;border:3px solid transparent;background:linear-gradient(120deg,#fd9075,#d168e2,#638eff,#79e7c6) border-box;mask:linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0);mask-composite:exclude;-webkit-mask:linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;display:none;box-sizing:border-box;';
   document.documentElement.append(glow);
   let richCapture;
-  function clear() { lease = null; deadline = 0; glow.style.display = 'none'; void richCapture?.stop(true);stopOptionalMetrics();const held=wakeLock;wakeLock=null;void held?.release().catch(()=>{}); }
-  const timer = setInterval(() => { if (deadline && clock() > deadline) clear(); }, 250);
+  function clear(reason='lease_ended') { if(lease)signal('browser.lease.cleared',{reason});lease = null; deadline = 0; glow.style.display = 'none'; void richCapture?.stop(true);stopOptionalMetrics();const held=wakeLock;wakeLock=null;void held?.release().catch(()=>{}); }
+  const timer = setInterval(() => { if (deadline && clock() > deadline) clear('page_watchdog'); }, 250);
   const browser = /iPhone|iPad/.test(navigator.userAgent) ? (/CriOS/.test(navigator.userAgent) ? 'ios-chrome' : 'ios-safari') : (/Android/.test(navigator.userAgent)&&/Chrome/.test(navigator.userAgent)?'android-chrome':(/AppleWebKit/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent) ? 'desktop-webkit' : 'desktop-chromium'));
   const feedback = () => ({...identity, boot, version, visible: !document.hidden, ready: document.readyState !== 'loading', browser, path: location.pathname, indicator: !!lease});
   async function post(body) {
     const abort = new AbortController(), timeout = setTimeout(() => abort.abort(), 6000);
     try {
-      const response = await fetch(endpoint, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body), signal:abort.signal, cache:'no-store'});
+      const pending=(body.op==='poll'||body.op==='result')?signalQueue.slice(0,8).map(row=>({...row,droppedCount:signalDropped})):[];
+      const wire=pending.length?{...body,signals:pending}:body;
+      const response = await fetch(endpoint, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(wire), signal:abort.signal, cache:'no-store'});
       const result = await response.json();
-      if(!response.ok||result.error)throw new Error(result.error==='web_page_auth_required'?'web_page_auth_required':'bridge_refused');return result;
+      if(!response.ok||result.error)throw new Error(result.error==='web_page_auth_required'?'web_page_auth_required':'bridge_refused');
+      if(pending.length)while(signalQueue.length&&signalQueue[0].seq<=pending.at(-1).seq)signalQueue.shift();
+      return result;
     } finally { clearTimeout(timeout); }
   }
   function rect(el) { const r = el.getBoundingClientRect(); return {x:r.x,y:r.y,width:r.width,height:r.height}; }
@@ -121,8 +149,8 @@
   function apply(response) {
     if (stopped) return;
     const next = response.lease;
-    if (!next || document.hidden) clear();
-    else { lease=next; deadline=clock()+Math.min(15000,next.remainingMs); glow.style.display='block';
+    if (!next || document.hidden) clear(document.hidden?'document_hidden':'lease_ended');
+    else { if(!lease||lease.id!==next.id)signal('browser.lease.acquired',{outcome:'owned'});lease=next; deadline=clock()+Math.min(15000,next.remainingMs); glow.style.display='block';
       if(navigator.wakeLock && !wakeLock && !wakeRequest && clock()>=wakeRetryAt) {const expected=next.id;wakeRequest=navigator.wakeLock.request('screen').then(async lock=>{if(stopped||!lease||lease.id!==expected||document.hidden)await lock.release();else wakeLock=lock;}).catch(()=>{wakeRetryAt=clock()+30000;ring({kind:'wake-lock',code:'unavailable'});}).finally(()=>{wakeRequest=null;});}
     }
   }
@@ -131,11 +159,13 @@
     installMediaHook();
     try {
       if (!identity) {
+        const enrollmentMode=enrollment?'join':'resume';
         identity=await post(enrollment?{op:'join',token:enrollment,boot}:{op:'resume',...browserResume,boot});
+        signal('browser.enrollment.ready',{phase:enrollmentMode});
         if(identity.browserResume){browserResume=identity.browserResume;try{localStorage.setItem('ios-agent-browser-resume',JSON.stringify(browserResume));}catch{}delete identity.browserResume;}
         sessionStorage.removeItem('ios-agent-enrollment');sessionStorage.setItem('ios-agent-page',JSON.stringify(identity));enrollment=null;
       }
-      const sentFeedback=feedback();const response=await post({op:'poll',...sentFeedback}); if(stopped)return;connected=sentFeedback.ready;apply(response);
+      const sentFeedback=feedback();const response=await post({op:'poll',...sentFeedback}); if(stopped)return;connected=sentFeedback.ready;if(transportFailed){signal('browser.transport.recovered',{outcome:'connected'});transportFailed=false;}apply(response);
       const c=response.command;
       if (c && lease && c.lease===lease.id && !seen.has(c.id)) {
         seen.add(c.id); if (seen.size>256) seen.delete(seen.values().next().value);
@@ -146,9 +176,11 @@
           catch(e) { const codes=['stale_snapshot','stale_target','changed_target','target_not_interactable','editable_text_required','expression_required','unsupported_action','execution_deadline_unknown','selector_invalid','inspection_scope_required']; result={ok:false,error:codes.includes(e.message)?e.message:'page_execution_failed',replay:false}; }
         }
         if (JSON.stringify(result).length>800000) result={ok:false,error:'result_limit',replay:false};
+        const outcome=result.ok===true?'completed':result.error==='expired_before_execution'?'not_executed':['execution_deadline_unknown','result_limit','page_execution_failed'].includes(result.error)?'unknown':'rejected';
+        signal('browser.command.executed',{action:c.action,outcome,reason:result.error||'none'});
         const ack=await post({op:'result',...feedback(),id:c.id,epoch:response.epoch,result}); apply(ack);
       }
-    } catch(e) { connected=false;if(e.message==='web_page_auth_required'){sessionStorage.removeItem('ios-agent-page');identity=null;if(browserResume?.expiresAt<=Date.now()){browserResume=null;try{localStorage.removeItem('ios-agent-browser-resume');}catch{}}if(!browserResume){stopped=true;clear();}}ring({kind:'bridge',code:'transport_unavailable'}); }
+    } catch(e) { connected=false;if(!transportFailed){signal('browser.transport.lost',{reason:e.message==='web_page_auth_required'?'authentication_required':'transport_unavailable'});transportFailed=true;}if(e.message==='web_page_auth_required'){sessionStorage.removeItem('ios-agent-page');identity=null;if(browserResume?.expiresAt<=Date.now()){browserResume=null;try{localStorage.removeItem('ios-agent-browser-resume');}catch{}}if(!browserResume){stopped=true;clear('authentication_required');}}ring({kind:'bridge',code:'transport_unavailable'}); }
     if (!stopped) setTimeout(loop, lease?300:2000);
   }
   // Numeric diagnostics only: never resource names/URLs or attribution nodes.
@@ -269,6 +301,6 @@
     for(const el of document.querySelectorAll('audio,video'))if(el.srcObject instanceof MediaStream&&el.srcObject.getAudioTracks().includes(track))kinds.push('dom-media');
     return kinds;
   }});
-  window.__iosWebAgent={version,register:(key,read)=>{if(!/^[a-z][a-z0-9-]{0,63}$/.test(key)||typeof read!=='function')throw new Error('domain_contract');domains.set(key,read);return()=>domains.delete(key);},status:()=>({version,browser,page:identity?.page,connected:!!identity&&connected,owned:!!lease,indicator:glow.style.display!=='none'}),stop:()=>{sessionStorage.removeItem('ios-agent-page');try{localStorage.removeItem('ios-agent-browser-resume');}catch{}stopped=true;onHide();clearInterval(timer);taskObserver?.disconnect();glow.remove();if(Element.prototype.attachShadow===installedAttachShadow)Element.prototype.attachShadow=originalAttachShadow;if(window.fetch===installed.fetch)window.fetch=originalFetch;if(window.WebSocket===installed.ws)window.WebSocket=originalWS;if(window.RTCPeerConnection===installed.rtc)window.RTCPeerConnection=originalRTC;if(installedGUM&&mediaDeviceObject.getUserMedia===installedGUM)mediaDeviceObject.getUserMedia=originalGUM;if(XMLHttpRequest.prototype.open===installed.xhrOpen)XMLHttpRequest.prototype.open=xhrOpen;if(XMLHttpRequest.prototype.send===installed.xhrSend)XMLHttpRequest.prototype.send=xhrSend;listeners.forEach(remove=>remove());for(const level of Object.keys(originalConsole))if(console[level]===installedConsole[level])console[level]=originalConsole[level];removeEventListener('error',onError);removeEventListener('unhandledrejection',onRejection);removeEventListener('visibilitychange',onVisibility);removeEventListener('pagehide',onHide);delete window.__iosWebAgent;}};
+  window.__iosWebAgent={version,signal,register:(key,read)=>{if(!/^[a-z][a-z0-9-]{0,63}$/.test(key)||typeof read!=='function')throw new Error('domain_contract');domains.set(key,read);return()=>domains.delete(key);},status:()=>({version,browser,page:identity?.page,connected:!!identity&&connected,owned:!!lease,indicator:glow.style.display!=='none'}),stop:()=>{sessionStorage.removeItem('ios-agent-page');try{localStorage.removeItem('ios-agent-browser-resume');}catch{}stopped=true;onHide();clearInterval(timer);taskObserver?.disconnect();glow.remove();if(Element.prototype.attachShadow===installedAttachShadow)Element.prototype.attachShadow=originalAttachShadow;if(window.fetch===installed.fetch)window.fetch=originalFetch;if(window.WebSocket===installed.ws)window.WebSocket=originalWS;if(window.RTCPeerConnection===installed.rtc)window.RTCPeerConnection=originalRTC;if(installedGUM&&mediaDeviceObject.getUserMedia===installedGUM)mediaDeviceObject.getUserMedia=originalGUM;if(XMLHttpRequest.prototype.open===installed.xhrOpen)XMLHttpRequest.prototype.open=xhrOpen;if(XMLHttpRequest.prototype.send===installed.xhrSend)XMLHttpRequest.prototype.send=xhrSend;listeners.forEach(remove=>remove());for(const level of Object.keys(originalConsole))if(console[level]===installedConsole[level])console[level]=originalConsole[level];removeEventListener('error',onError);removeEventListener('unhandledrejection',onRejection);removeEventListener('visibilitychange',onVisibility);removeEventListener('pagehide',onHide);delete window.__iosWebAgent;}};
   void loop();
 })();

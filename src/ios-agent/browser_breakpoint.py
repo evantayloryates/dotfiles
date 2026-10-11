@@ -15,7 +15,7 @@ def property_summary(p,scrub):
     return {'name':name[:500] if isinstance(name,str) else '', 'value':value,'hasGetter':bool(p.get('get')),'hasSetter':bool(p.get('set'))}
 
 
-async def capture(session,request,command,context,check,scrub):
+async def capture(session,request,command,context,check,scrub,signal=None):
     if request.get('ownedDebugSession') is not True:raise ValueError('owned_debug_session_required_for_breakpoint')
     script=request.get('scriptId');digest=request.get('sourceHash');line=request.get('lineNumber');column=request.get('columnNumber',0)
     if not isinstance(script,str) or not 1<=len(script)<=128 or not re.fullmatch('[a-f0-9]{64}',digest or '') or type(line) is not int or not 0<=line<=1000000 or type(column) is not int or not 0<=column<=1000000:
@@ -35,6 +35,7 @@ async def capture(session,request,command,context,check,scrub):
         paused=False;resumed.set()
     session.response_methods.update({'Debugger.scriptParsed':parsed,'Debugger.paused':on_pause,'Debugger.resumed':on_resume})
     result={'breakpointHit':False,'pauseObserved':False,'resumeConfirmed':None,'breakpointRemoved':False,'locals':[],'replay':False}
+    if signal:signal('browser.inspector.breakpoint.setup', outcome='started', windowMs=duration)
     try:
         check();enable_requested=True;await command(session,'Debugger.enable')
         await asyncio.sleep(.05);check()
@@ -98,6 +99,9 @@ async def capture(session,request,command,context,check,scrub):
             if fn is None:session.response_methods.pop(m,None)
             else:session.response_methods[m]=fn
         request['_breakpointCleanup']={'pauseObserved':pause is not None,'resumeConfirmed':result['resumeConfirmed'],'breakpointRemoved':result['breakpointRemoved'],'domainsDisabled':not cleanup}
+        if signal:signal('browser.inspector.breakpoint.cleanup', outcome='failed' if cleanup else 'completed',
+                         pauseObserved=pause is not None, resumeConfirmed=result['resumeConfirmed'] is True,
+                         breakpointRemoved=result['breakpointRemoved'], cleanupFailures=len(cleanup))
         if cleanup:
             request['_cleanupFailures']=cleanup
             raise ValueError('debug_cleanup_unconfirmed')

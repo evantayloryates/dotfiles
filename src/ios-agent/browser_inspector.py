@@ -8,8 +8,20 @@ from urllib.parse import urlsplit, urlunsplit
 from browser_heap import MAX_HEAP_BYTES, project_snapshot
 from browser_breakpoint import capture as capture_breakpoint
 from browser_worker import capture as capture_worker
+try:
+    from signals import emit_signal
+except ImportError:  # Integrated by the release owner.
+    emit_signal = None
 
 MAX_BYTES = 2 * 1024 * 1024
+
+
+def signal(event, **fields):
+    if emit_signal is not None:
+        try:
+            emit_signal('host', event, **fields)
+        except Exception:
+            pass
 
 
 def scrub(value, key=''):
@@ -47,6 +59,8 @@ async def command(session, method, timeout=4, **args):
             error=receiver.exception()
             if error:
                 session._ios_agent_receiver_failure=type(error).__name__
+        signal('browser.inspector.command.deadline', phase=method, reason='protocol_timeout',
+               receiverFailure=getattr(session, '_ios_agent_receiver_failure', None))
         raise
     if isinstance(response,dict) and 'message' in response.get('params',{}):
         response=json.loads(response['params']['message'])
@@ -80,7 +94,7 @@ class Events:
         self.rows.append(row);self.bytes+=size
 
 
-async def inspect(session, request, target, expected, check):
+async def _inspect(session, request, target, expected, check):
     request['_inputDispatched']=False
     request['_contextStage']='initial'
     op=request.get('op','overview')
@@ -113,23 +127,28 @@ async def inspect(session, request, target, expected, check):
         if before!=after or reference and ref!=reference:
             request['_documentChange']={'stage':request['_contextStage'],'observedRef':ref,'timeOrigin':value['timeOrigin'],
                 'targetHash':hashlib.sha256(json.dumps([target.application.bundle,target.application.id_,target.page.id_]).encode()).hexdigest()[:32]}
+            signal('browser.inspector.document.changed', operation=op, document=reference, observedDocument=ref,
+                   phase=request['_contextStage'])
             raise ValueError('debug_document_changed')
         value['frameLoaderHash']=hashlib.sha256(json.dumps(after).encode()).hexdigest()[:32]
         if request.get('expression') is not None and (value.get('page')!=request['ownedPage'] or value.get('owned') is not True or value.get('indicator') is not True):
             raise ValueError('owned_browser_session_required_for_evaluation')
         return ref,value
     document,ctx=await context()
+    signal('browser.inspector.document.selected', operation=op, document=document,
+           frameLoader=ctx['frameLoaderHash'])
     result={'operation':op,'documentRef':document,'documentIdentity':{'timeOrigin':ctx['timeOrigin'],'frameLoaderHash':ctx['frameLoaderHash'],
         'targetHash':hashlib.sha256(json.dumps([target.application.bundle,target.application.id_,target.page.id_]).encode()).hexdigest()[:32]},
         'browser':target.application.bundle,'ready':ctx['ready'],'scope':'paired-dev-WebKit-Inspector','userGestureRequested':False,'replay':False}
-    if op=='overview':return {**result,'domainsDisabled':True}
+    if op=='overview':
+        return {**result,'domainsDisabled':True}
     if op in ('worker-sources','worker-source','worker-console','worker-profile'):
-        result.update(await capture_worker(session,request,command,check,Events,safe_url,ProtocolError))
+        result.update(await capture_worker(session,request,command,check,Events,safe_url,ProtocolError,signal))
         request['_contextStage']='after_operation'
         await context()
         return result
     if op=='breakpoint':
-        result.update(await capture_breakpoint(session,request,command,context,check,scrub))
+        result.update(await capture_breakpoint(session,request,command,context,check,scrub,signal))
         request['_contextStage']='after_operation'
         await context()
         return result
@@ -201,6 +220,9 @@ async def inspect(session, request, target, expected, check):
                           heapNodeCount=result['heap']['summary']['nodeCount'],heapEdgeCount=result['heap']['summary']['edgeCount'],heapShallowBytes=result['heap']['summary']['totalShallowBytes'],
                           forcedGarbageCollection=True,heapTimestamp=data.get('timestamp'),
                           runtimeEffect='Explicit snapshot: synchronous full GC and temporary execution pause; not passive resource sampling.')
+            signal('browser.inspector.heap.projected', operation=op, document=document,
+                   durationMs=result['snapshotDurationMs'], nodeCount=result['heapNodeCount'],
+                   edgeCount=result['heapEdgeCount'])
         elif op=='dom':
             # A fixed projection supplements native AX visibility with actual
             # ancestor clipping and DOM hit testing. Never executes caller JS.
@@ -286,6 +308,9 @@ async def inspect(session, request, target, expected, check):
             if old is None:session.response_methods.pop(method,None)
             else:session.response_methods[method]=old
         result['domainsDisabled']=not cleanup
+        signal('browser.inspector.capture.cleanup', operation=op, document=document,
+               outcome='failed' if cleanup else 'completed', domainCount=len(domains),
+               eventCount=len(events.rows), droppedEvents=events.dropped, cleanupFailures=len(cleanup))
         if cleanup:
             request['_failedMethod']=failed_method
             request['_cleanupFailures']=cleanup
@@ -312,4 +337,25 @@ async def inspect(session, request, target, expected, check):
     if op in ('sources','source'):result['events']=[x for x in events.rows if x['method']!='Debugger.scriptParsed']
     result=scrub(result)
     if len(json.dumps(result).encode())>(MAX_HEAP_BYTES if op=='heap' else MAX_BYTES):raise ValueError('bounded_debug_artifact_required')
+    return result
+
+
+async def inspect(session, request, target, expected, check):
+    op = request.get('op', 'overview')
+    operation = op if isinstance(op, str) and re.fullmatch(r'[a-z][a-z-]{0,31}', op) else 'unknown'
+    reference = request.get('documentRef')
+    signal('browser.inspector.capture.started', operation=operation,
+           document=reference if isinstance(reference, str) and re.fullmatch(r'[a-f0-9]{32}', reference) else None)
+    try:
+        result = await _inspect(session, request, target, expected, check)
+    except BaseException as error:
+        reason = str(error)
+        if not re.fullmatch(r'[a-z][a-z0-9_]{0,63}', reason):
+            reason = 'inspection_unavailable'
+        signal('browser.inspector.capture.terminal', operation=operation, outcome='failed', reason=reason,
+               phase=request.get('_contextStage'))
+        raise
+    signal('browser.inspector.capture.terminal', operation=operation, outcome='completed',
+           document=result.get('documentRef'), eventCount=result.get('eventCount', 0),
+           droppedEvents=result.get('droppedEvents', 0))
     return result

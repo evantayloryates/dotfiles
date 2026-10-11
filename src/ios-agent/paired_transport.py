@@ -4,6 +4,25 @@ import ipaddress
 import json
 import re
 from pathlib import Path
+try:
+    from signals import emit_signal
+except ImportError:  # Integrated by the release owner.
+    emit_signal = None
+
+
+def signal(event, **fields):
+    if emit_signal is not None:
+        try:
+            emit_signal('host', event, **fields)
+        except Exception:
+            pass
+
+
+def connection_failure(transport, error):
+    code = str(error) if isinstance(error, ValueError) else ''
+    reason = ('device_identity_mismatch' if code == 'developer_device_identity_mismatch' else
+              'owner_expired' if code == 'observer_owner_expired' else 'connection_unavailable')
+    signal('browser.transport.connection', transport=transport, outcome='failed', reason=reason)
 
 
 def tailnet_config(state, serial):
@@ -31,28 +50,49 @@ async def paired_rsd(state, serial, check, transport='configured'):
     """One operation, one separately authenticated userspace tunnel, exact UDID."""
     if transport not in ('configured', 'usb-recovery'):
         raise ValueError('fixed_developer_transport_required')
+    signal('browser.transport.selection', transport=transport, outcome='started')
     if transport == 'usb-recovery':
         # Explicit read-only recovery, never an automatic fallback from tailnet.
         from connectivity import usb_attached
         check()
         if usb_attached(serial) is not True:
+            signal('browser.transport.connection', transport='usb-recovery', outcome='failed', reason='device_not_enumerated')
             raise ValueError('fixed_usb_device_not_enumerated')
         from pymobiledevice3.remote.native_tunnel import NativeRemotedTunnel
-        async with NativeRemotedTunnel(serial=serial) as rsd:
-            if rsd.udid != serial:
-                raise ValueError('developer_device_identity_mismatch')
-            check()
-            yield rsd, 'usb-recovery-native-remoted'
+        connected = False
+        try:
+            async with NativeRemotedTunnel(serial=serial) as rsd:
+                if rsd.udid != serial:
+                    raise ValueError('developer_device_identity_mismatch')
+                check()
+                connected = True
+                signal('browser.transport.connection', transport='usb-recovery', outcome='connected')
+                try:yield rsd, 'usb-recovery-native-remoted'
+                finally:signal('browser.transport.connection', transport='usb-recovery', outcome='closed')
+        except Exception as error:
+            if not connected:connection_failure('usb-recovery', error)
+            raise
         return
-    config = tailnet_config(state, serial)
+    try:config = tailnet_config(state, serial)
+    except ValueError:
+        signal('browser.transport.connection', transport='configured', outcome='failed', reason='configuration_invalid')
+        raise
     check()
     if config is None:
         from pymobiledevice3.remote.native_tunnel import NativeRemotedTunnel
-        async with NativeRemotedTunnel(serial=serial) as rsd:
-            if rsd.udid != serial:
-                raise ValueError('developer_device_identity_mismatch')
-            check()
-            yield rsd, 'native-remoted'
+        connected = False
+        try:
+            async with NativeRemotedTunnel(serial=serial) as rsd:
+                if rsd.udid != serial:
+                    raise ValueError('developer_device_identity_mismatch')
+                check()
+                connected = True
+                signal('browser.transport.connection', transport='native-remoted', outcome='connected')
+                try:yield rsd, 'native-remoted'
+                finally:signal('browser.transport.connection', transport='native-remoted', outcome='closed')
+        except Exception as error:
+            if not connected:connection_failure('native-remoted', error)
+            raise
         return
     from pymobiledevice3.remote import tunnel_service
     from pymobiledevice3.remote.tunnel_service import RemotePairingTunnelService
@@ -61,7 +101,9 @@ async def paired_rsd(state, serial, check, transport='configured'):
     # Each observer has its own process; PyTCP and this flag are process globals.
     previous = tunnel_service.USE_USERSPACE_TUNNEL
     if previous:
+        signal('browser.transport.connection', transport='tailnet-paired-userspace', outcome='failed', reason='transport_already_active')
         raise ValueError('developer_transport_already_active')
+    connected = False
     try:
         async with AsyncExitStack() as stack:
             provider = RemotePairingTunnelService(serial, config['address'], 49152)
@@ -80,6 +122,12 @@ async def paired_rsd(state, serial, check, transport='configured'):
             if rsd.udid != serial:
                 raise ValueError('developer_device_identity_mismatch')
             check()
-            yield rsd, 'tailnet-paired-userspace'
+            connected = True
+            signal('browser.transport.connection', transport='tailnet-paired-userspace', outcome='connected')
+            try:yield rsd, 'tailnet-paired-userspace'
+            finally:signal('browser.transport.connection', transport='tailnet-paired-userspace', outcome='closed')
+    except Exception as error:
+        if not connected:connection_failure('tailnet-paired-userspace', error)
+        raise
     finally:
         tunnel_service.USE_USERSPACE_TUNNEL = previous

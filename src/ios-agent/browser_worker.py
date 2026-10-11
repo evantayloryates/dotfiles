@@ -4,7 +4,7 @@ import hashlib
 import json
 
 
-async def capture(session,request,command,check,Events,safe_url,ProtocolError):
+async def capture(session,request,command,check,Events,safe_url,ProtocolError,signal=None):
     worker_id=request.get('workerId');op=request['op']
     if not isinstance(worker_id,str) or not 1<=len(worker_id)<=128:raise ValueError('current_debug_worker_required')
     duration=request.get('sampleMs',500);start=request.get('startLine',0);count=request.get('lineCount',80)
@@ -59,6 +59,7 @@ async def capture(session,request,command,check,Events,safe_url,ProtocolError):
             events.add(method,params)
     session.response_methods.update({'Worker.workerCreated':created,'Worker.workerTerminated':ended,'Worker.dispatchMessageFromWorker':message})
     result={'workerId':worker_id,'operation':op,'replay':False};cleanup=[]
+    if signal:signal('browser.inspector.worker.setup', operation=op, outcome='started', windowMs=duration)
     async def drain(tasks,label):
         # Task lists can grow while an earlier cleanup command is in flight.
         seen=0
@@ -118,6 +119,9 @@ async def capture(session,request,command,check,Events,safe_url,ProtocolError):
             if fn is None:session.response_methods.pop(m,None)
             else:session.response_methods[m]=fn
         request['_workerCleanup']={'workerTerminated':terminated,'workersInitialized':len(initialized),'workerInitializationConfirmed':len(initialized)==len(workers),'workerResumeConfirmed':resume_confirmed,'domainsDisabled':not cleanup}
+        if signal:signal('browser.inspector.worker.cleanup', operation=op, outcome='failed' if cleanup else 'completed',
+                         workerCount=len(workers), workersInitialized=len(initialized), terminated=terminated,
+                         eventCount=len(events.rows), droppedEvents=events.dropped, cleanupFailures=len(cleanup))
         if cleanup:
             request['_cleanupFailures']=cleanup
             raise ValueError('debug_cleanup_unconfirmed')

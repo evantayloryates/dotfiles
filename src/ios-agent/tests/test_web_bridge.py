@@ -2,6 +2,7 @@ import unittest
 import tempfile
 from pathlib import Path
 from service import Broker, Rejected
+import web.bridge as bridge
 
 class WebTests(unittest.TestCase):
     def setUp(self):
@@ -62,6 +63,74 @@ class WebTests(unittest.TestCase):
         r=self.b.web.page_request({**self.poll,'op':'result','id':cid,'epoch':self.b.epoch,'result':{'ok':True}},self.origin)
         self.assertNotIn('command',r)
         self.assertEqual(self.b.web.commands[cid]['status'],'completed')
+
+    def test_page_signals_are_bounded_scrubbed_deduplicated_and_correlated(self):
+        rows=[];old=bridge.emit_signal
+        bridge.emit_signal=lambda scope,event,**fields:rows.append((scope,event,fields))
+        try:
+            cid=self.action();self.b.web.page_request(self.poll,self.origin)
+            signals=[
+                {'seq':1,'event':'kck.call.media.ready','fields':{'audioTracks':2,'muted':False,'token':'private','code':'ready'}},
+                {'seq':2,'event':'browser.command.executed','fields':{'action':'click','outcome':'completed','payload':'private'}},
+                {'seq':3,'event':'kck.call.media.ready','fields':{'reason':'https://secret/path','code':'tokenabcd1234','frames':1000001}},
+                {'seq':4,'event':'kck.call.media.ready','fields':{'bytes':32}},
+                {'seq':5,'event':'kck.call.transport.summary','fields':{'strategy':'pcm-ws','sent':8,'received':7,
+                    'drops':1,'gaps':0,'bytes':1000000000000,'durationMs':1000000000000,'reason':'closed'}},
+                {'seq':6,'event':'kck.call.permission.state','fields':{'kind':'microphone','state':'granted'}},
+                {'seq':7,'event':'kck.call.track.state','fields':{'kind':'audio','present':True,'enabled':True,'muted':False}},
+            ]
+            for row in signals:
+                row.update(sourceAtMs=1700000000000,droppedCount=2)
+            self.b.web.page_request({**self.poll,'op':'result','id':cid,'epoch':self.b.epoch,
+                                     'result':{'ok':True},'signals':signals},self.origin)
+            self.b.web.page_request({**self.poll,'signals':signals},self.origin)
+        finally:
+            bridge.emit_signal=old
+        self.assertEqual(len([x for x in rows if x[1]=='kck.call.media.ready']),3)
+        call=next(x for x in rows if x[1]=='kck.call.media.ready')
+        self.assertEqual(call[0],'kck-call')
+        self.assertEqual(call[2]['request'],cid)
+        self.assertEqual(call[2]['page'],self.p['page'])
+        self.assertIsNone(call[2]['boot'])  # Test fixture is not a real SDK UUID.
+        self.assertEqual(bridge.safe_boot('12345678-1234-1234-1234-123456789abc'),
+                         '12345678-1234-1234-1234-123456789abc')
+        self.assertEqual(call[2]['audioTracks'],2)
+        self.assertEqual(call[2]['sourceAtMs'],1700000000000)
+        self.assertEqual(call[2]['sourceSeq'],1)
+        self.assertEqual(call[2]['stream'],'web-page')
+        self.assertEqual(call[2]['droppedCount'],2)
+        self.assertNotIn('token',call[2])
+        self.assertFalse(any('private' in str(x) or 'https://' in str(x) for x in rows))
+        self.assertFalse(any('tokenabcd1234' in str(x) for x in rows))
+        transport=next(x for x in rows if x[1]=='kck.call.transport.summary')
+        self.assertEqual(transport[2]['strategy'],'pcm-ws')
+        self.assertEqual(transport[2]['bytes'],1000000000000)
+        self.assertTrue(next(x for x in rows if x[1]=='kck.call.track.state')[2]['present'])
+
+    def test_signal_storage_failure_does_not_fail_command(self):
+        old=bridge.emit_signal
+        bridge.emit_signal=lambda *args,**kwargs:(_ for _ in ()).throw(RuntimeError('disk unavailable'))
+        try:
+            cid=self.action()
+            self.b.web.page_request({**self.poll,'signals':[{'seq':1,'sourceAtMs':1700000000000,'droppedCount':0,
+                'event':'kck.web.ready','fields':{'ready':True}}]},self.origin)
+            self.b.web.page_request({**self.poll,'op':'result','id':cid,'epoch':self.b.epoch,'result':{'ok':True}},self.origin)
+        finally:
+            bridge.emit_signal=old
+        self.assertEqual(self.b.web.commands[cid]['status'],'completed')
+
+    def test_execution_timeout_signal_does_not_claim_failure(self):
+        rows=[];old=bridge.emit_signal
+        bridge.emit_signal=lambda scope,event,**fields:rows.append((event,fields))
+        try:
+            cid=self.action();self.b.web.page_request(self.poll,self.origin)
+            self.b.web.page_request({**self.poll,'op':'result','id':cid,'epoch':self.b.epoch,
+                'result':{'ok':False,'error':'execution_deadline_unknown'}},self.origin)
+        finally:
+            bridge.emit_signal=old
+        terminal=next(fields for event,fields in rows if event=='browser.command.terminal')
+        self.assertEqual(terminal['outcome'],'unknown')
+        self.assertEqual(terminal['reason'],'execution_deadline_unknown')
 
     def test_authenticated_tab_survives_host_restart_without_reenrollment(self):
         with tempfile.TemporaryDirectory() as d:
