@@ -17,7 +17,7 @@ import {codexOwnerContext} from './owner-context.mjs';
 import {waitNativeElement} from './native-condition.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/input-schemas.mjs', 'mcp/native-selector.mjs', 'mcp/owner-context.mjs', 'mcp/native-condition.mjs', 'mcp/system-driver.mjs', 'mcp/system-reservation.mjs', 'system_runner.py', 'system_reservation.py', 'mcp/capture-store.mjs', 'web/rich-capture.js', 'ready_wait.py', 'mcp/media-verification.mjs', 'mcp/call-verification.mjs', 'mcp/web-profiles.mjs', 'mcp/workflows.mjs', 'fixture_jobs.py', 'build_jobs.py', 'build_app.py', 'native_delivery.py', 'mcp/native-delivery.mjs', 'tests/run_fixture.py', 'paired_workflow.py', 'health.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'paired_transport.py', 'browser_inspector.py', 'browser_dom.js', 'browser_heap.py','browser_breakpoint.py','browser_worker.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
+const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/input-schemas.mjs', 'mcp/native-selector.mjs', 'mcp/owner-context.mjs', 'mcp/native-condition.mjs', 'mcp/system-driver.mjs', 'mcp/system-reservation.mjs', 'system_runner.py', 'system_reservation.py', 'mcp/capture-store.mjs', 'web/rich-capture.js', 'ready_wait.py', 'mcp/media-verification.mjs', 'mcp/call-verification.mjs', 'mcp/web-profiles.mjs', 'mcp/workflows.mjs', 'fixture_jobs.py', 'build_jobs.py', 'build_app.py', 'native_delivery.py', 'mcp/native-delivery.mjs', 'tests/run_fixture.py', 'paired_workflow.py', 'health.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'paired_transport.py','device_accessibility.py', 'browser_inspector.py', 'browser_dom.js', 'browser_heap.py','browser_breakpoint.py','browser_worker.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
   .map(file => fs.readFileSync(path.join(root, file))).map(bytes => createHash('sha256').update(bytes).digest('hex')).join(':')).digest('hex');
 export const defaultState = path.join(os.homedir(), 'Library/Application Support/ios-agent');
 const idleLimit = 20 * 60 * 1000;
@@ -153,6 +153,7 @@ export class Backend {
       lock: 'ios_device_lock runs only Runner Lock iPhone through the paired developer channel, then independently reads passcodeRequired. The one-action Apple shortcut is installed and physically verified. Already locked is a no-input success. It cannot unlock the phone, does not store a passcode, and is not an arbitrary-network system-control lane.',
       richCapture: 'ios_capture is explicit synthetic-DEV capture only: start selected console/network/audio modes, drain bounded batches, stop, then end in finally. Default 2 MiB ring, max 8 MiB, max 10 minutes; host 32 MiB/capture and 128 MiB total. Artifacts expire after one hour by default (max 24 hours) and private audio chunks stay off the transcript. Clone existing audio tracks only; no microphone request. Inspect remainingEvents and dropped counts; this is not lossless whole-device traffic capture.',
       browserDebugger: 'Read ios-agent://browser-debug. Physical Safari/Chrome source/CSS/console, bounded timeline and Network reads passed nearby. Use a fresh documentRef; rejected pre-input identity guards report inputSent=false. ios_browser_debug exposes source catalogs/windows, matched CSS, bounded rendered controls with overflow clipping/hit tests, console, Network details and short WebKit timeline/JavaScript samples. dom can reuse the existing system session owner without sending page input; it does not stop XCTest. Content stays in private artifacts; read selected pointers. Evaluation requires an active matching browser page lease/glow and fresh documentRef. Dedicated worker catalogs initialize every reported worker before detach. worker-sources/worker-source/worker-console/worker-profile inspect one current dedicated worker’s source, console or bounded JavaScript samples through its own protocol channel; require fresh documentRef and workerId. No caller worker evaluation or network attribution. Explicit heap requires an active web/system session and fresh frame/loader document reference; it performs synchronous full GC and retains a private graph with shallow-size summaries. Use ios_read offset/count for large arrays. One-shot breakpoint uses an owned web/system session, exact document/script/source hash and zero-based line. Captures stack and bounded top-frame own descriptors, removes and confirms resume; never leaves an interactive pause. Configured tailnet Inspector reads are supported and physically passed over the overlay; a separate off-LAN acceptance is still required.',
+      accessibilityAudit: 'ios_accessibility_audit runs bounded Apple contrast/hit-region/text-clipped checks on foreground Kickoff DEV or the configured Safari/Chrome DEV origin. Requires the shared owner, checks foreground before/after and preserves the browser document reference. Private256issue/1MiB report expires after one hour. No Dynamic Text settings changes, simulated activation or compliance claim. A deliberately tiny Safari fixture button produced a matching12×13tap-region finding; browser chrome can also appear. Contrast positive control remains unqualified.',
       deviceObserver: 'ios_device_inspect kind=screen|capabilities|browser-debug|resource-profile reads the paired iPhone without XCTest or Mirroring. With no session it reserves/releases a temporary owner. ios_read renders a private full-display image. Default nearby paired developer transport, or explicit configured tailnet userspace transport. Inspector and profiling passed through that overlay; physical off-LAN qualification remains separate. HID input not qualified.',
       browserLimits: 'Page-owned DOM input is synthetic; it does not operate OS dialogs, trusted touch, IME or microphone permission. SDK return channel works over private HTTPS; require separate off-LAN qualification. Dev-only enrollment and per-tab authentication.',
       workflow: ['ios_doctor', 'ios_begin', 'ios_native or ios_react', 'ios_verify', 'ios_end'],
@@ -365,7 +366,7 @@ export class Backend {
       ...(pagination?{pagination}:{}),next: 'Use a smaller subtree or an explicit array offset/count window. No partial JSON is returned.'};
     return {artifactId, data,...(pagination?{pagination}:{})};
   }
-  async deviceInspect({kind='screen',sessionId,debug}={}) {
+  async deviceInspect({kind='screen',sessionId,debug,audit}={}) {
     let s,temporary=false,expressionDispatched=false,heapDispatched=false;
     try {
       if(['heap','breakpoint'].includes(debug?.op)&&!sessionId)return {ok:false,reason:`owned_debug_session_required_for_${debug.op}`,inputSent:false,runtimeMutationSent:false};
@@ -395,7 +396,7 @@ export class Backend {
       const a=this.artifact(s,kind==='screen'?'image':'device-capabilities');
       expressionDispatched=debug?.expression!==undefined;
       heapDispatched=['heap','breakpoint'].includes(debug?.op);
-      const run=await this.run('provider',[],{kind,serial,state:this.state,leaseFile:s.lease,ownerFile:s.owner,output:a.file,...(debug?{debug}:{})},debug?35000:26000);
+      const run=await this.run('provider',[],{kind,serial,state:this.state,leaseFile:s.lease,ownerFile:s.owner,output:a.file,...(debug?{debug}:{}),...(audit?{audit}:{})},debug||audit?35000:26000);
       if(!run.ok||run.value?.ok!==true||!fs.existsSync(a.file)){
         let learningEvidence;
         if(kind==='resource-profile'){
@@ -403,7 +404,7 @@ export class Backend {
           const receipt={gate:'device-profile',status:'failed',observation:{observationCompleted:false,inputSent:false,deadlineExceeded:run.value?.reason==='device_observation_deadline',waitingForSamples:run.value?.phase==='resource_profile_sample',osVersionKnown:false}};
           learningEvidence=await this.learning('observe',{receipt,source}).catch(()=>({available:false}));
         }
-        return {ok:false,reason:run.value?.reason||'device_observation_unavailable',phase:run.value?.phase,failureType:run.value?.failureType,...(debug?{diagnostic:run.value?.diagnostic}:{}),...(learningEvidence?{learningEvidence}:{}),inputSent:debug?.expression!==undefined?(run.value?.inputSent===false?false:'unknown'):false,...(['heap','breakpoint'].includes(debug?.op)?{runtimeMutationSent:(run.value?.diagnostic?.heapSnapshotRequested||run.value?.diagnostic?.breakpointRequested)?'unknown':false}:{}),replay:false};
+        return {ok:false,reason:run.value?.reason||'device_observation_unavailable',phase:run.value?.phase,failureType:run.value?.failureType,...((debug||audit)?{diagnostic:run.value?.diagnostic}:{}),...(learningEvidence?{learningEvidence}:{}),inputSent:debug?.expression!==undefined?(run.value?.inputSent===false?false:'unknown'):false,...(['heap','breakpoint'].includes(debug?.op)?{runtimeMutationSent:(run.value?.diagnostic?.heapSnapshotRequested||run.value?.diagnostic?.breakpointRequested)?'unknown':false}:{}),replay:false};
       }
       this.session(s.id);
       const value=JSON.parse(fs.readFileSync(a.file,'utf8')).result;
@@ -416,6 +417,14 @@ export class Backend {
         this.artifacts.set(a.id,{file:saved.file,sessionId:s.id,type:'inspector'});
         const summary=Object.fromEntries(['operation','documentRef','browser','ready','scriptCount','eventCount','droppedEvents','retainedBytes','timelineStopped','profilerStopped','profileComplete','sampleCount','memoryStopped','cpuProfilerStopped','memorySamples','cpuSamples','webSocketFrames','webSocketPayloadBytes','workerCount','workersInitialized','workerInitializationConfirmed','workerResumeConfirmed','historyMayReplay','heapSnapshotComplete','heapNodeCount','heapEdgeCount','heapShallowBytes','snapshotDurationMs','forcedGarbageCollection','breakpointHit','pauseObserved','latePauseObserved','resumeConfirmed','breakpointRemoved','windowMs','domainsDisabled'].filter(k=>row[k]!==undefined).map(k=>[k,row[k]]));
         return {ok:true,artifactId:a.id,metadata:{...summary,detached:true,transport:value.transport,offLANQualified:false,retentionSeconds:saved.retentionSecondsRemaining,artifactBytes:saved.bytes},inputSent:debug.expression!==undefined,...(['heap','breakpoint'].includes(debug.op)?{runtimeMutationSent:true}:{}),replay:false,next:'Read selected private result/pages/0/debug subtrees with ios_read. Content expires after one hour. Document references expire on navigation/reload; no trusted input or off-LAN Inspector claim.'};
+      }
+      if(kind==='accessibility-audit'){
+        let saved;
+        try{saved=this.captureStore.saveDiagnostic({status:'completed',result:value});}
+        finally{fs.rmSync(a.file,{force:true});this.artifacts.delete(a.id);}
+        this.artifacts.set(a.id,{file:saved.file,sessionId:s.id,type:'inspector'});
+        const metadata=Object.fromEntries(['scope','transport','target','profile','checks','reportedIssueCount','issueCount','droppedIssues','auditCompleted','auditChannelClosed','finalCleanupSent','foregroundVerified','documentRef','attribution','noIssuesIsNotAccessibilityCertification','contrastPositiveControlQualified'].map(k=>[k,value[k]]));
+        return {ok:true,artifactId:a.id,metadata:{...metadata,retentionSeconds:saved.retentionSecondsRemaining},inputSent:false,replay:false,next:'Read /result/issues selectively with ios_read. Zero reported issues is not an accessibility certification. Dynamic Text/settings changes and simulated activation are excluded.'};
       }
       let learningEvidence;
       if(kind==='resource-profile'){

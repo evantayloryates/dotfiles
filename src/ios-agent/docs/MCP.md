@@ -1,6 +1,6 @@
 # iOS agent MCP — shared service interface and operational learning
 
-Current interface: **36 tools / ten resources**. `ios_guide.interface` identifies
+Current interface: **37 tools / ten resources**. `ios_guide.interface` identifies
 the process answering this connection. `/Users/taylor/dotfiles/bin/ios-agent-mcp
 --catalog` reads the installed catalog without host/phone access. A missing
 `interface` means the connected process predates this check; absent new tools
@@ -16,6 +16,11 @@ Configured developer transport can now use an authenticated rootless RSD tunnel
 through Tailscale for fixed app launch, Inspector and process profiling. See
 DEVELOPER-TAILNET.md for bootstrap, explicit selection and qualification limits.
 This does not alter the page/native return channel or XCTest lifecycle.
+
+On-demand `ios_accessibility_audit` adds static Apple tap-region, clipped-text and
+optional contrast diagnosis on the foreground DEV app/page. ACCESSIBILITY.md
+explains scope, artifacts, browser-chrome attribution and the failed contrast
+positive control. A zero-issue report is not an accessibility certification.
 
 Protocol references: [MCP stdio transport](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports),
 [tool contract](https://modelcontextprotocol.io/specification/2025-06-18/server/tools),

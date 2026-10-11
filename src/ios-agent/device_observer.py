@@ -25,8 +25,11 @@ def owned(r):
 
 async def observe(r):
     r['_phase']='validation'
-    if r.get('kind') not in ('screen','capabilities','browser-debug','resource-profile','fixed-launch') or not re.fullmatch(r'[0-9A-Fa-f]{8}-[0-9A-Fa-f]{16}', r.get('serial','')):
+    if r.get('kind') not in ('screen','capabilities','browser-debug','resource-profile','fixed-launch','accessibility-audit') or not re.fullmatch(r'[0-9A-Fa-f]{8}-[0-9A-Fa-f]{16}', r.get('serial','')):
         raise ValueError('fixed_observer_request_required')
+    if r['kind']=='accessibility-audit':
+        from device_accessibility import arguments
+        arguments(r.get('audit',{}))
     if r['kind']=='fixed-launch' and r.get('target') not in ('kickoff-dev','settings','safari','chrome'):
         raise ValueError('fixed_launch_target_required')
     if importlib.metadata.version('pymobiledevice3') != '11.15.5':
@@ -81,6 +84,9 @@ async def observe(r):
             if len(image) > 6 * 1024 * 1024:
                 raise ValueError('screenshot_transport_limit')
             result.update(scope='whole-device-display',pngBase64=base64.b64encode(image).decode(),width=width,height=height)
+        elif r['kind']=='accessibility-audit':
+            from device_accessibility import capture
+            result.update(await capture(r,rsd,lambda:owned(r),lambda preflight:browser_debug(preflight,rsd)))
         elif r['kind'] == 'resource-profile':
             result.update(await resource_profile(r,rsd))
         elif r['kind'] == 'browser-debug':
@@ -197,7 +203,7 @@ async def browser_debug(r,rsd):
 def main():
     r=json.load(sys.stdin)
     try:
-        result=asyncio.run(asyncio.wait_for(observe(r),22))
+        result=asyncio.run(asyncio.wait_for(observe(r),32 if r.get('kind')=='accessibility-audit' else 22))
         p=Path(r['output']);parent=p.parent
         if not parent.is_dir() or parent.is_symlink() or parent.stat().st_mode & 0o077:
             raise ValueError('private_observer_output_required')
@@ -207,9 +213,9 @@ def main():
     except Exception as e:
         known={'InvalidServiceError':'developer_service_unavailable','WebInspectorNotEnabledError':'web_inspector_disabled','DeviceNotFoundError':'paired_device_unavailable','UserspaceTunnelUnavailableError':'paired_tunnel_unavailable','TimeoutError':'device_observation_deadline','ConnectionTerminatedError':'developer_connection_lost'}
         code=known.get(type(e).__name__,'device_observation_unavailable')
-        if isinstance(e,ValueError) and str(e) in {'observer_owner_expired','pinned_observer_required','bounded_png_required','private_observer_output_required','fixed_observer_request_required','private_dev_origin_required','fresh_debug_document_required','owned_browser_session_required_for_evaluation','visible_dev_document_required','debug_document_changed','script_not_in_current_document','script_source_unavailable','debug_selector_not_found','bounded_debug_artifact_required','debug_cleanup_unconfirmed','fixed_debug_operation_required','bounded_dom_selector_required','dom_projection_unavailable','owned_debug_session_required_for_heap','bounded_heap_snapshot_required','supported_heap_snapshot_format_required','debug_loader_identity_unavailable','owned_debug_session_required_for_breakpoint','source_fenced_breakpoint_required','bounded_breakpoint_window_required','debug_script_source_changed','breakpoint_install_unconfirmed','debug_unexpected_pause_before_breakpoint','breakpoint_locals_unavailable','private_developer_tailnet_configuration_required','fixed_developer_tailnet_configuration_required','fixed_developer_tailnet_address_required','developer_device_identity_mismatch','developer_transport_already_active','fixed_launch_target_required','current_debug_worker_required','debug_worker_terminated','script_not_in_current_worker','bounded_worker_debug_required','worker_profile_incomplete'}:code=str(e)
+        if isinstance(e,ValueError) and str(e) in {'observer_owner_expired','pinned_observer_required','bounded_png_required','private_observer_output_required','fixed_observer_request_required','private_dev_origin_required','fresh_debug_document_required','owned_browser_session_required_for_evaluation','visible_dev_document_required','debug_document_changed','script_not_in_current_document','script_source_unavailable','debug_selector_not_found','bounded_debug_artifact_required','debug_cleanup_unconfirmed','fixed_debug_operation_required','bounded_dom_selector_required','dom_projection_unavailable','owned_debug_session_required_for_heap','bounded_heap_snapshot_required','supported_heap_snapshot_format_required','debug_loader_identity_unavailable','owned_debug_session_required_for_breakpoint','source_fenced_breakpoint_required','bounded_breakpoint_window_required','debug_script_source_changed','breakpoint_install_unconfirmed','debug_unexpected_pause_before_breakpoint','breakpoint_locals_unavailable','private_developer_tailnet_configuration_required','fixed_developer_tailnet_configuration_required','fixed_developer_tailnet_address_required','developer_device_identity_mismatch','developer_transport_already_active','fixed_launch_target_required','fixed_accessibility_arguments_required','foreground_dev_surface_required','accessibility_service_unavailable','accessibility_check_unavailable','accessibility_cleanup_unconfirmed','accessibility_surface_changed','current_debug_worker_required','debug_worker_terminated','script_not_in_current_worker','bounded_worker_debug_required','worker_profile_incomplete'}:code=str(e)
         failure_type=type(e).__name__
-        diagnostic={k:r.get('debug',{}).get(v) for k,v in [('workerCleanup','_workerCleanup'),('breakpointRequested','_breakpointRequested'),('breakpointCleanup','_breakpointCleanup'),('heapSnapshotRequested','_heapSnapshotRequested'),('failedMethod','_failedMethod'),('cleanupFailures','_cleanupFailures'),('receiverFailureType','_receiverFailureType'),('documentChange','_documentChange')] if r.get('debug',{}).get(v)}
+        diagnostic={**({'auditRequested':True} if r.get('_auditRequested') else {}),**{k:r.get('debug',{}).get(v) for k,v in [('workerCleanup','_workerCleanup'),('breakpointRequested','_breakpointRequested'),('breakpointCleanup','_breakpointCleanup'),('heapSnapshotRequested','_heapSnapshotRequested'),('failedMethod','_failedMethod'),('cleanupFailures','_cleanupFailures'),('receiverFailureType','_receiverFailureType'),('documentChange','_documentChange')] if r.get('debug',{}).get(v)}}
         sent=r.get('_launchSent',('unknown' if r['debug']['_inputDispatched'] else False) if '_inputDispatched' in r.get('debug',{}) else ('unknown' if r.get('debug',{}).get('expression') is not None else False))
         print(json.dumps({'ok':False,'reason':code,'phase':r.get('_phase','validation'),'failureType':failure_type if re.fullmatch('[A-Za-z0-9_]{1,80}',failure_type) else 'Unknown','diagnostic':diagnostic,'inputSent':sent}))
         sys.exit(1)

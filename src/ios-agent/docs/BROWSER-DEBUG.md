@@ -250,3 +250,11 @@ No caller worker evaluation, worker breakpoint, service-worker coverage, audio c
 [WebKit Worker protocol](https://raw.githubusercontent.com/WebKit/WebKit/main/Source/JavaScriptCore/inspector/protocol/Worker.json), [ScriptProfiler protocol](https://raw.githubusercontent.com/WebKit/WebKit/main/Source/JavaScriptCore/inspector/protocol/ScriptProfiler.json)
 
 Physical Safari and Chrome each returned the exact synthetic worker source and worker Console messages. With bounded synthetic worker CPU work, Safari retained37 stack samples and Chrome41, including `workerDebugTick`; stop/completion and domain cleanup passed. Independent page counters continued after profiling, then both workers were stopped and temporary files removed. Safari rejected a terminated worker ID before nested dispatch. See `browser-worker-debug-physical-2026-10-11.json`.
+
+## Independent static accessibility checks —1.9.26
+
+`ios_accessibility_audit` complements Inspector DOM/layout with Apple process-level
+checks. The deliberately tiny Safari/Chrome fixture button was reported at12×13points.
+Reports can also contain browser chrome, and known low-contrast text was not flagged;
+zero issues is not a pass. See ACCESSIBILITY.md for bounded ownership, document
+fencing, expiry and interpretation. No accessibility setting changes are made.

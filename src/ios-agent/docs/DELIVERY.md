@@ -214,3 +214,12 @@ The original held XCTest owner remained intact. This adds transport reach; it do
 not mark the physical off-LAN launch gate, new-runner authorization, Lock Screen
 shortcut, enrollment-URL delivery or build installation qualified over that route.
 See DEVELOPER-TAILNET.md and developer-tailnet-physical-2026-10-11.json.
+
+## Static accessibility diagnosis —1.9.26
+
+`ios_accessibility_audit` integrates the viable Apple audit daemon behind the same
+owner and expiring selective-artifact workflow. Physical native completion and
+Safari/Chrome positive tiny-button findings passed; background DEV refused before
+audit start. Browser chrome can appear in results. Low-contrast positive control
+failed, and clipped-text fixture attribution is unproved, so no zero-issue
+accessibility certification is exposed. See ACCESSIBILITY.md.
