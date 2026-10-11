@@ -38,4 +38,14 @@ class SystemRunnerBoundaryTests(unittest.IsolatedAsyncioTestCase):
             with patch.object(runner,'request') as request:
                 self.assertFalse(runner.owned({'ownerFile':str(owner)}));request.assert_not_called()
 
+class OwnershipGraceTests(unittest.TestCase):
+    def test_transient_unknown_has_bounded_grace_but_confirmed_loss_stops(self):
+        g=runner.OwnershipGrace()
+        self.assertTrue(g.permits(None,100))
+        self.assertTrue(g.permits(None,114.9))
+        self.assertFalse(g.permits(None,115))
+        self.assertTrue(g.permits(True,116))
+        self.assertTrue(g.permits(None,117))
+        self.assertFalse(g.permits(False,118))
+
 if __name__=='__main__':unittest.main()

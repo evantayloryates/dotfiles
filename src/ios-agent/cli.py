@@ -134,6 +134,8 @@ def main():
     acquire.add_argument("--lease-file", type=Path, required=True)
     release = sub.add_parser("release")
     release.add_argument("--lease-file", type=Path, required=True)
+    ownership = sub.add_parser("owner-check")
+    ownership.add_argument("--lease-file", type=Path, required=True)
     action = sub.add_parser("action")
     action.add_argument("action")
     action.add_argument("--args", default="{}")
@@ -191,7 +193,15 @@ def main():
                 message["action"] = a.action
             elif message["args"].get("type") not in ("ping", "status", "profile-start") and not a.output:
                 raise RuntimeError("private_output_required_for_model_or_profile_data")
-        if a.op == "inspect":
+        if a.op == "owner-check":
+            current = request({"op": "status"}, a.state, timeout=3)
+            if not isinstance(current, dict) or "lease" not in current:
+                raise RuntimeError("ownership_state_unconfirmed")
+            active = current["lease"]
+            if active is not None and (not isinstance(active, dict) or not isinstance(active.get("id"), str)):
+                raise RuntimeError("ownership_state_unconfirmed")
+            result = {"owned": isinstance(active, dict) and active["id"] == message["lease"]}
+        elif a.op == "inspect":
             result = inspect(message, a.state)
         else:
             admission_end = time.monotonic() + 5

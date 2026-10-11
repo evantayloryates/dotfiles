@@ -34,7 +34,7 @@ export function parseTree(xml){
 }
 
 export class SystemDriver {
-  constructor({state,session,check}){this.state=state;this.session=session;this.check=check;this.snapshot=null;this.child=null;this.startPromise=null;}
+  constructor({state,session,check,authorize=async()=>{}}){this.state=state;this.session=session;this.check=check;this.authorize=authorize;this.snapshot=null;this.child=null;this.startPromise=null;}
   async http(method,route,body,timeout=12000){
     let response;
     try{response=await fetch(this.base+route,{method,signal:AbortSignal.timeout(timeout),headers:{'content-type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)});}
@@ -53,6 +53,7 @@ export class SystemDriver {
     const endpoint=await endpointState(config.address);
     if(endpoint==='open')return {ok:false,reason:'existing_system_runner_preserved'};
     if(endpoint!=='refused')return {ok:false,reason:'system_endpoint_reachability_unconfirmed',replay:false};
+    await this.authorize();this.check();
     const log=path.join(this.session.dir,'system-runner.log');
     const argv=JSON.stringify({state:this.state,ownerFile:this.session.owner,leaseFile:this.session.lease,log});
     this.child=spawn(path.join(this.state,'providers/pymobiledevice3-11.15.5/bin/python'),['-B',path.join(root,'system_runner.py'),argv],{stdio:['pipe','pipe','pipe']});
@@ -62,7 +63,7 @@ export class SystemDriver {
     const until=Date.now()+45000;let ready=false;
     while(Date.now()<until){this.check();if(this.failed||this.child.exitCode!==null)break;try{this.runtime=(await this.http('GET','/status',undefined,1000)).value;ready=this.runtime?.ready===true;if(ready)break;}catch{}await sleep(500);}
     if(!ready)return {ok:false,reason:'system_start_unconfirmed_inspect_phone',replay:false};
-    this.check();const r=await this.http('POST','/session',{capabilities:{alwaysMatch:{shouldWaitForQuiescence:false,shouldUseCompactResponses:true}}});
+    await this.authorize();this.check();const r=await this.http('POST','/session',{capabilities:{alwaysMatch:{shouldWaitForQuiescence:false,waitForIdleTimeout:1,shouldUseCompactResponses:true}}});
     this.sid=r.sessionId||r.value?.sessionId;if(!/^[A-Fa-f0-9-]{36}$/.test(this.sid||''))return {ok:false,reason:'system_session_unconfirmed',replay:false};
     return {ok:true,transport:'signed-XCTest-runner/paired-developer-start/Tailscale-WDA',indicator:'Apple Automation Running',offLANStartQualified:false,authentication:'Apple may require physical authorization; no passcode is stored or entered'};
   }
@@ -81,12 +82,12 @@ export class SystemDriver {
     let inputSent=false;
     try{
       await this.context();
-      if(action==='home'){this.snapshot=null;this.check();inputSent=true;await this.http('POST','/wda/homescreen',{});return {ok:true,homeConfirmed:(await this.http('GET',this.route('/wda/activeAppInfo'))).value?.bundleId==='com.apple.springboard',replay:false};}
-      if(action==='activate'){if(!bundles[app])return {ok:false,reason:'fixed_system_app_required',actionSent:false};this.snapshot=null;this.check();inputSent=true;await this.http('POST',this.route('/wda/apps/activate'),{bundleId:bundles[app]});return {ok:true,foregroundConfirmed:(await this.context())===bundles[app],replay:false};}
+      if(action==='home'){this.snapshot=null;await this.authorize();this.check();inputSent=true;await this.http('POST','/wda/homescreen',{});return {ok:true,homeConfirmed:(await this.http('GET',this.route('/wda/activeAppInfo'))).value?.bundleId==='com.apple.springboard',replay:false};}
+      if(action==='activate'){if(!bundles[app])return {ok:false,reason:'fixed_system_app_required',actionSent:false};this.snapshot=null;await this.authorize();this.check();inputSent=true;await this.http('POST',this.route('/wda/apps/activate'),{bundleId:bundles[app]});return {ok:true,foregroundConfirmed:(await this.context())===bundles[app],replay:false};}
       const s=this.snapshot;if(!s||snapshot!==s.id||Date.now()-s.at>5000)return {ok:false,reason:'fresh_system_snapshot_required',actionSent:false};
       if(await this.context()!==s.bundle)return {ok:false,reason:'system_app_changed',actionSent:false};
       this.snapshot=null; // Consume before dispatch, including unknown outcomes.
-      if(action==='scroll'){if(!['up','down','left','right'].includes(direction))return {ok:false,reason:'scroll_direction_required',actionSent:false};this.check();inputSent=true;await this.http('POST',this.route('/wda/scroll'),{direction,distance:0.5});}
+      if(action==='scroll'){if(!['up','down','left','right'].includes(direction))return {ok:false,reason:'scroll_direction_required',actionSent:false};await this.authorize();this.check();inputSent=true;await this.http('POST',this.route('/wda/scroll'),{direction,distance:0.5});}
       else if(action==='tap'){
         const n=s.nodes[Number(target)];if(!/^\d+$/.test(target||'')||!n?.visible||!n.enabled||n.type.includes('SecureTextField'))return {ok:false,reason:'visible_enabled_system_target_required',actionSent:false};
         const {x,y,width,height}=n.rect;const point={x:x+width/2,y:y+height/2};const screen=s.nodes.find(n=>n.type==='XCUIElementTypeApplication')?.rect;
@@ -99,10 +100,10 @@ export class SystemDriver {
         if(!/^[A-Fa-f0-9-]{36}$/.test(eid||''))return {ok:false,reason:'system_element_unavailable',actionSent:false};
         const hittable=(await this.http('GET',this.route(`/element/${eid}/attribute/hittable`))).value;
         if(![true,1,'true','1'].includes(hittable))return {ok:false,reason:'system_target_occluded',actionSent:false};
-        this.check();inputSent=true;await this.http('POST',this.route(`/element/${eid}/click`),{});
+        await this.authorize();this.check();inputSent=true;await this.http('POST',this.route(`/element/${eid}/click`),{});
       }else return {ok:false,reason:'fixed_system_action_required',actionSent:false};
       return {ok:true,delivery:'native-XCTest',effect:'unverified; inspect again',replay:false};
-    }catch(error){if(inputSent)this.uncertain=true;const known=new Set(['physical_unlock_required','system_app_scope_required','system_endpoint_deadline','system_endpoint_unreachable','system_provider_rejected']);return {ok:false,outcome:inputSent?'unknown_or_rejected':'not_sent',actionSent:inputSent,reason:known.has(error.message)?error.message:'inspect_current_phone_state',replay:false};}
+    }catch(error){if(inputSent)this.uncertain=true;const known=new Set(['physical_unlock_required','system_app_scope_required','system_endpoint_deadline','system_endpoint_unreachable','system_provider_rejected','owner_not_active','system_ownership_unconfirmed']);return {ok:false,outcome:inputSent?'unknown_or_rejected':'not_sent',actionSent:inputSent,reason:known.has(error.message)?error.message:'inspect_current_phone_state',replay:false};}
   }
   async stop(){
     if(this.stopping)return this.stopping;

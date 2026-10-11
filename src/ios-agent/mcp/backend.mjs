@@ -333,7 +333,13 @@ export class Backend {
   }
   async systemBegin({rollout}={}) {
     const acquired=await this.begin({surface:'launch',rollout}),s=this.session(acquired.sessionId);
-    s.systemDriver=new SystemDriver({state:this.state,session:s,check:()=>this.session(s.id)});
+    s.systemDriver=new SystemDriver({state:this.state,session:s,check:()=>this.session(s.id),authorize:async()=>{
+      this.session(s.id);
+      const status=await this.run('cli',['owner-check','--lease-file',s.lease],undefined,5000);
+      if(!status.ok||typeof status.value?.owned!=='boolean')throw Error('system_ownership_unconfirmed');
+      if(!status.value.owned)throw Error('owner_not_active');
+      this.session(s.id);
+    }});
     try{
       const result=await s.systemDriver.start();
       if(!result.ok){const cleanup=await this.end(s.id);return {...result,cleanup};}

@@ -34,12 +34,29 @@ def validate(r):
         raise ValueError('private_runner_log_required')
     return device['hardwareUDID'], run, log
 
-def owned(r):
+def local_owned(r):
     o = json.loads(Path(r['ownerFile']).read_text())
     if o.get('active') is not True or time.time()-o.get('heartbeatAt',0)>20 or time.time()-o.get('activityAt',0)>1200:return False
     os.kill(o['pid'], 0)
+    return True
+
+def owned(r):
+    if not local_owned(r):return False
     lease = json.loads(Path(r['leaseFile']).read_text())['lease']
     return (request({'op':'status'}, Path(r['state']), timeout=2).get('lease') or {}).get('id') == lease
+
+class OwnershipGrace:
+    """Only a live local owner can ride out brief unconfirmed broker reads.
+
+    Native mutations independently confirm the broker lease before dispatch.
+    False means a confirmed mismatch and must stop immediately.
+    """
+    def __init__(self):self.unknown_since=None
+    def permits(self, result, now):
+        if result is False:return False
+        if result is True:self.unknown_since=None;return True
+        if self.unknown_since is None:self.unknown_since=now
+        return now-self.unknown_since<15
 
 async def verify_stopped(serial, started):
     from pymobiledevice3.remote.native_tunnel import NativeRemotedTunnel
@@ -78,12 +95,17 @@ async def main(r):
         reader = asyncio.StreamReader()
         transport, _ = await asyncio.get_running_loop().connect_read_pipe(lambda:asyncio.StreamReaderProtocol(reader),sys.stdin)
         stopping = asyncio.create_task(reader.readline())
+        grace=OwnershipGrace()
         try:
             while not stopping.done():
                 if child.returncode is not None:reason='runner_exited';break
                 try:
-                    if not await asyncio.to_thread(owned,r):reason='owner_inactive';break
-                except Exception:reason='owner_unconfirmed';break
+                    if not local_owned(r):reason='owner_inactive';break
+                except Exception:reason='owner_inactive';break
+                try:confirmed=await asyncio.to_thread(owned,r)
+                except Exception:confirmed=None
+                if not grace.permits(confirmed,time.monotonic()):
+                    reason='owner_unconfirmed' if confirmed is None else 'owner_inactive';break
                 await asyncio.wait([stopping],timeout=1)
         finally:
             stopping.cancel();transport.close()

@@ -65,5 +65,6 @@
     "code": "NotAllowedError"
   },
   "nativeInputQualified": false,
-  "audibleAudioQualified": false
+  "audibleAudioQualified": false,
+  "nativeHierarchyRead": true
 }

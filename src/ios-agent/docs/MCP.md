@@ -306,3 +306,17 @@ uniqueness and hittability checks before one native click. This removes model
 round-trip expiry for a known control. Duplicate/missing labels send no input.
 Unknown input still requires a new observation and is never automatically replayed.
 No secure field or arbitrary predicate selector is accepted.
+
+The fallback sets WDA waitForIdleTimeout to one second. A Chrome native click
+completed while its response exceeded the client deadline; the previous ten-second
+idle wait was a possible contributor. A timeout still means an unknown response:
+inspect the committed UI and never repeat the click automatically. One-second
+quiescence waiting does not remove live uniqueness/hittability or effect readback.
+
+The runner supervisor tolerates at most 15 seconds of unconfirmed broker checks
+while its private local owner remains live. Confirmed lease replacement, dead or
+expired owner, EOF and explicit end still stop it. Each native mutation independently
+confirms the broker lease immediately before dispatch; an unavailable status read
+sends no input. This avoids turning one transient observer failure into a new
+XCTest authorization cycle. The prior stop reason was owner_unconfirmed, not
+proof of a disconnected cable, locked phone or user action.
