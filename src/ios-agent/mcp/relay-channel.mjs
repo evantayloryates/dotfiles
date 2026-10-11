@@ -1,4 +1,5 @@
-// Private candidate transport. No public MCP route until device qualification.
+// Private transport for the qualified nearby managed MCP lifecycle.
+// Cellular and permanent-node provisioning remain separate qualification gates.
 import {spawn} from 'node:child_process';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';

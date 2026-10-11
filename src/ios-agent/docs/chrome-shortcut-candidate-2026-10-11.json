@@ -1,0 +1,52 @@
+{
+  "observedAt": "2026-10-11T19:54:28.706398+00:00",
+  "candidate": "phone-local Chrome Shortcut",
+  "shippedMCP": false,
+  "signedShortcut": {
+    "path": "shortcuts/open-chrome-dev.shortcut",
+    "sha256": "698606a126d4cfd0f8ac5aab6041a570e7f35dbd0db5cd2590cf0e241dab5469",
+    "bytes": 22030,
+    "format": "AEA1"
+  },
+  "recipe": {
+    "name": "Runner Open Chrome DEV",
+    "actions": [
+      "Open URLs: Shortcut Input"
+    ],
+    "noInput": "Stop and Respond",
+    "credentialsEmbedded": false
+  },
+  "proof": {
+    "createdViaMacShortcuts": true,
+    "syncedToPhysicalIPhone": true,
+    "fixedDeveloperTransportInvocationAccepted": true,
+    "firstRunChromePermissionObserved": true,
+    "chromeReady": false,
+    "cellularQualified": false,
+    "permissionPersistence": false
+  },
+  "AX": {
+    "ShortcutsTarget": "underlying library only",
+    "SpringBoardTarget": "status bar only",
+    "foregroundDefault": "status bar only; previous global audit target may persist",
+    "activationSent": false,
+    "initialWeakTitleMatchDiscarded": true
+  },
+  "systemFallback": {
+    "sessionId": "e1ba59e04e2f876c4066e336dbdaf4e1",
+    "ready": false,
+    "screen": "Shortcut privacy overlay over passcode keypad",
+    "humanRequestPending": "Shortcut Allow only; original fallback expired cleanly",
+    "outcome": "xctest_authorization_timed_out",
+    "runnerStopped": true
+  },
+  "privateEvidence": [
+    "chrome-shortcut-u5i2HZ",
+    "chrome-shortcut-xlS5BV",
+    "chrome-shortcut-9Ff4c9",
+    "chrome-shortcut-l20Tt6",
+    "runner-resume-LpAG8c/9.json",
+    "runner-resume-LpAG8c/10.json"
+  ],
+  "next": "Grant the first-run permission; require a fresh Chrome page. Then test one new launch to determine permission persistence; do not replay an uncertain dispatch."
+}

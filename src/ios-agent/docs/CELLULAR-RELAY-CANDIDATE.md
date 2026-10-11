@@ -1,4 +1,4 @@
-# Cellular developer relay — concrete candidate, not delivered
+# Developer relay — nearby MCP delivered, cellular still unqualified
 
 11October physical evidence changed the next experiment. External tailnet TCP49152
 refused with Wi-FiIPv4absent, but the signed DEV app connected to both127.0.0.1:49152
@@ -132,3 +132,30 @@ needed. MCP end closes the channel; owner loss closes without further input.
 The approved node remains temporary qualification infrastructure. Permanent
 provisioning and the cellular launch/Inspector edge remain open. Reusing an
 already visible web page avoids this bootstrap entirely.
+
+## Phone-local Chrome Shortcut experiment
+
+`shortcuts/open-chrome-dev.shortcut` is an Apple-signed export of
+**Runner Open Chrome DEV**. It contains one **Open URLs** action taking
+**Shortcut Input**, with **Stop and Respond** when no input is supplied.
+It embeds no enrollment URL or credentials. Import/sync alone is not setup
+completion: the physical phone displayed a first-run privacy permission to
+open Chrome.
+
+The bounded `probes/chrome_shortcut.py` validates the ordinary fixed DEV URL
+before passing its Chrome scheme as percent-encoded Shortcut input. Existing
+paired Tailscale invocation reached that first-run permission; it has not yet
+proved a fresh Chrome page, persistent permission or cellular launch.
+`probes/shortcuts_allow.py` is a narrow qualification probe, not a shipped
+general system driver. Shortcuts AX exposed the underlying library; SpringBoard
+exposed the status bar. No activation was sent. A weak early title match on
+the shortcut library cell was discarded and the guard corrected before input.
+
+The explicit XCTest fallback started once, remained pending, and independent
+USB display showed the Shortcut permission over a passcode keypad. A concise
+setup unblock was requested. Resume the same live attempt; never restart it
+merely to produce another prompt. After Allow, require a fresh Chrome document,
+then one separate new launch to test permission persistence. Only then consider
+a phone-local Focus automation for cellular launch. A nearby Shortcut invocation
+does not establish a cellular execution path or remote Inspector access.
+See `chrome-shortcut-candidate-2026-10-11.json` for artifact hashes and receipts.
