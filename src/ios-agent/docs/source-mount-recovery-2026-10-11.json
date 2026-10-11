@@ -1,0 +1,25 @@
+{
+  "at": "2026-10-11",
+  "scope": "local Mac Docker bind mount; no service restart",
+  "symptom": {
+    "webSignInHTTP": 500,
+    "hostDoctorFailed": [
+      "localWebReady",
+      "localWebAdapterSourcesMatch"
+    ]
+  },
+  "causeObserved": "Three API/routing source files were complete on host but truncated inside Docker; container logs showed unterminated string errors. No underlying Docker cause established.",
+  "repair": "Verified exact current host snapshots and atomically re-emitted identical bytes, preserving file mode; confirmed host source unchanged and all container hashes matched.",
+  "after": {
+    "webSignInHTTP": 200,
+    "hostDoctorPassed": 11,
+    "processRestarted": false,
+    "databaseChanged": false
+  },
+  "files": [
+    "next/pages/api/ios-web-agent.js",
+    "next/pages/api/ios-web-graphql.js",
+    "next/constants/api.ts"
+  ],
+  "boundary": "One observed mount-cache repair, not an automatic repair API. Coordinate writers and compare hashes before replacing; never repair by overwriting from an old checkout."
+}

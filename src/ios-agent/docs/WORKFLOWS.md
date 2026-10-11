@@ -220,7 +220,7 @@ restore the initial route.
 
 Restore the baseline conditionally, read it back from the local row, reload both
 surfaces, and verify equality. Release the original lease in `finally`, wait for
-`idle`, and verify no frontend cleanup remains. Restore the starting route and
+`idle`, and verify no frontend cleanup remains. Prefer the Home handoff when finished and
 leave network state as found; OS keyboard/system overlays need an independent
 check when they matter because the native tree cannot see outside the app.
 
@@ -300,3 +300,14 @@ private and publish only counts/timing claims bound to the development runtime.
 
 
 Scoped live recovery, 8 October: paused only the owned ios-agent worker for 35 seconds. The old lease retired, native glow/lease and provider cleanup were verified idle, and a fresh lease reached ready in 1.633 seconds with the same native boot and remote Metro. No input was submitted or replayed during the outage; no live unknown-input outcome is claimed. Actual laptop sleep, radio tailnet loss and controlled shared backend cold restart remain unqualified. Runtime-generation probe observed component refresh and Home with bundleAttempt unchanged at 1; agents must gate on committed route after source edits.
+
+## Fresh MCP round trip — 11 October
+
+MCP1.9.6 passed coach2347 → exact row → physical native rendering, then one
+accepted native Save2359 → row → fresh coach rendering. Blank coach input
+restored null; revisited phone props returned null and recommended1737 Cal,
+fresh coach input was blank with1737 placeholder. Home handoff and native/host
+idle passed; both temporary tokens retired and private credential files removed.
+See paired-mcp-2026-10-11.json. A moving keyboard invalidated one Save target
+before touch. A later accepted Save raced an immediate read due to the existing
+200ms debounce; observing again passed without repeating input.

@@ -1,0 +1,90 @@
+{
+  "at": "2026-10-11T04:13:20.531806+00:00",
+  "scope": "Fresh physical native Kickoff DEV / real desktop Chrome coach / exact local synthetic pair; nearby network, not a new cellular gate",
+  "mcpVersion": "1.9.6",
+  "pair": {
+    "clientId": "1163603",
+    "coachId": "166027",
+    "allFourCoachAdminFlagsFalse": true,
+    "localIdentityAndSyntheticOwnershipVerified": true
+  },
+  "runtime": {
+    "boot": "3063B5ED-11B8-45B5-9631-7BFAB14C6AE5",
+    "displayBuild": 775,
+    "deliveryId": "7dc9686e60874ba08e416caa871a2880"
+  },
+  "coachToPhone": {
+    "coachInput": 2347,
+    "exactRowPassed": true,
+    "phoneReactAndNativeRenderedValueMatched": true,
+    "receipts": [
+      19,
+      20,
+      21,
+      22,
+      25,
+      26
+    ]
+  },
+  "phoneToCoach": {
+    "nativeReplacement": 2359,
+    "singleAcceptedSave": true,
+    "exactRowPassed": true,
+    "phoneReactValueMatched": true,
+    "coachFreshRenderedValueMatched": true,
+    "receipts": [
+      35,
+      37,
+      38
+    ]
+  },
+  "restoration": {
+    "baseline": null,
+    "preRestoreExactRowPassed": true,
+    "coachBlankRestoredNullableRow": true,
+    "phoneFreshReactValue": null,
+    "phoneNativeRenderedRecommendedValue": 1737,
+    "coachFreshRenderedValue": "",
+    "coachPlaceholder": 1737,
+    "receipts": [
+      39,
+      40,
+      42,
+      43,
+      44,
+      46,
+      47
+    ]
+  },
+  "edges": {
+    "movingKeyboardTargetRefusedBeforeTouch": {
+      "receipt": 32,
+      "reason": "target_geometry_changed"
+    },
+    "immediatePersistenceReadRaced200msDebounce": {
+      "receipt": 36,
+      "laterReadPassed": 37,
+      "saveReplayed": false
+    },
+    "coachFullReloadCanSelectOverdueNotes": "Use rendered nutrition tab and Nutr. Settings link after hydration."
+  },
+  "cleanup": {
+    "homeHandoffPrepared": true,
+    "independentHomeScreenshotThisRun": false,
+    "nativeAndHostIdlePassed": true,
+    "leaseOff": true,
+    "glowOff": true,
+    "authTokenRowsRetired": 2,
+    "privateCredentialFilesRemoved": true,
+    "receipts": [
+      48,
+      49
+    ]
+  },
+  "privateEvidence": "runner-delivery-UNucel (0600 receipts; no credentials in published evidence)",
+  "limits": [
+    "Real nearby physical product input and rendering; not a new off-LAN or mobile-browser paired test.",
+    "Restoration read-before-write is not atomic CAS; exact owned synthetic fixture window required.",
+    "No accepted or unknown business input replayed."
+  ]
+}

@@ -1,7 +1,9 @@
-# Coach/client nutrition round trip — MCP recipe v1
+# Coach/client nutrition round trip — MCP recipe v2
 
-This workflow is ready for synthetic local development. It combines the dated
-physical product round trip with new read-only exact-pair persistence checks.
+This workflow is ready for synthetic local development. A fresh 11 October
+MCP1.9.6 run passed both real UI directions, exact local persistence, nullable
+restoration in both screens, token retirement and native idle. See
+`paired-mcp-2026-10-11.json`.
 It does not automate product handlers or claim that a database check verifies
 either screen. Call `ios_workflow {"action":"plan"}` for the complete ordered
 recipe and limitations; this document is available at
@@ -34,13 +36,18 @@ recipe and limitations; this document is available at
 5. Acquire the phone once with `ios_begin`; use fresh tree targets and normal
    native input. Independently verify `NutritionSettings` route and the correct
    component/client/value through React inspection. Do not inject cached data.
-6. Make one native field replacement and Save. Assert `stage=client-write` and
+6. Make one native field replacement; inspect the settled keyboard/layout before
+   Save. `target_geometry_changed` means no touch was delivered: inspect and
+   deliberately retarget. Save debounces 200ms; a read taken immediately may
+   still show the prior value. Wait for commit/readback, never repeat an accepted
+   Save to compensate. Assert `stage=client-write` and
    the new expected value; reload the coach browser and check its rendered value.
 7. Before restoring, assert `stage=pre-restore` with the last test value. Stop on
    a collision. Restore via normal UI, including a blank coach field for null.
    `action=restore-check` compares the original nullable value against a fresh
    row in the same database/pair. Revisit both UIs and verify their rendering.
-8. Restore route/network state. `ios_end` in finally must pass native/host idle.
+8. Keep network state as found. Prefer `ios_native action=home` after work; do not
+   leave DEV foreground unnecessarily. `ios_end` in finally must pass native/host idle.
    Record all independent gates; do not call the whole workflow complete from
    persistence receipts alone.
 
@@ -58,3 +65,7 @@ they do not prove phone input, browser rendering, auth identity or whole-workflo
 cleanup. Each remains an explicit acceptance gate. The host recovery launcher
 has warm live proof and adversarial cold-start tests; a shared-stack destructive
 restart is neither required nor performed by this recipe.
+
+Coach navigation: after hydration use the rendered **nutrition** tab, then
+**Nutr. Settings**. A full reload may select overdue notes; route strings alone
+are not evidence that the form rendered. The calories field autosaves on blur.
