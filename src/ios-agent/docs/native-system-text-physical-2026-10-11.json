@@ -1,0 +1,19 @@
+{
+  "observedAt": "2026-10-11T06:32:03.409212+00:00",
+  "version": "1.9.15",
+  "device": "iPhone13Pro/iOS26.7.1",
+  "browser": "Chrome iOS",
+  "provider": "existing signed XCTest session; original active owner checked before every mutation",
+  "addressClearReadback": true,
+  "addressTypedReadback": true,
+  "separateGoNavigatedToQualificationPage": true,
+  "unicodeDraft": "Runner café 👋",
+  "unicodeDomReadbackMatched": true,
+  "clearDomReadbackEmpty": true,
+  "inspectorDetached": true,
+  "runnerRestarted": false,
+  "runnerStopped": false,
+  "originalSessionRetainedAtUserRequest": true,
+  "focusedTests": 19,
+  "boundary": "Physical provider proof under the original system owner, plus separate fresh MCP schema tests. The held MCP connection retains its prior schema. No Safari, IME, hardware keyboard, secure-field, multitouch, off-LAN startup or across-turn retention claim. Combined URL+Return did not reliably navigate; separate observed Go is required."
+}

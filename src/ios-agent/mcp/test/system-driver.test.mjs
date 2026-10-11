@@ -56,3 +56,53 @@ test('fixed launch/Home may leave an unrelated foreground app without inspecting
  assert((await c.callTool({name:'ios_system_action',arguments:{sessionId:'a'.repeat(32),action:'activate',app:'com.example.arbitrary'}})).isError);assert.equal(seen.length,1);
  }finally{await c.close();await server.close();}
  });
+
+function fieldFixture(mode='ready'){
+ const {d,calls}=fixture(),http=d.http;
+ d.authorize=async()=>{if(mode==='authority')throw Error('system_ownership_unconfirmed');};
+ d.http=async(m,r,b)=>{
+  if(r.endsWith('/elements'))return {value:Array.from({length:mode==='duplicate'?2:1},()=>({ELEMENT:'a'.repeat(36)}))};
+  if(r.endsWith('/window/rect'))return {value:{x:0,y:0,width:390,height:844}};
+  if(r.endsWith('/rect'))return {value:{x:10,y:20,width:150,height:30}};
+  if(r.endsWith('/attribute/hittable'))return {value:mode!=='occluded'};
+  if(r.endsWith('/value')||r.endsWith('/clear')){calls.push([m,r,b]);if(mode==='unknown')throw Error('system_endpoint_deadline');return {value:null};}
+  return http(m,r,b);
+ };
+ return {d,calls};
+}
+test('ordinary field typing appends once; clearing requires its own explicit action',async()=>{
+ const {d,calls}=fieldFixture();const target={label:'Test draft',elementType:'XCUIElementTypeTextField'};
+ assert.equal((await d.action({action:'type',...target,text:'Runner café 👋'})).ok,true);
+ assert.equal(calls.filter(c=>c[1].endsWith('/value')).length,1);
+ assert.deepEqual(calls.find(c=>c[1].endsWith('/value'))[2],{text:'Runner café 👋',frequency:40});
+ assert.equal(calls.filter(c=>c[1].endsWith('/clear')).length,0);
+ assert.equal((await d.action({action:'clear',...target})).ok,true);
+ assert.equal(calls.filter(c=>c[1].endsWith('/clear')).length,1);
+});
+test('field input refuses secure, oversized, ambiguous, occluded and lost-owner targets',async()=>{
+ for(const [mode,patch] of [['ready',{elementType:'XCUIElementTypeSecureTextField'}],['ready',{text:'x'.repeat(257)}],['duplicate',{}],['occluded',{}],['authority',{}]]){
+  const {d,calls}=fieldFixture(mode);const r=await d.action({action:'type',label:'Test draft',elementType:'XCUIElementTypeTextField',text:'draft',...patch});
+  assert.equal(r.actionSent,false);assert(!calls.some(c=>c[1].endsWith('/value')||c[1].endsWith('/clear')));
+ }
+});
+test('unknown field input is never automatically replayed',async()=>{
+ const {d,calls}=fieldFixture('unknown');const args={action:'type',label:'Test draft',elementType:'XCUIElementTypeTextField',text:'draft'};
+ assert.equal((await d.action(args)).outcome,'unknown_or_rejected');
+ assert.equal((await d.action(args)).reason,'system_observation_required');
+ assert.equal(calls.filter(c=>c[1].endsWith('/value')).length,1);
+});
+test('MCP admits ordinary field text and rejects missing, oversized or secure input',async()=>{
+ const {Client}=await import('@modelcontextprotocol/sdk/client/index.js');const {InMemoryTransport}=await import('@modelcontextprotocol/sdk/inMemory.js');const {createServer}=await import('../server.mjs');
+ const seen=[];const {server}=createServer({systemAction:async args=>{seen.push(args);return {ok:true}},cancel:async()=>{},close:async()=>{}});
+ const [ct,st]=InMemoryTransport.createLinkedPair();await server.connect(st);const c=new Client({name:'field-input-test',version:'1'});await c.connect(ct);
+ const target={sessionId:'a'.repeat(32),action:'type',label:'Test draft',elementType:'XCUIElementTypeTextField',text:'draft'};
+ try{
+  assert(!(await c.callTool({name:'ios_system_action',arguments:target})).isError);
+  for(const patch of [{text:'x'.repeat(257)},{elementType:'XCUIElementTypeSecureTextField'}])assert((await c.callTool({name:'ios_system_action',arguments:{...target,...patch}})).isError);
+  for(const patch of [{text:undefined},{action:'clear'},{label:undefined}]){
+   const r=await c.callTool({name:'ios_system_action',arguments:{...target,...patch}});
+   assert.equal(r.structuredContent.ok,false);
+  }
+  assert.equal(seen.length,1);
+ }finally{await c.close();await server.close();}
+});

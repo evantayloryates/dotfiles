@@ -560,3 +560,9 @@ physical mobile call-rig page. Read `ios-agent://audio-probe` for recording-off
 fixture prerequisites, receiver startup, interpretation and cleanup. This is
 a ten-second extra-stream experiment, with no automatic input replay or promise
 of audible latency, comparative CPU/memory, or off-LAN WebRTC.
+
+## Native ordinary text fallback (1.9.15)
+
+`ios_system_action action=type` appends up to256characters to one exact `label`/`elementType` ordinary TextField, SearchField or TextView. `action=clear` is explicit and takes no text. Secure fields and passcodes are excluded. Each mutation resolves a unique live, visible, enabled, hittable target and rechecks the current owner before sending once. Read the effect afterward; an unknown outcome must never be replayed blindly.
+
+Physical Chrome: address clear/readback, URL type/readback, separate observed Go navigation, Unicode React form value and clear/independent DOM readback passed. Type the address without Return, inspect it, then tap the observed Go button. Combined URL+Return was unreliable. The original authorized XCTest runner remained active; no session restart. See native-system-text-physical-2026-10-11.json. Fresh connections load this schema; an already connected server keeps its older schema until an idle refresh.
