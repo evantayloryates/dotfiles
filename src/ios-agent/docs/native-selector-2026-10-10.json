@@ -1,0 +1,36 @@
+{
+  "at": "2026-10-11T03:58:10.459014+00:00",
+  "scope": "physical native Kickoff DEV; exact native tap selectors; no system UI",
+  "qualified": {
+    "uniqueVisibleEditorTapDelivered": true,
+    "editorFirstResponderObservedAfter": true,
+    "ambiguousLabelRefusedWithoutTouch": true,
+    "offscreenEditorRefusedWithoutTouch": true,
+    "fullPrivateTreeUsed": true,
+    "normalNativeHitTestsRetained": true,
+    "inputReplayed": false,
+    "businessSaveInvoked": false
+  },
+  "evidence": [
+    "runner-delivery-Z0Ckdn/10.json",
+    "runner-delivery-Z0Ckdn/11.json",
+    "runner-delivery-Z0Ckdn/12.json",
+    "runner-delivery-Z0Ckdn/13.json"
+  ],
+  "checks": {
+    "targetedMcpTestsPassed": 28
+  },
+  "limits": [
+    "Exact unique match only; no fuzzy matching or heuristic ranking.",
+    "Center tap can still be occluded/rejected; caller may choose an observed explicit point, never automatic retry.",
+    "First responder was already active before the focus tap; this proves guarded delivery and post-state, not a new focus transition.",
+    "No new off-LAN qualification; uses existing app-owned command transport."
+  ],
+  "cleanup": {
+    "nativeLeaseOff": true,
+    "nativeIndicatorOff": true,
+    "independentWholeDeviceHomeScreenObserved": true,
+    "receipt": "runner-delivery-Z0Ckdn/16..17",
+    "screenshot": "private runner-delivery-Z0Ckdn/final-screen.png"
+  }
+}

@@ -18,6 +18,23 @@ Malformed combinations fail before a phone command is admitted.
    expected route, or inspect actual React props for the resulting value.
    Delivery alone does not prove navigation or persistence.
 
+## Exact targeting in one MCP call
+
+When you already know a control's exact observed label or identifier, use:
+`ios_native {sessionId,action:"tap",args:{selector:{identifier:"meal-description"}}}`.
+`label` and native `class` are also supported, and supplied fields must all
+match. Exactly one visible interactive view with valid bounds is required.
+For an observed unlabelled editor, `{selector:{class:"RCTUITextView"}}` works
+only when unique. No substring matching, ordinal selection or heuristic ranking.
+
+The MCP reads the complete private native tree, computes the matched view's
+center and immediately sends one normal guarded tap. This avoids a model turn
+consuming the five-second snapshot window. Native ownership, freshness,
+occlusion and hit testing still apply. Missing/ambiguous matches send no touch;
+accepted or unknown outcomes are never replayed. Verify the resulting route or
+value as usual. Use explicit fresh points when the center is not the intended
+hit region; this helper does not search for an alternative point after failure.
+
 ## Edit a field
 
 Tap the actual input from a fresh tree. Then

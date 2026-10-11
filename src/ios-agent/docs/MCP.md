@@ -478,3 +478,7 @@ checks. Read ios-agent://mobile-web for setup and boundaries.
 The opt-in native DEV bridge requests Fast Refresh at startup and reports `fastRefreshStartup`. The setter receipt alone is not proof of delivery: a physical screen edit and an unsaved form edit both appeared while preserving route and bundle generation. Rediscover React component IDs after refresh. See `native-refresh-2026-10-10.json` for exact scope and limits.
 
 The companion Kickoff call-page repair stops its owned microphone/camera tracks on actual page departure, including late acquisitions, while preserving immediate effect reattachment. Physical Chrome same-document departure passed. This does not imply Hang Up releases the intentional lobby preview, persistent OS permission grants, or an off-LAN system driver.
+
+### 1.9.6: fresh exact native targeting
+
+`ios_native action=tap args={selector:{label,identifier,class}}` reads the full tree and dispatches one guarded tap within the same call. Supply any nonempty subset of these exact fields; all supplied fields must match. Exactly one visible interactive valid-bounds view is required. Ambiguity/absence send no touch. No ranking or automatic input replay. The existing explicit snapshot/target/point form remains available. See `ios-agent://native-input` and `native-selector-2026-10-10.json` for physical evidence and limits.

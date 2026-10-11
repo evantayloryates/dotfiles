@@ -11,9 +11,10 @@ import {webProfileOrigin} from './web-profiles.mjs';
 import {CaptureStore} from './capture-store.mjs';
 import {SystemDriver} from './system-driver.mjs';
 import {nativeDelivery} from './native-delivery.mjs';
+import {planNativeTap} from './native-selector.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/input-schemas.mjs', 'mcp/system-driver.mjs', 'system_runner.py', 'mcp/capture-store.mjs', 'web/rich-capture.js', 'ready_wait.py', 'mcp/media-verification.mjs', 'mcp/call-verification.mjs', 'mcp/web-profiles.mjs', 'mcp/workflows.mjs', 'fixture_jobs.py', 'build_jobs.py', 'build_app.py', 'native_delivery.py', 'mcp/native-delivery.mjs', 'tests/run_fixture.py', 'paired_workflow.py', 'health.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'browser_inspector.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
+const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/input-schemas.mjs', 'mcp/native-selector.mjs', 'mcp/system-driver.mjs', 'system_runner.py', 'mcp/capture-store.mjs', 'web/rich-capture.js', 'ready_wait.py', 'mcp/media-verification.mjs', 'mcp/call-verification.mjs', 'mcp/web-profiles.mjs', 'mcp/workflows.mjs', 'fixture_jobs.py', 'build_jobs.py', 'build_app.py', 'native_delivery.py', 'mcp/native-delivery.mjs', 'tests/run_fixture.py', 'paired_workflow.py', 'health.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'browser_inspector.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
   .map(file => fs.readFileSync(path.join(root, file))).map(bytes => createHash('sha256').update(bytes).digest('hex')).join(':')).digest('hex');
 export const defaultState = path.join(os.homedir(), 'Library/Application Support/ios-agent');
 const idleLimit = 20 * 60 * 1000;
@@ -164,7 +165,7 @@ export class Backend {
       microphoneWorkflow: 'Safari: use bounded native page controls to save Microphone=Allow for the exact DEV host, then verify getUserMedia through the normal page driver. Chrome: first inspect Settings > Privacy & Security > Microphone; a disabled Chrome app switch can cause NotAllowedError without a site prompt. Named SwiftUI switches resolve their unique nested native toggle; inspect value afterward. Use exact observed Allow labels only after identifying the expected DEV media prompt. A permission projection can remain prompt after live track acquisition; inspect pending requests and actual tracks before requesting another approval. Use web-call lobby/paired/released for call conditions, separately from RTP. Never use Mirroring as runtime permission control, assume tap success equals permission, enter a passcode, or replay an unknown request.',
       systemFallback: 'Explicit ios_system_begin/inspect/action/end uses the existing signed WDA runner for native Safari/Chrome/Settings/Kickoff and Home. Fixed activate/Home may leave another app without inspecting it. Xcode automatic privileged diagnostics are disabled; ordinary sessions need no sudo. End the normal app/page lease first; end the fallback in finally, normally return Home, and verify runnerStopped. Startup uses paired nearby developer transport; WDA HTTP uses Tailscale but off-LAN start is unqualified. Apple may request human authorization; no passcode is entered. EOF/dead owner independently stops the runner. Do not use this for routine DOM/app work.',
       cleanup: 'When finished or pausing phone work: stop capture, release control, confirm glow/inspection cleanup, then return the phone to its Home Screen using an available verified system-control route. Taylor prefers Home over restoring the previous app; do not leave Kickoff DEV foreground without a continuing task. Do not send Home during an intermediate session handoff or while another agent owns the device. For an owned updated native app, send ios_native action=home before ios_end; this retires the lease and asks the DEV app to return Home without XCTest. Use ios_begin nativeOnly=true when JS startup fails. Browser Home still needs an available system route; normal end never starts XCTest just for cleanup. Report homeNavigationPending if no verified route is reachable. Never substitute force-quit, lock, XCTest startup or an unverified shortcut. Explicit end, cancellation, disconnect and 20-minute tool silence retire control; the native watchdog protects host loss.',
-      input: 'Get a fresh tree; use its snapshot, target and observed coordinates within five seconds. Verify committed route/value after input. Never automatically replay an accepted or unknown action.',
+      input: 'Exact observed selectors can read and tap within one call: ios_native action=tap args={selector:{identifier:...}} (or exact label/class); requires a unique visible interactive match and preserves native hit tests. Otherwise get a fresh tree; use its snapshot, target and observed coordinates within five seconds. Verify committed route/value after input. Never automatically replay an accepted or unknown action.',
       updates: 'JS edits use remote Metro; verify ready and route after refresh. Forms/navigation can reset. Native edits require build/install.',
       visibility: 'Normal main-window data excludes system overlays. Explicit system fallback includes native browser/system hierarchy. UIKeyInput is semantic editing. No arbitrary system UI, IME or multi-touch guarantee.',
       sharedDiagnosticEvidence: 'ios_learning_evidence includes device-profile, system-ready, system-idle, capture-data and capture-audio receipts. Pass an active browser/system sessionId for runtime matching. Historical review uses matchingRuntime=false and must inspect fingerprints/date; profile jobs use a separate device/OS/provider fingerprint. Counts and booleans are evidence only; no automatic lesson promotion.',
@@ -277,6 +278,18 @@ export class Backend {
   }
   async action({sessionId, action, args = {}}, inspect = false, capturePoll=false) {
     const s = this.session(sessionId);
+    if(!inspect && action==='tap' && args.selector){
+      const tree=await this.action({sessionId,action:'tree'});
+      if(!tree.ok)return {ok:false,reason:'native_selector_tree_failed',actionSent:false,treeArtifactId:tree.artifactId};
+      // Compact MCP trees omit unlabelled input views and later nodes. Match the
+      // complete private receipt, never a ranked/truncated candidate list.
+      const raw=JSON.parse(fs.readFileSync(this.artifacts.get(tree.artifactId).file,'utf8'));
+      const plan=planNativeTap(raw.result,args.selector);
+      if(!plan.ok)return {...plan,treeArtifactId:tree.artifactId};
+      // Re-enter the normal action path: validates current ownership again and
+      // retains native snapshot/occlusion guards. No retry after any outcome.
+      return {...await this.action({sessionId,action:'tap',args:plan.point}),treeArtifactId:tree.artifactId,targeting:'fresh-exact-selector'};
+    }
     const a = this.artifact(s, inspect ? 'react' : action);
     const result = await this.run('cli', [inspect ? 'inspect' : 'action', ...(!inspect ? [action] : []),
       '--args', JSON.stringify(args), '--lease-file', s.lease, '--output', a.file]);
