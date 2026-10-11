@@ -148,7 +148,14 @@ export class Backend {
     let current, learning;
     try { current = await this.status(); learning = await this.learning('search', {source: runtimeKey(current) || ''}); }
     catch { learning = {available: false}; }
-    return {browserWorkflow: ['ios_doctor (host prerequisites)', 'ios_web_pages (reuse a visible ready enrolled page)', 'ios_web_enroll only if provisioning is needed (private launchFile)', 'open the intended dev browser page if not enrolled', 'ios_web_pages', 'ios_web_begin', 'ios_web_inspect and ios_web_action', 'ios_web_end in finally'],
+    let bluetoothResourceWatch;
+    try {
+      const watch = JSON.parse(fs.readFileSync(path.join(root,'../../data/agent_resource_monitor/btle/status.json'),'utf8'));
+      const ageSeconds = (Date.now()-Date.parse(watch.timestamp))/1000;
+      bluetoothResourceWatch = {timestamp:watch.timestamp,ageSeconds,fresh:ageSeconds>=0&&ageSeconds<15,highCPU:watch.high_cpu,targets:watch.targets,
+        advice:'Before device discovery/paired transport work, check btle-watch preflight. If high or stale, inspect the incident; reuse an owned existing connection and batch observations instead of redundant discovery/reconnect loops. Do not restart system Bluetooth or interrupt another owner. Correlation does not establish that ios-agent caused the load.'};
+    } catch { bluetoothResourceWatch = {fresh:false,advice:'BTLE watcher unavailable; run /Users/taylor/dotfiles/bin/btle-watch preflight before device discovery.'}; }
+    return {bluetoothResourceWatch,browserWorkflow: ['ios_doctor (host prerequisites)', 'ios_web_pages (reuse a visible ready enrolled page)', 'ios_web_enroll only if provisioning is needed (private launchFile)', 'open the intended dev browser page if not enrolled', 'ios_web_pages', 'ios_web_begin', 'ios_web_inspect and ios_web_action', 'ios_web_end in finally'],
       readiness: 'ios_wait_ready waits up to 55 seconds without a lease, waking on fresh foreground app/page events. Repeat bounded waits while this task is waiting; do not infer lock from offline. ios_begin still verifies the runtime. MCP availability does not itself schedule a new model turn.',
       browserProfiles: 'ios_web_enroll profile=app uses private10446→3000/4000; profile=call-rig uses private10520→3020/4020 with the dedicated real-provider local fixture. Grants and browser memory are origin-bound. Preserve both Serve routes; call-rig enrollment does not install a route or prove credentials/recording state. Read ios-agent://mobile-web.',
       browserConditions: 'ios_web_verify timeoutSeconds=0..30 waits for a specific owned page condition without repeated model turns. web-element uses a unique semantic selector, optional exact expectedValue, and visible/interactable/editable state; passing returns fresh snapshot/target refs. Stops on failed observation or lost ownership; no input is retried. Read ios-agent://mobile-web for examples. web-call additionally waits for explicit lobby/connected/paired/released call state and reports fixed permission/request diagnostics; it never grants permissions or joins. Media RTP remains a single explicit sample.',

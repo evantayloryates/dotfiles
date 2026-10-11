@@ -1,0 +1,2 @@
+#!/bin/sh
+exec /usr/bin/python3 /Users/taylor/src/github/dotfiles/src/agent-resource-monitor/btle_watch.py "$@"

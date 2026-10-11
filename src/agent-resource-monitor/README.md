@@ -216,3 +216,40 @@ review; no hook configuration is installed by this tool.
 References: [OpenAI hook schema](https://learn.chatgpt.com/docs/hooks),
 [Apple memory footprint guidance](https://developer.apple.com/videos/play/wwdc2022/10106/),
 [Appium XCUITest settings](https://github.com/appium/appium-xcuitest-driver/blob/master/docs/reference/settings.md).
+
+## BTLEServer focused watcher
+
+Install with `src/agent-resource-monitor/install-btle.sh`. Its canonical LaunchAgent
+is in `src/launchd`; the host LaunchAgents entry is a symlink. Use
+`/Users/taylor/dotfiles/bin/btle-watch status` or `preflight` for fresh machine-readable
+status. It measures BTLEServer cumulative CPU deltas every second (100% = one core),
+checks VM/swap/compressor pressure every five seconds, and captures a 60-sample
+prelude after five consecutive samples at >=80% CPU. Episodes close after 30 quiet
+samples or rotate at 360 samples. Candidate executable/PID/parent inventories are
+captured every ten seconds during incidents. No arguments, environments, identifiers,
+application log bodies, network calls, restarts or remediation are collected/performed.
+Bundles retain at most 100 files, 32 MiB and 14 days. Status becomes stale at 15 seconds.
+Data lives under `data/agent_resource_monitor/btle/` (private, ignored).
+
+Before paired-device discovery or reconnect-heavy work, read preflight. Reuse an
+owned transport, batch reads, and avoid repeated discovery/restart attempts. A warning
+is advisory: do not break an active session or assume this daemon caused paging.
+The iOS MCP guide includes the fresh watcher snapshot and this operating guidance;
+existing MCP processes require a natural reconnect to load new guide code.
+
+### Stack sampling authorization
+
+The unprivileged `sample` attempt was denied; `sudo -n` also confirmed administrator
+authentication is needed on this host. Taylor can run a bounded elevated capture:
+
+```
+sudo /usr/bin/sample "$(/usr/bin/pgrep -x BTLEServer | /usr/bin/head -1)" 5 -file /tmp/taylor-btleserver-stack.txt
+```
+
+Run only while the watcher reports high CPU; the PID is looked up afresh. Complete
+macOS authentication personally. Then the agent can read that file and identify hot
+functions/frameworks. This grants one capture, not unattended elevated sampling. If
+root sampling is still denied, preserve the exact denial and investigate the supported
+OS diagnostic route; do not disable SIP or install a broadly privileged writable helper.
+CPU, pressure and candidate inventories alone cannot identify an exact caller. Compare
+multiple incidents and controlled, owned consumer operations before assigning cause.
