@@ -1,0 +1,81 @@
+{
+  "at": "2026-10-11T08:43:13.238088+00:00",
+  "version": "1.9.23",
+  "scope": "Physical synthetic local DEV dedicated worker; original XCTest owner preserved",
+  "browsers": {
+    "safari": {
+      "source": {
+        "scriptId": "35",
+        "sha256": "b75009210f86253e27db656fb186d8c7569da489ef4c660fa3678b82b25f5887",
+        "lineCount": 7,
+        "receipt": "owned-inspector-1791707455443740000.json"
+      },
+      "console": {
+        "eventCount": 69,
+        "historyMayReplay": true,
+        "droppedEvents": 0,
+        "receipt": "owned-inspector-1791707457273331000.json"
+      },
+      "profile": {
+        "sampleCount": 37,
+        "expectedFunctionObserved": true,
+        "profilerStopped": true,
+        "profileComplete": true,
+        "forcedGarbageCollection": false,
+        "receipt": "owned-inspector-1791708115193562000.json"
+      },
+      "counterAfterProfiling": 112,
+      "workerStoppedConfirmed": true,
+      "stopReceipt": "owned-inspector-1791708154509215000.json",
+      "allWorkerDomainsDisabled": true,
+      "allWorkersInitialized": true
+    },
+    "chrome": {
+      "source": {
+        "scriptId": "259",
+        "sha256": "b75009210f86253e27db656fb186d8c7569da489ef4c660fa3678b82b25f5887",
+        "lineCount": 7,
+        "receipt": "owned-inspector-1791707662299062000.json"
+      },
+      "console": {
+        "eventCount": 93,
+        "historyMayReplay": true,
+        "droppedEvents": 0,
+        "receipt": "owned-inspector-1791707664098603000.json"
+      },
+      "profile": {
+        "sampleCount": 41,
+        "expectedFunctionObserved": true,
+        "profilerStopped": true,
+        "profileComplete": true,
+        "forcedGarbageCollection": false,
+        "receipt": "owned-inspector-1791707898394977000.json"
+      },
+      "counterAfterProfiling": 769,
+      "workerStoppedConfirmed": true,
+      "stopReceipt": "owned-inspector-1791708165101080000.json",
+      "allWorkerDomainsDisabled": true,
+      "allWorkersInitialized": true
+    }
+  },
+  "staleWorkerGuard": {
+    "browser": "safari",
+    "reason": "current_debug_worker_required",
+    "nestedCommandDispatched": false,
+    "domainsDisabled": true
+  },
+  "checks": {
+    "pythonWorkerLifecycle": 10,
+    "mcpWorkerSchema": 1,
+    "freshRealStdioCatalogGuideChangedResources": true
+  },
+  "boundaries": [
+    "Source/console and sampling were separate physical captures, and provider proof is separate from fresh MCP protocol/schema checks.",
+    "Sampling used a self-limited synthetic 8ms-per-200ms worker workload. Quiet-worker zero samples were also observed.",
+    "Worker samples show JavaScript stacks; provider zero timestamps cannot establish elapsed CPU. No native codec, full-device CPU or audio latency claim.",
+    "Nearby paired WebKit Inspector only; not arbitrary-network Inspector. Routine network page control remains separate.",
+    "No caller worker evaluation, worker breakpoint, service-worker or network attribution. Console history may replay.",
+    "Private2MiB/1000-event limits and one-hour expiry apply. Temporary files removed after stop; phone returned Home while original XCTest remains active.",
+    "Socket teardown and provider close are awaited in provider finally; success cannot return until they complete."
+  ]
+}

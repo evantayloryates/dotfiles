@@ -1,4 +1,4 @@
-"""Bounded dedicated-worker source/console inspection over WebKit's Worker channel."""
+"""Bounded dedicated-worker source, console and JavaScript sampling over WebKit's Worker channel."""
 import asyncio
 import hashlib
 import json
