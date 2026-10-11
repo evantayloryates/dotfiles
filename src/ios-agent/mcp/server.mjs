@@ -23,8 +23,11 @@ const safeErrors = new Set(['request_cancelled_before_dispatch', 'cancelled_clea
   'web_page_not_ready', 'web_session_required', 'device_not_connected', 'device_already_leased', 'frontend_cleanup_in_progress', 'owner_not_active',
   'owner_not_current_active_turn', 'lease_required', 'command_in_flight', 'session_closed', 'owned_baseline_required',
   'physical_unlock_required','system_app_scope_required','system_endpoint_deadline','system_endpoint_unreachable','system_provider_rejected','system_tree_unavailable','system_app_changed']);
-const result = value => ({content: [{type: 'text', text: JSON.stringify(value)}], structuredContent: value,
-  isError: value?.ok === false || value?.receipt?.status === 'failed'});
+const result = (value, request) => {
+  const correlated=request?{...value,signalRequestId:request}:value;
+  return {content: [{type: 'text', text: JSON.stringify(correlated)}], structuredContent: correlated,
+    isError: value?.ok === false || value?.receipt?.status === 'failed'};
+};
 const releaseVersion = JSON.parse(fs.readFileSync(new URL('./package.json', import.meta.url), 'utf8')).version;
 const note=(event,fields)=>{try{emitSignal('mcp',event,fields);}catch{}};
 const reasonCode=value=>typeof value==='string'&&/^[a-z][a-z0-9_-]{0,79}$/.test(value)?value:undefined;
@@ -48,9 +51,15 @@ export function createServer(backend = new Backend()) {
       annotations: {readOnlyHint: readOnly, destructiveHint: !readOnly, idempotentHint: readOnly, openWorldHint: false}},
     async (args, ctx) => {
       const logRequest=name!=='ios_signals'; // A diagnostic read must not create another diagnostic record.
-      if (busy) { if(logRequest)note('request.refused',{tool:name,outcome:'refused',reason:'command_in_flight',level:'warn'}); return {content: [{type: 'text', text: 'MCP call in flight; wait for its result. No command was admitted.'}], isError: true}; }
+      const request=logRequest?randomBytes(8).toString('hex'):undefined;
+      if (busy) {
+        if(logRequest)note('request.refused',{tool:name,traceId:request,requestId:request,outcome:'refused',reason:'command_in_flight',level:'warn'});
+        return {content: [{type: 'text', text: 'MCP call in flight; wait for its result. No command was admitted.'},
+          ...(request?[{type:'text',text:`signalRequestId=${request}`}]:[])],
+          ...(request?{structuredContent:{ok:false,reason:'command_in_flight',signalRequestId:request}}:{}),isError: true};
+      }
       busy = true;
-      const request=randomBytes(8).toString('hex'),started=performance.now();
+      const started=performance.now();
       const execute=async()=>{
         if(logRequest)note('request.admitted',{tool:name,readOnly,build:releaseVersion});
         let cancelled=false;
@@ -61,10 +70,10 @@ export function createServer(backend = new Backend()) {
           const value = await handler(args,ctx.signal);
           if (ctx.signal.aborted) { await backend.cancel(); throw new Error('cancelled_cleanup_requested_do_not_replay'); }
           const response=value?.image?{content: [{type: 'image', mimeType: 'image/png', data: value.image},
-            {type: 'text', text: JSON.stringify(value.metadata)}], isError: false}:
+            {type: 'text', text: JSON.stringify(request?{...value.metadata,signalRequestId:request}:value.metadata)}], isError: false}:
             JSON.stringify(value).length > (value.artifactId ? 24000 : 64000) ? result({ok: value.ok, status: value.status,
               reason: value.reason, artifactId: value.artifactId, truncated: true,
-              next: value.artifactId ? 'Use ios_read with this artifactId and a JSON pointer for bounded inspection.' : 'Request fewer learning results.'}):result(value);
+              next: value.artifactId ? 'Use ios_read with this artifactId and a JSON pointer for bounded inspection.' : 'Request fewer learning results.'},request):result(value,request);
           if(logRequest)note('request.completed',{tool:name,outcome:toolOutcome(value),reason:reasonCode(value?.reason),durationMs:Math.round(performance.now()-started),level:value?.ok===false?'warn':'info'});
           return response;
         } catch (error) {
@@ -74,12 +83,14 @@ export function createServer(backend = new Backend()) {
             errorName:String(error?.name||'Error').slice(0,80),message:String(error?.message||'').slice(0,300),
             stack:String(error?.stack||'').split('\n').slice(1,4).join('\n').slice(0,600),
             durationMs:Math.round(performance.now()-started),level:'error'});
-          return {content: [{type: 'text', text: code}], isError: true};
+          return {content: [{type: 'text', text: code},...(request?[{type:'text',text:`signalRequestId=${request}`}]:[])],
+            ...(request?{structuredContent:{ok:false,reason:code,signalRequestId:request}}:{}),isError: true};
         } finally { ctx.signal.removeEventListener('abort', cancel); busy = false; }
       };
       // A failed diagnostics context must not prevent dispatch or leave busy set.
+      if(!logRequest)return execute();
       let execution;
-      try{const wrapped=await withSignalContext({trace:request,request},()=>{execution=execute();return execution;});return execution?(wrapped===undefined?execution:wrapped):execute();}
+      try{const wrapped=await withSignalContext({traceId:request,requestId:request},()=>{execution=execute();return execution;});return execution?(wrapped===undefined?execution:wrapped):execute();}
       catch(error){if(execution)return execution;return execute();}
     });
   }
