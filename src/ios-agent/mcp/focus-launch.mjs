@@ -44,6 +44,7 @@ export async function focusLaunch({state,check,runShortcut=shortcut}) {
     }catch{result.focusRestored=false;}
   }
   if(attempted&&result.focusRestored!==true){result.ok=false;result.reason='focus_cleanup_unconfirmed';}
-  if(attempted)note('focus.completed',{outcome:result.inputSent===true?'accepted':'unknown',reason:result.reason,focusRestored:result.focusRestored===true,otherFocusPreserved:result.otherFocusPreserved===true,level:result.ok?'info':'warn'});
+  if(attempted)note('focus.completed',{outcome:result.inputSent===true?'accepted':'unknown',reason:result.reason||(result.otherFocusPreserved===true?'other_focus_preserved':undefined),
+    verified:result.focusRestored===true,level:result.ok?'info':'warn'});
   return result;
 }

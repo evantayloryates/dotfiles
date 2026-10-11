@@ -61,7 +61,7 @@ export function createServer(backend = new Backend()) {
       busy = true;
       const started=performance.now();
       const execute=async()=>{
-        if(logRequest)note('request.admitted',{tool:name,readOnly,build:releaseVersion});
+        if(logRequest)note('request.admitted',{tool:name,kind:readOnly?'read':'control',version:releaseVersion});
         let cancelled=false;
         const cancel = () => { if(!cancelled){cancelled=true;if(logRequest)note('request.cancelled',{tool:name,outcome:'cleanup_requested',level:'warn'});} void backend.cancel(); };
         ctx.signal.addEventListener('abort', cancel, {once: true});

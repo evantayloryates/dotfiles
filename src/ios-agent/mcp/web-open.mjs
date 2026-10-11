@@ -14,9 +14,9 @@ export function pageIdleConfirmed(page,runtime,elapsedSinceRelease){
 export async function openManagedWeb(b,args={}){
   if(!['ios-safari','ios-chrome'].includes(args.browser))return {ok:false,reason:'fixed_browser_required',inputSent:false};
   const app=await b.appTransportPreferred();
-  note('provider.selected',{operation:'managed_browser_open',provider:app?'app':'reflected',browser:args.browser});
+  note('provider.selected',{op:'managed_browser_open',provider:app?'app':'reflected',kind:args.browser});
   const result=await (app?openAppWeb(b,args):openReflectedWeb(b,args));
-  note('browser.open_completed',{provider:app?'app':'reflected',browser:args.browser,session:result.sessionId,page:result.page,
+  note('browser.open_completed',{provider:app?'app':'reflected',kind:args.browser,session:result.sessionId,page:result.page,
     outcome:result.ok===true?'verified':result.inputSent===false?'refused':'unknown',reason:typeof result.reason==='string'&&/^[a-z][a-z0-9_-]{0,79}$/.test(result.reason)?result.reason:undefined,level:result.ok?'info':'warn'});
   return result;
 }

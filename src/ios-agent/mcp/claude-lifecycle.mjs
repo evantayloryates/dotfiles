@@ -28,6 +28,7 @@ export function claudeBeginHook(input) {
   catch{return {};}
   // Never silently replace an explicitly selected Codex owner.
   if(original.rollout!==undefined||original.threadId!==undefined)return {};
-  note('harness.owner_bound',{owner:'claude-prompt',tool:input.tool_name?.replace(/^mcp__ios-agent__/,''),session:owner.sessionId,prompt:owner.promptId,agent:owner.agentId||undefined});
+  note('harness.owner_bound',{ownerId:owner.sessionId,kind:'claude-prompt',ownerMode:'claude-prompt',epoch:owner.promptId,
+    tool:input.tool_name?.replace(/^mcp__ios-agent__/,''),session:owner.sessionId});
   return {hookSpecificOutput:{hookEventName:'PreToolUse',updatedInput:{...original,claudeOwner:owner}}};
 }
