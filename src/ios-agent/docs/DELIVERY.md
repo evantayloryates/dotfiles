@@ -20,8 +20,10 @@ For unavailable pages, expired grants or pending cleanup, use the recovery decis
 The latest signed native delivery5da0f761d1fa477dac788b5b621c2b06 was installed
 and independently matched on11October. Fresh owned native/Safari/Chrome
 workflows and synthetic rich-capture passed; see
-owned-acceptance-2026-10-11.json. Provider-call audio and actual off-LAN launch
-remain separate gates. Long-lived harnesses may retain an
+owned-acceptance-2026-10-11.json. Actual-provider received audio capture and call
+cleanup now passed through MCP
+(see provider-received-capture-mcp-2026-10-11.json). Actual off-LAN launch
+remains a separate gate. Long-lived harnesses may retain an
 earlier catalog until their own MCP connection refreshes.
 
 Use `/Users/taylor/dotfiles/bin/ios-agent`. App integration is isolated on
