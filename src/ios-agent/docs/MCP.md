@@ -810,3 +810,28 @@ again while it is pending. Apple may time out authorization sooner; that is repo
 `xctest_authorization_timed_out`, never automatically retried. The hard five-minute startup deadline, explicit end,
 EOF and owner loss stop it. `ios_system_action` refuses all pending input. Startup
 learning evidence is emitted only after actual ready/session confirmation.
+
+### Bounded alert-only inspection (1.9.42)
+
+For permission/dialog work, use `ios_system_inspect {sessionId, kind:"alert"}`.
+It skips the full native hierarchy and returns only the native alert text,
+observed button labels, authentication classification and a fresh snapshot.
+No node targets are minted. The ordinary tree mode remains the default.
+
+Physical Safari alert reads were observed at about10.5seconds per endpoint,
+while the page continued responding. The former two-second alert deadline
+misreported that latency as failure. Text/buttons now each have a15-second
+ceiling. `alert-button` still requires the fresh snapshot and exact observed
+label, checks snapshot freshness at request admission, rereads unchanged text/buttons
+and refuses authentication. A slow context read cannot consume the snapshot
+window before that live revalidation. Its one
+native dispatch has a20-second ceiling; an unknown result is never replayed.
+The pinned WDA expects `{name:<label>}`; `buttonName` silently selected its
+provider default and is corrected in1.9.41.
+
+Do not enable `accessibilityDeadline` as an absence oracle: one physical probe
+reported an unresponsive Safari main loop, then returned “no such alert” while
+an independent screen still showed a permission prompt. A browser restart is
+an explicit recovery experiment, not an automatic retry or a guarantee of UI
+readiness. It discards in-memory page state and must not run during a call or
+an uncertain business mutation. Its candidate is not exposed as a routine tool.

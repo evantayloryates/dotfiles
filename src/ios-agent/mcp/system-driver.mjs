@@ -104,22 +104,29 @@ export class SystemDriver {
   async context(requireScopedApp=true){this.check();if(this.child?.exitCode!==null&&this.child?.exitCode!==undefined)throw Error(this.startupGate||'system_runner_exited');const locked=(await this.http('GET',this.route('/wda/locked'))).value;if(locked!==false)throw Error('physical_unlock_required');const a=(await this.http('GET',this.route('/wda/activeAppInfo'))).value;if(!a?.bundleId||requireScopedApp&&!allowed.has(a.bundleId))throw Error('system_app_scope_required');return a.bundleId;}
   async readAlert(){
     this.check();let text;
-    try{text=(await this.http('GET',this.route('/alert/text'),undefined,2000)).value;}
+    // Safari can take about ten seconds per native alert read even while
+    // its document and WDA remain responsive. Keep reads bounded without
+    // confusing this observed latency with absence of a dialog.
+    try{text=(await this.http('GET',this.route('/alert/text'),undefined,15000)).value;}
     catch(error){if(error.providerCode==='no such alert')return null;throw error;}
     if(text===null||text===undefined)return null;
-    const buttons=(await this.http('GET',this.route('/wda/alert/buttons'),undefined,2000)).value;
+    const buttons=(await this.http('GET',this.route('/wda/alert/buttons'),undefined,15000)).value;
     this.check();
     if(typeof text!=='string'||text.length>4000||!Array.isArray(buttons)||buttons.length>12||buttons.some(v=>typeof v!=='string'||!v.length||v.length>500))throw Error('bounded_system_alert_required');
     const authentication=/passcode|password|touch\s?id|face\s?id|apple\s?(id|account)|sign[ -]?in|enable ui automation|xctest|trust this computer/i.test(text);
     return {text,buttons,authentication,control:authentication?'human authentication required':'observed button only'};
   }
-  async inspect(){
-    const bundle=await this.context(),at=Date.now(),r=await this.http('GET',this.route('/source')),tree=await parseTree(r.value);
+  async inspect({kind='tree'}={}){
+    if(!['tree','alert'].includes(kind))throw Error('fixed_system_inspection_required');
+    const bundle=await this.context(),at=Date.now();
+    // Permission/dialog work must not wait for a full browser hierarchy.
+    // Alert snapshots have no node targets and authorize only observed alerts.
+    const tree=kind==='alert'?{nodes:[],truncated:false}:await parseTree((await this.http('GET',this.route('/source'))).value);
     const alert=await this.readAlert();
     if(await this.context()!==bundle)throw Error('system_app_changed');
     const snapshot=id();this.snapshot={id:snapshot,at:Date.now(),bundle,nodes:tree.nodes,alert};
     this.uncertain=false;
-    return {ok:true,snapshot,bundle,alert,readDurationMs:Date.now()-at,freshness:'five seconds after completed read; tap re-resolves a unique live native element and checks hittability',nodes:tree.nodes.map((n,i)=>({...n,target:String(i)})),truncated:tree.truncated,delivery:'native XCTest; full tree includes browser/system UI; not DOM'};
+    return {ok:true,kind,snapshot,bundle,alert,readDurationMs:Date.now()-at,freshness:'five seconds after completed read; tap re-resolves a unique live native element and checks hittability',nodes:tree.nodes.map((n,i)=>({...n,target:String(i)})),truncated:tree.truncated,delivery:kind==='alert'?'native XCTest alert only; no full hierarchy':'native XCTest; full tree includes browser/system UI; not DOM'};
   }
   async tapElement(matches,type){
     if(!Array.isArray(matches)||matches.length!==1)return {reason:'unique_system_target_required'};
@@ -137,6 +144,10 @@ export class SystemDriver {
     this.check();
     if(!this.sid)return {ok:false,reason:'system_not_ready',actionSent:false,replay:false};
     if(this.uncertain)return {ok:false,reason:'system_observation_required',actionSent:false,replay:false};
+    // Admit the observed alert while fresh, before a slow native context read.
+    // Its exact text/buttons are still re-read immediately before dispatch.
+    const admittedAlert=action==='alert-button'?this.snapshot:null;
+    if(action==='alert-button'&&(!admittedAlert||admittedAlert.id!==snapshot||Date.now()-admittedAlert.at>5000||!admittedAlert.alert||typeof label!=='string'||!admittedAlert.alert.buttons.includes(label)))return {ok:false,reason:'fresh_observed_alert_required',actionSent:false};
     let inputSent=false;
     try{
       // Fixed launch/Home never inspect the previous app's contents. Still refuse a locked phone.
@@ -145,7 +156,7 @@ export class SystemDriver {
       if(action==='activate'){if(!bundles[app])return {ok:false,reason:'fixed_system_app_required',actionSent:false};this.snapshot=null;await this.authorize();this.check();inputSent=true;await this.http('POST',this.route('/wda/apps/activate'),{bundleId:bundles[app]});return {ok:true,foregroundConfirmed:await this.foregroundMatches(bundles[app]),replay:false};}
       if(action==='alert-button'){
         const saved=this.snapshot;
-        if(!saved||saved.id!==snapshot||Date.now()-saved.at>5000||saved.bundle!==bundle||!saved.alert||typeof label!=='string'||!saved.alert.buttons.includes(label))return {ok:false,reason:'fresh_observed_alert_required',actionSent:false};
+        if(saved!==admittedAlert||saved.bundle!==bundle)return {ok:false,reason:'fresh_observed_alert_required',actionSent:false};
         if(saved.alert.authentication)return {ok:false,reason:'human_authentication_required',actionSent:false};
         const current=await this.readAlert();
         if(JSON.stringify(current)!==JSON.stringify(saved.alert))return {ok:false,reason:'system_alert_changed',actionSent:false};
@@ -154,7 +165,7 @@ export class SystemDriver {
         this.snapshot=null;inputSent=true;
         // The pinned WDA handler reads `name`; an unknown key silently falls
         // back to accepting its default button, which may be a different one.
-        await this.http('POST',this.route('/alert/accept'),{name:label});
+        await this.http('POST',this.route('/alert/accept'),{name:label},20000);
         return {ok:true,delivery:'native-XCTest-alert',effect:'unverified; inspect again',replay:false};
       }
       if(action==='orientation'){

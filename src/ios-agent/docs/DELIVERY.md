@@ -474,3 +474,17 @@ field. The former `buttonName` field was ignored by that provider, permitting
 default-button selection. Seven focused checks pass, including the installed
 provider source contract. Physical selection acceptance remains pending; this
 fix does not claim that stalled Safari inspection is resolved.
+
+### Bounded Safari alert increment —1.9.42
+
+New alert-only system inspection avoids the full browser hierarchy. Physical
+reads of the exact synthetic Cancel/OK prompt succeeded, exposing approximately
+10.5seconds per native alert endpoint. The new15-second read ceilings preserve
+authentication refusal and unknown-input fencing. Freshness is checked at action
+admission, before slow context validation, followed by exact live alert revalidation.
+Eleven alert-focused checks passed. Physical alert-only inspection passed twice;
+one exact Cancel dispatch resolved the correct label, but native synthesis returned
+an invalid hit point and the dialog remained. The unknown input was not replayed.
+Own runner stop and owner release passed; Runner Home was dispatched once and
+a later independent display confirmed Home. See safari-alert-only-2026-10-11.json. No general passcode
+exemption, off-LAN startup or actual provider-call qualification is inferred.

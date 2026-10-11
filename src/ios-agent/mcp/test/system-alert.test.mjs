@@ -21,3 +21,31 @@ test('pinned provider consumes the exact non-default alert button field',async()
  const dispatch=calls.find(x=>x.m==='POST');assert.equal(dispatch.b.name,'Cancel');
  assert.equal('buttonName' in dispatch.b,false);
 });
+
+test('alert-only inspection avoids source but retains context and authentication fencing',async()=>{
+ const {d,calls}=fixture('Enter iPhone Passcode for XCTest',['Cancel']);
+ const s=await d.inspect({kind:'alert'});assert.equal(s.kind,'alert');assert.deepEqual(s.nodes,[]);
+ assert(!calls.some(c=>c.r.endsWith('/source')));assert.equal(s.alert.authentication,true);
+ assert.equal((await d.action({action:'alert-button',snapshot:s.snapshot,label:'Cancel'})).reason,'human_authentication_required');
+ assert(!calls.some(c=>c.m==='POST'));
+});
+test('slow alert reads use bounded deadlines without dropping errors or replaying input',async()=>{
+ const {d}=fixture();const http=d.http,deadlines=[];
+ d.http=async(m,r,b,timeout)=>{if(r.endsWith('/alert/text')||r.endsWith('/wda/alert/buttons'))deadlines.push(timeout);return http(m,r,b,timeout);};
+ const s=await d.inspect({kind:'alert'});assert.equal(s.alert.text,'Runner synthetic prompt');assert.deepEqual(deadlines,[15000,15000]);
+ d.http=async()=>{throw Error('system_endpoint_deadline')};await assert.rejects(d.readAlert(),/system_endpoint_deadline/);
+ await assert.rejects(d.inspect({kind:'arbitrary'}),/fixed_system_inspection_required/);
+});
+test('MCP forwards explicit alert inspection and rejects unsupported modes',async()=>{
+ const {Client}=await import('@modelcontextprotocol/sdk/client/index.js');const {InMemoryTransport}=await import('@modelcontextprotocol/sdk/inMemory.js');const {createServer}=await import('../server.mjs');
+ const seen=[];const {server}=createServer({close:async()=>{},systemInspect:async x=>{seen.push(x);return {ok:true,kind:x.kind}}});const c=new Client({name:'alert-inspect-contract',version:'1'});const [a,b]=InMemoryTransport.createLinkedPair();await server.connect(a);await c.connect(b);
+ try{const args={sessionId:'a'.repeat(32),kind:'alert'};assert.equal((await c.callTool({name:'ios_system_inspect',arguments:args})).structuredContent.kind,'alert');assert.equal(seen.length,1);assert.equal((await c.callTool({name:'ios_system_inspect',arguments:{...args,kind:'arbitrary'}})).isError,true);assert.equal(seen.length,1);}finally{await c.close();await server.close();}
+});
+
+test('slow context validation does not expire a freshly admitted exact alert',async()=>{
+ const {d,calls}=fixture('Runner synthetic prompt',['Cancel','OK']);const s=await d.inspect({kind:'alert'});
+ let now=Date.now();const clock=Date.now,context=d.context.bind(d);d.snapshot.at=now;
+ Date.now=()=>now;
+ d.context=async(...args)=>{now+=6000;return context(...args)};
+ try{const r=await d.action({action:'alert-button',snapshot:s.snapshot,label:'Cancel'});assert.equal(r.ok,true);assert.deepEqual(calls.find(c=>c.m==='POST').b,{name:'Cancel'});assert.equal(calls.filter(c=>c.r.endsWith('/alert/text')).length,2);}finally{Date.now=clock;}
+});

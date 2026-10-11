@@ -1,0 +1,97 @@
+{
+  "observedAt": "2026-10-11T16:30:31.625767+00:00",
+  "version": "1.9.42",
+  "scope": "physical Safari synthetic native dialog, fresh MCP-owned runner",
+  "catalog": {
+    "tools": 39,
+    "resources": 10
+  },
+  "changedConditions": {
+    "snapshotDeadlineSeconds": 3,
+    "deadlineReadResult": "no such alert despite visible camera prompt; not promoted as absence proof",
+    "independentAXRead": "no focus event; monitoring cleanup passed",
+    "controlledSafariRestart": "paired Tailscale accepted; foreground event passed; in-memory document replaced",
+    "firstAlertOnlyInspection": {
+      "passed": true,
+      "readDurationMs": 26276,
+      "buttons": [
+        "Cancel",
+        "OK"
+      ]
+    },
+    "freshnessBug": "slow context read consumed snapshot age before validation; corrected to freshness at admission followed by exact live revalidation"
+  },
+  "physicalMCP": {
+    "beginReady": true,
+    "inspection": {
+      "ok": true,
+      "kind": "alert",
+      "readDurationMs": 26355,
+      "exactSyntheticText": true,
+      "buttons": [
+        "Cancel",
+        "OK"
+      ],
+      "authentication": false
+    },
+    "action": {
+      "ok": false,
+      "outcome": "unknown_or_rejected",
+      "actionSent": true,
+      "reason": "system_endpoint_deadline",
+      "replay": false
+    },
+    "after": {
+      "ok": true,
+      "dialogStillPresent": true
+    },
+    "nativeTrace": {
+      "correctCancelElementResolved": true,
+      "computedHitPoint": [
+        -1,
+        -1
+      ],
+      "physicalEffectQualified": false
+    },
+    "cleanup": {
+      "released": true,
+      "systemCleanup": {
+        "ok": true,
+        "runnerStopped": true,
+        "verificationAttempts": 1,
+        "cleanupReason": "explicit_end_or_eof",
+        "learningEvidence": {
+          "evidenceId": "c516afe8ba004643a1727726f1e0f59e",
+          "gate": "system-idle",
+          "status": "passed"
+        }
+      },
+      "ok": true,
+      "detail": {
+        "released": true
+      },
+      "next": "XCTest fallback is stopped. Begin a fresh native/browser lease for normal work.",
+      "presentation": {
+        "homeNavigationPending": true
+      }
+    }
+  },
+  "focusedChecks": {
+    "alert": 11,
+    "startup": 3,
+    "scope": "14 focused Node checks across candidate changes; no broad regression pass"
+  },
+  "limits": [
+    "Alert visibility and admission fix are qualified; successful physical Cancel delivery is not.",
+    "Unknown input was never replayed.",
+    "No off-LAN startup, new authentication exemption or provider-call audio claim."
+  ],
+  "next": "Use the existing Chrome native hierarchy path for the media unblock; isolate Safari invalid hit geometry as a separate targeted provider defect.",
+  "homeCleanup": {
+    "dispatchSentOnce": true,
+    "firstDisplay": "Shortcuts still running Runner Home",
+    "settledDisplay": "Home Screen independently viewed",
+    "homeConfirmed": true,
+    "additionalInputSent": false
+  }
+}

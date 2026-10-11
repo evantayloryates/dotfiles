@@ -479,7 +479,7 @@ export class Backend {
         s.systemStartupTimer.unref();
         return {...result,sessionId:s.id,lifecycle:acquired.lifecycle,next:'One runner is still starting; no system input authority yet. Inspect the phone using ios_device_inspect with this sessionId. If Apple requests authentication, ask the human. Resume the same attempt with ios_system_inspect; do not begin again. Auto-stop after five minutes; ios_system_end/EOF cancel it.'};
       }
-      return {...result,sessionId:s.id,lifecycle:acquired.lifecycle,learningEvidence:await this.systemReady(s),next:result.retained?'Use ios_system_inspect and observed targets; ios_system_end releases input control but preserves the explicit reservation and Apple overlay. Reservation end/expiry stops its runner.':'Use ios_system_inspect and fresh targets; ios_system_end in finally stops the runner and Apple overlay. Normal page/app work should use its own driver.'};
+      return {...result,sessionId:s.id,lifecycle:acquired.lifecycle,learningEvidence:await this.systemReady(s),next:result.retained?'Use ios_system_inspect and observed targets; ios_system_end releases input control but preserves the explicit reservation and Apple overlay. Reservation end/expiry stops its runner.':'Use ios_system_inspect kind=alert for a permission/dialog, or tree for other native controls. Use fresh targets; ios_system_end in finally stops the runner and Apple overlay. Normal page/app work should use its own driver.'};
     }catch{const cleanup=await this.end(s.id);return {ok:false,reason:'system_start_unconfirmed_inspect_phone',replay:false,cleanup};}
   }
   async systemReady(s){
@@ -488,7 +488,7 @@ export class Backend {
     const receipt={gate:'system-ready',status:'passed',observation:{runnerReady:true,sharedOwner:true,nearbyStartupOnly:true}};
     return this.learning('observe',{receipt,source:s.systemFingerprint}).catch(()=>({available:false}));
   }
-  async systemInspect({sessionId,timeoutSeconds=0}) {
+  async systemInspect({sessionId,timeoutSeconds=0,kind='tree'}) {
     const s=this.session(sessionId);if(!s.systemDriver)throw Error('session_required');
     if(s.systemStarting){
       const result=await s.systemDriver.continueStart(timeoutSeconds*1000);
@@ -496,7 +496,7 @@ export class Backend {
       if(result.ready===false)return {...result,sessionId:s.id,next:'The same runner remains pending. Inspect the phone; do not restart XCTest. End in finally or let the five-minute deadline retire it.'};
       await this.systemReady(s);
     }
-    const value=await s.systemDriver.inspect(),a=this.artifact(s,'system-tree');
+    const value=await s.systemDriver.inspect({kind}),a=this.artifact(s,'system-tree');
     fs.writeFileSync(a.file,JSON.stringify(value),{flag:'wx',mode:0o600});
     const nodes=value.nodes.filter(n=>n.visible&&(n.name||n.label||n.value));
     return {...value,artifactId:a.id,nodes:nodes.slice(0,100),totalNodes:value.nodes.length,compact:true,next:'Fresh snapshot expires in five seconds. ios_read selects the private full tree. Never replay accepted or unknown input.'};
