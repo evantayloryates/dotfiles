@@ -14,10 +14,11 @@ import {SystemDriver} from './system-driver.mjs';
 import {nativeDelivery} from './native-delivery.mjs';
 import {planNativeTap} from './native-selector.mjs';
 import {codexOwnerContext} from './owner-context.mjs';
+import {claudeTurnOwner,sameClaudeTurn} from './claude-lifecycle.mjs';
 import {waitNativeElement} from './native-condition.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/input-schemas.mjs', 'mcp/native-selector.mjs', 'mcp/owner-context.mjs', 'mcp/native-condition.mjs', 'mcp/system-driver.mjs', 'mcp/system-reservation.mjs', 'system_runner.py', 'system_reservation.py', 'mcp/capture-store.mjs', 'web/rich-capture.js', 'ready_wait.py', 'mcp/media-verification.mjs', 'mcp/call-verification.mjs', 'mcp/web-profiles.mjs', 'mcp/workflows.mjs', 'fixture_jobs.py', 'build_jobs.py', 'build_app.py', 'native_delivery.py', 'mcp/native-delivery.mjs', 'tests/run_fixture.py', 'paired_workflow.py', 'health.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'paired_transport.py','device_accessibility.py', 'browser_inspector.py', 'browser_dom.js', 'browser_heap.py','browser_breakpoint.py','browser_worker.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
+const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/input-schemas.mjs', 'mcp/native-selector.mjs', 'mcp/owner-context.mjs', 'mcp/claude-lifecycle.mjs', 'claude-begin-hook.mjs', 'mcp/native-condition.mjs', 'mcp/system-driver.mjs', 'mcp/system-reservation.mjs', 'system_runner.py', 'system_reservation.py', 'mcp/capture-store.mjs', 'web/rich-capture.js', 'ready_wait.py', 'mcp/media-verification.mjs', 'mcp/call-verification.mjs', 'mcp/web-profiles.mjs', 'mcp/workflows.mjs', 'fixture_jobs.py', 'build_jobs.py', 'build_app.py', 'native_delivery.py', 'mcp/native-delivery.mjs', 'tests/run_fixture.py', 'paired_workflow.py', 'health.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'paired_transport.py','device_accessibility.py', 'browser_inspector.py', 'browser_dom.js', 'browser_heap.py','browser_breakpoint.py','browser_worker.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
   .map(file => fs.readFileSync(path.join(root, file))).map(bytes => createHash('sha256').update(bytes).digest('hex')).join(':')).digest('hex');
 export const defaultState = path.join(os.homedir(), 'Library/Application Support/ios-agent');
 const idleLimit = 20 * 60 * 1000;
@@ -165,6 +166,7 @@ export class Backend {
       nativeConditions: 'ios_verify gate=native-element waits 1..30 seconds for one exact label/identifier/class match, visible or interactable. Returns fresh native references; no input. Route/ready gates already wait. Stop on read/owner failure or ambiguity; no whole-phone occlusion or committed value claim.',
       pairedWorkflow: 'ios_workflow action=plan exposes the versioned coach-client recipe; capture/assert/restore-check independently read only the verified synthetic local row. UI rendering is a separate gate.',
       lease: 'One session per work turn. Always ios_end in finally before ending a turn. Codex should pass its actual threadId on begin; the service discovers only that exact rollout. Inherited CODEX_THREAD_ID is a fallback when present. Check lifecycle.threadId or supply the actual rollout explicitly. Missing/ambiguous metadata uses explicitly reported mcp-connection ownership. Other clients use a private connection heartbeat and must end in finally; persistent MCP alone has no universal turn-end signal.',
+      claudeCleanup: 'ios_harness_end retires only this connection sessions tagged at begin with an exact Claude session/prompt/agent tuple. Optional candidate hooks inject the owner without permission overrides; older prompt and other-agent events send no cleanup. The candidate is not installed or live-harness qualified: the real Claude smoke hit expired OAuth. Explicit end in finally remains required. Stop does not cover user interrupts; disconnect/idle safeguards still apply. Read ios-agent://mcp.',
       requirements: 'Native: Kickoff DEV foreground/unlocked. Browser: enrolled dev document visible on unlocked iPhone. Both require Tailscale and awake laptop services; routine control needs no USB. Developer-channel failure does not prove physical disconnection or lock.',
       audioProbes: 'ios_audio_probe plan/select/run/read/stop wraps the synthetic three-transport lab. Read ios-agent://audio-probe before joining; recording and exact provider fixture must be independently verified. Readback and call cleanup stay separate.',
       browserDomains: {layout:'ios_web_inspect kind=element reports fresh target computed CSS, center hit, bounded ancestors and viewport; use snapshot and target refs.',media:'Content-free request outcomes, track liveness, WebRTC audio and WebSocket counters. Check media.hooks coverage before interpreting zero counts; late microphone APIs are wrapped without replacing later libraries.',performance:'Bounded navigation/paint/resource/main-thread timings, optional Event Timing/LCP observers and readonly AudioSession type/state. Inspect domains.performance; a second state read obtains buffered asynchronous values. Optional observers stop with ownership. Event entry durations are not INP; latest LCP is a candidate. Unsupported readings stay null.',meet:'Fixed local call-lobby projection; no identities, credentials or transcripts.',limitations:'State readback is not a trusted touch, OS permission tap, whole-phone screenshot or off-LAN verification.'},
@@ -230,19 +232,21 @@ export class Backend {
       dataChanged: false, credentialsCreated: false, replay: false,
       next: 'This is database readback only. Verify phone and coach rendering separately; stop on a changed pair/value rather than replaying a mutation.'};
   }
-  async begin({rollout, threadId, surface = 'native', page, nativeOnly = false} = {}) {
+  async begin({rollout, threadId, claudeOwner, surface = 'native', page, nativeOnly = false} = {}) {
     if (this.closing || [...this.sessions.values()].some(s => s.active)) throw new Error('end_existing_session_first');
     if (rollout&&threadId) throw new Error('one_codex_owner_reference_required');
-    const lifecycle=rollout?{mode:'codex-turn',source:'explicit-rollout'}:this.ownerContext({threadId});
+    if(claudeOwner!==undefined&&(rollout!==undefined||threadId!==undefined))throw Error('one_harness_owner_reference_required');
+    const claude=claudeOwner===undefined?undefined:claudeTurnOwner(claudeOwner);
+    const lifecycle=claude?{mode:'claude-prompt',source:'explicit-hook',...claude}:rollout?{mode:'codex-turn',source:'explicit-rollout'}:this.ownerContext({threadId});
     if (threadId&&!lifecycle.rollout) throw new Error(lifecycle.reason||'codex_rollout_unavailable');
     rollout ||= lifecycle.rollout;
-    const ownership={mode:lifecycle.mode,...(lifecycle.source?{source:lifecycle.source}:{}),...(lifecycle.threadId?{threadId:lifecycle.threadId}:{}),...(lifecycle.reason?{reason:lifecycle.reason}:{})};
+    const ownership={mode:lifecycle.mode,...(lifecycle.source?{source:lifecycle.source}:{}),...(lifecycle.threadId?{threadId:lifecycle.threadId}:{}),...(lifecycle.reason?{reason:lifecycle.reason}:{}),...(claude?{claudeOwner:claude}:{})};
     const base = path.join(this.state, 'mcp-sessions');
     fs.mkdirSync(base, {recursive: true, mode: 0o700});
     if (fs.lstatSync(base).isSymbolicLink() || fs.statSync(base).mode & 0o077) throw new Error('private_session_directory_required');
     const id = hex(); const dir = path.join(base, id); fs.mkdirSync(dir, {mode: 0o700});
     const s = {id, dir, turn: hex(), owner: path.join(dir, 'owner.json'),
-      lease: path.join(dir, 'lease.json'), activity: Date.now(), active: true, busy: false, surface, page};
+      lease: path.join(dir, 'lease.json'), activity: Date.now(), active: true, busy: false, surface, page,claudeOwner:claude};
     this.sessions.set(id, s); this.writeOwner(s);
     s.acquisition = this.run('cli', ['acquire', ...(surface !== 'native' ? ['--surface', surface, ...(surface === 'web' ? ['--page', page] : [])] : []), ...(rollout ? ['--rollout', rollout, '--connection-owner', s.owner] : ['--owner-file', s.owner]), '--lease-file', s.lease]);
     const r = await s.acquisition;
@@ -264,7 +268,7 @@ export class Backend {
       }
       const verification = await this.verify({sessionId: id, gate: 'ready', timeout: 12});
       if (verification.receipt.status !== 'passed') throw new Error('app_not_ready');
-      return {sessionId: id, ready: true, ownership: rollout ? 'codex-turn' : 'mcp-connection', lifecycle:ownership, verification,
+      return {sessionId: id, ready: true, ownership: lifecycle.mode, lifecycle:ownership, verification,
         next: 'Inspect a native or React tree. Call ios_end before ending this work turn.',
         learning: await this.learning('search', {source: runtimeKey(await this.status()) || ''}).catch(() => ({available: false}))};
     } catch (error) { await this.end(id); throw error; }
@@ -453,8 +457,8 @@ export class Backend {
       return result.value||{ok:false,reason:'reservation_unconfirmed',replay:false};
     }finally{await this.end(s.id);}
   }
-  async systemBegin({rollout,threadId}={}) {
-    const acquired=await this.begin({surface:'launch',rollout,threadId}),s=this.session(acquired.sessionId);
+  async systemBegin({rollout,threadId,claudeOwner}={}) {
+    const acquired=await this.begin({surface:'launch',rollout,threadId,claudeOwner}),s=this.session(acquired.sessionId);
     s.systemDriver=new SystemDriver({state:this.state,session:s,check:()=>this.session(s.id),authorize:async()=>{
       this.session(s.id);
       const status=await this.run('cli',['owner-check','--lease-file',s.lease],undefined,5000);
@@ -768,6 +772,25 @@ export class Backend {
       await new Promise(resolve => setTimeout(resolve, 250));
     }
     return {...release, indicatorOff: 'unconfirmed', ok: false, next: 'Host release alone cannot confirm the disconnected page indicator.'};
+  }
+  async harnessEnd({event,sessionId,promptId,agentId}={}) {
+    const ignored=reason=>({ok:true,suppressOutput:true,cleanup:{matched:0,released:0,reason}});
+    if(!['Stop','StopFailure','SubagentStop','SessionEnd'].includes(event))return ignored('unsupported_cleanup_event');
+    if(event==='SubagentStop'&&!agentId)return ignored('subagent_identity_required');
+    let owner;
+    try{owner=claudeTurnOwner({sessionId,promptId,...(agentId===undefined?{}:{agentId})});}
+    catch{return ignored('exact_claude_prompt_owner_required');}
+    const matched=[...this.sessions.values()].filter(s=>sameClaudeTurn(s.claudeOwner,owner));
+    const receipts=[];
+    for(const s of matched){
+      // No global cancellation/close: a delayed Stop, parent Stop, another
+      // connection and any unbound session are all outside this exact fence.
+      try{receipts.push(s.systemDriver?await this.systemEnd({sessionId:s.id}):s.surface==='web'?await this.webEnd(s.id):await this.end(s.id));}
+      catch{receipts.push({released:false,ok:false,reason:'harness_cleanup_unconfirmed',replay:false});}
+    }
+    const confirmed=receipts.every(r=>r.released===true&&r.ok!==false&&r.indicatorOff!=='unconfirmed'&&r.captureCleanup?.complete!==false);
+    return {ok:confirmed,suppressOutput:true,cleanup:{matched:matched.length,released:receipts.filter(r=>r.released===true).length,confirmed,
+      ...(matched.length?{receipts}:{reason:'no_matching_owned_prompt'})}};
   }
   async end(id) {
     const s = this.sessions.get(id);

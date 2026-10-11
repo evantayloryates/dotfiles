@@ -1,6 +1,6 @@
 {
   "name": "personal-ios-agent-mcp",
-  "version": "1.9.28",
+  "version": "1.9.29",
   "private": true,
   "type": "module",
   "scripts": {

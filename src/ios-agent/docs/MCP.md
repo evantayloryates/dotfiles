@@ -1,6 +1,6 @@
 # iOS agent MCP — shared service interface and operational learning
 
-Current interface: **37 tools / ten resources**. `ios_guide.interface` identifies
+Current interface: **38 tools / ten resources**. `ios_guide.interface` identifies
 the process answering this connection. `/Users/taylor/dotfiles/bin/ios-agent-mcp
 --catalog` reads the installed catalog without host/phone access. A missing
 `interface` means the connected process predates this check; absent new tools
@@ -98,6 +98,19 @@ either turn completion or connection loss retires control. Pending acquisition
 is allowed to resolve once before release so EOF cannot orphan its capability.
 The wrapper does not claim every
 harness's native lifecycle hook has been installed or tested.
+
+Version1.9.29 adds `ios_harness_end` and optional `claudeOwner` begin metadata.
+Cleanup matches the exact Claude session, user-prompt and subagent tuple inside
+the same MCP connection. A late Stop for an earlier prompt, a parent Stop for a
+child, and untagged/foreign sessions send no cleanup. The deterministic candidate
+PreToolUse hook preserves existing arguments and injects metadata; it never
+returns an allow decision. Normal web/system cleanup reports unconfirmed outcomes.
+
+**The Claude hook candidate is not installed or live-qualified.** Its real CLI
+smoke stopped at expired Claude OAuth before inference or hooks. Explicit end in
+finally remains required. See CLAUDE-CLEANUP.md for the prepared configuration,
+proof boundaries and the remaining real-harness gate. The current retained
+Codex XCTest session is untagged and unaffected.
 
 ## One shared learning path
 

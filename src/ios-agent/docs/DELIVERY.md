@@ -238,3 +238,11 @@ alert-button input. Physical Safari Close and Chrome native-hierarchy OK paths
 were independently confirmed; no microphone/authentication promotion. Six new
 contract checks,27existing driver cases and31wrapper/alert checks passed.
 Original runner unchanged; own static fixture removed, Home verified separately.
+
+####1.9.29 — exact-prompt Claude cleanup bridge
+`ios_harness_end` and optional begin-owner metadata are integrated with exact
+session/prompt/subagent fencing and normal cleanup receipts. Six isolated contract
+checks passed. The deterministic Claude hooks are prepared but not installed:
+the real Claude CLI smoke failed at expired OAuth before hooks/inference. No
+phone owner or live Claude settings were changed. Explicit end remains required;
+CLAUDE-CLEANUP.md records the precise live-harness and physical handoff gates.

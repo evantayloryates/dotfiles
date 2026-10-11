@@ -1,0 +1,99 @@
+{
+  "at": "2026-10-11T10:05:22.907234+00:00",
+  "version": "1.9.29",
+  "scope": "exact-prompt MCP cleanup bridge; candidate hooks not installed",
+  "tests": {
+    "newContractCases": 6,
+    "relatedWrapperAndOwnerCases": 30,
+    "allPassed": true
+  },
+  "freshStdio": {
+    "at": "2026-10-11T10:04:12.171Z",
+    "version": "1.9.29",
+    "tools": [
+      "ios_guide",
+      "ios_wait_ready",
+      "ios_harness_end",
+      "ios_capture",
+      "ios_device_launch",
+      "ios_device_lock",
+      "ios_system_begin",
+      "ios_system_inspect",
+      "ios_system_action",
+      "ios_system_end",
+      "ios_doctor",
+      "ios_stack_ensure",
+      "ios_build",
+      "ios_install",
+      "ios_input_matrix",
+      "ios_workflow",
+      "ios_browser_debug",
+      "ios_accessibility_audit",
+      "ios_device_inspect",
+      "ios_web_pages",
+      "ios_web_enroll",
+      "ios_web_begin",
+      "ios_web_inspect",
+      "ios_web_action",
+      "ios_web_verify",
+      "ios_audio_probe",
+      "ios_web_end",
+      "ios_status",
+      "ios_begin",
+      "ios_end",
+      "ios_verify",
+      "ios_native",
+      "ios_react",
+      "ios_read",
+      "ios_learning_search",
+      "ios_learning_evidence",
+      "ios_learning_propose",
+      "ios_learning_review"
+    ],
+    "resources": [
+      {
+        "uri": "ios-agent://operating-contract",
+        "bytes": 17590
+      },
+      {
+        "uri": "ios-agent://mcp",
+        "bytes": 48107
+      },
+      {
+        "uri": "ios-agent://mobile-web",
+        "bytes": 36839
+      }
+    ],
+    "resourceCount": 10,
+    "guidePassed": true,
+    "heapSchema": true,
+    "breakpointSchema": true,
+    "artifactPagingSchema": true,
+    "workerDebugSchema": true,
+    "recoveryRecipe": true,
+    "claudeOwnerSchema": true,
+    "unmatchedCleanupNoOp": true,
+    "scope": "fresh real stdio catalog, guide and changed-resource reads only; no phone lease or runner operation"
+  },
+  "realClaudeProbe": {
+    "cliVersion": "2.1.292",
+    "requestAttempted": true,
+    "inferenceStarted": false,
+    "hookEventsObserved": 0,
+    "blockedBy": "expired OAuth session could not refresh",
+    "credentialFallback": false,
+    "phoneAccess": false
+  },
+  "physicalOwner": {
+    "existingSessionPreserved": true,
+    "homeAndUnlockedReadback": "owned-input-1791713052555.json",
+    "newRunnerStarted": false,
+    "liveClaudeSettingsChanged": false
+  },
+  "remaining": [
+    "actual Claude PreToolUse rewrite and absent-agent interpolation",
+    "main and subagent Stop/StopFailure delivery and same-prompt continuation ordering",
+    "physical normal owned workflow cleanup at safe handoff",
+    "user-interrupt gap remains covered by explicit end, cancellation/EOF and idle safeguards"
+  ]
+}
