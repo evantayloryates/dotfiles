@@ -46,6 +46,30 @@ class ObserverBoundaryTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(calls[-2:],['detach','close'])
         self.assertTrue(result['pages'][0]['readConfirmed'])
 
+    def test_profile_omits_unrelated_processes_and_preserves_unknown_metrics(self):
+        self.assertIsNone(observer.profile_process({'name':'Messages','pid':7,'cpuUsage':88}))
+        self.assertEqual(observer.profile_process({'name':'WebContent','pid':7,'cpuUsage':0,'physFootprint':None}),
+            {'process':'web-content','pid':7,'cpuUsageRaw':0,'physicalFootprintBytes':None})
+        p=observer.profile_process({'name':'MobileSafari','pid':9,'cpuUsage':float('nan'),'physFootprint':-1})
+        self.assertIsNone(p['cpuUsageRaw']);self.assertIsNone(p['physicalFootprintBytes'])
+
+    async def test_profiler_closes_on_expired_owner_without_exporting_sample(self):
+        calls=[]
+        class Context:
+            async def __aenter__(self):calls.append('open');return self
+            async def __aexit__(self,*args):calls.append('close')
+        class Tap(Context):
+            process_attributes_cls=Obj(__dataclass_fields__={'name':None,'pid':None})
+            @classmethod
+            async def create(cls,dvt,interval):return cls()
+            async def iter_processes(self):yield [{'name':'MobileSafari','pid':2}]
+        fake={'pymobiledevice3.services.dvt.instruments.dvt_provider':Obj(DvtProvider=lambda rsd:Context()),
+              'pymobiledevice3.services.dvt.instruments.sysmontap':Obj(Sysmontap=Tap)}
+        with patch.dict(sys.modules,fake),patch.object(observer,'owned',side_effect=ValueError('observer_owner_expired')):
+            with self.assertRaisesRegex(ValueError,'observer_owner_expired'):
+                await observer.resource_profile({},None)
+        self.assertEqual(calls,['open','open','close','close'])
+
     async def test_inactive_owner_is_refused_before_broker_or_device(self):
         with tempfile.TemporaryDirectory() as directory:
             owner=Path(directory)/'owner.json';owner.write_text('{"active":false}')

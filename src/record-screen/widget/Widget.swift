@@ -1,5 +1,6 @@
 import WidgetKit
 import SwiftUI
+import AppIntents
 
 struct ProductionEntry:TimelineEntry {let date:Date;let snapshot:Snapshot;let expired:Bool}
 struct ProductionProvider:TimelineProvider {
@@ -22,11 +23,16 @@ struct ProductionView:View {
         HStack(spacing:4){Text("Sampled");Text(entry.snapshot.sampledAt,style:.relative);Text("ago")}.font(.caption).foregroundStyle(.secondary)
       } else {Text("Service status unavailable").font(.caption).foregroundStyle(.secondary)}
       HStack(spacing:18) {
-        Link("Pause",destination:URL(string:"record-screen-control://pause")!)
-        Link("Resume",destination:URL(string:"record-screen-control://resume")!)
-        Link("Live panel",destination:URL(string:"record-screen-control://panel")!)
+        Button(intent:SetRecordingGateIntent(paused:!entry.snapshot.paused)) {
+          Label(entry.snapshot.paused ? "Resume" : "Pause",systemImage:entry.snapshot.paused ? "play.fill" : "pause.fill")
+        }
+        .buttonStyle(.borderedProminent)
+        .disabled(entry.expired || entry.snapshot.phase == "unavailable")
+        .invalidatableContent()
+        Link("Details",destination:URL(string:"record-screen-control://panel")!)
       }.font(.subheadline.bold())
-      Text("macOS schedules refreshes; open the live panel for current state.").font(.caption2).foregroundStyle(.secondary)
+      Text(ControlMailbox.feedback() ?? (entry.snapshot.paused ? "New work waits until you resume." : "Pause lets current work finish safely."))
+        .font(.caption2).foregroundStyle(.secondary).lineLimit(2)
     }.containerBackground(.fill.tertiary,for:.widget)
   }
 }

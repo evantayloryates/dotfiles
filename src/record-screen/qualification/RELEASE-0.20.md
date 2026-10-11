@@ -12,10 +12,13 @@ keep their loaded code; the CLI reads current code without restarting peers.
   stale-timer fencing, no late auto-start after a queued start expires, native
   desktop reading/control panel and cross-client/CLI controls. Current takes
   drain safely; arbitrary external UI tools cooperate through checkpoints.
-- Native WidgetKit desktop companion 5e680bb4c5ab, signed and registered, with
-  sampled status, freshness, fixed Pause/Resume links and a Live panel link. Its
-  control/snapshot checks passed and desktop placement is confirmed; actual
-  widget link-click verification remains underway. No recorder restart or capture-permission change.
+- Native WidgetKit companion 37e8fd05c806, one Medium widget with sampled status,
+  freshness and a single background play/pause App Intent button; Details opens
+  the optional live panel. Taylor's original widget Pause click passed; 17
+  contract/22 mailbox checks and a signed sandboxed same-intent probe passed.
+  Final new-widget appearance/button dispatch remains Review. The upgrade now
+  retires only its old extension process to avoid stale version mismatches.
+  No recorder restart or capture-permission change.
 - Exact optional input-reception-to-actual-frame context, with held source ages,
   clock/snapshot limits and useful input preserved when video context is absent.
 - First configurable SVG/PNG cursor/click recipe, draft and final effort, private
@@ -34,13 +37,11 @@ keep their loaded code; the CLI reads current code without restarting peers.
 
 ## Taylor's short smoke test
 
-1. The single **Medium** widget is installed and Taylor has added it to the
-   desktop. Click **Pause**: with no take active, the authoritative service should
-   become Paused. Click **Resume**: it should return to Ready. The widget is a
-   sampled display, so macOS may delay its text refresh; **Live panel** shows
-   current state. Your mouse and keyboard stay usable throughout. Close hides
-   the panel without changing the gate; `record-screen production-panel-show`
-   reopens it.
+1. The existing single **Medium** widget now uses one button: **▶ Resume** while
+   paused, **⏸ Pause** while running. Click it and expect the service to change
+   state without opening another window. **Details** optionally opens the live
+   panel. Sample age stays visible; an expired sample disables the button. Your
+   input stays usable. A pause lets current work finish safely and queues new work.
 
 2. Ask an agent to record one short throwaway window while showing the panel.
    Pause during the take: expect “finishing,” not an abrupt stop. A second request
@@ -84,22 +85,15 @@ real overflow discovery and per-app depth/receipt passes keep Taylor's stated
 Deferred prerequisites. Their useful existing portions are included above.
 Millisecond clock precision is preserved; physical reaction latency and frame
 cadence are separate and are not certified by exact timestamps. The desktop
-panel and native WidgetKit companion are installed. Taylor confirmed placement;
-macOS reports one configured instance and a display capture shows the compact
-widget on the built-in desktop, Ready with a fresh sample. Actual widget control
-clicks are the last targeted verification. See [widget usage and evidence](../widget/README.md).
-No optional new qualification is silently made a blocker, and no unverified
-criterion is called completed.
+panel and native WidgetKit companion are installed. Desktop placement and
+Taylor's original real Pause click passed. The new single-button background
+transport is verified from a signed sandboxed app; actual WidgetKit dispatch and
+fresh appearance remain the final focused Review check. See
+[widget usage and evidence](../widget/README.md). No other release criterion is
+silently deferred or called complete.
 
-
-Widget gallery correction: the initial companion registered but exited before
-answering descriptor requests. The corrected extension matches Xcode's
-NSExtensionMain entry point. Notification Center receives its entry and both
-original Medium/Large placeholders loaded successfully. Large was subsequently
-removed at Taylor’s request; actual desktop control clicks remain outstanding. See widget/README.md for the evidence limits.
-
-
-Taylor confirmed gallery rendering and requested one compact size. Large is
-removed; installed companion 5e680bb4c5ab offers Medium only. The current macOS
-descriptor and successful Medium preview load confirm that choice. Desktop
-placement is confirmed. Control clicks remain outstanding; no other release checks rerun.
+The initial gallery failure was repaired with Xcode's NSExtensionMain linker
+entry point. Large was removed at Taylor's request. A later in-place upgrade
+exposed a retained old extension process and bundle-version mismatch; the
+installer now retires only that extension so macOS loads current code. Original
+failures and evidence are preserved privately.

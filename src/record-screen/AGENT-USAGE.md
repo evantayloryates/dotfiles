@@ -764,7 +764,11 @@ Use `production_panel_show` for the movable native desktop reading panel.
 `production_widget_status` reads the separately installed native WidgetKit
 companion’s build, helper state, configuration count and snapshot age. Widget
 refreshes are system-managed; use authoritative `production_status` for current
-state. Counts alone cannot establish desktop placement. See widget/README.md.
+state. Counts alone cannot establish desktop placement. The single Medium widget
+has one background play/pause button and an optional Details link. Its explicit
+desired-state command expires after ten seconds; uncertain replies are not
+replayed. Do not infer successful control from an optimistic local icon or resume
+a human-paused gate just to capture a widget screenshot. See widget/README.md.
 `production_pause` / `production_resume` act across MCP clients and the CLI and
 survive native restarts. Queued takes whose start time passes while paused
 require explicit rescheduling; Resume never silently starts those late takes.

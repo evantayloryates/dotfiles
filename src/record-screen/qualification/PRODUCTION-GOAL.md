@@ -1,5 +1,32 @@
 # Production qualification goal
 
+## Background single-button widget (October 10, 20:16 EDT)
+
+Taylor's real original widget Pause click passed: service paused generation 9 at
+00:01:21.329Z. Taylor then requested one play/pause button inside the widget,
+without opening the app. Installed companion 37e8fd05c806 provides a background
+App Intent, explicit desired-state mailbox, ten-second expiry, claim-before-send,
+no uncertain replay and actual-state acknowledgment before WidgetKit reload.
+17 existing contract checks and 22 focused mailbox checks pass. A correctly
+packaged signed sandboxed app invokes the same intent successfully, leaving the
+service paused (generation 10). An unbundled test executable failed at sandbox
+initialization; its packaged replacement passed. Recorder remains unchanged.
+
+Taylor's first screenshot after upgrade still showed old separate links and a
+stale sample. The retained old extension caused bundle-version mismatches.
+Installer now retires only that installed extension after registering the new
+bundle. Current new extension PID54914, helper PID54902; system timeline reloads
+succeed at 20:13:00 and 20:13:23. Only Medium remains configured (count 1).
+Final actual button appearance/dispatch awaits Taylor's newly requested click.
+Do not mistake sandbox transport for WidgetKit dispatch or reopen broad tests.
+
+User's iPhone Mirroring crash at 20:04:59 is a separate Apple UniversalHID /
+scrollWheel trap during read-only agent work. Cause is unestablished; preserve
+its report privately and do not restart the app without a task need. CUA desktop
+still yields a blank screenshot/no widget AX; temporary app hiding was restored.
+Private evidence: release-next/widget/interactive-widget-checks.json and
+interactive-widget-upgrade.log. The gate stays paused until Taylor resumes it.
+
 ## Placed widget: final real control check (October 10, 20:01 EDT)
 
 Taylor added the widget. Current WidgetKit count is one; actual built-in display

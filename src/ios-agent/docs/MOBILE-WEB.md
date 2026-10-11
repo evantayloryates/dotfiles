@@ -321,3 +321,20 @@ a fresh document identity and passed the authenticated synthetic client lobby,
 normal Background-menu open/close, route restoration and glow-off. The fixed deep Runtime read separately passed through fresh MCP with the existing page owner and glow-off. Service discovery alone is insufficient; empty targets and old/suspended tabs remain explicit diagnostic outcomes.
 Remote Automation availability does not establish trusted input or OS prompt
 control. No other iOS browser is assumed to inherit Safari's feature flags.
+
+## Process resource profiling — 10 October
+
+`ios_device_inspect {kind:"resource-profile"}` now records three physical-device
+DVT samples through the existing paired developer observer. A fresh stdio client
+returned Safari, Kickoff DEV and WebContent memory/CPU readings in 9.748 seconds,
+then closed the profiler and released its temporary owner. It needs neither
+XCTest nor Mirroring. This nearby paired transport is independent of the remote
+page bridge; it is not qualified over arbitrary networks.
+
+Read selected samples with `ios_read` and the returned artifact ID. Memory is
+physical footprint in bytes. CPU is the provider's raw `cpuUsage` value, not a
+calibrated percentage. Missing readings remain null. WebContent can serve other
+tabs, so these are process metrics, not attributed page CPU or JavaScript heap.
+Only Safari, Chrome, Kickoff DEV and WebContent process names are retained.
+The configured 500 ms sampling interval is a request; use each sample's actual
+`elapsedMs` when interpreting the result. Continuous profiling is not enabled.

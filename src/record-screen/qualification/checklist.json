@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-10T20:01:34-04:00",
+  "updated_at": "2026-10-10T20:14:49-04:00",
   "workflow": {
     "state": "active",
-    "note": "Desktop widget placement confirmed by Taylor, one configured instance and actual desktop pixels. Final widget Pause/Resume/link check underway with a brief user click because the UI tool cannot target the desktop links. Existing recorder verification is reused; no broad retesting or new release scope."
+    "note": "Installed the requested single background play/pause widget control; contract/mailbox and signed sandboxed intent checks pass. Fixed retained old extension and verified successful fresh timelines. Awaiting Taylor’s actual new-button click; service remains paused, no unrelated qualification repeated."
   },
-  "production_note": "Release 0.20 is installed and ready for Taylor’s smoke test: native e402dc736458, fresh MCP adapter 0.20.0 or current CLI. Global safe pause/queue, live desktop panel, exact optional input/frame context, first cursor recipe, shared app observations and a real verified repair/subscriber cycle are delivered. Existing clients are preserved. See the release smoke test linked above. The native WidgetKit companion is installed; placement and its final desktop UI check are the single Review step; the broader Deferred tests retain Taylor’s stated prerequisites.",
+  "production_note": "Release 0.20 is installed for Taylor’s smoke test: recorder e402dc736458, fresh MCP 0.20.0/current CLI, global gate/queue, live panel, optional exact input/frame joins, first cursor recipe, shared app observations and verified repair/subscriber cycle. The placed single-Medium widget 37e8fd05c806 now has one background play/pause button. Its transport and upgrade repair pass focused checks; actual new-button dispatch remains the single Review step. Deferred work keeps Taylor’s stated prerequisites.",
   "groups": [
     {
       "id": "capture",
@@ -1034,24 +1034,25 @@
         {
           "id": "desktop-production-gate",
           "title": "Add a desktop recording panel and global safe-pause gate",
-          "summary": "The gate and live panel are delivered; the single compact widget is installed and ready to add.",
+          "summary": "The gate, live panel and compact widget are installed; one background play/pause button replaces the two links.",
           "scope": "See recording state at a glance; pause future starts, drain current work safely and queue requests until resumed.",
           "status": "partial",
           "work_state": "review",
-          "evidence": "Gate/live-panel and direct companion controls retain passing evidence. Taylor added the single Medium widget; installed 5e680bb4c5ab, configuration count 1 and actual display pixels confirm placement, Ready and fresh counts. A screenshot-grounded native CUA Pause click failed before dispatch with noWindowsAvailable; Notification Center exposes an empty auxiliary window. Restored temporarily hidden apps. Recorder e402dc736458/PID58895 unchanged. Real widget control click/readback remains pending.",
-          "next": "Taylor clicks widget Pause and leaves it paused; verify authoritative response before Resume and Live panel link checks. The click request has been reprompted after confirming the native limitation.",
+          "evidence": "Taylor’s original real widget Pause click was confirmed in service state (generation 9). Installed single-Medium widget 37e8fd05c806 now has one background play/pause App Intent and optional Details link. Seventeen contract and 22 mailbox checks passed; a signed sandboxed same-intent app probe confirmed Pause (generation 10). Installer retires only the old extension after a stale-code/bundle-version mismatch; current macOS timeline reloads succeed. Recorder e402dc736458 remains untouched. Actual new widget appearance and button dispatch await Taylor; the first screenshot showed the previous cached layout.",
+          "next": "Taylor checks the current one-button widget and clicks Resume once; verify authoritative state and that no foreground window opened. Reuse all passing recorder evidence.",
           "anchor": "release-020",
-          "updated_at": "2026-10-10T20:01:34-04:00",
+          "updated_at": "2026-10-10T20:14:49-04:00",
           "work_updated_at": "2026-10-10T19:06:38-04:00",
           "acceptance": [
             "The panel shows fresh active/queued/draining/paused state and unmistakable stale or unavailable data.",
             "Pause closes admissions across MCP, CLI and already scheduled starts; current work reaches a declared safe boundary without an input lock.",
             "Queued requests survive restart; resume handles elapsed schedules explicitly and cannot replay uncertain UI actions.",
-            "Offer the single compact Medium desktop widget; retain a live companion panel because widget refresh is system-managed."
+            "Offer the single compact Medium desktop widget; retain a live companion panel because widget refresh is system-managed.",
+            "The single play/pause App Intent button requests an explicit state in the background, confirms service state and does not open the app; stale status is never presented as a confirmed current state."
           ],
           "doc_link": "/Users/taylor/src/github/dotfiles/src/record-screen/qualification/RELEASE-0.20.md",
-          "why_partial": "The widget is installed, visible and reporting fresh state. To finish, we need to check its actual buttons. Computer use cannot deliver the click: the desktop attempt fails with noWindowsAvailable, and the widget links are absent from the accessible window. Taylor has been asked to click Pause once so the agent can verify the resulting service state. Direct companion controls already work but are a separate check.",
-          "review_question": "Add the single Medium widget, then let the agent verify its visible status and Pause/Resume controls."
+          "why_partial": "The widget has been upgraded and its background control path works from a signed sandboxed app. macOS initially kept showing the old controls; that upgrade issue is fixed and new timelines load successfully. We still need one click in the actual desktop widget to confirm macOS routes the new button correctly and leaves other windows alone. Computer use cannot target the desktop widget, so Taylor has been asked for that brief check. The service remains paused until Taylor resumes it.",
+          "review_question": "Does the updated widget show one play/pause button and change state without opening a window?"
         },
         {
           "id": "recorder-repair-tickets",
@@ -3883,6 +3884,21 @@
       "from": "partial",
       "to": "partial",
       "note": "Gate/live-panel and direct companion controls retain passing evidence. Taylor added the single Medium widget; installed 5e680bb4c5ab, configuration count 1 and actual display pixels confirm placement, Ready and fresh counts. A screenshot-grounded native CUA Pause click failed before dispatch with noWindowsAvailable; Notification Center exposes an empty auxiliary window. Restored temporarily hidden apps. Recorder e402dc736458/PID58895 unchanged. Real widget control click/readback remains pending."
+    },
+    {
+      "kind": "item",
+      "id": "desktop-production-gate",
+      "at": "2026-10-10T20:14:49-04:00",
+      "from": "partial",
+      "to": "partial",
+      "note": "Taylor’s original real widget Pause click was confirmed in service state (generation 9). Installed single-Medium widget 37e8fd05c806 now has one background play/pause App Intent and optional Details link. Seventeen contract and 22 mailbox checks passed; a signed sandboxed same-intent app probe confirmed Pause (generation 10). Installer retires only the old extension after a stale-code/bundle-version mismatch; current macOS timeline reloads succeed. Recorder e402dc736458 remains untouched. Actual new widget appearance and button dispatch await Taylor; the first screenshot showed the previous cached layout."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-10T20:14:49-04:00",
+      "from": "active",
+      "to": "active",
+      "note": "Installed the requested single background play/pause widget control; contract/mailbox and signed sandboxed intent checks pass. Fixed retained old extension and verified successful fresh timelines. Awaiting Taylor’s actual new-button click; service remains paused, no unrelated qualification repeated."
     }
   ],
   "work_note": "Completed work states include useful delivered portions of broader historical Partial items. Expanded verification records preserve limits. Deferred prerequisites remain explicit; Review is a genuine user decision."

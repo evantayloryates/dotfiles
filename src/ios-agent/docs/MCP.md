@@ -228,3 +228,13 @@ shortcut was removed. A phone-local Home shortcut remains unqualified. When Home
 is unavailable, report `homeNavigationPending`; do not silently force-quit the
 app or start XCTest just for cleanup. Finish this remaining integration when the
 phone-side setup can be driven.
+
+## Bounded device process profile
+
+Use `ios_device_inspect {kind:"resource-profile"}` for three CPU/memory samples.
+The existing pinned optional provider, shared owner, deadline and private artifact
+handling apply. It also accepts a current native/browser `sessionId`; without one
+it acquires and releases a temporary maintenance owner. The profiler always
+closes on completion or error. Read detailed samples selectively with `ios_read`.
+WebContent is process scoped, CPU is provider raw units, missing values are null,
+and paired nearby success does not qualify off-LAN access.

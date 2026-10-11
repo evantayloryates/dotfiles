@@ -8,8 +8,9 @@ final class WidgetHost:NSObject,NSApplicationDelegate {
   private var last:Snapshot?
   private var lastReload=Date.distantPast
   private var lastPublished=Date.distantPast
+  private var lastSample=Date.distantPast
   func applicationDidFinishLaunching(_ note:Notification) {
-    refresh();timer=Timer.scheduledTimer(withTimeInterval:3,repeats:true){[weak self] _ in MainActor.assumeIsolated{self?.refresh()}}
+    refresh();timer=Timer.scheduledTimer(withTimeInterval:1,repeats:true){[weak self] _ in MainActor.assumeIsolated{self?.refresh()}}
   }
   func application(_ app:NSApplication,open urls:[URL]) {
     for url in urls {
@@ -25,11 +26,19 @@ final class WidgetHost:NSObject,NSApplicationDelegate {
   private func refresh() {
     guard !busy else{return};busy=true
     Task {
-      let sample=await Task.detached{(try? RecorderControl.sample()) ?? .unavailable}.value
+      let shouldSample=Date().timeIntervalSince(lastSample)>=3
+      let result=await Task.detached { () -> (Snapshot?,Bool) in
+        let handled=ControlMailbox.process { paused in
+          _ = try RecorderControl.call(paused ? "production.pause" : "production.resume")
+          return try RecorderControl.sample()
+        }
+        return (shouldSample || handled ? ((try? RecorderControl.sample()) ?? .unavailable) : nil,handled)
+      }.value
       defer{busy=false}
+      guard let sample=result.0 else{return};lastSample=Date()
       guard let url=WidgetBridge.snapshotURL else{return}
       let changed=last.map{($0.phase,$0.active,$0.queued,$0.actions,$0.paused) != (sample.phase,sample.active,sample.queued,sample.actions,sample.paused)} ?? true
-      if changed || Date().timeIntervalSince(lastPublished)>=20 {
+      if changed || result.1 || Date().timeIntervalSince(lastPublished)>=20 {
         do {
           try JSONEncoder().encode(sample).write(to:url,options:.atomic)
           try FileManager.default.setAttributes([.posixPermissions:0o600],ofItemAtPath:url.path)

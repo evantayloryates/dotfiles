@@ -2,7 +2,7 @@
 
 The signed **Record Screen Control** companion and WidgetKit extension are
 installed under `data/record-screen/widget/Record Screen Control.app`.
-Widget build **5e680bb4c5ab** is separate from recorder build **e402dc736458**;
+Widget build **37e8fd05c806** is separate from recorder build **e402dc736458**;
 installing it did not rebuild/restart the recorder or change its capture grants.
 
 The original build registered but was absent from the gallery: its executable
@@ -19,21 +19,34 @@ To add: right-click empty **desktop wallpaper**, choose **Edit Widgets**, search
 to the desktop; click **Done**. Reopen an already-open gallery after an upgrade.
 Gallery appearance and placement are confirmed: Taylor added it, WidgetKit
 reports one configured instance, and an actual display capture shows the
-compact widget Ready on the built-in desktop. Actual control clicks are the
-remaining check. CUA sees a different empty Notification Center window and
-cannot target the desktop links; the direct companion/service controls already
-passed independently. Do not treat those direct controls as a widget click test.
+compact widget Ready on the built-in desktop. Taylor's actual Pause click was
+independently read back as Paused (generation 9). The later interactive-button
+upgrade keeps the same single Medium widget; its actual new button dispatch
+still needs a desktop click check. CUA cannot target that desktop surface.
 
-The widget shows sampled recording/queue/action counts, sample age and explicit
-unavailable/stale state. Pause and Resume links open the signed companion, which
-performs one fixed service request. Live panel opens the existing native panel.
-Pause means finish current work safely and queue new work; it never blocks user
-input. URLs cannot supply arbitrary methods, parameters, paths or commands.
-Unknown outcomes are not automatically replayed.
+The widget now has **one interactive button**: ▶ Resume while paused, ⏸ Pause
+while accepting work. It uses a background App Intent, with `openAppWhenRun`
+false, instead of activating the companion through a link. **Details** optionally
+opens the existing live panel. Pause means finish current work safely and queue
+new work; it never blocks user input. Draining still offers Resume to cancel the
+pause request. A stale/unavailable sample disables the button and directs the
+user to current status; its icon is based on the visible sample, not a promise
+that the service cannot have changed since sampling.
+
+The sandboxed extension writes one explicit desired state to a private app-group
+mailbox. The running companion checks it each second, claims before sending once,
+performs only the fixed service Pause/Resume call, confirms the actual state,
+publishes the snapshot and acknowledges. WidgetKit reloads after the intent
+returns. No new socket entitlement, foreground window or arbitrary command
+channel is added. A ten-second request expiry prevents surprise delayed actions;
+claims survive helper crashes until cleanup and uncertain outcomes are never
+replayed. Receipts expire after a minute. A failure is explicit rather than an
+optimistic icon change. Source events, window names and footage never enter this
+mailbox. Existing fixed URLs remain for backwards compatibility and Details.
 
 The service gate remains authoritative. macOS schedules widget refreshes;
 sampled status is not an instantaneous guarantee. Timeline entries expire after
-30 seconds, and sample age stays visible. The companion polls every three
+30 seconds, and sample age stays visible. The companion samples every three
 seconds, publishes aggregate-only snapshots on changes or every 20 seconds,
 and asks WidgetKit to reload. Missing service data never becomes a confident
 zero-active reading. The group snapshot is private mode 0600; no window names,
@@ -58,16 +71,25 @@ candidate. `--install` registers a first installation. Deliberate
 signed candidates stay available under `prepared/`. Never use this to restart
 the recorder. Builds freeze source and reject drift before installation. The bundle version
 changes with the source fingerprint so macOS refreshes widget descriptors.
+The builder extracts and verifies App Intent metadata in both app and extension
+before signing; ordinary Swift compilation alone does not register an intent.
+After replacement it retires only the old installed widget extension process.
+Otherwise macOS can keep the old code and reject new timelines with “Bundle
+version did not match.” Notification Center, chronod and the recorder are preserved.
 The existing H77CX8PYPV development identity/app-group team must match;
 no account enrollment, new signing identity or permission change is attempted.
 
 Seventeen contract checks cover freshness, future/old samples, URL rejection
-and the fixed-method boundary. Installed companion control calls paused/resumed
-the actual service, and its running helper published the matching shared
-snapshot; the original recorder PID/build stayed unchanged. WidgetKit reports
-configuration count separately. These checks do not certify gallery rendering
-or the links being clicked inside a placed widget.
+and the fixed-method boundary. Twenty-two mailbox checks cover expiry, duplicate
+claims, uncertain failures without replay, mismatched state, bounded/symlink
+reads and asynchronous acknowledgment. A signed **sandboxed app probe** invokes
+the same App Intent, successfully reaches the installed companion and confirms
+the actual paused state without foreground activation. The original unbundled
+probe failed in sandbox initialization; the correctly packaged app probe passed.
+This establishes the sandbox transport, not actual WidgetKit button dispatch.
+Taylor's earlier real widget Pause click passed on the old link version.
+The new button's final desktop appearance/click remains explicit in the checklist.
 
-Apple references: [app groups](https://developer.apple.com/documentation/xcode/configuring-app-groups),
-[widget refresh](https://developer.apple.com/documentation/widgetkit/keeping-a-widget-up-to-date),
-[widget links](https://developer.apple.com/documentation/widgetkit/linking-to-specific-app-scenes-from-your-widget-or-live-activity).
+Apple references: [interactive widgets](https://developer.apple.com/documentation/widgetkit/adding-interactivity-to-widgets-and-live-activities),
+[app groups](https://developer.apple.com/documentation/xcode/configuring-app-groups),
+[widget refresh](https://developer.apple.com/documentation/widgetkit/keeping-a-widget-up-to-date).

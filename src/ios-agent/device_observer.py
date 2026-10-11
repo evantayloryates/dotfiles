@@ -4,6 +4,8 @@ import base64
 import importlib.metadata
 import json
 import logging
+import math
+import time
 import os
 from pathlib import Path
 import re
@@ -23,7 +25,7 @@ def owned(r):
 
 async def observe(r):
     r['_phase']='validation'
-    if r.get('kind') not in ('screen','capabilities','browser-debug') or not re.fullmatch(r'[0-9A-Fa-f]{8}-[0-9A-Fa-f]{16}', r.get('serial','')):
+    if r.get('kind') not in ('screen','capabilities','browser-debug','resource-profile') or not re.fullmatch(r'[0-9A-Fa-f]{8}-[0-9A-Fa-f]{16}', r.get('serial','')):
         raise ValueError('fixed_observer_request_required')
     if importlib.metadata.version('pymobiledevice3') != '11.15.5':
         raise ValueError('pinned_observer_required')
@@ -56,11 +58,49 @@ async def observe(r):
             import io
             width,height = Image.open(io.BytesIO(image)).size
             result.update(scope='whole-device-display',pngBase64=base64.b64encode(image).decode(),width=width,height=height)
+        elif r['kind'] == 'resource-profile':
+            result.update(await resource_profile(r,rsd))
         elif r['kind'] == 'browser-debug':
             result.update(await browser_debug(r,rsd))
         owned(r)
         r['_phase']='native_tunnel_close'
         return result
+
+def profile_process(row):
+    """Keep only known app/browser process metrics; no command lines or identities."""
+    name=row.get('name')
+    allowed={'MobileSafari':'safari','Chrome':'chrome','Kickoff':'kickoff-dev',
+             'KickoffDEV':'kickoff-dev','com.apple.WebKit.WebContent':'web-content',
+             'WebContent':'web-content'}
+    if name not in allowed:return None
+    def numeric(key):
+        v=row.get(key)
+        return v if type(v) in (int,float) and math.isfinite(v) and v>=0 else None
+    pid=numeric('pid')
+    return {'process':allowed[name],'pid':pid,'cpuUsageRaw':numeric('cpuUsage'),
+            'physicalFootprintBytes':numeric('physFootprint')}
+
+async def resource_profile(r,rsd):
+    from pymobiledevice3.services.dvt.instruments.dvt_provider import DvtProvider
+    from pymobiledevice3.services.dvt.instruments.sysmontap import Sysmontap
+    r['_phase']='resource_profile_connect'
+    samples=[];start=time.monotonic()
+    async with DvtProvider(rsd) as dvt:
+        tap=await Sysmontap.create(dvt,interval=500)
+        attributes=[k for k in ('name','pid','cpuUsage','physFootprint') if k in tap.process_attributes_cls.__dataclass_fields__]
+        async with tap:
+            r['_phase']='resource_profile_sample'
+            async for rows in tap.iter_processes():
+                owned(r)
+                processes=[p for row in rows if (p:=profile_process(row)) is not None]
+                samples.append({'elapsedMs':round((time.monotonic()-start)*1000),'processes':processes[:64], 'truncated':len(processes)>64})
+                if len(samples)>=3:break
+    return {'scope':'paired-device-process-profile','sampleIntervalMs':500,
+            'attributes':attributes,'samples':samples,'sampleCount':len(samples),
+            'attribution':'process only; WebContent may serve other tabs; not page CPU or JS heap',
+            'cpuUnits':'provider raw cpuUsage; not calibrated as percent',
+            'missingMetrics':'null means unavailable; never zero inferred',
+            'profilerStopped':True}
 
 async def browser_debug(r,rsd):
     """Fixed, content-free inspection of this service's development origin only."""
