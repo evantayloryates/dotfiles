@@ -7,7 +7,7 @@ import {spawn} from 'node:child_process';
 import {createInterface} from 'node:readline';
 import net from 'node:net';
 import {fileURLToPath} from 'node:url';
-import {queryRecordingInput,validateInputQuery,inputQueryHealth} from '../lib/input-query.mjs';
+import {queryRecordingInput,validateInputQuery,inputQueryHealth,inputQuerySchema} from '../lib/input-query.mjs';
 const id='rec_syntheticInput',epoch='900719925474099312345';
 const action='act_11111111-1111-1111-1111-111111111111',other='act_22222222-2222-2222-2222-222222222222';
 const header={kind:'header',schema:'smart-record-source/v1',recording_id:id,clock_domain:'CLOCK_UPTIME_RAW',epoch_host_ns:epoch};
@@ -115,10 +115,11 @@ test('snapshot/query-bound pages retain duplicates and refuse changed filter/fil
  await writeFile(f.path,(await readFile(f.path,'utf8')).replace('"key_code":8','"key_code":9'));
  await assert.rejects(()=>queryRecordingInput(f.descriptor,{...q,cursor}),/snapshot changed/);
 });
-test('terminal partial coverage, busy admission and corrupted/private fields fail honestly',async t=>{
+test('terminal partial coverage, queued admission and corrupted/private fields fail honestly',async t=>{
  const f=await fixture(t,[header,event(1)]);f.descriptor.state='failed';f.descriptor.source_packet.complete=false;
- const first=queryRecordingInput(f.descriptor,request);assert.equal(inputQueryHealth().active,true);await assert.rejects(()=>queryRecordingInput(f.descriptor,request),e=>e.code==='input_query_busy');
- const r=await first;assert.equal(r.events.length,1);assert.equal(r.coverage.footer_present,false);assert.equal(r.coverage.journal_complete,false);assert.equal(r.coverage.rows_lost,null);assert.equal(inputQueryHealth().active,false);
+ const first=queryRecordingInput(f.descriptor,request);assert.equal(inputQueryHealth().active,true);
+ const second=queryRecordingInput(f.descriptor,request),third=queryRecordingInput(f.descriptor,request);assert.equal(inputQueryHealth().queued,2);
+ const [r,s,u]=await Promise.all([first,second,third]);assert.deepEqual(r,s);assert.deepEqual(s,u);assert.equal(r.events.length,1);assert.equal(r.coverage.footer_present,false);assert.equal(r.coverage.journal_complete,false);assert.equal(r.coverage.rows_lost,null);assert.equal(inputQueryHealth().active,false);
  await assert.rejects(()=>queryRecordingInput({...f.descriptor,state:'recording'},request),/terminal/);
  for(const rows of [[header,event(1,{relative_ns:'2'}),footer],[header,event(1,{secure_input_snapshot:true}),footer],[header,event(1,{action_ids:['spoof']}),footer],[header,{...footer,epoch_host_ns:'1'}],[header,header,footer],[header,footer,event(1)]]){
   await writeFile(f.path,rows.map(x=>JSON.stringify(x)).join('\n')+'\n');await assert.rejects(()=>queryRecordingInput(f.descriptor,request));assert.equal(inputQueryHealth().active,false);
@@ -126,6 +127,11 @@ test('terminal partial coverage, busy admission and corrupted/private fields fai
  await writeFile(f.path,JSON.stringify(header)+'\n{malformed}\n');await assert.rejects(()=>queryRecordingInput(f.descriptor,request),/Malformed/);
  await writeFile(f.path,JSON.stringify(header)+'\n'+JSON.stringify(event(1)));await assert.rejects(()=>queryRecordingInput(f.descriptor,request),/Unterminated/);
  const link=join(f.root,'link');await symlink(f.path,link);await assert.rejects(()=>queryRecordingInput({...f.descriptor,source_packet:{...f.descriptor.source_packet,path:link}},request));
+});
+test('failed reader releases admission for queued valid work',async t=>{
+ const broken=await fixture(t,[header,event(1,{relative_ns:'2'}),footer]),valid=await fixture(t,[header,event(2),footer]);
+ const results=await Promise.allSettled([queryRecordingInput(broken.descriptor,request),queryRecordingInput(valid.descriptor,request)]);
+ assert.equal(results[0].status,'rejected');assert.equal(results[1].status,'fulfilled');assert.equal(results[1].value.events[0].relative_ns,'2');assert.equal(inputQueryHealth().active,false);
 });
 test('invalid requests and bounded journal/read sizes refuse without widening scope',async t=>{
  for(const q of [{...request,recording_id:'../elsewhere'},{...request,from_relative_ns:0},{...request,to_relative_ns:'0'},{...request,to_relative_ns:'3600000000001'},{...request,event_types:[10,10]},{...request,action_tokens:['not-a-token']},{...request,include_unassociated:false},{...request,limit:257},{...request,cursor:{after_row:0,snapshot_sha256:'0'.repeat(64),query_sha256:'0'.repeat(64)}},{...request,path:'/elsewhere'}])assert.throws(()=>validateInputQuery(q),e=>e.code==='bad_input_query');
@@ -137,17 +143,25 @@ test('actual MCP input query negotiates capability, validates before RPC and onl
  const f=await fixture(t,[header,{kind:'input_gap',reason:'secure_input_enabled',relative_ns:'-5'},contextRow(0,20),event(1),footer]);await writeFile(join(f.root,'unused'),'');
  const runRoot=join(f.root,'run');await (await import('node:fs/promises')).mkdir(runRoot);
  let supported=true;const calls=[];const sockets=new Set();
- const fake=net.createServer(s=>{sockets.add(s);s.on('close',()=>sockets.delete(s));createInterface({input:s}).on('line',line=>{const q=JSON.parse(line);calls.push(q.method);const result=q.method==='status'?{capabilities:{source_journal:supported?1:0}}:q.method==='record.source'?f.descriptor:null;s.write(JSON.stringify({id:q.id,result})+'\n')})});
+ const fake=net.createServer(s=>{sockets.add(s);s.on('close',()=>sockets.delete(s));createInterface({input:s}).on('line',line=>{const q=JSON.parse(line);calls.push(q.method);const result=q.method==='status'?{capabilities:{source_journal:supported?1:0,action_scopes:1}}:q.method==='record.source'?f.descriptor:null;s.write(JSON.stringify({id:q.id,result})+'\n')})});
  await new Promise(resolve=>fake.listen(join(runRoot,'engine.sock'),resolve));
  const child=spawn(process.execPath,[fileURLToPath(new URL('../server.mjs',import.meta.url))],{env:{...process.env,SMART_RECORD_HOME:f.root},stdio:['pipe','pipe','pipe']});child.stderr.resume();
  const pending=new Map();let serial=0;const lines=createInterface({input:child.stdout});lines.on('line',line=>{const r=JSON.parse(line),p=pending.get(r.id);if(p){clearTimeout(p.timer);pending.delete(r.id);p.resolve(r.result)}});
  const send=(method,params)=>new Promise((resolve,reject)=>{const id=++serial,timer=setTimeout(()=>reject(new Error('owned MCP deadline')),5000);pending.set(id,{resolve,timer});child.stdin.write(JSON.stringify({jsonrpc:'2.0',id,method,params})+'\n')});
  try{
   await send('initialize',{protocolVersion:'2025-06-18'});
+  const tools=await send('tools/list',{}),actionSchema=tools.tools.find(t=>t.name==='action_end').inputSchema.properties.evidence_refs;
+  assert.equal(actionSchema.items.pattern.startsWith('^/'),true);
   const status=await send('tools/call',{name:'status',arguments:{}});const adapter=JSON.parse(status.content[0].text).mcp_adapter;assert.match(adapter.version,/^0\.20\./);assert.equal(adapter.retained_input_health_context,1);assert.deepEqual(adapter.input_query.health_notification_limits,{preceding:16,in_interval:32,unknown_time:16});calls.length=0;
   const invalid=await send('tools/call',{name:'recording_input',arguments:{...request,limit:257}});assert.equal(invalid.isError,true);assert.equal(calls.length,0);
   const badContext=await send('tools/call',{name:'recording_input',arguments:{...request,include_context:'true'}});assert.equal(badContext.isError,true);assert.equal(calls.length,0);
   const badHealth=await send('tools/call',{name:'recording_input',arguments:{...request,include_health_context:1}});assert.equal(badHealth.isError,true);assert.equal(calls.length,0);
+  const prose=await send('tools/call',{name:'action_end',arguments:{session_id:'ses_fixture',caller:'owned-fixture',action_token:action,result:'verified',evidence_refs:['Chrome AX URL /league after click']}});
+  assert.equal(prose.isError,true);assert.match(prose.content[0].text,/evidence_refs\[0\].*Save evidence/);assert.equal(calls.length,0);
+  const closed=await send('tools/call',{name:'action_end',arguments:{session_id:'ses_fixture',caller:'owned-fixture',action_token:action,result:'verified',evidence_refs:['/tmp/owned-proof.json']}});
+  assert.equal(closed.isError,false,closed.content[0].text);assert.deepEqual(calls,['status','action.end']);calls.length=0;
+  const concurrent=await Promise.all([1,2,3].map(()=>send('tools/call',{name:'recording_input',arguments:request})));
+  assert(concurrent.every(r=>r.isError===false));calls.length=0;
   const valid=await send('tools/call',{name:'recording_input',arguments:request});assert.equal(valid.isError,false);assert.equal(JSON.parse(valid.content[0].text).events.length,1);assert.deepEqual(calls,['status','record.source']);
   calls.length=0;const contextual=await send('tools/call',{name:'recording_input',arguments:{...request,include_context:true}});assert.equal(contextual.isError,false);assert.equal(JSON.parse(contextual.content[0].text).captured_context.updates[0].context.expected_change,'Quick Look visible');assert.deepEqual(calls,['status','record.source']);
   calls.length=0;const healthy=await send('tools/call',{name:'recording_input',arguments:{...request,include_health_context:true}});assert.equal(healthy.isError,false);assert.equal(JSON.parse(healthy.content[0].text).input_health_context.latest_timed_protection_notification_before_interval.reason,'secure_input_enabled');assert.deepEqual(calls,['status','record.source']);
@@ -162,4 +176,15 @@ test('optional reception source context preserves input when video is unavailabl
  assert.equal(validateInputQuery({...request,include_source_frames:true}).include_source_frames,true);
  assert.throws(()=>validateInputQuery({...request,include_source_frames:'yes'}));
  assert.throws(()=>validateInputQuery({...request,cursor:{after_row:1,snapshot_sha256:'0'.repeat(64),query_sha256:'0'.repeat(64),source_media_snapshot_sha256:'0'.repeat(64)}}));
+});
+test('joined pagination accepts its returned media cursor without requiring it on plain pages',async t=>{
+ assert.deepEqual(inputQuerySchema.properties.cursor.required,['after_row','snapshot_sha256','query_sha256']);
+ const f=await fixture(t,[header,event(1),event(2),footer]),query={...request,limit:1,include_source_frames:true};
+ const first=await queryRecordingInput(f.descriptor,query);
+ // Missing fixture media deliberately withholds frame context, but pagination still works.
+ const cursor={...first.next_cursor,source_media_snapshot_sha256:'a'.repeat(64)};
+ const second=await queryRecordingInput(f.descriptor,{...query,cursor});
+ assert.equal(second.events[0].relative_ns,'2');assert.equal(second.source_frame_context.state,'unavailable');
+ assert.throws(()=>validateInputQuery({...query,cursor:{...cursor,extra:true}}));
+ assert.throws(()=>validateInputQuery({...query,cursor:{...cursor,source_media_snapshot_sha256:42}}));
 });

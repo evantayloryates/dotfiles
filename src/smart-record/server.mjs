@@ -18,6 +18,7 @@ import { windowQuerySchema, validateWindowQuery, requireTransientInventory } fro
 import { planProduction, productionPlanSchema, validateProductionRequest } from "./lib/production-plan.mjs";
 import { observeResourcePlan } from "./lib/resource-awareness.mjs";
 import {queryRecordingInput,validateInputQuery,inputQuerySchema,inputQueryHealth} from "./lib/input-query.mjs";
+import {actionEvidenceSchema,validateActionEvidence} from "./lib/action-evidence.mjs";
 
 import {renderCursor,validateCursorRecipe,cursorRenderSchema} from "./lib/cursor-render.mjs";
 import {withWaitResult} from "./lib/wait-result.mjs";
@@ -26,7 +27,7 @@ import {repairCall,repairTools} from "./lib/repair-tickets.mjs";
 import {EVIDENCE_TOOLS as evidenceTools,evidenceHandler} from "../codex-bridge/lib/evidence-tools.mjs";
 
 const log = (...args) => console.error("[smart-record]", ...args);
-const VERSION = "0.20.2";
+const VERSION = "0.20.3";
 
 // ---------------------------------------------------------------- engine link
 
@@ -168,9 +169,9 @@ const tools = [
     name:"action_end",
     description:"Close a declared token with recorder time and caller-reported result. Idempotent after settlement. Unknown end time after engine restart is preserved. Never use a claimed verified result alone as proof that an app action succeeded.",
     inputSchema:{type:"object",additionalProperties:false,properties:{session_id:SESSION_ID,caller:{type:"string"},action_token:{type:"string"},
-      result:{type:"string",enum:["dispatched","delivered","verified","failed","interrupted","unknown"]},evidence_refs:{type:"array",maxItems:16,items:{type:"string",description:"Absolute local evidence paths; no pixels or bulk event rows."}}
+      result:{type:"string",enum:["dispatched","delivered","verified","failed","interrupted","unknown"]},evidence_refs:actionEvidenceSchema
     },required:["session_id","caller","action_token","result"]},
-    run:async a=>ok(await engine("action.end",a)),
+    run:async a=>ok(await engine("action.end",validateActionEvidence(a))),
   },
   {
     name:"action_scopes",
@@ -415,7 +416,7 @@ const tools = [
   },
   {
     name: "recording_input",
-    description: "Query a terminal recording's capture-retained input in an exact recorder-reception interval, with bounded event-type/action-token filters and snapshot-bound pagination. Default preserves broad retained keys/shortcuts and unassociated candidates. Inclusion reasons, same-app unresolved delivery, contextual action tokens, raw CG generation stamps and unqualified pointer coordinates remain explicit; no human/agent ownership inferred. Optional include_context returns up to64 captured action snapshots, rich caller-authored intent/context and exact scope offsets; updates can remain active/end unknown, declared deadlines and claimed results are not verified UI completion. Context summaries repeat across input pages, bounded truncation explicit; event-type filters leave them visible. Optional include_health_context preserves bounded preceding/in-interval/untimed notifications and all retained protection snapshot counts independent of event filters/pages; observations are not live or continuous state, later notifications are counted without backfilling. Gap diagnostics survive event filters. At most256 events/page,64MiB/250000 source rows,ten-second read budget; one query per adapter. Returns whitelisted metadata and opt-in caller-authored context, never automatic key text/clipboard or the bulk journal. Query cannot recover capture-excluded events or establish actual video/physical delivery coverage. Read-only; no capture, UI, permission request or mutation replay.",
+    description: "Query a terminal recording's capture-retained input in an exact recorder-reception interval, with bounded event-type/action-token filters and snapshot-bound pagination. Default preserves broad retained keys/shortcuts and unassociated candidates. Inclusion reasons, same-app unresolved delivery, contextual action tokens, raw CG generation stamps and unqualified pointer coordinates remain explicit; no human/agent ownership inferred. Optional include_context returns up to64 captured action snapshots, rich caller-authored intent/context and exact scope offsets; updates can remain active/end unknown, declared deadlines and claimed results are not verified UI completion. Context summaries repeat across input pages, bounded truncation explicit; event-type filters leave them visible. Optional include_health_context preserves bounded preceding/in-interval/untimed notifications and all retained protection snapshot counts independent of event filters/pages; observations are not live or continuous state, later notifications are counted without backfilling. Gap diagnostics survive event filters. At most256 events/page,64MiB/250000 source rows,ten-second read budget; one active read per adapter with up to8 FIFO waiters and a ten-second queue deadline. Small concurrent batches are supported; queue-full/timeouts are explicit read-only retries. Pass next_cursor unchanged with the same query, including include_source_frames when requested. Returns whitelisted metadata and opt-in caller-authored context, never automatic key text/clipboard or the bulk journal. Query cannot recover capture-excluded events or establish actual video/physical delivery coverage. Read-only; no capture, UI, permission request or mutation replay.",
     inputSchema: inputQuerySchema,
     annotations: {readOnlyHint:true},
     run: async a => {
