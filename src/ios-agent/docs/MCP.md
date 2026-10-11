@@ -835,3 +835,14 @@ an independent screen still showed a permission prompt. A browser restart is
 an explicit recovery experiment, not an automatic retry or a guarantee of UI
 readiness. It discards in-memory page state and must not run during a call or
 an uncertain business mutation. Its candidate is not exposed as a routine tool.
+
+### Actual provider received-audio acceptance
+
+MCP1.9.42 physically qualified source discovery and received-track capture in Chrome
+on the real synthetic Twilio call. Match `trackRef` to `rtc-receiver`, stop/drain fully,
+and decode privately. The selected10chunks produced10.26s of non-silent48kHz audio.
+Provider2→0participants/recordings0 and original-track preservation passed. The agent
+handled microphone Allow through bounded XCTest, then returned to page-owned control;
+new XCTest authorization can still need the human. Read AUDIO-PROBE.md and
+provider-received-capture-mcp-2026-10-11.json. This is nearby evidence; retain the
+separate off-LAN qualification and Safari native hit-geometry boundary.

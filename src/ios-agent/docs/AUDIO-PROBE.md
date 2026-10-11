@@ -66,3 +66,35 @@ session in finally. A probe started under ownership also stops when that
 ownership disappears; normal manual probes retain their own ten-second limit.
 Check receiver active=0/peerConnections=0, then `ios-audio-lab stop` when no other
 agent uses it. Return Home through a qualified driver and verify XCTest stopped.
+
+## Received audio capture through MCP — physically qualified
+
+The11October2026 physical Chrome run qualified the actual provider path, beyond
+synthetic RTC objects. Desktop coach and iPhone joined the fixed recording-disabled
+Twilio fixture. The agent handled the microphone prompt through the bounded native
+fallback, stopped XCTest, then reacquired the page. Capture reported a source with
+`rtc-receiver`/`dom-media`; its10AAC chunks decoded to10.26seconds of non-silent48kHz
+audio. Original tracks remained live after capture stopped. See
+[provider-received-capture-mcp-2026-10-11.json](provider-received-capture-mcp-2026-10-11.json).
+
+For a received-source investigation, use `ios_capture modes=["audio"]`, play an
+existing cached coach fixture through the normal product source, then stop and
+drain until `remainingEvents=0`. Match chunk `trackRef` to a source whose origins
+contain `rtc-receiver`. Decode joined chunks in sequence order privately; report
+counts, durations and energy rather than loading bytes into model context. Source
+labels alone do not prove non-silent audio. Remove derived audio after measurement;
+the service expires its private source chunks under the selected TTL.
+
+Finish both calls and restore the coach source/mute state. Read the provider room,
+connected participants and recordings independently. In this run a completed
+room's recording-rules endpoint returned404 while the room,0participants and
+0recordings all remained readable. Do not let an aggregate Promise.all404 hide
+those separate cleanup results. After leaving the meeting document, the call
+projection is unavailable; verify the new document's empty media state and provider
+cleanup instead of claiming that an in-call `released` assertion passed there.
+Return Home and verify the screen. A missing native bridge makes native idle
+feedback unknown; use actual owner/page/runner cleanup evidence for a web-only run.
+
+This qualifies nearby physical Chrome with a real provider. It does not establish
+off-LAN developer startup, acoustic quality, Safari native tap reliability or
+password-free XCTest re-entry. Keep those boundaries separate from this closed gate.

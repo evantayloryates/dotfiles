@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-10T23:21:31-04:00",
+  "updated_at": "2026-10-11T12:43:54-04:00",
   "workflow": {
     "state": "complete",
-    "note": "First production run independently reviewed and bounded fixes verified. Composition direction remains Ready for Taylor\u2019s visual feedback; deferred tests keep their prerequisites."
+    "note": "Second production run reviewed; bounded adapter0.20.3 corrections verified for another consumer smoke. Sparse cursor input, source residual/banner and official composition retain their written limits."
   },
-  "production_note": "Smart Record adapter0.20.2 is available to fresh clients: production-run review delivered actionable planning errors, wait/deadline guidance, cursor coverage diagnostics and the Escape fix. Native d7a6a75d975f and widget be27e75d391a unchanged.60 Completed,11 Deferred,1 Ready for official composition and provisional-tool cleanup.",
+  "production_note": "Smart Record adapter0.20.3 is available to fresh clients: bounded concurrent input reads, fixed frame-linked/plain pagination, interval delivery summaries and saved action-evidence validation.28 focused tests and actual MCP smoke pass. Native d7a6a75d975f/widget be27e75d391a unchanged.60 Completed,11 Deferred,1 Ready; cursor/source quality limits remain explicit.",
   "groups": [
     {
       "id": "capture",
@@ -112,12 +112,12 @@
           "id": "finder-depth",
           "title": "Finder native menus and Quick Look capture expectations",
           "status": "completed",
-          "scope": "Finder26.4/build1828.5.2/25F80, built-in2\u00d7, native CUA version unknown: menus, file-preview omission/crop insurance, and explicit layer3 direct-panel discovery/capture.",
+          "scope": "Finder26.4/build1828.5.2/25F80, built-in2×, native CUA version unknown: menus, file-preview omission/crop insurance, and explicit layer3 direct-panel discovery/capture.",
           "evidence": "Stage39 controls retained. Stage41 explicit broader inventory reveals Finder-owned layer3 Quick Look omitted by normal filters. Candidate446 +installed120 exact mux/source joins; selected whole-panel frames retain filename/two lines without surrounding desktop.22 native/23 adapter checks; one fenced signed install,119 prior state hashes unchanged, grants retained. Four typed outcomes/cleanup complete, zero uncovered; scoped fact read back. Owned resources settled.",
           "next": "",
           "anchor": "forty-first-pass",
           "updated_at": "2026-10-09T06:52:43-04:00",
-          "summary": "Finder26.4/build1828.5.2/25F80, built-in2\u00d7, native CUA version unknown: menus, file-preview omission/crop insurance, and explicit layer3 direct-panel discovery/capture.",
+          "summary": "Finder26.4/build1828.5.2/25F80, built-in2×, native CUA version unknown: menus, file-preview omission/crop insurance, and explicit layer3 direct-panel discovery/capture.",
           "work_state": "completed",
           "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
@@ -216,7 +216,7 @@
           "title": "Deliver service-owned primary frame and point mapping",
           "status": "completed",
           "scope": "Bounded service-owned actual mux/frame/relative/declared-host mapping, source-reference geometry, point/rectangle clipping and actual canvas dimension reconciliation.",
-          "evidence": "Stage40 CLI/fresh MCP0.11.2 adds16 named desktop regions with affine quads, clipped polygons and continuous area fractions; actual mux canvas dimensions must match before projection.21 focused/adjacent tests pass. Three Finder source maps identify clipped title/text, and matching CLI/full-frame pixel check agrees. Three retained dynamic1\u2192.75\u21921 marker regions match decoded edges at0px error. Geometric parent overlap does not establish omitted Quick Look content. Owned adapter closed; native unchanged.",
+          "evidence": "Stage40 CLI/fresh MCP0.11.2 adds16 named desktop regions with affine quads, clipped polygons and continuous area fractions; actual mux canvas dimensions must match before projection.21 focused/adjacent tests pass. Three Finder source maps identify clipped title/text, and matching CLI/full-frame pixel check agrees. Three retained dynamic1→.75→1 marker regions match decoded edges at0px error. Geometric parent overlap does not establish omitted Quick Look content. Owned adapter closed; native unchanged.",
           "next": "",
           "anchor": "fortieth-pass",
           "updated_at": "2026-10-09T06:29:23-04:00",
@@ -241,12 +241,12 @@
           "id": "display-geometry",
           "title": "Verify move, resize and cross-display geometry",
           "status": "completed",
-          "scope": "Authored marker transforms on built-in Retina, external 1\u00d7 display with negative origin, and return.",
-          "evidence": "Earlier native Retina/external/return marker maps retained. Installed attached-panel open/close proof adds896 exact source/mux samples: enabled three-segment affine1\u21920.75\u21921 and excluded fixed affine; every parent center exact, child\u22640.5px. Negative original-map/reference controls rejected.",
+          "scope": "Authored marker transforms on built-in Retina, external 1× display with negative origin, and return.",
+          "evidence": "Earlier native Retina/external/return marker maps retained. Installed attached-panel open/close proof adds896 exact source/mux samples: enabled three-segment affine1→0.75→1 and excluded fixed affine; every parent center exact, child≤0.5px. Negative original-map/reference controls rejected.",
           "next": "",
           "anchor": "thirty-third-pass",
           "updated_at": "2026-10-09T04:08:20-04:00",
-          "summary": "Authored marker transforms on built-in Retina, external 1\u00d7 display with negative origin, and return.",
+          "summary": "Authored marker transforms on built-in Retina, external 1× display with negative origin, and return.",
           "work_state": "completed",
           "work_updated_at": "2026-10-10T18:10:51-04:00"
         },
@@ -259,13 +259,13 @@
           "next": "Use the delivered joins now. Physical response calibration remains in the separately Deferred hands-on input test.",
           "anchor": "release-020",
           "updated_at": "2026-10-10T19:06:38-04:00",
-          "why_partial": "We can link saved video frames to the recorder\u2019s event timeline, but that does not yet measure the full delay between a physical key press or mouse action and the app\u2019s visible response. Physical input and additional automation methods need their own calibration, and sleep needs a separate test. Those checks were left outside the delivered scope; use the verified frame-to-event timing now without treating it as a guarantee of physical response time.",
+          "why_partial": "We can link saved video frames to the recorder’s event timeline, but that does not yet measure the full delay between a physical key press or mouse action and the app’s visible response. Physical input and additional automation methods need their own calibration, and sleep needs a separate test. Those checks were left outside the delivered scope; use the verified frame-to-event timing now without treating it as a guarantee of physical response time.",
           "summary": "Service-owned event/frame timing is delivered; physical reaction latency remains a separate test.",
           "work_state": "completed",
           "work_updated_at": "2026-10-10T19:06:38-04:00",
           "examples": [
             "Example (illustrative times): you click at 12.000 seconds, the recorder receives the event at 12.006, and the next recorded picture shows the button responding at 12.033. Those are three useful moments, not three contradictory timestamps.",
-            "With calibration, a click marker can track the input while a \u201cSaved\u201d cue waits for the visible response. Without it, an effect may lead or trail the action, and an agent may mistake a delayed app reaction for a missed input. Exact frame joins work now; physical-action latency and additional providers remain unmeasured. At 30 fps, precise event timing cannot create a picture between the captured frames."
+            "With calibration, a click marker can track the input while a “Saved” cue waits for the visible response. Without it, an effect may lead or trail the action, and an agent may mistake a delayed app reaction for a missed input. Exact frame joins work now; physical-action latency and additional providers remain unmeasured. At 30 fps, precise event timing cannot create a picture between the captured frames."
           ],
           "doc_link": "/Users/taylor/src/github/dotfiles/src/smart-record/qualification/RELEASE-0.20.md"
         },
@@ -283,8 +283,8 @@
           "work_state": "completed",
           "work_updated_at": "2026-10-10T19:06:38-04:00",
           "examples": [
-            "Example: the pointer is at desktop position (400, 300), and the recorded crop starts at (200, 100). On a 2\u00d7 Retina capture, that click belongs at video pixel (400, 400). A half-size preview then places it at (200, 200).",
-            "A tool that treats desktop points as video pixels can put the replacement cursor beside the button instead of on it. Qualifying each provider\u2019s coordinate convention lets the service perform the transforms, so the composing agent can change crop or output size without manually repairing cursor placement. The tested native case works; other setups still need their own comparison."
+            "Example: the pointer is at desktop position (400, 300), and the recorded crop starts at (200, 100). On a 2× Retina capture, that click belongs at video pixel (400, 400). A half-size preview then places it at (200, 200).",
+            "A tool that treats desktop points as video pixels can put the replacement cursor beside the button instead of on it. Qualifying each provider’s coordinate convention lets the service perform the transforms, so the composing agent can change crop or output size without manually repairing cursor placement. The tested native case works; other setups still need their own comparison."
           ],
           "doc_link": "/Users/taylor/src/github/dotfiles/src/smart-record/qualification/RELEASE-0.20.md"
         },
@@ -329,7 +329,7 @@
           "next": "Follow the temporary overflow probe in SERVICE-PRINCIPLES.md; capture opportunities without weakening mapping guards.",
           "anchor": "release-decision",
           "updated_at": "2026-10-10T16:46:35-04:00",
-          "why_partial": "The missing ingredient is a genuine menu that extends outside its parent and changes the captured picture\u2019s position or scale. Agents now have an explicit probe: notice those cases during authorized work and preserve high-fidelity timing, geometry and private footage for later analysis. The current fixture stayed contained, so repeating it cannot settle this; use the qualified app/display fallback meanwhile.",
+          "why_partial": "The missing ingredient is a genuine menu that extends outside its parent and changes the captured picture’s position or scale. Agents now have an explicit probe: notice those cases during authorized work and preserve high-fidelity timing, geometry and private footage for later analysis. The current fixture stayed contained, so repeating it cannot settle this; use the qualified app/display fallback meanwhile.",
           "summary": "Watch for real overflowing menus and save precise samples for a dedicated mapping pass.",
           "work_state": "deferred",
           "work_updated_at": "2026-10-10T18:13:51-04:00",
@@ -378,7 +378,7 @@
           "status": "partial",
           "scope": "Delivered keys, modifiers, motion, clicks, scroll and drag with bounded callback work.",
           "evidence": "Fresh listening native oracle retained 12 exact delivered keys and two real shortcuts; installed destination repair passed a second targeted source check. Sparse provider gestures and keyboard probes do not prove physical rates. A bounded human request ended without delivery/reply and remains pending. Stage72 AppKit canvas receives keys without a text field, modifiers, movement, click, drag and one wheel;28/28 delivered oracle events retained in37 rows, no journal loss. Physical rates/touchpad remain open.",
-          "next": "Prepare the standalone test before arranging Taylor\u2019s focused interval; no human-input request is active now.",
+          "next": "Prepare the standalone test before arranging Taylor’s focused interval; no human-input request is active now.",
           "anchor": "seventy-second-pass",
           "updated_at": "2026-10-09T17:51:25-04:00",
           "why_partial": "Automated delivery is already verified for its tested scope. The remaining question is what real devices deliver during sustained movement, shortcuts and trackpad scrolling. This is now a standalone hands-on test with a prepared fixture and simple steps, rather than something to coordinate alongside other production tasks.",
@@ -387,7 +387,7 @@
           "work_updated_at": "2026-10-10T18:13:51-04:00",
           "prerequisite": {
             "environment": "Owned native test window, independent event witness and a short prepared take; no competing automation.",
-            "user_involvement": "High attention: about 60\u201390 seconds of following simple pointer, key and trackpad prompts.",
+            "user_involvement": "High attention: about 60–90 seconds of following simple pointer, key and trackpad prompts.",
             "ready_when": "Taylor chooses a focused interval and the entire fixture is ready before the start cue."
           },
           "acceptance": [
@@ -418,7 +418,7 @@
           "next": "Apply rich-evidence/director-owned selection guidance now. Do not pursue exhaustive mixed-user attribution without a demonstrated production need.",
           "anchor": "seventy-ninth-pass",
           "updated_at": "2026-10-09T18:54:05-04:00",
-          "why_partial": "The service can supply detailed timing, targets, action context and uncertainty, but the driving agent knows which events matter to its plan. Taylor\u2019s medium-term direction is a dedicated runtime with little competing human input, so exhaustive human-versus-agent attribution is no longer a priority. Preserve broad events with bounded queries and reversible filters; keep uncertain ownership explicit.",
+          "why_partial": "The service can supply detailed timing, targets, action context and uncertainty, but the driving agent knows which events matter to its plan. Taylor’s medium-term direction is a dedicated runtime with little competing human input, so exhaustive human-versus-agent attribution is no longer a priority. Preserve broad events with bounded queries and reversible filters; keep uncertain ownership explicit.",
           "summary": "Give the driving agent rich, bounded event evidence; avoid aggressive service-side relevance filtering.",
           "work_state": "deferred",
           "work_updated_at": "2026-10-10T18:13:51-04:00",
@@ -472,11 +472,11 @@
           "title": "Qualify missing-event and tap-fault behavior",
           "status": "partial",
           "scope": "Expose virtual-input gaps, revoked access, disabled taps and overload.",
-          "evidence": "Stage82 DOM-backed export independently observes11 events including ArrowRight keydown/keyup, isTrusted true; browser clock uncalibrated and trust not actor/human identity. Stage79 callback4\u21924 differential/failure and unknown historical key outcome preserved; native recovered stage81 positive control retained.",
+          "evidence": "Stage82 DOM-backed export independently observes11 events including ArrowRight keydown/keyup, isTrusted true; browser clock uncalibrated and trust not actor/human identity. Stage79 callback4→4 differential/failure and unknown historical key outcome preserved; native recovered stage81 positive control retained.",
           "next": "Build the observation harness first in the dedicated environment, then expand the provider/action baseline.",
           "anchor": "eighty-second-pass",
           "updated_at": "2026-10-09T19:08:11-04:00",
-          "why_partial": "We know some browser actions bypass the system listener, but need a clearer reusable test before expanding the provider baseline. First compare declared expected events with a healthy global listener and independent app delivery, distinguishing real bypass from incomplete observation. Then compare visible user-like actions with silent preparation; run this in an uninterrupted environment rather than during Taylor\u2019s normal work.",
+          "why_partial": "We know some browser actions bypass the system listener, but need a clearer reusable test before expanding the provider baseline. First compare declared expected events with a healthy global listener and independent app delivery, distinguishing real bypass from incomplete observation. Then compare visible user-like actions with silent preparation; run this in an uninterrupted environment rather than during Taylor’s normal work.",
           "summary": "Measure which automation methods produce real system events and which intentionally work backstage.",
           "work_state": "deferred",
           "work_updated_at": "2026-10-10T18:13:51-04:00",
@@ -522,12 +522,12 @@
           "id": "retained-input-query",
           "title": "Expose bounded retained input with exact receipt offsets and uncertainty",
           "status": "completed",
-          "scope": "Service-owned interval/type/action queries, snapshot-bound pages, whitelisted input metadata and gap-preserving diagnostics. Physical completeness and actor identity remain unproven.",
-          "evidence": "Stage42 extends completed bounded reader with opt-in up-to64 captured action snapshots. Defaults/cursor hashes preserved; token/type filtering independent, repeated-page/truncation explicit, null/expired/restart bounds honest.25 adjacent/focused plus9 changed-protocol checks and actual retained-source/CLI/MCP/once-only consumer pass.",
+          "scope": "Service-owned interval/type/action queries, snapshot-bound plain/frame-linked pages, bounded concurrent admission, whitelisted metadata and gap-preserving diagnostics. Physical completeness and actor identity remain unproven.",
+          "evidence": "Prior Stage42 evidence retained. Adapter0.20.3 passes 28 focused checks and fresh actual MCP three-way reads of the latest production takes, joined/plain pagination, changed-media withholding and interval-wide click-only diagnostics. Queue bounds/deadlines and failure cleanup are verified.",
           "next": "",
-          "anchor": "forty-second-pass",
-          "updated_at": "2026-10-09T07:05:06-04:00",
-          "summary": "Service-owned interval/type/action queries, snapshot-bound pages, whitelisted input metadata and gap-preserving diagnostics. Physical completeness and actor identity remain unproven.",
+          "anchor": "production-rerun-review",
+          "updated_at": "2026-10-11T12:43:54-04:00",
+          "summary": "Bounded concurrent input reads, usable frame-linked pagination and compact motion/scroll/key diagnostics.",
           "work_state": "completed",
           "work_updated_at": "2026-10-10T18:10:51-04:00"
         }
@@ -662,7 +662,7 @@
           "work_updated_at": "2026-10-10T18:13:51-04:00",
           "prerequisite": {
             "environment": "Dedicated uninterrupted runtime, controlled background workload and bounded representative recording/backup scenarios.",
-            "user_involvement": "No hands-on participation after handover; resource stress should not compete with Taylor\u2019s normal desktop work.",
+            "user_involvement": "No hands-on participation after handover; resource stress should not compete with Taylor’s normal desktop work.",
             "ready_when": "The sandbox and workload limits are agreed, and basic observations/decision logs are available for comparison."
           },
           "acceptance": [
@@ -741,7 +741,7 @@
           "title": "Keep preview timing and parent-frame mapping inside the service",
           "status": "completed",
           "scope": "Exact rational clocks, non-grid trims, GIF quantization, held frames and pixel transforms.",
-          "evidence": "Final authored repeat matched 139 decoded frames; real source/time-map readbacks passed, including a seven-packet 0.07\u20130.14-second boundary.",
+          "evidence": "Final authored repeat matched 139 decoded frames; real source/time-map readbacks passed, including a seven-packet 0.07–0.14-second boundary.",
           "next": "",
           "anchor": "eighth-pass",
           "updated_at": "2026-10-08T20:01:05-04:00",
@@ -848,7 +848,7 @@
           "work_updated_at": "2026-10-10T18:13:51-04:00",
           "prerequisite": {
             "environment": "A current reproducible recording problem whose root cause belongs to the computer-use provider.",
-            "user_involvement": "No user input is inherently required; only a specific reproduction and the dependency maintainer\u2019s workflow.",
+            "user_involvement": "No user input is inherently required; only a specific reproduction and the dependency maintainer’s workflow.",
             "ready_when": "The owning computer-use maintainer accepts a bounded issue that helps a current recorder use case."
           }
         },
@@ -861,7 +861,7 @@
           "next": "Use explicit supported scopes now; run the broader coverage pass in the dedicated environment.",
           "anchor": "release-decision",
           "updated_at": "2026-10-10T16:47:00-04:00",
-          "why_partial": "Explicit action scopes and typed outcomes already work. Broader coverage needs a quiet environment to observe provider preparation, focus changes and read-side effects without mixing in user activity. The recorder will clarify and test the interface it consumes; instrumentation fixes inside computer use belong to that tool\u2019s maintainers.",
+          "why_partial": "Explicit action scopes and typed outcomes already work. Broader coverage needs a quiet environment to observe provider preparation, focus changes and read-side effects without mixing in user activity. The recorder will clarify and test the interface it consumes; instrumentation fixes inside computer use belong to that tool’s maintainers.",
           "summary": "Compare hidden setup/focus side effects with action receipts in an uninterrupted provider test.",
           "work_state": "deferred",
           "work_updated_at": "2026-10-10T18:13:51-04:00",
@@ -1038,7 +1038,7 @@
           "scope": "See recording state at a glance; pause future starts, drain current work safely and queue requests until resumed.",
           "status": "completed",
           "work_state": "completed",
-          "evidence": "The global gate/live panel retain passing controlled and installed evidence. Taylor\u2019s original widget Pause click reached generation 9. Actual new single-button Resume is confirmed by chronod/WidgetKit: SetRecordingGateIntent executed in the extension from 20:14:21.272 to .688, succeeded with openAppWhenRun NO, and service became Ready/generation 11. Installed widget 0c731006740f. Seventeen contract and 22 mailbox checks plus a signed sandboxed intent probe pass. Retained old-extension upgrade failure repaired. Taylor confirmed focused layout; unfocused blank-button defect was fixed using rendering-mode-aware outlined controls and actual unfocused pixels show readable Pause icon/text. Explicit Recording allowed/New work paused state, no input lock, recorder unchanged.",
+          "evidence": "The global gate/live panel retain passing controlled and installed evidence. Taylor’s original widget Pause click reached generation 9. Actual new single-button Resume is confirmed by chronod/WidgetKit: SetRecordingGateIntent executed in the extension from 20:14:21.272 to .688, succeeded with openAppWhenRun NO, and service became Ready/generation 11. Installed widget 0c731006740f. Seventeen contract and 22 mailbox checks plus a signed sandboxed intent probe pass. Retained old-extension upgrade failure repaired. Taylor confirmed focused layout; unfocused blank-button defect was fixed using rendering-mode-aware outlined controls and actual unfocused pixels show readable Pause icon/text. Explicit Recording allowed/New work paused state, no input lock, recorder unchanged.",
           "next": "",
           "anchor": "release-020",
           "updated_at": "2026-10-10T20:18:31-04:00",
@@ -1106,10 +1106,10 @@
           "title": "Design the official session composition interface and retire provisional tools",
           "status": "pending",
           "work_state": "ready",
-          "scope": "Use Taylor\u2019s preferred recipe-book design to define versioned scenes/sequences, source-to-master timing, durable job/artifact states, compact change/wait hooks and internal automatic mapping. Register cursor/other derived outputs in the session workspace.",
+          "scope": "Use Taylor’s preferred recipe-book design to define versioned scenes/sequences, source-to-master timing, durable job/artifact states, compact change/wait hooks and internal automatic mapping. Register cursor/other derived outputs in the session workspace.",
           "summary": "Ready for the composition phase. record_export and cursor_render are useful provisional tools with an explicit replacement/retirement checkpoint.",
           "evidence": "Taylor approved keeping both tools temporarily and asked that timing/bookkeeping become session-owned. SESSION-STRATEGY.md defines the delivered inventory boundary and the next design/cleanup contract. This is planned work, not an implemented compositor. The first Sleeper production confirms cursor derivatives and the external master are outside ordinary session discovery; prioritize their registration and source-to-master provenance when designing the official interface.",
-          "next": "Begin with Taylor\u2019s preferred composition recipes. Before declaring official composition delivered, migrate useful internals/retained recipes and choose retirement or a documented compatibility role for both provisional tools; verify discovery and artifact readability.",
+          "next": "Begin with Taylor’s preferred composition recipes. Before declaring official composition delivered, migrate useful internals/retained recipes and choose retirement or a documented compatibility role for both provisional tools; verify discovery and artifact readability.",
           "anchor": "session-strategy",
           "updated_at": "2026-10-10T23:21:31-04:00",
           "work_updated_at": "2026-10-10T21:35:09-04:00",
@@ -1117,17 +1117,17 @@
         },
         {
           "id": "production-run-feedback",
-          "title": "Review the first production run and repair demonstrated usage defects",
+          "title": "Review production runs and repair demonstrated usage defects",
           "status": "completed",
           "work_state": "completed",
-          "scope": "Retained Sleeper run review, actionable planning errors, terminal/deadline wait readbacks, cursor position-coverage receipts and Escape/shortcut typing-hide correction. No universal clean-source or smooth-motion claim.",
-          "summary": "First-run fixes delivered; sparse cursor coverage, painted pointer residuals and external master discovery remain explicit limits.",
-          "evidence": "31 focused tests pass. Fresh minimal-PATH MCP0.20.2/46 tools and CLI agree on the ended canary. Actual retained timelines expose gaps and restore40 main-render cursor frames after the Escape fix. A new15-frame derivative decodes and persists coverage; native PID and Desktop movie hash unchanged.",
-          "next": "Apply Taylor\u2019s visual feedback in the official composition phase; verify source pixels and content-ready marks on the next useful production.",
-          "anchor": "production-run-review",
-          "updated_at": "2026-10-10T23:21:31-04:00",
+          "scope": "Two retained Sleeper production reviews and bounded adapter fixes: planning/waits/cursor diagnostics, FIFO read admission, joined/plain pagination, interval delivery summaries and saved action-evidence validation. No universal clean-source or smooth-motion claim.",
+          "summary": "Second-run fixes verified; input query retries removed, cursor motion/source quality and external master discovery remain explicit limits.",
+          "evidence": "First-run 31 checks retained. Second-run 28 focused checks and fresh minimal-PATH MCP0.20.3/46 tools pass: concurrent retained queries, actual frame-linked pages, changed-media withholding and owned action settlement. All four captures complete, zero dropped frames/lost rows; final movie decode/hash unchanged.1358/2409 final timeline frames lack pointer positions.",
+          "next": "Next useful smoke: representative movement/scroll canary, source-pixel inspection and content-ready marks. Apply visual feedback to the Ready official composition phase.",
+          "anchor": "production-rerun-review",
+          "updated_at": "2026-10-11T12:43:54-04:00",
           "work_updated_at": "2026-10-10T23:21:31-04:00",
-          "doc_link": "/Users/taylor/src/github/dotfiles/src/smart-record/qualification/SLEEPER-RUN-REVIEW.md"
+          "doc_link": "/Users/taylor/src/github/dotfiles/src/smart-record/qualification/SLEEPER-RERUN-REVIEW.md"
         }
       ]
     }
@@ -1266,7 +1266,7 @@
       "at": "2026-10-08T22:16:07-04:00",
       "from": "partial",
       "to": "partial",
-      "note": "Two sequential native takes passed 102 exact timestamps. A 190\u00d758 popup crop extends 140 points right/28 down beyond the original frame; its source map matched independent screenshot glyphs at zero offset (0.916 IoU). Retained evidence recheck passed. Display footage kept the popup but lost its base to occlusion."
+      "note": "Two sequential native takes passed 102 exact timestamps. A 190×58 popup crop extends 140 points right/28 down beyond the original frame; its source map matched independent screenshot glyphs at zero offset (0.916 IoU). Retained evidence recheck passed. Display footage kept the popup but lost its base to occlusion."
     },
     {
       "kind": "item",
@@ -1967,7 +1967,7 @@
       "at": "2026-10-09T04:08:20-04:00",
       "from": "partial",
       "to": "partial",
-      "note": "Same-cycle installed AppKit attached-child included/excluded sources passed896 exact muxed samples. Enabled affine1\u21920.75\u21921 restored; all parent centers exact and240 open child samples within0.5px. Control omitted child throughout. Frozen-map/wrong-marker negatives failed. Prior Chrome padded popup and moving obstruction rescue remain retained."
+      "note": "Same-cycle installed AppKit attached-child included/excluded sources passed896 exact muxed samples. Enabled affine1→0.75→1 restored; all parent centers exact and240 open child samples within0.5px. Control omitted child throughout. Frozen-map/wrong-marker negatives failed. Prior Chrome padded popup and moving obstruction rescue remain retained."
     },
     {
       "kind": "item",
@@ -1975,7 +1975,7 @@
       "at": "2026-10-09T04:08:20-04:00",
       "from": "completed",
       "to": "completed",
-      "note": "Earlier native Retina/external/return marker maps retained. Installed attached-panel open/close proof adds896 exact source/mux samples: enabled three-segment affine1\u21920.75\u21921 and excluded fixed affine; every parent center exact, child\u22640.5px. Negative original-map/reference controls rejected."
+      "note": "Earlier native Retina/external/return marker maps retained. Installed attached-panel open/close proof adds896 exact source/mux samples: enabled three-segment affine1→0.75→1 and excluded fixed affine; every parent center exact, child≤0.5px. Negative original-map/reference controls rejected."
     },
     {
       "kind": "item",
@@ -1991,7 +1991,7 @@
       "at": "2026-10-09T04:08:20-04:00",
       "from": "partial",
       "to": "partial",
-      "note": "Published production mode/cursor/resource/recovery contracts retained. Dynamic fitting guidance now requires each encoded sample\u2019s source geometry rather than current/original window frame; actual installed896-sample proof, four verified workflow outcomes and complete cleanup are available."
+      "note": "Published production mode/cursor/resource/recovery contracts retained. Dynamic fitting guidance now requires each encoded sample’s source geometry rather than current/original window frame; actual installed896-sample proof, four verified workflow outcomes and complete cleanup are available."
     },
     {
       "kind": "item",
@@ -2194,7 +2194,7 @@
       "at": "2026-10-09T06:29:23-04:00",
       "from": "completed",
       "to": "completed",
-      "note": "Stage40 CLI/fresh MCP0.11.2 adds16 named desktop regions with affine quads, clipped polygons and continuous area fractions; actual mux canvas dimensions must match before projection.21 focused/adjacent tests pass. Three Finder source maps identify clipped title/text, and matching CLI/full-frame pixel check agrees. Three retained dynamic1\u2192.75\u21921 marker regions match decoded edges at0px error. Geometric parent overlap does not establish omitted Quick Look content. Owned adapter closed; native unchanged."
+      "note": "Stage40 CLI/fresh MCP0.11.2 adds16 named desktop regions with affine quads, clipped polygons and continuous area fractions; actual mux canvas dimensions must match before projection.21 focused/adjacent tests pass. Three Finder source maps identify clipped title/text, and matching CLI/full-frame pixel check agrees. Three retained dynamic1→.75→1 marker regions match decoded edges at0px error. Geometric parent overlap does not establish omitted Quick Look content. Owned adapter closed; native unchanged."
     },
     {
       "kind": "item",
@@ -2233,7 +2233,7 @@
       "at": "2026-10-09T06:52:43-04:00",
       "from": "partial",
       "to": "partial",
-      "note": "Stage41 exact Finder Quick Look direct-panel pass appended/read back with native build3ff4c4519dc8, OS25F80 and built-in2\u00d7. Candidate/installed source proof independent of prior failed parent/padded lanes. Provider version remains unknown; no universal reuse."
+      "note": "Stage41 exact Finder Quick Look direct-panel pass appended/read back with native build3ff4c4519dc8, OS25F80 and built-in2×. Candidate/installed source proof independent of prior failed parent/padded lanes. Provider version remains unknown; no universal reuse."
     },
     {
       "kind": "item",
@@ -2458,7 +2458,7 @@
       "at": "2026-10-09T08:23:18-04:00",
       "from": "partial",
       "to": "partial",
-      "note": "Stage48 real TextEdit isolated source preserves six-pair scroll under actual display occlusion; selected mapped row057\u2192001,5882 pair joins. Selected display samples omit intended document; failed primary preserved, no reshoot. Stage39/40/41 QuickLook crop/full/direct-source extent findings retained. Useful source rescue does not establish all-app transient or final reintegration."
+      "note": "Stage48 real TextEdit isolated source preserves six-pair scroll under actual display occlusion; selected mapped row057→001,5882 pair joins. Selected display samples omit intended document; failed primary preserved, no reshoot. Stage39/40/41 QuickLook crop/full/direct-source extent findings retained. Useful source rescue does not establish all-app transient or final reintegration."
     },
     {
       "kind": "workflow",
@@ -2549,7 +2549,7 @@
       "at": "2026-10-09T11:06:45-04:00",
       "from": "active",
       "to": "active",
-      "note": "Stages51\u201352 add encoded app-only occlusion/lifetime proof, repair exclusive endpoint and unadmitted tail source, and safely deliver142e81bef23e. Failed evidence retained; remaining app, physical/provider, capacity and recovery gates continue. User input remains available."
+      "note": "Stages51–52 add encoded app-only occlusion/lifetime proof, repair exclusive endpoint and unadmitted tail source, and safely deliver142e81bef23e. Failed evidence retained; remaining app, physical/provider, capacity and recovery gates continue. User input remains available."
     },
     {
       "kind": "item",
@@ -3187,7 +3187,7 @@
       "at": "2026-10-09T17:08:48-04:00",
       "from": "active",
       "to": "paused",
-      "note": "Paused at Taylor\u2019s request. Stage70 takes saved:75s window and252.068s app crop; server/sampler terminal, session closed, native idle. Pixel/mux/map/resource verification remains pending. Two-minute reservation overrun and expired scope preserved. Owned Safari close unverified; inert fixture remains. Reuse footage on resume."
+      "note": "Paused at Taylor’s request. Stage70 takes saved:75s window and252.068s app crop; server/sampler terminal, session closed, native idle. Pixel/mux/map/resource verification remains pending. Two-minute reservation overrun and expired scope preserved. Owned Safari close unverified; inert fixture remains. Reuse footage on resume."
     },
     {
       "kind": "workflow",
@@ -3257,7 +3257,7 @@
       "at": "2026-10-09T17:31:04-04:00",
       "from": "active",
       "to": "active",
-      "note": "Stage71 retained Safari verification complete:8,900 exact mux joins,6,684 marker packets within1px, real menus and a black app tail preserved. Six typed outcomes/three facts read back. Next self-contained nested/overflow and agent-input checks within Taylor\u2019s two-hour AFK interval. Physical/human approval/sleep gates deferred; no blocking prompts."
+      "note": "Stage71 retained Safari verification complete:8,900 exact mux joins,6,684 marker packets within1px, real menus and a black app tail preserved. Six typed outcomes/three facts read back. Next self-contained nested/overflow and agent-input checks within Taylor’s two-hour AFK interval. Physical/human approval/sleep gates deferred; no blocking prompts."
     },
     {
       "kind": "item",
@@ -3408,14 +3408,14 @@
       "at": "2026-10-09T19:32:53-04:00",
       "from": "active",
       "to": "paused",
-      "note": "Paused at Taylor\u2019s request after stage84 delivery. Recorder confirmed idle; stage85 only inspected retained native-menu sources/images, with no new registration request or capture. Resume from the smaller stage72 native-menu pair and preserve all refusals. Item counts remain46completed18partial1deferred."
+      "note": "Paused at Taylor’s request after stage84 delivery. Recorder confirmed idle; stage85 only inspected retained native-menu sources/images, with no new registration request or capture. Resume from the smaller stage72 native-menu pair and preserve all refusals. Item counts remain46completed18partial1deferred."
     },
     {
       "kind": "workflow",
       "at": "2026-10-10T15:28:28-04:00",
       "from": "paused",
       "to": "active",
-      "note": "Resumed at Taylor\u2019s request. Stage85 is exercising the current service on retained native root/nested menus, resize/dismissal and explicit refusal controls; no new capture or desktop interaction."
+      "note": "Resumed at Taylor’s request. Stage85 is exercising the current service on retained native root/nested menus, resize/dismissal and explicit refusal controls; no new capture or desktop interaction."
     },
     {
       "kind": "item",
@@ -3607,7 +3607,7 @@
       "at": "2026-10-10T18:13:51-04:00",
       "from": "ready",
       "to": "review",
-      "note": "Added a hypothetical input-to-frame example for Taylor\u2019s review."
+      "note": "Added a hypothetical input-to-frame example for Taylor’s review."
     },
     {
       "kind": "work_state",
@@ -3615,7 +3615,7 @@
       "at": "2026-10-10T18:13:51-04:00",
       "from": "ready",
       "to": "review",
-      "note": "Added a Retina/crop/export example for Taylor\u2019s review."
+      "note": "Added a Retina/crop/export example for Taylor’s review."
     },
     {
       "kind": "work_state",
@@ -3639,7 +3639,7 @@
       "at": "2026-10-10T18:13:51-04:00",
       "from": "ready",
       "to": "deferred",
-      "note": "Split physical input into a focused standalone test requiring Taylor\u2019s active participation."
+      "note": "Split physical input into a focused standalone test requiring Taylor’s active participation."
     },
     {
       "kind": "work_state",
@@ -3798,7 +3798,7 @@
       "at": "2026-10-10T18:48:45-04:00",
       "from": "ready",
       "to": "pending",
-      "note": "First configurable cursor/click renderer implemented with draft/final effort, retained recipes and service-owned frame/event mapping. Asset/footage acceptance checks remain; final visual styling is still Taylor\u2019s choice."
+      "note": "First configurable cursor/click renderer implemented with draft/final effort, retained recipes and service-owned frame/event mapping. Asset/footage acceptance checks remain; final visual styling is still Taylor’s choice."
     },
     {
       "kind": "work_state",
@@ -3885,7 +3885,7 @@
       "at": "2026-10-10T19:20:06-04:00",
       "from": "active",
       "to": "blocked",
-      "note": "Release 0.20 and native widget are installed. Final widget appearance/link verification needs Taylor to place Screen recording through Desktop \u2192 Edit Widgets \u2192 Large, or explicitly accept panel-only delivery for this release. WidgetKit still reports zero configured instances after three goal turns. Recorder/helper are healthy and idle; no settled tests need repeating."
+      "note": "Release 0.20 and native widget are installed. Final widget appearance/link verification needs Taylor to place Screen recording through Desktop → Edit Widgets → Large, or explicitly accept panel-only delivery for this release. WidgetKit still reports zero configured instances after three goal turns. Recorder/helper are healthy and idle; no settled tests need repeating."
     },
     {
       "kind": "item",
@@ -3908,14 +3908,14 @@
       "at": "2026-10-10T19:44:07-04:00",
       "from": "partial",
       "to": "partial",
-      "note": "The gate and live panel retain passing evidence. Taylor screenshot confirmed the repaired gallery rendered both original sizes. At Taylor\u2019s request, Large is removed. Installed signed companion 5e680bb4c5ab supports Medium only; macOS descriptor reports supportedFamilies (systemMedium), Notification Center receives it and its Medium preview loads successfully. No recorder restart. Desktop placement and actual widget control clicks remain outstanding."
+      "note": "The gate and live panel retain passing evidence. Taylor screenshot confirmed the repaired gallery rendered both original sizes. At Taylor’s request, Large is removed. Installed signed companion 5e680bb4c5ab supports Medium only; macOS descriptor reports supportedFamilies (systemMedium), Notification Center receives it and its Medium preview loads successfully. No recorder restart. Desktop placement and actual widget control clicks remain outstanding."
     },
     {
       "kind": "workflow",
       "at": "2026-10-10T19:44:07-04:00",
       "from": "blocked",
       "to": "blocked",
-      "note": "The single Medium widget is installed and ready to add. macOS confirms only systemMedium and successfully loads its preview; Taylor previously confirmed gallery rendering. Awaiting Taylor\u2019s placement for the final desktop/status/control check. The gate and live panel remain usable."
+      "note": "The single Medium widget is installed and ready to add. macOS confirms only systemMedium and successfully loads its preview; Taylor previously confirmed gallery rendering. Awaiting Taylor’s placement for the final desktop/status/control check. The gate and live panel remain usable."
     },
     {
       "kind": "item",
@@ -3946,14 +3946,14 @@
       "at": "2026-10-10T20:14:49-04:00",
       "from": "partial",
       "to": "partial",
-      "note": "Taylor\u2019s original real widget Pause click was confirmed in service state (generation 9). Installed single-Medium widget 37e8fd05c806 now has one background play/pause App Intent and optional Details link. Seventeen contract and 22 mailbox checks passed; a signed sandboxed same-intent app probe confirmed Pause (generation 10). Installer retires only the old extension after a stale-code/bundle-version mismatch; current macOS timeline reloads succeed. Recorder e402dc736458 remains untouched. Actual new widget appearance and button dispatch await Taylor; the first screenshot showed the previous cached layout."
+      "note": "Taylor’s original real widget Pause click was confirmed in service state (generation 9). Installed single-Medium widget 37e8fd05c806 now has one background play/pause App Intent and optional Details link. Seventeen contract and 22 mailbox checks passed; a signed sandboxed same-intent app probe confirmed Pause (generation 10). Installer retires only the old extension after a stale-code/bundle-version mismatch; current macOS timeline reloads succeed. Recorder e402dc736458 remains untouched. Actual new widget appearance and button dispatch await Taylor; the first screenshot showed the previous cached layout."
     },
     {
       "kind": "workflow",
       "at": "2026-10-10T20:14:49-04:00",
       "from": "active",
       "to": "active",
-      "note": "Installed the requested single background play/pause widget control; contract/mailbox and signed sandboxed intent checks pass. Fixed retained old extension and verified successful fresh timelines. Awaiting Taylor\u2019s actual new-button click; service remains paused, no unrelated qualification repeated."
+      "note": "Installed the requested single background play/pause widget control; contract/mailbox and signed sandboxed intent checks pass. Fixed retained old extension and verified successful fresh timelines. Awaiting Taylor’s actual new-button click; service remains paused, no unrelated qualification repeated."
     },
     {
       "kind": "item",
@@ -3961,7 +3961,7 @@
       "at": "2026-10-10T20:18:31-04:00",
       "from": "partial",
       "to": "completed",
-      "note": "The global gate/live panel retain passing controlled and installed evidence. Taylor\u2019s original widget Pause click reached generation 9. Actual new single-button Resume is confirmed by chronod/WidgetKit: SetRecordingGateIntent executed in the extension from 20:14:21.272 to .688, succeeded with openAppWhenRun NO, and service became Ready/generation 11. Installed widget 0c731006740f. Seventeen contract and 22 mailbox checks plus a signed sandboxed intent probe pass. Retained old-extension upgrade failure repaired. Taylor confirmed focused layout; unfocused blank-button defect was fixed using rendering-mode-aware outlined controls and actual unfocused pixels show readable Pause icon/text. Explicit Recording allowed/New work paused state, no input lock, recorder unchanged."
+      "note": "The global gate/live panel retain passing controlled and installed evidence. Taylor’s original widget Pause click reached generation 9. Actual new single-button Resume is confirmed by chronod/WidgetKit: SetRecordingGateIntent executed in the extension from 20:14:21.272 to .688, succeeded with openAppWhenRun NO, and service became Ready/generation 11. Installed widget 0c731006740f. Seventeen contract and 22 mailbox checks plus a signed sandboxed intent probe pass. Retained old-extension upgrade failure repaired. Taylor confirmed focused layout; unfocused blank-button defect was fixed using rendering-mode-aware outlined controls and actual unfocused pixels show readable Pause icon/text. Explicit Recording allowed/New work paused state, no input lock, recorder unchanged."
     },
     {
       "kind": "work_state",
@@ -3969,14 +3969,14 @@
       "at": "2026-10-10T20:18:31-04:00",
       "from": "review",
       "to": "completed",
-      "note": "Taylor\u2019s screenshots and system execution logs complete real widget control evidence; repaired the unfocused button contrast and verified actual source pixels. Earlier failures remain recorded."
+      "note": "Taylor’s screenshots and system execution logs complete real widget control evidence; repaired the unfocused button contrast and verified actual source pixels. Earlier failures remain recorded."
     },
     {
       "kind": "workflow",
       "at": "2026-10-10T20:18:31-04:00",
       "from": "active",
       "to": "complete",
-      "note": "Supported release 0.20 delivered and ready for Taylor\u2019s smoke use. Final native widget control and unfocused contrast verified. 57 Completed; 11 Deferred retain explicit user prerequisites. New feedback is scoped repair work, not an expanding completion gate."
+      "note": "Supported release 0.20 delivered and ready for Taylor’s smoke use. Final native widget control and unfocused contrast verified. 57 Completed; 11 Deferred retain explicit user prerequisites. New feedback is scoped repair work, not an expanding completion gate."
     },
     {
       "kind": "item",
@@ -4033,6 +4033,29 @@
       "from": "pending",
       "to": "completed",
       "note": "Bounded first-production feedback fixes verified; broader composition remains Ready."
+    },
+    {
+      "kind": "item",
+      "id": "retained-input-query",
+      "at": "2026-10-11T12:43:54-04:00",
+      "from": "completed",
+      "to": "completed",
+      "note": "Prior Stage42 evidence retained. Adapter0.20.3 passes 28 focused checks and fresh actual MCP three-way reads of the latest production takes, joined/plain pagination, changed-media withholding and interval-wide click-only diagnostics. Queue bounds/deadlines and failure cleanup are verified."
+    },
+    {
+      "kind": "item",
+      "id": "production-run-feedback",
+      "at": "2026-10-11T12:43:54-04:00",
+      "from": "completed",
+      "to": "completed",
+      "note": "First-run 31 checks retained. Second-run 28 focused checks and fresh minimal-PATH MCP0.20.3/46 tools pass: concurrent retained queries, actual frame-linked pages, changed-media withholding and owned action settlement. All four captures complete, zero dropped frames/lost rows; final movie decode/hash unchanged.1358/2409 final timeline frames lack pointer positions."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-11T12:43:54-04:00",
+      "from": "complete",
+      "to": "complete",
+      "note": "Second production run reviewed; bounded adapter0.20.3 corrections verified for another consumer smoke. Sparse cursor input, source residual/banner and official composition retain their written limits."
     }
   ],
   "work_note": "Completed work states include useful delivered portions of broader historical Partial items. Expanded verification records preserve limits. Deferred prerequisites remain explicit; Review is a genuine user decision."

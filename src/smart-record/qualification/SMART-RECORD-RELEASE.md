@@ -2,8 +2,25 @@
 
 The service is installed as `smart-record`, with native engine `smart-recordd`
 and the single Medium **Smart Record** desktop widget. The existing feature
-release is now adapter0.20.2; the delivered native build is d7a6a75d975f and the
+release is now adapter0.20.3; the delivered native build is d7a6a75d975f and the
 companion build is be27e75d391a.
+
+## Second production feedback update:0.20.3
+
+Valid concurrent retained-input queries now wait in a bounded FIFO rather than
+immediately failing. Frame-linked pagination accepts its own returned cursor;
+plain pagination no longer advertises an unnecessary media hash. Input reads
+also summarize interval-wide movement/scroll/key evidence and flag click-only
+positions. Action evidence schemas and pre-dispatch validation explain saved
+absolute file paths, preserving an open action when a prose reference is rejected.
+
+28 focused checks and actual fresh minimal-PATH MCP read/action checks pass,
+including the rerun's three takes in parallel, joined/plain next pages and
+changed-media withholding. Native PID89707/build d7a6a75d975f and widget remain
+unchanged. Fresh connections/current CLI load0.20.3; existing adapters need refresh.
+The80.3-second Desktop master still decodes and retains its hash. Sparse pointer
+coverage, painted residual/banner and external-master discovery remain explicit
+limits. See [second-run review](SLEEPER-RERUN-REVIEW.md).
 
 ## Production feedback update:0.20.2
 

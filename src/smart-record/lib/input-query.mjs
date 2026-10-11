@@ -44,7 +44,7 @@ export function validateInputQuery(input){
  }
  if(input.include_unassociated===false&&!a.action_tokens)bad();
  if(a.cursor!==undefined&&(!ownKeys(a.cursor,['after_row','snapshot_sha256','query_sha256','source_media_snapshot_sha256'])||!int(a.cursor.after_row,1,MAX_ROWS)||!['snapshot_sha256','query_sha256'].every(k=>typeof a.cursor[k]==='string'&&/^[0-9a-f]{64}$/.test(a.cursor[k]))))bad();
- if(a.cursor?.source_media_snapshot_sha256!==undefined&&(!a.include_source_frames||!/^[0-9a-f]{64}$/.test(a.cursor.source_media_snapshot_sha256)))bad();
+ if(a.cursor?.source_media_snapshot_sha256!==undefined&&(!a.include_source_frames||typeof a.cursor.source_media_snapshot_sha256!=='string'||!/^[0-9a-f]{64}$/.test(a.cursor.source_media_snapshot_sha256)))bad();
  return a;
 }
 const exact=(v,signed=false)=>{if(!decimal(v,signed))fail('Source contains an invalid exact clock/metadata integer.');return BigInt(v)};
@@ -96,7 +96,7 @@ export async function queryRecordingInput(descriptor,input){
   handle=await open(path,constants.O_RDONLY|constants.O_NOFOLLOW|constants.O_NONBLOCK);const stat=await handle.stat();
   if(!stat.isFile()||stat.size<=0||stat.size>MAX_BYTES)fail('Journal violates the bounded regular-file contract.');
   const hash=createHash('sha256'),chunk=Buffer.alloc(65536),decoder=new TextDecoder('utf-8',{fatal:true});
-  const events=[],gaps=[],contexts=[];let contextTotal=0,contextEligible=0,contextFiltered=0;
+  const events=[],gaps=[],contexts=[],intervalTypes={};let contextTotal=0,contextEligible=0,contextFiltered=0;
   let offset=0,pending='',rows=0,header=null,footer=null,scope=null,end=null,total=0,inInterval=0,eligible=0,afterCursor=0,typeFiltered=0,actionFiltered=0,more=false,gapCount=0,unknownGapTimes=0,intervalGapCount=0;
   const from=BigInt(a.from_relative_ns),to=BigInt(a.to_relative_ns),until=performance.now()+10000;
   const health=a.include_health_context?inputHealthContext(from,to):null;
@@ -126,7 +126,7 @@ export async function queryRecordingInput(descriptor,input){
    }
    if(row.kind!=='input_event')return;
    const event=normalizeEvent(row,epoch,rows);health?.observeEvent(event);total++;const relative=BigInt(event.relative_ns);
-   if(relative<from||relative>=to)return;inInterval++;
+   if(relative<from||relative>=to)return;inInterval++;intervalTypes[event.type]=(intervalTypes[event.type]??0)+1;
    if(a.event_types&&!a.event_types.includes(event.type)){typeFiltered++;return}
    if(a.action_tokens&&!event.action_tokens.some(t=>a.action_tokens.includes(t))&&!(a.include_unassociated&&!event.action_tokens.length)){actionFiltered++;return}
    eligible++;if(rows<=(a.cursor?.after_row??0))return;afterCursor++;
@@ -143,10 +143,15 @@ export async function queryRecordingInput(descriptor,input){
   if(!header||!unchanged(stat,await handle.stat()))fail('No stable opened source snapshot.');
   const snapshotHash=hash.digest('hex');if(a.cursor&&a.cursor.snapshot_sha256!==snapshotHash)fail('Journal snapshot changed between pages; start a new read.');
   if(a.cursor&&a.cursor.after_row>rows)fail('Cursor is outside this source snapshot.');
+  const countTypes=types=>types.reduce((n,type)=>n+(intervalTypes[type]??0),0);
+  const positionRows=countTypes([1,2,3,4,5,6,7,22,25,26,27]),motionRows=countTypes([5,6,7,27]);
   const result={schema:'smart-record-input-query/v1',recording_id:a.recording_id,recording_state:descriptor.state,clock_domain:'CLOCK_UPTIME_RAW',epoch_host_ns:header.epoch_host_ns,
    interval:{from_relative_ns:canonical.from_relative_ns,to_relative_ns:canonical.to_relative_ns,end_exclusive:true,clock:'recorder_reception'},filters:{event_types:canonical.event_types,action_tokens:canonical.action_tokens,include_unassociated:canonical.include_unassociated},
    events,next_cursor:more?{after_row:events.at(-1).source_row,snapshot_sha256:snapshotHash,query_sha256:queryHash}:null,
    selection:{order:'source_journal_row_order; not provider generation order',total_retained_events:total,events_in_interval:inInterval,type_filtered:typeFiltered,action_filtered:actionFiltered,eligible_events:eligible,eligible_after_cursor:afterCursor,page_events:events.length},
+   interval_delivery:{event_type_counts:intervalTypes,pointer_position_rows:positionRows,pointer_motion_rows:motionRows,scroll_rows:countTypes([22]),keyboard_rows:countTypes([10,11,12]),
+    observations:[...(positionRows>0&&motionRows===0?['Retained pointer positions have no movement/drag rows; clicks alone do not establish a continuous cursor path.']:[]),...(inInterval===0?['No input rows retained in this interval.']:[])],
+    qualification:'All capture-retained input in the requested receipt interval, before event/action filters and pagination; repeats on every page. Observed counts do not prove complete provider delivery, physical input, continuous motion, actor identity or visible app response.'},
    coverage:{journal_complete:footer?.complete===true&&footer.rows_lost===0&&descriptor.source_packet.complete===true,footer_present:footer!==null,rows_lost:footer?optionalInt(footer.rows_lost):null,source_rows_inspected:rows,input_scope:scope,input_scope_end:end,
     gap_notifications_total:gapCount,gap_notifications_in_interval:intervalGapCount,gaps_with_unknown_time:unknownGapTimes,gaps,gap_details_truncated:intervalGapCount+unknownGapTimes>gaps.length,input_delivery_completeness:'unproven',video_coverage_evaluated:false,
     completeness_qualification:'Journal completion and observed counts never prove full input delivery, video coverage or actor identity.',clock_continuity:'Inspect recording_source for source clock anchors/gaps; reception offsets do not calibrate sleep or external provider clocks.'},

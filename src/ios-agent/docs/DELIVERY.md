@@ -488,3 +488,19 @@ an invalid hit point and the dialog remained. The unknown input was not replayed
 Own runner stop and owner release passed; Runner Home was dispatched once and
 a later independent display confirmed Home. See safari-alert-only-2026-10-11.json. No general passcode
 exemption, off-LAN startup or actual provider-call qualification is inferred.
+
+### Actual provider received-source capture —MCP1.9.42
+
+Physical Chrome and desktop coach joined the fixed synthetic Twilio call through
+normal product controls. Independent provider readback:2participants, recording
+disabled and0recordings. Agent handled Chrome microphone Allow through the native
+hierarchy after one human XCTest authorization; stopped the runner and reacquired
+owned page control. `ios_capture` source discovery identified the received track.
+Ten chunks decoded to10.26seconds of non-silent48kHz audio; original tracks stayed
+live after capture stop. All30capture events drained, remaining0/dropped0. Both call
+UIs exited, coach input restored/muted, saved transcript blocks preserved. Independent
+provider cleanup:completed room,0participants,0recordings. New document media empty,
+glow/owner released and physical Home independently viewed. Temporary helper closed.
+See provider-received-capture-mcp-2026-10-11.json and AUDIO-PROBE.md for the operational
+recipe and completed-room404 handling. This closes the actual-provider capture gate;
+off-LAN launch/recovery and Safari's invalid native Cancel geometry remain separate.

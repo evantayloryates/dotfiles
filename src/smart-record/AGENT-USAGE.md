@@ -11,7 +11,7 @@ agent; computer use remains a separately maintained tool dependency.
 The maintained checklist distinguishes work states (Completed, Pending,
 Ready, Deferred, Review) from historical verification. A Ready brief alone does
 not establish an installed tool. The current [Smart Record delivery](qualification/SMART-RECORD-RELEASE.md)
-documents adapter0.20.2, native build d7a6a75d975f and the installed widget;
+documents adapter0.20.3, native build d7a6a75d975f and the installed widget;
 inspect loaded `status.mcp_adapter` and native status for each consumer.
 Cooperative pause, repair tickets and a first bounded cursor renderer are delivered.
 
@@ -34,6 +34,15 @@ implementation source. Never replay an uncertain accepted mutation.
    and the retained rows and pictures confirm the expected result. Five seconds
    can expire during agent/tool overhead. Prepare the action first and choose a
    budget that includes round trips; zero input rows never pass an input canary.
+   Match the canary to the intended presentation: if the film needs visible
+   movement and scrolling, perform those through the chosen provider and inspect
+   their retained event types as well as pixels. Click down/up rows alone do not
+   qualify pointer trajectories or scroll delivery. Quiet DOM scrolling can be
+   useful preparation but cannot supply a system-input cursor path.
+   `recording_input.interval_delivery` summarizes event types and pointer-motion,
+   scroll and key counts for the whole queried interval, before page/filter
+   selection. Click-only observations now explicitly flag the missing motion
+   evidence. Counts establish what was retained, not complete provider delivery.
 4. After `record_wait(until:"recording")`, check state and
    `wait_result.may_begin_actions` / `remaining_s`. A terminal result can return
    with `timed_out:false`; that is not permission to act into a finished take.
@@ -43,6 +52,10 @@ implementation source. Never replay an uncertain accepted mutation.
 5. Action intent/start marks identify a request, not the moment the next page
    becomes visible. Put a separate content-ready mark after verifying the visible
    result. Preserve both times and actual event/frame joins for later editing.
+   `action_end.evidence_refs` accepts saved absolute local file paths only.
+   Save the AX/screenshot observation to a private file first; use `session_note`
+   for prose. A rejected evidence reference leaves the action open; correct that
+   field and close the same token rather than beginning another action.
 6. Before rendering, inspect raw samples for baked-in pointers/highlights.
    `show_cursor:false` suppresses the capture-controlled pointer, not arbitrary
    painted overlays. A visible residual is a compromised clean source; record it
@@ -54,11 +67,22 @@ implementation source. Never replay an uncertain accepted mutation.
    do not recover real motion. Escape and Command/Control shortcuts do not hide
    the pointer as typing. Other keys remain a presentation heuristic, not proof
    that text was entered. Encoding success is not visual acceptance.
+   Set a cursor-coverage expectation before shooting. A requested continuous
+   cursor with missing positions is a production limitation to report, not a
+   reason to keep rerendering the same sparse input or invent a trajectory.
 8. Broader external assembly must preserve a sidecar describing source IDs,
    selected intervals, cursor recipe/output IDs and final output path. Until the
    official composition interface owns this, do not imply external masters are
    automatically discoverable through the session bundle. Verify final playback
    and cleanup with readbacks.
+
+Retained `recording_input` reads accept small concurrent batches: one active
+reader, up to eight FIFO waiters and a ten-second queue deadline per adapter.
+Queue-full or queue-timeout errors only require a later read retry with less
+fanout; captures and actions are not replayed. Follow `next_cursor` unchanged
+with the same filters and `include_source_frames` setting. Plain pages do not
+require a media hash. A media fingerprint change withholds the optional frame
+join while preserving useful input rows; do not remove that guard to force a join.
 
 ## Current capture and composition boundary
 

@@ -1750,3 +1750,26 @@ the residual with unknown-version reuse blocked.60 Completed/11 Deferred/1 Ready
 o general compositor, smooth pointer trajectory or clean-source claim was added.
 Next: Taylor's visual feedback, then the Ready official-composition design with
 session-owned derivative/master provenance. No broad regression or reshoot loop.
+
+## Second production feedback checkpoint — October11
+
+Latest archived Sleeper walkthrough/session ses_7rk5jqtg inspected independently.
+All four captures finalized; journals complete/zero lost rows, manifests zero
+dropped frames. Canary captured clicks and keys, but production input is click-only;
+1358/2409 final timeline frames lack a cursor position. Painted blue residual and
+Chrome banner persist. Original Desktop movie full decode and hash unchanged.
+
+Adapter0.20.3 fixes demonstrated concurrent-read failures with a bounded FIFO,
+fixes plain/joined pagination contracts and validates saved action evidence
+before dispatch. Interval delivery counts make click-only motion gaps visible
+without loading bulk input.28 focused tests and actual fresh minimal-PATH MCP
+parallel reads, joined/plain pages, changed-media refusal and owned declared
+action settlement pass. Native PID89707/buildd7a6a75d975f unchanged. Owned smoke
+sessions/actions/reader process settled; no UI operations or browser reshoot.
+
+Keep60 Completed/11 Deferred/1 Ready, preserving previous verification history.
+This bounded release is ready for another useful consumer smoke. Next: use
+representative movement/scroll canaries and content-ready marks, review source
+pixels before filming, and apply Taylor's feedback to the Ready official
+composition work. No synthetic pointer path, general compositor or clean-source
+guarantee was added. No active platform goal exists at this checkpoint.

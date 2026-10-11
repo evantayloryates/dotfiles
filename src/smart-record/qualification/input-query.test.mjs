@@ -34,6 +34,16 @@ test('metadata filters preserve gap evidence and make unassociated/default selec
  const broad=await queryRecordingInput(f.descriptor,{...request,action_tokens:[action]});assert.deepEqual(broad.events.map(e=>e.relative_ns),['0','20','30']);assert.equal(broad.selection.action_filtered,1);
  const narrow=await queryRecordingInput(f.descriptor,{...request,action_tokens:[action],include_unassociated:false,event_types:[22]});assert.equal(narrow.events.length,0);assert.equal(narrow.selection.type_filtered,3);assert.equal(narrow.selection.action_filtered,1);assert.equal(narrow.coverage.gaps.length,2);assert.equal(narrow.coverage.gaps_with_unknown_time,1);
  const pointer=await queryRecordingInput(f.descriptor,{...request,event_types:[22]});assert.deepEqual(pointer.events[0].raw_position,{x:-50,y:120});assert.equal(pointer.events[0].position_for_composition,null);assert.equal(pointer.events[0].scroll.momentum_phase,0);
+ assert.deepEqual(narrow.interval_delivery,pointer.interval_delivery);assert.equal(narrow.interval_delivery.keyboard_rows,3);assert.equal(narrow.interval_delivery.scroll_rows,1);
+});
+test('interval delivery distinguishes click-only from observed motion without inferring completeness',async t=>{
+ const pointer=(ns,type)=>event(ns,{type,raw_position:{x:20,y:30}});
+ const f=await fixture(t,[header,pointer(1,1),pointer(2,2),pointer(20,5),pointer(50,5),footer]);
+ const click=await queryRecordingInput(f.descriptor,{...request,to_relative_ns:'10',limit:1});
+ assert.deepEqual(click.interval_delivery.event_type_counts,{'1':1,'2':1});assert.equal(click.interval_delivery.pointer_motion_rows,0);assert.match(click.interval_delivery.observations[0],/clicks alone/);
+ const next=await queryRecordingInput(f.descriptor,{...request,to_relative_ns:'10',limit:1,cursor:click.next_cursor});assert.deepEqual(next.interval_delivery,click.interval_delivery);
+ const motion=await queryRecordingInput(f.descriptor,{...request,event_types:[10]});assert.equal(motion.events.length,0);assert.equal(motion.interval_delivery.pointer_motion_rows,1);assert.equal(motion.interval_delivery.pointer_position_rows,3);assert.equal(motion.interval_delivery.observations.length,0);assert.match(motion.interval_delivery.qualification,/do not prove.*continuous motion/);
+ const empty=await queryRecordingInput(f.descriptor,{...request,from_relative_ns:'30',to_relative_ns:'40'});assert.match(empty.interval_delivery.observations[0],/No input rows/);
 });
 
 test('rich captured snapshots use exact scope bounds, preserve active/unknown ends and do not become verification',async t=>{
@@ -187,4 +197,5 @@ test('joined pagination accepts its returned media cursor without requiring it o
  assert.equal(second.events[0].relative_ns,'2');assert.equal(second.source_frame_context.state,'unavailable');
  assert.throws(()=>validateInputQuery({...query,cursor:{...cursor,extra:true}}));
  assert.throws(()=>validateInputQuery({...query,cursor:{...cursor,source_media_snapshot_sha256:42}}));
+ assert.throws(()=>validateInputQuery({...query,cursor:{...cursor,source_media_snapshot_sha256:['a'.repeat(64)]}}));
 });

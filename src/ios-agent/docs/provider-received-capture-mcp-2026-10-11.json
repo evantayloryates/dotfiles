@@ -1,0 +1,149 @@
+{
+  "at": "2026-10-11T16:42:40.805287+00:00",
+  "version": "1.9.42",
+  "scope": "physical iPhone Chrome, private call-rig10520, real Twilio synthetic fixture; nearby paired Tailscale, not off-LAN acceptance",
+  "sdk": "web-f67ef21f1e575eef",
+  "fixture": {
+    "meetingCode": "AUDIOC864AFBBBC83",
+    "clientId": 1163677,
+    "coachId": 166027,
+    "callId": 474465,
+    "exactLocalDatabaseGuard": true,
+    "savedTranscriptBlocksPreserved": true
+  },
+  "providerBeforeJoin": {
+    "participants": 0,
+    "recordParticipantsOnConnect": false,
+    "rules": "exclude audio and video",
+    "recordings": 0
+  },
+  "providerPaired": {
+    "participants": 2,
+    "recordParticipantsOnConnect": false,
+    "rules": "exclude audio and video",
+    "recordings": 0
+  },
+  "permissions": {
+    "humanXCTestPasscodeRequired": true,
+    "samePendingAttemptResumed": true,
+    "agentHandledCameraDecline": true,
+    "agentHandledMicrophoneAllow": true,
+    "microphoneTrackAcquired": true,
+    "cameraNotNeededForAudioTest": true,
+    "persistentGrantClaimed": false,
+    "mirroringUsed": false
+  },
+  "pagePaired": {
+    "gate": "web-call",
+    "status": "passed",
+    "observation": {
+      "foregroundOwned": true,
+      "sameRuntime": true,
+      "callContextObserved": true,
+      "mediaRequestsSettled": true,
+      "callConnected": true,
+      "remoteParticipantPresent": true
+    }
+  },
+  "capture": {
+    "id": "1991ae4782a997ddb586499fde924a22",
+    "selectedSource": {
+      "trackRef": 4,
+      "origins": [
+        "rtc-receiver",
+        "dom-media"
+      ]
+    },
+    "chunks": 30,
+    "remainingEvents": 0,
+    "dropped": 0,
+    "activeAfterStop": false,
+    "originalTracksLiveAfterStop": true,
+    "decode": {
+      "sourceTrackRef": 4,
+      "origin": [
+        "rtc-receiver",
+        "dom-media"
+      ],
+      "chunks": 10,
+      "inputBytes": 187120,
+      "sha256": "a6c83c07ef22d017089ff865dd4fbdadecf1f8613529ac7ed8ae9d964ad5f0f2",
+      "ffmpegExit": 0,
+      "decodedSamples": 492480,
+      "decodedSeconds": 10.26,
+      "rms": 0.09288843965964687,
+      "peak": 0.9150470495223999,
+      "nonzeroSamples": 274252
+    },
+    "retention": "service-owned private chunks expire after one hour; derived audio removed after decode"
+  },
+  "receivedRTP": {
+    "gate": "web-media",
+    "status": "passed",
+    "scope": "instrumented-audio-RTP-counters-only",
+    "observation": {
+      "readsCompleted": true,
+      "sameDocument": true,
+      "foregroundOwned": true,
+      "connectedPeer": true,
+      "receivedPacketsAdvance": true
+    }
+  },
+  "providerCleanup": {
+    "observedAt": "2026-10-11T16:40:34.195Z",
+    "roomStatus": "completed",
+    "uniqueNameMatches": true,
+    "recordParticipantsOnConnect": false,
+    "participants": 0,
+    "recordings": 0,
+    "recordingRulesAfterCompletion": {
+      "status": 404,
+      "code": 20404
+    },
+    "interpretation": "Completed room rules endpoint returned404; independent room, participants and recordings reads succeeded. Do not treat a failed aggregate Promise.all as unknown cleanup counts."
+  },
+  "cleanup": {
+    "coachLobbyObserved": true,
+    "coachMicrophoneMuted": true,
+    "coachSourceRestored": "microphone",
+    "transcriptPanelClosed": true,
+    "clientMeetingDocumentDeparted": true,
+    "newDocumentBootObserved": true,
+    "newDocumentPendingMedia": 0,
+    "newDocumentTracks": 0,
+    "newDocumentPeers": 0,
+    "pageIndicatorOff": true,
+    "ownerReleased": true,
+    "xctestRunnerStopped": true,
+    "homeDispatchedOnce": true,
+    "homeIndependentlyViewed": true,
+    "helperClosed": true,
+    "status": {
+      "version": 1,
+      "sourceHash": "40cab5e6e27ed18981e503b0ba1ae22f6b76c9ca001774031bb32de0932103eb",
+      "epoch": "71fae05907c6481a972d2788892875e3",
+      "reactFrontendRunning": false,
+      "reactFrontendCleanupPending": false,
+      "reactFrontendPort": null,
+      "device": null,
+      "deviceAgeMs": null,
+      "deviceFeedback": null,
+      "lastRelease": {
+        "reason": "owner_released",
+        "thread": "0548ce05825cdad9cb3920516a5d78e2",
+        "turn": "2951dfeb7353a2861e10b162283495c2"
+      },
+      "leased": false
+    }
+  },
+  "nonQualifyingChecks": {
+    "releasedCallProjection": "call_domain_unavailable on non-meeting page; independent document, source and provider cleanup evidence used",
+    "nativeIdle": "device feedback unknown while native app not running; host lease absent independently read"
+  },
+  "limits": [
+    "No audible quality, acoustic fidelity, off-LAN path or codec CPU comparison claimed.",
+    "Safari invalid native Cancel geometry remains separate.",
+    "New XCTest startup may require human passcode.",
+    "Source attribution is API-object provenance, not semantic speaker identification."
+  ]
+}
