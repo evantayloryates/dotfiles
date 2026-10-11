@@ -12,6 +12,14 @@ export class CaptureStore {
   prune(now=Date.now()) {for(const dir of this.directories()){try{const meta=JSON.parse(fs.readFileSync(path.join(dir,'retention.json')));if(Number.isFinite(meta.expiresAt)&&now>=meta.expiresAt)fs.rmSync(dir,{recursive:true});}catch{}}}
   usage(dir=this.root){let bytes=0;for(const item of fs.readdirSync(dir,{withFileTypes:true})){const p=path.join(dir,item.name);if(item.isFile())bytes+=fs.statSync(p).size;else if(item.isDirectory())bytes+=this.usage(p);}return bytes;}
   create(id,ttlSeconds=3600){this.prune();privateDir(path.join(this.root,id));write(path.join(this.root,id,'retention.json'),JSON.stringify({createdAt:Date.now(),expiresAt:Date.now()+ttlSeconds*1000}));}
+  saveDiagnostic(value){
+    this.prune();const encoded=JSON.stringify(value),bytes=Buffer.byteLength(encoded);
+    if(bytes>2*1024*1024||this.usage()+bytes+256>maxTotal)throw Error('capture_storage_quota_reached');
+    const id=randomBytes(16).toString('hex');this.create(id);
+    const file=path.join(this.root,id,'inspector.json');
+    try{write(file,encoded);}catch(error){fs.rmSync(path.dirname(file),{recursive:true,force:true});throw error;}
+    return {file,bytes,retentionSecondsRemaining:3600};
+  }
   save(id,result){this.prune();const dir=path.join(this.root,id);if(!fs.existsSync(dir))throw Error('capture_expired');privateDir(dir);
     let data={capture:sanitize(result.capture),remainingEvents:result.remainingEvents,events:(result.events||[]).map(event=>sanitize(event))},binaryBytes=0;const audio=[];
     for(let i=0;i<(result.events||[]).length;i++){

@@ -1,0 +1,54 @@
+{
+  "observedAt": "2026-10-11T01:53:00.928302+00:00",
+  "candidateVersion": "1.8.0",
+  "status": "implemented; physical qualification pending",
+  "catalog": {
+    "tools": 33,
+    "resources": 7,
+    "freshStdioPassed": true
+  },
+  "focusedChecks": {
+    "browserInspectorPython": 9,
+    "existingObserverPython": 4,
+    "MCP": 33,
+    "allPassed": true
+  },
+  "host": {
+    "checksPassed": 11,
+    "checksTotal": 11,
+    "repairsPerformed": false,
+    "ownerActive": false
+  },
+  "phone": {
+    "networkPage": "visible ready ios-safari /dev/ios-agent; no owner/glow",
+    "pairedInspector": "unavailable before attach",
+    "failureType": "_RemotePairingDeviceNotFoundError",
+    "independentCoreDeviceTunnel": "unavailable",
+    "noSystemInput": true
+  },
+  "gates": {
+    "physicalSource": false,
+    "physicalStyles": false,
+    "physicalConsole": false,
+    "physicalTimeline": false,
+    "chromeIndependent": false,
+    "inspectorOffLAN": false
+  },
+  "implemented": [
+    "sources and document-fenced source windows",
+    "matched computed inline CSS",
+    "bounded console and timeline capture",
+    "owned-page expression admission",
+    "uncertain-start and owner-loss trace cleanup",
+    "private artifacts with one-hour expiry and 128MiB shared storage cap"
+  ],
+  "notClaimed": [
+    "physical new domains",
+    "Chrome parity",
+    "breakpoints or heap",
+    "trusted input",
+    "off-LAN Inspector",
+    "production release complete"
+  ],
+  "publication": "candidate not yet committed or published"
+}

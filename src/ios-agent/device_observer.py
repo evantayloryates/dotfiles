@@ -1,4 +1,4 @@
-"""Pinned, read-only paired-device observer. No XCTest, HID, prompts or raw logs."""
+"""Pinned paired-device observer and opt-in DEV debugger. No XCTest or HID."""
 import asyncio
 import base64
 import importlib.metadata
@@ -103,7 +103,7 @@ async def resource_profile(r,rsd):
             'profilerStopped':True}
 
 async def browser_debug(r,rsd):
-    """Fixed, content-free inspection of this service's development origin only."""
+    """Inspect only this service's DEV origin; richer reads require explicit debug options."""
     from pymobiledevice3.services.webinspector import WebinspectorService
     runtime=Path(r['state'])/'dev-runtime.json'
     if runtime.is_symlink() or runtime.stat().st_mode & 0o077:
@@ -120,6 +120,8 @@ async def browser_debug(r,rsd):
         matched=[];busy=0
         for target in targets:
             if target.application.bundle not in ('com.apple.mobilesafari','com.google.chrome.ios'):continue
+            chosen=r.get('debug',{}).get('browser')
+            if chosen and target.application.bundle!={'safari':'com.apple.mobilesafari','chrome':'com.google.chrome.ios'}.get(chosen):continue
             # Suspended background browsers may never answer a debugger attach.
             if not target.application.active:continue
             u=urlsplit(target.page.web_url)
@@ -129,7 +131,7 @@ async def browser_debug(r,rsd):
         # Newest target first; old Safari tabs may be suspended despite an active app.
         matched.sort(key=lambda target:target.page.id_,reverse=True)
         results=[]
-        # No console enabling, URL/title/body text, credentials, heap snapshots or arbitrary JS.
+        # Default bootstrap read is content-free; explicit debug operations are separate below.
         expression="""(()=>{const s=window.__iosWebAgent?.status?.();let tab=false,resume=false;try{tab=!!sessionStorage.getItem('ios-agent-page');resume=!!localStorage.getItem('ios-agent-browser-resume')}catch{};return {originMatches:location.origin===EXPECTED_ORIGIN,ready:document.readyState,visible:!document.hidden,loaderPresent:!!document.getElementById('ios-agent-loader'),sdkPresent:!!window.__iosWebAgent,sdkConnected:s?.connected===true,sdkOwned:s?.owned===true,indicator:s?.indicator===true,tabCredentialPresent:tab,browserResumePresent:resume,secureContext:isSecureContext,mediaAPI:typeof navigator.mediaDevices?.getUserMedia==='function',userActivation:navigator.userActivation?.isActive===true,domElements:Math.min(document.getElementsByTagName('*').length,100000),scripts:document.scripts.length}})()""".replace('EXPECTED_ORIGIN',json.dumps(f'https://{expected.netloc}'))
         for target in matched[:1]:
             owned(r);r['_phase']='web_inspector_attach'
@@ -144,16 +146,22 @@ async def browser_debug(r,rsd):
                 value=response.get('result',{}).get('result',{}).get('value')
                 if not isinstance(value,dict) or not value.get('originMatches'):
                     results.append({'browser':target.application.bundle,'readConfirmed':False})
-                else:results.append({'browser':target.application.bundle,'readConfirmed':True,'state':value})
+                else:
+                    row={'browser':target.application.bundle,'readConfirmed':True,'state':value}
+                    if r.get('debug'):
+                        from browser_inspector import inspect
+                        r['_phase']='web_inspector_'+r['debug']['op']
+                        row['debug']=await inspect(session,r['debug'],target,expected,lambda:owned(r))
+                    results.append(row)
             finally:
                 # Provider has no session.close; detach its socket and stop its receiver explicitly.
                 session._receive_task.cancel()
                 await asyncio.gather(session._receive_task,return_exceptions=True)
-                await inspector.teardown_inspector_socket(session.protocol.id_,target.application.id_,target.page.id_)
+                await asyncio.wait_for(inspector.teardown_inspector_socket(session.protocol.id_,target.application.id_,target.page.id_),2)
         return {'scope':'dev-origin-browser-debug','inspectorEnabled':True,'devTargets':len(matched),'busyTargets':busy,'truncated':len(matched)>1,'pages':results,'userGestureRequested':False}
     finally:
         if sys.exc_info()[0] is None:r['_phase']='web_inspector_close'
-        await inspector.close()
+        await asyncio.wait_for(inspector.close(),2)
 
 def main():
     r=json.load(sys.stdin)
@@ -166,10 +174,11 @@ def main():
         with os.fdopen(fd,'w') as f:json.dump({'status':'completed','result':result},f)
         print(json.dumps({'ok':True,'scope':result['scope']}))
     except Exception as e:
-        known={'InvalidServiceError':'developer_service_unavailable','WebInspectorNotEnabledError':'web_inspector_disabled','DeviceNotFoundError':'paired_device_unavailable','TimeoutError':'device_observation_deadline','ConnectionTerminatedError':'developer_connection_lost'}
+        known={'InvalidServiceError':'developer_service_unavailable','WebInspectorNotEnabledError':'web_inspector_disabled','DeviceNotFoundError':'paired_device_unavailable','UserspaceTunnelUnavailableError':'paired_tunnel_unavailable','TimeoutError':'device_observation_deadline','ConnectionTerminatedError':'developer_connection_lost'}
         code=known.get(type(e).__name__,'device_observation_unavailable')
-        if isinstance(e,ValueError) and str(e) in {'observer_owner_expired','pinned_observer_required','bounded_png_required','private_observer_output_required','fixed_observer_request_required','private_dev_origin_required'}:code=str(e)
-        print(json.dumps({'ok':False,'reason':code,'phase':r.get('_phase','validation'),'inputSent':False}))
+        if isinstance(e,ValueError) and str(e) in {'observer_owner_expired','pinned_observer_required','bounded_png_required','private_observer_output_required','fixed_observer_request_required','private_dev_origin_required','fresh_debug_document_required','owned_browser_session_required_for_evaluation','visible_dev_document_required','debug_document_changed','script_not_in_current_document','script_source_unavailable','debug_selector_not_found','bounded_debug_artifact_required','debug_cleanup_unconfirmed','fixed_debug_operation_required'}:code=str(e)
+        failure_type=type(e).__name__
+        print(json.dumps({'ok':False,'reason':code,'phase':r.get('_phase','validation'),'failureType':failure_type if re.fullmatch('[A-Za-z0-9_]{1,80}',failure_type) else 'Unknown','inputSent':False}))
         sys.exit(1)
 
 if __name__=='__main__':main()

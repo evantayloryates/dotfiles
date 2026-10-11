@@ -397,3 +397,12 @@ component IDs and all profiling readers. No product-handler, state-injection or
 arbitrary provider command was added. Read `ios-agent://native-input` for short
 recipes covering verified navigation, text replacement, gesture outcomes,
 profiling and Wi-Fi handoff. Native target and React component IDs stay distinct.
+
+## On-demand browser debugger (v1.8 candidate)
+
+`ios_browser_debug` adds source catalogs and bounded source windows, matched CSS,
+console windows and short WebKit timelines. Its typed surface makes 33 tools;
+resources remain seven. Read BROWSER-DEBUG.md for recipes, ownership and retention.
+These new operations require their own physical qualification; existing fixed
+Safari bootstrap proof is narrower. Routine network page control stays on
+`ios_web_*`; paired Inspector availability is a separate prerequisite.

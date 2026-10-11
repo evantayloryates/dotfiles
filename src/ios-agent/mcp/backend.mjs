@@ -10,7 +10,7 @@ import {CaptureStore} from './capture-store.mjs';
 import {SystemDriver} from './system-driver.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/input-schemas.mjs', 'mcp/system-driver.mjs', 'system_runner.py', 'mcp/capture-store.mjs', 'web/rich-capture.js', 'ready_wait.py', 'mcp/media-verification.mjs', 'mcp/workflows.mjs', 'fixture_jobs.py', 'tests/run_fixture.py', 'paired_workflow.py', 'health.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
+const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/input-schemas.mjs', 'mcp/system-driver.mjs', 'system_runner.py', 'mcp/capture-store.mjs', 'web/rich-capture.js', 'ready_wait.py', 'mcp/media-verification.mjs', 'mcp/workflows.mjs', 'fixture_jobs.py', 'tests/run_fixture.py', 'paired_workflow.py', 'health.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'browser_inspector.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
   .map(file => fs.readFileSync(path.join(root, file))).map(bytes => createHash('sha256').update(bytes).digest('hex')).join(':')).digest('hex');
 export const defaultState = path.join(os.homedir(), 'Library/Application Support/ios-agent');
 const idleLimit = 20 * 60 * 1000;
@@ -142,6 +142,7 @@ export class Backend {
       launch: 'ios_device_launch has fixed DEV/Settings/Safari/Chrome targets through a paired nearby developer channel. DEV launch was qualified from Settings without XCTest. Arbitrary-network foreground launch remains unqualified; Tailscale page/app control alone cannot launch a suspended app.',
       lock: 'ios_device_lock runs only Runner Lock iPhone through the paired developer channel, then independently reads passcodeRequired. The one-action Apple shortcut is installed and physically verified. Already locked is a no-input success. It cannot unlock the phone, does not store a passcode, and is not an arbitrary-network system-control lane.',
       richCapture: 'ios_capture is explicit synthetic-DEV capture only: start selected console/network/audio modes, drain bounded batches, stop, then end in finally. Default 2 MiB ring, max 8 MiB, max 10 minutes; host 32 MiB/capture and 128 MiB total. Artifacts expire after one hour by default (max 24 hours) and private audio chunks stay off the transcript. Clone existing audio tracks only; no microphone request. Inspect remainingEvents and dropped counts; this is not lossless whole-device traffic capture.',
+      browserDebugger: 'v1.8 candidate: physical new-domain qualification is pending. ios_browser_debug exposes on-demand source catalogs/windows, matched CSS, console and short WebKit timeline records through the paired Inspector. Content stays in private artifacts; read selected pointers. Evaluation requires an active matching browser page lease/glow and fresh documentRef. No breakpoint/heap or arbitrary-network Inspector claim.',
       deviceObserver: 'ios_device_inspect kind=screen|capabilities|browser-debug|resource-profile reads the paired iPhone without XCTest or Mirroring. With no session it reserves/releases a temporary owner. ios_read renders a private full-display image. Nearby paired wireless developer transport only; HID input not qualified.',
       browserLimits: 'Page-owned DOM input is synthetic; it does not operate OS dialogs, trusted touch, IME or microphone permission. SDK return channel works over private HTTPS; require separate off-LAN qualification. Dev-only enrollment and per-tab authentication.',
       workflow: ['ios_doctor', 'ios_begin', 'ios_native or ios_react', 'ios_verify', 'ios_end'],
@@ -280,29 +281,35 @@ export class Backend {
   read({artifactId, pointer = '', limit = 12000}) {
     const a = this.artifacts.get(artifactId);
     if (!a) throw new Error('artifact_not_owned_by_this_connection');
+    this.captureStore.prune();
+    if(['capture','inspector'].includes(a.type)&&!fs.existsSync(a.file))throw new Error('artifact_expired');
     let value = JSON.parse(fs.readFileSync(a.file, 'utf8'));
     if (a.type === 'image') {
       const image = value.result;
       if (typeof image?.pngBase64 !== 'string') throw new Error('image_unavailable');
       return {image: image.pngBase64, metadata: safe(image)};
     }
-    value = a.type==='capture'?value:safe(value); // Capture content was scrubbed before persistence.
+    value = ['capture','inspector'].includes(a.type)?value:safe(value); // Deep content was scrubbed before persistence.
     if (pointer) for (const part of pointer.split('/').slice(1)) {
       const key = part.replace(/~1/g, '/').replace(/~0/g, '~');
       if (!value || !Object.hasOwn(value, key)) throw new Error('pointer_not_found');
       value = value[key];
     }
-    const data = a.type==='capture'?value:safe(value), text = JSON.stringify(data);
+    const data = ['capture','inspector'].includes(a.type)?value:safe(value), text = JSON.stringify(data);
     if (text.length > limit) return {artifactId, truncated: true, characters: text.length,
       next: 'Use a JSON pointer to select a smaller subtree. No partial JSON is returned.'};
     return {artifactId, data};
   }
-  async deviceInspect({kind='screen',sessionId}={}) {
-    let s,temporary=false;
+  async deviceInspect({kind='screen',sessionId,debug}={}) {
+    let s,temporary=false,expressionDispatched=false;
     try {
       if(!fs.existsSync(path.join(this.state,'providers/pymobiledevice3-11.15.5/bin/python')))return {ok:false,reason:'device_observer_not_installed',inputSent:false};
       if(sessionId)s=this.session(sessionId);
       else {const acquired=await this.begin({surface:'launch'});s=this.session(acquired.sessionId);temporary=true;}
+      if(debug?.expression!==undefined){
+        if(!sessionId||s.surface!=='web')return {ok:false,reason:'owned_browser_session_required_for_evaluation',inputSent:false};
+        debug={...debug,ownedPage:s.page};
+      }
       const configFile=path.join(this.state,'web-device.json');
       if(!fs.existsSync(configFile)||fs.statSync(configFile).mode&0o077)return {ok:false,reason:'private_web_device_configuration_required',inputSent:false};
       const configured=JSON.parse(fs.readFileSync(configFile,'utf8')),device=configured.coreDeviceId;
@@ -316,7 +323,8 @@ export class Backend {
       if(!serial)return {ok:false,reason:'configured_device_identity_unconfirmed',inputSent:false};
       this.session(s.id);
       const a=this.artifact(s,kind==='screen'?'image':'device-capabilities');
-      const run=await this.run('provider',[],{kind,serial,state:this.state,leaseFile:s.lease,ownerFile:s.owner,output:a.file},26000);
+      expressionDispatched=debug?.expression!==undefined;
+      const run=await this.run('provider',[],{kind,serial,state:this.state,leaseFile:s.lease,ownerFile:s.owner,output:a.file,...(debug?{debug}:{})},debug?35000:26000);
       if(!run.ok||run.value?.ok!==true||!fs.existsSync(a.file)){
         let learningEvidence;
         if(kind==='resource-profile'){
@@ -324,10 +332,20 @@ export class Backend {
           const receipt={gate:'device-profile',status:'failed',observation:{observationCompleted:false,inputSent:false,deadlineExceeded:run.value?.reason==='device_observation_deadline',waitingForSamples:run.value?.phase==='resource_profile_sample',osVersionKnown:false}};
           learningEvidence=await this.learning('observe',{receipt,source}).catch(()=>({available:false}));
         }
-        return {ok:false,reason:run.value?.reason||'device_observation_unavailable',phase:run.value?.phase,...(learningEvidence?{learningEvidence}:{}),inputSent:false};
+        return {ok:false,reason:run.value?.reason||'device_observation_unavailable',phase:run.value?.phase,failureType:run.value?.failureType,...(learningEvidence?{learningEvidence}:{}),inputSent:debug?.expression!==undefined?'unknown':false,replay:false};
       }
       this.session(s.id);
       const value=JSON.parse(fs.readFileSync(a.file,'utf8')).result;
+      if(debug){
+        const row=value.pages?.[0]?.debug;
+        if(!row)return {ok:false,reason:'active_dev_inspector_target_unavailable',artifactId:a.id,devTargets:value.devTargets,busyTargets:value.busyTargets,inputSent:false,replay:false};
+        let saved;
+        try{saved=this.captureStore.saveDiagnostic({status:'completed',result:value});}
+        finally{fs.rmSync(a.file,{force:true});this.artifacts.delete(a.id);}
+        this.artifacts.set(a.id,{file:saved.file,sessionId:s.id,type:'inspector'});
+        const summary=Object.fromEntries(['operation','documentRef','browser','ready','scriptCount','eventCount','droppedEvents','retainedBytes','timelineStopped','domainsDisabled'].filter(k=>row[k]!==undefined).map(k=>[k,row[k]]));
+        return {ok:true,artifactId:a.id,metadata:{...summary,detached:true,transport:value.transport,offLANQualified:false,retentionSeconds:saved.retentionSecondsRemaining},inputSent:debug.expression!==undefined,replay:false,next:'Read selected private result/pages/0/debug subtrees with ios_read. Content expires after one hour. Document references expire on navigation/reload; no trusted input or off-LAN Inspector claim.'};
+      }
       let learningEvidence;
       if(kind==='resource-profile'){
         const processes=(value.samples||[]).flatMap(x=>x.processes||[]);
@@ -336,6 +354,10 @@ export class Backend {
         learningEvidence=await this.learning('observe',{receipt,source}).catch(()=>({available:false}));
       }
       return {ok:true,artifactId:a.id,metadata:safe(value),...(learningEvidence?{learningEvidence}:{}),inputSent:false,next:kind==='screen'?'Use ios_read with this artifactId for the actual full-device PNG. Paired nearby developer transport; separate from arbitrary-network page control.':kind==='resource-profile'?'Three bounded process samples; CPU is provider raw units and WebContent is not page attribution. The profiler is closed; a temporary owner is released only when this call created it.':'Service availability is not proof of Web Inspector opt-in or native touch.'};
+    } catch(error){
+      if(!debug)throw error;
+      const reason=['capture_storage_quota_reached','active_session_required_begin_again','device_already_leased','frontend_cleanup_in_progress'].includes(error.message)?error.message:'browser_debug_operation_unconfirmed';
+      return {ok:false,reason,inputSent:expressionDispatched?'unknown':false,replay:false};
     } finally {if(temporary&&s)await this.end(s.id);}
   }
   async systemBegin({rollout}={}) {
