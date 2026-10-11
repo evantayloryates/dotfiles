@@ -1,0 +1,240 @@
+{
+  "at": "2026-10-11T09:20:05.955261+00:00",
+  "version": "1.9.25",
+  "scope": "physical iPhone through explicit Tailscale IP, no USB/LAN fallback; phone nearby, separate off-LAN acceptance remains pending",
+  "originalXCTestHeld": true,
+  "newXCTestStarted": false,
+  "sudoUsed": false,
+  "mirroringUsed": false,
+  "phoneNetworkChanged": false,
+  "bootstrap": {
+    "autoPairUsbLockdown": false,
+    "remotePairBootstrapViaExistingTrust": true,
+    "newHumanPromptRequestedByUs": false,
+    "tunnelStarted": false,
+    "pairingCompleted": true,
+    "recordCreated": true,
+    "recordPrivate": true
+  },
+  "transport": {
+    "transport": "Tailscale\u2192paired TCP/PSK\u2192in-process userspace RSD",
+    "rootUsed": false,
+    "kernelTunnelCreated": false,
+    "remotedSuspended": false,
+    "usbFallback": false,
+    "newPairingRequested": false,
+    "remotePairAuthenticated": true,
+    "rsdConnected": true,
+    "ok": true,
+    "deviceIdentityMatched": true,
+    "productVersion": "26.7.1",
+    "serviceCount": 73,
+    "inspectorAdvertised": true,
+    "dvtAdvertised": true,
+    "ownTunnelClosed": true,
+    "elapsedMs": 428
+  },
+  "developerServices": {
+    "transport": "Tailscale\u2192paired TCP/PSK\u2192in-process userspace RSD",
+    "rootUsed": false,
+    "kernelTunnelCreated": false,
+    "remotedSuspended": false,
+    "usbFallback": false,
+    "newPairingRequested": false,
+    "remotePairAuthenticated": true,
+    "rsdConnected": true,
+    "ok": true,
+    "deviceIdentityMatched": true,
+    "productVersion": "26.7.1",
+    "serviceCount": 73,
+    "inspectorAdvertised": true,
+    "dvtAdvertised": true,
+    "browserTargetCounts": {
+      "safari": 0,
+      "chrome": 0
+    },
+    "safariPid": 7917,
+    "chromePid": 7477,
+    "developerServiceReadConfirmed": true,
+    "ownTunnelClosed": true,
+    "elapsedMs": 1971
+  },
+  "lockStateBoundary": {
+    "operation": "Remote CoreDevice get_lockstate",
+    "outcome": "CoreDeviceError; no lock inference, no input replay"
+  },
+  "safariLaunch": {
+    "transport": "Tailscale\u2192paired TCP/PSK\u2192in-process userspace RSD",
+    "rootUsed": false,
+    "kernelTunnelCreated": false,
+    "remotedSuspended": false,
+    "usbFallback": false,
+    "newPairingRequested": false,
+    "remotePairAuthenticated": true,
+    "rsdConnected": true,
+    "ok": true,
+    "deviceIdentityMatched": true,
+    "productVersion": "26.7.1",
+    "serviceCount": 73,
+    "inspectorAdvertised": true,
+    "dvtAdvertised": true,
+    "browserTargetCounts": {
+      "safari": 0,
+      "chrome": 0
+    },
+    "safariPid": 7917,
+    "chromePid": 7477,
+    "launchSent": true,
+    "launchedPid": 7917,
+    "developerServiceReadConfirmed": true,
+    "ownTunnelClosed": true,
+    "elapsedMs": 1891
+  },
+  "safariForeground": {
+    "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-input-1791709941950.json",
+    "sha256": "b6c790a7c6cbe6e2d7283ea2ac80a4701b90b1b0adeda1ff5ed37bb13d38e7b9",
+    "observation": {
+      "bundle": "com.apple.mobilesafari",
+      "locked": false
+    }
+  },
+  "safariInspector": {
+    "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-inspector-1791710019696419000.json",
+    "sha256": "db95ed2d3beab0ec41b3d5bd7f8c5e495d1afdee52db8ef37738cb3033f6f2f4",
+    "observation": {
+      "transport": "tailnet-paired-userspace",
+      "scope": "dev-origin-browser-debug",
+      "devTargets": 1
+    }
+  },
+  "nativeLaunch": {
+    "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/tailnet-provider-1791710037921299000.json",
+    "sha256": "c57f02dcc06d7f7734f4eb632d1668b3c1f525b7731a8720b0aae94e159dc227",
+    "observation": {
+      "transport": "tailnet-paired-userspace",
+      "scope": "fixed-device-launch",
+      "target": "kickoff-dev",
+      "pid": 8156,
+      "inputSent": true,
+      "foregroundVerified": false
+    }
+  },
+  "nativeForeground": {
+    "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-input-1791710090519.json",
+    "sha256": "fed41d824d9102599227f8cc7dfee1e2011857422c5d1eef18bcc23e8fc34751",
+    "observation": {
+      "bundle": "com.dev.kudos.fit",
+      "locked": false
+    }
+  },
+  "profile": {
+    "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/tailnet-provider-1791710096728434000.json",
+    "sha256": "064d973da1362a5160616e432791a9f11128a45246e05ef12e6d5ba11f7e34ff",
+    "observation": {
+      "transport": "tailnet-paired-userspace",
+      "scope": "paired-device-process-profile",
+      "sampleCount": 3,
+      "profilerStopped": true
+    }
+  },
+  "chromeLaunch": {
+    "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/tailnet-provider-1791710188177755000.json",
+    "sha256": "b2f2fb2ee2c0cd5795409c8293def0ef4a6250a98edbb41e71a9f57ed9bcc600",
+    "observation": {
+      "transport": "tailnet-paired-userspace",
+      "scope": "fixed-device-launch",
+      "target": "chrome",
+      "pid": 7477,
+      "inputSent": true,
+      "foregroundVerified": false
+    }
+  },
+  "chromeForeground": {
+    "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-input-1791710200029.json",
+    "sha256": "529a88983627914a50e94c0b537157fdcf9f601f427d95b73240877b387106e5",
+    "observation": {
+      "bundle": "com.google.chrome.ios",
+      "locked": false
+    }
+  },
+  "chromeInspector": {
+    "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-inspector-1791710200071720000.json",
+    "sha256": "4035de22a77c84593e06378dd5038310e816fc0de48497d888e59db2ee3de199",
+    "observation": {
+      "transport": "tailnet-paired-userspace",
+      "scope": "dev-origin-browser-debug",
+      "devTargets": 1
+    }
+  },
+  "settingsLaunch": {
+    "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/tailnet-provider-1791710272297529000.json",
+    "sha256": "279aa012d270b24164520f997c581d624e94673b6b79cbc068b116dc5e0f9001",
+    "observation": {
+      "transport": "tailnet-paired-userspace",
+      "scope": "fixed-device-launch",
+      "target": "settings",
+      "pid": 8167,
+      "inputSent": true,
+      "foregroundVerified": false
+    }
+  },
+  "settingsForeground": {
+    "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-input-1791710285158.json",
+    "sha256": "13abf4f0fa04b51d1b8b72b827c3933b4f1f1aa65038bbd73058e1c0bed9b55f",
+    "observation": {
+      "bundle": "com.apple.Preferences",
+      "locked": false
+    }
+  },
+  "home": {
+    "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-input-1791710286513.json",
+    "sha256": "0e1ac09de2ebefffec3b9c20c074bf6f903dc11c455e9a181a4ef96aa2fe5061",
+    "observation": {
+      "homeConfirmed": true
+    }
+  },
+  "screen": {
+    "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/tailnet-provider-1791710286562298000.json",
+    "sha256": "b33d1a76a07efb001ba77a848a1f56491f1090e6d5eab385e5bfe701702eab0c",
+    "observation": {
+      "transport": "tailnet-paired-userspace",
+      "scope": "whole-device-display",
+      "width": 1170,
+      "height": 2532
+    }
+  },
+  "originalRunnerStillResponsive": {
+    "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-input-1791710384610.json",
+    "sha256": "683fc6c746868df06ee49f06bb918d4961ff3ecfc750fbd3180f2ccbac14bce5",
+    "observation": {
+      "bundle": "com.apple.springboard",
+      "locked": false
+    }
+  },
+  "existingWdaTailnetStatus": {
+    "ok": true,
+    "transport": "explicit-tailnet-ip",
+    "httpStatus": 200,
+    "runnerReady": true,
+    "sessionPresent": true,
+    "elapsedMs": 38,
+    "inputSent": false,
+    "runnerStarted": false
+  },
+  "checks": {
+    "pythonTransportAndObserver": 14,
+    "mcpAdapterFocused": 5,
+    "wrapperAndTailnet": 27,
+    "freshStdioGuideCatalogResources": true,
+    "tools": 36,
+    "resources": 10
+  },
+  "notQualified": [
+    "physical off-LAN launch/Inspector/profile",
+    "remote enrollment URL delivery",
+    "remote Lock Screen shortcut",
+    "remote signed installation",
+    "XCTest authorization exemption",
+    "retention startup/handoff/expiry under a fresh owner"
+  ]
+}

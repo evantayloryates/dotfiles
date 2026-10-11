@@ -77,6 +77,10 @@ class ObserverBoundaryTests(unittest.IsolatedAsyncioTestCase):
                 await observer.resource_profile({},None)
         self.assertEqual(calls,['open','open','close','close'])
 
+    async def test_fixed_launch_refuses_arbitrary_target_before_provider_import(self):
+        with self.assertRaisesRegex(ValueError,'fixed_launch_target_required'):
+            await observer.observe({'kind':'fixed-launch','serial':'00008110-001451690A21801E','target':'unrelated-app'})
+
     async def test_inactive_owner_is_refused_before_broker_or_device(self):
         with tempfile.TemporaryDirectory() as directory:
             owner=Path(directory)/'owner.json';owner.write_text('{"active":false}')

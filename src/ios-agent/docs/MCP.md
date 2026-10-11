@@ -12,6 +12,11 @@ The recovery decision card in MOBILE-WEB.md applies to both native and browser
 availability: diagnose host first, wait without control, reuse authenticated
 state, and preserve unknown input/cleanup outcomes.
 
+Configured developer transport can now use an authenticated rootless RSD tunnel
+through Tailscale for fixed app launch, Inspector and process profiling. See
+DEVELOPER-TAILNET.md for bootstrap, explicit selection and qualification limits.
+This does not alter the page/native return channel or XCTest lifecycle.
+
 Protocol references: [MCP stdio transport](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports),
 [tool contract](https://modelcontextprotocol.io/specification/2025-06-18/server/tools),
 [Codex registration](https://learn.chatgpt.com/docs/extend/mcp?surface=cli).

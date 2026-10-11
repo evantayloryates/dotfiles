@@ -18,6 +18,10 @@ through CoreDevice is a provisioning convenience, not the operating transport.
    `devicectl device process launch --payload-url` can open Safari or Chrome.
    Off-network, an already enrolled browser tab is sufficient for page control;
    an offline/closed browser cannot be remotely launched by this page adapter.
+   The separate fixed `ios_device_launch` now supports an explicit paired developer
+   tunnel through Tailscale; see DEVELOPER-TAILNET.md. Overlay foregrounding passed,
+   but physical off-LAN acceptance is still pending. Enrollment URL delivery
+   remains on the existing CoreDevice provisioning path.
    Then `ios_web_pages`: choose the actual page ID and browser, check visible/ready
    and age. Desktop WebKit is not evidence of a physical iPhone.
 3. `ios_web_begin`: one session per work turn. This acquires the SAME owner

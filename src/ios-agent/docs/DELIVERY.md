@@ -10,7 +10,7 @@ another owner's work to refresh schemas. See MCP.md for the operating recipes.
 | --- | --- | --- |
 | Native DEV app | doctor → begin → native/react → verify | native Home → end |
 | Safari / Chrome DEV page | web_pages → web_begin → inspect/action/verify | web_end; Home only through an available system route |
-| Page not yet available | wait_ready; nearby fixed device_launch if reachable | No lease held while waiting |
+| Page not yet available | wait_ready; fixed device_launch through the configured paired lane | No lease held while waiting |
 | Exact observed system permission | End page/app session → system_begin → inspect/action | system_end; require runnerStopped |
 | Deeper browser diagnosis | browser_debug; source/styles/dom/network/profile/heap/breakpoint/worker-* | Diagnostic domains stop and detach; content expires |
 | Synthetic audio comparison | audio_probe plan; verify fixture/recording before call | stop probe, release call media, end page session |
@@ -203,3 +203,14 @@ MCP1.9.8 extends ios_verify with native-element: one exact visible/interactive c
 MCP 1.9.9 adds fixed Shortcuts setup targeting, bounded foreground readback and exact Xcode unlock-gate diagnosis. Fifteen focused driver tests and six runner tests pass. Physical Shortcuts launch and Run Immediately selection passed; its Open App action is not yet saved. No off-site launch claim.
 
 MCP 1.9.9 physical acceptance: Shortcuts launch and Run Immediately selection passed; automation is not yet saved because its editor tree timed out. Home foreground and matching runner stop passed. Inspector Network capture passed in physical Safari/Chrome (9/16 events, zero drops, scrubbed known token/cookie fields, domains disabled, detached, glows off). Raw provider timings are not calibrated latency. No off-site launch or Inspector claim.
+
+## Developer transport increment — 1.9.25
+
+Fixed DEV/Settings/Safari/Chrome launch, Inspector and process profiling now have
+an explicit paired userspace RSD route through Tailscale, without sudo, USB fallback
+or XCTest startup. Physical foreground readbacks, Safari/Chrome dev-document reads,
+full-screen capture and three stopped profiler samples passed over the overlay.
+The original held XCTest owner remained intact. This adds transport reach; it does
+not mark the physical off-LAN launch gate, new-runner authorization, Lock Screen
+shortcut, enrollment-URL delivery or build installation qualified over that route.
+See DEVELOPER-TAILNET.md and developer-tailnet-physical-2026-10-11.json.

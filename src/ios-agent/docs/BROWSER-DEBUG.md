@@ -7,11 +7,14 @@ XCTest or Mirroring. **Physical Safari and Chrome source/CSS/console and bounded
 ## Choose the lane
 
 Use `ios_web_*` for routine Tailscale page work on any reachable network.
-Use this Inspector lane when the phone is nearby and the Apple paired developer
-channel works. A live page bridge does not imply that paired channel is available.
+Use this Inspector lane through the nearby Apple paired developer channel, or the
+explicit tailnet transport described in DEVELOPER-TAILNET.md. Physical Safari/Chrome
+reads over that overlay passed; physical off-LAN acceptance remains open. A live page
+bridge alone does not prove developer transport availability.
 This is especially useful if the DEV page fails before its SDK registers.
-It does not provide off-site launch, trusted input, OS permission handling,
-arbitrary full browser internals. Explicit heap graphs and one-shot breakpoint capture have their own heavier ownership gates below; worker source/evaluation and deeper frame debugging remain open.
+Fixed app launch also supports the configured tailnet developer lane; this debugger
+does not provide trusted input, OS permission handling,
+arbitrary full browser internals. Explicit heap graphs and one-shot breakpoint capture have their own heavier ownership gates below; dedicated-worker source/console/profiles are delivered; arbitrary worker evaluation and deeper interactive frame debugging remain optional extensions.
 
 ## Small, explicit operations
 

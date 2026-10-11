@@ -25,16 +25,18 @@ def owned(r):
 
 async def observe(r):
     r['_phase']='validation'
-    if r.get('kind') not in ('screen','capabilities','browser-debug','resource-profile') or not re.fullmatch(r'[0-9A-Fa-f]{8}-[0-9A-Fa-f]{16}', r.get('serial','')):
+    if r.get('kind') not in ('screen','capabilities','browser-debug','resource-profile','fixed-launch') or not re.fullmatch(r'[0-9A-Fa-f]{8}-[0-9A-Fa-f]{16}', r.get('serial','')):
         raise ValueError('fixed_observer_request_required')
+    if r['kind']=='fixed-launch' and r.get('target') not in ('kickoff-dev','settings','safari','chrome'):
+        raise ValueError('fixed_launch_target_required')
     if importlib.metadata.version('pymobiledevice3') != '11.15.5':
         raise ValueError('pinned_observer_required')
-    from pymobiledevice3.remote.native_tunnel import NativeRemotedTunnel
+    from paired_transport import paired_rsd
     from pymobiledevice3.services.dvt.instruments.dvt_provider import DvtProvider
     from pymobiledevice3.services.dvt.instruments.screenshot import Screenshot
     owned(r)
-    r['_phase']='native_tunnel'
-    async with NativeRemotedTunnel(serial=r['serial']) as rsd:
+    r['_phase']='paired_developer_tunnel'
+    async with paired_rsd(r['state'],r['serial'],lambda:owned(r)) as (rsd,transport):
         r['_phase']='service_discovery'
         services = (rsd.peer_info or {}).get('Services', {})
         caps = {label:name in services for label,name in {
@@ -43,8 +45,21 @@ async def observe(r):
             'coreDeviceTouch':'com.apple.coredevice.hid.universalhidservice',
             'webInspectorService':'com.apple.webinspector.shim.remote',
         }.items()}
-        result = {'scope':'paired-device-read-only','provider':'pymobiledevice3-11.15.5','productVersion':getattr(rsd,'product_version',None),'transport':'native-remoted','capabilities':caps,'systemInput':False,'offLANQualified':False}
-        if r['kind'] == 'screen':
+        result = {'scope':'paired-device-read-only','provider':'pymobiledevice3-11.15.5','productVersion':getattr(rsd,'product_version',None),'transport':transport,'capabilities':caps,'systemInput':False,'offLANQualified':False}
+        if r['kind'] == 'fixed-launch':
+            from pymobiledevice3.services.dvt.instruments.process_control import ProcessControl
+            bundles={'kickoff-dev':'com.dev.kudos.fit','settings':'com.apple.Preferences',
+                     'safari':'com.apple.mobilesafari','chrome':'com.google.chrome.ios'}
+            if r.get('target') not in bundles:raise ValueError('fixed_launch_target_required')
+            r['_phase']='dvt_launch_connect'
+            async with DvtProvider(rsd) as dvt, ProcessControl(dvt) as control:
+                owned(r);r['_phase']='fixed_launch';r['_launchSent']='unknown'
+                pid=await control.launch(bundles[r['target']],kill_existing=False)
+                r['_launchSent']=True
+            result.update(scope='fixed-device-launch',target=r['target'],pid=pid,inputSent=True,
+                          foregroundVerified=False,replay=False,lockState='unknown',
+                          outcome='developer-request-accepted')
+        elif r['kind'] == 'screen':
             owned(r)
             r['_phase']='dvt_connect'
             async with DvtProvider(rsd) as dvt, Screenshot(dvt) as screenshot:
@@ -192,10 +207,10 @@ def main():
     except Exception as e:
         known={'InvalidServiceError':'developer_service_unavailable','WebInspectorNotEnabledError':'web_inspector_disabled','DeviceNotFoundError':'paired_device_unavailable','UserspaceTunnelUnavailableError':'paired_tunnel_unavailable','TimeoutError':'device_observation_deadline','ConnectionTerminatedError':'developer_connection_lost'}
         code=known.get(type(e).__name__,'device_observation_unavailable')
-        if isinstance(e,ValueError) and str(e) in {'observer_owner_expired','pinned_observer_required','bounded_png_required','private_observer_output_required','fixed_observer_request_required','private_dev_origin_required','fresh_debug_document_required','owned_browser_session_required_for_evaluation','visible_dev_document_required','debug_document_changed','script_not_in_current_document','script_source_unavailable','debug_selector_not_found','bounded_debug_artifact_required','debug_cleanup_unconfirmed','fixed_debug_operation_required','bounded_dom_selector_required','dom_projection_unavailable','owned_debug_session_required_for_heap','bounded_heap_snapshot_required','supported_heap_snapshot_format_required','debug_loader_identity_unavailable','owned_debug_session_required_for_breakpoint','source_fenced_breakpoint_required','bounded_breakpoint_window_required','debug_script_source_changed','breakpoint_install_unconfirmed','debug_unexpected_pause_before_breakpoint','breakpoint_locals_unavailable','current_debug_worker_required','debug_worker_terminated','script_not_in_current_worker','bounded_worker_debug_required','worker_profile_incomplete'}:code=str(e)
+        if isinstance(e,ValueError) and str(e) in {'observer_owner_expired','pinned_observer_required','bounded_png_required','private_observer_output_required','fixed_observer_request_required','private_dev_origin_required','fresh_debug_document_required','owned_browser_session_required_for_evaluation','visible_dev_document_required','debug_document_changed','script_not_in_current_document','script_source_unavailable','debug_selector_not_found','bounded_debug_artifact_required','debug_cleanup_unconfirmed','fixed_debug_operation_required','bounded_dom_selector_required','dom_projection_unavailable','owned_debug_session_required_for_heap','bounded_heap_snapshot_required','supported_heap_snapshot_format_required','debug_loader_identity_unavailable','owned_debug_session_required_for_breakpoint','source_fenced_breakpoint_required','bounded_breakpoint_window_required','debug_script_source_changed','breakpoint_install_unconfirmed','debug_unexpected_pause_before_breakpoint','breakpoint_locals_unavailable','private_developer_tailnet_configuration_required','fixed_developer_tailnet_configuration_required','fixed_developer_tailnet_address_required','developer_device_identity_mismatch','developer_transport_already_active','fixed_launch_target_required','current_debug_worker_required','debug_worker_terminated','script_not_in_current_worker','bounded_worker_debug_required','worker_profile_incomplete'}:code=str(e)
         failure_type=type(e).__name__
         diagnostic={k:r.get('debug',{}).get(v) for k,v in [('workerCleanup','_workerCleanup'),('breakpointRequested','_breakpointRequested'),('breakpointCleanup','_breakpointCleanup'),('heapSnapshotRequested','_heapSnapshotRequested'),('failedMethod','_failedMethod'),('cleanupFailures','_cleanupFailures'),('receiverFailureType','_receiverFailureType'),('documentChange','_documentChange')] if r.get('debug',{}).get(v)}
-        sent=('unknown' if r['debug']['_inputDispatched'] else False) if '_inputDispatched' in r.get('debug',{}) else ('unknown' if r.get('debug',{}).get('expression') is not None else False)
+        sent=r.get('_launchSent',('unknown' if r['debug']['_inputDispatched'] else False) if '_inputDispatched' in r.get('debug',{}) else ('unknown' if r.get('debug',{}).get('expression') is not None else False))
         print(json.dumps({'ok':False,'reason':code,'phase':r.get('_phase','validation'),'failureType':failure_type if re.fullmatch('[A-Za-z0-9_]{1,80}',failure_type) else 'Unknown','diagnostic':diagnostic,'inputSent':sent}))
         sys.exit(1)
 
