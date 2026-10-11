@@ -134,5 +134,10 @@
     "Nearby native permission/Inspector startup is separate from off-LAN page control.",
     "Three-strategy fault comparison remains open.",
     "No authenticated call on arbitrary external network was exercised in this pass."
-  ]
+  ],
+  "followUp": {
+    "at": "2026-10-11T03:41:46.577895+00:00",
+    "permissions": "Earlier granted values were page metadata, not persistent permission proof. Later physical Chrome prompts required agent-native Allow. One new XCTest start required Taylor passcode.",
+    "mediaLifecycle": "Repaired and physically verified same-document route departure; see call-media-lifetime-2026-10-10.json."
+  }
 }

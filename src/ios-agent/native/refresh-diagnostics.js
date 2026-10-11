@@ -27,4 +27,12 @@ function installRefreshDiagnostics(target, record) {
   refresh.__iosAgentObserved = true;
   return true;
 }
-module.exports = {installRefreshDiagnostics};
+// This adapter exists only in the explicitly opted-in DEV build. Request the
+// native preference once at startup; a delivered source edit is the proof that
+// Metro/HMR works, not this setter's return value.
+function enableFastRefresh(devSettings) {
+  if (typeof devSettings?.setHotLoadingEnabled !== 'function') return {setterAvailable:false,enableRequested:false};
+  try {devSettings.setHotLoadingEnabled(true);return {setterAvailable:true,enableRequested:true};}
+  catch {return {setterAvailable:true,enableRequested:false};}
+}
+module.exports = {installRefreshDiagnostics,enableFastRefresh};

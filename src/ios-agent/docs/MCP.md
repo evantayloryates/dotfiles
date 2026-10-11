@@ -472,3 +472,9 @@ select fixed private origins. `app` remains the default (10446→3000/4000);
 The dedicated route/stack and recording-disabled synthetic fixture must exist
 before enrollment. Pairing, RTP, audio, provider state and cleanup remain separate
 checks. Read ios-agent://mobile-web for setup and boundaries.
+
+### 1.9.5: native refresh and call cleanup qualification
+
+The opt-in native DEV bridge requests Fast Refresh at startup and reports `fastRefreshStartup`. The setter receipt alone is not proof of delivery: a physical screen edit and an unsaved form edit both appeared while preserving route and bundle generation. Rediscover React component IDs after refresh. See `native-refresh-2026-10-10.json` for exact scope and limits.
+
+The companion Kickoff call-page repair stops its owned microphone/camera tracks on actual page departure, including late acquisitions, while preserving immediate effect reattachment. Physical Chrome same-document departure passed. This does not imply Hang Up releases the intentional lobby preview, persistent OS permission grants, or an off-LAN system driver.

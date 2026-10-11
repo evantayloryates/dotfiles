@@ -13,6 +13,7 @@ if (bridge && !global.__IOS_AGENT_BRIDGE_STARTED__) {
   let probeRequest;
   let fixtureRequest;
   let fixtureReport;
+  let fastRefreshStartup = {setterAvailable:null,enableRequested:false};
   const richCapture = require('../web/rich-capture')(global, {exclude:url=>typeof url==='string'&&url.includes('/v1/')});
   let captureReceipt;
   let captureEpoch=0;
@@ -34,6 +35,7 @@ if (bridge && !global.__IOS_AGENT_BRIDGE_STARTED__) {
     bundleMarker: require('./runtime-marker'),
     remoteRuntimeConfigured: Boolean(runtime.metroURL),
     logBoxHidden: true,
+    fastRefreshStartup,
     consoleContentExported: Boolean(captureReceipt?.ok && captureReceipt?.value?.events?.some(event=>event.kind==='console')),
     richCapture: captureReceipt,
   }));
@@ -43,6 +45,12 @@ if (bridge && !global.__IOS_AGENT_BRIDGE_STARTED__) {
   LogBox.ignoreAllLogs(true);
   bridge.hideDeveloperOverlays?.();
   require('./refresh-diagnostics').installRefreshDiagnostics(global, event => bridge.recordRefresh?.(JSON.stringify(event)));
+  // Let native HMR setup finish before requesting enable. This fixes a saved
+  // Fast Refresh Off preference without showing a developer overlay.
+  setTimeout(() => {
+    fastRefreshStartup = require('./refresh-diagnostics').enableFastRefresh(NativeModules.DevSettings);
+    publish();
+  }, 0);
   new NativeEventEmitter(bridge).addListener('IOSAgentCommand', ({command, message}) => {
     if (command === 'session-start') {
       captureEpoch++;void richCapture.stop(true);captureReceipt=undefined;

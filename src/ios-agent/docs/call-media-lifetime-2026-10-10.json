@@ -1,0 +1,51 @@
+{
+  "at": "2026-10-11T03:41:46.577895+00:00",
+  "scope": "physical Chrome iOS; existing private call-rig; same-document Next route departure",
+  "kickoffCommit": "d049d4e788",
+  "before": {
+    "boot": "291b58f4-eabe-4526-afda-949af295e073",
+    "path": "/meet/AUDIOC864AFBBBC83",
+    "liveTracks": [
+      "audio",
+      "video"
+    ],
+    "pendingMediaRequests": 0
+  },
+  "action": {
+    "kind": "Next client-side router.push",
+    "path": "/dev/ios-agent",
+    "replay": false
+  },
+  "after": {
+    "boot": "291b58f4-eabe-4526-afda-949af295e073",
+    "sameDocument": true,
+    "tracks": {
+      "audio": "ended",
+      "video": "ended"
+    },
+    "pendingMediaRequests": 0,
+    "peerConnections": 0,
+    "glowOff": true,
+    "ownerReleased": true
+  },
+  "implementation": "Own only locally created call tracks; stop on real hook departure, preserve immediate refresh/StrictMode reattachment, stop late acquisitions before use. No business mutation or full reload.",
+  "checks": {
+    "focusedTestsPassed": 45,
+    "files": 3,
+    "preCommitLintPassed": true
+  },
+  "permissions": {
+    "agentHandled": true,
+    "freshHumanXCTestPasscodeRequired": true,
+    "warning": "Permission metadata is not authoritative: later physical Chrome camera/microphone prompts appeared despite earlier granted metadata. Agent handled fresh observed Allow requests. No persistent grant or passcode exemption claimed."
+  },
+  "privateEvidence": [
+    "runner-delivery-59u8jx/17..27",
+    "runner-delivery-jyNz8U/7..20"
+  ],
+  "limits": [
+    "Lobby preview after Hang Up remains intentional; full-media release requires leaving the meet page.",
+    "Screen share ownership is separate; mobile screen share was not exercised.",
+    "XCTest startup remains nearby and may require physical authorization."
+  ]
+}

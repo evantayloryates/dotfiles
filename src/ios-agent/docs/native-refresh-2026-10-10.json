@@ -1,0 +1,87 @@
+{
+  "at": "2026-10-11T03:54:29.361413+00:00",
+  "scope": "physical iPhone Kickoff DEV; native Fast Refresh over tailnet Metro",
+  "initialCause": {
+    "savedHotLoadingEnabled": false,
+    "observation": "Read only RCTDevMenu fields from the app preferences; no credentials exported."
+  },
+  "repair": {
+    "devOnlyStartupEnable": true,
+    "mealLogUnusedMixedExportsRemoved": true
+  },
+  "screen": {
+    "beforeRoute": "ClientMealLogs",
+    "beforeGeneration": 2,
+    "beforeRefresh": {},
+    "expandedDayBaseline": true,
+    "fastRefreshStartup": {
+      "enableRequested": true,
+      "setterAvailable": true
+    },
+    "afterRoute": "ClientMealLogs",
+    "afterGeneration": 2,
+    "afterRefresh": {
+      "fullReloadRequests": 0,
+      "lastKind": "react-refresh",
+      "lastReason": "component-update",
+      "componentRefreshes": 1
+    },
+    "changedTextObserved": true,
+    "expandedDayPreserved": true,
+    "businessDataChanged": false,
+    "sourceProbeRestored": true
+  },
+  "form": {
+    "beforeRoute": "LoggedMeal",
+    "beforeGeneration": 2,
+    "beforeRefresh": {
+      "fullReloadRequests": 0,
+      "lastKind": "react-refresh",
+      "lastReason": "component-update",
+      "componentRefreshes": 2
+    },
+    "draftBaselineVerifiedViaReact": true,
+    "afterRoute": "LoggedMeal",
+    "afterGeneration": 2,
+    "afterRefresh": {
+      "fullReloadRequests": 0,
+      "lastKind": "react-refresh",
+      "lastReason": "component-update",
+      "componentRefreshes": 3
+    },
+    "changedTextObserved": true,
+    "businessDataChanged": false,
+    "sourceProbeRestored": true
+  },
+  "draft": {
+    "afterRefreshExactReactValueMatched": true,
+    "readReceipt": "runner-delivery-jyNz8U/60.json",
+    "originalValueRestoredThroughUIKeyInput": true,
+    "independentRestoreReadReceipt": "runner-delivery-jyNz8U/62.json",
+    "saveInvoked": false
+  },
+  "final": {
+    "route": "LoggedMeal",
+    "bundleAttempt": 2,
+    "componentRefreshes": 4,
+    "fullReloadRequests": 0,
+    "nativeLeaseOff": true,
+    "nativeIndicatorOff": true,
+    "homeHandoffPrepared": true,
+    "homeIndependentVerification": false,
+    "idleReceipt": "runner-delivery-jyNz8U/65.json"
+  },
+  "limits": [
+    "Representative screen and form preservation; not a promise for edits to class owners, navigation definitions or invalid refresh boundaries.",
+    "Old React component IDs became stale after refresh; rediscover IDs before reading.",
+    "A lease was retired on foreground loss; fresh acquisition succeeded without human action. Cause not assigned.",
+    "No new off-LAN or whole-phone Home proof in this gate."
+  ],
+  "checks": {
+    "refreshTestsPassed": 3,
+    "realDevelopmentTransformerPassed": true,
+    "typedMcpBrowserSchemaTestsPassed": 2,
+    "mobileLint": "16 existing diagnostics unchanged by rule, line, message and severity; no new diagnostics"
+  },
+  "kickoffCommit": "f8a1468b25"
+}

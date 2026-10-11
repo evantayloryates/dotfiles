@@ -1,6 +1,13 @@
 const {test} = require('node:test');
 const assert = require('node:assert/strict');
 const {installRefreshDiagnostics} = require('../native/refresh-diagnostics');
+const {enableFastRefresh} = require('../native/refresh-diagnostics');
+test('DEV startup requests native Fast Refresh and reports availability without claiming delivery', () => {
+  const receiver={setHotLoadingEnabled(value){assert.equal(this,receiver);assert.equal(value,true);}};
+  assert.deepEqual(enableFastRefresh(receiver),{setterAvailable:true,enableRequested:true});
+  assert.deepEqual(enableFastRefresh(null),{setterAvailable:false,enableRequested:false});
+  assert.deepEqual(enableFastRefresh({setHotLoadingEnabled(){throw Error('private provider detail');}}),{setterAvailable:true,enableRequested:false});
+});
 test('refresh observation preserves receiver, arguments, results and content boundary', () => {
   const events = [], calls = [], refresh = {
     performFullRefresh(...args) { calls.push({receiver: this, args}); return 17; },

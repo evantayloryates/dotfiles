@@ -484,18 +484,22 @@ native fallback and its separately verified developer startup path.
 
 Physical Chrome qualification: the dedicated coach/client call paired and the
 provider reported two participants, recording disabled and zero recordings.
-Agent-native Allow handling required no new human action; subsequent reload
-reported both permissions granted. With the cached synthetic coach sample,
+The first agent-native Allow batch needed no new human action. Later physical
+Chrome prompts appeared despite earlier granted page metadata. A subsequent
+XCTest start required a physical passcode; the agent then handled both Allow
+requests. Do not infer persistent browser grants or a passcode exemption. With the cached synthetic coach sample,
 bidirectional RTP advanced and received audio decoded non-silent. Capture stopped,
 all buffered chunks drained, and the native fallback stopped.
 
 A stale compiled frontend initially kept the old GraphQL address despite current
 source; check the actual loaded bundle before retrying Join. Hang Up intentionally
 returns to the lobby and is not a full-media cleanup proof. This pass also found
-tracks surviving client-side departure from the lobby. Until product lifecycle
-cleanup is repaired, finish by leaving `/meet` and reloading the qualification
-document, then independently check zero tracks/peers and glow off. Do not weaken
-the released gate to call a retained microphone fully stopped.
+tracks surviving client-side departure from the lobby. The product lifecycle repair now owns only tracks created by this call page.
+A physical same-document `/meet` → `/dev/ios-agent` transition stopped both live
+tracks without reload; 45 focused lifecycle/microphone tests passed. Hang Up
+retains lobby preview intentionally: leave the meet route for full release, then
+check ended tracks, zero pending media/peers and glow off. Do not weaken the
+released gate. See call-media-lifetime-2026-10-10.json.
 
 Receipt: browser-call-rig-profile-2026-10-10.json. Nearby call proof does not
 replace the separate cellular page proof or establish an off-LAN full call.
