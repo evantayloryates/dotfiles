@@ -1,9 +1,16 @@
-# Claude turn cleanup — prepared integration
+# Claude turn cleanup — main-agent integration
 
-The MCP cleanup bridge is available in1.9.29. The Claude hook configuration is
-**prepared, not installed or physically qualified**. Actual CLI dispatch is now
-qualified below against local fixtures. Continue explicit native/web/system
-end in finally. No current Claude settings or active phone owner were changed.
+The MCP cleanup bridge is available in1.9.29. Version1.9.39 installs the
+**qualified main-agent hooks** in Claude Code. Continue explicit native/web/system
+end in finally; hooks are an additional cleanup guard. Existing sessions are
+untouched; new Claude Code sessions load the merged configuration.
+
+`python3 src/ios-agent/install_claude_hooks.py` merges only missing hook entries
+and verifies readback. `--dry-run` makes no changes. Private backups, an optimistic
+write check and idempotence preserve other settings. No permission mode changes.
+The shipped `mcp/claude-hooks.json` skips child begin events and omits SubagentStop:
+child agents retain explicit end, EOF and silence safeguards until their actual
+hook delivery is qualified. The full candidate remains for future qualification.
 
 ## What is implemented
 
@@ -41,7 +48,8 @@ On11October a normal browser sign-in refresh selected the existing configured
 Google account. The official Claude Code Authorize button remained disabled in
 Arc and in one alternate Chrome attempt. The CLI login listener was stopped;
 no authorization was forced and no alternate credential route was used. The
-live hook gate remains open, independently of the phone network gate.
+account refresh remained incomplete; the local protocol probe below removed it
+as a prerequisite for lifecycle qualification.
 
 ## Actual CLI qualification without account repair —11October
 
@@ -67,8 +75,18 @@ no longer blocks lifecycle protocol qualification. The remaining physical gate
 is one normal owned workflow followed by actual hook cleanup. A local subagent probe was stopped before admission by automatic review
 (`automode-parsing-error`); no owner was acquired, and no permission mode was
 changed or retry attempted. This does not prove subagent cleanup failed.
-Subagent hook execution remains unqualified. Keep candidate hooks uninstalled until that gate
-is satisfied; preserve unrelated settings when merging verified entries.
+Subagent hook execution remains unqualified. The shipped main-only configuration
+does not activate that candidate path.
+
+## Physical main-agent gate —11October
+
+The real CLI acquired the current physical Safari DEV page through the installed
+MCP. PreToolUse supplied its exact real session/prompt tuple; begin independently
+verified the page and glow. The actual Stop MCP hook matched one owner, released
+it and confirmed indicatorOff. A separate page inventory confirmed the glow off.
+No XCTest, browser input, provider request or credential lookup was used. Decisions
+came from the loopback fake API; this is harness/device cleanup evidence, not
+inference qualification. See `claude-physical-hooks-2026-10-11.json`.
 
 Stop does not run on user interruption. SessionEnd is opportunistic if its MCP
 client has disconnected; it cannot replace EOF/cancellation/20-minute-silence

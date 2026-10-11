@@ -35,6 +35,9 @@ test('actual hook executable bounds malformed input and emits the unchanged-fiel
   const input={hook_event_name:'PreToolUse',tool_name:'mcp__ios-agent__ios_begin',session_id:sessionId,prompt_id:promptId,tool_input:{nativeOnly:true}};
   const good=run(JSON.stringify(input));assert.equal(good.status,0);assert.equal(JSON.parse(good.stdout).hookSpecificOutput.updatedInput.nativeOnly,true);
   for(const bad of ['not json','x'.repeat(65537)])assert.deepEqual(JSON.parse(run(bad).stdout),{});
+  const mainOnly=input=>spawnSync(process.execPath,[executable.pathname,'--main-agent-only'],{input:JSON.stringify(input),encoding:'utf8'});
+  assert.equal(JSON.parse(mainOnly(input).stdout).hookSpecificOutput.updatedInput.nativeOnly,true);
+  assert.deepEqual(JSON.parse(mainOnly({...input,agent_id:'child'}).stdout),{});
 });
 test('Claude ownership overrides inherited Codex context, but explicit mixed owners refuse before admission',async()=>{
   const f=fixture();try{

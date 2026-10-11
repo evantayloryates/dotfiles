@@ -113,14 +113,16 @@ child, and untagged/foreign sessions send no cleanup. The deterministic candidat
 PreToolUse hook preserves existing arguments and injects metadata; it never
 returns an allow decision. Normal web/system cleanup reports unconfirmed outcomes.
 
-**The Claude hook candidate is not installed or live-qualified.** Its real CLI
-smoke stopped at expired Claude OAuth before inference or hooks. A subsequent
-normal Google refresh reached the configured account, but the official Authorize
-button remained disabled in both Arc and Chrome. No credential fallback or
-forced authorization was attempted. Explicit end in
-finally remains required. See CLAUDE-CLEANUP.md for the prepared configuration,
-proof boundaries and the remaining real-harness gate. The earlier retained
-Codex XCTest owner has been released; there is no live retained runner.
+**Claude Code main-agent hooks are installed; new sessions load them.** Actual
+CLI main-agent dispatch passed against a loopback fake API and production
+MCP/backend with mock phone IPC: ordinary Stop, same-prompt continuation and EOF
+cleanup after an API error. Account repair is no longer a prerequisite for this
+protocol proof. Physical Safari acquisition, exact-owner Stop release and glow-off
+readback also passed. The shipped configuration skips child begin events;
+subagent hook delivery remains unqualified. Explicit end in finally remains
+required. See CLAUDE-CLEANUP.md for the
+configuration and dated evidence. The earlier retained Codex XCTest owner has
+been released; there is no live retained runner.
 
 ## One shared learning path
 

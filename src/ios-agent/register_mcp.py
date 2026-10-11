@@ -10,12 +10,15 @@ import subprocess
 import tempfile
 
 LAUNCHER = Path.home() / 'dotfiles/bin/ios-agent-mcp'
+UNSPECIFIED = object()
 
 
-def write_atomic(path, content):
+def write_atomic(path, content, *, expected_previous=UNSPECIFIED):
     path = path.resolve()
     path.parent.mkdir(parents=True, exist_ok=True)
     old = path.read_bytes() if path.exists() else None
+    if expected_previous is not UNSPECIFIED and old != expected_previous:
+        raise ValueError('configuration_changed_during_registration')
     if old is not None:
         # Private backup; never print the rest of these secret-bearing configs.
         fd, backup = tempfile.mkstemp(prefix=path.name + '.bak.ios-agent-', dir=path.parent)
