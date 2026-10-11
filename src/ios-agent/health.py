@@ -14,7 +14,7 @@ from service import STATE
 from source_hash import worker_source_hash
 
 
-def check_host(state=STATE, backend_container='default-ki-e3ee9-dev-1'):
+def check_host(state=STATE, backend_container='default-ki-e3ee9-dev-1', connectivity=False):
     checks = {}
     def check(name, operation):
         try:
@@ -47,7 +47,7 @@ def check_host(state=STATE, backend_container='default-ki-e3ee9-dev-1'):
     check('localMetroHTTPReady', metro_ready)
     check('webSDKHTTPReady', sdk_ready)
     check('localWebAdapterSourcesMatch', lambda: web_sources_match(config, backend_container))
-    return {'version': 1, 'checks': checks,
+    result = {'version': 1, 'checks': checks,
             'hostPrerequisitesReady': all(checks.values()),
             'deviceRegistered': bool(status and status.get('device')),
             'ownerActive': bool(status and status.get('lease')),
@@ -56,6 +56,10 @@ def check_host(state=STATE, backend_container='default-ki-e3ee9-dev-1'):
                 status.get('reactFrontendCleanupPending') is False),
             'applicationReadiness': 'requires_fresh_owned_lease_and_verify_ready',
             'repairsPerformed': False}
+    if connectivity:
+        from connectivity import diagnose
+        result['connectivity'] = diagnose(state)
+    return result
 
 
 def personal_tailnet(status):
@@ -118,8 +122,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--state', type=Path, default=STATE)
     parser.add_argument('--backend-container', default='default-ki-e3ee9-dev-1')
+    parser.add_argument('--connectivity', action='store_true')
     args = parser.parse_args()
-    value = check_host(args.state, args.backend_container)
+    value = check_host(args.state, args.backend_container, args.connectivity)
     print(json.dumps(value))
     return 0 if value['hostPrerequisitesReady'] else 2
 

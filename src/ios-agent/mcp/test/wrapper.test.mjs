@@ -152,16 +152,20 @@ test('real launcher stdio handshake works in a minimal GUI PATH without device c
 });
 test('host tools preserve failed checks, refuse stack work with an owner, and never acquire the phone', async () => {
   const f = fixture(); const original = f.backend.runOverride;
-  let healthy = true, starts = 0;
+  let healthy = true, starts = 0; const diagnosisArgs=[];
   f.backend.runOverride = async (kind, args, input) => {
-    if (kind === 'doctor') return {ok: healthy, value: {hostPrerequisitesReady: healthy,
-      checks: {localGraphQLReady: healthy}, applicationReadiness: 'requires_owned_lease', repairsPerformed: false}};
+    if (kind === 'doctor') {diagnosisArgs.push(args);return {ok: healthy, value: {hostPrerequisitesReady: healthy,
+      checks: {localGraphQLReady: healthy}, applicationReadiness: 'requires_owned_lease', repairsPerformed: false}};}
     if (kind === 'stack') { starts++; return {ok: true, value: {backendReady: true, started: [], dataReset: false, workersStopped: false}}; }
     return original(kind, args, input);
   };
   const {client, server} = await clientFor(f);
   try {
     assert.equal((await client.callTool({name:'ios_doctor',arguments:{}})).structuredContent.ok,true);
+    assert.equal((await client.callTool({name:'ios_doctor',arguments:{connectivity:true}})).structuredContent.ok,true);
+    assert.deepEqual(diagnosisArgs,[[],['--connectivity']]);
+    assert.equal((await client.callTool({name:'ios_doctor',arguments:{connectivity:'true'}})).isError,true);
+    assert.equal(diagnosisArgs.length,2);
     healthy=false;
     const failed=await client.callTool({name:'ios_doctor',arguments:{}});
     assert.equal(failed.isError,true); assert.deepEqual(failed.structuredContent.failedChecks,['localGraphQLReady']);

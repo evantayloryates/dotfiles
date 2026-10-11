@@ -58,6 +58,13 @@ Version 1.1 adds `ios_doctor`, `ios_stack_ensure`, `ios_workflow` and the
 `ios-agent://paired-workflow` resource: 15 tools and four resources in total.
 Diagnose host prerequisites before requesting phone setup. Stack recovery is
 explicit and idle-only; a failed/unknown startup is never permission to replay.
+Version1.9.37 adds optional `ios_doctor {connectivity:true}`. It reports actual
+fixed-phone USB inventory, a single bounded Tailscale ping, cached peer state,
+and lease-free foreground bridge readiness separately. Unknown observations stay
+null; lock state stays unknown. It never starts a developer tunnel, launches an
+app, acquires control or changes hostPrerequisitesReady. A responsive tailnet peer
+does not establish developer-channel or system-input readiness. Use this evidence
+before requesting a cable change or an unlock.
 The versioned paired recipe exposes read-only exact local synthetic-pair baseline,
 persistence and restoration checks. They do not mint credentials or mutate data,
 and do not replace independent browser/phone UI evidence. See PAIRED-WORKFLOW.md.
@@ -107,10 +114,13 @@ PreToolUse hook preserves existing arguments and injects metadata; it never
 returns an allow decision. Normal web/system cleanup reports unconfirmed outcomes.
 
 **The Claude hook candidate is not installed or live-qualified.** Its real CLI
-smoke stopped at expired Claude OAuth before inference or hooks. Explicit end in
+smoke stopped at expired Claude OAuth before inference or hooks. A subsequent
+normal Google refresh reached the configured account, but the official Authorize
+button remained disabled in both Arc and Chrome. No credential fallback or
+forced authorization was attempted. Explicit end in
 finally remains required. See CLAUDE-CLEANUP.md for the prepared configuration,
-proof boundaries and the remaining real-harness gate. The current retained
-Codex XCTest session is untagged and unaffected.
+proof boundaries and the remaining real-harness gate. The earlier retained
+Codex XCTest owner has been released; there is no live retained runner.
 
 ## One shared learning path
 

@@ -36,6 +36,12 @@ only a synthetic MCP server and candidate-style hooks. The tiny real request
 failed with expired OAuth before any hook/tool event. No phone command,
 credential substitution, login repair or repeated auth attempt followed.
 
+On11October a normal browser sign-in refresh selected the existing configured
+Google account. The official Claude Code Authorize button remained disabled in
+Arc and in one alternate Chrome attempt. The CLI login listener was stopped;
+no authorization was forced and no alternate credential route was used. The
+live hook gate remains open, independently of the phone network gate.
+
 After Claude authentication is restored, first run the synthetic hook probe:
 confirm PreToolUse argument rewriting, exact prompt IDs, absent main-agent
 interpolation, subagent identity and Stop/StopFailure dispatch on the same MCP

@@ -10,15 +10,18 @@ another owner's work to refresh schemas. See MCP.md for the operating recipes.
 | --- | --- | --- |
 | Native DEV app | doctor → begin → native/react → verify | native Home → end |
 | Safari / Chrome DEV page | web_pages → web_begin → inspect/action/verify | web_end → device_home (configured paired Tailscale); independently inspect Home |
-| Page not yet available | wait_ready; fixed device_launch through the configured paired lane | No lease held while waiting |
+| Page not yet available | doctor connectivity=true; wait_ready; fixed device_launch through the configured paired lane | No lease held while waiting |
 | Exact observed system permission | End page/app session → system_begin → inspect/action | system_end; require runnerStopped |
 | Deeper browser diagnosis | browser_debug; source/styles/dom/network/profile/heap/breakpoint/worker-* | Diagnostic domains stop and detach; content expires |
 | Synthetic audio comparison | audio_probe plan; verify fixture/recording before call | stop probe, release call media, end page session |
 
 For unavailable pages, expired grants or pending cleanup, use the recovery decision card in MOBILE-WEB.md. Read-only host diagnosis is allowed while another connection owns the phone; that does not grant access to its session.
 
-Native installation and Home/relaunch passed; see
-native-delivery-physical-2026-10-10.json. Long-lived harnesses may retain an
+The latest signed native delivery5da0f761d1fa477dac788b5b621c2b06 was installed
+and independently matched on11October. Fresh owned native/Safari/Chrome
+workflows and synthetic rich-capture passed; see
+owned-acceptance-2026-10-11.json. Provider-call audio and actual off-LAN launch
+remain separate gates. Long-lived harnesses may retain an
 earlier catalog until their own MCP connection refreshes.
 
 Use `/Users/taylor/dotfiles/bin/ios-agent`. App integration is isolated on
@@ -29,7 +32,7 @@ instrumentation are excluded from this delivery.
 
 ## Disabled reservation candidate
 
-1.9.16 includes an opt-in runner-lifetime candidate, excluded from the normal catalog. It has structural and preservation tests, but has not passed physical retained startup/re-entry. Do not enable it in routine harness configuration yet. See RUNNER-RESERVATION-CANDIDATE.md. The original host owner is retained during Taylor’s AFK window. The phone runner
+1.9.16 includes an opt-in runner-lifetime candidate, excluded from the normal catalog. It has structural and preservation tests, but has not passed physical retained startup/re-entry. Do not enable it in routine harness configuration yet. See RUNNER-RESERVATION-CANDIDATE.md. The earlier retained host owner has been released. The phone runner
 was killed at about10:55UTC on11October; its automatic replacement failed
 authentication and Xcode ended at11:00:36UTC. Host ownership does not prove
 usable XCTest. Safari Remote Automation overlapped the loss, so interference
@@ -395,3 +398,14 @@ qualified before relying on it. No new always-on runner or hidden transport
 fallback is introduced by this evidence update.
 
 See `owned-acceptance-2026-10-11.json` for structural receipts and exact boundaries.
+
+## Read-only connectivity diagnosis — MCP1.9.37
+
+Optional ios_doctor connectivity=true passed through a fresh real MCP connection.
+All host prerequisites passed; the fixed phone was absent from USB, Tailscale
+answered one ping, and no foreground app/page bridge was available. Lock state
+remained unknown. These are separate observations, not an off-LAN control pass.
+See connectivity-mcp-2026-10-11.json. No running worker restart or native rebuild
+was needed.29 historical task-owned smoke clients were closed after verifying
+no active phone owner; the temporary helper now has a30-minute lifetime and
+releases its stdin handle. Persistent production MCP connections are unchanged.

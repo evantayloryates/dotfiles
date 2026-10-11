@@ -1,0 +1,65 @@
+{
+  "at": "2026-10-11T14:21:07.524954+00:00",
+  "version": "1.9.37",
+  "scope": "read-only MCP connectivity diagnosis; no physical iPhone control",
+  "hostReceipt": {
+    "version": 1,
+    "checks": {
+      "hostWorkerResponding": true,
+      "hostWorkerSourceVerified": true,
+      "privateRuntimeConfigValid": true,
+      "personalTailnetRunning": true,
+      "privateServeRoutesVerified": true,
+      "guardedLocalBackendProcess": true,
+      "localGraphQLReady": true,
+      "localWebReady": true,
+      "localMetroHTTPReady": true,
+      "webSDKHTTPReady": true,
+      "localWebAdapterSourcesMatch": true
+    },
+    "hostPrerequisitesReady": true,
+    "deviceRegistered": false,
+    "ownerActive": false,
+    "hostIdle": true,
+    "applicationReadiness": "requires_fresh_owned_lease_and_verify_ready",
+    "repairsPerformed": false,
+    "connectivity": {
+      "observedAt": 1791728417.54404,
+      "usbAttached": false,
+      "tailnetConfigured": true,
+      "tailnetPeerKnown": true,
+      "tailnetPeerOnline": true,
+      "tailnetPingSucceeded": true,
+      "bridgeReadyToAcquire": false,
+      "bridgeReason": "no_fresh_foreground_bridge",
+      "lockState": "unknown",
+      "developerChannelVerified": false,
+      "phoneInputSent": false,
+      "repairsPerformed": false,
+      "next": "Tailnet answered. Inspect the paired launch route or wait for a foreground bridge; lock state remains unknown."
+    },
+    "ok": true,
+    "failedChecks": [],
+    "next": "Host checks do not establish phone readiness. Use connectivity=true for actual fixed-phone USB detection, one tailnet ping and lease-free bridge readiness. Inspect evidence before requesting phone setup."
+  },
+  "tests": {
+    "pythonConnectivity": 6,
+    "pythonHostHealth": 6,
+    "mcpWrapper": 25,
+    "changedMcpHostArgumentRetest": 1,
+    "passed": true
+  },
+  "scratchCleanup": {
+    "verifiedThisThreadClientsClosed": 29,
+    "currentConnectionPreserved": true,
+    "temporaryHelperLifetimeMinutes": 30,
+    "persistentProductionMcpLifetimeChanged": false
+  },
+  "boundaries": [
+    "USB inventory matches only the configured hardware UDID; unrelated iPhones do not satisfy it.",
+    "Peer Online and a successful ping are separate observations. Null is not failure proof.",
+    "No launch, tunnel, lease, radio change, microphone, XCTest or Mirroring operation was performed.",
+    "Tailnet is answering again; Wi-Fi restoration and actual off-LAN app/browser control remain unverified.",
+    "The phone is in personal use during this acceptance; no phone interaction was attempted."
+  ]
+}

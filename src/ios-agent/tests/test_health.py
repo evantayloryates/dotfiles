@@ -58,6 +58,15 @@ class HostHealthTests(unittest.TestCase):
         self.assertFalse(value['checks']['webSDKHTTPReady'])
         self.assertFalse(value['checks']['localWebAdapterSourcesMatch'])
 
+    def test_optional_phone_connectivity_does_not_redefine_host_health(self):
+        patches = self.providers({'sourceHash':worker_source_hash(),'lease':None,'reactFrontendRunning':False,'reactFrontendCleanupPending':False})
+        diagnosis = {'usbAttached': False, 'tailnetPingSucceeded': False, 'lockState': 'unknown'}
+        with patches[0], patches[1], patches[2], patches[3], patches[4], patch('health.metro_ready', return_value=True), patch('health.sdk_ready', return_value=True), patch('health.web_sources_match', return_value=True), patch('connectivity.diagnose', return_value=diagnosis) as inspect:
+            value = check_host(connectivity=True)
+        self.assertTrue(value['hostPrerequisitesReady'])
+        self.assertEqual(value['connectivity'], diagnosis)
+        inspect.assert_called_once()
+
 
 if __name__ == '__main__':
     unittest.main()
