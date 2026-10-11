@@ -140,6 +140,7 @@ export class Backend {
     catch { learning = {available: false}; }
     return {browserWorkflow: ['ios_doctor (host prerequisites)', 'ios_web_pages (reuse a visible ready enrolled page)', 'ios_web_enroll only if provisioning is needed (private launchFile)', 'open the intended dev browser page if not enrolled', 'ios_web_pages', 'ios_web_begin', 'ios_web_inspect and ios_web_action', 'ios_web_end in finally'],
       readiness: 'ios_wait_ready waits up to 55 seconds without a lease, waking on fresh foreground app/page events. Repeat bounded waits while this task is waiting; do not infer lock from offline. ios_begin still verifies the runtime. MCP availability does not itself schedule a new model turn.',
+      browserConditions: 'ios_web_verify timeoutSeconds=0..30 waits for a specific owned page condition without repeated model turns. web-element uses a unique semantic selector, optional exact expectedValue, and visible/interactable/editable state; passing returns fresh snapshot/target refs. Stops on failed observation or lost ownership; no input is retried. Read ios-agent://mobile-web for examples. Media remains a single explicit sample.',
       launch: 'ios_device_launch has fixed DEV/Settings/Safari/Chrome targets through a paired nearby developer channel. DEV launch was qualified from Settings without XCTest. Arbitrary-network foreground launch remains unqualified; Tailscale page/app control alone cannot launch a suspended app.',
       lock: 'ios_device_lock runs only Runner Lock iPhone through the paired developer channel, then independently reads passcodeRequired. The one-action Apple shortcut is installed and physically verified. Already locked is a no-input success. It cannot unlock the phone, does not store a passcode, and is not an arbitrary-network system-control lane.',
       richCapture: 'ios_capture is explicit synthetic-DEV capture only: start selected console/network/audio modes, drain bounded batches, stop, then end in finally. Default 2 MiB ring, max 8 MiB, max 10 minutes; host 32 MiB/capture and 128 MiB total. Artifacts expire after one hour by default (max 24 hours) and private audio chunks stay off the transcript. Clone existing audio tracks only; no microphone request. Inspect remainingEvents and dropped counts; this is not lossless whole-device traffic capture.',
@@ -557,10 +558,13 @@ export class Backend {
       ...(typeof r.value?.reason === 'string' ? {reason:r.value.reason} : {}),
       ...(!large ? {value} : {value:preview,truncated:true,next:'Use ios_read with /result/value for the complete private observation.'})};
   }
-  async webVerify({sessionId, gate, expectedPath, expectedText, direction = 'both', sampleMs = 1000}) {
+  async webVerify({sessionId, gate, expectedPath, expectedText, selector, expectedValue, elementState='visible', timeoutSeconds=0, direction = 'both', sampleMs = 1000}, signal) {
     const s = this.session(sessionId);
     if (s.surface !== 'web') throw new Error('web_session_required');
     if (gate === 'web-route' && !expectedPath && !expectedText) return {ok:false,reason:'explicit_web_postcondition_required'};
+    if (!Number.isInteger(timeoutSeconds) || timeoutSeconds<0 || timeoutSeconds>30) return {ok:false,reason:'bounded_condition_wait_required'};
+    if (gate === 'web-element' && !selector) return {ok:false,reason:'element_selector_required'};
+    if (gate === 'web-media' && timeoutSeconds) return {ok:false,reason:'media_wait_requires_explicit_new_sample'};
     if (gate === 'web-media') {
       if (!['sent','received','both'].includes(direction) || !Number.isInteger(sampleMs) || sampleMs < 500 || sampleMs > 3000) return {ok:false,reason:'bounded_media_sample_required'};
       const full = read => { const file=this.artifacts.get(read.artifactId)?.file; return file ? JSON.parse(fs.readFileSync(file,'utf8'))?.result?.value : read.value; };
@@ -574,17 +578,47 @@ export class Backend {
       return {ok,receipt,artifactId:second.artifactId,beforeArtifactId:first.artifactId,sampleMs,learningEvidence,
         limits:'Stable document-local stream counters; at least one stream advances in each requested direction, none reset. This does not prove audible content, call-room identity, remote playout, microphone permission or physical network route.'};
     }
-    const read = await this.webAction({sessionId, action: gate === 'web-ready' ? 'state' : 'snapshot'});
-    const file=this.artifacts.get(read.artifactId)?.file;
-    const value=file ? JSON.parse(fs.readFileSync(file,'utf8'))?.result?.value : read.value;
-    const observation = gate === 'web-ready' ? {visible:value?.visible === true,secureContext:value?.secureContext === true,indicatorOn:value?.indicator === true} :
-      {snapshotAvailable:typeof value?.snapshot === 'string',nodeCount:value?.elements?.length || 0,
-       ...(expectedPath ? {expectedPathMatched:value?.path === expectedPath} : {}),
-       ...(expectedText ? {expectedTextMatched:value?.content?.includes(expectedText) === true} : {})};
-    const ok=read.ok && Object.values(observation).every(v=>typeof v==='number'?v>0:v===true);
+    const started=performance.now();let read,observation,ok=false,checks=0,refs,reason;
+    const full = r => {const file=this.artifacts.get(r.artifactId)?.file;return file?JSON.parse(fs.readFileSync(file,'utf8'))?.result?.value:r.value;};
+    do {
+      if(signal?.aborted)throw new Error('request_cancelled_before_dispatch');
+      this.session(sessionId); // Refuse a replaced/retired owner before every read.
+      read=await this.webAction({sessionId,action:gate==='web-ready'?'state':'snapshot',args:selector?{selector}:{}});checks++;
+      const value=full(read);
+      observation=gate==='web-ready'?{visible:value?.visible===true,secureContext:value?.secureContext===true,indicatorOn:value?.indicator===true,
+        sameRuntime:['browser','boot','version'].every(k=>typeof value?.[k]==='string'&&value[k].length>0&&value[k]===s.webRuntime[k])}:
+        {snapshotAvailable:typeof value?.snapshot==='string',nodeCount:value?.elements?.length||0,
+         ...(expectedPath?{expectedPathMatched:value?.path===expectedPath}:{}),
+         ...(expectedText?{expectedTextMatched:value?.content?.includes(expectedText)===true}:{})};
+      refs=undefined;
+      if(gate==='web-element'&&read.ok){
+        const nodes=value?.elements||[],node=nodes[0];observation.uniqueElement=nodes.length===1;
+        if(expectedValue!==undefined)observation.expectedValueMatched=nodes.length===1&&node.value===expectedValue;
+        if(nodes.length===1){
+          refs={snapshot:value.snapshot,target:node.id};
+          if(elementState!=='visible'){
+            const detail=await this.webAction({sessionId,action:'element',args:refs}),element=full(detail);
+            observation.interactable=detail.ok===true&&element?.interactable===true&&element?.disabled===false;
+            if(elementState==='editable')observation.editable=observation.interactable&&element?.readOnly===false&&['input','textarea'].includes(node.tag);
+            if(!detail.ok){read=detail;reason='condition_observation_failed';}
+          }
+        }
+      }
+      ok=read.ok&&Object.values(observation).every(v=>typeof v==='number'?v>0:v===true);
+      if(ok||!read.ok||reason)break;
+      const remaining=timeoutSeconds*1000-(performance.now()-started);
+      if(remaining<=0||checks>=61)break;
+      await new Promise((resolve,reject)=>{
+        const abort=()=>{clearTimeout(timer);reject(new Error('request_cancelled_before_dispatch'));};
+        const timer=setTimeout(()=>{signal?.removeEventListener('abort',abort);resolve();},Math.min(500,remaining));
+        signal?.addEventListener('abort',abort,{once:true});if(signal?.aborted)abort();
+      });
+    }while(performance.now()-started<timeoutSeconds*1000);
     const receipt={gate,status:ok?'passed':'failed',observation};
     const learningEvidence=await this.learning('observe',{receipt,source:s.webFingerprint}).catch(()=>({available:false}));
-    return {ok,receipt,artifactId:read.artifactId,learningEvidence};
+    return {ok,receipt,artifactId:read.artifactId,learningEvidence,checks,elapsedMs:Math.round(performance.now()-started),
+      ...(ok&&refs?{...refs,next:'Use these references immediately; normal five-second/occlusion input checks still apply.'}:{}),
+      ...(!ok?{reason:reason||(!read.ok?'condition_observation_failed':'condition_not_met'),replay:false}:{})};
   }
   async webEnd(id) {
     const s = this.sessions.get(id), page = s?.page;

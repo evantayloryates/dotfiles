@@ -372,3 +372,42 @@ A browser can expose the object while omitting state; that value remains null.
 Standards: https://www.w3.org/TR/audio-session/ ,
 https://www.w3.org/TR/event-timing/ ,
 https://www.w3.org/TR/largest-contentful-paint/ .
+
+## Untethered cellular qualification — 10 October, final batch
+
+Physical Safari passed with USB unplugged, Wi-Fi Off and cellular 5G:
+DOM fill/save, an atomic Mac source edit and exact restoration with route/draft
+preserved, replacement-document navigation readback, same-origin local GraphQL
+HTTP 200 and glow-off. The paired developer channel was unavailable; no
+Inspector, Mirroring or XCTest carried this batch. Chrome cellular is a separate
+pending gate. This supersedes earlier Safari off-LAN “unqualified” statements;
+it does not qualify off-site launch, trusted input, Inspector or audible calls.
+See browser-cellular-safari-2026-10-10.json.
+
+## Bounded page conditions — MCP 1.9.2
+
+Use `ios_web_verify` with `timeoutSeconds: 0..30` for a named condition instead
+of repeatedly asking the model to read/sleep. Default zero remains one reading.
+The MCP observes at most 61 times with 500 ms gaps, stopping on observation
+failure or lost ownership. The wait budget excludes an already in-flight bounded
+transport read. It never retries an input, changes tabs or reacquires a lease.
+
+- Wait for a semantic control: `{sessionId, gate:"web-element", selector:"#draft",
+  elementState:"editable", expectedValue:"", timeoutSeconds:10}`. Exactly one
+  visible semantic node must match; editable additionally requires browser DOM
+  hit testing, enabled and not read-only. `visible` alone can include offscreen
+  nodes; use `interactable` for in-viewport hit eligibility. These are DOM checks,
+  not browser/OS occlusion or trusted touch.
+- Wait for rendered text: `{sessionId, gate:"web-element", selector:"h1",
+  expectedText:"Your heading", timeoutSeconds:10}`. Text uses case-sensitive
+  substring matching; expectedValue is exact and supports an empty string.
+- Wait for a same-document pathname using `web-route` and `expectedPath`.
+  A full navigation retires ownership: use lease-free `ios_wait_ready`, then
+  acquire the new document; never replay the navigation.
+
+A passing element gate returns its final fresh snapshot/target. Use immediately;
+normal five-second freshness and hit checks still apply at input. Timeout/failure
+returns the last private observation artifact and structural receipt, not raw
+content. `web-media` stays one explicit advancement sample, without repeat-until-
+passing behavior. Physical Safari on cellular passed a deliberately delayed DOM
+condition in two reads/1.397 seconds, fixture restoration and glow cleanup.

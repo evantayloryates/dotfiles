@@ -437,3 +437,12 @@ suspension; a lost acknowledgment or newer owner cancels that request. Prepared
 handoff is not physical Home proof. Always end in finally, then verify idle.
 Native Home and relaunch passed on the physical iPhone; see native-delivery-physical-2026-10-10.json. No off-LAN installation
 or whole-phone control is claimed.
+
+## MCP 1.9.2 — condition waits
+
+The catalog remains 35 tools / nine resources. `ios_web_verify` now accepts a
+bounded condition wait and `web-element` with a unique semantic selector,
+optional exact expectedValue, and visible/interactable/editable state. It returns
+fresh references on success, stops on read/ownership failure, and never repeats
+input or media tests. Shared learning stores only structural gate booleans and
+counts. See MOBILE-WEB.md for examples and the separate physical cellular proof.

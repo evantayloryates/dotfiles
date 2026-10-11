@@ -1,0 +1,60 @@
+{
+  "at": "2026-10-11T02:43:14.147Z",
+  "browser": "ios-safari",
+  "scope": "Physical iPhone, USB unplug confirmed by Taylor, agent Wi-Fi Off; no paired Inspector/Mirroring/XCTest calls in this batch",
+  "gates": {
+    "domControl": {
+      "passed": true,
+      "route": "/dev/ios-agent"
+    },
+    "liveEdit": {
+      "passed": true,
+      "routeAndFormPreserved": true,
+      "originalHash": "80b9dd11a8c22451f53cd19ec3e4312136fa1ef3983b26cfdeb726c50bd15fd8",
+      "changedHash": "b94142964baa5cbb48c69ecb25abc7ea1ad70c1e92fda770626fd73738accbff"
+    },
+    "sourceRestore": {
+      "passed": true,
+      "hash": "80b9dd11a8c22451f53cd19ec3e4312136fa1ef3983b26cfdeb726c50bd15fd8",
+      "routeAndFormPreserved": true
+    },
+    "cleanup": {
+      "released": true,
+      "indicatorOff": true
+    },
+    "route": {
+      "passed": true,
+      "route": "/dev/ios-agent?route=changed",
+      "method": "fresh document readback after old lease ended; no input replay",
+      "newBoot": "22b66e57-c82b-4865-b8fb-a1867dfd6f7f"
+    },
+    "graphql": {
+      "passed": true,
+      "method": "same-origin DEV proxy, POST read-only __typename",
+      "httpStatus": 200,
+      "root": "Query",
+      "errorCount": 0
+    },
+    "finalCleanup": {
+      "released": true,
+      "indicatorOff": true
+    }
+  },
+  "runtime": {
+    "boot": "3ba69527-2862-46bf-ac96-9c8d86426886",
+    "page": "9d70cfb3acc2e6f67ed3822ca82058c3",
+    "version": "web-1d676bbf7fa6bb45"
+  },
+  "networkEvidence": {
+    "usbUnplugConfirmedByTaylor": true,
+    "wifiOffShortcutAccepted": true,
+    "physical5GScreenViewedBeforeUnplug": true,
+    "cellularIPv6TailnetPingAnswered": true,
+    "pairedCoreDeviceUnavailableAfterUnplug": true
+  },
+  "limitations": [
+    "Chrome cellular qualification pending",
+    "No audible call, trusted input or off-LAN Inspector claim",
+    "Page bridge requires an awake foreground enrolled document"
+  ]
+}

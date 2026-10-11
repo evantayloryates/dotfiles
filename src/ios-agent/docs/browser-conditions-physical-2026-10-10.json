@@ -1,0 +1,50 @@
+{
+  "version": "1.9.2",
+  "delayedPhysicalCondition": {
+    "at": "2026-10-11T02:49:32.417Z",
+    "scope": "Physical Safari, cellular/USB unplug unchanged, no paired lane",
+    "gates": {
+      "delayedCondition": {
+        "passed": true,
+        "checks": 2,
+        "elapsedMs": 1397,
+        "freshRefs": true
+      },
+      "fixtureRestore": true,
+      "cleanup": {
+        "released": true,
+        "indicatorOff": true
+      }
+    },
+    "version": "1.9.2"
+  },
+  "sharedEvidenceReadback": {
+    "at": "2026-10-11T02:50:52.618Z",
+    "scope": "Physical Safari, cellular/USB unplug unchanged, no paired lane",
+    "gates": {
+      "staticCondition": {
+        "passed": true,
+        "freshRefs": true
+      },
+      "sharedStructuralEvidence": {
+        "passed": true,
+        "count": 1
+      },
+      "cleanup": {
+        "released": true,
+        "indicatorOff": true
+      }
+    },
+    "version": "1.9.2"
+  },
+  "verification": {
+    "mcpFocusedChecks": 32,
+    "learningChecks": 6,
+    "passed": true
+  },
+  "limits": [
+    "Semantic DOM conditions only; synthetic references remain subject to freshness/hit checks",
+    "Wait budget excludes one bounded in-flight transport read",
+    "Media is not retried; causal fault injection and native conditions remain separate"
+  ]
+}
