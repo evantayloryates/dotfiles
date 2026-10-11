@@ -186,7 +186,7 @@ Fresh MCP also passed the foreground Safari fixed Runtime read on 10 October, re
 
 ## Version 1.4 — explicit capture and availability
 
-The current catalog has 27 tools / 5 resources. `ios_device_launch`,
+Version 1.4 introduced 27 tools / 5 resources. `ios_device_launch`,
 `ios_wait_ready` and `ios_capture` are documented in the README. Agents must
 wait without a lease for foreground availability, acquire only when ready, and
 end in finally. Do not turn an offline bridge into a request to unplug/unlock.
@@ -226,8 +226,8 @@ Home works only while its system-control session is reachable. On 10 October the
 Mac Shortcuts action search did not expose Go to Home Screen; the empty test
 shortcut was removed. A phone-local Home shortcut remains unqualified. When Home
 is unavailable, report `homeNavigationPending`; do not silently force-quit the
-app or start XCTest just for cleanup. Finish this remaining integration when the
-phone-side setup can be driven.
+app or start XCTest just for cleanup. Version 1.5 adds verified Home return within
+an already-required explicit system fallback; normal page/app end remains separate.
 
 ## Bounded device process profile
 
@@ -251,7 +251,7 @@ The local private `system-driver.json` names the existing signed `.xctestrun`
 under Xcode DerivedData and the phone's IPv4 Tailscale address. Startup uses
 Apple's existing paired developer transport; no usbmux discovery or Mirroring.
 The WDA HTTP connection runs through Tailscale. This does not establish off-site
-startup. An existing responsive runner is preserved rather than reused or killed.
+startup. An existing open WDA endpoint is preserved rather than reused or killed. An unconfirmed network preflight refuses startup; it is not treated as a disconnected cable.
 No passcode is accepted, stored or entered; Apple may require human authorization.
 
 Inspect the native tree, then tap its visible/enabled target or scroll one half

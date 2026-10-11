@@ -41,11 +41,10 @@ def owned(r):
     lease = json.loads(Path(r['leaseFile']).read_text())['lease']
     return (request({'op':'status'}, Path(r['state']), timeout=2).get('lease') or {}).get('id') == lease
 
-async def verify_stopped(serial, log):
+async def verify_stopped(serial, started):
     from pymobiledevice3.remote.native_tunnel import NativeRemotedTunnel
     from pymobiledevice3.services.dvt.instruments.dvt_provider import DvtProvider
     from pymobiledevice3.services.dvt.instruments.process_control import ProcessControl
-    started = set(int(x) for x in re.findall(r'WebDriverAgentRunner-Runner\[(\d+):', log.read_text(errors='replace')))
     async with NativeRemotedTunnel(serial=serial) as rsd, DvtProvider(rsd) as dvt, ProcessControl(dvt) as control:
         pid = await control.process_identifier_for_bundle_identifier(BUNDLE)
         if pid > 0:
@@ -53,17 +52,28 @@ async def verify_stopped(serial, log):
             await control.kill(pid)
         return await control.process_identifier_for_bundle_identifier(BUNDLE) == 0
 
+async def collect_runner_output(reader, log, started):
+    carry=b''
+    with log.open('r+b') as output:
+        while chunk:=await reader.read(8192):
+            text=(carry+chunk).decode(errors='replace')
+            started.update(int(x) for x in re.findall(r'WebDriverAgentRunner-Runner\[(\d+):',text));carry=chunk[-256:]
+            if output.tell()+len(chunk)>1024*1024:
+                output.seek(-min(output.tell(),512*1024),os.SEEK_END);tail=output.read();output.seek(0);output.write(tail);output.truncate()
+            output.write(chunk);output.flush()
+
 async def main(r):
     serial, run, log = validate(r)
     if not owned(r):raise ValueError('system_owner_inactive')
-    child = None
+    child = None; pump = None; started = set()
     reason = 'explicit_end_or_eof'
     try:
         fd = os.open(log, os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW, 0o600)
-        with os.fdopen(fd, 'w') as output:
-            child = await asyncio.create_subprocess_exec('/usr/bin/xcrun','xcodebuild','test-without-building',
-                '-xctestrun',str(run),'-destination','id='+serial,'-destination-timeout','20',
-                stdout=output, stderr=output, start_new_session=True)
+        os.close(fd)
+        child = await asyncio.create_subprocess_exec('/usr/bin/xcrun','xcodebuild','test-without-building',
+            '-xctestrun',str(run),'-destination','id='+serial,'-destination-timeout','20',
+            stdin=asyncio.subprocess.DEVNULL,stdout=asyncio.subprocess.PIPE,stderr=asyncio.subprocess.STDOUT,start_new_session=True)
+        pump=asyncio.create_task(collect_runner_output(child.stdout,log,started))
         print(json.dumps({'started':True}),flush=True)
         reader = asyncio.StreamReader()
         transport, _ = await asyncio.get_running_loop().connect_read_pipe(lambda:asyncio.StreamReaderProtocol(reader),sys.stdin)
@@ -90,8 +100,11 @@ async def main(r):
                     try:os.killpg(child.pid,signal.SIGKILL)
                     except ProcessLookupError:pass
                     await child.wait()
+        if pump:
+            try:await asyncio.wait_for(pump,2)
+            except Exception:pass
         stopped=False
-        try:stopped=await asyncio.wait_for(verify_stopped(serial,log),15)
+        try:stopped=await asyncio.wait_for(verify_stopped(serial,started),15)
         except Exception:pass
         print(json.dumps({'stopped':True,'runnerStopped':stopped,'reason':reason}),flush=True)
 

@@ -296,3 +296,23 @@ AX audit capabilities were readable, but no native activation was proved. WDA
 runner reuse can amortize an existing approval; it does not establish approval-free
 restart, and a running runner retains the Apple overlay. No device passcode is
 stored or injected. See `docs/ANNOTATION-DELIVERY.md` for current candidate gates.
+
+## Native system fallback and process profiling — v1.5
+
+The catalog now has **31 tools and five resources**. `ios_system_begin`,
+`ios_system_inspect`, `ios_system_action`, `ios_system_end` wrap the existing signed
+WebDriverAgent runner. Use them only when native browser/system input is needed;
+end the current page/app lease first. End in finally, normally return Home, and
+require `runnerStopped:true`. Apple retains its own automation indicator and can
+require physical authorization. No passcode is stored or injected.
+
+Startup uses the paired developer channel; WDA requests use the configured phone
+Tailscale address. This does not qualify starting the runner from another network.
+The private `system-driver.json` contains `address` and `xctestrun` (the existing
+signed DerivedData runner). The service does not install or resign a new runner.
+Physical Safari menu input, saved DEV-host microphone Allow, Home return and EOF
+cleanup passed; normal page-driver microphone acquisition then needed no prompt.
+
+`ios_device_inspect kind=resource-profile` records three process CPU/memory samples
+without XCTest. Use actual sample elapsed times, treat CPU as raw provider units,
+and do not attribute shared WebContent memory to one page.

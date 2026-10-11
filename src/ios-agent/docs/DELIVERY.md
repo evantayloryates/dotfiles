@@ -1,7 +1,7 @@
 # Agent operating contract — installed personal development service
 
 MCP follow-on: `/Users/taylor/dotfiles/bin/ios-agent-mcp` exposes the fixed CLI
-through 27 tools and five resources in the current v1.4 source. A long-lived
+through 31 tools and five resources in the current v1.5 source. A long-lived
 harness may retain its earlier tool inventory until that connection refreshes. `ios_guide` → `ios_doctor` → `ios_begin` → inspect/act/verify
 → `ios_end` manages lease/evidence paths and independently confirms cleanup.
 See MCP.md for shared operational learning and per-harness lifecycle boundaries.
@@ -124,3 +124,22 @@ recording: three private chunks, valid assembled AAC, original track preserved,
 fixture removed and glow off. This is not a microphone/full-call/Chrome/off-LAN
 claim. Native console/network qualification is in the current dated native receipt.
 Off-site foreground launch and approval-free system fallback remain open.
+
+## Native browser/system fallback — v1.5
+
+`ios_system_begin/inspect/action/end` adds explicit signed-XCTest input for Safari,
+Chrome, Settings, Kickoff DEV and Home. Normal app/page workflows retain their
+existing no-XCTest driver and glow. The fallback uses the same exclusive owner,
+fresh targets, unique live native resolution and a hittability check; uncertain
+input requires inspection before further mutation. It does not type passcodes.
+
+Physical MCP Safari native menu input, persistent DEV Microphone=Allow, Home
+return and connection-close runner cleanup passed. Nearby paired startup needed
+no USB discovery or Mirroring. WDA traffic used Tailscale; arbitrary-network
+startup is still unqualified and Apple may require physical authorization later.
+A separate supervisor stops the matching owned runner on EOF, dead/stale owner
+or lost lease. Its private runner log rolls over at 1 MiB.
+
+`ios_device_inspect kind=resource-profile` adds three bounded process CPU/memory
+samples through the pinned paired provider. Missing metrics stay null; shared
+WebContent is not page attribution and CPU is raw provider units.

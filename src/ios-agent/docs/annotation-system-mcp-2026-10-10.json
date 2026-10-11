@@ -9,5 +9,13 @@
   "homeConfirmed": true,
   "status": "passed",
   "connectionClosed": true,
-  "privateEvidence": "/Users/taylor/Library/Application Support/ios-agent/system-smoke-rFoLwT"
+  "privateEvidence": "/Users/taylor/Library/Application Support/ios-agent/system-smoke-rFoLwT",
+  "runnerStoppedAfterConnectionClose": true,
+  "independentCheck": "Paired DVT matched runner bundle had PID 0",
+  "passcodePromptObserved": false,
+  "scopeLimits": [
+    "Nearby paired startup; remote WDA endpoint used Tailscale.",
+    "No off-LAN startup or universally approval-free restart claim.",
+    "Normal app/page drivers remain primary; Apple overlay exists only during fallback."
+  ]
 }
