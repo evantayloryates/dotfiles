@@ -9,6 +9,26 @@ through CoreDevice is a provisioning convenience, not the operating transport.
 
 ## MCP workflow
 
+`ios_web_open {browser:"ios-chrome", threadId:"<actual chat ID>"}` now provides
+one managed launch-and-acquire flow when a private reflection node is configured.
+It bootstraps through the foreground DEV adapter, verifies existing pairing trust
+and exact device identity, then hands exclusive ownership into the browser. The
+authenticated secondary channel survives DEV backgrounding. Use ordinary web
+tools and `ios_browser_debug` with its returned sessionId; end with
+`ios_web_end` in finally. Normal end requests Home, confirms page glow-off and
+closes the tunnel. A hard disconnect/owner loss closes the channel; it does not
+authorize Home after another agent acquires the phone.
+
+Chrome launch, owned glow, fill/Save/committed readback and Inspector passed on
+the physical phone with Wi-Fi present. The actual MCP open/Inspector/end entrypoint
+also passed. With Wi-Fi disabled, the reflected developer TCP listener returned
+a matching RST/ACK and ECONNREFUSED; further timeout increases are unwarranted.
+Cellular Safari's app-owned handoff and an already visible enrolled page are
+separate working paths. No new USB dependency, XCTest or Mirroring is introduced.
+The current reflection node is **temporary qualification infrastructure**, not
+a completed permanent deployment. See CELLULAR-RELAY-CANDIDATE.md. This tool
+never changes Wi-Fi or silently falls back to USB.
+
 1. `ios_web_pages`: reuse a fresh visible, ready enrolled iPhone page in the intended browser. Do not reenroll a working tab.
 2. Only if no usable enrollment exists, `ios_web_enroll`: obtain a private JSON launchFile, never print its URL
    fragment. Enrollment expires in five minutes and is single-use, origin-bound.

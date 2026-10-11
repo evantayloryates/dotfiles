@@ -167,7 +167,7 @@ class Broker:
                 until=time.monotonic()+timeout
                 while True:
                     self.tick(); idle=not self.lease and not self.stopping_frontends
-                    if idle and surface in ('any','native') and self.device and self.clock()-self.device['seen']<=5 and self.device.get('feedback',{}).get('foreground') is True:
+                    if idle and surface in ('any','native') and self.device and self.clock()-self.device['seen']<=5 and self.device.get('feedback',{}).get('foreground') is True and self.clock()>=self.device.get('nativeReadyAfter',0) and self.device['seen']>=self.device.get('nativeReadyAfter',0):
                         return {'readyToAcquire':True,'surface':'native','boot':self.device['boot'],'ageMs':int((self.clock()-self.device['seen'])*1000),'runtimeVerified':False,'leaseAcquired':False,'next':'ios_begin verifies the current app runtime before control.'}
                     if idle and surface in ('any','web'):
                         pages=[(pid,p) for pid,p in self.web.pages.items() if p['visible'] and p['ready'] and self.clock()-p['seen']<=5 and p['browser'] in ('ios-safari','ios-chrome') and (not browser or p['browser']==browser) and (not page or pid==page)]
@@ -378,6 +378,12 @@ class Broker:
                 if cmd["action"] == "browser-handoff" and isinstance(result,dict) and result.get("delivery")=="prepared-browser-handoff" and result.get("browser")==cmd["args"]["browser"] and "error" not in result:
                     handoff=cmd["id"]
                     self.revoke("device_browser_handoff")
+                if handoff and self.device:
+                    # An accepted departure is not foreground readiness. Require
+                    # a fresh post-transition observation, not the pre-handoff
+                    # feedback carried by this result or a queued idle poll.
+                    self.device['nativeReadyAfter'] = self.clock() + 2
+                    self.device.setdefault('feedback', {})['foreground'] = False
                 self.cv.notify_all()
             elif op == "next":
                 # Wake immediately on revocation; bounded idle responses renew app-side expiry.

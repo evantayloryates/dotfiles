@@ -61,8 +61,20 @@ its interface on exit. This is Linux mechanism proof, not iPhone proof.
 Taylor approved temporary node runner-relay-test and only10.7.0.1/32. The
 personal account and persisted approval were independently read back; exit-node
 access remains disabled and SNAT is off. Native candidate71ca6285b9f943c383ab5b0720c48a8e
-adds the fixed reflected route plus socket/frame/byte diagnostics. It is building;
-install and one physical reflected existing-trust handshake are the next gate.
+adds the fixed reflected route plus socket/frame/byte diagnostics. It built and installed with verified delivery98f3c307b304471e904c86b56b8a3c91.
+Physical reflected existing-trust pairing passed. The authenticated secondary
+TCP/PSK tunnel then passed independent RSD device identity through Tailscale.
+No native secondary-port support or background runner was needed. A subsequent
+probe retired native input, acquired a fresh exclusive launch reservation,
+opened Chrome with an Apple foreground event, and issued fixed Home cleanup.
+The secondary tunnel survived retirement of the original app relay. An initial
+reservation attempt omitted required owner identity fields; this was corrected
+without weakening the owner check. All these phone probes had Wi-Fi present;
+cellular qualification remains separate. Fresh Chrome page readiness and a real Web Inspector rendered-DOM read also
+passed through the detached tunnel. The SDK reported connected, complete and
+visible; its ownership indicator had not yet observed the newly acquired web
+lease, so that read is not promoted into owned input proof. Cellular transport
+and normal MCP lifecycle integration are the next gates.
 No public MCP relay tool is enabled until that and the subsequent identity,
 secondary-port, background and cleanup gates pass. Preserve the working native
 and Safari routes on failure. Personal DEV only; staging remains deferred.
@@ -74,3 +86,49 @@ implementation and Tailscale example); https://github.com/StikDebug/StikDebug
 Provider source: paired_transport.py and the pinned pymobiledevice3
 RemotePairingProtocol.start_tcp_tunnel implementation. Background execution has
 its own iOS scheduling limits; a paid membership does not remove them.
+
+## Integration shape after qualification
+
+Keep ordinary agent calls simple. A managed developer-transport worker should
+bootstrap via a native owner only when needed, retire native input, and carry
+the independently verified secondary RSD channel into a fresh launch/web owner.
+Reuse existing browser-debug implementations against that RSD connection; do
+not introduce a second browser-control API. Every operation checks the current
+owner and document. Begin/end, lost connection, timeout and turn cleanup close
+the worker; a short idle adoption window may bridge enrollment to web begin.
+No persistent phone background task is required by the nearby POC.
+
+The first cellular probe reached fresh native state with Wi-FiIPv4absent but
+failed before any relay frame (connect exit5, errno36/EINPROGRESS retained by the
+one-second select path). This is not yet proof of a route or authorization
+denial. The next changed condition warms the Tailscale peer and records packet
+request/reply timings. Wi-FiOn and Home were restored; independent USB display
+readback confirmed Home. USB remains attached, and no USB fallback is in the
+relay path. A stale foreground readiness race after Home was separately fixed
+with a post-transition fresh-observation fence and one focused broker check.
+
+The peer-warmed cellular run recorded two requests and one reply. The first
+reply arrived 1.113 seconds after the first request, beyond the native one-second
+connect window. The old capture did not classify TCP flags, so a successful
+SYN/ACK is not claimed. Build9e193383aa2b45bcb4a4113681b1da02 raises that bounded
+window to five seconds and records SO_ERROR/ETIMEDOUT plus connect duration.
+The next capture distinguishes SYN/ACK from reset. The browser gate also checks
+owned glow, fixture fill/Save/readback, Inspector and release, using the SDK
+result envelope correctly. These are candidate gates, not delivered claims.
+
+The changed-condition capture now establishes an actual refusal: the phone's
+SYN (sequence3448443502) received RST/ACK acknowledging3448443503, not SYN/ACK.
+Native connect returned ECONNREFUSED in191ms. Wi-Fi was restored, the owner
+released, page indicators off, and Home requested. Stop increasing the timeout.
+This qualifies the Wi-Fi-off boundary, not all possible cellular/radio states.
+
+The managed nearby worker subsequently passed two exclusive owner handoffs,
+Chrome foreground, owned glow, fill/Save/committed readback, real Inspector,
+Home request, owner release and indicator-off. The new actual MCP `ios_web_open`
+→ `ios_browser_debug` → `ios_web_end` path also passed. Its reflector starts
+from a private pinned container configuration and stops once the independently
+authenticated secondary RSD connection exists. No phone background task is
+needed. MCP end closes the channel; owner loss closes without further input.
+The approved node remains temporary qualification infrastructure. Permanent
+provisioning and the cellular launch/Inspector edge remain open. Reusing an
+already visible web page avoids this bootstrap entirely.

@@ -1,5 +1,5 @@
 {
-  "observedAt": "2026-10-11T19:06:46.409500+00:00",
+  "observedAt": "2026-10-11T19:32:58.615302+00:00",
   "scope": "Personal DEV candidate, not delivered",
   "directPhoneResults": [
     {
@@ -63,8 +63,8 @@
     "phonePeerReachable": true
   },
   "nativeCandidate": {
-    "buildJob": "71ca6285b9f943c383ab5b0720c48a8e",
-    "state": "building",
+    "buildJob": "9e193383aa2b45bcb4a4113681b1da02",
+    "state": "signed-and-installed",
     "fixedRoutes": [
       "direct",
       "reflected"
@@ -72,16 +72,236 @@
     "fixedPort": 49152,
     "seconds": 60,
     "maxBytes": 4194304,
-    "publicMCPRelayToolEnabled": false
+    "publicMCPRelayToolEnabled": false,
+    "deliveryId": "85dcea378cad4a59b3d6a5eac0be4037",
+    "installId": "d031fbbc4da252572e474b046f725c99",
+    "installedIdentityVerified": true,
+    "connectTimeoutSeconds": 5
   },
   "remainingGates": [
-    "reflected foreground existing-trust pairing",
-    "independent RSD identity",
-    "authenticated secondary channel",
-    "Chrome URL launch and owned page readiness",
-    "bounded background Inspector and cleanup"
+    "owned page command/indicator and cleanup",
+    "cellular qualification",
+    "managed transport integration in normal MCP lifecycle"
   ],
   "noNewPairingAttempted": true,
   "noXCTestStarted": true,
-  "noMirroringStarted": true
+  "noMirroringStarted": true,
+  "reflectedPhonePairing": {
+    "ok": true,
+    "existingTrustPairVerified": true,
+    "newPairingAttempted": false,
+    "rsdIdentityVerified": false,
+    "secondaryListenerTested": false,
+    "backgroundTested": false,
+    "payloadLogged": false,
+    "relay": {
+      "scope": "foreground-fixed-loopback-pairing-candidate",
+      "port": 55799,
+      "connected": true,
+      "closed": false,
+      "bytes": 1825,
+      "frames": 9,
+      "phoneBytes": 1001,
+      "consumerBytes": 824,
+      "deadlineSeconds": 60,
+      "reason": null,
+      "payloadLogged": false
+    }
+  },
+  "secondaryPhoneTunnel": {
+    "ok": true,
+    "existingTrustPairVerified": true,
+    "secondaryTunnelEstablished": true,
+    "rsdIdentityVerified": true,
+    "backgroundTested": false,
+    "newPairingAttempted": false,
+    "payloadLogged": false
+  },
+  "reflectionPhoneCounters": {
+    "packets": 44,
+    "bytes": 7259,
+    "rejected": 6,
+    "payloadLogged": false,
+    "interfaceRemoved": true
+  },
+  "phoneTransportScope": "Tailscale with Wi-Fi present; no off-LAN claim",
+  "detachedChromeInspector": {
+    "ok": true,
+    "ownerDetached": true,
+    "existingTrustPairVerified": true,
+    "secondaryTunnelEstablished": true,
+    "rsdIdentityVerified": true,
+    "chromeLaunch": {
+      "scope": "fixed-dev-browser-launch",
+      "browser": "chrome",
+      "profile": "app",
+      "pid": 9966,
+      "inputSent": true,
+      "foregroundVerified": true,
+      "foregroundReason": "observed_foreground_event",
+      "foregroundScope": "bounded Apple app-state event; not native/React/page readiness",
+      "foregroundEvidence": {
+        "provider": "Apple-AX-app-state",
+        "bundle": "com.google.chrome.ios",
+        "state": 8,
+        "observedAt": 1791746011.5824971,
+        "ageMs": 101
+      },
+      "lockState": "unknown",
+      "outcome": "developer-request-accepted",
+      "replay": false
+    },
+    "backgroundTested": true,
+    "newPairingAttempted": false,
+    "payloadLogged": false,
+    "cleanup": {
+      "phase": "detached_chrome_inspector",
+      "existingTrustPairVerified": true,
+      "secondaryPort": 59011,
+      "secondaryTunnelEstablished": true,
+      "ownerDetached": true,
+      "freshChromePageReady": true,
+      "inspectorReadConfirmed": true,
+      "inspectorState": {
+        "originMatches": true,
+        "ready": "complete",
+        "visible": true,
+        "loaderPresent": true,
+        "sdkPresent": true,
+        "sdkConnected": true,
+        "sdkOwned": false,
+        "indicator": false,
+        "tabCredentialPresent": true,
+        "browserResumePresent": true,
+        "secureContext": true,
+        "mediaAPI": true,
+        "userActivation": false,
+        "domElements": 45,
+        "scripts": 14
+      },
+      "homeCleanup": {
+        "scope": "fixed-device-home",
+        "pid": 9582,
+        "inputSent": true,
+        "homeVerified": false,
+        "lockState": "unknown",
+        "outcome": "developer-request-accepted",
+        "replay": false,
+        "next": "Inspect the display independently. Shortcut acceptance does not certify Home."
+      }
+    }
+  },
+  "detachedChromeLaunch": {
+    "ok": true,
+    "ownerDetached": true,
+    "existingTrustPairVerified": true,
+    "secondaryTunnelEstablished": true,
+    "rsdIdentityVerified": true,
+    "chromeLaunch": {
+      "scope": "fixed-dev-browser-launch",
+      "browser": "chrome",
+      "profile": "app",
+      "pid": 9966,
+      "inputSent": true,
+      "foregroundVerified": true,
+      "foregroundReason": "observed_foreground_event",
+      "foregroundScope": "bounded Apple app-state event; not native/React/page readiness",
+      "foregroundEvidence": {
+        "provider": "Apple-AX-app-state",
+        "bundle": "com.google.chrome.ios",
+        "state": 8,
+        "observedAt": 1791745938.8964858,
+        "ageMs": 103
+      },
+      "lockState": "unknown",
+      "outcome": "developer-request-accepted",
+      "replay": false
+    },
+    "backgroundTested": true,
+    "newPairingAttempted": false,
+    "payloadLogged": false,
+    "cleanup": {
+      "phase": "detached_secondary_chrome_launch",
+      "existingTrustPairVerified": true,
+      "secondaryPort": 59007,
+      "secondaryTunnelEstablished": true,
+      "ownerDetached": true,
+      "homeCleanup": {
+        "scope": "fixed-device-home",
+        "pid": 9582,
+        "inputSent": true,
+        "homeVerified": false,
+        "lockState": "unknown",
+        "outcome": "developer-request-accepted",
+        "replay": false,
+        "next": "Inspect the display independently. Shortcut acceptance does not certify Home."
+      }
+    }
+  },
+  "cellularWarmProbe": {
+    "ok": false,
+    "phase": "existing_trust_pair_verify",
+    "nativeFrames": 0,
+    "firstRequestMs": 5349.619,
+    "firstReplyMs": 6463.022,
+    "replyDelayMs": 1113.403,
+    "replyTCPFlagsKnown": false,
+    "wifiRestored": true,
+    "homeRequested": true,
+    "changedCondition": "Native connect bound raised from 1 to 5 seconds; new packet capture counts SYN/ACK and RST."
+  },
+  "managedTransportCandidate": {
+    "worker": "relay_worker.py",
+    "connection": "mcp/relay-channel.mjs",
+    "publiclyEnabled": true,
+    "syntaxChecked": true,
+    "physicalLifecycleQualified": true,
+    "ownerHandoffSeconds": 10,
+    "maximumLifetimeSeconds": 1200,
+    "onOwnerLoss": "close",
+    "unknownOperationOutcome": "close; no replay",
+    "nearbyChromePassed": true,
+    "ownerHandoffs": 2,
+    "ownedIndicator": true,
+    "fixtureCommitted": true,
+    "inspectorRead": true,
+    "homeRequested": true,
+    "ownerReleased": true,
+    "indicatorOff": true,
+    "evidence": "managed-relay-R8imNC",
+    "publicEntryPoint": "ios_web_open",
+    "actualMCPQualification": "open, Chrome Inspector DOM, end, Home requested, owner release and indicator-off passed",
+    "configurationScope": "qualification",
+    "mcpVersion": "1.9.48",
+    "actualMCPEvidence": "runner-resume-nIP09p/2.json\u20134.json",
+    "focusedLifecycleChecks": 2,
+    "independentWholeDisplayHomeViewed": true,
+    "homeEvidence": "runner-resume-wYdOP4/managed-home.png"
+  },
+  "cellularDefinitiveProbe": {
+    "ok": false,
+    "evidence": "pairing-relay-D4Nk2B",
+    "nativeConnectElapsedMs": 191,
+    "socketError": 61,
+    "socketErrorMeaning": "ECONNREFUSED",
+    "requestFlags": 2,
+    "replyFlags": 20,
+    "sequenceAcknowledged": true,
+    "synAckPackets": 0,
+    "resetPackets": 1,
+    "wifiRestored": true,
+    "homeRequested": true,
+    "webIndicatorsOff": true,
+    "conclusion": "Fixed reflected developer TCP endpoint refused with Wi-Fi off; further timeout increases are not justified."
+  },
+  "nextChangedCondition": {
+    "candidate": "Phone-local Shortcut opens a validated Chrome URL from shortcut input; native DEV invokes only the fixed shortcut.",
+    "purpose": "Test whether Shortcuts provides a prompt-free Chrome handoff on cellular without exposing the blocked developer listener.",
+    "status": "Prepared direction, not implemented or verified",
+    "references": [
+      "https://support.apple.com/en-euro/guide/shortcuts/apd624386f42/ios",
+      "https://github.com/chromium/chromium/blob/main/docs/ios/opening_links.md"
+    ],
+    "limit": "Documented URL schemes do not prove confirmation-free execution or browser page readiness."
+  }
 }

@@ -33,6 +33,15 @@ credentials or new network listener is needed by the MCP wrapper.
 
 ## Start in one call
 
+For a browser, reuse `ios_web_pages` → `ios_web_begin` when the intended document
+is already visible. The new `ios_web_open` combines native bootstrap, fixed
+Safari/Chrome launch, fresh document acquisition and managed developer-channel
+ownership when an explicitly provisioned reflection node exists. Inspector calls
+reuse that channel. `ios_web_end` requests Home and closes it. Nearby Chrome and
+actual MCP open/Inspector/end passed; Wi-Fi-off reflected transport was refused.
+Current node scope is qualification; permanent provisioning and off-LAN gates
+remain incomplete. Read MOBILE-WEB.md for the boundary.
+
 1. `ios_guide` gives the operating contract and applicable shared lessons.
 2. `ios_begin {}` acquires control and checks actual app readiness. It returns a
    session ID; output directories, CLI lease files and evidence paths are managed.

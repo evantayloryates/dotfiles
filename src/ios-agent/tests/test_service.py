@@ -39,6 +39,18 @@ class BrokerTests(unittest.TestCase):
         finally:
             if relay:relay.close();relay.thread.join(1)
 
+    def test_home_handoff_requires_fresh_post_transition_foreground(self):
+        cid=self.call(op='action',action='home',args={})['id']
+        self.next()
+        self.b.device_request({**self.device,'op':'result','id':cid,'epoch':self.b.epoch,'result':{'delivery':'prepared-home-handoff'}})
+        def readiness():return self.b.control({'op':'ready_wait','surface':'native','timeoutSeconds':0})['readyToAcquire']
+        self.assertFalse(readiness())
+        self.b.device_request({**self.device,'op':'next','feedback':{'foreground':True}})
+        self.now+=3
+        self.assertFalse(readiness())  # A pre-transition poll cannot age into proof.
+        self.b.device_request({**self.device,'op':'hello','feedback':{'foreground':True}})
+        self.assertTrue(readiness())
+
     def test_native_reads_do_not_start_react_frontend(self):
         with patch.object(self.b, "start_react_frontend") as start:
             self.call(op="action", action="tree", args={})

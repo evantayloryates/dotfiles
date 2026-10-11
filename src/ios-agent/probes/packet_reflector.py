@@ -8,6 +8,7 @@ import ipaddress
 import json
 import os
 import select
+import signal
 import struct
 import subprocess
 import time
@@ -50,9 +51,18 @@ def main():
         fcntl.ioctl(fd, 0x400454ca, struct.pack('16sH', name.encode(), 0x0001 | 0x1000))
         subprocess.run(['ip', 'addr', 'add', '10.7.0.0', 'peer', '10.7.0.1', 'dev', name], check=True)
         subprocess.run(['ip', 'link', 'set', name, 'up'], check=True)
-        end = time.monotonic() + a.seconds
+        start = time.monotonic()
+        end = start + a.seconds
+        def stop(*_):
+            nonlocal end
+            end = 0
+        signal.signal(signal.SIGINT, stop)
+        signal.signal(signal.SIGTERM, stop)
+        request_count = reply_count = syn_ack_count = reset_count = 0
+        first_request = first_reply = None
         admitted = rejected = byte_count = 0
-        print(json.dumps({'ready': True, 'port': 49152, 'seconds': a.seconds,
+        headers = []
+        print(json.dumps({'ready': True, 'pid':os.getpid(), 'port': 49152, 'seconds': a.seconds,
                           'payloadLogged': False}), flush=True)
         while time.monotonic() < end:
             if not select.select([fd], [], [], max(0, min(1, end - time.monotonic())))[0]:
@@ -62,11 +72,26 @@ def main():
             if output is None:
                 rejected += 1
                 continue
+            if packet[33]&0x12 == 0x12:syn_ack_count += 1
+            if packet[33]&0x04:reset_count += 1
+            elapsed = round((time.monotonic()-start)*1000, 3)
+            if len(headers) < 16:
+                source_port,target_port,sequence,ack = struct.unpack('!HHII',packet[20:32])
+                headers.append({'atMs':elapsed,'sourcePort':source_port,'targetPort':target_port,
+                                'flags':packet[33],'sequence':sequence,'ack':ack,'bytes':len(packet)})
+            if struct.unpack('!H',packet[20:22])[0] == 49152:
+                reply_count += 1
+                if first_reply is None:first_reply = elapsed
+            else:
+                request_count += 1
+                if first_request is None:first_request = elapsed
             os.write(fd, output)
             admitted += 1
             byte_count += len(output)
         print(json.dumps({'ended': True, 'packets': admitted, 'rejected': rejected,
-                          'bytes': byte_count, 'payloadLogged': False}), flush=True)
+                          'bytes': byte_count, 'requestPackets':request_count, 'replyPackets':reply_count,
+                          'synAckPackets':syn_ack_count, 'resetPackets':reset_count, 'firstRequestMs':first_request, 'firstReplyMs':first_reply,
+                          'headers':headers, 'payloadLogged': False}), flush=True)
     finally:
         os.close(fd)  # Nonpersistent interface and route disappear.
 

@@ -17,9 +17,10 @@ import {planNativeTap} from './native-selector.mjs';
 import {codexOwnerContext} from './owner-context.mjs';
 import {claudeTurnOwner,sameClaudeTurn} from './claude-lifecycle.mjs';
 import {waitNativeElement} from './native-condition.mjs';
+import {openReflectedWeb} from './web-open.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/input-schemas.mjs', 'mcp/native-selector.mjs', 'mcp/owner-context.mjs', 'mcp/claude-lifecycle.mjs', 'claude-begin-hook.mjs', 'mcp/native-condition.mjs', 'mcp/system-driver.mjs', 'mcp/focus-launch.mjs', 'mcp/system-reservation.mjs', 'system_runner.py', 'system_reservation.py', 'mcp/capture-store.mjs', 'web/rich-capture.js', 'ready_wait.py', 'mcp/media-verification.mjs', 'mcp/call-verification.mjs', 'mcp/web-profiles.mjs', 'mcp/workflows.mjs', 'fixture_jobs.py', 'build_jobs.py', 'build_app.py', 'native_delivery.py', 'mcp/native-delivery.mjs', 'tests/run_fixture.py', 'paired_workflow.py', 'health.py', 'connectivity.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'device_foreground.py','device_ax_native.py', 'paired_transport.py','device_accessibility.py', 'browser_inspector.py', 'browser_dom.js', 'browser_heap.py','browser_breakpoint.py','browser_worker.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
+const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/input-schemas.mjs', 'mcp/native-selector.mjs', 'mcp/owner-context.mjs', 'mcp/claude-lifecycle.mjs', 'claude-begin-hook.mjs', 'mcp/native-condition.mjs', 'mcp/system-driver.mjs', 'mcp/focus-launch.mjs', 'mcp/system-reservation.mjs', 'system_runner.py', 'system_reservation.py', 'mcp/capture-store.mjs', 'web/rich-capture.js', 'ready_wait.py', 'mcp/media-verification.mjs', 'mcp/call-verification.mjs', 'mcp/web-profiles.mjs', 'mcp/workflows.mjs', 'fixture_jobs.py', 'build_jobs.py', 'build_app.py', 'native_delivery.py', 'mcp/native-delivery.mjs', 'tests/run_fixture.py', 'paired_workflow.py', 'health.py', 'connectivity.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'device_foreground.py','device_ax_native.py', 'paired_transport.py','relay_session.py','relay_worker.py','mcp/relay-channel.mjs','mcp/reflection-process.mjs','mcp/web-open.mjs','probes/packet_reflector.py','device_accessibility.py', 'browser_inspector.py', 'browser_dom.js', 'browser_heap.py','browser_breakpoint.py','browser_worker.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
   .map(file => fs.readFileSync(path.join(root, file))).map(bytes => createHash('sha256').update(bytes).digest('hex')).join(':')).digest('hex');
 export const defaultState = path.join(os.homedir(), 'Library/Application Support/ios-agent');
 const idleLimit = 20 * 60 * 1000;
@@ -167,6 +168,7 @@ export class Backend {
       browserDebugger: 'Read ios-agent://browser-debug. Physical Safari/Chrome source/CSS/console, bounded timeline and Network reads passed nearby. Use a fresh documentRef; rejected pre-input identity guards report inputSent=false. ios_browser_debug exposes source catalogs/windows, matched CSS, bounded rendered controls with overflow clipping/hit tests, console, Network details and short WebKit timeline/JavaScript samples. dom can reuse the existing system session owner without sending page input; it does not stop XCTest. Content stays in private artifacts; read selected pointers. Evaluation requires an active matching browser page lease/glow and fresh documentRef. Dedicated worker catalogs initialize every reported worker before detach. worker-sources/worker-source/worker-console/worker-profile inspect one current dedicated worker’s source, console or bounded JavaScript samples through its own protocol channel; require fresh documentRef and workerId. No caller worker evaluation or network attribution. Explicit heap requires an active web/system session and fresh frame/loader document reference; it performs synchronous full GC and retains a private graph with shallow-size summaries. Use ios_read offset/count for large arrays. One-shot breakpoint uses an owned web/system session, exact document/script/source hash and zero-based line. Captures stack and bounded top-frame own descriptors, removes and confirms resume; never leaves an interactive pause. Configured tailnet Inspector reads are supported and physically passed over the overlay; a separate off-LAN acceptance is still required.',
       accessibilityAudit: 'ios_accessibility_audit runs bounded Apple contrast/hit-region/text-clipped checks on foreground Kickoff DEV or the configured Safari/Chrome DEV origin. Requires the shared owner, checks foreground before/after and preserves the browser document reference. Private256issue/1MiB report expires after one hour. No Dynamic Text settings changes, simulated activation or compliance claim. A deliberately tiny Safari fixture button produced a matching12×13tap-region finding; browser chrome can also appear. Contrast positive control remains unqualified.',
       deviceObserver: 'ios_device_inspect kind=screen|capabilities|browser-debug|resource-profile reads the paired iPhone without XCTest or Mirroring. With no session it reserves/releases a temporary owner. ios_read renders a private full-display image. Default nearby paired developer transport, or explicit configured tailnet userspace transport. Explicit transport=usb-recovery admits only screen/capabilities with positive fixed USB enumeration; actual MCP screen passed, no silent fallback. Inspector and profiling passed through that overlay; physical off-LAN qualification remains separate. HID input not qualified.',
+      managedBrowser: 'ios_web_open opens and acquires Safari/Chrome through a provisioned private reflection node, existing pairing trust and a retained authenticated RSD channel. Chrome launch, owned page/input, Inspector, owner handoffs and cleanup passed nearby. Actual MCP open/Inspector/end passed. Wi-Fi-off reflected TCP was refused; no cellular claim or automatic network changes. Requires developer-reflection.json; current node is temporary qualification infrastructure. Reuse a visible page with ios_web_begin when possible. ios_web_end requests Home and closes the channel; lost ownership closes without sending input to another owner.',
       browserLimits: 'Page-owned DOM input is synthetic; it does not operate OS dialogs, trusted touch, IME or microphone permission. Physical Safari cellular launch, owned DOM fill/save/React readback and glow-off passed without USB, Mirroring or XCTest on delivery33da0bab6a8f429380f4f35aec4701cd. Chrome custom-scheme handoff left an OS Open modal; the1.9.46 HTTPS candidate opened Safari. Auto therefore refuses unqualified Chrome app fallback before input. Explicit app remains a default-browser experiment; paired Chrome launch/readiness and input passed. Deep cellular Inspector is a separate open transport gate. Dev-only enrollment and per-tab authentication.',
       workflow: ['ios_doctor', 'ios_begin', 'ios_native or ios_react', 'ios_verify', 'ios_end'],
       hostWorkflow: ['ios_doctor (read only)', 'ios_stack_ensure only when needed and idle; never replay an uncertain start'],
@@ -415,7 +417,12 @@ export class Backend {
       const a=this.artifact(s,kind==='screen'?'image':'device-capabilities');
       expressionDispatched=debug?.expression!==undefined;
       heapDispatched=['heap','breakpoint'].includes(debug?.op);
-      const run=await this.run('provider',[],{kind,serial,transport,state:this.state,leaseFile:s.lease,ownerFile:s.owner,output:a.file,...(debug?{debug}:{}),...(audit?{audit}:{})},debug||audit?35000:26000);
+      let run;
+      if(s.relayChannel&&transport==='configured'&&['browser-debug','resource-profile'].includes(kind)&&!audit){
+        const response=await s.relayChannel.request('observe',{request:{kind,...(debug?{debug}:{})}});
+        if(response.ok){fs.writeFileSync(a.file,JSON.stringify({result:{...response.value,transport:response.transport}}),{flag:'wx',mode:0o600});run={ok:true,value:{ok:true}};}
+        else run={ok:false,value:{ok:false,reason:response.reason}};
+      }else run=await this.run('provider',[],{kind,serial,transport,state:this.state,leaseFile:s.lease,ownerFile:s.owner,output:a.file,...(debug?{debug}:{}),...(audit?{audit}:{})},debug||audit?35000:26000);
       if(!run.ok||run.value?.ok!==true||!fs.existsSync(a.file)){
         let learningEvidence;
         if(kind==='resource-profile'){
@@ -701,6 +708,7 @@ export class Backend {
     const r = await this.run('web', [], {op: 'web_pages'}, 8000);
     return r.ok ? {...r.value, ok: true} : {ok: false, reason: r.error};
   }
+  async webOpen(args){return openReflectedWeb(this,args);}
   async webEnroll({path: route = '/dev/ios-agent', browser, rememberBrowser=false,profile='app',transport='auto'} = {}) {
     if(!['auto','paired','app'].includes(transport)||transport==='app'&&!browser)return {ok:false,reason:'browser_transport_required',actionSent:false};
     if (browser && (await this.status()).lease) return {ok:false,reason:'idle_device_required_for_browser_launch',actionSent:false};
@@ -918,13 +926,19 @@ export class Backend {
       if(this.captures.get(id)?.active&&s.active&&!this.closing){
         try {const started=Date.now();captureCleanup=await this.capture({sessionId:id,op:'stop'});const artifacts=captureCleanup.artifactId?[captureCleanup.artifactId]:[];while(captureCleanup.ok&&captureCleanup.remainingEvents>0&&Date.now()-started<10000){captureCleanup=await this.capture({sessionId:id,op:'drain'});if(captureCleanup.artifactId)artifacts.push(captureCleanup.artifactId);}captureCleanup={...captureCleanup,artifactIds:artifacts,complete:captureCleanup.ok&&captureCleanup.remainingEvents===0};}catch{captureCleanup={complete:false,reason:'capture_cleanup_unconfirmed'};} // Watchdog handles lost ownership.
       }
+      let relayCleanup;
+      if(s.relayChannel){
+        try{if(s.active&&!this.closing){const home=await s.relayChannel.request('observe',{request:{kind:'shortcut-home'}},10000);s.managedHomePrepared=home.ok===true;relayCleanup={homeRequested:home.ok===true,homeVerified:false};}}
+        catch{relayCleanup={homeRequested:'unconfirmed',homeVerified:false,replay:false};}
+        finally{const closed=await s.relayChannel.close();relayCleanup={...relayCleanup,tunnelClosed:closed?.closed===true};}
+      }
       s.active = false; this.writeOwner(s);
       // Acquisition reserves an empty file before broker admission. Wait for
       // that single result before release, or a disconnect could orphan a lease.
       if (s.acquisition) await s.acquisition.catch(() => {});
       let release = {ok: true, value: {alreadyInactive: true}};
       if (fs.existsSync(s.lease)) release = await this.run('cli', ['release', '--lease-file', s.lease], undefined, 20000);
-      if(s.nativeHomePrepared&&!release.ok){
+      if((s.nativeHomePrepared||s.managedHomePrepared)&&!release.ok){
         const current=await this.status().catch(()=>null);
         if(current&&current.lease===null)release={ok:true,value:{alreadyRetired:true,reason:'native_home_handoff',homeVerified:false}};
       }
@@ -934,7 +948,7 @@ export class Backend {
       }
       this.sessions.delete(id);
       this.captures.delete(id);
-      return {released: release.ok,...(systemCleanup?{systemCleanup,ok:systemCleanup.ok}:{}),...(captureCleanup?{captureCleanup}:{}), detail: release.ok ? safe(release.value) : release.error,
+      return {released: release.ok,...(relayCleanup?{relayCleanup}:{}),...(systemCleanup?{systemCleanup,ok:systemCleanup.ok}:{}),...(captureCleanup?{captureCleanup}:{}), detail: release.ok ? safe(release.value) : release.error,
         next: systemCleanup?.retained?'Input lease released; explicitly reserved XCTest remains. End its reservation to remove Apple automation.':'Call ios_verify gate=idle without a session to confirm native and host cleanup.'};
     })();
     return s.endPromise;
