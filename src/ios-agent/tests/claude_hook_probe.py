@@ -3,7 +3,7 @@
 No credential reads, phone IPC, global settings changes or provider requests.
 Run one named scenario; intentionally excluded from periodic test suites.
 """
-import os,json,threading,subprocess,uuid,sys,shutil,tempfile,signal
+import os,json,threading,subprocess,uuid,sys,shutil,tempfile,signal,time
 from pathlib import Path
 from http.server import ThreadingHTTPServer,BaseHTTPRequestHandler
 mode=sys.argv[1] if len(sys.argv)>1 else 'ordinary'
@@ -46,9 +46,19 @@ try:
   r=subprocess.Popen(args,cwd=root,env=env,stdout=out,stderr=err,start_new_session=True)
   try:r.wait(timeout=75)
   except subprocess.TimeoutExpired:
-   os.killpg(r.pid,signal.SIGTERM)
+   deadline=time.monotonic()+3
+   try:os.killpg(r.pid,signal.SIGTERM)
+   except ProcessLookupError:pass
    try:r.wait(timeout=3)
-   except subprocess.TimeoutExpired:os.killpg(r.pid,signal.SIGKILL);r.wait()
+   except subprocess.TimeoutExpired:pass
+   # The CLI parent can exit while its MCP child remains in this process group.
+   while time.monotonic()<deadline:
+    try:os.killpg(r.pid,0)
+    except ProcessLookupError:break
+    time.sleep(0.05)
+   try:os.killpg(r.pid,signal.SIGKILL)
+   except ProcessLookupError:pass
+   r.wait()
    raise
  events=[json.loads(x) for x in (root/'events.jsonl').read_text().splitlines()]
  begins=[x for x in events if x['kind']=='begin'];ends=[x for x in events if x['kind']=='end'];closed=[x for x in events if x['kind']=='closed']
