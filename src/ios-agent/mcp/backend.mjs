@@ -724,7 +724,7 @@ export class Backend {
       let appHandoff=transport==='app';
       if(transport==='auto')appHandoff=await this.appTransportPreferred();
       if(appHandoff){
-        if(browser==='ios-chrome'&&transport==='auto')return {ok:false,profile,launchFile:a.file,actionSent:false,inputSent:false,reason:'chrome_cellular_launch_unqualified',next:'Reuse a visible enrolled Chrome page or use the qualified paired route when reachable. Explicit app transport is a default-browser experiment, not a Chrome-specific launch; it opened Safari on the current phone.'};
+        if(browser==='ios-chrome'&&transport==='auto')return {ok:false,profile,launchFile:a.file,actionSent:false,inputSent:false,reason:'chrome_cellular_launch_unqualified',next:'Reuse a visible enrolled Chrome page or the qualified paired route. Explicit app transport qualifies the installed native candidate: the newer adapter uses Runner Open Chrome DEV; older HTTPS adapters can open Safari. Require actual Chrome readiness and do not replay.'};
         const current=await this.waitReady({surface:'native',timeoutSeconds:0});
         if(!current.readyToAcquire){
           const opened=await this.deviceLaunch({target:'kickoff-dev'});

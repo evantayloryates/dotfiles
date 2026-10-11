@@ -1,5 +1,5 @@
 {
-  "observedAt": "2026-10-11T19:54:28.706398+00:00",
+  "observedAt": "2026-10-11T20:06:41.886226+00:00",
   "candidate": "phone-local Chrome Shortcut",
   "shippedMCP": false,
   "signedShortcut": {
@@ -21,9 +21,13 @@
     "syncedToPhysicalIPhone": true,
     "fixedDeveloperTransportInvocationAccepted": true,
     "firstRunChromePermissionObserved": true,
-    "chromeReady": false,
+    "chromeReady": true,
     "cellularQualified": false,
-    "permissionPersistence": false
+    "permissionPersistence": true,
+    "ownedMCPReadiness": true,
+    "indicatorOnAndOff": true,
+    "independentHomeReadback": true,
+    "qualificationScope": "Nearby fixed paired Shortcut launch; separate fresh Chrome page after first-run permissions. App-owned and cellular hops remain unqualified."
   },
   "AX": {
     "ShortcutsTarget": "underlying library only",
@@ -36,7 +40,7 @@
     "sessionId": "e1ba59e04e2f876c4066e336dbdaf4e1",
     "ready": false,
     "screen": "Shortcut privacy overlay over passcode keypad",
-    "humanRequestPending": "Shortcut Allow only; original fallback expired cleanly",
+    "humanRequestPending": false,
     "outcome": "xctest_authorization_timed_out",
     "runnerStopped": true
   },
@@ -46,7 +50,13 @@
     "chrome-shortcut-9Ff4c9",
     "chrome-shortcut-l20Tt6",
     "runner-resume-LpAG8c/9.json",
-    "runner-resume-LpAG8c/10.json"
+    "runner-resume-LpAG8c/10.json",
+    "chrome-shortcut-4eHRmG/launch.json",
+    "chrome-shortcut-4eHRmG/page-result.json",
+    "runner-resume-U25kDE/7.json",
+    "runner-resume-U25kDE/8.json",
+    "runner-resume-U25kDE/9.json",
+    "runner-resume-U25kDE/13.json"
   ],
-  "next": "Grant the first-run permission; require a fresh Chrome page. Then test one new launch to determine permission persistence; do not replay an uncertain dispatch."
+  "next": "Signed app-owned Shortcut candidate build 333fc2b73381422180f46783d53b1a9d is running. Install once after verification; qualify a fresh Chrome page through app transport, then cellular."
 }

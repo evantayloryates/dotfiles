@@ -698,3 +698,24 @@ sequence and bounded buffers, no payload logging. No default MCP tool exposes it
 Its first gate is existing-trust pair verification with autopair=false; RSD
 identity, secondary listener, browser foreground and cellular Inspector remain
 separate gates. Background, locked-phone and general system control are not claims.
+
+
+## Phone-local Chrome Shortcut candidate — 11 October
+
+**Runner Open Chrome DEV** is an Apple-signed one-action Shortcut: Open URLs
+using Shortcut Input; no input stops. It contains no enrollment URL or credential.
+Its initial Chrome-open and output permissions are one-time setup; Always Allow
+for its output is intentional. A separate later paired invocation opened a fresh
+Chrome document without another tap. Actual MCP readiness, glow on/off and
+independent Home display readback passed.
+
+Adapter1.9.49 now routes explicit app Chrome handoffs through that fixed Shortcut
+with the already validated private DEV URL. This native hop is building and is
+not yet physically qualified. Auto Chrome remains refused before input when only
+the app lane is available. Nearby Shortcut proof does not qualify cellular launch,
+trusted browser input, native permission buttons or deep cellular Inspector.
+See chrome-shortcut-candidate-2026-10-11.json.
+
+The exact existing reflection node has a guarded deployment plan/adopt command;
+see ../relay/README.md. Never create a replacement node or expand its route as
+part of an ordinary MCP request.

@@ -1,7 +1,7 @@
-"""Private candidate: retain one authenticated RSD channel across owner handoff.
+"""Private nearby transport: retain one authenticated RSD channel across owner handoff.
 
 stdio belongs to one MCP connection. No network listener or pairing payload output.
-Not exposed by MCP until the physical reflected-route gates pass.
+Managed MCP lifecycle passed nearby; cellular remains a separate open gate.
 """
 import asyncio
 import json

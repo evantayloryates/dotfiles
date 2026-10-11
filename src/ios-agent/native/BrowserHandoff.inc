@@ -3,6 +3,7 @@
 static NSURL *IABrowserHandoffURL;
 static NSString *IABrowserHandoffCommand;
 static NSString *IABrowserHandoffBrowser;
+static NSString *IABrowserHandoffMode;
 static NSDictionary *IABrowserHandoffReceipt;
 static NSDictionary *IOSAgentBrowserState(void) { return IABrowserHandoffReceipt?:@{}; }
 static NSDictionary *IOSAgentBrowserPrepare(NSDictionary *args, NSString *command, NSDictionary *config) {
@@ -15,23 +16,32 @@ static NSDictionary *IOSAgentBrowserPrepare(NSDictionary *args, NSString *comman
   [url.path hasPrefix:@"/dev/"] && ![url.path containsString:@".."] && ![source containsString:@"\\"] &&
   [url.fragment hasPrefix:@"ios-agent="] && url.fragment.length>10 && url.fragment.length<2048;
  if(!valid) return IAError(@"fixed_private_dev_browser_URL_required");
- // The custom Chrome scheme prompts at the OS layer and makes DEV inactive.
- // Normal HTTPS avoids that app-switch confirmation when Chrome is already
- // the user's default browser. The host must still verify the actual browser;
- // this never changes the personal default or claims a targeted launch.
- url.scheme=[browser isEqual:@"ios-safari"]?@"x-safari-https":@"https";
- IABrowserHandoffURL=url.URL; IABrowserHandoffCommand=command; IABrowserHandoffBrowser=browser;
- NSString *mode=[browser isEqual:@"ios-safari"]?@"safari-direct":@"system-default-https";
+ // A phone-local, explicitly provisioned Shortcut has already opened a fresh
+ // Chrome page after its one-time permissions. Qualify this app-owned hop
+ // separately; an accepted openURL still grants no browser-readiness proof.
+ BOOL safari=[browser isEqual:@"ios-safari"];
+ url.scheme=safari?@"x-safari-https":@"googlechromes";
+ NSURL *destination=url.URL;
+ if(!safari) {
+  NSURLComponents *shortcut=[NSURLComponents componentsWithString:@"shortcuts://run-shortcut"];
+  shortcut.queryItems=@[[NSURLQueryItem queryItemWithName:@"name" value:@"Runner Open Chrome DEV"],
+   [NSURLQueryItem queryItemWithName:@"input" value:@"text"],
+   [NSURLQueryItem queryItemWithName:@"text" value:url.string]];
+  destination=shortcut.URL;
+ }
+ IABrowserHandoffURL=destination; IABrowserHandoffCommand=command; IABrowserHandoffBrowser=browser;
+ NSString *mode=safari?@"safari-direct":@"phone-local-chrome-shortcut";
+ IABrowserHandoffMode=mode;
  IABrowserHandoffReceipt=@{@"browser":browser,@"mode":mode,@"outcome":@"prepared",@"foregroundVerified":@NO};
  return @{@"delivery":@"prepared-browser-handoff",@"browser":browser,@"mode":mode,@"requiresFreshLease":@YES,@"foregroundVerified":@NO};
 }
 static void IOSAgentBrowserLaunch(NSString *command) {
  if(!IABrowserHandoffURL || ![IABrowserHandoffCommand isEqual:command])return;
- NSURL *url=IABrowserHandoffURL; NSString *browser=IABrowserHandoffBrowser;
- IABrowserHandoffURL=nil; IABrowserHandoffCommand=nil; IABrowserHandoffBrowser=nil;
+ NSURL *url=IABrowserHandoffURL; NSString *browser=IABrowserHandoffBrowser; NSString *mode=IABrowserHandoffMode;
+ IABrowserHandoffURL=nil; IABrowserHandoffCommand=nil; IABrowserHandoffBrowser=nil; IABrowserHandoffMode=nil;
  NSTimeInterval started=NSProcessInfo.processInfo.systemUptime;
  [UIApplication.sharedApplication openURL:url options:@{} completionHandler:^(BOOL opened){
-  IABrowserHandoffReceipt=@{@"browser":browser,@"mode":[browser isEqual:@"ios-safari"]?@"safari-direct":@"system-default-https",
+  IABrowserHandoffReceipt=@{@"browser":browser,@"mode":mode,
    @"outcome":opened?@"system-accepted":@"system-rejected",@"elapsedMs":@((NSProcessInfo.processInfo.systemUptime-started)*1000),@"foregroundVerified":@NO};
  }];
 }

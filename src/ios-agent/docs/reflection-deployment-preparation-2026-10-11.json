@@ -1,0 +1,37 @@
+{
+  "observedAt": "2026-10-11T20:07:34.668321+00:00",
+  "delivered": true,
+  "reason": "Taylor approved retaining this exact existing node for ongoing DEV; adoption and independent readback passed.",
+  "recipe": {
+    "baseImage": "tailscale/tailscale:v1.102.4@sha256:2667499ed87ae29218f292556ba062918402dd5e92e93637af14867e4df12dd3",
+    "pythonPackage": "3.12.15-r0",
+    "builtImage": "sha256:63e63f1e347e34586a464057e3e3a99688183a37acc73068748c8f7c92c1e6e2"
+  },
+  "tests": {
+    "focusedAdminCases": 6,
+    "passed": 6,
+    "networkDisabledImageSmoke": {
+      "realBoundedReflector": true,
+      "tunCreatedAndRemoved": true,
+      "tailnetStarted": false
+    }
+  },
+  "livePlan": {
+    "personalAccountVerified": true,
+    "nodeId": "nrugJeV8L511CNTRL",
+    "scope": "personal-dev",
+    "route": "10.7.0.1/32",
+    "restartPolicy": "unless-stopped",
+    "noSNAT": true,
+    "serveFunnelOff": true,
+    "newEnrollment": false,
+    "networkSettingsChanged": false
+  },
+  "promotion": {
+    "implemented": true,
+    "executed": true,
+    "operation": "Exact existing Docker restart policy and private service scope only; no restart, route or account changes.",
+    "gate": "Explicit approval received; exact existing node and route preserved.",
+    "verified": true
+  }
+}

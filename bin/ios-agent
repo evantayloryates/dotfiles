@@ -1,5 +1,9 @@
 #!/bin/sh
 case "$1" in
+  reflection-admin)
+    shift
+    exec /usr/bin/python3 -B /Users/taylor/dotfiles/src/ios-agent/reflection_admin.py "$@"
+    ;;
   stack-ensure)
     shift
     exec /usr/bin/python3 -B /Users/taylor/dotfiles/src/ios-agent/local_stack.py "$@"
