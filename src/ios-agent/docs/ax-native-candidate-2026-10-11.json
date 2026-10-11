@@ -69,6 +69,24 @@
     "owned-input-1791715905865.json": {
       "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-input-1791715905865.json",
       "sha256": "683fc6c746868df06ee49f06bb918d4961ff3ecfc750fbd3180f2ccbac14bce5"
+    },
+    "tailnet-provider-1791716712291827000.json": {
+      "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/tailnet-provider-1791716712291827000.json",
+      "sha256": "39f0ed7545f43931cc3fcb7c17f5150d7b8569b3bc9dfcc13302538bd97cd7f3"
     }
+  },
+  "laterWithoutXCTest": {
+    "at": "2026-10-11T11:07:27.669847+00:00",
+    "phoneRunnerAbsent": true,
+    "mirroringConnected": true,
+    "pairedDEVLaunchVerified": true,
+    "nativeBridgeForegroundFresh": true,
+    "tab": "nutrition",
+    "ok": false,
+    "reason": "ax_native_focus_unconfirmed",
+    "axPressSent": false,
+    "observedEffect": "Mirroring remained on Home tab",
+    "cleanup": "Mirroring View > Home Screen, independent fresh screenshot",
+    "interpretation": "No standalone pass. This is not an ordinarily unlocked no-Mirroring gate; no automatic activation retry."
   }
 }

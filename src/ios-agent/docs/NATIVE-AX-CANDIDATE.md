@@ -33,3 +33,14 @@ Workouts path then passed independent selected-tab readbacks. This supports the
 cleanup-timing hypothesis without proving it uniquely caused the older Home
 failure. No accepted action was replayed as an uncertain retry. It remains
 disabled: all-tab, standalone XCTest-free and physical off-LAN gates are open.
+
+## Later negative boundary: no XCTest, Mirroring connected
+
+After the phone XCTest process disappeared independently, automatic Mirroring
+reconnect succeeded. Fixed paired DEV launch and fresh native foreground feedback
+worked. One new Nutrition attempt could not obtain AX focus and sent no activation;
+Mirroring independently remained on Home. No retry was sent. Home Screen cleanup
+through Mirroring was separately confirmed. This is a new boundary, not proof
+that the candidate fails on an ordinarily unlocked phone without Mirroring.
+The candidate remains disabled; do not promote the earlier held-XCTest results
+into standalone authorization proof. See the dated candidate receipt.

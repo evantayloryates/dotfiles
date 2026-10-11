@@ -68,3 +68,40 @@ test('partially started recorder is stopped on failure; a new capture may try th
  for(let i=0;i<2;i++){c.start({id:String(i+1).repeat(32),modes:['audio'],seconds:10});await c.stop(true);}
  assert.equal(attempts,2);assert.equal(cloneStops,2);assert.equal(recorderStops,2);assert.equal(sourceStops,0);
 });
+
+test('on-demand capture sees an already-open real WebSocket without closing it',async()=>{
+ const {createServer}=await import('node:http'),{createHash}=await import('node:crypto');
+ const server=createServer();
+ const peerReady=new Promise(resolve=>server.once('upgrade',(request,socket)=>{
+  const accept=createHash('sha1').update(request.headers['sec-websocket-key']+'258EAFA5-E914-47DA-95CA-C5AB0DC85B11').digest('base64');
+  socket.write('HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: '+accept+'\r\n\r\n');resolve(socket);
+ }));
+ await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+ const ws=new WebSocket(`ws://127.0.0.1:${server.address().port}`);
+ await new Promise((resolve,reject)=>{ws.addEventListener('open',resolve,{once:true});ws.addEventListener('error',reject,{once:true});});
+ const peer=await peerReady,r={...runtime(),WebSocket},c=create(r,{socketSources:()=>[ws]});
+ const receive=body=>new Promise(resolve=>{const bytes=Buffer.from(body);assert(bytes.length<126);ws.addEventListener('message',e=>resolve(e.data),{once:true});peer.write(Buffer.concat([Buffer.from([0x81,bytes.length]),bytes]));});
+ try{
+  c.start({id:'f'.repeat(32),modes:['network'],seconds:10});
+  assert.deepEqual(c.status().coverage.sockets,{existingDiscoveryAvailable:true,discoveryFailed:false,existingWatched:1,newWatched:0,listenersActive:1});
+  assert.equal(await receive('existing-socket token=abcdefghijklmnop'),'existing-socket token=abcdefghijklmnop');
+  const captured=c.drain().events.filter(e=>e.phase==='ws-receive');
+  assert.equal(captured.length,1);assert.equal(captured[0].body,'existing-socket token=abcd…mnop');
+  await c.stop();assert.equal(c.status().coverage.sockets.listenersActive,0);assert.equal(ws.readyState,WebSocket.OPEN);
+  assert.equal(await receive('after-stop'),'after-stop');assert.equal(c.drain().events.length,0);
+ }finally{await c.stop(true);ws.close();peer.destroy();await new Promise(resolve=>server.close(resolve));}
+});
+
+test('existing socket discovery is bounded and receive listeners detach on every stop',async()=>{
+ const r=runtime(),listeners=new Map();let adds=0,removes=0,closed=0;
+ const sockets=Array.from({length:40},()=>({url:'wss://dev.test/socket',addEventListener(type,fn){adds++;listeners.set(this,fn);},removeEventListener(type,fn){assert.equal(listeners.get(this),fn);removes++;listeners.delete(this);},close(){closed++;}}));
+ const c=create(r,{socketSources:()=>sockets});
+ for(let i=0;i<2;i++){
+  c.start({id:String(i+1).repeat(32),modes:['network'],seconds:10});assert.equal(listeners.size,32);
+  listeners.get(sockets[0])({data:'retained payload'});assert.equal(c.drain().events.filter(e=>e.phase==='ws-receive').length,1);
+  await c.stop();assert.equal(listeners.size,0);
+ }
+ assert.equal(adds,64);assert.equal(removes,64);assert.equal(closed,0);
+ const unavailable=create(r,{socketSources:()=>{throw Error('synthetic unavailable');}});
+ unavailable.start({id:'a'.repeat(32),modes:['network'],seconds:10});assert.equal(unavailable.status().coverage.sockets.discoveryFailed,true);await unavailable.stop();
+});

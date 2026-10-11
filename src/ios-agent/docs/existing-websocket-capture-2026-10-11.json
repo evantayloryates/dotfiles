@@ -1,0 +1,25 @@
+{
+  "at": "2026-10-11T11:12:38.871910+00:00",
+  "version": "1.9.36",
+  "scope": "Host contracts, real Node WebSocket transport and exact page-SDK wiring; physical Safari/Chrome acceptance remains open",
+  "change": "Opt-in network capture attaches to up to32 existing live sockets tracked by the page SDK, in addition to newly created sockets. Known fields are scrubbed; binary payloads remain marked binary.",
+  "tests": {
+    "passed": 9,
+    "newCases": 3,
+    "realTransport": true,
+    "exactSDKSource": true,
+    "appSocketRemainsOpenAfterCapture": true,
+    "lateMessagesNotCapturedAfterStop": true,
+    "listenersRemoved": true,
+    "discoveryFailuresReported": true,
+    "closedSocketsExcluded": true
+  },
+  "idle": "No payload listeners are added until explicit network capture starts; listeners detach on stop/expiry/release. SDK retains bounded metadata discovery separately.",
+  "coverage": "status.coverage.sockets reports discovery availability/failure, existing/new socket watch counts and active capture listeners",
+  "limits": [
+    "Sockets created before page SDK boot or through captured constructor references remain undiscoverable unless they are otherwise supplied.",
+    "Native adapter has no existing-socket registry; native existing receive coverage is not claimed.",
+    "Fresh browser document required; no old page or native app was reloaded/rebuilt.",
+    "No physical iOS/WebSocket/provider-call/off-LAN qualification is claimed."
+  ]
+}

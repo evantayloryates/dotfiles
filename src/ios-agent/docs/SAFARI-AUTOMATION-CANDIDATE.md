@@ -25,8 +25,10 @@ attempted because an upstream report describes a Safari command wedge.
 The original held phone runner later disappeared. The raw probe's unconditional
 `originalRunnerPreserved` field was not independently checked and is not proof.
 The result bundle records a killed original test and a replacement authorization
-failure; it does not establish what killed the original test. The sanitized
-receipt corrects that claim.
+failure. The Safari experiment overlaps that loss, so interference from the probe
+cannot be excluded. Do not repeat competing automation-session experiments during
+a user-requested retained XCTest hold. The sanitized receipt corrects the earlier
+claim; no unique cause is established.
 
 Evidence: `safari-automation-candidate-2026-10-11.json` and
 `xctest-hold-failure-2026-10-11.json`.

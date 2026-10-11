@@ -206,14 +206,14 @@
   };
   // Metadata only: no URLs, payloads, SDP, addresses, identifiers or audio.
   const originalWS=window.WebSocket, originalRTC=window.RTCPeerConnection;
-  const sockets=new Set(), peers=new Set(), tracks=new Set(), counterRefs=new WeakMap();let nextCounterRef=0;
+  const sockets=new Set(), socketObjects=new WeakMap(), peers=new Set(), tracks=new Set(), counterRefs=new WeakMap();let nextCounterRef=0;
   const mediaRequests={pending:0,acquired:0,failed:0};
   const mediaAPIAtBoot=!!navigator.mediaDevices?.getUserMedia;
   let originalGUM,installedGUM,mediaDeviceObject;
   const listeners=[];
   const listen=(object,type,fn)=>{object.addEventListener(type,fn);listeners.push(()=>object.removeEventListener(type,fn));};
   if(originalWS) window.WebSocket=new Proxy(originalWS,{construct(target,args,newTarget){
-    const ws=Reflect.construct(target,args,newTarget);const record={readyState:0,receivedMessages:0,receivedBytes:0};sockets.add(record);
+    const ws=Reflect.construct(target,args,newTarget);const record={readyState:0,receivedMessages:0,receivedBytes:0};sockets.add(record);socketObjects.set(record,ws);
     listen(ws,'open',()=>{record.readyState=1;ring({kind:'websocket',code:'open'});});
     listen(ws,'close',()=>{record.readyState=3;ring({kind:'websocket',code:'closed'});});
     listen(ws,'error',()=>ring({kind:'websocket',code:'error'}));
@@ -259,7 +259,7 @@
   const onHide=()=>{clear();if(identity)navigator.sendBeacon(endpoint,new Blob([JSON.stringify({op:'poll',...feedback(),visible:false})],{type:'application/json'}));};
   addEventListener('error',onError);addEventListener('unhandledrejection',onRejection);addEventListener('visibilitychange',onVisibility);addEventListener('pagehide',onHide);
   const installed={fetch:window.fetch,ws:window.WebSocket,rtc:window.RTCPeerConnection,gum:navigator.mediaDevices?.getUserMedia,xhrOpen:XMLHttpRequest.prototype.open,xhrSend:XMLHttpRequest.prototype.send};
-  if(typeof __iosCreateCapture==='function')richCapture=__iosCreateCapture(window,{exclude:address=>address===endpoint,sources:()=>{
+  if(typeof __iosCreateCapture==='function')richCapture=__iosCreateCapture(window,{exclude:address=>address===endpoint,socketSources:()=>[...sockets].filter(record=>record.readyState<2).map(record=>socketObjects.get(record)).filter(Boolean),sources:()=>{
     const all=new Set(tracks);for(const pc of peers){for(const x of [...pc.getSenders(),...pc.getReceivers()])if(x.track)all.add(x.track);}
     for(const el of document.querySelectorAll('audio,video'))if(el.srcObject instanceof MediaStream)for(const track of el.srcObject.getAudioTracks())all.add(track);
     return [...all];

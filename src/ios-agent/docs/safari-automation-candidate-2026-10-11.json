@@ -93,5 +93,6 @@
   ],
   "postDetachAutomationTargets": 0,
   "fixtureRemovedByHash": true,
-  "originalRunnerClaimCorrection": "The private probe set originalRunnerPreserved without independently verifying the phone process. That is not proof. The phone process was later absent; causality is unknown."
+  "originalRunnerClaimCorrection": "The private probe set originalRunnerPreserved without independently verifying the phone process. That is not proof. The phone process was later absent; causality is unknown.",
+  "holdInterferenceRisk": "Experiment overlaps original runner loss; causality unproved. Do not start a competing automation session while preserving a requested XCTest hold."
 }

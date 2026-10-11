@@ -16,5 +16,20 @@
     "newCases": 4,
     "passed": true
   },
-  "delivered": "Future SystemDriver instances report an exited runner and exact observed authorization gate before issuing more requests/input; transport-only errors do not infer lock. Original1.9.12 connection is unchanged."
+  "delivered": "Future SystemDriver instances report an exited runner and exact observed authorization gate before issuing more requests/input; transport-only errors do not infer lock. Original1.9.12 connection is unchanged.",
+  "timeline": {
+    "lastOriginalWDARead": "2026-10-11T10:51:45Z",
+    "firstLaunchActionEnded": "2026-10-11T10:55:32Z",
+    "automationProbeReceiptFinished": "2026-10-11T10:55:34Z",
+    "xcodeUnlockGate": "2026-10-11T10:55:53Z",
+    "replacementInitializationFailure": "2026-10-11T11:00:35Z",
+    "xcodeFinished": "2026-10-11T11:00:36Z"
+  },
+  "overlap": "The Safari Remote Automation experiment overlaps the original test loss. Interference from that experiment cannot be excluded; no unique cause is proved. Do not repeat a competing automation-session experiment during a user-requested retained XCTest hold.",
+  "laterHomeCleanup": {
+    "at": "2026-10-11T11:06:00Z",
+    "provider": "temporary development-only iPhone Mirroring View > Home Screen",
+    "verifiedBy": "fresh Mirroring screenshot",
+    "physicalUnlockVerified": false
+  }
 }

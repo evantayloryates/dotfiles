@@ -576,3 +576,20 @@ Together with the Safari result, this closes browser parity for this received-tr
 recorder primitive. It does not qualify MCP-owned track discovery, a provider call,
 trusted input without XCTest, audible playout or off-LAN ICE. No runtime behavior
 changed. See chrome-received-capture-physical-2026-10-11.json.
+
+## 1.9.36 — capture messages from an already-open socket
+
+Explicit network capture now discovers up to32 live sockets created after the
+page adapter booted, including connections opened before capture started. It
+adds receive listeners only during capture, removes them on stop/expiry/release,
+and leaves application connections open. New socket capture continues normally.
+Text is scrubbed using the same known-secret rules; binary payloads remain a
+binary marker. status.coverage.sockets reports discovery availability/failure,
+existing/new watch counts and active capture listeners.
+
+Nine host contracts pass, including a real Node WebSocket and the exact page SDK
+wiring. Physical Safari/Chrome acceptance of this increment remains open. Existing
+page documents need reload; no routine page was reloaded while preserving the
+original owner. Sockets created before adapter boot or through saved constructor
+references are not universally discoverable. Native has no existing-socket registry.
+See existing-websocket-capture-2026-10-11.json.

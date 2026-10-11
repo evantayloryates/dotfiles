@@ -23,12 +23,14 @@ var __iosCreateCapture = (() => {
     seen.delete(value);return result;
   }
   function url(value) {try{const u=new URL(String(value));if(u.protocol==='data:')return 'data:<inline-content-omitted>';u.username=u.username?mask(u.username):'';u.password=u.password?mask(u.password):'';for(const k of [...u.searchParams.keys()])if(sensitive.test(k))u.searchParams.set(k,mask(u.searchParams.get(k)));u.hash='';return scrubText(u.toString());}catch{return scrubText(String(value)).slice(0,2048);}}
-  function create(runtime, {now=()=>Date.now(), sources=()=>[], exclude=()=>false}={}) {
+  function create(runtime, {now=()=>Date.now(), sources=()=>[], socketSources, exclude=()=>false}={}) {
     let active,events=[],bytes=0,dropped=0,sequence=0,timer,scanTimer,undo=[],recorders=new Map(),generation=0,ending,failedTracks=new WeakSet();
     const readers=new Set(),pendingAudio=new Set();
+    const emptySocketCoverage=()=>({existingDiscoveryAvailable:typeof socketSources==='function',discoveryFailed:false,existingWatched:0,newWatched:0,listenersActive:0});
+    let socketCoverage=emptySocketCoverage();
     const size=value=>JSON.stringify(value).length*2;
     const status=()=>({active:!!active,id:active?.id||null,modes:active?.modes||[],remainingMs:active?Math.max(0,active.until-now()):0,bufferedEvents:events.length,bufferedBytes:bytes,dropped,sequence,
-      coverage:{network:'fetch text streams and bounded native blobs; XHR text; WebSocket send and new socket receive; original app bodies preserved',audio:'existing live audio tracks only; no microphone acquisition; recorder clones stopped, app tracks preserved'}});
+      coverage:{network:'fetch text streams and bounded native blobs; XHR text; WebSocket send and receive for new sockets plus adapter-discovered existing sockets; original app bodies preserved',sockets:{...socketCoverage},audio:'existing live audio tracks only; no microphone acquisition; recorder clones stopped, app tracks preserved'}});
     const append=(kind,value,epoch=generation)=>{
       try {
       if(!active||epoch!==generation||!active.modes.includes(kind))return;
@@ -103,9 +105,20 @@ var __iosCreateCapture = (() => {
       const {id,modes,seconds=120,maxBytes=2*1024*1024}=options||{};
       if(!/^[a-f0-9]{32}$/.test(id||'')||!Array.isArray(modes)||!modes.length||modes.some(x=>!['console','network','audio'].includes(x))||!Number.isInteger(seconds)||seconds<1||seconds>600||!Number.isInteger(maxBytes)||maxBytes<32768||maxBytes>8*1024*1024)throw new Error('bounded_capture_options_required');
       if(modes.includes('audio')&&(!runtime.MediaRecorder||!runtime.MediaStream))throw new Error('audio_recorder_unavailable');
-      generation++;active={id,modes:[...new Set(modes)],until:now()+seconds*1000,maxBytes};events=[];bytes=0;dropped=0;sequence=0;undo=[];failedTracks=new WeakSet();
+      generation++;active={id,modes:[...new Set(modes)],until:now()+seconds*1000,maxBytes};events=[];bytes=0;dropped=0;sequence=0;undo=[];failedTracks=new WeakSet();socketCoverage=emptySocketCoverage();
       if(modes.includes('console'))for(const level of ['log','info','warn','error','debug'])hook(runtime.console,level,original=>function(...args){try{append('console',{level,args,stack:new Error().stack});}catch{}return original.apply(this,args);});
       if(modes.includes('network')){
+        const watched=new WeakSet(),epoch=generation;
+        const counts=socketCoverage;
+        const watchSocket=(ws,existing=false)=>{
+          if(!ws||watched.has(ws)||typeof ws.addEventListener!=='function'||typeof ws.removeEventListener!=='function')return;
+          try{
+            const receive=e=>{try{append('network',{phase:'ws-receive',url:url(ws.url),body:typeof e.data==='string'?e.data:'<binary>'},epoch);}catch{}};
+            ws.addEventListener('message',receive);watched.add(ws);counts[existing?'existingWatched':'newWatched']++;counts.listenersActive++;
+            undo.push(()=>{ws.removeEventListener('message',receive);counts.listenersActive--;});
+          }catch{} // Missing/closed provider objects must not change app behavior.
+        };
+        try{const existing=socketSources?.()??[];if(!Array.isArray(existing))throw Error('socket_discovery_unavailable');for(const ws of existing.slice(0,32))watchSocket(ws,true);}catch{counts.discoveryFailed=true;}
         hook(runtime,'fetch',original=>function(...args){
           const raw=typeof args[0]==='string'?args[0]:args[0]?.url;if(exclude(raw))return original.apply(this,args);
           const epoch=generation,start=now(),options=args[1]||{},headers={};try{new runtime.Headers(options.headers||args[0]?.headers).forEach((v,k)=>{headers[k]=v;});}catch{}
@@ -116,7 +129,7 @@ var __iosCreateCapture = (() => {
         hook(runtime.XMLHttpRequest?.prototype,'open',original=>function(method,address,...rest){requests.set(this,{method,url:url(address)});return original.call(this,method,address,...rest);});
         hook(runtime.XMLHttpRequest?.prototype,'send',original=>function(body){const r=requests.get(this),epoch=generation;if(r){append('network',{...r,phase:'xhr-request',body:typeof body==='string'?body:'<non-text>'},epoch);this.addEventListener('loadend',()=>{let text;try{if(!this.responseType||this.responseType==='text')text=this.responseText?.slice(0,32768);}catch{}append('network',{...r,phase:'xhr-response',status:this.status,body:text},epoch);},{once:true});}return original.call(this,body);});
         hook(runtime.WebSocket?.prototype,'send',original=>function(data){append('network',{phase:'ws-send',url:url(this.url),body:typeof data==='string'?data:'<binary>'});return original.call(this,data);});
-        hook(runtime,'WebSocket',Original=>new Proxy(Original,{construct(target,args,newTarget){const ws=Reflect.construct(target,args,newTarget),epoch=generation;const receive=e=>append('network',{phase:'ws-receive',url:url(ws.url),body:typeof e.data==='string'?e.data:'<binary>'},epoch);ws.addEventListener('message',receive);undo.push(()=>ws.removeEventListener('message',receive));return ws;}}));
+        hook(runtime,'WebSocket',Original=>new Proxy(Original,{construct(target,args,newTarget){const ws=Reflect.construct(target,args,newTarget);watchSocket(ws);return ws;}}));
       }
       timer=runtime.setTimeout(()=>{void stop(true);},seconds*1000);
       if(modes.includes('audio')){trackAudio();scanTimer=runtime.setInterval(trackAudio,1000);}

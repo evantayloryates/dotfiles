@@ -329,3 +329,14 @@ The original loaded MCP connection remains unchanged and its owner remains held.
 See xctest-hold-failure-2026-10-11.json. Safari Remote Automation input was also
 evaluated and closed as an unsuitable default driver: its reads work, but click
 and keyboard effect gates failed. SAFARI-AUTOMATION-CANDIDATE.md records the edge.
+
+## MCP1.9.36 — existing WebSocket receive capture
+
+Fresh page adapters now supply their existing live WebSockets to opt-in network
+capture. The recorder attaches at most32 existing receive listeners, retains
+new-socket coverage, scrubs text and removes listeners without closing the app
+sockets. Capture status reports discovery and actual watch/listener counts.
+Nine host checks passed, including a real transport and exact SDK integration;
+physical Safari/Chrome acceptance remains open. No app/page reload, native build,
+XCTest startup or original-owner handoff was performed. See
+existing-websocket-capture-2026-10-11.json.

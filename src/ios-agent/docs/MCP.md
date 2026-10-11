@@ -759,3 +759,12 @@ Safari Remote Automation was separately evaluated over paired Tailscale. Its DOM
 reads/navigation worked; click and keyboard effect gates failed. It is closed as
 a default-driver candidate rather than exposed as another unreliable tool.
 See SAFARI-AUTOMATION-CANDIDATE.md and xctest-hold-failure-2026-10-11.json.
+
+## 1.9.36 — existing WebSocket capture coverage
+
+Use the existing ios_capture network mode; no new tool is required. Fresh browser
+documents supply up to32 already-open SDK-tracked sockets to the bounded recorder.
+Capture status exposes coverage.sockets, including discovery failure and listener
+counts; payload capture remains opt-in and connections are never closed by capture.
+Nine host checks passed, including real WebSocket traffic and exact SDK wiring.
+Physical browser acceptance remains open. MOBILE-WEB.md records discovery limits.
