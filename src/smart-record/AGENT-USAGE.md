@@ -11,7 +11,7 @@ agent; computer use remains a separately maintained tool dependency.
 The maintained checklist distinguishes work states (Completed, Pending,
 Ready, Deferred, Review) from historical verification. A Ready brief alone does
 not establish an installed tool. The current [Smart Record delivery](qualification/SMART-RECORD-RELEASE.md)
-documents adapter0.20.3, native build d7a6a75d975f and the installed widget;
+documents adapter0.20.4, native build d7a6a75d975f and the installed widget;
 inspect loaded `status.mcp_adapter` and native status for each consumer.
 Cooperative pause, repair tickets and a first bounded cursor renderer are delivered.
 
@@ -61,10 +61,29 @@ implementation source. Never replay an uncertain accepted mutation.
    painted overlays. A visible residual is a compromised clean source; record it
    and choose a tested cleaner path or explicitly retain the limitation. Do not
    blur/delogo changing page content as an automatic repair.
+   **Chrome clean-source path (tested October11):** use a fresh owned Chrome
+   window/tab through native macOS computer use for presented actions. Do not
+   attach the browser Playwright provider to that production tab: the tested
+   attachment paints a blue pointer into Chrome content and displays a debugging
+   banner. A native reload of an already attached tab did not clear the blue
+   pointer. A fresh native-only window recorded click/scroll/idle without either
+   artifact. This is a scoped alternative path, not a change to browser-tool
+   internals. Keep peer debugger sessions intact; do not cancel them or weaken
+   Chrome security settings. If a banner exists, the native Close button can
+   dismiss its informational UI, but inspect a recorded sample afterward: it
+   reappeared in our attached-tab test. Never count dismissal alone as a fix.
 7. Inspect `cursor_render.pointer_coverage`, warnings and samples. Native clicks
    can deliver only sparse jumps rather than a smooth trajectory. Missing initial
-   positions, expired holds and typing-hide intervals are explicit; longer holds
-   do not recover real motion. Escape and Command/Control shortcuts do not hide
+   positions, expired holds and typing-hide intervals are explicit. For a
+   persistent cursor during idle reading, choose `idle_policy:"hold_last"` and
+   explicitly decide whether `hide_on_typing:false` matches the presentation.
+   This holds observed positions without inventing movement. It requires a
+   complete loss-free journal and invalidates the hold on input interruption;
+   a fresh pointer event restores it. Initial absence remains unknown; include
+   an intentional pointer action in preparation/preroll and select a scene
+   starting after its first retained position when appropriate. Never backfill
+   an initial position from a future click. Default `idle_policy:"expire"`
+   preserves the prior `max_hold_ms` behavior. Longer holds do not recover real motion. Escape and Command/Control shortcuts do not hide
    the pointer as typing. Other keys remain a presentation heuristic, not proof
    that text was entered. Encoding success is not visual acceptance.
    Set a cursor-coverage expectation before shooting. A requested continuous
@@ -937,8 +956,15 @@ terminal recording, absolute SVG/PNG asset, original-asset hotspot and explicit
 `coordinate_basis:acknowledged_recorder_desktop_candidate`. This acknowledges
 the coordinate convention for the chosen take; it does not certify any provider
 or authenticate actors. Choose relevant `source_rows` or `action_tokens` when
-needed. Configure size, opacity, maximum hold, click-ring duration and typing
-hide. Draft defaults to640px/15fps/fast encoding; Final to1280px/30fps/higher
+needed. Configure size, opacity, `idle_policy` (`expire` or `hold_last`),
+maximum hold, click-ring duration and typing hide. `hold_last` keeps the last
+observed anchor through idle time, with exact `pointer_position_age_ns` in each
+timeline frame and `held_beyond_max_hold_frames` in coverage. It neither fills
+initial absence nor invents a trajectory. Input gaps/listener interruptions
+invalidate previous positions even when source rows or action tokens are selected;
+a later measured pointer position restores the hold. Unknown interruption clocks
+refuse rendering. A loss-free complete journal is required for `hold_last`.
+`max_hold_ms` remains the expiry limit only for the default `expire` policy. Draft defaults to640px/15fps/fast encoding; Final to1280px/30fps/higher
 quality. Both can be overridden within the exposed bounds. The service selects
 actual source pictures on exact rational output times; no smoothing or invented
 intermediate source images are added. Returned recipes, timelines, source/asset

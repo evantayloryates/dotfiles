@@ -232,7 +232,7 @@ async function journalRows(handle, size, includeInput=false) {
         try { row = JSON.parse(line); } catch { mapping('Malformed source row; raw row text is not returned.'); }
         if (!row || typeof row !== 'object' || Array.isArray(row)) mapping('Invalid source row object.');
         // Default readers keep mapping metadata only. The bounded renderer may retain input privately; no raw input enters map responses.
-        if (['header','capture','source_frame','geometry','encoded_frame','footer'].includes(row.kind) || includeInput && row.kind==='input_event') rows.push(includeInput?{...row,_source_row:inspected}:row);
+        if (['header','capture','source_frame','geometry','encoded_frame','footer'].includes(row.kind) || includeInput && ['input_event','input_gap','input_listener'].includes(row.kind)) rows.push(includeInput?{...row,_source_row:inspected}:row);
       }
     }
     if (pending.length > 1024*1024) mapping('Source line budget exceeded.');

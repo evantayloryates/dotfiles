@@ -17,6 +17,7 @@
 #endif
 #import "TouchHID.inc"
 #import "StartupPolicy.inc"
+#import "DeveloperProbe.inc"
 
 #if IOS_AGENT_REACT
 static NSString *IABundleSource=@"unknown";
@@ -357,6 +358,15 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
    state[@"lastCommandTransport"]=self.lastCommandTransport?:@{};
    state[@"refreshDiagnostics"]=self.refreshDiagnostics?:@{};
    done(state); return;
+  }
+  if([action isEqual:@"developer-probe"]) {
+   if(args.count) { done(IAError(@"diagnostic_arguments_not_allowed")); return; }
+   NSString *lease=self.lease,*epoch=self.epoch;
+   NSTimeInterval deadline=IANow()+MIN(3.0,[c[@"remainingMs"] doubleValue]/1000.0);
+   IOSAgentDeveloperProbe(^(NSDictionary *result){
+    if(![self leased] || ![self.lease isEqual:lease] || ![self.epoch isEqual:epoch] || IANow()>deadline) { done(IAError(@"lease_or_command_expired")); return; }
+    NSMutableDictionary *value=[result mutableCopy]; value[@"wifi"]=IOSAgentWiFiState(); done(value);
+   }); return;
   }
   if([action isEqual:@"wifi"]) { done(IOSAgentWiFiPrepare(args,cid)); return; }
   if([action isEqual:@"capture"]) {

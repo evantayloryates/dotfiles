@@ -7,7 +7,7 @@ import { spawn, spawnSync } from 'node:child_process';
 import { createInterface } from 'node:readline';
 import { fileURLToPath } from 'node:url';
 import net from 'node:net';
-import { mapRecordingFrames, resolveFrameMap, validateFrameMapRequest, frameMapHealth } from '../lib/frame-map.mjs';
+import { mapRecordingFrames, resolveFrameMap, validateFrameMapRequest, frameMapHealth, withFrameSnapshots } from '../lib/frame-map.mjs';
 import { projectRegions } from '../lib/region-map.mjs';
 
 const request = { recording_id:'rec_fixture',frame_indices:[0,1,2],desktop_points:[{x:160,y:558}] };
@@ -167,7 +167,13 @@ test('actual regular-file probe, leaf refusal and fresh MCP read-only boundary',
   const {rows,descriptor}=fixture();const video=join(root,'source.mp4'),journal=join(root,'source.jsonl');
   const generated=spawnSync('ffmpeg',['-v','error','-f','lavfi','-i','color=c=white:s=600x392:r=10','-frames:v','3','-c:v','libx264','-bf','0','-video_track_timescale','1000000000',video],{encoding:'utf8'});
   assert.equal(generated.status,0,'Required local ffmpeg fixture generator failed');
+  rows.splice(-1,0,{kind:'input_gap',relative_ns:'100000000',reason:'owned interruption fixture'}, {kind:'input_listener',relative_ns:'100000000',state:'disabled'});
   writeFileSync(journal,rows.map(r=>JSON.stringify(r)+'\n').join(''));descriptor.source_packet.path=journal;descriptor.video={path:video};
+  await withFrameSnapshots([descriptor],async snapshots=>{
+    assert(snapshots[0].rows.some(r=>r.kind==='input_gap'&&Number.isInteger(r._source_row)));
+    assert(snapshots[0].rows.some(r=>r.kind==='input_listener'));return {};
+  },{includeInput:true});
+  await withFrameSnapshots([descriptor],async snapshots=>{assert(!snapshots[0].rows.some(r=>r.kind==='input_gap'));return {}} );
   const methods=[],sockets=new Set();let capable=true;
   const fake=net.createServer(socket=>{sockets.add(socket);socket.on('close',()=>sockets.delete(socket));createInterface({input:socket}).on('line',line=>{const row=JSON.parse(line);methods.push(row.method);socket.write(JSON.stringify({id:row.id,result:row.method==='status'?{capabilities:{source_journal:capable?1:0}}:descriptor})+'\n');});});
   await new Promise((resolve,reject)=>{fake.once('error',reject);fake.listen(join(root,'run/engine.sock'),resolve);});

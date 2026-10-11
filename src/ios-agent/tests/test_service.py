@@ -69,7 +69,7 @@ class BrokerTests(unittest.TestCase):
         return self.call(op="action", action="tap", args={"x": 10, "y": 10})["id"]
 
     def test_diagnostic_matrix_accepts_no_caller_code_or_url(self):
-        for action in ("diagnostics-probe", "diagnostics-matrix"):
+        for action in ("diagnostics-probe", "diagnostics-matrix", "developer-probe"):
             with self.assertRaisesRegex(service.Rejected, "diagnostic_arguments_not_allowed"):
                 self.call(op="action", action=action, args={"url": "https://example.com"})
         cid = self.call(op="action", action="diagnostics-matrix", args={})["id"]

@@ -1,11 +1,11 @@
 {
   "schema": "capture-qualification-checklist/v1",
-  "updated_at": "2026-10-11T12:43:54-04:00",
+  "updated_at": "2026-10-11T13:17:36-04:00",
   "workflow": {
     "state": "complete",
-    "note": "Second production run reviewed; bounded adapter0.20.3 corrections verified for another consumer smoke. Sparse cursor input, source residual/banner and official composition retain their written limits."
+    "note": "Cursor idle policy and native Chrome clean-source alternative verified for adapter0.20.4. Initial/unrecorded motion and browser-provider internals retain explicit limits; next useful step is a consumer production using the tested route."
   },
-  "production_note": "Smart Record adapter0.20.3 is available to fresh clients: bounded concurrent input reads, fixed frame-linked/plain pagination, interval delivery summaries and saved action-evidence validation.28 focused tests and actual MCP smoke pass. Native d7a6a75d975f/widget be27e75d391a unchanged.60 Completed,11 Deferred,1 Ready; cursor/source quality limits remain explicit.",
+  "production_note": "Smart Record adapter0.20.4: explicit idle cursor holding plus a tested native Chrome clean-source path.40 focused checks and actual fresh MCP renders pass.713 previously absent timeline positions recovered;645 initial positions remain unknown. Native/widget/original master unchanged.62 Completed,11 Deferred,1 Ready.",
   "groups": [
     {
       "id": "capture",
@@ -1122,12 +1122,40 @@
           "work_state": "completed",
           "scope": "Two retained Sleeper production reviews and bounded adapter fixes: planning/waits/cursor diagnostics, FIFO read admission, joined/plain pagination, interval delivery summaries and saved action-evidence validation. No universal clean-source or smooth-motion claim.",
           "summary": "Second-run fixes verified; input query retries removed, cursor motion/source quality and external master discovery remain explicit limits.",
-          "evidence": "First-run 31 checks retained. Second-run 28 focused checks and fresh minimal-PATH MCP0.20.3/46 tools pass: concurrent retained queries, actual frame-linked pages, changed-media withholding and owned action settlement. All four captures complete, zero dropped frames/lost rows; final movie decode/hash unchanged.1358/2409 final timeline frames lack pointer positions.",
-          "next": "Next useful smoke: representative movement/scroll canary, source-pixel inspection and content-ready marks. Apply visual feedback to the Ready official composition phase.",
+          "evidence": "Three bounded feedback stages delivered:0.20.2 usage fixes,0.20.3 input/query corrections and0.20.4 cursor idle/native Chrome path.40 focused checks and fresh registered MCP render smoke pass for this stage.713 idle absences recovered;645 initial positions and unrecorded trajectories remain unknown. Original master unchanged.",
+          "next": "Next consumer smoke should use fresh native-only Chrome, measured pointer preroll and explicit hold_last presentation; official composition remains Ready.",
           "anchor": "production-rerun-review",
-          "updated_at": "2026-10-11T12:43:54-04:00",
+          "updated_at": "2026-10-11T13:17:19-04:00",
           "work_updated_at": "2026-10-10T23:21:31-04:00",
           "doc_link": "/Users/taylor/src/github/dotfiles/src/smart-record/qualification/SLEEPER-RERUN-REVIEW.md"
+        },
+        {
+          "id": "cursor-idle-presentation",
+          "title": "Keep a known cursor visible during idle reading",
+          "status": "completed",
+          "work_state": "completed",
+          "scope": "Explicit expire/hold_last presentation; measured source positions, exact age, input interruption barriers and no initial backfill.",
+          "summary": "Idle cursor expiry is repaired; unrecorded initial positions and movement stay unknown.",
+          "evidence": "40 focused cursor/frame-snapshot/planning checks; actual fresh MCP0.20.4 renders. Retained Sleeper missing positions1358→645/2409;713 expiry absences recovered. Native15-second post-preroll render225/225 positioned; full decode and visual samples pass. Initial absence stays unknown, no trajectory invented.",
+          "next": "Use hold_last intentionally for idle presentation; prepare measured pointer preroll before selecting a scene.",
+          "anchor": "production-cursor-quality",
+          "updated_at": "2026-10-11T13:17:19-04:00",
+          "work_updated_at": "2026-10-11T13:17:36-04:00",
+          "doc_link": "/Users/taylor/src/github/dotfiles/src/smart-record/qualification/CURSOR-QUALITY-FIXES.md"
+        },
+        {
+          "id": "chrome-native-clean-path",
+          "title": "Capture Chrome without the blue pointer or debugging banner",
+          "status": "completed",
+          "work_state": "completed",
+          "scope": "Fresh native-only owned Chrome window with show_cursor:false, child inclusion disabled; verified click/scroll/idle source samples.",
+          "summary": "Use the tested native Chrome path; browser attachment can paint a second cursor and show a banner.",
+          "evidence": "Chrome154.0.8037.98/build8037.98 on macOS25F80: fresh native-only35-second window take retained click/motion/scroll; actual5/18/32s source samples and15-second rendered output have no blue pointer or banner. Browser attachment/click reproduced both; reload failed. Planner and runbook provide native alternative; unknown provider version limits automatic reuse.",
+          "next": "Apply the native-only route and inspect encoded pixels during the next useful consumer production; do not cancel peer debugger sessions.",
+          "anchor": "production-cursor-quality",
+          "updated_at": "2026-10-11T13:17:19-04:00",
+          "work_updated_at": "2026-10-11T13:17:36-04:00",
+          "doc_link": "/Users/taylor/src/github/dotfiles/src/smart-record/qualification/CURSOR-QUALITY-FIXES.md"
         }
       ]
     }
@@ -4056,6 +4084,53 @@
       "from": "complete",
       "to": "complete",
       "note": "Second production run reviewed; bounded adapter0.20.3 corrections verified for another consumer smoke. Sparse cursor input, source residual/banner and official composition retain their written limits."
+    },
+    {
+      "kind": "item",
+      "id": "cursor-idle-presentation",
+      "at": "2026-10-11T13:17:19-04:00",
+      "from": "pending",
+      "to": "completed",
+      "note": "40 focused cursor/frame-snapshot/planning checks; actual fresh MCP0.20.4 renders. Retained Sleeper missing positions1358→645/2409;713 expiry absences recovered. Native15-second post-preroll render225/225 positioned; full decode and visual samples pass. Initial absence stays unknown, no trajectory invented."
+    },
+    {
+      "kind": "item",
+      "id": "chrome-native-clean-path",
+      "at": "2026-10-11T13:17:19-04:00",
+      "from": "pending",
+      "to": "completed",
+      "note": "Chrome154.0.8037.98/build8037.98 on macOS25F80: fresh native-only35-second window take retained click/motion/scroll; actual5/18/32s source samples and15-second rendered output have no blue pointer or banner. Browser attachment/click reproduced both; reload failed. Planner and runbook provide native alternative; unknown provider version limits automatic reuse."
+    },
+    {
+      "kind": "item",
+      "id": "production-run-feedback",
+      "at": "2026-10-11T13:17:19-04:00",
+      "from": "completed",
+      "to": "completed",
+      "note": "Three bounded feedback stages delivered:0.20.2 usage fixes,0.20.3 input/query corrections and0.20.4 cursor idle/native Chrome path.40 focused checks and fresh registered MCP render smoke pass for this stage.713 idle absences recovered;645 initial positions and unrecorded trajectories remain unknown. Original master unchanged."
+    },
+    {
+      "kind": "workflow",
+      "at": "2026-10-11T13:17:19-04:00",
+      "from": "complete",
+      "to": "complete",
+      "note": "Cursor idle policy and native Chrome clean-source alternative verified for adapter0.20.4. Initial/unrecorded motion and browser-provider internals retain explicit limits; next useful step is a consumer production using the tested route."
+    },
+    {
+      "kind": "work_state",
+      "id": "cursor-idle-presentation",
+      "at": "2026-10-11T13:17:36-04:00",
+      "from": "pending",
+      "to": "completed",
+      "note": "Idle hold, exact age, initial absence and interruption behavior pass focused tests and actual MCP render verification."
+    },
+    {
+      "kind": "work_state",
+      "id": "chrome-native-clean-path",
+      "at": "2026-10-11T13:17:36-04:00",
+      "from": "pending",
+      "to": "completed",
+      "note": "Native-only source and rendered samples verified; browser attachment/reload failure preserved as a route-specific limit."
     }
   ],
   "work_note": "Completed work states include useful delivered portions of broader historical Partial items. Expanded verification records preserve limits. Deferred prerequisites remain explicit; Review is a genuine user decision."

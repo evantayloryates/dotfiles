@@ -15,6 +15,16 @@ const request = { target: { type: 'window', window_id: 119 }, mode: 'cooperative
 const status = { clock: { wall: '2026-10-09T07:00:00Z' }, engine: { build: 'f314bb340344', pid: 123 }, permission: { screen_recording: 'granted' }, capabilities: { source_journal: 1, input_timeline: 1, target_capture_options: 1, exclusion_identity: 1 }, capture_health: { recordings: { max_concurrent: 16, unfinished: 0, quarantined: 0 } }, displays: [{ id: 1, main: true, scale: 2 }] }
 const inventory = { total: 1, windows: [{ window_id: 119, pid: 71011, bundle_id: 'com.google.Chrome', on_screen: false, frame: { x: 0, y: 34, w: 1000, h: 732 } }] }
 
+test('Chrome pointer-hidden planning supplies a scoped cleaner path without claiming readiness', () => {
+  const p = planProduction(request,status,inventory);
+  assert.match(p.cursor_layers.chrome_clean_path.recommendation,/fresh owned Chrome/);
+  assert.match(p.cursor_layers.chrome_clean_path.limits,/not universal/);
+  assert(p.blocking_reasons.some(x=>x.includes('off screen')));
+  assert.equal(planProduction({...request,show_cursor:true},status,inventory).cursor_layers.chrome_clean_path,undefined);
+  const other={total:1,windows:[{...inventory.windows[0],bundle_id:'com.apple.Safari'}]};
+  assert.equal(planProduction(request,status,other).cursor_layers.chrome_clean_path,undefined);
+});
+
 const tripleRequest = { target: { type: 'window', window_id: 119, include_child_windows: true }, mode: 'background', activity: 'passive_capture', duration_s: 75, redundancy: 'window_app_display', backup_rect: { x: 90, y: 90, w: 1140, h: 850 }, backup_max_width: 1140 }
 const tripleStatus = { ...status, engine: { build: '9bfabf2dbb5c', pid: 123 }, capabilities: { ...status.capabilities, application_filter: 1 }, displays: [{ id: 1, main: true, scale: 2, frame: { x: 0, y: 0, w: 1512, h: 982 } }] }
 const tripleInventory = { total: 1, windows: [{ ...inventory.windows[0], on_screen: true, frame: { x: 120, y: 110, w: 1000, h: 732 } }] }

@@ -1773,3 +1773,27 @@ representative movement/scroll canaries and content-ready marks, review source
 pixels before filming, and apply Taylor's feedback to the Ready official
 composition work. No synthetic pointer path, general compositor or clean-source
 guarantee was added. No active platform goal exists at this checkpoint.
+
+
+## Cursor/source-quality correction checkpoint — October11
+
+Adapter0.20.4 adds explicit idle hold with exact age/coverage, complete-journal
+requirement and input interruption barriers. Forty focused checks pass. Retained
+Sleeper missing positions fall1358→645 of2409;713 timeout absences are repaired,
+while645 initial positions and unrecorded trajectories remain unknown.
+Fresh native-only Chrome35-second take rec_vtqzcymx verifies click/scroll delivery
+and clean representative source pixels. Browser attachment/click reproduced
+blue pointer/banner in rec_gdxtrcqp; reload failed to remove the blue pointer.
+Planner/runbook now provide the native alternative; no computer-use internals
+or security configuration changed. Fresh minimal-PATH registered MCP renders
+225/225 positioned frames for the15-second post-preroll native sample; full
+decode and first/middle/last visuals pass. Original movie/native/widget unchanged.
+
+Both owned Chrome windows, loopback server, action scopes and ses_5e4e3kkb are
+closed; seven shared outcomes preserve six verified operations and the failed
+reload approach, with completed cleanup. Next changed-condition step: apply the
+native-only route and intentional measured preroll to the next useful consumer
+production. Do not reshoot or erase the old contaminated master, rerun unchanged
+fixtures, or claim continuous paths from sparse input. Official composition is
+still Ready; the broader provider/physical-input tests retain their prerequisites.
+No active platform goal is implied by this checkpoint.

@@ -2,8 +2,28 @@
 
 The service is installed as `smart-record`, with native engine `smart-recordd`
 and the single Medium **Smart Record** desktop widget. The existing feature
-release is now adapter0.20.3; the delivered native build is d7a6a75d975f and the
+release is now adapter0.20.4; the delivered native build is d7a6a75d975f and the
 companion build is be27e75d391a.
+
+## Cursor/source-quality update:0.20.4
+
+Explicit `idle_policy:hold_last` keeps measured cursor positions visible during
+idle reading; exact position age and long-hold counts remain inspectable. Input
+interruptions invalidate holds and click rings, including when events are
+filtered. Default expiry is preserved, and initial positions/motion are never
+invented.713 previously absent Sleeper frames are recoverable by this policy;
+645 initial-absence frames remain unknown.
+
+A controlled native-only Chrome window recorded click/scroll/idle without the
+blue pointer or debugging banner. Browser attachment/click reproduced both;
+reload did not clear the blue pointer. Chrome planning and the agent runbook now
+recommend the fresh native-only production path and source-pixel verification.
+This is a qualified alternative, not an internal browser-provider repair.
+
+40 focused checks and fresh registered minimal-PATH MCP0.20.4 reads/renders pass.
+The15-second native sample has225/225 positioned cursor frames and both policies'
+outputs fully decode. Native/widget and the original Desktop movie stay unchanged.
+See [source-quality corrections and limits](CURSOR-QUALITY-FIXES.md).
 
 ## Second production feedback update:0.20.3
 

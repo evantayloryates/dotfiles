@@ -25,7 +25,7 @@ VERSION = 1
 MAX_BODY = 8 * 1024 * 1024
 OWNER_TIMEOUT = 20 * 60
 DEVICE_TIMEOUT = 30
-OPERATIONS = {"capabilities", "tree", "image", "tap", "gesture", "text", "react", "state", "diagnostics-probe", "diagnostics-matrix", "reload", "wifi", "capture", "home"}
+OPERATIONS = {"capabilities", "tree", "image", "tap", "gesture", "text", "react", "state", "diagnostics-probe", "diagnostics-matrix", "developer-probe", "reload", "wifi", "capture", "home"}
 STATE = Path.home() / "Library/Application Support/ios-agent"
 SOURCE_HASH = worker_source_hash()
 
@@ -260,7 +260,7 @@ class Broker:
                     raise Rejected("wifi_state_on_or_off_required")
                 if action == "home" and args:
                     raise Rejected("home_arguments_not_allowed")
-                if action in ("diagnostics-probe", "diagnostics-matrix") and args:
+                if action in ("diagnostics-probe", "diagnostics-matrix", "developer-probe") and args:
                     raise Rejected("diagnostic_arguments_not_allowed")
                 # Give a just-delivered native tree a short opportunity for its
                 # caller's follow-up. Empty React polling must not consume that

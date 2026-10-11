@@ -403,6 +403,11 @@ export function planProduction(args, status, windowResult = { windows: [], total
       helper_window: t.exclude_apps?.length ? 'explicit helper exclusions requested; identity changes can interrupt' : 'separate overlays may remain; use explicit qualified helper exclusions',
       app_drawn_pointer: 'app content remains; capture pointer hiding does not remove it',
       text_caret: 'app content remains; capture pointer hiding does not remove it',
+      ...(base?.bundle_id === 'com.google.Chrome' && !a.show_cursor ? { chrome_clean_path: {
+        recommendation: 'Use a fresh owned Chrome window/tab through native macOS computer use for presented actions; do not attach browser Playwright control to that production tab. Inspect encoded source samples before filming.',
+        evidence: 'Controlled October11 window capture: native click/scroll/idle had no blue pointer or debugging banner; browser attachment/click introduced both. Reloading the attached tab retained the blue pointer.',
+        limits: 'Scoped alternative path, not universal Chrome certification or cursor erasure. Native delivery can be sparse. Do not cancel peer debugger sessions or weaken security settings. A dismissed informational banner can return.',
+      } } : {}),
     },
     resource_guidance: { unfinished_recordings: status?.capture_health?.recordings?.unfinished ?? null, quarantined_recordings: status?.capture_health?.recordings?.quarantined ?? null, configured_max_concurrent: status?.capture_health?.recordings?.max_concurrent ?? null, configured_limit_is_capacity: false, measured_profile: measuredProfile, measured_single_window_profile: measuredSingleWindowProfile, measured_retina_pair_profile: measuredRetinaPairProfile, measured_point_triple_profile: measuredPointTripleProfile, measured_safari_app_profile: measuredSafariAppProfile, measured_sustained_motion_pair_profile: measuredSustainedMotionPairProfile, profile_differences: profileDifferences, retina_pair_profile_differences: retinaDifferences, point_triple_profile_differences: tripleDifferences, storage_guidance: storageGuidance, duration_p80_s: null },
     recovery: ['Mark and preserve the disrupted interval plus exact journals', 'Trim or select independently verified alternative source coverage', 'Reshoot from an application checkpoint when replayable; preserve unrecoverable live gaps'],
