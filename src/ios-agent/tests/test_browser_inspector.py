@@ -20,6 +20,7 @@ class Session:
                 return {'result':{'value':v}}
             self.emit('Console.messageAdded',message={'text':'fixture console detail','accessToken':'abcd123456789xyz'})
             return {'result':{'value':42}}
+        if method=='Page.getResourceTree':return {'frameTree':{'frame':{'id':'main','loaderId':'loader-2' if self.changed else 'loader-1'}}}
         if method=='Debugger.enable':
             self.emit('Debugger.scriptParsed',scriptId='1',url='https://u:password@dev.example.ts.net/a.js?token=secret#x',startLine=0,endLine=4)
         if method=='Debugger.getScriptSource':return {'scriptSource':'one\ntwo\nthree\nfour'}
@@ -276,5 +277,51 @@ class InspectorTests(unittest.IsolatedAsyncioTestCase):
         self.s.send_command=send;self.s.fail='Worker.initialized'
         with self.assertRaisesRegex(ValueError,'debug_cleanup_unconfirmed'):await self.run_debug({'op':'workers','sampleMs':100})
         self.assertIn(('Worker.disable',{}),self.s.calls);self.assertEqual(self.s.response_methods,{})
+
+    async def test_explicit_heap_snapshot_preserves_graph_and_disables(self):
+        original=self.s.send_command
+        async def send(method,**args):
+            if method=='Heap.snapshot':return {'timestamp':0,'snapshotData':json.dumps({'version':3,'type':'Inspector','nodes':[0,0,0,0,1,64,1,0],'nodeClassNames':['<root>','Object'],'edges':[0,1,0,0],'edgeTypes':['Internal'],'edgeNames':[]})}
+            return await original(method,**args)
+        self.s.send_command=send
+        r=await self.run_debug({'op':'heap','ownedDebugSession':True,'documentRef':await self.ref()})
+        self.assertTrue(r['heapSnapshotComplete']);self.assertTrue(r['forcedGarbageCollection']);self.assertTrue(r['domainsDisabled'])
+        self.assertEqual(r['heap']['summary']['nodeCount'],2);self.assertEqual(self.s.calls[-1][0],'Heap.disable')
+        self.assertFalse(any(m=='Heap.gc' for m,_ in self.s.calls))
+
+    async def test_heap_requires_owner_and_stale_reference_cannot_collect(self):
+        ref=await self.ref()
+        with self.assertRaisesRegex(ValueError,'owned_debug_session_required_for_heap'):await self.run_debug({'op':'heap','documentRef':ref})
+        self.s.changed=True
+        with self.assertRaisesRegex(ValueError,'debug_document_changed'):await self.run_debug({'op':'heap','documentRef':ref,'ownedDebugSession':True})
+        self.assertFalse(any(m.startswith('Heap.') for m,_ in self.s.calls))
+
+    async def test_heap_snapshot_failure_still_disables_and_marks_dispatch(self):
+        ref=await self.ref();self.s.fail='Heap.snapshot';q={'op':'heap','ownedDebugSession':True,'documentRef':ref}
+        with self.assertRaises(debug.ProtocolError):await self.run_debug(q)
+        self.assertTrue(q['_heapSnapshotRequested']);self.assertEqual(self.s.calls[-1][0],'Heap.disable')
+
+    async def test_document_identity_uses_loader_not_jittering_time_origin(self):
+        original=self.s.send_command;reads=0
+        async def send(method,**args):
+            nonlocal reads
+            result=await original(method,**args)
+            if method=='Runtime.evaluate' and 'originMatches' in args.get('expression',''):
+                reads+=1;result['result']['value']['timeOrigin']=1000+reads*.8
+            return result
+        self.s.send_command=send
+        before=await self.run_debug({'op':'overview'});after=await self.run_debug({'op':'overview','documentRef':before['documentRef']})
+        self.assertEqual(before['documentRef'],after['documentRef']);self.assertNotEqual(before['documentIdentity']['timeOrigin'],after['documentIdentity']['timeOrigin'])
+        self.assertEqual(before['documentIdentity']['frameLoaderHash'],after['documentIdentity']['frameLoaderHash'])
+
+    async def test_navigation_during_context_read_is_rejected_before_heap(self):
+        original=self.s.send_command
+        async def send(method,**args):
+            result=await original(method,**args)
+            if method=='Runtime.evaluate':self.s.changed=True
+            return result
+        self.s.send_command=send
+        with self.assertRaisesRegex(ValueError,'debug_document_changed'):await self.run_debug({'op':'overview'})
+        self.assertFalse(any(m.startswith('Heap.') for m,_ in self.s.calls))
 
 if __name__=='__main__':unittest.main()

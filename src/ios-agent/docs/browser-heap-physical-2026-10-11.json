@@ -1,0 +1,74 @@
+{
+  "date": "2026-10-11",
+  "version": "1.9.21",
+  "scope": "Physical local DEV counter document; original signed XCTest owner preserved",
+  "browsers": {
+    "safari": {
+      "sourceBytes": 10906835,
+      "artifactBytes": 10933380,
+      "sourceSha256": "b7bc32becb52ef3974698171f4a3a685b1afd100e868c24fb42beaaa4d975d76",
+      "nodeCount": 168909,
+      "edgeCount": 506647,
+      "totalShallowBytes": 18980877,
+      "snapshotDurationMs": 1046.37,
+      "forcedGarbageCollection": true,
+      "domainsDisabled": true,
+      "detached": true,
+      "originalReceipt": "owned-inspector-1791706151179451000.json",
+      "privateGraphInExpiringStore": true
+    },
+    "chrome": {
+      "sourceBytes": 1583934,
+      "artifactBytes": 1607057,
+      "sourceSha256": "6f589cbebd69278b3737bab648837fd0a09b20a3bd895d7462759bcb96ee1b93",
+      "nodeCount": 27518,
+      "edgeCount": 73056,
+      "totalShallowBytes": 1719467,
+      "snapshotDurationMs": 210.751,
+      "forcedGarbageCollection": true,
+      "domainsDisabled": true,
+      "detached": true,
+      "originalReceipt": "owned-inspector-1791706214512597000.json",
+      "privateGraphInExpiringStore": true
+    }
+  },
+  "documentFence": {
+    "oldSafariTimeOriginValues": [
+      1791705794241,
+      1791705794240,
+      1791705794238.0002
+    ],
+    "sameTargetHash": true,
+    "replacement": "WebKit main-frame/loader IDs, bracketing each fixed origin/visibility read",
+    "chromeReload": {
+      "beforeRef": "d92dc85b3b1c53ada265297c64b576d4",
+      "afterRef": "d8497b1e5533bc9c5b1ccfbc23fb7bf6",
+      "oldReferenceRejectedAt": "initial",
+      "heapSnapshotRequested": false,
+      "replay": false
+    }
+  },
+  "checks": {
+    "pythonInspector": 28,
+    "pythonGraphProjection": 3,
+    "mcpDebuggerSchema": 5,
+    "mcpHeapOwnerQuotaUncertainty": 4,
+    "mcpArrayWindows": 2
+  },
+  "retention": {
+    "seconds": 3600,
+    "heapBytesLimit": 33554432,
+    "ordinaryDiagnosticBytesLimit": 2097152,
+    "hostQuotaBytes": 134217728,
+    "fileMode": "0600",
+    "rawHelperCopiesRemoved": true
+  },
+  "boundaries": [
+    "Physical provider probe and fresh MCP schema/storage/ownership checks are separate: original old-schema connection deliberately retained.",
+    "Snapshot takes synchronous full GC and temporarily pauses execution; measured host duration includes capture/projection, not exact pause time.",
+    "Inspected JavaScript VM/accessible states, not whole-device or exclusive page memory.",
+    "Shallow sizes and up to8 immediate incoming edges for each of30largestobjects; not retained sizes/dominators/leak diagnosis.",
+    "Full graph stays private; shared evidence contains counts and cleanup only.",
+    "No periodic snapshot or always-on profiler. Nearby paired Inspector only."
+  ]
+}

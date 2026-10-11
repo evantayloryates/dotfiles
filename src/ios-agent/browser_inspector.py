@@ -5,6 +5,7 @@ import json
 import re
 from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit
+from browser_heap import MAX_HEAP_BYTES, project_snapshot
 
 MAX_BYTES = 2 * 1024 * 1024
 
@@ -81,30 +82,40 @@ async def inspect(session, request, target, expected, check):
     request['_inputDispatched']=False
     request['_contextStage']='initial'
     op=request.get('op','overview')
-    allowed={'overview','dom','sources','source','styles','console','trace','network','profile','resources','workers','evaluate'}
+    allowed={'overview','dom','sources','source','styles','console','trace','network','profile','resources','workers','heap','evaluate'}
     if op not in allowed:raise ValueError('fixed_debug_operation_required')
     reference=request.get('documentRef')
-    if op in ('source','evaluate') and not re.fullmatch('[a-f0-9]{32}',reference or ''):
+    if op in ('source','evaluate','heap') and not re.fullmatch('[a-f0-9]{32}',reference or ''):
         raise ValueError('fresh_debug_document_required')
+    if op=='heap' and request.get('ownedDebugSession') is not True:
+        raise ValueError('owned_debug_session_required_for_heap')
     if request.get('expression') is not None and (not request.get('ownedPage') or not reference):
         raise ValueError('owned_browser_session_required_for_evaluation')
     context_expression="""(()=>{const s=window.__iosWebAgent?.status?.();return {originMatches:location.origin===ORIGIN,visible:!document.hidden,timeOrigin:performance.timeOrigin,page:s?.page,owned:s?.owned===true,indicator:s?.indicator===true,ready:document.readyState}})()""".replace('ORIGIN',json.dumps(f'https://{expected.netloc}'))
+    async def loader():
+        check();frame=(await command(session,'Page.getResourceTree')).get('frameTree',{}).get('frame',{})
+        identity=[frame.get('id'),frame.get('loaderId')]
+        if not all(isinstance(x,str) and 0<len(x)<=500 for x in identity):raise ValueError('debug_loader_identity_unavailable')
+        return identity
     async def context():
         check()
+        before=await loader()
         data=await command(session,'Runtime.evaluate',expression=context_expression,returnByValue=True,userGesture=False,doNotPauseOnExceptionsAndMuteConsole=True)
         value=data.get('result',{}).get('value',{})
+        after=await loader()
         if not value.get('originMatches') or value.get('visible') is not True or type(value.get('timeOrigin')) not in (int,float):
             raise ValueError('visible_dev_document_required')
-        ref=hashlib.sha256(json.dumps([target.application.bundle,target.application.id_,target.page.id_,value['timeOrigin']]).encode()).hexdigest()[:32]
-        if reference and ref!=reference:
+        ref=hashlib.sha256(json.dumps([target.application.bundle,target.application.id_,target.page.id_,*after]).encode()).hexdigest()[:32]
+        if before!=after or reference and ref!=reference:
             request['_documentChange']={'stage':request['_contextStage'],'observedRef':ref,'timeOrigin':value['timeOrigin'],
                 'targetHash':hashlib.sha256(json.dumps([target.application.bundle,target.application.id_,target.page.id_]).encode()).hexdigest()[:32]}
             raise ValueError('debug_document_changed')
+        value['frameLoaderHash']=hashlib.sha256(json.dumps(after).encode()).hexdigest()[:32]
         if request.get('expression') is not None and (value.get('page')!=request['ownedPage'] or value.get('owned') is not True or value.get('indicator') is not True):
             raise ValueError('owned_browser_session_required_for_evaluation')
         return ref,value
     document,ctx=await context()
-    result={'operation':op,'documentRef':document,'documentIdentity':{'timeOrigin':ctx['timeOrigin'],
+    result={'operation':op,'documentRef':document,'documentIdentity':{'timeOrigin':ctx['timeOrigin'],'frameLoaderHash':ctx['frameLoaderHash'],
         'targetHash':hashlib.sha256(json.dumps([target.application.bundle,target.application.id_,target.page.id_]).encode()).hexdigest()[:32]},
         'browser':target.application.bundle,'ready':ctx['ready'],'scope':'paired-dev-WebKit-Inspector','userGestureRequested':False,'replay':False}
     if op=='overview':return {**result,'domainsDisabled':True}
@@ -164,6 +175,18 @@ async def inspect(session, request, target, expected, check):
                 text='\n'.join(lines[start:start+count]);encoded=text.encode();cut=len(encoded)>131072
                 result['source']={'scriptId':script_id,'startLine':start,'lineCount':min(count,max(0,len(lines)-start)),'totalLines':len(lines),'text':encoded[:131072].decode(errors='replace'),'truncated':cut,'sha256':hashlib.sha256(source.encode()).hexdigest()}
             result['scriptCount']=len(scripts)
+        elif op=='heap':
+            # Explicit heavy diagnostic: WebKit's snapshot builder performs a
+            # synchronous full GC. Never include this in routine resources.
+            await enable('Heap');check()
+            request['_heapSnapshotRequested']=True
+            started=asyncio.get_running_loop().time()
+            data=await command(session,'Heap.snapshot',timeout=8)
+            result['heap']=project_snapshot(data.get('snapshotData'))
+            result.update(heapSnapshotComplete=True,snapshotDurationMs=round((asyncio.get_running_loop().time()-started)*1000,3),
+                          heapNodeCount=result['heap']['summary']['nodeCount'],heapEdgeCount=result['heap']['summary']['edgeCount'],heapShallowBytes=result['heap']['summary']['totalShallowBytes'],
+                          forcedGarbageCollection=True,heapTimestamp=data.get('timestamp'),
+                          runtimeEffect='Explicit snapshot: synchronous full GC and temporary execution pause; not passive resource sampling.')
         elif op=='dom':
             # A fixed projection supplements native AX visibility with actual
             # ancestor clipping and DOM hit testing. Never executes caller JS.
@@ -274,5 +297,5 @@ async def inspect(session, request, target, expected, check):
                       eventClock='receivedElapsedMs is host monotonic receive time, not provider measurement time; raw provider timestamps are unchanged')
     if op in ('sources','source'):result['events']=[x for x in events.rows if x['method']!='Debugger.scriptParsed']
     result=scrub(result)
-    if len(json.dumps(result).encode())>MAX_BYTES:raise ValueError('bounded_debug_artifact_required')
+    if len(json.dumps(result).encode())>(MAX_HEAP_BYTES if op=='heap' else MAX_BYTES):raise ValueError('bounded_debug_artifact_required')
     return result

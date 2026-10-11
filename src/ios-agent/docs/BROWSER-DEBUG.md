@@ -192,3 +192,20 @@ Physical Chrome captured159 frames/15189 payload bytes in3 seconds with zero dro
 Physical Safari and Chrome each found the named synthetic counter worker, initialized it, and detached. Independent DOM counters advanced10→104 in Chrome and29→112 in Safari. These are controlled counter-page proofs, not product-worker source, evaluation, service-worker or socket attribution. A zero-row window provides no measured worker content. The existing private event budget/one-hour expiry applies. Twenty-three Python lifecycle checks and five MCP debugger/schema checks pass.
 
 Protocol: https://raw.githubusercontent.com/WebKit/WebKit/main/Source/JavaScriptCore/inspector/protocol/Worker.json
+
+## Explicit heap graphs and stable document identity (1.9.21)
+
+Safari's reported `performance.timeOrigin` moved by a few milliseconds while the same document stayed loaded. Document references now hash WebKit's main-frame/loader IDs, checked before and after each fixed context read. Raw timing remains diagnostic only. A missing loader or an actual navigation fails closed; no rounding/tolerance or page mutation is used. Get a fresh overview after upgrading.
+
+`ios_browser_debug {browser:"safari",op:"heap",sessionId,documentRef}` explicitly takes a JavaScriptCore heap snapshot. It requires this connection's active web/system owner and a fresh document reference; it cannot acquire a temporary observer owner. WebKit performs synchronous full GC during snapshot construction and temporarily pauses execution. Use this intentionally for memory diagnosis, never as a routine resource probe or live-call measurement.
+
+The private graph includes nodes, edges and class/property tables, plus class counts/shallow bytes, the thirty largest objects and up to eight immediate incoming edges for each. These are not retained sizes, dominators or proof of a leak. Scope is the inspected JavaScript VM and accessible script states, not whole-device or exclusively page memory. Disabling Heap clears live provider snapshots/object IDs; the captured graph remains available offline.
+
+Heap artifacts allow32MiB, retaining the same128MiB host quota, one-hour expiry and0600 files. Ordinary diagnostic artifacts keep their2MiB cap. `ios_read {artifactId,pointer:"/result/pages/0/debug/heap/summary/classes",offset:0,count:20}` returns a bounded window and `pagination.nextOffset`; reduce count when the character budget refuses a row set. The full graph stays outside model context. No always-on heap tracking or repeated snapshot loop is installed.
+
+Protocols/implementation:
+- https://raw.githubusercontent.com/WebKit/WebKit/main/Source/JavaScriptCore/inspector/protocol/Heap.json
+- https://raw.githubusercontent.com/WebKit/WebKit/main/Source/JavaScriptCore/heap/HeapSnapshotBuilder.cpp
+- https://raw.githubusercontent.com/WebKit/WebKit/main/Source/JavaScriptCore/inspector/protocol/Page.json
+
+Physical Safari retained168909nodes/506647edges (10.9MB source); Chrome27518nodes/73056edges (1.58MB source). Both disabled Heap and detached. Actual Chrome reload rejected the old loader reference before snapshot dispatch. See `browser-heap-physical-2026-10-11.json`.

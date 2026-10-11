@@ -591,3 +591,11 @@ Published1.9.18 adds explicit portrait/landscape recovery with provider readback
 ## Dedicated worker discovery (1.9.20)
 
 `ios_browser_debug op=workers` returns a bounded worker catalog. Physical Safari/Chrome synthetic-worker discovery, mandatory initialization, continued execution and domain cleanup passed. Worker debugging has an execution gate: this service initializes every reported worker even after owner loss. Read the private worker list selectively. This does not expose worker source/evaluation or assign unattributed Network frames to a worker. See BROWSER-DEBUG.md.
+
+## Intentional heap diagnosis and capture windows (1.9.21)
+
+`ios_browser_debug op=heap` requires an existing web/system session and fresh `documentRef`. It takes one full-GC JavaScriptCore snapshot, retains the graph privately (up to32MiB, one-hour expiry within the shared128MiB quota), and reports counts plus bounded class/shallow-size/immediate-retainer projections. This pauses execution and is separate from passive resource sampling; no live-call latency or leak conclusion is implied.
+
+`ios_read` now accepts both `offset` and `count` for an array subtree; `pagination.nextOffset` advances the next bounded window. Oversize results return no partial JSON. Ordinary diagnostics retain their2MiB cap. Safari/Chrome physical graphs and cleanup passed; schema, ownership, format, storage and paging checks are separate from the held old-schema connection.
+
+Document references now use WebKit frame/loader IDs rather than jittering `performance.timeOrigin`. Fixed context reads bracket the visible-origin check with loader reads. Actual Chrome reload rejected the previous reference before Heap dispatch. No timing tolerance or mutation is used to establish document identity. See BROWSER-DEBUG.md and browser-heap-physical-2026-10-11.json.
