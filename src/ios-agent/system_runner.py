@@ -8,6 +8,7 @@ import plistlib
 import re
 import signal
 import sys
+import time
 from cli import request
 
 logging.disable(logging.CRITICAL)
@@ -35,7 +36,7 @@ def validate(r):
 
 def owned(r):
     o = json.loads(Path(r['ownerFile']).read_text())
-    if o.get('active') is not True:return False
+    if o.get('active') is not True or time.time()-o.get('heartbeatAt',0)>20 or time.time()-o.get('activityAt',0)>1200:return False
     os.kill(o['pid'], 0)
     lease = json.loads(Path(r['leaseFile']).read_text())['lease']
     return (request({'op':'status'}, Path(r['state']), timeout=2).get('lease') or {}).get('id') == lease

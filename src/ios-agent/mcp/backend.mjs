@@ -7,9 +7,10 @@ import {fileURLToPath} from 'node:url';
 import {nutritionRecipe} from './workflows.mjs';
 import {mediaObservation} from './media-verification.mjs';
 import {CaptureStore} from './capture-store.mjs';
+import {SystemDriver} from './system-driver.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/capture-store.mjs', 'web/rich-capture.js', 'ready_wait.py', 'mcp/media-verification.mjs', 'mcp/workflows.mjs', 'paired_workflow.py', 'health.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
+const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/system-driver.mjs', 'system_runner.py', 'mcp/capture-store.mjs', 'web/rich-capture.js', 'ready_wait.py', 'mcp/media-verification.mjs', 'mcp/workflows.mjs', 'paired_workflow.py', 'health.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
   .map(file => fs.readFileSync(path.join(root, file))).map(bytes => createHash('sha256').update(bytes).digest('hex')).join(':')).digest('hex');
 export const defaultState = path.join(os.homedir(), 'Library/Application Support/ios-agent');
 const idleLimit = 20 * 60 * 1000;
@@ -150,10 +151,11 @@ export class Backend {
       requirements: 'Native: Kickoff DEV foreground/unlocked. Browser: enrolled dev document visible on unlocked iPhone. Both require Tailscale and awake laptop services; routine control needs no USB. Developer-channel failure does not prove physical disconnection or lock.',
       browserDomains: {layout:'ios_web_inspect kind=element reports fresh target computed CSS, center hit, bounded ancestors and viewport; use snapshot and target refs.',media:'Content-free request outcomes, track liveness, WebRTC audio and WebSocket counters. Check media.hooks coverage before interpreting zero counts; late microphone APIs are wrapped without replacing later libraries.',performance:'Bounded navigation/paint/resource/main-thread numeric timings; unavailable metrics are null, not zero.',meet:'Fixed local call-lobby projection; no identities, credentials or transcripts.',limitations:'State readback is not a trusted touch, OS permission tap, whole-phone screenshot or off-LAN verification.'},
       browserMediaVerification: 'ios_web_verify gate=web-media direction=sent|received|both sampleMs=500..3000 requires stable advancing audio RTP counters. It returns shared structural learning evidence; a passed counter gate does not prove audible content or a completed call.',
-      cleanup: 'When finished or pausing phone work: stop capture, release control, confirm glow/inspection cleanup, then return the phone to its Home Screen using an available verified system-control route. Taylor prefers Home over restoring the previous app; do not leave Kickoff DEV foreground without a continuing task. Do not send Home during an intermediate session handoff or while another agent owns the device. Home navigation is not yet implemented by this MCP; report homeNavigationPending if no verified route is reachable. Never substitute force-quit, lock, XCTest startup or an unverified shortcut. Explicit end, cancellation, disconnect and 20-minute tool silence retire control; the native watchdog protects host loss.',
+      systemFallback: 'Explicit ios_system_begin/inspect/action/end uses the existing signed WDA runner for native Safari/Chrome/Settings/Kickoff and Home. End the normal app/page lease first; end the fallback in finally, normally return Home, and verify runnerStopped. Startup uses paired nearby developer transport; WDA HTTP uses Tailscale but off-LAN start is unqualified. Apple may request human authorization; no passcode is entered. EOF/dead owner independently stops the runner. Do not use this for routine DOM/app work.',
+      cleanup: 'When finished or pausing phone work: stop capture, release control, confirm glow/inspection cleanup, then return the phone to its Home Screen using an available verified system-control route. Taylor prefers Home over restoring the previous app; do not leave Kickoff DEV foreground without a continuing task. Do not send Home during an intermediate session handoff or while another agent owns the device. Home is available within an explicitly started system fallback; normal native/browser end does not start XCTest just for cleanup. Report homeNavigationPending if no verified route is reachable. Never substitute force-quit, lock, XCTest startup or an unverified shortcut. Explicit end, cancellation, disconnect and 20-minute tool silence retire control; the native watchdog protects host loss.',
       input: 'Get a fresh tree; use its snapshot, target and observed coordinates within five seconds. Verify committed route/value after input. Never automatically replay an accepted or unknown action.',
       updates: 'JS edits use remote Metro; verify ready and route after refresh. Forms/navigation can reset. Native edits require build/install.',
-      visibility: 'Main-window data excludes system overlays. UIKeyInput is semantic editing. No arbitrary system UI, IME or multi-touch guarantee.',
+      visibility: 'Normal main-window data excludes system overlays. Explicit system fallback includes native browser/system hierarchy. UIKeyInput is semantic editing. No arbitrary system UI, IME or multi-touch guarantee.',
       sharedLearning: learning};
   }
   async doctor() {
@@ -312,6 +314,33 @@ export class Backend {
       const value=JSON.parse(fs.readFileSync(a.file,'utf8')).result;
       return {ok:true,artifactId:a.id,metadata:safe(value),inputSent:false,next:kind==='screen'?'Use ios_read with this artifactId for the actual full-device PNG. Paired nearby developer transport; separate from arbitrary-network page control.':kind==='resource-profile'?'Three bounded process samples; CPU is provider raw units and WebContent is not page attribution. The profiler is closed; a temporary owner is released only when this call created it.':'Service availability is not proof of Web Inspector opt-in or native touch.'};
     } finally {if(temporary&&s)await this.end(s.id);}
+  }
+  async systemBegin({rollout}={}) {
+    const acquired=await this.begin({surface:'launch',rollout}),s=this.session(acquired.sessionId);
+    s.systemDriver=new SystemDriver({state:this.state,session:s,check:()=>this.session(s.id)});
+    try{
+      const result=await s.systemDriver.start();
+      if(!result.ok){const cleanup=await this.end(s.id);return {...result,cleanup};}
+      s.surface='system';return {...result,sessionId:s.id,next:'Use ios_system_inspect and fresh targets; ios_system_end in finally stops the runner and Apple overlay. Normal page/app work should use its own driver.'};
+    }catch{const cleanup=await this.end(s.id);return {ok:false,reason:'system_start_unconfirmed_inspect_phone',replay:false,cleanup};}
+  }
+  async systemInspect({sessionId}) {
+    const s=this.session(sessionId);if(!s.systemDriver)throw Error('session_required');
+    const value=await s.systemDriver.inspect(),a=this.artifact(s,'system-tree');
+    fs.writeFileSync(a.file,JSON.stringify(value),{flag:'wx',mode:0o600});
+    const nodes=value.nodes.filter(n=>n.visible&&(n.name||n.label||n.value));
+    return {...value,artifactId:a.id,nodes:nodes.slice(0,100),totalNodes:value.nodes.length,compact:true,next:'Fresh snapshot expires in five seconds. ios_read selects the private full tree. Never replay accepted or unknown input.'};
+  }
+  async systemAction(args) {
+    const s=this.session(args.sessionId);if(!s.systemDriver)throw Error('session_required');
+    return s.systemDriver.action(args);
+  }
+  async systemEnd({sessionId,home=true}) {
+    const s=this.session(sessionId);if(!s.systemDriver)throw Error('session_required');
+    let presentation={homeNavigationPending:true};
+    if(home)presentation=await s.systemDriver.action({action:'home'});
+    const ended=await this.end(sessionId);
+    return {...ended,presentation,ok:ended.systemCleanup?.runnerStopped===true,next:'XCTest fallback is stopped. Begin a fresh native/browser lease for normal work.'};
   }
   async waitReady({surface='any',browser,page,timeoutSeconds=45}={},signal) {
     const controller=new AbortController();this.waitControllers.add(controller);
@@ -503,7 +532,8 @@ export class Backend {
     if (!s) return {released: false, alreadyEnded: true};
     if (s.endPromise) return s.endPromise;
     s.endPromise = (async () => {
-      let captureCleanup;
+      let captureCleanup,systemCleanup;
+      if(s.systemDriver)systemCleanup=await s.systemDriver.stop();
       if(this.captures.get(id)?.active&&s.active&&!this.closing){
         try {const started=Date.now();captureCleanup=await this.capture({sessionId:id,op:'stop'});const artifacts=captureCleanup.artifactId?[captureCleanup.artifactId]:[];while(captureCleanup.ok&&captureCleanup.remainingEvents>0&&Date.now()-started<10000){captureCleanup=await this.capture({sessionId:id,op:'drain'});if(captureCleanup.artifactId)artifacts.push(captureCleanup.artifactId);}captureCleanup={...captureCleanup,artifactIds:artifacts,complete:captureCleanup.ok&&captureCleanup.remainingEvents===0};}catch{captureCleanup={complete:false,reason:'capture_cleanup_unconfirmed'};} // Watchdog handles lost ownership.
       }
@@ -515,7 +545,7 @@ export class Backend {
       if (fs.existsSync(s.lease)) release = await this.run('cli', ['release', '--lease-file', s.lease], undefined, 20000);
       this.sessions.delete(id);
       this.captures.delete(id);
-      return {released: release.ok,...(captureCleanup?{captureCleanup}:{}), detail: release.ok ? safe(release.value) : release.error,
+      return {released: release.ok,...(systemCleanup?{systemCleanup,ok:systemCleanup.ok}:{}),...(captureCleanup?{captureCleanup}:{}), detail: release.ok ? safe(release.value) : release.error,
         next: 'Call ios_verify gate=idle without a session to confirm native and host cleanup.'};
     })();
     return s.endPromise;

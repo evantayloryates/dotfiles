@@ -1,0 +1,39 @@
+{
+  "at": "2026-10-11T00:19:53.529379+00:00",
+  "scope": "Physical iPhone Safari DEV website; WDA over Tailscale with paired wireless startup; microphone source disabled to capture silence",
+  "status": "passed",
+  "mirroringUsed": false,
+  "usbDiscoveryUsed": false,
+  "runnerStarted": true,
+  "passcodePromptObserved": false,
+  "unattendedRestartQualified": false,
+  "offLANStartQualified": false,
+  "websiteMicrophoneBefore": "Ask",
+  "websiteMicrophoneAfter": "Allow",
+  "cameraUnchanged": "Ask",
+  "locationUnchanged": "Ask",
+  "normalPageDriverAcquireMs": 2128,
+  "actualMicrophoneTrackAcquired": true,
+  "sourceEnabledDuringCapture": false,
+  "audioChunks": 5,
+  "audioBytes": 2164,
+  "codec": "aac",
+  "sampleRate": 48000,
+  "channels": 1,
+  "durationSeconds": 4.865333,
+  "manifestContainsBase64": false,
+  "originalTrackPreservedByCapture": true,
+  "testSourceStopped": true,
+  "pageIndicatorOff": true,
+  "runnerStopped": true,
+  "wdaPortClosed": true,
+  "privateEvidence": [
+    "runner-wda-WS3f3R",
+    "runner-delivery-ZbU0q4"
+  ],
+  "limitations": [
+    "Silent disabled-microphone fixture is not audible microphone or full-call proof.",
+    "Nearby paired startup and Tailscale HTTP do not prove arbitrary-network startup.",
+    "Apple can require physical authorization on a future start."
+  ]
+}

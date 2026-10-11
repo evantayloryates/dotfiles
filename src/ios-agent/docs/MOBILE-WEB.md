@@ -338,3 +338,20 @@ tabs, so these are process metrics, not attributed page CPU or JavaScript heap.
 Only Safari, Chrome, Kickoff DEV and WebContent process names are retained.
 The configured 500 ms sampling interval is a request; use each sample's actual
 `elapsedMs` when interpreting the result. Continuous profiling is not enabled.
+
+## Persistent Safari permission and native input fallback
+
+For the enrolled DEV host, Safari Website Settings → Microphone is now **Allow**.
+The setting was applied and read back using signed WebDriverAgent over Tailscale,
+with Mirroring closed. Camera and Location remain Ask. A new `getUserMedia`
+request then completed without a prompt through the normal page MCP. Capture
+cloned a real microphone source disabled for silence: five AAC chunks decoded at
+48 kHz mono, 4.865 seconds; stop preserved the source before explicit fixture
+cleanup. No audible/full-call or Chrome microphone claim follows from that gate.
+
+Use the explicit `ios_system_*` fallback for a genuine native browser control or
+permission dialog when needed, then return to the normal DOM/page driver. Do not
+use Mirroring as a runtime dependency. A successful nearby wireless start does
+not prove off-site startup or eliminate Apple's possible authorization prompts.
+The direct Tailscale lockdown-port handshake reset; an open port was not treated
+as a working developer-service connection. See MCP.md for ownership and cleanup.

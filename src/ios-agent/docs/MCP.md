@@ -238,3 +238,40 @@ it acquires and releases a temporary maintenance owner. The profiler always
 closes on completion or error. Read detailed samples selectively with `ios_read`.
 WebContent is process scoped, CPU is provider raw units, missing values are null,
 and paired nearby success does not qualify off-LAN access.
+
+## Version 1.5: explicit native system fallback
+
+Four tools make the proven signed WebDriverAgent route reusable:
+`ios_system_begin`, `ios_system_inspect`, `ios_system_action`, `ios_system_end`.
+The catalog is 31 tools and five resources. End the normal app/page session first.
+Start only when genuine native input or browser/system UI is needed. The same
+exclusive device owner prevents a second cooperating agent from taking control.
+
+The local private `system-driver.json` names the existing signed `.xctestrun`
+under Xcode DerivedData and the phone's IPv4 Tailscale address. Startup uses
+Apple's existing paired developer transport; no usbmux discovery or Mirroring.
+The WDA HTTP connection runs through Tailscale. This does not establish off-site
+startup. An existing responsive runner is preserved rather than reused or killed.
+No passcode is accepted, stored or entered; Apple may require human authorization.
+
+Inspect the native tree, then tap its visible/enabled target or scroll one half
+page with a fresh snapshot. Snapshot references expire after five seconds and
+are consumed before dispatch. Unknown input is never replayed. Fixed activation
+supports Safari, Chrome, Settings and Kickoff DEV. Input on a locked phone is
+refused. Secure-entry values are omitted from tree artifacts. This is native
+XCTest input and Apple retains its own Automation Running indicator.
+
+Always `ios_system_end` in finally. It normally returns Home, deletes the WDA
+session, stops the owned xcodebuild and independently checks the runner process.
+`runnerStopped:false` means cleanup remains unconfirmed. A separate supervisor
+also stops the runner on MCP EOF, dead owner, lost lease, stale heartbeat or
+20-minute inactivity. It kills a remaining runner only when its PID matches this
+owned xcodebuild's log; another runner is preserved. Cancellation does not replay
+input or promise Home navigation after ownership has been revoked.
+
+Safari's DEV website Microphone setting was changed from Ask to Allow through
+this route, without Mirroring. A fresh normal page-driver microphone acquisition
+then completed in 2.128 seconds with no prompt. Five disabled-source AAC chunks
+were saved privately, decoded, and the test stream was stopped. Camera and
+Location stayed Ask. This is not audible microphone or full-call qualification.
+Receipt: annotation-safari-permission-wda-2026-10-10.json.
