@@ -117,7 +117,11 @@ function target(bytes) {
   fs.closeSync(fd); current = {file,size:0,started:now}; prune(); return file;
 }
 export function withSignalContext(value, fn) {
-  return context.run({...inherited(), ...context.getStore(), ...clean(value)}, fn);
+  let prepared;
+  try { prepared = {...inherited(), ...context.getStore(), ...clean(value)}; }
+  catch { prepared = context.getStore() || {}; }
+  // Do not catch around run: a handler exception must propagate without replay.
+  return context.run(prepared, fn);
 }
 export function signalContextEnvironment(base = process.env) {
   return {...base, IOS_AGENT_SIGNAL_CONTEXT: JSON.stringify(clean({...inherited(), ...context.getStore()}))};

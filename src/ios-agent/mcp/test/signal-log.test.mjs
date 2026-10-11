@@ -81,3 +81,13 @@ with m.signal_context(trace='1234567890abcdef1234567890abcdef'):
     assert.equal(fs.existsSync(stale),false);
   } finally { fs.rmSync(state,{recursive:true,force:true}); }
 });
+
+test('context preparation failure still invokes handler exactly once', () => {
+  const script=`import {withSignalContext} from ${JSON.stringify(modulePath)};
+    const broken=new Proxy({}, {ownKeys(){throw new Error('bad context')}});
+    let calls=0;
+    if(withSignalContext(broken,()=>{calls++; return 42})!==42 || calls!==1) process.exit(2);
+    try { withSignalContext(broken,()=>{calls++; throw new Error('handler failed')}); process.exit(3); }
+    catch(error) { if(error.message!=='handler failed' || calls!==2) process.exit(4); }`;
+  run(process.execPath,['--input-type=module','-e',script]);
+});
