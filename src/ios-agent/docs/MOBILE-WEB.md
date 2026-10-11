@@ -554,3 +554,11 @@ call or MCP page-ownership/source-discovery path. No microphone was acquired, no
 speaker playback was used, and local host ICE is not off-LAN proof. The existing
 MCP capture operation already uses this factory; no runtime behavior changed.
 See safari-received-capture-physical-2026-10-11.json.
+
+### A native dialog can hide from the normal tree
+If Inspector reports a visible DEV page but XCTest reports empty SpringBoard,
+inspect the bounded `alert` field from ios_system_inspect. Use alert-button with
+the fresh snapshot and exact observed button for authorized routine dialogs.
+Then independently inspect the page and actual media tracks. A disappeared dialog
+is not itself a microphone grant. Authentication prompts are observation-only;
+never infer cable/lock state or request USB just from this UI disagreement.

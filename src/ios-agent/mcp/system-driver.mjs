@@ -42,7 +42,7 @@ export class SystemDriver {
     catch(error){throw Error(['TimeoutError','AbortError'].includes(error.name)?'system_endpoint_deadline':'system_endpoint_unreachable');}
     const reader=response.body.getReader();let text='',bytes=0;const decoder=new TextDecoder();
     try{while(true){const {value,done}=await reader.read();if(done)break;bytes+=value.length;if(bytes>2*1024*1024)throw Error('system_response_bounded');text+=decoder.decode(value,{stream:true});}}finally{await reader.cancel().catch(()=>{});}
-    const r=JSON.parse(text);if(!response.ok||r.value?.error)throw Error('system_provider_rejected');return r;
+    const r=JSON.parse(text);if(!response.ok||r.value?.error){const error=Error('system_provider_rejected');error.providerCode=typeof r.value?.error==='string'?r.value.error:null;throw error;}return r;
   }
   async start(){this.startPromise=this.startOnce();return this.startPromise;}
   async startOnce(){
@@ -87,12 +87,24 @@ export class SystemDriver {
   }
   route(r){if(!this.sid)throw Error('system_session_required');return `/session/${this.sid}${r}`;}
   async context(requireScopedApp=true){this.check();const locked=(await this.http('GET',this.route('/wda/locked'))).value;if(locked!==false)throw Error('physical_unlock_required');const a=(await this.http('GET',this.route('/wda/activeAppInfo'))).value;if(!a?.bundleId||requireScopedApp&&!allowed.has(a.bundleId))throw Error('system_app_scope_required');return a.bundleId;}
+  async readAlert(){
+    this.check();let text;
+    try{text=(await this.http('GET',this.route('/alert/text'),undefined,2000)).value;}
+    catch(error){if(error.providerCode==='no such alert')return null;throw error;}
+    if(text===null||text===undefined)return null;
+    const buttons=(await this.http('GET',this.route('/wda/alert/buttons'),undefined,2000)).value;
+    this.check();
+    if(typeof text!=='string'||text.length>4000||!Array.isArray(buttons)||buttons.length>12||buttons.some(v=>typeof v!=='string'||!v.length||v.length>500))throw Error('bounded_system_alert_required');
+    const authentication=/passcode|password|touch\s?id|face\s?id|apple\s?(id|account)|sign[ -]?in|enable ui automation|xctest|trust this computer/i.test(text);
+    return {text,buttons,authentication,control:authentication?'human authentication required':'observed button only'};
+  }
   async inspect(){
     const bundle=await this.context(),at=Date.now(),r=await this.http('GET',this.route('/source')),tree=await parseTree(r.value);
+    const alert=await this.readAlert();
     if(await this.context()!==bundle)throw Error('system_app_changed');
-    const snapshot=id();this.snapshot={id:snapshot,at:Date.now(),bundle,nodes:tree.nodes};
+    const snapshot=id();this.snapshot={id:snapshot,at:Date.now(),bundle,nodes:tree.nodes,alert};
     this.uncertain=false;
-    return {ok:true,snapshot,bundle,readDurationMs:Date.now()-at,freshness:'five seconds after completed read; tap re-resolves a unique live native element and checks hittability',nodes:tree.nodes.map((n,i)=>({...n,target:String(i)})),truncated:tree.truncated,delivery:'native XCTest; full tree includes browser/system UI; not DOM'};
+    return {ok:true,snapshot,bundle,alert,readDurationMs:Date.now()-at,freshness:'five seconds after completed read; tap re-resolves a unique live native element and checks hittability',nodes:tree.nodes.map((n,i)=>({...n,target:String(i)})),truncated:tree.truncated,delivery:'native XCTest; full tree includes browser/system UI; not DOM'};
   }
   async tapElement(matches,type){
     if(!Array.isArray(matches)||matches.length!==1)return {reason:'unique_system_target_required'};
@@ -115,6 +127,18 @@ export class SystemDriver {
       const bundle=await this.context(!['activate','home'].includes(action));
       if(action==='home'){this.snapshot=null;await this.authorize();this.check();inputSent=true;await this.http('POST','/wda/homescreen',{});return {ok:true,homeConfirmed:await this.foregroundMatches('com.apple.springboard'),replay:false};}
       if(action==='activate'){if(!bundles[app])return {ok:false,reason:'fixed_system_app_required',actionSent:false};this.snapshot=null;await this.authorize();this.check();inputSent=true;await this.http('POST',this.route('/wda/apps/activate'),{bundleId:bundles[app]});return {ok:true,foregroundConfirmed:await this.foregroundMatches(bundles[app]),replay:false};}
+      if(action==='alert-button'){
+        const saved=this.snapshot;
+        if(!saved||saved.id!==snapshot||Date.now()-saved.at>5000||saved.bundle!==bundle||!saved.alert||typeof label!=='string'||!saved.alert.buttons.includes(label))return {ok:false,reason:'fresh_observed_alert_required',actionSent:false};
+        if(saved.alert.authentication)return {ok:false,reason:'human_authentication_required',actionSent:false};
+        const current=await this.readAlert();
+        if(JSON.stringify(current)!==JSON.stringify(saved.alert))return {ok:false,reason:'system_alert_changed',actionSent:false};
+        if(current.authentication)return {ok:false,reason:'human_authentication_required',actionSent:false};
+        await this.authorize();this.check();
+        this.snapshot=null;inputSent=true;
+        await this.http('POST',this.route('/alert/accept'),{buttonName:label});
+        return {ok:true,delivery:'native-XCTest-alert',effect:'unverified; inspect again',replay:false};
+      }
       if(action==='orientation'){
         if(!['portrait','landscape'].includes(orientation))return {ok:false,reason:'fixed_orientation_required',actionSent:false};
         this.snapshot=null;await this.authorize();this.check();inputSent=true;

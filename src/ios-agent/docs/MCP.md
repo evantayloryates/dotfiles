@@ -632,3 +632,19 @@ readiness passed. Use `ios_web_pages` afterward. Accepted/unknown delivery is ne
 replayed. URLs/fragments stay in private launch files/stdin; no arbitrary origin,
 browser bundle, launch option or command is accepted. Full fresh-owner workflow
 qualification awaits safe release of the original explicitly-held XCTest owner.
+
+### Native alerts missing from the hierarchy (1.9.28)
+`ios_system_inspect` also reads WebDriverAgent alert text/buttons. An alert can
+cover a visible DEV page while the native hierarchy looks like an empty SpringBoard.
+Inspect `alert` before diagnosing an offline app, lock or cable problem.
+`ios_system_action action=alert-button snapshot=<fresh> label=<exact button>`
+rechecks unchanged text/buttons, owner, foreground and the five-second snapshot
+then dispatches once. Inspect afterward to verify removal/effect. Native labels
+are not assumed: the Safari JavaScript alert used Close, not OK. Authentication
+alerts (passcode/password/biometric/account login/XCTest/Trust Computer) remain
+observation-only. Unknown input blocks more mutations until fresh inspection.
+This uses the existing bounded XCTest fallback; it does not start or retain a
+runner independently, bypass authorization, or make browser JS clicks trusted.
+Chrome's synthetic JavaScript dialog did not appear in the alert API: its normal
+hierarchy exposed OK, and an exact native tap plus Dialog returned readback passed.
+Use that path when alert is null; do not assume permission was granted.

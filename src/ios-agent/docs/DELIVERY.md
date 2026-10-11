@@ -231,3 +231,10 @@ query markers were independently read; no default-browser handoff needed.
 Original XCTest remained active. Three provider-contract checks and four launch/
 enrollment adapter checks passed; existing wrapper coverage passed separately.
 Fresh MCP-owned enrollment and physical off-LAN acceptance remain explicit gates.
+
+#### 1.9.28 — native alert visibility and guarded handling
+The separate WDA alert API is now exposed in system inspection and guarded
+alert-button input. Physical Safari Close and Chrome native-hierarchy OK paths
+were independently confirmed; no microphone/authentication promotion. Six new
+contract checks,27existing driver cases and31wrapper/alert checks passed.
+Original runner unchanged; own static fixture removed, Home verified separately.

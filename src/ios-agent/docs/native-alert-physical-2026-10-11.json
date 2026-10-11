@@ -1,0 +1,63 @@
+{
+  "version": "1.9.28",
+  "at": "2026-10-11T09:53:20.586351+00:00",
+  "originalXCTestPreserved": true,
+  "proof": {
+    "safari": {
+      "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-input-1791712287873.json",
+      "sha256": "7c5425e07566ac496510ca7325af444a338dafd19d4ae87c3397343c5807739e",
+      "ok": true,
+      "alert": {
+        "text": "Runner synthetic alert qualification\nRunner synthetic alert qualification",
+        "buttons": [
+          "Close"
+        ],
+        "authentication": false,
+        "control": "observed button only"
+      },
+      "action": {
+        "ok": true,
+        "delivery": "native-XCTest-alert",
+        "effect": "unverified; inspect again",
+        "replay": false
+      },
+      "remaining": null
+    },
+    "chromeObservation": {
+      "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-input-1791712338941.json",
+      "sha256": "664b9e8176712c6f18a067fc6ba79ca46be704b21719ec1995175b051e074eb1",
+      "nativeAlert": null,
+      "browser": "com.google.chrome.ios",
+      "visibleSyntheticPrompt": true,
+      "visibleOKButton": true
+    },
+    "chromeTap": {
+      "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-input-1791712370366.json",
+      "sha256": "bb4615fee7263a4638fdf6d98ce9d815099396da4b6fb7e3238a2241e470296c",
+      "ok": true,
+      "delivery": "native-XCTest"
+    },
+    "chromeAfter": {
+      "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-input-1791712377127.json",
+      "sha256": "a582e556c6cff62a9145f9aa827bbfbe729cdcb73888764eff3a64c28aaf836e",
+      "nativeAlert": null,
+      "dialogReturned": true
+    }
+  },
+  "fixture": {
+    "source": "tests/fixtures/native-alert.html",
+    "sha256": "61ac5a002a5a9272b219841d1656b913f6c72352e13462024ded1c85125b70a2",
+    "temporaryPublicCopyRemoved": true
+  },
+  "checks": {
+    "alertContract": 6,
+    "unchangedDriverCases": 27,
+    "wrapperAndAlert": 31
+  },
+  "limits": [
+    "Safari native alert API qualified with observed Close. Chrome JavaScript dialog used its existing native hierarchy/OK path, not the native alert API.",
+    "This proves synthetic dialog cleanup, not a new microphone grant or authentication exemption.",
+    "Fresh MCP-owned device workflow waits for safe owner handoff.",
+    "Authentication, stale/changed alert and lost-owner refusals plus unknown-input fencing were exercised with isolated contracts."
+  ]
+}
