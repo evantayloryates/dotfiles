@@ -253,3 +253,20 @@ root sampling is still denied, preserve the exact denial and investigate the sup
 OS diagnostic route; do not disable SIP or install a broadly privileged writable helper.
 CPU, pressure and candidate inventories alone cannot identify an exact caller. Compare
 multiple incidents and controlled, owned consumer operations before assigning cause.
+
+### Verified incident: October 11, 2026, 13:43:30 Eastern
+
+Taylor's elevated five-second sample succeeded. All 4,197 samples of worker
+Thread_1336673 were in CoreUARP asset-rescind handling: 2,089 leaves at
+`uarpTransmitQueueAssetRescinded`, 2,108 at its immediate deduplicated callee.
+The main thread synchronously waited in `UARPUploaderUARP accessoryUnreachable:error:`
+after a CoreBluetooth connection event. This strongly suggests a busy loop in
+accessory-update cleanup; the blocked main thread itself is not the CPU source.
+Sample footprint was 8,289 KiB, peak 12 MiB. Exact accessory, originating client
+and defect remain unknown; do not attribute it to iOS-agent or infer it caused
+paging from simultaneous pressure. Elevated capture works after human authentication;
+this does not enable unattended root sampling. Preserve connections and avoid
+interrupting possible firmware transfers while investigating.
+Evidence: `/Users/taylor/src/docs/html/resource-usage-audit/btleserver-stack-analysis-2026-10-11.json`
+and adjacent retained stack text. Repeat the sample on recurrence, then correlate
+bounded accessory events and a single authorized connection change before assigning cause.

@@ -1,0 +1,43 @@
+{
+  "observedAt": "2026-10-11T17:43:18.850128+00:00",
+  "version": "1.9.45",
+  "deliveryId": "33da0bab6a8f429380f4f35aec4701cd",
+  "signedBuild": {
+    "jobId": "1ece2801423c44a0ba66e13799499ac7",
+    "signatureVerified": true,
+    "sourceChangedDuringBuild": false,
+    "installedIdentityVerified": true,
+    "wirelessInstall": true
+  },
+  "precondition": {
+    "usbAttached": false,
+    "wifiIPv4Present": false,
+    "developerEndpointTCP": "refused"
+  },
+  "safari": {
+    "launchTransport": "app-owned-private-URL",
+    "foregroundVisiblePage": true,
+    "ownedReady": true,
+    "uniqueEditableTarget": true,
+    "syntheticFill": true,
+    "independentFieldReadback": true,
+    "guardedSaveClick": true,
+    "committedReactSave": true,
+    "indicatorOff": true,
+    "XCTestStarted": false,
+    "MirroringUsed": false,
+    "humanActionRequired": false
+  },
+  "chrome": {
+    "launchCommandAccepted": true,
+    "freshPageReady": false,
+    "inputReplayed": false,
+    "qualification": "unconfirmed; recover Wi-Fi and inspect actual UI before a changed-condition experiment"
+  },
+  "limits": [
+    "Synthetic DOM input is not trusted native input or microphone authorization.",
+    "Deep cellular Web Inspector still needs a separate transport.",
+    "Chrome handoff is not qualified."
+  ],
+  "privateReceipts": "browser-cellular-NjIStN/1-13.json; runner-delivery-x90tvI/5-17.json"
+}
