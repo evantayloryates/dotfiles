@@ -382,3 +382,35 @@ test('guide identifies the actual connected catalog without phone acquisition', 
     assert.deepEqual(catalog(),guide.interface);assert.match(guide.connectionNote,/does not upgrade/);
   } finally {await client.close();await server.close()}
 });
+
+test('pending system startup retains ownership without evidence, then explicit end stops it',async()=>{
+ const {SystemDriver}=await import('../system-driver.mjs'),original=SystemDriver.prototype.start;
+ SystemDriver.prototype.start=async function(){this.stop=async()=>({ok:true,runnerStopped:true});return {ok:true,ready:false,phase:'starting',expiresAt:Date.now()+300000};};
+ const f=fixture();try{
+  const r=await f.backend.systemBegin(),s=f.backend.sessions.get(r.sessionId);
+  assert.equal(r.ready,false);assert(f.held());assert.equal(s.systemStarting,true);assert.equal(s.systemFingerprint,undefined);assert.equal(r.learningEvidence,undefined);
+  assert.equal((await f.backend.systemAction({sessionId:r.sessionId,action:'home'})).reason,'system_not_ready');
+  const ended=await f.backend.systemEnd({sessionId:r.sessionId,home:false});assert(ended.systemCleanup.runnerStopped);assert(!f.held());assert.equal(s.systemStartupTimer._destroyed,true);
+ }finally{SystemDriver.prototype.start=original;await f.backend.close();fs.rmSync(f.state,{recursive:true,force:true});}
+});
+test('pending system startup hard expiry stops its runner and releases the shared owner',async()=>{
+ const {SystemDriver}=await import('../system-driver.mjs'),original=SystemDriver.prototype.start;let stops=0;
+ SystemDriver.prototype.start=async function(){this.stop=async()=>{stops++;return {ok:true,runnerStopped:true};};return {ok:true,ready:false,phase:'starting',expiresAt:Date.now()+20};};
+ const f=fixture();try{const r=await f.backend.systemBegin();await new Promise(resolve=>setTimeout(resolve,60));assert.equal(stops,1);assert(!f.held());assert(!f.backend.sessions.has(r.sessionId));}
+ finally{SystemDriver.prototype.start=original;await f.backend.close();fs.rmSync(f.state,{recursive:true,force:true});}
+});
+test('pending system startup resumes its existing driver and records readiness only once',async()=>{
+ const {SystemDriver}=await import('../system-driver.mjs'),original=SystemDriver.prototype.start;let resumes=0,reads=0;
+ SystemDriver.prototype.start=async function(){
+  this.stop=async()=>({ok:true,runnerStopped:true});this.deviceIdentity='fixture';this.runtime={os:'fixture',build:'fixture'};
+  this.continueStart=async wait=>{assert.equal(wait,1000);resumes++;return {ok:true,ready:true};};
+  this.inspect=async()=>{reads++;return {ok:true,snapshot:'a'.repeat(32),nodes:[],bundle:'com.apple.mobilesafari'};};
+  return {ok:true,ready:false,phase:'starting',expiresAt:Date.now()+300000};
+ };
+ const f=fixture();try{
+  const r=await f.backend.systemBegin();assert.equal(f.calls.filter(c=>c.kind==='learning'&&c.input.args?.receipt?.gate==='system-ready').length,0);
+  assert((await f.backend.systemInspect({sessionId:r.sessionId,timeoutSeconds:1})).ok);
+  assert((await f.backend.systemInspect({sessionId:r.sessionId})).ok);
+  assert.equal(resumes,1);assert.equal(reads,2);assert.equal(f.calls.filter(c=>c.kind==='learning'&&c.input.args?.receipt?.gate==='system-ready').length,1);
+ }finally{SystemDriver.prototype.start=original;await f.backend.close();fs.rmSync(f.state,{recursive:true,force:true});}
+});

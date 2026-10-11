@@ -409,3 +409,42 @@ See connectivity-mcp-2026-10-11.json. No running worker restart or native rebuil
 was needed.29 historical task-owned smoke clients were closed after verifying
 no active phone owner; the temporary helper now has a30-minute lifetime and
 releases its stdin handle. Persistent production MCP connections are unchanged.
+
+## Physical Claude main-agent cleanup — MCP1.9.39
+
+The actual Claude CLI acquired a physical Safari DEV page through the production
+MCP. Its PreToolUse owner tuple matched begin; actual Stop released one owner and
+confirmed glow off. A separate page inventory confirmed indicator off. Decisions
+came from a loopback fake API, not provider inference. This closes main-agent
+device lifecycle acceptance; the earlier OAuth failure is no longer its blocker.
+See claude-physical-hooks-2026-10-11.json.
+
+Qualified main-only hooks are installed for new Claude Code sessions. The
+idempotent installer preserves permission policy and unrelated hooks, backs up
+privately and rejects a changed config rather than overwriting another writer.
+Nine focused lifecycle/installer checks passed. Child begin events are skipped;
+actual child hook delivery remains unqualified. Explicit end, EOF and silence
+safeguards remain required; Stop is not a universal cancellation signal.
+
+USB recovery dispatched the fixed Runner Wi-Fi On shortcut and foregrounded DEV.
+Native readiness passed; its fresh interface observation reported Wi-Fi IPv4
+association. The configured paired Tailscale endpoint then accepted Safari
+enrollment with the current web SDK. This is recovery evidence, not cellular
+launch qualification. Before another Off test, independently establish the
+cellular/VPN recovery conditions; do not repeat the unresolved transition.
+
+## Bounded resumable system startup — MCP1.9.40
+
+An observed slowdown was MCP stopping every unconfirmed startup after45seconds,
+so human authorization could arrive after its runner was already gone. Begin now
+returns a pending owned session after a short read; inspect resumes that same
+runner, with no input authority until actual WDA readiness/session confirmation.
+The five-minute ceiling, EOF, owner loss and explicit end retire pending work.
+Apple may terminate authorization sooner. Its exact XCTFuture1000 enabling-mode
+timeout is now a distinct observation, not a claim of lock or transport failure.
+
+Physical pending-session return and same-session inspection were exercised. Apple
+ended that attempt with its own enabling-automation timeout; runner stop and lease
+release were confirmed. Human authorization/resumed ready remains open. Nineteen
+focused Node checks and one exact-error Python check passed. No passcode bypass,
+Mirroring dependence or off-LAN startup qualification is claimed.

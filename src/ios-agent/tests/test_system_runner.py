@@ -38,6 +38,12 @@ class SystemRunnerBoundaryTests(unittest.IsolatedAsyncioTestCase):
         for text in ['locked','device unavailable','Enter iPhone Passcode for XCTest','Error Domain=Other Code=-3 because the device is locked.']:
             self.assertIsNone(runner.startup_gate(text))
 
+    def test_exact_apple_automation_timeout_is_not_a_transport_or_lock_claim(self):
+        line='Failed to initialize for UI testing: Error Domain=com.apple.dt.XCTest.XCTFuture Code=1000 "Timed out while enabling automation mode."'
+        self.assertEqual(runner.startup_gate(line),'xctest_authorization_timed_out')
+        for value in ['Timed out while enabling automation mode.',line.replace('XCTFuture','Other'),line.replace('Code=1000','Code=5')]:
+            self.assertIsNone(runner.startup_gate(value))
+
     def test_stale_owner_fails_before_any_device_or_broker_request(self):
         with tempfile.TemporaryDirectory() as d:
             owner=Path(d)/'owner.json';owner.write_text(json.dumps({'active':True,'heartbeatAt':0,'activityAt':0,'pid':1}))

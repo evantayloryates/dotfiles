@@ -153,6 +153,8 @@ def startup_gate(text):
     # the screen is currently locked or that a particular passcode is needed.
     for match in re.finditer(r'Failed to initialize for UI testing:[^\n]*Error Domain=com\.apple\.LocalAuthentication[^\n]*Authentication failure\.',text):
         gates.append((match.start(),'xctest_authorization_failed'))
+    for match in re.finditer(r'Failed to initialize for UI testing:[^\n]*Error Domain=com\.apple\.dt\.XCTest\.XCTFuture Code=1000[^\n]*Timed out while enabling automation mode\.',text):
+        gates.append((match.start(),'xctest_authorization_timed_out'))
     return max(gates)[1] if gates else None
 
 async def collect_runner_output(reader, log, started):

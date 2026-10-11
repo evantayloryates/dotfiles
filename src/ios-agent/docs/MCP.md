@@ -798,3 +798,15 @@ Eleven focused host checks, including exact page-SDK wiring, passed. Actual
 provider-call attribution on iPhone remains the next physical gate. Existing
 phone pages need a reload to use the new SDK; native installed builds are not
 claimed to expose browser-only provenance.
+
+### Pending XCTest startup (1.9.40)
+
+`ios_system_begin` may return `ok:true, ready:false, phase:starting` and a
+`sessionId`. This means only one runner is starting, not that system input is
+available. Use `ios_device_inspect kind:screen` with that session ID to observe
+Apple's prompt. Human authentication remains necessary if requested. Resume the
+same attempt with `ios_system_inspect {sessionId, timeoutSeconds:55}`; never begin
+again while it is pending. Apple may time out authorization sooner; that is reported as
+`xctest_authorization_timed_out`, never automatically retried. The hard five-minute startup deadline, explicit end,
+EOF and owner loss stop it. `ios_system_action` refuses all pending input. Startup
+learning evidence is emitted only after actual ready/session confirmation.

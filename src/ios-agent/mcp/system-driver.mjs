@@ -68,14 +68,28 @@ export class SystemDriver {
     this.child=spawn(path.join(this.state,'providers/pymobiledevice3-11.15.5/bin/python'),['-B',path.join(root,'system_runner.py'),argv],{stdio:['pipe','pipe','pipe']});
     this.exit=new Promise(resolve=>{this.child.once('error',()=>{this.failed=true;resolve();});this.child.once('close',resolve);});
     this.child.stderr.on('data',()=>{});this.child.stdin.on('error',()=>{});
-    let pending='';this.child.stdout.on('data',bytes=>{pending+=bytes;if(pending.length>16000)pending='';let at;while((at=pending.indexOf('\n'))>=0){try{const r=JSON.parse(pending.slice(0,at));if(r.stopped)this.cleanup=r;if(r.started===false)this.failed=true;if(['physical_unlock_required','xctest_authorization_failed'].includes(r.startupGate))this.startupGate=r.startupGate;}catch{}pending=pending.slice(at+1);}});
-    const until=Date.now()+45000;let ready=false;
-    while(Date.now()<until){this.check();if(this.failed||this.child.exitCode!==null)break;try{this.runtime=(await this.http('GET','/status',undefined,1000)).value;ready=this.runtime?.ready===true;if(ready)break;}catch{}await sleep(500);}
-    if(!ready)return {ok:false,reason:this.startupGate||'system_start_unconfirmed_inspect_phone',replay:false};
+    let pending='';this.child.stdout.on('data',bytes=>{pending+=bytes;if(pending.length>16000)pending='';let at;while((at=pending.indexOf('\n'))>=0){try{const r=JSON.parse(pending.slice(0,at));if(r.stopped)this.cleanup=r;if(r.started===false)this.failed=true;if(['physical_unlock_required','xctest_authorization_failed','xctest_authorization_timed_out'].includes(r.startupGate))this.startupGate=r.startupGate;}catch{}pending=pending.slice(at+1);}});
+    this.startupDeadline=Date.now()+300000;
+    return this.continueStart(10000);
+  }
+  async continueStart(waitMs=0){
+    if(this.sid){this.check();return {ok:true,ready:true};}
+    const until=Math.min(Date.now()+waitMs,this.startupDeadline);
+    do {
+      this.check();
+      if(this.stoppingRequested)return {ok:false,reason:'system_start_cancelled',replay:false};
+      if(this.failed||this.child?.exitCode!==null)return {ok:false,reason:this.startupGate||'system_runner_exited',replay:false};
+      if(Date.now()>=this.startupDeadline)return {ok:false,reason:'system_start_expired',replay:false};
+      try{this.runtime=(await this.http('GET','/status',undefined,1000)).value;if(this.runtime?.ready===true)break;}catch{}
+      if(Date.now()>=until)return {ok:true,ready:false,phase:'starting',expiresAt:this.startupDeadline,reason:this.startupGate||'system_start_unconfirmed_inspect_phone',replay:false};
+      await sleep(500);
+    }while(true);
+    if(Date.now()>=this.startupDeadline)return {ok:false,reason:'system_start_expired',replay:false};
     this.startupGate=undefined;
     await this.authorize();this.check();const r=await this.http('POST','/session',{capabilities:{alwaysMatch:{shouldWaitForQuiescence:false,waitForIdleTimeout:1,shouldUseCompactResponses:true}}});
+    this.check();if(this.stoppingRequested)return {ok:false,reason:'system_start_cancelled',replay:false};
     this.sid=r.sessionId||r.value?.sessionId;if(!/^[A-Fa-f0-9-]{36}$/.test(this.sid||''))return {ok:false,reason:'system_session_unconfirmed',replay:false};
-    return {ok:true,transport:'signed-XCTest-runner/paired-developer-start/Tailscale-WDA',indicator:'Apple Automation Running',offLANStartQualified:false,authentication:'Apple may require physical authorization; no passcode is stored or entered'};
+    return {ok:true,ready:true,transport:'signed-XCTest-runner/paired-developer-start/Tailscale-WDA',indicator:'Apple Automation Running',offLANStartQualified:false,authentication:'Apple may require physical authorization; no passcode is stored or entered'};
   }
   async foregroundMatches(expected){
     // A successful dispatch can precede SpringBoard's foreground handoff.
@@ -121,6 +135,7 @@ export class SystemDriver {
   }
   async action({action,snapshot,target,direction,app,label,elementType,text,orientation}){
     this.check();
+    if(!this.sid)return {ok:false,reason:'system_not_ready',actionSent:false,replay:false};
     if(this.uncertain)return {ok:false,reason:'system_observation_required',actionSent:false,replay:false};
     let inputSent=false;
     try{
@@ -218,6 +233,7 @@ export class SystemDriver {
   }
   async stop(){
     if(this.stopping)return this.stopping;
+    this.stoppingRequested=true;
     this.stopping=(async()=>{await this.startPromise?.catch(()=>{});if(this.retained){const current=retainedRunner(this.state);return {ok:current?.id===this.retained.id,runnerStopped:false,retained:current?.id===this.retained.id,reservationId:this.retained.id,expiresAt:this.retained.expiresAt,inputReleasedSeparately:true,...(!current?{reason:'retained_runner_state_unconfirmed'}:{})};}if(this.sid)try{await this.http('DELETE',this.route(''),undefined,4000);}catch{}if(this.child){this.child.stdin.end('stop\n');await Promise.race([this.exit,sleep(38000)]);return {ok:this.cleanup?.runnerStopped===true,runnerStopped:this.cleanup?.runnerStopped===true,verificationAttempts:this.cleanup?.verificationAttempts,cleanupReason:this.cleanup?.reason||'unconfirmed'};}return {ok:true,runnerStopped:true,notStarted:true};})();return this.stopping;
   }
 }

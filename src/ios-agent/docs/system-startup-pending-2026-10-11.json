@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-10-11T15:38:03.338844+00:00",
+  "version": "1.9.40",
+  "scope": "physical nearby paired Tailscale startup; no system input sent",
+  "pendingBegin": {
+    "ok": true,
+    "ready": false,
+    "phase": "starting",
+    "expiresAt": 1791733210291,
+    "reason": "system_start_unconfirmed_inspect_phone",
+    "replay": false,
+    "sessionId": "69fb8c20e8f5b4114e51b850f7acd0bd",
+    "lifecycle": {
+      "mode": "mcp-connection",
+      "reason": "no_inherited_codex_thread"
+    },
+    "next": "One runner is still starting; no system input authority yet. Inspect the phone using ios_device_inspect with this sessionId. If Apple requests authentication, ask the human. Resume the same attempt with ios_system_inspect; do not begin again. Auto-stop after five minutes; ios_system_end/EOF cancel it."
+  },
+  "sameAttemptInspect": {
+    "ok": false,
+    "reason": "system_runner_exited",
+    "replay": false,
+    "cleanup": {
+      "released": true,
+      "systemCleanup": {
+        "ok": true,
+        "runnerStopped": true,
+        "verificationAttempts": 1,
+        "cleanupReason": "runner_exited"
+      },
+      "ok": true,
+      "detail": {
+        "released": true
+      },
+      "next": "Call ios_verify gate=idle without a session to confirm native and host cleanup."
+    }
+  },
+  "independentIdle": {
+    "leased": false,
+    "reactFrontendRunning": false,
+    "reactFrontendCleanupPending": false
+  },
+  "phoneObservation": "Independent whole-display screenshot showed XCTest passcode prompt; image remains private.",
+  "providerFailure": "XCTFuture Code1000: Timed out while enabling automation mode.",
+  "qualification": {
+    "pendingSessionReturned": true,
+    "sameAttemptResumed": true,
+    "runnerCleanupConfirmed": true,
+    "resumedReady": false,
+    "humanAuthenticationBypassed": false,
+    "offLANStart": false
+  },
+  "focusedChecks": {
+    "node": 19,
+    "python": 1
+  },
+  "sourceSha256": {
+    "mcp/system-driver.mjs": "dfb04d96cda347f9f2a315d1202c6c44a9196b410c37d8e023092c5f2b2425e1",
+    "mcp/backend.mjs": "21c0737c6b92d4e7ec2f3eb3d54e554a8a681d6ec96148d34e9754144276b2af",
+    "system_runner.py": "d71e32f28788f5504e1f9bcc2c745ebeaa3fa9c4df76972369e4d1e818baa685"
+  }
+}

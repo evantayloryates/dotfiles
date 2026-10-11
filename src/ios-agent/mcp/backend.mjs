@@ -176,7 +176,7 @@ export class Backend {
       networkRecovery: 'After an intentional cellular/Wi-Fi-Off test, restore Wi-Fi before diagnosing nearby control as unavailable. Read the current developer transport; failure does not prove an unplugged cable. The fixed Runner Wi-Fi On paired recovery shortcut works outside DEV, but dispatch alone is not switch/association proof. An off-LAN browser page alone cannot yet press system Allow or restore Wi-Fi.',
       microphoneWorkflow: 'Safari: use bounded native page controls to save Microphone=Allow for the exact DEV host, then verify getUserMedia through the normal page driver. Chrome: first inspect Settings > Privacy & Security > Microphone; a disabled Chrome app switch can cause NotAllowedError without a site prompt. Named SwiftUI switches resolve their unique nested native toggle; inspect value afterward. Use exact observed Allow labels only after identifying the expected DEV media prompt. ios_system_inspect also returns native alert text/buttons even if the hierarchy is empty; alert-button rechecks its fresh snapshot and exact label. Authentication prompts remain human-only. A permission projection can remain prompt after live track acquisition; inspect pending requests and actual tracks before requesting another approval. Use web-call lobby/paired/released for call conditions, separately from RTP. Never use Mirroring as runtime permission control, assume tap success equals permission, enter a passcode, or replay an unknown request.',
       systemFallback: 'Explicit ios_system_begin/inspect/action/end uses the existing signed WDA runner for native Safari/Chrome/Settings/Shortcuts/Kickoff and Home. Exact-label type/clear handles ordinary native fields (256 characters maximum); type appends and clear is explicit. Inspect the effect. In browser address bars type the URL, read it back, then tap the observed Go button separately. Secure fields/passcodes are excluded. Fixed activate/Home may leave another app without inspecting it. Xcode automatic privileged diagnostics are disabled; ordinary sessions need no sudo. End the normal app/page lease first; end the fallback in finally, normally return Home, and verify runnerStopped. Startup uses paired nearby developer transport; WDA HTTP uses Tailscale but off-LAN start is unqualified. Apple may request human authorization; no passcode is entered. EOF/dead owner independently stops the runner. Do not use this for routine DOM/app work.',
-      systemReadiness: 'A live host owner or xcodebuild is not proof of phone automation. system_runner_exited means this owned test process ended; xctest_authorization_failed means Xcode explicitly reported UI-testing authentication failure, not necessarily a locked screen or a specific passcode. physical_unlock_required requires an exact Xcode/device observation. Transport-only errors do not infer lock. Do not replay input or repeatedly restart to chase authorization. Long retention can lose the phone runner independently and is not an authentication exemption.',
+      systemReadiness: 'A live host owner or xcodebuild is not proof of phone automation. system_runner_exited means this owned test process ended; xctest_authorization_failed means Xcode explicitly reported UI-testing authentication failure, not necessarily a locked screen or a specific passcode. physical_unlock_required requires an exact Xcode/device observation. Transport-only errors do not infer lock. xctest_authorization_timed_out means Xcode explicitly timed out enabling automation. Begin may return ready=false with a starting session, capped at five minutes; Apple may end it sooner. Use ios_device_inspect with that sessionId to observe the phone and ios_system_inspect timeoutSeconds up to55 to resume the same attempt. Pending is not authorized or ready; end/EOF/expiry stop it. Do not replay input or repeatedly restart to chase authorization. Long retention can lose the phone runner independently and is not an authentication exemption.',
       cleanup: 'When finished or pausing phone work: stop capture, release control, confirm glow/inspection cleanup, then return the phone to its Home Screen using an available verified system-control route. Taylor prefers Home over restoring the previous app; do not leave Kickoff DEV foreground without a continuing task. Do not send Home during an intermediate session handoff or while another agent owns the device. For an owned updated native app, send ios_native action=home before ios_end; this retires the lease and asks the DEV app to return Home without XCTest. Use ios_begin nativeOnly=true when JS startup fails. Browser Home still needs an available system route; normal end never starts XCTest just for cleanup. Report homeNavigationPending if no verified route is reachable. Never substitute force-quit, lock, XCTest startup or an unverified shortcut. Explicit end, cancellation, disconnect and 20-minute tool silence retire control; the native watchdog protects host loss.',
       input: 'Exact observed selectors can read and tap within one call: ios_native action=tap args={selector:{identifier:...}} (or exact label/class); requires a unique visible interactive match and preserves native hit tests. Otherwise get a fresh tree; use its snapshot, target and observed coordinates within five seconds. Verify committed route/value after input. Never automatically replay an accepted or unknown action.',
       updates: 'JS edits use remote Metro; verify ready and route after refresh. Forms/navigation can reset. Native edits require build/install.',
@@ -472,14 +472,30 @@ export class Backend {
     try{
       const result=await s.systemDriver.start();
       if(!result.ok){const cleanup=await this.end(s.id);return {...result,cleanup};}
-      s.surface='system';s.systemFingerprint=createHash('sha256').update(JSON.stringify([adapterHash,s.systemDriver.deviceIdentity,s.systemDriver.runtime?.os,s.systemDriver.runtime?.build])).digest('hex');
-      const receipt={gate:'system-ready',status:'passed',observation:{runnerReady:true,sharedOwner:true,nearbyStartupOnly:true}};
-      const learningEvidence=await this.learning('observe',{receipt,source:s.systemFingerprint}).catch(()=>({available:false}));
-      return {...result,sessionId:s.id,lifecycle:acquired.lifecycle,learningEvidence,next:result.retained?'Use ios_system_inspect and observed targets; ios_system_end releases input control but preserves the explicit reservation and Apple overlay. Reservation end/expiry stops its runner.':'Use ios_system_inspect and fresh targets; ios_system_end in finally stops the runner and Apple overlay. Normal page/app work should use its own driver.'};
+      s.surface='system';
+      if(result.ready===false){
+        s.systemStarting=true;
+        s.systemStartupTimer=setTimeout(()=>this.end(s.id).catch(()=>{}),Math.max(0,result.expiresAt-Date.now()));
+        s.systemStartupTimer.unref();
+        return {...result,sessionId:s.id,lifecycle:acquired.lifecycle,next:'One runner is still starting; no system input authority yet. Inspect the phone using ios_device_inspect with this sessionId. If Apple requests authentication, ask the human. Resume the same attempt with ios_system_inspect; do not begin again. Auto-stop after five minutes; ios_system_end/EOF cancel it.'};
+      }
+      return {...result,sessionId:s.id,lifecycle:acquired.lifecycle,learningEvidence:await this.systemReady(s),next:result.retained?'Use ios_system_inspect and observed targets; ios_system_end releases input control but preserves the explicit reservation and Apple overlay. Reservation end/expiry stops its runner.':'Use ios_system_inspect and fresh targets; ios_system_end in finally stops the runner and Apple overlay. Normal page/app work should use its own driver.'};
     }catch{const cleanup=await this.end(s.id);return {ok:false,reason:'system_start_unconfirmed_inspect_phone',replay:false,cleanup};}
   }
-  async systemInspect({sessionId}) {
+  async systemReady(s){
+    clearTimeout(s.systemStartupTimer);s.systemStarting=false;
+    s.systemFingerprint=createHash('sha256').update(JSON.stringify([adapterHash,s.systemDriver.deviceIdentity,s.systemDriver.runtime?.os,s.systemDriver.runtime?.build])).digest('hex');
+    const receipt={gate:'system-ready',status:'passed',observation:{runnerReady:true,sharedOwner:true,nearbyStartupOnly:true}};
+    return this.learning('observe',{receipt,source:s.systemFingerprint}).catch(()=>({available:false}));
+  }
+  async systemInspect({sessionId,timeoutSeconds=0}) {
     const s=this.session(sessionId);if(!s.systemDriver)throw Error('session_required');
+    if(s.systemStarting){
+      const result=await s.systemDriver.continueStart(timeoutSeconds*1000);
+      if(!result.ok){const cleanup=await this.end(s.id);return {...result,cleanup};}
+      if(result.ready===false)return {...result,sessionId:s.id,next:'The same runner remains pending. Inspect the phone; do not restart XCTest. End in finally or let the five-minute deadline retire it.'};
+      await this.systemReady(s);
+    }
     const value=await s.systemDriver.inspect(),a=this.artifact(s,'system-tree');
     fs.writeFileSync(a.file,JSON.stringify(value),{flag:'wx',mode:0o600});
     const nodes=value.nodes.filter(n=>n.visible&&(n.name||n.label||n.value));
@@ -487,6 +503,7 @@ export class Backend {
   }
   async systemAction(args) {
     const s=this.session(args.sessionId);if(!s.systemDriver)throw Error('session_required');
+    if(s.systemStarting)return {ok:false,reason:'system_not_ready',actionSent:false,replay:false};
     if(args.action==='scroll'&&args.snapshot===undefined&&args.label===undefined){
       const tree=await s.systemDriver.inspect();
       args={...args,snapshot:tree.snapshot};
@@ -836,6 +853,7 @@ export class Backend {
     if (!s) return {released: false, alreadyEnded: true};
     if (s.endPromise) return s.endPromise;
     s.endPromise = (async () => {
+      clearTimeout(s.systemStartupTimer);
       let captureCleanup,systemCleanup;
       if(s.systemDriver)systemCleanup=await s.systemDriver.stop();
       if(this.captures.get(id)?.active&&s.active&&!this.closing){
