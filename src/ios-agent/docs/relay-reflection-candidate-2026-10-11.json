@@ -1,6 +1,6 @@
 {
   "observedAt": "2026-10-11T19:32:58.615302+00:00",
-  "scope": "Personal DEV candidate, not delivered",
+  "scope": "Personal DEV nearby reflected transport delivered; cellular deep Inspector remains unqualified",
   "directPhoneResults": [
     {
       "condition": "direct-loopback",
@@ -79,9 +79,7 @@
     "connectTimeoutSeconds": 5
   },
   "remainingGates": [
-    "owned page command/indicator and cleanup",
-    "cellular qualification",
-    "managed transport integration in normal MCP lifecycle"
+    "Deep cellular Inspector; the managed cellular page-control lane is independently delivered."
   ],
   "noNewPairingAttempted": true,
   "noXCTestStarted": true,
@@ -271,7 +269,7 @@
     "evidence": "managed-relay-R8imNC",
     "publicEntryPoint": "ios_web_open",
     "actualMCPQualification": "open, Chrome Inspector DOM, end, Home requested, owner release and indicator-off passed",
-    "configurationScope": "qualification",
+    "configurationScope": "personal-dev",
     "mcpVersion": "1.9.48",
     "actualMCPEvidence": "runner-resume-nIP09p/2.json\u20134.json",
     "focusedLifecycleChecks": 2,
@@ -297,11 +295,28 @@
   "nextChangedCondition": {
     "candidate": "Phone-local Shortcut opens a validated Chrome URL from shortcut input; native DEV invokes only the fixed shortcut.",
     "purpose": "Test whether Shortcuts provides a prompt-free Chrome handoff on cellular without exposing the blocked developer listener.",
-    "status": "Prepared direction, not implemented or verified",
+    "status": "Delivered and physically qualified through actual MCP1.9.50; see managed-cellular-mcp-2026-10-11.json",
     "references": [
       "https://support.apple.com/en-euro/guide/shortcuts/apd624386f42/ios",
       "https://github.com/chromium/chromium/blob/main/docs/ios/opening_links.md"
     ],
     "limit": "Documented URL schemes do not prove confirmation-free execution or browser page readiness."
+  },
+  "currentProvisioning": {
+    "scope": "personal-dev",
+    "retainedWithUserApproval": true,
+    "route": "10.7.0.1/32",
+    "funnelEnabled": false,
+    "newRouteAdded": false
+  },
+  "sourceBindingPreflight": {
+    "observedAt": "2026-10-11T20:59:28.069553+00:00",
+    "scope": "Mac only; not iPhone qualification",
+    "condition": "TCP connect to loopback with source explicitly bound to this Mac Tailscale IPv4",
+    "connected": false,
+    "result": "TimeoutError at one second",
+    "phoneInputSent": false,
+    "nativeSourceChanged": false,
+    "decision": "Not promoted to a phone build. Host result does not establish iPhone impossibility; another source-binding attempt needs a new concrete hypothesis."
   }
 }
