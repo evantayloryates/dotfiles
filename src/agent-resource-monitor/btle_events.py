@@ -34,8 +34,9 @@ def evaluate(root, state):
         events.append(dict(id=group+':onset',kind='onset',**evidence))
         diag=p.with_suffix('.diagnostics.json')
         if diag.exists():
-            capture=json.loads(diag.read_text()).get('stack_capture',{})
-            events.append(dict(id=group+':diagnostics:'+str(capture.get('status')),kind='diagnostics',stack_status=capture.get('status'),**evidence))
+            diagnostic=json.loads(diag.read_text())
+            capture=diagnostic.get('stack_capture',{})
+            events.append(dict(id=group+':diagnostics:'+str(diagnostic.get('checked_at',capture.get('status'))),kind='diagnostics',stack_status=capture.get('status'),**evidence))
         if recovered:events.append(dict(id=group+':recovery',kind='recovery',**evidence))
         previous=dict(recovered=recovered,last=d.get('last_sample_at',d['started_at']))
     # Coalesce onset + diagnostics + recovery found together into one callback per incident.
