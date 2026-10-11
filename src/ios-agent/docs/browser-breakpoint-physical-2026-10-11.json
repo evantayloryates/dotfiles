@@ -1,0 +1,68 @@
+{
+  "at": "2026-10-11T08:25:11.895736+00:00",
+  "version": "1.9.22",
+  "scope": "Physical synthetic local DEV counter document; original signed XCTest owner preserved",
+  "browsers": {
+    "chrome": {
+      "breakpointHit": true,
+      "functionName": "agentBreakpointTick",
+      "actualLocation": {
+        "scriptId": "176",
+        "lineNumber": 4,
+        "columnNumber": 2
+      },
+      "sourceHash": "4f595c4c6351d691cd5cc172d61f17f93634d120a274600e40f60631a26f6a0f",
+      "locals": {
+        "step": 1,
+        "nextCount": 489
+      },
+      "counterAfterResume": 537,
+      "resumeEventConfirmed": true,
+      "breakpointRemoved": true,
+      "debuggerDisabled": true,
+      "detached": true,
+      "privateReceipt": "owned-inspector-1791706907047492000.json"
+    },
+    "safari": {
+      "breakpointHit": true,
+      "functionName": "agentBreakpointTick",
+      "actualLocation": {
+        "scriptId": "14",
+        "lineNumber": 4,
+        "columnNumber": 2
+      },
+      "sourceHash": "4f595c4c6351d691cd5cc172d61f17f93634d120a274600e40f60631a26f6a0f",
+      "locals": {
+        "step": 1,
+        "nextCount": 313
+      },
+      "counterAfterResume": 413,
+      "resumeEventConfirmed": true,
+      "breakpointRemoved": true,
+      "debuggerDisabled": true,
+      "detached": true,
+      "privateReceipt": "owned-inspector-1791707058910593000.json"
+    }
+  },
+  "sourceGuard": {
+    "physicalSafariWrongHashRefused": true,
+    "reason": "debug_script_source_changed",
+    "breakpointRequested": false,
+    "debuggerDisabled": true,
+    "uiInputSent": false
+  },
+  "checks": {
+    "pythonBreakpointLifecycle": 10,
+    "mcpBreakpointSchemaBackend": 3,
+    "relatedMcpDebuggerHeap": 9,
+    "pythonExistingInspector": 28
+  },
+  "boundaries": [
+    "Physical provider qualification and MCP schema/backend checks are separate; held old-schema connection intentionally retained.",
+    "Nearby paired Inspector only; no off-LAN debugger claim.",
+    "One-shot wait100\u20133000ms; target intentionally pauses while stack/own descriptors are captured; not a latency benchmark.",
+    "No getter invocation, caller expression, interactive pause, stepping or persistent object handles.",
+    "Up to40frames and3top-frame non-global scopes with40own descriptors; strings limited4096characters.",
+    "Private2MiB capture admission and one-hour expiry. No call or microphone used."
+  ]
+}

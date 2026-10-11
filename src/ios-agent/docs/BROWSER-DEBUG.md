@@ -1,4 +1,4 @@
-# On-demand browser Inspector — v1.9.1
+# On-demand browser Inspector
 
 `ios_browser_debug` adds independent WebKit diagnostics for the configured
 private DEV origin. It uses the existing pinned paired-device observer, without
@@ -11,7 +11,7 @@ Use this Inspector lane when the phone is nearby and the Apple paired developer
 channel works. A live page bridge does not imply that paired channel is available.
 This is especially useful if the DEV page fails before its SDK registers.
 It does not provide off-site launch, trusted input, OS permission handling,
-full browser internals, heap profiling, breakpoints or worker/frame debugging.
+arbitrary full browser internals. Explicit heap graphs and one-shot breakpoint capture have their own heavier ownership gates below; worker source/evaluation and deeper frame debugging remain open.
 
 ## Small, explicit operations
 
@@ -104,7 +104,7 @@ was closed during the trace; its uncertain input was not replayed.
 
 See browser-debug-dual-physical-2026-10-10.json. Fifteen focused Python checks and
 eight MCP debugger/observer checks pass. Neither browser result qualifies
-arbitrary-network Inspector access, breakpoints, heaps or audible audio.
+arbitrary-network Inspector access or audible audio. Heap/breakpoint qualification is recorded separately below.
 
 Protocol references: [Debugger](https://raw.githubusercontent.com/WebKit/WebKit/main/Source/JavaScriptCore/inspector/protocol/Debugger.json),
 [DOM](https://raw.githubusercontent.com/WebKit/WebKit/main/Source/JavaScriptCore/inspector/protocol/DOM.json),
@@ -209,3 +209,23 @@ Protocols/implementation:
 - https://raw.githubusercontent.com/WebKit/WebKit/main/Source/JavaScriptCore/inspector/protocol/Page.json
 
 Physical Safari retained168909nodes/506647edges (10.9MB source); Chrome27518nodes/73056edges (1.58MB source). Both disabled Heap and detached. Actual Chrome reload rejected the old loader reference before snapshot dispatch. See `browser-heap-physical-2026-10-11.json`.
+
+## One-shot breakpoint stacks and locals (1.9.22)
+
+Use this when a source location explains a bug better than more screenshots.
+It is an atomic capture, with no paused state left for the next agent turn:
+
+1. `ios_browser_debug {browser:"chrome",op:"sources",sessionId}` returns a fresh document reference and a private script catalog.
+2. Read its scripts, then call `op:"source"` with that `documentRef` and exact `scriptId`. Read `/result/pages/0/debug/source/sha256` and the relevant source window.
+3. Call `ios_browser_debug {browser:"chrome",op:"breakpoint",sessionId,documentRef,scriptId,sourceHash,lineNumber:4,columnNumber:2,sampleMs:1500}`. Lines and columns are **zero-based** WebKit script locations. The script hash must match the full source, including after HMR.
+4. Read `/result/pages/0/debug/callFrames` and `/result/pages/0/debug/locals` selectively. `breakpointHit:false` means no matching hit was observed; never treat it as executed-code proof.
+
+An active connection-owned web/system session is required. The operation sets one exact script breakpoint (not a reload-surviving URL breakpoint), activates it for100–3000ms, captures the first pause, removes its breakpoint **before** resuming, confirms WebKit's resumed event, disables Debugger and detaches. Ownership loss, failed reads and uncertain installation still run cleanup. Cleanup failure is an unconfirmed result and must not be replayed. A late pause during cleanup is labeled separately and may have no stack capture.
+
+Up to40 frames and the top frame's first3 non-global scopes are retained. Each scope reads at most41 own property descriptors to retain40 and identify truncation; string values/descriptions are limited to4096 characters. Getters and setters are identified, never invoked. Object descriptions and primitive locals remain; live object and call-frame handles are omitted because resume invalidates them. Known secret-named locals receive the existing first/last-character scrub. No caller expression, stepping, cross-turn pause, global-object walk or user-gesture emulation is involved.
+
+This intentionally pauses the target and changes its timing. Do not use it to benchmark live audio or as a routine polling tool. The ordinary2MiB private capture limit,128MiB host quota and one-hour expiry apply. Nearby paired Inspector only; this does not extend off-LAN reach.
+
+Protocol sources: [Debugger](https://raw.githubusercontent.com/WebKit/WebKit/main/Source/JavaScriptCore/inspector/protocol/Debugger.json), [Runtime descriptors](https://raw.githubusercontent.com/WebKit/WebKit/main/Source/JavaScriptCore/inspector/protocol/Runtime.json).
+
+Physical Safari and Chrome each hit `agentBreakpointTick` at zero-based line4/column2, read `step`/`nextCount`, removed the breakpoint, confirmed the resumed event, disabled and detached. Independent counters advanced after resume. Safari rejected a deliberately wrong source hash before breakpoint dispatch and still disabled Debugger. See `browser-breakpoint-physical-2026-10-11.json`. These provider proofs are separate from fresh MCP schema/backend checks; the original old-schema XCTest connection was preserved.

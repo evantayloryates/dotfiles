@@ -6,6 +6,7 @@ import re
 from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit
 from browser_heap import MAX_HEAP_BYTES, project_snapshot
+from browser_breakpoint import capture as capture_breakpoint
 
 MAX_BYTES = 2 * 1024 * 1024
 
@@ -82,11 +83,13 @@ async def inspect(session, request, target, expected, check):
     request['_inputDispatched']=False
     request['_contextStage']='initial'
     op=request.get('op','overview')
-    allowed={'overview','dom','sources','source','styles','console','trace','network','profile','resources','workers','heap','evaluate'}
+    allowed={'overview','dom','sources','source','styles','console','trace','network','profile','resources','workers','heap','breakpoint','evaluate'}
     if op not in allowed:raise ValueError('fixed_debug_operation_required')
     reference=request.get('documentRef')
-    if op in ('source','evaluate','heap') and not re.fullmatch('[a-f0-9]{32}',reference or ''):
+    if op in ('source','evaluate','heap','breakpoint') and not re.fullmatch('[a-f0-9]{32}',reference or ''):
         raise ValueError('fresh_debug_document_required')
+    if op=='breakpoint' and request.get('ownedDebugSession') is not True:
+        raise ValueError('owned_debug_session_required_for_breakpoint')
     if op=='heap' and request.get('ownedDebugSession') is not True:
         raise ValueError('owned_debug_session_required_for_heap')
     if request.get('expression') is not None and (not request.get('ownedPage') or not reference):
@@ -119,6 +122,11 @@ async def inspect(session, request, target, expected, check):
         'targetHash':hashlib.sha256(json.dumps([target.application.bundle,target.application.id_,target.page.id_]).encode()).hexdigest()[:32]},
         'browser':target.application.bundle,'ready':ctx['ready'],'scope':'paired-dev-WebKit-Inspector','userGestureRequested':False,'replay':False}
     if op=='overview':return {**result,'domainsDisabled':True}
+    if op=='breakpoint':
+        result.update(await capture_breakpoint(session,request,command,context,check,scrub))
+        request['_contextStage']='after_operation'
+        await context()
+        return result
     domains=[];events=Events();old_handlers={};paused=False;timeline_requested=False;profile_requested=False
     worker_tasks=[];worker_ids=set();worker_initialized=[]
     async def initialize_worker(worker_id):
