@@ -1,7 +1,8 @@
 # Claude turn cleanup — prepared integration
 
 The MCP cleanup bridge is available in1.9.29. The Claude hook configuration is
-**prepared, not installed or live-qualified**. Continue explicit native/web/system
+**prepared, not installed or physically qualified**. Actual CLI dispatch is now
+qualified below against local fixtures. Continue explicit native/web/system
 end in finally. No current Claude settings or active phone owner were changed.
 
 ## What is implemented
@@ -42,14 +43,30 @@ Arc and in one alternate Chrome attempt. The CLI login listener was stopped;
 no authorization was forced and no alternate credential route was used. The
 live hook gate remains open, independently of the phone network gate.
 
-After Claude authentication is restored, first run the synthetic hook probe:
-confirm PreToolUse argument rewriting, exact prompt IDs, absent main-agent
-interpolation, subagent identity and Stop/StopFailure dispatch on the same MCP
-connection. Then, at a safe phone-owner handoff, run one normal owned workflow,
-observe cleanup and prove an earlier-prompt event cannot retire its replacement. A Stop hook that
-continues the same prompt needs its own real-harness ordering check; prompt IDs
-are not unique admission IDs. Do not claim that case is already qualified. Merge only
-the verified hook entries into existing Claude settings; preserve unrelated hooks.
+## Actual CLI qualification without account repair —11October
+
+The one-shot `tests/claude_hook_probe.py ordinary|continuation|failure` runs the
+installed CLI2.1.292 against a loopback fake Messages API. It uses an isolated
+config directory and the candidate hook file. The synthetic MCP fixture runs
+the production server/backend with mock phone IPC; no phone or provider is used.
+This checks actual harness dispatch, not model intelligence or physical control.
+
+Observed outcomes:
+- PreToolUse adds the actual session/prompt tuple; absent main-agent ID becomes
+  an empty string. Ordinary Stop calls the same MCP connection and releases once.
+- A separate Stop hook requests continuation. Cleanup completes before the next
+  admission, even though the prompt tuple is reused. Both owners release once.
+- The injected API400 ends the CLI without a StopFailure event in this version.
+  Production MCP EOF cleanup still releases its owner. Do not depend on
+  StopFailure delivery for every failure.
+- SessionEnd runs after the MCP disconnects in print mode; it cannot substitute
+  for EOF cleanup.
+
+Evidence: `claude-live-hooks-2026-10-11.json`. The account authorization problem
+no longer blocks lifecycle protocol qualification. The remaining physical gate
+is one normal owned workflow followed by actual hook cleanup. Subagent hook
+execution remains unqualified. Keep candidate hooks uninstalled until that gate
+is satisfied; preserve unrelated settings when merging verified entries.
 
 Stop does not run on user interruption. SessionEnd is opportunistic if its MCP
 client has disconnected; it cannot replace EOF/cancellation/20-minute-silence

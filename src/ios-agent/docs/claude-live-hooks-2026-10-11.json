@@ -1,0 +1,62 @@
+{
+  "at": "2026-10-11T14:36:36.021374+00:00",
+  "scope": "Actual installed Claude CLI and production MCP/backend ownership; loopback fake API and mock phone IPC. No credential reads, provider requests, global hook changes or physical phone operations.",
+  "cases": [
+    {
+      "mode": "ordinary",
+      "cliVersion": "2.1.292 (Claude Code)",
+      "exit": 0,
+      "apiCalls": 2,
+      "beginCount": 1,
+      "stopCount": 1,
+      "stopFailureObserved": false,
+      "eofCleanupConfirmed": true,
+      "sameConnection": true,
+      "mainAgentIdEmpty": true,
+      "continuedPromptReused": false,
+      "scope": "actual CLI and production MCP/backend; local fake API, fake phone IPC; no physical qualification",
+      "passed": true
+    },
+    {
+      "mode": "continuation",
+      "cliVersion": "2.1.292 (Claude Code)",
+      "exit": 0,
+      "apiCalls": 4,
+      "beginCount": 2,
+      "stopCount": 2,
+      "stopFailureObserved": false,
+      "eofCleanupConfirmed": true,
+      "sameConnection": true,
+      "mainAgentIdEmpty": true,
+      "continuedPromptReused": true,
+      "scope": "actual CLI and production MCP/backend; local fake API, fake phone IPC; no physical qualification",
+      "passed": true
+    },
+    {
+      "mode": "failure",
+      "cliVersion": "2.1.292 (Claude Code)",
+      "exit": 1,
+      "apiCalls": 4,
+      "beginCount": 1,
+      "stopCount": 0,
+      "stopFailureObserved": false,
+      "eofCleanupConfirmed": true,
+      "sameConnection": true,
+      "mainAgentIdEmpty": true,
+      "continuedPromptReused": false,
+      "scope": "actual CLI and production MCP/backend; local fake API, fake phone IPC; no physical qualification",
+      "passed": true
+    }
+  ],
+  "physicalOwnerQualified": false,
+  "subagentHookQualified": false,
+  "globalHooksInstalled": false,
+  "findings": [
+    "Main-agent interpolation produces an empty agentId, and PreToolUse preserves exact session/prompt IDs.",
+    "Ordinary Stop invokes same-connection production harnessEnd and releases the owned maintenance lease.",
+    "A Stop continuation reuses the prompt tuple, but first cleanup completes before a distinct second admission. Both release exactly once.",
+    "CLI2.1.292 did not dispatch StopFailure for the injected API400. Actual MCP EOF cleanup released the owner instead.",
+    "SessionEnd MCP hook runs after disconnection in these print-mode runs; it is opportunistic, not a required cleanup path."
+  ],
+  "next": "One real foreground page/native owner workflow through the same actual CLI lifecycle. No account login is necessary for this loopback lifecycle acceptance."
+}
