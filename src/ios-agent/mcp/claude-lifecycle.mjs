@@ -1,5 +1,7 @@
 // Harness identifiers are cleanup fences, not device authentication. A hook can
 // retire only this MCP connection's sessions carrying the exact same tuple.
+import {emitSignal} from './signal-log.mjs';
+const note=(event,fields)=>{try{emitSignal('mcp',event,fields);}catch{}};
 const uuid=/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i;
 const agent=/^[A-Za-z0-9_-]{1,128}$/;
 export function claudeTurnOwner(value) {
@@ -26,5 +28,6 @@ export function claudeBeginHook(input) {
   catch{return {};}
   // Never silently replace an explicitly selected Codex owner.
   if(original.rollout!==undefined||original.threadId!==undefined)return {};
+  note('harness.owner_bound',{owner:'claude-prompt',tool:input.tool_name?.replace(/^mcp__ios-agent__/,''),session:owner.sessionId,prompt:owner.promptId,agent:owner.agentId||undefined});
   return {hookSpecificOutput:{hookEventName:'PreToolUse',updatedInput:{...original,claudeOwner:owner}}};
 }

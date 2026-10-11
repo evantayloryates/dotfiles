@@ -19,6 +19,7 @@ import {claudeTurnOwner,sameClaudeTurn} from './claude-lifecycle.mjs';
 import {waitNativeElement} from './native-condition.mjs';
 import {openManagedWeb,pageIdleConfirmed} from './web-open.mjs';
 import {qualifiedChromeDelivery,qualifiedChromeInstalled} from './chrome-handoff.mjs';
+import {emitSignal,signalContextEnvironment} from './signal-log.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/input-schemas.mjs', 'mcp/native-selector.mjs', 'mcp/owner-context.mjs', 'mcp/claude-lifecycle.mjs', 'claude-begin-hook.mjs', 'mcp/native-condition.mjs', 'mcp/system-driver.mjs', 'mcp/focus-launch.mjs', 'mcp/system-reservation.mjs', 'system_runner.py', 'system_reservation.py', 'mcp/capture-store.mjs', 'web/rich-capture.js', 'ready_wait.py', 'mcp/media-verification.mjs', 'mcp/call-verification.mjs', 'mcp/web-profiles.mjs', 'mcp/workflows.mjs', 'fixture_jobs.py', 'build_jobs.py', 'build_app.py', 'native_delivery.py', 'mcp/native-delivery.mjs', 'tests/run_fixture.py', 'paired_workflow.py', 'health.py', 'connectivity.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'device_foreground.py','device_ax_native.py', 'paired_transport.py','relay_session.py','relay_worker.py','mcp/relay-channel.mjs','mcp/reflection-process.mjs','mcp/web-open.mjs','mcp/chrome-handoff.mjs','probes/packet_reflector.py','device_accessibility.py', 'browser_inspector.py', 'browser_dom.js', 'browser_heap.py','browser_breakpoint.py','browser_worker.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
@@ -26,6 +27,17 @@ const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.
 export const defaultState = path.join(os.homedir(), 'Library/Application Support/ios-agent');
 const idleLimit = 20 * 60 * 1000;
 const hex = () => randomBytes(16).toString('hex');
+const note=(event,fields)=>{try{emitSignal('mcp',event,fields);}catch{}};
+const childSignalEnv=()=>{try{return signalContextEnvironment();}catch{return {};}};
+const reasonCode=value=>typeof value==='string'&&/^[a-z][a-z0-9_-]{0,79}$/.test(value)?value:undefined;
+function dispatchLabel(kind,args,input){
+  if(kind==='cli'&&['acquire','release'].includes(args?.[0]))return `lease.${args[0]}`;
+  if(kind==='cli'&&args?.[0]==='action'&&['home','browser-handoff','tap','gesture','text','wifi','reload'].includes(args?.[1]))return 'native.input';
+  if(kind==='web'&&input?.op==='web_action'&&!['state','snapshot','element'].includes(input.action))return 'browser.input';
+  if(kind==='provider'&&['fixed-launch','browser-launch','shortcut-home','ax-native-tab'].includes(input?.kind))return 'provider.input';
+  if(kind==='reservation'&&['start','stop'].includes(input?.op))return 'reservation.input';
+  return null;
+}
 export function safe(value) {
   if (Array.isArray(value)) return value.map(safe);
   if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value)
@@ -45,7 +57,7 @@ export function runCoreDevice(args, {jsonFile, timeout = 15000} = {}) {
     if (temporary) jsonFile=path.join(temporary,'result.json');
     // Launch's variadic app arguments consume flags after the bundle ID.
     // Keep developer output options before that positional argument.
-    const child = spawn('/usr/bin/xcrun', ['devicectl', ...args.slice(0,3), '--json-output', jsonFile, ...args.slice(3)], {stdio:['ignore','ignore','pipe']});
+    const child = spawn('/usr/bin/xcrun', ['devicectl', ...args.slice(0,3), '--json-output', jsonFile, ...args.slice(3)], {stdio:['ignore','ignore','pipe'],env:{...process.env,...childSignalEnv()}});
     let errorText='';child.stderr.on('data',chunk=>{if(errorText.length<8000)errorText+=chunk;});
     let settled = false;
     const finish = value => { if (settled) return; settled = true; clearTimeout(timer); if(temporary)fs.rmSync(temporary,{recursive:true,force:true}); resolve(value); };
@@ -85,6 +97,17 @@ export class Backend {
     this.timer.unref();
   }
   async run(kind, args, input, timeout = 120000, signal) {
+    const operation=dispatchLabel(kind,args,input),started=performance.now();
+    try{
+      const result=await this.runUnlogged(kind,args,input,timeout,signal);
+      if(operation)note('dispatch.completed',{operation,outcome:result.ok?'completed':result.error==='cli_deadline_outcome_unknown_do_not_replay'?'unknown':'failed',reason:result.ok?undefined:reasonCode(result.error),durationMs:Math.round(performance.now()-started),level:result.ok?'info':'warn'});
+      return result;
+    }catch(error){
+      if(operation)note('dispatch.failed',{operation,outcome:'unknown',reason:reasonCode(error?.message)||'dispatch_exception',durationMs:Math.round(performance.now()-started),level:'error'});
+      throw error;
+    }
+  }
+  async runUnlogged(kind, args, input, timeout = 120000, signal) {
     if (this.runOverride) return this.runOverride(kind, args, input);
     const files = {wait:'ready_wait.py', web: 'web_cli.py', cli: 'cli.py', verify: 'verify.py', doctor: 'health.py', stack: 'local_stack.py', paired: 'paired_workflow.py', learning: 'learning.py', provider:'device_observer.py', fixture:'fixture_jobs.py', build:'build_jobs.py', delivery:'native_delivery.py',reservation:'system_reservation.py'};
     if (!files[kind]) throw new Error('fixed_operation_required');
@@ -92,7 +115,7 @@ export class Backend {
       ['provider','reservation'].includes(kind) ? [] : ['web','wait','fixture'].includes(kind) ? ['--state', this.state] : kind === 'paired' ? [] : kind === 'cli' ? ['--state', this.state, ...args] : [...args, '--state', this.state];
     return new Promise((resolve, reject) => {
       const child = spawn(kind==='provider'?path.join(this.state,'providers/pymobiledevice3-11.15.5/bin/python'):'/usr/bin/python3', ['-B', path.join(root, files[kind]), ...argv],
-        {stdio: ['pipe', 'pipe', 'pipe'], env: {...process.env, PYTHONDONTWRITEBYTECODE: '1'}});
+        {stdio: ['pipe', 'pipe', 'pipe'], env: {...process.env, PYTHONDONTWRITEBYTECODE: '1',...childSignalEnv()}});
       this.running.add(child);
       const abort=()=>child.kill('SIGTERM');signal?.addEventListener('abort',abort,{once:true});if(signal?.aborted)abort();
       let stdout = '', stderr = '', exceeded = false;
@@ -249,13 +272,14 @@ export class Backend {
       next: 'This is database readback only. Verify phone and coach rendering separately; stop on a changed pair/value rather than replaying a mutation.'};
   }
   async begin({rollout, threadId, claudeOwner, surface = 'native', page, nativeOnly = false} = {}) {
-    if (this.closing || [...this.sessions.values()].some(s => s.active)) throw new Error('end_existing_session_first');
-    if (rollout&&threadId) throw new Error('one_codex_owner_reference_required');
-    if(claudeOwner!==undefined&&(rollout!==undefined||threadId!==undefined))throw Error('one_harness_owner_reference_required');
+    if (this.closing || [...this.sessions.values()].some(s => s.active)) {note('lease.refused',{surface,outcome:'refused',reason:'end_existing_session_first',level:'warn'});throw new Error('end_existing_session_first');}
+    if (rollout&&threadId) {note('lease.refused',{surface,outcome:'refused',reason:'one_codex_owner_reference_required',level:'warn'});throw new Error('one_codex_owner_reference_required');}
+    if(claudeOwner!==undefined&&(rollout!==undefined||threadId!==undefined)){note('lease.refused',{surface,outcome:'refused',reason:'one_harness_owner_reference_required',level:'warn'});throw Error('one_harness_owner_reference_required');}
     const claude=claudeOwner===undefined?undefined:claudeTurnOwner(claudeOwner);
     const lifecycle=claude?{mode:'claude-prompt',source:'explicit-hook',...claude}:rollout?{mode:'codex-turn',source:'explicit-rollout'}:this.ownerContext({threadId});
-    if (threadId&&!lifecycle.rollout) throw new Error(lifecycle.reason||'codex_rollout_unavailable');
+    if (threadId&&!lifecycle.rollout) {note('lease.refused',{surface,outcome:'refused',reason:reasonCode(lifecycle.reason)||'codex_rollout_unavailable',level:'warn'});throw new Error(lifecycle.reason||'codex_rollout_unavailable');}
     rollout ||= lifecycle.rollout;
+    note('owner.selected',{surface,owner:lifecycle.mode,reason:reasonCode(lifecycle.reason),threadId:lifecycle.threadId,level:lifecycle.reason?'warn':'info'});
     const ownership={mode:lifecycle.mode,...(lifecycle.source?{source:lifecycle.source}:{}),...(lifecycle.threadId?{threadId:lifecycle.threadId}:{}),...(lifecycle.reason?{reason:lifecycle.reason}:{}),...(claude?{claudeOwner:claude}:{})};
     const base = path.join(this.state, 'mcp-sessions');
     fs.mkdirSync(base, {recursive: true, mode: 0o700});
@@ -266,7 +290,8 @@ export class Backend {
     this.sessions.set(id, s); this.writeOwner(s);
     s.acquisition = this.run('cli', ['acquire', ...(surface !== 'native' ? ['--surface', surface, ...(surface === 'web' ? ['--page', page] : [])] : []), ...(rollout ? ['--rollout', rollout, '--connection-owner', s.owner] : ['--owner-file', s.owner]), '--lease-file', s.lease]);
     const r = await s.acquisition;
-    if (!r.ok || this.closing) { await this.end(id); throw new Error(r.error || 'session_closed'); }
+    if (!r.ok || this.closing) {note('lease.refused',{surface,session:id,outcome:'refused',reason:reasonCode(r.error)||'session_closed',level:'warn'});await this.end(id); throw new Error(r.error || 'session_closed'); }
+    note('lease.acquired',{surface,session:id,owner:lifecycle.mode,page:surface==='web'?page:undefined,outcome:'acquired'});
     try {
       if (surface === 'launch') return {sessionId:id,maintenanceOwner:true,lifecycle:ownership};
       if (surface === 'web') {
@@ -274,20 +299,23 @@ export class Backend {
         if (check.ok !== true) throw new Error('web_page_not_ready');
         s.webFingerprint = createHash('sha256').update(JSON.stringify([adapterHash, check.value?.version, check.value?.browser, check.value?.boot])).digest('hex');
         s.webRuntime = Object.fromEntries(['version','browser','boot'].map(k => [k,check.value?.[k]]));
+        note('session.ready',{surface,session:id,page,build:check.value?.version,outcome:'verified'});
         return {sessionId: id, page, ready: true, lifecycle:ownership, verification: check, learning: await this.learning('search',{source:s.webFingerprint}).catch(()=>({available:false})), next: 'ios_web_inspect, fresh snapshot/target, ios_web_action. Always ios_web_end in finally.'};
       }
       if(nativeOnly){
         const verification=await this.action({sessionId:id,action:'capabilities'});
         if(!verification.ok||verification.data?.applicationState!==0)throw new Error('app_not_ready');
+        note('session.bridge_ready',{surface,session:id,outcome:'verified'});
         return {sessionId:id,ready:false,nativeBridgeReady:true,lifecycle:ownership,verification,
           next:'Native diagnostics only: inspect state/tree/capabilities, reload explicitly or return Home. React/app readiness is unproven. End in finally.'};
       }
       const verification = await this.verify({sessionId: id, gate: 'ready', timeout: 12});
       if (verification.receipt.status !== 'passed') throw new Error('app_not_ready');
+      note('session.ready',{surface,session:id,outcome:'verified'});
       return {sessionId: id, ready: true, ownership: lifecycle.mode, lifecycle:ownership, verification,
         next: 'Inspect a native or React tree. Call ios_end before ending this work turn.',
         learning: await this.learning('search', {source: runtimeKey(await this.status()) || ''}).catch(() => ({available: false}))};
-    } catch (error) { await this.end(id); throw error; }
+    } catch (error) {note('session.readiness_failed',{surface,session:id,outcome:'failed',reason:reasonCode(error?.message)||'readiness_unconfirmed',level:'warn'});await this.end(id); throw error; }
   }
   async verify({sessionId, gate, expected, selector, state, timeout = 12},signal) {
     const s = sessionId ? this.session(sessionId) : {dir: this.observationDirectory(), id: null};
@@ -303,6 +331,7 @@ export class Backend {
       fs.writeFileSync(a.file,JSON.stringify(value),{flag:'wx',mode:0o600});
       const source=runtimeKey(await this.status().catch(()=>null));
       const learningEvidence=source&&source===before?await this.learning('observe',{receipt:value.receipt,source}).catch(()=>({available:false})):{available:false};
+      note('verification.completed',{gate,session:sessionId,outcome:value.receipt?.status==='passed'?'verified':'failed',reason:reasonCode(value.reason),level:value.receipt?.status==='passed'?'info':'warn'});
       return {...value,artifactId:a.id,learningEvidence};
     }
     const result = await this.run('verify', [gate, '--timeout', String(timeout), '--output', a.file,
@@ -312,6 +341,7 @@ export class Backend {
     const source = runtimeKey(await this.status().catch(() => null));
     let learningEvidence = {available: false};
     if (source && source === before) learningEvidence = await this.learning('observe', {receipt, source}).catch(() => ({available: false}));
+    note('verification.completed',{gate,session:sessionId,outcome:receipt.status==='passed'?'verified':'failed',level:receipt.status==='passed'?'info':'warn'});
     return {artifactId: a.id, receipt, learningEvidence};
   }
   observationDirectory() {
@@ -535,6 +565,7 @@ export class Backend {
     let presentation={homeNavigationPending:true};
     if(home){try{presentation=await s.systemDriver.action({action:'home'});s.systemHomeConfirmed=presentation.homeConfirmed===true;}
       catch{presentation={ok:false,homeConfirmed:false,reason:'home_navigation_unconfirmed',replay:false};s.systemHomeConfirmed=false;}}
+    if(home)note('home.request_completed',{provider:'system',session:sessionId,outcome:s.systemHomeConfirmed?'verified':presentation.ok===true?'accepted':'unknown',homeVerified:s.systemHomeConfirmed,reason:reasonCode(presentation.reason),level:s.systemHomeConfirmed?'info':'warn'});
     const ended=await this.end(sessionId);
     return {...ended,presentation,ok:ended.released===true&&(ended.systemCleanup?.runnerStopped===true||ended.systemCleanup?.retained===true),next:ended.systemCleanup?.retained?'Input control ended; the explicitly reserved runner and Apple indicator remain until reservation end/expiry. Begin native/browser control normally.':ended.systemCleanup?.runnerStopped===true?'XCTest fallback is stopped. Begin a fresh native/browser lease for normal work.':'Runner cleanup is unconfirmed; inspect the phone and paired channel before starting another fallback.'};
   }
@@ -556,6 +587,7 @@ export class Backend {
     if(!['auto','paired','focus'].includes(transport)||transport==='focus'&&target!=='kickoff-dev')return {ok:false,reason:'fixed_launch_transport_required',inputSent:false};
     let useFocus=transport==='focus';
     if(transport==='auto'&&target==='kickoff-dev')useFocus=await this.appTransportPreferred();
+    note('provider.selected',{operation:'device_launch',provider:useFocus?'focus':'paired',target});
     if(useFocus){
       const acquired=await this.begin({surface:'launch'});let result;
       try{result=await focusLaunch({state:this.state,check:()=>this.session(acquired.sessionId),runShortcut:this.focusRunShortcut});}finally{await this.end(acquired.sessionId);}
@@ -618,12 +650,15 @@ export class Backend {
   }
   async deviceHome({transport='auto'}={}) {
     if(!['auto','paired','app'].includes(transport))return {ok:false,reason:'home_transport_required',inputSent:false};
-    if(transport==='app'||transport==='auto'&&await this.appTransportPreferred()){
+    const app=transport==='app'||transport==='auto'&&await this.appTransportPreferred();
+    note('provider.selected',{operation:'device_home',provider:app?'app':'paired'});
+    if(app){
       const current=await this.waitReady({surface:'native',timeoutSeconds:0});
       if(!current.readyToAcquire){const opened=await this.deviceLaunch({target:'kickoff-dev'});if(opened.foregroundVerified!==true)return {...opened,ok:false,next:'Foreground is unconfirmed; Home was not sent. Do not replay the launch.'};}
       const acquired=await this.begin({surface:'native',nativeOnly:true});
       try{
         const result=await this.action({sessionId:acquired.sessionId,action:'home'});
+        note('home.request_completed',{provider:'app',outcome:result.ok===true?'accepted':result.actionSent===false?'refused':'unknown',homeVerified:false,reason:reasonCode(result.reason),level:result.ok?'info':'warn'});
         return {ok:result.ok===true,transport:'app-owned-home',inputSent:result.ok?true:(result.actionSent??'unknown'),homeVerified:false,replay:false,next:'DEV prepared one Home handoff and retired its lease. Whole-display confirmation remains separate; do not replay this input.'};
       }finally{await this.end(acquired.sessionId);}
     }
@@ -638,8 +673,10 @@ export class Backend {
       try {
         const result=await this.run('provider',[],{kind:'shortcut-home',serial,state:this.state,leaseFile:owner.lease,ownerFile:owner.owner,output:artifact.file},26000);
         this.session(owner.id);
-        if(!result.ok||result.value?.ok!==true||!fs.existsSync(artifact.file))return {ok:false,reason:result.value?.reason||'device_home_unconfirmed',inputSent:result.value?.inputSent??'unknown',replay:false};
-        return {ok:true,...safe(JSON.parse(fs.readFileSync(artifact.file,'utf8')).result),replay:false};
+        if(!result.ok||result.value?.ok!==true||!fs.existsSync(artifact.file)){note('home.request_completed',{provider:'paired',outcome:result.value?.inputSent===false?'refused':'unknown',homeVerified:false,reason:reasonCode(result.value?.reason)||'device_home_unconfirmed',level:'warn'});return {ok:false,reason:result.value?.reason||'device_home_unconfirmed',inputSent:result.value?.inputSent??'unknown',replay:false};}
+        const value={ok:true,...safe(JSON.parse(fs.readFileSync(artifact.file,'utf8')).result),replay:false};
+        note('home.request_completed',{provider:'paired',outcome:value.homeVerified===true?'verified':'accepted',homeVerified:value.homeVerified===true});
+        return value;
       }finally{fs.rmSync(artifact.file,{force:true});this.artifacts.delete(artifact.id);}
     }finally{await this.end(reservation.sessionId);}
   }
@@ -724,6 +761,7 @@ export class Backend {
     if (browser) {
       let appHandoff=transport==='app';
       if(transport==='auto')appHandoff=await this.appTransportPreferred();
+      note('provider.selected',{operation:'browser_enroll_launch',provider:appHandoff?'app':'paired',browser});
       if(appHandoff){
         if(browser==='ios-chrome'&&transport==='auto'&&!qualifiedChromeInstalled(this.state,(await this.status()).device?.deliveryId))return {ok:false,profile,launchFile:a.file,actionSent:false,inputSent:false,reason:'chrome_installed_adapter_unqualified',next:'Use explicit app transport only to qualify an unknown installed adapter; older HTTPS adapters can open Safari. Otherwise reuse an enrolled page or the paired lane. Never replay an accepted handoff.'};
         const current=await this.waitReady({surface:'native',timeoutSeconds:0});
@@ -737,6 +775,7 @@ export class Backend {
           const sourceURL=JSON.parse(fs.readFileSync(a.file,'utf8')).url;
           const result=await this.action({sessionId:reservation.sessionId,action:'browser-handoff',args:{browser,url:sourceURL}});
           launch={ok:result.ok===true,transport:'app-owned-private-URL',browserRoute:result.data?.mode||'installed-adapter-route-unreported',...(result.data?.mode==='system-default-https'?{requiresDefaultBrowser:'ios-chrome'}:{}),inputSent:result.ok===true?true:(result.actionSent??'unknown'),foregroundVerified:false,replay:false,...(result.ok?{}:{reason:result.reason||'native_browser_handoff_unconfirmed'})};
+          note('browser.launch_completed',{provider:'app',browser,outcome:launch.ok?'accepted':launch.inputSent===false?'refused':'unknown',reason:reasonCode(launch.reason),level:launch.ok?'info':'warn'});
         }finally{await this.end(reservation.sessionId);}
         return {ok:launch.ok,profile,launchFile:a.file,expiresIn:300,launch,next:'Handoff acceptance is not browser readiness. Wait for the intended visible ios_web_pages entry, then acquire it. Never replay accepted or unknown URL delivery.'};
       }
@@ -760,6 +799,7 @@ export class Backend {
             this.session(owner.id);
             if(!result.ok||result.value?.ok!==true||!fs.existsSync(receipt.file))launch={ok:false,outcome:'unknown',reason:result.value?.reason||'developer_launch_unconfirmed',inputSent:result.value?.inputSent??'unknown',replay:false};
             else launch={ok:true,...safe(JSON.parse(fs.readFileSync(receipt.file,'utf8')).result),replay:false};
+            note('browser.launch_completed',{provider:'paired',browser,outcome:launch.ok?'accepted':launch.inputSent===false?'refused':'unknown',reason:reasonCode(launch.reason),level:launch.ok?'info':'warn'});
           }finally{fs.rmSync(receipt.file,{force:true});this.artifacts.delete(receipt.id);}
         }finally{await this.end(reservation.sessionId);}
         return {ok:true,profile,launchFile:a.file,expiresIn:300,launch,next:'Enrollment was created; inspect launch outcome, then ios_web_pages for actual page readiness. Accepted or unknown URL delivery must not be replayed. The private launch file contains the expiring enrollment fragment; do not log it.'};
@@ -777,6 +817,7 @@ export class Backend {
       const reservation = await this.begin({surface:'launch'});
       try { const result = await this.deviceRun(['device','process','launch','--device',device,'--timeout','12','--payload-url',url,bundle]);
         launch={outcome:result.outcome,...(result.diagnostic?{diagnostic:result.diagnostic}:{}),replay:false};
+        note('browser.launch_completed',{provider:'paired',browser,outcome:result.outcome==='developer-request-accepted'?'accepted':result.outcome==='developer-request-rejected'?'refused':'unknown',level:result.ok?'info':'warn'});
       } finally { await this.end(reservation.sessionId); }
     }
     return {ok: true, profile,launchFile: a.file, expiresIn: 300, ...(launch?{launch}:{}), next: 'Use this private JSON URL to open the intended dev page in Safari or Chrome. Do not log enrollment fragments. Call-rig needs its separately configured private port10520→local3020 route; enrollment does not install or repair it.'};
@@ -834,6 +875,7 @@ export class Backend {
       const ok = Object.values(observation).every(v => v === true);
       const receipt = {gate,status:ok?'passed':'failed',scope:'instrumented-audio-RTP-counters-only',observation};
       const learningEvidence=await this.learning('observe',{receipt,source:s.webFingerprint}).catch(()=>({available:false}));
+      note('verification.completed',{gate,session:sessionId,page:s.page,outcome:ok?'verified':'failed',level:ok?'info':'warn'});
       return {ok,receipt,artifactId:second.artifactId,beforeArtifactId:first.artifactId,sampleMs,learningEvidence,
         limits:'Stable document-local stream counters; at least one stream advances in each requested direction, none reset. This does not prove audible content, call-room identity, remote playout, microphone permission or physical network route.'};
     }
@@ -876,6 +918,7 @@ export class Backend {
     }while(performance.now()-started<timeoutSeconds*1000);
     const receipt={gate,status:ok?'passed':'failed',observation};
     const learningEvidence=await this.learning('observe',{receipt,source:s.webFingerprint}).catch(()=>({available:false}));
+    note('verification.completed',{gate,session:sessionId,page:s.page,outcome:ok?'verified':'failed',reason:reasonCode(reason||(!read.ok?'condition_observation_failed':callCheck?.reason||'condition_not_met')),checks,level:ok?'info':'warn'});
     return {ok,receipt,artifactId:read.artifactId,learningEvidence,checks,elapsedMs:Math.round(performance.now()-started),
       ...(callCheck?{diagnostics:callCheck.diagnostics,scope:'owned-dev-call-projection-only',limits:'Call state is not RTP advancement, audible playout, provider room identity or physical network proof. released covers instrumented page media only.'}:{}),
       ...(ok&&refs?{...refs,next:'Use these references immediately; normal five-second/occlusion input checks still apply.'}:{}),
@@ -891,8 +934,9 @@ export class Backend {
     const s = this.sessions.get(id), page = s?.page;
     const requestHome=s?.appManagedHome===true&&s.active&&!this.closing;
     const cleanupStartedAt=Date.now();
+    note('browser.cleanup_requested',{session:id,page,homeRequested:requestHome});
     const release = await this.end(id);
-    if (!page) return {...release, indicatorOff: 'unconfirmed'};
+    if (!page){note('browser.cleanup_unconfirmed',{session:id,outcome:'unknown',reason:'page_identity_unavailable',level:'warn'});return {...release, indicatorOff: 'unconfirmed'};}
     // The nearby relay requests Home before retiring ownership. Its final
     // visibility/glow report can legitimately precede the release response;
     // background Safari/Chrome need not emit another heartbeat afterward.
@@ -902,17 +946,20 @@ export class Backend {
       const pages = await this.webPages();
       const p = pages.pages?.find(p => p.id === page);
       if (pageIdleConfirmed(p,s.webRuntime,Date.now()-feedbackNotBefore)) {
+        note('browser.indicator_off_verified',{session:id,page,outcome:'verified',ownerReleased:release.released===true});
         const receipt={gate:'web-idle',status:'passed',observation:{ownerReleased:release.released === true,indicatorOff:true}};
         const learningEvidence=s?.webFingerprint ? await this.learning('observe',{receipt,source:s.webFingerprint}).catch(()=>({available:false})) : {available:false};
         let appCleanup;
         if(requestHome&&release.released===true&&!this.closing){
           try{const home=await this.deviceHome({transport:'app'});appCleanup={homeRequested:home.ok===true,homeVerified:false,...(!home.ok?{reason:home.reason||'home_unconfirmed',replay:false}:{})};}
           catch{appCleanup={homeRequested:false,homeVerified:false,reason:'home_owner_or_transport_unavailable',replay:false};}
+          note('browser.home_cleanup_completed',{session:id,outcome:appCleanup.homeRequested?'accepted':'unknown',homeVerified:false,reason:reasonCode(appCleanup.reason),level:appCleanup.homeRequested?'info':'warn'});
         }
         return {...release, indicatorOff:true,receipt,learningEvidence,...(appCleanup?{appCleanup}:{}),...(appCleanup?.homeRequested===false?{ok:false,next:'Control and glow ended; Home remains unconfirmed. Inspect the current owner/transport without replaying input.'}:{})};
       }
       await new Promise(resolve => setTimeout(resolve, 250));
     }
+    note('browser.cleanup_unconfirmed',{session:id,page,outcome:'unknown',reason:'fresh_indicator_off_feedback_missing',level:'warn'});
     return {...release, indicatorOff: 'unconfirmed', ok: false, next: 'Host release alone cannot confirm the disconnected page indicator.'};
   }
   async harnessEnd({event,sessionId,promptId,agentId}={}) {
@@ -931,6 +978,7 @@ export class Backend {
       catch{receipts.push({released:false,ok:false,reason:'harness_cleanup_unconfirmed',replay:false});}
     }
     const confirmed=receipts.every(r=>r.released===true&&r.ok!==false&&r.indicatorOff!=='unconfirmed'&&r.captureCleanup?.complete!==false);
+    if(matched.length)note('harness.cleanup_completed',{owner:'claude-prompt',matched:matched.length,released:receipts.filter(r=>r.released===true).length,outcome:confirmed?'verified':'unknown',level:confirmed?'info':'warn'});
     return {ok:confirmed,suppressOutput:true,cleanup:{matched:matched.length,released:receipts.filter(r=>r.released===true).length,confirmed,
       ...(matched.length?{receipts}:{reason:'no_matching_owned_prompt'})}};
   }
@@ -938,6 +986,7 @@ export class Backend {
     const s = this.sessions.get(id);
     if (!s) return {released: false, alreadyEnded: true};
     if (s.endPromise) return s.endPromise;
+    note('lease.release_requested',{session:id,surface:s.surface});
     s.endPromise = (async () => {
       clearTimeout(s.systemStartupTimer);
       let captureCleanup,systemCleanup;
@@ -950,6 +999,7 @@ export class Backend {
         try{if(s.active&&!this.closing){const home=await s.relayChannel.request('observe',{request:{kind:'shortcut-home'}},10000);s.managedHomePrepared=home.ok===true;relayCleanup={homeRequested:home.ok===true,homeVerified:false};}}
         catch{relayCleanup={homeRequested:'unconfirmed',homeVerified:false,replay:false};}
         finally{const closed=await s.relayChannel.close();relayCleanup={...relayCleanup,tunnelClosed:closed?.closed===true};}
+        note('home.request_completed',{provider:'reflected',session:id,outcome:relayCleanup.homeRequested===true?'accepted':'unknown',homeVerified:false,level:relayCleanup.homeRequested===true?'info':'warn'});
       }
       s.active = false; this.writeOwner(s);
       // Acquisition reserves an empty file before broker admission. Wait for
@@ -967,12 +1017,14 @@ export class Backend {
       }
       this.sessions.delete(id);
       this.captures.delete(id);
+      note('lease.release_completed',{session:id,surface:s.surface,outcome:release.ok?'released':'unknown',reason:release.ok?undefined:reasonCode(release.error),runnerStopped:systemCleanup?.runnerStopped===true,homeRequested:relayCleanup?.homeRequested===true,homeVerified:s.systemHomeConfirmed===true,level:release.ok?'info':'warn'});
       return {released: release.ok,...(relayCleanup?{relayCleanup}:{}),...(systemCleanup?{systemCleanup,ok:systemCleanup.ok}:{}),...(captureCleanup?{captureCleanup}:{}), detail: release.ok ? safe(release.value) : release.error,
         next: systemCleanup?.retained?'Input lease released; explicitly reserved XCTest remains. End its reservation to remove Apple automation.':'Call ios_verify gate=idle without a session to confirm native and host cleanup.'};
     })();
     return s.endPromise;
   }
   async cancel() {
+    note('connection.cancel_requested',{sessions:this.sessions.size,outcome:'cleanup_requested',level:'warn'});
     for(const controller of this.waitControllers)controller.abort();
     // Mark every owner inactive before waiting for any IPC; accepted input is
     // observed once by its original CLI, never restarted by cancellation.

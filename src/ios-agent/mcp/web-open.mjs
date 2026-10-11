@@ -2,6 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {RelayChannel} from './relay-channel.mjs';
 import {reflectionConfig,startReflection} from './reflection-process.mjs';
+import {emitSignal} from './signal-log.mjs';
+const note=(event,fields)=>{try{emitSignal('mcp',event,fields);}catch{}};
 
 export function pageIdleConfirmed(page,runtime,elapsedSinceRelease){
   return page?.indicator===false&&Number.isFinite(page.ageMs)&&page.ageMs>=0&&page.ageMs<3000&&page.ageMs<=elapsedSinceRelease&&
@@ -11,7 +13,12 @@ export function pageIdleConfirmed(page,runtime,elapsedSinceRelease){
 // Choose before dispatch. Never retry a possibly accepted launch in another lane.
 export async function openManagedWeb(b,args={}){
   if(!['ios-safari','ios-chrome'].includes(args.browser))return {ok:false,reason:'fixed_browser_required',inputSent:false};
-  return await b.appTransportPreferred()?openAppWeb(b,args):openReflectedWeb(b,args);
+  const app=await b.appTransportPreferred();
+  note('provider.selected',{operation:'managed_browser_open',provider:app?'app':'reflected',browser:args.browser});
+  const result=await (app?openAppWeb(b,args):openReflectedWeb(b,args));
+  note('browser.open_completed',{provider:app?'app':'reflected',browser:args.browser,session:result.sessionId,page:result.page,
+    outcome:result.ok===true?'verified':result.inputSent===false?'refused':'unknown',reason:typeof result.reason==='string'&&/^[a-z][a-z0-9_-]{0,79}$/.test(result.reason)?result.reason:undefined,level:result.ok?'info':'warn'});
+  return result;
 }
 
 export async function openAppWeb(b,{browser,profile='app',path:route='/dev/ios-agent',threadId,rollout,claudeOwner}={}){

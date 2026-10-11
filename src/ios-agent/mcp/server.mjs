@@ -4,7 +4,9 @@ import {z} from 'zod';
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {randomBytes} from 'node:crypto';
 import {Backend, defaultState, safe, runtimeKey} from './backend.mjs';
+import {emitSignal, withSignalContext} from './signal-log.mjs';
 import {nativeSchemas, nativeArguments, nativeSelector, reactCommand} from './input-schemas.mjs';
 
 const id = z.string().regex(/^[a-f0-9]{32}$/);
@@ -24,6 +26,15 @@ const safeErrors = new Set(['request_cancelled_before_dispatch', 'cancelled_clea
 const result = value => ({content: [{type: 'text', text: JSON.stringify(value)}], structuredContent: value,
   isError: value?.ok === false || value?.receipt?.status === 'failed'});
 const releaseVersion = JSON.parse(fs.readFileSync(new URL('./package.json', import.meta.url), 'utf8')).version;
+const note=(event,fields)=>{try{emitSignal('mcp',event,fields);}catch{}};
+const reasonCode=value=>typeof value==='string'&&/^[a-z][a-z0-9_-]{0,79}$/.test(value)?value:undefined;
+function toolOutcome(value){
+  if(value?.ok===false||value?.receipt?.status==='failed')return value?.inputSent==='unknown'||value?.actionSent==='unknown'||value?.outcome==='unknown'?'unknown':'failed';
+  if(value?.inputSent==='unknown'||value?.actionSent==='unknown'||value?.outcome==='unknown')return 'unknown';
+  if(value?.receipt?.status==='passed'||value?.homeVerified===true||value?.lockedVerified===true)return 'verified';
+  if(value?.inputSent===true||value?.actionSent===true||value?.outcome==='developer-request-accepted')return 'accepted';
+  return 'completed';
+}
 
 export function createServer(backend = new Backend()) {
   const server = new McpServer({name: 'ios-agent', version: releaseVersion},
@@ -36,25 +47,40 @@ export function createServer(backend = new Backend()) {
     server.registerTool(name, {description, inputSchema: schema,
       annotations: {readOnlyHint: readOnly, destructiveHint: !readOnly, idempotentHint: readOnly, openWorldHint: false}},
     async (args, ctx) => {
-      if (busy) return {content: [{type: 'text', text: 'MCP call in flight; wait for its result. No command was admitted.'}], isError: true};
+      const logRequest=name!=='ios_signals'; // A diagnostic read must not create another diagnostic record.
+      if (busy) { if(logRequest)note('request.refused',{tool:name,outcome:'refused',reason:'command_in_flight',level:'warn'}); return {content: [{type: 'text', text: 'MCP call in flight; wait for its result. No command was admitted.'}], isError: true}; }
       busy = true;
-      const cancel = () => { void backend.cancel(); };
-      ctx.signal.addEventListener('abort', cancel, {once: true});
-      try {
-        if (ctx.signal.aborted) throw new Error('request_cancelled_before_dispatch');
-        const value = await handler(args,ctx.signal);
-        if (ctx.signal.aborted) { await backend.cancel(); throw new Error('cancelled_cleanup_requested_do_not_replay'); }
-        if (value?.image) return {content: [{type: 'image', mimeType: 'image/png', data: value.image},
-          {type: 'text', text: JSON.stringify(value.metadata)}], isError: false};
-        if (JSON.stringify(value).length > (value.artifactId ? 24000 : 64000)) return result({ok: value.ok, status: value.status,
-          reason: value.reason, artifactId: value.artifactId, truncated: true,
-          next: value.artifactId ? 'Use ios_read with this artifactId and a JSON pointer for bounded inspection.' : 'Request fewer learning results.'});
-        return result(value);
-      } catch (error) {
-        // Do not echo raw OS/provider exceptions or arbitrary argument values.
-        const code = safeErrors.has(error.message) ? error.message : 'mcp_operation_failed';
-        return {content: [{type: 'text', text: code}], isError: true};
-      } finally { ctx.signal.removeEventListener('abort', cancel); busy = false; }
+      const request=randomBytes(8).toString('hex'),started=performance.now();
+      const execute=async()=>{
+        if(logRequest)note('request.admitted',{tool:name,readOnly,build:releaseVersion});
+        let cancelled=false;
+        const cancel = () => { if(!cancelled){cancelled=true;if(logRequest)note('request.cancelled',{tool:name,outcome:'cleanup_requested',level:'warn'});} void backend.cancel(); };
+        ctx.signal.addEventListener('abort', cancel, {once: true});
+        try {
+          if (ctx.signal.aborted) throw new Error('request_cancelled_before_dispatch');
+          const value = await handler(args,ctx.signal);
+          if (ctx.signal.aborted) { await backend.cancel(); throw new Error('cancelled_cleanup_requested_do_not_replay'); }
+          const response=value?.image?{content: [{type: 'image', mimeType: 'image/png', data: value.image},
+            {type: 'text', text: JSON.stringify(value.metadata)}], isError: false}:
+            JSON.stringify(value).length > (value.artifactId ? 24000 : 64000) ? result({ok: value.ok, status: value.status,
+              reason: value.reason, artifactId: value.artifactId, truncated: true,
+              next: value.artifactId ? 'Use ios_read with this artifactId and a JSON pointer for bounded inspection.' : 'Request fewer learning results.'}):result(value);
+          if(logRequest)note('request.completed',{tool:name,outcome:toolOutcome(value),reason:reasonCode(value?.reason),durationMs:Math.round(performance.now()-started),level:value?.ok===false?'warn':'info'});
+          return response;
+        } catch (error) {
+          // Do not echo raw OS/provider exceptions or arbitrary argument values.
+          const code = safeErrors.has(error?.message) ? error.message : 'mcp_operation_failed';
+          if(logRequest)note('request.failed',{tool:name,outcome:ctx.signal.aborted?'cancelled':'failed',reason:code,
+            errorName:String(error?.name||'Error').slice(0,80),message:String(error?.message||'').slice(0,300),
+            stack:String(error?.stack||'').split('\n').slice(1,4).join('\n').slice(0,600),
+            durationMs:Math.round(performance.now()-started),level:'error'});
+          return {content: [{type: 'text', text: code}], isError: true};
+        } finally { ctx.signal.removeEventListener('abort', cancel); busy = false; }
+      };
+      // A failed diagnostics context must not prevent dispatch or leave busy set.
+      let execution;
+      try{const wrapped=await withSignalContext({trace:request,request},()=>{execution=execute();return execution;});return execution?(wrapped===undefined?execution:wrapped):execute();}
+      catch(error){if(execution)return execution;return execute();}
     });
   }
   tool('ios_guide', 'Start here: live connection version/catalog, operating workflow, limits, cleanup and shared lessons relevant to the current runtime.', {}, async () => ({...await backend.guide(),interface:catalog(),connectionNote:'This catalog describes this MCP process. Compare ios-agent-mcp --catalog for installed source. A different installed version does not upgrade an existing connection. Missing interface means an older guide; refresh only at an owned idle point, never terminate another active session.'}), true);
