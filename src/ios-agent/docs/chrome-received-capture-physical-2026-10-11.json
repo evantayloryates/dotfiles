@@ -1,0 +1,44 @@
+{
+  "at": "2026-10-11T10:45:34.847111+00:00",
+  "version": "1.9.32",
+  "scope": "Physical Chrome synthetic document-local received WebRTC track; shipped rich-capture factory and CaptureStore, not a full MCP-owned provider call",
+  "capture": {
+    "rtcConnected": true,
+    "receivedPacketDelta": 152,
+    "capturedChunks": 3,
+    "capturedBytes": 78425,
+    "decodedFrames": 145344,
+    "sampleRate": 48000,
+    "channels": 1,
+    "rms": 0.10463952249912148,
+    "peak": 0.15397164225578308,
+    "appTrackLiveAfterStop": true,
+    "captureStopped": true,
+    "dropped": 0,
+    "peersClosed": true,
+    "audioContextClosed": true
+  },
+  "hostDecode": {
+    "frames": 145344,
+    "sampleRate": 48000,
+    "channels": 1,
+    "rms": 0.10463952365638204,
+    "peak": 0.15397165715694427
+  },
+  "factorySha256": "0b85a66ee76f281250a1fd8490188f679754101f3220d57d3edfa9401b822ba3",
+  "storeSha256": "973b8842edbd6a7fa1539903bf1bed5714be02db8b15329b46294df1da49695a",
+  "privateArtifactsExpireAfterOneHour": true,
+  "independentDomReadConfirmedStopped": true,
+  "hostUploadReceiptSaved": true,
+  "homeConfirmed": true,
+  "temporaryFixturesRemoved": 3,
+  "syntheticReceiverStopped": true,
+  "originalXCTestPreserved": true,
+  "boundaries": [
+    "No microphone requested;440Hz oscillator fed an existing received RTC track, without speaker playback.",
+    "Nearby host ICE only; this does not prove physically off-LAN RTC.",
+    "The exact shipped capture factory cloned the received track; MCP page ownership and SDK source discovery were not exercised.",
+    "Original track remained live after recorder stop; fixture then explicitly stopped its own source/received tracks, closed both peers and AudioContext.",
+    "Independent host decode proved non-silent frames; not audible playout, audio latency or a provider-backed call."
+  ]
+}

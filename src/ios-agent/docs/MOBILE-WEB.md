@@ -562,3 +562,17 @@ the fresh snapshot and exact observed button for authorized routine dialogs.
 Then independently inspect the page and actual media tracks. A disappeared dialog
 is not itself a microphone grant. Authentication prompts are observation-only;
 never infer cable/lock state or request USB just from this UI disagreement.
+
+## Chrome received-track capture primitive — 11 October
+
+The same shipped factory and CaptureStore now also passed on physical Chrome iOS.
+152 received RTP packets advanced during capture; three AAC chunks (78,425 bytes)
+independently decoded on the host into145,344 non-silent48kHz frames (RMS0.10464).
+Recorder stop preserved the received source. Both peers, fixture tracks and audio
+context then closed. Temporary fixture files and receiver were removed; separate
+native readback confirmed unlocked Home. The original XCTest runner was preserved.
+
+Together with the Safari result, this closes browser parity for this received-track
+recorder primitive. It does not qualify MCP-owned track discovery, a provider call,
+trusted input without XCTest, audible playout or off-LAN ICE. No runtime behavior
+changed. See chrome-received-capture-physical-2026-10-11.json.
