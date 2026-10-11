@@ -17,10 +17,11 @@ import {planNativeTap} from './native-selector.mjs';
 import {codexOwnerContext} from './owner-context.mjs';
 import {claudeTurnOwner,sameClaudeTurn} from './claude-lifecycle.mjs';
 import {waitNativeElement} from './native-condition.mjs';
-import {openReflectedWeb} from './web-open.mjs';
+import {openManagedWeb} from './web-open.mjs';
+import {qualifiedChromeDelivery,qualifiedChromeInstalled} from './chrome-handoff.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/input-schemas.mjs', 'mcp/native-selector.mjs', 'mcp/owner-context.mjs', 'mcp/claude-lifecycle.mjs', 'claude-begin-hook.mjs', 'mcp/native-condition.mjs', 'mcp/system-driver.mjs', 'mcp/focus-launch.mjs', 'mcp/system-reservation.mjs', 'system_runner.py', 'system_reservation.py', 'mcp/capture-store.mjs', 'web/rich-capture.js', 'ready_wait.py', 'mcp/media-verification.mjs', 'mcp/call-verification.mjs', 'mcp/web-profiles.mjs', 'mcp/workflows.mjs', 'fixture_jobs.py', 'build_jobs.py', 'build_app.py', 'native_delivery.py', 'mcp/native-delivery.mjs', 'tests/run_fixture.py', 'paired_workflow.py', 'health.py', 'connectivity.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'device_foreground.py','device_ax_native.py', 'paired_transport.py','relay_session.py','relay_worker.py','mcp/relay-channel.mjs','mcp/reflection-process.mjs','mcp/web-open.mjs','probes/packet_reflector.py','device_accessibility.py', 'browser_inspector.py', 'browser_dom.js', 'browser_heap.py','browser_breakpoint.py','browser_worker.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
+const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/input-schemas.mjs', 'mcp/native-selector.mjs', 'mcp/owner-context.mjs', 'mcp/claude-lifecycle.mjs', 'claude-begin-hook.mjs', 'mcp/native-condition.mjs', 'mcp/system-driver.mjs', 'mcp/focus-launch.mjs', 'mcp/system-reservation.mjs', 'system_runner.py', 'system_reservation.py', 'mcp/capture-store.mjs', 'web/rich-capture.js', 'ready_wait.py', 'mcp/media-verification.mjs', 'mcp/call-verification.mjs', 'mcp/web-profiles.mjs', 'mcp/workflows.mjs', 'fixture_jobs.py', 'build_jobs.py', 'build_app.py', 'native_delivery.py', 'mcp/native-delivery.mjs', 'tests/run_fixture.py', 'paired_workflow.py', 'health.py', 'connectivity.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'device_foreground.py','device_ax_native.py', 'paired_transport.py','relay_session.py','relay_worker.py','mcp/relay-channel.mjs','mcp/reflection-process.mjs','mcp/web-open.mjs','mcp/chrome-handoff.mjs','probes/packet_reflector.py','device_accessibility.py', 'browser_inspector.py', 'browser_dom.js', 'browser_heap.py','browser_breakpoint.py','browser_worker.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
   .map(file => fs.readFileSync(path.join(root, file))).map(bytes => createHash('sha256').update(bytes).digest('hex')).join(':')).digest('hex');
 export const defaultState = path.join(os.homedir(), 'Library/Application Support/ios-agent');
 const idleLimit = 20 * 60 * 1000;
@@ -168,8 +169,8 @@ export class Backend {
       browserDebugger: 'Read ios-agent://browser-debug. Physical Safari/Chrome source/CSS/console, bounded timeline and Network reads passed nearby. Use a fresh documentRef; rejected pre-input identity guards report inputSent=false. ios_browser_debug exposes source catalogs/windows, matched CSS, bounded rendered controls with overflow clipping/hit tests, console, Network details and short WebKit timeline/JavaScript samples. dom can reuse the existing system session owner without sending page input; it does not stop XCTest. Content stays in private artifacts; read selected pointers. Evaluation requires an active matching browser page lease/glow and fresh documentRef. Dedicated worker catalogs initialize every reported worker before detach. worker-sources/worker-source/worker-console/worker-profile inspect one current dedicated worker’s source, console or bounded JavaScript samples through its own protocol channel; require fresh documentRef and workerId. No caller worker evaluation or network attribution. Explicit heap requires an active web/system session and fresh frame/loader document reference; it performs synchronous full GC and retains a private graph with shallow-size summaries. Use ios_read offset/count for large arrays. One-shot breakpoint uses an owned web/system session, exact document/script/source hash and zero-based line. Captures stack and bounded top-frame own descriptors, removes and confirms resume; never leaves an interactive pause. Configured tailnet Inspector reads are supported and physically passed over the overlay; a separate off-LAN acceptance is still required.',
       accessibilityAudit: 'ios_accessibility_audit runs bounded Apple contrast/hit-region/text-clipped checks on foreground Kickoff DEV or the configured Safari/Chrome DEV origin. Requires the shared owner, checks foreground before/after and preserves the browser document reference. Private256issue/1MiB report expires after one hour. No Dynamic Text settings changes, simulated activation or compliance claim. A deliberately tiny Safari fixture button produced a matching12×13tap-region finding; browser chrome can also appear. Contrast positive control remains unqualified.',
       deviceObserver: 'ios_device_inspect kind=screen|capabilities|browser-debug|resource-profile reads the paired iPhone without XCTest or Mirroring. With no session it reserves/releases a temporary owner. ios_read renders a private full-display image. Default nearby paired developer transport, or explicit configured tailnet userspace transport. Explicit transport=usb-recovery admits only screen/capabilities with positive fixed USB enumeration; actual MCP screen passed, no silent fallback. Inspector and profiling passed through that overlay; physical off-LAN qualification remains separate. HID input not qualified.',
-      managedBrowser: 'ios_web_open opens and acquires Safari/Chrome through a provisioned private reflection node, existing pairing trust and a retained authenticated RSD channel. Chrome launch, owned page/input, Inspector, owner handoffs and cleanup passed nearby. Actual MCP open/Inspector/end passed. Wi-Fi-off reflected TCP was refused; no cellular claim or automatic network changes. Requires explicitly provisioned developer-reflection.json and its approved scope. The existing personal DEV node has been retained with its exact single route and guarded restart policy. Reuse a visible page with ios_web_begin when possible. ios_web_end requests Home and closes the channel; lost ownership closes without sending input to another owner.',
-      browserLimits: 'Page-owned DOM input is synthetic; it does not operate OS dialogs, trusted touch, IME or microphone permission. Physical Safari cellular launch, owned DOM fill/save/React readback and glow-off passed without USB, Mirroring or XCTest on delivery33da0bab6a8f429380f4f35aec4701cd. Chrome custom-scheme handoff left an OS Open modal; the1.9.46 HTTPS candidate opened Safari. Auto therefore refuses unqualified Chrome app fallback before input. Adapter1.9.49 explicit app Chrome uses the provisioned Runner Open Chrome DEV Shortcut; that signed app-owned hop and cellular gate remain unqualified. A separate nearby paired Shortcut launch passed after one-time permissions, including fresh Chrome readiness and glow cleanup. Older HTTPS adapters can open Safari. Paired Chrome launch/readiness and input passed. Deep cellular Inspector is a separate open transport gate. Dev-only enrollment and per-tab authentication.',
+      managedBrowser: 'ios_web_open selects the qualified app-owned cellular browser lane before dispatch when developer TCP is unavailable; nearby it retains the reflected authenticated secondary channel for Inspector. Fresh page and ownership are required. ios_web_end confirms glow-off then requests Home through the app lane; nearby it also closes the channel. Lost ownership sends no cleanup input. No silent Wi-Fi changes, USB fallback, XCTest or Mirroring.',
+      browserLimits: 'Page-owned DOM input is synthetic and cannot press OS dialogs, trusted touch, IME or microphone permission. Safari and Chrome app-owned cellular launch, owned DOM fill/Save/React readback and glow cleanup passed without USB, Mirroring or XCTest. Chrome requires the provisioned phone-local Shortcut and the qualified signed BrowserHandoff adapter. Deep cellular Inspector remains a separate open transport gate. DEV-only enrollment and per-tab authentication.',
       workflow: ['ios_doctor', 'ios_begin', 'ios_native or ios_react', 'ios_verify', 'ios_end'],
       hostWorkflow: ['ios_doctor (read only)', 'ios_stack_ensure only when needed and idle; never replay an uncertain start'],
       recoveryDecision: 'Use ios_doctor connectivity=true before requesting cable/unlock actions: it separates fixed-device USB inventory, tailnet ping, the fixed developer TCP endpoint and bridge readiness, with unknown lock state. A refused developer endpoint can coexist with a healthy app/page; TCP acceptance is not authenticated developer readiness. Read the recovery decision card in ios-agent://mobile-web. Diagnose host first; if ready but the bridge is offline, wait without a lease and inspect an available paired launch route. Reuse authenticated tabs after reconnect; renew only an actually expired unused grant. Never infer lock/unplugged from offline or replay accepted/unknown input. Preserve unconfirmed cleanup and another active owner. Ask only for the evidenced human action.',
@@ -708,7 +709,7 @@ export class Backend {
     const r = await this.run('web', [], {op: 'web_pages'}, 8000);
     return r.ok ? {...r.value, ok: true} : {ok: false, reason: r.error};
   }
-  async webOpen(args){return openReflectedWeb(this,args);}
+  async webOpen(args){return openManagedWeb(this,args);}
   async webEnroll({path: route = '/dev/ios-agent', browser, rememberBrowser=false,profile='app',transport='auto'} = {}) {
     if(!['auto','paired','app'].includes(transport)||transport==='app'&&!browser)return {ok:false,reason:'browser_transport_required',actionSent:false};
     if (browser && (await this.status()).lease) return {ok:false,reason:'idle_device_required_for_browser_launch',actionSent:false};
@@ -724,14 +725,15 @@ export class Backend {
       let appHandoff=transport==='app';
       if(transport==='auto')appHandoff=await this.appTransportPreferred();
       if(appHandoff){
-        if(browser==='ios-chrome'&&transport==='auto')return {ok:false,profile,launchFile:a.file,actionSent:false,inputSent:false,reason:'chrome_cellular_launch_unqualified',next:'Reuse a visible enrolled Chrome page or the qualified paired route. Explicit app transport qualifies the installed native candidate: the newer adapter uses Runner Open Chrome DEV; older HTTPS adapters can open Safari. Require actual Chrome readiness and do not replay.'};
+        if(browser==='ios-chrome'&&transport==='auto'&&!qualifiedChromeInstalled(this.state,(await this.status()).device?.deliveryId))return {ok:false,profile,launchFile:a.file,actionSent:false,inputSent:false,reason:'chrome_installed_adapter_unqualified',next:'Use explicit app transport only to qualify an unknown installed adapter; older HTTPS adapters can open Safari. Otherwise reuse an enrolled page or the paired lane. Never replay an accepted handoff.'};
         const current=await this.waitReady({surface:'native',timeoutSeconds:0});
         if(!current.readyToAcquire){
           const opened=await this.deviceLaunch({target:'kickoff-dev'});
-          if(opened.foregroundVerified!==true)return {ok:false,profile,launchFile:a.file,launch:opened,next:'Native foreground is unconfirmed; do not replay any accepted or unknown launch.'};
+          if(opened.foregroundVerified!==true)return {ok:false,profile,reason:'native_foreground_unconfirmed',browserInputSent:false,launchFile:a.file,launch:opened,next:'Wait for native readiness without a lease. No browser input was sent. Do not repeat the accepted or unknown foreground launch; diagnose connectivity before asking for a physical action.'};
         }
         const reservation=await this.begin({surface:'native',nativeOnly:true});
         try{
+          if(browser==='ios-chrome'&&transport==='auto'&&!qualifiedChromeDelivery(this.state,reservation.verification?.data?.deliveryId))return {ok:false,profile,actionSent:false,inputSent:false,reason:'chrome_installed_adapter_changed',next:'No browser input sent. Inspect the fresh installed adapter before qualification.'};
           const sourceURL=JSON.parse(fs.readFileSync(a.file,'utf8')).url;
           const result=await this.action({sessionId:reservation.sessionId,action:'browser-handoff',args:{browser,url:sourceURL}});
           launch={ok:result.ok===true,transport:'app-owned-private-URL',browserRoute:result.data?.mode||'installed-adapter-route-unreported',...(result.data?.mode==='system-default-https'?{requiresDefaultBrowser:'ios-chrome'}:{}),inputSent:result.ok===true?true:(result.actionSent??'unknown'),foregroundVerified:false,replay:false,...(result.ok?{}:{reason:result.reason||'native_browser_handoff_unconfirmed'})};
@@ -880,7 +882,14 @@ export class Backend {
       ...(!ok?{reason:reason||(!read.ok?'condition_observation_failed':callCheck?.reason||'condition_not_met'),replay:false}:{})};
   }
   async webEnd(id) {
+    const s=this.sessions.get(id);
+    if(!s)return this.end(id);
+    if(!s.webEndPromise)s.webEndPromise=this.finishWebEnd(id);
+    return s.webEndPromise;
+  }
+  async finishWebEnd(id) {
     const s = this.sessions.get(id), page = s?.page;
+    const requestHome=s?.appManagedHome===true&&s.active&&!this.closing;
     const release = await this.end(id);
     if (!page) return {...release, indicatorOff: 'unconfirmed'};
     const until = Date.now() + 7000;
@@ -890,7 +899,12 @@ export class Backend {
       if (p?.indicator === false) {
         const receipt={gate:'web-idle',status:'passed',observation:{ownerReleased:release.released === true,indicatorOff:true}};
         const learningEvidence=s?.webFingerprint ? await this.learning('observe',{receipt,source:s.webFingerprint}).catch(()=>({available:false})) : {available:false};
-        return {...release, indicatorOff:true,receipt,learningEvidence};
+        let appCleanup;
+        if(requestHome&&release.released===true&&!this.closing){
+          try{const home=await this.deviceHome({transport:'app'});appCleanup={homeRequested:home.ok===true,homeVerified:false,...(!home.ok?{reason:home.reason||'home_unconfirmed',replay:false}:{})};}
+          catch{appCleanup={homeRequested:false,homeVerified:false,reason:'home_owner_or_transport_unavailable',replay:false};}
+        }
+        return {...release, indicatorOff:true,receipt,learningEvidence,...(appCleanup?{appCleanup}:{}),...(appCleanup?.homeRequested===false?{ok:false,next:'Control and glow ended; Home remains unconfirmed. Inspect the current owner/transport without replaying input.'}:{})};
       }
       await new Promise(resolve => setTimeout(resolve, 250));
     }

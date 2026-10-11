@@ -34,13 +34,14 @@ credentials or new network listener is needed by the MCP wrapper.
 ## Start in one call
 
 For a browser, reuse `ios_web_pages` → `ios_web_begin` when the intended document
-is already visible. The new `ios_web_open` combines native bootstrap, fixed
-Safari/Chrome launch, fresh document acquisition and managed developer-channel
-ownership when an explicitly provisioned reflection node exists. Inspector calls
-reuse that channel. `ios_web_end` requests Home and closes it. Nearby Chrome and
-actual MCP open/Inspector/end passed; Wi-Fi-off reflected transport was refused.
-The exact existing relay node is retained for personal DEV after explicit approval
-and adoption readback. Deep off-LAN Inspector remains unqualified. Read MOBILE-WEB.md for the boundary.
+is already visible. `ios_web_open` chooses the qualified app-owned cellular launch
+path when the developer endpoint is unavailable, otherwise the managed nearby
+reflection channel. It requires a fresh intended browser page and acquires ordinary
+web ownership. Chrome uses the installed phone-local Shortcut and a signed adapter
+qualification guard. Safari and Chrome app-owned cellular DOM workflows passed.
+`ios_web_end` confirms glow-off before app-owned Home cleanup; nearby it also closes
+the retained Inspector channel. No USB/XCTest/Mirroring or silent Wi-Fi change.
+Deep cellular Inspector remains unqualified. Read MOBILE-WEB.md for the boundary.
 
 1. `ios_guide` gives the operating contract and applicable shared lessons.
 2. `ios_begin {}` acquires control and checks actual app readiness. It returns a
@@ -181,7 +182,10 @@ Generic local stdio entry:
 ```
 
 Codex uses `[mcp_servers.ios-agent]` with the same command and
-`tool_timeout_sec = 150.0`. Claude Code uses user-scope `claude mcp add`.
+`tool_timeout_sec = 150.0`. Generic SDK clients should allow at least150seconds
+for managed open/end: iCloud Focus synchronization and Home recovery can exceed
+a default60-second request. Recover observations after interruption; never
+repeat an unknown launch. Claude Code uses user-scope `claude mcp add`.
 `python3 src/ios-agent/register_mcp.py` performs idempotent scoped registration;
 use `--dry-run` to inspect the targets. Existing different ios-agent entries fail
 closed instead of being overwritten. Configuration readback is not proof that a
@@ -279,9 +283,12 @@ glow/inspection cleanup, then navigate Home through a verified available system
 input route. Do not leave Kickoff DEV open without ongoing work. Preserve other
 agent ownership and do not navigate Home during intermediate session handoffs.
 
-`ios_end`/`ios_web_end` release control; they do **not** navigate Home.
-After the final end, call `ios_device_home` when the paired Tailscale developer
-lane is configured. It reserves exclusive ownership and runs only the installed
+`ios_end` and ordinary `ios_web_begin`→`ios_web_end` release control without
+navigating Home. Managed `ios_web_open` sessions also request Home during
+`ios_web_end`: the app lane first confirms glow-off, while the nearby relay lane
+requests Home before closing its channel. Read the cleanup receipt; acceptance
+is not independent display proof. After a non-managed final end, call
+`ios_device_home` through an available qualified lane. It reserves exclusive ownership and runs only the installed
 **Runner Home** shortcut, containing one Apple **Go to Home Screen** action.
 No XCTest, Mirroring, sudo, caller URL or arbitrary shortcut execution is involved.
 Physical creation, dispatch over paired Tailscale and independent SpringBoard

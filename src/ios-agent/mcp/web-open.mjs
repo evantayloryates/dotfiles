@@ -3,6 +3,40 @@ import path from 'node:path';
 import {RelayChannel} from './relay-channel.mjs';
 import {reflectionConfig,startReflection} from './reflection-process.mjs';
 
+// Choose before dispatch. Never retry a possibly accepted launch in another lane.
+export async function openManagedWeb(b,args={}){
+  if(!['ios-safari','ios-chrome'].includes(args.browser))return {ok:false,reason:'fixed_browser_required',inputSent:false};
+  return await b.appTransportPreferred()?openAppWeb(b,args):openReflectedWeb(b,args);
+}
+
+export async function openAppWeb(b,{browser,profile='app',path:route='/dev/ios-agent',threadId,rollout,claudeOwner}={}){
+  let session,complete=false;
+  try{
+    const existing=await b.webPages();
+    if(!existing.ok)return {ok:false,reason:'prior_page_inventory_unavailable',inputSent:false};
+    const prior=new Set(existing.pages?.map(p=>p.id)||[]);
+    const launch=await b.webEnroll({browser,profile,path:route,transport:'auto'});
+    if(!launch.ok)return {...launch,replay:false};
+    const until=Date.now()+15000;let page;
+    while(Date.now()<until){
+      const inventory=await b.webPages();
+      if(!inventory.ok)return {ok:false,reason:'launched_page_inventory_unavailable',launch:launch.launch,replay:false};
+      const matches=inventory.pages?.filter(p=>!prior.has(p.id)&&p.browser===browser&&p.visible&&p.ready&&p.ageMs<3000)||[];
+      if(matches.length===1){page=matches[0];break;}
+      if(matches.length>1)return {ok:false,reason:'browser_page_ambiguous',replay:false};
+      await new Promise(resolve=>setTimeout(resolve,250));
+    }
+    if(!page)return {ok:false,reason:'fresh_launched_page_unconfirmed',launch:launch.launch,replay:false};
+    const begun=await b.begin({surface:'web',page:page.id,threadId,rollout,claudeOwner});session=begun.sessionId;
+    b.session(session).appManagedHome=true;
+    complete=true;
+    return {...begun,ok:true,launch:launch.launch,transport:'app-owned-browser-handoff',qualificationScope:'personal-dev',offLANQualified:true,
+      limits:'Owned page DOM/state over Tailscale; synthetic input. Deep cellular Inspector and OS permission control remain separate gates.',
+      next:'Use ordinary web tools with this sessionId; ios_web_end confirms glow-off before requesting Home through the app-owned lane. Never replay an unknown launch.'};
+  }catch(e){return {ok:false,reason:'managed_app_browser_open_unconfirmed',failureType:e.name,replay:false};}
+  finally{if(session&&!complete)await b.end(session);}
+}
+
 // One bootstrap/launch/control lifecycle; enrollment-only semantics stay intact.
 export async function openReflectedWeb(b,{browser,profile='app',path:route='/dev/ios-agent',threadId,rollout,claudeOwner}={}){
   if(!['ios-safari','ios-chrome'].includes(browser))return {ok:false,reason:'fixed_browser_required',inputSent:false};

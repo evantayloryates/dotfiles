@@ -17,13 +17,14 @@ another owner's work to refresh schemas. See MCP.md for the operating recipes.
 
 For unavailable pages, expired grants or pending cleanup, use the recovery decision card in MOBILE-WEB.md. Read-only host diagnosis is allowed while another connection owns the phone; that does not grant access to its session.
 
-Current MCP source is1.9.49. Signed candidate333fc2b73381422180f46783d53b1a9d
-completed with verified signature and adapter, delivery8a0c15bd53fa4c34b6d82b06a16ebf95;
-installation and app-owned Chrome qualification are being performed separately.
-The phone-local Chrome Shortcut passed a fresh nearby launch after its one-time
-permissions, then actual MCP readiness, glow cleanup and independent Home readback.
-It is not yet proof of the app-owned or cellular hop. The prior HTTPS candidate
-opened Safari; it is superseded as the next experiment, not counted as Chrome proof.
+Current MCP source is1.9.50. Signed job333fc2b73381422180f46783d53b1a9d
+installed delivery8a0c15bd53fa4c34b6d82b06a16ebf95 with matched running identity.
+The phone-local Chrome Shortcut passed one-time permission persistence, then
+app-owned cellular launch, fresh owned readiness, fill/Save/committed React
+readback and glow-off without USB. Wi-Fi restoration and Home were independently
+verified. Automatic Chrome selection is guarded by the signed adapter source and
+fresh owned delivery. The managed automatic open/end entrypoint is the remaining
+integration smoke; deep cellular Inspector stays separate.
 
 Native DEV cellular foregrounding and Safari cellular app-owned DOM/React Save
 passed on their recorded signed deliveries. Nearby managed Chrome launch, input,

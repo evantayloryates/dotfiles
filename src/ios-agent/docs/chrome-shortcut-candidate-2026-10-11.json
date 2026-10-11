@@ -1,5 +1,5 @@
 {
-  "observedAt": "2026-10-11T20:17:50.657538+00:00",
+  "observedAt": "2026-10-11T20:30:37.103468+00:00",
   "candidate": "phone-local Chrome Shortcut",
   "shippedMCP": false,
   "signedShortcut": {
@@ -22,15 +22,19 @@
     "fixedDeveloperTransportInvocationAccepted": true,
     "firstRunChromePermissionObserved": true,
     "chromeReady": true,
-    "cellularQualified": false,
+    "cellularQualified": true,
     "permissionPersistence": true,
     "ownedMCPReadiness": true,
     "indicatorOnAndOff": true,
     "independentHomeReadback": true,
-    "qualificationScope": "Nearby fixed paired Shortcut launch; separate fresh Chrome page after first-run permissions. App-owned and cellular hops remain unqualified.",
+    "qualificationScope": "Signed app-owned launch and fresh owned Chrome DOM Save over cellular with USB absent and Wi-Fi IPv4 absent; glow-off and restored Wi-Fi/Home independently verified.",
     "appOwnedChromeLaunch": true,
     "appOwnedMCPReady": true,
-    "appOwnedGlowCleanup": true
+    "appOwnedGlowCleanup": true,
+    "cellularCommittedReactSave": true,
+    "usbAbsent": true,
+    "wifiIPv4AbsentDuringTest": true,
+    "wifiIPv4Restored": true
   },
   "AX": {
     "ShortcutsTarget": "underlying library only",
@@ -65,9 +69,23 @@
     "runner-resume-dbjblI/12.json",
     "runner-resume-dbjblI/14.json",
     "runner-resume-dbjblI/15.json",
-    "runner-resume-dbjblI/17.json"
+    "runner-resume-dbjblI/17.json",
+    "runner-resume-dbjblI/18.json",
+    "runner-resume-dbjblI/25.json",
+    "runner-resume-dbjblI/27.json",
+    "runner-resume-dbjblI/29.json",
+    "runner-resume-dbjblI/30.json",
+    "runner-resume-dbjblI/36.json",
+    "runner-resume-dbjblI/39.json",
+    "runner-resume-dbjblI/41.json",
+    "runner-resume-dbjblI/42.json",
+    "runner-resume-dbjblI/43.json",
+    "runner-resume-dbjblI/51.json",
+    "runner-resume-dbjblI/52.json",
+    "runner-resume-dbjblI/53.json",
+    "runner-resume-dbjblI/55.json"
   ],
-  "next": "Unplug USB, verify absence, then Wi-Fi Off and fresh cellular app-owned Chrome launch. Restore Wi-Fi/Home in finally; do not repeat nearby baseline.",
+  "next": "Qualify the integrated automatic managed MCP open/end entrypoint; deep cellular Inspector remains separate.",
   "signedNative": {
     "jobId": "333fc2b73381422180f46783d53b1a9d",
     "deliveryId": "8a0c15bd53fa4c34b6d82b06a16ebf95",

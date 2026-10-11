@@ -36,5 +36,19 @@ test('auto Chrome refuses an unqualified default-browser fallback before any pho
  const b=new Backend({state,run:async(kind)=>{assert.equal(kind,'web');return {ok:true,value:{token:'A'.repeat(43)}}}});
  b.status=async()=>({});b.appTransportPreferred=async()=>true;
  b.deviceLaunch=async()=>{throw Error('phone input forbidden')};b.begin=async()=>{throw Error('ownership forbidden')};
- try{const r=await b.webEnroll({browser:'ios-chrome'});assert.equal(r.ok,false);assert.equal(r.inputSent,false);assert.equal(r.reason,'chrome_cellular_launch_unqualified');}finally{await b.close();fs.rmSync(state,{recursive:true,force:true});}
+ try{const r=await b.webEnroll({browser:'ios-chrome'});assert.equal(r.ok,false);assert.equal(r.inputSent,false);assert.equal(r.reason,'chrome_installed_adapter_unqualified');}finally{await b.close();fs.rmSync(state,{recursive:true,force:true});}
+});
+
+for(const changed of [false,true])test(`auto Chrome ${changed?'refuses changed owned adapter':'uses qualified Shortcut'} and always releases`,async()=>{
+ const {qualifiedChromeAdapter}=await import('../chrome-handoff.mjs');
+ const state=fs.mkdtempSync(path.join(os.tmpdir(),'ios-chrome-auto-qualified-')),job='a'.repeat(32),delivery='b'.repeat(32),events=[];
+ fs.mkdirSync(path.join(state,'build-jobs',job),{recursive:true,mode:0o700});
+ fs.writeFileSync(path.join(state,'build-jobs',job,'result.json'),JSON.stringify({jobId:job,deliveryId:delivery,state:'completed',ok:true,signatureVerified:true,agentBinaryVerified:true,sourceChangedDuringBuild:false,sourceHashes:{'/fixture/native/BrowserHandoff.inc':qualifiedChromeAdapter}}),{mode:0o600});
+ fs.writeFileSync(path.join(state,'dev-runtime.json'),JSON.stringify({webURL:'https://dev.tail.ts.net:10446'}));
+ const b=new Backend({state,run:async()=>({ok:true,value:{token:'S'.repeat(43)}})});
+ b.status=async()=>({device:{deliveryId:delivery}});b.appTransportPreferred=async()=>true;b.waitReady=async()=>({readyToAcquire:true});
+ b.begin=async()=>{events.push('begin');return {sessionId:'owned',verification:{data:{deliveryId:changed?'c'.repeat(32):delivery}}}};
+ b.action=async()=>{events.push('handoff');return {ok:true,data:{mode:'phone-local-chrome-shortcut'}}};
+ b.end=async()=>events.push('end');
+ try{const r=await b.webEnroll({browser:'ios-chrome'});assert.equal(r.ok,!changed);assert.deepEqual(events,changed?['begin','end']:['begin','handoff','end']);if(changed)assert.equal(r.inputSent,false);else assert.equal(r.launch.browserRoute,'phone-local-chrome-shortcut');}finally{await b.close();fs.rmSync(state,{recursive:true,force:true});}
 });

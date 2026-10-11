@@ -1,0 +1,35 @@
+{
+  "observedAt": "2026-10-11T20:32:48.464951+00:00",
+  "version": "1.9.50",
+  "cellularChromePrimitives": {
+    "passed": true,
+    "signedDelivery": "8a0c15bd53fa4c34b6d82b06a16ebf95",
+    "freshPage": "07a2cfd802b70b012bc2f6b9db7a8763",
+    "usbEnumerationDetected": false,
+    "wifiIPv4Present": false,
+    "ownedReady": true,
+    "syntheticFillSaveCommittedReactReadback": true,
+    "glowOff": true,
+    "wifiRestored": true,
+    "homeIndependentlyViewed": true,
+    "evidence": "runner-resume-dbjblI/18-55"
+  },
+  "managedEntryPoint": {
+    "passed": false,
+    "focusAccepted": true,
+    "focusRestored": true,
+    "freshNativeBridge": false,
+    "browserInputSent": false,
+    "focusReplayed": false,
+    "nativeReadOnlyWaitSeconds": 30,
+    "hostChecksPassed": 11,
+    "tailnetPingSucceeded": false,
+    "lockState": "unknown",
+    "evidence": "runner-resume-UQbvk8/1-9"
+  },
+  "focusedChecks": {
+    "passed": 22,
+    "scope": "signed adapter guard, app route, ownership and cleanup; not physical qualification"
+  },
+  "pendingCleanup": "Latest Wi-Fi restoration needs a responding phone route. No active lease, XCTest or Mirroring."
+}
