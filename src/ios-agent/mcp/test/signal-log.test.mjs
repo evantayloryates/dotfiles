@@ -30,7 +30,7 @@ test('JS and Python emit compatible bounded private rows; reader filters and pag
     assert.match(first.text,/input.result/);
     const py=`import importlib.util; s=importlib.util.spec_from_file_location('signals',${JSON.stringify(pyPath)}); m=importlib.util.module_from_spec(s); s.loader.exec_module(m)
 with m.signal_context(trace='1234567890abcdef1234567890abcdef'):
- assert m.emit_signal('host','input.verified',verified=True,count=2,stage='readback',detail='password=hunter2',url='https://example.com/users/123?sig=private')`;
+ assert m.emit_signal('host','input.verified',verified=True,count=2,stage='readback',state='connected',strategy='paired',present=True,enabled=True,muted=False,visible=True,participants=2,sent=10,received=9,drops=1,gaps=0,detail='password=hunter2',url='https://example.com/users/123?sig=private')`;
     run('python3',['-B','-c',py]);
     const dir=path.join(state,'signals');
     assert.equal(fs.statSync(dir).mode & 0o777,0o700);
@@ -52,6 +52,12 @@ with m.signal_context(trace='1234567890abcdef1234567890abcdef'):
     assert.match(rows.find(r=>r.event==='input.dispatch').leaseFingerprint,/^[a-f0-9]{12}$/);
     assert.doesNotMatch(JSON.stringify(rows),/live-capability/);
     assert.equal(rows.find(r=>r.event==='input.verified').traceId,'1234567890abcdef1234567890abcdef');
+    assert.equal(rows.find(r=>r.event==='input.verified').state,'connected');
+    assert.equal(rows.find(r=>r.event==='input.verified').strategy,'paired');
+    assert.equal(rows.find(r=>r.event==='input.verified').muted,false);
+    assert.equal(rows.find(r=>r.event==='input.verified').participants,2);
+    assert.equal(rows.find(r=>r.event==='input.verified').sent,10);
+    assert.equal(rows.find(r=>r.event==='input.verified').gaps,0);
     assert.equal(rows.find(r=>r.event==='input.dispatch').ignored,undefined);
     assert.equal(rows.find(r=>r.event==='input.result').message,'[redacted]');
     assert.equal(rows.find(r=>r.event==='input.verified').detail,'[redacted]');
@@ -61,6 +67,11 @@ with m.signal_context(trace='1234567890abcdef1234567890abcdef'):
     assert.equal(second.count,1);
     assert.match(second.text,/input.dispatch/);
     assert.doesNotMatch(second.text,/secret|hunter2|example\.com|private/);
+    const hostRead=JSON.parse(run(process.execPath,['--input-type=module','-e',`import {readSignals} from ${JSON.stringify(modulePath)}; console.log(JSON.stringify(readSignals({scope:'host'})));`]));
+    assert.equal(hostRead.count,1);
+    assert.match(hostRead.text,/state=connected/);
+    assert.match(hostRead.text,/muted=false/);
+    assert.match(hostRead.text,/participants=2/);
     const stale=path.join(dir,names.find(n=>fs.readFileSync(path.join(dir,n),'utf8').includes('input.verified')));
     fs.utimesSync(stale,0,0);
     const symlink=path.join(dir,'signal-aaaaaaaaaaaaaaaa-1.jsonl');

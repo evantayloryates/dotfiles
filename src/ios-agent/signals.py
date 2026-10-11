@@ -21,9 +21,9 @@ MAX_AGE = 7 * 86400
 ROTATE_AGE = 86400
 IDS = {'traceId', 'requestId', 'sessionId', 'ownerId', 'pageId', 'buildId', 'bootId', 'epoch', 'backendEpoch', 'clientEpoch', 'sourceHash', 'leaseFingerprint', 'sourceStream'}
 ALIASES = {'trace':'traceId', 'request':'requestId', 'session':'sessionId', 'owner':'ownerId', 'page':'pageId', 'build':'buildId', 'boot':'bootId', 'routeName':'route', 'previousRouteName':'previousRoute', 'operationName':'op', 'errorCount':'count'}
-WORDS = {'tool', 'action', 'op', 'kind', 'surface', 'transport', 'provider', 'stage', 'phase', 'fromState', 'toState', 'outcome', 'reason', 'code', 'version', 'errorName', 'errorCode', 'route', 'previousRoute'}
-NUMERIC = {'durationMs', 'count', 'attemptCount', 'retryCount', 'acceptedCount', 'failedCount', 'frameCount', 'signalCount', 'dropCount', 'droppedCount', 'truncatedCount', 'sourceAtMs', 'sourceSeq', 'bytes'}
-BOOLEANS = {'dispatched', 'inputSent', 'verified', 'released', 'ready', 'truncated'}
+WORDS = {'tool', 'action', 'op', 'kind', 'surface', 'transport', 'provider', 'strategy', 'stage', 'phase', 'state', 'fromState', 'toState', 'outcome', 'reason', 'code', 'version', 'errorName', 'errorCode', 'route', 'previousRoute'}
+NUMERIC = {'durationMs', 'count', 'participants', 'sent', 'received', 'drops', 'gaps', 'attemptCount', 'retryCount', 'acceptedCount', 'failedCount', 'frameCount', 'signalCount', 'dropCount', 'droppedCount', 'truncatedCount', 'sourceAtMs', 'sourceSeq', 'bytes'}
+BOOLEANS = {'dispatched', 'inputSent', 'verified', 'released', 'ready', 'truncated', 'present', 'enabled', 'muted', 'visible'}
 SCOPES = {'mcp', 'browser', 'host', 'native', 'kck-native', 'kck-web', 'kck-call'}
 LEVELS = {'info', 'warn', 'error'}
 _context = ContextVar('ios_signal_context', default={})
