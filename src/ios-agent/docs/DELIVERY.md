@@ -9,7 +9,7 @@ another owner's work to refresh schemas. See MCP.md for the operating recipes.
 | Task | First useful operations | Cleanup |
 | --- | --- | --- |
 | Native DEV app | doctor → begin → native/react → verify | native Home → end |
-| Safari / Chrome DEV page | web_pages → web_begin → inspect/action/verify | web_end → device_home (configured paired Tailscale); independently inspect Home |
+| Safari / Chrome DEV page | web_open → inspect/action/verify, or web_pages → web_begin for an existing page | Managed web_end requests Home; do not duplicate it. Existing-page sessions need explicit device_home. Whole-display Home remains separate. |
 | Page not yet available | doctor connectivity=true; wait_ready; fixed device_launch (native Focus fallback when provisioned) | No lease held while waiting |
 | Exact observed system permission | End page/app session → system_begin → inspect/action | system_end; require runnerStopped |
 | Deeper browser diagnosis | browser_debug; source/styles/dom/network/profile/heap/breakpoint/worker-* | Diagnostic domains stop and detach; content expires |
@@ -23,8 +23,12 @@ The phone-local Chrome Shortcut passed one-time permission persistence, then
 app-owned cellular launch, fresh owned readiness, fill/Save/committed React
 readback and glow-off without USB. Wi-Fi restoration and Home were independently
 verified. Automatic Chrome selection is guarded by the signed adapter source and
-fresh owned delivery. The managed automatic open/end entrypoint is the remaining
-integration smoke; deep cellular Inspector stays separate.
+fresh owned delivery. Actual MCP1.9.50 managed cellular Chrome open, fresh owned
+ready, fill/Save readback, fresh same-document glow-off and Home request passed.
+The final Home display is not independently visible over this cellular route.
+Wi-Fi On returned successfully afterward, but its current interface had no IPv4;
+association is not claimed. No input owner or inspection frontend remained.
+See managed-cellular-mcp-2026-10-11.json. Deep cellular Inspector stays separate.
 
 Native DEV cellular foregrounding and Safari cellular app-owned DOM/React Save
 passed on their recorded signed deliveries. Nearby managed Chrome launch, input,

@@ -1,5 +1,5 @@
 {
-  "observedAt": "2026-10-11T20:32:48.464951+00:00",
+  "observedAt": "2026-10-11T20:55:55.366065+00:00",
   "version": "1.9.50",
   "cellularChromePrimitives": {
     "passed": true,
@@ -15,6 +15,48 @@
     "evidence": "runner-resume-dbjblI/18-55"
   },
   "managedEntryPoint": {
+    "passed": true,
+    "version": "1.9.50",
+    "transport": "app-owned-browser-handoff",
+    "browser": "ios-chrome",
+    "page": "e5e68f1362f8c68b14c03199f5c94f15",
+    "secureContext": true,
+    "visible": true,
+    "ownedIndicator": true,
+    "savedTextVerified": true,
+    "indicatorOff": true,
+    "ownerReleased": true,
+    "homeRequested": true,
+    "homeIndependentlyViewed": false,
+    "usbEnumerationDetected": false,
+    "networkEvidence": "User-provided LTE screenshot before launch; Tailscale ping/bridge available, fixed developer endpoint refused. No direct Wi-Fi IPv4 measurement immediately before open. After Wi-Fi On callback, current native interface still had no IPv4.",
+    "evidence": "runner-resume-6fibZE/1-10"
+  },
+  "focusedChecks": {
+    "passed": 22,
+    "scope": "signed adapter guard, app route, ownership and cleanup; not physical qualification"
+  },
+  "pendingCleanup": "Home handoff sent once after Wi-Fi On returned. No lease/glow/frontend remains. Current Wi-Fi association and final whole-display Home are not independently verified on this cellular route.",
+  "cleanupReview": {
+    "staleFeedbackRejected": true,
+    "sameDocumentRequired": true,
+    "postReleaseFeedbackRequiredForAppLane": true,
+    "nearbyHomeBeforeReleaseVisibilityHandled": true,
+    "focusedChecksPassed": true,
+    "physicalUpdatedEntryPointQualified": true
+  },
+  "latestConnectivity": {
+    "evidence": "runner-resume-6fibZE/19.json",
+    "tailnetPeerOnline": true,
+    "tailnetPingSucceeded": true,
+    "developerEndpointTCP": "refused",
+    "bridgeReadyToAcquire": true,
+    "lockState": "unknown",
+    "usbEnumerationDetected": false,
+    "hostChecksPassed": 11,
+    "inputSent": false
+  },
+  "previousManagedAttempt": {
     "passed": false,
     "focusAccepted": true,
     "focusRestored": true,
@@ -27,27 +69,18 @@
     "lockState": "unknown",
     "evidence": "runner-resume-UQbvk8/1-9"
   },
-  "focusedChecks": {
-    "passed": 22,
-    "scope": "signed adapter guard, app route, ownership and cleanup; not physical qualification"
-  },
-  "pendingCleanup": "Latest Wi-Fi restoration needs a responding phone route. No active lease, XCTest or Mirroring.",
-  "cleanupReview": {
-    "staleFeedbackRejected": true,
-    "sameDocumentRequired": true,
-    "postReleaseFeedbackRequiredForAppLane": true,
-    "nearbyHomeBeforeReleaseVisibilityHandled": true,
-    "focusedChecksPassed": true,
-    "physicalUpdatedEntryPointQualified": false
-  },
-  "latestConnectivity": {
-    "evidence": "runner-resume-mVCyCp/2.json",
-    "hostChecksPassed": 11,
-    "tailnetPeerOnline": false,
-    "tailnetPingSucceeded": false,
-    "developerEndpointTCP": "unavailable",
-    "bridgeReadyToAcquire": false,
-    "lockState": "unknown",
-    "inputSent": false
+  "finalCleanup": {
+    "wifiOnCallback": "returned",
+    "wifiRequested": "on",
+    "wifiRadioVerified": false,
+    "wifiIPv4Present": false,
+    "wifiAssociationVerified": false,
+    "finalHomeRequested": true,
+    "homeIndependentlyViewed": false,
+    "nativeIdlePassed": true,
+    "hostLeased": false,
+    "reactFrontendRunning": false,
+    "reactFrontendCleanupPending": false,
+    "evidence": "runner-resume-6fibZE/11-23"
   }
 }
