@@ -434,3 +434,25 @@ remained suspended. See browser-cellular-audio-tone-2026-10-10.json.
 ### Cellular WebRTC probe boundary
 
 Two document-local Safari probes generated two host candidates per peer and no candidate-add errors, but remained ICE checking with no confirmed RTP flow. Retaining authorized capture during negotiation did not resolve it. Both fixtures and capture tracks were cleaned up. This does not diagnose the actual Twilio/TURN call path; use the real call for the next media gate rather than repeating host-only loopback. See `browser-cellular-rtc-boundary-2026-10-10.json`.
+
+### Call readiness and cleanup (MCP 1.9.3)
+
+After opening the DEV call page, use `ios_web_verify` with `gate=web-call`,
+`callPhase=lobby`, and an optional bounded `timeoutSeconds`. SDK reachability is
+not call readiness. `media_requests_pending` with permission `prompt` means the
+native permission flow needs investigation; DOM clicks cannot press OS Allow.
+Use the explicit bounded system fallback only when the paired developer channel
+is available, then stop it before resuming page control. Never infer a disconnected
+USB cable or a locked phone from developer-channel failure alone.
+
+Once Join has been sent once, `callPhase=paired` checks joined state and a remote
+participant. Use a separate explicit `web-media` sample for RTP progression.
+After Leave, `callPhase=released` checks observed tracks/peers have stopped.
+Neither waiting nor verification automatically acquires media or retries Join.
+
+A Wi-Fi Off cellular test must include restoration before requesting a tether
+for a later nearby operation. Check current transport first. The existing fixed
+Runner Wi-Fi On shortcut is a paired recovery path; independently verify Settings
+or current association afterward. Launch acceptance is not proof of execution.
+A browser-only cellular page does not currently provide a native permission tap
+or a qualified remote Wi-Fi-settings lane.

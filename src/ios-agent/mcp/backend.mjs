@@ -6,12 +6,13 @@ import {spawn} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {nutritionRecipe} from './workflows.mjs';
 import {mediaObservation} from './media-verification.mjs';
+import {callObservation} from './call-verification.mjs';
 import {CaptureStore} from './capture-store.mjs';
 import {SystemDriver} from './system-driver.mjs';
 import {nativeDelivery} from './native-delivery.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/input-schemas.mjs', 'mcp/system-driver.mjs', 'system_runner.py', 'mcp/capture-store.mjs', 'web/rich-capture.js', 'ready_wait.py', 'mcp/media-verification.mjs', 'mcp/workflows.mjs', 'fixture_jobs.py', 'build_jobs.py', 'build_app.py', 'native_delivery.py', 'mcp/native-delivery.mjs', 'tests/run_fixture.py', 'paired_workflow.py', 'health.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'browser_inspector.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
+const adapterHash = createHash('sha256').update(['mcp/backend.mjs', 'mcp/server.mjs', 'mcp/input-schemas.mjs', 'mcp/system-driver.mjs', 'system_runner.py', 'mcp/capture-store.mjs', 'web/rich-capture.js', 'ready_wait.py', 'mcp/media-verification.mjs', 'mcp/call-verification.mjs', 'mcp/workflows.mjs', 'fixture_jobs.py', 'build_jobs.py', 'build_app.py', 'native_delivery.py', 'mcp/native-delivery.mjs', 'tests/run_fixture.py', 'paired_workflow.py', 'health.py', 'local_stack.py', 'worker-launcher.mjs', 'device_observer.py', 'browser_inspector.py', 'process_inventory.mjs', 'cli.py', 'learning.py', 'mcp/package-lock.json', 'web/sdk.js', 'web/bridge.py', 'web_cli.py']
   .map(file => fs.readFileSync(path.join(root, file))).map(bytes => createHash('sha256').update(bytes).digest('hex')).join(':')).digest('hex');
 export const defaultState = path.join(os.homedir(), 'Library/Application Support/ios-agent');
 const idleLimit = 20 * 60 * 1000;
@@ -140,7 +141,7 @@ export class Backend {
     catch { learning = {available: false}; }
     return {browserWorkflow: ['ios_doctor (host prerequisites)', 'ios_web_pages (reuse a visible ready enrolled page)', 'ios_web_enroll only if provisioning is needed (private launchFile)', 'open the intended dev browser page if not enrolled', 'ios_web_pages', 'ios_web_begin', 'ios_web_inspect and ios_web_action', 'ios_web_end in finally'],
       readiness: 'ios_wait_ready waits up to 55 seconds without a lease, waking on fresh foreground app/page events. Repeat bounded waits while this task is waiting; do not infer lock from offline. ios_begin still verifies the runtime. MCP availability does not itself schedule a new model turn.',
-      browserConditions: 'ios_web_verify timeoutSeconds=0..30 waits for a specific owned page condition without repeated model turns. web-element uses a unique semantic selector, optional exact expectedValue, and visible/interactable/editable state; passing returns fresh snapshot/target refs. Stops on failed observation or lost ownership; no input is retried. Read ios-agent://mobile-web for examples. Media remains a single explicit sample.',
+      browserConditions: 'ios_web_verify timeoutSeconds=0..30 waits for a specific owned page condition without repeated model turns. web-element uses a unique semantic selector, optional exact expectedValue, and visible/interactable/editable state; passing returns fresh snapshot/target refs. Stops on failed observation or lost ownership; no input is retried. Read ios-agent://mobile-web for examples. web-call additionally waits for explicit lobby/connected/paired/released call state and reports fixed permission/request diagnostics; it never grants permissions or joins. Media RTP remains a single explicit sample.',
       launch: 'ios_device_launch has fixed DEV/Settings/Safari/Chrome targets through a paired nearby developer channel. DEV launch was qualified from Settings without XCTest. Arbitrary-network foreground launch remains unqualified; Tailscale page/app control alone cannot launch a suspended app.',
       lock: 'ios_device_lock runs only Runner Lock iPhone through the paired developer channel, then independently reads passcodeRequired. The one-action Apple shortcut is installed and physically verified. Already locked is a no-input success. It cannot unlock the phone, does not store a passcode, and is not an arbitrary-network system-control lane.',
       richCapture: 'ios_capture is explicit synthetic-DEV capture only: start selected console/network/audio modes, drain bounded batches, stop, then end in finally. Default 2 MiB ring, max 8 MiB, max 10 minutes; host 32 MiB/capture and 128 MiB total. Artifacts expire after one hour by default (max 24 hours) and private audio chunks stay off the transcript. Clone existing audio tracks only; no microphone request. Inspect remainingEvents and dropped counts; this is not lossless whole-device traffic capture.',
@@ -157,7 +158,8 @@ export class Backend {
       requirements: 'Native: Kickoff DEV foreground/unlocked. Browser: enrolled dev document visible on unlocked iPhone. Both require Tailscale and awake laptop services; routine control needs no USB. Developer-channel failure does not prove physical disconnection or lock.',
       browserDomains: {layout:'ios_web_inspect kind=element reports fresh target computed CSS, center hit, bounded ancestors and viewport; use snapshot and target refs.',media:'Content-free request outcomes, track liveness, WebRTC audio and WebSocket counters. Check media.hooks coverage before interpreting zero counts; late microphone APIs are wrapped without replacing later libraries.',performance:'Bounded navigation/paint/resource/main-thread timings, optional Event Timing/LCP observers and readonly AudioSession type/state. Inspect domains.performance; a second state read obtains buffered asynchronous values. Optional observers stop with ownership. Event entry durations are not INP; latest LCP is a candidate. Unsupported readings stay null.',meet:'Fixed local call-lobby projection; no identities, credentials or transcripts.',limitations:'State readback is not a trusted touch, OS permission tap, whole-phone screenshot or off-LAN verification.'},
       browserMediaVerification: 'ios_web_verify gate=web-media direction=sent|received|both sampleMs=500..3000 requires stable advancing audio RTP counters. It returns shared structural learning evidence; a passed counter gate does not prove audible content or a completed call.',
-      microphoneWorkflow: 'Safari: use bounded native page controls to save Microphone=Allow for the exact DEV host, then verify getUserMedia through the normal page driver. Chrome: first inspect Settings > Privacy & Security > Microphone; a disabled Chrome app switch can cause NotAllowedError without a site prompt. Named SwiftUI switches resolve their unique nested native toggle; inspect value afterward. Use exact observed Allow labels only after identifying the expected DEV microphone prompt. Never use Mirroring as runtime permission control, assume tap success equals permission, enter a passcode, or replay an unknown request.',
+      networkRecovery: 'After an intentional cellular/Wi-Fi-Off test, restore Wi-Fi before diagnosing nearby control as unavailable. Read the current developer transport; failure does not prove an unplugged cable. The fixed Runner Wi-Fi On paired recovery shortcut works outside DEV, but dispatch alone is not switch/association proof. An off-LAN browser page alone cannot yet press system Allow or restore Wi-Fi.',
+      microphoneWorkflow: 'Safari: use bounded native page controls to save Microphone=Allow for the exact DEV host, then verify getUserMedia through the normal page driver. Chrome: first inspect Settings > Privacy & Security > Microphone; a disabled Chrome app switch can cause NotAllowedError without a site prompt. Named SwiftUI switches resolve their unique nested native toggle; inspect value afterward. Use exact observed Allow labels only after identifying the expected DEV media prompt. A permission projection can remain prompt after live track acquisition; inspect pending requests and actual tracks before requesting another approval. Use web-call lobby/paired/released for call conditions, separately from RTP. Never use Mirroring as runtime permission control, assume tap success equals permission, enter a passcode, or replay an unknown request.',
       systemFallback: 'Explicit ios_system_begin/inspect/action/end uses the existing signed WDA runner for native Safari/Chrome/Settings/Kickoff and Home. Fixed activate/Home may leave another app without inspecting it. Xcode automatic privileged diagnostics are disabled; ordinary sessions need no sudo. End the normal app/page lease first; end the fallback in finally, normally return Home, and verify runnerStopped. Startup uses paired nearby developer transport; WDA HTTP uses Tailscale but off-LAN start is unqualified. Apple may request human authorization; no passcode is entered. EOF/dead owner independently stops the runner. Do not use this for routine DOM/app work.',
       cleanup: 'When finished or pausing phone work: stop capture, release control, confirm glow/inspection cleanup, then return the phone to its Home Screen using an available verified system-control route. Taylor prefers Home over restoring the previous app; do not leave Kickoff DEV foreground without a continuing task. Do not send Home during an intermediate session handoff or while another agent owns the device. For an owned updated native app, send ios_native action=home before ios_end; this retires the lease and asks the DEV app to return Home without XCTest. Use ios_begin nativeOnly=true when JS startup fails. Browser Home still needs an available system route; normal end never starts XCTest just for cleanup. Report homeNavigationPending if no verified route is reachable. Never substitute force-quit, lock, XCTest startup or an unverified shortcut. Explicit end, cancellation, disconnect and 20-minute tool silence retire control; the native watchdog protects host loss.',
       input: 'Get a fresh tree; use its snapshot, target and observed coordinates within five seconds. Verify committed route/value after input. Never automatically replay an accepted or unknown action.',
@@ -558,11 +560,12 @@ export class Backend {
       ...(typeof r.value?.reason === 'string' ? {reason:r.value.reason} : {}),
       ...(!large ? {value} : {value:preview,truncated:true,next:'Use ios_read with /result/value for the complete private observation.'})};
   }
-  async webVerify({sessionId, gate, expectedPath, expectedText, selector, expectedValue, elementState='visible', timeoutSeconds=0, direction = 'both', sampleMs = 1000}, signal) {
+  async webVerify({sessionId, gate, expectedPath, expectedText, selector, expectedValue, callPhase, elementState='visible', timeoutSeconds=0, direction = 'both', sampleMs = 1000}, signal) {
     const s = this.session(sessionId);
     if (s.surface !== 'web') throw new Error('web_session_required');
     if (gate === 'web-route' && !expectedPath && !expectedText) return {ok:false,reason:'explicit_web_postcondition_required'};
     if (!Number.isInteger(timeoutSeconds) || timeoutSeconds<0 || timeoutSeconds>30) return {ok:false,reason:'bounded_condition_wait_required'};
+    if (gate === 'web-call' && !['lobby','connected','paired','released'].includes(callPhase)) return {ok:false,reason:'explicit_call_phase_required'};
     if (gate === 'web-element' && !selector) return {ok:false,reason:'element_selector_required'};
     if (gate === 'web-media' && timeoutSeconds) return {ok:false,reason:'media_wait_requires_explicit_new_sample'};
     if (gate === 'web-media') {
@@ -578,14 +581,15 @@ export class Backend {
       return {ok,receipt,artifactId:second.artifactId,beforeArtifactId:first.artifactId,sampleMs,learningEvidence,
         limits:'Stable document-local stream counters; at least one stream advances in each requested direction, none reset. This does not prove audible content, call-room identity, remote playout, microphone permission or physical network route.'};
     }
-    const started=performance.now();let read,observation,ok=false,checks=0,refs,reason;
+    const started=performance.now();let read,observation,ok=false,checks=0,refs,reason,callCheck;
     const full = r => {const file=this.artifacts.get(r.artifactId)?.file;return file?JSON.parse(fs.readFileSync(file,'utf8'))?.result?.value:r.value;};
     do {
       if(signal?.aborted)throw new Error('request_cancelled_before_dispatch');
       this.session(sessionId); // Refuse a replaced/retired owner before every read.
-      read=await this.webAction({sessionId,action:gate==='web-ready'?'state':'snapshot',args:selector?{selector}:{}});checks++;
+      read=await this.webAction({sessionId,action:['web-ready','web-call'].includes(gate)?'state':'snapshot',args:selector?{selector}:{}});checks++;
       const value=full(read);
-      observation=gate==='web-ready'?{visible:value?.visible===true,secureContext:value?.secureContext===true,indicatorOn:value?.indicator===true,
+      callCheck=gate==='web-call'?callObservation(value,s.webRuntime,callPhase):undefined;
+      observation=callCheck?callCheck.observation:gate==='web-ready'?{visible:value?.visible===true,secureContext:value?.secureContext===true,indicatorOn:value?.indicator===true,
         sameRuntime:['browser','boot','version'].every(k=>typeof value?.[k]==='string'&&value[k].length>0&&value[k]===s.webRuntime[k])}:
         {snapshotAvailable:typeof value?.snapshot==='string',nodeCount:value?.elements?.length||0,
          ...(expectedPath?{expectedPathMatched:value?.path===expectedPath}:{}),
@@ -617,8 +621,9 @@ export class Backend {
     const receipt={gate,status:ok?'passed':'failed',observation};
     const learningEvidence=await this.learning('observe',{receipt,source:s.webFingerprint}).catch(()=>({available:false}));
     return {ok,receipt,artifactId:read.artifactId,learningEvidence,checks,elapsedMs:Math.round(performance.now()-started),
+      ...(callCheck?{diagnostics:callCheck.diagnostics,scope:'owned-dev-call-projection-only',limits:'Call state is not RTP advancement, audible playout, provider room identity or physical network proof. released covers instrumented page media only.'}:{}),
       ...(ok&&refs?{...refs,next:'Use these references immediately; normal five-second/occlusion input checks still apply.'}:{}),
-      ...(!ok?{reason:reason||(!read.ok?'condition_observation_failed':'condition_not_met'),replay:false}:{})};
+      ...(!ok?{reason:reason||(!read.ok?'condition_observation_failed':callCheck?.reason||'condition_not_met'),replay:false}:{})};
   }
   async webEnd(id) {
     const s = this.sessions.get(id), page = s?.page;

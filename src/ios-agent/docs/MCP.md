@@ -446,3 +446,19 @@ optional exact expectedValue, and visible/interactable/editable state. It return
 fresh references on success, stops on read/ownership failure, and never repeats
 input or media tests. Shared learning stores only structural gate booleans and
 counts. See MOBILE-WEB.md for examples and the separate physical cellular proof.
+
+## MCP 1.9.3 — actual call conditions
+
+`ios_web_verify gate=web-call callPhase=lobby|connected|paired|released`
+reads the existing DEV meet/media projections. Lobby requires settled media
+requests and a ready, supported call. Connected requires the room connection;
+paired also requires a remote participant. Released requires disconnected call,
+known media hooks, ended observed tracks and no remaining observed peer connections.
+Unknown observations fail rather than becoming zero or false-success.
+
+A bounded `timeoutSeconds=0..30` waits for that condition without pressing Join,
+requesting permission, starting a microphone or repeating input. Fixed diagnostics
+show pending request counts and permission/error categories. Raw provider errors,
+identities, SDP and tokens are omitted. These conditions complement the separate
+`web-media` RTP advancement gate; they do not prove audible playout or provider
+room identity. Released covers instrumented document media only.

@@ -1,0 +1,54 @@
+{
+  "observedAt": "2026-10-11T03:12:49.262375+00:00",
+  "candidateVersion": "1.9.3",
+  "scope": "Physical iOS Chrome; paired USB recovery/native permissions followed by normal Tailscale page control. Not another cellular qualification.",
+  "wifi": {
+    "priorState": "off for completed cellular test",
+    "currentDeveloperTransport": "wired",
+    "fixedOnShortcutDispatch": "accepted once",
+    "independentSettingsReadback": "connected Wi-Fi network; VPN enabled",
+    "radioOffRetestPerformed": false
+  },
+  "nativeFallback": {
+    "startedWithoutNewHumanAuthorization": true,
+    "mirroringUsed": false,
+    "permissionPromptsHandledByAgent": 2,
+    "nativePromptAbsentAfterReadback": true,
+    "runnerStopped": true,
+    "cleanupVerificationAttempts": 1
+  },
+  "call": {
+    "lobbyGatePassed": true,
+    "pendingMediaRequests": 0,
+    "acquiredMediaRequests": 2,
+    "liveAudioTrackObserved": true,
+    "liveVideoTrackObserved": true,
+    "permissionProjectionStillPrompt": true,
+    "microphoneDisabledBeforeJoin": true,
+    "cameraDisabledBeforeJoin": true,
+    "joinDispatchedOnce": true,
+    "pairedGatePassed": false,
+    "pairedWaitMs": 15072,
+    "reason": "main web stack uses placeholder provider account; Join reports account does not exist",
+    "realDedicatedCallRigRecordingOnConnect": false,
+    "realDedicatedCallRigRecordingRules": "exclude audio/video",
+    "realDedicatedCallRigParticipants": 1,
+    "realDedicatedCallRigRecordings": 0,
+    "providerCallRtpProven": false
+  },
+  "cleanup": {
+    "navigatedToQualificationPage": true,
+    "freshDocumentBoot": true,
+    "pendingMediaRequests": 0,
+    "observedTracks": 0,
+    "observedPeers": 0,
+    "pageIndicatorOff": true,
+    "phoneLeaseReleased": true,
+    "wifiRestored": true
+  },
+  "checks": {
+    "focusedNodeTestsPassed": 38,
+    "pythonLearningTestsPassed": 6
+  },
+  "next": "Connect the mobile page to the dedicated real-credential call-rig stack before another Join. Preserve recording exclusions. Do not repeat local ICE baselines or infer microphone approval from the stale permission projection."
+}
