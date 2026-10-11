@@ -1,0 +1,36 @@
+{
+  "version": "1.9.19 candidate",
+  "date": "2026-10-11",
+  "surface": "physical Chrome iOS synthetic DEV call",
+  "operation": "Exact native label/type opens an HTML select; inspect native options; tap one option; independent browser DOM reads actual value",
+  "before": {
+    "value": "opus-ws",
+    "visible": true,
+    "hitAtVisibleCenter": true,
+    "artifact": "owned-inspector-1791704482767932000.json"
+  },
+  "nativeOpen": {
+    "action": "tap",
+    "label": "Audio transport strategy",
+    "elementType": "XCUIElementTypeOther",
+    "receipt": "owned-input-1791704499532.json"
+  },
+  "observedNativeOptions": {
+    "receipt": "214.json",
+    "option": "Native Opus \u00b7 WebRTC",
+    "elementType": "XCUIElementTypeButton"
+  },
+  "after": {
+    "value": "webrtc",
+    "visible": true,
+    "hitAtVisibleCenter": true,
+    "artifact": "owned-inspector-1791704549377452000.json"
+  },
+  "checks": 27,
+  "limits": [
+    "Other permitted for tap/scroll anchors only, never text entry",
+    "Does not bypass DOM clipping; native browser input requires separate DOM visibility/hit-test review",
+    "Original WDA session retained, no new authentication or caller coordinates",
+    "Fresh MCP schema exercised separately from original held old-schema helper"
+  ]
+}

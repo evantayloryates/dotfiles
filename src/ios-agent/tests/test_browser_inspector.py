@@ -220,4 +220,24 @@ class InspectorTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(e.dropped,0);self.assertLess(e.bytes,3000)
         p=e.rows[0]['params'];self.assertEqual(p['url'],'https://dev.test/a.js');self.assertNotIn('providerBulk',p)
 
+    async def test_websocket_frame_projection_is_bounded_scrubbed_and_separate_from_binary_audio(self):
+        original=self.s.send_command
+        async def send(method,**args):
+            if method=='Network.enable':
+                self.s.emit('Network.webSocketFrameSent',requestId='ws1',response={'opcode':1,'payloadData':'{"token":"abcdefghijklmnop","message":"synthetic"}','payloadLength':54})
+                self.s.emit('Network.webSocketFrameReceived',requestId='ws1',response={'opcode':2,'payloadData':'secret-binary-audio','payloadLength':972})
+            return await original(method,**args)
+        self.s.send_command=send
+        r=await self.run_debug({'op':'network','sampleMs':100})
+        self.assertEqual(r['webSocketFrames'],2);self.assertEqual(r['webSocketPayloadBytes'],1026)
+        self.assertEqual(r['events'][0]['params']['response']['payloadData']['token'],'abcd…mnop')
+        self.assertNotIn('payloadData',r['events'][1]['params']['response']);self.assertFalse(r['binaryFramePayloadsRetained'])
+        self.assertTrue(r['domainsDisabled']);self.assertEqual(self.s.response_methods,{})
+        e=debug.Events();e.add('Network.webSocketFrameSent',{'response':{'opcode':1,'payloadData':'x'*5000}})
+        self.assertEqual(len(e.rows[0]['params']['response']['payloadData']),5000)
+        e.add('Network.webSocketFrameReceived',{'response':{'opcode':1,'payloadData':'x'*(debug.MAX_BYTES+1)}})
+        self.assertEqual(e.dropped,1)
+        e.add('Network.webSocketFrameReceived',{'response':{'opcode':1,'payloadData':'Bearer abcdefghijklmnop'}})
+        self.assertEqual(e.rows[1]['params']['response']['payloadData'],'Bearer abcd…mnop')
+
 if __name__=='__main__':unittest.main()

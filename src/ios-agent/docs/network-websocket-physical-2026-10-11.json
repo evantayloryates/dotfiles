@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-11",
+  "version": "1.9.19 candidate",
+  "surface": "Physical Chrome iOS synthetic DEV call",
+  "tool": "ios_browser_debug op=network sampleMs=3000, followed by ios_read selected private counters",
+  "result": {
+    "events": 179,
+    "webSocketFrames": 159,
+    "webSocketPayloadBytes": 15189,
+    "retainedBytes": 50117,
+    "droppedEvents": 0,
+    "domainsDisabled": true,
+    "detached": true,
+    "retentionSeconds": 3600
+  },
+  "frameAttribution": {
+    "unattributed": {
+      "frames": 152,
+      "bytes": 13190
+    },
+    "webpackHmr": {
+      "frames": 1,
+      "bytes": 45
+    },
+    "twilioVideoEvents": {
+      "frames": 4,
+      "bytes": 1914
+    },
+    "twilioSignaling": {
+      "frames": 2,
+      "bytes": 40
+    }
+  },
+  "limits": [
+    "Frames on existing/worker sockets may lack an observed creation URL; do not invent attribution.",
+    "No Network interception, cache changes, caller JS or always-on debugger.",
+    "Text frames retain content under the shared1000-event/2MiB budget with known token-key and Bearer scrubbing.",
+    "Binary payload content omitted; opcode, length and provider timing retained. Use explicit audio capture for media.",
+    "Physical source protocol probe invoked through the existing old-schema MCP connection; fresh1.9.19 schema/counter summaries qualified separately."
+  ],
+  "checks": {
+    "pythonInspector": 20,
+    "systemDriverSchemaBackend": 27
+  },
+  "protocol": "https://raw.githubusercontent.com/WebKit/WebKit/main/Source/JavaScriptCore/inspector/protocol/Network.json",
+  "privateReceipt": "230.json",
+  "selectiveCounterReceipts": [
+    "231.json",
+    "232.json",
+    "233.json"
+  ]
+}

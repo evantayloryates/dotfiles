@@ -171,3 +171,13 @@ test('backend does not spend a full XML read on an exact scroll anchor',async()=
  await b.systemAction({sessionId:'owned',action:'scroll',direction:'down',label:'Panel',elementType:'XCUIElementTypeButton'});assert.equal(reads,0);assert.equal(seen.snapshot,undefined);
  await b.systemAction({sessionId:'owned',action:'scroll',direction:'down'});assert.equal(reads,1);assert.equal(seen.snapshot,'fresh');
 });
+test('named native web-select containers can open once but cannot receive ordinary field text',async()=>{
+ const {d,calls}=fieldFixture();assert.equal((await d.action({action:'tap',label:'Audio transport strategy',elementType:'XCUIElementTypeOther'})).ok,true);assert.equal(calls.filter(c=>c[1].endsWith('/click')).length,1);
+ assert.equal((await d.action({action:'type',label:'Audio transport strategy',elementType:'XCUIElementTypeOther',text:'webrtc'})).actionSent,false);assert(!calls.some(c=>c[1].endsWith('/value')));
+});
+test('MCP exposes named web-select tapping without granting container text input',async()=>{
+ const {Client}=await import('@modelcontextprotocol/sdk/client/index.js');const {InMemoryTransport}=await import('@modelcontextprotocol/sdk/inMemory.js');const {createServer}=await import('../server.mjs');const seen=[];
+ const {server}=createServer({systemAction:async args=>{seen.push(args);return {ok:true}},cancel:async()=>{},close:async()=>{}}),[ct,st]=InMemoryTransport.createLinkedPair();await server.connect(st);const c=new Client({name:'web-select-test',version:'1'});await c.connect(ct);
+ const args={sessionId:'a'.repeat(32),action:'tap',label:'Audio transport strategy',elementType:'XCUIElementTypeOther'};
+ try{assert.equal((await c.callTool({name:'ios_system_action',arguments:args})).structuredContent.ok,true);assert.equal(seen.length,1);assert.equal((await c.callTool({name:'ios_system_action',arguments:{...args,action:'type',text:'webrtc'}})).structuredContent.ok,false);assert.equal(seen.length,1);}finally{await c.close();await server.close();}
+});

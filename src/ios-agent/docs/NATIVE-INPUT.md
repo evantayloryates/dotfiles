@@ -116,3 +116,7 @@ References: https://developer.apple.com/documentation/xcuiautomation/xcuidevice/
 `ios_system_action(action="scroll", direction="down", label="Follow call microphone", elementType="XCUIElementTypeSwitch")` resolves a unique live anchor, checks native bounds/hittability and ownership, and sends one drag of at most 150 points opposite the requested content-scroll direction. No caller coordinates or implicit click. Choose an anchor visibly inside the intended pane. Inspect afterward: inertia can move content farther than the gesture.
 
 On Chrome iOS, native accessibility reported a clipped transport summary as visible/hittable; tapping it changed the microphone beneath it. Native hittability alone does not establish web hit testing. Use the browser DOM clipping and `hitAtVisibleCenter` evidence before native web taps. Anchored scrolling exposed that summary and independent DOM confirmed it visible and hit-testable. The service does not yet automatically correlate native and DOM targets. See `system-scroll-physical-2026-10-11.json`.
+
+### Native web-select controls (1.9.19)
+
+Chrome exposes HTML select controls as `XCUIElementTypeOther`. Exact label/type tapping can open their native option menu without a time-sensitive whole-tree snapshot. Use a DOM read to confirm the select is visible and hit-testable, tap once, inspect the native options, then choose one observed option and read back the DOM value. `Other` is accepted only for tapping/scroll anchors, never for text entry. This is normal native input, not a DOM mutation or a browser-permission bypass.

@@ -125,7 +125,7 @@ export class SystemDriver {
       }
       if((['tap','scroll'].includes(action)&&label!==undefined)||['type','clear','focus'].includes(action)){
         const textAction=['type','clear','focus'].includes(action);
-        const types=textAction?['XCUIElementTypeTextField','XCUIElementTypeSearchField','XCUIElementTypeTextView']:['XCUIElementTypeButton','XCUIElementTypeCell','XCUIElementTypeSwitch','XCUIElementTypeLink'];
+        const types=textAction?['XCUIElementTypeTextField','XCUIElementTypeSearchField','XCUIElementTypeTextView']:['XCUIElementTypeButton','XCUIElementTypeCell','XCUIElementTypeSwitch','XCUIElementTypeLink','XCUIElementTypeOther'];
         if(typeof label!=='string'||!label.length||label.length>500||!types.includes(elementType))return {ok:false,reason:'typed_system_label_required',actionSent:false};
         if(action==='scroll'&&!['up','down','left','right'].includes(direction))return {ok:false,reason:'scroll_direction_required',actionSent:false};
         if(action==='type'&&(typeof text!=='string'||!text.length||text.length>256)||action!=='type'&&text!==undefined)return {ok:false,reason:'system_text_argument_mismatch',actionSent:false};

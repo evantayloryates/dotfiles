@@ -61,6 +61,14 @@ class Events:
             # Retain only source references; source content has its own window.
             params={k:(safe_url(v) if k in ('url','sourceMapURL') else v) for k,v in params.items()
                     if k in ('scriptId','url','startLine','startColumn','endLine','endColumn','sourceMapURL','isModule')}
+        if method in ('Network.webSocketFrameReceived','Network.webSocketFrameSent'):
+            params=dict(params);frame=dict(params.get('response') or {})
+            payload=frame.pop('payloadData',None)
+            if frame.get('opcode')==1 and isinstance(payload,str):
+                try: frame['payloadData']=scrub(json.loads(payload))
+                except (ValueError,TypeError): frame['payloadData']=re.sub(r'(?i)Bearer ([A-Za-z0-9._~+/-]{13,}=*)',lambda m:'Bearer '+m[1][:4]+'…'+m[1][-4:],payload)
+            elif payload is not None:frame['payloadOmitted']='binary; use explicit audio capture for media'
+            params['response']=frame
         row=scrub({'method':method,'params':params})
         if received_elapsed_ms is not None:row['receivedElapsedMs']=received_elapsed_ms
         size=len(json.dumps(row).encode())
@@ -123,7 +131,7 @@ async def inspect(session, request, target, expected, check):
                  'source':['Debugger.scriptParsed','Debugger.paused'],
                  'console':['Console.messageAdded','Console.messageRepeatCountUpdated','Console.messagesCleared'],
                  'trace':['Timeline.eventRecorded','Timeline.recordingStarted','Timeline.recordingStopped'],
-                 'network':['Network.requestWillBeSent','Network.responseReceived','Network.dataReceived','Network.loadingFinished','Network.loadingFailed','Network.requestServedFromMemoryCache'],
+                 'network':['Network.requestWillBeSent','Network.responseReceived','Network.dataReceived','Network.loadingFinished','Network.loadingFailed','Network.requestServedFromMemoryCache','Network.webSocketCreated','Network.webSocketWillSendHandshakeRequest','Network.webSocketHandshakeResponseReceived','Network.webSocketFrameReceived','Network.webSocketFrameSent','Network.webSocketFrameError','Network.webSocketClosed'],
                  'profile':['ScriptProfiler.trackingStart','ScriptProfiler.trackingUpdate','ScriptProfiler.trackingComplete'],
                  'resources':['Memory.trackingStart','Memory.trackingUpdate','Memory.trackingComplete','Memory.memoryPressure',
                               'CPUProfiler.trackingStart','CPUProfiler.trackingUpdate','CPUProfiler.trackingComplete']} .get(op,[])
@@ -227,6 +235,10 @@ async def inspect(session, request, target, expected, check):
             request['_receiverFailureType']=getattr(session,'_ios_agent_receiver_failure',None)
             raise ValueError('debug_cleanup_unconfirmed')
     result.update(eventCount=len(events.rows),droppedEvents=events.dropped,retainedBytes=events.bytes)
+    if op=='network':
+        frames=[x for x in events.rows if x['method'] in ('Network.webSocketFrameReceived','Network.webSocketFrameSent')]
+        result.update(webSocketFrames=len(frames),webSocketPayloadBytes=sum(x['params'].get('response',{}).get('payloadLength',0) for x in frames if isinstance(x['params'].get('response',{}).get('payloadLength'),(int,float))),
+                      coverage='Observed page Network events only; empty capture is not evidence of no network activity. Dedicated worker coverage is unqualified.',binaryFramePayloadsRetained=False)
     if op=='profile':
         completed=[x['params'] for x in events.rows if x['method']=='ScriptProfiler.trackingComplete']
         traces=[t for x in completed for t in x.get('samples',{}).get('stackTraces',[])]

@@ -178,3 +178,9 @@ interval timing. Chrome also returned four CPU and four memory readings with bot
 Protocols:
 - https://raw.githubusercontent.com/WebKit/WebKit/main/Source/JavaScriptCore/inspector/protocol/Memory.json
 - https://raw.githubusercontent.com/WebKit/WebKit/main/Source/JavaScriptCore/inspector/protocol/CPUProfiler.json
+
+## WebSocket network events (1.9.19)
+
+Network capture now includes WebSocket creation, handshake, sent/received frames, errors and close events. Text frames retain structured content with the same known-key scrubbing and shared1000-event/2MiB budget; plain Bearer values are masked. Binary payloads retain opcode/length/timing, with media content available through explicit audio capture. No interception or always-on listener. Fresh summaries expose frame count and payload bytes.
+
+Physical Chrome captured159 frames/15189 payload bytes in3 seconds with zero drops and disable/detach confirmed.152 frames had no observed socket-creation URL; keep that attribution unknown. An empty Network window is not evidence that a worker or socket is idle. This does not establish a worker debugger attachment. See `network-websocket-physical-2026-10-11.json`.

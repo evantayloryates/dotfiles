@@ -398,7 +398,7 @@ export class Backend {
         try{saved=this.captureStore.saveDiagnostic({status:'completed',result:value});}
         finally{fs.rmSync(a.file,{force:true});this.artifacts.delete(a.id);}
         this.artifacts.set(a.id,{file:saved.file,sessionId:s.id,type:'inspector'});
-        const summary=Object.fromEntries(['operation','documentRef','browser','ready','scriptCount','eventCount','droppedEvents','retainedBytes','timelineStopped','profilerStopped','profileComplete','sampleCount','memoryStopped','cpuProfilerStopped','memorySamples','cpuSamples','domainsDisabled'].filter(k=>row[k]!==undefined).map(k=>[k,row[k]]));
+        const summary=Object.fromEntries(['operation','documentRef','browser','ready','scriptCount','eventCount','droppedEvents','retainedBytes','timelineStopped','profilerStopped','profileComplete','sampleCount','memoryStopped','cpuProfilerStopped','memorySamples','cpuSamples','webSocketFrames','webSocketPayloadBytes','domainsDisabled'].filter(k=>row[k]!==undefined).map(k=>[k,row[k]]));
         return {ok:true,artifactId:a.id,metadata:{...summary,detached:true,transport:value.transport,offLANQualified:false,retentionSeconds:saved.retentionSecondsRemaining},inputSent:debug.expression!==undefined,replay:false,next:'Read selected private result/pages/0/debug subtrees with ios_read. Content expires after one hour. Document references expire on navigation/reload; no trusted input or off-LAN Inspector claim.'};
       }
       let learningEvidence;
