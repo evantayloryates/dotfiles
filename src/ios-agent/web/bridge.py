@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 import re
+import math
 import time
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -22,13 +23,13 @@ SIGNAL_NUMBERS = {'durationMs', 'count', 'dropped', 'tracks', 'frames', 'bytes',
                   'participants', 'sent', 'received', 'drops', 'gaps'}
 SIGNAL_BOOLEANS = {'ready', 'visible', 'muted', 'enabled', 'active', 'present'}
 SIGNAL_CODES = {'outcome', 'reason', 'code', 'action', 'phase'}
-SIGNAL_ENUMS = {'provider': {'twilio-video', 'unknown'},
+SIGNAL_ENUMS = {'source': {'document', 'react'}, 'provider': {'twilio-video', 'unknown'},
                 'strategy': {'pcm-ws', 'opus-ws', 'webrtc', 'unknown'},
                 'kind': {'microphone', 'camera', 'audio', 'video', 'unknown'},
                 'state': {'granted', 'prompt', 'denied', 'unknown', 'connecting', 'connected',
-                          'reconnecting', 'disconnected', 'started', 'stopped', 'ended', 'failed', 'active', 'inactive'}}
+                          'reconnecting', 'disconnected', 'started', 'stopped', 'ended', 'failed', 'live', 'active', 'inactive'}}
 SIGNAL_FIELDS = SIGNAL_NUMBERS | SIGNAL_BOOLEANS | SIGNAL_CODES | set(SIGNAL_ENUMS)
-SIGNAL_EVENTS = re.compile(r'^(?:browser|kck\.(?:web|call))\.[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*){0,3}$')
+SIGNAL_EVENTS = re.compile(r'^(?:browser|kck\.(?:web|call))\.[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*){0,3}$')
 SIGNAL_CODE = re.compile(r'^[a-z][a-z0-9_\-]{0,47}$')
 
 
@@ -43,7 +44,7 @@ def safe_boot(value):
 
 
 def safe_version(value):
-    return value if isinstance(value, str) and re.fullmatch(r'web-[a-z0-9]{1,12}(?:[.-][a-z0-9]{1,12}){0,4}', value) else None
+    return value if isinstance(value, str) and re.fullmatch(r'web-[a-z0-9]{1,32}(?:[.-][a-z0-9]{1,12}){0,4}', value) else None
 
 
 def signal(event, **fields):
@@ -74,7 +75,7 @@ def page_signals(rows, page, state, epoch, request=None):
         for key, value in fields.items():
             if key not in SIGNAL_FIELDS:
                 continue
-            if key in SIGNAL_NUMBERS and type(value) is int and 0 <= value <= (1000 if key == 'participants' else 1000000000000):
+            if key in SIGNAL_NUMBERS and type(value) in (int, float) and math.isfinite(value) and (key != 'participants' or type(value) is int) and 0 <= value <= (1000 if key == 'participants' else 1000000000000):
                 clean[key] = value
             elif key in SIGNAL_BOOLEANS and type(value) is bool:
                 clean[key] = value
@@ -87,7 +88,7 @@ def page_signals(rows, page, state, epoch, request=None):
         if emit_signal is not None:
             try:
                 emit_signal(scope, event, page=page, boot=safe_boot(state.get('boot')), epoch=epoch,
-                            version=safe_version(state.get('version')), request=request, stream='web-page',
+                            version=safe_version(state.get('version')), sourceStream='web-page',
                             sourceAtMs=source_at, sourceSeq=seq, droppedCount=dropped, **clean)
             except Exception:
                 pass
@@ -129,7 +130,7 @@ class WebBridge:
         for c in self.commands.values():
             if c['status'] in ('queued', 'sent') and now > c['deadline']:
                 c.update(status='unknown' if c['status'] == 'sent' else 'expired', reason='deadline_do_not_replay')
-                signal('browser.command.terminal', request=c['id'], page=c['page'], epoch=self.b.epoch,
+                signal('browser.command.terminal', request=c['id'], traceId=c.get('signalTraceId'), sessionId=c.get('signalSessionId'), page=c['page'], epoch=self.b.epoch,
                        action=c['action'], outcome=c['status'], reason=c['reason'])
         if len(self.commands) > 128:
             self.commands = dict(list(self.commands.items())[-64:])
@@ -138,7 +139,7 @@ class WebBridge:
         for c in self.commands.values():
             if c['status'] in ('queued', 'sent'):
                 c.update(status='unknown' if c['status'] == 'sent' else 'cancelled', reason='lease_ended_do_not_replay')
-                signal('browser.command.terminal', request=c['id'], page=c['page'], epoch=self.b.epoch,
+                signal('browser.command.terminal', request=c['id'], traceId=c.get('signalTraceId'), sessionId=c.get('signalSessionId'), page=c['page'], epoch=self.b.epoch,
                        action=c['action'], outcome=c['status'], reason=c['reason'])
 
     def control(self, r):
@@ -171,7 +172,7 @@ class WebBridge:
             if not p or not p['visible'] or not p['ready']:
                 self.reject('web_page_not_ready')
             cid = secrets.token_hex(16)
-            self.commands[cid] = {'id': cid, 'lease': lease['id'], 'page': lease['page'], 'action': r['action'], 'args': r.get('args', {}), 'status': 'queued', 'deadline': self.b.clock() + 12}
+            self.commands[cid] = {'id': cid, 'lease': lease['id'], 'page': lease['page'], 'action': r['action'], 'args': r.get('args', {}), 'status': 'queued', 'deadline': self.b.clock() + 12, 'signalTraceId': (r.get('signalContext') or {}).get('traceId'), 'signalSessionId': (r.get('signalContext') or {}).get('sessionId')}
             signal('browser.command.queued', request=cid, page=lease['page'], lease=lease['id'], epoch=self.b.epoch, action=r['action'])
             return {'id': cid, 'delivery': 'queued', 'replay': False}
         self.reject('unsupported_web_control')
@@ -277,7 +278,7 @@ class WebBridge:
                        'not_executed' if reason == 'expired_before_execution' else
                        'unknown' if reason in ('execution_deadline_unknown', 'result_limit', 'page_execution_failed', 'unclassified') else
                        'rejected')
-            signal('browser.command.terminal', request=c['id'], page=pid, lease=c['lease'], epoch=self.b.epoch,
+            signal('browser.command.terminal', request=c['id'], traceId=c.get('signalTraceId'), sessionId=c.get('signalSessionId'), page=pid, lease=c['lease'], epoch=self.b.epoch,
                    action=c['action'], outcome=outcome,
                    reason=reason)
         elif op != 'poll':
@@ -291,7 +292,7 @@ class WebBridge:
         for c in self.commands.values():
             if c['status'] == 'queued' and c['page'] == pid and wire and c['lease'] == wire['id']:
                 c['status'] = 'sent'
-                signal('browser.command.dispatched', request=c['id'], page=pid, lease=c['lease'], epoch=self.b.epoch,
+                signal('browser.command.dispatched', request=c['id'], traceId=c.get('signalTraceId'), sessionId=c.get('signalSessionId'), page=pid, lease=c['lease'], epoch=self.b.epoch,
                        action=c['action'])
                 response['command'] = {k: c[k] for k in ('id', 'action', 'args', 'lease')}
                 response['command']['remainingMs'] = int((c['deadline'] - self.b.clock()) * 1000)

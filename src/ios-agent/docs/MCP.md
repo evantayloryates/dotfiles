@@ -1,6 +1,6 @@
 # iOS agent MCP — shared service interface and operational learning
 
-Current interface: **40 tools / ten resources**. `ios_guide.interface` identifies
+Current interface: **41 tools / eleven resources**. `ios_guide.interface` identifies
 the process answering this connection. `/Users/taylor/dotfiles/bin/ios-agent-mcp
 --catalog` reads the installed catalog without host/phone access. A missing
 `interface` means the connected process predates this check; absent new tools
@@ -912,3 +912,11 @@ permissions or unrelated hooks. Existing sessions need a config reload. New
 hooks permit150seconds for bounded cellular Focus/Home cleanup. Explicit end in
 finally still applies; child hook delivery remains excluded. See
 claude-managed-open-2026-10-11.json for the actual CLI wiring receipt.
+
+## Compact diagnostics
+
+`ios_signals` reads bounded compact lines, filtered by exact `traceId`,
+`sessionId`, scope, event prefix, tool, level or UTC `since`. An MCP result’s
+`signalRequestId` is its trace lookup key. `after=nextCursor` pages older rows.
+No path, lease or phone action is accepted. Read `ios-agent://signals` for
+retention, error scrubbing, delayed phone events and console-fallback limits.

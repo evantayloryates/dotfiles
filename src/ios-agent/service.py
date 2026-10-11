@@ -22,9 +22,13 @@ from web.bridge import WebBridge
 from source_hash import worker_source_hash
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 try:
-    from signals import emit_signal
+    from signals import emit_signal, signal_context
 except ImportError:  # The signal library is installed with the integrated release.
     emit_signal = None
+    from contextlib import contextmanager
+    @contextmanager
+    def signal_context(**_fields):
+        yield
 
 VERSION = 1
 MAX_BODY = 8 * 1024 * 1024
@@ -182,7 +186,7 @@ class Broker:
         with self.cv:
             if self.lease:
                 _signal("host", "lease.released", outcome="released", reason=_code(reason),
-                        sessionId=self.lease["id"], surface=self.lease.get("surface", "native"))
+                        lease=self.lease["id"], surface=self.lease.get("surface", "native"))
             if self.developer_relay:
                 self.developer_relay.close(reason)
                 self.developer_relay = None
@@ -203,7 +207,7 @@ class Broker:
                 if cmd["status"] in ("queued", "sent"):
                     if cmd["action"] not in QUIET_ACTIONS:
                         _signal("host", "command.terminal", outcome="cancelled" if cmd["status"] == "queued" else "unknown",
-                                reason=_code(reason), requestId=cmd["id"], sessionId=cmd["lease"], code=cmd["action"])
+                                reason=_code(reason), requestId=cmd["id"], lease=cmd["lease"], traceId=cmd.get("signalTraceId"), sessionId=cmd.get("signalSessionId"), code=cmd["action"])
                     cmd.update(status="cancelled" if cmd["status"] == "queued" else "unknown", reason=reason)
             self.queue.clear()
             self.cv.notify_all()
@@ -245,6 +249,17 @@ class Broker:
                 "remainingMs": int(min(DEVICE_TIMEOUT, max(0, self.lease["expires"] - self.clock())) * 1000)}
 
     def control(self, request):
+        context = request.get("signalContext", {})
+        try:
+            if not isinstance(context, dict) or len(context) > 8 or len(json.dumps(context)) > 1024:
+                context = {}
+        except Exception:
+            context = {}
+        request = {**request, "signalContext": context}
+        with signal_context(**context):
+            return self._control(request)
+
+    def _control(self, request):
         with self.cv:
             self.tick()
             op = request.get("op")
@@ -326,7 +341,7 @@ class Broker:
                 if connection:
                     self.lease["connectionOwner"] = connection
                 self.cv.notify_all()
-                _signal("host", "lease.acquired", outcome="accepted", sessionId=self.lease["id"], surface=surface,
+                _signal("host", "lease.acquired", outcome="accepted", lease=self.lease["id"], surface=surface,
                         buildId=self.device.get("deliveryId") if surface == "native" and self.device else None)
                 return {"id": self.lease["id"], "epoch": self.epoch} if surface != "native" else self.lease_wire()
             if op == "result":
@@ -400,10 +415,14 @@ class Broker:
                 self.commands[cid] = {"id": cid, "action": action, "args": args,
                                       "lease": self.lease["id"], "epoch": self.epoch,
                                       "status": "queued", "deadline": self.clock() + 15}
+                context = request.get("signalContext", {})
+                if isinstance(context, dict):
+                    self.commands[cid]["signalTraceId"] = context.get("traceId")
+                    self.commands[cid]["signalSessionId"] = context.get("sessionId")
                 self.queue.append(cid)
                 self.cv.notify_all()
                 if action not in QUIET_ACTIONS:
-                    _signal("host", "command.accepted", outcome="queued", requestId=cid, sessionId=self.lease["id"], code=action)
+                    _signal("host", "command.accepted", outcome="queued", requestId=cid, lease=self.lease["id"], code=action)
                 return {"id": cid}
             if op == "result":
                 cmd = self.commands.get(request.get("id"))
@@ -476,7 +495,7 @@ class Broker:
                 elif cmd["action"] not in QUIET_ACTIONS:
                     error = result.get("error") if isinstance(result, dict) else None
                     _signal("host", "command.reported", outcome="error" if error else "reported",
-                            requestId=cmd["id"], sessionId=cmd["lease"], code=cmd["action"],
+                            requestId=cmd["id"], lease=cmd["lease"], traceId=cmd.get("signalTraceId"), sessionId=cmd.get("signalSessionId"), code=cmd["action"],
                             reason=_code(error) if error else None)
                 if cmd["action"] == "tree" and isinstance(result, dict) and "error" not in result:
                     self.native_priority_until = self.clock() + 2.0
@@ -518,7 +537,7 @@ class Broker:
                 cmd["status"] = "sent"
                 if cmd["action"] not in QUIET_ACTIONS:
                     _signal("host", "command.dispatched", outcome="sent", requestId=cmd["id"],
-                            sessionId=cmd["lease"], code=cmd["action"])
+                            lease=cmd["lease"], traceId=cmd.get("signalTraceId"), sessionId=cmd.get("signalSessionId"), code=cmd["action"])
                 response["command"] = {k: cmd[k] for k in ("id", "action", "args", "lease", "epoch")}
                 response["command"]["remainingMs"] = int((cmd["deadline"] - self.clock()) * 1000)
                 break

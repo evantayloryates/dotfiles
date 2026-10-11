@@ -64,6 +64,42 @@ class BrokerTests(unittest.TestCase):
         self.assertEqual(names, ["command.accepted", "command.dispatched", "command.reported"])
         self.assertNotIn("args", str(emit.call_args_list))
 
+    def test_command_trace_survives_async_reply_without_logging_lease_capability(self):
+        import signals
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            with patch.object(signals, 'ROOT', root), patch.object(signals, 'DIR', root / 'signals'), patch.object(signals, '_current', None):
+                cid = self.call(op='action', action='tap', args={'x':10, 'y':10},
+                                signalContext={'traceId':'a'*16, 'requestId':'a'*16, 'sessionId':'c'*32})['id']
+                self.next()
+                self.result(cid)
+                rows = [json.loads(line) for p in (root/'signals').glob('*.jsonl') for line in p.read_text().splitlines()]
+            events = [r for r in rows if r['event'].startswith('command.')]
+            self.assertEqual(len(events), 3)
+            self.assertTrue(all(r['traceId']=='a'*16 for r in events))
+            self.assertTrue(all(r['requestId']==cid for r in events))
+            self.assertTrue(all(r['sessionId']=='c'*32 for r in events))
+            self.assertTrue(all(r['leaseFingerprint']==hashlib.sha256(b'lease').hexdigest()[:12] for r in events))
+            self.assertTrue(all('args' not in r and 'lease' not in r for r in events))
+
+    def test_native_signal_fields_survive_real_host_writer(self):
+        import signals
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            with patch.object(signals, 'ROOT', root), patch.object(signals, 'DIR', root / 'signals'), patch.object(signals, '_current', None):
+                self.b.receive_native_signals({'iosSignals':{'stream':'abc1-1234','records':[
+                    {'sequence':1,'sourceAtMs':1791740000000,'event':'apollo.operation_failed',
+                     'fields':{'operationName':'CurrentUser','outcome':'failed','kind':'query','statusCode':503,'errorCount':2}}
+                ]}})
+                rows = [json.loads(line) for p in (root/'signals').glob('*.jsonl') for line in p.read_text().splitlines()]
+            self.assertEqual(len(rows), 1)
+            self.assertEqual(rows[0]['event'], 'apollo.operation_failed')
+            self.assertEqual(rows[0]['op'], 'CurrentUser')
+            self.assertEqual(rows[0]['statusCode'], 503)
+            self.assertEqual(rows[0]['count'], 2)
+            self.assertEqual(rows[0]['sourceStream'], 'abc1-1234')
+            self.assertEqual(rows[0]['sourceSeq'], 1)
+
     def test_repeated_hello_does_not_repeat_bridge_transition(self):
         with patch.object(service, "emit_signal") as emit:
             self.b.device_request({**self.device, "feedback": {"foreground": True}})

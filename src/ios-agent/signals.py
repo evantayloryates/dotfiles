@@ -19,11 +19,11 @@ TOTAL_BYTES = 2 * 1024 * 1024
 MAX_FILES = 32
 MAX_AGE = 7 * 86400
 ROTATE_AGE = 86400
-IDS = {'traceId', 'requestId', 'sessionId', 'ownerId', 'pageId', 'buildId', 'bootId', 'epoch', 'backendEpoch', 'clientEpoch', 'sourceHash', 'leaseFingerprint', 'sourceStream'}
-ALIASES = {'trace':'traceId', 'request':'requestId', 'session':'sessionId', 'owner':'ownerId', 'page':'pageId', 'build':'buildId', 'boot':'bootId', 'routeName':'route', 'previousRouteName':'previousRoute', 'operationName':'op', 'errorCount':'count'}
+IDS = {'traceId', 'requestId', 'sessionId', 'ownerId', 'pageId', 'buildId', 'bootId', 'epoch', 'backendEpoch', 'clientEpoch', 'sourceHash', 'leaseFingerprint', 'sourceStream', 'documentId', 'observedDocumentId', 'frameLoaderId'}
+ALIASES = {'operation':'op', 'document':'documentId', 'observedDocument':'observedDocumentId', 'frameLoader':'frameLoaderId', 'receiverFailure':'errorCode', 'windowMs':'durationMs', 'droppedEvents':'dropCount', 'trace':'traceId', 'request':'requestId', 'session':'sessionId', 'owner':'ownerId', 'page':'pageId', 'build':'buildId', 'boot':'bootId', 'source':'stage', 'sourceStreamId':'sourceStream', 'sourceBootId':'bootId', 'attempts':'attemptCount', 'routeName':'route', 'previousRouteName':'previousRoute', 'operationName':'op', 'errorCount':'count'}
 WORDS = {'tool', 'action', 'op', 'kind', 'surface', 'transport', 'provider', 'strategy', 'stage', 'phase', 'state', 'fromState', 'toState', 'outcome', 'reason', 'code', 'version', 'errorName', 'errorCode', 'route', 'previousRoute'}
-NUMERIC = {'durationMs', 'count', 'participants', 'sent', 'received', 'drops', 'gaps', 'attemptCount', 'retryCount', 'acceptedCount', 'failedCount', 'frameCount', 'signalCount', 'dropCount', 'droppedCount', 'truncatedCount', 'sourceAtMs', 'sourceSeq', 'bytes'}
-BOOLEANS = {'dispatched', 'inputSent', 'verified', 'released', 'ready', 'truncated', 'present', 'enabled', 'muted', 'visible'}
+NUMERIC = {'durationMs', 'count', 'participants', 'sent', 'received', 'drops', 'gaps', 'attemptCount', 'retryCount', 'acceptedCount', 'failedCount', 'frameCount', 'signalCount', 'dropCount', 'droppedCount', 'truncatedCount', 'sourceAtMs', 'sourceSeq', 'bytes', 'domainCount', 'eventCount', 'cleanupFailures', 'nodeCount', 'edgeCount', 'workerCount', 'workersInitialized'}
+BOOLEANS = {'dispatched', 'inputSent', 'verified', 'released', 'ready', 'truncated', 'present', 'enabled', 'muted', 'visible', 'pauseObserved', 'resumeConfirmed', 'breakpointRemoved', 'terminated'}
 SCOPES = {'mcp', 'browser', 'host', 'native', 'kck-native', 'kck-web', 'kck-call'}
 LEVELS = {'info', 'warn', 'error'}
 _context = ContextVar('ios_signal_context', default={})
@@ -214,7 +214,7 @@ def _target(size):
 def emit_signal(scope, event, **fields):
     global _writes, _current
     try:
-        if scope not in SCOPES or not isinstance(event, str) or len(event) > 64 or not re.fullmatch(r'[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*', event) or not _safe_dir():
+        if scope not in SCOPES or not isinstance(event, str) or len(event) > 64 or not re.fullmatch(r'[a-z][a-z0-9_]*(?:[.-][a-z0-9_]+)*', event) or not _safe_dir():
             return False
         data = {**_inherited(), **_clean(_context.get()), **_clean(fields)}
         level = fields.get('level') if fields.get('level') in LEVELS else 'info'

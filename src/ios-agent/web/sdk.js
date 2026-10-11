@@ -24,16 +24,16 @@
   const signalNumbers=new Set(['durationMs','count','dropped','tracks','frames','bytes','samples','packets','audioTracks','videoTracks','streamCount','peerCount','failureCount','trackCount','audioTrackCount','videoTrackCount','senderCount','receiverCount','candidateCount','framesSent','framesReceived','bytesSent','bytesReceived','packetsSent','packetsReceived','packetsLost','rttMs','jitterMs','bitrateKbps','participants','sent','received','drops','gaps']);
   const signalBooleans=new Set(['ready','visible','muted','enabled','active','present']);
   const signalCodes=new Set(['outcome','reason','code','action','phase']);
-  const signalEnums={provider:new Set(['twilio-video','unknown']),strategy:new Set(['pcm-ws','opus-ws','webrtc','unknown']),kind:new Set(['microphone','camera','audio','video','unknown']),state:new Set(['granted','prompt','denied','unknown','connecting','connected','reconnecting','disconnected','started','stopped','ended','failed','active','inactive'])};
+  const signalEnums={source:new Set(['document','react']),provider:new Set(['twilio-video','unknown']),strategy:new Set(['pcm-ws','opus-ws','webrtc','unknown']),kind:new Set(['microphone','camera','audio','video','unknown']),state:new Set(['granted','prompt','denied','unknown','connecting','connected','reconnecting','disconnected','started','stopped','ended','failed','live','active','inactive'])};
   const signalFields=new Set([...signalNumbers,...signalBooleans,...signalCodes,...Object.keys(signalEnums)]);
   const validSignalCode=value=>typeof value==='string'&&/^[a-z][a-z0-9_-]{0,47}$/.test(value)&&!/(token|secret|password|credential|authorization|cookie|bearer)/.test(value)&&(value.length<=15||value.includes('_')||value.includes('-'));
   function signal(event,fields={}) {
     try {
-      if(typeof event!=='string'||! /^(?:browser|kck\.(?:web|call))\.[a-z][a-z0-9]*(?:\.[a-z][a-z0-9]*){0,3}$/.test(event)||!fields||typeof fields!=='object'||Array.isArray(fields))return;
+      if(typeof event!=='string'||! /^(?:browser|kck\.(?:web|call))\.[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*){0,3}$/.test(event)||!fields||typeof fields!=='object'||Array.isArray(fields))return;
       const clean={};
       for(const [key,value] of Object.entries(fields).slice(0,8)){
         if(!signalFields.has(key))continue;
-        if(signalNumbers.has(key)&&Number.isSafeInteger(value)&&value>=0&&value<=(key==='participants'?1000:1000000000000))clean[key]=value;
+        if(signalNumbers.has(key)&&Number.isFinite(value)&&(key!=='participants'||Number.isSafeInteger(value))&&value>=0&&value<=(key==='participants'?1000:1000000000000))clean[key]=value;
         else if(signalBooleans.has(key)&&typeof value==='boolean')clean[key]=value;
         else if(signalCodes.has(key)&&validSignalCode(value))clean[key]=value;
         else if(signalEnums[key]?.has(value))clean[key]=value;
@@ -176,8 +176,6 @@
           catch(e) { const codes=['stale_snapshot','stale_target','changed_target','target_not_interactable','editable_text_required','expression_required','unsupported_action','execution_deadline_unknown','selector_invalid','inspection_scope_required']; result={ok:false,error:codes.includes(e.message)?e.message:'page_execution_failed',replay:false}; }
         }
         if (JSON.stringify(result).length>800000) result={ok:false,error:'result_limit',replay:false};
-        const outcome=result.ok===true?'completed':result.error==='expired_before_execution'?'not_executed':['execution_deadline_unknown','result_limit','page_execution_failed'].includes(result.error)?'unknown':'rejected';
-        signal('browser.command.executed',{action:c.action,outcome,reason:result.error||'none'});
         const ack=await post({op:'result',...feedback(),id:c.id,epoch:response.epoch,result}); apply(ack);
       }
     } catch(e) { connected=false;if(!transportFailed){signal('browser.transport.lost',{reason:e.message==='web_page_auth_required'?'authentication_required':'transport_unavailable'});transportFailed=true;}if(e.message==='web_page_auth_required'){sessionStorage.removeItem('ios-agent-page');identity=null;if(browserResume?.expiresAt<=Date.now()){browserResume=null;try{localStorage.removeItem('ios-agent-browser-resume');}catch{}}if(!browserResume){stopped=true;clear('authentication_required');}}ring({kind:'bridge',code:'transport_unavailable'}); }

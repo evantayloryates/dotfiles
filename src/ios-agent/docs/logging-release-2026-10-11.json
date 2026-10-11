@@ -1,0 +1,94 @@
+{
+  "observedAt": "2026-10-11T23:38:16.164784+00:00",
+  "version": "1.10.0",
+  "scope": "Strategic metadata logging for personal DEV service and Kickoff local-dev-foundation only",
+  "fleet": [
+    {
+      "title": "kck/native-signals",
+      "threadId": "01a12d45-2ecc-7403-910b-935b648a8123",
+      "cwd": "/Users/taylor/.codex/worktrees/a46e/kickoff"
+    },
+    {
+      "title": "kck/web-enrollment",
+      "threadId": "01a12d45-2ed7-7b40-87a5-412239f5ec1d",
+      "cwd": "/Users/taylor/.codex/worktrees/0542/kickoff"
+    },
+    {
+      "title": "kck/call-signals",
+      "threadId": "01a12d45-2ed8-7e02-8763-7b93711dedce",
+      "cwd": "/Users/taylor/.codex/worktrees/5aef/kickoff"
+    },
+    {
+      "title": "dot/signal-core",
+      "threadId": "01a12d45-2ecc-7403-910b-934e5673c9fb",
+      "cwd": "/Users/taylor/.codex/worktrees/4d76/dotfiles"
+    },
+    {
+      "title": "dot/mcp-lifecycle",
+      "threadId": "01a12d45-2ecc-7403-910b-9382daab2223",
+      "cwd": "/Users/taylor/.codex/worktrees/b3e0/dotfiles"
+    },
+    {
+      "title": "dot/browser-trace",
+      "threadId": "01a12d45-2ecc-7403-910b-9369044282f1",
+      "cwd": "/Users/taylor/.codex/worktrees/d1bd/dotfiles"
+    },
+    {
+      "title": "dot/host-recovery",
+      "threadId": "01a12d45-2ecc-7403-910b-9378c31ceae6",
+      "cwd": "/Users/taylor/.codex/worktrees/62ab/dotfiles"
+    }
+  ],
+  "workerCount": 7,
+  "dotfilesWorkers": 4,
+  "kickoffWorkers": 3,
+  "workerChatsArchived": false,
+  "parentReview": [
+    "Aligned JS/Python/page/native field and event grammar",
+    "Linked MCP request traces through existing IPC and asynchronous command outcomes",
+    "Hash live lease capabilities; retain actual MCP session identity separately",
+    "Removed duplicate SDK command-executed line and quiet idle connection close",
+    "Preserved page/native source time/sequence without assigning unrelated batch events a command trace",
+    "Connected server proxy sink and transport-lab mapper rather than shipping unused adapters",
+    "Added Inspector discovery/attach/failure phase signals",
+    "Bounded reader available while control call is pending; small byte pages make progress"
+  ],
+  "verification": {
+    "serviceSyntaxFiles": 33,
+    "kickoffSyntaxFiles": 24,
+    "parentFocusedNodeChecks": 12,
+    "parentFocusedPythonChecks": 7,
+    "nativeAppFixtureChecks": 4,
+    "totalParentFocusedChecks": 23,
+    "workerChecks": "See individual ignored worktree handoffs; not counted as independent live acceptance",
+    "livePhoneTestsPerformed": false,
+    "fullRegressionSuiteRun": false,
+    "knownTestEnvironmentGap": "Kickoff Vitest native Rolldown binding unavailable; direct Node fixtures and syntax checks used"
+  },
+  "entrypoints": {
+    "mcp": "ios_signals",
+    "cli": "/Users/taylor/dotfiles/bin/ios-agent-signals",
+    "resource": "ios-agent://signals",
+    "toolCount": 41,
+    "resourceCount": 11
+  },
+  "installedHost": {
+    "guardedIdleRestartPassed": true,
+    "sourceVerified": true,
+    "noDeviceProvisioning": true,
+    "freshStdioPassed": true,
+    "privateEvidence": "runner-resume-c76TE3/1-3.json",
+    "cliReadbackPassed": true
+  },
+  "limits": [
+    "Fresh MCP connection needed for new tool; existing schemas remain unchanged",
+    "App/page JS reload needed for new hooks; no new signed binary was required",
+    "Queued native events drain at existing state reads; late events can remain bounded in device queue",
+    "No new physical iOS, cellular, media or system permission claim from these logging fixtures",
+    "Console fallback when host sink unavailable is separate from ios_signals",
+    "SDK pre-handler schema errors have no signalRequestId",
+    "Next phase is a real user workflow, not a periodic scripted suite"
+  ],
+  "publication": "prepared; remote readback recorded in report bundle after standard publisher",
+  "sharedChangePreserved": "Pre-existing removal of shortcuts/open-chrome-dev.shortcut retained per dotfiles shared-master commit policy; existing phone-installed shortcut was not changed"
+}

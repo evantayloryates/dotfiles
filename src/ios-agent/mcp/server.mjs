@@ -6,7 +6,7 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {randomBytes} from 'node:crypto';
 import {Backend, defaultState, safe, runtimeKey} from './backend.mjs';
-import {emitSignal, withSignalContext} from './signal-log.mjs';
+import {emitSignal, withSignalContext, readSignals} from './signal-log.mjs';
 import {nativeSchemas, nativeArguments, nativeSelector, reactCommand} from './input-schemas.mjs';
 
 const id = z.string().regex(/^[a-f0-9]{32}$/);
@@ -50,6 +50,14 @@ export function createServer(backend = new Backend()) {
     server.registerTool(name, {description, inputSchema: schema,
       annotations: {readOnlyHint: readOnly, destructiveHint: !readOnly, idempotentHint: readOnly, openWorldHint: false}},
     async (args, ctx) => {
+      // Pure bounded log retrieval must remain usable during an in-flight phone
+      // command, and must not create a new diagnostic trail of its own.
+      if (name==='ios_signals') {
+        const page=await handler(args,ctx.signal);
+        return {content:[{type:'text',text:page.text||'No matching retained signals.'},
+          {type:'text',text:`count=${page.count} truncated=${page.truncated}${page.nextCursor?' nextCursor='+page.nextCursor:''}`}],
+          structuredContent:page,isError:false};
+      }
       const logRequest=name!=='ios_signals'; // A diagnostic read must not create another diagnostic record.
       const request=logRequest?randomBytes(8).toString('hex'):undefined;
       if (busy) {
@@ -90,11 +98,19 @@ export function createServer(backend = new Backend()) {
       // A failed diagnostics context must not prevent dispatch or leave busy set.
       if(!logRequest)return execute();
       let execution;
-      try{const wrapped=await withSignalContext({traceId:request,requestId:request},()=>{execution=execute();return execution;});return execution?(wrapped===undefined?execution:wrapped):execute();}
+      try{const wrapped=await withSignalContext({traceId:request,requestId:request,...(args.sessionId?{sessionId:args.sessionId}:{})},()=>{execution=execute();return execution;});return execution?(wrapped===undefined?execution:wrapped):execute();}
       catch(error){if(execution)return execution;return execute();}
     });
   }
   tool('ios_guide', 'Start here: live connection version/catalog, operating workflow, limits, cleanup and shared lessons relevant to the current runtime.', {}, async () => ({...await backend.guide(),interface:catalog(),connectionNote:'This catalog describes this MCP process. Compare ios-agent-mcp --catalog for installed source. A different installed version does not upgrade an existing connection. Missing interface means an older guide; refresh only at an owned idle point, never terminate another active session.'}), true);
+  tool('ios_signals','Read compact retained service signals without a phone lease, including while another command is in flight. Use the exact signalRequestId from a tool result as traceId. Newest first; after=nextCursor pages older records, not a live subscription. Filters never accept a path. Logs distinguish observed dispatch, acceptance, verification and cleanup; they do not establish unseen phone effects.',{
+    scope:z.enum(['mcp','browser','host','native','kck-native','kck-web','kck-call']).optional(),
+    event:z.string().regex(/^[a-z][a-z0-9_.-]{0,63}$/).optional(),level:z.enum(['info','warn','error']).optional(),
+    tool:z.string().regex(/^ios_[a-z_]{1,64}$/).optional(),
+    traceId:z.string().regex(/^[A-Za-z0-9_.:-]{1,96}$/).optional(),sessionId:z.string().regex(/^[A-Za-z0-9_.:-]{1,96}$/).optional(),
+    since:z.string().datetime().max(30).optional(),after:z.string().regex(/^[A-Za-z0-9_-]{1,160}$/).optional(),
+    limit:z.number().int().min(1).max(100).default(40),maxBytes:z.number().int().min(256).max(24000).default(12000)
+  },args=>readSignals(args),true);
   tool('ios_wait_ready', 'Wait without a phone lease for a fresh foreground native bridge or visible enrolled iOS browser page. Wakes on device/page events; never infers lock state from offline. Returns readyToAcquire, then begin performs runtime verification. Bounded cancellable long poll; continue waiting while this task needs the phone. Does not unlock or launch apps, and cannot wake a harness after its model turn has ended.', {surface:z.enum(['any','native','web']).default('any'),browser:z.enum(['ios-safari','ios-chrome']).optional(),page:id.optional(),timeoutSeconds:z.number().int().min(0).max(55).default(45)}, (args,signal)=>backend.waitReady(args,signal),true);
   tool('ios_harness_end','Harness hook cleanup bridge. Ends only this MCP connection\'s sessions tagged at begin with the exact Claude sessionId, promptId and agentId; old prompts, parent/subagent mismatches and unbound/foreign owners are untouched. Uses normal page/system cleanup. No authentication bypass or runner adoption. Qualified main-agent hooks are installed for new Claude Code sessions; child begin hooks are skipped and child delivery remains unqualified. Explicit end in finally remains required. Missing identity sends no cleanup.',{event:z.enum(['Stop','StopFailure','SubagentStop','SessionEnd']),sessionId:z.string().max(128),promptId:z.string().max(128),agentId:z.string().max(128).optional()},args=>backend.harnessEnd(args));
   tool('ios_capture', 'Explicit high-fidelity capture in the owned synthetic DEV app/page. Start console/network/audio modes; drain or stop saves scrubbed private artifacts and returns counts only. Audio clones existing live tracks; no microphone request or app-track stop. Byte/time quotas and TTL enforced; stop/end/visibility loss remove hooks. Native requires updated signed adapter; no production/staging capture.', {sessionId:id,op:z.enum(['start','status','drain','stop']).default('status'),modes:z.array(z.enum(['console','network','audio'])).min(1).max(3).default(['console','network']),seconds:z.number().int().min(1).max(600).default(120),maxBytes:z.number().int().min(32768).max(8388608).default(2097152),ttlSeconds:z.number().int().min(600).max(86400).default(3600)}, args=>backend.capture(args));
@@ -233,7 +249,7 @@ export function createServer(backend = new Backend()) {
     {lessonId: id, state: z.enum(['supported', 'retired']), reason: z.string().min(1).max(600), evidenceId: id,
       corroboratingEvidenceId: id.optional()}, args => backend.learning('review', args));
   const docroot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../docs');
-  for (const [name, file] of [['operating-contract', 'DELIVERY.md'], ['capability-edges', 'CAPABILITY-EDGES.md'], ['mcp', 'MCP.md'], ['paired-workflow', 'PAIRED-WORKFLOW.md'], ['mobile-web', 'MOBILE-WEB.md'], ['native-input-matrix', 'INPUT-MATRIX.md'], ['native-input', 'NATIVE-INPUT.md'], ['browser-debug', 'BROWSER-DEBUG.md'], ['native-build', 'NATIVE-BUILD.md'], ['audio-probe', 'AUDIO-PROBE.md']]) {
+  for (const [name, file] of [['operating-contract', 'DELIVERY.md'], ['capability-edges', 'CAPABILITY-EDGES.md'], ['mcp', 'MCP.md'], ['signals','SIGNALS.md'], ['paired-workflow', 'PAIRED-WORKFLOW.md'], ['mobile-web', 'MOBILE-WEB.md'], ['native-input-matrix', 'INPUT-MATRIX.md'], ['native-input', 'NATIVE-INPUT.md'], ['browser-debug', 'BROWSER-DEBUG.md'], ['native-build', 'NATIVE-BUILD.md'], ['audio-probe', 'AUDIO-PROBE.md']]) {
     resourceNames.push(`ios-agent://${name}`);
     server.registerResource(name, `ios-agent://${name}`, {mimeType: 'text/markdown'}, uri => ({contents: [{uri: uri.href, mimeType: 'text/markdown', text: fs.readFileSync(path.join(docroot, file), 'utf8')}]}));
   }

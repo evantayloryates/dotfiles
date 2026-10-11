@@ -16,6 +16,26 @@ class WebTests(unittest.TestCase):
         self.b.lease = {'id':'owner','surface':'web','page':self.p['page'],'thread':'t','turn':'t','expires':1300}
     def action(self):
         return self.b.control({'op':'web_action','lease':'owner','action':'click','args':{'snapshot':'s','target':'1'}})['id']
+    def test_browser_command_retains_trace_without_assigning_it_to_unrelated_page_events(self):
+        rows=[];old=bridge.emit_signal
+        bridge.emit_signal=lambda scope,event,**fields:rows.append((event,fields))
+        try:
+            cid=self.b.control({'op':'web_action','lease':'owner','action':'click','args':{'snapshot':'s','target':'1'},
+                                'signalContext':{'traceId':'a'*16,'sessionId':'c'*32}})['id']
+            self.b.web.page_request(self.poll,self.origin)
+            self.b.web.page_request({**self.poll,'op':'result','id':cid,'epoch':self.b.epoch,
+                                    'result':{'ok':True},'signals':[{'seq':1,'sourceAtMs':1700000000000,'droppedCount':0,
+                                    'event':'kck.call.track','fields':{'kind':'microphone','state':'live','present':True}}]},self.origin)
+        finally:
+            bridge.emit_signal=old
+        terminal=next(fields for event,fields in rows if event=='browser.command.terminal')
+        self.assertEqual(terminal['traceId'],'a'*16)
+        self.assertEqual(terminal['sessionId'],'c'*32)
+        page=next(fields for event,fields in rows if event=='kck.call.track')
+        self.assertNotIn('traceId',page)
+        self.assertNotIn('request',page)
+        self.assertEqual(page['state'],'live')
+        self.assertEqual(bridge.safe_version('web-f67ef21f1e575eef'),'web-f67ef21f1e575eef')
     def test_native_lease_never_sent_to_native_for_web_owner(self):
         self.assertIsNone(self.b.lease_wire())
         with self.assertRaisesRegex(Rejected,'native_surface_required'):
@@ -89,7 +109,7 @@ class WebTests(unittest.TestCase):
         self.assertEqual(len([x for x in rows if x[1]=='kck.call.media.ready']),3)
         call=next(x for x in rows if x[1]=='kck.call.media.ready')
         self.assertEqual(call[0],'kck-call')
-        self.assertEqual(call[2]['request'],cid)
+        self.assertNotIn('request',call[2])  # A batch transport does not establish event causality.
         self.assertEqual(call[2]['page'],self.p['page'])
         self.assertIsNone(call[2]['boot'])  # Test fixture is not a real SDK UUID.
         self.assertEqual(bridge.safe_boot('12345678-1234-1234-1234-123456789abc'),
@@ -97,7 +117,7 @@ class WebTests(unittest.TestCase):
         self.assertEqual(call[2]['audioTracks'],2)
         self.assertEqual(call[2]['sourceAtMs'],1700000000000)
         self.assertEqual(call[2]['sourceSeq'],1)
-        self.assertEqual(call[2]['stream'],'web-page')
+        self.assertEqual(call[2]['sourceStream'],'web-page')
         self.assertEqual(call[2]['droppedCount'],2)
         self.assertNotIn('token',call[2])
         self.assertFalse(any('private' in str(x) or 'https://' in str(x) for x in rows))

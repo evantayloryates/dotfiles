@@ -1,7 +1,7 @@
 # Agent operating contract — installed personal development service
 
 Start with `ios_guide`. Its `interface` reports this connection's version,
-40 tools and ten resources. Compare `/Users/taylor/dotfiles/bin/ios-agent-mcp
+41 tools and eleven resources. Compare `/Users/taylor/dotfiles/bin/ios-agent-mcp
 --catalog` for installed source without acquiring the phone. A guide without
 `interface` is an older connection. Refresh only at an idle point; never kill
 another owner's work to refresh schemas. See MCP.md for the operating recipes.
@@ -17,7 +17,7 @@ another owner's work to refresh schemas. See MCP.md for the operating recipes.
 
 For unavailable pages, expired grants or pending cleanup, use the recovery decision card in MOBILE-WEB.md. Read-only host diagnosis is allowed while another connection owns the phone; that does not grant access to its session.
 
-Current MCP source is1.9.51. Signed job333fc2b73381422180f46783d53b1a9d
+Current MCP source is1.10.0. Signed job333fc2b73381422180f46783d53b1a9d
 installed delivery8a0c15bd53fa4c34b6d82b06a16ebf95 with matched running identity.
 The phone-local Chrome Shortcut passed one-time permission persistence, then
 app-owned cellular launch, fresh owned readiness, fill/Save/committed React
@@ -581,3 +581,16 @@ Managed `ios_web_open` Claude owner injection is corrected in1.9.51. The exact
 legacy hook entries migrate without duplicates;150-second cleanup budgets match
 the cellular Focus/Home route. Physical page control is unchanged from1.9.50.
 See CLAUDE-CLEANUP.md and claude-managed-open-2026-10-11.json.
+
+## Compact operational signals —1.10.0
+
+After a tool failure, use its exact `signalRequestId` with
+`ios_signals {traceId: signalRequestId}`. Filter by scope/event/level for broader
+triage. Retrieval needs no phone owner and remains available during a control
+request. `ios-agent://signals` defines schema, bounds and limits. CLI equivalent:
+`ios-agent-signals --trace <id>`. Logging adds no action replay or provider call.
+
+The new logging seams passed syntax and focused deterministic checks. No new
+live phone qualification is claimed. Existing physical capability receipts keep
+their dated versions. Refresh MCP connections and reload app/page JS for the new
+hooks; the Python broker must load the matching worker source at verified idle.

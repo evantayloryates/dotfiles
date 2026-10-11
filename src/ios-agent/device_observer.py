@@ -12,6 +12,17 @@ import re
 import sys
 from urllib.parse import urlsplit
 from cli import request
+try:
+    from signals import emit_signal
+except ImportError:
+    emit_signal = None
+
+def _signal(event, **fields):
+    try:
+        if emit_signal:
+            emit_signal('host', event, **fields)
+    except Exception:
+        pass
 
 logging.disable(logging.CRITICAL)
 
@@ -225,7 +236,9 @@ async def browser_debug(r,rsd):
     inspector=WebinspectorService(rsd)
     r['_phase']='web_inspector_connect'
     try:
+        _signal('browser.inspector.connect_requested', outcome='requested')
         await inspector.connect()
+        _signal('browser.inspector.connected', outcome='connected')
         r['_phase']='web_inspector_discovery'
         targets=await inspector.get_open_application_pages(timeout=1)
         matched=[];busy=0
@@ -241,12 +254,16 @@ async def browser_debug(r,rsd):
             matched.append(target)
         # Newest target first; old Safari tabs may be suspended despite an active app.
         matched.sort(key=lambda target:target.page.id_,reverse=True)
+        _signal('browser.inspector.targets', count=len(matched), outcome='available' if matched else 'unavailable',
+                reason='busy_targets_present' if busy else 'no_matching_target' if not matched else 'matching_target')
         results=[]
         # Default bootstrap read is content-free; explicit debug operations are separate below.
         expression="""(()=>{const s=window.__iosWebAgent?.status?.();let tab=false,resume=false;try{tab=!!sessionStorage.getItem('ios-agent-page');resume=!!localStorage.getItem('ios-agent-browser-resume')}catch{};return {originMatches:location.origin===EXPECTED_ORIGIN,ready:document.readyState,visible:!document.hidden,loaderPresent:!!document.getElementById('ios-agent-loader'),sdkPresent:!!window.__iosWebAgent,sdkConnected:s?.connected===true,sdkOwned:s?.owned===true,indicator:s?.indicator===true,tabCredentialPresent:tab,browserResumePresent:resume,secureContext:isSecureContext,mediaAPI:typeof navigator.mediaDevices?.getUserMedia==='function',userActivation:navigator.userActivation?.isActive===true,domElements:Math.min(document.getElementsByTagName('*').length,100000),scripts:document.scripts.length}})()""".replace('EXPECTED_ORIGIN',json.dumps(f'https://{expected.netloc}'))
         for target in matched[:1]:
             owned(r);r['_phase']='web_inspector_attach'
+            _signal('browser.inspector.attach_requested', outcome='requested')
             session=await inspector.inspector_session(target.application,target.page)
+            _signal('browser.inspector.attached', outcome='connected')
             try:
                 r['_phase']='web_inspector_runtime_enable'
                 await asyncio.wait_for(session.runtime_enable(),4)
@@ -269,10 +286,12 @@ async def browser_debug(r,rsd):
                 session._receive_task.cancel()
                 await asyncio.gather(session._receive_task,return_exceptions=True)
                 await asyncio.wait_for(inspector.teardown_inspector_socket(session.protocol.id_,target.application.id_,target.page.id_),2)
+                _signal('browser.inspector.detached', outcome='completed')
         return {'scope':'dev-origin-browser-debug','inspectorEnabled':True,'devTargets':len(matched),'busyTargets':busy,'truncated':len(matched)>1,'pages':results,'userGestureRequested':False}
     finally:
         if sys.exc_info()[0] is None:r['_phase']='web_inspector_close'
         await asyncio.wait_for(inspector.close(),2)
+        _signal('browser.inspector.closed', outcome='completed')
 
 def main():
     r=json.load(sys.stdin)
@@ -284,6 +303,7 @@ def main():
         fd=os.open(p,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
         with os.fdopen(fd,'w') as f:json.dump({'status':'completed','result':result},f)
         print(json.dumps({'ok':True,'scope':result['scope']}))
+        _signal('observer.completed', outcome='completed', stage=r.get('_phase','validation'))
     except Exception as e:
         known={'InvalidServiceError':'developer_service_unavailable','WebInspectorNotEnabledError':'web_inspector_disabled','DeviceNotFoundError':'paired_device_unavailable','UserspaceTunnelUnavailableError':'paired_tunnel_unavailable','TimeoutError':'device_observation_deadline','ConnectionTerminatedError':'developer_connection_lost'}
         code=known.get(type(e).__name__,'device_observation_unavailable')
@@ -292,6 +312,8 @@ def main():
         diagnostic={**({'axPressSent':r['_axPressSent']} if '_axPressSent' in r else {}),**({'axStateTrace':r['_axStateTrace']} if r.get('_axStateTrace') else {}),**({'auditRequested':True} if r.get('_auditRequested') else {}),**{k:r.get('debug',{}).get(v) for k,v in [('workerCleanup','_workerCleanup'),('breakpointRequested','_breakpointRequested'),('breakpointCleanup','_breakpointCleanup'),('heapSnapshotRequested','_heapSnapshotRequested'),('failedMethod','_failedMethod'),('cleanupFailures','_cleanupFailures'),('receiverFailureType','_receiverFailureType'),('documentChange','_documentChange')] if r.get('debug',{}).get(v)}}
         sent=r.get('_launchSent',('unknown' if r['debug']['_inputDispatched'] else False) if '_inputDispatched' in r.get('debug',{}) else ('unknown' if r.get('debug',{}).get('expression') is not None else False))
         if r.get('_axPressSent') in (True,'unknown'):sent=r['_axPressSent']
+        _signal('observer.failed', outcome='unknown' if sent in (True,'unknown') else 'failed',
+                reason=code, stage=r.get('_phase','validation'), errorName=failure_type, level='error')
         print(json.dumps({'ok':False,'reason':code,'phase':r.get('_phase','validation'),'failureType':failure_type if re.fullmatch('[A-Za-z0-9_]{1,80}',failure_type) else 'Unknown','diagnostic':diagnostic,'inputSent':sent}))
         sys.exit(1)
 

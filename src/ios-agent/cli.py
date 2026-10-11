@@ -95,6 +95,15 @@ def _inspect(message, state, timeout):
 
 
 def request(message, state, timeout=15):
+    # Correlation metadata rides the existing same-user IPC request. It grants
+    # no command authority and contains no arguments or capability values.
+    try:
+        from signals import signal_context_from_environment
+        context = signal_context_from_environment()
+        if context:
+            message = {**message, "signalContext": context}
+    except Exception:
+        pass
     deadline = time.monotonic() + timeout
     with socket.socket(socket.AF_UNIX) as s:
         s.settimeout(timeout)

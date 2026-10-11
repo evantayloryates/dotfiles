@@ -32,10 +32,10 @@ JSONL rows have `v:1`, UTC `time`, random row `id`, `scope`, dotted `event`, `le
 
 | Type | Allowed fields |
 | --- | --- |
-| Bounded words | `tool`, `action`, `op`, `kind`, `surface`, `transport`, `provider`, `strategy`, `stage`, `phase`, `state`, `fromState`, `toState`, `outcome`, `reason`, `code`, `version`, `errorName`, `errorCode`, `route`, `previousRoute` |
-| Correlation / build IDs | `traceId`, `requestId`, `sessionId`, `ownerId`, `pageId`, `buildId`, `bootId`, `epoch`, `backendEpoch`, `clientEpoch`, `sourceHash`, `sourceStream`, `leaseFingerprint` |
-| Nonnegative numbers | `durationMs`, `count`, `participants`, `sent`, `received`, `drops`, `gaps`, `attemptCount`, `retryCount`, `acceptedCount`, `failedCount`, `frameCount`, `signalCount`, `dropCount`, `droppedCount`, `truncatedCount`, `sourceAtMs`, `sourceSeq`, `bytes`; `statusCode` only from 100 to 599 |
-| Booleans | `dispatched`, `inputSent`, `verified`, `released`, `ready`, `truncated`, `present`, `enabled`, `muted`, `visible` |
+| Bounded words | `action`, `code`, `errorCode`, `errorName`, `fromState`, `kind`, `op`, `outcome`, `phase`, `previousRoute`, `provider`, `reason`, `route`, `stage`, `state`, `strategy`, `surface`, `toState`, `tool`, `transport`, `version` |
+| Correlation / build IDs | `backendEpoch`, `bootId`, `buildId`, `clientEpoch`, `documentId`, `epoch`, `frameLoaderId`, `leaseFingerprint`, `observedDocumentId`, `ownerId`, `pageId`, `requestId`, `sessionId`, `sourceHash`, `sourceStream`, `traceId` |
+| Nonnegative numbers | `acceptedCount`, `attemptCount`, `bytes`, `cleanupFailures`, `count`, `domainCount`, `dropCount`, `droppedCount`, `drops`, `durationMs`, `edgeCount`, `eventCount`, `failedCount`, `frameCount`, `gaps`, `nodeCount`, `participants`, `received`, `retryCount`, `sent`, `signalCount`, `sourceAtMs`, `sourceSeq`, `truncatedCount`, `workerCount`, `workersInitialized` ; `statusCode` only from100 to599 |
+| Booleans | `breakpointRemoved`, `dispatched`, `enabled`, `inputSent`, `muted`, `pauseObserved`, `present`, `ready`, `released`, `resumeConfirmed`, `terminated`, `truncated`, `verified`, `visible` |
 | Error evidence | `message`, `detail` (160 characters), `stack` (240 characters) |
 | URL | `url`, reduced to origin class and pathname template |
 
@@ -55,3 +55,61 @@ Example read lines:
 2026-10-11T18:00:00.000Z mcp.input.dispatch level=info requestId=aa118833…ff0011 tool=ios_action action=tap dispatched=true
 2026-10-11T18:00:00.140Z host.input.result level=warn requestId=aa118833…ff0011 outcome=unknown reason=provider_deadline inputSent=true durationMs=140
 ```
+
+## Agent entrypoints
+
+Use `ios_signals {traceId: signalRequestId, limit:40}` after an MCP result or
+error. `signalRequestId` is returned with admitted tool results and refusals; SDK
+schema rejection before handler admission has no service trace. The read tool
+works without a phone lease and while a control request is in flight. It emits
+no new signal for its own reads. Resource: `ios-agent://signals`.
+
+CLI: `/Users/taylor/dotfiles/bin/ios-agent-signals --trace <exact-id> --limit 40`.
+Use `--scope kck-call`, `--event browser.command`, `--level error`, `--since`,
+`--after`, or `--bytes` to narrow it. `--json` returns the bounded text page and
+cursor metadata, not raw records. A repeated trace/request ID is displayed once.
+Outcome and reason precede correlation fields; routine lines cap at600characters
+and error lines at1000, with a visible ellipsis for trimmed read views. Storage
+remains scrubbed and bounded independently.
+
+Refresh existing MCP connections for1.10.0; reload the enrolled page or native JS
+bundle to load its new hooks. Restart the Python broker only through the documented
+installer at verified idle. Logging fixtures are not physical phone acceptance.
+
+## Reading a failure trail
+
+Start with the tool’s `signalRequestId`, then filter by `traceId`. The MCP
+request ID crosses the existing CLI-to-broker request and is retained on queued
+commands for their later dispatch and terminal reports. The broker command ID is
+a distinct `requestId`; a shared `traceId` links the two. A live lease capability
+never serves as a logged session ID: it becomes a one-way `leaseFingerprint`.
+
+Independent queued page/native events retain page or boot/stream identity and
+source sequence/time. Merely arriving with a command-result batch does not make
+them descendants of that command. Native events drain on an existing state read;
+a late event can remain in the32-record phone queue. Reloaded code and the next
+owned workflow activate the new app hooks; no phone run was performed for1.10.0.
+
+| Area | Useful signal boundary |
+| --- | --- |
+| MCP | Admission/refusal, exact request trace, provider selection, accepted/unknown outcome, verification, cleanup |
+| Host | Bridge freshness/foreground, queued/dispatched/reported command, guarded recovery, build/delivery and XCTest startup/stop |
+| Browser | Enrollment/resume, document fencing, connection loss/recovery, command terminal outcome |
+| Inspector | Target discovery/attach, protocol deadline phase, capture counts and detach/cleanup |
+| Native app | Registration, static route/app lifecycle, terminal Apollo failure and independent operation response |
+| Web app | Bootstrap/router/proxy gates and recovery; optional server sink shares this store |
+| Calls | Permission state and actual track separately, room/phase changes, transport selection and terminal count summary |
+
+Repeated client/host boundaries are retained only when they supply distinct
+evidence. The duplicate SDK command-executed line was removed; the broker’s
+terminal report remains. Read-only host state polling, per-render state equality,
+packet progress and ordinary heartbeats are quiet. Observer errors retain the
+fixed failing phase, class and reason; MCP errors include scrubbed bounded frames.
+
+Server proxy signals reuse this writer through an optional local Node import.
+If unavailable, they use compact Next console fallback instead; those console
+lines are **not** included in `ios_signals`. A failed SDK cannot flush its early
+eight-record queue; proxy logs are the independent server evidence. A missing
+retained line is not proof that an operation never ran: retention, queue overflow,
+old connections/code and unavailable sinks remain possible. Read the reported
+bounds and source identity before inferring cause.

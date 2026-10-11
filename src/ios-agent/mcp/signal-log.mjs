@@ -11,11 +11,11 @@ const ROOT = process.env.IOS_AGENT_SIGNAL_STATE_DIR || path.join(os.homedir(), '
 const DIR = path.join(ROOT, 'signals');
 const FILE_BYTES = 128 * 1024, TOTAL_BYTES = 2 * 1024 * 1024, MAX_FILES = 32;
 const MAX_AGE = 7 * 86400 * 1000, ROTATE_AGE = 86400 * 1000;
-const ids = new Set(['traceId','requestId','sessionId','ownerId','pageId','buildId','bootId','epoch','backendEpoch','clientEpoch','sourceHash','leaseFingerprint','sourceStream']);
-const aliases = {trace:'traceId',request:'requestId',session:'sessionId',owner:'ownerId',page:'pageId',build:'buildId',boot:'bootId',routeName:'route',previousRouteName:'previousRoute',operationName:'op',errorCount:'count'};
+const ids = new Set(['traceId','requestId','sessionId','ownerId','pageId','buildId','bootId','epoch','backendEpoch','clientEpoch','sourceHash','leaseFingerprint','sourceStream','documentId','observedDocumentId','frameLoaderId']);
+const aliases = {operation:'op',document:'documentId',observedDocument:'observedDocumentId',frameLoader:'frameLoaderId',receiverFailure:'errorCode',windowMs:'durationMs',droppedEvents:'dropCount',trace:'traceId',request:'requestId',session:'sessionId',owner:'ownerId',page:'pageId',build:'buildId',boot:'bootId',source:'stage',sourceStreamId:'sourceStream',sourceBootId:'bootId',attempts:'attemptCount',routeName:'route',previousRouteName:'previousRoute',operationName:'op',errorCount:'count'};
 const words = new Set(['tool','action','op','kind','surface','transport','provider','strategy','stage','phase','state','fromState','toState','outcome','reason','code','version','errorName','errorCode','route','previousRoute']);
-const numeric = new Set(['durationMs','count','participants','sent','received','drops','gaps','attemptCount','retryCount','acceptedCount','failedCount','frameCount','signalCount','dropCount','droppedCount','truncatedCount','sourceAtMs','sourceSeq','bytes']);
-const booleans = new Set(['dispatched','inputSent','verified','released','ready','truncated','present','enabled','muted','visible']);
+const numeric = new Set(['durationMs','count','participants','sent','received','drops','gaps','attemptCount','retryCount','acceptedCount','failedCount','frameCount','signalCount','dropCount','droppedCount','truncatedCount','sourceAtMs','sourceSeq','bytes','domainCount','eventCount','cleanupFailures','nodeCount','edgeCount','workerCount','workersInitialized']);
+const booleans = new Set(['dispatched','inputSent','verified','released','ready','truncated','present','enabled','muted','visible','pauseObserved','resumeConfirmed','breakpointRemoved','terminated']);
 const scopes = new Set(['mcp','browser','host','native','kck-native','kck-web','kck-call']);
 const levels = new Set(['info','warn','error']);
 let current, writes = 0;
@@ -134,7 +134,7 @@ function inherited() {
 }
 export function emitSignal(scope, event, fields = {}) {
   try {
-    if (!scopes.has(scope) || typeof event !== 'string' || !/^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$/.test(event) || event.length > 64 || !safeDir()) return false;
+    if (!scopes.has(scope) || typeof event !== 'string' || !/^[a-z][a-z0-9_]*(?:[.-][a-z0-9_]+)*$/.test(event) || event.length > 64 || !safeDir()) return false;
     const data = {...inherited(), ...clean(context.getStore()), ...clean(fields)};
     const level = levels.has(data.level) ? data.level : levels.has(fields?.level) ? fields.level : 'info';
     delete data.level;
@@ -167,7 +167,7 @@ function decodeCursor(value) {
 export function readSignals(options = {}) {
   try {
     const limit=Math.max(1,Math.min(100,Number.isInteger(options.limit)?options.limit:40));
-    const maxBytes=Math.max(512,Math.min(24000,Number.isInteger(options.maxBytes)?options.maxBytes:12000));
+    const maxBytes=Math.max(256,Math.min(24000,Number.isInteger(options.maxBytes)?options.maxBytes:12000));
     const after=options.after ?? options.cursor;
     const cursor=decodeCursor(after);
     if (after && !cursor) return {text:'invalid cursor',count:0,nextCursor:null,truncated:false};
@@ -186,7 +186,7 @@ export function readSignals(options = {}) {
         if (!line || line.length>1200) continue;
         try {
           const r=JSON.parse(line);
-          if (r.v!==1 || !scopes.has(r.scope) || !levels.has(r.level) || typeof r.event!=='string' || r.event.length>64 || !/^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$/.test(r.event) || typeof r.time!=='string' || !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(r.time) || !/^[a-f0-9]{16}$/.test(r.id)) continue;
+          if (r.v!==1 || !scopes.has(r.scope) || !levels.has(r.level) || typeof r.event!=='string' || r.event.length>64 || !/^[a-z][a-z0-9_]*(?:[.-][a-z0-9_]+)*$/.test(r.event) || typeof r.time!=='string' || !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(r.time) || !/^[a-f0-9]{16}$/.test(r.id)) continue;
           if (cursor && cursorKey(r)>=cursor) continue;
           if (options.scope && r.scope!==options.scope || options.level && r.level!==options.level || options.event && !r.event.startsWith(options.event) || options.tool && r.tool!==options.tool) continue;
           if (options.sessionId && r.sessionId!==options.sessionId || options.traceId && r.traceId!==options.traceId) continue;
@@ -200,8 +200,20 @@ export function readSignals(options = {}) {
     for (const r of rows) {
       if (taken>=limit) break;
       const shown=[r.time,r.event.startsWith(r.scope+'.')?r.event:r.scope+'.'+r.event,`level=${r.level}`];
-      for (const [key,value] of Object.entries(clean(r))) if (ids.has(key)||words.has(key)||numeric.has(key)||booleans.has(key)||['message','detail','stack','url','statusCode'].includes(key)) shown.push(`${key}=${display(value,key)}`);
-      const line=shown.join(' ').slice(0,400);
+      const cleaned=clean(r), priority=['tool','action','op','outcome','reason','code','statusCode','durationMs','verified','released','ready','traceId','sessionId','pageId','sourceAtMs','sourceSeq'];
+      for (const key of new Set([...priority,...Object.keys(cleaned)])) {
+        if (!(key in cleaned)||(key==='requestId'&&cleaned.requestId===cleaned.traceId)) continue;
+        shown.push(`${key}=${display(cleaned[key],key)}`);
+      }
+      const full=shown.join(' '), cap=r.level==='error'?1000:600;
+      let line=full.length>cap?full.slice(0,cap-2)+' …':full;
+      // A small requested page must still make progress over a long error row.
+      // Bound UTF-8 bytes, not only JS code units, and mark trimmed read views.
+      if (!taken && Buffer.byteLength(line)+1>maxBytes) {
+        const chars=Array.from(line);
+        while (chars.length&&Buffer.byteLength(chars.join('')+' …')+1>maxBytes) chars.pop();
+        line=chars.join('')+' …';
+      }
       if (bytes+Buffer.byteLength(line)+1>maxBytes) break;
       lines.push(line); bytes+=Buffer.byteLength(line)+1; taken++;
     }
