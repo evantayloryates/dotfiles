@@ -96,8 +96,15 @@ export class SystemDriver {
         const predicate=`type == ${JSON.stringify(n.type)} AND name == ${JSON.stringify(n.name)} AND label == ${JSON.stringify(n.label)} AND visible == 1`;
         const matches=(await this.http('POST',this.route('/elements'),{using:'predicate string',value:predicate})).value;
         if(!Array.isArray(matches)||matches.length!==1)return {ok:false,reason:'unique_system_target_required',actionSent:false};
-        const eid=matches[0].ELEMENT||matches[0]['element-6066-11e4-a52e-4f735466cecf'];
+        let eid=matches[0].ELEMENT||matches[0]['element-6066-11e4-a52e-4f735466cecf'];
         if(!/^[A-Fa-f0-9-]{36}$/.test(eid||''))return {ok:false,reason:'system_element_unavailable',actionSent:false};
+        // SwiftUI Settings exposes a named full-row Switch containing the
+        // actual unnamed toggle. Tapping the row can succeed without changing it.
+        if(n.type==='XCUIElementTypeSwitch'){
+          const children=(await this.http('POST',this.route(`/element/${eid}/elements`),{using:'class chain',value:'**/XCUIElementTypeSwitch'})).value;
+          if(!Array.isArray(children)||children.length>1)return {ok:false,reason:'unique_system_switch_required',actionSent:false};
+          if(children.length===1){eid=children[0].ELEMENT||children[0]['element-6066-11e4-a52e-4f735466cecf'];if(!/^[A-Fa-f0-9-]{36}$/.test(eid||''))return {ok:false,reason:'system_element_unavailable',actionSent:false};}
+        }
         const hittable=(await this.http('GET',this.route(`/element/${eid}/attribute/hittable`))).value;
         if(![true,1,'true','1'].includes(hittable))return {ok:false,reason:'system_target_occluded',actionSent:false};
         await this.authorize();this.check();inputSent=true;await this.http('POST',this.route(`/element/${eid}/click`),{});

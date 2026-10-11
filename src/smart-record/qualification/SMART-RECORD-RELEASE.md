@@ -5,6 +5,22 @@ and the single Medium **Smart Record** desktop widget. The existing feature
 release remains 0.20.0; the delivered native build is d7a6a75d975f and the
 companion build is be27e75d391a.
 
+## Delivered composition boundary
+
+The capture/session/event/frame foundation is delivered. Two public tools also
+produce derivatives: `record_export` trims one take into MP4/GIF, and
+`cursor_render` applies one editable cursor/click treatment to one terminal take,
+with draft/final effort and private recipe/timeline/sample artifacts. The cursor
+output is silent SDR H.264, bounded to60 seconds,7200 source frames and2MP.
+`final` selects rendering quality; it does not assemble a complete production
+master. Source footage remains unchanged.
+
+A general composition timeline, multi-source assembly, preferred recipe book,
+transitions, audio/narration and automatic backup-footage repair are future work.
+Frame/paired-source mapping tools return evidence rather than composited footage.
+Agents use external composition tools for final masters beyond the two existing
+derivative operations. See [agent usage](../AGENT-USAGE.md) for the current scope.
+
 ## Canonical entry points
 
 - CLI: `/Users/taylor/dotfiles/bin/smart-record`

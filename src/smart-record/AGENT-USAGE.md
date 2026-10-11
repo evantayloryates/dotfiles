@@ -9,16 +9,38 @@ content from equal timestamps. Rich event selection belongs to the driving
 agent; computer use remains a separately maintained tool dependency.
 
 The maintained checklist distinguishes work states (Completed, Pending,
-Ready, Deferred, Review) from historical verification. Desktop cooperative
-pause, automatic repair tickets and other Ready briefs are not installed tools.
-Visual composition has been moved to Ready; it is no longer deferred by policy.
+Ready, Deferred, Review) from historical verification. A Ready brief alone does
+not establish an installed tool. The current [Smart Record delivery](qualification/SMART-RECORD-RELEASE.md)
+documents adapter0.20.0, native build d7a6a75d975f and the installed widget;
+inspect loaded `status.mcp_adapter` and native status for each consumer.
+Cooperative pause, repair tickets and a first bounded cursor renderer are delivered.
 
-This is the capture-foundations production runbook. The installed native build
-6c238cc1ba80 and fresh adapter0.19.1 have the scoped proofs in
-[GATES.md](qualification/GATES.md). Treat these as a baseline, then inspect
-loaded status. Visual effects, cursor styling and composition recipes are ready
-for a basic first implementation. The [checklist](qualification/checklist.json) tracks unresolved
-qualification; this runbook does not certify those environments.
+## Current capture and composition boundary
+
+The service plans and captures sources, bundles recordings and supporting
+artifacts into sessions, and provides bounded event/action queries, source/frame
+timing joins, geometry mapping and review images. The driving agent selects
+relevant events and directs the production.
+
+Two public tools already create footage derivatives: `record_export` trims one
+recording into MP4/GIF with cadence/size/effort controls, and `cursor_render`
+overlays one configurable cursor/click treatment on one terminal recording.
+`export_time_map` maps exported times; it does not edit footage. The cursor
+renderer retains its recipe, asset, timeline and sample images alongside a silent
+SDR H.264 MP4. Its `final` effort means higher encoding quality for this one
+treatment, not a complete production master. See the bounded recipe below.
+
+There is no general multi-shot timeline, multi-source compositor, composition
+recipe book, transition/audio/narration pipeline or automatic backup-footage
+repair. `recording_paired_map` and `recording_registered_frame` supply alignment
+evidence; they do not assemble or replace footage. Agents currently compose
+broader final masters using tools outside Smart Record. The first cursor
+renderer is an existing optional building block for the forthcoming composition
+work, not a preferred style or recipe-book design decision.
+
+The [checklist](qualification/checklist.json) preserves the supported scopes and
+unresolved qualification. The older stage/version observations below are
+historical evidence, not the current installed tool inventory.
 
 Stage85 verifies this chat's ordinary loaded adapter:28tools, status0.19.0,
 registered native-menu output equal to fresh MCP and mutation_replay:"never".
@@ -398,8 +420,9 @@ Mapping bounds and busy/quarantine are per adapter process, not global capacity.
 
 For inexpensive verification, escalate only as needed: metadata → representative
 source frames → short mapped draft preview/export. Preserve actual source/time
-mapping across derivatives. Full visual composition and effect recipes remain
-deferred. A draft that omits the relevant interval cannot verify that interval.
+mapping across derivatives. General composition and a preferred recipe book
+remain future work; the bounded `cursor_render` treatment is already public.
+A draft that omits the relevant interval cannot verify that interval.
 
 For transient menus, inspect the finished take around the expected opening;
 a current `frame_check` after disappearance cannot establish earlier coverage.
