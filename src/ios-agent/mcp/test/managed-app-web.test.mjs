@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {openManagedWeb,openAppWeb} from '../web-open.mjs';
+import {openManagedWeb,openAppWeb,pageIdleConfirmed} from '../web-open.mjs';
 import {Backend} from '../backend.mjs';
 
 test('cellular managed open requires a fresh intended page and forwards exact lifecycle',async()=>{
@@ -39,11 +39,31 @@ for(const active of [true,false])test(`managed app end ${active?'releases glow t
  }});
  try{
   const {sessionId}=await b.begin({surface:'launch'}),s=b.session(sessionId);
-  s.page='page';s.appManagedHome=true;s.active=active;
-  b.webPages=async()=>{events.push('indicator-off');return {ok:true,pages:[{id:'page',indicator:false}]}};
+  s.page='page';s.appManagedHome=true;s.active=active;s.webRuntime={boot:'current',browser:'ios-chrome',version:'sdk'};
+  b.webPages=async()=>{events.push('indicator-off');return {ok:true,pages:[{id:'page',indicator:false,ageMs:0,...s.webRuntime}]}};
   b.deviceHome=async()=>{assert.equal(b.sessions.size,0);events.push('home');return {ok:true}};
   const [a,c]=await Promise.all([b.webEnd(sessionId),b.webEnd(sessionId)]);
   assert(a.indicatorOff);assert.deepEqual(c,a);
   assert.deepEqual(events,active?['release','indicator-off','home']:['release','indicator-off']);
+ }finally{await b.close();fs.rmSync(state,{recursive:true,force:true})}
+});
+test('glow cleanup rejects stale, missing or replaced document feedback',()=>{
+ const runtime={boot:'current',browser:'ios-chrome',version:'sdk'},p={...runtime,indicator:false,ageMs:100};
+ assert(pageIdleConfirmed(p,runtime,200));
+ assert(!pageIdleConfirmed(p,runtime,50));
+ for(const changed of [{ageMs:4000},{ageMs:-1},{ageMs:undefined},{boot:'previous'},{browser:'ios-safari'},{version:'previous'},{indicator:true}])assert(!pageIdleConfirmed({...p,...changed},runtime,5000));
+ assert(!pageIdleConfirmed(p,undefined,5000));
+});
+test('nearby Home visibility report during cleanup is valid before owner release',async()=>{
+ const state=fs.mkdtempSync(path.join(os.tmpdir(),'ios-managed-feedback-'));
+ const b=new Backend({state,run:async(kind,args)=>{
+  if(args[0]==='acquire')fs.writeFileSync(args[args.indexOf('--lease-file')+1],JSON.stringify({lease:'private'}));
+  return {ok:true,value:{released:true}};
+ }});
+ try{
+  const {sessionId}=await b.begin({surface:'launch'}),s=b.session(sessionId);s.page='page';s.webRuntime={boot:'current',browser:'ios-chrome',version:'sdk'};
+  s.relayChannel={request:async()=>{await new Promise(r=>setTimeout(r,30));return {ok:true}},close:async()=>({closed:true})};
+  let reads=0;b.webPages=async()=>{reads++;return {ok:true,pages:[{id:'page',indicator:false,ageMs:10,...s.webRuntime}]}};
+  const result=await b.webEnd(sessionId);assert(result.indicatorOff);assert(result.relayCleanup.homeRequested);assert.equal(reads,1);
  }finally{await b.close();fs.rmSync(state,{recursive:true,force:true})}
 });

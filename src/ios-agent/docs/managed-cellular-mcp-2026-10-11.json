@@ -31,5 +31,23 @@
     "passed": 22,
     "scope": "signed adapter guard, app route, ownership and cleanup; not physical qualification"
   },
-  "pendingCleanup": "Latest Wi-Fi restoration needs a responding phone route. No active lease, XCTest or Mirroring."
+  "pendingCleanup": "Latest Wi-Fi restoration needs a responding phone route. No active lease, XCTest or Mirroring.",
+  "cleanupReview": {
+    "staleFeedbackRejected": true,
+    "sameDocumentRequired": true,
+    "postReleaseFeedbackRequiredForAppLane": true,
+    "nearbyHomeBeforeReleaseVisibilityHandled": true,
+    "focusedChecksPassed": true,
+    "physicalUpdatedEntryPointQualified": false
+  },
+  "latestConnectivity": {
+    "evidence": "runner-resume-mVCyCp/2.json",
+    "hostChecksPassed": 11,
+    "tailnetPeerOnline": false,
+    "tailnetPingSucceeded": false,
+    "developerEndpointTCP": "unavailable",
+    "bridgeReadyToAcquire": false,
+    "lockState": "unknown",
+    "inputSent": false
+  }
 }

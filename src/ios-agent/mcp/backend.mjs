@@ -17,7 +17,7 @@ import {planNativeTap} from './native-selector.mjs';
 import {codexOwnerContext} from './owner-context.mjs';
 import {claudeTurnOwner,sameClaudeTurn} from './claude-lifecycle.mjs';
 import {waitNativeElement} from './native-condition.mjs';
-import {openManagedWeb} from './web-open.mjs';
+import {openManagedWeb,pageIdleConfirmed} from './web-open.mjs';
 import {qualifiedChromeDelivery,qualifiedChromeInstalled} from './chrome-handoff.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -890,13 +890,18 @@ export class Backend {
   async finishWebEnd(id) {
     const s = this.sessions.get(id), page = s?.page;
     const requestHome=s?.appManagedHome===true&&s.active&&!this.closing;
+    const cleanupStartedAt=Date.now();
     const release = await this.end(id);
     if (!page) return {...release, indicatorOff: 'unconfirmed'};
+    // The nearby relay requests Home before retiring ownership. Its final
+    // visibility/glow report can legitimately precede the release response;
+    // background Safari/Chrome need not emit another heartbeat afterward.
+    const feedbackNotBefore=s.managedHomePrepared?cleanupStartedAt:Date.now();
     const until = Date.now() + 7000;
     while (Date.now() < until) {
       const pages = await this.webPages();
       const p = pages.pages?.find(p => p.id === page);
-      if (p?.indicator === false) {
+      if (pageIdleConfirmed(p,s.webRuntime,Date.now()-feedbackNotBefore)) {
         const receipt={gate:'web-idle',status:'passed',observation:{ownerReleased:release.released === true,indicatorOff:true}};
         const learningEvidence=s?.webFingerprint ? await this.learning('observe',{receipt,source:s.webFingerprint}).catch(()=>({available:false})) : {available:false};
         let appCleanup;

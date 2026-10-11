@@ -287,7 +287,10 @@ agent ownership and do not navigate Home during intermediate session handoffs.
 navigating Home. Managed `ios_web_open` sessions also request Home during
 `ios_web_end`: the app lane first confirms glow-off, while the nearby relay lane
 requests Home before closing its channel. Read the cleanup receipt; acceptance
-is not independent display proof. After a non-managed final end, call
+is not independent display proof. Glow-off confirmation requires the same document
+and fresh feedback after cleanup begins (after release for the app lane). A stale
+or replaced page report remains unconfirmed; it cannot trigger app Home.
+After a non-managed final end, call
 `ios_device_home` through an available qualified lane. It reserves exclusive ownership and runs only the installed
 **Runner Home** shortcut, containing one Apple **Go to Home Screen** action.
 No XCTest, Mirroring, sudo, caller URL or arbitrary shortcut execution is involved.

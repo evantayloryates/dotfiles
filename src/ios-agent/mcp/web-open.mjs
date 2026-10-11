@@ -3,6 +3,11 @@ import path from 'node:path';
 import {RelayChannel} from './relay-channel.mjs';
 import {reflectionConfig,startReflection} from './reflection-process.mjs';
 
+export function pageIdleConfirmed(page,runtime,elapsedSinceRelease){
+  return page?.indicator===false&&Number.isFinite(page.ageMs)&&page.ageMs>=0&&page.ageMs<3000&&page.ageMs<=elapsedSinceRelease&&
+    ['boot','browser','version'].every(k=>typeof runtime?.[k]==='string'&&runtime[k].length>0&&page[k]===runtime[k]);
+}
+
 // Choose before dispatch. Never retry a possibly accepted launch in another lane.
 export async function openManagedWeb(b,args={}){
   if(!['ios-safari','ios-chrome'].includes(args.browser))return {ok:false,reason:'fixed_browser_required',inputSent:false};
