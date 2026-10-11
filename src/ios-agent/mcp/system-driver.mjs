@@ -28,7 +28,7 @@ export function tailnetHost(value){
 // Project before persistence; secure-entry values never enter artifacts/context.
 export function parseTree(xml){
   return new Promise((resolve,reject)=>{
-    const script=`import json,sys,xml.etree.ElementTree as E\nr=E.fromstring(sys.stdin.read());out=[]\nfor i,n in enumerate(r.iter()):\n if i>=8000:break\n a=dict(n.attrib);secure='SecureTextField' in n.tag\n out.append({'type':n.tag,'name':'<secure>' if secure else a.get('name','')[:500],'label':'<secure>' if secure else a.get('label','')[:1000],'value':'<secure>' if secure else a.get('value','')[:1000],'visible':a.get('visible')=='true','enabled':a.get('enabled')=='true','rect':{k:float(a.get(k,0)) for k in ('x','y','width','height')}})\nprint(json.dumps({'nodes':out,'truncated':i>=8000}))`;
+    const script=`import json,sys,math,xml.etree.ElementTree as E\nr=E.fromstring(sys.stdin.read());out=[]\ndef coordinate(value):\n try:\n  number=float(value)\n  return number if math.isfinite(number) and abs(number)<=10000000 else None\n except (ValueError,TypeError):return None\nfor i,n in enumerate(r.iter()):\n if i>=8000:break\n a=dict(n.attrib);secure='SecureTextField' in n.tag\n rect={k:coordinate(a.get(k,0)) for k in ('x','y','width','height')}\n out.append({'type':n.tag,'name':'<secure>' if secure else a.get('name','')[:500],'label':'<secure>' if secure else a.get('label','')[:1000],'value':'<secure>' if secure else a.get('value','')[:1000],'visible':a.get('visible')=='true','enabled':a.get('enabled')=='true','rect':rect,'geometryValid':all(v is not None for v in rect.values())})\nprint(json.dumps({'nodes':out,'truncated':i>=8000},allow_nan=False))`;
     const c=execFile('/usr/bin/python3',['-c',script],{timeout:5000,maxBuffer:4*1024*1024},(error,out)=>{if(error)reject(Error('system_tree_unavailable'));else try{resolve(JSON.parse(out));}catch{reject(Error('system_tree_unavailable'));}});
     c.stdin.on('error',()=>{});c.stdin.end(xml);
   });
@@ -150,15 +150,25 @@ export class SystemDriver {
       if((['tap','scroll'].includes(action)&&label!==undefined)||['type','clear','focus'].includes(action)){
         const textAction=['type','clear','focus'].includes(action);
         const types=textAction?['XCUIElementTypeTextField','XCUIElementTypeSearchField','XCUIElementTypeTextView']:['XCUIElementTypeButton','XCUIElementTypeCell','XCUIElementTypeSwitch','XCUIElementTypeLink','XCUIElementTypeOther'];
-        if(typeof label!=='string'||!label.length||label.length>500||!types.includes(elementType))return {ok:false,reason:'typed_system_label_required',actionSent:false};
+        let observed;
+        if(textAction&&snapshot!==undefined){
+          const saved=this.snapshot;
+          if(label!==undefined||elementType!==undefined||!saved||saved.id!==snapshot||Date.now()-saved.at>5000||saved.bundle!==bundle||!/^\d+$/.test(target||''))return {ok:false,reason:'fresh_system_field_required',actionSent:false};
+          observed=saved.nodes[Number(target)];
+          if(!observed?.visible||!observed.enabled||!types.includes(observed.type))return {ok:false,reason:'ordinary_visible_system_field_required',actionSent:false};
+          label=observed.label;elementType=observed.type;
+        }
+        if(typeof label!=='string'||(!label.length&&!observed)||label.length>500||!types.includes(elementType))return {ok:false,reason:'typed_system_label_required',actionSent:false};
         if(action==='scroll'&&!['up','down','left','right'].includes(direction))return {ok:false,reason:'scroll_direction_required',actionSent:false};
         if(action==='type'&&(typeof text!=='string'||!text.length||text.length>256)||action!=='type'&&text!==undefined)return {ok:false,reason:'system_text_argument_mismatch',actionSent:false};
         this.snapshot=null;
-        const predicate=`type == ${JSON.stringify(elementType)} AND label == ${JSON.stringify(label)} AND visible == 1 AND enabled == 1`;
+        const identity=observed?(!observed.name&&!observed.label?'(name == nil OR name == "") AND (label == nil OR label == "")':`name == ${JSON.stringify(observed.name)} AND label == ${JSON.stringify(observed.label)}`):`label == ${JSON.stringify(label)}`;
+        const predicate=`type == ${JSON.stringify(elementType)} AND ${identity} AND visible == 1 AND enabled == 1`;
         const matches=(await this.http('POST',this.route('/elements'),{using:'predicate string',value:predicate})).value;
         const resolved=await this.tapElement(matches,elementType);if(resolved.reason)return {ok:false,reason:resolved.reason,actionSent:false,replay:false};
         const {eid}=resolved,rect=(await this.http('GET',this.route(`/element/${eid}/rect`))).value,screen=(await this.http('GET',this.route('/window/rect'))).value;
         if(!rect||!screen||![rect.x,rect.y,rect.width,rect.height,screen.x,screen.y,screen.width,screen.height].every(Number.isFinite)||rect.width<=0||rect.height<=0||rect.x+rect.width/2<screen.x||rect.y+rect.height/2<screen.y||rect.x+rect.width/2>screen.x+screen.width||rect.y+rect.height/2>screen.y+screen.height)return {ok:false,reason:'on_screen_target_required',actionSent:false};
+        if(observed&&!['x','y','width','height'].every(k=>Number.isFinite(observed.rect[k])&&Math.abs(rect[k]-observed.rect[k])<=1))return {ok:false,reason:'observed_system_field_changed',actionSent:false};
         const hittable=(await this.http('GET',this.route(`/element/${eid}/attribute/hittable`))).value;
         if(![true,1,'true','1'].includes(hittable))return {ok:false,reason:'system_target_occluded',actionSent:false};
         if(await this.context()!==bundle)return {ok:false,reason:'system_app_changed',actionSent:false};
@@ -187,10 +197,17 @@ export class SystemDriver {
         const n=s.nodes[Number(target)];if(!/^\d+$/.test(target||'')||!n?.visible||!n.enabled||n.type.includes('SecureTextField'))return {ok:false,reason:'visible_enabled_system_target_required',actionSent:false};
         const {x,y,width,height}=n.rect;const point={x:x+width/2,y:y+height/2};const screen=s.nodes.find(n=>n.type==='XCUIElementTypeApplication')?.rect;
         if(!screen||![x,y,width,height].every(Number.isFinite)||width<=0||height<=0||point.x<screen.x||point.y<screen.y||point.x>screen.x+screen.width||point.y>screen.y+screen.height)return {ok:false,reason:'on_screen_target_required',actionSent:false};
-        if(!n.name&&!n.label)return {ok:false,reason:'named_system_target_required',actionSent:false};
-        const predicate=`type == ${JSON.stringify(n.type)} AND name == ${JSON.stringify(n.name)} AND label == ${JSON.stringify(n.label)} AND visible == 1`;
+        const identity=!n.name&&!n.label?'(name == nil OR name == "") AND (label == nil OR label == "")':`name == ${JSON.stringify(n.name)} AND label == ${JSON.stringify(n.label)}`;
+        const predicate=`type == ${JSON.stringify(n.type)} AND ${identity} AND visible == 1`;
         const matches=(await this.http('POST',this.route('/elements'),{using:'predicate string',value:predicate})).value;
         const resolved=await this.tapElement(matches,n.type);if(resolved.reason)return {ok:false,reason:resolved.reason,actionSent:false};const {eid}=resolved;
+        if(!n.name&&!n.label){
+          // Some native controls expose only type and geometry. A snapshot may
+          // address one only if its exact anonymous query is unique and its
+          // live bounds still match. Never fall back to a coordinate tap.
+          const current=(await this.http('GET',this.route(`/element/${eid}/rect`))).value;
+          if(!current||!['x','y','width','height'].every(k=>Number.isFinite(current[k])&&Math.abs(current[k]-n.rect[k])<=1))return {ok:false,reason:'anonymous_system_target_changed',actionSent:false};
+        }
         const hittable=(await this.http('GET',this.route(`/element/${eid}/attribute/hittable`))).value;
         if(![true,1,'true','1'].includes(hittable))return {ok:false,reason:'system_target_occluded',actionSent:false};
         await this.authorize();this.check();inputSent=true;await this.http('POST',this.route(`/element/${eid}/click`),{});

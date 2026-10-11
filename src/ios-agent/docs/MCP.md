@@ -1,6 +1,6 @@
 # iOS agent MCP — shared service interface and operational learning
 
-Current interface: **38 tools / ten resources**. `ios_guide.interface` identifies
+Current interface: **39 tools / ten resources**. `ios_guide.interface` identifies
 the process answering this connection. `/Users/taylor/dotfiles/bin/ios-agent-mcp
 --catalog` reads the installed catalog without host/phone access. A missing
 `interface` means the connected process predates this check; absent new tools
@@ -258,14 +258,21 @@ glow/inspection cleanup, then navigate Home through a verified available system
 input route. Do not leave Kickoff DEV open without ongoing work. Preserve other
 agent ownership and do not navigate Home during intermediate session handoffs.
 
-`ios_end`/`ios_web_end` currently release control; they do **not** navigate Home.
-The paired lock shortcut is a separate action, not a Home substitute. Mirroring
-Home works only while its system-control session is reachable. On 10 October the
-Mac Shortcuts action search did not expose Go to Home Screen; the empty test
-shortcut was removed. A phone-local Home shortcut remains unqualified. When Home
-is unavailable, report `homeNavigationPending`; do not silently force-quit the
-app or start XCTest just for cleanup. Version 1.5 adds verified Home return within
-an already-required explicit system fallback; normal page/app end remains separate.
+`ios_end`/`ios_web_end` release control; they do **not** navigate Home.
+After the final end, call `ios_device_home` when the paired Tailscale developer
+lane is configured. It reserves exclusive ownership and runs only the installed
+**Runner Home** shortcut, containing one Apple **Go to Home Screen** action.
+No XCTest, Mirroring, sudo, caller URL or arbitrary shortcut execution is involved.
+Physical creation, dispatch over paired Tailscale and independent SpringBoard
+foreground readback passed on11October. Do not confuse this overlay proof with a
+physically off-LAN acceptance test, which remains open.
+
+Runtime dispatch returns `homeVerified:false`: acceptance alone is not visual
+proof. Inspect with `ios_device_inspect kind=screen` after release when needed.
+An unknown dispatch is never replayed; inspect first. Preserve another owner and
+avoid Home during intermediate handoffs. If unavailable, record
+`homeNavigationPending`; do not force-quit an app or start XCTest just for cleanup.
+The paired lock shortcut remains separate and cannot unlock the phone.
 
 ## Bounded device process profile
 
@@ -661,3 +668,19 @@ runner independently, bypass authorization, or make browser JS clicks trusted.
 Chrome's synthetic JavaScript dialog did not appear in the alert API: its normal
 hierarchy exposed OK, and an exact native tap plus Dialog returned readback passed.
 Use that path when alert is null; do not assume permission was granted.
+
+## MCP1.9.30: phone-local Home and resilient native hierarchy
+
+The catalog has39tools/10resources. `ios_device_home {}` adds the fixed cleanup
+route above; app/page end remains explicit. The original held XCTest runner was
+not restarted or adopted for this qualification.
+
+Native XML may include overflowing layout coordinates. These now become null
+with `geometryValid:false`, preserving all other nodes; invalid bounds remain
+ineligible for input. A fresh snapshot can address an unnamed native control only
+when the live type/name/label query is unique, its bounds match and it is hittable.
+There is no coordinate tap fallback. Ordinary `focus`/`clear`/`type` also accept
+snapshot/target as an alternative to label/type; secure-entry fields stay excluded.
+Physical Shortcuts icon-menu and rename-field input passed with independent
+readback. The snapshot is consumed before dispatch; accepted or unknown input
+must be observed rather than replayed.

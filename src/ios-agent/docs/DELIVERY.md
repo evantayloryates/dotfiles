@@ -1,7 +1,7 @@
 # Agent operating contract — installed personal development service
 
 Start with `ios_guide`. Its `interface` reports this connection's version,
-36 tools and ten resources. Compare `/Users/taylor/dotfiles/bin/ios-agent-mcp
+39 tools and ten resources. Compare `/Users/taylor/dotfiles/bin/ios-agent-mcp
 --catalog` for installed source without acquiring the phone. A guide without
 `interface` is an older connection. Refresh only at an idle point; never kill
 another owner's work to refresh schemas. See MCP.md for the operating recipes.
@@ -9,7 +9,7 @@ another owner's work to refresh schemas. See MCP.md for the operating recipes.
 | Task | First useful operations | Cleanup |
 | --- | --- | --- |
 | Native DEV app | doctor → begin → native/react → verify | native Home → end |
-| Safari / Chrome DEV page | web_pages → web_begin → inspect/action/verify | web_end; Home only through an available system route |
+| Safari / Chrome DEV page | web_pages → web_begin → inspect/action/verify | web_end → device_home (configured paired Tailscale); independently inspect Home |
 | Page not yet available | wait_ready; fixed device_launch through the configured paired lane | No lease held while waiting |
 | Exact observed system permission | End page/app session → system_begin → inspect/action | system_end; require runnerStopped |
 | Deeper browser diagnosis | browser_debug; source/styles/dom/network/profile/heap/breakpoint/worker-* | Diagnostic domains stop and detach; content expires |
@@ -246,3 +246,19 @@ checks passed. The deterministic Claude hooks are prepared but not installed:
 the real Claude CLI smoke failed at expired OAuth before hooks/inference. No
 phone owner or live Claude settings were changed. Explicit end remains required;
 CLAUDE-CLEANUP.md records the precise live-harness and physical handoff gates.
+
+## MCP1.9.30 — phone-local cleanup and native geometry
+
+The installed Runner Home shortcut contains one Apple Go to Home Screen action.
+Paired Tailscale AppService dispatch succeeded and an independent original-WDA
+foreground read confirmed SpringBoard/unlocked. This uses no XCTest startup,
+Mirroring or sudo. Fresh owned MCP workflow and physical off-LAN qualification
+remain separate; original long-running XCTest ownership was deliberately preserved.
+
+Overflowing Shortcuts coordinates now preserve the usable hierarchy. Snapshot
+input supports uniquely matched unnamed controls and ordinary fields, with live
+geometry/hittability/owner checks; secure fields and ambiguous/moved controls are
+refused. Physical clear/type readback matched Runner Home, and saved library
+readback confirmed one action.72focused Node cases and12Python provider cases
+passed. Fresh real stdio catalog/guide discovery is recorded separately.
+See home-geometry-physical-2026-10-11.json.

@@ -25,7 +25,7 @@ def owned(r):
 
 async def observe(r):
     r['_phase']='validation'
-    if r.get('kind') not in ('screen','capabilities','browser-debug','resource-profile','fixed-launch','browser-launch','accessibility-audit') or not re.fullmatch(r'[0-9A-Fa-f]{8}-[0-9A-Fa-f]{16}', r.get('serial','')):
+    if r.get('kind') not in ('screen','capabilities','browser-debug','resource-profile','fixed-launch','browser-launch','shortcut-home','accessibility-audit') or not re.fullmatch(r'[0-9A-Fa-f]{8}-[0-9A-Fa-f]{16}', r.get('serial','')):
         raise ValueError('fixed_observer_request_required')
     if r['kind']=='browser-launch':
         browser_launch_arguments(r)
@@ -66,6 +66,8 @@ async def observe(r):
                           outcome='developer-request-accepted')
         elif r['kind']=='browser-launch':
             result.update(await browser_launch(r,rsd))
+        elif r['kind']=='shortcut-home':
+            result.update(await shortcut_home(r,rsd))
         elif r['kind'] == 'screen':
             owned(r)
             r['_phase']='dvt_connect'
@@ -117,25 +119,39 @@ def browser_launch_arguments(r):
     return url,{'safari':'com.apple.mobilesafari','chrome':'com.google.chrome.ios'}[r['browser']]
 
 async def browser_launch(r,rsd):
+    url,bundle=browser_launch_arguments(r)
+    pid=await payload_launch(r,rsd,bundle,url,'browser_url_launch')
+    return {'scope':'fixed-dev-browser-launch','browser':r['browser'],'profile':r.get('profile','app'),
+            'pid':pid,'inputSent':True,'foregroundVerified':False,
+            'lockState':'unknown','outcome':'developer-request-accepted','replay':False}
+
+async def shortcut_home(r,rsd):
+    # A single phone-local Apple action, provisioned as Runner Home. Neither the
+    # shortcut name nor its URL/arguments are caller controlled.
+    if any(k in r for k in ('url','target','browser','profile','shortcut','arguments')):
+        raise ValueError('fixed_home_shortcut_required')
+    pid=await payload_launch(r,rsd,'com.apple.shortcuts','shortcuts://run-shortcut?name=Runner%20Home','shortcut_home_launch')
+    return {'scope':'fixed-device-home','pid':pid,'inputSent':True,'homeVerified':False,
+            'lockState':'unknown','outcome':'developer-request-accepted','replay':False,
+            'next':'Inspect the display independently. Shortcut acceptance does not certify Home.'}
+
+async def payload_launch(r,rsd,bundle,url,phase):
     from pymobiledevice3.remote.core_device.app_service import AppServiceService
     import plistlib
-    url,bundle=browser_launch_arguments(r)
     options={'arguments':[],'environmentVariables':{},'standardIOUsesPseudoterminals':True,
              'startStopped':False,'terminateExisting':False,'activates':True,
              'user':{'shortName':'mobile'},'platformSpecificOptions':plistlib.dumps({}),
              'payloadURL':{'relative':url}}
-    r['_phase']='browser_launch_connect'
+    r['_phase']='payload_launch_connect'
     async with AppServiceService(rsd) as service:
-        owned(r);r['_phase']='browser_url_launch';r['_launchSent']='unknown'
+        owned(r);r['_phase']=phase;r['_launchSent']='unknown'
         response=await service.invoke('com.apple.coredevice.feature.launchapplication',{
             'applicationSpecifier':{'bundleIdentifier':{'_0':bundle}},
             'options':options,'standardIOIdentifiers':{}})
         r['_launchSent']=True
     owned(r)
     pid=(response.get('processToken') or {}).get('processIdentifier')
-    return {'scope':'fixed-dev-browser-launch','browser':r['browser'],'profile':r.get('profile','app'),
-            'pid':int(pid) if isinstance(pid,int) and not isinstance(pid,bool) and 0<pid<2**31 else None,'inputSent':True,'foregroundVerified':False,
-            'lockState':'unknown','outcome':'developer-request-accepted','replay':False}
+    return int(pid) if isinstance(pid,int) and not isinstance(pid,bool) and 0<pid<2**31 else None
 
 def profile_process(row):
     """Keep only known app/browser process metrics; no command lines or identities."""

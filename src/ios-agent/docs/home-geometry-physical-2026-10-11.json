@@ -1,0 +1,134 @@
+{
+  "at": "2026-10-11T10:18:24.188378+00:00",
+  "version": "1.9.30",
+  "originalRunnerPreserved": true,
+  "shortcut": {
+    "name": "Runner Home",
+    "actions": 1,
+    "action": "Apple Go to Home Screen"
+  },
+  "proof": {
+    "nativeAnonymousButton": "one fresh unique unnamed Button opened the icon picker; dismissed separately without icon change",
+    "field": "clear/type/readback Runner Home; saved library says Runner Home, 1 action",
+    "transport": "tailnet-paired-userspace",
+    "home": {
+      "locked": false,
+      "bundle": "com.apple.springboard"
+    },
+    "geometry": "raw XML includes overflowing Shortcuts layout; one invalid rect becomes null while157nodes parse"
+  },
+  "tests": {
+    "nodeCases": 72,
+    "pythonCases": 12,
+    "passed": true
+  },
+  "freshStdio": {
+    "at": "2026-10-11T10:18:12.424Z",
+    "version": "1.9.30",
+    "tools": [
+      "ios_guide",
+      "ios_wait_ready",
+      "ios_harness_end",
+      "ios_capture",
+      "ios_device_launch",
+      "ios_device_home",
+      "ios_device_lock",
+      "ios_system_begin",
+      "ios_system_inspect",
+      "ios_system_action",
+      "ios_system_end",
+      "ios_doctor",
+      "ios_stack_ensure",
+      "ios_build",
+      "ios_install",
+      "ios_input_matrix",
+      "ios_workflow",
+      "ios_browser_debug",
+      "ios_accessibility_audit",
+      "ios_device_inspect",
+      "ios_web_pages",
+      "ios_web_enroll",
+      "ios_web_begin",
+      "ios_web_inspect",
+      "ios_web_action",
+      "ios_web_verify",
+      "ios_audio_probe",
+      "ios_web_end",
+      "ios_status",
+      "ios_begin",
+      "ios_end",
+      "ios_verify",
+      "ios_native",
+      "ios_react",
+      "ios_read",
+      "ios_learning_search",
+      "ios_learning_evidence",
+      "ios_learning_propose",
+      "ios_learning_review"
+    ],
+    "resources": [
+      {
+        "uri": "ios-agent://operating-contract",
+        "bytes": 18586
+      },
+      {
+        "uri": "ios-agent://mcp",
+        "bytes": 49480
+      },
+      {
+        "uri": "ios-agent://mobile-web",
+        "bytes": 36839
+      }
+    ],
+    "resourceCount": 10,
+    "guidePassed": true,
+    "heapSchema": true,
+    "breakpointSchema": true,
+    "artifactPagingSchema": true,
+    "workerDebugSchema": true,
+    "recoveryRecipe": true,
+    "claudeOwnerSchema": true,
+    "unmatchedCleanupNoOp": true,
+    "scope": "fresh real stdio catalog, guide and changed-resource reads only; no phone lease or runner operation"
+  },
+  "boundaries": [
+    "Phone was not moved physically off-LAN for this gate.",
+    "Original existing XCTest session was used for setup/independent readback, but Home dispatch did not start or use XCTest.",
+    "Fresh MCP-owned Home end-to-end workflow awaits release of the original ten-hour exclusive owner.",
+    "Runtime Home acceptance remains unverified until independent display inspection."
+  ],
+  "receipts": {
+    "invalidShortcutsTree": {
+      "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/shortcuts-source-1791713274525.xml",
+      "sha256": "d327354df7cd0bfb13bfbb0d3fa728f0837815b95a85fa722b3a4ec8c3bd66b0"
+    },
+    "anonymousButton": {
+      "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-input-1791713404821.json",
+      "sha256": "bb4615fee7263a4638fdf6d98ce9d815099396da4b6fb7e3238a2241e470296c"
+    },
+    "fieldClear": {
+      "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-input-1791713721784.json",
+      "sha256": "bb4615fee7263a4638fdf6d98ce9d815099396da4b6fb7e3238a2241e470296c"
+    },
+    "fieldType": {
+      "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-input-1791713730761.json",
+      "sha256": "bb4615fee7263a4638fdf6d98ce9d815099396da4b6fb7e3238a2241e470296c"
+    },
+    "fieldReadback": {
+      "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-input-1791713733142.json",
+      "sha256": "cf893dac3303547abf633f867ffcda7b21e5e929707d34b9b6d2ed0f2ec4fb95"
+    },
+    "savedShortcut": {
+      "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-input-1791713803365.json",
+      "sha256": "4f97c7e91df3a1ad5610aba2d5e465799fca272ba5be12d78ded790cd2d8b476"
+    },
+    "pairedHomeDispatch": {
+      "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/tailnet-provider-1791713805690327000.json",
+      "sha256": "a24350183e8d191c7efea786e7a059f3b85a87a16786588710591e913a740d54"
+    },
+    "independentHomeReadback": {
+      "privateReceipt": "/Users/taylor/Library/Application Support/ios-agent/runner-delivery-YxZ0qA/owned-input-1791713813780.json",
+      "sha256": "683fc6c746868df06ee49f06bb918d4961ff3ecfc750fbd3180f2ccbac14bce5"
+    }
+  }
+}
