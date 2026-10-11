@@ -68,7 +68,7 @@ export class SystemDriver {
     return {ok:true,transport:'signed-XCTest-runner/paired-developer-start/Tailscale-WDA',indicator:'Apple Automation Running',offLANStartQualified:false,authentication:'Apple may require physical authorization; no passcode is stored or entered'};
   }
   route(r){if(!this.sid)throw Error('system_session_required');return `/session/${this.sid}${r}`;}
-  async context(){this.check();const locked=(await this.http('GET',this.route('/wda/locked'))).value;if(locked!==false)throw Error('physical_unlock_required');const a=(await this.http('GET',this.route('/wda/activeAppInfo'))).value;if(!allowed.has(a?.bundleId))throw Error('system_app_scope_required');return a.bundleId;}
+  async context(requireScopedApp=true){this.check();const locked=(await this.http('GET',this.route('/wda/locked'))).value;if(locked!==false)throw Error('physical_unlock_required');const a=(await this.http('GET',this.route('/wda/activeAppInfo'))).value;if(!a?.bundleId||requireScopedApp&&!allowed.has(a.bundleId))throw Error('system_app_scope_required');return a.bundleId;}
   async inspect(){
     const bundle=await this.context(),at=Date.now(),r=await this.http('GET',this.route('/source')),tree=await parseTree(r.value);
     if(await this.context()!==bundle)throw Error('system_app_changed');
@@ -76,14 +76,41 @@ export class SystemDriver {
     this.uncertain=false;
     return {ok:true,snapshot,bundle,readDurationMs:Date.now()-at,freshness:'five seconds after completed read; tap re-resolves a unique live native element and checks hittability',nodes:tree.nodes.map((n,i)=>({...n,target:String(i)})),truncated:tree.truncated,delivery:'native XCTest; full tree includes browser/system UI; not DOM'};
   }
-  async action({action,snapshot,target,direction,app}){
+  async tapElement(matches,type){
+    if(!Array.isArray(matches)||matches.length!==1)return {reason:'unique_system_target_required'};
+    let eid=matches[0].ELEMENT||matches[0]['element-6066-11e4-a52e-4f735466cecf'];
+    if(!/^[A-Fa-f0-9-]{36}$/.test(eid||''))return {reason:'system_element_unavailable'};
+    // SwiftUI can expose a named full-width row and an unnamed nested toggle.
+    if(type==='XCUIElementTypeSwitch'){
+      const children=(await this.http('POST',this.route(`/element/${eid}/elements`),{using:'class chain',value:'**/XCUIElementTypeSwitch'})).value;
+      if(!Array.isArray(children)||children.length>1)return {reason:'unique_system_switch_required'};
+      if(children.length===1){eid=children[0].ELEMENT||children[0]['element-6066-11e4-a52e-4f735466cecf'];if(!/^[A-Fa-f0-9-]{36}$/.test(eid||''))return {reason:'system_element_unavailable'};}
+    }
+    return {eid};
+  }
+  async action({action,snapshot,target,direction,app,label,elementType}){
     this.check();
     if(this.uncertain)return {ok:false,reason:'system_observation_required',actionSent:false,replay:false};
     let inputSent=false;
     try{
-      await this.context();
+      // Fixed launch/Home never inspect the previous app's contents. Still refuse a locked phone.
+      const bundle=await this.context(!['activate','home'].includes(action));
       if(action==='home'){this.snapshot=null;await this.authorize();this.check();inputSent=true;await this.http('POST','/wda/homescreen',{});return {ok:true,homeConfirmed:(await this.http('GET',this.route('/wda/activeAppInfo'))).value?.bundleId==='com.apple.springboard',replay:false};}
       if(action==='activate'){if(!bundles[app])return {ok:false,reason:'fixed_system_app_required',actionSent:false};this.snapshot=null;await this.authorize();this.check();inputSent=true;await this.http('POST',this.route('/wda/apps/activate'),{bundleId:bundles[app]});return {ok:true,foregroundConfirmed:(await this.context())===bundles[app],replay:false};}
+      if(action==='tap'&&label!==undefined){
+        if(typeof label!=='string'||!label.length||label.length>500||!['XCUIElementTypeButton','XCUIElementTypeCell','XCUIElementTypeSwitch','XCUIElementTypeLink'].includes(elementType))return {ok:false,reason:'typed_system_label_required',actionSent:false};
+        this.snapshot=null;
+        const predicate=`type == ${JSON.stringify(elementType)} AND label == ${JSON.stringify(label)} AND visible == 1 AND enabled == 1`;
+        const matches=(await this.http('POST',this.route('/elements'),{using:'predicate string',value:predicate})).value;
+        const resolved=await this.tapElement(matches,elementType);if(resolved.reason)return {ok:false,reason:resolved.reason,actionSent:false,replay:false};
+        const {eid}=resolved,rect=(await this.http('GET',this.route(`/element/${eid}/rect`))).value,screen=(await this.http('GET',this.route('/window/rect'))).value;
+        if(!rect||!screen||![rect.x,rect.y,rect.width,rect.height,screen.x,screen.y,screen.width,screen.height].every(Number.isFinite)||rect.width<=0||rect.height<=0||rect.x+rect.width/2<screen.x||rect.y+rect.height/2<screen.y||rect.x+rect.width/2>screen.x+screen.width||rect.y+rect.height/2>screen.y+screen.height)return {ok:false,reason:'on_screen_target_required',actionSent:false};
+        const hittable=(await this.http('GET',this.route(`/element/${eid}/attribute/hittable`))).value;
+        if(![true,1,'true','1'].includes(hittable))return {ok:false,reason:'system_target_occluded',actionSent:false};
+        if(await this.context()!==bundle)return {ok:false,reason:'system_app_changed',actionSent:false};
+        await this.authorize();this.check();inputSent=true;await this.http('POST',this.route(`/element/${eid}/click`),{});
+        return {ok:true,delivery:'native-XCTest',effect:'unverified; inspect again',replay:false};
+      }
       const s=this.snapshot;if(!s||snapshot!==s.id||Date.now()-s.at>5000)return {ok:false,reason:'fresh_system_snapshot_required',actionSent:false};
       if(await this.context()!==s.bundle)return {ok:false,reason:'system_app_changed',actionSent:false};
       this.snapshot=null; // Consume before dispatch, including unknown outcomes.
@@ -95,16 +122,7 @@ export class SystemDriver {
         if(!n.name&&!n.label)return {ok:false,reason:'named_system_target_required',actionSent:false};
         const predicate=`type == ${JSON.stringify(n.type)} AND name == ${JSON.stringify(n.name)} AND label == ${JSON.stringify(n.label)} AND visible == 1`;
         const matches=(await this.http('POST',this.route('/elements'),{using:'predicate string',value:predicate})).value;
-        if(!Array.isArray(matches)||matches.length!==1)return {ok:false,reason:'unique_system_target_required',actionSent:false};
-        let eid=matches[0].ELEMENT||matches[0]['element-6066-11e4-a52e-4f735466cecf'];
-        if(!/^[A-Fa-f0-9-]{36}$/.test(eid||''))return {ok:false,reason:'system_element_unavailable',actionSent:false};
-        // SwiftUI Settings exposes a named full-row Switch containing the
-        // actual unnamed toggle. Tapping the row can succeed without changing it.
-        if(n.type==='XCUIElementTypeSwitch'){
-          const children=(await this.http('POST',this.route(`/element/${eid}/elements`),{using:'class chain',value:'**/XCUIElementTypeSwitch'})).value;
-          if(!Array.isArray(children)||children.length>1)return {ok:false,reason:'unique_system_switch_required',actionSent:false};
-          if(children.length===1){eid=children[0].ELEMENT||children[0]['element-6066-11e4-a52e-4f735466cecf'];if(!/^[A-Fa-f0-9-]{36}$/.test(eid||''))return {ok:false,reason:'system_element_unavailable',actionSent:false};}
-        }
+        const resolved=await this.tapElement(matches,n.type);if(resolved.reason)return {ok:false,reason:resolved.reason,actionSent:false};const {eid}=resolved;
         const hittable=(await this.http('GET',this.route(`/element/${eid}/attribute/hittable`))).value;
         if(![true,1,'true','1'].includes(hittable))return {ok:false,reason:'system_target_occluded',actionSent:false};
         await this.authorize();this.check();inputSent=true;await this.http('POST',this.route(`/element/${eid}/click`),{});
@@ -114,6 +132,6 @@ export class SystemDriver {
   }
   async stop(){
     if(this.stopping)return this.stopping;
-    this.stopping=(async()=>{await this.startPromise?.catch(()=>{});if(this.sid)try{await this.http('DELETE',this.route(''),undefined,4000);}catch{}if(this.child){this.child.stdin.end('stop\n');await Promise.race([this.exit,sleep(26000)]);return {ok:this.cleanup?.runnerStopped===true,runnerStopped:this.cleanup?.runnerStopped===true,cleanupReason:this.cleanup?.reason||'unconfirmed'};}return {ok:true,runnerStopped:true,notStarted:true};})();return this.stopping;
+    this.stopping=(async()=>{await this.startPromise?.catch(()=>{});if(this.sid)try{await this.http('DELETE',this.route(''),undefined,4000);}catch{}if(this.child){this.child.stdin.end('stop\n');await Promise.race([this.exit,sleep(38000)]);return {ok:this.cleanup?.runnerStopped===true,runnerStopped:this.cleanup?.runnerStopped===true,verificationAttempts:this.cleanup?.verificationAttempts,cleanupReason:this.cleanup?.reason||'unconfirmed'};}return {ok:true,runnerStopped:true,notStarted:true};})();return this.stopping;
   }
 }

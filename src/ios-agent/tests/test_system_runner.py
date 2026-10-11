@@ -6,6 +6,7 @@ import tempfile
 from types import SimpleNamespace as Obj
 import unittest
 from unittest.mock import patch
+from unittest.mock import AsyncMock
 import system_runner as runner
 
 class SystemRunnerBoundaryTests(unittest.IsolatedAsyncioTestCase):
@@ -47,5 +48,13 @@ class OwnershipGraceTests(unittest.TestCase):
         self.assertTrue(g.permits(True,116))
         self.assertTrue(g.permits(None,117))
         self.assertFalse(g.permits(False,118))
+
+class CleanupConfirmationTests(unittest.IsolatedAsyncioTestCase):
+    async def test_cleanup_has_one_bounded_recheck_after_unconfirmed_provider(self):
+        for answers, expected, count in [([True],(True,1),1),([TimeoutError(),True],(True,2),2),([False,False],(False,2),2)]:
+            with patch.object(runner,'verify_stopped',new=AsyncMock(side_effect=answers)) as verify, patch.object(runner.asyncio,'sleep',new=AsyncMock()):
+                self.assertEqual(await runner.confirm_stopped('configured',{77}),expected)
+                self.assertEqual(verify.await_count,count)
+                self.assertTrue(all(call.args==('configured',{77}) for call in verify.await_args_list))
 
 if __name__=='__main__':unittest.main()

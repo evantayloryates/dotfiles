@@ -300,9 +300,10 @@ prove that the phone is locked, disconnected, or missing USB.
 
 Within an explicit system fallback, `ios_system_action` tap can take `label` plus
 `elementType` (Button, Cell, Switch or Link using its full XCUIElementType name),
-instead of snapshot/target. The service takes a new hierarchy, requires exactly
-one visible/enabled matching element, then applies the existing live element
-uniqueness and hittability checks before one native click. This removes model
+instead of snapshot/target. The service requires exactly one visible/enabled
+matching element through a direct native query, checks its
+live bounds and hittability, confirms the app and owner, then sends one click.
+It does not fetch another full XML hierarchy for a known label. This removes model
 round-trip expiry for a known control. Duplicate/missing labels send no input.
 Unknown input still requires a new observation and is never automatically replayed.
 For a named SwiftUI Switch row, the driver resolves the unique nested native
@@ -324,3 +325,38 @@ confirms the broker lease immediately before dispatch; an unavailable status rea
 sends no input. This avoids turning one transient observer failure into a new
 XCTest authorization cycle. The prior stop reason was owner_unconfirmed, not
 proof of a disconnected cable, locked phone or user action.
+
+Cleanup confirmation gets at most two bounded provider checks (15 then 8 seconds).
+A failed first check remains unconfirmed until a fresh DVT PID read proves the owned
+runner is gone. Only a PID observed in this runner’s startup log may be stopped;
+a replacement process is preserved. This does not replay app input.
+
+
+### No runtime sudo diagnostics
+
+Xcode's automatic failure diagnostics spawned `devicectl diagnose`, which ran
+`sudo true` after an intentionally ended XCTest session. The runner now passes
+the supported `-collect-test-diagnostics never` option. Native driver operations
+do not need administrator privileges; normal per-session runner logs and private
+verification artifacts remain available. This disables automatic sysdiagnose
+collection, not the ownership watchdog, runner cleanup or independent PID check.
+
+Taylor's separate one-hour cross-session sudo cache can be installed from
+`src/sudo-session/install.py`; it is a development convenience, not a runtime
+requirement or an iPhone passcode exception.
+
+Fixed `activate` and `home` can leave an unrelated foreground app while the phone
+is unlocked. They do not inspect that app's contents. Hierarchy, scrolling and
+tapping still require Safari, Chrome, Settings, Kickoff DEV or Home; a locked
+phone is refused before any action. This lets agents open the intended DEV app
+from elsewhere without expanding arbitrary-app inspection.
+
+Chrome was separately qualified on the physical iPhone: after the exact DEV-host
+Allow prompt was handled natively, the normal page driver acquired a disabled
+microphone source, saved four AAC chunks (48 kHz mono, 3.863 seconds), and decoded
+them successfully. Capture preserved the original source; explicit fixture cleanup
+then stopped it and page glow-off passed. Chrome asked again on a later microphone
+acquisition, so never assume an app-level or earlier site grant suppresses all
+prompts. Use bounded native permission handling when observed; no Mirroring or
+human microphone tap was needed. This is not audible audio or full-call proof.
+Receipt: annotation-chrome-permission-wda-2026-10-10.json.

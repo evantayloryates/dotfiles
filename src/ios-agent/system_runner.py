@@ -69,6 +69,19 @@ async def verify_stopped(serial, started):
             await control.kill(pid)
         return await control.process_identifier_for_bundle_identifier(BUNDLE) == 0
 
+async def confirm_stopped(serial, started):
+    # DVT may still be settling immediately after xcodebuild teardown. One
+    # additional bounded readback avoids mistaking that for a running overlay.
+    # Each verification reads the current PID; only our exact started PID can
+    # be stopped, never a replacement runner.
+    for attempt, budget in enumerate((15, 8), 1):
+        try:
+            if await asyncio.wait_for(verify_stopped(serial, started), budget):
+                return True, attempt
+        except Exception:pass
+        if attempt == 1:await asyncio.sleep(0.25)
+    return False, 2
+
 async def collect_runner_output(reader, log, started):
     carry=b''
     with log.open('r+b') as output:
@@ -89,6 +102,7 @@ async def main(r):
         os.close(fd)
         child = await asyncio.create_subprocess_exec('/usr/bin/xcrun','xcodebuild','test-without-building',
             '-xctestrun',str(run),'-destination','id='+serial,'-destination-timeout','20',
+            '-collect-test-diagnostics','never',
             stdin=asyncio.subprocess.DEVNULL,stdout=asyncio.subprocess.PIPE,stderr=asyncio.subprocess.STDOUT,start_new_session=True)
         pump=asyncio.create_task(collect_runner_output(child.stdout,log,started))
         print(json.dumps({'started':True}),flush=True)
@@ -125,10 +139,8 @@ async def main(r):
         if pump:
             try:await asyncio.wait_for(pump,2)
             except Exception:pass
-        stopped=False
-        try:stopped=await asyncio.wait_for(verify_stopped(serial,started),15)
-        except Exception:pass
-        print(json.dumps({'stopped':True,'runnerStopped':stopped,'reason':reason}),flush=True)
+        stopped, attempts = await confirm_stopped(serial, started)
+        print(json.dumps({'stopped':True,'runnerStopped':stopped,'verificationAttempts':attempts,'reason':reason}),flush=True)
 
 if __name__ == '__main__':
     try:asyncio.run(main(json.loads(sys.argv[1])))

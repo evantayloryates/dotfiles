@@ -1,0 +1,41 @@
+{
+  "observedAt": "2026-10-11T01:20:30.548885+00:00",
+  "scope": "Explicit signed WDA fallback on the physical iPhone; MCP 1.6.2",
+  "cause": {
+    "confirmed": true,
+    "chain": [
+      "owned xcodebuild interrupted at explicit session end",
+      "automatic Xcode failure diagnostics",
+      "orphan devicectl diagnose",
+      "sudo -- /usr/bin/true",
+      "macOS Touch ID dialog"
+    ],
+    "evidence": "Exact xcresult path in the owned runner log matched the orphan diagnostics command; its child sudo true was observed."
+  },
+  "fix": {
+    "xcodebuildOption": [
+      "-collect-test-diagnostics",
+      "never"
+    ],
+    "documentedBy": "Installed xcodebuild -help",
+    "runtimeRootRequired": false,
+    "phoneAuthenticationChanged": false
+  },
+  "physicalSmoke": {
+    "freshMcpStartedRunner": true,
+    "actualXcodebuildArgumentObserved": true,
+    "runnerStopped": true,
+    "verificationAttempts": 1,
+    "ownerReleased": true,
+    "newDevicectlDiagnoseProcesses": 0,
+    "newSudoProbes": 0
+  },
+  "developmentCache": {
+    "requestedMinutes": 60,
+    "requestedType": "global for taylor",
+    "installerPrepared": true,
+    "installed": false,
+    "status": "awaiting one administrator authentication"
+  },
+  "boundary": "Suppresses automatic verbose failure diagnostics, not normal runner logs, ownership cleanup or Apple iPhone authorization. Off-LAN runner startup remains unqualified."
+}

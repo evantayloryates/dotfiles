@@ -16,3 +16,17 @@ test('named SwiftUI switch targets its unique native child and refuses ambiguous
  const result=await d.action({action:'tap',snapshot:d.snapshot.id,target:'1'});assert.equal(result.ok,count<2);const clicks=calls.filter(c=>c[1].endsWith('/click'));assert.equal(clicks.length,count<2?1:0);if(count<2)assert(clicks[0][1].includes(count===1?child:parent));
  }
 });
+test('exact label uses live native query without source; ambiguity, occlusion and bounds refuse input',async()=>{
+ for(const mode of ['unique','missing','duplicate','occluded','offscreen','authority']){const {d,calls}=fixture(),http=d.http;let authorized=0;d.authorize=async()=>{authorized++;if(mode==='authority')throw Error('system_ownership_unconfirmed');};
+ d.http=async(m,r,b)=>{if(r.endsWith('/elements')){calls.push([m,r]);assert(b.value.includes('enabled == 1'));return {value:Array.from({length:mode==='missing'?0:mode==='duplicate'?2:1},()=>({ELEMENT:'a'.repeat(36)}))};}if(r.endsWith('/window/rect'))return {value:{x:0,y:0,width:390,height:844}};if(r.endsWith('/rect'))return {value:{x:mode==='offscreen'?900:10,y:20,width:50,height:30}};if(r.endsWith('/attribute/hittable'))return {value:mode!=='occluded'};if(r.endsWith('/source'))throw Error('full hierarchy not permitted');return http(m,r,b);};
+ const r=await d.action({action:'tap',label:'Allow',elementType:'XCUIElementTypeButton'});assert.equal(r.ok,mode==='unique');assert.equal(calls.filter(c=>c[1].endsWith('/click')).length,mode==='unique'?1:0);if(mode!=='unique')assert.equal(r.actionSent,false);if(mode==='unique')assert.equal(authorized,1);
+ }
+});
+
+test('fixed launch/Home may leave an unrelated foreground app without inspecting it; scoped input and lock still refuse',async()=>{
+ for(const action of ['activate','home','tap']){const {d,calls}=fixture(),http=d.http;let active='com.example.personal-app';
+ d.http=async(m,r,b)=>{if(r.endsWith('/wda/activeAppInfo'))return {value:{bundleId:active}};if(r.endsWith('/wda/apps/activate'))active=b.bundleId;if(r==='/wda/homescreen')active='com.apple.springboard';if(r.endsWith('/source'))throw Error('unrelated contents must not be read');return http(m,r,b);};
+ const result=await d.action({action,app:'chrome',label:'Allow',elementType:'XCUIElementTypeButton'});assert.equal(result.ok,action!=='tap');if(action==='tap')assert.equal(result.reason,'system_app_scope_required');assert(!calls.some(c=>c[1].endsWith('/source')));
+ }
+ const {d,calls}=fixture();d.http=async()=>({value:true});assert.equal((await d.action({action:'activate',app:'chrome'})).reason,'physical_unlock_required');assert.equal(calls.length,0);
+});
