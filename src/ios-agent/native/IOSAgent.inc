@@ -258,7 +258,7 @@ RCT_EXPORT_METHOD(sendReact:(NSString*)json) {
  return @{@"nativeInputRuntime":@(input),@"selectors":selectors,@"applicationState":@(UIApplication.sharedApplication.applicationState),
           @"deliveryId":[NSBundle.mainBundle objectForInfoDictionaryKey:@"IOSAgentDeliveryId"]?:NSNull.null,
           @"homeRuntime":@([UIApplication.sharedApplication respondsToSelector:NSSelectorFromString(@"suspend")]),
-          @"imageScope":@"app-owned-main-window",@"inputMethod":@"in-process UIEvent",@"textMethod":@"UIKeyInput",@"xctest":@NO,@"richCapture":@"explicit-JS-console-network",@"wifiControl":@"fixed-Apple-Shortcuts-handoff"};
+          @"imageScope":@"app-owned-main-window",@"inputMethod":@"in-process UIEvent",@"textMethod":@"UIKeyInput",@"xctest":@NO,@"richCapture":@"explicit-JS-console-network",@"wifiControl":@"fixed-Apple-Shortcuts-handoff",@"developerProbe":@"fixed-loopback-tcp-49152"};
 }
 - (void)showGlow {
  if(!self.glow) {

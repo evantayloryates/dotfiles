@@ -60,10 +60,11 @@ export function runCoreDevice(args, {jsonFile, timeout = 15000} = {}) {
 }
 
 export class Backend {
-  constructor({state = defaultState, run, deviceRun = runCoreDevice, ownerContext} = {}) {
+  constructor({state = defaultState, run, deviceRun = runCoreDevice, ownerContext,focusRunShortcut} = {}) {
     this.state = path.resolve(state);
     this.runOverride = run;
     this.deviceRun = deviceRun;
+    this.focusRunShortcut=focusRunShortcut;
     this.ownerContext = ownerContext || (run ? () => ({mode:'mcp-connection',reason:'isolated-adapter'}) : codexOwnerContext);
     this.sessions = new Map();
     this.artifacts = new Map();
@@ -536,7 +537,7 @@ export class Backend {
     }
     if(useFocus){
       const acquired=await this.begin({surface:'launch'});let result;
-      try{result=await focusLaunch({state:this.state,check:()=>this.session(acquired.sessionId)});}finally{await this.end(acquired.sessionId);}
+      try{result=await focusLaunch({state:this.state,check:()=>this.session(acquired.sessionId),runShortcut:this.focusRunShortcut});}finally{await this.end(acquired.sessionId);}
       if(!result.ok)return result;
       const ready=await this.waitReady({surface:'native',timeoutSeconds:5});
       return {...result,target,foregroundVerified:ready.readyToAcquire===true,foregroundScope:'fresh native foreground bridge; verify app/React readiness separately',offLANQualified:true,
