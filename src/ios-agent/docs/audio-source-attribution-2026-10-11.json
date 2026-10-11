@@ -1,0 +1,26 @@
+{
+  "at": "2026-10-11T14:29:28.233917+00:00",
+  "version": "1.9.38",
+  "scope": "host-qualified browser capture attribution; no physical phone operation",
+  "tests": {
+    "focusedCases": 11,
+    "allPassed": true,
+    "includes": [
+      "Exact page SDK observes getUserMedia+RTC sender and incoming receiver+DOM origins.",
+      "Earlier recorder failure preserves the later source reference.",
+      "Only allowlisted origin enums enter manifests.",
+      "Capture-wide32source limit, clone cleanup and original-track preservation.",
+      "Existing socket discovery/detach retains original socket."
+    ]
+  },
+  "physicalProviderCallQualified": false,
+  "nativeProvenanceClaimed": false,
+  "existingPageReloadRequired": true,
+  "servedSDK": {
+    "at": "2026-10-11T14:30:03.462036+00:00",
+    "version": "web-ea049ea3c71e058b",
+    "servedMatchesSource": true,
+    "bytes": 43946,
+    "phonePageReloadClaimed": false
+  }
+}

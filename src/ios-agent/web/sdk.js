@@ -263,6 +263,11 @@
     const all=new Set(tracks);for(const pc of peers){for(const x of [...pc.getSenders(),...pc.getReceivers()])if(x.track)all.add(x.track);}
     for(const el of document.querySelectorAll('audio,video'))if(el.srcObject instanceof MediaStream)for(const track of el.srcObject.getAudioTracks())all.add(track);
     return [...all];
+  },sourceKinds:track=>{
+    const kinds=[];if(tracks.has(track))kinds.push('get-user-media');
+    for(const pc of peers){if(pc.getSenders().some(x=>x.track===track))kinds.push('rtc-sender');if(pc.getReceivers().some(x=>x.track===track))kinds.push('rtc-receiver');}
+    for(const el of document.querySelectorAll('audio,video'))if(el.srcObject instanceof MediaStream&&el.srcObject.getAudioTracks().includes(track))kinds.push('dom-media');
+    return kinds;
   }});
   window.__iosWebAgent={version,register:(key,read)=>{if(!/^[a-z][a-z0-9-]{0,63}$/.test(key)||typeof read!=='function')throw new Error('domain_contract');domains.set(key,read);return()=>domains.delete(key);},status:()=>({version,browser,page:identity?.page,connected:!!identity&&connected,owned:!!lease,indicator:glow.style.display!=='none'}),stop:()=>{sessionStorage.removeItem('ios-agent-page');try{localStorage.removeItem('ios-agent-browser-resume');}catch{}stopped=true;onHide();clearInterval(timer);taskObserver?.disconnect();glow.remove();if(Element.prototype.attachShadow===installedAttachShadow)Element.prototype.attachShadow=originalAttachShadow;if(window.fetch===installed.fetch)window.fetch=originalFetch;if(window.WebSocket===installed.ws)window.WebSocket=originalWS;if(window.RTCPeerConnection===installed.rtc)window.RTCPeerConnection=originalRTC;if(installedGUM&&mediaDeviceObject.getUserMedia===installedGUM)mediaDeviceObject.getUserMedia=originalGUM;if(XMLHttpRequest.prototype.open===installed.xhrOpen)XMLHttpRequest.prototype.open=xhrOpen;if(XMLHttpRequest.prototype.send===installed.xhrSend)XMLHttpRequest.prototype.send=xhrSend;listeners.forEach(remove=>remove());for(const level of Object.keys(originalConsole))if(console[level]===installedConsole[level])console[level]=originalConsole[level];removeEventListener('error',onError);removeEventListener('unhandledrejection',onRejection);removeEventListener('visibilitychange',onVisibility);removeEventListener('pagehide',onHide);delete window.__iosWebAgent;}};
   void loop();

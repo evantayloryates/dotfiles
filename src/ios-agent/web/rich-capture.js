@@ -23,14 +23,14 @@ var __iosCreateCapture = (() => {
     seen.delete(value);return result;
   }
   function url(value) {try{const u=new URL(String(value));if(u.protocol==='data:')return 'data:<inline-content-omitted>';u.username=u.username?mask(u.username):'';u.password=u.password?mask(u.password):'';for(const k of [...u.searchParams.keys()])if(sensitive.test(k))u.searchParams.set(k,mask(u.searchParams.get(k)));u.hash='';return scrubText(u.toString());}catch{return scrubText(String(value)).slice(0,2048);}}
-  function create(runtime, {now=()=>Date.now(), sources=()=>[], socketSources, exclude=()=>false}={}) {
+  function create(runtime, {now=()=>Date.now(), sources=()=>[], sourceKinds, socketSources, exclude=()=>false}={}) {
     let active,events=[],bytes=0,dropped=0,sequence=0,timer,scanTimer,undo=[],recorders=new Map(),generation=0,ending,failedTracks=new WeakSet();
-    const readers=new Set(),pendingAudio=new Set();
+    const readers=new Set(),pendingAudio=new Set();let audioSources=[],audioSourceLimitReached=false;
     const emptySocketCoverage=()=>({existingDiscoveryAvailable:typeof socketSources==='function',discoveryFailed:false,existingWatched:0,newWatched:0,listenersActive:0});
     let socketCoverage=emptySocketCoverage();
     const size=value=>JSON.stringify(value).length*2;
     const status=()=>({active:!!active,id:active?.id||null,modes:active?.modes||[],remainingMs:active?Math.max(0,active.until-now()):0,bufferedEvents:events.length,bufferedBytes:bytes,dropped,sequence,
-      coverage:{network:'fetch text streams and bounded native blobs; XHR text; WebSocket send and receive for new sockets plus adapter-discovered existing sockets; original app bodies preserved',sockets:{...socketCoverage},audio:'existing live audio tracks only; no microphone acquisition; recorder clones stopped, app tracks preserved'}});
+      coverage:{network:'fetch text streams and bounded native blobs; XHR text; WebSocket send and receive for new sockets plus adapter-discovered existing sockets; original app bodies preserved',sockets:{...socketCoverage},audio:'existing live audio tracks only; no microphone acquisition; recorder clones stopped, app tracks preserved',audioSourceLimitReached,audioSources:audioSources.map(x=>({...x,origins:[...x.origins]}))}});
     const append=(kind,value,epoch=generation)=>{
       try {
       if(!active||epoch!==generation||!active.modes.includes(kind))return;
@@ -48,7 +48,10 @@ var __iosCreateCapture = (() => {
       let available;try{available=sources().slice(0,32);}catch{append('audio',{unavailable:true,reason:'track_discovery_failed'});return;}
       for(const track of available){
         if(track.kind!=='audio'||track.readyState!=='live'||recorders.has(track)||failedTracks.has(track))continue;
-        const epoch=generation;let clone,recorder;
+        if(audioSources.length>=32){audioSourceLimitReached=true;continue;}
+        const epoch=generation;let clone,recorder,origins=[];
+        try{origins=(sourceKinds?.(track)||[]).slice(0,16).filter(x=>['get-user-media','rtc-sender','rtc-receiver','dom-media'].includes(x));}catch{}
+        const source={trackRef:audioSources.length+1,origins:[...new Set(origins)],recorder:'starting'};audioSources.push(source);
         try {
           clone=track.clone();const stream=new runtime.MediaStream([clone]);
           const mime=['audio/mp4','audio/webm;codecs=opus','audio/webm'].find(x=>runtime.MediaRecorder.isTypeSupported(x));
@@ -56,16 +59,17 @@ var __iosCreateCapture = (() => {
           recorders.set(track,{recorder,clone});
           recorder.ondataavailable=event=>{if(!event.data?.size||event.data.size>192*1024)return;const task=event.data.arrayBuffer().then(buffer=>{
             const array=new Uint8Array(buffer);let binary='';for(let i=0;i<array.length;i+=8192)binary+=String.fromCharCode(...array.subarray(i,i+8192));
-            append('audio',{mime:event.data.type||recorder.mimeType,base64:runtime.btoa(binary),trackRef:[...recorders.keys()].indexOf(track)+1},epoch);
+            append('audio',{mime:event.data.type||recorder.mimeType,base64:runtime.btoa(binary),trackRef:source.trackRef},epoch);
           }).catch(()=>{});pendingAudio.add(task);void task.finally(()=>pendingAudio.delete(task));};
-          recorder.start(500);
+          recorder.start(500);source.recorder='started';
         }catch{
           // A failed constructor/start may already own a cloned track. It must
           // not survive the failed attempt or be recreated on every scan.
           failedTracks.add(track);recorders.delete(track);
+          source.recorder='unavailable';
           if(recorder){recorder.ondataavailable=null;try{if(recorder.state!=='inactive')recorder.stop();}catch{}}
           try{clone?.stop();}catch{}
-          append('audio',{unavailable:true,reason:'recorder_or_track_clone_unavailable'},epoch);
+          append('audio',{unavailable:true,reason:'recorder_or_track_clone_unavailable',trackRef:source.trackRef},epoch);
         }
       }
     };
@@ -105,7 +109,7 @@ var __iosCreateCapture = (() => {
       const {id,modes,seconds=120,maxBytes=2*1024*1024}=options||{};
       if(!/^[a-f0-9]{32}$/.test(id||'')||!Array.isArray(modes)||!modes.length||modes.some(x=>!['console','network','audio'].includes(x))||!Number.isInteger(seconds)||seconds<1||seconds>600||!Number.isInteger(maxBytes)||maxBytes<32768||maxBytes>8*1024*1024)throw new Error('bounded_capture_options_required');
       if(modes.includes('audio')&&(!runtime.MediaRecorder||!runtime.MediaStream))throw new Error('audio_recorder_unavailable');
-      generation++;active={id,modes:[...new Set(modes)],until:now()+seconds*1000,maxBytes};events=[];bytes=0;dropped=0;sequence=0;undo=[];failedTracks=new WeakSet();socketCoverage=emptySocketCoverage();
+      generation++;active={id,modes:[...new Set(modes)],until:now()+seconds*1000,maxBytes};events=[];bytes=0;dropped=0;sequence=0;undo=[];failedTracks=new WeakSet();socketCoverage=emptySocketCoverage();audioSources=[];audioSourceLimitReached=false;
       if(modes.includes('console'))for(const level of ['log','info','warn','error','debug'])hook(runtime.console,level,original=>function(...args){try{append('console',{level,args,stack:new Error().stack});}catch{}return original.apply(this,args);});
       if(modes.includes('network')){
         const watched=new WeakSet(),epoch=generation;

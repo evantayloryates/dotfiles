@@ -69,6 +69,38 @@ test('partially started recorder is stopped on failure; a new capture may try th
  assert.equal(attempts,2);assert.equal(cloneStops,2);assert.equal(recorderStops,2);assert.equal(sourceStops,0);
 });
 
+test('audio provenance and stable references survive an earlier failed recorder; originals are preserved',async()=>{
+ const r=runtime(),made=[];let cloneStops=0,sourceStops=0;
+ r.MediaStream=class{constructor(tracks){this.tracks=tracks;}};
+ r.MediaRecorder=class{
+  static isTypeSupported(){return true;}
+  constructor(stream){if(stream.tracks[0].fail)throw Error('synthetic failure');this.state='inactive';made.push(this);}
+  start(){this.state='recording';}addEventListener(type,fn){if(type==='stop')this.onstop=fn;}
+  stop(){this.state='inactive';this.onstop?.();}
+ };
+ const track=fail=>({kind:'audio',readyState:'live',stop(){sourceStops++;},clone(){return {fail,stop(){cloneStops++;}};}});
+ const failed=track(true),received=track(false),c=create(r,{sources:()=>[failed,received],sourceKinds:t=>t===received?['rtc-receiver','dom-media','private-track-label']:['get-user-media']});
+ try{
+  c.start({id:'9'.repeat(32),modes:['audio'],seconds:10});
+  const coverage=c.status().coverage;
+  assert.deepEqual(coverage.audioSources,[{trackRef:1,origins:['get-user-media'],recorder:'unavailable'},{trackRef:2,origins:['rtc-receiver','dom-media'],recorder:'started'}]);
+  made[0].ondataavailable({data:new Blob(['synthetic chunk'],{type:'audio/mp4'})});
+  await new Promise(resolve=>setImmediate(resolve));
+  const batch=c.drain();assert.equal(batch.events.find(x=>x.base64).trackRef,2);assert(!JSON.stringify(batch).includes('private-track-label'));
+  await c.stop();assert.equal(cloneStops,2);assert.equal(sourceStops,0);
+  assert.deepEqual(c.status().coverage.audioSources,coverage.audioSources);
+ }finally{await c.stop(true);}
+});
+
+test('audio discovery bounds recorder attempts across the entire capture',async()=>{
+ const r=runtime();let scan,attempts=0;
+ r.setInterval=fn=>{scan=fn;return 1;};r.clearInterval=()=>{};r.MediaStream=class{};
+ r.MediaRecorder=class{static isTypeSupported(){return true;}constructor(){attempts++;throw Error('unavailable');}};
+ const sources=Array.from({length:33},()=>({kind:'audio',readyState:'live',clone(){return {stop(){}};}}));
+ let first=true;const c=create(r,{sources:()=>first?sources.slice(0,32):sources.slice(1)});
+ try{c.start({id:'8'.repeat(32),modes:['audio'],seconds:10});first=false;scan();assert.equal(attempts,32);assert.equal(c.status().coverage.audioSources.length,32);assert.equal(c.status().coverage.audioSourceLimitReached,true);}finally{await c.stop(true);}
+});
+
 test('on-demand capture sees an already-open real WebSocket without closing it',async()=>{
  const {createServer}=await import('node:http'),{createHash}=await import('node:crypto');
  const server=createServer();

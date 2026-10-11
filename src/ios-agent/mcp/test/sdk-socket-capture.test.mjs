@@ -7,7 +7,7 @@ import {createHash,randomUUID} from 'node:crypto';
 import {createRequire} from 'node:module';
 
 const captureFactory=createRequire(import.meta.url)('../../web/rich-capture.js');
-test('exact page SDK discovers its existing socket for on-demand capture; closed sockets retire',async()=>{
+test('exact page SDK discovers its existing socket and audio origins; closed sockets retire',async()=>{
  const server=createServer();
  const connected=new Promise(resolve=>server.once('upgrade',(request,socket)=>{
   const accept=createHash('sha1').update(request.headers['sec-websocket-key']+'258EAFA5-E914-47DA-95CA-C5AB0DC85B11').digest('base64');
@@ -18,12 +18,15 @@ test('exact page SDK discovers its existing socket for on-demand capture; closed
  const storageAPI={getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)};
  const quiet=()=>{},Element=class{attachShadow(){return {};}};
  const XMLHttpRequest=class{open(){}send(){}};
+ const microphone={kind:'audio',readyState:'live'},incoming={kind:'audio',readyState:'live'};
+ const MediaStream=class{constructor(tracks){this.tracks=tracks;}getTracks(){return this.tracks;}getAudioTracks(){return this.tracks;}};
+ const RTC=class extends EventTarget{getSenders(){return [{track:microphone}];}getReceivers(){return [{track:incoming}];}};
  let capture,options,peer,ws;
  const context=vm.createContext({console:{log:quiet,warn:quiet,error:quiet,info:quiet,debug:quiet},
-  WebSocket,Headers,TextDecoder,URL,URLSearchParams,XMLHttpRequest,Element,Blob,performance,crypto:{randomUUID},
-  navigator:{userAgent:'synthetic SDK wiring test',sendBeacon:quiet},sessionStorage:storageAPI,localStorage:storageAPI,
+  WebSocket,Headers,TextDecoder,URL,URLSearchParams,XMLHttpRequest,Element,Blob,MediaStream,RTCPeerConnection:RTC,performance,crypto:{randomUUID},
+  navigator:{userAgent:'synthetic SDK wiring test',sendBeacon:quiet,mediaDevices:{getUserMedia:async()=>new MediaStream([microphone])}},sessionStorage:storageAPI,localStorage:storageAPI,
   location:{hash:'',pathname:'/dev-fixture',search:''},history:{replaceState:quiet},
-  document:{hidden:false,readyState:'complete',documentElement:{append:quiet},createElement:()=>({dataset:{},style:{},setAttribute:quiet,remove:quiet}),querySelectorAll:()=>[]},
+  document:{hidden:false,readyState:'complete',documentElement:{append:quiet},createElement:()=>({dataset:{},style:{},setAttribute:quiet,remove:quiet}),querySelectorAll:selector=>selector==='audio,video'?[{srcObject:new MediaStream([incoming])}]:[]},
   fetch:async()=>({ok:true,status:200,json:async()=>({lease:null,epoch:'synthetic'})}),
   addEventListener:quiet,removeEventListener:quiet,
   setTimeout:(fn,ms)=>{const t=setTimeout(fn,ms);t.unref();return t;},clearTimeout,
@@ -33,6 +36,10 @@ test('exact page SDK discovers its existing socket for on-demand capture; closed
  try{
   vm.runInContext(fs.readFileSync(new URL('../../web/sdk.js',import.meta.url),'utf8'),context);
   await new Promise(resolve=>setImmediate(resolve)); // Finish the initial no-lease poll.
+  await context.navigator.mediaDevices.getUserMedia({audio:true});vm.runInContext('new RTCPeerConnection()',context);
+  assert.deepEqual([...options.sources()],[microphone,incoming]);
+  assert.deepEqual([...options.sourceKinds(microphone)],['get-user-media','rtc-sender']);
+  assert.deepEqual([...options.sourceKinds(incoming)],['rtc-receiver','dom-media']);
   ws=vm.runInContext(`new WebSocket('ws://127.0.0.1:${server.address().port}')`,context);
   await new Promise((resolve,reject)=>{ws.addEventListener('open',resolve,{once:true});ws.addEventListener('error',reject,{once:true});});peer=await connected;
   assert.equal(options.socketSources().length,1);assert.equal(options.socketSources()[0],ws);

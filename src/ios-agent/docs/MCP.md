@@ -778,3 +778,21 @@ Capture status exposes coverage.sockets, including discovery failure and listene
 counts; payload capture remains opt-in and connections are never closed by capture.
 Nine host checks passed, including real WebSocket traffic and exact SDK wiring.
 Physical browser acceptance remains open. MOBILE-WEB.md records discovery limits.
+
+## Audio source attribution —1.9.38
+
+Updated browser capture reports `coverage.audioSources` at start/status and in
+the private drain/stop manifest. Each source has a stable `trackRef`, allowlisted
+`origins` (`get-user-media`, `rtc-sender`, `rtc-receiver`, `dom-media`) and a
+recorder-start outcome. Origins can overlap; an empty list means unknown. No
+track ID, device label, SDP, address or credential is included. Match chunk
+trackRef to a source containing rtc-receiver when checking far-end capture.
+
+References remain stable when an earlier recorder fails. Source attempts are
+bounded to32across the entire capture; `audioSourceLimitReached` exposes omitted
+new sources. Capture still clones existing tracks and preserves originals.
+These labels prove observed API-object origin, not non-silent or audible audio.
+Eleven focused host checks, including exact page-SDK wiring, passed. Actual
+provider-call attribution on iPhone remains the next physical gate. Existing
+phone pages need a reload to use the new SDK; native installed builds are not
+claimed to expose browser-only provenance.
