@@ -9,7 +9,7 @@ async function file(path) {
   try {
     const s = await lstat(path);
     return { path, availability: s.isFile() && s.size > 0 ? 'available' : 'unavailable',
-      ...(s.isFile() ? { bytes: s.size } : { reason: 'not_regular_file' }) };
+      ...(s.isFile() ? { bytes: s.size, ...(s.size ? {} : { reason: 'empty_file' }) } : { reason: 'not_regular_file' }) };
   } catch (e) { return { path, availability: absent(e) ? 'not_present' : 'unavailable', ...(absent(e) ? {} : { reason: e.code }) }; }
 }
 async function directory(path) {
@@ -49,6 +49,7 @@ async function exportsAt(path, budget) {
 export async function withSessionBundle(session, { root = enginePaths().root } = {}) {
   const bundle = { schema: 'smart-record-session-bundle/v1', observed_at: new Date().toISOString(), complete: true, recordings: [],
     limits: ['Fresh filesystem inventory on each session read; not an atomic snapshot or push subscription.',
+      'complete reports inventory coverage only, not a finished session, valid artifact or successful render.',
       'Availability means nonempty regular files exist; it does not validate media, map contents or source completeness.',
       'Exact maps are generated automatically at export publication; active capture journals may still be draining.',
       'Inventory covers capture and record_export artifacts; provisional cursor-render outputs remain at their returned private paths.'],

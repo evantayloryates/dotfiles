@@ -183,7 +183,7 @@ const tools = [
     inputSchema: { type: "object", properties: {}, additionalProperties: false },
     annotations: { readOnlyHint: true },
     run: async () => ok({ ...await engine("status"), mcp_adapter: {
-      version: VERSION, session_bundle:1, native_widget_status:1, production_gate_controls: 1, repair_tickets:1, shared_app_observation:1, cursor_recipe:1, input_reception_frame_context:1, declared_target_context: 1, replay_policy: 1, production_planning: 1, resource_awareness: 1, shared_app_learning: 1, production_storage_guidance: 1, triple_source_planning: 1, source_frame_mapping: 1, source_region_mapping: 1, transient_window_query: 1,
+      version: VERSION, session_bundle:1, provisional_composition_tools:["record_export","cursor_render"], native_widget_status:1, production_gate_controls: 1, repair_tickets:1, shared_app_observation:1, cursor_recipe:1, input_reception_frame_context:1, declared_target_context: 1, replay_policy: 1, production_planning: 1, resource_awareness: 1, shared_app_learning: 1, production_storage_guidance: 1, triple_source_planning: 1, source_frame_mapping: 1, source_region_mapping: 1, transient_window_query: 1,
       registered_frame_mapping:1,registration:registrationHealth(),frame_mapping: frameMapHealth(), preview_source_mapping: 1, paired_source_mapping: 1, paired_interval_coverage_summary: 1, fitted_child_mapping_guard: 1, retained_input_query: 1, retained_action_context: 1, retained_input_health_context: 1,
       input_query: inputQueryHealth(), mutation_replay: "never",
       read_reconnect_budget_ms: 12000,
@@ -474,7 +474,7 @@ const tools = [
       },
       required: ["recording_id"],
     },
-    run: async (a) => ok(await engine("record.export", a, 600000)),
+    run: async (a) => ok({ ...await engine("record.export", a, 600000), interface_lifecycle: "provisional_composition" }),
   },
   {
     name: "export_time_map",
@@ -517,11 +517,11 @@ const instructions =
   "smart-record records this Mac's screen through an always-on engine. Typical flow: session_open (or session_find to recover a lost session_id) → " +
   "windows / frame_check to aim (frame_check returns the image; frame_outline shows the frame to the human) → record_schedule with absolute start_at and end_at " +
   "(compute from clock.wall, which every reply carries) → mark during recording for chapters → record_wait → recording_review (contact sheet image + keyframes) " +
-  "→ recording_frames for exact moments → record_export for a trimmed mp4 or GIF. " +
+  "→ recording_frames for exact moments → provisional record_export for a trimmed mp4 or GIF. session_show includes automatically discovered export timing-map paths; export_time_map is optional. " +
   "Before production UI work, use read-only production_plan for explicit mode/alignment expectations and runtime obstacles; reuse existing user consent. " +
   "A plan is not permission or native readiness: verify the actual target and source pixels, then explicitly schedule chosen settings. Input stays available. " +
   "Use production_checkpoint before each new production UI step; honor the persistent global safe-pause gate and use production_panel_show for user visibility. New takes queue while paused, elapsed queued starts require explicit rescheduling, and external tools must cooperate. " +
-  "Use report_bug/repair_status for recorder incidents, repair_subscribe/repair_wait (CLI repair-watch for a persistent no-inference hook), then inspect delivered build/load policy and retry explicitly. Publish useful version-scoped observations through app_observe; do not repair computer-use internals here. cursor_render offers the first bounded draft/final editable cursor recipe with required hotspot and coordinate acknowledgement; inspect returned samples. " +
+  "Use report_bug/repair_status for recorder incidents, repair_subscribe/repair_wait (CLI repair-watch for a persistent no-inference hook), then inspect delivered build/load policy and retry explicitly. Publish useful version-scoped observations through app_observe; do not repair computer-use internals here. cursor_render is a provisional bounded draft/final editable cursor recipe with required hotspot and coordinate acknowledgement; inspect returned samples. " +
   "Use recording_frame_map for bounded actual-mux/source geometry and point/region projection; crop clipping is geometric, while content presence needs pixels. Missing references and uncovered times stay explicit. " +
   "Sessions are always explicit: the engine never guesses which session is yours. Many agents may use it at once; the engine never takes focus.";
 
