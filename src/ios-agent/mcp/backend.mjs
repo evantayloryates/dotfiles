@@ -354,11 +354,12 @@ export class Backend {
     const result=await s.systemDriver.action(args);if(args.action==='home')s.systemHomeConfirmed=result.homeConfirmed===true;return result;
   }
   async systemEnd({sessionId,home=true}) {
-    const s=this.session(sessionId);if(!s.systemDriver)throw Error('session_required');
+    const s=this.sessions.get(sessionId);if(!s?.systemDriver)throw Error('session_required');
     let presentation={homeNavigationPending:true};
-    if(home){presentation=await s.systemDriver.action({action:'home'});s.systemHomeConfirmed=presentation.homeConfirmed===true;}
+    if(home){try{presentation=await s.systemDriver.action({action:'home'});s.systemHomeConfirmed=presentation.homeConfirmed===true;}
+      catch{presentation={ok:false,homeConfirmed:false,reason:'home_navigation_unconfirmed',replay:false};s.systemHomeConfirmed=false;}}
     const ended=await this.end(sessionId);
-    return {...ended,presentation,ok:ended.systemCleanup?.runnerStopped===true,next:'XCTest fallback is stopped. Begin a fresh native/browser lease for normal work.'};
+    return {...ended,presentation,ok:ended.released===true&&ended.systemCleanup?.runnerStopped===true,next:ended.systemCleanup?.runnerStopped===true?'XCTest fallback is stopped. Begin a fresh native/browser lease for normal work.':'Runner cleanup is unconfirmed; inspect the phone and paired channel before starting another fallback.'};
   }
   async waitReady({surface='any',browser,page,timeoutSeconds=45}={},signal) {
     const controller=new AbortController();this.waitControllers.add(controller);
