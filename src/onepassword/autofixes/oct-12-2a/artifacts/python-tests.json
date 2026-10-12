@@ -1,0 +1,11 @@
+{
+  "command": "/usr/bin/python3 -B -m unittest test_op_agent test_keepalive test_recovery test_activation test_agent_guidance",
+  "cwd": "src/onepassword",
+  "exit": 0,
+  "duration_seconds": 12.42,
+  "tests": [
+    "44"
+  ],
+  "failures": [],
+  "passed": true
+}

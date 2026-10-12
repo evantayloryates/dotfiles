@@ -1,0 +1,37 @@
+{
+  "at": 1791786705.372591,
+  "diagnostics": {
+    "broker_alive": true,
+    "keepalive_age_seconds": 2,
+    "app_locked": false,
+    "episode": "4f54b485ab66fb2093ab2b8a9e381db15c11bcc76ea13b1a60ab24f33fe01f63",
+    "console_locked": false,
+    "kind": "authorization_or_unknown",
+    "accounts": [
+      {
+        "slot": 0,
+        "status": "ok",
+        "last_ok": 1791786617,
+        "last_prompt": null
+      },
+      {
+        "slot": 1,
+        "status": "ok_prompted",
+        "last_ok": 1791786621,
+        "last_prompt": 1791786621
+      }
+    ]
+  },
+  "broker": {
+    "pid": 1051,
+    "session": 1051,
+    "tty": "/dev/ttys000",
+    "executable": "/opt/homebrew/bin/op"
+  },
+  "broker_identity_preserved": true,
+  "keepalive_pid_preserved": true,
+  "heartbeat_advanced": true,
+  "updated": "2026-10-12T02:31:42-0400",
+  "fault_episode": null,
+  "previous_prompt_to_successful_prompt_seconds": 43486
+}

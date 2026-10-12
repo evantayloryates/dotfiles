@@ -1,0 +1,88 @@
+{
+  "window_seconds": 1800,
+  "counts": {
+    "keepalive": 10
+  },
+  "events": [
+    {
+      "ts": "2026-10-12T02:01:57-0400",
+      "event": "keepalive",
+      "status": "ok",
+      "seconds": 0.69,
+      "exit": 0,
+      "slot": 0
+    },
+    {
+      "ts": "2026-10-12T02:01:58-0400",
+      "event": "keepalive",
+      "status": "ok",
+      "seconds": 0.69,
+      "exit": 0,
+      "slot": 1
+    },
+    {
+      "ts": "2026-10-12T02:09:04-0400",
+      "event": "keepalive",
+      "status": "ok",
+      "seconds": 0.69,
+      "exit": 0,
+      "slot": 0
+    },
+    {
+      "ts": "2026-10-12T02:09:04-0400",
+      "event": "keepalive",
+      "status": "ok",
+      "seconds": 0.58,
+      "exit": 0,
+      "slot": 1
+    },
+    {
+      "ts": "2026-10-12T02:16:08-0400",
+      "event": "keepalive",
+      "status": "ok",
+      "seconds": 0.67,
+      "exit": 0,
+      "slot": 0
+    },
+    {
+      "ts": "2026-10-12T02:16:09-0400",
+      "event": "keepalive",
+      "status": "ok",
+      "seconds": 0.57,
+      "exit": 0,
+      "slot": 1
+    },
+    {
+      "ts": "2026-10-12T02:23:13-0400",
+      "event": "keepalive",
+      "status": "ok",
+      "seconds": 0.66,
+      "exit": 0,
+      "slot": 0
+    },
+    {
+      "ts": "2026-10-12T02:23:13-0400",
+      "event": "keepalive",
+      "status": "ok",
+      "seconds": 0.68,
+      "exit": 0,
+      "slot": 1
+    },
+    {
+      "ts": "2026-10-12T02:30:17-0400",
+      "event": "keepalive",
+      "status": "ok",
+      "seconds": 0.78,
+      "exit": 0,
+      "slot": 0
+    },
+    {
+      "ts": "2026-10-12T02:30:21-0400",
+      "event": "keepalive",
+      "status": "ok_prompted",
+      "seconds": 4.21,
+      "exit": 0,
+      "slot": 1
+    }
+  ]
+}

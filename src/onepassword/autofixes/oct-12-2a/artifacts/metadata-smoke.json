@@ -1,0 +1,18 @@
+{
+  "at": 1791786691.458171,
+  "calls": [
+    {
+      "slot": 0,
+      "exit": 0,
+      "seconds": 0.621,
+      "output": "discarded"
+    },
+    {
+      "slot": 1,
+      "exit": 0,
+      "seconds": 0.732,
+      "output": "discarded"
+    }
+  ],
+  "passed": true
+}

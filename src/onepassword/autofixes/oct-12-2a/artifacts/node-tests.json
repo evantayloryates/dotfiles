@@ -1,0 +1,11 @@
+{
+  "files": [
+    "src/onepassword/test_autofix.mjs",
+    "src/onepassword/test_autofix_archive.mjs",
+    "src/onepassword/test_recovery_dispatch.mjs"
+  ],
+  "exit": 0,
+  "duration_seconds": 0.41,
+  "summary": [],
+  "passed": true
+}

@@ -310,6 +310,14 @@ metadata-only calls for both accounts without replacing the broker or PTY.
 Its broad Python run also exposed an unrelated Cloudinary test fixture missing
 `run-local-package`; the report distinguishes that failure from broker checks.
 
+The [October 12 authorization incident](autofixes/oct-12-2a/summary.md) also
+settled without a code change. A prompted keepalive succeeded about twelve hours
+after the previous recorded prompt; both subsequent metadata checks succeeded.
+That timing is consistent with ordinary authorization renewal, but does not
+prove its exact trigger. Parser/watchdog verification remained separate: current
+deployed hashes matched, the heartbeat advanced, and broker/keepalive identities
+were preserved. A successful `ok_prompted` result alone does not justify a restart.
+
 The false-lock fix uses timestamped lock/unlock events across bounded log tails;
 `Client starting` is not evidence of a lock. Stale/rotated files cannot regress a
 known newer state. For a tested keepalive-only change, safely activate with:

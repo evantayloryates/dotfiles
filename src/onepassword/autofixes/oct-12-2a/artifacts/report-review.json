@@ -1,0 +1,6 @@
+{
+  "markdown": "Read completely and matched all report fields; no-change outcome and uncertainty explicit.",
+  "html": "Parsed all text and links; matched report fields; responsive width, viewport, wrapping links, typography and technical disclosure inspected in source. No browser/UI rendering performed.",
+  "valid_local_links": 11,
+  "docs": "README updated; shared contract and autofix AGENTS reviewed and unchanged."
+}
