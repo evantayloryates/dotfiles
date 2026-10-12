@@ -50,16 +50,21 @@ function valuesAt(value, parts) {
   return valuesAt(value[key], rest)
 }
 // Approval receipts are written by the independent reviewer/operator, never by
-// this tool. The model's report writer cannot reach this sibling directory,
-// and a receipt only counts when it and its directory are owned by root and
-// writable by no one else: writing one takes an administrator (`zdr-harness
+// this tool. They live outside every user-writable tree, in
+// /Library/Application Support/zdr-harness/fixture-approvals (root-owned all
+// the way down), and a receipt only counts when the file and each directory
+// from APPROVALS_BASE down are owned by root, are not symlinks and are
+// writable by no one else. Writing one takes an administrator (`zdr-harness
 // approve`, which asks for macOS admin authentication), so no agent running as
 // Taylor can approve its own release.
-const operatorOwned = (path, uid) => { const st = lstatSync(path); return !st.isSymbolicLink() && st.uid === uid && (st.mode & 0o022) === 0 }
-export function releaseFixture(dir, approvalPath, destination = '/Users/taylor/Desktop/zdr-dump', { approvalOwnerUid = 0 } = {}) {
+export const APPROVALS_BASE = '/Library/Application Support/zdr-harness'
+export const APPROVALS_DIR = join(APPROVALS_BASE, 'fixture-approvals')
+const operatorOwned = (path, uid) => { try { const st = lstatSync(path); return !st.isSymbolicLink() && st.uid === uid && (st.mode & 0o022) === 0 } catch { return false } }
+export function releaseFixture(dir, approvalPath, destination = '/Users/taylor/Desktop/zdr-dump', { approvalOwnerUid = 0, approvalsBase = APPROVALS_BASE } = {}) {
+  requireThat(operatorOwned(approvalsBase, approvalOwnerUid) && operatorOwned(dirname(approvalPath), approvalOwnerUid) && dirname(dirname(approvalPath)) === approvalsBase, 'fixture_release_approval_required')
   let approval
   try { approval = protectedRead(approvalPath) } catch { throw new Error('fixture_release_approval_required') }
-  requireThat(operatorOwned(approvalPath, approvalOwnerUid) && operatorOwned(dirname(approvalPath), approvalOwnerUid), 'fixture_release_approval_not_operator_owned')
+  requireThat(operatorOwned(approvalPath, approvalOwnerUid), 'fixture_release_approval_not_operator_owned')
   const manifestBytes = readFileSync(join(dir, 'manifest.json'))
   const manifest = protectedRead(join(dir, 'manifest.json'))
   requireThat(approval.manifestSha256 === hash(manifestBytes) && approval.destination === destination && approval.method === 'qualified-independent-review' && approval.transferAuthorized === true && approval.allPackageBytesCleared === true && typeof approval.clearanceReference === 'string' && approval.clearanceReference.length > 0, 'fixture_release_approval_required')
@@ -199,7 +204,7 @@ export function fixturePackage(args, root) {
     const finalized = readdirSync(dir).includes('manifest.json')
     if (args.action === 'release') {
       requireThat(finalized, 'fixture_incomplete')
-      return encode(releaseFixture(dir, join(dirname(base), 'fixture-approvals', args.package_id + '.json')))
+      return encode(releaseFixture(dir, join(APPROVALS_DIR, args.package_id + '.json')))
     }
     const catalog = readdirSync(dir).includes('catalog.json') ? protectedRead(join(dir, 'catalog.json')) : null
     if (args.action === 'checkpoint') {

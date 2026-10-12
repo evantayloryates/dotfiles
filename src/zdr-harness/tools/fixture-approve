@@ -4,8 +4,9 @@
     zdr-harness approve <fp_id> --clearance <reference> [--baseline-cleared]
 
 Release (kickoffdb_fixture_package `release`) copies a reviewed package out of
-the harness to ~/Desktop/zdr-dump/<id>/. It only accepts a receipt that is
-owned by root, in a root-owned directory: exports/fixture-approvals/<id>.json.
+the harness to ~/Desktop/zdr-dump/<id>/. It only accepts a receipt at
+/Library/Application Support/zdr-harness/fixture-approvals/<id>.json, owned by
+root with every directory above it, outside any tree Taylor's user can write.
 This tool is the one way to write one:
 
   1. it must run in a terminal (an agent's shell has no TTY to answer from);
@@ -18,16 +19,18 @@ package contents.
 """
 
 import argparse
+import base64
 import hashlib
 import json
 import os
 import re
 import subprocess
 import sys
-import tempfile
 
 ROOT = os.environ.get('ZDR_HARNESS_EXPORT_DIR') or os.path.expanduser('~/.zdr-harness/exports')
 DESTINATION = '/Users/taylor/Desktop/zdr-dump'
+APPROVALS_BASE = '/Library/Application Support/zdr-harness'
+APPROVALS = os.path.join(APPROVALS_BASE, 'fixture-approvals')
 
 
 def die(msg):
@@ -75,8 +78,7 @@ def main():
         receipt['baselineManifestSha256'] = base
         receipt['jointPackageContextCleared'] = True
 
-    approvals = os.path.join(ROOT, 'fixture-approvals')
-    dest = os.path.join(approvals, f'{a.package_id}.json')
+    dest = os.path.join(APPROVALS, f'{a.package_id}.json')
     if os.path.lexists(dest):
         die(f'a receipt already exists for {a.package_id}; receipts are never replaced')
 
@@ -92,29 +94,37 @@ def main():
     if typed != a.package_id:
         die('id did not match; nothing written')
 
-    fd, tmp = tempfile.mkstemp(prefix='approval-', suffix='.json')
-    with os.fdopen(fd, 'w') as f:
-        json.dump(receipt, f, indent=2)
-        f.write('\n')
-    for p in (approvals, dest, tmp):
-        if "'" in p or '"' in p or '\\' in p:
-            os.unlink(tmp)
-            die('unexpected character in a path')
-    script = (
-        f"/bin/mkdir -p '{approvals}' && /usr/sbin/chown root:wheel '{approvals}' && /bin/chmod 755 '{approvals}'"
-        f" && [ ! -e '{dest}' ] && /usr/bin/install -o root -g wheel -m 644 '{tmp}' '{dest}'"
+    # Root writes the receipt bytes itself (base64 inside the privileged
+    # command) into a temp file it creates in the root-owned directory, then
+    # renames it into place. No file the user can modify is ever handed to
+    # root, and symlinks are refused at every step (chown/chmod -h too).
+    body = (json.dumps(receipt, indent=2) + '\n').encode()
+    b64 = base64.b64encode(body).decode()
+    sh = (
+        f"B='{APPROVALS_BASE}'; D=\"$B/fixture-approvals\"; F=\"$D/{a.package_id}.json\"; "
+        '[ ! -L "$B" ] && [ ! -L "$D" ] || exit 3; '
+        '/bin/mkdir -p "$D" || exit 3; '
+        '[ ! -L "$B" ] && [ ! -L "$D" ] && [ -d "$D" ] || exit 3; '
+        '/usr/sbin/chown -h root:wheel "$B" "$D" && /bin/chmod -h 755 "$B" "$D" || exit 3; '
+        '[ ! -e "$F" ] || exit 4; '
+        'T=$(/usr/bin/mktemp "$D/.receipt.XXXXXX") || exit 5; '
+        f"/usr/bin/printf '%s' '{b64}' | /usr/bin/base64 -D > \"$T\" || exit 5; "
+        '/bin/chmod 644 "$T" && /bin/mv -n "$T" "$F" && [ -f "$F" ] && [ ! -L "$F" ] || { /bin/rm -f "$T"; exit 6; }'
     )
+    applescript_literal = sh.replace('\\', '\\\\').replace('"', '\\"')
     r = subprocess.run(
         ['/usr/bin/osascript', '-e',
-         f'do shell script "{script}" with administrator privileges with prompt "ZDR Harness: approve release of {a.package_id}"'],
+         f'do shell script "{applescript_literal}" with administrator privileges with prompt "ZDR Harness: approve release of {a.package_id}"'],
         capture_output=True, text=True,
     )
-    os.unlink(tmp)
     if r.returncode != 0:
         die(f'not approved ({(r.stderr or "").strip()[:200] or "cancelled"})')
+    # Re-read what root installed and compare byte for byte.
     st = os.lstat(dest)
-    if st.st_uid != 0 or st.st_mode & 0o022:
-        die('receipt was written but is not root-owned and read-only; release will refuse it')
+    with open(dest, 'rb') as f:
+        installed = f.read()
+    if os.path.islink(dest) or st.st_uid != 0 or st.st_mode & 0o022 or installed != body:
+        die(f'the receipt at {dest} does not match what was approved; release will refuse it. Remove it with sudo and run approve again.')
     print(f'Approved. Receipt: {dest} (root-owned). Release can now run for {a.package_id}.')
 
 

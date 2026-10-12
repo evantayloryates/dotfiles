@@ -54,10 +54,11 @@ node --test src/zdr-harness/mcps/kickoff-db/test/fixture-package.test.mjs
 
 `release {package_id}` has no path or approval arguments. It requires an
 independent operator-written receipt at
-`~/.zdr-harness/exports/fixture-approvals/<package_id>.json`, outside the tool's
-write scope, and both the receipt and that directory must be **owned by root and
-writable by no one else** (release refuses anything else with
-`fixture_release_approval_not_operator_owned`, since 2026-10-12). Write it with
+`/Library/Application Support/zdr-harness/fixture-approvals/<package_id>.json`,
+outside every tree Taylor's user can write. The receipt and each directory from
+`/Library/Application Support/zdr-harness` down must be **owned by root, not
+symlinks, and writable by no one else** (release refuses anything else, since
+2026-10-12). Write it with
 `zdr-harness approve <package_id> --clearance <ref>` (`--baseline-cleared` for a
 supplement): it shows the manifest hash, makes you type the id in a terminal,
 and asks for macOS administrator authentication to write the receipt as root.

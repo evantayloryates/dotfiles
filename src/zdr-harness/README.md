@@ -759,7 +759,10 @@ tools write under `~/.zdr-harness/exports`. It never reads contents.
 
 - **Kinds:** `tx_` transcript exports, `fp_` fixture packages, `sp_` source
   pages, `rv_` operational-review files. Nothing else can be touched;
-  `fixture-approvals/` and unknown files are listed as unmanaged at most.
+  unknown files are listed as unmanaged at most. Fixture release receipts
+  live outside exports, root-owned, in
+  `/Library/Application Support/zdr-harness/fixture-approvals/`
+  (`zdr-harness approve`).
 - **Bulk and idempotent:** every write takes `ids` (up to 5000) or a `select`
   filter (`kind`, `status`, `modified_before`), plus `dry_run`. Archiving
   something already archived, or deleting something already gone, reports

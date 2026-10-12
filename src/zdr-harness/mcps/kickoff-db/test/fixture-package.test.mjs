@@ -1,12 +1,14 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { mkdtempSync, rmSync, readFileSync, statSync, symlinkSync, mkdirSync, writeFileSync } from 'node:fs'
+import { chmodSync, mkdtempSync, rmSync, readFileSync, statSync, symlinkSync, mkdirSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { realpathSync } from 'node:fs'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 import { fixturePackage, validateBundle, releaseFixture } from '../fixture-package.mjs'
-// Tests write receipts as the current user; production requires root (uid 0).
-const OWNER = { approvalOwnerUid: process.getuid() }
+// Tests write receipts as the current user under a temp approvals base;
+// production requires root (uid 0) under /Library/Application Support.
+const approvalPath = (temp, name) => { const d = join(temp, 'approvals-base', 'fixture-approvals'); mkdirSync(d, { recursive: true }); return join(d, name) }
+const OWNER_FOR = r => ({ approvalOwnerUid: process.getuid(), approvalsBase: dirname(dirname(r)) })
 
 function setup(t) {
   const temp = mkdtempSync(join(realpathSync(tmpdir()), 'zdr-fixture-test-'))
@@ -72,21 +74,21 @@ test('release requires an independent receipt and exact unchanged package hashes
   for (const report of ['schema', 'transformation', 'loss', 'categories', 'parity', 'privacy']) call({ action: 'put_report', package_id: id, report, content: { syntheticTest: true } })
   const finalized = call({ action: 'finalize', package_id: id })
   assert.throws(() => call({ action: 'release', package_id: id }), /fixture_release_approval_required/)
-  const receipt = join(temp, 'approval.json')
+  const receipt = approvalPath(temp, 'approval.json')
   const destination = join(temp, 'cleared')
   const approval = { manifestSha256: finalized.manifestSha256, destination, method: 'qualified-independent-review', clearanceReference: 'INVENTED-TEST-ONLY', allPackageBytesCleared: true, transferAuthorized: true }
   writeFileSync(receipt, JSON.stringify({ ...approval, manifestSha256: 'wrong' }))
-  assert.throws(() => releaseFixture(join(root, id), receipt, destination, OWNER), /fixture_release_approval_required/)
+  assert.throws(() => releaseFixture(join(root, id), receipt, destination, OWNER_FOR(receipt)), /fixture_release_approval_required/)
   writeFileSync(receipt, JSON.stringify(approval))
   const path = join(root, id, 'customers', 'fictional_0.json')
   const bytes = readFileSync(path)
   writeFileSync(path, JSON.stringify({ altered: true }))
-  assert.throws(() => releaseFixture(join(root, id), receipt, destination, OWNER), /fixture_release_hash_mismatch/)
+  assert.throws(() => releaseFixture(join(root, id), receipt, destination, OWNER_FOR(receipt)), /fixture_release_hash_mismatch/)
   writeFileSync(path, bytes)
-  const result = releaseFixture(join(root, id), receipt, destination, OWNER)
+  const result = releaseFixture(join(root, id), receipt, destination, OWNER_FOR(receipt))
   assert.equal(result.released, true)
   assert.deepEqual(readFileSync(join(result.outputPath, 'customers', 'fictional_0.json')), bytes)
-  assert.throws(() => releaseFixture(join(root, id), receipt, destination, OWNER), /fixture_release_already_exists/)
+  assert.throws(() => releaseFixture(join(root, id), receipt, destination, OWNER_FOR(receipt)), /fixture_release_already_exists/)
 })
 
 test('chunked customer, checkpoints and shared catalog survive resumptions and guarded release', t => {
@@ -106,9 +108,9 @@ test('chunked customer, checkpoints and shared catalog survive resumptions and g
   assert.ok(call({ action: 'list' }).packages.includes(id))
   for (const report of ['schema', 'transformation', 'loss', 'categories', 'parity', 'privacy']) call({ action: 'put_report', package_id: id, report, content: { syntheticTest: true } })
   const result = call({ action: 'finalize', package_id: id })
-  const receipt = join(temp, 'catalog-approval.json'), destination = join(temp, 'catalog-release')
+  const receipt = approvalPath(temp, 'catalog-approval.json'), destination = join(temp, 'catalog-release')
   writeFileSync(receipt, JSON.stringify({ manifestSha256: result.manifestSha256, destination, method: 'qualified-independent-review', clearanceReference: 'INVENTED-TEST-ONLY', transferAuthorized: true, allPackageBytesCleared: true }))
-  const released = releaseFixture(join(root, id), receipt, destination, OWNER)
+  const released = releaseFixture(join(root, id), receipt, destination, OWNER_FOR(receipt))
   assert.equal(JSON.parse(readFileSync(join(released.outputPath, 'catalog.json'))).tables.plans.length, 1)
   assert.throws(() => call({ action: 'read_chunk', package_id: id, bundle_id: '../../leak', table: 'clients', chunk_id: 'part_01' }), /fixture_read_invalid/)
 })
@@ -127,16 +129,16 @@ test('one-item supplement binds baseline, leaves primary immutable and requires 
   const result = call({ action: 'finalize', package_id: supplement })
   assert.equal(result.bundles, 1)
   assert.deepEqual(readFileSync(join(root, id, 'manifest.json')), baselineBytes)
-  const receipt = join(temp, 'joint-approval.json'), destination = join(temp, 'joint-release')
+  const receipt = approvalPath(temp, 'joint-approval.json'), destination = join(temp, 'joint-release')
   const approval = { manifestSha256: result.manifestSha256, destination, method: 'qualified-independent-review', clearanceReference: 'INVENTED-TEST-ONLY', transferAuthorized: true, allPackageBytesCleared: true }
   writeFileSync(receipt, JSON.stringify(approval))
-  assert.throws(() => releaseFixture(join(root, supplement), receipt, destination, OWNER), /fixture_release_approval_required/)
+  assert.throws(() => releaseFixture(join(root, supplement), receipt, destination, OWNER_FOR(receipt)), /fixture_release_approval_required/)
   writeFileSync(receipt, JSON.stringify({ ...approval, baselineManifestSha256: baseline.manifestSha256, jointPackageContextCleared: true }))
-  assert.throws(() => releaseFixture(join(root, supplement), receipt, destination, OWNER))
+  assert.throws(() => releaseFixture(join(root, supplement), receipt, destination, OWNER_FOR(receipt)))
   writeFileSync(receipt, JSON.stringify({ ...approval, manifestSha256: baseline.manifestSha256 }))
-  releaseFixture(join(root, id), receipt, destination, OWNER)
+  releaseFixture(join(root, id), receipt, destination, OWNER_FOR(receipt))
   writeFileSync(receipt, JSON.stringify({ ...approval, baselineManifestSha256: baseline.manifestSha256, jointPackageContextCleared: true }))
-  assert.equal(releaseFixture(join(root, supplement), receipt, destination, OWNER).bundles, 1)
+  assert.equal(releaseFixture(join(root, supplement), receipt, destination, OWNER_FOR(receipt)).bundles, 1)
   assert.throws(() => call({ action: 'create', references, baseline_package_id: supplement }), /fixture_baseline_invalid/)
 })
 
@@ -150,9 +152,17 @@ test('protected chunk diagnostics expose only declaration failures, with no sens
   assert.throws(() => call({ action: 'diagnose', package_id: id, bundle_id: '../elsewhere' }), /fixture_chunk_invalid/)
 })
 
-test('release refuses a receipt not owned by the operator (root)', () => {
+test('release refuses receipts outside a root-owned approvals base, and writable receipts', () => {
   const temp = mkdtempSync(join(tmpdir(), 'fixture-owner-'))
-  const receipt = join(temp, 'approval.json')
+  const receipt = approvalPath(temp, 'approval.json')
   writeFileSync(receipt, '{}', { mode: 0o600 })
-  assert.throws(() => releaseFixture(temp, receipt, join(temp, 'out')), /fixture_release_approval_not_operator_owned/)
+  // Production default: uid 0 and /Library/Application Support/zdr-harness.
+  assert.throws(() => releaseFixture(temp, receipt, join(temp, 'out')), /fixture_release_approval_required/)
+  // Right owner, wrong base directory.
+  assert.throws(() => releaseFixture(temp, join(temp, 'approval.json'), join(temp, 'out'), OWNER_FOR(receipt)), /fixture_release_approval_required/)
+  // Right base and owner, but the receipt is group-writable.
+  const loose = approvalPath(temp, 'loose.json')
+  writeFileSync(loose, '{}')
+  chmodSync(loose, 0o664)
+  assert.throws(() => releaseFixture(temp, loose, join(temp, 'out'), OWNER_FOR(loose)), /fixture_release_approval_not_operator_owned/)
 })
