@@ -1,0 +1,54 @@
+{
+  "version": "1.10.1",
+  "preparedAt": "2026-10-12T01:54:35.197876+00:00",
+  "sourceRun": {
+    "window": {
+      "from": "2026-10-12T01:23:00.481Z",
+      "to": "2026-10-12T01:43:37.679Z"
+    },
+    "retainedRecords": 492,
+    "scopes": {
+      "browser": 286,
+      "host": 116,
+      "kck-web": 20,
+      "kck-call": 66,
+      "mcp": 4
+    },
+    "browserTerminalOutcomes": {
+      "completed": 85,
+      "rejected": 1
+    },
+    "browserCommandsWithoutTrace": 86,
+    "browserActions": {
+      "state": 53,
+      "snapshot": 18,
+      "click": 13,
+      "evaluate": 2
+    },
+    "hostLeaseAcquisitions": 19,
+    "hostLeaseReleases": 19,
+    "mcpConnectionVersion": "1.9.51",
+    "workerRelease": "1.10.0",
+    "claudeSessionId": "local_09539507-c7a9-4a0a-bea9-9191f3b1c90c",
+    "sourceNotes": "Completed Claude Runner transcript tool/result metadata and local smoke results; no audio or transcript content copied."
+  },
+  "changes": [
+    "explicit home=false browser permission handoff without managed Home input",
+    "loaded versus installed MCP and worker release diagnosis",
+    "coalesced absent-client-trace and host rejection signals",
+    "warning severity for rejected/unknown page terminals and XCTest gates",
+    "fixed auth-gate codes retained while secrets scrubbed",
+    "compact retained summary with trace coverage and historical rejected outcomes",
+    "actual track versus permission and release-state diagnostics"
+  ],
+  "verification": {
+    "nodeFocusedChecks": 35,
+    "pythonFocusedChecks": 33,
+    "changedSourceSyntaxFiles": 13,
+    "physicalPhoneRun": false,
+    "providerCalls": false,
+    "changedNetworkOrPermissions": false
+  },
+  "nextPhysicalGate": "Same-document permission detour home=false, bounded system fallback, reacquire without web_open; default final Home cleanup. No passcode exemption claimed.",
+  "releaseState": "prepared; exact publication and installed readback recorded in the report bundle after delivery"
+}

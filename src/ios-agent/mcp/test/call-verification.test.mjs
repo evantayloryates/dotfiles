@@ -68,3 +68,14 @@ test('same-session call route departure releases known observed media, never a f
  v.domains.media.tracks[0].readyState='live';assert(!passed(callObservation(v,runtime,'released',{priorConnected:true})));
  v.domains.media.tracks[0].readyState='ended';v.boot='different';assert(!passed(callObservation(v,runtime,'released',{priorConnected:true})));
 });
+
+
+test('live preview diagnostics remain distinct from permission and released proof',()=>{
+ const v=fixture();v.domains.meet.tracks.audio={present:true,state:'live',enabled:false};
+ v.domains.media.tracks=[{readyState:'live'}];
+ const r=callObservation(v,runtime,'released');
+ assert(!passed(r));assert.equal(r.diagnostics.releaseState,'disconnected_with_live_tracks');
+ assert.equal(r.diagnostics.microphonePermission,'prompt');assert.equal(r.diagnostics.microphoneTrackState,'live');
+ assert.equal(r.diagnostics.microphoneTrackEnabled,false);
+ delete v.domains.media.tracks;v.domains.meet.tracks.audio={present:false};assert.equal(callObservation(v,runtime,'released').diagnostics.releaseState,'unconfirmed');
+});

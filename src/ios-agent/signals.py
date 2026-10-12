@@ -117,7 +117,7 @@ def _clean(fields):
         if key in IDS:
             v = _safe_id(value)
         elif key in WORDS:
-            v = _scrub(value, 80)
+            v = value if key in ('reason', 'code', 'errorCode') and value in ('xctest_authorization_failed', 'xctest_authorization_timed_out') else _scrub(value, 80)
         elif key in NUMERIC:
             v = min(value, 1e15) if type(value) in (int, float) and 0 <= value < float('inf') else None
         elif key in BOOLEANS:

@@ -37,6 +37,10 @@ DEVICE_TIMEOUT = 30
 OPERATIONS = {"capabilities", "tree", "image", "tap", "gesture", "text", "react", "state", "diagnostics-probe", "diagnostics-matrix", "developer-probe", "developer-relay", "reload", "wifi", "capture", "home", "browser-handoff"}
 STATE = Path.home() / "Library/Application Support/ios-agent"
 SOURCE_HASH = worker_source_hash()
+try:
+    SERVICE_RELEASE = json.loads((Path(__file__).parent / 'mcp/package.json').read_text())['version']
+except (OSError, ValueError, KeyError):
+    SERVICE_RELEASE = 'unknown'
 QUIET_ACTIONS = {"state", "tree", "image", "react"}
 NATIVE_SIGNAL_FIELDS = {"level", "outcome", "reason", "code", "surface", "phase", "route", "appState", "state", "status",
                         "routeName", "previousRouteName", "operationName", "kind", "fromState", "toState", "statusCode", "errorCount",
@@ -256,8 +260,26 @@ class Broker:
         except Exception:
             context = {}
         request = {**request, "signalContext": context}
+        # An old MCP connection can still drive the current broker but cannot
+        # provide request lineage. One bounded notice exposes that evidence gap;
+        # it does not change admission or infer a physical failure.
+        op = request.get('op')
+        if (op == 'acquire' or op == 'action' and request.get('action') not in QUIET_ACTIONS or
+                op == 'web_action' and request.get('action') not in ('state', 'snapshot', 'element', 'events')) and not context.get('traceId') and not context.get('requestId'):
+            notices = getattr(self, '_signal_context_notices', {})
+            now = self.clock()
+            if op not in notices or now - notices[op] >= 60:
+                notices[op] = now
+                self._signal_context_notices = notices
+                _signal('host', 'request.uncorrelated', op=op, reason='client_trace_missing', version=SERVICE_RELEASE, level='warn')
         with signal_context(**context):
-            return self._control(request)
+            try:
+                return self._control(request)
+            except Rejected as error:
+                reason = str(error)
+                _signal('host', 'request.rejected', op=op if isinstance(op, str) and re.fullmatch(r'[a-z_]{1,48}', op) else 'unknown',
+                        reason=reason if re.fullmatch(r'[a-z_]{1,80}', reason) else 'unclassified', outcome='rejected', level='warn')
+                raise
 
     def _control(self, request):
         with self.cv:
@@ -287,7 +309,7 @@ class Broker:
             if isinstance(op, str) and op.startswith("web_"):
                 return self.web.control(request)
             if op == "status":
-                return {"version": VERSION, "sourceHash": SOURCE_HASH, "epoch": self.epoch,
+                return {"version": VERSION, "serviceRelease": SERVICE_RELEASE, "sourceHash": SOURCE_HASH, "epoch": self.epoch,
                         "reactFrontendRunning": bool(self.frontend and self.frontend.poll() is None),
                         "reactFrontendCleanupPending": bool(self.stopping_frontends),
                         "reactFrontendPort": self.frontend_port,

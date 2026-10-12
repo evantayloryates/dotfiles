@@ -151,6 +151,22 @@ class WebTests(unittest.TestCase):
         terminal=next(fields for event,fields in rows if event=='browser.command.terminal')
         self.assertEqual(terminal['outcome'],'unknown')
         self.assertEqual(terminal['reason'],'execution_deadline_unknown')
+        self.assertEqual(terminal['level'],'warn')
+
+    def test_stale_snapshot_is_warning_not_success_or_replay(self):
+        rows=[];old=bridge.emit_signal
+        bridge.emit_signal=lambda scope,event,**fields:rows.append((event,fields))
+        try:
+            cid=self.action();self.b.web.page_request(self.poll,self.origin)
+            self.b.web.page_request({**self.poll,'op':'result','id':cid,'epoch':self.b.epoch,
+                'result':{'ok':False,'error':'stale_snapshot','replay':False}},self.origin)
+        finally:
+            bridge.emit_signal=old
+        terminal=next(fields for event,fields in rows if event=='browser.command.terminal')
+        self.assertEqual(terminal['outcome'],'rejected')
+        self.assertEqual(terminal['reason'],'stale_snapshot')
+        self.assertEqual(terminal['level'],'warn')
+        self.assertNotIn('command',self.b.web.page_request(self.poll,self.origin))
 
     def test_authenticated_tab_survives_host_restart_without_reenrollment(self):
         with tempfile.TemporaryDirectory() as d:

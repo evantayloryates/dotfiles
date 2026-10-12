@@ -180,7 +180,7 @@ export class Backend {
       bluetoothResourceWatch = {timestamp:watch.timestamp,ageSeconds,fresh:ageSeconds>=0&&ageSeconds<15,highCPU:watch.high_cpu,targets:watch.targets,
         advice:'Before device discovery/paired transport work, check btle-watch preflight. If high or stale, inspect the incident; reuse an owned existing connection and batch observations instead of redundant discovery/reconnect loops. Do not restart system Bluetooth or interrupt another owner. Correlation does not establish that ios-agent caused the load.'};
     } catch { bluetoothResourceWatch = {fresh:false,advice:'BTLE watcher unavailable; run /Users/taylor/dotfiles/bin/btle-watch preflight before device discovery.'}; }
-    return {bluetoothResourceWatch,browserWorkflow: ['ios_doctor (host prerequisites)', 'ios_web_pages (reuse a visible ready enrolled page)', 'ios_web_enroll only if provisioning is needed (private launchFile)', 'open the intended dev browser page if not enrolled', 'ios_web_pages', 'ios_web_begin', 'ios_web_inspect and ios_web_action', 'ios_web_end in finally'],
+    return {workerRelease:current?.serviceRelease||null,bluetoothResourceWatch,browserWorkflow: ['ios_doctor (host prerequisites)', 'ios_web_pages (reuse a visible ready enrolled page)', 'ios_web_enroll only if provisioning is needed (private launchFile)', 'open the intended dev browser page if not enrolled', 'ios_web_pages', 'ios_web_begin', 'ios_web_inspect and ios_web_action', 'ios_web_end in finally'],
       readiness: 'ios_wait_ready waits up to 55 seconds without a lease, waking on fresh foreground app/page events. Repeat bounded waits while this task is waiting; do not infer lock from offline. ios_begin still verifies the runtime. MCP availability does not itself schedule a new model turn.',
       browserProfiles: 'ios_web_enroll profile=app uses private10446→3000/4000; profile=call-rig uses private10520→3020/4020 with the dedicated real-provider local fixture. Grants and browser memory are origin-bound. Preserve both Serve routes; call-rig enrollment does not install a route or prove credentials/recording state. Read ios-agent://mobile-web.',
       browserConditions: 'ios_web_verify timeoutSeconds=0..30 waits for a specific owned page condition without repeated model turns. web-element uses a unique semantic selector, optional exact expectedValue, and visible/interactable/editable state; passing returns fresh snapshot/target refs. Stops on failed observation or lost ownership; no input is retried. Read ios-agent://mobile-web for examples. web-call additionally waits for explicit lobby/connected/paired/released call state and reports fixed permission/request diagnostics; it never grants permissions or joins. Media RTP remains a single explicit sample.',
@@ -211,7 +211,7 @@ export class Backend {
       networkRecovery: 'After an intentional cellular/Wi-Fi-Off test, restore Wi-Fi before diagnosing nearby control as unavailable. Read the current developer transport; failure does not prove an unplugged cable. The fixed Runner Wi-Fi On paired recovery shortcut works outside DEV, but dispatch alone is not switch/association proof. An off-LAN browser page alone cannot yet press system Allow or restore Wi-Fi.',
       microphoneWorkflow: 'Safari: use bounded native page controls to save Microphone=Allow for the exact DEV host, then verify getUserMedia through the normal page driver. Chrome: first inspect Settings > Privacy & Security > Microphone; a disabled Chrome app switch can cause NotAllowedError without a site prompt. Named SwiftUI switches resolve their unique nested native toggle; inspect value afterward. Use exact observed Allow labels only after identifying the expected DEV media prompt. ios_system_inspect also returns native alert text/buttons even if the hierarchy is empty; alert-button rechecks its fresh snapshot and exact label. Authentication prompts remain human-only. A permission projection can remain prompt after live track acquisition; inspect pending requests and actual tracks before requesting another approval. Use web-call lobby/paired/released for call conditions, separately from RTP. Never use Mirroring as runtime permission control, assume tap success equals permission, enter a passcode, or replay an unknown request.',
       focusLaunch: 'Provisioned iCloud Focus + Run Immediately phone automation opened Kickoff DEV while unlocked on cellular without USB, Mirroring or XCTest. ios_device_launch transport=auto selects it before dispatch if fixed developer TCP is unavailable; transport=focus explicitly selects it. Existing personal Focus is preserved. One pulse, bounded cleanup, no retry on unknown outcome. A subsequent recovery pulse completed without a fresh native bridge, so always require foreground/readiness evidence. Safari app-owned private-URL handoff passed cellular DOM work. Chrome handoff and deep cellular Inspector remain unconfirmed; no accepted input is replayed.',
-      systemFallback: 'Explicit ios_system_begin/inspect/action/end uses the existing signed WDA runner for native Safari/Chrome/Settings/Shortcuts/Kickoff and Home. Exact-label type/clear handles ordinary native fields (256 characters maximum); type appends and clear is explicit. Inspect the effect. In browser address bars type the URL, read it back, then tap the observed Go button separately. Secure fields/passcodes are excluded. Fixed activate/Home may leave another app without inspecting it. Xcode automatic privileged diagnostics are disabled; ordinary sessions need no sudo. End the normal app/page lease first; end the fallback in finally, normally return Home, and verify runnerStopped. Startup uses paired nearby developer transport; WDA HTTP uses Tailscale but off-LAN start is unqualified. Apple may request human authorization; no passcode is entered. EOF/dead owner independently stops the runner. Do not use this for routine DOM/app work.',
+      systemFallback: 'Explicit ios_system_begin/inspect/action/end uses the existing signed WDA runner for native Safari/Chrome/Settings/Shortcuts/Kickoff and Home. Exact-label type/clear handles ordinary native fields (256 characters maximum); type appends and clear is explicit. Inspect the effect. In browser address bars type the URL, read it back, then tap the observed Go button separately. Secure fields/passcodes are excluded. Fixed activate/Home may leave another app without inspecting it. Xcode automatic privileged diagnostics are disabled; ordinary sessions need no sudo. For an intermediate browser permission handoff use ios_web_end home=false, ios_system_begin/inspect/action, then ios_system_end home=false and ios_web_begin on the SAME ready enrolled page. Do not call ios_web_open merely to resume it; that reload can ask permission again. End the normal app/page lease first; end the fallback in finally, normally return Home, and verify runnerStopped. Startup uses paired nearby developer transport; WDA HTTP uses Tailscale but off-LAN start is unqualified. Apple may request human authorization; no passcode is entered. EOF/dead owner independently stops the runner. Do not use this for routine DOM/app work.',
       systemReadiness: 'A live host owner or xcodebuild is not proof of phone automation. system_runner_exited means this owned test process ended; xctest_authorization_failed means Xcode explicitly reported UI-testing authentication failure, not necessarily a locked screen or a specific passcode. physical_unlock_required requires an exact Xcode/device observation. Transport-only errors do not infer lock. xctest_authorization_timed_out means Xcode explicitly timed out enabling automation. Begin may return ready=false with a starting session, capped at five minutes; Apple may end it sooner. Use ios_device_inspect with that sessionId to observe the phone and ios_system_inspect timeoutSeconds up to55 to resume the same attempt. Pending is not authorized or ready; end/EOF/expiry stop it. Do not replay input or repeatedly restart to chase authorization. Long retention can lose the phone runner independently and is not an authentication exemption.',
       cleanup: 'When finished or pausing phone work: stop capture, release control, confirm glow/inspection cleanup, then return the phone to its Home Screen using an available verified system-control route. Taylor prefers Home over restoring the previous app; do not leave Kickoff DEV foreground without a continuing task. Do not send Home during an intermediate session handoff or while another agent owns the device. For an owned updated native app, send ios_native action=home before ios_end; this retires the lease and asks the DEV app to return Home without XCTest. Use ios_begin nativeOnly=true when JS startup fails. Browser Home still needs an available system route; normal end never starts XCTest just for cleanup. Report homeNavigationPending if no verified route is reachable. Never substitute force-quit, lock, XCTest startup or an unverified shortcut. Explicit end, cancellation, disconnect and 20-minute tool silence retire control; the native watchdog protects host loss.',
       input: 'Exact observed selectors can read and tap within one call: ios_native action=tap args={selector:{identifier:...}} (or exact label/class); requires a unique visible interactive match and preserves native hit tests. Otherwise get a fresh tree; use its snapshot, target and observed coordinates within five seconds. Verify committed route/value after input. Never automatically replay an accepted or unknown action.',
@@ -563,7 +563,7 @@ export class Backend {
   }
   async systemEnd({sessionId,home=true}) {
     const s=this.sessions.get(sessionId);if(!s?.systemDriver)throw Error('session_required');
-    let presentation={homeNavigationPending:true};
+    let presentation=home?{homeNavigationPending:true}:{homeRequested:false,homeNavigationPending:false,reason:'intermediate_handoff'};
     if(home){try{presentation=await s.systemDriver.action({action:'home'});s.systemHomeConfirmed=presentation.homeConfirmed===true;}
       catch{presentation={ok:false,homeConfirmed:false,reason:'home_navigation_unconfirmed',replay:false};s.systemHomeConfirmed=false;}}
     if(home)note('home.request_completed',{provider:'system',session:sessionId,outcome:s.systemHomeConfirmed?'verified':presentation.ok===true?'accepted':'unknown',dispatched:presentation.ok===true?true:undefined,verified:s.systemHomeConfirmed,reason:reasonCode(presentation.reason),level:s.systemHomeConfirmed?'info':'warn'});
@@ -921,22 +921,22 @@ export class Backend {
     const learningEvidence=await this.learning('observe',{receipt,source:s.webFingerprint}).catch(()=>({available:false}));
     note('verification.completed',{action:gate,session:sessionId,page:s.page,outcome:ok?'verified':'failed',reason:reasonCode(reason||(!read.ok?'condition_observation_failed':callCheck?.reason||'condition_not_met')),count:checks,level:ok?'info':'warn'});
     return {ok,receipt,artifactId:read.artifactId,learningEvidence,checks,elapsedMs:Math.round(performance.now()-started),
-      ...(callCheck?{diagnostics:callCheck.diagnostics,scope:'owned-dev-call-projection-only',limits:'Call state is not RTP advancement, audible playout, provider room identity or physical network proof. released covers instrumented page media only.'}:{}),
+      ...(callCheck?{diagnostics:callCheck.diagnostics,...(!ok&&callCheck.diagnostics.releaseState==='disconnected_with_live_tracks'?{next:'The call disconnected but this document still owns live tracks; a lobby preview may explain them. Leave the meet route, then verify released in the same document. Home alone is not media-release proof.'}:{}),scope:'owned-dev-call-projection-only',limits:'Call state is not RTP advancement, audible playout, provider room identity or physical network proof. released covers instrumented page media only.'}:{}),
       ...(ok&&refs?{...refs,next:'Use these references immediately; normal five-second/occlusion input checks still apply.'}:{}),
       ...(!ok?{reason:reason||(!read.ok?'condition_observation_failed':callCheck?.reason||'condition_not_met'),replay:false}:{})};
   }
-  async webEnd(id) {
+  async webEnd(id,{home=true}={}) {
     const s=this.sessions.get(id);
     if(!s)return this.end(id);
-    if(!s.webEndPromise)s.webEndPromise=this.finishWebEnd(id);
+    if(!s.webEndPromise)s.webEndPromise=this.finishWebEnd(id,{home});
     return s.webEndPromise;
   }
-  async finishWebEnd(id) {
+  async finishWebEnd(id,{home=true}={}) {
     const s = this.sessions.get(id), page = s?.page;
-    const requestHome=s?.appManagedHome===true&&s.active&&!this.closing;
+    const requestHome=home&&s?.appManagedHome===true&&s.active&&!this.closing;
     const cleanupStartedAt=Date.now();
-    note('browser.cleanup_requested',{session:id,page,action:requestHome?'glow_then_home':'glow_only'});
-    const release = await this.end(id);
+    note('browser.cleanup_requested',{session:id,page,action:home&&(s?.appManagedHome||s?.relayChannel)?'glow_then_home':'glow_only',reason:home?undefined:'intermediate_handoff'});
+    const release = await this.end(id,{home});
     if (!page){note('browser.cleanup_unconfirmed',{session:id,outcome:'unknown',reason:'page_identity_unavailable',level:'warn'});return {...release, indicatorOff: 'unconfirmed'};}
     // The nearby relay requests Home before retiring ownership. Its final
     // visibility/glow report can legitimately precede the release response;
@@ -983,7 +983,7 @@ export class Backend {
     return {ok:confirmed,suppressOutput:true,cleanup:{matched:matched.length,released:receipts.filter(r=>r.released===true).length,confirmed,
       ...(matched.length?{receipts}:{reason:'no_matching_owned_prompt'})}};
   }
-  async end(id) {
+  async end(id,{home=true}={}) {
     const s = this.sessions.get(id);
     if (!s) return {released: false, alreadyEnded: true};
     if (s.endPromise) return s.endPromise;
@@ -997,10 +997,11 @@ export class Backend {
       }
       let relayCleanup;
       if(s.relayChannel){
-        try{if(s.active&&!this.closing){const home=await s.relayChannel.request('observe',{request:{kind:'shortcut-home'}},10000);s.managedHomePrepared=home.ok===true;relayCleanup={homeRequested:home.ok===true,homeVerified:false};}}
+        try{if(home&&s.active&&!this.closing){const sent=await s.relayChannel.request('observe',{request:{kind:'shortcut-home'}},10000);s.managedHomePrepared=sent.ok===true;relayCleanup={homeRequested:sent.ok===true,homeVerified:false};}
+          else if(!home)relayCleanup={homeRequested:false,homeVerified:false,reason:'intermediate_handoff'};}
         catch{relayCleanup={homeRequested:'unconfirmed',homeVerified:false,replay:false};}
         finally{const closed=await s.relayChannel.close();relayCleanup={...relayCleanup,tunnelClosed:closed?.closed===true};}
-        note('home.request_completed',{provider:'reflected',session:id,outcome:relayCleanup.homeRequested===true?'accepted':'unknown',dispatched:relayCleanup.homeRequested===true?true:undefined,verified:false,level:relayCleanup.homeRequested===true?'info':'warn'});
+        note(home?'home.request_completed':'browser.handoff_released',{provider:'reflected',session:id,outcome:!home?'released':relayCleanup.homeRequested===true?'accepted':'unknown',reason:!home?'intermediate_handoff':undefined,dispatched:relayCleanup.homeRequested===true?true:undefined,verified:false,level:!home||relayCleanup.homeRequested===true?'info':'warn'});
       }
       s.active = false; this.writeOwner(s);
       // Acquisition reserves an empty file before broker admission. Wait for

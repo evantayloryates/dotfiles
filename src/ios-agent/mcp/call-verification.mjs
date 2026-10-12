@@ -26,9 +26,15 @@ export function callObservation(value, runtime, phase, {priorConnected=false}={}
   };
   const observation = {...base, ...observations};
   const ok = Object.values(observation).every(v => v === true);
+  const liveTracksObserved = (Array.isArray(media?.tracks) && media.tracks.some(t=>t.readyState==='live')) ||
+    ['audio','video','screenShare'].some(k=>call?.tracks?.[k]?.present===true&&call.tracks[k].state==='live');
   const reason = ok ? undefined : !base.sameRuntime ? 'call_runtime_changed' : !base.foregroundOwned ? 'call_foreground_required' : !base.callContextObserved ? 'call_domain_unavailable' : pending === null ? 'media_observation_incomplete' : pending > 0 ? 'media_requests_pending' : phase === 'released' ? 'call_media_release_unconfirmed' : phase === 'lobby' ? 'call_lobby_not_ready' : phase === 'paired' && joined ? 'remote_participant_absent' : 'call_not_connected';
   return {observation, reason, diagnostics: {
     phase, pendingMediaRequests: pending, remoteParticipants: count(call?.participants),
+    microphoneTrackState: oneOf(call?.tracks?.audio?.state, ['live', 'ended']),
+    microphoneTrackEnabled: typeof call?.tracks?.audio?.enabled === 'boolean' ? call.tracks.audio.enabled : null,
+    cameraTrackState: oneOf(call?.tracks?.video?.state, ['live', 'ended']),
+    releaseState: phase === 'released' ? ok ? 'released' : observations.callDisconnected && liveTracksObserved ? 'disconnected_with_live_tracks' : 'unconfirmed' : 'not_checked',
     microphonePermission: oneOf(call?.permissions?.microphone, ['granted', 'prompt', 'denied']),
     cameraPermission: oneOf(call?.permissions?.camera, ['granted', 'prompt', 'denied']),
     microphoneError: oneOf(call?.mediaErrors?.microphone, [null, 'blocked', 'dismissed', 'missing', 'in-use']),

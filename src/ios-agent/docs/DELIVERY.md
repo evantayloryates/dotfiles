@@ -11,13 +11,13 @@ another owner's work to refresh schemas. See MCP.md for the operating recipes.
 | Native DEV app | doctor → begin → native/react → verify | native Home → end |
 | Safari / Chrome DEV page | web_open → inspect/action/verify, or web_pages → web_begin for an existing page | Managed web_end requests Home; do not duplicate it. Existing-page sessions need explicit device_home. Whole-display Home remains separate. |
 | Page not yet available | doctor connectivity=true; wait_ready; fixed device_launch (native Focus fallback when provisioned) | No lease held while waiting |
-| Exact observed system permission | End page/app session → system_begin → inspect/action | system_end; require runnerStopped |
+| Exact observed system permission | Intermediate web_end home=false → system_begin → inspect/action | system_end home=false; require runnerStopped; web_begin same page |
 | Deeper browser diagnosis | browser_debug; source/styles/dom/network/profile/heap/breakpoint/worker-* | Diagnostic domains stop and detach; content expires |
 | Synthetic audio comparison | audio_probe plan; verify fixture/recording before call | stop probe, release call media, end page session |
 
 For unavailable pages, expired grants or pending cleanup, use the recovery decision card in MOBILE-WEB.md. Read-only host diagnosis is allowed while another connection owns the phone; that does not grant access to its session.
 
-Current MCP source is1.10.0. Signed job333fc2b73381422180f46783d53b1a9d
+Current MCP source is1.10.1. Signed job333fc2b73381422180f46783d53b1a9d
 installed delivery8a0c15bd53fa4c34b6d82b06a16ebf95 with matched running identity.
 The phone-local Chrome Shortcut passed one-time permission persistence, then
 app-owned cellular launch, fresh owned readiness, fill/Save/committed React
@@ -594,3 +594,7 @@ The new logging seams passed syntax and focused deterministic checks. No new
 live phone qualification is claimed. Existing physical capability receipts keep
 their dated versions. Refresh MCP connections and reload app/page JS for the new
 hooks; the Python broker must load the matching worker source at verified idle.
+
+##1.10.1 — real Safari/Chrome call postmortem
+
+The completed external smoke used stale MCP1.9.51 with current1.10.0host. New1.10.1adds connection/worker version diagnosis, trace-coverage summary, warning-level rejected/unknown page terminals, fixed MCP error reasons, explicit no-Home intermediate handoff and separate live-preview/permission diagnostics. No new native build/page SDK change. The handoff is fixture-qualified; its next physical run remains pending. Authentication and transcription-product opportunities remain explicit in POSTMORTEM-1.10.0.md. Existing connections must refresh at idle.

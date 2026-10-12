@@ -280,7 +280,7 @@ class WebBridge:
                        'rejected')
             signal('browser.command.terminal', request=c['id'], traceId=c.get('signalTraceId'), sessionId=c.get('signalSessionId'), page=pid, lease=c['lease'], epoch=self.b.epoch,
                    action=c['action'], outcome=outcome,
-                   reason=reason)
+                   reason=reason, level='info' if outcome == 'completed' else 'warn')
         elif op != 'poll':
             self.reject('unsupported_web_page_operation')
         page_signals(r.get('signals'), pid, p, self.b.epoch, c['id'] if op == 'result' else None)

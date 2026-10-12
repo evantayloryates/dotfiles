@@ -174,7 +174,7 @@ async def collect_runner_output(reader, log, started):
             started.update(int(x) for x in re.findall(r'WebDriverAgentRunner-Runner\[(\d+):',text))
             gate=startup_gate(text)
             if gate and gate!=reported_gate:
-                _signal('runner.startup_gate', outcome='blocked', reason=gate)
+                _signal('runner.startup_gate', outcome='blocked', reason=gate, level='warn')
                 reported_gate=gate;print(json.dumps({'startupGate':gate}),flush=True)
             carry=(carry+chunk)[-2048:]
             if output.tell()+len(chunk)>1024*1024:
@@ -246,14 +246,14 @@ async def main(r):
         stopped, attempts = await confirm_stopped(serial, started)
         if retained:
             reservation_update(r, phase='stopped', active=False, ready=False, runnerStopped=stopped, reason=reason, verificationAttempts=attempts)
-        _signal('runner.stopped', outcome='verified' if stopped else 'unconfirmed', reason=reason, attempts=attempts)
+        _signal('runner.stopped', outcome='verified' if stopped else 'unconfirmed', reason=reason, attempts=attempts, level='info' if stopped else 'warn')
         print(json.dumps({'stopped':True,'runnerStopped':stopped,'verificationAttempts':attempts,'reason':reason}),flush=True)
 
 if __name__ == '__main__':
     r = json.loads(sys.argv[1])
     try:asyncio.run(main(r))
     except Exception:
-        _signal('runner.startup', outcome='refused', reason='system_runner_unavailable')
+        _signal('runner.startup', outcome='refused', reason='system_runner_unavailable', level='warn')
         if r.get('reservationFile'):
             try:
                 from system_reservation import read_record, write_record

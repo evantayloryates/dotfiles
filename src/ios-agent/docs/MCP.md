@@ -1,6 +1,6 @@
 # iOS agent MCP — shared service interface and operational learning
 
-Current interface: **41 tools / eleven resources**. `ios_guide.interface` identifies
+Current interface: **1.10.1 /41tools /eleven resources**. `ios_guide.interface` identifies
 the process answering this connection. `/Users/taylor/dotfiles/bin/ios-agent-mcp
 --catalog` reads the installed catalog without host/phone access. A missing
 `interface` means the connected process predates this check; absent new tools
@@ -920,3 +920,9 @@ claude-managed-open-2026-10-11.json for the actual CLI wiring receipt.
 `signalRequestId` is its trace lookup key. `after=nextCursor` pages older rows.
 No path, lease or phone action is accepted. Read `ios-agent://signals` for
 retention, error scrubbing, delayed phone events and console-fallback limits.
+
+##1.10.1: real-call postmortem
+
+Guide/status `release` compare loaded versus installed versions; guide `workerRelease` reports the actual Python worker. Refresh old harness MCP connections before using new schemas. `ios_signals view=summary` (CLI --summary) provides compact retained counts, outcomes and trace coverage. Rejected/unknown browser terminals now warn.
+
+For an intermediate permission detour: `ios_web_end {sessionId,home:false}` → system_begin → fresh system_inspect kind=alert → exact observed ordinary permission button → system_end home=false → web_pages → web_begin on the same ready document. No automatic action retry, permission grant or authentication exemption. Do not web_open again merely to resume. The managed tunnel is still closed during release; deeper Inspector access may require its normal setup later. At final completion use normal end and device_home if this reacquired existing-page session has no managed Home lane. Full media-release verification remains separate from Home. See POSTMORTEM-1.10.0.md.

@@ -79,7 +79,7 @@ function clean(fields) {
       continue;
     }
     if (ids.has(key)) { const v = safeId(value); if (v !== undefined) out[key] = v; }
-    else if (words.has(key)) { const v = scrub(value, 80); if (v) out[key] = v; }
+    else if (words.has(key)) { const v = ['reason','code','errorCode'].includes(key)&&['xctest_authorization_failed','xctest_authorization_timed_out'].includes(value)?value:scrub(value, 80); if (v) out[key] = v; }
     else if (numeric.has(key) && typeof value === 'number' && Number.isFinite(value) && value >= 0) out[key] = Math.min(value, 1e15);
     else if (booleans.has(key) && typeof value === 'boolean') out[key] = value;
     else if (key === 'message' || key === 'detail') { const v = scrub(value, 160); if (v) out[key] = v; }
@@ -164,6 +164,29 @@ function decodeCursor(value) {
   if (typeof value !== 'string' || value.length > 160 || !/^[A-Za-z0-9_-]+$/.test(value)) return null;
   try { const s=Buffer.from(value,'base64url').toString('utf8'); return /^\d{4}-\d\d-\d\dT[^|]{10,30}\|[a-f0-9]{16}$/.test(s) ? s : null; } catch { return null; }
 }
+function eventLabel(row) {
+  const prefix=row.scope.startsWith('kck-')?row.scope.replace('-', '.') : row.scope;
+  return row.event.startsWith(prefix+'.')?row.event:row.scope+'.'+row.event;
+}
+function summarize(rows,maxBytes) {
+  const counts=key=>Object.fromEntries([...rows.reduce((m,r)=>{const k=r[key]||'none';m.set(k,(m.get(k)||0)+1);return m;},new Map())].sort((a,b)=>b[1]-a[1]).slice(0,12));
+  const bad=rows.filter(r=>r.level!=='info'||['failed','rejected','unknown','not_executed','refused'].includes(r.outcome));
+  const commands=rows.filter(r=>r.event==='browser.command.terminal');
+  const mcp=rows.filter(r=>r.scope==='mcp'&&r.event==='request.admitted');
+  const summary={retainedRecords:rows.length,from:rows.at(-1)?.time||null,to:rows[0]?.time||null,
+    levels:counts('level'),scopes:counts('scope'),outcomes:counts('outcome'),
+    browserCommands:commands.length,uncorrelatedBrowserCommands:commands.filter(r=>!r.traceId).length,
+    admittedMcpRequests:mcp.length,notableRecords:bad.length};
+  const lines=[`Retained signals=${rows.length} from=${summary.from||'none'} to=${summary.to||'none'}`,
+    `levels ${Object.entries(summary.levels).map(([k,v])=>k+'='+v).join(' ')}; browserCommands=${commands.length} withoutTrace=${summary.uncorrelatedBrowserCommands}; admittedMcp=${mcp.length}`,
+    'Counts describe retained records, not unique operations; missing traces do not prove non-execution.'];
+  const events=[...rows.reduce((m,r)=>{const k=eventLabel(r);m.set(k,(m.get(k)||0)+1);return m;},new Map())].sort((a,b)=>b[1]-a[1]).slice(0,12);
+  lines.push('events '+events.map(([k,v])=>k+'='+v).join(' '));
+  for(const r of bad.slice(0,8))lines.push(`${r.time} ${eventLabel(r)} outcome=${r.outcome||r.level}${r.reason?' reason='+display(r.reason,'reason'):''}${r.traceId?' trace='+display(r.traceId,'traceId'):''}`);
+  let text=lines.join('\n'),truncated=false;
+  if(Buffer.byteLength(text)>maxBytes){const chars=Array.from(text);while(chars.length&&Buffer.byteLength(chars.join('')+' …')>maxBytes)chars.pop();text=chars.join('')+' …';truncated=true;}
+  return {text,count:rows.length,nextCursor:null,truncated,summary};
+}
 export function readSignals(options = {}) {
   try {
     const limit=Math.max(1,Math.min(100,Number.isInteger(options.limit)?options.limit:40));
@@ -196,10 +219,11 @@ export function readSignals(options = {}) {
       }
     }
     rows.sort((a,b)=>cursorKey(b).localeCompare(cursorKey(a)));
+    if(options.view==='summary')return summarize(rows,maxBytes);
     const lines=[]; let bytes=0, taken=0;
     for (const r of rows) {
       if (taken>=limit) break;
-      const shown=[r.time,r.event.startsWith(r.scope+'.')?r.event:r.scope+'.'+r.event,`level=${r.level}`];
+      const shown=[r.time,eventLabel(r),`level=${r.level}`];
       const cleaned=clean(r), priority=['tool','action','op','outcome','reason','code','statusCode','durationMs','verified','released','ready','traceId','sessionId','pageId','sourceAtMs','sourceSeq'];
       for (const key of new Set([...priority,...Object.keys(cleaned)])) {
         if (!(key in cleaned)||(key==='requestId'&&cleaned.requestId===cleaned.traceId)) continue;

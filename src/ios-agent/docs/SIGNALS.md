@@ -72,7 +72,7 @@ Outcome and reason precede correlation fields; routine lines cap at600characters
 and error lines at1000, with a visible ellipsis for trimmed read views. Storage
 remains scrubbed and bounded independently.
 
-Refresh existing MCP connections for1.10.0; reload the enrolled page or native JS
+Refresh existing MCP connections for1.10.1; reload the enrolled page or native JS
 bundle to load its new hooks. Restart the Python broker only through the documented
 installer at verified idle. Logging fixtures are not physical phone acceptance.
 
@@ -113,3 +113,13 @@ eight-record queue; proxy logs are the independent server evidence. A missing
 retained line is not proof that an operation never ran: retention, queue overflow,
 old connections/code and unavailable sinks remain possible. Read the reported
 bounds and source identity before inferring cause.
+
+##1.10.1 postmortem improvements
+
+Use `ios_signals {view:"summary", since:"<UTC ISO time>"}` or `ios-agent-signals --summary --since <time>` before drilling into a trail. Summary aggregates all matching retained rows (subject to the existing2MiB/32file/7day store), ignoring the event-page limit. `after` still restricts it to older rows; summary has no cursor. It shows levels/outcomes, browser commands lacking trace and eight recent notable records, including historical info-level rejected/unknown outcomes. Counts are records, not unique operations or complete workflow proof. Text obeys maxBytes; structured summary contains only bounded counts and time bounds.
+
+Guide/status now compare loaded connectionVersion with installedVersion; guide also reports workerRelease. Existing clients must reconnect to load these checks. `connection.outdated` is advisory and coalesced per installed version, never a control refusal or process termination. `host.request.uncorrelated` identifies absent request lineage at acquisition/mutating input, coalesced per operation per60seconds; it can also mean a direct CLI client, not necessarily an old MCP. Host rejection and page rejected/unknown terminal rows warn. New MCP terminal rows preserve fixed error reason.
+
+`browser.handoff_released` records an intentional `ios_web_end home=false` detour; it is not a Home request. See POSTMORTEM-1.10.0.md for observations and remaining physical gates.
+
+Only the exact fixed reason/code/errorCode values xctest_authorization_failed and xctest_authorization_timed_out bypass keyword scrubbing. They describe Apple gates and contain no credential. Arbitrary authorization strings and credential-bearing messages remain redacted. Runner startup gates/unconfirmed stop now warn.

@@ -6,7 +6,7 @@ import {fileURLToPath} from 'node:url';
 const usage = `ios-agent-signals [--scope mcp|browser|host|native|kck-native|kck-web|kck-call]
   [--event prefix] [--level info|warn|error] [--tool ios_name]
   [--trace exact-id] [--session exact-id] [--since UTC-ISO-time]
-  [--after cursor] [--limit 1..100] [--bytes 256..24000] [--json]
+  [--after cursor] [--limit 1..100] [--bytes 256..24000] [--summary] [--json]
 Newest first. --after reads the next older page. No phone control or lease.`;
 export function parseSignalOptions(argv) {
   const options = {}; let json = false, help = false;
@@ -15,6 +15,7 @@ export function parseSignalOptions(argv) {
   for (let i=0; i<argv.length; i++) {
     const flag=argv[i];
     if (flag==='--json') {json=true;continue;}
+    if (flag==='--summary') {options.view='summary';continue;}
     if (flag==='--help'||flag==='-h') {help=true;continue;}
     const key=names[flag],value=argv[++i];
     if (!key||value===undefined||value.startsWith('--')) throw Error('invalid_signal_option');
