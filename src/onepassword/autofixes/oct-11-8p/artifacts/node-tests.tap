@@ -1,0 +1,45 @@
+✔ Eastern time, floor first, half-hour cutoff, actual month and padded minutes (1.766292ms)
+✔ rounding across midnight, noon, DST gap and repeated fall hour (0.2925ms)
+✔ atomic reservation follows floor/round/minute and refuses overwrite (1.926ms)
+✔ existing chat title reserves a name even without a folder (0.940667ms)
+✔ settlement renders both reports and hashes evidence with escaped HTML (2.196333ms)
+✔ no settlement for unverified (1.111166ms)
+✔ no settlement for docs skipped (1.483083ms)
+✔ no settlement for not ready (1.143708ms)
+✔ no settlement for unresolved (2.07125ms)
+✔ no settlement for empty evidence (1.566834ms)
+✔ no settlement for missing evidence (1.685042ms)
+✔ fully staged fix can settle; symlink evidence cannot escape (2.83975ms)
+✔ editing settled evidence invalidates settlement (2.101ms)
+✔ declaring release without a real gate cannot settle a fix (1.445834ms)
+✔ idle verified pushed incident archives and reads back (3.825333ms)
+✔ active turn is never interrupted (2.531833ms)
+✔ dirty or unpushed changes defer archive (2.472416ms)
+✔ identity mismatch refuses archive (3.007ms)
+✔ edited evidence refuses archive (2.639875ms)
+✔ supported desktop models only (0.9105ms)
+✔ reuse active incident and read queue back without competing turn (3.233083ms)
+✔ uncertain mutation never replays: thread/name/set (1.900042ms)
+✔ uncertain mutation never replays: thread/section/move (2.081042ms)
+✔ uncertain mutation never replays: thread/settings/update (1.659583ms)
+✔ uncertain mutation never replays: thread/queue/add (1.609834ms)
+✔ failed readback retains accepted queue (2.258792ms)
+✔ later episodes reuse unsettled incidents; settled incidents get a fresh chat (6.349291ms)
+✔ unowned idle chat starts the exact queued submission (1.740167ms)
+✔ legacy maintenance chat is not renamed or archived; new incident has project/model/pin/no approval (1.68625ms)
+✔ policy rejection stops before queue or inference (1.528292ms)
+✔ repair prompt includes standing authorization, reports and native self archive (0.083625ms)
+✔ symlink entry executes, stdin and missing importing host do not dispatch (220.36725ms)
+✔ Claude quarantine refuses before all writes (0.821583ms)
+✔ Claude fallback configures, pins, reuses an unsettled dated incident (2.535292ms)
+✔ queue already consumed is proved by exact client ID, never started twice (2.5265ms)
+✔ consumption between readback and start is reconciled without replay (1.8875ms)
+✔ first click releases the same prepared incident once; later clicks do not replay (2.131042ms)
+ℹ tests 37
+ℹ suites 0
+ℹ pass 37
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 356.938875

@@ -1,0 +1,5 @@
+{
+  "summary_markdown": "Read completely; current health, preserved service identity and unrelated test failures stated accurately.",
+  "summary_html": "Inspected text and HTML structure: responsive max width, viewport, wrapping links, readable typography, technical details and 13 valid local links. No browser UI used.",
+  "docs": "README updated; agent-contract.md and autofixes/AGENTS.md reviewed, unchanged because behavior and policy remain accurate."
+}

@@ -1,0 +1,8 @@
+{
+  "tests": 44,
+  "successful": true,
+  "failures": [],
+  "errors": [],
+  "seconds": 12.25,
+  "scope": "broker, keepalive, recovery, safe activation and agent guidance; excludes Cloudinary launcher"
+}

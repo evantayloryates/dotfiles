@@ -304,6 +304,12 @@ hashes and bounded metadata-only calls before deciding whether a repair is neede
 Record a verified healthy qualification as `no_change`; do not restart the
 broker or request an authentication wake just to exercise recovery.
 
+The [October 11 healthy incident](autofixes/oct-11-8p/summary.md) verified
+matching deployed sources, a progressing keepalive heartbeat and successful
+metadata-only calls for both accounts without replacing the broker or PTY.
+Its broad Python run also exposed an unrelated Cloudinary test fixture missing
+`run-local-package`; the report distinguishes that failure from broker checks.
+
 The false-lock fix uses timestamped lock/unlock events across bounded log tails;
 `Client starting` is not evidence of a lock. Stale/rotated files cannot regress a
 known newer state. For a tested keepalive-only change, safely activate with:

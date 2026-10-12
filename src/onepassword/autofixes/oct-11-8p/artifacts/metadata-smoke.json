@@ -1,0 +1,23 @@
+[
+  {
+    "slot": null,
+    "command": "version",
+    "exit": 0,
+    "duration_seconds": 0.186,
+    "output": "discarded"
+  },
+  {
+    "slot": 0,
+    "command": "vault list",
+    "exit": 0,
+    "duration_seconds": 0.712,
+    "output": "discarded"
+  },
+  {
+    "slot": 1,
+    "command": "vault list",
+    "exit": 0,
+    "duration_seconds": 0.816,
+    "output": "discarded"
+  }
+]

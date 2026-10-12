@@ -1,0 +1,7 @@
+{
+  "broad_python_run": "47 of 49 passed",
+  "cloudinary_failures": 2,
+  "reproduction_exit": 127,
+  "reason": "Synthetic launcher fixture copies the launcher but omits src/mcps/run-local-package; both fake broker reads succeeded, then execution failed at the missing helper. No real credentials or network used.",
+  "scope_decision": "Unrelated consumer fixture drift; left unchanged under incident-only scope. Broker-focused suite separately verified."
+}

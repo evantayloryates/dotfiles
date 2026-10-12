@@ -1,0 +1,30 @@
+{
+  "broker": {
+    "pid": 1051,
+    "sid": null,
+    "tty": "/dev/ttys000",
+    "executable": "/opt/homebrew/bin/op"
+  },
+  "keepalive": {
+    "pid": 1055,
+    "updated": "2026-10-11T20:30:01-0400",
+    "source_sha256": "74b0f48c3f3f1a03f3efde949c1c834e1c93f1373219585568c3da90f3d3f0f7",
+    "app_locked": false,
+    "console_locked": false
+  },
+  "age_seconds": 6.683357000350952,
+  "accounts": [
+    {
+      "slot": 0,
+      "last_status": "ok",
+      "last_ok": "2026-10-11T20:29:20-0400",
+      "last_prompt": null
+    },
+    {
+      "slot": 1,
+      "last_status": "ok",
+      "last_ok": "2026-10-11T20:29:21-0400",
+      "last_prompt": "2026-10-11T14:25:35-0400"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "outcome": "no_change",
+  "headline": "Broker healthy; no repair warranted",
+  "summary": "The incident snapshot used the authorization_or_unknown category, but showed an alive broker and two healthy accounts. Fresh checks confirmed both accounts can make metadata-only requests. No broker restart, installation or authentication wake was needed.",
+  "cause": "No parser/watchdog or current authorization fault was reproduced. The alert category alone does not establish a failure or its historical cause. The keepalive heartbeat advances; deployed worker and keepalive hashes match the checkout, the build stamp matches, and the app signature validates.",
+  "resolution": "Kept the running service unchanged. Recorded the verified healthy conclusion and updated the README with this incident and its test-scope caveat. No candidate fix was warranted.",
+  "verification": "Both scoped vault-list calls and the wrapper version check exited 0 with stdout/stderr discarded. All 44 broker-specific Python tests and 37 Node tests passed; see artifacts/broker-tests.json and node-tests.tap. The full Python discovery run passed 47 of 49: two unrelated Cloudinary fixtures omitted run-local-package and failed after two successful synthetic credential reads. See test-scope.json. Chat identity, pin, dotfiles project, gpt-6-astra and high effort were read back.",
+  "activation": "The existing signed service remains running. Broker PID 1051 and /dev/ttys000 were preserved, as was the keepalive PID. Nothing is staged and no next-load action is required.",
+  "limitations": "No item secrets were read. These bounded checks establish current service health, not the origin of every historical authorization event. Physical banner clicking and human permission prompts were not exercised; the persisted release gate was true. Two unrelated Cloudinary test-fixture failures remain outside this broker-only incident; no claim that the entire Python suite passed.",
+  "docs": "Reviewed src/onepassword/README.md, agent-contract.md and autofixes/AGENTS.md. Updated README.md with the healthy-incident evidence and fixture caveat. The shared contract and autofix policy remain accurate; no changes or guidance sync were needed.",
+  "docsReviewed": true,
+  "verified": true,
+  "readyForNextLoad": false,
+  "releaseAuthorized": true,
+  "artifacts": [
+    "artifacts/baseline.json",
+    "artifacts/broker-tests.json",
+    "artifacts/chat-metadata.json",
+    "artifacts/deployed-hashes.json",
+    "artifacts/diagnostic-a7894b66-0a37-401e-bb65-a87396ab61ed.json",
+    "artifacts/final-status.json",
+    "artifacts/liveness.json",
+    "artifacts/metadata-smoke.json",
+    "artifacts/node-tests.tap",
+    "artifacts/python-tests.json",
+    "artifacts/release-gate.json",
+    "artifacts/test-scope.json",
+    "artifacts/report-review.json"
+  ]
+}

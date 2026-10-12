@@ -1,0 +1,59 @@
+{
+  "outcome": "no_change",
+  "settledAt": "2026-10-12T00:31:11.409Z",
+  "artifacts": [
+    {
+      "name": "artifacts/baseline.json",
+      "sha256": "1e6af4c1abbd83c3bba87a665de27c010c4738e12dd286740e4d55e03ed581a8"
+    },
+    {
+      "name": "artifacts/broker-tests.json",
+      "sha256": "391c2f8915ea9f21b4b46c78e9b0dafc9bdcf4436a05656d2440ad3f73d6011a"
+    },
+    {
+      "name": "artifacts/chat-metadata.json",
+      "sha256": "b6f422bdda1982a8dae054693c865a3652df38985e5af854415c41f23d63c252"
+    },
+    {
+      "name": "artifacts/deployed-hashes.json",
+      "sha256": "6934d901f1252503440742247f9a9153032b6f06c28ee6de77bebb307b22c22d"
+    },
+    {
+      "name": "artifacts/diagnostic-a7894b66-0a37-401e-bb65-a87396ab61ed.json",
+      "sha256": "e5242275764d50b954cf00f1344f4c5124c3219f5be98cbb23c2c0c4388b546c"
+    },
+    {
+      "name": "artifacts/final-status.json",
+      "sha256": "7428c5ff3400739a4b11b21d186ea5630a66f7c571047dd8daec4b2ab7c4e69c"
+    },
+    {
+      "name": "artifacts/liveness.json",
+      "sha256": "7d20a7cdcce1689acbe256ebecec2a2a988de37c6f6bc162d00e73f80d60373f"
+    },
+    {
+      "name": "artifacts/metadata-smoke.json",
+      "sha256": "ed0fdd9a7fb49aeaa7d0e2dba29fd7fb97ffb1f75daf9082f0602004e0565cd7"
+    },
+    {
+      "name": "artifacts/node-tests.tap",
+      "sha256": "d8c81b82bd247357ebb502e1d78349941a0fddd62eaca47516ee478f01d85fcb"
+    },
+    {
+      "name": "artifacts/python-tests.json",
+      "sha256": "c970c1c9a0397d064ad1721b086e0cf70e5012ea5652765270e8e9ff5da620bf"
+    },
+    {
+      "name": "artifacts/release-gate.json",
+      "sha256": "5772fd3e281273c96a9816935e0d70383f7156aae0444233dc35b4d9d646d1ed"
+    },
+    {
+      "name": "artifacts/test-scope.json",
+      "sha256": "e07e4a97b271290ebcea4470de35f52b9070d2f5c5661076aff8a75605df2b59"
+    },
+    {
+      "name": "artifacts/report-review.json",
+      "sha256": "e9a686c089e9f68f12c23338c0a2dd67de80a3351152740611d6eab8aa83f862"
+    }
+  ],
+  "reportSha256": "42864cd0ea5a21f355b1c8a2e962a5b9eaa013a5e84b043dbf89c2224b735dce"
+}

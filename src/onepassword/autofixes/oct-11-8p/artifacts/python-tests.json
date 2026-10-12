@@ -1,0 +1,11 @@
+{
+  "tests": 49,
+  "successful": false,
+  "failures": [
+    "test_inherited_shell_tracing_cannot_disclose_credentials (test_cloudinary_launcher.CloudinaryLauncherTests)",
+    "test_restricted_pair_is_private_scoped_and_quoted (test_cloudinary_launcher.CloudinaryLauncherTests)"
+  ],
+  "errors": [],
+  "skipped": 0,
+  "seconds": 12.83
+}

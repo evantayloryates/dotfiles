@@ -1,0 +1,22 @@
+{
+  "at": "2026-10-12T00:30:44.027324+00:00",
+  "broker": {
+    "pid": 1051,
+    "session": 1051,
+    "tty": "/dev/ttys000"
+  },
+  "keepalive_pid": 1055,
+  "heartbeat_advanced": true,
+  "age_seconds": 3.0273449420928955,
+  "broker_pid_tty_preserved": true,
+  "process_metadata": [
+    "1055   928      0 ??       /Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/MacOS/Python",
+    "1051   928      0 ttys000  /Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/MacOS/Python"
+  ],
+  "app_locked": false,
+  "console_locked": false,
+  "account_statuses": [
+    "ok",
+    "ok"
+  ]
+}
