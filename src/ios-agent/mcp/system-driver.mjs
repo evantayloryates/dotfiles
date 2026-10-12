@@ -47,7 +47,8 @@ export class SystemDriver {
       const phase=route==='/session'?'session_create':route==='/status'?'runner_status':route.endsWith('/alert/text')||route.endsWith('/wda/alert/buttons')?'alert_read':route.endsWith('/source')?'tree_read':method==='GET'?'context_read':'system_input';
       if(phase!=='runner_status'||!this.statusFailureAt||Date.now()-this.statusFailureAt>30000){
         if(phase==='runner_status')this.statusFailureAt=Date.now();
-        note('system.provider_failed',{phase,reason,outcome:method==='GET'?'failed':'unknown',level:'warn'});
+        const pending=phase==='runner_status'&&this.child&&!this.sid&&Date.now()<this.startupDeadline;
+        note(pending?'system.startup_wait':'system.provider_failed',{session:this.session.id,phase,reason,outcome:pending?'pending':method==='GET'?'failed':'unknown',level:pending?'info':'warn'});
       }
       throw Error(reason);
     }
@@ -55,8 +56,8 @@ export class SystemDriver {
     try{while(true){const {value,done}=await reader.read();if(done)break;bytes+=value.length;if(bytes>2*1024*1024)throw Error('system_response_bounded');text+=decoder.decode(value,{stream:true});}}finally{await reader.cancel().catch(()=>{});}
     const r=JSON.parse(text);if(!response.ok||r.value?.error){const error=Error('system_provider_rejected');error.providerCode=typeof r.value?.error==='string'?r.value.error:null;throw error;}return r;
   }
-  async start(){this.startPromise??=this.startOnce();return this.startPromise;}
-  async startOnce(){
+  async start(waitMs=10000){this.startPromise??=this.startOnce(waitMs);return this.startPromise;}
+  async startOnce(waitMs=10000){
     const file=path.join(this.state,'system-driver.json');
     if(!fs.existsSync(file)||fs.lstatSync(file).isSymbolicLink()||fs.statSync(file).mode&0o077)return {ok:false,reason:'private_system_driver_configuration_required'};
     const config=JSON.parse(fs.readFileSync(file));if(!tailnetHost(config.address))return {ok:false,reason:'configured_tailnet_address_required'};
@@ -80,10 +81,16 @@ export class SystemDriver {
     this.exit=new Promise(resolve=>{this.child.once('error',()=>{this.failed=true;resolve();});this.child.once('close',resolve);});
     this.child.stderr.on('data',()=>{});this.child.stdin.on('error',()=>{});
     let pending='';this.child.stdout.on('data',bytes=>{pending+=bytes;if(pending.length>16000)pending='';let at;while((at=pending.indexOf('\n'))>=0){try{const r=JSON.parse(pending.slice(0,at));if(r.stopped)this.cleanup=r;if(r.started===false)this.failed=true;if(['physical_unlock_required','xctest_authorization_failed','xctest_authorization_timed_out'].includes(r.startupGate))this.startupGate=r.startupGate;}catch{}pending=pending.slice(at+1);}});
-    this.startupDeadline=Date.now()+300000;
-    return this.continueStart(10000);
+    this.startupStartedAt=Date.now();this.startupPolls=0;this.startupDeadline=this.startupStartedAt+300000;
+    return this.continueStart(waitMs);
   }
   async continueStart(waitMs=0){
+    // Concurrent read requests must share the in-flight creation, not race
+    // across the async ownership check and send POST /session twice.
+    this.continuationPromise??=this.continueStartOnce(waitMs).finally(()=>{this.continuationPromise=null;});
+    return this.continuationPromise;
+  }
+  async continueStartOnce(waitMs=0){
     if(this.sid){this.check();return {ok:true,ready:true};}
     if(this.sessionCreationAttempted)return {ok:false,ready:false,phase:'session_create',reason:'system_session_creation_unconfirmed',outcome:'unknown',providerRequestSent:true,replay:false};
     const until=Math.min(Date.now()+waitMs,this.startupDeadline);
@@ -91,22 +98,24 @@ export class SystemDriver {
       this.check();
       if(this.stoppingRequested)return {ok:false,reason:'system_start_cancelled',replay:false};
       if(this.failed||this.child?.exitCode!==null)return {ok:false,reason:this.startupGate||'system_runner_exited',replay:false};
-      if(Date.now()>=this.startupDeadline)return {ok:false,reason:'system_start_expired',replay:false};
+      if(Date.now()>=this.startupDeadline){note('system.startup_expired',{session:this.session.id,phase:'runner_status',outcome:'failed',reason:'system_start_expired',level:'warn'});return {ok:false,reason:'system_start_expired',replay:false};}
+      this.startupPolls=(this.startupPolls||0)+1;
       try{this.runtime=(await this.http('GET','/status',undefined,1000)).value;if(this.runtime?.ready===true)break;}catch(error){this.startupStatusReason=['system_endpoint_deadline','system_endpoint_unreachable'].includes(error.message)?error.message:'system_status_unconfirmed';}
-      if(Date.now()>=until)return {ok:true,ready:false,phase:'starting',waitingFor:'runner_status',expiresAt:this.startupDeadline,reason:this.startupGate||'system_start_unconfirmed_inspect_phone',...(this.startupStatusReason?{lastStatusReason:this.startupStatusReason}:{}),replay:false};
+      if(Date.now()>=until)return {ok:true,ready:false,phase:'starting',waitingFor:'runner_status',expiresAt:this.startupDeadline,reason:this.startupGate||'system_runner_starting',...(this.startupStatusReason?{lastStatusReason:this.startupStatusReason}:{}),replay:false};
       await sleep(500);
     }while(true);
-    if(Date.now()>=this.startupDeadline)return {ok:false,reason:'system_start_expired',replay:false};
+    if(Date.now()>=this.startupDeadline){note('system.startup_expired',{session:this.session.id,phase:'runner_status',outcome:'failed',reason:'system_start_expired',level:'warn'});return {ok:false,reason:'system_start_expired',replay:false};}
     this.startupGate=undefined;
     await this.authorize();this.check();this.sessionCreationAttempted=true;
-    note('system.session_requested',{phase:'session_create',outcome:'unknown'});
+    note('system.runner_ready',{session:this.session.id,phase:'runner_status',outcome:'verified',ready:true,attemptCount:this.startupPolls,durationMs:this.startupStartedAt?Date.now()-this.startupStartedAt:undefined});
+    note('system.session_requested',{session:this.session.id,phase:'session_create',outcome:'dispatched'});
     let r;
     try{r=await this.http('POST','/session',{capabilities:{alwaysMatch:{shouldWaitForQuiescence:false,waitForIdleTimeout:1,shouldUseCompactResponses:true}}});}
-    catch(error){note('system.session_unconfirmed',{phase:'session_create',outcome:'unknown',reason:'system_session_creation_unconfirmed',level:'warn'});return {ok:false,ready:false,phase:'session_create',reason:'system_session_creation_unconfirmed',outcome:'unknown',providerRequestSent:true,replay:false};}
+    catch(error){note('system.session_unconfirmed',{session:this.session.id,phase:'session_create',outcome:'unknown',reason:'system_session_creation_unconfirmed',level:'warn'});return {ok:false,ready:false,phase:'session_create',reason:'system_session_creation_unconfirmed',outcome:'unknown',providerRequestSent:true,replay:false};}
     this.check();if(this.stoppingRequested)return {ok:false,reason:'system_start_cancelled',replay:false};
     const sid=r.sessionId||r.value?.sessionId;if(!/^[A-Fa-f0-9-]{36}$/.test(sid||''))return {ok:false,reason:'system_session_unconfirmed',replay:false};
     this.sid=sid;
-    note('system.session_ready',{phase:'session_create',outcome:'verified',ready:true});
+    note('system.session_ready',{session:this.session.id,phase:'session_create',outcome:'verified',ready:true});
     return {ok:true,ready:true,transport:'signed-XCTest-runner/paired-developer-start/Tailscale-WDA',indicator:'Apple Automation Running',offLANStartQualified:false,authentication:'Apple may require physical authorization; no passcode is stored or entered'};
   }
   async foregroundMatches(expected){
@@ -135,16 +144,26 @@ export class SystemDriver {
     return {text,buttons,authentication,control:authentication?'human authentication required':'observed button only'};
   }
   async inspect({kind='tree'}={}){
-    if(!['tree','alert'].includes(kind))throw Error('fixed_system_inspection_required');
+    if(!['tree','alert','permission'].includes(kind))throw Error('fixed_system_inspection_required');
+    this.snapshot=null;this.uncertain=true;
     const bundle=await this.context(),at=Date.now();
     // Permission/dialog work must not wait for a full browser hierarchy.
     // Alert snapshots have no node targets and authorize only observed alerts.
-    const tree=kind==='alert'?{nodes:[],truncated:false}:await parseTree((await this.http('GET',this.route('/source'))).value);
-    const alert=await this.readAlert();
+    let alert,tree,inspectionPath=kind;
+    if(kind==='permission'){
+      // Read once, then one full hierarchy only when no native alert exists.
+      // Failed/unknown alert observation must never be treated as absence.
+      alert=await this.readAlert();
+      inspectionPath=alert===null?'tree-fallback':'alert';
+      tree=alert===null?await parseTree((await this.http('GET',this.route('/source'))).value):{nodes:[],truncated:false};
+    }else{
+      tree=kind==='alert'?{nodes:[],truncated:false}:await parseTree((await this.http('GET',this.route('/source'))).value);
+      alert=await this.readAlert();
+    }
     if(await this.context()!==bundle)throw Error('system_app_changed');
     const snapshot=id();this.snapshot={id:snapshot,at:Date.now(),bundle,nodes:tree.nodes,alert};
     this.uncertain=false;
-    return {ok:true,kind,snapshot,bundle,alert,readDurationMs:Date.now()-at,freshness:'five seconds after completed read; tap re-resolves a unique live native element and checks hittability',nodes:tree.nodes.map((n,i)=>({...n,target:String(i)})),truncated:tree.truncated,delivery:kind==='alert'?'native XCTest alert only; no full hierarchy':'native XCTest; full tree includes browser/system UI; not DOM'};
+    return {ok:true,kind,inspectionPath,snapshot,bundle,alert,readDurationMs:Date.now()-at,freshness:'five seconds after completed read; tap re-resolves a unique live native element and checks hittability',nodes:tree.nodes.map((n,i)=>({...n,target:String(i)})),truncated:tree.truncated,delivery:inspectionPath==='alert'?'native XCTest alert only; no full hierarchy':'native XCTest; full tree includes browser/system UI; not DOM'};
   }
   async tapElement(matches,type){
     if(!Array.isArray(matches)||matches.length!==1)return {reason:'unique_system_target_required'};

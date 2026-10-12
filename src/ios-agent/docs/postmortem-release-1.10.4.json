@@ -1,0 +1,25 @@
+{
+  "version": "1.10.4",
+  "from": "1.10.3",
+  "releaseScope": "Personal DEV service",
+  "changes": [
+    "Explicit permission inspection: alert first, one tree fallback, no fallback after failed observation",
+    "Bounded cold-start wait and honest pending/recovered telemetry",
+    "One in-flight startup continuation across concurrent inspection requests",
+    "Passing verification has no failure reason",
+    "256-file count cap with unchanged2MiB/7-day bounds and idle writer recovery",
+    "Failed inspections invalidate previous snapshots"
+  ],
+  "verification": {
+    "nodeChecksPassed": 73,
+    "pythonChecksPassed": 50,
+    "freshMcp": "passed",
+    "physical": "in progress"
+  },
+  "boundaries": [
+    "No authentication exemption",
+    "Direct paired off-LAN and deep cellular Inspector unqualified",
+    "Focus command mailbox not provisioned",
+    "Wi-Fi Off\u2192On remains unqualified"
+  ]
+}

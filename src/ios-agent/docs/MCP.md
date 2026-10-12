@@ -940,3 +940,11 @@ ios_web_open now accepts transport=auto|paired|app|reflected. Auto preserves the
 ios_device_wifi_on requests only the existing phone-local Runner Wi-Fi On shortcut through pairing, even with DEV offline. It uses a temporary shared owner and no XCTest/Mirroring. wifiVerified=false: independent radio/association observation remains required. End normal page/app ownership first and finish with Home. It cannot enable a missing paired developer path, unlock a phone or run arbitrary shortcuts.
 
 XCTest startup creates at most one provider session per runner. An uncertain creation retires through existing cleanup; a later inspect cannot repeat POST /session. Pending runner status is not phone readiness. See POSTMORTEM-1.10.2.md.
+
+## 1.10.4: fewer permission-detour turns
+
+Use ios_system_begin timeoutSeconds=25 for a cold runner (range0..30, default10). This bounds the initial runner-status wait; provider session creation has its own deadline. If still ready=false, resume the SAME session with ios_system_inspect kind=permission timeoutSeconds=30; never call begin again. Pending transport is not evidence of authentication or lock. Five-minute expiry, owner checks and cleanup remain in force.
+
+kind=permission reads the native alert once, then reads the hierarchy once only when that alert is confirmed absent. The response records inspectionPath=alert|tree-fallback and retains normal fresh snapshot/target refs. Failed/unknown alert reads do not fall back. Authentication alerts remain observation-only; ordinary exact observed Allow actions are already authorized in Taylor's DEV workflows. A failed inspection invalidates the previous snapshot until a fresh successful observation. No automatic permission acceptance, input replay, passcode handling or Mirroring runtime dependency is added.
+
+For a browser detour: web end home=false → system begin/permission inspect → observed input → system end home=false → web begin on the SAME enrolled page. Verify actual media acquisition, then continue. End finally, verify runnerStopped, media release, glow/ownership and Home separately.

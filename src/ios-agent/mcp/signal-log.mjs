@@ -9,7 +9,7 @@ const context = new AsyncLocalStorage();
 // Process configuration only; never supplied through readSignals tool arguments.
 const ROOT = process.env.IOS_AGENT_SIGNAL_STATE_DIR || path.join(os.homedir(), 'Library/Application Support/ios-agent');
 const DIR = path.join(ROOT, 'signals');
-const FILE_BYTES = 128 * 1024, TOTAL_BYTES = 2 * 1024 * 1024, MAX_FILES = 32;
+const FILE_BYTES = 128 * 1024, TOTAL_BYTES = 2 * 1024 * 1024, MAX_FILES = 256;
 const MAX_AGE = 7 * 86400 * 1000, ROTATE_AGE = 86400 * 1000;
 const ids = new Set(['traceId','requestId','sessionId','ownerId','pageId','buildId','bootId','epoch','backendEpoch','clientEpoch','sourceHash','leaseFingerprint','sourceStream','documentId','observedDocumentId','frameLoaderId']);
 const aliases = {operation:'op',document:'documentId',observedDocument:'observedDocumentId',frameLoader:'frameLoaderId',receiverFailure:'errorCode',windowMs:'durationMs',droppedEvents:'dropCount',trace:'traceId',request:'requestId',session:'sessionId',owner:'ownerId',page:'pageId',build:'buildId',boot:'bootId',source:'stage',sourceStreamId:'sourceStream',sourceBootId:'bootId',attempts:'attemptCount',routeName:'route',previousRouteName:'previousRoute',operationName:'op',errorCount:'count'};
@@ -110,7 +110,10 @@ function prune() {
 }
 function target(bytes) {
   const now = Date.now();
-  if (current && now-current.started < ROTATE_AGE && current.size+bytes <= FILE_BYTES) return current.file;
+  if (current && now-current.started < ROTATE_AGE && current.size+bytes <= FILE_BYTES) {
+    try {const s=fs.lstatSync(current.file);if(s.isFile()&&!s.isSymbolicLink()&&!(s.mode&0o077))return current.file;} catch {}
+    current=null; // Another process may have pruned this writer's idle file.
+  }
   const name = `signal-${randomBytes(8).toString('hex')}-${now}.jsonl`;
   const file = path.join(DIR, name);
   const fd = fs.openSync(file, fs.constants.O_WRONLY|fs.constants.O_CREAT|fs.constants.O_EXCL|fs.constants.O_NOFOLLOW, 0o600);

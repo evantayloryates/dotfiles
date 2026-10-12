@@ -16,7 +16,7 @@ ROOT = Path(os.environ.get('IOS_AGENT_SIGNAL_STATE_DIR') or Path.home() / 'Libra
 DIR = ROOT / 'signals'
 FILE_BYTES = 128 * 1024
 TOTAL_BYTES = 2 * 1024 * 1024
-MAX_FILES = 32
+MAX_FILES = 256
 MAX_AGE = 7 * 86400
 ROTATE_AGE = 86400
 IDS = {'traceId', 'requestId', 'sessionId', 'ownerId', 'pageId', 'buildId', 'bootId', 'epoch', 'backendEpoch', 'clientEpoch', 'sourceHash', 'leaseFingerprint', 'sourceStream', 'documentId', 'observedDocumentId', 'frameLoaderId'}
@@ -207,7 +207,13 @@ def _target(size):
     global _current
     now = time.time()
     if _current and now - _current[2] < ROTATE_AGE and _current[1] + size <= FILE_BYTES:
-        return _current[0]
+        try:
+            mode = _current[0].lstat().st_mode
+            if stat.S_ISREG(mode) and not stat.S_ISLNK(mode) and mode & 0o077 == 0:
+                return _current[0]
+        except OSError:
+            pass
+        _current = None  # Another process may have pruned this idle writer.
     file = DIR / f'signal-{secrets.token_hex(8)}-{int(now * 1000)}.jsonl'
     fd = os.open(file, os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, 'O_NOFOLLOW', 0), 0o600)
     os.close(fd)
