@@ -932,3 +932,11 @@ For an intermediate permission detour: `ios_web_end {sessionId,home:false}` → 
 At an owned idle point, refresh the harness MCP catalog/connection. Call ios_guide, ios_signals view=summary, then ios_web_end with sessionId=00000000000000000000000000000000 and boolean home=false. This unknown-session probe sends no phone/CLI input; require alreadyEnded=true, inputSent=false and cleanupIntent.home=false. A string "false" is invalid. A current server process can coexist with stale harness tool definitions; a process restart alone may not refresh them. Never terminate another agent process.
 
 End results echo their effective cleanup intent. For a Chrome permission detour, alert=null covers only native alerts: inspect kind=tree once for an in-app sheet, then use its fresh observed ordinary button. Failed web-media results include direction and a fixed predicate reason without weakening the advancement gate. Exact retired lease cleanup is idempotent; replacement owners remain protected. Unknown final glow feedback stays unconfirmed with its last observed feedback category. See POSTMORTEM-1.10.1.md.
+
+## 1.10.3: browser control without native bootstrap
+
+ios_web_open now accepts transport=auto|paired|app|reflected. Auto preserves the app-owned lane when the developer endpoint is unavailable; otherwise it uses reflected pairing when native readiness is present, or direct paired URL launch when it is absent. Explicit paired avoids native bootstrap. Direct paired final end verifies glow-off then requests Runner Home through pairing. Nearby Chrome launch/readiness/DOM/cleanup/Home passed; cellular direct pairing remains separate. Never replay an accepted/unknown launch through another lane.
+
+ios_device_wifi_on requests only the existing phone-local Runner Wi-Fi On shortcut through pairing, even with DEV offline. It uses a temporary shared owner and no XCTest/Mirroring. wifiVerified=false: independent radio/association observation remains required. End normal page/app ownership first and finish with Home. It cannot enable a missing paired developer path, unlock a phone or run arbitrary shortcuts.
+
+XCTest startup creates at most one provider session per runner. An uncertain creation retires through existing cleanup; a later inspect cannot repeat POST /session. Pending runner status is not phone readiness. See POSTMORTEM-1.10.2.md.

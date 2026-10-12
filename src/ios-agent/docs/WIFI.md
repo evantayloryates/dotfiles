@@ -109,3 +109,7 @@ daemon or XCTest was started.
 ## Unplugged bundle transport — 8 October late evening
 
 With USB unplugged, strict readiness, fresh GraphQL, reconstructed React and real native Nutrition navigation (ClientMealLogs) passed. An unconfirmed Home action was not replayed; independent state still showed Nutrition. A semantic reload hit the one-shot embedded fallback and recovered Home. The live Metro bundle measured 34,982,522 decoded bytes with no content encoding. Dev-only streaming compression reduced wire bytes to 7,869,716 (77.5%), with identical SHA-256 of the decoded JavaScript and preserved RN multipart protocol. After the scoped idle Metro restart, the phone loaded tailnet-Metro with no fallback. This is a verified transport improvement; exact cellular path and the final explicit Off batch remain separately open. On callback returned, but no Wi-Fi IPv4 association was observed, so On execution is not called verified association restoration.
+
+## 1.10.3 paired On-only recovery
+
+Use ios_device_wifi_on after ending normal ownership when the native bridge is unavailable but the paired developer transport is reachable. It requests the fixed Runner Wi-Fi On action on the phone, not the Mac. Physical paired launch succeeded without a prompt while Wi-Fi was already associated; Off→On recovery through this new lane is not claimed. wifiVerified stays false. Observe Settings/association separately and finish with ios_device_home transport=paired. No automatic unknown-result retry, Wi-Fi-Off input, arbitrary shortcut or silent USB fallback.

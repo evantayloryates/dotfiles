@@ -98,8 +98,8 @@ def request(message, state, timeout=15):
     # Correlation metadata rides the existing same-user IPC request. It grants
     # no command authority and contains no arguments or capability values.
     try:
-        from signals import signal_context_from_environment
-        context = signal_context_from_environment()
+        from signals import current_signal_context
+        context = current_signal_context()
         if context:
             message = {**message, "signalContext": context}
     except Exception:

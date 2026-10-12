@@ -3,13 +3,16 @@
 import {spawn} from 'node:child_process';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {signalContextEnvironment} from './signal-log.mjs';
+const signalEnvironment=()=>{try{return signalContextEnvironment();}catch{return {};}};
+const requestContext=()=>{try{return JSON.parse(signalContextEnvironment({}).IOS_AGENT_SIGNAL_CONTEXT);}catch{return {};}};
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 export class RelayChannel {
   constructor(state,initial){
     this.sequence=0;this.pending=null;this.closed=false;this.buffer='';
     this.child=spawn(path.join(state,'providers/pymobiledevice3-11.15.5/bin/python'),
-      ['-B',path.join(root,'relay_worker.py')],{stdio:['pipe','pipe','ignore'],env:{...process.env,PYTHONDONTWRITEBYTECODE:'1'}});
+      ['-B',path.join(root,'relay_worker.py')],{stdio:['pipe','pipe','ignore'],env:{...process.env,PYTHONDONTWRITEBYTECODE:'1',...signalEnvironment()}});
     this.exited=false;this.exitPromise=new Promise(resolve=>this.child.once('close',()=>{this.exited=true;resolve();}));
     this.ready=new Promise((resolve,reject)=>{
       this.startup={resolve,reject,timer:setTimeout(()=>this.fail('relay_start_deadline'),45000)};
@@ -51,7 +54,7 @@ export class RelayChannel {
     const id=++this.sequence;
     return new Promise((resolve,reject)=>{
       this.pending={id,resolve,reject,timer:setTimeout(()=>this.fail('relay_deadline_outcome_unknown_do_not_replay'),timeoutMs)};
-      this.child.stdin.write(JSON.stringify({...args,id,op})+'\n');
+      this.child.stdin.write(JSON.stringify({...args,id,op,signalContext:requestContext()})+'\n');
     });
   }
   async close(){

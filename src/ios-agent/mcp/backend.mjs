@@ -34,7 +34,7 @@ function dispatchLabel(kind,args,input){
   if(kind==='cli'&&['acquire','release'].includes(args?.[0]))return `lease.${args[0]}`;
   if(kind==='cli'&&args?.[0]==='action'&&['home','browser-handoff','tap','gesture','text','wifi','reload'].includes(args?.[1]))return 'native.input';
   if(kind==='web'&&input?.op==='web_action'&&!['state','snapshot','element'].includes(input.action))return 'browser.input';
-  if(kind==='provider'&&['fixed-launch','browser-launch','shortcut-home','ax-native-tab'].includes(input?.kind))return 'provider.input';
+  if(kind==='provider'&&['fixed-launch','browser-launch','shortcut-home','shortcut-wifi-on','ax-native-tab'].includes(input?.kind))return 'provider.input';
   if(kind==='reservation'&&['start','stop'].includes(input?.op))return 'reservation.input';
   return null;
 }
@@ -181,7 +181,7 @@ export class Backend {
         advice:'Before device discovery/paired transport work, check btle-watch preflight. If high or stale, inspect the incident; reuse an owned existing connection and batch observations instead of redundant discovery/reconnect loops. Do not restart system Bluetooth or interrupt another owner. Correlation does not establish that ios-agent caused the load.'};
     } catch { bluetoothResourceWatch = {fresh:false,advice:'BTLE watcher unavailable; run /Users/taylor/dotfiles/bin/btle-watch preflight before device discovery.'}; }
     return {workerRelease:current?.serviceRelease||null,bluetoothResourceWatch,browserWorkflow: ['ios_doctor (host prerequisites)', 'ios_web_pages (reuse a visible ready enrolled page)', 'ios_web_enroll only if provisioning is needed (private launchFile)', 'open the intended dev browser page if not enrolled', 'ios_web_pages', 'ios_web_begin', 'ios_web_inspect and ios_web_action', 'ios_web_end in finally'],
-      readiness: 'ios_wait_ready waits up to 55 seconds without a lease, waking on fresh foreground app/page events. Repeat bounded waits while this task is waiting; do not infer lock from offline. ios_begin still verifies the runtime. MCP availability does not itself schedule a new model turn.',
+      readiness: 'ios_wait_ready waits up to 55 seconds without a lease, waking on fresh foreground app/page events. Use bounded waits while expecting a specific foreground transition; do not repeat unchanged waits to recover a missing native bridge. For browser launch auto selects direct pairing when the native bridge is absent. Do not infer lock from offline. ios_begin still verifies the runtime. MCP availability does not itself schedule a new model turn.',
       browserProfiles: 'ios_web_enroll profile=app uses private10446→3000/4000; profile=call-rig uses private10520→3020/4020 with the dedicated real-provider local fixture. Grants and browser memory are origin-bound. Preserve both Serve routes; call-rig enrollment does not install a route or prove credentials/recording state. Read ios-agent://mobile-web.',
       browserConditions: 'ios_web_verify timeoutSeconds=0..30 waits for a specific owned page condition without repeated model turns. web-element uses a unique semantic selector, optional exact expectedValue, and visible/interactable/editable state; passing returns fresh snapshot/target refs. Stops on failed observation or lost ownership; no input is retried. Read ios-agent://mobile-web for examples. web-call additionally waits for explicit lobby/connected/paired/released call state and reports fixed permission/request diagnostics; it never grants permissions or joins. Media RTP remains a single explicit sample.',
       launch: 'ios_device_launch has fixed DEV/Settings/Safari/Chrome targets. Explicit private developer-tailnet configuration uses paired rootless RSD/DVT over Tailscale, without USB fallback or XCTest. Physical DEV/Safari/Chrome foreground and Inspector/profile reads passed through the overlay. Without that configuration use nearby CoreDevice. A bounded Apple AX app-state stream can independently report foregroundVerified with target/state/observation age. DEV/Settings/Safari/Chrome events matched independent foreground readback. Off-LAN physical qualification remains pending; neither launch acceptance nor foreground state is native/React/page readiness. Remote lock state may be unknown; never infer locked or unplugged.',
@@ -208,7 +208,7 @@ export class Backend {
       audioProbes: 'ios_audio_probe plan/select/run/read/stop wraps the synthetic three-transport lab. Read ios-agent://audio-probe before joining; recording and exact provider fixture must be independently verified. Readback and call cleanup stay separate.',
       browserDomains: {layout:'ios_web_inspect kind=element reports fresh target computed CSS, center hit, bounded ancestors and viewport; use snapshot and target refs.',media:'Content-free request outcomes, track liveness, WebRTC audio and WebSocket counters. Check media.hooks coverage before interpreting zero counts; late microphone APIs are wrapped without replacing later libraries.',performance:'Bounded navigation/paint/resource/main-thread timings, optional Event Timing/LCP observers and readonly AudioSession type/state. Inspect domains.performance; a second state read obtains buffered asynchronous values. Optional observers stop with ownership. Event entry durations are not INP; latest LCP is a candidate. Unsupported readings stay null.',meet:'Fixed local call-lobby projection; no identities, credentials or transcripts.',limitations:'State readback is not a trusted touch, OS permission tap, whole-phone screenshot or off-LAN verification.'},
       browserMediaVerification: 'ios_web_verify gate=web-media direction=sent|received|both sampleMs=500..3000 requires stable advancing audio RTP counters. It returns shared structural learning evidence; a passed counter gate does not prove audible content or a completed call.',
-      networkRecovery: 'After an intentional cellular/Wi-Fi-Off test, restore Wi-Fi before diagnosing nearby control as unavailable. Read the current developer transport; failure does not prove an unplugged cable. The fixed Runner Wi-Fi On paired recovery shortcut works outside DEV, but dispatch alone is not switch/association proof. An off-LAN browser page alone cannot yet press system Allow or restore Wi-Fi.',
+      networkRecovery: 'After an intentional cellular/Wi-Fi-Off test, restore Wi-Fi before diagnosing nearby control as unavailable. Read the current developer transport; failure does not prove an unplugged cable. ios_device_wifi_on runs the fixed Runner Wi-Fi On recovery shortcut outside DEV through pairing; it does not need the native bridge. Dispatch alone is not switch/association proof. Finish with Home. An off-LAN browser page alone cannot yet press system Allow or restore Wi-Fi.',
       microphoneWorkflow: 'Safari: use bounded native page controls to save Microphone=Allow for the exact DEV host, then verify getUserMedia through the normal page driver. Chrome: first inspect Settings > Privacy & Security > Microphone; a disabled Chrome app switch can cause NotAllowedError without a site prompt. Named SwiftUI switches resolve their unique nested native toggle; inspect value afterward. Use exact observed Allow labels only after identifying the expected DEV media prompt. ios_system_inspect also returns native alert text/buttons even if the hierarchy is empty; alert-button rechecks its fresh snapshot and exact label. Authentication prompts remain human-only. A permission projection can remain prompt after live track acquisition; inspect pending requests and actual tracks before requesting another approval. Use web-call lobby/paired/released for call conditions, separately from RTP. Never use Mirroring as runtime permission control, assume tap success equals permission, enter a passcode, or replay an unknown request.',
       focusLaunch: 'Provisioned iCloud Focus + Run Immediately phone automation opened Kickoff DEV while unlocked on cellular without USB, Mirroring or XCTest. ios_device_launch transport=auto selects it before dispatch if fixed developer TCP is unavailable; transport=focus explicitly selects it. Existing personal Focus is preserved. One pulse, bounded cleanup, no retry on unknown outcome. A subsequent recovery pulse completed without a fresh native bridge, so always require foreground/readiness evidence. Safari app-owned private-URL handoff passed cellular DOM work. Chrome handoff and deep cellular Inspector remain unconfirmed; no accepted input is replayed.',
       systemFallback: 'Explicit ios_system_begin/inspect/action/end uses the existing signed WDA runner for native Safari/Chrome/Settings/Shortcuts/Kickoff and Home. Exact-label type/clear handles ordinary native fields (256 characters maximum); type appends and clear is explicit. Inspect the effect. In browser address bars type the URL, read it back, then tap the observed Go button separately. Secure fields/passcodes are excluded. Fixed activate/Home may leave another app without inspecting it. Xcode automatic privileged diagnostics are disabled; ordinary sessions need no sudo. For an intermediate browser permission handoff use ios_web_end home=false, ios_system_begin/inspect/action, then ios_system_end home=false and ios_web_begin on the SAME ready enrolled page. Do not call ios_web_open merely to resume it; that reload can ask permission again. End the normal app/page lease first; end the fallback in finally, normally return Home, and verify runnerStopped. Startup uses paired nearby developer transport; WDA HTTP uses Tailscale but off-LAN start is unqualified. Apple may request human authorization; no passcode is entered. EOF/dead owner independently stops the runner. Do not use this for routine DOM/app work.',
@@ -667,6 +667,12 @@ export class Backend {
         return {ok:result.ok===true,transport:'app-owned-home',inputSent:result.ok?true:(result.actionSent??'unknown'),homeVerified:false,replay:false,next:'DEV prepared one Home handoff and retired its lease. Whole-display confirmation remains separate; do not replay this input.'};
       }finally{await this.end(acquired.sessionId);}
     }
+    return this.pairedShortcut('shortcut-home');
+  }
+  async deviceWiFiOn(){return this.pairedShortcut('shortcut-wifi-on');}
+  async pairedShortcut(kind){
+    if(!['shortcut-home','shortcut-wifi-on'].includes(kind))return {ok:false,reason:'fixed_device_shortcut_required',inputSent:false};
+    const home=kind==='shortcut-home',event=home?'home.request_completed':'wifi.recovery_requested';
     const reservation=await this.begin({surface:'launch'});
     try {
       const file=path.join(this.state,'web-device.json'),transport=path.join(this.state,'developer-tailnet.json');
@@ -674,13 +680,13 @@ export class Backend {
       if(!fs.existsSync(transport))return {ok:false,reason:'paired_tailnet_configuration_required',inputSent:false};
       const serial=JSON.parse(fs.readFileSync(file,'utf8')).hardwareUDID;
       if(!/^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{16}$/.test(serial||''))return {ok:false,reason:'configured_device_identity_unconfirmed',inputSent:false};
-      const owner=this.session(reservation.sessionId),artifact=this.artifact(owner,'device-home');
+      const owner=this.session(reservation.sessionId),artifact=this.artifact(owner,kind);
       try {
-        const result=await this.run('provider',[],{kind:'shortcut-home',serial,state:this.state,leaseFile:owner.lease,ownerFile:owner.owner,output:artifact.file},26000);
+        const result=await this.run('provider',[],{kind,serial,state:this.state,leaseFile:owner.lease,ownerFile:owner.owner,output:artifact.file},26000);
         this.session(owner.id);
-        if(!result.ok||result.value?.ok!==true||!fs.existsSync(artifact.file)){note('home.request_completed',{provider:'paired',outcome:result.value?.inputSent===false?'refused':'unknown',dispatched:result.value?.inputSent===true?true:result.value?.inputSent===false?false:undefined,verified:false,reason:reasonCode(result.value?.reason)||'device_home_unconfirmed',level:'warn'});return {ok:false,reason:result.value?.reason||'device_home_unconfirmed',inputSent:result.value?.inputSent??'unknown',replay:false};}
+        if(!result.ok||result.value?.ok!==true||!fs.existsSync(artifact.file)){note(event,{provider:'paired',outcome:result.value?.inputSent===false?'refused':'unknown',dispatched:result.value?.inputSent===true?true:result.value?.inputSent===false?false:undefined,verified:false,reason:reasonCode(result.value?.reason)||(home?'device_home_unconfirmed':'device_wifi_on_unconfirmed'),level:'warn'});return {ok:false,reason:result.value?.reason||(home?'device_home_unconfirmed':'device_wifi_on_unconfirmed'),inputSent:result.value?.inputSent??'unknown',replay:false};}
         const value={ok:true,...safe(JSON.parse(fs.readFileSync(artifact.file,'utf8')).result),replay:false};
-        note('home.request_completed',{provider:'paired',outcome:value.homeVerified===true?'verified':'accepted',dispatched:true,verified:value.homeVerified===true});
+        note(event,{provider:'paired',outcome:(home?value.homeVerified:value.wifiVerified)===true?'verified':'accepted',dispatched:true,verified:(home?value.homeVerified:value.wifiVerified)===true});
         return value;
       }finally{fs.rmSync(artifact.file,{force:true});this.artifacts.delete(artifact.id);}
     }finally{await this.end(reservation.sessionId);}
@@ -940,9 +946,9 @@ export class Backend {
   }
   async finishWebEnd(id,{home=true}={}) {
     const s = this.sessions.get(id), page = s?.page;
-    const requestHome=home&&s?.appManagedHome===true&&s.active&&!this.closing;
+    const requestHome=home&&(s?.appManagedHome===true||s?.pairedManagedHome===true)&&s.active&&!this.closing;
     const cleanupStartedAt=Date.now();
-    note('browser.cleanup_requested',{session:id,page,action:home&&(s?.appManagedHome||s?.relayChannel)?'glow_then_home':'glow_only',reason:home?undefined:'intermediate_handoff'});
+    note('browser.cleanup_requested',{session:id,page,action:home&&(s?.appManagedHome||s?.pairedManagedHome||s?.relayChannel)?'glow_then_home':'glow_only',reason:home?undefined:'intermediate_handoff'});
     const release = await this.end(id,{home});
     if (!page){note('browser.cleanup_unconfirmed',{session:id,outcome:'unknown',reason:'page_identity_unavailable',level:'warn'});return {...release, indicatorOff: 'unconfirmed',ok:false,reason:'page_identity_unavailable'};}
     // The nearby relay requests Home before retiring ownership. Its final
@@ -963,7 +969,7 @@ export class Backend {
         const learningEvidence=s?.webFingerprint ? await this.learning('observe',{receipt,source:s.webFingerprint}).catch(()=>({available:false})) : {available:false};
         let appCleanup;
         if(requestHome&&release.released===true&&!this.closing){
-          try{const home=await this.deviceHome({transport:'app'});appCleanup={homeRequested:home.ok===true,homeVerified:false,...(!home.ok?{reason:home.reason||'home_unconfirmed',replay:false}:{})};}
+          try{const home=await this.deviceHome({transport:s.pairedManagedHome?'paired':'app'});appCleanup={homeRequested:home.ok===true,homeVerified:false,...(!home.ok?{reason:home.reason||'home_unconfirmed',replay:false}:{})};}
           catch{appCleanup={homeRequested:false,homeVerified:false,reason:'home_owner_or_transport_unavailable',replay:false};}
           note('browser.home_cleanup_completed',{session:id,outcome:appCleanup.homeRequested?'accepted':'unknown',dispatched:appCleanup.homeRequested===true?true:undefined,verified:false,reason:reasonCode(appCleanup.reason),level:appCleanup.homeRequested?'info':'warn'});
         }

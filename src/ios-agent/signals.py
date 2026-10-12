@@ -149,6 +149,11 @@ def signal_context_environment(base=None):
     return {**(os.environ if base is None else base), 'IOS_AGENT_SIGNAL_CONTEXT': json.dumps({**_inherited(), **_clean(_context.get())}, separators=(',', ':'))}
 
 
+def current_signal_context():
+    """Scrubbed current request context, including an async worker's override."""
+    return {**_inherited(), **_clean(_context.get())}
+
+
 def signal_context_from_environment():
     """Use as ``with signal_context(**signal_context_from_environment())``."""
     try:

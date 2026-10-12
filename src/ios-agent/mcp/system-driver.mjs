@@ -5,6 +5,9 @@ import {randomBytes} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import net from 'node:net';
 import {retainedRunner} from './system-reservation.mjs';
+import {emitSignal,signalContextEnvironment} from './signal-log.mjs';
+const note=(event,fields)=>{try{emitSignal('mcp',event,fields);}catch{}};
+const childSignalEnv=()=>{try{return signalContextEnvironment();}catch{return {};}};
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const id=()=>randomBytes(16).toString('hex');
@@ -39,12 +42,20 @@ export class SystemDriver {
   async http(method,route,body,timeout=12000){
     let response;
     try{response=await fetch(this.base+route,{method,signal:AbortSignal.timeout(timeout),headers:{'content-type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)});}
-    catch(error){throw Error(['TimeoutError','AbortError'].includes(error.name)?'system_endpoint_deadline':'system_endpoint_unreachable');}
+    catch(error){
+      const reason=['TimeoutError','AbortError'].includes(error.name)?'system_endpoint_deadline':'system_endpoint_unreachable';
+      const phase=route==='/session'?'session_create':route==='/status'?'runner_status':route.endsWith('/alert/text')||route.endsWith('/wda/alert/buttons')?'alert_read':route.endsWith('/source')?'tree_read':method==='GET'?'context_read':'system_input';
+      if(phase!=='runner_status'||!this.statusFailureAt||Date.now()-this.statusFailureAt>30000){
+        if(phase==='runner_status')this.statusFailureAt=Date.now();
+        note('system.provider_failed',{phase,reason,outcome:method==='GET'?'failed':'unknown',level:'warn'});
+      }
+      throw Error(reason);
+    }
     const reader=response.body.getReader();let text='',bytes=0;const decoder=new TextDecoder();
     try{while(true){const {value,done}=await reader.read();if(done)break;bytes+=value.length;if(bytes>2*1024*1024)throw Error('system_response_bounded');text+=decoder.decode(value,{stream:true});}}finally{await reader.cancel().catch(()=>{});}
     const r=JSON.parse(text);if(!response.ok||r.value?.error){const error=Error('system_provider_rejected');error.providerCode=typeof r.value?.error==='string'?r.value.error:null;throw error;}return r;
   }
-  async start(){this.startPromise=this.startOnce();return this.startPromise;}
+  async start(){this.startPromise??=this.startOnce();return this.startPromise;}
   async startOnce(){
     const file=path.join(this.state,'system-driver.json');
     if(!fs.existsSync(file)||fs.lstatSync(file).isSymbolicLink()||fs.statSync(file).mode&0o077)return {ok:false,reason:'private_system_driver_configuration_required'};
@@ -65,7 +76,7 @@ export class SystemDriver {
     await this.authorize();this.check();
     const log=path.join(this.session.dir,'system-runner.log');
     const argv=JSON.stringify({state:this.state,ownerFile:this.session.owner,leaseFile:this.session.lease,log});
-    this.child=spawn(path.join(this.state,'providers/pymobiledevice3-11.15.5/bin/python'),['-B',path.join(root,'system_runner.py'),argv],{stdio:['pipe','pipe','pipe']});
+    this.child=spawn(path.join(this.state,'providers/pymobiledevice3-11.15.5/bin/python'),['-B',path.join(root,'system_runner.py'),argv],{stdio:['pipe','pipe','pipe'],env:{...process.env,...childSignalEnv()}});
     this.exit=new Promise(resolve=>{this.child.once('error',()=>{this.failed=true;resolve();});this.child.once('close',resolve);});
     this.child.stderr.on('data',()=>{});this.child.stdin.on('error',()=>{});
     let pending='';this.child.stdout.on('data',bytes=>{pending+=bytes;if(pending.length>16000)pending='';let at;while((at=pending.indexOf('\n'))>=0){try{const r=JSON.parse(pending.slice(0,at));if(r.stopped)this.cleanup=r;if(r.started===false)this.failed=true;if(['physical_unlock_required','xctest_authorization_failed','xctest_authorization_timed_out'].includes(r.startupGate))this.startupGate=r.startupGate;}catch{}pending=pending.slice(at+1);}});
@@ -74,21 +85,28 @@ export class SystemDriver {
   }
   async continueStart(waitMs=0){
     if(this.sid){this.check();return {ok:true,ready:true};}
+    if(this.sessionCreationAttempted)return {ok:false,ready:false,phase:'session_create',reason:'system_session_creation_unconfirmed',outcome:'unknown',providerRequestSent:true,replay:false};
     const until=Math.min(Date.now()+waitMs,this.startupDeadline);
     do {
       this.check();
       if(this.stoppingRequested)return {ok:false,reason:'system_start_cancelled',replay:false};
       if(this.failed||this.child?.exitCode!==null)return {ok:false,reason:this.startupGate||'system_runner_exited',replay:false};
       if(Date.now()>=this.startupDeadline)return {ok:false,reason:'system_start_expired',replay:false};
-      try{this.runtime=(await this.http('GET','/status',undefined,1000)).value;if(this.runtime?.ready===true)break;}catch{}
-      if(Date.now()>=until)return {ok:true,ready:false,phase:'starting',expiresAt:this.startupDeadline,reason:this.startupGate||'system_start_unconfirmed_inspect_phone',replay:false};
+      try{this.runtime=(await this.http('GET','/status',undefined,1000)).value;if(this.runtime?.ready===true)break;}catch(error){this.startupStatusReason=['system_endpoint_deadline','system_endpoint_unreachable'].includes(error.message)?error.message:'system_status_unconfirmed';}
+      if(Date.now()>=until)return {ok:true,ready:false,phase:'starting',waitingFor:'runner_status',expiresAt:this.startupDeadline,reason:this.startupGate||'system_start_unconfirmed_inspect_phone',...(this.startupStatusReason?{lastStatusReason:this.startupStatusReason}:{}),replay:false};
       await sleep(500);
     }while(true);
     if(Date.now()>=this.startupDeadline)return {ok:false,reason:'system_start_expired',replay:false};
     this.startupGate=undefined;
-    await this.authorize();this.check();const r=await this.http('POST','/session',{capabilities:{alwaysMatch:{shouldWaitForQuiescence:false,waitForIdleTimeout:1,shouldUseCompactResponses:true}}});
+    await this.authorize();this.check();this.sessionCreationAttempted=true;
+    note('system.session_requested',{phase:'session_create',outcome:'unknown'});
+    let r;
+    try{r=await this.http('POST','/session',{capabilities:{alwaysMatch:{shouldWaitForQuiescence:false,waitForIdleTimeout:1,shouldUseCompactResponses:true}}});}
+    catch(error){note('system.session_unconfirmed',{phase:'session_create',outcome:'unknown',reason:'system_session_creation_unconfirmed',level:'warn'});return {ok:false,ready:false,phase:'session_create',reason:'system_session_creation_unconfirmed',outcome:'unknown',providerRequestSent:true,replay:false};}
     this.check();if(this.stoppingRequested)return {ok:false,reason:'system_start_cancelled',replay:false};
-    this.sid=r.sessionId||r.value?.sessionId;if(!/^[A-Fa-f0-9-]{36}$/.test(this.sid||''))return {ok:false,reason:'system_session_unconfirmed',replay:false};
+    const sid=r.sessionId||r.value?.sessionId;if(!/^[A-Fa-f0-9-]{36}$/.test(sid||''))return {ok:false,reason:'system_session_unconfirmed',replay:false};
+    this.sid=sid;
+    note('system.session_ready',{phase:'session_create',outcome:'verified',ready:true});
     return {ok:true,ready:true,transport:'signed-XCTest-runner/paired-developer-start/Tailscale-WDA',indicator:'Apple Automation Running',offLANStartQualified:false,authentication:'Apple may require physical authorization; no passcode is stored or entered'};
   }
   async foregroundMatches(expected){

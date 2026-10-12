@@ -1,0 +1,31 @@
+{
+  "version": "1.10.3",
+  "preparedAt": "2026-10-12T03:50:37.138000+00:00",
+  "changes": [
+    "bridge-independent direct paired managed browser lane and explicit transport choice",
+    "fixed phone-local Wi-Fi-On paired recovery",
+    "relay startup and per-request trace propagation",
+    "one XCTest session creation attempt with phase signals",
+    "pending versus completed outcome signals"
+  ],
+  "checks": {
+    "distinctNode": 55,
+    "python": 57,
+    "syntaxFiles": 11
+  },
+  "physicalCandidate": {
+    "chromeReadyDOMGlowAndHome": true,
+    "wifiOnDispatch": true,
+    "wifiOffToOnNotTested": true,
+    "XCTestStarted": false,
+    "MirroringUsed": false,
+    "humanUnblocks": 0
+  },
+  "furtherQualification": [
+    "direct paired cellular route",
+    "new physical reflected trace chain",
+    "new XCTest startup phase receipt",
+    "Focus mailbox phone provisioning/composed execution"
+  ],
+  "state": "prepared; publication and final runtime proof in report evidence/publication.json"
+}
