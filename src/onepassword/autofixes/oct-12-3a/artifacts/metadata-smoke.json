@@ -1,0 +1,7 @@
+{
+  "command": "/Users/taylor/dotfiles/bin/op --version",
+  "exit": 0,
+  "seconds": 0.207,
+  "stdout_stderr": "discarded",
+  "vault_calls": "skipped while app locked; recovery owns auth wake"
+}

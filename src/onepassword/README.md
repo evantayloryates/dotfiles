@@ -318,6 +318,14 @@ prove its exact trigger. Parser/watchdog verification remained separate: current
 deployed hashes matched, the heartbeat advanced, and broker/keepalive identities
 were preserved. A successful `ok_prompted` result alone does not justify a restart.
 
+The [October 12 app-lock incident](autofixes/oct-12-3a/summary.md) verified a
+real timestamped lock event, matching deployed code, a progressing heartbeat and
+unchanged broker/keepalive identities. It settled without a code change. A
+version-only wrapper check succeeded; authenticated checks were intentionally
+skipped while locked. Earlier successful account statuses do not establish
+current authorization after a lock. Leave the unlock and any native consent to
+Taylor, with recovery owning the authorization wake.
+
 The false-lock fix uses timestamped lock/unlock events across bounded log tails;
 `Client starting` is not evidence of a lock. Stale/rotated files cannot regress a
 known newer state. For a tested keepalive-only change, safely activate with:

@@ -1,0 +1,19 @@
+{
+  "human_and_technical_sections": [
+    "1Password is locked; the broker is functioning normally",
+    "What happened",
+    "What happens next",
+    "Technical evidence and agent handoff",
+    "Cause",
+    "Resolution",
+    "Verification",
+    "Limits and remaining action",
+    "Agent documentation",
+    "Supporting artifacts"
+  ],
+  "all_report_fields_rendered": true,
+  "all_links_resolve": true,
+  "responsive_layout_present": true,
+  "markdown_reviewed": true,
+  "visual_browser_test": "Not performed; Computer Use quarantine respected. HTML content, links and layout rules inspected."
+}

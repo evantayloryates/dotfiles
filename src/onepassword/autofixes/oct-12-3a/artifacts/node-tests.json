@@ -1,0 +1,13 @@
+{
+  "command": "node --test test_autofix.mjs test_autofix_archive.mjs test_recovery_dispatch.mjs",
+  "exit": 0,
+  "summary": [],
+  "tap_confirmation": [
+    "# tests 37",
+    "# pass 37",
+    "# fail 0",
+    "# cancelled 0",
+    "# skipped 0",
+    "# duration_ms 291.0525"
+  ]
+}

@@ -1,0 +1,36 @@
+[
+  {
+    "ts": "2026-10-12T03:34:12-0400",
+    "event": "keepalive",
+    "status": "ok",
+    "exit": 0
+  },
+  {
+    "ts": "2026-10-12T03:34:13-0400",
+    "event": "keepalive",
+    "status": "ok",
+    "exit": 0
+  },
+  {
+    "ts": "2026-10-12T03:37:15-0400",
+    "at": "2026-10-12T07:36:58.720+00:00",
+    "event": "app_lock_event"
+  },
+  {
+    "ts": "2026-10-12T03:37:15-0400",
+    "event": "backoff_reset"
+  },
+  {
+    "ts": "2026-10-12T03:37:15-0400",
+    "event": "app_lock",
+    "locked": true
+  },
+  {
+    "ts": "2026-10-12T03:37:15-0400",
+    "event": "fault_started"
+  },
+  {
+    "ts": "2026-10-12T03:37:15-0400",
+    "event": "unlock_nudge"
+  }
+]
