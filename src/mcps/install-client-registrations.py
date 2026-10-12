@@ -73,9 +73,19 @@ def main():
             project.get("mcpServers", {}).pop(name, None)
     for name, desired in manifest["claude"].items():
         servers.setdefault(name, {}).update(desired)
+    desktop_path = Path.home() / "Library/Application Support/Claude/claude_desktop_config.json"
+    desktop = json.loads(desktop_path.read_text()) if desktop_path.exists() else {}
+    desktop_servers = desktop.setdefault("mcpServers", {})
+    for name in manifest.get("removed_servers", {}).get("claude", []):
+        desktop_servers.pop(name, None)
+    # Desktop has an independent shared MCP pool. Manage only Gmail here.
+    for name, desired in manifest["claude"].items():
+        if name.startswith("gmail-"):
+            desktop_servers.setdefault(name, {}).update(desired)
     if args.apply:
         write_private(codex_path, updated)
         write_private(claude_path, json.dumps(claude, indent=2) + "\n")
+        write_private(desktop_path, json.dumps(desktop, indent=2) + "\n")
         print("Applied fleet registrations from dotfiles; private host state preserved")
     else:
         print("Validated installation plan; pass --apply to install")

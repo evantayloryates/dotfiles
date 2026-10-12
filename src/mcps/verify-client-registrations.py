@@ -18,6 +18,13 @@ def main() -> int:
     claude = json.loads((HOME / ".claude.json").read_text())
     actual = {"codex": codex.get("mcp_servers", {}), "claude": claude.get("mcpServers", {})}
     errors = []
+    desktop = json.loads((HOME / "Library/Application Support/Claude/claude_desktop_config.json").read_text()).get("mcpServers", {})
+    for name, config in expected["claude"].items():
+        if name.startswith("gmail-") and any(desktop.get(name, {}).get(k) != v for k, v in config.items()):
+            errors.append(f"claude-desktop/{name}: registration differs")
+    for name in expected.get("removed_servers", {}).get("claude", []):
+        if name in desktop:
+            errors.append(f"claude-desktop/{name}: removed account still registered")
     for host in ("codex", "claude"):
         for name, config in expected[host].items():
             installed = actual[host].get(name)
@@ -44,7 +51,7 @@ def main() -> int:
         settings = json.loads(settings_path.read_text())
         if any("playwright" in name.lower() and enabled for name, enabled in settings.get("enabledPlugins", {}).items()):
             errors.append("Claude Playwright plugin remains enabled")
-    for relative, target in [(".codex/config.toml", "src/mcps/host-config/codex.toml"), (".claude.json", "src/mcps/host-config/claude.json"), ("Library/LaunchAgents/com.taylor.ios-agent.plist", "src/ios-agent/com.taylor.ios-agent.plist"), ("Library/LaunchAgents/com.taylor.ios-agent.metro.plist", "src/ios-agent/com.taylor.ios-agent.metro.plist")]:
+    for relative, target in [("Library/Application Support/Claude/claude_desktop_config.json", "src/mcps/host-config/claude-desktop.json"), (".codex/config.toml", "src/mcps/host-config/codex.toml"), (".claude.json", "src/mcps/host-config/claude.json"), ("Library/LaunchAgents/com.taylor.ios-agent.plist", "src/ios-agent/com.taylor.ios-agent.plist"), ("Library/LaunchAgents/com.taylor.ios-agent.metro.plist", "src/ios-agent/com.taylor.ios-agent.metro.plist")]:
         trigger = HOME / relative
         if not trigger.is_symlink() or trigger.resolve() != (ROOT / target).resolve():
             errors.append(f"{relative}: canonical dotfiles symlink missing")

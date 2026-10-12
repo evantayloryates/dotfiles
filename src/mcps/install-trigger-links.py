@@ -7,6 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 HOME = Path.home()
 LINKS = {
+    'Library/Application Support/Claude/claude_desktop_config.json': 'src/mcps/host-config/claude-desktop.json',
     '.codex/config.toml': 'src/mcps/host-config/codex.toml',
     '.claude.json': 'src/mcps/host-config/claude.json',
     'Library/LaunchAgents/com.taylor.ios-agent.plist': 'src/ios-agent/com.taylor.ios-agent.plist',
