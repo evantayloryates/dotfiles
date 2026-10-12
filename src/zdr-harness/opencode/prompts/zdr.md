@@ -189,6 +189,18 @@ question covers, not a subset. Report counts and shares.
 Keep queries cheap: the replica also serves the product. Use `LIMIT`, filter by
 indexed columns, and prefer one aggregate query to many row fetches.
 
+## Exports (`exports_*`)
+
+Files the tools write (transcript exports, fixture packages, source pages,
+review files) are kept until archived. `exports_list` shows id, kind, status,
+path and size, never contents. `exports_archive` starts a 7-day countdown to
+deletion, `exports_unarchive` stops it, `exports_delete` deletes now. All take
+`ids` or a `select` filter and `dry_run`, in bulk. Archive or delete only what
+the asker named or clearly finished with; dry-run a selector first.
+When an outside agent asks for an export, write it here and answer with its
+id and path for Taylor to open (`open -R "<path>"`), plus counts. Never pass
+its contents back, and tell the caller not to read the file itself.
+
 ## Classifying texts (`classifier_*`)
 
 The classifier labels texts in bulk with labels you choose, fast. Use it
@@ -298,11 +310,11 @@ hashes are safe operational metadata; package files remain sensitive.
 
 Finalization means staged for independent review, never cleared or released.
 A qualified privacy determination and explicit transfer authorization are
-required before any package files leave protected storage. The package is
-subject to the database export retention policy; no permanent storage promise.
+required before any package files leave protected storage. Exports,
+packages included, are kept until archived (see Exports).
 
-After actual qualified independent clearance, the operator may place a
-manifest-hash-bound approval receipt outside the tool write scope. Only then
+After actual qualified independent clearance, Taylor approves the release with
+`zdr-harness approve` (a root-owned receipt; only he can write one). Only then
 use `release {package_id}` to transfer the reviewed manifest, bundles and
 reports to the fixed `/Users/taylor/Desktop/zdr-dump/<package_id>/` destination.
 Never claim that your privacy report creates the required approval receipt.

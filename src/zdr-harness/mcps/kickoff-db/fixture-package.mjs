@@ -50,10 +50,16 @@ function valuesAt(value, parts) {
   return valuesAt(value[key], rest)
 }
 // Approval receipts are written by the independent reviewer/operator, never by
-// this tool. The model's report writer cannot reach this sibling directory.
-export function releaseFixture(dir, approvalPath, destination = '/Users/taylor/Desktop/zdr-dump') {
+// this tool. The model's report writer cannot reach this sibling directory,
+// and a receipt only counts when it and its directory are owned by root and
+// writable by no one else: writing one takes an administrator (`zdr-harness
+// approve`, which asks for macOS admin authentication), so no agent running as
+// Taylor can approve its own release.
+const operatorOwned = (path, uid) => { const st = lstatSync(path); return !st.isSymbolicLink() && st.uid === uid && (st.mode & 0o022) === 0 }
+export function releaseFixture(dir, approvalPath, destination = '/Users/taylor/Desktop/zdr-dump', { approvalOwnerUid = 0 } = {}) {
   let approval
   try { approval = protectedRead(approvalPath) } catch { throw new Error('fixture_release_approval_required') }
+  requireThat(operatorOwned(approvalPath, approvalOwnerUid) && operatorOwned(dirname(approvalPath), approvalOwnerUid), 'fixture_release_approval_not_operator_owned')
   const manifestBytes = readFileSync(join(dir, 'manifest.json'))
   const manifest = protectedRead(join(dir, 'manifest.json'))
   requireThat(approval.manifestSha256 === hash(manifestBytes) && approval.destination === destination && approval.method === 'qualified-independent-review' && approval.transferAuthorized === true && approval.allPackageBytesCleared === true && typeof approval.clearanceReference === 'string' && approval.clearanceReference.length > 0, 'fixture_release_approval_required')

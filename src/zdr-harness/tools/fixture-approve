@@ -1,0 +1,122 @@
+#!/usr/bin/env python3
+"""Approve the release of a finalized ZDR fixture package. Taylor only.
+
+    zdr-harness approve <fp_id> --clearance <reference> [--baseline-cleared]
+
+Release (kickoffdb_fixture_package `release`) copies a reviewed package out of
+the harness to ~/Desktop/zdr-dump/<id>/. It only accepts a receipt that is
+owned by root, in a root-owned directory: exports/fixture-approvals/<id>.json.
+This tool is the one way to write one:
+
+  1. it must run in a terminal (an agent's shell has no TTY to answer from);
+  2. you type the package id back after reading the manifest hash;
+  3. macOS asks for administrator authentication to write the receipt as root.
+
+So an agent running as Taylor can stage and finalize packages, but cannot
+approve its own release. It prints the manifest hash and counts, never
+package contents.
+"""
+
+import argparse
+import hashlib
+import json
+import os
+import re
+import subprocess
+import sys
+import tempfile
+
+ROOT = os.environ.get('ZDR_HARNESS_EXPORT_DIR') or os.path.expanduser('~/.zdr-harness/exports')
+DESTINATION = '/Users/taylor/Desktop/zdr-dump'
+
+
+def die(msg):
+    sys.stderr.write(f'zdr-harness approve: {msg}\n')
+    sys.exit(1)
+
+
+def main():
+    ap = argparse.ArgumentParser(prog='zdr-harness approve')
+    ap.add_argument('package_id')
+    ap.add_argument('--clearance', required=True, help='reference to the independent review that cleared every package byte')
+    ap.add_argument('--baseline-cleared', action='store_true', help='supplements: the joint baseline+supplement context was reviewed too')
+    a = ap.parse_args()
+
+    if not re.fullmatch(r'fp_[a-f0-9]{24}', a.package_id):
+        die('package id must look like fp_<24 hex>')
+    if not a.clearance.strip() or len(a.clearance) > 200:
+        die('--clearance must name the review (up to 200 characters)')
+    if not (sys.stdin.isatty() and sys.stdout.isatty()):
+        die('run this yourself in a terminal: approval needs you to type the id and authenticate')
+
+    pkg = os.path.join(ROOT, 'fixture-packages', a.package_id)
+    manifest_path = os.path.join(pkg, 'manifest.json')
+    if os.path.islink(pkg) or not os.path.isfile(manifest_path) or os.path.islink(manifest_path):
+        die(f'{a.package_id} has no finalized manifest (finalize it first)')
+    raw = open(manifest_path, 'rb').read()
+    manifest = json.loads(raw)
+    sha = hashlib.sha256(raw).hexdigest()
+    kind = manifest.get('packageKind', 'primary')
+
+    receipt = {
+        'manifestSha256': sha,
+        'destination': DESTINATION,
+        'method': 'qualified-independent-review',
+        'clearanceReference': a.clearance.strip(),
+        'allPackageBytesCleared': True,
+        'transferAuthorized': True,
+    }
+    if kind == 'supplement':
+        base = (manifest.get('baseline') or {}).get('manifestSha256')
+        if not base:
+            die('supplement manifest has no baseline hash')
+        if not a.baseline_cleared:
+            die('supplements need --baseline-cleared (the joint baseline+supplement context was reviewed)')
+        receipt['baselineManifestSha256'] = base
+        receipt['jointPackageContextCleared'] = True
+
+    approvals = os.path.join(ROOT, 'fixture-approvals')
+    dest = os.path.join(approvals, f'{a.package_id}.json')
+    if os.path.lexists(dest):
+        die(f'a receipt already exists for {a.package_id}; receipts are never replaced')
+
+    print(f'Package:     {a.package_id} ({kind})')
+    print(f'Manifest:    sha256 {sha}')
+    for key in ('customers', 'bundles', 'reports', 'catalog'):
+        v = manifest.get(key)
+        if isinstance(v, (list, dict)):
+            print(f'  {key}: {len(v)}')
+    print(f'Clearance:   {receipt["clearanceReference"]}')
+    print(f'Releases to: {DESTINATION}/{a.package_id}/ (any agent on this Mac can read it there)')
+    typed = input('Type the package id to approve its release: ').strip()
+    if typed != a.package_id:
+        die('id did not match; nothing written')
+
+    fd, tmp = tempfile.mkstemp(prefix='approval-', suffix='.json')
+    with os.fdopen(fd, 'w') as f:
+        json.dump(receipt, f, indent=2)
+        f.write('\n')
+    for p in (approvals, dest, tmp):
+        if "'" in p or '"' in p or '\\' in p:
+            os.unlink(tmp)
+            die('unexpected character in a path')
+    script = (
+        f"/bin/mkdir -p '{approvals}' && /usr/sbin/chown root:wheel '{approvals}' && /bin/chmod 755 '{approvals}'"
+        f" && [ ! -e '{dest}' ] && /usr/bin/install -o root -g wheel -m 644 '{tmp}' '{dest}'"
+    )
+    r = subprocess.run(
+        ['/usr/bin/osascript', '-e',
+         f'do shell script "{script}" with administrator privileges with prompt "ZDR Harness: approve release of {a.package_id}"'],
+        capture_output=True, text=True,
+    )
+    os.unlink(tmp)
+    if r.returncode != 0:
+        die(f'not approved ({(r.stderr or "").strip()[:200] or "cancelled"})')
+    st = os.lstat(dest)
+    if st.st_uid != 0 or st.st_mode & 0o022:
+        die('receipt was written but is not root-owned and read-only; release will refuse it')
+    print(f'Approved. Receipt: {dest} (root-owned). Release can now run for {a.package_id}.')
+
+
+if __name__ == '__main__':
+    main()

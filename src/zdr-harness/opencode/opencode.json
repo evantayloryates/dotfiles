@@ -114,6 +114,10 @@
     "classifier_classify_profile_save": "allow",
     "classifier_classify_guide": "allow",
     "classifier_classify_sample": "allow",
+    "exports_list": "allow",
+    "exports_archive": "allow",
+    "exports_unarchive": "allow",
+    "exports_delete": "allow",
     "kickoffdb_fixture_source_page": "allow",
     "kickoffdb_fixture_facts": "allow",
     "kickoffdb_fixture_context": "allow",
@@ -265,6 +269,13 @@
         "{env:ZDR_HARNESS_CLASSIFIER_MCP}"
       ],
       "timeout": 120000
+    },
+    "exports": {
+      "type": "local",
+      "command": [
+        "{env:ZDR_HARNESS_EXPORTS_MCP}"
+      ],
+      "timeout": 30000
     },
     "slackuser": {
       "type": "remote",

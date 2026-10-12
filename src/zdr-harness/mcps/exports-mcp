@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Launcher for the harness exports MCP (list/archive/unarchive/delete) and its
+# CLI (`zdr-harness exports …`). Harness-only: it manages files under
+# ~/.zdr-harness/exports and never reads their contents. See ../README.md.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+. "${SCRIPT_DIR}/../../lib/resolve-binary.sh"
+
+NODE="$(resolve_binary node)"
+
+exec "$NODE" "${SCRIPT_DIR}/exports/index.mjs" "$@"

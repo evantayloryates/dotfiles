@@ -18,7 +18,8 @@ Claude Code or other non-ZDR clients. No additional credentials.
    privacyCertified:false. That is packaging evidence only.
 5. `status {package_id}` returns counts and state without contents. State
    survives MCP restarts. Exact write retries are idempotent; changed files
-   require a new package. The package falls under database export retention.
+   require a new package. Packages are kept until archived (`exports_archive` or
+   `zdr-harness exports archive`); an archived package is deleted 7 days later.
 
 Foreign reference paths support nested objects and array wildcards:
 `payload.people.*.clientId`. Missing declared fields fail even when nullable;
@@ -54,8 +55,15 @@ node --test src/zdr-harness/mcps/kickoff-db/test/fixture-package.test.mjs
 `release {package_id}` has no path or approval arguments. It requires an
 independent operator-written receipt at
 `~/.zdr-harness/exports/fixture-approvals/<package_id>.json`, outside the tool's
-write scope. The receipt must bind the current manifest hash, every bundle
-and report, actual qualified clearance and explicit transfer authorization:
+write scope, and both the receipt and that directory must be **owned by root and
+writable by no one else** (release refuses anything else with
+`fixture_release_approval_not_operator_owned`, since 2026-10-12). Write it with
+`zdr-harness approve <package_id> --clearance <ref>` (`--baseline-cleared` for a
+supplement): it shows the manifest hash, makes you type the id in a terminal,
+and asks for macOS administrator authentication to write the receipt as root.
+No agent running as Taylor can therefore approve its own release. The receipt
+binds the current manifest hash, actual qualified clearance and explicit
+transfer authorization:
 
 ```json
 {
@@ -99,7 +107,7 @@ permission to release any customer data.
   hours), Terra start-time local day/reference-date fallback, and original
   manual/auto macro merge. It preserves null and zero behavior from source.
 - `fixture_source_page`: read-only SELECT guarded by existing SQL restrictions,
-  saved only in protected exports/fixture-source-pages. At most 50 returned
+  saved only in protected exports/fixture-source-pages. At most 500 returned
   rows and 2 MB; binary fields and oversized pages fail closed. Cells are not
   clipped. Capture returns count, opaque page_id, hasMore and sensitive:true;
   read pages full JSON text. Use narrow source scopes, deterministic ORDER BY

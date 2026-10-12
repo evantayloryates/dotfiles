@@ -512,8 +512,8 @@ through the tunnel.
 `~/.zdr-harness/exports/tx_<id>.jsonl` (700/600) and returns stats only,
 including how many matched in total. `kickoffdb_transcript_export_status`
 waits for a large one. The agent never reads the rows: it checks a few with
-`classifier_classify_sample` and classifies the whole file. Exports are
-pruned on `--db-days`.
+`classifier_classify_sample` and classifies the whole file. Exports are kept
+until archived (see Exports).
 
 ## Setup from scratch
 
@@ -737,13 +737,47 @@ including raw Amplitude, BugSnag, PostHog and CloudWatch output, on this Mac.
 - Sessions that touched the production database go after 7 days instead of
   14: `prune` fetches each candidate's messages and looks for a `kickoffdb_*`
   tool part.
-- Transcript exports (`~/.zdr-harness/exports`, written by
-  `kickoffdb_transcript_export` for the classifier) go after 7 days
-  (`--db-days`).
+- Exports (`~/.zdr-harness/exports`: transcript exports, fixture packages,
+  source pages, review files) are **kept until archived**. An archived export
+  is deleted 7 days after archiving (`--archive-days`); see Exports below.
 - Classifier jobs started here (`~/.zdr-harness/classifier/jobs`) go after 7
   days (`--db-days`); the classifier's jobs from other harnesses go after 14
   (`--days`). Its profiles are kept, like memory.
 - Memory under `~/.zdr-harness/memory/` is deliberately exempt from all of this.
+
+## Exports
+
+Since 2026-10-12 the `exports` MCP (`mcps/exports/`) manages everything the
+tools write under `~/.zdr-harness/exports`. It never reads contents.
+
+| Tool | Does |
+|---|---|
+| `exports_list` | id, kind, status, absolute path, size, files, last change, and the deletion date of archived ones |
+| `exports_archive` | marks exports archived; the nightly prune deletes them 7 days later |
+| `exports_unarchive` | returns them to active (kept indefinitely) |
+| `exports_delete` | deletes now |
+
+- **Kinds:** `tx_` transcript exports, `fp_` fixture packages, `sp_` source
+  pages, `rv_` operational-review files. Nothing else can be touched;
+  `fixture-approvals/` and unknown files are listed as unmanaged at most.
+- **Bulk and idempotent:** every write takes `ids` (up to 5000) or a `select`
+  filter (`kind`, `status`, `modified_before`), plus `dry_run`. Archiving
+  something already archived, or deleting something already gone, reports
+  that and changes nothing.
+- **How archiving works:** it is a marker in `exports/.state/archive.json`,
+  written atomically under a lock. Nothing moves, so package paths stay
+  valid.
+- **Safety:** symlinks are refused and paths are confined to the root. Tests
+  are in `mcps/exports/test/`.
+- **From a shell:** `zdr-harness exports list|archive|unarchive|delete|prune`
+  does the same.
+- **Handing an export to Taylor:** when an outside agent asks for an export
+  through `zdr_ask`, the bridge answers with its id and path for Taylor to
+  open (`open -R "<path>"`), never its contents.
+- **Keeping agents out:** Claude Code denies its file tools under
+  `~/.zdr-harness/exports`; the global agent rules say the same for shells
+  and Codex. A shell running as Taylor can still read the folder, so this is
+  a guard against accidental reads, not a sandbox.
 
 ## Call Guidance fixture package tool
 

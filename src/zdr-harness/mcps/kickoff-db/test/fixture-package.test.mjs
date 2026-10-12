@@ -5,6 +5,8 @@ import { tmpdir } from 'node:os'
 import { realpathSync } from 'node:fs'
 import { join } from 'node:path'
 import { fixturePackage, validateBundle, releaseFixture } from '../fixture-package.mjs'
+// Tests write receipts as the current user; production requires root (uid 0).
+const OWNER = { approvalOwnerUid: process.getuid() }
 
 function setup(t) {
   const temp = mkdtempSync(join(realpathSync(tmpdir()), 'zdr-fixture-test-'))
@@ -74,17 +76,17 @@ test('release requires an independent receipt and exact unchanged package hashes
   const destination = join(temp, 'cleared')
   const approval = { manifestSha256: finalized.manifestSha256, destination, method: 'qualified-independent-review', clearanceReference: 'INVENTED-TEST-ONLY', allPackageBytesCleared: true, transferAuthorized: true }
   writeFileSync(receipt, JSON.stringify({ ...approval, manifestSha256: 'wrong' }))
-  assert.throws(() => releaseFixture(join(root, id), receipt, destination), /fixture_release_approval_required/)
+  assert.throws(() => releaseFixture(join(root, id), receipt, destination, OWNER), /fixture_release_approval_required/)
   writeFileSync(receipt, JSON.stringify(approval))
   const path = join(root, id, 'customers', 'fictional_0.json')
   const bytes = readFileSync(path)
   writeFileSync(path, JSON.stringify({ altered: true }))
-  assert.throws(() => releaseFixture(join(root, id), receipt, destination), /fixture_release_hash_mismatch/)
+  assert.throws(() => releaseFixture(join(root, id), receipt, destination, OWNER), /fixture_release_hash_mismatch/)
   writeFileSync(path, bytes)
-  const result = releaseFixture(join(root, id), receipt, destination)
+  const result = releaseFixture(join(root, id), receipt, destination, OWNER)
   assert.equal(result.released, true)
   assert.deepEqual(readFileSync(join(result.outputPath, 'customers', 'fictional_0.json')), bytes)
-  assert.throws(() => releaseFixture(join(root, id), receipt, destination), /fixture_release_already_exists/)
+  assert.throws(() => releaseFixture(join(root, id), receipt, destination, OWNER), /fixture_release_already_exists/)
 })
 
 test('chunked customer, checkpoints and shared catalog survive resumptions and guarded release', t => {
@@ -106,7 +108,7 @@ test('chunked customer, checkpoints and shared catalog survive resumptions and g
   const result = call({ action: 'finalize', package_id: id })
   const receipt = join(temp, 'catalog-approval.json'), destination = join(temp, 'catalog-release')
   writeFileSync(receipt, JSON.stringify({ manifestSha256: result.manifestSha256, destination, method: 'qualified-independent-review', clearanceReference: 'INVENTED-TEST-ONLY', transferAuthorized: true, allPackageBytesCleared: true }))
-  const released = releaseFixture(join(root, id), receipt, destination)
+  const released = releaseFixture(join(root, id), receipt, destination, OWNER)
   assert.equal(JSON.parse(readFileSync(join(released.outputPath, 'catalog.json'))).tables.plans.length, 1)
   assert.throws(() => call({ action: 'read_chunk', package_id: id, bundle_id: '../../leak', table: 'clients', chunk_id: 'part_01' }), /fixture_read_invalid/)
 })
@@ -128,13 +130,13 @@ test('one-item supplement binds baseline, leaves primary immutable and requires 
   const receipt = join(temp, 'joint-approval.json'), destination = join(temp, 'joint-release')
   const approval = { manifestSha256: result.manifestSha256, destination, method: 'qualified-independent-review', clearanceReference: 'INVENTED-TEST-ONLY', transferAuthorized: true, allPackageBytesCleared: true }
   writeFileSync(receipt, JSON.stringify(approval))
-  assert.throws(() => releaseFixture(join(root, supplement), receipt, destination), /fixture_release_approval_required/)
+  assert.throws(() => releaseFixture(join(root, supplement), receipt, destination, OWNER), /fixture_release_approval_required/)
   writeFileSync(receipt, JSON.stringify({ ...approval, baselineManifestSha256: baseline.manifestSha256, jointPackageContextCleared: true }))
-  assert.throws(() => releaseFixture(join(root, supplement), receipt, destination))
+  assert.throws(() => releaseFixture(join(root, supplement), receipt, destination, OWNER))
   writeFileSync(receipt, JSON.stringify({ ...approval, manifestSha256: baseline.manifestSha256 }))
-  releaseFixture(join(root, id), receipt, destination)
+  releaseFixture(join(root, id), receipt, destination, OWNER)
   writeFileSync(receipt, JSON.stringify({ ...approval, baselineManifestSha256: baseline.manifestSha256, jointPackageContextCleared: true }))
-  assert.equal(releaseFixture(join(root, supplement), receipt, destination).bundles, 1)
+  assert.equal(releaseFixture(join(root, supplement), receipt, destination, OWNER).bundles, 1)
   assert.throws(() => call({ action: 'create', references, baseline_package_id: supplement }), /fixture_baseline_invalid/)
 })
 
@@ -146,4 +148,11 @@ test('protected chunk diagnostics expose only declaration failures, with no sens
   assert.equal(result.referenceFailures[0].field, 'payload.people.*.clientId')
   assert.equal(JSON.stringify(result).includes('SENSITIVE'), false)
   assert.throws(() => call({ action: 'diagnose', package_id: id, bundle_id: '../elsewhere' }), /fixture_chunk_invalid/)
+})
+
+test('release refuses a receipt not owned by the operator (root)', () => {
+  const temp = mkdtempSync(join(tmpdir(), 'fixture-owner-'))
+  const receipt = join(temp, 'approval.json')
+  writeFileSync(receipt, '{}', { mode: 0o600 })
+  assert.throws(() => releaseFixture(temp, receipt, join(temp, 'out')), /fixture_release_approval_not_operator_owned/)
 })
