@@ -157,3 +157,9 @@ codex mcp add kickoff-cloudinary -- /Users/taylor/dotfiles/src/mcps/kickoff-clou
 The key's Cloudinary permissions still apply to every tool. A successful MCP
 connection or search count does not guarantee permission to read asset details
 or mutate media. Verify the specific operation before claiming it is available.
+
+## Claude desktop Gmail initialization
+
+Claude desktop's shared MCP pool reads `Library/Application Support/Claude/claude_desktop_config.json`, independently of Claude Code's `~/.claude.json`. Both are covered by `install-client-registrations.py` and `verify-client-registrations.py`. Work Gmail is retired; personal primary, secondary and legacy are canonical.
+
+Claude caches this desktop configuration and can replace external edits (including a symlink) with its in-memory copy. Remove obsolete entries through Developer settings when the app is running. For installation or adding accounts, quit Claude at a safe point, run the installer with `--apply`, reconcile the ignored canonical `host-config/claude-desktop.json` and install its trigger symlink, then reopen Claude. The installer refuses a desktop registration change while Claude is running. Verify each account shows Running in Developer settings and inspect fresh shared-pool initialization logs; a standalone launcher test does not prove desktop adoption. Do not restart active chats without authorization.

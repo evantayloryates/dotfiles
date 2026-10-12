@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import re
+import subprocess
 import tempfile
 import tomllib
 
@@ -75,6 +76,7 @@ def main():
         servers.setdefault(name, {}).update(desired)
     desktop_path = Path.home() / "Library/Application Support/Claude/claude_desktop_config.json"
     desktop = json.loads(desktop_path.read_text()) if desktop_path.exists() else {}
+    original_desktop = json.dumps(desktop, sort_keys=True)
     desktop_servers = desktop.setdefault("mcpServers", {})
     for name in manifest.get("removed_servers", {}).get("claude", []):
         desktop_servers.pop(name, None)
@@ -82,7 +84,14 @@ def main():
     for name, desired in manifest["claude"].items():
         if name.startswith("gmail-"):
             desktop_servers.setdefault(name, {}).update(desired)
+    if args.apply and json.dumps(desktop, sort_keys=True) != original_desktop:
+        running = subprocess.run(["/usr/bin/pgrep", "-x", "Claude"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if running.returncode == 0:
+            raise SystemExit("Claude desktop is running and caches MCP configuration. Quit it at a safe point before --apply; disk-only changes can be overwritten. No files changed.")
+        if running.returncode not in (0, 1):
+            raise SystemExit("Cannot verify Claude desktop is stopped; no files changed.")
     if args.apply:
+        desktop_path.parent.mkdir(parents=True, exist_ok=True)
         write_private(codex_path, updated)
         write_private(claude_path, json.dumps(claude, indent=2) + "\n")
         write_private(desktop_path, json.dumps(desktop, indent=2) + "\n")
