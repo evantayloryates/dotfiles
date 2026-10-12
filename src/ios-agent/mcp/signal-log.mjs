@@ -171,7 +171,7 @@ function eventLabel(row) {
   const prefix=row.scope.startsWith('kck-')?row.scope.replace('-', '.') : row.scope;
   return row.event.startsWith(prefix+'.')?row.event:row.scope+'.'+row.event;
 }
-function summarize(rows,maxBytes) {
+function summarize(rows,maxBytes,storage) {
   const counts=key=>Object.fromEntries([...rows.reduce((m,r)=>{const k=r[key]||'none';m.set(k,(m.get(k)||0)+1);return m;},new Map())].sort((a,b)=>b[1]-a[1]).slice(0,12));
   const bad=rows.filter(r=>r.level!=='info'||['failed','rejected','unknown','not_executed','refused'].includes(r.outcome));
   const commands=rows.filter(r=>r.event==='browser.command.terminal');
@@ -179,12 +179,13 @@ function summarize(rows,maxBytes) {
   const summary={retainedRecords:rows.length,from:rows.at(-1)?.time||null,to:rows[0]?.time||null,
     levels:counts('level'),scopes:counts('scope'),outcomes:counts('outcome'),
     browserCommands:commands.length,uncorrelatedBrowserCommands:commands.filter(r=>!r.traceId).length,
-    admittedMcpRequests:mcp.length,notableRecords:bad.length};
+    admittedMcpRequests:mcp.length,notableRecords:bad.length,storage};
   const lines=[`Retained signals=${rows.length} from=${summary.from||'none'} to=${summary.to||'none'}`,
     `levels ${Object.entries(summary.levels).map(([k,v])=>k+'='+v).join(' ')}; browserCommands=${commands.length} withoutTrace=${summary.uncorrelatedBrowserCommands}; admittedMcp=${mcp.length}`,
     'Counts describe retained records, not unique operations; missing traces do not prove non-execution.'];
   const events=[...rows.reduce((m,r)=>{const k=eventLabel(r);m.set(k,(m.get(k)||0)+1);return m;},new Map())].sort((a,b)=>b[1]-a[1]).slice(0,12);
   lines.push('events '+events.map(([k,v])=>k+'='+v).join(' '));
+  lines.push(`store files=${storage.retainedFiles}/${storage.fileLimit} bytes=${storage.retainedBytes}/${storage.byteLimit} maxAgeDays=${storage.maxAgeDays}; bounded history, not completeness proof`);
   for(const r of bad.slice(0,8))lines.push(`${r.time} ${eventLabel(r)} outcome=${r.outcome||r.level}${r.reason?' reason='+display(r.reason,'reason'):''}${r.traceId?' trace='+display(r.traceId,'traceId'):''}`);
   let text=lines.join('\n'),truncated=false;
   if(Buffer.byteLength(text)>maxBytes){const chars=Array.from(text);while(chars.length&&Buffer.byteLength(chars.join('')+' …')>maxBytes)chars.pop();text=chars.join('')+' …';truncated=true;}
@@ -222,7 +223,7 @@ export function readSignals(options = {}) {
       }
     }
     rows.sort((a,b)=>cursorKey(b).localeCompare(cursorKey(a)));
-    if(options.view==='summary')return summarize(rows,maxBytes);
+    if(options.view==='summary')return summarize(rows,maxBytes,{retainedFiles:selected.length,retainedBytes:selected.reduce((n,f)=>n+f.size,0),fileLimit:MAX_FILES,byteLimit:TOTAL_BYTES,maxAgeDays:MAX_AGE/86400000});
     const lines=[]; let bytes=0, taken=0;
     for (const r of rows) {
       if (taken>=limit) break;

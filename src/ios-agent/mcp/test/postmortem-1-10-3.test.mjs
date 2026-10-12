@@ -110,7 +110,7 @@ test('short-lived JS/Python writers retain recent tiny files and recover a prune
  const dir=${JSON.stringify(state+'/signals')};fs.unlinkSync(dir+'/'+fs.readdirSync(dir)[0]);
  if(!emitSignal('mcp','fixture.recovered'))process.exit(3);
  for(let i=0;i<40;i++){const name='signal-'+i.toString(16).padStart(16,'0')+'-1.jsonl';fs.writeFileSync(dir+'/'+name,JSON.stringify({v:1,time:new Date().toISOString(),id:i.toString(16).padStart(16,'0'),scope:'host',event:'fixture.row',level:'info'})+'\\n',{mode:0o600});}
- const r=readSignals({view:'summary'});if(r.count!==41)throw Error('recent writer files lost '+r.count);`;
+ const r=readSignals({view:'summary'});if(r.count!==41)throw Error('recent writer files lost '+r.count);if(r.summary.storage.fileLimit!==256||r.summary.storage.retainedFiles!==41||r.summary.storage.byteLimit!==2097152)throw Error('storage bounds missing');`;
  let r=spawnSync(process.execPath,['--input-type=module','-e',js],{env,encoding:'utf8'});assert.equal(r.status,0,r.stderr);
  const code=`import importlib.util,json\ns=importlib.util.spec_from_file_location('signals',${JSON.stringify(py)});m=importlib.util.module_from_spec(s);s.loader.exec_module(m)\nassert m.emit_signal('host','fixture.first')\nm._current[0].unlink()\nassert m.emit_signal('host','fixture.recovered')\nassert len(m._files())==42\n`;
  r=spawnSync('python3',['-B','-c',code],{env,encoding:'utf8'});assert.equal(r.status,0,r.stderr);

@@ -7,14 +7,17 @@
     "Bounded cold-start wait and honest pending/recovered telemetry",
     "One in-flight startup continuation across concurrent inspection requests",
     "Passing verification has no failure reason",
-    "256-file count cap with unchanged2MiB/7-day bounds and idle writer recovery",
+    "256-file count cap with unchanged 2MiB/7-day bounds and idle writer recovery",
     "Failed inspections invalidate previous snapshots"
   ],
   "verification": {
-    "nodeChecksPassed": 73,
+    "nodeChecksPassed": 77,
     "pythonChecksPassed": 50,
     "freshMcp": "passed",
-    "physical": "in progress"
+    "physical": "passed",
+    "humanUnblocks": 0,
+    "homeDisplayVerified": true,
+    "scope": "Nearby Chrome launch, web-ready, bounded cold XCTest startup, permission tree fallback and cleanup; no new call or off-LAN claim"
   },
   "boundaries": [
     "No authentication exemption",
