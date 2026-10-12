@@ -39,16 +39,19 @@
     "warning severity for rejected/unknown page terminals and XCTest gates",
     "fixed auth-gate codes retained while secrets scrubbed",
     "compact retained summary with trace coverage and historical rejected outcomes",
-    "actual track versus permission and release-state diagnostics"
+    "actual track versus permission and release-state diagnostics",
+    "default npm test isolates fixture logs from live service store"
   ],
   "verification": {
     "nodeFocusedChecks": 35,
     "pythonFocusedChecks": 33,
-    "changedSourceSyntaxFiles": 13,
+    "changedSourceSyntaxFiles": 14,
     "physicalPhoneRun": false,
     "providerCalls": false,
-    "changedNetworkOrPermissions": false
+    "changedNetworkOrPermissions": false,
+    "testRunnerFocusedChecks": 8
   },
   "nextPhysicalGate": "Same-document permission detour home=false, bounded system fallback, reacquire without web_open; default final Home cleanup. No passcode exemption claimed.",
-  "releaseState": "prepared; exact publication and installed readback recorded in the report bundle after delivery"
+  "releaseState": "prepared; exact publication and installed readback recorded in the report bundle after delivery",
+  "reviewCorrection": "Four identified fixture-only log files from the initial direct invocation moved to report fixture-noise, leaving original smoke evidence intact."
 }

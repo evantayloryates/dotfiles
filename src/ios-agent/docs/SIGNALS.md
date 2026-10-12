@@ -123,3 +123,5 @@ Guide/status now compare loaded connectionVersion with installedVersion; guide a
 `browser.handoff_released` records an intentional `ios_web_end home=false` detour; it is not a Home request. See POSTMORTEM-1.10.0.md for observations and remaining physical gates.
 
 Only the exact fixed reason/code/errorCode values xctest_authorization_failed and xctest_authorization_timed_out bypass keyword scrubbing. They describe Apple gates and contain no credential. Arbitrary authorization strings and credential-bearing messages remain redacted. Runner startup gates/unconfirmed stop now warn.
+
+Run MCP fixtures with `npm test` (or `npm test -- test/<file>.test.mjs`). The test runner sets a fresh disposable IOS_AGENT_SIGNAL_STATE_DIR before Node loads any modules. Direct node --test or Python unittest invocations must also set this variable to a temporary directory; never write fabricated results into the live store.

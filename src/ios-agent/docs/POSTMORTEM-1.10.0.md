@@ -24,6 +24,8 @@ The actual ios_guide receipt reported connected MCP1.9.51 (40tools/10resources),
 | Large trails were hard to summarize | ios_signals view=summary and CLI --summary report matching retained totals, outcomes, command trace coverage and eight recent notable rows. It also finds historical info-level rejected/unknown outcomes. Text is byte-bounded; no payload/audio capture. Routine event names no longer repeat the kck scope. |
 | Agent fabricated a Claude prompt owner | One request used a human-readable string as promptId and was correctly refused by schema. Do not weaken the owner fence. Use exact harness-provided tuple through its hook or explicit connection ownership/end in finally; never invent IDs. Most run sessions used mcp-connection, so automatic exact-prompt cleanup is not established by this run. |
 
+| Fixture diagnostics mixed with live logs during review | An initial direct test invocation wrote four fixture-only files to the live store. Those exact files were preserved outside it. npm test now runs Node fixtures in a fresh disposable signal directory; targeted wrapper checks passed. This prevents fabricated failures from misleading later postmortems. |
+
 ## Remaining opportunities, with boundaries
 
 - **High: permission fallback on real phones.** New preserve-foreground handoff needs the next physical smoke. It avoids our Home/reload disruption; it cannot exempt Apple's XCTest authentication. Safari fallback succeeded without a fresh passcode once; later Chrome fallback required one. These are distinct observed states, not a general authentication unlock.
