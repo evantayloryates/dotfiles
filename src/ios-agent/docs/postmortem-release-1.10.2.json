@@ -1,0 +1,39 @@
+{
+  "version": "1.10.2",
+  "preparedAt": "2026-10-12T02:50:56.283192+00:00",
+  "sourceRun": {
+    "first": "2026-10-12T02:30:19.787Z",
+    "last": "2026-10-12T02:38:28.096Z",
+    "retainedRecords": 397,
+    "browserTerminalReports": 21,
+    "completedBrowserTerminalReports": 21,
+    "browserCommandsWithoutTrace": 0,
+    "claudeSession": "local_09539507-c7a9-4a0a-bea9-9191f3b1c90c",
+    "independentAnalysisBeforeClaudeRead": true
+  },
+  "changes": [
+    "harness catalog preflight with harmless end-flag echo",
+    "explicit alert-only coverage and native tree guidance",
+    "media failed-predicate reason and direction",
+    "exact retired capability idempotent release with replacement owner safety",
+    "normal non-Codex ownership info severity",
+    "fixed action context for unreproduced host trace gap",
+    "truthful last-feedback category on unconfirmed cleanup"
+  ],
+  "verification": {
+    "nodeFocusedChecks": 42,
+    "pythonFocusedChecks": 53,
+    "syntaxFiles": 8,
+    "physicalPhoneRun": false,
+    "phoneInputSent": false,
+    "providerCalls": false
+  },
+  "remainingPhysicalGate": "True boolean web_end home=false through the refreshed consuming harness, then same-document permission detour. Claude physically qualified system_end home=false but the web end input was string false and Home occurred.",
+  "unreproduced": "Two uncorrelated native host actions. Current real Node-to-Python-to-socket fixture preserves context; no speculative transport fix claimed.",
+  "outOfServiceScope": [
+    "transcription input source re-lease gap",
+    "network quality onset pause",
+    "lobby preview microphone retention (temporarily deferred)"
+  ],
+  "releaseState": "prepared; publication and loaded-worker proof recorded outside repo in report evidence/publication.json"
+}

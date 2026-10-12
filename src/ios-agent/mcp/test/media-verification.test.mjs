@@ -16,12 +16,12 @@ test('media gate rejects positive stalled counters, resets, missing metadata and
  const b=state(20,20);b.domains.media.audio.push({...b.domains.media.audio[1]});assert(!passes(state(10,10),b));
 });
 test('web media verification uses complete private state, creates structural learning and refuses invalid ranges',async()=>{
- const dir=fs.mkdtempSync(path.join(os.tmpdir(),'ios-media-'));let count=0,observed;
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'ios-media-'));let count=0,observed,stallReceived=false;
  const backend=new Backend({state:dir,run:async(kind,args,input)=>{
   if(kind==='learning'){if(input.op==='observe')observed=input.args;return {ok:true,value:{evidenceId:'f'.repeat(32)}};}
   if(kind==='cli'&&args[0]==='acquire'){fs.writeFileSync(args.at(-1),JSON.stringify({lease:'private'}));return {ok:true};}
   if(kind==='cli'&&args[0]==='release')return {ok:true};
-  if(kind==='web'){const value=state(++count*10,count*10);value.domains.large='x'.repeat(20000);return {ok:true,value:{status:'completed',result:{ok:true,value}}};}
+  if(kind==='web'){const value=state(++count*10,stallReceived?30:count*10);value.domains.large='x'.repeat(20000);return {ok:true,value:{status:'completed',result:{ok:true,value}}};}
   throw Error('unexpected');
  }});
  try{
@@ -30,5 +30,9 @@ test('web media verification uses complete private state, creates structural lea
   const good=await backend.webVerify({sessionId:id,gate:'web-media',sampleMs:500});assert(good.ok);assert.equal(good.receipt.observation.receivedPacketsAdvance,true);
   assert.equal(observed.receipt.gate,'web-media');assert.equal(observed.source,backend.sessions.get(id).webFingerprint);
   assert(!JSON.stringify(observed).includes('counterRef'));assert.equal(count,3);
+  stallReceived=true;
+  const failed=await backend.webVerify({sessionId:id,gate:'web-media',sampleMs:500});
+  assert.equal(failed.ok,false);assert.equal(failed.reason,'media_received_not_advancing');assert.equal(failed.direction,'both');
+  assert.equal(failed.receipt.observation.sentPacketsAdvance,true);assert.equal(failed.receipt.observation.receivedPacketsAdvance,false);
  }finally{await backend.close();fs.rmSync(dir,{recursive:true,force:true});}
 });

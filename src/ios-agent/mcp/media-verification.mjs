@@ -26,3 +26,16 @@ export function mediaObservation(before, after, direction, runtime) {
     ...(direction !== 'received' ? {sentPacketsAdvance: advancing('outbound-rtp','packetsSent')} : {}),
     ...(direction !== 'sent' ? {receivedPacketsAdvance: advancing('inbound-rtp','packetsReceived')} : {})};
 }
+
+// Fixed predicate codes, not provider IDs or arbitrary page content. A stalled
+// direction can be expected for a muted peer; it still does not pass the gate.
+export function mediaFailureReason(observation) {
+  for (const [key, reason] of [
+    ['readsCompleted','condition_observation_failed'],
+    ['sameDocument','media_document_changed'],
+    ['foregroundOwned','media_foreground_unconfirmed'],
+    ['connectedPeer','media_peer_not_connected'],
+  ]) if (observation[key] === false) return reason;
+  const sent=observation.sentPacketsAdvance===false, received=observation.receivedPacketsAdvance===false;
+  return sent&&received?'media_both_directions_not_advancing':sent?'media_sent_not_advancing':received?'media_received_not_advancing':undefined;
+}

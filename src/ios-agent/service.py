@@ -103,6 +103,7 @@ class Broker:
         self.commands = {}
         self.queue = []
         self.last_release = None
+        self._retired_lease_id = None
         self.state = state
         self.frontend = None
         self.web = WebBridge(self, Rejected)
@@ -196,6 +197,7 @@ class Broker:
                 self.developer_relay = None
             if self.lease:
                 self.last_release = {"reason": reason, "thread": self.lease["thread"], "turn": self.lease["turn"]}
+                self._retired_lease_id = self.lease["id"]
             self.lease = None
             self.web.revoke()
             self.native_priority_until = 0.0
@@ -271,7 +273,10 @@ class Broker:
             if op not in notices or now - notices[op] >= 60:
                 notices[op] = now
                 self._signal_context_notices = notices
-                _signal('host', 'request.uncorrelated', op=op, reason='client_trace_missing', version=SERVICE_RELEASE, level='warn')
+                action = request.get('action')
+                _signal('host', 'request.uncorrelated', op=op,
+                        action=action if isinstance(action, str) and action in OPERATIONS else None,
+                        reason='client_trace_missing', version=SERVICE_RELEASE, level='warn')
         with signal_context(**context):
             try:
                 return self._control(request)
@@ -372,6 +377,15 @@ class Broker:
                     # The original capability can recover its terminal outcome after
                     # revocation, but cannot read another owner's result or send input.
                     return {k: cmd[k] for k in ("id", "status", "result", "reason") if k in cmd}
+            # Native Home/browser handoff can retire its own capability before
+            # the client finally releases it. Reconcile only the exact most
+            # recently retired capability; never revoke a replacement owner.
+            if (op == "release" and self._retired_lease_id is not None and
+                    request.get("lease") == self._retired_lease_id and
+                    (not self.lease or request["lease"] != self.lease["id"])):
+                _signal('host', 'lease.release_reconciled', outcome='already_inactive',
+                        reason='exact_retired_capability', lease=request['lease'])
+                return {"released": False, "alreadyInactive": True, "otherOwnerActive": self.lease is not None}
             if not self.lease or request.get("lease") != self.lease["id"]:
                 raise Rejected("lease_required")
             if op == "react_start":

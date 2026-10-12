@@ -60,7 +60,7 @@ class BrokerTests(unittest.TestCase):
             cid = self.action()
             self.next()
             self.result(cid)
-        names = [call.args[1] for call in emit.call_args_list]
+        names = [call.args[1] for call in emit.call_args_list if call.args[1].startswith('command.')]
         self.assertEqual(names, ["command.accepted", "command.dispatched", "command.reported"])
         self.assertNotIn("args", str(emit.call_args_list))
 

@@ -125,3 +125,7 @@ Guide/status now compare loaded connectionVersion with installedVersion; guide a
 Only the exact fixed reason/code/errorCode values xctest_authorization_failed and xctest_authorization_timed_out bypass keyword scrubbing. They describe Apple gates and contain no credential. Arbitrary authorization strings and credential-bearing messages remain redacted. Runner startup gates/unconfirmed stop now warn.
 
 Run MCP fixtures with `npm test` (or `npm test -- test/<file>.test.mjs`). The test runner sets a fresh disposable IOS_AGENT_SIGNAL_STATE_DIR before Node loads any modules. Direct node --test or Python unittest invocations must also set this variable to a temporary directory; never write fabricated results into the live store.
+
+## 1.10.2: separate real failures from expected handoff cleanup
+
+Media verification terminal rows include kind=sent/received/both and a fixed failed predicate reason. system.inspection_completed records the inspection kind, presence and node count, never labels/content. lease.release_reconciled means only the exact last retired capability is already inactive, not global device idle. Unknown or mismatched releases still warn. Normal non-Codex connection ownership is info; claimed invalid Codex context still warns. Missing host context includes a fixed action name to investigate the unreproduced native handoff trace gap. browser.cleanup_unconfirmed retains unknown severity and a fixed last-feedback category. Captures and timings retain their existing bounds.

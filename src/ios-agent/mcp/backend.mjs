@@ -6,7 +6,7 @@ import {spawn} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import {nutritionRecipe} from './workflows.mjs';
 import {audioProbePlan, probeExpression, validProbeSelection} from './audio-probe.mjs';
-import {mediaObservation} from './media-verification.mjs';
+import {mediaObservation,mediaFailureReason} from './media-verification.mjs';
 import {callObservation} from './call-verification.mjs';
 import {webProfileOrigin} from './web-profiles.mjs';
 import {CaptureStore} from './capture-store.mjs';
@@ -280,7 +280,7 @@ export class Backend {
     if (threadId&&!lifecycle.rollout) {note('lease.refused',{surface,outcome:'refused',reason:reasonCode(lifecycle.reason)||'codex_rollout_unavailable',level:'warn'});throw new Error(lifecycle.reason||'codex_rollout_unavailable');}
     rollout ||= lifecycle.rollout;
     const signalOwnerId=lifecycle.threadId||claude?.sessionId;
-    note('owner.selected',{surface,ownerId:signalOwnerId,kind:lifecycle.mode,ownerMode:lifecycle.mode,reason:reasonCode(lifecycle.reason),level:lifecycle.reason?'warn':'info'});
+    note('owner.selected',{surface,ownerId:signalOwnerId,kind:lifecycle.mode,ownerMode:lifecycle.mode,reason:reasonCode(lifecycle.reason),level:lifecycle.reason&&lifecycle.reason!=='no_inherited_codex_thread'?'warn':'info'});
     const ownership={mode:lifecycle.mode,...(lifecycle.source?{source:lifecycle.source}:{}),...(lifecycle.threadId?{threadId:lifecycle.threadId}:{}),...(lifecycle.reason?{reason:lifecycle.reason}:{}),...(claude?{claudeOwner:claude}:{})};
     const base = path.join(this.state, 'mcp-sessions');
     fs.mkdirSync(base, {recursive: true, mode: 0o700});
@@ -550,7 +550,11 @@ export class Backend {
     const value=await s.systemDriver.inspect({kind}),a=this.artifact(s,'system-tree');
     fs.writeFileSync(a.file,JSON.stringify(value),{flag:'wx',mode:0o600});
     const nodes=value.nodes.filter(n=>n.visible&&(n.name||n.label||n.value));
-    return {...value,artifactId:a.id,nodes:nodes.slice(0,100),totalNodes:value.nodes.length,compact:true,next:'Fresh snapshot expires in five seconds. ios_read selects the private full tree. Never replay accepted or unknown input.'};
+    const alertAbsent=kind==='alert'&&value.alert===null;
+    note('system.inspection_completed',{session:sessionId,kind,outcome:'completed',present:kind==='alert'?value.alert!==null:nodes.length>0,count:nodes.length});
+    return {...value,artifactId:a.id,nodes:nodes.slice(0,100),totalNodes:value.nodes.length,compact:true,
+      coverage:kind==='alert'?'native-alert-only':'native-accessibility-tree',
+      next:alertAbsent?'No native alert was found. Chrome/WebKit can show an in-app permission sheet instead: inspect kind=tree once, then act on its fresh observed target. This does not prove no permission UI is present.':'Fresh snapshot expires in five seconds. ios_read selects the private full tree. Never replay accepted or unknown input.'};
   }
   async systemAction(args) {
     const s=this.session(args.sessionId);if(!s.systemDriver)throw Error('session_required');
@@ -874,10 +878,11 @@ export class Backend {
       const second = await this.webAction({sessionId,action:'state'}), after = full(second);
       const observation = {readsCompleted:first.ok === true && second.ok === true,...mediaObservation(before,after,direction,s.webRuntime)};
       const ok = Object.values(observation).every(v => v === true);
+      const reason=mediaFailureReason(observation);
       const receipt = {gate,status:ok?'passed':'failed',scope:'instrumented-audio-RTP-counters-only',observation};
       const learningEvidence=await this.learning('observe',{receipt,source:s.webFingerprint}).catch(()=>({available:false}));
-      note('verification.completed',{action:gate,session:sessionId,page:s.page,outcome:ok?'verified':'failed',level:ok?'info':'warn'});
-      return {ok,receipt,artifactId:second.artifactId,beforeArtifactId:first.artifactId,sampleMs,learningEvidence,
+      note('verification.completed',{action:gate,session:sessionId,page:s.page,kind:direction,outcome:ok?'verified':'failed',reason,level:ok?'info':'warn'});
+      return {ok,receipt,...(!ok?{reason,replay:false}:{}),direction,artifactId:second.artifactId,beforeArtifactId:first.artifactId,sampleMs,learningEvidence,
         limits:'Stable document-local stream counters; at least one stream advances in each requested direction, none reset. This does not prove audible content, call-room identity, remote playout, microphone permission or physical network route.'};
     }
     const started=performance.now();let read,observation,ok=false,checks=0,refs,reason,callCheck;
@@ -927,8 +932,10 @@ export class Backend {
   }
   async webEnd(id,{home=true}={}) {
     const s=this.sessions.get(id);
-    if(!s)return this.end(id);
-    if(!s.webEndPromise)s.webEndPromise=this.finishWebEnd(id,{home});
+    // An unknown ID is a harmless schema preflight: no CLI or phone work. Echo
+    // the effective boolean so a client can detect a cached schema dropping it.
+    if(!s)return {...await this.end(id),cleanupIntent:{home},inputSent:false};
+    if(!s.webEndPromise){s.webEndHome=home;s.webEndPromise=this.finishWebEnd(id,{home}).then(result=>({...result,cleanupIntent:{home:s.webEndHome}}));}
     return s.webEndPromise;
   }
   async finishWebEnd(id,{home=true}={}) {
@@ -937,15 +944,19 @@ export class Backend {
     const cleanupStartedAt=Date.now();
     note('browser.cleanup_requested',{session:id,page,action:home&&(s?.appManagedHome||s?.relayChannel)?'glow_then_home':'glow_only',reason:home?undefined:'intermediate_handoff'});
     const release = await this.end(id,{home});
-    if (!page){note('browser.cleanup_unconfirmed',{session:id,outcome:'unknown',reason:'page_identity_unavailable',level:'warn'});return {...release, indicatorOff: 'unconfirmed'};}
+    if (!page){note('browser.cleanup_unconfirmed',{session:id,outcome:'unknown',reason:'page_identity_unavailable',level:'warn'});return {...release, indicatorOff: 'unconfirmed',ok:false,reason:'page_identity_unavailable'};}
     // The nearby relay requests Home before retiring ownership. Its final
     // visibility/glow report can legitimately precede the release response;
     // background Safari/Chrome need not emit another heartbeat afterward.
     const feedbackNotBefore=s.managedHomePrepared?cleanupStartedAt:Date.now();
     const until = Date.now() + 7000;
+    let feedback='page_catalog_unavailable';
     while (Date.now() < until) {
       const pages = await this.webPages();
       const p = pages.pages?.find(p => p.id === page);
+      feedback=!pages.ok?'page_catalog_unavailable':!p?'page_disconnected':
+        ['browser','boot','version'].some(k=>p[k]!==s.webRuntime?.[k])?'page_runtime_changed':
+        p.indicator!==false?'indicator_not_off':'indicator_feedback_stale';
       if (pageIdleConfirmed(p,s.webRuntime,Date.now()-feedbackNotBefore)) {
         note('browser.indicator_off_verified',{session:id,page,outcome:'verified',verified:true,released:release.released===true});
         const receipt={gate:'web-idle',status:'passed',observation:{ownerReleased:release.released === true,indicatorOff:true}};
@@ -960,8 +971,9 @@ export class Backend {
       }
       await new Promise(resolve => setTimeout(resolve, 250));
     }
-    note('browser.cleanup_unconfirmed',{session:id,page,outcome:'unknown',reason:'fresh_indicator_off_feedback_missing',level:'warn'});
-    return {...release, indicatorOff: 'unconfirmed', ok: false, next: 'Host release alone cannot confirm the disconnected page indicator.'};
+    note('browser.cleanup_unconfirmed',{session:id,page,outcome:'unknown',reason:'fresh_indicator_off_feedback_missing',state:feedback,level:'warn'});
+    return {...release, indicatorOff: 'unconfirmed', ok: false, reason:'fresh_indicator_off_feedback_missing',feedback,
+      next: 'Host release alone cannot confirm this page indicator. Inspect current page/ownership state; do not replay a Home or browser handoff already accepted or unknown.'};
   }
   async harnessEnd({event,sessionId,promptId,agentId}={}) {
     const ignored=reason=>({ok:true,suppressOutput:true,cleanup:{matched:0,released:0,reason}});
